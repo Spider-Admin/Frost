@@ -47,7 +47,7 @@ public final class FrostCrypt {
     private static Logger logger = Logger.getLogger(FrostCrypt.class.getName());
 
     private PSSSigner signer;
-    private SecureRandom secureRandom;
+    private SecureRandom secureRandom = null;
 
     private KeyGenerator keyGeneratorAES = null;
 
@@ -55,7 +55,11 @@ public final class FrostCrypt {
         Security.addProvider(new BouncyCastleProvider());
 
         signer = new PSSSigner(new RSAEngine(), new SHA1Digest(), 16);
-        secureRandom = new SecureRandom();
+        try {
+            secureRandom = SecureRandom.getInstance("SHA1PRNG");
+        } catch (NoSuchAlgorithmException e) {
+            secureRandom = new SecureRandom();
+        }
     }
 
     /**
@@ -437,7 +441,7 @@ public final class FrostCrypt {
         return false;
     }
 
-    private synchronized SecureRandom getSecureRandom() {
+    public synchronized SecureRandom getSecureRandom() {
         return secureRandom;
     }
 
@@ -523,9 +527,9 @@ public final class FrostCrypt {
         try {
             byte[] food = message;
             
-            MessageDigest md5 = MessageDigest.getInstance("SHA256", "BC");
-            md5.update(food);
-            byte[] poop = md5.digest();
+            MessageDigest sha256 = MessageDigest.getInstance("SHA256", "BC");
+            sha256.update(food);
+            byte[] poop = sha256.digest();
             
             StringBuffer sb = new StringBuffer();
             for (int i=0; i < poop.length; i++) {

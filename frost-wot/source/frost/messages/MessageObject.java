@@ -34,8 +34,6 @@ public class MessageObject implements XMLizable
 {
     private static Logger logger = Logger.getLogger(MessageObject.class.getName());
     
-    private static Random random = new Random(System.currentTimeMillis());
-
     //FIXME: this one is missing the "?" char as opposed to mixed.makeFilename
     private static final char[] evilChars = {'/', '\\', '*', '=', '|', '&', '#', '\"', '<', '>'}; // will be converted to _
 
@@ -75,9 +73,9 @@ public class MessageObject implements XMLizable
      * Constructor.
      * Used to contruct an instance for a new message.
      */
-    public MessageObject(String repliedMsgId) {
+    public MessageObject(String replyTo) {
         
-        inReplyTo = repliedMsgId;
+        inReplyTo = replyTo;
 
         // new message, create a new unique msg id
         StringBuffer idStrSb = new StringBuffer();
@@ -89,7 +87,7 @@ public class MessageObject implements XMLizable
         
         // finally add some random bytes
         byte[] idRandomPart = new byte[64];
-        random.nextBytes(idRandomPart);
+        Core.getCrypto().getSecureRandom().nextBytes(idRandomPart);
 
         // concat both parts
         byte[] idBytes = new byte[idStrPart.length + idRandomPart.length];
@@ -97,7 +95,7 @@ public class MessageObject implements XMLizable
         System.arraycopy(idRandomPart, 0, idBytes, idStrPart.length-1, idRandomPart.length);
         
         String uniqueId = Core.getCrypto().computeChecksumSHA256(idBytes);
-        
+
         messageId = uniqueId;
     }
 
