@@ -10,19 +10,27 @@
 <H2>Frost History</H2>
       <PRE>
 
-Pending changes for next version:
-----------------------------------
+2006.04.21:
+------------
 
 Added: Download panel input field now accepts keys separated by semicolon OR 
        one key per line (this is new).
 Added: Sum of remaining file attachments to upload for all uploading messages is now
        shown in status bar (the A value in TOFUP).
+Added: Initial work for threaded messages, messages not get a unqiue anonymous ID and
+       maintain a InReplyTo list. Thjis will allow to implement a thread view later,
+       because the existing messages already have the needed informations.
        
 Changed: After alot of work the translateable strings in Frost have been structured and
          were moved into a properties file. This file must be in UTF-8 encoding.
-         A translation dialog is available again in Plugins menu. The translations
-         are saved in folder localdata/i18n/ and are available as external languages in
+         A translation dialog is available in Plugins menu. The translations are saved 
+         in folder localdata/i18n/ and are available as external languages in
          the language menu.
+
+Bugfix: The first startup dialog now allows to enter an IP address and port for the
+        freenet node.
+Bugfix: If signing of uploaded files is disabled, the owner of any file in the shared
+        files of a board got lost.
 
 2006.04.21:
 ------------
