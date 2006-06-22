@@ -1,6 +1,7 @@
 package frost.transferlayer;
 
 import java.io.*;
+import java.sql.*;
 import java.util.logging.*;
 
 import frost.*;
@@ -19,6 +20,7 @@ public class IndexFileUploader {
         Board board;
         String insertKey;
         IndexFileUploaderCallback callback;
+        java.sql.Date callbackDate;
         
         File uploadFile = null;
         byte[] metadata = null;
@@ -35,7 +37,8 @@ public class IndexFileUploader {
         }
     }
     
-    public static boolean uploadIndexFile(FrostIndex frostIndex, Board board, String insertKey, IndexFileUploaderCallback callback) {
+    public static boolean uploadIndexFile(
+            FrostIndex frostIndex, Board board, String insertKey, IndexFileUploaderCallback callback, java.sql.Date date) {
         
         IndexFileUploaderWorkArea wa = new IndexFileUploaderWorkArea();
         
@@ -43,6 +46,7 @@ public class IndexFileUploader {
         wa.board = board; 
         wa.insertKey = insertKey;
         wa.callback = callback;
+        wa.callbackDate = date;
         
         if( prepareIndexFile(wa) == false ) {
             return false;
@@ -56,7 +60,7 @@ public class IndexFileUploader {
         try {
             int tries = 0;
             final int maxTries = 3;
-            int index = wa.callback.findFirstFreeUploadSlot();
+            int index = wa.callback.findFirstFreeUploadSlot(wa.callbackDate);
             while( !success &&
                    tries < maxTries &&
                    index > -1 ) // no free index found
@@ -74,11 +78,11 @@ public class IndexFileUploader {
                 if( result.isSuccess() ) {
                     success = true;
                     // my files are already added to totalIdx, we don't need to download this index
-                    wa.callback.setSlotUsed(index);
+                    wa.callback.setSlotUsed(index, wa.callbackDate);
                     logger.info("FILEDN: Index file successfully uploaded.");
                 } else {
                     if( result.isKeyCollision() ) {
-                        index = wa.callback.findNextFreeSlot(index);
+                        index = wa.callback.findNextFreeSlot(index, wa.callbackDate);
                         tries = 0; // reset tries
                         logger.info("FILEDN: Index file collided, increasing index.");
                         continue;

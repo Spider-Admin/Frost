@@ -26,15 +26,6 @@ package frost.transferlayer;
 public interface MessageUploaderCallback {
     
     /**
-     * Returns the next free index for uploading a message, starting
-     * with the provided startIndex.
-     * 
-     * @param startIndex  index to start with search
-     * @return  the next index available for uploads
-     */
-    public int findNextFreeUploadIndex(int startIndex);
-    
-    /**
      * Let the GUI compose the upload key for this index.
      */
     public String composeUploadKey(int index);
@@ -43,9 +34,4 @@ public interface MessageUploaderCallback {
      * Let the GUI compose the download key for this index.
      */
     public String composeDownloadKey(int index);
-
-    /**
-     * Let the GUI compose the message file path for this index.
-     */
-    public String composeMsgFilePath(int index);
 }

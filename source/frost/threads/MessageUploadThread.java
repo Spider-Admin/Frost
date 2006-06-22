@@ -41,11 +41,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 
     private JFrame parentFrame;
     private Board board;
-
-    private String destinationBase;
-
     private MessageObjectFile message;
-
     private Identity encryptForRecipient;
 
     /**
@@ -128,31 +124,6 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                     .toString();
         }
         return key;
-    }
-
-    /**
-     * This method returns the base path from which we look for
-     * existing files while looking for the next available index to use.
-     * That directory is also created if it doesn't exist.
-     * @return the base path to use when looking for existing files while
-     *          looking for the next index.
-     */
-    private String getDestinationBase() {
-        if (destinationBase == null) {
-            String fileSeparator = System.getProperty("file.separator");
-            destinationBase = new StringBuffer()
-                    .append(Core.frostSettings.getValue("keypool.dir"))
-                    .append(board.getBoardFilename())
-                    .append(fileSeparator)
-                    .append(DateFun.getDate())
-                    .append(fileSeparator)
-                    .toString();
-            File makedir = new File(destinationBase);
-            if (!makedir.exists()) {
-                makedir.mkdirs();
-            }
-        }
-        return destinationBase;
     }
 
     public int getThreadType() {
@@ -336,84 +307,24 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
     }
 
     /**
-     * Composes the complete path + filename of a messagefile in the keypool for the given index.
-     */
-    public String composeMsgFilePath(int index) {
-        return new StringBuffer().append(getDestinationBase()).append(message.getDateStr())
-        .append("-").append(board.getBoardFilename()).append("-").append(index).append(".xml")
-        .toString();
-    }
-
-    /**
-     * Composes only the filename of a messagefile in the keypool for the given index.
-     */
-    private String composeMsgFileNameWithoutXml(int index) {
-        return new StringBuffer().append(message.getDateStr()).append("-")
-        .append(board.getBoardFilename()).append("-").append(index).toString();
-    }
-
-    /**
-     * Finds the next free index slot, starting at startIndex.
-     * If a free slot is found (no xml message exists for this index in keypool)
-     * the method reads some indicies ahead to check if it found a gap only.
-     * The final firstEmptyIndex is returned.
-     *
-     * @param startIndex
-     * @return index higher -1 ; or -1 if message was already uploaded
-     * @throws MessageAlreadyUploadedException
-     */
-    public int findNextFreeUploadIndex(int startIndex) {
-
-        final int maxGap = 3;
-        int tryIndex = startIndex;
-        int firstEmptyIndex = -1;
-
-        logger.fine("TOFUP: Searching free index in board "+
-                    board.getBoardFilename()+", starting at index " + startIndex);
-
-        while(true) {
-
-            String testFilename = composeMsgFilePath(tryIndex);
-
-            File testMe = new File(testFilename);
-            if (testMe.exists() && testMe.length() > 0) {
-                // check each existing message in board if this is the msg we want to send
-                if (encryptForRecipient == null && message.compareTo(testMe)) {
-                    return -1;
-                } else {
-                    tryIndex++;
-                    firstEmptyIndex = -1;
-                }
-            } else {
-                // a message file with this index does not exist
-                // check if there is a gap between the next existing index
-                if( firstEmptyIndex >= 0 ) {
-                    if( (tryIndex - firstEmptyIndex) > maxGap ) {
-                        break;
-                    }
-                } else {
-                    firstEmptyIndex = tryIndex;
-                }
-                tryIndex++;
-            }
-        }
-        logger.fine("TOFUP: Found free index in board "+board.getBoardFilename()+" at " + firstEmptyIndex);
-        return firstEmptyIndex;
-    }
-
-    /**
      * @return
      * @throws IOException
      * @throws MessageAlreadyUploadedException
      */
     private void uploadMessage() throws IOException {
-
+        
+        IndexSlots indexSlots = new IndexSlots("messages", board.getName());
+        
         int index = MessageUploader.uploadMessage(
                 message, 
                 encryptForRecipient, 
-                this, 
+                this,
+                indexSlots,
+                DateFun.getCurrentSqlDateGMT(),
                 parentFrame, 
                 board.getName());
+
+        indexSlots.close();
 
         if( index < 0 ) {
             // upload failed, unsentMessageFile was handled by MessageUploader (kept or deleted, user choosed)
@@ -421,7 +332,9 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         }
         
         // upload was successful, move message file to sent folder
-        String finalName = composeMsgFileNameWithoutXml(index);
+        String finalName = new StringBuffer().append(message.getDateStr()).append("-")
+            .append(board.getBoardFilename()).append("-").append(index).toString();
+
         File sentTarget = new File( Core.frostSettings.getValue("sent.dir") + finalName + ".xml" );
 
         int counter = 2;

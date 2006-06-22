@@ -29,13 +29,12 @@ import frost.transferlayer.*;
  * for upload and download.
  */
 public class IndexSlots implements IndexFileUploaderCallback {
-
+    
     // ensure that multiple queries are run in a transaction
     private static Object syncObj = new Object();
 
     private String indexName;
     private String boardName;
-    private java.sql.Date date;
     
     private TransferLayerDatabase db;
 
@@ -46,25 +45,23 @@ public class IndexSlots implements IndexFileUploaderCallback {
     private static final String SQL_UPDATE =
         "UPDATE INDEXSLOTS SET used=? WHERE indexname=? AND boardname=? AND date=? AND index=?";
     private static final String SQL_MAX_USED_SLOT =
-        "SELECT TOP 1 index FROM INDEXSLOTS WHERE indexname=? AND boardname=? AND date=? AND used=TRUE ORDER BY index DESC";
+        "SELECT TOP 1 index FROM INDEXSLOTS WHERE indexname=? AND boardname=? AND date=? "+
+        "AND used=TRUE ORDER BY index DESC";
     private static final String SQL_MAX_SLOT =
         "SELECT TOP 1 index FROM INDEXSLOTS WHERE indexname=? AND boardname=? AND date=? ORDER BY index DESC";
-    private static final String SQL_FIRST_UNUSED_SLOT =
-        "SELECT TOP 1 index FROM INDEXSLOTS WHERE indexname=? AND boardname=? AND date=? AND used=FALSE ORDER BY index";
     private static final String SQL_NEXT_UNUSED_SLOT =
-        "SELECT TOP 1 index FROM INDEXSLOTS WHERE indexname=? AND boardname=? AND date=? AND index>? AND used=FALSE ORDER BY index";
+        "SELECT TOP 1 index FROM INDEXSLOTS WHERE indexname=? AND boardname=? AND date=? AND index>? "+
+        "AND used=FALSE ORDER BY index";
     
     private PreparedStatement ps_INSERT = null;
     private PreparedStatement ps_UPDATE = null;
     private PreparedStatement ps_MAX_USED_SLOT = null;
     private PreparedStatement ps_MAX_SLOT = null;
     private PreparedStatement ps_NEXT_UNUSED_SLOT = null;
-    private PreparedStatement ps_FIRST_UNUSED_SLOT = null;
 
-    public IndexSlots(String indexName, String boardName, java.sql.Date date) {
+    public IndexSlots(String indexName, String boardName) {
         this.boardName = boardName;
         this.indexName = indexName;
-        this.date = date;
         
         db = TransferLayerDatabase.getInstance();
     }
@@ -96,13 +93,6 @@ public class IndexSlots implements IndexFileUploaderCallback {
         return ps_NEXT_UNUSED_SLOT;
     }
 
-    private PreparedStatement getPsFIRST_UNUSED_SLOT() throws SQLException {
-        if( ps_FIRST_UNUSED_SLOT == null ) {
-            ps_FIRST_UNUSED_SLOT = db.prepare(SQL_FIRST_UNUSED_SLOT);
-        }
-        return ps_FIRST_UNUSED_SLOT;
-    }
-
     private PreparedStatement getPsMAX_USED_SLOT() throws SQLException {
         if( ps_MAX_USED_SLOT == null ) {
             ps_MAX_USED_SLOT = db.prepare(SQL_MAX_USED_SLOT);
@@ -124,7 +114,6 @@ public class IndexSlots implements IndexFileUploaderCallback {
         maybeClose(ps_MAX_USED_SLOT); ps_MAX_USED_SLOT = null;
         maybeClose(ps_MAX_SLOT); ps_MAX_SLOT = null;
         maybeClose(ps_NEXT_UNUSED_SLOT); ps_NEXT_UNUSED_SLOT = null;
-        maybeClose(ps_FIRST_UNUSED_SLOT); ps_FIRST_UNUSED_SLOT = null;
     }
 
     private void maybeClose(PreparedStatement ps) {
@@ -137,35 +126,13 @@ public class IndexSlots implements IndexFileUploaderCallback {
         }
     }
     
-    private ResultSet executePsFIRST_UNUSED_SLOT() throws SQLException {
-        // "SELECT TOP 1 index FROM INDEXSLOTS WHERE indexname=? AND boardname=? AND date=? AND used=FALSE ORDER BY index";
-        PreparedStatement ps = getPsFIRST_UNUSED_SLOT();
-        ps.setString(1, indexName);
-        ps.setString(2, boardName);
-        ps.setDate(3, date);
-        
-        ResultSet rs = ps.executeQuery();
-        return rs;
-    }
-
-    public int findFirstFreeDownloadSlot() throws SQLException {
-        return findNextFreeSlot(-1);
-//        ResultSet rs = executePsFIRST_UNUSED_SLOT();
-//
-//        int freeDownloadIndex = 0; 
-//        if( rs.next() ) {
-//            freeDownloadIndex = rs.getInt(1);
-//        } else {
-//            // no unused, 
-//            executePsINSERT(freeDownloadIndex, false);
-//        }
-//        rs.close();
-//        
-//        return freeDownloadIndex;
+    public int findFirstFreeDownloadSlot(java.sql.Date date) throws SQLException {
+        return findNextFreeSlot(-1, date);
     }
     
-    private ResultSet executePsMAX_USED_SLOT() throws SQLException {
-        // "SELECT TOP 1 index FROM INDEXSLOTS WHERE indexname=? AND boardname=? AND date=? AND used=TRUE ORDER BY index DESC"
+    private ResultSet executePsMAX_USED_SLOT(java.sql.Date date) throws SQLException {
+        // "SELECT TOP 1 index FROM INDEXSLOTS WHERE indexname=? AND boardname=? AND date=? "+
+        // "AND used=TRUE ORDER BY index DESC";
         PreparedStatement ps = getPsMAX_USED_SLOT();
         ps.setString(1, indexName);
         ps.setString(2, boardName);
@@ -179,9 +146,9 @@ public class IndexSlots implements IndexFileUploaderCallback {
      * First free upload slot is right behind last used slot.
      * @throws SQLException 
      */
-    public int findFirstFreeUploadSlot() throws SQLException {
+    public int findFirstFreeUploadSlot(java.sql.Date date) throws SQLException {
         synchronized(syncObj) {
-            ResultSet rs = executePsMAX_USED_SLOT();
+            ResultSet rs = executePsMAX_USED_SLOT(date);
             
             int freeUploadIndex = 0; 
             if( rs.next() ) {
@@ -190,14 +157,15 @@ public class IndexSlots implements IndexFileUploaderCallback {
             }
             rs.close();
             
-            updateOrInsertSlot(freeUploadIndex, false);
+            updateOrInsertSlot(freeUploadIndex, false, date);
     
             return freeUploadIndex;
         }
     }
     
-    private ResultSet executePsNEXT_UNUSED_SLOT(int beforeIndex) throws SQLException {
-        // "SELECT TOP 1 index FROM INDEXSLOTS WHERE indexname=? AND boardname=? AND date=? AND index>? AND used=FALSE ORDER BY index"
+    private ResultSet executePsNEXT_UNUSED_SLOT(int beforeIndex, java.sql.Date date) throws SQLException {
+        // "SELECT TOP 1 index FROM INDEXSLOTS WHERE indexname=? AND boardname=? AND date=? AND index>? "+
+        // "AND used=FALSE ORDER BY index";
         PreparedStatement ps = getPsNEXT_UNUSED_SLOT();
         ps.setString(1, indexName);
         ps.setString(2, boardName);
@@ -208,7 +176,7 @@ public class IndexSlots implements IndexFileUploaderCallback {
         return rs;
     }
     
-    private ResultSet executePsMAX_SLOT() throws SQLException {
+    private ResultSet executePsMAX_SLOT(java.sql.Date date) throws SQLException {
         // "SELECT TOP 1 index FROM INDEXSLOTS WHERE indexname=? AND boardname=? AND date=? ORDER BY index DESC"
         PreparedStatement ps = getPsMAX_SLOT();
         ps.setString(1, indexName);
@@ -218,9 +186,9 @@ public class IndexSlots implements IndexFileUploaderCallback {
         return rs;
     }
 
-    public int findNextFreeSlot(int beforeIndex) throws SQLException {
+    public int findNextFreeSlot(int beforeIndex, java.sql.Date date) throws SQLException {
         synchronized(syncObj) {
-            ResultSet rs = executePsNEXT_UNUSED_SLOT(beforeIndex);
+            ResultSet rs = executePsNEXT_UNUSED_SLOT(beforeIndex, date);
             
             int nextFreeSlot = -1; 
             if( rs.next() ) {
@@ -230,11 +198,11 @@ public class IndexSlots implements IndexFileUploaderCallback {
             
             if( nextFreeSlot < 0 ) {
                 // no free slot in table, get MAX+1
-                ResultSet rs2 = executePsMAX_SLOT();
+                ResultSet rs2 = executePsMAX_SLOT(date);
                 if( rs2.next() ) {
                     nextFreeSlot = rs2.getInt(1);
                     nextFreeSlot++;
-                    executePsINSERT(nextFreeSlot, false);
+                    executePsINSERT(nextFreeSlot, false, date);
                 }
                 rs2.close();
             }
@@ -242,23 +210,29 @@ public class IndexSlots implements IndexFileUploaderCallback {
             if( nextFreeSlot < 0 ) {
                 // still not set? use first free slot
                 nextFreeSlot = 0;
-                executePsINSERT(nextFreeSlot, false);
+                executePsINSERT(nextFreeSlot, false, date);
             }
     
             return nextFreeSlot;
         }
     }
 
-    public void setSlotUsed(int i) throws SQLException {
+    public void setSlotUsed(int i, java.sql.Date date) throws SQLException {
         synchronized(syncObj) {
-            updateOrInsertSlot(i, true);
+            updateOrInsertSlot(i, true, date);
         }
     }
-    
-    private void updateOrInsertSlot(int index, boolean used) throws SQLException {
+
+    public void setSlotUnused(int i, java.sql.Date date) throws SQLException {
+        synchronized(syncObj) {
+            updateOrInsertSlot(i, false, date);
+        }
+    }
+
+    private void updateOrInsertSlot(int index, boolean used, java.sql.Date date) throws SQLException {
         boolean updateOk = false;
         try {
-            if( executePsUPDATE(index, used) == 1 ) {
+            if( executePsUPDATE(index, used, date) == 1 ) {
                 updateOk = true;
             }
         } catch(SQLException e) {
@@ -266,14 +240,14 @@ public class IndexSlots implements IndexFileUploaderCallback {
         }
         
         if( updateOk == false ) {
-            if( executePsINSERT(index, used) != 1 ) {
+            if( executePsINSERT(index, used, date) != 1 ) {
                 throw new SQLException("update or insert of slot failed!");
             }
         }
     }
     
-    private int executePsUPDATE(int index, boolean used) throws SQLException {
-        // "UPDATE INDEXSLOTS SET used=? WHERE indexname=? AND boardname=? AND date=? AND index=?";
+    private int executePsUPDATE(int index, boolean used, java.sql.Date date) throws SQLException {
+        // "UPDATE INDEXSLOTS SET used=? WHERE indexname=? AND boardname=? AND date=? AND index=?"
         PreparedStatement ps = getPsUPDATE();
         ps.setBoolean(1, used);
         ps.setString(2, indexName);
@@ -283,7 +257,7 @@ public class IndexSlots implements IndexFileUploaderCallback {
         return ps.executeUpdate();
     }
 
-    private int executePsINSERT(int index, boolean used) throws SQLException {
+    private int executePsINSERT(int index, boolean used, java.sql.Date date) throws SQLException {
         // "INSERT INTO INDEXSLOTS (indexname,boardname,date,index,used) VALUES (?,?,?,?,?)";
         PreparedStatement ps2 = getPsINSERT();
         ps2.setString(1, indexName);

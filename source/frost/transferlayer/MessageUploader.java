@@ -19,6 +19,7 @@
 package frost.transferlayer;
 
 import java.io.*;
+import java.sql.*;
 import java.util.logging.*;
 
 import javax.swing.*;
@@ -29,6 +30,7 @@ import frost.fcp.*;
 import frost.gui.*;
 import frost.identities.*;
 import frost.messages.*;
+import frost.threads.*;
 
 /**
  * This class uploads a message file to freenet. The preparation of the
@@ -49,6 +51,8 @@ public class MessageUploader {
         File uploadFile;
         File unsentMessageFile;
         MessageUploaderCallback callback;
+        IndexSlots indexSlots;
+        java.sql.Date date;
         byte[] signMetadata;
         Identity encryptForRecipient;
         JFrame parentFrame;
@@ -82,6 +86,8 @@ public class MessageUploader {
             MessageObjectFile message, 
             Identity encryptForRecipient,
             MessageUploaderCallback callback,
+            IndexSlots indexSlots,
+            java.sql.Date date,
             JFrame parentFrame,
             String logBoardName) {
         
@@ -91,6 +97,8 @@ public class MessageUploader {
         wa.unsentMessageFile = message.getFile();
         wa.parentFrame = parentFrame;
         wa.callback = callback;
+        wa.indexSlots = indexSlots;
+        wa.date = date;
         wa.encryptForRecipient = encryptForRecipient;
         wa.logBoardName = logBoardName;
         
@@ -122,43 +130,35 @@ public class MessageUploader {
         boolean tryAgain;
         do {
             boolean success = false;
-            int index = 0;
+            int index = -1;
             int tries = 0;
             int maxTries = 10;
             boolean error = false;
     
             boolean retrySameIndex = false;
-            File lockRequestIndex = null;
             
             String logInfo = null;
     
             while (!success) {
-    
-                if( retrySameIndex == false ) {
-                    // find next free index slot
-                    index = wa.callback.findNextFreeUploadIndex(index);
-                    if( index < 0 ) {
-                        // same message was already uploaded today
-                        logger.info("TOFUP: Message seems to be already uploaded (1)");
-                        success = true;
-                        continue;
-                    }
-    
-                    // probably empty slot, check if other threads currently try to insert to this index
-                    lockRequestIndex = new File(wa.callback.composeMsgFilePath(index) + ".lock");
-                    if (lockRequestIndex.createNewFile() == false) {
-                        // another thread tries to insert using this index, try next
-                        index++;
-                        logger.fine("TOFUP: Other thread tries this index, increasing index to " + index);
-                        continue; // while
+
+                try {
+                    if( retrySameIndex == false ) {
+                        // find next free index slot
+                        if( index < 0 ) {
+                            index = wa.indexSlots.findFirstFreeUploadSlot(wa.date);
+                        } else {
+                            index = wa.indexSlots.findNextFreeSlot(index,wa.date);
+                        }
+                        // lock index
+                        wa.indexSlots.setSlotUsed(index, wa.date);
                     } else {
-                        // we try this index
-                        lockRequestIndex.deleteOnExit();
+                        // we retry the index
+                        // reset flag
+                        retrySameIndex = false;
                     }
-                } else {
-                    // reset flag
-                    retrySameIndex = false;
-                    // lockfile already created
+                } catch(SQLException e) {
+                    logger.log(Level.SEVERE, "Error finding index in database table", e);
+                    return -1;
                 }
     
                 // try to insert message
@@ -186,6 +186,7 @@ public class MessageUploader {
                             "\n(try no. " + tries + " of " + maxTries + "), retrying index " + index);
                     tries++;
                     retrySameIndex = true;
+                    Mixed.wait(waitTime);
                     
                 } else if (result.isSuccess()) {
                     // msg is probabilistic cached in freenet node, retrieve it to ensure it is in our store
@@ -217,14 +218,8 @@ public class MessageUploader {
                     tmpFile.delete();
 
                 } else if (result.isKeyCollision()) {
-                    if (checkRemoteFile(index, wa)) {
-                        logger.warning("TOFUP: Message seems to be already uploaded (2)."+logInfo);
-                        success = true;
-                    } else {
-                        index++;
-                        logger.warning("TOFUP: Upload collided, increasing index to " + index+"."+logInfo);
-                        Mixed.wait(waitTime);
-                    }
+                    logger.warning("TOFUP: Upload collided, trying next free index."+logInfo);
+                    Mixed.wait(waitTime);
                 } else {
                     // other error
                     if (tries > maxTries) {
@@ -240,7 +235,11 @@ public class MessageUploader {
                 }
                 // finally delete the index lock file, if we retry this index we keep it
                 if (retrySameIndex == false) {
-                    lockRequestIndex.delete();
+                    try {
+                        wa.indexSlots.setSlotUnused(index, wa.date);
+                    } catch(SQLException e) {
+                        logger.log(Level.SEVERE, "Error removing upload lock from database table", e);
+                    }
                 }
             }
     
@@ -311,48 +310,6 @@ public class MessageUploader {
         return false;
     }
 
-    /**
-     * This method is called when there has been a key collision. It checks
-     * if the remote message with that key is the same as the message that is
-     * being uploaded
-     * @param upKey the key of the remote message to compare with the message
-     *         that is being uploaded.
-     * @return true if the remote message with the given key equals the
-     *          message that is being uploaded. False otherwise.
-     */
-    private static boolean checkRemoteFile(int index, MessageUploaderWorkArea wa) {
-        try {
-            File remoteFile = new File(wa.unsentMessageFile.getPath() + ".coll");
-            remoteFile.delete(); // just in case it already exists
-            remoteFile.deleteOnExit(); // so that it is deleted when Frost exits
-
-            if( !downloadMessage(index, remoteFile, wa) ) {
-                remoteFile.delete();
-                return false; // We could not retrieve the remote file. We assume they are different.
-            }
-
-            if( wa.encryptForRecipient != null ) {
-                // we compare the local encrypted zipFile with remoteFile
-                boolean isEqual = FileAccess.compareFiles(wa.uploadFile, remoteFile);
-                remoteFile.delete();
-                return isEqual;
-            } else {
-                // compare contents
-                byte[] unzippedXml = FileAccess.readZipFileBinary(remoteFile);
-                if(unzippedXml == null) {
-                    return false;
-                }
-                FileAccess.writeFile(unzippedXml, remoteFile);
-                boolean isEqual = wa.message.compareTo(remoteFile);
-                remoteFile.delete();
-                return isEqual;
-            }
-        } catch (Throwable e) {
-            logger.log(Level.WARNING, "Handled exception in checkRemoteFile", e);
-            return false;
-        }
-    }
-    
     /**
      * Encrypt, sign and zip the message into a file that is uploaded afterwards.
      */

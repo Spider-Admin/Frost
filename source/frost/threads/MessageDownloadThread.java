@@ -19,7 +19,7 @@
 
 package frost.threads;
 
-import java.io.*;
+import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
@@ -37,6 +37,8 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
     private Board board;
     private int maxMessageDownload;
     private boolean downloadToday;
+    
+    private IndexSlots indexSlots;
 
     private static Logger logger = Logger.getLogger(MessageDownloadThread.class.getName());
 
@@ -45,6 +47,8 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
         this.downloadToday = downloadToday;
         this.board = boa;
         this.maxMessageDownload = maxmsgdays;
+        
+        this.indexSlots = new IndexSlots("messages", board.getName());
     }
 
     public int getThreadType() {
@@ -76,12 +80,12 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
             logger.info("TOFDN: " + tofType + " Thread started for board " + board.getName());
 
             if (isInterrupted()) {
+                indexSlots.close();
                 notifyThreadFinished(this);
                 return;
             }
 
-            GregorianCalendar cal = new GregorianCalendar();
-            cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 
             if (this.downloadToday) {
                 // download only current date
@@ -107,29 +111,46 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
         } catch (Throwable t) {
             logger.log(Level.SEVERE, Thread.currentThread().getName() + ": Oo. Exception in MessageDownloadThread:", t);
         }
+        indexSlots.close();
         notifyThreadFinished(this);
     }
+    
+    protected String composeDownKey(int index, String dirdate) {
+        String downKey = null;
+        // switch public / secure board
+        if (board.isPublicBoard() == false) {
+            downKey = new StringBuffer()
+                    .append(board.getPublicKey())
+                    .append("/")
+                    .append(board.getBoardFilename())
+                    .append("/")
+                    .append(dirdate)
+                    .append("-")
+                    .append(index)
+                    .append(".xml")
+                    .toString();
+        } else {
+            downKey = new StringBuffer()
+                    .append("KSK@frost/message/")
+                    .append(Core.frostSettings.getValue("messageBase"))
+                    .append("/")
+                    .append(dirdate)
+                    .append("-")
+                    .append(board.getBoardFilename())
+                    .append("-")
+                    .append(index)
+                    .append(".xml")
+                    .toString();
+        }
+        return downKey;
+    }
 
-    protected void downloadDate(GregorianCalendar calDL) {
+    protected void downloadDate(Calendar calDL) throws SQLException {
 
         String dirdate = DateFun.getDateOfCalendar(calDL);
-        String fileSeparator = System.getProperty("file.separator");
+        java.sql.Date date = DateFun.getSqlDateOfCalendar(calDL);
 
-        String destination =
-            new StringBuffer()
-                .append(Core.frostSettings.getValue("keypool.dir"))
-                .append(board.getBoardFilename())
-                .append(fileSeparator)
-                .append(dirdate)
-                .append(fileSeparator)
-                .toString();
-
-        File makedir = new File(destination);
-        if (!makedir.exists()) {
-            makedir.mkdirs();
-        }
-
-        int index = 0;
+        int index = -1;
         int failures = 0;
         int maxFailures = 2; // skip a maximum of 2 empty slots
 
@@ -138,72 +159,24 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
             if (isInterrupted()) {
                 return;
             }
+
+            if( index < 0 ) {
+                index = indexSlots.findFirstFreeDownloadSlot(date);
+            } else {
+                index = indexSlots.findNextFreeSlot(index, date);
+            }
             
-            File destFile = null;
             String logInfo = null;
 
             try { // we don't want to die for any reason
-                String val = new StringBuffer()
-                        .append(destination)
-                        .append(dirdate)
-                        .append("-")
-                        .append(board.getBoardFilename())
-                        .append("-")
-                        .append(index)
-                        .append(".xml")
-                        .toString();
-                destFile = new File(val);
-
-                if (destFile.length() > 0) { // already downloaded
-                    index++;
-                    failures = 0;
-                    continue;
-                }
-
-                File checkUploadLockfile = new File(destFile.getPath() + ".lock");
-                if( checkUploadLockfile.exists() ) {
-                    // this file is currently uploaded, don't try to download it now
-                    index++;
-                    failures = 0;
-                    continue;
-                }
-
-                String downKey = null;
-                // switch public / secure board
-                if (board.isPublicBoard() == false) {
-                    downKey = new StringBuffer()
-                            .append(board.getPublicKey())
-                            .append("/")
-                            .append(board.getBoardFilename())
-                            .append("/")
-                            .append(dirdate)
-                            .append("-")
-                            .append(index)
-                            .append(".xml")
-                            .toString();
-                } else {
-                    downKey = new StringBuffer()
-                            .append("KSK@frost/message/")
-                            .append(Core.frostSettings.getValue("messageBase"))
-                            .append("/")
-                            .append(dirdate)
-                            .append("-")
-                            .append(board.getBoardFilename())
-                            .append("-")
-                            .append(index)
-                            .append(".xml")
-                            .toString();
-                }
-
+                
+                String downKey = composeDownKey(index, dirdate);
                 logInfo = " board="+board.getName()+", key="+downKey;
                 
                 // for backload use fast download, deep for today
                 boolean fastDownload = !downloadToday;
 
                 MessageDownloaderResult mdResult = MessageDownloader.downloadMessage(downKey, index, fastDownload, logInfo);
-                int triedIndex = index;
-                
-                index++; // whatever happened, try next index next time
                 
                 Mixed.wait(1111); // don't hurt node
 
@@ -214,28 +187,26 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                 }
 
                 failures = 0;
+                
+                indexSlots.setSlotUsed(index, date);
 
                 if( mdResult.errorMsg != null ) {
                     // some error occured, don't try this file again
-                    receivedInvalidMessage(board, calDL, triedIndex, mdResult.errorMsg);
+                    receivedInvalidMessage(board, calDL, index, mdResult.errorMsg);
                 } else if( mdResult.message != null ) {
-                    // method saves the XML file to destFile
-                    File oldTmpFile = mdResult.message.getFile();
-                    mdResult.message.setFile(destFile);
+                    // message is loaded, delete underlying received file
+                    mdResult.message.getFile().delete();
                     // basic validation
                     if (mdResult.message.isValid() && isValidFormat(mdResult.message, calDL)) {
-                        receivedValidMessage(mdResult.message, board, triedIndex);
+                        receivedValidMessage(mdResult.message, board, index);
                     } else {
-                        receivedInvalidMessage(board, calDL, triedIndex, MessageDownloaderResult.INVALID_MSG);
-                        logger.warning("TOFDN: Message "+destFile.getName()+" was dropped, format validation failed.");
+                        receivedInvalidMessage(board, calDL, index, MessageDownloaderResult.INVALID_MSG);
+                        logger.warning("TOFDN: Message was dropped, format validation failed: "+logInfo);
                     }
-                    
-                    oldTmpFile.delete();
                 }
             } catch(Throwable t) {
-                logger.log(Level.SEVERE, "TOFDN: Exception thrown in downloadDate part 1."+logInfo, t);
+                logger.log(Level.SEVERE, "TOFDN: Exception thrown in downloadDate: "+logInfo, t);
                 // download failed, try next file
-                destFile.delete();
             }
         } // end-of: while
     }
@@ -257,7 +228,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
      * @param dirDate
      * @return
      */
-    public boolean isValidFormat(MessageObjectFile mo, GregorianCalendar dirDate) {
+    public boolean isValidFormat(MessageObjectFile mo, Calendar dirDate) {
         String timeStr = mo.getTimeStr();
         String msgDateStr = mo.getDateStr();
         try { // if something fails here, set msg. to N/A (maybe harmful message)
@@ -278,7 +249,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
      * @param dirDate  date of the url that was used to retrieve the message
      * @return  true if date is valid, or false
      */
-    private boolean verifyDate(String msgDateStr, GregorianCalendar dirDate) {
+    private boolean verifyDate(String msgDateStr, Calendar dirDate) {
         // first check for valid date:
         // USES: date of msg. url: 'keypool\public\2003.6.9\2003.6.9-public-1.txt'  = given value 'dirDate'
         // USES: date in message  ( date=2003.6.9 ; time=09:32:31GMT )              = extracted from message
