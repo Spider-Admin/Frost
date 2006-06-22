@@ -18,70 +18,101 @@
 */
 package frost.gui.objects;
 
-import java.io.*;
+import java.sql.*;
+import java.util.*;
 
+import frost.*;
 import frost.gui.model.*;
 import frost.messages.*;
+import frost.storage.*;
 
-public class FrostMessageObject extends VerifyableMessageObject implements TableMember {
+/**
+ * This class holds all informations that are shown in the GUI and stored to the database.
+ * It adds more fields than a MessageObjectFile uses. 
+ */
+public class FrostMessageObject extends AbstractMessageObject implements TableMember {
 
+    // additional variables for use in GUI
+    private boolean isValid = false;
+    private String invalidReason = null;
+    
+    private int index = -1;
+    Board board = null;
+    java.sql.Date sqlDate = null;
+    java.sql.Time sqlTime = null;
+    
+    private boolean isDeleted = false;
+    private boolean isNew = false;
+    private boolean isAnswered = false;
+    private boolean isJunk = false;
+    private boolean isMarked = false; // !
+    private boolean isStarred = false; // *
+    
+    private boolean hasFileAttachments = false;
+    private boolean hasBoardAttachments = false;
+    
     protected String dateAndTime = null;
 
     /**
-     * This constructor can be used to build a messageobject from
-     * an existing file.
-     *
-     * @param file  The xml file to read
-     * @throws MessageCreationException  If the file couldn't be loaded
+     * Construct a new empty FrostMessageObject
      */
-    public FrostMessageObject(File file) throws MessageCreationException {
-        super(file);
-        buildVisibleStrings();
-    }
-
-    /*
-     * Build a String of format yyyy.mm.dd hh:mm:ssGMT
-     */
-    private void buildVisibleStrings()
-    {
-        // this is date format xxxx.x.x , but we want xxxx.xx.xx , so lets convert it
-        String date = getDate();
-        String time = getTime();
-
-        int point1 = date.indexOf(".");
-        int point2 = date.lastIndexOf(".");
-        String year = date.substring(0, point1);
-        String month = date.substring(point1+1, point2);
-        String day = date.substring(point2+1, date.length());
-        StringBuffer datetime = new StringBuffer(11);
-        datetime.append(year).append(".");
-        if( month.length() == 1 ) {
-            datetime.append("0");
-        }
-        datetime.append(month).append(".");
-        if( day.length() == 1 ) {
-            datetime.append("0");
-        }
-        datetime.append(day);
-        datetime.append(" ").append( time );
-
-        this.dateAndTime = datetime.toString();
+    public FrostMessageObject() {
     }
 
     /**
-     * @return
+     * Construct a new FrostMessageObject with the data from a MessageObjectFile.
      */
-    public boolean containsAttachments() {
-        if ((getAttachmentsOfType(Attachment.BOARD).size() > 0) ||
-            (getAttachmentsOfType(Attachment.FILE).size() > 0)) {
-            return true;
+    public FrostMessageObject(MessageObjectFile mof, Board b, int msgIndex) {
+        setValid(true);
+        setBoard(b);
+        setIndex(msgIndex);
+        
+        setSqlDate( new java.sql.Date(DateFun.getCalendarFromDate(mof.getDateStr()).getTime().getTime()) );
+        setSqlTime( DateFun.getSqlTimeFromString(mof.getTimeStr()) );
+
+        // copy values from mof
+        setAttachmentList(mof.getAllAttachments());
+        setContent(mof.getContent());
+        setFromName(mof.getFromName());
+        setInReplyTo(mof.getInReplyTo());
+        setMessageId(mof.getMessageId());
+        setPublicKey(mof.getPublicKey());
+        setRecipientName(mof.getRecipientName());
+        setSignature(mof.getSignature());
+        setSignatureStatus(mof.getSignatureStatus());
+        setSubject(mof.getSubject());
+    }
+
+    /**
+     * Construct a new FrostMessageObject for an invalid message (broken, encrypted for someone else, ...).
+     */
+    public FrostMessageObject(Board b, Calendar calDL, int msgIndex, String reason) {
+        setValid( false );
+        setInvalidReason(reason);
+        setBoard(b);
+        setSqlDate( DateFun.getSqlDateOfCalendar(calDL) );
+        setIndex( msgIndex );
+    }
+    
+    /**
+     * If content is null, this method can be called to retrieve the content
+     */
+    public void retrieveContent() {
+        // use date, board, index to retrieve content
+        String content = null; 
+        try {
+            content = MessageDatabaseTable.retrieveMessageContent(getSqlDate(), getBoard(), getIndex());
+        } catch(SQLException ex) {
+            ex.printStackTrace();
         }
-        return false;
+        if( content == null ) {
+            content = "SQL Error retrieving content!";
+        }
+        setContent(content);
     }
 
     /*
-     * @see frost.gui.model.TableMember#compareTo(frost.gui.model.TableMember,
-     *      int)
+     * @see frost.gui.model.TableMember#compareTo(frost.gui.model.TableMember, int)
      */
     public int compareTo(TableMember another, int tableColumnIndex) {
         String c1 = (String) getValueAt(tableColumnIndex);
@@ -115,16 +146,142 @@ public class FrostMessageObject extends VerifyableMessageObject implements Table
      */
     public Object getValueAt(int column) {
         switch(column) {
-            case 0: return getIndex();
-            case 1: return getFrom();
+            case 0: return ""+getIndex();
+            case 1: return getFromName();
             case 2: return getSubject();
-            case 3: return getMsgStatusString();
+            case 3: return getMessageStatusString();
             case 4: return getDateAndTime();
             default: return "*ERR*";
         }
     }
 
     public String getDateAndTime() {
+        if( dateAndTime == null ) {
+            // Build a String of format yyyy.mm.dd hh:mm:ssGMT        
+            String date = DateFun.getExtendedDateFromSqlDate(getSqlDate());
+            String time = DateFun.getExtendedTimeFromSqlTime(getSqlTime());
+
+            StringBuffer sb = new StringBuffer(29);
+            sb.append(date).append(" ").append(time);
+
+            this.dateAndTime = sb.toString();
+        }
         return this.dateAndTime;
+    }
+    
+    public void setAttachmentList(AttachmentList al) {
+        this.attachments = al;
+    }
+
+    public Board getBoard() {
+        return board;
+    }
+
+    public void setBoard(Board board) {
+        this.board = board;
+    }
+
+    public boolean isHasBoardAttachments() {
+        return hasBoardAttachments;
+    }
+
+    public void setHasBoardAttachments(boolean hasBoardAttachments) {
+        this.hasBoardAttachments = hasBoardAttachments;
+    }
+
+    public boolean isHasFileAttachments() {
+        return hasFileAttachments;
+    }
+
+    public void setHasFileAttachments(boolean hasFileAttachments) {
+        this.hasFileAttachments = hasFileAttachments;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
+    public String getInvalidReason() {
+        return invalidReason;
+    }
+
+    public void setInvalidReason(String invalidReason) {
+        this.invalidReason = invalidReason;
+    }
+
+    public boolean isAnswered() {
+        return isAnswered;
+    }
+
+    public void setAnswered(boolean isAnswered) {
+        this.isAnswered = isAnswered;
+    }
+
+    public boolean isDeleted() {
+        return isDeleted;
+    }
+
+    public void setDeleted(boolean isDeleted) {
+        this.isDeleted = isDeleted;
+    }
+
+    public boolean isJunk() {
+        return isJunk;
+    }
+
+    public void setJunk(boolean isJunk) {
+        this.isJunk = isJunk;
+    }
+
+    public boolean isMarked() {
+        return isMarked;
+    }
+
+    public void setMarked(boolean isMarked) {
+        this.isMarked = isMarked;
+    }
+
+    public boolean isNew() {
+        return isNew;
+    }
+
+    public void setNew(boolean isNew) {
+        this.isNew = isNew;
+    }
+
+    public boolean isStarred() {
+        return isStarred;
+    }
+
+    public void setStarred(boolean isStarred) {
+        this.isStarred = isStarred;
+    }
+
+    public boolean isValid() {
+        return isValid;
+    }
+
+    public void setValid(boolean isValid) {
+        this.isValid = isValid;
+    }
+
+    public java.sql.Date getSqlDate() {
+        return sqlDate;
+    }
+
+    public void setSqlDate(java.sql.Date sqlDate) {
+        this.sqlDate = sqlDate;
+    }
+
+    public java.sql.Time getSqlTime() {
+        return sqlTime;
+    }
+
+    public void setSqlTime(java.sql.Time sqlTime) {
+        this.sqlTime = sqlTime;
     }
 }

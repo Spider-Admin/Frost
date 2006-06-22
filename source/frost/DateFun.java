@@ -17,6 +17,7 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 package frost;
+import java.sql.Date;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -24,6 +25,124 @@ import java.util.logging.Logger;
 public class DateFun {
 
     private static Logger logger = Logger.getLogger(DateFun.class.getName());
+    
+    private static long GMTOffset = -1;
+    
+    private static long getGMTOffset() {
+        if( GMTOffset < 0 ) {
+            Calendar cal = Calendar.getInstance();
+            long milliDeltaToGMT = cal.get(Calendar.ZONE_OFFSET) + cal.get(Calendar.DST_OFFSET);
+            GMTOffset = milliDeltaToGMT;
+        }
+        return GMTOffset;
+    }
+
+    /**
+     * @return SQL Date object with current date in GMT.
+     */
+    public static java.sql.Date getCurrentSqlDateGMT() {
+        Calendar cal = Calendar.getInstance();
+        return new java.sql.Date( cal.getTimeInMillis() - getGMTOffset() );
+    }
+
+    /**
+     * @return SQL Date object with current date in GMT - daysAgo days.
+     */
+    public static java.sql.Date getSqlDateGMTDaysAgo(int daysAgo) {
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DATE,-daysAgo);
+        return new java.sql.Date( cal.getTimeInMillis() - getGMTOffset() );
+    }
+
+    /**
+     * @return SQL Time object with current time in GMT.
+     */
+    public static java.sql.Time getCurrentSqlTimeGMT() {
+        Calendar cal = Calendar.getInstance();
+        return new java.sql.Time( cal.getTimeInMillis() - getGMTOffset() );
+    }
+    
+    /**
+     * Returns the date from Calendar as String with format yyyy.m.d
+     */
+    public static java.sql.Date getSqlDateOfCalendar(Calendar cal) {
+        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        int year = cal.get(Calendar.YEAR);
+        int month = cal.get(Calendar.MONTH) + 1;
+        int day = cal.get(Calendar.DATE);
+        c.set(year, month, day, 0, 0, 0);
+        return new java.sql.Date( c.getTime().getTime() );
+    }
+
+    /**
+     * Creates a java.sql.Time object from provided string in format "hh:mm:ssGMT".
+     */
+    public static java.sql.Time getSqlTimeFromString(String timeStr) {
+        String hours = timeStr.substring(0, 2);
+        String minutes = timeStr.substring(3, 5);
+        String seconds = timeStr.substring(6, 8);
+        int ihours = -1;
+        int iminutes = -1;
+        int iseconds = -1;
+        try {
+            ihours = Integer.parseInt( hours );
+            iminutes = Integer.parseInt( minutes );
+            iseconds = Integer.parseInt( seconds );
+        } catch(Exception ex) {
+            logger.warning("Could not parse the time");
+            return null;
+        }
+        if( ihours < 0 || ihours > 23 ||
+            iminutes < 0 || iminutes > 59 ||
+            iseconds < 0 || iseconds > 59 )
+        {
+            logger.warning("Time is invalid");
+            return null;
+        }
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        cal.set(1970, 0, 1, ihours, iminutes, iseconds);
+        return new java.sql.Time(cal.getTime().getTime());
+    }
+    
+    public static String getExtendedTimeFromSqlTime(java.sql.Time time) {
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        cal.setTimeInMillis(time.getTime());
+        int hour = cal.get(Calendar.HOUR_OF_DAY);
+        int minute = cal.get(Calendar.MINUTE);
+        int second = cal.get(Calendar.SECOND);
+        StringBuffer sb = new StringBuffer(12);
+        if( hour<10 )
+            sb.append('0');
+        sb.append(hour).append(':');
+        if( minute < 10 )
+            sb.append('0');
+        sb.append(minute).append(':');
+        if( second < 10 )
+            sb.append('0');
+        sb.append(second);
+        sb.append("GMT");
+        return sb.toString();
+    }
+
+    public static String getExtendedDateFromSqlDate(java.sql.Date date) {
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        cal.setTimeInMillis(date.getTime());
+        return getExtendedDateOfCalendar(cal);
+    }
+
+//    public static void main(String[] args) {
+//        java.sql.Time t = getCurrentSqlTimeGMT();
+//        System.out.println("t1="+t.toString());
+//        System.out.println("t11="+t.getTime());
+//        
+//        System.out.println("t2="+getExtendedTimeFromSqlTime(t));
+//        System.out.println(System.currentTimeMillis());
+//        
+//        t=getSqlTimeFromString("12:12:12GMT");
+//        System.out.println("t1="+t.toString());
+//        System.out.println("t2="+getExtendedTimeFromSqlTime(t));
+//        System.out.println("t11="+t.getTime());
+//    }
 
     /**
      * Returns date
@@ -34,7 +153,7 @@ public class DateFun {
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
         return getDateOfCalendar(cal);
     }
-
+    
     /**
      * Returns date with leading zeroes
      * @return Date as String yyyy.MM.dd in GMT with leading zeros
@@ -106,6 +225,11 @@ public class DateFun {
     public static String getExtendedTime() {
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+        return getExtendedTimeOfCalendar(cal);
+    }
+
+    public static String getExtendedTimeOfCalendar(Calendar cal) {
+
         int hour = cal.get(Calendar.HOUR_OF_DAY);
         int minute = cal.get(Calendar.MINUTE);
         int second = cal.get(Calendar.SECOND);
@@ -224,7 +348,7 @@ public class DateFun {
     /**
      * Returns the date from Calendar as String with format yyyy.mm.dd
      */
-    public static String getExtendedDateOfCalendar(GregorianCalendar cal) {
+    public static String getExtendedDateOfCalendar(Calendar cal) {
         int year = cal.get(Calendar.YEAR);
         int month = cal.get(Calendar.MONTH) + 1;
         int day = cal.get(Calendar.DATE);

@@ -178,7 +178,7 @@ public class SearchMessagesThread extends Thread {
 
         // check private only
         if( searchConfig.searchPrivateMsgsOnly ) {
-            if( mo.getRecipient() == null || mo.getRecipient().length() == 0 ) {
+            if( mo.getRecipientName() == null || mo.getRecipientName().length() == 0 ) {
                 return;
             }
         }
@@ -198,7 +198,7 @@ public class SearchMessagesThread extends Thread {
 
         // check sender
         if( searchConfig.sender != null ) {
-            if( searchInText(searchConfig.sender, mo.getFrom()) == false ) {
+            if( searchInText(searchConfig.sender, mo.getFromName()) == false ) {
                 // sender not found
                 return;
             }
@@ -238,24 +238,23 @@ public class SearchMessagesThread extends Thread {
     }
 
     private boolean matchesTrustStates(FrostMessageObject msg, TrustStates ts) {
-        int state = msg.getMsgStatus();
 
-        if( state == VerifyableMessageObject.xGOOD && ts.trust_good == false ) {
+        if( msg.isMessageStatusGOOD() && ts.trust_good == false ) {
             return false;
         }
-        if( state == VerifyableMessageObject.xOBSERVE && ts.trust_observe == false ) {
+        if( msg.isMessageStatusOBSERVE() && ts.trust_observe == false ) {
             return false;
         }
-        if( state == VerifyableMessageObject.xCHECK && ts.trust_check == false ) {
+        if( msg.isMessageStatusCHECK() && ts.trust_check == false ) {
             return false;
         }
-        if( state == VerifyableMessageObject.xBAD && ts.trust_bad == false ) {
+        if( msg.isMessageStatusBAD() && ts.trust_bad == false ) {
             return false;
         }
-        if( state == VerifyableMessageObject.xOLD && ts.trust_none == false ) {
+        if( msg.isMessageStatusOLD() && ts.trust_none == false ) {
             return false;
         }
-        if( state == VerifyableMessageObject.xTAMPERED && ts.trust_tampered == false ) {
+        if( msg.isMessageStatusTAMPERED() && ts.trust_tampered == false ) {
             return false;
         }
 

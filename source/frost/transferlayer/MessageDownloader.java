@@ -159,9 +159,9 @@ public class MessageDownloader {
                 }
                 FileAccess.writeFile(unzippedXml, tmpFile);
                 try {
-                    VerifyableMessageObject currentMsg = new VerifyableMessageObject(tmpFile);
+                    MessageObjectFile currentMsg = new MessageObjectFile(tmpFile);
+                    currentMsg.setSignatureStatusOLD();
                     mdResult.message = currentMsg;
-                    mdResult.messageState = MessageObject.SIGNATURESTATUS_OLD;
                     return mdResult;
                 } catch (Exception ex) {
                     logger.log(Level.SEVERE, "TOFDN: Unsigned message is invalid."+logInfo, ex);
@@ -271,11 +271,11 @@ public class MessageDownloader {
             }
             FileAccess.writeFile(unzippedXml, tmpFile);
             
-            VerifyableMessageObject currentMsg = null;
+            MessageObjectFile currentMsg = null;
     
             // create object
             try {
-                currentMsg = new VerifyableMessageObject(tmpFile);
+                currentMsg = new MessageObjectFile(tmpFile);
             } catch (Exception ex) {
                 logger.log(Level.SEVERE, "TOFDN: Exception when creating message object"+logInfo, ex);
                 // file could not be read, mark it invalid not to confuse gui
@@ -287,29 +287,29 @@ public class MessageDownloader {
             //then check if the signature was ok
             if (!sigIsValid) {
                 logger.warning("TOFDN: message failed verification, status set to TAMPERED."+logInfo);
+                currentMsg.setSignatureStatusTAMPERED();
                 mdResult.message = currentMsg;
-                mdResult.messageState = MessageObject.SIGNATURESTATUS_TAMPERED;
                 return mdResult;
             }
     
             //make sure the pubkey and from fields in the xml file are the same as those in the metadata
             String metaDataHash = Mixed.makeFilename(Core.getCrypto().digest(metaData.getPerson().getKey()));
             String messageHash = Mixed.makeFilename(
-                        currentMsg.getFrom().substring(
-                        currentMsg.getFrom().indexOf("@") + 1,
-                        currentMsg.getFrom().length()));
+                        currentMsg.getFromName().substring(
+                        currentMsg.getFromName().indexOf("@") + 1,
+                        currentMsg.getFromName().length()));
     
             if (!metaDataHash.equals(messageHash)) {
                 logger.warning("TOFDN: Hash in metadata doesn't match hash in message!\n" +
                                "metadata : "+metaDataHash+" , message: " + messageHash+
                                ". Message failed verification, status set to TAMPERED."+logInfo);
+                currentMsg.setSignatureStatusTAMPERED();
                 mdResult.message = currentMsg;
-                mdResult.messageState = MessageObject.SIGNATURESTATUS_TAMPERED;
                 return mdResult;
             }
     
+            currentMsg.setSignatureStatusVERIFIED();
             mdResult.message = currentMsg;
-            mdResult.messageState = MessageObject.SIGNATURESTATUS_VERIFIED;
             return mdResult;
     
         } catch (Throwable t) {
@@ -354,10 +354,10 @@ public class MessageDownloader {
                 }
             }
             
-            VerifyableMessageObject currentMsg = null;
+            MessageObjectFile currentMsg = null;
             
             try {
-                currentMsg = new VerifyableMessageObject(tmpFile);
+                currentMsg = new MessageObjectFile(tmpFile);
             } catch (MessageCreationException ex) {
                 logger.log(Level.WARNING, "TOFDN: Exception catched."+logInfo, ex);
                 if( ex.getMessageNo() == MessageCreationException.MSG_NOT_FOR_ME ) {
@@ -380,17 +380,17 @@ public class MessageDownloader {
             if( currentMsg.getSignature() == null || currentMsg.getSignature().length() == 0 ) {
                 // unsigned msg
                 // check and maybe add msg to gui, set to unsigned
+                currentMsg.setSignatureStatusOLD();
                 mdResult.message = currentMsg;
-                mdResult.messageState = MessageObject.SIGNATURESTATUS_OLD;
                 return mdResult;
             }
             
             // check if we have the owner (sender) already on the lists
-            String _owner = currentMsg.getFrom();
+            String _owner = currentMsg.getFromName();
             Identity owner = Core.getIdentities().getIdentity(_owner);
             // if not on any list, use the parsed id and add to our identities list
             if (owner == null) {
-                owner = new Identity(currentMsg.getFrom(), currentMsg.getPublicKey());
+                owner = new Identity(currentMsg.getFromName(), currentMsg.getPublicKey());
                 owner.setState(FrostIdentities.NEUTRAL);
                 Core.getIdentities().addIdentity(owner);
             }
@@ -401,16 +401,16 @@ public class MessageDownloader {
             // then check if the signature was ok
             if (!sigIsValid) {
                 logger.warning("TOFDN: message failed verification, status set to TAMPERED."+logInfo);
+                currentMsg.setSignatureStatusTAMPERED();
                 mdResult.message = currentMsg;
-                mdResult.messageState = MessageObject.SIGNATURESTATUS_TAMPERED;
                 return mdResult;
             }
             
             // update lastSeen for this Identity
             owner.updateLastSeenTimestamp();
 
+            currentMsg.setSignatureStatusVERIFIED();
             mdResult.message = currentMsg;
-            mdResult.messageState = MessageObject.SIGNATURESTATUS_VERIFIED;
             return mdResult;
 
         } catch (Throwable t) {
@@ -420,5 +420,4 @@ public class MessageDownloader {
         tmpFile.delete();
         return null;
     }
-
 }

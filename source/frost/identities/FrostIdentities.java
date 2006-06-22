@@ -138,7 +138,15 @@ public class FrostIdentities implements Savable {
         if( uniqueName == null ) {
             return null;
         }
-        return (Identity)identities.get(uniqueName);
+        Identity identity = null;
+        if( uniqueName == null ) {
+            if( isMySelf(uniqueName)) {
+                identity = getMyId();
+            } else {
+                identity = (Identity)identities.get(uniqueName);
+            }
+        }
+        return identity;
     }
 
     public boolean addIdentity(Identity id) {
@@ -281,7 +289,7 @@ public class FrostIdentities implements Savable {
 
                 if( TOF.getInstance().blocked(message,board) ) {
                     msgTableModel.deleteRow(message);
-                    if( message.isMessageNew() ) {
+                    if( message.isNew() ) {
                         board.decNewMessageCount();
                     }
                 } else {

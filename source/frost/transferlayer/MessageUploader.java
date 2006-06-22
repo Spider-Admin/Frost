@@ -45,7 +45,7 @@ public class MessageUploader {
      */
     static class MessageUploaderWorkArea {
         
-        MessageObject message;
+        MessageObjectFile message;
         File uploadFile;
         File unsentMessageFile;
         MessageUploaderCallback callback;
@@ -79,7 +79,7 @@ public class MessageUploader {
      * or returns a value >= 0 containing the final index where the message was uploaded to. 
      */
     public static int uploadMessage(
-            MessageObject message, 
+            MessageObjectFile message, 
             Identity encryptForRecipient,
             MessageUploaderCallback callback,
             JFrame parentFrame,
@@ -360,7 +360,7 @@ public class MessageUploader {
 
         boolean doSign = false;
         
-        String sender = wa.message.getFrom();
+        String sender = wa.message.getFromName();
         String myId = Core.getIdentities().getMyId().getUniqueName();
         if (sender.equals(myId) // nick same as my identity
             || sender.equals(Mixed.makeFilename(myId))) // serialization may have changed it
@@ -434,7 +434,7 @@ public class MessageUploader {
     protected static boolean prepareMessage07(MessageUploaderWorkArea wa) {
         
         // sign the message content if necessary
-        String sender = wa.message.getFrom();
+        String sender = wa.message.getFromName();
         String myId = Core.getIdentities().getMyId().getUniqueName();
 
         if (sender.equals(myId) // nick same as my identity
@@ -455,7 +455,7 @@ public class MessageUploader {
             wa.encryptForRecipient != null )
         {
             // encrypt file to temp. upload file
-            if(!MessageObject.encryptForRecipientAndSaveCopy(wa.uploadFile, wa.encryptForRecipient, wa.uploadFile)) {
+            if(!MessageObjectFile.encryptForRecipientAndSaveCopy(wa.uploadFile, wa.encryptForRecipient, wa.uploadFile)) {
                 logger.severe("This was a HARD error, file was NOT uploaded, please report to a dev!");
                 return false;
             }

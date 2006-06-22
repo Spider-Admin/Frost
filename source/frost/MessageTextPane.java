@@ -608,7 +608,7 @@ public class MessageTextPane extends JPanel {
                     FileAttachment fa = (FileAttachment) it.next();
                     SharedFileObject sfo = fa.getFileObj();
                     FrostSearchItem fsio = new FrostSearchItem(
-                            mainFrame.getTofTreeModel().getBoardByName(selectedMessage.getBoard()),
+                            mainFrame.getTofTreeModel().getBoardByName(selectedMessage.getBoard().getName()),
                             sfo,
                             FrostSearchItem.STATE_NONE);
                     //FIXME: <-does this matter?
@@ -622,7 +622,7 @@ public class MessageTextPane extends JPanel {
                     FileAttachment fo = (FileAttachment) attachments.get(selectedRows[i]);
                     SharedFileObject sfo = fo.getFileObj();
                     FrostSearchItem fsio = new FrostSearchItem(
-                            mainFrame.getTofTreeModel().getBoardByName(selectedMessage.getBoard()),
+                            mainFrame.getTofTreeModel().getBoardByName(selectedMessage.getBoard().getName()),
                             sfo,
                             FrostSearchItem.STATE_NONE);
                     FrostDownloadItem dlItem = new FrostDownloadItem(fsio);

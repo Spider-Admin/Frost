@@ -265,7 +265,11 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
                     } else {
                         isForToday = false;
                     }
-                    UpdateIdThread thread = new UpdateIdThread(board, DateFun.getDate(i), isForToday);
+                    UpdateIdThread thread = new UpdateIdThread(
+                            board, 
+                            DateFun.getDate(i), 
+                            DateFun.getSqlDateGMTDaysAgo(i),
+                            isForToday);
 
                     // directly call run, we want to block
                     thread.run();
@@ -287,7 +291,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
      */
     public boolean startMessageUpload(
         Board board,
-        MessageObject mo,
+        MessageObjectFile mo,
         BoardUpdateThreadListener listener,
         Identity recipient) {
 

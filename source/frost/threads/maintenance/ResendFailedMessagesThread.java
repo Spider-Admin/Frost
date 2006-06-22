@@ -72,9 +72,9 @@ public class ResendFailedMessagesThread extends Thread
             if( unsentMsgFile.getName().startsWith("unsent") )
             {
                 // Resend message
-                MessageObject mo = null;
+                MessageObjectFile mo = null;
                 try {
-                    mo = new MessageObject(unsentMsgFile);
+                    mo = new MessageObjectFile(unsentMsgFile);
                 } catch(Exception ex)
                 {
                     logger.log(Level.SEVERE, "Couldn't read the message file, will not send message.", ex);
@@ -82,10 +82,10 @@ public class ResendFailedMessagesThread extends Thread
 
                 if( mo != null && mo.isValid() )
                 {
-                    Board board = tofTreeModel.getBoardByName( mo.getBoard() );
+                    Board board = tofTreeModel.getBoardByName( mo.getBoardName() );
                     if( board == null )
                     {
-                        logger.warning("Can't resend Message '" + mo.getSubject() + "', the target board '" + mo.getBoard() +
+                        logger.warning("Can't resend Message '" + mo.getSubject() + "', the target board '" + mo.getBoardName() +
                                            "' was not found in your boardlist.");
                         // TODO: maybe delete msg? or it will always be retried to send
                         continue;
@@ -93,8 +93,8 @@ public class ResendFailedMessagesThread extends Thread
                     // message will be resigned before send, actual date/time will be used
                     // no more faking here :)
                     Identity recipient = null;
-                    if( mo.getRecipient() != null && mo.getRecipient().length() > 0) {
-                        recipient = Core.getInstance().getIdentities().getIdentity(mo.getRecipient());
+                    if( mo.getRecipientName() != null && mo.getRecipientName().length() > 0) {
+                        recipient = Core.getInstance().getIdentities().getIdentity(mo.getRecipientName());
                         if( recipient == null ) {
                             logger.warning("Can't resend Message '" + mo.getSubject() + "', the recipient is not longer in your identites file!");
                             continue;

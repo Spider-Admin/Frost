@@ -22,6 +22,7 @@ package frost;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
+import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
@@ -35,7 +36,7 @@ import frost.gui.*;
 import frost.gui.model.*;
 import frost.gui.objects.*;
 import frost.identities.*;
-import frost.messages.*;
+import frost.storage.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
@@ -131,9 +132,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 selectNextUnreadMessage();
 
             } else if (e.getSource() == messageTable ) {
-                if( selectedMessage == null ||
-                    selectedMessage.getSignatureStatus() != MessageObject.SIGNATURESTATUS_VERIFIED)
-                {
+                if( selectedMessage == null || !selectedMessage.isSignatureStatusVERIFIED()) {
                     // change only for signed messages
                     return;
                 }
@@ -290,30 +289,30 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 setBadItem.setEnabled(false);
 
                 if (messageTable.getSelectedRow() > -1 && selectedMessage != null) {
-                    if( identities.isMySelf(selectedMessage.getFrom()) ) {
+                    if( identities.isMySelf(selectedMessage.getFromName()) ) {
                         // keep all off
-                    } else if (selectedMessage.getMsgStatus() == VerifyableMessageObject.xGOOD) {
+                    } else if (selectedMessage.isMessageStatusGOOD()) {
                         setObserveItem.setEnabled(true);
                         setCheckItem.setEnabled(true);
                         setBadItem.setEnabled(true);
-                    } else if (selectedMessage.getMsgStatus() == VerifyableMessageObject.xCHECK) {
+                    } else if (selectedMessage.isMessageStatusCHECK()) {
                         setObserveItem.setEnabled(true);
                         setGoodItem.setEnabled(true);
                         setBadItem.setEnabled(true);
-                    } else if (selectedMessage.getMsgStatus() == VerifyableMessageObject.xBAD) {
+                    } else if (selectedMessage.isMessageStatusBAD()) {
                         setObserveItem.setEnabled(true);
                         setGoodItem.setEnabled(true);
                         setCheckItem.setEnabled(true);
-                    } else if (selectedMessage.getMsgStatus() == VerifyableMessageObject.xOBSERVE) {
+                    } else if (selectedMessage.isMessageStatusOBSERVE()) {
                         setGoodItem.setEnabled(true);
                         setCheckItem.setEnabled(true);
                         setBadItem.setEnabled(true);
-                    } else if (selectedMessage.getMsgStatus() == VerifyableMessageObject.xOLD) {
+                    } else if (selectedMessage.isMessageStatusOLD()) {
                         // keep all buttons disabled
-                    } else if (selectedMessage.getMsgStatus() == VerifyableMessageObject.xTAMPERED) {
+                    } else if (selectedMessage.isMessageStatusTAMPERED()) {
                         // keep all buttons disabled
                     } else {
-                        logger.warning("invalid message state : " + selectedMessage.getMsgStatus());
+                        logger.warning("invalid message state : " + selectedMessage.getMessageStatus());
                     }
                 }
 
@@ -580,23 +579,35 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             }
             int row = table.getSelectedRow();
             if( row != -1 && row < tableModel.getRowCount() ) {
-                FrostMessageObject message = (FrostMessageObject)tableModel.getRow(row);
+                final FrostMessageObject message = (FrostMessageObject)tableModel.getRow(row);
 
                 if( message != null ) {
                     // Test if lockfile exists, remove it and update the tree display
-                    if( message.isMessageNew() == false ) {
+                    if( message.isNew() == false ) {
                         // its a read message, nothing more to do here ...
                         return message;
                     }
 
                     // this is a new message
-                    message.setMessageNew(false); // mark as read
+                    message.setNew(false); // mark as read
                     tableModel.updateRow(message);
 
                     board.decNewMessageCount();
 
                     MainFrame.getInstance().updateMessageCountLabels(board);
                     MainFrame.getInstance().updateTofTree(board);
+                    
+                    Thread saver = new Thread() {
+                        public void run() {
+                            // save message, we must save the changed deleted state into the xml file
+                            try {
+                                MessageDatabaseTable.updateMessage(message);
+                            } catch (SQLException e) {
+                                logger.log(Level.SEVERE, "Error updating a message object", e);
+                            }
+                        }
+                    };
+                    saver.start();
 
                     return message;
                 }
@@ -636,27 +647,27 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 replyButton.setEnabled(false);
             }
 
-            if( identities.isMySelf(selectedMessage.getFrom()) ) {
+            if( identities.isMySelf(selectedMessage.getFromName()) ) {
                 setGoodButton.setEnabled(false);
                 setCheckButton.setEnabled(false);
                 setBadButton.setEnabled(false);
                 setObserveButton.setEnabled(false);
-            } else if (selectedMessage.getMsgStatus() == VerifyableMessageObject.xCHECK) {
+            } else if (selectedMessage.isMessageStatusCHECK()) {
                 setCheckButton.setEnabled(false);
                 setGoodButton.setEnabled(true);
                 setBadButton.setEnabled(true);
                 setObserveButton.setEnabled(true);
-            } else if (selectedMessage.getMsgStatus() == VerifyableMessageObject.xGOOD) {
+            } else if (selectedMessage.isMessageStatusGOOD()) {
                 setGoodButton.setEnabled(false);
                 setCheckButton.setEnabled(true);
                 setBadButton.setEnabled(true);
                 setObserveButton.setEnabled(true);
-            } else if (selectedMessage.getMsgStatus() == VerifyableMessageObject.xBAD) {
+            } else if (selectedMessage.isMessageStatusBAD()) {
                 setBadButton.setEnabled(false);
                 setGoodButton.setEnabled(true);
                 setCheckButton.setEnabled(true);
                 setObserveButton.setEnabled(true);
-            } else if (selectedMessage.getMsgStatus() == VerifyableMessageObject.xOBSERVE) {
+            } else if (selectedMessage.isMessageStatusOBSERVE()) {
                 setObserveButton.setEnabled(false);
                 setGoodButton.setEnabled(true);
                 setCheckButton.setEnabled(true);
@@ -697,7 +708,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         if( !isCorrectlySelectedMessage() ) {
             return;
         }
-        Identity id = identities.getIdentity(selectedMessage.getFrom());
+        Identity id = identities.getIdentity(selectedMessage.getFromName());
         if( id == null ) {
             return;
         }
@@ -705,7 +716,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             if (JOptionPane.showConfirmDialog(
                     parentFrame,
                     "Are you sure you want to revoke trust to user " // TODO: translate
-                        + selectedMessage.getFrom().substring(0, selectedMessage.getFrom().indexOf("@"))
+                        + selectedMessage.getFromName().substring(0, selectedMessage.getFromName().indexOf("@"))
                         + " ? \n If you choose yes, future messages from this user will be marked BAD",
                     "Revoke trust",
                     JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) 
@@ -747,7 +758,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         if( !isCorrectlySelectedMessage() ) {
             return;
         }
-        Identity id = identities.getIdentity(selectedMessage.getFrom());
+        Identity id = identities.getIdentity(selectedMessage.getFromName());
         if( id == null ) {
             return;
         }
@@ -755,7 +766,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             if (JOptionPane.showConfirmDialog(
                     parentFrame,
                     "Are you sure you want to grant trust to user " // TODO: translate
-                        + selectedMessage.getFrom().substring(0, selectedMessage.getFrom().indexOf("@"))
+                        + selectedMessage.getFromName().substring(0, selectedMessage.getFromName().indexOf("@"))
                         + " ? \n If you choose yes, future messages from this user will be marked GOOD",
                     "Grant trust",
                     JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) 
@@ -792,10 +803,10 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
     public void composeReply(FrostMessageObject origMessage, Window parent) {
         
-        Board targetBoard = mainFrame.getTofTreeModel().getBoardByName(origMessage.getBoard());
+        Board targetBoard = mainFrame.getTofTreeModel().getBoardByName(origMessage.getBoard().getName());
         if( targetBoard == null ) {
             JOptionPane.showMessageDialog( parent,
-                    "Can't reply, the target board is not in your boardlist: "+origMessage.getBoard(), // TODO: translate
+                    "Can't reply, the target board is not in your boardlist: "+origMessage.getBoard().getName(), // TODO: translate
                     "Error",
                     JOptionPane.ERROR);
             return;
@@ -818,8 +829,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         }
         
         MessageFrame newMessageFrame = new MessageFrame(settings, parent, identities.getMyId(), mainFrame.getTofTree());
-        if( origMessage.getRecipient() != null &&
-            origMessage.getRecipient().equals( identities.getMyId().getUniqueName() ) )
+        if( origMessage.getRecipientName() != null &&
+            origMessage.getRecipientName().equals( identities.getMyId().getUniqueName() ) )
         {
             // this message was for me, reply encrypted
             if( origMessage.getFromIdentity() == null ) {
@@ -927,25 +938,30 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         for(int x=rows.length-1; x >= 0; x--) {
             FrostMessageObject targetMessage = (FrostMessageObject)getMessageTableModel().getRow(rows[x]);
             targetMessage.setDeleted(true);
+            targetMessage.setNew(false);
 
             if ( !settings.getBoolValue(SettingsClass.SHOW_DELETED_MESSAGES) ){
                 // if we show deleted messages we don't need to remove them from the table
                 messageTableModel.deleteRow(targetMessage);
-                updateMessageCountLabels(mainFrame.getTofTreeModel().getSelectedNode());
             } else {
                 // needs repaint or the line which crosses the message isn't completely seen
                 getMessageTableModel().updateRow(targetMessage);
             }
-
             saveMessages.add(targetMessage);
         }
+        // update new and shown message count
+        updateMessageCountLabels(mainFrame.getTofTreeModel().getSelectedNode());
         
         Thread saver = new Thread() {
             public void run() {
                 // save message, we must save the changed deleted state into the xml file
                 for(Iterator i=saveMessages.iterator(); i.hasNext(); ) {
                     FrostMessageObject targetMessage = (FrostMessageObject)i.next();
-                    targetMessage.save();
+                    try {
+                        MessageDatabaseTable.updateMessage(targetMessage);
+                    } catch (SQLException e) {
+                        logger.log(Level.SEVERE, "Error updating a message object", e);
+                    }
                 }
             }
         };
@@ -975,7 +991,11 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 // save message, we must save the changed deleted state into the xml file
                 for(Iterator i=saveMessages.iterator(); i.hasNext(); ) {
                     FrostMessageObject targetMessage = (FrostMessageObject)i.next();
-                    targetMessage.save();
+                    try {
+                        MessageDatabaseTable.updateMessage(targetMessage);
+                    } catch (SQLException e) {
+                        logger.log(Level.SEVERE, "Error updating a message object", e);
+                    }
                 }
             }
         };
@@ -998,11 +1018,12 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             return;
         }
 
-        FrostMessageObject targetMessage = selectedMessage;
+        final FrostMessageObject targetMessage = selectedMessage;
 
         messageTable.removeRowSelectionInterval(0, messageTable.getRowCount() - 1);
 
-        targetMessage.setMessageNew(true);
+        targetMessage.setNew(true);
+
         // let renderer check for new state
         getMessageTableModel().updateRow(targetMessage);
 
@@ -1010,6 +1031,18 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
         updateMessageCountLabels(mainFrame.getTofTreeModel().getSelectedNode());
         mainFrame.updateTofTree(mainFrame.getTofTreeModel().getSelectedNode());
+        
+        Thread saver = new Thread() {
+            public void run() {
+                // save message, we must save the changed deleted state into the xml file
+                try {
+                    MessageDatabaseTable.updateMessage(targetMessage);
+                } catch (SQLException e) {
+                    logger.log(Level.SEVERE, "Error updating a message object", e);
+                }
+            }
+        };
+        saver.start();
     }
 
     /**
@@ -1042,8 +1075,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         if( !isCorrectlySelectedMessage() ) {
             return;
         }
-        if( selectedMessage.getSignatureStatus() == VerifyableMessageObject.SIGNATURESTATUS_VERIFIED ) {
-            identities.changeTrust(selectedMessage.getFrom(), newState);
+        if( selectedMessage.isSignatureStatusVERIFIED() ) {
+            identities.changeTrust(selectedMessage.getFromName(), newState);
         }
     }
 
@@ -1054,7 +1087,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     private void tofNewMessageButton_actionPerformed(ActionEvent e) {
         MessageFrame newMessageFrame = new MessageFrame(
                                                 settings, mainFrame,
-                                                Core.getInstance().getIdentities().getMyId(),
+                                                Core.getIdentities().getMyId(),
                                                 mainFrame.getTofTree());
         newMessageFrame.composeNewMessage(mainFrame.getTofTreeModel().getSelectedNode(),
                                           settings.getValue("userName"),
@@ -1072,7 +1105,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         FrostMessageObject earliestMessage = null;
         for (int row = 0; row < tableModel.getRowCount(); row++) {
             final FrostMessageObject message = (FrostMessageObject)tableModel.getRow(row);
-            if (message.isMessageNew()) {
+            if (message.isNew()) {
                 if( earliestMessage == null ) {
                     earliestMessage = message;
                     nextMessage = row;
