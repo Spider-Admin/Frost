@@ -25,7 +25,6 @@ import java.util.logging.*;
 
 import frost.*;
 import frost.boards.*;
-import frost.fileTransfer.*;
 import frost.gui.objects.*;
 import frost.messages.*;
 import frost.transferlayer.*;
@@ -201,9 +200,9 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                 // for backload use fast download, deep for today
                 boolean fastDownload = !downloadToday;
 
-                MessageDownloaderResult mdResult = 
-                    MessageDownloader.downloadMessage(downKey, index, fastDownload, logInfo);
-
+                MessageDownloaderResult mdResult = MessageDownloader.downloadMessage(downKey, index, fastDownload, logInfo);
+                int triedIndex = index;
+                
                 index++; // whatever happened, try next index next time
                 
                 Mixed.wait(1111); // don't hurt node
@@ -218,13 +217,18 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
 
                 if( mdResult.errorMsg != null ) {
                     // some error occured, don't try this file again
-                    FileAccess.writeFile(mdResult.errorMsg, destFile); // this file is ignored by the gui
+                    receivedInvalidMessage(board, calDL, triedIndex, mdResult.errorMsg);
                 } else if( mdResult.message != null ) {
                     // method saves the XML file to destFile
                     File oldTmpFile = mdResult.message.getFile();
                     mdResult.message.setFile(destFile);
-                    
-                    addMessageToGui(mdResult.message, destFile, true, calDL, mdResult.messageState);
+                    // basic validation
+                    if (mdResult.message.isValid() && isValidFormat(mdResult.message, calDL)) {
+                        receivedValidMessage(mdResult.message, board, triedIndex);
+                    } else {
+                        receivedInvalidMessage(board, calDL, triedIndex, MessageDownloaderResult.INVALID_MSG);
+                        logger.warning("TOFDN: Message "+destFile.getName()+" was dropped, format validation failed.");
+                    }
                     
                     oldTmpFile.delete();
                 }
@@ -235,94 +239,140 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
             }
         } // end-of: while
     }
+    
+    private void receivedInvalidMessage(Board b, Calendar calDL, int index, String reason) {
+        TOF.getInstance().receivedInvalidMessage(b, calDL, index, reason);
+    }
+    
+    private void receivedValidMessage(MessageObjectFile mo, Board b, int index) {
+        TOF.getInstance().receivedValidMessage(mo, b, index);
+    }
+    
+    //////////////////////////////////////////////////
+    ///  validation after receive 
+    //////////////////////////////////////////////////
+    
+    /**
+     * First time verify.
+     * @param dirDate
+     * @return
+     */
+    public boolean isValidFormat(MessageObjectFile mo, GregorianCalendar dirDate) {
+        String timeStr = mo.getTimeStr();
+        String msgDateStr = mo.getDateStr();
+        try { // if something fails here, set msg. to N/A (maybe harmful message)
+            if (verifyDate(msgDateStr,dirDate) == false || verifyTime(timeStr) == false) {
+                return false;
+            }
+        } catch (Throwable t) {
+            logger.log(Level.SEVERE, "Exception in isValidFormat() - skipping Message.", t);
+            return false;
+        }
+        return true;
+    }
 
     /**
-     * Checks if the provided message is valid, and adds valid messages
-     * to the GUI.
+     * Returns false if the date from inside the message is more than 1 day
+     * before/behind the date in the URL of the message.
      *
-     * @param currentMsg  message
-     * @param destFile      message file in keypool
-     * @param markAsNew   new message?
-     * @param calDL       Calendar with date of download to check for valid date in message
-     * @param signatureStatus   a status from MessageObject that should be set IF the message is added
+     * @param dirDate  date of the url that was used to retrieve the message
+     * @return  true if date is valid, or false
      */
-    private void addMessageToGui(
-        VerifyableMessageObject currentMsg,
-        File destFile,
-        boolean markAsNew,
-        GregorianCalendar calDL,
-        int signatureStatus)
-    {
-        if (currentMsg.isValid() && currentMsg.isValidFormat(calDL)) {
-
-            currentMsg.setSignatureStatus(signatureStatus);
-            if( currentMsg.save() == false ) {
-                logger.log(Level.SEVERE, "TOFDN: Could not save the XML file after setting the signatureState!");
-            }
-
-            if (destFile.length() > 0 && TOF.getInstance().blocked(currentMsg, board) ) {
-                board.incBlocked();
-                logger.info("TOFDN: Blocked message for board '"+board.getName()+"': "+destFile.getPath());
-            } else {
-
-                // check if msg would be displayed (maxMessageDays)
-                GregorianCalendar minDate = new GregorianCalendar();
-                minDate.setTimeZone(TimeZone.getTimeZone("GMT"));
-                minDate.add(Calendar.DATE, -1*board.getMaxMessageDisplay());
-                Calendar msgDate = DateFun.getCalendarFromDate(currentMsg.getDate());
-                if( msgDate == null ) {
-                    logger.log(Level.SEVERE, "TOFDN: invalid date in filename, message dropped:"+destFile.getPath());
-                    FileAccess.writeFile(MessageDownloaderResult.INVALID_MSG, destFile);
-                    return;
-                }
-                if( !msgDate.before(minDate) ) {
-                    // add new message or notify of arrival
-                    TOF.getInstance().addNewMessageToTable(destFile, board, markAsNew);
-                } else {
-                    logger.log(Level.SEVERE, "TOFDN: received message from the past, not displayed due to maxMessageDays to display:"+
-                            destFile.getPath());
-                }
-                // add all files indexed files, but never for BAD users
-                if( currentMsg.getSignatureStatus() != VerifyableMessageObject.xBAD ) {
-                    Iterator it = currentMsg.getAttachmentsOfType(Attachment.FILE).iterator();
-                    while (it.hasNext()) {
-                        SharedFileObject current = ((FileAttachment)it.next()).getFileObj();
-                        if (current.getOwner() != null) {
-                            Index index = Index.getInstance();
-                            synchronized(index) {
-                                index.add(current, board);
-                            }
-                        }
-                    }
-                }
-                // add all boards to the list of known boards
-                if( currentMsg.getSignatureStatus() == VerifyableMessageObject.xOLD &&
-                    Core.frostSettings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_UNSIGNED) == true )
-                {
-                    logger.info("Boards from unsigned message blocked: "+destFile.getPath());
-                } else if( currentMsg.getSignatureStatus() == VerifyableMessageObject.xBAD &&
-                           Core.frostSettings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_BAD) == true )
-                {
-                    logger.info("Boards from BAD message blocked: "+destFile.getPath());
-                } else if( currentMsg.getSignatureStatus() == VerifyableMessageObject.xCHECK &&
-                           Core.frostSettings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_CHECK) == true )
-                {
-                    logger.info("Boards from CHECK message blocked: "+destFile.getPath());
-                } else if( currentMsg.getSignatureStatus() == VerifyableMessageObject.xOBSERVE &&
-                           Core.frostSettings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_OBSERVE) == true )
-                {
-                    logger.info("Boards from OBSERVE message blocked: "+destFile.getPath());
-                } else if( currentMsg.getSignatureStatus() == VerifyableMessageObject.xTAMPERED ) {
-                    logger.info("Boards from TAMPERED message blocked: "+destFile.getPath());
-                } else {
-                    // either GOOD user or not blocked by user
-                    Core.addNewKnownBoards(currentMsg.getAttachmentsOfType(Attachment.BOARD));
-                }
-            }
-        } else {
-            // format validation failed
-            FileAccess.writeFile(MessageDownloaderResult.INVALID_MSG, destFile);
-            logger.warning("TOFDN: Message "+destFile.getName()+" was dropped, format validation failed.");
+    private boolean verifyDate(String msgDateStr, GregorianCalendar dirDate) {
+        // first check for valid date:
+        // USES: date of msg. url: 'keypool\public\2003.6.9\2003.6.9-public-1.txt'  = given value 'dirDate'
+        // USES: date in message  ( date=2003.6.9 ; time=09:32:31GMT )              = extracted from message
+        
+        Calendar msgDate = DateFun.getCalendarFromDate(msgDateStr);
+        if( msgDate == null ) {
+            logger.warning("* verifyDate(): Invalid date string found, will block message: " + msgDateStr);
+            return false;
         }
+        // set both dates to same _time_ to allow computing millis
+        msgDate.set(Calendar.HOUR_OF_DAY, 1);
+        msgDate.set(Calendar.MINUTE, 0);
+        msgDate.set(Calendar.SECOND, 0);
+        msgDate.set(Calendar.MILLISECOND, 0);
+        dirDate.set(Calendar.HOUR_OF_DAY, 1);
+        dirDate.set(Calendar.MINUTE, 0);
+        dirDate.set(Calendar.SECOND, 0);
+        dirDate.set(Calendar.MILLISECOND, 0);
+        long dirMillis = dirDate.getTimeInMillis();
+        long msgMillis = msgDate.getTimeInMillis();
+        // compute difference dir - msg
+        long ONE_DAY = (1000 * 60 * 60 * 24);
+        int diffDays = (int)((dirMillis - msgMillis) / ONE_DAY);
+        // now compare dirDate and msgDate using above rules
+        if( Math.abs(diffDays) <= 1 ) {
+            // message is of this day (less than 1 day difference)
+            // msg is OK, do nothing here
+        } else if( diffDays < 0 ) {
+            // msgDate is later than dirDate
+            logger.warning("* verifyDate(): Date in message is later than date in URL, will block message: " + msgDateStr);
+            return false;
+        } else if( diffDays > 1 ) { // more than 1 day older
+            // dirDate is later than msgDate
+            logger.warning("* verifyDate(): Date in message is earlier than date in URL, will block message: " + msgDateStr);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Verifies that the time is valid.
+     *
+     * @return  true if time is valid, or false
+     */
+    private boolean verifyTime(String timeStr) {
+        // time=06:52:48GMT  <<-- expected format
+        if (timeStr == null) {
+            logger.warning("* verifyTime(): Time is NULL, blocking message.");
+            return false;
+        }
+        timeStr = timeStr.trim();
+
+        if (timeStr.length() != 11) {
+            logger.warning("* verifyTime(): Time string have invalid length (!=11), blocking message: " + timeStr);
+            return false;
+        }
+        // check format
+        if( !Character.isDigit(timeStr.charAt(0)) ||
+            !Character.isDigit(timeStr.charAt(1)) ||
+            !(timeStr.charAt(2) == ':') ||
+            !Character.isDigit(timeStr.charAt(3)) ||
+            !Character.isDigit(timeStr.charAt(4)) ||
+            !(timeStr.charAt(5) == ':') ||
+            !Character.isDigit(timeStr.charAt(6)) ||
+            !Character.isDigit(timeStr.charAt(7)) ||
+            !(timeStr.charAt(8) == 'G') ||
+            !(timeStr.charAt(9) == 'M') ||
+            !(timeStr.charAt(10) == 'T') )
+        {
+            logger.warning("* verifyTime(): Time string have invalid format (xx:xx:xxGMT), blocking message: " + timeStr);
+            return false;
+        }
+        // check for valid values :)
+        String hours = timeStr.substring(0, 2);
+        String minutes = timeStr.substring(3, 5);
+        String seconds = timeStr.substring(6, 8);
+        int ihours = -1;
+        int iminutes = -1;
+        int iseconds = -1;
+        try {
+            ihours = Integer.parseInt( hours );
+            iminutes = Integer.parseInt( minutes );
+            iseconds = Integer.parseInt( seconds );
+        } catch(Exception ex) {
+            logger.warning("* verifyTime(): Could not parse the numbers, blocking message: " + timeStr);
+            return false;
+        }
+        if( ihours < 0 || ihours > 23 ||
+            iminutes < 0 || iminutes > 59 ||
+            iseconds < 0 || iseconds > 59 )
+        {
+            logger.warning("* verifyTime(): Time is invalid, blocking message: " + timeStr);
+            return false;
+        }
+        return true;
     }
 }

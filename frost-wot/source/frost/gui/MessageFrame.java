@@ -1211,9 +1211,9 @@ public class MessageFrame extends JFrame {
         frostSettings.setValue("userName", from);
 
         // create new MessageObject to upload
-        MessageObject mo = new MessageObject(repliedMsgId);
-        mo.setBoard(board.getName());
-        mo.setFrom(from);
+        MessageObjectFile mo = new MessageObjectFile(repliedMsgId);
+        mo.setBoardName(board.getName());
+        mo.setFromName(from);
         mo.setSubject(subject);
         mo.setContent(text);
 
@@ -1256,7 +1256,7 @@ public class MessageFrame extends JFrame {
                         JOptionPane.ERROR);
                 return;
             }
-            mo.setRecipient(recipient.getUniqueName());
+            mo.setRecipientName(recipient.getUniqueName());
         }
 
         // zip the xml file and check for maximum size

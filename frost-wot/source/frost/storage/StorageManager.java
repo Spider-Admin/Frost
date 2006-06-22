@@ -43,8 +43,7 @@ public class StorageManager extends Timer {
 					try {
 						savable.save();
 					} catch (StorageException se) {
-						logger.log(Level.SEVERE,
-								"Error while saving a resource inside the timer.", se);
+						logger.log(Level.SEVERE, "Error while saving a resource inside the timer.", se);
 						StorageErrorEvent errorEvent = new StorageErrorEvent(language.getString("Saver.AutoTask.message"));
 						errorEvent.setException(se);
 						listener.dispatchEvent(errorEvent);
@@ -56,6 +55,7 @@ public class StorageManager extends Timer {
 
     private class ShutdownThread extends Thread {
 		public ShutdownThread() {
+            super();
 		}
 
 		/**
@@ -63,16 +63,15 @@ public class StorageManager extends Timer {
 		 */
 		public void run() {
 			logger.info("Saving settings ...");
-
+            
 			if (exitSavables != null) {
-				Enumeration enumeration = exitSavables.elements();
-				while (enumeration.hasMoreElements()) {
-					Savable savable = (Savable) enumeration.nextElement();
+				Iterator it = exitSavables.iterator();
+				while (it.hasNext()) {
+					Savable savable = (Savable) it.next();
 					try {
 						savable.save();
 					} catch (StorageException se) {
-						logger.log(Level.SEVERE,
-								"Error while saving a resource inside the shutdown hook.", se);
+						logger.log(Level.SEVERE, "Error while saving a resource inside the shutdown hook.", se);
 					}
 				}
 			}
@@ -91,13 +90,12 @@ public class StorageManager extends Timer {
 	
 	private Vector autoSavables;
 	private Vector exitSavables;
-
+    
 	/**
 	 * @param frostSettings
 	 * @param parentFrame
 	 */
 	public StorageManager(SettingsClass frostSettings, FrostEventDispatcher listener) {
-		super();
 		this.language = Language.getInstance();
 		this.listener = listener;
 		Runtime.getRuntime().addShutdownHook(shutdownThread);
@@ -145,5 +143,4 @@ public class StorageManager extends Timer {
 		}
 		exitSavables.addElement(exitSavable);
 	}
-
 }

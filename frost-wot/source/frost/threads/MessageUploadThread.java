@@ -44,7 +44,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 
     private String destinationBase;
 
-    private MessageObject message;
+    private MessageObjectFile message;
 
     private Identity encryptForRecipient;
 
@@ -53,7 +53,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
      * If recipient is not null, the message will be encrypted for the recipient.
      * In this case the sender must be not Anonymous!
      */
-    public MessageUploadThread(Board board, MessageObject mo, Identity recipient) {
+    public MessageUploadThread(Board board, MessageObjectFile mo, Identity recipient) {
         super(board);
         this.board = board;
         message = mo;
@@ -74,7 +74,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                     .append("/")
                     .append(board.getBoardFilename())
                     .append("/")
-                    .append(message.getDate())
+                    .append(message.getDateStr())
                     .append("-")
                     .append(index)
                     .append(".xml")
@@ -84,7 +84,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                     .append("KSK@frost/message/")
                     .append(Core.frostSettings.getValue("messageBase"))
                     .append("/")
-                    .append(message.getDate())
+                    .append(message.getDateStr())
                     .append("-")
                     .append(board.getBoardFilename())
                     .append("-")
@@ -109,7 +109,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                     .append("/")
                     .append(board.getBoardFilename())
                     .append("/")
-                    .append(message.getDate())
+                    .append(message.getDateStr())
                     .append("-")
                     .append(index)
                     .append(".xml")
@@ -119,7 +119,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                     .append("KSK@frost/message/")
                     .append(Core.frostSettings.getValue("messageBase"))
                     .append("/")
-                    .append(message.getDate())
+                    .append(message.getDateStr())
                     .append("-")
                     .append(board.getBoardFilename())
                     .append("-")
@@ -171,9 +171,9 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             //      we don't want to insert messages with another date into keyspace of today
             // this also allows to do a date check when we receive a file,
             // see VerifyableMessageObject.verifyDate
-            if (message.getDate() == "" || message.getDate().equals(DateFun.getDate()) == false) {
-                message.setTime(DateFun.getFullExtendedTime() + "GMT");
-                message.setDate(DateFun.getDate());
+            if (message.getDateStr() == "" || message.getDateStr().equals(DateFun.getDate()) == false) {
+                message.setTimeStr(DateFun.getFullExtendedTime() + "GMT");
+                message.setDateStr(DateFun.getDate());
             }
 
             // this class always creates a new msg file on hd and deletes the file
@@ -271,7 +271,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
      * @param file file whose path will be used to save the MessageObject to disk.
      * @return true if successful. False otherwise.
      */
-    private boolean uploadAttachments(MessageObject msg) {
+    private boolean uploadAttachments(MessageObjectFile msg) {
         boolean success = true;
         List fileAttachments = msg.getOfflineFiles();
         
@@ -339,7 +339,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
      * Composes the complete path + filename of a messagefile in the keypool for the given index.
      */
     public String composeMsgFilePath(int index) {
-        return new StringBuffer().append(getDestinationBase()).append(message.getDate())
+        return new StringBuffer().append(getDestinationBase()).append(message.getDateStr())
         .append("-").append(board.getBoardFilename()).append("-").append(index).append(".xml")
         .toString();
     }
@@ -348,7 +348,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
      * Composes only the filename of a messagefile in the keypool for the given index.
      */
     private String composeMsgFileNameWithoutXml(int index) {
-        return new StringBuffer().append(message.getDate()).append("-")
+        return new StringBuffer().append(message.getDateStr()).append("-")
         .append(board.getBoardFilename()).append("-").append(index).toString();
     }
 

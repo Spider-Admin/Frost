@@ -26,7 +26,6 @@ import javax.swing.table.*;
 import frost.*;
 import frost.gui.model.*;
 import frost.gui.objects.*;
-import frost.messages.*;
 
 public class MessageTable extends SortedTable
 {
@@ -161,14 +160,14 @@ public class MessageTable extends SortedTable
             if( column == 1 ) {
                 // FROM
                 // first set font, bold for new msg or normal
-                if (msg.isMessageNew()) {
+                if (msg.isNew()) {
                     setFont(boldFont);
                 } else {
                     setFont(normalFont);
                 }
                 // now set color
                 if (!isSelected) {
-                    if( msg.getRecipient() != null && msg.getRecipient().length() > 0) {
+                    if( msg.getRecipientName() != null && msg.getRecipientName().length() > 0) {
                         setForeground(Color.RED);
                     } else if (msg.containsAttachments()) {
                         setForeground(Color.BLUE);
@@ -179,17 +178,16 @@ public class MessageTable extends SortedTable
             } else if( column == 3 ) {
                 // SIG
                 // state == good/bad/check/observe -> bold and coloured
-                int state = msg.getMsgStatus();
-                if( state == VerifyableMessageObject.xGOOD ) {
+                if( msg.isMessageStatusGOOD() ) {
                     setFont(boldFont);
                     setForeground(col_good);
-                } else if( state == VerifyableMessageObject.xCHECK ) {
+                } else if( msg.isMessageStatusCHECK() ) {
                     setFont(boldFont);
                     setForeground(col_check);
-                } else if( state == VerifyableMessageObject.xOBSERVE ) {
+                } else if( msg.isMessageStatusOBSERVE() ) {
                     setFont(boldFont);
                     setForeground(col_observe);
-                } else if( state == VerifyableMessageObject.xBAD ) {
+                } else if( msg.isMessageStatusBAD() ) {
                     setFont(boldFont);
                     setForeground(col_bad);
                 } else {

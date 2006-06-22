@@ -732,14 +732,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     }
 
     /**
-     * File | Exit action performed
-     * @param e
+     * save size,location and state of window
+     * let save message panel layouts
      */
-    private void fileExitMenuItem_actionPerformed(ActionEvent e) {
-
-        // TODO: move to saveable???
-
-        // save size,location and state of window
+    public void saveLayout() {
         Rectangle bounds = getBounds();
         boolean isMaximized = ((getExtendedState() & Frame.MAXIMIZED_BOTH) != 0);
 
@@ -755,8 +751,16 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         frostSettings.setValue("MainFrame.treeAndTabbedPaneSplitpaneDividerLocation", 
                 treeAndTabbedPaneSplitpane.getDividerLocation());
 
+        // let save component layouts
         getMessagePanel().getMessageTable().saveLayout(frostSettings);
         getMessagePanel().saveLayout(frostSettings);
+    }
+
+    /**
+     * File | Exit action performed
+     * @param e
+     */
+    private void fileExitMenuItem_actionPerformed(ActionEvent e) {
 
         if (tofTree.getRunningBoardUpdateThreads().getRunningUploadThreadCount() > 0) {
             int result = JOptionPane.showConfirmDialog(
@@ -768,7 +772,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             if (result == JOptionPane.NO_OPTION) {
                 return;
             }
-        } 
+        }
+        
+        saveLayout();
+        
         System.exit(0);
     }
 

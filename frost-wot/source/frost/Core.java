@@ -19,6 +19,7 @@
 package frost;
 
 import java.io.*;
+import java.sql.*;
 import java.util.*;
 import java.util.Timer;
 import java.util.logging.*;
@@ -489,55 +490,6 @@ public class Core implements Savable, FrostEventDispatcher  {
     }
 
     /**
-     * One time repair: finds all .sig files, reads the sig state from sig, loads
-     * message and sets the signature state into the xml.
-     * If message load failed .sig is removed (won't load either).
-     */
-    private void convertSigIntoXml() {
-        // get all .sig files in keypool
-      ArrayList entries = FileAccess.getAllEntries( new File(frostSettings.getValue("keypool.dir")), ".sig");
-      logger.info("convertSigIntoXml: Starting to convert "+entries.size()+" .sig files.");
-
-      for( int ii=0; ii<entries.size(); ii++ ) {
-
-          File sigFile = (File)entries.get(ii);
-          File msgFile = new File(sigFile.getPath().substring(0, sigFile.getPath().length() - 4)); // .xml.sig -> .xml
-          if (msgFile.getName().equals("files.xml")) continue;
-          if (msgFile.getName().equals("new_files.xml")) continue;
-          FrostMessageObject tempMsg = null;
-          try {
-              tempMsg = new FrostMessageObject(msgFile);
-          } catch (MessageCreationException mce){
-              if (mce.isEmpty()) {
-                  logger.log(Level.INFO, "A message could not be created. It is empty.", mce);
-              } else {
-                  logger.log(Level.WARNING, "A message could not be created.", mce);
-              }
-              sigFile.delete();
-              continue;
-          }
-          String oldStatus = FileAccess.readFile(sigFile);
-          if( oldStatus.indexOf("GOOD") >= 0 ||
-              oldStatus.indexOf("CHECK") >= 0 ||
-              oldStatus.indexOf("BAD") >= 0 )
-          {
-              // msg was signed
-              tempMsg.setSignatureStatus(MessageObject.SIGNATURESTATUS_VERIFIED);
-          } else if( oldStatus.indexOf("NONE") >= 0 ||
-                     oldStatus.indexOf("N/A") >= 0 )
-          {
-              // set to OLD
-              tempMsg.setSignatureStatus(MessageObject.SIGNATURESTATUS_OLD);
-          } else {
-              // set to tampered
-              tempMsg.setSignatureStatus(MessageObject.SIGNATURESTATUS_TAMPERED);
-          }
-          tempMsg.save();
-          sigFile.delete();
-      }
-    }
-
-    /**
      * @throws Exception
      */
     public void initialize() throws Exception {
@@ -555,6 +507,16 @@ public class Core implements Savable, FrostEventDispatcher  {
 
         //Initializes storage
         DAOFactory.initialize(frostSettings);
+        
+        // open databases
+        try {
+            TransferLayerDatabase.initialize();
+            GuiDatabase.initialize();
+        } catch(SQLException ex) {
+            logger.log(Level.SEVERE, "Error opening the databases", ex);
+            ex.printStackTrace();
+            throw ex;
+        }
         
         // initialize messageHashes
         messageHashes = new MessageHashes();
@@ -615,41 +577,6 @@ public class Core implements Savable, FrostEventDispatcher  {
 
         if (!initializeConnectivity()) {
             System.exit(1);
-        }
-
-        // TODO: one time convert, remove later (added: 2005-09-02)
-        if( frostSettings.getBoolValue("oneTimeUpdate.convertSigs.didRun") == false ) {
-            splashscreen.setText("Convert from old format");
-
-            // convert .sig files into xml files
-            //  - find all existing .sig files
-            //  - find xml file for .sig
-            //  - open XML file
-            //  - read .sig file and set:
-            //     - xml to VERIFIED if .sig contains ...GOOD... or BAD or CHECK
-            //     - xml to TAMPERED if FAKE
-            //     - xml to OLD if NONE or N/A
-//          public static final String PENDING  = "<html><b><font color=#FFCC00>CHECK</font></b></html>";
-//          public static final String VERIFIED = "<html><b><font color=\"green\">GOOD</font></b></html>";
-//          public static final String FAILED   = "<html><b><font color=\"red\">BAD</font></b></html>";
-//          public static final String NA       = "N/A";
-//          public static final String OLD      = "NONE";
-//          public static final String TAMPERED = "FAKE :(";
-
-            String txt = "<html>Frost must now convert the messages, and this could take some time.<br>"+
-                         "Afterwards the .sig files are not longer needed and will be deleted.<br><br>"+
-                         "<b>BACKUP YOUR FROST DIRECTORY BEFORE STARTING!</b><br>"+
-                         "<br><br>Do you want to start the conversion NOW press yes.</html>";
-            int answer = JOptionPane.showConfirmDialog(splashscreen, txt, "About to start convert process",
-                          JOptionPane.INFORMATION_MESSAGE, JOptionPane.YES_NO_OPTION);
-
-            if( answer != JOptionPane.YES_OPTION ) {
-                System.exit(1);
-            }
-
-            convertSigIntoXml();
-
-            frostSettings.setValue("oneTimeUpdate.convertSigs.didRun", true);
         }
 
         splashscreen.setText(language.getString("Splashscreen.message.3"));
@@ -774,12 +701,16 @@ public class Core implements Savable, FrostEventDispatcher  {
         saver.addAutoSavable(getMessageHashes());
         saver.addAutoSavable(getBoardsManager().getTofTree());
         saver.addAutoSavable(getFileTransferManager());
+        
         saver.addExitSavable(this);
         saver.addExitSavable(getIdentities());
         saver.addExitSavable(getMessageHashes());
         saver.addExitSavable(getBoardsManager().getTofTree());
         saver.addExitSavable(getFileTransferManager());
         saver.addExitSavable(frostSettings);
+        // close databases
+        saver.addExitSavable(GuiDatabase.getInstance());
+        saver.addExitSavable(TransferLayerDatabase.getInstance());
 
         // We initialize the task that helps requests of friends (delay 5min, repeat all 6hrs)
         if (frostSettings.getBoolValue("helpFriends")) {

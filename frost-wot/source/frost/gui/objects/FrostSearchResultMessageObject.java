@@ -28,7 +28,7 @@ public class FrostSearchResultMessageObject extends FrostMessageObject {
     private boolean messageIsArchived;
 
     public FrostSearchResultMessageObject(File file, boolean archived) throws MessageCreationException {
-        super(file);
+        // super(file); // TODO: change searching, use database
         messageIsArchived = archived;
     }
 
@@ -72,14 +72,13 @@ public class FrostSearchResultMessageObject extends FrostMessageObject {
      */
     public Object getValueAt(int column) {
         switch(column) {
-            case 0: return getIndex();
-            case 1: return getFrom();
-            case 2: return getBoard();
+            case 0: return ""+getIndex();
+            case 1: return getFromName();
+            case 2: return getBoard().getName();
             case 3: return getSubject();
-            case 4: return getMsgStatusString();
+            case 4: return getMessageStatusString();
             case 5: return getDateAndTime();
             default: return "*ERR*";
         }
     }
-
 }

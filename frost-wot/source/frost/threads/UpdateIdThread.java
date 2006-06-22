@@ -36,7 +36,7 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
 
     private static Logger logger = Logger.getLogger(UpdateIdThread.class.getName());
 
-    private String date;
+    private java.sql.Date date;
     private Board board;
     private String publicKey;
     private String privateKey;
@@ -46,7 +46,6 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
     private boolean isForToday = false;
 
     private IndexSlots indexSlots;
-    private final static int MAX_SLOTS_PER_DAY = 100;
 
 //    public int getThreadType() {
 //        return BoardUpdateThread.BOARD_FILE_DNLOAD;
@@ -172,7 +171,7 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
     }
 
     /**Constructor*/
-    public UpdateIdThread(Board board, String date, boolean isForToday) {
+    public UpdateIdThread(Board board, String dateStr, java.sql.Date date, boolean isForToday) {
 
         this.board = board;
         this.date = date;
@@ -180,7 +179,7 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
         this.isForToday = isForToday;
 
         // first load the index with the date we wish to download
-        indexSlots = new IndexSlots("indicesV2-", board, date, MAX_SLOTS_PER_DAY);
+        indexSlots = new IndexSlots("fileindex", board.getName(), date);
 
         publicKey = board.getPublicKey();
         privateKey = board.getPrivateKey();
@@ -189,7 +188,7 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
             requestKey = new StringBuffer()
                     .append(publicKey)
                     .append("/")
-                    .append(date)
+                    .append(dateStr)
                     .append("/")
                     .toString();
         } else {
@@ -197,7 +196,7 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
                     .append("KSK@frost/index/")
                     .append(board.getBoardFilename())
                     .append("/")
-                    .append(date)
+                    .append(dateStr)
                     .append("/")
                     .toString();
         }

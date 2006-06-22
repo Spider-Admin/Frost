@@ -273,7 +273,7 @@ public class MessageWindow extends JFrame {
         private JTextField getTFfrom() {
             if( TFfrom == null ) {
                 TFfrom = new JTextField();
-                TFfrom.setText(" "+innerMessage.getFrom());
+                TFfrom.setText(" "+innerMessage.getFromName());
                 TFfrom.setBorder(javax.swing.BorderFactory.createEmptyBorder(2,2,2,2));
                 TFfrom.setEditable(false);
             }
@@ -293,7 +293,7 @@ public class MessageWindow extends JFrame {
         private JTextField getTFboard() {
             if( TFboard == null ) {
                 TFboard = new JTextField();
-                TFboard.setText(" "+innerMessage.getBoard());
+                TFboard.setText(" "+innerMessage.getBoard().getName());
                 TFboard.setBorder(javax.swing.BorderFactory.createEmptyBorder(2,2,2,2));
                 TFboard.setEditable(false);
             }

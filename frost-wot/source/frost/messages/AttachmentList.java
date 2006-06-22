@@ -41,21 +41,20 @@ public class AttachmentList extends LinkedList implements XMLizable {
 					type == Attachment.PERSON :
 					"list of unknown type of attachments requested";
 		
-		
 		Iterator i = iterator();
 		AttachmentList result = new AttachmentList();
 		while (i.hasNext()) {
 			Attachment current = (Attachment)i.next();
-			if (current.getType() == type)
+			if (current.getType() == type) {
 				result.add(current);
+            }
 		}
 		
 		return result;
 	}
     
 	synchronized public Element getXMLElement(Document d){
-        if( size() == 0 )
-        {
+        if( size() == 0 ) {
             return null;
         }
 		Element el = d.createElement("AttachmentList");
@@ -68,16 +67,17 @@ public class AttachmentList extends LinkedList implements XMLizable {
 	}
 	
 	public void loadXMLElement(Element el) throws SAXException {
-        if( el == null )
+        if( el == null ) {
             return;
+        }
 		Iterator i = XMLTools.getChildElementsByTagName(el,"Attachment").iterator();
 		while (i.hasNext()){
 			Element current = (Element)i.next();
 			Attachment attachment = Attachment.getInstance(current);
 			add(attachment);
 		}
-		
-		if (size()==0)
+		if (size()==0) {
 			logger.info("empty attachment list upon creation");
+        }
 	}
 }

@@ -37,7 +37,7 @@ public class Startup {
         cleanTempDir(settings);
         deleteObsoleteFiles();
     }
-
+    
     // Copy some files from the jar file, if they don't exist
     private static void copyFiles() {
         String fileSeparator = System.getProperty("file.separator");

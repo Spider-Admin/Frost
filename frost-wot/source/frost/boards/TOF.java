@@ -17,18 +17,19 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 package frost.boards;
-import java.io.*;
+import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
 import javax.swing.*;
-import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.*;
 
 import frost.*;
+import frost.fileTransfer.*;
 import frost.gui.model.*;
 import frost.gui.objects.*;
 import frost.messages.*;
-import frost.messages.VerifyableMessageObject;
+import frost.storage.*;
 
 /**
  * @pattern Singleton
@@ -36,8 +37,8 @@ import frost.messages.VerifyableMessageObject;
  * @author $Author$
  * @version $Revision$
  */
-public class TOF
-{
+public class TOF {
+
     private static Logger logger = Logger.getLogger(TOF.class.getName());
 
     private UpdateTofFilesThread updateThread = null;
@@ -90,97 +91,129 @@ public class TOF
      */
     public void setAllMessagesRead(final Board board) {
         // now takes care if board is changed during mark read of many boards! reloads current table if needed
+        
+        try {
+            MessageDatabaseTable.setAllMessagesRead(board);
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error marking all messages read", e);
+            return;
+        }
+        
+        // if this board is currently shown, update messages in table
+        if( MainFrame.getInstance().getTofTreeModel().getSelectedNode() == board ) {
 
-        Runnable resetter = new Runnable() {
-            public void run() {
-
-                String keypool = MainFrame.keypool;
-                boolean boardWasShown = false;
-                final String boardFilename = board.getBoardFilename();
-
-                // if this board is currently shown, update messages in table first
-                if( MainFrame.getInstance().getTofTreeModel().getSelectedNode() == board ) {
-
-                    boardWasShown = true; // remember that we processed the shown messages
-                    final MessageTableModel tableModel = MainFrame.getInstance().getMessageTableModel();
-
-                    // first update msgs shown in table
+            final MessageTableModel tableModel = MainFrame.getInstance().getMessageTableModel();
+            SwingUtilities.invokeLater( new Runnable() {
+                public void run() {
                     for(int row=0; row < tableModel.getRowCount(); row++ ) {
                         final FrostMessageObject message = (FrostMessageObject)tableModel.getRow(row);
-                        if( message != null ) {
-                            // Test if lockfile exists, remove it and update the tree display
-                            if( message.isMessageNew() == false ) {
-                                continue;
-                            }
-                            // this is a new message
-                            message.setMessageNew(false); // mark as read
-                            board.decNewMessageCount();
-
-                            SwingUtilities.invokeLater( new Runnable() {
-                                public void run() {
-                                    tableModel.updateRow(message);
-                                }
-                            });
+                        if( message.isNew() ) {
+                            message.setNew(false);
+                            tableModel.updateRow(message);
                         }
                     }
-                    // all new messages should be gone now ...
-                    SwingUtilities.invokeLater( new Runnable() {
-                        public void run() {
-                            MainFrame.getInstance().updateMessageCountLabels(board);
-                            MainFrame.getInstance().updateTofTree(board);
+                    board.setNewMessageCount( 0 );
+                    MainFrame.getInstance().updateMessageCountLabels(board);
+                    MainFrame.getInstance().updateTofTree(board);
+            }});
+        } else {
+            SwingUtilities.invokeLater( new Runnable() {
+                public void run() {
+                    MainFrame.getInstance().updateMessageCountLabels(board);
+                    MainFrame.getInstance().updateTofTree(board);
+            }});
+        }
+    }
+
+    /**
+     * Add new msg to database (as invalid), mark download slot used. 
+     */
+    public void receivedInvalidMessage(Board b, Calendar calDL, int index, String reason) {
+        
+        // first add to database, then mark slot used. this way its ok if Frost is shut down after add to db but
+        // before mark of the slot.
+        FrostMessageObject invalidMsg = new FrostMessageObject(b, calDL, index, reason);
+        try {
+            MessageDatabaseTable.insertMessage(invalidMsg);
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error inserting invalid message into database", e);
+            return;
+        }
+    }
+    
+    /**
+     * Add new msg to database, mark download slot used. 
+     */
+    public void receivedValidMessage(MessageObjectFile currentMsg, Board board, int index) {
+        FrostMessageObject newMsg = new FrostMessageObject(currentMsg, board, index);
+        newMsg.setNew(true);
+        try {
+            MessageDatabaseTable.insertMessage(newMsg);
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error inserting new message into database", e);
+            return;
+        }
+        // after add to database
+        processNewMessage(newMsg, board);
+    }
+
+    /**
+     * Process incoming message.
+     */
+    private void processNewMessage(FrostMessageObject currentMsg, Board board) {
+        if ( blocked(currentMsg, board) ) {
+            board.incBlocked();
+            logger.info("TOFDN: Blocked message for board '"+board.getName()+"'.");
+        } else {
+            // check if msg would be displayed (maxMessageDays)
+            Calendar minDate = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+            minDate.add(Calendar.DATE, -1*board.getMaxMessageDisplay());
+            
+            Calendar msgDate = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+            msgDate.setTimeInMillis( currentMsg.getSqlDate().getTime());
+            
+            if( !msgDate.before(minDate) ) {
+                // add new message or notify of arrival
+                addNewMessageToTable(currentMsg, board);
+            } // else msg is not displayed due to maxMessageDisplay
+            
+            // add all files indexed files, but never for BAD users
+            if( !currentMsg.isMessageStatusBAD() ) {
+                Iterator it = currentMsg.getAttachmentsOfType(Attachment.FILE).iterator();
+                while (it.hasNext()) {
+                    SharedFileObject current = ((FileAttachment)it.next()).getFileObj();
+                    if (current.getOwner() != null) {
+                        Index fileindex = Index.getInstance();
+                        synchronized(fileindex) {
+                            fileindex.add(current, board);
                         }
-                    });
-                }
-
-                // remove all older .lck files
-
-                File loadDir = new File(new StringBuffer().append(keypool).append(boardFilename).toString());
-                if( !loadDir.isDirectory() ) {
-                    return;
-                }
-
-                ArrayList entries = null;
-                int beforeMessages = 0;
-                boolean noNewMessageArrived = false;
-                while( noNewMessageArrived == false ) {
-                    beforeMessages = board.getNewMessageCount(); // remember old val to track if new msg. arrived
-                    entries = FileAccess.getAllEntries( loadDir, ".xml.lck");
-                    if( beforeMessages == board.getNewMessageCount() ) {
-                        // ok, no new .lck was created during we searched all .lck files
-                        noNewMessageArrived = true;
                     }
-                    // else get new list of .lck files, a new msg arrived
                 }
-
-                // delete all .lck files
-                for( Iterator i = entries.iterator(); i.hasNext(); ) {
-                    File lckFile = (File)i.next();
-                    lckFile.delete();
-                }
-
-                // set not 0 in case a new msg arrived while we deleted
-                board.setNewMessageCount( board.getNewMessageCount() - beforeMessages );
-
-                final boolean finalBoardWasShown = boardWasShown;
-
-                // all new messages should be gone now ...
-                SwingUtilities.invokeLater( new Runnable() {
-                    public void run() {
-                        MainFrame.getInstance().updateMessageCountLabels(board);
-                        MainFrame.getInstance().updateTofTree(board);
-
-                        if( MainFrame.getInstance().getTofTreeModel().getSelectedNode() == board &&
-                             finalBoardWasShown == false )
-                        {
-                            // the board was not shown when we started to mark read, so user changed the board during our
-                            // operation. so he maybe has unread messages left in the messages table.
-                            // reload the table...
-                            MainFrame.getInstance().tofTree_actionPerformed(null);
-                        }
-                    }
-                });
-            } };
-        new Thread( resetter ).start();
+            }
+            // add all boards to the list of known boards
+            if( currentMsg.isMessageStatusOLD() &&
+                Core.frostSettings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_UNSIGNED) == true )
+            {
+                logger.info("Boards from unsigned message blocked");
+            } else if( currentMsg.isMessageStatusBAD() &&
+                       Core.frostSettings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_BAD) == true )
+            {
+                logger.info("Boards from BAD message blocked");
+            } else if( currentMsg.isMessageStatusCHECK() &&
+                       Core.frostSettings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_CHECK) == true )
+            {
+                logger.info("Boards from CHECK message blocked");
+            } else if( currentMsg.isMessageStatusOBSERVE() &&
+                       Core.frostSettings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_OBSERVE) == true )
+            {
+                logger.info("Boards from OBSERVE message blocked");
+            } else if( currentMsg.isMessageStatusTAMPERED() ) {
+                logger.info("Boards from TAMPERED message blocked");
+            } else {
+                // either GOOD user or not blocked by user
+                Core.addNewKnownBoards(currentMsg.getAttachmentsOfType(Attachment.BOARD));
+            }
+        }
     }
 
     /**
@@ -189,43 +222,24 @@ public class TOF
      * @param board
      * @param markNew
      */
-    public void addNewMessageToTable(File newMsgFile, final Board board, boolean markNew)
-    {
+    private void addNewMessageToTable(final FrostMessageObject message, final Board board) {
+        
         final SortedTableModel tableModel = MainFrame.getInstance().getMessageTableModel();
 
-        if( (newMsgFile.getName()).endsWith(".xml") &&
-             newMsgFile.length() > 0
-             //&& newMsgFile.length() < 32000
-          )
-        {
-            final FrostMessageObject message;
-            try {
-                message = new FrostMessageObject(newMsgFile);
-            } catch(Exception ex) {
-                logger.log(Level.SEVERE, "Error: skipping to load file '" + newMsgFile.getPath()+
-                                         "', reason:\n" + ex.getMessage(), ex);
-                return;
-            }
-            if( message.isValid() && !blocked(message, board) ) {
-                if(markNew) {
-                    message.setMessageNew(true);
-                    MainFrame.displayNewMessageIcon(true);
-                    board.incNewMessageCount();
-                }
+        MainFrame.displayNewMessageIcon(true);
+        board.incNewMessageCount();
 
-                SwingUtilities.invokeLater( new Runnable() {
-                        public void run() {
-                            // check if tof table shows this board
-                            MainFrame.getInstance().updateTofTree(board);
-                            Board selectedBoard = tofTreeModel.getSelectedNode();
-                            if( !selectedBoard.isFolder() && selectedBoard.getName().equals( board.getName() ) )
-                            {
-                                tableModel.addRow(message);
-                                MainFrame.getInstance().updateMessageCountLabels(board);
-                            }
-                        } });
-            }
-        }
+        SwingUtilities.invokeLater( new Runnable() {
+            public void run() {
+                // check if tof table shows this board
+                MainFrame.getInstance().updateTofTree(board);
+                Board selectedBoard = tofTreeModel.getSelectedNode();
+                if( !selectedBoard.isFolder() && selectedBoard.getName().equals( board.getName() ) )
+                {
+                    tableModel.addRow(message);
+                    MainFrame.getInstance().updateMessageCountLabels(board);
+                }
+            } });
     }
 
     /**
@@ -238,22 +252,17 @@ public class TOF
      * @param table The tofTable.
      * @return Vector containing all MessageObjects that are displayed in the table.
      */
-    public void updateTofTable(Board board, String keypool)
-    {
+    public void updateTofTable(Board board, String keypool) {
         int daysToRead = board.getMaxMessageDisplay();
         // changed to not block the swing thread
         MessageTableModel tableModel = MainFrame.getInstance().getMessageTableModel();
 
-        if( updateThread != null )
-        {
-            if( updateThread.toString().equals( board ) )
-            {
+        if( updateThread != null ) {
+            if( updateThread.toString().equals( board ) ) {
                 // already updating
                 return;
-            }
-            else
-            {
-                // stop actual thread, then start new
+            } else {
+                // stop current thread, then start new
                 updateThread.cancel();
             }
         }
@@ -306,18 +315,18 @@ public class TOF
                     return;
                 }
             }
-            // paranoia: are WE the next thread
+            // paranoia: are WE the next thread?
             if( nextUpdateThread != this ) {
                 return;
             } else {
                 updateThread = this;
             }
 
-            // lower thread prio to allow users to select and view messages when this thread runs
+            // lower thread prio to allow users to select and view messages while this thread runs
             try { setPriority(getPriority() - 1); }
             catch(Throwable t) { }
 
-            // Clear tofTable
+            // clear tofTable
             final Board innerTargetBoard = board;
             SwingUtilities.invokeLater( new Runnable() {
                     public void run() {
@@ -331,103 +340,33 @@ public class TOF
                     }
                 });
 
-            // Get actual date
-            GregorianCalendar cal = new GregorianCalendar();
-            cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-
-            // Read files up to maxMessages days to the past
-            GregorianCalendar firstDate = new GregorianCalendar();
-            firstDate.setTimeZone(TimeZone.getTimeZone("GMT"));
-            firstDate.set(Calendar.YEAR, 2001);
-            firstDate.set(Calendar.MONTH, 5);
-            firstDate.set(Calendar.DATE, 11);
-            int msgcount=0;
-            int counter = 0;
-            //int newMsgCount = 0;
-            String targetBoard = board.getBoardFilename();
-            while( cal.after(firstDate) && counter < daysToRead )
-            {
-                String date = DateFun.getDateOfCalendar(cal);
-                String filename = new StringBuffer().append(keypool).append(targetBoard).append(fileSeparator).append(date).toString();
-                File loadDir = new File(filename);
-
-                if( loadDir.isDirectory() ) {
-                    File[] filePointers = loadDir.listFiles(new FilenameFilter() {
-                            public boolean accept(File dir, String name) {
-                                if( name.endsWith(".xml") )
-                                    return true;
-                                return false;
-                            } });
-                    if( filePointers != null ) {
-                        String sdate = new StringBuffer().append(date).append("-").append(targetBoard).append("-").toString();
-                        for( int j = 0; j < filePointers.length; j++ ) {
-                            if( filePointers[j].length() > 0 &&
-                                //filePointers[j].length() < 32000 &&
-                                filePointers[j].getName().startsWith(sdate)
-                              )
-                            {
-                                FrostMessageObject message;
-                                try {
-                                    message = new FrostMessageObject(filePointers[j]);
-                                } catch(Exception ex) {
-                                    // skip the file silently
-                                    message = null;
-                                }
-                                if( message != null &&
-                                    ( Core.frostSettings.getBoolValue("showDeletedMessages") ||
-                                      !message.isDeleted() ) &&
-                                    message.isValid() &&
-                                    !blocked(message,board) )
-                                {
-                                    msgcount++;
-                                    //messages.put( message.getIndex() + message.getDateAndTime(), message);
-                                    // also update labels each 10 messages (or at end, see below)
-                                    boolean updateMessagesCountLabels2 = false;
-                                    if(msgcount > 9 && msgcount%10==0) {
-                                        updateMessagesCountLabels2 = true;
-                                    }
-                                    final boolean updateMessagesCountLabels = updateMessagesCountLabels2;
-                                    final FrostMessageObject finalMessage = message;
-                                    SwingUtilities.invokeLater( new Runnable() {
-                                        public void run() {
-                                            // check if tof table shows this board
-                                            if( tofTreeModel.getSelectedNode().isFolder() == false &&
-                                                tofTreeModel.getSelectedNode().getName().equals( innerTargetBoard.getName() ) )
-                                            {
-                                                tableModel.addRow(finalMessage);
-                                                if(updateMessagesCountLabels) {
-                                                    MainFrame.getInstance().updateMessageCountLabels(innerTargetBoard);
-                                                    MainFrame.getInstance().updateTofTree(innerTargetBoard);
-                                                }
-                                            }
-                                        }
-                                        });
-                                }
-                            }
-                            if( isCancel() ) {
-                                updateThread = null;
-                                return;
-                            }
-                        }
-                    }
-                }
-                if( isCancel() ) {
-                    updateThread = null;
-                    return;
-                }
-                counter++;
-                cal.add(Calendar.DATE, -1);
+            boolean showDeletedMessages = Core.frostSettings.getBoolValue("showDeletedMessages");
+            
+            final List messages;
+            try {
+                // TODO: maybe receive without content and dynamically load contents if needed
+                messages = MessageDatabaseTable.retrieveMessages(board, daysToRead, true, showDeletedMessages);
+            } catch (SQLException e) {
+                logger.log(Level.SEVERE, "Error retrieving messages for board "+board.getName(), e);
+                return;
             }
-
+            
             SwingUtilities.invokeLater( new Runnable() {
-                    public void run() {
-                        if( tofTreeModel.getSelectedNode().isFolder() == false &&
-                            tofTreeModel.getSelectedNode().getName().equals( innerTargetBoard.getName() ) ) {
-                            MainFrame.getInstance().updateTofTree(innerTargetBoard);
-                            MainFrame.getInstance().updateMessageCountLabels(innerTargetBoard);
+                public void run() {
+                    if( tofTreeModel.getSelectedNode().isFolder() == false &&
+                        tofTreeModel.getSelectedNode().getName().equals( innerTargetBoard.getName() ) ) {
+                        
+                        for(Iterator i=messages.iterator(); i.hasNext(); ) {
+                            FrostMessageObject msg = (FrostMessageObject)i.next();
+                            tableModel.addRow(msg);
                         }
+                        
+                        MainFrame.getInstance().updateTofTree(innerTargetBoard);
+                        MainFrame.getInstance().updateMessageCountLabels(innerTargetBoard);
                     }
-                });
+                }
+            });
+            
             updateThread = null;
         }
     }
@@ -437,26 +376,24 @@ public class TOF
      * @param message The message object to check
      * @return true if message is blocked, else false
      */
-    public boolean blocked(VerifyableMessageObject message, Board board) {
+    public boolean blocked(FrostMessageObject message, Board board) {
 
-        int msgStatus = message.getMsgStatus();
         if (board.getShowSignedOnly()
-            && (msgStatus == VerifyableMessageObject.xOLD ||
-                msgStatus == VerifyableMessageObject.xTAMPERED) )
+            && (message.isMessageStatusOLD() || message.isMessageStatusTAMPERED()) )
         {
             return true;
         }
-        if (board.getHideBad() && (msgStatus == VerifyableMessageObject.xBAD)) {
+        if (board.getHideBad() && message.isMessageStatusBAD()) {
             return true;
         }
-        if (board.getHideCheck() && (msgStatus == VerifyableMessageObject.xCHECK)) {
+        if (board.getHideCheck() && message.isMessageStatusCHECK()) {
             return true;
         }
-        if (board.getHideObserve() && (msgStatus == VerifyableMessageObject.xOBSERVE)) {
+        if (board.getHideObserve() && message.isMessageStatusOBSERVE()) {
             return true;
         }
         //If the message is not signed and contains a @ character in the from field, we block it.
-        if (msgStatus == VerifyableMessageObject.xOLD && message.getFrom().indexOf('@') > -1) {
+        if (message.isMessageStatusOLD() && message.getFromName().indexOf('@') > -1) {
             return true;
         }
 
@@ -464,10 +401,8 @@ public class TOF
 
         // Block by subject (and rest of the header)
         if (Core.frostSettings.getBoolValue("blockMessageChecked")) {
-            String header =
-                (message.getSubject() + message.getDate() + message.getTime()).toLowerCase();
-            StringTokenizer blockWords =
-                new StringTokenizer(Core.frostSettings.getValue("blockMessage"), ";");
+            String header = message.getSubject().toLowerCase();
+            StringTokenizer blockWords = new StringTokenizer(Core.frostSettings.getValue("blockMessage"), ";");
             boolean found = false;
             while (blockWords.hasMoreTokens() && !found) {
                 String blockWord = blockWords.nextToken().trim();
@@ -519,18 +454,11 @@ public class TOF
         return false;
     }
 
-    /**
-     *
-     */
     public void initialSearchNewMessages() {
         new SearchAllNewMessages().start();
     }
 
-    /**
-     *
-     */
-    private class SearchAllNewMessages extends Thread
-    {
+    private class SearchAllNewMessages extends Thread {
         /* (non-Javadoc)
          * @see java.lang.Runnable#run()
          */
@@ -550,9 +478,6 @@ public class TOF
         new SearchNewMessages( board ).start();
     }
 
-    /**
-     *
-     */
     private class SearchNewMessages extends Thread
     {
         private Board board;
@@ -573,94 +498,22 @@ public class TOF
     /**
      * @param board
      */
-    private void searchNewMessages(final Board board)
-    {
-        String keypool = MainFrame.keypool;
+    private void searchNewMessages(final Board board) {
+        if( board.isFolder() == true ) {
+            return;
+        }
+
         int daysToRead = board.getMaxMessageDisplay();
 
         int beforeMessages = board.getNewMessageCount(); // remember old val to track if new msg. arrived
-
-        if( board.isFolder() == true )
-            return;
-
-        final String boardFilename = board.getBoardFilename();
-        final String fileSeparator = System.getProperty("file.separator");
-
-        // Get actual date
-        GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-
-        // Read files up to maxMessages days to the past
-        GregorianCalendar firstDate = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-        firstDate.set(Calendar.YEAR, 2001);
-        firstDate.set(Calendar.MONTH, 5);
-        firstDate.set(Calendar.DATE, 11);
-        int dayCounter = 0;
+        
         int newMessages = 0;
-
-        while( cal.after(firstDate) && dayCounter < daysToRead ) {
-
-            String date = DateFun.getDateOfCalendar(cal);
-            File loadDir = new File(new StringBuffer().append(keypool).append(boardFilename).append(fileSeparator)
-                                                      .append(date).toString());
-            // prepare next loop
-            dayCounter++;
-            cal.add(Calendar.DATE, -1); // process previous day
-
-            // process
-            if( !loadDir.isDirectory() ) {
-                continue;
-            }
-
-            File[] filePointers = loadDir.listFiles();
-            if( filePointers == null ) {
-                continue;
-            }
-
-            for( int j = 0; j < filePointers.length; j++ ) {
-
-                if( !filePointers[j].getName().endsWith(".xml.lck") ) {
-                    continue;
-                }
-
-                // search for message
-                String lockFilename = filePointers[j].getName();
-                String messagename = lockFilename.substring(0, lockFilename.length()-4);
-                boolean found = false;
-                int k;
-                for( k=0; k<filePointers.length; k++ ) {
-                    if( filePointers[k].getName().equals( messagename ) &&
-                        filePointers[k].length() > 0 //&&
-                        //filePointers[k].length() < 32000
-                      )
-                    {
-                        // found message file for lock file
-                        found = true;
-                        break;
-                    }
-                }
-                if( found == false ) { // messagefile for lockfile not found (paranoia)
-                    filePointers[j].delete();
-                    continue;  // next .lck file
-                }
-                FrostMessageObject message;
-                try {
-                    message = new FrostMessageObject(filePointers[k]);
-                } catch(Exception ex) {
-                    // skip the file quitely
-                    message = null;
-                }
-                if( message != null &&
-                    message.isValid() &&
-                    !blocked(message,board) )
-                {
-                    // update the node that contains new messages
-                    newMessages++;
-                } else {
-                    // message is blocked, delete newmessage indicator file
-                    filePointers[j].delete();
-                }
-            }
+        try {
+            newMessages = MessageDatabaseTable.getNewMessageCount(board, daysToRead);
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error retrieving new message count", e);
         }
+
         // count new messages arrived while processing
         int arrivedMessages = board.getNewMessageCount() - beforeMessages;
         if( arrivedMessages > 0 )

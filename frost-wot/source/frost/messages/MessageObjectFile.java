@@ -30,52 +30,26 @@ import org.xml.sax.*;
 import frost.*;
 import frost.identities.*;
 
-public class MessageObject implements XMLizable
-{
-    private static Logger logger = Logger.getLogger(MessageObject.class.getName());
+public class MessageObjectFile extends AbstractMessageObject implements XMLizable {
+
+    private static Logger logger = Logger.getLogger(MessageObjectFile.class.getName());
     
     //FIXME: this one is missing the "?" char as opposed to mixed.makeFilename
     private static final char[] evilChars = {'/', '\\', '*', '=', '|', '&', '#', '\"', '<', '>'}; // will be converted to _
 
-    public static final String NEW_MSG_INDICATOR_STR = "NewMessage";
-
-    public static final int SIGNATURESTATUS_UNSET    = 0; // status not set
-    public static final int SIGNATURESTATUS_TAMPERED = 1; // wrong signature
-    public static final int SIGNATURESTATUS_OLD      = 2; // no signature
-    public static final int SIGNATURESTATUS_VERIFIED = 3; // signature was OK
-
-    private static final String SIGNATURESTATUS_TAMPERED_STR = "TAMPERED"; // wrong signature
-    private static final String SIGNATURESTATUS_OLD_STR      = "OLD"; // no signature
-    private static final String SIGNATURESTATUS_VERIFIED_STR = "VERIFIED"; // signature was OK
-
-    private AttachmentList attachments;
-    private String board = "";
-    private String content = "";
-    private String from = "";
-    private String subject = "";
-    private String date = "";
-    private String time = "";
-    private String index = "";
-    private String publicKey  = "";
-    private String recipient = ""; // set if msg was encrypted
-    private String signature = ""; // set if message is signed
-    private boolean deleted = false;
-    private int signatureStatus = SIGNATURESTATUS_UNSET;
-    
-    private String messageId = null;
-    private String inReplyTo = null;
+    private String boardName = "";
+    private String dateStr = "";
+    private String timeStr = "";
 
     protected File file;
-
-    private Boolean messageIsNew = null;
 
     /**
      * Constructor.
      * Used to contruct an instance for a new message.
      */
-    public MessageObject(String replyTo) {
+    public MessageObjectFile(String replyTo) {
         
-        inReplyTo = replyTo;
+        setInReplyTo(replyTo);
 
         // new message, create a new unique msg id
         StringBuffer idStrSb = new StringBuffer();
@@ -96,7 +70,7 @@ public class MessageObject implements XMLizable
         
         String uniqueId = Core.getCrypto().computeChecksumSHA256(idBytes);
 
-        messageId = uniqueId;
+        setMessageId(uniqueId);
     }
 
     /**
@@ -105,7 +79,7 @@ public class MessageObject implements XMLizable
      * @param file
      * @throws MessageCreationException
      */
-    public MessageObject(File file) throws MessageCreationException {
+    public MessageObjectFile(File file) throws MessageCreationException {
 
         if (file == null) {
         	throw new MessageCreationException("Invalid input file for MessageObject. File is null.");
@@ -129,106 +103,35 @@ public class MessageObject implements XMLizable
             throw new MessageCreationException(
                             "Invalid input file '" + file.getName() + "' for MessageObject (load/analyze failed).", exception);
         }
-    }
 
-    /**Set all values*/
-    public void analyzeFile() throws Exception
-    {
-        // set index for this msg from filename
-        String filename = file.getName();
-        this.index = (filename.substring(filename.lastIndexOf("-") + 1, filename.lastIndexOf(".xml"))).trim();
+        initializeMessageStatus(getFromIdentity());
+    }
+    
+
+    /**
+     * Set all values after load
+     */
+    public void analyzeFile() throws Exception {
         // ensure all needed fields are properly filled
-        if( from == null || date == null ||  time == null ||
-            board == null || !isValid() )
+        if( getFromName() == null || getDateStr() == null || getTimeStr() == null || getContent() == null ||
+            getBoardName() == null || !isValid() )
         {
-            String message = "Analyze file failed.  File saved as \"badMessage\", send to a dev.  Reason:\n";
-            if (!isValid()) message = message + "isValid failed";
-            if (content==null) message = message + "content null";
-            logger.severe(message);
-            file.renameTo(new File("badMessage"));
+            logger.severe("Analyze file failed.");
             throw new Exception("Message have invalid or missing fields.");
         }
         // replace evil chars
         for( int i = 0; i < evilChars.length; i++ ) {
-            this.from = this.from.replace(evilChars[i], '_');
-            this.subject = this.subject.replace(evilChars[i], '_');
-            this.date = this.date.replace(evilChars[i], '_');
-            this.time = this.time.replace(evilChars[i], '_');
+            setFromName(getFromName().replace(evilChars[i], '_'));
+            setSubject(getSubject().replace(evilChars[i], '_'));
+            setDateStr(getDateStr().replace(evilChars[i], '_'));
+            setTimeStr(getTimeStr().replace(evilChars[i], '_'));
         }
-    }
-
-    /**
-     * This method returns the AttachmentList. If no one exists, it creates a new one.
-     * @return the AttachmentList
-     */
-    private AttachmentList getAttachmentList() {
-        if (attachments == null) {
-            attachments = new AttachmentList();
-        }
-        return attachments;
-    }
-
-    /**
-     * This method returns an AttachmentList containing all of the
-     * attachments of the given type. The type can be one of those:
-     *  Attachment.FILE
-     *  Attachment.BOARD
-     *  Attachment.PERSON (currently unused)
-     * @param type the type of attachments to return in the AttachmentList
-     * @return an AttachmentList containing all of the attachments of the given type.
-     */
-    public AttachmentList getAttachmentsOfType(int type) {
-        if (attachments == null) {
-            return new AttachmentList();
-        } else {
-            return attachments.getAllOfType(type);
-        }
-    }
-
-    /**
-     * This method returns all of the attachments
-     * @return an AttachmentList containing all of the attachments of the message.
-     */
-    public AttachmentList getAllAttachments() {
-        if (attachments == null) {
-            return new AttachmentList();
-        } else {
-            return attachments;
-        }
-    }
-
-    public String getBoard() {
-        return board;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public String getDate() {
-        return date;
     }
 
     public File getFile() {
         return file;
     }
 
-    public String getFrom() {
-        return from;
-    }
-
-    public String getIndex() {
-        return index;
-    }
-
-    public String getRecipient() {
-        return recipient;
-    }
-    
-    public String getSignature() {
-        return signature;
-    }
-    
     /**
      * Signs message and sets signature.
      * 
@@ -257,8 +160,8 @@ public class MessageObject implements XMLizable
     private String getSignableContent() {
         
         StringBuffer allContent = new StringBuffer();
-        allContent.append(getDate());
-        allContent.append(getTime());
+        allContent.append(getDateStr());
+        allContent.append(getTimeStr());
         allContent.append(getSubject());
         allContent.append(getContent());
         // attachments
@@ -280,36 +183,6 @@ public class MessageObject implements XMLizable
             }
         }
         return allContent.toString();
-    }
-
-    /**
-     * Get a list of all attached files that are currently offline.
-     */
-    public List getOfflineFiles() {
-        List result = new LinkedList();
-        if (attachments != null) {
-            List fileAttachments = attachments.getAllOfType(Attachment.FILE);
-            Iterator it = fileAttachments.iterator();
-            while (it.hasNext()) {
-                SharedFileObject sfo = ((FileAttachment) it.next()).getFileObj();
-                if (!sfo.isOnline()) {
-                    result.add(sfo);
-                }
-            }
-        }
-        return result;
-    }
-
-    public String getPublicKey() {
-        return publicKey;
-    }
-
-    public String getSubject() {
-        return subject;
-    }
-
-    public String getTime() {
-        return time;
     }
 
     /**
@@ -337,7 +210,7 @@ public class MessageObject implements XMLizable
 
         //from
         current = d.createElement("From");
-        cdata = d.createCDATASection(Mixed.makeSafeXML(getFrom()));
+        cdata = d.createCDATASection(Mixed.makeSafeXML(getFromName()));
         current.appendChild(cdata);
         el.appendChild(current);
 
@@ -349,13 +222,13 @@ public class MessageObject implements XMLizable
 
         //date
         current = d.createElement("Date");
-        cdata = d.createCDATASection(Mixed.makeSafeXML(getDate()));
+        cdata = d.createCDATASection(Mixed.makeSafeXML(getDateStr()));
         current.appendChild(cdata);
         el.appendChild(current);
 
         //time
         current = d.createElement("Time");
-        cdata = d.createCDATASection(Mixed.makeSafeXML(getTime()));
+        cdata = d.createCDATASection(Mixed.makeSafeXML(getTimeStr()));
         current.appendChild(cdata);
         el.appendChild(current);
 
@@ -367,12 +240,12 @@ public class MessageObject implements XMLizable
 
         //board
         current = d.createElement("Board");
-        cdata = d.createCDATASection(Mixed.makeSafeXML(getBoard()));
+        cdata = d.createCDATASection(Mixed.makeSafeXML(getBoardName()));
         current.appendChild(cdata);
         el.appendChild(current);
 
         //public Key
-        if (publicKey != null && publicKey.length() > 0) {
+        if (getPublicKey() != null && getPublicKey().length() > 0) {
             current = d.createElement("pubKey");
             cdata = d.createCDATASection(Mixed.makeSafeXML(getPublicKey()));
             current.appendChild(cdata);
@@ -380,51 +253,41 @@ public class MessageObject implements XMLizable
         }
 
         // recipient
-        if (recipient != null && recipient.length() > 0) {
+        if (getRecipientName() != null && getRecipientName().length() > 0) {
             current = d.createElement("recipient");
-            cdata = d.createCDATASection(Mixed.makeSafeXML(getRecipient()));
+            cdata = d.createCDATASection(Mixed.makeSafeXML(getRecipientName()));
             current.appendChild(cdata);
             el.appendChild(current);
         }
 
         // signature
-        if (signature != null && signature.length() > 0) {
+        if (getSignature() != null && getSignature().length() > 0) {
             current = d.createElement("Signature");
             cdata = d.createCDATASection(Mixed.makeSafeXML(getSignature()));
             current.appendChild(cdata);
             el.appendChild(current);
         }
 
-        //is deleted?
-        if (deleted) {
-            current = d.createElement("Deleted");
-            el.appendChild(current);
-        }
-
-        // signature status
-        if( signatureStatus != SIGNATURESTATUS_UNSET ) {
-            current = d.createElement("signatureStatus");
-            if( signatureStatus == SIGNATURESTATUS_TAMPERED ) {
-                cdata = d.createCDATASection(SIGNATURESTATUS_TAMPERED_STR);
-            } else if( signatureStatus == SIGNATURESTATUS_OLD ) {
-                cdata = d.createCDATASection(SIGNATURESTATUS_OLD_STR);
-            } else if( signatureStatus == SIGNATURESTATUS_VERIFIED ) {
-                cdata = d.createCDATASection(SIGNATURESTATUS_VERIFIED_STR);
-            }
-            current.appendChild(cdata);
-            el.appendChild(current);
-        }
+//        // signature status
+//        if( getSignatureStatus() != SIGNATURESTATUS_UNSET ) {
+//            current = d.createElement("signatureStatus");
+//            if( getSignatureStatus() == SIGNATURESTATUS_TAMPERED ) {
+//                cdata = d.createCDATASection(SIGNATURESTATUS_TAMPERED_STR);
+//            } else if( signatureStatus == SIGNATURESTATUS_OLD ) {
+//                cdata = d.createCDATASection(SIGNATURESTATUS_OLD_STR);
+//            } else if( signatureStatus == SIGNATURESTATUS_VERIFIED ) {
+//                cdata = d.createCDATASection(SIGNATURESTATUS_VERIFIED_STR);
+//            }
+//            current.appendChild(cdata);
+//            el.appendChild(current);
+//        }
 
         //attachments
-        if ((attachments != null) && (attachments.size() > 0)) {
-            el.appendChild(attachments.getXMLElement(d));
+        if (getAllAttachments() != null && getAllAttachments().size() > 0) {
+            el.appendChild(getAllAttachments().getXMLElement(d));
         }
 
         return el;
-    }
-
-    public boolean isDeleted() {
-        return deleted;
     }
 
     /**
@@ -432,28 +295,28 @@ public class MessageObject implements XMLizable
      */
     public boolean isValid() {
 
-        if (date == null || date.length() == 0 || date.length() > 22 ) {
+        if (getDateStr() == null || getDateStr().length() == 0 || getDateStr().length() > 22 ) {
             return false;
         }
-        if (time == null || time.length() == 0) {
+        if (getTimeStr() == null || getTimeStr().length() == 0) {
             return false;
         }
-        if (board == null || board.length() == 0 || board.length() > 256 ) {
+        if (getBoardName() == null || getBoardName().length() == 0 || getBoardName().length() > 256 ) {
             return false;
         }
-        if (from == null || from.length() == 0 || from.length() > 256 ) {
-            return false;
-        }
-
-        if (subject == null) {
-            subject = ""; // we accept empty subjects
-        } else if ( subject.length() > 256 ) {
+        if (getFromName() == null || getFromName().length() == 0 || getFromName().length() > 256 ) {
             return false;
         }
 
-        if (content == null) {
-            content = "";
-        } else if (content.length() > (64 * 1024)) { // 64k or whatever fits in zipped data
+        if (getSubject() == null) {
+            setSubject(""); // we accept empty subjects
+        } else if ( getSubject().length() > 256 ) {
+            return false;
+        }
+
+        if (getContent() == null) {
+            setContent("");
+        } else if (getContent().length() > (64 * 1024)) { // 64k or whatever fits in zipped data
             return false;
         }
 
@@ -484,13 +347,13 @@ public class MessageObject implements XMLizable
         // transparently decrypt and continue load on success
         if( rootNode.getTagName().equals("EncryptedFrostMessage") ) {
             // get recipient (must be I to continue)
-            recipient = XMLTools.getChildElementsCDATAValue(rootNode, "recipient");
-            if( recipient == null ) {
+            setRecipientName(XMLTools.getChildElementsCDATAValue(rootNode, "recipient"));
+            if( getRecipientName() == null ) {
                 // no recipient
                 throw new Exception("Error - encrypted message contains no 'recipient' section.");
             }
-            FrostIdentities identities = Core.getInstance().getIdentities();
-            if( !recipient.equals(identities.getMyId().getUniqueName()) ) {
+            FrostIdentities identities = Core.getIdentities();
+            if( !getRecipientName().equals(identities.getMyId().getUniqueName()) ) {
                 // not for me
                 throw new MessageCreationException("Info: Encrypted message is not for me.",
                         MessageCreationException.MSG_NOT_FOR_ME);
@@ -537,46 +400,33 @@ public class MessageObject implements XMLizable
         // load the message load itself
         loadXMLElement(rootNode);
     }
-
+    
     /**
      * @see frost.XMLizable#loadXMLElement(org.w3c.dom.Element)
      */
     public void loadXMLElement(Element e) throws SAXException {
-        messageId = XMLTools.getChildElementsCDATAValue(e, "MessageId");
-        inReplyTo = XMLTools.getChildElementsCDATAValue(e, "InReplyTo");
-        from = XMLTools.getChildElementsCDATAValue(e, "From");
-        date = XMLTools.getChildElementsCDATAValue(e, "Date");
-        subject = XMLTools.getChildElementsCDATAValue(e, "Subject");
-        time = XMLTools.getChildElementsCDATAValue(e, "Time");
-        publicKey = XMLTools.getChildElementsCDATAValue(e, "pubKey");
-        recipient = XMLTools.getChildElementsCDATAValue(e, "recipient");
-        board = XMLTools.getChildElementsCDATAValue(e, "Board");
-        content = XMLTools.getChildElementsCDATAValue(e, "Body");
-        signature = XMLTools.getChildElementsCDATAValue(e, "Signature");
+        setMessageId(XMLTools.getChildElementsCDATAValue(e, "MessageId"));
+        setInReplyTo(XMLTools.getChildElementsCDATAValue(e, "InReplyTo"));
+        setFromName(XMLTools.getChildElementsCDATAValue(e, "From"));
+        setDateStr(XMLTools.getChildElementsCDATAValue(e, "Date"));
+        setSubject(XMLTools.getChildElementsCDATAValue(e, "Subject"));
+        setTimeStr(XMLTools.getChildElementsCDATAValue(e, "Time"));
+        setPublicKey(XMLTools.getChildElementsCDATAValue(e, "pubKey"));
+        setRecipientName(XMLTools.getChildElementsCDATAValue(e, "recipient"));
+        setBoardName(XMLTools.getChildElementsCDATAValue(e, "Board"));
+        setContent(XMLTools.getChildElementsCDATAValue(e, "Body"));
+        setSignature(XMLTools.getChildElementsCDATAValue(e, "Signature"));
 
-        if (!XMLTools.getChildElementsByTagName(e, "Deleted").isEmpty()) {
-            deleted = true;
-        } else {
-            deleted = false;
-        }
-
+        // this parameter is contained in local XML messages only
         String sigstat = XMLTools.getChildElementsCDATAValue(e, "signatureStatus");
-        signatureStatus = SIGNATURESTATUS_UNSET; // default
         if( sigstat != null && (sigstat=sigstat.trim()).length() > 0 ) {
-            if( sigstat.equalsIgnoreCase(SIGNATURESTATUS_TAMPERED_STR) ) {
-                signatureStatus = SIGNATURESTATUS_TAMPERED;
-            } else if( sigstat.equalsIgnoreCase(SIGNATURESTATUS_OLD_STR) ) {
-                signatureStatus = SIGNATURESTATUS_OLD;
-            } else if( sigstat.equalsIgnoreCase(SIGNATURESTATUS_VERIFIED_STR) ) {
-                signatureStatus = SIGNATURESTATUS_VERIFIED;
-            }
+            setSignatureStatusFromString(sigstat);
         }
 
         List l = XMLTools.getChildElementsByTagName(e, "AttachmentList");
         if (l.size() > 0) {
             Element attachmentsElement = (Element) l.get(0);
-            attachments = new AttachmentList();
-            attachments.loadXMLElement(attachmentsElement);
+            getAllAttachments().loadXMLElement(attachmentsElement);
         }
     }
 
@@ -665,116 +515,6 @@ public class MessageObject implements XMLizable
         doc.appendChild(el);
         return XMLTools.writeXmlFile(doc, targetFile.getPath());
     }
-
-    public void setBoard(String board) {
-        this.board = board;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
-    }
-
-    public void setDeleted(boolean deleted) {
-        this.deleted = deleted;
-        if( deleted == true ) {
-            setMessageNew(false);
-        }
-    }
-
-    public void setFrom(String from) {
-        this.from = from;
-    }
-
-    public void setIndex(String index) {
-        this.index = index;
-    }
-
-    public void setPublicKey(String pk) {
-        publicKey = pk;
-    }
-
-    public void setSubject(String subject) {
-        this.subject = subject;
-    }
-
-    public void setTime(String time) {
-        this.time = time;
-    }
-
-    public void setRecipient(String rec) {
-        recipient = rec;
-    }
-    
-    private void setSignature(String sig) {
-        signature = sig;
-    }
-    
-    public String getMessageId() {
-        return messageId;
-    }
-    
-    public String getInReplyTo() {
-        return inReplyTo;
-    }
-	
-    /**
-     * This method adds a new Attachment to the attachments list.
-     * @param attachment the new Attachment to add to the attachments list.
-     */
-    public void addAttachment(Attachment attachment) {
-        getAttachmentList().add(attachment);
-    }
-
-    public int getSignatureStatus() {
-        return signatureStatus;
-    }
-
-    public void setSignatureStatus(int signatureStatus) {
-        this.signatureStatus = signatureStatus;
-    }
-
-    public boolean isMessageNew() {
-        if( this.messageIsNew == null ) {
-            File newMessage = new File(getFile().getPath() + ".lck");
-            if( newMessage.isFile() ) {
-                this.messageIsNew = new Boolean(true);
-                return true;
-            } else {
-                this.messageIsNew = new Boolean(false);
-                return false;
-            }
-        }
-        return this.messageIsNew.booleanValue();
-    }
-
-    /**
-     * Sets the new-message status to true or false.
-     * @param newMsg  the new-message status to set
-     */
-    public void setMessageNew(boolean newMsg) {
-        final String newMsgIndicator = getFile().getPath() + ".lck";
-        Runnable ioworker = null;
-        if( newMsg ) {
-            this.messageIsNew = new Boolean(true);
-            ioworker = new Runnable() {
-                public void run() {
-                    FileAccess.writeFile(NEW_MSG_INDICATOR_STR, newMsgIndicator);
-                }
-            };
-        } else {
-            this.messageIsNew = new Boolean(false);
-            ioworker = new Runnable() {
-                public void run() {
-                    new File(newMsgIndicator).delete();
-                }
-            };
-        }
-        new Thread(ioworker).start(); // do IO in another thread, not here in Swing thread
-    }
     
     /**
      * Compares the given message in otherMsgFile with this message.
@@ -782,7 +522,7 @@ public class MessageObject implements XMLizable
      */
     public boolean compareTo(File otherMsgFile) {
         try {
-            MessageObject otherMessage = new MessageObject(otherMsgFile);
+            MessageObjectFile otherMessage = new MessageObjectFile(otherMsgFile);
             return compareTo(otherMessage);
         } catch(Throwable t) {
             logger.log(Level.WARNING, "Handled Exception in compareTo(File otherMsgFile)", t);
@@ -794,7 +534,7 @@ public class MessageObject implements XMLizable
      * Compares the given otherMsg with this message.
      * Compares content (body), subject, from and attachments.
      */
-    public boolean compareTo(MessageObject otherMsg) {
+    public boolean compareTo(MessageObjectFile otherMsg) {
         try {
             // We compare the messages by content (body), subject, from and attachments
             if (!getContent().equals(otherMsg.getContent())) {
@@ -803,7 +543,7 @@ public class MessageObject implements XMLizable
             if (!getSubject().equals(otherMsg.getSubject())) {
                 return false;
             }
-            if (!getFrom().equals(otherMsg.getFrom())) {
+            if (!getFromName().equals(otherMsg.getFromName())) {
                 return false;
             }
             AttachmentList attachments1 = otherMsg.getAllAttachments();
@@ -825,5 +565,25 @@ public class MessageObject implements XMLizable
             logger.log(Level.WARNING, "Handled Exception in compareTo(MessageObject otherMsg)", t);
             return false; // We assume that the local message is different (it may be corrupted)
         }
+    }
+    
+    public String getBoardName() {
+        return boardName;
+    }
+    public String getDateStr() {
+        return dateStr;
+    }
+    public String getTimeStr() {
+        return timeStr;
+    }
+
+    public void setBoardName(String board) {
+        this.boardName = board;
+    }
+    public void setDateStr(String date) {
+        this.dateStr = date;
+    }
+    public void setTimeStr(String time) {
+        this.timeStr = time;
     }
 }
