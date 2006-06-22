@@ -63,13 +63,13 @@ public class DateFun {
     }
     
     /**
-     * Returns the date from Calendar as String with format yyyy.m.d
+     * Returns the SQL date from Calendar
      */
     public static java.sql.Date getSqlDateOfCalendar(Calendar cal) {
-        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         int year = cal.get(Calendar.YEAR);
         int month = cal.get(Calendar.MONTH) + 1;
         int day = cal.get(Calendar.DATE);
+        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         c.set(year, month, day, 0, 0, 0);
         return new java.sql.Date( c.getTime().getTime() );
     }
@@ -338,7 +338,7 @@ public class DateFun {
     /**
      * Returns the date from Calendar as String with format yyyy.m.d
      */
-    public static String getDateOfCalendar(GregorianCalendar calDL) {
+    public static String getDateOfCalendar(Calendar calDL) {
         String date = new StringBuffer(11).append(calDL.get(Calendar.YEAR)).append('.')
                       .append(calDL.get(Calendar.MONTH) + 1).append('.')
                       .append(calDL.get(Calendar.DATE)).toString();
