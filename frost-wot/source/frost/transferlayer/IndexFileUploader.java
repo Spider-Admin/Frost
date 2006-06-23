@@ -1,7 +1,6 @@
 package frost.transferlayer;
 
 import java.io.*;
-import java.sql.*;
 import java.util.logging.*;
 
 import frost.*;
@@ -9,6 +8,7 @@ import frost.crypt.*;
 import frost.fcp.*;
 import frost.gui.objects.*;
 import frost.messages.*;
+import frost.threads.*;
 
 public class IndexFileUploader {
 
@@ -19,7 +19,7 @@ public class IndexFileUploader {
         FrostIndex frostIndex;
         Board board;
         String insertKey;
-        IndexFileUploaderCallback callback;
+        IndexSlots indexSlots;
         java.sql.Date callbackDate;
         
         File uploadFile = null;
@@ -38,14 +38,14 @@ public class IndexFileUploader {
     }
     
     public static boolean uploadIndexFile(
-            FrostIndex frostIndex, Board board, String insertKey, IndexFileUploaderCallback callback, java.sql.Date date) {
+            FrostIndex frostIndex, Board board, String insertKey, IndexSlots indexSlots, java.sql.Date date) {
         
         IndexFileUploaderWorkArea wa = new IndexFileUploaderWorkArea();
         
         wa.frostIndex = frostIndex;
         wa.board = board; 
         wa.insertKey = insertKey;
-        wa.callback = callback;
+        wa.indexSlots = indexSlots;
         wa.callbackDate = date;
         
         if( prepareIndexFile(wa) == false ) {
@@ -57,14 +57,13 @@ public class IndexFileUploader {
     private static boolean uploadFile(IndexFileUploaderWorkArea wa) {
 
         boolean success = false;
+        boolean error = false;
         try {
             int tries = 0;
             final int maxTries = 3;
-            int index = wa.callback.findFirstFreeUploadSlot(wa.callbackDate);
-            while( !success &&
-                   tries < maxTries &&
-                   index > -1 ) // no free index found
-            {
+            // get first index and lock it
+            int index = wa.indexSlots.findFirstUploadSlot(wa.callbackDate);
+            while( !success && !error) {
                 logger.info("Trying index file upload to index "+index);
 
                 FcpResultPut result = FcpHandler.inst().putFile(
@@ -76,21 +75,29 @@ public class IndexFileUploader {
                         true); // removeLocalKey, insert with full HTL even if existing in local store
 
                 if( result.isSuccess() ) {
-                    success = true;
                     // my files are already added to totalIdx, we don't need to download this index
-                    wa.callback.setSlotUsed(index, wa.callbackDate);
+                    wa.indexSlots.setUploadSlotUsed(index, wa.callbackDate);
                     logger.info("FILEDN: Index file successfully uploaded.");
+                    success = true;
                 } else {
                     if( result.isKeyCollision() ) {
-                        index = wa.callback.findNextFreeSlot(index, wa.callbackDate);
+                        // unlock tried slot
+                        wa.indexSlots.setUploadSlotUnlocked(index, wa.callbackDate);
+                        // get next index and lock slot
+                        index = wa.indexSlots.findNextUploadSlot(index, wa.callbackDate);
                         tries = 0; // reset tries
                         logger.info("FILEDN: Index file collided, increasing index.");
                         continue;
+                    }
+                    tries++;
+                    if( tries < maxTries ) {
+                        logger.info("FILEDN: Upload error (try #" + tries + "), retrying index "+index);
                     } else {
-                        logger.info("FILEDN: Upload error (try #" + tries + "), retrying.");
+                        logger.info("FILEDN: Upload error (try #" + tries + "), giving up on index "+index);
+                        wa.indexSlots.setUploadSlotUnlocked(index, wa.callbackDate);
+                        error = true;
                     }
                 }
-                tries++;
             }
         } catch (Throwable e) {
             logger.log(Level.SEVERE, "Exception in uploadFile", e);

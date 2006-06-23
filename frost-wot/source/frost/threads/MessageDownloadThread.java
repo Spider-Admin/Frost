@@ -48,7 +48,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
         this.board = boa;
         this.maxMessageDownload = maxmsgdays;
         
-        this.indexSlots = new IndexSlots("messages", board.getName());
+        this.indexSlots = new IndexSlots(IndexSlots.MESSAGES, board.getName());
     }
 
     public int getThreadType() {
@@ -92,8 +92,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                 downloadDate(cal);
             } else {
                 // download up to maxMessages days to the past
-                GregorianCalendar firstDate = new GregorianCalendar();
-                firstDate.setTimeZone(TimeZone.getTimeZone("GMT"));
+                Calendar firstDate = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
                 firstDate.set(Calendar.YEAR, 2001);
                 firstDate.set(Calendar.MONTH, 5);
                 firstDate.set(Calendar.DATE, 11);
@@ -161,9 +160,9 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
             }
 
             if( index < 0 ) {
-                index = indexSlots.findFirstFreeDownloadSlot(date);
+                index = indexSlots.findFirstDownloadSlot(date);
             } else {
-                index = indexSlots.findNextFreeSlot(index, date);
+                index = indexSlots.findNextDownloadSlot(index, date);
             }
             
             String logInfo = null;
@@ -188,7 +187,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
 
                 failures = 0;
                 
-                indexSlots.setSlotUsed(index, date);
+                indexSlots.setDownloadSlotUsed(index, date);
 
                 if( mdResult.errorMsg != null ) {
                     // some error occured, don't try this file again

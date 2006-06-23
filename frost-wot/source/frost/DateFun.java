@@ -17,7 +17,7 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 package frost;
-import java.sql.Date;
+
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -67,11 +67,16 @@ public class DateFun {
      */
     public static java.sql.Date getSqlDateOfCalendar(Calendar cal) {
         int year = cal.get(Calendar.YEAR);
-        int month = cal.get(Calendar.MONTH) + 1;
+        int month = cal.get(Calendar.MONTH);
         int day = cal.get(Calendar.DATE);
         Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         c.set(year, month, day, 0, 0, 0);
         return new java.sql.Date( c.getTime().getTime() );
+    }
+    
+    public static void main(String[] args) {
+        Calendar c = Calendar.getInstance();
+        System.out.println("d="+getSqlDateOfCalendar(c));
     }
 
     /**
@@ -288,17 +293,14 @@ public class DateFun {
      * to a Calendar object.
      * @param text the String to convert to a Calendar object
      */
-    public static Calendar getCalendarFromDateAndTime(String text)
-    {
+    public static Calendar getCalendarFromDateAndTime(String text) {
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-        if( text.indexOf(' ') != -1 )
-        {
+        if( text.indexOf(' ') != -1 ) {
             String date = text.substring(0, text.indexOf(' '));
             int firstPoint = date.indexOf('.');
             int secondPoint = date.lastIndexOf('.');
-            if( firstPoint != -1 && secondPoint != -1 && firstPoint != secondPoint )
-            {
+            if( firstPoint != -1 && secondPoint != -1 && firstPoint != secondPoint ) {
                 int year = Integer.parseInt(date.substring(0, firstPoint));
                 int month = Integer.parseInt(date.substring(firstPoint + 1, secondPoint));
                 int day = Integer.parseInt(date.substring(secondPoint + 1, date.length()));
@@ -316,8 +318,7 @@ public class DateFun {
      * to a Calendar object.
      * @param text the String to convert to a Calendar object
      */
-    public static Calendar getCalendarFromDate(String date) throws NumberFormatException
-    {
+    public static Calendar getCalendarFromDate(String date) throws NumberFormatException {
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
         int firstPoint = date.indexOf('.');
@@ -369,8 +370,7 @@ public class DateFun {
     public static String buildExtendedDate(String date) {
         int firstPoint = date.indexOf('.');
         int secondPoint = date.lastIndexOf('.');
-        if( firstPoint != -1 && secondPoint != -1 && firstPoint != secondPoint )
-        {
+        if( firstPoint != -1 && secondPoint != -1 && firstPoint != secondPoint ) {
             int year = Integer.parseInt(date.substring(0, firstPoint));
             int month = Integer.parseInt(date.substring(firstPoint + 1, secondPoint));
             int day = Integer.parseInt(date.substring(secondPoint + 1, date.length()));

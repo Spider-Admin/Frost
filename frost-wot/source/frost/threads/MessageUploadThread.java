@@ -313,7 +313,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
      */
     private void uploadMessage() throws IOException {
         
-        IndexSlots indexSlots = new IndexSlots("messages", board.getName());
+        IndexSlots indexSlots = new IndexSlots(IndexSlots.MESSAGES, board.getName());
         
         int index = MessageUploader.uploadMessage(
                 message, 

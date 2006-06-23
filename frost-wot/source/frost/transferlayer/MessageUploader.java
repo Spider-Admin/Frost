@@ -139,18 +139,16 @@ public class MessageUploader {
             
             String logInfo = null;
     
-            while (!success) {
+            while ( success == false && error == false ) {
 
                 try {
                     if( retrySameIndex == false ) {
                         // find next free index slot
                         if( index < 0 ) {
-                            index = wa.indexSlots.findFirstFreeUploadSlot(wa.date);
+                            index = wa.indexSlots.findFirstUploadSlot(wa.date);
                         } else {
-                            index = wa.indexSlots.findNextFreeSlot(index,wa.date);
+                            index = wa.indexSlots.findNextUploadSlot(index,wa.date);
                         }
-                        // lock index
-                        wa.indexSlots.setSlotUsed(index, wa.date);
                     } else {
                         // we retry the index
                         // reset flag
@@ -223,7 +221,6 @@ public class MessageUploader {
                 } else {
                     // other error
                     if (tries > maxTries) {
-                        success = true;
                         error = true;
                     } else {
                         logger.warning("TOFUP: Upload failed, "+logInfo+"\n(try no. " + tries + " of " + maxTries
@@ -233,17 +230,26 @@ public class MessageUploader {
                         Mixed.wait(waitTime);
                     }
                 }
-                // finally delete the index lock file, if we retry this index we keep it
-                if (retrySameIndex == false) {
+
+                if ( retrySameIndex == false && success == false && error == false ) {
+                    // there will be a next loop, and we try another slot
                     try {
-                        wa.indexSlots.setSlotUnused(index, wa.date);
+                        // unlock this slot
+                        wa.indexSlots.setUploadSlotUnlocked(index, wa.date);
                     } catch(SQLException e) {
-                        logger.log(Level.SEVERE, "Error removing upload lock from database table", e);
+                        logger.log(Level.SEVERE, "Error updating database", e);
                     }
                 }
             }
     
-            if (!error) {
+            if (success) {
+                try {
+                    // mark slot used and unlock
+                    wa.indexSlots.setUploadSlotUsed(index, wa.date);
+                } catch (SQLException e) {
+                    logger.log(Level.SEVERE, "Error updating database", e);
+                }
+                
                 logger.info("*********************************************************************\n"
                         + "Message successfully uploaded."+logInfo+"\n"
                         + "*********************************************************************");
@@ -252,7 +258,14 @@ public class MessageUploader {
                 
                 return index;
     
-            } else {
+            } else { // error == true
+                try {
+                    // unlock slot
+                    wa.indexSlots.setUploadSlotUnlocked(index, wa.date);
+                } catch (SQLException e) {
+                    logger.log(Level.SEVERE, "Error updating database", e);
+                }
+
                 logger.warning("TOFUP: Error while uploading message.");
     
                 boolean retrySilently = Core.frostSettings.getBoolValue(SettingsClass.SILENTLY_RETRY_MESSAGES);
