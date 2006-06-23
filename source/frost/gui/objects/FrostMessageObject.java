@@ -71,7 +71,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         setSqlTime( DateFun.getSqlTimeFromString(mof.getTimeStr()) );
 
         // copy values from mof
-        setAttachmentList(mof.getAllAttachments());
+        setAttachmentList(mof.getAttachmentList());
         setContent(mof.getContent());
         setFromName(mof.getFromName());
         setInReplyTo(mof.getInReplyTo());
@@ -81,6 +81,9 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         setSignature(mof.getSignature());
         setSignatureStatus(mof.getSignatureStatus());
         setSubject(mof.getSubject());
+        
+        setHasBoardAttachments(getAttachmentsOfType(Attachment.BOARD).size() > 0);
+        setHasFileAttachments(getAttachmentsOfType(Attachment.FILE).size() > 0);
     }
 
     /**

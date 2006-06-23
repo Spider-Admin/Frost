@@ -1,5 +1,5 @@
 /*
-  MessageObject.java / Frost
+  MessageObjectFile.java / Frost
   Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
@@ -165,7 +165,7 @@ public class MessageObjectFile extends AbstractMessageObject implements XMLizabl
         allContent.append(getSubject());
         allContent.append(getContent());
         // attachments
-        for(Iterator it = getAllAttachments().iterator(); it.hasNext(); ) {
+        for(Iterator it = getAttachmentList().iterator(); it.hasNext(); ) {
             Attachment a = (Attachment)it.next();
             if( a.getType() == Attachment.BOARD ) {
                 BoardAttachment ba = (BoardAttachment)a;
@@ -283,8 +283,8 @@ public class MessageObjectFile extends AbstractMessageObject implements XMLizabl
 //        }
 
         //attachments
-        if (getAllAttachments() != null && getAllAttachments().size() > 0) {
-            el.appendChild(getAllAttachments().getXMLElement(d));
+        if (getAttachmentList().size() > 0) {
+            el.appendChild(getAttachmentList().getXMLElement(d));
         }
 
         return el;
@@ -426,7 +426,8 @@ public class MessageObjectFile extends AbstractMessageObject implements XMLizabl
         List l = XMLTools.getChildElementsByTagName(e, "AttachmentList");
         if (l.size() > 0) {
             Element attachmentsElement = (Element) l.get(0);
-            getAllAttachments().loadXMLElement(attachmentsElement);
+            getAttachmentList().loadXMLElement(attachmentsElement);
+            System.out.println("received attachments! "+getAttachmentList().size());
         }
     }
 
@@ -546,8 +547,8 @@ public class MessageObjectFile extends AbstractMessageObject implements XMLizabl
             if (!getFromName().equals(otherMsg.getFromName())) {
                 return false;
             }
-            AttachmentList attachments1 = otherMsg.getAllAttachments();
-            AttachmentList attachments2 = getAllAttachments();
+            AttachmentList attachments1 = otherMsg.getAttachmentList();
+            AttachmentList attachments2 = getAttachmentList();
             if (attachments1.size() != attachments2.size()) {
                 return false;
             }
