@@ -32,17 +32,6 @@ public class IndexSlots {
     public static final int FILELISTS = 1;
     public static final int MESSAGES  = 2;
     
-/*
- * - find first download slot (unused,unlocked)
- * - find next download slot (unused,unlocked)
- * - set download slot used (set used)
- * 
- * - find first upload slot (unused,unlocked; locks!)
- * - find next upload slot (unused,unlocked; locks!)
- * - set upload slot used (set used, unlock!)
- * - set upload slot unlocked (set unlocked)
- */    
-    
     // ensure that multiple queries are run in a transaction
     private static Object syncObj = new Object();
 
@@ -52,37 +41,37 @@ public class IndexSlots {
     private TransferLayerDatabase db;
 
     private static final String SQL_DDL = 
-        "CREATE TABLE INDEXSLOTS (indexname INT, boardname VARCHAR, date DATE, index INT, used BOOLEAN, locked BOOLEAN)";
+        "CREATE TABLE INDEXSLOTS (indexname INT, boardname VARCHAR, date DATE, index INT,"+
+        " wasdownloaded BOOLEAN, wasuploaded BOOLEAN, locked BOOLEAN)";
     private static final String SQL_INSERT =
-        "INSERT INTO INDEXSLOTS (indexname,boardname,date,index,used,locked) VALUES (?,?,?,?,?,?)";
-    
-    private static final String SQL_UPDATE_BOTH =
-        "UPDATE INDEXSLOTS SET used=?,locked=? WHERE indexname=? AND boardname=? AND date=? AND index=?";
-    private static final String SQL_UPDATE_USED =
-        "UPDATE INDEXSLOTS SET used=? WHERE indexname=? AND boardname=? AND date=? AND index=?";
+        "INSERT INTO INDEXSLOTS (indexname,boardname,date,index,wasdownloaded,wasuploaded,locked) VALUES (?,?,?,?,?,?,?)";
+
+    private static final String SQL_UPDATE_WASUPLOADED =
+        "UPDATE INDEXSLOTS SET wasuploaded=TRUE,locked=FALSE WHERE indexname=? AND boardname=? AND date=? AND index=?";
     private static final String SQL_UPDATE_LOCKED =
         "UPDATE INDEXSLOTS SET locked=? WHERE indexname=? AND boardname=? AND date=? AND index=?";
     
-    private static final String SQL_MAX_USED_SLOT =
-        "SELECT TOP 1 index FROM INDEXSLOTS WHERE indexname=? AND boardname=? AND date=? "+
-        "AND ( used=TRUE OR locked=TRUE ) ORDER BY index DESC";
     private static final String SQL_NEXT_MAX_USED_SLOT =
         "SELECT TOP 1 index FROM INDEXSLOTS WHERE indexname=? AND boardname=? AND date=? AND index>? "+
-        "AND ( used=TRUE OR locked=TRUE ) ORDER BY index DESC";
+        "AND ( wasdownloaded=TRUE OR wasuploaded=TRUE OR locked=TRUE ) ORDER BY index DESC";
+    
     private static final String SQL_MAX_SLOT =
         "SELECT TOP 1 index FROM INDEXSLOTS WHERE indexname=? AND boardname=? AND date=? ORDER BY index DESC";
-    private static final String SQL_NEXT_UNUSED_SLOT =
+
+    // downloading
+    private static final String SQL_NEXT_DOWNLOAD_SLOT =
         "SELECT TOP 1 index FROM INDEXSLOTS WHERE indexname=? AND boardname=? AND date=? AND index>? "+
-        "AND used=FALSE AND locked=FALSE ORDER BY index";
+        "AND wasdownloaded=FALSE AND locked=FALSE ORDER BY index";
+    private static final String SQL_UPDATE_WASDOWNLOADED =
+        "UPDATE INDEXSLOTS SET wasdownloaded=TRUE WHERE indexname=? AND boardname=? AND date=? AND index=?";
     
     private PreparedStatement ps_INSERT = null;
-    private PreparedStatement ps_UPDATE_BOTH = null;
-    private PreparedStatement ps_UPDATE_USED = null;
+    private PreparedStatement ps_UPDATE_WASUPLOADED = null;
     private PreparedStatement ps_UPDATE_LOCKED = null;
-    private PreparedStatement ps_MAX_USED_SLOT = null;
     private PreparedStatement ps_NEXT_MAX_USED_SLOT = null;
     private PreparedStatement ps_MAX_SLOT = null;
     private PreparedStatement ps_NEXT_UNUSED_SLOT = null;
+    private PreparedStatement ps_UPDATE_WASDOWNLOADED = null;
 
     public IndexSlots(int indexName, String boardName) {
         this.boardName = boardName;
@@ -104,18 +93,11 @@ public class IndexSlots {
         return ps_INSERT;
     }
 
-    private PreparedStatement getPsUPDATE_BOTH() throws SQLException {
-        if( ps_UPDATE_BOTH == null ) {
-            ps_UPDATE_BOTH = db.prepare(SQL_UPDATE_BOTH);
+    private PreparedStatement getPsUPDATE_WASUPLOADED() throws SQLException {
+        if( ps_UPDATE_WASUPLOADED == null ) {
+            ps_UPDATE_WASUPLOADED = db.prepare(SQL_UPDATE_WASUPLOADED);
         }
-        return ps_UPDATE_BOTH;
-    }
-
-    private PreparedStatement getPsUPDATE_USED() throws SQLException {
-        if( ps_UPDATE_USED == null ) {
-            ps_UPDATE_USED = db.prepare(SQL_UPDATE_USED);
-        }
-        return ps_UPDATE_USED;
+        return ps_UPDATE_WASUPLOADED;
     }
 
     private PreparedStatement getPsUPDATE_LOCKED() throws SQLException {
@@ -125,18 +107,18 @@ public class IndexSlots {
         return ps_UPDATE_LOCKED;
     }
 
-    private PreparedStatement getPsNEXT_UNUSED_SLOT() throws SQLException {
-        if( ps_NEXT_UNUSED_SLOT == null ) {
-            ps_NEXT_UNUSED_SLOT = db.prepare(SQL_NEXT_UNUSED_SLOT);
+    private PreparedStatement getPsUPDATE_WASDOWNLOADED() throws SQLException {
+        if( ps_UPDATE_WASDOWNLOADED == null ) {
+            ps_UPDATE_WASDOWNLOADED = db.prepare(SQL_UPDATE_WASDOWNLOADED);
         }
-        return ps_NEXT_UNUSED_SLOT;
+        return ps_UPDATE_WASDOWNLOADED;
     }
 
-    private PreparedStatement getPsMAX_USED_SLOT() throws SQLException {
-        if( ps_MAX_USED_SLOT == null ) {
-            ps_MAX_USED_SLOT = db.prepare(SQL_MAX_USED_SLOT);
+    private PreparedStatement getPsNEXT_DOWNLOAD_SLOT() throws SQLException {
+        if( ps_NEXT_UNUSED_SLOT == null ) {
+            ps_NEXT_UNUSED_SLOT = db.prepare(SQL_NEXT_DOWNLOAD_SLOT);
         }
-        return ps_MAX_USED_SLOT;
+        return ps_NEXT_UNUSED_SLOT;
     }
 
     private PreparedStatement getPsNEXT_MAX_USED_SLOT() throws SQLException {
@@ -156,10 +138,9 @@ public class IndexSlots {
     public void close() {
         // close created prepared statements
         maybeClose(ps_INSERT); ps_INSERT = null;
-        maybeClose(ps_UPDATE_BOTH); ps_UPDATE_BOTH = null;
-        maybeClose(ps_UPDATE_USED); ps_UPDATE_USED = null;
+        maybeClose(ps_UPDATE_WASUPLOADED); ps_UPDATE_WASUPLOADED = null;
+        maybeClose(ps_UPDATE_WASDOWNLOADED); ps_UPDATE_WASDOWNLOADED = null;
         maybeClose(ps_UPDATE_LOCKED); ps_UPDATE_LOCKED = null;
-        maybeClose(ps_MAX_USED_SLOT); ps_MAX_USED_SLOT = null;
         maybeClose(ps_NEXT_MAX_USED_SLOT); ps_NEXT_MAX_USED_SLOT = null;
         maybeClose(ps_MAX_SLOT); ps_MAX_SLOT = null;
         maybeClose(ps_NEXT_UNUSED_SLOT); ps_NEXT_UNUSED_SLOT = null;
@@ -175,15 +156,15 @@ public class IndexSlots {
         }
     }
     
-    // find first unused, unlocked
+    // find first not downloaded, unlocked
     public int findFirstDownloadSlot(java.sql.Date date) throws SQLException {
         return findNextDownloadSlot(-1, date);
     }
 
-    // find next unused, unlocked
+    // find next not downloaded, unlocked
     public int findNextDownloadSlot(int beforeIndex, java.sql.Date date) throws SQLException {
         synchronized(syncObj) {
-            ResultSet rs = executePsNEXT_UNUSED_SLOT(beforeIndex, date);
+            ResultSet rs = executePsNEXT_DOWNLOAD_SLOT(beforeIndex, date);
             
             int nextFreeSlot = -1; 
             if( rs.next() ) {
@@ -197,7 +178,7 @@ public class IndexSlots {
                 if( rs2.next() ) {
                     nextFreeSlot = rs2.getInt(1);
                     nextFreeSlot++;
-                    executePsINSERT(nextFreeSlot, false, false, date);
+                    executePsINSERT(nextFreeSlot, false, false, false, date);
                 }
                 rs2.close();
             }
@@ -205,7 +186,7 @@ public class IndexSlots {
             if( nextFreeSlot < 0 ) {
                 // still not set? no single slot is in database for today, use first free slot
                 nextFreeSlot = 0;
-                executePsINSERT(nextFreeSlot, false, false, date);
+                executePsINSERT(nextFreeSlot, false, false, false, date);
             }
     
             return nextFreeSlot;
@@ -214,13 +195,26 @@ public class IndexSlots {
 
     // set used
     public void setDownloadSlotUsed(int index, java.sql.Date date) throws SQLException {
-        updateOrInsertSlotUsed(index, true, date);
+        boolean updateOk = false;
+        try {
+            if( executePsUPDATE_WASDOWNLOADED(index, date) == 1 ) {
+                updateOk = true;
+            }
+        } catch(SQLException e) {
+            // no record to update, try an insert
+        }
+        
+        if( updateOk == false ) {
+            if( executePsINSERT(index, true, false, false, date) != 1 ) {
+                throw new SQLException("update or insert of slot failed!");
+            }
+        }
     }
 
     // find first unused, unlocked, and lock!
     public int findFirstUploadSlot(java.sql.Date date) throws SQLException {
         synchronized(syncObj) {
-            ResultSet rs = executePsMAX_USED_SLOT(date);
+            ResultSet rs = executePsNEXT_MAX_USED_SLOT(-1, date);
             
             int freeUploadIndex = 0; 
             if( rs.next() ) {
@@ -257,29 +251,12 @@ public class IndexSlots {
 
     // set used and unlock!
     public void setUploadSlotUsed(int index, java.sql.Date date) throws SQLException {
-        updateOrInsertSlotBoth(index, true, false, date);
+        executePsUPDATE_WASUPLOADED(index, date);
     }
 
     // set unlocked
     public void setUploadSlotUnlocked(int index, java.sql.Date date) throws SQLException {
-        updateOrInsertSlotLocked(index, false, date);
-    }
-
-    private void updateOrInsertSlotUsed(int index, boolean used, java.sql.Date date) throws SQLException {
-        boolean updateOk = false;
-        try {
-            if( executePsUPDATE_USED(index, used, date) == 1 ) {
-                updateOk = true;
-            }
-        } catch(SQLException e) {
-            // no record to update, try an insert
-        }
-        
-        if( updateOk == false ) {
-            if( executePsINSERT(index, used, false, date) != 1 ) {
-                throw new SQLException("update or insert of slot failed!");
-            }
-        }
+        executePsUPDATE_LOCKED(index, false, date);
     }
 
     private void updateOrInsertSlotLocked(int index, boolean locked, java.sql.Date date) throws SQLException {
@@ -293,49 +270,19 @@ public class IndexSlots {
         }
         
         if( updateOk == false ) {
-            if( executePsINSERT(index, false, locked, date) != 1 ) {
+            if( executePsINSERT(index, false, false, locked, date) != 1 ) {
                 throw new SQLException("update or insert of slot failed!");
             }
         }
     }
 
-    private void updateOrInsertSlotBoth(int index, boolean used, boolean locked, java.sql.Date date) throws SQLException {
-        boolean updateOk = false;
-        try {
-            if( executePsUPDATE_BOTH(index, used, locked, date) == 1 ) {
-                updateOk = true;
-            }
-        } catch(SQLException e) {
-            // no record to update, try an insert
-        }
-        
-        if( updateOk == false ) {
-            if( executePsINSERT(index, used, locked, date) != 1 ) {
-                throw new SQLException("update or insert of slot failed!");
-            }
-        }
-    }
-
-    private int executePsUPDATE_BOTH(int index, boolean used, boolean locked, java.sql.Date date) throws SQLException {
-        // "UPDATE INDEXSLOTS SET used=?,locked=? WHERE indexname=? AND boardname=? AND date=? AND index=?";
-        PreparedStatement ps = getPsUPDATE_BOTH();
-        ps.setBoolean(1, used);
-        ps.setBoolean(2, locked);
-        ps.setInt(3, indexName);
-        ps.setString(4, boardName);
-        ps.setDate(5, date);
-        ps.setInt(6, index);
-        return ps.executeUpdate();
-    }
-
-    private int executePsUPDATE_USED(int index, boolean used, java.sql.Date date) throws SQLException {
-        // "UPDATE INDEXSLOTS SET used=? WHERE indexname=? AND boardname=? AND date=? AND index=?";
-        PreparedStatement ps = getPsUPDATE_USED();
-        ps.setBoolean(1, used);
-        ps.setInt(2, indexName);
-        ps.setString(3, boardName);
-        ps.setDate(4, date);
-        ps.setInt(5, index);
+    private int executePsUPDATE_WASUPLOADED(int index, java.sql.Date date) throws SQLException {
+        // "UPDATE INDEXSLOTS SET used=TRUE,locked=FALSE WHERE indexname=? AND boardname=? AND date=? AND index=?";
+        PreparedStatement ps = getPsUPDATE_WASUPLOADED();
+        ps.setInt(1, indexName);
+        ps.setString(2, boardName);
+        ps.setDate(3, date);
+        ps.setInt(4, index);
         return ps.executeUpdate();
     }
 
@@ -349,35 +296,34 @@ public class IndexSlots {
         ps.setInt(5, index);
         return ps.executeUpdate();
     }
-
-    private int executePsINSERT(int index, boolean used, boolean locked, java.sql.Date date) throws SQLException {
-        // "INSERT INTO INDEXSLOTS (indexname,boardname,date,index,used,locked) VALUES (?,?,?,?,?,?)";
-        PreparedStatement ps2 = getPsINSERT();
-        ps2.setInt(1, indexName);
-        ps2.setString(2, boardName);
-        ps2.setDate(3, date);
-        ps2.setInt(4, index);
-        ps2.setBoolean(5, used);
-        ps2.setBoolean(6, locked);
-        return ps2.executeUpdate();
-    }
-
-    private ResultSet executePsMAX_USED_SLOT(java.sql.Date date) throws SQLException {
-        // "SELECT TOP 1 index FROM INDEXSLOTS WHERE indexname=? AND boardname=? AND date=? "+
-        // "AND ( used=TRUE OR locked=TRUE ) ORDER BY index DESC";
-        PreparedStatement ps = getPsMAX_USED_SLOT();
+    
+    private int executePsUPDATE_WASDOWNLOADED(int index, java.sql.Date date) throws SQLException {
+        // "UPDATE INDEXSLOTS SET wasdownloaded=TRUE WHERE indexname=? AND boardname=? AND date=? AND index=?"
+        PreparedStatement ps = getPsUPDATE_WASDOWNLOADED();
         ps.setInt(1, indexName);
         ps.setString(2, boardName);
         ps.setDate(3, date);
-        
-        ResultSet rs = ps.executeQuery();
-        return rs;
+        ps.setInt(4, index);
+        return ps.executeUpdate();
     }
 
-    private ResultSet executePsNEXT_UNUSED_SLOT(int beforeIndex, java.sql.Date date) throws SQLException {
+    private int executePsINSERT(int index, boolean wasdownloaded, boolean wasuploaded, boolean locked, java.sql.Date date) throws SQLException {
+        // "INSERT INTO INDEXSLOTS (indexname,boardname,date,index,wasdownloaded,wasuploaded,locked) VALUES (?,?,?,?,?,?,?)"
+        PreparedStatement ps = getPsINSERT();
+        ps.setInt(1, indexName);
+        ps.setString(2, boardName);
+        ps.setDate(3, date);
+        ps.setInt(4, index);
+        ps.setBoolean(5, wasdownloaded);
+        ps.setBoolean(6, wasuploaded);
+        ps.setBoolean(7, locked);
+        return ps.executeUpdate();
+    }
+
+    private ResultSet executePsNEXT_DOWNLOAD_SLOT(int beforeIndex, java.sql.Date date) throws SQLException {
         // "SELECT TOP 1 index FROM INDEXSLOTS WHERE indexname=? AND boardname=? AND date=? AND index>? "+
         // "AND used=FALSE AND locked=FALSE ORDER BY index";
-        PreparedStatement ps = getPsNEXT_UNUSED_SLOT();
+        PreparedStatement ps = getPsNEXT_DOWNLOAD_SLOT();
         ps.setInt(1, indexName);
         ps.setString(2, boardName);
         ps.setDate(3, date);
@@ -409,30 +355,4 @@ public class IndexSlots {
         ResultSet rs = ps.executeQuery();
         return rs;
     }
-
-//    public static void main(String[] args) throws Throwable {
-//        DatabaseTransferLayer.initialize();
-//        IndexSlots is = new IndexSlots("indexName", "boardName", new java.sql.Date(System.currentTimeMillis()));
-//        int i=0;
-//
-//        System.out.println("a="+is.findFirstFreeDownloadSlot());
-//        System.out.println("b="+is.findFirstFreeUploadSlot());
-//        
-//        ResultSet rs = DatabaseTransferLayer.getInstance().createStatement().executeQuery("SELECT * FROM INDEXSLOTS");
-//        Database.dump(rs);
-//        
-//        is.setSlotUsed(i);
-//        i=is.findNextFreeSlot(i);
-//        i=is.findNextFreeSlot(i);
-//        i=is.findNextFreeSlot(i);
-//        i=is.findNextFreeSlot(i);
-//        is.setSlotUsed(i);
-//        
-//        rs = DatabaseTransferLayer.getInstance().createStatement().executeQuery("SELECT * FROM INDEXSLOTS");
-//        Database.dump(rs);
-//        
-//        System.out.println("a="+is.findFirstFreeDownloadSlot());
-//        System.out.println("b="+is.findFirstFreeUploadSlot());
-//    }
-    
 }
