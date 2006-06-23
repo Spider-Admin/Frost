@@ -104,7 +104,7 @@ public abstract class AbstractMessageObject extends AbstractMessageStatusProvide
      * This method returns the AttachmentList. If no one exists, it creates a new one.
      * @return the AttachmentList
      */
-    private AttachmentList getAttachmentList() {
+    public AttachmentList getAttachmentList() {
         if (attachments == null) {
             attachments = new AttachmentList();
         }
@@ -122,22 +122,9 @@ public abstract class AbstractMessageObject extends AbstractMessageStatusProvide
      */
     public AttachmentList getAttachmentsOfType(int type) {
         if (attachments == null) {
-            return new AttachmentList();
-        } else {
-            return attachments.getAllOfType(type);
+            attachments = new AttachmentList();
         }
-    }
-
-    /**
-     * This method returns all of the attachments
-     * @return an AttachmentList containing all of the attachments of the message.
-     */
-    public AttachmentList getAllAttachments() {
-        if (attachments == null) {
-            return new AttachmentList();
-        } else {
-            return attachments;
-        }
+        return attachments.getAllOfType(type);
     }
 
     /**
