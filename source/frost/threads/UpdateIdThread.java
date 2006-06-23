@@ -58,11 +58,6 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
 
         logger.info("FILEDN: UpdateIdThread - makeIndexFile for " + board.getName());
 
-        if( indexSlots.findFirstFreeUploadSlot(date) < 0 ) {
-            // no free upload slot, don't continue now, continue tomorrow
-            return true;
-        }
-
         // Calculate the keys to be uploaded
         Map files = null;
         Index index = Index.getInstance();
@@ -121,7 +116,7 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
             } else {
                 maxFailures = 2; // skip a maximum of 1 empty slot for backload
             }
-            int index = indexSlots.findFirstFreeDownloadSlot(date);
+            int index = indexSlots.findFirstDownloadSlot(date);
             int failures = 0;
             while (failures < maxFailures && index >= 0 ) {
 
@@ -134,14 +129,14 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
                     // download failed. 
                     failures++;
                     // next loop we try next index
-                    index = indexSlots.findNextFreeSlot(index, date);
+                    index = indexSlots.findNextDownloadSlot(index, date);
                     continue;
                 }
                 
                 // download was successful, mark it
-                indexSlots.setSlotUsed(index, date);
+                indexSlots.setDownloadSlotUsed(index, date);
                 // next loop we try next index
-                index = indexSlots.findNextFreeSlot(index, date);
+                index = indexSlots.findNextDownloadSlot(index, date);
                 failures = 0;
                 
                 // we do not look at the idfResult, it does not matter if it was not, 
@@ -179,7 +174,7 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
         this.isForToday = isForToday;
 
         // first load the index with the date we wish to download
-        indexSlots = new IndexSlots("fileindex", board.getName());
+        indexSlots = new IndexSlots(IndexSlots.FILELISTS, board.getName());
 
         publicKey = board.getPublicKey();
         privateKey = board.getPrivateKey();

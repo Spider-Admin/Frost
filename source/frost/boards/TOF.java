@@ -345,6 +345,7 @@ public class TOF {
             final List messages;
             try {
                 // TODO: maybe receive without content and dynamically load contents if needed
+                // TODO: if we do this, blocked can't check the mesagebody!
                 messages = MessageDatabaseTable.retrieveMessages(board, daysToRead, true, showDeletedMessages);
             } catch (SQLException e) {
                 logger.log(Level.SEVERE, "Error retrieving messages for board "+board.getName(), e);
