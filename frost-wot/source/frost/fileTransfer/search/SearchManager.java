@@ -81,8 +81,6 @@ public class SearchManager implements PropertyChangeListener {
             panel.setDownloadModel(downloadModel);
             panel.setUploadModel(uploadModel);
             panel.setTofTreeModel(tofTreeModel);
-            panel.setKeypool(keypool);
-            panel.setIdentities(identities);
             panel.initialize();
         }
         return panel;
