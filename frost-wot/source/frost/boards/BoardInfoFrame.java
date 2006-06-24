@@ -21,6 +21,7 @@ package frost.boards;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.sql.*;
 import java.util.Vector;
 import java.util.logging.*;
 
@@ -35,6 +36,7 @@ import frost.gui.SortedTable;
 import frost.gui.model.*;
 import frost.gui.objects.Board;
 import frost.messages.FrostIndex;
+import frost.storage.*;
 import frost.threads.*;
 import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.translation.*;
@@ -402,41 +404,29 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         int countAllMessages = 0;
         int countFiles = 0;
 
-        String date = DateFun.getDate();
         File boardDir = new File(MainFrame.keypool + board.getBoardFilename());
-
-        if( boardDir.isDirectory() )
-        {
+        if( boardDir.isDirectory() ) {
             File[] entries = boardDir.listFiles();
-            if( entries != null )
-            {
-                for( int i = 0; i < entries.length; i++ )
-                {
-                    if( entries[i].isDirectory() )
-                    {
-                        boolean newMessageDate = entries[i].getName().startsWith(date);
-
-                        String[] messages = entries[i].list();
-                        for( int j = 0; j < messages.length; j++ )
-                        {
-                            if( messages[j].endsWith(".xml") )
-                            {
-                                if( newMessageDate == true )
-                                {
-                                    countNewMessages++;
-                                }
-                                countAllMessages++;
-                            }
-                        }
-                    }
-                    else if( entries[i].getName().endsWith("files.xml") )
-                    {
+            if( entries != null ) {
+                for( int i = 0; i < entries.length; i++ ) {
+                    if( entries[i].getName().endsWith("files.xml") ) {
                         countFiles += getLineCount(entries[i]);
                     }
                 }
             }
         }
-        //countFiles /= 4;
+        
+        try {
+            countNewMessages = GuiDatabase.getMessageTable().getMessageCount(board, 0);
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error retrieving todays message count from db", e);
+        }
+        try {
+            countAllMessages = GuiDatabase.getMessageTable().getMessageCount(board, -1);
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error retrieving overall message count from db", e);
+        }
+
         row.setAllMessageCount(countAllMessages);
         row.setNewMessageCount(countNewMessages);
         row.setFilesCount(countFiles);
