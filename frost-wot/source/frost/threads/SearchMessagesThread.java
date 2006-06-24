@@ -18,7 +18,6 @@
 */
 package frost.threads;
 
-import java.io.*;
 import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
@@ -26,7 +25,6 @@ import java.util.logging.*;
 import frost.*;
 import frost.gui.*;
 import frost.gui.objects.*;
-import frost.messages.*;
 import frost.storage.*;
 
 // TODO: in date config, show earliest and newest msg date!
@@ -133,7 +131,7 @@ public class SearchMessagesThread extends Thread implements MessageDatabaseTable
     private void searchBoard(Board board, DateRange dr) {
 
         try {
-            MessageDatabaseTable.retrieveMessagesOneByOne(
+            MessageDatabaseTable.getInstance().retrieveMessagesOneByOne(
                     board, 
                     dr.startDate, 
                     dr.endDate, 

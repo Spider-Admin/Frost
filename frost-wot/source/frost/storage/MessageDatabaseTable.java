@@ -8,9 +8,28 @@ import frost.gui.objects.*;
 import frost.messages.*;
 
 public class MessageDatabaseTable {
+    
+    private static MessageDatabaseTable instance = null;
+    
+    public static MessageDatabaseTable getInstance() {
+        if( instance == null ) {
+            instance = new MessageDatabaseTable();
+        }
+        return instance;
+    }
+    
+    protected String getMessageTableName() {
+        return "MESSAGES";
+    }
+    protected String getFileAttachmentsTableName() {
+        return "FILEATTACHMENTS";
+    }
+    protected String getBoardAttachmentsTableName() {
+        return "BOARDATTACHMENTS";
+    }
 
-    private static final String SQL_DDL_MESSAGES =
-        "CREATE TABLE MESSAGES ("+
+    private final String SQL_DDL_MESSAGES =
+        "CREATE TABLE "+getMessageTableName()+" ("+
         "messageid VARCHAR,"+
         "inreplyto VARCHAR,"+
         "isvalid BOOLEAN,"+
@@ -35,10 +54,8 @@ public class MessageDatabaseTable {
         "hasfileattachment BOOLEAN,"+
         "hasboardattachment BOOLEAN"+
         ")";
-    // "messageid,inreplyto,isvalid,invalidreason,date,time,index,board,from,subject,recipient,signature,publickey,"+
-    // "content,isdeleted,isnew,isanswered,isjunk,ismarked,isstarred,hasfileattachment,hasboardattachment";
-    private static final String SQL_DDL_FILEATTACHMENTS =
-        "CREATE TABLE FILEATTACHMENTS ("+
+    private final String SQL_DDL_FILEATTACHMENTS =
+        "CREATE TABLE "+getFileAttachmentsTableName()+" ("+
         "date DATE NOT NULL,"+
         "index INT NOT NULL,"+
         "board VARCHAR NOT NULL,"+
@@ -46,8 +63,8 @@ public class MessageDatabaseTable {
         "filesize BIGINT,"+
         "filekey  VARCHAR"+
         ")";
-    private static final String SQL_DDL_BOARDATTACHMENTS =
-        "CREATE TABLE BOARDATTACHMENTS ("+
+    private final String SQL_DDL_BOARDATTACHMENTS =
+        "CREATE TABLE "+getBoardAttachmentsTableName()+" ("+
         "date DATE NOT NULL,"+
         "index INT NOT NULL,"+
         "board VARCHAR NOT NULL,"+
@@ -57,15 +74,15 @@ public class MessageDatabaseTable {
         "boarddescription VARCHAR"+
         ")";
     
-    public static List getTableDDL() {
-        ArrayList lst = new ArrayList(1);
+    public List getTableDDL() {
+        ArrayList lst = new ArrayList(3);
         lst.add(SQL_DDL_MESSAGES);
         lst.add(SQL_DDL_FILEATTACHMENTS);
         lst.add(SQL_DDL_BOARDATTACHMENTS);
         return lst;
     }
     
-    public static void insertMessage(FrostMessageObject mo) throws SQLException {
+    public void insertMessage(FrostMessageObject mo) throws SQLException {
 
         AttachmentList files = mo.getAttachmentsOfType(Attachment.FILE);
         AttachmentList boards = mo.getAttachmentsOfType(Attachment.BOARD);
@@ -73,7 +90,7 @@ public class MessageDatabaseTable {
         // insert msg and all attachments
         GuiDatabase db = GuiDatabase.getInstance();
         PreparedStatement ps = db.prepare(
-            "INSERT INTO MESSAGES ("+
+            "INSERT INTO "+getMessageTableName()+"  ("+
             "messageid,inreplyto,isvalid,invalidreason,date,time,index,board,fromname,subject,recipient,signature," +
             "signaturestatus,publickey,content,isdeleted,isnew,isanswered,isjunk,ismarked,isstarred,hasfileattachment,hasboardattachment"+
             ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
@@ -113,7 +130,7 @@ public class MessageDatabaseTable {
         // attachments
         if( files.size() > 0 ) {
             PreparedStatement p = db.prepare(
-                    "INSERT INTO FILEATTACHMENTS (date,index,board,"+
+                    "INSERT INTO "+getFileAttachmentsTableName()+" (date,index,board,"+
                     "filename,filesize,filekey)"+
                     " VALUES (?,?,?,?,?,?)");
             for(Iterator it=files.iterator(); it.hasNext(); ) {
@@ -136,7 +153,7 @@ public class MessageDatabaseTable {
         }
         if( boards.size() > 0 ) {
             PreparedStatement p = db.prepare(
-                    "INSERT INTO BOARDATTACHMENTS (date,index,board,"+
+                    "INSERT INTO "+getBoardAttachmentsTableName()+" (date,index,board,"+
                     "boardname,boardpublickey,boardprivatekey,boarddescription)"+
                     " VALUES (?,?,?,?,?,?,?)");
             for(Iterator it=boards.iterator(); it.hasNext(); ) {
@@ -160,12 +177,12 @@ public class MessageDatabaseTable {
         }
     }
 
-    public static void updateMessage(FrostMessageObject mo) throws SQLException {
+    public void updateMessage(FrostMessageObject mo) throws SQLException {
         // update msg, date, board, index are not changeable
         // insert msg and all attachments
         GuiDatabase db = GuiDatabase.getInstance();
         PreparedStatement ps = db.prepare(
-            "UPDATE MESSAGES SET isdeleted=?,isnew=?,isanswered=?,isjunk=?,ismarked=?,isstarred=? "+
+            "UPDATE "+getMessageTableName()+" SET isdeleted=?,isnew=?,isanswered=?,isjunk=?,ismarked=?,isstarred=? "+
             "WHERE date=? AND index=? AND board=?");
         int ix=1;
         ps.setBoolean(ix++, mo.isDeleted()); // isdeleted
@@ -187,12 +204,12 @@ public class MessageDatabaseTable {
         ps.close();
     }
     
-    private static void retrieveAttachments(FrostMessageObject mo) throws SQLException {
+    private void retrieveAttachments(FrostMessageObject mo) throws SQLException {
         GuiDatabase db = GuiDatabase.getInstance();
         // retrieve attachments
         if( mo.isHasFileAttachments() ) {
             PreparedStatement p2 = db.prepare(
-                    "SELECT filename,filesize,filekey FROM FILEATTACHMENTS "+
+                    "SELECT filename,filesize,filekey FROM "+getFileAttachmentsTableName()+" "+
                     "WHERE date=? AND index=? AND board=?");
             p2.setDate(1, mo.getSqlDate());
             p2.setInt(2, mo.getIndex());
@@ -218,7 +235,7 @@ public class MessageDatabaseTable {
         }
         if( mo.isHasBoardAttachments() ) {
             PreparedStatement p2 = db.prepare(
-                    "SELECT boardname,boardpublickey,boardprivatekey,boarddescription FROM BOARDATTACHMENTS "+
+                    "SELECT boardname,boardpublickey,boardprivatekey,boarddescription FROM "+getBoardAttachmentsTableName()+" "+
                     "WHERE date=? AND index=? AND board=?");
             p2.setDate(1, mo.getSqlDate());
             p2.setInt(2, mo.getIndex());
@@ -239,7 +256,7 @@ public class MessageDatabaseTable {
         }
     }
 
-    private static FrostMessageObject resultSetToFrostMessageObject(
+    private FrostMessageObject resultSetToFrostMessageObject(
             ResultSet rs, Board board, boolean withContent, boolean withAttachments) 
     throws SQLException 
     {
@@ -278,7 +295,7 @@ public class MessageDatabaseTable {
         return mo;
     }
 
-    public static List retrieveMessages(
+    public List retrieveMessages(
             Board board, 
             int maxDaysBack, 
             boolean withContent, 
@@ -296,7 +313,7 @@ public class MessageDatabaseTable {
         if( withContent ) {
             sql += ",content";
         }
-        sql += " FROM MESSAGES WHERE date>=? AND board=? AND isvalid=TRUE ";
+        sql += " FROM "+getMessageTableName()+" WHERE date>=? AND board=? AND isvalid=TRUE ";
         if( !showDeleted ) {
             // don't select deleted msgs
             sql += "AND isdeleted=FALSE ";
@@ -357,7 +374,7 @@ public class MessageDatabaseTable {
 //        ps.close();
 //    }
 //
-    public static void retrieveMessagesOneByOne(
+    public void retrieveMessagesOneByOne(
             Board board, 
             java.sql.Date startDate, 
             java.sql.Date endDate, 
@@ -375,7 +392,7 @@ public class MessageDatabaseTable {
             if( withContent ) {
                 sql += ",content";
             }
-            sql += " FROM MESSAGES WHERE date>=? AND date<=? AND board=? AND isvalid=TRUE AND isdeleted=? ORDER BY date DESC,time DESC";
+            sql += " FROM "+getMessageTableName()+" WHERE date>=? AND date<=? AND board=? AND isvalid=TRUE AND isdeleted=? ORDER BY date DESC,time DESC";
         PreparedStatement ps = db.prepare(sql);
         
         ps.setDate(1, startDate);
@@ -396,9 +413,9 @@ public class MessageDatabaseTable {
         ps.close();
     }
 
-    public static String retrieveMessageContent(java.sql.Date date, Board board, int index) throws SQLException {
+    public String retrieveMessageContent(java.sql.Date date, Board board, int index) throws SQLException {
         GuiDatabase db = GuiDatabase.getInstance();
-        PreparedStatement ps = db.prepare("SELECT TOP 1 content FROM MESSAGES WHERE date=? AND board=? AND index=?");
+        PreparedStatement ps = db.prepare("SELECT TOP 1 content FROM "+getMessageTableName()+" WHERE date=? AND board=? AND index=?");
         ps.setDate(1, date);
         ps.setString(2, board.getName());
         ps.setInt(3, index);
@@ -414,11 +431,11 @@ public class MessageDatabaseTable {
         return content;
     }
 
-    public static int getNewMessageCount(Board board, int maxDaysBack) throws SQLException {
+    public int getNewMessageCount(Board board, int maxDaysBack) throws SQLException {
         java.sql.Date startDate = DateFun.getSqlDateGMTDaysAgo(maxDaysBack);
         
         GuiDatabase db = GuiDatabase.getInstance();
-        PreparedStatement ps = db.prepare("SELECT COUNT(date) FROM MESSAGES WHERE date >=? AND board=? AND isnew=TRUE");
+        PreparedStatement ps = db.prepare("SELECT COUNT(date) FROM "+getMessageTableName()+" WHERE date >=? AND board=? AND isnew=TRUE");
         ps.setDate(1, startDate);
         ps.setString(2, board.getName());
         
@@ -433,9 +450,9 @@ public class MessageDatabaseTable {
         return count;
     }
 
-    public static void setAllMessagesRead(Board board) throws SQLException {
+    public void setAllMessagesRead(Board board) throws SQLException {
         GuiDatabase db = GuiDatabase.getInstance();
-        PreparedStatement ps = db.prepare("UPDATE MESSAGES SET isnew=FALSE WHERE board=? and isnew=TRUE");
+        PreparedStatement ps = db.prepare("UPDATE "+getMessageTableName()+" SET isnew=FALSE WHERE board=? and isnew=TRUE");
         ps.setString(1, board.getName());
         ps.executeUpdate();
         ps.close();
