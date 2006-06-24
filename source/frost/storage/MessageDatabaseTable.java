@@ -424,13 +424,28 @@ public class MessageDatabaseTable {
         return content;
     }
 
+    public void setAllMessagesRead(Board board) throws SQLException {
+        GuiDatabase db = GuiDatabase.getInstance();
+        PreparedStatement ps = db.prepare("UPDATE "+getMessageTableName()+" SET isnew=FALSE WHERE board=? and isnew=TRUE");
+        ps.setString(1, board.getName());
+        ps.executeUpdate();
+        ps.close();
+    }
+
     public int getNewMessageCount(Board board, int maxDaysBack) throws SQLException {
         java.sql.Date startDate = DateFun.getSqlDateGMTDaysAgo(maxDaysBack);
         
         GuiDatabase db = GuiDatabase.getInstance();
-        PreparedStatement ps = db.prepare("SELECT COUNT(date) FROM "+getMessageTableName()+" WHERE date >=? AND board=? AND isnew=TRUE");
-        ps.setDate(1, startDate);
-        ps.setString(2, board.getName());
+        PreparedStatement ps;
+        if( maxDaysBack < 0 ) {
+            // no date restriction
+            ps = db.prepare("SELECT COUNT(date) FROM "+getMessageTableName()+" WHERE board=? AND isnew=TRUE AND isvalid=TRUE");
+            ps.setString(1, board.getName());
+        } else {
+            ps = db.prepare("SELECT COUNT(date) FROM "+getMessageTableName()+" WHERE date >=? AND board=? AND isnew=TRUE AND isvalid=TRUE");
+            ps.setDate(1, startDate);
+            ps.setString(2, board.getName());
+        }
         
         int count = 0;
         ResultSet rs = ps.executeQuery();
@@ -443,11 +458,29 @@ public class MessageDatabaseTable {
         return count;
     }
 
-    public void setAllMessagesRead(Board board) throws SQLException {
+    public int getMessageCount(Board board, int maxDaysBack) throws SQLException {
+        java.sql.Date startDate = DateFun.getSqlDateGMTDaysAgo(maxDaysBack);
+        
         GuiDatabase db = GuiDatabase.getInstance();
-        PreparedStatement ps = db.prepare("UPDATE "+getMessageTableName()+" SET isnew=FALSE WHERE board=? and isnew=TRUE");
-        ps.setString(1, board.getName());
-        ps.executeUpdate();
+        PreparedStatement ps;
+        if( maxDaysBack < 0 ) {
+            // no date restriction
+            ps = db.prepare("SELECT COUNT(date) FROM "+getMessageTableName()+" WHERE board=? AND isvalid=TRUE");
+            ps.setString(1, board.getName());
+        } else {
+            ps = db.prepare("SELECT COUNT(date) FROM "+getMessageTableName()+" WHERE date >=? AND board=? AND isvalid=TRUE");
+            ps.setDate(1, startDate);
+            ps.setString(2, board.getName());
+        }
+        
+        int count = 0;
+        ResultSet rs = ps.executeQuery();
+        if( rs.next() ) {
+            count = rs.getInt(1);
+        }
+        rs.close();
         ps.close();
+        
+        return count;
     }
 }

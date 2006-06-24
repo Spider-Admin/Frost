@@ -64,7 +64,7 @@ public class GuiDatabase extends Database {
                 ex.printStackTrace();
             }
         }
-        // sent messages tables
+        // sent message tables
         for(Iterator i=getSentMessageTable().getTableDDL().iterator(); i.hasNext(); ) {
             String tableDDL = (String)i.next();
             try {
