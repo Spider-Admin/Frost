@@ -103,10 +103,7 @@ public class MessageObjectFile extends AbstractMessageObject implements XMLizabl
             throw new MessageCreationException(
                             "Invalid input file '" + file.getName() + "' for MessageObject (load/analyze failed).", exception);
         }
-
-        initializeMessageStatus(getFromIdentity());
     }
-    
 
     /**
      * Set all values after load
@@ -121,7 +118,7 @@ public class MessageObjectFile extends AbstractMessageObject implements XMLizabl
         }
         // replace evil chars
         for( int i = 0; i < evilChars.length; i++ ) {
-            setFromName(getFromName().replace(evilChars[i], '_'));
+//            setFromName(getFromName().replace(evilChars[i], '_')); done during load
             setSubject(getSubject().replace(evilChars[i], '_'));
             setDateStr(getDateStr().replace(evilChars[i], '_'));
             setTimeStr(getTimeStr().replace(evilChars[i], '_'));
@@ -407,7 +404,11 @@ public class MessageObjectFile extends AbstractMessageObject implements XMLizabl
     public void loadXMLElement(Element e) throws SAXException {
         setMessageId(XMLTools.getChildElementsCDATAValue(e, "MessageId"));
         setInReplyTo(XMLTools.getChildElementsCDATAValue(e, "InReplyTo"));
-        setFromName(XMLTools.getChildElementsCDATAValue(e, "From"));
+        String from = XMLTools.getChildElementsCDATAValue(e, "From");
+        for( int i = 0; i < evilChars.length; i++ ) {
+          from = from.replace(evilChars[i], '_'); 
+        }
+        setFromName(from);
         setDateStr(XMLTools.getChildElementsCDATAValue(e, "Date"));
         setSubject(XMLTools.getChildElementsCDATAValue(e, "Subject"));
         setTimeStr(XMLTools.getChildElementsCDATAValue(e, "Time"));

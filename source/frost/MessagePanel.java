@@ -312,7 +312,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     } else if (selectedMessage.isMessageStatusTAMPERED()) {
                         // keep all buttons disabled
                     } else {
-                        logger.warning("invalid message state : " + selectedMessage.getMessageStatus());
+                        logger.warning("invalid message state");
                     }
                 }
 

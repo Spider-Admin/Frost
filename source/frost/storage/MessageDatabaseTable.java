@@ -269,6 +269,7 @@ public class MessageDatabaseTable {
             rs2.close();
             p2.close();
         }
+        
         return mo;
     }
 

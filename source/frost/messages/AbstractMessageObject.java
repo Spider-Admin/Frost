@@ -14,7 +14,6 @@ public abstract class AbstractMessageObject extends AbstractMessageStatusProvide
 
     protected AttachmentList attachments = null;
     private String content = "";
-    private String fromName = "";
     private String subject = "";
     private String publicKey  = "";
     private String recipientName = ""; // set if msg was encrypted
@@ -22,23 +21,8 @@ public abstract class AbstractMessageObject extends AbstractMessageStatusProvide
     private String messageId = null;
     private String inReplyTo = null;
 
-    private boolean isFromIdentityInitialized = false;
-    private Identity fromIdentity = null;
-
-    public Identity getFromIdentity() {
-        if( isFromIdentityInitialized == false ) {
-            // set Identity for FROM, or null
-            fromIdentity = Core.getIdentities().getIdentity(getFromName());
-            isFromIdentityInitialized = true;
-        }
-        return fromIdentity;
-    }
-    
     public String getContent() {
         return content;
-    }
-    public String getFromName() {
-        return fromName;
     }
     public String getRecipientName() {
         return recipientName;
@@ -61,9 +45,6 @@ public abstract class AbstractMessageObject extends AbstractMessageStatusProvide
 
     public void setContent(String content) {
         this.content = content;
-    }
-    public void setFromName(String from) {
-        this.fromName = from;
     }
     public void setPublicKey(String pk) {
         publicKey = pk;
@@ -90,14 +71,6 @@ public abstract class AbstractMessageObject extends AbstractMessageStatusProvide
      */
     public void addAttachment(Attachment attachment) {
         getAttachmentList().add(attachment);
-    }
-
-    public int getSignatureStatus() {
-        return signatureStatus;
-    }
-
-    public void setSignatureStatus(int signatureStatus) {
-        this.signatureStatus = signatureStatus;
     }
 
     /**
