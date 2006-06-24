@@ -19,6 +19,7 @@
 package frost.threads;
 
 import java.io.*;
+import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
@@ -26,32 +27,37 @@ import frost.*;
 import frost.gui.*;
 import frost.gui.objects.*;
 import frost.messages.*;
+import frost.storage.*;
 
-public class SearchMessagesThread extends Thread {
+// TODO: in date config, show earliest and newest msg date!
+
+public class SearchMessagesThread extends Thread implements MessageDatabaseTableCallback {
 
     private static Logger logger = Logger.getLogger(SearchMessagesThread.class.getName());
 
     SearchMessagesDialog searchDialog; // used to add found messages
     SearchMessagesConfig searchConfig;
 
+    private TrustStates trustStates = new TrustStates();
+
     private boolean stopRequested = false;
 
-    String keypoolDir;
-    String archiveDir;
+//    String keypoolDir;
+//    String archiveDir;
 
-    private XmlFileFilter xmlFileFilter = new XmlFileFilter();
+//    private XmlFileFilter xmlFileFilter = new XmlFileFilter();
 
     public SearchMessagesThread(SearchMessagesDialog searchDlg, SearchMessagesConfig searchCfg) {
         searchDialog = searchDlg;
         searchConfig = searchCfg;
 
-        keypoolDir = MainFrame.keypool;
-        archiveDir = Core.frostSettings.getValue("archive.dir");
-        if( archiveDir == null || archiveDir.length() == 0 ) {
-            logger.severe("Warning: no ARCHIVE DIR specified!");
-            archiveDir = null;
-        }
-        archiveDir += ("messages" + File.separator);
+//        keypoolDir = MainFrame.keypool;
+//        archiveDir = Core.frostSettings.getValue("archive.dir");
+//        if( archiveDir == null || archiveDir.length() == 0 ) {
+//            logger.severe("Warning: no ARCHIVE DIR specified!");
+//            archiveDir = null;
+//        }
+//        archiveDir += ("messages" + File.separator);
     }
 
     public void run() {
@@ -67,7 +73,6 @@ public class SearchMessagesThread extends Thread {
                 boardsToSearch = new ArrayList(); // paranoia
             }
 
-            TrustStates trustStates = new TrustStates();
             DateRange dateRange = new DateRange();
 
             for(Iterator i=boardsToSearch.iterator(); i.hasNext(); ) {
@@ -79,102 +84,117 @@ public class SearchMessagesThread extends Thread {
                 Board board = (Board)i.next();
 
                 // build date and trust state info for this board
-                updateTrustStatesForBoard(board, trustStates);
                 updateDateRangeForBoard(board, dateRange);
+                updateTrustStatesForBoard(board, trustStates);
+                
+                searchBoard(board, dateRange);
 
-                if( searchConfig.searchInKeypool ) {
-                    // search in keypool
-                    // Format: keypool\boards\2006.3.1\2006.3.1-boards-0.xml
-                    File boardFolder = new File(keypoolDir + board.getBoardFilename());
-                    if( boardFolder.isDirectory() == true ) {
-                        searchBoardFolder(boardFolder, trustStates, dateRange, false);
-                    } else {
-                        logger.warning("No board folder in keypool for board "+board.getName());
-                    }
-                }
+//                if( searchConfig.searchInKeypool ) {
+//                    // search in keypool
+//                    // Format: keypool\boards\2006.3.1\2006.3.1-boards-0.xml
+//                    File boardFolder = new File(keypoolDir + board.getBoardFilename());
+//                    if( boardFolder.isDirectory() == true ) {
+//                        searchBoardFolder(boardFolder, trustStates, dateRange, false);
+//                    } else {
+//                        logger.warning("No board folder in keypool for board "+board.getName());
+//                    }
+//                }
 
                 if( isStopRequested() ) {
                     break;
                 }
 
-                if( searchConfig.searchInArchive && archiveDir != null ) {
-                    // search in archive
-                    // Format: keypool-archive.j\messages\boards\2005.12.7\2005.12.7-boards-0.xml
-                    File boardFolder = new File(archiveDir + board.getBoardFilename());
-                    if( boardFolder.isDirectory() == true ) {
-                        searchBoardFolder(boardFolder, trustStates, dateRange, true);
-                    } else {
-                        logger.warning("No board folder in archive for board "+board.getName());
-                    }
-                }
+//                if( searchConfig.searchInArchive && archiveDir != null ) {
+//                    // search in archive
+//                    // Format: keypool-archive.j\messages\boards\2005.12.7\2005.12.7-boards-0.xml
+//                    File boardFolder = new File(archiveDir + board.getBoardFilename());
+//                    if( boardFolder.isDirectory() == true ) {
+//                        searchBoardFolder(boardFolder, trustStates, dateRange, true);
+//                    } else {
+//                        logger.warning("No board folder in archive for board "+board.getName());
+//                    }
+//                }
             }
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Catched exception:", t);
         }
         searchDialog.notifySearchThreadFinished();
     }
+    
+    
+    public boolean messageRetrieved(FrostMessageObject mo) {
+        // search this xml file
+        searchMessage(mo);
 
-    // Format: boards\2006.3.1\2006.3.1-boards-0.xml
-    private void searchBoardFolder(File boardFolder, TrustStates ts, DateRange dr, boolean archived) {
-
-        File[] boardFolderFiles = boardFolder.listFiles();
-        if( boardFolderFiles == null ) {
-            logger.severe("Could not get list of files for folder "+boardFolder.getPath());
-            return;
-        }
-        for(int x=0; x < boardFolderFiles.length; x++) {
-
-            if( isStopRequested() ) {
-                break;
-            }
-
-            File boardFolderFile = boardFolderFiles[x];
-            if( boardFolderFile.isDirectory() == false ) {
-                continue;
-            }
-            // its a dir, we expect a name like '2006.3.1'
-            Calendar dateDirCal = null;
-            try {
-                dateDirCal = DateFun.getCalendarFromDate(boardFolderFile.getName());
-            } catch(NumberFormatException ex) {
-                logger.warning("Incorrect board date folder name, must be a date: "+boardFolderFile.getPath());
-                continue;
-            }
-
-            // check if this date dir is in the date range we want to search
-            if( dr.startDate != null && dr.endDate != null &&
-                (dateDirCal.before(dr.startDate) || dateDirCal.after(dr.endDate)) )
-            {
-                continue;
-            }
-            // get list of .xml files in the date dir
-            File[] xmlFiles = boardFolderFile.listFiles(xmlFileFilter);
-            if( xmlFiles == null ) {
-                logger.severe("Could not get list of xml files for folder "+boardFolderFile.getPath());
-                continue;
-            }
-            for(int y=0; y < xmlFiles.length; y++) {
-
-                if( isStopRequested() ) {
-                    break;
-                }
-
-                File xmlFile = xmlFiles[y];
-                // search this xml file
-                searchXmlFile(xmlFile, ts, archived);
-            }
-        }
+        return isStopRequested();
     }
 
-    private void searchXmlFile(File xmlFile, TrustStates ts, boolean archived) {
+    // Format: boards\2006.3.1\2006.3.1-boards-0.xml
+    private void searchBoard(Board board, DateRange dr) {
 
-        FrostSearchResultMessageObject mo = null;
         try {
-            mo = new FrostSearchResultMessageObject(xmlFile, archived);
-        } catch(Throwable t) {
-            logger.warning("Could not load xml file '"+xmlFile.getPath()+"': "+t.toString());
-            return;
+            MessageDatabaseTable.retrieveMessagesOneByOne(
+                    board, 
+                    dr.startDate, 
+                    dr.endDate, 
+                    true, 
+                    true, 
+                    false, 
+                    this);
+        } catch(SQLException e) {
+                logger.log(Level.SEVERE, "Catched exception:", e);
         }
+        
+//        File[] boardFolderFiles = boardFolder.listFiles();
+//        if( boardFolderFiles == null ) {
+//            logger.severe("Could not get list of files for folder "+boardFolder.getPath());
+//            return;
+//        }
+//        for(int x=0; x < boardFolderFiles.length; x++) {
+//
+//            if( isStopRequested() ) {
+//                break;
+//            }
+//
+//            File boardFolderFile = boardFolderFiles[x];
+//            if( boardFolderFile.isDirectory() == false ) {
+//                continue;
+//            }
+//            // its a dir, we expect a name like '2006.3.1'
+//            Calendar dateDirCal = null;
+//            try {
+//                dateDirCal = DateFun.getCalendarFromDate(boardFolderFile.getName());
+//            } catch(NumberFormatException ex) {
+//                logger.warning("Incorrect board date folder name, must be a date: "+boardFolderFile.getPath());
+//                continue;
+//            }
+//
+//            // check if this date dir is in the date range we want to search
+//            if( dr.startDate != null && dr.endDate != null &&
+//                (dateDirCal.before(dr.startDate) || dateDirCal.after(dr.endDate)) )
+//            {
+//                continue;
+//            }
+//            // get list of .xml files in the date dir
+//            File[] xmlFiles = boardFolderFile.listFiles(xmlFileFilter);
+//            if( xmlFiles == null ) {
+//                logger.severe("Could not get list of xml files for folder "+boardFolderFile.getPath());
+//                continue;
+//            }
+//            for(int y=0; y < xmlFiles.length; y++) {
+//
+//                if( isStopRequested() ) {
+//                    break;
+//                }
+//
+//                File xmlFile = xmlFiles[y];
+//                // search this xml file
+//                searchXmlFile(xmlFile, ts, archived);
+//            }
+//        }
+    }
+
+    private void searchMessage(FrostMessageObject mo) {
 
         // check private only
         if( searchConfig.searchPrivateMsgsOnly ) {
@@ -184,15 +204,15 @@ public class SearchMessagesThread extends Thread {
         }
 
         // check trust states
-        if( matchesTrustStates(mo, ts) == false ) {
+        if( matchesTrustStates(mo, trustStates) == false ) {
             return;
         }
         
         // check attachments
-        if( searchConfig.msgMustContainBoards && mo.getAttachmentsOfType(Attachment.BOARD).size() <= 0 ) {
+        if( searchConfig.msgMustContainBoards && !mo.isHasBoardAttachments() ) {
             return;
         }
-        if( searchConfig.msgMustContainFiles && mo.getAttachmentsOfType(Attachment.FILE).size() <= 0 ) {
+        if( searchConfig.msgMustContainFiles && !mo.isHasFileAttachments() ) {
             return;
         }
 
@@ -221,7 +241,7 @@ public class SearchMessagesThread extends Thread {
         }
 
         // match, add to result table
-        searchDialog.addFoundMessage(mo);
+        searchDialog.addFoundMessage(new FrostSearchResultMessageObject(mo));
     }
 
     private boolean searchInText(List searchItems, String txt) {
@@ -291,30 +311,18 @@ public class SearchMessagesThread extends Thread {
 
     private void updateDateRangeForBoard(Board b, DateRange dr) {
         if( searchConfig.searchDates == SearchMessagesConfig.DATE_DISPLAYED ) {
-            dr.startDate = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-            dr.startDate.add(Calendar.DATE, -b.getMaxMessageDisplay());
-            dr.endDate = new GregorianCalendar(TimeZone.getTimeZone("GMT")); // today
+            dr.startDate = DateFun.getSqlDateGMTDaysAgo(b.getMaxMessageDisplay());
+            dr.endDate = DateFun.getCurrentSqlDateGMT(); // today
         } else if( searchConfig.searchDates == SearchMessagesConfig.DATE_DAYS_BACKWARD ) {
-            dr.startDate = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-            dr.startDate.add(Calendar.DATE, -searchConfig.daysBackward);
-            dr.endDate = new GregorianCalendar(TimeZone.getTimeZone("GMT")); // today
+            dr.startDate = DateFun.getSqlDateGMTDaysAgo(searchConfig.daysBackward);
+            dr.endDate = DateFun.getCurrentSqlDateGMT(); // today
         } else if( searchConfig.searchDates == SearchMessagesConfig.DATE_BETWEEN_DATES ) {
-            dr.startDate = searchConfig.startDate;
-            dr.endDate = searchConfig.endDate;
+            dr.startDate = DateFun.getSqlDateOfCalendar(searchConfig.startDate);
+            dr.endDate = DateFun.getSqlDateOfCalendar(searchConfig.endDate);
         } else {
             // all dates
-            dr.startDate = null;
-            dr.endDate = null;
-        }
-        if( dr.startDate != null ) {
-            dr.startDate.set(Calendar.HOUR_OF_DAY, 00);
-            dr.startDate.set(Calendar.MINUTE, 00);
-            dr.startDate.set(Calendar.SECOND, 00);
-        }
-        if( dr.endDate != null ) {
-            dr.endDate.set(Calendar.HOUR_OF_DAY, 23);
-            dr.endDate.set(Calendar.MINUTE, 59);
-            dr.endDate.set(Calendar.SECOND, 59);
+            dr.startDate = new java.sql.Date(1);
+            dr.endDate = DateFun.getCurrentSqlDateGMT(); // today
         }
     }
 
@@ -326,8 +334,8 @@ public class SearchMessagesThread extends Thread {
     }
 
     private class DateRange {
-        GregorianCalendar startDate;
-        GregorianCalendar endDate;
+        java.sql.Date startDate;
+        java.sql.Date endDate;
     }
 
     private class TrustStates {
@@ -340,12 +348,12 @@ public class SearchMessagesThread extends Thread {
         public boolean trust_tampered = false;
     }
 
-    private class XmlFileFilter implements FileFilter {
-        public boolean accept(File f) {
-            if( f.isFile() && f.getName().endsWith(".xml") ) {
-                return true;
-            }
-            return false;
-        }
-    }
+//    private class XmlFileFilter implements FileFilter {
+//        public boolean accept(File f) {
+//            if( f.isFile() && f.getName().endsWith(".xml") ) {
+//                return true;
+//            }
+//            return false;
+//        }
+//    }
 }

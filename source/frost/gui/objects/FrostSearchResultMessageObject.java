@@ -18,24 +18,21 @@
 */
 package frost.gui.objects;
 
-import java.io.*;
-
 import frost.gui.model.*;
 import frost.messages.*;
 
-public class FrostSearchResultMessageObject extends FrostMessageObject {
+public class FrostSearchResultMessageObject implements TableMember {
 
-    private boolean messageIsArchived;
+    private FrostMessageObject messageObject;
 
-    public FrostSearchResultMessageObject(File file, boolean archived) throws MessageCreationException {
-        // super(file); // TODO: change searching, use database
-        messageIsArchived = archived;
+    public FrostSearchResultMessageObject(FrostMessageObject mo) {
+        messageObject = mo;
     }
 
-    public boolean isMessageArchived() {
-        return messageIsArchived;
+    public FrostMessageObject getMessageObject() {
+        return messageObject;
     }
-
+    
     /*
      * @see frost.gui.model.TableMember#compareTo(frost.gui.model.TableMember,
      *      int)
@@ -72,12 +69,12 @@ public class FrostSearchResultMessageObject extends FrostMessageObject {
      */
     public Object getValueAt(int column) {
         switch(column) {
-            case 0: return ""+getIndex();
-            case 1: return getFromName();
-            case 2: return getBoard().getName();
-            case 3: return getSubject();
-            case 4: return getMessageStatusString();
-            case 5: return getDateAndTime();
+            case 0: return ""+messageObject.getIndex();
+            case 1: return messageObject.getFromName();
+            case 2: return messageObject.getBoard().getName();
+            case 3: return messageObject.getSubject();
+            case 4: return messageObject.getMessageStatusString();
+            case 5: return messageObject.getDateAndTime();
             default: return "*ERR*";
         }
     }

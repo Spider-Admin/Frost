@@ -1472,11 +1472,12 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         if (row < 0) {
             return;
         }
-        FrostMessageObject msg = (FrostMessageObject)getSearchMessagesTableModel().getRow(row);
+        FrostSearchResultMessageObject msg = (FrostSearchResultMessageObject)getSearchMessagesTableModel().getRow(row);
         if( msg == null ) {
             return;
         }
-        MessageWindow messageWindow = new MessageWindow( this, msg, this.getSize(), searchMessagesConfig );
+        FrostMessageObject mo = msg.getMessageObject();
+        MessageWindow messageWindow = new MessageWindow( this, mo, this.getSize(), searchMessagesConfig );
         messageWindow.setVisible(true);
     }
 
