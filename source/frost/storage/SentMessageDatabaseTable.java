@@ -5,15 +5,6 @@ package frost.storage;
  */
 public class SentMessageDatabaseTable extends MessageDatabaseTable {
 
-    private static SentMessageDatabaseTable instance2 = null;
-    
-    public static MessageDatabaseTable getInstance() {
-        if( instance2 == null ) {
-            instance2 = new SentMessageDatabaseTable();
-        }
-        return instance2;
-    }
-
     protected String getMessageTableName() {
         return "SENTMESSAGES";
     }

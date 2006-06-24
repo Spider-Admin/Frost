@@ -97,22 +97,22 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         setIndex( msgIndex );
     }
     
-    /**
-     * If content is null, this method can be called to retrieve the content
-     */
-    public void retrieveContent() {
-        // use date, board, index to retrieve content
-        String content = null; 
-        try {
-            content = MessageDatabaseTable.getInstance().retrieveMessageContent(getSqlDate(), getBoard(), getIndex());
-        } catch(SQLException ex) {
-            ex.printStackTrace();
-        }
-        if( content == null ) {
-            content = "SQL Error retrieving content!";
-        }
-        setContent(content);
-    }
+//    /**
+//     * If content is null, this method can be called to retrieve the content
+//     */
+//    public void retrieveContent() {
+//        // use date, board, index to retrieve content
+//        String content = null; 
+//        try {
+//            content = MessageDatabaseTable.getInstance().retrieveMessageContent(getSqlDate(), getBoard(), getIndex());
+//        } catch(SQLException ex) {
+//            ex.printStackTrace();
+//        }
+//        if( content == null ) {
+//            content = "SQL Error retrieving content!";
+//        }
+//        setContent(content);
+//    }
 
     /*
      * @see frost.gui.model.TableMember#compareTo(frost.gui.model.TableMember, int)

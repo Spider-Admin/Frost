@@ -7,16 +7,9 @@ import frost.*;
 import frost.gui.objects.*;
 import frost.messages.*;
 
+// TODO: implement searching for messages without assigned boards (deleted boards) 
+
 public class MessageDatabaseTable {
-    
-    private static MessageDatabaseTable instance = null;
-    
-    public static MessageDatabaseTable getInstance() {
-        if( instance == null ) {
-            instance = new MessageDatabaseTable();
-        }
-        return instance;
-    }
     
     protected String getMessageTableName() {
         return "MESSAGES";

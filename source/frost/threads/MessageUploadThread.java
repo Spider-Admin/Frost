@@ -336,7 +336,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         // upload was successful, store message in sentmessages database
         FrostMessageObject mo = new FrostMessageObject(message, board, index);
         try {
-            SentMessageDatabaseTable.getInstance().insertMessage(mo);
+            GuiDatabase.getSentMessageTable().insertMessage(mo);
         } catch (SQLException e) {
             logger.log(Level.SEVERE,"Error inserting sent message", e);
         }

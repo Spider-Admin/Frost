@@ -93,7 +93,7 @@ public class TOF {
         // now takes care if board is changed during mark read of many boards! reloads current table if needed
         
         try {
-            MessageDatabaseTable.getInstance().setAllMessagesRead(board);
+            GuiDatabase.getMessageTable().setAllMessagesRead(board);
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error marking all messages read", e);
             return;
@@ -134,7 +134,7 @@ public class TOF {
         // before mark of the slot.
         FrostMessageObject invalidMsg = new FrostMessageObject(b, calDL, index, reason);
         try {
-            MessageDatabaseTable.getInstance().insertMessage(invalidMsg);
+            GuiDatabase.getMessageTable().insertMessage(invalidMsg);
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error inserting invalid message into database", e);
             return;
@@ -148,7 +148,7 @@ public class TOF {
         FrostMessageObject newMsg = new FrostMessageObject(currentMsg, board, index);
         newMsg.setNew(true);
         try {
-            MessageDatabaseTable.getInstance().insertMessage(newMsg);
+            GuiDatabase.getMessageTable().insertMessage(newMsg);
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error inserting new message into database", e);
             return;
@@ -346,7 +346,7 @@ public class TOF {
             try {
                 // TODO: maybe receive without content and dynamically load contents if needed
                 // TODO: if we do this, blocked can't check the mesagebody!
-                messages = MessageDatabaseTable.getInstance().retrieveMessages(board, daysToRead, true, true, showDeletedMessages);
+                messages = GuiDatabase.getMessageTable().retrieveMessages(board, daysToRead, true, true, showDeletedMessages);
             } catch (SQLException e) {
                 logger.log(Level.SEVERE, "Error retrieving messages for board "+board.getName(), e);
                 return;
@@ -510,7 +510,7 @@ public class TOF {
         
         int newMessages = 0;
         try {
-            newMessages = MessageDatabaseTable.getInstance().getNewMessageCount(board, daysToRead);
+            newMessages = GuiDatabase.getMessageTable().getNewMessageCount(board, daysToRead);
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error retrieving new message count", e);
         }
