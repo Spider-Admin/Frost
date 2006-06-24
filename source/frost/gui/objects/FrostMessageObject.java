@@ -104,7 +104,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         // use date, board, index to retrieve content
         String content = null; 
         try {
-            content = MessageDatabaseTable.retrieveMessageContent(getSqlDate(), getBoard(), getIndex());
+            content = MessageDatabaseTable.getInstance().retrieveMessageContent(getSqlDate(), getBoard(), getIndex());
         } catch(SQLException ex) {
             ex.printStackTrace();
         }

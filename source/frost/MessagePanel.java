@@ -601,7 +601,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                         public void run() {
                             // save message, we must save the changed deleted state into the xml file
                             try {
-                                MessageDatabaseTable.updateMessage(message);
+                                MessageDatabaseTable.getInstance().updateMessage(message);
                             } catch (SQLException e) {
                                 logger.log(Level.SEVERE, "Error updating a message object", e);
                             }
@@ -958,7 +958,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 for(Iterator i=saveMessages.iterator(); i.hasNext(); ) {
                     FrostMessageObject targetMessage = (FrostMessageObject)i.next();
                     try {
-                        MessageDatabaseTable.updateMessage(targetMessage);
+                        MessageDatabaseTable.getInstance().updateMessage(targetMessage);
                     } catch (SQLException e) {
                         logger.log(Level.SEVERE, "Error updating a message object", e);
                     }
@@ -992,7 +992,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 for(Iterator i=saveMessages.iterator(); i.hasNext(); ) {
                     FrostMessageObject targetMessage = (FrostMessageObject)i.next();
                     try {
-                        MessageDatabaseTable.updateMessage(targetMessage);
+                        MessageDatabaseTable.getInstance().updateMessage(targetMessage);
                     } catch (SQLException e) {
                         logger.log(Level.SEVERE, "Error updating a message object", e);
                     }
@@ -1036,7 +1036,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             public void run() {
                 // save message, we must save the changed deleted state into the xml file
                 try {
-                    MessageDatabaseTable.updateMessage(targetMessage);
+                    MessageDatabaseTable.getInstance().updateMessage(targetMessage);
                 } catch (SQLException e) {
                     logger.log(Level.SEVERE, "Error updating a message object", e);
                 }

@@ -19,6 +19,7 @@
 package frost.threads;
 
 import java.io.*;
+import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
@@ -30,6 +31,7 @@ import frost.fileTransfer.upload.*;
 import frost.gui.objects.*;
 import frost.identities.*;
 import frost.messages.*;
+import frost.storage.*;
 import frost.transferlayer.*;
 
 /**
@@ -331,24 +333,16 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             return;
         }
         
-        // upload was successful, move message file to sent folder
-        String finalName = new StringBuffer().append(message.getDateStr()).append("-")
-            .append(board.getBoardFilename()).append("-").append(index).toString();
-
-        File sentTarget = new File( Core.frostSettings.getValue("sent.dir") + finalName + ".xml" );
-
-        int counter = 2;
-        while( sentTarget.exists() ) {
-            // paranoia, target file already exists, append an increasing number
-            sentTarget = new File( Core.frostSettings.getValue("sent.dir") + finalName + "-" + counter + ".xml" );
-            counter++;
+        // upload was successful, store message in sentmessages database
+        FrostMessageObject mo = new FrostMessageObject(message, board, index);
+        try {
+            SentMessageDatabaseTable.getInstance().insertMessage(mo);
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE,"Error inserting sent message", e);
         }
 
+        // finally delete the message xml file in unsent folder
         File unsentMessageFile = message.getFile();
-        boolean wasOk = unsentMessageFile.renameTo(sentTarget);
-        if( !wasOk ) {
-            logger.severe("Error: rename of '"+unsentMessageFile.getPath()+"' into '"+sentTarget.getPath()+"' failed!");
-            unsentMessageFile.delete(); // we must delete the file from unsent folder to prevent another upload
-        }
+        unsentMessageFile.delete();
     }
 }

@@ -43,9 +43,18 @@ public class GuiDatabase extends Database {
     }
     
     private void ensureTables() {
-        // messages table
-        List ddls = MessageDatabaseTable.getTableDDL();
-        for(Iterator i=ddls.iterator(); i.hasNext(); ) {
+        // messages tables
+        for(Iterator i=MessageDatabaseTable.getInstance().getTableDDL().iterator(); i.hasNext(); ) {
+            String tableDDL = (String)i.next();
+            try {
+                update(tableDDL);
+            } catch(SQLException ex) {
+                // table already exists
+                ex.printStackTrace();
+            }
+        }
+        // sent messages tables
+        for(Iterator i=SentMessageDatabaseTable.getInstance().getTableDDL().iterator(); i.hasNext(); ) {
             String tableDDL = (String)i.next();
             try {
                 update(tableDDL);
