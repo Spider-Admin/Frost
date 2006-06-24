@@ -33,7 +33,6 @@ import frost.boards.*;
 import frost.fileTransfer.download.*;
 import frost.fileTransfer.upload.*;
 import frost.gui.objects.*;
-import frost.identities.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
@@ -52,8 +51,6 @@ class SearchPanel extends JPanel implements SettingsUpdater {
         JMenuItem cancelItem = new JMenuItem();
         JMenuItem downloadAllKeysItem = new JMenuItem();
         JMenuItem downloadSelectedKeysItem = new JMenuItem();
-        JMenuItem setBadItem = new JMenuItem();
-        JMenuItem setGoodItem = new JMenuItem();
 
         private JMenu copyToClipboardMenu = new JMenu();
         private JMenuItem copyKeysAndNamesItem = new JMenuItem();
@@ -81,8 +78,6 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 
             downloadSelectedKeysItem.addActionListener(this);
             downloadAllKeysItem.addActionListener(this);
-            setGoodItem.addActionListener(this);
-            setBadItem.addActionListener(this);
 
             copyKeysAndNamesItem.addActionListener(this);
             copyKeysItem.addActionListener(this);
@@ -92,8 +87,6 @@ class SearchPanel extends JPanel implements SettingsUpdater {
         private void refreshLanguage() {
             downloadSelectedKeysItem.setText(language.getString("SearchPane.resultTable.popupmenu.downloadSelectedKeys"));
             downloadAllKeysItem.setText(language.getString("SearchPane.resultTable.popupmenu.downloadAllKeys"));
-            setGoodItem.setText(language.getString("SearchPane.resultTable.popupmenu.setToGood"));
-            setBadItem.setText(language.getString("SearchPane.resultTable.popupmenu.setToBad"));
             cancelItem.setText(language.getString("Common.cancel"));
 
             keyNotAvailableMessage = language.getString("Common.copyToClipBoard.extendedInfo.keyNotAvailableYet");
@@ -116,12 +109,6 @@ class SearchPanel extends JPanel implements SettingsUpdater {
             }
             if (e.getSource() == downloadAllKeysItem) {
                 downloadAllKeys();
-            }
-            if (e.getSource() == setGoodItem) {
-                setGood();
-            }
-            if (e.getSource() == setBadItem) {
-                setBad();
             }
             if (e.getSource() == copyKeysItem) {
                 copyKeys();
@@ -221,24 +208,6 @@ class SearchPanel extends JPanel implements SettingsUpdater {
             }
         }
 
-        private void setBad() {
-            ModelItem[] selectedItems = modelTable.getSelectedItems();
-            Iterator owners = model.getSelectedItemsOwners(selectedItems);
-            while (owners.hasNext()) {
-                Identity owner_id = (Identity) owners.next();
-                identities.changeTrust(owner_id.getUniqueName(), FrostIdentities.ENEMY);
-            }
-        }
-
-        private void setGood() {
-            ModelItem[] selectedItems = modelTable.getSelectedItems();
-            Iterator owners = model.getSelectedItemsOwners(selectedItems);
-            while (owners.hasNext()) {
-                Identity owner_id = (Identity) owners.next();
-                identities.changeTrust(owner_id.getUniqueName(), FrostIdentities.FRIEND);
-            }
-        }
-
         private void downloadAllKeys() {
             model.addAllItemsToDownloadModel();
         }
@@ -275,12 +244,6 @@ class SearchPanel extends JPanel implements SettingsUpdater {
             }
             add(downloadAllKeysItem);
             addSeparator();
-            if (selectedItems.length != 0) {
-                //If at least 1 item is selected
-                add(setGoodItem);
-                add(setBadItem);
-                addSeparator();
-            }
             add(cancelItem);
 
             super.show(invoker, x, y);
@@ -421,8 +384,6 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 
     private SearchManager searchManager;
 
-    private FrostIdentities identities;
-
     private static Logger logger = Logger.getLogger(SearchPanel.class.getName());
 
     private PopupMenuSearch popupMenuSearch = null;
@@ -434,7 +395,6 @@ class SearchPanel extends JPanel implements SettingsUpdater {
     private UploadModel uploadModel = null;
     private TofTreeModel tofTreeModel = null;
     private SettingsClass settingsClass = null;
-    private String keypool = null;
 
     private Language language = null;
 
@@ -689,13 +649,6 @@ class SearchPanel extends JPanel implements SettingsUpdater {
     }
 
     /**
-     * @param newKeypool
-     */
-    public void setKeypool(String newKeypool) {
-        keypool = newKeypool;
-    }
-
-    /**
      * @return
      */
     private PopupMenuSearch getPopupMenuSearch() {
@@ -704,13 +657,6 @@ class SearchPanel extends JPanel implements SettingsUpdater {
             language.addLanguageListener(popupMenuSearch);
         }
         return popupMenuSearch;
-    }
-
-    /**
-     * @param identities
-     */
-    public void setIdentities(FrostIdentities newIdentities) {
-        identities = newIdentities;
     }
 
     /* (non-Javadoc)

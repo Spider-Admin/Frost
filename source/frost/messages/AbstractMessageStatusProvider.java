@@ -12,6 +12,16 @@ public abstract class AbstractMessageStatusProvider {
     private static final int xOBSERVE  = 4;
     private static final int xTAMPERED = 5;
     private static final int xOLD      = 6;
+    
+    private static String[] messageStateStrings = {
+        "*err*",
+        "GOOD",
+        "CHECK",
+        "BAD",
+        "OBSERVE",
+        "FAKE",
+        "NONE"
+    };
 
     private static final int SIGNATURESTATUS_UNSET    = 0; // status not set
     private static final int SIGNATURESTATUS_TAMPERED = 1; // wrong signature
@@ -27,10 +37,6 @@ public abstract class AbstractMessageStatusProvider {
     
     private String fromName = "";
 
-    private boolean isMessageStatusInitialized = false;
-    private int messageStatus = -1;
-    private String messageStatusString = null;
-    
     private int signatureStatus = SIGNATURESTATUS_UNSET;
 
     public Identity getFromIdentity() {
@@ -49,12 +55,6 @@ public abstract class AbstractMessageStatusProvider {
         this.fromName = from;
     }
     
-    private void initializeMessageStatus() {
-        messageStatus = getMessageStatus(getFromIdentity());
-        messageStatusString = getMessageStatusString(messageStatus);
-        isMessageStatusInitialized = true;
-    }
-
     /**
      * Converts the signature status string contained in local XML message file
      * into the internal constant.
@@ -103,35 +103,14 @@ public abstract class AbstractMessageStatusProvider {
         return xOLD;
     }
 
-    private String getMessageStatusString(int msgStatus) {
-        if( msgStatus == xGOOD ) {
-            return "GOOD"; // dark green
-        } else if( msgStatus == xCHECK ) {
-            return "CHECK"; // yellow
-        } else if( msgStatus == xBAD ) {
-            return "BAD"; // red
-        } else if( msgStatus == xOBSERVE ) {
-            return "OBSERVE"; // a lighter green
-        } else if( msgStatus == xOLD ) {
-            return "NONE";
-        } else if( msgStatus == xTAMPERED ) {
-            return "FAKE";
-        }
-        return "*err*"; // never come here
-    }
-    
+    // TODO: we could make this faster by caching the value and changing it only if the trust state
+    //  for the identity changed. this is called by the renderer!
     private int getMessageStatus() {
-        if( !isMessageStatusInitialized ) {
-            initializeMessageStatus();
-        }
-        return messageStatus;
+        return getMessageStatus(getFromIdentity());
     }
 
     public String getMessageStatusString() {
-        if( !isMessageStatusInitialized ) {
-            initializeMessageStatus();
-        }
-        return messageStatusString;
+        return messageStateStrings[getMessageStatus(getFromIdentity())];
     }
     
     public boolean isMessageStatusGOOD() {

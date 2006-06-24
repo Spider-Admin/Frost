@@ -428,7 +428,6 @@ public class MessageObjectFile extends AbstractMessageObject implements XMLizabl
         if (l.size() > 0) {
             Element attachmentsElement = (Element) l.get(0);
             getAttachmentList().loadXMLElement(attachmentsElement);
-            System.out.println("received attachments! "+getAttachmentList().size());
         }
     }
 

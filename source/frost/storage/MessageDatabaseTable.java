@@ -110,9 +110,6 @@ public class MessageDatabaseTable {
 
         ps.close();
 
-        System.out.println("files="+files.size());
-        System.out.println("boards="+boards.size());
-
         // attachments
         if( files.size() > 0 ) {
             PreparedStatement p = db.prepare(
