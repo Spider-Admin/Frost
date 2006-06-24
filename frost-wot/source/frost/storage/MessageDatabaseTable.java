@@ -186,9 +186,62 @@ public class MessageDatabaseTable {
 
         ps.close();
     }
+    
+    private static void retrieveAttachments(FrostMessageObject mo) throws SQLException {
+        GuiDatabase db = GuiDatabase.getInstance();
+        // retrieve attachments
+        if( mo.isHasFileAttachments() ) {
+            PreparedStatement p2 = db.prepare(
+                    "SELECT filename,filesize,filekey FROM FILEATTACHMENTS "+
+                    "WHERE date=? AND index=? AND board=?");
+            p2.setDate(1, mo.getSqlDate());
+            p2.setInt(2, mo.getIndex());
+            p2.setString(3, mo.getBoard().getName());
+            ResultSet rs2 = p2.executeQuery();
+            while(rs2.next()) {
+                String name, key;
+                long size;
+                name = rs2.getString(1);
+                size = rs2.getLong(2);
+                key = rs2.getString(3);
+
+                SharedFileObject sfo = new SharedFileObject();
+                sfo.setBoard(mo.getBoard());
+                sfo.setFilename(name);
+                sfo.setSize(size);
+                sfo.setKey(key);
+                FileAttachment fa = new FileAttachment(sfo);
+                mo.addAttachment(fa);
+            }
+            rs2.close();
+            p2.close();
+        }
+        if( mo.isHasBoardAttachments() ) {
+            PreparedStatement p2 = db.prepare(
+                    "SELECT boardname,boardpublickey,boardprivatekey,boarddescription FROM BOARDATTACHMENTS "+
+                    "WHERE date=? AND index=? AND board=?");
+            p2.setDate(1, mo.getSqlDate());
+            p2.setInt(2, mo.getIndex());
+            p2.setString(3, mo.getBoard().getName());
+            ResultSet rs2 = p2.executeQuery();
+            while(rs2.next()) {
+                String name, pubkey, privkey, desc;
+                name = rs2.getString(1);
+                pubkey = rs2.getString(2);
+                privkey = rs2.getString(3);
+                desc = rs2.getString(4);
+                Board b = new Board(name, pubkey, privkey, desc);
+                BoardAttachment ba = new BoardAttachment(b);
+                mo.addAttachment(ba);
+            }
+            rs2.close();
+            p2.close();
+        }
+    }
 
     private static FrostMessageObject resultSetToFrostMessageObject(
-            ResultSet rs, Board board, boolean withContent, GuiDatabase db) throws SQLException 
+            ResultSet rs, Board board, boolean withContent, boolean withAttachments) 
+    throws SQLException 
     {
         FrostMessageObject mo = new FrostMessageObject();
         mo.setBoard(board);
@@ -211,66 +264,26 @@ public class MessageDatabaseTable {
         mo.setMarked(rs.getBoolean(ix++));
         mo.setStarred(rs.getBoolean(ix++));
         
-        boolean hasFileAttachment = rs.getBoolean(ix++);
-        boolean hasBoardAttachment = rs.getBoolean(ix++);
+        mo.setHasFileAttachments( rs.getBoolean(ix++) );
+        mo.setHasBoardAttachments( rs.getBoolean(ix++) );
         
         if( withContent ) {
             mo.setContent(rs.getString(ix++));
         }
 
-        // retrieve attachments
-        if( hasFileAttachment ) {
-            PreparedStatement p2 = db.prepare(
-                    "SELECT filename,filesize,filekey FROM FILEATTACHMENTS "+
-                    "WHERE date=? AND index=? AND board=?");
-            p2.setDate(1, mo.getSqlDate());
-            p2.setInt(2, mo.getIndex());
-            p2.setString(3, board.getName());
-            ResultSet rs2 = p2.executeQuery();
-            while(rs2.next()) {
-                String name, key;
-                long size;
-                name = rs2.getString(1);
-                size = rs2.getLong(2);
-                key = rs2.getString(3);
-
-                SharedFileObject sfo = new SharedFileObject();
-                sfo.setBoard(board);
-                sfo.setFilename(name);
-                sfo.setSize(size);
-                sfo.setKey(key);
-                FileAttachment fa = new FileAttachment(sfo);
-                mo.addAttachment(fa);
-            }
-            rs2.close();
-            p2.close();
-        }
-        if( hasBoardAttachment ) {
-            PreparedStatement p2 = db.prepare(
-                    "SELECT boardname,boardpublickey,boardprivatekey,boarddescription FROM BOARDATTACHMENTS "+
-                    "WHERE date=? AND index=? AND board=?");
-            p2.setDate(1, mo.getSqlDate());
-            p2.setInt(2, mo.getIndex());
-            p2.setString(3, board.getName());
-            ResultSet rs2 = p2.executeQuery();
-            while(rs2.next()) {
-                String name, pubkey, privkey, desc;
-                name = rs2.getString(1);
-                pubkey = rs2.getString(2);
-                privkey = rs2.getString(3);
-                desc = rs2.getString(4);
-                Board b = new Board(name, pubkey, privkey, desc);
-                BoardAttachment ba = new BoardAttachment(b);
-                mo.addAttachment(ba);
-            }
-            rs2.close();
-            p2.close();
+        if( withAttachments ) {
+            retrieveAttachments(mo);
         }
         
         return mo;
     }
 
-    public static List retrieveMessages(Board board, int maxDaysBack, boolean withContent, boolean showDeleted) 
+    public static List retrieveMessages(
+            Board board, 
+            int maxDaysBack, 
+            boolean withContent, 
+            boolean withAttachments, 
+            boolean showDeleted) 
     throws SQLException {
 
         java.sql.Date startDate = DateFun.getSqlDateGMTDaysAgo(maxDaysBack);
@@ -299,7 +312,7 @@ public class MessageDatabaseTable {
 
         ArrayList result = new ArrayList();
         while( rs.next() ) {
-            FrostMessageObject mo = resultSetToFrostMessageObject(rs, board, withContent, db);
+            FrostMessageObject mo = resultSetToFrostMessageObject(rs, board, withContent, withAttachments);
             result.add(mo);
         }
         rs.close();
@@ -308,12 +321,52 @@ public class MessageDatabaseTable {
         return result;
     }
 
+//    public static void retrieveMessagesOneByOne(
+//            Board board, 
+//            int maxDaysBack, 
+//            boolean withContent,
+//            boolean withAttachments,
+//            boolean showDeleted, 
+//            MessageDatabaseTableCallback mc) 
+//    throws SQLException 
+//    {
+//        java.sql.Date startDate = DateFun.getSqlDateGMTDaysAgo(maxDaysBack);
+//        
+//        GuiDatabase db = GuiDatabase.getInstance();
+//        String sql =
+//            "SELECT "+
+//            "messageid,inreplyto,date,time,index,fromname,subject,recipient," +
+//            "signaturestatus,publickey,isdeleted,isnew,isanswered,isjunk,ismarked,isstarred,hasfileattachment,hasboardattachment";
+//            if( withContent ) {
+//                sql += ",content";
+//            }
+//            sql += " FROM MESSAGES WHERE date>=? AND board=? AND isvalid=TRUE AND isdeleted=? ORDER BY date DESC,time DESC";
+//        PreparedStatement ps = db.prepare(sql);
+//        
+//        ps.setDate(1, startDate);
+//        ps.setString(2, board.getName());
+//        ps.setBoolean(3, showDeleted);
+//        
+//        ResultSet rs = ps.executeQuery();
+//
+//        while( rs.next() ) {
+//            FrostMessageObject mo = resultSetToFrostMessageObject(rs, board, withContent, withAttachments);
+//            mc.messageRetrieved(mo); // pass to callback
+//        }
+//        rs.close();
+//        ps.close();
+//    }
+//
     public static void retrieveMessagesOneByOne(
-            Board board, int maxDaysBack, boolean withContent, boolean showDeleted, MessageDatabaseTableCallback mc) 
+            Board board, 
+            java.sql.Date startDate, 
+            java.sql.Date endDate, 
+            boolean withContent,
+            boolean withAttachments,
+            boolean showDeleted, 
+            MessageDatabaseTableCallback mc) 
     throws SQLException 
     {
-        java.sql.Date startDate = DateFun.getSqlDateGMTDaysAgo(maxDaysBack);
-        
         GuiDatabase db = GuiDatabase.getInstance();
         String sql =
             "SELECT "+
@@ -322,18 +375,22 @@ public class MessageDatabaseTable {
             if( withContent ) {
                 sql += ",content";
             }
-            sql += " FROM MESSAGES WHERE date>=? AND board=? AND isvalid=TRUE AND isdeleted=? ORDER BY date DESC,time DESC";
+            sql += " FROM MESSAGES WHERE date>=? AND date<=? AND board=? AND isvalid=TRUE AND isdeleted=? ORDER BY date DESC,time DESC";
         PreparedStatement ps = db.prepare(sql);
         
         ps.setDate(1, startDate);
-        ps.setString(2, board.getName());
-        ps.setBoolean(3, showDeleted);
+        ps.setDate(2, endDate);
+        ps.setString(3, board.getName());
+        ps.setBoolean(4, showDeleted);
         
         ResultSet rs = ps.executeQuery();
 
         while( rs.next() ) {
-            FrostMessageObject mo = resultSetToFrostMessageObject(rs, board, withContent, db);
-            mc.messageRetrieved(mo); // pass to callback
+            FrostMessageObject mo = resultSetToFrostMessageObject(rs, board, withContent, withAttachments);
+            boolean shouldStop = mc.messageRetrieved(mo); // pass to callback
+            if( shouldStop ) {
+                break;
+            }
         }
         rs.close();
         ps.close();

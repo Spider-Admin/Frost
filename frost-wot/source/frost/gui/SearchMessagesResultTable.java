@@ -159,44 +159,44 @@ public class SearchMessagesResultTable extends SortedTable {
             if( column == 1 ) {
                 // FROM
                 // first set font, bold for new msg or normal
-                if (msg.isNew()) {
+                if (msg.getMessageObject().isNew()) {
                     setFont(boldFont);
                 } else {
                     setFont(normalFont);
                 }
                 // now set color
                 if (!isSelected) {
-                    if( msg.getRecipientName() != null && msg.getRecipientName().length() > 0) {
+                    if( msg.getMessageObject().getRecipientName() != null && msg.getMessageObject().getRecipientName().length() > 0) {
                         setForeground(Color.RED);
-                    } else if (msg.containsAttachments()) {
+                    } else if (msg.getMessageObject().containsAttachments()) {
                         setForeground(Color.BLUE);
                     } else {
                         setForeground(Color.BLACK);
                     }
                 }
-            } else if( column == 2 ) {
-                // BOARD - gray for archived msgs
-                setFont(normalFont);
-                if (!isSelected) {
-                    if( msg.isMessageArchived() ) {
-                        setForeground(Color.GRAY);
-                    } else {
-                        setForeground(Color.BLACK);
-                    }
-                }
+//            } else if( column == 2 ) {
+//                // BOARD - gray for archived msgs
+//                setFont(normalFont);
+//                if (!isSelected) {
+//                    if( msg.getMessageObject().isMessageArchived() ) {
+//                        setForeground(Color.GRAY);
+//                    } else {
+//                        setForeground(Color.BLACK);
+//                    }
+//                }
             } else if( column == 4 ) {
                 // SIG
                 // state == good/bad/check/observe -> bold and coloured
-                if( msg.isMessageStatusGOOD() ) {
+                if( msg.getMessageObject().isMessageStatusGOOD() ) {
                     setFont(boldFont);
                     setForeground(col_good);
-                } else if( msg.isMessageStatusCHECK() ) {
+                } else if( msg.getMessageObject().isMessageStatusCHECK() ) {
                     setFont(boldFont);
                     setForeground(col_check);
-                } else if( msg.isMessageStatusOBSERVE() ) {
+                } else if( msg.getMessageObject().isMessageStatusOBSERVE() ) {
                     setFont(boldFont);
                     setForeground(col_observe);
-                } else if( msg.isMessageStatusBAD() ) {
+                } else if( msg.getMessageObject().isMessageStatusBAD() ) {
                     setFont(boldFont);
                     setForeground(col_bad);
                 } else {
@@ -212,7 +212,7 @@ public class SearchMessagesResultTable extends SortedTable {
                 }
             }
 
-            setDeleted(msg.isDeleted());
+            setDeleted(msg.getMessageObject().isDeleted());
 
             return this;
         }
