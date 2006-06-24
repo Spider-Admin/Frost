@@ -139,12 +139,10 @@ public class FrostIdentities implements Savable {
             return null;
         }
         Identity identity = null;
-        if( uniqueName == null ) {
-            if( isMySelf(uniqueName)) {
-                identity = getMyId();
-            } else {
-                identity = (Identity)identities.get(uniqueName);
-            }
+        if( isMySelf(uniqueName) ) {
+            identity = getMyId();
+        } else {
+            identity = (Identity)identities.get(uniqueName);
         }
         return identity;
     }

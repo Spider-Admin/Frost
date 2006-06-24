@@ -1,5 +1,6 @@
 package frost.messages;
 
+import frost.*;
 import frost.identities.*;
 
 public abstract class AbstractMessageStatusProvider {
@@ -20,19 +21,40 @@ public abstract class AbstractMessageStatusProvider {
     private static final String SIGNATURESTATUS_TAMPERED_STR = "TAMPERED"; // wrong signature
     private static final String SIGNATURESTATUS_OLD_STR      = "OLD";      // no signature
     private static final String SIGNATURESTATUS_VERIFIED_STR = "VERIFIED"; // signature was OK
+    
+    private boolean isFromIdentityInitialized = false;
+    private Identity fromIdentity = null;
+    
+    private String fromName = "";
 
-    public abstract int getSignatureStatus();
+    private boolean isMessageStatusInitialized = false;
+    private int messageStatus = -1;
+    private String messageStatusString = null;
     
-    protected int messageStatus = -1;
-    protected String messageStatusString = null;
-    
-    protected int signatureStatus = SIGNATURESTATUS_UNSET;
-    
-    protected void initializeMessageStatus(Identity fromIdentity) {
-        messageStatus = getMessageStatus(fromIdentity);
-        messageStatusString = getMessageStatusString(messageStatus);
+    private int signatureStatus = SIGNATURESTATUS_UNSET;
+
+    public Identity getFromIdentity() {
+        if( isFromIdentityInitialized == false ) {
+            // set Identity for FROM, or null
+            fromIdentity = Core.getIdentities().getIdentity(getFromName());
+            isFromIdentityInitialized = true;
+        }
+        return fromIdentity;
+    }
+
+    public String getFromName() {
+        return fromName;
+    }
+    public void setFromName(String from) {
+        this.fromName = from;
     }
     
+    private void initializeMessageStatus() {
+        messageStatus = getMessageStatus(getFromIdentity());
+        messageStatusString = getMessageStatusString(messageStatus);
+        isMessageStatusInitialized = true;
+    }
+
     /**
      * Converts the signature status string contained in local XML message file
      * into the internal constant.
@@ -51,13 +73,13 @@ public abstract class AbstractMessageStatusProvider {
         return false;
     }
     
-    protected int getMessageStatus(Identity fromIdentity) {
+    private int getMessageStatus(Identity fromIdent) {
         if( getSignatureStatus() == SIGNATURESTATUS_VERIFIED ) {
             // get state of user
-            if( fromIdentity == null ) {
+            if( fromIdent == null ) {
                 return xOLD;
             }
-            int state = fromIdentity.getState();
+            int state = fromIdent.getState();
             if( state == FrostIdentities.NEUTRAL ) {
                 return xCHECK;
             }
@@ -81,7 +103,7 @@ public abstract class AbstractMessageStatusProvider {
         return xOLD;
     }
 
-    protected String getMessageStatusString(int msgStatus) {
+    private String getMessageStatusString(int msgStatus) {
         if( msgStatus == xGOOD ) {
             return "GOOD"; // dark green
         } else if( msgStatus == xCHECK ) {
@@ -98,11 +120,17 @@ public abstract class AbstractMessageStatusProvider {
         return "*err*"; // never come here
     }
     
-    public int getMessageStatus() {
+    private int getMessageStatus() {
+        if( !isMessageStatusInitialized ) {
+            initializeMessageStatus();
+        }
         return messageStatus;
     }
 
     public String getMessageStatusString() {
+        if( !isMessageStatusInitialized ) {
+            initializeMessageStatus();
+        }
         return messageStatusString;
     }
     
@@ -143,5 +171,12 @@ public abstract class AbstractMessageStatusProvider {
     }
     public void setSignatureStatusTAMPERED() {
         signatureStatus = SIGNATURESTATUS_TAMPERED;
+    }
+    
+    public int getSignatureStatus() {
+        return signatureStatus;
+    }
+    public void setSignatureStatus(int s) {
+        signatureStatus = s;
     }
 }

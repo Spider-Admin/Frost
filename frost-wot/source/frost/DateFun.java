@@ -130,9 +130,12 @@ public class DateFun {
     }
 
     public static String getExtendedDateFromSqlDate(java.sql.Date date) {
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        cal.setTimeInMillis(date.getTime());
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(date.getTime() + getGMTOffset() );
         return getExtendedDateOfCalendar(cal);
+//        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+//        cal.setTimeInMillis(date.getTime());
+//        return getExtendedDateOfCalendar(cal);
     }
 
 //    public static void main(String[] args) {
