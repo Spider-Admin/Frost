@@ -23,28 +23,39 @@ import java.util.*;
 
 public class GuiDatabase extends Database {
     
-    private static GuiDatabase instance;
+    private static GuiDatabase instance = null;
+    private static MessageDatabaseTable messageTable = null;
+    private static SentMessageDatabaseTable sentMessageTable = null;
     
     protected GuiDatabase() throws SQLException {
         super("guidb");
-        ensureTables();
     }
     
     public static void initialize() throws SQLException {
         if( instance == null ) {
             instance = new GuiDatabase();
+            messageTable = new MessageDatabaseTable();
+            sentMessageTable = new SentMessageDatabaseTable();
+            
+            instance.ensureTables();
         } else {
             System.out.println("ERROR: GuiDatabase already initialized!");
         }
     }
-    
+
     public static GuiDatabase getInstance() {
         return instance;
     }
-    
+    public static MessageDatabaseTable getMessageTable() {
+        return messageTable;
+    }
+    public static SentMessageDatabaseTable getSentMessageTable() {
+        return sentMessageTable;
+    }
+
     private void ensureTables() {
         // messages tables
-        for(Iterator i=MessageDatabaseTable.getInstance().getTableDDL().iterator(); i.hasNext(); ) {
+        for(Iterator i=getMessageTable().getTableDDL().iterator(); i.hasNext(); ) {
             String tableDDL = (String)i.next();
             try {
                 update(tableDDL);
@@ -54,7 +65,7 @@ public class GuiDatabase extends Database {
             }
         }
         // sent messages tables
-        for(Iterator i=SentMessageDatabaseTable.getInstance().getTableDDL().iterator(); i.hasNext(); ) {
+        for(Iterator i=getSentMessageTable().getTableDDL().iterator(); i.hasNext(); ) {
             String tableDDL = (String)i.next();
             try {
                 update(tableDDL);
