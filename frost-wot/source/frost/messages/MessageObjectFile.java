@@ -587,4 +587,13 @@ public class MessageObjectFile extends AbstractMessageObject implements XMLizabl
     public void setTimeStr(String time) {
         this.timeStr = time;
     }
+    
+    public boolean isMessageNew() {
+        File newMessage = new File(getFile().getPath() + ".lck");
+        if( newMessage.isFile() ) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
