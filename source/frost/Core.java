@@ -578,7 +578,7 @@ public class Core implements Savable, FrostEventDispatcher  {
         if (!initializeConnectivity()) {
             System.exit(1);
         }
-
+        
         splashscreen.setText(language.getString("Splashscreen.message.3"));
         splashscreen.setProgress(60);
 
@@ -603,6 +603,26 @@ public class Core implements Savable, FrostEventDispatcher  {
         mainFrame = new MainFrame(frostSettings, title);
         getBoardsManager().initialize();
         getFileTransferManager().initialize();
+
+        // import xml messages into database
+        if( frostSettings.getBoolValue("oneTimeUpdate.importMessages.didRun") == false ) {
+            splashscreen.setText("Import messages into database");
+
+            String txt = "<html>Frost must now import the messages, and this could take some time.<br>"+
+                         "Afterwards the files in keypool are not longer needed and will be deleted.<br><br>"+
+                         "<b>BACKUP YOUR FROST DIRECTORY BEFORE STARTING!</b><br>"+
+                         "<br><br>Do you want to start the import NOW press yes.</html>";
+            int answer = JOptionPane.showConfirmDialog(splashscreen, txt, "About to start import process",
+                          JOptionPane.INFORMATION_MESSAGE, JOptionPane.YES_NO_OPTION);
+
+            if( answer != JOptionPane.YES_OPTION ) {
+                System.exit(1);
+            }
+
+            new ImportXmlMessages().importXmlMessages(getBoardsManager().getTofTreeModel());
+
+            frostSettings.setValue("oneTimeUpdate.importMessages.didRun", true);
+        }
 
         splashscreen.setText(language.getString("Splashscreen.message.4"));
         splashscreen.setProgress(70);
