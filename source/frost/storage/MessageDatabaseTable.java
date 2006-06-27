@@ -7,9 +7,11 @@ import frost.*;
 import frost.gui.objects.*;
 import frost.messages.*;
 
-// TODO: implement searching for messages without assigned boards (deleted boards) 
+// TODO: implement searching for messages without assigned boards (deleted boards)
 
 public class MessageDatabaseTable {
+    
+    private static Object syncObj = new Object();
     
     protected String getMessageTableName() {
         return "MESSAGES";
@@ -20,9 +22,13 @@ public class MessageDatabaseTable {
     protected String getBoardAttachmentsTableName() {
         return "BOARDATTACHMENTS";
     }
+    protected String getUniqueMsgConstraintName() {
+        return "MSG_UNIQUE_ONLY";
+    }
 
     private final String SQL_DDL_MESSAGES =
         "CREATE TABLE "+getMessageTableName()+" ("+
+        "primkey BIGINT NOT NULL IDENTITY PRIMARY KEY,"+
         "messageid VARCHAR,"+
         "inreplyto VARCHAR,"+
         "isvalid BOOLEAN,"+
@@ -45,26 +51,25 @@ public class MessageDatabaseTable {
         "ismarked BOOLEAN,"+
         "isstarred BOOLEAN,"+
         "hasfileattachment BOOLEAN,"+
-        "hasboardattachment BOOLEAN"+
+        "hasboardattachment BOOLEAN,"+
+        "CONSTRAINT "+getUniqueMsgConstraintName()+" UNIQUE(date,index,board)"+
         ")";
     private final String SQL_DDL_FILEATTACHMENTS =
         "CREATE TABLE "+getFileAttachmentsTableName()+" ("+
-        "date DATE NOT NULL,"+
-        "index INT NOT NULL,"+
-        "board VARCHAR NOT NULL,"+
+        "msgref BIGINT NOT NULL,"+
         "filename VARCHAR,"+
         "filesize BIGINT,"+
-        "filekey  VARCHAR"+
+        "filekey  VARCHAR,"+
+        "FOREIGN KEY (msgref) REFERENCES "+getMessageTableName()+"(primkey) ON DELETE CASCADE"+
         ")";
     private final String SQL_DDL_BOARDATTACHMENTS =
         "CREATE TABLE "+getBoardAttachmentsTableName()+" ("+
-        "date DATE NOT NULL,"+
-        "index INT NOT NULL,"+
-        "board VARCHAR NOT NULL,"+
+        "msgref BIGINT NOT NULL,"+
         "boardname VARCHAR,"+
         "boardpublickey   VARCHAR,"+
         "boardprivatekey  VARCHAR,"+
-        "boarddescription VARCHAR"+
+        "boarddescription VARCHAR,"+
+        "FOREIGN KEY (msgref) REFERENCES "+getMessageTableName()+"(primkey) ON DELETE CASCADE"+
         ")";
     
     public List getTableDDL() {
@@ -112,28 +117,46 @@ public class MessageDatabaseTable {
         ps.setBoolean(i++, (files.size() > 0)); // hasfileattachment
         ps.setBoolean(i++, (boards.size() > 0)); // hasboardattachment
 
-        int inserted = ps.executeUpdate();
+        // sync to allow no updates until we got the generated identity
+        synchronized(syncObj) {
+            int inserted = ps.executeUpdate();
+    
+            ps.close();
+    
+            if( inserted == 0 ) {
+                System.out.println("INSERTED is 0!!!!");
+                return;
+            }
+            
+            // get generated identity
+            long identity;
+            Statement s = db.createStatement();
+            ResultSet rs = s.executeQuery("CALL IDENTITY();");
+            if( rs.next() ) {
+                identity = rs.getLong(1);
+            } else {
+                System.out.println("Could not retrieve the generated identity after insert!");
+                rs.close();
+                s.close();
+                return;
+            }
+            rs.close();
+            s.close();
 
-        if( inserted == 0 ) {
-            System.out.println("INSERTED is 0!!!!");
-        }
-
-        ps.close();
+            mo.setMsgIdentity(identity);
+        }        
 
         // attachments
         if( files.size() > 0 ) {
             PreparedStatement p = db.prepare(
-                    "INSERT INTO "+getFileAttachmentsTableName()+" (date,index,board,"+
-                    "filename,filesize,filekey)"+
-                    " VALUES (?,?,?,?,?,?)");
+                    "INSERT INTO "+getFileAttachmentsTableName()+
+                    " (msgref,filename,filesize,filekey)"+
+                    " VALUES (?,?,?,?)");
             for(Iterator it=files.iterator(); it.hasNext(); ) {
                 FileAttachment fa = (FileAttachment)it.next();
                 SharedFileObject sfo = fa.getFileObj();
                 int ix=1;
-                p.setDate(ix++, mo.getSqlDate()); 
-                p.setInt(ix++, mo.getIndex()); 
-                p.setString(ix++, mo.getBoard().getName());
-                
+                p.setLong(ix++, mo.getMsgIdentity()); 
                 p.setString(ix++, sfo.getFilename()); 
                 p.setLong(ix++, sfo.getSize().longValue()); 
                 p.setString(ix++, sfo.getKey()); 
@@ -146,22 +169,19 @@ public class MessageDatabaseTable {
         }
         if( boards.size() > 0 ) {
             PreparedStatement p = db.prepare(
-                    "INSERT INTO "+getBoardAttachmentsTableName()+" (date,index,board,"+
-                    "boardname,boardpublickey,boardprivatekey,boarddescription)"+
-                    " VALUES (?,?,?,?,?,?,?)");
+                    "INSERT INTO "+getBoardAttachmentsTableName()+
+                    " (msgref,boardname,boardpublickey,boardprivatekey,boarddescription)"+
+                    " VALUES (?,?,?,?,?)");
             for(Iterator it=boards.iterator(); it.hasNext(); ) {
                 BoardAttachment ba = (BoardAttachment)it.next();
                 Board b = ba.getBoardObj();
                 int ix=1;
-                p.setDate(ix++, mo.getSqlDate()); 
-                p.setInt(ix++, mo.getIndex()); 
-                p.setString(ix++, mo.getBoard().getName()); 
+                p.setLong(ix++, mo.getMsgIdentity()); 
                 p.setString(ix++, b.getName()); 
                 p.setString(ix++, b.getPublicKey()); 
                 p.setString(ix++, b.getPrivateKey()); 
                 p.setString(ix++, b.getDescription()); 
                 int ins = p.executeUpdate();
-                
                 if( ins == 0 ) {
                     System.out.println("INSERTED is 0!!!!");
                 }
@@ -202,11 +222,9 @@ public class MessageDatabaseTable {
         // retrieve attachments
         if( mo.isHasFileAttachments() ) {
             PreparedStatement p2 = db.prepare(
-                    "SELECT filename,filesize,filekey FROM "+getFileAttachmentsTableName()+" "+
-                    "WHERE date=? AND index=? AND board=?");
-            p2.setDate(1, mo.getSqlDate());
-            p2.setInt(2, mo.getIndex());
-            p2.setString(3, mo.getBoard().getName());
+                    "SELECT filename,filesize,filekey FROM "+getFileAttachmentsTableName()+
+                    " WHERE msgref=? ORDER BY filename");
+            p2.setLong(1, mo.getMsgIdentity());
             ResultSet rs2 = p2.executeQuery();
             while(rs2.next()) {
                 String name, key;
@@ -228,11 +246,9 @@ public class MessageDatabaseTable {
         }
         if( mo.isHasBoardAttachments() ) {
             PreparedStatement p2 = db.prepare(
-                    "SELECT boardname,boardpublickey,boardprivatekey,boarddescription FROM "+getBoardAttachmentsTableName()+" "+
-                    "WHERE date=? AND index=? AND board=?");
-            p2.setDate(1, mo.getSqlDate());
-            p2.setInt(2, mo.getIndex());
-            p2.setString(3, mo.getBoard().getName());
+                    "SELECT boardname,boardpublickey,boardprivatekey,boarddescription FROM "+getBoardAttachmentsTableName()+
+                    " WHERE msgref=? ORDER BY boardname");
+            p2.setLong(1, mo.getMsgIdentity());
             ResultSet rs2 = p2.executeQuery();
             while(rs2.next()) {
                 String name, pubkey, privkey, desc;
@@ -256,6 +272,7 @@ public class MessageDatabaseTable {
         FrostMessageObject mo = new FrostMessageObject();
         mo.setBoard(board);
         int ix=1;
+        mo.setMsgIdentity(rs.getLong(ix++));
         mo.setMessageId(rs.getString(ix++));
         mo.setInReplyTo(rs.getString(ix++));
         mo.setSqlDate(rs.getDate(ix++));
@@ -301,7 +318,7 @@ public class MessageDatabaseTable {
         GuiDatabase db = GuiDatabase.getInstance();
         String sql =
             "SELECT "+
-            "messageid,inreplyto,date,time,index,fromname,subject,recipient," +
+            "primkey,messageid,inreplyto,date,time,index,fromname,subject,recipient," +
             "signaturestatus,publickey,isdeleted,isnew,isanswered,isjunk,ismarked,isstarred,hasfileattachment,hasboardattachment";
         if( withContent ) {
             sql += ",content";
@@ -380,7 +397,7 @@ public class MessageDatabaseTable {
         GuiDatabase db = GuiDatabase.getInstance();
         String sql =
             "SELECT "+
-            "messageid,inreplyto,date,time,index,fromname,subject,recipient," +
+            "primkey,messageid,inreplyto,date,time,index,fromname,subject,recipient," +
             "signaturestatus,publickey,isdeleted,isnew,isanswered,isjunk,ismarked,isstarred,hasfileattachment,hasboardattachment";
             if( withContent ) {
                 sql += ",content";
@@ -439,10 +456,10 @@ public class MessageDatabaseTable {
         PreparedStatement ps;
         if( maxDaysBack < 0 ) {
             // no date restriction
-            ps = db.prepare("SELECT COUNT(date) FROM "+getMessageTableName()+" WHERE board=? AND isnew=TRUE AND isvalid=TRUE");
+            ps = db.prepare("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE board=? AND isnew=TRUE AND isvalid=TRUE");
             ps.setString(1, board.getName());
         } else {
-            ps = db.prepare("SELECT COUNT(date) FROM "+getMessageTableName()+" WHERE date >=? AND board=? AND isnew=TRUE AND isvalid=TRUE");
+            ps = db.prepare("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE date >=? AND board=? AND isnew=TRUE AND isvalid=TRUE");
             ps.setDate(1, startDate);
             ps.setString(2, board.getName());
         }
@@ -465,10 +482,10 @@ public class MessageDatabaseTable {
         PreparedStatement ps;
         if( maxDaysBack < 0 ) {
             // no date restriction
-            ps = db.prepare("SELECT COUNT(date) FROM "+getMessageTableName()+" WHERE board=? AND isvalid=TRUE");
+            ps = db.prepare("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE board=? AND isvalid=TRUE");
             ps.setString(1, board.getName());
         } else {
-            ps = db.prepare("SELECT COUNT(date) FROM "+getMessageTableName()+" WHERE date >=? AND board=? AND isvalid=TRUE");
+            ps = db.prepare("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE date >=? AND board=? AND isvalid=TRUE");
             ps.setDate(1, startDate);
             ps.setString(2, board.getName());
         }
