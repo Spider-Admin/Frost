@@ -8,6 +8,7 @@ import frost.gui.objects.*;
 import frost.messages.*;
 
 // TODO: implement searching for messages without assigned boards (deleted boards)
+// TODO: prepare constraints for CHK keys and/or message ID
 
 public class MessageDatabaseTable {
     
@@ -423,23 +424,23 @@ public class MessageDatabaseTable {
         ps.close();
     }
 
-    public String retrieveMessageContent(java.sql.Date date, Board board, int index) throws SQLException {
-        GuiDatabase db = GuiDatabase.getInstance();
-        PreparedStatement ps = db.prepare("SELECT TOP 1 content FROM "+getMessageTableName()+" WHERE date=? AND board=? AND index=?");
-        ps.setDate(1, date);
-        ps.setString(2, board.getName());
-        ps.setInt(3, index);
-        
-        String content = null;
-        ResultSet rs = ps.executeQuery();
-        if( rs.next() ) {
-            content = rs.getString(1);
-        }
-        rs.close();
-        ps.close();
-        
-        return content;
-    }
+//    public String retrieveMessageContent(java.sql.Date date, Board board, int index) throws SQLException {
+//        GuiDatabase db = GuiDatabase.getInstance();
+//        PreparedStatement ps = db.prepare("SELECT TOP 1 content FROM "+getMessageTableName()+" WHERE date=? AND board=? AND index=?");
+//        ps.setDate(1, date);
+//        ps.setString(2, board.getName());
+//        ps.setInt(3, index);
+//        
+//        String content = null;
+//        ResultSet rs = ps.executeQuery();
+//        if( rs.next() ) {
+//            content = rs.getString(1);
+//        }
+//        rs.close();
+//        ps.close();
+//        
+//        return content;
+//    }
 
     public void setAllMessagesRead(Board board) throws SQLException {
         GuiDatabase db = GuiDatabase.getInstance();

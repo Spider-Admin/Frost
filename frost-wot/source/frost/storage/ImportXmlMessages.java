@@ -9,6 +9,7 @@ import frost.*;
 import frost.boards.*;
 import frost.gui.objects.*;
 import frost.messages.*;
+import frost.threads.*;
 
 // TODO: set index slots!
 // TODO: prevent duplicate inserts!
@@ -143,9 +144,13 @@ public class ImportXmlMessages {
     private void importDir(File impDir) {
         File[] boardDirs = impDir.listFiles();
         if( boardDirs == null || boardDirs.length == 0 ) {
-            logger.severe("no board dirs in keypool");
+            logger.severe("no board dirs found: "+impDir.getPath());
             return;
         }
+        
+        // set indexslots only until max days back, not for all old messages
+        java.sql.Date maxDateBack = DateFun.getSqlDateGMTDaysAgo(Core.frostSettings.getIntValue("maxMessageDisplay")+1);
+        
         for(int i=0; i<boardDirs.length; i++) {
             File boardDir = boardDirs[i];
             if( boardDir.isDirectory() == false ) {
@@ -158,12 +163,16 @@ public class ImportXmlMessages {
                 logger.warning("board is not in boardlist, skipping import: "+boardName);
                 continue;
             }
-
+            
             File[] dateDirs = boardDir.listFiles();
             if( dateDirs == null || dateDirs.length == 0 ) {
                 logger.severe("no date dirs in keypool for "+boardDir.getName());
                 continue;
             }
+            
+            // TODO
+            IndexSlots indexSlots = new IndexSlots(IndexSlots.MESSAGES, board.getName());
+
             for(int j=0; j<dateDirs.length; j++) {
                 File dateDir = dateDirs[j];
                 if( dateDir.isDirectory() == false ) {
@@ -189,13 +198,15 @@ public class ImportXmlMessages {
                         continue;
                     }
                     // import msgFile
-                    importMessageFile(msgFile, board, dateDirCal);
+                    importMessageFile(msgFile, board, dateDirCal, indexSlots, maxDateBack);
                 }
             }
+
+            indexSlots.close();
         }
     }
     
-    private void importMessageFile(File msgFile, Board board, Calendar calDL) {
+    private boolean importMessageFile(File msgFile, Board board, Calendar calDL, IndexSlots indexSlots, java.sql.Date maxBack) {
         String fname = msgFile.getName();
         int index = -1;
         try {
@@ -211,7 +222,7 @@ public class ImportXmlMessages {
         }
         if( index < 0 ) {
             System.out.println("Error getting index from filename: "+fname);
-            return;
+            return false;
         }
         
         MessageObjectFile mof = null;
@@ -233,6 +244,7 @@ public class ImportXmlMessages {
                 GuiDatabase.getMessageTable().insertMessage(mo);
             } catch (SQLException e) {
                 logger.log(Level.SEVERE, "Error inserting message into database", e);
+                return false;
             }
         } else if( invalidReason != null ) {
             // invalid message, get date from filename
@@ -241,7 +253,20 @@ public class ImportXmlMessages {
                 GuiDatabase.getMessageTable().insertMessage(invalidMsg);
             } catch (SQLException e) {
                 logger.log(Level.SEVERE, "Error inserting invalid message into database", e);
+                return false;
             }
         }
+        
+        // set indexslot used (only for dates until maxMessageDisplay)
+        java.sql.Date sqlDate = DateFun.getSqlDateOfCalendar(calDL);
+        if( sqlDate.after(maxBack) ) {
+            try {
+                indexSlots.setDownloadSlotUsed(index, sqlDate);
+            } catch (SQLException e) {
+                logger.log(Level.SEVERE, "Error inserting message index into database", e);
+            }
+        }
+
+        return true;
     }
 }
