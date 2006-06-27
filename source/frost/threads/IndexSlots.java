@@ -42,7 +42,8 @@ public class IndexSlots {
 
     private static final String SQL_DDL = 
         "CREATE TABLE INDEXSLOTS (indexname INT, boardname VARCHAR, date DATE, index INT,"+
-        " wasdownloaded BOOLEAN, wasuploaded BOOLEAN, locked BOOLEAN)";
+        " wasdownloaded BOOLEAN, wasuploaded BOOLEAN, locked BOOLEAN,"+
+        " CONSTRAINT UNIQUE_INDICES_ONLY UNIQUE(indexname,boardname,date,index) )";
     private static final String SQL_INSERT =
         "INSERT INTO INDEXSLOTS (indexname,boardname,date,index,wasdownloaded,wasuploaded,locked) VALUES (?,?,?,?,?,?,?)";
 
