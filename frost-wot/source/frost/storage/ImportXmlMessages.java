@@ -11,6 +11,7 @@ import frost.gui.objects.*;
 import frost.messages.*;
 
 // TODO: set index slots!
+// TODO: prevent duplicate inserts!
 
 public class ImportXmlMessages {
 

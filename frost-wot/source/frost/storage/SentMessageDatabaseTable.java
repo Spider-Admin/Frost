@@ -14,4 +14,7 @@ public class SentMessageDatabaseTable extends MessageDatabaseTable {
     protected String getBoardAttachmentsTableName() {
         return "SENTBOARDATTACHMENTS";
     }
+    protected String getUniqueMsgConstraintName() {
+        return "SENTMSG_UNIQUE_ONLY";
+    }
 }

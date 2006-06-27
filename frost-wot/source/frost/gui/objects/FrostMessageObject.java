@@ -52,6 +52,8 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     private boolean hasBoardAttachments = false;
     
     protected String dateAndTime = null;
+    
+    protected long msgIdentity;
 
     /**
      * Construct a new empty FrostMessageObject
@@ -286,5 +288,13 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
 
     public void setSqlTime(java.sql.Time sqlTime) {
         this.sqlTime = sqlTime;
+    }
+
+    public long getMsgIdentity() {
+        return msgIdentity;
+    }
+
+    public void setMsgIdentity(long msgIdentity) {
+        this.msgIdentity = msgIdentity;
     }
 }
