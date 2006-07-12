@@ -39,10 +39,6 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 	 * This inner class implements the renderer for the column "Size"
 	 */
 	private class SizeRenderer extends DefaultTableCellRenderer {
-
-		/* (non-Javadoc)
-		 * @see javax.swing.table.TableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
-		 */
 		public Component getTableCellRendererComponent(
 			JTable table,
 			Object value,
@@ -56,17 +52,12 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 			setBorder(new javax.swing.border.EmptyBorder(0, 0, 0, 3));
 			return this;
 		}
-
 	}
 	
 	/**
 	 * This inner class implements the comparator for the column "Key"
 	 */
 	private class KeyComparator implements Comparator {
-
-		/* (non-Javadoc)
-		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-		 */
 		public int compare(Object o1, Object o2) {
 			String key1 = ((FrostDownloadItem) o1).getKey();
 			String key2 = ((FrostDownloadItem) o2).getKey();
@@ -78,17 +69,12 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 			}
 			return key1.compareToIgnoreCase(key2);
 		}
-
 	}
 	
 	/**
 	 * This inner class implements the comparator for the column "From"
 	 */
 	private class FromComparator implements Comparator {
-
-		/* (non-Javadoc)
-		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-		 */
 		public int compare(Object o1, Object o2) {
 			String owner1 = ((FrostDownloadItem) o1).getOwner();
 			String owner2 = ((FrostDownloadItem) o2).getOwner();
@@ -100,17 +86,12 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 			}
 			return owner1.compareToIgnoreCase(owner2);
 		}
-
 	}
 	
 	/**
 	 * This inner class implements the comparator for the column "Source"
 	 */
 	private class SourceComparator implements Comparator {
-
-		/* (non-Javadoc)
-		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-		 */
 		public int compare(Object o1, Object o2) {
 			Board source1 = ((FrostDownloadItem) o1).getSourceBoard();
 			Board source2 = ((FrostDownloadItem) o2).getSourceBoard();
@@ -124,33 +105,23 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 			}
 			return name1.compareToIgnoreCase(name2);
 		}
-
 	}
 	
 	/**
 	 * This inner class implements the comparator for the column "Tries"
 	 */
 	private class TriesComparator implements Comparator {
-
-		/* (non-Javadoc)
-		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-		 */
 		public int compare(Object o1, Object o2) {
 			int retries1 = ((FrostDownloadItem) o1).getRetries();
 			int retries2 = ((FrostDownloadItem) o2).getRetries();
 			return new Integer(retries1).compareTo(new Integer(retries2));
 		}
-
 	}
 	
 	/**
 	 * This inner class implements the comparator for the column "Blocks"
 	 */
 	private class BlocksComparator implements Comparator {
-
-		/* (non-Javadoc)
-		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-		 */
 		public int compare(Object o1, Object o2) {
 			FrostDownloadItem item1 = (FrostDownloadItem) o1;
 			FrostDownloadItem item2 = (FrostDownloadItem) o2;
@@ -166,17 +137,12 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 					item2.getRequiredBlocks());
 			return blocks1.compareToIgnoreCase(blocks2); 
 		}
-
 	}
 	
 	/**
 	 * This inner class implements the comparator for the column "State"
 	 */
 	private class StateComparator implements Comparator {
-
-		/* (non-Javadoc)
-		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-		 */
 		public int compare(Object o1, Object o2) {
 			FrostDownloadItem item1 = (FrostDownloadItem) o1;
 			FrostDownloadItem item2 = (FrostDownloadItem) o2;
@@ -194,35 +160,31 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 		}
 	}
 	
-	/**
-	 * This inner class implements the comparator for the column "Age"
-	 */
-	private class AgeComparator implements Comparator {
-
-		/* (non-Javadoc)
-		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-		 */
-		public int compare(Object o1, Object o2) {
-			String age1 = ((FrostDownloadItem) o1).getFileAge();
-			String age2 = ((FrostDownloadItem) o2).getFileAge();
-			if (age1 == null) {
-				age1 = "";	
-			}
-			if (age2 == null) {
-				age2 = "";	
-			}
-			return age1.compareToIgnoreCase(age2);
-		}
-	}
+//	/**
+//	 * This inner class implements the comparator for the column "Age"
+//	 */
+//	private class AgeComparator implements Comparator {
+//
+//		/* (non-Javadoc)
+//		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+//		 */
+//		public int compare(Object o1, Object o2) {
+//			String age1 = ((FrostDownloadItem) o1).getFileAge();
+//			String age2 = ((FrostDownloadItem) o2).getFileAge();
+//			if (age1 == null) {
+//				age1 = "";	
+//			}
+//			if (age2 == null) {
+//				age2 = "";	
+//			}
+//			return age1.compareToIgnoreCase(age2);
+//		}
+//	}
 	
 	/**
 	 * This inner class implements the comparator for the column "Size"
 	 */
 	private class SizeComparator implements Comparator {
-
-		/* (non-Javadoc)
-		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-		 */
 		public int compare(Object o1, Object o2) {
 			Long size1 = ((FrostDownloadItem) o1).getFileSize();
 			Long size2 = ((FrostDownloadItem) o2).getFileSize();
@@ -240,10 +202,6 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 	 * This inner class implements the comparator for the column "Filename"
 	 */
 	private class FileNameComparator implements Comparator {
-
-		/* (non-Javadoc)
-		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-		 */
 		public int compare(Object o1, Object o2) {
 			FrostDownloadItem item1 = (FrostDownloadItem) o1;
 			FrostDownloadItem item2 = (FrostDownloadItem) o2;
@@ -255,10 +213,6 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 	 * This inner class implements the comparator for the column "Enabled"
 	 */
 	private class EnabledComparator implements Comparator {
-
-		/* (non-Javadoc)
-		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-		 */
 		public int compare(Object o1, Object o2) {
 			FrostDownloadItem item1 = (FrostDownloadItem) o1;
 			FrostDownloadItem item2 = (FrostDownloadItem) o2;
@@ -268,7 +222,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 		
 	private Language language;
 	
-	private final static int COLUMN_COUNT = 10;
+	private final static int COLUMN_COUNT = 9;
 	
 	String stateWaiting;
 	String stateTrying;
@@ -292,26 +246,26 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 		setComparator(new EnabledComparator(), 0);
 		setComparator(new FileNameComparator(), 1);
 		setComparator(new SizeComparator(), 2);
-		setComparator(new AgeComparator(), 3);
-		setComparator(new StateComparator(), 4);
-		setComparator(new BlocksComparator(), 5);
-		setComparator(new TriesComparator(), 6);
-		setComparator(new SourceComparator(), 7);
-		setComparator(new FromComparator(), 8);
-		setComparator(new KeyComparator(), 9);
+//		setComparator(new AgeComparator(), 3);
+		setComparator(new StateComparator(), 3);
+		setComparator(new BlocksComparator(), 4);
+		setComparator(new TriesComparator(), 5);
+		setComparator(new SourceComparator(), 6);
+		setComparator(new FromComparator(), 7);
+		setComparator(new KeyComparator(), 8);
 	}
 
 	private void refreshLanguage() {
 		setColumnName(0, language.getString("DownloadPane.fileTable.enabled"));
 		setColumnName(1, language.getString("DownloadPane.fileTable.filename"));
 		setColumnName(2, language.getString("DownloadPane.fileTable.size"));
-		setColumnName(3, language.getString("DownloadPane.fileTable.age"));
-		setColumnName(4, language.getString("DownloadPane.fileTable.state"));
-		setColumnName(5, language.getString("DownloadPane.fileTable.blocks"));
-		setColumnName(6, language.getString("DownloadPane.fileTable.tries"));
-		setColumnName(7, language.getString("DownloadPane.fileTable.source"));
-		setColumnName(8, language.getString("DownloadPane.fileTable.from"));
-		setColumnName(9, language.getString("DownloadPane.fileTable.key"));
+//		setColumnName(3, language.getString("DownloadPane.fileTable.age"));
+		setColumnName(3, language.getString("DownloadPane.fileTable.state"));
+		setColumnName(4, language.getString("DownloadPane.fileTable.blocks"));
+		setColumnName(5, language.getString("DownloadPane.fileTable.tries"));
+		setColumnName(6, language.getString("DownloadPane.fileTable.source"));
+		setColumnName(7, language.getString("DownloadPane.fileTable.from"));
+		setColumnName(8, language.getString("DownloadPane.fileTable.key"));
 		
 		stateWaiting =     language.getString("DownloadPane.fileTable.states.waiting");
 		stateTrying =      language.getString("DownloadPane.fileTable.states.trying");
@@ -355,44 +309,44 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 					return downloadItem.getFileSize();
 				}
 
-			case 3 : //Age
-				if (downloadItem.getFileAge() == null) {
-					return offline;
-				} else {
-					return downloadItem.getFileAge();
-				}
+//			case 3 : //Age
+//				if (downloadItem.getFileAge() == null) {
+//					return offline;
+//				} else {
+//					return downloadItem.getFileAge();
+//				}
 
-			case 4 : //State
+			case 3 : //State
 				return getStateAsString(
 					downloadItem.getState(),
 					downloadItem.getTotalBlocks(),
 					downloadItem.getDoneBlocks(),
 					downloadItem.getRequiredBlocks());
 
-			case 5 : //Blocks
+			case 4 : //Blocks
 				return getBlocksAsString(
 					downloadItem.getTotalBlocks(),
 					downloadItem.getDoneBlocks(),
 					downloadItem.getRequiredBlocks());
 
-			case 6 : //Tries
+			case 5 : //Tries
 				return new Integer(downloadItem.getRetries());
 
-			case 7 : //Source
+			case 6 : //Source
 				if (downloadItem.getSourceBoard() == null) {
 					return "";
 				} else {
 					return downloadItem.getSourceBoard().getName();
 				}
 
-			case 8 : //From
+			case 7 : //From
 				if (downloadItem.getOwner() == null) {
 					return anonymous;
 				} else {
 					return downloadItem.getOwner();
 				}
 
-			case 9 : //Key
+			case 8 : //Key
 				if (downloadItem.getKey() == null) {
 					return " ?";
 				} else {
@@ -466,13 +420,13 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 	public int[] getColumnNumbers(int fieldID) {
 		switch (fieldID) {
 			case FrostDownloadItem.FIELD_ID_DONE_BLOCKS :
-				return new int[] {4, 5};	//State, Blocks
+				return new int[] {3, 4};	//State, Blocks
 			
 			case FrostDownloadItem.FIELD_ID_ENABLED :
 				return new int[] {0};	//Enabled
 			
-			case FrostDownloadItem.FIELD_ID_FILE_AGE :
-				return new int[] {3};	//Age
+//			case FrostDownloadItem.FIELD_ID_FILE_AGE :
+//				return new int[] {3};	//Age
 			
 			case FrostDownloadItem.FIELD_ID_FILE_NAME :
 				return new int[] {1};	//Filename
@@ -481,25 +435,25 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 				return new int[] {2};	//Size
 			
 			case FrostDownloadItem.FIELD_ID_KEY :
-				return new int[] {9};	//Key
+				return new int[] {8};	//Key
 			
 			case FrostDownloadItem.FIELD_ID_OWNER :
-				return new int[] {8};	//From
+				return new int[] {7};	//From
 			
 			case FrostDownloadItem.FIELD_ID_REQUIRED_BLOCKS :
-				return new int[] {4, 5};	//State, Blocks
+				return new int[] {3, 4};	//State, Blocks
 			
 			case FrostDownloadItem.FIELD_ID_RETRIES :
-				return new int[] {6};	//Tries
+				return new int[] {5};	//Tries
 			
 			case FrostDownloadItem.FIELD_ID_SHA1 :
 				return new int[] {};	//None
 			
 			case FrostDownloadItem.FIELD_ID_STATE :
-				return new int[] {4};	//State
+				return new int[] {3};	//State
 			
 			case FrostDownloadItem.FIELD_ID_SOURCE_BOARD :
-				return new int[] {7};	//Source
+				return new int[] {6};	//Source
 			
 			case FrostDownloadItem.FIELD_ID_TOTAL_BLOCKS :
 				return new int[] {4, 5};	//State, Blocks
@@ -517,7 +471,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 		
 		// Sets the relative widths of the columns
 		TableColumnModel columnModel = modelTable.getTable().getColumnModel();
-		int[] widths = { 30, 170, 80, 70, 70, 75, 25, 60, 60, 40 };
+		int[] widths = { 30, 170, 80, 70, 75, 25, 60, 60, 40 };
 		for (int i = 0; i < widths.length; i++) { // col 0 default width
 			columnModel.getColumn(i).setPreferredWidth(widths[i]);
 		}

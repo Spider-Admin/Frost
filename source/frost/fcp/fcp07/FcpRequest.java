@@ -48,26 +48,23 @@ public class FcpRequest
      * @param doRedirect If true, getFile redirects if possible and downloads the file it was redirected to.
      * @return True if download was successful, else false.
      */
-    public static FcpResultGet getFile(String key,
-                                  Long size,
-                                  File target,
-                                  boolean createTempFile,
-                                  FrostDownloadItem dlItem)
+    public static FcpResultGet getFile(
+            int type,
+            String key,
+            Long size,
+            File target,
+            boolean createTempFile,
+            FrostDownloadItem dlItem)
     {
         File tempFile = null;
         if( createTempFile ) {
-            try {
-                tempFile = File.createTempFile("getFile_", ".tmp", new File(Core.frostSettings.getValue("temp.dir")));
-            } catch( Throwable ex ) {
-				logger.log(Level.SEVERE, "Exception thrown in getFile(...)", ex);
-                return null;
-            }
+            tempFile = FileAccess.createTempFile("getFile_", ".tmp");
         } else {
             tempFile = new File( target.getPath() + ".tmp" );
         }
 
         // First we just download the file, not knowing what lies ahead
-        FcpResultGet results = getKey(key, tempFile);
+        FcpResultGet results = getKey(type, key, tempFile);
 
         if( results != null ) {
 
@@ -97,7 +94,7 @@ public class FcpRequest
     }
 
     // used by getFile
-    private static FcpResultGet getKey(String key, File target) {
+    private static FcpResultGet getKey(int type, String key, File target) {
 
         if( key == null || key.length() == 0 || key.startsWith("null") ) {
             return null;
@@ -116,7 +113,7 @@ public class FcpRequest
             int maxtries = 3;
             while( tries < maxtries || results != null ) {
                 try {
-                    results = connection.getKeyToFile(key, target.getPath());
+                    results = connection.getKeyToFile(type, key, target.getPath());
                     break;
                 }
                 catch( java.net.ConnectException e ) {

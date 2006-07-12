@@ -24,7 +24,7 @@ import org.xml.sax.SAXException;
 import frost.*;
 import frost.gui.objects.Board;
 
-public class BoardAttachment extends Attachment implements SafeXMLizable {
+public class BoardAttachment extends Attachment {
 
 	private Board boardObj;
 
@@ -34,9 +34,22 @@ public class BoardAttachment extends Attachment implements SafeXMLizable {
 
 	public Element getXMLElement(Document container) {
 
-		Element el = getSafeXMLElement(container);
+        Element el = container.createElement("Attachment");
+        el.setAttribute("type", "board");
 
-		CDATASection cdata;
+        CDATASection cdata;
+
+        Element name = container.createElement("Name");
+        cdata = container.createCDATASection(Mixed.makeSafeXML(boardObj.getName()));
+        name.appendChild(cdata);
+        el.appendChild(name);
+
+        if( boardObj.getPublicKey() != null ) {
+            Element pubkey = container.createElement("pubKey");
+            cdata = container.createCDATASection(Mixed.makeSafeXML(boardObj.getPublicKey()));
+            pubkey.appendChild(cdata);
+            el.appendChild(pubkey);
+        }
 
         if( boardObj.getPrivateKey() != null ) {
     		Element privkey = container.createElement("privKey");
@@ -50,28 +63,6 @@ public class BoardAttachment extends Attachment implements SafeXMLizable {
     		cdata = container.createCDATASection(Mixed.makeSafeXML(boardObj.getDescription()));	//null is ok
     		description.appendChild(cdata);
     		el.appendChild(description);
-        }
-
-		return el;
-	}
-
-	public Element getSafeXMLElement(Document container) {
-
-		Element el = container.createElement("Attachment");
-		el.setAttribute("type", "board");
-
-		CDATASection cdata;
-
-		Element name = container.createElement("Name");
-		cdata = container.createCDATASection(Mixed.makeSafeXML(boardObj.getName()));
-		name.appendChild(cdata);
-		el.appendChild(name);
-
-        if( boardObj.getPublicKey() != null ) {
-    		Element pubkey = container.createElement("pubKey");
-    		cdata = container.createCDATASection(Mixed.makeSafeXML(boardObj.getPublicKey()));
-    		pubkey.appendChild(cdata);
-    		el.appendChild(pubkey);
         }
 
 		return el;

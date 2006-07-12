@@ -18,11 +18,8 @@
 */
 package frost.storage;
 
-import frost.SettingsClass;
-import frost.fileTransfer.download.DownloadModelDAO;
-import frost.fileTransfer.upload.UploadModelDAO;
-import frost.identities.IdentitiesDAO;
-import frost.messaging.MessageHashesDAO;
+import frost.*;
+import frost.messaging.*;
 
 /**
  * This class implements the Abstract Factory pattern. It is used by the business objects
@@ -37,10 +34,8 @@ public abstract class DAOFactory {
 
 	//List of DAO types supported by this factory
 	public static final int XML = 1;
-	public static final int HSQLDB = 2;
 	
 	private static XmlDAOFactory xmlDAOFactory = null;
-	private static HsqldbDAOFactory hsqldbDAOFactory = null;
 	
 	private static SettingsClass settings;
 	
@@ -55,22 +50,9 @@ public abstract class DAOFactory {
 		switch (storageMethod) {
 			case XML:
 				return getXmlDAOFactory();
-			case HSQLDB:
-				return getHsqldbDAOFactory();	
 			default:
 				return null;
 		}
-	}
-	
-	/**
-	 * This method returns the HsqldbDAOFactory, creating it if necessary.
-	 * @return the HsqldbDAOFactory
-	 */
-	private static HsqldbDAOFactory getHsqldbDAOFactory() {
-		if (hsqldbDAOFactory == null) {
-			hsqldbDAOFactory = new HsqldbDAOFactory(settings);
-		}
-		return hsqldbDAOFactory;	
 	}
 	
 	/**
@@ -83,27 +65,6 @@ public abstract class DAOFactory {
 		}	
 		return xmlDAOFactory;
 	}
-	
-	/**
-	 * This method returns a data access object for the FrostIdentities
-	 * business object.
-	 * @return a IdentitiesDAO for the FrostIdentities business object.
-	 */
-	public abstract IdentitiesDAO getIdentitiesDAO();
-	
-	/**
-	 * This method returns a data access object for the DownloadModel
-	 * business object.
-	 * @return a DownloadModelDAO for the DownloadModel business object.
-	 */
-	public abstract DownloadModelDAO getDownloadModelDAO();
-	
-	/**
-	 * This method returns a data access object for the UploadModel
-	 * business object.
-	 * @return a UploadModelDAO for the UploadModel business object.
-	 */
-	public abstract UploadModelDAO getUploadModelDAO();
 	
 	/**
 	 * This method returns a data access object for the MessageHashes
@@ -119,5 +80,4 @@ public abstract class DAOFactory {
 	public static void initialize(SettingsClass frostSettings) {
 		settings = frostSettings;		
 	}
-	
 }

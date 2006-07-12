@@ -100,24 +100,6 @@ public abstract class AbstractMessageObject extends AbstractMessageStatusProvide
         return attachments.getAllOfType(type);
     }
 
-    /**
-     * Get a list of all attached files that are currently offline.
-     */
-    public List getOfflineFiles() {
-        List result = new LinkedList();
-        if (attachments != null) {
-            List fileAttachments = attachments.getAllOfType(Attachment.FILE);
-            Iterator it = fileAttachments.iterator();
-            while (it.hasNext()) {
-                SharedFileObject sfo = ((FileAttachment) it.next()).getFileObj();
-                if (!sfo.isOnline()) {
-                    result.add(sfo);
-                }
-            }
-        }
-        return result;
-    }
-    
     public boolean containsAttachments() {
         if ((getAttachmentsOfType(Attachment.BOARD).size() > 0) ||
             (getAttachmentsOfType(Attachment.FILE).size() > 0)) {

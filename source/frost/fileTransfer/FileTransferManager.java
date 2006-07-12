@@ -18,12 +18,14 @@
 */
 package frost.fileTransfer;
 
+import java.util.*;
+
 import frost.*;
-import frost.boards.TofTreeModel;
-import frost.fileTransfer.download.DownloadManager;
-import frost.fileTransfer.search.SearchManager;
-import frost.fileTransfer.upload.UploadManager;
-import frost.identities.FrostIdentities;
+import frost.boards.*;
+import frost.fileTransfer.download.*;
+import frost.fileTransfer.search.*;
+import frost.fileTransfer.upload.*;
+import frost.identities.*;
 import frost.storage.*;
 
 /**
@@ -47,8 +49,8 @@ public class FileTransferManager implements Savable {
     private DownloadManager downloadManager;
     private SearchManager searchManager;
     private UploadManager uploadManager;
-
-
+    private NewUploadFilesManager newUploadFilesManager;
+    
     /**
      * @param settings
      */
@@ -64,19 +66,12 @@ public class FileTransferManager implements Savable {
         getDownloadManager().initialize();
         getSearchManager().initialize();
         getUploadManager().initialize();
-        Index.initialize(getDownloadManager().getModel());
+        getNewUploadFilesManager().initialize();
+        Index.initialize(getDownloadManager().getModel(), getUploadManager().getModel());
 
         //Until the downloads and uploads are fully separated from frame1:
         mainFrame.getMessagePanel().getMessageTextPane().setDownloadModel(getDownloadManager().getModel());
         mainFrame.setUploadPanel(getUploadManager().getPanel());
-
-        Thread requestsThread =
-            new GetRequestsThread(
-                settings.getIntValue("tofDownloadHtl"),
-                settings.getValue("keypool.dir"),
-                getUploadManager().getModel(),
-                identities);
-        requestsThread.start();
     }
 
     /**
@@ -114,9 +109,6 @@ public class FileTransferManager implements Savable {
         this.keypool = keypool;
     }
 
-    /**
-     *
-     */
     private DownloadManager getDownloadManager() {
         if (downloadManager == null) {
             downloadManager = new DownloadManager(settings);
@@ -125,10 +117,21 @@ public class FileTransferManager implements Savable {
         }
         return downloadManager;
     }
+    
+    public void setDownloadItemsAfterImport(List dlItems) {
+        for(Iterator i=dlItems.iterator(); i.hasNext(); ) {
+            FrostDownloadItem di = (FrostDownloadItem)i.next();
+            getDownloadManager().getModel().addDownloadItem(di);
+        }
+    }
 
-    /**
-     *
-     */
+    public void setUploadItemsAfterImport(List ulItems) {
+        for(Iterator i=ulItems.iterator(); i.hasNext(); ) {
+            FrostUploadItem di = (FrostUploadItem)i.next();
+            getUploadManager().getModel().addConsistentUploadItem(di);
+        }
+    }
+
     private SearchManager getSearchManager() {
         if (searchManager == null) {
             searchManager = new SearchManager(settings);
@@ -142,18 +145,21 @@ public class FileTransferManager implements Savable {
         return searchManager;
     }
 
-    /**
-     *
-     */
     private UploadManager getUploadManager() {
         if (uploadManager == null) {
             uploadManager = new UploadManager(settings);
             uploadManager.setMainFrame(mainFrame);
             uploadManager.setTofTreeModel(tofTreeModel);
             uploadManager.setFreenetIsOnline(isOnline);
-            uploadManager.setMyID(identities.getMyId());
         }
         return uploadManager;
+    }
+    
+    public NewUploadFilesManager getNewUploadFilesManager() {
+        if( newUploadFilesManager == null ) {
+            newUploadFilesManager = new NewUploadFilesManager();
+        }
+        return newUploadFilesManager;
     }
 
     /* (non-Javadoc)
@@ -162,6 +168,6 @@ public class FileTransferManager implements Savable {
     public void save() throws StorageException {
         getDownloadManager().getModel().save();
         getUploadManager().getModel().save();
+        getNewUploadFilesManager().save();
     }
-
 }

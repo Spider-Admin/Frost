@@ -41,6 +41,8 @@ public class SettingsClass implements Savable {
     private Vector updaters = null;
 
     private static Logger logger = Logger.getLogger(SettingsClass.class.getName());
+    
+    public static final String REQUESTFILE_HEADER = "FrostRequestedFilesV1";
 
     public static final String AUTO_SAVE_INTERVAL = "autoSaveInterval";
     public static final String DISABLE_DOWNLOADS = "disableDownloads";
@@ -612,8 +614,6 @@ public class SettingsClass implements Savable {
         defaults.put(DISABLE_REQUESTS, "false");
         defaults.put(DISABLE_DOWNLOADS, "false");
         defaults.put("htlUpload", "21");
-        defaults.put("keyDownloadHtl", "24");
-        defaults.put("keyUploadHtl", "21");
         defaults.put("maxAge", "5");
         defaults.put("maxMessageDisplay", "15");
         defaults.put("maxMessageDownload", "5");
@@ -630,12 +630,7 @@ public class SettingsClass implements Savable {
         defaults.put("tofTreeSelectedRow", "0");
         defaults.put("tofUploadHtl", "21");
         defaults.put("uploadThreads", "3");
-        defaults.put("uploadBatchSize", "100");
         defaults.put("uploadingActivated", "true");
-        defaults.put("automaticIndexing", "true");
-        defaults.put("shareDownloads", "true");
-        defaults.put("signUploads", "true");
-        defaults.put("helpFriends", "true");
         defaults.put("hideBadFiles", "true");
         defaults.put("hideAnonFiles", "false");
         defaults.put("useAltEdit", "false");

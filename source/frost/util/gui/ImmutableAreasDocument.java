@@ -23,21 +23,11 @@ import java.util.ArrayList;
 
 import javax.swing.text.*;
 
-
-/**
- * @author Administrator
- *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
- */
 public class ImmutableAreasDocument extends PlainDocument {
 
 	private ArrayList immutableAreas = new ArrayList();
 	private MessageFilter filter = new MessageFilter();
 
-	/**
-	 * 
-	 */
 	private class MessageFilter extends DocumentFilter {
 		
 		public static final int CLIPPING_OUTSIDE = 0;
@@ -46,16 +36,10 @@ public class ImmutableAreasDocument extends PlainDocument {
 		public static final int CLIPPING_LEFT = 3;
 		public static final int CLIPPING_RIGHT = 4;
 		
-		/**
-		 * 
-		 */
 		public MessageFilter() {
 			super();
 		}
 		
-		/* (non-Javadoc)
-		 * @see javax.swing.text.DocumentFilter#replace(javax.swing.text.DocumentFilter.FilterBypass, int, int, java.lang.String, javax.swing.text.AttributeSet)
-		 */
 		public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
 			throws BadLocationException {
 
@@ -105,9 +89,6 @@ public class ImmutableAreasDocument extends PlainDocument {
 			}
 		}
 
-		/* (non-Javadoc)
-		 * @see javax.swing.text.DocumentFilter#insertString(javax.swing.text.DocumentFilter.FilterBypass, int, java.lang.String, javax.swing.text.AttributeSet)
-		 */
 		public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr)
 			throws BadLocationException {
 
@@ -129,9 +110,6 @@ public class ImmutableAreasDocument extends PlainDocument {
 			}
 		}
 
-		/* (non-Javadoc)
-		 * @see javax.swing.text.DocumentFilter#remove(javax.swing.text.DocumentFilter.FilterBypass, int, int)
-		 */
 		public void remove(FilterBypass fb, int offset, int length) throws BadLocationException {
 			
 			boolean allowRemove = true;
@@ -164,11 +142,6 @@ public class ImmutableAreasDocument extends PlainDocument {
 			}
 		}
 
-		/**
-		 * @param area
-		 * @param offset
-		 * @return
-		 */
 		private int clip(ImmutableArea area, int offset, int length, boolean isRemoving) {
 			int endOffset = offset + length;
 			boolean offsetOutsideLeft = false;
@@ -229,34 +202,21 @@ public class ImmutableAreasDocument extends PlainDocument {
 		}
 	}
 
-	/**
-	 * 
-	 */
 	public ImmutableAreasDocument() {
 		super();
 		setDocumentFilter(filter);
 	}
 	
-	/**
-	 * 
-	 */
 	public void addImmutableArea(ImmutableArea newArea) {
 		immutableAreas.add(newArea);
 	}
 	
-	/**
-	 * 
-	 */
 	public void removeImmutableArea(ImmutableArea area) {
 		immutableAreas.remove(area);
 	}
 
-	/**
-	 * @param c
-	 */
 	public ImmutableAreasDocument(Content c) {
 		super(c);
 		setDocumentFilter(filter);
 	}
-
 }

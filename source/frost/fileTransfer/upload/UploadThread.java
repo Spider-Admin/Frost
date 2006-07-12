@@ -19,24 +19,18 @@
 
 package frost.fileTransfer.upload;
 
-import java.io.File;
-import java.util.Random;
+import java.io.*;
 import java.util.logging.*;
 
 import frost.*;
 import frost.fcp.*;
-import frost.fileTransfer.Index;
-import frost.gui.objects.Board;
-import frost.identities.LocalIdentity;
-import frost.messages.*;
+import frost.storage.database.applayer.*;
 
 class UploadThread extends Thread
 {
     private SettingsClass settings;
 
     private UploadTicker ticker;
-
-    private LocalIdentity myId;
 
     private static Logger logger = Logger.getLogger(UploadThread.class.getName());
 
@@ -45,22 +39,11 @@ class UploadThread extends Thread
     public static final int MODE_UPLOAD        = 3;
 
     private int nextState; // the state to set on uploadItem when finished, or -1 for default (IDLE)
-    private String destination;
-    private File file;
-    private int htl;
-    private Board board;
     private int mode;
-    private static int fileIndex=1;
-    private static Random r = new Random();
-    //this is gonna be ugly
-    private static String batchId = Core.getMyBatches().values().size() == 0 ?
-                    (new Long(r.nextLong())).toString() :
-                (String) Core.getMyBatches().values().iterator().next();
-    private static final int batchSize = 100; //TODO: get this from options
-    //private static final Object putIt = frame1.getMyBatches().put(batchId,batchId);
-    //^^ ugly trick to put the initial batch number
 
-    FrostUploadItem uploadItem;
+    FrostUploadItem uploadItem = null; // for upload and generate CHK
+    NewUploadFile newUploadFile = null;
+    UploadModel uploadModel = null;
 
     public void run() {
         switch (mode) {
@@ -74,23 +57,15 @@ class UploadThread extends Thread
                 ticker.generatingThreadStarted();
                 break;
         }
-        if (batchId == null) {
-            Exception er = new Exception();
-            er.fillInStackTrace();
-            logger.log(Level.SEVERE, "Exception thrown in run()", er);
-        }
-        if (Core.getMyBatches().values().size() == 0) {
-            Core.getMyBatches().put(batchId, batchId);
-        }
-        boolean sign = Core.frostSettings.getBoolValue("signUploads");
+
         try {
             switch (mode) {
                 case MODE_UPLOAD :
-                    upload(sign);
+                    upload();
                     ticker.uploadingThreadFinished();
                     break;
                 case MODE_GENERATE_SHA1 :
-                    generateSHA1(sign);
+                    generateSHA1();
                     ticker.generatingThreadFinished();
                     break;
                 case MODE_GENERATE_CHK :
@@ -114,51 +89,29 @@ class UploadThread extends Thread
         }
     }
 
-    private void upload(boolean sign) { // real upload
+    private void upload() { // real upload
 
-        String lastUploadDate = null; // NEVER uploaded
-        String currentDate = DateFun.getExtendedDate();
-
-        logger.info("Upload of " + file + " with HTL " + htl + " started.");
+        logger.info("Upload of " + uploadItem.getFileName() + " started.");
 
         FcpResultPut result = FcpHandler.inst().putFile(
+                FcpHandler.TYPE_FILE,
                 "CHK@",
-                file,
+                new File(uploadItem.getFilePath()),
                 null, // metadata
-                htl,
                 true, // doRedirect
                 true, // removeLocalKey, insert with full HTL even if existing in local store
                 uploadItem); // provide the uploadItem to indicate that this upload is contained in table
 
         if (result.isSuccess() || result.isKeyCollision() ) {
             uploadItem.setKey(result.getChkKey());
-            lastUploadDate = currentDate;
             // Upload succeeded
-            logger.info("Upload of " + file + " was successful.");
-            SharedFileObject current;
+            logger.info("Upload of " + uploadItem.getFileName() + " was successful.");
 
             uploadItem.setState(nextState);
-            uploadItem.setLastUploadDate(lastUploadDate);
-
-            current = new SharedFileObject();
-            current.setKey(uploadItem.getKey());
-            if (sign) {
-                current.setOwner(myId.getUniqueName());
-            }
-            current.setFilename(uploadItem.getFileName());
-            current.setSHA1(uploadItem.getSHA1());
-            current.setBatch(uploadItem.getBatch());
-            current.setSize(uploadItem.getFileSize().longValue());
-            current.setDate(lastUploadDate);
-            current.setLastSharedDate(lastUploadDate);
-            Index index = Index.getInstance();
-            synchronized(index) {
-                index.addMine(current, board);
-                index.add(current, board);
-            }
+            uploadItem.setLastUploadDate(DateFun.getCurrentSqlDateGMT());
         } else {
             // Upload failed
-            logger.warning("Upload of " + file + " was NOT successful.");
+            logger.warning("Upload of " + uploadItem.getFileName() + " was NOT successful.");
 
             uploadItem.setRetries(uploadItem.getRetries() + 1);
             if (uploadItem.getRetries() > settings.getIntValue(SettingsClass.UPLOAD_MAX_RETRIES)) {
@@ -175,55 +128,31 @@ class UploadThread extends Thread
         uploadItem.setLastUploadStopTimeMillis(System.currentTimeMillis());
     }
 
-    private void generateSHA1(boolean sign) {
-        if (fileIndex % batchSize == 0) {
-            Core.getMyBatches().put(batchId, batchId);
-            while (Core.getMyBatches().contains(batchId)) {
-                batchId = (new Long(r.nextLong())).toString();
-            }
-            Core.getMyBatches().put(batchId, batchId);
-        }
+    private void generateSHA1() {
 
-        long now = System.currentTimeMillis();
-        String SHA1 = Core.getCrypto().digest(file);
-        logger.fine("digest generated in " + (System.currentTimeMillis() - now) + "  " + SHA1);
+        String SHA1 = Core.getCrypto().digest(newUploadFile.getFile());
+        
+        FrostUploadItem ulItem = new FrostUploadItem(
+                newUploadFile.getFile(),
+                newUploadFile.getTargetBoard(), 
+                newUploadFile.getFrom(),
+                SHA1);
+        
+        uploadModel.addNewUploadItem(ulItem);
 
-        //create new KeyClass
-        SharedFileObject newKey = new SharedFileObject();
-        newKey.setKey(null);
-        newKey.setDate(null);
-        newKey.setLastSharedDate(DateFun.getExtendedDate());
-        newKey.setSHA1(SHA1);
-        newKey.setFilename(destination);
-        newKey.setSize(file.length());
-        newKey.setBatch(batchId);
-        if (sign) {
-            newKey.setOwner(myId.getUniqueName());
-        }
-
-        //update the gui
-        uploadItem.setSHA1(SHA1);
-        uploadItem.setKey(null);
-        uploadItem.setLastUploadDate(null);
-        uploadItem.setBatch(batchId);
-        fileIndex++;
-        //add to index
-        Index index = Index.getInstance();
-        synchronized(index) {
-            index.addMine(newKey, board);
-            index.add(newKey, board);
-        }
-        uploadItem.setState(this.nextState);
+        Core.getInstance().getFileTransferManager().getNewUploadFilesManager().deleteNewUploadFile(newUploadFile);
+        
+        ulItem.setState(this.nextState);
     }
 
     private void generateCHK() {
-        logger.info("CHK generation started for file: " + file);
+        logger.info("CHK generation started for file: " + uploadItem.getFileName());
         String chkkey = null;
         
         // yes, this destroys any upload progress, but we come only here if
         // chkKey == null, so the file should'nt be uploaded until now
         try {
-            chkkey = FcpHandler.inst().generateCHK(file);
+            chkkey = FcpHandler.inst().generateCHK(new File(uploadItem.getFilePath()));
         } catch (Throwable t) {
             logger.log(Level.SEVERE, "Encoding failed", t);
             uploadItem.setState(FrostUploadItem.STATE_IDLE);
@@ -251,28 +180,31 @@ class UploadThread extends Thread
     }
 
     /**Constructor*/
-    public UploadThread(UploadTicker newTicker, FrostUploadItem ulItem, SettingsClass settings, int mode, LocalIdentity newMyId)
-    {
-        this(newTicker, ulItem, settings, mode, -1, newMyId);
+    public UploadThread(UploadTicker newTicker, FrostUploadItem ulItem, SettingsClass settings, int mode) {
+        this(newTicker, settings, mode, -1);
+        uploadItem = ulItem;
     }
-    public UploadThread(
+
+    public UploadThread(UploadTicker newTicker, FrostUploadItem ulItem, SettingsClass settings, int mode, int nextState) {
+        this(newTicker, settings, mode, nextState);
+        uploadItem = ulItem;
+    }
+
+    public UploadThread(UploadTicker newTicker, NewUploadFile uploadFile, UploadModel um, SettingsClass settings, int mode) {
+        this(newTicker, settings, mode, -1);
+        uploadModel = um;
+        newUploadFile = uploadFile;
+    }
+
+    protected UploadThread(
         UploadTicker newTicker,
-        FrostUploadItem ulItem,
         SettingsClass settings,
         int newMode,
-        int newNextState,
-        LocalIdentity newMyId) {
+        int newNextState) {
 
-        destination = ulItem.getFileName();
-        file = new File(ulItem.getFilePath());
-
-        myId = newMyId;
         ticker = newTicker;
-        uploadItem = ulItem;
 
         this.settings = settings;
-        htl = settings.getIntValue("htlUpload");
-        board = ulItem.getTargetBoard();
         mode = newMode;
         nextState = newNextState;
         if (nextState < 0) {

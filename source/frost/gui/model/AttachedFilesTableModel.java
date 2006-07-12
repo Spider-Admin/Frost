@@ -78,12 +78,11 @@ public class AttachedFilesTableModel extends DefaultTableModel implements Langua
         Iterator files = fileAttachments.iterator();
         while (files.hasNext()) {
             FileAttachment attachment = (FileAttachment) files.next();
-            SharedFileObject fileObject = attachment.getFileObj();
             // There is no point in showing a file without key / name
-            if (fileObject.getKey() != null && fileObject.getKey().length() > 40 &&
-                fileObject.getFilename() != null && fileObject.getFilename().length() > 0 )
+            if (attachment.getKey() != null && attachment.getKey().length() > 40 &&
+                    attachment.getFilename() != null && attachment.getFilename().length() > 0 )
             {
-                Object[] row = {fileObject.getFilename(), fileObject.getSize(), fileObject.getKey()};
+                Object[] row = {attachment.getFilename(), attachment.getSize().toString(), attachment.getKey()};
                 addRow(row);
             }
         }

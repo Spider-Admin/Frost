@@ -16,10 +16,12 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.storage;
+package frost.storage.database;
 
 import java.io.*;
 import java.sql.*;
+
+import frost.storage.*;
 
 public class Database implements Savable {
     

@@ -464,14 +464,15 @@ public class FcpRequest
      * @param dlItem   The DownloadItem for this download for progress updates, or null if there is none.
      * @return null on error, or FcpResults
      */
-    public static FcpResultGet getFile(String key,
-                                  Long size,
-                                  File target,
-                                  int htl,
-                                  boolean doRedirect,
-                                  boolean fastDownload,
-                                  boolean createTempFile,
-                                  FrostDownloadItem dlItem)
+    public static FcpResultGet getFile(
+            String key,
+            Long size,
+            File target,
+            int htl,
+            boolean doRedirect,
+            boolean fastDownload,
+            boolean createTempFile,
+            FrostDownloadItem dlItem)
     {
         assert htl >= 0; //some sanity checks
 

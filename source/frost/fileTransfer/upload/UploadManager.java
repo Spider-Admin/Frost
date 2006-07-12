@@ -31,7 +31,6 @@ import frost.storage.StorageException;
  */
 public class UploadManager implements PropertyChangeListener {
 
-    private LocalIdentity myID;
     private TofTreeModel tofTreeModel;
     private MainFrame mainFrame;
     private SettingsClass settings;
@@ -104,13 +103,9 @@ public class UploadManager implements PropertyChangeListener {
 
     private UploadTicker getTicker() {
         if (ticker == null) {
-            ticker = new UploadTicker(settings, getModel(), getPanel(), myID);
+            ticker = new UploadTicker(settings, getModel(), getPanel());
         }
         return ticker;
-    }
-
-    public void setMyID(LocalIdentity identity) {
-        myID = identity;
     }
 
     public UploadModel getModel() {

@@ -30,6 +30,9 @@ public abstract class FcpHandler {
 
     private static Logger logger = Logger.getLogger(FcpHandler.class.getName());
     
+    public static final int TYPE_MESSAGE = 1;
+    public static final int TYPE_FILE = 2;
+    
     private static FcpHandler instance = null;
     
     public static int FREENET_05 = 5;
@@ -77,14 +80,15 @@ public abstract class FcpHandler {
      * @param doRedirect If true, getFile redirects if possible and downloads the file it was redirected to.
      * @return null on error, or FcpResults
      */
-    public FcpResultGet getFile(String key,
-                                  Long size,
-                                  File target,
-                                  int htl,
-                                  boolean doRedirect)
+    public FcpResultGet getFile(
+            int type,
+            String key,
+            Long size,
+            File target,
+            boolean doRedirect)
     {
         // use temp file by default, only filedownload needs the target file to monitor download progress
-        return getFile(key,size,target,htl,doRedirect, false, true, null);
+        return getFile(type,key,size,target,doRedirect, false, true, null);
     }
 
     /**
@@ -100,15 +104,16 @@ public abstract class FcpHandler {
      * @param fastDownload  If true request stop if node reports a timeout. If false try until node indicates end.
      * @return null on error, or FcpResults
      */
-    public FcpResultGet getFile(String key,
-                                  Long size,
-                                  File target,
-                                  int htl,
-                                  boolean doRedirect,
-                                  boolean fastDownload)
+    public FcpResultGet getFile(
+            int type,
+            String key,
+            Long size,
+            File target,
+            boolean doRedirect,
+            boolean fastDownload)
     {
         // use temp file by default, only filedownload needs the target file to monitor download progress
-        return getFile(key,size,target,htl,doRedirect, fastDownload, true, null);
+        return getFile(type, key,size,target,doRedirect, fastDownload, true, null);
     }
 
     /**
@@ -126,14 +131,15 @@ public abstract class FcpHandler {
      * @param dlItem   The DownloadItem for this download for progress updates, or null if there is none.
      * @return null on error, or FcpResults
      */
-    public abstract FcpResultGet getFile(String key,
-                                  Long size,
-                                  File target,
-                                  int htl,
-                                  boolean doRedirect,
-                                  boolean fastDownload,
-                                  boolean createTempFile,
-                                  FrostDownloadItem dlItem);
+    public abstract FcpResultGet getFile(
+            int type,
+            String key,
+            Long size,
+            File target,
+            boolean doRedirect,
+            boolean fastDownload,
+            boolean createTempFile,
+            FrostDownloadItem dlItem);
     
     /**
      * Inserts a file into freenet.
@@ -142,14 +148,14 @@ public abstract class FcpHandler {
      * This method wraps the calls without the uploadItem.
      */
     public FcpResultPut putFile(
+            int type,
             String uri,
             File file,
             byte[] metadata,
-            int htl,
             boolean doRedirect,
             boolean removeLocalKey)
     {
-        return putFile(uri, file, metadata, htl, doRedirect, removeLocalKey, null);
+        return putFile(type, uri, file, metadata, doRedirect, removeLocalKey, null);
     }
 
     /**
@@ -160,10 +166,10 @@ public abstract class FcpHandler {
      * Same for uploadItem: if a non-uploadtable file is uploaded, this is null.
      */
     public abstract FcpResultPut putFile(
+            int type,
             String uri,
             File file,
             byte[] metadata,
-            int htl,
             boolean doRedirect,
             boolean removeLocalKey,
             FrostUploadItem ulItem);

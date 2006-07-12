@@ -36,7 +36,7 @@ public class MessageDownloaderResult {
     public static final String DECRYPT_FAILED  = "DecryptFailed";  // encrypted for me, but decrypt failed
     public static final String INVALID_MSG     = "InvalidMsg";     // message format validation failed
 
-    public MessageObjectFile message = null;
+    public MessageXmlFile message = null;
     
     public String errorMsg = null;
 }

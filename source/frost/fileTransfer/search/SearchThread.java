@@ -19,117 +19,149 @@
 package frost.fileTransfer.search;
 
 import java.io.*;
+import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
-import frost.fileTransfer.*;
 import frost.fileTransfer.download.*;
 import frost.fileTransfer.upload.*;
-import frost.gui.objects.*;
 import frost.identities.*;
 import frost.messages.*;
+import frost.storage.database.applayer.*;
 
-class SearchThread extends Thread {
-    private FrostIdentities identities;
+// TODO: if add to table is slow, use Timer and add a list all 250ms
+
+class SearchThread extends Thread implements FileListDatabaseTableCallback {
+
     private static Logger logger = Logger.getLogger(SearchThread.class.getName());
+
     private String request;
-    private String board;
-    private String date;
-    private String keypool;
     private String searchType;
-    private Vector results = new Vector();
-    private boolean searchAllBoards;
-    private Map chk = Collections.synchronizedMap(new TreeMap());
     private String[] audioExtension;
     private String[] videoExtension;
     private String[] imageExtension;
     private String[] documentExtension;
     private String[] executableExtension;
     private String[] archiveExtension;
-    private Vector boards;
-    private static String fileSeparator = System.getProperty("file.separator");
+    private List boards;
     int allFileCount;
     int maxSearchResults;
     private SearchPanel searchPanel = null;
+    
+    private java.sql.Date currentDate;
 
     private SearchModel model;
     private DownloadModel downloadModel;
     private UploadModel uploadModel;
 
     private SettingsClass settings;
+    
+    private List cachedSingleRequests = null;
+    private List cachedRemoveStrings = null;
+
+    private List getSingleRequests() {
+        return cachedSingleRequests;
+    }
+    private List getRemoveStrings() {
+        return cachedRemoveStrings;
+    }
 
     /**
      * Splits a String into single parts
      * @return Vector containing the single parts as Strings
      */
-    private Vector getSingleRequests() {
-        Vector singleRequests = new Vector();
-        String tmp = request.trim().toLowerCase();
+    private List prepareSingleRequests(String req) {
+        List sRequests = new ArrayList();
+        String tmp = req.trim().toLowerCase();
 
         while( tmp.indexOf(" ") != -1 ) {
             int pos = tmp.indexOf(" ");
             // if (DEBUG) Core.getOut().println("Search request: " + (tmp.substring(0, pos)).trim());
-            singleRequests.add((tmp.substring(0, pos)).trim());
+            sRequests.add((tmp.substring(0, pos)).trim());
             tmp = (tmp.substring(pos, tmp.length())).trim();
         }
 
         if( tmp.length() > 0 ) {
             // if (DEBUG) Core.getOut().println("Search request: " + (tmp));
-            singleRequests.add(tmp);
+            sRequests.add(tmp);
         }
 
-        return singleRequests;
+        return sRequests;
     }
 
     /**
      * Reads index file and adds search results to the search table
      */
-    private void getSearchResults() {
-        if( request.length() > 0 ) {
-            Vector singleRequests = getSingleRequests();
+    private boolean getSearchResults(FrostSharedFileObject fo) {
+        List sRequests = getSingleRequests();
 
-            synchronized( chk ) {
-                Iterator i = chk.values().iterator();
-                while( i.hasNext() ) {
-                    SharedFileObject key = (SharedFileObject) i.next();
-                    String filename = key.getFilename().toLowerCase().trim();
-                    boolean acceptFile = true;
-                    for( int j = 0; j < singleRequests.size(); j++ ) {
-                        String singleRequest = (String) singleRequests.elementAt(j);
-                        if( !singleRequest.startsWith("*") ) {
-                            if( filename.indexOf(singleRequest) == -1 ) {
-                                acceptFile = false;
-                            }
-                        }
-                    }
-                    if( acceptFile || request.equals("*") ) {
-                        // Check for search type
-                        if( searchType.equals("SearchPane.fileTypes.allFiles") ) {
-                            results.add(key);
-                        } else {
-                            boolean accept = false;
-                            if( searchType.equals("SearchPane.fileTypes.audio") ) {
-                                accept = checkType(audioExtension, filename);
-                            } else if( searchType.equals("SearchPane.fileTypes.video") ) {
-                                accept = checkType(videoExtension, filename);
-                            } else if( searchType.equals("SearchPane.fileTypes.images") ) {
-                                accept = checkType(imageExtension, filename);
-                            } else if( searchType.equals("SearchPane.fileTypes.documents") ) {
-                                accept = checkType(documentExtension, filename);
-                            } else if( searchType.equals("SearchPane.fileTypes.executables") ) {
-                                accept = checkType(executableExtension, filename);
-                            } else if( searchType.equals("SearchPane.fileTypes.archives") ) {
-                                accept = checkType(archiveExtension, filename);
-                            }
-                            if( accept ) {
-                                results.add(key);
-                            }
-                        }
-                    }
+        FrostSharedFileObjectOwnerBoard ob = (FrostSharedFileObjectOwnerBoard)
+                fo.getFrostSharedFileObjectOwnerBoardList().get(0);
+        
+        // check for name
+        String filename = ob.getName().toLowerCase().trim();
+        for( int j = 0; j < sRequests.size(); j++ ) {
+            String singleRequest = (String) sRequests.get(j);
+            if( !singleRequest.startsWith("*") ) {
+                if( filename.indexOf(singleRequest) < 0 ) {
+                    return false;
                 }
             }
         }
+
+        // check for forbidden name
+        for (int j = 0; j < getRemoveStrings().size(); j++) {
+            String notString = (String) getRemoveStrings().get(j);
+            if ((filename.toLowerCase()).indexOf(notString.toLowerCase()) != -1) {
+                return false;
+            }
+        }
+
+        // check for search type
+        if( searchType.equals("SearchPane.fileTypes.allFiles") ) {
+            return true;
+        } else {
+            boolean accept = false;
+            if( searchType.equals("SearchPane.fileTypes.audio") ) {
+                accept = checkType(audioExtension, filename);
+            } else if( searchType.equals("SearchPane.fileTypes.video") ) {
+                accept = checkType(videoExtension, filename);
+            } else if( searchType.equals("SearchPane.fileTypes.images") ) {
+                accept = checkType(imageExtension, filename);
+            } else if( searchType.equals("SearchPane.fileTypes.documents") ) {
+                accept = checkType(documentExtension, filename);
+            } else if( searchType.equals("SearchPane.fileTypes.executables") ) {
+                accept = checkType(executableExtension, filename);
+            } else if( searchType.equals("SearchPane.fileTypes.archives") ) {
+                accept = checkType(archiveExtension, filename);
+            }
+            return accept;
+        }
+    }
+    
+    private List prepareRemoveStrings(String req) {
+        List rStrings = new ArrayList();
+        int notPos = req.indexOf("*-");
+        int nextSpacePos = req.indexOf(" ", notPos);
+        if (nextSpacePos == -1)
+            nextSpacePos = req.length();
+
+        String notString = req.substring(notPos + 2, nextSpacePos);
+        if (notString.indexOf(";") == -1) { // only one notString
+            rStrings.add(notString);
+        } else { //more notStrings
+            while (notString.indexOf(";") != -1) {
+                rStrings.add(notString.substring(0, notString.indexOf(";")));
+                if (!notString.endsWith(";")) {
+                    notString = notString.substring(notString.indexOf(";") + 1, notString.length());
+                }
+            }
+            if (notString.length() > 0) {
+                rStrings.add(notString);
+            }
+        }
+        return rStrings;
     }
 
     /**
@@ -152,7 +184,7 @@ class SearchThread extends Thread {
     /**
      * Removes unwanted keys from results
      */
-    private void filterSearchResults() {
+    private boolean filterSearchResults(FrostSharedFileObject fo) {
         if (request.indexOf("*age") != -1) {
             int agePos = request.indexOf("*age");
             int nextSpacePos = request.indexOf(" ", agePos);
@@ -167,83 +199,55 @@ class SearchThread extends Thread {
                 logger.warning("Did not recognice age, using default 1.");
             }
 
-            logger.fine("AGE = " + age);
-
-            GregorianCalendar today = new GregorianCalendar();
-            today.setTimeZone(TimeZone.getTimeZone("GMT"));
-
-            for (int i = results.size() - 1; i >= 0; i--) {
-                SharedFileObject key = (SharedFileObject) results.elementAt(i);
-                GregorianCalendar keyCal = null;
-                if (key.getDate() != null) {
-                    keyCal = key.getCal();
-
-                    keyCal.add(Calendar.DATE, + (age));
-
-                    if (keyCal.before(today)) {
-                        results.removeElementAt(i);
-                        logger.fine("removing because of keyCal");
-                    }
-                }
+            long diffMillis = age * 24 * 60 * 60 * 1000;
+            long minDateMillis = currentDate.getTime() - diffMillis;
+            
+            if( fo.getLastReceived() != null && fo.getLastReceived().getTime() < minDateMillis ) {
+                return false; // older than age
             }
         }
 
         boolean hideAnon = settings.getBoolValue("hideAnonFiles");
         boolean hideBad = settings.getBoolValue("hideBadFiles");
 
-        //check if file anonymous
-        Iterator it = results.iterator();
-        while (it.hasNext()) {
-            SharedFileObject key = (SharedFileObject) it.next();
-            if ((key.getOwner() == null
-                || (key.getOwner() != null && key.getOwner().compareToIgnoreCase("anonymous") == 0))
-                && hideAnon) {
-                //  Core.getOut().println("removing anon result");
-                it.remove();
-                continue;
+        // hideAnonFiles: show file if at least 1 owner is not anonymous
+        if( hideAnon ) {
+            boolean accept = false;
+            for(Iterator i=fo.getFrostSharedFileObjectOwnerBoardList().iterator(); i.hasNext(); ) {
+                FrostSharedFileObjectOwnerBoard ob = (FrostSharedFileObjectOwnerBoard)i.next();
+                if( ob.getOwner() != null ) {
+                    accept = true; 
+                    break;
+                }
             }
-            //check if file from someone bad
-            Identity id = identities.getIdentity(key.getOwner());
-            if (id != null &&
-                id.getState() == FrostIdentities.ENEMY &&
-                hideBad) {
-                //Core.getOut().println("removing bad result");
-                it.remove();
-                continue;
+            if( !accept ) {
+                return false;
             }
         }
 
-        if (request.indexOf("*-") != -1) {
-            Vector removeStrings = new Vector();
-            int notPos = request.indexOf("*-");
-            int nextSpacePos = request.indexOf(" ", notPos);
-            if (nextSpacePos == -1)
-                nextSpacePos = request.length();
-
-            String notString = request.substring(notPos + 2, nextSpacePos);
-            if (notString.indexOf(";") == -1) { // only one notString
-                removeStrings.add(notString);
-            } else { //more notStrings
-                while (notString.indexOf(";") != -1) {
-                    removeStrings.add(notString.substring(0, notString.indexOf(";")));
-                    if (!notString.endsWith(";")) {
-                        notString = notString.substring(notString.indexOf(";") + 1, notString.length());
-                    }
+        // hideBadFiles: show file if no bad owner; or if at least 1 owner is good
+        if( hideBad ) {
+            boolean accept = true;
+            for(Iterator i=fo.getFrostSharedFileObjectOwnerBoardList().iterator(); i.hasNext(); ) {
+                FrostSharedFileObjectOwnerBoard ob = (FrostSharedFileObjectOwnerBoard)i.next();
+                if( ob.getOwner() != null ) {
+                    Identity id = Core.getIdentities().getIdentity(ob.getOwner());
+                    if (id != null ) { 
+                        if( id.isBAD() ) {
+                            accept = false; // dont break, maybe there is a good
+                        }
+                        if( id.isGOOD() ) {
+                            return true;
+                        }
+                    }                
                 }
-                if (notString.length() > 0)
-                    removeStrings.add(notString);
             }
-
-            for (int j = 0; j < removeStrings.size(); j++) {
-                notString = (String) removeStrings.elementAt(j);
-                for (int i = results.size() - 1; i >= 0; i--) {
-                    SharedFileObject key = (SharedFileObject) results.elementAt(i);
-                    if (((key.getFilename()).toLowerCase()).indexOf(notString.toLowerCase()) != -1) {
-                        results.removeElementAt(i);
-                    }
-                }
+            if( !accept ) {
+                return false;
             }
         }
+        // all test passed
+        return true;
     }
 
     /**
@@ -258,99 +262,68 @@ class SearchThread extends Thread {
     /**
      * Displays search results in search table
      */
-    private void displaySearchResults(Board board) {
-        for (int i = 0; i < results.size(); i++) {
-            allFileCount++;
+    private void displaySearchResults(FrostSharedFileObject fo) {
 
-            if (allFileCount > this.maxSearchResults) {
-                logger.info("NOTE: maxSearchResults reached (" + maxSearchResults + ")!");
-                return;
-            }
+        allFileCount++;
 
-            SharedFileObject key = (SharedFileObject) results.elementAt(i);
-
-            String filename = key.getFilename();
-            Long size = key.getSize();
-            String date = key.getDate();
-            String keyData = key.getKey();
-            String SHA1 = key.getSHA1();
-
-            if (SHA1 == null) {
-                logger.warning("SHA1 null in SearchThread!!! ");
-            }
-
-            int searchItemState = FrostSearchItem.STATE_NONE;
-
-            // Already downloaded files get a nice color outfit (see renderer in SearchTable)
-            File file = new File(settings.getValue("downloadDirectory") + filename);
-            if (file.exists()) {
-                // file is already downloaded -> light_gray
-                searchItemState = FrostSearchItem.STATE_DOWNLOADED;
-            } else if (downloadModel.containsItemWithKey(SHA1)) {
-                // this file is in download table -> blue
-                searchItemState = FrostSearchItem.STATE_DOWNLOADING;
-            } else if (uploadModel.containsItemWithKey(SHA1)) {
-                // this file is in upload table -> green
-                searchItemState = FrostSearchItem.STATE_UPLOADING;
-            } else if (isOffline(key)) {
-                // this file is offline -> gray
-                searchItemState = FrostSearchItem.STATE_OFFLINE;
-            }
-
-            // filter by searchItemState
-            if (filterBySearchItemState(searchItemState) == false) {
-                continue;
-            }
-
-            final FrostSearchItem searchItem = new FrostSearchItem(board, key, searchItemState);
-
-            model.addSearchItem(searchItem);
+        if (allFileCount > this.maxSearchResults) {
+            logger.info("NOTE: maxSearchResults reached (" + maxSearchResults + ")!");
+            // TODO: stop thread
+            return;
         }
+
+        FrostSharedFileObjectOwnerBoard ob = (FrostSharedFileObjectOwnerBoard)
+                fo.getFrostSharedFileObjectOwnerBoardList().get(0);
+
+        String filename = ob.getName();
+        String keyData = fo.getKey();
+        String SHA1 = fo.getSha1();
+
+        int searchItemState = FrostSearchItem.STATE_NONE;
+
+        // Already downloaded files get a nice color outfit (see renderer in SearchTable)
+        File file = new File(settings.getValue("downloadDirectory") + filename);
+        if (file.exists()) {
+            // file is already downloaded -> light_gray
+            searchItemState = FrostSearchItem.STATE_DOWNLOADED;
+        } else if (downloadModel.containsItemWithKey(SHA1)) {
+            // this file is in download table -> blue
+            searchItemState = FrostSearchItem.STATE_DOWNLOADING;
+        } else if (uploadModel.containsItemWithKey(SHA1)) {
+            // this file is in upload table -> green
+            searchItemState = FrostSearchItem.STATE_UPLOADING;
+        } else if (keyData == null) {
+            // this file is offline -> gray
+            searchItemState = FrostSearchItem.STATE_OFFLINE;
+        }
+
+        // filter by searchItemState
+        if (filterBySearchItemState(searchItemState) == false) {
+            return;
+        }
+
+        FrostSearchItem searchItem = new FrostSearchItem(fo, searchItemState);
+        model.addSearchItem(searchItem);
+    }
+    
+    public boolean fileRetrieved(FrostSharedFileObject fo) {
+        if( getSearchResults(fo) && filterSearchResults(fo) ) {
+            displaySearchResults(fo);
+        }
+        return false; // dont stop
     }
 
-    private boolean isOffline(SharedFileObject key)
-    {
-        return !key.isOnline();
-    }
-
-    public void run()
-    {
+    public void run() {
         logger.info("Search for '" + request + "' on " + boards.size() + " boards started.");
 
-        if( !request.equals("") )
-        {
-            int boardCount = boards.size();
+        allFileCount = 0;
 
-            allFileCount = 0;
-
-            for( int j = 0; j < boardCount; j++ )
-            {
-                Board frostBoard = (Board)boards.elementAt(j);
-                String board = frostBoard.getBoardFilename();
-
-                logger.fine("Search for '" + request + "' on " + board + " started.");
-                File keypoolDir = new File(keypool + board);
-                if( keypoolDir.isDirectory() )
-                {
-                    File shaIndex = new File(keypoolDir+fileSeparator+"files.xml");
-                    if( shaIndex.exists() )
-                    {
-                         chk.clear();
-                         Index idx = Index.getInstance();
-                         synchronized(idx) {
-                             chk = idx.readKeyFile(shaIndex).getFilesMap();
-                         }
-                         getSearchResults();
-                         logger.fine(shaIndex.getName() + " - " + chk.size() + ";");
-                    }
-                }
-                chk.clear();
-
-                filterSearchResults();
-                displaySearchResults(frostBoard);
-                results.clear();
-            }
+        try {
+            AppLayerDatabase.getFileListDatabaseTable().retrieveFilesByBoards(boards, this);
+        } catch(SQLException e) {
+            logger.log(Level.SEVERE, "Catched exception:", e);
         }
+
         searchPanel.setSearchEnabled(true);
     }
 
@@ -360,16 +333,13 @@ class SearchThread extends Thread {
             String newSearchType,
             SearchManager searchManager)
     {
-        identities = searchManager.getIdentities();
         settings = searchManager.getSettings();
         request = newRequest.toLowerCase();
-        if( request.length() == 0 )
-        {
+        if( request.length() == 0 ) {
             // default: search all
             request = "*";
         }
         model = searchManager.getModel();
-        keypool = searchManager.getKeypool();
         searchType = newSearchType;
         audioExtension = settings.getArrayValue("audioExtension");
         videoExtension = settings.getArrayValue("videoExtension");
@@ -383,6 +353,10 @@ class SearchThread extends Thread {
             maxSearchResults = 10000; // default
         }
         searchPanel = searchManager.getPanel();
+        currentDate = DateFun.getCurrentSqlDateGMT();
+        
+        cachedSingleRequests = prepareSingleRequests(request);
+        cachedRemoveStrings = prepareRemoveStrings(request);
     }
     /**
      * @param model

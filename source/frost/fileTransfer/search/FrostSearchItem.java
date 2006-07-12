@@ -22,12 +22,14 @@ import frost.gui.objects.Board;
 import frost.messages.*;
 import frost.util.model.ModelItem;
 
+public class FrostSearchItem extends ModelItem {
 
-public class FrostSearchItem extends ModelItem
-{
-    private Board board;
-    private SharedFileObject sfo;
+    private FrostSharedFileObject fo;
+    private FrostSharedFileObjectOwnerBoard ob;
     private int state;
+    
+    private Long sizeLong = null;
+    private String dateStr = null;
 
     public static final int STATE_NONE        = 1; // set if a search table item is only in search table
     public static final int STATE_DOWNLOADED  = 2; // set if the item is already downloaded and is found in download folder
@@ -36,53 +38,55 @@ public class FrostSearchItem extends ModelItem
     public static final int STATE_OFFLINE     = 5; // set if file is offline
 
     public FrostSearchItem(
-        Board newBoard,
-        SharedFileObject newKey,
-        int newState) {
-
-        board = newBoard;
-        sfo = newKey;
+        FrostSharedFileObject newKey,
+        int newState) 
+    {
+        fo = newKey;
+        // TODO: show multiple
+        ob = (FrostSharedFileObjectOwnerBoard)fo.getFrostSharedFileObjectOwnerBoardList().get(0);
+        
         state = newState;
     }
 
-    public String getFilename()
-    {
-        return sfo.getFilename();
+    public String getFilename() {
+        return ob.getName();
     }
 
-    public Long getSize()
-    {
-        return sfo.getSize();
+    public Long getSize() {
+        if( sizeLong != null ) {
+            sizeLong = new Long(fo.getSize());
+        }
+        return sizeLong;
     }
 
-    public String getDate()
-    {
-        return sfo.getDate();
+    public String getDate() {
+        if( dateStr == null ) {
+            dateStr = (fo.getLastReceived()==null?"Never":fo.getLastReceived().toString());
+        }
+        return dateStr;
     }
 
-    public String getKey()
-    {
-        return sfo.getKey();
+    public String getKey() {
+        return fo.getKey();
     }
 
-    public Board getBoard()
-    {
-        return board;
+    public Board getBoard() {
+        return ob.getBoard();
     }
 
-    public int getState()
-    {
+    public int getState() {
         return state;
     }
 
     public String getOwner() {
-        return sfo.getOwner();
+        return ob.getOwner();
     }
 
     public String getSHA1() {
-        return sfo.getSHA1();
+        return fo.getSha1();
     }
-    public String getBatch() {
-        return sfo.getBatch();
+    
+    public FrostSharedFileObject getFrostSharedFileObject() {
+        return fo;
     }
 }

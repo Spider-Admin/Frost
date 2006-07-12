@@ -71,7 +71,7 @@ public class PersonAttachment extends Attachment {
 	public Element getXMLElement(Document container) {
 		Element el = container.createElement("Attachment");
 		el.setAttribute("type", "person");
-		el.appendChild(identity.getSafeXMLElement(container));
+		el.appendChild(identity.getXMLElement(container));
 		return el;
 	}
 
@@ -83,5 +83,4 @@ public class PersonAttachment extends Attachment {
 			(Element) XMLTools.getChildElementsByTagName(e, "Identity").iterator().next();
 		identity = new Identity(_person);
 	}
-
 }

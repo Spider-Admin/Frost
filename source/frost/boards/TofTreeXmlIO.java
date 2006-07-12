@@ -18,16 +18,16 @@
 */
 package frost.boards;
 
-import java.util.ArrayList;
+import java.util.*;
 import java.util.logging.*;
 
-import javax.swing.JTree;
+import javax.swing.*;
 import javax.swing.tree.*;
 
 import org.w3c.dom.*;
 
 import frost.*;
-import frost.gui.objects.Board;
+import frost.gui.objects.*;
 
 public class TofTreeXmlIO
 {

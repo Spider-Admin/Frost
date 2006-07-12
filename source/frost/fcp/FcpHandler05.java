@@ -22,6 +22,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
+import frost.*;
 import frost.fcp.fcp05.*;
 import frost.fileTransfer.download.*;
 import frost.fileTransfer.upload.*;
@@ -36,27 +37,50 @@ public class FcpHandler05 extends FcpHandler {
         return FcpFactory.getNodes();
     }
  
-    public FcpResultGet getFile(String key,
+    public FcpResultGet getFile(
+            int type,
+            String key,
             Long size,
             File target,
-            int htl,
             boolean doRedirect,
             boolean fastDownload,
             boolean createTempFile,
             FrostDownloadItem dlItem)
     {
+        int htl = getDownloadHtlForType(type);
         return FcpRequest.getFile(key, size, target, htl, doRedirect, fastDownload, createTempFile, dlItem);
+    }
+    
+    private int getDownloadHtlForType(int type) {
+        if( type == FcpHandler.TYPE_MESSAGE ) {
+            return Core.frostSettings.getIntValue("tofDownloadHtl");
+        } if( type == FcpHandler.TYPE_FILE ) {
+            return 25;
+        } else {
+            return 21;
+        }
+    }
+
+    private int getUploadHtlForType(int type) {
+        if( type == FcpHandler.TYPE_MESSAGE ) {
+            return Core.frostSettings.getIntValue("tofUploadHtl");
+        } if( type == FcpHandler.TYPE_FILE ) {
+            return Core.frostSettings.getIntValue("htlUpload");
+        } else {
+            return 21;
+        }
     }
 
     public FcpResultPut putFile(
+            int type,
             String uri,
             File file,
             byte[] metadata,
-            int htl,
             boolean doRedirect,
             boolean removeLocalKey,
             FrostUploadItem ulItem)
     {
+        int htl = getUploadHtlForType(type);
         FcpResultPut result = FcpInsert.putFile(uri, file, metadata, htl, doRedirect, removeLocalKey, ulItem); 
         if( result == null ) {
             return FcpResultPut.ERROR_RESULT;

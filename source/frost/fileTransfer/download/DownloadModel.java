@@ -17,12 +17,14 @@
 */
 package frost.fileTransfer.download;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.logging.Logger;
+import java.io.*;
+import java.sql.*;
+import java.util.*;
+import java.util.logging.*;
 
-import frost.SettingsClass;
+import frost.*;
 import frost.storage.*;
+import frost.storage.database.applayer.*;
 import frost.util.model.*;
 
 /**
@@ -34,9 +36,6 @@ import frost.util.model.*;
  */
 public class DownloadModel extends OrderedModel implements Savable {
 	
-	/**
-	 * 
-	 */
 	private class RemoveChunksThread extends Thread {
 		
 		private ArrayList oldChunkFilesList;
@@ -75,9 +74,6 @@ public class DownloadModel extends OrderedModel implements Savable {
 
 	private SettingsClass settings;
 
-	/**
-	 * 
-	 */
 	public DownloadModel(SettingsClass frostSettings) {
 		super();
 		settings = frostSettings;
@@ -243,25 +239,39 @@ public class DownloadModel extends OrderedModel implements Savable {
 
 
 	/**
-	 * Saves the download model to disk.
+	 * Saves the download model to database.
 	 */
 	public void save() throws StorageException {
-		DownloadModelDAO downloadModelDAO = DAOFactory.getFactory(DAOFactory.XML).getDownloadModelDAO();
-		downloadModelDAO.save(this);
+        
+        LinkedList itemList = new LinkedList();
+        for (int x = 0; x < getItemCount(); x++) {
+            FrostDownloadItem downloadItem = (FrostDownloadItem)getItemAt(x);
+            itemList.add(downloadItem);
+        }
+        
+        try {
+            AppLayerDatabase.getDownloadFilesDatabaseTable().saveDownloadFiles(itemList);
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error saving download items", e);
+            throw new StorageException("Error saving download items");
+        }
 	}
 	
 	/**
 	 * Initializes the model
 	 */
 	public void initialize() throws StorageException {
-		DownloadModelDAO downloadModelDAO = DAOFactory.getFactory(DAOFactory.XML).getDownloadModelDAO();
-		if (!downloadModelDAO.exists()) {
-			// The storage doesn't exist yet. We create it.
-			downloadModelDAO.create();
-		} else {
-			// Storage exists. Load from it.
-			downloadModelDAO.load(this);
-		}
+        
+        List downloadItems; 
+        try {
+            downloadItems = AppLayerDatabase.getDownloadFilesDatabaseTable().loadDownloadFiles();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error loading download items", e);
+            throw new StorageException("Error loading download items");
+        }
+        for(Iterator i=downloadItems.iterator(); i.hasNext(); ) {
+            FrostDownloadItem di = (FrostDownloadItem)i.next();
+            addDownloadItem(di);
+        }
 	}
-
 }

@@ -291,7 +291,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
      */
     public boolean startMessageUpload(
         Board board,
-        MessageObjectFile mo,
+        MessageXmlFile mo,
         BoardUpdateThreadListener listener,
         Identity recipient) {
 

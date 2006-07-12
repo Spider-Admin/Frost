@@ -46,8 +46,7 @@ public abstract class MetaData implements XMLizable {
 
     public Element getXMLElement(Document container){
         Element el = container.createElement("FrostMetaData");
-        // use getSafeXMLElement to make sure we don't add sensitive fields in the metadata
-        Element _person = person.getSafeXMLElement(container);
+        Element _person = person.getXMLElement(container);
         el.appendChild(_person);
         return el;
     }

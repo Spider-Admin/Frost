@@ -157,7 +157,7 @@ public class ConvertXMLUTF16ToUTF8 {
             }
             try {
                 long bytesBefore = xmlFile.length();
-                MessageObjectFile mo = new MessageObjectFile(xmlFile); // loads UTF-16 and UTF-8
+                MessageXmlFile mo = new MessageXmlFile(xmlFile); // loads UTF-16 and UTF-8
                 boolean saveOk = mo.save(); // saves as UTF-8
                 if( !saveOk ) {
                     System.out.println("Message could not be saved, conversion skipped: "+xmlFile.getPath());

@@ -32,6 +32,24 @@ import javax.swing.*;
 public class FileAccess {
 
     private static Logger logger = Logger.getLogger(FileAccess.class.getName());
+    
+    public static File createTempFile(String prefix, String suffix) {
+        File tmpFile = null;
+        try {
+            tmpFile = File.createTempFile(prefix, suffix, new File(Core.frostSettings.getValue("temp.dir")));
+        } catch( Throwable ex ) {
+        }
+        if( tmpFile == null ) {
+            do {
+                tmpFile = new File(
+                        Core.frostSettings.getValue("temp.dir")+
+                        prefix+
+                        System.currentTimeMillis()+
+                        suffix);
+            } while(tmpFile.exists());
+        }
+        return tmpFile;
+    }
 
     /**
      * Writes a file to disk after opening a saveDialog window

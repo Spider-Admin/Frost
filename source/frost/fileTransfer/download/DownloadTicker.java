@@ -23,9 +23,6 @@ import javax.swing.event.EventListenerList;
 
 import frost.*;
 
-/**
- * 
- */
 public class DownloadTicker extends Thread {
 
 	private SettingsClass settings;
@@ -64,9 +61,6 @@ public class DownloadTicker extends Thread {
 		}
 	};
 
-	/**
-	 * @param name
-	 */
 	public DownloadTicker(
 		SettingsClass newSettings,
 		DownloadModel newModel,
@@ -174,9 +168,6 @@ public class DownloadTicker extends Thread {
 		fireThreadCountChanged();
 	}
 
-	/**
-	 * 
-	 */
 	private void removeFinishedDownloads() {
 		if (counter % 300 == 0 && settings.getBoolValue("removeFinishedDownloads")) {
 			model.removeFinishedDownloads();
@@ -209,9 +200,6 @@ public class DownloadTicker extends Thread {
 		panel.setDownloadItemCount(waitingItems);
 	}
 
-	/**
-	 * 
-	 */
 	private void startDownloadThread() {
 		if (panel.isDownloadingActivated() && allocateThread()) {
 			boolean threadLaunched = false;
@@ -231,8 +219,6 @@ public class DownloadTicker extends Thread {
 		}
 	}
 
-
-
 	/**
 	 * Chooses next download item to start from download table.
 	 * @return the next download item to start downloading or null if a suitable
@@ -244,16 +230,14 @@ public class DownloadTicker extends Thread {
 		ArrayList waitingItems = new ArrayList();
 		for (int i = 0; i < model.getItemCount(); i++) {
 			FrostDownloadItem dlItem = (FrostDownloadItem) model.getItemAt(i);
-			if ((dlItem.getState() == FrostDownloadItem.STATE_WAITING
-				&& (dlItem.getEnableDownload() == null
-					|| dlItem.getEnableDownload().booleanValue()
-						== true) //                && dlItem.getRetries() <= frame1.frostSettings.getIntValue("downloadMaxRetries")
-			)
-				|| ((dlItem.getState() == FrostDownloadItem.STATE_REQUESTED
-					|| dlItem.getState() == FrostDownloadItem.STATE_REQUESTING)
-					&& dlItem.getKey() != null
-					&& (dlItem.getEnableDownload() == null
-						|| dlItem.getEnableDownload().booleanValue() == true))) {
+            boolean itemIsEnabled = (dlItem.getEnableDownload()==null?true:dlItem.getEnableDownload().booleanValue());
+            if( !itemIsEnabled ) {
+                continue;
+            }
+            
+			if( dlItem.getState() == FrostDownloadItem.STATE_WAITING ||
+				dlItem.getState() == FrostDownloadItem.STATE_REQUESTED )
+            {
 				// check if waittime is expired
 				long waittimeMillis = settings.getIntValue("downloadWaittime") * 60 * 1000;
 				// min->millisec
@@ -265,13 +249,14 @@ public class DownloadTicker extends Thread {
 				}
 			}
 		}
-		if (waitingItems.size() == 0)
+
+        if (waitingItems.size() == 0) {
 			return null;
+        }
 
 		if (waitingItems.size() > 1) { // performance issues
 			Collections.sort(waitingItems, downloadDlStopMillisCmp);
 		}
 		return (FrostDownloadItem) waitingItems.get(0);
 	}
-
 }

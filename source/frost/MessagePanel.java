@@ -36,7 +36,7 @@ import frost.gui.*;
 import frost.gui.model.*;
 import frost.gui.objects.*;
 import frost.identities.*;
-import frost.storage.*;
+import frost.storage.database.applayer.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
@@ -132,19 +132,20 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 selectNextUnreadMessage();
 
             } else if (e.getSource() == messageTable ) {
-                if( selectedMessage == null || !selectedMessage.isSignatureStatusVERIFIED()) {
-                    // change only for signed messages
+                Identity id = getSelectedMessageFromIdentity();
+                if( id == null ) {
                     return;
                 }
                 if (e.getKeyChar() == 'b')  {
-                    setMessageTrust(FrostIdentities.ENEMY);
+                    id.setBAD();
                 } else if (e.getKeyChar() == 'g') {
-                    setMessageTrust(FrostIdentities.FRIEND);
+                    id.setGOOD();
                 } else if (e.getKeyChar() == 'c') {
-                    setMessageTrust(FrostIdentities.NEUTRAL);
+                    id.setCHECK();
                 } else if (e.getKeyChar() == 'o') {
-                    setMessageTrust(FrostIdentities.OBSERVE);
+                    id.setOBSERVE();
                 }
+                updateTableAfterChangeOfIdentityState();
             }
         }
 
@@ -214,19 +215,25 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             } else if (e.getSource() == markAllMessagesReadItem) {
                 Board board = mainFrame.getTofTreeModel().getSelectedNode();
                 TOF.getInstance().setAllMessagesRead(board);
-            } else if (e.getSource() == setGoodItem) {
-                setMessageTrust(FrostIdentities.FRIEND);
-            } else if (e.getSource() == setBadItem) {
-                setMessageTrust(FrostIdentities.ENEMY);
-            } else if (e.getSource() == setCheckItem) {
-                setMessageTrust(FrostIdentities.NEUTRAL);
-            } else if (e.getSource() == setObserveItem) {
-                setMessageTrust(FrostIdentities.OBSERVE);
             } else if (e.getSource() == deleteItem) {
                 deleteSelectedMessage();
             } else if (e.getSource() == undeleteItem) {
                 undeleteSelectedMessage();
             }
+            Identity id = getSelectedMessageFromIdentity();
+            if( id == null ) {
+                return;
+            }
+            if (e.getSource() == setGoodItem) {
+                id.setGOOD();
+            } else if (e.getSource() == setBadItem) {
+                id.setBAD();
+            } else if (e.getSource() == setCheckItem) {
+                id.setCHECK();
+            } else if (e.getSource() == setObserveItem) {
+                id.setOBSERVE();
+            }
+            updateTableAfterChangeOfIdentityState();
         }
 
         private void initialize() {
@@ -601,9 +608,9 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                         public void run() {
                             // save message, we must save the changed deleted state into the xml file
                             try {
-                                GuiDatabase.getMessageTable().updateMessage(message);
-                            } catch (SQLException e) {
-                                logger.log(Level.SEVERE, "Error updating a message object", e);
+                                AppLayerDatabase.getMessageTable().updateMessage(message);
+                            } catch (SQLException ex) {
+                                logger.log(Level.SEVERE, "Error updating a message object", ex);
                             }
                         }
                     };
@@ -705,14 +712,11 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     }
 
     private void setBadButton_actionPerformed(ActionEvent e) {
-        if( !isCorrectlySelectedMessage() ) {
-            return;
-        }
-        Identity id = identities.getIdentity(selectedMessage.getFromName());
+        Identity id = getSelectedMessageFromIdentity();
         if( id == null ) {
             return;
         }
-        if(id.getState() == FrostIdentities.FRIEND) {
+        if(id.isGOOD()) {
             if (JOptionPane.showConfirmDialog(
                     parentFrame,
                     "Are you sure you want to revoke trust to user " // TODO: translate
@@ -729,40 +733,42 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         setCheckButton.setEnabled(false);
         setBadButton.setEnabled(false);
         setObserveButton.setEnabled(false);
-        setMessageTrust(FrostIdentities.ENEMY);
+        id.setBAD();
+        updateTableAfterChangeOfIdentityState();
     }
 
     private void setCheckButton_actionPerformed(ActionEvent e) {
-        if( !isCorrectlySelectedMessage() ) {
-            return;
-        }
-        setGoodButton.setEnabled(false);
-        setCheckButton.setEnabled(false);
-        setBadButton.setEnabled(false);
-        setObserveButton.setEnabled(false);
-        setMessageTrust(FrostIdentities.NEUTRAL);
-    }
-
-    private void setObserveButton_actionPerformed(ActionEvent e) {
-        if( !isCorrectlySelectedMessage() ) {
-            return;
-        }
-        setGoodButton.setEnabled(false);
-        setCheckButton.setEnabled(false);
-        setBadButton.setEnabled(false);
-        setObserveButton.setEnabled(false);
-        setMessageTrust(FrostIdentities.OBSERVE);
-    }
-
-    private void setGoodButton_actionPerformed(ActionEvent e) {
-        if( !isCorrectlySelectedMessage() ) {
-            return;
-        }
-        Identity id = identities.getIdentity(selectedMessage.getFromName());
+        Identity id = getSelectedMessageFromIdentity();
         if( id == null ) {
             return;
         }
-        if(id.getState() == FrostIdentities.ENEMY) {
+        setGoodButton.setEnabled(false);
+        setCheckButton.setEnabled(false);
+        setBadButton.setEnabled(false);
+        setObserveButton.setEnabled(false);
+        id.setCHECK();
+        updateTableAfterChangeOfIdentityState();
+    }
+
+    private void setObserveButton_actionPerformed(ActionEvent e) {
+        Identity id = getSelectedMessageFromIdentity();
+        if( id == null ) {
+            return;
+        }
+        setGoodButton.setEnabled(false);
+        setCheckButton.setEnabled(false);
+        setBadButton.setEnabled(false);
+        setObserveButton.setEnabled(false);
+        id.setOBSERVE();
+        updateTableAfterChangeOfIdentityState();
+    }
+
+    private void setGoodButton_actionPerformed(ActionEvent e) {
+        Identity id = getSelectedMessageFromIdentity();
+        if( id == null ) {
+            return;
+        }
+        if(id.isBAD()) {
             if (JOptionPane.showConfirmDialog(
                     parentFrame,
                     "Are you sure you want to grant trust to user " // TODO: translate
@@ -779,7 +785,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         setCheckButton.setEnabled(false);
         setBadButton.setEnabled(false);
         setObserveButton.setEnabled(false);
-        setMessageTrust(FrostIdentities.FRIEND);
+        id.setGOOD();
+        updateTableAfterChangeOfIdentityState();
     }
 
     private void refreshLanguage() {
@@ -802,7 +809,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     }
 
     public void composeReply(FrostMessageObject origMessage, Window parent) {
-        
+
         Board targetBoard = mainFrame.getTofTreeModel().getBoardByName(origMessage.getBoard().getName());
         if( targetBoard == null ) {
             JOptionPane.showMessageDialog( parent,
@@ -828,9 +835,9 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             }
         }
         
-        MessageFrame newMessageFrame = new MessageFrame(settings, parent, identities.getMyId(), mainFrame.getTofTree());
+        MessageFrame newMessageFrame = new MessageFrame(settings, parent, mainFrame.getTofTree());
         if( origMessage.getRecipientName() != null &&
-            origMessage.getRecipientName().equals( identities.getMyId().getUniqueName() ) )
+            identities.isMySelf(origMessage.getRecipientName()) )
         {
             // this message was for me, reply encrypted
             if( origMessage.getFromIdentity() == null ) {
@@ -840,18 +847,25 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                         JOptionPane.ERROR);
                 return;
             }
+            LocalIdentity senderId = identities.getLocalIdentity(origMessage.getRecipientName());
+            if( senderId == null ) {
+                JOptionPane.showMessageDialog( parent,
+                        "Can't reply encrypted, the LocalIdentity used to write the original message is missing!", // TODO: translate
+                        "Error",
+                        JOptionPane.ERROR);
+                return;
+            }
             newMessageFrame.composeEncryptedReply(
                     targetBoard,
-                    identities.getMyId().getUniqueName(),
                     subject,
                     inReplyTo,
                     origMessage.getContent(),
-                    origMessage.getFromIdentity());
+                    origMessage.getFromIdentity(),
+                    senderId);
 
         } else {
             newMessageFrame.composeReply(
                     targetBoard,
-                    settings.getValue("userName"),
                     subject,
                     inReplyTo,
                     origMessage.getContent());
@@ -958,7 +972,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 for(Iterator i=saveMessages.iterator(); i.hasNext(); ) {
                     FrostMessageObject targetMessage = (FrostMessageObject)i.next();
                     try {
-                        GuiDatabase.getMessageTable().updateMessage(targetMessage);
+                        AppLayerDatabase.getMessageTable().updateMessage(targetMessage);
                     } catch (SQLException e) {
                         logger.log(Level.SEVERE, "Error updating a message object", e);
                     }
@@ -992,7 +1006,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 for(Iterator i=saveMessages.iterator(); i.hasNext(); ) {
                     FrostMessageObject targetMessage = (FrostMessageObject)i.next();
                     try {
-                        GuiDatabase.getMessageTable().updateMessage(targetMessage);
+                        AppLayerDatabase.getMessageTable().updateMessage(targetMessage);
                     } catch (SQLException e) {
                         logger.log(Level.SEVERE, "Error updating a message object", e);
                     }
@@ -1036,7 +1050,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             public void run() {
                 // save message, we must save the changed deleted state into the xml file
                 try {
-                    GuiDatabase.getMessageTable().updateMessage(targetMessage);
+                    AppLayerDatabase.getMessageTable().updateMessage(targetMessage);
                 } catch (SQLException e) {
                     logger.log(Level.SEVERE, "Error updating a message object", e);
                 }
@@ -1070,14 +1084,51 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             }
         }
     }
-
-    private void setMessageTrust(int newState) {
+    
+    private Identity getSelectedMessageFromIdentity() {
         if( !isCorrectlySelectedMessage() ) {
-            return;
+            return null;
         }
-        if( selectedMessage.isSignatureStatusVERIFIED() ) {
-            identities.changeTrust(selectedMessage.getFromName(), newState);
+        if( !selectedMessage.isSignatureStatusVERIFIED() ) {
+            return null;
         }
+        Identity ident = selectedMessage.getFromIdentity();
+        if(ident == null ) {
+            logger.severe("no identity in list for from: "+selectedMessage.getFromName());
+            return null;
+        }
+        if( ident instanceof LocalIdentity ) {
+            logger.info("Ignored request to change my own ID state");
+            return null;
+        }
+        return ident;
+    }
+
+    private void updateTableAfterChangeOfIdentityState() {
+        // walk through shown messages and remove unneeded (e.g. if hideBad)
+        // remember selected msg and select next
+        Board board = MainFrame.getInstance().getTofTreeModel().getSelectedNode();
+        if( board != null || !board.isFolder() ) {
+            // a board is selected and shown
+            MessageTableModel msgTableModel = MainFrame.getInstance().getMessageTableModel();
+            for(int x=msgTableModel.getRowCount() - 1; x >= 0; x--) {
+                FrostMessageObject message = (FrostMessageObject)msgTableModel.getRow(x);
+
+                if( TOF.getInstance().blocked(message,board) ) {
+                    msgTableModel.deleteRow(message);
+                    if( message.isNew() ) {
+                        board.decNewMessageCount();
+                    }
+                } else {
+                    msgTableModel.updateRow(message);
+                }
+            }
+            MainFrame.getInstance().updateMessageCountLabels(board);
+        }
+
+        // finally step through all board files, count new messages and show only wanted messages
+        // starts a separate thread
+        TOF.getInstance().initialSearchNewMessages();
     }
 
     /**
@@ -1086,11 +1137,10 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
      */
     private void tofNewMessageButton_actionPerformed(ActionEvent e) {
         MessageFrame newMessageFrame = new MessageFrame(
-                                                settings, mainFrame,
-                                                Core.getIdentities().getMyId(),
+                                                settings, 
+                                                mainFrame,
                                                 mainFrame.getTofTree());
         newMessageFrame.composeNewMessage(mainFrame.getTofTreeModel().getSelectedNode(),
-                                          settings.getValue("userName"),
                                           "No subject",
                                           "");
     }

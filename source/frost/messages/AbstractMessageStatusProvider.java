@@ -79,17 +79,16 @@ public abstract class AbstractMessageStatusProvider {
             if( fromIdent == null ) {
                 return xOLD;
             }
-            int state = fromIdent.getState();
-            if( state == FrostIdentities.NEUTRAL ) {
+            if( fromIdent.isCHECK() ) {
                 return xCHECK;
             }
-            if( state == FrostIdentities.OBSERVE ) {
+            if( fromIdent.isOBSERVE() ) {
                 return xOBSERVE;
             }
-            if( state == FrostIdentities.FRIEND ) {
+            if( fromIdent.isGOOD() ) {
                 return xGOOD;
             }
-            if( state == FrostIdentities.ENEMY ) {
+            if( fromIdent.isBAD() ) {
                 return xBAD;
             }
         } else if( getSignatureStatus() == SIGNATURESTATUS_OLD ) {

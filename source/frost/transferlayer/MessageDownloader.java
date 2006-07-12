@@ -63,21 +63,14 @@ public class MessageDownloader {
             String logInfo) {
         
         FcpResultGet results;
-        File tmpFile = null;
+        File tmpFile = FileAccess.createTempFile("dlMsg_", "-"+targetIndex+".xml.tmp");
         
         try {
-            tmpFile = File.createTempFile("dlMsg_", "-"+targetIndex+".xml.tmp", new File(Core.frostSettings.getValue("temp.dir")));
-        } catch( Throwable ex ) {
-            logger.log(Level.SEVERE, "Exception thrown in downloadMessage(...)", ex);
-            return null;
-        }
-
-        try {
             results = FcpHandler.inst().getFile(
+                    FcpHandler.TYPE_MESSAGE,
                     downKey,
                     null,
                     tmpFile,
-                    Core.frostSettings.getIntValue("tofDownloadHtl"),
                     false,
                     fastDownload);
         } catch(Throwable t) {
@@ -159,7 +152,7 @@ public class MessageDownloader {
                 }
                 FileAccess.writeFile(unzippedXml, tmpFile);
                 try {
-                    MessageObjectFile currentMsg = new MessageObjectFile(tmpFile);
+                    MessageXmlFile currentMsg = new MessageXmlFile(tmpFile);
                     currentMsg.setSignatureStatusOLD();
                     mdResult.message = currentMsg;
                     return mdResult;
@@ -214,7 +207,7 @@ public class MessageDownloader {
             // if not on any list, use the parsed id and add to our identities list
             if (owner == null) {
                 owner = metaData.getPerson();
-                owner.setState(FrostIdentities.NEUTRAL);
+                owner.setCHECK();
                 Core.getIdentities().addIdentity(owner);
             }
     
@@ -233,7 +226,7 @@ public class MessageDownloader {
                 EncryptMetaData encMetaData = (EncryptMetaData)metaData;
     
                 // 1. check if the message is for me
-                if (!encMetaData.getRecipient().equals(Core.getIdentities().getMyId().getUniqueName())) {
+                if (!Core.getIdentities().isMySelf(encMetaData.getRecipient())) {
                     logger.fine("TOFDN: Encrypted message was not for me.");
                     mdResult.errorMsg = MessageDownloaderResult.MSG_NOT_FOR_ME;
                     tmpFile.delete();
@@ -241,8 +234,9 @@ public class MessageDownloader {
                 }
     
                 // 2. if yes, decrypt the content
+                LocalIdentity receiverId = Core.getIdentities().getLocalIdentity(encMetaData.getRecipient());
                 byte[] cipherText = FileAccess.readByteArray(tmpFile);
-                byte[] zipData = Core.getCrypto().decrypt(cipherText,Core.getIdentities().getMyId().getPrivKey());
+                byte[] zipData = Core.getCrypto().decrypt(cipherText,receiverId.getPrivKey());
     
                 if( zipData == null ) {
                     logger.log(Level.SEVERE, "TOFDN: Encrypted message from "+encMetaData.getPerson().getUniqueName()+
@@ -271,11 +265,11 @@ public class MessageDownloader {
             }
             FileAccess.writeFile(unzippedXml, tmpFile);
             
-            MessageObjectFile currentMsg = null;
+            MessageXmlFile currentMsg = null;
     
             // create object
             try {
-                currentMsg = new MessageObjectFile(tmpFile);
+                currentMsg = new MessageXmlFile(tmpFile);
             } catch (Exception ex) {
                 logger.log(Level.SEVERE, "TOFDN: Exception when creating message object"+logInfo, ex);
                 // file could not be read, mark it invalid not to confuse gui
@@ -354,10 +348,10 @@ public class MessageDownloader {
                 }
             }
             
-            MessageObjectFile currentMsg = null;
+            MessageXmlFile currentMsg = null;
             
             try {
-                currentMsg = new MessageObjectFile(tmpFile);
+                currentMsg = new MessageXmlFile(tmpFile);
             } catch (MessageCreationException ex) {
                 logger.log(Level.WARNING, "TOFDN: Exception catched."+logInfo, ex);
                 if( ex.getMessageNo() == MessageCreationException.MSG_NOT_FOR_ME ) {
@@ -391,7 +385,7 @@ public class MessageDownloader {
             // if not on any list, use the parsed id and add to our identities list
             if (owner == null) {
                 owner = new Identity(currentMsg.getFromName(), currentMsg.getPublicKey());
-                owner.setState(FrostIdentities.NEUTRAL);
+                owner.setCHECK();
                 Core.getIdentities().addIdentity(owner);
             }
 

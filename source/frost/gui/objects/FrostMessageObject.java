@@ -18,13 +18,11 @@
 */
 package frost.gui.objects;
 
-import java.sql.*;
 import java.util.*;
 
 import frost.*;
 import frost.gui.model.*;
 import frost.messages.*;
-import frost.storage.*;
 
 /**
  * This class holds all informations that are shown in the GUI and stored to the database.
@@ -64,7 +62,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     /**
      * Construct a new FrostMessageObject with the data from a MessageObjectFile.
      */
-    public FrostMessageObject(MessageObjectFile mof, Board b, int msgIndex) {
+    public FrostMessageObject(MessageXmlFile mof, Board b, int msgIndex) {
         setValid(true);
         setBoard(b);
         setIndex(msgIndex);

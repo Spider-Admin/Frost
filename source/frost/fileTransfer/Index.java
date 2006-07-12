@@ -18,18 +18,17 @@
 */
 package frost.fileTransfer;
 
-import java.io.*;
+import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
-import org.w3c.dom.*;
-
 import frost.*;
-import frost.fcp.*;
 import frost.fileTransfer.download.*;
+import frost.fileTransfer.upload.*;
 import frost.gui.objects.*;
 import frost.identities.*;
 import frost.messages.*;
+import frost.storage.database.applayer.*;
 
 /**
  * This class maintains the board index files.
@@ -52,6 +51,7 @@ public class Index {
     private static Logger logger = Logger.getLogger(Index.class.getName());
 
     private DownloadModel downloadModel;
+    private UploadModel uploadModel;
 
     /**
      * The unique instance of this class.
@@ -70,91 +70,39 @@ public class Index {
     /**
      * Prevent instances of this class from being created from the outside.
      */
-    private Index(DownloadModel downloadModel) {
+    private Index(DownloadModel downloadModel, UploadModel uploadModel) {
         super();
         this.downloadModel = downloadModel;
+        this.uploadModel = uploadModel;
     }
 
     /**
      * This method initializes the Index.
      * If it has already been initialized, this method does nothing.
      */
-    public static void initialize(DownloadModel downloadModel) {
+    public static void initialize(DownloadModel downloadModel, UploadModel uploadModel) {
         if( instance == null ) {
-            instance = new Index(downloadModel);
+            instance = new Index(downloadModel, uploadModel);
         }
     }
 
     /**
-     * Adds all files/only files from specified owner to the board index of files.
-     *
-     * @param otherIndex
-     * @param board
-     * @param addOnlyFromOwner
-     */
-    public void add(FrostIndex otherIndex, Board board, String addOnlyFromOwner) {
-        add(otherIndex.getFilesMap().values(), board, "files.xml", addOnlyFromOwner);
-    }
-
-    /**
-     * Adds a key to the board index of files.
-     *
-     * @param key
-     * @param board
-     */
-    public void add(SharedFileObject key, Board board) {
-        add(Collections.singletonList(key), board, "files.xml", null);
-    }
-
-    /**
-     * Adds a key to list of new files that wait for upload.
-     *
-     * @param key
-     * @param board
-     */
-    public void addMine(SharedFileObject key, Board board) {
-        add(Collections.singletonList(key), board, "new_files.xml", null);
-    }
-
-    /**
-     * Adds given filesToAdd to the index file given in targetFilename.
+     * Adds given filesToAdd to the FILELIST.
      * If owner is null, all files are added, else only files from owner.
+     * Files in downloadtable are updated if a key arrives.
      *
      * @param chunk    Map of SharedFileObjects to add to index
-     * @param target   target index file (may exist)
      * @param addOnlyFromThisOwner    if unique name then only files from this name are added, if null ALL files in index are added
      */
-    private void add(Collection filesToAdd, Board b, String targetFilename, String addOnlyFromThisOwner) {
+    public void add(Collection filesToAdd, String addOnlyFromThisOwner) {
 
         if( filesToAdd.size() == 0 ) {
             return; // nothing to add
         }
 
-        // ensure board dir
-        File boardDir = new File(MainFrame.keypool + b.getBoardFilename());
-        if (!(boardDir.exists() && boardDir.isDirectory())) {
-            boardDir.mkdir();
-        }
-
-        File target = new File(MainFrame.keypool + b.getBoardFilename() + File.separator + targetFilename);
-
-        // load existing index file
-        FrostIndex idx = null;
-        if (target.isFile()) {
-            idx = readKeyFile(target);
-        }
-        if (idx == null) {
-            idx = new FrostIndex(new HashMap());
-        }
-
         for(Iterator i = filesToAdd.iterator(); i.hasNext(); ) {
 
-            SharedFileObject current = (SharedFileObject) i.next();
-
-            if( current.getSHA1() == null ) {
-                logger.log(Level.WARNING, "Index.add(): keys SHA1 is null: "+current.getFilename());
-                continue;
-            }
+            SharedFileXmlFile current = (SharedFileXmlFile) i.next();
 
             if (addOnlyFromThisOwner != null &&
                 current.getOwner() != null &&
@@ -163,492 +111,159 @@ public class Index {
                 continue;
             }
 
-            if( !current.isValid() ) {
-                logger.info("Index.add(): Refused to add an invalid key to the index "+target.getPath()+
-                            " (key="+current.getFilename()+")");
-                continue;
-            }
-
             // update the download table
             if (current.getKey() != null) {
                 updateDownloadTable(current);
             }
 
-            SharedFileObject old = idx.getFileBySHA1(current.getSHA1());
-
-            if (old == null) {
-                // add new file
-                idx.addFile(current);
-            } else {
-                // update existing file
-                old.setDate(current.getDate());
-                old.setLastSharedDate(current.getLastSharedDate());
-                old.setKey(current.getKey());
+            FrostSharedFileObject fo = new FrostSharedFileObject(current);
+            fo.setLastReceived(DateFun.getCurrentSqlDateGMT());
+            
+            try {
+                AppLayerDatabase.getFileListDatabaseTable().insertOrUpdateFrostSharedFileObject(fo);
+            } catch (SQLException e) {
+                logger.log(Level.SEVERE, "insert/update to database failed", e);
             }
         }
-        writeKeyFile(idx, target);
-    }
-
-    /**
-     * Serializes the XML to bytes, zips the bytes and returns the length of zipped content.
-     *
-     * @param idx  FrostIndex to zip
-     * @return  length of zipped content
-     */
-    private long determineZippedSize(FrostIndex idx) {
-        File tmp = null;
-        try {
-            tmp = File.createTempFile("index_", ".ziptmp", new File(Core.frostSettings.getValue("temp.dir")));
-        } catch(Exception ex) {
-            // this should never happen, but for the case ...
-            tmp = new File("index_"+System.currentTimeMillis());
-        }
-
-        FileAccess.writeZipFile(XMLTools.getRawXMLDocument(idx), "entry", tmp);
-
-        long result = tmp.length();
-        tmp.delete();
-
-        return result;
-    }
-
-    /**
-     * TODO: the Map returned by this method MUST be uploaded, if uploading
-     *       is cancelled (Frost shutdown,...) the files to upload are lost!
-     *
-     * This method puts the SharedFileObjects into the target set and
-     * returns the number of the files shared by the user
-     *
-     * @param boardFilename
-     * @return
-     */
-    public Map getUploadKeys(Board board) {
-        if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
-            return getUploadKeys05(board);
-        } else {
-            return getUploadKeys07(board);
-        }
-    }
-
-    public Map getUploadKeys07(Board board) {
-
-        String boardFilename = board.getBoardFilename();
-
-        logger.fine("Index.getUploadKeys for board " + boardFilename);
-
-        // Abort if boardDir does not exist
-        File boardDir = new File(MainFrame.keypool + boardFilename);
-        if( !boardDir.exists() || !boardDir.isDirectory() ) {
-            return null;
-        }
-
-        File boardFiles = new File(MainFrame.keypool + boardFilename + File.separator + "files.xml");
-        File boardNewFiles = new File(MainFrame.keypool + boardFilename + File.separator + "new_files.xml");
-
-        // update the last shared date for all MY files before we send
-        String currentDate = DateFun.getExtendedDate();
-
-        Map toUpload = new HashMap();
-
-        // get new files added by me (we receive our own files later from board)
-        FrostIndex newUploadsIdx = readKeyFile(boardNewFiles);
-        
-        for(Iterator i = newUploadsIdx.getFilesIterator(); i.hasNext(); ) {
-            SharedFileObject sfo = (SharedFileObject)i.next();
-            toUpload.put(sfo.getSHA1(), sfo);
-            sfo.setLastSharedDate(currentDate);
-        }
-
-        // we put all new files into our toUpload
-        if (boardNewFiles.isFile()) {
-            boardNewFiles.delete();
-        }
-        // finished to add my new files
-
-        // now add all of my files that need to be reshared
-        FrostIndex totalIdx = readKeyFile(boardFiles);
-
-        String myUniqueName = Core.getIdentities().getMyId().getUniqueName();
-        int downloadBack = Core.frostSettings.getIntValue("maxAge");
-
-        String minDate = DateFun.getExtendedDate(downloadBack);
-        logger.info("re-sharing files shared before " + minDate);
-
-        for(Iterator i = totalIdx.getFilesIterator(); i.hasNext(); ) {
-
-            SharedFileObject current = (SharedFileObject) i.next();
-
-            if( current.getOwner() != null && // not anonymous
-                current.getOwner().compareTo(myUniqueName) == 0 && // from myself
-                current.getLastSharedDate() != null && // not from the old format
-                minDate.compareTo(current.getLastSharedDate()) > 0 ) // add my file if its been shared too long ago
-            {
-                toUpload.put(current.getSHA1(), current); // we change the lastShared Date for this later, see below
-                current.setLastSharedDate(currentDate);
-            }
-        }
-
-        // if no own files are to be send, break and don't send only friends files
-        if( toUpload.size() == 0 ) {
-            return null;
-        }
-
-        // save the new lastSharedDate/date of MY re-shared files to disk
-        writeKeyFile(totalIdx, boardFiles);
-
-        return toUpload;
     }
     
-    public Map getUploadKeys05(Board board) {
-
-        // limit -> key file could grow above 30.000 bytes which is the appr. maximum for KSK uploads!
-        // we first try with 60 and lower by 5 until zipsize is <=30000
-        // (if not all files fit into this index, we send the next list on next update)
-        final long MAX_ZIP_SIZE = 30000;
-        final int MAX_FILES_CHANGE_INTERVAL = 5;
-        final int DEFAULT_MAX_FILES = 100; // seems to be a good size to start with
-
-        int currentMaxFiles = DEFAULT_MAX_FILES;
-
-        String boardFilename = board.getBoardFilename();
-
-        logger.fine("Index.getUploadKeys for board " + boardFilename);
-
-        // Abort if boardDir does not exist
-        File boardDir = new File(MainFrame.keypool + boardFilename);
-        if( !boardDir.exists() || !boardDir.isDirectory() ) {
-            return null;
-        }
-
-        File boardFiles = new File(MainFrame.keypool + boardFilename + File.separator + "files.xml");
-        File boardNewFiles = new File(MainFrame.keypool + boardFilename + File.separator + "new_files.xml");
-
-        Map toUpload = new HashMap();
-
-        // get new files added by me
-        FrostIndex newUploadsIdx = readKeyFile(boardNewFiles);
-
-        while(true) {
-
-            for(Iterator i = newUploadsIdx.getFilesIterator(); i.hasNext(); ) {
-                SharedFileObject sfo = (SharedFileObject)i.next();
-                if( toUpload.size() < currentMaxFiles ) {
-                    toUpload.put(sfo.getSHA1(), sfo);
-                } else {
-                    break;
-                }
-            }
-            if( toUpload.size() == 0 ) {
-                break;
-            }
-            // determine final zip file size
-            long len = determineZippedSize(new FrostIndex(toUpload));
-            if( len == 0 ) {
-                logger.severe("FATAL ERROR: determineZippedSize() did not create a zip file.");
-                return null;
-            } else if( len > MAX_ZIP_SIZE ) {
-                // zip file too large
-                toUpload.clear();
-                if( currentMaxFiles == 1 ) {
-                    // ERROR, a single file does not fit into the index
-                    logger.severe("FATAL ERROR: a single file does not fit into the index file. zipsize="+len);
-                    return null;
-                } else {
-                    currentMaxFiles -= MAX_FILES_CHANGE_INTERVAL; // decrease max files
-                    if( currentMaxFiles <= 0 ) {
-                        currentMaxFiles = 1;
-                    }
-                }
-            } else {
-                break;
+    /**
+     * Return the sha1 of the files that wait to be requested on this board.
+     */
+    public List getRequestKeys(Board board) {
+        
+        List items = new LinkedList();
+        
+        for (int i = 0; i < downloadModel.getItemCount(); i++) {
+            FrostDownloadItem dlItem = (FrostDownloadItem) downloadModel.getItemAt(i);
+            if (dlItem.getState() == FrostDownloadItem.STATE_REQUESTING
+                && dlItem.getSourceBoard().getName().equals(board.getName())    
+                && dlItem.getSHA1() != null )
+            {
+                items.add( dlItem );
             }
         }
-
-        // remove those files from newUploadsIdx that we added to toUpload
-        for(Iterator i = toUpload.values().iterator(); i.hasNext(); ) {
-            SharedFileObject sfo = (SharedFileObject)i.next();
-            newUploadsIdx.removeFileBySHA1(sfo.getSHA1());
-        }
-
-        // save or delete the newUploadsIdx file
-        if( newUploadsIdx.getFilesMap().size() == 0 ) {
-            // we put all new files into our toUpload
-            if (boardNewFiles.isFile()) {
-                boardNewFiles.delete();
+        return items;
+    }
+    
+    public void processRequests(List requestList) {
+        
+        int rowCount = uploadModel.getItemCount();
+        for (int i = 0; i < rowCount; i++) {
+            FrostUploadItem ulItem = (FrostUploadItem) uploadModel.getItemAt(i);
+            String SHA1 = ulItem.getSHA1();
+            if (SHA1 == null) {
+                continue;
             }
-        } else {
-            // save remaining files for next run
-            writeKeyFile(newUploadsIdx, boardNewFiles);
-        }
 
-        // finished to add my new files
+            for(Iterator j=requestList.iterator(); j.hasNext(); ) {
+                
+                String content = (String)j.next();
+                content = content.trim();
 
-        // now add all of my files that need to be reshared
-
-        FrostIndex totalIdx = null;
-        boolean reSharing = false;
-        // check if we already lowered MAX_FILES, if yes we are finished (no more space)
-        if( currentMaxFiles == DEFAULT_MAX_FILES ) {
-
-            totalIdx = readKeyFile(boardFiles);
-
-            String myUniqueName = Core.getIdentities().getMyId().getUniqueName();
-            int downloadBack = Core.frostSettings.getIntValue("maxAge");
-
-            String minDate = DateFun.getExtendedDate(downloadBack);
-            logger.info("re-sharing files shared before " + minDate);
-
-            Map tmpToUpload = new HashMap();
-            ArrayList resharedFilesList = new ArrayList();
-            while(true) {
-
-                tmpToUpload.putAll(toUpload);
-
-                for(Iterator i = totalIdx.getFilesIterator(); i.hasNext(); ) {
-
-                    SharedFileObject current = (SharedFileObject) i.next();
-
-                    if( tmpToUpload.size() >= currentMaxFiles ) {
-                        break; // index file full
-                    }
-
-                    if( current.getOwner() != null && // not anonymous
-                        current.getOwner().compareTo(myUniqueName) == 0 && // from myself
-                        current.getLastSharedDate() != null && // not from the old format
-                        minDate.compareTo(current.getLastSharedDate()) > 0 ) // add my file if its been shared too long ago
-                    {
-                        tmpToUpload.put(current.getSHA1(), current); // we change the lastShared Date for this later, see below
-                        resharedFilesList.add(current); // we change the lastShared Date for this later, see below
-                    }
-                }
-                if( resharedFilesList.size() == 0 ) {
-                    // no files added to reshare, skip zip check, zipsize was validated before
-                    break;
-                }
-                // determine final zip file size of tmpToUpload map
-                long len = determineZippedSize(new FrostIndex(tmpToUpload));
-                if( len == 0 ) {
-                    logger.severe("FATAL ERROR: determineZippedSize() did not create a zip file.");
-                    return null;
-                } else if( len > MAX_ZIP_SIZE ) {
-                    // zip file too large, reset and restart
-                    tmpToUpload.clear();
-                    resharedFilesList.clear();
-
-                    if( currentMaxFiles == 1 ) {
-                        // ERROR, a single file does not fit into the index
-                        logger.severe("FATAL ERROR: a single file does not fit into the index file. zipsize="+len);
-                        return null;
+                if (SHA1.equals(content)) {
+                    java.sql.Date lastUploaded = ulItem.getLastUploadDate();
+                    boolean startUpload = false;
+                    // start upload if not uploaded in last 3 days
+                    if( lastUploaded == null ) {
+                        startUpload = true;
                     } else {
-                        currentMaxFiles -= MAX_FILES_CHANGE_INTERVAL; // decrease max files
-                        if( currentMaxFiles <= 0 ) {
-                            currentMaxFiles = 1;
-                        }
-                        if( currentMaxFiles <= toUpload.size() ) {
-                            break; // toUpload was full enough
+                        long minDiff = 3 * 24 * 60 * 60 * 1000; // 3 days in milliseconds
+                        java.sql.Date now = DateFun.getCurrentSqlDateGMT();
+                        if( lastUploaded.getTime() + minDiff < now.getTime() ) {
+                            startUpload = true;
                         }
                     }
-                } else {
-                    // finished, tmpToUpload is the new final map
-                    toUpload = tmpToUpload;
-                    reSharing = true;
-                    // process date of all added reshared entries
-//                    for(Iterator i = resharedFilesList.iterator(); i.hasNext(); ) {
-//                        SharedFileObject current = (SharedFileObject) i.next();
-//                        // if the file has been uploaded too long ago, set it to offline again
-//                        if (!current.checkDate()) {
-//                            // NOTE: This will not remove the CHK from the upload table.
-//                            // however, when the other side receives the index they will see the file "offline"
-//                            current.setDate(null);
-//                        }
-//                    }
-                    break;
+
+                    if(startUpload) {
+                        // for handling of ENCODING state see ulItem.getNextState() javadoc
+                        // changing state ENCODING_REQUESTED to REQUESTED is ok!
+                        if (ulItem.getState() != FrostUploadItem.STATE_UPLOADING &&
+                            ulItem.getState() != FrostUploadItem.STATE_PROGRESS)
+                        {
+                            if (ulItem.getState() == FrostUploadItem.STATE_ENCODING) {
+                                ulItem.setNextState(FrostUploadItem.STATE_REQUESTED);
+                            } else {
+                                ulItem.setState(FrostUploadItem.STATE_REQUESTED);
+                            }
+                        } else {
+                            logger.fine("file already in state uploading/progress");
+                        }
+                    } else {
+                        logger.info("File with hash "+SHA1+" was requested, but already uploaded today");
+                    }
                 }
             }
         }
-
-        // if no own files are to be send, break and don't send only friends files
-        if( toUpload.size() == 0 ) {
-            return null;
-        }
-
-        // update the last shared date for all MY files before we send
-        String currentDate = DateFun.getExtendedDate();
-        for(Iterator i = toUpload.values().iterator(); i.hasNext();  ) {
-            SharedFileObject obj = (SharedFileObject) i.next();
-            obj.setLastSharedDate(currentDate);
-        }
-
-        // save the new lastSharedDate/date of MY re-shared files to disk
-        if (reSharing) {
-            writeKeyFile(totalIdx, boardFiles);
-        }
-
-        return toUpload;
-
-        // if there is space in the file, add random files of friends
-        // TODO: we could mark helped files and send some other on next run (use e.g. a lastHelpedDate)
-        //       for now we collect all possible files and shuffle them
-//        if( toUpload.size() < MAX_FILES ) {
-//
-//            // collect ALL friends files
-//            ArrayList friendsFiles = new ArrayList();
-//            for(Iterator i = totalIdx.getFilesMap().values().iterator(); i.hasNext(); ) {
-//
-//                SharedFileObject current = (SharedFileObject) i.next();
-//                Identity id = Core.getInstance().getIdentities().getIdentity(current.getOwner());
-//                if( id != null && //not anonymous
-//                    myUniqueName.compareTo(current.getOwner()) != 0 && //not myself
-//                    MainFrame.frostSettings.getBoolValue("helpFriends") && //and helping is enabled
-//                    id.getState() == FrostIdentities.FRIEND ) //and marked GOOD
-//                {
-//                    // add friends files
-//                    friendsFiles.add( current );
-//                }
-//            }
-//
-//            // shuffle ALL files
-//            Collections.shuffle(friendsFiles);
-//
-//            // add files until index file is full
-//            for(Iterator i = friendsFiles.iterator(); i.hasNext(); ) {
-//                SharedFileObject current = (SharedFileObject) i.next();
-//                toUpload.put(current.getSHA1(), current);
-//                logger.fine("f"); //f means added file from friend
-//
-//                if( toUpload.size() >= MAX_FILES ) {
-//                    break;
-//                }
-//            }
-//        }
     }
 
     /**
-     * If the files is currently in download table, we update
-     * its key and date.
-     *
-     * @param key
+     * This method puts the SharedFileObjects into the target set and
+     * returns the number of the files shared by the user
      */
-    private void updateDownloadTable(SharedFileObject key) {
-        // this really shouldn't happen
-        if (key == null || key.getSHA1() == null) {
-            logger.warning("null value in index.updateDownloadTable");
-            if (key != null) {
-                logger.warning("SHA1 null!");
-            } else {
-                logger.warning("key null!");
+    public List getUploadKeys(Board board) {
+        // get files to share from UPLOADFILES
+        // - max. 250 keys per fileindex
+        // - get keys of only 1 owner/anonymous, next time get keys from different owner
+
+        List localIdentities = Core.getIdentities().getLocalIdentities();
+        int identityCount = localIdentities.size() + 1; // +1 anonymous 
+        int maxKeys = 250;
+        while(identityCount > 0) {
+
+            LocalIdentity idToUpdate = null;
+            long minUpdateMillis = LocalIdentity.getAnonymousLastFilesSharedMillis(board.getName());
+            
+            for(Iterator i=localIdentities.iterator(); i.hasNext(); ) {
+                LocalIdentity id = (LocalIdentity)i.next();
+                long lastShared = id.getLastFilesSharedMillis(board.getName());
+                if( lastShared < minUpdateMillis ) {
+                    minUpdateMillis = lastShared;
+                    idToUpdate = id;
+                }
             }
+
+            // idToUpdate is id, or null for anonymous
+            // mark that we tried this owner
+            if( idToUpdate == null ) {
+                LocalIdentity.updateAnonymousLastFilesSharedMillis(board.getName());
+            } else {
+                idToUpdate.updateLastFilesSharedMillis(board.getName());
+            }
+
+            String owner = null;
+            if( idToUpdate != null ) {
+                owner = idToUpdate.getUniqueName();
+            }
+            List filesToShare = uploadModel.getUploadItemsToShare(board, owner, maxKeys);
+            if( filesToShare.size() > 0 ) {
+                return filesToShare;
+            }
+            // else try next owner
+            identityCount--;
+        }
+        return null;
+    }
+
+    /**
+     * If the file is currently in download table, we update its key and date.
+     */
+    private void updateDownloadTable(SharedFileXmlFile key) {
+        // don't update with invalid data
+        if (key == null || key.getSHA1() == null || key.getKey() == null && key.getKey().length() == 0) {
             return;
         }
 
         for (int i = 0; i < downloadModel.getItemCount(); i++) {
             FrostDownloadItem dlItem = (FrostDownloadItem) downloadModel.getItemAt(i);
-            if (dlItem.getState() == FrostDownloadItem.STATE_REQUESTED
-                && dlItem.getSHA1() != null
-                && dlItem.getSHA1().compareTo(key.getSHA1()) == 0)
+            if( dlItem.getSHA1() != null
+                && dlItem.getSHA1().compareTo(key.getSHA1()) == 0
+                && dlItem.getKey() == null )
             {
-                if( key.getKey() != null && key.getKey().length() > 0 ) {
-                    // never clear an (maybe) existing key
-                    dlItem.setKey(key.getKey());
-                }
-                dlItem.setFileAge(key.getDate());
+                dlItem.setKey(key.getKey());
+//                dlItem.setState(FrostDownloadItem.STATE_WAITING);
                 break;
             }
-        }
-    }
-
-    /**
-     * Reads a keyfile from disk and validates each file.
-     *
-     * @param source     keyfile as String or as File
-     * @returns          null on error
-     */
-    public FrostIndex readKeyFile(File source) {
-        if( !source.isFile() || !(source.length() > 0) ) {
-            return new FrostIndex(new HashMap());
-        } else {
-            // parse the xml file
-            Document d = null;
-            try {
-                d = XMLTools.parseXmlFile(source.getPath(), false);
-            } catch (IllegalArgumentException t) {
-                logger.log(Level.SEVERE, "Exception thrown in readKeyFile(File source): \n"
-                        + "Offending file saved as badfile.xml - send it to a dev for analysis", t);
-                File badfile = new File("badfile.xml");
-                source.renameTo(badfile);
-            }
-
-            if( d == null ) {
-                logger.warning("Couldn't parse index file.");
-                return null;
-            }
-
-            FrostIndex idx = new FrostIndex(d.getDocumentElement());
-
-            // now go through all the files
-            for(Iterator i = idx.getFilesIterator(); i.hasNext(); ) {
-                SharedFileObject newKey = (SharedFileObject) i.next();
-
-                // validate the key
-                if( !newKey.isValid() ) {
-                    i.remove();
-//                    logger.warning("invalid key found");
-                    continue;
-                }
-            }
-            return idx;
-        }
-    }
-
-    private void writeKeyFile(FrostIndex idx, File destination) {
-        if( idx.getFilesMap().size() == 0 ) {
-            // no items to write
-            return;
-        }
-
-        File tmpFile = new File(destination.getPath() + ".tmp");
-
-        // use FrostIndex object
-
-        int itemsAppended = 0;
-        synchronized( idx ) {
-            for(Iterator i = idx.getFilesIterator(); i.hasNext(); ) {
-                SharedFileObject current = (SharedFileObject) i.next();
-                if( current.getOwner() != null ) {
-                    Identity id = Core.getInstance().getIdentities().getIdentity(current.getOwner());
-                    if( id != null && id.getState() == FrostIdentities.ENEMY ) {
-                        // Core.getOut().println("removing file from BAD user");
-                        i.remove();
-                        continue;
-                    }
-                }
-                itemsAppended++;
-            }
-        }
-
-        if( itemsAppended == 0 ) {
-            // don't write file
-            return;
-        }
-
-        // xml tree created, now save
-
-        boolean writeOK = false;
-        try {
-            Document doc = XMLTools.getXMLDocument(idx);
-            writeOK = XMLTools.writeXmlFile(doc, tmpFile.getPath());
-        } catch (Throwable t) {
-            logger.log(Level.SEVERE, "Exception thrown in writeKeyFile(FrostIndex idx, File destination)", t);
-        }
-
-        if( writeOK ) {
-            File oldFile = new File(destination.getPath() + ".old");
-            oldFile.delete();
-            destination.renameTo(oldFile);
-            tmpFile.renameTo(destination);
-        } else {
-            // delete incomplete file
-            tmpFile.delete();
         }
     }
 }

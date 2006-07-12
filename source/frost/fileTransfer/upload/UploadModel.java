@@ -18,11 +18,15 @@
 */
 package frost.fileTransfer.upload;
 
-import java.io.File;
+import java.io.*;
+import java.sql.*;
 import java.util.*;
+import java.util.logging.*;
 
-import frost.SettingsClass;
+import frost.*;
+import frost.gui.objects.*;
 import frost.storage.*;
+import frost.storage.database.applayer.*;
 import frost.util.model.*;
 
 /**
@@ -34,30 +38,60 @@ import frost.util.model.*;
  */
 public class UploadModel extends OrderedModel implements Savable {
 
-    private SettingsClass settings;
+    private static Logger logger = Logger.getLogger(UploadModel.class.getName());
 
-    /**
-     *
-     */
     public UploadModel(SettingsClass frostSettings) {
         super();
-        settings = frostSettings;
     }
 
     /**
      * Will add this item to the model if not already in the model.
+     * The new item must only have 1 FrostUploadItemOwnerBoard in its list.
      */
-    public synchronized boolean addUploadItem(FrostUploadItem itemToAdd) {
+    public synchronized boolean addNewUploadItem(FrostUploadItem itemToAdd) {
         for (int x = 0; x < getItemCount(); x++) {
             FrostUploadItem item = (FrostUploadItem) getItemAt(x);
-            if (item.getFilePath().equals(itemToAdd.getFilePath())) {
-                // already in model (compared by path)
-                return false;
+            // if file is already in list (sha1), maybe add a new owner/board if not a dup
+            if( item.getSHA1().equals(itemToAdd.getSHA1()) ) {
+                
+                FrostUploadItemOwnerBoard obNew = (FrostUploadItemOwnerBoard)
+                        itemToAdd.getFrostUploadItemOwnerBoardList().iterator().next();
+                
+                // check all old board/owner, only 1 owner/anonymous per board allowed!
+                // TODO: report board match, let user decide to change, but not add
+                for(Iterator i=item.getFrostUploadItemOwnerBoardList().iterator(); i.hasNext(); ) {
+                    FrostUploadItemOwnerBoard obOld = (FrostUploadItemOwnerBoard)i.next();
+                    // compare boards case insensitive!
+                    if( obNew.getTargetBoard().getName().equalsIgnoreCase(obOld.getTargetBoard().getName()) ) {
+                        return false; // only one owner per board
+//                        if( obNew.getOwner() == null && obOld.getOwner() == null ) {
+//                            // both anonymous, double
+//                            return false;
+//                        } else if( obNew.getOwner() == null && obOld.getOwner() != null ) {
+//                            // different
+//                        } else if( obNew.getOwner() != null && obOld.getOwner() == null ) {
+//                            // different
+//                        } else if( obNew.getOwner().equals(obOld.getOwner())) {
+//                            // same owner, double
+//                            return false;
+//                        }
+                    }
+                }
+                // we are here because the file is already in table, but we have to add a new board/owner
+                item.addFrostUploadItemOwnerBoard(obNew);
+                return true; // item added, there no more items with same SHA1 in list
             }
         }
         // not in model, add
         addItem(itemToAdd);
         return true;
+    }
+
+    /**
+     * Will add this item to the model, no check for dups.
+     */
+    public synchronized void addConsistentUploadItem(FrostUploadItem itemToAdd) {
+        addItem(itemToAdd);
     }
 
     /**
@@ -154,14 +188,6 @@ public class UploadModel extends OrderedModel implements Savable {
     }
 
     /**
-     * Saves the upload model to disk.
-     */
-    public void save() throws StorageException {
-        UploadModelDAO uploadModelDAO = DAOFactory.getFactory(DAOFactory.XML).getUploadModelDAO();
-        uploadModelDAO.save(this);
-    }
-
-    /**
      * Adds a prefix to the filenames of the items passed as a parameter
      */
     public void setPrefixToItems(ModelItem[] items, String prefix) {
@@ -215,14 +241,59 @@ public class UploadModel extends OrderedModel implements Savable {
      * Initializes the model
      */
     public void initialize() throws StorageException {
-        UploadModelDAO uploadModelDAO = DAOFactory.getFactory(DAOFactory.XML).getUploadModelDAO();
-        if (!uploadModelDAO.exists()) {
-            // The storage doesn't exist yet. We create it.
-            uploadModelDAO.create();
-        } else {
-            // Storage exists. Load from it.
-            uploadModelDAO.load(this);
+        List uploadItems; 
+        try {
+            uploadItems = AppLayerDatabase.getUploadFilesDatabaseTable().loadUploadFiles();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error loading upload items", e);
+            throw new StorageException("Error loading upload items");
+        }
+        for(Iterator i=uploadItems.iterator(); i.hasNext(); ) {
+            FrostUploadItem di = (FrostUploadItem)i.next();
+            addConsistentUploadItem(di); // no check for dups
         }
     }
-
+    
+    /**
+     * Saves the upload model to database.
+     */
+    public void save() throws StorageException {
+        LinkedList itemList = new LinkedList();
+        for (int x = 0; x < getItemCount(); x++) {
+            FrostUploadItem uploadItem = (FrostUploadItem)getItemAt(x);
+            itemList.add(uploadItem);
+        }
+        
+        try {
+            AppLayerDatabase.getUploadFilesDatabaseTable().saveUploadFiles(itemList);
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error saving upload items", e);
+            throw new StorageException("Error saving upload items");
+        }
+    }
+    
+    public List getUploadItemsToShare(Board board, String owner, int maxItems) {
+        LinkedList result = new LinkedList();
+        
+        for(Iterator i=data.iterator(); i.hasNext(); ) {
+            FrostUploadItem ulItem = (FrostUploadItem) i.next();
+            for(Iterator j=ulItem.getFrostUploadItemOwnerBoardList().iterator(); j.hasNext(); ) {
+                FrostUploadItemOwnerBoard ob = (FrostUploadItemOwnerBoard)j.next();
+                if( ob.getTargetBoard().getName().equals(board) &&
+                    ( (ob.getOwner()==null && owner==null) || // anonymous
+                      (ob.getOwner()!=null && owner!=null && ob.getOwner().equals(owner)) ) // identity matches      
+                        
+                  ) 
+                {
+                    result.add(ob);
+                    if( result.size() >= maxItems ) {
+                        return result;
+                    }
+                }
+            }
+        }
+        return result;
+    }
+    
+//    FIXME: problem: gross/kleinschreibung von boards!
 }

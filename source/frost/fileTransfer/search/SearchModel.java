@@ -88,23 +88,23 @@ public class SearchModel extends OrderedModel {
      * @param selectedItems
      * @return
      */
-    public Iterator getSelectedItemsOwners(ModelItem[] selectedItems) {
-        List result = new LinkedList();
-        for (int i = 0; i < selectedItems.length; i++) {
-            FrostSearchItem srItem = (FrostSearchItem) selectedItems[i];
-            String owner = srItem.getOwner();
-            //check if null or from myself
-            if (owner == null || owner.compareTo(identities.getMyId().getUniqueName()) == 0)
-                continue;
-
-            //see if already on some list
-            Identity id = identities.getIdentity(owner);
-            if (id != null) {
-                result.add(id);
-            }
-        }
-        return result.iterator();
-    }
+//    public Iterator getSelectedItemsOwners(ModelItem[] selectedItems) {
+//        List result = new LinkedList();
+//        for (int i = 0; i < selectedItems.length; i++) {
+//            FrostSearchItem srItem = (FrostSearchItem) selectedItems[i];
+//            String owner = srItem.getOwner();
+//            //check if null or from myself
+//            if (owner == null || owner.compareTo(identities.getMyId().getUniqueName()) == 0)
+//                continue;
+//
+//            //see if already on some list
+//            Identity id = identities.getIdentity(owner);
+//            if (id != null) {
+//                result.add(id);
+//            }
+//        }
+//        return result.iterator();
+//    }
 
     /**
      * @param newIdentities

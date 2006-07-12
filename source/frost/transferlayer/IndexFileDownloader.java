@@ -1,6 +1,7 @@
 package frost.transferlayer;
 
 import java.io.*;
+import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
@@ -16,6 +17,22 @@ public class IndexFileDownloader {
     private static Logger logger = Logger.getLogger(IndexFileDownloader.class.getName());
 
     protected static IndexFileDownloaderResult processDownloadedFile(File target, FcpResultGet fcpresults, Board board) {
+        
+        // check if file is a request file, otherwise provide it to the 05 or 07 processor
+        List lines = FileAccess.readLines(target, "UTF-8");
+        if( lines.size() > 1 ) {
+            String firstLine = (String)lines.get(0);
+            if( firstLine.startsWith(SettingsClass.REQUESTFILE_HEADER) ) {
+                lines.remove(0); // remove header line, remaining lines are SHA1 of requested files
+                
+                Index.getInstance().processRequests(lines);
+                
+                IndexFileDownloaderResult ifdResult = new IndexFileDownloaderResult();
+                ifdResult.errorMsg = IndexFileDownloaderResult.SUCCESS;
+                return ifdResult;
+            }
+        }
+        
         if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
             return processDownloadedFile05(target, fcpresults, board);
         } else if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) {
@@ -25,25 +42,22 @@ public class IndexFileDownloader {
             return null;
         }
     }
-
+    
     /**
      * Returns null if no file found.
      */
     public static IndexFileDownloaderResult downloadIndexFile(String downKey, Board board) {
         
         try {
-            File tmpFile = File.createTempFile(
-                    "frost-index",
-                    ".tmp",
-                    new File(Core.frostSettings.getValue("temp.dir")));
+            File tmpFile = FileAccess.createTempFile("frost-index",".tmp");
             tmpFile.deleteOnExit();
     
             // Download the keyfile
             FcpResultGet fcpresults = FcpHandler.inst().getFile(
+                    FcpHandler.TYPE_MESSAGE,
                     downKey,
                     null,
                     tmpFile,
-                    Core.frostSettings.getIntValue("keyDownloadHtl"),
                     false); // doRedirect, like in uploadIndexFile()
     
             if (fcpresults == null || tmpFile.length() == 0) {
@@ -87,7 +101,7 @@ public class IndexFileDownloader {
         Identity sharer = new Identity( _sharer.substring(0,_sharer.indexOf("@")), _pubkey);
 
         //add him to the neutral list (if not already on any list)
-        sharer.setState(FrostIdentities.NEUTRAL);
+        sharer.setCHECK();
         Core.getIdentities().addIdentity(sharer);
 
         return sharer;
@@ -122,16 +136,8 @@ public class IndexFileDownloader {
             FileAccess.writeFile(unzippedXml, unzippedTarget);
             unzippedXml = null;
 
-            //create the FrostIndex object
-            FrostIndex receivedIndex = null;
-            try {
-                Index idx = Index.getInstance();
-                synchronized(idx) {
-                    receivedIndex = idx.readKeyFile(unzippedTarget);
-                }
-            } catch (Exception ex) {
-                logger.log(Level.SEVERE, "Could not parse the index file: ", ex);
-            }
+            // create the FrostIndex object
+            FrostIndex receivedIndex = FrostIndex.readKeyFile(target, board);
             if( receivedIndex == null || receivedIndex.getFilesMap().size() == 0 ) {
                 logger.log(Level.SEVERE, "Received index file invalid or empty, skipping.");
                 target.delete();
@@ -157,7 +163,7 @@ public class IndexFileDownloader {
                     return ifdResult;
                 }
 
-                //metadata says we're signed.  Check if there is identity in the file
+                // metadata says we're signed.  Check if there is identity in the file
                 if (sharerInFile == null) {
                     logger.warning("MetaData present, but file didn't contain an identity :(");
                     target.delete();
@@ -173,7 +179,7 @@ public class IndexFileDownloader {
                     _pubkey = md.getPerson().getKey();
                 }
 
-                //check if metadata is proper
+                // check if metadata is proper
                 if (_owner == null || _owner.length() == 0 || _pubkey == null || _pubkey.length() == 0) {
                     logger.warning("XML metadata have missing fields, skipping file index.");
                     target.delete();
@@ -182,7 +188,7 @@ public class IndexFileDownloader {
                     return ifdResult;
                 }
 
-                //check if fields match those in the index file
+                // check if fields match those in the index file
                 if (!_owner.equals(Mixed.makeFilename(sharerInFile.getUniqueName()))
                     || !_pubkey.equals(sharerInFile.getKey())) {
 
@@ -197,7 +203,7 @@ public class IndexFileDownloader {
                     return ifdResult;
                 }
 
-                //verify! :)
+                // verify! :)
                 byte[] zippedXml = FileAccess.readByteArray(target);
                 boolean valid = Core.getCrypto().detachedVerify(zippedXml, _pubkey, md.getSig());
                 zippedXml = null;
@@ -213,7 +219,7 @@ public class IndexFileDownloader {
                 //check if we have the owner already on the lists
                 if (Core.getIdentities().isMySelf(_owner)) {
                     logger.info("Received index file from myself");
-                    sharer = Core.getIdentities().getMyId();
+                    sharer = Core.getIdentities().getLocalIdentity(_owner);
                 } else {
                     logger.info("Received index file from " + _owner);
                     sharer = Core.getIdentities().getIdentity(_owner);
@@ -228,7 +234,7 @@ public class IndexFileDownloader {
                             ifdResult.errorMsg = IndexFileDownloaderResult.TAMPERED_DATA;
                             return ifdResult;
                         }
-                    } else if (sharer.getState() == FrostIdentities.ENEMY ) {
+                    } else if (sharer.isBAD()) {
                         if (Core.frostSettings.getBoolValue("hideBadFiles")) {
                             logger.info("Skipped index file from BAD user " + _owner);
                             target.delete();
@@ -250,7 +256,7 @@ public class IndexFileDownloader {
 
             // if the user is not on the GOOD list..
             String sharerStr;
-            if (sharer == null || sharer.getState() != FrostIdentities.FRIEND ) {
+            if (sharer == null || !sharer.isGOOD() ) {
                 // add only files from that user (not files from his friends)
                 sharerStr = (sharer == null) ? "Anonymous" : sharer.getUniqueName();
                 logger.info("adding only files from " + sharerStr);
@@ -261,7 +267,7 @@ public class IndexFileDownloader {
             }
             Index idx = Index.getInstance();
             synchronized(idx) {
-                idx.add(receivedIndex, board, sharerStr);
+                idx.add(receivedIndex.getFilesMap().values(), sharerStr);
             }
 
             target.delete();
@@ -281,15 +287,7 @@ public class IndexFileDownloader {
             IndexFileDownloaderResult ifdResult = new IndexFileDownloaderResult();
 
             // create the FrostIndex object
-            FrostIndex receivedIndex = null;
-            try {
-                Index idx = Index.getInstance();
-                synchronized(idx) {
-                    receivedIndex = idx.readKeyFile(target);
-                }
-            } catch (Exception ex) {
-                logger.log(Level.SEVERE, "Could not parse the index file: ", ex);
-            }
+            FrostIndex receivedIndex = FrostIndex.readKeyFile(target, board);
             if( receivedIndex == null || receivedIndex.getFilesMap().size() == 0 ) {
                 logger.log(Level.SEVERE, "Received index file invalid or empty, skipping.");
                 target.delete();
@@ -340,7 +338,7 @@ public class IndexFileDownloader {
                                 ifdResult.errorMsg = IndexFileDownloaderResult.TAMPERED_DATA;
                                 return ifdResult;
                             }
-                        } else if (sharer.getState() == FrostIdentities.ENEMY ) {
+                        } else if (sharer.isBAD()) {
                             if (Core.frostSettings.getBoolValue("hideBadFiles")) {
                                 logger.info("Skipped index file from BAD user " + _owner);
                                 target.delete();
@@ -353,12 +351,9 @@ public class IndexFileDownloader {
                     }
                 }
             }
+
             // all tests passed, add files to index
-            Index idx = Index.getInstance();
-            synchronized(idx) {
-                // add all files
-                idx.add(receivedIndex, board, null);
-            }
+            Index.getInstance().add(receivedIndex.getFilesMap().values(), null);
             
             target.delete();
             ifdResult.errorMsg = IndexFileDownloaderResult.SUCCESS;

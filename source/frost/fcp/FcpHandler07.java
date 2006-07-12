@@ -36,30 +36,31 @@ public class FcpHandler07 extends FcpHandler {
         return FcpFactory.getNodes();
     }
  
-    public FcpResultGet getFile(String key,
+    public FcpResultGet getFile(
+            int type,
+            String key,
             Long size,
             File target,
-            int htl,
             boolean doRedirect,
             boolean fastDownload,
             boolean createTempFile,
             FrostDownloadItem dlItem)
     {
         // unused by 07: htl, doRedirect, fastDownload,
-        return FcpRequest.getFile(key, size, target, createTempFile, dlItem);
+        return FcpRequest.getFile(type, key, size, target, createTempFile, dlItem);
     }
 
     public FcpResultPut putFile(
+            int type,
             String uri,
             File file,
             byte[] metadata,
-            int htl,
             boolean doRedirect,
             boolean removeLocalKey,
             FrostUploadItem ulItem)
     {
-        // unused by 07:  metadata, htl, doRedirect, removeLocalKey, 
-        FcpResultPut result = FcpInsert.putFile(uri, file,ulItem);
+        // unused by 07:  metadata, htl, doRedirect, removeLocalKey,
+        FcpResultPut result = FcpInsert.putFile(type, uri, file,ulItem);
         if( result == null ) {
             return FcpResultPut.ERROR_RESULT;
         } else {
