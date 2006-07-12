@@ -135,12 +135,10 @@ public class FcpConnection
      * @param htl the HTL to use in this request
      * @return the results filled with metadata
      */
-    public FcpResultGet getKeyToFile(String keyString, String filename)
+    public FcpResultGet getKeyToFile(int type, String keyString, String filename)
     throws IOException, FcpToolsException, InterruptedIOException {
 
-        // TODO: exploit MaxRetries
-        // TODO: exploit MaxSize
-        // TODO: exploit ReturnType=disk
+        // FIXME: exploit MaxRetries, MaxSize, ReturnType=disk, global queue
 
         keyString = StripSlashes(keyString);
         FcpResultGet result = new FcpResultGet();
@@ -186,6 +184,12 @@ public class FcpConnection
 
         fcpOut.println("MaxRetries=1");
 //        System.out.println("MaxRetries=1");
+        if( type == FcpHandler.TYPE_FILE ) {
+            fcpOut.println("PriorityClass=4");
+        } else if( type == FcpHandler.TYPE_MESSAGE ) {
+            fcpOut.println("PriorityClass=3");
+        }
+
         fcpOut.println("EndMessage");
 //        System.out.println("EndMessage");
 
@@ -366,11 +370,10 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
      * @param data  the bytearray with the data to be inserted
      * @return the results filled with metadata and the CHK used to insert the data
      */
-	public String putKeyFromFile(String key, File sourceFile, boolean getchkonly)
+	public String putKeyFromFile(int type, String key, File sourceFile, boolean getchkonly)
 		throws IOException {
 
-        // TODO: exploit MaxRetries
-        // TODO: exploit UploadFrom
+        // FIXME: exploit MaxRetries, UploadFrom, type
 
         long dataLength = sourceFile.length();
         BufferedInputStream fileInput = new BufferedInputStream(new FileInputStream(sourceFile));
@@ -407,7 +410,13 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 		if(getchkonly){
 			fcpOut.println("GetCHKOnly=true");
 //			System.out.println("GetCHKOnly=true");
-		}
+		} else {
+            if( type == FcpHandler.TYPE_FILE ) {
+                fcpOut.println("PriorityClass=4");
+            } else if( type == FcpHandler.TYPE_MESSAGE ) {
+                fcpOut.println("PriorityClass=3");
+            }
+        }
 
 		fcpOut.println("Data");
 //		System.out.println("Data");
@@ -498,7 +507,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
     public String generateCHK(File file) throws IOException {
 
    	   	String uri = "";
-    	String output = putKeyFromFile("CHK@", file, true);
+    	String output = putKeyFromFile(FcpHandler.TYPE_FILE, "CHK@", file, true);
 //    	System.out.println("GOT OUTPUT " + output + "\n STARTING CHK GENERATION");
     	int URIstart = output.indexOf("CHK@");
     	String substr = output.substring(URIstart);

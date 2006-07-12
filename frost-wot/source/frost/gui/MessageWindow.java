@@ -55,6 +55,8 @@ public class MessageWindow extends JFrame {
         this.setSize(size);
         this.searchMessagesConfig = smc;
 
+//      FIXME: for encrypted msgs show a receiver line below from line!!! maybe in messagepanel too?
+
         initialize();
 
         // set visible BEFORE updating the textpane to allow correct positioning of dividers

@@ -25,11 +25,10 @@ import javax.swing.*;
 import javax.swing.tree.*;
 
 import frost.*;
-import frost.fileTransfer.*;
 import frost.gui.model.*;
 import frost.gui.objects.*;
 import frost.messages.*;
-import frost.storage.*;
+import frost.storage.database.applayer.*;
 
 /**
  * @pattern Singleton
@@ -93,7 +92,7 @@ public class TOF {
         // now takes care if board is changed during mark read of many boards! reloads current table if needed
         
         try {
-            GuiDatabase.getMessageTable().setAllMessagesRead(board);
+            AppLayerDatabase.getMessageTable().setAllMessagesRead(board);
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error marking all messages read", e);
             return;
@@ -134,7 +133,7 @@ public class TOF {
         // before mark of the slot.
         FrostMessageObject invalidMsg = new FrostMessageObject(b, calDL, index, reason);
         try {
-            GuiDatabase.getMessageTable().insertMessage(invalidMsg);
+            AppLayerDatabase.getMessageTable().insertMessage(invalidMsg);
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error inserting invalid message into database", e);
             return;
@@ -144,11 +143,11 @@ public class TOF {
     /**
      * Add new msg to database, mark download slot used. 
      */
-    public void receivedValidMessage(MessageObjectFile currentMsg, Board board, int index) {
+    public void receivedValidMessage(MessageXmlFile currentMsg, Board board, int index) {
         FrostMessageObject newMsg = new FrostMessageObject(currentMsg, board, index);
         newMsg.setNew(true);
         try {
-            GuiDatabase.getMessageTable().insertMessage(newMsg);
+            AppLayerDatabase.getMessageTable().insertMessage(newMsg);
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error inserting new message into database", e);
             return;
@@ -177,19 +176,6 @@ public class TOF {
                 addNewMessageToTable(currentMsg, board);
             } // else msg is not displayed due to maxMessageDisplay
             
-            // add all files indexed files, but never for BAD users
-            if( !currentMsg.isMessageStatusBAD() ) {
-                Iterator it = currentMsg.getAttachmentsOfType(Attachment.FILE).iterator();
-                while (it.hasNext()) {
-                    SharedFileObject current = ((FileAttachment)it.next()).getFileObj();
-                    if (current.getOwner() != null) {
-                        Index fileindex = Index.getInstance();
-                        synchronized(fileindex) {
-                            fileindex.add(current, board);
-                        }
-                    }
-                }
-            }
             // add all boards to the list of known boards
             if( currentMsg.isMessageStatusOLD() &&
                 Core.frostSettings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_UNSIGNED) == true )
@@ -211,7 +197,12 @@ public class TOF {
                 logger.info("Boards from TAMPERED message blocked");
             } else {
                 // either GOOD user or not blocked by user
-                Core.addNewKnownBoards(currentMsg.getAttachmentsOfType(Attachment.BOARD));
+                LinkedList addBoards = new LinkedList();
+                for(Iterator i=currentMsg.getAttachmentsOfType(Attachment.BOARD).iterator(); i.hasNext(); ) {
+                    BoardAttachment ba = (BoardAttachment) i.next();
+                    addBoards.add(ba.getBoardObj());
+                }
+                AppLayerDatabase.getKnownBoardsDatabaseTable().addNewKnownBoards(addBoards);
             }
         }
     }
@@ -345,8 +336,8 @@ public class TOF {
             final List messages;
             try {
                 // TODO: maybe receive without content and dynamically load contents if needed
-                // TODO: if we do this, blocked can't check the mesagebody!
-                messages = GuiDatabase.getMessageTable().retrieveMessages(board, daysToRead, true, true, showDeletedMessages);
+                // TODO: if we do this, blocked can't check the messagebody!
+                messages = AppLayerDatabase.getMessageTable().retrieveMessages(board, daysToRead, true, true, showDeletedMessages);
             } catch (SQLException e) {
                 logger.log(Level.SEVERE, "Error retrieving messages for board "+board.getName(), e);
                 return;
@@ -510,7 +501,7 @@ public class TOF {
         
         int newMessages = 0;
         try {
-            newMessages = GuiDatabase.getMessageTable().getNewMessageCount(board, daysToRead);
+            newMessages = AppLayerDatabase.getMessageTable().getNewMessageCount(board, daysToRead);
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error retrieving new message count", e);
         }

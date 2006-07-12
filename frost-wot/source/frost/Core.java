@@ -26,8 +26,6 @@ import java.util.logging.*;
 
 import javax.swing.*;
 
-import org.w3c.dom.*;
-
 import com.l2fprod.gui.plaf.skin.*;
 
 import frost.boards.*;
@@ -38,12 +36,12 @@ import frost.fcp.*;
 import frost.fileTransfer.*;
 import frost.gui.*;
 import frost.gui.help.*;
-import frost.gui.objects.*;
 import frost.identities.*;
-import frost.messages.*;
 import frost.messaging.*;
 import frost.storage.*;
-import frost.threads.*;
+import frost.storage.database.*;
+import frost.storage.database.applayer.*;
+import frost.storage.database.transferlayer.*;
 import frost.threads.maintenance.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
@@ -54,18 +52,14 @@ import frost.util.gui.translation.*;
  * @pattern Singleton
  *
  */
-public class Core implements Savable, FrostEventDispatcher  {
+public class Core implements FrostEventDispatcher  {
 
     private static Logger logger = Logger.getLogger(Core.class.getName());
-
-    static Hashtable myBatches = new Hashtable();
 
     // Core instanciates itself, frostSettings must be created before instance=Core() !
     public static SettingsClass frostSettings = new SettingsClass();
 
     private static Core instance = null;
-
-    private static List knownBoards = new ArrayList(); //list of known boards
 
     private static FrostCrypt crypto = new FrostCrypt();
 
@@ -206,182 +200,8 @@ public class Core implements Savable, FrostEventDispatcher  {
         return freenetIsOnline;
     }
 
-    private void loadKnownBoards() {
-        // load the known boards
-        // just a flat list in xml
-        File boards = new File("boards");
-        if(boards.exists()) // old style file, 1 time conversion
-        {
-            // TODO: remove if not longer needed
-            loadOLDKnownBoards(boards);
-            // save converted list
-            saveKnownBoards();
-            return;
-        }
-        boards = new File("knownboards.xml");
-        if( boards.exists() )
-        {
-            Document doc = null;
-            try {
-                doc = XMLTools.parseXmlFile(boards, false);
-            }
-            catch(Exception ex)
-            {
-                logger.log(Level.SEVERE, "Error reading knownboards.xml", ex);
-                return;
-            }
-            Element rootNode = doc.getDocumentElement();
-            if( rootNode.getTagName().equals("FrostKnownBoards") == false )
-            {
-                logger.severe("Error - invalid knownboards.xml: does not contain the root tag 'FrostKnownBoards'");
-                return;
-            }
-            // pass this as an 'AttachmentList' to xml read method and get
-            // all board attachments
-            AttachmentList al = new AttachmentList();
-            try { al.loadXMLElement(rootNode); }
-            catch(Exception ex)
-            {
-                logger.log(Level.SEVERE, "Error - knownboards.xml: contains unexpected content.", ex);
-                return;
-            }
-            List lst = al.getAllOfType(Attachment.BOARD);
-            knownBoards.addAll(lst);
-            logger.info("Loaded "+knownBoards.size()+" known boards.");
-        }
-    }
-
-    /**
-     * @param boards
-     */
-    private void loadOLDKnownBoards(File boards) {
-        try {
-            ArrayList tmpList = new ArrayList();
-            String allBoards = FileAccess.readFile(boards);
-            String[] _boards = allBoards.split(":");
-            for (int i = 0; i < _boards.length; i++) {
-                String aboardstr = _boards[i].trim();
-                if (aboardstr.length() < 13
-                    || aboardstr.indexOf("*") < 3
-                    || !(aboardstr.indexOf("*") < aboardstr.lastIndexOf("*"))) {
-                    continue;
-                }
-                String bname, bpubkey, bprivkey;
-                int pos = aboardstr.indexOf("*");
-                bname = aboardstr.substring(0, pos).trim();
-                int pos2 = aboardstr.indexOf("*", pos + 1);
-                bpubkey = aboardstr.substring(pos + 1, pos2).trim();
-                bprivkey = aboardstr.substring(pos2 + 1).trim();
-                if (bpubkey.length() < 10)
-                    bpubkey = null;
-                if (bprivkey.length() < 10)
-                    bprivkey = null;
-
-                // create BoardAttachment objects and pass them to add method
-                // which checks for doubles
-                Board bo = new Board(bname, bpubkey, bprivkey, null);
-                BoardAttachment ba = new BoardAttachment(bo);
-                tmpList.add(ba);
-            }
-            logger.info("Loaded " + _boards.length + " OLD known boards (converting).");
-            addNewKnownBoards(tmpList);
-        } catch (Throwable t) {
-            logger.log(Level.SEVERE, "couldn't load/convert OLD known boards", t);
-        }
-
-        if (boards.renameTo(new File("boards.old")) == false) {
-            boards.delete(); // paranoia
-        }
-    }
-
-    /**
-     * @return
-     */
-    public boolean saveKnownBoards() {
-        Document doc = XMLTools.createDomDocument();
-        if (doc == null) {
-            logger.severe("Error - saveBoardTree: factory couldn't create XML Document.");
-            return false;
-        }
-
-        Element rootElement = doc.createElement("FrostKnownBoards");
-        doc.appendChild(rootElement);
-
-        synchronized (getKnownBoards()) {
-            Iterator i = getKnownBoards().iterator();
-            while (i.hasNext()) {
-                BoardAttachment current = (BoardAttachment) i.next();
-                Element anAttachment = current.getXMLElement(doc);
-                rootElement.appendChild(anAttachment);
-            }
-        }
-
-        boolean writeOK = false;
-        try {
-            writeOK = XMLTools.writeXmlFile(doc, "knownboards.xml");
-        } catch (Throwable ex) {
-            logger.log(Level.SEVERE, "Exception while writing knownboards.xml:", ex);
-        }
-        if (!writeOK) {
-            logger.severe("Error while writing knownboards.xml, file was not saved");
-        } else {
-            logger.info("Saved " + getKnownBoards().size() + " known boards.");
-        }
-        return writeOK;
-    }
-
-    private void loadBatches() {
-        //load the batches
-        File batches = new File("batches");
-        if (batches.exists() && batches.length() > 0) { //fix previous version bug
-            try {
-                String allBatches = FileAccess.readFile(batches);
-                String[] _batches = allBatches.split("_");
-                //dumb.  will fix later
-
-                for (int i = 0; i < _batches.length; i++) {
-                    myBatches.put(_batches[i], _batches[i]);
-                }
-
-                logger.info("loaded " + _batches.length + " batches of shared files");
-            } catch (Throwable e) {
-                logger.log(Level.SEVERE, "couldn't load batches:", e);
-            }
-        }
-    }
-
-    private boolean saveBatches() {
-        try {
-            StringBuffer buf = new StringBuffer();
-            synchronized (getMyBatches()) {
-                Iterator i = getMyBatches().keySet().iterator();
-                while (i.hasNext()) {
-                    String current = (String) i.next();
-                    if (current.length() > 0) {
-                        buf.append(current);
-                        if (i.hasNext()) {
-                            buf.append("_");
-                        }
-                    } else {
-                        i.remove(); //make sure no empty batches are saved
-                    }
-                }
-            }
-            File batches = new File("batches");
-            FileAccess.writeFile(buf.toString(), batches);
-            return true;
-        } catch (Throwable t) {
-            logger.log(Level.SEVERE, "Exception thrown in saveBatches():", t);
-        }
-        return false;
-    }
-
     public static FrostCrypt getCrypto() {
         return crypto;
-    }
-
-    public static Hashtable getMyBatches() {
-        return myBatches;
     }
 
     /**
@@ -419,67 +239,6 @@ public class Core implements Savable, FrostEventDispatcher  {
     }
 
     /**
-     * @return list of known boards
-     */
-    public static List getKnownBoards() {
-        return knownBoards;
-    }
-
-    /**
-     * Called with a list of BoardAttachments, should add all boards
-     * that are not contained already
-     * @param lst
-     */
-    public static void addNewKnownBoards( List lst ) {
-        if( lst == null || lst.size() == 0 ) {
-            return;
-        }
-
-        Iterator i = lst.iterator();
-        while(i.hasNext()) {
-            BoardAttachment newba = (BoardAttachment)i.next();
-
-            String bname = newba.getBoardObj().getName();
-            String bprivkey = newba.getBoardObj().getPrivateKey();
-            String bpubkey = newba.getBoardObj().getPublicKey();
-
-            boolean addMe = true;
-            synchronized(getKnownBoards()) {
-                Iterator j = getKnownBoards().iterator();
-                while(j.hasNext()) {
-                    BoardAttachment board = (BoardAttachment)j.next();
-                    if( board.getBoardObj().getName().equalsIgnoreCase(bname) &&
-                        (
-                          ( board.getBoardObj().getPrivateKey() == null &&
-                            bprivkey == null
-                          ) ||
-                          ( board.getBoardObj().getPrivateKey() != null &&
-                            board.getBoardObj().getPrivateKey().equals(bprivkey)
-                          )
-                        ) &&
-                        (
-                          ( board.getBoardObj().getPublicKey() == null &&
-                            bpubkey == null
-                          ) ||
-                          ( board.getBoardObj().getPublicKey() != null &&
-                            board.getBoardObj().getPublicKey().equals(bpubkey)
-                          )
-                        )
-                      )
-                      {
-                          // same boards, dont add
-                          addMe = false;
-                          break;
-                      }
-                }
-            }
-            if( addMe ) {
-                getKnownBoards().add(newba);
-            }
-        }
-    }
-
-    /**
      * @return pointer to the live core
      */
     public static Core getInstance() {
@@ -511,7 +270,7 @@ public class Core implements Savable, FrostEventDispatcher  {
         // open databases
         try {
             TransferLayerDatabase.initialize();
-            GuiDatabase.initialize();
+            AppLayerDatabase.initialize();
         } catch(SQLException ex) {
             logger.log(Level.SEVERE, "Error opening the databases", ex);
             ex.printStackTrace();
@@ -534,13 +293,16 @@ public class Core implements Savable, FrostEventDispatcher  {
         CheckHtmlIntegrity chi = new CheckHtmlIntegrity();
         isHelpHtmlSecure = chi.scanZipFile("help/help.zip");
         chi = null;
-
-        // check if this is a first time startup and maybe skip conversion
-        File identitiesFile = new File("identities.xml");
-        if( identitiesFile.exists() == false || identitiesFile.length() == 0 ) {
+        
+        boolean doImport = false;
+        
+        // check if this is a first startup
+        if( frostSettings.getIntValue("freenetVersion") == 0 ) {
+            
+            frostSettings.setValue("oneTimeUpdate.importMessages.didRun", true);
             frostSettings.setValue("oneTimeUpdate.convertSigs.didRun", true);
             frostSettings.setValue("oneTimeUpdate.repairIdentities.didRun", true);
-            
+
             // ask user which freenet version to use, set correct default availableNodes,
             // allow to import an existing identities file
             FirstStartupDialog startdlg = new FirstStartupDialog();
@@ -573,24 +335,45 @@ public class Core implements Savable, FrostEventDispatcher  {
                             "Import failed");
                 }
             }
+        } else {
+            // import xml messages into database
+            if( frostSettings.getBoolValue("oneTimeUpdate.importMessages.didRun") == false ) {
+                splashscreen.setText("Import messages into database");
+
+                String txt = "<html>Frost must now import the messages, and this could take some time.<br>"+
+                             "Afterwards the files in keypool are not longer needed and will be deleted.<br><br>"+
+                             "<b>BACKUP YOUR FROST DIRECTORY BEFORE STARTING!</b><br>"+
+                             "<br><br>Do you want to start the import NOW press yes.</html>";
+                int answer = JOptionPane.showConfirmDialog(splashscreen, txt, "About to start import process",
+                              JOptionPane.INFORMATION_MESSAGE, JOptionPane.YES_NO_OPTION);
+
+                if( answer != JOptionPane.YES_OPTION ) {
+                    System.exit(1);
+                }
+
+                new ImportKnownBoards().importKnownBoards();
+                new ImportIdentities().importIdentities();
+
+                doImport = true;
+            }
         }
+
+        splashscreen.setText(language.getString("Splashscreen.message.3"));
+        splashscreen.setProgress(60);
 
         if (!initializeConnectivity()) {
             System.exit(1);
         }
-        
-        splashscreen.setText(language.getString("Splashscreen.message.3"));
-        splashscreen.setProgress(60);
 
         getIdentities().initialize(freenetIsOnline);
 
         // TODO: maybe make this configureable in options dialog for the paranoic people?
         String title;
-        if( frostSettings.getBoolValue("mainframe.showSimpleTitle") == false ) {
-            title = "Frost - " + getIdentities().getMyId().getUniqueName();
-        } else {
+//        if( frostSettings.getBoolValue("mainframe.showSimpleTitle") == false ) {
+//            title = "Frost - " + getIdentities().getMyId().getUniqueName();
+//        } else {
             title = "Frost";
-        }
+//        }
 
         // Display the tray icon (do this before mainframe initializes)
         if (frostSettings.getBoolValue("showSystrayIcon") == true) {
@@ -603,23 +386,11 @@ public class Core implements Savable, FrostEventDispatcher  {
         mainFrame = new MainFrame(frostSettings, title);
         getBoardsManager().initialize();
         getFileTransferManager().initialize();
-
-        // import xml messages into database
-        if( frostSettings.getBoolValue("oneTimeUpdate.importMessages.didRun") == false ) {
-            splashscreen.setText("Import messages into database");
-
-            String txt = "<html>Frost must now import the messages, and this could take some time.<br>"+
-                         "Afterwards the files in keypool are not longer needed and will be deleted.<br><br>"+
-                         "<b>BACKUP YOUR FROST DIRECTORY BEFORE STARTING!</b><br>"+
-                         "<br><br>Do you want to start the import NOW press yes.</html>";
-            int answer = JOptionPane.showConfirmDialog(splashscreen, txt, "About to start import process",
-                          JOptionPane.INFORMATION_MESSAGE, JOptionPane.YES_NO_OPTION);
-
-            if( answer != JOptionPane.YES_OPTION ) {
-                System.exit(1);
-            }
-
+        
+        if( doImport ) {
             new ImportXmlMessages().importXmlMessages(getBoardsManager().getTofTreeModel());
+            new ImportFiles().importFiles();
+            new ImportDownloadFiles().importDownloadFiles(getBoardsManager().getTofTreeModel(), getFileTransferManager());
 
             frostSettings.setValue("oneTimeUpdate.importMessages.didRun", true);
         }
@@ -628,10 +399,6 @@ public class Core implements Savable, FrostEventDispatcher  {
         splashscreen.setProgress(70);
 
         mainFrame.initialize();
-
-        //load vital data
-        loadBatches();
-        loadKnownBoards();
 
         if (isFreenetOnline()) {
             resendFailedMessages();
@@ -655,7 +422,7 @@ public class Core implements Savable, FrostEventDispatcher  {
         splashscreen.closeMe();
     }
 
-    private FileTransferManager getFileTransferManager() {
+    public FileTransferManager getFileTransferManager() {
         if (fileTransferManager == null) {
             fileTransferManager = new FileTransferManager(frostSettings);
             fileTransferManager.setMainFrame(mainFrame);
@@ -716,26 +483,18 @@ public class Core implements Savable, FrostEventDispatcher  {
 
         // initialize the task that saves data
         StorageManager saver = new StorageManager(frostSettings, this);
-        saver.addAutoSavable(this);
-        saver.addAutoSavable(getIdentities());
         saver.addAutoSavable(getMessageHashes());
         saver.addAutoSavable(getBoardsManager().getTofTree());
         saver.addAutoSavable(getFileTransferManager());
         
-        saver.addExitSavable(this);
-        saver.addExitSavable(getIdentities());
         saver.addExitSavable(getMessageHashes());
+        saver.addExitSavable(getIdentities());
         saver.addExitSavable(getBoardsManager().getTofTree());
         saver.addExitSavable(getFileTransferManager());
         saver.addExitSavable(frostSettings);
         // close databases
-        saver.addExitSavable(GuiDatabase.getInstance());
+        saver.addExitSavable(AppLayerDatabase.getInstance());
         saver.addExitSavable(TransferLayerDatabase.getInstance());
-
-        // We initialize the task that helps requests of friends (delay 5min, repeat all 6hrs)
-        if (frostSettings.getBoolValue("helpFriends")) {
-            timer.schedule(new GetFriendsRequestsThread(identities), 5 * 60 * 1000, 6 * 60 * 60 * 1000);
-        }
     }
 
     /**
@@ -766,21 +525,9 @@ public class Core implements Savable, FrostEventDispatcher  {
 
     public static FrostIdentities getIdentities() {
         if (identities == null) {
-            identities = new FrostIdentities(frostSettings);
+            identities = new FrostIdentities();
         }
         return identities;
-    }
-
-    /* (non-Javadoc)
-     * @see frost.storage.Savable#save()
-     */
-    public void save() throws StorageException {
-        boolean saveOK;
-        saveOK = saveBatches();
-        saveOK &= saveKnownBoards();
-        if (!saveOK) {
-            throw new StorageException("Error while saving the core items.");
-        }
     }
 
     /**

@@ -23,17 +23,15 @@ import java.util.logging.*;
 
 import frost.*;
 import frost.fileTransfer.*;
+import frost.fileTransfer.download.*;
+import frost.fileTransfer.upload.*;
 import frost.gui.objects.*;
+import frost.identities.*;
 import frost.messages.*;
 import frost.transferlayer.*;
 
 public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject implements BoardUpdateThread
 {
-    //private static int keyCount = 0;
-    //private static int minKeyCount = 50;
-    //private static int maxKeysPerFile = 5000;
-//  private int maxKeys;
-
     private static Logger logger = Logger.getLogger(UpdateIdThread.class.getName());
 
     private java.sql.Date date;
@@ -59,46 +57,79 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
         logger.info("FILEDN: UpdateIdThread - makeIndexFile for " + board.getName());
 
         // Calculate the keys to be uploaded
-        Map files = null;
-        Index index = Index.getInstance();
-        synchronized(index) {
-            // this method checks the final zip size (<=30000) !!!
-            files = index.getUploadKeys(board);
-        }
+        List filesToShare = Index.getInstance().getUploadKeys(board);
 
-        if(files == null || files.size() == 0 ) {
-            logger.info("FILEDN: No keys to upload, stopping UpdateIdThread for " + board.getName());
+        if(filesToShare == null || filesToShare.size() == 0 ) {
+            logger.info("FILEDN: No keys to upload for board " + board.getName());
             return true;
         }
 
-        logger.info("FILEDN: Starting upload of index file to board " + board.getName()+"; files="+files.size());
+        logger.info("FILEDN: Starting upload of index file to board " + board.getName()+"; files="+filesToShare.size());
+        
+        // the sharer of the files is the same for every item in list, get it from 1st item
+        FrostUploadItemOwnerBoard ob = (FrostUploadItemOwnerBoard)filesToShare.get(0);
+        String ownSharerStr = ob.getOwner();
+        LocalIdentity ownSharer = null; // anonymous
+        if( ownSharerStr != null ) {
+            ownSharer = Core.getIdentities().getLocalIdentity(ownSharerStr);
+        }
+        
+        FrostIndex frostIndex = new FrostIndex(filesToShare, ownSharer);
 
-        FrostIndex frostIndex = new FrostIndex(files);
-        files = null;
+        boolean wasOk = IndexFileUploader.uploadIndexFile(frostIndex, board, insertKey, indexSlots, date);
 
-        return IndexFileUploader.uploadIndexFile(frostIndex, board, insertKey, indexSlots, date);
+        // if ok then update lastshared for sent files
+        if( wasOk ) {
+            java.sql.Date now = DateFun.getCurrentSqlDateGMT();
+            for(Iterator i=filesToShare.iterator(); i.hasNext(); ) {
+                FrostUploadItemOwnerBoard uob = (FrostUploadItemOwnerBoard)i.next();
+                uob.setLastSharedDate(now);
+            }
+        }
+        
+        return wasOk;
     }
 
-    // If we're getting too much files on a board, we lower
-    // the maxAge of keys. That way older keys get removed
-    // sooner. With the new index system it should be possible
-    // to work with large numbers of keys because they are
-    // no longer kept in memory, but on disk.
-//    private void adjustMaxAge(int count) {/*  //this is not used
-//    //if (DEBUG) Core.getOut().println("FILEDN: AdjustMaxAge: old value = " + frame1.frame1.frostSettings.getValue("maxAge"));
-//
-//    int lowerLimit = 10 * maxKeys / 100;
-//    int upperLimit = 90 * maxKeys / 100;
-//    int maxAge = frame1.frame1.frame1.frostSettings.getIntValue("maxAge");
-//
-//    if (count < lowerLimit && maxAge < 21)
-//        maxAge++;
-//    if (count > upperLimit && maxAge > 1)
-//        maxAge--;
-//
-//    frame1.frame1.frame1.frostSettings.setValue("maxAge", maxAge);
-//    //if (DEBUG) Core.getOut().println("FILEDN: AdjustMaxAge: new value = " + maxAge);*/
-//    }
+    /**
+     * Returns true if no error occured.
+     */
+    private boolean uploadRequestFile() throws Throwable {
+
+        logger.info("FILEDN: UpdateIdThread - makeRequestFile for " + board.getName());
+
+        // Calculate the keys to be uploaded
+        List requestKeys = Index.getInstance().getRequestKeys(board);
+
+        if(requestKeys == null || requestKeys.size() == 0 ) {
+            logger.info("FILEDN: No requests to upload for board " + board.getName());
+            return true;
+        }
+
+        logger.info("FILEDN: Starting upload of request file to board " + board.getName()+"; requests="+requestKeys.size());
+        
+        List sha1ToRequest = new LinkedList();
+        for(Iterator i=requestKeys.iterator(); i.hasNext(); ) {
+            FrostDownloadItem dlItem = (FrostDownloadItem)i.next();
+            sha1ToRequest.add( dlItem.getSHA1() );
+        }
+        
+        boolean wasOk = IndexFileUploader.uploadRequestFile(sha1ToRequest, board, insertKey, indexSlots, date);
+
+        // if ok then update requested status for download files
+        if( wasOk ) {
+            java.sql.Date now = DateFun.getCurrentSqlDateGMT();
+            for(Iterator i=requestKeys.iterator(); i.hasNext(); ) {
+                FrostDownloadItem dlItem = (FrostDownloadItem)i.next();
+                dlItem.setLastRequestedDate(now);
+                dlItem.setRequestedCount(dlItem.getRequestedCount()+1);
+                if( dlItem.getState() == FrostDownloadItem.STATE_REQUESTING ) {
+                    dlItem.setState(FrostDownloadItem.STATE_REQUESTED);
+                }
+            }
+        }
+        
+        return wasOk;
+    }
 
     public void run() {
 //      notifyThreadStarted(this);
@@ -158,6 +189,15 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
                     logger.log(Level.SEVERE, "Exception during uploadIndexFile()", t);
                 }
             }
+            // check if we have requests to upload for this board, and upload them
+            if( !isInterrupted() && isForToday ) {
+                try {
+                    uploadRequestFile();
+                } catch(Throwable t) {
+                    logger.log(Level.SEVERE, "Exception during uploadRequestFile()", t);
+                }
+            }
+
         } catch (Throwable t) {
             logger.log(Level.SEVERE, "Oo. EXCEPTION in UpdateIdThread", t);
         }
@@ -170,7 +210,6 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
 
         this.board = board;
         this.date = date;
-//      maxKeys = MainFrame.frostSettings.getIntValue("maxKeys");
         this.isForToday = isForToday;
 
         // first load the index with the date we wish to download

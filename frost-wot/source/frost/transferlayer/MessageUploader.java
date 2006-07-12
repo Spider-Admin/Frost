@@ -47,7 +47,7 @@ public class MessageUploader {
      */
     static class MessageUploaderWorkArea {
         
-        MessageObjectFile message;
+        MessageXmlFile message;
         File uploadFile;
         File unsentMessageFile;
         MessageUploaderCallback callback;
@@ -55,6 +55,7 @@ public class MessageUploader {
         java.sql.Date date;
         byte[] signMetadata;
         Identity encryptForRecipient;
+        LocalIdentity senderId;
         JFrame parentFrame;
         
         String logBoardName;
@@ -81,10 +82,15 @@ public class MessageUploader {
      * Prepares and uploads the message.
      * Returns -1 if upload failed (unsentMessageFile should stay in unsent msgs folder in this case)
      * or returns a value >= 0 containing the final index where the message was uploaded to. 
+     * 
+     * If senderId is provided, the message is signed with this ID.
+     * If senderId is null the message is sent anonymously.
+     * 
      */
     public static int uploadMessage(
-            MessageObjectFile message, 
+            MessageXmlFile message, 
             Identity encryptForRecipient,
+            LocalIdentity senderId,
             MessageUploaderCallback callback,
             IndexSlots indexSlots,
             java.sql.Date date,
@@ -100,6 +106,7 @@ public class MessageUploader {
         wa.indexSlots = indexSlots;
         wa.date = date;
         wa.encryptForRecipient = encryptForRecipient;
+        wa.senderId = senderId; // maybe null for anonymous
         wa.logBoardName = logBoardName;
         
         wa.uploadFile = new File(wa.unsentMessageFile.getPath() + ".upltmp");
@@ -167,10 +174,10 @@ public class MessageUploader {
                     logInfo = " board="+wa.logBoardName+", key="+upKey;
                     // signMetadata is null for unsigned upload. Do not do redirect.
                     result = FcpHandler.inst().putFile(
+                            FcpHandler.TYPE_MESSAGE,
                             upKey,
                             wa.uploadFile,
                             wa.signMetadata,
-                            Core.frostSettings.getIntValue("tofUploadHtl"),
                             false,  // doRedirect
                             false); // removeLocalKey, we want a KeyCollision if key does already exist in local store!
                 } catch (Throwable t) {
@@ -308,10 +315,10 @@ public class MessageUploader {
         try {
             String downKey = wa.callback.composeDownloadKey(index);
             FcpResultGet res = FcpHandler.inst().getFile(
+                    FcpHandler.TYPE_MESSAGE,
                     downKey, 
                     null, 
                     targetFile, 
-                    Core.frostSettings.getIntValue("tofUploadHtl"), 
                     false, 
                     false);
             if( res != null && targetFile.length() > 0 ) {
@@ -328,18 +335,14 @@ public class MessageUploader {
      */
     protected static boolean prepareMessage05(MessageUploaderWorkArea wa) {
 
-        boolean doSign = false;
-        
-        String sender = wa.message.getFromName();
-        String myId = Core.getIdentities().getMyId().getUniqueName();
-        if (sender.equals(myId) // nick same as my identity
-            || sender.equals(Mixed.makeFilename(myId))) // serialization may have changed it
-        {
-            doSign = true;
+        if( wa.senderId != null ) {
+            
+            // for sure, set fromname
+            wa.message.setFromName(wa.senderId.getUniqueName());
             
             // we put the signature into the message too, but it is not used for verification currently
             // to keep compatability to previous frosts for 0.5
-            wa.message.signMessage(Core.getIdentities().getMyId().getPrivKey());
+            wa.message.signMessage(wa.senderId.getPrivKey());
             
             if( !wa.message.save() ) {
                 logger.severe("Save of signed msg failed. This was a HARD error, please report to a dev!");
@@ -355,7 +358,7 @@ public class MessageUploader {
         }
 
         // encrypt and sign or just sign the zipped file if necessary
-        if (doSign) {
+        if( wa.senderId != null ) {
             byte[] zipped = FileAccess.readByteArray(wa.uploadFile);
             
             if( wa.encryptForRecipient != null ) {
@@ -370,12 +373,12 @@ public class MessageUploader {
                 wa.uploadFile.delete();
                 FileAccess.writeFile(encData, wa.uploadFile); // write encrypted zip file
 
-                EncryptMetaData ed = new EncryptMetaData(encData, Core.getIdentities().getMyId(), wa.encryptForRecipient.getUniqueName());
+                EncryptMetaData ed = new EncryptMetaData(encData, wa.senderId, wa.encryptForRecipient.getUniqueName());
                 wa.signMetadata = XMLTools.getRawXMLDocument(ed);
 
             } else {
                 // sign only
-                SignMetaData md = new SignMetaData(zipped, Core.getIdentities().getMyId());
+                SignMetaData md = new SignMetaData(zipped, wa.senderId);
                 wa.signMetadata = XMLTools.getRawXMLDocument(md);
             }
         } else if( wa.encryptForRecipient != null ) {
@@ -404,14 +407,11 @@ public class MessageUploader {
     protected static boolean prepareMessage07(MessageUploaderWorkArea wa) {
         
         // sign the message content if necessary
-        String sender = wa.message.getFromName();
-        String myId = Core.getIdentities().getMyId().getUniqueName();
-
-        if (sender.equals(myId) // nick same as my identity
-            || sender.equals(Mixed.makeFilename(myId))) // serialization may have changed it
-        {
+        if( wa.senderId != null ) {
+            // for sure, set fromname
+            wa.message.setFromName(wa.senderId.getUniqueName());
             // sign msg
-            wa.message.signMessage(Core.getIdentities().getMyId().getPrivKey());
+            wa.message.signMessage(wa.senderId.getPrivKey());
         }
 
         // save msg to uploadFile   
@@ -425,7 +425,7 @@ public class MessageUploader {
             wa.encryptForRecipient != null )
         {
             // encrypt file to temp. upload file
-            if(!MessageObjectFile.encryptForRecipientAndSaveCopy(wa.uploadFile, wa.encryptForRecipient, wa.uploadFile)) {
+            if(!MessageXmlFile.encryptForRecipientAndSaveCopy(wa.uploadFile, wa.encryptForRecipient, wa.uploadFile)) {
                 logger.severe("This was a HARD error, file was NOT uploaded, please report to a dev!");
                 return false;
             }

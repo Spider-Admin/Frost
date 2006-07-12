@@ -28,13 +28,11 @@ import frost.gui.objects.*;
 import frost.identities.*;
 import frost.messages.*;
 
-
 /**
  * @author $Author$
  * @version $Revision$
  */
-public class ResendFailedMessagesThread extends Thread
-{
+public class ResendFailedMessagesThread extends Thread {
     private static Logger logger = Logger.getLogger(ResendFailedMessagesThread.class.getName());
 
     private TofTree tofTree;
@@ -44,8 +42,7 @@ public class ResendFailedMessagesThread extends Thread
      * @param core
      * @param frameToLock
      */
-    public ResendFailedMessagesThread(TofTree tofTree, TofTreeModel tofTreeModel)
-    {
+    public ResendFailedMessagesThread(TofTree tofTree, TofTreeModel tofTreeModel) {
         this.tofTree = tofTree;
         this.tofTreeModel = tofTreeModel;
     }
@@ -53,8 +50,7 @@ public class ResendFailedMessagesThread extends Thread
     /* (non-Javadoc)
      * @see java.lang.Runnable#run()
      */
-    public void run()
-    {
+    public void run() {
         // give gui a chance to appear ... then start searching for unsent messages
         try { Thread.sleep(10000); } // wait 10 seconds
         catch(InterruptedException ex) { ; }
@@ -66,35 +62,30 @@ public class ResendFailedMessagesThread extends Thread
         ArrayList entries = FileAccess.getAllEntries(new File(Core.frostSettings.getValue("unsent.dir")),
                                                      ".xml");
 
-        for( int i = 0; i < entries.size(); i++ )
-        {
+        for( int i = 0; i < entries.size(); i++ ) {
             File unsentMsgFile = (File)entries.get(i);
-            if( unsentMsgFile.getName().startsWith("unsent") )
-            {
+            if( unsentMsgFile.getName().startsWith("unsent") ) {
                 // Resend message
-                MessageObjectFile mo = null;
+                MessageXmlFile mo = null;
                 try {
-                    mo = new MessageObjectFile(unsentMsgFile);
-                } catch(Exception ex)
-                {
+                    mo = new MessageXmlFile(unsentMsgFile);
+                } catch(Exception ex) {
                     logger.log(Level.SEVERE, "Couldn't read the message file, will not send message.", ex);
                 }
 
-                if( mo != null && mo.isValid() )
-                {
+                if( mo != null && mo.isValid() ) {
                     Board board = tofTreeModel.getBoardByName( mo.getBoardName() );
-                    if( board == null )
-                    {
+                    if( board == null ) {
                         logger.warning("Can't resend Message '" + mo.getSubject() + "', the target board '" + mo.getBoardName() +
                                            "' was not found in your boardlist.");
                         // TODO: maybe delete msg? or it will always be retried to send
                         continue;
                     }
-                    // message will be resigned before send, actual date/time will be used
+                    // message will be resigned before send, current date/time will be used
                     // no more faking here :)
                     Identity recipient = null;
                     if( mo.getRecipientName() != null && mo.getRecipientName().length() > 0) {
-                        recipient = Core.getInstance().getIdentities().getIdentity(mo.getRecipientName());
+                        recipient = Core.getIdentities().getIdentity(mo.getRecipientName());
                         if( recipient == null ) {
                             logger.warning("Can't resend Message '" + mo.getSubject() + "', the recipient is not longer in your identites file!");
                             continue;

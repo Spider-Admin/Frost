@@ -30,9 +30,9 @@ import org.xml.sax.*;
 import frost.*;
 import frost.identities.*;
 
-public class MessageObjectFile extends AbstractMessageObject implements XMLizable {
+public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
 
-    private static Logger logger = Logger.getLogger(MessageObjectFile.class.getName());
+    private static Logger logger = Logger.getLogger(MessageXmlFile.class.getName());
     
     //FIXME: this one is missing the "?" char as opposed to mixed.makeFilename
     private static final char[] evilChars = {'/', '\\', '*', '=', '|', '&', '#', '\"', '<', '>'}; // will be converted to _
@@ -47,7 +47,7 @@ public class MessageObjectFile extends AbstractMessageObject implements XMLizabl
      * Constructor.
      * Used to contruct an instance for a new message.
      */
-    public MessageObjectFile(String replyTo) {
+    public MessageXmlFile(String replyTo) {
         
         setInReplyTo(replyTo);
 
@@ -79,7 +79,7 @@ public class MessageObjectFile extends AbstractMessageObject implements XMLizabl
      * @param file
      * @throws MessageCreationException
      */
-    public MessageObjectFile(File file) throws MessageCreationException {
+    public MessageXmlFile(File file) throws MessageCreationException {
 
         if (file == null) {
         	throw new MessageCreationException("Invalid input file for MessageObject. File is null.");
@@ -175,8 +175,8 @@ public class MessageObjectFile extends AbstractMessageObject implements XMLizabl
                 }
             } else if( a.getType() == Attachment.FILE ) {
                 FileAttachment fa = (FileAttachment)a;
-                allContent.append( fa.getFileObj().getFilename() );
-                allContent.append( fa.getFileObj().getKey() );
+                allContent.append( fa.getFilename() );
+                allContent.append( fa.getKey() );
             }
         }
         return allContent.toString();
@@ -350,7 +350,7 @@ public class MessageObjectFile extends AbstractMessageObject implements XMLizabl
                 throw new Exception("Error - encrypted message contains no 'recipient' section.");
             }
             FrostIdentities identities = Core.getIdentities();
-            if( !getRecipientName().equals(identities.getMyId().getUniqueName()) ) {
+            if( !identities.isMySelf(getRecipientName()) ) {
                 // not for me
                 throw new MessageCreationException("Info: Encrypted message is not for me.",
                         MessageCreationException.MSG_NOT_FOR_ME);
@@ -362,8 +362,10 @@ public class MessageObjectFile extends AbstractMessageObject implements XMLizabl
             }
             byte[] base64bytes = base64enc.getBytes("ISO-8859-1");
             byte[] encBytes = Base64.decode(base64bytes);
+
             // decrypt content
-            byte[] decContent = Core.getCrypto().decrypt(encBytes, identities.getMyId().getPrivKey());
+            LocalIdentity receiverId = identities.getLocalIdentity(getRecipientName());
+            byte[] decContent = Core.getCrypto().decrypt(encBytes, receiverId.getPrivKey());
             if( decContent == null ) {
                 logger.log(Level.SEVERE, "TOFDN: Encrypted message could not be decrypted!");
                 throw new MessageCreationException("Error: Encrypted message could not be decrypted.",
@@ -523,7 +525,7 @@ public class MessageObjectFile extends AbstractMessageObject implements XMLizabl
      */
     public boolean compareTo(File otherMsgFile) {
         try {
-            MessageObjectFile otherMessage = new MessageObjectFile(otherMsgFile);
+            MessageXmlFile otherMessage = new MessageXmlFile(otherMsgFile);
             return compareTo(otherMessage);
         } catch(Throwable t) {
             logger.log(Level.WARNING, "Handled Exception in compareTo(File otherMsgFile)", t);
@@ -535,7 +537,7 @@ public class MessageObjectFile extends AbstractMessageObject implements XMLizabl
      * Compares the given otherMsg with this message.
      * Compares content (body), subject, from and attachments.
      */
-    public boolean compareTo(MessageObjectFile otherMsg) {
+    public boolean compareTo(MessageXmlFile otherMsg) {
         try {
             // We compare the messages by content (body), subject, from and attachments
             if (!getContent().equals(otherMsg.getContent())) {

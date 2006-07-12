@@ -1,4 +1,5 @@
-package frost.storage;
+package frost.storage.database.applayer;
+
 
 /**
  * Uses the functionality of MessageDatabaseTable, but different table names.

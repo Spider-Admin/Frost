@@ -25,7 +25,7 @@ import java.util.logging.*;
 import frost.*;
 import frost.gui.*;
 import frost.gui.objects.*;
-import frost.storage.*;
+import frost.storage.database.applayer.*;
 
 // TODO: in date config, show earliest and newest msg date!
 
@@ -131,7 +131,7 @@ public class SearchMessagesThread extends Thread implements MessageDatabaseTable
     private void searchBoard(Board board, DateRange dr) {
 
         try {
-            GuiDatabase.getMessageTable().retrieveMessagesOneByOne(
+            AppLayerDatabase.getMessageTable().retrieveMessagesOneByOne(
                     board, 
                     dr.startDate, 
                     dr.endDate, 

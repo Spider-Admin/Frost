@@ -18,16 +18,20 @@
 */
 package frost.messages;
 
-import java.io.File;
+import java.io.*;
 
 import org.w3c.dom.*;
-import org.xml.sax.SAXException;
+import org.xml.sax.*;
 
-import frost.XMLTools;
+import frost.*;
 
 public class FileAttachment extends Attachment {
+    
+    private File file = null;
 
-	private SharedFileObject fileObj;
+    private String key = null; // Name of this key
+    private Long size = new Long(0); // Filesize
+    private String filename = new String();
 
 	/* (non-Javadoc)
 	 * @see frost.messages.Attachment#getType()
@@ -39,22 +43,30 @@ public class FileAttachment extends Attachment {
 	/* (non-Javadoc)
 	 * @see frost.XMLizable#getXMLElement(org.w3c.dom.Document)
 	 */
-	public Element getXMLElement(Document container) {
-		Element el = container.createElement("Attachment");
-		el.setAttribute("type", "file");
-		el.appendChild(fileObj.getXMLElement(container));
+	public Element getXMLElement(Document doc) {
+        
+        Element fileelement = doc.createElement("File");
 
-		//if file is ofline and it has a File obj associated with it 
-		//(i.e. if it is a file we're sharing),
-		//add a <path> element to this element
+        Element element = doc.createElement("name");
+        CDATASection cdata = doc.createCDATASection(getFilename());
+        element.appendChild(cdata);
+        fileelement.appendChild(element);
 
-		if (!fileObj.isOnline() && fileObj.getFile() != null) {
-			CDATASection cdata = container.createCDATASection(fileObj.getFile().getPath());
-			Element path = container.createElement("path");
-			path.appendChild(cdata);
-			el.appendChild(path);
-		}
-		return el;
+        element = doc.createElement("size");
+        Text textnode = doc.createTextNode("" + getSize().toString());
+        element.appendChild(textnode);
+        fileelement.appendChild(element);
+
+        element = doc.createElement("key");
+        textnode = doc.createTextNode(getKey());
+        element.appendChild(textnode);
+        fileelement.appendChild(element);
+
+        element = doc.createElement("Attachment");
+        element.setAttribute("type", "file");
+        element.appendChild(fileelement);
+
+		return element;
 	}
 
 	/* (non-Javadoc)
@@ -62,13 +74,10 @@ public class FileAttachment extends Attachment {
 	 */
 	public void loadXMLElement(Element e) throws SAXException {
 		Element _file = (Element) XMLTools.getChildElementsByTagName(e, "File").iterator().next();
-		fileObj = SharedFileObject.getInstance(_file);
-
-		assert fileObj != null;
-
-		if (XMLTools.getChildElementsByTagName(e, "path").size() > 0)
-			fileObj.setFile(new File(XMLTools.getChildElementsCDATAValue(e, "path")));
-
+        
+        filename = XMLTools.getChildElementsCDATAValue(_file, "name");
+        key = XMLTools.getChildElementsTextValue(_file, "key");
+        size = new Long(XMLTools.getChildElementsTextValue(_file, "size"));
 	}
 
 	/**
@@ -79,26 +88,41 @@ public class FileAttachment extends Attachment {
 		loadXMLElement(e);
 	}
 
-	/**
-	 * @param o
-	 */
-	public FileAttachment(SharedFileObject o) {
-		fileObj = o;
-	}
-	/**
-	 * @return the SharedFileObject this class wraps
-	 */
-	public SharedFileObject getFileObj() {
-		return fileObj;
+	public FileAttachment(String fname, String k, long s) {
+        filename = fname;
+        size = new Long(s);
+        key = k;
 	}
 
-	/* 
+    public FileAttachment(File f) {
+        file = f;
+        
+        filename = file.getName();
+        size = new Long(file.length());
+    }
+
+    /* 
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
 	public int compareTo(Object o) {
-		String myName = fileObj.getFilename();
-		String otherName = ((FileAttachment) o).getFileObj().getFilename();
+		String myName = getFilename();
+		String otherName = ((FileAttachment) o).getFilename();
 		return myName.compareTo(otherName);
 	}
 
+    public String getFilename() {
+        return filename;
+    }
+    public String getKey() {
+        return key;
+    }
+    public void setKey(String k) {
+        key = k;
+    }
+    public Long getSize() {
+        return size;
+    }
+    public File getInternalFile() {
+        return file;
+    }
 }

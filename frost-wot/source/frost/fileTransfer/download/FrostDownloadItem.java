@@ -27,7 +27,6 @@ public class FrostDownloadItem extends ModelItem {
 
 	public final static int FIELD_ID_DONE_BLOCKS = 100;
 	public final static int FIELD_ID_ENABLED = 101;
-	public final static int FIELD_ID_FILE_AGE = 102;
 	public final static int FIELD_ID_FILE_NAME = 103; 
 	public final static int FIELD_ID_FILE_SIZE = 104;
 	public final static int FIELD_ID_KEY = 105;
@@ -41,94 +40,101 @@ public class FrostDownloadItem extends ModelItem {
 	
 
 	// the constants representing download states
-	public final static int STATE_WAITING = 1;
-	public final static int STATE_TRYING = 2;
-	public final static int STATE_DONE = 3;
-	public final static int STATE_FAILED = 4;
-	public final static int STATE_REQUESTING = 5;
-	public final static int STATE_PROGRESS = 6; // download runs
-	public final static int STATE_REQUESTED = 7;
-	public final static int STATE_DECODING = 8; // decoding runs
+	public final static int STATE_WAITING    = 1; // wait for start
+	public final static int STATE_TRYING     = 2; // download running
+	public final static int STATE_DONE       = 3;
+	public final static int STATE_FAILED     = 4;
+	public final static int STATE_REQUESTING = 5; // requesting missing key
+	public final static int STATE_PROGRESS   = 6; // download runs
+	public final static int STATE_REQUESTED  = 7; // missing key requested
+	public final static int STATE_DECODING   = 8; // decoding runs
 
 	// the fields
 	private String fileName = null;		//FIELD_ID_FILE_NAME
 	private Long fileSize = null;			//FIELD_ID_FILE_SIZE
-	private String fileAge = null;		//FIELD_ID_FILE_AGE
 	private String key = null;			//FIELD_ID_KEY
 	private Board sourceBoard;	//FIELD_ID_SOURCE_BOARD
-	private int retries;					//FIELD_ID_RETRIES
-	private Boolean enableDownload = 
-				new Boolean(true);			//FIELD_ID_ENABLED
+	private int retries=0;			//FIELD_ID_RETRIES
+	private Boolean enableDownload = new Boolean(true);			//FIELD_ID_ENABLED
 	private String owner = null;			//FIELD_ID_OWNER
 	private String sha1 = null;			//FIELD_ID_SHA1
-	private int state = 0;				//FIELD_ID_STATE
+	private int state = STATE_WAITING;				//FIELD_ID_STATE
+    private int requestedCount = 0;
+    private java.sql.Date lastRequestedDate = null;
+    // time when download try finished, used for pause between tries
+    private long lastDownloadStopTimeMillis = 0;
+    
+    // non persistent fields
 	private int doneBlocks = 0;			//FIELD_ID_DONE_BLOCKS
 	private int requiredBlocks = 0;		//FIELD_ID_REQUIRED_BLOCKS
 	private int totalBlocks = 0;			//FIELD_ID_TOTAL_BLOCKS
-
-	private String batch = null;
-
-	private long lastDownloadStopTimeMillis = 0;
 	
 	/**
 	 * @param searchItem
 	 */
-	// time when download try finished, used for pause between tries
-
 	public FrostDownloadItem(FrostSearchItem searchItem) {
 		fileName = searchItem.getFilename();
 		fileSize = searchItem.getSize();
-		fileAge = searchItem.getDate(); 
 		key = searchItem.getKey();
 		owner = searchItem.getOwner();
 		sourceBoard = searchItem.getBoard();
 		sha1 = searchItem.getSHA1();
-		batch = searchItem.getBatch();
 		retries = 0;
 
 		state = STATE_WAITING;
 	}
 
-	//TODO: add .redirect to this or fix it to use SharedFileObject
-	public FrostDownloadItem(String fileName, String key, Board board) {
+    // add a file from download text box
+	public FrostDownloadItem(String fileName, String key) {
 		
 		this.fileName = fileName;
 		fileSize = null; // not set yet
-		fileAge = null;
 		this.key = key;
-		sourceBoard = board;
+		sourceBoard = null;
 		retries = 0;
 
 		state = STATE_WAITING;
 	}
 
+    // add a file attachment
+    public FrostDownloadItem(String fileName, String key, Long s) {
+        
+        this.fileName = fileName;
+        fileSize = s;
+        this.key = key;
+        sourceBoard = null;
+        retries = 0;
+
+        state = STATE_WAITING;
+    }
+
+    // add a saved file 
 	public FrostDownloadItem(
 		String fileName,
-		String fileSize,
-		String fileAge,
+		Long fileSize,
 		String key,
-		String tries,
+		int tries,
 		String from,
 		String SHA1,
 		int state,
 		boolean isDownloadEnabled,
-		Board board) {
+		Board board,
+        int requested,
+        java.sql.Date lastReqDate,
+        long lastStopped) 
+    {
 		this.fileName = fileName;
-		if (fileSize != null)
-			this.fileSize = new Long(fileSize);
-
-		if (tries != null)
-			retries = Integer.parseInt(tries);
-		else
-			retries = 0;
-
-		this.fileAge = fileAge;
+		this.fileSize = fileSize;
+		this.retries = tries;
 		this.key = key;
 		this.sourceBoard = board;
 		this.state = state;
 		this.sha1 = SHA1;
 		this.enableDownload = Boolean.valueOf(isDownloadEnabled);
-		owner = from;
+		this.owner = from;
+        this.requestedCount = requested;
+        this.lastRequestedDate = lastReqDate;
+        this.lastDownloadStopTimeMillis = lastStopped;
 	}
 
 	public String getFileName() {
@@ -146,17 +152,6 @@ public class FrostDownloadItem extends ModelItem {
 		fireFieldChange(FIELD_ID_FILE_SIZE, oldFileSize, newFileSize);		
 	}
 
-	public String getFileAge() {
-		return fileAge;
-	}
-	/**
-	 * @param newFileAge
-	 */
-	public void setFileAge(String newFileAge) {
-		String oldFileAge = fileAge;
-		fileAge = newFileAge;
-		fireFieldChange(FIELD_ID_FILE_AGE, oldFileAge, newFileAge);
-	}
 	public String getKey() {
 		return key;
 	}
@@ -201,12 +196,6 @@ public class FrostDownloadItem extends ModelItem {
 		int oldRetries = retries;
 		retries = newRetries;
 		fireFieldChange(FIELD_ID_RETRIES, oldRetries, newRetries);
-	}
-	public String getBatch() {
-		return batch;
-	}
-	public void setBatch(String batch) {
-		this.batch = batch;
 	}
 
 	public Boolean getEnableDownload() {
@@ -309,4 +298,19 @@ public class FrostDownloadItem extends ModelItem {
 		fireFieldChange(FIELD_ID_TOTAL_BLOCKS, oldTotalBlocks, newTotalBlocks);
 	}
 
+    public java.sql.Date getLastRequestedDate() {
+        return lastRequestedDate;
+    }
+
+    public void setLastRequestedDate(java.sql.Date lastRequestedDate) {
+        this.lastRequestedDate = lastRequestedDate;
+    }
+
+    public int getRequestedCount() {
+        return requestedCount;
+    }
+
+    public void setRequestedCount(int requestedCount) {
+        this.requestedCount = requestedCount;
+    }
 }

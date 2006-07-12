@@ -1,4 +1,4 @@
-package frost.storage;
+package frost.storage.database.applayer;
 
 import java.sql.*;
 import java.util.*;
@@ -6,13 +6,12 @@ import java.util.*;
 import frost.*;
 import frost.gui.objects.*;
 import frost.messages.*;
+import frost.storage.database.*;
 
 // TODO: implement searching for messages without assigned boards (deleted boards)
 // TODO: prepare constraints for CHK keys and/or message ID
 
-public class MessageDatabaseTable {
-    
-    private static Object syncObj = new Object();
+public class MessageDatabaseTable extends AbstractDatabaseTable {
     
     protected String getMessageTableName() {
         return "MESSAGES";
@@ -87,7 +86,7 @@ public class MessageDatabaseTable {
         AttachmentList boards = mo.getAttachmentsOfType(Attachment.BOARD);
 
         // insert msg and all attachments
-        GuiDatabase db = GuiDatabase.getInstance();
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
         PreparedStatement ps = db.prepare(
             "INSERT INTO "+getMessageTableName()+"  ("+
             "messageid,inreplyto,isvalid,invalidreason,date,time,index,board,fromname,subject,recipient,signature," +
@@ -119,7 +118,7 @@ public class MessageDatabaseTable {
         ps.setBoolean(i++, (boards.size() > 0)); // hasboardattachment
 
         // sync to allow no updates until we got the generated identity
-        synchronized(syncObj) {
+        synchronized(getSyncObj()) {
             int inserted = ps.executeUpdate();
     
             ps.close();
@@ -155,12 +154,11 @@ public class MessageDatabaseTable {
                     " VALUES (?,?,?,?)");
             for(Iterator it=files.iterator(); it.hasNext(); ) {
                 FileAttachment fa = (FileAttachment)it.next();
-                SharedFileObject sfo = fa.getFileObj();
                 int ix=1;
                 p.setLong(ix++, mo.getMsgIdentity()); 
-                p.setString(ix++, sfo.getFilename()); 
-                p.setLong(ix++, sfo.getSize().longValue()); 
-                p.setString(ix++, sfo.getKey()); 
+                p.setString(ix++, fa.getFilename()); 
+                p.setLong(ix++, fa.getSize().longValue()); 
+                p.setString(ix++, fa.getKey()); 
                 int ins = p.executeUpdate();
                 if( ins == 0 ) {
                     System.out.println("INSERTED is 0!!!!");
@@ -194,7 +192,7 @@ public class MessageDatabaseTable {
     public void updateMessage(FrostMessageObject mo) throws SQLException {
         // update msg, date, board, index are not changeable
         // insert msg and all attachments
-        GuiDatabase db = GuiDatabase.getInstance();
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
         PreparedStatement ps = db.prepare(
             "UPDATE "+getMessageTableName()+" SET isdeleted=?,isnew=?,isanswered=?,isjunk=?,ismarked=?,isstarred=? "+
             "WHERE date=? AND index=? AND board=?");
@@ -219,7 +217,7 @@ public class MessageDatabaseTable {
     }
     
     private void retrieveAttachments(FrostMessageObject mo) throws SQLException {
-        GuiDatabase db = GuiDatabase.getInstance();
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
         // retrieve attachments
         if( mo.isHasFileAttachments() ) {
             PreparedStatement p2 = db.prepare(
@@ -234,12 +232,7 @@ public class MessageDatabaseTable {
                 size = rs2.getLong(2);
                 key = rs2.getString(3);
 
-                SharedFileObject sfo = new SharedFileObject();
-                sfo.setBoard(mo.getBoard());
-                sfo.setFilename(name);
-                sfo.setSize(size);
-                sfo.setKey(key);
-                FileAttachment fa = new FileAttachment(sfo);
+                FileAttachment fa = new FileAttachment(name, key, size);
                 mo.addAttachment(fa);
             }
             rs2.close();
@@ -316,7 +309,7 @@ public class MessageDatabaseTable {
 
         java.sql.Date startDate = DateFun.getSqlDateGMTDaysAgo(maxDaysBack);
         
-        GuiDatabase db = GuiDatabase.getInstance();
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
         String sql =
             "SELECT "+
             "primkey,messageid,inreplyto,date,time,index,fromname,subject,recipient," +
@@ -395,7 +388,7 @@ public class MessageDatabaseTable {
             MessageDatabaseTableCallback mc) 
     throws SQLException 
     {
-        GuiDatabase db = GuiDatabase.getInstance();
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
         String sql =
             "SELECT "+
             "primkey,messageid,inreplyto,date,time,index,fromname,subject,recipient," +
@@ -443,7 +436,7 @@ public class MessageDatabaseTable {
 //    }
 
     public void setAllMessagesRead(Board board) throws SQLException {
-        GuiDatabase db = GuiDatabase.getInstance();
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
         PreparedStatement ps = db.prepare("UPDATE "+getMessageTableName()+" SET isnew=FALSE WHERE board=? and isnew=TRUE");
         ps.setString(1, board.getName());
         ps.executeUpdate();
@@ -453,7 +446,7 @@ public class MessageDatabaseTable {
     public int getNewMessageCount(Board board, int maxDaysBack) throws SQLException {
         java.sql.Date startDate = DateFun.getSqlDateGMTDaysAgo(maxDaysBack);
         
-        GuiDatabase db = GuiDatabase.getInstance();
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
         PreparedStatement ps;
         if( maxDaysBack < 0 ) {
             // no date restriction
@@ -479,7 +472,7 @@ public class MessageDatabaseTable {
     public int getMessageCount(Board board, int maxDaysBack) throws SQLException {
         java.sql.Date startDate = DateFun.getSqlDateGMTDaysAgo(maxDaysBack);
         
-        GuiDatabase db = GuiDatabase.getInstance();
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
         PreparedStatement ps;
         if( maxDaysBack < 0 ) {
             // no date restriction

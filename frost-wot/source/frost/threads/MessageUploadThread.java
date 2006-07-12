@@ -31,7 +31,7 @@ import frost.fileTransfer.upload.*;
 import frost.gui.objects.*;
 import frost.identities.*;
 import frost.messages.*;
-import frost.storage.*;
+import frost.storage.database.applayer.*;
 import frost.transferlayer.*;
 
 /**
@@ -43,7 +43,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 
     private JFrame parentFrame;
     private Board board;
-    private MessageObjectFile message;
+    private MessageXmlFile message;
     private Identity encryptForRecipient;
 
     /**
@@ -51,7 +51,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
      * If recipient is not null, the message will be encrypted for the recipient.
      * In this case the sender must be not Anonymous!
      */
-    public MessageUploadThread(Board board, MessageObjectFile mo, Identity recipient) {
+    public MessageUploadThread(Board board, MessageXmlFile mo, Identity recipient) {
         super(board);
         this.board = board;
         message = mo;
@@ -148,6 +148,19 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                 message.setTimeStr(DateFun.getFullExtendedTime() + "GMT");
                 message.setDateStr(DateFun.getDate());
             }
+            
+            LocalIdentity senderId = null;
+            if( message.getFromName().indexOf("@") > 0 ) {
+                // not anonymous
+                if( message.getFromIdentity() instanceof LocalIdentity ) {
+                    senderId = (LocalIdentity)message.getFromIdentity();
+                } else {
+                    // apparently the LocalIdentity used to write the msg was deleted
+                    logger.severe("The LocalIdentity used to write this unsent msg was deleted: "+message.getFromName());
+                    notifyThreadFinished(this);
+                    return;
+                }
+            }
 
             // this class always creates a new msg file on hd and deletes the file
             // after upload was successful, or keeps it for next try
@@ -163,6 +176,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             message.setFile(unsentMessageFile);
             if (!message.save()) {
                 logger.severe("This was a HARD error and the file to upload is lost, please report to a dev!");
+                notifyThreadFinished(this);
                 return;
             }
 
@@ -172,7 +186,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                 return;
             }
 
-            uploadMessage();
+            uploadMessage(senderId);
 
         } catch (IOException ex) {
             logger.log(Level.SEVERE,"ERROR: Unexpected IOException, terminating thread ...",ex);
@@ -197,43 +211,36 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
      * @param attachment the SharedFileObject to upload
      * @return true if successful. False otherwise.
      */
-    private boolean uploadAttachment(SharedFileObject attachment) {
+    private boolean uploadAttachment(FileAttachment attachment) {
 
-        assert attachment.getFile() != null : "message.getFile() failed!";
+        assert attachment.getInternalFile() != null : "message.getFile() failed!";
 
-        int uploadHtl = Core.frostSettings.getIntValue("htlUpload");
-        logger.info(
-            "TOFUP: Uploading attachment "
-                + attachment.getFile().getPath()
-                + " with HTL "
-                + uploadHtl);
+        logger.info("TOFUP: Uploading attachment "+attachment.getInternalFile().getPath());
 
         int maxTries = 3;
         int tries = 0;
         while (tries < maxTries) {
             try {
                 FcpResultPut result = FcpHandler.inst().putFile(
+                        FcpHandler.TYPE_FILE,
                         "CHK@",
-                        attachment.getFile(),
+                        attachment.getInternalFile(),
                         null,
-                        uploadHtl,
                         true, // doRedirect
                         true, // removeLocalKey, insert with full HTL even if existing in local store
-                        new FrostUploadItem(null, null));
+                        new FrostUploadItem());
 
                 if (result.isSuccess() || result.isKeyCollision()) {
-                    logger.info("TOFUP: Upload of attachment '"+attachment.getFile().getPath()+"' was successful.");
+                    logger.info("TOFUP: Upload of attachment '"+attachment.getInternalFile().getPath()+"' was successful.");
                     attachment.setKey(result.getChkKey());
-                    attachment.setFilename(attachment.getFile().getName()); // remove path from filename
-                    attachment.setFile(null); // we never want to give out a real pathname, this is paranoia
                     return true;
                 }
             } catch (Exception ex) {
-                logger.log(Level.WARNING, "TOFUP: Exception catched, will retry upload of attachment '"+attachment.getFile().getPath()+"'.",ex);
+                logger.log(Level.WARNING, "TOFUP: Exception catched, will retry upload of attachment '"+attachment.getInternalFile().getPath()+"'.",ex);
             }
             tries++;
         }
-        logger.warning("TOFUP: Upload of attachment '"+attachment.getFile().getPath()+"' was NOT successful.");
+        logger.warning("TOFUP: Upload of attachment '"+attachment.getInternalFile().getPath()+"' was NOT successful.");
         return false;
     }
 
@@ -244,9 +251,9 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
      * @param file file whose path will be used to save the MessageObject to disk.
      * @return true if successful. False otherwise.
      */
-    private boolean uploadAttachments(MessageObjectFile msg) {
+    private boolean uploadAttachments(MessageXmlFile msg) {
         boolean success = true;
-        List fileAttachments = msg.getOfflineFiles();
+        List fileAttachments = msg.getAttachmentsOfType(Attachment.FILE);
         
         int remainingAttachmentsToUploadCount = fileAttachments.size();
         
@@ -257,12 +264,18 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         setAttachmentsToUploadCount(remainingAttachmentsToUploadCount);
         setAttachmentsToUploadRemainingCount(remainingAttachmentsToUploadCount);
         
-        // check if upload files still exist
+        // check if upload files still exist, and sort out already uploaded files
         for(Iterator i = fileAttachments.iterator(); i.hasNext(); ) {
-            SharedFileObject attachment = (SharedFileObject) i.next();
-            if( attachment.getFile()== null ||
-                attachment.getFile().isFile() == false ||
-                attachment.getFile().length() == 0 )
+            FileAttachment attachment = (FileAttachment) i.next();
+            
+            if( attachment.getKey() != null ) {
+                i.remove();
+                continue;
+            }
+            
+            if( attachment.getInternalFile()== null ||
+                attachment.getInternalFile().isFile() == false ||
+                attachment.getInternalFile().length() == 0 )
             {
                 JOptionPane.showMessageDialog(
                         parentFrame,
@@ -278,11 +291,11 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             }
         }
 
-        SharedFileObject failedAttachment = null;
+        FileAttachment failedAttachment = null;
         
         // upload each attachment
         for(Iterator i = fileAttachments.iterator(); i.hasNext(); ) {
-            SharedFileObject attachment = (SharedFileObject) i.next();
+            FileAttachment attachment = (FileAttachment) i.next();
             if(uploadAttachment(attachment)) {
                 // if the attachment was successfully inserted, we update the message on disk.
                 msg.save();
@@ -313,13 +326,14 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
      * @throws IOException
      * @throws MessageAlreadyUploadedException
      */
-    private void uploadMessage() throws IOException {
+    private void uploadMessage(LocalIdentity senderId) throws IOException {
         
         IndexSlots indexSlots = new IndexSlots(IndexSlots.MESSAGES, board.getName());
         
         int index = MessageUploader.uploadMessage(
                 message, 
-                encryptForRecipient, 
+                encryptForRecipient,
+                senderId,
                 this,
                 indexSlots,
                 DateFun.getCurrentSqlDateGMT(),
@@ -336,7 +350,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         // upload was successful, store message in sentmessages database
         FrostMessageObject mo = new FrostMessageObject(message, board, index);
         try {
-            GuiDatabase.getSentMessageTable().insertMessage(mo);
+            AppLayerDatabase.getSentMessageTable().insertMessage(mo);
         } catch (SQLException e) {
             logger.log(Level.SEVERE,"Error inserting sent message", e);
         }

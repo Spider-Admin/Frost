@@ -52,22 +52,15 @@ class MiscPanel extends JPanel {
     private SettingsClass settings = null;
     private Language language = null;
 
-    private JCheckBox allowEvilBertCheckBox = new JCheckBox();
     private JCheckBox altEditCheckBox = new JCheckBox();
     private JTextField altEditTextField = new JTextField();
     private JLabel autoSaveIntervalLabel = new JLabel();
     private JTextField autoSaveIntervalTextField = new JTextField(8);
     private JLabel availableNodesLabel1 = new JLabel();
-    private JLabel availableNodesLabel2 = new JLabel();
+//    private JLabel availableNodesLabel2 = new JLabel();
     private JTextField availableNodesTextField = new JTextField();
     private JCheckBox enableLoggingCheckBox = new JCheckBox();
-    private JLabel keyDownloadHtlLabel = new JLabel();
-    private JTextField keyDownloadHtlTextField = new JTextField(8);
-
-    private JLabel keyUploadHtlLabel = new JLabel();
-
-    private JTextField keyUploadHtlTextField = new JTextField(8);
-
+    
     private Listener listener = new Listener();
     private JLabel logFileSizeLabel = new JLabel();
     private JTextField logFileSizeTextField = new JTextField(8);
@@ -98,6 +91,7 @@ class MiscPanel extends JPanel {
         JPanel subPanel = new JPanel(new GridBagLayout());
 
         GridBagConstraints constraints = new GridBagConstraints();
+        constraints.anchor = GridBagConstraints.NORTHWEST;
         constraints.fill = GridBagConstraints.HORIZONTAL;
         Insets insets5055 = new Insets(5, 0, 5, 5);
         Insets insets5_30_5_0 = new Insets(5, 30, 5, 0);
@@ -140,49 +134,32 @@ class MiscPanel extends JPanel {
         new TextComponentClipboardMenu(altEditTextField, language);
         new TextComponentClipboardMenu(autoSaveIntervalTextField, language);
         new TextComponentClipboardMenu(availableNodesTextField, language);
-        new TextComponentClipboardMenu(keyDownloadHtlTextField, language);
-        new TextComponentClipboardMenu(keyUploadHtlTextField, language);
         new TextComponentClipboardMenu(logFileSizeTextField, language);
 
         // Adds all of the components
         GridBagConstraints constraints = new GridBagConstraints();
+        constraints.anchor = GridBagConstraints.NORTHWEST;
         constraints.fill = GridBagConstraints.HORIZONTAL;
         Insets insets5555 = new Insets(5, 5, 5, 5);
-        constraints.weighty = 1;
+        Insets insets10_555 = new Insets(10, 5, 5, 5);
 
         constraints.weightx = 0;
-        constraints.gridwidth = 1;
         constraints.insets = insets5555;
         constraints.gridx = 0;
         constraints.gridy = 0;
-        add(keyUploadHtlLabel, constraints);
-        constraints.gridx = 1;
-        add(keyUploadHtlTextField, constraints);
-
-        constraints.gridx = 0;
-        constraints.gridy = 1;
-        add(keyDownloadHtlLabel, constraints);
-        constraints.gridx = 1;
-        add(keyDownloadHtlTextField, constraints);
-
-        constraints.anchor = GridBagConstraints.SOUTH;
-        constraints.gridx = 0;
-        constraints.gridy = 2;
-        add(availableNodesLabel1, constraints);
-        constraints.anchor = GridBagConstraints.NORTH;
-        constraints.gridy = 3;
-        add(availableNodesLabel2, constraints);
-        constraints.gridx = 1;
-        constraints.weightx = 1;
         constraints.gridwidth = 2;
+        add(availableNodesLabel1, constraints);
+        constraints.gridy++;
+        constraints.weightx = 1;
         add(availableNodesTextField, constraints);
 
-        constraints.anchor = GridBagConstraints.CENTER;
+//        constraints.anchor = GridBagConstraints.CENTER;
         constraints.weightx = 0;
         constraints.gridwidth = 1;
 
+        constraints.insets = insets10_555;
         constraints.gridx = 0;
-        constraints.gridy = 4;
+        constraints.gridy++;
         add(altEditCheckBox, constraints);
         constraints.gridx = 1;
         constraints.gridwidth = 2;
@@ -192,33 +169,33 @@ class MiscPanel extends JPanel {
         constraints.weightx = 0;
         constraints.gridwidth = 1;
         constraints.gridx = 0;
-        constraints.gridy = 5;
+        constraints.gridy++;
         add(autoSaveIntervalLabel, constraints);
         constraints.gridx = 1;
+        constraints.fill = GridBagConstraints.NONE;
         add(autoSaveIntervalTextField, constraints);
 
-        constraints.gridx = 0;
-        constraints.gridy = 6;
-        add(allowEvilBertCheckBox, constraints);
-//      constraints.gridx = 1;
-//      constraints.gridwidth = 2;
-//      constraints.weightx = 1;
-//      add(cleanupCheckBox, constraints);
-
         constraints.weightx = 0;
-        constraints.gridwidth = 1;
-        constraints.gridx = 0;
-        constraints.gridy = 7;
-        add(splashScreenCheckBox, constraints);
-        constraints.gridx = 1;
         constraints.gridwidth = 2;
-        constraints.weightx = 1;
+        constraints.gridx = 0;
+        constraints.gridy++;
+        add(splashScreenCheckBox, constraints);
+        constraints.gridy++;
         add(showSystrayIconCheckBox, constraints);
 
         constraints.gridx = 0;
-        constraints.gridy = 8;
+        constraints.gridy++;
         constraints.gridwidth = 3;
         add(getLoggingPanel(), constraints);
+        
+        // glue
+        constraints.gridy++;
+        constraints.gridx = 0;
+        constraints.gridwidth = 2;
+        constraints.fill = GridBagConstraints.BOTH;
+        constraints.weightx = 1;
+        constraints.weighty = 1;
+        add(new JLabel(""), constraints);
 
         // Add listeners
         enableLoggingCheckBox.addActionListener(listener);
@@ -229,11 +206,8 @@ class MiscPanel extends JPanel {
      * Load the settings of this panel
      */
     private void loadSettings() {
-        allowEvilBertCheckBox.setSelected(settings.getBoolValue("allowEvilBert"));
         altEditCheckBox.setSelected(settings.getBoolValue("useAltEdit"));
         altEditTextField.setEnabled(altEditCheckBox.isSelected());
-        keyUploadHtlTextField.setText(settings.getValue("keyUploadHtl"));
-        keyDownloadHtlTextField.setText(settings.getValue("keyDownloadHtl"));
         showSystrayIconCheckBox.setSelected(settings.getBoolValue("showSystrayIcon"));
         availableNodesTextField.setText(settings.getValue("availableNodes"));
         altEditTextField.setText(settings.getValue("altEdit"));
@@ -260,16 +234,13 @@ class MiscPanel extends JPanel {
     }
 
     private void refreshLanguage() {
-        keyUploadHtlLabel.setText(language.getString("Options.miscellaneous.keyfileUploadHtl") + " (21)");
-        keyDownloadHtlLabel.setText(language.getString("Options.miscellaneous.keyfileDownloadHtl") + " (24)");
-        availableNodesLabel1.setText(language.getString("Options.miscellaneous.listOfFcpNodes"));
-        availableNodesLabel2.setText(language.getString("Options.miscellaneous.listOfFcpNodesExplanation"));
+        availableNodesLabel1.setText(language.getString("Options.miscellaneous.listOfFcpNodes")+" "+language.getString("Options.miscellaneous.listOfFcpNodesExplanation"));
+//        availableNodesLabel2.setText(language.getString("Options.miscellaneous.listOfFcpNodesExplanation"));
         autoSaveIntervalLabel.setText(language.getString("Options.miscellaneous.automaticSavingInterval") + 
                 " (15 "+language.getString("Options.common.minutes")+")");
         splashScreenCheckBox.setText(language.getString("Options.miscellaneous.disableSplashscreen"));
         showSystrayIconCheckBox.setText(language.getString("Options.miscellaneous.showSysTrayIcon"));
         String off = language.getString("Options.common.off");
-        allowEvilBertCheckBox.setText(language.getString("Options.miscellaneous.allow2ByteCharacters") + " (" + off + ")");
         altEditCheckBox.setText(language.getString("Options.miscellaneous.useEditorForWritingMessages") + " (" + off + ")");
 
         enableLoggingCheckBox.setText(language.getString("Options.miscellaneous.enableLogging"));
@@ -290,11 +261,8 @@ class MiscPanel extends JPanel {
      * Save the settings of this panel
      */
     private void saveSettings() {
-        settings.setValue("keyUploadHtl", keyUploadHtlTextField.getText());
-        settings.setValue("keyDownloadHtl", keyDownloadHtlTextField.getText());
         settings.setValue("availableNodes", availableNodesTextField.getText());
         settings.setValue("showSystrayIcon", showSystrayIconCheckBox.isSelected());
-        settings.setValue("allowEvilBert", allowEvilBertCheckBox.isSelected());
         settings.setValue("useAltEdit", altEditCheckBox.isSelected());
         settings.setValue("altEdit", altEditTextField.getText());
         settings.setValue(SettingsClass.AUTO_SAVE_INTERVAL, autoSaveIntervalTextField.getText());

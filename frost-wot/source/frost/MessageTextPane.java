@@ -32,11 +32,11 @@ import javax.swing.table.*;
 import javax.swing.text.*;
 
 import frost.fileTransfer.download.*;
-import frost.fileTransfer.search.*;
 import frost.gui.*;
 import frost.gui.model.*;
 import frost.gui.objects.*;
 import frost.messages.*;
+import frost.storage.database.applayer.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
@@ -370,9 +370,10 @@ public class MessageTextPane extends JPanel {
         LinkedList addBoards = new LinkedList();
         for (int i = 0; i < selectedRows.length; i++) {
             BoardAttachment ba = (BoardAttachment) boards.get(selectedRows[i]);
-            addBoards.add(ba);
+            addBoards.add(ba.getBoardObj());
         }
-        Core.addNewKnownBoards(addBoards);
+
+        AppLayerDatabase.getKnownBoardsDatabaseTable().addNewKnownBoards(addBoards);
     }
 
     /**
@@ -606,26 +607,21 @@ public class MessageTextPane extends JPanel {
                 Iterator it = selectedMessage.getAttachmentsOfType(Attachment.FILE).iterator();
                 while (it.hasNext()) {
                     FileAttachment fa = (FileAttachment) it.next();
-                    SharedFileObject sfo = fa.getFileObj();
-                    FrostSearchItem fsio = new FrostSearchItem(
-                            mainFrame.getTofTreeModel().getBoardByName(selectedMessage.getBoard().getName()),
-                            sfo,
-                            FrostSearchItem.STATE_NONE);
-                    //FIXME: <-does this matter?
-                    FrostDownloadItem dlItem = new FrostDownloadItem(fsio);
+                    FrostDownloadItem dlItem = new FrostDownloadItem(
+                            fa.getFilename(), 
+                            fa.getKey(), 
+                            fa.getSize()); 
                     downloadModel.addDownloadItem(dlItem);
                 }
 
             } else {
                 LinkedList attachments = selectedMessage.getAttachmentsOfType(Attachment.FILE);
                 for (int i = 0; i < selectedRows.length; i++) {
-                    FileAttachment fo = (FileAttachment) attachments.get(selectedRows[i]);
-                    SharedFileObject sfo = fo.getFileObj();
-                    FrostSearchItem fsio = new FrostSearchItem(
-                            mainFrame.getTofTreeModel().getBoardByName(selectedMessage.getBoard().getName()),
-                            sfo,
-                            FrostSearchItem.STATE_NONE);
-                    FrostDownloadItem dlItem = new FrostDownloadItem(fsio);
+                    FileAttachment fa = (FileAttachment) attachments.get(selectedRows[i]);
+                    FrostDownloadItem dlItem = new FrostDownloadItem(
+                            fa.getFilename(), 
+                            fa.getKey(), 
+                            fa.getSize()); 
                     downloadModel.addDownloadItem(dlItem);
                 }
             }
@@ -664,11 +660,10 @@ public class MessageTextPane extends JPanel {
             StringBuffer textToCopy = new StringBuffer();
             for(Iterator i = items.iterator(); i.hasNext(); ) {
                 FileAttachment fa = (FileAttachment) i.next();
-                SharedFileObject sfo = fa.getFileObj();
-                String key = sfo.getKey();
+                String key = fa.getKey();
                 textToCopy.append(key);
                 textToCopy.append("/");
-                textToCopy.append(sfo.getFilename());
+                textToCopy.append(fa.getFilename());
                 textToCopy.append("\n");
             }
             StringSelection selection = new StringSelection(textToCopy.toString());
@@ -689,15 +684,14 @@ public class MessageTextPane extends JPanel {
             StringBuffer textToCopy = new StringBuffer();
             for(Iterator i = items.iterator(); i.hasNext(); ) {
                 FileAttachment fa = (FileAttachment) i.next();
-                SharedFileObject sfo = fa.getFileObj();
 
-                String key = sfo.getKey();
+                String key = fa.getKey();
                 textToCopy.append(fileMessage);
-                textToCopy.append(sfo.getFilename() + "\n");
+                textToCopy.append(fa.getFilename() + "\n");
                 textToCopy.append(keyMessage);
                 textToCopy.append(key + "\n");
                 textToCopy.append(bytesMessage);
-                textToCopy.append(sfo.getSize() + "\n\n");
+                textToCopy.append(fa.getSize() + "\n\n");
             }
             //We remove the additional \n at the end
             String result = textToCopy.substring(0, textToCopy.length() - 1);
@@ -718,8 +712,7 @@ public class MessageTextPane extends JPanel {
             StringBuffer textToCopy = new StringBuffer();
             for(Iterator i = items.iterator(); i.hasNext(); ) {
                 FileAttachment fa = (FileAttachment) i.next();
-                SharedFileObject sfo = fa.getFileObj();
-                String key = sfo.getKey();
+                String key = fa.getKey();
                 textToCopy.append(key);
                 textToCopy.append("\n");
             }

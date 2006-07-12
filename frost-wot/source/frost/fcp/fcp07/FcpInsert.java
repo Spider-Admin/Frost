@@ -140,9 +140,11 @@ EndMessage
      * for inserting e.g. the pubkey.txt file set it to null.
      * Same for uploadItem: if a non-uploadtable file is uploaded, this is null.
      */
-    public static FcpResultPut putFile(String uri,
-                                   File file,
-                                   FrostUploadItem ulItem)
+    public static FcpResultPut putFile(
+            int type,
+            String uri,
+            File file,
+            FrostUploadItem ulItem)
     {
         if (file.length() == 0) {
             logger.log(Level.SEVERE, "Error: Can't upload empty file: "+file.getPath());
@@ -165,7 +167,7 @@ EndMessage
                 return FcpResultPut.ERROR_RESULT;
             }
 
-            String output = connection.putKeyFromFile(uri, file, false);
+            String output = connection.putKeyFromFile(type, uri, file, false);
 
             return result(output);
 

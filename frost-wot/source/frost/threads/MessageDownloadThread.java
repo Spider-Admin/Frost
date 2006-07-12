@@ -214,7 +214,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
         TOF.getInstance().receivedInvalidMessage(b, calDL, index, reason);
     }
     
-    private void receivedValidMessage(MessageObjectFile mo, Board b, int index) {
+    private void receivedValidMessage(MessageXmlFile mo, Board b, int index) {
         TOF.getInstance().receivedValidMessage(mo, b, index);
     }
     
@@ -227,7 +227,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
      * @param dirDate
      * @return
      */
-    public boolean isValidFormat(MessageObjectFile mo, Calendar dirDate) {
+    public boolean isValidFormat(MessageXmlFile mo, Calendar dirDate) {
         String timeStr = mo.getTimeStr();
         String msgDateStr = mo.getDateStr();
         try { // if something fails here, set msg. to N/A (maybe harmful message)

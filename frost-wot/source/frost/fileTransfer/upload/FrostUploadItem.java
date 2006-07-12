@@ -18,11 +18,14 @@
 */
 package frost.fileTransfer.upload;
 
-import java.io.File;
+import java.io.*;
+import java.util.*;
 
-import frost.gui.model.TableMember;
-import frost.gui.objects.Board;
-import frost.util.model.ModelItem;
+import frost.*;
+import frost.gui.model.*;
+import frost.gui.objects.*;
+import frost.messages.*;
+import frost.util.model.*;
 
 public class FrostUploadItem extends ModelItem
 {
@@ -51,56 +54,81 @@ public class FrostUploadItem extends ModelItem
 
     //the fields
     private int state;                  //FIELD_ID_STATE
-    private String fileName;            //FIELD_ID_FILE_NAME
-    private String filePath;            //FIELD_ID_FILE_PATH
-    private Long fileSize;              //FIELD_ID_FILE_SIZE
-    private String key;                 //FIELD_ID_KEY
-    private String sha1;                //FIELD_ID_SHA
-    private Board targetBoard;          //FIELD_ID_TARGET_BOARD
+    private String fileName = null;     //FIELD_ID_FILE_NAME
+    private String filePath = null;     //FIELD_ID_FILE_PATH
+    private long fileSize = 0;       //FIELD_ID_FILE_SIZE
+    private String key= null;           //FIELD_ID_KEY
+    private String sha1 = null;         //FIELD_ID_SHA
+    private java.sql.Date lastUploadDate = null; //FIELD_ID_LAST_UPLOAD_DATE (null as long as NEVER uploaded)
+    private int uploadCount = 0;
+    private java.sql.Date lastRequestedDate = null;           
+    private int requestedCount = 0;
+    private Boolean enabled = new Boolean(true);    //FIELD_ID_ENABLED
+    private int retries = 0;                        //FIELD_ID_RETRIES
+    private long lastUploadStopTimeMillis = 0;
+    
+    // contains board,owner,lastSharedDate
+    private List frostUploadItemOwnerBoardList = new LinkedList();
+
+    // non-persistent fields
+    private int nextState = 0;
     private int totalBlocks = -1;       //FIELD_ID_TOTAL_BLOCKS
     private int doneBlocks = -1;        //FIELD_ID_DONE_BLOCKS
-    private String lastUploadDate;                  //FIELD_ID_LAST_UPLOAD_DATE (null as long as NEVER uploaded)
-    private Boolean enabled = new Boolean(true);    //FIELD_ID_ENABLED
-    private int retries;                            //FIELD_ID_RETRIES
 
-    private int nextState = 0;
-
-    private String batch = null;
-
-    private long lastUploadStopTimeMillis = 0;
 
     /**
-     * @param file
-     * @param newBoard
+     * Dummy to use for uploads of attachments. Is never saved.
      */
-    public FrostUploadItem(File file, Board newBoard) {
-        if (file != null) {
-            fileName = file.getName();
-            filePath = file.getPath();
-            fileSize = new Long(file.length());
-        } else
-            assert(newBoard == null) : "constructor called with null file, but not null board";
-        targetBoard = newBoard;
+    public FrostUploadItem() {
+    }
+
+    /**
+     * Used to add a new file. SHA1 must be created and must not be already in table!
+     */
+    public FrostUploadItem(File file, Board newBoard, String owner, String s1) {
+
+        fileName = file.getName();
+        filePath = file.getPath();
+        fileSize = file.length();
+        sha1 = s1;
+        
+        FrostUploadItemOwnerBoard ob = new FrostUploadItemOwnerBoard(this, newBoard, owner, null);
+        addFrostUploadItemOwnerBoard(ob);
+
         state = STATE_IDLE;
-        lastUploadDate = null;
-        key = null;
-        sha1 = null;
     }
 
     /**
      * Constructor used by loadUploadTable
      */
-    public FrostUploadItem(String newFilename, String newFilepath, long newFilesize, Board newBoard,
-                                 int newState, String newLastUploadDate, String newKey, String newSha1)
+    public FrostUploadItem(
+            String newSha1,
+            String newFilename,
+            String newFilepath,
+            long newFilesize,
+            String newKey,
+            java.sql.Date newLastUploadDate,
+            int newUploadCount,
+            java.sql.Date newLastRequestedDate,
+            int newRequestedCount,
+            int newState,
+            boolean newIsEnabled,
+            long newLastUploadStopTimeMillis,
+            int newRetries)
     {
+        sha1 = newSha1;
         fileName = newFilename;
         filePath = newFilepath;
-        fileSize = new Long(newFilesize);
-        targetBoard = newBoard;
-        state = newState;
-        lastUploadDate = newLastUploadDate;
+        fileSize = newFilesize;
         key = newKey;
-        sha1 = newSha1;
+        lastUploadDate = newLastUploadDate;
+        uploadCount = newUploadCount;
+        lastRequestedDate = newLastRequestedDate;
+        requestedCount = newRequestedCount;
+        state = newState;
+        enabled = new Boolean(newIsEnabled);
+        lastUploadStopTimeMillis = newLastUploadStopTimeMillis;
+        retries = newRetries;
     }
 
     /**
@@ -109,13 +137,11 @@ public class FrostUploadItem extends ModelItem
      * @param   column  Column to be displayed
      * @return  Object representing table entry.
      */
-    public Object getValueAt(int column)
-    {
+    public Object getValueAt(int column) {
        return null;
     }
 
-    public int compareTo( TableMember anOther, int tableColumIndex )
-    {
+    public int compareTo( TableMember anOther, int tableColumIndex ) {
         Comparable c1 = (Comparable)getValueAt(tableColumIndex);
         Comparable c2 = (Comparable)anOther.getValueAt(tableColumIndex);
         return c1.compareTo( c2 );
@@ -126,6 +152,9 @@ public class FrostUploadItem extends ModelItem
      */
     public String getFileName() {
         return fileName;
+    }
+    public int getUploadCount() {
+        return uploadCount;
     }
     /**
      * @param val
@@ -154,16 +183,15 @@ public class FrostUploadItem extends ModelItem
     /**
      * @return
      */
-    public Long getFileSize() {
+    public long getFileSize() {
         return fileSize;
     }
     /**
      * @param val
      */
     public void setFileSize(Long newFileSize) {
-        Long oldFileSize = fileSize;
-        fileSize = newFileSize;
-        fireFieldChange(FIELD_ID_FILE_SIZE, oldFileSize, newFileSize);
+        fileSize = newFileSize.longValue();
+        fireFieldChange(FIELD_ID_FILE_SIZE, null, newFileSize);
     }
 
     /**
@@ -199,21 +227,6 @@ public class FrostUploadItem extends ModelItem
     /**
      * @return
      */
-    public Board getTargetBoard() {
-        return targetBoard;
-    }
-    /**
-     * @param val
-     */
-    public void setTargetBoard(Board newBoard) {
-        Board oldBoard = targetBoard;
-        targetBoard = newBoard;
-        fireFieldChange(FIELD_ID_TARGET_BOARD, oldBoard, newBoard);
-    }
-
-    /**
-     * @return
-     */
     public int getState() {
         return state;
     }
@@ -241,26 +254,17 @@ public class FrostUploadItem extends ModelItem
     public void setNextState(int v) {
         nextState = v;
     }
-    public String getBatch() {
-        return batch;
-    }
-    /**
-     * @param batch
-     */
-    public void setBatch(String batch) {
-        this.batch = batch;
-    }
     /**
      * @return
      */
-    public String getLastUploadDate() {
+    public java.sql.Date getLastUploadDate() {
         return lastUploadDate;
     }
     /**
      * @param newLastUploadDate
      */
-    public void setLastUploadDate(String newLastUploadDate) {
-        String oldLastUploadDate = lastUploadDate;
+    public void setLastUploadDate(java.sql.Date newLastUploadDate) {
+        java.sql.Date oldLastUploadDate = lastUploadDate;
         lastUploadDate = newLastUploadDate;
         fireFieldChange(FIELD_ID_LAST_UPLOAD_DATE, oldLastUploadDate, newLastUploadDate);
     }
@@ -314,38 +318,72 @@ public class FrostUploadItem extends ModelItem
         fireFieldChange(FIELD_ID_ENABLED, oldEnabled, newEnabled);
     }
 
-    /**
-     * @return
-     */
     public int getDoneBlocks() {
         return doneBlocks;
     }
 
-    /**
-     * @return
-     */
     public Boolean isEnabled() {
         return enabled;
     }
 
-    /**
-     * @return
-     */
     public int getTotalBlocks() {
         return totalBlocks;
     }
 
-    /**
-     * @return
-     */
     public long getLastUploadStopTimeMillis() {
         return lastUploadStopTimeMillis;
     }
-    /**
-     * @param lastUploadStopTimeMillis
-     */
     public void setLastUploadStopTimeMillis(long lastUploadStopTimeMillis) {
         this.lastUploadStopTimeMillis = lastUploadStopTimeMillis;
     }
-}
 
+    public java.sql.Date getLastRequestedDate() {
+        return lastRequestedDate;
+    }
+
+    public void setLastRequestedDate(java.sql.Date lastRequestedDate) {
+        this.lastRequestedDate = lastRequestedDate;
+    }
+
+    public int getRequestedCount() {
+        return requestedCount;
+    }
+
+    public void setRequestedCount(int requestedCount) {
+        this.requestedCount = requestedCount;
+    }
+
+    public List getFrostUploadItemOwnerBoardList() {
+        return frostUploadItemOwnerBoardList;
+    }
+    public void addFrostUploadItemOwnerBoard(FrostUploadItemOwnerBoard v) {
+        // TODO: check for dups! board,owner
+        frostUploadItemOwnerBoardList.add(v);
+    }
+    public void deleteFrostUploadItemOwnerBoard(FrostUploadItemOwnerBoard v) {
+        frostUploadItemOwnerBoardList.remove(v);
+    }
+
+    public void setUploadCount(int uploadCount) {
+        this.uploadCount = uploadCount;
+    }
+    
+    /**
+     * Builds an instance that can be serialized to XML.
+     * Used to send file references in index file.
+     */
+    public SharedFileXmlFile getSharedFileXmlFileInstance(FrostUploadItemOwnerBoard v) {
+        SharedFileXmlFile sfxf = new SharedFileXmlFile();
+        
+        sfxf.setSHA1(getSHA1());
+        sfxf.setSize(getFileSize());
+        sfxf.setKey(getKey());
+        sfxf.setFilename(getFileName());
+        sfxf.setLastUploaded(DateFun.getExtendedDateFromSqlDate(getLastUploadDate()));
+        
+        sfxf.setOwner(v.getOwner());
+        sfxf.setBoard(v.getTargetBoard());
+        
+        return sfxf;
+    }
+}

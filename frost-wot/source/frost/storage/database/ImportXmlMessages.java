@@ -1,4 +1,4 @@
-package frost.storage;
+package frost.storage.database;
 
 import java.io.*;
 import java.sql.*;
@@ -9,10 +9,8 @@ import frost.*;
 import frost.boards.*;
 import frost.gui.objects.*;
 import frost.messages.*;
+import frost.storage.database.applayer.*;
 import frost.threads.*;
-
-// TODO: set index slots!
-// TODO: prevent duplicate inserts!
 
 public class ImportXmlMessages {
 
@@ -67,10 +65,6 @@ public class ImportXmlMessages {
                 logger.severe("no archive sent dir found");
                 archiveDir = null;
             } else {
-                // TODO
-                // im sent folder: 
-                // 2006.04.16/2006.4.16-boards-2.xml
-                // 2006.04.16/2006.4.16-test-9.xml
                 File[] dateDirs = archiveDir.listFiles();
                 if( dateDirs == null || dateDirs.length == 0 ) {
                     logger.warning("no files in archive sent dir");
@@ -117,9 +111,9 @@ public class ImportXmlMessages {
                 continue;
             }
             
-            MessageObjectFile mof = null;
+            MessageXmlFile mof = null;
             try {
-                mof = new MessageObjectFile(sentFile);
+                mof = new MessageXmlFile(sentFile);
             } catch (MessageCreationException e) {
                 logger.severe("Error reading sent xml file: "+sentFile.getPath());
                 continue;
@@ -134,7 +128,7 @@ public class ImportXmlMessages {
 
             FrostMessageObject mo = new FrostMessageObject(mof, board, index);
             try {
-                GuiDatabase.getSentMessageTable().insertMessage(mo);
+                AppLayerDatabase.getSentMessageTable().insertMessage(mo);
             } catch (SQLException e) {
                 logger.log(Level.SEVERE, "Error inserting sent message into database", e);
             }
@@ -170,7 +164,6 @@ public class ImportXmlMessages {
                 continue;
             }
             
-            // TODO
             IndexSlots indexSlots = new IndexSlots(IndexSlots.MESSAGES, board.getName());
 
             for(int j=0; j<dateDirs.length; j++) {
@@ -201,7 +194,6 @@ public class ImportXmlMessages {
                     importMessageFile(msgFile, board, dateDirCal, indexSlots, maxDateBack);
                 }
             }
-
             indexSlots.close();
         }
     }
@@ -225,10 +217,10 @@ public class ImportXmlMessages {
             return false;
         }
         
-        MessageObjectFile mof = null;
+        MessageXmlFile mof = null;
         String invalidReason = null;
         try {
-            mof = new MessageObjectFile(msgFile);
+            mof = new MessageXmlFile(msgFile);
         } catch (MessageCreationException e) {
             if( e.isEmpty() ) {
                 // read notify file
@@ -241,7 +233,7 @@ public class ImportXmlMessages {
             FrostMessageObject mo = new FrostMessageObject(mof, board, index);
             mo.setNew( mof.isMessageNew() );
             try {
-                GuiDatabase.getMessageTable().insertMessage(mo);
+                AppLayerDatabase.getMessageTable().insertMessage(mo);
             } catch (SQLException e) {
                 logger.log(Level.SEVERE, "Error inserting message into database", e);
                 return false;
@@ -250,7 +242,7 @@ public class ImportXmlMessages {
             // invalid message, get date from filename
             FrostMessageObject invalidMsg = new FrostMessageObject(board, calDL, index, invalidReason);
             try {
-                GuiDatabase.getMessageTable().insertMessage(invalidMsg);
+                AppLayerDatabase.getMessageTable().insertMessage(invalidMsg);
             } catch (SQLException e) {
                 logger.log(Level.SEVERE, "Error inserting invalid message into database", e);
                 return false;

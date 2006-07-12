@@ -20,25 +20,21 @@ package frost.boards;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
 import java.sql.*;
-import java.util.Vector;
+import java.util.*;
 import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.event.*;
-import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.*;
 
-import frost.*;
-import frost.fileTransfer.*;
-import frost.gui.SortedTable;
+import frost.gui.*;
 import frost.gui.model.*;
-import frost.gui.objects.Board;
-import frost.messages.FrostIndex;
-import frost.storage.*;
+import frost.gui.objects.*;
+import frost.storage.database.applayer.*;
 import frost.threads.*;
-import frost.util.gui.JSkinnablePopupMenu;
+import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
 /**
@@ -404,25 +400,19 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         int countAllMessages = 0;
         int countFiles = 0;
 
-        File boardDir = new File(MainFrame.keypool + board.getBoardFilename());
-        if( boardDir.isDirectory() ) {
-            File[] entries = boardDir.listFiles();
-            if( entries != null ) {
-                for( int i = 0; i < entries.length; i++ ) {
-                    if( entries[i].getName().endsWith("files.xml") ) {
-                        countFiles += getLineCount(entries[i]);
-                    }
-                }
-            }
+        try {
+            countFiles = AppLayerDatabase.getFileListDatabaseTable().getFileCount(board);
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error retrieving file count from db", e);
         }
         
         try {
-            countNewMessages = GuiDatabase.getMessageTable().getMessageCount(board, 0);
+            countNewMessages = AppLayerDatabase.getMessageTable().getMessageCount(board, 0);
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error retrieving todays message count from db", e);
         }
         try {
-            countAllMessages = GuiDatabase.getMessageTable().getMessageCount(board, -1);
+            countAllMessages = AppLayerDatabase.getMessageTable().getMessageCount(board, -1);
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error retrieving overall message count from db", e);
         }
@@ -432,29 +422,6 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         row.setFilesCount(countFiles);
 
         return row;
-    }
-
-    /**
-     * Used to count the files of a board.
-     * see fillInBoardCounts
-     * was in FileAccess, but only used from here ...
-     * TODO: search byte by byte for line separators, the actual
-     *       code produces not needed Strings for each line
-     * @param file
-     * @return
-     */
-    public int getLineCount(File file)
-    {
-        FrostIndex current = null;
-        Index idx = Index.getInstance();
-        synchronized(idx) {
-            current = idx.readKeyFile(file);
-        }
-        if( current == null ) {
-            return 0;
-        } else {
-            return current.getFilesMap().size();
-        }
     }
 
     public void startDialog() {

@@ -18,6 +18,7 @@
 */
 package frost.identities;
 
+import java.sql.*;
 import java.util.logging.*;
 
 import org.w3c.dom.*;
@@ -25,13 +26,18 @@ import org.xml.sax.*;
 
 import frost.*;
 import frost.messages.*;
+import frost.storage.database.applayer.*;
 
 /**
  * Represents a user identity, should be immutable.
  */
-public class Identity implements SafeXMLizable {
+public class Identity implements XMLizable {
 
-    private String name;
+    private static final int GOOD  = 1;
+    private static final int CHECK = 2;
+    private static final int OBSERVE = 3;
+    private static final int BAD   = 4;
+
     private String uniqueName;
     protected String key;
     private long lastSeenTimestamp = -1;
@@ -39,9 +45,6 @@ public class Identity implements SafeXMLizable {
     int state = -1; // FRIEND,...
 
     private static Logger logger = Logger.getLogger(Identity.class.getName());
-
-    //some trust map methods
-//    protected Set trustees;
 
     //if this was C++ LocalIdentity wouldn't work
     //fortunately we have virtual construction so loadXMLElement will be called
@@ -55,57 +58,13 @@ public class Identity implements SafeXMLizable {
     }
 
     public Element getXMLElement(Document doc)  {
-        Element el = getSafeXMLElement(doc);
-        Element element;
-        Text text;
-
-        //# of files
-//      Element element = doc.createElement("files");
-//      Text text = doc.createTextNode(""+noFiles);
-//      element.appendChild(text);
-//      el.appendChild(element);
-
-        //# of messages
-//      element = doc.createElement("messages");
-//      text = doc.createTextNode(""+noMessages);
-//      element.appendChild(text);
-//      el.appendChild(element);
-
-        // last seen timestamp
-        if( getLastSeenTimestamp() > 0 ) {
-            element = doc.createElement("lastSeen");
-            text = doc.createTextNode(""+getLastSeenTimestamp());
-            element.appendChild(text);
-            el.appendChild(element);
-        }
-
-        //trusted identities
-//      if (trustees != null) {
-//          element = doc.createElement("trustedIds");
-//          Iterator it = trustees.iterator();
-//          while (it.hasNext()) {
-//              String id = (String)it.next();
-//              Element trustee = doc.createElement("trustee");
-//              CDATASection cdata = doc.createCDATASection(id);
-//              trustee.appendChild(cdata);
-//              element.appendChild(trustee);
-//          }
-//          el.appendChild(element);
-//      }
-        return el;
-    }
-
-    //same method used for LocalIdentity
-    public Element getSafeXMLElement(Document doc){
         Element el = doc.createElement("Identity");
 
-        //name
         Element element = doc.createElement("name");
         CDATASection cdata = doc.createCDATASection(getUniqueName());
         element.appendChild( cdata );
         el.appendChild( element );
 
-        //key itself
         element = doc.createElement("key");
         cdata = doc.createCDATASection(getKey());
         element.appendChild( cdata );
@@ -116,16 +75,7 @@ public class Identity implements SafeXMLizable {
 
     public void loadXMLElement(Element e) throws SAXException {
         uniqueName = XMLTools.getChildElementsCDATAValue(e, "name");
-        name = uniqueName.substring(0,uniqueName.indexOf("@"));
         key =  XMLTools.getChildElementsCDATAValue(e, "key");
-//      try {
-//          String _msg = XMLTools.getChildElementsTextValue(e,"messages");
-//          noMessages = _msg == null ? 0 : Integer.parseInt(_msg);
-//          String _files = XMLTools.getChildElementsTextValue(e,"files");
-//          noFiles = _files == null ? 0 : Integer.parseInt(_files);
-//      } catch (Exception npe) {
-//          logger.log(Level.SEVERE, "No data about # of messages found for identity " + uniqueName, npe);
-//      }
 
         String _lastSeenStr = XMLTools.getChildElementsTextValue(e,"lastSeen");
         if( _lastSeenStr != null && ((_lastSeenStr=_lastSeenStr.trim())).length() > 0 ) {
@@ -134,25 +84,6 @@ public class Identity implements SafeXMLizable {
             // not yet set, init with current timestamp
             lastSeenTimestamp = System.currentTimeMillis();
         }
-
-        // check for trustees
-//      ArrayList _trusteesList = XMLTools.getChildElementsByTagName(e,"trustees");
-//      Element trusteesList = null;
-//      if (_trusteesList.size() > 0) {
-//          trusteesList = (Element) _trusteesList.get(0);
-//        }
-//      if (trusteesList != null) {
-//          if (trustees == null) {
-//              trustees = new TreeSet();
-//            }
-//          List trusteeEntities = XMLTools.getChildElementsByTagName(trusteesList,"trustee");
-//          Iterator it = trusteeEntities.iterator();
-//          while (it.hasNext()) {
-//              Element trustee = (Element)it.next();
-//              String id = ((CDATASection) trustee.getFirstChild()).getData().trim();
-//              trustees.add(id);
-//          }
-//      }
     }
 
     /**
@@ -160,45 +91,27 @@ public class Identity implements SafeXMLizable {
      */
     public Identity(String name, String key) {
         this.key = key;
-        this.name = name;
-        if( name.indexOf("@") != -1 )
+        if( name.indexOf("@") != -1 ) {
             this.uniqueName = name;
-        else
-            setName(name);
+        } else {
+            this.uniqueName = name + "@" + Core.getCrypto().digest(getKey());
+        }
     }
-
-    private void setName(String nam) {
-        this.name = nam;
-        // if( getKey().equals( NA ) )
-        // this.uniqueName = nam;
-        // else
-        this.uniqueName = nam + "@" + Core.getCrypto().digest(getKey());
-    }
-
-    // obvious stuff
-    public String getName() {
-        return name;
+    
+    public Identity(String uname, String pubkey, long lseen, int s) {
+        uniqueName = uname;
+        key = pubkey;
+        lastSeenTimestamp = lseen;
+        state = s;
     }
 
     public String getKey() {
         return key;
     }
 
-    public String getStrippedName() {
-        return new String(name.substring(0, name.indexOf("@")));
-    }
-
     public String getUniqueName() {
         return Mixed.makeFilename(uniqueName);
     }
-
-    /**
-     * @return list of identities this identity trusts
-     */
-//  public Set getTrustees() {
-//      if (trustees== null ) trustees= new TreeSet();
-//      return trustees;
-//  }
 
     // dont't store BoardAttachement with pubKey=SSK@...
     public static boolean isForbiddenBoardAttachment(BoardAttachment ba) {
@@ -218,17 +131,60 @@ public class Identity implements SafeXMLizable {
 
     public void updateLastSeenTimestamp() {
         lastSeenTimestamp = System.currentTimeMillis();
+        updateIdentitiesDatabaseTable();
     }
 
     public int getState() {
         return state;
     }
 
-    public void setState(int newstate) {
-        state = newstate;
-    }
-
     public String toString() {
         return getUniqueName();
+    }
+    
+    public boolean isGOOD() {
+        return state==GOOD;
+    }
+    public boolean isCHECK() {
+        return state==CHECK;
+    }
+    public boolean isOBSERVE() {
+        return state==OBSERVE;
+    }
+    public boolean isBAD() {
+        return state==BAD;
+    }
+    
+    public void setGOOD() {
+        state=GOOD;
+        updateIdentitiesDatabaseTable();
+    }
+    public void setCHECK() {
+        state=CHECK;
+        updateIdentitiesDatabaseTable();
+    }
+    public void setOBSERVE() {
+        state=OBSERVE;
+        updateIdentitiesDatabaseTable();
+    }
+    public void setBAD() {
+        state=BAD;
+        updateIdentitiesDatabaseTable();
+    }
+    
+    protected boolean updateIdentitiesDatabaseTable() {
+        if( FrostIdentities.isDatabaseUpdatesAllowed() == false ) {
+            return false;
+        }
+        if( this instanceof LocalIdentity ) {
+            return false; // nothing to save here
+        }
+        try {
+            AppLayerDatabase.getIdentitiesDatabaseTable().updateIdentity(this);
+            return true;
+        } catch(SQLException ex) {
+            logger.log(Level.SEVERE, "Error updating an identity", ex);
+        }
+        return false;
     }
 }

@@ -50,13 +50,7 @@ class UploadPanel extends JPanel {
 
     private Listener listener = new Listener();
 
-    private JCheckBox automaticIndexingCheckBox = new JCheckBox();
-    private JLabel batchSizeExplanationLabel = new JLabel();
-    private JLabel batchSizeLabel = new JLabel();
-    private JTextField batchSizeTextField = new JTextField(8);
-
     private JCheckBox disableRequestsCheckBox = new JCheckBox();
-    private JCheckBox helpFriendsCheckBox = new JCheckBox();
     private JLabel htlExplanationLabel = new JLabel();
 
     private JLabel htlLabel = new JLabel();
@@ -69,8 +63,6 @@ class UploadPanel extends JPanel {
     private JLabel waitTimeLabel = new JLabel();
     private JTextField waitTimeTextField = new JTextField(8);
 
-    private JCheckBox shareDownloadsCheckBox = new JCheckBox();
-    private JCheckBox signUploadsCheckBox = new JCheckBox();
     private JLabel splitfileThreadsExplanationLabel = new JLabel();
     private JLabel splitfileThreadsLabel = new JLabel();
     private JTextField splitfileThreadsTextField = new JTextField(8);
@@ -122,7 +114,6 @@ class UploadPanel extends JPanel {
         refreshLanguage();
 
         // We create the components
-        new TextComponentClipboardMenu(batchSizeTextField, language);
         new TextComponentClipboardMenu(htlTextField, language);
         new TextComponentClipboardMenu(splitfileThreadsTextField, language);
         new TextComponentClipboardMenu(threadsTextField, language);
@@ -145,9 +136,8 @@ class UploadPanel extends JPanel {
         add(disableRequestsCheckBox, constraints);
 
         constraints.insets = insets5_30_5_5;
-//        constraints.anchor = GridBagConstraints.NORTHWEST;
         constraints.gridx = 0;
-        constraints.gridy = 1;
+        constraints.gridy++;
         constraints.weightx = 0;
         constraints.gridwidth = 1;
         add(restartFailedUploadsCheckBox, constraints);
@@ -155,34 +145,33 @@ class UploadPanel extends JPanel {
         constraints.insets = insets5555;
         constraints.gridx = 1;
         constraints.weightx = 1;
-//        constraints.anchor = GridBagConstraints.CENTER;
         constraints.fill = GridBagConstraints.BOTH;
         add(getRetriesPanel(), constraints);
 
         constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.insets = insets5_30_5_5;
-        constraints.gridx = 0;
-        constraints.gridy = 2;
-        constraints.gridwidth = 2;
-        add(automaticIndexingCheckBox, constraints);
-        constraints.insets = insets5555;
-        constraints.gridx = 2;
-        constraints.gridwidth = 1;
-        add(shareDownloadsCheckBox, constraints);
+//        constraints.insets = insets5_30_5_5;
+//        constraints.gridx = 0;
+//        constraints.gridy = 2;
+//        constraints.gridwidth = 2;
+////        add(automaticIndexingCheckBox, constraints);
+//        constraints.insets = insets5555;
+//        constraints.gridx = 2;
+//        constraints.gridwidth = 1;
+////        add(shareDownloadsCheckBox, constraints);
+
+//        constraints.insets = insets5_30_5_5;
+//        constraints.gridx = 0;
+//        constraints.gridy = 3;
+//        constraints.gridwidth = 2;
+////        add(signUploadsCheckBox, constraints);
+//        constraints.insets = insets5555;
+//        constraints.gridx = 2;
+//        constraints.gridwidth = 1;
+////        add(helpFriendsCheckBox, constraints);
 
         constraints.insets = insets5_30_5_5;
         constraints.gridx = 0;
-        constraints.gridy = 3;
-        constraints.gridwidth = 2;
-        add(signUploadsCheckBox, constraints);
-        constraints.insets = insets5555;
-        constraints.gridx = 2;
-        constraints.gridwidth = 1;
-        add(helpFriendsCheckBox, constraints);
-
-        constraints.insets = insets5_30_5_5;
-        constraints.gridx = 0;
-        constraints.gridy = 4;
+        constraints.gridy++;
         add(htlLabel, constraints);
         constraints.insets = insets5555;
         constraints.gridx = 1;
@@ -192,7 +181,7 @@ class UploadPanel extends JPanel {
 
         constraints.insets = insets5_30_5_5;
         constraints.gridx = 0;
-        constraints.gridy = 5;
+        constraints.gridy++;
         add(threadsLabel, constraints);
         constraints.insets = insets5555;
         constraints.gridx = 1;
@@ -200,24 +189,14 @@ class UploadPanel extends JPanel {
 
         constraints.insets = insets5_30_5_5;
         constraints.gridx = 0;
-        constraints.gridy = 6;
+        constraints.gridy++;
         add(splitfileThreadsLabel, constraints);
         constraints.insets = insets5555;
         constraints.gridx = 1;
         add(splitfileThreadsTextField, constraints);
         constraints.gridx = 2;
+        constraints.weighty = 1; 
         add(splitfileThreadsExplanationLabel, constraints);
-
-        constraints.insets = insets5_30_5_5;
-        constraints.gridx = 0;
-        constraints.gridy = 7;
-        add(batchSizeLabel, constraints);
-        constraints.insets = insets5555;
-        constraints.gridx = 1;
-        add(batchSizeTextField, constraints);
-        constraints.gridx = 2;
-        constraints.weighty = 1;
-        add(batchSizeExplanationLabel, constraints);
 
         // Add listeners
         disableRequestsCheckBox.addActionListener(listener);
@@ -228,13 +207,8 @@ class UploadPanel extends JPanel {
      * Load the settings of this panel
      */
     private void loadSettings() {
-        signUploadsCheckBox.setSelected(settings.getBoolValue("signUploads"));
-        helpFriendsCheckBox.setSelected(settings.getBoolValue("helpFriends"));
-        automaticIndexingCheckBox.setSelected(settings.getBoolValue("automaticIndexing"));
-        shareDownloadsCheckBox.setSelected(settings.getBoolValue("shareDownloads"));
         htlTextField.setText(settings.getValue("htlUpload"));
         threadsTextField.setText(settings.getValue("uploadThreads"));
-        batchSizeTextField.setText(settings.getValue("uploadBatchSize"));
         splitfileThreadsTextField.setText(settings.getValue("splitfileUploadThreads"));
         disableRequestsCheckBox.setSelected(settings.getBoolValue(SettingsClass.DISABLE_REQUESTS));
         restartFailedUploadsCheckBox.setSelected(settings.getBoolValue(SettingsClass.RESTART_FAILED_UPLOADS));
@@ -268,11 +242,6 @@ class UploadPanel extends JPanel {
         restartFailedUploadsCheckBox.setText(language.getString("Options.uploads.restartFailedUploads"));
         waitTimeLabel.setText(language.getString("Options.uploads.waittimeAfterEachTry") + " (" + minutes + "): ");
         maxRetriesLabel.setText(language.getString("Options.uploads.maximumNumberOfRetries") + ": ");
-        signUploadsCheckBox.setText(language.getString("Options.uploads.signSharedFiles"));
-        automaticIndexingCheckBox.setText(language.getString("Options.uploads.automaticIndexing"));
-        shareDownloadsCheckBox.setText(language.getString("Options.uploads.shareDownloads"));
-        helpFriendsCheckBox.setText(
-                language.getString("Options.uploads.helpSpreadFilesFromPeopleMarkedGood"));
         htlLabel.setText(language.getString("Options.uploads.uploadHtl") + " (21)");
         htlExplanationLabel.setText(language.getString("Options.uploads.uploadHtlExplanation"));
         threadsLabel.setText(
@@ -280,8 +249,6 @@ class UploadPanel extends JPanel {
         splitfileThreadsLabel.setText(
                 language.getString("Options.uploads.numberOfSplitfileThreads") + " (15)");
         splitfileThreadsExplanationLabel.setText(language.getString("Options.uploads.numberOfSplitfileThreadsExplanation"));
-        batchSizeLabel.setText(language.getString("Options.uploads.uploadBatchSize"));
-        batchSizeExplanationLabel.setText(language.getString("Options.uploads.uploadBatchSizeExplanation"));
     }
 
     /**
@@ -290,13 +257,8 @@ class UploadPanel extends JPanel {
     private void saveSettings() {
         settings.setValue("htlUpload", htlTextField.getText());
         settings.setValue("uploadThreads", threadsTextField.getText());
-        settings.setValue("uploadBatchSize", batchSizeTextField.getText());
         settings.setValue("splitfileUploadThreads", splitfileThreadsTextField.getText());
         settings.setValue(SettingsClass.DISABLE_REQUESTS, disableRequestsCheckBox.isSelected());
-        settings.setValue("signUploads", signUploadsCheckBox.isSelected());
-        settings.setValue("automaticIndexing", automaticIndexingCheckBox.isSelected());
-        settings.setValue("shareDownloads", shareDownloadsCheckBox.isSelected());
-        settings.setValue("helpFriends", helpFriendsCheckBox.isSelected());
         settings.setValue(SettingsClass.RESTART_FAILED_UPLOADS, restartFailedUploadsCheckBox.isSelected());
         settings.setValue(SettingsClass.UPLOAD_MAX_RETRIES, maxRetriesTextField.getText());
         settings.setValue(SettingsClass.UPLOAD_RETRIES_WAIT_TIME, waitTimeTextField.getText());

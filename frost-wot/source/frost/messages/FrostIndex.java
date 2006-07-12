@@ -18,29 +18,34 @@
 */
 package frost.messages;
 
+import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
 import org.w3c.dom.*;
-import org.xml.sax.SAXException;
+import org.xml.sax.*;
 
 import frost.*;
-import frost.identities.Identity;
+import frost.fileTransfer.upload.*;
+import frost.gui.objects.*;
+import frost.identities.*;
 
 /**
  * Represents an index file in Freenet.
  */
 public class FrostIndex implements XMLizable {
 
-    Identity sharer;
+    Identity sharer = null;
+    LocalIdentity ownSharer = null;
     TreeMap filesMap;
     String signature = null;
+    Board board = null;
 
     private static Logger logger = Logger.getLogger(FrostIndex.class.getName());
 
-    public FrostIndex(Element e) {
+    public FrostIndex(Element e, Board b) {
         filesMap = new TreeMap();
-        
+        board = b;
         try {
             loadXMLElement(e);
         } catch (SAXException ex){
@@ -48,13 +53,13 @@ public class FrostIndex implements XMLizable {
         }
     }
 
-    public FrostIndex(Map files) {
-        filesMap = new TreeMap(files);
-
-        if (Core.frostSettings.getBoolValue("signUploads")) {
-            sharer = Core.getInstance().getIdentities().getMyId();
-        } else {
-            sharer = null;
+    public FrostIndex(List files, LocalIdentity ownSharer) {
+        this.ownSharer = ownSharer;
+        filesMap = new TreeMap();
+        for(Iterator i=files.iterator(); i.hasNext(); ) {
+            FrostUploadItemOwnerBoard ob = (FrostUploadItemOwnerBoard)i.next();
+            SharedFileXmlFile s = ob.getUploadItem().getSharedFileXmlFileInstance(ob);
+            filesMap.put(s.getSHA1(), s);
         }
     }
     
@@ -69,10 +74,14 @@ public class FrostIndex implements XMLizable {
             signature = sig;
         }
     }
+    
+    public LocalIdentity getOwnSharer() {
+        return ownSharer;
+    }
 
     public void signFiles() {
         String signContent = getSignableContent();
-        String sig = Core.getCrypto().detachedSign(signContent, Core.getIdentities().getMyId().getPrivKey());
+        String sig = Core.getCrypto().detachedSign(signContent, ownSharer.getPrivKey());
         setSignature(sig);
     }
     
@@ -85,7 +94,7 @@ public class FrostIndex implements XMLizable {
     protected String getSignableContent() {
         StringBuffer signContent = new StringBuffer();
         for(Iterator i = getFilesIterator(); i.hasNext(); ) {
-            SharedFileObject sfo = (SharedFileObject)i.next();
+            SharedFileXmlFile sfo = (SharedFileXmlFile)i.next();
             signContent.append( sfo.getSHA1() );
             signContent.append( sfo.getFilename() );
             signContent.append( sfo.getSize().toString() );
@@ -103,11 +112,9 @@ public class FrostIndex implements XMLizable {
 
         Element el = container.createElement("FrostIndex");
 
-        boolean signUploads = Core.frostSettings.getBoolValue("signUploads");
-
         //if user signs uploads, remove the sensitive fields and append element
-        if (signUploads && sharer != null) {
-            Element _sharer = sharer.getSafeXMLElement(container);
+        if (ownSharer != null) {
+            Element _sharer = ownSharer.getXMLElement(container);
             el.appendChild(_sharer);
 
             if( getSignature() != null ) {
@@ -120,16 +127,11 @@ public class FrostIndex implements XMLizable {
 
         // iterate through set of files and add them all
         for(Iterator i = getFilesIterator(); i.hasNext(); ) {
-            SharedFileObject current = (SharedFileObject)i.next();
+            SharedFileXmlFile current = (SharedFileXmlFile)i.next();
             Element currentElement = current.getXMLElement(container);
 
             //remove sensitive information
             List sensitive = XMLTools.getChildElementsByTagName(currentElement,"dateShared");
-
-//            // strip the owner field if file is not signed
-//            if (!signUploads) {
-//                sensitive.addAll(XMLTools.getChildElementsByTagName(currentElement,"owner"));
-//            }
 
             for(Iterator i2 = sensitive.iterator(); i2.hasNext(); ) {
                 currentElement.removeChild((Element)i2.next());
@@ -162,7 +164,7 @@ public class FrostIndex implements XMLizable {
         Iterator it = _files.iterator();
         while (it.hasNext()) {
             Element el = (Element)it.next();
-            SharedFileObject file = SharedFileObject.getInstance(el);
+            SharedFileXmlFile file = SharedFileXmlFile.getInstance(el, board);
             if (file.getSHA1() != null) {
                 filesMap.put(file.getSHA1(), file);
             }
@@ -176,15 +178,15 @@ public class FrostIndex implements XMLizable {
         return sharer;
     }
     
-    public SharedFileObject getFileBySHA1(String sha1) {
-        return (SharedFileObject)filesMap.get(sha1);
+    public SharedFileXmlFile getFileBySHA1(String sha1) {
+        return (SharedFileXmlFile)filesMap.get(sha1);
     }
 
     public void removeFileBySHA1(String sha1) {
         filesMap.remove(sha1);
     }
 
-    public void addFile(SharedFileObject file) {
+    public void addFile(SharedFileXmlFile file) {
         filesMap.put(file.getSHA1(), file);
     }
     
@@ -194,5 +196,36 @@ public class FrostIndex implements XMLizable {
 
     public Map getFilesMap() {
         return filesMap;
+    }
+    
+    /**
+     * Reads a keyfile from disk and validates each file.
+     *
+     * @param source     keyfile as String or as File
+     * @returns          null on error
+     */
+    public static FrostIndex readKeyFile(File source, Board board) {
+        if( !source.isFile() || !(source.length() > 0) ) {
+            return null;
+        } else {
+            // parse the xml file
+            Document d = null;
+            try {
+                d = XMLTools.parseXmlFile(source.getPath(), false);
+            } catch (IllegalArgumentException t) {
+                logger.log(Level.SEVERE, "Exception thrown in readKeyFile(File source): \n"
+                        + "Offending file saved as badfile.xml - send it to a dev for analysis", t);
+                File badfile = new File("badfile.xml");
+                source.renameTo(badfile);
+            }
+
+            if( d == null ) {
+                logger.warning("Couldn't parse index file.");
+                return null;
+            }
+
+            FrostIndex idx = new FrostIndex(d.getDocumentElement(), board);
+            return idx;
+        }
     }
 }

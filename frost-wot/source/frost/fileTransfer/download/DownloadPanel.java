@@ -704,7 +704,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
             }
 
             // add valid key to download table
-            FrostDownloadItem dlItem = new FrostDownloadItem(fileName, key, null);
+            FrostDownloadItem dlItem = new FrostDownloadItem(fileName, key);
             //users weren't happy with '_'
             /*boolean isAdded =*/ model.addDownloadItem(dlItem);
         }

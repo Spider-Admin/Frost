@@ -109,10 +109,6 @@ public class SearchManager implements PropertyChangeListener {
         mainFrame.setPanelEnabled("MainFrame.tabbedPane.search", !disableDownloads);
     }
 
-    public FrostIdentities getIdentities() {
-        return identities;
-    }
-
     public String getKeypool() {
         return keypool;
     }

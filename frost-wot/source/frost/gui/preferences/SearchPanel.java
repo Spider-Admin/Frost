@@ -80,6 +80,7 @@ class SearchPanel extends JPanel {
 
         // Adds all of the components
         GridBagConstraints constraints = new GridBagConstraints();
+        constraints.anchor = GridBagConstraints.NORTHWEST;
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.insets = new Insets(5, 5, 5, 5);
         constraints.weighty = 1;
@@ -138,12 +139,10 @@ class SearchPanel extends JPanel {
         constraints.gridx = 0;
         add(maxSearchResultsLabel, constraints);
         constraints.fill = GridBagConstraints.NONE;
-        constraints.anchor = GridBagConstraints.WEST;
         constraints.gridx = 1;
         add(maxSearchResultsTextField, constraints);
 
         constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.anchor = GridBagConstraints.CENTER;
         constraints.gridwidth = 2;
         constraints.gridy = 7;
         constraints.gridx = 0;
@@ -151,6 +150,14 @@ class SearchPanel extends JPanel {
         constraints.gridy = 8;
         add(hideAnonFilesCheckBox, constraints);
 
+        // glue
+        constraints.gridy++;
+        constraints.gridx = 0;
+        constraints.gridwidth = 2;
+        constraints.fill = GridBagConstraints.BOTH;
+        constraints.weightx = 1;
+        constraints.weighty = 1;
+        add(new JLabel(""), constraints);
     }
 
     /**

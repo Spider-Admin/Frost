@@ -19,14 +19,15 @@
 package frost.fileTransfer.upload;
 
 import java.awt.*;
-import java.util.Comparator;
+import java.util.*;
 
 import javax.swing.*;
 import javax.swing.table.*;
 
-import frost.util.gui.BooleanCell;
+import frost.*;
+import frost.util.gui.*;
 import frost.util.gui.translation.*;
-import frost.util.model.ModelItem;
+import frost.util.model.*;
 import frost.util.model.gui.*;
 
 /**
@@ -165,9 +166,20 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
          * @see freenet.support.Comparator#compare(java.lang.Object, java.lang.Object)
          */
         public int compare(Object o1, Object o2) {
-            String boardName1 = ((FrostUploadItem) o1).getTargetBoard().getName();
-            String boardName2 = ((FrostUploadItem) o2).getTargetBoard().getName();
+            String boardName1 = getBoardString((FrostUploadItem) o1);
+            String boardName2 = getBoardString((FrostUploadItem) o2);
             return boardName1.compareToIgnoreCase(boardName2);
+        }
+    }
+    
+    private String getBoardString(FrostUploadItem ul) {
+        if( ul.getFrostUploadItemOwnerBoardList().size() == 0 ) {
+            return "*None*";
+        } else if( ul.getFrostUploadItemOwnerBoardList().size() == 1 ) {
+            FrostUploadItemOwnerBoard ob = (FrostUploadItemOwnerBoard)ul.getFrostUploadItemOwnerBoardList().get(0); 
+            return ob.getTargetBoard().getName();
+        } else {
+            return "*Multiple*";
         }
     }
 
@@ -218,7 +230,13 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
         public int compare(Object o1, Object o2) {
             FrostUploadItem item1 = (FrostUploadItem) o1;
             FrostUploadItem item2 = (FrostUploadItem) o2;
-            return item1.getFileSize().compareTo(item2.getFileSize());
+            if( item1.getFileSize() > item2.getFileSize() ) {
+                return 1;
+            } else if( item1.getFileSize() < item2.getFileSize() ) {
+                return -1;
+            } else {
+                return 0;
+            }
         }
     }
 
@@ -304,7 +322,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
                 return uploadItem.getFileName();
 
             case 2 :    //Size
-                return uploadItem.getFileSize();
+                return ""+uploadItem.getFileSize();
 
             case 3 :    //Last upload
                 return getStateAsString(uploadItem, uploadItem.getState());
@@ -316,7 +334,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
                 return new Integer(uploadItem.getRetries());
 
             case 6 :    //Destination
-                return uploadItem.getTargetBoard().getName();
+                return getBoardString(uploadItem);
 
             case 7 :    //Key
                 if (uploadItem.getKey() == null) {
@@ -355,7 +373,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
                 if (item.getLastUploadDate() == null) {
                     return stateUploadedNever;
                 } else {
-                    return item.getLastUploadDate();
+                    return DateFun.getExtendedDateFromSqlDate(item.getLastUploadDate());
                 }
 
             case FrostUploadItem.STATE_WAITING :
