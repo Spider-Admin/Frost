@@ -414,7 +414,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
             if( type == FcpHandler.TYPE_FILE ) {
                 fcpOut.println("PriorityClass=4");
             } else if( type == FcpHandler.TYPE_MESSAGE ) {
-                fcpOut.println("PriorityClass=3");
+                fcpOut.println("PriorityClass=2");
             }
         }
 

@@ -340,24 +340,30 @@ public class MessageFrame extends JFrame {
             buddies.setEnabled(false);
             // set correct sender identity
             for(int x=0; x < getOwnIdentitiesComboBox().getItemCount(); x++) {
-                String s = (String)getOwnIdentitiesComboBox().getItemAt(x);
-                if( s.equals(senderId.getUniqueName()) ) {
-                    getOwnIdentitiesComboBox().setSelectedIndex(x);
-                    break;
+                Object obj = getOwnIdentitiesComboBox().getItemAt(x);
+                if( obj instanceof LocalIdentity ) {
+                    LocalIdentity li = (LocalIdentity)obj;
+                    if( senderId.getUniqueName().equals(li.getUniqueName()) ) {
+                        getOwnIdentitiesComboBox().setSelectedIndex(x);
+                        break;
+                    }
                 }
             }
             getOwnIdentitiesComboBox().setEnabled(false);
         } else if( isInitializedSigned ) {
             // set saved sender identity
             for(int x=0; x < getOwnIdentitiesComboBox().getItemCount(); x++) {
-                String s = (String)getOwnIdentitiesComboBox().getItemAt(x);
-                if( s.equals(from) ) {
-                    getOwnIdentitiesComboBox().setSelectedIndex(x);
-                    break;
+                Object obj = getOwnIdentitiesComboBox().getItemAt(x);
+                if( obj instanceof LocalIdentity ) {
+                    LocalIdentity li = (LocalIdentity)obj;
+                    if( from.equals(li.getUniqueName()) ) {
+                        getOwnIdentitiesComboBox().setSelectedIndex(x);
+                        sign.setSelected(true);
+                        getOwnIdentitiesComboBox().setEditable(false);
+                        break;
+                    }
                 }
             }
-            sign.setSelected(true);
-            getOwnIdentitiesComboBox().setEditable(false);
         } else {
             // initialized unsigned/anonymous
             getOwnIdentitiesComboBox().setSelectedIndex(0);
@@ -672,13 +678,16 @@ public class MessageFrame extends JFrame {
         positionDividers();
     }
 
-    /**
-     * jButton1 Action Listener (Send)
-     * @param e
-     */
     private void send_actionPerformed(ActionEvent e) {
-        String from = (String)getOwnIdentitiesComboBox().getEditor().getItem();
-        LocalIdentity senderId = Core.getIdentities().getLocalIdentity(from);
+        
+        LocalIdentity senderId = null;
+        String from;
+        if( getOwnIdentitiesComboBox().getSelectedItem() instanceof LocalIdentity ) {
+            senderId = (LocalIdentity)getOwnIdentitiesComboBox().getSelectedItem();
+            from = senderId.getUniqueName();
+        } else {
+            from = getOwnIdentitiesComboBox().getEditor().getItem().toString();
+        }
         
         String subject = subjectTextField.getText().trim();
         subjectTextField.setText(subject); // if a pbl occurs show the subject we checked
@@ -862,6 +871,7 @@ public class MessageFrame extends JFrame {
     }
 
     class TextComboBoxEditor extends JTextField implements ComboBoxEditor {
+        boolean isSigned;
         public TextComboBoxEditor() {
             super();
         }
@@ -869,10 +879,18 @@ public class MessageFrame extends JFrame {
             return this;
         }
         public void setItem(Object arg0) {
+            if( arg0 instanceof LocalIdentity ) {
+                isSigned = true;
+            } else {
+                isSigned = false;
+            }
             setText(arg0.toString());
         }
         public Object getItem() {
             return getText();
+        }
+        public boolean isSigned() {
+            return isSigned;
         }
     }
 
@@ -888,11 +906,9 @@ public class MessageFrame extends JFrame {
                 LocalIdentity li = (LocalIdentity)i.next();
                 sortedIds.put(li.getUniqueName(), li);
             }
-            for(Iterator i=sortedIds.keySet().iterator(); i.hasNext(); ) {
-                String li = (String)i.next();
-                ownIdentitiesComboBox.addItem(li);
+            for(Iterator i=sortedIds.values().iterator(); i.hasNext(); ) {
+                ownIdentitiesComboBox.addItem(i.next());
             }
-            ownIdentitiesComboBox.setEditable(true);
             
             final TextComboBoxEditor editor = new TextComboBoxEditor();
             
@@ -913,22 +929,25 @@ public class MessageFrame extends JFrame {
                 public void insertString(DocumentFilter.FilterBypass fb, int offset, String string,
                         AttributeSet attr) throws BadLocationException 
                 {
-                    if (editor.isEditable()) {
+                    if (((TextComboBoxEditor)getOwnIdentitiesComboBox().getEditor()).isSigned() == false ) {
                         string = string.replaceAll("@","");
                     }
                     super.insertString(fb, offset, string, attr);
                 }
-                public void replace(DocumentFilter.FilterBypass fb, int offset, int length, String text,
+                public void replace(DocumentFilter.FilterBypass fb, int offset, int length, String string,
                         AttributeSet attrs) throws BadLocationException 
                 {
-                    if (editor.isEditable()) {
-                        text = text.replaceAll("@","");
+                    if (((TextComboBoxEditor)getOwnIdentitiesComboBox().getEditor()).isSigned() == false ) {
+                        string = string.replaceAll("@","");
                     }
-                    super.replace(fb, offset, length, text, attrs);
+                    super.replace(fb, offset, length, string, attrs);
                 }
             });
             
             ownIdentitiesComboBox.setEditor(editor);
+            
+            ownIdentitiesComboBox.setEditable(true);
+
             ownIdentitiesComboBox.getEditor().selectAll();
             ownIdentitiesComboBox.addItemListener(new java.awt.event.ItemListener() {
                 public void itemStateChanged(java.awt.event.ItemEvent e) {

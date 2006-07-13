@@ -479,12 +479,7 @@ public class FcpRequest
         // prepare a temp file
         File tempFile = null;
         if( createTempFile ) {
-            try {
-                tempFile = File.createTempFile("getFile_", ".tmp", new File(Core.frostSettings.getValue("temp.dir")));
-            } catch( Throwable ex ) {
-                logger.log(Level.SEVERE, "Exception thrown in getFile(...)", ex);
-                return null;
-            }
+            tempFile = FileAccess.createTempFile("getFile_", ".tmp");
         } else {
             tempFile = new File( target.getPath() + ".tmp" );
         }

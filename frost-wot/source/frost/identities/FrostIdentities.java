@@ -187,6 +187,9 @@ public class FrostIdentities implements Savable {
     public LocalIdentity getLocalIdentity(String uniqueName) {
         LocalIdentity li = null;
         li = (LocalIdentity) localIdentities.get(uniqueName);
+//        if( li == null ) {
+//            li = (LocalIdentity) localIdentities.get(Mixed.makeFilename(uniqueName));
+//        }
         return li;
     }
 
