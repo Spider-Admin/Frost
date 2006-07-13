@@ -98,17 +98,7 @@ public class AltEdit extends Thread {
         String editor_pre_file = editor.substring(0, editor.indexOf("%f"));
         String editor_post_file = editor.substring(editor.indexOf("%f") + 2, editor.length());
 
-        File editFile = null;
-        try {
-            editFile =  File.createTempFile("frostmsg", ".txt", new File(Core.frostSettings.getValue("temp.dir")));
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(parentFrame,
-                    language.getString("AltEdit.errorDialog.couldNotCreateMessageFile")+": "+editFile.getPath()+"\n"+e.toString(),
-                    language.getString("AltEdit.errorDialogs.title"),
-                    JOptionPane.ERROR_MESSAGE);
-            callbackMessageFrame(null, null);
-            return;
-        }
+        File editFile = FileAccess.createTempFile("frostmsg", ".txt");
         editFile.deleteOnExit();
 
         StringBuffer sb = new StringBuffer();

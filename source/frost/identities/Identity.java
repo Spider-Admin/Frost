@@ -84,6 +84,8 @@ public class Identity implements XMLizable {
             // not yet set, init with current timestamp
             lastSeenTimestamp = System.currentTimeMillis();
         }
+        
+        uniqueName = Mixed.makeFilename(uniqueName);
     }
 
     /**
@@ -96,6 +98,8 @@ public class Identity implements XMLizable {
         } else {
             this.uniqueName = name + "@" + Core.getCrypto().digest(getKey());
         }
+        
+        uniqueName = Mixed.makeFilename(uniqueName);
     }
     
     public Identity(String uname, String pubkey, long lseen, int s) {
@@ -103,6 +107,8 @@ public class Identity implements XMLizable {
         key = pubkey;
         lastSeenTimestamp = lseen;
         state = s;
+        
+        uniqueName = Mixed.makeFilename(uniqueName);
     }
 
     public String getKey() {
@@ -110,7 +116,7 @@ public class Identity implements XMLizable {
     }
 
     public String getUniqueName() {
-        return Mixed.makeFilename(uniqueName);
+        return uniqueName;
     }
 
     // dont't store BoardAttachement with pubKey=SSK@...

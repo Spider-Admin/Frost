@@ -823,8 +823,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         if (subject.startsWith("Re:") == false) {
             subject = "Re: " + subject;
         }
-        
-        // add msgId we answer to to the inReplyTo list
+
+        // add msgId we answer to the inReplyTo list
         String inReplyTo = null;
         if( origMessage.getMessageId() != null ) {
             inReplyTo = origMessage.getInReplyTo();
@@ -836,25 +836,26 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         }
         
         MessageFrame newMessageFrame = new MessageFrame(settings, parent, mainFrame.getTofTree());
-        if( origMessage.getRecipientName() != null &&
-            identities.isMySelf(origMessage.getRecipientName()) )
-        {
+        if( origMessage.getRecipientName() != null ) {
             // this message was for me, reply encrypted
             if( origMessage.getFromIdentity() == null ) {
-                JOptionPane.showMessageDialog( parent,
-                        "Can't reply encrypted, recipients public key is missing!", // TODO: translate
+                JOptionPane.showMessageDialog( 
+                        parent,
+                        "Can't reply encrypted, recipients ("+origMessage.getRecipientName()+") public key is missing!", // TODO: translate
                         "Error",
-                        JOptionPane.ERROR);
+                        JOptionPane.ERROR_MESSAGE);
                 return;
             }
             LocalIdentity senderId = identities.getLocalIdentity(origMessage.getRecipientName());
             if( senderId == null ) {
-                JOptionPane.showMessageDialog( parent,
-                        "Can't reply encrypted, the LocalIdentity used to write the original message is missing!", // TODO: translate
+                JOptionPane.showMessageDialog( 
+                        parent,
+                        "Can't reply encrypted, your identity ("+origMessage.getRecipientName()+") used to write the original message is missing!", // TODO: translate
                         "Error",
-                        JOptionPane.ERROR);
+                        JOptionPane.ERROR_MESSAGE);
                 return;
             }
+
             newMessageFrame.composeEncryptedReply(
                     targetBoard,
                     subject,
@@ -862,7 +863,6 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     origMessage.getContent(),
                     origMessage.getFromIdentity(),
                     senderId);
-
         } else {
             newMessageFrame.composeReply(
                     targetBoard,

@@ -271,18 +271,8 @@ public class XMLTools {
      * create a proper temp file (deleted on VM emergency exit).
      */
     private static File getXmlTempFile() {
-        File tmp = null;
-        try {
-            tmp = File.createTempFile("xmltools_",
-                                      ".tmp",
-                                      new File(Core.frostSettings.getValue("temp.dir")));
-        } catch(Exception ex) {
-            // this should never happen, but for the case ...
-            tmp = new File("xmltools_"+System.currentTimeMillis());
-        }
-        if( tmp != null ) {
-            tmp.deleteOnExit();
-        }
+        File tmp = FileAccess.createTempFile("xmltools_", ".tmp");
+        tmp.deleteOnExit();
         return tmp;
     }
 }
