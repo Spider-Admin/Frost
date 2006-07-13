@@ -30,8 +30,6 @@ import frost.util.gui.translation.*;
 
 public class MessageWindow extends JFrame {
 
-//  private static Logger logger = Logger.getLogger(MessageWindow.class.getName());
-
     private final FrostMessageObject message;
     private Window parentWindow;
 
@@ -135,8 +133,6 @@ public class MessageWindow extends JFrame {
         public MessageWindowTopPanel(FrostMessageObject msg) {
             super();
             innerMessage = msg;
-
-//          FIXME: for encrypted msgs show a receiver line below from line!!! maybe in messagepanel too?
 
             initialize();
             languageChanged(null);
@@ -341,7 +337,7 @@ public class MessageWindow extends JFrame {
                     }
                 });
                 MiscToolkit toolkit = MiscToolkit.getInstance();
-                toolkit.configureButton(Breply, "Reply", "/data/reply_rollover.gif", language);
+                toolkit.configureButton(Breply, "MessageWindow.tooltip.reply", "/data/reply_rollover.gif", language);
             }
             return Breply;
         }
