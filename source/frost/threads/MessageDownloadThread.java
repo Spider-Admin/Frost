@@ -27,6 +27,7 @@ import frost.*;
 import frost.boards.*;
 import frost.gui.objects.*;
 import frost.messages.*;
+import frost.storage.database.transferlayer.*;
 import frost.transferlayer.*;
 
 /**
@@ -38,7 +39,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
     private int maxMessageDownload;
     private boolean downloadToday;
     
-    private IndexSlots indexSlots;
+    private IndexSlotsDatabaseTable indexSlots;
 
     private static Logger logger = Logger.getLogger(MessageDownloadThread.class.getName());
 
@@ -48,7 +49,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
         this.board = boa;
         this.maxMessageDownload = maxmsgdays;
         
-        this.indexSlots = new IndexSlots(IndexSlots.MESSAGES, board.getName());
+        this.indexSlots = new IndexSlotsDatabaseTable(IndexSlotsDatabaseTable.MESSAGES, board.getName());
     }
 
     public int getThreadType() {

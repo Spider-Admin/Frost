@@ -49,6 +49,7 @@ public class DownloadThread extends Thread {
             File newFile = new File(settings.getValue("downloadDirectory") + filename);
 
             // if we don't have the CHK, means the key was not inserted. request it by SHA1.
+            System.out.println("key="+key);
             if (key == null) {
                 maybeDoRequest();
                 downloadItem.setLastDownloadStopTimeMillis(System.currentTimeMillis());

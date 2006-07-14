@@ -330,14 +330,6 @@ public class MessageFrame extends JFrame {
         
         // maybe prepare to reply to an encrypted message
         if( recipient != null ) {
-            sign.setSelected(true);
-            encrypt.setSelected(true);
-            buddies.removeAllItems();
-            buddies.addItem(recipient);
-            buddies.setSelectedItem(recipient);
-            // dont allow to disable signing/encryption
-            encrypt.setEnabled(false);
-            buddies.setEnabled(false);
             // set correct sender identity
             for(int x=0; x < getOwnIdentitiesComboBox().getItemCount(); x++) {
                 Object obj = getOwnIdentitiesComboBox().getItemAt(x);
@@ -350,36 +342,46 @@ public class MessageFrame extends JFrame {
                 }
             }
             getOwnIdentitiesComboBox().setEnabled(false);
-        } else if( isInitializedSigned ) {
-            // set saved sender identity
-            for(int x=0; x < getOwnIdentitiesComboBox().getItemCount(); x++) {
-                Object obj = getOwnIdentitiesComboBox().getItemAt(x);
-                if( obj instanceof LocalIdentity ) {
-                    LocalIdentity li = (LocalIdentity)obj;
-                    if( from.equals(li.getUniqueName()) ) {
-                        getOwnIdentitiesComboBox().setSelectedIndex(x);
-                        sign.setSelected(true);
-                        getOwnIdentitiesComboBox().setEditable(false);
-                        break;
+            // set and lock controls (after we set the identity, the itemlistener would reset the controls!)
+            sign.setSelected(true);
+            encrypt.setSelected(true);
+            buddies.removeAllItems();
+            buddies.addItem(recipient);
+            buddies.setSelectedItem(recipient);
+            // dont allow to disable signing/encryption
+            encrypt.setEnabled(false);
+            buddies.setEnabled(false);
+        } else {
+            if( isInitializedSigned ) {
+                // set saved sender identity
+                for(int x=0; x < getOwnIdentitiesComboBox().getItemCount(); x++) {
+                    Object obj = getOwnIdentitiesComboBox().getItemAt(x);
+                    if( obj instanceof LocalIdentity ) {
+                        LocalIdentity li = (LocalIdentity)obj;
+                        if( from.equals(li.getUniqueName()) ) {
+                            getOwnIdentitiesComboBox().setSelectedIndex(x);
+                            sign.setSelected(true);
+                            getOwnIdentitiesComboBox().setEditable(false);
+                            break;
+                        }
                     }
                 }
+            } else {
+                // initialized unsigned/anonymous
+                getOwnIdentitiesComboBox().setSelectedIndex(0);
+                getOwnIdentitiesComboBox().getEditor().setItem(from);
+                sign.setSelected(false);
+                getOwnIdentitiesComboBox().setEditable(true);
             }
-        } else {
-            // initialized unsigned/anonymous
-            getOwnIdentitiesComboBox().setSelectedIndex(0);
-            getOwnIdentitiesComboBox().getEditor().setItem(from);
-            sign.setSelected(false);
-            getOwnIdentitiesComboBox().setEditable(true);
-        }
 
-        // defaults
-        if( sign.isSelected() && buddies.getItemCount() > 0 ) {
-            encrypt.setEnabled(true);
-        } else {
-            encrypt.setEnabled(false);
+            if( sign.isSelected() && buddies.getItemCount() > 0 ) {
+                encrypt.setEnabled(true);
+            } else {
+                encrypt.setEnabled(false);
+            }
+            encrypt.setSelected(false);
+            buddies.setEnabled(false);
         }
-        encrypt.setSelected(false);
-        buddies.setEnabled(false);
 
         // set sig if msg is marked as signed
         if( sign.isSelected() && signature != null ) {

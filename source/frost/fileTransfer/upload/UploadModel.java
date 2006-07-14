@@ -272,28 +272,34 @@ public class UploadModel extends OrderedModel implements Savable {
         }
     }
     
-    public List getUploadItemsToShare(Board board, String owner, int maxItems) {
+    public List getUploadItemsToShare(Board board, String owner, int maxItems, long minDate) {
         LinkedList result = new LinkedList();
-        
+//System.out.println("share:"+board.getName()+","+owner);
+
         for(Iterator i=data.iterator(); i.hasNext(); ) {
             FrostUploadItem ulItem = (FrostUploadItem) i.next();
             for(Iterator j=ulItem.getFrostUploadItemOwnerBoardList().iterator(); j.hasNext(); ) {
                 FrostUploadItemOwnerBoard ob = (FrostUploadItemOwnerBoard)j.next();
-                if( ob.getTargetBoard().getName().equals(board) &&
+//System.out.println("subshare:"+ob.getTargetBoard().getName()+","+ob.getOwner());
+                if( ob.getTargetBoard().getName().equals(board.getName()) &&
                     ( (ob.getOwner()==null && owner==null) || // anonymous
                       (ob.getOwner()!=null && owner!=null && ob.getOwner().equals(owner)) ) // identity matches      
-                        
                   ) 
                 {
-                    result.add(ob);
-                    if( result.size() >= maxItems ) {
-                        return result;
+                    // potential item, check when it was last shared
+                    if( ob.getLastSharedDate() == null || ob.getLastSharedDate().getTime() < minDate ) {
+                        // never shared, or updated so it must be reshared, or too long not shared
+                        result.add(ob);
+
+                        if( result.size() >= maxItems ) {
+                            return result;
+                        }
                     }
                 }
             }
         }
+        System.out.println("ret="+result.size());
         return result;
     }
-    
 //    FIXME: problem: gross/kleinschreibung von boards!
 }

@@ -42,7 +42,7 @@ public class FrostSearchItem extends ModelItem {
         int newState) 
     {
         fo = newKey;
-        // TODO: show multiple
+        // FIXME: show multiple
         ob = (FrostSharedFileObjectOwnerBoard)fo.getFrostSharedFileObjectOwnerBoardList().get(0);
         
         state = newState;
@@ -53,7 +53,7 @@ public class FrostSearchItem extends ModelItem {
     }
 
     public Long getSize() {
-        if( sizeLong != null ) {
+        if( sizeLong == null ) {
             sizeLong = new Long(fo.getSize());
         }
         return sizeLong;
@@ -61,7 +61,7 @@ public class FrostSearchItem extends ModelItem {
 
     public String getDate() {
         if( dateStr == null ) {
-            dateStr = (fo.getLastReceived()==null?"Never":fo.getLastReceived().toString());
+            dateStr = (ob.getLastUploaded()==null?"Never":ob.getLastUploaded().toString());
         }
         return dateStr;
     }

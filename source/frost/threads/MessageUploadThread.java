@@ -32,6 +32,7 @@ import frost.gui.objects.*;
 import frost.identities.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;
+import frost.storage.database.transferlayer.*;
 import frost.transferlayer.*;
 
 /**
@@ -328,7 +329,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
      */
     private void uploadMessage(LocalIdentity senderId) throws IOException {
         
-        IndexSlots indexSlots = new IndexSlots(IndexSlots.MESSAGES, board.getName());
+        IndexSlotsDatabaseTable indexSlots = new IndexSlotsDatabaseTable(IndexSlotsDatabaseTable.MESSAGES, board.getName());
         
         int index = MessageUploader.uploadMessage(
                 message, 

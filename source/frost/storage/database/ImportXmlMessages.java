@@ -10,6 +10,7 @@ import frost.boards.*;
 import frost.gui.objects.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;
+import frost.storage.database.transferlayer.*;
 import frost.threads.*;
 
 public class ImportXmlMessages {
@@ -164,7 +165,7 @@ public class ImportXmlMessages {
                 continue;
             }
             
-            IndexSlots indexSlots = new IndexSlots(IndexSlots.MESSAGES, board.getName());
+            IndexSlotsDatabaseTable indexSlots = new IndexSlotsDatabaseTable(IndexSlotsDatabaseTable.MESSAGES, board.getName());
 
             for(int j=0; j<dateDirs.length; j++) {
                 File dateDir = dateDirs[j];
@@ -198,7 +199,7 @@ public class ImportXmlMessages {
         }
     }
     
-    private boolean importMessageFile(File msgFile, Board board, Calendar calDL, IndexSlots indexSlots, java.sql.Date maxBack) {
+    private boolean importMessageFile(File msgFile, Board board, Calendar calDL, IndexSlotsDatabaseTable indexSlots, java.sql.Date maxBack) {
         String fname = msgFile.getName();
         int index = -1;
         try {

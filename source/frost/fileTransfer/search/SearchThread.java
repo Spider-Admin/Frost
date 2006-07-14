@@ -57,6 +57,8 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
 
     private SettingsClass settings;
     
+    private boolean isStopRequested = false;
+    
     private List cachedSingleRequests = null;
     private List cachedRemoveStrings = null;
 
@@ -65,6 +67,12 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
     }
     private List getRemoveStrings() {
         return cachedRemoveStrings;
+    }
+    private boolean isStopRequested() {
+        return isStopRequested;
+    }
+    private void requestStop() {
+        isStopRequested = true;
     }
 
     /**
@@ -143,9 +151,13 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
     private List prepareRemoveStrings(String req) {
         List rStrings = new ArrayList();
         int notPos = req.indexOf("*-");
+        if( notPos < 0 ) {
+            return rStrings;
+        }
         int nextSpacePos = req.indexOf(" ", notPos);
-        if (nextSpacePos == -1)
+        if (nextSpacePos == -1) {
             nextSpacePos = req.length();
+        }
 
         String notString = req.substring(notPos + 2, nextSpacePos);
         if (notString.indexOf(";") == -1) { // only one notString
@@ -157,6 +169,7 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
                     notString = notString.substring(notString.indexOf(";") + 1, notString.length());
                 }
             }
+            notString = notString.trim();
             if (notString.length() > 0) {
                 rStrings.add(notString);
             }
@@ -268,7 +281,7 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
 
         if (allFileCount > this.maxSearchResults) {
             logger.info("NOTE: maxSearchResults reached (" + maxSearchResults + ")!");
-            // TODO: stop thread
+            requestStop();
             return;
         }
 
@@ -310,7 +323,7 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
         if( getSearchResults(fo) && filterSearchResults(fo) ) {
             displaySearchResults(fo);
         }
-        return false; // dont stop
+        return isStopRequested();
     }
 
     public void run() {
@@ -319,6 +332,7 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
         allFileCount = 0;
 
         try {
+            // FIXME: use other method to get all boards!
             AppLayerDatabase.getFileListDatabaseTable().retrieveFilesByBoards(boards, this);
         } catch(SQLException e) {
             logger.log(Level.SEVERE, "Catched exception:", e);

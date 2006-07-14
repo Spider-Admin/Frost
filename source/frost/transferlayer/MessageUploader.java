@@ -30,6 +30,7 @@ import frost.fcp.*;
 import frost.gui.*;
 import frost.identities.*;
 import frost.messages.*;
+import frost.storage.database.transferlayer.*;
 import frost.threads.*;
 
 /**
@@ -51,7 +52,7 @@ public class MessageUploader {
         File uploadFile;
         File unsentMessageFile;
         MessageUploaderCallback callback;
-        IndexSlots indexSlots;
+        IndexSlotsDatabaseTable indexSlots;
         java.sql.Date date;
         byte[] signMetadata;
         Identity encryptForRecipient;
@@ -92,7 +93,7 @@ public class MessageUploader {
             Identity encryptForRecipient,
             LocalIdentity senderId,
             MessageUploaderCallback callback,
-            IndexSlots indexSlots,
+            IndexSlotsDatabaseTable indexSlots,
             java.sql.Date date,
             JFrame parentFrame,
             String logBoardName) {

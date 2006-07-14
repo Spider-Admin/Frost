@@ -112,7 +112,11 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
             String key = rs.getString(3);
             java.sql.Date lastDownloaded = rs.getDate(4);
             java.sql.Date lastReceived = rs.getDate(5);
-            
+
+            if( key.length() == 0 ) {
+                key = null;
+            }
+
             fo = new FrostSharedFileObject(primkey, sha1, size, key, lastDownloaded, lastReceived);
         }
         rs.close();
@@ -138,6 +142,10 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
             String key = rs.getString(3);
             java.sql.Date lastDownloaded = rs.getDate(4);
             java.sql.Date lastReceived = rs.getDate(5);
+            
+            if( key.length() == 0 ) {
+                key = null;
+            }
             
             fo = new FrostSharedFileObject(primkey, sha1, size, key, lastDownloaded, lastReceived);
         }
@@ -191,9 +199,10 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         PreparedStatement ps = db.prepare(
             "UPDATE FILELIST SET key=?,lastdownloaded=?,lastreceived=? WHERE sha1=?");
         
-        ps.setString(1, sfo.getKey());
+        ps.setString(1, (sfo.getKey()==null?"":sfo.getKey()));
         ps.setDate(2, sfo.getLastDownloaded());
         ps.setDate(3, sfo.getLastReceived());
+        ps.setString(4, sfo.getSha1());
         
         boolean wasOk = (ps.executeUpdate()==1);
         ps.close();
@@ -223,9 +232,11 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         } else {
             // update existing
             if( obOld.getLastReceived().getTime() < obNew.getLastReceived().getTime() ) {
+
                 obOld.setLastReceived(obNew.getLastReceived());
                 obOld.setName(obNew.getName());
                 obOld.setLastUploaded(obNew.getLastUploaded());
+
                 return updateFrostSharedFileObjectOwnerBoard(obOld);
             }
             return true; // no need to update, lastReceived of new was earlier
@@ -395,7 +406,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
             return;
         }
         
-        String sql = "SELECT refkey FROM FILEOWNERBOARDLIST WHERE board=? GROUP BY refkey";
+        String sql = "SELECT refkey FROM FILEOWNERBOARDLIST WHERE board=?";
 
         boolean firstLoop = true;
         for(int x=boardsToSearch.size(); x >= 0; x--) {
@@ -405,6 +416,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
                 sql += " OR board=?";
             }
         }
+        sql += " GROUP BY refkey";
 
         PreparedStatement ps = db.prepare(sql);
         int ix=1;
@@ -448,7 +460,11 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
             String key = rs.getString(ix++);
             java.sql.Date lastDownloaded = rs.getDate(ix++);
             java.sql.Date lastReceived = rs.getDate(ix++);
-            
+
+            if( key.length() == 0 ) {
+                key = null;
+            }
+
             FrostSharedFileObject fo = new FrostSharedFileObject(primkey, sha1, size, key, lastDownloaded, lastReceived);
             List obs = getFrostSharedFileObjectOwnerBoardList(primkey);
             fo.getFrostSharedFileObjectOwnerBoardList().addAll(obs);

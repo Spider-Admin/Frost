@@ -18,7 +18,7 @@ public class UploadPropertiesDialog extends JDialog {
     private String title;
     
     private int returnCode = CANCEL;
-    private String choosedUniqueName = null;
+    private String choosedIdentity = null;
 
     private JPanel jContentPane = null;
     private JPanel buttonPanel = null;
@@ -151,7 +151,6 @@ public class UploadPropertiesDialog extends JDialog {
             Bcancel.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     returnCode = CANCEL;
-                    choosedUniqueName = null;
                     setVisible(false);
                 }
             });
@@ -171,7 +170,11 @@ public class UploadPropertiesDialog extends JDialog {
             Bok.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     returnCode = OK;
-                    choosedUniqueName = getCBidentities().getSelectedItem().toString();
+                    if( getRBanonymous().isSelected() ) {
+                        choosedIdentity = null;
+                    } else {
+                        choosedIdentity = (String)getCBidentities().getSelectedItem();
+                    }
                     setVisible(false);
                 }
             });
@@ -237,13 +240,14 @@ public class UploadPropertiesDialog extends JDialog {
         return CBidentities;
     }
     
-    public String getChoosedUniqueName() {
-        return choosedUniqueName;
+    public String getChoosedIdentityName() {
+        return choosedIdentity;
     }
 
     public int showDialog() {
         setLocationRelativeTo(parent);
         setVisible(true);
+
         return returnCode;
     }
 

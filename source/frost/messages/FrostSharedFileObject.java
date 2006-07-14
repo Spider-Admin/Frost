@@ -75,6 +75,7 @@ public class FrostSharedFileObject {
                 sfo.getOwner(),
                 DateFun.getCurrentSqlDateGMT(),
                 lastUploadDate);
+
         addFrostSharedFileObjectOwnerBoard(ob);
     }
 

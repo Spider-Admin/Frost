@@ -16,19 +16,16 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.threads;
+package frost.storage.database.transferlayer;
 
 import java.sql.*;
 import java.util.*;
-
-import frost.storage.*;
-import frost.storage.database.transferlayer.*;
 
 /**
  * Class provides functionality to track used index slots
  * for upload and download.
  */
-public class IndexSlots {
+public class IndexSlotsDatabaseTable {
 
     public static final int FILELISTS = 1;
     public static final int MESSAGES  = 2;
@@ -75,7 +72,7 @@ public class IndexSlots {
     private PreparedStatement ps_NEXT_UNUSED_SLOT = null;
     private PreparedStatement ps_UPDATE_WASDOWNLOADED = null;
 
-    public IndexSlots(int indexName, String boardName) {
+    public IndexSlotsDatabaseTable(int indexName, String boardName) {
         this.boardName = boardName;
         this.indexName = indexName;
         

@@ -9,7 +9,7 @@ import frost.crypt.*;
 import frost.fcp.*;
 import frost.gui.objects.*;
 import frost.messages.*;
-import frost.threads.*;
+import frost.storage.database.transferlayer.*;
 
 public class IndexFileUploader {
 
@@ -32,7 +32,7 @@ public class IndexFileUploader {
     }
     
     public static boolean uploadIndexFile(
-            FrostIndex frostIndex, Board board, String insertKey, IndexSlots indexSlots, java.sql.Date date) {
+            FrostIndex frostIndex, Board board, String insertKey, IndexSlotsDatabaseTable indexSlots, java.sql.Date date) {
         
         IndexFileUploaderWorkArea wa = new IndexFileUploaderWorkArea();
         
@@ -43,7 +43,7 @@ public class IndexFileUploader {
     }
     
     private static boolean uploadFile(
-            IndexSlots indexSlots, 
+            IndexSlotsDatabaseTable indexSlots, 
             java.sql.Date date, 
             String insertKey,
             File uploadFile,
@@ -58,7 +58,7 @@ public class IndexFileUploader {
             int index = indexSlots.findFirstUploadSlot(date);
             while( !success && !error) {
                 logger.info("Trying index file upload to index "+index);
-
+System.out.println("indexfile upload start");
                 FcpResultPut result = FcpHandler.inst().putFile(
                         FcpHandler.TYPE_MESSAGE,
                         insertKey + index + ".idx.sha3.zip", // TODO: maybe change the ".zip" in the name, its no zip on 0.7
@@ -68,6 +68,7 @@ public class IndexFileUploader {
                         true); // removeLocalKey, insert with full HTL even if existing in local store
 
                 if( result.isSuccess() ) {
+System.out.println("indexfile upload success");
                     // my files are already added to totalIdx, we don't need to download this index
                     indexSlots.setUploadSlotUsed(index, date);
                     logger.info("FILEDN: Index file successfully uploaded.");
@@ -146,7 +147,7 @@ public class IndexFileUploader {
     }
     
     public static boolean uploadRequestFile(
-            List sha1ToRequest, Board board, String insertKey, IndexSlots indexSlots, java.sql.Date date) {
+            List sha1ToRequest, Board board, String insertKey, IndexSlotsDatabaseTable indexSlots, java.sql.Date date) {
 
         File f = prepareRequestFile(sha1ToRequest);
         if( f == null ) {

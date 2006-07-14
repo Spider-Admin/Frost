@@ -28,6 +28,7 @@ import frost.fileTransfer.upload.*;
 import frost.gui.objects.*;
 import frost.identities.*;
 import frost.messages.*;
+import frost.storage.database.transferlayer.*;
 import frost.transferlayer.*;
 
 public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject implements BoardUpdateThread
@@ -43,7 +44,7 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
 
     private boolean isForToday = false;
 
-    private IndexSlots indexSlots;
+    private IndexSlotsDatabaseTable indexSlots;
 
 //    public int getThreadType() {
 //        return BoardUpdateThread.BOARD_FILE_DNLOAD;
@@ -56,7 +57,7 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
 
         logger.info("FILEDN: UpdateIdThread - makeIndexFile for " + board.getName());
 
-        // Calculate the keys to be uploaded
+        // Calculate the keys to be uploaded, the list contains FrostUploadItemOwnerBoard objects
         List filesToShare = Index.getInstance().getUploadKeys(board);
 
         if(filesToShare == null || filesToShare.size() == 0 ) {
@@ -66,14 +67,14 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
 
         logger.info("FILEDN: Starting upload of index file to board " + board.getName()+"; files="+filesToShare.size());
         
-        // the sharer of the files is the same for every item in list, get it from 1st item
+        // the sharer of the files is the same for each item in this list, get it from 1st item
         FrostUploadItemOwnerBoard ob = (FrostUploadItemOwnerBoard)filesToShare.get(0);
         String ownSharerStr = ob.getOwner();
         LocalIdentity ownSharer = null; // anonymous
         if( ownSharerStr != null ) {
             ownSharer = Core.getIdentities().getLocalIdentity(ownSharerStr);
         }
-        
+//System.out.println("sharer="+ownSharerStr+" / "+ownSharer);
         FrostIndex frostIndex = new FrostIndex(filesToShare, ownSharer);
 
         boolean wasOk = IndexFileUploader.uploadIndexFile(frostIndex, board, insertKey, indexSlots, date);
@@ -213,7 +214,7 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
         this.isForToday = isForToday;
 
         // first load the index with the date we wish to download
-        indexSlots = new IndexSlots(IndexSlots.FILELISTS, board.getName());
+        indexSlots = new IndexSlotsDatabaseTable(IndexSlotsDatabaseTable.FILELISTS, board.getName());
 
         publicKey = board.getPublicKey();
         privateKey = board.getPrivateKey();
@@ -240,7 +241,7 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
             insertKey = new StringBuffer()
                     .append(privateKey)
                     .append("/")
-                    .append(date)
+                    .append(dateStr)
                     .append("/")
                     .toString();
         } else {
@@ -248,7 +249,7 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
                     .append("KSK@frost/index/")
                     .append(board.getBoardFilename())
                     .append("/")
-                    .append(date)
+                    .append(dateStr)
                     .append("/")
                     .toString();
         }

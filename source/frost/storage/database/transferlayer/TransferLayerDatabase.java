@@ -47,7 +47,7 @@ public class TransferLayerDatabase extends Database {
     
     private void ensureTables() {
         // indexslots table
-        List ddls = IndexSlots.getTableDDL();
+        List ddls = IndexSlotsDatabaseTable.getTableDDL();
         for(Iterator i=ddls.iterator(); i.hasNext(); ) {
             String tableDDL = (String)i.next();
             try {
