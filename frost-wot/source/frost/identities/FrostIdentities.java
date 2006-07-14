@@ -25,7 +25,6 @@ import java.util.logging.*;
 import javax.swing.*;
 
 import frost.*;
-import frost.gui.objects.*;
 import frost.storage.*;
 import frost.storage.database.applayer.*;
 import frost.util.gui.*;

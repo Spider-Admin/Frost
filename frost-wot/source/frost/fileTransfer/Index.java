@@ -111,7 +111,7 @@ public class Index {
                 continue;
             }
 
-            // update the download table
+            // update the download table, maybe set key for items that have no key
             if (current.getKey() != null) {
                 updateDownloadTable(current);
             }
@@ -206,11 +206,16 @@ public class Index {
         // - max. 250 keys per fileindex
         // - get keys of only 1 owner/anonymous, next time get keys from different owner
 
+        // compute minDate, items last shared before this date will be reshared
+        int maxAge = Core.frostSettings.getIntValue("maxAge");
+        long maxDiff = maxAge * 24 * 60 * 60 * 1000;
+        long now = System.currentTimeMillis();
+        long minDate = now - maxDiff;
+
         List localIdentities = Core.getIdentities().getLocalIdentities();
         int identityCount = localIdentities.size() + 1; // +1 anonymous 
         int maxKeys = 250;
         while(identityCount > 0) {
-
             LocalIdentity idToUpdate = null;
             long minUpdateMillis = LocalIdentity.getAnonymousLastFilesSharedMillis(board.getName());
             
@@ -235,7 +240,7 @@ public class Index {
             if( idToUpdate != null ) {
                 owner = idToUpdate.getUniqueName();
             }
-            List filesToShare = uploadModel.getUploadItemsToShare(board, owner, maxKeys);
+            List filesToShare = uploadModel.getUploadItemsToShare(board, owner, maxKeys, minDate);
             if( filesToShare.size() > 0 ) {
                 return filesToShare;
             }

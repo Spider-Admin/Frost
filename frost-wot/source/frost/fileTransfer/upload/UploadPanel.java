@@ -619,7 +619,7 @@ public class UploadPanel extends JPanel {
         if( dlg.showDialog() == UploadPropertiesDialog.CANCEL ) {
             return;
         }
-        String owner = dlg.getChoosedUniqueName(); // null=anonymous
+        String owner = dlg.getChoosedIdentityName(); // null=anonymous
 
         List uploadItems = new LinkedList();
         for(Iterator i=uploadFileItems.iterator(); i.hasNext(); ) {

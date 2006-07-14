@@ -374,13 +374,16 @@ public class FrostUploadItem extends ModelItem
      */
     public SharedFileXmlFile getSharedFileXmlFileInstance(FrostUploadItemOwnerBoard v) {
         SharedFileXmlFile sfxf = new SharedFileXmlFile();
-        
+
         sfxf.setSHA1(getSHA1());
         sfxf.setSize(getFileSize());
         sfxf.setKey(getKey());
         sfxf.setFilename(getFileName());
-        sfxf.setLastUploaded(DateFun.getExtendedDateFromSqlDate(getLastUploadDate()));
-        
+        if( getLastUploadDate() != null ) {
+            sfxf.setLastUploaded(DateFun.getExtendedDateFromSqlDate(getLastUploadDate()));
+        } else {
+            sfxf.setLastUploaded(null);
+        }
         sfxf.setOwner(v.getOwner());
         sfxf.setBoard(v.getTargetBoard());
         

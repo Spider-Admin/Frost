@@ -186,7 +186,7 @@ public class UploadFilesDatabaseTable extends AbstractDatabaseTable {
                     }
                 }
                 
-                if( Core.getIdentities().isMySelf(fromname) == false ) {
+                if( fromname != null && Core.getIdentities().isMySelf(fromname) == false ) {
                     logger.warning("Own identity does not longer exist, owner reference removed: "+fromname);
                     continue;
                 }

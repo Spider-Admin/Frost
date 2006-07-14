@@ -134,7 +134,7 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
         PreparedStatement ps = db.prepare(
-                "SELECT uniquename,board,lastshared FROM OWNIDENTITIESLASTFILESSHARED WHERE uniquename=?");
+                "SELECT board,lastshared FROM OWNIDENTITIESLASTFILESSHARED WHERE uniquename=?");
         
         // anonymous
         ps.setString(1, "");

@@ -56,25 +56,27 @@ public class DownloadFilesDatabaseTable extends AbstractDatabaseTable {
         s.close();
 
         PreparedStatement ps = db.prepare(
-                "INSERT INTO DOWNLOADFILES (name,state,enabled,retries,laststopped,board,sha1,fromname,lastrequested,"+
-                "requestcount,key,size) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
+                "INSERT INTO DOWNLOADFILES (name,state,enabled,retries,targetpath,laststopped,board,sha1,fromname,lastrequested,"+
+                "requestcount,key,size) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
         
         for(Iterator i=downloadFiles.iterator(); i.hasNext(); ) {
 
             FrostDownloadItem dlItem = (FrostDownloadItem)i.next();
 
-            ps.setString(1, dlItem.getFileName());
-            ps.setInt(2, dlItem.getState());
-            ps.setBoolean(3, (dlItem.getEnableDownload()==null?true:dlItem.getEnableDownload().booleanValue()));
-            ps.setInt(4, dlItem.getRetries());
-            ps.setTimestamp(5, new Timestamp(dlItem.getLastDownloadStopTimeMillis()));
-            ps.setString(6, (dlItem.getSourceBoard()==null?null:dlItem.getSourceBoard().getName()));
-            ps.setString(7, dlItem.getSHA1());
-            ps.setString(8, dlItem.getOwner());
-            ps.setDate(9, dlItem.getLastRequestedDate());
-            ps.setInt(10, dlItem.getRequestedCount());
-            ps.setString(11, dlItem.getKey());
-            ps.setLong(12, (dlItem.getFileSize()==null?0:dlItem.getFileSize().longValue()));
+            int ix=1;
+            ps.setString(ix++, dlItem.getFileName());
+            ps.setInt(ix++, dlItem.getState());
+            ps.setBoolean(ix++, (dlItem.getEnableDownload()==null?true:dlItem.getEnableDownload().booleanValue()));
+            ps.setInt(ix++, dlItem.getRetries());
+            ps.setString(ix++, null); // targetpath
+            ps.setTimestamp(ix++, new Timestamp(dlItem.getLastDownloadStopTimeMillis()));
+            ps.setString(ix++, (dlItem.getSourceBoard()==null?null:dlItem.getSourceBoard().getName()));
+            ps.setString(ix++, dlItem.getSHA1());
+            ps.setString(ix++, dlItem.getOwner());
+            ps.setDate(ix++, dlItem.getLastRequestedDate());
+            ps.setInt(ix++, dlItem.getRequestedCount());
+            ps.setString(ix++, dlItem.getKey());
+            ps.setLong(ix++, (dlItem.getFileSize()==null?0:dlItem.getFileSize().longValue()));
             
             ps.executeUpdate();
         }

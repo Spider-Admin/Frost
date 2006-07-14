@@ -53,6 +53,10 @@ public class FrostIndex implements XMLizable {
         }
     }
 
+    /**
+     * @param files  List of FrostUploadItemOwnerBoard objects to share
+     * @param ownSharer  the own identity to use for sharing, or null for anonymous
+     */
     public FrostIndex(List files, LocalIdentity ownSharer) {
         this.ownSharer = ownSharer;
         filesMap = new TreeMap();

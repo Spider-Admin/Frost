@@ -248,7 +248,7 @@ public class DownloadModel extends OrderedModel implements Savable {
             FrostDownloadItem downloadItem = (FrostDownloadItem)getItemAt(x);
             itemList.add(downloadItem);
         }
-        
+
         try {
             AppLayerDatabase.getDownloadFilesDatabaseTable().saveDownloadFiles(itemList);
         } catch (SQLException e) {

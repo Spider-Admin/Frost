@@ -20,6 +20,7 @@
 package frost.fileTransfer.upload;
 
 import java.io.*;
+import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
@@ -109,6 +110,11 @@ class UploadThread extends Thread
 
             uploadItem.setState(nextState);
             uploadItem.setLastUploadDate(DateFun.getCurrentSqlDateGMT());
+            // mark the obs of this file so the new uploaddate+key is sent
+            for(Iterator i=uploadItem.getFrostUploadItemOwnerBoardList().iterator(); i.hasNext(); ) {
+                FrostUploadItemOwnerBoard ob = (FrostUploadItemOwnerBoard)i.next();
+                ob.setLastSharedDate(null);
+            }
         } else {
             // Upload failed
             logger.warning("Upload of " + uploadItem.getFileName() + " was NOT successful.");

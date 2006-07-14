@@ -26,7 +26,7 @@ public class IndexFileDownloader {
                 lines.remove(0); // remove header line, remaining lines are SHA1 of requested files
                 
                 Index.getInstance().processRequests(lines);
-                
+//System.out.println("received request file, linecount="+lines.size());                
                 IndexFileDownloaderResult ifdResult = new IndexFileDownloaderResult();
                 ifdResult.errorMsg = IndexFileDownloaderResult.SUCCESS;
                 return ifdResult;
@@ -51,7 +51,7 @@ public class IndexFileDownloader {
         try {
             File tmpFile = FileAccess.createTempFile("frost-index",".tmp");
             tmpFile.deleteOnExit();
-    
+//System.out.println("index file download");
             // Download the keyfile
             FcpResultGet fcpresults = FcpHandler.inst().getFile(
                     FcpHandler.TYPE_MESSAGE,
@@ -66,7 +66,7 @@ public class IndexFileDownloader {
                 tmpFile.delete();
                 return null;
             }
-            
+//System.out.println("index file finished");
             return processDownloadedFile(tmpFile, fcpresults, board);
             
         } catch (Throwable t) {
@@ -265,10 +265,8 @@ public class IndexFileDownloader {
                 logger.info("adding all files from " + sharer.getUniqueName());
                 sharerStr = null;
             }
-            Index idx = Index.getInstance();
-            synchronized(idx) {
-                idx.add(receivedIndex.getFilesMap().values(), sharerStr);
-            }
+
+            Index.getInstance().add(receivedIndex.getFilesMap().values(), sharerStr);
 
             target.delete();
             unzippedTarget.delete();
