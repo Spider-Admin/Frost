@@ -37,7 +37,7 @@ public class FecBlock
     public static final int STATE_TRANSFER_FINISHED = 3; // transfer is finished
     public static final int STATE_TRANSFER_INVALID  = 4; // dont touch this block, its missing
 
-    private static Logger logger = Logger.getLogger(FecBlock.class.getName());
+    private static java.util.logging.Logger logger = java.util.logging.Logger.getLogger(FecBlock.class.getName());
 
     protected int currentState = -1;
     protected int blockType = -1;
