@@ -58,7 +58,7 @@ public class UploadModel extends OrderedModel implements Savable {
                         itemToAdd.getFrostUploadItemOwnerBoardList().iterator().next();
                 
                 // check all old board/owner, only 1 owner/anonymous per board allowed!
-                // TODO: report board match, let user decide to change, but not add
+                // FIXME: report board match, let user decide to change, but not add
                 for(Iterator i=item.getFrostUploadItemOwnerBoardList().iterator(); i.hasNext(); ) {
                     FrostUploadItemOwnerBoard obOld = (FrostUploadItemOwnerBoard)i.next();
                     // compare boards case insensitive!

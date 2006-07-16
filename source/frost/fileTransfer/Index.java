@@ -205,6 +205,7 @@ public class Index {
         // get files to share from UPLOADFILES
         // - max. 250 keys per fileindex
         // - get keys of only 1 owner/anonymous, next time get keys from different owner
+        // this wrap-arounding ensures that each file will be send over the time
 
         // compute minDate, items last shared before this date will be reshared
         int maxAge = Core.frostSettings.getIntValue("maxAge");
@@ -218,7 +219,7 @@ public class Index {
         while(identityCount > 0) {
             LocalIdentity idToUpdate = null;
             long minUpdateMillis = LocalIdentity.getAnonymousLastFilesSharedMillis(board.getName());
-            
+
             for(Iterator i=localIdentities.iterator(); i.hasNext(); ) {
                 LocalIdentity id = (LocalIdentity)i.next();
                 long lastShared = id.getLastFilesSharedMillis(board.getName());
@@ -228,8 +229,7 @@ public class Index {
                 }
             }
 
-            // idToUpdate is id, or null for anonymous
-            // mark that we tried this owner
+            // idToUpdate is id, or null for anonymous; mark that we tried this owner
             if( idToUpdate == null ) {
                 LocalIdentity.updateAnonymousLastFilesSharedMillis(board.getName());
             } else {
