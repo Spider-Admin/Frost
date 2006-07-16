@@ -437,6 +437,10 @@ public class Core implements FrostEventDispatcher  {
     public static MessageHashes getMessageHashes() {
         return messageHashes;
     }
+    
+    public MainFrame getMainFrame(){
+    	return mainFrame;
+    }
 
     private BoardsManager getBoardsManager() {
         if (boardsManager == null) {
