@@ -506,8 +506,8 @@ public class UploadPanel extends JPanel {
     private Language language = null;
 
     private JPanel uploadTopPanel = new JPanel();
-    private JButton uploadAddFilesButton =
-        new JButton(new ImageIcon(getClass().getResource("/data/browse.gif")));
+    private JButton uploadAddFilesButton = new JButton(new ImageIcon(getClass().getResource("/data/browse.gif")));
+
     private SortedModelTable modelTable;
 
     private boolean initialized = false;

@@ -31,7 +31,6 @@ import frost.gui.*;
 import frost.identities.*;
 import frost.messages.*;
 import frost.storage.database.transferlayer.*;
-import frost.threads.*;
 
 /**
  * This class uploads a message file to freenet. The preparation of the

@@ -312,6 +312,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
      * @see frost.util.model.gui.ModelTableFormat#getCellValue(frost.util.model.ModelItem, int)
      */
     public Object getCellValue(ModelItem item, int columnIndex) {
+        // FIXME: hier kommt obj an
         FrostUploadItem uploadItem = (FrostUploadItem) item;
         switch (columnIndex) {
 
