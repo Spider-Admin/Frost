@@ -39,7 +39,7 @@ public class FecSplitfile
     private static final String FROST_TRANSFER_INDICATOR = "namespace.frost.transferInProgress";
     private static final String FROST_TRANSFER_FINISHED_INDICATOR = "namespace.frost.transferFinished.";
 
-    private static Logger logger = Logger.getLogger(FecSplitfile.class.getName());
+    private static java.util.logging.Logger logger = java.util.logging.Logger.getLogger(FecSplitfile.class.getName());
 
     protected int transferMode; // the mode for this file: is it to upload or download?
 

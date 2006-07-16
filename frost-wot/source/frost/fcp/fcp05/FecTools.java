@@ -34,7 +34,10 @@ import freenet.support.*;
  */
 public class FecTools
 {
-    private static Logger logger = Logger.getLogger(FecTools.class.getName());
+    
+	private static java.util.logging.Logger logger = java.util.logging.Logger.getLogger(FecTools.class.getName());
+
+    
 
     /****************************************
      * Methods for CHK@ key generation

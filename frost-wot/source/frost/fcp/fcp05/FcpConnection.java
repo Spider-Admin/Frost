@@ -33,7 +33,7 @@ import frost.fcp.*;
  */
 public class FcpConnection
 {
-    private static Logger logger = Logger.getLogger(FcpConnection.class.getName());
+	private static java.util.logging.Logger logger = java.util.logging.Logger.getLogger(FcpConnection.class.getName());
 
     // This is the timeout set in Socket.setSoTimeout().
     // The value was 900000 (15 minutes), but I often saw INSERT errors caused by a timeout in the read socket part;
