@@ -32,7 +32,7 @@ public class UploadFilesDatabaseTable extends AbstractDatabaseTable {
         "retries INT,"+             // number of upload tries, set to 0 on any successful upload
         "CONSTRAINT UPLOADFILES_1 UNIQUE(sha1) )";
 
-    // TODO: wie NEWUPLOADFILES darstellen? erstmal als grau in die table, oder einfach einen todo-count über die table?
+    // TODO: wie NEWUPLOADFILES darstellen? erstmal als grau in die table, oder einfach einen todo-count ueber die table?
     
     private final static String SQL_OWNER_BOARD_DDL =
         "CREATE TABLE UPLOADFILESOWNERBOARD ("+
