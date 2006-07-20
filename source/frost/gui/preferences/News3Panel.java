@@ -306,7 +306,7 @@ class News3Panel extends JPanel {
                 selectedColor);
         if (newCol != null) {
             selectedColor = newCol;
-            selectedColorButton.setBackground(selectedColor);
+            selectedColorLabel.setBackground(selectedColor);
         }
     }
     
@@ -318,7 +318,7 @@ class News3Panel extends JPanel {
                 notSelectedColor);
         if (newCol != null) {
             notSelectedColor = newCol;
-            notSelectedColorButton.setBackground(notSelectedColor);
+            notSelectedColorLabel.setBackground(notSelectedColor);
         }
     }
 }
