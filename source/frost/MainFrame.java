@@ -37,13 +37,13 @@ import frost.fileTransfer.download.*;
 import frost.fileTransfer.upload.UploadPanel;
 import frost.gui.*;
 import frost.gui.help.*;
-import frost.gui.model.*;
 import frost.gui.objects.*;
 import frost.gui.preferences.*;
 import frost.storage.*;
 import frost.threads.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
+import frost.util.gui.treetable.*;
 
  /**
   * TODO: - after removing a board, let current board selected (currently if you
@@ -752,7 +752,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 treeAndTabbedPaneSplitpane.getDividerLocation());
 
         // let save component layouts
-        getMessagePanel().getMessageTable().saveLayout(frostSettings);
+//        getMessagePanel().getMessageTable().saveLayout(frostSettings); // FIXME: implement
         getMessagePanel().saveLayout(frostSettings);
     }
 
@@ -1123,13 +1123,13 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
                 uploadPanel.setAddFilesButtonEnabled(true);
                 renameFolderButton.setEnabled(false);
-
+// FIXME: load table after change of board. implement threads!
                 // read all messages for this board into message table
                 TOF.getInstance().updateTofTable(node, keypool);
                 getMessagePanel().getMessageTable().clearSelection();
             } else {
                 // node is a folder
-                getMessagePanel().getMessageTableModel().clearDataModel();
+                getMessagePanel().getMessageTable().setNewRootNode(new DefaultMutableTreeNode());
                 getMessagePanel().updateMessageCountLabels(node);
 
                 uploadPanel.setAddFilesButtonEnabled(false);
@@ -1266,8 +1266,17 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         // forward to MessagePanel
         getMessagePanel().updateMessageCountLabels(board);
     }
-    public MessageTableModel getMessageTableModel() {
+
+    public TreeTableModelAdapter getMessageTableModel() {
         // forward to MessagePanel
         return getMessagePanel().getMessageTableModel();
+    }
+    public DefaultTreeModel getMessageTreeModel() {
+        // forward to MessagePanel
+        return getMessagePanel().getMessageTreeModel();
+    }
+    public MessageTreeTable getMessageTreeTable() {
+        // forward to MessagePanel
+        return getMessagePanel().getMessageTable();
     }
 }

@@ -46,9 +46,9 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         "content VARCHAR,"+
         "isdeleted BOOLEAN,"+
         "isnew BOOLEAN,"+
-        "isanswered BOOLEAN,"+
+        "isreplied BOOLEAN,"+ 
         "isjunk BOOLEAN,"+
-        "ismarked BOOLEAN,"+
+        "isflagged BOOLEAN,"+ 
         "isstarred BOOLEAN,"+
         "hasfileattachment BOOLEAN,"+
         "hasboardattachment BOOLEAN,"+
@@ -90,7 +90,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         PreparedStatement ps = db.prepare(
             "INSERT INTO "+getMessageTableName()+"  ("+
             "messageid,inreplyto,isvalid,invalidreason,date,time,index,board,fromname,subject,recipient,signature," +
-            "signaturestatus,publickey,content,isdeleted,isnew,isanswered,isjunk,ismarked,isstarred,hasfileattachment,hasboardattachment"+
+            "signaturestatus,publickey,content,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,hasfileattachment,hasboardattachment"+
             ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
         int i=1;
         ps.setString(i++, mo.getMessageId()); // messageid
@@ -110,9 +110,9 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         ps.setString(i++, mo.getContent()); // content
         ps.setBoolean(i++, mo.isDeleted()); // isdeleted
         ps.setBoolean(i++, mo.isNew()); // isnew
-        ps.setBoolean(i++, mo.isAnswered()); // isanswered
+        ps.setBoolean(i++, mo.isReplied()); // isreplied
         ps.setBoolean(i++, mo.isJunk()); // isjunk
-        ps.setBoolean(i++, mo.isMarked()); // ismarked
+        ps.setBoolean(i++, mo.isFlagged()); // isflagged
         ps.setBoolean(i++, mo.isStarred()); // isstarred
         ps.setBoolean(i++, (files.size() > 0)); // hasfileattachment
         ps.setBoolean(i++, (boards.size() > 0)); // hasboardattachment
@@ -194,14 +194,14 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         // insert msg and all attachments
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         PreparedStatement ps = db.prepare(
-            "UPDATE "+getMessageTableName()+" SET isdeleted=?,isnew=?,isanswered=?,isjunk=?,ismarked=?,isstarred=? "+
+            "UPDATE "+getMessageTableName()+" SET isdeleted=?,isnew=?,isreplied=?,isjunk=?,isflagged=?,isstarred=? "+
             "WHERE date=? AND index=? AND board=?");
         int ix=1;
         ps.setBoolean(ix++, mo.isDeleted()); // isdeleted
         ps.setBoolean(ix++, mo.isNew()); // isnew
-        ps.setBoolean(ix++, mo.isAnswered()); // isanswered
+        ps.setBoolean(ix++, mo.isReplied()); // isreplied
         ps.setBoolean(ix++, mo.isJunk()); // isjunk
-        ps.setBoolean(ix++, mo.isMarked()); // ismarked
+        ps.setBoolean(ix++, mo.isFlagged()); // isflagged
         ps.setBoolean(ix++, mo.isStarred()); // isstarred
 
         ps.setDate(ix++, mo.getSqlDate()); // date
@@ -280,9 +280,9 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         mo.setDeleted(rs.getBoolean(ix++));
 
         mo.setNew(rs.getBoolean(ix++));
-        mo.setAnswered(rs.getBoolean(ix++));
+        mo.setReplied(rs.getBoolean(ix++));
         mo.setJunk(rs.getBoolean(ix++));
-        mo.setMarked(rs.getBoolean(ix++));
+        mo.setFlagged(rs.getBoolean(ix++));
         mo.setStarred(rs.getBoolean(ix++));
         
         mo.setHasFileAttachments( rs.getBoolean(ix++) );
@@ -299,12 +299,14 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         return mo;
     }
 
-    public List retrieveMessages(
+    public void retrieveMessages(
+            FrostMessageObject rootNode,
             Board board, 
             int maxDaysBack, 
             boolean withContent, 
             boolean withAttachments, 
-            boolean showDeleted) 
+            boolean showDeleted,
+            boolean loadFullThreads) 
     throws SQLException {
 
         java.sql.Date startDate = DateFun.getSqlDateGMTDaysAgo(maxDaysBack);
@@ -313,11 +315,12 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         String sql =
             "SELECT "+
             "primkey,messageid,inreplyto,date,time,index,fromname,subject,recipient," +
-            "signaturestatus,publickey,isdeleted,isnew,isanswered,isjunk,ismarked,isstarred,hasfileattachment,hasboardattachment";
+            "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
+            "hasfileattachment,hasboardattachment";
         if( withContent ) {
             sql += ",content";
         }
-        sql += " FROM "+getMessageTableName()+" WHERE date>=? AND board=? AND isvalid=TRUE ";
+        sql += " FROM "+getMessageTableName()+" WHERE (date>=? OR isnew=TRUE) AND board=? AND isvalid=TRUE ";
         if( !showDeleted ) {
             // don't select deleted msgs
             sql += "AND isdeleted=FALSE ";
@@ -331,53 +334,99 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         
         ResultSet rs = ps.executeQuery();
 
-        ArrayList result = new ArrayList();
+        LinkedList messageList = null;
+        // HashSet contains a msgid if the msg was loaded OR was not existing
+        HashSet messageIds = null;
+        if( loadFullThreads ) {
+            messageList = new LinkedList();
+            messageIds = new HashSet();
+        }
+        
         while( rs.next() ) {
             FrostMessageObject mo = resultSetToFrostMessageObject(rs, board, withContent, withAttachments);
-            result.add(mo);
+            
+            if( loadFullThreads ) {
+                if( mo.getMessageId() == null ) {
+                    rootNode.add(mo);
+                } else {
+                    messageList.add(mo);
+                    messageIds.add(mo.getMessageId());
+                }
+            } else {
+                // add msgs flat to rootnode
+                rootNode.add(mo);
+            }
         }
         rs.close();
         ps.close();
         
-        return result;
+        // for unthreaded we are finished
+        if( loadFullThreads == false ) {
+            return;
+        }
+
+        // for threads, check msgrefs and load all existing msgs pointed to by refs
+        LinkedList newLoadedMsgs = new LinkedList();
+        for(Iterator i=messageList.iterator(); i.hasNext(); ) {
+            FrostMessageObject mo = (FrostMessageObject)i.next();
+            List l = mo.getInReplyToList();
+            if( l.size() == 0 ) {
+                continue; // no msg refs
+            }
+            // try to load each msgid that is referenced, put tried ids into hashset msgIds
+            for(int x=l.size()-1; x>=0; x--) {
+                String anId = (String)l.get(x);
+                if( messageIds.contains(anId) ) {
+                    continue;
+                }
+                FrostMessageObject fmo = retrieveMessageByMessageId(board, anId, withContent, withAttachments, showDeleted);
+                if( fmo == null ) {
+                    // for each missing msg create a dummy FrostMessageObject and add it to tree.
+                    // if the missing msg arrives later, replace dummy with true msg in tree
+                    LinkedList ll = new LinkedList();
+                    if( x > 0 ) {
+                        for(int y=0; y < x; y++) {
+                            ll.add(l.get(y));
+                        }
+                    }
+                    fmo = new FrostMessageObject(anId, board, ll);
+                }
+                newLoadedMsgs.add(fmo);
+                messageIds.add(anId);
+            }
+        }
+
+        messageList.addAll(newLoadedMsgs);
+        
+        newLoadedMsgs = null;
+        messageIds = null;
+        
+        // all msgs are loaded and dummies for missing msgs were created, now build the threads
+        // - add msgs without msgid to rootnode
+        // - add msgs with msgid and no ref to rootnode
+        // - add msgs with msgid and ref to its direct parent (last refid in list)
+        
+        // first add msgs without msgid to rootNode and collect msgs with id into a hashtable for lookups
+        Hashtable messagesTableById = new Hashtable();
+        for(Iterator i=messageList.iterator(); i.hasNext(); ) {
+            FrostMessageObject mo = (FrostMessageObject)i.next();
+            messagesTableById.put(mo.getMessageId(), mo);
+        }
+
+        // finally build the threads
+        for(Iterator i=messagesTableById.values().iterator(); i.hasNext(); ) {
+            FrostMessageObject mo = (FrostMessageObject)i.next();
+            LinkedList l = mo.getInReplyToList();
+            if( l.size() == 0 ) {
+                rootNode.add(mo);
+            } else {
+                String directParentId = (String)l.getLast();
+                FrostMessageObject parentMo = (FrostMessageObject)messagesTableById.get(directParentId);
+                parentMo.add(mo);
+            }
+        }
     }
 
-//    public static void retrieveMessagesOneByOne(
-//            Board board, 
-//            int maxDaysBack, 
-//            boolean withContent,
-//            boolean withAttachments,
-//            boolean showDeleted, 
-//            MessageDatabaseTableCallback mc) 
-//    throws SQLException 
-//    {
-//        java.sql.Date startDate = DateFun.getSqlDateGMTDaysAgo(maxDaysBack);
-//        
-//        GuiDatabase db = GuiDatabase.getInstance();
-//        String sql =
-//            "SELECT "+
-//            "messageid,inreplyto,date,time,index,fromname,subject,recipient," +
-//            "signaturestatus,publickey,isdeleted,isnew,isanswered,isjunk,ismarked,isstarred,hasfileattachment,hasboardattachment";
-//            if( withContent ) {
-//                sql += ",content";
-//            }
-//            sql += " FROM MESSAGES WHERE date>=? AND board=? AND isvalid=TRUE AND isdeleted=? ORDER BY date DESC,time DESC";
-//        PreparedStatement ps = db.prepare(sql);
-//        
-//        ps.setDate(1, startDate);
-//        ps.setString(2, board.getName());
-//        ps.setBoolean(3, showDeleted);
-//        
-//        ResultSet rs = ps.executeQuery();
-//
-//        while( rs.next() ) {
-//            FrostMessageObject mo = resultSetToFrostMessageObject(rs, board, withContent, withAttachments);
-//            mc.messageRetrieved(mo); // pass to callback
-//        }
-//        rs.close();
-//        ps.close();
-//    }
-//
     public void retrieveMessagesOneByOne(
             Board board, 
             java.sql.Date startDate, 
@@ -392,7 +441,8 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         String sql =
             "SELECT "+
             "primkey,messageid,inreplyto,date,time,index,fromname,subject,recipient," +
-            "signaturestatus,publickey,isdeleted,isnew,isanswered,isjunk,ismarked,isstarred,hasfileattachment,hasboardattachment";
+            "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
+            "hasfileattachment,hasboardattachment";
             if( withContent ) {
                 sql += ",content";
             }
@@ -415,6 +465,41 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         }
         rs.close();
         ps.close();
+    }
+    
+    public FrostMessageObject retrieveMessageByMessageId(
+            Board board,
+            String msgId,
+            boolean withContent, 
+            boolean withAttachments, 
+            boolean showDeleted) 
+    throws SQLException 
+    {
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
+        String sql =
+            "SELECT "+
+            "primkey,messageid,inreplyto,date,time,index,fromname,subject,recipient," +
+            "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
+            "hasfileattachment,hasboardattachment";
+            if( withContent ) {
+                sql += ",content";
+            }
+            sql += " FROM "+getMessageTableName()+" WHERE board=? AND messageid=? ORDER BY date DESC,time DESC";
+        PreparedStatement ps = db.prepare(sql);
+        
+        ps.setString(1, board.getName());
+        ps.setString(2, msgId);
+        
+        ResultSet rs = ps.executeQuery();
+
+        FrostMessageObject mo = null;
+        if( rs.next() ) {
+            mo = resultSetToFrostMessageObject(rs, board, withContent, withAttachments);
+        }
+        rs.close();
+        ps.close();
+        
+        return mo;
     }
 
 //    public String retrieveMessageContent(java.sql.Date date, Board board, int index) throws SQLException {

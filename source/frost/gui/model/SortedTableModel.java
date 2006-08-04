@@ -107,7 +107,7 @@ public class SortedTableModel extends DefaultTableModel
 
     /**
      * Adds a new row to this model. Updates display of this table. Row will be inserted sorted
-     * if setted by constructor or <I>setSortingColumn</I>.
+     * if set by constructor or <I>setSortingColumn</I>.
      *
      * @see #setSortingColumn
      */
@@ -124,8 +124,7 @@ public class SortedTableModel extends DefaultTableModel
         {
             // if such an item is already contained in search column,
             // determine last element and insert after
-            insertPos =
-                Collections.lastIndexOfSubList(rows, Collections.singletonList(rows.get(insertPos)));
+            insertPos = Collections.lastIndexOfSubList(rows, Collections.singletonList(rows.get(insertPos)));
             insertPos++; // insert AFTER last
 
         }

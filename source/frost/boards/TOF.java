@@ -25,7 +25,6 @@ import javax.swing.*;
 import javax.swing.tree.*;
 
 import frost.*;
-import frost.gui.model.*;
 import frost.gui.objects.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;
@@ -101,14 +100,23 @@ public class TOF {
         // if this board is currently shown, update messages in table
         if( MainFrame.getInstance().getTofTreeModel().getSelectedNode() == board ) {
 
-            final MessageTableModel tableModel = MainFrame.getInstance().getMessageTableModel();
+            final DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) 
+                MainFrame.getInstance().getMessagePanel().getMessageTable().getTree().getModel().getRoot();
+
             SwingUtilities.invokeLater( new Runnable() {
                 public void run() {
-                    for(int row=0; row < tableModel.getRowCount(); row++ ) {
-                        final FrostMessageObject message = (FrostMessageObject)tableModel.getRow(row);
-                        if( message.isNew() ) {
-                            message.setNew(false);
-                            tableModel.updateRow(message);
+                    for(Enumeration e = rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
+                        Object o = e.nextElement();
+                        if( o instanceof FrostMessageObject ) {
+                            FrostMessageObject mo = (FrostMessageObject)o;
+                            if( mo.isNew() ) {
+                                mo.setNew(false);
+                                // fire update for visible rows in table model
+                                int row = MainFrame.getInstance().getMessageTreeTable().getRowForNode(mo);
+                                if( row >= 0 ) {
+                                    MainFrame.getInstance().getMessageTableModel().fireTableRowsUpdated(row, row);
+                                }
+                            }
                         }
                     }
                     board.setNewMessageCount( 0 );
@@ -208,29 +216,98 @@ public class TOF {
     }
 
     /**
-     * called by non-swing thread
-     * @param newMsgFile
-     * @param board
-     * @param markNew
+     * Called by non-swing thread
      */
     private void addNewMessageToTable(final FrostMessageObject message, final Board board) {
+        SwingUtilities.invokeLater( new Runnable() {
+            public void run() {
+                addNewMessageToTable2(message, board);                
+            }
+        });
+    }
+    private void addNewMessageToTable2(FrostMessageObject newMessage, final Board board) {
         
-        final SortedTableModel tableModel = MainFrame.getInstance().getMessageTableModel();
-
         MainFrame.displayNewMessageIcon(true);
         board.incNewMessageCount();
 
-        SwingUtilities.invokeLater( new Runnable() {
-            public void run() {
-                // check if tof table shows this board
-                MainFrame.getInstance().updateTofTree(board);
-                Board selectedBoard = tofTreeModel.getSelectedNode();
-                if( !selectedBoard.isFolder() && selectedBoard.getName().equals( board.getName() ) )
-                {
-                    tableModel.addRow(message);
-                    MainFrame.getInstance().updateMessageCountLabels(board);
+        // if msg has no msgid, add to root
+        // else check if there is a dummy msg with this msgid, if yes replace dummy with this msg
+        // if there is no dummy find direct parent of this msg and add to it.
+        // if there is no direct parent, add dummy parents until first existinbg parent in list
+        
+        DefaultTreeModel model = MainFrame.getInstance().getMessageTreeModel();
+        FrostMessageObject rootNode = (FrostMessageObject)model.getRoot();
+
+        if( newMessage.getMessageId() == null || newMessage.getInReplyToList().size() == 0 ) {
+            rootNode.add(newMessage, false);
+            updateLabels(board);
+            return;
+        }
+
+        // is there a dummy msg for this msgid?
+        for(Enumeration e=rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
+            Object o = e.nextElement();
+            if( !(o instanceof FrostMessageObject) ) {
+                continue;
+            }
+            FrostMessageObject mo = (FrostMessageObject)o;
+            if( mo.getMessageId() != null && 
+                mo.getMessageId().equals(newMessage.getMessageId()) &&
+                mo.isDummy()
+              ) 
+            {
+                // previously missing msg arrived, fill dummy with message data
+                mo.fillFromOtherMessage(newMessage);
+                int row = MainFrame.getInstance().getMessageTreeTable().getRowForNode(mo);
+                if( row >= 0 ) {
+                    MainFrame.getInstance().getMessageTableModel().fireTableRowsUpdated(row, row);
                 }
-            } });
+                updateLabels(board);
+                return;
+            }
+        }
+        
+        LinkedList msgParents = new LinkedList(newMessage.getInReplyToList());
+        
+        // find direct parent
+        while( msgParents.size() > 0 ) {
+
+            String directParentId = (String)msgParents.removeLast();
+            
+            for(Enumeration e=rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
+                Object o = e.nextElement();
+                if( !(o instanceof FrostMessageObject) ) {
+                    continue;
+                }
+                FrostMessageObject mo = (FrostMessageObject)o;
+                if( mo.getMessageId() != null && 
+                    mo.getMessageId().equals(directParentId)
+                  ) 
+                {
+                    mo.add(newMessage, false);
+                    updateLabels(board);
+                    return;
+                }
+            }
+            
+            FrostMessageObject dummyMsg = new FrostMessageObject(directParentId, board, null);
+            dummyMsg.add(newMessage, true);
+            
+            newMessage = dummyMsg; 
+        }
+
+        // no parent found, add tree with dummy msgs
+        rootNode.add(newMessage, false);
+
+        updateLabels(board);
+    }
+    
+    private void updateLabels(Board board) {
+        MainFrame.getInstance().updateTofTree(board);
+        Board selectedBoard = tofTreeModel.getSelectedNode();
+        if( !selectedBoard.isFolder() && selectedBoard.getName().equals( board.getName() ) ) {
+            MainFrame.getInstance().updateMessageCountLabels(board);
+        }
     }
 
     /**
@@ -246,7 +323,6 @@ public class TOF {
     public void updateTofTable(Board board, String keypool) {
         int daysToRead = board.getMaxMessageDisplay();
         // changed to not block the swing thread
-        MessageTableModel tableModel = MainFrame.getInstance().getMessageTableModel();
 
         if( updateThread != null ) {
             if( updateThread.toString().equals( board ) ) {
@@ -258,8 +334,8 @@ public class TOF {
             }
         }
         // start new thread, the thread will set itself to updateThread,
-        // but first it waits before the actual thread is finished
-        nextUpdateThread = new UpdateTofFilesThread(board, keypool, daysToRead, tableModel);
+        // but first it waits until the current thread is finished
+        nextUpdateThread = new UpdateTofFilesThread(board, keypool, daysToRead);
         nextUpdateThread.start();
     }
 
@@ -268,21 +344,13 @@ public class TOF {
         Board board;
         String keypool;
         int daysToRead;
-        SortedTableModel tableModel;
         boolean isCancelled = false;
         String fileSeparator = System.getProperty("file.separator");
 
-        /**
-         * @param board
-         * @param keypool
-         * @param daysToRead
-         * @param table
-         */
-        public UpdateTofFilesThread(Board board, String keypool, int daysToRead, SortedTableModel tableModel) {
+        public UpdateTofFilesThread(Board board, String keypool, int daysToRead) {
             this.board = board;
             this.keypool = keypool;
             this.daysToRead = daysToRead;
-            this.tableModel = tableModel;
         }
 
         public synchronized void cancel() {
@@ -317,41 +385,36 @@ public class TOF {
             try { setPriority(getPriority() - 1); }
             catch(Throwable t) { }
 
-            // clear tofTable
-            final Board innerTargetBoard = board;
-            SwingUtilities.invokeLater( new Runnable() {
-                    public void run() {
-                        // check if tof table shows this board
-                        if( tofTreeModel.getSelectedNode().isFolder() == false &&
-                            tofTreeModel.getSelectedNode().getName().equals( innerTargetBoard.getName() ) )
-                        {
-                            tableModel.clearDataModel();
-                            MainFrame.getInstance().updateMessageCountLabels(innerTargetBoard);
-                        }
-                    }
-                });
-
             boolean showDeletedMessages = Core.frostSettings.getBoolValue("showDeletedMessages");
+            boolean loadThreads = true;
             
-            final List messages;
+            final FrostMessageObject rootNode = new FrostMessageObject(true);
             try {
                 // TODO: maybe receive without content and dynamically load contents if needed
                 // TODO: if we do this, blocked can't check the messagebody!
-                messages = AppLayerDatabase.getMessageTable().retrieveMessages(board, daysToRead, true, true, showDeletedMessages);
+                AppLayerDatabase.getMessageTable().retrieveMessages(
+                        rootNode, 
+                        board, 
+                        daysToRead, 
+                        true, 
+                        true, 
+                        showDeletedMessages, 
+                        loadThreads);
+                
             } catch (SQLException e) {
                 logger.log(Level.SEVERE, "Error retrieving messages for board "+board.getName(), e);
                 return;
             }
             
+            final Board innerTargetBoard = board;
+
             SwingUtilities.invokeLater( new Runnable() {
                 public void run() {
                     if( tofTreeModel.getSelectedNode().isFolder() == false &&
                         tofTreeModel.getSelectedNode().getName().equals( innerTargetBoard.getName() ) ) {
                         
-                        for(Iterator i=messages.iterator(); i.hasNext(); ) {
-                            FrostMessageObject msg = (FrostMessageObject)i.next();
-                            tableModel.addRow(msg);
-                        }
+                        MainFrame.getInstance().getMessagePanel().getMessageTable().setNewRootNode(rootNode);
+                        MainFrame.getInstance().getMessageTreeTable().expandAll(true);
                         
                         MainFrame.getInstance().updateTofTree(innerTargetBoard);
                         MainFrame.getInstance().updateMessageCountLabels(innerTargetBoard);
