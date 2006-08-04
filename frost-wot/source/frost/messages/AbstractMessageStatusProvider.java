@@ -1,9 +1,11 @@
 package frost.messages;
 
+import javax.swing.tree.*;
+
 import frost.*;
 import frost.identities.*;
 
-public abstract class AbstractMessageStatusProvider {
+public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNode {
 
     // the message states
     private static final int xGOOD     = 1;

@@ -20,6 +20,8 @@ package frost.gui.objects;
 
 import java.util.*;
 
+import javax.swing.tree.*;
+
 import frost.*;
 import frost.gui.model.*;
 import frost.messages.*;
@@ -41,22 +43,35 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     
     private boolean isDeleted = false;
     private boolean isNew = false;
-    private boolean isAnswered = false;
+    private boolean isReplied = false;
     private boolean isJunk = false;
-    private boolean isMarked = false; // !
+    private boolean isFlagged = false; // !
     private boolean isStarred = false; // *
     
     private boolean hasFileAttachments = false;
     private boolean hasBoardAttachments = false;
     
+    private LinkedList inReplyToList = null;
+    
     protected String dateAndTime = null;
     
     protected long msgIdentity;
+    
+    protected boolean isDummy = false;
 
     /**
      * Construct a new empty FrostMessageObject
      */
     public FrostMessageObject() {
+    }
+    
+    public FrostMessageObject(boolean isRootnode) {
+        setDummy(true);
+        setSqlDate(new java.sql.Date(0));
+        setSqlTime(new java.sql.Time(0));
+        setSubject("(root)");
+        setNew(false);
+        setFromName("");
     }
 
     /**
@@ -95,6 +110,55 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         setBoard(b);
         setSqlDate( DateFun.getSqlDateOfCalendar(calDL) );
         setIndex( msgIndex );
+    }
+    
+    // create a dummy msg
+    public FrostMessageObject(String msgId, Board b, LinkedList ll) {
+        setMessageId(msgId);
+        setBoard(b);
+        setDummyInReplyToList(ll);
+
+        setDummy(true);
+        setSqlDate(new java.sql.Date(0));
+        setSqlTime(new java.sql.Time(0));
+        setSubject("(dummy)");
+        setNew(false);
+        setFromName("(dummy)");
+        
+        String c = "MsgId: "+getMessageId()+"\n";
+        c += "Refs: ";
+        for(Iterator i=getInReplyToList().iterator(); i.hasNext(); ) {
+            String s = (String)i.next();
+            c += s+",";
+        }
+        setContent(c);
+    }
+
+    public void fillFromOtherMessage(FrostMessageObject mof) {
+
+        setDummy(false);
+        
+        setNew(mof.isNew());
+        setValid(mof.isValid());
+        setBoard(mof.getBoard());
+        setIndex(mof.getIndex());
+        
+        setSqlDate( mof.getSqlDate() );
+        setSqlTime( mof.getSqlTime() );
+
+        setAttachmentList(mof.getAttachmentList());
+        setContent(mof.getContent());
+        setFromName(mof.getFromName());
+        setInReplyTo(mof.getInReplyTo());
+        setMessageId(mof.getMessageId());
+        setPublicKey(mof.getPublicKey());
+        setRecipientName(mof.getRecipientName());
+        setSignature(mof.getSignature());
+        setSignatureStatus(mof.getSignatureStatus());
+        setSubject(mof.getSubject());
+        
+        setHasBoardAttachments(mof.getAttachmentsOfType(Attachment.BOARD).size() > 0);
+        setHasFileAttachments(mof.getAttachmentsOfType(Attachment.FILE).size() > 0);
     }
     
 //    /**
@@ -216,12 +280,12 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         this.invalidReason = invalidReason;
     }
 
-    public boolean isAnswered() {
-        return isAnswered;
+    public boolean isReplied() {
+        return isReplied;
     }
 
-    public void setAnswered(boolean isAnswered) {
-        this.isAnswered = isAnswered;
+    public void setReplied(boolean isReplied) {
+        this.isReplied = isReplied;
     }
 
     public boolean isDeleted() {
@@ -240,12 +304,12 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         this.isJunk = isJunk;
     }
 
-    public boolean isMarked() {
-        return isMarked;
+    public boolean isFlagged() {
+        return isFlagged;
     }
 
-    public void setMarked(boolean isMarked) {
-        this.isMarked = isMarked;
+    public void setFlagged(boolean isFlagged) {
+        this.isFlagged = isFlagged;
     }
 
     public boolean isNew() {
@@ -294,5 +358,130 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
 
     public void setMsgIdentity(long msgIdentity) {
         this.msgIdentity = msgIdentity;
+    }
+    
+    public void setDummy(boolean v) {
+        isDummy = v;
+    }
+    
+    public boolean isDummy() {
+        return isDummy;
+    }
+    
+    private void setDummyInReplyToList(LinkedList l) {
+        inReplyToList = l;
+    }
+    
+    public LinkedList getInReplyToList() {
+        if( inReplyToList == null ) {
+            inReplyToList = new LinkedList();
+            String s = getInReplyTo(); 
+            if( s != null && s.length() > 0 ) {
+                String[] sl = s.split(",");
+                for(int x=0; x<sl.length; x++) {
+                    String r = sl[x].trim();
+                    if(r.length() > 0) {
+                        inReplyToList.add(r);
+                    }
+                }
+            }
+        }
+        return inReplyToList;
+    }
+
+    private String dbg1(FrostMessageObject mo) {
+        String s1;
+        if( mo.isRoot() ) {
+            s1 = "(root)";
+        } else if( mo.isDummy() ) {
+            s1 = "(dummy)";
+        } else {
+            s1 = mo.toString()+" ["+mo.getMessageId()+"]";
+        }
+        return s1;
+    }
+
+    public void add(MutableTreeNode n) {
+        add(n, true);
+    }
+    
+    /**
+     * Overwritten add to add new nodes sorted to a parent node
+     */
+    public void add(MutableTreeNode n, boolean silent) {
+        // add sorted
+        // FIXME: its more performant to sort all childs after the tree is built when creating the whole tree the first time (load from database) 
+        int[] ixs;
+        if( children==null ) {
+            super.add(n);
+            ixs = new int[] { 0 };
+        } else {
+            int insertPoint = Collections.binarySearch(children, n, dateComparator);
+            if( insertPoint < 0 ) {
+                insertPoint++;
+                insertPoint *= -1;
+            }
+            if( insertPoint >= children.size() ) {
+                super.add(n);
+                ixs = new int[] { children.size() - 1 };
+            } else {
+                super.insert(n, insertPoint);
+                ixs = new int[] { insertPoint };
+            }
+        }
+        if( !silent ) {
+            if( MainFrame.getInstance().getMessageTreeTable().getTree().isExpanded(new TreePath(this.getPath())) ) {
+                MainFrame.getInstance().getMessageTreeModel().nodesWereInserted(this, ixs);
+            } else {
+                MainFrame.getInstance().getMessageTreeTable().expandNode(this);
+            }
+        }
+
+        FrostMessageObject mo = (FrostMessageObject)n;
+        System.out.println("ADDED: "+dbg1(mo)+", TO: "+dbg1(this)+", IX="+ixs[0]+", silent="+silent);
+    }
+    
+    SubjectComparator subjectComparator = new SubjectComparator();
+    DateComparator dateComparator = new DateComparator();
+    
+    class DateComparator implements Comparator {
+        public int compare(Object arg0, Object arg1) {
+            FrostMessageObject t1 = (FrostMessageObject)arg0; 
+            FrostMessageObject t2 = (FrostMessageObject)arg1;
+            
+            long l1 = t1.getSqlDate().getTime() + t1.getSqlTime().getTime();
+            long l2 = t2.getSqlDate().getTime() + t2.getSqlTime().getTime();
+            if( l1 > l2 ) {
+                return -1;
+            }
+            if( l1 < l2 ) {
+                return 1;
+            }
+            return 0;
+        }
+    }
+    
+    class SubjectComparator implements Comparator {
+        public int compare(Object arg0, Object arg1) {
+            FrostMessageObject t1 = (FrostMessageObject)arg0; 
+            FrostMessageObject t2 = (FrostMessageObject)arg1;
+            String s1 = t1.getSubject();
+            String s2 = t2.getSubject();
+            if( s1 == null && s2 == null ) {
+                return 0;
+            }
+            if( s1 == null && s2 != null ) {
+                return -1;
+            }
+            if( s1 != null && s2 == null ) {
+                return 1;
+            }
+            int r = s1.toLowerCase().compareTo(s2.toLowerCase()); // FIXME: really lowercase?
+            return r;
+        }
+    }
+    
+    public String toString() {
+        return getSubject();
     }
 }

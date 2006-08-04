@@ -28,22 +28,20 @@ import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
-import javax.swing.table.*;
 import javax.swing.tree.*;
 
 import frost.boards.*;
 import frost.gui.*;
-import frost.gui.model.*;
 import frost.gui.objects.*;
 import frost.identities.*;
 import frost.storage.database.applayer.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
+import frost.util.gui.treetable.*;
 
 public class MessagePanel extends JPanel implements PropertyChangeListener {
 
-    private MessageTable messageTable = null;
-    private MessageTableModel messageTableModel = null;
+    private MessageTreeTable messageTable = null;
     private MessageTextPane messageTextPane = null;
     private JScrollPane messageListScrollPane = null;
     private JSplitPane msgTableAndMsgTextSplitpane = null;
@@ -94,12 +92,13 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 }
                 //if leftbtn double click on message show this message
                 //in popup window
-            } else if(SwingUtilities.isLeftMouseButton(e)) {
+            } 
+            // FIXME: re-enable
+            else if(SwingUtilities.isLeftMouseButton(e)) {
                 //accepting only mouse pressed event as double click,
                 //overwise it will be triggered twice
                 if(e.getID() == MouseEvent.MOUSE_PRESSED )
-                    if(e.getClickCount() == 2 &&
-                            e.getComponent() == messageTable )
+                    if(e.getClickCount() == 2 && e.getComponent() == messageTable )
                         showCurrentMessagePopupWindow();
             }
         }
@@ -504,9 +503,9 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             Core.frostSettings.addPropertyChangeListener(SettingsClass.MSGTABLE_MULTILINE_SELECT, this);
 
             // build messages list scroll pane
-            messageTableModel = new MessageTableModel();
+            MessageTreeTableModel messageTableModel = new MessageTreeTableModel(new DefaultMutableTreeNode());
             language.addLanguageListener(messageTableModel);
-            messageTable = new MessageTable(messageTableModel);
+            messageTable = new MessageTreeTable(messageTableModel);
             updateMsgTableMultilineSelect();
             messageTable.getSelectionModel().addListSelectionListener(listener);
             messageListScrollPane = new JScrollPane(messageTable);
@@ -515,7 +514,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             messageTextPane = new MessageTextPane(mainFrame);
 
             // load message table layout
-            messageTable.loadLayout(settings);
+//            messageTable.loadLayout(settings); // FIXME: implement
 
             fontChanged();
 
@@ -578,18 +577,18 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
      * @return The content of the message
      */
     private FrostMessageObject evalSelection(ListSelectionEvent e, JTable table, Board board) {
-        MessageTableModel tableModel = (MessageTableModel)table.getModel();
         if( !e.getValueIsAdjusting() && !table.isEditing() ) {
             // more than 1 selected row is handled specially, only used to delete/undelete messages
             if( table.getSelectedRowCount() > 1 ) {
                 return null;
             }
             int row = table.getSelectedRow();
-            if( row != -1 && row < tableModel.getRowCount() ) {
-                final FrostMessageObject message = (FrostMessageObject)tableModel.getRow(row);
+            if( row != -1 && row < getMessageTableModel().getRowCount() ) {
+
+                final FrostMessageObject message = (FrostMessageObject)getMessageTableModel().getRow(row);
 
                 if( message != null ) {
-                    // Test if lockfile exists, remove it and update the tree display
+
                     if( message.isNew() == false ) {
                         // its a read message, nothing more to do here ...
                         return message;
@@ -597,7 +596,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
                     // this is a new message
                     message.setNew(false); // mark as read
-                    tableModel.updateRow(message);
+                    
+                    getMessageTableModel().fireTableRowsUpdated(row, row);
 
                     board.decNewMessageCount();
 
@@ -606,7 +606,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     
                     Thread saver = new Thread() {
                         public void run() {
-                            // save message, we must save the changed deleted state into the xml file
+                            // save the changed isnew state into the database
                             try {
                                 AppLayerDatabase.getMessageTable().updateMessage(message);
                             } catch (SQLException ex) {
@@ -624,6 +624,14 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     }
     
     private void messageTable_itemSelected(ListSelectionEvent e) {
+        System.out.println("messageTable_itemSelected: "+e.getValueIsAdjusting()+", "+getMessageTable().getSelectedRow());
+        
+//        try {
+//            throw new Exception();
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//        }
+
         Board selectedBoard = mainFrame.getTofTreeModel().getSelectedNode();
         if (selectedBoard.isFolder()) {
             setGoodButton.setEnabled(false);
@@ -644,9 +652,19 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         }
 
         if (selectedMessage != null) {
+            
+            if( selectedMessage.isDummy() ) {
+                getMessageTextPane().update_boardSelected();
+                setGoodButton.setEnabled(false);
+                setCheckButton.setEnabled(false);
+                setBadButton.setEnabled(false);
+                setObserveButton.setEnabled(false);
+                replyButton.setEnabled(false);
+                saveMessageButton.setEnabled(false);
+                return;
+            }
+            
             MainFrame.displayNewMessageIcon(false);
-    //      downloadAttachmentsButton.setEnabled(false);
-    //      downloadBoardsButton.setEnabled(false);
 
             if (selectedBoard.isReadAccessBoard() == false) {
                 replyButton.setEnabled(true);
@@ -685,7 +703,9 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 setBadButton.setEnabled(false);
                 setObserveButton.setEnabled(false);
             }
+            
             getMessageTextPane().update_messageSelected(selectedMessage);
+            
             if (selectedMessage.getContent().length() > 0) {
                 saveMessageButton.setEnabled(true);
             } else {
@@ -702,8 +722,6 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             setCheckButton.setEnabled(false);
             setBadButton.setEnabled(false);
             setObserveButton.setEnabled(false);
-    //      downloadAttachmentsButton.setEnabled(false);
-    //      downloadBoardsButton.setEnabled(false);
         }
     }
 
@@ -729,10 +747,10 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             }
         } 
         // now mark BAD
-        setGoodButton.setEnabled(false);
-        setCheckButton.setEnabled(false);
+        setGoodButton.setEnabled(true);
+        setCheckButton.setEnabled(true);
         setBadButton.setEnabled(false);
-        setObserveButton.setEnabled(false);
+        setObserveButton.setEnabled(true);
         id.setBAD();
         updateTableAfterChangeOfIdentityState();
     }
@@ -742,10 +760,10 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         if( id == null ) {
             return;
         }
-        setGoodButton.setEnabled(false);
+        setGoodButton.setEnabled(true);
         setCheckButton.setEnabled(false);
-        setBadButton.setEnabled(false);
-        setObserveButton.setEnabled(false);
+        setBadButton.setEnabled(true);
+        setObserveButton.setEnabled(true);
         id.setCHECK();
         updateTableAfterChangeOfIdentityState();
     }
@@ -755,9 +773,9 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         if( id == null ) {
             return;
         }
-        setGoodButton.setEnabled(false);
-        setCheckButton.setEnabled(false);
-        setBadButton.setEnabled(false);
+        setGoodButton.setEnabled(true);
+        setCheckButton.setEnabled(true);
+        setBadButton.setEnabled(true);
         setObserveButton.setEnabled(false);
         id.setOBSERVE();
         updateTableAfterChangeOfIdentityState();
@@ -782,9 +800,9 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         }
         // now mark GOOD
         setGoodButton.setEnabled(false);
-        setCheckButton.setEnabled(false);
-        setBadButton.setEnabled(false);
-        setObserveButton.setEnabled(false);
+        setCheckButton.setEnabled(true);
+        setBadButton.setEnabled(true);
+        setObserveButton.setEnabled(true);
         id.setGOOD();
         updateTableAfterChangeOfIdentityState();
     }
@@ -876,7 +894,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         getPopupMenuMessageTable().show(e.getComponent(), e.getX(), e.getY());
     }
 
-    private void showCurrentMessagePopupWindow(){
+    private void showCurrentMessagePopupWindow() {
         if( !isCorrectlySelectedMessage() ) {
             return;
         }
@@ -933,7 +951,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         if (row < 0
             || selectedMessage == null
             || mainFrame.getTofTreeModel().getSelectedNode() == null
-            || mainFrame.getTofTreeModel().getSelectedNode().isFolder() == true)
+            || mainFrame.getTofTreeModel().getSelectedNode().isFolder() == true
+            || selectedMessage.isDummy() )
         {
             return false;
         }
@@ -956,10 +975,12 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
             if ( !settings.getBoolValue(SettingsClass.SHOW_DELETED_MESSAGES) ){
                 // if we show deleted messages we don't need to remove them from the table
-                messageTableModel.deleteRow(targetMessage);
+//                messageTableModel.deleteRow(targetMessage); // FIXME: implement
             } else {
                 // needs repaint or the line which crosses the message isn't completely seen
-                getMessageTableModel().updateRow(targetMessage);
+                DefaultTreeModel model = (DefaultTreeModel)MainFrame.getInstance().getMessagePanel().getMessageTable().getTree().getModel();
+                model.nodeChanged(targetMessage);
+//              getMessageTableModel().updateRow(targetMessage);
             }
             saveMessages.add(targetMessage);
         }
@@ -995,7 +1016,9 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             targetMessage.setDeleted(false);
 
             // needs repaint or the line which crosses the message isn't completely seen
-            getMessageTableModel().updateRow(targetMessage);
+            DefaultTreeModel model = (DefaultTreeModel)MainFrame.getInstance().getMessagePanel().getMessageTable().getTree().getModel();
+            model.nodeChanged(targetMessage);
+//            getMessageTableModel().updateRow(targetMessage);
 
             saveMessages.add(targetMessage);
         }
@@ -1039,7 +1062,9 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         targetMessage.setNew(true);
 
         // let renderer check for new state
-        getMessageTableModel().updateRow(targetMessage);
+        DefaultTreeModel model = (DefaultTreeModel)MainFrame.getInstance().getMessagePanel().getMessageTable().getTree().getModel();
+        model.nodeChanged(targetMessage);
+//        getMessageTableModel().updateRow(targetMessage);
 
         mainFrame.getTofTreeModel().getSelectedNode().incNewMessageCount();
 
@@ -1070,9 +1095,14 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             newMessagesCountLabel.setText("");
             nextUnreadMessageButton.setEnabled(false);
         } else {
-            DefaultTableModel model = (DefaultTableModel)getMessageTableModel();
-
-            int allMessages = model.getRowCount();
+            int allMessages = 0;
+            FrostMessageObject rootNode = (FrostMessageObject)MainFrame.getInstance().getMessageTreeModel().getRoot();
+            for(Enumeration e=rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
+                FrostMessageObject mo = (FrostMessageObject)e.nextElement();
+                if( !mo.isDummy() ) {
+                    allMessages++;
+                }
+            }
             allMessagesCountLabel.setText(allMessagesCountPrefix + allMessages);
 
             int newMessages = board.getNewMessageCount();
@@ -1110,17 +1140,29 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         Board board = MainFrame.getInstance().getTofTreeModel().getSelectedNode();
         if( board != null || !board.isFolder() ) {
             // a board is selected and shown
-            MessageTableModel msgTableModel = MainFrame.getInstance().getMessageTableModel();
-            for(int x=msgTableModel.getRowCount() - 1; x >= 0; x--) {
-                FrostMessageObject message = (FrostMessageObject)msgTableModel.getRow(x);
+            DefaultTreeModel model = MainFrame.getInstance().getMessageTreeModel();
+            // FIXME: get rootNode and go through all nodes
+            DefaultMutableTreeNode rootnode = (DefaultMutableTreeNode)model.getRoot();
+            
+            for(Enumeration e=rootnode.depthFirstEnumeration(); e.hasMoreElements(); ) {
+                Object o = e.nextElement();
+                if( !(o instanceof FrostMessageObject) ) {
+                    continue;
+                }
+                FrostMessageObject message = (FrostMessageObject)o;
 
                 if( TOF.getInstance().blocked(message,board) ) {
-                    msgTableModel.deleteRow(message);
+                    model.removeNodeFromParent(message); // FIXME: remove only if there are no GOOD childs
+                    // FIXME: this destroys the enumeration!
+                    // FIXME: if a new msg arrives during the loop over the enumeration, this fails!
                     if( message.isNew() ) {
                         board.decNewMessageCount();
                     }
                 } else {
-                    msgTableModel.updateRow(message);
+                    int row = MainFrame.getInstance().getMessageTreeTable().getRowForNode(message);
+                    if( row >= 0 ) {
+                        MainFrame.getInstance().getMessageTableModel().fireTableRowsUpdated(row, row);
+                    }
                 }
             }
             MainFrame.getInstance().updateMessageCountLabels(board);
@@ -1149,38 +1191,45 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
      * Search through all messages, find next unread message by date (earliest message in table).
      */
     public void selectNextUnreadMessage() {
-        int nextMessage = -1;
+        FrostMessageObject nextMessage = null;
 
-        final MessageTableModel tableModel = getMessageTableModel();
+        final DefaultTreeModel tableModel = getMessageTreeModel();
         FrostMessageObject earliestMessage = null;
-        for (int row = 0; row < tableModel.getRowCount(); row++) {
-            final FrostMessageObject message = (FrostMessageObject)tableModel.getRow(row);
+        for (Enumeration e=((DefaultMutableTreeNode)tableModel.getRoot()).depthFirstEnumeration(); e.hasMoreElements(); ) {
+            final FrostMessageObject message = (FrostMessageObject)e.nextElement();
             if (message.isNew()) {
                 if( earliestMessage == null ) {
                     earliestMessage = message;
-                    nextMessage = row;
+                    nextMessage = message;
                 } else {
                     if( earliestMessage.getDateAndTime().compareTo(message.getDateAndTime()) > 0 ) {
                         earliestMessage = message;
-                        nextMessage = row;
+                        nextMessage = message;
                     }
                 }
             }
         }
 
-        if (nextMessage == -1) {
+        if (nextMessage == null) {
             // TODO: code to move to next board.
         } else {
             messageTable.removeRowSelectionInterval(0, getMessageTableModel().getRowCount()-1);
-            messageTable.addRowSelectionInterval(nextMessage, nextMessage);
-            messageListScrollPane.getVerticalScrollBar().setValue(nextMessage * messageTable.getRowHeight());
+            messageTable.getTree().makeVisible(new TreePath(nextMessage.getPath()));
+            int row = messageTable.getRowForNode(nextMessage);
+            if( row >= 0 ) {
+                messageTable.addRowSelectionInterval(row, row);
+                messageListScrollPane.getVerticalScrollBar().setValue((row==0?row:row-1) * messageTable.getRowHeight());
+            }
         }
     }
 
-    public MessageTableModel getMessageTableModel() {
-        return messageTableModel;
+    public TreeTableModelAdapter getMessageTableModel() {
+        return (TreeTableModelAdapter)getMessageTable().getModel();
     }
-    public MessageTable getMessageTable() {
+    public DefaultTreeModel getMessageTreeModel() {
+        return (DefaultTreeModel)getMessageTable().getTree().getModel();
+    }
+    public MessageTreeTable getMessageTable() {
         return messageTable;
     }
     public MessageTextPane getMessageTextPane() {
