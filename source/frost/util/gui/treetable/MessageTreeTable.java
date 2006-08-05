@@ -89,6 +89,8 @@ public class MessageTreeTable extends JTable {
     	setSelectionModel(selectionWrapper.getListSelectionModel());
         
 //        tree.setRootVisible(false);
+        tree.setRootVisible(false);
+        tree.setShowsRootHandles(true);
     
     	// Installs the tree editor renderer and editor. 
     	setDefaultRenderer(TreeTableModel.class, tree); 
