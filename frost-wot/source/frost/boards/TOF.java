@@ -225,9 +225,7 @@ public class TOF {
                 Board selectedBoard = tofTreeModel.getSelectedNode();
                 // add only if target board is still shown
                 if( !selectedBoard.isFolder() && selectedBoard.getName().equals( board.getName() ) ) {
-
                     addNewMessageToTable2(message, board);
-                    
                     MainFrame.getInstance().updateMessageCountLabels(board);
                 }
 
