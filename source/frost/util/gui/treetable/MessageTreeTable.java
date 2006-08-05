@@ -709,7 +709,7 @@ public class MessageTreeTable extends JTable {
             column = tableColumn.getModelIndex();
 
             // do nice things for FROM and SIG column
-            if( column == 1 ) {
+            if( column == 3 ) {
                 // FROM
                 // first set font, bold for new msg or normal
                 if (msg.isNew()) {
@@ -727,7 +727,7 @@ public class MessageTreeTable extends JTable {
                         setForeground(Color.BLACK);
                     }
                 }
-            } else if( column == 2 ) {
+            } else if( column == 4 ) {
                 // SIG
                 // state == good/bad/check/observe -> bold and coloured
                 if( msg.isMessageStatusGOOD() ) {
