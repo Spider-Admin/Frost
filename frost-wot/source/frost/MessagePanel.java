@@ -1145,6 +1145,13 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         }
         return ident;
     }
+    
+    public FrostMessageObject getSelectedMessage() {
+        if( !isCorrectlySelectedMessage() ) {
+            return null;
+        }
+        return selectedMessage;
+    }
 
     private void updateTableAfterChangeOfIdentityState() {
         // walk through shown messages and remove unneeded (e.g. if hideBad)
@@ -1221,15 +1228,26 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         }
 
         if (nextMessage == null) {
-            // TODO: code to move to next board.
+            // code to move to next board??? 
         } else {
             messageTable.removeRowSelectionInterval(0, getMessageTableModel().getRowCount()-1);
-            messageTable.getTree().makeVisible(new TreePath(nextMessage.getPath()));
             int row = messageTable.getRowForNode(nextMessage);
             if( row >= 0 ) {
                 messageTable.addRowSelectionInterval(row, row);
                 messageListScrollPane.getVerticalScrollBar().setValue((row==0?row:row-1) * messageTable.getRowHeight());
             }
+        }
+    }
+
+    public void makeNodeViewable(FrostMessageObject mo) {
+        int row = messageTable.getRowForNode(mo);
+        if( row >= 0 ) {
+            int newValue = row * messageTable.getRowHeight();
+//            int maxValue = messageListScrollPane.getVerticalScrollBar().getMaximum();
+//            if( newValue > maxValue ) {
+//                newValue = maxValue;
+//            }
+            messageListScrollPane.getVerticalScrollBar().setValue(newValue);
         }
     }
 

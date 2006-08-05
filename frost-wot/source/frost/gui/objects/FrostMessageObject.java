@@ -25,7 +25,7 @@ import javax.swing.tree.*;
 import frost.*;
 import frost.gui.model.*;
 import frost.messages.*;
-
+// FIXME: tooltip auf table, zeige lange subjects und owner
 /**
  * This class holds all informations that are shown in the GUI and stored to the database.
  * It adds more fields than a MessageObjectFile uses. 

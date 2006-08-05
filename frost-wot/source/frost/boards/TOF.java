@@ -226,6 +226,12 @@ public class TOF {
                 // add only if target board is still shown
                 if( !selectedBoard.isFolder() && selectedBoard.getName().equals( board.getName() ) ) {
                     addNewMessageToModel(message, board);
+                    // after adding the message ensure that selected message is still shown
+                    FrostMessageObject selectedMessage = MainFrame.getInstance().getMessagePanel().getSelectedMessage();
+                    if( selectedMessage != null ) {
+                        MainFrame.getInstance().getMessagePanel().makeNodeViewable(selectedMessage);
+                    }
+
                     MainFrame.getInstance().updateMessageCountLabels(board);
                 }
 
