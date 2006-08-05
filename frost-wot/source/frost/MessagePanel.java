@@ -418,7 +418,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         setCheckButton.setEnabled(false);
         setBadButton.setEnabled(false);
         setObserveButton.setEnabled(false);
-        
+
         toggleShowThreads.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS));
 
         // build buttons panel
