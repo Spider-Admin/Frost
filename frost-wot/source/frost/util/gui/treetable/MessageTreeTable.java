@@ -375,18 +375,25 @@ public class MessageTreeTable extends JTable {
             setFont(normalFont);
         }
         // now set color
-        if (!isSelected) {
-            if( msg.getRecipientName() != null && msg.getRecipientName().length() > 0) {
-                foreground = Color.RED;
-            } else if (msg.containsAttachments()) {
-                foreground = Color.BLUE;
+        
+        if( msg.getRecipientName() != null && msg.getRecipientName().length() > 0) {
+            foreground = Color.RED;
+        } else if (msg.containsAttachments()) {
+            foreground = Color.BLUE;
+        } else {
+            foreground = Color.BLACK;
+        }
+            
+        if (!isSelected) {    
+            // IBM lineprinter paper
+            if ((row & 0x0001) == 0) {
+            	background = Color.WHITE;
             } else {
-                foreground = Color.BLACK;
+            	background = new java.awt.Color(238,238,238);
             }
-            background = table.getBackground();
         } else {
             background = table.getSelectionBackground();
-            foreground = table.getSelectionForeground();
+           // foreground = table.getSelectionForeground();
         }
         
         setDeleted(msg.isDeleted());
@@ -394,7 +401,7 @@ public class MessageTreeTable extends JTable {
         // orig code
 	    highlightBorder = null;
 	    if (hasFocus) {
-	        highlightBorder = UIManager.getBorder("Table.focusCellHighlightBorder");
+	      //  highlightBorder = UIManager.getBorder("Table.focusCellHighlightBorder");
 	    }
 
 	    visibleRow = row;
@@ -671,7 +678,18 @@ public class MessageTreeTable extends JTable {
             int row,
             int column) {
 
-            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            super.getTableCellRendererComponent(table, value, isSelected, /*hasFocus*/ false, row, column);
+            
+            if (!isSelected) {
+                // IBM lineprinter paper
+                if ((row & 0x0001) == 0) {
+                	setBackground(Color.WHITE);
+                } else {
+                	setBackground(new java.awt.Color(238,238,238));
+                }
+            } else {
+                setBackground(table.getSelectionBackground());
+            }
             
             setAlignmentY(CENTER_ALIGNMENT);
 

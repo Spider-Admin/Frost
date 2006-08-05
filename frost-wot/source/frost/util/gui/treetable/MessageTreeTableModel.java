@@ -151,10 +151,10 @@ public class MessageTreeTableModel extends AbstractTreeTableModel implements Lan
             FrostMessageObject mo = (FrostMessageObject)node; 
             switch(column) {
 //                case 0: return ""+mo.getIndex();
-                case 1: return mo.getFromName();
+                case 1: if (mo.isDummy()) return ""; else return mo.getFromName();
 //                case 2: return mo.getSubject();
-                case 2: return mo.getMessageStatusString();
-                case 3: return mo.getDateAndTime();
+                case 2: if (mo.isDummy()) return ""; else return mo.getMessageStatusString();
+                case 3: if (mo.isDummy()) return ""; else return mo.getDateAndTime();
                 default: return "*ERR*";
             }
         } else {
