@@ -37,7 +37,6 @@ import frost.gui.model.*;
 import frost.gui.objects.*;
 import frost.identities.*;
 import frost.messages.*;
-import frost.storage.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
@@ -861,7 +860,10 @@ public class MessageFrame extends JFrame {
 
     private void updateHeaderArea() {
         headerArea.setEnabled(false);
-        String sender = (String)getOwnIdentitiesComboBox().getEditor().getItem();
+        String sender = (String)getOwnIdentitiesComboBox().getSelectedItem().toString();
+        if( sender == null || oldSender == null || oldSender.equals(sender) ) {
+            return;
+        }
         try {
             messageTextArea.getDocument().remove(headerArea.getStartPos() + 6, oldSender.length());
             messageTextArea.getDocument().insertString(headerArea.getStartPos() + 6, sender, null);
