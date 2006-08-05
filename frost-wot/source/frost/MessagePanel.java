@@ -624,14 +624,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     }
     
     private void messageTable_itemSelected(ListSelectionEvent e) {
-        System.out.println("messageTable_itemSelected: "+e.getValueIsAdjusting()+", "+getMessageTable().getSelectedRow());
+//        System.out.println("messageTable_itemSelected: "+e.getValueIsAdjusting()+", "+getMessageTable().getSelectedRow());
         
-//        try {
-//            throw new Exception();
-//        } catch (Exception ex) {
-//            ex.printStackTrace();
-//        }
-
         Board selectedBoard = mainFrame.getTofTreeModel().getSelectedNode();
         if (selectedBoard.isFolder()) {
             setGoodButton.setEnabled(false);

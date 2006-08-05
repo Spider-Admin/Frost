@@ -431,14 +431,15 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         }
         if( !silent ) {
             if( MainFrame.getInstance().getMessageTreeTable().getTree().isExpanded(new TreePath(this.getPath())) ) {
+                // if node is already expanded, notify new inserted row to the models
                 MainFrame.getInstance().getMessageTreeModel().nodesWereInserted(this, ixs);
             } else {
+                // if node is not expanded, expand it, this will notify the model of the new child as well as of the old childs
                 MainFrame.getInstance().getMessageTreeTable().expandNode(this);
             }
         }
-
-        FrostMessageObject mo = (FrostMessageObject)n;
-        System.out.println("ADDED: "+dbg1(mo)+", TO: "+dbg1(this)+", IX="+ixs[0]+", silent="+silent);
+//        FrostMessageObject mo = (FrostMessageObject)n;
+//        System.out.println("ADDED: "+dbg1(mo)+", TO: "+dbg1(this)+", IX="+ixs[0]+", silent="+silent);
     }
     
     SubjectComparator subjectComparator = new SubjectComparator();

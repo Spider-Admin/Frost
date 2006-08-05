@@ -564,11 +564,6 @@ public class MessageTreeTable extends JTable {
 	    if(!updatingListSelectionModel) {
     		updatingListSelectionModel = true;
     		try {
-//                try {
-//                    throw new Exception();
-//                } catch (Exception ex) {
-//                    ex.printStackTrace();
-//                }
 //                super.resetRowSelection();
     		}
     		finally {
@@ -626,7 +621,6 @@ public class MessageTreeTable extends JTable {
 	 */
 	class ListSelectionHandler implements ListSelectionListener {
 	    public void valueChanged(ListSelectionEvent e) {
-            System.out.println("Updating PATHS");
 	        updateSelectedPathsFromSelectedRows();
 	    }
 	}
