@@ -124,14 +124,6 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         setSubject("(dummy)");
         setNew(false);
         setFromName("(dummy)");
-        
-        String c = "MsgId: "+getMessageId()+"\n";
-        c += "Refs: ";
-        for(Iterator i=getInReplyToList().iterator(); i.hasNext(); ) {
-            String s = (String)i.next();
-            c += s+",";
-        }
-        setContent(c);
     }
 
     public void fillFromOtherMessage(FrostMessageObject mof) {

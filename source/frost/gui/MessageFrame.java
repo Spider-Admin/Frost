@@ -805,11 +805,11 @@ public class MessageFrame extends JFrame {
                                               null,
                                               recipient);
 
-        try {
-            frostSettings.save();
-        } catch (StorageException se) {
-            logger.log(Level.SEVERE, "Error while saving the settings.", se);
-        }
+//        try {
+//            frostSettings.save();
+//        } catch (StorageException se) {
+//            logger.log(Level.SEVERE, "Error while saving the settings.", se);
+//        }
 
         setVisible(false);
         dispose();
