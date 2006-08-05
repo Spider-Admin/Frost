@@ -55,7 +55,15 @@ public class FrostIdentities implements Savable {
             // check if there is at least one identity in database, otherwise create one
             if ( localIdentitiesList.size() == 0 ) {
                 // first startup, no identity available
-                LocalIdentity mySelf = createIdentity(freenetIsOnline, true);
+                if (freenetIsOnline == false) {
+                    MiscToolkit.getInstance().showMessage(
+                            language.getString("Core.loadIdentities.ConnectionNotEstablishedBody"),
+                            JOptionPane.ERROR_MESSAGE,
+                            language.getString("Core.loadIdentities.ConnectionNotEstablishedTitle"));
+                    System.exit(2);
+                }
+                
+                LocalIdentity mySelf = createIdentity(true);
                 if(mySelf == null) {
                     logger.severe("Frost can't run without an identity.");
                     System.exit(1);
@@ -84,18 +92,21 @@ public class FrostIdentities implements Savable {
     /**
      * Creates new local identity, and adds it to database.
      */
-    private LocalIdentity createIdentity(boolean freenetIsOnline, boolean firstIdentity) {
+    public boolean createIdentity() {
+        LocalIdentity li = createIdentity(false);
+        if( li != null ) {
+            return addLocalIdentity(li);
+        }
+        return false;
+    }
+    
+    /**
+     * Creates new local identity, and adds it to database.
+     */
+    private LocalIdentity createIdentity(boolean firstIdentity) {
 
         LocalIdentity newIdentity = null;
         
-        if (freenetIsOnline == false) {
-            MiscToolkit.getInstance().showMessage(
-                    language.getString("Core.loadIdentities.ConnectionNotEstablishedBody"),
-                    JOptionPane.ERROR_MESSAGE,
-                    language.getString("Core.loadIdentities.ConnectionNotEstablishedTitle"));
-            System.exit(2);
-        }
-
         // create new identitiy
         try {
             String nick = null;
