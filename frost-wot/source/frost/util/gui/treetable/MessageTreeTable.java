@@ -48,6 +48,7 @@ import javax.swing.event.*;
 import javax.swing.table.*;
 import javax.swing.tree.*;
 
+import frost.*;
 import frost.gui.objects.*;
 
 /**
@@ -75,7 +76,13 @@ public class MessageTreeTable extends JTable {
     
     	// Installs a tableModel representing the visible rows in the tree. 
     	super.setModel(new TreeTableModelAdapter(treeTableModel, tree));
-    
+
+//        // set initial column sizes
+//        int[] widths = { 40, 30, 10, 20 };
+//        for (int i = 0; i < widths.length; i++) {
+//            getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
+//        }
+
     	// Forces the JTable and JTree to share their row selection models. 
     	ListToTreeSelectionModelWrapper selectionWrapper = new ListToTreeSelectionModelWrapper();
     	tree.setSelectionModel(selectionWrapper);
@@ -828,4 +835,72 @@ public class MessageTreeTable extends JTable {
             return false;
         }
         }
+    
+    /**
+     * Save the current column positions and column sizes for restore on next startup.
+     *
+     * @param frostSettings
+     */
+    public void saveLayout(SettingsClass frostSettings) {
+        TableColumnModel tcm = getColumnModel();
+        for(int columnIndexInTable=0; columnIndexInTable < tcm.getColumnCount(); columnIndexInTable++) {
+            TableColumn tc = tcm.getColumn(columnIndexInTable);
+            int columnIndexInModel = tc.getModelIndex();
+            // save the current index in table for column with the fix index in model
+            frostSettings.setValue("messagetreetable.tableindex.modelcolumn."+columnIndexInModel, columnIndexInTable);
+            // save the current width of the column
+            int columnWidth = tc.getWidth();
+            frostSettings.setValue("messagetreetable.columnwidth.modelcolumn."+columnIndexInModel, columnWidth);
+        }
+    }
+
+    /**
+     * Load the saved column positions and column sizes.
+     *
+     * @param frostSettings
+     */
+    public void loadLayout(SettingsClass frostSettings) {
+        TableColumnModel tcm = getColumnModel();
+
+        // load the saved tableindex for each column in model, and its saved width
+        int[] tableToModelIndex = new int[tcm.getColumnCount()];
+        int[] columnWidths = new int[tcm.getColumnCount()];
+
+        for(int x=0; x < tableToModelIndex.length; x++) {
+            String indexKey = "messagetreetable.tableindex.modelcolumn."+x;
+            if( frostSettings.getObjectValue(indexKey) == null ) {
+                return; // column not found, abort
+            }
+            // build array of table to model associations
+            int tableIndex = frostSettings.getIntValue(indexKey);
+            if( tableIndex < 0 || tableIndex >= tableToModelIndex.length ) {
+                return; // invalid table index value
+            }
+            tableToModelIndex[tableIndex] = x;
+
+            String widthKey = "messagetreetable.columnwidth.modelcolumn."+x;
+            if( frostSettings.getObjectValue(widthKey) == null ) {
+                return; // column not found, abort
+            }
+            // build array of table to model associations
+            int columnWidth = frostSettings.getIntValue(widthKey);
+            if( columnWidth <= 0 ) {
+                return; // invalid column width
+            }
+            columnWidths[x] = columnWidth;
+        }
+        // columns are currently added in model order, remove them all and save in an array
+        // while on it, set the loaded width of each column
+        TableColumn[] tcms = new TableColumn[tcm.getColumnCount()];
+        for(int x=tcms.length-1; x >= 0; x--) {
+            tcms[x] = tcm.getColumn(x);
+            tcm.removeColumn(tcms[x]);
+
+            tcms[x].setPreferredWidth(columnWidths[x]);
+        }
+        // add the columns in order loaded from settings
+        for(int x=0; x < tableToModelIndex.length; x++) {
+            tcm.addColumn(tcms[tableToModelIndex[x]]);
+        }
+    }
 }

@@ -94,14 +94,13 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 }
                 //if leftbtn double click on message show this message
                 //in popup window
-            } 
-            // FIXME: re-enable
-            else if(SwingUtilities.isLeftMouseButton(e)) {
-                //accepting only mouse pressed event as double click,
-                //overwise it will be triggered twice
-                if(e.getID() == MouseEvent.MOUSE_PRESSED )
-                    if(e.getClickCount() == 2 && e.getComponent() == messageTable )
+            } else if(SwingUtilities.isLeftMouseButton(e)) {
+                // accepting only mouse pressed event as double click, otherwise it will be triggered twice
+                if(e.getID() == MouseEvent.MOUSE_PRESSED ) {
+                    if(e.getClickCount() == 2 && e.getComponent() == messageTable ) {
                         showCurrentMessagePopupWindow();
+                    }
+                }
             }
         }
 
@@ -525,7 +524,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             messageTextPane = new MessageTextPane(mainFrame);
 
             // load message table layout
-//            messageTable.loadLayout(settings); // FIXME: implement
+            messageTable.loadLayout(settings);
 
             fontChanged();
 
