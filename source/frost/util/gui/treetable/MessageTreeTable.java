@@ -346,6 +346,8 @@ public class MessageTreeTable extends JTable {
 						       int row, int column) {
 	    Color background;
 	    Color foreground;
+        
+        setAlignmentY(CENTER_ALIGNMENT);
 
         // TODO: rework, dup code
         TreeTableModelAdapter model = (TreeTableModelAdapter) MessageTreeTable.this.getModel();
@@ -664,6 +666,8 @@ public class MessageTreeTable extends JTable {
             int column) {
 
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            
+            setAlignmentY(CENTER_ALIGNMENT);
 
             TreeTableModelAdapter model = (TreeTableModelAdapter) getModel();
             
