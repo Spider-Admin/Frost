@@ -80,7 +80,9 @@ public class SettingsClass implements Savable {
     public static final String BLOCK_BOARDS_FROM_CHECK = "blockBoardsFromCheck";
     public static final String BLOCK_BOARDS_FROM_BAD = "blockBoardsFromBad";
     public static final String BLOCK_BOARDS_FROM_UNSIGNED = "blockBoardsFromUnsigned";
-    
+
+    public static final String SHOW_THREADS = "MessagePanel.showThreads";
+
     //Constructors
     public SettingsClass() {
         settingsHash = new Hashtable();

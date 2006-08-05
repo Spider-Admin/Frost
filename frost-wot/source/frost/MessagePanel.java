@@ -82,6 +82,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 setCheckButton_actionPerformed(e);
             } else if (e.getSource() == setObserveButton) {
                 setObserveButton_actionPerformed(e);
+            } else if (e.getSource() == toggleShowThreads) {
+                toggleShowThreads_actionPerformed(e);
             }
         }
 
@@ -380,6 +382,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         new JButton(new ImageIcon(getClass().getResource("/data/trust.gif")));
     private JButton updateButton =
         new JButton(new ImageIcon(getClass().getResource("/data/update.gif")));
+    
+    private JCheckBox toggleShowThreads = new JCheckBox("Show threads");
 
     private final String allMessagesCountPrefix = "Msg: "; // TODO: translate
     private JLabel allMessagesCountLabel = new JLabel(allMessagesCountPrefix + "0");
@@ -414,6 +418,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         setCheckButton.setEnabled(false);
         setBadButton.setEnabled(false);
         setObserveButton.setEnabled(false);
+        
+        toggleShowThreads.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS));
 
         // build buttons panel
         JToolBar buttonsToolbar = new JToolBar();
@@ -448,6 +454,10 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         buttonsToolbar.add(setObserveButton);
         buttonsToolbar.add(setCheckButton);
         buttonsToolbar.add(setBadButton);
+        buttonsToolbar.add(Box.createRigidArea(blankSpace));
+        buttonsToolbar.addSeparator();
+        buttonsToolbar.add(Box.createRigidArea(blankSpace));
+        buttonsToolbar.add(toggleShowThreads);
 
         buttonsToolbar.add(Box.createRigidArea(new Dimension(8, 0)));
         buttonsToolbar.add(Box.createHorizontalGlue());
@@ -475,6 +485,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         setCheckButton.addActionListener(listener);
         setBadButton.addActionListener(listener);
         setObserveButton.addActionListener(listener);
+        toggleShowThreads.addActionListener(listener);
 
         return buttonsToolbar;
     }
@@ -799,6 +810,14 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         setObserveButton.setEnabled(true);
         id.setGOOD();
         updateTableAfterChangeOfIdentityState();
+    }
+    
+    private void toggleShowThreads_actionPerformed(ActionEvent e) {
+        boolean oldValue = Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS);
+        boolean newValue = !oldValue;
+        Core.frostSettings.setValue(SettingsClass.SHOW_THREADS, newValue);
+        // reload messages
+        MainFrame.getInstance().tofTree_actionPerformed(null);
     }
 
     private void refreshLanguage() {
