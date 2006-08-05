@@ -222,18 +222,18 @@ public class TOF {
         SwingUtilities.invokeLater( new Runnable() {
             public void run() {
 
-                MainFrame.displayNewMessageIcon(true);
-                board.incNewMessageCount();
-                
                 Board selectedBoard = tofTreeModel.getSelectedNode();
                 // add only if target board is still shown
                 if( !selectedBoard.isFolder() && selectedBoard.getName().equals( board.getName() ) ) {
 
                     addNewMessageToTable2(message, board);
                     
-                    MainFrame.getInstance().updateTofTree(board);
                     MainFrame.getInstance().updateMessageCountLabels(board);
                 }
+
+                board.incNewMessageCount();
+                MainFrame.getInstance().updateTofTree(board);
+                MainFrame.displayNewMessageIcon(true);
             }
         });
     }

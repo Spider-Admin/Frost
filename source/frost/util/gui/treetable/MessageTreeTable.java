@@ -279,12 +279,12 @@ public class MessageTreeTable extends JTable {
 	    // colors. 
 	    TreeCellRenderer tcr = getCellRenderer();
 	    if (tcr instanceof DefaultTreeCellRenderer) {
-		DefaultTreeCellRenderer dtcr = ((DefaultTreeCellRenderer)tcr); 
-		// For 1.1 uncomment this, 1.2 has a bug that will cause an
-		// exception to be thrown if the border selection color is null.
-		// dtcr.setBorderSelectionColor(null);
-		dtcr.setTextSelectionColor(UIManager.getColor("Table.selectionForeground"));
-		dtcr.setBackgroundSelectionColor(UIManager.getColor("Table.selectionBackground"));
+    		DefaultTreeCellRenderer dtcr = ((DefaultTreeCellRenderer)tcr); 
+    		// For 1.1 uncomment this, 1.2 has a bug that will cause an
+    		// exception to be thrown if the border selection color is null.
+    		// dtcr.setBorderSelectionColor(null);
+    		dtcr.setTextSelectionColor(UIManager.getColor("Table.selectionForeground"));
+    		dtcr.setBackgroundSelectionColor(UIManager.getColor("Table.selectionBackground"));
 	    }
 	}
     
@@ -298,11 +298,11 @@ public class MessageTreeTable extends JTable {
 	 */
 	public void setRowHeight(int rowHeight) { 
 	    if (rowHeight > 0) {
-		super.setRowHeight(rowHeight); 
-		if (MessageTreeTable.this != null &&
-		    MessageTreeTable.this.getRowHeight() != rowHeight) {
-		    MessageTreeTable.this.setRowHeight(getRowHeight()); 
-		}
+    		super.setRowHeight(rowHeight); 
+    		if (MessageTreeTable.this != null &&
+    		    MessageTreeTable.this.getRowHeight() != rowHeight) {
+    		    MessageTreeTable.this.setRowHeight(getRowHeight()); 
+    		}
 	    }
 	}
 
@@ -326,16 +326,13 @@ public class MessageTreeTable extends JTable {
     					    getRowHeight(), getWidth(),
     					    getRowHeight());
 	    }
-	}
-    
-    public void paintComponent (Graphics g) {
-        super.paintComponent(g);
         if(isDeleted) {
+            // FIXME: does not work!
             Dimension size = getSize();
             g.drawLine(0, size.height / 2, size.width, size.height / 2);
         }
-    }
-
+	}
+    
 	/**
 	 * TreeCellRenderer method. Overridden to update the visible row.
 	 */
@@ -350,7 +347,7 @@ public class MessageTreeTable extends JTable {
         setAlignmentY(CENTER_ALIGNMENT);
 
         // TODO: rework, dup code
-        TreeTableModelAdapter model = (TreeTableModelAdapter) MessageTreeTable.this.getModel();
+        TreeTableModelAdapter model = (TreeTableModelAdapter)MessageTreeTable.this.getModel();
         
         Object o = model.getRow(row);
         if( !(o instanceof FrostMessageObject) ) {
@@ -359,7 +356,7 @@ public class MessageTreeTable extends JTable {
             return this;
         }
         
-        FrostMessageObject msg = (FrostMessageObject) model.getRow(row);
+        FrostMessageObject msg = (FrostMessageObject)model.getRow(row);
 
         // FROM
         // first set font, bold for new msg or normal
