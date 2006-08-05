@@ -330,10 +330,12 @@ public class Core implements FrostEventDispatcher  {
                 boolean wasOk = FileAccess.copyFile(startdlg.getOldIdentitiesFile(), "identities.xml");
                 if( wasOk == false ) {
                     MiscToolkit.getInstance().showMessage(
-                            "Import of old identities.xml file failed.",
+                            "Copy of old identities.xml file failed.",
                             JOptionPane.ERROR_MESSAGE,
-                            "Import failed");
+                            "Copy failed");
                 }
+                // import old identities file into database
+                new ImportIdentities().importIdentities();
             }
         } else {
             // import xml messages into database
