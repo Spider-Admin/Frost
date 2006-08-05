@@ -57,11 +57,11 @@ import frost.util.gui.translation.*;
  *
  * @author Scott Violet
  */
-public class MessageTreeTableModel extends AbstractTreeTableModel implements LanguageListener {
+public class MessageTreeTableModel extends DefaultTreeModel implements TreeTableModel, LanguageListener {
 
     private Language language = null;
 
-    protected final static String columnNames[] = new String[4];
+    protected final static String columnNames[] = new String[6];
 
     /**
      * Constructor for creating a DynamicTreeTableModel.
@@ -78,10 +78,12 @@ public class MessageTreeTableModel extends AbstractTreeTableModel implements Lan
 
     private void refreshLanguage() {
 //        columnNames[0] = language.getString("MessagePane.messageTable.index");
-        columnNames[0] = language.getString("MessagePane.messageTable.subject");
-        columnNames[1] = language.getString("MessagePane.messageTable.from");
-        columnNames[2] = language.getString("MessagePane.messageTable.sig");
-        columnNames[3] = language.getString("MessagePane.messageTable.date");
+        columnNames[0] = "!";
+        columnNames[1] = "*";
+        columnNames[2] = language.getString("MessagePane.messageTable.subject");
+        columnNames[3] = language.getString("MessagePane.messageTable.from");
+        columnNames[4] = language.getString("MessagePane.messageTable.sig");
+        columnNames[5] = language.getString("MessagePane.messageTable.date");
 
 //        fireTableStructureChanged();
     }
@@ -134,7 +136,7 @@ public class MessageTreeTableModel extends AbstractTreeTableModel implements Lan
      * is set in the constructor.
      */
     public Class getColumnClass(int column) {
-        if( column == 0 ) {
+        if( column == 2 ) {
             return TreeTableModel.class;
         }
         return String.class;
@@ -150,11 +152,12 @@ public class MessageTreeTableModel extends AbstractTreeTableModel implements Lan
         if( node instanceof FrostMessageObject ) {
             FrostMessageObject mo = (FrostMessageObject)node; 
             switch(column) {
-//                case 0: return ""+mo.getIndex();
-                case 1: if (mo.isDummy()) return ""; else return mo.getFromName();
-//                case 2: return mo.getSubject();
-                case 2: if (mo.isDummy()) return ""; else return mo.getMessageStatusString();
-                case 3: if (mo.isDummy()) return ""; else return mo.getDateAndTime();
+                case 0: return (mo.isFlagged())?"!":"";
+                case 1: return (mo.isStarred())?"*":"";
+                // 2 is tree+subject column
+                case 3: return mo.getFromName();
+                case 4: return mo.getMessageStatusString();
+                case 5: return mo.getDateAndTime();
                 default: return "*ERR*";
             }
         } else {
@@ -162,29 +165,23 @@ public class MessageTreeTableModel extends AbstractTreeTableModel implements Lan
         }
     }
 
-//    /**
-//     * <code>isCellEditable</code> is invoked by the JTreeTable to determine
-//     * if a particular entry can be added. This is overridden to return true
-//     * for the first column, assuming the node isn't the root, as well as
-//     * returning two for the second column if the node is a BookmarkEntry.
-//     * For all other columns this returns false.
-//     */
-//    public boolean isCellEditable(Object node, int column) {
-////        switch (column) {
-////        case 0:
-////            // Allow editing of the name, as long as not the root.
-////            return (node != getRoot());
-////        case 1:
-////            // Allow editing of the location, as long as not a
-////            // directory
-////            return (node instanceof Bookmarks.BookmarkEntry);
-////        default:
-////            // Don't allow editing of the date fields.
-////            return false;
-////        }
-//        if( column == 0 ) {
-//            return true; // needed to be able to expand the tree
-//        }
-//        return false;
-//    }
+    /**
+     * <code>isCellEditable</code> is invoked by the JTreeTable to determine
+     * if a particular entry can be added. This is overridden to return true
+     * for the first column, assuming the node isn't the root, as well as
+     * returning two for the second column if the node is a BookmarkEntry.
+     * For all other columns this returns false.
+     */
+    public boolean isCellEditable(Object node, int column) {
+        if( column == 0 || column == 1 || column == 2 ) {
+            return true;
+        }
+        return false;
+    }
+
+    public void setValueAt(Object aValue, Object node, int column) {
+        System.out.println("value="+aValue);
+        System.out.println("node="+node);
+        System.out.println("column="+column);
+    }
 }
