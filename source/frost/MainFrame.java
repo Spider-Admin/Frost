@@ -1129,7 +1129,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 getMessagePanel().getMessageTable().clearSelection();
             } else {
                 // node is a folder
-                getMessagePanel().getMessageTable().setNewRootNode(new DefaultMutableTreeNode());
+                getMessagePanel().getMessageTable().setNewRootNode(new FrostMessageObject(true));
                 getMessagePanel().updateMessageCountLabels(node);
 
                 uploadPanel.setAddFilesButtonEnabled(false);
