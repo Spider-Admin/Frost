@@ -216,12 +216,17 @@ public class TOF {
     }
 
     /**
-     * Called by non-swing thread
+     * Called by non-swing thread.
      */
     private void addNewMessageToTable(final FrostMessageObject message, final Board board) {
         SwingUtilities.invokeLater( new Runnable() {
             public void run() {
+
+                MainFrame.displayNewMessageIcon(true);
+                board.incNewMessageCount();
+                
                 Board selectedBoard = tofTreeModel.getSelectedNode();
+                // add only if target board is still shown
                 if( !selectedBoard.isFolder() && selectedBoard.getName().equals( board.getName() ) ) {
 
                     addNewMessageToTable2(message, board);
@@ -234,16 +239,12 @@ public class TOF {
     }
     private void addNewMessageToTable2(FrostMessageObject newMessage, final Board board) {
         
-        MainFrame.displayNewMessageIcon(true);
-        board.incNewMessageCount();
-
         // if msg has no msgid, add to root
         // else check if there is a dummy msg with this msgid, if yes replace dummy with this msg
         // if there is no dummy find direct parent of this msg and add to it.
         // if there is no direct parent, add dummy parents until first existinbg parent in list
         
-        DefaultTreeModel model = MainFrame.getInstance().getMessageTreeModel();
-        FrostMessageObject rootNode = (FrostMessageObject)model.getRoot();
+        FrostMessageObject rootNode = (FrostMessageObject)MainFrame.getInstance().getMessageTreeModel().getRoot();
         
         boolean showThreads = Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS);
 
@@ -258,11 +259,10 @@ public class TOF {
 
         // is there a dummy msg for this msgid?
         for(Enumeration e=rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
-            Object o = e.nextElement();
-            if( !(o instanceof FrostMessageObject) ) {
+            FrostMessageObject mo = (FrostMessageObject)e.nextElement();
+            if( mo == rootNode ) {
                 continue;
             }
-            FrostMessageObject mo = (FrostMessageObject)o;
             if( mo.getMessageId() != null && 
                 mo.getMessageId().equals(newMessage.getMessageId()) &&
                 mo.isDummy()
