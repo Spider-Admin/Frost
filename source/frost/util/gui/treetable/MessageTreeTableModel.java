@@ -139,6 +139,9 @@ public class MessageTreeTableModel extends DefaultTreeModel implements TreeTable
         if( column == 2 ) {
             return TreeTableModel.class;
         }
+        if( column == 0 || column == 1 ) {
+            return Boolean.class;
+        }
         return String.class;
     }
 
@@ -152,8 +155,8 @@ public class MessageTreeTableModel extends DefaultTreeModel implements TreeTable
         if( node instanceof FrostMessageObject ) {
             FrostMessageObject mo = (FrostMessageObject)node; 
             switch(column) {
-                case 0: return (mo.isFlagged())?"!":"";
-                case 1: return (mo.isStarred())?"*":"";
+                case 0: return new Boolean(mo.isFlagged());
+                case 1: return new Boolean(mo.isStarred());
                 // 2 is tree+subject column
                 case 3: return mo.getFromName();
                 case 4: return mo.getMessageStatusString();
@@ -180,8 +183,10 @@ public class MessageTreeTableModel extends DefaultTreeModel implements TreeTable
     }
 
     public void setValueAt(Object aValue, Object node, int column) {
-        System.out.println("value="+aValue);
-        System.out.println("node="+node);
-        System.out.println("column="+column);
+        if( column == 0 ) {
+            ((FrostMessageObject)node).setFlagged(((Boolean)aValue).booleanValue());
+        } else if( column == 1 ) {
+            ((FrostMessageObject)node).setStarred(((Boolean)aValue).booleanValue());
+        }
     }
 }

@@ -65,8 +65,11 @@ public class MessageTreeTable extends JTable {
 
     /** A subclass of JTree. */
     protected TreeTableCellRenderer tree;
+    protected Color secondBackgroundColor = new java.awt.Color(238,238,238);
 
-    private CellRenderer cellRenderer = new CellRenderer();
+    private StringCellRenderer stringCellRenderer = new StringCellRenderer();
+    private BooleanCellRenderer booleanCellRenderer = new BooleanCellRenderer();
+    private BooleanCellEditor booleanCellEditor = new BooleanCellEditor();
     
     public MessageTreeTable(TreeTableModel treeTableModel) {
     	super();
@@ -97,8 +100,11 @@ public class MessageTreeTable extends JTable {
     	setDefaultEditor(TreeTableModel.class, new TreeTableCellEditor());
         
         // install cell renderer
-        setDefaultRenderer(String.class, cellRenderer);
-    
+        setDefaultRenderer(String.class, stringCellRenderer);
+        setDefaultRenderer(Boolean.class, booleanCellRenderer);
+
+        setDefaultEditor(Boolean.class, booleanCellEditor);
+
     	// No grid.
     	setShowGrid(false);
     
@@ -389,11 +395,11 @@ public class MessageTreeTable extends JTable {
             if ((row & 0x0001) == 0) {
             	background = Color.WHITE;
             } else {
-            	background = new java.awt.Color(238,238,238);
+            	background = secondBackgroundColor;
             }
         } else {
             background = table.getSelectionBackground();
-           // foreground = table.getSelectionForeground();
+            foreground = table.getSelectionForeground();
         }
         
         setDeleted(msg.isDeleted());
@@ -424,127 +430,6 @@ public class MessageTreeTable extends JTable {
 	}
     }
 
-
-    /**
-     * An editor that can be used to edit the tree column. This extends
-     * DefaultCellEditor and uses a JTextField (actually, TreeTableTextField)
-     * to perform the actual editing.
-     * <p>To support editing of the tree column we can not make the tree
-     * editable. The reason this doesn't work is that you can not use
-     * the same component for editing and renderering. The table may have
-     * the need to paint cells, while a cell is being edited. If the same
-     * component were used for the rendering and editing the component would
-     * be moved around, and the contents would change. When editing, this
-     * is undesirable, the contents of the text field must stay the same,
-     * including the caret blinking, and selections persisting. For this
-     * reason the editing is done via a TableCellEditor.
-     * <p>Another interesting thing to be aware of is how tree positions
-     * its render and editor. The render/editor is responsible for drawing the
-     * icon indicating the type of node (leaf, branch...). The tree is
-     * responsible for drawing any other indicators, perhaps an additional
-     * +/- sign, or lines connecting the various nodes. So, the renderer
-     * is positioned based on depth. On the other hand, table always makes
-     * its editor fill the contents of the cell. To get the allusion
-     * that the table cell editor is part of the tree, we don't want the
-     * table cell editor to fill the cell bounds. We want it to be placed
-     * in the same manner as tree places it editor, and have table message
-     * the tree to paint any decorations the tree wants. Then, we would
-     * only have to worry about the editing part. The approach taken
-     * here is to determine where tree would place the editor, and to override
-     * the <code>reshape</code> method in the JTextField component to
-     * nudge the textfield to the location tree would place it. Since
-     * JTreeTable will paint the tree behind the editor everything should
-     * just work. So, that is what we are doing here. Determining of
-     * the icon position will only work if the TreeCellRenderer is
-     * an instance of DefaultTreeCellRenderer. If you need custom
-     * TreeCellRenderers, that don't descend from DefaultTreeCellRenderer, 
-     * and you want to support editing in JTreeTable, you will have
-     * to do something similiar.
-     */
-//    public class TreeTableCellEditor extends DefaultCellEditor {
-//	public TreeTableCellEditor() {
-//	    super(new TreeTableTextField());
-//	}
-//
-//	/**
-//	 * Overridden to determine an offset that tree would place the
-//	 * editor at. The offset is determined from the
-//	 * <code>getRowBounds</code> JTree method, and additionally
-//	 * from the icon DefaultTreeCellRenderer will use.
-//	 * <p>The offset is then set on the TreeTableTextField component
-//	 * created in the constructor, and returned.
-//	 */
-//	public Component getTableCellEditorComponent(JTable table,
-//						     Object value,
-//						     boolean isSelected,
-//						     int r, int c) {
-//	    Component component = super.getTableCellEditorComponent
-//		(table, value, isSelected, r, c);
-//	    JTree t = getTree();
-//	    boolean rv = t.isRootVisible();
-//	    int offsetRow = rv ? r : r - 1;
-//	    Rectangle bounds = t.getRowBounds(offsetRow);
-//	    int offset = bounds.x;
-//	    TreeCellRenderer tcr = t.getCellRenderer();
-//	    if (tcr instanceof DefaultTreeCellRenderer) {
-//		Object node = t.getPathForRow(offsetRow).
-//		                getLastPathComponent();
-//		Icon icon;
-//		if (t.getModel().isLeaf(node))
-//		    icon = ((DefaultTreeCellRenderer)tcr).getLeafIcon();
-//		else if (tree.isExpanded(offsetRow))
-//		    icon = ((DefaultTreeCellRenderer)tcr).getOpenIcon();
-//		else
-//		    icon = ((DefaultTreeCellRenderer)tcr).getClosedIcon();
-//		if (icon != null) {
-//		    offset += ((DefaultTreeCellRenderer)tcr).getIconTextGap() +
-//			      icon.getIconWidth();
-//		}
-//	    }
-//	    ((TreeTableTextField)getComponent()).offset = offset;
-//	    return component;
-//	}
-//
-//	/**
-//	 * This is overridden to forward the event to the tree. This will
-//	 * return true if the click count >= 3, or the event is null.
-//	 */
-//	public boolean isCellEditable(EventObject e) {
-//	    if (e instanceof MouseEvent) {
-//		MouseEvent me = (MouseEvent)e;
-//		// If the modifiers are not 0 (or the left mouse button),
-//                // tree may try and toggle the selection, and table
-//                // will then try and toggle, resulting in the
-//                // selection remaining the same. To avoid this, we
-//                // only dispatch when the modifiers are 0 (or the left mouse
-//                // button).
-//		if (me.getModifiers() == 0 ||
-//                    me.getModifiers() == InputEvent.BUTTON1_MASK) {
-//		    for (int counter = getColumnCount() - 1; counter >= 0;
-//			 counter--) {
-//			if (getColumnClass(counter) == TreeTableModel.class) {
-//			    MouseEvent newME = new MouseEvent
-//			          (JTreeTable.this.tree, me.getID(),
-//				   me.getWhen(), me.getModifiers(),
-//				   me.getX() - getCellRect(0, counter, true).x,
-//				   me.getY(), me.getClickCount(),
-//                                   me.isPopupTrigger());
-//			    JTreeTable.this.tree.dispatchEvent(newME);
-//			    break;
-//			}
-//		    }
-//		}
-//		if (me.getClickCount() >= 3) {
-//		    return true;
-//		}
-//		return false;
-//	    }
-//	    if (e == null) {
-//		return true;
-//	    }
-//	    return false;
-//	}
-//    }
 
     /**
      * ListToTreeSelectionModelWrapper extends DefaultTreeSelectionModel
@@ -641,12 +526,58 @@ public class MessageTreeTable extends JTable {
 	}
     }
     
+    private class BooleanCellRenderer extends JLabel implements TableCellRenderer {
+        public Component getTableCellRendererComponent(
+                JTable table,
+                Object value,
+                boolean isSelected,
+                boolean hasFocus,
+                int row,
+                int column) 
+        {
+            boolean val = ((Boolean)value).booleanValue();
+            if( column == 0 ) {
+                if( val ) {
+                    setText("!");
+                } else {
+                    setText("");
+                }
+            } else if( column == 1 ) {
+                if( val ) {
+                    setText("*");
+                } else {
+                    setText("");
+                }
+            }
+            
+            if (!isSelected) {
+                // IBM lineprinter paper
+                if ((row & 0x0001) == 0) {
+                    setBackground(Color.WHITE);
+                } else {
+                    setBackground(secondBackgroundColor);
+                }
+            } else {
+                setBackground(table.getSelectionBackground());
+            }
+
+            return this;
+        }        
+    }
+    
+    private class BooleanCellEditor extends DefaultCellEditor implements TableCellEditor {
+        public BooleanCellEditor() {
+            super(new JCheckBox());
+            // FIXME: set correct icons!
+        }
+    }
+    
     /**
      * This renderer renders rows in different colors.
      * New messages gets a bold look, messages with attachments a blue color.
      * Encrypted messages get a red color, no matter if they have attachments.
      */
-    private class CellRenderer extends DefaultTableCellRenderer
+    private class StringCellRenderer extends DefaultTableCellRenderer
     {
         private Font boldFont = null;
         private Font normalFont = null;
@@ -656,7 +587,7 @@ public class MessageTreeTable extends JTable {
         private final Color col_observe = new Color(0x00, 0xD0, 0x00);
         private final Color col_bad     = new Color(0xFF, 0x00, 0x00);
 
-        public CellRenderer() {
+        public StringCellRenderer() {
             Font baseFont = MessageTreeTable.this.getFont();
             normalFont = baseFont.deriveFont(Font.PLAIN);
             boldFont = baseFont.deriveFont(Font.BOLD);
@@ -685,7 +616,7 @@ public class MessageTreeTable extends JTable {
                 if ((row & 0x0001) == 0) {
                 	setBackground(Color.WHITE);
                 } else {
-                	setBackground(new java.awt.Color(238,238,238));
+                	setBackground(secondBackgroundColor);
                 }
             } else {
                 setBackground(table.getSelectionBackground());
@@ -709,7 +640,7 @@ public class MessageTreeTable extends JTable {
             column = tableColumn.getModelIndex();
 
             // do nice things for FROM and SIG column
-            if( column == 3 ) {
+            if( column == 1 ) {
                 // FROM
                 // first set font, bold for new msg or normal
                 if (msg.isNew()) {
@@ -727,7 +658,7 @@ public class MessageTreeTable extends JTable {
                         setForeground(Color.BLACK);
                     }
                 }
-            } else if( column == 4 ) {
+            } else if( column == 2 ) {
                 // SIG
                 // state == good/bad/check/observe -> bold and coloured
                 if( msg.isMessageStatusGOOD() ) {
@@ -776,7 +707,7 @@ public class MessageTreeTable extends JTable {
     
     public class TreeTableCellEditor extends DefaultCellEditor {
         public TreeTableCellEditor() {
-            super(new JTextField());
+            super(new JCheckBox());
         }
 
         /**
@@ -787,10 +718,11 @@ public class MessageTreeTable extends JTable {
          * <p>The offset is then set on the TreeTableTextField component
          * created in the constructor, and returned.
          */
-        public Component getTableCellEditorComponent(JTable table,
-                                 Object value,
-                                 boolean isSelected,
-                                 int r, int c) {
+        public Component getTableCellEditorComponent(
+                JTable table,
+                Object value,
+                boolean isSelected,
+                int r, int c) {
             Component component = super.getTableCellEditorComponent(table, value, isSelected, r, c);
             JTree t = getTree();
             boolean rv = t.isRootVisible();
@@ -799,8 +731,7 @@ public class MessageTreeTable extends JTable {
             int offset = bounds.x;
             TreeCellRenderer tcr = t.getCellRenderer();
             if (tcr instanceof DefaultTreeCellRenderer) {
-            Object node = t.getPathForRow(offsetRow).
-                            getLastPathComponent();
+            Object node = t.getPathForRow(offsetRow).getLastPathComponent();
             Icon icon;
             if (t.getModel().isLeaf(node))
                 icon = ((DefaultTreeCellRenderer)tcr).getLeafIcon();
