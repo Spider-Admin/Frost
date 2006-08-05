@@ -221,7 +221,14 @@ public class TOF {
     private void addNewMessageToTable(final FrostMessageObject message, final Board board) {
         SwingUtilities.invokeLater( new Runnable() {
             public void run() {
-                addNewMessageToTable2(message, board);                
+                Board selectedBoard = tofTreeModel.getSelectedNode();
+                if( !selectedBoard.isFolder() && selectedBoard.getName().equals( board.getName() ) ) {
+
+                    addNewMessageToTable2(message, board);
+                    
+                    MainFrame.getInstance().updateTofTree(board);
+                    MainFrame.getInstance().updateMessageCountLabels(board);
+                }
             }
         });
     }
@@ -237,10 +244,15 @@ public class TOF {
         
         DefaultTreeModel model = MainFrame.getInstance().getMessageTreeModel();
         FrostMessageObject rootNode = (FrostMessageObject)model.getRoot();
+        
+        boolean showThreads = Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS);
 
-        if( newMessage.getMessageId() == null || newMessage.getInReplyToList().size() == 0 ) {
+        if( showThreads == false ||
+            newMessage.getMessageId() == null || 
+            newMessage.getInReplyToList().size() == 0 
+          ) 
+        {
             rootNode.add(newMessage, false);
-            updateLabels(board);
             return;
         }
 
@@ -262,7 +274,6 @@ public class TOF {
                 if( row >= 0 ) {
                     MainFrame.getInstance().getMessageTableModel().fireTableRowsUpdated(row, row);
                 }
-                updateLabels(board);
                 return;
             }
         }
@@ -285,7 +296,6 @@ public class TOF {
                   ) 
                 {
                     mo.add(newMessage, false);
-                    updateLabels(board);
                     return;
                 }
             }
@@ -298,18 +308,8 @@ public class TOF {
 
         // no parent found, add tree with dummy msgs
         rootNode.add(newMessage, false);
-
-        updateLabels(board);
     }
     
-    private void updateLabels(Board board) {
-        MainFrame.getInstance().updateTofTree(board);
-        Board selectedBoard = tofTreeModel.getSelectedNode();
-        if( !selectedBoard.isFolder() && selectedBoard.getName().equals( board.getName() ) ) {
-            MainFrame.getInstance().updateMessageCountLabels(board);
-        }
-    }
-
     /**
      * Clears the tofTable, reads in the messages to be displayed,
      * does check validity for each message and adds the messages to
@@ -386,7 +386,7 @@ public class TOF {
             catch(Throwable t) { }
 
             boolean showDeletedMessages = Core.frostSettings.getBoolValue("showDeletedMessages");
-            boolean loadThreads = true;
+            boolean loadThreads = Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS);
             
             final FrostMessageObject rootNode = new FrostMessageObject(true);
             try {

@@ -1202,8 +1202,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             parentFolder = parentFolder.getParent();
         }
 
-        if (board == tofTreeModel.getSelectedNode()) // is the board actually shown?
-        {
+        if (board == tofTreeModel.getSelectedNode()) { // is the board currently shown?
             updateButtons(board);
         }
     }
