@@ -1153,7 +1153,6 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         if( board != null || !board.isFolder() ) {
             // a board is selected and shown
             DefaultTreeModel model = MainFrame.getInstance().getMessageTreeModel();
-            // FIXME: get rootNode and go through all nodes
             DefaultMutableTreeNode rootnode = (DefaultMutableTreeNode)model.getRoot();
             
             for(Enumeration e=rootnode.depthFirstEnumeration(); e.hasMoreElements(); ) {
@@ -1164,9 +1163,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 FrostMessageObject message = (FrostMessageObject)o;
 
                 if( TOF.getInstance().blocked(message,board) ) {
-                    model.removeNodeFromParent(message); // FIXME: remove only if there are no GOOD childs
-                    // FIXME: this destroys the enumeration!
-                    // FIXME: if a new msg arrives during the loop over the enumeration, this fails!
+                    // FIXME: remove only if there are no GOOD childs
+                    model.removeNodeFromParent(message); 
                     if( message.isNew() ) {
                         board.decNewMessageCount();
                     }
