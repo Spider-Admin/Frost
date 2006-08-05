@@ -117,13 +117,13 @@ public class TreeTableModelAdapter extends AbstractTableModel {
                 if( toRow < fromRow ) {
                     toRow = fromRow;
                 }
-                System.out.println("treeExpanded, fromRow="+fromRow+", toRow="+toRow);
+//                System.out.println("treeExpanded, fromRow="+fromRow+", toRow="+toRow);
                 fireTableRowsInserted(fromRow, toRow);
             }
             
             // fire table event, use toRow computed in treeWillCollpaseListener
             public void treeCollapsed(TreeExpansionEvent event) {
-                System.out.println("treeCollapsed");
+//                System.out.println("treeCollapsed");
                 DefaultMutableTreeNode collapsedNode = (DefaultMutableTreeNode)event.getPath().getLastPathComponent();
                 int nodeRow = MainFrame.getInstance().getMessageTreeTable().getRowForNode(collapsedNode);
                 int fromRow = nodeRow + 1;
@@ -150,7 +150,7 @@ public class TreeTableModelAdapter extends AbstractTableModel {
                 final int row = MainFrame.getInstance().getMessageTreeTable().getRowForNode(childNode);
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
-                        System.out.println("treeNodesChanged: "+row);
+//                        System.out.println("treeNodesChanged: "+row);
                         fireTableRowsUpdated(row, row);
                     }
                 });
@@ -164,13 +164,13 @@ public class TreeTableModelAdapter extends AbstractTableModel {
                     System.out.println("****** FIXME2: more than 1 child: "+childIndices.length+" ********");
                 }
                 // compute row that was inserted
-                System.out.println("a="+MainFrame.getInstance().getMessageTreeTable().getRowForNode(node));
-                System.out.println("b="+childIndices[0]);
-                System.out.println("c="+node);
+//                System.out.println("a="+MainFrame.getInstance().getMessageTreeTable().getRowForNode(node));
+//                System.out.println("b="+childIndices[0]);
+//                System.out.println("c="+node);
                 final int row = MainFrame.getInstance().getMessageTreeTable().getRowForNode(node) + 1 + childIndices[0];
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
-                        System.out.println("treeNodesInserted: "+row);
+//                        System.out.println("treeNodesInserted: "+row);
                         fireTableRowsInserted(row, row);
                     }
                 });
@@ -195,22 +195,16 @@ public class TreeTableModelAdapter extends AbstractTableModel {
             }
 
             public void treeStructureChanged(TreeModelEvent e) {
-                System.out.println("********* FIXME: do not call me (treeStructureChanged) !!! ************");
+//                System.out.println("********* FIXME: do not call me (treeStructureChanged) !!! ************");
                 delayedFireTableDataChanged();
             }
         });
         
-        tree.addTreeSelectionListener(new TreeSelectionListener() {
-            public void valueChanged(TreeSelectionEvent arg0) {
-                System.out.println("treeSelChanged: "+arg0.getNewLeadSelectionPath());
-//                try {
-//                    throw new Exception();
-//                } catch(Exception e) {
-//                    e.printStackTrace();
-//                }
-            }
-        });
-
+//        tree.addTreeSelectionListener(new TreeSelectionListener() {
+//            public void valueChanged(TreeSelectionEvent arg0) {
+//                System.out.println("treeSelChanged: "+arg0.getNewLeadSelectionPath());
+//            }
+//        });
     }
 
     // Wrappers, implementing TableModel interface.
