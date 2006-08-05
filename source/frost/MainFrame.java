@@ -759,7 +759,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 treeAndTabbedPaneSplitpane.getDividerLocation());
 
         // let save component layouts
-//        getMessagePanel().getMessageTable().saveLayout(frostSettings); // FIXME: implement
+        getMessagePanel().getMessageTable().saveLayout(frostSettings);
         getMessagePanel().saveLayout(frostSettings);
     }
 
