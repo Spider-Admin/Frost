@@ -131,7 +131,7 @@ public class SearchMessagesThread extends Thread implements MessageDatabaseTable
     private void searchBoard(Board board, DateRange dr) {
 
         try {
-            AppLayerDatabase.getMessageTable().retrieveMessagesOneByOne(
+            AppLayerDatabase.getMessageTable().retrieveMessagesForSearch(
                     board, 
                     dr.startDate, 
                     dr.endDate, 
