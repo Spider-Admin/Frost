@@ -68,7 +68,20 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
         ps.close();
         return insertWasOk;
     }
-    
+
+    public boolean removeLocalIdentity(LocalIdentity localIdentity) throws SQLException {
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
+        
+        PreparedStatement ps = db.prepare(
+                "DELETE FROM OWNIDENTITIES WHERE uniquename=?");
+        
+        ps.setString(1, localIdentity.getUniqueName());
+        
+        boolean deleteWasOk = (ps.executeUpdate() == 1);
+        ps.close();
+        return deleteWasOk;
+    }
+
     public List getIdentities() throws SQLException {
         ArrayList identities = new ArrayList();
         

@@ -92,12 +92,15 @@ public class FrostIdentities implements Savable {
     /**
      * Creates new local identity, and adds it to database.
      */
-    public boolean createIdentity() {
+    public LocalIdentity createIdentity() {
         LocalIdentity li = createIdentity(false);
         if( li != null ) {
-            return addLocalIdentity(li);
+            if( addLocalIdentity(li) == false ) {
+                // double
+                return null;
+            }
         }
-        return false;
+        return li;
     }
     
     /**
@@ -125,8 +128,7 @@ public class FrostIdentities implements Savable {
                 }
             } while (nick != null && nick.length() == 0);
             if (nick == null) {
-                logger.severe("Frost can't run without an identity.");
-                System.exit(1);
+                return null;
             }
             do { //make sure there's no // in the name.
                 newIdentity = new LocalIdentity(nick);
@@ -185,6 +187,16 @@ public class FrostIdentities implements Savable {
         }
         localIdentities.put(li.getUniqueName(), li);
         return true;
+    }
+    
+    public boolean deleteLocalIdentity(LocalIdentity li) {
+        localIdentities.remove(li.getUniqueName());
+        try {
+            return AppLayerDatabase.getIdentitiesDatabaseTable().removeLocalIdentity(li);
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "error removing new local identity", e);
+            return false;
+        }
     }
     
     public boolean isMySelf(String uniqueName) {

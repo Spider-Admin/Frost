@@ -27,6 +27,7 @@ import frost.fileTransfer.search.*;
 import frost.fileTransfer.upload.*;
 import frost.identities.*;
 import frost.storage.*;
+import frost.util.model.*;
 
 /**
  * @author $Author$
@@ -129,6 +130,37 @@ public class FileTransferManager implements Savable {
         for(Iterator i=ulItems.iterator(); i.hasNext(); ) {
             FrostUploadItem di = (FrostUploadItem)i.next();
             getUploadManager().getModel().addConsistentUploadItem(di);
+        }
+    }
+    
+    public int countFilesSharedByLocalIdentity(LocalIdentity li) {
+        int count = 0;
+        for (int x = 0; x < getUploadManager().getModel().getItemCount(); x++) {
+            FrostUploadItem item = (FrostUploadItem) getUploadManager().getModel().getItemAt(x);
+            for(int y = 0; y < item.getFrostUploadItemOwnerBoardList().size(); y++ ) {
+                FrostUploadItemOwnerBoard ob = (FrostUploadItemOwnerBoard)item.getFrostUploadItemOwnerBoardList().get(y);
+                if( ob.getOwner() != null && ob.getOwner().equals(li.getUniqueName()) ) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    public void removeFilesSharedByLocalIdentity(LocalIdentity li) {
+
+        for (int x = getUploadManager().getModel().getItemCount()-1; x >= 0; x--) {
+            FrostUploadItem item = (FrostUploadItem) getUploadManager().getModel().getItemAt(x);
+            for(int y = item.getFrostUploadItemOwnerBoardList().size()-1; y >= 0; y-- ) {
+                FrostUploadItemOwnerBoard ob = (FrostUploadItemOwnerBoard)item.getFrostUploadItemOwnerBoardList().get(y);
+                if( ob.getOwner() != null && ob.getOwner().equals(li.getUniqueName()) ) {
+                    item.getFrostUploadItemOwnerBoardList().remove(y);
+                }
+            }
+            if( item.getFrostUploadItemOwnerBoardList().size() == 0 ) {
+                // remove file, no more refs
+                getUploadManager().getModel().removeItems(new ModelItem[] { item });
+            }
         }
     }
 

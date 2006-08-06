@@ -936,7 +936,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     }
     
     private void optionsManageLocalIdentitiesMenuItem_actionPerformed(ActionEvent e) {
-        Core.getIdentities().createIdentity();
+        new ManageLocalIdentitiesDialog().setVisible(true);
     }
 
     /**

@@ -225,11 +225,11 @@ public class TOF {
                     
                     addNewMessageToModel(message, board);
                     
-                    // after adding the message ensure that selected message is still shown
-                    FrostMessageObject selectedMessage = MainFrame.getInstance().getMessagePanel().getSelectedMessage();
-                    if( selectedMessage != null ) {
-                        MainFrame.getInstance().getMessagePanel().makeNodeViewable(selectedMessage);
-                    }
+//                    // after adding the message ensure that selected message is still shown
+//                    FrostMessageObject selectedMessage = MainFrame.getInstance().getMessagePanel().getSelectedMessage();
+//                    if( selectedMessage != null ) {
+//                        MainFrame.getInstance().getMessagePanel().makeNodeViewable(selectedMessage);
+//                    }
 
                     MainFrame.getInstance().updateMessageCountLabels(board);
                 }
