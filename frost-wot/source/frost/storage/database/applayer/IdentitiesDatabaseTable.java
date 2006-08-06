@@ -72,8 +72,7 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
     public boolean removeLocalIdentity(LocalIdentity localIdentity) throws SQLException {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
-        PreparedStatement ps = db.prepare(
-                "DELETE FROM OWNIDENTITIES WHERE uniquename=?");
+        PreparedStatement ps = db.prepare("DELETE FROM OWNIDENTITIES WHERE uniquename=?");
         
         ps.setString(1, localIdentity.getUniqueName());
         
