@@ -299,16 +299,142 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         return mo;
     }
 
-    public void retrieveMessages(
-            FrostMessageObject rootNode,
-            Board board, 
-            int maxDaysBack, 
-            boolean withContent, 
-            boolean withAttachments, 
-            boolean showDeleted,
-            boolean loadFullThreads) 
-    throws SQLException {
+//    public void retrieveMessages(
+//            Board board, 
+//            int maxDaysBack, 
+//            boolean withContent, 
+//            boolean withAttachments, 
+//            boolean showDeleted) 
+//    throws SQLException {
+//
+//        java.sql.Date startDate = DateFun.getSqlDateGMTDaysAgo(maxDaysBack);
+//        
+//        AppLayerDatabase db = AppLayerDatabase.getInstance();
+//        String sql =
+//            "SELECT "+
+//            "primkey,messageid,inreplyto,date,time,index,fromname,subject,recipient," +
+//            "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
+//            "hasfileattachment,hasboardattachment";
+//        if( withContent ) {
+//            sql += ",content";
+//        }
+//        sql += " FROM "+getMessageTableName()+" WHERE (date>=? OR isnew=TRUE) AND board=? AND isvalid=TRUE ";
+//        if( !showDeleted ) {
+//            // don't select deleted msgs
+//            sql += "AND isdeleted=FALSE ";
+//        }
+//        sql += "ORDER BY date DESC,time DESC";
+//            
+//        PreparedStatement ps = db.prepare(sql);
+//        
+//        ps.setDate(1, startDate);
+//        ps.setString(2, board.getName());
+//        
+//        ResultSet rs = ps.executeQuery();
+//
+//        LinkedList messageList = null;
+//        
+//        // HashSet contains a msgid if the msg was loaded OR was not existing
+//        HashSet messageIds = null;
+//        if( loadFullThreads ) {
+//            messageList = new LinkedList();
+//            messageIds = new HashSet();
+//        }
+//        
+//        while( rs.next() ) {
+//            FrostMessageObject mo = resultSetToFrostMessageObject(rs, board, withContent, withAttachments);
+//            
+//            if( loadFullThreads ) {
+//                if( mo.getMessageId() == null ) {
+//                    rootNode.add(mo);
+//                } else {
+//                    messageList.add(mo);
+//                    messageIds.add(mo.getMessageId());
+//                }
+//            } else {
+//                // add msgs flat to rootnode
+//                rootNode.add(mo);
+//            }
+//        }
+//        rs.close();
+//        ps.close();
+//        
+//        // for unthreaded we are finished
+//        if( loadFullThreads == false ) {
+//            return;
+//        }
+//
+//        // for threads, check msgrefs and load all existing msgs pointed to by refs
+//        LinkedList newLoadedMsgs = new LinkedList();
+//        for(Iterator i=messageList.iterator(); i.hasNext(); ) {
+//            FrostMessageObject mo = (FrostMessageObject)i.next();
+//            List l = mo.getInReplyToList();
+//            if( l.size() == 0 ) {
+//                continue; // no msg refs
+//            }
+//            // try to load each msgid that is referenced, put tried ids into hashset msgIds
+//            for(int x=l.size()-1; x>=0; x--) {
+//                String anId = (String)l.get(x);
+//                if( messageIds.contains(anId) ) {
+//                    continue;
+//                }
+//                FrostMessageObject fmo = retrieveMessageByMessageId(board, anId, withContent, withAttachments, showDeleted);
+//                if( fmo == null ) {
+//                    // for each missing msg create a dummy FrostMessageObject and add it to tree.
+//                    // if the missing msg arrives later, replace dummy with true msg in tree
+//                    LinkedList ll = new LinkedList();
+//                    if( x > 0 ) {
+//                        for(int y=0; y < x; y++) {
+//                            ll.add(l.get(y));
+//                        }
+//                    }
+//                    fmo = new FrostMessageObject(anId, board, ll);
+//                }
+//                newLoadedMsgs.add(fmo);
+//                messageIds.add(anId);
+//            }
+//        }
+//
+//        messageList.addAll(newLoadedMsgs);
+//        
+//        newLoadedMsgs = null;
+//        messageIds = null;
+//        
+//        // all msgs are loaded and dummies for missing msgs were created, now build the threads
+//        // - add msgs without msgid to rootnode
+//        // - add msgs with msgid and no ref to rootnode
+//        // - add msgs with msgid and ref to its direct parent (last refid in list)
+//        
+//        // first add msgs without msgid to rootNode and collect msgs with id into a hashtable for lookups
+//        Hashtable messagesTableById = new Hashtable();
+//        for(Iterator i=messageList.iterator(); i.hasNext(); ) {
+//            FrostMessageObject mo = (FrostMessageObject)i.next();
+//            messagesTableById.put(mo.getMessageId(), mo);
+//        }
+//
+//        // finally build the threads
+//        for(Iterator i=messagesTableById.values().iterator(); i.hasNext(); ) {
+//            FrostMessageObject mo = (FrostMessageObject)i.next();
+//            LinkedList l = mo.getInReplyToList();
+//            if( l.size() == 0 ) {
+//                rootNode.add(mo);
+//            } else {
+//                String directParentId = (String)l.getLast();
+//                FrostMessageObject parentMo = (FrostMessageObject)messagesTableById.get(directParentId);
+//                parentMo.add(mo);
+//            }
+//        }
+//    }
 
+    public void retrieveMessagesForShow(
+            Board board,
+            int maxDaysBack, 
+            boolean withContent,
+            boolean withAttachments,
+            boolean showDeleted, 
+            MessageDatabaseTableCallback mc) 
+    throws SQLException 
+    {
         java.sql.Date startDate = DateFun.getSqlDateGMTDaysAgo(maxDaysBack);
         
         AppLayerDatabase db = AppLayerDatabase.getInstance();
@@ -326,7 +452,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
             sql += "AND isdeleted=FALSE ";
         }
         sql += "ORDER BY date DESC,time DESC";
-            
+
         PreparedStatement ps = db.prepare(sql);
         
         ps.setDate(1, startDate);
@@ -334,103 +460,21 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         
         ResultSet rs = ps.executeQuery();
 
-        LinkedList messageList = null;
-        // HashSet contains a msgid if the msg was loaded OR was not existing
-        HashSet messageIds = null;
-        if( loadFullThreads ) {
-            messageList = new LinkedList();
-            messageIds = new HashSet();
-        }
-        
         while( rs.next() ) {
             FrostMessageObject mo = resultSetToFrostMessageObject(rs, board, withContent, withAttachments);
-            
-            if( loadFullThreads ) {
-                if( mo.getMessageId() == null ) {
-                    rootNode.add(mo);
-                } else {
-                    messageList.add(mo);
-                    messageIds.add(mo.getMessageId());
-                }
-            } else {
-                // add msgs flat to rootnode
-                rootNode.add(mo);
+            boolean shouldStop = mc.messageRetrieved(mo); // pass to callback
+            if( shouldStop ) {
+                break;
             }
         }
         rs.close();
         ps.close();
-        
-        // for unthreaded we are finished
-        if( loadFullThreads == false ) {
-            return;
-        }
-
-        // for threads, check msgrefs and load all existing msgs pointed to by refs
-        LinkedList newLoadedMsgs = new LinkedList();
-        for(Iterator i=messageList.iterator(); i.hasNext(); ) {
-            FrostMessageObject mo = (FrostMessageObject)i.next();
-            List l = mo.getInReplyToList();
-            if( l.size() == 0 ) {
-                continue; // no msg refs
-            }
-            // try to load each msgid that is referenced, put tried ids into hashset msgIds
-            for(int x=l.size()-1; x>=0; x--) {
-                String anId = (String)l.get(x);
-                if( messageIds.contains(anId) ) {
-                    continue;
-                }
-                FrostMessageObject fmo = retrieveMessageByMessageId(board, anId, withContent, withAttachments, showDeleted);
-                if( fmo == null ) {
-                    // for each missing msg create a dummy FrostMessageObject and add it to tree.
-                    // if the missing msg arrives later, replace dummy with true msg in tree
-                    LinkedList ll = new LinkedList();
-                    if( x > 0 ) {
-                        for(int y=0; y < x; y++) {
-                            ll.add(l.get(y));
-                        }
-                    }
-                    fmo = new FrostMessageObject(anId, board, ll);
-                }
-                newLoadedMsgs.add(fmo);
-                messageIds.add(anId);
-            }
-        }
-
-        messageList.addAll(newLoadedMsgs);
-        
-        newLoadedMsgs = null;
-        messageIds = null;
-        
-        // all msgs are loaded and dummies for missing msgs were created, now build the threads
-        // - add msgs without msgid to rootnode
-        // - add msgs with msgid and no ref to rootnode
-        // - add msgs with msgid and ref to its direct parent (last refid in list)
-        
-        // first add msgs without msgid to rootNode and collect msgs with id into a hashtable for lookups
-        Hashtable messagesTableById = new Hashtable();
-        for(Iterator i=messageList.iterator(); i.hasNext(); ) {
-            FrostMessageObject mo = (FrostMessageObject)i.next();
-            messagesTableById.put(mo.getMessageId(), mo);
-        }
-
-        // finally build the threads
-        for(Iterator i=messagesTableById.values().iterator(); i.hasNext(); ) {
-            FrostMessageObject mo = (FrostMessageObject)i.next();
-            LinkedList l = mo.getInReplyToList();
-            if( l.size() == 0 ) {
-                rootNode.add(mo);
-            } else {
-                String directParentId = (String)l.getLast();
-                FrostMessageObject parentMo = (FrostMessageObject)messagesTableById.get(directParentId);
-                parentMo.add(mo);
-            }
-        }
     }
 
-    public void retrieveMessagesOneByOne(
+    public void retrieveMessagesForSearch(
             Board board, 
             java.sql.Date startDate, 
-            java.sql.Date endDate, 
+            java.sql.Date endDate,
             boolean withContent,
             boolean withAttachments,
             boolean showDeleted, 

@@ -195,16 +195,9 @@ public class TreeTableModelAdapter extends AbstractTableModel {
             }
 
             public void treeStructureChanged(TreeModelEvent e) {
-//                System.out.println("********* FIXME: do not call me (treeStructureChanged) !!! ************");
                 delayedFireTableDataChanged();
             }
         });
-        
-//        tree.addTreeSelectionListener(new TreeSelectionListener() {
-//            public void valueChanged(TreeSelectionEvent arg0) {
-//                System.out.println("treeSelChanged: "+arg0.getNewLeadSelectionPath());
-//            }
-//        });
     }
 
     // Wrappers, implementing TableModel interface.

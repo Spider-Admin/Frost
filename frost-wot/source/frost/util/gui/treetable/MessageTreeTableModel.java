@@ -42,7 +42,6 @@ import java.util.logging.*;
 
 import javax.swing.tree.*;
 
-import frost.*;
 import frost.gui.objects.*;
 import frost.storage.database.applayer.*;
 import frost.util.gui.translation.*;
@@ -193,18 +192,16 @@ public class MessageTreeTableModel extends DefaultTreeModel implements TreeTable
         final FrostMessageObject message = (FrostMessageObject)node;
         boolean newValue = ((Boolean)aValue).booleanValue();
         boolean save = false;
-        // FIXME: check old state, save only if necessary
-        if( column == 0 ) {
+        if( column == 0 && message.isFlagged() != newValue ) {
             message.setFlagged(newValue);
             save = true;
-        } else if( column == 1 ) {
+        } else if( column == 1 && message.isStarred() != newValue ) {
             message.setStarred(newValue);
             save = true;
         }
         if( save ) {
             Thread saver = new Thread() {
                 public void run() {
-                    // save the changed isnew state into the database
                     try {
                         AppLayerDatabase.getMessageTable().updateMessage(message);
                     } catch (SQLException ex) {

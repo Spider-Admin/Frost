@@ -133,7 +133,7 @@ public class TOF {
     }
 
     /**
-     * Add new msg to database (as invalid), mark download slot used. 
+     * Add new invalid msg to database 
      */
     public void receivedInvalidMessage(Board b, Calendar calDL, int index, String reason) {
         
@@ -149,7 +149,7 @@ public class TOF {
     }
     
     /**
-     * Add new msg to database, mark download slot used. 
+     * Add new valid msg to database 
      */
     public void receivedValidMessage(MessageXmlFile currentMsg, Board board, int index) {
         FrostMessageObject newMsg = new FrostMessageObject(currentMsg, board, index);
@@ -168,64 +168,63 @@ public class TOF {
      * Process incoming message.
      */
     private void processNewMessage(FrostMessageObject currentMsg, Board board) {
-        if ( blocked(currentMsg, board) ) {
-            board.incBlocked();
-            logger.info("TOFDN: Blocked message for board '"+board.getName()+"'.");
-        } else {
-            // check if msg would be displayed (maxMessageDays)
-            Calendar minDate = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-            minDate.add(Calendar.DATE, -1*board.getMaxMessageDisplay());
-            
-            Calendar msgDate = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-            msgDate.setTimeInMillis( currentMsg.getSqlDate().getTime());
-            
-            if( !msgDate.before(minDate) ) {
-                // add new message or notify of arrival
-                addNewMessageToGui(currentMsg, board);
-            } // else msg is not displayed due to maxMessageDisplay
-            
-            // add all boards to the list of known boards
-            if( currentMsg.isMessageStatusOLD() &&
-                Core.frostSettings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_UNSIGNED) == true )
-            {
-                logger.info("Boards from unsigned message blocked");
-            } else if( currentMsg.isMessageStatusBAD() &&
-                       Core.frostSettings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_BAD) == true )
-            {
-                logger.info("Boards from BAD message blocked");
-            } else if( currentMsg.isMessageStatusCHECK() &&
-                       Core.frostSettings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_CHECK) == true )
-            {
-                logger.info("Boards from CHECK message blocked");
-            } else if( currentMsg.isMessageStatusOBSERVE() &&
-                       Core.frostSettings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_OBSERVE) == true )
-            {
-                logger.info("Boards from OBSERVE message blocked");
-            } else if( currentMsg.isMessageStatusTAMPERED() ) {
-                logger.info("Boards from TAMPERED message blocked");
-            } else {
-                // either GOOD user or not blocked by user
-                LinkedList addBoards = new LinkedList();
-                for(Iterator i=currentMsg.getAttachmentsOfType(Attachment.BOARD).iterator(); i.hasNext(); ) {
-                    BoardAttachment ba = (BoardAttachment) i.next();
-                    addBoards.add(ba.getBoardObj());
-                }
-                AppLayerDatabase.getKnownBoardsDatabaseTable().addNewKnownBoards(addBoards);
-            }
-        }
+
+        // check if msg would be displayed (maxMessageDays)
+        Calendar minDate = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        minDate.add(Calendar.DATE, -1*board.getMaxMessageDisplay());
+        
+        Calendar msgDate = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        msgDate.setTimeInMillis( currentMsg.getSqlDate().getTime());
+        
+        if( !msgDate.before(minDate) ) {
+            // add new message or notify of arrival
+            addNewMessageToGui(currentMsg, board);
+        } // else msg is not displayed due to maxMessageDisplay
+        
+        processAttachedBoards(currentMsg);
     }
 
     /**
      * Called by non-swing thread.
      */
     private void addNewMessageToGui(final FrostMessageObject message, final Board board) {
+        
+        // check if message is blocked
+        if( blocked(message, board) ) {
+//            // add this msg if it replaces a dummy!
+//            if( message.getMessageId() != null ) {
+//                SwingUtilities.invokeLater( new Runnable() {
+//                    public void run() {
+//                        Board selectedBoard = tofTreeModel.getSelectedNode();
+//                        // add only if target board is still shown
+//                        if( !selectedBoard.isFolder() && selectedBoard.getName().equals( board.getName() ) ) {
+//                            if( tryToFillDummyMsg(message) ) {
+//                                // we filled a dummy!
+//                                board.incNewMessageCount();
+//                                MainFrame.getInstance().updateTofTree(board);
+//                                MainFrame.displayNewMessageIcon(true);
+//                                MainFrame.getInstance().updateMessageCountLabels(board);
+//                            }
+//                        }
+//                    }
+//                });
+//            }
+            return;
+        }
+        // message is not blocked
         SwingUtilities.invokeLater( new Runnable() {
             public void run() {
+
+                board.incNewMessageCount();
+                MainFrame.getInstance().updateTofTree(board);
+                MainFrame.displayNewMessageIcon(true);
 
                 Board selectedBoard = tofTreeModel.getSelectedNode();
                 // add only if target board is still shown
                 if( !selectedBoard.isFolder() && selectedBoard.getName().equals( board.getName() ) ) {
+                    
                     addNewMessageToModel(message, board);
+                    
                     // after adding the message ensure that selected message is still shown
                     FrostMessageObject selectedMessage = MainFrame.getInstance().getMessagePanel().getSelectedMessage();
                     if( selectedMessage != null ) {
@@ -234,12 +233,32 @@ public class TOF {
 
                     MainFrame.getInstance().updateMessageCountLabels(board);
                 }
-
-                board.incNewMessageCount();
-                MainFrame.getInstance().updateTofTree(board);
-                MainFrame.displayNewMessageIcon(true);
             }
         });
+    }
+    private boolean tryToFillDummyMsg(FrostMessageObject newMessage) {
+        FrostMessageObject rootNode = (FrostMessageObject)MainFrame.getInstance().getMessageTreeModel().getRoot();
+        // is there a dummy msg for this msgid?
+        for(Enumeration e=rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
+            FrostMessageObject mo = (FrostMessageObject)e.nextElement();
+            if( mo == rootNode ) {
+                continue;
+            }
+            if( mo.getMessageId() != null && 
+                mo.getMessageId().equals(newMessage.getMessageId()) &&
+                mo.isDummy()
+              ) 
+            {
+                // previously missing msg arrived, fill dummy with message data
+                mo.fillFromOtherMessage(newMessage);
+                int row = MainFrame.getInstance().getMessageTreeTable().getRowForNode(mo);
+                if( row >= 0 ) {
+                    MainFrame.getInstance().getMessageTableModel().fireTableRowsUpdated(row, row);
+                }
+                return true;
+            }
+        }
+        return false; // no dummy found
     }
     private void addNewMessageToModel(FrostMessageObject newMessage, final Board board) {
         
@@ -260,28 +279,12 @@ public class TOF {
             rootNode.add(newMessage, false);
             return;
         }
-
-        // is there a dummy msg for this msgid?
-        for(Enumeration e=rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
-            FrostMessageObject mo = (FrostMessageObject)e.nextElement();
-            if( mo == rootNode ) {
-                continue;
-            }
-            if( mo.getMessageId() != null && 
-                mo.getMessageId().equals(newMessage.getMessageId()) &&
-                mo.isDummy()
-              ) 
-            {
-                // previously missing msg arrived, fill dummy with message data
-                mo.fillFromOtherMessage(newMessage);
-                int row = MainFrame.getInstance().getMessageTreeTable().getRowForNode(mo);
-                if( row >= 0 ) {
-                    MainFrame.getInstance().getMessageTableModel().fireTableRowsUpdated(row, row);
-                }
-                return;
-            }
-        }
         
+        if( tryToFillDummyMsg(newMessage) == true ) {
+            // dummy msg filled
+            return;
+        }
+
         LinkedList msgParents = new LinkedList(newMessage.getInReplyToList());
         
         // find direct parent
@@ -350,7 +353,7 @@ public class TOF {
         int daysToRead;
         boolean isCancelled = false;
         String fileSeparator = System.getProperty("file.separator");
-
+        
         public UpdateTofFilesThread(Board board, String keypool, int daysToRead) {
             this.board = board;
             this.keypool = keypool;
@@ -369,6 +372,149 @@ public class TOF {
             return board.getName();
         }
 
+        /**
+         * Adds new messages flat to the rootnode, blocked msgs are not added.
+         */
+        private class FlatMessageRetrieval implements MessageDatabaseTableCallback {
+            FrostMessageObject rootNode;
+            public FlatMessageRetrieval(FrostMessageObject root) {
+                rootNode = root;
+            }
+            public boolean messageRetrieved(FrostMessageObject mo) {
+                if( blocked(mo, board) == false ) {
+                    rootNode.add(mo);
+                }
+                return isCancel();
+            }
+        }
+
+        /**
+         * Adds new messages threaded to the rootnode, blocked msgs are removed if not needed for thread.
+         */
+        private class ThreadedMessageRetrieval implements MessageDatabaseTableCallback {
+            FrostMessageObject rootNode;
+            LinkedList messageList = new LinkedList();
+            public ThreadedMessageRetrieval(FrostMessageObject root) {
+                rootNode = root;
+            }
+            public boolean messageRetrieved(FrostMessageObject mo) {
+                messageList.add(mo);
+                return isCancel();
+            }
+            public void buildThreads() {
+                // messageList was filled by callback
+                
+                // HashSet contains a msgid if the msg was loaded OR was not existing
+                HashSet messageIds = new HashSet();
+                for(Iterator i=messageList.iterator(); i.hasNext(); ) {
+                    FrostMessageObject mo = (FrostMessageObject)i.next();
+                    if( mo.getMessageId() == null ) {
+                        i.remove();
+                        // old msg, maybe add to root
+                        if( !blocked(mo, mo.getBoard()) ) {
+                            rootNode.add(mo);
+                        }
+                    } else {
+                        // collect for threading
+                        messageIds.add(mo.getMessageId());
+                    }
+                }
+                
+                // for threads, check msgrefs and load all existing msgs pointed to by refs
+                boolean showDeletedMessages = Core.frostSettings.getBoolValue("showDeletedMessages");
+                LinkedList newLoadedMsgs = new LinkedList();
+                for(Iterator i=messageList.iterator(); i.hasNext(); ) {
+                    FrostMessageObject mo = (FrostMessageObject)i.next();
+                    List l = mo.getInReplyToList();
+                    if( l.size() == 0 ) {
+                        continue; // no msg refs
+                    }
+                    // try to load each msgid that is referenced, put tried ids into hashset msgIds
+                    for(int x=l.size()-1; x>=0; x--) {
+                        String anId = (String)l.get(x);
+                        if( messageIds.contains(anId) ) {
+                            continue;
+                        }
+                        FrostMessageObject fmo = null;
+                        try {
+                            fmo = AppLayerDatabase.getMessageTable().retrieveMessageByMessageId(board, anId, true, true, showDeletedMessages);
+                        } catch (SQLException e) {
+                            logger.log(Level.SEVERE, "Error retrieving message by id "+anId, e);
+                        }
+                        if( fmo == null ) {
+                            // for each missing msg create a dummy FrostMessageObject and add it to tree.
+                            // if the missing msg arrives later, replace dummy with true msg in tree
+                            LinkedList ll = new LinkedList();
+                            if( x > 0 ) {
+                                for(int y=0; y < x; y++) {
+                                    ll.add(l.get(y));
+                                }
+                            }
+                            fmo = new FrostMessageObject(anId, board, ll);
+                        }
+                        newLoadedMsgs.add(fmo);
+                        messageIds.add(anId);
+                    }
+                }
+
+                messageList.addAll(newLoadedMsgs);
+                
+                newLoadedMsgs = null;
+                messageIds = null;
+                
+                // all msgs are loaded and dummies for missing msgs were created, now build the threads
+                // - add msgs without msgid to rootnode
+                // - add msgs with msgid and no ref to rootnode
+                // - add msgs with msgid and ref to its direct parent (last refid in list)
+                
+                // first collect msgs with id into a hashtable for lookups
+                Hashtable messagesTableById = new Hashtable();
+                for(Iterator i=messageList.iterator(); i.hasNext(); ) {
+                    FrostMessageObject mo = (FrostMessageObject)i.next();
+                    messagesTableById.put(mo.getMessageId(), mo);
+                }
+                
+                messageList = null;
+
+                // build the threads
+                for(Iterator i=messagesTableById.values().iterator(); i.hasNext(); ) {
+                    FrostMessageObject mo = (FrostMessageObject)i.next();
+                    LinkedList l = mo.getInReplyToList();
+                    if( l.size() == 0 ) {
+                        rootNode.add(mo);
+                    } else {
+                        String directParentId = (String)l.getLast();
+                        FrostMessageObject parentMo = (FrostMessageObject)messagesTableById.get(directParentId);
+                        parentMo.add(mo);
+                    }
+                }
+                
+                // FIXME: finally, remove blocked msgs from the leafs
+                
+            }
+        }
+
+        /**
+         * Start to load messages one by one.
+         */
+        private void loadMessages(MessageDatabaseTableCallback callback) {
+            
+            boolean showDeletedMessages = Core.frostSettings.getBoolValue("showDeletedMessages");
+            
+            try {
+                AppLayerDatabase.getMessageTable().retrieveMessagesForShow(
+                        board, 
+                        daysToRead, 
+                        true, 
+                        true, 
+                        showDeletedMessages,
+                        callback);
+                
+            } catch (SQLException e) {
+                logger.log(Level.SEVERE, "Error retrieving messages for board "+board.getName(), e);
+            }
+        }
+        
         public void run() {
             while( updateThread != null ) {
                 // wait for running thread to finish
@@ -389,42 +535,37 @@ public class TOF {
             try { setPriority(getPriority() - 1); }
             catch(Throwable t) { }
 
-            boolean showDeletedMessages = Core.frostSettings.getBoolValue("showDeletedMessages");
-            boolean loadThreads = Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS);
-            
             final FrostMessageObject rootNode = new FrostMessageObject(true);
-            try {
-                // TODO: maybe receive without content and dynamically load contents if needed
-                // TODO: if we do this, blocked can't check the messagebody!
-                AppLayerDatabase.getMessageTable().retrieveMessages(
-                        rootNode, 
-                        board, 
-                        daysToRead, 
-                        true, 
-                        true, 
-                        showDeletedMessages, 
-                        loadThreads);
-                
-            } catch (SQLException e) {
-                logger.log(Level.SEVERE, "Error retrieving messages for board "+board.getName(), e);
-                return;
+
+            boolean loadThreads = Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS);
+            if( loadThreads  ) {
+                ThreadedMessageRetrieval tmr = new ThreadedMessageRetrieval(rootNode);
+                loadMessages(tmr);
+                tmr.buildThreads();
+            } else {
+                // load flat
+                FlatMessageRetrieval ffr = new FlatMessageRetrieval(rootNode);
+                loadMessages(ffr);
             }
             
-            final Board innerTargetBoard = board;
+            if( !isCancel() ) {
+                // set rootnode to gui and update
+                final Board innerTargetBoard = board;
 
-            SwingUtilities.invokeLater( new Runnable() {
-                public void run() {
-                    if( tofTreeModel.getSelectedNode().isFolder() == false &&
-                        tofTreeModel.getSelectedNode().getName().equals( innerTargetBoard.getName() ) ) {
-                        
-                        MainFrame.getInstance().getMessagePanel().getMessageTable().setNewRootNode(rootNode);
-                        MainFrame.getInstance().getMessageTreeTable().expandAll(true);
-                        
-                        MainFrame.getInstance().updateTofTree(innerTargetBoard);
-                        MainFrame.getInstance().updateMessageCountLabels(innerTargetBoard);
+                SwingUtilities.invokeLater( new Runnable() {
+                    public void run() {
+                        if( tofTreeModel.getSelectedNode().isFolder() == false &&
+                            tofTreeModel.getSelectedNode().getName().equals( innerTargetBoard.getName() ) ) {
+                            
+                            MainFrame.getInstance().getMessagePanel().getMessageTable().setNewRootNode(rootNode);
+                            MainFrame.getInstance().getMessageTreeTable().expandAll(true);
+                            
+                            MainFrame.getInstance().updateTofTree(innerTargetBoard);
+                            MainFrame.getInstance().updateMessageCountLabels(innerTargetBoard);
+                        }
                     }
-                }
-            });
+                });
+            }
             
             updateThread = null;
         }
@@ -455,8 +596,6 @@ public class TOF {
         if (message.isMessageStatusOLD() && message.getFromName().indexOf('@') > -1) {
             return true;
         }
-
-        // TODO: maybe allow regexp here?!
 
         // Block by subject (and rest of the header)
         if (Core.frostSettings.getBoolValue("blockMessageChecked")) {
@@ -511,6 +650,39 @@ public class TOF {
             }
         }
         return false;
+    }
+
+    /**
+     * Maybe add the attached board to list of known boards.
+     */
+    private void processAttachedBoards(FrostMessageObject currentMsg) {
+        if( currentMsg.isMessageStatusOLD() &&
+            Core.frostSettings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_UNSIGNED) == true )
+        {
+            logger.info("Boards from unsigned message blocked");
+        } else if( currentMsg.isMessageStatusBAD() &&
+                   Core.frostSettings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_BAD) == true )
+        {
+            logger.info("Boards from BAD message blocked");
+        } else if( currentMsg.isMessageStatusCHECK() &&
+                   Core.frostSettings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_CHECK) == true )
+        {
+            logger.info("Boards from CHECK message blocked");
+        } else if( currentMsg.isMessageStatusOBSERVE() &&
+                   Core.frostSettings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_OBSERVE) == true )
+        {
+            logger.info("Boards from OBSERVE message blocked");
+        } else if( currentMsg.isMessageStatusTAMPERED() ) {
+            logger.info("Boards from TAMPERED message blocked");
+        } else {
+            // either GOOD user or not blocked by user
+            LinkedList addBoards = new LinkedList();
+            for(Iterator i=currentMsg.getAttachmentsOfType(Attachment.BOARD).iterator(); i.hasNext(); ) {
+                BoardAttachment ba = (BoardAttachment) i.next();
+                addBoards.add(ba.getBoardObj());
+            }
+            AppLayerDatabase.getKnownBoardsDatabaseTable().addNewKnownBoards(addBoards);
+        }
     }
 
     public void initialSearchNewMessages() {
