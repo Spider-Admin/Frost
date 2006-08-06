@@ -43,7 +43,6 @@ import java.awt.event.*;
 import java.util.*;
 
 import javax.swing.*;
-import javax.swing.border.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
 import javax.swing.tree.*;
@@ -71,8 +70,10 @@ public class MessageTreeTable extends JTable {
     private BooleanCellRenderer booleanCellRenderer = new BooleanCellRenderer();
     private BooleanCellEditor booleanCellEditor = new BooleanCellEditor();
     
-    ImageIcon flaggedIcon = new ImageIcon(getClass().getResource("/data/flagged.gif"));
-    ImageIcon starredIcon = new ImageIcon(getClass().getResource("/data/starred.gif"));
+    private ImageIcon flaggedIcon = new ImageIcon(getClass().getResource("/data/flagged.gif"));
+    private ImageIcon starredIcon = new ImageIcon(getClass().getResource("/data/starred.gif"));
+    
+    private boolean showColoredLines = true; // FIXME: add option for this!
     
     public MessageTreeTable(TreeTableModel treeTableModel) {
     	super();
@@ -273,8 +274,6 @@ public class MessageTreeTable extends JTable {
     public class TreeTableCellRenderer extends JTree implements TableCellRenderer {
 	/** Last table/tree row asked to renderer. */
 	protected int visibleRow;
-	/** Border to draw around the tree, if this is non-null, it will be painted. */
-	protected Border highlightBorder;
     
     private Font boldFont = null;
     private Font normalFont = null;
@@ -339,11 +338,6 @@ public class MessageTreeTable extends JTable {
 	    g.translate(0, -visibleRow * getRowHeight());
 	    super.paint(g);
 	    // Draw the Table border if we have focus.
-	    if (highlightBorder != null) {
-    		highlightBorder.paintBorder(this, g, 0, visibleRow *
-    					    getRowHeight(), getWidth(),
-    					    getRowHeight());
-	    }
         if(isDeleted) {
             // FIXME: does not work!
             Dimension size = getSize();
@@ -393,12 +387,16 @@ public class MessageTreeTable extends JTable {
             foreground = Color.BLACK;
         }
             
-        if (!isSelected) {    
-            // IBM lineprinter paper
-            if ((row & 0x0001) == 0) {
-            	background = Color.WHITE;
+        if (!isSelected) {
+            if( showColoredLines ) {
+                // IBM lineprinter paper
+                if ((row & 0x0001) == 0) {
+                	background = Color.WHITE;
+                } else {
+                	background = secondBackgroundColor;
+                }
             } else {
-            	background = secondBackgroundColor;
+                background = table.getBackground();
             }
         } else {
             background = table.getSelectionBackground();
@@ -406,12 +404,6 @@ public class MessageTreeTable extends JTable {
         }
         
         setDeleted(msg.isDeleted());
-
-        // orig code
-	    highlightBorder = null;
-	    if (hasFocus) {
-	      //  highlightBorder = UIManager.getBorder("Table.focusCellHighlightBorder");
-	    }
 
 	    visibleRow = row;
 	    setBackground(background);
@@ -578,11 +570,15 @@ public class MessageTreeTable extends JTable {
             }
             
             if (!isSelected) {
-                // IBM lineprinter paper
-                if ((row & 0x0001) == 0) {
-                    setBackground(Color.WHITE);
+                if( showColoredLines ) {
+                    // IBM lineprinter paper
+                    if ((row & 0x0001) == 0) {
+                        setBackground(Color.WHITE);
+                    } else {
+                        setBackground(secondBackgroundColor);
+                    }
                 } else {
-                    setBackground(secondBackgroundColor);
+                    setBackground(table.getBackground());
                 }
             } else {
                 setBackground(table.getSelectionBackground());
@@ -627,11 +623,15 @@ public class MessageTreeTable extends JTable {
 //            }
             
             if (!isSelected) {
-                // IBM lineprinter paper
-                if ((row & 0x0001) == 0) {
-                    cb.setBackground(Color.WHITE);
+                if( showColoredLines ) {
+                    // IBM lineprinter paper
+                    if ((row & 0x0001) == 0) {
+                        cb.setBackground(Color.WHITE);
+                    } else {
+                        cb.setBackground(secondBackgroundColor);
+                    }
                 } else {
-                    cb.setBackground(secondBackgroundColor);
+                    cb.setBackground(table.getBackground());
                 }
             } else {
                 cb.setBackground(table.getSelectionBackground());
@@ -681,11 +681,15 @@ public class MessageTreeTable extends JTable {
             super.getTableCellRendererComponent(table, value, isSelected, /*hasFocus*/ false, row, column);
             
             if (!isSelected) {
-                // IBM lineprinter paper
-                if ((row & 0x0001) == 0) {
-                	setBackground(Color.WHITE);
+                if( showColoredLines ) {
+                    // IBM lineprinter paper
+                    if ((row & 0x0001) == 0) {
+                    	setBackground(Color.WHITE);
+                    } else {
+                    	setBackground(secondBackgroundColor);
+                    }
                 } else {
-                	setBackground(secondBackgroundColor);
+                    setBackground(table.getBackground());
                 }
             } else {
                 setBackground(table.getSelectionBackground());
