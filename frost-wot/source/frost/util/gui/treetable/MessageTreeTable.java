@@ -71,6 +71,9 @@ public class MessageTreeTable extends JTable {
     private BooleanCellRenderer booleanCellRenderer = new BooleanCellRenderer();
     private BooleanCellEditor booleanCellEditor = new BooleanCellEditor();
     
+    ImageIcon flaggedIcon = new ImageIcon(getClass().getResource("/data/flagged.gif"));
+    ImageIcon starredIcon = new ImageIcon(getClass().getResource("/data/starred.gif"));
+    
     public MessageTreeTable(TreeTableModel treeTableModel) {
     	super();
 
@@ -526,7 +529,31 @@ public class MessageTreeTable extends JTable {
 	}
     }
     
+    private class MyCheckBox extends JCheckBox {
+        public MyCheckBox() {
+            super("");
+        }
+        public void paintComponent (Graphics g) {
+            Dimension size = getSize();
+            g.setColor(getBackground());
+            g.fillRect(0, 0, size.width, size.height);
+            super.paintComponent(g);
+        }
+    }
+    
     private class BooleanCellRenderer extends JLabel implements TableCellRenderer {
+        
+        public BooleanCellRenderer() {
+            super();
+        }
+        
+        public void paintComponent (Graphics g) {
+            Dimension size = getSize();
+            g.setColor(getBackground());
+            g.fillRect(0, 0, size.width, size.height);
+            super.paintComponent(g);
+        }
+
         public Component getTableCellRendererComponent(
                 JTable table,
                 Object value,
@@ -538,15 +565,15 @@ public class MessageTreeTable extends JTable {
             boolean val = ((Boolean)value).booleanValue();
             if( column == 0 ) {
                 if( val ) {
-                    setText("!");
+                    setIcon(flaggedIcon);
                 } else {
-                    setText("");
+                    setIcon(null);
                 }
             } else if( column == 1 ) {
                 if( val ) {
-                    setText("*");
+                    setIcon(starredIcon);
                 } else {
-                    setText("");
+                    setIcon(null);
                 }
             }
             
@@ -566,9 +593,51 @@ public class MessageTreeTable extends JTable {
     }
     
     private class BooleanCellEditor extends DefaultCellEditor implements TableCellEditor {
+
         public BooleanCellEditor() {
-            super(new JCheckBox());
-            // FIXME: set correct icons!
+            super(new MyCheckBox());
+        }
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+            Component c = super.getTableCellEditorComponent(table, value, isSelected, row, column);
+            MyCheckBox cb = (MyCheckBox)c;
+            
+//            cb.setDisabledIcon(null);
+//            cb.setDisabledSelectedIcon(null);
+//            cb.setIcon(null);
+//            
+//            if( row == 0 ) {
+//                cb.setSelectedIcon(flaggedIcon);
+//            } else if( row == 1 ) {
+//                cb.setSelectedIcon(starredIcon);
+//            }
+            
+//            boolean val = ((Boolean)value).booleanValue();
+//            if( column == 0 ) {
+//                if( val ) {
+//                    cb.setIcon(flaggedIcon);
+//                } else {
+//                    cb.setIcon(null);
+//                }
+//            } else if( column == 1 ) {
+//                if( val ) {
+//                    cb.setIcon(starredIcon);
+//                } else {
+//                    cb.setIcon(null);
+//                }
+//            }
+            
+            if (!isSelected) {
+                // IBM lineprinter paper
+                if ((row & 0x0001) == 0) {
+                    cb.setBackground(Color.WHITE);
+                } else {
+                    cb.setBackground(secondBackgroundColor);
+                }
+            } else {
+                cb.setBackground(table.getSelectionBackground());
+            }
+
+            return cb;
         }
     }
     
