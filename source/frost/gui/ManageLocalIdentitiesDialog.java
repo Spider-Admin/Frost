@@ -1,6 +1,22 @@
 /*
- * Created on 06.08.2006
- */
+  ManageLocalIdentitiesDialog.java / Frost
+  Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
+  Some changes by Stefan Majewski <e9926279@stud3.tuwien.ac.at>
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License as
+  published by the Free Software Foundation; either version 2 of
+  the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+*/
 package frost.gui;
 
 import java.awt.*;
@@ -36,6 +52,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
     public ManageLocalIdentitiesDialog() {
         super();
         initialize();
+        setLocationRelativeTo(MainFrame.getInstance());
     }
 
     /**
@@ -90,11 +107,12 @@ public class ManageLocalIdentitiesDialog extends JDialog {
         if( mainPanel == null ) {
             GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
             gridBagConstraints2.gridx = 1;
-            gridBagConstraints2.gridheight = 2;
+            gridBagConstraints2.gridheight = 1;
             gridBagConstraints2.weightx = 0.0;
             gridBagConstraints2.fill = java.awt.GridBagConstraints.VERTICAL;
             gridBagConstraints2.weighty = 1.0;
-            gridBagConstraints2.gridy = 0;
+            gridBagConstraints2.insets = new java.awt.Insets(3,0,0,0);
+            gridBagConstraints2.gridy = 1;
             GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
             gridBagConstraints1.fill = java.awt.GridBagConstraints.BOTH;
             gridBagConstraints1.gridy = 1;
@@ -166,15 +184,20 @@ public class ManageLocalIdentitiesDialog extends JDialog {
             Ldummy.setText("");
             GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
             gridBagConstraints5.gridx = 0;
-            gridBagConstraints5.insets = new java.awt.Insets(10,3,0,5);
+            gridBagConstraints5.insets = new java.awt.Insets(15,3,0,5);
+            gridBagConstraints5.fill = java.awt.GridBagConstraints.HORIZONTAL;
             gridBagConstraints5.gridy = 2;
             GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
             gridBagConstraints4.gridx = 0;
             gridBagConstraints4.insets = new java.awt.Insets(5,3,0,5);
+            gridBagConstraints4.anchor = java.awt.GridBagConstraints.NORTHWEST;
+            gridBagConstraints4.fill = java.awt.GridBagConstraints.HORIZONTAL;
             gridBagConstraints4.gridy = 1;
             GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
             gridBagConstraints3.gridx = 0;
             gridBagConstraints3.insets = new java.awt.Insets(5,3,0,5);
+            gridBagConstraints3.anchor = java.awt.GridBagConstraints.NORTHWEST;
+            gridBagConstraints3.fill = java.awt.GridBagConstraints.HORIZONTAL;
             gridBagConstraints3.gridy = 0;
             jPanel = new JPanel();
             jPanel.setLayout(new GridBagLayout());
@@ -235,7 +258,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
             BdeleteIdentity.setText("Delete Identity");
             BdeleteIdentity.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
-
+// FIXME: put deleted into GOOD state!!!
                     LocalIdentity li = (LocalIdentity)getIdentitiesList().getSelectedValue();
                     if( li == null ) {
                         return;
@@ -295,7 +318,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
     private JButton getBimportIdentityXml() {
         if( BimportIdentityXml == null ) {
             BimportIdentityXml = new JButton();
-            BimportIdentityXml.setText("Import from identities.xml");
+            BimportIdentityXml.setText("Import from 'identities.xml'");
             BimportIdentityXml.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     File xmlFile = chooseIdentitiesFile();

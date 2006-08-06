@@ -61,7 +61,6 @@ public class ImportIdentities {
         Document d = XMLTools.parseXmlFile(identitiesXmlFile, false);
         Element rootEl = d.getDocumentElement();
 
-        //first myself
         Element myself = (Element) XMLTools.getChildElementsByTagName(rootEl, "MyIdentity").get(0);
         LocalIdentity myId = null;
         if( myself != null ) {
