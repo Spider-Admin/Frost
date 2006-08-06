@@ -57,6 +57,19 @@ public class ImportIdentities {
         FrostIdentities.setDatabaseUpdatesAllowed(true);
     }
 
+    public static LocalIdentity importLocalIdentityFromIdentityXml(File identitiesXmlFile) {
+        Document d = XMLTools.parseXmlFile(identitiesXmlFile, false);
+        Element rootEl = d.getDocumentElement();
+
+        //first myself
+        Element myself = (Element) XMLTools.getChildElementsByTagName(rootEl, "MyIdentity").get(0);
+        LocalIdentity myId = null;
+        if( myself != null ) {
+            myId = new LocalIdentity(myself);
+        }
+        return myId;
+    }
+
     private void load(FrostIdentities identities) throws StorageException {
         File xmlFile = new File("identities.xml");
 
@@ -68,7 +81,7 @@ public class ImportIdentities {
             }
         }
     }
-
+    
     private void loadNewFormat(FrostIdentities identities) throws SAXException, IllegalArgumentException {
         logger.info("Trying to create/load ids");
         Document d = XMLTools.parseXmlFile("identities.xml", false);
