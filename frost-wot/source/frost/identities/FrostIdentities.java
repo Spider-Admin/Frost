@@ -190,7 +190,12 @@ public class FrostIdentities implements Savable {
     }
     
     public boolean deleteLocalIdentity(LocalIdentity li) {
+        if (localIdentities.containsKey(li.getUniqueName())) {
+            return false;
+        }
+        
         localIdentities.remove(li.getUniqueName());
+        
         try {
             return AppLayerDatabase.getIdentitiesDatabaseTable().removeLocalIdentity(li);
         } catch (SQLException e) {

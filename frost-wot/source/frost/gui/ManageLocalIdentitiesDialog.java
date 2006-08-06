@@ -258,7 +258,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
             BdeleteIdentity.setText("Delete Identity");
             BdeleteIdentity.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
-// FIXME: put deleted into GOOD state!!!
+
                     LocalIdentity li = (LocalIdentity)getIdentitiesList().getSelectedValue();
                     if( li == null ) {
                         return;
@@ -296,8 +296,14 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                             return; // do not delete
                         }
                     }
+
                     Core.getInstance().getFileTransferManager().removeFilesSharedByLocalIdentity(li);
                     Core.getIdentities().deleteLocalIdentity(li);
+                    // put deleted into GOOD state
+                    Identity myOld = new Identity(li.getUniqueName(), li.getKey());
+                    myOld.setGOOD();
+                    Core.getIdentities().addIdentity( myOld );
+                    
                     ((DefaultListModel)getIdentitiesList().getModel()).removeElement(li);
                     
                     MiscToolkit.getInstance().showMessage(
