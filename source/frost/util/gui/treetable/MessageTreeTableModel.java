@@ -37,9 +37,14 @@
  */
 
 package frost.util.gui.treetable;
+import java.sql.*;
+import java.util.logging.*;
+
 import javax.swing.tree.*;
 
+import frost.*;
 import frost.gui.objects.*;
+import frost.storage.database.applayer.*;
 import frost.util.gui.translation.*;
 
 /**
@@ -58,6 +63,8 @@ import frost.util.gui.translation.*;
  * @author Scott Violet
  */
 public class MessageTreeTableModel extends DefaultTreeModel implements TreeTableModel, LanguageListener {
+
+    private Logger logger = Logger.getLogger(MessageTreeTableModel.class.getName());
 
     private Language language = null;
 
@@ -183,10 +190,29 @@ public class MessageTreeTableModel extends DefaultTreeModel implements TreeTable
     }
 
     public void setValueAt(Object aValue, Object node, int column) {
+        final FrostMessageObject message = (FrostMessageObject)node;
+        boolean newValue = ((Boolean)aValue).booleanValue();
+        boolean save = false;
+        // FIXME: check old state, save only if necessary
         if( column == 0 ) {
-            ((FrostMessageObject)node).setFlagged(((Boolean)aValue).booleanValue());
+            message.setFlagged(newValue);
+            save = true;
         } else if( column == 1 ) {
-            ((FrostMessageObject)node).setStarred(((Boolean)aValue).booleanValue());
+            message.setStarred(newValue);
+            save = true;
+        }
+        if( save ) {
+            Thread saver = new Thread() {
+                public void run() {
+                    // save the changed isnew state into the database
+                    try {
+                        AppLayerDatabase.getMessageTable().updateMessage(message);
+                    } catch (SQLException ex) {
+                        logger.log(Level.SEVERE, "Error updating a message object", ex);
+                    }
+                }
+            };
+            saver.start();
         }
     }
 }
