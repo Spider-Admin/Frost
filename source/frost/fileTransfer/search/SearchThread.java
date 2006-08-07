@@ -343,7 +343,7 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
 
     /**Constructor*/
     public SearchThread(String newRequest,
-            Vector newBoards, // a Vector containing all boards to search in
+            List newBoards, // a Vector containing all boards to search in
             String newSearchType,
             SearchManager searchManager)
     {

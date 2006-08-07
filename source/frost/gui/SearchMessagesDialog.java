@@ -1145,7 +1145,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     private void chooseBoards() {
 
         // get and sort all boards
-        Vector allBoards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
+        List allBoards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
         if (allBoards.size() == 0) {
             JOptionPane.showMessageDialog(this,
                     language.getString("SearchMessages.errorDialogs.noBoardsToChoose"),

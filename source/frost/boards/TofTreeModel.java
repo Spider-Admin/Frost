@@ -20,7 +20,6 @@
 package frost.boards;
 
 import java.util.*;
-import java.util.Vector;
 
 import javax.swing.tree.*;
 
@@ -79,9 +78,9 @@ public class TofTreeModel extends DefaultTreeModel {
      * Returns Vector containing all Boards of the model.
      * @return Vector containing all the Boards of the model.
      */
-    public Vector getAllBoards() {
+    public LinkedList getAllBoards() {
         Board node = (Board) getRoot();
-        Vector boards = new Vector();
+        LinkedList boards = new LinkedList();
         Enumeration e = node.depthFirstEnumeration();
         while (e.hasMoreElements()) {
             Board child = (Board) e.nextElement();

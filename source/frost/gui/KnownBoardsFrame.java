@@ -20,6 +20,7 @@ package frost.gui;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
 import java.sql.*;
 import java.util.*;
 import java.util.List;
@@ -27,17 +28,21 @@ import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.table.*;
 
 import frost.*;
 import frost.boards.*;
 import frost.gui.model.*;
 import frost.gui.objects.*;
+import frost.storage.*;
 import frost.storage.database.applayer.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
 public class KnownBoardsFrame extends JDialog {
+    
+    // FIXME: add xml import/export to an own class, add buttons to frame!
 
     private static Logger logger = Logger.getLogger(KnownBoardsFrame.class.getName());
 
@@ -50,15 +55,16 @@ public class KnownBoardsFrame extends JDialog {
     private static ImageIcon readAccessIcon = new ImageIcon(KnownBoardsFrame.class.getResource("/data/raboard.jpg"));
 
     private JButton Bclose;
-    private JButton BaddBoard;
-    private JButton BaddBoardToFolder;
+    private JButton BboardActions;
+    private JButton Bimport;
+    private JButton Bexport;
     private JTextField TFlookupBoard;
     private JTextField TFfilterBoard;
     private SortedTable boardsTable;
     private KnownBoardsTableModel tableModel;
     private NameColumnRenderer nameColRenderer;
     private DescColumnRenderer descColRenderer;
-
+    
     private JSkinnablePopupMenu tablePopupMenu;
 
     private List allKnownBoardsList; // a list of all boards, needed as data source when we filter in the table
@@ -108,9 +114,10 @@ public class KnownBoardsFrame extends JDialog {
         boardsTable.setSelectionMode( ListSelectionModel.MULTIPLE_INTERVAL_SELECTION );
 
         Bclose = new JButton(language.getString("KnownBoardsFrame.button.close"));
-        BaddBoard = new JButton(language.getString("KnownBoardsFrame.button.addBoards"));
-        BaddBoardToFolder = new JButton(language.getString("KnownBoardsFrame.button.addBoardsToFolder")+" ...");
-
+        BboardActions = new JButton(language.getString("KnownBoardsFrame.button.actions")+" ...");
+        Bimport = new JButton(language.getString("KnownBoardsFrame.button.import")+" ...");
+        Bexport = new JButton(language.getString("KnownBoardsFrame.button.export")+" ...");
+        
         TFlookupBoard = new JTextField(10);
         new TextComponentClipboardMenu(TFlookupBoard, language);
         // force a max size, needed for BoxLayout
@@ -146,21 +153,28 @@ public class KnownBoardsFrame extends JDialog {
             });
 
         boardsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-                     public void valueChanged(ListSelectionEvent e) {
-                         boardsTableListModel_valueChanged(e);
-                     } });
-        BaddBoard.addActionListener( new java.awt.event.ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        addBoards_actionPerformed(e);
-                    } });
-        BaddBoardToFolder.addActionListener( new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                addBoardsToFolder_actionPerformed(e);
-            } });
+                 public void valueChanged(ListSelectionEvent e) {
+                     boardsTableListModel_valueChanged(e);
+                 } });
+        BboardActions.addActionListener( new java.awt.event.ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    if( boardsTable.getSelectedRowCount() > 0 ) {
+                        // don't show menu if nothing is selected
+                        tablePopupMenu.show(BboardActions, 5, 5);
+                    }
+                } });
+        Bimport.addActionListener( new java.awt.event.ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    import_actionPerformed(e);
+                } });
+        Bexport.addActionListener( new java.awt.event.ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    export_actionPerformed(e);
+                } });
         Bclose.addActionListener( new java.awt.event.ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        dispose();
-                    } });
+                public void actionPerformed(ActionEvent e) {
+                    dispose();
+                } });
 
         // create panel
         JPanel mainPanel = new JPanel(new BorderLayout());
@@ -176,10 +190,12 @@ public class KnownBoardsFrame extends JDialog {
         buttons.add( TFfilterBoard );
 
         buttons.add( Box.createHorizontalGlue() );
-        buttons.add( BaddBoard );
-        buttons.add(Box.createRigidArea(new Dimension(15,3)));
-        buttons.add( BaddBoardToFolder );
-        buttons.add(Box.createRigidArea(new Dimension(15,3)));
+        buttons.add( BboardActions );
+        buttons.add(Box.createRigidArea(new Dimension(25,3)));
+        buttons.add( Bimport );
+        buttons.add(Box.createRigidArea(new Dimension(5,3)));
+        buttons.add( Bexport );
+        buttons.add(Box.createRigidArea(new Dimension(25,3)));
         buttons.add( Bclose );
         buttons.setBorder(BorderFactory.createEmptyBorder(10,0,0,0));
 
@@ -194,8 +210,7 @@ public class KnownBoardsFrame extends JDialog {
         this.getContentPane().setLayout(new BorderLayout());
         this.getContentPane().add(mainPanel, null); // add Main panel
 
-        BaddBoard.setEnabled(false);
-        BaddBoardToFolder.setEnabled(false);
+        BboardActions.setEnabled(false);
 
         initPopupMenu();
     }
@@ -227,10 +242,17 @@ public class KnownBoardsFrame extends JDialog {
     }
 
     public void startDialog() {
+        loadKnownBoardsIntoTable();
+        setVisible(true); // blocking!
+    }
+    
+    private void loadKnownBoardsIntoTable() {
+        allKnownBoardsList = new LinkedList();
+        this.tableModel.clearDataModel();
+        TFfilterBoard.setText("");
+        TFlookupBoard.setText("");
         // gets all known boards from Core, and shows all not-doubles in table
-        Vector frostboards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
-        allKnownBoardsList = new ArrayList();
-
+        List frostboards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
         try {
             Iterator i = AppLayerDatabase.getKnownBoardsDatabaseTable().getKnownBoards().iterator();
             // check each board in list if already in boards tree, if not add to table
@@ -267,7 +289,6 @@ public class KnownBoardsFrame extends JDialog {
         } catch(SQLException ex) {
             logger.log(Level.SEVERE, "Error retrieving the known boards", ex);
         }
-        setVisible(true); // blocking!
     }
 
     private void addBoards_actionPerformed(ActionEvent e) {
@@ -346,14 +367,112 @@ public class KnownBoardsFrame extends JDialog {
 
     private void boardsTableListModel_valueChanged(ListSelectionEvent e) {
         if( boardsTable.getSelectedRowCount() > 0 ) {
-            BaddBoard.setEnabled(true);
-            BaddBoardToFolder.setEnabled(true);
+            BboardActions.setEnabled(true);
         } else {
-            BaddBoard.setEnabled(false);
-            BaddBoardToFolder.setEnabled(false);
+            BboardActions.setEnabled(false);
+        }
+    }
+    
+    private void import_actionPerformed(ActionEvent e) {
+        File xmlFile = chooseImportFile();
+        if( xmlFile == null ) {
+            return;
+        }
+        List imports = KnownBoardsXmlDAO.loadKnownBoards(xmlFile);
+        if( imports.size() == 0 ) {
+            MiscToolkit.getInstance().showMessage(
+                    language.getString("KnownBoardsFrame.noBoardsImported.body"),
+                    JOptionPane.WARNING_MESSAGE, 
+                    language.getString("KnownBoardsFrame.noBoardsImported.title"));
+        } else {
+            MiscToolkit.getInstance().showMessage(
+                    language.formatMessage("KnownBoardsFrame.boardsImported.body", ""+imports.size(), xmlFile.getName()),
+                    JOptionPane.WARNING_MESSAGE, 
+                    language.getString("KnownBoardsFrame.boardsImported.title"));
+            AppLayerDatabase.getKnownBoardsDatabaseTable().addNewKnownBoards(imports);
+            loadKnownBoardsIntoTable();
         }
     }
 
+    private void export_actionPerformed(ActionEvent e) {
+        File xmlFile = chooseExportFile();
+        if( xmlFile == null ) {
+            return;
+        }
+        List frostboards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
+        try {
+            frostboards.addAll(AppLayerDatabase.getKnownBoardsDatabaseTable().getKnownBoards());
+        } catch(SQLException ex) {
+            logger.log(Level.SEVERE, "Error retrieving the known boards", ex);
+        }
+
+        if( KnownBoardsXmlDAO.saveKnownBoards(xmlFile, frostboards) ) {
+            MiscToolkit.getInstance().showMessage(
+                    language.formatMessage("KnownBoardsFrame.boardsExported.body", ""+frostboards.size(), xmlFile.getName()),
+                    JOptionPane.INFORMATION_MESSAGE, 
+                    language.getString("KnownBoardsFrame.boardsExported.title"));
+        } else {
+            MiscToolkit.getInstance().showMessage(
+                    language.getString("KnownBoardsFrame.exportFailed.body"),
+                    JOptionPane.ERROR_MESSAGE, 
+                    language.getString("KnownBoardsFrame.exportFailed.title"));
+        }
+    }
+
+    private File chooseExportFile() {
+        FileFilter myFilter = new FileFilter() {
+            public boolean accept(File file) {
+                if( file.isDirectory() ) {
+                    return true;
+                }
+                if( file.getName().endsWith(".xml") ) {
+                    return true;
+                }
+                return false;
+            }
+            public String getDescription() {
+                return "*.xml";
+            }
+        };
+        
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileFilter(myFilter);
+        int returnVal = chooser.showSaveDialog(this);
+        if(returnVal == JFileChooser.APPROVE_OPTION) {
+            File f = chooser.getSelectedFile();
+            String s = f.getPath();
+            if( !s.endsWith(".xml") ) {
+                f = new File(s+".xml");
+            }
+            return f;
+        }
+        return null;
+    }
+
+    private File chooseImportFile() {
+        FileFilter myFilter = new FileFilter() {
+            public boolean accept(File file) {
+                if( file.isDirectory() ) {
+                    return true;
+                }
+                if( file.getName().endsWith(".xml") ) {
+                    return true;
+                }
+                return false;
+            }
+            public String getDescription() {
+                return "*.xml";
+            }
+        };
+        
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileFilter(myFilter);
+        int returnVal = chooser.showOpenDialog(this);
+        if(returnVal == JFileChooser.APPROVE_OPTION) {
+            return chooser.getSelectedFile();
+        }
+        return null;
+    }
 
     /**
      * The class is a table row, holding the board and its file/message counts.

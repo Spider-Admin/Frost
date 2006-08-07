@@ -11,7 +11,6 @@ import frost.gui.objects.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;
 import frost.storage.database.transferlayer.*;
-import frost.threads.*;
 
 public class ImportXmlMessages {
 

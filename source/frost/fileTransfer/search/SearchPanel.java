@@ -23,6 +23,7 @@ import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.beans.*;
 import java.util.*;
+import java.util.List;
 import java.util.logging.*;
 
 import javax.swing.*;
@@ -523,7 +524,7 @@ class SearchPanel extends JPanel implements SettingsUpdater {
     private void searchButton_actionPerformed(ActionEvent e) {
         searchButton.setEnabled(false);
         model.clear();
-        Vector boardsToSearch;
+        List boardsToSearch;
         if (searchAllBoardsCheckBox.isSelected()) {
             // search in all boards
             boardsToSearch = tofTreeModel.getAllBoards();

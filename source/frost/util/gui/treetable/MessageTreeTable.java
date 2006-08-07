@@ -74,7 +74,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     private ImageIcon flaggedIcon = new ImageIcon(getClass().getResource("/data/flagged.gif"));
     private ImageIcon starredIcon = new ImageIcon(getClass().getResource("/data/starred.gif"));
     
-    private boolean showColoredLines = true; // FIXME: add option for this!
+    private boolean showColoredLines = true;
 
     public MessageTreeTable(TreeTableModel treeTableModel) {
     	super();
@@ -380,8 +380,8 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         } else {
             setFont(normalFont);
         }
-        // now set color
         
+        // now set color
         if( msg.getRecipientName() != null && msg.getRecipientName().length() > 0) {
             foreground = Color.RED;
         } else if (msg.containsAttachments()) {
@@ -422,6 +422,8 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     		    dtcr.setTextNonSelectionColor(foreground);
     		    dtcr.setBackgroundNonSelectionColor(background);
     		}
+            dtcr.setToolTipText(msg.getSubject());
+            // FIXME: renderer does not know about the available size, no "..." at end of text!
 	    }
         
 	    return this;
@@ -558,6 +560,11 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                 int column) 
         {
             boolean val = ((Boolean)value).booleanValue();
+            
+            // get the original model column index (maybe columns were reordered by user)
+            TableColumn tableColumn = getColumnModel().getColumn(column);
+            column = tableColumn.getModelIndex();
+            
             if( column == 0 ) {
                 if( val ) {
                     setIcon(flaggedIcon);
@@ -716,7 +723,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             column = tableColumn.getModelIndex();
 
             // do nice things for FROM and SIG column
-            if( column == 1 ) {
+            if( column == 3 ) {
                 // FROM
                 // first set font, bold for new msg or normal
                 if (msg.isNew()) {
@@ -734,7 +741,8 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                         setForeground(Color.BLACK);
                     }
                 }
-            } else if( column == 2 ) {
+                setToolTipText((String)value);
+            } else if( column == 4 ) {
                 // SIG
                 // state == good/bad/check/observe -> bold and coloured
                 if( msg.isMessageStatusGOOD() ) {
