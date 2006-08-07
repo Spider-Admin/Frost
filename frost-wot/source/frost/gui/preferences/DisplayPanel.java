@@ -29,7 +29,7 @@ import frost.util.gui.*;
 import frost.util.gui.translation.Language;
 
 /**
- * Display Panel. Contains appearace options: skins and more in the future
+ * Display Panel. Contains appereance options
  */
 class DisplayPanel extends JPanel {
 
@@ -54,11 +54,14 @@ class DisplayPanel extends JPanel {
     private Listener listener = new Listener();
 
     private JLabel fontsLabel = new JLabel();
-    private JLabel moreSkinsLabel = new JLabel();
 
     private JCheckBox messageBodyAACheckBox = new JCheckBox();
     private JCheckBox msgTableMultilineSelectCheckBox = new JCheckBox();
     private JCheckBox showBoardDescTooltipsCheckBox = new JCheckBox();
+
+    private JCheckBox showColoredRowsCheckBox = new JCheckBox();
+    private JCheckBox showSmileysCheckBox = new JCheckBox();
+    private JCheckBox showHyperlinksCheckBox = new JCheckBox();
 
     private JLabel messageBodyLabel = new JLabel();
     private JLabel fileListLabel = new JLabel();
@@ -76,8 +79,6 @@ class DisplayPanel extends JPanel {
     private Font selectedFileListFont = null;
     private Font selectedMessageListFont = null;
 
-    private SkinChooser skinChooser = null;
-
     /**
      * @param owner the JDialog that will be used as owner of any dialog that is popped up from this panel
      * @param settings the SettingsClass instance that will be used to get and store the settings of the panel
@@ -94,7 +95,6 @@ class DisplayPanel extends JPanel {
     }
 
     public void cancel() {
-        skinChooser.cancelChanges();
     }
 
     private void fileListButtonPressed() {
@@ -192,41 +192,42 @@ class DisplayPanel extends JPanel {
         constraints.fill = GridBagConstraints.BOTH;
         constraints.weightx = 1;
         Insets inset5511 = new Insets(5, 5, 1, 1);
-        Insets inset1515 = new Insets(1, 5, 1, 5);
-
-        constraints.insets = inset1515;
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        skinChooser = new SkinChooser(language);
-        add(skinChooser, constraints);
-
-        constraints.insets = inset1515;
-        constraints.gridx = 0;
-        constraints.gridy = 1;
-        moreSkinsLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-        add(moreSkinsLabel, constraints);
-
+        Insets insets2 = new Insets(15,5,1,1);
+        
         constraints.insets = inset5511;
         constraints.gridx = 0;
-        constraints.gridy = 3;
+        constraints.gridy = 0;
         add(fontsLabel, constraints);
 
-        constraints.gridx = 0;
-        constraints.gridy = 4;
+        constraints.gridy++;
         add(getFontsPanel(), constraints);
-
-        constraints.gridx = 0;
-        constraints.gridy = 5;
+        
+        constraints.insets = insets2;
+        constraints.gridy++;
         add(messageBodyAACheckBox, constraints);
 
+        constraints.insets = inset5511;
         constraints.gridy++;
         add(msgTableMultilineSelectCheckBox, constraints);
 
-        //constraints.weighty = 1;
         constraints.gridy++;
         add(showBoardDescTooltipsCheckBox, constraints);
 
-        //Add listeners
+        constraints.gridy++;
+        add(showColoredRowsCheckBox, constraints);
+
+        constraints.gridy++;
+        add(showSmileysCheckBox, constraints);
+
+        constraints.gridy++;
+        add(showHyperlinksCheckBox, constraints);
+
+        constraints.gridy++;
+        constraints.weighty = 1.0;
+        constraints.fill = GridBagConstraints.BOTH;
+        add(new JLabel(""), constraints);
+
+        // add listeners
         messageBodyButton.addActionListener(listener);
         messageListButton.addActionListener(listener);
         fileListButton.addActionListener(listener);
@@ -236,11 +237,6 @@ class DisplayPanel extends JPanel {
      * Load the settings of this panel
      */
     private void loadSettings() {
-        boolean skinsEnabled = settings.getBoolValue("skinsEnabled");
-        skinChooser.setSkinsEnabled(skinsEnabled);
-        String selectedSkinPath = settings.getValue("selectedSkin");
-        skinChooser.setSelectedSkin(selectedSkinPath);
-
         String fontName = settings.getValue(SettingsClass.MESSAGE_BODY_FONT_NAME);
         int fontSize = settings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
         int fontStyle = settings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_STYLE);
@@ -262,6 +258,10 @@ class DisplayPanel extends JPanel {
         messageBodyAACheckBox.setSelected(settings.getBoolValue("messageBodyAA"));
         msgTableMultilineSelectCheckBox.setSelected(settings.getBoolValue(SettingsClass.MSGTABLE_MULTILINE_SELECT));
         showBoardDescTooltipsCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_BOARDDESC_TOOLTIPS));
+
+        showColoredRowsCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS));
+        showSmileysCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_SMILEYS));
+        showHyperlinksCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_KEYS_AS_HYPERLINKS));
     }
 
     private void messageBodyButtonPressed() {
@@ -289,13 +289,11 @@ class DisplayPanel extends JPanel {
     }
 
     public void ok() {
-        skinChooser.commitChanges();
         saveSettings();
     }
 
     private void refreshLanguage() {
         String choose = language.getString("Options.display.choose");
-        moreSkinsLabel.setText(language.getString("Options.display.youCanGetMoreSkinsAt") + " http://javootoo.l2fprod.com/plaf/skinlf/");
         fontsLabel.setText(language.getString("Options.display.fonts"));
         messageBodyLabel.setText(language.getString("Options.display.messageBody"));
         messageBodyButton.setText(choose);
@@ -309,21 +307,16 @@ class DisplayPanel extends JPanel {
         messageBodyAACheckBox.setText(language.getString("Options.display.enableAntialiasingForMessageBody"));
         msgTableMultilineSelectCheckBox.setText(language.getString("Options.display.enableMultilineSelectionsInMessageTable"));
         showBoardDescTooltipsCheckBox.setText(language.getString("Options.display.showTooltipWithBoardDescriptionInBoardTree"));
+        
+        showColoredRowsCheckBox.setText(language.getString("Options.display.showColoredRows"));
+        showSmileysCheckBox.setText(language.getString("Options.display.showSmileys"));
+        showHyperlinksCheckBox.setText(language.getString("Options.display.showKeysAsHyperlinks"));
     }
 
     /**
      * Save the settings of this panel
      */
     private void saveSettings() {
-        boolean skinsEnabled = skinChooser.isSkinsEnabled();
-        settings.setValue("skinsEnabled", skinsEnabled);
-
-        String selectedSkin = skinChooser.getSelectedSkin();
-        if (selectedSkin == null) {
-            settings.setValue("selectedSkin", "none");
-        } else {
-            settings.setValue("selectedSkin", selectedSkin);
-        }
         if (selectedBodyFont != null) {
             settings.setValue(SettingsClass.MESSAGE_BODY_FONT_NAME, selectedBodyFont.getFamily());
             settings.setValue(SettingsClass.MESSAGE_BODY_FONT_STYLE, selectedBodyFont.getStyle());
@@ -342,5 +335,9 @@ class DisplayPanel extends JPanel {
         settings.setValue("messageBodyAA", messageBodyAACheckBox.isSelected());
         settings.setValue(SettingsClass.MSGTABLE_MULTILINE_SELECT, msgTableMultilineSelectCheckBox.isSelected());
         settings.setValue(SettingsClass.SHOW_BOARDDESC_TOOLTIPS, showBoardDescTooltipsCheckBox.isSelected());
+        
+        settings.setValue(SettingsClass.SHOW_COLORED_ROWS, showColoredRowsCheckBox.isSelected());
+        settings.setValue(SettingsClass.SHOW_SMILEYS, showSmileysCheckBox.isSelected());
+        settings.setValue(SettingsClass.SHOW_KEYS_AS_HYPERLINKS, showHyperlinksCheckBox.isSelected());
     }
 }

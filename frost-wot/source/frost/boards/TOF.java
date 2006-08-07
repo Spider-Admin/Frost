@@ -192,6 +192,8 @@ public class TOF {
         // check if message is blocked
         if( blocked(message, board) ) {
 //            // add this msg if it replaces a dummy!
+//            // DISCUSSION: better not, if a new GOOD msg arrives later in reply to this BAD, the BAD is not loaded and 
+//            // dummy is created. this differes from behaviour of clean load from database            
 //            if( message.getMessageId() != null ) {
 //                SwingUtilities.invokeLater( new Runnable() {
 //                    public void run() {

@@ -40,6 +40,7 @@ package frost.util.gui.treetable;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -60,7 +61,7 @@ import frost.gui.objects.*;
  * @author Philip Milne
  * @author Scott Violet
  */
-public class MessageTreeTable extends JTable {
+public class MessageTreeTable extends JTable implements PropertyChangeListener {
 
     /** A subclass of JTree. */
     protected TreeTableCellRenderer tree;
@@ -74,9 +75,11 @@ public class MessageTreeTable extends JTable {
     private ImageIcon starredIcon = new ImageIcon(getClass().getResource("/data/starred.gif"));
     
     private boolean showColoredLines = true; // FIXME: add option for this!
-    
+
     public MessageTreeTable(TreeTableModel treeTableModel) {
     	super();
+        
+        Core.frostSettings.addPropertyChangeListener(this);
 
     	// Creates the tree. It will be used as a renderer and editor. 
     	tree = new TreeTableCellRenderer(treeTableModel);
@@ -925,6 +928,12 @@ public class MessageTreeTable extends JTable {
         // add the columns in order loaded from settings
         for(int x=0; x < tableToModelIndex.length; x++) {
             tcm.addColumn(tcms[tableToModelIndex[x]]);
+        }
+    }
+    
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (evt.getPropertyName().equals(SettingsClass.SHOW_COLORED_ROWS)) {
+            showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
         }
     }
 }
