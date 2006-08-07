@@ -22,6 +22,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.sql.*;
 import java.util.*;
+import java.util.List;
 import java.util.logging.*;
 
 import javax.swing.*;
@@ -309,10 +310,10 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
             int messageCount = 0;
             int fileCount = 0;
             int boardCount = 0;
-            Vector boards = ((TofTreeModel) tofTree.getModel()).getAllBoards();
-            for( int i = 0; i < boards.size(); i++ )
+            List boards = ((TofTreeModel) tofTree.getModel()).getAllBoards();
+            for( Iterator i=boards.iterator(); i.hasNext();  )
             {
-                Board board = (Board)boards.elementAt(i);
+                Board board = (Board)i.next();
 
                 BoardInfoTableMember newRow = new BoardInfoTableMember(board);
                 fillInBoardCounts(board, newRow);
@@ -349,10 +350,10 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
      */
     private void updateAllBoardsButton_actionPerformed(ActionEvent e)
     {
-        Vector boards = ((TofTreeModel) tofTree.getModel()).getAllBoards();
-        for( int i = 0; i < boards.size(); i++ )
+        List boards = ((TofTreeModel) tofTree.getModel()).getAllBoards();
+        for( Iterator i=boards.iterator(); i.hasNext();  )
         {
-            Board board = (Board)boards.elementAt(i);
+            Board board = (Board)i.next();
             if( tofTree.isUpdateAllowed(board) == true ) // is update allowed for this board?
             {
                 tofTree.updateBoard(board);

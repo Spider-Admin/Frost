@@ -24,6 +24,7 @@ import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 import java.util.logging.*;
 
 import javax.swing.*;
@@ -980,7 +981,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
      * @param boards
      * @return
      */
-    public Board selectNextBoard(Vector boards) {
+    public Board selectNextBoard(List boards) {
         Collections.sort(boards, lastUpdateStartMillisCmp);
         // now first board in list should be the one with latest update of all
         Board board;
@@ -993,8 +994,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         // min -> ms
         long minUpdateIntervalMillis = minUpdateInterval * 60 * 1000;
 
-        for (int i = 0; i < boards.size(); i++) {
-            board = (Board) boards.get(i);
+        for (Iterator i=boards.iterator(); i.hasNext(); ) {
+            board = (Board)i.next();
             if (nextBoard == null
                 && doUpdate(board)
                 && (curTime - minUpdateIntervalMillis) > board.getLastUpdateStartMillis()
@@ -1054,7 +1055,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
            isAutomaticBoardUpdateEnabled() &&
            info.getDownloadingBoardCount() < frostSettings.getIntValue("automaticUpdate.concurrentBoardUpdates"))
         {
-            Vector boards = tofTreeModel.getAllBoards();
+            List boards = tofTreeModel.getAllBoards();
             if (boards.size() > 0) {
                 Board actualBoard = selectNextBoard(boards);
                 if (actualBoard != null) {
