@@ -78,9 +78,13 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
     private boolean checkSignedOnly;
 
     private boolean checkShowDeletedMessages;
+    private boolean showColoredRows;
+    private boolean showSmileys;
+    private boolean showHyperlinks;
 
     private JPanel contentAreaPanel = null;
     private DisplayPanel displayPanel = null;
+    private SkinPanel skinPanel = null;
     private DownloadPanel downloadPanel = null;
 
     boolean exitState;
@@ -136,9 +140,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
     private void cancel() {
         exitState = false;
 
-        if (displayPanel != null) {
-            //If the display panel has been used, undo any possible skin preview
-            displayPanel.cancel();
+        if (skinPanel != null) {
+            //If the skin panel has been used, undo any possible skin preview
+            skinPanel.cancel();
         }
 
         dispose();
@@ -223,6 +227,13 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         }
         return displayPanel;
     }
+    
+    private SkinPanel getSkinPanel() {
+        if( skinPanel == null ) {
+            skinPanel = new SkinPanel(this, frostSettings);
+        }
+        return skinPanel;
+    }
 
     /**
      * Build the download panel.
@@ -302,6 +313,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
             listData.add( new ListBoxData(" "+language.getString("Options.expiration")+" ", getExpirationPanel()));
             listData.add( new ListBoxData(" "+language.getString("Options.search")+" ", getSearchPanel()));
             listData.add( new ListBoxData(" "+language.getString("Options.display")+" ", getDisplayPanel()));
+            listData.add( new ListBoxData(" "+language.getString("Options.skins")+" ", getSkinPanel()));
             listData.add( new ListBoxData(" "+language.getString("Options.miscellaneous")+" ", getMiscPanel()));
             optionsGroupsList = new JList(listData);
             optionsGroupsList.setSelectionMode(DefaultListSelectionModel.SINGLE_INTERVAL_SELECTION);
@@ -392,6 +404,10 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         if (displayPanel != null) {
             //If the display panel has been used, commit its changes
             displayPanel.ok();
+        }
+        
+        if( skinPanel != null ) {
+            skinPanel.ok();
         }
 
         if (downloadPanel != null) {
@@ -491,7 +507,11 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
             || checkHideObserveMessages != frostSettings.getBoolValue(SettingsClass.HIDE_MESSAGES_OBSERVE)
             || checkBlock != frostSettings.getBoolValue("blockMessageChecked")
             || checkBlockBody != frostSettings.getBoolValue("blockMessageBodyChecked")
-            || checkShowDeletedMessages != frostSettings.getBoolValue("showDeletedMessages"))
+            || checkShowDeletedMessages != frostSettings.getBoolValue("showDeletedMessages")
+            || showColoredRows != frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS)
+            || showSmileys != frostSettings.getBoolValue(SettingsClass.SHOW_SMILEYS)
+            || showHyperlinks != frostSettings.getBoolValue(SettingsClass.SHOW_KEYS_AS_HYPERLINKS)
+          )
         {
             // at least one setting changed, reload messages
             shouldReloadMessages = true;
@@ -515,6 +535,10 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         checkBlock = frostSettings.getBoolValue("blockMessageChecked");
         checkBlockBody = frostSettings.getBoolValue("blockMessageBodyChecked");
         checkShowDeletedMessages = frostSettings.getBoolValue("showDeletedMessages");
+        
+        showColoredRows = frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
+        showSmileys = frostSettings.getBoolValue(SettingsClass.SHOW_SMILEYS);
+        showHyperlinks = frostSettings.getBoolValue(SettingsClass.SHOW_KEYS_AS_HYPERLINKS);
     }
 
     /**

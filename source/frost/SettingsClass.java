@@ -83,6 +83,10 @@ public class SettingsClass implements Savable {
 
     public static final String SHOW_THREADS = "MessagePanel.showThreads";
 
+    public static final String SHOW_COLORED_ROWS = "showColoredRows";
+    public static final String SHOW_SMILEYS = "showSmileys";
+    public static final String SHOW_KEYS_AS_HYPERLINKS = "showKeysAsHyperlinks";
+
     //Constructors
     public SettingsClass() {
         settingsHash = new Hashtable();
@@ -690,6 +694,12 @@ public class SettingsClass implements Savable {
 
         defaults.put("oneTimeUpdate.convertSigs.didRun", "false");
         defaults.put("oneTimeUpdate.repairIdentities.didRun", "false");
+        
+        defaults.put(SHOW_THREADS, "true");
+        
+        defaults.put(SHOW_COLORED_ROWS, "true");
+        defaults.put(SHOW_SMILEYS, "true");
+        defaults.put(SHOW_KEYS_AS_HYPERLINKS, "true");
 
         settingsHash.putAll(defaults);
     }

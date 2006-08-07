@@ -16,7 +16,7 @@
  along with this program; if not, write to the Free Software
  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.util.gui;
+package frost.gui.preferences;
 
 import java.awt.*;
 import java.awt.Window;
@@ -30,6 +30,7 @@ import javax.swing.event.*;
 
 import com.l2fprod.gui.plaf.skin.*;
 
+import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
 /**
