@@ -70,6 +70,8 @@ public class SettingsClass implements Savable {
 
     public static final String MSGTABLE_MULTILINE_SELECT = "messageTableMultilineSelect";
     public static final String SHOW_BOARDDESC_TOOLTIPS = "showBoardDescriptionTooltips";
+    public static final String SHOW_BOARD_UPDATED_COUNT = "showBoardUpdatedCount";
+    public static final String SHOW_BOARD_UPDATE_VISUALIZATION = "boardUpdateVisualization";
     
     public static final String HIDE_MESSAGES_OBSERVE = "hideObserveMessages";
     public static final String HIDE_MESSAGES_CHECK = "hideCheckMessages";

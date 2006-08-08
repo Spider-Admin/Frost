@@ -520,6 +520,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             messageTable.getSelectionModel().addListSelectionListener(listener);
             messageListScrollPane = new JScrollPane(messageTable);
             messageListScrollPane.setWheelScrollingEnabled(true);
+            messageListScrollPane.getViewport().setBackground(messageTable.getBackground());
 
             messageTextPane = new MessageTextPane(mainFrame);
 

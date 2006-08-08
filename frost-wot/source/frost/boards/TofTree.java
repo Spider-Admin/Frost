@@ -48,6 +48,8 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
     private static final String FREENET_07_FROST_ANNOUNCE_PUBKEY = "SSK@ub2QMcPy4jmtmqyEIML0cDdbbSTFGBgX3jEYLGoN9lg,IUYrv~GBW0~dn6k3orf9CRKUBz9CLZSA6wGrax73BCk,AQABAAE";
     
     private boolean showBoardDescriptionToolTips;
+    private boolean showBoardUpdatedCount;
+    private boolean showBoardUpdateVisualization;
 
     private class PopupMenuTofTree
         extends JSkinnablePopupMenu
@@ -465,15 +467,30 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
                 // set the special text (board name + if new msg. a ' (2)' is appended and bold)
                 if (containsNewMessage) {
                     setFont(boldFont);
-                    setText(board.getName() + " (" + board.getNewMessageCount() + ")");
+                    if( showBoardUpdatedCount ) {
+                        StringBuffer sb = new StringBuffer();
+                        sb.append(board.getName()).append(" (").append(board.getNewMessageCount()).append(") [");
+                        sb.append(board.getTimesUpdatedCount()).append("]");
+                        setText(sb.toString());
+                    } else {
+                        StringBuffer sb = new StringBuffer();
+                        sb.append(board.getName()).append(" (").append(board.getNewMessageCount()).append(")");
+                        setText(sb.toString());
+                    }
                 } else {
                     setFont(normalFont);
-                    setText(board.getName());
+                    if( showBoardUpdatedCount ) {
+                        StringBuffer sb = new StringBuffer();
+                        sb.append(board.getName()).append(" [").append(board.getTimesUpdatedCount()).append("]");
+                        setText(sb.toString());
+                    } else {
+                        setText(board.getName());
+                    }
                 }
             }
 
             // maybe update visualization
-            if (settings.getBoolValue("boardUpdateVisualization") && board.isUpdating() == true) {
+            if (showBoardUpdateVisualization && board.isUpdating() == true) {
                 // set special updating colors
                 Color c;
                 c = (Color) settings.getObjectValue("boardUpdatingNonSelectedBackgroundColor");
@@ -557,6 +574,8 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         super(model);
         this.model = model;
         showBoardDescriptionToolTips = Core.frostSettings.getBoolValue(SettingsClass.SHOW_BOARDDESC_TOOLTIPS);
+        showBoardUpdatedCount = Core.frostSettings.getBoolValue(SettingsClass.SHOW_BOARD_UPDATED_COUNT);
+        showBoardUpdateVisualization = Core.frostSettings.getBoolValue(SettingsClass.SHOW_BOARD_UPDATE_VISUALIZATION);
     }
 
     private PopupMenuTofTree getPopupMenuTofTree() {
@@ -573,6 +592,8 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         language.addLanguageListener(listener);
         
         Core.frostSettings.addPropertyChangeListener(SettingsClass.SHOW_BOARDDESC_TOOLTIPS, this);
+        Core.frostSettings.addPropertyChangeListener(SettingsClass.SHOW_BOARD_UPDATED_COUNT, this);
+        Core.frostSettings.addPropertyChangeListener(SettingsClass.SHOW_BOARD_UPDATE_VISUALIZATION, this);
 
         MiscToolkit toolkit = MiscToolkit.getInstance();
         cutBoardButton.setIcon(new ImageIcon(getClass().getResource("/data/cut.gif")));
@@ -1098,6 +1119,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         // if there was a new thread started, update the lastUpdateStartTimeMillis
         if (threadStarted == true) {
             board.setLastUpdateStartMillis(System.currentTimeMillis());
+            board.incTimesUpdatedCount();
         }
     }
 
@@ -1128,6 +1150,12 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
     public void propertyChange(PropertyChangeEvent evt) {
         if (evt.getPropertyName().equals(SettingsClass.SHOW_BOARDDESC_TOOLTIPS)) {
             showBoardDescriptionToolTips = Core.frostSettings.getBoolValue(SettingsClass.SHOW_BOARDDESC_TOOLTIPS);
+        } else if (evt.getPropertyName().equals(SettingsClass.SHOW_BOARD_UPDATED_COUNT)) {
+            showBoardUpdatedCount = Core.frostSettings.getBoolValue(SettingsClass.SHOW_BOARD_UPDATED_COUNT);
+            updateTree(); // redraw tree nodes
+        } else if (evt.getPropertyName().equals(SettingsClass.SHOW_BOARD_UPDATE_VISUALIZATION)) {
+            showBoardUpdateVisualization = Core.frostSettings.getBoolValue(SettingsClass.SHOW_BOARD_UPDATE_VISUALIZATION);
+            updateTree(); // redraw tree nodes
         }
     }
 }
