@@ -491,8 +491,28 @@ public class TOF {
                     }
                 }
                 
-                // FIXME: finally, remove blocked msgs from the leafs!
-                
+                // finally, remove blocked msgs from the leafs!
+                LinkedList itemsToRemove = new LinkedList(); 
+                while(true) {
+                    for(Enumeration e=rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
+                        FrostMessageObject mo = (FrostMessageObject)e.nextElement();
+                        if( mo.isLeaf() && mo != rootNode ) {
+                            if( mo.isDummy() || blocked(mo, mo.getBoard()) ) {
+                                itemsToRemove.add(mo);
+                            }
+                        }
+                    }
+                    if( itemsToRemove.size() > 0 ) {
+                        for( Iterator iter = itemsToRemove.iterator(); iter.hasNext(); ) {
+                            FrostMessageObject removeMo = (FrostMessageObject) iter.next();
+                            removeMo.removeFromParent();
+                        }
+                        itemsToRemove.clear(); // clear for next run
+                    } else {
+                        // no more blocked leafs
+                        break;
+                    }
+                }
             }
         }
 
