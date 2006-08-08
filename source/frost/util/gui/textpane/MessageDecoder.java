@@ -181,9 +181,21 @@ public class MessageDecoder extends Decoder implements FreenetKeys, Smileys, Mes
 	}
 
 	private Icon getSmiley(int i) {
-        // FIXME: cache icons
-		return new ImageIcon(getClass().getClassLoader().getResource("data/smileys/"+i+".gif"));		
+        return getCachedSmiley(i, getClass().getClassLoader());
 	}
+
+    protected static Hashtable smileyCache = new Hashtable();
+    
+    protected static synchronized ImageIcon getCachedSmiley(int i, ClassLoader cl) {
+        String si = ""+i;
+        ImageIcon ii = (ImageIcon)smileyCache.get(si);
+        if( ii == null ) {
+            // no classloader in static, we use classloader from smileyCache
+            ii = new ImageIcon(cl.getResource("data/smileys/"+i+".gif"));
+            smileyCache.put(si, ii);
+        }
+        return ii;
+    }
     
     public List getHyperlinkedKeys() {
         return hyperlinkedKeys;
