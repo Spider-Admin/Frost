@@ -58,6 +58,7 @@ class DisplayPanel extends JPanel {
     private JCheckBox messageBodyAACheckBox = new JCheckBox();
     private JCheckBox msgTableMultilineSelectCheckBox = new JCheckBox();
     private JCheckBox showBoardDescTooltipsCheckBox = new JCheckBox();
+    private JCheckBox showBoardUpdateCountCheckBox = new JCheckBox();
 
     private JCheckBox showColoredRowsCheckBox = new JCheckBox();
     private JCheckBox showSmileysCheckBox = new JCheckBox();
@@ -209,6 +210,9 @@ class DisplayPanel extends JPanel {
         constraints.insets = inset5511;
         constraints.gridy++;
         add(msgTableMultilineSelectCheckBox, constraints);
+        
+        constraints.gridy++;
+        add(showBoardUpdateCountCheckBox, constraints);
 
         constraints.gridy++;
         add(showBoardDescTooltipsCheckBox, constraints);
@@ -257,6 +261,7 @@ class DisplayPanel extends JPanel {
 
         messageBodyAACheckBox.setSelected(settings.getBoolValue("messageBodyAA"));
         msgTableMultilineSelectCheckBox.setSelected(settings.getBoolValue(SettingsClass.MSGTABLE_MULTILINE_SELECT));
+        showBoardUpdateCountCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_BOARD_UPDATED_COUNT));
         showBoardDescTooltipsCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_BOARDDESC_TOOLTIPS));
 
         showColoredRowsCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS));
@@ -306,6 +311,7 @@ class DisplayPanel extends JPanel {
         selectedFileListFontLabel.setText(getFontLabel(selectedFileListFont));
         messageBodyAACheckBox.setText(language.getString("Options.display.enableAntialiasingForMessageBody"));
         msgTableMultilineSelectCheckBox.setText(language.getString("Options.display.enableMultilineSelectionsInMessageTable"));
+        showBoardUpdateCountCheckBox.setText(language.getString("Options.display.showBoardUpdateCount"));
         showBoardDescTooltipsCheckBox.setText(language.getString("Options.display.showTooltipWithBoardDescriptionInBoardTree"));
         
         showColoredRowsCheckBox.setText(language.getString("Options.display.showColoredRows"));
@@ -334,6 +340,7 @@ class DisplayPanel extends JPanel {
         }
         settings.setValue("messageBodyAA", messageBodyAACheckBox.isSelected());
         settings.setValue(SettingsClass.MSGTABLE_MULTILINE_SELECT, msgTableMultilineSelectCheckBox.isSelected());
+        settings.setValue(SettingsClass.SHOW_BOARD_UPDATED_COUNT, showBoardUpdateCountCheckBox.isSelected());
         settings.setValue(SettingsClass.SHOW_BOARDDESC_TOOLTIPS, showBoardDescTooltipsCheckBox.isSelected());
         
         settings.setValue(SettingsClass.SHOW_COLORED_ROWS, showColoredRowsCheckBox.isSelected());

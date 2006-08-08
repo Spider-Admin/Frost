@@ -57,6 +57,8 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
     private Boolean showSignedOnly = null;
 
     private boolean spammed = false;
+    
+    private int timesUpdatedCount = 0;
 
     /**
      * Constructs a new FrostBoardObject wich is a Board.
@@ -137,11 +139,12 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
         }
     }
 
-    /**
-     *
-     */
     public void decNewMessageCount() {
         newMessageCount--;
+    }
+    
+    public void incTimesUpdatedCount() {
+        timesUpdatedCount++;
     }
 
     /**
@@ -266,6 +269,10 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
      */
     public int getNewMessageCount() {
         return newMessageCount;
+    }
+    
+    public int getTimesUpdatedCount() {
+        return timesUpdatedCount;
     }
 
     /**
