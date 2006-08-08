@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.logging.*;
 
 import javax.swing.*;
+import javax.swing.event.*;
 import javax.swing.table.*;
 import javax.swing.text.*;
 
@@ -38,6 +39,7 @@ import frost.gui.objects.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;
 import frost.util.gui.*;
+import frost.util.gui.textpane.*;
 import frost.util.gui.translation.*;
 
 public class MessageTextPane extends JPanel {
@@ -45,7 +47,7 @@ public class MessageTextPane extends JPanel {
     private Language language = Language.getInstance();
     private Logger logger = Logger.getLogger(MessageTextPane.class.getName());
 
-    private AntialiasedTextArea messageTextArea = null;
+    private AntialiasedTextPane messageTextArea = null;
     private JSplitPane messageSplitPane = null;
     private JSplitPane attachmentsSplitPane = null;
 
@@ -58,6 +60,7 @@ public class MessageTextPane extends JPanel {
 
     private PopupMenuAttachmentBoard popupMenuAttachmentBoard = null;
     private PopupMenuAttachmentFile popupMenuAttachmentTable = null;
+    private PopupMenuHyperLink popupMenuHyperLink = null;
     private PopupMenuTofText popupMenuTofText = null;
 
     private FrostMessageObject selectedMessage;
@@ -72,7 +75,9 @@ public class MessageTextPane extends JPanel {
     private SearchMessagesConfig searchMessagesConfig = null;
     private TextHighlighter textHighlighter = null;
     private static Color highlightColor = new Color(0x20, 0xFF, 0x20); // light green
-    
+
+    private MouseEvent currentPosition = null;
+
     public MessageTextPane(Component parentFrame) {
         this(parentFrame, null);
     }
@@ -147,11 +152,14 @@ public class MessageTextPane extends JPanel {
 
         setLayout(new BorderLayout());
 
-        // simply and fast component
-        messageTextArea = new AntialiasedTextArea();
+        MessageDecoder decoder = new MessageDecoder();
+        decoder.setSmileyDecode(Core.frostSettings.getBoolValue(SettingsClass.SHOW_SMILEYS));
+        decoder.setFreenetKeysDecode(Core.frostSettings.getBoolValue(SettingsClass.SHOW_KEYS_AS_HYPERLINKS));
+        messageTextArea = new AntialiasedTextPane(decoder);
         messageTextArea.setEditable(false);
-        messageTextArea.setLineWrap(true);
-        messageTextArea.setWrapStyleWord(true);
+//        messageTextArea.setLineWrap(true);
+//        messageTextArea.setWrapStyleWord(true);
+        
         messageTextArea.setAntiAliasEnabled(Core.frostSettings.getBoolValue("messageBodyAA"));
 
         JScrollPane messageBodyScrollPane = new JScrollPane(messageTextArea);
@@ -251,6 +259,22 @@ public class MessageTextPane extends JPanel {
                 }
             }
         });
+        messageTextArea.addMouseMotionListener(new MouseMotionAdapter() {
+            public void mouseMoved(MouseEvent e) {
+                currentPosition = e;
+            }
+        });
+        messageTextArea.addHyperlinkListener(new HyperlinkListener() {
+            public void hyperlinkUpdate(HyperlinkEvent e) {
+                if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
+                    // user clicked on 'clickedKey', List 'allKeys' contains all keys
+                    List allKeys = ((MessageDecoder)messageTextArea.getDecoder()).getHyperlinkedKeys();
+                    String clickedKey = e.getDescription();
+                    // show menu to download this/all keys and copy this/all to clipboard
+                    showHyperLinkPopupMenu(e, clickedKey, allKeys, currentPosition.getPoint().x, currentPosition.getPoint().y);
+                }
+            }
+        });
         filesTable.addMouseListener(new MouseAdapter() {
             public void mousePressed(MouseEvent e) {
                 if (e.isPopupTrigger()) {
@@ -286,6 +310,12 @@ public class MessageTextPane extends JPanel {
                     fontChanged();
                 } else if (evt.getPropertyName().equals(SettingsClass.MESSAGE_BODY_FONT_STYLE)) {
                     fontChanged();
+                } else if (evt.getPropertyName().equals(SettingsClass.SHOW_SMILEYS)) {
+                    ((MessageDecoder)messageTextArea.getDecoder()).setSmileyDecode(Core.frostSettings.getBoolValue(SettingsClass.SHOW_SMILEYS));
+                    messageTextArea.setText(messageTextArea.getText());
+                } else if (evt.getPropertyName().equals(SettingsClass.SHOW_KEYS_AS_HYPERLINKS)) {
+                    ((MessageDecoder)messageTextArea.getDecoder()).setFreenetKeysDecode(Core.frostSettings.getBoolValue(SettingsClass.SHOW_KEYS_AS_HYPERLINKS));
+                    messageTextArea.setText(messageTextArea.getText());
                 }
             }
         };
@@ -293,6 +323,8 @@ public class MessageTextPane extends JPanel {
         Core.frostSettings.addPropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_SIZE, propertyChangeListener);
         Core.frostSettings.addPropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_STYLE, propertyChangeListener);
         Core.frostSettings.addPropertyChangeListener("messageBodyAA", propertyChangeListener);
+        Core.frostSettings.addPropertyChangeListener(SettingsClass.SHOW_SMILEYS, propertyChangeListener);
+        Core.frostSettings.addPropertyChangeListener(SettingsClass.SHOW_KEYS_AS_HYPERLINKS, propertyChangeListener);
     }
 
     private void fontChanged() {
@@ -443,6 +475,17 @@ public class MessageTextPane extends JPanel {
         popupMenuAttachmentTable.show(e.getComponent(), e.getX(), e.getY());
     }
 
+    private void showHyperLinkPopupMenu(HyperlinkEvent e, String clickedKey, List allKeys, int x, int y) {
+        if (popupMenuHyperLink == null) {
+            popupMenuHyperLink = new PopupMenuHyperLink();
+            language.addLanguageListener(popupMenuHyperLink);
+        }
+        popupMenuHyperLink.setClickedKey(clickedKey);
+        popupMenuHyperLink.setAllKeys(allKeys);
+        
+        popupMenuHyperLink.show(messageTextArea, x, y);
+    }
+
     private void showTofTextAreaPopupMenu(MouseEvent e) {
         if (popupMenuTofText == null) {
             popupMenuTofText = new PopupMenuTofText(messageTextArea);
@@ -525,12 +568,12 @@ public class MessageTextPane extends JPanel {
         private String fileMessage;
         private String keyMessage;
         private String bytesMessage;
-
+        
         public PopupMenuAttachmentFile() throws HeadlessException {
             super();
             initialize();
         }
-
+        
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() == saveAttachmentsItem || e.getSource() == saveAttachmentItem) {
                 downloadAttachments();
@@ -600,30 +643,14 @@ public class MessageTextPane extends JPanel {
          * Adds either the selected or all files from the attachmentTable to downloads table.
          */
         private void downloadAttachments() {
-            int[] selectedRows = filesTable.getSelectedRows();
-
-            // If no rows are selected, add all attachments to download table
-            if (selectedRows.length == 0) {
-                Iterator it = selectedMessage.getAttachmentsOfType(Attachment.FILE).iterator();
-                while (it.hasNext()) {
-                    FileAttachment fa = (FileAttachment) it.next();
-                    FrostDownloadItem dlItem = new FrostDownloadItem(
-                            fa.getFilename(), 
-                            fa.getKey(), 
-                            fa.getSize()); 
-                    downloadModel.addDownloadItem(dlItem);
-                }
-
-            } else {
-                LinkedList attachments = selectedMessage.getAttachmentsOfType(Attachment.FILE);
-                for (int i = 0; i < selectedRows.length; i++) {
-                    FileAttachment fa = (FileAttachment) attachments.get(selectedRows[i]);
-                    FrostDownloadItem dlItem = new FrostDownloadItem(
-                            fa.getFilename(), 
-                            fa.getKey(), 
-                            fa.getSize()); 
-                    downloadModel.addDownloadItem(dlItem);
-                }
+            Iterator it = getItems().iterator();
+            while (it.hasNext()) {
+                FileAttachment fa = (FileAttachment) it.next();
+                FrostDownloadItem dlItem = new FrostDownloadItem(
+                        fa.getFilename(), 
+                        fa.getKey(), 
+                        fa.getSize()); 
+                downloadModel.addDownloadItem(dlItem);
             }
         }
 
@@ -638,7 +665,7 @@ public class MessageTextPane extends JPanel {
                 items = selectedMessage.getAttachmentsOfType(Attachment.FILE);
             } else {
                 LinkedList attachments = selectedMessage.getAttachmentsOfType(Attachment.FILE);
-                items = new ArrayList();
+                items = new LinkedList();
                 for (int i = 0; i < selectedRows.length; i++) {
                     FileAttachment fo = (FileAttachment) attachments.get(selectedRows[i]);
                     items.add(fo);
@@ -720,6 +747,173 @@ public class MessageTextPane extends JPanel {
             getClipboard().setContents(selection, this);
         }
 
+        private Clipboard getClipboard() {
+            if (clipboard == null) {
+                clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            }
+            return clipboard;
+        }
+
+        public void lostOwnership(Clipboard tclipboard, Transferable contents) {
+            // Nothing here
+        }
+    }
+
+    private class PopupMenuHyperLink 
+    extends JSkinnablePopupMenu
+    implements ActionListener, LanguageListener, ClipboardOwner {
+
+        private JMenuItem cancelItem = new JMenuItem();
+
+        private JMenuItem copyKeyOnlyToClipboard = new JMenuItem();
+        
+        private JMenuItem copyFreesiteLinkToClipboard = new JMenuItem();
+        
+        private JMenuItem copyFileLinkToClipboard = new JMenuItem();
+        private JMenuItem copyAllFileLinksToClipboard = new JMenuItem();
+
+        private JMenuItem downloadFile = new JMenuItem();
+        private JMenuItem downloadAllFiles = new JMenuItem();
+        
+        private Clipboard clipboard;
+    
+        private String clickedKey = null;
+        private List allKeys = null;
+        
+        public PopupMenuHyperLink() throws HeadlessException {
+            super();
+            initialize();
+        }
+        
+        public void setClickedKey(String s) {
+            clickedKey = s;
+        }
+        public void setAllKeys(List l) {
+            allKeys = l;
+        }
+        
+        public void actionPerformed(ActionEvent e) {
+            if( e.getSource() == copyKeyOnlyToClipboard ) {
+                copyToClipboard(false);
+            } else if( e.getSource() == copyFreesiteLinkToClipboard ) {
+                copyToClipboard(false);
+            } else if( e.getSource() == copyFileLinkToClipboard ) {
+                copyToClipboard(false);
+            } else if( e.getSource() == copyAllFileLinksToClipboard ) {
+                copyToClipboard(true);
+            } else if( e.getSource() == downloadFile ) {
+                downloadItems(false);
+            } else if( e.getSource() == downloadAllFiles ) {
+                downloadItems(true);
+            }
+        }
+    
+        private void initialize() {
+            languageChanged(null);
+            
+            copyKeyOnlyToClipboard.addActionListener(this);
+            copyFreesiteLinkToClipboard.addActionListener(this);
+            copyFileLinkToClipboard.addActionListener(this);
+            copyAllFileLinksToClipboard.addActionListener(this);
+            downloadFile.addActionListener(this);
+            downloadAllFiles.addActionListener(this);
+        }
+    
+        public void languageChanged(LanguageEvent event) {
+            copyKeyOnlyToClipboard.setText(language.getString("MessagePane.hyperlink.popupmenu.copyKeyToClipboard"));
+            copyFreesiteLinkToClipboard.setText(language.getString("MessagePane.hyperlink.popupmenu.copyFreesiteLinkToClipboard"));
+            copyFileLinkToClipboard.setText(language.getString("MessagePane.hyperlink.popupmenu.copyFileKeyToClipboard"));
+            copyAllFileLinksToClipboard.setText(language.getString("MessagePane.hyperlink.popupmenu.copyAllFileKeysToClipboard"));
+            downloadFile.setText(language.getString("MessagePane.hyperlink.popupmenu.downloadFileKey"));
+            downloadAllFiles.setText(language.getString("MessagePane.hyperlink.popupmenu.downloadAllFileKeys"));
+
+            cancelItem.setText(language.getString("Common.cancel"));
+        }
+    
+        public void show(Component invoker, int x, int y) {
+            removeAll();
+            
+            // if clickedLink conatins no '/', its only a key without file, allow to copy this to clipboard only
+            // if clickedLink ends with a '/' its a freesite link, allow to copy this to clipboard only
+            // else the clickedLink is a filelink, allow to copy/download this link or ALL filelinks
+            
+            if( clickedKey.indexOf("/") < 0 ) {
+                // key only
+                add(copyKeyOnlyToClipboard);
+            } else if( clickedKey.endsWith("/") ) {
+                // freesite link
+                add(copyFreesiteLinkToClipboard);
+            } else {
+                // file key
+                add(copyFileLinkToClipboard);
+                if( allKeys.size() > 1 ) {
+                    add(copyAllFileLinksToClipboard);
+                }
+                addSeparator();
+                add(downloadFile);
+                if( allKeys.size() > 1 ) {
+                    add(downloadAllFiles);
+                }
+            }
+    
+            addSeparator();
+            add(cancelItem);
+    
+            super.show(invoker, x, y);
+        }
+    
+        /**
+         * Adds either the selected or all files from the attachmentTable to downloads table.
+         */
+        private void downloadItems(boolean getAll) {
+
+            List items = getItems(getAll);
+            if( items == null ) {
+                return;
+            }
+
+            Iterator it = items.iterator();
+            while (it.hasNext()) {
+                String item = (String)it.next();
+                String key = item.substring(0, item.indexOf("/") );
+                String name = item.substring(item.indexOf("/")+1);
+                FrostDownloadItem dlItem = new FrostDownloadItem(name, key, null); 
+                downloadModel.addDownloadItem(dlItem);
+            }
+        }
+        
+        private List getItems(boolean getAll) {
+            List items; 
+            if( getAll ) {
+                items = allKeys;
+            } else {
+                items = Collections.singletonList(clickedKey);
+            }
+            if( items == null || items.size() == 0 ) {
+                return null;
+            }
+            return items;
+        }
+    
+        /**
+         * This method copies the CHK keys and file names of the selected or all items to the clipboard.
+         */
+        private void copyToClipboard(boolean getAll) {
+
+            List items = getItems(getAll);
+            if( items == null ) {
+                return;
+            }
+            
+            StringBuffer textToCopy = new StringBuffer();
+            for(Iterator i = items.iterator(); i.hasNext(); ) {
+                String key = (String)i.next();
+                textToCopy.append(key).append("\n");
+            }
+            StringSelection selection = new StringSelection(textToCopy.toString());
+            getClipboard().setContents(selection, this);
+        }
+    
         private Clipboard getClipboard() {
             if (clipboard == null) {
                 clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();

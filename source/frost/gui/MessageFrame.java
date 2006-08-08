@@ -38,6 +38,7 @@ import frost.gui.objects.*;
 import frost.identities.*;
 import frost.messages.*;
 import frost.util.gui.*;
+import frost.util.gui.textpane.*;
 import frost.util.gui.translation.*;
 
 public class MessageFrame extends JFrame {

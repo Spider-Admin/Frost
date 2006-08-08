@@ -22,7 +22,6 @@ import java.sql.*;
 import java.util.*;
 
 import frost.storage.database.*;
-import frost.threads.*;
 
 public class TransferLayerDatabase extends Database {
     

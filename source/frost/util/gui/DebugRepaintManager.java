@@ -48,9 +48,6 @@ public class DebugRepaintManager extends RepaintManager {
 		checkThread();
 		super.addInvalidComponent(invalidComponent);
 	}
-	/**
-	 * 
-	 */
 	private void checkThread() {
 		 if (!SwingUtilities.isEventDispatchThread()) {
             System.out.println("Wrong Thread");

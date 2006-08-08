@@ -23,12 +23,6 @@ import java.awt.Component;
 import javax.swing.*;
 import javax.swing.table.*;
 
-/**
- * @author Administrator
- *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
- */
 public class BooleanCell {
 
 	/**
@@ -36,9 +30,6 @@ public class BooleanCell {
 	 */
 	private static class Editor extends DefaultCellEditor implements TableCellEditor {
 
-		/**
-		 * 
-		 */
 		public Editor() {
 			super(new JCheckBox());
 			JCheckBox checkBox = (JCheckBox) getComponent();
@@ -51,9 +42,6 @@ public class BooleanCell {
 	 */
 	private static class Renderer extends JCheckBox implements TableCellRenderer {
 
-		/**
-		 * 
-		 */
 		public Renderer() {
 			super();
 			setHorizontalAlignment(JLabel.CENTER);	
@@ -86,11 +74,7 @@ public class BooleanCell {
 	public static Renderer RENDERER = new Renderer();
 	public static Editor EDITOR = new Editor();
 	
-	/**
-	 * 
-	 */
 	public BooleanCell() {
 		super();
 	}
-
 }
