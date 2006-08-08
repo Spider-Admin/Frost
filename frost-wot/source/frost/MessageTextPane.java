@@ -76,8 +76,6 @@ public class MessageTextPane extends JPanel {
     private TextHighlighter textHighlighter = null;
     private static Color highlightColor = new Color(0x20, 0xFF, 0x20); // light green
 
-    private MouseEvent currentPosition = null;
-
     public MessageTextPane(Component parentFrame) {
         this(parentFrame, null);
     }
@@ -259,19 +257,24 @@ public class MessageTextPane extends JPanel {
                 }
             }
         });
-        messageTextArea.addMouseMotionListener(new MouseMotionAdapter() {
-            public void mouseMoved(MouseEvent e) {
-                currentPosition = e;
-            }
-        });
         messageTextArea.addHyperlinkListener(new HyperlinkListener() {
-            public void hyperlinkUpdate(HyperlinkEvent e) {
+            public void hyperlinkUpdate(HyperlinkEvent evt) {
+                if( !(evt instanceof MouseHyperlinkEvent) ) {
+                    System.out.println("INTERNAL ERROR, hyperlinkevent is wrong object!");
+                    return;
+                }
+                MouseHyperlinkEvent e = (MouseHyperlinkEvent) evt;
                 if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
                     // user clicked on 'clickedKey', List 'allKeys' contains all keys
                     List allKeys = ((MessageDecoder)messageTextArea.getDecoder()).getHyperlinkedKeys();
                     String clickedKey = e.getDescription();
                     // show menu to download this/all keys and copy this/all to clipboard
-                    showHyperLinkPopupMenu(e, clickedKey, allKeys, currentPosition.getPoint().x, currentPosition.getPoint().y);
+                    showHyperLinkPopupMenu(
+                            e, 
+                            clickedKey, 
+                            allKeys, 
+                            e.getMouseEvent().getX(), 
+                            e.getMouseEvent().getY());
                 }
             }
         });
