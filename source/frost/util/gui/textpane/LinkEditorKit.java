@@ -47,7 +47,6 @@ public class LinkEditorKit extends StyledEditorKit {
 	private static MouseInputListener linkHandler = new LinkHandler();
 	
 	public LinkEditorKit() {
-
 	}
 	
 	/**
@@ -91,8 +90,8 @@ public class LinkEditorKit extends StyledEditorKit {
 		 * Used for memory active element
 		 */
 		public void mousePressed(MouseEvent e) {
-			if (!javax.swing.SwingUtilities.isLeftMouseButton(e))
-				return;
+//			if (!javax.swing.SwingUtilities.isLeftMouseButton(e))
+//				return;
 			JEditorPane p = (JEditorPane)e.getComponent();
 			if (p.isEditable())
 				return;
@@ -102,18 +101,28 @@ public class LinkEditorKit extends StyledEditorKit {
 		}
 		
 		/**
-		 * Used for send HyperLinkEvent
+		 * Used for send HyperLinkEvent.
 		 */
 		public void mouseReleased(MouseEvent e)	{
-			if (!javax.swing.SwingUtilities.isLeftMouseButton(e) || activeElement == null)
-				return;
+//			if (!javax.swing.SwingUtilities.isLeftMouseButton(e) || activeElement == null) {
+//                return;
+//            }
+            if (activeElement == null) {
+                return;
+            }
 			JEditorPane p = (JEditorPane)e.getComponent();
 			Element c = characterElementAt(e);
 			if (!p.isEditable() && c == activeElement) { //	too restrictive, should find attribute run
 				activeElement = null;
 				Object target = c.getAttributes().getAttribute(LINK);
-                // TODO: maybe use own event to provide Point to receiver. Currently MessageTextPane uses own MouseMotionlistener for this!
-                HyperlinkEvent evt = new HyperlinkEvent(p, HyperlinkEvent.EventType.ACTIVATED, null, target.toString(), c);
+                // use own event to provide MouseEvent to receiver
+                MouseHyperlinkEvent evt = new MouseHyperlinkEvent(
+                        p, 
+                        HyperlinkEvent.EventType.ACTIVATED, 
+                        null, 
+                        target.toString(), 
+                        c,
+                        e);
 				p.fireHyperlinkUpdate(evt);
 			}
 		}
