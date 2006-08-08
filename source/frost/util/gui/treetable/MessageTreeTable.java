@@ -87,18 +87,11 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     	// Installs a tableModel representing the visible rows in the tree. 
     	super.setModel(new TreeTableModelAdapter(treeTableModel, tree));
 
-//        // set initial column sizes
-//        int[] widths = { 40, 30, 10, 20 };
-//        for (int i = 0; i < widths.length; i++) {
-//            getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
-//        }
-
     	// Forces the JTable and JTree to share their row selection models. 
     	ListToTreeSelectionModelWrapper selectionWrapper = new ListToTreeSelectionModelWrapper();
     	tree.setSelectionModel(selectionWrapper);
     	setSelectionModel(selectionWrapper.getListSelectionModel());
         
-//        tree.setRootVisible(false);
         tree.setRootVisible(false);
         tree.setShowsRootHandles(true);
     
@@ -529,6 +522,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     private class MyCheckBox extends JCheckBox {
         public MyCheckBox() {
             super("");
+            setHorizontalAlignment(JLabel.CENTER);  
         }
         public void paintComponent (Graphics g) {
             Dimension size = getSize();
@@ -537,11 +531,12 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             super.paintComponent(g);
         }
     }
-    
+
     private class BooleanCellRenderer extends JLabel implements TableCellRenderer {
         
         public BooleanCellRenderer() {
             super();
+            setHorizontalAlignment(JLabel.CENTER);  
         }
         
         public void paintComponent (Graphics g) {
@@ -606,31 +601,22 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
             Component c = super.getTableCellEditorComponent(table, value, isSelected, row, column);
             MyCheckBox cb = (MyCheckBox)c;
-            
-//            cb.setDisabledIcon(null);
-//            cb.setDisabledSelectedIcon(null);
-//            cb.setIcon(null);
-//            
-//            if( row == 0 ) {
-//                cb.setSelectedIcon(flaggedIcon);
-//            } else if( row == 1 ) {
-//                cb.setSelectedIcon(starredIcon);
-//            }
-            
-//            boolean val = ((Boolean)value).booleanValue();
-//            if( column == 0 ) {
-//                if( val ) {
-//                    cb.setIcon(flaggedIcon);
-//                } else {
-//                    cb.setIcon(null);
-//                }
-//            } else if( column == 1 ) {
-//                if( val ) {
-//                    cb.setIcon(starredIcon);
-//                } else {
-//                    cb.setIcon(null);
-//                }
-//            }
+
+            // get the original model column index (maybe columns were reordered by user)
+            TableColumn tableColumn = getColumnModel().getColumn(column);
+            column = tableColumn.getModelIndex();
+
+            if( column == 0 ) {
+                cb.setDisabledIcon(flaggedIcon);
+                cb.setDisabledSelectedIcon(flaggedIcon);
+                cb.setIcon(flaggedIcon);
+                cb.setSelectedIcon(flaggedIcon);
+            } else if( column == 1 ) {
+                cb.setDisabledIcon(starredIcon);
+                cb.setDisabledSelectedIcon(starredIcon);
+                cb.setIcon(starredIcon);
+                cb.setSelectedIcon(starredIcon);
+            }
             
             if (!isSelected) {
                 if( showColoredLines ) {
@@ -896,6 +882,15 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
      */
     public void loadLayout(SettingsClass frostSettings) {
         TableColumnModel tcm = getColumnModel();
+        
+        // hard set sizes of icons column
+        tcm.getColumn(0).setMinWidth(20);
+        tcm.getColumn(0).setMaxWidth(20);
+        tcm.getColumn(0).setPreferredWidth(20);
+        // hard set sizes of icons column
+        tcm.getColumn(1).setMinWidth(20);
+        tcm.getColumn(1).setMaxWidth(20);
+        tcm.getColumn(1).setPreferredWidth(20);
 
         // load the saved tableindex for each column in model, and its saved width
         int[] tableToModelIndex = new int[tcm.getColumnCount()];
@@ -930,8 +925,10 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         for(int x=tcms.length-1; x >= 0; x--) {
             tcms[x] = tcm.getColumn(x);
             tcm.removeColumn(tcms[x]);
-
-            tcms[x].setPreferredWidth(columnWidths[x]);
+            // keep icon columns 0,1 as is
+            if(x != 0 && x != 1) {
+                tcms[x].setPreferredWidth(columnWidths[x]);
+            }
         }
         // add the columns in order loaded from settings
         for(int x=0; x < tableToModelIndex.length; x++) {
