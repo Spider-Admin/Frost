@@ -856,10 +856,41 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             return false;
         }
         }
-    
+
+    /**
+     * Renderer to use an icon as table header
+     */
+    class IconTableHeaderRenderer extends JLabel implements TableCellRenderer {
+        public IconTableHeaderRenderer(ImageIcon i) {
+            setIcon(i);
+            setText("");
+            setHorizontalAlignment(JLabel.CENTER);
+        }
+
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+                boolean hasFocus, int row, int column) {
+            // Extract the original header renderer for this column.
+            TableCellRenderer tcr = table.getTableHeader().getDefaultRenderer();
+            // Extract the component used to render the column header.
+            Component c = tcr.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+            // Establish the font, foreground color, and border for the
+            // JLabel so that the rendered header will look the same as the
+            // other rendered headers.
+            setFont(c.getFont());
+            setForeground(c.getForeground());
+            setBorder(((JComponent)c).getBorder());
+
+            // Establish the column name.
+//            setText((String) value);
+
+            return this;
+        }
+    }
+
     /**
      * Save the current column positions and column sizes for restore on next startup.
-     *
+     * 
      * @param frostSettings
      */
     public void saveLayout(SettingsClass frostSettings) {
@@ -891,6 +922,10 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         tcm.getColumn(1).setMinWidth(20);
         tcm.getColumn(1).setMaxWidth(20);
         tcm.getColumn(1).setPreferredWidth(20);
+        
+        // set icon table header renderer for icon columns
+        tcm.getColumn(0).setHeaderRenderer(new IconTableHeaderRenderer(flaggedIcon));
+        tcm.getColumn(1).setHeaderRenderer(new IconTableHeaderRenderer(starredIcon));
 
         // load the saved tableindex for each column in model, and its saved width
         int[] tableToModelIndex = new int[tcm.getColumnCount()];
