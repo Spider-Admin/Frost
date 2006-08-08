@@ -1,6 +1,6 @@
 /*
- Savable.java / Frost
- Copyright (C) 2003  Frost Project <jtcfrost.sourceforge.net>
+ Decoder.java / Frost
+ Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License as
@@ -16,10 +16,21 @@
  along with this program; if not, write to the Free Software
  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.storage;
+package frost.util.gui.textpane;
 
-public interface Savable {
+import javax.swing.JEditorPane;
 
-	public void save() throws StorageException;
+/**
+ * Base class for Decoder
+ * @author ET
+ */
+public abstract class Decoder {
 
+	/**
+	 * Maybe override by subclass for decode String message.
+	 * Decode message and append to JEditorPane document.
+	 */
+	public void decode(String message, JEditorPane parent) {
+		
+	}
 }

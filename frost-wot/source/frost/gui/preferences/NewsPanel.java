@@ -19,14 +19,15 @@
 package frost.gui.preferences;
 
 import java.awt.*;
-import java.io.File;
-import java.util.logging.Logger;
+import java.io.*;
+import java.util.logging.*;
 
 import javax.swing.*;
 
 import frost.*;
 import frost.util.gui.*;
-import frost.util.gui.translation.Language;
+import frost.util.gui.textpane.*;
+import frost.util.gui.translation.*;
 
 class NewsPanel extends JPanel {
 

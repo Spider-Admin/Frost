@@ -79,8 +79,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 
     private boolean checkShowDeletedMessages;
     private boolean showColoredRows;
-    private boolean showSmileys;
-    private boolean showHyperlinks;
 
     private JPanel contentAreaPanel = null;
     private DisplayPanel displayPanel = null;
@@ -509,8 +507,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
             || checkBlockBody != frostSettings.getBoolValue("blockMessageBodyChecked")
             || checkShowDeletedMessages != frostSettings.getBoolValue("showDeletedMessages")
             || showColoredRows != frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS)
-            || showSmileys != frostSettings.getBoolValue(SettingsClass.SHOW_SMILEYS)
-            || showHyperlinks != frostSettings.getBoolValue(SettingsClass.SHOW_KEYS_AS_HYPERLINKS)
           )
         {
             // at least one setting changed, reload messages
@@ -537,8 +533,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         checkShowDeletedMessages = frostSettings.getBoolValue("showDeletedMessages");
         
         showColoredRows = frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
-        showSmileys = frostSettings.getBoolValue(SettingsClass.SHOW_SMILEYS);
-        showHyperlinks = frostSettings.getBoolValue(SettingsClass.SHOW_KEYS_AS_HYPERLINKS);
     }
 
     /**

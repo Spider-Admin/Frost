@@ -1,5 +1,5 @@
 /*
- SentMessageDatabaseTable.java / Frost
+ TextPane.java / Frost
  Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
 
  This program is free software; you can redistribute it and/or
@@ -16,23 +16,47 @@
  along with this program; if not, write to the Free Software
  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.storage.database.applayer;
+package frost.util.gui.textpane;
 
-/**
- * Uses the functionality of MessageDatabaseTable, but different table names.
- */
-public class SentMessageDatabaseTable extends MessageDatabaseTable {
+import javax.swing.JTextPane;
 
-    protected String getMessageTableName() {
-        return "SENTMESSAGES";
-    }
-    protected String getFileAttachmentsTableName() {
-        return "SENTFILEATTACHMENTS";
-    }
-    protected String getBoardAttachmentsTableName() {
-        return "SENTBOARDATTACHMENTS";
-    }
-    protected String getUniqueMsgConstraintName() {
-        return "SENTMSG_UNIQUE_ONLY";
-    }
+public class TextPane extends JTextPane {
+	
+	private Decoder decoder; 
+
+	public TextPane() {
+		super();
+		setEditable(false);
+	}
+    
+	public TextPane(Decoder decoder) {
+		this();
+		this.decoder = decoder;
+	}
+
+	public TextPane(String message, Decoder decoder) {
+		this(decoder);
+		setText(message);
+	}
+	
+	public TextPane(String message) {
+		this();
+		setText(message);
+	}
+	
+	public Decoder getDecoder() {
+		return decoder;
+	}
+
+	public void setDecoder(Decoder decoder) {
+		this.decoder = decoder;
+	}
+	
+	public void setText(String message) {
+		if (decoder != null) {
+			decoder.decode(message, this);
+		} else {
+			super.setText(message);
+		}
+	}
 }
