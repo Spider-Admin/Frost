@@ -49,7 +49,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
         this.board = boa;
         this.maxMessageDownload = maxmsgdays;
         
-        this.indexSlots = new IndexSlotsDatabaseTable(IndexSlotsDatabaseTable.MESSAGES, board.getName());
+        this.indexSlots = new IndexSlotsDatabaseTable(IndexSlotsDatabaseTable.MESSAGES, board);
     }
 
     public int getThreadType() {

@@ -142,6 +142,7 @@ public class MessageDecoder extends Decoder implements FreenetKeys, Smileys, Mes
                     }
                     // we add all file links (last char of link must not be a '/' or similar) to list of links;
                     // file links and freesite links will be hyperlinked
+                    // FIXME: check for keylength (05 and 07) and ignore keys like "CHK@williwillswissen/sowas.nixda"
                     elements.add(new MessageElement(new Integer(pos + offset),FREENETKEY, i, length));
                     
                     if( Character.isLetterOrDigit(testMessage.charAt(pos+length-1)) ) {

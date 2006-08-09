@@ -111,12 +111,12 @@ public final class Mixed {
      * @param text the string
      * @return whether it contains foreign chars
      */
-    public static boolean containsForeign(String text){
+//    public static boolean containsForeign(String text){
         //REDFLAG: implement?
 //        char[] chars = text.toCharArray();
 //        Character c = new Character(chars[0]);
-        return false;
-    }
+//        return false;
+//    }
     public static boolean binaryCompare(byte[] src, int offs, String searchTxt)
     {
         int searchLen = searchTxt.length();

@@ -402,7 +402,8 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
      */
     public void add(MutableTreeNode n, boolean silent) {
         // add sorted
-        // FIXME: its more performant to sort all childs after the tree is built when creating the whole tree the first time (load from database) 
+        // FIXME: its more performant to sort all childs after the tree is built when creating the whole tree the first time (load from database)
+        // -> from Board.java:         Collections.sort(children);
         int[] ixs;
         if( children==null ) {
             super.add(n);

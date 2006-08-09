@@ -214,7 +214,7 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
         this.isForToday = isForToday;
 
         // first load the index with the date we wish to download
-        indexSlots = new IndexSlotsDatabaseTable(IndexSlotsDatabaseTable.FILELISTS, board.getName());
+        indexSlots = new IndexSlotsDatabaseTable(IndexSlotsDatabaseTable.FILELISTS, board);
 
         publicKey = board.getPublicKey();
         privateKey = board.getPrivateKey();

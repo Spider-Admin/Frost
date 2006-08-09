@@ -67,7 +67,7 @@ public class NewUploadFilesDatabaseTable extends AbstractDatabaseTable {
             NewUploadFile nuf = (NewUploadFile)i.next(); 
             
             ps.setString(1, nuf.getFile().getPath());
-            ps.setString(2, nuf.getTargetBoard().getName());
+            ps.setString(2, nuf.getTargetBoard().getNameLowerCase());
             ps.setString(3, nuf.getFrom());
             
             ps.executeUpdate();

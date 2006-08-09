@@ -88,7 +88,7 @@ public class DownloadFilesDatabaseTable extends AbstractDatabaseTable {
             ps.setInt(ix++, dlItem.getRetries());
             ps.setString(ix++, null); // targetpath
             ps.setTimestamp(ix++, new Timestamp(dlItem.getLastDownloadStopTimeMillis()));
-            ps.setString(ix++, (dlItem.getSourceBoard()==null?null:dlItem.getSourceBoard().getName()));
+            ps.setString(ix++, (dlItem.getSourceBoard()==null?null:dlItem.getSourceBoard().getNameLowerCase()));
             ps.setString(ix++, dlItem.getSHA1());
             ps.setString(ix++, dlItem.getOwner());
             ps.setDate(ix++, dlItem.getLastRequestedDate());

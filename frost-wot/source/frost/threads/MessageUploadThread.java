@@ -329,7 +329,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
      */
     private void uploadMessage(LocalIdentity senderId) throws IOException {
         
-        IndexSlotsDatabaseTable indexSlots = new IndexSlotsDatabaseTable(IndexSlotsDatabaseTable.MESSAGES, board.getName());
+        IndexSlotsDatabaseTable indexSlots = new IndexSlotsDatabaseTable(IndexSlotsDatabaseTable.MESSAGES, board);
         
         int index = MessageUploader.uploadMessage(
                 message, 
