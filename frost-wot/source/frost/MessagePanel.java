@@ -217,8 +217,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             if (e.getSource() == markMessageUnreadItem) {
                 markSelectedMessageUnread();
             } else if (e.getSource() == markAllMessagesReadItem) {
-                Board board = mainFrame.getTofTreeModel().getSelectedNode();
-                TOF.getInstance().setAllMessagesRead(board);
+                Board node = mainFrame.getTofTreeModel().getSelectedNode();
+                TOF.getInstance().setAllMessagesRead(node);
             } else if (e.getSource() == deleteItem) {
                 deleteSelectedMessage();
             } else if (e.getSource() == undeleteItem) {
