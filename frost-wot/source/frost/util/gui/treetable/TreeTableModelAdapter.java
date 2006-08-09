@@ -184,7 +184,8 @@ public class TreeTableModelAdapter extends AbstractTableModel {
                 if( childIndices.length != 1 ) {
                     System.out.println("****** FIXME3: more than 1 child: "+childIndices.length+" ********");
                 }
-                // FIXME: will getRowForNode work if node was already removed from tree?
+                // TODO: will getRowForNode work if node was already removed from tree?
+                //  -> we currently don't remove nodes from tree anywhere in Frost
                 DefaultMutableTreeNode childNode = (DefaultMutableTreeNode)node.getChildAt(childIndices[0]);
                 final int row = MainFrame.getInstance().getMessageTreeTable().getRowForNode(childNode);
                 SwingUtilities.invokeLater(new Runnable() {
