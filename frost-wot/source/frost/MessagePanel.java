@@ -84,6 +84,10 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 setObserveButton_actionPerformed(e);
             } else if (e.getSource() == toggleShowThreads) {
                 toggleShowThreads_actionPerformed(e);
+            } else if (e.getSource() == toggleShowSmileys) {
+                toggleShowSmileys_actionPerformed(e);
+            } else if (e.getSource() == toggleShowHyperlinks) {
+                toggleShowHyperlinks_actionPerformed(e);
             }
         }
 
@@ -382,7 +386,9 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     private JButton updateButton =
         new JButton(new ImageIcon(getClass().getResource("/data/update.gif")));
     
-    private JCheckBox toggleShowThreads = new JCheckBox("Show threads");
+    private JToggleButton toggleShowThreads = new JToggleButton("");
+    private JToggleButton toggleShowSmileys = new JToggleButton("");
+    private JToggleButton toggleShowHyperlinks = new JToggleButton("");
 
     private final String allMessagesCountPrefix = "Msg: "; // TODO: translate
     private JLabel allMessagesCountLabel = new JLabel(allMessagesCountPrefix + "0");
@@ -419,6 +425,22 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         setObserveButton.setEnabled(false);
 
         toggleShowThreads.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS));
+        toggleShowThreads.setIcon(new ImageIcon(getClass().getResource("/data/togglethreads.gif")));
+        toggleShowThreads.setMargin(new Insets(1, 1, 1, 1));
+        toggleShowThreads.setFocusPainted(false);
+        toggleShowThreads.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowThreads"));
+        
+        toggleShowSmileys.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SHOW_SMILEYS));
+        toggleShowSmileys.setIcon(new ImageIcon(getClass().getResource("/data/togglesmileys.gif")));
+        toggleShowSmileys.setMargin(new Insets(1, 1, 1, 1));
+        toggleShowSmileys.setFocusPainted(false);
+        toggleShowSmileys.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowSmileys"));
+        
+        toggleShowHyperlinks.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SHOW_KEYS_AS_HYPERLINKS));
+        toggleShowHyperlinks.setIcon(new ImageIcon(getClass().getResource("/data/togglehyperlinks.gif")));
+        toggleShowHyperlinks.setMargin(new Insets(1, 1, 1, 1));
+        toggleShowHyperlinks.setFocusPainted(false);
+        toggleShowHyperlinks.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowHyperlinks"));
 
         // build buttons panel
         JToolBar buttonsToolbar = new JToolBar();
@@ -457,6 +479,10 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         buttonsToolbar.addSeparator();
         buttonsToolbar.add(Box.createRigidArea(blankSpace));
         buttonsToolbar.add(toggleShowThreads);
+        buttonsToolbar.add(Box.createRigidArea(blankSpace));
+        buttonsToolbar.add(toggleShowSmileys);
+        buttonsToolbar.add(Box.createRigidArea(blankSpace));
+        buttonsToolbar.add(toggleShowHyperlinks);
 
         buttonsToolbar.add(Box.createRigidArea(new Dimension(8, 0)));
         buttonsToolbar.add(Box.createHorizontalGlue());
@@ -485,6 +511,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         setBadButton.addActionListener(listener);
         setObserveButton.addActionListener(listener);
         toggleShowThreads.addActionListener(listener);
+        toggleShowSmileys.addActionListener(listener);
+        toggleShowHyperlinks.addActionListener(listener);
 
         return buttonsToolbar;
     }
@@ -817,6 +845,20 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         Core.frostSettings.setValue(SettingsClass.SHOW_THREADS, newValue);
         // reload messages
         MainFrame.getInstance().tofTree_actionPerformed(null);
+    }
+
+    private void toggleShowSmileys_actionPerformed(ActionEvent e) {
+        boolean oldValue = Core.frostSettings.getBoolValue(SettingsClass.SHOW_SMILEYS);
+        boolean newValue = !oldValue;
+        Core.frostSettings.setValue(SettingsClass.SHOW_SMILEYS, newValue);
+        // redraw is done in textpane by propertychangelistener!
+    }
+
+    private void toggleShowHyperlinks_actionPerformed(ActionEvent e) {
+        boolean oldValue = Core.frostSettings.getBoolValue(SettingsClass.SHOW_KEYS_AS_HYPERLINKS);
+        boolean newValue = !oldValue;
+        Core.frostSettings.setValue(SettingsClass.SHOW_KEYS_AS_HYPERLINKS, newValue);
+        // redraw is done in textpane by propertychangelistener!
     }
 
     private void refreshLanguage() {
