@@ -54,10 +54,12 @@ public abstract class FcpHandler {
             instance = new FcpHandler05();
             instance.initialize(nodes);
             initializedVersion = freenetVersion;
+            FreenetKeys.initializeFor05();
         } else if( freenetVersion == FREENET_07 ) {
             instance = new FcpHandler07();
             instance.initialize(nodes);
             initializedVersion = freenetVersion;
+            FreenetKeys.initializeFor07();
         } else {
             logger.severe("Unsupported freenet version: "+freenetVersion);
             throw new UnsupportedOperationException("This Freenet version is not supported, must be 5 or 7: "+freenetVersion);

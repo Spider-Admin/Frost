@@ -840,7 +840,9 @@ public class MessageTextPane extends JPanel {
             // if clickedLink ends with a '/' its a freesite link, allow to copy this to clipboard only
             // else the clickedLink is a filelink, allow to copy/download this link or ALL filelinks
             
-            if( clickedKey.indexOf("/") < 0 ) {
+            if( clickedKey.indexOf("/") < 0 || 
+                !Character.isLetterOrDigit(clickedKey.charAt(clickedKey.length()-1)) ) 
+            {
                 // key only
                 add(copyKeyOnlyToClipboard);
             } else if( clickedKey.endsWith("/") ) {

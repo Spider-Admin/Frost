@@ -25,21 +25,24 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.text.*;
 
+import frost.fcp.*;
+import frost.util.*;
+
 /**
  * Message decoder for search freenet keys and smileys,
  * append message to JeditorPane document.
  * @author ET
  */
-public class MessageDecoder extends Decoder implements FreenetKeys, Smileys, MessageTypes {
+public class MessageDecoder extends Decoder implements Smileys, MessageTypes {
 
-	public MessageDecoder() {
-	}
-	
 	private boolean smileys = true;
 	private boolean freenetKeys = true;
     
     private List hyperlinkedKeys = new LinkedList();
     private TreeSet elements = new TreeSet();
+    
+    public MessageDecoder() {
+    }
 
 	/**
 	 * {@inheritDoc}
@@ -132,6 +135,7 @@ public class MessageDecoder extends Decoder implements FreenetKeys, Smileys, Mes
 	}
 
     private void processFreenetKeys(String message, TreeSet targetElements) {
+        String[] FREENETKEYS = FreenetKeys.getFreenetKeyTypes();
 		for (int i = 0; i < FREENETKEYS.length; i++) {
 			int offset = 0;
 			String testMessage = new String(message);
@@ -140,20 +144,23 @@ public class MessageDecoder extends Decoder implements FreenetKeys, Smileys, Mes
 				if(pos > -1) {
                     int length = testMessage.indexOf("\n", pos);
                     if( length < 0 ) {
+                        // at end of string
                         length = testMessage.length() - pos;
                     } else {
                         length -= pos;
                     }
-                    // we add all file links (last char of link must not be a '/' or similar) to list of links;
-                    // file links and freesite links will be hyperlinked
-                    // FIXME: check for keylength (05 and 07) and ignore keys like "CHK@williwillswissen/sowas.nixda"
-                    targetElements.add(new MessageElement(new Integer(pos + offset),FREENETKEY, i, length));
-                    
-                    if( Character.isLetterOrDigit(testMessage.charAt(pos+length-1)) ) {
-                        // file link must contain at least one '/'
-                        String aFileLink = testMessage.substring(pos, pos+length);
-                        if( aFileLink.indexOf("/") > 0 ) {
-                            hyperlinkedKeys.add(aFileLink);
+
+                    String aFileLink = testMessage.substring(pos, pos+length);
+                    if( FreenetKeys.isValidKey(aFileLink) ) {
+                        // we add all file links (last char of link must not be a '/' or similar) to list of links;
+                        // file links and freesite links will be hyperlinked
+                        targetElements.add(new MessageElement(new Integer(pos + offset),FREENETKEY, i, length));
+                        
+                        if( Character.isLetterOrDigit(testMessage.charAt(pos+length-1)) ) {
+                            // file link must contain at least one '/'
+                            if( aFileLink.indexOf("/") > 0 ) {
+                                hyperlinkedKeys.add(aFileLink);
+                            }
                         }
                     }
 					offset += pos + length;
