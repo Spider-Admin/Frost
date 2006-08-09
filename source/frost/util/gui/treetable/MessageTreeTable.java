@@ -280,7 +280,23 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         Font baseFont = MessageTreeTable.this.getFont();
         normalFont = baseFont.deriveFont(Font.PLAIN);
         boldFont = baseFont.deriveFont(Font.BOLD);
+        
+        setCellRenderer(new OwnTreeCellRenderer());
 	}
+    
+    class OwnTreeCellRenderer extends DefaultTreeCellRenderer {
+        public OwnTreeCellRenderer() {
+            super();
+            setVerticalAlignment(CENTER);
+        }
+        public void paint(Graphics g) {
+            super.paint(g);
+            if(isDeleted) {
+                Dimension size = getSize();
+                g.drawLine(0, size.height / 2, size.width, size.height / 2);
+            }
+        }
+    }
 
 	/**
 	 * updateUI is overridden to set the colors of the Tree's renderer
@@ -333,12 +349,6 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
 	public void paint(Graphics g) {
 	    g.translate(0, -visibleRow * getRowHeight());
 	    super.paint(g);
-	    // Draw the Table border if we have focus.
-        if(isDeleted) {
-            // FIXME: does not work!
-            Dimension size = getSize();
-            g.drawLine(0, size.height / 2, size.width, size.height / 2);
-        }
 	}
     
 	/**
@@ -352,8 +362,6 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
 	    Color background;
 	    Color foreground;
         
-        setAlignmentY(CENTER_ALIGNMENT);
-
         // TODO: rework, dup code
         TreeTableModelAdapter model = (TreeTableModelAdapter)MessageTreeTable.this.getModel();
         
@@ -422,7 +430,6 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
 	    return this;
 	}
     }
-
 
     /**
      * ListToTreeSelectionModelWrapper extends DefaultTreeSelectionModel
@@ -522,7 +529,8 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     private class MyCheckBox extends JCheckBox {
         public MyCheckBox() {
             super("");
-            setHorizontalAlignment(JLabel.CENTER);  
+            setHorizontalAlignment(CENTER);
+            setVerticalAlignment(CENTER);
         }
         public void paintComponent (Graphics g) {
             Dimension size = getSize();
@@ -536,7 +544,8 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         
         public BooleanCellRenderer() {
             super();
-            setHorizontalAlignment(JLabel.CENTER);  
+            setHorizontalAlignment(CENTER);
+            setVerticalAlignment(CENTER);
         }
         
         public void paintComponent (Graphics g) {
@@ -656,6 +665,8 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             Font baseFont = MessageTreeTable.this.getFont();
             normalFont = baseFont.deriveFont(Font.PLAIN);
             boldFont = baseFont.deriveFont(Font.BOLD);
+            
+            setVerticalAlignment(CENTER);
         }
 
         public void paintComponent (Graphics g) {

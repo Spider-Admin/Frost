@@ -30,28 +30,28 @@ public interface Smileys {
 	 */
 	public final static String[][] SMILEYS =
 	{	{},
-		{	" :) " , ":-)"	},					// Smile (1)
-		{	":( " , ":-("	},					// Sad (2)
-		{	" ;) " , ";-)"	},					// Wink (3)
-		{	":D " , ":-D"	},					// Grin (4)
-		{	";;) " 			},					// Eyelashes (5)
+		{	":)" , ":-)"	},					// Smile (1)
+		{	":(" , ":-("	},					// Sad (2)
+		{	";)" , ";-)"	},					// Wink (3)
+		{	":D" , ":-D"	},					// Grin (4)
+		{	";;)" 			},					// Eyelashes (5)
 
 		{	":-/"	},							// Confused (6)
 		{	":x" , ":X" , ":-x" , ":-X" },		// Love struck (7)
 		{	":\">"	},							// Blush (8)
-		{	" :p" , ":-p"	},					// Tongue (9)
+		{	":p" , ":-p"	},					// Tongue (9)
 		{	":*" , ":-*"	},					// Kiss (10)
 
-		{	":O" , ":o " , " :-O", ":-o"	},		// Shock (11)
+		{	":O" , ":o" , ":-O", ":-o"	},		// Shock (11)
 		{	"X-("			},					// Anger (12)
-		{	" :>" , ":->"	},					// Smug (13)
+		{	":>" , ":->"	},					// Smug (13)
 		{	"B)" , "B-)"	},					// Cool (14)
-		{	":s" , ":S" , ":-s" , " :-S "	},		// Worried (15)
+		{	":s" , ":S" , ":-s" , ":-S "	},		// Worried (15)
 
 		{	">:)"	},							// Devilish (16)
 		{	":(("	},							// Crying (17)
 		{	":))"	},							// Laughing (18)
-		{	" :|" , ":-|"	},					// Straight face (19)
+		{	":|" , ":-|"	},					// Straight face (19)
 		{	"/:)"	},							// Eyebrow (20)
 
 		{	"O:)" , "o:)"	},					// Angel (21)

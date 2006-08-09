@@ -37,14 +37,16 @@ public class MessageDecoder extends Decoder implements FreenetKeys, Smileys, Mes
 	
 	private boolean smileys = true;
 	private boolean freenetKeys = true;
+    
     private List hyperlinkedKeys = new LinkedList();
+    private TreeSet elements = new TreeSet();
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public void decode(String message, JEditorPane parent) {
-		int begin = 0;
-		TreeSet elements = new TreeSet();
+
+		elements.clear();
         hyperlinkedKeys.clear();
 		
 		if (smileys) {
@@ -62,10 +64,12 @@ public class MessageDecoder extends Decoder implements FreenetKeys, Smileys, Mes
 			}
 			processFreenetKeys(message, elements);
 		}
+        
         // FIXME: how to clear document without instanciating a new one?
         Document doc = new DefaultStyledDocument();
-//        doc.remove(1,2);
         parent.setDocument(doc);
+        
+        int begin = 0;
 		try {
             Iterator it = elements.iterator();
 			while(it.hasNext()) {
@@ -127,7 +131,7 @@ public class MessageDecoder extends Decoder implements FreenetKeys, Smileys, Mes
 		return smileys;
 	}
 
-    private void processFreenetKeys(String message, TreeSet elements) {
+    private void processFreenetKeys(String message, TreeSet targetElements) {
 		for (int i = 0; i < FREENETKEYS.length; i++) {
 			int offset = 0;
 			String testMessage = new String(message);
@@ -143,7 +147,7 @@ public class MessageDecoder extends Decoder implements FreenetKeys, Smileys, Mes
                     // we add all file links (last char of link must not be a '/' or similar) to list of links;
                     // file links and freesite links will be hyperlinked
                     // FIXME: check for keylength (05 and 07) and ignore keys like "CHK@williwillswissen/sowas.nixda"
-                    elements.add(new MessageElement(new Integer(pos + offset),FREENETKEY, i, length));
+                    targetElements.add(new MessageElement(new Integer(pos + offset),FREENETKEY, i, length));
                     
                     if( Character.isLetterOrDigit(testMessage.charAt(pos+length-1)) ) {
                         // file link must contain at least one '/'
@@ -161,7 +165,7 @@ public class MessageDecoder extends Decoder implements FreenetKeys, Smileys, Mes
 		}
 	}
 
-	private void processSmileys(String message, TreeSet elements) {
+	private void processSmileys(String message, TreeSet targetElements) {
 		// Find all smileys in message
 		for (int i = 0; i < SMILEYS.length; i++) {
 			for (int j = 0; j < SMILEYS[i].length; j++) {
@@ -170,9 +174,11 @@ public class MessageDecoder extends Decoder implements FreenetKeys, Smileys, Mes
 				while(true) {
 					int pos = testMessage.indexOf(SMILEYS[i][j]);
 					if(pos > -1) {
-						elements.add(new MessageElement(new Integer(pos + offset),SMILEY, i, SMILEYS[i][j].length()));
-						offset += pos + SMILEYS[i][j].length();
-						testMessage = testMessage.substring(pos + SMILEYS[i][j].length());
+                        if (isSmiley(pos, testMessage, SMILEYS[i][j])) {
+                            targetElements.add(new MessageElement(new Integer(pos + offset),SMILEY, i, SMILEYS[i][j].length()));
+                        }   
+                        offset += pos + SMILEYS[i][j].length();
+                        testMessage = testMessage.substring(pos + SMILEYS[i][j].length());
 					} else {
 						break;
 					}
@@ -180,6 +186,24 @@ public class MessageDecoder extends Decoder implements FreenetKeys, Smileys, Mes
 			}
 		}
 	}
+
+    /**
+     * A smiley is only recognized if there is a whitespace before and after it (or begin of line/end of line)
+     */
+    private boolean isSmiley(int pos, String message, String smiley) {
+        boolean bol = (pos == 0); 
+        boolean eol = (message.length() == (smiley.length() + pos));
+        char c;
+        if (!bol) {
+            c = message.charAt(pos-1);
+            bol = Character.isWhitespace(c);
+        }
+        if (!eol) {
+            c = message.charAt(pos+smiley.length());
+            eol = Character.isWhitespace(c);
+        }
+        return (bol && eol);
+    }
 
 	private Icon getSmiley(int i) {
         return getCachedSmiley(i, getClass().getClassLoader());
@@ -191,7 +215,6 @@ public class MessageDecoder extends Decoder implements FreenetKeys, Smileys, Mes
         String si = ""+i;
         ImageIcon ii = (ImageIcon)smileyCache.get(si);
         if( ii == null ) {
-            // no classloader in static, we use classloader from smileyCache
             ii = new ImageIcon(cl.getResource("data/smileys/"+i+".gif"));
             smileyCache.put(si, ii);
         }

@@ -42,8 +42,6 @@ import frost.util.gui.translation.*;
 
 public class KnownBoardsFrame extends JDialog {
     
-    // FIXME: add xml import/export to an own class, add buttons to frame!
-
     private static Logger logger = Logger.getLogger(KnownBoardsFrame.class.getName());
 
     private Language language;
