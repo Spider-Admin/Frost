@@ -41,9 +41,8 @@ public class KnownBoardsDatabaseTable extends AbstractDatabaseTable {
         return lst;
     }
 
-//  FIXME: on insert and board is already there, update description if not already set
-    public boolean insertKnownBoard(Board board) throws SQLException {
-        
+    private boolean insertKnownBoard(Board board) throws SQLException {
+
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
         PreparedStatement ps = db.prepare(

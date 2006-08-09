@@ -662,6 +662,15 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                 showInvalidKeyErrorDialog(key);
                 continue;
             }
+            
+            // maybe convert html codes (e.g. %2c -> , )
+            if( key.indexOf("%") > 0 ) {
+                try {
+                    key = java.net.URLDecoder.decode(key, "UTF-8");
+                } catch (java.io.UnsupportedEncodingException ex) {
+                    logger.log(Level.SEVERE, "Decode of HTML code failed", ex);
+                }
+            }
 
             // take the filename from the last part of the key
             String fileName;

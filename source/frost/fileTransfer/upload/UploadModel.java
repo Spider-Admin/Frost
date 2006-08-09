@@ -301,5 +301,4 @@ public class UploadModel extends OrderedModel implements Savable {
 //        System.out.println("ret="+result.size());
         return result;
     }
-//    FIXME: problem: gross/kleinschreibung von boards!
 }

@@ -434,8 +434,9 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
 //        FrostMessageObject mo = (FrostMessageObject)n;
 //        System.out.println("ADDED: "+dbg1(mo)+", TO: "+dbg1(this)+", IX="+ixs[0]+", silent="+silent);
     }
-    
-    SubjectComparator subjectComparator = new SubjectComparator();
+  
+    // FIXME: implement sorting for flat view and maybe for threaded view too!
+//    SubjectComparator subjectComparator = new SubjectComparator();
     DateComparator dateComparator = new DateComparator();
     
     class DateComparator implements Comparator {
@@ -455,25 +456,25 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         }
     }
     
-    class SubjectComparator implements Comparator {
-        public int compare(Object arg0, Object arg1) {
-            FrostMessageObject t1 = (FrostMessageObject)arg0; 
-            FrostMessageObject t2 = (FrostMessageObject)arg1;
-            String s1 = t1.getSubject();
-            String s2 = t2.getSubject();
-            if( s1 == null && s2 == null ) {
-                return 0;
-            }
-            if( s1 == null && s2 != null ) {
-                return -1;
-            }
-            if( s1 != null && s2 == null ) {
-                return 1;
-            }
-            int r = s1.toLowerCase().compareTo(s2.toLowerCase()); // FIXME: really lowercase?
-            return r;
-        }
-    }
+//    class SubjectComparator implements Comparator {
+//        public int compare(Object arg0, Object arg1) {
+//            FrostMessageObject t1 = (FrostMessageObject)arg0; 
+//            FrostMessageObject t2 = (FrostMessageObject)arg1;
+//            String s1 = t1.getSubject();
+//            String s2 = t2.getSubject();
+//            if( s1 == null && s2 == null ) {
+//                return 0;
+//            }
+//            if( s1 == null && s2 != null ) {
+//                return -1;
+//            }
+//            if( s1 != null && s2 == null ) {
+//                return 1;
+//            }
+//            int r = s1.toLowerCase().compareTo(s2.toLowerCase());
+//            return r;
+//        }
+//    }
     
     public String toString() {
         return getSubject();

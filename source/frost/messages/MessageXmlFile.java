@@ -34,7 +34,6 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
 
     private static Logger logger = Logger.getLogger(MessageXmlFile.class.getName());
     
-    //FIXME: this one is missing the "?" char as opposed to mixed.makeFilename
     private static final char[] evilChars = {'/', '\\', '*', '=', '|', '&', '#', '\"', '<', '>'}; // will be converted to _
 
     private String boardName = "";

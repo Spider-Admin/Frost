@@ -89,7 +89,9 @@ public class TOF {
      */
     public void setAllMessagesRead(final Board board) {
         // now takes care if board is changed during mark read of many boards! reloads current table if needed
-        
+
+        final int oldNewMessageCount = board.getNewMessageCount();
+
         try {
             AppLayerDatabase.getMessageTable().setAllMessagesRead(board);
         } catch (SQLException e) {
@@ -98,13 +100,12 @@ public class TOF {
         }
         
         // if this board is currently shown, update messages in table
-        if( MainFrame.getInstance().getTofTreeModel().getSelectedNode() == board ) {
+        final DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) 
+            MainFrame.getInstance().getMessagePanel().getMessageTable().getTree().getModel().getRoot();
 
-            final DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) 
-                MainFrame.getInstance().getMessagePanel().getMessageTable().getTree().getModel().getRoot();
-
-            SwingUtilities.invokeLater( new Runnable() {
-                public void run() {
+        SwingUtilities.invokeLater( new Runnable() {
+            public void run() {
+                if( MainFrame.getInstance().getTofTreeModel().getSelectedNode() == board ) {
                     for(Enumeration e = rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
                         Object o = e.nextElement();
                         if( o instanceof FrostMessageObject ) {
@@ -119,17 +120,18 @@ public class TOF {
                             }
                         }
                     }
-                    board.setNewMessageCount( 0 );
-                    MainFrame.getInstance().updateMessageCountLabels(board);
-                    MainFrame.getInstance().updateTofTree(board);
-            }});
-        } else {
-            SwingUtilities.invokeLater( new Runnable() {
-                public void run() {
-                    MainFrame.getInstance().updateMessageCountLabels(board);
-                    MainFrame.getInstance().updateTofTree(board);
-            }});
-        }
+                }
+                // set for not selected boards too, by 'select folder unread' function
+
+                // we cleared '' new messages, but don't get to negativ (maybe user selected another message during operation!)
+                // but maybe a new message arrived!
+                // ATTN: maybe problem if user sets another msg unread, and a new msg arrives, during time before invokeLater.
+                int diffNewMsgCount = board.getNewMessageCount() - oldNewMessageCount;
+                board.setNewMessageCount( (diffNewMsgCount<0 ? 0 : diffNewMsgCount) );
+                
+                MainFrame.getInstance().updateMessageCountLabels(board);
+                MainFrame.getInstance().updateTofTree(board);
+        }});
     }
 
     /**

@@ -24,8 +24,7 @@ public final class Mixed {
 
     private static Logger logger = Logger.getLogger(Mixed.class.getName());
 
-    // FIXME: this one is missing the "&" char as opposed to MessageObject()
-    private static char[] invalidChars = { '/', '\\', '?', '*', '<', '>', '\"', ':', '|', '#' };
+    private static char[] invalidChars = { '/', '\\', '?', '*', '<', '>', '\"', ':', '|', '#', '&' };
 
     /**
      * Waits for a specific number of ms
