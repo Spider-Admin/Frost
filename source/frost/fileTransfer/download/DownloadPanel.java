@@ -612,17 +612,12 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 //		checkBox.setFocusPainted(false);
 //	}
 
-    public static void main(String[] args) {
-        System.out.println("keys\ndada;2222".split("[;\n]").length);
-    }
-    
 	/**
 	 * downloadTextField Action Listener (Download/Quickload)
      * The textfield can contain 1 key to download or multiple keys separated by ';'.
 	 */
 	private void downloadTextField_actionPerformed(ActionEvent e) {
-// FIXME: verify keys
-// CHK,SSK on 07: len=99 || on 05: 58
+
 		String keys = downloadTextField.getText().trim();
         
         if( keys.length() == 0 ) {
@@ -638,19 +633,29 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
         
         for(int x=0; x < keyList.length; x++) {
             String key = keyList[x].trim();
-            if( key.length() == 0 ) {
+            // 58 is min size for a key on 0.5
+            if( key.length() < 5 ) {
                 continue;
             }
-            
-            // strip the 'browser' prefix
-            String stripMe = "http://127.0.0.1:8888/";
-            if (key.startsWith(stripMe)) {
-                key = key.substring(stripMe.length());
+
+            // find key type (chk,ssk,...)
+            int pos = -1;
+            for( int i = 0; i < FreenetKeys.getFreenetKeyTypes().length; i++ ) {
+                String string = FreenetKeys.getFreenetKeyTypes()[i];
+                pos = key.indexOf(string);
+                if( pos >= 0 ) {
+                    break;
+                }
             }
-            // strip the 'freenet:' prefix
-            stripMe = "freenet:";
-            if (key.startsWith(stripMe)) {
-                key = key.substring(stripMe.length());
+            if( pos < 0 ) {
+                // no valid keytype found
+                showInvalidKeyErrorDialog(key);
+                continue;
+            }
+
+            // strip all before key type
+            if( pos > 0 ) {
+                key = key.substring(pos);
             }
             
             if( key.length() < 5 ) {
@@ -659,55 +664,23 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                 continue;
             }
 
-            String validkeys[] = { "SSK@", "CHK@", "KSK@" };
-            int keyType = -1; // invalid
-
-            for (int i = 0; i < validkeys.length; i++) {
-                if (key.startsWith(validkeys[i])) {
-                    keyType = i;
-                    break;
-                }
-            }
-            // hack: support USK keys for 07 only
-            if( keyType < 0 && FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) {
-                if( key.startsWith("USK@") ) {
-                    keyType = 3; // hack
-                }
-            }
-            
-            if( keyType < 0 ) {
-                showInvalidKeyErrorDialog(key);
-                continue;
-            }
-
-            // added a way to specify a file name. The filename is preceeded by a colon.
+            // take the filename from the last part of the key
             String fileName;
-
-            int sepIndex = key.lastIndexOf(":");
-
-            if (sepIndex > -1) {
-                fileName = key.substring(sepIndex + 1);
-                key = key.substring(0, sepIndex);
-            }
-            // take the filename from the last part the SSK or KSK
-            else if ( (sepIndex = key.lastIndexOf("/")) > -1 ) {
+            int sepIndex = key.lastIndexOf("/");
+            if ( sepIndex > -1 ) {
                 fileName = key.substring(sepIndex + 1);
             } else {
                 fileName = key.substring(4);
             }
-            //  zab, why did you comment this out, its needed, because otherwise you
-            //  use a wrong CHK key for download! i pasted a CHK@afcdf432dk/mytargetfilename.data
-            //FIXED: it happened when sha1 was still kept in this variable - and sha1 can contain "/"
 
-            // remove filename from key for CHK
-            if (keyType == 1 && key.indexOf("/") > -1 ) { // CHK?
+            // remove filename from CHK key
+            if (key.startsWith("CHK@") && key.indexOf("/") > -1 ) {
                 key = key.substring(0, key.indexOf("/"));
             }
 
             // add valid key to download table
             FrostDownloadItem dlItem = new FrostDownloadItem(fileName, key);
-            //users weren't happy with '_'
-            /*boolean isAdded =*/ model.addDownloadItem(dlItem);
+            /*boolean isAdded =*/ model.addDownloadItem(dlItem); // false if file is already in table
         }
         downloadTextField.setText("");
 	}
@@ -724,7 +697,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
 	/**
 	 * Get keyTyped for downloadTable
-	 * @param e
 	 */
 	private void downloadTable_keyPressed(KeyEvent e) {
 		char key = e.getKeyChar();
