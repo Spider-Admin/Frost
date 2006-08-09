@@ -1206,26 +1206,16 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     continue;
                 }
                 FrostMessageObject message = (FrostMessageObject)o;
-
-                if( TOF.getInstance().blocked(message,board) ) {
-                    // FIXME: remove only if there are no GOOD childs
-                    model.removeNodeFromParent(message); 
-                    if( message.isNew() ) {
-                        board.decNewMessageCount();
-                    }
-                } else {
-                    int row = MainFrame.getInstance().getMessageTreeTable().getRowForNode(message);
-                    if( row >= 0 ) {
-                        MainFrame.getInstance().getMessageTableModel().fireTableRowsUpdated(row, row);
-                    }
+                int row = MainFrame.getInstance().getMessageTreeTable().getRowForNode(message);
+                if( row >= 0 ) {
+                    MainFrame.getInstance().getMessageTableModel().fireTableRowsUpdated(row, row);
                 }
             }
             MainFrame.getInstance().updateMessageCountLabels(board);
         }
-
         // finally step through all board files, count new messages and show only wanted messages
         // starts a separate thread
-        TOF.getInstance().initialSearchNewMessages();
+//        TOF.getInstance().initialSearchNewMessages(); // not needed, we remove nothing
     }
 
     /**
