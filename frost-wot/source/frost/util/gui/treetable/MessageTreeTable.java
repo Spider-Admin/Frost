@@ -73,7 +73,12 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     
     private ImageIcon flaggedIcon = new ImageIcon(getClass().getResource("/data/flagged.gif"));
     private ImageIcon starredIcon = new ImageIcon(getClass().getResource("/data/starred.gif"));
-    
+
+    private ImageIcon messageNewIcon = new ImageIcon(getClass().getResource("/data/messagenewicon.gif"));
+    private ImageIcon messageReadIcon = new ImageIcon(getClass().getResource("/data/messagereadicon.gif"));
+    private ImageIcon messageNewRepliedIcon = new ImageIcon(getClass().getResource("/data/messagenewrepliedicon.gif"));
+    private ImageIcon messageReadRepliedIcon = new ImageIcon(getClass().getResource("/data/messagereadrepliedicon.gif"));
+
     private boolean showColoredLines = true;
 
     public MessageTreeTable(TreeTableModel treeTableModel) {
@@ -424,6 +429,24 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     		    dtcr.setBackgroundNonSelectionColor(background);
     		}
             dtcr.setToolTipText(msg.getSubject());
+            ImageIcon icon;
+            if( msg.isNew() ) {
+                if( msg.isReplied() ) {
+                    icon = messageNewRepliedIcon;
+                } else {
+                    icon = messageNewIcon;
+                }
+            } else {
+                if( msg.isReplied() ) {
+                    icon = messageReadRepliedIcon;
+                } else {
+                    icon = messageReadIcon;
+                }
+            }
+            dtcr.setIcon(icon);
+            dtcr.setLeafIcon(icon);
+            dtcr.setOpenIcon(icon);
+            dtcr.setClosedIcon(icon);
             // FIXME: renderer does not know about the available size, no "..." at end of text!
 	    }
         
