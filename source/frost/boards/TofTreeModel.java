@@ -98,7 +98,6 @@ public class TofTreeModel extends DefaultTreeModel {
      * @return the FrostBoardObject if there was a board with that name. Null otherwise.
      */
     public Board getBoardByName(String boardName) {
-        // FIXME: compare by boardFileName! but check callers if ok for all!
         Board node = (Board) getRoot();
         Enumeration e = node.depthFirstEnumeration();
         while (e.hasMoreElements()) {

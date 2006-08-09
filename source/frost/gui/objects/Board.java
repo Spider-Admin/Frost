@@ -18,7 +18,6 @@
 */
 package frost.gui.objects;
 
-import java.io.*;
 import java.util.*;
 
 import javax.swing.tree.*;
@@ -31,10 +30,10 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
     private static Language language = Language.getInstance();
 
     private boolean autoUpdateEnabled = true; // must apply, no default
-    private String b64FileName = null;
     private String boardDescription = null;
     private String boardFileName = null;
     private String boardName = null;
+    private String boardNameLowerCase = null; // often used
     private Boolean hideBad = null;
     private Boolean hideCheck = null;
     private Boolean hideObserve = null;
@@ -68,11 +67,8 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
         boardName = name;
         boardDescription = description;
         boardFileName = Mixed.makeFilename(boardName.toLowerCase());
-
-        if (Mixed.containsForeign(name)) {
-            b64FileName = Core.getCrypto().encode64(name);
-        }
     }
+
     /**
      * Constructs a new FrostBoardObject.
      * @param name
@@ -82,6 +78,7 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
         this(name, null);
         isFolder = isFold;
     }
+
     /**
      * Constructs a new FrostBoardObject wich is a Board.
      * @param name
@@ -103,7 +100,7 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
             Board board = (Board) o;
             if (board.isFolder() == isFolder()) {
                 //If both objects are of the same kind, sort by name
-                return getName().toLowerCase().compareTo(board.getName().toLowerCase());
+                return getNameLowerCase().compareTo(board.getNameLowerCase());
             } else {
                 //If they are of a different kind, the folder is first.
                 return isFolder() ? -1 : 1;
@@ -147,36 +144,30 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
         timesUpdatedCount++;
     }
 
-    /**
-     * @return
-     */
     public boolean getAutoUpdateEnabled() {
         if (!isConfigured())
             return true;
         return autoUpdateEnabled;
     }
 
-    /**
-     * @return
-     */
     public int getBlockedCount() {
         return numberBlocked;
     }
 
-    /**
-     * @return
-     */
     public String getBoardFilename() {
-        return b64FileName == null ? boardFileName : b64FileName;
+        return boardFileName;
     }
 
-    /**
-     * @return
-     */
     public String getName() {
         return boardName;
     }
 
+    public String getNameLowerCase() {
+        if( boardNameLowerCase == null ) {
+            boardNameLowerCase = getName().toLowerCase();
+        }
+        return boardNameLowerCase;
+    }
 
     public String getDescription() {
         return boardDescription;
@@ -186,9 +177,6 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
         boardDescription = desc;
     }
 
-    /**
-     * @return
-     */
     public boolean getHideBad() {
         if (!isConfigured() || hideBad == null) {
             // return default
@@ -197,16 +185,10 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
         return hideBad.booleanValue();
     }
 
-    /**
-     * @return
-     */
     public Boolean getHideBadObj() {
         return hideBad;
     }
 
-    /**
-     * @return
-     */
     public boolean getHideCheck() {
         if (!isConfigured() || hideCheck == null) {
             // return default
@@ -215,16 +197,10 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
         return hideCheck.booleanValue();
     }
 
-    /**
-     * @return
-     */
     public Boolean getHideCheckObj() {
         return hideCheck;
     }
 
-    /**
-     * @return
-     */
     public boolean getHideObserve() {
         if (!isConfigured() || hideObserve == null) {
             // return default
@@ -233,23 +209,14 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
         return hideObserve.booleanValue();
     }
 
-    /**
-     * @return
-     */
     public Boolean getHideObserveObj() {
         return hideObserve;
     }
 
-    /**
-     * @return
-     */
     public long getLastUpdateStartMillis() {
         return lastUpdateStartMillis;
     }
 
-    /**
-     * @return
-     */
     public int getMaxMessageDisplay() {
         if (!isConfigured() || maxMessageDisplay == null) {
             // return default
@@ -257,16 +224,11 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
         }
         return maxMessageDisplay.intValue();
     }
-    /**
-     * @return
-     */
+
     public Integer getMaxMessageDisplayObj() {
         return maxMessageDisplay;
     }
 
-    /**
-     * @return
-     */
     public int getNewMessageCount() {
         return newMessageCount;
     }
@@ -275,23 +237,14 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
         return timesUpdatedCount;
     }
 
-    /**
-     * @return
-     */
     public String getPrivateKey() {
         return privateKey;
     }
 
-    /**
-     * @return
-     */
     public String getPublicKey() {
         return publicKey;
     }
 
-    /**
-     * @return
-     */
     public boolean getShowSignedOnly() {
         if (!isConfigured() || showSignedOnly == null) {
             // return default
@@ -299,18 +252,12 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
         }
         return showSignedOnly.booleanValue();
     }
-    /**
-     * @return
-     */
+
     public Boolean getShowSignedOnlyObj() {
         return showSignedOnly;
     }
 
-    /**
-     * @return
-     */
     public String getStateString() {
-
         if (isReadAccessBoard()) {
             return language.getString("Board.boardState.readAccess");
         } else if (isWriteAccessBoard()) {
@@ -332,16 +279,10 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
         newMessageCount++;
     }
 
-    /**
-     * @return
-     */
     public boolean isConfigured() {
         return isConfigured;
     }
 
-    /**
-     * @return
-     */
     public boolean isFolder() {
         return isFolder;
     }
@@ -353,172 +294,105 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
         return (isFolder() == false);
     }
 
-    /**
-     * @return
-     */
     public boolean isPublicBoard() {
         if (publicKey == null && privateKey == null)
             return true;
         return false;
     }
 
-    /**
-     * @return
-     */
     public boolean isReadAccessBoard() {
-        if (publicKey != null && privateKey == null)
+        if (publicKey != null && privateKey == null) {
             return true;
+        }
         return false;
     }
 
-    /**
-     * @return
-     */
     public boolean isWriteAccessBoard() {
-        if (publicKey != null && privateKey != null)
+        if (publicKey != null && privateKey != null) {
             return true;
+        }
         return false;
     }
 
-    /**
-     * @return
-     */
     public boolean isSpammed() {
         return spammed;
     }
 
-    /**
-     * @return
-     */
     public boolean isUpdating() {
         return isUpdating;
     }
 
-    /**
-     *
-     */
     public void resetBlocked() {
         numberBlocked = 0;
     }
 
-    /**
-     * @param val
-     */
     public void setAutoUpdateEnabled(boolean val) {
         autoUpdateEnabled = val;
     }
 
-    /**
-     * @param name
-     */
     public void setName(String name) {
+        if( isFolder() == false ) {
+            return; // ignore
+        }
         boardName = name;
         boardFileName = Mixed.makeFilename(boardName.toLowerCase());
-
-        if (Mixed.containsForeign(name))
-            b64FileName = Core.getCrypto().encode64(name);
-        else
-            b64FileName = null;
-
-        File boardFile = new File(MainFrame.keypool + boardFileName);
-        if (!boardFile.exists()
-            || !boardFile.isDirectory()) //if it doesn't exist already, strip foreign chars
-            boardFileName = Core.getCrypto().encode64(name);
     }
 
-    /**
-     * @param val
-     */
     public void setConfigured(boolean val) {
         isConfigured = val;
     }
 
-    /**
-     * @param val
-     */
     public void setHideBad(Boolean val) {
         hideBad = val;
     }
 
-    /**
-     * @param val
-     */
     public void setHideCheck(Boolean val) {
         hideCheck = val;
     }
 
-    /**
-     * @param val
-     */
     public void setHideObserve(Boolean val) {
         hideObserve = val;
     }
 
-    /**
-     * @param millis
-     */
     public void setLastUpdateStartMillis(long millis) {
         lastUpdateStartMillis = millis;
     }
 
-    /**
-     * @param val
-     */
     public void setMaxMessageDays(Integer val) {
         maxMessageDisplay = val;
     }
 
-    /**
-     * @param val
-     */
     public void setNewMessageCount(int val) {
         newMessageCount = val;
     }
 
-    /**
-     * @param val
-     */
     public void setPrivateKey(String val) {
-        if (val != null)
+        if (val != null) {
             val = val.trim();
+        }
         privateKey = val;
     }
 
-    /**
-     * @param val
-     */
     public void setPublicKey(String val) {
-        if (val != null)
+        if (val != null) {
             val = val.trim();
+        }
         publicKey = val;
     }
 
-    /**
-     * @param val
-     */
     public void setShowSignedOnly(Boolean val) {
         showSignedOnly = val;
     }
 
-    /**
-     * @param val
-     */
     public void setSpammed(boolean val) {
         spammed = val;
     }
 
-    /**
-     * @param val
-     */
     public void setUpdating(boolean val) {
         isUpdating = val;
     }
 
-    /**
-     *
-     */
     public void sortChildren() {
         Collections.sort(children);
     }
-
 }

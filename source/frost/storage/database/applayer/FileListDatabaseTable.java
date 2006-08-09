@@ -241,7 +241,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         
         FrostSharedFileObjectOwnerBoard obOld = getFrostSharedFileObjectOwnerBoard(
                 obNew.getRefkey(),
-                obNew.getBoard().getName(),
+                obNew.getBoard().getNameLowerCase(),
                 obNew.getOwner());
         
         if( obOld == null ) {
@@ -276,7 +276,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         ps.setDate(3, ob.getLastUploaded());
         
         ps.setLong(4, ob.getRefkey());
-        ps.setString(5, ob.getBoard().getName());
+        ps.setString(5, ob.getBoard().getNameLowerCase());
         ps.setString(6, (ob.getOwner()==null?"":ob.getOwner()));
         
         boolean result = false;
@@ -303,7 +303,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         // insert board/owner, identity is set
         ps.setLong(1, ob.getRefkey());
         ps.setString(2, ob.getName());
-        ps.setString(3, ob.getBoard().getName());
+        ps.setString(3, ob.getBoard().getNameLowerCase());
         ps.setString(4, (ob.getOwner()==null?"":ob.getOwner()));
         ps.setDate(5, ob.getLastReceived());
         ps.setDate(6, ob.getLastUploaded());
@@ -401,8 +401,8 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
         PreparedStatement ps = db.prepare(
-            "SELECT COUNT(primkey) FROM FILELIST WHERE primkey=(SELECT refkey FROM FILEOWNERBOARDLIST WHERE board=? GROUP BY refkey)");
-        ps.setString(1, board.getName());
+            "SELECT COUNT(primkey) FROM FILELIST WHERE primkey in (SELECT refkey FROM FILEOWNERBOARDLIST WHERE board=? GROUP BY refkey)");
+        ps.setString(1, board.getNameLowerCase());
         int count = 0;
         ResultSet rs = ps.executeQuery();
         if( rs.next() ) {
@@ -440,7 +440,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         int ix=1;
         for(Iterator i=boardsToSearch.iterator(); i.hasNext(); ) {
             Board b = (Board)i.next();
-            ps.setString(ix++, b.getName()); // TODO: check case!
+            ps.setString(ix++, b.getNameLowerCase());
         }
         
         ResultSet rs = ps.executeQuery();

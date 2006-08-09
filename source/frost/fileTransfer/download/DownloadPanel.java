@@ -621,7 +621,8 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
      * The textfield can contain 1 key to download or multiple keys separated by ';'.
 	 */
 	private void downloadTextField_actionPerformed(ActionEvent e) {
-
+// FIXME: verify keys
+// CHK,SSK on 07: len=99 || on 05: 58
 		String keys = downloadTextField.getText().trim();
         
         if( keys.length() == 0 ) {

@@ -21,6 +21,8 @@ package frost.storage.database.transferlayer;
 import java.sql.*;
 import java.util.*;
 
+import frost.gui.objects.*;
+
 /**
  * Class provides functionality to track used index slots
  * for upload and download.
@@ -72,8 +74,8 @@ public class IndexSlotsDatabaseTable {
     private PreparedStatement ps_NEXT_UNUSED_SLOT = null;
     private PreparedStatement ps_UPDATE_WASDOWNLOADED = null;
 
-    public IndexSlotsDatabaseTable(int indexName, String boardName) {
-        this.boardName = boardName;
+    public IndexSlotsDatabaseTable(int indexName, Board board) {
+        this.boardName = board.getNameLowerCase(); 
         this.indexName = indexName;
         
         db = TransferLayerDatabase.getInstance();

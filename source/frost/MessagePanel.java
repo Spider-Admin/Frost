@@ -986,15 +986,10 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             targetMessage.setDeleted(true);
             targetMessage.setNew(false);
 
-            if ( !settings.getBoolValue(SettingsClass.SHOW_DELETED_MESSAGES) ){
-                // if we show deleted messages we don't need to remove them from the table
-//                messageTableModel.deleteRow(targetMessage); // FIXME: implement
-            } else {
-                // needs repaint or the line which crosses the message isn't completely seen
-                DefaultTreeModel model = (DefaultTreeModel)MainFrame.getInstance().getMessagePanel().getMessageTable().getTree().getModel();
-                model.nodeChanged(targetMessage);
-//              getMessageTableModel().updateRow(targetMessage);
-            }
+            // we don't remove the message immediately, they are not loaded during next change to this board
+            // needs repaint or the line which crosses the message isn't completely seen
+            DefaultTreeModel model = (DefaultTreeModel)MainFrame.getInstance().getMessagePanel().getMessageTable().getTree().getModel();
+            model.nodeChanged(targetMessage);
             saveMessages.add(targetMessage);
         }
         // update new and shown message count
@@ -1002,7 +997,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         
         Thread saver = new Thread() {
             public void run() {
-                // save message, we must save the changed deleted state into the xml file
+                // save message, we must save the changed deleted state
                 for(Iterator i=saveMessages.iterator(); i.hasNext(); ) {
                     FrostMessageObject targetMessage = (FrostMessageObject)i.next();
                     try {
@@ -1031,14 +1026,13 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             // needs repaint or the line which crosses the message isn't completely seen
             DefaultTreeModel model = (DefaultTreeModel)MainFrame.getInstance().getMessagePanel().getMessageTable().getTree().getModel();
             model.nodeChanged(targetMessage);
-//            getMessageTableModel().updateRow(targetMessage);
 
             saveMessages.add(targetMessage);
         }
         
         Thread saver = new Thread() {
             public void run() {
-                // save message, we must save the changed deleted state into the xml file
+                // save message, we must save the changed deleted state
                 for(Iterator i=saveMessages.iterator(); i.hasNext(); ) {
                     FrostMessageObject targetMessage = (FrostMessageObject)i.next();
                     try {

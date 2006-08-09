@@ -479,7 +479,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             });
             renameFolderButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    renameNode(tofTreeModel.getSelectedNode());
+                    renameFolder(tofTreeModel.getSelectedNode());
                 }
             });
             removeBoardButton.addActionListener(new java.awt.event.ActionListener() {
@@ -941,13 +941,15 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     }
 
     /**
-     * Opens dialog to rename the board / folder.
-     * For boards it checks for double names.
-     * @param selected
+     * Opens dialog to rename a folder.
      */
-    public void renameNode(Board selected) {
-        if (selected == null)
+    public void renameFolder(Board selected) {
+        if (selected == null) {
             return;
+        }
+        if(selected.isFolder() == false) {
+            return; // must never be called for boards
+        }
         String newname = null;
         do {
             newname = JOptionPane.showInputDialog(
@@ -956,15 +958,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                     selected.getName());
             if (newname == null) {
                 return; // cancel
-            }
-            if (selected.isFolder() == false && // duplicate folder names are ok
-                tofTreeModel.getBoardByName(newname) != null) 
-            {
-                JOptionPane.showMessageDialog(this,
-                    "You already have a board with name '" // TODO: translate
-                        + newname
-                        + "'!\nPlease choose a new name.");
-                newname = ""; // loop again
             }
         } while (newname.length() == 0);
 

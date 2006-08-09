@@ -182,7 +182,7 @@ public class ImportXmlMessages {
                 continue;
             }
             
-            IndexSlotsDatabaseTable indexSlots = new IndexSlotsDatabaseTable(IndexSlotsDatabaseTable.MESSAGES, board.getName());
+            IndexSlotsDatabaseTable indexSlots = new IndexSlotsDatabaseTable(IndexSlotsDatabaseTable.MESSAGES, board);
 
             for(int j=0; j<dateDirs.length; j++) {
                 File dateDir = dateDirs[j];

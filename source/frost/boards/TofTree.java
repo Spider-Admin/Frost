@@ -278,7 +278,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         }
 
         private void renameFolderSelected() {
-            MainFrame.getInstance().renameNode( selectedTreeNode );
+            MainFrame.getInstance().renameFolder( selectedTreeNode );
         }
     }
 

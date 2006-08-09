@@ -118,7 +118,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         ps.setDate(i++, mo.getSqlDate()); // date
         ps.setTime(i++, mo.getSqlTime()); // time
         ps.setInt(i++, mo.getIndex()); // index
-        ps.setString(i++, mo.getBoard().getName()); // board
+        ps.setString(i++, mo.getBoard().getNameLowerCase()); // board
         ps.setString(i++, mo.getFromName()); // from
         ps.setString(i++, mo.getSubject()); // subject
         ps.setString(i++, mo.getRecipientName()); // recipient
@@ -194,7 +194,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
                 Board b = ba.getBoardObj();
                 int ix=1;
                 p.setLong(ix++, mo.getMsgIdentity()); 
-                p.setString(ix++, b.getName()); 
+                p.setString(ix++, b.getNameLowerCase()); 
                 p.setString(ix++, b.getPublicKey()); 
                 p.setString(ix++, b.getPrivateKey()); 
                 p.setString(ix++, b.getDescription()); 
@@ -224,7 +224,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
 
         ps.setDate(ix++, mo.getSqlDate()); // date
         ps.setInt(ix++, mo.getIndex()); // index
-        ps.setString(ix++, mo.getBoard().getName()); // board
+        ps.setString(ix++, mo.getBoard().getNameLowerCase()); // board
         
         int updated = ps.executeUpdate();
         if( updated == 0 ) {
@@ -317,133 +317,6 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         return mo;
     }
 
-//    public void retrieveMessages(
-//            Board board, 
-//            int maxDaysBack, 
-//            boolean withContent, 
-//            boolean withAttachments, 
-//            boolean showDeleted) 
-//    throws SQLException {
-//
-//        java.sql.Date startDate = DateFun.getSqlDateGMTDaysAgo(maxDaysBack);
-//        
-//        AppLayerDatabase db = AppLayerDatabase.getInstance();
-//        String sql =
-//            "SELECT "+
-//            "primkey,messageid,inreplyto,date,time,index,fromname,subject,recipient," +
-//            "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
-//            "hasfileattachment,hasboardattachment";
-//        if( withContent ) {
-//            sql += ",content";
-//        }
-//        sql += " FROM "+getMessageTableName()+" WHERE (date>=? OR isnew=TRUE) AND board=? AND isvalid=TRUE ";
-//        if( !showDeleted ) {
-//            // don't select deleted msgs
-//            sql += "AND isdeleted=FALSE ";
-//        }
-//        sql += "ORDER BY date DESC,time DESC";
-//            
-//        PreparedStatement ps = db.prepare(sql);
-//        
-//        ps.setDate(1, startDate);
-//        ps.setString(2, board.getName());
-//        
-//        ResultSet rs = ps.executeQuery();
-//
-//        LinkedList messageList = null;
-//        
-//        // HashSet contains a msgid if the msg was loaded OR was not existing
-//        HashSet messageIds = null;
-//        if( loadFullThreads ) {
-//            messageList = new LinkedList();
-//            messageIds = new HashSet();
-//        }
-//        
-//        while( rs.next() ) {
-//            FrostMessageObject mo = resultSetToFrostMessageObject(rs, board, withContent, withAttachments);
-//            
-//            if( loadFullThreads ) {
-//                if( mo.getMessageId() == null ) {
-//                    rootNode.add(mo);
-//                } else {
-//                    messageList.add(mo);
-//                    messageIds.add(mo.getMessageId());
-//                }
-//            } else {
-//                // add msgs flat to rootnode
-//                rootNode.add(mo);
-//            }
-//        }
-//        rs.close();
-//        ps.close();
-//        
-//        // for unthreaded we are finished
-//        if( loadFullThreads == false ) {
-//            return;
-//        }
-//
-//        // for threads, check msgrefs and load all existing msgs pointed to by refs
-//        LinkedList newLoadedMsgs = new LinkedList();
-//        for(Iterator i=messageList.iterator(); i.hasNext(); ) {
-//            FrostMessageObject mo = (FrostMessageObject)i.next();
-//            List l = mo.getInReplyToList();
-//            if( l.size() == 0 ) {
-//                continue; // no msg refs
-//            }
-//            // try to load each msgid that is referenced, put tried ids into hashset msgIds
-//            for(int x=l.size()-1; x>=0; x--) {
-//                String anId = (String)l.get(x);
-//                if( messageIds.contains(anId) ) {
-//                    continue;
-//                }
-//                FrostMessageObject fmo = retrieveMessageByMessageId(board, anId, withContent, withAttachments, showDeleted);
-//                if( fmo == null ) {
-//                    // for each missing msg create a dummy FrostMessageObject and add it to tree.
-//                    // if the missing msg arrives later, replace dummy with true msg in tree
-//                    LinkedList ll = new LinkedList();
-//                    if( x > 0 ) {
-//                        for(int y=0; y < x; y++) {
-//                            ll.add(l.get(y));
-//                        }
-//                    }
-//                    fmo = new FrostMessageObject(anId, board, ll);
-//                }
-//                newLoadedMsgs.add(fmo);
-//                messageIds.add(anId);
-//            }
-//        }
-//
-//        messageList.addAll(newLoadedMsgs);
-//        
-//        newLoadedMsgs = null;
-//        messageIds = null;
-//        
-//        // all msgs are loaded and dummies for missing msgs were created, now build the threads
-//        // - add msgs without msgid to rootnode
-//        // - add msgs with msgid and no ref to rootnode
-//        // - add msgs with msgid and ref to its direct parent (last refid in list)
-//        
-//        // first add msgs without msgid to rootNode and collect msgs with id into a hashtable for lookups
-//        Hashtable messagesTableById = new Hashtable();
-//        for(Iterator i=messageList.iterator(); i.hasNext(); ) {
-//            FrostMessageObject mo = (FrostMessageObject)i.next();
-//            messagesTableById.put(mo.getMessageId(), mo);
-//        }
-//
-//        // finally build the threads
-//        for(Iterator i=messagesTableById.values().iterator(); i.hasNext(); ) {
-//            FrostMessageObject mo = (FrostMessageObject)i.next();
-//            LinkedList l = mo.getInReplyToList();
-//            if( l.size() == 0 ) {
-//                rootNode.add(mo);
-//            } else {
-//                String directParentId = (String)l.getLast();
-//                FrostMessageObject parentMo = (FrostMessageObject)messagesTableById.get(directParentId);
-//                parentMo.add(mo);
-//            }
-//        }
-//    }
-
     public void retrieveMessagesForShow(
             Board board,
             int maxDaysBack, 
@@ -474,7 +347,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         PreparedStatement ps = db.prepare(sql);
         
         ps.setDate(1, startDate);
-        ps.setString(2, board.getName());
+        ps.setString(2, board.getNameLowerCase());
         
         ResultSet rs = ps.executeQuery();
 
@@ -513,7 +386,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         
         ps.setDate(1, startDate);
         ps.setDate(2, endDate);
-        ps.setString(3, board.getName());
+        ps.setString(3, board.getNameLowerCase());
         ps.setBoolean(4, showDeleted);
         
         ResultSet rs = ps.executeQuery();
@@ -549,7 +422,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
             sql += " FROM "+getMessageTableName()+" WHERE board=? AND messageid=? ORDER BY date DESC,time DESC";
         PreparedStatement ps = db.prepare(sql);
         
-        ps.setString(1, board.getName());
+        ps.setString(1, board.getNameLowerCase());
         ps.setString(2, msgId);
         
         ResultSet rs = ps.executeQuery();
@@ -568,7 +441,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
 //        GuiDatabase db = GuiDatabase.getInstance();
 //        PreparedStatement ps = db.prepare("SELECT TOP 1 content FROM "+getMessageTableName()+" WHERE date=? AND board=? AND index=?");
 //        ps.setDate(1, date);
-//        ps.setString(2, board.getName());
+//        ps.setString(2, board.getNameLowerCase());
 //        ps.setInt(3, index);
 //        
 //        String content = null;
@@ -585,7 +458,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
     public void setAllMessagesRead(Board board) throws SQLException {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         PreparedStatement ps = db.prepare("UPDATE "+getMessageTableName()+" SET isnew=FALSE WHERE board=? and isnew=TRUE");
-        ps.setString(1, board.getName());
+        ps.setString(1, board.getNameLowerCase());
         ps.executeUpdate();
         ps.close();
     }
@@ -598,11 +471,11 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         if( maxDaysBack < 0 ) {
             // no date restriction
             ps = db.prepare("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE board=? AND isnew=TRUE AND isvalid=TRUE");
-            ps.setString(1, board.getName());
+            ps.setString(1, board.getNameLowerCase());
         } else {
             ps = db.prepare("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE date >=? AND board=? AND isnew=TRUE AND isvalid=TRUE");
             ps.setDate(1, startDate);
-            ps.setString(2, board.getName());
+            ps.setString(2, board.getNameLowerCase());
         }
         
         int count = 0;
@@ -624,11 +497,11 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         if( maxDaysBack < 0 ) {
             // no date restriction
             ps = db.prepare("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE board=? AND isvalid=TRUE");
-            ps.setString(1, board.getName());
+            ps.setString(1, board.getNameLowerCase());
         } else {
             ps = db.prepare("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE date >=? AND board=? AND isvalid=TRUE");
             ps.setDate(1, startDate);
-            ps.setString(2, board.getName());
+            ps.setString(2, board.getNameLowerCase());
         }
         
         int count = 0;

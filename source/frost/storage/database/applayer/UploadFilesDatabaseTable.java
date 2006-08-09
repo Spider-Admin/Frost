@@ -119,7 +119,7 @@ public class UploadFilesDatabaseTable extends AbstractDatabaseTable {
                 FrostUploadItemOwnerBoard fuiob = (FrostUploadItemOwnerBoard)j.next();
                 ix=1;
                 ps2.setLong(ix++, identity);
-                ps2.setString(ix++, fuiob.getTargetBoard().getName());
+                ps2.setString(ix++, fuiob.getTargetBoard().getNameLowerCase());
                 ps2.setString(ix++, fuiob.getOwner());
                 ps2.setDate(ix++, fuiob.getLastSharedDate());
                 ps2.executeUpdate();
