@@ -21,12 +21,12 @@ package frost.util.gui.textpane;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.text.*;
 
 import frost.fcp.*;
-import frost.util.*;
 
 /**
  * Message decoder for search freenet keys and smileys,
@@ -34,6 +34,8 @@ import frost.util.*;
  * @author ET
  */
 public class MessageDecoder extends Decoder implements Smileys, MessageTypes {
+
+    private Logger logger = Logger.getLogger(MessageDecoder.class.getName());
 
 	private boolean smileys = true;
 	private boolean freenetKeys = true;
@@ -68,10 +70,7 @@ public class MessageDecoder extends Decoder implements Smileys, MessageTypes {
 			processFreenetKeys(message, elements);
 		}
         
-        // FIXME: how to clear document without instanciating a new one?
         Document doc = new DefaultStyledDocument();
-        parent.setDocument(doc);
-        
         int begin = 0;
 		try {
             Iterator it = elements.iterator();
@@ -98,8 +97,11 @@ public class MessageDecoder extends Decoder implements Smileys, MessageTypes {
 			// insert text after last element
 			doc.insertString(doc.getLength(),message.substring(begin), new SimpleAttributeSet());
 		} catch (BadLocationException e) {
-			// TODO , ignore or throws
+            logger.log(Level.SEVERE, "Excpetion during construction of message", e);
 		}
+
+        // set constructed doc to view
+        parent.setDocument(doc);
 	}
 
 	/**
@@ -195,7 +197,7 @@ public class MessageDecoder extends Decoder implements Smileys, MessageTypes {
 	}
 
     /**
-     * A smiley is only recognized if there is a whitespace before and after it (or begin of line/end of line)
+     * A smiley is only recognized if there is a whitespace before and after it (or begin/end of line)
      */
     private boolean isSmiley(int pos, String message, String smiley) {
         boolean bol = (pos == 0); 
