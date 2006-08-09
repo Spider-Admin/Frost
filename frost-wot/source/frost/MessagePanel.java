@@ -1227,6 +1227,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             // code to move to next board??? 
         } else {
             messageTable.removeRowSelectionInterval(0, getMessageTableModel().getRowCount()-1);
+            messageTable.getTree().makeVisible(new TreePath(nextMessage.getPath()));
             int row = messageTable.getRowForNode(nextMessage);
             if( row >= 0 ) {
                 messageTable.addRowSelectionInterval(row, row);
