@@ -22,6 +22,7 @@ import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.io.*;
+import java.sql.*;
 import java.util.*;
 import java.util.List;
 import java.util.logging.*;
@@ -37,6 +38,7 @@ import frost.gui.model.*;
 import frost.gui.objects.*;
 import frost.identities.*;
 import frost.messages.*;
+import frost.storage.database.applayer.*;
 import frost.util.gui.*;
 import frost.util.gui.textpane.*;
 import frost.util.gui.translation.*;
@@ -92,6 +94,8 @@ public class MessageFrame extends JFrame {
     private String signature = null;
 
     private TofTree tofTree;
+    
+    private FrostMessageObject repliedMessage = null;
 
     public MessageFrame(SettingsClass newSettings, Window tparentWindow, TofTree tofTree) {
         super();
@@ -201,7 +205,10 @@ public class MessageFrame extends JFrame {
             String newText,
             boolean isReply,
             Identity recipient,
-            LocalIdentity senderId) { // if given compose encrypted reply
+            LocalIdentity senderId,   // if given compose encrypted reply
+            FrostMessageObject msg) { 
+        
+        repliedMessage = msg;
         
         if (isReply) {
             newText += "\n\n";
@@ -400,15 +407,16 @@ public class MessageFrame extends JFrame {
     }
 
     public void composeNewMessage(Board newBoard, String newSubject, String newText) {
-        composeMessage(newBoard, newSubject, null, newText, false, null, null);
+        composeMessage(newBoard, newSubject, null, newText, false, null, null, null);
     }
 
     public void composeReply(
             Board newBoard, 
             String newSubject,
             String inReplyTo,
-            String newText) {
-        composeMessage(newBoard, newSubject, inReplyTo, newText, true, null, null);
+            String newText,
+            FrostMessageObject msg) {
+        composeMessage(newBoard, newSubject, inReplyTo, newText, true, null, null, msg);
     }
 
     public void composeEncryptedReply(
@@ -417,8 +425,9 @@ public class MessageFrame extends JFrame {
             String inReplyTo,
             String newText,
             Identity recipient,
-            LocalIdentity senderId) {
-        composeMessage(newBoard, newSubject, inReplyTo, newText, true, recipient, senderId);
+            LocalIdentity senderId,
+            FrostMessageObject msg) {
+        composeMessage(newBoard, newSubject, inReplyTo, newText, true, recipient, senderId, msg);
     }
 
     public void dispose() {
@@ -804,6 +813,25 @@ public class MessageFrame extends JFrame {
                                               mo,
                                               null,
                                               recipient);
+        
+        // set replied to replied message
+        if( repliedMessage != null ) {
+            if( repliedMessage.isReplied() == false ) {
+                repliedMessage.setReplied(true);
+                final FrostMessageObject saveMsg = repliedMessage;
+                Thread saver = new Thread() {
+                    public void run() {
+                        // save the changed isreplied state into the database
+                        try {
+                            AppLayerDatabase.getMessageTable().updateMessage(saveMsg);
+                        } catch (SQLException ex) {
+                            logger.log(Level.SEVERE, "Error updating a message object", ex);
+                        }
+                    }
+                };
+                saver.start();
+            }
+        }
 
         setVisible(false);
         dispose();
