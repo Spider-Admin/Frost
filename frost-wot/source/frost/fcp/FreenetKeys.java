@@ -22,8 +22,20 @@ public class FreenetKeys {
 
     private static String[] freenetKeyTypes = null;
     
+    protected final static int KEYTYPE_CHK = 0;
+    protected final static int KEYTYPE_KSK = 1;
+    protected final static int KEYTYPE_SSK = 2;
+    protected final static int KEYTYPE_USK = 3;
+    
+    protected final static int KEYLEN_05_CHK = 58;
+    protected final static int KEYLEN_05_SSK_PUB = 35;
+    protected final static int KEYLEN_05_SSK_PRIV = 31;
+
+    protected final static int KEYLEN_07_CHK = 99;
+    protected final static int KEYLEN_07_SSK_PUB = 99;
+    protected final static int KEYLEN_07_SSK_PRIV = 91;
+
     public static void initializeFor05() {
-        // set valid key types
         freenetKeyTypes = new String[3];
         freenetKeyTypes[0] = "CHK@";
         freenetKeyTypes[1] = "KSK@";
@@ -31,7 +43,6 @@ public class FreenetKeys {
     }
 
     public static void initializeFor07() {
-        // set valid key types
         freenetKeyTypes = new String[4];
         freenetKeyTypes[0] = "CHK@";
         freenetKeyTypes[1] = "KSK@";
@@ -46,53 +57,72 @@ public class FreenetKeys {
         return freenetKeyTypes;
     }
     
-    
     /**
      * Checks if provided String is valid. Valid means the String must
      * start with a supported keytype (CHK,...) and must have the
      * correct length for this freenet version.
      * 
-     * Keylength on 0.5 is 58 (including the CHK@).
-     * Keylength on 0.7 is 99 (including the CHK@).
+     * CHK keylength on 0.5 is 58 (including the CHK@).
+     * CHK keylength on 0.7 is 99 (including the CHK@).
+     * 
+     * SSK keylength on 0.5 is: pubkey:35  privkey:31
+     * SSK/USK keylength on 0.7 is: pubkey:99  privkey:91
+     * 
+     * KSK at least KSK@x : 5
      */
     public static boolean isValidKey(String key) {
+
         if( key == null || key.length() < 5 ) { // at least KSK@x
             return false;
         }
+
         // check type
-        boolean isOk = false;
+        int keytype = -1;
         for( int i = 0; i < getFreenetKeyTypes().length; i++ ) {
             if( key.startsWith(getFreenetKeyTypes()[i]) ) {
-                isOk = true;
-                if( i == 1 ) {
-                    return true; // KSK key is ok, no length check
+                // keytype found
+                if( i == KEYTYPE_KSK ) {
+                    return true; // KSK key is ok, length must be at least 5
                 }
+                keytype = i;
                 break;
             }
         }
-        if( !isOk ) {
+        if( keytype < 0 ) {
+            // unknown keytype
             return false;
         }
-        // check length
+
+        // get real keylength
         int length = key.length();
         int pos = key.indexOf("/");
         if( pos > 0 ) {
             length -= (length-pos);
         }
+        
+        // check length
+        boolean isKeyLenOk = false;
         if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
-            if( length != 58 ) {
-                return false;
-            } else {
-                return true;
+            if( keytype == KEYTYPE_CHK ) {
+                if( length == KEYLEN_05_CHK ) {
+                    isKeyLenOk = true;
+                }
+            } else if( keytype == KEYTYPE_SSK ) {
+                if( length == KEYLEN_05_SSK_PRIV || length == KEYLEN_05_SSK_PUB ) {
+                    isKeyLenOk = true;
+                }
+            }
+        } else if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) {
+            if( keytype == KEYTYPE_CHK ) {
+                if( length == KEYLEN_07_CHK ) {
+                    isKeyLenOk = true;
+                }
+            } else if( keytype == KEYTYPE_SSK || keytype == KEYTYPE_USK ) {
+                if( length == KEYLEN_07_SSK_PRIV || length == KEYLEN_07_SSK_PUB ) {
+                    isKeyLenOk = true;
+                }
             }
         }
-        if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) {
-            if( length != 99 ) {
-                return false;
-            } else {
-                return true;
-            }
-        }
-        return false;
+        return isKeyLenOk;
     }
 }

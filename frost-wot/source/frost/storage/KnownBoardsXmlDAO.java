@@ -25,11 +25,12 @@ import java.util.logging.*;
 import org.w3c.dom.*;
 
 import frost.*;
+import frost.fcp.*;
 import frost.gui.objects.*;
 import frost.messages.*;
 
 public class KnownBoardsXmlDAO {
-// FIXME: load only 05 boards on 05, same for 07! 
+ 
     private static Logger logger = Logger.getLogger(KnownBoardsXmlDAO.class.getName());
 
     public static List loadKnownBoards(File file) {
@@ -60,11 +61,38 @@ public class KnownBoardsXmlDAO {
             List lst = al.getAllOfType(Attachment.BOARD);
             for(Iterator i=lst.iterator(); i.hasNext(); ) {
                 BoardAttachment ba = (BoardAttachment)i.next();
-                knownBoards.add(ba.getBoardObj());
+                
+                Board b = ba.getBoardObj();
+                if( isBoardKeyValidForFreenetVersion(b) ) {
+                    knownBoards.add(ba.getBoardObj());
+                } else {
+                    logger.warning("Known board keys are invalid for this freenet version, board ignored: "+b.getName());
+                }
             }
             logger.info("Loaded " + knownBoards.size() + " known boards.");
         }
         return knownBoards;
+    }
+
+    /**
+     * Check the public and private key of the board if they are valid for
+     * the used freenet version.
+     */
+    private static boolean isBoardKeyValidForFreenetVersion(Board b) {
+        String key;
+        key = b.getPublicKey();
+        if( key != null && key.length() > 0 ) {
+            if( !FreenetKeys.isValidKey(key) ) {
+                return false;
+            }
+        }
+        key = b.getPrivateKey();
+        if( key != null && key.length() > 0 ) {
+            if( !FreenetKeys.isValidKey(key) ) {
+                return false;
+            }
+        }
+        return true; // keys not set or valid
     }
     
     public static boolean saveKnownBoards(File file, List knownBoards) {
