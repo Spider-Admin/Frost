@@ -1,3 +1,56 @@
+##########################################################################
+#                                                                        #
+#  F R O S T * * T O D O                                                 #
+#                                                                        #
+##########################################################################
+#                                                                        #
+#  - somthing to do             -> pending                               #
+#  + somthing to do             -> done                                  #
+#                                                                        #
+#  ##### checkpoint: what thingy [(expected date)]                       #
+#  - if all items below a checkpoint are done, the thingy happens        #
+#  - an empty checkpoint is to force the current job order/dependicies   #
+#    and can be deleted if done.                                         #
+#                                                                        #
+##########################################################################
+#                                                                        #
+#                        !!! ONLY SAMPLE !!!                             #
+#                                                                        #
+##########################################################################
+
+##### checkpoint: beta
+
+- new connectionmanegment
+- online-help
+- redisign frost-protokol, remove 0.5
+- redisign source tree (hyperocha?, e.g.)
+- verschiedene kleinigkeiten
+
+
+##### checkpoint:
+
+
+- brunching frost: maintanance brunch for 0.5 (only for bugfixes) 
+
+##### realease
+
+- fixes/RC if neccessary
+
+##### checkpoint: rc
+
+- forming external importer
+- verschiedene kleinigkeiten
+
+##### checkpoint: beta
+
+- invent an idea for displaying the shared files
+- verschiedene kleinigkeiten
+
+***** 2006/08/10 - saces 
++ reaktivate TODO ;) - done
+
+
+
 This is the Frost TODO file. Please maintain it carefully.
 
 
@@ -44,6 +97,6 @@ Translation:
 ***** 2003/05/12 - bback
 
 - xml format for index files and messages
-- message threads
++ message threads - done 2006/08
 
 
