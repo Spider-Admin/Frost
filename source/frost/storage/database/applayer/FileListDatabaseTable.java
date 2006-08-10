@@ -416,31 +416,40 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
 
     /**
      * Retrieves a list of FrostSharedFileOjects.
+     * If boardsToSearch==null then all boards are searched.
      */
     public void retrieveFilesByBoards(List boardsToSearch, FileListDatabaseTableCallback callback) throws SQLException {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
-        if( boardsToSearch.size() == 0 ) {
+        if( boardsToSearch != null && boardsToSearch.size() == 0 ) {
             return;
         }
         
-        String sql = "SELECT refkey FROM FILEOWNERBOARDLIST WHERE board=?";
-
-        boolean firstLoop = true;
-        for(int x=boardsToSearch.size(); x >= 0; x--) {
-            if( firstLoop ) {
-                firstLoop=false;
-            } else {
-                sql += " OR board=?";
+        String sql = "SELECT refkey FROM FILEOWNERBOARDLIST ";
+        
+        if( boardsToSearch != null ) {
+            // add WHERE clause for each board
+            sql += "WHERE board=?";
+            boolean firstLoop = true;
+            for(int x=boardsToSearch.size(); x >= 0; x--) {
+                if( firstLoop ) {
+                    firstLoop=false;
+                } else {
+                    sql += " OR board=?";
+                }
             }
         }
         sql += " GROUP BY refkey";
 
         PreparedStatement ps = db.prepare(sql);
-        int ix=1;
-        for(Iterator i=boardsToSearch.iterator(); i.hasNext(); ) {
-            Board b = (Board)i.next();
-            ps.setString(ix++, b.getNameLowerCase());
+        
+        if( boardsToSearch != null ) {
+            // set the values for the WHERE clause
+            int ix=1;
+            for(Iterator i=boardsToSearch.iterator(); i.hasNext(); ) {
+                Board b = (Board)i.next();
+                ps.setString(ix++, b.getNameLowerCase());
+            }
         }
         
         ResultSet rs = ps.executeQuery();
