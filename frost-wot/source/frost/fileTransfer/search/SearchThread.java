@@ -327,12 +327,15 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
     }
 
     public void run() {
-        logger.info("Search for '" + request + "' on " + boards.size() + " boards started.");
+        if( boards == null ) {
+            logger.info("Search for '" + request + "' on ALL boards started.");
+        } else {
+            logger.info("Search for '" + request + "' on " + boards.size() + " boards started.");
+        }
 
         allFileCount = 0;
 
         try {
-            // FIXME: use other method to get all boards!
             AppLayerDatabase.getFileListDatabaseTable().retrieveFilesByBoards(boards, this);
         } catch(SQLException e) {
             logger.log(Level.SEVERE, "Catched exception:", e);
@@ -343,7 +346,7 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
 
     /**Constructor*/
     public SearchThread(String newRequest,
-            List newBoards, // a Vector containing all boards to search in
+            List newBoards, // a Vector containing all boards to search in, null means all boards
             String newSearchType,
             SearchManager searchManager)
     {

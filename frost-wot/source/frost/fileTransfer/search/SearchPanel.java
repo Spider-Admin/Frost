@@ -519,15 +519,14 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 
     /**
      * searchButton Action Listener (Search)
-     * @param e
      */
     private void searchButton_actionPerformed(ActionEvent e) {
         searchButton.setEnabled(false);
         model.clear();
         List boardsToSearch;
         if (searchAllBoardsCheckBox.isSelected()) {
-            // search in all boards
-            boardsToSearch = tofTreeModel.getAllBoards();
+            // search all boards -> set to null indicates this!
+            boardsToSearch = null;
         } else {
             if (tofTreeModel.getSelectedNode().isFolder() == false) {
                 // search in selected board
@@ -552,6 +551,7 @@ class SearchPanel extends JPanel implements SettingsUpdater {
                 boardsToSearch,
                 searchComboBox.getSelectedKey(),
                 searchManager);
+
         searchThread.setDownloadModel(downloadModel);
         searchThread.setUploadModel(uploadModel);
         searchThread.start();
