@@ -1236,6 +1236,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
      * Search through all messages, find next unread message by date (earliest message in table).
      */
     public void selectNextUnreadMessage() {
+        // TODO: if we are currently inside a msg thread, move to next new msg in thread! 
+
         FrostMessageObject nextMessage = null;
 
         final DefaultTreeModel tableModel = getMessageTreeModel();
@@ -1265,18 +1267,6 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 messageTable.addRowSelectionInterval(row, row);
                 messageListScrollPane.getVerticalScrollBar().setValue((row==0?row:row-1) * messageTable.getRowHeight());
             }
-        }
-    }
-
-    public void makeNodeViewable(FrostMessageObject mo) {
-        int row = messageTable.getRowForNode(mo);
-        if( row >= 0 ) {
-            int newValue = row * messageTable.getRowHeight();
-//            int maxValue = messageListScrollPane.getVerticalScrollBar().getMaximum();
-//            if( newValue > maxValue ) {
-//                newValue = maxValue;
-//            }
-            messageListScrollPane.getVerticalScrollBar().setValue(newValue);
         }
     }
 
