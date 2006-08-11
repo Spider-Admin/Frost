@@ -57,6 +57,7 @@ public class MessageTextPane extends JPanel {
     private JTable boardsTable = null;
     private JScrollPane filesTableScrollPane;
     private JScrollPane boardsTableScrollPane;
+    private JScrollPane messageBodyScrollPane;
 
     private PopupMenuAttachmentBoard popupMenuAttachmentBoard = null;
     private PopupMenuAttachmentFile popupMenuAttachmentTable = null;
@@ -115,6 +116,34 @@ public class MessageTextPane extends JPanel {
     }
 
     /**
+     * Find the offset in text where the caret must be positioned to
+     * show the line at 'offset' on top of visible text.
+     * Scans through the visible text and counts 'linesDown' visible lines (maybe wrapped!). 
+     */
+    private int calculateCaretPosition(JTextComponent c, int offset, int linesDown) {
+        int len = c.getDocument().getLength();
+        try {
+            while (offset < len) {
+                int end = Utilities.getRowEnd(c, offset);
+                if (end < 0) {
+                    break;
+                }
+    
+                // Include the last character on the line
+                end = Math.min(end+1, len);
+    
+                offset = end;
+                linesDown--;
+                if( linesDown == 0 ) {
+                    return offset;
+                }
+            }
+        } catch (BadLocationException e) {
+        }
+        return len;
+    }
+
+    /**
      * Called if a message is selected.
      */
     public void update_messageSelected(FrostMessageObject msg) {
@@ -126,6 +155,25 @@ public class MessageTextPane extends JPanel {
         }
         
         messageTextArea.setText(selectedMessage.getContent());
+        
+        // for search messages don't scroll down to begin of text
+        if( searchMessagesConfig == null ) {
+            int pos = selectedMessage.getContent().lastIndexOf("----- "+selectedMessage.getFromName()+" ----- ");
+            if( pos >= 0 ) {
+                // scroll to begin of reply
+                int h = messageTextArea.getFontMetrics(messageTextArea.getFont()).getHeight();
+                int s = messageTextArea.getSize().height;
+                // how many lines are visible?
+                int v = s/h - 1;
+                
+                pos = calculateCaretPosition(messageTextArea, pos, v);
+    
+                messageTextArea.setCaretPosition(pos);
+            } else {
+                // scroll to end of message
+                messageTextArea.setCaretPosition(selectedMessage.getContent().length());
+            }
+        }
 
         if( searchMessagesConfig != null && 
             searchMessagesConfig.content != null && 
@@ -155,12 +203,13 @@ public class MessageTextPane extends JPanel {
         decoder.setFreenetKeysDecode(Core.frostSettings.getBoolValue(SettingsClass.SHOW_KEYS_AS_HYPERLINKS));
         messageTextArea = new AntialiasedTextPane(decoder);
         messageTextArea.setEditable(false);
+        messageTextArea.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
 //        messageTextArea.setLineWrap(true);
 //        messageTextArea.setWrapStyleWord(true);
         
         messageTextArea.setAntiAliasEnabled(Core.frostSettings.getBoolValue("messageBodyAA"));
 
-        JScrollPane messageBodyScrollPane = new JScrollPane(messageTextArea);
+        messageBodyScrollPane = new JScrollPane(messageTextArea);
         messageBodyScrollPane.setWheelScrollingEnabled(true);
 
         // build attached files scroll pane
