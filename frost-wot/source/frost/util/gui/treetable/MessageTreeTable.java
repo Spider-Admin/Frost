@@ -178,18 +178,15 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
      * never receive this unless we forward it in this manner.
      */
     public void updateUI() {
-	super.updateUI();
-	if(tree != null) {
-	    tree.updateUI();
-	    // Do this so that the editor is referencing the current renderer
-	    // from the tree. The renderer can potentially change each time
-	    // laf changes.
-//	    setDefaultEditor(TreeTableModel.class, new TreeTableCellEditor());
-	}
-	// Use the tree's default foreground and background colors in the
-	// table. 
-        LookAndFeel.installColorsAndFont(this, "Tree.background",
-                                         "Tree.foreground", "Tree.font");
+    	super.updateUI();
+    	if(tree != null) {
+    	    tree.updateUI();
+    	    // Do this so that the editor is referencing the current renderer
+    	    // from the tree. The renderer can potentially change each time laf changes.
+    	    // setDefaultEditor(TreeTableModel.class, new TreeTableCellEditor());
+    	}
+	    // Use the tree's default foreground and background colors in the table. 
+        LookAndFeel.installColorsAndFont(this, "Tree.background", "Tree.foreground", "Tree.font");
     }
 
     /**
@@ -209,7 +206,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
      * will always return -1.
      */
     private int realEditingRow() {
-	return editingRow;
+        return editingRow;
     }
 
     /**
@@ -220,15 +217,14 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
      * -1, and therefore doesn't automatically resize the editor for us.
      */
     public void sizeColumnsToFit(int resizingColumn) { 
-	super.sizeColumnsToFit(resizingColumn);
-	if (getEditingColumn() != -1 && getColumnClass(editingColumn) ==
-	    TreeTableModel.class) {
-	    Rectangle cellRect = getCellRect(realEditingRow(),
-					     getEditingColumn(), false);
+        super.sizeColumnsToFit(resizingColumn);
+    	if (getEditingColumn() != -1 && getColumnClass(editingColumn) ==
+    	    TreeTableModel.class) {
+    	    Rectangle cellRect = getCellRect(realEditingRow(), getEditingColumn(), false);
             Component component = getEditorComponent();
-	    component.setBounds(cellRect);
+            component.setBounds(cellRect);
             component.validate();
-	}
+    	}
     }
 
     /**
@@ -236,9 +232,9 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
      */
     public void setRowHeight(int rowHeight) { 
         super.setRowHeight(rowHeight); 
-	if (tree != null && tree.getRowHeight() != rowHeight) {
+        if (tree != null && tree.getRowHeight() != rowHeight) {
             tree.setRowHeight(getRowHeight()); 
-	}
+        }
     }
 
     /**
@@ -263,291 +259,304 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
      * the tree in the background, and then draw the editor over it.
      */
     public boolean editCellAt(int row, int column, EventObject e){
-	boolean retValue = super.editCellAt(row, column, e);
-	if (retValue && getColumnClass(column) == TreeTableModel.class) {
-	    repaint(getCellRect(row, column, false));
-	}
-	return retValue;
+    	boolean retValue = super.editCellAt(row, column, e);
+    	if (retValue && getColumnClass(column) == TreeTableModel.class) {
+    	    repaint(getCellRect(row, column, false));
+    	}
+    	return retValue;
     }
 
     /**
      * A TreeCellRenderer that displays a JTree.
      */
     public class TreeTableCellRenderer extends JTree implements TableCellRenderer {
-	/** Last table/tree row asked to renderer. */
-	protected int visibleRow;
-    
-    private Font boldFont = null;
-    private Font normalFont = null;
-    private boolean isDeleted = false;
-
-	public TreeTableCellRenderer(TreeModel model) {
-	    super(model);
-        Font baseFont = MessageTreeTable.this.getFont();
-        normalFont = baseFont.deriveFont(Font.PLAIN);
-        boldFont = baseFont.deriveFont(Font.BOLD);
+    	/** Last table/tree row asked to renderer. */
+    	protected int visibleRow;
         
-        setCellRenderer(new OwnTreeCellRenderer());
-	}
+        private Font boldFont = null;
+        private Font normalFont = null;
+        private boolean isDeleted = false;
     
-    class OwnTreeCellRenderer extends DefaultTreeCellRenderer {
-        public OwnTreeCellRenderer() {
-            super();
-            setVerticalAlignment(CENTER);
-        }
-        public void paint(Graphics g) {
-            super.paint(g);
-            if(isDeleted) {
-                Dimension size = getSize();
-                g.drawLine(0, size.height / 2, size.width, size.height / 2);
-            }
-        }
-    }
-
-	/**
-	 * updateUI is overridden to set the colors of the Tree's renderer
-	 * to match that of the table.
-	 */
-	public void updateUI() {
-	    super.updateUI();
-	    // Make the tree's cell renderer use the table's cell selection
-	    // colors. 
-	    TreeCellRenderer tcr = getCellRenderer();
-	    if (tcr instanceof DefaultTreeCellRenderer) {
-    		DefaultTreeCellRenderer dtcr = ((DefaultTreeCellRenderer)tcr); 
-    		// For 1.1 uncomment this, 1.2 has a bug that will cause an
-    		// exception to be thrown if the border selection color is null.
-    		// dtcr.setBorderSelectionColor(null);
-    		dtcr.setTextSelectionColor(UIManager.getColor("Table.selectionForeground"));
-    		dtcr.setBackgroundSelectionColor(UIManager.getColor("Table.selectionBackground"));
-	    }
-	}
-    
-    public void setDeleted(boolean value) {
-        isDeleted = value;
-    }
-
-	/**
-	 * Sets the row height of the tree, and forwards the row height to
-	 * the table.
-	 */
-	public void setRowHeight(int rowHeight) { 
-	    if (rowHeight > 0) {
-    		super.setRowHeight(rowHeight); 
-    		if (MessageTreeTable.this != null &&
-    		    MessageTreeTable.this.getRowHeight() != rowHeight) {
-    		    MessageTreeTable.this.setRowHeight(getRowHeight()); 
-    		}
-	    }
-	}
-    
-	/**
-	 * This is overridden to set the height to match that of the JTable.
-	 */
-	public void setBounds(int x, int y, int w, int h) {
-	    super.setBounds(x, 0, w, MessageTreeTable.this.getHeight());
-	}
-
-	/**
-	 * Sublcassed to translate the graphics such that the last visible
-	 * row will be drawn at 0,0.
-	 */
-	public void paint(Graphics g) {
-	    g.translate(0, -visibleRow * getRowHeight());
-	    super.paint(g);
-	}
-    
-	/**
-	 * TreeCellRenderer method. Overridden to update the visible row.
-	 */
-	public Component getTableCellRendererComponent(JTable table,
-						       Object value,
-						       boolean isSelected,
-						       boolean hasFocus,
-						       int row, int column) {
-	    Color background;
-	    Color foreground;
-        
-        TreeTableModelAdapter model = (TreeTableModelAdapter)MessageTreeTable.this.getModel();
-        
-        Object o = model.getRow(row);
-        if( !(o instanceof FrostMessageObject) ) {
-            setFont(normalFont);
-            setForeground(Color.BLACK);
-            return this;
-        }
-        
-        FrostMessageObject msg = (FrostMessageObject)model.getRow(row);
-
-        // first set font, bold for new msg or normal
-        if (msg.isNew()) {
-            setFont(boldFont);
-        } else {
-            setFont(normalFont);
-        }
-        
-        // now set color
-        if( msg.getRecipientName() != null && msg.getRecipientName().length() > 0) {
-            foreground = Color.RED;
-        } else if (msg.containsAttachments()) {
-            foreground = Color.BLUE;
-        } else {
-            foreground = Color.BLACK;
-        }
+    	public TreeTableCellRenderer(TreeModel model) {
+    	    super(model);
+            Font baseFont = MessageTreeTable.this.getFont();
+            normalFont = baseFont.deriveFont(Font.PLAIN);
+            boldFont = baseFont.deriveFont(Font.BOLD);
             
-        if (!isSelected) {
-            if( showColoredLines ) {
-                // IBM lineprinter paper
-                if ((row & 0x0001) == 0) {
-                	background = Color.WHITE;
-                } else {
-                	background = secondBackgroundColor;
-                }
-            } else {
-                background = table.getBackground();
+            setCellRenderer(new OwnTreeCellRenderer());
+    	}
+        
+        class OwnTreeCellRenderer extends DefaultTreeCellRenderer {
+            int treeWidth;
+            public OwnTreeCellRenderer() {
+                super();
+                setVerticalAlignment(CENTER);
             }
-        } else {
-            background = table.getSelectionBackground();
-            foreground = table.getSelectionForeground();
+            public Component getTreeCellRendererComponent(
+                    JTree tree, 
+                    Object value, 
+                    boolean sel, 
+                    boolean expanded,
+                    boolean leaf, 
+                    int row, 
+                    boolean hasFocus) 
+            {
+                treeWidth = tree.getWidth();
+                return super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+            }
+            public void paint(Graphics g) {
+                setSize(new Dimension(treeWidth - this.getBounds().x, this.getSize().height));
+                super.paint(g);
+                if(isDeleted) {
+                    Dimension size = getSize();
+                    g.drawLine(0, size.height / 2, size.width, size.height / 2);
+                }
+            }
         }
+    
+    	/**
+    	 * updateUI is overridden to set the colors of the Tree's renderer
+    	 * to match that of the table.
+    	 */
+    	public void updateUI() {
+    	    super.updateUI();
+    	    // Make the tree's cell renderer use the table's cell selection
+    	    // colors. 
+    	    TreeCellRenderer tcr = getCellRenderer();
+    	    if (tcr instanceof DefaultTreeCellRenderer) {
+        		DefaultTreeCellRenderer dtcr = ((DefaultTreeCellRenderer)tcr); 
+        		// For 1.1 uncomment this, 1.2 has a bug that will cause an
+        		// exception to be thrown if the border selection color is null.
+        		// dtcr.setBorderSelectionColor(null);
+        		dtcr.setTextSelectionColor(UIManager.getColor("Table.selectionForeground"));
+        		dtcr.setBackgroundSelectionColor(UIManager.getColor("Table.selectionBackground"));
+    	    }
+    	}
         
-        setDeleted(msg.isDeleted());
-
-	    visibleRow = row;
-	    setBackground(background);
-
-	    TreeCellRenderer tcr = getCellRenderer();
-	    if (tcr instanceof DefaultTreeCellRenderer) {
-    		DefaultTreeCellRenderer dtcr = ((DefaultTreeCellRenderer)tcr); 
-    		if (isSelected) {
-    		    dtcr.setTextSelectionColor(foreground);
-    		    dtcr.setBackgroundSelectionColor(background);
-    		}
-    		else {
-    		    dtcr.setTextNonSelectionColor(foreground);
-    		    dtcr.setBackgroundNonSelectionColor(background);
-    		}
-            dtcr.setToolTipText(msg.getSubject());
-            ImageIcon icon;
-            if( msg.isDummy() ) {
-                icon = messageDummyIcon;
-            } else if( msg.isNew() ) {
-                if( msg.isReplied() ) {
-                    icon = messageNewRepliedIcon;
+        public void setDeleted(boolean value) {
+            isDeleted = value;
+        }
+    
+    	/**
+    	 * Sets the row height of the tree, and forwards the row height to
+    	 * the table.
+    	 */
+    	public void setRowHeight(int rowHeight) { 
+    	    if (rowHeight > 0) {
+        		super.setRowHeight(rowHeight); 
+        		if (MessageTreeTable.this != null &&
+        		    MessageTreeTable.this.getRowHeight() != rowHeight) {
+        		    MessageTreeTable.this.setRowHeight(getRowHeight()); 
+        		}
+    	    }
+    	}
+        
+    	/**
+    	 * This is overridden to set the height to match that of the JTable.
+    	 */
+    	public void setBounds(int x, int y, int w, int h) {
+    	    super.setBounds(x, 0, w, MessageTreeTable.this.getHeight());
+    	}
+    
+    	/**
+    	 * Sublcassed to translate the graphics such that the last visible
+    	 * row will be drawn at 0,0.
+    	 */
+    	public void paint(Graphics g) {
+    	    g.translate(0, -visibleRow * getRowHeight());
+    	    super.paint(g);
+    	}
+        
+    	/**
+    	 * TreeCellRenderer method. Overridden to update the visible row.
+    	 */
+    	public Component getTableCellRendererComponent(JTable table,
+    						       Object value,
+    						       boolean isSelected,
+    						       boolean hasFocus,
+    						       int row, int column) {
+    	    Color background;
+    	    Color foreground;
+            
+            TreeTableModelAdapter model = (TreeTableModelAdapter)MessageTreeTable.this.getModel();
+            
+            Object o = model.getRow(row);
+            if( !(o instanceof FrostMessageObject) ) {
+                setFont(normalFont);
+                setForeground(Color.BLACK);
+                return this;
+            }
+            
+            FrostMessageObject msg = (FrostMessageObject)model.getRow(row);
+    
+            // first set font, bold for new msg or normal
+            if (msg.isNew()) {
+                setFont(boldFont);
+            } else {
+                setFont(normalFont);
+            }
+            
+            // now set color
+            if( msg.getRecipientName() != null && msg.getRecipientName().length() > 0) {
+                foreground = Color.RED;
+            } else if (msg.containsAttachments()) {
+                foreground = Color.BLUE;
+            } else {
+                foreground = Color.BLACK;
+            }
+                
+            if (!isSelected) {
+                if( showColoredLines ) {
+                    // IBM lineprinter paper
+                    if ((row & 0x0001) == 0) {
+                    	background = Color.WHITE;
+                    } else {
+                    	background = secondBackgroundColor;
+                    }
                 } else {
-                    icon = messageNewIcon;
+                    background = table.getBackground();
                 }
             } else {
-                if( msg.isReplied() ) {
-                    icon = messageReadRepliedIcon;
-                } else {
-                    icon = messageReadIcon;
-                }
+                background = table.getSelectionBackground();
+                foreground = table.getSelectionForeground();
             }
-            dtcr.setIcon(icon);
-            dtcr.setLeafIcon(icon);
-            dtcr.setOpenIcon(icon);
-            dtcr.setClosedIcon(icon);
-            // FIXME: renderer does not know about the available size, no "..." at end of text!
-	    }
+            
+            setDeleted(msg.isDeleted());
+    
+    	    visibleRow = row;
+    	    setBackground(background);
+    
+    	    TreeCellRenderer tcr = getCellRenderer();
+    	    if (tcr instanceof DefaultTreeCellRenderer) {
+        		DefaultTreeCellRenderer dtcr = ((DefaultTreeCellRenderer)tcr); 
+        		if (isSelected) {
+        		    dtcr.setTextSelectionColor(foreground);
+        		    dtcr.setBackgroundSelectionColor(background);
+        		}
+        		else {
+        		    dtcr.setTextNonSelectionColor(foreground);
+        		    dtcr.setBackgroundNonSelectionColor(background);
+        		}
+                dtcr.setToolTipText(msg.getSubject());
+                ImageIcon icon;
+                if( msg.isDummy() ) {
+                    icon = messageDummyIcon;
+                } else if( msg.isNew() ) {
+                    if( msg.isReplied() ) {
+                        icon = messageNewRepliedIcon;
+                    } else {
+                        icon = messageNewIcon;
+                    }
+                } else {
+                    if( msg.isReplied() ) {
+                        icon = messageReadRepliedIcon;
+                    } else {
+                        icon = messageReadIcon;
+                    }
+                }
+                dtcr.setIcon(icon);
+                dtcr.setLeafIcon(icon);
+                dtcr.setOpenIcon(icon);
+                dtcr.setClosedIcon(icon);
+    	    }
+            
+    	    return this;
+    	}
+        }
+    
+        /**
+         * ListToTreeSelectionModelWrapper extends DefaultTreeSelectionModel
+         * to listen for changes in the ListSelectionModel it maintains. Once
+         * a change in the ListSelectionModel happens, the paths are updated
+         * in the DefaultTreeSelectionModel.
+         */
+        class ListToTreeSelectionModelWrapper extends DefaultTreeSelectionModel { 
+    	/** Set to true when we are updating the ListSelectionModel. */
+    	protected boolean         updatingListSelectionModel;
+    
+    	public ListToTreeSelectionModelWrapper() {
+    	    super();
+    	    getListSelectionModel().addListSelectionListener(createListSelectionListener());
+    	}
         
-	    return this;
-	}
-    }
-
-    /**
-     * ListToTreeSelectionModelWrapper extends DefaultTreeSelectionModel
-     * to listen for changes in the ListSelectionModel it maintains. Once
-     * a change in the ListSelectionModel happens, the paths are updated
-     * in the DefaultTreeSelectionModel.
-     */
-    class ListToTreeSelectionModelWrapper extends DefaultTreeSelectionModel { 
-	/** Set to true when we are updating the ListSelectionModel. */
-	protected boolean         updatingListSelectionModel;
-
-	public ListToTreeSelectionModelWrapper() {
-	    super();
-	    getListSelectionModel().addListSelectionListener(createListSelectionListener());
-	}
+    	/**
+    	 * Returns the list selection model. ListToTreeSelectionModelWrapper
+    	 * listens for changes to this model and updates the selected paths
+    	 * accordingly.
+    	 */
+    	ListSelectionModel getListSelectionModel() {
+    	    return listSelectionModel; 
+    	}
     
-	/**
-	 * Returns the list selection model. ListToTreeSelectionModelWrapper
-	 * listens for changes to this model and updates the selected paths
-	 * accordingly.
-	 */
-	ListSelectionModel getListSelectionModel() {
-	    return listSelectionModel; 
-	}
-
-	/**
-	 * This is overridden to set <code>updatingListSelectionModel</code>
-	 * and message super. This is the only place DefaultTreeSelectionModel
-	 * alters the ListSelectionModel.
-	 */
-	public void resetRowSelection() {
-	    if(!updatingListSelectionModel) {
-    		updatingListSelectionModel = true;
-    		try {
-//                super.resetRowSelection();
-    		}
-    		finally {
-    		    updatingListSelectionModel = false;
-    		}
-	    }
-	    // Notice how we don't message super if
-	    // updatingListSelectionModel is true. If
-	    // updatingListSelectionModel is true, it implies the
-	    // ListSelectionModel has already been updated and the
-	    // paths are the only thing that needs to be updated.
-	}
-
-	/**
-	 * Creates and returns an instance of ListSelectionHandler.
-	 */
-	protected ListSelectionListener createListSelectionListener() {
-	    return new ListSelectionHandler();
-	}
-
-	/**
-	 * If <code>updatingListSelectionModel</code> is false, this will
-	 * reset the selected paths from the selected rows in the list
-	 * selection model.
-	 */
-	protected void updateSelectedPathsFromSelectedRows() {
-	    if(!updatingListSelectionModel) {
-    		updatingListSelectionModel = true;
-    		try {
-    		    // This is way expensive, ListSelectionModel needs an enumerator for iterating
-    		    int min = listSelectionModel.getMinSelectionIndex();
-    		    int max = listSelectionModel.getMaxSelectionIndex();
+    	/**
+    	 * This is overridden to set <code>updatingListSelectionModel</code>
+    	 * and message super. This is the only place DefaultTreeSelectionModel
+    	 * alters the ListSelectionModel.
+    	 */
+    	public void resetRowSelection() {
+    	    if(!updatingListSelectionModel) {
+        		updatingListSelectionModel = true;
+        		try {
+    //                super.resetRowSelection();
+        		}
+        		finally {
+        		    updatingListSelectionModel = false;
+        		}
+    	    }
+    	    // Notice how we don't message super if
+    	    // updatingListSelectionModel is true. If
+    	    // updatingListSelectionModel is true, it implies the
+    	    // ListSelectionModel has already been updated and the
+    	    // paths are the only thing that needs to be updated.
+    	}
     
-    		    clearSelection();
-    		    if(min != -1 && max != -1) {
-        			for(int counter = min; counter <= max; counter++) {
-        			    if(listSelectionModel.isSelectedIndex(counter)) {
-            				TreePath selPath = tree.getPathForRow(counter);
-            				if(selPath != null) {
-            				    addSelectionPath(selPath);
-            				}
-        			    }
-        			}
-    		    }
-    		}
-    		finally {
-    		    updatingListSelectionModel = false;
-    		}
-	    }
-	}
-
-	/**
-	 * Class responsible for calling updateSelectedPathsFromSelectedRows
-	 * when the selection of the list changse.
-	 */
-	class ListSelectionHandler implements ListSelectionListener {
-	    public void valueChanged(ListSelectionEvent e) {
-	        updateSelectedPathsFromSelectedRows();
-	    }
-	}
+    	/**
+    	 * Creates and returns an instance of ListSelectionHandler.
+    	 */
+    	protected ListSelectionListener createListSelectionListener() {
+    	    return new ListSelectionHandler();
+    	}
+    
+    	/**
+    	 * If <code>updatingListSelectionModel</code> is false, this will
+    	 * reset the selected paths from the selected rows in the list
+    	 * selection model.
+    	 */
+    	protected void updateSelectedPathsFromSelectedRows() {
+    	    if(!updatingListSelectionModel) {
+        		updatingListSelectionModel = true;
+        		try {
+        		    // This is way expensive, ListSelectionModel needs an enumerator for iterating
+        		    int min = listSelectionModel.getMinSelectionIndex();
+        		    int max = listSelectionModel.getMaxSelectionIndex();
+        
+        		    clearSelection();
+        		    if(min != -1 && max != -1) {
+            			for(int counter = min; counter <= max; counter++) {
+            			    if(listSelectionModel.isSelectedIndex(counter)) {
+                				TreePath selPath = tree.getPathForRow(counter);
+                				if(selPath != null) {
+                				    addSelectionPath(selPath);
+                				}
+            			    }
+            			}
+        		    }
+        		}
+        		finally {
+        		    updatingListSelectionModel = false;
+        		}
+    	    }
+    	}
+    
+    	/**
+    	 * Class responsible for calling updateSelectedPathsFromSelectedRows
+    	 * when the selection of the list changse.
+    	 */
+    	class ListSelectionHandler implements ListSelectionListener {
+    	    public void valueChanged(ListSelectionEvent e) {
+    	        updateSelectedPathsFromSelectedRows();
+    	    }
+    	}
     }
     
     private class MyCheckBox extends JCheckBox {
@@ -675,8 +684,8 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
      * New messages gets a bold look, messages with attachments a blue color.
      * Encrypted messages get a red color, no matter if they have attachments.
      */
-    private class StringCellRenderer extends DefaultTableCellRenderer
-    {
+    private class StringCellRenderer extends DefaultTableCellRenderer {
+
         private Font boldFont = null;
         private Font normalFont = null;
         private boolean isDeleted = false;
@@ -860,40 +869,30 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         public boolean isCellEditable(EventObject e) {
             if (e instanceof MouseEvent) {
                 MouseEvent me = (MouseEvent)e;
-                // If the modifiers are not 0 (or the left mouse button),
-                        // tree may try and toggle the selection, and table
-                        // will then try and toggle, resulting in the
-                        // selection remaining the same. To avoid this, we
-                        // only dispatch when the modifiers are 0 (or the left mouse
-                        // button).
                 if (me.getModifiers() == 0 || me.getModifiers() == InputEvent.BUTTON1_MASK) {
                     for (int counter = getColumnCount() - 1; counter >= 0; counter--) {
                         if (getColumnClass(counter) == TreeTableModel.class) {
-                            MouseEvent newME = new MouseEvent
-                                  (MessageTreeTable.this.tree, me.getID(),
-                               me.getWhen(), me.getModifiers(),
-                               me.getX() - getCellRect(0, counter, true).x,
-                               me.getY(), me.getClickCount(),
-                                               me.isPopupTrigger());
+                            MouseEvent newME = new MouseEvent(
+                                    MessageTreeTable.this.tree, 
+                                    me.getID(),
+                                    me.getWhen(), 
+                                    me.getModifiers(),
+                                    me.getX() - getCellRect(0, counter, true).x,
+                                    me.getY(), 
+                                    me.getClickCount(),
+                                    me.isPopupTrigger());
                             MessageTreeTable.this.tree.dispatchEvent(newME);
                             break;
                         }
                     }
                 }
-//                if (me.getClickCount() >= 3) {
-//                    return true;
-//                }
-                return false;
             }
-//            if (e == null) {
-//                return true;
-//            }
             return false;
         }
         }
 
     /**
-     * Renderer to use an icon as table header
+     * Renderer to use an icon in table header.
      */
     class IconTableHeaderRenderer extends JLabel implements TableCellRenderer {
         public IconTableHeaderRenderer(ImageIcon i) {
@@ -915,9 +914,6 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             setFont(c.getFont());
             setForeground(c.getForeground());
             setBorder(((JComponent)c).getBorder());
-
-            // Establish the column name.
-//            setText((String) value);
 
             return this;
         }

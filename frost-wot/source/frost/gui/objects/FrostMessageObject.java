@@ -400,10 +400,11 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     /**
      * Overwritten add to add new nodes sorted to a parent node
      */
-    public void add(MutableTreeNode n, boolean silent) {
+    public void add(MutableTreeNode nn, boolean silent) {
         // add sorted
         // FIXME: its more performant to sort all childs after the tree is built when creating the whole tree the first time (load from database)
         // -> from Board.java:         Collections.sort(children);
+        DefaultMutableTreeNode n = (DefaultMutableTreeNode)nn; 
         int[] ixs;
         if( children==null ) {
             super.add(n);
@@ -426,6 +427,10 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
             if( MainFrame.getInstance().getMessageTreeTable().getTree().isExpanded(new TreePath(this.getPath())) ) {
                 // if node is already expanded, notify new inserted row to the models
                 MainFrame.getInstance().getMessageTreeModel().nodesWereInserted(this, ixs);
+                if( n.getChildCount() > 0 ) {
+                    // added node has childs, expand them all
+                    MainFrame.getInstance().getMessageTreeTable().expandNode(n);
+                }
             } else {
                 // if node is not expanded, expand it, this will notify the model of the new child as well as of the old childs
                 MainFrame.getInstance().getMessageTreeTable().expandNode(this);

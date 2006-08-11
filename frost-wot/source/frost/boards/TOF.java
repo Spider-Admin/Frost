@@ -264,13 +264,14 @@ public class TOF {
         }
         return false; // no dummy found
     }
+
     private void addNewMessageToModel(FrostMessageObject newMessage, final Board board) {
         
         // if msg has no msgid, add to root
         // else check if there is a dummy msg with this msgid, if yes replace dummy with this msg
         // if there is no dummy find direct parent of this msg and add to it.
-        // if there is no direct parent, add dummy parents until first existinbg parent in list
-        
+        // if there is no direct parent, add dummy parents until first existing parent in list
+
         FrostMessageObject rootNode = (FrostMessageObject)MainFrame.getInstance().getMessageTreeModel().getRoot();
         
         boolean showThreads = Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS);

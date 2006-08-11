@@ -163,11 +163,9 @@ public class MessageTextPane extends JPanel {
                 // scroll to begin of reply
                 int h = messageTextArea.getFontMetrics(messageTextArea.getFont()).getHeight();
                 int s = messageTextArea.getSize().height;
-                // how many lines are visible?
-                int v = s/h - 1;
-                
+                int v = s/h - 1; // how many lines are visible?
+
                 pos = calculateCaretPosition(messageTextArea, pos, v);
-    
                 messageTextArea.setCaretPosition(pos);
             } else {
                 // scroll to end of message
