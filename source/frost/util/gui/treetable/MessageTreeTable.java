@@ -74,6 +74,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     private ImageIcon flaggedIcon = new ImageIcon(getClass().getResource("/data/flagged.gif"));
     private ImageIcon starredIcon = new ImageIcon(getClass().getResource("/data/starred.gif"));
 
+    private ImageIcon messageDummyIcon = new ImageIcon(getClass().getResource("/data/messagedummyicon.gif"));
     private ImageIcon messageNewIcon = new ImageIcon(getClass().getResource("/data/messagenewicon.gif"));
     private ImageIcon messageReadIcon = new ImageIcon(getClass().getResource("/data/messagereadicon.gif"));
     private ImageIcon messageNewRepliedIcon = new ImageIcon(getClass().getResource("/data/messagenewrepliedicon.gif"));
@@ -339,7 +340,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     		}
 	    }
 	}
-
+    
 	/**
 	 * This is overridden to set the height to match that of the JTable.
 	 */
@@ -367,7 +368,6 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
 	    Color background;
 	    Color foreground;
         
-        // TODO: rework, dup code
         TreeTableModelAdapter model = (TreeTableModelAdapter)MessageTreeTable.this.getModel();
         
         Object o = model.getRow(row);
@@ -379,7 +379,6 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         
         FrostMessageObject msg = (FrostMessageObject)model.getRow(row);
 
-        // FROM
         // first set font, bold for new msg or normal
         if (msg.isNew()) {
             setFont(boldFont);
@@ -430,7 +429,9 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     		}
             dtcr.setToolTipText(msg.getSubject());
             ImageIcon icon;
-            if( msg.isNew() ) {
+            if( msg.isDummy() ) {
+                icon = messageDummyIcon;
+            } else if( msg.isNew() ) {
                 if( msg.isReplied() ) {
                     icon = messageNewRepliedIcon;
                 } else {

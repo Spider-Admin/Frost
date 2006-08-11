@@ -121,9 +121,9 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         setDummy(true);
         setSqlDate(new java.sql.Date(0));
         setSqlTime(new java.sql.Time(0));
-        setSubject("(dummy)");
+        setSubject("");
         setNew(false);
-        setFromName("(dummy)");
+        setFromName("");
     }
 
     public void fillFromOtherMessage(FrostMessageObject mof) {
@@ -381,17 +381,17 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         return inReplyToList;
     }
 
-    private String dbg1(FrostMessageObject mo) {
-        String s1;
-        if( mo.isRoot() ) {
-            s1 = "(root)";
-        } else if( mo.isDummy() ) {
-            s1 = "(dummy)";
-        } else {
-            s1 = mo.toString()+" ["+mo.getMessageId()+"]";
-        }
-        return s1;
-    }
+//    private String dbg1(FrostMessageObject mo) {
+//        String s1;
+//        if( mo.isRoot() ) {
+//            s1 = "(root)";
+//        } else if( mo.isDummy() ) {
+//            s1 = "(dummy)";
+//        } else {
+//            s1 = mo.toString()+" ["+mo.getMessageId()+"]";
+//        }
+//        return s1;
+//    }
 
     public void add(MutableTreeNode n) {
         add(n, true);
@@ -456,25 +456,25 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         }
     }
     
-//    class SubjectComparator implements Comparator {
-//        public int compare(Object arg0, Object arg1) {
-//            FrostMessageObject t1 = (FrostMessageObject)arg0; 
-//            FrostMessageObject t2 = (FrostMessageObject)arg1;
-//            String s1 = t1.getSubject();
-//            String s2 = t2.getSubject();
-//            if( s1 == null && s2 == null ) {
-//                return 0;
-//            }
-//            if( s1 == null && s2 != null ) {
-//                return -1;
-//            }
-//            if( s1 != null && s2 == null ) {
-//                return 1;
-//            }
-//            int r = s1.toLowerCase().compareTo(s2.toLowerCase());
-//            return r;
-//        }
-//    }
+    class SubjectComparator implements Comparator {
+        public int compare(Object arg0, Object arg1) {
+            FrostMessageObject t1 = (FrostMessageObject)arg0; 
+            FrostMessageObject t2 = (FrostMessageObject)arg1;
+            String s1 = t1.getSubject();
+            String s2 = t2.getSubject();
+            if( s1 == null && s2 == null ) {
+                return 0;
+            }
+            if( s1 == null && s2 != null ) {
+                return -1;
+            }
+            if( s1 != null && s2 == null ) {
+                return 1;
+            }
+            int r = s1.toLowerCase().compareTo(s2.toLowerCase());
+            return r;
+        }
+    }
     
     public String toString() {
         return getSubject();
