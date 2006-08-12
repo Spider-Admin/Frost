@@ -19,17 +19,17 @@ public class DefaultMIMETypes {
         public static final String DEFAULT_MIME_TYPE = "application/octet-stream";
         
         /** MIME types: number -> name */
-        private static List<String> mimeTypesByNumber = new Vector<String>();
+        private static List mimeTypesByNumber = new Vector();
         
         /** MIME types: name -> number */
-        private static Map<String, Short> mimeTypesByName = new HashMap<String, Short>();
+        private static Map mimeTypesByName = new HashMap();
         
         /** MIME types by extension. One extension maps to one MIME type, but not necessarily
          * the other way around. */
-        private static Map<String, Short> mimeTypesByExtension = new HashMap<String, Short>();
+        private static Map mimeTypesByExtension = new HashMap();
         
         /** Primary extension by MIME type number. */
-        private static Map<Short, String> primaryExtensionByMimeNumber = new HashMap<Short, String>();
+        private static Map primaryExtensionByMimeNumber = new HashMap();
         
         /**
          * Add a MIME type, without any extensions.
@@ -40,7 +40,7 @@ public class DefaultMIMETypes {
          */
         protected static synchronized void addMIMEType(short number, String type) {
                 if(mimeTypesByNumber.size() > number) {
-                        String s = mimeTypesByNumber.get(number);
+                        String s = (String)(mimeTypesByNumber.get(number));
                         if(s != null) throw new IllegalArgumentException("Already used: "+number);
                 } else {
                         mimeTypesByNumber.add(number, null);
@@ -103,7 +103,7 @@ public class DefaultMIMETypes {
         public static String byNumber(short x) {
                 if(x > mimeTypesByNumber.size() || x < 0)
                         return null;
-                return mimeTypesByNumber.get(x);
+                return (String)(mimeTypesByNumber.get(x));
         }
         
         /**
@@ -111,7 +111,7 @@ public class DefaultMIMETypes {
          * types, in which case it will have to be sent uncompressed.
          */
         public static short byName(String s) {
-                Short x = mimeTypesByName.get(s);
+                Short x = (Short)(mimeTypesByName.get(s));
                 if(x != null) return x.shortValue();
                 return -1;
         }
@@ -819,9 +819,9 @@ public class DefaultMIMETypes {
                 if(x == -1 || x == arg.length()-1)
                         return DEFAULT_MIME_TYPE;
                 String ext = arg.substring(x+1).toLowerCase();
-                Short mimeIndexOb = mimeTypesByExtension.get(ext);
+                Short mimeIndexOb = (Short)(mimeTypesByExtension.get(ext));
                 if(mimeIndexOb != null) {
-                        return mimeTypesByNumber.get(mimeIndexOb.intValue());
+                        return (String)(mimeTypesByNumber.get(mimeIndexOb.intValue()));
                 }
                 return DEFAULT_MIME_TYPE;
         }
@@ -829,10 +829,10 @@ public class DefaultMIMETypes {
         public static String getExtension(String type) {
                 short typeNumber = byName(type);
                 if(typeNumber < 0) return null;
-                return primaryExtensionByMimeNumber.get(typeNumber);
+                return (String)(primaryExtensionByMimeNumber.get(new Short(typeNumber)));
         }
         
         public static String[] getAllMIMETypes() {
-                return mimeTypesByNumber.toArray(new String[mimeTypesByNumber.size()]);
+                return (String[])(mimeTypesByNumber.toArray(new String[mimeTypesByNumber.size()]));
         }
 }
