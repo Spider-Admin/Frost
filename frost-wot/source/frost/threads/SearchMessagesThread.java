@@ -27,8 +27,6 @@ import frost.gui.*;
 import frost.gui.objects.*;
 import frost.storage.database.applayer.*;
 
-// TODO: in date config, show earliest and newest msg date!
-
 public class SearchMessagesThread extends Thread implements MessageDatabaseTableCallback {
 
     private static Logger logger = Logger.getLogger(SearchMessagesThread.class.getName());
@@ -40,22 +38,9 @@ public class SearchMessagesThread extends Thread implements MessageDatabaseTable
 
     private boolean stopRequested = false;
 
-//    String keypoolDir;
-//    String archiveDir;
-
-//    private XmlFileFilter xmlFileFilter = new XmlFileFilter();
-
     public SearchMessagesThread(SearchMessagesDialog searchDlg, SearchMessagesConfig searchCfg) {
         searchDialog = searchDlg;
         searchConfig = searchCfg;
-
-//        keypoolDir = MainFrame.keypool;
-//        archiveDir = Core.frostSettings.getValue("archive.dir");
-//        if( archiveDir == null || archiveDir.length() == 0 ) {
-//            logger.severe("Warning: no ARCHIVE DIR specified!");
-//            archiveDir = null;
-//        }
-//        archiveDir += ("messages" + File.separator);
     }
 
     public void run() {
@@ -87,31 +72,9 @@ public class SearchMessagesThread extends Thread implements MessageDatabaseTable
                 
                 searchBoard(board, dateRange);
 
-//                if( searchConfig.searchInKeypool ) {
-//                    // search in keypool
-//                    // Format: keypool\boards\2006.3.1\2006.3.1-boards-0.xml
-//                    File boardFolder = new File(keypoolDir + board.getBoardFilename());
-//                    if( boardFolder.isDirectory() == true ) {
-//                        searchBoardFolder(boardFolder, trustStates, dateRange, false);
-//                    } else {
-//                        logger.warning("No board folder in keypool for board "+board.getName());
-//                    }
-//                }
-
                 if( isStopRequested() ) {
                     break;
                 }
-
-//                if( searchConfig.searchInArchive && archiveDir != null ) {
-//                    // search in archive
-//                    // Format: keypool-archive.j\messages\boards\2005.12.7\2005.12.7-boards-0.xml
-//                    File boardFolder = new File(archiveDir + board.getBoardFilename());
-//                    if( boardFolder.isDirectory() == true ) {
-//                        searchBoardFolder(boardFolder, trustStates, dateRange, true);
-//                    } else {
-//                        logger.warning("No board folder in archive for board "+board.getName());
-//                    }
-//                }
             }
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Catched exception:", t);
@@ -142,61 +105,28 @@ public class SearchMessagesThread extends Thread implements MessageDatabaseTable
         } catch(SQLException e) {
                 logger.log(Level.SEVERE, "Catched exception:", e);
         }
-        
-//        File[] boardFolderFiles = boardFolder.listFiles();
-//        if( boardFolderFiles == null ) {
-//            logger.severe("Could not get list of files for folder "+boardFolder.getPath());
-//            return;
-//        }
-//        for(int x=0; x < boardFolderFiles.length; x++) {
-//
-//            if( isStopRequested() ) {
-//                break;
-//            }
-//
-//            File boardFolderFile = boardFolderFiles[x];
-//            if( boardFolderFile.isDirectory() == false ) {
-//                continue;
-//            }
-//            // its a dir, we expect a name like '2006.3.1'
-//            Calendar dateDirCal = null;
-//            try {
-//                dateDirCal = DateFun.getCalendarFromDate(boardFolderFile.getName());
-//            } catch(NumberFormatException ex) {
-//                logger.warning("Incorrect board date folder name, must be a date: "+boardFolderFile.getPath());
-//                continue;
-//            }
-//
-//            // check if this date dir is in the date range we want to search
-//            if( dr.startDate != null && dr.endDate != null &&
-//                (dateDirCal.before(dr.startDate) || dateDirCal.after(dr.endDate)) )
-//            {
-//                continue;
-//            }
-//            // get list of .xml files in the date dir
-//            File[] xmlFiles = boardFolderFile.listFiles(xmlFileFilter);
-//            if( xmlFiles == null ) {
-//                logger.severe("Could not get list of xml files for folder "+boardFolderFile.getPath());
-//                continue;
-//            }
-//            for(int y=0; y < xmlFiles.length; y++) {
-//
-//                if( isStopRequested() ) {
-//                    break;
-//                }
-//
-//                File xmlFile = xmlFiles[y];
-//                // search this xml file
-//                searchXmlFile(xmlFile, ts, archived);
-//            }
-//        }
     }
 
     private void searchMessage(FrostMessageObject mo) {
 
-        // check private only
-        if( searchConfig.searchPrivateMsgsOnly ) {
+        // check private, flagged, starred, replied only
+        if( searchConfig.searchPrivateMsgsOnly != null ) {
             if( mo.getRecipientName() == null || mo.getRecipientName().length() == 0 ) {
+                return;
+            }
+        }
+        if( searchConfig.searchFlaggedMsgsOnly != null ) {
+            if( mo.isFlagged() != searchConfig.searchFlaggedMsgsOnly.booleanValue() ) {
+                return;
+            }
+        }
+        if( searchConfig.searchStarredMsgsOnly != null ) {
+            if( mo.isStarred() != searchConfig.searchStarredMsgsOnly.booleanValue() ) {
+                return;
+            }
+        }
+        if( searchConfig.searchRepliedMsgsOnly != null ) {
+            if( mo.isReplied() != searchConfig.searchRepliedMsgsOnly.booleanValue() ) {
                 return;
             }
         }
@@ -345,13 +275,4 @@ public class SearchMessagesThread extends Thread implements MessageDatabaseTable
         public boolean trust_none = false;
         public boolean trust_tampered = false;
     }
-
-//    private class XmlFileFilter implements FileFilter {
-//        public boolean accept(File f) {
-//            if( f.isFile() && f.getName().endsWith(".xml") ) {
-//                return true;
-//            }
-//            return false;
-//        }
-//    }
 }

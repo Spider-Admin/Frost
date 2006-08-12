@@ -422,7 +422,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
         }
 		
 		if (dda) {  // direct file acess
-			fcpOut.println("Metadata.ContentType=" + DefaultMIMETypes.guessMIMEType(sourceFile.getAbsolutePath()));
+//			fcpOut.println("Metadata.ContentType=" + DefaultMIMETypes.guessMIMEType(sourceFile.getAbsolutePath()));
 			//fcpOut.println("Global=true");
 	        fcpOut.println("UploadFrom=disk");
 	        fcpOut.println("Filename=" + sourceFile.getAbsolutePath());
