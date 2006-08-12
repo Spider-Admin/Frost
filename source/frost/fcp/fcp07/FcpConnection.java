@@ -27,6 +27,7 @@ import java.util.*;
 import java.util.logging.*;
 
 import frost.fcp.*;
+import frost.util.DefaultMIMETypes;
 
 /**
  * This class is a wrapper to simplify access to the FCP library.
@@ -375,6 +376,10 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 		throws IOException {
 
         // FIXME: exploit MaxRetries, UploadFrom, type
+		
+		
+		// FIXME and useroption!!!!
+		boolean dda = (type == FcpHandler.TYPE_FILE);
 
         long dataLength = sourceFile.length();
         BufferedInputStream fileInput = new BufferedInputStream(new FileInputStream(sourceFile));
@@ -396,15 +401,9 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 		fcpOut.println("URI=" + key);
 //		System.out.println("URI="+key);
 
-		fcpOut.println("DataLength=" + Long.toString(dataLength));
-//		System.out.println("DataLength="+ Long.toString(dataLength));
-
-//        fcpOut.println("UploadFrom=disk");
-//        fcpOut.println("Filename=<filename_on_disk>");
-
 		fcpOut.println("Identifier=put-" + fcpConnectionId );
 //		System.out.println("Identifier=put-" + fcpConnectionId );
-		fcpOut.println("Verbosity=0");
+		fcpOut.println("Verbosity=1");
 //		System.out.println("Verbosity=0");
 		fcpOut.println("MaxRetries=3");
 //		System.out.println("MaxRetries=3");
@@ -413,24 +412,43 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 //			System.out.println("GetCHKOnly=true");
 		} else {
             if( type == FcpHandler.TYPE_FILE ) {
-                fcpOut.println("PriorityClass=4");
+            	// most of user files are allready compressed?
+            	fcpOut.println("DontCompress=true");
+                fcpOut.println("PriorityClass=3");
             } else if( type == FcpHandler.TYPE_MESSAGE ) {
                 fcpOut.println("PriorityClass=2");
             }
         }
+		
+		if (dda) {  // direct file acess
+			fcpOut.println("Metadata.ContentType=" + DefaultMIMETypes.guessMIMEType(sourceFile.getAbsolutePath()));
+			//fcpOut.println("Global=true");
+	        fcpOut.println("UploadFrom=disk");
+	        fcpOut.println("Filename=" + sourceFile.getAbsolutePath());
+	        fcpOut.println("EndMessage");
+	        //System.out.println("FileName -> " + sourceFile.getAbsolutePath());
+			
+		} else {    // send data
+			
+	        fcpOut.println("UploadFrom=direct");
 
-		fcpOut.println("Data");
-//		System.out.println("Data");
-		fcpOut.flush();
+			fcpOut.println("DataLength=" + Long.toString(dataLength));
+//			System.out.println("DataLength="+ Long.toString(dataLength));
 
-        // write complete file to socket
-        while( true ) {
-            int d = fileInput.read();
-            if( d < 0 ) {
-                break; // EOF
-            }
-            dOut.write(d);
-        }
+			fcpOut.println("Data");
+			//		System.out.println("Data");
+			fcpOut.flush();
+
+			// write complete file to socket
+			while( true ) {
+				int d = fileInput.read();
+				if( d < 0 ) {
+					break; // EOF
+				}
+				dOut.write(d);
+			}
+		}
+
 		dOut.flush();
 
 		int c;
@@ -442,15 +460,17 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 				output.append('\0');
 				if (output.indexOf("Pending") != -1 || 
                     output.indexOf("Restarted") != -1 || 
+                    output.indexOf("SimpleProgress") != -1 || 
                     output.indexOf("URIGenerated") != -1) 
                 {
+					System.out.println("Progress: " + output.toString());
 					output = new StringBuffer();
 					continue;
 				}
 				break;
 			}
 		}
-//		System.out.println(output);
+		System.out.println("fin: " + output.toString());
 		dOut.close();
 		fcpOut.close();
 		fcpIn.close();
