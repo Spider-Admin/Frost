@@ -25,20 +25,51 @@ import javax.swing.table.*;
 
 import frost.gui.model.*;
 import frost.gui.objects.*;
+import frost.util.gui.*;
 
 public class SearchMessagesResultTable extends SortedTable {
 
     private CellRenderer cellRenderer = new CellRenderer();
+    private BooleanCellRenderer booleanCellRenderer = new BooleanCellRenderer();
+    
+    private ImageIcon flaggedIcon = new ImageIcon(getClass().getResource("/data/flagged.gif"));
+    private ImageIcon starredIcon = new ImageIcon(getClass().getResource("/data/starred.gif"));
+
+    private ImageIcon messageDummyIcon = new ImageIcon(getClass().getResource("/data/messagedummyicon.gif"));
+    private ImageIcon messageNewIcon = new ImageIcon(getClass().getResource("/data/messagenewicon.gif"));
+    private ImageIcon messageReadIcon = new ImageIcon(getClass().getResource("/data/messagereadicon.gif"));
+    private ImageIcon messageNewRepliedIcon = new ImageIcon(getClass().getResource("/data/messagenewrepliedicon.gif"));
+    private ImageIcon messageReadRepliedIcon = new ImageIcon(getClass().getResource("/data/messagereadrepliedicon.gif"));
 
     public SearchMessagesResultTable(SearchMessagesTableModel m) {
         super(m);
 
-        setDefaultRenderer(Object.class, cellRenderer);
+        setDefaultRenderer(String.class, cellRenderer);
+        setDefaultRenderer(Boolean.class, booleanCellRenderer);
 
         // default for messages: sort by date descending
         sortedColumnIndex = 5;
         sortedColumnAscending = false;
         resortTable();
+        
+        initLayout();
+    }
+    
+    private void initLayout() {
+        TableColumnModel tcm = getColumnModel();
+        
+        // hard set sizes of icons column
+        tcm.getColumn(0).setMinWidth(20);
+        tcm.getColumn(0).setMaxWidth(20);
+        tcm.getColumn(0).setPreferredWidth(20);
+        // hard set sizes of icons column
+        tcm.getColumn(1).setMinWidth(20);
+        tcm.getColumn(1).setMaxWidth(20);
+        tcm.getColumn(1).setPreferredWidth(20);
+        
+        // set icon table header renderer for icon columns
+        tcm.getColumn(0).setHeaderRenderer(new IconTableHeaderRenderer(flaggedIcon));
+        tcm.getColumn(1).setHeaderRenderer(new IconTableHeaderRenderer(starredIcon));
     }
 
     /**
@@ -114,8 +145,8 @@ public class SearchMessagesResultTable extends SortedTable {
      * New messages gets a bold look, messages with attachments a blue color.
      * Encrypted messages get a red color, no matter if they have attachments.
      */
-    private class CellRenderer extends DefaultTableCellRenderer
-    {
+    private class CellRenderer extends DefaultTableCellRenderer {
+        
         private Font boldFont = null;
         private Font normalFont = null;
         private boolean isDeleted = false;
@@ -154,9 +185,21 @@ public class SearchMessagesResultTable extends SortedTable {
             // get the original model column index (maybe columns were reordered by user)
             TableColumn tableColumn = getColumnModel().getColumn(column);
             column = tableColumn.getModelIndex();
-
+            
+            /*
+                case 0: return new Boolean(messageObject.isFlagged());
+                case 1: return new Boolean(messageObject.isStarred());
+                case 2: return ""+messageObject.getIndex();
+                case 3: return messageObject.getFromName();
+                case 4: return messageObject.getBoard().getName();
+                case 5: return messageObject.getSubject();
+                case 6: return messageObject.getMessageStatusString();
+                case 7: return messageObject.getDateAndTime();
+             */
+            setIcon(null);
+            setToolTipText(null);
             // do nice things for FROM and SIG column and BOARD column
-            if( column == 1 ) {
+            if( column == 3 ) {
                 // FROM
                 // first set font, bold for new msg or normal
                 if (msg.getMessageObject().isNew()) {
@@ -174,6 +217,8 @@ public class SearchMessagesResultTable extends SortedTable {
                         setForeground(Color.BLACK);
                     }
                 }
+                setToolTipText(msg.getMessageObject().getFromName());
+
 //            } else if( column == 2 ) {
 //                // BOARD - gray for archived msgs
 //                setFont(normalFont);
@@ -184,7 +229,26 @@ public class SearchMessagesResultTable extends SortedTable {
 //                        setForeground(Color.BLACK);
 //                    }
 //                }
-            } else if( column == 4 ) {
+            } else if( column == 5 ) {
+                ImageIcon icon;
+                if( msg.getMessageObject().isDummy() ) {
+                    icon = messageDummyIcon;
+                } else if( msg.getMessageObject().isNew() ) {
+                    if( msg.getMessageObject().isReplied() ) {
+                        icon = messageNewRepliedIcon;
+                    } else {
+                        icon = messageNewIcon;
+                    }
+                } else {
+                    if( msg.getMessageObject().isReplied() ) {
+                        icon = messageReadRepliedIcon;
+                    } else {
+                        icon = messageReadIcon;
+                    }
+                }
+                setIcon(icon);
+                setToolTipText(msg.getMessageObject().getSubject());
+            } else if( column == 6 ) {
                 // SIG
                 // state == good/bad/check/observe -> bold and coloured
                 if( msg.getMessageObject().isMessageStatusGOOD() ) {
@@ -230,6 +294,57 @@ public class SearchMessagesResultTable extends SortedTable {
             isDeleted = value;
         }
     }
+    
+    private class BooleanCellRenderer extends JLabel implements TableCellRenderer {
+        
+        public BooleanCellRenderer() {
+            super();
+            setHorizontalAlignment(CENTER);
+            setVerticalAlignment(CENTER);
+        }
+        
+        public void paintComponent (Graphics g) {
+            Dimension size = getSize();
+            g.setColor(getBackground());
+            g.fillRect(0, 0, size.width, size.height);
+            super.paintComponent(g);
+        }
+
+        public Component getTableCellRendererComponent(
+                JTable table,
+                Object value,
+                boolean isSelected,
+                boolean hasFocus,
+                int row,
+                int column) 
+        {
+            boolean val = ((Boolean)value).booleanValue();
+            
+            // get the original model column index (maybe columns were reordered by user)
+            TableColumn tableColumn = getColumnModel().getColumn(column);
+            column = tableColumn.getModelIndex();
+            
+            if( column == 0 ) {
+                if( val ) {
+                    setIcon(flaggedIcon);
+                } else {
+                    setIcon(null);
+                }
+            } else if( column == 1 ) {
+                if( val ) {
+                    setIcon(starredIcon);
+                } else {
+                    setIcon(null);
+                }
+            }
+            if (!isSelected) {
+                setBackground(table.getBackground());
+            } else {
+                setBackground(table.getSelectionBackground());
+            }
+            return this;
+        }        
+    }
 
     /* (non-Javadoc)
      * @see javax.swing.JTable#createDefaultColumnsFromModel()
@@ -238,7 +353,7 @@ public class SearchMessagesResultTable extends SortedTable {
         super.createDefaultColumnsFromModel();
 
         // set column sizes
-        int[] widths = { 30, 125, 80, 250, 75, 150 };
+        int[] widths = { 20, 20, 30, 125, 80, 250, 75, 150 };
         for (int i = 0; i < widths.length; i++) {
             getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
         }

@@ -50,6 +50,7 @@ import javax.swing.tree.*;
 
 import frost.*;
 import frost.gui.objects.*;
+import frost.util.gui.*;
 
 /**
  * This example shows how to create a simple JTreeTable component, 
@@ -890,34 +891,6 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             return false;
         }
         }
-
-    /**
-     * Renderer to use an icon in table header.
-     */
-    class IconTableHeaderRenderer extends JLabel implements TableCellRenderer {
-        public IconTableHeaderRenderer(ImageIcon i) {
-            setIcon(i);
-            setText("");
-            setHorizontalAlignment(JLabel.CENTER);
-        }
-
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-                boolean hasFocus, int row, int column) {
-            // Extract the original header renderer for this column.
-            TableCellRenderer tcr = table.getTableHeader().getDefaultRenderer();
-            // Extract the component used to render the column header.
-            Component c = tcr.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-
-            // Establish the font, foreground color, and border for the
-            // JLabel so that the rendered header will look the same as the
-            // other rendered headers.
-            setFont(c.getFont());
-            setForeground(c.getForeground());
-            setBorder(((JComponent)c).getBorder());
-
-            return this;
-        }
-    }
 
     /**
      * Save the current column positions and column sizes for restore on next startup.

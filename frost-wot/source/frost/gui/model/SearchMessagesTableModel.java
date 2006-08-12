@@ -24,9 +24,11 @@ public class SearchMessagesTableModel extends SortedTableModel implements Langua
 
     private Language language = null;
 
-    protected final String columnNames[] = new String[6];
+    protected final String columnNames[] = new String[8];
 
     protected final Class columnClasses[] = {
+        Boolean.class, // flagged
+        Boolean.class, // starred
         String.class, //LangRes.getString("Index"),
         String.class, //LangRes.getString("From"),
         String.class, //LangRes.getString("Board"),
@@ -44,16 +46,14 @@ public class SearchMessagesTableModel extends SortedTableModel implements Langua
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#isCellEditable(int, int)
      */
-    public boolean isCellEditable(int row, int col)
-    {
+    public boolean isCellEditable(int row, int col) {
         return false;
     }
 
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getColumnName(int)
      */
-    public String getColumnName(int column)
-    {
+    public String getColumnName(int column) {
         if( column >= 0 && column < columnNames.length )
             return columnNames[column];
         return null;
@@ -62,16 +62,14 @@ public class SearchMessagesTableModel extends SortedTableModel implements Langua
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getColumnCount()
      */
-    public int getColumnCount()
-    {
+    public int getColumnCount() {
         return columnNames.length;
     }
 
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getColumnClass(int)
      */
-    public Class getColumnClass(int column)
-    {
+    public Class getColumnClass(int column) {
         if( column >= 0 && column < columnClasses.length )
             return columnClasses[column];
         return null;
@@ -85,12 +83,14 @@ public class SearchMessagesTableModel extends SortedTableModel implements Langua
     }
 
     private void refreshLanguage() {
-        columnNames[0] = language.getString("SearchMessages.resultTable.index");
-        columnNames[1] = language.getString("SearchMessages.resultTable.from");
-        columnNames[2] = language.getString("SearchMessages.resultTable.board");
-        columnNames[3] = language.getString("SearchMessages.resultTable.subject");
-        columnNames[4] = language.getString("SearchMessages.resultTable.sig");
-        columnNames[5] = language.getString("SearchMessages.resultTable.date");
+        columnNames[0] = "";
+        columnNames[1] = "";
+        columnNames[2] = language.getString("SearchMessages.resultTable.index");
+        columnNames[3] = language.getString("SearchMessages.resultTable.from");
+        columnNames[4] = language.getString("SearchMessages.resultTable.board");
+        columnNames[5] = language.getString("SearchMessages.resultTable.subject");
+        columnNames[6] = language.getString("SearchMessages.resultTable.sig");
+        columnNames[7] = language.getString("SearchMessages.resultTable.date");
 
         fireTableStructureChanged();
     }
