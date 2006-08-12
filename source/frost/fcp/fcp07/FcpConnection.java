@@ -379,8 +379,9 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 		
 		
 		// FIXME and useroption!!!!
-		boolean dda = (type == FcpHandler.TYPE_FILE);
-
+		//boolean dda = (type == FcpHandler.TYPE_FILE);
+		boolean dda = false;  // disabled, node bug?  r10003
+		
         long dataLength = sourceFile.length();
         BufferedInputStream fileInput = new BufferedInputStream(new FileInputStream(sourceFile));
 
@@ -463,14 +464,14 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
                     output.indexOf("SimpleProgress") != -1 || 
                     output.indexOf("URIGenerated") != -1) 
                 {
-					System.out.println("Progress: " + output.toString());
+					//System.out.println("Progress: " + output.toString());
 					output = new StringBuffer();
 					continue;
 				}
 				break;
 			}
 		}
-		System.out.println("fin: " + output.toString());
+		//System.out.println("fin: " + output.toString());
 		dOut.close();
 		fcpOut.close();
 		fcpIn.close();
