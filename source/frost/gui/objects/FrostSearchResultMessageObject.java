@@ -19,7 +19,6 @@
 package frost.gui.objects;
 
 import frost.gui.model.*;
-import frost.messages.*;
 
 public class FrostSearchResultMessageObject implements TableMember {
 
@@ -34,17 +33,30 @@ public class FrostSearchResultMessageObject implements TableMember {
     }
     
     /*
-     * @see frost.gui.model.TableMember#compareTo(frost.gui.model.TableMember,
-     *      int)
+     * @see frost.gui.model.TableMember#compareTo(frost.gui.model.TableMember, int)
      */
     public int compareTo(TableMember another, int tableColumnIndex) {
+
+        // booleans
+        if (tableColumnIndex == 0 || tableColumnIndex == 1) {
+            Boolean b1 = (Boolean) getValueAt(tableColumnIndex);
+            Boolean b2 = (Boolean) another.getValueAt(tableColumnIndex);
+            if( b1.booleanValue() == b2.booleanValue() ) {
+                return 0;
+            }
+            if( b1.booleanValue() && !b2.booleanValue() ) {
+                return -1;
+            }
+            return 1;
+        } 
+        
         String c1 = (String) getValueAt(tableColumnIndex);
         String c2 = (String) another.getValueAt(tableColumnIndex);
-        if (tableColumnIndex == 5) {
+        if (tableColumnIndex == 7) {
             return c1.compareTo(c2);
         } else {
             // If we are sorting by anything but date...
-            if (tableColumnIndex == 3) {
+            if (tableColumnIndex == 5) {
                 //If we are sorting by subject...
                 if (c1.indexOf("Re: ") == 0) {
                     c1 = c1.substring(4);
@@ -55,26 +67,28 @@ public class FrostSearchResultMessageObject implements TableMember {
             }
             int result = c1.compareToIgnoreCase(c2);
             if (result == 0) { // Items are the same. Date and time decides
-                String d1 = (String) getValueAt(4);
-                String d2 = (String) another.getValueAt(4);
+                String d1 = (String) getValueAt(6);
+                String d2 = (String) another.getValueAt(6);
                 return d1.compareTo(d2);
             } else {
                 return result;
             }
         }
     }
-
+    
     /*
      * @see frost.gui.model.TableMember#getValueAt(int)
      */
     public Object getValueAt(int column) {
         switch(column) {
-            case 0: return ""+messageObject.getIndex();
-            case 1: return messageObject.getFromName();
-            case 2: return messageObject.getBoard().getName();
-            case 3: return messageObject.getSubject();
-            case 4: return messageObject.getMessageStatusString();
-            case 5: return messageObject.getDateAndTime();
+            case 0: return new Boolean(messageObject.isFlagged());
+            case 1: return new Boolean(messageObject.isStarred());
+            case 2: return ""+messageObject.getIndex();
+            case 3: return messageObject.getFromName();
+            case 4: return messageObject.getBoard().getName();
+            case 5: return messageObject.getSubject();
+            case 6: return messageObject.getMessageStatusString();
+            case 7: return messageObject.getDateAndTime();
             default: return "*ERR*";
         }
     }
