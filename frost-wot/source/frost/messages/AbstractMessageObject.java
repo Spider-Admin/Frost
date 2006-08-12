@@ -1,9 +1,5 @@
 package frost.messages;
 
-import java.util.*;
-
-import frost.*;
-import frost.identities.*;
 
 /**
  * This class holds the basic variables of a message.
@@ -15,7 +11,6 @@ public abstract class AbstractMessageObject extends AbstractMessageStatusProvide
     protected AttachmentList attachments = null;
     private String content = "";
     private String subject = "";
-    private String publicKey  = "";
     private String recipientName = ""; // set if msg was encrypted
     private String signature = ""; // set if message is signed
     private String messageId = null;
@@ -30,9 +25,6 @@ public abstract class AbstractMessageObject extends AbstractMessageStatusProvide
     public String getSignature() {
         return signature;
     }
-    public String getPublicKey() {
-        return publicKey;
-    }
     public String getSubject() {
         return subject;
     }
@@ -45,9 +37,6 @@ public abstract class AbstractMessageObject extends AbstractMessageStatusProvide
 
     public void setContent(String content) {
         this.content = content;
-    }
-    public void setPublicKey(String pk) {
-        publicKey = pk;
     }
     public void setSubject(String subject) {
         this.subject = subject;
