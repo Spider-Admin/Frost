@@ -27,6 +27,8 @@ import javax.swing.table.TableColumn;
 
 public class IdentitiesBrowser extends JDialog {
 
+    // FIXME: implement identities browser
+    
     private JPanel jContentPane = null;
     private JScrollPane jScrollPane = null;
     private JTable identitiesTable = null;

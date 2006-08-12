@@ -38,6 +38,7 @@ public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNo
     private Identity fromIdentity = null;
     
     private String fromName = "";
+    private String publicKey  = "";
 
     private int signatureStatus = SIGNATURESTATUS_UNSET;
 
@@ -45,6 +46,13 @@ public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNo
         if( isFromIdentityInitialized == false ) {
             // set Identity for FROM, or null
             fromIdentity = Core.getIdentities().getIdentity(getFromName());
+            // if identity was NOT found, add it. maybe it was deleted by the user, 
+            // but we still have a msg from this identity
+            if( fromIdentity == null && getPublicKey() != null && getPublicKey().length() > 0 ) {
+                fromIdentity = new Identity(getFromName(), getPublicKey());
+                fromIdentity.setCHECK();
+                Core.getIdentities().addIdentity(fromIdentity);
+            }
             isFromIdentityInitialized = true;
         }
         return fromIdentity;
@@ -104,8 +112,6 @@ public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNo
         return xOLD;
     }
 
-    // TODO: we could make this faster by caching the value and changing it only if the trust state
-    //  for the identity changed. this is called by the renderer!
     private int getMessageStatus() {
         return getMessageStatus(getFromIdentity());
     }
@@ -159,4 +165,12 @@ public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNo
     public void setSignatureStatus(int s) {
         signatureStatus = s;
     }
+    
+    public String getPublicKey() {
+        return publicKey;
+    }
+    public void setPublicKey(String pk) {
+        publicKey = pk;
+    }
+
 }
