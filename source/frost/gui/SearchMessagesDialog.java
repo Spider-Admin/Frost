@@ -33,6 +33,7 @@ import frost.*;
 import frost.gui.model.*;
 import frost.gui.objects.*;
 import frost.threads.*;
+import frost.util.*;
 import frost.util.gui.translation.*;
 
 public class SearchMessagesDialog extends JFrame implements LanguageListener {
@@ -88,7 +89,10 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     private JRadioButton boards_RBchosed = null;
     private JButton boards_Bchoose = null;
     private JTextField boards_TFchosedBoards = null;
-    private JCheckBox search_CBprivateMsgsOnly = null;
+    private TristateCheckBox search_CBprivateMsgsOnly = null;
+    private TristateCheckBox search_CBflaggedMsgsOnly = null;
+    private TristateCheckBox search_CBstarredMsgsOnly = null;
+    private TristateCheckBox search_CBrepliedMsgsOnly = null;
     private JLabel LsearchResult = null;
     private JScrollPane jScrollPane = null;
     private SearchMessagesResultTable searchResultTable = null;
@@ -259,12 +263,14 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             gridBagConstraints29.weightx = 1.0;
             gridBagConstraints29.insets = new java.awt.Insets(1,5,1,5);
             gridBagConstraints29.gridx = 1;
+            gridBagConstraints29.gridwidth = 4;
             GridBagConstraints gridBagConstraints110 = new GridBagConstraints();
             gridBagConstraints110.gridx = 0;
             gridBagConstraints110.insets = new java.awt.Insets(1,5,1,0);
             gridBagConstraints110.anchor = java.awt.GridBagConstraints.WEST;
             gridBagConstraints110.gridy = 1;
             Lsubject = new JLabel();
+            
             GridBagConstraints gridBagConstraints101 = new GridBagConstraints();
             gridBagConstraints101.gridx = 1;
             gridBagConstraints101.anchor = java.awt.GridBagConstraints.NORTHWEST;
@@ -272,6 +278,31 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             gridBagConstraints101.fill = java.awt.GridBagConstraints.NONE;
             gridBagConstraints101.weighty = 1.0;
             gridBagConstraints101.gridy = 3;
+
+            GridBagConstraints gridBagConstraints102 = new GridBagConstraints();
+            gridBagConstraints102.gridx = 2;
+            gridBagConstraints102.anchor = java.awt.GridBagConstraints.NORTHWEST;
+            gridBagConstraints102.insets = new java.awt.Insets(1,1,1,5);
+            gridBagConstraints102.fill = java.awt.GridBagConstraints.NONE;
+            gridBagConstraints102.weighty = 1.0;
+            gridBagConstraints102.gridy = 3;
+
+            GridBagConstraints gridBagConstraints103 = new GridBagConstraints();
+            gridBagConstraints103.gridx = 3;
+            gridBagConstraints103.anchor = java.awt.GridBagConstraints.NORTHWEST;
+            gridBagConstraints103.insets = new java.awt.Insets(1,1,1,5);
+            gridBagConstraints103.fill = java.awt.GridBagConstraints.NONE;
+            gridBagConstraints103.weighty = 1.0;
+            gridBagConstraints103.gridy = 3;
+
+            GridBagConstraints gridBagConstraints104 = new GridBagConstraints();
+            gridBagConstraints104.gridx = 4;
+            gridBagConstraints104.anchor = java.awt.GridBagConstraints.NORTHWEST;
+            gridBagConstraints104.insets = new java.awt.Insets(1,1,1,5);
+            gridBagConstraints104.fill = java.awt.GridBagConstraints.NONE;
+            gridBagConstraints104.weighty = 1.0;
+            gridBagConstraints104.gridy = 3;
+
             GridBagConstraints gridBagConstraints91 = new GridBagConstraints();
             gridBagConstraints91.gridx = -1;
             gridBagConstraints91.gridy = -1;
@@ -282,6 +313,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             gridBagConstraints2.gridwidth = 1;
             gridBagConstraints2.insets = new java.awt.Insets(1,5,1,5);
             gridBagConstraints2.gridx = 1;
+            gridBagConstraints2.gridwidth = 4;
             GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
             gridBagConstraints11.fill = java.awt.GridBagConstraints.HORIZONTAL;
             gridBagConstraints11.gridy = 0;
@@ -289,6 +321,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             gridBagConstraints11.gridwidth = 1;
             gridBagConstraints11.insets = new java.awt.Insets(1,5,1,5);
             gridBagConstraints11.gridx = 1;
+            gridBagConstraints11.gridwidth = 4;
             GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
             gridBagConstraints1.gridx = 0;
             gridBagConstraints1.insets = new java.awt.Insets(1,5,1,0);
@@ -309,6 +342,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             Psearch.add(getSearch_TFsender(), gridBagConstraints11);
             Psearch.add(getSearch_TFcontent(), gridBagConstraints2);
             Psearch.add(getSearch_CBprivateMsgsOnly(), gridBagConstraints101);
+            Psearch.add(getSearch_CBflaggedMsgsOnly(), gridBagConstraints102);
+            Psearch.add(getSearch_CBstarredMsgsOnly(), gridBagConstraints103);
+            Psearch.add(getSearch_CBrepliedMsgsOnly(), gridBagConstraints104);
             Psearch.add(Lsubject, gridBagConstraints110);
             Psearch.add(getSearch_TFsubject(), gridBagConstraints29);
         }
@@ -1016,11 +1052,32 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
      *
      * @return javax.swing.JCheckBox
      */
-    private JCheckBox getSearch_CBprivateMsgsOnly() {
+    private TristateCheckBox getSearch_CBprivateMsgsOnly() {
         if( search_CBprivateMsgsOnly == null ) {
-            search_CBprivateMsgsOnly = new JCheckBox();
+            search_CBprivateMsgsOnly = new TristateCheckBox();
         }
         return search_CBprivateMsgsOnly;
+    }
+
+    private TristateCheckBox getSearch_CBflaggedMsgsOnly() {
+        if( search_CBflaggedMsgsOnly == null ) {
+            search_CBflaggedMsgsOnly = new TristateCheckBox();
+        }
+        return search_CBflaggedMsgsOnly;
+    }
+
+    private TristateCheckBox getSearch_CBstarredMsgsOnly() {
+        if( search_CBstarredMsgsOnly == null ) {
+            search_CBstarredMsgsOnly = new TristateCheckBox();
+        }
+        return search_CBstarredMsgsOnly;
+    }
+
+    private TristateCheckBox getSearch_CBrepliedMsgsOnly() {
+        if( search_CBrepliedMsgsOnly == null ) {
+            search_CBrepliedMsgsOnly = new TristateCheckBox();
+        }
+        return search_CBrepliedMsgsOnly;
     }
 
     /**
@@ -1198,7 +1255,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             return null;
         }
     }
-
+    
     private SearchMessagesConfig getSearchConfig() {
 
         SearchMessagesConfig scfg = new SearchMessagesConfig();
@@ -1222,7 +1279,10 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             scfg.content = splitString(txt);
         }
 
-        scfg.searchPrivateMsgsOnly = getSearch_CBprivateMsgsOnly().isSelected();
+        scfg.searchPrivateMsgsOnly = getSearch_CBprivateMsgsOnly().getBooleanState();
+        scfg.searchFlaggedMsgsOnly = getSearch_CBflaggedMsgsOnly().getBooleanState();
+        scfg.searchStarredMsgsOnly = getSearch_CBstarredMsgsOnly().getBooleanState();
+        scfg.searchRepliedMsgsOnly = getSearch_CBrepliedMsgsOnly().getBooleanState();
 
         if( getBoards_RBdisplayed().isSelected() ) {
             scfg.searchBoards = SearchMessagesConfig.BOARDS_DISPLAYED;
@@ -1376,6 +1436,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         }        
         previouslyEnabledComponents.clear();
     }
+
     private void enableInputPanels(Container c) {
         Component[] cs = c.getComponents();
         for( int y=0; y < cs.length; y++ ) {
@@ -1685,6 +1746,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         getBoards_RBdisplayed().setText(language.getString("SearchMessages.boards.searchInDisplayedBoards"));
 
         getSearch_CBprivateMsgsOnly().setText(language.getString("SearchMessages.search.searchPrivateMessagesOnly"));
+        getSearch_CBflaggedMsgsOnly().setText(language.getString("SearchMessages.search.searchFlaggedMessagesOnly"));
+        getSearch_CBstarredMsgsOnly().setText(language.getString("SearchMessages.search.searchStarredMessagesOnly"));
+        getSearch_CBrepliedMsgsOnly().setText(language.getString("SearchMessages.search.searchRepliedMessagesOnly"));
         getBoards_Bchoose().setText(language.getString("SearchMessages.boards.chooseBoards")+"...");
         
         getAttachment_CBmustContainBoards().setText(language.getString("SearchMessages.attachments.messageMustContainBoardAttachments"));

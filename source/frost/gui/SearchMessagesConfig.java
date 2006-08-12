@@ -28,7 +28,10 @@ public class SearchMessagesConfig {
     public List sender = null; // List of String
     public List subject = null; // List of String
     public List content = null; // List of String
-    public boolean searchPrivateMsgsOnly = false;
+    public Boolean searchPrivateMsgsOnly = null;
+    public Boolean searchFlaggedMsgsOnly = null;
+    public Boolean searchStarredMsgsOnly = null;
+    public Boolean searchRepliedMsgsOnly = null;
 
     public static final int BOARDS_DISPLAYED  = 1;
 //    public static final int BOARDS_EXISTING_DIRS = 2;
