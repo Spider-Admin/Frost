@@ -99,6 +99,18 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
         return deleteWasOk;
     }
 
+    public boolean removeIdentity(Identity identity) throws SQLException {
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
+        
+        PreparedStatement ps = db.prepare("DELETE FROM IDENTITIES WHERE uniquename=?");
+        
+        ps.setString(1, identity.getUniqueName());
+        
+        boolean deleteWasOk = (ps.executeUpdate() == 1);
+        ps.close();
+        return deleteWasOk;
+    }
+
     public List getIdentities() throws SQLException {
         ArrayList identities = new ArrayList();
         

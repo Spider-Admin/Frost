@@ -39,18 +39,18 @@ public class XMLTools {
     private static DocumentBuilderFactory nonValidatingFactory = DocumentBuilderFactory.newInstance();
 
     {
-        validatingFactory.setAttribute("http://apache.org/xml/features/disallow-doctype-decl", new Boolean(true));
-        validatingFactory.setAttribute("http://xml.org/sax/features/external-general-entities",new Boolean(false));
-        validatingFactory.setAttribute("http://xml.org/sax/features/external-parameter-entities",new Boolean(false));
-        validatingFactory.setAttribute("http://apache.org/xml/features/nonvalidating/load-dtd-grammar",new Boolean(false));
-        validatingFactory.setAttribute("http://apache.org/xml/features/nonvalidating/load-external-dtd",new Boolean(false));
+        validatingFactory.setAttribute("http://apache.org/xml/features/disallow-doctype-decl", Boolean.TRUE);
+        validatingFactory.setAttribute("http://xml.org/sax/features/external-general-entities",Boolean.FALSE);
+        validatingFactory.setAttribute("http://xml.org/sax/features/external-parameter-entities",Boolean.FALSE);
+        validatingFactory.setAttribute("http://apache.org/xml/features/nonvalidating/load-dtd-grammar",Boolean.FALSE);
+        validatingFactory.setAttribute("http://apache.org/xml/features/nonvalidating/load-external-dtd",Boolean.FALSE);
         validatingFactory.setValidating(true);
 
-        nonValidatingFactory.setAttribute("http://apache.org/xml/features/disallow-doctype-decl", new Boolean(true));
-        nonValidatingFactory.setAttribute("http://xml.org/sax/features/external-general-entities",new Boolean(false));
-        nonValidatingFactory.setAttribute("http://xml.org/sax/features/external-parameter-entities",new Boolean(false));
-        nonValidatingFactory.setAttribute("http://apache.org/xml/features/nonvalidating/load-dtd-grammar",new Boolean(false));
-        nonValidatingFactory.setAttribute("http://apache.org/xml/features/nonvalidating/load-external-dtd",new Boolean(false));
+        nonValidatingFactory.setAttribute("http://apache.org/xml/features/disallow-doctype-decl", Boolean.TRUE);
+        nonValidatingFactory.setAttribute("http://xml.org/sax/features/external-general-entities",Boolean.FALSE);
+        nonValidatingFactory.setAttribute("http://xml.org/sax/features/external-parameter-entities",Boolean.FALSE);
+        nonValidatingFactory.setAttribute("http://apache.org/xml/features/nonvalidating/load-dtd-grammar",Boolean.FALSE);
+        nonValidatingFactory.setAttribute("http://apache.org/xml/features/nonvalidating/load-external-dtd",Boolean.FALSE);
         nonValidatingFactory.setValidating(false);
     }
 

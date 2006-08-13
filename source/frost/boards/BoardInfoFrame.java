@@ -402,7 +402,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         int countFiles = 0;
 
         try {
-            countFiles = AppLayerDatabase.getFileListDatabaseTable().getFileCount(board);
+            countFiles = AppLayerDatabase.getFileListDatabaseTable().getFileCountForBoard(board);
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error retrieving file count from db", e);
         }

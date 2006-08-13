@@ -1191,7 +1191,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         return selectedMessage;
     }
 
-    private void updateTableAfterChangeOfIdentityState() {
+    public void updateTableAfterChangeOfIdentityState() {
         // walk through shown messages and remove unneeded (e.g. if hideBad)
         // remember selected msg and select next
         Board board = MainFrame.getInstance().getTofTreeModel().getSelectedNode();
@@ -1213,9 +1213,6 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             }
             MainFrame.getInstance().updateMessageCountLabels(board);
         }
-        // finally step through all board files, count new messages and show only wanted messages
-        // starts a separate thread
-//        TOF.getInstance().initialSearchNewMessages(); // not needed, we remove nothing
     }
 
     /**

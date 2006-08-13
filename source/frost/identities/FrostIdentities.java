@@ -190,7 +190,7 @@ public class FrostIdentities implements Savable {
     }
     
     public boolean deleteLocalIdentity(LocalIdentity li) {
-        if (localIdentities.containsKey(li.getUniqueName())) {
+        if (!localIdentities.containsKey(li.getUniqueName())) {
             return false;
         }
         
@@ -199,11 +199,26 @@ public class FrostIdentities implements Savable {
         try {
             return AppLayerDatabase.getIdentitiesDatabaseTable().removeLocalIdentity(li);
         } catch (SQLException e) {
-            logger.log(Level.SEVERE, "error removing new local identity", e);
+            logger.log(Level.SEVERE, "error removing local identity", e);
             return false;
         }
     }
-    
+
+    public boolean deleteIdentity(Identity li) {
+        if (!identities.containsKey(li.getUniqueName())) {
+            return false;
+        }
+        
+        identities.remove(li.getUniqueName());
+        
+        try {
+            return AppLayerDatabase.getIdentitiesDatabaseTable().removeIdentity(li);
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "error removing identity", e);
+            return false;
+        }
+    }
+
     public boolean isMySelf(String uniqueName) {
         if( getLocalIdentity(uniqueName) != null ) {
             return true;

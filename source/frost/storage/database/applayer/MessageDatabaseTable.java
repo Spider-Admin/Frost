@@ -23,6 +23,7 @@ import java.util.*;
 
 import frost.*;
 import frost.gui.objects.*;
+import frost.identities.*;
 import frost.messages.*;
 import frost.storage.database.*;
 
@@ -463,6 +464,9 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         ps.close();
     }
 
+    /**
+     * Returns new message count by board. If maxDaysBack is <0 all messages are counted.
+     */
     public int getNewMessageCount(Board board, int maxDaysBack) throws SQLException {
         java.sql.Date startDate = DateFun.getSqlDateGMTDaysAgo(maxDaysBack);
         
@@ -488,9 +492,41 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         
         return count;
     }
+    
+    /**
+     * Returns message count by identity. If maxDaysBack is <0 all messages are counted.
+     */
+    public int getMessageCountByIdentity(Identity identity, int maxDaysBack) throws SQLException {
+        
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
+        PreparedStatement ps;
+        if( maxDaysBack < 0 ) {
+            // no date restriction
+            ps = db.prepare("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE fromname=? AND isvalid=TRUE");
+            ps.setString(1, identity.getUniqueName());
+        } else {
+            ps = db.prepare("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE date >=? AND fromname=? AND isvalid=TRUE");
+            java.sql.Date startDate = DateFun.getSqlDateGMTDaysAgo(maxDaysBack);
+            ps.setDate(1, startDate);
+            ps.setString(2, identity.getUniqueName());
+        }
+        
+        int count = 0;
+        ResultSet rs = ps.executeQuery();
+        if( rs.next() ) {
+            count = rs.getInt(1);
+        }
+        rs.close();
+        ps.close();
+        
+        return count;
+    }
 
+
+    /**
+     * Returns message count by board. If maxDaysBack is <0 all messages are counted.
+     */
     public int getMessageCount(Board board, int maxDaysBack) throws SQLException {
-        java.sql.Date startDate = DateFun.getSqlDateGMTDaysAgo(maxDaysBack);
         
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         PreparedStatement ps;
@@ -500,6 +536,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
             ps.setString(1, board.getNameLowerCase());
         } else {
             ps = db.prepare("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE date >=? AND board=? AND isvalid=TRUE");
+            java.sql.Date startDate = DateFun.getSqlDateGMTDaysAgo(maxDaysBack);
             ps.setDate(1, startDate);
             ps.setString(2, board.getNameLowerCase());
         }

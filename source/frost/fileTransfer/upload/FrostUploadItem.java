@@ -63,7 +63,7 @@ public class FrostUploadItem extends ModelItem
     private int uploadCount = 0;
     private java.sql.Date lastRequestedDate = null;           
     private int requestedCount = 0;
-    private Boolean enabled = new Boolean(true);    //FIELD_ID_ENABLED
+    private Boolean enabled = Boolean.TRUE;    //FIELD_ID_ENABLED
     private int retries = 0;                        //FIELD_ID_RETRIES
     private long lastUploadStopTimeMillis = 0;
     
@@ -126,7 +126,7 @@ public class FrostUploadItem extends ModelItem
         lastRequestedDate = newLastRequestedDate;
         requestedCount = newRequestedCount;
         state = newState;
-        enabled = new Boolean(newIsEnabled);
+        enabled = Boolean.valueOf(newIsEnabled);
         lastUploadStopTimeMillis = newLastUploadStopTimeMillis;
         retries = newRetries;
     }
@@ -311,7 +311,7 @@ public class FrostUploadItem extends ModelItem
         if (newEnabled == null && enabled != null) {
             //Invert the enable status
             boolean temp = enabled.booleanValue();
-            newEnabled = new Boolean(!temp);
+            newEnabled = Boolean.valueOf(!temp);
         }
         Boolean oldEnabled = enabled;
         enabled = newEnabled;

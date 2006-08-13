@@ -187,8 +187,8 @@ public class SearchMessagesResultTable extends SortedTable {
             column = tableColumn.getModelIndex();
             
             /*
-                case 0: return new Boolean(messageObject.isFlagged());
-                case 1: return new Boolean(messageObject.isStarred());
+                case 0: return Boolean.valueOf(messageObject.isFlagged());
+                case 1: return Boolean.valueOf(messageObject.isStarred());
                 case 2: return ""+messageObject.getIndex();
                 case 3: return messageObject.getFromName();
                 case 4: return messageObject.getBoard().getName();

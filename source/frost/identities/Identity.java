@@ -37,12 +37,18 @@ public class Identity implements XMLizable {
     private static final int CHECK = 2;
     private static final int OBSERVE = 3;
     private static final int BAD   = 4;
+    
+    private static final String GOOD_STRING = "GOOD";
+    private static final String CHECK_STRING = "CHECK";
+    private static final String OBSERVE_STRING = "OBSERVE";
+    private static final String BAD_STRING = "BAD";
 
     private String uniqueName;
     protected String key;
     private long lastSeenTimestamp = -1;
 
-    int state = -1; // FRIEND,...
+    int state = 2;
+    String stateString = CHECK_STRING; 
 
     private static Logger logger = Logger.getLogger(Identity.class.getName());
 
@@ -107,6 +113,7 @@ public class Identity implements XMLizable {
         key = pubkey;
         lastSeenTimestamp = lseen;
         state = s;
+        updateStateString();
         
         uniqueName = Mixed.makeFilename(uniqueName);
     }
@@ -163,19 +170,41 @@ public class Identity implements XMLizable {
     
     public void setGOOD() {
         state=GOOD;
+        updateStateString();
         updateIdentitiesDatabaseTable();
     }
     public void setCHECK() {
         state=CHECK;
+        updateStateString();
         updateIdentitiesDatabaseTable();
     }
     public void setOBSERVE() {
         state=OBSERVE;
+        updateStateString();
         updateIdentitiesDatabaseTable();
     }
     public void setBAD() {
         state=BAD;
+        updateStateString();
         updateIdentitiesDatabaseTable();
+    }
+    
+    private void updateStateString() {
+        if( isCHECK() ) {
+            stateString = "CHECK";
+        } else if( isOBSERVE() ) {
+            stateString = "OBSERVE";
+        } else if( isGOOD() ) {
+            stateString = "GOOD";
+        } else if( isBAD() ) {
+            stateString = "BAD";
+        } else {
+            stateString = "*ERR*";
+        }
+    }
+    
+    public String getStateString() {
+        return stateString;
     }
     
     protected boolean updateIdentitiesDatabaseTable() {

@@ -186,20 +186,20 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
 		private void disableSelectedDownloads() {
 			ModelItem[] selectedItems = modelTable.getSelectedItems();
-			model.setItemsEnabled(new Boolean(false), selectedItems);
+			model.setItemsEnabled(Boolean.FALSE, selectedItems);
 		}
 
 		private void enableSelectedDownloads() {
 			ModelItem[] selectedItems = modelTable.getSelectedItems();
-			model.setItemsEnabled(new Boolean(true), selectedItems);
+			model.setItemsEnabled(Boolean.TRUE, selectedItems);
 		}
 
 		private void disableAllDownloads() {
-			model.setAllItemsEnabled(new Boolean(false));
+			model.setAllItemsEnabled(Boolean.FALSE);
 		}
 
 		private void enableAllDownloads() {
-			model.setAllItemsEnabled(new Boolean(true));
+			model.setAllItemsEnabled(Boolean.FALSE);
 		}
 
 		private void removeFinished() {

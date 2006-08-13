@@ -215,6 +215,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     private JMenu optionsMenu = new JMenu();
     private JMenuItem optionsPreferencesMenuItem = new JMenuItem();
     private JMenuItem optionsManageLocalIdentitiesMenuItem = new JMenuItem();
+    private JMenuItem optionsManageIdentitiesMenuItem = new JMenuItem();
 //    private JMenuItem pluginBrowserMenuItem = new JMenuItem();
 
     //Plugin Menu
@@ -569,6 +570,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                     optionsManageLocalIdentitiesMenuItem_actionPerformed(e);
                 }
             });
+            optionsManageIdentitiesMenuItem.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    optionsManageIdentitiesMenuItem_actionPerformed(e);
+                }
+            });
             tofDisplayBoardInfoMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     tofDisplayBoardInfoMenuItem_actionPerformed(e);
@@ -633,6 +639,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             // Options Menu
             optionsMenu.add(optionsPreferencesMenuItem);
             optionsMenu.add(optionsManageLocalIdentitiesMenuItem);
+            optionsMenu.add(optionsManageIdentitiesMenuItem);
             // Plugin Menu
 //            pluginMenu.add(pluginBrowserMenuItem);
             pluginMenu.add(pluginTranslateMenuItem);
@@ -940,6 +947,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         new ManageLocalIdentitiesDialog().setVisible(true);
     }
 
+    private void optionsManageIdentitiesMenuItem_actionPerformed(ActionEvent e) {
+        new IdentitiesBrowser(this).startDialog();
+    }
+
     /**
      * Opens dialog to rename a folder.
      */
@@ -1170,6 +1181,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         optionsMenu.setText(language.getString("MainFrame.menu.options"));
         optionsPreferencesMenuItem.setText(language.getString("MainFrame.menu.options.preferences"));
         optionsManageLocalIdentitiesMenuItem.setText(language.getString("MainFrame.menu.options.manageLocalIdentities"));
+        optionsManageIdentitiesMenuItem.setText(language.getString("MainFrame.menu.options.manageIdentities"));
         pluginMenu.setText(language.getString("MainFrame.menu.plugins"));
 //        pluginBrowserMenuItem.setText(language.getString("Experimental Freenet Browser"));
         pluginTranslateMenuItem.setText(language.getString("MainFrame.menu.plugins.translateFrost"));
