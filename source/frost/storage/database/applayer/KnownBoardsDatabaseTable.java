@@ -120,7 +120,7 @@ public class KnownBoardsDatabaseTable extends AbstractDatabaseTable {
             Board newb = (Board)i.next();
             try {
                 insertKnownBoard(newb);
-                // FIXME: set a timeAdded for newly added knownboards!
+                // TODO: maybe set a timeAdded for newly added knownboards
             } catch (SQLException e) {
                 // duplicate board, ignore
             }

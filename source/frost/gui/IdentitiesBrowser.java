@@ -40,7 +40,8 @@ import java.awt.GridBagConstraints;
 public class IdentitiesBrowser extends JDialog {
 
     // FIXME: add import/export of identities
-    
+    // FIXME: add filter and lookup for identity names
+
     private static Logger logger = Logger.getLogger(MessageFrame.class.getName());
 
     private Language language = null;
