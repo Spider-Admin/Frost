@@ -135,6 +135,11 @@ public class FrostDownloadItem extends ModelItem {
         this.requestedCount = requested;
         this.lastRequestedDate = lastReqDate;
         this.lastDownloadStopTimeMillis = lastStopped;
+
+        // set correct state
+        if (this.state != FrostDownloadItem.STATE_DONE) {
+            this.state = FrostDownloadItem.STATE_WAITING;
+        }
 	}
 
 	public String getFileName() {
