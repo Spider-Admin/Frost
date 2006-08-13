@@ -24,6 +24,7 @@ import java.util.logging.*;
 
 import frost.*;
 import frost.gui.objects.*;
+import frost.identities.*;
 import frost.messages.*;
 import frost.storage.database.*;
 
@@ -395,14 +396,35 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
     /**
      * Return filecount for specified board.
      */
-    public int getFileCount(Board board) throws SQLException {
-        // alle sha1 die mindestens eine ref zu ownerboard haben wo das board matcht
+    public int getFileCountForBoard(Board board) throws SQLException {
+        // count of all all SHA1 that have at least one reference to a OwnerBoard with the given board
         
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
         PreparedStatement ps = db.prepare(
             "SELECT COUNT(primkey) FROM FILELIST WHERE primkey in (SELECT refkey FROM FILEOWNERBOARDLIST WHERE board=? GROUP BY refkey)");
         ps.setString(1, board.getNameLowerCase());
+        int count = 0;
+        ResultSet rs = ps.executeQuery();
+        if( rs.next() ) {
+            count = rs.getInt(1);
+        }
+        rs.close();
+        ps.close();
+        
+        return count;
+    }
+
+    /**
+     * Return filecount for specified identity on all boards.
+     */
+    public int getFileCountForIdentity(Identity identity) throws SQLException {
+        // count of all all SHA1 that have at least one reference to a OwnerBoard with the given identity
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
+
+        PreparedStatement ps = db.prepare(
+            "SELECT COUNT(primkey) FROM FILELIST WHERE primkey in (SELECT refkey FROM FILEOWNERBOARDLIST WHERE owner=? GROUP BY refkey)");
+        ps.setString(1, identity.getUniqueName());
         int count = 0;
         ResultSet rs = ps.executeQuery();
         if( rs.next() ) {

@@ -56,14 +56,14 @@ public class BoardsChooser extends JDialog {
             Board b = (Board)i.next();
             BoardTableEntry e = new BoardTableEntry();
             e.board = b;
-            e.isSelected = new Boolean(false);
+            e.isSelected = Boolean.FALSE;
 
             if( preselectedBoards != null ) {
                 // check if this board should be selected
                 for(Iterator j=preselectedBoards.iterator(); j.hasNext(); ) {
                     Board sb = (Board)j.next();
                     if( b.getName().equals(sb.getName()) ) {
-                        e.isSelected = new Boolean(true);
+                        e.isSelected = Boolean.TRUE;
                     }
                 }
             }
@@ -116,7 +116,7 @@ public class BoardsChooser extends JDialog {
                     if( en == null ) {
                         return;
                     }
-                    en.isSelected = new Boolean(!en.isSelected.booleanValue());
+                    en.isSelected = Boolean.valueOf(!en.isSelected.booleanValue());
                     boardsTableModel.fireTableCellUpdated(row, 0);
                 }
             }

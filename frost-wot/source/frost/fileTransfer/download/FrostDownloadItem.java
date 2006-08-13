@@ -55,7 +55,7 @@ public class FrostDownloadItem extends ModelItem {
 	private String key = null;			//FIELD_ID_KEY
 	private Board sourceBoard;	//FIELD_ID_SOURCE_BOARD
 	private int retries=0;			//FIELD_ID_RETRIES
-	private Boolean enableDownload = new Boolean(true);			//FIELD_ID_ENABLED
+	private Boolean enableDownload = Boolean.TRUE;			//FIELD_ID_ENABLED
 	private String owner = null;			//FIELD_ID_OWNER
 	private String sha1 = null;			//FIELD_ID_SHA1
 	private int state = STATE_WAITING;				//FIELD_ID_STATE

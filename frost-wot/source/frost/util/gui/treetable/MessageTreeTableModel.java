@@ -151,8 +151,6 @@ public class MessageTreeTableModel extends DefaultTreeModel implements TreeTable
         return String.class;
     }
 
-    private final static Boolean FALSE = new Boolean(false);
-    
     /**
      * Returns the value for the column <code>column</code> and object
      * <code>node</code>. The return value is determined by invoking
@@ -165,8 +163,8 @@ public class MessageTreeTableModel extends DefaultTreeModel implements TreeTable
             if( mo.isDummy() ) {
                 // show no text for dummy msgs
                 switch(column) {
-                    case 0: return FALSE;
-                    case 1: return FALSE;
+                    case 0: return Boolean.FALSE;
+                    case 1: return Boolean.FALSE;
                     // 2 is tree+subject column
                     case 3: return "";
                     case 4: return "";
@@ -175,8 +173,8 @@ public class MessageTreeTableModel extends DefaultTreeModel implements TreeTable
                 }
             } else {
                 switch(column) {
-                case 0: return new Boolean(mo.isFlagged());
-                case 1: return new Boolean(mo.isStarred());
+                case 0: return Boolean.valueOf(mo.isFlagged());
+                case 1: return Boolean.valueOf(mo.isStarred());
                 // 2 is tree+subject column
                 case 3: return mo.getFromName();
                 case 4: return mo.getMessageStatusString();

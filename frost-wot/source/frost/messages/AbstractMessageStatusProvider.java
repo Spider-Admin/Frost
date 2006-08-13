@@ -172,5 +172,4 @@ public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNo
     public void setPublicKey(String pk) {
         publicKey = pk;
     }
-
 }
