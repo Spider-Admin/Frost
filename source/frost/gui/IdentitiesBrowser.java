@@ -71,19 +71,10 @@ public class IdentitiesBrowser extends JDialog {
         language = Language.getInstance();
         setModal(true);
         initialize();
-        setLanguage();
         
         setLocationRelativeTo(parent);
     }
     
-    private void setLanguage() {
-        setTitle(language.getString("IdentitiesBrowser.title"));
-        getBdelete().setText(language.getString("IdentitiesBrowser.button.delete"));
-        getBcleanup().setText(language.getString("IdentitiesBrowser.button.cleanup"));
-        getBcleanup().setToolTipText(language.getString("IdentitiesBrowser.button.cleanup.tooltip"));
-        getBclose().setText(language.getString("IdentitiesBrowser.button.close"));
-    }
-
     /**
      * This method initializes this
      *
@@ -109,6 +100,12 @@ public class IdentitiesBrowser extends JDialog {
         toolkit.configureButton(getBmarkBAD(), "MessagePane.toolbar.tooltip.setToBad", "/data/nottrust_rollover.gif", language);
         toolkit.configureButton(getBmarkCHECK(), "MessagePane.toolbar.tooltip.setToCheck", "/data/check_rollover.gif", language);
         toolkit.configureButton(getBmarkOBSERVE(), "MessagePane.toolbar.tooltip.setToObserve", "/data/observe_rollover.gif", language);
+        
+        setTitle(language.getString("IdentitiesBrowser.title"));
+        getBdelete().setText(language.getString("IdentitiesBrowser.button.delete"));
+        getBcleanup().setText(language.getString("IdentitiesBrowser.button.cleanup"));
+        getBcleanup().setToolTipText(language.getString("IdentitiesBrowser.button.cleanup.tooltip"));
+        getBclose().setText(language.getString("IdentitiesBrowser.button.close"));
     }
 
     /**
@@ -314,6 +311,8 @@ public class IdentitiesBrowser extends JDialog {
             Bclose.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     setVisible(false);
+                    // update messages if a board is shown
+                    MainFrame.getInstance().getMessagePanel().updateTableAfterChangeOfIdentityState();
                 }
             });
         }
@@ -437,9 +436,9 @@ public class IdentitiesBrowser extends JDialog {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     int[] selRows = getIdentitiesTable().getSelectedRows();
                     int answer = JOptionPane.showConfirmDialog(
-                            IdentitiesBrowser.this, 
-                            "Delete "+selRows.length+" selected identities?", 
-                            "Delete identities", 
+                            IdentitiesBrowser.this,
+                            language.formatMessage("IdentitiesBrowser.deleteDialog.body", ""+selRows.length), 
+                            language.getString("IdentitiesBrowser.deleteDialog.title"), 
                             JOptionPane.YES_NO_OPTION,
                             JOptionPane.QUESTION_MESSAGE);
                     if( answer == JOptionPane.NO_OPTION ) {
@@ -705,9 +704,9 @@ public class IdentitiesBrowser extends JDialog {
     private ProgressMonitor progressMonitor;
     
     private void startProgressMonitor(int max) {
-        String title = "Retrieving identity information";
+        String title = language.getString("IdentitiesBrowser.progressDialog.title");
+        String msg = language.getString("IdentitiesBrowser.progressDialog.body");
         UIManager.put("ProgressMonitor.progressText", title);
-        String msg = "Retrieving identity information from database";
         progressMonitor = new ProgressMonitor(parent, msg, null, 0, max);
     }
     
@@ -769,15 +768,15 @@ public class IdentitiesBrowser extends JDialog {
                     if( li.size() == 0 ) {
                         JOptionPane.showMessageDialog(
                                 IdentitiesBrowser.this, 
-                                "There are no deletable identities.", 
-                                "Cleanup identities", 
+                                language.getString("IdentitiesBrowser.cleanupDialog.nothingToDelete.body"), 
+                                language.getString("IdentitiesBrowser.cleanupDialog.nothingToDelete.title"), 
                                 JOptionPane.INFORMATION_MESSAGE);
                         return;
                     }
                     int answer = JOptionPane.showConfirmDialog(
-                            IdentitiesBrowser.this, 
-                            "Cleanup will delete "+li.size()+" unused identities.", 
-                            "Cleanup identities", 
+                            IdentitiesBrowser.this,
+                            language.formatMessage("IdentitiesBrowser.cleanupDialog.deleteIdentities.body", ""+li.size()), 
+                            language.getString("IdentitiesBrowser.cleanupDialog.deleteIdentities.title"), 
                             JOptionPane.YES_NO_OPTION,
                             JOptionPane.QUESTION_MESSAGE);
                     if( answer == JOptionPane.NO_OPTION ) {
