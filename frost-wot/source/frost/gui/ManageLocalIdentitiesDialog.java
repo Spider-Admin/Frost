@@ -30,8 +30,11 @@ import frost.*;
 import frost.identities.*;
 import frost.storage.database.*;
 import frost.util.gui.*;
+import frost.util.gui.translation.*;
 
 public class ManageLocalIdentitiesDialog extends JDialog {
+
+    private Language language = null;
 
     private JPanel jContentPane = null;
     private JPanel buttonPanel = null;
@@ -51,6 +54,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
      */
     public ManageLocalIdentitiesDialog() {
         super();
+        language = Language.getInstance();
         initialize();
         setLocationRelativeTo(MainFrame.getInstance());
     }
@@ -62,11 +66,17 @@ public class ManageLocalIdentitiesDialog extends JDialog {
      */
     private void initialize() {
         this.setSize(488, 311);
-        this.setTitle("Manage local identities");
+        this.setTitle(language.getString("ManageLocalIdentities.title"));
         this.setContentPane(getJContentPane());
         setModal(true);
+        
+        jLabel.setText(language.getString("ManageLocalidentities.listLabel")+":");
+        BimportIdentityXml.setText(language.getString("ManageLocalIdentities.button.importIdentity"));
+        BdeleteIdentity.setText(language.getString("ManageLocalIdentities.button.deleteIdentity"));
+        BaddNewIdentity.setText(language.getString("ManageLocalIdentities.button.createNewIdentity"));
+        Bclose.setText(language.getString("ManageLocalIdentities.button.close"));
     }
-
+    
     /**
      * This method initializes jContentPane
      * 
@@ -145,7 +155,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
     private JButton getBclose() {
         if( Bclose == null ) {
             Bclose = new JButton();
-            Bclose.setText("Close");
+            Bclose.setText("ManageLocalIdentities.button.close");
             Bclose.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     setVisible(false);
@@ -233,7 +243,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
     private JButton getBaddNewIdentity() {
         if( BaddNewIdentity == null ) {
             BaddNewIdentity = new JButton();
-            BaddNewIdentity.setText("Create Identity");
+            BaddNewIdentity.setText("ManageLocalIdentities.button.createNewIdentity");
             BaddNewIdentity.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     LocalIdentity newIdentity = Core.getIdentities().createIdentity();
@@ -255,7 +265,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
     private JButton getBdeleteIdentity() {
         if( BdeleteIdentity == null ) {
             BdeleteIdentity = new JButton();
-            BdeleteIdentity.setText("Delete Identity");
+            BdeleteIdentity.setText("ManageLocalIdentities.button.deleteIdentity");
             BdeleteIdentity.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
 
@@ -266,16 +276,16 @@ public class ManageLocalIdentitiesDialog extends JDialog {
 
                     if( Core.getIdentities().getLocalIdentities().size() <= 1 ) {
                         MiscToolkit.getInstance().showMessage(
-                                "The last existing identity can not be deleted.",
+                                language.getString("ManageLocalIdentities.cannotDeleteLastIdentity.body"),
                                 JOptionPane.INFORMATION_MESSAGE,
-                                "Cannot delete last identity");
+                                language.getString("ManageLocalIdentities.cannotDeleteLastIdentity.title"));
                     }
 
                     int answer =
                         JOptionPane.showConfirmDialog(
                             ManageLocalIdentitiesDialog.this,
-                            "Do you really want to delete the idenity '"+li.getUniqueName()+"'?",
-                            "Confirm identity delete",
+                            language.formatMessage("ManageLocalIdentities.deleteIdentityConfirmation.body", li.getUniqueName()),
+                            language.getString("ManageLocalIdentities.deleteIdentityConfirmation.title"),
                             JOptionPane.YES_NO_OPTION,
                             JOptionPane.WARNING_MESSAGE);
                     if (answer == JOptionPane.NO_OPTION) {
@@ -288,8 +298,8 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                         answer =
                             JOptionPane.showConfirmDialog(
                                 ManageLocalIdentitiesDialog.this,
-                                "The identity '"+li.getUniqueName()+"' shares "+count+" files which will be removed. Proceed?",
-                                "Shared files for identity",
+                                language.formatMessage("ManageLocalIdentities.deleteIdentitiesSharedFilesConfirmation.body", li.getUniqueName(), ""+count),
+                                language.getString("ManageLocalIdentities.deleteIdentitiesSharedFilesConfirmation.title"),
                                 JOptionPane.YES_NO_OPTION,
                                 JOptionPane.WARNING_MESSAGE);
                         if (answer == JOptionPane.NO_OPTION) {
@@ -307,9 +317,9 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                     ((DefaultListModel)getIdentitiesList().getModel()).removeElement(li);
                     
                     MiscToolkit.getInstance().showMessage(
-                            "Identity '"+li.getUniqueName()+"' was deleted.",
+                            language.formatMessage("ManageLocalIdentities.identityDeleted.body", li.getUniqueName()),
                             JOptionPane.INFORMATION_MESSAGE,
-                            "Identity deleted");
+                            language.getString("ManageLocalIdentities.identityDeleted.title"));
                 }
             });
         }
@@ -324,7 +334,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
     private JButton getBimportIdentityXml() {
         if( BimportIdentityXml == null ) {
             BimportIdentityXml = new JButton();
-            BimportIdentityXml.setText("Import from 'identities.xml'");
+            BimportIdentityXml.setText("ManageLocalIdentities.button.importIdentity");
             BimportIdentityXml.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     File xmlFile = chooseIdentitiesFile();
@@ -335,23 +345,23 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                     if( importedIdentity == null ) {
                         // load failed
                         MiscToolkit.getInstance().showMessage(
-                                "No identity to import found.",
+                                language.getString("ManageLocalIdentities.noIdentityToImport.body"),
                                 JOptionPane.ERROR_MESSAGE,
-                                "No identity found");
+                                language.getString("ManageLocalIdentities.noIdentityToImport.title"));
                         return;
                     }
                     if( !Core.getIdentities().addLocalIdentity(importedIdentity) ) {
                         // duplicate identity
                         MiscToolkit.getInstance().showMessage(
-                                "Imported identity '"+importedIdentity.getUniqueName()+"' is already in list.",
+                                language.formatMessage("ManageLocalIdentities.duplicateIdentity.body", importedIdentity.getUniqueName()),
                                 JOptionPane.ERROR_MESSAGE,
-                                "Duplicate identity");
+                                language.getString("ManageLocalIdentities.duplicateIdentity.title"));
                         return;
                     }
                     MiscToolkit.getInstance().showMessage(
-                            "Imported identity '"+importedIdentity.getUniqueName()+"'.",
+                            language.formatMessage("ManageLocalIdentities.identityImported.body",importedIdentity.getUniqueName()),
                             JOptionPane.INFORMATION_MESSAGE,
-                            "Identity imported");
+                            language.getString("ManageLocalIdentities.identityImported.title"));
                     ((DefaultListModel)getIdentitiesList().getModel()).addElement(importedIdentity);
                     return;
                 }
@@ -385,6 +395,4 @@ public class ManageLocalIdentitiesDialog extends JDialog {
         }
         return null;
     }
-
-
 }  //  @jve:decl-index=0:visual-constraint="10,10"
