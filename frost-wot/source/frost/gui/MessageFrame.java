@@ -44,6 +44,8 @@ import frost.util.gui.textpane.*;
 import frost.util.gui.translation.*;
 
 public class MessageFrame extends JFrame {
+    
+    // FIXME: show icon for signed/unsigned, and maybe a better chooser for private message recipient
 
     private static Logger logger = Logger.getLogger(MessageFrame.class.getName());
 
@@ -96,6 +98,8 @@ public class MessageFrame extends JFrame {
     private TofTree tofTree;
     
     private FrostMessageObject repliedMessage = null;
+
+    private JComboBox ownIdentitiesComboBox = null;
 
     public MessageFrame(SettingsClass newSettings, Window tparentWindow, TofTree tofTree) {
         super();
@@ -881,9 +885,8 @@ public class MessageFrame extends JFrame {
         }
     }
 
-    private void updateHeaderArea() {
+    protected void updateHeaderArea(String sender) {
         headerArea.setEnabled(false);
-        String sender = (String)getOwnIdentitiesComboBox().getSelectedItem().toString();
         if( sender == null || oldSender == null || oldSender.equals(sender) ) {
             return;
         }
@@ -921,8 +924,6 @@ public class MessageFrame extends JFrame {
         }
     }
 
-    private JComboBox ownIdentitiesComboBox = null;
-    
     private JComboBox getOwnIdentitiesComboBox() {
         if( ownIdentitiesComboBox == null ) {
             ownIdentitiesComboBox = new JComboBox();
@@ -941,13 +942,17 @@ public class MessageFrame extends JFrame {
             
             editor.getDocument().addDocumentListener(new DocumentListener() {
                 public void changedUpdate(DocumentEvent e) {
-                    updateHeaderArea();
+                    updateHeaderArea2();
                 }
                 public void insertUpdate(DocumentEvent e) {
-                    updateHeaderArea();
+                    updateHeaderArea2();
                 }
                 public void removeUpdate(DocumentEvent e) {
-                    updateHeaderArea();
+                    updateHeaderArea2();
+                }
+                private void updateHeaderArea2() {
+                    String sender = (String)getOwnIdentitiesComboBox().getEditor().getItem().toString();
+                    updateHeaderArea(sender);
                 }
             });
 
@@ -995,7 +1000,8 @@ public class MessageFrame extends JFrame {
                         ownIdentitiesComboBox.setEditable(false);
                         isSigned = true;
                     }
-                    updateHeaderArea();
+                    String sender = (String)getOwnIdentitiesComboBox().getSelectedItem().toString();
+                    updateHeaderArea(sender);
                     sign_stateChanged(isSigned);
                 }
             });
