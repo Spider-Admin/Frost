@@ -129,6 +129,13 @@ public class FrostUploadItem extends ModelItem
         enabled = Boolean.valueOf(newIsEnabled);
         lastUploadStopTimeMillis = newLastUploadStopTimeMillis;
         retries = newRetries;
+
+        // set correct state
+        if ((state == FrostUploadItem.STATE_PROGRESS) || (state == FrostUploadItem.STATE_UPLOADING)) {
+            state = FrostUploadItem.STATE_REQUESTED;
+        } else if ((state == FrostUploadItem.STATE_ENCODING) || (state == FrostUploadItem.STATE_ENCODING_REQUESTED)) {
+            state = FrostUploadItem.STATE_IDLE;
+        }
     }
 
     /**
