@@ -60,12 +60,14 @@ public class IdentitiesBrowser extends JDialog {
     private InnerTableModel tableModel = null;
 
     private JButton Bcleanup = null;
+    private JFrame parent;
     
     /**
      * This is the default constructor
      */
     public IdentitiesBrowser(JFrame parent) {
         super(parent);
+        this.parent = parent;
         language = Language.getInstance();
         setModal(true);
         initialize();
@@ -700,20 +702,49 @@ public class IdentitiesBrowser extends JDialog {
         }
     }
     
+    private ProgressMonitor progressMonitor;
+    
+    private void startProgressMonitor(int max) {
+        String title = "Retrieving identity information";
+        UIManager.put("ProgressMonitor.progressText", title);
+        String msg = "Retrieving identity information from database";
+        progressMonitor = new ProgressMonitor(parent, msg, null, 0, max);
+    }
+    
     public void startDialog() {
-        // TODO: bei start einen modalen dlg bringen "Retrieving identity information" mit JProgressBar,
-        //   dann tablemembers bauen mit allen infos, ins model rein und dann show + dlg weg!
+        startProgressMonitor(Core.getIdentities().getIdentities().size());
 
-        List allIdentities = Core.getIdentities().getIdentities();
-        for( Iterator iter = allIdentities.iterator(); iter.hasNext(); ) {
-            Identity identity = (Identity) iter.next();
-            InnerTableMember memb = new InnerTableMember(identity);
-            tableModel.addRow(memb);
+        // disables mainframe
+        SwingWorker worker = new SwingWorker(parent) {
+            protected void doNonUILogic() throws RuntimeException {
+                List allIdentities = Core.getIdentities().getIdentities();
+                int count = 0;
+                for( Iterator iter = allIdentities.iterator(); iter.hasNext(); ) {
+                    Identity identity = (Identity) iter.next();
+                    InnerTableMember memb = new InnerTableMember(identity);
+                    tableModel.addRow(memb);
+                    count++;
+                    progressMonitor.setProgress(count);
+                    if( progressMonitor.isCanceled() ) {
+                        break;
+                    }
+                }
+            }
+            protected void doUIUpdateLogic() throws RuntimeException {
+                showDialog();
+            }
+        };
+        worker.start();
+    }
+    
+    private void showDialog() {
+        if( progressMonitor.isCanceled() ) {
+            progressMonitor.close();
+        } else {
+            progressMonitor.close();
+            getIdentitiesTable().getSelectionModel().setSelectionInterval(0, 0);
+            setVisible(true);
         }
-        
-        getIdentitiesTable().getSelectionModel().setSelectionInterval(0, 0);
-        
-        setVisible(true);
     }
 
     /**
