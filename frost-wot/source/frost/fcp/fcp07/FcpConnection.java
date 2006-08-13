@@ -53,10 +53,11 @@ public class FcpConnection
 
     private long fcpConnectionId;
 
-    private static long staticFcpConnectionId = 0;
+    //private static long staticFcpConnectionId = 0;
     
     private static synchronized long getNextId() {
-        return staticFcpConnectionId++;
+        //return staticFcpConnectionId++;
+    	return System.currentTimeMillis();
     }
 
     /**
@@ -140,6 +141,16 @@ public class FcpConnection
     throws IOException, FcpToolsException, InterruptedIOException {
 
         // FIXME: exploit MaxRetries, MaxSize, ReturnType=disk, global queue
+    	
+//    	 FIXME and useroption!!!!
+		boolean dda = (type == FcpHandler.TYPE_FILE);
+		
+		
+		// the node needs the absolute filename!
+		File f = new File(filename);
+		filename = f.getAbsolutePath();
+		
+		//System.out.println("test: " + filename);
 
         keyString = StripSlashes(keyString);
         FcpResultGet result = new FcpResultGet();
@@ -148,8 +159,11 @@ public class FcpConnection
 					"Key =       " + key + "\n" +
 					"KeyType =   " + key.getKeyType());
 
-        FileOutputStream fileOut = new FileOutputStream(filename);
-
+        FileOutputStream fileOut = null;
+        if (!dda) {
+        	fileOut = new FileOutputStream(filename);
+        }
+        
         fcpSock = new Socket(host, port);
         fcpSock.setSoTimeout(TIMEOUT);
 
@@ -167,11 +181,10 @@ public class FcpConnection
         fcpOut.println("URI=" + key);
 //        System.out.println("URI=" + key);
 
-        fcpOut.println("Verbosity=0");
 //        System.out.println("Verbosity=0");
         fcpOut.println("Identifier=get-" + fcpConnectionId );
 //        System.out.println("Identifier=get");
-        fcpOut.println("ReturnType=direct");
+
 //        System.out.println("ReturnType=direct");
 
         //fcpOut.println("ReturnType=disk");
@@ -186,6 +199,15 @@ public class FcpConnection
         fcpOut.println("MaxRetries=1");
 //        System.out.println("MaxRetries=1");
 
+        if (dda) {
+        	fcpOut.println("Verbosity=0");
+        	fcpOut.println("ReturnType=disk");
+            fcpOut.println("Filename=" + filename);
+         } else {
+        	fcpOut.println("Verbosity=0");
+        	fcpOut.println("ReturnType=direct");
+        }
+        
         if( type == FcpHandler.TYPE_FILE ) {
             fcpOut.println("PriorityClass=4");
         } else if( type == FcpHandler.TYPE_MESSAGE ) {
@@ -213,10 +235,14 @@ public class FcpConnection
 
 //                frost.Core.getOut().println("getKey-FcpKeyword: " + kw + " for file " + filename);
 //				System.out.println("got fcp keyword");
+//				System.out.println("FcpKeyword: " + kw + " for file " + filename);
 //				System.out.println(kw.getFullString());
                 switch( kw.getId() )
                 {
                 case FcpKeyword.DataFound:
+                	if (dda) {
+                		receivedFinalByte = true;
+                	} else
                     if( flagRestarted == true )
                     {
                         fileOut.close();
@@ -323,6 +349,8 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
                     break;
                 }
             } else { // handle data bytes
+            	
+            	System.out.println(" -->> try read data");
 
             	dataChunkLength = (int) totalDataLength;
                 logger.fine("Expecting " + dataChunkLength + " bytes, " + totalDataLength + " total.");
@@ -355,8 +383,10 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
         fcpIn.close();
         fcpOut.close();
         fcpSock.close();
-        fileOut.flush();
-        fileOut.close();
+        if (!dda) {
+        	fileOut.flush();
+        	fileOut.close();
+        }
         File checkSize = new File(filename);
         
         if( checkSize.length() == 0 ) {
@@ -379,10 +409,11 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 		
 		
 		// FIXME and useroption!!!!
-		//boolean dda = (type == FcpHandler.TYPE_FILE);
-		boolean dda = false;  // disabled, node bug?  r10003
+		boolean dda = (type == FcpHandler.TYPE_FILE);
+		//boolean dda = false;  // disabled, node bug?  r10003
 		
         long dataLength = sourceFile.length();
+        
         BufferedInputStream fileInput = new BufferedInputStream(new FileInputStream(sourceFile));
 
 		// stripping slashes
@@ -397,23 +428,14 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 		fcpIn = new BufferedInputStream(fcpSock.getInputStream());
 
 		fcpOut.println("ClientPut");
-//		System.out.println("ClientPut");
-
 		fcpOut.println("URI=" + key);
-//		System.out.println("URI="+key);
-
 		fcpOut.println("Identifier=put-" + fcpConnectionId );
-//		System.out.println("Identifier=put-" + fcpConnectionId );
 		fcpOut.println("Verbosity=1");
-//		System.out.println("Verbosity=0");
 		fcpOut.println("MaxRetries=3");
-//		System.out.println("MaxRetries=3");
 		if(getchkonly){
 			fcpOut.println("GetCHKOnly=true");
-//			System.out.println("GetCHKOnly=true");
 		} else {
             if( type == FcpHandler.TYPE_FILE ) {
-            	// most of user files are allready compressed?
             	fcpOut.println("DontCompress=true");
                 fcpOut.println("PriorityClass=3");
             } else if( type == FcpHandler.TYPE_MESSAGE ) {
@@ -422,12 +444,15 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
         }
 		
 		if (dda) {  // direct file acess
-//			fcpOut.println("Metadata.ContentType=" + DefaultMIMETypes.guessMIMEType(sourceFile.getAbsolutePath()));
+			fcpOut.println("Metadata.ContentType=" + DefaultMIMETypes.guessMIMEType(sourceFile.getAbsolutePath()));
 			//fcpOut.println("Global=true");
+			fcpOut.println("Persistence=connection");
+			fcpOut.println("ClientToken=blasuelz");
+			
 	        fcpOut.println("UploadFrom=disk");
 	        fcpOut.println("Filename=" + sourceFile.getAbsolutePath());
 	        fcpOut.println("EndMessage");
-	        //System.out.println("FileName -> " + sourceFile.getAbsolutePath());
+	        System.out.println("FileName -> " + sourceFile.getAbsolutePath());
 			
 		} else {    // send data
 			
