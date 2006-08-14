@@ -79,19 +79,21 @@ public class MessageDecoder extends Decoder implements Smileys, MessageTypes {
 				String s = message.substring(me.getPosition().intValue(), me.getPosition().intValue() + me.getLength());
 				SimpleAttributeSet at = new SimpleAttributeSet();
 
-				// insert text before element
-				doc.insertString(doc.getLength(),message.substring(begin, me.getPosition().intValue()), new SimpleAttributeSet());
-				if(me.getType() == SMILEY) {
-					StyleConstants.setIcon(at,getSmiley(me.getTypeIndex()));
-				} else if (me.getType() == FREENETKEY) {
-			        at.addAttribute(LinkEditorKit.LINK, s);
-			        at.addAttribute(StyleConstants.Underline, Boolean.TRUE);
-			        at.addAttribute(StyleConstants.Foreground, Color.BLUE);
+				if (me.getPosition().intValue() > begin) { // if smileys are confused with freenetkeys not display
+					// insert text before element
+					doc.insertString(doc.getLength(),message.substring(begin, me.getPosition().intValue()), new SimpleAttributeSet());
+					if(me.getType() == SMILEY) {
+						StyleConstants.setIcon(at,getSmiley(me.getTypeIndex()));
+					} else if (me.getType() == FREENETKEY) {
+				        at.addAttribute(LinkEditorKit.LINK, s);
+				        at.addAttribute(StyleConstants.Underline, Boolean.TRUE);
+				        at.addAttribute(StyleConstants.Foreground, Color.BLUE);
+					}
+	
+					// insert element
+			        doc.insertString(doc.getLength(), s, at);
+					begin = me.getPosition().intValue() + me.getLength();
 				}
-
-				// insert element
-		        doc.insertString(doc.getLength(), s, at);
-				begin = me.getPosition().intValue() + me.getLength();
 			}
 
 			// insert text after last element
