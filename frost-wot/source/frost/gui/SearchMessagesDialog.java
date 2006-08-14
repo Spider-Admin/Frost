@@ -38,8 +38,6 @@ import frost.util.gui.translation.*;
 
 public class SearchMessagesDialog extends JFrame implements LanguageListener {
 
-    // FIXME: implement message search for: flagged, starred, replied
-    
     private Language language = Language.getInstance();
     
     private SearchMessagesConfig searchMessagesConfig = null;
