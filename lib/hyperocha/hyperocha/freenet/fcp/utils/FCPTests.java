@@ -22,7 +22,9 @@ package hyperocha.freenet.fcp.utils;
 
 import hyperocha.freenet.fcp.FCPConnection;
 import hyperocha.freenet.fcp.FCPNode;
+import hyperocha.freenet.fcp.FCPNodeIOErrorHandler;
 import hyperocha.freenet.fcp.Persistence;
+import hyperocha.util.Version;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,6 +40,10 @@ import java.util.Random;
  */
 public class FCPTests {
 	
+	public static FCPNode TestNodeVersion(String serverport, Version v) {
+		return null;
+	}
+	
 	/**
 	 * testing the presence of a given FCP-port (and etabl a connction)
 	 * @param serverport a string with "server:port"
@@ -46,31 +52,16 @@ public class FCPTests {
 
 	public static FCPNode TestNodeHelo(String serverport) {
 		//System.out.print("Testing Node Helo: ");
-		FCPNode node = null;
-		try {
-			node = new FCPNode(serverport);
-		} catch (Throwable e1) {
-			// TODO Auto-generated catch block
-			//e1.printStackTrace();
-			//System.out.println("failed");
-			return null;
-		}
-		//FCPConnection conn = null;
-		try {
-			//conn = node.getDefaultFCPConnection();
-			node.getDefaultFCPConnection();
-		} catch (IOException e) {
-			//System.out.println("failed");
-			// TODO Auto-generated catch block
-			//e.printStackTrace();
-			return null;
-		}
-		/*
-		if (!node.helo(2)) {
-			System.out.println("Testing Node Helo failed");
-			return false;
-		} */
-		//System.out.println("OK.");
+		
+		TestNodeErrorHandler erh = new TestNodeErrorHandler();
+		
+		FCPNode node = new FCPNode(serverport, erh);
+		
+		if ((node == null) || (erh.err)) return null;
+
+		// FIXME: check errors while etablish connection
+		node.getDefaultFCPConnection();
+
 		return node;
 	}
 	

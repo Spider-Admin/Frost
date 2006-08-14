@@ -105,7 +105,7 @@ public class FCPNode {
 	 * @throws IOException 
 	 */
 	
-	public FCPConnection getDefaultFCPConnection() throws IOException {
+	public FCPConnection getDefaultFCPConnection() {
 		if (defaultConn == null) {
 			defaultConn = getNewFCPConnection();
 		}
