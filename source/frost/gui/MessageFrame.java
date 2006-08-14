@@ -74,7 +74,7 @@ public class MessageFrame extends JFrame {
     private JSkinnablePopupMenu attFilesPopupMenu;
     private JSkinnablePopupMenu attBoardsPopupMenu;
     private MessageBodyPopupMenu messageBodyPopupMenu;
-
+    
     private JButton Bsend = new JButton(new ImageIcon(this.getClass().getResource("/data/send.gif")));
     private JButton Bcancel = new JButton(new ImageIcon(this.getClass().getResource("/data/remove.gif")));
     private JButton BattachFile = new JButton(new ImageIcon(this.getClass().getResource("/data/attachment.gif")));
@@ -338,6 +338,26 @@ public class MessageFrame extends JFrame {
         }
         
         sign.setEnabled(false);
+        
+        ImageIcon signedIcon = new ImageIcon(this.getClass().getResource("/data/signed.gif"));
+        ImageIcon unsignedIcon = new ImageIcon(this.getClass().getResource("/data/unsigned.gif"));
+        sign.setDisabledSelectedIcon(signedIcon);
+        sign.setDisabledIcon(unsignedIcon);
+        sign.setSelectedIcon(signedIcon);
+        sign.setIcon(unsignedIcon);
+        
+        sign.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                boolean isSelected = sign.isSelected();
+                if( isSelected ) {
+                    sign.setToolTipText(language.getString("MessagePane.toolbar.tooltip.isSigned"));
+                } else {
+                    sign.setToolTipText(language.getString("MessagePane.toolbar.tooltip.isUnsigned"));
+                }
+            }
+        });
+        sign.setSelected(false);
+        sign.setToolTipText(language.getString("MessagePane.toolbar.tooltip.isUnsigned"));
         
         // maybe prepare to reply to an encrypted message
         if( recipient != null ) {
@@ -675,7 +695,6 @@ public class MessageFrame extends JFrame {
         BattachFile.setToolTipText(language.getString("MessageFrame.toolbar.tooltip.addFileAttachments"));
         BattachBoard.setToolTipText(language.getString("MessageFrame.toolbar.tooltip.addBoardAttachments"));
 
-        sign.setText(language.getString("MessageFrame.toolbar.sign"));
         encrypt.setText(language.getString("MessageFrame.toolbar.encryptFor"));
 
         Lboard.setText(language.getString("MessageFrame.board") + ": ");
