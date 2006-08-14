@@ -192,7 +192,7 @@ public class TOF {
     private void addNewMessageToGui(final FrostMessageObject message, final Board board) {
         
         // check if message is blocked
-        if( blocked(message, board) ) {
+        if( isBlocked(message, board) ) {
 //            // add this msg if it replaces a dummy!
 //            // DISCUSSION: better not, if a new GOOD msg arrives later in reply to this BAD, the BAD is not loaded and 
 //            // dummy is created. this differes from behaviour of clean load from database            
@@ -327,12 +327,11 @@ public class TOF {
      * does check validity for each message and adds the messages to
      * table. Additionaly it returns a Vector with all MessageObjects
      * @param board The selected board.
-     * @param keypool Frost keypool directory
      * @param daysToRead Maximum age of the messages to be displayed
      * @param table The tofTable.
      * @return Vector containing all MessageObjects that are displayed in the table.
      */
-    public void updateTofTable(Board board, String keypool) {
+    public void updateTofTable(Board board) {
         int daysToRead = board.getMaxMessageDisplay();
         // changed to not block the swing thread
 
@@ -347,21 +346,19 @@ public class TOF {
         }
         // start new thread, the thread will set itself to updateThread,
         // but first it waits until the current thread is finished
-        nextUpdateThread = new UpdateTofFilesThread(board, keypool, daysToRead);
+        nextUpdateThread = new UpdateTofFilesThread(board, daysToRead);
         nextUpdateThread.start();
     }
 
     private class UpdateTofFilesThread extends Thread {
 
         Board board;
-        String keypool;
         int daysToRead;
         boolean isCancelled = false;
         String fileSeparator = System.getProperty("file.separator");
         
-        public UpdateTofFilesThread(Board board, String keypool, int daysToRead) {
+        public UpdateTofFilesThread(Board board, int daysToRead) {
             this.board = board;
-            this.keypool = keypool;
             this.daysToRead = daysToRead;
         }
 
@@ -386,7 +383,7 @@ public class TOF {
                 rootNode = root;
             }
             public boolean messageRetrieved(FrostMessageObject mo) {
-                if( blocked(mo, board) == false ) {
+                if( isBlocked(mo, board) == false ) {
                     rootNode.add(mo);
                 }
                 return isCancel();
@@ -416,7 +413,7 @@ public class TOF {
                     if( mo.getMessageId() == null ) {
                         i.remove();
                         // old msg, maybe add to root
-                        if( !blocked(mo, mo.getBoard()) ) {
+                        if( !isBlocked(mo, mo.getBoard()) ) {
                             rootNode.add(mo);
                         }
                     } else {
@@ -500,7 +497,7 @@ public class TOF {
                     for(Enumeration e=rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
                         FrostMessageObject mo = (FrostMessageObject)e.nextElement();
                         if( mo.isLeaf() && mo != rootNode ) {
-                            if( mo.isDummy() || blocked(mo, mo.getBoard()) ) {
+                            if( mo.isDummy() || isBlocked(mo, mo.getBoard()) ) {
                                 itemsToRemove.add(mo);
                             }
                         }
@@ -601,7 +598,7 @@ public class TOF {
      * @param message The message object to check
      * @return true if message is blocked, else false
      */
-    public boolean blocked(FrostMessageObject message, Board board) {
+    public boolean isBlocked(FrostMessageObject message, Board board) {
 
         if (board.getShowSignedOnly()
             && (message.isMessageStatusOLD() || message.isMessageStatusTAMPERED()) )
@@ -710,14 +707,11 @@ public class TOF {
         }
     }
 
-    public void initialSearchNewMessages() {
+    public void initialSearchAllNewMessages() {
         new SearchAllNewMessages().start();
     }
 
     private class SearchAllNewMessages extends Thread {
-        /* (non-Javadoc)
-         * @see java.lang.Runnable#run()
-         */
         public void run() {
             Enumeration e = ((DefaultMutableTreeNode) tofTreeModel.getRoot()).depthFirstEnumeration();
             while( e.hasMoreElements() ) {
@@ -727,33 +721,20 @@ public class TOF {
         }
     }
 
-    /**
-     * @param board
-     */
     public void initialSearchNewMessages(Board board) {
         new SearchNewMessages( board ).start();
     }
 
-    private class SearchNewMessages extends Thread
-    {
+    private class SearchNewMessages extends Thread {
         private Board board;
-        /**
-         * @param b
-         */
         public SearchNewMessages(Board b) {
             board = b;
         }
-        /* (non-Javadoc)
-         * @see java.lang.Runnable#run()
-         */
         public void run() {
             searchNewMessages(board);
         }
     }
 
-    /**
-     * @param board
-     */
     private void searchNewMessages(final Board board) {
         if( board.isFolder() == true ) {
             return;
@@ -772,8 +753,9 @@ public class TOF {
 
         // count new messages arrived while processing
         int arrivedMessages = board.getNewMessageCount() - beforeMessages;
-        if( arrivedMessages > 0 )
+        if( arrivedMessages > 0 ) {
             newMessages += arrivedMessages;
+        }
 
         board.setNewMessageCount(newMessages);
 

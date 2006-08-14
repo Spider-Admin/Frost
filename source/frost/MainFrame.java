@@ -827,7 +827,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         // step through all messages on disk up to maxMessageDisplay and check
         // if there are new messages
         // if a new message is in a folder, this folder is show yellow in tree
-        TOF.getInstance().initialSearchNewMessages();
+        TOF.getInstance().initialSearchAllNewMessages();
 
         if (core.isFreenetOnline()) {
             tofAutomaticUpdateMenuItem.setSelected(frostSettings.getBoolValue("automaticUpdate"));
@@ -928,7 +928,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             // check if signed only+hideCheck+hideBad or blocking words settings changed
             if (optionsDlg.shouldReloadMessages()) {
                 // update the new msg. count for all boards
-                TOF.getInstance().initialSearchNewMessages();
+                TOF.getInstance().initialSearchAllNewMessages();
                 // reload all messages
                 tofTree_actionPerformed(null);
             }
@@ -1139,9 +1139,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
                 uploadPanel.setAddFilesButtonEnabled(true);
                 renameFolderButton.setEnabled(false);
-// FIXME: load table after change of board. implement threads!
+
                 // read all messages for this board into message table
-                TOF.getInstance().updateTofTable(node, keypool);
+                TOF.getInstance().updateTofTable(node);
                 getMessagePanel().getMessageTable().clearSelection();
             } else {
                 // node is a folder
