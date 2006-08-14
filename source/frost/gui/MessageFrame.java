@@ -45,8 +45,6 @@ import frost.util.gui.translation.*;
 
 public class MessageFrame extends JFrame {
     
-    // FIXME: show icon for signed/unsigned, and maybe a better chooser for private message recipient
-
     private static Logger logger = Logger.getLogger(MessageFrame.class.getName());
 
     private Language language;
@@ -348,16 +346,9 @@ public class MessageFrame extends JFrame {
         
         sign.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
-                boolean isSelected = sign.isSelected();
-                if( isSelected ) {
-                    sign.setToolTipText(language.getString("MessagePane.toolbar.tooltip.isSigned"));
-                } else {
-                    sign.setToolTipText(language.getString("MessagePane.toolbar.tooltip.isUnsigned"));
-                }
+                updateSignToolTip();
             }
         });
-        sign.setSelected(false);
-        sign.setToolTipText(language.getString("MessagePane.toolbar.tooltip.isUnsigned"));
         
         // maybe prepare to reply to an encrypted message
         if( recipient != null ) {
@@ -418,6 +409,8 @@ public class MessageFrame extends JFrame {
         if( sign.isSelected() && signature != null ) {
             newText += signature;
         }
+        
+        updateSignToolTip();
 
         setVisible(true);
 
@@ -700,6 +693,17 @@ public class MessageFrame extends JFrame {
         Lboard.setText(language.getString("MessageFrame.board") + ": ");
         Lfrom.setText(language.getString("MessageFrame.from") + ": ");
         Lsubject.setText(language.getString("MessageFrame.subject") + ": ");
+        
+        updateSignToolTip();
+    }
+    
+    private void updateSignToolTip() {
+        boolean isSelected = sign.isSelected();
+        if( isSelected ) {
+            sign.setToolTipText(language.getString("MessagePane.toolbar.tooltip.isSigned"));
+        } else {
+            sign.setToolTipText(language.getString("MessagePane.toolbar.tooltip.isUnsigned"));
+        }
     }
 
     protected void removeSelectedItemsFromTable( JTable tbl ) {
