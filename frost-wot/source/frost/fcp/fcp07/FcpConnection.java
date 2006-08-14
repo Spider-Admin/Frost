@@ -21,13 +21,14 @@
  */
 package frost.fcp.fcp07;
 
+import hyperocha.freenet.fcp.utils.DefaultMIMETypes;
+
 import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.util.logging.*;
 
 import frost.fcp.*;
-import frost.util.DefaultMIMETypes;
 
 /**
  * This class is a wrapper to simplify access to the FCP library.
