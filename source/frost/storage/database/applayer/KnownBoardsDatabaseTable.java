@@ -111,19 +111,22 @@ public class KnownBoardsDatabaseTable extends AbstractDatabaseTable {
      * that are not contained already
      * @param lst
      */
-    public void addNewKnownBoards( List lst ) {
+    public int addNewKnownBoards( List lst ) {
         if( lst == null || lst.size() == 0 ) {
-            return;
+            return 0;
         }
         Iterator i = lst.iterator();
+        int added = 0;
         while(i.hasNext()) {
             Board newb = (Board)i.next();
             try {
                 insertKnownBoard(newb);
+                added++;
                 // TODO: maybe set a timeAdded for newly added knownboards
             } catch (SQLException e) {
                 // duplicate board, ignore
             }
         }
+        return added;
     }
 }
