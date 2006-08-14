@@ -30,6 +30,8 @@ import java.net.UnknownHostException;
  *
  */
 public class FCPNode {
+	
+	private FCPNodeIOErrorHandler ioErrorHandler = null;
 	private InetAddress host = null;
     private int port = -1;
 	private String hostName = null; // avoid name lookup recursion in security manager
@@ -52,7 +54,12 @@ public class FCPNode {
      * @throws Throwable 
      * 
      */
-	public FCPNode(String serverport) {
+    
+    public FCPNode(String serverport) {
+    	this(serverport, new DefaultNodeIOErrorHandler());
+    }
+    
+	public FCPNode(String serverport, FCPNodeIOErrorHandler errh) {
 		String[] splitServerPort = serverport.split(":");
 		InetAddress ia = null;
 		//InetSocketAddress isa = null;
@@ -64,7 +71,8 @@ public class FCPNode {
 	            this.hostIp = ia.getHostAddress();
 			} catch (UnknownHostException e) {
 				// TODO Auto-generated catch block
-				System.out.println("ERROR: Unknown FCP host: "+ serverport);
+				errh.OnIOError(e);
+				//System.out.println("ERROR: Unknown FCP host: "+ serverport);
 				//e.printStackTrace();
 			}
             
@@ -75,12 +83,14 @@ public class FCPNode {
         try {
             
             port = Integer.parseInt(splitServerPort[1]);
+            if ((port < 1) || (port > 65535)) { throw new IllegalArgumentException(); }
            // isa = InetSocketAddress.createUnresolved(this.hostName, port);
-        } catch(Throwable t) {
-          System.out.println("ERROR: Unknown FCP server:port: "+ serverport);
+        } catch(Exception e) {
+        	errh.OnIOError(e);
+          //System.out.println("ERROR: Unknown FCP server:port: "+ serverport);
          // System.out.println(t);
       }
-            if ((port < 1) || (port > 65535)) { throw new IllegalArgumentException(); } 
+            //if ((port < 1) || (port > 65535)) { throw new IllegalArgumentException(); } 
             //isa = InetSocketAddress.createUnresolved(this.hostName, port);
 //        } catch(Throwable t) {
 //            System.out.println("ERROR: Unknown FCP port: "+ serverport);
