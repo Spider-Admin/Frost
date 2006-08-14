@@ -34,13 +34,10 @@ import frost.identities.*;
 import frost.storage.database.applayer.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
-import javax.swing.JButton;
-import java.awt.GridBagConstraints;
 
 public class IdentitiesBrowser extends JDialog {
 
     // FIXME: add import/export of identities
-    // FIXME: add filter and lookup for identity names
 
     private static Logger logger = Logger.getLogger(MessageFrame.class.getName());
 
@@ -62,6 +59,8 @@ public class IdentitiesBrowser extends JDialog {
 
     private JButton Bcleanup = null;
     private JFrame parent;
+    
+    private List allTableMembers;
     
     /**
      * This is the default constructor
@@ -107,6 +106,9 @@ public class IdentitiesBrowser extends JDialog {
         getBcleanup().setText(language.getString("IdentitiesBrowser.button.cleanup"));
         getBcleanup().setToolTipText(language.getString("IdentitiesBrowser.button.cleanup.tooltip"));
         getBclose().setText(language.getString("IdentitiesBrowser.button.close"));
+        
+        Lfilter.setText(language.getString("IdentitiesBrowser.label.filter")+":");
+        Llookup.setText(language.getString("IdentitiesBrowser.label.lookup")+":");
     }
 
     /**
@@ -233,11 +235,23 @@ public class IdentitiesBrowser extends JDialog {
      */
     private JPanel getButtonPanel() {
         if( buttonPanel == null ) {
-            FlowLayout flowLayout = new FlowLayout();
-            flowLayout.setAlignment(java.awt.FlowLayout.RIGHT);
+            Lfilter = new JLabel();
+            Lfilter.setText("IdentitiesBrowser.label.filter");
+            Llookup = new JLabel();
+            Llookup.setText("IdentitiesBrowser.label.lookup");
             buttonPanel = new JPanel();
-            buttonPanel.setLayout(flowLayout);
+            buttonPanel.setLayout(new BoxLayout(getButtonPanel(), BoxLayout.X_AXIS));
+            buttonPanel.add(Box.createRigidArea(new Dimension(5,3)));
+            buttonPanel.add(Llookup, null);
+            buttonPanel.add(Box.createRigidArea(new Dimension(5,3)));
+            buttonPanel.add(getTFlookup(), null);
+            buttonPanel.add(Box.createRigidArea(new Dimension(5,3)));
+            buttonPanel.add(Lfilter, null);
+            buttonPanel.add(Box.createRigidArea(new Dimension(5,3)));
+            buttonPanel.add(getTFfilter(), null);
+            buttonPanel.add( Box.createHorizontalGlue() );
             buttonPanel.add(getBclose(), null);
+            buttonPanel.add(Box.createRigidArea(new Dimension(5,3)));
         }
         return buttonPanel;
     }
@@ -703,6 +717,14 @@ public class IdentitiesBrowser extends JDialog {
     }
     
     private ProgressMonitor progressMonitor;
+
+    private JLabel Llookup = null;
+
+    private JTextField TFlookup = null;
+
+    private JLabel Lfilter = null;
+
+    private JTextField TFfilter = null;
     
     private void startProgressMonitor(int max) {
         String title = language.getString("IdentitiesBrowser.progressDialog.title");
@@ -717,12 +739,14 @@ public class IdentitiesBrowser extends JDialog {
         // disables mainframe
         SwingWorker worker = new SwingWorker(parent) {
             protected void doNonUILogic() throws RuntimeException {
+                allTableMembers = new LinkedList(); // remember all table data for filter
                 List allIdentities = Core.getIdentities().getIdentities();
                 int count = 0;
                 for( Iterator iter = allIdentities.iterator(); iter.hasNext(); ) {
                     Identity identity = (Identity) iter.next();
                     InnerTableMember memb = new InnerTableMember(identity);
                     tableModel.addRow(memb);
+                    allTableMembers.add(memb);
                     count++;
                     progressMonitor.setProgress(count);
                     if( progressMonitor.isCanceled() ) {
@@ -797,4 +821,109 @@ public class IdentitiesBrowser extends JDialog {
         return Bcleanup;
     }
 
+    /**
+     * This method initializes TFlookup	
+     * 	
+     * @return javax.swing.JTextField	
+     */
+    private JTextField getTFlookup() {
+        if( TFlookup == null ) {
+            TFlookup = new JTextField(10);
+            // force a max size, needed for BoxLayout
+            TFlookup.setMaximumSize(TFlookup.getPreferredSize());
+            TFlookup.getDocument().addDocumentListener(new DocumentListener() {
+                    public void changedUpdate(DocumentEvent e) {
+                        lookupContentChanged();
+                    }
+                    public void insertUpdate(DocumentEvent e) {
+                        lookupContentChanged();
+                    }
+                    public void removeUpdate(DocumentEvent e) {
+                        lookupContentChanged();
+                    }
+                });
+        }
+        return TFlookup;
+    }
+
+    /**
+     * This method initializes TFfilter	
+     * 	
+     * @return javax.swing.JTextField	
+     */
+    private JTextField getTFfilter() {
+        if( TFfilter == null ) {
+            TFfilter = new JTextField(10);
+            TFfilter.setMaximumSize(TFfilter.getPreferredSize());
+
+            TFfilter.getDocument().addDocumentListener(new DocumentListener() {
+                    public void changedUpdate(DocumentEvent e) {
+                        filterContentChanged();
+                    }
+                    public void insertUpdate(DocumentEvent e) {
+                        filterContentChanged();
+                    }
+                    public void removeUpdate(DocumentEvent e) {
+                        filterContentChanged();
+                    }
+                });
+        }
+        return TFfilter;
+    }
+    
+    /**
+     * Called whenever the content of the lookup text field changes
+     */
+    private void lookupContentChanged() {
+        try {
+            String txt = TFlookup.getDocument().getText(0, TFlookup.getDocument().getLength());
+            // now try to find the first board name that starts with this txt (case insensitiv),
+            // if we found one set selection to it, else leave selection untouched
+            for( int row=0; row < tableModel.getRowCount(); row++ ) {
+                InnerTableMember memb = (InnerTableMember)tableModel.getRow(row);
+                if( memb.getIdentity().getUniqueName().toLowerCase().startsWith(txt.toLowerCase()) ) {
+                    getIdentitiesTable().getSelectionModel().setSelectionInterval(row, row);
+                    // now scroll to selected row, try to show it on top of table
+
+                    // determine the count of showed rows
+                    int visibleRows = (int)(getIdentitiesTable().getVisibleRect().getHeight() / getIdentitiesTable().getCellRect(row,0,true).getHeight());
+                    int scrollToRow;
+                    if( row + visibleRows > tableModel.getRowCount() ) {
+                        scrollToRow = tableModel.getRowCount()-1;
+                    } else {
+                        scrollToRow = row + visibleRows - 1;
+                    }
+                    if( scrollToRow > row ) scrollToRow--;
+                    // scroll 2 times to make sure row is displayed
+                    getIdentitiesTable().scrollRectToVisible(getIdentitiesTable().getCellRect(row,0,true));
+                    getIdentitiesTable().scrollRectToVisible(getIdentitiesTable().getCellRect(scrollToRow,0,true));
+                    break;
+                }
+            }
+        } catch(Exception ex) {}
+    }
+
+    /**
+     * Called whenever the content of the filter text field changes
+     */
+    private void filterContentChanged() {
+        try {
+            TFlookup.setText(""); // clear
+            String txt = TFfilter.getDocument().getText(0, TFfilter.getDocument().getLength()).trim();
+            txt = txt.toLowerCase();
+            // filter: show all boards that have this txt in name
+            tableModel.clearDataModel();
+            for(Iterator i = allTableMembers.iterator(); i.hasNext();  ) {
+                InnerTableMember tm = (InnerTableMember)i.next();
+                if( txt.length() > 0 ) {
+                    String bn = tm.getIdentity().getUniqueName().toLowerCase();
+                    if( bn.indexOf(txt) < 0 ) {
+                        continue;
+                    }
+                }
+                tableModel.addRow(tm);
+            }
+        } catch(Exception ex) {}
+    }
+    
 }  //  @jve:decl-index=0:visual-constraint="10,10"

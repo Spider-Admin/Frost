@@ -425,7 +425,7 @@ public class UploadPanel extends JPanel {
         /* (non-Javadoc)
          * @see java.awt.datatransfer.ClipboardOwner#lostOwnership(java.awt.datatransfer.Clipboard, java.awt.datatransfer.Transferable)
          */
-        public void lostOwnership(Clipboard clipboard, Transferable contents) {
+        public void lostOwnership(Clipboard cb, Transferable contents) {
             // Nothing here
         }
 

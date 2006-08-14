@@ -383,11 +383,14 @@ public class KnownBoardsFrame extends JDialog {
                     JOptionPane.WARNING_MESSAGE, 
                     language.getString("KnownBoardsFrame.noBoardsImported.title"));
         } else {
+            int added = AppLayerDatabase.getKnownBoardsDatabaseTable().addNewKnownBoards(imports);
             MiscToolkit.getInstance().showMessage(
-                    language.formatMessage("KnownBoardsFrame.boardsImported.body", ""+imports.size(), xmlFile.getName()),
+                    language.formatMessage("KnownBoardsFrame.boardsImported.body", 
+                            ""+imports.size(), 
+                            xmlFile.getName(),
+                            ""+added),
                     JOptionPane.WARNING_MESSAGE, 
                     language.getString("KnownBoardsFrame.boardsImported.title"));
-            AppLayerDatabase.getKnownBoardsDatabaseTable().addNewKnownBoards(imports);
             loadKnownBoardsIntoTable();
         }
     }
@@ -511,29 +514,23 @@ public class KnownBoardsFrame extends JDialog {
     /**
      * Called whenever the content of the lookup text field changes
      */
-    private void lookupContentChanged()
-    {
+    private void lookupContentChanged() {
         try {
             String txt = TFlookupBoard.getDocument().getText(0, TFlookupBoard.getDocument().getLength());
             // now try to find the first board name that starts with this txt (case insensitiv),
             // if we found one set selection to it, else leave selection untouched
-            for( int row=0; row < tableModel.getRowCount(); row++ )
-            {
+            for( int row=0; row < tableModel.getRowCount(); row++ ) {
                 KnownBoardsTableMember memb = (KnownBoardsTableMember)tableModel.getRow(row);
-                if( memb.getBoard().getName().toLowerCase().startsWith(txt.toLowerCase()) )
-                {
+                if( memb.getBoard().getName().toLowerCase().startsWith(txt.toLowerCase()) ) {
                     boardsTable.getSelectionModel().setSelectionInterval(row, row);
                     // now scroll to selected row, try to show it on top of table
 
                     // determine the count of showed rows
                     int visibleRows = (int)(boardsTable.getVisibleRect().getHeight() / boardsTable.getCellRect(row,0,true).getHeight());
                     int scrollToRow;
-                    if( row + visibleRows > tableModel.getRowCount() )
-                    {
+                    if( row + visibleRows > tableModel.getRowCount() ) {
                         scrollToRow = tableModel.getRowCount()-1;
-                    }
-                    else
-                    {
+                    } else {
                         scrollToRow = row + visibleRows - 1;
                     }
                     if( scrollToRow > row ) scrollToRow--;
