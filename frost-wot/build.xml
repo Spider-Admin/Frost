@@ -11,8 +11,8 @@
 
   <!-- Give user a chance to override without editing this file
        (and without typing -D each time it compiles it) -->
-  <property file=".ant.properties" />
-  <property file="${user.home}/.ant.properties" />
+  <property file=".ant.properties" />                 <!-- ignored by atomative -->
+  <property file="${user.home}/.ant.properties" />    <!-- ignored by atomative -->
 
   <!-- Don't use systems CLASSPATH, use only the CLASSPATH set in this build file -->
   <property name="build.sysclasspath" value="ignore"/>
@@ -27,8 +27,11 @@
   <property name="deprecation" value="true" />
   <property name="verbose" value="false" />
   <property name="optimize" value="true" />
-  <property name="source" value = "1.4" />
-  <property name="target" value = "1.4" />
+  <property name="source" value="1.4" />         <!-- overwritten by atomative -->
+  <property name="target" value="1.4" />         <!-- overwritten by atomative -->
+  
+  <!-- moved to target main, the old one should keep alive. :)  -->
+  <!-- property name="revision" value="${NOW.DATE}"/ --> <!-- overwritten by atomative -->
 
   <!--  Set the properties related to the source tree -->
   <property name="src.dir" value="source"/>
@@ -40,6 +43,7 @@
   <property name="src.dir.genchklib" value="${lib.dir}/genChkImpl"/>
   <property name="src.dir.skinlfFixLib" value="${lib.dir}/skinlfFix"/>
   <property name="src.dir.datechooser" value="${lib.dir}/datechooser"/>
+  <property name="src.dir.hyperocha" value="${lib.dir}/hyperocha"/>	
 
   <!--  Set the properties for the build area  -->
   <property name="build.dir" value="build"/>
@@ -48,6 +52,7 @@
   <property name="build.classes.genchklib" value="${build.dir}/classes_genchklib"/>
   <property name="build.classes.skinlfFixLib" value="${build.dir}/classes_skinlfFixLib"/>
   <property name="build.classes.datechooser" value="${build.dir}/classes_datechooser"/>
+  <property name="build.classes.hyperocha" value="${build.dir}/classes_hyperocha"/>	
 
   <!--  Set up properties for the distribution area -->
   <property name="dist.dir" value="${build.dir}/dist"/>
@@ -73,6 +78,7 @@
     <pathelement location="${build.classes.skinlfFixLib}"/>
     <pathelement location="${build.classes.datechooser}"/>
     <pathelement location="${lib.dir}/skinlf.jar"/>
+  	<pathelement location="${build.classes.hyperocha}"/>
   </path>
 
   <!--  Specify logfile name -->
@@ -110,11 +116,13 @@ Build log  : ${logfilename}</echo>
     <delete quiet="true" dir="${build.classes.genchklib}"/>
     <delete quiet="true" dir="${build.classes.skinlfFixLib}"/>
     <delete quiet="true" dir="${build.classes.datechooser}"/>
+  	<delete quiet="true" dir="${build.classes.hyperocha}"/>
     <mkdir dir="${build.classes}"/>
     <mkdir dir="${build.classes.feclib}"/>
     <mkdir dir="${build.classes.genchklib}"/>
     <mkdir dir="${build.classes.skinlfFixLib}"/>
     <mkdir dir="${build.classes.datechooser}"/>
+  	<mkdir dir="${build.classes.hyperocha}"/>
 
     <javac srcdir="${src.dir.feclib}"
            destdir="${build.classes.feclib}"
@@ -152,14 +160,6 @@ Build log  : ${logfilename}</echo>
         </fileset>
     </copy>
 
-    <javac srcdir="${src.dir}"
-           destdir="${build.classes}"
-    	   encoding="UTF8"
-	   	   debug="${debug}"		   debuglevel="${debuglevel}" 		deprecation="${deprecation}"
-	  	   verbose="${verbose}"    optimize="${optimize}"
-	  	   source="${source}"	   target="${target}">
-      <classpath refid="classpath" />
-    </javac>
 
     <javac srcdir="${src.dir.skinlfFixLib}"
            destdir="${build.classes.skinlfFixLib}"
@@ -171,6 +171,28 @@ Build log  : ${logfilename}</echo>
               <pathelement location="${src.dir.skinlfFixLib}"/>
               <pathelement location="${lib.dir}/skinlf.jar"/>
           </classpath>
+    </javac>
+  	
+    <javac srcdir="${src.dir.hyperocha}"
+           destdir="${build.classes.hyperocha}"
+	   	   debug="${debug}"		   debuglevel="${debuglevel}" 		deprecation="${deprecation}"
+    	   verbose="${verbose}"    optimize="${optimize}"
+    	   source="${source}"	   target="${target}">
+          <classpath>
+              <pathelement location="${build.classes}"/>
+              <pathelement location="${src.dir.hyperocha}"/>
+              <pathelement location="${lib.dir}/hyperocha.jar"/>
+          </classpath>
+    </javac>
+
+
+    <javac srcdir="${src.dir}"
+           destdir="${build.classes}"
+    	   encoding="UTF8"
+	   	   debug="${debug}"		   debuglevel="${debuglevel}" 		deprecation="${deprecation}"
+	  	   verbose="${verbose}"    optimize="${optimize}"
+	  	   source="${source}"	   target="${target}">
+      <classpath refid="classpath" />
     </javac>
 
   </target>
@@ -186,7 +208,8 @@ Build log  : ${logfilename}</echo>
     <mkdir dir="${dist.dir}"/>
 
 	<!--  Modify the version and copy the manifest -->
-	<filter token="VERSION_FROM_ANT" value="${NOW.DATE} dev"/>
+  	<filter token="VERSION_FROM_ANT" value="${revision}"/>
+	<!-- filter token="VERSION_FROM_ANT" value="${NOW.DATE} dev"/ -->
 <!--	<filter token="VERSION_FROM_ANT" value="20-Oct-2005 dev"/>-->
 	<copy
 		file="${src.dir}/frost.manifest"
@@ -243,6 +266,15 @@ Build log  : ${logfilename}</echo>
       </fileset>
     </jar>
 
+    <delete quiet="true" file="${dist.dir}/lib/hyperocha.jar"/>
+    <mkdir dir="${dist.dir}/lib"/>
+    <jar jarfile="${dist.dir}/lib/hyperocha.jar">
+      <fileset dir="${build.classes.hyperocha}">
+        <include name="**/*.class"/>
+        <include name="**/*.properties"/>
+      </fileset>
+    </jar>
+
   </target>
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -282,8 +314,8 @@ Build log  : ${logfilename}</echo>
 	</echo>
 
     <mkdir dir="${release.dir}"/>
-    <delete quiet="true" file="${release.dir}/${distZipNamePrefix}${NOW.DATE}.zip"/>
-    <zip basedir="${dist.dir}" destfile="${release.dir}/${distZipNamePrefix}${NOW.DATE}.zip"/>
+    <delete quiet="true" file="${release.dir}/${distZipNamePrefix}${revision}.zip"/>
+    <zip basedir="${dist.dir}" destfile="${release.dir}/${distZipNamePrefix}${revision}.zip"/>
 <!--
     <copy todir="${release.dir}">
       <fileset dir="${dist.dir}">
@@ -306,8 +338,8 @@ Build log  : ${logfilename}</echo>
 
     <!-- Prepares the source zip (exclude the library jars) -->
 
-    <delete quiet="true" file="${release.dir}/${distSourceZipNamePrefix}${NOW.DATE}.zip"/>
-    <zip destfile="${release.dir}/${distSourceZipNamePrefix}${NOW.DATE}.zip" filesonly="true">
+    <delete quiet="true" file="${release.dir}/${distZipNamePrefix}${revision}-source.zip"/>
+    <zip destfile="${release.dir}/${distZipNamePrefix}${revision}-source.zip" filesonly="true">
     	<zipfileset dir="."
     				prefix = "frost-wot"
     				excludes=".* **/CVS/* ${lib.dir}/**/*.jar"
@@ -324,7 +356,8 @@ Build log  : ${logfilename}</echo>
   <!-- Clean -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <target name="clean" description="--> clean the build files.">
-    <delete quiet="true" dir="${build.dir}"/>
+    <!-- delete quiet="true" dir="${build.dir}"/ -->
+  	<delete dir="${build.dir}"/>
   </target>
   
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -364,6 +397,7 @@ Build log  : ${logfilename}</echo>
 		<format property="NOW.DATE" pattern="dd-MMM-yyyy" locale="en"/>
 		<format property="NOW.TIME" pattern="HH:mm:ss" locale="en" />
 	</tstamp>
+	<property name="revision" value="${NOW.DATE}"/> <!-- overwritten by atomative -->
 
     <antcall target="distro"/>
 
