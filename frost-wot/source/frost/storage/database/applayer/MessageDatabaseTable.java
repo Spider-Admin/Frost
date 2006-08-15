@@ -82,9 +82,8 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
     // this index is really important because we select messageids
     private final String SQL_DDL_MESSAGES_INDEX_MSGID =
         "CREATE INDEX "+getMsgIdIndexName()+" ON "+getMessageTableName()+" ( messageid )";
-    // this index is really important because we select messageids
     private final String SQL_DDL_MESSAGES_INDEX_BOARD =
-        "CREATE INDEX "+getBoardIndexName()+" ON "+getMessageTableName()+" ( messageid )";
+        "CREATE INDEX "+getBoardIndexName()+" ON "+getMessageTableName()+" ( board )";
 
     private final String SQL_DDL_FILEATTACHMENTS =
         "CREATE TABLE "+getFileAttachmentsTableName()+" ("+
@@ -105,7 +104,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         ")";
     
     public List getTableDDL() {
-        ArrayList lst = new ArrayList(4);
+        ArrayList lst = new ArrayList(6);
         lst.add(SQL_DDL_MESSAGES);
         lst.add(SQL_DDL_FILEATTACHMENTS);
         lst.add(SQL_DDL_BOARDATTACHMENTS);
