@@ -354,7 +354,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         if( withContent ) {
             sql += ",content";
         }
-        sql += " FROM "+getMessageTableName()+" WHERE (date>=? OR isnew=TRUE) AND board=? AND isvalid=TRUE ";
+        sql += " FROM "+getMessageTableName()+" WHERE date>=? AND board=? AND isvalid=TRUE ";
         if( !showDeleted ) {
             // don't select deleted msgs
             sql += "AND isdeleted=FALSE ";
@@ -364,9 +364,9 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
 
         ps.setDate(1, startDate);
         ps.setString(2, board.getNameLowerCase());
-        System.out.println("executeQuery - begin"); // FIXME: debug output only
+
         ResultSet rs = ps.executeQuery();
-        System.out.println("executeQuery - finished");
+
         while( rs.next() ) {
             FrostMessageObject mo = resultSetToFrostMessageObject(rs, board, withContent, withAttachments);
             boolean shouldStop = mc.messageRetrieved(mo); // pass to callback
