@@ -350,7 +350,6 @@ public class Core implements FrostEventDispatcher  {
             
             // import xml messages into database
             if( frostSettings.getBoolValue("oneTimeUpdate.importMessages.didRun") == false ) {
-                splashscreen.setText("Import messages into database");
 
                 String txt = "<html>Frost must now import the messages, and this could take some time.<br>"+
                              "Afterwards the files in keypool are not longer needed and will be deleted.<br><br>"+
@@ -396,6 +395,7 @@ public class Core implements FrostEventDispatcher  {
         getFileTransferManager().initialize();
         
         if( doImport ) {
+            splashscreen.setText("Import messages into database");
             new ImportXmlMessages().importXmlMessages(getBoardsManager().getTofTreeModel().getAllBoards());
             new ImportFiles().importFiles();
             new ImportDownloadFiles().importDownloadFiles(getBoardsManager().getTofTreeModel(), getFileTransferManager());
