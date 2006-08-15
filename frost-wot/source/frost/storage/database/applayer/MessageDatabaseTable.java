@@ -44,6 +44,12 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
     protected String getUniqueMsgConstraintName() {
         return "MSG_UNIQUE_ONLY";
     }
+    protected String getMsgIdIndexName() {
+        return "MSG_IX_MSGID";
+    }
+    protected String getBoardIndexName() {
+        return "MSG_IX_BOARD";
+    }
 
     private final String SQL_DDL_MESSAGES =
         "CREATE TABLE "+getMessageTableName()+" ("+
@@ -73,6 +79,13 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         "hasboardattachment BOOLEAN,"+
         "CONSTRAINT "+getUniqueMsgConstraintName()+" UNIQUE(date,index,board)"+
         ")";
+    // this index is really important because we select messageids
+    private final String SQL_DDL_MESSAGES_INDEX_MSGID =
+        "CREATE INDEX "+getMsgIdIndexName()+" ON "+getMessageTableName()+" ( messageid )";
+    // this index is really important because we select messageids
+    private final String SQL_DDL_MESSAGES_INDEX_BOARD =
+        "CREATE INDEX "+getBoardIndexName()+" ON "+getMessageTableName()+" ( messageid )";
+
     private final String SQL_DDL_FILEATTACHMENTS =
         "CREATE TABLE "+getFileAttachmentsTableName()+" ("+
         "msgref BIGINT NOT NULL,"+
@@ -92,10 +105,12 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         ")";
     
     public List getTableDDL() {
-        ArrayList lst = new ArrayList(3);
+        ArrayList lst = new ArrayList(4);
         lst.add(SQL_DDL_MESSAGES);
         lst.add(SQL_DDL_FILEATTACHMENTS);
         lst.add(SQL_DDL_BOARDATTACHMENTS);
+        lst.add(SQL_DDL_MESSAGES_INDEX_MSGID);
+        lst.add(SQL_DDL_MESSAGES_INDEX_BOARD);
         return lst;
     }
     
@@ -107,7 +122,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         // insert msg and all attachments
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         PreparedStatement ps = db.prepare(
-            "INSERT INTO "+getMessageTableName()+"  ("+
+            "INSERT INTO "+getMessageTableName()+" ("+
             "messageid,inreplyto,isvalid,invalidreason,date,time,index,board,fromname,subject,recipient,signature," +
             "signaturestatus,publickey,content,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,hasfileattachment,hasboardattachment"+
             ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
@@ -116,8 +131,8 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         ps.setString(i++, mo.getInReplyTo()); // inreplyto
         ps.setBoolean(i++, mo.isValid()); // isvalid
         ps.setString(i++, mo.getInvalidReason()); // invalidreason
-        ps.setDate(i++, mo.getSqlDate()); // date
-        ps.setTime(i++, mo.getSqlTime()); // time
+        ps.setDate(i++, mo.getSqlDate()); // date  
+        ps.setTime(i++, mo.getSqlTime()); // time  // FIXME: hour ist eins mehr als in msg!
         ps.setInt(i++, mo.getIndex()); // index
         ps.setString(i++, mo.getBoard().getNameLowerCase()); // board
         ps.setString(i++, mo.getFromName()); // from
@@ -139,7 +154,6 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         // sync to allow no updates until we got the generated identity
         synchronized(getSyncObj()) {
             int inserted = ps.executeUpdate();
-    
             ps.close();
     
             if( inserted == 0 ) {
@@ -161,9 +175,11 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
             }
             rs.close();
             s.close();
-
+            
+            // System.out.println("IDENTITY="+identity);
+    
             mo.setMsgIdentity(identity);
-        }        
+        }
 
         // attachments
         if( files.size() > 0 ) {
@@ -208,7 +224,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         }
     }
 
-    public void updateMessage(FrostMessageObject mo) throws SQLException {
+    public synchronized void updateMessage(FrostMessageObject mo) throws SQLException {
         // update msg, date, board, index are not changeable
         // insert msg and all attachments
         AppLayerDatabase db = AppLayerDatabase.getInstance();
@@ -317,8 +333,8 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         
         return mo;
     }
-
-    public void retrieveMessagesForShow(
+    
+    public synchronized void retrieveMessagesForShow(
             Board board,
             int maxDaysBack, 
             boolean withContent,
@@ -343,15 +359,14 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
             // don't select deleted msgs
             sql += "AND isdeleted=FALSE ";
         }
-        sql += "ORDER BY date DESC,time DESC";
 
         PreparedStatement ps = db.prepare(sql);
-        
+
         ps.setDate(1, startDate);
         ps.setString(2, board.getNameLowerCase());
-        
+        System.out.println("executeQuery - begin"); // FIXME: debug output only
         ResultSet rs = ps.executeQuery();
-
+        System.out.println("executeQuery - finished");
         while( rs.next() ) {
             FrostMessageObject mo = resultSetToFrostMessageObject(rs, board, withContent, withAttachments);
             boolean shouldStop = mc.messageRetrieved(mo); // pass to callback
@@ -382,7 +397,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
             if( withContent ) {
                 sql += ",content";
             }
-            sql += " FROM "+getMessageTableName()+" WHERE date>=? AND date<=? AND board=? AND isvalid=TRUE AND isdeleted=? ORDER BY date DESC,time DESC";
+            sql += " FROM "+getMessageTableName()+" WHERE date>=? AND date<=? AND board=? AND isvalid=TRUE AND isdeleted=?";
         PreparedStatement ps = db.prepare(sql);
         
         ps.setDate(1, startDate);
@@ -420,7 +435,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
             if( withContent ) {
                 sql += ",content";
             }
-            sql += " FROM "+getMessageTableName()+" WHERE board=? AND messageid=? ORDER BY date DESC,time DESC";
+            sql += " FROM "+getMessageTableName()+" WHERE board=? AND messageid=?";
         PreparedStatement ps = db.prepare(sql);
         
         ps.setString(1, board.getNameLowerCase());
@@ -456,7 +471,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
 //        return content;
 //    }
 
-    public void setAllMessagesRead(Board board) throws SQLException {
+    public synchronized void setAllMessagesRead(Board board) throws SQLException {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         PreparedStatement ps = db.prepare("UPDATE "+getMessageTableName()+" SET isnew=FALSE WHERE board=? and isnew=TRUE");
         ps.setString(1, board.getNameLowerCase());

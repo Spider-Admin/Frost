@@ -28,6 +28,7 @@ import frost.*;
 import frost.gui.objects.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;
+import frost.util.gui.*;
 
 /**
  * @pattern Singleton
@@ -45,6 +46,8 @@ public class TOF {
     private TofTreeModel tofTreeModel;
 
     private static boolean initialized = false;
+
+    private GlassPane glassPane = null;
 
     /**
      * The unique instance of this class.
@@ -347,7 +350,28 @@ public class TOF {
         // start new thread, the thread will set itself to updateThread,
         // but first it waits until the current thread is finished
         nextUpdateThread = new UpdateTofFilesThread(board, daysToRead);
+        activateGlassPane();
         nextUpdateThread.start();
+    }
+
+    private void activateGlassPane() {
+        // Mount the glasspane on the component window
+        GlassPane aPane = GlassPane.mount(MainFrame.getInstance(), true);
+
+        // keep track of the glasspane as an instance variable
+        glassPane = aPane;
+
+        if (glassPane != null) {
+            // Start interception UI interactions
+            glassPane.setVisible(true);
+        }
+    }
+    private void deactivateGlassPane() {
+        if (glassPane != null) {
+            // Stop UI interception
+            glassPane.setVisible(false);
+            glassPane = null;
+        }
     }
 
     private class UpdateTofFilesThread extends Thread {
@@ -408,6 +432,7 @@ public class TOF {
                 
                 // HashSet contains a msgid if the msg was loaded OR was not existing
                 HashSet messageIds = new HashSet();
+
                 for(Iterator i=messageList.iterator(); i.hasNext(); ) {
                     FrostMessageObject mo = (FrostMessageObject)i.next();
                     if( mo.getMessageId() == null ) {
@@ -562,8 +587,12 @@ public class TOF {
             boolean loadThreads = Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS);
             if( loadThreads  ) {
                 ThreadedMessageRetrieval tmr = new ThreadedMessageRetrieval(rootNode);
+                long l1 = System.currentTimeMillis();
                 loadMessages(tmr);
+                long l2 = System.currentTimeMillis();
                 tmr.buildThreads();
+                long l3 = System.currentTimeMillis();
+                System.out.println("loading board "+board.getName()+": load="+(l2-l1)+", build+subretrieve="+(l3-l2)); // FIXME: debug output only!
             } else {
                 // load flat
                 FlatMessageRetrieval ffr = new FlatMessageRetrieval(rootNode);
@@ -588,7 +617,7 @@ public class TOF {
                     }
                 });
             }
-            
+            deactivateGlassPane();
             updateThread = null;
         }
     }

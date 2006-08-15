@@ -114,9 +114,9 @@ public class AppLayerDatabase extends Database {
                 try {
                     update(tableDDL);
                 } catch(SQLException ex) {
-                    // table already exists?
-                    if( !ex.getSQLState().equals("S0001") ) {
-                        ex.printStackTrace(); // other exception, show
+                    // table/index already exists?
+                    if( ! (ex.getSQLState().equals("S0001") || ex.getSQLState().equals("S0011")) ) {
+                        ex.printStackTrace(); // another exception, show
                     }
                 }
             }

@@ -24,7 +24,6 @@ import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
-import frost.boards.*;
 import frost.gui.objects.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;
@@ -34,10 +33,16 @@ public class ImportXmlMessages {
 
     private static Logger logger = Logger.getLogger(ImportXmlMessages.class.getName());
     
-    private TofTreeModel tofTreeModel;
-    
-    public void importXmlMessages(TofTreeModel ttm) {
-        tofTreeModel = ttm;
+    private Hashtable boardDirNames;
+
+    // TODO: maybe provide keypooldir/archivedir and allow import from other frosts too?
+    public void importXmlMessages(List boards) {
+        
+        boardDirNames = new Hashtable();
+        for( Iterator iter = boards.iterator(); iter.hasNext(); ) {
+            Board board = (Board) iter.next();
+            boardDirNames.put( board.getBoardFilename(), board );
+        }
         importKeypool();
         importArchive();
         importSentMessages();
@@ -138,7 +143,7 @@ public class ImportXmlMessages {
             }
             
             String boardName = mof.getBoardName();
-            Board board = tofTreeModel.getBoardByName( boardName );
+            Board board = (Board)boardDirNames.get( boardName );
             if( board == null ) {
                 logger.warning("board is not in boardlist, skipping import: "+boardName);
                 continue;
@@ -170,7 +175,7 @@ public class ImportXmlMessages {
             }
 
             String boardName = boardDir.getName();
-            Board board = tofTreeModel.getBoardByName( boardName );
+            Board board = (Board)boardDirNames.get( boardName );
             if( board == null ) {
                 logger.warning("board is not in boardlist, skipping import: "+boardName);
                 continue;
@@ -189,7 +194,6 @@ public class ImportXmlMessages {
                 if( dateDir.isDirectory() == false ) {
                     continue;
                 }
-                
                 // its a dir, we expect a name like '2006.3.1'
                 Calendar dateDirCal = null;
                 try {
@@ -245,7 +249,7 @@ public class ImportXmlMessages {
                 invalidReason = FileAccess.readFile(msgFile).trim();
             }
         }
-        
+
         if( mof != null ) {
             // valid msg, insert
             FrostMessageObject mo = new FrostMessageObject(mof, board, index);
@@ -276,7 +280,6 @@ public class ImportXmlMessages {
                 logger.log(Level.SEVERE, "Error inserting message index into database", e);
             }
         }
-
         return true;
     }
 }

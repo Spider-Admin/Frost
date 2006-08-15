@@ -27,9 +27,7 @@ import frost.storage.database.applayer.*;
 public class ImportKnownBoards {
     
     public void importKnownBoards() {
-        KnownBoardsDatabaseTable dbt = AppLayerDatabase.getKnownBoardsDatabaseTable();
-        
         List knownBoards = KnownBoardsXmlDAO.loadKnownBoards(new File("knownboards.xml"));
-        dbt.addNewKnownBoards(knownBoards);
+        AppLayerDatabase.getKnownBoardsDatabaseTable().addNewKnownBoards(knownBoards);
     }
 }

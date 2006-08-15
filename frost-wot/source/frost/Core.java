@@ -337,7 +337,17 @@ public class Core implements FrostEventDispatcher  {
                 // import old identities file into database
                 new ImportIdentities().importIdentities();
             }
+            
+            if (!initializeConnectivity()) {
+                System.exit(1);
+            }
+
         } else {
+            // needs to be done before knownboard import, the keychecker needs to know the freenetversion!
+            if (!initializeConnectivity()) {
+                System.exit(1);
+            }
+            
             // import xml messages into database
             if( frostSettings.getBoolValue("oneTimeUpdate.importMessages.didRun") == false ) {
                 splashscreen.setText("Import messages into database");
@@ -363,10 +373,6 @@ public class Core implements FrostEventDispatcher  {
         splashscreen.setText(language.getString("Splashscreen.message.3"));
         splashscreen.setProgress(60);
 
-        if (!initializeConnectivity()) {
-            System.exit(1);
-        }
-
         getIdentities().initialize(freenetIsOnline);
 
         // TODO: maybe make this configureable in options dialog for the paranoic people?
@@ -390,7 +396,7 @@ public class Core implements FrostEventDispatcher  {
         getFileTransferManager().initialize();
         
         if( doImport ) {
-            new ImportXmlMessages().importXmlMessages(getBoardsManager().getTofTreeModel());
+            new ImportXmlMessages().importXmlMessages(getBoardsManager().getTofTreeModel().getAllBoards());
             new ImportFiles().importFiles();
             new ImportDownloadFiles().importDownloadFiles(getBoardsManager().getTofTreeModel(), getFileTransferManager());
 
