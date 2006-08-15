@@ -33,8 +33,6 @@ import javax.swing.SwingUtilities;
  */
 public abstract class SwingWorker {
 	
-	private Thread thread;
-	
 	private static Logger logger = Logger.getLogger(SwingWorker.class.getName());
 
 	/**
@@ -58,11 +56,11 @@ public abstract class SwingWorker {
 
 	private GlassPane glassPane;
 	private java.awt.Component aComponent;
+
 	/**
-	 * Start a thread that will call the <code>construct</code> method
-	 * and then exit.
-	 * @param aComponent a reference to the UI component that's directly using
-	 * SwingWorker
+	 * Start a thread that will call the <code>construct</code> method  and then exit.
+     * 
+	 * @param aComponent a reference to the UI component that's directly using SwingWorker
 	 */
 	public SwingWorker(Component aComponent) {
 		setAComponent(aComponent);
@@ -92,7 +90,6 @@ public abstract class SwingWorker {
 	}
 	/**
 	 * Activate the capabilities of glasspane
-	 *
 	 */
 	private void activateGlassPane() {
 		// Mount the glasspane on the component window
@@ -118,7 +115,6 @@ public abstract class SwingWorker {
 	}
 	/**
 	 * Deactivate the glasspane
-	 *
 	 */
 	private void deactivateGlassPane() {
 		if (getGlassPane() != null) {

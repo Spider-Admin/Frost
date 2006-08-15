@@ -43,6 +43,8 @@ import frost.util.gui.*;
 import frost.util.gui.textpane.*;
 import frost.util.gui.translation.*;
 
+//FIXME: -> last userid per board, if none is set use global last id
+
 public class MessageFrame extends JFrame {
     
     private static Logger logger = Logger.getLogger(MessageFrame.class.getName());
