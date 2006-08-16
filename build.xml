@@ -29,7 +29,7 @@
   <property name="optimize" value="true" />
   <property name="source" value="1.4" />         <!-- overwritten by atomative -->
   <property name="target" value="1.4" />         <!-- overwritten by atomative -->
-  
+
   <!-- moved to target main, the old one should keep alive. :)  -->
   <!-- property name="revision" value="${NOW.DATE}"/ --> <!-- overwritten by atomative -->
 
@@ -43,7 +43,7 @@
   <property name="src.dir.genchklib" value="${lib.dir}/genChkImpl"/>
   <property name="src.dir.skinlfFixLib" value="${lib.dir}/skinlfFix"/>
   <property name="src.dir.datechooser" value="${lib.dir}/datechooser"/>
-  <property name="src.dir.hyperocha" value="${lib.dir}/hyperocha"/>	
+  <property name="src.dir.hyperocha" value="${lib.dir}/hyperocha"/>
 
   <!--  Set the properties for the build area  -->
   <property name="build.dir" value="build"/>
@@ -52,16 +52,16 @@
   <property name="build.classes.genchklib" value="${build.dir}/classes_genchklib"/>
   <property name="build.classes.skinlfFixLib" value="${build.dir}/classes_skinlfFixLib"/>
   <property name="build.classes.datechooser" value="${build.dir}/classes_datechooser"/>
-  <property name="build.classes.hyperocha" value="${build.dir}/classes_hyperocha"/>	
+  <property name="build.classes.hyperocha" value="${build.dir}/classes_hyperocha"/>
 
   <!--  Set up properties for the distribution area -->
   <property name="dist.dir" value="${build.dir}/dist"/>
   <property name="release.dir" value="${build.dir}/release"/>
-  
-  <!--  Set up properties for the frost help -->	
+
+  <!--  Set up properties for the frost help -->
   <property name="helpsrc.dir" value="help"/>
   <property name="helpbin.dir" value="${dist.dir}/help"/>
-  
+
   <!--  Set up properties for the frost javadoc -->
   <property name="docs"    value="docs/api"/>
 
@@ -71,7 +71,7 @@
     <pathelement location="${lib.dir}/xml-apis.jar"/>
     <pathelement location="${lib.dir}/xmlParserAPIs.jar"/>
     <pathelement location="${lib.dir}/BCastle.jar"/>
-    <pathelement location="${lib.dir}/hsqldbmin.jar"/>
+    <pathelement location="${lib.dir}/mckoidb.jar"/>
     <pathelement location="${lib.dir}/jnlp.jar"/>
     <pathelement location="${build.classes.feclib}"/>
     <pathelement location="${build.classes.genchklib}"/>
@@ -172,7 +172,7 @@ Build log  : ${logfilename}</echo>
               <pathelement location="${lib.dir}/skinlf.jar"/>
           </classpath>
     </javac>
-  	
+
     <javac srcdir="${src.dir.hyperocha}"
            destdir="${build.classes.hyperocha}"
 	   	   debug="${debug}"		   debuglevel="${debuglevel}" 		deprecation="${deprecation}"
@@ -294,13 +294,12 @@ Build log  : ${logfilename}</echo>
         <fileset dir="${lib.dir}">
             <include name="*.jar"/>
             <exclude name="jnlp.jar"/>
-            <exclude name="hsqldbmin.jar"/>  <!-- Not until it is used -->
         </fileset>
     </copy>
 
     <mkdir dir="${dist.dir}/downloads"/>
     <mkdir dir="${dist.dir}/exec"/>
-    
+
     <!-- create the help-zip -->
     <antcall target="helpzip"/>
 
@@ -359,7 +358,7 @@ Build log  : ${logfilename}</echo>
     <!-- delete quiet="true" dir="${build.dir}"/ -->
   	<delete dir="${build.dir}"/>
   </target>
-  
+
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- Building help.zip -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -370,11 +369,11 @@ Build log  : ${logfilename}</echo>
 		<zipfileset dir="${helpsrc.dir}" excludes="/**/CVS/*"/>
     	</zip>
   </target>
- 
+
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- Building the frost documentation -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
- 
+
   <target name="javadoc">
     <!-- javadoc packagenames="fecimpl.*"
              sourcepath="${src.dir.feclib}"
@@ -385,7 +384,7 @@ Build log  : ${logfilename}</echo>
              destdir="${docs}"
              windowtitle="Frost Documentation"/>
   </target>
-	
+
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- Main target - runs dist by default -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
