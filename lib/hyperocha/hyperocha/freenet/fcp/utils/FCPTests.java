@@ -29,6 +29,7 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -85,9 +86,9 @@ public class FCPTests {
 		try {
 			f = File.createTempFile("hyperocha", "DDATest");
 			f.deleteOnExit();
-			PrintStream ps = new PrintStream(f);
-			ps.write(b, 0, b.length);
-			ps.flush();
+			FileOutputStream os = new FileOutputStream(f);
+			os.write(b, 0, b.length);
+			os.flush();
 		} catch (IOException ex) {
 			System.out.println("ERROR: TestNode7DDA: error while creating temporary test file");
 			System.out.println("ERROR: TestNode7DDA: " + ex);
@@ -166,9 +167,9 @@ public class FCPTests {
 		try {
 			f = File.createTempFile("hyperocha", "GQTest");
 			f.deleteOnExit();
-			PrintStream ps = new PrintStream(f);
-			ps.write(b, 0, b.length);
-			ps.flush();
+			FileOutputStream os = new FileOutputStream(f);
+			os.write(b, 0, b.length);
+			os.flush();
 		} catch (IOException ex) {
 			System.out.println("ERROR: TestNode7DDA: " + ex);
 			return false;

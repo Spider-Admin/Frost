@@ -136,9 +136,9 @@ public class FCPConnection {
             //System.out.println("ReadEndMessage out: " + tmp);
             if (tmp.compareTo("EndMessage") == 0) {
             	result.put("hyper-fin", tmp);
-                break;
+                break; 
             }
-            if (tmp.contains("=")) {
+            if (tmp.indexOf("=") > -1) {
             	String[] tmp2 = tmp.split("=", 2);
             	result.put(tmp2[0], tmp2[1]);
             } else {
