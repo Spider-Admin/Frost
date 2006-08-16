@@ -98,8 +98,8 @@ public class IOConnection {
     	try {
 			fcpSock = node.createSocket();
 			//fcpSock.setSoTimeout(to);
-			fcpOut = new PrintStream(fcpSock.getOutputStream());
-	        fcpIn = new InputStreamReader(fcpSock.getInputStream());
+			fcpOut = new PrintStream(fcpSock.getOutputStream(), false, "UTF-8");
+	        fcpIn = new InputStreamReader(fcpSock.getInputStream(), "UTF-8");
 	        fcpInBuf = new BufferedReader(fcpIn);
 		} catch (IOException e) {
 			handleIOError(e);
