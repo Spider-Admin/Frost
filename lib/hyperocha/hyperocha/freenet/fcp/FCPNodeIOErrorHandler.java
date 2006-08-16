@@ -25,5 +25,11 @@ package hyperocha.freenet.fcp;
  *
  */
 public interface FCPNodeIOErrorHandler {
-	void OnIOError(Exception e);
+	
+	/**
+	 * called from FCPNode, wenn a error happens
+	 * (not handled by others)
+	 * @param Exception
+	 */
+	void OnXError(Exception e);
 }

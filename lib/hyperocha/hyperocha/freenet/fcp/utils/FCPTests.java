@@ -22,11 +22,13 @@ package hyperocha.freenet.fcp.utils;
 
 import hyperocha.freenet.fcp.FCPConnection;
 import hyperocha.freenet.fcp.FCPNode;
-import hyperocha.freenet.fcp.FCPNodeIOErrorHandler;
 import hyperocha.freenet.fcp.Persistence;
 import hyperocha.util.Version;
 
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -54,7 +56,6 @@ public class FCPTests {
 		//System.out.print("Testing Node Helo: ");
 		
 		TestNodeErrorHandler erh = new TestNodeErrorHandler();
-		
 		FCPNode node = new FCPNode(serverport, erh);
 		
 		if ((node == null) || (erh.err)) return null;
@@ -65,7 +66,14 @@ public class FCPTests {
 		return node;
 	}
 	
+
 	
+	
+	/**
+	 * generate a chk from a 1K temfile for testing dda
+	 * @param FCPNode the node to test
+	 * @return true if the test is OK. (DDA aviable)
+	 */
 	public static boolean TestNodeDDA(FCPNode n) {
 		File f = null;
 		Random rnd = new Random();
@@ -75,7 +83,7 @@ public class FCPTests {
 		//System.out.println("TODO: Testing Node 7 DirectDiscAccess");
 		
 		try {
-			f = File.createTempFile("judl", "DDATest");
+			f = File.createTempFile("hyperocha", "DDATest");
 			f.deleteOnExit();
 			PrintStream ps = new PrintStream(f);
 			ps.write(b, 0, b.length);
@@ -97,8 +105,9 @@ public class FCPTests {
 		cmd.add("PriorityClass=0");
 		cmd.add("GetCHKOnly=true");
 		cmd.add("Global=false");
+		cmd.add("Persistance=" + Persistence.CONNECTION);
 		cmd.add("DontCompress=true");
-		cmd.add("ClientToken=Hello!!!");
+		cmd.add("ClientToken=hyperocha test");
 		cmd.add("UploadFrom=disk");
 		cmd.add("Filename=" + f.getAbsolutePath());
 		cmd.add("EndMessage");
@@ -117,15 +126,15 @@ public class FCPTests {
 			
 			while (repeat) {
 				result = conn.readEndMessage();
-				System.out.println("TODO: DDA-Test loop: " + result);
-				repeat = ("URIGenerated").equalsIgnoreCase((String)(result.get("judl-reason")));
+				//System.out.println("TODO: DDA-Test loop: " + result);
+				repeat = ("URIGenerated").equalsIgnoreCase((String)(result.get("hyper-result")));
 			}
 			
 			//Hashtable<String,String> result = null;
 			//result = conn.readEndMessage();
 			//System.out.println("TODO: DDA-Test1: " + result);
 			//return null;
-			if (("PutSuccessful").equalsIgnoreCase((String)(result.get("judl-reason")))) {
+			if (("PutSuccessful").equalsIgnoreCase((String)(result.get("hyper-result")))) {
 				return true; // the only one case for return ok.
 			}
 			//System.out.println("Result:" + result.get("judl-reason"));
@@ -139,6 +148,12 @@ public class FCPTests {
 		return false;
 	}
 	
+	/**
+	 * testing the presence of GQ. 
+	 * atm (#943) the node have a bug (global=true and persistance=connection dont work :()
+	 * @param node
+	 * @return
+	 */
 	public static boolean TestNodeGQ(FCPNode node) {
 		//System.out.println("TODO: Testing Node 7 Global queue");
 		File f = null;
@@ -149,7 +164,7 @@ public class FCPTests {
 		String identifer = FCPUtil.getNewConnectionId("InsertGQTest-");
 		
 		try {
-			f = File.createTempFile("judl", "GQTest");
+			f = File.createTempFile("hyperocha", "GQTest");
 			f.deleteOnExit();
 			PrintStream ps = new PrintStream(f);
 			ps.write(b, 0, b.length);
@@ -164,18 +179,21 @@ public class FCPTests {
 		cmd.add("ClientPut");
 		cmd.add("URI=CHK@");
 		//cmd.add("Identifier=InsertGQTest-1");
-		cmd.add("Identifier=" + identifer);
+		cmd.add("Identifier=" + identifer + " - u can delete me safely");
 		cmd.add("Verbosity=0");
 		cmd.add("MaxRetries=3");
 		cmd.add("PriorityClass=0");
 		cmd.add("GetCHKOnly=false");
 		cmd.add("Global=true");
 		cmd.add("DontCompress=true");
-		cmd.add("Persistence=" + Persistence.FOREVER);
-		cmd.add("ClientToken=HelloAgain!!!");
-		cmd.add("UploadFrom=disk");
-		cmd.add("Filename=" + f.getAbsolutePath());
-		cmd.add("EndMessage");
+		cmd.add("Persistence=" + Persistence.REBOOT);
+		cmd.add("ClientToken=hyperocha test");
+		//cmd.add("UploadFrom=disk");
+		//cmd.add("Filename=" + f.getAbsolutePath());
+		//cmd.add("EndMessage");
+		cmd.add("UploadFrom=direct");
+		cmd.add("DataLength=1024");
+		cmd.add("Data");
 		
 		Hashtable result = null;
 		FCPConnection conn = null;
@@ -183,15 +201,25 @@ public class FCPTests {
 			//conn = node.getNewFCPConnection(5000);
 			conn = node.getNewFCPConnection();
 			//conn.start((String[]) cmd.toArray());
-			conn.start(cmd);
+			//System.out.println("Bla 01");
 			
+			BufferedInputStream is;
+			try {
+				is = new BufferedInputStream(new FileInputStream(f));
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+				return false;
+			}
+			
+			conn.start(cmd, is);
 			//System.out.println("TODO: GQ-Test:10");
 			
-			result = conn.readEndMessage(); 
+			result = conn.readEndMessage();
 			
-			//System.out.println("Result: GQT" + result.get("judl-reason"));
+			//System.out.println("Result: GQT" + result);
 			
-			if (!("PersistentPut").equalsIgnoreCase((String)(result.get("judl-reason")))) {
+			if (!("PersistentPut").equalsIgnoreCase((String)(result.get("hyper-result")))) {
+				conn.close();
 				return false; // the only one case for return ok.
 			}
 			
@@ -236,6 +264,7 @@ public class FCPTests {
 		//}
 		
 		//System.out.println("Aaaah!");
+		conn.close();	
 		return true;
 	}
 

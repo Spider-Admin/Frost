@@ -151,6 +151,10 @@ public class IOConnection {
 		fcpOut.write(b, off, len);
 	}
 	
+	public void write(int i) {
+		fcpOut.write(i);
+	}
+	
 	public void println(String s) {
 		//System.out.println("testinger" + fcpOut);
 		fcpOut.println(s);

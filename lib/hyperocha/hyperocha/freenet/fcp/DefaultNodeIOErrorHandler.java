@@ -40,9 +40,8 @@ public class DefaultNodeIOErrorHandler implements FCPNodeIOErrorHandler {
 	}
 	*/
 
-	public void OnIOError(Exception e) {
+	public void OnXError(Exception e) {
 		System.out.println("NODE ERROR: " + e);
 		e.printStackTrace();		
 	}
-
 }
