@@ -62,7 +62,7 @@ public class IndexSlotsDatabaseTable {
     // downloading
     private static final String SQL_NEXT_DOWNLOAD_SLOT = // TOP 1
         "SELECT msgindex FROM INDEXSLOTS WHERE indexname=? AND boardname=? AND msgdate=? AND msgindex>? "+
-        "AND wasdownloaded=FALSE AND locked=FALSE ORDER BY index";
+        "AND wasdownloaded=FALSE AND locked=FALSE ORDER BY msgindex";
     private static final String SQL_UPDATE_WASDOWNLOADED =
         "UPDATE INDEXSLOTS SET wasdownloaded=TRUE WHERE indexname=? AND boardname=? AND msgdate=? AND msgindex=?";
     
