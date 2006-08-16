@@ -26,6 +26,7 @@ import hyperocha.freenet.fcp.io.IOConnectionErrorHandler;
 import hyperocha.freenet.fcp.utils.FCPUtil;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
@@ -65,12 +66,40 @@ public class FCPConnection {
 		return connectionID;
 	}
 	
+	public void start(ArrayList l, InputStream s) {
+
+		int sc = l.size();
+		for (int i = 0; i < sc; i++){
+			//System.out.println("Startprint: " + l.get(i));
+			rawConn.println((String)(l.get(i)));
+		}
+		
+		// write complete file to socket
+		while( true ) {
+			int d;
+			try {
+				d = s.read();
+				if( d < 0 ) {
+					break; // EOF
+				}
+				rawConn.write(d);
+			} catch (IOException e) {
+				e.printStackTrace();
+				break;
+			}
+
+		}
+		
+		rawConn.flush();
+	}
+	
+	
 	public void start(ArrayList l) {
 		//open();
 		int sc = l.size();
 		for (int i = 0; i < sc; i++){
 			//System.out.println("Startprint: " + l.get(i));
-			println((String)(l.get(i)));
+			rawConn.println((String)(l.get(i)));
 		}
 		//fcpOut.println("EndMessage");
 		//System.out.println("Startprint: EndMessage");
@@ -83,8 +112,14 @@ public class FCPConnection {
         fcpOut.close();
 		fcpSock.close();
 		*/
+		rawConn.flush();
 	}
 	
+	/**
+	 * reads the connection to the next EndMessage end return the entire
+	 * message
+	 * @return message
+	 */
 	public /*synchronized*/ Hashtable readEndMessage() {
 		Hashtable result = new Hashtable();
 		String tmp;
@@ -92,7 +127,7 @@ public class FCPConnection {
 		// the first line is the reason
 		//tmp = readLine();
 		tmp = rawConn.readLine();
-		result.put("judl-reason", tmp);
+		result.put("hyper-result", tmp);
 		
 		
 		while(true) {
@@ -100,7 +135,7 @@ public class FCPConnection {
             //result.add(tmp);
             //System.out.println("ReadEndMessage out: " + tmp);
             if (tmp.compareTo("EndMessage") == 0) {
-            	result.put("judl-fin", tmp);
+            	result.put("hyper-fin", tmp);
                 break;
             }
             if (tmp.contains("=")) {
@@ -118,7 +153,6 @@ public class FCPConnection {
 		// TODO Auto-generated method stub
 		System.out.println("handle it 7");
 		readEndMessage();
-		
 	}
 	
 	private String nodeHello() {
@@ -145,6 +179,10 @@ public class FCPConnection {
 	public void println(String s) {
 		rawConn.println(s);
 		rawConn.flush();
+	}
+	
+	public void close() {
+		rawConn.close();
 	}
 	
 	//public long getConnectionId() {

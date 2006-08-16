@@ -30,8 +30,9 @@ import hyperocha.freenet.fcp.FCPNodeIOErrorHandler;
 class TestNodeErrorHandler implements FCPNodeIOErrorHandler {
 	public boolean err = false;
 	
-	public void OnIOError(Exception e) {
-		err = true;			
+	public void OnXError(Exception e) {
+		err = true;		
+		e.printStackTrace();
 	}
 	
 }

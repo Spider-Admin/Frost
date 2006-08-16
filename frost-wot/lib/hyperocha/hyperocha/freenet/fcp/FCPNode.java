@@ -70,8 +70,7 @@ public class FCPNode {
 	            this.hostName = ia.getHostName();
 	            this.hostIp = ia.getHostAddress();
 			} catch (UnknownHostException e) {
-				// TODO Auto-generated catch block
-				errh.OnIOError(e);
+				errh.OnXError(e);
 				//System.out.println("ERROR: Unknown FCP host: "+ serverport);
 				//e.printStackTrace();
 			}
@@ -86,7 +85,7 @@ public class FCPNode {
             if ((port < 1) || (port > 65535)) { throw new IllegalArgumentException(); }
            // isa = InetSocketAddress.createUnresolved(this.hostName, port);
         } catch(Exception e) {
-        	errh.OnIOError(e);
+        	errh.OnXError(e);
           //System.out.println("ERROR: Unknown FCP server:port: "+ serverport);
          // System.out.println(t);
       }
