@@ -16,7 +16,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.storage.database.transferlayer;
+package frost.storage.database.applayer;
 
 import java.sql.*;
 import java.util.*;
@@ -38,33 +38,33 @@ public class IndexSlotsDatabaseTable {
     private int indexName;
     private String boardName;
     
-    private TransferLayerDatabase db;
+    private AppLayerDatabase db;
 
     private static final String SQL_DDL = 
-        "CREATE TABLE INDEXSLOTS (indexname INT, boardname VARCHAR, date DATE, index INT,"+
+        "CREATE TABLE INDEXSLOTS (indexname INT, boardname VARCHAR, msgdate DATE, msgindex INT,"+
         " wasdownloaded BOOLEAN, wasuploaded BOOLEAN, locked BOOLEAN,"+
-        " CONSTRAINT UNIQUE_INDICES_ONLY UNIQUE(indexname,boardname,date,index) )";
+        " CONSTRAINT UNIQUE_INDICES_ONLY UNIQUE(indexname,boardname,msgdate,msgindex) )";
     private static final String SQL_INSERT =
-        "INSERT INTO INDEXSLOTS (indexname,boardname,date,index,wasdownloaded,wasuploaded,locked) VALUES (?,?,?,?,?,?,?)";
+        "INSERT INTO INDEXSLOTS (indexname,boardname,msgdate,msgindex,wasdownloaded,wasuploaded,locked) VALUES (?,?,?,?,?,?,?)";
 
     private static final String SQL_UPDATE_WASUPLOADED =
-        "UPDATE INDEXSLOTS SET wasuploaded=TRUE,locked=FALSE WHERE indexname=? AND boardname=? AND date=? AND index=?";
+        "UPDATE INDEXSLOTS SET wasuploaded=TRUE,locked=FALSE WHERE indexname=? AND boardname=? AND msgdate=? AND msgindex=?";
     private static final String SQL_UPDATE_LOCKED =
-        "UPDATE INDEXSLOTS SET locked=? WHERE indexname=? AND boardname=? AND date=? AND index=?";
+        "UPDATE INDEXSLOTS SET locked=? WHERE indexname=? AND boardname=? AND msgdate=? AND msgindex=?";
     
-    private static final String SQL_NEXT_MAX_USED_SLOT =
-        "SELECT TOP 1 index FROM INDEXSLOTS WHERE indexname=? AND boardname=? AND date=? AND index>? "+
-        "AND ( wasdownloaded=TRUE OR wasuploaded=TRUE OR locked=TRUE ) ORDER BY index DESC";
+    private static final String SQL_NEXT_MAX_USED_SLOT = // TOP 1
+        "SELECT msgindex FROM INDEXSLOTS WHERE indexname=? AND boardname=? AND msgdate=? AND msgindex>? "+
+        "AND ( wasdownloaded=TRUE OR wasuploaded=TRUE OR locked=TRUE ) ORDER BY msgindex DESC";
     
-    private static final String SQL_MAX_SLOT =
-        "SELECT TOP 1 index FROM INDEXSLOTS WHERE indexname=? AND boardname=? AND date=? ORDER BY index DESC";
+    private static final String SQL_MAX_SLOT = // TOP 1
+        "SELECT msgindex FROM INDEXSLOTS WHERE indexname=? AND boardname=? AND msgdate=? ORDER BY msgindex DESC";
 
     // downloading
-    private static final String SQL_NEXT_DOWNLOAD_SLOT =
-        "SELECT TOP 1 index FROM INDEXSLOTS WHERE indexname=? AND boardname=? AND date=? AND index>? "+
+    private static final String SQL_NEXT_DOWNLOAD_SLOT = // TOP 1
+        "SELECT msgindex FROM INDEXSLOTS WHERE indexname=? AND boardname=? AND msgdate=? AND msgindex>? "+
         "AND wasdownloaded=FALSE AND locked=FALSE ORDER BY index";
     private static final String SQL_UPDATE_WASDOWNLOADED =
-        "UPDATE INDEXSLOTS SET wasdownloaded=TRUE WHERE indexname=? AND boardname=? AND date=? AND index=?";
+        "UPDATE INDEXSLOTS SET wasdownloaded=TRUE WHERE indexname=? AND boardname=? AND msgdate=? AND msgindex=?";
     
     private PreparedStatement ps_INSERT = null;
     private PreparedStatement ps_UPDATE_WASUPLOADED = null;
@@ -78,7 +78,7 @@ public class IndexSlotsDatabaseTable {
         this.boardName = board.getNameLowerCase(); 
         this.indexName = indexName;
         
-        db = TransferLayerDatabase.getInstance();
+        db = AppLayerDatabase.getInstance();
     }
     
     public static List getTableDDL() {
@@ -118,6 +118,7 @@ public class IndexSlotsDatabaseTable {
     private PreparedStatement getPsNEXT_DOWNLOAD_SLOT() throws SQLException {
         if( ps_NEXT_UNUSED_SLOT == null ) {
             ps_NEXT_UNUSED_SLOT = db.prepare(SQL_NEXT_DOWNLOAD_SLOT);
+            ps_NEXT_UNUSED_SLOT.setMaxRows(1);
         }
         return ps_NEXT_UNUSED_SLOT;
     }
@@ -125,6 +126,7 @@ public class IndexSlotsDatabaseTable {
     private PreparedStatement getPsNEXT_MAX_USED_SLOT() throws SQLException {
         if( ps_NEXT_MAX_USED_SLOT == null ) {
             ps_NEXT_MAX_USED_SLOT = db.prepare(SQL_NEXT_MAX_USED_SLOT);
+            ps_NEXT_MAX_USED_SLOT.setMaxRows(1);
         }
         return ps_NEXT_MAX_USED_SLOT;
     }
@@ -132,6 +134,7 @@ public class IndexSlotsDatabaseTable {
     private PreparedStatement getPsMAX_SLOT() throws SQLException {
         if( ps_MAX_SLOT == null ) {
             ps_MAX_SLOT = db.prepare(SQL_MAX_SLOT);
+            ps_MAX_SLOT.setMaxRows(1);
         }
         return ps_MAX_SLOT;
     }

@@ -34,12 +34,13 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
 
     private final static String SQL_FILES_DDL =
         "CREATE TABLE FILELIST ("+
-        "primkey BIGINT NOT NULL IDENTITY PRIMARY KEY,"+
+        "primkey BIGINT NOT NULL,"+
         "sha1 VARCHAR NOT NULL,"+
         "size BIGINT NOT NULL,"+
-        "key VARCHAR NOT NULL,"+         // if "" then file is not yet inserted
+        "fnkey VARCHAR NOT NULL,"+         // if "" then file is not yet inserted
         "lastdownloaded DATE,"+ // last time we successfully downloaded this file
         "lastreceived DATE NOT NULL,"+ // GLOBAL last time we received this file in a fileindex. kept if all refs were removed
+        "CONSTRAINT files_pk PRIMARY KEY (primkey),"+
         "CONSTRAINT FILELIST_1 UNIQUE (sha1) )";
     
     private final static String SQL_OWNER_BOARD_DDL =
@@ -51,7 +52,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         "lastreceived DATE,"+ // last time we received this file in a fileindex
         "lastuploaded DATE,"+ // last time this owner uploaded the file
 //        "lastShared DATE,"+ // TODO: in case we send out files of friends
-        "FOREIGN KEY (refkey) REFERENCES FILELIST(primkey) ON DELETE CASCADE,"+
+        "CONSTRAINT FILEOWNERBOARDLIST_FK FOREIGN KEY (refkey) REFERENCES FILELIST(primkey) ON DELETE CASCADE,"+
         "CONSTRAINT FILEOWNERBOARDLIST_1 UNIQUE (refkey,owner,board) )";
 
     // FIXME: daily check: remove refs older than 3 month(?), keep files with keys, but remember last seen if last ref!
@@ -119,7 +120,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
         PreparedStatement ps = db.prepare(
-            "SELECT primkey,size,key,lastdownloaded,lastreceived FROM FILELIST WHERE sha1=?");
+            "SELECT primkey,size,fnkey,lastdownloaded,lastreceived FROM FILELIST WHERE sha1=?");
         
         ps.setString(1, sha1);
         
@@ -149,7 +150,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
         PreparedStatement ps = db.prepare(
-            "SELECT sha1,size,key,lastdownloaded,lastreceived FROM FILELIST WHERE primkey=?");
+            "SELECT sha1,size,fnkey,lastdownloaded,lastreceived FROM FILELIST WHERE primkey=?");
         
         ps.setLong(1, primkey);
         
@@ -174,17 +175,30 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         return fo;
     }
 
-    private Long insertFrostSharedFileObjectIntoFILELIST(FrostSharedFileObject sfo) throws SQLException {
+    private synchronized Long insertFrostSharedFileObjectIntoFILELIST(FrostSharedFileObject sfo) throws SQLException {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
-        PreparedStatement ps = db.prepare(
-            "INSERT INTO FILELIST (sha1,size,key,lastdownloaded,lastreceived) VALUES (?,?,?,?,?)");
+        Long identity = null;
+        Statement stmt = AppLayerDatabase.getInstance().createStatement();
+        ResultSet rs = stmt.executeQuery("select UNIQUEKEY('FILELIST')");
+        if( rs.next() ) {
+            identity = new Long(rs.getLong(1));
+        } else {
+            logger.log(Level.SEVERE,"Could not retrieve a new unique key!");
+        }
+        rs.close();
+        stmt.close();
         
-        ps.setString(1, sfo.getSha1());
-        ps.setLong(2, sfo.getSize());
-        ps.setString(3, (sfo.getKey()==null?"":sfo.getKey()));
-        ps.setDate(4, sfo.getLastDownloaded());
-        ps.setDate(5, sfo.getLastReceived());
+        PreparedStatement ps = db.prepare(
+            "INSERT INTO FILELIST (primkey,sha1,size,fnkey,lastdownloaded,lastreceived) VALUES (?,?,?,?,?,?)");
+
+        int ix = 1;
+        ps.setLong(ix++, identity.longValue());
+        ps.setString(ix++, sfo.getSha1());
+        ps.setLong(ix++, sfo.getSize());
+        ps.setString(ix++, (sfo.getKey()==null?"":sfo.getKey()));
+        ps.setDate(ix++, sfo.getLastDownloaded());
+        ps.setDate(ix++, sfo.getLastReceived());
         
         boolean wasOk = (ps.executeUpdate()==1);
         ps.close();
@@ -194,17 +208,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
             return null;
         }
 
-        // get generated identity
-        Long identity = null;
-        Statement s = db.createStatement();
-        ResultSet rs = s.executeQuery("CALL IDENTITY();");
-        if( rs.next() ) {
-            identity = new Long(rs.getLong(1));
-        } else {
-            logger.log(Level.SEVERE,"Could not retrieve the generated identity after insert!");
-        }
         rs.close();
-        s.close();
 
         return identity;
     }
@@ -216,7 +220,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
         PreparedStatement ps = db.prepare(
-            "UPDATE FILELIST SET key=?,lastdownloaded=?,lastreceived=? WHERE sha1=?");
+            "UPDATE FILELIST SET fnkey=?,lastdownloaded=?,lastreceived=? WHERE sha1=?");
         
         ps.setString(1, (sfo.getKey()==null?"":sfo.getKey()));
         ps.setDate(2, sfo.getLastDownloaded());
@@ -498,7 +502,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
         PreparedStatement ps = db.prepare(
-            "SELECT primkey,sha1,size,key,lastdownloaded,lastreceived FROM FILELIST");
+            "SELECT primkey,sha1,size,fnkey,lastdownloaded,lastreceived FROM FILELIST");
     
         ResultSet rs = ps.executeQuery();
         while( rs.next() ) {

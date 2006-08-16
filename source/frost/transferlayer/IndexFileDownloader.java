@@ -17,7 +17,7 @@ public class IndexFileDownloader {
     private static Logger logger = Logger.getLogger(IndexFileDownloader.class.getName());
 
     protected static IndexFileDownloaderResult processDownloadedFile(File target, FcpResultGet fcpresults, Board board) {
-        
+        // FIXME: FrostRequestedFilesV1 kommt als badfile.xml ???
         // check if file is a request file, otherwise provide it to the 05 or 07 processor
         List lines = FileAccess.readLines(target, "UTF-8");
         if( lines.size() > 1 ) {

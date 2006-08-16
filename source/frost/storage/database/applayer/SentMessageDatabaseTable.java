@@ -35,10 +35,25 @@ public class SentMessageDatabaseTable extends MessageDatabaseTable {
     protected String getUniqueMsgConstraintName() {
         return "SENTMSG_UNIQUE_ONLY";
     }
+    protected String getUniqueMsgIdConstraintName() {
+        return "SENTMSG_ID_UNIQUE_ONLY";
+    }
     protected String getMsgIdIndexName() {
         return "SENTMSG_IX_MSGID";
     }
     protected String getBoardIndexName() {
         return "SENTMSG_IX_BOARD";
+    }
+    protected String getPrimKeyConstraintName() {
+        return "sentmsgs_pk";
+    }
+    protected String getFileForeignKeyConstraintName() {
+        return "sentmsgs_fileatt_1";
+    }
+    protected String getBoardForeignKeyConstraintName() {
+        return "sentmsgs_boardatt_1";
+    }
+    protected String getFromnameIndexName() {
+        return "SENTMSG_IX_FROM";
     }
 }

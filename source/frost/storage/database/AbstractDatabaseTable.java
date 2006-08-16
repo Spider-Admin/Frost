@@ -29,5 +29,4 @@ public abstract class AbstractDatabaseTable {
     }
     
     abstract public List getTableDDL();
-
 }

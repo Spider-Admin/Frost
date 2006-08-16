@@ -43,8 +43,6 @@ import frost.util.gui.*;
 import frost.util.gui.textpane.*;
 import frost.util.gui.translation.*;
 
-//FIXME: -> last userid per board, if none is set use global last id
-
 public class MessageFrame extends JFrame {
     
     private static Logger logger = Logger.getLogger(MessageFrame.class.getName());
@@ -282,8 +280,11 @@ public class MessageFrame extends JFrame {
             from = senderId.getUniqueName();
             isInitializedSigned = true;
         } else {
-            // use remembered sender name
-            String userName = Core.frostSettings.getValue("userName");
+            // use remembered sender name, maybe per board
+            String userName = Core.frostSettings.getValue("userName."+board.getBoardFilename());
+            if( userName == null || userName.length() == 0 ) {
+                userName = Core.frostSettings.getValue("userName");
+            }
             if( Core.getIdentities().isMySelf(userName) ) {
                 // isSigned
                 from = userName;
@@ -767,8 +768,9 @@ public class MessageFrame extends JFrame {
             return;
         }
 
-        // for convinience set last used user (maybe obsolete now)
+        // for convinience set last used user
         frostSettings.setValue("userName", from);
+        frostSettings.setValue("userName."+board.getBoardFilename(), from);
 
         // create new MessageObject to upload
         MessageXmlFile mo = new MessageXmlFile(repliedMsgId);

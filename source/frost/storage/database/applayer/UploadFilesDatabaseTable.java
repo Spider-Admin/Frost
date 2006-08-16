@@ -34,12 +34,12 @@ public class UploadFilesDatabaseTable extends AbstractDatabaseTable {
 
     private final static String SQL_FILES_DDL =
         "CREATE TABLE UPLOADFILES ("+
-        "primkey BIGINT NOT NULL IDENTITY PRIMARY KEY,"+
+        "primkey BIGINT NOT NULL,"+
         "sha1 VARCHAR NOT NULL,"+
         "name VARCHAR NOT NULL,"+
         "path VARCHAR NOT NULL,"+   // complete path, with name
         "size BIGINT NOT NULL,"+
-        "key VARCHAR,"+             // if NULL file was not uploaded by us yet
+        "fnkey VARCHAR,"+           // if NULL file was not uploaded by us yet
         "lastuploaded DATE,"+       // date of last successful upload
         "uploadcount INT,"+         // number of uploads for this file so far
         "lastrequested DATE,"+      // date of last request (from any board)
@@ -48,6 +48,7 @@ public class UploadFilesDatabaseTable extends AbstractDatabaseTable {
         "enabled BOOLEAN,"+         // is upload enabled?
         "laststopped TIMESTAMP NOT NULL,"+   // time of last start of upload
         "retries INT,"+             // number of upload tries, set to 0 on any successful upload
+        "CONSTRAINT ulfiles_pk PRIMARY KEY (primkey),"+
         "CONSTRAINT UPLOADFILES_1 UNIQUE(sha1) )";
 
     // TODO: wie NEWUPLOADFILES darstellen? erstmal als grau in die table, oder einfach einen todo-count ueber die table?
@@ -59,7 +60,7 @@ public class UploadFilesDatabaseTable extends AbstractDatabaseTable {
         "fromname VARCHAR,"+         // if NULL we upload this file as anonymous
         "lastshared DATE,"+          // date when we sent this file in our index for this board
         // UNIQUE(refkey,board)!!!
-        "FOREIGN KEY (refkey) REFERENCES UPLOADFILES(primkey) ON DELETE CASCADE )";
+        "CONSTRAINT UFOB_FK FOREIGN KEY (refkey) REFERENCES UPLOADFILES(primkey) ON DELETE CASCADE )";
 
     public List getTableDDL() {
         ArrayList lst = new ArrayList(2);
@@ -77,16 +78,28 @@ public class UploadFilesDatabaseTable extends AbstractDatabaseTable {
         s.executeUpdate("DELETE FROM UPLOADFILESOWNERBOARD"); // delete all
 
         PreparedStatement ps = db.prepare(
-                "INSERT INTO UPLOADFILES (sha1,name,path,size,key,lastuploaded,uploadcount,lastrequested,requestcount,"+
-                "state,enabled,laststopped,retries) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+                "INSERT INTO UPLOADFILES (primkey,sha1,name,path,size,fnkey,lastuploaded,uploadcount,lastrequested,requestcount,"+
+                "state,enabled,laststopped,retries) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
         PreparedStatement ps2 = db.prepare("INSERT INTO UPLOADFILESOWNERBOARD (refkey,board,fromname,lastshared) VALUES (?,?,?,?)");
         
         for(Iterator i=uploadFiles.iterator(); i.hasNext(); ) {
 
             FrostUploadItem ulItem = (FrostUploadItem)i.next();
+            
+            Long identity = null;
+            Statement stmt = AppLayerDatabase.getInstance().createStatement();
+            ResultSet rs = stmt.executeQuery("select UNIQUEKEY('UPLOADFILES')");
+            if( rs.next() ) {
+                identity = new Long(rs.getLong(1));
+            } else {
+                logger.log(Level.SEVERE,"Could not retrieve a new unique key!");
+            }
+            rs.close();
+            stmt.close();
 
             int ix=1;
+            ps.setLong(ix++, identity.longValue());
             ps.setString(ix++, ulItem.getSHA1());
             ps.setString(ix++, ulItem.getFileName());
             ps.setString(ix++, ulItem.getFilePath());
@@ -103,22 +116,11 @@ public class UploadFilesDatabaseTable extends AbstractDatabaseTable {
             
             ps.executeUpdate();
             
-            long identity;
-            ResultSet rs = s.executeQuery("CALL IDENTITY();");
-            if( rs.next() ) {
-                identity = rs.getLong(1);
-            } else {
-                System.out.println("Could not retrieve the generated identity after insert!");
-                rs.close();
-                continue;
-            }
-            rs.close();
-
             // insert all owner/board refs
             for(Iterator j=ulItem.getFrostUploadItemOwnerBoardList().iterator(); j.hasNext(); ) {
                 FrostUploadItemOwnerBoard fuiob = (FrostUploadItemOwnerBoard)j.next();
                 ix=1;
-                ps2.setLong(ix++, identity);
+                ps2.setLong(ix++, identity.longValue());
                 ps2.setString(ix++, fuiob.getTargetBoard().getNameLowerCase());
                 ps2.setString(ix++, fuiob.getOwner());
                 ps2.setDate(ix++, fuiob.getLastSharedDate());
@@ -127,7 +129,6 @@ public class UploadFilesDatabaseTable extends AbstractDatabaseTable {
         }
         ps.close();
         ps2.close();
-        s.close();
     }
     
     public List loadUploadFiles() throws SQLException {
@@ -137,7 +138,7 @@ public class UploadFilesDatabaseTable extends AbstractDatabaseTable {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
         PreparedStatement ps = db.prepare(
-                "SELECT primkey,sha1,name,path,size,key,lastuploaded,uploadcount,lastrequested,requestcount,"+
+                "SELECT primkey,sha1,name,path,size,fnkey,lastuploaded,uploadcount,lastrequested,requestcount,"+
                 "state,enabled,laststopped,retries FROM UPLOADFILES");
 
         PreparedStatement ps2 = db.prepare("SELECT board,fromname,lastshared FROM UPLOADFILESOWNERBOARD "+

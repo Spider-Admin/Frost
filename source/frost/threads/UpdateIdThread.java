@@ -28,7 +28,7 @@ import frost.fileTransfer.upload.*;
 import frost.gui.objects.*;
 import frost.identities.*;
 import frost.messages.*;
-import frost.storage.database.transferlayer.*;
+import frost.storage.database.applayer.*;
 import frost.transferlayer.*;
 
 public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject implements BoardUpdateThread

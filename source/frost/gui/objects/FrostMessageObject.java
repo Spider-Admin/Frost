@@ -84,7 +84,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         
         setSqlDate( new java.sql.Date(DateFun.getCalendarFromDate(mof.getDateStr()).getTime().getTime()) );
         setSqlTime( DateFun.getSqlTimeFromString(mof.getTimeStr()) );
-
+//        System.out.println("TIME/DATE: time_in="+mof.getTimeStr()+", date_in="+mof.getDateStr()+", out="+getDateAndTime());
         // copy values from mof
         setAttachmentList(mof.getAttachmentList());
         setContent(mof.getContent());

@@ -53,6 +53,12 @@ public class ImportIdentities {
         // save to database
         IdentitiesDatabaseTable dbt = AppLayerDatabase.getIdentitiesDatabaseTable();
 
+        try {
+            AppLayerDatabase.getInstance().setAutoCommitOff();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "error set autocommit off", e);
+        }
+
         List identities = fi.getIdentities();
         for(Iterator i=identities.iterator(); i.hasNext(); ) {
             Identity id = (Identity)i.next();
@@ -71,7 +77,13 @@ public class ImportIdentities {
                 logger.log(Level.SEVERE, "error inserting local identity", e);
             }
         }
-        
+
+        try {
+            AppLayerDatabase.getInstance().setAutoCommitOn();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "error set autocommit on", e);
+        }
+
         FrostIdentities.setDatabaseUpdatesAllowed(true);
     }
 
