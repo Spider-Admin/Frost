@@ -273,7 +273,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
         PreparedStatement ps = db.prepare(
-            "UPDATE FILEOWNERBOARDLIST SET name=?,lastreceived=?,lastuploaded=? WHERE refkey=? AND BOARD=? AND OWNER=?");
+            "UPDATE FILEOWNERBOARDLIST SET name=?,lastreceived=?,lastuploaded=? WHERE refkey=? AND board=? AND owner=?");
 
         // insert board/owner, identity is set
         ps.setString(1, ob.getName());
@@ -286,7 +286,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         
         boolean result = false;
         try {
-            ps.executeUpdate();
+            ps.executeUpdate(); // FIXME
             result = true;
         } catch(SQLException ex) {
             logger.log(Level.SEVERE,"Error updating file owner board ref", ex);
