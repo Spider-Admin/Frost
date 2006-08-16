@@ -19,15 +19,32 @@
 package frost.storage.database;
 
 import java.io.*;
+import java.sql.*;
 import java.util.*;
+import java.util.logging.*;
 
 import frost.storage.*;
 import frost.storage.database.applayer.*;
 
 public class ImportKnownBoards {
     
+    private static Logger logger = Logger.getLogger(ImportKnownBoards.class.getName());
+
     public void importKnownBoards() {
         List knownBoards = KnownBoardsXmlDAO.loadKnownBoards(new File("knownboards.xml"));
+
+        try {
+            AppLayerDatabase.getInstance().setAutoCommitOff();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "error set autocommit off", e);
+        }
+
         AppLayerDatabase.getKnownBoardsDatabaseTable().addNewKnownBoards(knownBoards);
+        
+        try {
+            AppLayerDatabase.getInstance().setAutoCommitOn();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "error set autocommit on", e);
+        }
     }
 }

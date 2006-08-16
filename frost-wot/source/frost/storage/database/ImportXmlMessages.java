@@ -24,28 +24,47 @@ import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
+import frost.gui.*;
 import frost.gui.objects.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;
-import frost.storage.database.transferlayer.*;
 
 public class ImportXmlMessages {
 
     private static Logger logger = Logger.getLogger(ImportXmlMessages.class.getName());
     
     private Hashtable boardDirNames;
+    private long uncommittedBytes = 0;
+    
+    private Splashscreen splashScreen;
+    private String origSplashText;
 
     // TODO: maybe provide keypooldir/archivedir and allow import from other frosts too?
-    public void importXmlMessages(List boards) {
+    public void importXmlMessages(List boards, Splashscreen splash, String origTxt) {
+        splashScreen = splash;
+        origSplashText = origTxt;
         
         boardDirNames = new Hashtable();
         for( Iterator iter = boards.iterator(); iter.hasNext(); ) {
             Board board = (Board) iter.next();
             boardDirNames.put( board.getBoardFilename(), board );
         }
+        
+        try {
+            AppLayerDatabase.getInstance().setAutoCommitOff();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "error set autocommit off", e);
+        }
+        
         importKeypool();
         importArchive();
         importSentMessages();
+        
+        try {
+            AppLayerDatabase.getInstance().setAutoCommitOn();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "error set autocommit on", e);
+        }
     }
     
     private void importKeypool() {
@@ -113,6 +132,9 @@ public class ImportXmlMessages {
             logger.warning("no files in sent dir");
             return;
         }
+        
+        splashScreen.setText(origSplashText + " (sent messages)");
+        
         for(int i=0; i<sentFiles.length; i++) {
             File sentFile = sentFiles[i];
             String fname = sentFile.getName();
@@ -207,6 +229,9 @@ public class ImportXmlMessages {
                 if( msgFiles == null || msgFiles.length == 0 ) {
                     continue;
                 }
+                
+                splashScreen.setText(origSplashText + " ("+board.getName()+", "+dateDir.getName()+")");
+                
                 for(int k=0; k<msgFiles.length; k++) {
                     File msgFile = msgFiles[k];
                     if( msgFile.isFile() == false ) {
@@ -257,7 +282,11 @@ public class ImportXmlMessages {
             try {
                 AppLayerDatabase.getMessageTable().insertMessage(mo);
             } catch (SQLException e) {
-                logger.log(Level.SEVERE, "Error inserting message into database", e);
+                if( e.getMessage().indexOf("MSG_ID_UNIQUE_ONLY") > 0 ) {
+                    logger.log(Level.WARNING, "Import of duplicate message skipped");
+                } else {
+                    logger.log(Level.SEVERE, "Error inserting message into database", e);
+                }
                 return false;
             }
         } else if( invalidReason != null ) {
@@ -266,9 +295,24 @@ public class ImportXmlMessages {
             try {
                 AppLayerDatabase.getMessageTable().insertMessage(invalidMsg);
             } catch (SQLException e) {
-                logger.log(Level.SEVERE, "Error inserting invalid message into database", e);
+                if( e.getMessage().indexOf("MSG_ID_UNIQUE_ONLY") > 0 ) {
+                    logger.log(Level.WARNING, "Import of duplicate message skipped");
+                } else {
+                    logger.log(Level.SEVERE, "Error inserting invalid message into database", e);
+                }
                 return false;
             }
+        }
+
+        // all 5 MB commit changes to database
+        uncommittedBytes += msgFile.length();
+        if( uncommittedBytes > 5*1024*1024 ) {
+            try {
+                AppLayerDatabase.getInstance().commit();
+            } catch (SQLException e) {
+                logger.log(Level.SEVERE, "error on commit", e);
+            }
+            uncommittedBytes = 0;
         }
         
         // set indexslot used (only for dates until maxMessageDisplay)

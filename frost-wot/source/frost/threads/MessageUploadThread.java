@@ -32,7 +32,6 @@ import frost.gui.objects.*;
 import frost.identities.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;
-import frost.storage.database.transferlayer.*;
 import frost.transferlayer.*;
 
 /**

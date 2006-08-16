@@ -41,7 +41,6 @@ import frost.messaging.*;
 import frost.storage.*;
 import frost.storage.database.*;
 import frost.storage.database.applayer.*;
-import frost.storage.database.transferlayer.*;
 import frost.threads.maintenance.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
@@ -269,7 +268,6 @@ public class Core implements FrostEventDispatcher  {
         
         // open databases
         try {
-            TransferLayerDatabase.initialize();
             AppLayerDatabase.initialize();
         } catch(SQLException ex) {
             logger.log(Level.SEVERE, "Error opening the databases", ex);
@@ -337,32 +335,24 @@ public class Core implements FrostEventDispatcher  {
                 // import old identities file into database
                 new ImportIdentities().importIdentities();
             }
-            
-            if (!initializeConnectivity()) {
-                System.exit(1);
-            }
-
         } else {
-            // needs to be done before knownboard import, the keychecker needs to know the freenetversion!
-            if (!initializeConnectivity()) {
-                System.exit(1);
-            }
             
             // import xml messages into database
             if( frostSettings.getBoolValue("oneTimeUpdate.importMessages.didRun") == false ) {
 
-                String txt = "<html>Frost must now import the messages, and this could take some time.<br>"+
+                String txt = "<html>Frost will now import your existing data, and this could take some time.<br>"+
                              "Afterwards the files in keypool are not longer needed and will be deleted.<br><br>"+
                              "<b>BACKUP YOUR FROST DIRECTORY BEFORE STARTING!</b><br>"+
                              "<br><br>Do you want to start the import NOW press yes.</html>";
                 int answer = JOptionPane.showConfirmDialog(splashscreen, txt, "About to start import process",
-                              JOptionPane.INFORMATION_MESSAGE, JOptionPane.YES_NO_OPTION);
+                                JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
 
                 if( answer != JOptionPane.YES_OPTION ) {
                     System.exit(1);
                 }
 
-                new ImportKnownBoards().importKnownBoards();
+                // we need the identities to initialize connectivity
+                System.out.println("Importing identities");
                 new ImportIdentities().importIdentities();
 
                 doImport = true;
@@ -371,6 +361,11 @@ public class Core implements FrostEventDispatcher  {
 
         splashscreen.setText(language.getString("Splashscreen.message.3"));
         splashscreen.setProgress(60);
+
+        // needs to be done before knownboard import, the keychecker needs to know the freenetversion!
+        if (!initializeConnectivity()) {
+            System.exit(1);
+        }
 
         getIdentities().initialize(freenetIsOnline);
 
@@ -395,10 +390,17 @@ public class Core implements FrostEventDispatcher  {
         getFileTransferManager().initialize();
         
         if( doImport ) {
-            splashscreen.setText("Import messages into database");
-            new ImportXmlMessages().importXmlMessages(getBoardsManager().getTofTreeModel().getAllBoards());
+            splashscreen.setText("Importing known boards");
+            new ImportKnownBoards().importKnownBoards();
+            splashscreen.setText("Importing messages");
+            new ImportXmlMessages().importXmlMessages(
+                    getBoardsManager().getTofTreeModel().getAllBoards(),
+                    splashscreen,
+                    "Importing messages");
+            splashscreen.setText("Importing files");
             new ImportFiles().importFiles();
             new ImportDownloadFiles().importDownloadFiles(getBoardsManager().getTofTreeModel(), getFileTransferManager());
+            new ImportUploadFiles().importUploadFiles(getBoardsManager().getTofTreeModel(), getFileTransferManager());
 
             frostSettings.setValue("oneTimeUpdate.importMessages.didRun", true);
         }
@@ -506,7 +508,6 @@ public class Core implements FrostEventDispatcher  {
         saver.addExitSavable(frostSettings);
         // close databases
         saver.addExitSavable(AppLayerDatabase.getInstance());
-        saver.addExitSavable(TransferLayerDatabase.getInstance());
     }
 
     /**

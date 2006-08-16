@@ -33,7 +33,8 @@ public class DownloadFilesDatabaseTable extends AbstractDatabaseTable {
 
     private final static String SQL_DDL =
         "CREATE TABLE DOWNLOADFILES ("+
-        "primkey BIGINT NOT NULL IDENTITY PRIMARY KEY,"+
+//        "primkey BIGINT NOT NULL IDENTITY PRIMARY KEY,"+
+        "primkey BIGINT DEFAULT UNIQUEKEY('DOWNLOADFILES') NOT NULL,"+
         "name VARCHAR NOT NULL,"+          // filename
         "state INT NOT NULL,"+ 
         "enabled BOOLEAN NOT NULL,"+       // is upload enabled?
@@ -51,10 +52,10 @@ public class DownloadFilesDatabaseTable extends AbstractDatabaseTable {
         //   if a file must be requested for the current board, request it.
         //   but if the requestcount is high, request it in other boards if possible
         
-        // key: NOT NULL, because here "" means not set. sql select for NULL values does not work!
-        "key VARCHAR NOT NULL,"+ // maybe not set for board files -> request key, use infos from FILELIST table (sha1)
+        // fnkey: NOT NULL, because here "" means not set. sql select for NULL values does not work!
+        "fnkey VARCHAR NOT NULL,"+ // maybe not set for board files -> request key, use infos from FILELIST table (sha1)
         "size BIGINT,"+ // size is not set if the key was added manually
-        
+        "CONSTRAINT dlf_pk PRIMARY KEY (primkey),"+
         "CONSTRAINT DOWNLOADFILES_2 UNIQUE (name) )";  // check before adding a new file!
     
     // TODO: update FILELIST table with lastdownloaded date after successful download
@@ -75,7 +76,7 @@ public class DownloadFilesDatabaseTable extends AbstractDatabaseTable {
 
         PreparedStatement ps = db.prepare(
                 "INSERT INTO DOWNLOADFILES (name,state,enabled,retries,targetpath,laststopped,board,sha1,fromname,lastrequested,"+
-                "requestcount,key,size) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+                "requestcount,fnkey,size) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
         
         for(Iterator i=downloadFiles.iterator(); i.hasNext(); ) {
 
@@ -108,7 +109,7 @@ public class DownloadFilesDatabaseTable extends AbstractDatabaseTable {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
         PreparedStatement ps = db.prepare(
-                "SELECT name,state,enabled,retries,laststopped,board,sha1,fromname,lastrequested,requestcount,key,size "+
+                "SELECT name,state,enabled,retries,laststopped,board,sha1,fromname,lastrequested,requestcount,fnkey,size "+
                 "FROM DOWNLOADFILES");
         
         ResultSet rs = ps.executeQuery();

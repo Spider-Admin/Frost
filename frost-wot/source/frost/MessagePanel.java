@@ -41,6 +41,8 @@ import frost.util.gui.treetable.*;
 
 public class MessagePanel extends JPanel implements PropertyChangeListener {
 
+    // FIXME: test multiline selects
+    
     private MessageTreeTable messageTable = null;
     private MessageTextPane messageTextPane = null;
     private JScrollPane messageListScrollPane = null;

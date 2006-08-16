@@ -34,6 +34,12 @@ public class ImportFiles {
 
     public void importFiles() {
 
+        try {
+            AppLayerDatabase.getInstance().setAutoCommitOff();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "error set autocommit off", e);
+        }
+        
         List allBoards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
         FileListDatabaseTable dbt = AppLayerDatabase.getFileListDatabaseTable();
 
@@ -65,5 +71,12 @@ public class ImportFiles {
                 }
             }
         }
+        
+        try {
+            AppLayerDatabase.getInstance().setAutoCommitOn();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "error set autocommit on", e);
+        }
+
     }
 }

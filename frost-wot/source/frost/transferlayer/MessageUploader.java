@@ -30,7 +30,7 @@ import frost.fcp.*;
 import frost.gui.*;
 import frost.identities.*;
 import frost.messages.*;
-import frost.storage.database.transferlayer.*;
+import frost.storage.database.applayer.*;
 
 /**
  * This class uploads a message file to freenet. The preparation of the
