@@ -200,9 +200,9 @@ public class Frost {
             // check for datechooser.jar
             jarFileName = "datechooser.jar";
             Class.forName("mseries.ui.MDateEntryField");
-            // check for datechooser.jar
-            jarFileName = "hsqldb.jar";
-            Class.forName("org.hsqldb.Database");
+            // check for mckoidb.jar
+            jarFileName = "mckoidb.jar";
+            Class.forName("com.mckoi.JDBCDriver");
 
         } catch (ClassNotFoundException e1) {
             MiscToolkit.getInstance().showMessage(
