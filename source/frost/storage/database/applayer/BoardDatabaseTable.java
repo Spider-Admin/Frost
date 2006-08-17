@@ -87,7 +87,7 @@ public class BoardDatabaseTable extends AbstractDatabaseTable {
         }
         rs.close();
         ps.close();
-        System.out.println("LOADED "+ht.size());
+
         return ht;
     }
 }
