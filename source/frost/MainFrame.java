@@ -51,6 +51,9 @@ import frost.util.gui.treetable.*;
   *          delete another than selected board the tofTree is updated)
   */
 public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater, LanguageListener {
+    
+    // FIXME: cut/paste board wird nie aktiv, tut aber im popup menu!
+    
     /**
      * This listener changes the 'updating' state of a board if a thread starts/finishes.
      * It also launches popup menus

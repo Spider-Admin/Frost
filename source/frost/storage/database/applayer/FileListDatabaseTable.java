@@ -46,13 +46,14 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
     private final static String SQL_OWNER_BOARD_DDL =
         "CREATE TABLE FILEOWNERBOARDLIST ("+
         "refkey BIGINT NOT NULL,"+
-        "board VARCHAR NOT NULL,"+
+        "board INT NOT NULL,"+
         "owner VARCHAR NOT NULL,"+     // if "" then owner is anonymous
         "name VARCHAR NOT NULL,"+
         "lastreceived DATE,"+ // last time we received this file in a fileindex
         "lastuploaded DATE,"+ // last time this owner uploaded the file
 //        "lastShared DATE,"+ // TODO: in case we send out files of friends
         "CONSTRAINT FILEOWNERBOARDLIST_FK FOREIGN KEY (refkey) REFERENCES FILELIST(primkey) ON DELETE CASCADE,"+
+        "CONSTRAINT FILEOWNERBOARDLIST_FK2 FOREIGN KEY (board) REFERENCES BOARDS(primkey) ON DELETE CASCADE,"+
         "CONSTRAINT FILEOWNERBOARDLIST_1 UNIQUE (refkey,owner,board) )";
 
     // FIXME: daily check: remove refs older than 3 month(?), keep files with keys, but remember last seen if last ref!
@@ -246,7 +247,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         
         FrostSharedFileObjectOwnerBoard obOld = getFrostSharedFileObjectOwnerBoard(
                 obNew.getRefkey(),
-                obNew.getBoard().getNameLowerCase(),
+                obNew.getBoard(),
                 obNew.getOwner());
         
         if( obOld == null ) {
@@ -281,12 +282,12 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         ps.setDate(3, ob.getLastUploaded());
         
         ps.setLong(4, ob.getRefkey());
-        ps.setString(5, ob.getBoard().getNameLowerCase());
+        ps.setInt(5, ob.getBoard().getPrimaryKey().intValue());
         ps.setString(6, (ob.getOwner()==null?"":ob.getOwner()));
         
         boolean result = false;
         try {
-            ps.executeUpdate(); // FIXME
+            ps.executeUpdate();
             result = true;
         } catch(SQLException ex) {
             logger.log(Level.SEVERE,"Error updating file owner board ref", ex);
@@ -308,7 +309,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         // insert board/owner, identity is set
         ps.setLong(1, ob.getRefkey());
         ps.setString(2, ob.getName());
-        ps.setString(3, ob.getBoard().getNameLowerCase());
+        ps.setInt(3, ob.getBoard().getPrimaryKey().intValue());
         ps.setString(4, (ob.getOwner()==null?"":ob.getOwner()));
         ps.setDate(5, ob.getLastReceived());
         ps.setDate(6, ob.getLastUploaded());
@@ -325,7 +326,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         return result;
     }
 
-    private FrostSharedFileObjectOwnerBoard getFrostSharedFileObjectOwnerBoard(long refkey, String boardname, String owner) 
+    private FrostSharedFileObjectOwnerBoard getFrostSharedFileObjectOwnerBoard(long refkey, Board board, String owner) 
     throws SQLException {
 
         AppLayerDatabase db = AppLayerDatabase.getInstance();
@@ -334,7 +335,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
                 "SELECT name,lastreceived,lastuploaded FROM FILEOWNERBOARDLIST WHERE refkey=? AND board=? and owner=?");
         
         ps.setLong(1, refkey);
-        ps.setString(2, boardname);
+        ps.setInt(2, board.getPrimaryKey().intValue());
         ps.setString(3, (owner==null?"":owner));
 
         FrostSharedFileObjectOwnerBoard ob = null;
@@ -344,15 +345,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
             java.sql.Date lastreceived = rs.getDate(2);
             java.sql.Date lastuploaded = rs.getDate(3);
             
-            Board board = null;
-            board = MainFrame.getInstance().getTofTreeModel().getBoardByName(boardname);
-            if (board == null) {
-                logger.warning("Upload item found (" + name + ") whose target board (" +
-                        boardname + ") does not exist.");
-                ob = null;
-            } else {
-                ob = new FrostSharedFileObjectOwnerBoard(refkey, name, board, owner, lastreceived, lastuploaded);
-            }
+            ob = new FrostSharedFileObjectOwnerBoard(refkey, name, board, owner, lastreceived, lastuploaded);
         }
         rs.close();
         ps.close();
@@ -371,7 +364,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         LinkedList frostSharedFileObjectOwnerBoardList = new LinkedList(); 
         ResultSet rs = ps.executeQuery();
         while( rs.next() ) {
-            String boardname = rs.getString(1);
+            int boardIx = rs.getInt(1);
             String owner = rs.getString(2);
             if(owner != null && owner.length()==0) {
                 owner = null; // anonymous
@@ -381,10 +374,10 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
             java.sql.Date lastuploaded = rs.getDate(5);
             
             Board board = null;
-            board = MainFrame.getInstance().getTofTreeModel().getBoardByName(boardname);
+            board = MainFrame.getInstance().getTofTreeModel().getBoardByPrimaryKey(new Integer(boardIx));
             if (board == null) {
                 logger.warning("Upload item found (" + name + ") whose target board (" +
-                        boardname + ") does not exist.");
+                        boardIx + ") does not exist.");
             } else {
                 FrostSharedFileObjectOwnerBoard ob = null;
                 ob = new FrostSharedFileObjectOwnerBoard(refkey, name, board, owner, lastreceived, lastuploaded);
@@ -407,7 +400,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
 
         PreparedStatement ps = db.prepare(
             "SELECT COUNT(primkey) FROM FILELIST WHERE primkey in (SELECT refkey FROM FILEOWNERBOARDLIST WHERE board=? GROUP BY refkey)");
-        ps.setString(1, board.getNameLowerCase());
+        ps.setInt(1, board.getPrimaryKey().intValue());
         int count = 0;
         ResultSet rs = ps.executeQuery();
         if( rs.next() ) {
@@ -474,7 +467,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
             int ix=1;
             for(Iterator i=boardsToSearch.iterator(); i.hasNext(); ) {
                 Board b = (Board)i.next();
-                ps.setString(ix++, b.getNameLowerCase());
+                ps.setInt(ix++, b.getPrimaryKey().intValue());
             }
         }
         

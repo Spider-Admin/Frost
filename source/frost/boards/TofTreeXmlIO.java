@@ -97,6 +97,8 @@ public class TofTreeXmlIO
         loadProcessFolder( boardRootNode, treeRootNode, tree, model );
 
         refreshModel( model, treeRootNode );
+        
+        model.initialSetPrimaryKeys();
 
         tree.updateUI();
 

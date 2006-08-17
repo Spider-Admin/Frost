@@ -34,7 +34,6 @@ public class BoardsManager {
 	private MainFrame mainFrame;
 	
 	private SettingsClass settings;
-	private Core core;
 	
 	public BoardsManager(SettingsClass settings) {
 		super();
@@ -56,7 +55,6 @@ public class BoardsManager {
 		if (tofTree == null) {
 			tofTree = new TofTree(getTofTreeModel());
 			tofTree.setSettings(settings);
-			tofTree.setCore(core);
 			tofTree.setMainFrame(mainFrame);
 		}
 		return tofTree;
@@ -81,12 +79,5 @@ public class BoardsManager {
 	 */
 	public void setMainFrame(MainFrame mainFrame) {
 		this.mainFrame = mainFrame;
-	}
-
-	/**
-	 * @param core
-	 */
-	public void setCore(Core core) {
-		this.core = core;		
 	}
 }

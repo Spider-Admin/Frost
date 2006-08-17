@@ -28,7 +28,6 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
     
     private final static String SQL_IDENTITIES_DDL =
         "CREATE TABLE IDENTITIES ("+
-//        "primkey BIGINT NOT NULL IDENTITY PRIMARY KEY,"+
         "primkey BIGINT DEFAULT UNIQUEKEY('IDENTITIES') NOT NULL,"+
         "uniquename VARCHAR NOT NULL,"+
         "publickey VARCHAR NOT NULL,"+
@@ -39,7 +38,6 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
 
     private final static String SQL_OWN_IDENTITIES_DDL =
         "CREATE TABLE OWNIDENTITIES ("+
-//        "primkey BIGINT NOT NULL IDENTITY PRIMARY KEY,"+
         "primkey BIGINT DEFAULT UNIQUEKEY('OWNIDENTITIES') NOT NULL,"+
         "uniquename VARCHAR NOT NULL,"+
         "publickey VARCHAR NOT NULL,"+

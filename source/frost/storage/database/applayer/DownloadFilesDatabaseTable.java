@@ -33,7 +33,6 @@ public class DownloadFilesDatabaseTable extends AbstractDatabaseTable {
 
     private final static String SQL_DDL =
         "CREATE TABLE DOWNLOADFILES ("+
-//        "primkey BIGINT NOT NULL IDENTITY PRIMARY KEY,"+
         "primkey BIGINT DEFAULT UNIQUEKEY('DOWNLOADFILES') NOT NULL,"+
         "name VARCHAR NOT NULL,"+          // filename
         "state INT NOT NULL,"+ 
@@ -42,7 +41,7 @@ public class DownloadFilesDatabaseTable extends AbstractDatabaseTable {
         "targetpath VARCHAR,"+    // set by us
         "laststopped TIMESTAMP NOT NULL,"+ // time of last start of download
 
-        "board VARCHAR,"+         // only set for board files, not needed for attachments/manually added files
+        "board INT,"+  // only set for board files, not needed for attachments/manually added files. -1 means not set!
         "fromname VARCHAR,"+
         "sha1 VARCHAR,"+          // maybe not set, for attachments/manually added files
         "lastrequested DATE,"+    // date of last sent request for this file
@@ -89,7 +88,7 @@ public class DownloadFilesDatabaseTable extends AbstractDatabaseTable {
             ps.setInt(ix++, dlItem.getRetries());
             ps.setString(ix++, null); // targetpath
             ps.setTimestamp(ix++, new Timestamp(dlItem.getLastDownloadStopTimeMillis()));
-            ps.setString(ix++, (dlItem.getSourceBoard()==null?null:dlItem.getSourceBoard().getNameLowerCase()));
+            ps.setInt(ix++, (dlItem.getSourceBoard()==null?-1:dlItem.getSourceBoard().getPrimaryKey().intValue()));
             ps.setString(ix++, dlItem.getSHA1());
             ps.setString(ix++, dlItem.getOwner());
             ps.setDate(ix++, dlItem.getLastRequestedDate());
@@ -120,7 +119,7 @@ public class DownloadFilesDatabaseTable extends AbstractDatabaseTable {
             boolean enabledownload = rs.getBoolean(ix++);
             int retries = rs.getInt(ix++);
             long lastStopped = rs.getTimestamp(ix++).getTime();
-            String boardname = rs.getString(ix++);
+            int boardname = rs.getInt(ix++);
             String sha1 = rs.getString(ix++);
             String from = rs.getString(ix++);
             java.sql.Date lastRequested = rs.getDate(ix++);
@@ -129,8 +128,8 @@ public class DownloadFilesDatabaseTable extends AbstractDatabaseTable {
             long size = rs.getLong(ix++);
             
             Board board = null;
-            if (boardname != null) {
-                board = MainFrame.getInstance().getTofTreeModel().getBoardByName(boardname);
+            if (boardname >= 0) {
+                board = MainFrame.getInstance().getTofTreeModel().getBoardByPrimaryKey(new Integer(boardname));
                 if (board == null) {
                     logger.warning("Download item found (" + filename + ") whose source board (" +
                             boardname + ") does not exist. Board reference removed.");

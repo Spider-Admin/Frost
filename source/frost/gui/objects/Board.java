@@ -28,6 +28,8 @@ import frost.util.gui.translation.*;
 public class Board extends DefaultMutableTreeNode implements Comparable {
     
     private static Language language = Language.getInstance();
+    
+    private Integer primaryKey = null;
 
     private boolean autoUpdateEnabled = true; // must apply, no default
     private String boardDescription = null;
@@ -394,5 +396,12 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
 
     public void sortChildren() {
         Collections.sort(children);
+    }
+    
+    public Integer getPrimaryKey() {
+        return primaryKey;
+    }
+    public void setPrimaryKey(Integer i) {
+        primaryKey = i;
     }
 }

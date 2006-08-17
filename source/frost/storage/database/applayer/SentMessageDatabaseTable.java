@@ -56,4 +56,7 @@ public class SentMessageDatabaseTable extends MessageDatabaseTable {
     protected String getFromnameIndexName() {
         return "SENTMSG_IX_FROM";
     }
+    protected String getBoardConstraintName() {
+        return "sentmsgs_boardconst_1";
+    }
 }

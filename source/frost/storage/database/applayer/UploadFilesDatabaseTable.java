@@ -56,7 +56,7 @@ public class UploadFilesDatabaseTable extends AbstractDatabaseTable {
     private final static String SQL_OWNER_BOARD_DDL =
         "CREATE TABLE UPLOADFILESOWNERBOARD ("+
         "refkey BIGINT NOT NULL,"+
-        "board VARCHAR NOT NULL,"+   // targetboard
+        "board INT NOT NULL,"+   // targetboard
         "fromname VARCHAR,"+         // if NULL we upload this file as anonymous
         "lastshared DATE,"+          // date when we sent this file in our index for this board
         // UNIQUE(refkey,board)!!!
@@ -121,7 +121,7 @@ public class UploadFilesDatabaseTable extends AbstractDatabaseTable {
                 FrostUploadItemOwnerBoard fuiob = (FrostUploadItemOwnerBoard)j.next();
                 ix=1;
                 ps2.setLong(ix++, identity.longValue());
-                ps2.setString(ix++, fuiob.getTargetBoard().getNameLowerCase());
+                ps2.setInt(ix++, fuiob.getTargetBoard().getPrimaryKey().intValue());
                 ps2.setString(ix++, fuiob.getOwner());
                 ps2.setDate(ix++, fuiob.getLastSharedDate());
                 ps2.executeUpdate();
@@ -191,18 +191,16 @@ public class UploadFilesDatabaseTable extends AbstractDatabaseTable {
             ps2.setLong(1, primkey);
             ResultSet rs2 = ps2.executeQuery();
             while(rs2.next()) {
-                String boardname = rs2.getString(1);
+                int boardIx = rs2.getInt(1);
                 String fromname = rs2.getString(2);
                 java.sql.Date lastshared = rs2.getDate(3);
 
                 Board board = null;
-                if (boardname != null) {
-                    board = MainFrame.getInstance().getTofTreeModel().getBoardByName(boardname);
-                    if (board == null) {
-                        logger.warning("Upload item found (" + filename + ") whose target board (" +
-                                boardname + ") does not exist. Board reference removed.");
-                        continue;
-                    }
+                board = MainFrame.getInstance().getTofTreeModel().getBoardByPrimaryKey(new Integer(boardIx));
+                if (board == null) {
+                    logger.warning("Upload item found (" + filename + ") whose target board (" +
+                            boardIx + ") does not exist. Board reference removed.");
+                    continue;
                 }
                 
                 if( fromname != null && Core.getIdentities().isMySelf(fromname) == false ) {
