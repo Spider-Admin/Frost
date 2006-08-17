@@ -1,5 +1,5 @@
 /*
-  MessageDatabase.java / Frost
+  AppLayerDatabase.java / Frost
   Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or

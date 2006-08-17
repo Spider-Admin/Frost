@@ -44,7 +44,7 @@ public class UploadFilesDatabaseTable extends AbstractDatabaseTable {
         "uploadcount INT,"+         // number of uploads for this file so far
         "lastrequested DATE,"+      // date of last request (from any board)
         "requestcount INT,"+        // number of requests received for this file so far
-        "state INT,"+ 
+        "state INT,"+
         "enabled BOOLEAN,"+         // is upload enabled?
         "laststopped TIMESTAMP NOT NULL,"+   // time of last start of upload
         "retries INT,"+             // number of upload tries, set to 0 on any successful upload
@@ -60,7 +60,8 @@ public class UploadFilesDatabaseTable extends AbstractDatabaseTable {
         "fromname VARCHAR,"+         // if NULL we upload this file as anonymous
         "lastshared DATE,"+          // date when we sent this file in our index for this board
         // UNIQUE(refkey,board)!!!
-        "CONSTRAINT UFOB_FK FOREIGN KEY (refkey) REFERENCES UPLOADFILES(primkey) ON DELETE CASCADE )";
+        "CONSTRAINT UFOB_FK FOREIGN KEY (refkey) REFERENCES UPLOADFILES(primkey) ON DELETE CASCADE,"+
+        "CONSTRAINT UFOB_FK2 FOREIGN KEY (board) REFERENCES BOARDS(primkey) ON DELETE CASCADE )";
 
     public List getTableDDL() {
         ArrayList lst = new ArrayList(2);
