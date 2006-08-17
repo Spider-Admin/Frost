@@ -43,6 +43,7 @@ public class IndexSlotsDatabaseTable {
     private static final String SQL_DDL = 
         "CREATE TABLE INDEXSLOTS (indexname INT, boardname INT, msgdate DATE, msgindex INT,"+
         " wasdownloaded BOOLEAN, wasuploaded BOOLEAN, locked BOOLEAN,"+
+        " CONSTRAINT board_ref FOREIGN KEY (boardname) REFERENCES BOARDS (primkey) ON DELETE CASCADE,"+
         " CONSTRAINT UNIQUE_INDICES_ONLY UNIQUE(indexname,boardname,msgdate,msgindex) )";
     private static final String SQL_INSERT =
         "INSERT INTO INDEXSLOTS (indexname,boardname,msgdate,msgindex,wasdownloaded,wasuploaded,locked) VALUES (?,?,?,?,?,?,?)";

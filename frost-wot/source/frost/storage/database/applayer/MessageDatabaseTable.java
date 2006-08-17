@@ -68,8 +68,8 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
     protected String getBoardForeignKeyConstraintName() {
         return "msgs_boardatt_1";
     }
-    protected String getBoardConstraintName() {
-        return "msgs_boardconst_1";
+    protected String getBoardConstraint() {
+        return "CONSTRAINT msgs_boardconst_1 FOREIGN KEY (board) REFERENCES BOARDS(primkey) ON DELETE CASCADE,";
     }
 
     private final String SQL_DDL_MESSAGES =
@@ -100,7 +100,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         "hasboardattachment BOOLEAN,"+
         "CONSTRAINT "+getPrimKeyConstraintName()+" PRIMARY KEY (primkey),"+
         "CONSTRAINT "+getUniqueMsgIdConstraintName()+" UNIQUE(messageid),"+ // multiple null allowed
-        "CONSTRAINT "+getBoardConstraintName()+" FOREIGN KEY (board) REFERENCES BOARDS(primkey) ON DELETE CASCADE,"+
+        getBoardConstraint()+ // only for messages , not for sent messages
         "CONSTRAINT "+getUniqueMsgConstraintName()+" UNIQUE(msgdate,msgindex,board)"+
         ")";
     
