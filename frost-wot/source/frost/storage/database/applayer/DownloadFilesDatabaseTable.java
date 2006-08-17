@@ -132,7 +132,11 @@ public class DownloadFilesDatabaseTable extends AbstractDatabaseTable {
                 board = MainFrame.getInstance().getTofTreeModel().getBoardByPrimaryKey(new Integer(boardname));
                 if (board == null) {
                     logger.warning("Download item found (" + filename + ") whose source board (" +
-                            boardname + ") does not exist. Board reference removed.");
+                            boardname + ") does not exist.");
+                    if( key == null || key.length() == 0 ) {
+                        // if we have no key we can't continue to download because we can't request the file
+                        continue;
+                    }
                 }
             }
             FrostDownloadItem dlItem = new FrostDownloadItem(
