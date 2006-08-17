@@ -68,6 +68,9 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
     protected String getBoardForeignKeyConstraintName() {
         return "msgs_boardatt_1";
     }
+    protected String getBoardConstraintName() {
+        return "msgs_boardconst_1";
+    }
 
     private final String SQL_DDL_MESSAGES =
         "CREATE TABLE "+getMessageTableName()+" ("+
@@ -79,7 +82,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         "msgdate DATE NOT NULL,"+
         "msgtime TIME,"+
         "msgindex INT NOT NULL,"+
-        "board VARCHAR NOT NULL,"+
+        "board INT NOT NULL,"+
         "fromname VARCHAR,"+
         "subject VARCHAR,"+
         "recipient VARCHAR,"+
@@ -97,6 +100,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         "hasboardattachment BOOLEAN,"+
         "CONSTRAINT "+getPrimKeyConstraintName()+" PRIMARY KEY (primkey),"+
         "CONSTRAINT "+getUniqueMsgIdConstraintName()+" UNIQUE(messageid),"+ // multiple null allowed
+        "CONSTRAINT "+getBoardConstraintName()+" FOREIGN KEY (board) REFERENCES BOARDS(primkey) ON DELETE CASCADE,"+
         "CONSTRAINT "+getUniqueMsgConstraintName()+" UNIQUE(msgdate,msgindex,board)"+
         ")";
     
@@ -171,7 +175,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         ps.setDate(i++, mo.getSqlDate()); // date  
         ps.setTime(i++, mo.getSqlTime()); // time
         ps.setInt(i++, mo.getIndex()); // index
-        ps.setString(i++, mo.getBoard().getNameLowerCase()); // board
+        ps.setInt(i++, mo.getBoard().getPrimaryKey().intValue()); // board
         ps.setString(i++, mo.getFromName()); // from
         ps.setString(i++, mo.getSubject()); // subject
         ps.setString(i++, mo.getRecipientName()); // recipient
@@ -261,7 +265,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
 
         ps.setDate(ix++, mo.getSqlDate()); // date
         ps.setInt(ix++, mo.getIndex()); // index
-        ps.setString(ix++, mo.getBoard().getNameLowerCase()); // board
+        ps.setInt(ix++, mo.getBoard().getPrimaryKey().intValue()); // board
         
         int updated = ps.executeUpdate();
         if( updated == 0 ) {
@@ -383,7 +387,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         PreparedStatement ps = db.prepare(sql);
 
         ps.setDate(1, startDate);
-        ps.setString(2, board.getNameLowerCase());
+        ps.setInt(2, board.getPrimaryKey().intValue());
 
         ResultSet rs = ps.executeQuery();
 
@@ -422,7 +426,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         
         ps.setDate(1, startDate);
         ps.setDate(2, endDate);
-        ps.setString(3, board.getNameLowerCase());
+        ps.setInt(3, board.getPrimaryKey().intValue());
         ps.setBoolean(4, showDeleted);
         
         ResultSet rs = ps.executeQuery();
@@ -458,7 +462,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
             sql += " FROM "+getMessageTableName()+" WHERE board=? AND messageid=?";
         PreparedStatement ps = db.prepare(sql);
         
-        ps.setString(1, board.getNameLowerCase());
+        ps.setInt(1, board.getPrimaryKey().intValue());
         ps.setString(2, msgId);
         
         ResultSet rs = ps.executeQuery();
@@ -494,7 +498,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
     public synchronized void setAllMessagesRead(Board board) throws SQLException {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         PreparedStatement ps = db.prepare("UPDATE "+getMessageTableName()+" SET isnew=FALSE WHERE board=? and isnew=TRUE");
-        ps.setString(1, board.getNameLowerCase());
+        ps.setInt(1, board.getPrimaryKey().intValue());
         ps.executeUpdate();
         ps.close();
     }
@@ -510,11 +514,11 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         if( maxDaysBack < 0 ) {
             // no date restriction
             ps = db.prepare("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE board=? AND isnew=TRUE AND isvalid=TRUE");
-            ps.setString(1, board.getNameLowerCase());
+            ps.setInt(1, board.getPrimaryKey().intValue());
         } else {
             ps = db.prepare("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE msgdate >=? AND board=? AND isnew=TRUE AND isvalid=TRUE");
             ps.setDate(1, startDate);
-            ps.setString(2, board.getNameLowerCase());
+            ps.setInt(2, board.getPrimaryKey().intValue());
         }
         
         int count = 0;
@@ -568,12 +572,12 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         if( maxDaysBack < 0 ) {
             // no date restriction
             ps = db.prepare("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE board=? AND isvalid=TRUE");
-            ps.setString(1, board.getNameLowerCase());
+            ps.setInt(1, board.getPrimaryKey().intValue());
         } else {
             ps = db.prepare("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE msgdate >=? AND board=? AND isvalid=TRUE");
             java.sql.Date startDate = DateFun.getSqlDateGMTDaysAgo(maxDaysBack);
             ps.setDate(1, startDate);
-            ps.setString(2, board.getNameLowerCase());
+            ps.setInt(2, board.getPrimaryKey().intValue());
         }
         
         int count = 0;

@@ -36,12 +36,12 @@ public class IndexSlotsDatabaseTable {
     private static Object syncObj = new Object();
 
     private int indexName;
-    private String boardName;
+    private int boardIx;
     
     private AppLayerDatabase db;
 
     private static final String SQL_DDL = 
-        "CREATE TABLE INDEXSLOTS (indexname INT, boardname VARCHAR, msgdate DATE, msgindex INT,"+
+        "CREATE TABLE INDEXSLOTS (indexname INT, boardname INT, msgdate DATE, msgindex INT,"+
         " wasdownloaded BOOLEAN, wasuploaded BOOLEAN, locked BOOLEAN,"+
         " CONSTRAINT UNIQUE_INDICES_ONLY UNIQUE(indexname,boardname,msgdate,msgindex) )";
     private static final String SQL_INSERT =
@@ -75,7 +75,7 @@ public class IndexSlotsDatabaseTable {
     private PreparedStatement ps_UPDATE_WASDOWNLOADED = null;
 
     public IndexSlotsDatabaseTable(int indexName, Board board) {
-        this.boardName = board.getNameLowerCase(); 
+        this.boardIx = board.getPrimaryKey().intValue(); 
         this.indexName = indexName;
         
         db = AppLayerDatabase.getInstance();
@@ -284,7 +284,7 @@ public class IndexSlotsDatabaseTable {
         // "UPDATE INDEXSLOTS SET used=TRUE,locked=FALSE WHERE indexname=? AND boardname=? AND date=? AND index=?";
         PreparedStatement ps = getPsUPDATE_WASUPLOADED();
         ps.setInt(1, indexName);
-        ps.setString(2, boardName);
+        ps.setInt(2, boardIx);
         ps.setDate(3, date);
         ps.setInt(4, index);
         return ps.executeUpdate();
@@ -295,7 +295,7 @@ public class IndexSlotsDatabaseTable {
         PreparedStatement ps = getPsUPDATE_LOCKED();
         ps.setBoolean(1, locked);
         ps.setInt(2, indexName);
-        ps.setString(3, boardName);
+        ps.setInt(3, boardIx);
         ps.setDate(4, date);
         ps.setInt(5, index);
         return ps.executeUpdate();
@@ -305,7 +305,7 @@ public class IndexSlotsDatabaseTable {
         // "UPDATE INDEXSLOTS SET wasdownloaded=TRUE WHERE indexname=? AND boardname=? AND date=? AND index=?"
         PreparedStatement ps = getPsUPDATE_WASDOWNLOADED();
         ps.setInt(1, indexName);
-        ps.setString(2, boardName);
+        ps.setInt(2, boardIx);
         ps.setDate(3, date);
         ps.setInt(4, index);
         return ps.executeUpdate();
@@ -315,7 +315,7 @@ public class IndexSlotsDatabaseTable {
         // "INSERT INTO INDEXSLOTS (indexname,boardname,date,index,wasdownloaded,wasuploaded,locked) VALUES (?,?,?,?,?,?,?)"
         PreparedStatement ps = getPsINSERT();
         ps.setInt(1, indexName);
-        ps.setString(2, boardName);
+        ps.setInt(2, boardIx);
         ps.setDate(3, date);
         ps.setInt(4, index);
         ps.setBoolean(5, wasdownloaded);
@@ -329,7 +329,7 @@ public class IndexSlotsDatabaseTable {
         // "AND used=FALSE AND locked=FALSE ORDER BY index";
         PreparedStatement ps = getPsNEXT_DOWNLOAD_SLOT();
         ps.setInt(1, indexName);
-        ps.setString(2, boardName);
+        ps.setInt(2, boardIx);
         ps.setDate(3, date);
         ps.setInt(4, beforeIndex);
         
@@ -341,7 +341,7 @@ public class IndexSlotsDatabaseTable {
         // "SELECT TOP 1 index FROM INDEXSLOTS WHERE indexname=? AND boardname=? AND date=? ORDER BY index DESC"
         PreparedStatement ps = getPsMAX_SLOT();
         ps.setInt(1, indexName);
-        ps.setString(2, boardName);
+        ps.setInt(2, boardIx);
         ps.setDate(3, date);
         ResultSet rs = ps.executeQuery();
         return rs;
@@ -352,7 +352,7 @@ public class IndexSlotsDatabaseTable {
         // "AND ( used=TRUE OR locked=TRUE ) ORDER BY index DESC";
         PreparedStatement ps = getPsNEXT_MAX_USED_SLOT();
         ps.setInt(1, indexName);
-        ps.setString(2, boardName);
+        ps.setInt(2, boardIx);
         ps.setDate(3, date);
         ps.setInt(4, beforeIndex);
         

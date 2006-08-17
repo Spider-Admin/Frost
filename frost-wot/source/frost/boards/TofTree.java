@@ -549,7 +549,6 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
 
     private Language language;
     private SettingsClass settings;
-    private Core core;
     private MainFrame mainFrame;
 
     private Listener listener = new Listener();
@@ -633,21 +632,13 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         runningBoardUpdateThreads = new RunningBoardUpdateThreads(mainFrame);
     }
 
-    /**
-     * @param cuttedNode
-     */
     public void cutNode(Board node) {
         if (node != null) {
-            model.removeNode(node);
             clipboard = node;
             pasteBoardButton.setEnabled(true);
         }
     }
 
-    /**
-     * @param position
-     * @return
-     */
     public void pasteNode(Board position) {
         if (clipboard == null) {
             pasteBoardButton.setEnabled(false);
@@ -656,6 +647,8 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         if (position == null || !position.isFolder()) {
             return; // We only allow pasting under folders
         }
+
+        model.removeNode(clipboard, false);
 
         position.add(clipboard);
         clipboard = null;
@@ -674,7 +667,6 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
 
     /**
      * Get keyTyped for tofTree
-     * @param e
      */
     public void pressedKey(char key ) {
         if (!isEditing()) {
@@ -690,7 +682,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
     }
 
     /**
-     * Loads a tree description file
+     * Loads a tree description file.
      */
     private boolean loadTree() {
         TofTreeXmlIO xmlio = new TofTreeXmlIO();
@@ -747,18 +739,15 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
     /**
      * Save TOF tree's content to a file
      */
-    public void save() throws StorageException
-    {
+    public void save() throws StorageException {
         TofTreeXmlIO xmlio = new TofTreeXmlIO();
         String boardIniFilename = settings.getValue("config.dir") + "boards.xml";
         File check = new File( boardIniFilename );
-        if( check.exists() )
-        {
+        if( check.exists() ) {
             // rename old file to .bak, overwrite older .bak
             String bakBoardIniFilename = settings.getValue("config.dir") + "boards.xml.bak";
             File bakFile = new File(bakBoardIniFilename);
-            if( bakFile.exists() )
-            {
+            if( bakFile.exists() ) {
                 bakFile.delete();
             }
             check.renameTo(bakFile);
@@ -771,7 +760,6 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
 
     /**
      * Opens dialog, gets new name for board, checks for double names, adds node to tree
-     * @param parent
      */
     public void createNewBoard(Frame parent) {
         boolean isDone = false;
@@ -920,50 +908,23 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         }
 
         // delete node from tree
-        model.removeNode(node);
-
-        // maybe delete board dir (in a thread, do not block gui)
-        if (deleteDirectory) {
-            if (node.isUpdating() == false) {
-                core.deleteDir(boardRelDir);
-            } else {
-                logger.warning(
-                    "WARNING: Although being warned, you tried to delete a board with is updating! Skipped ...");
-            }
-        }
+        model.removeNode(node, deleteDirectory);
     }
 
-    /**
-     * @param settings
-     */
     public void setSettings(SettingsClass settings) {
         this.settings = settings;
     }
 
-    /**
-     * @param core
-     */
-    public void setCore(Core core) {
-        this.core = core;
-    }
-
-    /**
-     * @param parentFrame
-     */
     public void setMainFrame(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
     }
 
-    /**
-     * @param e
-     */
     private void showTofTreePopupMenu(MouseEvent e) {
         getPopupMenuTofTree().show(e.getComponent(), e.getX(), e.getY());
     }
 
     /**
      * starts update for the selected board, or for all childs (and their childs) of a folder
-     * @param node
      */
     private void refreshNode(Board node) {
         if (node == null)

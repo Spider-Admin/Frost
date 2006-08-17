@@ -456,7 +456,6 @@ public class Core implements FrostEventDispatcher  {
         if (boardsManager == null) {
             boardsManager = new BoardsManager(frostSettings);
             boardsManager.setMainFrame(mainFrame);
-            boardsManager.setCore(this);
         }
         return boardsManager;
     }

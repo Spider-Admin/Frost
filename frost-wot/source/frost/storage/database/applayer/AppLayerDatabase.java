@@ -40,6 +40,8 @@ public class AppLayerDatabase implements Savable {
     private static IdentitiesDatabaseTable identitiesDatabaseTable = null;
     
     private static KnownBoardsDatabaseTable knownBoardsDatabaseTable = null;
+    
+    private static BoardDatabaseTable boardDatabaseTable = null;
 
     private Connection connection;
 
@@ -150,8 +152,10 @@ public class AppLayerDatabase implements Savable {
             identitiesDatabaseTable = new IdentitiesDatabaseTable();
             
             knownBoardsDatabaseTable = new KnownBoardsDatabaseTable();
+            boardDatabaseTable = new BoardDatabaseTable();
             
             ArrayList lst = new ArrayList();
+            lst.add(boardDatabaseTable);
             lst.add(messageTable);
             lst.add(sentMessageTable);
             lst.add(newUploadFilesTable);
@@ -198,7 +202,11 @@ public class AppLayerDatabase implements Savable {
     public static KnownBoardsDatabaseTable getKnownBoardsDatabaseTable() {
         return knownBoardsDatabaseTable;
     }
-    
+
+    public static BoardDatabaseTable getBoardDatabaseTable() {
+        return boardDatabaseTable;
+    }
+
     private void ensureTables(List lst) {
         
         for(Iterator i=lst.iterator(); i.hasNext(); ) {
@@ -209,10 +217,11 @@ public class AppLayerDatabase implements Savable {
                     update(tableDDL);
                 } catch(SQLException ex) {
                     // table/index already exists?
+                    if( ex.getMessage().endsWith("already exists.") == false ) {
 //                    if( ! (ex.getSQLState().equals("S0001") || ex.getSQLState().equals("S0011")) ) {
                         System.out.println("Statement: "+tableDDL);
                         ex.printStackTrace(); // another exception, show
-//                    }
+                    }
                 }
             }
         }

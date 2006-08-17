@@ -19,20 +19,26 @@
 */
 package frost.boards;
 
+import java.sql.*;
 import java.util.*;
+import java.util.logging.*;
 
 import javax.swing.tree.*;
 
-import frost.gui.objects.Board;
+import frost.gui.objects.*;
+import frost.storage.database.applayer.*;
 
 /**
  * This class serves as both the data and selection models of the TofTree.
  */
 public class TofTreeModel extends DefaultTreeModel {
 
-//    private static Logger logger = Logger.getLogger(TofTreeModel.class.getName());
+    private static Logger logger = Logger.getLogger(TofTreeModel.class.getName());
 
     private DefaultTreeSelectionModel selectionModel;
+    
+    private Hashtable boardnameByPrimaryKey = new Hashtable(); // <Integer,String> 
+    private Hashtable primaryKeyByBoardname = new Hashtable(); // <String, Integer> 
 
     /**
      * This method creates a new TofTreeModel with the given TreeNode
@@ -42,6 +48,35 @@ public class TofTreeModel extends DefaultTreeModel {
     public TofTreeModel(TreeNode root) {
         super(root);
         selectionModel = new DefaultTreeSelectionModel();
+        
+        // load all board primary keys
+        try {
+            Hashtable boardPrimaryKeysByName = AppLayerDatabase.getBoardDatabaseTable().loadBoards();
+            primaryKeyByBoardname = boardPrimaryKeysByName;
+            // for reverse lookup
+            for( Iterator iter = primaryKeyByBoardname.keySet().iterator(); iter.hasNext(); ) {
+                String bname = (String) iter.next();
+                Integer bkey = (Integer)primaryKeyByBoardname.get(bname);
+                boardnameByPrimaryKey.put(bkey, bname);
+            }
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Severe error: could not retrieve board primary keys", e);
+        }
+    }
+    
+    /**
+     * Overwritten to fill the boards in tree with its primary keys
+     * after the board tree was loaded from xml file.
+     */
+    public void initialSetPrimaryKeys() {
+        // load boards, create if not existing (should not happen!)
+        DefaultMutableTreeNode rootn = (DefaultMutableTreeNode)getRoot(); 
+        for(Enumeration e = rootn.depthFirstEnumeration(); e.hasMoreElements(); ) {
+            Board b = (Board)e.nextElement();
+            if( b.isFolder() == false ) {
+                setBoardsPrimaryKey(b);
+            }
+        }
     }
 
     /**
@@ -61,7 +96,7 @@ public class TofTreeModel extends DefaultTreeModel {
             // add to parent of selected node
             selectedNode = (Board) selectedNode.getParent();
         }
-        addNodeToTree( newNode, selectedNode);
+        addNodeToTree(newNode, selectedNode);
     }
 
     /**
@@ -69,9 +104,44 @@ public class TofTreeModel extends DefaultTreeModel {
      */
     public void addNodeToTree(Board newNode, Board targetFolder) {
         targetFolder.add(newNode);
+        
+        if( setBoardsPrimaryKey(newNode) == false ) {
+            return;
+        }
+        
         // last in list is the newly added
         int insertedIndex[] = { targetFolder.getChildCount() - 1 };
         nodesWereInserted(targetFolder, insertedIndex);
+    }
+
+    /**
+     * Removes the node from the board tree.
+     */
+    public void removeNode(Board node, boolean removeFromDatabase) {
+        DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
+        if (node != null && parent != null) {
+            int[] childIndices = { parent.getIndex(node) };
+            Object[] removedChilds = { node };
+            
+            if( removeFromDatabase ) {
+                try {
+                    AppLayerDatabase.getBoardDatabaseTable().removeBoard(node);
+                } catch (SQLException e) {
+                    logger.log(Level.SEVERE, "Severe error: could not remove a board", e);
+                }
+                // also remove from lookup tables
+                Integer i = (Integer)primaryKeyByBoardname.remove(node.getNameLowerCase());
+                if( i != null ) {
+                    boardnameByPrimaryKey.remove(i);
+                }
+            }
+
+            node.removeFromParent();
+
+            TreePath pathToParent = new TreePath(getPathToRoot(parent));
+            nodesWereRemoved(parent, childIndices, removedChilds);
+            selectionModel.setSelectionPath(pathToParent);
+        }
     }
 
     /**
@@ -109,6 +179,14 @@ public class TofTreeModel extends DefaultTreeModel {
         }
         return null; // not found
     }
+    
+    public Board getBoardByPrimaryKey(Integer i) {
+        String bname = (String)boardnameByPrimaryKey.get(i);
+        if( bname != null ) {
+            return (Board)getBoardByName(bname);
+        }
+        return null;
+    }
 
     /**
      * This method returns the last node of the first selected path.
@@ -137,21 +215,25 @@ public class TofTreeModel extends DefaultTreeModel {
     TreeSelectionModel getSelectionModel() {
         return selectionModel;
     }
-
+    
     /**
-     * @param node
+     * Retrieve the primary key of the board, or insert it into database.
      */
-    public void removeNode(Board node) {
-        DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
-        if (node != null && parent != null) {
-            int[] childIndices = { parent.getIndex(node) };
-            Object[] removedChilds = { node };
-
-            node.removeFromParent();
-
-            TreePath pathToParent = new TreePath(getPathToRoot(parent));
-            nodesWereRemoved(parent, childIndices, removedChilds);
-            selectionModel.setSelectionPath(pathToParent);
+    private boolean setBoardsPrimaryKey(Board newNode) {
+        Integer pk = (Integer)primaryKeyByBoardname.get(newNode.getNameLowerCase());
+        if( pk == null ) {
+            // add board to db
+            try {
+                newNode = AppLayerDatabase.getBoardDatabaseTable().addBoard(newNode);
+                primaryKeyByBoardname.put(newNode.getNameLowerCase(), newNode.getPrimaryKey());
+                boardnameByPrimaryKey.put(newNode.getPrimaryKey(), newNode.getNameLowerCase());
+            } catch (SQLException e) {
+                logger.log(Level.SEVERE, "Severe error: could not add a new board", e);
+                return false;
+            }
+        } else {
+            newNode.setPrimaryKey(pk);
         }
+        return true;
     }
 }
