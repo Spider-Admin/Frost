@@ -50,6 +50,7 @@ public class FileTransferManager implements Savable {
     private DownloadManager downloadManager;
     private SearchManager searchManager;
     private UploadManager uploadManager;
+//    private SharedFilesManager sharedFilesManager;
     private NewUploadFilesManager newUploadFilesManager;
     
     /**
@@ -67,6 +68,7 @@ public class FileTransferManager implements Savable {
         getDownloadManager().initialize();
         getSearchManager().initialize();
         getUploadManager().initialize();
+//        getSharedFilesManager().initialize();
         getNewUploadFilesManager().initialize();
         Index.initialize(getDownloadManager().getModel(), getUploadManager().getModel());
 
@@ -186,7 +188,17 @@ public class FileTransferManager implements Savable {
         }
         return uploadManager;
     }
-    
+
+//    private SharedFilesManager getSharedFilesManager() {
+//        if (sharedFilesManager == null) {
+//            sharedFilesManager = new SharedFilesManager(settings);
+//            sharedFilesManager.setMainFrame(mainFrame);
+//            sharedFilesManager.setTofTreeModel(tofTreeModel);
+//            sharedFilesManager.setFreenetIsOnline(isOnline);
+//        }
+//        return sharedFilesManager;
+//    }
+
     public NewUploadFilesManager getNewUploadFilesManager() {
         if( newUploadFilesManager == null ) {
             newUploadFilesManager = new NewUploadFilesManager();

@@ -19,14 +19,14 @@
 package frost;
 
 import java.io.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.logging.*;
 
 import javax.xml.parsers.*;
 
 import org.apache.xml.serialize.*;
 import org.w3c.dom.*;
-import org.xml.sax.SAXException;
+import org.xml.sax.*;
 
 /**
  * A place to hold utility methods for XML processing.
@@ -214,9 +214,9 @@ public class XMLTools {
     /**
      * Returns a list containing all Elements of this parent with given tag name.
      */
-    public static ArrayList getChildElementsByTagName(Element parent, String name) {
+    public static List getChildElementsByTagName(Element parent, String name) {
 
-        ArrayList newList = new ArrayList();
+        LinkedList newList = new LinkedList();
 
         NodeList childs = parent.getChildNodes();
         for( int x=0; x<childs.getLength(); x++ ) {
@@ -240,7 +240,7 @@ public class XMLTools {
      */
     public static String getChildElementsTextValue( Element parent, String childname ) {
 
-        ArrayList nodes = getChildElementsByTagName( parent, childname );
+        List nodes = getChildElementsByTagName( parent, childname );
         if( nodes.size() == 0 ) {
             return null;
         }
@@ -256,7 +256,7 @@ public class XMLTools {
      */
     public static String getChildElementsCDATAValue( Element parent, String childname ) {
 
-        ArrayList nodes = getChildElementsByTagName( parent, childname );
+        List nodes = getChildElementsByTagName( parent, childname );
         if( nodes.size() == 0 ) {
             return null;
         }
