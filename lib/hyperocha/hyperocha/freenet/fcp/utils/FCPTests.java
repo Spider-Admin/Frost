@@ -31,7 +31,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Random;
@@ -42,6 +41,9 @@ import java.util.Random;
  *
  */
 public class FCPTests {
+	
+	// check version before starting the engines ;)
+	// TODO
 	
 	public static FCPNode TestNodeVersion(String serverport, Version v) {
 		return null;
