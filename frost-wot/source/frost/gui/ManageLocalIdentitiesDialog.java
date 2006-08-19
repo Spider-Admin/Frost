@@ -31,12 +31,9 @@ import frost.*;
 import frost.identities.*;
 import frost.storage.*;
 import frost.storage.database.*;
-import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
 public class ManageLocalIdentitiesDialog extends JDialog {
-
-    // FIXME: dont use misctoolkit
     
     private Language language = null;
 
@@ -297,14 +294,14 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                     }
 
                     if( Core.getIdentities().getLocalIdentities().size() <= 1 ) {
-                        MiscToolkit.getInstance().showMessage(
+                        JOptionPane.showMessageDialog(
+                                ManageLocalIdentitiesDialog.this, 
                                 language.getString("ManageLocalIdentities.cannotDeleteLastIdentity.body"),
-                                JOptionPane.INFORMATION_MESSAGE,
-                                language.getString("ManageLocalIdentities.cannotDeleteLastIdentity.title"));
+                                language.getString("ManageLocalIdentities.cannotDeleteLastIdentity.title"),
+                                JOptionPane.INFORMATION_MESSAGE);
                     }
 
-                    int answer =
-                        JOptionPane.showConfirmDialog(
+                    int answer = JOptionPane.showConfirmDialog(
                             ManageLocalIdentitiesDialog.this,
                             language.formatMessage("ManageLocalIdentities.deleteIdentityConfirmation.body", li.getUniqueName()),
                             language.getString("ManageLocalIdentities.deleteIdentityConfirmation.title"),
@@ -338,10 +335,11 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                     
                     ((DefaultListModel)getIdentitiesList().getModel()).removeElement(li);
                     
-                    MiscToolkit.getInstance().showMessage(
+                    JOptionPane.showMessageDialog(
+                            ManageLocalIdentitiesDialog.this, 
                             language.formatMessage("ManageLocalIdentities.identityDeleted.body", li.getUniqueName()),
-                            JOptionPane.INFORMATION_MESSAGE,
-                            language.getString("ManageLocalIdentities.identityDeleted.title"));
+                            language.getString("ManageLocalIdentities.identityDeleted.title"),
+                            JOptionPane.INFORMATION_MESSAGE);
                 }
             });
         }
@@ -366,24 +364,27 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                     LocalIdentity importedIdentity = ImportIdentities.importLocalIdentityFromIdentityXml(xmlFile);
                     if( importedIdentity == null ) {
                         // load failed
-                        MiscToolkit.getInstance().showMessage(
+                        JOptionPane.showMessageDialog(
+                                ManageLocalIdentitiesDialog.this, 
                                 language.getString("ManageLocalIdentities.noIdentityToImport.body"),
-                                JOptionPane.ERROR_MESSAGE,
-                                language.getString("ManageLocalIdentities.noIdentityToImport.title"));
+                                language.getString("ManageLocalIdentities.noIdentityToImport.title"),
+                                JOptionPane.WARNING_MESSAGE);
                         return;
                     }
                     if( !Core.getIdentities().addLocalIdentity(importedIdentity) ) {
                         // duplicate identity
-                        MiscToolkit.getInstance().showMessage(
+                        JOptionPane.showMessageDialog(
+                                ManageLocalIdentitiesDialog.this, 
                                 language.formatMessage("ManageLocalIdentities.duplicateIdentity.body", importedIdentity.getUniqueName()),
-                                JOptionPane.ERROR_MESSAGE,
-                                language.getString("ManageLocalIdentities.duplicateIdentity.title"));
+                                language.getString("ManageLocalIdentities.duplicateIdentity.title"),
+                                JOptionPane.WARNING_MESSAGE);
                         return;
                     }
-                    MiscToolkit.getInstance().showMessage(
+                    JOptionPane.showMessageDialog(
+                            ManageLocalIdentitiesDialog.this, 
                             language.formatMessage("ManageLocalIdentities.identityImported.body",importedIdentity.getUniqueName()),
-                            JOptionPane.INFORMATION_MESSAGE,
-                            language.getString("ManageLocalIdentities.identityImported.title"));
+                            language.getString("ManageLocalIdentities.identityImported.title"),
+                            JOptionPane.INFORMATION_MESSAGE);
                     ((DefaultListModel)getIdentitiesList().getModel()).addElement(importedIdentity);
                     return;
                 }
@@ -468,9 +469,9 @@ public class ManageLocalIdentitiesDialog extends JDialog {
             File f = chooser.getSelectedFile();
             if( f.exists() ) {
                 int answer = JOptionPane.showConfirmDialog(
-                        this, 
-                        "Overwite file '"+f.getName()+"'?", // TODO: translate 
-                        "Confirm overwrite", 
+                        this,
+                        language.formatMessage("ManageLocalIdentities.exportIdentitiesConfirmXmlFileOverwrite.body", f.getName()),
+                        language.getString("ManageLocalIdentities.exportIdentitiesConfirmXmlFileOverwrite.title"), 
                         JOptionPane.YES_NO_OPTION, 
                         JOptionPane.WARNING_MESSAGE);
                 if( answer == JOptionPane.NO_OPTION ) {
@@ -545,6 +546,13 @@ public class ManageLocalIdentitiesDialog extends JDialog {
             BexportXml.setText("ManageLocalIdentities.button.exportXml");
             BexportXml.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
+                    
+                    JOptionPane.showMessageDialog(
+                            ManageLocalIdentitiesDialog.this, 
+                            language.getString("ManageLocalIdentities.privateKeyExportWarning.body"),
+                            language.getString("ManageLocalIdentities.privateKeyExportWarning.title"),
+                            JOptionPane.WARNING_MESSAGE);
+                    
                     File xmlFile = chooseXmlExportFile();
                     if( xmlFile == null ) {
                         return;
