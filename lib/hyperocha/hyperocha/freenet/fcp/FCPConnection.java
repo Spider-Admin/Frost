@@ -20,15 +20,11 @@
  */
 package hyperocha.freenet.fcp;
 
-import hyperocha.freenet.fcp.io.DefaultIOConnectionErrorHandler;
-import hyperocha.freenet.fcp.io.IOConnection;
-import hyperocha.freenet.fcp.io.IOConnectionErrorHandler;
-import hyperocha.freenet.fcp.utils.FCPUtil;
+import hyperocha.freenet.fcp.io.*;
+import hyperocha.freenet.fcp.utils.*;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Hashtable;
+import java.io.*;
+import java.util.*;
 
 
 /**
@@ -66,7 +62,7 @@ public class FCPConnection {
 		return connectionID;
 	}
 	
-	public void start(ArrayList l, InputStream s) {
+	public void start(List l, InputStream s) {
 
 		int sc = l.size();
 		for (int i = 0; i < sc; i++){
@@ -94,7 +90,7 @@ public class FCPConnection {
 	}
 	
 	
-	public void start(ArrayList l) {
+	public void start(List l) {
 		//open();
 		int sc = l.size();
 		for (int i = 0; i < sc; i++){
@@ -128,7 +124,6 @@ public class FCPConnection {
 		//tmp = readLine();
 		tmp = rawConn.readLine();
 		result.put("hyper-result", tmp);
-		
 		
 		while(true) {
             tmp = rawConn.readLine();
