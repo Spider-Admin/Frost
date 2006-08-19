@@ -93,7 +93,7 @@ public class DownloadFilesDatabaseTable extends AbstractDatabaseTable {
             ps.setString(ix++, dlItem.getOwner());
             ps.setDate(ix++, dlItem.getLastRequestedDate());
             ps.setInt(ix++, dlItem.getRequestedCount());
-            ps.setString(ix++, dlItem.getKey());
+            ps.setString(ix++, (dlItem.getKey()==null?"":dlItem.getKey()));
             ps.setLong(ix++, (dlItem.getFileSize()==null?0:dlItem.getFileSize().longValue()));
             
             ps.executeUpdate();
@@ -142,7 +142,7 @@ public class DownloadFilesDatabaseTable extends AbstractDatabaseTable {
             FrostDownloadItem dlItem = new FrostDownloadItem(
                     filename,
                     (size==0?null:new Long(size)),
-                    key,
+                    (key.length()==0?null:key),
                     retries,
                     from,
                     sha1,
