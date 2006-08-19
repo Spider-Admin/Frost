@@ -16,29 +16,17 @@
  * You should have received a copy of the GNU General Public License
  * along with JHyperochaFCPLib; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- * 
  */
 package hyperocha.freenet.fcp.utils;
 
-import hyperocha.freenet.fcp.FCPConnection;
-import hyperocha.freenet.fcp.FCPNode;
-import hyperocha.freenet.fcp.Persistence;
-import hyperocha.util.Version;
+import hyperocha.freenet.fcp.*;
+import hyperocha.util.*;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Random;
-
+import java.io.*;
+import java.util.*;
 
 /**
  * @author saces
- *
  */
 public class FCPTests {
 	
@@ -54,7 +42,6 @@ public class FCPTests {
 	 * @param serverport a string with "server:port"
 	 * @return a valid node handle or NULL if somthing is wrong
 	 */
-
 	public static FCPNode TestNodeHelo(String serverport) {
 		//System.out.print("Testing Node Helo: ");
 		
@@ -68,9 +55,6 @@ public class FCPTests {
 
 		return node;
 	}
-	
-
-	
 	
 	/**
 	 * generate a chk from a 1K temfile for testing dda
@@ -98,11 +82,10 @@ public class FCPTests {
 		}
 		
 		//tempfile anlegen
-		ArrayList cmd = new ArrayList();
-		//String[] cmd = new ArrayList();
+		List cmd = new LinkedList();
 		cmd.add("ClientPut");
 		cmd.add("URI=CHK@");
-		cmd.add("Identifier=InsertDDA-1");
+		cmd.add("Identifier=InsertDDA-1"); // FIXME:  dont use hardcoded name
 		cmd.add("Verbosity=0");
 		cmd.add("MaxRetries=3");
 		cmd.add("PriorityClass=0");
@@ -110,22 +93,17 @@ public class FCPTests {
 		cmd.add("Global=false");
 		cmd.add("Persistance=" + Persistence.CONNECTION);
 		cmd.add("DontCompress=true");
-		cmd.add("ClientToken=hyperocha test");
+		cmd.add("ClientToken=hyperocha test"); // FIXME:  dont use hardcoded name
 		cmd.add("UploadFrom=disk");
 		cmd.add("Filename=" + f.getAbsolutePath());
 		cmd.add("EndMessage");
 		
-		//System.out.println("ddd: FilenamE: " + f.getAbsolutePath());
-		
-		//FCPNode node = new FCPNode(serverport);
 		FCPConnection conn = null; //node.getDefaultFCPConnection();
 		boolean repeat = true;
 		Hashtable result = null;
 		try { 
 			conn = node.getDefaultFCPConnection();
-			//conn.start((String[]) cmd.toArray());
 			conn.start(cmd);
-			
 			
 			while (repeat) {
 				result = conn.readEndMessage();
@@ -270,5 +248,4 @@ public class FCPTests {
 		conn.close();	
 		return true;
 	}
-
 }
