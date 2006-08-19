@@ -139,7 +139,7 @@ public class ImportDownloadFiles {
                 "The downloads model XML file is invalid: does not contain the root tag FrostDownloadTable.");
         }
         // check if rootnode contains only a single boardEntry wich must be a folder (root folder)
-        ArrayList nodelist =
+        List nodelist =
             XMLTools.getChildElementsByTagName(rootNode, "FrostDownloadTableItemList");
         if (nodelist.size() != 1) {
             throw new StorageException(

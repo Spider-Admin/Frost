@@ -43,6 +43,25 @@ public class LocalIdentity extends Identity {
         return el2;
     }
 
+    /**
+     * Appends the private key!
+     */
+    public Element getExportXMLElement(Document doc) {
+        //have to copy all children, no Element.rename()unfortunately
+        Element el = super.getXMLElement(doc);
+        Element el2 = doc.createElement("MyIdentity");
+        NodeList list = el.getChildNodes();
+        while(list.getLength() > 0) {
+            el2.appendChild(list.item(0)); // removes Node from el
+        }
+        Element element = doc.createElement("privKey");
+        CDATASection cdata = doc.createCDATASection(getPrivKey());
+        element.appendChild( cdata );
+        el2.appendChild( element );
+        
+        return el2;
+    }
+
     public void loadXMLElement(Element el) throws SAXException {
         super.loadXMLElement(el);
         privKey =  XMLTools.getChildElementsCDATAValue(el, "privKey");

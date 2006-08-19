@@ -69,7 +69,7 @@ public class MessageHashesXmlDAO implements MessageHashesDAO {
             }
 
             // check if rootnode contains only a single entry wich must be MessageHashesList
-            ArrayList nodelist = XMLTools.getChildElementsByTagName(rootNode, "MessageHashesList");
+            List nodelist = XMLTools.getChildElementsByTagName(rootNode, "MessageHashesList");
             if (nodelist.size() != 1) {
                 throw new StorageException("The message hashes XML file is invalid: MessageHashesList not found or duplicated.");
             }

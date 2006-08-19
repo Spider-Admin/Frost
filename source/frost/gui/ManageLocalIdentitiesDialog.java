@@ -22,18 +22,22 @@ package frost.gui;
 import java.awt.*;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 
 import frost.*;
 import frost.identities.*;
+import frost.storage.*;
 import frost.storage.database.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
 public class ManageLocalIdentitiesDialog extends JDialog {
 
+    // FIXME: dont use misctoolkit
+    
     private Language language = null;
 
     private JPanel jContentPane = null;
@@ -48,6 +52,10 @@ public class ManageLocalIdentitiesDialog extends JDialog {
     private JButton BdeleteIdentity = null;
     private JButton BimportIdentityXml = null;
     private JLabel Ldummy = null;
+
+    private JButton BimportXml = null;
+
+    private JButton BexportXml = null;
 
     /**
      * This is the default constructor
@@ -74,6 +82,8 @@ public class ManageLocalIdentitiesDialog extends JDialog {
         BimportIdentityXml.setText(language.getString("ManageLocalIdentities.button.importIdentity"));
         BdeleteIdentity.setText(language.getString("ManageLocalIdentities.button.deleteIdentity"));
         BaddNewIdentity.setText(language.getString("ManageLocalIdentities.button.createNewIdentity"));
+        BimportXml.setText(language.getString("ManageLocalIdentities.button.importXml"));
+        BexportXml.setText(language.getString("ManageLocalIdentities.button.exportXml"));
         Bclose.setText(language.getString("ManageLocalIdentities.button.close"));
     }
     
@@ -185,11 +195,21 @@ public class ManageLocalIdentitiesDialog extends JDialog {
      */
     private JPanel getJPanel() {
         if( jPanel == null ) {
+            GridBagConstraints gridBagConstraints8 = new GridBagConstraints();
+            gridBagConstraints8.gridx = 0;
+            gridBagConstraints8.fill = java.awt.GridBagConstraints.HORIZONTAL;
+            gridBagConstraints8.insets = new java.awt.Insets(5,3,0,5);
+            gridBagConstraints8.gridy = 4;
+            GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
+            gridBagConstraints7.gridx = 0;
+            gridBagConstraints7.fill = java.awt.GridBagConstraints.HORIZONTAL;
+            gridBagConstraints7.insets = new java.awt.Insets(15,3,0,5);
+            gridBagConstraints7.gridy = 3;
             GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
             gridBagConstraints6.gridx = 0;
             gridBagConstraints6.fill = java.awt.GridBagConstraints.VERTICAL;
             gridBagConstraints6.weighty = 1.0;
-            gridBagConstraints6.gridy = 3;
+            gridBagConstraints6.gridy = 5;
             Ldummy = new JLabel();
             Ldummy.setText("");
             GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
@@ -215,6 +235,8 @@ public class ManageLocalIdentitiesDialog extends JDialog {
             jPanel.add(getBdeleteIdentity(), gridBagConstraints4);
             jPanel.add(getBimportIdentityXml(), gridBagConstraints5);
             jPanel.add(Ldummy, gridBagConstraints6);
+            jPanel.add(getBimportXml(), gridBagConstraints7);
+            jPanel.add(getBexportXml(), gridBagConstraints8);
         }
         return jPanel;
     }
@@ -394,5 +416,157 @@ public class ManageLocalIdentitiesDialog extends JDialog {
             return chooser.getSelectedFile();
         }
         return null;
+    }
+
+    private File chooseXmlImportFile() {
+        
+        FileFilter myFilter = new FileFilter() {
+            public boolean accept(File file) {
+                if( file.isDirectory() ) {
+                    return true;
+                }
+                if( file.getName().endsWith(".xml") ) {
+                    return true;
+                }
+                return false;
+            }
+            public String getDescription() {
+                return "localidentities.xml";
+            }
+        };
+        
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileFilter(myFilter);
+        int returnVal = chooser.showOpenDialog(this);
+        if(returnVal == JFileChooser.APPROVE_OPTION) {
+            return chooser.getSelectedFile();
+        }
+        return null;
+    }
+
+    private File chooseXmlExportFile() {
+        
+        FileFilter myFilter = new FileFilter() {
+            public boolean accept(File file) {
+                if( file.isDirectory() ) {
+                    return true;
+                }
+                if( file.getName().endsWith(".xml") ) {
+                    return true;
+                }
+                return false;
+            }
+            public String getDescription() {
+                return "localidentities.xml";
+            }
+        };
+        
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileFilter(myFilter);
+        int returnVal = chooser.showSaveDialog(this);
+        if(returnVal == JFileChooser.APPROVE_OPTION) {
+            File f = chooser.getSelectedFile();
+            if( f.exists() ) {
+                int answer = JOptionPane.showConfirmDialog(
+                        this, 
+                        "Overwite file '"+f.getName()+"'?", // TODO: translate 
+                        "Confirm overwrite", 
+                        JOptionPane.YES_NO_OPTION, 
+                        JOptionPane.WARNING_MESSAGE);
+                if( answer == JOptionPane.NO_OPTION ) {
+                    return null;
+                }
+            }
+            return f;
+        }
+        return null;
+    }
+
+    /**
+     * This method initializes BimportXml	
+     * 	
+     * @return javax.swing.JButton	
+     */
+    private JButton getBimportXml() {
+        if( BimportXml == null ) {
+            BimportXml = new JButton();
+            BimportXml.setText("ManageLocalIdentities.button.importXml");
+            BimportXml.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                    File xmlFile = chooseXmlImportFile();
+                    if( xmlFile == null ) {
+                        return;
+                    }
+                    List localIdentities = LocalIdentitiesXmlDAO.loadLocalidentities(xmlFile);
+                    if( localIdentities.size() == 0 ) {
+                        // nothing loaded
+                        JOptionPane.showMessageDialog(
+                                ManageLocalIdentitiesDialog.this, 
+                                language.getString("ManageLocalIdentities.noLocalIdentityToImport.body"),
+                                language.getString("ManageLocalIdentities.noLocalIdentityToImport.title"), 
+                                JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+                    int count = 0;
+                    for( Iterator i = localIdentities.iterator(); i.hasNext(); ) {
+                        LocalIdentity lId = (LocalIdentity) i.next();
+                        if( !Core.getIdentities().addLocalIdentity(lId) ) {
+                            // duplicate identity
+                            JOptionPane.showMessageDialog(
+                                    ManageLocalIdentitiesDialog.this, 
+                                    language.formatMessage("ManageLocalIdentities.duplicateLocalIdentity.body", lId.getUniqueName()),
+                                    language.getString("ManageLocalIdentities.duplicateLocalIdentity.title"), 
+                                    JOptionPane.WARNING_MESSAGE);
+                        } else {
+                            count++;
+                            ((DefaultListModel)getIdentitiesList().getModel()).addElement(lId);
+                        }
+                    }
+                    JOptionPane.showMessageDialog(
+                            ManageLocalIdentitiesDialog.this, 
+                            language.formatMessage("ManageLocalIdentities.localIdentitiesImported.body", ""+count),
+                            language.getString("ManageLocalIdentities.localIdentitiesImported.title"), 
+                            JOptionPane.WARNING_MESSAGE);
+                    return;
+                }
+            });
+        }
+        return BimportXml;
+    }
+
+    /**
+     * This method initializes BexportXml	
+     * 	
+     * @return javax.swing.JButton	
+     */
+    private JButton getBexportXml() {
+        if( BexportXml == null ) {
+            BexportXml = new JButton();
+            BexportXml.setText("ManageLocalIdentities.button.exportXml");
+            BexportXml.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                    File xmlFile = chooseXmlExportFile();
+                    if( xmlFile == null ) {
+                        return;
+                    }
+                    List lIds = Core.getIdentities().getLocalIdentities();
+                    boolean wasOk = LocalIdentitiesXmlDAO.saveLocalIdentities(xmlFile, lIds);
+                    if( wasOk ) {
+                        JOptionPane.showMessageDialog(
+                                ManageLocalIdentitiesDialog.this, 
+                                language.formatMessage("ManageLocalIdentities.identitiesExported.body", ""+lIds.size()), 
+                                language.getString("ManageLocalIdentities.identitiesExported.title"), 
+                                JOptionPane.INFORMATION_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(
+                                ManageLocalIdentitiesDialog.this, 
+                                language.getString("ManageLocalIdentities.identitiesExporteFailed.body"), 
+                                language.getString("ManageLocalIdentities.identitiesExporteFailed.title"), 
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            });
+        }
+        return BexportXml;
     }
 }  //  @jve:decl-index=0:visual-constraint="10,10"

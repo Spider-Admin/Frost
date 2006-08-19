@@ -63,7 +63,7 @@ public class TofTreeXmlIO
             return false;
         }
         // check if rootnode contains only a single boardEntry wich must be a folder (root folder)
-        ArrayList nodelist = XMLTools.getChildElementsByTagName(rootNode, "FrostBoardTreeEntry");
+        List nodelist = XMLTools.getChildElementsByTagName(rootNode, "FrostBoardTreeEntry");
 
         if( nodelist.size() != 1 )
         {
@@ -116,7 +116,7 @@ public class TofTreeXmlIO
         JTree tree,
         DefaultTreeModel model) {
         // process all childs of type "FrostBoardTreeEntry" , dive into folder and process them
-        final ArrayList list =
+        final List list =
             XMLTools.getChildElementsByTagName(boardFolder, "FrostBoardTreeEntry");
         for (int x = 0; x < list.size(); x++) {
             String nodename = null;
@@ -140,7 +140,7 @@ public class TofTreeXmlIO
                 // look for <config/> element and maybe configure board
                 getBoardConfiguration(child, fbobj);
                 // maybe restore lastUpdateStartedMillis ( = board update progress)
-                ArrayList ltmp =
+                List ltmp =
                     XMLTools.getChildElementsByTagName(child, "lastUpdateStartedMillis");
                 if (ltmp.size() > 0) {
                     Text txtname = (Text) ((Node) ltmp.get(0)).getFirstChild();
@@ -180,7 +180,7 @@ public class TofTreeXmlIO
 
     private void getBoardConfiguration( Element element, Board board )
     {
-        ArrayList list = XMLTools.getChildElementsByTagName(element, "config");
+        List list = XMLTools.getChildElementsByTagName(element, "config");
         if( list.size() == 0 )
         {
             board.setConfigured( false );
@@ -258,7 +258,7 @@ public class TofTreeXmlIO
 
     private String getName(Element treeEntry)
     {
-        ArrayList list = XMLTools.getChildElementsByTagName(treeEntry, "name");
+        List list = XMLTools.getChildElementsByTagName(treeEntry, "name");
         if( list.size() != 1 )
         {
             logger.severe("Error - boards.xml invalid: there must be 1 <name> tag for each entry");
@@ -272,7 +272,7 @@ public class TofTreeXmlIO
 
     private String getPublicKey(Element treeEntry)
     {
-        ArrayList list = XMLTools.getChildElementsByTagName(treeEntry, "publicKey");
+        List list = XMLTools.getChildElementsByTagName(treeEntry, "publicKey");
         if( list.size() > 1 )
         {
             logger.severe("Error - boards.xml invalid: there should be a maximum of 1 <publicKey> tag for each entry");
@@ -293,7 +293,7 @@ public class TofTreeXmlIO
      * @return
      */
     private String getDescription(Element treeEntry) {
-        ArrayList list = XMLTools.getChildElementsByTagName(treeEntry, "description");
+        List list = XMLTools.getChildElementsByTagName(treeEntry, "description");
         if (list.size() > 1) {
             logger.severe(
                 "Error - boards.xml invalid: there should be a maximum of 1 <description> tag for each entry");
@@ -310,7 +310,7 @@ public class TofTreeXmlIO
 
     private String getPrivateKey(Element treeEntry)
     {
-        ArrayList list = XMLTools.getChildElementsByTagName(treeEntry, "privateKey");
+        List list = XMLTools.getChildElementsByTagName(treeEntry, "privateKey");
         if( list.size() > 1 )
         {
             logger.severe("Error - boards.xml invalid: there should be a maximum of 1 <privateKey> tag for each entry");
