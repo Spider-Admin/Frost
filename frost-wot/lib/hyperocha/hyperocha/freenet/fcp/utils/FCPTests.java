@@ -197,7 +197,7 @@ public class FCPTests {
 			
 			//System.out.println("TODO: GQ-Test:11");
 			
-			/* kein plan, bug oder noch raustüfteln, wie das geht....
+			/* kein plan, bug oder noch raustuefteln, wie das geht....
 			
 			cmd.clear();
 			cmd.add("RemovePersistentRequest");
