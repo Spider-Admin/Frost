@@ -25,6 +25,32 @@ public final class Mixed {
     private static Logger logger = Logger.getLogger(Mixed.class.getName());
 
     private static char[] invalidChars = { '/', '\\', '?', '*', '<', '>', '\"', ':', '|', '#', '&' };
+    
+    /**
+     * Creates a new unique ID.
+     */
+    public static String createUniqueId() {
+        
+        StringBuffer idStrSb = new StringBuffer();
+        idStrSb.append(Long.toString(System.currentTimeMillis())); // millis
+        idStrSb.append(DateFun.getExtendedDate());
+        idStrSb.append(Long.toString(Runtime.getRuntime().freeMemory())); // free java mem
+        idStrSb.append(DateFun.getExtendedTime());
+        byte[] idStrPart = idStrSb.toString().getBytes();
+        
+        // finally add some random bytes
+        byte[] idRandomPart = new byte[64];
+        Core.getCrypto().getSecureRandom().nextBytes(idRandomPart);
+
+        // concat both parts
+        byte[] idBytes = new byte[idStrPart.length + idRandomPart.length];
+        System.arraycopy(idStrPart, 0, idBytes, 0, idStrPart.length);
+        System.arraycopy(idRandomPart, 0, idBytes, idStrPart.length-1, idRandomPart.length);
+        
+        String uniqueId = Core.getCrypto().computeChecksumSHA256(idBytes);
+        
+        return uniqueId;
+    }
 
     /**
      * Waits for a specific number of ms

@@ -51,25 +51,7 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
         setInReplyTo(replyTo);
 
         // new message, create a new unique msg id
-        StringBuffer idStrSb = new StringBuffer();
-        idStrSb.append(Long.toString(System.currentTimeMillis())); // millis
-        idStrSb.append(DateFun.getExtendedDate());
-        idStrSb.append(Long.toString(Runtime.getRuntime().freeMemory())); // free java mem
-        idStrSb.append(DateFun.getExtendedTime());
-        byte[] idStrPart = idStrSb.toString().getBytes();
-        
-        // finally add some random bytes
-        byte[] idRandomPart = new byte[64];
-        Core.getCrypto().getSecureRandom().nextBytes(idRandomPart);
-
-        // concat both parts
-        byte[] idBytes = new byte[idStrPart.length + idRandomPart.length];
-        System.arraycopy(idStrPart, 0, idBytes, 0, idStrPart.length);
-        System.arraycopy(idRandomPart, 0, idBytes, idStrPart.length-1, idRandomPart.length);
-        
-        String uniqueId = Core.getCrypto().computeChecksumSHA256(idBytes);
-
-        setMessageId(uniqueId);
+        setMessageId(Mixed.createUniqueId());
     }
 
     /**
