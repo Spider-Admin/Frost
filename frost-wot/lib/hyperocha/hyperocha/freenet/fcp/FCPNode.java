@@ -20,6 +20,9 @@
  */
 package hyperocha.freenet.fcp;
 
+import hyperocha.freenet.fcp.io.DefaultIOConnectionErrorHandler;
+import hyperocha.freenet.fcp.io.IOConnectionErrorHandler;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -31,7 +34,7 @@ import java.net.UnknownHostException;
  */
 public class FCPNode {
 	
-	private FCPNodeIOErrorHandler ioErrorHandler = null;
+	private IOConnectionErrorHandler ioErrorHandler = null;
 	private InetAddress host = null;
     private int port = -1;
 	private String hostName = null; // avoid name lookup recursion in security manager
@@ -39,14 +42,6 @@ public class FCPNode {
     private FCPConnection defaultConn = null;
     private int timeOut = 10 * 60 * 1000; // the default timeout (ms)
 
-    //private long fcpConnectionId = 0;
-    
-    //protected long getConnectionId() {
-        //return fcpConnectionId++;
-    //    return (new java.util.Date()).getTime();
-    //}
-    
- 
     /**
      * the constructor checks only the plausibility of 'server:port'
      * but doesn't etablish any connection to it.
@@ -56,10 +51,10 @@ public class FCPNode {
      */
     
     public FCPNode(String serverport) {
-    	this(serverport, new DefaultNodeIOErrorHandler());
+    	this(serverport, new DefaultIOConnectionErrorHandler());
     }
     
-	public FCPNode(String serverport, FCPNodeIOErrorHandler errh) {
+	public FCPNode(String serverport, IOConnectionErrorHandler errh) {
 		String[] splitServerPort = serverport.split(":");
 		InetAddress ia = null;
 		//InetSocketAddress isa = null;
@@ -70,7 +65,7 @@ public class FCPNode {
 	            this.hostName = ia.getHostName();
 	            this.hostIp = ia.getHostAddress();
 			} catch (UnknownHostException e) {
-				errh.OnXError(e);
+				errh.onIOError(e);
 				//System.out.println("ERROR: Unknown FCP host: "+ serverport);
 				//e.printStackTrace();
 			}
@@ -80,12 +75,11 @@ public class FCPNode {
             //System.out.println(t);
 //        }
         try {
-            
             port = Integer.parseInt(splitServerPort[1]);
             if ((port < 1) || (port > 65535)) { throw new IllegalArgumentException(); }
            // isa = InetSocketAddress.createUnresolved(this.hostName, port);
-        } catch(Exception e) {
-        	errh.OnXError(e);
+        } catch(IllegalArgumentException e) {
+        	errh.onIOError(e);
           //System.out.println("ERROR: Unknown FCP server:port: "+ serverport);
          // System.out.println(t);
       }
