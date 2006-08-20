@@ -29,6 +29,9 @@ import java.util.*;
  * @author saces
  */
 public class FCPTests {
+    private static final String CLIENTTOKEN = "hyperocha test";	
+	
+
 	
 	// check version before starting the engines ;)
 	// TODO
@@ -61,117 +64,97 @@ public class FCPTests {
 	 * @param FCPNode the node to test
 	 * @return true if the test is OK. (DDA aviable)
 	 */
-	public static boolean TestNodeDDA(FCPNode n) {
-		File f = null;
-		Random rnd = new Random();
-		byte[] b = new byte[1024]; 
-		rnd.nextBytes(b);
-		FCPNode node = n;
-		//System.out.println("TODO: Testing Node 7 DirectDiscAccess");
-		
-		try {
-			f = File.createTempFile("hyperocha", "DDATest");
-			f.deleteOnExit();
-			FileOutputStream os = new FileOutputStream(f);
-			os.write(b, 0, b.length);
-			os.flush();
-		} catch (IOException ex) {
-			System.out.println("ERROR: TestNode7DDA: error while creating temporary test file");
-			System.out.println("ERROR: TestNode7DDA: " + ex);
-			return false;
-		}
+	public static boolean TestNodeDDA(FCPNode node) {
+		return TestNodeDDA(node, FCPUtil.getNewConnectionId("InsertDDA-Test-") , CLIENTTOKEN);
+	}
+	
+	public static boolean TestNodeDDA(FCPNode node, String identifier, String clientoken) {
+		File f = createTestFile();
+		return TestNodeDDA(node, identifier, clientoken, f);
+	}
+	
+	public static boolean TestNodeDDA(FCPNode node, String identifier, String clientoken, File testfile) {
 		
 		//tempfile anlegen
 		List cmd = new LinkedList();
 		cmd.add("ClientPut");
 		cmd.add("URI=CHK@");
-		cmd.add("Identifier=InsertDDA-1"); // FIXME:  dont use hardcoded name
+		cmd.add("Identifier=" + identifier); 
 		cmd.add("Verbosity=0");
-		cmd.add("MaxRetries=3");
-		cmd.add("PriorityClass=0");
-		cmd.add("GetCHKOnly=true");
+		cmd.add("MaxRetries=1");      // only one try, the node accepts the filename or net
+		cmd.add("PriorityClass=3");   // today, please ;) 
+		cmd.add("GetCHKOnly=true");   // calculate the chk from 1k (the default testfile)
 		cmd.add("Global=false");
 		cmd.add("Persistance=" + Persistence.CONNECTION);
 		cmd.add("DontCompress=true");
-		cmd.add("ClientToken=hyperocha test"); // FIXME:  dont use hardcoded name
+		cmd.add("ClientToken=" + clientoken); 
 		cmd.add("UploadFrom=disk");
-		cmd.add("Filename=" + f.getAbsolutePath());
+		cmd.add("Filename=" + testfile.getAbsolutePath());
 		cmd.add("EndMessage");
+		
+		
+		/* we need only to know that the node accept the filename,
+		 * but we run the hole one
+		 * it takes maybe more time and give more stress for the node to cancel the job
+		 * calculate the key from the 1k testfile  
+		 */
 		
 		FCPConnection conn = null; //node.getDefaultFCPConnection();
 		boolean repeat = true;
 		Hashtable result = null;
 		try { 
-			conn = node.getDefaultFCPConnection();
+			conn = node.getNewFCPConnection();
 			conn.start(cmd);
 			
 			while (repeat) {
 				result = conn.readEndMessage();
-				//System.out.println("TODO: DDA-Test loop: " + result);
-				repeat = ("URIGenerated").equalsIgnoreCase((String)(result.get("hyper-result")));
+				//System.out.println("DDA-Test loop: " + result);
+				repeat = ("URIGenerated").equalsIgnoreCase((String)(result.get(FCPConnection.MESSAGENAME)));
 			}
 			
-			//Hashtable<String,String> result = null;
-			//result = conn.readEndMessage();
-			//System.out.println("TODO: DDA-Test1: " + result);
-			//return null;
-			if (("PutSuccessful").equalsIgnoreCase((String)(result.get("hyper-result")))) {
+			if (("PutSuccessful").equalsIgnoreCase((String)(result.get(FCPConnection.MESSAGENAME)))) {
+				conn.close();
 				return true; // the only one case for return ok.
 			}
 			//System.out.println("Result:" + result.get("judl-reason"));
 		} catch (Throwable ex) {		
-			//System.out.println("Error in TestNodeDDA: " + ex);
-			return false;
 		}
-	
-		//conn.close();
-		//System.out.println("TestNodeDDA: Ende OK");
+		conn.close();
 		return false;
 	}
 	
 	/**
 	 * testing the presence of GQ. 
-	 * atm (#943) the node have a bug (global=true and persistance=connection dont work :()
+	 * atm (#950) the node have a bug (global=true and persistance=connection dont work :()
 	 * @param node
 	 * @return
 	 */
 	public static boolean TestNodeGQ(FCPNode node) {
-		//System.out.println("TODO: Testing Node 7 Global queue");
-		File f = null;
-		Random rnd = new Random();
-		byte[] b = new byte[1024]; 
-		rnd.nextBytes(b);
+		return TestNodeGQ(node, FCPUtil.getNewConnectionId("GQ-Test-", "- u can delete me safely") , CLIENTTOKEN); 
+	}
+
+	public static boolean TestNodeGQ(FCPNode node, String identifier, String clientoken) {
+		File f = createTestFile();
+		return TestNodeGQ(node, identifier, clientoken, f);
+	}
+
+	
+	public static boolean TestNodeGQ(FCPNode node, String identifier, String clientoken, File testfile) {
 		
-		String identifer = FCPUtil.getNewConnectionId("InsertGQTest-");
-		
-		try {
-			f = File.createTempFile("hyperocha", "GQTest");
-			f.deleteOnExit();
-			FileOutputStream os = new FileOutputStream(f);
-			os.write(b, 0, b.length);
-			os.flush();
-		} catch (IOException ex) {
-			System.out.println("ERROR: TestNode7DDA: " + ex);
-			return false;
-		}
-		
-		ArrayList cmd = new ArrayList();
+		LinkedList cmd = new LinkedList();
 		//String[] cmd = new ArrayList();
 		cmd.add("ClientPut");
 		cmd.add("URI=CHK@");
 		//cmd.add("Identifier=InsertGQTest-1");
-		cmd.add("Identifier=" + identifer + " - u can delete me safely");
+		cmd.add("Identifier=" + identifier); // + " - u can delete me safely");
 		cmd.add("Verbosity=0");
-		cmd.add("MaxRetries=3");
+		cmd.add("MaxRetries=1");
 		cmd.add("PriorityClass=0");
 		cmd.add("GetCHKOnly=false");
 		cmd.add("Global=true");
 		cmd.add("DontCompress=true");
 		cmd.add("Persistence=" + Persistence.REBOOT);
-		cmd.add("ClientToken=hyperocha test");
-		//cmd.add("UploadFrom=disk");
-		//cmd.add("Filename=" + f.getAbsolutePath());
-		//cmd.add("EndMessage");
+		cmd.add("ClientToken=" + clientoken);
 		cmd.add("UploadFrom=direct");
 		cmd.add("DataLength=1024");
 		cmd.add("Data");
@@ -186,7 +169,7 @@ public class FCPTests {
 			
 			BufferedInputStream is;
 			try {
-				is = new BufferedInputStream(new FileInputStream(f));
+				is = new BufferedInputStream(new FileInputStream(testfile));
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 				return false;
@@ -199,7 +182,7 @@ public class FCPTests {
 			
 			//System.out.println("Result: GQT" + result);
 			
-			if (!("PersistentPut").equalsIgnoreCase((String)(result.get("hyper-result")))) {
+			if (!("PersistentPut").equalsIgnoreCase((String)(result.get(FCPConnection.MESSAGENAME)))) {
 				conn.close();
 				return false; // the only one case for return ok.
 			}
@@ -247,5 +230,43 @@ public class FCPTests {
 		//System.out.println("Aaaah!");
 		conn.close();	
 		return true;
+	}
+	
+	/**
+	 * Create a 1k file with random data for testing the node cabalities
+	 * in the system default temp dir
+	 * @return File Filehandle of the file or null if somthing goes wrong 
+	 */
+	public static File createTestFile() {
+		return createTestFile(null);
+	}
+	
+	/**
+	 * 
+	 * Create a 1k file with random data for testing the node cabalities
+	 * in the given dir
+	 * @return File Filehandle of the file or null if somthing goes wrong
+	 */
+	public static File createTestFile(File dir) {
+		File f = null;
+		Random rnd = new Random();
+		byte[] b = new byte[1024]; 
+		rnd.nextBytes(b);
+		try {
+			if (dir == null)
+				f = File.createTempFile("hyperocha", "DDATest");
+			else
+				f = File.createTempFile("hyperocha", "DDATest", dir);
+			f.deleteOnExit();
+			FileOutputStream os = new FileOutputStream(f);
+			os.write(b, 0, b.length);
+			os.flush();
+			os.close();
+		} catch (IOException ex) {
+			System.out.println("ERROR: TestNode7DDA: error while creating temporary test file");
+			System.out.println("ERROR: TestNode7DDA: " + ex);
+			return null;
+		}
+		return f;
 	}
 }
