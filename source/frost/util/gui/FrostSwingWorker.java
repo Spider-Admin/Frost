@@ -1,5 +1,5 @@
 /*
- SwingWorker.java / Frost
+ FrostSwingWorker.java / Frost
  Copyright (C) 2003  Frost Project <jtcfrost.sourceforge.net>
 
  This program is free software; you can redistribute it and/or
@@ -31,9 +31,9 @@ import javax.swing.SwingUtilities;
  *
  * @author Yexin Chen
  */
-public abstract class SwingWorker {
+public abstract class FrostSwingWorker {
 	
-	private static Logger logger = Logger.getLogger(SwingWorker.class.getName());
+	private static Logger logger = Logger.getLogger(FrostSwingWorker.class.getName());
 
 	/**
 	 * Class to maintain reference to current worker thread
@@ -62,7 +62,7 @@ public abstract class SwingWorker {
      * 
 	 * @param aComponent a reference to the UI component that's directly using SwingWorker
 	 */
-	public SwingWorker(Component aComponent) {
+	public FrostSwingWorker(Component aComponent) {
 		setAComponent(aComponent);
 
 		final Runnable doFinished = new Runnable() {

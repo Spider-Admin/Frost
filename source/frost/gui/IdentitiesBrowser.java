@@ -737,7 +737,7 @@ public class IdentitiesBrowser extends JDialog {
         startProgressMonitor(Core.getIdentities().getIdentities().size());
 
         // disables mainframe
-        SwingWorker worker = new SwingWorker(parent) {
+        FrostSwingWorker worker = new FrostSwingWorker(parent) {
             protected void doNonUILogic() throws RuntimeException {
                 allTableMembers = new LinkedList(); // remember all table data for filter
                 List allIdentities = Core.getIdentities().getIdentities();

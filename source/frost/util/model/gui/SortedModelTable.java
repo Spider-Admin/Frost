@@ -20,7 +20,7 @@ package frost.util.model.gui;
 
 import java.util.logging.Logger;
 
-import frost.util.gui.SwingWorker;
+import frost.util.gui.FrostSwingWorker;
 import frost.util.model.*;
 
 public class SortedModelTable extends ModelTable {
@@ -62,7 +62,7 @@ public class SortedModelTable extends ModelTable {
 		
 		final int columnNumberFinal = columnNumber;
 
-		SwingWorker worker = new SwingWorker(table) {
+		FrostSwingWorker worker = new FrostSwingWorker(table) {
 
 			protected void doNonUILogic() throws RuntimeException {
 				int index = convertColumnIndexToFormat(columnNumberFinal);
