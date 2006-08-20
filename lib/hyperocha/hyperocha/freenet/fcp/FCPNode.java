@@ -20,7 +20,7 @@
  */
 package hyperocha.freenet.fcp;
 
-import hyperocha.freenet.fcp.io.DefaultIOConnectionErrorHandler;
+
 import hyperocha.freenet.fcp.io.IOConnectionErrorHandler;
 
 import java.io.IOException;
@@ -51,7 +51,7 @@ public class FCPNode {
      */
     
     public FCPNode(String serverport) {
-    	this(serverport, new DefaultIOConnectionErrorHandler());
+    	this(serverport, null);
     }
     
 	public FCPNode(String serverport, IOConnectionErrorHandler errh) {
@@ -108,7 +108,7 @@ public class FCPNode {
 	/**
 	 * @param timeout timeout for helo in millisecunds
 	 */
-	/* blödsinn
+	/* bloedsinn
 	public boolean helo(int to) {
 		@SuppressWarnings("unused") FCPConnection conn = null;
 		try {

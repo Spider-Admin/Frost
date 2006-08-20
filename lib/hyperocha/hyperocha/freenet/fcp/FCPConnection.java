@@ -36,9 +36,9 @@ public class FCPConnection {
 	public final static String MESSAGENAME = "hyperMessage-Name";
 	public final static String ENDMESSAGE = "hyper-fin";
 	
-	 private IOConnection rawConn = null;
-	 private IOConnectionErrorHandler rawErrH = null; 
-	 private String connectionID = null;
+	private IOConnection rawConn = null;
+	private IOConnectionErrorHandler rawErrH = null; 
+	private String connectionID = null;
 
 	/**
 	 * @param node
@@ -58,7 +58,7 @@ public class FCPConnection {
 		//this(node, node.timeOut, errh);
 		rawErrH = ioErrH;
 		rawConn = new IOConnection(node, rawErrH);
-		rawConn.open("iso-dings-latin-1"); // FIXME
+		rawConn.open("ISO-8859-1"); // ISO-LATIN-1 for .5
 		rawConn.write(header, 0, header.length);
 		//connectionID = nodeHello();
 	}
