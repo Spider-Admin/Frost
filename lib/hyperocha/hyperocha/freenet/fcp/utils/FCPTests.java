@@ -48,15 +48,16 @@ public class FCPTests {
 	public static FCPNode TestNodeHelo(String serverport) {
 		//System.out.print("Testing Node Helo: ");
 		
-		TestNodeErrorHandler erh = new TestNodeErrorHandler();
-		FCPNode node = new FCPNode(serverport, erh);
+		//TestNodeErrorHandler erh = new TestNodeErrorHandler();
+		FCPNode node = new FCPNode(serverport);
 		
-		if ((node == null) || (erh.err)) return null;
+		//if ((node == null) || (erh.err)) return null;
 
 		// FIXME: check errors while etablish connection
 		node.getDefaultFCPConnection();
 
 		return node;
+		//return null;
 	}
 	
 	/**

@@ -36,9 +36,9 @@ public class FCPConnection {
 	public final static String MESSAGENAME = "hyperMessage-Name";
 	public final static String ENDMESSAGE = "hyper-fin";
 	
-	 private IOConnection rawConn; // = null;
-	 private IOConnectionErrorHandler rawErrH; // = null; 
-	 private String connectionID; // = null;
+	 private IOConnection rawConn = null;
+	 private IOConnectionErrorHandler rawErrH = null; 
+	 private String connectionID = null;
 
 	/**
 	 * @param node
@@ -58,7 +58,7 @@ public class FCPConnection {
 		//this(node, node.timeOut, errh);
 		rawErrH = ioErrH;
 		rawConn = new IOConnection(node, rawErrH);
-		rawConn.open();
+		rawConn.open("iso-dings-latin-1"); // FIXME
 		rawConn.write(header, 0, header.length);
 		//connectionID = nodeHello();
 	}
@@ -70,10 +70,20 @@ public class FCPConnection {
 	 */
 	public FCPConnection(FCPNode node) {
 		//this(node, node.timeOut, errh);
-		rawErrH = new DefaultIOConnectionErrorHandler();
+		rawErrH = new IOErrorHandler();
 		rawConn = new IOConnection(node, rawErrH);
 		rawConn.open();
 		connectionID = nodeHello();
+	}
+	
+	
+	private class IOErrorHandler implements  IOConnectionErrorHandler {
+
+		public void onIOError(Exception e) {
+			// TODO Auto-generated method stub
+			
+		}
+		
 	}
 
 	public String getConnectionID() {
