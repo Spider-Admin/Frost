@@ -76,6 +76,7 @@ public class StorageManager extends Timer {
 				}
 			}
 //			FileAccess.cleanKeypool(MainFrame.keypool);
+            Frost.releaseLockFile();
 			logger.info("Bye!");
 		}
 	}
