@@ -84,7 +84,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         public void actionPerformed(ActionEvent e) {
             final Object source = e.getSource();
 
-            frost.util.gui.SwingWorker worker = new frost.util.gui.SwingWorker(this) {
+            frost.util.gui.FrostSwingWorker worker = new frost.util.gui.FrostSwingWorker(this) {
 
                 protected void doNonUILogic() throws RuntimeException {
                     if (source == refreshItem) {
