@@ -33,6 +33,9 @@ import java.util.*;
  */
 public class FCPConnection {
 	
+	public final static String MESSAGENAME = "hyperMessage-Name";
+	public final static String ENDMESSAGE = "hyper-fin";
+	
 	 private IOConnection rawConn; // = null;
 	 private IOConnectionErrorHandler rawErrH; // = null; 
 	 private String connectionID; // = null;
@@ -46,6 +49,21 @@ public class FCPConnection {
 	//	conn = new RawConnection(node, to, errh);
 	//}
 
+	/**
+	 * a special constructor for bback
+	 * @param node
+	 * @param errh
+	 */
+	public FCPConnection(FCPNode node, IOConnectionErrorHandler ioErrH, byte[] header) {
+		//this(node, node.timeOut, errh);
+		rawErrH = ioErrH;
+		rawConn = new IOConnection(node, rawErrH);
+		rawConn.open();
+		rawConn.write(header, 0, header.length);
+		//connectionID = nodeHello();
+	}
+
+	 
 	/**
 	 * @param node
 	 * @param errh
@@ -123,14 +141,18 @@ public class FCPConnection {
 		// the first line is the reason
 		//tmp = readLine();
 		tmp = rawConn.readLine();
-		result.put("hyper-result", tmp);
+		result.put( MESSAGENAME, tmp);
 		
 		while(true) {
             tmp = rawConn.readLine();
             //result.add(tmp);
             //System.out.println("ReadEndMessage out: " + tmp);
+            //if (tmp.compareTo("Data") == 0) {
+            	//TODO: callback.incommingData(result, streamtoread);
+            //    break; 
+            //}
             if (tmp.compareTo("EndMessage") == 0) {
-            	result.put("hyper-fin", tmp);
+            	result.put(ENDMESSAGE, tmp);
                 break; 
             }
             if (tmp.indexOf("=") > -1) {

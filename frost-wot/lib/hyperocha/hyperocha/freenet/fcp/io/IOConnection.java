@@ -147,7 +147,7 @@ public class IOConnection {
 	//	fcpSock.setSoTimeout(node.timeOut);
 	//}
 	
-	protected void write(byte[] b, int off, int len) {
+	public void write(byte[] b, int off, int len) {
 		fcpOut.write(b, off, len);
 	}
 	
