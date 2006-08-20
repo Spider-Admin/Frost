@@ -19,6 +19,7 @@
 package frost;
 
 import java.io.*;
+import java.nio.channels.*;
 import java.util.logging.*;
 
 import javax.swing.*;
@@ -215,6 +216,10 @@ public class Frost {
         }
         return true;
     }
+    
+    private static File runLockFile = new File(".frost_run_lock");
+    private static FileChannel lockChannel;
+    private static FileLock fileLock;
 
     /**
      * This method checks if the lockfile is present (therefore indicating that another instance
@@ -224,25 +229,51 @@ public class Frost {
      * @return boolean false if there was a problem while initializing the lockfile. True otherwise.
      */
     private boolean initializeLockFile(Language language) {
-        // check for running frost (lock file)
-        File runLock = new File(".frost_run_lock");
-        boolean fileCreated = false;
+        // write minimal content into file
+        FileAccess.writeFile("frost-lock", runLockFile);
+        runLockFile.deleteOnExit();
+        
+        // try to aquire exclusive lock
         try {
-            fileCreated = runLock.createNewFile();
-        } catch (IOException ex) {
-            ex.printStackTrace(System.out);
+            // Get a file channel for the file
+            lockChannel = new RandomAccessFile(runLockFile, "rw").getChannel();
+            fileLock = null;
+
+            // Try acquiring the lock without blocking. This method returns
+            // null or throws an exception if the file is already locked.
+            try {
+                fileLock = lockChannel.tryLock();
+            } catch (OverlappingFileLockException e) {
+                // File is already locked in this thread or virtual machine
+            }
+        } catch (Exception e) {
         }
 
-        if (fileCreated == false) {
+        if (fileLock == null) {
             MiscToolkit.getInstance().showMessage(
                 language.getString("Frost.lockFileFound") + "'" +
-                    runLock.getAbsolutePath() + "'",
+                    runLockFile.getAbsolutePath() + "'",
                 JOptionPane.ERROR_MESSAGE,
                 "ERROR: Found Frost lock file '.frost_run_lock'.");
             return false;
         }
-        runLock.deleteOnExit();
         return true;
+    }
+    
+    public static void releaseLockFile() {
+        if( fileLock != null ) {
+            try {
+                fileLock.release();
+            } catch (IOException e) {
+            }
+        }
+        if( lockChannel != null ) {
+            try {
+                lockChannel.close();
+            } catch (IOException e) {
+            }
+        }
+        runLockFile.delete();
     }
 
     public static String getCmdLineLocaleFileName() {
