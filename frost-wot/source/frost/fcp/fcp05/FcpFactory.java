@@ -165,7 +165,7 @@ public class FcpFactory {
 
         logger.info("Using node "+selectedNode.host.getHostAddress()+" port "+selectedNode.port);
         try {
-            con = new FcpConnection(selectedNode.host, selectedNode.port);
+            con = new FcpConnection(selectedNode);
         } catch (IOException e) {
             // for now, remove on the first failure.
             // FIXME: maybe we should give the node few chances?

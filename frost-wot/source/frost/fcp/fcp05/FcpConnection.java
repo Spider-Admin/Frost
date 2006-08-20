@@ -43,8 +43,8 @@ public class FcpConnection
     // We now use with 60 minutes to be sure. mxbee (fuqid developer) told that he would maybe use 90 minutes!
     private final static int TIMEOUT = 60 * 60 * 1000;
 
-    private InetAddress host;
-    private int port;
+    private NodeAddress nodeAddress;
+    
     private Socket fcpSock;
     private BufferedInputStream fcpIn;
     private PrintStream fcpOut;
@@ -60,9 +60,8 @@ public class FcpConnection
      * @exception IOException if there is a problem with the connection
      * to the FCP host.
      */
-    public FcpConnection(InetAddress host, int port) throws UnknownHostException, IOException {
-        this.host = host;
-        this.port = port;
+    public FcpConnection(NodeAddress na) throws UnknownHostException, IOException {
+        nodeAddress = na;
 
         doHandshake();
     }
@@ -79,7 +78,7 @@ public class FcpConnection
     public List getNodeInfo() throws IOException {
         ArrayList result = new ArrayList();
 
-        fcpSock = new Socket(host, port);
+        fcpSock = new Socket(nodeAddress.host, nodeAddress.port);
         fcpSock.setSoTimeout(TIMEOUT);
         fcpOut = new PrintStream(fcpSock.getOutputStream());
         BufferedReader in = new BufferedReader(new InputStreamReader(fcpSock.getInputStream()));
@@ -130,7 +129,7 @@ public class FcpConnection
 
         OutputStream fileOut = bucket.getOutputStream();
 
-        fcpSock = new Socket(host, port);
+        fcpSock = new Socket(nodeAddress.host, nodeAddress.port);
         fcpSock.setSoTimeout(TIMEOUT);
         fcpIn = new BufferedInputStream(fcpSock.getInputStream());
         fcpOut = new PrintStream(fcpSock.getOutputStream());
@@ -323,7 +322,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 
         FileOutputStream fileOut = new FileOutputStream(filename);
 
-        fcpSock = new Socket(host, port);
+        fcpSock = new Socket(nodeAddress.host, nodeAddress.port);
         fcpSock.setSoTimeout(TIMEOUT);
         fcpIn = new BufferedInputStream(fcpSock.getInputStream());
         fcpOut = new PrintStream(fcpSock.getOutputStream());
@@ -515,7 +514,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
     public String putKeyFromArray(String key, byte[] data, byte[] metadata, int htl, boolean removeLocalKey)
         throws IOException {
 
-        fcpSock = new Socket(host, port);
+        fcpSock = new Socket(nodeAddress.host, nodeAddress.port);
         fcpSock.setSoTimeout(TIMEOUT);
         fcpOut = new PrintStream(fcpSock.getOutputStream());
         DataOutputStream dOut = new DataOutputStream(fcpSock.getOutputStream());
@@ -585,7 +584,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
      */
     public void doHandshake() throws IOException, ConnectException
     {
-        fcpSock = new Socket(host, port);
+        fcpSock = new Socket(nodeAddress.host, nodeAddress.port);
         fcpIn = new BufferedInputStream(fcpSock.getInputStream());
         fcpOut = new PrintStream(fcpSock.getOutputStream());
         fcpSock.setSoTimeout(TIMEOUT);
@@ -619,7 +618,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
      */
     public String[] getKeyPair() throws IOException {
 
-        fcpSock = new Socket(host, port);
+        fcpSock = new Socket(nodeAddress.host, nodeAddress.port);
         fcpSock.setSoTimeout(TIMEOUT);
         fcpOut = new PrintStream(fcpSock.getOutputStream());
         fcpIn = new BufferedInputStream(fcpSock.getInputStream());
