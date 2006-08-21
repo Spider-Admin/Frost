@@ -56,7 +56,7 @@ public class FcpConnection
 
     //private static long staticFcpConnectionId = 0;
     
-    private static synchronized long getNextId() {
+    private static /*synchronized*/ long getNextId() {
         //return staticFcpConnectionId++;
     	return System.currentTimeMillis();
     }
@@ -350,7 +350,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
                 }
             } else { // handle data bytes
             	
-            	System.out.println(" -->> try read data");
+            	//System.out.println(" -->> try read data");
 
             	dataChunkLength = (int) totalDataLength;
                 logger.fine("Expecting " + dataChunkLength + " bytes, " + totalDataLength + " total.");
@@ -432,12 +432,14 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 		fcpOut.println("Identifier=put-" + fcpConnectionId );
 		fcpOut.println("Verbosity=1");
 		fcpOut.println("MaxRetries=3");
+		fcpOut.println("DontCompress=false"); // force compression
 		if(getchkonly){
 			fcpOut.println("GetCHKOnly=true");
 		} else {
             if( type == FcpHandler.TYPE_FILE ) {
-            	fcpOut.println("DontCompress=true");
-                fcpOut.println("PriorityClass=3");
+            	// TODO: 3? 4? maybee an user option?
+            	// or done by the balancer (atomagically)
+                fcpOut.println("PriorityClass=3");  
             } else if( type == FcpHandler.TYPE_MESSAGE ) {
                 fcpOut.println("PriorityClass=2");
             }
@@ -452,7 +454,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 	        fcpOut.println("UploadFrom=disk");
 	        fcpOut.println("Filename=" + sourceFile.getAbsolutePath());
 	        fcpOut.println("EndMessage");
-	        System.out.println("FileName -> " + sourceFile.getAbsolutePath());
+	        //System.out.println("FileName -> " + sourceFile.getAbsolutePath());
 			
 		} else {    // send data
 			
