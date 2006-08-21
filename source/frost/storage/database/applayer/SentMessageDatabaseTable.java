@@ -23,6 +23,8 @@ package frost.storage.database.applayer;
  */
 public class SentMessageDatabaseTable extends MessageDatabaseTable {
 
+    // FIXME: if msg with this msgid was found in msgstable, then remove msgs from here and set a pointer to it (or add a flag)
+    
     protected String getMessageTableName() {
         return "SENTMESSAGES";
     }
@@ -58,5 +60,8 @@ public class SentMessageDatabaseTable extends MessageDatabaseTable {
     }
     protected String getBoardConstraint() {
         return "";
+    }
+    protected String getDateIndexName() {
+        return "MSG_IX_DATE";
     }
 }
