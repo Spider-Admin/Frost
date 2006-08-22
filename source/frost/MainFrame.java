@@ -702,14 +702,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         return extendableStatusPanel;
     }
 
-    private JPanel buildTofMainPanel() {
-        // add a tab for buddies perhaps?
-        getTabbedPane().insertTab("MainFrame.tabbedPane.news", null, getMessagePanel(), null, 0);
-        getTabbedPane().setSelectedIndex(0);
+    private JTabbedPane buildMainPanel() {
 
         JScrollPane tofTreeScrollPane = new JScrollPane(tofTree);
         tofTreeScrollPane.setWheelScrollingEnabled(true);
-        // tofTree selection listener
+
         tofTree.addTreeSelectionListener(new TreeSelectionListener() {
             public void valueChanged(TreeSelectionEvent e) {
                 tofTree_actionPerformed(e);
@@ -717,7 +714,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         });
 
         // Vertical Board Tree / MessagePane Divider
-        treeAndTabbedPaneSplitpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tofTreeScrollPane, getTabbedPane());
+        treeAndTabbedPaneSplitpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tofTreeScrollPane, getMessagePanel());
         
         int dividerLoc = frostSettings.getIntValue("MainFrame.treeAndTabbedPaneSplitpaneDividerLocation");
         if( dividerLoc < 10 ) {
@@ -725,9 +722,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         }
         treeAndTabbedPaneSplitpane.setDividerLocation(dividerLoc);
 
-        JPanel tofMainPanel = new JPanel(new BorderLayout());
-        tofMainPanel.add(treeAndTabbedPaneSplitpane, BorderLayout.CENTER); // TOF/Text
-        return tofMainPanel;
+        getTabbedPane().insertTab("MainFrame.tabbedPane.news", null, treeAndTabbedPaneSplitpane, null, 0);
+        getTabbedPane().setSelectedIndex(0);
+
+        return getTabbedPane();
     }
 
     /**
@@ -823,7 +821,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         contentPanel.setLayout(new BorderLayout());
 
         contentPanel.add(getButtonToolBar(), BorderLayout.NORTH);
-        contentPanel.add(buildTofMainPanel(), BorderLayout.CENTER);
+        contentPanel.add(buildMainPanel(), BorderLayout.CENTER);
         contentPanel.add(buildStatusBar(), BorderLayout.SOUTH);
         setJMenuBar(getMainMenuBar());
 
