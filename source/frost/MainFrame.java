@@ -49,6 +49,7 @@ import frost.util.gui.treetable.*;
 public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater, LanguageListener {
     
     // FIXME: cut/paste board wird nie aktiv, tut aber im popup menu!
+    // FIXME: after start the last selected board is not selected!
     
     /**
      * This listener changes the 'updating' state of a board if a thread starts/finishes.
@@ -63,6 +64,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     private HelpBrowserFrame helpBrowser = null;
     private SearchMessagesDialog searchMessagesDialog = null;
     private MemoryMonitor memoryMonitor = null;
+    
+    ImageIcon progressIconRunning = null;
+    ImageIcon progressIconIdle = null;
+    JLabel progressIconButton = null;
 
     /**
      * Search through .req files of this day in all boards and remove the
@@ -231,7 +236,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     private JButton systemTrayButton = null;
 
     private JTranslatableTabbedPane tabbedPane;
-    private JLabel timeLabel = null;
+    private JLabel timeLabel = new JLabel("");
 
     private JCheckBoxMenuItem tofAutomaticUpdateMenuItem = new JCheckBoxMenuItem();
 
@@ -435,7 +440,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         if (buttonToolBar == null) {
             buttonToolBar = new JToolBar();
 
-            timeLabel = new JLabel("");
             // configure buttons
             knownBoardsButton = new JButton(new ImageIcon(getClass().getResource("/data/knownboards.gif")));
             searchMessagesButton = new JButton(new ImageIcon(getClass().getResource("/data/searchmessages.gif")));
@@ -445,6 +449,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             renameFolderButton = new JButton(new ImageIcon(getClass().getResource("/data/rename.gif")));
             boardInfoButton = new JButton(new ImageIcon(getClass().getResource("/data/info.gif")));
             systemTrayButton = new JButton(new ImageIcon(getClass().getResource("/data/tray.gif")));
+
+            // FIXME!!!
+            progressIconRunning = new ImageIcon(getClass().getResource("/data/progress_running.gif"));
+            progressIconIdle = new ImageIcon(getClass().getResource("/data/progress_idle.gif"));
+            progressIconButton = new JLabel(progressIconIdle);
 
             MiscToolkit toolkit = MiscToolkit.getInstance();
             toolkit.configureButton(newBoardButton, "MainFrame.toolbar.tooltip.newBoard", "/data/newboard_rollover.gif", language);
@@ -535,10 +544,18 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 buttonToolBar.add(systemTrayButton);
             }
             buttonToolBar.add(Box.createHorizontalGlue());
-            buttonToolBar.add(timeLabel);
+            buttonToolBar.add(progressIconButton);
             buttonToolBar.add(Box.createRigidArea(blankSpace));
         }
         return buttonToolBar;
+    }
+    
+    public void showProgress() {
+        progressIconButton.setIcon(progressIconRunning);
+    }
+
+    public void hideProgress() {
+        progressIconButton.setIcon(progressIconIdle);
     }
 
     /**
@@ -657,7 +674,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             menuBar.add(pluginMenu);
             menuBar.add(languageMenu);
             menuBar.add(helpMenu);
-
+            
+            menuBar.add(Box.createHorizontalGlue());
+            menuBar.add(timeLabel);
+            menuBar.add(Box.createRigidArea(new Dimension(3,3)));
+            
             translateMainMenu();
 
             language.addLanguageListener(this);
@@ -675,36 +696,18 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
         statusLabel = new JLabel();
         statusMessageLabel = new JLabel();
-        
-        progressIcon = new ImageIcon(MainFrame.class.getResource("/data/animatedprogress.gif"));
-        progressLabel = new JLabel(" ");
 
         newMessage[0] = new ImageIcon(MainFrame.class.getResource("/data/messagebright.gif"));
         newMessage[1] = new ImageIcon(MainFrame.class.getResource("/data/messagedark.gif"));
         statusMessageLabel.setIcon(newMessage[1]);
-        
+
         panel.add(getExtendableStatusPanel(), BorderLayout.WEST);
         panel.add(statusLabel, BorderLayout.CENTER); // Statusbar
-        JPanel p = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 2));
-        p.setAlignmentY(JComponent.CENTER_ALIGNMENT);
-        p.add(progressLabel);
-        p.add(statusMessageLabel);
-        panel.add(p, BorderLayout.EAST);
+        panel.add(statusMessageLabel, BorderLayout.EAST);
 
         return panel;
     }
     
-    ImageIcon progressIcon = null;
-    JLabel progressLabel = null;
-    
-    public void showProgress() {
-        progressLabel.setIcon(progressIcon);
-    }
-
-    public void hideProgress() {
-        progressLabel.setIcon(null);
-    }
-
     /**
      * This method returns the extendable part of the status bar.
      * @return
