@@ -675,16 +675,34 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
         statusLabel = new JLabel();
         statusMessageLabel = new JLabel();
+        
+        progressIcon = new ImageIcon(MainFrame.class.getResource("/data/animatedprogress.gif"));
+        progressLabel = new JLabel(" ");
 
         newMessage[0] = new ImageIcon(MainFrame.class.getResource("/data/messagebright.gif"));
         newMessage[1] = new ImageIcon(MainFrame.class.getResource("/data/messagedark.gif"));
         statusMessageLabel.setIcon(newMessage[1]);
-
+        
         panel.add(getExtendableStatusPanel(), BorderLayout.WEST);
         panel.add(statusLabel, BorderLayout.CENTER); // Statusbar
-        panel.add(statusMessageLabel, BorderLayout.EAST);
+        JPanel p = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 2));
+        p.setAlignmentY(JComponent.CENTER_ALIGNMENT);
+        p.add(progressLabel);
+        p.add(statusMessageLabel);
+        panel.add(p, BorderLayout.EAST);
 
         return panel;
+    }
+    
+    ImageIcon progressIcon = null;
+    JLabel progressLabel = null;
+    
+    public void showProgress() {
+        progressLabel.setIcon(progressIcon);
+    }
+
+    public void hideProgress() {
+        progressLabel.setIcon(null);
     }
 
     /**
@@ -693,7 +711,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
      */
     private JPanel getExtendableStatusPanel() {
         if (extendableStatusPanel == null) {
-            extendableStatusPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+            extendableStatusPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 2));
+            extendableStatusPanel.setAlignmentY(JComponent.CENTER_ALIGNMENT);
         }
         return extendableStatusPanel;
     }

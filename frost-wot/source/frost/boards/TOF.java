@@ -357,6 +357,8 @@ public class TOF {
     }
 
     private void activateGlassPane() {
+        MainFrame.getInstance().showProgress();
+        
         // Mount the glasspane on the component window
         GlassPane aPane = GlassPane.mount(MainFrame.getInstance(), true);
 
@@ -374,6 +376,7 @@ public class TOF {
             glassPane.setVisible(false);
             glassPane = null;
         }
+        MainFrame.getInstance().hideProgress();
     }
 
     private class UpdateTofFilesThread extends Thread {
@@ -584,8 +587,6 @@ public class TOF {
             try { setPriority(getPriority() - 1); }
             catch(Throwable t) { }
 
-            // FIXME: add a progressmonitor that appears after 500ms! with cancel, on cancel select rootnode
-            
             final FrostMessageObject rootNode = new FrostMessageObject(true);
 
             boolean loadThreads = Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS);
