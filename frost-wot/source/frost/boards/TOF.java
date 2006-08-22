@@ -430,6 +430,7 @@ public class TOF {
             }
             public boolean messageRetrieved(FrostMessageObject mo) {
                 messageList.add(mo);
+                Mixed.wait(20);
                 return isCancel();
             }
             public void buildThreads() {
