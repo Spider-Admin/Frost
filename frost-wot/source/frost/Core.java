@@ -419,7 +419,7 @@ public class Core implements FrostEventDispatcher  {
 
         // toftree must be loaded before expiration can run!
         // (cleanup gets the expiration mode from settings itself)
-        CleanUp.processExpiredFiles(MainFrame.getInstance().getTofTreeModel().getAllBoards());
+//        CleanUp.processExpiredFiles(MainFrame.getInstance().getTofTreeModel().getAllBoards());
 
         initializeTasks(mainFrame);
 

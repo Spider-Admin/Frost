@@ -46,10 +46,6 @@ import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.gui.treetable.*;
 
- /**
-  * TODO: - after removing a board, let current board selected (currently if you
-  *          delete another than selected board the tofTree is updated)
-  */
 public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater, LanguageListener {
     
     // FIXME: cut/paste board wird nie aktiv, tut aber im popup menu!
@@ -442,7 +438,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             timeLabel = new JLabel("");
             // configure buttons
             knownBoardsButton = new JButton(new ImageIcon(getClass().getResource("/data/knownboards.gif")));
-            searchMessagesButton = new JButton(new ImageIcon(getClass().getResource("/data/search.gif")));
+            searchMessagesButton = new JButton(new ImageIcon(getClass().getResource("/data/searchmessages.gif")));
             newBoardButton = new JButton(new ImageIcon(getClass().getResource("/data/newboard.gif")));
             newFolderButton = new JButton(new ImageIcon(getClass().getResource("/data/newfolder.gif")));
             removeBoardButton = new JButton(new ImageIcon(getClass().getResource("/data/remove.gif")));
@@ -458,7 +454,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             toolkit.configureButton(boardInfoButton, "MainFrame.toolbar.tooltip.boardInformationWindow", "/data/info_rollover.gif", language);
             toolkit.configureButton(systemTrayButton, "MainFrame.toolbar.tooltip.minimizeToSystemTray", "/data/tray_rollover.gif", language);
             toolkit.configureButton(knownBoardsButton, "MainFrame.toolbar.tooltip.displayListOfKnownBoards", "/data/knownboards_rollover.gif", language);
-            toolkit.configureButton(searchMessagesButton, "MainFrame.toolbar.tooltip.searchMessages", "/data/search_rollover.gif", language);
+            toolkit.configureButton(searchMessagesButton, "MainFrame.toolbar.tooltip.searchMessages", "/data/searchmessages_rollover.gif", language);
 
             // add action listener
             knownBoardsButton.addActionListener(new java.awt.event.ActionListener() {
@@ -555,7 +551,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             tofDisplayBoardInfoMenuItem.setIcon(miscToolkit.getScaledImage("/data/info.gif", 16, 16));
             tofAutomaticUpdateMenuItem.setSelected(true);
             tofDisplayKnownBoards.setIcon(miscToolkit.getScaledImage("/data/knownboards.gif", 16, 16));
-            tofSearchMessages.setIcon(miscToolkit.getScaledImage("/data/search.gif", 16, 16));
+            tofSearchMessages.setIcon(miscToolkit.getScaledImage("/data/searchmessages.gif", 16, 16));
 
             // add action listener
             fileExitMenuItem.addActionListener(new ActionListener() {
@@ -825,10 +821,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         contentPanel.add(buildStatusBar(), BorderLayout.SOUTH);
         setJMenuBar(getMainMenuBar());
 
-        // step through all messages on disk up to maxMessageDisplay and check
-        // if there are new messages
-        // if a new message is in a folder, this folder is show yellow in tree
-        TOF.getInstance().initialSearchAllNewMessages();
+        // step through all messages on disk up to maxMessageDisplay and check if there are new messages
+        TOF.getInstance().searchAllNewMessages(false);
 
         if (core.isFreenetOnline()) {
             tofAutomaticUpdateMenuItem.setSelected(frostSettings.getBoolValue("automaticUpdate"));
@@ -895,7 +889,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             public void run() {
                 while (true) {
                     Mixed.wait(1000);
-                    //TODO: refactor this method in Core. lots of work :)
+                    // refactor this method in Core. lots of work :)
                     timer_actionPerformed();
                 }
             }
@@ -929,7 +923,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             // check if signed only+hideCheck+hideBad or blocking words settings changed
             if (optionsDlg.shouldReloadMessages()) {
                 // update the new msg. count for all boards
-                TOF.getInstance().initialSearchAllNewMessages();
+                TOF.getInstance().searchAllNewMessages(true);
                 // reload all messages
                 tofTree_actionPerformed(null);
             }
@@ -966,7 +960,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         do {
             newname = JOptionPane.showInputDialog(
                     this,
-                    "Please enter the new name:\n",  // TODO: translate
+                    language.getString("MainFrame.dialog.renameFolder")+":\n",
                     selected.getName());
             if (newname == null) {
                 return; // cancel

@@ -784,7 +784,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
                     Board newBoard = new Board(boardName, boardDescription);
                     model.addNodeToTree(newBoard);
                     // maybe this boardfolder already exists, scan for new messages
-                    TOF.getInstance().initialSearchNewMessages(newBoard);
+                    TOF.getInstance().searchNewMessages(newBoard);
                     isDone = true; //added
                 }
             }
@@ -814,7 +814,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         Board newBoard = new Board(bname, bpubkey, bprivkey, description);
         model.addNodeToTree(newBoard);
         // maybe this boardfolder already exists, scan for new messages
-        TOF.getInstance().initialSearchNewMessages(newBoard);
+        TOF.getInstance().searchNewMessages(newBoard);
     }
 
     /**

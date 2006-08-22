@@ -59,9 +59,9 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
     protected String getFromnameIndexName() {
         return "MSG_IX_FROM";
     }
-    protected String getDateIndexName() {
-        return "MSG_IX_DATE";
-    }
+//    protected String getDateIndexName() {
+//        return "MSG_IX_DATE";
+//    }
     protected String getPrimKeyConstraintName() {
         return "msgs_pk";
     }
@@ -115,8 +115,8 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
     // this index speeds up the COUNT BY IDENTITY alot
     private final String SQL_DDL_MESSAGES_INDEX_FROM =
         "CREATE INDEX "+getFromnameIndexName()+" ON "+getMessageTableName()+" ( fromname )";
-    private final String SQL_DDL_MESSAGES_INDEX_DATE =
-        "CREATE INDEX "+getDateIndexName()+" ON "+getMessageTableName()+" ( msgdate )";
+//    private final String SQL_DDL_MESSAGES_INDEX_DATE =
+//        "CREATE INDEX "+getDateIndexName()+" ON "+getMessageTableName()+" ( msgdate )";
 
     private final String SQL_DDL_FILEATTACHMENTS =
         "CREATE TABLE "+getFileAttachmentsTableName()+" ("+
@@ -144,7 +144,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         lst.add(SQL_DDL_MESSAGES_INDEX_MSGID);
         lst.add(SQL_DDL_MESSAGES_INDEX_BOARD);
         lst.add(SQL_DDL_MESSAGES_INDEX_FROM);
-        lst.add(SQL_DDL_MESSAGES_INDEX_DATE);
+//        lst.add(SQL_DDL_MESSAGES_INDEX_DATE);
         return lst;
     }
     
