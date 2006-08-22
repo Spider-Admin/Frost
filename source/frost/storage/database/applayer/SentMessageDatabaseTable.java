@@ -61,7 +61,7 @@ public class SentMessageDatabaseTable extends MessageDatabaseTable {
     protected String getBoardConstraint() {
         return "";
     }
-    protected String getDateIndexName() {
-        return "MSG_IX_DATE";
-    }
+//    protected String getDateIndexName() {
+//        return "MSG_IX_DATE";
+//    }
 }

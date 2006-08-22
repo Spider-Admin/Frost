@@ -37,6 +37,8 @@ import frost.util.gui.*;
  * @version $Revision$
  */
 public class TOF {
+    
+    // FIXME: wenn neue ankommt und gerade geupdated wird, dann enqueue und nach abarbeiten processe die neuen (alles im swing thread!)
 
     private static Logger logger = Logger.getLogger(TOF.class.getName());
 
@@ -582,6 +584,8 @@ public class TOF {
             try { setPriority(getPriority() - 1); }
             catch(Throwable t) { }
 
+            // FIXME: add a progressmonitor that appears after 500ms! with cancel, on cancel select rootnode
+            
             final FrostMessageObject rootNode = new FrostMessageObject(true);
 
             boolean loadThreads = Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS);
@@ -592,7 +596,8 @@ public class TOF {
                 long l2 = System.currentTimeMillis();
                 tmr.buildThreads();
                 long l3 = System.currentTimeMillis();
-                System.out.println("loading board "+board.getName()+": load="+(l2-l1)+", build+subretrieve="+(l3-l2)); // FIXME: debug output only!
+                // FIXME: debug output only!
+                System.out.println("loading board "+board.getName()+": load="+(l2-l1)+", build+subretrieve="+(l3-l2)); 
             } else {
                 // load flat
                 FlatMessageRetrieval ffr = new FlatMessageRetrieval(rootNode);
@@ -736,35 +741,35 @@ public class TOF {
         }
     }
 
-    public void initialSearchAllNewMessages() {
-        new SearchAllNewMessages().start();
+    public void searchAllNewMessages(boolean runWithinThread) {
+        if( runWithinThread ) {
+            new Thread() {
+                public void run() {
+                    searchAllNewMessages();
+                }
+            }.start();
+        } else {
+            searchAllNewMessages();
+        }
     }
 
-    private class SearchAllNewMessages extends Thread {
-        public void run() {
-            Enumeration e = ((DefaultMutableTreeNode) tofTreeModel.getRoot()).depthFirstEnumeration();
-            while( e.hasMoreElements() ) {
-                Board board = (Board)e.nextElement();
-                searchNewMessages(board);
+    public void searchNewMessages(final Board board) {
+        new Thread() {
+            public void run() {
+                searchNewMessagesInBoard(board);
             }
-        }
+        }.start();
     }
 
-    public void initialSearchNewMessages(Board board) {
-        new SearchNewMessages( board ).start();
-    }
-
-    private class SearchNewMessages extends Thread {
-        private Board board;
-        public SearchNewMessages(Board b) {
-            board = b;
-        }
-        public void run() {
-            searchNewMessages(board);
+    private void searchAllNewMessages() {
+        Enumeration e = ((DefaultMutableTreeNode) tofTreeModel.getRoot()).depthFirstEnumeration();
+        while( e.hasMoreElements() ) {
+            Board board = (Board)e.nextElement();
+            searchNewMessagesInBoard(board);
         }
     }
-
-    private void searchNewMessages(final Board board) {
+    
+    private void searchNewMessagesInBoard(final Board board) {
         if( board.isFolder() == true ) {
             return;
         }
