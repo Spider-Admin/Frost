@@ -21,7 +21,6 @@ package frost;
 import java.util.*;
 import java.util.logging.Logger;
 
-
 public class DateFun {
 
     private static Logger logger = Logger.getLogger(DateFun.class.getName());
@@ -42,7 +41,7 @@ public class DateFun {
      */
     public static java.sql.Date getCurrentSqlDateGMT() {
         Calendar cal = Calendar.getInstance();
-        return new java.sql.Date( cal.getTimeInMillis() - getGMTOffset() );
+        return getSqlDateOfCalendar(cal);
     }
 
     /**
@@ -51,7 +50,7 @@ public class DateFun {
     public static java.sql.Date getSqlDateGMTDaysAgo(int daysAgo) {
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DATE,-daysAgo);
-        return new java.sql.Date( cal.getTimeInMillis() - getGMTOffset() );
+        return getSqlDateOfCalendar(cal);
     }
 
     /**
@@ -59,6 +58,9 @@ public class DateFun {
      */
     public static java.sql.Time getCurrentSqlTimeGMT() {
         Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.YEAR, 1970);
+        cal.set(Calendar.MONTH, 0);
+        cal.set(Calendar.DATE, 1);
         return new java.sql.Time( cal.getTimeInMillis() - getGMTOffset() );
     }
     
@@ -70,13 +72,64 @@ public class DateFun {
         int month = cal.get(Calendar.MONTH);
         int day = cal.get(Calendar.DATE);
         Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        c.clear();
         c.set(year, month, day, 0, 0, 0);
         return new java.sql.Date( c.getTime().getTime() );
     }
     
     public static void main(String[] args) {
-        Calendar c = Calendar.getInstance();
-        System.out.println("d="+getSqlDateOfCalendar(c));
+        
+        System.out.println("->"+getCurrentSqlTimeGMT());
+        System.out.println(getExtendedTimeFromSqlTime(getCurrentSqlTimeGMT()));
+        System.out.println(getVisibleExtendedDate());
+        System.out.println(getExtendedTime());
+        
+        System.out.println("->"+getCurrentSqlDateGMT());
+        System.out.println(getExtendedDateFromSqlDate(getCurrentSqlDateGMT()));
+        
+        System.out.println(getSqlTimeFromString("08:52:11GMT"));
+        
+        System.out.println(getDate());
+        
+        Calendar c = getCalendarFromDateAndTime("2006.08.21 12:12:12GMT");
+        System.out.println(getSqlDateOfCalendar(c));
+        
+        System.out.println(getFullExtendedTime());
+        
+//        System.out.println("-->"+getCurrentSqlDateGMT());
+        
+//        long v = System.currentTimeMillis() / MILLIS_PER_DAY;
+//        System.out.println("res="+v);
+//        java.sql.Date dd = new java.sql.Date(v * MILLIS_PER_DAY);
+//        System.out.println("dd="+dd);
+//        
+//        
+//        java.sql.Date dd2 = new java.sql.Date(2006-1900,8-1,23);
+//        long v2 = dd2.getTime()/MILLIS_PER_DAY;
+//        System.out.println("dd2="+dd2+", "+v2);
+//        java.sql.Date dd3 = new java.sql.Date(v2 * MILLIS_PER_DAY);
+//        System.out.println("dd3="+dd3);
+//        long v3 = dd3.getTime() / MILLIS_PER_DAY;
+//        System.out.println("v3="+v3);
+//        dd3 = new java.sql.Date(v3 * MILLIS_PER_DAY);
+//        System.out.println("dd3="+dd3);
+//
+//        java.sql.Date dd4 = java.sql.Date.valueOf("2006-08-23");
+//        System.out.println("dd4="+dd4);
+//        System.out.println(" = "+dd4.getTime()/MILLIS_PER_DAY);
+//        
+//        long v4 = Date.UTC(2006-1900, 8-1, 23, 0, 0, 0);
+//        System.out.println("ddd="+v4/MILLIS_PER_DAY);
+//        
+//        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+//        c.clear();
+//        c.set(2006, 8-1, 23, 0, 0, 0);
+//        long v5 = c.getTime().getTime();
+//        System.out.println("ddd="+v5);
+//        System.out.println("ddd="+v5/MILLIS_PER_DAY);
+//        
+//        dd4 = new java.sql.Date(v5);
+//        System.out.println("dd4="+dd4);
     }
 
     /**
@@ -104,13 +157,14 @@ public class DateFun {
             logger.warning("Time is invalid");
             return null;
         }
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        Calendar cal = Calendar.getInstance();
+        cal.clear();
         cal.set(1970, 0, 1, ihours, iminutes, iseconds);
         return new java.sql.Time(cal.getTime().getTime());
     }
     
     public static String getExtendedTimeFromSqlTime(java.sql.Time time) {
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(time.getTime());
         int hour = cal.get(Calendar.HOUR_OF_DAY);
         int minute = cal.get(Calendar.MINUTE);
@@ -131,26 +185,12 @@ public class DateFun {
 
     public static String getExtendedDateFromSqlDate(java.sql.Date date) {
         Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(date.getTime() + getGMTOffset() );
+        cal.setTimeInMillis(date.getTime());
         return getExtendedDateOfCalendar(cal);
 //        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
 //        cal.setTimeInMillis(date.getTime());
 //        return getExtendedDateOfCalendar(cal);
     }
-
-//    public static void main(String[] args) {
-//        java.sql.Time t = getCurrentSqlTimeGMT();
-//        System.out.println("t1="+t.toString());
-//        System.out.println("t11="+t.getTime());
-//        
-//        System.out.println("t2="+getExtendedTimeFromSqlTime(t));
-//        System.out.println(System.currentTimeMillis());
-//        
-//        t=getSqlTimeFromString("12:12:12GMT");
-//        System.out.println("t1="+t.toString());
-//        System.out.println("t2="+getExtendedTimeFromSqlTime(t));
-//        System.out.println("t11="+t.getTime());
-//    }
 
     /**
      * Returns date

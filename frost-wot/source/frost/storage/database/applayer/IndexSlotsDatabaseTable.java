@@ -45,6 +45,7 @@ public class IndexSlotsDatabaseTable {
         " wasdownloaded BOOLEAN, wasuploaded BOOLEAN, locked BOOLEAN,"+
         " CONSTRAINT board_ref FOREIGN KEY (boardname) REFERENCES BOARDS (primkey) ON DELETE CASCADE,"+
         " CONSTRAINT UNIQUE_INDICES_ONLY UNIQUE(indexname,boardname,msgdate,msgindex) )";
+    
     private static final String SQL_INSERT =
         "INSERT INTO INDEXSLOTS (indexname,boardname,msgdate,msgindex,wasdownloaded,wasuploaded,locked) VALUES (?,?,?,?,?,?,?)";
 
@@ -53,6 +54,7 @@ public class IndexSlotsDatabaseTable {
     private static final String SQL_UPDATE_LOCKED =
         "UPDATE INDEXSLOTS SET locked=? WHERE indexname=? AND boardname=? AND msgdate=? AND msgindex=?";
     
+    // find highest used msgindex
     private static final String SQL_NEXT_MAX_USED_SLOT = // TOP 1
         "SELECT msgindex FROM INDEXSLOTS WHERE indexname=? AND boardname=? AND msgdate=? AND msgindex>? "+
         "AND ( wasdownloaded=TRUE OR wasuploaded=TRUE OR locked=TRUE ) ORDER BY msgindex DESC";
@@ -63,7 +65,7 @@ public class IndexSlotsDatabaseTable {
     // downloading
     private static final String SQL_NEXT_DOWNLOAD_SLOT = // TOP 1
         "SELECT msgindex FROM INDEXSLOTS WHERE indexname=? AND boardname=? AND msgdate=? AND msgindex>? "+
-        "AND wasdownloaded=FALSE AND locked=FALSE ORDER BY msgindex";
+        "AND wasdownloaded=FALSE AND locked=FALSE ORDER BY msgindex ASC";
     private static final String SQL_UPDATE_WASDOWNLOADED =
         "UPDATE INDEXSLOTS SET wasdownloaded=TRUE WHERE indexname=? AND boardname=? AND msgdate=? AND msgindex=?";
     
@@ -74,12 +76,28 @@ public class IndexSlotsDatabaseTable {
     private PreparedStatement ps_MAX_SLOT = null;
     private PreparedStatement ps_NEXT_UNUSED_SLOT = null;
     private PreparedStatement ps_UPDATE_WASDOWNLOADED = null;
+    
+//    private static boolean dumped=false;
 
     public IndexSlotsDatabaseTable(int indexName, Board board) {
+        
         this.boardIx = board.getPrimaryKey().intValue(); 
         this.indexName = indexName;
-        
+
         db = AppLayerDatabase.getInstance();
+
+//        if(!dumped) {
+//        try {
+//        System.out.println("--------------DUMP START, "+indexName+","+boardIx+"--------------------");
+//        Statement s = db.createStatement();
+//        dump(s.executeQuery("SELECT * FROM INDEXSLOTS"));
+//        System.out.println("---------------------------------------------------------------");
+//        }
+//        catch(SQLException e) {
+//            e.printStackTrace();
+//        }
+//        dumped=true;
+//        }
     }
     
     public static List getTableDDL() {
@@ -334,6 +352,14 @@ public class IndexSlotsDatabaseTable {
         ps.setDate(3, date);
         ps.setInt(4, beforeIndex);
         
+//        System.out.println("date="+date+" / "+date.getTime()+", index="+indexName+", board="+boardIx+", beforeIndex="+beforeIndex);
+//        PreparedStatement ps2 = db.prepare("select * from INDEXSLOTS where indexname=? AND boardname=? AND msgdate=?");
+//        ps2.setInt(1, indexName);
+//        ps2.setInt(2, boardIx);
+//        ps2.setDate(1, date);
+//        ResultSet rs2 = ps2.executeQuery();
+//        dump(rs2);
+        
         ResultSet rs = ps.executeQuery();
         return rs;
     }
@@ -360,4 +386,37 @@ public class IndexSlotsDatabaseTable {
         ResultSet rs = ps.executeQuery();
         return rs;
     }
+    
+//    public static void dump(ResultSet rs) throws SQLException {
+//
+//        // the order of the rows in a cursor
+//        // are implementation dependent unless you use the SQL ORDER statement
+//        ResultSetMetaData meta   = rs.getMetaData();
+//        int               colmax = meta.getColumnCount();
+//        int               i;
+//        Object            o = null;
+//
+//        // the result set is a cursor into the data.  You can only
+//        // point to one row at a time
+//        // assume we are pointing to BEFORE the first row
+//        // rs.next() points to next row and returns true
+//        // or false if there is no next row, which breaks the loop
+//        for (; rs.next(); ) {
+//            for (i = 0; i < colmax; ++i) {
+//                o = rs.getObject(i + 1);    // Is SQL the first column is indexed
+//
+//                // with 1 not 0
+//                if( o==null ) {
+//                    System.out.print("NULL ");
+//                } else {
+//                    System.out.print(o.toString() + " ");
+//                    if( o instanceof java.sql.Date ) {
+//                        System.out.print("date="+((java.sql.Date)o).getTime());
+//                    }
+//                }
+//            }
+//
+//            System.out.println(" ");
+//        }
+//    }                                       //void dump( ResultSet rs )
 }

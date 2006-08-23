@@ -149,7 +149,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
 
         String dirdate = DateFun.getDateOfCalendar(calDL);
         java.sql.Date date = DateFun.getSqlDateOfCalendar(calDL);
-
+        
         int index = -1;
         int failures = 0;
         int maxFailures = 2; // skip a maximum of 2 empty slots
