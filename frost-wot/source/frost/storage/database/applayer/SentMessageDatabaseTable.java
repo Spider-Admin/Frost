@@ -61,7 +61,20 @@ public class SentMessageDatabaseTable extends MessageDatabaseTable {
     protected String getBoardConstraint() {
         return "";
     }
-//    protected String getDateIndexName() {
-//        return "MSG_IX_DATE";
-//    }
+    protected String getDateIndexName() {
+        return "SENTMSG_IX_DATE";
+    }
+    protected String getContentTableName() {
+        return "SENTMESSAGECONTENTS";
+    }
+    protected String getContentForeignKeyConstraintName() {
+        return "sentmsgcont_fk1";
+    }
+    protected String getContentUniqueConstraintName() {
+        return "sentmsgcont_unique";
+    }
+    protected String getContentIndexName() {
+        return "sentmsgcont_index";
+    }
+
 }

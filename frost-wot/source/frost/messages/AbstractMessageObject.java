@@ -1,6 +1,7 @@
 package frost.messages;
 
 
+
 /**
  * This class holds the basic variables of a message.
  * It is used by the MessageObjectFile (XML file representation)
@@ -9,7 +10,7 @@ package frost.messages;
 public abstract class AbstractMessageObject extends AbstractMessageStatusProvider {
 
     protected AttachmentList attachments = null;
-    private String content = "";
+    protected String content = null;
     private String subject = "";
     private String recipientName = ""; // set if msg was encrypted
     private String signature = ""; // set if message is signed
