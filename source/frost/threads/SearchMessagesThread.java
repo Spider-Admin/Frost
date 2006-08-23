@@ -98,9 +98,9 @@ public class SearchMessagesThread extends Thread implements MessageDatabaseTable
                     board, 
                     dr.startDate, 
                     dr.endDate, 
-                    true, 
-                    true, 
-                    false, 
+                    ((searchConfig.content==null)?false:true), // withContent
+                    false, // withAttachment
+                    false, // showDeleted
                     this);
         } catch(SQLException e) {
                 logger.log(Level.SEVERE, "Catched exception:", e);

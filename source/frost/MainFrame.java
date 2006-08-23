@@ -450,7 +450,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             boardInfoButton = new JButton(new ImageIcon(getClass().getResource("/data/info.gif")));
             systemTrayButton = new JButton(new ImageIcon(getClass().getResource("/data/tray.gif")));
 
-            // FIXME!!!
             progressIconRunning = new ImageIcon(getClass().getResource("/data/progress_running.gif"));
             progressIconIdle = new ImageIcon(getClass().getResource("/data/progress_idle.gif"));
             progressIconButton = new JLabel(progressIconIdle);

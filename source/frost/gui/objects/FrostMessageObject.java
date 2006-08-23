@@ -18,6 +18,7 @@
 */
 package frost.gui.objects;
 
+import java.sql.*;
 import java.util.*;
 
 import javax.swing.tree.*;
@@ -25,6 +26,7 @@ import javax.swing.tree.*;
 import frost.*;
 import frost.gui.model.*;
 import frost.messages.*;
+import frost.storage.database.applayer.*;
 
 /**
  * This class holds all informations that are shown in the GUI and stored to the database.
@@ -153,22 +155,48 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         setHasFileAttachments(mof.getAttachmentsOfType(Attachment.FILE).size() > 0);
     }
     
-//    /**
-//     * If content is null, this method can be called to retrieve the content
-//     */
-//    public void retrieveContent() {
-//        // use date, board, index to retrieve content
-//        String content = null; 
-//        try {
-//            content = MessageDatabaseTable.getInstance().retrieveMessageContent(getSqlDate(), getBoard(), getIndex());
-//        } catch(SQLException ex) {
-//            ex.printStackTrace();
-//        }
-//        if( content == null ) {
-//            content = "SQL Error retrieving content!";
-//        }
-//        setContent(content);
-//    }
+    /**
+     * Dynamically loads content.
+     */
+    public String getContent() {
+
+        if( content == null ) {
+            try {
+                AppLayerDatabase.getMessageTable().retrieveMessageContent(this);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            if( content == null ) {
+                content = "";
+            }
+        }
+        return content;
+    }
+
+    /**
+     * Dynamically loads attachments.
+     */
+    public AttachmentList getAttachmentsOfType(int type) {
+        
+        if( !containsAttachments() ) {
+            if (attachments == null) {
+                attachments = new AttachmentList();
+            }
+            return attachments.getAllOfType(type);
+        }
+        
+        if (attachments == null) {
+            try {
+                AppLayerDatabase.getMessageTable().retrieveAttachments(this);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            if (attachments == null) {
+                attachments = new AttachmentList();
+            }
+        }
+        return attachments.getAllOfType(type);
+    }
 
     /*
      * @see frost.gui.model.TableMember#compareTo(frost.gui.model.TableMember, int)
@@ -254,6 +282,13 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
 
     public void setHasFileAttachments(boolean hasFileAttachments) {
         this.hasFileAttachments = hasFileAttachments;
+    }
+    
+    public boolean containsAttachments() {
+        if( isHasFileAttachments() || isHasBoardAttachments() ) {
+            return true;
+        }
+        return false;
     }
 
     public int getIndex() {

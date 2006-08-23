@@ -470,7 +470,12 @@ public class TOF {
                         }
                         FrostMessageObject fmo = null;
                         try {
-                            fmo = AppLayerDatabase.getMessageTable().retrieveMessageByMessageId(board, anId, true, true, showDeletedMessages);
+                            fmo = AppLayerDatabase.getMessageTable().retrieveMessageByMessageId(
+                                    board, 
+                                    anId, 
+                                    false, 
+                                    false, 
+                                    showDeletedMessages);
                         } catch (SQLException e) {
                             logger.log(Level.SEVERE, "Error retrieving message by id "+anId, e);
                         }
@@ -558,8 +563,8 @@ public class TOF {
                 AppLayerDatabase.getMessageTable().retrieveMessagesForShow(
                         board, 
                         daysToRead, 
-                        true, 
-                        true, 
+                        false, 
+                        false, 
                         showDeletedMessages,
                         callback);
                 

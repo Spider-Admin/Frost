@@ -59,9 +59,9 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
     protected String getFromnameIndexName() {
         return "MSG_IX_FROM";
     }
-//    protected String getDateIndexName() {
-//        return "MSG_IX_DATE";
-//    }
+    protected String getDateIndexName() {
+        return "MSG_IX_DATE";
+    }
     protected String getPrimKeyConstraintName() {
         return "msgs_pk";
     }
@@ -92,7 +92,6 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         "signature VARCHAR,"+
         "signaturestatus INT,"+
         "publickey VARCHAR,"+
-        "content VARCHAR,"+
         "isdeleted BOOLEAN,"+
         "isnew BOOLEAN,"+
         "isreplied BOOLEAN,"+ 
@@ -109,15 +108,16 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
     
     // this index is really important because we select messageids
     private final String SQL_DDL_MESSAGES_INDEX_MSGID =
-        "CREATE INDEX "+getMsgIdIndexName()+" ON "+getMessageTableName()+" ( messageid )";
+        "CREATE UNIQUE INDEX "+getMsgIdIndexName()+" ON "+getMessageTableName()+" ( messageid )";
     private final String SQL_DDL_MESSAGES_INDEX_BOARD =
         "CREATE INDEX "+getBoardIndexName()+" ON "+getMessageTableName()+" ( board )";
     // this index speeds up the COUNT BY IDENTITY alot
     private final String SQL_DDL_MESSAGES_INDEX_FROM =
         "CREATE INDEX "+getFromnameIndexName()+" ON "+getMessageTableName()+" ( fromname )";
-//    private final String SQL_DDL_MESSAGES_INDEX_DATE =
-//        "CREATE INDEX "+getDateIndexName()+" ON "+getMessageTableName()+" ( msgdate )";
+    private final String SQL_DDL_MESSAGES_INDEX_DATE =
+        "CREATE INDEX "+getDateIndexName()+" ON "+getMessageTableName()+" ( msgdate )";
 
+    // FIXME: add an index for msgref?
     private final String SQL_DDL_FILEATTACHMENTS =
         "CREATE TABLE "+getFileAttachmentsTableName()+" ("+
         "msgref BIGINT NOT NULL,"+
@@ -126,6 +126,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         "filekey  VARCHAR,"+
         "CONSTRAINT "+getFileForeignKeyConstraintName()+" FOREIGN KEY (msgref) REFERENCES "+getMessageTableName()+"(primkey) ON DELETE CASCADE"+
         ")";
+    // FIXME: add an index for msgref?
     private final String SQL_DDL_BOARDATTACHMENTS =
         "CREATE TABLE "+getBoardAttachmentsTableName()+" ("+
         "msgref BIGINT NOT NULL,"+
@@ -135,7 +136,30 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         "boarddescription VARCHAR,"+
         "CONSTRAINT "+getBoardForeignKeyConstraintName()+" FOREIGN KEY (msgref) REFERENCES "+getMessageTableName()+"(primkey) ON DELETE CASCADE"+
         ")";
-    
+
+    private final String SQL_DDL_CONTENT =
+        "CREATE TABLE "+getContentTableName()+" ("+
+        "msgref BIGINT NOT NULL,"+
+        "msgcontent VARCHAR,"+
+        "CONSTRAINT "+getContentForeignKeyConstraintName()+" FOREIGN KEY (msgref) REFERENCES "+getMessageTableName()+"(primkey) ON DELETE CASCADE,"+
+        "CONSTRAINT "+getContentUniqueConstraintName()+" UNIQUE(msgref)"+
+        ")";
+    private final String SQL_DDL_CONTENT_INDEX =
+        "CREATE INDEX "+getContentIndexName()+" ON "+getContentTableName()+" ( msgref )";
+
+    protected String getContentTableName() {
+        return "MESSAGECONTENTS";
+    }
+    protected String getContentForeignKeyConstraintName() {
+        return "msgcont_fk1";
+    }
+    protected String getContentUniqueConstraintName() {
+        return "msgcont_unique";
+    }
+    protected String getContentIndexName() {
+        return "msgcont_index";
+    }
+
     public List getTableDDL() {
         ArrayList lst = new ArrayList(7);
         lst.add(SQL_DDL_MESSAGES);
@@ -144,7 +168,9 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         lst.add(SQL_DDL_MESSAGES_INDEX_MSGID);
         lst.add(SQL_DDL_MESSAGES_INDEX_BOARD);
         lst.add(SQL_DDL_MESSAGES_INDEX_FROM);
-//        lst.add(SQL_DDL_MESSAGES_INDEX_DATE);
+        lst.add(SQL_DDL_MESSAGES_INDEX_DATE);
+        lst.add(SQL_DDL_CONTENT);
+        lst.add(SQL_DDL_CONTENT_INDEX);
         return lst;
     }
     
@@ -158,8 +184,8 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         PreparedStatement ps = db.prepare(
             "INSERT INTO "+getMessageTableName()+" ("+
             "primkey,messageid,inreplyto,isvalid,invalidreason,msgdate,msgtime,msgindex,board,fromname,subject,recipient,signature," +
-            "signaturestatus,publickey,content,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,hasfileattachment,hasboardattachment"+
-            ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+            "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,hasfileattachment,hasboardattachment"+
+            ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
         
         Long identity = null;
         Statement stmt = AppLayerDatabase.getInstance().createStatement();
@@ -188,7 +214,6 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         ps.setString(i++, mo.getSignature()); // signature
         ps.setInt(i++, mo.getSignatureStatus()); // signaturestatus
         ps.setString(i++, mo.getPublicKey()); // publickey
-        ps.setString(i++, mo.getContent()); // content
         ps.setBoolean(i++, mo.isDeleted()); // isdeleted
         ps.setBoolean(i++, mo.isNew()); // isnew
         ps.setBoolean(i++, mo.isReplied()); // isreplied
@@ -199,17 +224,26 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         ps.setBoolean(i++, (boards.size() > 0)); // hasboardattachment
 
         // sync to allow no updates until we got the generated identity
-        synchronized(getSyncObj()) {
-            int inserted = ps.executeUpdate();
-            ps.close();
-    
-            if( inserted == 0 ) {
-                System.out.println("INSERTED is 0!!!!");
-                return;
-            }
-            
-            mo.setMsgIdentity(identity.longValue());
+        int inserted = ps.executeUpdate();
+        ps.close();
+
+        if( inserted == 0 ) {
+            System.out.println("INSERTED is 0!!!!");
+            return;
         }
+        
+        mo.setMsgIdentity(identity.longValue());
+        
+        // content
+        PreparedStatement pc = db.prepare(
+                "INSERT INTO "+getContentTableName()+
+                " (msgref,msgcontent) VALUES (?,?)");
+        pc.setLong(1, mo.getMsgIdentity());
+        pc.setString(2, mo.getContent());
+        if( pc.executeUpdate() == 0 ) {
+            System.out.println("content INSERTED is 0!!!!");
+        }
+        pc.close();
 
         // attachments
         if( files.size() > 0 ) {
@@ -281,7 +315,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         ps.close();
     }
     
-    private void retrieveAttachments(FrostMessageObject mo) throws SQLException {
+    public void retrieveAttachments(FrostMessageObject mo) throws SQLException {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         // retrieve attachments
         if( mo.isHasFileAttachments() ) {
@@ -324,12 +358,41 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         }
     }
 
+    public void retrieveMessageContent(FrostMessageObject mo) throws SQLException {
+        
+        // invalid messages have no content (e.g. encrypted for someone else,...)
+        if( !mo.isValid() ) {
+            mo.setContent("");
+            return;
+        }
+        
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
+
+        PreparedStatement p2 = db.prepare(
+                "SELECT msgcontent FROM "+getContentTableName()+" WHERE msgref=?");
+        p2.setLong(1, mo.getMsgIdentity());
+        ResultSet rs2 = p2.executeQuery();
+        if(rs2.next()) {
+            String content;
+            content = rs2.getString(1);
+            mo.setContent(content);
+        } else {
+            logger.severe("Error: No content for msgref="+mo.getMsgIdentity()+", msgid="+mo.getMessageId());
+            mo.setContent("");
+        }
+        rs2.close();
+        p2.close();
+    }
+    
     private FrostMessageObject resultSetToFrostMessageObject(
             ResultSet rs, Board board, boolean withContent, boolean withAttachments) 
     throws SQLException 
     {
         FrostMessageObject mo = new FrostMessageObject();
         mo.setBoard(board);
+        // SELECT retrieves only valid messages:
+        mo.setValid(true);
+
         int ix=1;
         mo.setMsgIdentity(rs.getLong(ix++));
         mo.setMessageId(rs.getString(ix++));
@@ -354,7 +417,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         mo.setHasBoardAttachments( rs.getBoolean(ix++) );
         
         if( withContent ) {
-            mo.setContent(rs.getString(ix++));
+            retrieveMessageContent(mo);
         }
 
         if( withAttachments ) {
@@ -381,9 +444,6 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
             "primkey,messageid,inreplyto,msgdate,msgtime,msgindex,fromname,subject,recipient," +
             "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
             "hasfileattachment,hasboardattachment";
-        if( withContent ) {
-            sql += ",content";
-        }
         sql += " FROM "+getMessageTableName()+" WHERE msgdate>=? AND board=? AND isvalid=TRUE ";
         if( !showDeleted ) {
             // don't select deleted msgs
@@ -424,9 +484,6 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
             "primkey,messageid,inreplyto,msgdate,msgtime,msgindex,fromname,subject,recipient," +
             "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
             "hasfileattachment,hasboardattachment";
-            if( withContent ) {
-                sql += ",content";
-            }
             sql += " FROM "+getMessageTableName()+" WHERE msgdate>=? AND msgdate<=? AND board=? AND isvalid=TRUE AND isdeleted=?";
         PreparedStatement ps = db.prepare(sql);
         
@@ -462,9 +519,6 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
             "primkey,messageid,inreplyto,msgdate,msgtime,msgindex,fromname,subject,recipient," +
             "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
             "hasfileattachment,hasboardattachment";
-            if( withContent ) {
-                sql += ",content";
-            }
             sql += " FROM "+getMessageTableName()+" WHERE board=? AND messageid=?";
         PreparedStatement ps = db.prepare(sql);
         
@@ -482,24 +536,6 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         
         return mo;
     }
-
-//    public String retrieveMessageContent(java.sql.Date date, Board board, int index) throws SQLException {
-//        GuiDatabase db = GuiDatabase.getInstance();
-//        PreparedStatement ps = db.prepare("SELECT content FROM "+getMessageTableName()+" WHERE date=? AND board=? AND msgindex=?");
-//        ps.setDate(1, date);
-//        ps.setString(2, board.getNameLowerCase());
-//        ps.setInt(3, index);
-//        ps.setMaxRows(1);
-//        String content = null;
-//        ResultSet rs = ps.executeQuery();
-//        if( rs.next() ) {
-//            content = rs.getString(1);
-//        }
-//        rs.close();
-//        ps.close();
-//        
-//        return content;
-//    }
 
     public synchronized void setAllMessagesRead(Board board) throws SQLException {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
