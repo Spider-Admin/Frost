@@ -393,8 +393,7 @@ public class TofTreeXmlIO
         }
     }
 
-    private void appendBoard(Element parent, Board board, Document doc)
-    {
+    private void appendBoard(Element parent, Board board, Document doc) {
         Element rootBoardElement = doc.createElement("FrostBoardTreeEntry");
         Element element;
 
@@ -402,69 +401,59 @@ public class TofTreeXmlIO
 
         // <name>
         element = doc.createElement("name");
-        cdata = doc.createCDATASection(Mixed.makeSafeXML(board.getName()));
+        cdata = doc.createCDATASection(board.getName());
         element.appendChild( cdata );
         rootBoardElement.appendChild( element );
         // pubkey
-        if( board.getPublicKey() != null )
-        {
+        if( board.getPublicKey() != null ) {
             element = doc.createElement("publicKey");
-            cdata = doc.createCDATASection(Mixed.makeSafeXML(board.getPublicKey()));
-            element.appendChild( cdata );
-            rootBoardElement.appendChild( element );
+            cdata = doc.createCDATASection(board.getPublicKey());
+            element.appendChild(cdata);
+            rootBoardElement.appendChild(element);
         }
         // privkey
-        if( board.getPrivateKey() != null )
-        {
+        if( board.getPrivateKey() != null ) {
             element = doc.createElement("privateKey");
-            cdata = doc.createCDATASection(Mixed.makeSafeXML(board.getPrivateKey()));
-            element.appendChild( cdata );
-            rootBoardElement.appendChild( element );
+            cdata = doc.createCDATASection(board.getPrivateKey());
+            element.appendChild(cdata);
+            rootBoardElement.appendChild(element);
         }
         // description
-         if( board.getDescription() != null )
-         {
+         if( board.getDescription() != null ) {
              element = doc.createElement("description");
-             cdata = doc.createCDATASection(Mixed.makeSafeXML(board.getDescription()));
+             cdata = doc.createCDATASection(board.getDescription());
              element.appendChild( cdata );
-            rootBoardElement.appendChild( element );
+             rootBoardElement.appendChild( element );
          }
         // <config />
-        if( board.isConfigured() )
-        {
+        if( board.isConfigured() ) {
             element = doc.createElement("config");
 
-            element.setAttribute("autoUpdate", ""+board.getAutoUpdateEnabled());
-            if( board.getMaxMessageDisplayObj() != null )
-            {
-                element.setAttribute("maxMessageDisplay", ""+board.getMaxMessageDisplay());
+            element.setAttribute("autoUpdate", "" + board.getAutoUpdateEnabled());
+            if( board.getMaxMessageDisplayObj() != null ) {
+                element.setAttribute("maxMessageDisplay", "" + board.getMaxMessageDisplay());
             }
-            if(board.getShowSignedOnlyObj() != null )
-            {
-                element.setAttribute("showSignedOnly", ""+board.getShowSignedOnly());
+            if( board.getShowSignedOnlyObj() != null ) {
+                element.setAttribute("showSignedOnly", "" + board.getShowSignedOnly());
             }
-            if( board.getHideBadObj() != null )
-            {
-                element.setAttribute("hideBadMessages", ""+board.getHideBad());
+            if( board.getHideBadObj() != null ) {
+                element.setAttribute("hideBadMessages", "" + board.getHideBad());
             }
-            if( board.getHideCheckObj() != null )
-            {
-                element.setAttribute("hideCheckMessages", ""+board.getHideCheck());
+            if( board.getHideCheckObj() != null ) {
+                element.setAttribute("hideCheckMessages", "" + board.getHideCheck());
             }
-            if( board.getHideObserveObj() != null )
-            {
-                element.setAttribute("hideObserveMessages", ""+board.getHideObserve());
+            if( board.getHideObserveObj() != null ) {
+                element.setAttribute("hideObserveMessages", "" + board.getHideObserve());
             }
-            rootBoardElement.appendChild( element );
+            rootBoardElement.appendChild(element);
         }
 
         // append lastTimeMillisUpdated
-        if( board.getLastUpdateStartMillis() > 0 )
-        {
+        if( board.getLastUpdateStartMillis() > 0 ) {
             element = doc.createElement("lastUpdateStartedMillis");
-            Text text = doc.createTextNode( "" + board.getLastUpdateStartMillis() );
-            element.appendChild( text );
-            rootBoardElement.appendChild( element );
+            Text text = doc.createTextNode("" + board.getLastUpdateStartMillis());
+            element.appendChild(text);
+            rootBoardElement.appendChild(element);
         }
 
         parent.appendChild( rootBoardElement );
