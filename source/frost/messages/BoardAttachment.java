@@ -40,27 +40,27 @@ public class BoardAttachment extends Attachment {
         CDATASection cdata;
 
         Element name = container.createElement("Name");
-        cdata = container.createCDATASection(Mixed.makeSafeXML(boardObj.getName()));
+        cdata = container.createCDATASection(boardObj.getName());
         name.appendChild(cdata);
         el.appendChild(name);
 
         if( boardObj.getPublicKey() != null ) {
             Element pubkey = container.createElement("pubKey");
-            cdata = container.createCDATASection(Mixed.makeSafeXML(boardObj.getPublicKey()));
+            cdata = container.createCDATASection(boardObj.getPublicKey());
             pubkey.appendChild(cdata);
             el.appendChild(pubkey);
         }
 
         if( boardObj.getPrivateKey() != null ) {
     		Element privkey = container.createElement("privKey");
-    		cdata = container.createCDATASection(Mixed.makeSafeXML(boardObj.getPrivateKey())); //null is ok
+    		cdata = container.createCDATASection(boardObj.getPrivateKey()); //null is ok
     		privkey.appendChild(cdata);
     		el.appendChild(privkey);
         }
 		
         if( boardObj.getDescription() != null ) {
     		Element description = container.createElement("description");
-    		cdata = container.createCDATASection(Mixed.makeSafeXML(boardObj.getDescription()));	//null is ok
+    		cdata = container.createCDATASection(boardObj.getDescription());	//null is ok
     		description.appendChild(cdata);
     		el.appendChild(description);
         }

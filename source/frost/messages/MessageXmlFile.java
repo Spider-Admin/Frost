@@ -34,14 +34,14 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
 
     private static Logger logger = Logger.getLogger(MessageXmlFile.class.getName());
     
-    private static final char[] evilChars = {'/', '\\', '*', '=', '|', '&', '#', '\"', '<', '>'}; // will be converted to _
+//    private static final char[] evilChars = {'/', '\\', '*', '=', '|', '&', '#', '\"', '<', '>'}; // will be converted to _
 
     private String boardName = "";
     private String dateStr = "";
     private String timeStr = "";
 
     protected File file;
-
+    
     /**
      * Constructor.
      * Used to contruct an instance for a new message.
@@ -96,13 +96,6 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
         {
             logger.severe("Analyze file failed.");
             throw new Exception("Message have invalid or missing fields.");
-        }
-        // replace evil chars
-        for( int i = 0; i < evilChars.length; i++ ) {
-//            setFromName(getFromName().replace(evilChars[i], '_')); done during load
-            setSubject(getSubject().replace(evilChars[i], '_'));
-            setDateStr(getDateStr().replace(evilChars[i], '_'));
-            setTimeStr(getTimeStr().replace(evilChars[i], '_'));
         }
     }
 
@@ -188,44 +181,44 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
 
         //from
         current = d.createElement("From");
-        cdata = d.createCDATASection(Mixed.makeSafeXML(getFromName()));
+        cdata = d.createCDATASection(getFromName());
         current.appendChild(cdata);
         el.appendChild(current);
 
         //subject
         current = d.createElement("Subject");
-        cdata = d.createCDATASection(Mixed.makeSafeXML(getSubject()));
+        cdata = d.createCDATASection(getSubject());
         current.appendChild(cdata);
         el.appendChild(current);
 
         //date
         current = d.createElement("Date");
-        cdata = d.createCDATASection(Mixed.makeSafeXML(getDateStr()));
+        cdata = d.createCDATASection(getDateStr());
         current.appendChild(cdata);
         el.appendChild(current);
 
         //time
         current = d.createElement("Time");
-        cdata = d.createCDATASection(Mixed.makeSafeXML(getTimeStr()));
+        cdata = d.createCDATASection(getTimeStr());
         current.appendChild(cdata);
         el.appendChild(current);
 
         //body
         current = d.createElement("Body");
-        cdata = d.createCDATASection(Mixed.makeSafeXML(getContent()));
+        cdata = d.createCDATASection(getContent());
         current.appendChild(cdata);
         el.appendChild(current);
 
         //board
         current = d.createElement("Board");
-        cdata = d.createCDATASection(Mixed.makeSafeXML(getBoardName()));
+        cdata = d.createCDATASection(getBoardName());
         current.appendChild(cdata);
         el.appendChild(current);
 
         //public Key
         if (getPublicKey() != null && getPublicKey().length() > 0) {
             current = d.createElement("pubKey");
-            cdata = d.createCDATASection(Mixed.makeSafeXML(getPublicKey()));
+            cdata = d.createCDATASection(getPublicKey());
             current.appendChild(cdata);
             el.appendChild(current);
         }
@@ -233,7 +226,7 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
         // recipient
         if (getRecipientName() != null && getRecipientName().length() > 0) {
             current = d.createElement("recipient");
-            cdata = d.createCDATASection(Mixed.makeSafeXML(getRecipientName()));
+            cdata = d.createCDATASection(getRecipientName());
             current.appendChild(cdata);
             el.appendChild(current);
         }
@@ -241,7 +234,7 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
         // signature
         if (getSignature() != null && getSignature().length() > 0) {
             current = d.createElement("Signature");
-            cdata = d.createCDATASection(Mixed.makeSafeXML(getSignature()));
+            cdata = d.createCDATASection(getSignature());
             current.appendChild(cdata);
             el.appendChild(current);
         }
@@ -387,11 +380,7 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
     public void loadXMLElement(Element e) throws SAXException {
         setMessageId(XMLTools.getChildElementsCDATAValue(e, "MessageId"));
         setInReplyTo(XMLTools.getChildElementsCDATAValue(e, "InReplyTo"));
-        String from = XMLTools.getChildElementsCDATAValue(e, "From");
-        for( int i = 0; i < evilChars.length; i++ ) {
-          from = from.replace(evilChars[i], '_'); 
-        }
-        setFromName(from);
+        setFromName(XMLTools.getChildElementsCDATAValue(e, "From"));
         setDateStr(XMLTools.getChildElementsCDATAValue(e, "Date"));
         setSubject(XMLTools.getChildElementsCDATAValue(e, "Subject"));
         setTimeStr(XMLTools.getChildElementsCDATAValue(e, "Time"));
@@ -486,7 +475,7 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
 
         // recipient
         current = doc.createElement("recipient");
-        cdata = doc.createCDATASection(Mixed.makeSafeXML(recipient.getUniqueName()));
+        cdata = doc.createCDATASection(recipient.getUniqueName());
         current.appendChild(cdata);
         el.appendChild(current);
 
