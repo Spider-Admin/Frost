@@ -430,7 +430,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 		fcpOut.println("ClientPut");
 		fcpOut.println("URI=" + key);
 		fcpOut.println("Identifier=put-" + fcpConnectionId );
-		fcpOut.println("Verbosity=1");
+		fcpOut.println("Verbosity=1"); // recive SimpleProgress for unterdruecken timeout		
 		fcpOut.println("MaxRetries=3");
 		fcpOut.println("DontCompress=false"); // force compression
 		if(getchkonly){
@@ -478,7 +478,8 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 		}
 
 		dOut.flush();
-// FIXME: we don't ignore the new PutFetchable message, so finally the insert fails if such a message arrives!!!
+// Verbosity=1 sends only Success/error messages and SimpleProgress
+// so Frost should never affected by new messege types
 		int c;
 		StringBuffer output = new StringBuffer();
 		// nio doesn't always close the connection.  workaround:
