@@ -248,7 +248,7 @@ public class XMLTools {
         if( txtname == null ) {
             return null;
         }
-        return txtname.getData().trim();
+        return txtname.getData();
     }
 
     /**
@@ -264,7 +264,12 @@ public class XMLTools {
         if( txtname == null ) {
             return null;
         }
-        return txtname.getData().trim();
+        String s = txtname.getData();
+        if( txtname.getNextSibling() != null ) {
+            txtname = (CDATASection)txtname.getNextSibling();
+            s += txtname.getData();
+        }
+        return s;
     }
 
     /**
@@ -274,5 +279,30 @@ public class XMLTools {
         File tmp = FileAccess.createTempFile("xmltools_", ".tmp");
         tmp.deleteOnExit();
         return tmp;
+    }
+    
+    public static void main(String[] args) {
+
+        Document d = createDomDocument();
+        Element el = d.createElement("FrostMessage");
+
+        CDATASection cdata;
+        Element current;
+
+        current = d.createElement("MessageId");
+        cdata = d.createCDATASection("<![CDATA[\\</MessageId>]]> <helpme />");
+        current.appendChild(cdata);
+        
+        el.appendChild(current);
+        
+        d.appendChild(el);
+
+        boolean ok = writeXmlFile(d, "d:\\AAAAA.xml");
+        System.out.println("ok="+ok);
+        
+        Document dd = parseXmlFile("d:\\AAAAA.xml", false);
+        Element root = dd.getDocumentElement();
+        String s = XMLTools.getChildElementsCDATAValue(root, "MessageId");
+        System.out.println("s="+s);
     }
 }
