@@ -39,7 +39,7 @@ public interface Smileys {
 		{	":-/", ":/"	},						// Confused (6)
 		{	":x" , ":X" , ":-x" , ":-X" },		// Love struck (7)
 		{	":\">"	},							// Blush (8)
-		{	":p" , ":-p"	},					// Tongue (9)
+		{	":p" , ":-p", ":P", ":-P"	},					// Tongue (9)
 		{	":*" , ":-*"	},					// Kiss (10)
 
 		{	":O" , ":o" , ":-O", ":-o"	},		// Shock (11)
