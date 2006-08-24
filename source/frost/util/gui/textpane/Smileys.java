@@ -36,7 +36,7 @@ public interface Smileys {
 		{	":D" , ":-D"	},					// Grin (4)
 		{	";;)" 			},					// Eyelashes (5)
 
-		{	":-/"	},							// Confused (6)
+		{	":-/", ":/"	},						// Confused (6)
 		{	":x" , ":X" , ":-x" , ":-X" },		// Love struck (7)
 		{	":\">"	},							// Blush (8)
 		{	":p" , ":-p"	},					// Tongue (9)
