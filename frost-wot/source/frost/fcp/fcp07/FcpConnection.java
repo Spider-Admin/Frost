@@ -478,7 +478,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 		}
 
 		dOut.flush();
-
+// FIXME: we don't ignore the new PutFetchable message, so finally the insert fails if such a message arrives!!!
 		int c;
 		StringBuffer output = new StringBuffer();
 		// nio doesn't always close the connection.  workaround:
