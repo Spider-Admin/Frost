@@ -264,12 +264,17 @@ public class XMLTools {
         if( txtname == null ) {
             return null;
         }
-        String s = txtname.getData();
-        if( txtname.getNextSibling() != null ) {
-            txtname = (CDATASection)txtname.getNextSibling();
-            s += txtname.getData();
+        // if the text contained control characters then it was maybe splitted into multiple CDATA sections.
+        if( txtname.getNextSibling() == null ) {
+            return txtname.getData();
         }
-        return s;
+        
+        StringBuffer sb = new StringBuffer(txtname.getData());
+        while( txtname.getNextSibling() != null ) {
+            txtname = (CDATASection)txtname.getNextSibling();
+            sb.append(txtname.getData());
+        }
+        return sb.toString();
     }
 
     /**
@@ -281,28 +286,28 @@ public class XMLTools {
         return tmp;
     }
     
-    public static void main(String[] args) {
-
-        Document d = createDomDocument();
-        Element el = d.createElement("FrostMessage");
-
-        CDATASection cdata;
-        Element current;
-
-        current = d.createElement("MessageId");
-        cdata = d.createCDATASection("<![CDATA[\\</MessageId>]]> <helpme />");
-        current.appendChild(cdata);
-        
-        el.appendChild(current);
-        
-        d.appendChild(el);
-
-        boolean ok = writeXmlFile(d, "d:\\AAAAA.xml");
-        System.out.println("ok="+ok);
-        
-        Document dd = parseXmlFile("d:\\AAAAA.xml", false);
-        Element root = dd.getDocumentElement();
-        String s = XMLTools.getChildElementsCDATAValue(root, "MessageId");
-        System.out.println("s="+s);
-    }
+//    public static void main(String[] args) {
+//
+//        Document d = createDomDocument();
+//        Element el = d.createElement("FrostMessage");
+//
+//        CDATASection cdata;
+//        Element current;
+//
+//        current = d.createElement("MessageId");
+//        cdata = d.createCDATASection("<![CDATA[\\</MessageId>]]> <helpme />");
+//        current.appendChild(cdata);
+//        
+//        el.appendChild(current);
+//        
+//        d.appendChild(el);
+//
+//        boolean ok = writeXmlFile(d, "d:\\AAAAA.xml");
+//        System.out.println("ok="+ok);
+//        
+//        Document dd = parseXmlFile("d:\\AAAAA.xml", false);
+//        Element root = dd.getDocumentElement();
+//        String s = XMLTools.getChildElementsCDATAValue(root, "MessageId");
+//        System.out.println("s="+s);
+//    }
 }
