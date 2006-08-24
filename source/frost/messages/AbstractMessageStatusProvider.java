@@ -117,7 +117,11 @@ public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNo
     }
 
     public String getMessageStatusString() {
-        return messageStateStrings[getMessageStatus(getFromIdentity())];
+    	Identity i = getFromIdentity();
+    	if (i != null)
+    		if (Core.getIdentities().isMySelf(i.getUniqueName())) 
+    			return "ME";
+        return messageStateStrings[getMessageStatus(i)];
     }
     
     public boolean isMessageStatusGOOD() {
