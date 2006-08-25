@@ -180,7 +180,6 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                 return;
             }
 
-            // BBACKFLAG: ask user if uploading of X files is allowed!
             // if one attachment file does not longer exists (on retry), we delete the message in uploadAttachments()!
             if (!uploadAttachments(message)) {
                 return;
