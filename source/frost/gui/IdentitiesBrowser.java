@@ -19,6 +19,7 @@
 package frost.gui;
 
 import java.awt.*;
+import java.io.*;
 import java.sql.*;
 import java.util.*;
 import java.util.List;
@@ -26,18 +27,18 @@ import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.table.*;
 
 import frost.*;
 import frost.gui.model.*;
 import frost.identities.*;
+import frost.storage.*;
 import frost.storage.database.applayer.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
 public class IdentitiesBrowser extends JDialog {
-
-    // FIXME: add import/export of identities
 
     private static Logger logger = Logger.getLogger(MessageFrame.class.getName());
 
@@ -77,8 +78,6 @@ public class IdentitiesBrowser extends JDialog {
     
     /**
      * This method initializes this
-     *
-     * @return void
      */
     private void initialize() {
         this.setTitle("IdentitiesBrowser.title");
@@ -106,6 +105,8 @@ public class IdentitiesBrowser extends JDialog {
         getBcleanup().setText(language.getString("IdentitiesBrowser.button.cleanup"));
         getBcleanup().setToolTipText(language.getString("IdentitiesBrowser.button.cleanup.tooltip"));
         getBclose().setText(language.getString("IdentitiesBrowser.button.close"));
+        getBimport().setText(language.getString("IdentitiesBrowser.button.import"));
+        getBexport().setText(language.getString("IdentitiesBrowser.button.export"));
         
         Lfilter.setText(language.getString("IdentitiesBrowser.label.filter")+":");
         Llookup.setText(language.getString("IdentitiesBrowser.label.lookup")+":");
@@ -263,6 +264,20 @@ public class IdentitiesBrowser extends JDialog {
      */
     private JPanel getMainPanel() {
         if( mainPanel == null ) {
+            GridBagConstraints gridBagConstraints21 = new GridBagConstraints();
+            gridBagConstraints21.gridx = 1;
+            gridBagConstraints21.gridheight = 1;
+            gridBagConstraints21.gridwidth = 4;
+            gridBagConstraints21.anchor = java.awt.GridBagConstraints.NORTH;
+            gridBagConstraints21.weighty = 1.0;
+            gridBagConstraints21.insets = new java.awt.Insets(5,5,5,5);
+            gridBagConstraints21.gridy = 4;
+            GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
+            gridBagConstraints11.gridx = 1;
+            gridBagConstraints11.gridwidth = 4;
+            gridBagConstraints11.insets = new java.awt.Insets(15,5,5,5);
+            gridBagConstraints11.anchor = java.awt.GridBagConstraints.NORTH;
+            gridBagConstraints11.gridy = 3;
             GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
             gridBagConstraints6.gridx = 1;
             gridBagConstraints6.gridwidth = 4;
@@ -273,7 +288,7 @@ public class IdentitiesBrowser extends JDialog {
             GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
             gridBagConstraints5.gridx = 1;
             gridBagConstraints5.gridwidth = 4;
-            gridBagConstraints5.weighty = 1.0;
+            gridBagConstraints5.weighty = 0.0;
             gridBagConstraints5.anchor = java.awt.GridBagConstraints.NORTH;
             gridBagConstraints5.insets = new java.awt.Insets(15,5,5,5);
             gridBagConstraints5.gridy = 2;
@@ -299,7 +314,7 @@ public class IdentitiesBrowser extends JDialog {
             gridBagConstraints.gridy = 0;
             gridBagConstraints.weightx = 1.0;
             gridBagConstraints.weighty = 1.0;
-            gridBagConstraints.gridheight = 3;
+            gridBagConstraints.gridheight = 5;
             gridBagConstraints.insets = new java.awt.Insets(5,5,5,5);
             mainPanel = new JPanel();
             mainPanel.setLayout(new GridBagLayout());
@@ -310,6 +325,8 @@ public class IdentitiesBrowser extends JDialog {
             mainPanel.add(getBmarkBAD(), gridBagConstraints4);
             mainPanel.add(getBdelete(), gridBagConstraints5);
             mainPanel.add(getBcleanup(), gridBagConstraints6);
+            mainPanel.add(getBimport(), gridBagConstraints11);
+            mainPanel.add(getBexport(), gridBagConstraints21);
         }
         return mainPanel;
     }
@@ -684,9 +701,10 @@ public class IdentitiesBrowser extends JDialog {
             TableColumn tableColumn = getIdentitiesTable().getColumnModel().getColumn(column);
             column = tableColumn.getModelIndex();
 
-            // do nice things for column 1 - STATE
-            if( column == 1 ) {
-                // SIG
+            if( column == 0 ) {
+                setToolTipText(tableMember.getIdentity().getUniqueName());
+            } else if( column == 1 ) {
+                // STATE
                 // state == good/bad/check/observe -> bold and coloured
                 if( tableMember.getIdentity().isGOOD() ) {
                     setFont(boldFont);
@@ -706,11 +724,13 @@ public class IdentitiesBrowser extends JDialog {
                         setForeground(Color.BLACK);
                     }
                 }
+                setToolTipText(null);
             } else {
                 setFont(normalFont);
                 if (!isSelected) {
                     setForeground(Color.BLACK);
                 }
+                setToolTipText(null);
             }
             return this;
         }
@@ -725,6 +745,10 @@ public class IdentitiesBrowser extends JDialog {
     private JLabel Lfilter = null;
 
     private JTextField TFfilter = null;
+
+    private JButton Bimport = null;
+
+    private JButton Bexport = null;
     
     private void startProgressMonitor(int max) {
         String title = language.getString("IdentitiesBrowser.progressDialog.title");
@@ -924,6 +948,154 @@ public class IdentitiesBrowser extends JDialog {
                 tableModel.addRow(tm);
             }
         } catch(Exception ex) {}
+    }
+    
+    private File chooseXmlImportFile() {
+        
+        FileFilter myFilter = new FileFilter() {
+            public boolean accept(File file) {
+                if( file.isDirectory() ) {
+                    return true;
+                }
+                if( file.getName().endsWith(".xml") ) {
+                    return true;
+                }
+                return false;
+            }
+            public String getDescription() {
+                return "identities.xml";
+            }
+        };
+        
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileFilter(myFilter);
+        int returnVal = chooser.showOpenDialog(this);
+        if(returnVal == JFileChooser.APPROVE_OPTION) {
+            return chooser.getSelectedFile();
+        }
+        return null;
+    }
+
+    private File chooseXmlExportFile() {
+        
+        FileFilter myFilter = new FileFilter() {
+            public boolean accept(File file) {
+                if( file.isDirectory() ) {
+                    return true;
+                }
+                if( file.getName().endsWith(".xml") ) {
+                    return true;
+                }
+                return false;
+            }
+            public String getDescription() {
+                return "identities_export.xml";
+            }
+        };
+        
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileFilter(myFilter);
+        int returnVal = chooser.showSaveDialog(this);
+        if(returnVal == JFileChooser.APPROVE_OPTION) {
+            File f = chooser.getSelectedFile();
+            if( !f.getName().endsWith(".xml") ) {
+                f = new File(f.getPath() + ".xml");
+            }
+            if( f.exists() ) {
+                int answer = JOptionPane.showConfirmDialog(
+                        this,
+                        language.formatMessage("IdentitiesBrowser.exportIdentitiesConfirmXmlFileOverwrite.body", f.getName()),
+                        language.getString("IdentitiesBrowser.exportIdentitiesConfirmXmlFileOverwrite.title"), 
+                        JOptionPane.YES_NO_OPTION, 
+                        JOptionPane.WARNING_MESSAGE);
+                if( answer == JOptionPane.NO_OPTION ) {
+                    return null;
+                }
+            }
+            return f;
+        }
+        return null;
+    }
+
+    /**
+     * This method initializes Bimport	
+     * 	
+     * @return javax.swing.JButton	
+     */
+    private JButton getBimport() {
+        if( Bimport == null ) {
+            Bimport = new JButton();
+            Bimport.setText("IdentitiesBrowser.button.import");
+            Bimport.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                    File xmlFile = chooseXmlImportFile();
+                    if( xmlFile == null ) {
+                        return;
+                    }
+                    
+                    List importedIdentities = IdentitiesXmlDAO.loadIdentities(xmlFile);
+                    if( importedIdentities.size() == 0 ) {
+                        // nothing loaded
+                        JOptionPane.showMessageDialog(
+                                IdentitiesBrowser.this, 
+                                language.getString("IdentitiesBrowser.noIdentityToImport.body"),
+                                language.getString("IdentitiesBrowser.noIdentityToImport.title"), 
+                                JOptionPane.INFORMATION_MESSAGE);
+                        return;
+                    }
+                    
+                    // FIXME: merge the imported identities with the existing identities
+
+                }
+            });
+        }
+        return Bimport;
+    }
+
+    /**
+     * This method initializes Bexport	
+     * 	
+     * @return javax.swing.JButton	
+     */
+    private JButton getBexport() {
+        if( Bexport == null ) {
+            Bexport = new JButton();
+            Bexport.setText("IdentitiesBrowser.button.export");
+            Bexport.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                    File xmlFile = chooseXmlExportFile();
+                    if( xmlFile == null ) {
+                        return;
+                    }
+                    List allIdentities = Core.getIdentities().getIdentities();
+                    // saves only good,observe,bad
+                    int count = IdentitiesXmlDAO.saveIdentities(xmlFile, allIdentities);
+                    if( count > 0 ) {
+                        // 'count' identities exported
+                        JOptionPane.showMessageDialog(
+                                IdentitiesBrowser.this, 
+                                language.formatMessage("IdentitiesBrowser.identitiesExported.body", ""+count), 
+                                language.getString("IdentitiesBrowser.identitiesExported.title"), 
+                                JOptionPane.INFORMATION_MESSAGE);
+                    } else if( count < 0 ) {
+                        // identities export failed
+                        JOptionPane.showMessageDialog(
+                                IdentitiesBrowser.this, 
+                                language.getString("IdentitiesBrowser.identitiesExportFailed.body"), 
+                                language.getString("IdentitiesBrowser.identitiesExportFailed.title"), 
+                                JOptionPane.ERROR_MESSAGE);
+                    } else {
+                        // no identities to export, all are CHECK?
+                        JOptionPane.showMessageDialog(
+                                IdentitiesBrowser.this, 
+                                language.getString("IdentitiesBrowser.noIdentityToExport.body"), 
+                                language.getString("IdentitiesBrowser.noIdentityToExport.title"), 
+                                JOptionPane.INFORMATION_MESSAGE);
+                    }
+                }
+            });
+        }
+        return Bexport;
     }
     
 }  //  @jve:decl-index=0:visual-constraint="10,10"

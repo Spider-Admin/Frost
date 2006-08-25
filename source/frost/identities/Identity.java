@@ -188,16 +188,33 @@ public class Identity implements XMLizable {
         updateStateString();
         updateIdentitiesDatabaseTable();
     }
-    
+
+    public void setGOODWithoutUpdate() {
+        state=GOOD;
+        updateStateString();
+    }
+    public void setCHECKWithoutUpdate() {
+        state=CHECK;
+        updateStateString();
+    }
+    public void setOBSERVEWithoutUpdate() {
+        state=OBSERVE;
+        updateStateString();
+    }
+    public void setBADWithoutUpdate() {
+        state=BAD;
+        updateStateString();
+    }
+
     private void updateStateString() {
         if( isCHECK() ) {
-            stateString = "CHECK";
+            stateString = CHECK_STRING;
         } else if( isOBSERVE() ) {
-            stateString = "OBSERVE";
+            stateString = OBSERVE_STRING;
         } else if( isGOOD() ) {
-            stateString = "GOOD";
+            stateString = GOOD_STRING;
         } else if( isBAD() ) {
-            stateString = "BAD";
+            stateString = BAD_STRING;
         } else {
             stateString = "*ERR*";
         }

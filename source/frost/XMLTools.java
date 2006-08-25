@@ -160,13 +160,20 @@ public class XMLTools {
      * This method writes a DOM document to a file.
      */
     public static boolean writeXmlFile(Document doc, String filename) {
+        return writeXmlFile(doc, new File(filename));
+    }
+
+    /**
+     * This method writes a DOM document to a file.
+     */
+    public static boolean writeXmlFile(Document doc, File file) {
         try {
             OutputFormat format = new OutputFormat(doc, "UTF-8", false);
             format.setLineSeparator(LineSeparator.Windows);
             //format.setIndenting(true);
             format.setLineWidth(0);
             format.setPreserveSpace(true);
-            OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(filename), "UTF-8");
+            OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
             XMLSerializer serializer = new XMLSerializer(writer, format);
             serializer.asDOMSerializer();
             serializer.serialize(doc);
