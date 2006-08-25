@@ -467,6 +467,9 @@ public class ManageLocalIdentitiesDialog extends JDialog {
         int returnVal = chooser.showSaveDialog(this);
         if(returnVal == JFileChooser.APPROVE_OPTION) {
             File f = chooser.getSelectedFile();
+            if( !f.getName().endsWith(".xml") ) {
+                f = new File(f.getPath() + ".xml");
+            }
             if( f.exists() ) {
                 int answer = JOptionPane.showConfirmDialog(
                         this,
@@ -568,8 +571,8 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                     } else {
                         JOptionPane.showMessageDialog(
                                 ManageLocalIdentitiesDialog.this, 
-                                language.getString("ManageLocalIdentities.identitiesExporteFailed.body"), 
-                                language.getString("ManageLocalIdentities.identitiesExporteFailed.title"), 
+                                language.getString("ManageLocalIdentities.identitiesExportFailed.body"), 
+                                language.getString("ManageLocalIdentities.identitiesExportFailed.title"), 
                                 JOptionPane.ERROR_MESSAGE);
                     }
                 }
