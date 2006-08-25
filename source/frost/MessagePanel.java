@@ -1,5 +1,5 @@
 /*
-  MessagePanel.java / Frost
+ MessagePanel.java / Frost
   Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
   Some changes by Stefan Majewski <e9926279@stud3.tuwien.ac.at>
 
@@ -201,6 +201,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         private JMenuItem cancelItem = new JMenuItem();
 
         private JMenuItem markAllMessagesReadItem = new JMenuItem();
+        private JMenuItem markThreadReadItem = new JMenuItem();
         private JMenuItem markMessageUnreadItem = new JMenuItem();
         private JMenuItem setBadItem = new JMenuItem();
         private JMenuItem setCheckItem = new JMenuItem();
@@ -221,6 +222,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             } else if (e.getSource() == markAllMessagesReadItem) {
                 Board node = mainFrame.getTofTreeModel().getSelectedNode();
                 TOF.getInstance().setAllMessagesRead(node);
+            } else if (e.getSource() == markThreadReadItem) {
+                markThreadRead();
             } else if (e.getSource() == deleteItem) {
                 deleteSelectedMessage();
             } else if (e.getSource() == undeleteItem) {
@@ -247,6 +250,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
             markMessageUnreadItem.addActionListener(this);
             markAllMessagesReadItem.addActionListener(this);
+            markThreadReadItem.addActionListener(this);
             setGoodItem.addActionListener(this);
             setBadItem.addActionListener(this);
             setCheckItem.addActionListener(this);
@@ -262,6 +266,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         private void refreshLanguage() {
             markMessageUnreadItem.setText(language.getString("MessagePane.messageTable.popupmenu.markMessageUnread"));
             markAllMessagesReadItem.setText(language.getString("MessagePane.messageTable.popupmenu.markAllMessagesRead"));
+            markThreadReadItem.setText(language.getString("MessagePane.messageTable.popupmenu.markThreadRead"));
             setGoodItem.setText(language.getString("MessagePane.messageTable.popupmenu.setToGood"));
             setBadItem.setText(language.getString("MessagePane.messageTable.popupmenu.setToBad"));
             setCheckItem.setText(language.getString("MessagePane.messageTable.popupmenu.setToCheck"));
@@ -287,11 +292,20 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     return;
                 }
 
+                boolean itemAdded = false;
                 if (messageTable.getSelectedRow() > -1) {
                     add(markMessageUnreadItem);
+                    itemAdded = true;
                 }
-                add(markAllMessagesReadItem);
-                addSeparator();
+                if( selectedMessage.getBoard().getNewMessageCount() > 0 ) {
+                    add(markAllMessagesReadItem);
+                    // TODO: check if there are unread msgs in THIS thread
+                    add(markThreadReadItem);
+                    itemAdded = true;
+                }
+                if( itemAdded ) {
+                    addSeparator();
+                }
                 add(setGoodItem);
                 add(setObserveItem);
                 add(setCheckItem);
@@ -581,7 +595,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             //other listeners
             mainFrame.getTofTree().addTreeSelectionListener(listener);
             mainFrame.getTofTree().addKeyListener(listener);
-            mainFrame.getTofTreeModel().addTreeModelListener(listener); // TODO!
+            mainFrame.getTofTreeModel().addTreeModelListener(listener);
 
             // display welcome message if no boards are available
             boardsTree_actionPerformed(null); // set initial states
@@ -1016,6 +1030,51 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         }
         return true;
     }
+    
+    private void markThreadRead() {
+        if( selectedMessage == null ) {
+            return;
+        }
+
+        TreeNode[] rootPath = selectedMessage.getPath();
+        if( rootPath.length < 2 ) {
+            return;
+        }
+
+        FrostMessageObject levelOneMsg = (FrostMessageObject)rootPath[1];
+
+        DefaultTreeModel model = MainFrame.getInstance().getMessagePanel().getMessageTreeModel();
+        Board board = mainFrame.getTofTreeModel().getSelectedNode();
+        final LinkedList msgList = new LinkedList();
+        
+        for(Enumeration e = levelOneMsg.depthFirstEnumeration(); e.hasMoreElements(); ) {
+            FrostMessageObject mo = (FrostMessageObject)e.nextElement();
+            if( mo.isNew() ) { 
+                msgList.add(mo);
+                mo.setNew(false);
+                model.nodeChanged(mo);
+                board.decNewMessageCount();
+            }
+        }
+        
+        updateMessageCountLabels(board);
+        mainFrame.updateTofTree(board);
+        
+        Thread saver = new Thread() {
+            public void run() {
+                // save message, we must save the changed deleted state into the database
+                for( Iterator i = msgList.iterator(); i.hasNext(); ) {
+                    FrostMessageObject mo = (FrostMessageObject) i.next();
+                    try {
+                        AppLayerDatabase.getMessageTable().updateMessage(mo);
+                    } catch (SQLException e) {
+                        logger.log(Level.SEVERE, "Error updating a message object", e);
+                    }
+                }
+            }
+        };
+        saver.start();
+    }
 
     private void deleteSelectedMessage() {
 
@@ -1116,7 +1175,6 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         // let renderer check for new state
         DefaultTreeModel model = (DefaultTreeModel)MainFrame.getInstance().getMessagePanel().getMessageTable().getTree().getModel();
         model.nodeChanged(targetMessage);
-//        getMessageTableModel().updateRow(targetMessage);
 
         mainFrame.getTofTreeModel().getSelectedNode().incNewMessageCount();
 
@@ -1125,7 +1183,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         
         Thread saver = new Thread() {
             public void run() {
-                // save message, we must save the changed deleted state into the xml file
+                // save message, we must save the changed deleted state into the database
                 try {
                     AppLayerDatabase.getMessageTable().updateMessage(targetMessage);
                 } catch (SQLException e) {
@@ -1235,7 +1293,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
      * Search through all messages, find next unread message by date (earliest message in table).
      */
     public void selectNextUnreadMessage() {
-        // TODO: if we are currently inside a msg thread, move to next new msg in thread! 
+        // FIXME: if we are currently inside a msg thread, move to next new msg in thread! 
 
         FrostMessageObject nextMessage = null;
 

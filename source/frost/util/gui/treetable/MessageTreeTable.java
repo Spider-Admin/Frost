@@ -294,16 +294,16 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                 setVerticalAlignment(CENTER);
             }
             public Component getTreeCellRendererComponent(
-                    JTree tree, 
+                    JTree lTree, 
                     Object value, 
                     boolean sel, 
                     boolean expanded,
                     boolean leaf, 
                     int row, 
-                    boolean hasFocus) 
+                    boolean lHasFocus) 
             {
-                treeWidth = tree.getWidth();
-                return super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+                treeWidth = lTree.getWidth();
+                return super.getTreeCellRendererComponent(lTree, value, sel, expanded, leaf, row, lHasFocus);
             }
             public void paint(Graphics g) {
                 setSize(new Dimension(treeWidth - this.getBounds().x, this.getSize().height));
@@ -438,7 +438,6 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         		    dtcr.setTextNonSelectionColor(foreground);
         		    dtcr.setBackgroundNonSelectionColor(background);
         		}
-                dtcr.setToolTipText(msg.getSubject());
                 ImageIcon icon;
                 if( msg.isDummy() ) {
                     icon = messageDummyIcon;
@@ -459,6 +458,8 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                 dtcr.setLeafIcon(icon);
                 dtcr.setOpenIcon(icon);
                 dtcr.setClosedIcon(icon);
+                // FIXME: tooltip not shown?
+                dtcr.setToolTipText(msg.getSubject());
     	    }
             
     	    return this;
@@ -794,11 +795,13 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                         setForeground(Color.BLACK);
                     }
                 }
+                setToolTipText(null);
             } else {
                 setFont(normalFont);
                 if (!isSelected) {
                     setForeground(Color.BLACK);
                 }
+                setToolTipText(null);
             }
 
             setDeleted(msg.isDeleted());
