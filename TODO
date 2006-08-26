@@ -6,66 +6,54 @@
 #                                                                        #
 #  - somthing to do             -> pending                               #
 #  + somthing to do             -> done                                  #
+#  ? somthing to do             -> open questions, do anytime if cleared #
 #                                                                        #
 #  ##### checkpoint: what thingy [(expected date)]                       #
 #  - if all items below a checkpoint are done, the thingy happens        #
+#  - if a checkpoint is reached, we ship a release to the customers      #
 #  - an empty checkpoint is to force the current job order/dependicies   #
 #    and can be deleted if done.                                         #
 #                                                                        #
 ##########################################################################
-#                                                                        #
-#                        !!! ONLY SAMPLE !!!                             #
-#                                                                        #
-##########################################################################
 
-##### checkpoint: beta
+##### checkpoint: alpha #####
+(ship to customers if done)
 
-- new connectionmanegment
-- online-help
-- redisign frost-protokol, remove 0.5
-- redisign source tree (hyperocha?, e.g.)
-- verschiedene kleinigkeiten
+- implement new filesharing in gui and backend
+- resolve _ALL_ FIXME comments in source
+- implement merge of imported identities
+- optimize identities in database, shorten the load time in identities browser
 
+##### realease #####
 
-##### checkpoint:
+- fixes if neccessary, maybe release another alpha/beta/RC
 
+##### checkpoint: release +1 #####
 
-- brunching frost: maintanance brunch for 0.5 (only for bugfixes) 
+- implement FcpJob,FcpJobDispatcher,... (dependences to Hyperocha!)
+- implement tabbed panel with status informations taken from FcpJobDispatcher and FcpJob
+- together with FcpJobs integrate the Hyperocha library
 
-##### realease
+##### checkpoint: release +2 #####
 
-- fixes/RC if neccessary
+- implement message format V2 (redundancy)
 
-##### checkpoint: rc
+##### checkpoint: any (if we know how to implement) #####
 
-- forming external importer
-- verschiedene kleinigkeiten
+? outbox folder for messages (show messages until they are successfully sent)
+? drafts folder for messages
+? own folder for all private messages (but don't use a single board because this is
+                                       a single point of failure if spammed!)
 
-##### checkpoint: beta
+*----------------------------------------------------------------------*
+*----------------------------------------------------------------------*
 
-- invent an idea for displaying the shared files
-- verschiedene kleinigkeiten
-
-***** 2006/08/10 - saces 
-+ reaktivate TODO ;) - done
-
-
-
-This is the Frost TODO file. Please maintain it carefully.
-
-
-***** 2003/11/05 - jantho
-- Some Strings have to be translated or corrected still. 
-- The Translation tool needs some explanation/documentation
-- Select actual used language automatically in the translation tool
-- Save all Strings as Escape Sequences
-- LangRes.java has to be cleaned up. Lots of unused translations in there.
+Old, but still interesting TODOS
+---------------------------------
 
 ***** 2003/09/10 - zab
-- Decide whether choosing to help someone's files should mark them GOOD. 
-  also rework the serialization of those lists, its not well structured now
 - Implement statistic keeping and some smarter polling algorithm (SVMs?)
-- Redundancy?
+- Redundancy? - V2
 
 ***** 2003/07/21 - zab
 
@@ -77,26 +65,3 @@ This is the Frost TODO file. Please maintain it carefully.
   * Instead of "Refresh board/folder" say "Get new messages" everywhere
 - Move the @digest part of the nickname in its own column
 - Possibly allow rich text or some limited markup of messages
-
-***** 2003/05/12 - bback
-Here are Janthos TODOs (german), below i translated it to english:
-
-- Funktion um Keypool aufzuräumen--DONE
-- Button um Message Filter an/ab zuschalten --DONE
-- Hilfetext mit in Jar File packen
-- Im Browser Dateien speichern können (popup menu)
-
-Translation:
-
-- function to maintain keypool (clean down to dates, ...) --DONE
-- button to enable/disable message filters --DONE 
-- put the help texts/file into the .jar file
-- enable the browser to be able to save files from freesites (popup menu)
------
-
-***** 2003/05/12 - bback
-
-- xml format for index files and messages
-+ message threads - done 2006/08
-
-
