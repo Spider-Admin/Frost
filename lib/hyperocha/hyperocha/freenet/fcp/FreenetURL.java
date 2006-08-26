@@ -21,42 +21,32 @@
 package hyperocha.freenet.fcp;
 
 /**
+ * this class should be pronounced 'FreenetURI',
+ * most programmers uses import .* and java become confused 
+ * with freenet.client.* eg.
  * @author saces
  *
  */
-public class Verbosity {
-	public static final Verbosity ALL = new Verbosity(Integer.MAX_VALUE);
-	public static final Verbosity NONE = new Verbosity(0);
-	public static final Verbosity SPLITFILE_PROGRESS = new Verbosity(1);
-	public static final Verbosity PUT_FETCHABLE = new Verbosity(256);
-	public static final Verbosity COMPRESSION_START_END = new Verbosity(512);
-
-	private int verbosity;
+public class FreenetURL {
 
 	/**
-	 * @param verbosity
+	 * 
 	 */
-	public Verbosity(int verbosity) {
-		this.verbosity = verbosity;
-	}
+	public FreenetURL() {
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	public boolean equals(Object obj) {
-		if (!(obj instanceof Verbosity)) return false; 
-		return ((Verbosity)obj).verbosity == verbosity;
+	}
+	
+	public String getKey() {
+		// TODO
+		return "TUK@bdhbd";
 	}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
-		return "" + verbosity;
-	}
-	
-	public int getVerbosity() {
-		return verbosity;
+		// TODO
+		return "freenet:" + getKey();
 	}
 
 }

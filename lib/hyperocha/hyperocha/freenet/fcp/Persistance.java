@@ -24,39 +24,26 @@ package hyperocha.freenet.fcp;
  * @author saces
  *
  */
-public class Verbosity {
-	public static final Verbosity ALL = new Verbosity(Integer.MAX_VALUE);
-	public static final Verbosity NONE = new Verbosity(0);
-	public static final Verbosity SPLITFILE_PROGRESS = new Verbosity(1);
-	public static final Verbosity PUT_FETCHABLE = new Verbosity(256);
-	public static final Verbosity COMPRESSION_START_END = new Verbosity(512);
+public class Persistance {
+	public static final Persistance CONNECTION = new Persistance("connection");
+    public static final Persistance REBOOT = new Persistance("reboot");
+    public static final Persistance FOREVER = new Persistance("forever");
 
-	private int verbosity;
+    private String name;
 
-	/**
-	 * @param verbosity
-	 */
-	public Verbosity(int verbosity) {
-		this.verbosity = verbosity;
-	}
+    private Persistance(String name) {
+            this.name = name;
+    }
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	public boolean equals(Object obj) {
-		if (!(obj instanceof Verbosity)) return false; 
-		return ((Verbosity)obj).verbosity == verbosity;
-	}
+    /**
+     * @return Returns the name.
+     */
+    public String getName() {
+            return name;
+    }
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	public String toString() {
-		return "" + verbosity;
-	}
+    public String toString() {
+            return name;
+    }
 	
-	public int getVerbosity() {
-		return verbosity;
-	}
-
 }

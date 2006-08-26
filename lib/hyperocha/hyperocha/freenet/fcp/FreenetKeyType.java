@@ -24,39 +24,43 @@ package hyperocha.freenet.fcp;
  * @author saces
  *
  */
-public class Verbosity {
-	public static final Verbosity ALL = new Verbosity(Integer.MAX_VALUE);
-	public static final Verbosity NONE = new Verbosity(0);
-	public static final Verbosity SPLITFILE_PROGRESS = new Verbosity(1);
-	public static final Verbosity PUT_FETCHABLE = new Verbosity(256);
-	public static final Verbosity COMPRESSION_START_END = new Verbosity(512);
+public class FreenetKeyType {
+	public static final FreenetKeyType KSK = new FreenetKeyType(0);
+	public static final FreenetKeyType CHK = new FreenetKeyType(1);
+	public static final FreenetKeyType SSK = new FreenetKeyType(2);
+	public static final FreenetKeyType USK = new FreenetKeyType(3);
+	public static final FreenetKeyType TUK = new FreenetKeyType(4);
+     
+    private int keyType;
+    
+    private final String[] names = { "KSK@",
+    		                     "CHK@",
+    		                     "SSK@",
+    							 "USK@",
+    							 "TUK@" };
 
-	private int verbosity;
-
-	/**
-	 * @param verbosity
+    /**
+	 * 
 	 */
-	public Verbosity(int verbosity) {
-		this.verbosity = verbosity;
+	private FreenetKeyType(int kt) {
+		keyType = kt;
 	}
+
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	public boolean equals(Object obj) {
-		if (!(obj instanceof Verbosity)) return false; 
-		return ((Verbosity)obj).verbosity == verbosity;
+		if (!(obj instanceof FreenetKeyType)) return false; 
+		return ((FreenetKeyType)obj).keyType == keyType;
 	}
+
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
-		return "" + verbosity;
-	}
-	
-	public int getVerbosity() {
-		return verbosity;
+		return names[keyType];
 	}
 
 }

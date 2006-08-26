@@ -20,43 +20,55 @@
  */
 package hyperocha.freenet.fcp;
 
+import java.io.File;
+import java.io.InputStream;
+
 /**
  * @author saces
  *
  */
-public class Verbosity {
-	public static final Verbosity ALL = new Verbosity(Integer.MAX_VALUE);
-	public static final Verbosity NONE = new Verbosity(0);
-	public static final Verbosity SPLITFILE_PROGRESS = new Verbosity(1);
-	public static final Verbosity PUT_FETCHABLE = new Verbosity(256);
-	public static final Verbosity COMPRESSION_START_END = new Verbosity(512);
-
-	private int verbosity;
-
+public class UploadFrom {
+	public static final int DIRECT = 0;
+	public static final int DISK = 1;
+	public static final int REDIRECT = 2;
+ 
+	private int type;
+	private String source;
+	private long count;
+	private InputStream is;
+	
 	/**
-	 * @param verbosity
+	 * this is a file insert
 	 */
-	public Verbosity(int verbosity) {
-		this.verbosity = verbosity;
-	}
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	public boolean equals(Object obj) {
-		if (!(obj instanceof Verbosity)) return false; 
-		return ((Verbosity)obj).verbosity == verbosity;
-	}
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	public String toString() {
-		return "" + verbosity;
+	public UploadFrom(File f) {
+		type = DISK;
+		source = f.getAbsolutePath();
 	}
 	
-	public int getVerbosity() {
-		return verbosity;
+	/**
+	 * this is a direct insert, the entire stream
+	 */
+	public UploadFrom(InputStream s) {
+		type = DIRECT;
+		count = -1;
+		is = s;
+	}
+	
+	/**
+	 * this is a direct insert, the stream from actual pos and n bytes
+	 */
+	public UploadFrom(InputStream s, long count) {
+		type = DIRECT;
+		this.count = count;
+		is = s;
+	}
+	
+	/**
+	 * this is a redirect insert
+	 */
+	public UploadFrom(FreenetURL key) {
+		type = REDIRECT;
+		source = key.getKey();
 	}
 
 }
