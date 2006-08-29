@@ -34,6 +34,10 @@ import frost.storage.database.applayer.*;
  */
 public class FrostMessageObject extends AbstractMessageObject implements TableMember {
 
+    // FIXME: if msg is a reply, send the length of the original msg along with the msg, and the receiving frost
+    //   colors the replied (old) part in grey. ensures everyone recognizes what the new part is.
+    //   also scroll to real beginning of the msg then!
+    
     // additional variables for use in GUI
     private boolean isValid = false;
     private String invalidReason = null;
@@ -86,8 +90,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         
         setSqlDate( DateFun.getSqlDateOfCalendar(DateFun.getCalendarFromDate(mof.getDateStr())) );
         setSqlTime( DateFun.getSqlTimeFromString(mof.getTimeStr()) );
-        // FIXME: debug output, remove
-        System.out.println("MSG TIME/DATE: time_in="+mof.getTimeStr()+", date_in="+mof.getDateStr()+", out="+getDateAndTime());
+//        System.out.println("MSG TIME/DATE: time_in="+mof.getTimeStr()+", date_in="+mof.getDateStr()+", out="+getDateAndTime());
         // copy values from mof
         setAttachmentList(mof.getAttachmentList());
         setContent(mof.getContent());
@@ -442,11 +445,21 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         // -> from Board.java:         Collections.sort(children);
         DefaultMutableTreeNode n = (DefaultMutableTreeNode)nn; 
         int[] ixs;
-        if( children==null ) {
+        
+        if( children == null ) {
             super.add(n);
             ixs = new int[] { 0 };
         } else {
-            int insertPoint = Collections.binarySearch(children, n, dateComparator);
+            // sort first msg of a thread (child of root) descending (newest first),
+            // but inside a thread sort siblings ascending (oldest first). (thunderbird/outlook do it this way)
+            int insertPoint;
+            if( isRoot() ) {
+                // child of root, sort descending
+                insertPoint = Collections.binarySearch(children, n, dateComparatorDescending);
+            } else {
+                // inside a thread, sort ascending
+                insertPoint = Collections.binarySearch(children, n, dateComparatorAscending);
+            }
             if( insertPoint < 0 ) {
                 insertPoint++;
                 insertPoint *= -1;
@@ -478,20 +491,38 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
   
     // FIXME: implement sorting for flat view and maybe for threaded view too!
 //    SubjectComparator subjectComparator = new SubjectComparator();
-    DateComparator dateComparator = new DateComparator();
+
+    DateComparator dateComparatorAscending = new DateComparator(true);
+    DateComparator dateComparatorDescending = new DateComparator(false);
     
     class DateComparator implements Comparator {
-        public int compare(Object arg0, Object arg1) {
-            FrostMessageObject t1 = (FrostMessageObject)arg0; 
-            FrostMessageObject t2 = (FrostMessageObject)arg1;
+        
+        private int retvalGreater;
+        private int retvalSmaller;
+        
+        public DateComparator(boolean ascending) {
+            if( ascending ) {
+                // oldest first
+                retvalGreater = +1;
+                retvalSmaller = -1;
+            } else {
+                // newest first
+                retvalGreater = -1;
+                retvalSmaller = +1;
+            }
+        }
+        
+        public int compare(Object o1, Object o2) {
+            FrostMessageObject t1 = (FrostMessageObject)o1; 
+            FrostMessageObject t2 = (FrostMessageObject)o2;
             
             long l1 = t1.getSqlDate().getTime() + t1.getSqlTime().getTime();
             long l2 = t2.getSqlDate().getTime() + t2.getSqlTime().getTime();
             if( l1 > l2 ) {
-                return -1;
+                return retvalGreater;
             }
             if( l1 < l2 ) {
-                return 1;
+                return retvalSmaller;
             }
             return 0;
         }
