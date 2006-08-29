@@ -231,7 +231,6 @@ public class Frost {
     private boolean initializeLockFile(Language language) {
         // write minimal content into file
         FileAccess.writeFile("frost-lock", runLockFile);
-        runLockFile.deleteOnExit();
         
         // try to aquire exclusive lock
         try {
