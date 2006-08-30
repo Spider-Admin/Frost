@@ -35,6 +35,8 @@ public class Frost {
     
     private static String cmdLineLocaleName = null;
     private static String cmdLineLocaleFileName = null;
+    
+    private static boolean offlineMode = false;
 
     /**
      * Main method
@@ -80,6 +82,7 @@ public class Frost {
      * @param args the arguments
      */
     private static void parseCommandLine(String[] args) {
+        
         int count = 0;
         try {
             while (args.length > count) {
@@ -99,6 +102,9 @@ public class Frost {
                 } else if (args[count].equals("-localefile")) {
                     cmdLineLocaleFileName = args[count + 1]; 
                     count = count + 2;
+                } else if (args[count].equals("-offline")) {
+                    offlineMode = true;
+                    count = count + 1;
                 } else {
                     showHelp();
                 }
@@ -131,6 +137,8 @@ public class Frost {
         System.out.println("-localefile  Sets the language file.");
         System.out.println("             (allows tests of own language files)");
         System.out.println("             (if set the -locale setting is ignored)\n");
+
+        System.out.println("-offline     Startup in offline mode.");
 
         System.out.println("Example:\n");
         System.out.print("java -jar frost.jar ");
@@ -281,5 +289,9 @@ public class Frost {
 
     public static String getCmdLineLocaleName() {
         return cmdLineLocaleName;
+    }
+    
+    public static boolean isOfflineMode() {
+        return offlineMode;
     }
 }
