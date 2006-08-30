@@ -156,6 +156,12 @@ public class Core implements FrostEventDispatcher  {
 
         // check if node is online and if we run on 0.7 testnet
         freenetIsOnline = false;
+        
+        if( Frost.isOfflineMode() ) {
+            // keep offline
+            return true;
+        }
+        
         boolean runningOnTestnet = false;
         try {
             List nodeInfo = FcpHandler.inst().getNodeInfo();
