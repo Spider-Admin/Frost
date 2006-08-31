@@ -63,6 +63,7 @@ public class Version implements Comparable {
 	 */
 
 	public boolean equals(Object arg0) {
+		if (!(arg0 instanceof Version)) return false;
 		return (compareTo(arg0) == 0);
 	}
 
