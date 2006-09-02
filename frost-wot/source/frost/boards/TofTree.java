@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.logging.*;
 
 import javax.swing.*;
-import javax.swing.event.*;
 import javax.swing.tree.*;
 
 import frost.*;
@@ -283,7 +282,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
     }
 
     private class Listener extends MouseAdapter implements LanguageListener, ActionListener,
-                                KeyListener, TreeSelectionListener, BoardUpdateThreadListener  {
+                                KeyListener, BoardUpdateThreadListener  {
 
         /* (non-Javadoc)
          * @see frost.util.gui.translation.LanguageListener#languageChanged(frost.util.gui.translation.LanguageEvent)
@@ -296,15 +295,6 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
          * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
          */
         public void actionPerformed(ActionEvent e) {
-            if (e.getSource() == cutBoardButton) {
-                cutNode(model.getSelectedNode());
-            }
-            if (e.getSource() == pasteBoardButton) {
-                pasteNode(model.getSelectedNode());
-            }
-            if (e.getSource() == configBoardButton) {
-                configureBoard(model.getSelectedNode());
-            }
             if (e.getSource() == configBoardMenuItem) {
                 configureBoard(model.getSelectedNode());
             }
@@ -351,15 +341,6 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
                 if (e.getSource() == TofTree.this) {
                     showTofTreePopupMenu(e);
                 }
-            }
-        }
-
-        /* (non-Javadoc)
-         * @see javax.swing.event.TreeSelectionListener#valueChanged(javax.swing.event.TreeSelectionEvent)
-         */
-        public void valueChanged(TreeSelectionEvent e) {
-            if (e.getSource() == TofTree.this) {
-                selectionChanged();
             }
         }
 
@@ -559,10 +540,6 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
 
     private TofTreeModel model;
 
-    private JButton cutBoardButton = new JButton();
-    private JButton pasteBoardButton = new JButton();
-    private JButton configBoardButton = new JButton();
-
     private JMenuItem configBoardMenuItem = new JMenuItem();
 
     private Board clipboard = null;
@@ -595,16 +572,8 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         Core.frostSettings.addPropertyChangeListener(SettingsClass.SHOW_BOARD_UPDATE_VISUALIZATION, this);
 
         MiscToolkit toolkit = MiscToolkit.getInstance();
-        cutBoardButton.setIcon(new ImageIcon(getClass().getResource("/data/cut.gif")));
-        pasteBoardButton.setIcon(new ImageIcon(getClass().getResource("/data/paste.gif")));
-        configBoardButton.setIcon(new ImageIcon(getClass().getResource("/data/configure.gif")));
-        toolkit.configureButton(cutBoardButton, "/data/cut_rollover.gif");
-        toolkit.configureButton(pasteBoardButton, "/data/paste_rollover.gif");
-        toolkit.configureButton(configBoardButton, "/data/configure_rollover.gif");
         configBoardMenuItem.setIcon(toolkit.getScaledImage("/data/configure.gif", 16, 16));
         refreshLanguage();
-
-        pasteBoardButton.setEnabled(false);
 
         putClientProperty("JTree.lineStyle", "Angled"); // I like this look
 
@@ -614,12 +583,8 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 
         // Add listeners
-        addTreeSelectionListener(listener);
         addKeyListener(listener);
         addMouseListener(listener);
-        cutBoardButton.addActionListener(listener);
-        pasteBoardButton.addActionListener(listener);
-        configBoardButton.addActionListener(listener);
         configBoardMenuItem.addActionListener(listener);
         
         // enable tooltips for this tree
@@ -632,16 +597,14 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         runningBoardUpdateThreads = new RunningBoardUpdateThreads(mainFrame);
     }
 
-    public void cutNode(Board node) {
+    private void cutNode(Board node) {
         if (node != null) {
             clipboard = node;
-            pasteBoardButton.setEnabled(true);
         }
     }
 
-    public void pasteNode(Board position) {
+    private void pasteNode(Board position) {
         if (clipboard == null) {
-            pasteBoardButton.setEnabled(false);
             return;
         }
         if (position == null || !position.isFolder()) {
@@ -652,16 +615,12 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
 
         position.add(clipboard);
         clipboard = null;
-        pasteBoardButton.setEnabled(false);
 
         int insertedIndex[] = { position.getChildCount() - 1 }; // last in list is the newly added
         model.nodesWereInserted(position, insertedIndex);
     }
 
     private void refreshLanguage() {
-        cutBoardButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.cutBoard"));
-        pasteBoardButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.pasteBoard"));
-        configBoardButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.configureBoard"));
         configBoardMenuItem.setText(language.getString("BoardTree.popupmenu.configureSelectedBoard"));
     }
 
@@ -981,27 +940,11 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         return runningBoardUpdateThreads;
     }
 
-    private void selectionChanged() {
-        Board node = (Board) getLastSelectedPathComponent();
-        if (node != null) {
-            if (node.isFolder() == false) {
-                // Node is a board
-            } else {
-                // Node is a folder
-                if (node.isRoot()) {
-                    cutBoardButton.setEnabled(false);
-                } else {
-                    cutBoardButton.setEnabled(true);
-                }
-            }
-        }
-    }
-
     /**
      * News | Configure Board action performed
      * @param board
      */
-    private void configureBoard(Board board) {
+    public void configureBoard(Board board) {
         if (board == null ) {
             return;
         }
@@ -1095,17 +1038,8 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             model.nodeChanged(((Board) e.nextElement()));
         }
     }
-    protected JButton getConfigBoardButton() {
-        return configBoardButton;
-    }
     protected JMenuItem getConfigBoardMenuItem() {
         return configBoardMenuItem;
-    }
-    protected JButton getCutBoardButton() {
-        return cutBoardButton;
-    }
-    protected JButton getPasteBoardButton() {
-        return pasteBoardButton;
     }
 
     public void propertyChange(PropertyChangeEvent evt) {

@@ -35,6 +35,18 @@ import frost.util.model.gui.*;
  */
 class DownloadTableFormat extends SortedTableFormat implements LanguageListener {
 
+// FIXME: show some panel with all running uploads/downloads and stats (see below)
+    // - job status panel
+    // - jeder thread enqueued und dequeued sich, und hat getStartTime, getName, getDescription (?), getStatus
+    // - stats: status (11:12:31 Retrieving key xyz, board abc)
+    // - ??? node information (ip)? fcp information (status,dda,...)?
+    
+    // -> FcpJobDispatcher - enqueued und verteilt jobs, gibt listen raus, startet mit einem FcpJob
+    // -> FcpJob hat prepare, und callback für finished, statusinfos, und prio
+    // -> hat enqueue time und started time
+    
+    // - bottom up designen!
+    
 	/**
 	 * This inner class implements the renderer for the column "Size"
 	 */

@@ -1,5 +1,5 @@
 /*
- SharedFilesDatabaseTable.java / Frost
+ SharedFilesCHKKeysDatabaseTable.java / Frost
  Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
 
  This program is free software; you can redistribute it and/or
@@ -21,14 +21,25 @@ package frost.storage.database.applayer;
 import java.util.*;
 import java.util.logging.*;
 
-public class SharedFilesDatabaseTable {
+import frost.storage.database.*;
 
-    private static Logger logger = Logger.getLogger(SharedFilesDatabaseTable.class.getName());
+public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
+    /*
+     - CHK key VARCHAR
+     - firstseen DATE
+     - lastseen DATE
+     - seencount INT
+     - wasdownloaded BOOL
+     - wasvalid BOOL            - if files signature was invalid, don't distribute this file any longer!
+     - downloadeddate DATE
+     - downloadtries INT
+    */    
+    private static Logger logger = Logger.getLogger(SharedFilesCHKKeysDatabaseTable.class.getName());
     
     // FIXME: add comment, rating, category, keywords, language(?)
 
-    private final static String SQL_SHAREDFILES_DDL =
-        "CREATE TABLE SHAREDFILES ("+
+    private final static String SQL_SHAREDFILESCHK_DDL =
+        "CREATE TABLE SHAREDFILESCHK ("+
         
         "primkey BIGINT NOT NULL,"+
         "sha1 VARCHAR NOT NULL,"+
@@ -49,7 +60,7 @@ public class SharedFilesDatabaseTable {
 
     public List getTableDDL() {
         ArrayList lst = new ArrayList(2);
-        lst.add(SQL_SHAREDFILES_DDL);
+        lst.add(SQL_SHAREDFILESCHK_DDL);
         return lst;
     }
 

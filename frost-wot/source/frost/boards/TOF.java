@@ -271,6 +271,11 @@ public class TOF {
         return false; // no dummy found
     }
 
+    // FIXME: is meist (wenn es passiert) die erste vom baum. die erscheit als einzelne, direkt im root.
+    //  nach anzeigen wechsel ists wieder richtig sortiert.
+    
+    // ist dummy msg korrekt? msgid und replyto chain...
+    
     private void addNewMessageToModel(FrostMessageObject newMessage, final Board board) {
         
         // if msg has no msgid, add to root
@@ -303,12 +308,8 @@ public class TOF {
 
             String directParentId = (String)msgParents.removeLast();
             
-            for(Enumeration e=rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
-                Object o = e.nextElement();
-                if( !(o instanceof FrostMessageObject) ) {
-                    continue;
-                }
-                FrostMessageObject mo = (FrostMessageObject)o;
+            for(Enumeration e = rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
+                FrostMessageObject mo = (FrostMessageObject) e.nextElement();
                 if( mo.getMessageId() != null && 
                     mo.getMessageId().equals(directParentId)
                   ) 
@@ -317,7 +318,7 @@ public class TOF {
                     return;
                 }
             }
-            
+
             FrostMessageObject dummyMsg = new FrostMessageObject(directParentId, board, null);
             dummyMsg.add(newMessage, true);
             
