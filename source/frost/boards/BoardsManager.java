@@ -45,9 +45,6 @@ public class BoardsManager {
 		getTofTree().initialize();
 		mainFrame.setTofTree(getTofTree());
 		mainFrame.setTofTreeModel(getTofTreeModel());
-		mainFrame.addButton(getTofTree().getConfigBoardButton(), 1, 0, false);
-		mainFrame.addButton(getTofTree().getCutBoardButton(), 2, 0, false);
-		mainFrame.addButton(getTofTree().getPasteBoardButton(), 2, 1, false);
 		mainFrame.addMenuItem(getTofTree().getConfigBoardMenuItem(), "MainFrame.menu.news", 1, 1, true);
 	}
 	

@@ -25,6 +25,7 @@ import java.io.*;
 import java.util.logging.*;
 
 import javax.swing.*;
+import javax.swing.table.*;
 import javax.swing.text.*;
 
 import frost.*;
@@ -545,6 +546,8 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			add(downloadTopPanel, BorderLayout.NORTH);
 			add(modelTable.getScrollPane(), BorderLayout.CENTER);
 			fontChanged();
+            
+            modelTable.getTable().setDefaultRenderer(Object.class, new CellRenderer());
 
 			// listeners
 			downloadTextField.addActionListener(listener);
@@ -809,4 +812,38 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	public void updateSettings() {
 		settingsClass.setValue(SettingsClass.DOWNLOADING_ACTIVATED, isDownloadingActivated());
 	}
+    
+    /**
+     * Renderer draws background of DONE items in green.
+     */
+    private class CellRenderer extends DefaultTableCellRenderer {
+
+        private final Color col_green    = new Color(0x00, 0x80, 0x00);
+
+        public CellRenderer() {
+            super();
+        }
+
+        public Component getTableCellRendererComponent(
+            JTable table,
+            Object value,
+            boolean isSelected,
+            boolean hasFocus,
+            int row,
+            int column) {
+
+            super.getTableCellRendererComponent(table, value, isSelected, /*hasFocus*/ false, row, column);
+            
+            FrostDownloadItem item = (FrostDownloadItem)model.getItemAt(row);
+
+            // set background of DONE downloads green
+            if( item.getState() == FrostDownloadItem.STATE_DONE ) {
+                setBackground(col_green);
+            } else {
+                setBackground(modelTable.getTable().getBackground());
+            }
+
+            return this;
+        }
+    }
 }

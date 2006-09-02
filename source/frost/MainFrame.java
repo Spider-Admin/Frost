@@ -48,8 +48,7 @@ import frost.util.gui.treetable.*;
 
 public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater, LanguageListener {
     
-    // FIXME: cut/paste board wird nie aktiv, tut aber im popup menu!
-    // FIXME: after start the last selected board is not selected!
+    // FIXME: after startup the last selected board is not selected!
     
     /**
      * This listener changes the 'updating' state of a board if a thread starts/finishes.
@@ -229,6 +228,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     //Popups
     private JButton removeBoardButton = null;
     private JButton renameFolderButton = null;
+    private JButton configBoardButton = null;
 
     // labels that are updated later
     private JLabel statusLabel = null;
@@ -300,58 +300,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
      */
     public void addStatusPanel(JPanel panel, int position) {
         getExtendableStatusPanel().add(panel, position);
-    }
-
-    /**
-     * This method adds a button to the button toolbar of the frame. It will insert it
-     * into an existing block or into a new one (where a block is a group of buttons
-     * delimited by separators) at the given position.
-     * If the position number exceeds the number of buttons in that block, the button is
-     * added at the end of that block.
-     * @param button the button to add
-     * @param block the number of the block to insert the button into. If newBlock is true
-     *          we will create a new block at that position. If it is false, we will use
-     *          the existing one. If the block number exceeds the number of blocks in the
-     *          toolbar, a new block is created at the end of the toolbar and the button is
-     *          inserted there, no matter what the value of the newBlock parameter is.
-     * @param position the position inside the block to insert the button at. If the position
-     *          number exceeds the number of buttons in the block, the button is added at the
-     *          end of the block.
-     * @param newBlock true to insert the button in a new block. False to use an existing one.
-     */
-    public void addButton(JButton button, int block, int position, boolean newBlock) {
-        int index = 0;
-        int blockCount = 0;
-        while ((index < getButtonToolBar().getComponentCount()) &&
-               (blockCount < block)) {
-            Component component = getButtonToolBar().getComponentAtIndex(index);
-            if (component instanceof JToolBar.Separator) {
-                blockCount++;
-            }
-            index++;
-        }
-        if (blockCount < block) {
-            // Block number exceeds the number of blocks in the toolbar or newBlock is true.
-            getButtonToolBar().addSeparator();
-            getButtonToolBar().add(button);
-            return;
-        }
-        if (newBlock) {
-            // New block created and button put in there.
-            getButtonToolBar().add(new JToolBar.Separator(), index);
-            getButtonToolBar().add(button, index);
-            return;
-        }
-        int posCount = 0;
-        Component component = getButtonToolBar().getComponentAtIndex(index);
-        while ((index < getButtonToolBar().getComponentCount()) &&
-               !(component instanceof JToolBar.Separator) &&
-               (posCount < position)) {
-                index++;
-                posCount++;
-                component = getButtonToolBar().getComponentAtIndex(index);
-        }
-        getButtonToolBar().add(button, index);
     }
 
     /**
@@ -447,6 +395,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             newFolderButton = new JButton(new ImageIcon(getClass().getResource("/data/newfolder.gif")));
             removeBoardButton = new JButton(new ImageIcon(getClass().getResource("/data/remove.gif")));
             renameFolderButton = new JButton(new ImageIcon(getClass().getResource("/data/rename.gif")));
+            configBoardButton = new JButton(new ImageIcon(getClass().getResource("/data/configure.gif")));
+            
             boardInfoButton = new JButton(new ImageIcon(getClass().getResource("/data/info.gif")));
             systemTrayButton = new JButton(new ImageIcon(getClass().getResource("/data/tray.gif")));
 
@@ -463,6 +413,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             toolkit.configureButton(systemTrayButton, "MainFrame.toolbar.tooltip.minimizeToSystemTray", "/data/tray_rollover.gif", language);
             toolkit.configureButton(knownBoardsButton, "MainFrame.toolbar.tooltip.displayListOfKnownBoards", "/data/knownboards_rollover.gif", language);
             toolkit.configureButton(searchMessagesButton, "MainFrame.toolbar.tooltip.searchMessages", "/data/searchmessages_rollover.gif", language);
+            
+            toolkit.configureButton(configBoardButton, "MainFrame.toolbar.tooltip.configureBoard", "/data/configure_rollover.gif", language);
 
             // add action listener
             knownBoardsButton.addActionListener(new java.awt.event.ActionListener() {
@@ -495,6 +447,13 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                     tofTree.removeNode(tofTreeModel.getSelectedNode());
                 }
             });
+
+            configBoardButton.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    tofTree.configureBoard(tofTreeModel.getSelectedNode());
+                }
+            });
+
             systemTrayButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     try { // Hide the Frost window
@@ -524,6 +483,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             buttonToolBar.add(Box.createRigidArea(blankSpace));
             buttonToolBar.addSeparator();
             buttonToolBar.add(Box.createRigidArea(blankSpace));
+            buttonToolBar.add(configBoardButton);
             buttonToolBar.add(renameFolderButton);
             buttonToolBar.add(Box.createRigidArea(blankSpace));
             buttonToolBar.addSeparator();
@@ -1155,6 +1115,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
                 uploadPanel.setAddFilesButtonEnabled(true);
                 renameFolderButton.setEnabled(false);
+                
+                configBoardButton.setEnabled(true);
 
                 // remove previous msgs
                 getMessagePanel().getMessageTable().setNewRootNode(new FrostMessageObject(true));
@@ -1176,6 +1138,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 } else {
                     removeBoardButton.setEnabled(true);
                 }
+                configBoardButton.setEnabled(false);
             }
         }
     }
@@ -1189,6 +1152,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         boardInfoButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.boardInformationWindow"));
         removeBoardButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.removeBoard"));
         renameFolderButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.renameFolder"));
+        configBoardButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.configureBoard"));
     }
 
     private void translateMainMenu() {

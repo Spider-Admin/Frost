@@ -277,6 +277,10 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         }
 
         public void show(Component invoker, int x, int y) {
+            if( selectedMessage == null ) {
+                return;
+            }
+            
             if (!mainFrame.getTofTreeModel().getSelectedNode().isFolder()) {
                 removeAll();
                 
@@ -1277,7 +1281,6 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
     /**
      * tofNewMessageButton Action Listener (tof/ New Message)
-     * @param e
      */
     private void tofNewMessageButton_actionPerformed(ActionEvent e) {
         MessageFrame newMessageFrame = new MessageFrame(
@@ -1293,27 +1296,50 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
      * Search through all messages, find next unread message by date (earliest message in table).
      */
     public void selectNextUnreadMessage() {
-        // FIXME: if we are currently inside a msg thread, move to next new msg in thread! 
 
         FrostMessageObject nextMessage = null;
-
+		FrostMessageObject earliestMessage = null;
+		
         final DefaultTreeModel tableModel = getMessageTreeModel();
-        FrostMessageObject earliestMessage = null;
-        for (Enumeration e=((DefaultMutableTreeNode)tableModel.getRoot()).depthFirstEnumeration(); e.hasMoreElements(); ) {
-            final FrostMessageObject message = (FrostMessageObject)e.nextElement();
-            if (message.isNew()) {
-                if( earliestMessage == null ) {
-                    earliestMessage = message;
-                    nextMessage = message;
-                } else {
-                    if( earliestMessage.getDateAndTime().compareTo(message.getDateAndTime()) > 0 ) {
-                        earliestMessage = message;
-                        nextMessage = message;
-                    }
-                }
-            }
+        
+        // use a different method based on threaded or not threaded view.
+        
+        if (Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS)) {
+        	for (Enumeration e=((DefaultMutableTreeNode)getSelectedMessage()).depthFirstEnumeration(); 
+                     e.hasMoreElements() && nextMessage == null; ) 
+           {
+        		final FrostMessageObject message = (FrostMessageObject)e.nextElement();
+        		if (message.isNew()) {
+        			nextMessage = message;
+        		}
+        	}
+        	final FrostMessageObject thread_start = (FrostMessageObject)getSelectedMessage().getPath()[1];
+        	for (Enumeration e=((DefaultMutableTreeNode)thread_start).depthFirstEnumeration(); 
+                     e.hasMoreElements() && nextMessage == null; ) 
+            {
+        		final FrostMessageObject message = (FrostMessageObject)e.nextElement();
+        		if (message.isNew()) {
+        			nextMessage = message;
+        		}
+        	}
         }
-
+        if (nextMessage == null) {
+        	for (Enumeration e=((DefaultMutableTreeNode)tableModel.getRoot()).depthFirstEnumeration(); e.hasMoreElements(); ) {
+	            final FrostMessageObject message = (FrostMessageObject)e.nextElement();
+	            if (message.isNew()) {
+	                if( earliestMessage == null ) {
+	                    earliestMessage = message;
+	                    nextMessage = message;
+	                } else {
+	                    if( earliestMessage.getDateAndTime().compareTo(message.getDateAndTime()) > 0 ) {
+	                        earliestMessage = message;
+	                        nextMessage = message;
+	                    }
+	                }
+	            }
+	        }
+		}
+		
         if (nextMessage == null) {
             // code to move to next board??? 
         } else {

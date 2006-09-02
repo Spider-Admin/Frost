@@ -35,6 +35,8 @@ import frost.util.gui.translation.*;
  */
 public class FrostIdentities implements Savable {
 
+    // FIXME: use separate signatures for each identity
+    
     private static Logger logger = Logger.getLogger(FrostIdentities.class.getName());
 
     private Hashtable identities = new Hashtable();

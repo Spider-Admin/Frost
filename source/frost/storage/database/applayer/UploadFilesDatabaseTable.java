@@ -31,6 +31,8 @@ import frost.storage.database.*;
 public class UploadFilesDatabaseTable extends AbstractDatabaseTable {
 
     private static Logger logger = Logger.getLogger(UploadFilesDatabaseTable.class.getName());
+    
+    // FIXME: add comment, rating, category, keywords, language(?)
 
     private final static String SQL_FILES_DDL =
         "CREATE TABLE UPLOADFILES ("+
