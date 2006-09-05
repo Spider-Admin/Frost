@@ -1296,59 +1296,67 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
      * Search through all messages, find next unread message by date (earliest message in table).
      */
     public void selectNextUnreadMessage() {
+        // FIXME: if we are currently inside a msg thread, move to next new msg in thread!
 
         FrostMessageObject nextMessage = null;
-		FrostMessageObject earliestMessage = null;
-		
+
         final DefaultTreeModel tableModel = getMessageTreeModel();
-        
-        // use a different method based on threaded or not threaded view.
-        
-        if (Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS)) {
-        	for (Enumeration e=((DefaultMutableTreeNode)getSelectedMessage()).depthFirstEnumeration(); 
-                     e.hasMoreElements() && nextMessage == null; ) 
-           {
-        		final FrostMessageObject message = (FrostMessageObject)e.nextElement();
-        		if (message.isNew()) {
-        			nextMessage = message;
-        		}
-        	}
-        	final FrostMessageObject thread_start = (FrostMessageObject)getSelectedMessage().getPath()[1];
-        	for (Enumeration e=((DefaultMutableTreeNode)thread_start).depthFirstEnumeration(); 
-                     e.hasMoreElements() && nextMessage == null; ) 
-            {
-        		final FrostMessageObject message = (FrostMessageObject)e.nextElement();
-        		if (message.isNew()) {
-        			nextMessage = message;
-        		}
-        	}
+
+        // use a different method based on threaded or not threaded view
+        if( Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS) ) {
+
+            FrostMessageObject initial = getSelectedMessage();
+
+            TreeNode[] path = initial.getPath();
+            java.util.List path_list = java.util.Arrays.asList(path);
+
+            for( int idx = initial.getLevel(); idx > 0 && nextMessage == null; idx-- ) {
+                FrostMessageObject parent = (FrostMessageObject) path[idx];
+                LinkedList queue = new LinkedList();
+                for( queue.add(parent); !queue.isEmpty() && nextMessage == null; ) {
+                    final FrostMessageObject message = (FrostMessageObject) queue.removeFirst();
+                    if( message.isNew() ) {
+                        nextMessage = message;
+                        break;
+                    }
+
+                    Enumeration children = message.children();
+                    while( children.hasMoreElements() ) {
+                        TreeNode t = (TreeNode) children.nextElement();
+                        if( !path_list.contains(t) ) {
+                            queue.add(t);
+                        }
+                    }
+                }
+            }
         }
-        if (nextMessage == null) {
-        	for (Enumeration e=((DefaultMutableTreeNode)tableModel.getRoot()).depthFirstEnumeration(); e.hasMoreElements(); ) {
-	            final FrostMessageObject message = (FrostMessageObject)e.nextElement();
-	            if (message.isNew()) {
-	                if( earliestMessage == null ) {
-	                    earliestMessage = message;
-	                    nextMessage = message;
-	                } else {
-	                    if( earliestMessage.getDateAndTime().compareTo(message.getDateAndTime()) > 0 ) {
-	                        earliestMessage = message;
-	                        nextMessage = message;
-	                    }
-	                }
-	            }
-	        }
-		}
-		
-        if (nextMessage == null) {
-            // code to move to next board??? 
+        if( nextMessage == null ) {
+            for( Enumeration e = ((DefaultMutableTreeNode) tableModel.getRoot()).depthFirstEnumeration(); 
+                 e.hasMoreElements(); ) 
+            {
+                final FrostMessageObject message = (FrostMessageObject) e.nextElement();
+                if( message.isNew() ) {
+                    if( nextMessage == null ) {
+                        nextMessage = message;
+                    } else {
+                        if( nextMessage.getDateAndTime().compareTo(message.getDateAndTime()) > 0 ) {
+                            nextMessage = message;
+                        }
+                    }
+                }
+            }
+        }
+
+        if( nextMessage == null ) {
+            // code to move to next board???
         } else {
-            messageTable.removeRowSelectionInterval(0, getMessageTableModel().getRowCount()-1);
+            messageTable.removeRowSelectionInterval(0, getMessageTableModel().getRowCount() - 1);
             messageTable.getTree().makeVisible(new TreePath(nextMessage.getPath()));
             int row = messageTable.getRowForNode(nextMessage);
             if( row >= 0 ) {
                 messageTable.addRowSelectionInterval(row, row);
-                messageListScrollPane.getVerticalScrollBar().setValue((row==0?row:row-1) * messageTable.getRowHeight());
+                messageListScrollPane.getVerticalScrollBar().setValue(
+                        (row == 0 ? row : row - 1) * messageTable.getRowHeight());
             }
         }
     }
