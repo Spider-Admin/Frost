@@ -25,7 +25,7 @@ public class SharedFilesDatabaseTable {
 
     private static Logger logger = Logger.getLogger(SharedFilesDatabaseTable.class.getName());
     
-    // FIXME: add comment, rating, category, keywords, language(?)
+    // FIXME: add comment, rating (fix), category (fix), keywords, language (fix?) (?)
 
     private final static String SQL_SHAREDFILES_DDL =
         "CREATE TABLE SHAREDFILES ("+
