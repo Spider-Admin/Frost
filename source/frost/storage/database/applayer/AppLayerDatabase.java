@@ -137,7 +137,7 @@ public class AppLayerDatabase implements Savable {
         }
     }
     
-    public static void initialize() throws SQLException {
+    public static void initialize(boolean compactTables) throws SQLException {
         if( instance == null ) {
             instance = new AppLayerDatabase();
             
@@ -166,6 +166,17 @@ public class AppLayerDatabase implements Savable {
             lst.add(knownBoardsDatabaseTable);
 
             instance.ensureTables(lst);
+            
+            if( compactTables ) {
+                System.out.println("Compacting database tables...");
+                Statement stmt = instance.createStatement();
+                for( Iterator i = lst.iterator(); i.hasNext(); ) {
+                    AbstractDatabaseTable table = (AbstractDatabaseTable) i.next();
+                    table.compact(stmt);
+                }
+                stmt.close();
+                System.out.println("Finished compact of database tables...");
+            }
         } else {
             System.out.println("ERROR: AppLayerDatabase already initialized!");
         }

@@ -65,6 +65,11 @@ public class DownloadFilesDatabaseTable extends AbstractDatabaseTable {
         return lst;
     }
     
+    public boolean compact(Statement stmt) throws SQLException {
+        stmt.executeUpdate("COMPACT TABLE DOWNLOADFILES");
+        return true;
+    }
+    
     public void saveDownloadFiles(List downloadFiles) throws SQLException {
 
         AppLayerDatabase db = AppLayerDatabase.getInstance();

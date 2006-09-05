@@ -53,6 +53,11 @@ public class NewUploadFilesDatabaseTable extends AbstractDatabaseTable {
         return lst;
     }
     
+    public boolean compact(Statement stmt) throws SQLException {
+        stmt.executeUpdate("COMPACT TABLE NEWUPLOADFILES");
+        return true;
+    }
+    
     public void saveNewUploadFiles(List newUploadFiles) throws SQLException {
         
         AppLayerDatabase db = AppLayerDatabase.getInstance();

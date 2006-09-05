@@ -273,13 +273,16 @@ public class Core implements FrostEventDispatcher  {
         DAOFactory.initialize(frostSettings);
         
         // open databases
+        // FIXME: COMPACT TABLE xxx , show dialog during compact with current table
+        boolean compactTables = frostSettings.getBoolValue(SettingsClass.COMPACT_DBTABLES);
         try {
-            AppLayerDatabase.initialize();
+            AppLayerDatabase.initialize(compactTables);
         } catch(SQLException ex) {
             logger.log(Level.SEVERE, "Error opening the databases", ex);
             ex.printStackTrace();
             throw ex;
         }
+        frostSettings.setValue(SettingsClass.COMPACT_DBTABLES, false);
         
         // initialize messageHashes
         messageHashes = new MessageHashes();

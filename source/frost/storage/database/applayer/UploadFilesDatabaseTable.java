@@ -72,6 +72,12 @@ public class UploadFilesDatabaseTable extends AbstractDatabaseTable {
         return lst;
     }
     
+    public boolean compact(Statement stmt) throws SQLException {
+        stmt.executeUpdate("COMPACT TABLE UPLOADFILES");
+        stmt.executeUpdate("COMPACT TABLE UPLOADFILESOWNERBOARD");
+        return true;
+    }
+
     public void saveUploadFiles(List uploadFiles) throws SQLException {
 
         AppLayerDatabase db = AppLayerDatabase.getInstance();

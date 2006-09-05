@@ -44,6 +44,8 @@ public class SettingsClass implements Savable {
     
     public static final String REQUESTFILE_HEADER = "FrostRequestedFilesV1";
 
+    public static final String COMPACT_DBTABLES = "compactDatabaseTables";
+    
     public static final String AUTO_SAVE_INTERVAL = "autoSaveInterval";
     public static final String DISABLE_DOWNLOADS = "disableDownloads";
     public static final String DISABLE_REQUESTS = "disableRequests";

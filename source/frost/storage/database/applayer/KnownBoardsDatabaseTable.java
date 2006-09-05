@@ -42,6 +42,11 @@ public class KnownBoardsDatabaseTable extends AbstractDatabaseTable {
         lst.add(SQL_DDL);
         return lst;
     }
+    
+    public boolean compact(Statement stmt) throws SQLException {
+        stmt.executeUpdate("COMPACT TABLE KNOWNBOARDS");
+        return true;
+    }
 
     private boolean insertKnownBoard(Board board) throws SQLException {
 
