@@ -169,13 +169,15 @@ public class AppLayerDatabase implements Savable {
             
             if( compactTables ) {
                 System.out.println("Compacting database tables...");
+                long beforeTime = System.currentTimeMillis();
                 Statement stmt = instance.createStatement();
                 for( Iterator i = lst.iterator(); i.hasNext(); ) {
                     AbstractDatabaseTable table = (AbstractDatabaseTable) i.next();
                     table.compact(stmt);
                 }
                 stmt.close();
-                System.out.println("Finished compact of database tables...");
+                long afterTime = System.currentTimeMillis();
+                System.out.println("Finished compact of database tables, duration "+(afterTime - beforeTime)+" ms");
             }
         } else {
             System.out.println("ERROR: AppLayerDatabase already initialized!");
