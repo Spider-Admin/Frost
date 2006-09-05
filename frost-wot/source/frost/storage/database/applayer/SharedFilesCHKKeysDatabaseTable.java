@@ -56,6 +56,11 @@ public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
         return lst;
     }
     
+    public boolean compact(Statement stmt) throws SQLException {
+        stmt.executeUpdate("COMPACT TABLE SHAREDFILESCHK");
+        return true;
+    }
+
     public SharedFilesCHKKey retrieveSharedFilesCHKKey(String chkKey) throws SQLException {
 
         AppLayerDatabase db = AppLayerDatabase.getInstance();

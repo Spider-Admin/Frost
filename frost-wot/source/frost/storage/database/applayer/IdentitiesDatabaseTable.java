@@ -59,6 +59,13 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
         return lst;
     }
     
+    public boolean compact(Statement stmt) throws SQLException {
+        stmt.executeUpdate("COMPACT TABLE IDENTITIES");
+        stmt.executeUpdate("COMPACT TABLE OWNIDENTITIES");
+        stmt.executeUpdate("COMPACT TABLE OWNIDENTITIESLASTFILESSHARED");
+        return true;
+    }
+    
     public boolean insertIdentity(Identity identity) throws SQLException {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         

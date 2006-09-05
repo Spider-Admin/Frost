@@ -65,6 +65,12 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         return lst;
     }
 
+    public boolean compact(Statement stmt) throws SQLException {
+        stmt.executeUpdate("COMPACT TABLE FILELIST");
+        stmt.executeUpdate("COMPACT TABLE FILEOWNERBOARDLIST");
+        return true;
+    }
+
     /**
      * Insert/updates a new NewFrostSharedFileObject. 
      */

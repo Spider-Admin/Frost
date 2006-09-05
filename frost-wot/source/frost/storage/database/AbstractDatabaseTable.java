@@ -18,6 +18,7 @@
 */
 package frost.storage.database;
 
+import java.sql.*;
 import java.util.*;
 
 public abstract class AbstractDatabaseTable {
@@ -29,4 +30,6 @@ public abstract class AbstractDatabaseTable {
     }
     
     abstract public List getTableDDL();
+    
+    abstract public boolean compact(Statement stmt) throws SQLException;
 }

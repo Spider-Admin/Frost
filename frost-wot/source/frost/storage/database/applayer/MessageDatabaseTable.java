@@ -173,7 +173,15 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         lst.add(SQL_DDL_CONTENT_INDEX);
         return lst;
     }
-    
+      
+    public boolean compact(Statement stmt) throws SQLException {
+        stmt.executeUpdate("COMPACT TABLE "+getMessageTableName());
+        stmt.executeUpdate("COMPACT TABLE "+getFileAttachmentsTableName());
+        stmt.executeUpdate("COMPACT TABLE "+getBoardAttachmentsTableName());
+        stmt.executeUpdate("COMPACT TABLE "+getContentTableName());
+        return true;
+    }
+
     public synchronized void insertMessage(FrostMessageObject mo) throws SQLException {
 
         AttachmentList files = mo.getAttachmentsOfType(Attachment.FILE);

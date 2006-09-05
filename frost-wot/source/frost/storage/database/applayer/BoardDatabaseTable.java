@@ -42,6 +42,11 @@ public class BoardDatabaseTable extends AbstractDatabaseTable {
         return lst;
     }
     
+    public boolean compact(Statement stmt) throws SQLException {
+        stmt.executeUpdate("COMPACT TABLE BOARDS");
+        return true;
+    }
+    
     /**
      * Adds a new board and returns the Board object filled with a primary key.
      */
