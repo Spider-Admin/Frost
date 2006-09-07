@@ -32,7 +32,7 @@ public class UploadFilesDatabaseTable extends AbstractDatabaseTable {
 
     private static Logger logger = Logger.getLogger(UploadFilesDatabaseTable.class.getName());
     
-    // FIXME: add comment, rating, category, keywords, language(?)
+    // FIXME: this table should track only the currently uploaded files, either manually added or from SharedFiles!
 
     private final static String SQL_FILES_DDL =
         "CREATE TABLE UPLOADFILES ("+

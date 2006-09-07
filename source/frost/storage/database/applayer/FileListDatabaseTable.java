@@ -32,6 +32,10 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
 
     private static Logger logger = Logger.getLogger(FileListDatabaseTable.class.getName());
 
+    // FIXME: add comment, rating (fix), category (fix), keywords, language (fix?) (?)
+
+    // FIXME: no board needed! but track different names,comments,rating,... for same file
+    
     private final static String SQL_FILES_DDL =
         "CREATE TABLE FILELIST ("+
         "primkey BIGINT NOT NULL,"+
