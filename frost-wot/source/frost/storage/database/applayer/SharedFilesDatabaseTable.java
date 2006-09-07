@@ -24,6 +24,10 @@ import java.util.logging.*;
 
 import frost.storage.database.*;
 
+/**
+ * This table contains all our own shared files.
+ * Each file can be shared only by one local identity, or anonymous.
+ */
 public class SharedFilesDatabaseTable extends AbstractDatabaseTable {
 
     private static Logger logger = Logger.getLogger(SharedFilesDatabaseTable.class.getName());
@@ -34,7 +38,7 @@ public class SharedFilesDatabaseTable extends AbstractDatabaseTable {
         "CREATE TABLE SHAREDFILES ("+
         
         "primkey BIGINT NOT NULL,"+
-        "sha1 VARCHAR NOT NULL,"+
+        "sha VARCHAR NOT NULL,"+    // checksum of file
         "name VARCHAR NOT NULL,"+
         "path VARCHAR NOT NULL,"+   // complete path, with name
         "size BIGINT NOT NULL,"+
