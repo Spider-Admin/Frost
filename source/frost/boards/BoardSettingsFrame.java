@@ -36,6 +36,8 @@ import frost.util.gui.translation.*;
  */
 public class BoardSettingsFrame extends JDialog {
 
+    // FIXME: configure maxDaysBack (retrieve) in board configuration instead of a global setting
+    
     private class Listener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() == publicBoardRadioButton) { // Public board radio button

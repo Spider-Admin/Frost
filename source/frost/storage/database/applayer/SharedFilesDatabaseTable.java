@@ -18,15 +18,18 @@
 */
 package frost.storage.database.applayer;
 
+import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
-public class SharedFilesDatabaseTable {
+import frost.storage.database.*;
+
+public class SharedFilesDatabaseTable extends AbstractDatabaseTable {
 
     private static Logger logger = Logger.getLogger(SharedFilesDatabaseTable.class.getName());
     
     // FIXME: add comment, rating (fix), category (fix), keywords, language (fix?) (?)
-
+    
     private final static String SQL_SHAREDFILES_DDL =
         "CREATE TABLE SHAREDFILES ("+
         
@@ -51,6 +54,11 @@ public class SharedFilesDatabaseTable {
         ArrayList lst = new ArrayList(2);
         lst.add(SQL_SHAREDFILES_DDL);
         return lst;
+    }
+    
+    public boolean compact(Statement stmt) throws SQLException {
+        stmt.executeUpdate("COMPACT TABLE SHAREDFILES");
+        return true;
     }
 
 }

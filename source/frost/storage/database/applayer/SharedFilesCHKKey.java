@@ -32,9 +32,12 @@ class SharedFilesCHKKey {
     boolean isValid; // set after receive of CHK key, don't send invvalid keys in KSK pointer file
     int downloadRetries; // don't try too often
     long lastDownloadTryStartTime;
+    int sentCount; // how often did we sent this CHK
+    long lastSent; // time when we last sent this CHK within a pointer file
     
     public SharedFilesCHKKey(long primKey, String chkKey, int seenCount, long firstSeen, long lastSeen,
-            boolean isDownloaded, boolean isValid, int downloadRetries, long lastDownloadTryStartTime) 
+            boolean isDownloaded, boolean isValid, int downloadRetries, long lastDownloadTryStartTime,
+            int sentcount, long lastsent) 
     {
         this.primaryKey = primKey;
         this.chkKey = chkKey;
@@ -45,6 +48,8 @@ class SharedFilesCHKKey {
         this.isValid = isValid;
         this.downloadRetries = downloadRetries;
         this.lastDownloadTryStartTime = lastDownloadTryStartTime;
+        this.sentCount = sentcount;
+        this.lastSent = lastsent;
     }
     
     public SharedFilesCHKKey(String chkKey) {
@@ -57,6 +62,8 @@ class SharedFilesCHKKey {
         this.isValid = false; 
         this.downloadRetries = 0;
         this.lastDownloadTryStartTime = 0;
+        this.sentCount = 0;
+        this.lastSent = 0;
     }
     public String getChkKey() {
         return chkKey;
@@ -102,5 +109,17 @@ class SharedFilesCHKKey {
     }
     public void setLastDownloadTryStartTime(long lastDownloadTryStartTime) {
         this.lastDownloadTryStartTime = lastDownloadTryStartTime;
+    }
+    public int getSentCount() {
+        return sentCount;
+    }
+    public void incrementSentCount() {
+        sentCount++;
+    }
+    public long getLastSent() {
+        return lastSent;
+    }
+    public void setLastSent(long v) {
+        lastSent = v;
     }
 }
