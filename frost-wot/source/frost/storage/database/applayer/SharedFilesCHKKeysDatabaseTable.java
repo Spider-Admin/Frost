@@ -30,10 +30,8 @@ public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
     
     // FIXME: implement some expiration for old CHK keys and delete them
 
-    // FIXME: IndexSlots for KSK key! -> problem: IndexSlots uses a board with contraint to the boards table, but we have no board!
-    
     // Question: how to ensure own CHK keys, track them once uploaded if we ever see them again! 
-    // Answer: Ignore lost keys, we resend them in time!
+    // Answer: Ignore lost keys, we resend them after some days!
     //         Handle own received keys like any other keys, we don't even know that this was our key.
     
     private final static String SQL_SHAREDFILESCHK_DDL =
@@ -47,11 +45,13 @@ public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
           "isvalid BOOLEAN NOT NULL,"+   // - if files signature was invalid, don't distribute this file any longer!        
           "downloadretries INT NOT NULL,"+
           "lastdownloadtrystart BIGINT NOT NULL,"+ // a time in millis
+          "sentcount INT NOT NULL,"+   // how often we send this CHK within a pointer file
+          "lastsent BIGINT NOT NULL,"+ // time in millis when we sent this CHK the last time
         "CONSTRAINT sfiles_pk PRIMARY KEY (primkey),"+
         "CONSTRAINT sfiles_1 UNIQUE (chkkey) )";
 
     public List getTableDDL() {
-        ArrayList lst = new ArrayList(2);
+        ArrayList lst = new ArrayList(1);
         lst.add(SQL_SHAREDFILESCHK_DDL);
         return lst;
     }
@@ -66,7 +66,8 @@ public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
         PreparedStatement ps = db.prepare(
-                "SELECT primkey,seencount,firstseen,lastseen,isdownloaded,isvalid,downloadretries,lastdownloadtrystart "+
+                "SELECT primkey,seencount,firstseen,lastseen,isdownloaded,isvalid,downloadretries,lastdownloadtrystart,"+
+                "sentcount,lastsent "+
                 "FROM SHAREDFILESCHK WHERE chkkey=?");
         
         ps.setString(1, chkKey);
@@ -84,6 +85,8 @@ public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
             boolean isValid = rs.getBoolean(ix++);
             int downloadRetries = rs.getInt(ix++);
             long lastDownloadTryStart = rs.getLong(ix++);
+            int sentCount = rs.getInt(ix++);
+            long lastSent = rs.getLong(ix++);
             
             result = new SharedFilesCHKKey(
                     primkey, 
@@ -94,7 +97,9 @@ public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
                     isDownloaded,
                     isValid,
                     downloadRetries,
-                    lastDownloadTryStart);
+                    lastDownloadTryStart,
+                    sentCount,
+                    lastSent);
         }
         rs.close();
         ps.close();
@@ -112,7 +117,8 @@ public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
         
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
-        String sql = "SELECT primkey,chkkey,seencount,firstseen,lastseen,isdownloaded,isvalid,downloadretries,lastdownloadtrystart "+
+        String sql = "SELECT primkey,chkkey,seencount,firstseen,lastseen,isdownloaded,isvalid,downloadretries,lastdownloadtrystart,"+
+                     "sentcount,lastsent "+
                      "FROM SHAREDFILESCHK WHERE isdownloaded=FALSE AND downloadretries<?";
 
         if( currentlyTriedCHKs != null && currentlyTriedCHKs.size() > 0 ) {
@@ -150,6 +156,8 @@ public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
             boolean isValid = rs.getBoolean(ix++);
             int downloadRetries = rs.getInt(ix++);
             long lastDownloadTryStart = rs.getLong(ix++);
+            int sentCount = rs.getInt(ix++);
+            long lastSent = rs.getLong(ix++);
             
             result = new SharedFilesCHKKey(
                     primkey, 
@@ -160,7 +168,9 @@ public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
                     isDownloaded,
                     isValid,
                     downloadRetries,
-                    lastDownloadTryStart);
+                    lastDownloadTryStart,
+                    sentCount,
+                    lastSent);
         }
         rs.close();
         ps.close();
@@ -185,8 +195,8 @@ public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
 
         PreparedStatement ps = db.prepare(
                 "INSERT INTO SHAREDFILESCHK (primkey,chkkey,seencount,firstseen,lastseen,"+
-                  "isdownloaded,isvalid,downloadretries,lastdownloadtrystart) "+
-                "VALUES (?,?,?,?,?,?,?,?,?)");
+                  "isdownloaded,isvalid,downloadretries,lastdownloadtrystart,sentcount,lastsent) "+
+                "VALUES (?,?,?,?,?,?,?,?,?,?,?)");
         
         int ix=1;
         ps.setLong(ix++, identity.longValue());
@@ -198,6 +208,8 @@ public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
         ps.setBoolean(ix++, newkey.isValid());
         ps.setInt(ix++, newkey.getDownloadRetries());
         ps.setLong(ix++, newkey.getLastDownloadTryStartTime());
+        ps.setInt(ix++, newkey.getSentCount());
+        ps.setLong(ix++, newkey.getLastSent());
         
         int insertCount = ps.executeUpdate();
         
@@ -214,7 +226,7 @@ public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
         
         PreparedStatement ps = db.prepare(
                 "UPDATE SHAREDFILESCHK SET seencount=?,lastseen=?,isdownloaded=?,"+
-                "isvalid=?,downloadretries=?,lastdownloadtrystart=? "+
+                "isvalid=?,downloadretries=?,lastdownloadtrystart=?,sentcount=?,lastsent=? "+
                 "WHERE primkey=?");
 
         int ix=1;
@@ -224,6 +236,8 @@ public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
         ps.setBoolean(ix++, newkey.isValid());
         ps.setInt(ix++, newkey.getDownloadRetries());
         ps.setLong(ix++, newkey.getLastDownloadTryStartTime());
+        ps.setInt(ix++, newkey.getSentCount());
+        ps.setLong(ix++, newkey.getLastSent());
         
         ps.setLong(ix++, newkey.getPrimaryKey());
         
