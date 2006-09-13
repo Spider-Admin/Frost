@@ -86,7 +86,7 @@ public class FCPTests {
 		cmd.add("PriorityClass=3");   // today, please ;) 
 		cmd.add("GetCHKOnly=true");   // calculate the chk from 1k (the default testfile)
 		cmd.add("Global=false");
-		cmd.add("Persistance=" + Persistence.CONNECTION);
+		cmd.add("Persistance=" + Persistance.CONNECTION);
 		cmd.add("DontCompress=true");
 		cmd.add("ClientToken=" + clientoken); 
 		cmd.add("UploadFrom=disk");
@@ -154,7 +154,7 @@ public class FCPTests {
 		cmd.add("GetCHKOnly=false");
 		cmd.add("Global=true");
 		cmd.add("DontCompress=true");
-		cmd.add("Persistence=" + Persistence.REBOOT);
+		cmd.add("Persistence=" + Persistance.REBOOT);
 		cmd.add("ClientToken=" + clientoken);
 		cmd.add("UploadFrom=direct");
 		cmd.add("DataLength=1024");
