@@ -20,33 +20,22 @@
  */
 package hyperocha.freenet.fcp;
 
+
 /**
- * this class should be pronounced 'FreenetURI',
- * most programmers uses import .* and java become confused 
- * with freenet.client.* eg.
  * @author saces
- *
+ * a helper class for compose this 'offline', do several checks and insert this
  */
-public class FreenetURL {
+public class ClientPutComplexDir {
 
 	/**
 	 * 
 	 */
-	public FreenetURL() {
-
+	public ClientPutComplexDir() {
 	}
 	
-	public String getKey() {
-		// TODO
-		return "TUK@bdhbd";
+	public void addItem(String virtualName, UploadFrom uf) {
 	}
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	public String toString() {
-		// TODO
-		return "freenet:" + getKey();
+	
+	public void insert(/* Factory factory */) {
 	}
-
 }
