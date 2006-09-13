@@ -1,5 +1,5 @@
 /**
- *   This file is part of JHyperochaFCPLib.
+ *   This file is part of JHyperochaUtilLib.
  *   
  *   Copyright (C) 2006  Hyperocha Project <saces@users.sourceforge.net>
  * 
@@ -8,7 +8,7 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  * 
- * JHyperochaFCPLib is distributed in the hope that it will be useful,
+ * JHyperochaUtilLib is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
@@ -18,12 +18,16 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  * 
  */
-package hyperocha.freenet.fcp.io;
+package hyperocha.util;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 
 /**
  * @author saces
  *
  */
-public interface IOConnectionHandler {
-	public void handleItRaw(int i);
+public interface IStorageObject {
+	public boolean loadData(DataInputStream dis);
+	public boolean storeData(DataOutputStream dos); 
 }
