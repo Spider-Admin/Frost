@@ -46,18 +46,18 @@ public class FCPTests {
 	 * @return a valid node handle or NULL if somthing is wrong
 	 */
 	public static FCPNode TestNodeHelo(String serverport) {
-		//System.out.print("Testing Node Helo: ");
-		
-		//TestNodeErrorHandler erh = new TestNodeErrorHandler();
-		FCPNode node = new FCPNode(serverport);
-		
-		//if ((node == null) || (erh.err)) return null;
-
-		// FIXME: check errors while etablish connection
-		node.getDefaultFCPConnection();
-
-		return node;
-		//return null;
+//		//System.out.print("Testing Node Helo: ");
+//		
+//		//TestNodeErrorHandler erh = new TestNodeErrorHandler();
+//		//FCPNode node = new FCPNode(serverport);
+//		
+//		//if ((node == null) || (erh.err)) return null;
+//
+//		// FIXME: check errors while etablish connection
+//		node.getDefaultFCPConnection();
+//
+//		return node;
+		return null;
 	}
 	
 	/**

@@ -21,34 +21,45 @@
 package hyperocha.freenet.fcp;
 
 
-import hyperocha.freenet.fcp.io.IOConnectionErrorHandler;
-
+import hyperocha.freenet.fcp.io.FCPIOConnectionErrorHandler;
+import hyperocha.freenet.fcp.utils.FCPTests;
+import hyperocha.freenet.fcp.utils.FCPUtil;
+import java.io.File;
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
+import java.util.Hashtable;
+import java.util.LinkedList;
+import java.util.List;
+
 
 /**
- * @author saces
- *
+ * @author  saces
  */
 public class FCPNode {
 	
-	private IOConnectionErrorHandler ioErrorHandler = null;
-	private InetAddress host = null;
-    private int port = -1;
-	private String hostName = null; // avoid name lookup recursion in security manager
-	private String hostIp = null; // avoid n
+	private static final String CLIENTTOKEN = "hyperocha test";
+	
+	private FCPIOConnectionErrorHandler ioErrorHandler = null;
+	private FCPNodeConfig nodeConfig;
+	private FCPNodeStatus nodeStatus;
     private FCPConnection defaultConn = null;
-    private int timeOut = 10 * 60 * 1000; // the default timeout (ms)
-
-    /**
+    
+    private Exception lastError = null;
+    
+    public FCPNode(FCPNodeConfig nodeconfig) {
+    	this.nodeConfig = nodeconfig;
+    }
+    
+     /**
      * the constructor checks only the plausibility of 'server:port'
      * but doesn't etablish any connection to it.
      * @param String 'server:port'
      * @throws Throwable 
      * 
      */
+    
+ /*   
+    
     
     public FCPNode(String serverport) {
     	this(serverport, null);
@@ -91,7 +102,7 @@ public class FCPNode {
 //        }
         
     }
-	
+*/	
 	/**
 	 * 
 	 * @return
@@ -106,42 +117,11 @@ public class FCPNode {
 	}
 	
 	/**
-	 * @param timeout timeout for helo in millisecunds
-	 */
-	/* bloedsinn
-	public boolean helo(int to) {
-		@SuppressWarnings("unused") FCPConnection conn = null;
-		try {
-			conn = getNewFCPConnection(to);
-	    } catch (IOException ex) {
-			System.out.println("Error in helo: " + ex);
-			ex.printStackTrace();
-			return false;
-	    }
-	    //conn.close();
-	     System.out.println("HELO7: Ende OK");
-	     return true;
-	}
-*/
-	
-	public int getTimeOut() {
-		return this.timeOut;
-	}
-	
-	public InetAddress getHost() {
-		return this.host;
-	}
-	
-	public int getPort() {
-		return this.port;
-	}
-	
-	/**
 	 * @return Socket
 	 * @throws IOException
 	 */
 	public Socket createSocket() throws IOException {
-		return createSocket(timeOut);
+		return createSocket(nodeConfig.getTimeOut());
 	}
 	
 	/**
@@ -150,7 +130,7 @@ public class FCPNode {
 	 * @throws IOException
 	 */
 	public Socket createSocket(int to) throws IOException {
-		Socket sock = new Socket(host, port);
+		Socket sock = new Socket(nodeConfig.getHost(), nodeConfig.getPort());
 	    sock.setSoTimeout(to);
 	    return sock;
 	}
@@ -160,7 +140,154 @@ public class FCPNode {
 		return new FCPConnection(this);
 	}
 	
-	//public FCPConnection getNewFCPConnection(int to) throws IOException {
-	//	return new FCPConnection(this, to);
-	//}
+	
+	public boolean performNodeTest(FCPNodeConfig config) {
+		// check adresse:Port
+		// if rechable, check for peers, at least one connected is necesary
+		// TODO
+		return false;
+	}
+	
+	public boolean performOptionsTest(FCPNodeConfig config) {
+		// check for DDA
+		// check Global queue?
+		// check persitance
+		// TODO
+		return false;
+	}
+
+	public boolean haveDDA() {
+		return nodeConfig.haveDDA();
+	}
+	
+	public FreenetKey generateSSK() {
+		List cmd = new LinkedList();
+		cmd.add("GenerateSSK");
+		cmd.add("Identifier=My Identifier Blah Blah");
+		cmd.add("EndMessage");
+
+		FCPConnection conn = null; //node.getDefaultFCPConnection();
+//		boolean repeat = true;
+		Hashtable result = null;
+		try { 
+			conn = getNewFCPConnection();
+			conn.start(cmd);
+			result = conn.readEndMessage();
+    	} catch (Throwable ex) {
+			conn.close();
+			return null;
+		}
+
+			
+		if (!("SSKKeypair").equalsIgnoreCase((String)(result.get(FCPConnection.MESSAGENAME)))) {
+			System.err.println("SSK gen err: " + result);
+			conn.close();
+			return null;
+		}
+			
+			
+		String iURI = (String)result.get("InsertURI");
+		String rURI = (String)result.get("RequestURI");
+		
+		
+		//System.out.println("Result I:" + iURI);	
+		
+		//System.out.println("Result I:" + iURI.substring(12,55));
+		
+		//System.out.println("Result R:" + rURI);
+		//System.out.println("Result R:" + rURI.substring(12,55));
+		//System.out.println("Result R:" + rURI.substring(56,99));
+		//System.out.println("Result R:" + rURI.substring(101,107));
+		
+		// public FreenetKey(FreenetKeyType keytype, String pubkey, String privkey, String cryptokey, String suffix) {
+		FreenetKey key = new FreenetKey(FreenetKeyType.SSK, rURI.substring(12,55), iURI.substring(12,55), rURI.substring(56,99), rURI.substring(101,107));
+			
+			
+		//System.out.println("Result:" + result);
+//		} catch (Throwable ex) {
+//			conn.close();
+//			return null;
+		
+		conn.close();
+		//return false;
+	
+		//System.out.println("Result:" + key);
+		
+		return key;
+	}
+
+	public boolean testDDA() {
+		return testDDA(FCPUtil.getNewConnectionId("InsertDDA-Test-") , CLIENTTOKEN);
+	}
+	
+	public boolean testDDA(String identifier, String clientoken) {
+		File f = FCPTests.createTestFile();
+		return testDDA(identifier, clientoken, f);
+	}
+	
+	public boolean testDDA(String identifier, String clientoken, File testfile) {
+
+		List cmd = new LinkedList();
+		cmd.add("ClientPut");
+		cmd.add("URI=CHK@");
+		cmd.add("Identifier=" + identifier); 
+		cmd.add("Verbosity=0");
+		cmd.add("MaxRetries=1");      // only one try, the node accepts the filename or net
+		cmd.add("PriorityClass=0");   // today, please ;) 
+		cmd.add("GetCHKOnly=true");   // calculate the chk from 1k (the default testfile)
+		cmd.add("Global=false");
+		cmd.add("Persistance=" + Persistance.CONNECTION);
+		cmd.add("DontCompress=true");
+		cmd.add("ClientToken=" + clientoken); 
+		cmd.add("UploadFrom=disk");
+		cmd.add("Filename=w" + testfile.getAbsolutePath());
+		cmd.add("EndMessage");
+		
+		
+		/* we need only to know that the node accept the filename,
+		 * but we run the hole one
+		 * it takes maybe more time and give more stress for the node to cancel the job
+		 * calculate the key from the 1k testfile  
+		 */
+		
+		FCPConnection conn = null; //node.getDefaultFCPConnection();
+		boolean repeat = true;
+		Hashtable result = null;
+		try { 
+			conn = getNewFCPConnection();
+			conn.start(cmd);
+			
+			while (repeat) {
+				result = conn.readEndMessage();
+				System.out.println("DDA-Test loop: " + result);
+				repeat = ("URIGenerated").equalsIgnoreCase((String)(result.get(FCPConnection.MESSAGENAME)));
+			}
+			
+			if (("PutSuccessful").equalsIgnoreCase((String)(result.get(FCPConnection.MESSAGENAME)))) {
+				conn.close();
+				return true; // the only one case for return ok.
+			}
+			//System.out.println("Result:" + result.get("judl-reason"));
+		} catch (Throwable ex) {		
+		}
+		conn.close();
+		return false;
+	}
+	
+	public FCPVersion getFCPVersion() {
+		FCPVersion result = null;
+		FCPConnection conn = new FCPConnection(this);
+		//result = 
+		return result;		
+	}
+
+	public void hello() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public boolean isValid() {
+		return (lastError == null);
+	}
+
 }
