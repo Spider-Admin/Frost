@@ -34,7 +34,7 @@ public class UploadFrom {
  
 	private int type;
 	private String source;
-	private long count;
+	private int count;
 	private InputStream is;
 	
 	/**
@@ -46,18 +46,9 @@ public class UploadFrom {
 	}
 	
 	/**
-	 * this is a direct insert, the entire stream
-	 */
-	public UploadFrom(InputStream s) {
-		type = DIRECT;
-		count = -1;
-		is = s;
-	}
-	
-	/**
 	 * this is a direct insert, the stream from actual pos and n bytes
 	 */
-	public UploadFrom(InputStream s, long count) {
+	public UploadFrom(InputStream s, int count) {
 		type = DIRECT;
 		this.count = count;
 		is = s;
@@ -66,9 +57,51 @@ public class UploadFrom {
 	/**
 	 * this is a redirect insert
 	 */
-	public UploadFrom(FreenetURL key) {
+	public UploadFrom(FreenetKey key) {
 		type = REDIRECT;
-		source = key.getKey();
+		source = key.getReadKey();
+	}
+	
+	
+	/*
+	 * geek constructor disk/redirect
+	 */
+	public UploadFrom(int type, String source) {
+		this.type = type;
+		this.source = source;
+	}
+
+	/**
+	 * @return  Returns the count.
+	 * @uml.property  name="count"
+	 */
+	protected int getCount() {
+		return count;
+	}
+
+	/**
+	 * @return  Returns the is.
+	 * @uml.property  name="is"
+	 */
+	protected InputStream getIs() {
+		return is;
+	}
+
+	/**
+	 * @return  Returns the source.
+	 * @uml.property  name="source"
+	 */
+	protected String getSource() {
+		return source;
+	}
+
+	/**
+	 * @return  Returns the type.
+	 * @uml.property  name="type"
+	 */
+	protected int getType() {
+		return type;
 	}
 
 }
+

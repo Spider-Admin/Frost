@@ -18,21 +18,51 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  * 
  */
-package hyperocha.freenet.fcp.dispatcher;
+package hyperocha.freenet.fcp;
+
+import hyperocha.util.Version;
 
 /**
- * a list of nodes (one network/darknet)
- * @author saces
- *
+ * @author  saces
  */
-public class SimpleFactory implements Factory {
+public class FCPVersion {
+	public static final FCPVersion REQUEIRD_FCP_VERSION = new FCPVersion("Fred", new Version(0,7), new Version(1,0), 964);
+	//Version=Fred,0.7,1.0,953
+	private String name;
+	private Version major;
+	private Version minor;
+	private int build;
+
 
 	/**
 	 * 
 	 */
-	public SimpleFactory() {
-		super();
-		// TODO Auto-generated constructor stub
+	public FCPVersion(String ver) {
+		
 	}
+
+
+	private FCPVersion(String s, Version maj, Version min, int i) {
+		name = s;
+		major = maj;
+		minor = min;
+		build = i;
+	}
+	
+	
+	public boolean isTestnet() {
+		return false; // TODO
+	}
+
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+//	public boolean equals(Object obj) {
+//		if (!(obj instanceof FCPVersion)) return false;
+//		// TODO Auto-generated method stub
+//		return super.equals(obj);
+//	}
+//
 
 }

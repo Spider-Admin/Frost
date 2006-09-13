@@ -18,21 +18,16 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  * 
  */
-package hyperocha.freenet.fcp.dispatcher;
+package hyperocha.freenet.fcp;
 
 /**
- * support variuos networks (darknets) and don't mix the data (until the user allows this)
  * @author saces
  *
  */
-public class NetworkFactory implements Factory {
-
-	/**
-	 * 
-	 */
-	public NetworkFactory() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
-
+public class FCPNodeStatus {
+	private int nodeID = -1;
+	private boolean reachable = false;
+	private long requestCount = -1;
+	private long onlineSince = 0;  // unix epoch
+	private int averageSpeed = -1; // requests per houeeer
 }
