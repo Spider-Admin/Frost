@@ -21,7 +21,7 @@
  */
 package frost.fcp.fcp07;
 
-import hyperocha.freenet.fcp.utils.DefaultMIMETypes;
+import hyperocha.util.DefaultMIMETypes;
 
 import java.io.*;
 import java.net.*;
