@@ -977,6 +977,12 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         if (board == null || board.isFolder()) {
             return;
         }
+        
+        // TODO: the gui buttons for boardupdate should disabled instead
+        if (!(Core.getInstance().isFreenetOnline())) {
+        	return;        	
+        }
+        	
 
         boolean threadStarted = false;
 
