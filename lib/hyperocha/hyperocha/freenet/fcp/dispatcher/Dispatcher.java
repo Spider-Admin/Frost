@@ -56,6 +56,13 @@ public class Dispatcher {
 		factory.goOnline();
 		
 	}
+	
+	public void panic(boolean clearqueue) {
+		// TODO:
+		// Stop jobmanager
+		// Cancel all active connections (Perstance=Connection)
+		// ? clear all queues (Perstance=rebbot/forever)
+	}
 
 
 	public boolean isInList(String host, int port) {
