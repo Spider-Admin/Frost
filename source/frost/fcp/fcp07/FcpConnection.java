@@ -437,6 +437,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 			fcpOut.println("GetCHKOnly=true");
 		} else {
             if( type == FcpHandler.TYPE_FILE ) {
+            	fcpOut.println("Metadata.ContentType=" + DefaultMIMETypes.guessMIMEType(sourceFile.getAbsolutePath()));
             	// TODO: 3? 4? maybee an user option?
             	// or done by the balancer (atomagically)
                 fcpOut.println("PriorityClass=3");  
@@ -446,7 +447,6 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
         }
 		
 		if (dda) {  // direct file acess
-			fcpOut.println("Metadata.ContentType=" + DefaultMIMETypes.guessMIMEType(sourceFile.getAbsolutePath()));
 			//fcpOut.println("Global=true");
 			fcpOut.println("Persistence=connection");
 			fcpOut.println("ClientToken=blasuelz");
