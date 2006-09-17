@@ -34,8 +34,7 @@ import java.net.SocketException;
 public class FCPIOConnection {
 	private FCPNode node;
 	private Socket fcpSock;
-    private InputStreamReader fcpIn;
-    private BufferedReader fcpInBuf;
+    private BufferedReader fcpIn;
     private PrintStream fcpOut;
     private boolean isopen = false;
     private Exception lasterror = null;
@@ -54,8 +53,6 @@ public class FCPIOConnection {
     public FCPIOConnection(FCPNode node, FCPIOConnectionErrorHandler errh) {
     	this.node = node;
 		setFCPConnectionErrorHandler(errh);
-		//setTimeOut()
-    	//this(node, node.getTimeOut(), errh); 
     }
     
     private void setFCPConnectionErrorHandler(FCPIOConnectionErrorHandler errh) {
@@ -67,9 +64,9 @@ public class FCPIOConnection {
      * @param e
      */
     private /*synchronized*/ void handleIOError(Exception e) {
-    	//this.close();
     	isopen = false;
     	lasterror = e;
+    	e.printStackTrace();
     	if (connerrh != null) {
     		connerrh.onIOError(e);
     	}
@@ -84,8 +81,7 @@ public class FCPIOConnection {
 			fcpSock = node.createSocket();
 			//fcpSock.setSoTimeout(to);
 			fcpOut = new PrintStream(fcpSock.getOutputStream(), false, charset);
-    		fcpIn = new InputStreamReader(fcpSock.getInputStream(), charset);
-    		fcpInBuf = new BufferedReader(fcpIn);
+    		fcpIn = new BufferedReader(new InputStreamReader(fcpSock.getInputStream(), charset));
 		} catch (IOException e) {
 			handleIOError(e);
 			return false;
@@ -98,7 +94,6 @@ public class FCPIOConnection {
         try {
         	fcpOut.close();
 			fcpIn.close();
-			fcpInBuf.close();
 	        fcpSock.close();
 		} catch (Throwable e) {
 			// ignore errors while closing
@@ -106,8 +101,7 @@ public class FCPIOConnection {
 		}
 		isopen = false;
 		fcpOut = null;
-		fcpIn = null; 
-		fcpInBuf = null;
+		fcpIn = null;
         fcpSock = null;
 	}
 	
@@ -179,7 +173,7 @@ public class FCPIOConnection {
 		if (!isopen) return null;
 		String result = null;
 		try {
-			result = fcpInBuf.readLine();
+			result = fcpIn.readLine();
 		} catch (Exception e) {
 			handleIOError(e);
 		}
@@ -213,5 +207,19 @@ public class FCPIOConnection {
 			return false;
 		}
 		return true;
+	}
+
+	public int read() {
+		if (!isopen) return -1;
+		int i;
+		try {
+			//System.err.println("TEST IO READ 03");
+			i = fcpIn.read();
+			//System.err.println("TEST IO READ 04: " + i);
+		} catch (Exception e) {
+			handleIOError(e);
+			return -1;
+		}
+		return i;
 	}
 }
