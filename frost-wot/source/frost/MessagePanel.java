@@ -1306,28 +1306,31 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         if( Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS) ) {
 
             FrostMessageObject initial = getSelectedMessage();
+            
+            if (initial != null) { // none selcted
 
-            TreeNode[] path = initial.getPath();
-            java.util.List path_list = java.util.Arrays.asList(path);
+            	TreeNode[] path = initial.getPath();
+            	java.util.List path_list = java.util.Arrays.asList(path);
 
-            for( int idx = initial.getLevel(); idx > 0 && nextMessage == null; idx-- ) {
-                FrostMessageObject parent = (FrostMessageObject) path[idx];
-                LinkedList queue = new LinkedList();
-                for( queue.add(parent); !queue.isEmpty() && nextMessage == null; ) {
-                    final FrostMessageObject message = (FrostMessageObject) queue.removeFirst();
-                    if( message.isNew() ) {
-                        nextMessage = message;
-                        break;
-                    }
+            	for( int idx = initial.getLevel(); idx > 0 && nextMessage == null; idx-- ) {
+            		FrostMessageObject parent = (FrostMessageObject) path[idx];
+            		LinkedList queue = new LinkedList();
+            		for( queue.add(parent); !queue.isEmpty() && nextMessage == null; ) {
+            			final FrostMessageObject message = (FrostMessageObject) queue.removeFirst();
+            			if( message.isNew() ) {
+            				nextMessage = message;
+            				break;
+            			}
 
-                    Enumeration children = message.children();
-                    while( children.hasMoreElements() ) {
-                        TreeNode t = (TreeNode) children.nextElement();
-                        if( !path_list.contains(t) ) {
-                            queue.add(t);
-                        }
-                    }
-                }
+            			Enumeration children = message.children();
+            			while( children.hasMoreElements() ) {
+            				TreeNode t = (TreeNode) children.nextElement();
+            				if( !path_list.contains(t) ) {
+            					queue.add(t);
+            				}
+            			}
+            		}
+            	}
             }
         }
         if( nextMessage == null ) {
