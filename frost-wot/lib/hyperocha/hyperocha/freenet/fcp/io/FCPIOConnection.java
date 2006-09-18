@@ -21,7 +21,8 @@
 package hyperocha.freenet.fcp.io;
 
 import hyperocha.freenet.fcp.FCPNode;
-import java.io.BufferedReader;
+
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
@@ -34,7 +35,7 @@ import java.net.SocketException;
 public class FCPIOConnection {
 	private FCPNode node;
 	private Socket fcpSock;
-    private BufferedReader fcpIn;
+    private BufferedInputStream fcpIn;
     private PrintStream fcpOut;
     private boolean isopen = false;
     private Exception lasterror = null;
@@ -81,7 +82,7 @@ public class FCPIOConnection {
 			fcpSock = node.createSocket();
 			//fcpSock.setSoTimeout(to);
 			fcpOut = new PrintStream(fcpSock.getOutputStream(), false, charset);
-    		fcpIn = new BufferedReader(new InputStreamReader(fcpSock.getInputStream(), charset));
+    		fcpIn = new BufferedInputStream(fcpSock.getInputStream());
 		} catch (IOException e) {
 			handleIOError(e);
 			return false;
@@ -172,8 +173,15 @@ public class FCPIOConnection {
 	public String readLine() {
 		if (!isopen) return null;
 		String result = null;
+		int b;
+		byte[] bytes = new byte[1024];  // a key and a funny dir/filename in a ssk site, 256 is verry knapp
+		int count = 0;
 		try {
-			result = fcpIn.readLine();
+			while ((b = fcpIn.read()) != '\n' && b != -1 && count < 1024 && (b != '\0')) {
+				bytes[count] = (byte) b;
+				count++;
+			}
+			result = new String(bytes, 0, count, "UTF-8");
 		} catch (Exception e) {
 			handleIOError(e);
 		}
