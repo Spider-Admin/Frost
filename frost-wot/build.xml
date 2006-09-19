@@ -22,7 +22,7 @@
   <property name="jarName" value="frost.jar"/>
 
   <!--  javac compiler options -->
-  <property name="debug" value="false" />
+  <property name="debug" value="true" />
   <property name="debuglevel" value="" />
   <property name="deprecation" value="true" />
   <property name="verbose" value="false" />
