@@ -23,7 +23,7 @@
 
   <!--  javac compiler options -->
   <property name="debug" value="true" />
-  <property name="debuglevel" value="" />
+  <property name="debuglevel" value="source,lines,vars" />
   <property name="deprecation" value="true" />
   <property name="verbose" value="false" />
   <property name="optimize" value="true" />
