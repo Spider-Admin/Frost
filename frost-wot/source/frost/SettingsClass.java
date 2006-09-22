@@ -89,6 +89,8 @@ public class SettingsClass implements Savable {
     public static final String SHOW_KEYS_AS_HYPERLINKS = "showKeysAsHyperlinks";
     
     public static final String FILE_BASE = "fileBase";
+    public static final String MIN_DAYS_BEFORE_FILE_RESHARE = "minDaysBeforeFileReshare";
+    public static final String MAX_FILELIST_DOWNLOAD_DAYS = "fileBase";
 
     public SettingsClass() {
         settingsHash = new Hashtable();
@@ -623,10 +625,12 @@ public class SettingsClass implements Savable {
         defaults.put("downloadTryAllSegments", "true");
 
         defaults.put("htlUpload", "21");
-        defaults.put("maxAge", "5");
         defaults.put("maxMessageDisplay", "15");
         defaults.put("maxMessageDownload", "5");
         
+        defaults.put(MIN_DAYS_BEFORE_FILE_RESHARE, "3"); // reshare all 3 days
+        defaults.put(MAX_FILELIST_DOWNLOAD_DAYS, "7"); // download backward 7 days
+
         defaults.put("messageBase", "news");
         defaults.put("fileBase", "files");
 

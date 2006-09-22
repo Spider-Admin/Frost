@@ -42,7 +42,7 @@ public class FileListManager {
         // this wrap-arounding ensures that each file will be send over the time
 
         // compute minDate, items last shared before this date must be reshared
-        int maxAge = Core.frostSettings.getIntValue("maxAge");
+        int maxAge = Core.frostSettings.getIntValue(SettingsClass.MIN_DAYS_BEFORE_FILE_RESHARE);
         long maxDiff = maxAge * 24 * 60 * 60 * 1000;
         long now = System.currentTimeMillis();
         long minDate = now - maxDiff;
