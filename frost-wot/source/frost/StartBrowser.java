@@ -19,7 +19,7 @@
 package frost;
 import java.awt.*;
 
-import frost.components.BrowserFrame;
+import frost.components.*;
 
 public class StartBrowser {
     boolean packFrame = false;

@@ -19,7 +19,7 @@
 package frost;
 
 import java.beans.*;
-import java.io.IOException;
+import java.io.*;
 import java.util.logging.*;
 
 public class Logging {

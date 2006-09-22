@@ -22,42 +22,37 @@ import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
-import frost.*;
+import frost.fileTransfer.*;
 import frost.fileTransfer.download.*;
-import frost.gui.objects.*;
 import frost.storage.database.*;
 
+/**
+ * Stores manually added download files
+ */
 public class DownloadFilesDatabaseTable extends AbstractDatabaseTable {
 
     private static Logger logger = Logger.getLogger(DownloadFilesDatabaseTable.class.getName());
 
     private final static String SQL_DDL =
         "CREATE TABLE DOWNLOADFILES ("+
-        "primkey BIGINT DEFAULT UNIQUEKEY('DOWNLOADFILES') NOT NULL,"+
-        "name VARCHAR NOT NULL,"+          // filename
-        "state INT NOT NULL,"+ 
-        "enabled BOOLEAN NOT NULL,"+       // is upload enabled?
-        "retries INT NOT NULL,"+           // number of upload tries, set to 0 on any successful upload
-        "targetpath VARCHAR,"+    // set by us
-        "laststopped TIMESTAMP NOT NULL,"+ // time of last start of download
 
-        "board INT,"+  // only set for board files, not needed for attachments/manually added files. -1 means not set!
-        "fromname VARCHAR,"+
-        "sha1 VARCHAR,"+          // maybe not set, for attachments/manually added files
-        "lastrequested DATE,"+    // date of last sent request for this file
-        "requestcount INT NOT NULL,"+      // number of requests sent for this file
+          "name VARCHAR NOT NULL,"+          // filename
+          "targetpath VARCHAR,"+    // set by us
+          "size BIGINT,"+                    // size is maybe not set if the key was added manually
+          "fnkey VARCHAR,"+
         
-        // TODO: during upload of index, check if a download file must be requested.
-        //   if a file must be requested for the current board, request it.
-        //   but if the requestcount is high, request it in other boards if possible
-        
-        // fnkey: NOT NULL, because here "" means not set. sql select for NULL values does not work!
-        "fnkey VARCHAR NOT NULL,"+ // maybe not set for board files -> request key, use infos from FILELIST table (sha1)
-        "size BIGINT,"+ // size is not set if the key was added manually
-        "CONSTRAINT dlf_pk PRIMARY KEY (primkey),"+
-        "CONSTRAINT DOWNLOADFILES_2 UNIQUE (name) )";  // check before adding a new file!
-    
-    // TODO: update FILELIST table with lastdownloaded date after successful download
+          "enabled BOOLEAN,"+       // is upload enabled?
+          "state INT,"+ 
+          "downloadaddedtime BIGINT,"+
+          "downloadstartedtime BIGINT,"+
+          "downloadfinishedtime BIGINT,"+
+          "retries INT,"+                 // number of upload tries, set to 0 on any successful upload
+          "lastdownloadstoptime BIGINT,"+ // time of last start of download
+          "gqid VARCHAR,"+                // global queue id
+          
+          "filelistfilesha VARCHAR,"+
+
+        "CONSTRAINT DOWNLOADFILES_1 UNIQUE (fnkey) )";  // check before adding a new file!
     
     public List getTableDDL() {
         ArrayList lst = new ArrayList(3);
@@ -79,8 +74,9 @@ public class DownloadFilesDatabaseTable extends AbstractDatabaseTable {
         s.close();
 
         PreparedStatement ps = db.prepare(
-                "INSERT INTO DOWNLOADFILES (name,state,enabled,retries,targetpath,laststopped,board,sha1,fromname,lastrequested,"+
-                "requestcount,fnkey,size) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+                "INSERT INTO DOWNLOADFILES " +
+                "(name,targetpath,size,fnkey,enabled,state,downloadaddedtime,downloadstartedtime,downloadfinishedtime,"+
+                "retries,lastdownloadstoptime,gqid,filelistfilesha) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
         
         for(Iterator i=downloadFiles.iterator(); i.hasNext(); ) {
 
@@ -88,18 +84,18 @@ public class DownloadFilesDatabaseTable extends AbstractDatabaseTable {
 
             int ix=1;
             ps.setString(ix++, dlItem.getFileName());
-            ps.setInt(ix++, dlItem.getState());
-            ps.setBoolean(ix++, (dlItem.getEnableDownload()==null?true:dlItem.getEnableDownload().booleanValue()));
-            ps.setInt(ix++, dlItem.getRetries());
-            ps.setString(ix++, null); // targetpath
-            ps.setTimestamp(ix++, new Timestamp(dlItem.getLastDownloadStopTimeMillis()));
-            ps.setInt(ix++, (dlItem.getSourceBoard()==null?-1:dlItem.getSourceBoard().getPrimaryKey().intValue()));
-            ps.setString(ix++, dlItem.getSHA1());
-            ps.setString(ix++, dlItem.getOwner());
-            ps.setDate(ix++, dlItem.getLastRequestedDate());
-            ps.setInt(ix++, dlItem.getRequestedCount());
-            ps.setString(ix++, (dlItem.getKey()==null?"":dlItem.getKey()));
+            ps.setString(ix++, dlItem.getTargetPath());
             ps.setLong(ix++, (dlItem.getFileSize()==null?0:dlItem.getFileSize().longValue()));
+            ps.setString(ix++, (dlItem.getKey()==null?"":dlItem.getKey()));
+            ps.setBoolean(ix++, (dlItem.getEnableDownload()==null?true:dlItem.getEnableDownload().booleanValue()));
+            ps.setInt(ix++, dlItem.getState());
+            ps.setLong(ix++, dlItem.getDownloadAddedTime());
+            ps.setLong(ix++, dlItem.getDownloadStartedTime());
+            ps.setLong(ix++, dlItem.getDownloadFinishedTime());
+            ps.setInt(ix++, dlItem.getRetries());
+            ps.setLong(ix++, dlItem.getLastDownloadStopTime());
+            ps.setString(ix++, dlItem.getGqId());
+            ps.setString(ix++, (dlItem.getFileListFileObject()==null?"":dlItem.getFileListFileObject().getSha()));
             
             ps.executeUpdate();
         }
@@ -113,50 +109,52 @@ public class DownloadFilesDatabaseTable extends AbstractDatabaseTable {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
         PreparedStatement ps = db.prepare(
-                "SELECT name,state,enabled,retries,laststopped,board,sha1,fromname,lastrequested,requestcount,fnkey,size "+
-                "FROM DOWNLOADFILES");
+                "SELECT " +
+                "name,targetpath,size,fnkey,enabled,state,downloadaddedtime,downloadstartedtime,downloadfinishedtime,"+
+                "retries,lastdownloadstoptime,gqid,filelistfilesha FROM DOWNLOADFILES");
         
         ResultSet rs = ps.executeQuery();
         while(rs.next()) {
             int ix=1;
             String filename = rs.getString(ix++);
-            int state = rs.getInt(ix++);
-            boolean enabledownload = rs.getBoolean(ix++);
-            int retries = rs.getInt(ix++);
-            long lastStopped = rs.getTimestamp(ix++).getTime();
-            int boardname = rs.getInt(ix++);
-            String sha1 = rs.getString(ix++);
-            String from = rs.getString(ix++);
-            java.sql.Date lastRequested = rs.getDate(ix++);
-            int requestCount = rs.getInt(ix++);
-            String key = rs.getString(ix++);
+            String targetPath = rs.getString(ix++);
             long size = rs.getLong(ix++);
+            String key = rs.getString(ix++);
+            boolean enabledownload = rs.getBoolean(ix++);
+            int state = rs.getInt(ix++);
+            long downloadAddedTime = rs.getLong(ix++);
+            long downloadStartedTime = rs.getLong(ix++);
+            long downloadFinishedTime = rs.getLong(ix++);
+            int retries = rs.getInt(ix++);
+            long lastDownloadStopTime = rs.getLong(ix++);
+            String gqId = rs.getString(ix++);
+            String sharedFileSha = rs.getString(ix++);
             
-            Board board = null;
-            if (boardname >= 0) {
-                board = MainFrame.getInstance().getTofTreeModel().getBoardByPrimaryKey(new Integer(boardname));
-                if (board == null) {
-                    logger.warning("Download item found (" + filename + ") whose source board (" +
-                            boardname + ") does not exist.");
-                    if( key == null || key.length() == 0 ) {
-                        // if we have no key we can't continue to download because we can't request the file
-                        continue;
-                    }
+            FrostFileListFileObject sharedFileObject = null;
+            if( sharedFileSha.length() > 0 ) {
+                sharedFileObject = AppLayerDatabase.getFileListDatabaseTable().retrieveFileBySha(sharedFileSha);
+                if( sharedFileObject == null && key == null ) {
+                    // no fileobject and no key -> we can't continue to download this file
+                    logger.warning("DownloadUpload items file list file object does not exist, and there is no key. " +
+                                   "Removed from upload files: "+filename);
                 }
             }
+
             FrostDownloadItem dlItem = new FrostDownloadItem(
                     filename,
+                    targetPath,
                     (size==0?null:new Long(size)),
                     (key.length()==0?null:key),
-                    retries,
-                    from,
-                    sha1,
+                    Boolean.valueOf(enabledownload),
                     state,
-                    enabledownload,
-                    board,
-                    requestCount,
-                    lastRequested,
-                    lastStopped);
+                    downloadAddedTime,
+                    downloadStartedTime,
+                    downloadFinishedTime,
+                    retries,
+                    lastDownloadStopTime,
+                    gqId);
+            
+            dlItem.setFileListFileObject(sharedFileObject);
 
             downloadItems.add(dlItem);
         }

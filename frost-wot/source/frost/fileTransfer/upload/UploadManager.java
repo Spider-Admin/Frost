@@ -18,63 +18,40 @@
 */
 package frost.fileTransfer.upload;
 
-import java.beans.*;
+import java.util.*;
 
 import frost.*;
-import frost.boards.TofTreeModel;
-import frost.identities.LocalIdentity;
-import frost.storage.StorageException;
+import frost.storage.*;
 
-/**
- * @author $Author$
- * @version $Revision$
- */
-public class UploadManager implements PropertyChangeListener {
-
-    private TofTreeModel tofTreeModel;
-    private MainFrame mainFrame;
-    private SettingsClass settings;
+public class UploadManager {
 
     private UploadModel model;
     private UploadPanel panel;
     private UploadTicker ticker;
     private UploadStatusPanel statusPanel;
 
-    private boolean freenetIsOnline;
-
-    public UploadManager(SettingsClass settings) {
+    public UploadManager() {
         super();
-        this.settings = settings;
     }
 
-    public void initialize() throws StorageException {
-        mainFrame.addPanel("MainFrame.tabbedPane.uploads", getPanel());
-        mainFrame.addStatusPanel(getStatusPanel(), 0);
-        settings.addPropertyChangeListener(SettingsClass.DISABLE_REQUESTS, this);
-        updateUploadStatus();
-        getModel().initialize();
-        if (freenetIsOnline) {
+    public void initialize(List sharedFiles) throws StorageException {
+        getPanel();
+        getStatusPanel();
+        getModel().initialize(sharedFiles);
+        if (Core.isFreenetOnline()) {
             getTicker().start();
         }
     }
-
-    public void setTofTreeModel(TofTreeModel tofTreeModel) {
-        this.tofTreeModel = tofTreeModel;
-    }
-
-    public void setMainFrame(MainFrame newMainFrame) {
-        mainFrame = newMainFrame;
-    }
-
-    public void setFreenetIsOnline(boolean freenetIsOnline) {
-        this.freenetIsOnline = freenetIsOnline;
+    
+    public void addPanelToMainFrame(MainFrame mainFrame) {
+        mainFrame.addPanel("MainFrame.tabbedPane.uploads", getPanel());
+        mainFrame.addStatusPanel(getStatusPanel(), 0);
     }
 
     public UploadPanel getPanel() {
         if (panel == null) {
-            panel = new UploadPanel(settings);
+            panel = new UploadPanel();
             panel.setModel(getModel());
-            panel.setTofTreeModel(tofTreeModel);
             panel.initialize();
         }
         return panel;
@@ -87,30 +64,16 @@ public class UploadManager implements PropertyChangeListener {
         return statusPanel;
     }
 
-    /* (non-Javadoc)
-     * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
-     */
-    public void propertyChange(PropertyChangeEvent evt) {
-        if (evt.getPropertyName().equals(SettingsClass.DISABLE_REQUESTS)) {
-            updateUploadStatus();
-        }
-    }
-
-    private void updateUploadStatus() {
-        boolean disableUploads = settings.getBoolValue(SettingsClass.DISABLE_REQUESTS);
-        mainFrame.setPanelEnabled("MainFrame.tabbedPane.uploads", !disableUploads && freenetIsOnline);
-    }
-
     private UploadTicker getTicker() {
         if (ticker == null) {
-            ticker = new UploadTicker(settings, getModel(), getPanel());
+            ticker = new UploadTicker(getModel());
         }
         return ticker;
     }
 
     public UploadModel getModel() {
         if (model == null) {
-            model = new UploadModel(settings);
+            model = new UploadModel();
         }
         return model;
     }

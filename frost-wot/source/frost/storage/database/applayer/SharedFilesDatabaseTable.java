@@ -18,44 +18,50 @@
 */
 package frost.storage.database.applayer;
 
+import java.io.*;
 import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
+import frost.fileTransfer.sharing.*;
 import frost.storage.database.*;
 
 /**
  * This table contains all our own shared files.
- * Each file can be shared only by one local identity, or anonymous.
+ * One file can be shared only by one local identity.
  */
 public class SharedFilesDatabaseTable extends AbstractDatabaseTable {
 
     private static Logger logger = Logger.getLogger(SharedFilesDatabaseTable.class.getName());
-    
-    // FIXME: add comment, rating (fix), category (fix), keywords, language (fix?) (?)
-    
+
+    // TODO: wie NEWUPLOADFILES darstellen? erstmal als grau in die table, oder einfach einen todo-count ueber die table?
+
     private final static String SQL_SHAREDFILES_DDL =
         "CREATE TABLE SHAREDFILES ("+
-        
-        "primkey BIGINT NOT NULL,"+
-        "sha VARCHAR NOT NULL,"+    // checksum of file
-        "name VARCHAR NOT NULL,"+
-        "path VARCHAR NOT NULL,"+   // complete path, with name
-        "size BIGINT NOT NULL,"+
-        "fnkey VARCHAR,"+           // if NULL file was not uploaded by us yet
-        "lastuploaded DATE,"+       // date of last successful upload
-        "uploadcount INT,"+         // number of uploads for this file so far
-        "lastrequested DATE,"+      // date of last request (from any board)
-        "requestcount INT,"+        // number of requests received for this file so far
-        "state INT,"+
-        "enabled BOOLEAN,"+         // is upload enabled?
-        "laststopped TIMESTAMP NOT NULL,"+   // time of last start of upload
-        "retries INT,"+             // number of upload tries, set to 0 on any successful upload
-        "CONSTRAINT ulfiles_pk PRIMARY KEY (primkey),"+
-        "CONSTRAINT UPLOADFILES_1 UNIQUE(sha1) )";
+
+          "path VARCHAR NOT NULL,"+   // complete local path, with name
+          "size BIGINT NOT NULL,"+    // file size
+          "fnkey VARCHAR,"+           // if NULL file was not uploaded by us yet
+
+          "sha VARCHAR NOT NULL,"+    // checksum of file
+          "owner VARCHAR NOT NULL,"+  // our local identity that shares this file
+          "comment VARCHAR,"+         // our file comment
+          "rating INT,"+              // our file rating
+          "keywords VARCHAR,"+        // our file keywords
+
+          "lastuploaded BIGINT,"+     // date of last successful upload
+          "uploadcount INT,"+         // number of uploads for this file so far
+          
+          // some fields like in FileListDatabaseTable, but especially for this file
+          "reflastsent BIGINT NOT NULL,"+  // last time we sent this ref inside a CHK file
+
+          "requestlastreceived BIGINT,"+  // time when we received the last request for this sha
+          "requestsreceivedcount INT,"+   // received requests count
+
+        "CONSTRAINT SHAREDFILES_1 UNIQUE(sha) )";
 
     public List getTableDDL() {
-        ArrayList lst = new ArrayList(2);
+        ArrayList lst = new ArrayList(1);
         lst.add(SQL_SHAREDFILES_DDL);
         return lst;
     }
@@ -65,4 +71,103 @@ public class SharedFilesDatabaseTable extends AbstractDatabaseTable {
         return true;
     }
 
+    public void saveSharedFiles(List sfFiles) throws SQLException {
+
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
+        
+        Statement s = db.createStatement();
+        s.executeUpdate("DELETE FROM SHAREDFILES"); // delete all
+
+        PreparedStatement ps = db.prepare(
+                "INSERT INTO SHAREDFILES ("+
+                  "path,size,fnkey,sha,owner,comment,rating,keywords,"+
+                  "lastuploaded,uploadcount,reflastsent,requestlastreceived,requestsreceivedcount) "+
+                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+        
+        for(Iterator i=sfFiles.iterator(); i.hasNext(); ) {
+
+            FrostSharedFileItem sfItem = (FrostSharedFileItem)i.next();
+            
+            int ix=1;
+            ps.setString(ix++, sfItem.getFile().getPath());
+            ps.setLong(ix++, sfItem.getFileSize());
+            ps.setString(ix++, sfItem.getChkKey());
+            ps.setString(ix++, sfItem.getSha());
+            ps.setString(ix++, sfItem.getOwner());
+            ps.setString(ix++, sfItem.getComment());
+            ps.setInt(ix++, sfItem.getRating());
+            ps.setString(ix++, sfItem.getKeywords());
+            ps.setLong(ix++, sfItem.getLastUploaded());
+            ps.setInt(ix++, sfItem.getUploadCount());
+            ps.setLong(ix++, sfItem.getRefLastSent());
+            ps.setLong(ix++, sfItem.getRequestLastReceived());
+            ps.setInt(ix++, sfItem.getRequestsReceived());
+            
+            ps.executeUpdate();
+        }
+        ps.close();
+    }
+    
+    public List loadSharedFiles() throws SQLException {
+
+        LinkedList sfItems = new LinkedList();
+        
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
+
+        PreparedStatement ps = db.prepare(
+                "SELECT "+
+                  "path,size,fnkey,sha,owner,comment,rating,keywords,"+
+                  "lastuploaded,uploadcount,reflastsent,requestlastreceived,requestsreceivedcount "+
+                "FROM SHAREDFILES");
+
+        ResultSet rs = ps.executeQuery();
+        while(rs.next()) {
+            int ix = 1;
+            String filepath = rs.getString(ix++);
+            long filesize = rs.getLong(ix++);
+            String key = rs.getString(ix++);
+            
+            String sha = rs.getString(ix++);
+            String owner = rs.getString(ix++);
+            String comment = rs.getString(ix++);
+            int rating = rs.getInt(ix++);
+            String keywords = rs.getString(ix++);
+            long lastUploaded = rs.getLong(ix++);
+            int uploadCount = rs.getInt(ix++);
+            long refLastSent = rs.getLong(ix++);
+            long requestLastReceived = rs.getLong(ix++);
+            int requestsReceivedCount = rs.getInt(ix++);
+            
+            File file = new File(filepath);
+            if( !file.isFile() ) {
+                logger.warning("Shared file items file does not exist, removed from shared files: "+filepath);
+                continue;
+            }
+            if( file.length() != filesize ) {
+                logger.warning("Shared file items file size changed, removed from shared files: "+filepath);
+                continue;
+            }
+            
+            FrostSharedFileItem sfItem = new FrostSharedFileItem(
+                    file,
+                    filesize,
+                    key,
+                    sha,
+                    owner,
+                    comment,
+                    rating,
+                    keywords,
+                    lastUploaded,
+                    uploadCount,
+                    refLastSent,
+                    requestLastReceived,
+                    requestsReceivedCount);
+
+            sfItems.add(sfItem);
+        }
+        rs.close();
+        ps.close();
+
+        return sfItems;
+    }
 }

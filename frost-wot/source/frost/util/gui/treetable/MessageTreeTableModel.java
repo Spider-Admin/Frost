@@ -42,7 +42,7 @@ import java.util.logging.*;
 
 import javax.swing.tree.*;
 
-import frost.gui.objects.*;
+import frost.messages.*;
 import frost.storage.database.applayer.*;
 import frost.util.gui.translation.*;
 

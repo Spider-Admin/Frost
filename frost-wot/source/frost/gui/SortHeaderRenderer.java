@@ -79,9 +79,9 @@ public class SortHeaderRenderer extends DefaultTableCellRenderer
     }
 
 
-    public static Icon NONSORTED = new SortArrowIcon(SortArrowIcon.NONE);
-    public static Icon ASCENDING = new SortArrowIcon(SortArrowIcon.ASCENDING);
-    public static Icon DECENDING = new SortArrowIcon(SortArrowIcon.DECENDING);
+    public static Icon ICON_NONSORTED = new SortArrowIcon(SortArrowIcon.NONE);
+    public static Icon ICON_ASCENDING = new SortArrowIcon(SortArrowIcon.ASCENDING);
+    public static Icon ICON_DECENDING = new SortArrowIcon(SortArrowIcon.DECENDING);
 
     public SortHeaderRenderer()
     {
@@ -135,8 +135,8 @@ public class SortHeaderRenderer extends DefaultTableCellRenderer
         TableColumnModel colModel = table.getColumnModel();
         modelIndex = colModel.getColumn(col).getModelIndex();
 
-        Icon icon = ascending ? ASCENDING : DECENDING;
-        return modelIndex == index ? icon : NONSORTED;
+        Icon icon = ascending ? ICON_ASCENDING : ICON_DECENDING;
+        return modelIndex == index ? icon : ICON_NONSORTED;
     }
 }
 

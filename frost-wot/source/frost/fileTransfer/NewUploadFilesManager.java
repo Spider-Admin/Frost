@@ -22,6 +22,7 @@ import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
+import frost.fileTransfer.upload.*;
 import frost.storage.*;
 import frost.storage.database.applayer.*;
 
@@ -30,15 +31,17 @@ public class NewUploadFilesManager implements Savable {
     private static Logger logger = Logger.getLogger(NewUploadFilesManager.class.getName());
 
     LinkedList newUploadFiles;
+    GenerateShaThread generateShaThread;
     
     public void initialize() throws StorageException {
-        
         try {
             newUploadFiles = AppLayerDatabase.getNewUploadFilesTable().loadNewUploadFiles();
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error loading new upload files", e);
             throw new StorageException("Error loading new upload files");
         }
+        generateShaThread = new GenerateShaThread();
+        generateShaThread.start();
     }
 
     public void save() throws StorageException {
@@ -54,14 +57,10 @@ public class NewUploadFilesManager implements Savable {
         for(Iterator i=newFiles.iterator(); i.hasNext(); ) {
             NewUploadFile nuf = (NewUploadFile)i.next();
             newUploadFiles.add(nuf);
+            
+            // feed thread
+            generateShaThread.addToFileQueue(nuf);
         }
-    }
-    
-    public NewUploadFile getNewUploadFile() {
-        if( newUploadFiles.size() == 0 ) {
-            return null;
-        }
-        return (NewUploadFile)newUploadFiles.getFirst();
     }
     
     public void deleteNewUploadFile(NewUploadFile nuf) {

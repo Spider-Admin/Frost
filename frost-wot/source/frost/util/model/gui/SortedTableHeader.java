@@ -32,8 +32,6 @@ import javax.swing.table.*;
  * When the user clicks on the header of one column, it notifies the associated
  * SortedModelTable of the event, so that it can change its sorting.
  * It also paints arrows on the header depending of that sorting.
- * @author $Author$
- * @version $Revision$
  */
 class SortedTableHeader extends ModelTableHeader {
 	/**
@@ -57,12 +55,12 @@ class SortedTableHeader extends ModelTableHeader {
 		 * it calls the defaultRenderer so that it finishes the job. 
 		 * @see javax.swing.table.TableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
 	 	 */
-		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-			TableCellRenderer defaultRenderer = table.getTableHeader().getDefaultRenderer();
+		public Component getTableCellRendererComponent(JTable lTable, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+			TableCellRenderer defaultRenderer = lTable.getTableHeader().getDefaultRenderer();
 			if (defaultRenderer instanceof JLabel) {
 				JLabel labelRenderer = (JLabel)defaultRenderer;
 				// This translation is done so the real column number is used when the user moves columns around.
-				int modelIndex = table.getColumnModel().getColumn(column).getModelIndex();
+				int modelIndex = lTable.getColumnModel().getColumn(column).getModelIndex();
 				if (sortedTable.getCurrentColumnNumber() == modelIndex) {
 					if (sortedTable.isAscending()) {
 						labelRenderer.setIcon(ascendingIcon);	
@@ -74,7 +72,7 @@ class SortedTableHeader extends ModelTableHeader {
 					labelRenderer.setIcon(null);	
 				}						
 			}
-			return defaultRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+			return defaultRenderer.getTableCellRendererComponent(lTable, value, isSelected, hasFocus, row, column);
 		}
 	
 	}
@@ -133,11 +131,11 @@ class SortedTableHeader extends ModelTableHeader {
 	protected void headerClicked(MouseEvent e) {
 		super.headerClicked(e);
 		if (e.getButton() == MouseEvent.BUTTON1) {
-			TableColumnModel columnModel = getTable().getColumnModel();
-			int columnNumber = columnModel.getColumnIndexAtX(e.getX());
+			TableColumnModel lColumnModel = getTable().getColumnModel();
+			int columnNumber = lColumnModel.getColumnIndexAtX(e.getX());
 			if (columnNumber != -1) {
 				//This translation is done so the real column number is used when the user moves columns around.
-				int modelIndex = columnModel.getColumn(columnNumber).getModelIndex();
+				int modelIndex = lColumnModel.getColumn(columnNumber).getModelIndex();
 				sortedTable.columnClicked(modelIndex);
 			}
 		}

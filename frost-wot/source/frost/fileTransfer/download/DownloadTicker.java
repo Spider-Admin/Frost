@@ -25,8 +25,6 @@ import frost.*;
 
 public class DownloadTicker extends Thread {
 
-	private SettingsClass settings;
-
 	private DownloadPanel panel;
 	private DownloadModel model;
 
@@ -51,10 +49,10 @@ public class DownloadTicker extends Thread {
 		public int compare(Object o1, Object o2) {
 			FrostDownloadItem value1 = (FrostDownloadItem) o1;
 			FrostDownloadItem value2 = (FrostDownloadItem) o2;
-			if (value1.getLastDownloadStopTimeMillis() > value2.getLastDownloadStopTimeMillis())
+			if (value1.getLastDownloadStopTime() > value2.getLastDownloadStopTime())
 				return 1;
 			else if (
-				value1.getLastDownloadStopTimeMillis() < value2.getLastDownloadStopTimeMillis())
+				value1.getLastDownloadStopTime() < value2.getLastDownloadStopTime())
 				return -1;
 			else
 				return 0;
@@ -62,12 +60,10 @@ public class DownloadTicker extends Thread {
 	};
 
 	public DownloadTicker(
-		SettingsClass newSettings,
 		DownloadModel newModel,
 		DownloadPanel newPanel) {
 
 		super("Download");
-		settings = newSettings;
 		model = newModel;
 		panel = newPanel;
 	}
@@ -88,7 +84,7 @@ public class DownloadTicker extends Thread {
 	 */
 	private boolean allocateThread() {
 		synchronized (threadCountLock) {
-			if (allocatedThreads < settings.getIntValue("downloadThreads")) {
+			if (allocatedThreads < Core.frostSettings.getIntValue("downloadThreads")) {
 				allocatedThreads++;
 				return true;
 			} 
@@ -169,7 +165,7 @@ public class DownloadTicker extends Thread {
 	}
 
 	private void removeFinishedDownloads() {
-		if (counter % 300 == 0 && settings.getBoolValue("removeFinishedDownloads")) {
+		if (counter % 300 == 0 && Core.frostSettings.getBoolValue("removeFinishedDownloads")) {
 			model.removeFinishedDownloads();
 		}
 	}
@@ -187,9 +183,6 @@ public class DownloadTicker extends Thread {
 	 * Called periodically by timer_actionPerformed().
 	 */
 	public void updateDownloadCountLabel() {
-		if (settings.getBoolValue(SettingsClass.DISABLE_DOWNLOADS) == true)
-			return;
-
 		int waitingItems = 0;
 		for (int x = 0; x < model.getItemCount(); x++) {
 			FrostDownloadItem dlItem = (FrostDownloadItem) model.getItemAt(x);
@@ -201,14 +194,14 @@ public class DownloadTicker extends Thread {
 	}
 
 	private void startDownloadThread() {
-		if (panel.isDownloadingActivated() && allocateThread()) {
+		if (Core.isFreenetOnline() && panel.isDownloadingActivated() && allocateThread()) {
 			boolean threadLaunched = false;
 
 			FrostDownloadItem dlItem = selectNextDownloadItem();
 			if (dlItem != null) {
 				dlItem.setState(FrostDownloadItem.STATE_TRYING);
 
-				DownloadThread newRequest = new DownloadThread(this, dlItem, model, settings);
+				DownloadThread newRequest = new DownloadThread(this, dlItem, model);
 				newRequest.start();
 				threadLaunched = true;
 			}
@@ -234,16 +227,17 @@ public class DownloadTicker extends Thread {
             if( !itemIsEnabled ) {
                 continue;
             }
+            if( dlItem.getKey() == null ) {
+                // still no key, wait
+                continue;
+            }
             
-			if( dlItem.getState() == FrostDownloadItem.STATE_WAITING ||
-				dlItem.getState() == FrostDownloadItem.STATE_REQUESTED )
-            {
+			if( dlItem.getState() == FrostDownloadItem.STATE_WAITING ) {
 				// check if waittime is expired
-				long waittimeMillis = settings.getIntValue("downloadWaittime") * 60 * 1000;
+				long waittimeMillis = Core.frostSettings.getIntValue("downloadWaittime") * 60 * 1000;
 				// min->millisec
-				if (dlItem.getLastDownloadStopTimeMillis() == 0 || // never started
-                    (settings.getBoolValue("downloadRestartFailedDownloads")
-					&& (System.currentTimeMillis() - dlItem.getLastDownloadStopTimeMillis()) > waittimeMillis)) 
+				if (dlItem.getLastDownloadStopTime() == 0 // never started
+					|| (System.currentTimeMillis() - dlItem.getLastDownloadStopTime()) > waittimeMillis) 
                 {
 					waitingItems.add(dlItem);
 				}

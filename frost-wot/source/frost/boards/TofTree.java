@@ -32,7 +32,6 @@ import javax.swing.tree.*;
 import frost.*;
 import frost.fcp.*;
 import frost.gui.*;
-import frost.gui.objects.*;
 import frost.storage.*;
 import frost.threads.*;
 import frost.util.gui.*;
@@ -950,21 +949,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         }
 
         BoardSettingsFrame newFrame = new BoardSettingsFrame(mainFrame, board);
-        newFrame.runDialog();
-
-        // all needed updates of boards are done by the dialog before it closes
-
-//      if (newFrame.runDialog() == true) { // OK pressed?
-//
-//          mainFrame.updateTofTree(board);
-//          // update the new msg. count for board
-//          TOF.getInstance().initialSearchNewMessages(board);
-//
-//          if (board == model.getSelectedNode()) {
-//              // reload all messages if board is shown
-//              mainFrame.tofTree_actionPerformed(null);
-//          }
-//      }
+        newFrame.runDialog(); // all needed updates of boards are done by the dialog before it closes
     }
 
     /**
@@ -978,18 +963,15 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             return;
         }
         
-        // TODO: the gui buttons for boardupdate should disabled instead
-        if (!(Core.getInstance().isFreenetOnline())) {
+        // TODO: the gui buttons for boardupdate should be disabled instead
+        if (!Core.isFreenetOnline()) {
         	return;        	
         }
-        	
 
         boolean threadStarted = false;
 
-        // first download the messages of today
-        if (getRunningBoardUpdateThreads()
-            .isThreadOfTypeRunning(board, BoardUpdateThread.MSG_DNLOAD_TODAY)
-            == false) {
+        // download the messages of today
+        if (getRunningBoardUpdateThreads().isThreadOfTypeRunning(board, BoardUpdateThread.MSG_DNLOAD_TODAY) == false) {
             getRunningBoardUpdateThreads().startMessageDownloadToday(
                 board,
                 settings,
@@ -998,29 +980,8 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             threadStarted = true;
         }
 
-        // maybe get the files list
-        if (!settings.getBoolValue(SettingsClass.DISABLE_REQUESTS)
-            && !getRunningBoardUpdateThreads().isThreadOfTypeRunning(
-                board,
-                BoardUpdateThread.BOARD_FILE_UPLOAD)) {
-            getRunningBoardUpdateThreads().startBoardFilesUpload(board, settings, listener);
-            logger.info("Starting update (BOARD_UPLOAD) of " + board.getName());
-            threadStarted = true;
-        }
-
-        if (!settings.getBoolValue(SettingsClass.DISABLE_DOWNLOADS)
-            && !getRunningBoardUpdateThreads().isThreadOfTypeRunning(
-                board,
-                BoardUpdateThread.BOARD_FILE_DNLOAD)) {
-            getRunningBoardUpdateThreads().startBoardFilesDownload(board, settings, listener);
-            logger.info("Starting update (BOARD_DOWNLOAD) of " + board.getName());
-            threadStarted = true;
-        }
-
-        // finally get the older messages
-        if (getRunningBoardUpdateThreads()
-            .isThreadOfTypeRunning(board, BoardUpdateThread.MSG_DNLOAD_BACK)
-            == false) {
+        // get the older messages
+        if (getRunningBoardUpdateThreads().isThreadOfTypeRunning(board, BoardUpdateThread.MSG_DNLOAD_BACK) == false) {
             getRunningBoardUpdateThreads().startMessageDownloadBack(board, settings, listener);
             logger.info("Starting update (MSG_BACKLOAD) of " + board.getName());
             threadStarted = true;

@@ -83,7 +83,6 @@ public class SkinChooser extends JPanel {
 	private JCheckBox enableSkinsCheckBox = null;
 	
 	private Language language = null;
-	private boolean noSkinsFound = true;
 	
 	private LookAndFeel initialLookAndFeel = null;
 	private Skin initialSkin = null;
@@ -256,11 +255,9 @@ public class SkinChooser extends JPanel {
 			Collections.sort(skinsListData);
 			if (skinsListData.isEmpty()) {
 				skinsListData.add(language.getString("NoSkinsFound")); // TODO:
-				noSkinsFound = true;
 				getSkinsList().setEnabled(false);
 				getSkinsList().setEnabled(false);
 			} else {
-				noSkinsFound = false;
 				if (isEnabled()) {	//Only enable the list if the SkinChooser itself is enabled
 					getSkinsList().setEnabled(true);
 				}

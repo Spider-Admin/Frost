@@ -20,20 +20,16 @@ package frost.storage.database.applayer;
 
 import java.io.*;
 
-import frost.gui.objects.*;
-
 /**
- * Holds the data for a new upload file.
+ * Holds the data for a new upload file before SHA is calculated.
  */
 public class NewUploadFile {
     
     protected File file;
-    Board targetBoard;
     protected String from;
     
-    public NewUploadFile(File f, Board board, String fromName) {
+    public NewUploadFile(File f, String fromName) {
         file = f;
-        targetBoard = board;
         from = fromName;
     }
     
@@ -43,9 +39,5 @@ public class NewUploadFile {
     
     public String getFrom() {
         return from;
-    }
-    
-    public Board getTargetBoard() {
-        return targetBoard;
     }
 }

@@ -18,13 +18,10 @@
 */
 package frost.util.model.gui;
 
-import java.util.logging.Logger;
-
-import frost.util.gui.FrostSwingWorker;
+import frost.util.gui.*;
 import frost.util.model.*;
 
 public class SortedModelTable extends ModelTable {
-	private static Logger logger = Logger.getLogger(SortedModelTable.class.getName());
 	
 	/**
 	 * Index in the ModelTable of the column the model is 

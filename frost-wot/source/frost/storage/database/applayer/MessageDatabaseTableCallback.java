@@ -18,7 +18,7 @@
 */
 package frost.storage.database.applayer;
 
-import frost.gui.objects.*;
+import frost.messages.*;
 
 public interface MessageDatabaseTableCallback {
     public boolean messageRetrieved(FrostMessageObject mo);

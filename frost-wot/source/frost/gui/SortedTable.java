@@ -61,7 +61,6 @@ public class SortedTable extends JTable
     public void resortTable()
     {
         sortColumn( sortedColumnIndex, sortedColumnAscending );
-        SortedTableModel model = null;
         ((SortedTableModel)getModel()).tableEntriesChanged();
     }
 
@@ -109,7 +108,6 @@ public class SortedTable extends JTable
             return;
         sortedColumnIndex = val;
         sortedColumnAscending = val2;
-        SortedTableModel model = (SortedTableModel)getModel();
         sortColumn(sortedColumnIndex, sortedColumnAscending);
     }
 

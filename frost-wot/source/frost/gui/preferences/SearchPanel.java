@@ -41,7 +41,6 @@ class SearchPanel extends JPanel {
     private JLabel executableExtensionLabel = new JLabel();
     private JTextField executableExtensionTextField = new JTextField();
 
-    private JCheckBox hideAnonFilesCheckBox = new JCheckBox();
     private JCheckBox hideBadFilesCheckBox = new JCheckBox();
     private JLabel imageExtensionLabel = new JLabel();
     private JTextField imageExtensionTextField = new JTextField();
@@ -80,75 +79,72 @@ class SearchPanel extends JPanel {
 
         // Adds all of the components
         GridBagConstraints constraints = new GridBagConstraints();
-        constraints.anchor = GridBagConstraints.NORTHWEST;
+        constraints.anchor = GridBagConstraints.WEST;
         constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.insets = new Insets(5, 5, 5, 5);
-        constraints.weighty = 1;
+        constraints.insets = new Insets(0, 5, 5, 5);
+        constraints.weighty = 0;
         constraints.gridwidth = 1;
+        constraints.gridy = 0;
 
         constraints.weightx = 0;
         constraints.gridx = 0;
-        constraints.gridy = 0;
         add(imageExtensionLabel, constraints);
         constraints.weightx = 1;
         constraints.gridx = 1;
         add(imageExtensionTextField, constraints);
 
+        constraints.gridy++;
         constraints.weightx = 0;
-        constraints.gridy = 1;
         constraints.gridx = 0;
         add(videoExtensionLabel, constraints);
         constraints.weightx = 1;
         constraints.gridx = 1;
         add(videoExtensionTextField, constraints);
 
+        constraints.gridy++;
         constraints.weightx = 0;
-        constraints.gridy = 2;
         constraints.gridx = 0;
         add(archiveExtensionLabel, constraints);
         constraints.weightx = 1;
         constraints.gridx = 1;
         add(archiveExtensionTextField, constraints);
 
+        constraints.gridy++;
         constraints.weightx = 0;
-        constraints.gridy = 3;
         constraints.gridx = 0;
         add(documentExtensionLabel, constraints);
         constraints.weightx = 1;
         constraints.gridx = 1;
         add(documentExtensionTextField, constraints);
 
+        constraints.gridy++;
         constraints.weightx = 0;
-        constraints.gridy = 4;
         constraints.gridx = 0;
         add(audioExtensionLabel, constraints);
         constraints.weightx = 1;
         constraints.gridx = 1;
         add(audioExtensionTextField, constraints);
 
+        constraints.gridy++;
         constraints.weightx = 0;
-        constraints.gridy = 5;
         constraints.gridx = 0;
         add(executableExtensionLabel, constraints);
         constraints.weightx = 1;
         constraints.gridx = 1;
         add(executableExtensionTextField, constraints);
 
+        constraints.gridy++;
         constraints.weightx = 0;
-        constraints.gridy = 6;
         constraints.gridx = 0;
         add(maxSearchResultsLabel, constraints);
         constraints.fill = GridBagConstraints.NONE;
         constraints.gridx = 1;
         add(maxSearchResultsTextField, constraints);
 
-        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridy++;
         constraints.gridwidth = 2;
-        constraints.gridy = 7;
         constraints.gridx = 0;
         add(hideBadFilesCheckBox, constraints);
-        constraints.gridy = 8;
-        add(hideAnonFilesCheckBox, constraints);
 
         // glue
         constraints.gridy++;
@@ -172,7 +168,6 @@ class SearchPanel extends JPanel {
         archiveExtensionTextField.setText(settings.getValue("archiveExtension"));
         maxSearchResultsTextField.setText(Integer.toString(settings.getIntValue("maxSearchResults")));
         hideBadFilesCheckBox.setSelected(settings.getBoolValue("hideBadFiles"));
-        hideAnonFilesCheckBox.setSelected(settings.getBoolValue("hideAnonFiles"));
     }
 
     public void ok() {
@@ -189,7 +184,6 @@ class SearchPanel extends JPanel {
         maxSearchResultsLabel.setText(language.getString("Options.search.maximumSearchResults"));
 
         hideBadFilesCheckBox.setText(language.getString("Options.search.hideFilesFromPeopleMarkedBad"));
-        hideAnonFilesCheckBox.setText(language.getString("Options.search.hideFilesFromAnonymousUsers"));
     }
 
     /**
@@ -205,6 +199,5 @@ class SearchPanel extends JPanel {
         settings.setValue("maxSearchResults", maxSearchResultsTextField.getText());
 
         settings.setValue("hideBadFiles", hideBadFilesCheckBox.isSelected());
-        settings.setValue("hideAnonFiles", hideAnonFilesCheckBox.isSelected());
     }
 }

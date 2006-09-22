@@ -25,6 +25,7 @@ import java.util.logging.*;
 import javax.swing.*;
 
 import frost.*;
+import frost.fcp.*;
 import frost.util.gui.*;
 import frost.util.gui.textpane.*;
 import frost.util.gui.translation.*;
@@ -62,6 +63,14 @@ class NewsPanel extends JPanel {
 
         initialize();
         loadSettings();
+        
+        if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) {
+            // disable 0.5-only items
+            uploadHtlLabel.setEnabled(false);
+            uploadHtlTextField.setEnabled(false);
+            downloadHtlLabel.setEnabled(false);
+            downloadHtlTextField.setEnabled(false);
+        }
     }
 
     private void initialize() {
@@ -80,27 +89,14 @@ class NewsPanel extends JPanel {
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.NONE;
         constraints.anchor = GridBagConstraints.WEST;
-        Insets insets5555 = new Insets(5, 5, 5, 5);
-        constraints.weighty = 0.1;
+        constraints.weighty = 0.0;
         constraints.weightx = 0;
 
-        constraints.insets = insets5555;
+        constraints.insets = new Insets(0, 5, 5, 5);
         constraints.weightx = 0.4;
-        constraints.gridx = 0;
         constraints.gridy = 0;
-        add(uploadHtlLabel, constraints);
-        constraints.weightx = 0.6;
-        constraints.gridx = 1;
-        add(uploadHtlTextField, constraints);
-
+        
         constraints.gridx = 0;
-        constraints.gridy++;
-        add(downloadHtlLabel, constraints);
-        constraints.gridx = 1;
-        add(downloadHtlTextField, constraints);
-
-        constraints.gridx = 0;
-        constraints.gridy++;
         add(displayDaysLabel, constraints);
         constraints.gridx = 1;
         add(displayDaysTextField, constraints);
@@ -116,6 +112,19 @@ class NewsPanel extends JPanel {
         add(messageBaseLabel, constraints);
         constraints.gridx = 1;
         add(messageBaseTextField, constraints);
+
+        constraints.gridy++;
+        constraints.gridx = 0;
+        add(uploadHtlLabel, constraints);
+        constraints.weightx = 0.6;
+        constraints.gridx = 1;
+        add(uploadHtlTextField, constraints);
+
+        constraints.gridy++;
+        constraints.gridx = 0;
+        add(downloadHtlLabel, constraints);
+        constraints.gridx = 1;
+        add(downloadHtlTextField, constraints);
 
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.gridwidth = 2;

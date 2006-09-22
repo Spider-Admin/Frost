@@ -22,7 +22,7 @@ import java.util.*;
 
 import javax.swing.table.DefaultTableModel;
 
-import frost.gui.objects.Board;
+import frost.boards.*;
 import frost.messages.*;
 import frost.util.gui.translation.*;
 

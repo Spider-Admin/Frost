@@ -17,47 +17,33 @@
 */
 package frost.fileTransfer.download;
 
-import java.beans.*;
-
 import frost.*;
-import frost.storage.StorageException;
+import frost.storage.*;
 
-/**
- * @author $Author$
- * @version $Revision$
- */
-public class DownloadManager implements PropertyChangeListener {
+public class DownloadManager {
 
-	private MainFrame mainFrame; 
-	private SettingsClass settings;
-	
 	private DownloadModel model;
 	private DownloadPanel panel;
 	private DownloadTicker ticker;
 	private DownloadStatusPanel statusPanel;
 
-	private boolean freenetIsOnline;
-
-	public DownloadManager(SettingsClass newSettings) {
-
+	public DownloadManager() {
 		super();
-		settings = newSettings;
 	}
 	
-	public void setMainFrame(MainFrame mainFrame) {
-		this.mainFrame = mainFrame;	
-	}
-
 	public void initialize() throws StorageException {
-		mainFrame.addPanel("MainFrame.tabbedPane.downloads", getPanel());
-		mainFrame.addStatusPanel(getStatusPanel(), 0);
-		settings.addPropertyChangeListener(SettingsClass.DISABLE_DOWNLOADS, this);
-		updateDownloadStatus();
+        getPanel();
+        getStatusPanel();
 		getModel().initialize();
-		if (freenetIsOnline) {
+		if (Core.isFreenetOnline()) {
 			getTicker().start();
 		}
 	}
+    
+    public void addPanelToMainFrame(MainFrame mainFrame) {
+        mainFrame.addPanel("MainFrame.tabbedPane.downloads", getPanel());
+        mainFrame.addStatusPanel(getStatusPanel(), 0);
+    }
 	
 	private DownloadStatusPanel getStatusPanel() {
 		if (statusPanel == null) {
@@ -66,14 +52,9 @@ public class DownloadManager implements PropertyChangeListener {
 		return statusPanel;
 	}
 
-	private void updateDownloadStatus() {
-		boolean disableDownloads = settings.getBoolValue(SettingsClass.DISABLE_DOWNLOADS);
-		mainFrame.setPanelEnabled("MainFrame.tabbedPane.downloads", !disableDownloads && freenetIsOnline);
-	}
-	
 	public DownloadPanel getPanel() {
 		if (panel == null) {
-			panel = new DownloadPanel(settings);
+			panel = new DownloadPanel();
 			panel.setModel(getModel());
 			panel.initialize();
 		}
@@ -82,28 +63,15 @@ public class DownloadManager implements PropertyChangeListener {
 	
 	public DownloadModel getModel() {
 		if (model == null) {
-			model = new DownloadModel(settings);	
+			model = new DownloadModel();	
 		}
 		return model;
 	}
 	
 	private DownloadTicker getTicker() {
 		if (ticker == null) {
-			ticker = new DownloadTicker(settings, getModel(), getPanel());
+			ticker = new DownloadTicker(getModel(), getPanel());
 		}
 		return ticker;
-	}
-
-	/* (non-Javadoc)
-	 * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
-	 */
-	public void propertyChange(PropertyChangeEvent evt) {
-		if (evt.getPropertyName().equals(SettingsClass.DISABLE_DOWNLOADS)) {
-			updateDownloadStatus();
-		}
-	}
-
-	public void setFreenetIsOnline(boolean freenetIsOnline) {
-		this.freenetIsOnline = freenetIsOnline;
 	}
 }

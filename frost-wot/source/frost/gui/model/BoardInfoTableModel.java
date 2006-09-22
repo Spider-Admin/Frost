@@ -25,14 +25,13 @@ public class BoardInfoTableModel extends SortedTableModel implements LanguageLis
 {
     private Language language = null;
 
-    protected final static String columnNames[] = new String[5];
+    protected final static String columnNames[] = new String[4];
 
     protected final static Class columnClasses[] =  {
         String.class, //LangRes.getString("Board"),
         String.class, //LangRes.getString("State"),
         Integer.class, //LangRes.getString("Messages"),
         Integer.class, //LangRes.getString("New messages"),
-        Integer.class //LangRes.getString("Files")
     };
 
     public BoardInfoTableModel() {
@@ -46,7 +45,6 @@ public class BoardInfoTableModel extends SortedTableModel implements LanguageLis
         columnNames[1] = language.getString("BoardInfoFrame.table.state");
         columnNames[2] = language.getString("BoardInfoFrame.table.messages");
         columnNames[3] = language.getString("BoardInfoFrame.table.messagesToday");
-        columnNames[4] = language.getString("BoardInfoFrame.table.files");
 
         fireTableStructureChanged();
     }

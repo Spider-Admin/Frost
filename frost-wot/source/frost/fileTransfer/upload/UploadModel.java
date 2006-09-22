@@ -18,13 +18,11 @@
 */
 package frost.fileTransfer.upload;
 
-import java.io.*;
 import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
-import frost.*;
-import frost.gui.objects.*;
+import frost.fileTransfer.sharing.*;
 import frost.storage.*;
 import frost.storage.database.applayer.*;
 import frost.util.model.*;
@@ -37,11 +35,18 @@ import frost.util.model.*;
  * and save methods will not be used while other threads are under way.
  */
 public class UploadModel extends OrderedModel implements Savable {
-
+    
     private static Logger logger = Logger.getLogger(UploadModel.class.getName());
 
-    public UploadModel(SettingsClass frostSettings) {
+    public UploadModel() {
         super();
+    }
+    
+    public boolean addNewUploadItemFromSharedFile(FrostSharedFileItem sfi) {
+        FrostUploadItem newUlItem = new FrostUploadItem(sfi.getFile());
+        newUlItem.setSharedFileItem(sfi);
+        
+        return addNewUploadItem(newUlItem);
     }
 
     /**
@@ -49,37 +54,22 @@ public class UploadModel extends OrderedModel implements Savable {
      * The new item must only have 1 FrostUploadItemOwnerBoard in its list.
      */
     public synchronized boolean addNewUploadItem(FrostUploadItem itemToAdd) {
+        
+        String pathToAdd = itemToAdd.getFile().getPath();
+        
         for (int x = 0; x < getItemCount(); x++) {
             FrostUploadItem item = (FrostUploadItem) getItemAt(x);
-            // if file is already in list (sha1), maybe add a new owner/board if not a dup
-            if( item.getSHA1().equals(itemToAdd.getSHA1()) ) {
-                
-                FrostUploadItemOwnerBoard obNew = (FrostUploadItemOwnerBoard)
-                        itemToAdd.getFrostUploadItemOwnerBoardList().iterator().next();
-                
-                // check all old board/owner, only 1 owner/anonymous per board allowed!
-                // FIXME: report board match, let user decide to change, but not add
-                for(Iterator i=item.getFrostUploadItemOwnerBoardList().iterator(); i.hasNext(); ) {
-                    FrostUploadItemOwnerBoard obOld = (FrostUploadItemOwnerBoard)i.next();
-                    // compare boards case insensitive!
-                    if( obNew.getTargetBoard().getName().equalsIgnoreCase(obOld.getTargetBoard().getName()) ) {
-                        return false; // only one owner per board
-//                        if( obNew.getOwner() == null && obOld.getOwner() == null ) {
-//                            // both anonymous, double
-//                            return false;
-//                        } else if( obNew.getOwner() == null && obOld.getOwner() != null ) {
-//                            // different
-//                        } else if( obNew.getOwner() != null && obOld.getOwner() == null ) {
-//                            // different
-//                        } else if( obNew.getOwner().equals(obOld.getOwner())) {
-//                            // same owner, double
-//                            return false;
-//                        }
-                    }
+            // add if file is not already in list (path)
+            // if we add a shared file and the same file is already in list (manually added), we connect them
+            if( pathToAdd.equals(item.getFile().getPath()) ) {
+                // file with same path is already in list
+                if( itemToAdd.isSharedFile() && !item.isSharedFile() ) {
+                    // to shared file to manually added upload item
+                    item.setSharedFileItem( itemToAdd.getSharedFileItem() );
+                    return true;
+                } else {
+                    return false; // don't add 2 files with same path
                 }
-                // we are here because the file is already in table, but we have to add a new board/owner
-                item.addFrostUploadItemOwnerBoard(obNew);
-                return true; // item added, there no more items with same SHA1 in list
             }
         }
         // not in model, add
@@ -90,21 +80,22 @@ public class UploadModel extends OrderedModel implements Savable {
     /**
      * Will add this item to the model, no check for dups.
      */
-    public synchronized void addConsistentUploadItem(FrostUploadItem itemToAdd) {
+    private synchronized void addConsistentUploadItem(FrostUploadItem itemToAdd) {
         addItem(itemToAdd);
     }
 
     /**
-     * Returns true if the model contains an item with the given key.
+     * if upload was successful, remove item from uploadtable 
      */
-    public synchronized boolean containsItemWithKey(String key) {
-        for (int x = 0; x < getItemCount(); x++) {
-            FrostUploadItem ulItem = (FrostUploadItem) getItemAt(x);
-            if (ulItem.getSHA1() != null && ulItem.getSHA1().equals(key)) {
-                return true;
+    public void notifySharedFileUploadWasSuccessful(FrostUploadItem ulItemToRemove) {
+        for (int i = getItemCount() - 1; i >= 0; i--) {
+            FrostUploadItem ulItem = (FrostUploadItem) getItemAt(i);
+            if( ulItem == ulItemToRemove ) {
+                // remove this item
+                removeItems(new FrostUploadItem[] { ulItemToRemove } );
+                break;
             }
         }
-        return false;
     }
 
     /**
@@ -116,8 +107,7 @@ public class UploadModel extends OrderedModel implements Savable {
         ArrayList items = new ArrayList();
         for (int i = getItemCount() - 1; i >= 0; i--) {
             FrostUploadItem ulItem = (FrostUploadItem) getItemAt(i);
-            File checkMe = new File(ulItem.getFilePath());
-            if (!checkMe.exists()) {
+            if (!ulItem.getFile().exists()) {
                 items.add(ulItem);
             }
         }
@@ -131,42 +121,19 @@ public class UploadModel extends OrderedModel implements Savable {
     }
 
     /**
-     * This method tells all items to start uploading (if their current state
-     * allows it)
-     */
-    public synchronized void requestAllItems() {
-        Iterator iterator = data.iterator();
-        while (iterator.hasNext()) {
-            FrostUploadItem ulItem = (FrostUploadItem) iterator.next();
-            // Since it is difficult to identify the states where we are allowed to
-            // start an upload we decide based on the states in which we are not allowed
-            if (ulItem.getState() != FrostUploadItem.STATE_UPLOADING
-                && ulItem.getState() != FrostUploadItem.STATE_PROGRESS
-                && ulItem.getState() != FrostUploadItem.STATE_ENCODING) {
-                ulItem.setRetries(0);
-                ulItem.setLastUploadStopTimeMillis(0);
-                ulItem.setEnabled(Boolean.valueOf(true));
-                ulItem.setState(FrostUploadItem.STATE_REQUESTED);
-            }
-        }
-    }
-
-    /**
      * This method tells items passed as a parameter to start uploading
      * (if their current state allows it)
      */
-    public void requestItems(ModelItem[] items) {
+    public void uploadItems(ModelItem[] items) {
         for (int i = 0; i < items.length; i++) {
             FrostUploadItem ulItem = (FrostUploadItem) items[i];
-            // Since it is difficult to identify the states where we are allowed to
-            // start an upload we decide based on the states in which we are not allowed
-            if (ulItem.getState() != FrostUploadItem.STATE_UPLOADING
-                && ulItem.getState() != FrostUploadItem.STATE_PROGRESS
-                && ulItem.getState() != FrostUploadItem.STATE_ENCODING) {
+            if (ulItem.getState() == FrostUploadItem.STATE_FAILED
+                || ulItem.getState() == FrostUploadItem.STATE_DONE)
+            {
                 ulItem.setRetries(0);
                 ulItem.setLastUploadStopTimeMillis(0);
                 ulItem.setEnabled(Boolean.valueOf(true));
-                ulItem.setState(FrostUploadItem.STATE_REQUESTED);
+                ulItem.setState(FrostUploadItem.STATE_WAITING);
             }
         }
     }
@@ -181,69 +148,19 @@ public class UploadModel extends OrderedModel implements Savable {
             // Since it is difficult to identify the states where we are allowed to
             // start an upload we decide based on the states in which we are not allowed
             // start gen chk only if IDLE
-            if (ulItem.getState() == FrostUploadItem.STATE_IDLE && ulItem.getKey() == null) {
+            if (ulItem.getState() == FrostUploadItem.STATE_WAITING && ulItem.getKey() == null) {
                 ulItem.setState(FrostUploadItem.STATE_ENCODING_REQUESTED);
             }
         }
     }
 
     /**
-     * Adds a prefix to the filenames of the items passed as a parameter
+     * Initializes and loads the model
      */
-    public void setPrefixToItems(ModelItem[] items, String prefix) {
-        for (int i = 0; i < items.length; i++) {
-            FrostUploadItem ulItem = (FrostUploadItem) items[i];
-            String newName = prefix + ulItem.getFileName();
-            ulItem.setFileName(newName);
-        }
-    }
-
-    /**
-     * Restores the original filenames of the items passed as a parameter
-     */
-    public void removePrefixFromItems(ModelItem[] items) {
-        for (int i = 0; i < items.length; i++) {
-            FrostUploadItem ulItem = (FrostUploadItem) items[i];
-            File origFile = new File(ulItem.getFilePath());
-            if (origFile.isFile()) {
-                ulItem.setFileName(origFile.getName());
-            }
-        }
-    }
-
-    /**
-     * Restores the original filenames of all items
-     */
-    public synchronized void removePrefixFromAllItems() {
-        Iterator iterator = data.iterator();
-        while (iterator.hasNext()) {
-            FrostUploadItem ulItem = (FrostUploadItem) iterator.next();
-            File origFile = new File(ulItem.getFilePath());
-            if (origFile.isFile()) {
-                ulItem.setFileName(origFile.getName());
-            }
-        }
-    }
-
-    /**
-     * Adds a prefix to the filenames of all items
-     */
-    public synchronized void setPrefixToAllItems(String prefix) {
-        Iterator iterator = data.iterator();
-        while (iterator.hasNext()) {
-            FrostUploadItem ulItem = (FrostUploadItem) iterator.next();
-            String newName = prefix + ulItem.getFileName();
-            ulItem.setFileName(newName);
-        }
-    }
-
-    /**
-     * Initializes the model
-     */
-    public void initialize() throws StorageException {
-        List uploadItems; 
+    public void initialize(List sharedFiles) throws StorageException {
+        List uploadItems;
         try {
-            uploadItems = AppLayerDatabase.getUploadFilesDatabaseTable().loadUploadFiles();
+            uploadItems = AppLayerDatabase.getUploadFilesDatabaseTable().loadUploadFiles(sharedFiles);
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error loading upload items", e);
             throw new StorageException("Error loading upload items");
@@ -258,47 +175,12 @@ public class UploadModel extends OrderedModel implements Savable {
      * Saves the upload model to database.
      */
     public void save() throws StorageException {
-        LinkedList itemList = new LinkedList();
-        for (int x = 0; x < getItemCount(); x++) {
-            FrostUploadItem uploadItem = (FrostUploadItem)getItemAt(x);
-            itemList.add(uploadItem);
-        }
-        
+        List itemList = getItems();
         try {
             AppLayerDatabase.getUploadFilesDatabaseTable().saveUploadFiles(itemList);
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error saving upload items", e);
             throw new StorageException("Error saving upload items");
         }
-    }
-    
-    public List getUploadItemsToShare(Board board, String owner, int maxItems, long minDate) {
-        LinkedList result = new LinkedList();
-//System.out.println("share:"+board.getName()+","+owner);
-
-        for(Iterator i=data.iterator(); i.hasNext(); ) {
-            FrostUploadItem ulItem = (FrostUploadItem) i.next();
-            for(Iterator j=ulItem.getFrostUploadItemOwnerBoardList().iterator(); j.hasNext(); ) {
-                FrostUploadItemOwnerBoard ob = (FrostUploadItemOwnerBoard)j.next();
-//System.out.println("subshare:"+ob.getTargetBoard().getName()+","+ob.getOwner());
-                if( ob.getTargetBoard().getName().equals(board.getName()) &&
-                    ( (ob.getOwner()==null && owner==null) || // anonymous
-                      (ob.getOwner()!=null && owner!=null && ob.getOwner().equals(owner)) ) // identity matches      
-                  ) 
-                {
-                    // potential item, check when it was last shared
-                    if( ob.getLastSharedDate() == null || ob.getLastSharedDate().getTime() < minDate ) {
-                        // never shared, or updated so it must be reshared, or too long not shared
-                        result.add(ob);
-
-                        if( result.size() >= maxItems ) {
-                            return result;
-                        }
-                    }
-                }
-            }
-        }
-//        System.out.println("ret="+result.size());
-        return result;
     }
 }

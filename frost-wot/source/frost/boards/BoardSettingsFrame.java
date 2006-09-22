@@ -27,7 +27,6 @@ import javax.swing.border.*;
 
 import frost.*;
 import frost.fcp.*;
-import frost.gui.objects.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 

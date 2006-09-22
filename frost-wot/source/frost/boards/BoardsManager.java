@@ -19,8 +19,6 @@
 package frost.boards;
 
 import frost.*;
-import frost.MainFrame;
-import frost.gui.objects.Board;
 
 /**
  * @author $Author$

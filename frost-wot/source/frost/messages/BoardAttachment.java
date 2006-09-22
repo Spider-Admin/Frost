@@ -22,7 +22,7 @@ import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
 import frost.*;
-import frost.gui.objects.Board;
+import frost.boards.*;
 
 public class BoardAttachment extends Attachment {
 

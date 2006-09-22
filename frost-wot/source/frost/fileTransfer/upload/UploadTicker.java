@@ -18,28 +18,22 @@
 */
 package frost.fileTransfer.upload;
 
-import java.sql.*;
 import java.util.*;
-import java.util.logging.*;
 
 import javax.swing.event.*;
 
 import frost.*;
 import frost.fcp.*;
-import frost.storage.database.applayer.*;
 
 public class UploadTicker extends Thread {
 
-    private static Logger logger = Logger.getLogger(UploadTicker.class.getName());
+//    private static Logger logger = Logger.getLogger(UploadTicker.class.getName());
 
     //To be able to increase this value, we have to add support for that. Without it,
     //the loops in generateCHK and prepareUpladHashes would process the same file
     //several times.
     private final int MAX_GENERATING_THREADS = 1;
 
-    private SettingsClass settings;
-
-//  private UploadPanel panel;
     private UploadModel model;
 
     private int removeNotExistingFilesCounter = 0;
@@ -81,11 +75,9 @@ public class UploadTicker extends Thread {
      * @param newPanel
      * @param newMyID
      */
-    public UploadTicker(SettingsClass newSettings, UploadModel newModel, UploadPanel newPanel) {
+    public UploadTicker(UploadModel newModel) {
         super("Upload");
-        settings = newSettings;
         model = newModel;
-//      panel = newPanel;
     }
 
     /**
@@ -104,7 +96,7 @@ public class UploadTicker extends Thread {
      */
     private boolean allocateUploadingThread() {
         synchronized (uploadingCountLock) {
-            if (allocatedUploadingThreads < settings.getIntValue("uploadThreads")) {
+            if (allocatedUploadingThreads < Core.frostSettings.getIntValue("uploadThreads")) {
                 allocatedUploadingThreads++;
                 return true;
             }
@@ -168,7 +160,7 @@ public class UploadTicker extends Thread {
      * This method is called from a generating thread to notify the ticker that
      * the thread has started (so that it can notify its listeners of the fact)
      */
-    void generatingThreadStarted() {
+    public void generatingThreadStarted() {
         runningGeneratingThreads++;
         fireGeneratingCountChanged();
     }
@@ -178,7 +170,7 @@ public class UploadTicker extends Thread {
      * the thread has finished (so that it can notify its listeners of the fact). It also
      * releases the thread so that new generating threads can start if needed.
      */
-    void generatingThreadFinished() {
+    public void generatingThreadFinished() {
         runningGeneratingThreads--;
         fireGeneratingCountChanged();
         releaseGeneratingThread();
@@ -236,7 +228,6 @@ public class UploadTicker extends Thread {
             // this is executed each second, so this counter counts seconds
             removeNotExistingFilesCounter++;
             removeNotExistingFiles();
-            generateSHA1();
             generateCHKs();
             startUploadThread();
         }
@@ -247,40 +238,24 @@ public class UploadTicker extends Thread {
      */
     private void generateCHKs() {
 
-        if (allocateGeneratingThread()) {
+        if (Core.isFreenetOnline() && allocateGeneratingThread()) {
             boolean threadLaunched = false;
 
             for (int i = 0; i < model.getItemCount() && !threadLaunched; i++) {
                 FrostUploadItem ulItem = (FrostUploadItem) model.getItemAt(i);
-
-                if (ulItem.getState() == FrostUploadItem.STATE_ENCODING_REQUESTED ) {
+                // encode if requested by user, OR
+                // if state is WAITING for upload and its 0.5 and there is no chkKey, we must encode the file
+                if (ulItem.getState() == FrostUploadItem.STATE_ENCODING_REQUESTED
+                    || ( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05
+                         && ulItem.getKey() == null
+                         && ulItem.getState() == FrostUploadItem.STATE_WAITING ) 
+                   )    
+                {
                     // next state will be IDLE (=default)
-                    UploadThread newInsert = new UploadThread(
-                            this,
-                            ulItem,
-                            settings,
-                            UploadThread.MODE_GENERATE_CHK);
+                    GenerateChkThread newInsert = new GenerateChkThread(this, ulItem);
                     ulItem.setState(FrostUploadItem.STATE_ENCODING);
                     newInsert.start();
                     threadLaunched = true;  // start only 1 thread per loop (=second)
-                }
-
-                // 07 uploads don't need a preceeding encode!
-                if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
-                    if (ulItem.getKey() == null && ulItem.getState() == FrostUploadItem.STATE_REQUESTED) {
-                        // 05 needs encoding if key==null
-                        // set next state for item to REQUESTED, default is IDLE
-                        // needed to keep the REQUESTED state for real uploading
-                        UploadThread newInsert = new UploadThread(
-                                this,
-                                ulItem,
-                                settings,
-                                UploadThread.MODE_GENERATE_CHK,
-                                FrostUploadItem.STATE_REQUESTED);
-                        ulItem.setState(FrostUploadItem.STATE_ENCODING);
-                        newInsert.start();
-                        threadLaunched = true;  // start only 1 thread per loop (=second)
-                    }
                 }
             }
             if (!threadLaunched) {
@@ -290,11 +265,11 @@ public class UploadTicker extends Thread {
     }
 
     private void startUploadThread() {
-        if (allocateUploadingThread()) {
+        if (Core.isFreenetOnline() && allocateUploadingThread()) {
             FrostUploadItem item = selectNextUploadItem();
             if (item != null) {
                 item.setState(FrostUploadItem.STATE_UPLOADING);
-                UploadThread newInsert = new UploadThread(this, item, settings, UploadThread.MODE_UPLOAD);
+                UploadThread newInsert = new UploadThread(this, item);
                 newInsert.start();
             } else {
                 releaseUploadingThread();
@@ -304,73 +279,35 @@ public class UploadTicker extends Thread {
 
     /**
      * Chooses next upload item to start from upload table.
-     * @return the next upload item to start uploading or null if a suitable
-     *          one was not found.
+     * @return the next upload item to start uploading or null if a suitable one was not found.
      */
     private FrostUploadItem selectNextUploadItem() {
-        FrostUploadItem foundItem = null;
-        for (int i = 0; i < model.getItemCount() && foundItem == null; i++) {
-            FrostUploadItem ulItem = (FrostUploadItem) model.getItemAt(i);
-            // 07 uploads don't need preceeding encode, so the key can be null
-            if (ulItem.getState() == FrostUploadItem.STATE_REQUESTED
-                && ulItem.getSHA1() != null
-                && (ulItem.getKey() != null || FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 )
-                && (ulItem.isEnabled() == null || ulItem.isEnabled().booleanValue()))
-                // file have key after encoding
-            {
-                foundItem = ulItem;
-            }
-        }
-        if (foundItem != null || !settings.getBoolValue(SettingsClass.RESTART_FAILED_UPLOADS)) {
-            return foundItem;
-        } else {
-            // Nothing requested? Let's see if there are waiting items.
-            ArrayList waitingItems = new ArrayList();
 
-            for (int i = 0; i < model.getItemCount(); i++) {
-                FrostUploadItem ulItem = (FrostUploadItem) model.getItemAt(i);
-                if (ulItem.getState() == FrostUploadItem.STATE_WAITING
-                    && (ulItem.isEnabled() == null || ulItem.isEnabled().booleanValue()))
-                {
-                    // check if waittime has expired
-                    long waittimeMillis = settings.getIntValue(SettingsClass.UPLOAD_RETRIES_WAIT_TIME) * 60 * 1000;
-                    if ((System.currentTimeMillis() - ulItem.getLastUploadStopTimeMillis()) > waittimeMillis) {
-                        waitingItems.add(ulItem);
-                    }
+        ArrayList waitingItems = new ArrayList();
+
+        for (int i = 0; i < model.getItemCount(); i++) {
+            FrostUploadItem ulItem = (FrostUploadItem) model.getItemAt(i);
+            // we choose items that are waiting, enabled and for 0.5 the encoding must be done before
+            if (ulItem.getState() == FrostUploadItem.STATE_WAITING
+                && (ulItem.isEnabled() == null || ulItem.isEnabled().booleanValue())
+                && (ulItem.getKey() != null || FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) )
+            {
+                // check if waittime has expired
+                long waittimeMillis = Core.frostSettings.getIntValue(SettingsClass.UPLOAD_RETRIES_WAIT_TIME) * 60 * 1000;
+                if ((System.currentTimeMillis() - ulItem.getLastUploadStopTimeMillis()) > waittimeMillis) {
+                    waitingItems.add(ulItem);
                 }
             }
-
-            if (waitingItems.size() == 0) {
-                return null;
-            }
-
-            if (waitingItems.size() > 1) { // performance issues
-                Collections.sort(waitingItems, uploadDlStopMillisCmp);
-            }
-            return (FrostUploadItem) waitingItems.get(0);
         }
-    }
 
-    private void generateSHA1() {
-        if(allocateGeneratingThread()) {
-
-            boolean threadLaunched = false;
-            
-            NewUploadFile f = Core.getInstance().getFileTransferManager().getNewUploadFilesManager().getNewUploadFile();
-            if( f != null ) {
-                UploadThread newInsert = new UploadThread(
-                        this,
-                        f,
-                        model,
-                        settings,
-                        UploadThread.MODE_GENERATE_SHA1);
-                newInsert.start();
-                threadLaunched = true;  // start only 1 thread per loop (=second)
-            }
-            if (!threadLaunched) {
-                releaseGeneratingThread();
-            } 
+        if (waitingItems.size() == 0) {
+            return null;
         }
+
+        if (waitingItems.size() > 1) { // performance issues
+            Collections.sort(waitingItems, uploadDlStopMillisCmp);
+        }
+        return (FrostUploadItem) waitingItems.get(0);
     }
 
     private void removeNotExistingFiles() {

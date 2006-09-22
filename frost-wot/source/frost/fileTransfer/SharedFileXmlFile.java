@@ -1,5 +1,5 @@
 /*
-KeyClass.java / Frost
+SharedFileXmlFile.java / Frost
 Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
 This program is free software; you can redistribute it and/or
@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.messages;
+package frost.fileTransfer;
 
 import java.util.logging.*;
 
@@ -24,24 +24,25 @@ import org.w3c.dom.*;
 import org.xml.sax.*;
 
 import frost.*;
-import frost.gui.objects.*;
 
-public class SharedFileXmlFile implements XMLizable
-{
+public class SharedFileXmlFile implements XMLizable {
+    
     private static Logger logger = Logger.getLogger(SharedFileXmlFile.class.getName());
 
     private final static String[] invalidChars = {"/", "\\", "?", "*", "<", ">", "\"", ":", "|"};
 
     // following fields must be unique in the FILELIST
-    String SHA1 = null;  //SHA1 of the file
+    String sha = null;  // SHA of the file
     Long size = new Long(0); // Filesize
     String key = null; // Name of this key
 
     // following fields can be different in a FrostSharedFileObject
     String lastUploaded = null; // Last uploaded by sender
-    String owner = null;  // person that uploaded the file, null=anonymous
     String filename = new String();
-    Board board;
+
+    String comment = null;
+    String keywords = null;
+    int rating = 0;
 
     public SharedFileXmlFile() {
     }
@@ -74,40 +75,24 @@ public class SharedFileXmlFile implements XMLizable
 
     /**Returns true if key is valid*/
     private boolean isSharedFileValid() {
-        if( size != null && SHA1 != null && checkFilename() && checkKey() ) {
+        if( size != null && sha != null && checkFilename() && checkKey() ) {
             return true;
         }
         return false;
     }
 
-    /** Set filename */
     public void setFilename(String filename) {
         this.filename = filename;
     }
-
-    /** Get filename */
     public String getFilename() {
         return filename.trim();
     }
 
-    /** Get SHA1 */
-    public String getSHA1() {
-        return SHA1;
+    public String getSha() {
+        return sha;
     }
-
-    /** Set SHA1 */
-    public void setSHA1(String s) {
-        SHA1 = s;
-    }
-
-    /** Set owner */
-    public void setOwner(String owner_id) {
-        owner = owner_id;
-    }
-
-    /** Get owner */
-    public String getOwner() {
-        return owner;
+    public void setSha(String s) {
+        sha = s;
     }
 
     /** Set key */
@@ -125,14 +110,15 @@ public class SharedFileXmlFile implements XMLizable
 
     /** Set date */
     public void setLastUploaded(String date) {
-        this.lastUploaded = date;
+        if( date != null ) {
+            date = date.trim();
+        }
+        lastUploaded = date;
     }
 
     /** Get date */
     public String getLastUploaded() {
-        if( lastUploaded == null )
-            return lastUploaded;
-        return lastUploaded.trim();
+        return lastUploaded;
     }
 
     /** Set size */
@@ -154,22 +140,6 @@ public class SharedFileXmlFile implements XMLizable
         return size;
     }
 
-//    /**
-//     * Creates a sharedFileObject to be uploaded.
-//     * it can be used both from the uploadTable and from attachments.
-//     * @param file the file to be uploaded
-//     * @param board the board to which index to add the file.  If null, the file will
-//     * not be added to any index and won't participate in the request system.
-//     */
-//    public SharedFileXmlFile(File file, Board board) {
-//        SHA1 = Core.getCrypto().digest(file);
-//        size = new Long(file.length());
-//        filename = file.getName();
-//        lastUploaded = DateFun.getDate(); 
-//        key = null; // if key == null means file is offline.
-//        this.board = board;
-//    }
-
     public Element getXMLElement(Document doc) {
 
         // we do not add keys who are not signed by people we marked as GOOD!
@@ -182,8 +152,8 @@ public class SharedFileXmlFile implements XMLizable
         element.appendChild(cdata);
         fileelement.appendChild(element);
 
-        element = doc.createElement("SHA1");
-        cdata = doc.createCDATASection(getSHA1());
+        element = doc.createElement("sha");
+        cdata = doc.createCDATASection(getSha());
         element.appendChild(cdata);
         fileelement.appendChild(element);
 
@@ -192,12 +162,6 @@ public class SharedFileXmlFile implements XMLizable
         element.appendChild(textnode);
         fileelement.appendChild(element);
 
-        if( getOwner() != null ) {
-            element = doc.createElement("owner");
-            cdata = doc.createCDATASection(getOwner());
-            element.appendChild(cdata);
-            fileelement.appendChild(element);
-        }
         if( getKey() != null ) {
             element = doc.createElement("key");
             textnode = doc.createTextNode(getKey());
@@ -205,8 +169,26 @@ public class SharedFileXmlFile implements XMLizable
             fileelement.appendChild(element);
         }
         if( getLastUploaded() != null ) {
-            element = doc.createElement("date");
+            element = doc.createElement("uploaded");
             textnode = doc.createTextNode(getLastUploaded());
+            element.appendChild(textnode);
+            fileelement.appendChild(element);
+        }
+        if( getComment() != null ) {
+            element = doc.createElement("comment");
+            cdata = doc.createCDATASection(getComment());
+            element.appendChild(cdata);
+            fileelement.appendChild(element);
+        }
+        if( getKeywords() != null ) {
+            element = doc.createElement("keywords");
+            cdata = doc.createCDATASection(getKeywords());
+            element.appendChild(cdata);
+            fileelement.appendChild(element);
+        }
+        if( getRating() != 0 ) {
+            element = doc.createElement("rating");
+            textnode = doc.createTextNode(""+getRating());
             element.appendChild(textnode);
             fileelement.appendChild(element);
         }
@@ -215,25 +197,16 @@ public class SharedFileXmlFile implements XMLizable
 
     public void loadXMLElement(Element current) throws SAXException {
         setFilename(XMLTools.getChildElementsCDATAValue(current, "name"));
-        setSHA1(XMLTools.getChildElementsCDATAValue(current, "SHA1"));
-        setOwner(XMLTools.getChildElementsCDATAValue(current, "owner"));
+        setSha(XMLTools.getChildElementsCDATAValue(current, "sha"));
         setKey(XMLTools.getChildElementsTextValue(current, "key"));
-        setLastUploaded(XMLTools.getChildElementsTextValue(current, "date"));
+        setLastUploaded(XMLTools.getChildElementsTextValue(current, "uploaded"));
         setSize(XMLTools.getChildElementsTextValue(current, "size"));
-    }
-
-    /**
-     * @return the board this file will be uploaded to, if any
-     */
-    public Board getBoard() {
-        return board;
-    }
-
-    /**
-     * @param object
-     */
-    public void setBoard(Board object) {
-        board = object;
+        setComment(XMLTools.getChildElementsCDATAValue(current, "comment"));
+        setKeywords(XMLTools.getChildElementsCDATAValue(current, "keywords"));
+        String rat = XMLTools.getChildElementsTextValue(current, "rating");
+        if( rat != null ) {
+            setRating( Integer.valueOf(rat).intValue() );
+        }
     }
 
     /* (non-Javadoc)
@@ -241,7 +214,7 @@ public class SharedFileXmlFile implements XMLizable
      */
     public boolean equals(Object obj) {
         SharedFileXmlFile other = (SharedFileXmlFile) obj;
-        return SHA1.equals(other.getSHA1());
+        return sha.equals(other.getSha());
     }
 
     /**
@@ -249,7 +222,7 @@ public class SharedFileXmlFile implements XMLizable
      * @param e the element
      * @return the sharedFileObject created according to the element.
      */
-    public static SharedFileXmlFile getInstance(Element e, Board board){
+    public static SharedFileXmlFile getInstance(Element e){
         try {
             SharedFileXmlFile result = new SharedFileXmlFile();
             result.loadXMLElement(e);
@@ -257,11 +230,31 @@ public class SharedFileXmlFile implements XMLizable
                 logger.log(Level.SEVERE, "shared file is invalid (missing fields or wrong contents).");
                 return null;
             }
-            result.setBoard(board);
             return result;
         } catch(SAXException ex) {
             logger.log(Level.SEVERE, "parsing file failed.", ex);
             return null;
         }
+    }
+
+    public String getComment() {
+        return comment;
+    }
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public String getKeywords() {
+        return keywords;
+    }
+    public void setKeywords(String keywords) {
+        this.keywords = keywords;
+    }
+
+    public int getRating() {
+        return rating;
+    }
+    public void setRating(int rating) {
+        this.rating = rating;
     }
 }

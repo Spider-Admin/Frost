@@ -27,7 +27,6 @@ import frost.util.gui.translation.*;
 
 public class SkinPanel extends JPanel {
 
-    private JDialog owner = null;
     private SettingsClass settings = null;
     private Language language = null;
 
@@ -41,7 +40,6 @@ public class SkinPanel extends JPanel {
     protected SkinPanel(JDialog owner, SettingsClass settings) {
         super();
 
-        this.owner = owner;
         this.language = Language.getInstance();
         this.settings = settings;
 

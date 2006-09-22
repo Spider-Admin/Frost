@@ -23,18 +23,16 @@ import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
-import frost.*;
-import frost.gui.objects.*;
 import frost.storage.database.*;
 
 /**
  * Access to a database table that holds the new upload files which
- * do not have a SHA1 yet. A thread gets the entries from this file
- * one by one and computes the SHA1. Then the entries are stored into 
- * the UPLOADFILES database table and are deleted from this table.
+ * do not have a SHA yet. A thread gets the entries from this file
+ * one by one and computes the SHA. Then the entries are stored into 
+ * the SHAREDFILES database table and are deleted from this table.
  * 
  * This table is needed in case the user shuts down Frost until all
- * SHA1 checksums were deleted.
+ * SHA checksums were deleted.
  */
 public class NewUploadFilesDatabaseTable extends AbstractDatabaseTable {
 
@@ -43,9 +41,8 @@ public class NewUploadFilesDatabaseTable extends AbstractDatabaseTable {
     private final static String SQL_DDL =
         "CREATE TABLE NEWUPLOADFILES ("+
         "filepath VARCHAR NOT NULL,"+
-        "targetboard VARCHAR NOT NULL,"+
         "fromname VARCHAR,"+
-        "CONSTRAINT NEWUPLOADFILES_1 UNIQUE (filepath,targetboard) )";
+        "CONSTRAINT NEWUPLOADFILES_1 UNIQUE (filepath) )";
 
     public List getTableDDL() {
         ArrayList lst = new ArrayList(1);
@@ -66,14 +63,13 @@ public class NewUploadFilesDatabaseTable extends AbstractDatabaseTable {
         s.executeUpdate("DELETE FROM NEWUPLOADFILES");
         s.close();
         
-        PreparedStatement ps = db.prepare("INSERT INTO NEWUPLOADFILES (filepath,targetboard,fromname) VALUES (?,?,?)");
+        PreparedStatement ps = db.prepare("INSERT INTO NEWUPLOADFILES (filepath,fromname) VALUES (?,?)");
         
         for(Iterator i=newUploadFiles.iterator(); i.hasNext(); ) {
             NewUploadFile nuf = (NewUploadFile)i.next(); 
             
             ps.setString(1, nuf.getFile().getPath());
-            ps.setString(2, nuf.getTargetBoard().getNameLowerCase());
-            ps.setString(3, nuf.getFrom());
+            ps.setString(2, nuf.getFrom());
             
             ps.executeUpdate();
         }
@@ -84,26 +80,14 @@ public class NewUploadFilesDatabaseTable extends AbstractDatabaseTable {
 
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
-        PreparedStatement ps = db.prepare("SELECT filepath,targetboard,fromname FROM NEWUPLOADFILES");
+        PreparedStatement ps = db.prepare("SELECT filepath,fromname FROM NEWUPLOADFILES");
 
         LinkedList newUploadFiles = new LinkedList();
         
         ResultSet rs = ps.executeQuery();
         while( rs.next() ) {
             String filepath = rs.getString(1);
-            String boardname = rs.getString(2);
-            String from = rs.getString(3);
-            
-            Board board = null;
-            if (boardname != null) {
-                board = MainFrame.getInstance().getTofTreeModel().getBoardByName(boardname);
-                if (board == null) {
-                    logger.warning("Board ("+boardname+" for file ("+filepath+") is missing. File removed.");
-                    continue;
-                }
-            } else {
-                continue;
-            }
+            String from = rs.getString(2);
             
             File f = new File(filepath);
             if (!f.isFile()) {
@@ -111,7 +95,7 @@ public class NewUploadFilesDatabaseTable extends AbstractDatabaseTable {
                 continue;
             }
             
-            NewUploadFile nuf = new NewUploadFile(f, board, from);
+            NewUploadFile nuf = new NewUploadFile(f, from);
             newUploadFiles.add(nuf);
         }
         rs.close();

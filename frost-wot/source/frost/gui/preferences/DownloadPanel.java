@@ -20,35 +20,21 @@ package frost.gui.preferences;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
-import java.util.ArrayList;
+import java.io.*;
 
 import javax.swing.*;
-import javax.swing.event.*;
 
-import frost.SettingsClass;
+import frost.*;
+import frost.fcp.*;
 import frost.util.gui.*;
-import frost.util.gui.translation.Language;
+import frost.util.gui.translation.*;
 
 class DownloadPanel extends JPanel {
 
-    public class Listener implements ChangeListener, ActionListener {
-
+    public class Listener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            if (e.getSource() == disableDownloadsCheckBox) {
-                refreshComponentsState();
-            }
             if (e.getSource() == browseDirectoryButton) {
                 browseDirectoryPressed();
-            }
-        }
-
-        public void stateChanged(ChangeEvent e) {
-            if (e.getSource() == enableRequestingCheckBox) {
-                refreshComponentsState();
-            }
-            if (e.getSource() == restartFailedDownloadsCheckBox) {
-                refreshComponentsState();
             }
         }
     }
@@ -61,26 +47,20 @@ class DownloadPanel extends JPanel {
     private JCheckBox decodeAfterEachSegmentCheckBox = new JCheckBox();
     private JLabel directoryLabel = new JLabel();
 
-    private JTextField directoryTextField = new JTextField();
-
-    private JCheckBox disableDownloadsCheckBox = new JCheckBox();
-    private JCheckBox enableRequestingCheckBox = new JCheckBox();
+    private JTextField directoryTextField = new JTextField(20);
 
     private Listener listener = new Listener();
     private JLabel maxRetriesLabel = new JLabel();
-    private JTextField maxRetriesTextField = new JTextField(8);
+    private JTextField maxRetriesTextField = new JTextField(6);
     private JCheckBox removeFinishedDownloadsCheckBox = new JCheckBox();
-    private JLabel requestAfterTriesLabel = new JLabel();
-    private JTextField requestAfterTriesTextField = new JTextField(8);
-    private JCheckBox restartFailedDownloadsCheckBox = new JCheckBox();
     private JLabel splitfileThreadsLabel = new JLabel();
-    private JTextField splitfileThreadsTextField = new JTextField(8);
-    private JTextField threadsTextField = new JTextField(8);
+    private JTextField splitfileThreadsTextField = new JTextField(6);
+    private JTextField threadsTextField = new JTextField(6);
     private JLabel threadsTextLabel = new JLabel();
     private JCheckBox tryAllSegmentsCheckBox = new JCheckBox();
 
     private JLabel waitTimeLabel = new JLabel();
-    private JTextField waitTimeTextField = new JTextField(8);
+    private JTextField waitTimeTextField = new JTextField(6);
 
     /**
      * @param owner the JDialog that will be used as owner of any dialog that is popped up from this panel
@@ -95,6 +75,14 @@ class DownloadPanel extends JPanel {
 
         initialize();
         loadSettings();
+        
+        if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) {
+            // disable 0.5-only items
+            splitfileThreadsLabel.setEnabled(false);
+            splitfileThreadsTextField.setEnabled(false);
+            tryAllSegmentsCheckBox.setEnabled(false);
+            decodeAfterEachSegmentCheckBox.setEnabled(false);
+        }
     }
 
     /**
@@ -116,51 +104,6 @@ class DownloadPanel extends JPanel {
         }
     }
 
-    private JPanel getRequestPanel() {
-        JPanel subPanel = new JPanel(new GridBagLayout());
-
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.insets = new Insets(5, 5, 5, 5);
-        constraints.weighty = 1;
-
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        constraints.weightx = 1;
-        subPanel.add(requestAfterTriesLabel, constraints);
-        constraints.gridx = 1;
-        constraints.weightx = 0;
-        subPanel.add(requestAfterTriesTextField, constraints);
-
-        return subPanel;
-    }
-
-    private JPanel getRetriesPanel() {
-        JPanel subPanel = new JPanel(new GridBagLayout());
-
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.insets = new Insets(0, 5, 5, 5);
-
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        constraints.weightx = 1;
-        subPanel.add(maxRetriesLabel, constraints);
-        constraints.gridx = 1;
-        constraints.weightx = 0;
-        subPanel.add(maxRetriesTextField, constraints);
-
-        constraints.gridy = 1;
-        constraints.gridx = 0;
-        constraints.weightx = 1;
-        subPanel.add(waitTimeLabel, constraints);
-        constraints.gridx = 1;
-        constraints.weightx = 0;
-        subPanel.add(waitTimeTextField, constraints);
-
-        return subPanel;
-    }
-
     private void initialize() {
         setName("DownloadPanel");
         setLayout(new GridBagLayout());
@@ -169,107 +112,71 @@ class DownloadPanel extends JPanel {
         //We create the components
         new TextComponentClipboardMenu(directoryTextField, language);
         new TextComponentClipboardMenu(maxRetriesTextField, language);
-        new TextComponentClipboardMenu(requestAfterTriesTextField, language);
         new TextComponentClipboardMenu(splitfileThreadsTextField, language);
         new TextComponentClipboardMenu(threadsTextField, language);
         new TextComponentClipboardMenu(waitTimeTextField, language);
 
-        //Adds all of the components
+        // Adds all of the components
         GridBagConstraints constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.anchor = GridBagConstraints.NORTHWEST;
         Insets insets0555 = new Insets(0, 5, 5, 5);
-        Insets insets5555 = new Insets(5, 5, 5, 5);
-        Insets insets5_30_5_5 = new Insets(5, 30, 5, 5);
 
-        constraints.gridwidth = 4;
-        constraints.insets = insets0555;
-        constraints.gridx = 0;
         constraints.gridy = 0;
-        add(disableDownloadsCheckBox, constraints);
-
-        constraints.insets = insets5_30_5_5;
-        constraints.gridx = 0;
-        constraints.gridy = 1;
-        constraints.weightx = 0.5;
         constraints.gridwidth = 1;
+        constraints.insets = insets0555;
+        constraints.anchor = GridBagConstraints.WEST;
+        
+        constraints.gridx = 0;
         add(directoryLabel, constraints);
-        constraints.insets = insets5555;
         constraints.gridx = 1;
         constraints.weightx = 1;
-        constraints.gridwidth = 2;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
         add(directoryTextField, constraints);
-        constraints.gridx = 3;
-        constraints.weightx = 0.1;
-        constraints.gridwidth = 1;
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.gridx = 2;
+        constraints.weightx = 0.0;
         add(browseDirectoryButton, constraints);
 
-        constraints.insets = insets5_30_5_5;
-//        constraints.anchor = GridBagConstraints.NORTHWEST;
+        constraints.gridy++;
         constraints.gridx = 0;
-        constraints.gridy = 2;
-        constraints.weightx = 0;
-        constraints.gridwidth = 1;
-        add(restartFailedDownloadsCheckBox, constraints);
-        constraints.gridwidth = 3;
-        constraints.insets = insets5555;
+        add(maxRetriesLabel, constraints);
         constraints.gridx = 1;
-        constraints.weightx = 1;
-//        constraints.anchor = GridBagConstraints.CENTER;
-        constraints.fill = GridBagConstraints.BOTH;
-        add(getRetriesPanel(), constraints);
+        add(maxRetriesTextField, constraints);
 
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.gridwidth = 4;
-        constraints.insets = insets5_30_5_5;
-        constraints.gridy = 3;
+        constraints.gridy++;
         constraints.gridx = 0;
-        add(enableRequestingCheckBox, constraints);
-        constraints.gridwidth = 3;
-        constraints.insets = insets5555;
-        constraints.gridy = 4;
+        add(waitTimeLabel, constraints);
         constraints.gridx = 1;
-        constraints.fill = GridBagConstraints.BOTH;
-        add(getRequestPanel(), constraints);
-
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.gridwidth = 1;
-        constraints.insets = insets5_30_5_5;
-        constraints.gridy = 5;
+        add(waitTimeTextField, constraints);
+        
+        constraints.gridy++;
         constraints.gridx = 0;
-        constraints.weightx = 1;
         add(threadsTextLabel, constraints);
         constraints.gridx = 1;
-        constraints.insets = insets5555;
-        constraints.weightx = 0;
         add(threadsTextField, constraints);
 
-        constraints.insets = insets5_30_5_5;
-        constraints.gridy = 6;
+        constraints.gridy++;
         constraints.gridx = 0;
-        constraints.weightx = 1;
         add(splitfileThreadsLabel, constraints);
         constraints.gridx = 1;
-        constraints.insets = insets5555;
-        constraints.weightx = 0;
         add(splitfileThreadsTextField, constraints);
 
-        constraints.insets = insets5_30_5_5;
-        constraints.gridwidth = 4;
-        constraints.gridy = 7;
+        constraints.gridwidth = 3;
+
+        constraints.insets = new Insets(5,5,5,5);
+        constraints.gridy++;
         constraints.gridx = 0;
-        constraints.weightx = 1;
         add(removeFinishedDownloadsCheckBox, constraints);
-        constraints.gridy = 8;
+        
+        constraints.insets = insets0555;
+        
+        constraints.gridy++;
         add(tryAllSegmentsCheckBox, constraints);
-        constraints.gridy = 9;
-        constraints.weighty = 1;
+        constraints.gridy++;
+        constraints.weighty = 1.0; // glue
+        constraints.anchor = GridBagConstraints.NORTHWEST;
         add(decodeAfterEachSegmentCheckBox, constraints);
 
         // Add listeners
-        enableRequestingCheckBox.addChangeListener(listener);
-        restartFailedDownloadsCheckBox.addChangeListener(listener);
-        disableDownloadsCheckBox.addActionListener(listener);
         browseDirectoryButton.addActionListener(listener);
     }
 
@@ -281,35 +188,14 @@ class DownloadPanel extends JPanel {
         directoryTextField.setText(settings.getValue("downloadDirectory"));
         threadsTextField.setText(settings.getValue("downloadThreads"));
         splitfileThreadsTextField.setText(settings.getValue("splitfileDownloadThreads"));
-        disableDownloadsCheckBox.setSelected(settings.getBoolValue(SettingsClass.DISABLE_DOWNLOADS));
-        restartFailedDownloadsCheckBox.setSelected(settings.getBoolValue("downloadRestartFailedDownloads"));
-        enableRequestingCheckBox.setSelected(settings.getBoolValue("downloadEnableRequesting"));
-        requestAfterTriesTextField.setText("" + settings.getIntValue("downloadRequestAfterTries"));
         maxRetriesTextField.setText("" + settings.getIntValue("downloadMaxRetries"));
         waitTimeTextField.setText("" + settings.getIntValue("downloadWaittime"));
         tryAllSegmentsCheckBox.setSelected(settings.getBoolValue("downloadTryAllSegments"));
         decodeAfterEachSegmentCheckBox.setSelected(settings.getBoolValue("downloadDecodeAfterEachSegment"));
-
-        refreshComponentsState();
     }
 
     public void ok() {
         saveSettings();
-    }
-
-    private void refreshComponentsState() {
-        boolean downloadsEnabled = !disableDownloadsCheckBox.isSelected();
-        if (downloadsEnabled) {
-            setEnabled(true);
-            requestAfterTriesTextField.setEnabled(enableRequestingCheckBox.isSelected());
-            maxRetriesTextField.setEnabled(restartFailedDownloadsCheckBox.isSelected());
-            waitTimeTextField.setEnabled(restartFailedDownloadsCheckBox.isSelected());
-            requestAfterTriesLabel.setEnabled(enableRequestingCheckBox.isSelected());
-            maxRetriesLabel.setEnabled(restartFailedDownloadsCheckBox.isSelected());
-            waitTimeLabel.setEnabled(restartFailedDownloadsCheckBox.isSelected());
-        } else {
-            setEnabled(false);
-        }
     }
 
     private void refreshLanguage() {
@@ -319,17 +205,11 @@ class DownloadPanel extends JPanel {
         
         removeFinishedDownloadsCheckBox.setText(
                 language.getString("Options.downloads.removeFinishedDownloadsEvery5Minutes") + " (" + off + ")");
-        restartFailedDownloadsCheckBox.setText(language.getString("Options.downloads.restartFailedDownloads"));
         waitTimeLabel.setText(language.getString("Options.downloads.waittimeAfterEachTry") + " (" + minutes + "): ");
         maxRetriesLabel.setText(language.getString("Options.downloads.maximumNumberOfRetries") + ": ");
-        requestAfterTriesLabel.setText(language.getString("Options.downloads.requestFileAfterThisCountOfRetries") + ": ");
-        enableRequestingCheckBox.setText(
-                language.getString("Options.downloads.enableRequestingOfFailedDownloadFiles") + " (" + on + ")");
         tryAllSegmentsCheckBox.setText(
                 language.getString("Options.downloads.tryToDownloadAllSegments") + " (" + on + ")");
-        decodeAfterEachSegmentCheckBox.setText(
-                language.getString("Options.downloads.decodeEachSegmentImmediately"));
-        disableDownloadsCheckBox.setText(language.getString("Options.downloads.disableDownloads"));
+        decodeAfterEachSegmentCheckBox.setText(language.getString("Options.downloads.decodeEachSegmentImmediately"));
 
         directoryLabel.setText(language.getString("Options.downloads.downloadDirectory") + ": ");
         browseDirectoryButton.setText(language.getString("Common.browse") + "...");
@@ -354,21 +234,9 @@ class DownloadPanel extends JPanel {
         settings.setValue("removeFinishedDownloads", removeFinishedDownloadsCheckBox.isSelected());
 
         settings.setValue("splitfileDownloadThreads", splitfileThreadsTextField.getText());
-        settings.setValue(SettingsClass.DISABLE_DOWNLOADS, disableDownloadsCheckBox.isSelected());
-        settings.setValue("downloadRestartFailedDownloads", restartFailedDownloadsCheckBox.isSelected());
-        settings.setValue("downloadEnableRequesting", enableRequestingCheckBox.isSelected());
-        settings.setValue("downloadRequestAfterTries", requestAfterTriesTextField.getText());
         settings.setValue("downloadMaxRetries", maxRetriesTextField.getText());
         settings.setValue("downloadWaittime", waitTimeTextField.getText());
         settings.setValue("downloadTryAllSegments", tryAllSegmentsCheckBox.isSelected());
         settings.setValue("downloadDecodeAfterEachSegment", decodeAfterEachSegmentCheckBox.isSelected());
-    }
-
-    public void setEnabled(boolean enabled) {
-        super.setEnabled(enabled);
-
-        ArrayList exceptions = new ArrayList();
-        exceptions.add(disableDownloadsCheckBox);
-        MiscToolkit.getInstance().setContainerEnabled(this, enabled, exceptions);
     }
 }

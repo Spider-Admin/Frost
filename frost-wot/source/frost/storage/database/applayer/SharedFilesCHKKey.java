@@ -21,7 +21,7 @@ package frost.storage.database.applayer;
 /**
  * Represents the CHK key of a filelist.
  */
-class SharedFilesCHKKey {
+public class SharedFilesCHKKey {
     
     long primaryKey;
     String chkKey;
@@ -31,12 +31,13 @@ class SharedFilesCHKKey {
     boolean isDownloaded;
     boolean isValid; // set after receive of CHK key, don't send invvalid keys in KSK pointer file
     int downloadRetries; // don't try too often
-    long lastDownloadTryStartTime;
+    long lastDownloadTryStopTime;
     int sentCount; // how often did we sent this CHK
     long lastSent; // time when we last sent this CHK within a pointer file
     
+    // used during load from database
     public SharedFilesCHKKey(long primKey, String chkKey, int seenCount, long firstSeen, long lastSeen,
-            boolean isDownloaded, boolean isValid, int downloadRetries, long lastDownloadTryStartTime,
+            boolean isDownloaded, boolean isValid, int downloadRetries, long lastDownloadTryStopTime,
             int sentcount, long lastsent) 
     {
         this.primaryKey = primKey;
@@ -47,24 +48,41 @@ class SharedFilesCHKKey {
         this.isDownloaded = isDownloaded;
         this.isValid = isValid;
         this.downloadRetries = downloadRetries;
-        this.lastDownloadTryStartTime = lastDownloadTryStartTime;
+        this.lastDownloadTryStopTime = lastDownloadTryStopTime;
         this.sentCount = sentcount;
         this.lastSent = lastsent;
     }
-    
-    public SharedFilesCHKKey(String chkKey) {
+
+    // used if a new CHK key was received in a pointer file
+    public SharedFilesCHKKey(String chkKey, long timestamp) {
         this.primaryKey = -1; // unset
         this.chkKey = chkKey;
         this.seenCount = 1;
-        this.firstSeen = System.currentTimeMillis();
-        this.lastSeen = System.currentTimeMillis();
+        this.firstSeen = timestamp;
+        this.lastSeen = timestamp;
         this.isDownloaded = false;
         this.isValid = false; 
         this.downloadRetries = 0;
-        this.lastDownloadTryStartTime = 0;
+        this.lastDownloadTryStopTime = 0;
         this.sentCount = 0;
         this.lastSent = 0;
     }
+    
+    // used if we uploaded an own new CHK key which must be send inside a pointer file the first time
+    public SharedFilesCHKKey(String chkKey) {
+        this.primaryKey = -1; // unset
+        this.chkKey = chkKey;
+        this.seenCount = 0;
+        this.firstSeen = 0;
+        this.lastSeen = 0;
+        this.isDownloaded = false;
+        this.isValid = true; 
+        this.downloadRetries = 0;
+        this.lastDownloadTryStopTime = 0;
+        this.sentCount = 0;
+        this.lastSent = 0;
+    }
+
     public String getChkKey() {
         return chkKey;
     }
@@ -76,6 +94,9 @@ class SharedFilesCHKKey {
     }
     public long getFirstSeen() {
         return firstSeen;
+    }
+    public void setFirstSeen(long v) {
+        firstSeen = v;
     }
     public boolean isDownloaded() {
         return isDownloaded;
@@ -104,11 +125,11 @@ class SharedFilesCHKKey {
     public void incrementSeenCount() {
         seenCount++;
     }
-    public long getLastDownloadTryStartTime() {
-        return lastDownloadTryStartTime;
+    public long getLastDownloadTryStopTime() {
+        return lastDownloadTryStopTime;
     }
-    public void setLastDownloadTryStartTime(long lastDownloadTryStartTime) {
-        this.lastDownloadTryStartTime = lastDownloadTryStartTime;
+    public void setLastDownloadTryStopTime(long lastDownloadTryStartTime) {
+        this.lastDownloadTryStopTime = lastDownloadTryStartTime;
     }
     public int getSentCount() {
         return sentCount;

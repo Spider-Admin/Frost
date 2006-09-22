@@ -57,12 +57,11 @@ class DisplayPanel extends JPanel {
 
     private JCheckBox messageBodyAACheckBox = new JCheckBox();
     private JCheckBox msgTableMultilineSelectCheckBox = new JCheckBox();
+    private JCheckBox msgTableScrollHorizontalCheckBox = new JCheckBox();
     private JCheckBox showBoardDescTooltipsCheckBox = new JCheckBox();
     private JCheckBox showBoardUpdateCountCheckBox = new JCheckBox();
 
     private JCheckBox showColoredRowsCheckBox = new JCheckBox();
-//    private JCheckBox showSmileysCheckBox = new JCheckBox();
-//    private JCheckBox showHyperlinksCheckBox = new JCheckBox();
 
     private JLabel messageBodyLabel = new JLabel();
     private JLabel fileListLabel = new JLabel();
@@ -212,6 +211,9 @@ class DisplayPanel extends JPanel {
         add(msgTableMultilineSelectCheckBox, constraints);
         
         constraints.gridy++;
+        add(msgTableScrollHorizontalCheckBox, constraints);
+        
+        constraints.gridy++;
         add(showBoardUpdateCountCheckBox, constraints);
 
         constraints.gridy++;
@@ -219,12 +221,6 @@ class DisplayPanel extends JPanel {
 
         constraints.gridy++;
         add(showColoredRowsCheckBox, constraints);
-
-//        constraints.gridy++;
-//        add(showSmileysCheckBox, constraints);
-//
-//        constraints.gridy++;
-//        add(showHyperlinksCheckBox, constraints);
 
         constraints.gridy++;
         constraints.weighty = 1.0;
@@ -261,12 +257,11 @@ class DisplayPanel extends JPanel {
 
         messageBodyAACheckBox.setSelected(settings.getBoolValue("messageBodyAA"));
         msgTableMultilineSelectCheckBox.setSelected(settings.getBoolValue(SettingsClass.MSGTABLE_MULTILINE_SELECT));
+        msgTableScrollHorizontalCheckBox.setSelected(settings.getBoolValue(SettingsClass.MSGTABLE_SCROLL_HORIZONTAL));
         showBoardUpdateCountCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_BOARD_UPDATED_COUNT));
         showBoardDescTooltipsCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_BOARDDESC_TOOLTIPS));
 
         showColoredRowsCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS));
-//        showSmileysCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_SMILEYS));
-//        showHyperlinksCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_KEYS_AS_HYPERLINKS));
     }
 
     private void messageBodyButtonPressed() {
@@ -310,13 +305,12 @@ class DisplayPanel extends JPanel {
         fileListButton.setText(choose);
         selectedFileListFontLabel.setText(getFontLabel(selectedFileListFont));
         messageBodyAACheckBox.setText(language.getString("Options.display.enableAntialiasingForMessageBody"));
+        msgTableScrollHorizontalCheckBox.setText(language.getString("Options.display.showHorizontalScrollbarInMessageTable"));
         msgTableMultilineSelectCheckBox.setText(language.getString("Options.display.enableMultilineSelectionsInMessageTable"));
         showBoardUpdateCountCheckBox.setText(language.getString("Options.display.showBoardUpdateCount"));
         showBoardDescTooltipsCheckBox.setText(language.getString("Options.display.showTooltipWithBoardDescriptionInBoardTree"));
         
         showColoredRowsCheckBox.setText(language.getString("Options.display.showColoredRows"));
-//        showSmileysCheckBox.setText(language.getString("Options.display.showSmileys"));
-//        showHyperlinksCheckBox.setText(language.getString("Options.display.showKeysAsHyperlinks"));
     }
 
     /**
@@ -340,11 +334,10 @@ class DisplayPanel extends JPanel {
         }
         settings.setValue("messageBodyAA", messageBodyAACheckBox.isSelected());
         settings.setValue(SettingsClass.MSGTABLE_MULTILINE_SELECT, msgTableMultilineSelectCheckBox.isSelected());
+        settings.setValue(SettingsClass.MSGTABLE_SCROLL_HORIZONTAL, msgTableScrollHorizontalCheckBox.isSelected());
         settings.setValue(SettingsClass.SHOW_BOARD_UPDATED_COUNT, showBoardUpdateCountCheckBox.isSelected());
         settings.setValue(SettingsClass.SHOW_BOARDDESC_TOOLTIPS, showBoardDescTooltipsCheckBox.isSelected());
         
         settings.setValue(SettingsClass.SHOW_COLORED_ROWS, showColoredRowsCheckBox.isSelected());
-//        settings.setValue(SettingsClass.SHOW_SMILEYS, showSmileysCheckBox.isSelected());
-//        settings.setValue(SettingsClass.SHOW_KEYS_AS_HYPERLINKS, showHyperlinksCheckBox.isSelected());
     }
 }

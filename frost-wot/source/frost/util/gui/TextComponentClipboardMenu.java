@@ -29,10 +29,6 @@ import javax.swing.text.*;
 
 import frost.util.gui.translation.Language;
 
-/**
- * @author $Author$
- * @version $Revision$
- */
 public class TextComponentClipboardMenu extends MouseAdapter implements ClipboardOwner, ActionListener {
 
 	private static Logger logger = Logger.getLogger(TextComponentClipboardMenu.class.getName());
@@ -54,40 +50,22 @@ public class TextComponentClipboardMenu extends MouseAdapter implements Clipboar
 		textComponent.addMouseListener(this);
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
-	 */
 	public void mousePressed(MouseEvent e) {
 		if (e.isPopupTrigger() && textComponent.isEnabled()) {
 			showPopup(e.getX(), e.getY());
 		}
 	}
 	
-	/* (non-Javadoc)
-	 * 
-	 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
-	 */
 	public void mouseReleased(MouseEvent e) {
 		if (e.isPopupTrigger() && textComponent.isEnabled()) {
 			showPopup(e.getX(), e.getY());
 		}
 	}
 	
-	/* (non-Javadoc)
-	 * 
-	 * @see java.awt.datatransfer.ClipboardOwner#lostOwnership(java.awt.datatransfer.Clipboard,
-	 *      java.awt.datatransfer.Transferable)
-	 */
-	public void lostOwnership(Clipboard clipboard, Transferable contents) {
+	public void lostOwnership(Clipboard lClipboard, Transferable contents) {
 		// Nothing here
 	}
 	
-	/* (non-Javadoc)
-	 * 
-	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-	 */
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == cutItem) {
 			cutSelectedText();

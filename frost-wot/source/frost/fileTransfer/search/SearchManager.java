@@ -21,66 +21,30 @@ package frost.fileTransfer.search;
 import java.beans.*;
 
 import frost.*;
-import frost.boards.TofTreeModel;
-import frost.fileTransfer.download.DownloadModel;
-import frost.fileTransfer.upload.UploadModel;
-import frost.identities.FrostIdentities;
 
-/**
- * @author $Author$
- * @version $Revision$
- */
 public class SearchManager implements PropertyChangeListener {
-
-    private TofTreeModel tofTreeModel;
-    private DownloadModel downloadModel;
-    private UploadModel uploadModel;
-    private String keypool;
-    private FrostIdentities identities;
-    private MainFrame mainFrame;
-    private SettingsClass settings;
 
     private SearchModel model;
     private SearchPanel panel;
 
-    public SearchManager(SettingsClass settings) {
+    public SearchManager() {
         super();
-        this.settings = settings;
     }
 
     public void initialize() {
+        getPanel();
+    }
+    
+    public void addPanelToMainFrame(MainFrame mainFrame) {
         mainFrame.addPanel("MainFrame.tabbedPane.search", getPanel());
-        settings.addPropertyChangeListener(SettingsClass.DISABLE_DOWNLOADS, this);
+        Core.frostSettings.addPropertyChangeListener(SettingsClass.DISABLE_FILESHARING, this);
         updateDownloadStatus();
-    }
-
-    public void setMainFrame(MainFrame mainFrame) {
-        this.mainFrame = mainFrame;
-    }
-
-    public void setIdentities(FrostIdentities identities) {
-        this.identities = identities;
-    }
-
-    public void setKeypool(String keypool) {
-        this.keypool = keypool;
-    }
-
-    public void setDownloadModel(DownloadModel model) {
-        downloadModel = model;
-    }
-
-    public void setTofTreeModel(TofTreeModel tofTreeModel) {
-        this.tofTreeModel = tofTreeModel;
     }
 
     public SearchPanel getPanel() {
         if (panel == null) {
-            panel = new SearchPanel(settings, this);
+            panel = new SearchPanel(this);
             panel.setModel(getModel());
-            panel.setDownloadModel(downloadModel);
-            panel.setUploadModel(uploadModel);
-            panel.setTofTreeModel(tofTreeModel);
             panel.initialize();
         }
         return panel;
@@ -88,36 +52,19 @@ public class SearchManager implements PropertyChangeListener {
 
     public SearchModel getModel() {
         if (model == null) {
-            model = new SearchModel(settings);
-            model.setDownloadModel(downloadModel);
-            model.setIdentities(identities);
+            model = new SearchModel();
         }
         return model;
     }
 
-    /* (non-Javadoc)
-     * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
-     */
     public void propertyChange(PropertyChangeEvent evt) {
-        if (evt.getPropertyName().equals(SettingsClass.DISABLE_DOWNLOADS)) {
+        if (evt.getPropertyName().equals(SettingsClass.DISABLE_FILESHARING)) {
             updateDownloadStatus();
         }
     }
 
     private void updateDownloadStatus() {
-        boolean disableDownloads = settings.getBoolValue(SettingsClass.DISABLE_DOWNLOADS);
-        mainFrame.setPanelEnabled("MainFrame.tabbedPane.search", !disableDownloads);
-    }
-
-    public String getKeypool() {
-        return keypool;
-    }
-
-    public SettingsClass getSettings() {
-        return settings;
-    }
-
-    public void setUploadModel(UploadModel model) {
-        uploadModel = model;
+        boolean disableFileSharing = Core.frostSettings.getBoolValue(SettingsClass.DISABLE_FILESHARING);
+        MainFrame.getInstance().setPanelEnabled("MainFrame.tabbedPane.search", !disableFileSharing);
     }
 }

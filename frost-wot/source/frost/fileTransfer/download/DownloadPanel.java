@@ -31,436 +31,14 @@ import javax.swing.text.*;
 import frost.*;
 import frost.ext.*;
 import frost.fcp.*;
+import frost.fileTransfer.common.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
 import frost.util.model.gui.*;
 
-/**
- * @author $Author$
- * @version $Revision$
- */
 public class DownloadPanel extends JPanel implements SettingsUpdater {
 	
-	private class PopupMenuDownload
-		extends JSkinnablePopupMenu
-		implements ActionListener, LanguageListener, ClipboardOwner {
-
-		private JMenuItem cancelItem = new JMenuItem();
-		private JMenuItem copyKeysAndNamesItem = new JMenuItem();
-		private JMenuItem copyKeysItem = new JMenuItem();
-		private JMenuItem copyExtendedInfoItem = new JMenuItem();
-		private JMenuItem disableAllDownloadsItem = new JMenuItem();
-		private JMenuItem disableSelectedDownloadsItem = new JMenuItem();
-		private JMenuItem enableAllDownloadsItem = new JMenuItem();
-		private JMenuItem enableSelectedDownloadsItem = new JMenuItem();
-		private JMenuItem invertEnabledAllItem = new JMenuItem();
-		private JMenuItem invertEnabledSelectedItem = new JMenuItem();
-		private JMenuItem removeAllDownloadsItem = new JMenuItem();
-		private JMenuItem removeFinishedItem = new JMenuItem();
-		private JMenuItem removeSelectedDownloadsItem = new JMenuItem();
-		private JMenuItem restartSelectedDownloadsItem = new JMenuItem();
-
-		private JMenu copyToClipboardMenu = new JMenu();
-		
-		private String keyNotAvailableMessage;
-		private String fileMessage;
-		private String keyMessage;
-		private String bytesMessage;
-		
-		private Clipboard clipboard;
-
-		public PopupMenuDownload() {
-			super();
-			initialize();
-		}
-
-		private void initialize() {
-			refreshLanguage();
-
-			// TODO: implement cancel of downloading
-
-			copyToClipboardMenu.add(copyKeysAndNamesItem);
-			copyToClipboardMenu.add(copyKeysItem);
-			copyToClipboardMenu.add(copyExtendedInfoItem);
-
-			copyKeysAndNamesItem.addActionListener(this);
-			copyKeysItem.addActionListener(this);
-			copyExtendedInfoItem.addActionListener(this);
-			restartSelectedDownloadsItem.addActionListener(this);
-			removeSelectedDownloadsItem.addActionListener(this);
-			removeAllDownloadsItem.addActionListener(this);
-			removeFinishedItem.addActionListener(this);
-			enableAllDownloadsItem.addActionListener(this);
-			disableAllDownloadsItem.addActionListener(this);
-			enableSelectedDownloadsItem.addActionListener(this);
-			disableSelectedDownloadsItem.addActionListener(this);
-			invertEnabledAllItem.addActionListener(this);
-			invertEnabledSelectedItem.addActionListener(this);
-		}
-
-		private void refreshLanguage() {
-			keyNotAvailableMessage = language.getString("Common.copyToClipBoard.extendedInfo.keyNotAvailableYet");
-			fileMessage = language.getString("Common.copyToClipBoard.extendedInfo.file")+" ";
-			keyMessage = language.getString("Common.copyToClipBoard.extendedInfo.key")+" ";
-			bytesMessage = language.getString("Common.copyToClipBoard.extendedInfo.bytes")+" ";
-			
-			cancelItem.setText(language.getString("Common.cancel"));
-			copyKeysItem.setText(language.getString("Common.copyToClipBoard.copyKeysOnly"));
-			copyKeysAndNamesItem.setText(language.getString("Common.copyToClipBoard.copyKeysWithFilenames"));
-			copyExtendedInfoItem.setText(language.getString("Common.copyToClipBoard.copyExtendedInfo"));
-			restartSelectedDownloadsItem.setText(language.getString("DownloadPane.fileTable.popupmenu.restartSelectedDownloads"));
-			removeSelectedDownloadsItem.setText(language.getString("DownloadPane.fileTable.popupmenu.remove.removeSelectedDownloads"));
-			removeAllDownloadsItem.setText(language.getString("DownloadPane.fileTable.popupmenu.remove.removeAllDownloads"));
-			//downloadPopupResetHtlValues = new JMenuItem(LangRes.getString("Retry selected downloads"));
-			removeFinishedItem.setText(language.getString("DownloadPane.fileTable.popupmenu.remove.removeFinishedDownloads"));
-			enableAllDownloadsItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.enableAllDownloads"));
-			disableAllDownloadsItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.disableAllDownloads"));
-			enableSelectedDownloadsItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.enableSelectedDownloads"));
-			disableSelectedDownloadsItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.disableSelectedDownloads"));
-			invertEnabledAllItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.invertEnabledStateForAllDownloads"));
-			invertEnabledSelectedItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.invertEnabledStateForSelectedDownloads"));
-
-			copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
-		}
-		
-		private Clipboard getClipboard() {
-			if (clipboard == null) {
-				clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-			}
-			return clipboard;
-		}
-
-		/* (non-Javadoc)
-		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-		 */
-		public void actionPerformed(ActionEvent e) {
-			if (e.getSource() == copyKeysItem) {
-				copyKeys();
-			}
-			if (e.getSource() == copyKeysAndNamesItem) {
-				copyKeysAndNames();
-			}
-			if (e.getSource() == copyExtendedInfoItem) {
-				copyExtendedInfo();
-			}
-			if (e.getSource() == restartSelectedDownloadsItem) {
-				restartSelectedDownloads();
-			}
-			if (e.getSource() == removeSelectedDownloadsItem) {
-				removeSelectedDownloads();
-			}
-			if (e.getSource() == removeAllDownloadsItem) {
-				removeAllDownloads();
-			}
-			if (e.getSource() == removeFinishedItem) {
-				removeFinished();
-			}
-			if (e.getSource() == enableAllDownloadsItem) {
-				enableAllDownloads();
-			}
-			if (e.getSource() == disableAllDownloadsItem) {
-				disableAllDownloads();
-			}
-			if (e.getSource() == enableSelectedDownloadsItem) {
-				enableSelectedDownloads();
-			}
-			if (e.getSource() == disableSelectedDownloadsItem) {
-				disableSelectedDownloads();
-			}
-			if (e.getSource() == invertEnabledAllItem) {
-				invertEnabledAll();
-			}
-			if (e.getSource() == invertEnabledSelectedItem) {
-				invertEnabledSelected();
-			}
-		}
-
-		private void invertEnabledSelected() {
-			ModelItem[] selectedItems = modelTable.getSelectedItems();
-			model.setItemsEnabled(null, selectedItems);
-		}
-
-		private void invertEnabledAll() {
-			model.setAllItemsEnabled(null);
-		}
-
-		private void disableSelectedDownloads() {
-			ModelItem[] selectedItems = modelTable.getSelectedItems();
-			model.setItemsEnabled(Boolean.FALSE, selectedItems);
-		}
-
-		private void enableSelectedDownloads() {
-			ModelItem[] selectedItems = modelTable.getSelectedItems();
-			model.setItemsEnabled(Boolean.TRUE, selectedItems);
-		}
-
-		private void disableAllDownloads() {
-			model.setAllItemsEnabled(Boolean.FALSE);
-		}
-
-		private void enableAllDownloads() {
-			model.setAllItemsEnabled(Boolean.FALSE);
-		}
-
-		private void removeFinished() {
-			model.removeFinishedDownloads();
-		}
-
-		private void removeAllDownloads() {
-			model.removeAllItems();
-		}
-
-		private void removeSelectedDownloads() {
-			ModelItem[] selectedItems = modelTable.getSelectedItems();
-			model.removeItems(selectedItems);
-		}
-
-		private void restartSelectedDownloads() {
-			ModelItem[] selectedItems = modelTable.getSelectedItems();
-			model.restartItems(selectedItems);
-		}
-
-		/**
-		 * This method copies the CHK keys and file names of the selected items (if any) to
-		 * the clipboard.
-		 */
-		private void copyKeysAndNames() {
-			ModelItem[] selectedItems = modelTable.getSelectedItems();
-			if (selectedItems.length > 0) {
-				StringBuffer textToCopy = new StringBuffer();
-				for (int i = 0; i < selectedItems.length; i++) {
-					FrostDownloadItem item = (FrostDownloadItem) selectedItems[i];
-					String key = item.getKey();
-					if (key == null) {
-						key = keyNotAvailableMessage;
-					}
-					textToCopy.append(key);
-					textToCopy.append("/");
-					textToCopy.append(item.getFileName());
-					textToCopy.append("\n");
-				}				
-				StringSelection selection = new StringSelection(textToCopy.toString());
-				getClipboard().setContents(selection, this);	
-			}
-		}
-		
-		/**
-		 * This method copies extended information about the selected items (if any) to
-		 * the clipboard. That information is composed of the filename, the key and
-		 * the size in bytes.
-		 */
-		private void copyExtendedInfo() {
-			ModelItem[] selectedItems = modelTable.getSelectedItems();
-			if (selectedItems.length > 0) {
-				StringBuffer textToCopy = new StringBuffer();
-				for (int i = 0; i < selectedItems.length; i++) {
-					FrostDownloadItem item = (FrostDownloadItem) selectedItems[i];
-					String key = item.getKey();
-					if (key == null) {
-						key = keyNotAvailableMessage;
-					}
-					textToCopy.append(fileMessage);
-					textToCopy.append(item.getFileName() + "\n");
-					textToCopy.append(keyMessage);
-					textToCopy.append(key + "\n");
-					textToCopy.append(bytesMessage);
-					textToCopy.append(item.getFileSize() + "\n\n");
-				}				
-				//We remove the additional \n at the end
-				String result = textToCopy.substring(0, textToCopy.length() - 1);
-				
-				StringSelection selection = new StringSelection(result);
-				getClipboard().setContents(selection, this);	
-			}
-		}
-
-		/**
-		 * This method copies the CHK keys of the selected items (if any) to
-		 * the clipboard.
-		 */
-		private void copyKeys() {
-			ModelItem[] selectedItems = modelTable.getSelectedItems();
-			if (selectedItems.length > 0) {
-				StringBuffer textToCopy = new StringBuffer();
-				for (int i = 0; i < selectedItems.length; i++) {
-					FrostDownloadItem item = (FrostDownloadItem) selectedItems[i];
-					String key = item.getKey();
-					if (key == null) {
-						key = keyNotAvailableMessage;
-					}
-					textToCopy.append(key);
-					textToCopy.append("\n");
-				}				
-				StringSelection selection = new StringSelection(textToCopy.toString());
-				getClipboard().setContents(selection, this);	
-			}
-		}
-
-		/* (non-Javadoc)
-		 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
-		 */
-		public void languageChanged(LanguageEvent event) {
-			refreshLanguage();
-		}
-		
-		/* (non-Javadoc)
-		 * @see java.awt.datatransfer.ClipboardOwner#lostOwnership(java.awt.datatransfer.Clipboard, java.awt.datatransfer.Transferable)
-		 */
-		public void lostOwnership(Clipboard tclipboard, Transferable contents) {
-			// Nothing here			
-		}
-
-		/* (non-Javadoc)
-		 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
-		 */
-		public void show(Component invoker, int x, int y) {
-			removeAll();
-
-			ModelItem[] selectedItems = modelTable.getSelectedItems();
-
-			if (selectedItems.length > 0) {
-				add(copyToClipboardMenu);
-				addSeparator();
-			}
-
-			if (selectedItems.length != 0) {
-				// If at least 1 item is selected
-				add(restartSelectedDownloadsItem);
-				addSeparator();
-			}
-
-			JMenu enabledSubMenu = new JMenu(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads") + "...");
-			if (selectedItems.length != 0) {
-				// If at least 1 item is selected
-				enabledSubMenu.add(enableSelectedDownloadsItem);
-				enabledSubMenu.add(disableSelectedDownloadsItem);
-				enabledSubMenu.add(invertEnabledSelectedItem);
-				enabledSubMenu.addSeparator();
-			}
-			enabledSubMenu.add(enableAllDownloadsItem);
-			enabledSubMenu.add(disableAllDownloadsItem);
-			enabledSubMenu.add(invertEnabledAllItem);
-			add(enabledSubMenu);
-
-			JMenu removeSubMenu = new JMenu(language.getString("DownloadPane.fileTable.popupmenu.remove") + "...");
-			if (selectedItems.length != 0) {
-				// If at least 1 item is selected
-				removeSubMenu.add(removeSelectedDownloadsItem);
-			}
-			removeSubMenu.add(removeAllDownloadsItem);
-			add(removeSubMenu);
-
-			addSeparator();
-			add(removeFinishedItem);
-			addSeparator();
-			add(cancelItem);
-
-			super.show(invoker, x, y);
-		}
-	}
-
-	private class Listener
-		extends MouseAdapter
-		implements LanguageListener, ActionListener, KeyListener, MouseListener, PropertyChangeListener {
-
-        public Listener() {
-			super();
-		}
-
-		/* (non-Javadoc)
-		 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
-		 */
-		public void languageChanged(LanguageEvent event) {
-			refreshLanguage();
-		}
-
-		/* (non-Javadoc)
-		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-		 */
-		public void actionPerformed(ActionEvent e) {
-			if (e.getSource() == downloadTextField) {
-				downloadTextField_actionPerformed(e);
-			}
-            else if (e.getSource() == downloadActivateButton) {
-                downloadActivateButtonPressed(e);
-            }
-            else if (e.getSource() == downloadPauseButton) {
-                downloadPauseButtonPressed(e);
-            }
-		}
-
-		/* (non-Javadoc)
-		 * @see java.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)
-		 */
-		public void keyPressed(KeyEvent e) {
-			if (e.getSource() == modelTable.getTable()) {
-				downloadTable_keyPressed(e);
-			}
-		}
-
-		/* (non-Javadoc)
-		 * @see java.awt.event.KeyListener#keyReleased(java.awt.event.KeyEvent)
-		 */
-		public void keyReleased(KeyEvent e) {
-			// Nothing here	
-		}
-
-		/* (non-Javadoc)
-		 * @see java.awt.event.KeyListener#keyTyped(java.awt.event.KeyEvent)
-		 */
-		public void keyTyped(KeyEvent e) {
-			// Nothing here
-		}
-
-		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
-		 */
-		public void mousePressed(MouseEvent e) {
-			if (e.getClickCount() == 2) {
-				if (e.getSource() == modelTable.getTable()) {
-					// Start file from download table. Is this a good idea?
-					downloadTableDoubleClick(e);
-				}
-			} else if (e.isPopupTrigger()) {
-				if ((e.getSource() == modelTable.getTable())
-					|| (e.getSource() == modelTable.getScrollPane())) {
-					showDownloadTablePopupMenu(e);
-				}
-			}
-		}
-
-		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
-		 */
-		public void mouseReleased(MouseEvent e) {
-			if ((e.getClickCount() == 1) && (e.isPopupTrigger())) {
-
-				if ((e.getSource() == modelTable.getTable())
-					|| (e.getSource() == modelTable.getScrollPane())) {
-					showDownloadTablePopupMenu(e);
-				}
-
-			}
-		}
-		
-		/* (non-Javadoc)
-		 * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
-		 */
-		public void propertyChange(PropertyChangeEvent evt) {
-			if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_NAME)) {
-				fontChanged();
-			}
-			if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_SIZE)) {
-				fontChanged();
-			}
-			if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_STYLE)) {
-				fontChanged();
-			}
-		}
-		
-	}
-
 	private PopupMenuDownload popupMenuDownload = null;
 
 	private Listener listener = new Listener();
@@ -469,15 +47,11 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
 	private DownloadModel model = null;
 
-	private SettingsClass settingsClass = null;
-
 	private Language language = null;
 
 	private JPanel downloadTopPanel = new JPanel();
-	private JButton downloadActivateButton =
-        new JButton(new ImageIcon(getClass().getResource("/data/down_selected.gif")));
-    private JButton downloadPauseButton =
-        new JButton(new ImageIcon(getClass().getResource("/data/down.gif")));
+	private JButton downloadActivateButton = new JButton(new ImageIcon(getClass().getResource("/data/down_selected.gif")));
+    private JButton downloadPauseButton = new JButton(new ImageIcon(getClass().getResource("/data/down.gif")));
 	private JTextField downloadTextField = new JTextField(25);
 	private JLabel downloadItemCountLabel = new JLabel();
 	private SortedModelTable modelTable;
@@ -488,13 +62,9 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	private boolean downloadingActivated = false;
 	private long downloadItemCount = 0;
 
-	/**
-	 * @param settingsClass
-	 */
-	public DownloadPanel(SettingsClass settingsClass) {
+	public DownloadPanel() {
 		super();
-		this.settingsClass = settingsClass;
-		settingsClass.addUpdater(this);
+        Core.frostSettings.addUpdater(this);
 		
 		language = Language.getInstance();
 		language.addLanguageListener(listener);
@@ -556,12 +126,12 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			modelTable.getScrollPane().addMouseListener(listener);
 			modelTable.getTable().addKeyListener(listener);
 			modelTable.getTable().addMouseListener(listener);
-			settingsClass.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_NAME, listener);
-			settingsClass.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_SIZE, listener);
-			settingsClass.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_STYLE, listener);
+            Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_NAME, listener);
+            Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_SIZE, listener);
+            Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_STYLE, listener);
 
 			//Settings
-			setDownloadingActivated(settingsClass.getBoolValue(SettingsClass.DOWNLOADING_ACTIVATED));
+			setDownloadingActivated(Core.frostSettings.getBoolValue(SettingsClass.DOWNLOADING_ACTIVATED));
 
 			initialized = true;
 		}
@@ -691,7 +261,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
             // add valid key to download table
             FrostDownloadItem dlItem = new FrostDownloadItem(fileName, key);
-            /*boolean isAdded =*/ model.addDownloadItem(dlItem); // false if file is already in table
+            model.addDownloadItem(dlItem); // false if file is already in table
         }
         downloadTextField.setText("");
 	}
@@ -753,14 +323,14 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	}
 	
 	private void fontChanged() {
-		String fontName = settingsClass.getValue(SettingsClass.FILE_LIST_FONT_NAME);
-		int fontStyle = settingsClass.getIntValue(SettingsClass.FILE_LIST_FONT_STYLE);
-		int fontSize = settingsClass.getIntValue(SettingsClass.FILE_LIST_FONT_SIZE);
+		String fontName = Core.frostSettings.getValue(SettingsClass.FILE_LIST_FONT_NAME);
+		int fontStyle = Core.frostSettings.getIntValue(SettingsClass.FILE_LIST_FONT_STYLE);
+		int fontSize = Core.frostSettings.getIntValue(SettingsClass.FILE_LIST_FONT_SIZE);
 		Font font = new Font(fontName, fontStyle, fontSize);
 		if (!font.getFamily().equals(fontName)) {
 			logger.severe("The selected font was not found in your system\n" +
 						   "That selection will be changed to \"SansSerif\".");
-			settingsClass.setValue(SettingsClass.FILE_LIST_FONT_NAME, "SansSerif");
+            Core.frostSettings.setValue(SettingsClass.FILE_LIST_FONT_NAME, "SansSerif");
 			font = new Font("SansSerif", fontStyle, fontSize);
 		}
 		modelTable.setFont(font);
@@ -788,7 +358,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 				new StringBuffer()
 					.append(System.getProperty("user.dir"))
 					.append(fileSeparator)
-					.append(settingsClass.getValue("downloadDirectory"))
+					.append(Core.frostSettings.getValue("downloadDirectory"))
 					.append(dlItem.getFileName())
 					.toString();
 			File file = new File(execFilename);
@@ -810,7 +380,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	 * @see frost.SettingsUpdater#updateSettings()
 	 */
 	public void updateSettings() {
-		settingsClass.setValue(SettingsClass.DOWNLOADING_ACTIVATED, isDownloadingActivated());
+        Core.frostSettings.setValue(SettingsClass.DOWNLOADING_ACTIVATED, isDownloadingActivated());
 	}
     
     /**
@@ -844,6 +414,391 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
             }
 
             return this;
+        }
+    }
+    
+    private class PopupMenuDownload extends JSkinnablePopupMenu
+    implements ActionListener, LanguageListener, ClipboardOwner {
+
+        private JMenuItem detailsItem = new JMenuItem();
+        private JMenuItem copyKeysAndNamesItem = new JMenuItem();
+        private JMenuItem copyKeysItem = new JMenuItem();
+        private JMenuItem copyExtendedInfoItem = new JMenuItem();
+        private JMenuItem disableAllDownloadsItem = new JMenuItem();
+        private JMenuItem disableSelectedDownloadsItem = new JMenuItem();
+        private JMenuItem enableAllDownloadsItem = new JMenuItem();
+        private JMenuItem enableSelectedDownloadsItem = new JMenuItem();
+        private JMenuItem invertEnabledAllItem = new JMenuItem();
+        private JMenuItem invertEnabledSelectedItem = new JMenuItem();
+        private JMenuItem removeFinishedItem = new JMenuItem();
+        private JMenuItem removeSelectedDownloadsItem = new JMenuItem();
+        private JMenuItem restartSelectedDownloadsItem = new JMenuItem();
+    
+        private JMenu copyToClipboardMenu = new JMenu();
+        
+        private String keyNotAvailableMessage;
+        private String fileMessage;
+        private String keyMessage;
+        private String bytesMessage;
+        
+        private Clipboard clipboard;
+    
+        public PopupMenuDownload() {
+            super();
+            initialize();
+        }
+    
+        private void initialize() {
+            refreshLanguage();
+    
+            // TODO: implement cancel of downloading
+    
+            copyToClipboardMenu.add(copyKeysAndNamesItem);
+            copyToClipboardMenu.add(copyKeysItem);
+            copyToClipboardMenu.add(copyExtendedInfoItem);
+    
+            copyKeysAndNamesItem.addActionListener(this);
+            copyKeysItem.addActionListener(this);
+            copyExtendedInfoItem.addActionListener(this);
+            restartSelectedDownloadsItem.addActionListener(this);
+            removeSelectedDownloadsItem.addActionListener(this);
+            removeFinishedItem.addActionListener(this);
+            enableAllDownloadsItem.addActionListener(this);
+            disableAllDownloadsItem.addActionListener(this);
+            enableSelectedDownloadsItem.addActionListener(this);
+            disableSelectedDownloadsItem.addActionListener(this);
+            invertEnabledAllItem.addActionListener(this);
+            invertEnabledSelectedItem.addActionListener(this);
+            detailsItem.addActionListener(this);
+        }
+    
+        private void refreshLanguage() {
+            keyNotAvailableMessage = language.getString("Common.copyToClipBoard.extendedInfo.keyNotAvailableYet");
+            fileMessage = language.getString("Common.copyToClipBoard.extendedInfo.file")+" ";
+            keyMessage = language.getString("Common.copyToClipBoard.extendedInfo.key")+" ";
+            bytesMessage = language.getString("Common.copyToClipBoard.extendedInfo.bytes")+" ";
+            
+            detailsItem.setText(language.getString("Common.details"));
+            copyKeysItem.setText(language.getString("Common.copyToClipBoard.copyKeysOnly"));
+            copyKeysAndNamesItem.setText(language.getString("Common.copyToClipBoard.copyKeysWithFilenames"));
+            copyExtendedInfoItem.setText(language.getString("Common.copyToClipBoard.copyExtendedInfo"));
+            restartSelectedDownloadsItem.setText(language.getString("DownloadPane.fileTable.popupmenu.restartSelectedDownloads"));
+            removeSelectedDownloadsItem.setText(language.getString("DownloadPane.fileTable.popupmenu.remove.removeSelectedDownloads"));
+            removeFinishedItem.setText(language.getString("DownloadPane.fileTable.popupmenu.remove.removeFinishedDownloads"));
+            enableAllDownloadsItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.enableAllDownloads"));
+            disableAllDownloadsItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.disableAllDownloads"));
+            enableSelectedDownloadsItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.enableSelectedDownloads"));
+            disableSelectedDownloadsItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.disableSelectedDownloads"));
+            invertEnabledAllItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.invertEnabledStateForAllDownloads"));
+            invertEnabledSelectedItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.invertEnabledStateForSelectedDownloads"));
+    
+            copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
+        }
+        
+        private Clipboard getClipboard() {
+            if (clipboard == null) {
+                clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            }
+            return clipboard;
+        }
+    
+        public void actionPerformed(ActionEvent e) {
+            if (e.getSource() == copyKeysItem) {
+                copyKeys();
+            }
+            if (e.getSource() == copyKeysAndNamesItem) {
+                copyKeysAndNames();
+            }
+            if (e.getSource() == copyExtendedInfoItem) {
+                copyExtendedInfo();
+            }
+            if (e.getSource() == restartSelectedDownloadsItem) {
+                restartSelectedDownloads();
+            }
+            if (e.getSource() == removeSelectedDownloadsItem) {
+                removeSelectedDownloads();
+            }
+            if (e.getSource() == removeFinishedItem) {
+                removeFinished();
+            }
+            if (e.getSource() == enableAllDownloadsItem) {
+                enableAllDownloads();
+            }
+            if (e.getSource() == disableAllDownloadsItem) {
+                disableAllDownloads();
+            }
+            if (e.getSource() == enableSelectedDownloadsItem) {
+                enableSelectedDownloads();
+            }
+            if (e.getSource() == disableSelectedDownloadsItem) {
+                disableSelectedDownloads();
+            }
+            if (e.getSource() == invertEnabledAllItem) {
+                invertEnabledAll();
+            }
+            if (e.getSource() == invertEnabledSelectedItem) {
+                invertEnabledSelected();
+            }
+            if (e.getSource() == detailsItem) {
+                showDetails();
+            }
+        }
+        
+        private void showDetails() {
+            ModelItem[] selectedItems = modelTable.getSelectedItems();
+            if (selectedItems.length != 1) {
+                return;
+            }
+            FrostDownloadItem item = (FrostDownloadItem) selectedItems[0];
+            if( !item.isSharedFile() ) {
+                return;
+            }
+            new FileListFileDetailsDialog(MainFrame.getInstance()).startDialog(item.getFileListFileObject());
+        }
+    
+        private void invertEnabledSelected() {
+            ModelItem[] selectedItems = modelTable.getSelectedItems();
+            model.setItemsEnabled(null, selectedItems);
+        }
+    
+        private void invertEnabledAll() {
+            model.setAllItemsEnabled(null);
+        }
+    
+        private void disableSelectedDownloads() {
+            ModelItem[] selectedItems = modelTable.getSelectedItems();
+            model.setItemsEnabled(Boolean.FALSE, selectedItems);
+        }
+    
+        private void enableSelectedDownloads() {
+            ModelItem[] selectedItems = modelTable.getSelectedItems();
+            model.setItemsEnabled(Boolean.TRUE, selectedItems);
+        }
+    
+        private void disableAllDownloads() {
+            model.setAllItemsEnabled(Boolean.FALSE);
+        }
+    
+        private void enableAllDownloads() {
+            model.setAllItemsEnabled(Boolean.FALSE);
+        }
+    
+        private void removeFinished() {
+            model.removeFinishedDownloads();
+        }
+    
+        private void removeSelectedDownloads() {
+            ModelItem[] selectedItems = modelTable.getSelectedItems();
+            model.removeItems(selectedItems);
+        }
+    
+        private void restartSelectedDownloads() {
+            ModelItem[] selectedItems = modelTable.getSelectedItems();
+            model.restartItems(selectedItems);
+        }
+    
+        /**
+         * This method copies the CHK keys and file names of the selected items (if any) to
+         * the clipboard.
+         */
+        private void copyKeysAndNames() {
+            ModelItem[] selectedItems = modelTable.getSelectedItems();
+            if (selectedItems.length > 0) {
+                StringBuffer textToCopy = new StringBuffer();
+                for (int i = 0; i < selectedItems.length; i++) {
+                    FrostDownloadItem item = (FrostDownloadItem) selectedItems[i];
+                    String key = item.getKey();
+                    if (key == null) {
+                        key = keyNotAvailableMessage;
+                    }
+                    textToCopy.append(key);
+                    textToCopy.append("/");
+                    textToCopy.append(item.getFileName());
+                    textToCopy.append("\n");
+                }               
+                StringSelection selection = new StringSelection(textToCopy.toString());
+                getClipboard().setContents(selection, this);    
+            }
+        }
+        
+        /**
+         * This method copies extended information about the selected items (if any) to
+         * the clipboard. That information is composed of the filename, the key and
+         * the size in bytes.
+         */
+        private void copyExtendedInfo() {
+            ModelItem[] selectedItems = modelTable.getSelectedItems();
+            if (selectedItems.length > 0) {
+                StringBuffer textToCopy = new StringBuffer();
+                for (int i = 0; i < selectedItems.length; i++) {
+                    FrostDownloadItem item = (FrostDownloadItem) selectedItems[i];
+                    String key = item.getKey();
+                    if (key == null) {
+                        key = keyNotAvailableMessage;
+                    }
+                    textToCopy.append(fileMessage);
+                    textToCopy.append(item.getFileName() + "\n");
+                    textToCopy.append(keyMessage);
+                    textToCopy.append(key + "\n");
+                    textToCopy.append(bytesMessage);
+                    textToCopy.append(item.getFileSize() + "\n\n");
+                }               
+                //We remove the additional \n at the end
+                String result = textToCopy.substring(0, textToCopy.length() - 1);
+                
+                StringSelection selection = new StringSelection(result);
+                getClipboard().setContents(selection, this);    
+            }
+        }
+    
+        /**
+         * This method copies the CHK keys of the selected items (if any) to
+         * the clipboard.
+         */
+        private void copyKeys() {
+            ModelItem[] selectedItems = modelTable.getSelectedItems();
+            if (selectedItems.length > 0) {
+                StringBuffer textToCopy = new StringBuffer();
+                for (int i = 0; i < selectedItems.length; i++) {
+                    FrostDownloadItem item = (FrostDownloadItem) selectedItems[i];
+                    String key = item.getKey();
+                    if (key == null) {
+                        key = keyNotAvailableMessage;
+                    }
+                    textToCopy.append(key);
+                    textToCopy.append("\n");
+                }               
+                StringSelection selection = new StringSelection(textToCopy.toString());
+                getClipboard().setContents(selection, this);    
+            }
+        }
+    
+        public void languageChanged(LanguageEvent event) {
+            refreshLanguage();
+        }
+        
+        public void lostOwnership(Clipboard tclipboard, Transferable contents) {
+        }
+    
+        public void show(Component invoker, int x, int y) {
+            removeAll();
+    
+            ModelItem[] selectedItems = modelTable.getSelectedItems();
+    
+            if (selectedItems.length > 0) {
+                add(copyToClipboardMenu);
+                addSeparator();
+            }
+    
+            if (selectedItems.length != 0) {
+                // If at least 1 item is selected
+                add(restartSelectedDownloadsItem);
+                addSeparator();
+            }
+    
+            JMenu enabledSubMenu = new JMenu(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads") + "...");
+            if (selectedItems.length != 0) {
+                // If at least 1 item is selected
+                enabledSubMenu.add(enableSelectedDownloadsItem);
+                enabledSubMenu.add(disableSelectedDownloadsItem);
+                enabledSubMenu.add(invertEnabledSelectedItem);
+                enabledSubMenu.addSeparator();
+            }
+            enabledSubMenu.add(enableAllDownloadsItem);
+            enabledSubMenu.add(disableAllDownloadsItem);
+            enabledSubMenu.add(invertEnabledAllItem);
+            add(enabledSubMenu);
+    
+            if (selectedItems.length != 0) {
+                // If at least 1 item is selected
+                add(removeSelectedDownloadsItem);
+            }
+    
+            addSeparator();
+            add(removeFinishedItem);
+            if( selectedItems.length == 1 ) {
+                FrostDownloadItem item = (FrostDownloadItem) selectedItems[0];
+                if( item.isSharedFile() ) {
+                    addSeparator();
+                    add(detailsItem);
+                }
+            }
+    
+            super.show(invoker, x, y);
+        }
+    }
+
+    private class Listener
+        extends MouseAdapter
+        implements LanguageListener, ActionListener, KeyListener, MouseListener, PropertyChangeListener {
+    
+        public Listener() {
+            super();
+        }
+    
+        public void languageChanged(LanguageEvent event) {
+            refreshLanguage();
+        }
+    
+        public void actionPerformed(ActionEvent e) {
+            if (e.getSource() == downloadTextField) {
+                downloadTextField_actionPerformed(e);
+            }
+            else if (e.getSource() == downloadActivateButton) {
+                downloadActivateButtonPressed(e);
+            }
+            else if (e.getSource() == downloadPauseButton) {
+                downloadPauseButtonPressed(e);
+            }
+        }
+    
+        public void keyPressed(KeyEvent e) {
+            if (e.getSource() == modelTable.getTable()) {
+                downloadTable_keyPressed(e);
+            }
+        }
+    
+        public void keyReleased(KeyEvent e) {
+        }
+    
+        public void keyTyped(KeyEvent e) {
+        }
+    
+        public void mousePressed(MouseEvent e) {
+            if (e.getClickCount() == 2) {
+                if (e.getSource() == modelTable.getTable()) {
+                    // Start file from download table. Is this a good idea?
+                    downloadTableDoubleClick(e);
+                }
+            } else if (e.isPopupTrigger()) {
+                if ((e.getSource() == modelTable.getTable())
+                    || (e.getSource() == modelTable.getScrollPane())) {
+                    showDownloadTablePopupMenu(e);
+                }
+            }
+        }
+    
+        public void mouseReleased(MouseEvent e) {
+            if ((e.getClickCount() == 1) && (e.isPopupTrigger())) {
+    
+                if ((e.getSource() == modelTable.getTable())
+                    || (e.getSource() == modelTable.getScrollPane())) {
+                    showDownloadTablePopupMenu(e);
+                }
+    
+            }
+        }
+        
+        public void propertyChange(PropertyChangeEvent evt) {
+            if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_NAME)) {
+                fontChanged();
+            }
+            if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_SIZE)) {
+                fontChanged();
+            }
+            if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_STYLE)) {
+                fontChanged();
+            }
         }
     }
 }

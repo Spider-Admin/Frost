@@ -44,7 +44,7 @@ public class JDragTree extends JTree implements DragGestureListener, DragSourceL
 		 private Point           _ptLast         = new Point();
 		 private javax.swing.Timer           _timerHover;
 		 private int             _nLeftRight     = 0;    // Cumulative left/right mouse movement
-		 private int             _nShift         = 0;
+//		 private int             _nShift         = 0;
 
 		 // Constructor...
 		 public CDropTargetListener()
@@ -145,7 +145,7 @@ public class JDragTree extends JTree implements DragGestureListener, DragSourceL
 			 g2.setColor(_colorCueLine);
 			 g2.fill(_raCueLine);
 
-			 _nShift = 0;
+//			 _nShift = 0;
 
 			 // And include the cue line in the area to be rubbed out next time
 			 _raGhost = _raGhost.createUnion(_raCueLine);
@@ -373,25 +373,16 @@ public class JDragTree extends JTree implements DragGestureListener, DragSourceL
 	private DragGestureRecognizer dgRecognizer = null;
 	private DropTarget dropTarget = null;
 
-	/**
-	 * @param root
-	 */
 	public JDragTree(TreeNode root) {
 		super(root);
 		initialize();
 	}
 	
-	/**
-	 * @param root
-	 */
 	public JDragTree(TreeModel model) {
 		super(model);
 		initialize();
 	}
 	
-	/**
-	 * 
-	 */
 	private void initialize() {
 		// install drag n drop support
 		dragSource = DragSource.getDefaultDragSource();
@@ -403,10 +394,6 @@ public class JDragTree extends JTree implements DragGestureListener, DragSourceL
 		dropTarget = new DropTarget(this, new CDropTargetListener());
 	}
 	
-	/**
-	 * @param path
-	 * @return
-	 */
 	private boolean isRootPath(TreePath path)
 	{
 		return isRootVisible() && getRowForPath(path) == 0;

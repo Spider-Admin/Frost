@@ -26,9 +26,9 @@ import java.util.logging.*;
 import javax.swing.*;
 
 import frost.*;
+import frost.boards.*;
 import frost.fcp.*;
 import frost.fileTransfer.upload.*;
-import frost.gui.objects.*;
 import frost.identities.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;

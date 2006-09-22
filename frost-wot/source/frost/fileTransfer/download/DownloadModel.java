@@ -23,6 +23,7 @@ import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
+import frost.fileTransfer.*;
 import frost.storage.*;
 import frost.storage.database.applayer.*;
 import frost.util.model.*;
@@ -36,68 +37,39 @@ import frost.util.model.*;
  */
 public class DownloadModel extends OrderedModel implements Savable {
 	
-	private class RemoveChunksThread extends Thread {
-		
-		private ArrayList oldChunkFilesList;
-		private String dlDir;
-		
-		/**
-		 * @param al
-		 * @param dlDir
-		 */
-		public RemoveChunksThread(ArrayList al, String dlDir) {
-			this.oldChunkFilesList = al; 
-			this.dlDir = dlDir;
-		}
-
-		/* (non-Javadoc)
-		 * @see java.lang.Runnable#run()
-		 */
-		public void run() {
-			File[] files = (new File(dlDir)).listFiles();
-			for (int i = 0; i < oldChunkFilesList.size(); i++) {
-				String filename = (String) oldChunkFilesList.get(i);
-				for (int j = 0; j < files.length; j++) { 
-					// remove filename.data , .redirect, .checkblocks
-					if (files[j].getName().equals(filename + ".data")
-						|| files[j].getName().equals(filename + ".redirect")
-						|| files[j].getName().equals(filename + ".checkblocks")) {
-						logger.info("Removing " + files[j].getName());
-						files[j].delete();
-					}
-				}
-			}
-		}
-	}
-
 	private static Logger logger = Logger.getLogger(DownloadModel.class.getName());
 
-	private SettingsClass settings;
-
-	public DownloadModel(SettingsClass frostSettings) {
+	public DownloadModel() {
 		super();
-		settings = frostSettings;
 	}
 	
 	/**
 	 * Will add this item to model if not already in model.
 	 */
 	public synchronized boolean addDownloadItem(FrostDownloadItem itemToAdd) {
+        
+        FrostFileListFileObject flfToAdd = itemToAdd.getFileListFileObject(); // maybe null of manually added
+        
 		for (int x = 0; x < getItemCount(); x++) {
 			FrostDownloadItem item = (FrostDownloadItem) getItemAt(x);
-			if (item.getSHA1() != null
-				&& item.getSHA1().equals(itemToAdd.getSHA1())
-				&& item.getSourceBoard().getName().equals(itemToAdd.getSourceBoard().getName())) {
-				// already in model (compared by SHA1)
-				return false;
-			}
+            FrostFileListFileObject flf = item.getFileListFileObject(); // maybe null of manually added
+            
+            if( flfToAdd != null && flf != null ) {
+                if( flfToAdd.getSha().equals(flf.getSha()) ) {
+                    // already in model (compared by SHA)
+                    return false;
+                }
+            }
+            
 			if (itemToAdd.getKey() != null
 				&& item.getKey() != null
-				&& item.getKey().equals(itemToAdd.getKey())) {
+				&& item.getKey().equals(itemToAdd.getKey())) 
+            {
 				// already in model (compared by key)
 				return false;
 			}
-			if (item.getFileName().equals(itemToAdd.getFileName())) {
+			
+            if (item.getFileName().equals(itemToAdd.getFileName())) {
 				// same name, but different key. - rename quitely
 				int cnt = 2;
 				while (true) {
@@ -118,14 +90,17 @@ public class DownloadModel extends OrderedModel implements Savable {
 	}
 	
 	/**
-	 * Returns true if the model contains an item with the given key.
+	 * Returns true if the model contains an item with the given sha.
 	 */
-	public synchronized boolean containsItemWithKey(String key) {
+	public synchronized boolean containsItemWithSha(String sha) {
 		for (int x = 0; x < getItemCount(); x++) {
 			FrostDownloadItem dlItem = (FrostDownloadItem) getItemAt(x);
-			if (dlItem.getSHA1() != null && dlItem.getSHA1().equals(key)) {
-				return true;
-			}
+            FrostFileListFileObject flf = dlItem.getFileListFileObject();
+            if( flf != null ) {
+                if( flf.getSha().equals(sha) ) {
+                    return true;
+                }
+            }
 		}
 		return false;
 	}
@@ -154,9 +129,9 @@ public class DownloadModel extends OrderedModel implements Savable {
 	 * Removes download items from the download model.
 	 */
 	public boolean removeItems(ModelItem[] items) {
-		//First we remove the chunks from disk
+		// First we remove the chunks from disk
 		ArrayList oldChunkFilesList = new ArrayList(items.length);
-		String dlDir = settings.getValue("downloadDirectory");
+		String dlDir = Core.frostSettings.getValue("downloadDirectory");
 		for (int i = 0; i < items.length; i++) {
 			FrostDownloadItem item = (FrostDownloadItem) items[i];
 			oldChunkFilesList.add(item.getFileName());
@@ -164,12 +139,12 @@ public class DownloadModel extends OrderedModel implements Savable {
 		RemoveChunksThread t = new RemoveChunksThread(oldChunkFilesList, dlDir);
 		t.start();
 		
-		//And now we remove the items from the model
+		// And now we remove the items from the model
 		return super.removeItems(items);
 	}
 	
 	/**
-	 * Called to reset the HTL value of the selected items.
+	 * Called to restart the item.
 	 */
 	public void restartItems(ModelItem[] items) {
 		// TODO: stop thread
@@ -179,10 +154,11 @@ public class DownloadModel extends OrderedModel implements Savable {
 			// reset only waiting+failed items
 			if (dlItem.getState() == FrostDownloadItem.STATE_FAILED
 				|| dlItem.getState() == FrostDownloadItem.STATE_WAITING
-				|| dlItem.getState() == FrostDownloadItem.STATE_DONE) {
+				|| dlItem.getState() == FrostDownloadItem.STATE_DONE) 
+            {
 				dlItem.setState(FrostDownloadItem.STATE_WAITING);
 				dlItem.setRetries(0);
-				dlItem.setLastDownloadStopTimeMillis(0);
+				dlItem.setLastDownloadStopTime(0);
 				dlItem.setEnableDownload(Boolean.valueOf(true)); // enable download on restart
 			}
 		}
@@ -219,36 +195,30 @@ public class DownloadModel extends OrderedModel implements Savable {
 		}
 	}
 	
-	/**
-	 * Removes all items from the download model.
-	 */
-	public synchronized void removeAllItems() {
-		//First we remove the chunks from disk
-		ArrayList oldChunkFilesList = new ArrayList(getItemCount());
-		String dlDir = settings.getValue("downloadDirectory");
-		for (int i = 0; i < getItemCount(); i++) {
-			FrostDownloadItem item = (FrostDownloadItem) getItemAt(i);
-			oldChunkFilesList.add(item.getFileName());
-		}
-		RemoveChunksThread t = new RemoveChunksThread(oldChunkFilesList, dlDir);
-		t.start();
-		
-		//And now we remove the items from the model
-		clear();
-	}
-
+//	/**
+//	 * Removes all items from the download model.
+//	 */
+//	public synchronized void removeAllItems() {
+//		//First we remove the chunks from disk
+//		ArrayList oldChunkFilesList = new ArrayList(getItemCount());
+//		String dlDir = Core.frostSettings.getValue("downloadDirectory");
+//		for (int i = 0; i < getItemCount(); i++) {
+//			FrostDownloadItem item = (FrostDownloadItem) getItemAt(i);
+//			oldChunkFilesList.add(item.getFileName());
+//		}
+//		RemoveChunksThread t = new RemoveChunksThread(oldChunkFilesList, dlDir);
+//		t.start();
+//		
+//		//And now we remove the items from the model
+//		clear();
+//	}
 
 	/**
 	 * Saves the download model to database.
 	 */
 	public void save() throws StorageException {
         
-        LinkedList itemList = new LinkedList();
-        for (int x = 0; x < getItemCount(); x++) {
-            FrostDownloadItem downloadItem = (FrostDownloadItem)getItemAt(x);
-            itemList.add(downloadItem);
-        }
-
+        List itemList = getItems();
         try {
             AppLayerDatabase.getDownloadFilesDatabaseTable().saveDownloadFiles(itemList);
         } catch (SQLException e) {
@@ -274,4 +244,31 @@ public class DownloadModel extends OrderedModel implements Savable {
             addDownloadItem(di);
         }
 	}
+    
+    private class RemoveChunksThread extends Thread {
+        
+        private ArrayList oldChunkFilesList;
+        private String dlDir;
+        
+        public RemoveChunksThread(ArrayList al, String dlDir) {
+            this.oldChunkFilesList = al; 
+            this.dlDir = dlDir;
+        }
+
+        public void run() {
+            File[] files = (new File(dlDir)).listFiles();
+            for (int i = 0; i < oldChunkFilesList.size(); i++) {
+                String filename = (String) oldChunkFilesList.get(i);
+                for (int j = 0; j < files.length; j++) { 
+                    // remove filename.data , .redirect, .checkblocks
+                    if (files[j].getName().equals(filename + ".data")
+                        || files[j].getName().equals(filename + ".redirect")
+                        || files[j].getName().equals(filename + ".checkblocks")) {
+                        logger.info("Removing " + files[j].getName());
+                        files[j].delete();
+                    }
+                }
+            }
+        }
+    }
 }

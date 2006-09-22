@@ -23,8 +23,9 @@ import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
+import frost.boards.*;
 import frost.gui.*;
-import frost.gui.objects.*;
+import frost.messages.*;
 import frost.storage.database.applayer.*;
 
 public class SearchMessagesThread extends Thread implements MessageDatabaseTableCallback {

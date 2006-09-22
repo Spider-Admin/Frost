@@ -25,7 +25,6 @@ import java.util.logging.*;
 
 import frost.*;
 import frost.boards.*;
-import frost.gui.objects.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;
 import frost.transferlayer.*;

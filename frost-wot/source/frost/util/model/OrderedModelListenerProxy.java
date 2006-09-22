@@ -53,12 +53,12 @@ public class OrderedModelListenerProxy extends EventListenerProxy implements Ord
 	 * @param position the position in the model of the item that has
 	 * 		  changed
 	 * @param item the item that has changed
-	 * @param fieldID the ID of the field of the item that has changed
+	 * @param lFieldID the ID of the field of the item that has changed
 	 * @param oldValue the value the field had before the change
 	 * @param newValue the value the field has after the change
 	 */
-	public void itemChanged(int position, ModelItem item, int fieldID, Object oldValue, Object newValue) {
-		((OrderedModelListener)getListener()).itemChanged(position, item, fieldID, oldValue, newValue);	
+	public void itemChanged(int position, ModelItem item, int lFieldID, Object oldValue, Object newValue) {
+		((OrderedModelListener)getListener()).itemChanged(position, item, lFieldID, oldValue, newValue);	
 	}
 
 	/**

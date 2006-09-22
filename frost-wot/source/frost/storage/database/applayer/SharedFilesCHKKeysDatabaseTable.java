@@ -24,6 +24,9 @@ import java.util.logging.*;
 
 import frost.storage.database.*;
 
+/**
+ * Stores informations about the CHK keys of filelists that we received in the KSK pointer files.
+ */
 public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
 
     private static Logger logger = Logger.getLogger(SharedFilesCHKKeysDatabaseTable.class.getName());
@@ -38,13 +41,13 @@ public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
         "CREATE TABLE SHAREDFILESCHK ("+
           "primkey BIGINT NOT NULL,"+
           "chkkey VARCHAR NOT NULL,"+
-          "seencount INT NOT NULL,"+
-          "firstseen BIGINT NOT NULL,"+ // a time in millis
-          "lastseen BIGINT NOT NULL,"+  // a time in millis 
-          "isdownloaded BOOLEAN NOT NULL,"+
-          "isvalid BOOLEAN NOT NULL,"+   // - if files signature was invalid, don't distribute this file any longer!        
-          "downloadretries INT NOT NULL,"+
-          "lastdownloadtrystart BIGINT NOT NULL,"+ // a time in millis
+          "seencount INT NOT NULL,"+    // how often did we receive this CHK in a KSK pointer file
+          "firstseen BIGINT NOT NULL,"+ // when did we receive this CHK the first time (time in millis)
+          "lastseen BIGINT NOT NULL,"+  // when did we receive this CHK the last time (time in millis) 
+          "isdownloaded BOOLEAN NOT NULL,"+  // did we download this file?
+          "isvalid BOOLEAN NOT NULL,"+  // if files signature was invalid, don't distribute this file any longer!        
+          "downloadretries INT NOT NULL,"+ // our tries to download this CHK, don't try too often
+          "lastdownloadtrystop BIGINT NOT NULL,"+ // when was the download stopped the last time (time in millis)
           "sentcount INT NOT NULL,"+   // how often we send this CHK within a pointer file
           "lastsent BIGINT NOT NULL,"+ // time in millis when we sent this CHK the last time
         "CONSTRAINT sfiles_pk PRIMARY KEY (primkey),"+
@@ -60,13 +63,89 @@ public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
         stmt.executeUpdate("COMPACT TABLE SHAREDFILESCHK");
         return true;
     }
+    
+    public List getSharedFilesCHKKeysToSend(int maxKeys) throws SQLException {
+        // get a number of CHK keys from database that must be send
+        // include only 1 of our new CHK keys into this list, don't send CHK keys of different identities
+        // together, this compromises anonymity!
+
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
+        
+        List keysToSend = new LinkedList();
+
+        // first search for a CHK key that was created by us, but was never send
+        {
+            String chkKey = null;
+
+            Statement s = db.createStatement();
+            s.setMaxRows(1);
+            ResultSet rs = s.executeQuery("SELECT chkkey FROM SHAREDFILESCHK WHERE seencount=0");
+            
+            if( rs.next() ) {
+                chkKey = rs.getString(1);
+            }
+            
+            rs.close();
+            s.close();
+            
+            if( chkKey != null ) {
+                SharedFilesCHKKey ck = retrieveSharedFilesCHKKey(chkKey);
+                if( ck != null ) {
+                    keysToSend.add(ck);
+                }
+            }
+        }
+        
+        // then search for other files to send, but don't include other new files from us
+        // - the CHK key must be downloaded already (our new files are not yet downloaded)
+        // - key must be valid
+        // - keys firstseen must be not earlier than 14 days (don't send old stuff around)
+        // - keys lastseen must be more than 24h before (don't send keys we just received)
+        // - keys lastsent must be more than 24h before (don't send keys we just sent)
+        // - order by seencount asc -> collect keys that are not seen often
+        // - collect a maximum of 300 keys
+        {
+            long now = System.currentTimeMillis();
+            long minFirstSeen = now - (14 * 24 * 60 * 60 * 1000); // now - 14 days
+            long maxLastSeen = now - (1 * 24 * 60 * 60 * 1000); // now - 1 day
+            String sql = "SELECT chkkey FROM SHAREDFILESCHK WHERE" +
+                         " isdownloaded=TRUE" +
+                         " AND isvalid=TRUE" +
+                         " AND lastseen<" + maxLastSeen +
+                         " AND lastsent<" + maxLastSeen +
+                         " AND firstseen>"+ minFirstSeen +
+                         " ORDER BY seencount ASC";
+            Statement s = db.createStatement();
+            s.setMaxRows(maxKeys);
+            ResultSet rs = s.executeQuery(sql);
+            
+            List tmpList = new LinkedList();
+            int count = 0; // we trust noone (setMaxRows may fail *g*)
+            while( rs.next() && count < maxKeys) {
+                String chkKey = rs.getString(1);
+                tmpList.add(chkKey);
+                count++;
+            }
+            rs.close();
+            s.close();
+            
+            for( Iterator i = tmpList.iterator(); i.hasNext(); ) {
+                String chkKey = (String) i.next();
+                SharedFilesCHKKey ck = retrieveSharedFilesCHKKey(chkKey);
+                if( ck != null ) {
+                    keysToSend.add(ck);
+                }
+            }
+        }
+        return keysToSend;
+    }
 
     public SharedFilesCHKKey retrieveSharedFilesCHKKey(String chkKey) throws SQLException {
 
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
         PreparedStatement ps = db.prepare(
-                "SELECT primkey,seencount,firstseen,lastseen,isdownloaded,isvalid,downloadretries,lastdownloadtrystart,"+
+                "SELECT primkey,seencount,firstseen,lastseen,isdownloaded,isvalid,downloadretries,lastdownloadtrystop,"+
                 "sentcount,lastsent "+
                 "FROM SHAREDFILESCHK WHERE chkkey=?");
         
@@ -84,7 +163,7 @@ public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
             boolean isDownloaded = rs.getBoolean(ix++);
             boolean isValid = rs.getBoolean(ix++);
             int downloadRetries = rs.getInt(ix++);
-            long lastDownloadTryStart = rs.getLong(ix++);
+            long lastDownloadTryStop = rs.getLong(ix++);
             int sentCount = rs.getInt(ix++);
             long lastSent = rs.getLong(ix++);
             
@@ -97,7 +176,7 @@ public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
                     isDownloaded,
                     isValid,
                     downloadRetries,
-                    lastDownloadTryStart,
+                    lastDownloadTryStop,
                     sentCount,
                     lastSent);
         }
@@ -108,74 +187,33 @@ public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
     }
 
     /** 
-     * Retrieves next unretrieved CHK key to download.
-     * Takes a List of currently tried CHK keys to not to return duplicates
+     * Retrieves all unretrieved CHK keys to download.
+     * @return  List of Strings
      */ 
-    public SharedFilesCHKKey retrieveNextSharedFilesCHKKeyToDownload(
-            List currentlyTriedCHKs, int maxRetries) throws SQLException 
-    {
+    public List retrieveSharedFilesCHKKeysToDownload(int maxRetries) throws SQLException {
         
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
-        String sql = "SELECT primkey,chkkey,seencount,firstseen,lastseen,isdownloaded,isvalid,downloadretries,lastdownloadtrystart,"+
-                     "sentcount,lastsent "+
-                     "FROM SHAREDFILESCHK WHERE isdownloaded=FALSE AND downloadretries<?";
+        String sql = "SELECT chkkey FROM SHAREDFILESCHK WHERE isdownloaded=FALSE AND downloadretries<? " +
+                     "ORDER BY lastdownloadtrystop ASC";
 
-        if( currentlyTriedCHKs != null && currentlyTriedCHKs.size() > 0 ) {
-            for( int i = 0; i < currentlyTriedCHKs.size(); i++ ) {
-                sql += " AND chkkey<>?";
-            }
-        }
-        
-        sql += " ORDER BY lastdownloadtrystart DESC";
-        
         PreparedStatement ps = db.prepare(sql);
         
         int qix = 1;
         ps.setInt(qix++, maxRetries);
 
-        if( currentlyTriedCHKs != null && currentlyTriedCHKs.size() > 0 ) {
-            for( Iterator i = currentlyTriedCHKs.iterator(); i.hasNext(); ) {
-                SharedFilesCHKKey element = (SharedFilesCHKKey) i.next();
-                ps.setString(qix++, element.getChkKey());
-            }
-        }
-
-        SharedFilesCHKKey result = null;
+        List chkKeys = new LinkedList();
         
-        ps.setMaxRows(1);
         ResultSet rs = ps.executeQuery();
-        if(rs.next()) {
-            int ix=1;
-            long primkey = rs.getLong(ix++);
-            String chkKey = rs.getString(ix++);
-            int seenCount = rs.getInt(ix++);
-            long firstSeen = rs.getLong(ix++);
-            long lastSeen = rs.getLong(ix++);
-            boolean isDownloaded = rs.getBoolean(ix++);
-            boolean isValid = rs.getBoolean(ix++);
-            int downloadRetries = rs.getInt(ix++);
-            long lastDownloadTryStart = rs.getLong(ix++);
-            int sentCount = rs.getInt(ix++);
-            long lastSent = rs.getLong(ix++);
+        while(rs.next()) {
+            String chk = rs.getString(1);
             
-            result = new SharedFilesCHKKey(
-                    primkey, 
-                    chkKey,
-                    seenCount,
-                    firstSeen,
-                    lastSeen,
-                    isDownloaded,
-                    isValid,
-                    downloadRetries,
-                    lastDownloadTryStart,
-                    sentCount,
-                    lastSent);
+            chkKeys.add(chk);
         }
         rs.close();
         ps.close();
         
-        return result;
+        return chkKeys;
     }
 
     public boolean insertSharedFilesCHKKey(SharedFilesCHKKey newkey) throws SQLException {
@@ -195,7 +233,7 @@ public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
 
         PreparedStatement ps = db.prepare(
                 "INSERT INTO SHAREDFILESCHK (primkey,chkkey,seencount,firstseen,lastseen,"+
-                  "isdownloaded,isvalid,downloadretries,lastdownloadtrystart,sentcount,lastsent) "+
+                  "isdownloaded,isvalid,downloadretries,lastdownloadtrystop,sentcount,lastsent) "+
                 "VALUES (?,?,?,?,?,?,?,?,?,?,?)");
         
         int ix=1;
@@ -207,7 +245,7 @@ public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
         ps.setBoolean(ix++, newkey.isDownloaded());
         ps.setBoolean(ix++, newkey.isValid());
         ps.setInt(ix++, newkey.getDownloadRetries());
-        ps.setLong(ix++, newkey.getLastDownloadTryStartTime());
+        ps.setLong(ix++, newkey.getLastDownloadTryStopTime());
         ps.setInt(ix++, newkey.getSentCount());
         ps.setLong(ix++, newkey.getLastSent());
         
@@ -226,7 +264,7 @@ public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
         
         PreparedStatement ps = db.prepare(
                 "UPDATE SHAREDFILESCHK SET seencount=?,lastseen=?,isdownloaded=?,"+
-                "isvalid=?,downloadretries=?,lastdownloadtrystart=?,sentcount=?,lastsent=? "+
+                "isvalid=?,downloadretries=?,lastdownloadtrystop=?,sentcount=?,lastsent=? "+
                 "WHERE primkey=?");
 
         int ix=1;
@@ -235,9 +273,93 @@ public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
         ps.setBoolean(ix++, newkey.isDownloaded());
         ps.setBoolean(ix++, newkey.isValid());
         ps.setInt(ix++, newkey.getDownloadRetries());
-        ps.setLong(ix++, newkey.getLastDownloadTryStartTime());
+        ps.setLong(ix++, newkey.getLastDownloadTryStopTime());
         ps.setInt(ix++, newkey.getSentCount());
         ps.setLong(ix++, newkey.getLastSent());
+        
+        ps.setLong(ix++, newkey.getPrimaryKey());
+        
+        int updateCount = ps.executeUpdate();
+        
+        return (updateCount == 1);
+    }
+    
+    /**
+     * Updates newkey in database.
+     * Updates only sentcount and lastsent
+     */
+    public boolean updateSharedFilesCHKKeyAfterSend(SharedFilesCHKKey newkey) throws SQLException {
+
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
+        
+        PreparedStatement ps = db.prepare(
+                "UPDATE SHAREDFILESCHK SET sentcount=?,lastsent=? WHERE primkey=?");
+
+        int ix=1;
+        ps.setInt(ix++, newkey.getSentCount());
+        ps.setLong(ix++, newkey.getLastSent());
+        
+        ps.setLong(ix++, newkey.getPrimaryKey());
+        
+        int updateCount = ps.executeUpdate();
+        
+        return (updateCount == 1);
+    }
+    
+    /**
+     * Updates newkey in database.
+     * Updates only seencount and lastseen
+     */
+    public boolean updateSharedFilesCHKKeyAfterReceive(SharedFilesCHKKey newkey) throws SQLException {
+
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
+        
+        PreparedStatement ps = db.prepare("UPDATE SHAREDFILESCHK SET seencount=?,lastseen=?,firstseen=? WHERE primkey=?");
+
+        int ix=1;
+        ps.setInt(ix++, newkey.getSeenCount());
+        ps.setLong(ix++, newkey.getLastSeen());
+        ps.setLong(ix++, newkey.getFirstSeen());
+        
+        ps.setLong(ix++, newkey.getPrimaryKey());
+        
+        int updateCount = ps.executeUpdate();
+        
+        return (updateCount == 1);
+    }
+    
+    /**
+     * Updates newkey in database.
+     */
+    public boolean updateSharedFilesCHKKeyAfterDownloadSuccessful(String chkKey, boolean isValid) throws SQLException {
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
+        
+        PreparedStatement ps = db.prepare(
+                "UPDATE SHAREDFILESCHK SET isdownloaded=TRUE,isvalid=? WHERE chkkey=?");
+
+        int ix=1;
+        ps.setBoolean(ix++, isValid);
+        
+        ps.setString(ix++, chkKey);
+        
+        int updateCount = ps.executeUpdate();
+        
+        return (updateCount == 1);
+    }
+    
+    /**
+     * Updates newkey in database.
+     */
+    public boolean updateSharedFilesCHKKeyAfterDownloadFailed(SharedFilesCHKKey newkey) throws SQLException {
+
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
+        
+        PreparedStatement ps = db.prepare(
+                "UPDATE SHAREDFILESCHK SET downloadretries=?,lastdownloadtrystop=? WHERE primkey=?");
+
+        int ix=1;
+        ps.setInt(ix++, newkey.getDownloadRetries());
+        ps.setLong(ix++, newkey.getLastDownloadTryStopTime());
         
         ps.setLong(ix++, newkey.getPrimaryKey());
         

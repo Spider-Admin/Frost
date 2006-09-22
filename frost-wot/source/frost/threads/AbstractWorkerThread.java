@@ -4,8 +4,6 @@ import java.util.*;
 
 import javax.swing.event.*;
 
-import frost.util.gui.translation.*;
-
 public abstract class AbstractWorkerThread  extends Thread {
 
     public class WorkerFinishedEvent extends EventObject {

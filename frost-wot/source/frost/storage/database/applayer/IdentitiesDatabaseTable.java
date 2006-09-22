@@ -48,7 +48,6 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
     private final static String SQL_OWN_IDENTITIES_LASTFILESSHARED_DDL =
         "CREATE TABLE OWNIDENTITIESLASTFILESSHARED ("+
         "uniquename VARCHAR NOT NULL,"+
-        "board VARCHAR NOT NULL,"+
         "lastshared BIGINT )";
 
     public List getTableDDL() {
@@ -185,30 +184,17 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
         PreparedStatement ps = db.prepare(
-                "SELECT board,lastshared FROM OWNIDENTITIESLASTFILESSHARED WHERE uniquename=?");
+                "SELECT lastshared FROM OWNIDENTITIESLASTFILESSHARED WHERE uniquename=?");
         
-        // anonymous
-        ps.setString(1, "");
-        
-        ResultSet rs = ps.executeQuery();
-        while(rs.next()) {
-            String boardname = rs.getString(1);
-            long l = rs.getLong(2);
-            LocalIdentity.setAnonymousLastFilesSharedMillis(boardname, l);
-        }
-        rs.close();
-
-        // identities
         for(Iterator i=localIdentities.iterator(); i.hasNext(); ) {
             LocalIdentity li = (LocalIdentity)i.next();
             
             ps.setString(1, li.getUniqueName());
         
-            rs = ps.executeQuery();
-            while(rs.next()) {
-                String boardname = rs.getString(1);
-                long l = rs.getLong(2);
-                li.setLastFilesSharedMillis(boardname, l);
+            ResultSet rs = ps.executeQuery();
+            if(rs.next()) {
+                long l = rs.getLong(1);
+                li.setLastFilesSharedMillis(l);
             }
             rs.close();
         }
@@ -223,37 +209,18 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
         s.close();
         
         PreparedStatement ps = db.prepare(
-                "INSERT INTO OWNIDENTITIESLASTFILESSHARED (uniquename,board,lastshared) VALUES (?,?,?)");
+                "INSERT INTO OWNIDENTITIESLASTFILESSHARED (uniquename,lastshared) VALUES (?,?)");
         
-        // anonymous
-        for(Iterator j=LocalIdentity.getAnonymousLastFilesSharedMillisBoardList().iterator(); j.hasNext(); ) {
-            String boardname = (String)j.next();
-            long l = LocalIdentity.getAnonymousLastFilesSharedMillis(boardname);
+        for(Iterator i=localIdentities.iterator(); i.hasNext(); ) {
+            LocalIdentity li = (LocalIdentity)i.next();
+            long l = li.getLastFilesSharedMillis();
             if( l > 0 ) {
-                ps.setString(1, "");
-                ps.setString(2, boardname);
-                ps.setLong(3, l);
+                ps.setString(1, li.getUniqueName());
+                ps.setLong(2, l);
                 
                 ps.executeUpdate();
             }
         }
-        
-        // identities
-        for(Iterator i=localIdentities.iterator(); i.hasNext(); ) {
-            LocalIdentity li = (LocalIdentity)i.next();
-            for(Iterator j=li.getLastFilesSharedMillisBoardList().iterator(); j.hasNext(); ) {
-                String boardname = (String)j.next();
-                long l = li.getLastFilesSharedMillis(boardname);
-                if( l > 0 ) {
-                    ps.setString(1, li.getUniqueName());
-                    ps.setString(2, boardname);
-                    ps.setLong(3, l);
-                    
-                    ps.executeUpdate();
-                }
-            }
-        }
-        
         ps.close();
     }
 }
