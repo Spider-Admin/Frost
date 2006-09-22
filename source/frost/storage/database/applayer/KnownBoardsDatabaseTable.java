@@ -21,7 +21,7 @@ package frost.storage.database.applayer;
 import java.sql.*;
 import java.util.*;
 
-import frost.gui.objects.*;
+import frost.boards.*;
 import frost.storage.database.*;
 
 public class KnownBoardsDatabaseTable extends AbstractDatabaseTable {

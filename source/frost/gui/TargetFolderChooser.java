@@ -23,10 +23,8 @@ import java.awt.*;
 
 import javax.swing.*;
 import javax.swing.tree.*;
-import javax.swing.JScrollPane;
 
 import frost.boards.*;
-import frost.gui.objects.*;
 import frost.util.gui.translation.*;
 
 /**
@@ -239,8 +237,8 @@ public class TargetFolderChooser extends JDialog {
             boolean expanded,
             boolean leaf,
             int row,
-            boolean hasFocus) {
-            super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+            boolean lHasFocus) {
+            super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, lHasFocus);
             setIcon(boardIcon);
             return this;
         }

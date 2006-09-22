@@ -18,8 +18,8 @@
 */
 package frost.storage.database.applayer;
 
-import frost.messages.*;
+import frost.fileTransfer.*;
 
 public interface FileListDatabaseTableCallback {
-    public boolean fileRetrieved(FrostSharedFileObject fo);
+    public boolean fileRetrieved(FrostFileListFileObject fo);
 }

@@ -70,7 +70,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 
     // this vars hold some settings from start of dialog to the end.
     // then its checked if the settings are changed by user
-    private boolean checkDisableRequests;
     private boolean checkHideBadMessages;
     private boolean checkHideCheckMessages;
     private boolean checkHideObserveMessages;
@@ -97,8 +96,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
     private JPanel optionsGroupsPanel = null;
     private SearchPanel searchPanel = null;
     boolean shouldReloadMessages = false;
-
-    private boolean shouldRemoveDummyReqFiles = false;
 
     private UploadPanel uploadPanel = null;
 
@@ -493,11 +490,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         }
 
         // now check if some settings changed
-        if (checkDisableRequests == true && // BEFORE: uploads disabled?
-            frostSettings.getBoolValue(SettingsClass.DISABLE_REQUESTS) == false) // AFTER: uploads enabled?
-        {
-            shouldRemoveDummyReqFiles = true;
-        }
         if( checkMaxMessageDisplay.equals(frostSettings.getValue("maxMessageDisplay")) == false
             || checkSignedOnly != frostSettings.getBoolValue(SettingsClass.HIDE_MESSAGES_UNSIGNED)
             || checkHideBadMessages != frostSettings.getBoolValue(SettingsClass.HIDE_MESSAGES_BAD)
@@ -521,8 +513,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
      */
     private void setDataElements() {
         // first set some settings to check later if they are changed by user
-        checkDisableRequests = frostSettings.getBoolValue(SettingsClass.DISABLE_REQUESTS);
-
         checkMaxMessageDisplay = frostSettings.getValue("maxMessageDisplay");
         checkSignedOnly = frostSettings.getBoolValue(SettingsClass.HIDE_MESSAGES_UNSIGNED);
         checkHideBadMessages = frostSettings.getBoolValue(SettingsClass.HIDE_MESSAGES_BAD);
@@ -545,18 +535,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
      */
     public boolean shouldReloadMessages() {
         return shouldReloadMessages;
-    }
-
-    /**
-     * Is called after the dialog is hidden.
-     * This method should return true if:
-     *  - setting 'disableRequests' is switched from TRUE to FALSE (means uploading is enabled now)
-     * If it returns true, the dummy request files (created after a key collision)
-     * of all boards should be removed.
-     * @return
-     */
-    public boolean shouldRemoveDummyReqFiles() {
-        return shouldRemoveDummyReqFiles;
     }
 
     /**

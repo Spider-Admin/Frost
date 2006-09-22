@@ -30,36 +30,182 @@ import java.util.logging.*;
 import javax.swing.*;
 
 import frost.*;
-import frost.boards.*;
 import frost.ext.*;
-import frost.gui.objects.*;
-import frost.storage.database.applayer.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
 import frost.util.model.gui.*;
 
-/**
- * @author $Author$
- * @version $Revision$
- */
 public class UploadPanel extends JPanel {
 
+    private PopupMenuUpload popupMenuUpload = null;
+
+    private Listener listener = new Listener();
+
+    private static Logger logger = Logger.getLogger(UploadPanel.class.getName());
+
+    private UploadModel model = null;
+
+    private Language language = null;
+
+    private JPanel uploadTopPanel = new JPanel();
+    private JButton uploadAddFilesButton = new JButton(new ImageIcon(getClass().getResource("/data/browse.gif")));
+
+    private SortedModelTable modelTable;
+
+    private boolean initialized = false;
+
+    public UploadPanel() {
+        super();
+
+        language = Language.getInstance();
+        language.addLanguageListener(listener);
+    }
+
+    public void initialize() {
+        if (!initialized) {
+            refreshLanguage();
+
+            // create the top panel
+            MiscToolkit toolkit = MiscToolkit.getInstance();
+            toolkit.configureButton(uploadAddFilesButton, "/data/browse_rollover.gif");
+            uploadTopPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 8, 0));
+            uploadTopPanel.add(uploadAddFilesButton);
+
+            // create the main upload panel
+            UploadTableFormat tableFormat = new UploadTableFormat();
+
+            modelTable = new SortedModelTable(model, tableFormat);
+            setLayout(new BorderLayout());
+            add(uploadTopPanel, BorderLayout.NORTH);
+            add(modelTable.getScrollPane(), BorderLayout.CENTER);
+            fontChanged();
+
+            // listeners
+            uploadAddFilesButton.addActionListener(listener);
+            modelTable.getScrollPane().addMouseListener(listener);
+            modelTable.getTable().addKeyListener(listener);
+            modelTable.getTable().addMouseListener(listener);
+            Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_NAME, listener);
+            Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_SIZE, listener);
+            Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_STYLE, listener);
+
+            initialized = true;
+        }
+    }
+
+    private void refreshLanguage() {
+        uploadAddFilesButton.setToolTipText(language.getString("UploadPane.toolbar.tooltip.browse") + "...");
+    }
+
+    private PopupMenuUpload getPopupMenuUpload() {
+        if (popupMenuUpload == null) {
+            popupMenuUpload = new PopupMenuUpload();
+            language.addLanguageListener(popupMenuUpload);
+        }
+        return popupMenuUpload;
+    }
+
+    private void uploadTable_keyPressed(KeyEvent e) {
+        if (e.getKeyChar() == KeyEvent.VK_DELETE && !modelTable.getTable().isEditing()) {
+            ModelItem[] selectedItems = modelTable.getSelectedItems();
+            model.removeItems(selectedItems);
+            modelTable.getTable().clearSelection();
+        }
+    }
+
+    public void uploadAddFilesButton_actionPerformed(ActionEvent e) {
+
+        final JFileChooser fc = new JFileChooser(Core.frostSettings.getValue("lastUsedDirectory"));
+        fc.setDialogTitle(language.getString("UploadPane.filechooser.title"));
+        fc.setFileHidingEnabled(true);
+        fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        fc.setMultiSelectionEnabled(true);
+        fc.setPreferredSize(new Dimension(600, 400));
+
+        if (fc.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+        File[] selectedFiles = fc.getSelectedFiles();
+        if( selectedFiles == null ) {
+            return;
+        }
+        String parentDir = null;
+        List uploadFileItems = new LinkedList();
+        for (int i = 0; i < selectedFiles.length; i++) {
+            // collect all choosed files + files in all choosed directories
+            ArrayList allFiles = FileAccess.getAllEntries(selectedFiles[i], "");
+            for (int j = 0; j < allFiles.size(); j++) {
+                File newFile = (File) allFiles.get(j);
+                if (newFile.isFile() && newFile.length() > 0) {
+                    uploadFileItems.add(newFile);
+                    if( parentDir == null ) {
+                        parentDir = newFile.getParent(); // remember last upload dir
+                    }
+                }
+            }
+        }
+        if( parentDir != null ) {
+            Core.frostSettings.setValue("lastUsedDirectory", parentDir);
+        }
+
+        for(Iterator i=uploadFileItems.iterator(); i.hasNext(); ) {
+            File file = (File)i.next();
+            FrostUploadItem ulItem = new FrostUploadItem(file);
+            
+            model.addNewUploadItem(ulItem);
+        }
+    }
+
+    private void showUploadTablePopupMenu(MouseEvent e) {
+        getPopupMenuUpload().show(e.getComponent(), e.getX(), e.getY());
+    }
+
+    private void uploadTableDoubleClick(MouseEvent e) {
+        ModelItem[] selectedItems = modelTable.getSelectedItems();
+        if (selectedItems.length != 0) {
+            FrostUploadItem ulItem = (FrostUploadItem) selectedItems[0];
+            File file = ulItem.getFile();
+            logger.info("Executing: " + file.getPath());
+            if (file.exists()) {
+                try {
+                    Execute.simple_run(new String[] {"exec.bat", file.getPath()} );
+                } catch(Throwable t) {
+                    JOptionPane.showMessageDialog(this,
+                            "Could not open the file: "+file.getName()+"\n"+t.toString(),
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }
+    }
+
+    private void fontChanged() {
+        String fontName = Core.frostSettings.getValue(SettingsClass.FILE_LIST_FONT_NAME);
+        int fontStyle = Core.frostSettings.getIntValue(SettingsClass.FILE_LIST_FONT_STYLE);
+        int fontSize = Core.frostSettings.getIntValue(SettingsClass.FILE_LIST_FONT_SIZE);
+        Font font = new Font(fontName, fontStyle, fontSize);
+        if (!font.getFamily().equals(fontName)) {
+            logger.severe("The selected font was not found in your system\n" +
+                           "That selection will be changed to \"SansSerif\".");
+            Core.frostSettings.setValue(SettingsClass.FILE_LIST_FONT_NAME, "SansSerif");
+            font = new Font("SansSerif", fontStyle, fontSize);
+        }
+        modelTable.setFont(font);
+    }
+
+    public void setModel(UploadModel model) {
+        this.model = model;
+    }
+    
     private class PopupMenuUpload extends JSkinnablePopupMenu implements ActionListener, LanguageListener, ClipboardOwner {
 
-        private JMenuItem cancelItem = new JMenuItem();
         private JMenuItem copyKeysAndNamesItem = new JMenuItem();
         private JMenuItem copyKeysItem = new JMenuItem();
         private JMenuItem copyExtendedInfoItem = new JMenuItem();
         private JMenuItem generateChkForSelectedFilesItem = new JMenuItem();
-        private JMenuItem reloadAllFilesItem = new JMenuItem();
-        private JMenuItem reloadSelectedFilesItem = new JMenuItem();
-        private JMenuItem removeAllFilesItem = new JMenuItem();
+        private JMenuItem uploadSelectedFilesItem = new JMenuItem();
         private JMenuItem removeSelectedFilesItem = new JMenuItem();
-        private JMenuItem restoreDefaultFilenamesForAllFilesItem = new JMenuItem();
-        private JMenuItem restoreDefaultFilenamesForSelectedFilesItem = new JMenuItem();
-        private JMenuItem setPrefixForAllFilesItem = new JMenuItem();
-        private JMenuItem setPrefixForSelectedFilesItem = new JMenuItem();
 
         private JMenu changeDestinationBoardMenu = new JMenu();
         private JMenu copyToClipboardMenu = new JMenu();
@@ -87,14 +233,8 @@ public class UploadPanel extends JPanel {
             copyKeysItem.addActionListener(this);
             copyExtendedInfoItem.addActionListener(this);
             removeSelectedFilesItem.addActionListener(this);
-            removeAllFilesItem.addActionListener(this);
-            reloadSelectedFilesItem.addActionListener(this);
-            reloadAllFilesItem.addActionListener(this);
+            uploadSelectedFilesItem.addActionListener(this);
             generateChkForSelectedFilesItem.addActionListener(this);
-            setPrefixForSelectedFilesItem.addActionListener(this);
-            setPrefixForAllFilesItem.addActionListener(this);
-            restoreDefaultFilenamesForSelectedFilesItem.addActionListener(this);
-            restoreDefaultFilenamesForAllFilesItem.addActionListener(this);
         }
 
         private void refreshLanguage() {
@@ -103,27 +243,17 @@ public class UploadPanel extends JPanel {
             keyMessage = language.getString("Common.copyToClipBoard.extendedInfo.key")+" ";
             bytesMessage = language.getString("Common.copyToClipBoard.extendedInfo.bytes")+" ";
 
-            cancelItem.setText(language.getString("Common.cancel"));
             copyKeysItem.setText(language.getString("Common.copyToClipBoard.copyKeysOnly"));
             copyKeysAndNamesItem.setText(language.getString("Common.copyToClipBoard.copyKeysWithFilenames"));
             copyExtendedInfoItem.setText(language.getString("Common.copyToClipBoard.copyExtendedInfo"));
             generateChkForSelectedFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.startEncodingOfSelectedFiles"));
-            reloadAllFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.uploadAllFiles"));
-            reloadSelectedFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.uploadSelectedFiles"));
-            removeAllFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.remove.removeAllFiles"));
+            uploadSelectedFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.uploadSelectedFiles"));
             removeSelectedFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.remove.removeSelectedFiles"));
-            restoreDefaultFilenamesForAllFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.restoreDefaultFilenamesForAllFiles"));
-            restoreDefaultFilenamesForSelectedFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.restoreDefaultFilenamesForSelectedFiles"));
-            setPrefixForAllFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.setPrefixForAllFiles"));
-            setPrefixForSelectedFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.setPrefixForSelectedFiles"));
 
             changeDestinationBoardMenu.setText(language.getString("UploadPane.fileTable.popupmenu.changeDestinationBoard"));
             copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
         }
 
-        /**
-         * @return
-         */
         private Clipboard getClipboard() {
             if (clipboard == null) {
                 clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
@@ -131,9 +261,6 @@ public class UploadPanel extends JPanel {
             return clipboard;
         }
 
-        /* (non-Javadoc)
-         * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-         */
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() == copyKeysItem) {
                 copyKeys();
@@ -147,66 +274,11 @@ public class UploadPanel extends JPanel {
             if (e.getSource() == removeSelectedFilesItem) {
                 removeSelectedFiles();
             }
-            if (e.getSource() == removeAllFilesItem) {
-                removeAllFiles();
-            }
-            if (e.getSource() == reloadSelectedFilesItem) {
-                reloadSelectedFiles();
-            }
-            if (e.getSource() == reloadAllFilesItem) {
-                reloadAllFiles();
+            if (e.getSource() == uploadSelectedFilesItem) {
+                uploadSelectedFiles();
             }
             if (e.getSource() == generateChkForSelectedFilesItem) {
                 generateChkForSelectedFiles();
-            }
-            if (e.getSource() == setPrefixForSelectedFilesItem) {
-                setPrefixForSelectedFiles();
-            }
-            if (e.getSource() == setPrefixForAllFilesItem) {
-                setPrefixForAllFiles();
-            }
-            if (e.getSource() == restoreDefaultFilenamesForSelectedFilesItem) {
-                restoreDefaultFilenamesForSelectedFiles();
-            }
-            if (e.getSource() == restoreDefaultFilenamesForAllFilesItem) {
-                restoreDefaultFilenamesForAllFiles();
-            }
-        }
-
-        /**
-         * Restore default filenames for all files
-         */
-        private void restoreDefaultFilenamesForAllFiles() {
-            model.removePrefixFromAllItems();
-        }
-
-        /**
-         * Restore default filenames for selected files
-         */
-        private void restoreDefaultFilenamesForSelectedFiles() {
-            model.removePrefixFromItems(modelTable.getSelectedItems());
-        }
-
-        /**
-         * Set Prefix for all files
-         */
-        private void setPrefixForAllFiles() {
-            String prefix =
-                JOptionPane.showInputDialog(
-                        language.getString("UploadPane.fileTable.popupmenu.prefixInputLabel"));
-            if (prefix != null) {
-                model.setPrefixToAllItems(prefix);
-            }
-        }
-        /**
-         * Set Prefix for selected files
-         */
-        private void setPrefixForSelectedFiles() {
-            String prefix =
-                JOptionPane.showInputDialog(
-                        language.getString("UploadPane.fileTable.popupmenu.prefixInputLabel"));
-            if (prefix != null) {
-                model.setPrefixToItems(modelTable.getSelectedItems(), prefix);
             }
         }
 
@@ -219,25 +291,11 @@ public class UploadPanel extends JPanel {
         }
 
         /**
-         * Reload all files
-         */
-        private void reloadAllFiles() {
-            model.requestAllItems();
-        }
-
-        /**
          * Reload selected files
          */
-        private void reloadSelectedFiles() {
+        private void uploadSelectedFiles() {
             ModelItem[] selectedItems = modelTable.getSelectedItems();
-            model.requestItems(selectedItems);
-        }
-
-        /**
-         * Remove all files
-         */
-        private void removeAllFiles() {
-            model.clear();
+            model.uploadItems(selectedItems);
         }
 
         /**
@@ -264,7 +322,7 @@ public class UploadPanel extends JPanel {
                     }
                     textToCopy.append(key);
                     textToCopy.append("/");
-                    textToCopy.append(item.getFileName());
+                    textToCopy.append(item.getFile().getName());
                     textToCopy.append("\n");
                 }
                 StringSelection selection = new StringSelection(textToCopy.toString());
@@ -288,7 +346,7 @@ public class UploadPanel extends JPanel {
                         key = keyNotAvailableMessage;
                     }
                     textToCopy.append(fileMessage);
-                    textToCopy.append(item.getFileName() + "\n");
+                    textToCopy.append(item.getFile().getName() + "\n");
                     textToCopy.append(keyMessage);
                     textToCopy.append(key + "\n");
                     textToCopy.append(bytesMessage);
@@ -324,117 +382,38 @@ public class UploadPanel extends JPanel {
             }
         }
 
-        /* (non-Javadoc)
-         * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
-         */
         public void languageChanged(LanguageEvent event) {
             refreshLanguage();
         }
 
-        /* (non-Javadoc)
-         * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
-         */
         public void show(Component invoker, int x, int y) {
             removeAll();
 
             ModelItem[] selectedItems = modelTable.getSelectedItems();
-
-            if (selectedItems.length > 0) {
-                // if at least 1 item is selected
-                add(copyToClipboardMenu);
-                addSeparator();
+            
+            if( selectedItems.length == 0 ) {
+                return;
             }
 
-            JMenu removeSubMenu = new JMenu(language.getString("UploadPane.fileTable.popupmenu.remove") + "...");
-            if (selectedItems.length != 0) {
-                //If at least 1 item is selected
-                removeSubMenu.add(removeSelectedFilesItem);
-            }
-            removeSubMenu.add(removeAllFilesItem);
-
-            add(removeSubMenu);
+            // if at least 1 item is selected
+            add(copyToClipboardMenu);
             addSeparator();
-            if (selectedItems.length != 0) {
-                // If at least 1 item is selected
-                add(generateChkForSelectedFilesItem);
-                add(reloadSelectedFilesItem);
-            }
-            add(reloadAllFilesItem);
+            add(removeSelectedFilesItem);
             addSeparator();
-//            if (!settingsClass.getBoolValue("automaticIndexing")) {
-//                boolean shouldEnable = true;
-//                for (int i = 0; i < selectedItems.length; i++) {
-//                    FrostUploadItem item = (FrostUploadItem) selectedItems[i];
-//                    if (item.getSHA1() != null && item.getSHA1().length() > 0) {
-//                        shouldEnable = false;
-//                        break;
-//                    }
-//                }
-//                if (selectedItems.length != 0) {
-//                    // If at least 1 item is selected
-//                    add(setPrefixForSelectedFilesItem);
-//                    setPrefixForSelectedFilesItem.setEnabled(shouldEnable);
-//                }
-//                //  add(setPrefixForAllFilesItem);
-//                //  addSeparator();
-//                if (selectedItems.length != 0) {
-//                    // If at least 1 item is selected
-//                    add(restoreDefaultFilenamesForSelectedFilesItem);
-//                    restoreDefaultFilenamesForSelectedFilesItem.setEnabled(shouldEnable);
-//                }
-//                //  add(restoreDefaultFilenamesForAllFilesItem);
-//                
-//// FIXME: add 'Add boards for file'                
-//                addSeparator();
-//                if (selectedItems.length != 0) {
-//                    // If at least 1 item is selected
-//                    // Add boards to changeDestinationBoard submenu
-//                    Vector boards = tofTreeModel.getAllBoards();
-//                    Collections.sort(boards);
-//                    changeDestinationBoardMenu.removeAll();
-//                    for (int i = 0; i < boards.size(); i++) {
-//                        final Board aBoard = (Board) boards.elementAt(i);
-//                        JMenuItem boardMenuItem = new JMenuItem(aBoard.getName());
-//                        changeDestinationBoardMenu.add(boardMenuItem);
-//                        // add all boards to menu + set action listener for each board menu item
-//                        boardMenuItem.addActionListener(new ActionListener() {
-//                            public void actionPerformed(ActionEvent e) {
-//                                // set new board for all selected rows
-//                                ModelItem[] selectedItems = modelTable.getSelectedItems();
-//                                for (int x = 0; x < selectedItems.length; x++) {
-//                                    FrostUploadItem ulItem = (FrostUploadItem) selectedItems[x];
-//                                    //also check whether the item has not been hashed, i.e. added to
-//                                    //an index already - big mess to change it if that's the case
-//                                    // FIXME: delete old ref, set new board!
-//                                    // -> maybe one dialog for owner/board change?
-////                                    ulItem.setTargetBoard(aBoard);
-//                                }
-//                            }
-//                        });
-//                    }
-//                    add(changeDestinationBoardMenu);
-//                    changeDestinationBoardMenu.setEnabled(shouldEnable);
-//                }
-//            } //end of options which are available if automatic indexing turned off
-//            addSeparator();
-            add(cancelItem);
+            add(generateChkForSelectedFilesItem);
+            add(uploadSelectedFilesItem);
 
             super.show(invoker, x, y);
         }
 
-        /* (non-Javadoc)
-         * @see java.awt.datatransfer.ClipboardOwner#lostOwnership(java.awt.datatransfer.Clipboard, java.awt.datatransfer.Transferable)
-         */
         public void lostOwnership(Clipboard cb, Transferable contents) {
             // Nothing here
         }
-
     }
 
-    private class Listener
-        extends MouseAdapter
-        implements LanguageListener, KeyListener, ActionListener, MouseListener, PropertyChangeListener {
-
+    private class Listener extends MouseAdapter
+        implements LanguageListener, KeyListener, ActionListener, MouseListener, PropertyChangeListener 
+    {
         public Listener() {
             super();
         }
@@ -490,189 +469,5 @@ public class UploadPanel extends JPanel {
                 fontChanged();
             }
         }
-    }
-
-    private PopupMenuUpload popupMenuUpload = null;
-
-    private Listener listener = new Listener();
-
-    private static Logger logger = Logger.getLogger(UploadPanel.class.getName());
-
-    private UploadModel model = null;
-
-    private TofTreeModel tofTreeModel = null;
-    private SettingsClass settingsClass = null;
-
-    private Language language = null;
-
-    private JPanel uploadTopPanel = new JPanel();
-    private JButton uploadAddFilesButton = new JButton(new ImageIcon(getClass().getResource("/data/browse.gif")));
-
-    private SortedModelTable modelTable;
-
-    private boolean initialized = false;
-
-    public UploadPanel(SettingsClass settingsClass) {
-        super();
-        this.settingsClass = settingsClass;
-
-        language = Language.getInstance();
-        language.addLanguageListener(listener);
-    }
-
-    public void initialize() {
-        if (!initialized) {
-            refreshLanguage();
-
-            // create the top panel
-            MiscToolkit toolkit = MiscToolkit.getInstance();
-            toolkit.configureButton(uploadAddFilesButton, "/data/browse_rollover.gif");
-            uploadTopPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 8, 0));
-            uploadTopPanel.add(uploadAddFilesButton);
-
-            // create the main upload panel
-            UploadTableFormat tableFormat = new UploadTableFormat();
-
-            modelTable = new SortedModelTable(model, tableFormat);
-            setLayout(new BorderLayout());
-            add(uploadTopPanel, BorderLayout.NORTH);
-            add(modelTable.getScrollPane(), BorderLayout.CENTER);
-            fontChanged();
-
-            // listeners
-            uploadAddFilesButton.addActionListener(listener);
-            modelTable.getScrollPane().addMouseListener(listener);
-            modelTable.getTable().addKeyListener(listener);
-            modelTable.getTable().addMouseListener(listener);
-            settingsClass.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_NAME, listener);
-            settingsClass.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_SIZE, listener);
-            settingsClass.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_STYLE, listener);
-
-            initialized = true;
-        }
-    }
-
-    public void setAddFilesButtonEnabled(boolean enabled) {
-        uploadAddFilesButton.setEnabled(enabled);
-    }
-
-    private void refreshLanguage() {
-        uploadAddFilesButton.setToolTipText(language.getString("UploadPane.toolbar.tooltip.browse") + "...");
-    }
-
-    private PopupMenuUpload getPopupMenuUpload() {
-        if (popupMenuUpload == null) {
-            popupMenuUpload = new PopupMenuUpload();
-            language.addLanguageListener(popupMenuUpload);
-        }
-        return popupMenuUpload;
-    }
-
-    private void uploadTable_keyPressed(KeyEvent e) {
-        if (e.getKeyChar() == KeyEvent.VK_DELETE && !modelTable.getTable().isEditing()) {
-            ModelItem[] selectedItems = modelTable.getSelectedItems();
-            model.removeItems(selectedItems);
-            modelTable.getTable().clearSelection();
-        }
-    }
-
-    public void uploadAddFilesButton_actionPerformed(ActionEvent e) {
-        Board board = tofTreeModel.getSelectedNode();
-        if (board.isFolder()) {
-            return;
-        }
-
-        final JFileChooser fc = new JFileChooser(settingsClass.getValue("lastUsedDirectory"));
-        fc.setDialogTitle(language.formatMessage("UploadPane.filechooser.title", board.getName()));
-        fc.setFileHidingEnabled(true);
-        fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-        fc.setMultiSelectionEnabled(true);
-        fc.setPreferredSize(new Dimension(600, 400));
-
-        if (fc.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
-            return;
-        }
-        File[] selectedFiles = fc.getSelectedFiles();
-        if( selectedFiles == null ) {
-            return;
-        }
-        String parentDir = null;
-        List uploadFileItems = new LinkedList();
-        for (int i = 0; i < selectedFiles.length; i++) {
-            // collect all choosed files + files in all choosed directories
-            ArrayList allFiles = FileAccess.getAllEntries(selectedFiles[i], "");
-            for (int j = 0; j < allFiles.size(); j++) {
-                File newFile = (File) allFiles.get(j);
-                if (newFile.isFile() && newFile.length() > 0) {
-                    uploadFileItems.add(newFile);
-                    if( parentDir == null ) {
-                        parentDir = newFile.getParent(); // remember last upload dir
-                    }
-                }
-            }
-        }
-        if( parentDir != null ) {
-            settingsClass.setValue("lastUsedDirectory", parentDir);
-        }
-        // ask for owner to use
-        UploadPropertiesDialog dlg = new UploadPropertiesDialog(MainFrame.getInstance(), "Choose an owner for the upload files");
-        if( dlg.showDialog() == UploadPropertiesDialog.CANCEL ) {
-            return;
-        }
-        String owner = dlg.getChoosedIdentityName(); // null=anonymous
-
-        List uploadItems = new LinkedList();
-        for(Iterator i=uploadFileItems.iterator(); i.hasNext(); ) {
-            File file = (File)i.next();
-            NewUploadFile nuf = new NewUploadFile(file, board, owner);
-            uploadItems.add(nuf);
-        }
-        
-        Core.getInstance().getFileTransferManager().getNewUploadFilesManager().addNewUploadFiles(uploadItems);
-    }
-
-    private void showUploadTablePopupMenu(MouseEvent e) {
-        getPopupMenuUpload().show(e.getComponent(), e.getX(), e.getY());
-    }
-
-    public void setTofTreeModel(TofTreeModel tofTreeModel) {
-        this.tofTreeModel = tofTreeModel;
-    }
-
-    private void uploadTableDoubleClick(MouseEvent e) {
-        ModelItem[] selectedItems = modelTable.getSelectedItems();
-        if (selectedItems.length != 0) {
-            FrostUploadItem ulItem = (FrostUploadItem) selectedItems[0];
-            File file = new File(ulItem.getFilePath());
-            logger.info("Executing: " + file.getPath());
-            if (file.exists()) {
-                try {
-                    Execute.simple_run(new String[] {"exec.bat", file.getPath()} );
-                } catch(Throwable t) {
-                    JOptionPane.showMessageDialog(this,
-                            "Could not open the file: "+file.getName()+"\n"+t.toString(),
-                            "Error",
-                            JOptionPane.ERROR_MESSAGE);
-                }
-            }
-        }
-    }
-
-    private void fontChanged() {
-        String fontName = settingsClass.getValue(SettingsClass.FILE_LIST_FONT_NAME);
-        int fontStyle = settingsClass.getIntValue(SettingsClass.FILE_LIST_FONT_STYLE);
-        int fontSize = settingsClass.getIntValue(SettingsClass.FILE_LIST_FONT_SIZE);
-        Font font = new Font(fontName, fontStyle, fontSize);
-        if (!font.getFamily().equals(fontName)) {
-            logger.severe("The selected font was not found in your system\n" +
-                           "That selection will be changed to \"SansSerif\".");
-            settingsClass.setValue(SettingsClass.FILE_LIST_FONT_NAME, "SansSerif");
-            font = new Font("SansSerif", fontStyle, fontSize);
-        }
-        modelTable.setFont(font);
-    }
-
-    public void setModel(UploadModel model) {
-        this.model = model;
     }
 }

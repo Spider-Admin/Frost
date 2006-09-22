@@ -92,7 +92,7 @@ class News3Panel extends JPanel {
             colorPanel = new JPanel(new GridBagLayout());
             colorPanel.setBorder(new EmptyBorder(5, 30, 5, 5));
             GridBagConstraints constraints = new GridBagConstraints();
-            constraints.insets = new Insets(5, 5, 5, 5);
+            constraints.insets = new Insets(0, 5, 5, 5);
             constraints.weighty = 1;
             constraints.weightx = 1;
             constraints.anchor = GridBagConstraints.NORTHWEST;
@@ -140,9 +140,9 @@ class News3Panel extends JPanel {
         JPanel updatePanel = new JPanel(new GridBagLayout());
         updatePanel.setBorder(new EmptyBorder(5, 30, 5, 5));
         GridBagConstraints constraints = new GridBagConstraints();
-        constraints.insets = new Insets(5, 5, 5, 5);
-        constraints.weighty = 1;
-        constraints.weightx = 1;
+        constraints.insets = new Insets(0, 5, 5, 5);
+        constraints.weighty = 0;
+        constraints.weightx = 0;
         constraints.anchor = GridBagConstraints.NORTHWEST;
         constraints.gridy = 0;
 

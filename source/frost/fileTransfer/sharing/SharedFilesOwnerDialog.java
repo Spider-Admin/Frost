@@ -1,4 +1,22 @@
-package frost.fileTransfer.upload;
+/*
+  SharedFilesOwnerDialog.java / Frost
+  Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License as
+  published by the Free Software Foundation; either version 2 of
+  the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+*/
+package frost.fileTransfer.sharing;
 
 import java.awt.*;
 import java.util.*;
@@ -8,9 +26,7 @@ import javax.swing.*;
 import frost.*;
 import frost.identities.*;
 
-// TODO: nur owner oder owner, board anzeigen
-
-public class UploadPropertiesDialog extends JDialog {
+public class SharedFilesOwnerDialog extends JDialog {
     
     public static int OK = 1;
     public static int CANCEL = 2;
@@ -26,8 +42,6 @@ public class UploadPropertiesDialog extends JDialog {
     private JButton Bcancel = null;
     private JButton Bok = null;
     private JLabel jLabel = null;
-    private JRadioButton RBanonymous = null;
-    private JRadioButton RBidentity = null;
     private JComboBox CBidentities = null;
     
     private Frame parent;
@@ -35,7 +49,7 @@ public class UploadPropertiesDialog extends JDialog {
     /**
      * This is the default constructor
      */
-    public UploadPropertiesDialog(Frame newParent, String newTitle) {
+    public SharedFilesOwnerDialog(Frame newParent, String newTitle) {
         super(newParent);
         title = newTitle;
         parent = newParent;
@@ -43,14 +57,7 @@ public class UploadPropertiesDialog extends JDialog {
         
         initialize();
         pack();
-
-        getRBanonymous().setSelected(false);
-        getRBidentity().setSelected(false);
-        
-        ButtonGroup bg = new ButtonGroup();
-        bg.add(getRBanonymous());
-        bg.add(getRBidentity());
-}
+    }
 
     /**
      * This method initializes this
@@ -59,8 +66,7 @@ public class UploadPropertiesDialog extends JDialog {
      */
     private void initialize() {
         this.setSize(397, 213);
-//        this.setTitle(title);
-        this.setTitle("title");
+        this.setTitle(title);
         this.setContentPane(getJContentPane());
     }
 
@@ -110,18 +116,6 @@ public class UploadPropertiesDialog extends JDialog {
             gridBagConstraints11.insets = new java.awt.Insets(2,20,0,5);
             gridBagConstraints11.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints11.gridx = 0;
-            GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
-            gridBagConstraints2.gridx = 0;
-            gridBagConstraints2.insets = new java.awt.Insets(5,10,0,5);
-            gridBagConstraints2.fill = java.awt.GridBagConstraints.NONE;
-            gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
-            gridBagConstraints2.gridy = 2;
-            GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
-            gridBagConstraints1.gridx = 0;
-            gridBagConstraints1.insets = new java.awt.Insets(5,10,0,5);
-            gridBagConstraints1.fill = java.awt.GridBagConstraints.NONE;
-            gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
-            gridBagConstraints1.gridy = 1;
             GridBagConstraints gridBagConstraints = new GridBagConstraints();
             gridBagConstraints.gridx = 0;
             gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
@@ -129,12 +123,10 @@ public class UploadPropertiesDialog extends JDialog {
             gridBagConstraints.fill = java.awt.GridBagConstraints.NONE;
             gridBagConstraints.gridy = 0;
             jLabel = new JLabel();
-            jLabel.setText("Choose the owner to use for the choosed upload files");
+            jLabel.setText("Choose the owner identity for the new shared files:");
             mainPanel = new JPanel();
             mainPanel.setLayout(new GridBagLayout());
             mainPanel.add(jLabel, gridBagConstraints);
-            mainPanel.add(getRBanonymous(), gridBagConstraints1);
-            mainPanel.add(getRBidentity(), gridBagConstraints2);
             mainPanel.add(getCBidentities(), gridBagConstraints11);
         }
         return mainPanel;
@@ -166,62 +158,15 @@ public class UploadPropertiesDialog extends JDialog {
     private JButton getBok() {
         if( Bok == null ) {
             Bok = new JButton("Ok");
-            Bok.setEnabled(false);
             Bok.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     returnCode = OK;
-                    if( getRBanonymous().isSelected() ) {
-                        choosedIdentity = null;
-                    } else {
-                        choosedIdentity = (String)getCBidentities().getSelectedItem();
-                    }
+                    choosedIdentity = (String)getCBidentities().getSelectedItem();
                     setVisible(false);
                 }
             });
         }
         return Bok;
-    }
-
-    /**
-     * This method initializes RBanonymous	
-     * 	
-     * @return javax.swing.JRadioButton	
-     */
-    private JRadioButton getRBanonymous() {
-        if( RBanonymous == null ) {
-            RBanonymous = new JRadioButton();
-            RBanonymous.setText("Anonymous");
-            RBanonymous.addItemListener(new java.awt.event.ItemListener() {
-                public void itemStateChanged(java.awt.event.ItemEvent e) {
-                    if( getRBanonymous().isSelected() ) {
-                        getCBidentities().setEnabled(false);
-                    }
-                    getBok().setEnabled(true);
-                }
-            });
-        }
-        return RBanonymous;
-    }
-
-    /**
-     * This method initializes Identity	
-     * 	
-     * @return javax.swing.JRadioButton	
-     */
-    private JRadioButton getRBidentity() {
-        if( RBidentity == null ) {
-            RBidentity = new JRadioButton();
-            RBidentity.setText("Identity");
-            RBidentity.addItemListener(new java.awt.event.ItemListener() {
-                public void itemStateChanged(java.awt.event.ItemEvent e) {
-                    if( getRBidentity().isSelected() ) {
-                        getCBidentities().setEnabled(true);
-                    }
-                    getBok().setEnabled(true);
-                }
-            });
-        }
-        return RBidentity;
     }
 
     /**

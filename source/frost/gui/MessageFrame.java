@@ -35,7 +35,6 @@ import frost.*;
 import frost.boards.*;
 import frost.ext.*;
 import frost.gui.model.*;
-import frost.gui.objects.*;
 import frost.identities.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;

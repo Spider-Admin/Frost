@@ -22,7 +22,7 @@ import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
-import frost.gui.objects.*;
+import frost.boards.*;
 import frost.storage.database.*;
 
 public class BoardDatabaseTable extends AbstractDatabaseTable {

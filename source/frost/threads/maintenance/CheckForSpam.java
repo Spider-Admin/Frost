@@ -23,7 +23,6 @@ import java.util.logging.Logger;
 
 import frost.*;
 import frost.boards.*;
-import frost.gui.objects.Board;
 import frost.threads.BoardUpdateThread;
 
 /**

@@ -23,11 +23,9 @@ import java.util.logging.*;
 
 import frost.*;
 import frost.fcp.*;
-import frost.gui.objects.*;
+import frost.storage.database.applayer.*;
 
 public class DownloadThread extends Thread {
-
-    private SettingsClass settings;
 
     private DownloadTicker ticker;
 
@@ -38,21 +36,26 @@ public class DownloadThread extends Thread {
     private String filename;
     private Long size;
     private String key;
-    private Board board;
 
     private FrostDownloadItem downloadItem;
     private DownloadModel downloadModel;
+    
+    public DownloadThread(DownloadTicker newTicker, FrostDownloadItem item, DownloadModel model) {
+        filename = item.getFileName();
+        size = item.getFileSize();
+        key = item.getKey();
+        ticker = newTicker;
+        downloadItem = item;
+        downloadModel = model;
+    }
 
     public void run() {
         ticker.threadStarted();
         try {
-            File newFile = new File(settings.getValue("downloadDirectory") + filename);
+            File newFile = new File(Core.frostSettings.getValue("downloadDirectory") + filename);
 
-            // if we don't have the CHK, means the key was not inserted. request it by SHA1.
-            System.out.println("key="+key);
+            // if we don't have the CHK, we should not be here
             if (key == null) {
-                maybeDoRequest();
-                downloadItem.setLastDownloadStopTimeMillis(System.currentTimeMillis());
                 ticker.threadFinished();
                 return;
             }
@@ -93,28 +96,9 @@ public class DownloadThread extends Thread {
 
                 logger.warning("FILEDN: Download of " + filename + " failed.");
                 if (inTable == true) {
-                    // Upload request to request stack
-                    if (settings.getBoolValue("downloadEnableRequesting")
-                        && downloadItem.getRetries() >= settings.getIntValue("downloadRequestAfterTries")
-                        && board != null
-                        && board.isFolder() == false)
-                    {
-                        logger.info("FILEDN: Download failed, requesting file " + filename);
-
-                        downloadItem.setState(FrostDownloadItem.STATE_REQUESTING);
-                    } else {
-                        logger.info("FILEDN: Download failed (file is NOT requested).");
-                    }
-
                     // set new state -> failed or waiting for another try
-                    if (downloadItem.getRetries()
-                        > settings.getIntValue("downloadMaxRetries")) {
-                        if (settings.getBoolValue("downloadRestartFailedDownloads")) {
-                            downloadItem.setState(FrostDownloadItem.STATE_WAITING);
-                            downloadItem.setRetries(0);
-                        } else {
-                            downloadItem.setState(FrostDownloadItem.STATE_FAILED);
-                        }
+                    if (downloadItem.getRetries() > Core.frostSettings.getIntValue("downloadMaxRetries")) {
+                        downloadItem.setState(FrostDownloadItem.STATE_FAILED);
                     } else {
                         downloadItem.setState(FrostDownloadItem.STATE_WAITING);
                     }
@@ -126,42 +110,20 @@ public class DownloadThread extends Thread {
                 downloadItem.setState(FrostDownloadItem.STATE_DONE);
                 downloadItem.setEnableDownload(Boolean.valueOf(false));
 
+                // update lastDownloaded time in filelist
+                if( downloadItem.isSharedFile() ) {
+                    AppLayerDatabase.getFileListDatabaseTable().updateFrostFileListFileObjectAfterDownload(
+                            downloadItem.getFileListFileObject().getSha(),
+                            System.currentTimeMillis() );
+                }
+
                 logger.info("FILEDN: Download of " + filename + " was successful.");
             }
         } catch (Throwable t) {
             logger.log(Level.SEVERE, "Oo. EXCEPTION in requestThread.run", t);
         }
 
-        downloadItem.setLastDownloadStopTimeMillis(System.currentTimeMillis());
+        downloadItem.setLastDownloadStopTime(System.currentTimeMillis());
         ticker.threadFinished();
-    }
-    
-    private void maybeDoRequest() {
-        // check if we already requested this file today
-        if( downloadItem.getLastRequestedDate() != null ) {
-            if( !downloadItem.getLastRequestedDate().before(DateFun.getCurrentSqlDateGMT()) ) {
-                // already requested today
-                return;
-            } 
-        }
-        logger.info("FILEDN: Requesting " + filename);
-        downloadItem.setState(FrostDownloadItem.STATE_REQUESTING);
-    }
-
-    /**Constructor*/
-    public DownloadThread(
-        DownloadTicker newTicker,
-        FrostDownloadItem item,
-        DownloadModel model,
-        SettingsClass frostSettings) {
-
-        settings = frostSettings;
-        filename = item.getFileName();
-        size = item.getFileSize();
-        key = item.getKey();
-        board = item.getSourceBoard();
-        ticker = newTicker;
-        downloadItem = item;
-        downloadModel = model;
     }
 }

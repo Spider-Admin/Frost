@@ -19,7 +19,7 @@
 package frost;
 
 import java.util.*;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
 public class DateFun {
 
@@ -209,6 +209,17 @@ public class DateFun {
     public static String getExtendedDate() {
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+        return getExtendedDateOfCalendar(cal);
+    }
+
+    /**
+     * Returns date with leading zeroes
+     * @return Date as String yyyy.MM.dd in GMT with leading zeros
+     */
+    public static String getExtendedDateFromMillis(long millis) {
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+        cal.setTimeInMillis(millis);
         return getExtendedDateOfCalendar(cal);
     }
 

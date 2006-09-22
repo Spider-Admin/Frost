@@ -18,8 +18,6 @@
 */
 package frost.identities;
 
-import java.util.*;
-
 import org.w3c.dom.*;
 import org.xml.sax.*;
 
@@ -33,21 +31,15 @@ public class LocalIdentity extends Identity {
     private String privKey;
 
     public Element getXMLElement(Document doc) {
-        //have to copy all children, no Element.rename()unfortunately
-        Element el = super.getXMLElement(doc);
-        Element el2 = doc.createElement("MyIdentity");
-        NodeList list = el.getChildNodes();
-        while(list.getLength() > 0) {
-            el2.appendChild(list.item(0)); // removes Node from el
-        }
-        return el2;
+        // external element, "Identity"
+        return super.getXMLElement(doc);
     }
 
     /**
      * Appends the private key!
      */
     public Element getExportXMLElement(Document doc) {
-        //have to copy all children, no Element.rename()unfortunately
+        // have to copy all children, no Element.rename()unfortunately
         Element el = super.getXMLElement(doc);
         Element el2 = doc.createElement("MyIdentity");
         NodeList list = el.getChildNodes();
@@ -77,7 +69,8 @@ public class LocalIdentity extends Identity {
         privKey = prvKey;
     }
 
-    public LocalIdentity(Element el){
+    public LocalIdentity(Element el) {
+        // finally calls loadXMLElement of this class!
         super(el);
     }
     /**
@@ -125,48 +118,15 @@ public class LocalIdentity extends Identity {
         return false;
     }
     
-    Hashtable lastFilesSharedMillisPerBoard = new Hashtable();
+    long lastFilesSharedMillisPerBoard = 0;
     
-    public long getLastFilesSharedMillis(String boardname) {
-        Long l = (Long)lastFilesSharedMillisPerBoard.get(boardname);
-        if( l == null ) {
-            return 0;
-        } else {
-            return l.longValue();
-        }
+    public long getLastFilesSharedMillis() {
+        return lastFilesSharedMillisPerBoard;
     }
-    public Collection getLastFilesSharedMillisBoardList() {
-        return lastFilesSharedMillisPerBoard.keySet();
+    public void updateLastFilesSharedMillis() {
+        lastFilesSharedMillisPerBoard = System.currentTimeMillis();
     }
-    public void updateLastFilesSharedMillis(String boardname) {
-        Long l = new Long(System.currentTimeMillis());
-        lastFilesSharedMillisPerBoard.put(boardname, l);
-    }
-    public void setLastFilesSharedMillis(String boardname, long l) {
-        Long ll = new Long(l);
-        lastFilesSharedMillisPerBoard.put(boardname, ll);
-    }
-
-    // TODO: refactor, this is ugly ;)
-    static Hashtable anonymousLastFilesSharedMillisPerBoard = new Hashtable();
-
-    public static long getAnonymousLastFilesSharedMillis(String boardname) {
-        Long l = (Long)anonymousLastFilesSharedMillisPerBoard.get(boardname);
-        if( l == null ) {
-            return 0;
-        } else {
-            return l.longValue();
-        }
-    }
-    public static Collection getAnonymousLastFilesSharedMillisBoardList() {
-        return anonymousLastFilesSharedMillisPerBoard.keySet();
-    }
-    public static void updateAnonymousLastFilesSharedMillis(String boardname) {
-        Long l = new Long(System.currentTimeMillis());
-        anonymousLastFilesSharedMillisPerBoard.put(boardname, l);
-    }
-    public static void setAnonymousLastFilesSharedMillis(String boardname, long l) {
-        Long ll = new Long(l);
-        anonymousLastFilesSharedMillisPerBoard.put(boardname, ll);
+    public void setLastFilesSharedMillis(long l) {
+        lastFilesSharedMillisPerBoard = l;
     }
 }

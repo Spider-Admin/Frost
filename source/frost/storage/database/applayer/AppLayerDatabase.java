@@ -36,6 +36,9 @@ public class AppLayerDatabase implements Savable {
     private static FileListDatabaseTable fileListDatabaseTable = null;
     private static UploadFilesDatabaseTable uploadFilesDatabaseTable = null;
     private static DownloadFilesDatabaseTable downloadFilesDatabaseTable = null;
+    private static SharedFilesDatabaseTable sharedFilesDatabaseTable = null; 
+    
+    private static SharedFilesCHKKeysDatabaseTable sharedFilesCHKKeysDatabaseTable = null;
     
     private static IdentitiesDatabaseTable identitiesDatabaseTable = null;
     
@@ -148,6 +151,9 @@ public class AppLayerDatabase implements Savable {
             fileListDatabaseTable = new FileListDatabaseTable();
             uploadFilesDatabaseTable = new UploadFilesDatabaseTable();
             downloadFilesDatabaseTable = new DownloadFilesDatabaseTable();
+            sharedFilesDatabaseTable = new SharedFilesDatabaseTable();
+            
+            sharedFilesCHKKeysDatabaseTable = new SharedFilesCHKKeysDatabaseTable();
             
             identitiesDatabaseTable = new IdentitiesDatabaseTable();
             
@@ -162,8 +168,10 @@ public class AppLayerDatabase implements Savable {
             lst.add(fileListDatabaseTable);
             lst.add(uploadFilesDatabaseTable);
             lst.add(downloadFilesDatabaseTable);
+            lst.add(sharedFilesDatabaseTable);
             lst.add(identitiesDatabaseTable);
             lst.add(knownBoardsDatabaseTable);
+            lst.add(sharedFilesCHKKeysDatabaseTable);
 
             instance.ensureTables(lst);
             
@@ -216,7 +224,13 @@ public class AppLayerDatabase implements Savable {
     public static DownloadFilesDatabaseTable getDownloadFilesDatabaseTable() {
         return downloadFilesDatabaseTable;
     }
-    
+    public static SharedFilesDatabaseTable getSharedFilesDatabaseTable() {
+        return sharedFilesDatabaseTable;
+    }
+    public static SharedFilesCHKKeysDatabaseTable getSharedFilesCHKKeysDatabaseTable() {
+        return sharedFilesCHKKeysDatabaseTable;
+    }
+        
     public static IdentitiesDatabaseTable getIdentitiesDatabaseTable() {
         return identitiesDatabaseTable;
     }
@@ -255,7 +269,15 @@ public class AppLayerDatabase implements Savable {
                 update(tableDDL);
             } catch(SQLException ex) {
                 // table already exists
-                ex.toString();
+            }
+        }
+        List gddls = GlobalIndexSlotsDatabaseTable.getTableDDL();
+        for(Iterator i=gddls.iterator(); i.hasNext(); ) {
+            String tableDDL = (String)i.next();
+            try {
+                update(tableDDL);
+            } catch(SQLException ex) {
+                // table already exists
             }
         }
     }

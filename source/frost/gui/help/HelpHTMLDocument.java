@@ -29,11 +29,11 @@ import javax.swing.text.html.*;
  */
 public class HelpHTMLDocument extends HTMLDocument {
 
-    private String url_prefix;
+//    private String url_prefix;
 
     public HelpHTMLDocument(String url_prefix, StyleSheet styles) {
         super(styles);
-        this.url_prefix = url_prefix;
+//        this.url_prefix = url_prefix;
     }
 
     /**

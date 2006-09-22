@@ -54,7 +54,7 @@ public class FcpHandler05 extends FcpHandler {
     private int getDownloadHtlForType(int type) {
         if( type == FcpHandler.TYPE_MESSAGE ) {
             return Core.frostSettings.getIntValue("tofDownloadHtl");
-        } if( type == FcpHandler.TYPE_FILE ) {
+        } else if( type == FcpHandler.TYPE_FILE ) {
             return 25;
         } else {
             return 21;
@@ -64,7 +64,7 @@ public class FcpHandler05 extends FcpHandler {
     private int getUploadHtlForType(int type) {
         if( type == FcpHandler.TYPE_MESSAGE ) {
             return Core.frostSettings.getIntValue("tofUploadHtl");
-        } if( type == FcpHandler.TYPE_FILE ) {
+        } else if( type == FcpHandler.TYPE_FILE ) {
             return Core.frostSettings.getIntValue("htlUpload");
         } else {
             return 21;

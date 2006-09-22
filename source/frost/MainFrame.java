@@ -34,12 +34,10 @@ import javax.swing.tree.*;
 import frost.boards.*;
 import frost.components.translate.*;
 import frost.ext.*;
-import frost.fileTransfer.download.*;
-import frost.fileTransfer.upload.UploadPanel;
 import frost.gui.*;
 import frost.gui.help.*;
-import frost.gui.objects.*;
 import frost.gui.preferences.*;
+import frost.messages.*;
 import frost.storage.*;
 import frost.threads.*;
 import frost.util.gui.*;
@@ -67,44 +65,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     ImageIcon progressIconRunning = null;
     ImageIcon progressIconIdle = null;
     JLabel progressIconButton = null;
-
-    /**
-     * Search through .req files of this day in all boards and remove the
-     * dummy .req files that are created by requestThread on key collosions.
-     */
-    private class RemoveDummyRequestFiles extends Thread {
-
-        public void run() {
-            Iterator i = tofTreeModel.getAllBoards().iterator();
-
-            while (i.hasNext()) {
-                Board board = (Board) i.next();
-
-                String destination =
-                    new StringBuffer()
-                        .append(MainFrame.keypool)
-                        .append(board.getBoardFilename())
-                        .append(System.getProperty("file.separator"))
-                        .append(DateFun.getDate())
-                        .append(System.getProperty("file.separator"))
-                        .toString();
-                File boarddir = new File(destination);
-                if (boarddir.isDirectory()) {
-                    File[] entries = boarddir.listFiles();
-                    for (int x = 0; x < entries.length; x++) {
-                        File entry = entries[x];
-                        if (entry.getName().endsWith(".req.sha") &&
-                            FileAccess.readFile(entry).indexOf(DownloadThread.KEYCOLL_INDICATOR) > -1)
-                        {
-                            entry.delete();
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private static Core core;
 
     // saved to frost.ini
     private static SettingsClass frostSettings = null;
@@ -249,7 +209,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
     private TofTree tofTree = null;
     private TofTreeModel tofTreeModel = null;
-    private UploadPanel uploadPanel = null;
     
     private JSplitPane treeAndTabbedPaneSplitpane = null;
 
@@ -268,7 +227,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     public MainFrame(SettingsClass settings, String title) {
 
         instance = this;
-        core = Core.getInstance();
+        Core.getInstance();
         frostSettings = settings;
         language = Language.getInstance();
 
@@ -805,7 +764,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         // step through all messages on disk up to maxMessageDisplay and check if there are new messages
         TOF.getInstance().searchAllNewMessages(false);
 
-        if (core.isFreenetOnline()) {
+        if (Core.isFreenetOnline()) {
             tofAutomaticUpdateMenuItem.setSelected(frostSettings.getBoolValue("automaticUpdate"));
         } else {
             tofAutomaticUpdateMenuItem.setSelected(false);
@@ -911,11 +870,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
             tofTree.updateTree();
             // redraw whole tree, in case the update visualization was enabled or disabled (or others)
-
-            // check if we switched from disableRequests=true to =false (requests now enabled)
-            if (optionsDlg.shouldRemoveDummyReqFiles()) {
-                new RemoveDummyRequestFiles().start();
-            }
         }
     }
     
@@ -969,8 +923,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
         long curTime = System.currentTimeMillis();
         // get in minutes
-        int minUpdateInterval =
-            frostSettings.getIntValue("automaticUpdate.boardsMinimumUpdateInterval");
+        int minUpdateInterval = frostSettings.getIntValue("automaticUpdate.boardsMinimumUpdateInterval");
         // min -> ms
         long minUpdateIntervalMillis = minUpdateInterval * 60 * 1000;
 
@@ -1109,11 +1062,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 // node is a board
                 removeBoardButton.setEnabled(true);
 
-                updateButtons(node);
-
                 logger.info("Board " + node.getName() + " blocked count: " + node.getBlockedCount());
 
-                uploadPanel.setAddFilesButtonEnabled(true);
                 renameFolderButton.setEnabled(false);
                 
                 configBoardButton.setEnabled(true);
@@ -1131,7 +1081,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 getMessagePanel().getMessageTable().setNewRootNode(new FrostMessageObject(true));
                 getMessagePanel().updateMessageCountLabels(node);
 
-                uploadPanel.setAddFilesButtonEnabled(false);
                 renameFolderButton.setEnabled(true);
                 if (node.isRoot()) {
                     removeBoardButton.setEnabled(false);
@@ -1177,17 +1126,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         helpAboutMenuItem.setText(language.getString("MainFrame.menu.help.aboutFrost"));
     }
 
-    private void updateButtons(Board board) {
-        if (board.isReadAccessBoard()) {
-            uploadPanel.setAddFilesButtonEnabled(false);
-        } else {
-            uploadPanel.setAddFilesButtonEnabled(true);
-        }
-    }
-
-    /* (non-Javadoc)
-     * @see frost.SettingsUpdater#updateSettings()
-     */
     public void updateSettings() {
         frostSettings.setValue("automaticUpdate", tofAutomaticUpdateMenuItem.isSelected());
     }
@@ -1204,14 +1142,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             tofTreeModel.nodeChanged(parentFolder);
             parentFolder = parentFolder.getParent();
         }
-
-        if (board == tofTreeModel.getSelectedNode()) { // is the board currently shown?
-            updateButtons(board);
-        }
-    }
-
-    public void setUploadPanel(UploadPanel panel) {
-        uploadPanel = panel;
     }
 
     public void setAutomaticBoardUpdateEnabled(boolean state) {

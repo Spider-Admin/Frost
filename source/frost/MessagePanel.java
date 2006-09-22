@@ -32,8 +32,8 @@ import javax.swing.tree.*;
 
 import frost.boards.*;
 import frost.gui.*;
-import frost.gui.objects.*;
 import frost.identities.*;
+import frost.messages.*;
 import frost.storage.database.applayer.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
@@ -545,25 +545,19 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         return popupMenuMessageTable;
     }
     
-    private void updateMsgTableMultilineSelect() {
-        if( Core.frostSettings.getBoolValue(SettingsClass.MSGTABLE_MULTILINE_SELECT) ) {
-            messageTable.setSelectionMode(DefaultListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        } else {
-            messageTable.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
-        }
-    }
-
     public void initialize() {
         if (!initialized) {
             refreshLanguage();
             language.addLanguageListener(listener);
             
             Core.frostSettings.addPropertyChangeListener(SettingsClass.MSGTABLE_MULTILINE_SELECT, this);
+            Core.frostSettings.addPropertyChangeListener(SettingsClass.MSGTABLE_SCROLL_HORIZONTAL, this);
 
             // build messages list scroll pane
             MessageTreeTableModel messageTableModel = new MessageTreeTableModel(new DefaultMutableTreeNode());
             language.addLanguageListener(messageTableModel);
             messageTable = new MessageTreeTable(messageTableModel);
+            updateMsgTableResizeMode();
             updateMsgTableMultilineSelect();
             messageTable.getSelectionModel().addListSelectionListener(listener);
             messageListScrollPane = new JScrollPane(messageTable);
@@ -1296,7 +1290,6 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
      * Search through all messages, find next unread message by date (earliest message in table).
      */
     public void selectNextUnreadMessage() {
-        // FIXME: if we are currently inside a msg thread, move to next new msg in thread!
 
         FrostMessageObject nextMessage = null;
 
@@ -1377,9 +1370,29 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         return messageTextPane;
     }
 
+    private void updateMsgTableMultilineSelect() {
+        if( Core.frostSettings.getBoolValue(SettingsClass.MSGTABLE_MULTILINE_SELECT) ) {
+            messageTable.setSelectionMode(DefaultListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        } else {
+            messageTable.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
+        }
+    }
+
+    private void updateMsgTableResizeMode() {
+        if( Core.frostSettings.getBoolValue(SettingsClass.MSGTABLE_SCROLL_HORIZONTAL) ) {
+            // show horizontal scrollbar if needed
+            getMessageTable().setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        } else {
+            // auto-resize columns, no horizontal scrollbar
+            getMessageTable().setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
+        }
+    }
+
     public void propertyChange(PropertyChangeEvent evt) {
         if (evt.getPropertyName().equals(SettingsClass.MSGTABLE_MULTILINE_SELECT)) {
             updateMsgTableMultilineSelect();
+        } else if (evt.getPropertyName().equals(SettingsClass.MSGTABLE_SCROLL_HORIZONTAL)) {
+            updateMsgTableResizeMode();
         }
     }
 }

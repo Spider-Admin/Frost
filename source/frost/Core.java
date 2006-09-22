@@ -47,9 +47,7 @@ import frost.util.gui.translation.*;
 
 /**
  * Class hold the more non-gui parts of Frost.
- *
  * @pattern Singleton
- *
  */
 public class Core implements FrostEventDispatcher  {
 
@@ -67,7 +65,7 @@ public class Core implements FrostEventDispatcher  {
     private EventDispatcher dispatcher = new EventDispatcher();
     private Language language = null;
 
-    private boolean freenetIsOnline = false;
+    private static boolean freenetIsOnline = false;
 
     private Timer timer = new Timer(true);
 
@@ -155,7 +153,7 @@ public class Core implements FrostEventDispatcher  {
         System.setSecurityManager(new FrostSecurityManager());
 
         // check if node is online and if we run on 0.7 testnet
-        freenetIsOnline = false;
+        setFreenetOnline(false);
         
         if( Frost.isOfflineMode() ) {
             // keep offline
@@ -167,7 +165,7 @@ public class Core implements FrostEventDispatcher  {
             List nodeInfo = FcpHandler.inst().getNodeInfo();
             if( nodeInfo != null ) {
                 // freenet is online
-                freenetIsOnline = true;
+                setFreenetOnline(true);
                 
                 // on 0.7 check for "Testnet=true" and warn user
                 if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) {
@@ -191,7 +189,7 @@ public class Core implements FrostEventDispatcher  {
         }
 
         // We warn the user if there aren't any running nodes
-        if (!freenetIsOnline) {
+        if (!isFreenetOnline()) {
             MiscToolkit.getInstance().showMessage(
                 language.getString("Core.init.NodeNotRunningBody"),
                 JOptionPane.WARNING_MESSAGE,
@@ -201,7 +199,10 @@ public class Core implements FrostEventDispatcher  {
         return true;
     }
 
-    public boolean isFreenetOnline() {
+    public static void setFreenetOnline(boolean v) {
+        freenetIsOnline = v;
+    }
+    public static boolean isFreenetOnline() {
         return freenetIsOnline;
     }
 
@@ -219,26 +220,14 @@ public class Core implements FrostEventDispatcher  {
         t.start();
     }
 
-    /**
-     * @param which
-     */
     public void deleteDir(String which) {
-        (new DeleteWholeDirThread(this, which)).start();
+        new DeleteWholeDirThread(which).start();
     }
 
-    /**
-     * @param task
-     * @param delay
-     */
     public static void schedule(TimerTask task, long delay) {
         getInstance().timer.schedule(task, delay);
     }
 
-    /**
-     * @param task
-     * @param delay
-     * @param period
-     */
     public static void schedule(TimerTask task, long delay, long period) {
         getInstance().timer.schedule(task, delay, period);
     }
@@ -376,7 +365,7 @@ public class Core implements FrostEventDispatcher  {
             System.exit(1);
         }
 
-        getIdentities().initialize(freenetIsOnline);
+        getIdentities().initialize(isFreenetOnline());
 
         // TODO: maybe make this configureable in options dialog for the paranoic people?
         String title;
@@ -406,10 +395,6 @@ public class Core implements FrostEventDispatcher  {
                     getBoardsManager().getTofTreeModel().getAllBoards(),
                     splashscreen,
                     "Importing messages");
-            splashscreen.setText("Importing files");
-            new ImportFiles().importFiles();
-            new ImportDownloadFiles().importDownloadFiles(getBoardsManager().getTofTreeModel(), getFileTransferManager());
-            new ImportUploadFiles().importUploadFiles(getBoardsManager().getTofTreeModel(), getFileTransferManager());
 
             frostSettings.setValue("oneTimeUpdate.importMessages.didRun", true);
         }
@@ -443,12 +428,7 @@ public class Core implements FrostEventDispatcher  {
 
     public FileTransferManager getFileTransferManager() {
         if (fileTransferManager == null) {
-            fileTransferManager = new FileTransferManager(frostSettings);
-            fileTransferManager.setMainFrame(mainFrame);
-            fileTransferManager.setTofTreeModel(getBoardsManager().getTofTreeModel());
-            fileTransferManager.setFreenetIsOnline(isFreenetOnline());
-            fileTransferManager.setIdentities(getIdentities());
-            fileTransferManager.setKeypool(keypool);
+            fileTransferManager = FileTransferManager.getInstance();
         }
         return fileTransferManager;
     }
@@ -516,6 +496,18 @@ public class Core implements FrostEventDispatcher  {
         saver.addExitSavable(frostSettings);
         // close databases
         saver.addExitSavable(AppLayerDatabase.getInstance());
+        
+        
+        // after 15 seconds, start filesharing threads if it is enabled
+        if( isFreenetOnline() && !frostSettings.getBoolValue(SettingsClass.DISABLE_FILESHARING)) {
+            Thread t = new Thread() {
+                public void run() {
+                    Mixed.wait(15000);
+                    FileSharingManager.startFileSharing();
+                }
+            };
+            t.start();
+        }
     }
 
     /**

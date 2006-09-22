@@ -40,30 +40,30 @@ public class GlobalIndexSlotsDatabaseTable {
     private AppLayerDatabase db;
 
     private static final String SQL_DDL = 
-        "CREATE TABLE INDEXSLOTS (indexname INT, msgdate DATE, msgindex INT,"+
+        "CREATE TABLE GLOBALINDEXSLOTS (indexname INT, msgdate DATE, msgindex INT,"+
         " wasdownloaded BOOLEAN, wasuploaded BOOLEAN, "+
-        " CONSTRAINT UNIQUE_INDICES_ONLY UNIQUE(indexname,msgdate,msgindex) )";
+        " CONSTRAINT UNIQUE_GLOBALINDICES_ONLY UNIQUE(indexname,msgdate,msgindex) )";
     
     private static final String SQL_INSERT =
-        "INSERT INTO INDEXSLOTS (indexname,msgdate,msgindex,wasdownloaded,wasuploaded) VALUES (?,?,?,?,?)";
+        "INSERT INTO GLOBALINDEXSLOTS (indexname,msgdate,msgindex,wasdownloaded,wasuploaded) VALUES (?,?,?,?,?)";
 
     private static final String SQL_UPDATE_WASUPLOADED =
-        "UPDATE INDEXSLOTS SET wasuploaded=TRUE WHERE indexname=? AND msgdate=? AND msgindex=?";
+        "UPDATE GLOBALINDEXSLOTS SET wasuploaded=TRUE WHERE indexname=? AND msgdate=? AND msgindex=?";
     
     // find highest used msgindex
     private static final String SQL_NEXT_MAX_USED_SLOT = // TOP 1
-        "SELECT msgindex FROM INDEXSLOTS WHERE indexname=? AND msgdate=? AND msgindex>? "+
+        "SELECT msgindex FROM GLOBALINDEXSLOTS WHERE indexname=? AND msgdate=? AND msgindex>? "+
         "AND ( wasdownloaded=TRUE OR wasuploaded=TRUE ) ORDER BY msgindex DESC";
     
     private static final String SQL_MAX_SLOT = // TOP 1
-        "SELECT msgindex FROM INDEXSLOTS WHERE indexname=? AND msgdate=? ORDER BY msgindex DESC";
+        "SELECT msgindex FROM GLOBALINDEXSLOTS WHERE indexname=? AND msgdate=? ORDER BY msgindex DESC";
 
     // downloading
     private static final String SQL_NEXT_DOWNLOAD_SLOT = // TOP 1
-        "SELECT msgindex FROM INDEXSLOTS WHERE indexname=? AND msgdate=? AND msgindex>? "+
+        "SELECT msgindex FROM GLOBALINDEXSLOTS WHERE indexname=? AND msgdate=? AND msgindex>? "+
         "AND wasdownloaded=FALSE ORDER BY msgindex ASC";
     private static final String SQL_UPDATE_WASDOWNLOADED =
-        "UPDATE INDEXSLOTS SET wasdownloaded=TRUE WHERE indexname=? AND msgdate=? AND msgindex=?";
+        "UPDATE GLOBALINDEXSLOTS SET wasdownloaded=TRUE WHERE indexname=? AND msgdate=? AND msgindex=?";
     
     private PreparedStatement ps_INSERT = null;
     private PreparedStatement ps_UPDATE_WASUPLOADED = null;

@@ -32,16 +32,11 @@ import javax.swing.table.*;
 
 import frost.gui.*;
 import frost.gui.model.*;
-import frost.gui.objects.*;
 import frost.storage.database.applayer.*;
 import frost.threads.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
-/**
- * TODO: - add thread listeners (listen to all running threads) to change the
- *         updating state (bold text in table row) on demand (from bback)
- */
 public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
 {
     private class Listener implements MouseListener, LanguageListener {
@@ -49,39 +44,24 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
             super();
         }
 
-        /* (non-Javadoc)
-         * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
-         */
         public void mouseClicked(MouseEvent e) {
             if (e.getClickCount() == 2) {
                 updateSelectedBoardButton_actionPerformed(null);
             }
         }
 
-        /* (non-Javadoc)
-         * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
-         */
         public void mouseEntered(MouseEvent e) {
             //Nothing here
         }
 
-        /* (non-Javadoc)
-         * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
-         */
         public void mouseExited(MouseEvent e) {
             //Nothing here
         }
 
-        /* (non-Javadoc)
-         * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
-         */
         public void mousePressed(MouseEvent e) {
             maybeShowPopup(e);
         }
 
-        /* (non-Javadoc)
-         * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
-         */
         public void mouseReleased(MouseEvent e) {
             maybeShowPopup(e);
         }
@@ -92,13 +72,9 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
             }
         }
 
-        /* (non-Javadoc)
-         * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
-         */
         public void languageChanged(LanguageEvent event) {
             refreshLanguage();
         }
-
     }
 
     private TofTree tofTree = null;
@@ -139,12 +115,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         MIupdateAllBoards.setText(language.getString("BoardInfoFrame.button.updateAllBoards"));
     }
 
-    /**
-     * Constructor
-     * @param p
-     */
-    public BoardInfoFrame(JFrame parentFrame, TofTree tofTree)
-    {
+    public BoardInfoFrame(JFrame parentFrame, TofTree tofTree) {
         super();
         language = Language.getInstance();
         refreshLanguage();
@@ -311,6 +282,14 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
             int fileCount = 0;
             int boardCount = 0;
             List boards = ((TofTreeModel) tofTree.getModel()).getAllBoards();
+
+            // filecount is now a fix value
+            try {
+                fileCount = AppLayerDatabase.getFileListDatabaseTable().getFileCount();
+            } catch (SQLException e) {
+                logger.log(Level.SEVERE, "Error retrieving file count from db", e);
+            }
+
             for( Iterator i=boards.iterator(); i.hasNext();  )
             {
                 Board board = (Board)i.next();
@@ -320,7 +299,6 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
 
                 // count statistics
                 messageCount += newRow.getAllMessageCount().intValue();
-                fileCount += newRow.getFilesCount().intValue();
                 boardCount++;
 
                 final BoardInfoTableMember finalRow = newRow;
@@ -399,14 +377,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
     {
         int countNewMessages = 0;
         int countAllMessages = 0;
-        int countFiles = 0;
 
-        try {
-            countFiles = AppLayerDatabase.getFileListDatabaseTable().getFileCountForBoard(board);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error retrieving file count from db", e);
-        }
-        
         try {
             countNewMessages = AppLayerDatabase.getMessageTable().getMessageCount(board, 0);
         } catch (SQLException e) {
@@ -420,7 +391,6 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
 
         row.setAllMessageCount(countAllMessages);
         row.setNewMessageCount(countNewMessages);
-        row.setFilesCount(countFiles);
 
         return row;
     }
@@ -441,9 +411,6 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         dispose();
     }
 
-    /* (non-Javadoc)
-     * @see java.awt.Window#processWindowEvent(java.awt.event.WindowEvent)
-     */
     protected void processWindowEvent(WindowEvent e)
     {
         if( e.getID() == WindowEvent.WINDOW_CLOSING )
@@ -462,22 +429,14 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         Board board;
         Integer allmsg;
         Integer newmsg;
-        Integer files;
 
-        /**
-         * @param board
-         */
         public BoardInfoTableMember(Board board)
         {
             this.board = board;
             this.allmsg = null;
             this.newmsg = null;
-            this.files = null;
         }
 
-        /* (non-Javadoc)
-         * @see frost.gui.model.TableMember#getValueAt(int)
-         */
         public Object getValueAt(int column)
         {
             switch( column )
@@ -486,14 +445,10 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
                 case 1: return board.getStateString();
                 case 2: return allmsg;
                 case 3: return newmsg;
-                case 4: return files;
             }
             return "*ERR*";
         }
 
-        /* (non-Javadoc)
-         * @see frost.gui.model.TableMember#compareTo(frost.gui.model.TableMember, int)
-         */
         public int compareTo( TableMember anOther, int tableColumIndex )
         {
             Comparable c1 = (Comparable)getValueAt(tableColumIndex);
@@ -501,49 +456,21 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
             return c1.compareTo( c2 );
         }
 
-        /**
-         * @return
-         */
         public Board getBoard()
         {
             return board;
         }
 
-        /**
-         * @return
-         */
-        public Integer getFilesCount()
-        {
-            return files;
-        }
-
-        /**
-         * @param i
-         */
-        public void setFilesCount(int i)
-        {
-            files = new Integer(i);
-        }
-
-        /**
-         * @return
-         */
         public Integer getAllMessageCount()
         {
             return allmsg;
         }
 
-        /**
-         * @param i
-         */
         public void setAllMessageCount(int i)
         {
             allmsg = new Integer(i);
         }
 
-        /**
-         * @param i
-         */
         public void setNewMessageCount(int i)
         {
             newmsg = new Integer(i);
@@ -555,9 +482,6 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         Font boldFont;
         Font origFont;
 
-        /**
-         *
-         */
         public BoardInfoTableCellRenderer()
         {
             super();
@@ -565,9 +489,6 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
             boldFont = origFont.deriveFont( Font.BOLD );
         }
 
-        /* (non-Javadoc)
-         * @see javax.swing.table.TableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
-         */
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
                                                        boolean hasFocus, int row, int column)
         {

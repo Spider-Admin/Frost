@@ -22,7 +22,7 @@ package frost.threads.maintenance;
 import java.util.TimerTask;
 import java.util.logging.Logger;
 
-import frost.gui.objects.Board;
+import frost.boards.*;
 
 /**
  * @author $Author$

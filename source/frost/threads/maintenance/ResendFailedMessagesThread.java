@@ -24,7 +24,6 @@ import java.util.logging.*;
 
 import frost.*;
 import frost.boards.*;
-import frost.gui.objects.*;
 import frost.identities.*;
 import frost.messages.*;
 

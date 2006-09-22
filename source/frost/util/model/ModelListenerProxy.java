@@ -64,12 +64,12 @@ class ModelListenerProxy extends EventListenerProxy implements ModelListener {
 	 * Forwards the field item change event to the listener delegate.
 	 *
 	 * @param item the item that has changed
-	 * @param fieldID the ID of the field of the item that has changed
+	 * @param lFieldID the ID of the field of the item that has changed
 	 * @param oldValue the value the field had before the change
 	 * @param newValue the value the field has after the change
 	 */
-	public void itemChanged(ModelItem item, int fieldID, Object oldValue, Object newValue) {
-		((ModelListener)getListener()).itemChanged(item, fieldID, oldValue, newValue);
+	public void itemChanged(ModelItem item, int lFieldID, Object oldValue, Object newValue) {
+		((ModelListener)getListener()).itemChanged(item, lFieldID, oldValue, newValue);
 	}
 	
 	/**

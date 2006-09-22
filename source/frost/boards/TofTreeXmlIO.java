@@ -27,7 +27,6 @@ import javax.swing.tree.*;
 import org.w3c.dom.*;
 
 import frost.*;
-import frost.gui.objects.*;
 
 public class TofTreeXmlIO
 {
@@ -42,31 +41,27 @@ public class TofTreeXmlIO
      * Model needs to be created here because we want to expand rows on loading.
      * So we also need the tree to call expandRow() on it.
      */
-    public boolean loadBoardTree(TofTree tree, TofTreeModel model, String filename)
-    {
+    public boolean loadBoardTree(TofTree tree, TofTreeModel model, String filename) {
         Document doc = null;
         try {
             doc = XMLTools.parseXmlFile(filename, false);
         } catch(Exception ex) { ; } // xml format error
 
-        if( doc == null )
-        {
+        if( doc == null ) {
             logger.severe("Error - loadBoardTree: could'nt parse XML Document.");
             return false;
         }
 
         Element rootNode = doc.getDocumentElement();
 
-        if( rootNode.getTagName().equals("FrostBoardTree") == false )
-        {
+        if( rootNode.getTagName().equals("FrostBoardTree") == false ) {
             logger.severe("Error - boards.xml invalid: does not contain the root tag 'FrostBoardTree'");
             return false;
         }
         // check if rootnode contains only a single boardEntry wich must be a folder (root folder)
         List nodelist = XMLTools.getChildElementsByTagName(rootNode, "FrostBoardTreeEntry");
 
-        if( nodelist.size() != 1 )
-        {
+        if( nodelist.size() != 1 ) {
             logger.severe("Error - boards.xml invalid: first element must be the one and only root folder ("+
                                 nodelist.size()+")");
             return false;
@@ -330,11 +325,9 @@ public class TofTreeXmlIO
      * TREE SAVE METHODS ******************************
      **************************************************/
 
-    public boolean saveBoardTree(TofTree tree, TofTreeModel model, String filename)
-    {
+    public boolean saveBoardTree(TofTree tree, TofTreeModel model, String filename) {
         Document doc = XMLTools.createDomDocument();
-        if( doc == null )
-        {
+        if( doc == null ) {
             logger.severe("Error - saveBoardTree: factory could'nt create XML Document.");
             return false;
         }
@@ -362,10 +355,8 @@ public class TofTreeXmlIO
         try {
             writeOK = XMLTools.writeXmlFile(doc, filename);
             logger.info("Board tree saved successfully.");
-        } catch(Throwable t)
-        {
-            logger.log(Level.SEVERE, "Exception - saveBoardTree:\n" +
-                                     "ERROR saving board tree.", t);
+        } catch(Throwable t) {
+            logger.log(Level.SEVERE, "Exception - saveBoardTree", t);
         }
 
         return writeOK;

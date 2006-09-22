@@ -19,16 +19,21 @@
 
 package frost.gui.model;
 
+import java.awt.*;
+import java.text.*;
 import java.util.*;
+import java.util.List;
 
-import javax.swing.table.DefaultTableModel;
+import javax.swing.*;
+import javax.swing.table.*;
 
 import frost.messages.*;
 import frost.util.gui.translation.*;
 
-public class AttachedFilesTableModel extends DefaultTableModel implements LanguageListener
-{
+public class AttachedFilesTableModel extends DefaultTableModel implements LanguageListener {
+
     private Language language = null;
+    NumberFormat numberFormat = NumberFormat.getInstance();
 
     protected final static String columnNames[] = new String[3];
 
@@ -45,17 +50,10 @@ public class AttachedFilesTableModel extends DefaultTableModel implements Langua
         refreshLanguage();
     }
 
-    /* (non-Javadoc)
-     * @see javax.swing.table.TableModel#isCellEditable(int, int)
-     */
-    public boolean isCellEditable(int row, int col)
-    {
+    public boolean isCellEditable(int row, int col) {
         return false;
     }
 
-    /* (non-Javadoc)
-     * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
-     */
     public void languageChanged(LanguageEvent event) {
         refreshLanguage();
     }
@@ -82,37 +80,52 @@ public class AttachedFilesTableModel extends DefaultTableModel implements Langua
             if (attachment.getKey() != null && attachment.getKey().length() > 40 &&
                     attachment.getFilename() != null && attachment.getFilename().length() > 0 )
             {
-                Object[] row = {attachment.getFilename(), attachment.getSize().toString(), attachment.getKey()};
+                Object[] row = {
+                        attachment.getFilename(), 
+                        numberFormat.format( attachment.getSize().longValue() ), 
+                        attachment.getKey()};
                 addRow(row);
             }
         }
     }
 
-    /* (non-Javadoc)
-     * @see javax.swing.table.TableModel#getColumnName(int)
-     */
-    public String getColumnName(int column)
-    {
+    public String getColumnName(int column) {
         if( column >= 0 && column < columnNames.length )
             return columnNames[column];
         return null;
     }
 
-    /* (non-Javadoc)
-     * @see javax.swing.table.TableModel#getColumnCount()
-     */
-    public int getColumnCount()
-    {
+    public int getColumnCount() {
         return columnNames.length;
     }
 
-    /* (non-Javadoc)
-     * @see javax.swing.table.TableModel#getColumnClass(int)
-     */
-    public Class getColumnClass(int column)
-    {
+    public Class getColumnClass(int column) {
         if( column >= 0 && column < columnClasses.length )
             return columnClasses[column];
         return null;
+    }
+    
+    public void configureTable(JTable t) {
+        TableColumn c = t.getColumnModel().getColumn(1); // size column
+        c.setCellRenderer(new NumberRightRenderer());
+    }
+    
+    private class NumberRightRenderer extends DefaultTableCellRenderer {
+        public NumberRightRenderer() {
+            super();
+        }
+        public Component getTableCellRendererComponent(
+            JTable table,
+            Object value,
+            boolean isSelected,
+            boolean hasFocus,
+            int row,
+            int column) {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            setHorizontalAlignment(SwingConstants.RIGHT);
+            // col is right aligned, give some space to next column
+            setBorder(new javax.swing.border.EmptyBorder(0, 0, 0, 3));
+            return this;
+        }
     }
 }

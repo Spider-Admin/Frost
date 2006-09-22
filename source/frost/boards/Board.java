@@ -16,7 +16,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.gui.objects;
+package frost.boards;
 
 import java.util.*;
 
@@ -289,9 +289,6 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
         return isFolder;
     }
 
-    /* (non-Javadoc)
-     * @see javax.swing.tree.TreeNode#isLeaf()
-     */
     public boolean isLeaf() {
         return (isFolder() == false);
     }

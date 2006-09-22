@@ -24,13 +24,13 @@ import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
+import frost.fileTransfer.*;
 import frost.fileTransfer.download.*;
-import frost.fileTransfer.upload.*;
+import frost.fileTransfer.sharing.*;
 import frost.identities.*;
-import frost.messages.*;
 import frost.storage.database.applayer.*;
 
-// TODO: if add to table is slow, use Timer and add a list all 250ms
+// FIXME: adding to table is too slow, use Timer and add a list all 250ms, or bulk add all X items
 
 class SearchThread extends Thread implements FileListDatabaseTableCallback {
 
@@ -44,7 +44,6 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
     private String[] documentExtension;
     private String[] executableExtension;
     private String[] archiveExtension;
-    private List boards;
     int allFileCount;
     int maxSearchResults;
     private SearchPanel searchPanel = null;
@@ -53,10 +52,8 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
 
     private SearchModel model;
     private DownloadModel downloadModel;
-    private UploadModel uploadModel;
+    private SharedFilesModel sharedFilesModel;
 
-    private SettingsClass settings;
-    
     private boolean isStopRequested = false;
     
     private List cachedSingleRequests = null;
@@ -101,11 +98,11 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
     /**
      * Reads index file and adds search results to the search table
      */
-    private boolean getSearchResults(FrostSharedFileObject fo) {
+    private boolean getSearchResults(FrostFileListFileObject fo) {
         List sRequests = getSingleRequests();
 
-        FrostSharedFileObjectOwnerBoard ob = (FrostSharedFileObjectOwnerBoard)
-                fo.getFrostSharedFileObjectOwnerBoardList().get(0);
+        FrostFileListFileObjectOwner ob = (FrostFileListFileObjectOwner)
+                fo.getFrostFileListFileObjectOwnerList().get(0);
         
         // check for name
         String filename = ob.getName().toLowerCase().trim();
@@ -197,7 +194,7 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
     /**
      * Removes unwanted keys from results
      */
-    private boolean filterSearchResults(FrostSharedFileObject fo) {
+    private boolean filterSearchResults(FrostFileListFileObject fo) {
         if (request.indexOf("*age") != -1) {
             int agePos = request.indexOf("*age");
             int nextSpacePos = request.indexOf(" ", agePos);
@@ -215,34 +212,18 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
             long diffMillis = age * 24 * 60 * 60 * 1000;
             long minDateMillis = currentDate.getTime() - diffMillis;
             
-            if( fo.getLastReceived() != null && fo.getLastReceived().getTime() < minDateMillis ) {
+            if( fo.getLastReceived() < minDateMillis ) {
                 return false; // older than age
             }
         }
 
-        boolean hideAnon = settings.getBoolValue("hideAnonFiles");
-        boolean hideBad = settings.getBoolValue("hideBadFiles");
-
-        // hideAnonFiles: show file if at least 1 owner is not anonymous
-        if( hideAnon ) {
-            boolean accept = false;
-            for(Iterator i=fo.getFrostSharedFileObjectOwnerBoardList().iterator(); i.hasNext(); ) {
-                FrostSharedFileObjectOwnerBoard ob = (FrostSharedFileObjectOwnerBoard)i.next();
-                if( ob.getOwner() != null ) {
-                    accept = true; 
-                    break;
-                }
-            }
-            if( !accept ) {
-                return false;
-            }
-        }
+        boolean hideBad = Core.frostSettings.getBoolValue("hideBadFiles");
 
         // hideBadFiles: show file if no bad owner; or if at least 1 owner is good
         if( hideBad ) {
             boolean accept = true;
-            for(Iterator i=fo.getFrostSharedFileObjectOwnerBoardList().iterator(); i.hasNext(); ) {
-                FrostSharedFileObjectOwnerBoard ob = (FrostSharedFileObjectOwnerBoard)i.next();
+            for(Iterator i=fo.getFrostFileListFileObjectOwnerList().iterator(); i.hasNext(); ) {
+                FrostFileListFileObjectOwner ob = (FrostFileListFileObjectOwner)i.next();
                 if( ob.getOwner() != null ) {
                     Identity id = Core.getIdentities().getIdentity(ob.getOwner());
                     if (id != null ) { 
@@ -265,8 +246,6 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
 
     /**
      * Filters items by setting of Hide offline, Hide downloaded/downloading.
-     * @param state
-     * @return
      */
     private boolean filterBySearchItemState( int state ) {
         return true;
@@ -275,7 +254,7 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
     /**
      * Displays search results in search table
      */
-    private void displaySearchResults(FrostSharedFileObject fo) {
+    private void displaySearchResults(FrostFileListFileObject fo) {
 
         allFileCount++;
 
@@ -285,24 +264,24 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
             return;
         }
 
-        FrostSharedFileObjectOwnerBoard ob = (FrostSharedFileObjectOwnerBoard)
-                fo.getFrostSharedFileObjectOwnerBoardList().get(0);
+        FrostFileListFileObjectOwner ob = (FrostFileListFileObjectOwner)
+                fo.getFrostFileListFileObjectOwnerList().get(0);
 
         String filename = ob.getName();
         String keyData = fo.getKey();
-        String SHA1 = fo.getSha1();
+        String SHA1 = fo.getSha();
 
         int searchItemState = FrostSearchItem.STATE_NONE;
 
         // Already downloaded files get a nice color outfit (see renderer in SearchTable)
-        File file = new File(settings.getValue("downloadDirectory") + filename);
+        File file = new File(Core.frostSettings.getValue("downloadDirectory") + filename);
         if (file.exists()) {
             // file is already downloaded -> light_gray
             searchItemState = FrostSearchItem.STATE_DOWNLOADED;
-        } else if (downloadModel.containsItemWithKey(SHA1)) {
+        } else if (downloadModel.containsItemWithSha(SHA1)) {
             // this file is in download table -> blue
             searchItemState = FrostSearchItem.STATE_DOWNLOADING;
-        } else if (uploadModel.containsItemWithKey(SHA1)) {
+        } else if (sharedFilesModel.containsItemWithSha(SHA1)) {
             // this file is in upload table -> green
             searchItemState = FrostSearchItem.STATE_UPLOADING;
         } else if (keyData == null) {
@@ -319,7 +298,7 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
         model.addSearchItem(searchItem);
     }
     
-    public boolean fileRetrieved(FrostSharedFileObject fo) {
+    public boolean fileRetrieved(FrostFileListFileObject fo) {
         if( getSearchResults(fo) && filterSearchResults(fo) ) {
             displaySearchResults(fo);
         }
@@ -327,16 +306,12 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
     }
 
     public void run() {
-        if( boards == null ) {
-            logger.info("Search for '" + request + "' on ALL boards started.");
-        } else {
-            logger.info("Search for '" + request + "' on " + boards.size() + " boards started.");
-        }
+        logger.info("Search for '" + request + "' started.");
 
         allFileCount = 0;
 
         try {
-            AppLayerDatabase.getFileListDatabaseTable().retrieveFilesByBoards(boards, this);
+            AppLayerDatabase.getFileListDatabaseTable().retrieveFiles(this);
         } catch(SQLException e) {
             logger.log(Level.SEVERE, "Catched exception:", e);
         }
@@ -346,11 +321,9 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
 
     /**Constructor*/
     public SearchThread(String newRequest,
-            List newBoards, // a Vector containing all boards to search in, null means all boards
             String newSearchType,
             SearchManager searchManager)
     {
-        settings = searchManager.getSettings();
         request = newRequest.toLowerCase();
         if( request.length() == 0 ) {
             // default: search all
@@ -358,14 +331,13 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
         }
         model = searchManager.getModel();
         searchType = newSearchType;
-        audioExtension = settings.getArrayValue("audioExtension");
-        videoExtension = settings.getArrayValue("videoExtension");
-        documentExtension = settings.getArrayValue("documentExtension");
-        executableExtension = settings.getArrayValue("executableExtension");
-        archiveExtension = settings.getArrayValue("archiveExtension");
-        imageExtension = settings.getArrayValue("imageExtension");
-        boards = newBoards;
-        maxSearchResults = settings.getIntValue("maxSearchResults");
+        audioExtension = Core.frostSettings.getArrayValue("audioExtension");
+        videoExtension = Core.frostSettings.getArrayValue("videoExtension");
+        documentExtension = Core.frostSettings.getArrayValue("documentExtension");
+        executableExtension = Core.frostSettings.getArrayValue("executableExtension");
+        archiveExtension = Core.frostSettings.getArrayValue("archiveExtension");
+        imageExtension = Core.frostSettings.getArrayValue("imageExtension");
+        maxSearchResults = Core.frostSettings.getIntValue("maxSearchResults");
         if( maxSearchResults <= 0 ) {
             maxSearchResults = 10000; // default
         }
@@ -374,18 +346,8 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
         
         cachedSingleRequests = prepareSingleRequests(request);
         cachedRemoveStrings = prepareRemoveStrings(request);
-    }
-    /**
-     * @param model
-     */
-    public void setUploadModel(UploadModel model) {
-        uploadModel = model;
-    }
-
-    /**
-     * @param model
-     */
-    public void setDownloadModel(DownloadModel model) {
-        downloadModel = model;
+        
+        downloadModel = FileTransferManager.getInstance().getDownloadManager().getModel();
+        sharedFilesModel = FileTransferManager.getInstance().getSharedFilesManager().getModel();
     }
 }

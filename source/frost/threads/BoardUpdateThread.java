@@ -19,7 +19,7 @@
 
 package frost.threads;
 
-import frost.gui.objects.Board;
+import frost.boards.*;
 
 public interface BoardUpdateThread
 {

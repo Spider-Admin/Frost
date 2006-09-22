@@ -117,6 +117,40 @@ public class Identity implements XMLizable {
         
         uniqueName = Mixed.makeFilename(uniqueName);
     }
+    
+    // FIXME: for each new identity, check if digest is the same as created from pubKey:
+    /**
+     * This method checks if the digest of sharer matches the pubkey,
+     * and adds the NEW identity to list of neutrals.
+     * @param _sharer
+     * @param _pubkey
+     * @return
+     */
+    protected static Identity addNewSharer(String _sharer, String _pubkey) {
+
+        //check if the digest matches
+        String given_digest = _sharer.substring(_sharer.indexOf("@") + 1,
+                                                _sharer.length()).trim();
+        String calculatedDigest = Core.getCrypto().digest(_pubkey.trim()).trim();
+        calculatedDigest = Mixed.makeFilename( calculatedDigest ).trim();
+
+        if( ! Mixed.makeFilename(given_digest).equals( calculatedDigest ) ) {
+            logger.warning("Warning: public key of sharer didn't match its digest:\n" +
+                           "given digest :'" + given_digest + "'\n" +
+                           "pubkey       :'" + _pubkey.trim() + "'\n" +
+                           "calc. digest :'" + calculatedDigest + "'");
+            return null;
+        }
+        //create the identity of the sharer
+        Identity sharer = new Identity( _sharer.substring(0,_sharer.indexOf("@")), _pubkey);
+
+        //add him to the neutral list (if not already on any list)
+        sharer.setCHECK();
+        Core.getIdentities().addIdentity(sharer);
+
+        return sharer;
+    }
+
 
     public String getKey() {
         return key;
@@ -142,8 +176,8 @@ public class Identity implements XMLizable {
         return lastSeenTimestamp;
     }
 
-    public void updateLastSeenTimestamp() {
-        lastSeenTimestamp = System.currentTimeMillis();
+    public void updateLastSeenTimestamp(long v) {
+        lastSeenTimestamp = v;
         updateIdentitiesDatabaseTable();
     }
 

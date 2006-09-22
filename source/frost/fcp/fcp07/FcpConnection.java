@@ -143,7 +143,8 @@ public class FcpConnection
         // FIXME: exploit MaxRetries, MaxSize, ReturnType=disk, global queue
     	
 //    	 FIXME and useroption!!!!
-		boolean dda = (type == FcpHandler.TYPE_FILE);
+//		boolean dda = (type == FcpHandler.TYPE_FILE);
+        boolean dda = false;
 		
 		
 		// the node needs the absolute filename!
@@ -209,7 +210,8 @@ public class FcpConnection
         }
         
         if( type == FcpHandler.TYPE_FILE ) {
-            fcpOut.println("PriorityClass=4");
+//            fcpOut.println("PriorityClass=4");
+            fcpOut.println("PriorityClass=2");
         } else if( type == FcpHandler.TYPE_MESSAGE ) {
             fcpOut.println("PriorityClass=2");
         }
@@ -409,8 +411,8 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 		
 		
 		// FIXME and useroption!!!!
-		boolean dda = (type == FcpHandler.TYPE_FILE);
-		//boolean dda = false;  // disabled, node bug?  r10003
+//		boolean dda = (type == FcpHandler.TYPE_FILE);
+		boolean dda = false;  // disabled, node bug?  r10003
 		
         long dataLength = sourceFile.length();
         
@@ -440,7 +442,8 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
             	fcpOut.println("Metadata.ContentType=" + DefaultMIMETypes.guessMIMEType(sourceFile.getAbsolutePath()));
             	// TODO: 3? 4? maybee an user option?
             	// or done by the balancer (atomagically)
-                fcpOut.println("PriorityClass=3");  
+//            	fcpOut.println("PriorityClass=3");  
+            	fcpOut.println("PriorityClass=2");  
             } else if( type == FcpHandler.TYPE_MESSAGE ) {
                 fcpOut.println("PriorityClass=2");
             }

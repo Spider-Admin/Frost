@@ -17,81 +17,51 @@
 */
 package frost.fileTransfer.download;
 
-import frost.fileTransfer.search.FrostSearchItem;
-import frost.gui.objects.Board;
-import frost.util.model.ModelItem;
+import frost.*;
+import frost.fileTransfer.*;
+import frost.util.model.*;
 
 public class FrostDownloadItem extends ModelItem {
+    
+    // FIXME: from time to time, sync sharedfile against database to update sourcecount,...
 
-	// the constants representing field IDs
+    // the constants representing download states
+    public final static int STATE_WAITING    = 1; // wait for start
+    public final static int STATE_TRYING     = 2; // download running
+    public final static int STATE_DONE       = 3;
+    public final static int STATE_FAILED     = 4;
+    public final static int STATE_PROGRESS   = 5; // download runs
+    public final static int STATE_DECODING   = 6; // decoding runs
 
-	public final static int FIELD_ID_DONE_BLOCKS = 100;
-	public final static int FIELD_ID_ENABLED = 101;
-	public final static int FIELD_ID_FILE_NAME = 103; 
-	public final static int FIELD_ID_FILE_SIZE = 104;
-	public final static int FIELD_ID_KEY = 105;
-	public final static int FIELD_ID_OWNER = 106;
-	public final static int FIELD_ID_REQUIRED_BLOCKS = 107;
-	public final static int FIELD_ID_RETRIES = 108;
-	public final static int FIELD_ID_SHA1 = 109;
-	public final static int FIELD_ID_STATE = 110;
-	public final static int FIELD_ID_SOURCE_BOARD = 111;
-	public final static int FIELD_ID_TOTAL_BLOCKS = 112;
-	
-
-	// the constants representing download states
-	public final static int STATE_WAITING    = 1; // wait for start
-	public final static int STATE_TRYING     = 2; // download running
-	public final static int STATE_DONE       = 3;
-	public final static int STATE_FAILED     = 4;
-	public final static int STATE_REQUESTING = 5; // requesting missing key
-	public final static int STATE_PROGRESS   = 6; // download runs
-	public final static int STATE_REQUESTED  = 7; // missing key requested
-	public final static int STATE_DECODING   = 8; // decoding runs
-
-	// the fields
-	private String fileName = null;		//FIELD_ID_FILE_NAME
-	private Long fileSize = null;			//FIELD_ID_FILE_SIZE
-	private String key = null;			//FIELD_ID_KEY
-	private Board sourceBoard;	//FIELD_ID_SOURCE_BOARD
-	private int retries=0;			//FIELD_ID_RETRIES
-	private Boolean enableDownload = Boolean.TRUE;			//FIELD_ID_ENABLED
-	private String owner = null;			//FIELD_ID_OWNER
-	private String sha1 = null;			//FIELD_ID_SHA1
-	private int state = STATE_WAITING;				//FIELD_ID_STATE
-    private int requestedCount = 0;
-    private java.sql.Date lastRequestedDate = null;
-    // time when download try finished, used for pause between tries
-    private long lastDownloadStopTimeMillis = 0;
+	private String fileName = null;
+    private String targetPath = null;
+	private Long fileSize = null;	
+	private String key = null;
+    
+    private Boolean enableDownload = Boolean.TRUE;
+    private int state = STATE_WAITING;
+    private long downloadAddedTime = 0;
+    private long downloadStartedTime = 0;
+    private long downloadFinishedTime = 0;
+	private int retries = 0;
+    private long lastDownloadStopTime = 0;
+    private String gqId = null;
+    
+    // if this downloadfile is a shared file then this object is set
+    private FrostFileListFileObject fileListFileObject = null;
     
     // non persistent fields
-	private int doneBlocks = 0;			//FIELD_ID_DONE_BLOCKS
-	private int requiredBlocks = 0;		//FIELD_ID_REQUIRED_BLOCKS
-	private int totalBlocks = 0;			//FIELD_ID_TOTAL_BLOCKS
-	
-	/**
-	 * @param searchItem
-	 */
-	public FrostDownloadItem(FrostSearchItem searchItem) {
-		fileName = searchItem.getFilename();
-		fileSize = searchItem.getSize();
-		key = searchItem.getKey();
-		owner = searchItem.getOwner();
-		sourceBoard = searchItem.getBoard();
-		sha1 = searchItem.getSHA1();
-		retries = 0;
-
-		state = STATE_WAITING;
-	}
-
+	private int doneBlocks = 0;
+	private int requiredBlocks = 0;	
+	private int totalBlocks = 0;	
+    
     // add a file from download text box
 	public FrostDownloadItem(String fileName, String key) {
 		
 		this.fileName = fileName;
-		fileSize = null; // not set yet
 		this.key = key;
-		sourceBoard = null;
-		retries = 0;
+        
+        gqId = fileName.replace(' ', '_')+"-"+Mixed.createUniqueId();
 
 		state = STATE_WAITING;
 	}
@@ -102,39 +72,54 @@ public class FrostDownloadItem extends ModelItem {
         this.fileName = fileName;
         fileSize = s;
         this.key = key;
-        sourceBoard = null;
-        retries = 0;
+        
+        gqId = fileName.replace(' ', '_')+"-"+Mixed.createUniqueId();
+
+        state = STATE_WAITING;
+    }
+
+    // add a shared file from filelist (user searched file and choosed one of the names)
+    // FIXME: ensure that the provided infos are loaded freshly from db! maybe the search table was filled for hours
+    //   and we received a key in the meantime, ...
+    public FrostDownloadItem(FrostFileListFileObject sfo, String newName) {
+        fileName = newName;
+        fileSize = new Long(sfo.getSize());
+        key = sfo.getKey();
+
+        gqId = fileName.replace(' ', '_')+"-"+Mixed.createUniqueId();
+
+        setFileListFileObject(sfo);
 
         state = STATE_WAITING;
     }
 
     // add a saved file 
 	public FrostDownloadItem(
-		String fileName,
-		Long fileSize,
-		String key,
-		int tries,
-		String from,
-		String SHA1,
-		int state,
-		boolean isDownloadEnabled,
-		Board board,
-        int requested,
-        java.sql.Date lastReqDate,
-        long lastStopped) 
+            String newFilename,
+            String newTargetPath,
+            Long newSize,
+            String newKey,
+            Boolean newEnabledownload,
+            int newState,
+            long newDownloadAddedTime,
+            long newDownloadStartedTime,
+            long newDownloadFinishedTime,
+            int newRetries,
+            long newLastDownloadStopTime,
+            String newGqId)
     {
-		this.fileName = fileName;
-		this.fileSize = fileSize;
-		this.retries = tries;
-		this.key = key;
-		this.sourceBoard = board;
-		this.state = state;
-		this.sha1 = SHA1;
-		this.enableDownload = Boolean.valueOf(isDownloadEnabled);
-		this.owner = from;
-        this.requestedCount = requested;
-        this.lastRequestedDate = lastReqDate;
-        this.lastDownloadStopTimeMillis = lastStopped;
+        fileName = newFilename;
+        targetPath = newTargetPath;
+        fileSize = newSize;   
+        key = newKey;
+        enableDownload = newEnabledownload;
+        state = newState;
+        downloadAddedTime = newDownloadAddedTime;
+        downloadStartedTime = newDownloadStartedTime;
+        downloadFinishedTime = newDownloadFinishedTime;
+        retries = newRetries;
+        lastDownloadStopTime = newLastDownloadStopTime;
+        gqId = newGqId;
 
         // set correct state
         if (this.state != FrostDownloadItem.STATE_DONE) {
@@ -142,73 +127,64 @@ public class FrostDownloadItem extends ModelItem {
         }
 	}
 
+    public boolean isSharedFile() {
+        return getFileListFileObject() != null;
+    }
+    
+    /**
+     * Used only to set a new name if an item with same name is already in download table.
+     */
+    public void setFileName(String s) {
+        fileName = s;
+    }
 	public String getFileName() {
 		return fileName;
 	}
-	public Long getFileSize() {
+
+    public Long getFileSize() {
 		return fileSize;
 	}
-	/**
-	 * @param newFileSize
-	 */
 	public void setFileSize(Long newFileSize) {
-		Long oldFileSize = fileSize;
 		fileSize = newFileSize;
-		fireFieldChange(FIELD_ID_FILE_SIZE, oldFileSize, newFileSize);		
+        fireChange();
 	}
 
 	public String getKey() {
 		return key;
 	}
-	/**
-	 * @param newKey
-	 */
 	public void setKey(String newKey) {
-		String oldKey = key;
 		key = newKey;
-		fireFieldChange(FIELD_ID_KEY, oldKey, newKey);
-	}
-	public Board getSourceBoard() {
-		return sourceBoard;
+        fireChange();
 	}
 
 	public int getState() {
 		return state;
 	}
-	/**
-	 * @param newState
-	 */
 	public void setState(int newState) {
-		int oldState = state;
 		state = newState; 
-		fireFieldChange(FIELD_ID_STATE, oldState, newState);
+        fireChange();
 	}
 
-	public long getLastDownloadStopTimeMillis() {
-		return lastDownloadStopTimeMillis;
+	public long getLastDownloadStopTime() {
+		return lastDownloadStopTime;
 	}
-	public void setLastDownloadStopTimeMillis(long val) {
-		lastDownloadStopTimeMillis = val;
+	public void setLastDownloadStopTime(long val) {
+        lastDownloadStopTime = val;
 	}
 
 	public int getRetries() {
 		return retries;
 	}
-	/**
-	 * @param newRetries
-	 */
 	public void setRetries(int newRetries) {
-		int oldRetries = retries;
 		retries = newRetries;
-		fireFieldChange(FIELD_ID_RETRIES, oldRetries, newRetries);
+        fireChange();
 	}
 
 	public Boolean getEnableDownload() {
 		return enableDownload;
 	}
 	/**
-	 * @param enabled new enable status of the item. If null, the current 
-	 * 		  status is inverted
+	 * @param enabled new enable status of the item. If null, the current status is inverted
 	 */
 	public void setEnableDownload(Boolean newEnabled) {
 		if (newEnabled == null && enableDownload != null) {
@@ -216,106 +192,82 @@ public class FrostDownloadItem extends ModelItem {
 			boolean enable = enableDownload.booleanValue();
 			newEnabled = new Boolean(!enable);
 		}
-		Boolean oldEnabled = enableDownload;
 		enableDownload = newEnabled;
-		fireFieldChange(FIELD_ID_ENABLED, oldEnabled, newEnabled);
-	}
-	public String getOwner() {
-		return owner;
+        fireChange();
 	}
 
-	/**
-	 * @param newOwner
-	 */
-	public void setOwner(String newOwner) {
-		String oldOwner = owner;
-		owner = newOwner;
-		fireFieldChange(FIELD_ID_OWNER, oldOwner, newOwner);
-	}
-
-	public String getSHA1() {
-		return sha1;
-	}
-
-	/**
-	 * @param newSha1
-	 */
-	public void setSHA1(String newSha1) {
-		String oldSha1 = sha1;
-		sha1 = newSha1;
-		fireFieldChange(FIELD_ID_SHA1, oldSha1, newSha1);
-	}
-
-	/**
-	 * @param newFileName
-	 */
-	public void setFileName(String newFileName) {
-		String oldFileName = fileName;
-		fileName = newFileName;
-		fireFieldChange(FIELD_ID_FILE_NAME, oldFileName, newFileName);
-	}
-
-	/**
-	 * @return
-	 */
 	public int getDoneBlocks() {
 		return doneBlocks;
 	}
 
-	/**
-	 * @return
-	 */
 	public int getRequiredBlocks() {
 		return requiredBlocks;
 	}
 
-	/**
-	 * @return
-	 */
 	public int getTotalBlocks() {
 		return totalBlocks;
 	}
 
-	/**
-	 * @param newDoneBlocks
-	 */
 	public void setDoneBlocks(int newDoneBlocks) {
-		int oldDoneBlocks = doneBlocks;
 		doneBlocks = newDoneBlocks;
-		fireFieldChange(FIELD_ID_DONE_BLOCKS, oldDoneBlocks, newDoneBlocks);
+        fireChange();
 	}
 
-	/**
-	 * @param newRequiredBlocks
-	 */
 	public void setRequiredBlocks(int newRequiredBlocks) {
-		int oldRequiredBlocks = requiredBlocks;
 		requiredBlocks = newRequiredBlocks;
-		fireFieldChange(FIELD_ID_REQUIRED_BLOCKS, oldRequiredBlocks, newRequiredBlocks);
+        fireChange();
 	}
 
-	/**
-	 * @param newTotalBlocks
-	 */
 	public void setTotalBlocks(int newTotalBlocks) {
-		int oldTotalBlocks = totalBlocks; 
 		totalBlocks = newTotalBlocks;
-		fireFieldChange(FIELD_ID_TOTAL_BLOCKS, oldTotalBlocks, newTotalBlocks);
+        fireChange();
 	}
 
-    public java.sql.Date getLastRequestedDate() {
-        return lastRequestedDate;
+    public long getDownloadAddedTime() {
+        return downloadAddedTime;
     }
 
-    public void setLastRequestedDate(java.sql.Date lastRequestedDate) {
-        this.lastRequestedDate = lastRequestedDate;
+    public void setDownloadAddedTime(long downloadAddedTime) {
+        this.downloadAddedTime = downloadAddedTime;
     }
 
-    public int getRequestedCount() {
-        return requestedCount;
+    public long getDownloadFinishedTime() {
+        return downloadFinishedTime;
     }
 
-    public void setRequestedCount(int requestedCount) {
-        this.requestedCount = requestedCount;
+    public void setDownloadFinishedTime(long downloadFinishedTime) {
+        this.downloadFinishedTime = downloadFinishedTime;
+    }
+
+    public long getDownloadStartedTime() {
+        return downloadStartedTime;
+    }
+
+    public void setDownloadStartedTime(long downloadStartedTime) {
+        this.downloadStartedTime = downloadStartedTime;
+    }
+
+    public String getGqId() {
+        return gqId;
+    }
+
+    public void setGqId(String gqId) {
+        this.gqId = gqId;
+    }
+
+    public String getTargetPath() {
+        return targetPath;
+    }
+
+    public void setTargetPath(String targetPath) {
+        this.targetPath = targetPath;
+    }
+
+    public FrostFileListFileObject getFileListFileObject() {
+        return fileListFileObject;
+    }
+
+    public void setFileListFileObject(FrostFileListFileObject sharedFileObject) {
+        this.fileListFileObject = sharedFileObject;
     }
 }

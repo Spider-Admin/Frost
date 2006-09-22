@@ -27,7 +27,6 @@ import java.util.*;
 import java.util.logging.*;
 
 import frost.storage.*;
-import frost.storage.Savable;
 
 /**
  * Read settings from frost.ini and store them.
@@ -47,8 +46,7 @@ public class SettingsClass implements Savable {
     public static final String COMPACT_DBTABLES = "compactDatabaseTables";
     
     public static final String AUTO_SAVE_INTERVAL = "autoSaveInterval";
-    public static final String DISABLE_DOWNLOADS = "disableDownloads";
-    public static final String DISABLE_REQUESTS = "disableRequests";
+    public static final String DISABLE_FILESHARING = "disableFilesharing";
     public static final String DOWNLOADING_ACTIVATED = "downloadingActivated";
     public static final String LOG_FILE_SIZE_LIMIT = "logFileSizeLimit";
     public static final String LOG_LEVEL = "logLevel";
@@ -62,8 +60,6 @@ public class SettingsClass implements Savable {
     public static final String MESSAGE_LIST_FONT_NAME = "messageListFontName";
     public static final String MESSAGE_LIST_FONT_SIZE = "messageListFontSize";
     public static final String MESSAGE_LIST_FONT_STYLE = "messageListFontStyle";
-    public static final String RESTART_FAILED_UPLOADS = "restartFailedUploads";
-    public static final String SEARCH_ALL_BOARDS = "searchAllBoards";
     public static final String SHOW_DELETED_MESSAGES = "showDeletedMessages";
     public static final String SILENTLY_RETRY_MESSAGES = "silentlyRetryMessages";
     public static final String RECEIVE_DUPLICATE_MESSAGES = "receiveDuplicateMessages";
@@ -71,6 +67,7 @@ public class SettingsClass implements Savable {
     public static final String UPLOAD_RETRIES_WAIT_TIME = "uploadRetriesWaitTime";
 
     public static final String MSGTABLE_MULTILINE_SELECT = "messageTableMultilineSelect";
+    public static final String MSGTABLE_SCROLL_HORIZONTAL = "messageTableScrollHorizontal";
     public static final String SHOW_BOARDDESC_TOOLTIPS = "showBoardDescriptionTooltips";
     public static final String SHOW_BOARD_UPDATED_COUNT = "showBoardUpdatedCount";
     public static final String SHOW_BOARD_UPDATE_VISUALIZATION = "boardUpdateVisualization";
@@ -90,8 +87,9 @@ public class SettingsClass implements Savable {
     public static final String SHOW_COLORED_ROWS = "showColoredRows";
     public static final String SHOW_SMILEYS = "showSmileys";
     public static final String SHOW_KEYS_AS_HYPERLINKS = "showKeysAsHyperlinks";
+    
+    public static final String FILE_BASE = "dbgFileBase";  // FIXME: change into "fileBase" before release!!!
 
-    //Constructors
     public SettingsClass() {
         settingsHash = new Hashtable();
         // the FIX config.dir
@@ -209,8 +207,12 @@ public class SettingsClass implements Savable {
             logger.log(Level.SEVERE, "Exception thrown in readSettingsFile()", e);
         }
 
-        if (this.getValue("messageBase").equals("")) {
+        if (this.getValue("messageBase").length() == 0) {
             this.setValue("messageBase", "news");
+        }
+
+        if (this.getValue("fileBase").length() == 0) {
+            this.setValue("fileBase", "files");
         }
 
         logger.info("Read user configuration");
@@ -578,6 +580,8 @@ public class SettingsClass implements Savable {
         defaults.put("lastUsedDirectory", "." + fs);
 
         defaults.put("mainframe.showSimpleTitle", "false");
+        
+        defaults.put(DISABLE_FILESHARING, "false");
 
         defaults.put("allowEvilBert", "false");
         defaults.put("altEdit", fn + "path" + fs + "to" + fs + "editor" + " %f");
@@ -609,30 +613,24 @@ public class SettingsClass implements Savable {
 
         defaults.put("downloadThreads", "3");
         defaults.put(DOWNLOADING_ACTIVATED, "true");
-        //        defaults.put("downloadMethodLeastHtl", "false");
-        //        defaults.put("downloadMethodOneByOne", "true");
-        defaults.put("downloadRestartFailedDownloads", "true");
-        defaults.put("downloadEnableRequesting", "true");
 
-        defaults.put("downloadRequestAfterTries", "5");
-        defaults.put("downloadMaxRetries", "5");
+        defaults.put("downloadMaxRetries", "25");
         defaults.put("downloadWaittime", "5");
 
         defaults.put("downloadDecodeAfterEachSegment", "true");
         defaults.put("downloadTryAllSegments", "true");
 
-        defaults.put(DISABLE_REQUESTS, "false");
-        defaults.put(DISABLE_DOWNLOADS, "false");
         defaults.put("htlUpload", "21");
         defaults.put("maxAge", "5");
         defaults.put("maxMessageDisplay", "15");
         defaults.put("maxMessageDownload", "5");
+        
         defaults.put("messageBase", "news");
+        defaults.put("fileBase", "files");
 
         defaults.put("showSystrayIcon", "true");
         defaults.put("removeFinishedDownloads", "false");
         defaults.put("reducedBlockCheck", "false");
-        defaults.put(SEARCH_ALL_BOARDS, "true");
         defaults.put("maxSearchResults", "10000");
         defaults.put("splitfileDownloadThreads", "30");
         defaults.put("splitfileUploadThreads", "15");
@@ -682,6 +680,8 @@ public class SettingsClass implements Savable {
 
         defaults.put("messageBodyAA", "false");
         defaults.put(MSGTABLE_MULTILINE_SELECT, "false");
+        defaults.put(MSGTABLE_SCROLL_HORIZONTAL, "false");
+        
         defaults.put(SHOW_BOARDDESC_TOOLTIPS, "true");
 
         defaults.put(LOG_TO_FILE, "true");
@@ -692,7 +692,6 @@ public class SettingsClass implements Savable {
         defaults.put(SHOW_DELETED_MESSAGES, "false");
         defaults.put(RECEIVE_DUPLICATE_MESSAGES, "false");
 
-        defaults.put(RESTART_FAILED_UPLOADS, "true");
         defaults.put(UPLOAD_MAX_RETRIES, "5");
         defaults.put(UPLOAD_RETRIES_WAIT_TIME, "5");
 

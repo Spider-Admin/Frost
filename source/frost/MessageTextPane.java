@@ -32,10 +32,10 @@ import javax.swing.event.*;
 import javax.swing.table.*;
 import javax.swing.text.*;
 
+import frost.boards.*;
 import frost.fileTransfer.download.*;
 import frost.gui.*;
 import frost.gui.model.*;
-import frost.gui.objects.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;
 import frost.util.gui.*;
@@ -213,6 +213,7 @@ public class MessageTextPane extends JPanel {
         // build attached files scroll pane
         attachedFilesModel = new AttachedFilesTableModel();
         filesTable = new JTable(attachedFilesModel);
+        attachedFilesModel.configureTable(filesTable);
         filesTableScrollPane = new JScrollPane(filesTable);
         filesTableScrollPane.setWheelScrollingEnabled(true);
 

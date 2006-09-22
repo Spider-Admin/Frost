@@ -34,7 +34,6 @@ import javax.swing.table.*;
 import frost.*;
 import frost.boards.*;
 import frost.gui.model.*;
-import frost.gui.objects.*;
 import frost.storage.*;
 import frost.storage.database.applayer.*;
 import frost.util.gui.*;

@@ -23,7 +23,7 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
-import frost.gui.objects.*;
+import frost.boards.*;
 
 /**
  * TODO: archive identities.xml too

@@ -32,9 +32,6 @@ public class OrderedModel extends Model {
 	
 	private OrderedModelChangeSupport changeSupport;
 
-	/**
-	 * 
-	 */
 	public OrderedModel() {
 		super();
 		data = new ArrayList();
@@ -51,10 +48,6 @@ public class OrderedModel extends Model {
 		item.setModel(this);
 	}
 	
-	/**
-	 * @param item
-	 * @param position
-	 */
 	protected void addItem(ModelItem item, int position) {
 		synchronized(data) {
 			data.add(position, item);
@@ -196,6 +189,13 @@ public class OrderedModel extends Model {
 	public int getItemCount() {
 		return data.size();
 	}
+    
+    /**
+     * @return  a new List containing all items of this model, in unspecific order
+     */
+    public List getItems() {
+        return new ArrayList(data);
+    }
 	
 	/**
 	 * Returns the index in this model of the first occurrence of the specified
@@ -245,5 +245,4 @@ public class OrderedModel extends Model {
 			return false;	
 		}
 	}
-
 }

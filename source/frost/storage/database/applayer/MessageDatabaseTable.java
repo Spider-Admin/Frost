@@ -23,7 +23,7 @@ import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
-import frost.gui.objects.*;
+import frost.boards.*;
 import frost.identities.*;
 import frost.messages.*;
 import frost.storage.database.*;

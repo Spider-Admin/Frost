@@ -218,7 +218,7 @@ public class MessageDownloader {
             // only for correct owner (no faking allowed here)
             if( sigIsValid ) {
                 // update lastSeen for this Identity
-                owner.updateLastSeenTimestamp();
+                owner.updateLastSeenTimestamp(System.currentTimeMillis()); // TODO: we should set the time from message!
             }
     
             // now check if msg is encrypted and for me, if yes decrypt the zipped data
@@ -401,7 +401,7 @@ public class MessageDownloader {
             }
             
             // update lastSeen for this Identity
-            owner.updateLastSeenTimestamp();
+            owner.updateLastSeenTimestamp(System.currentTimeMillis()); // TODO: we should set the time from message!
 
             currentMsg.setSignatureStatusVERIFIED();
             mdResult.message = currentMsg;

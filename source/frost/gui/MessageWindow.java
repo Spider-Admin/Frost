@@ -24,7 +24,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import frost.*;
-import frost.gui.objects.*;
+import frost.messages.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 

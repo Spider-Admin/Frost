@@ -23,58 +23,45 @@ import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
-import frost.*;
+import frost.fileTransfer.sharing.*;
 import frost.fileTransfer.upload.*;
-import frost.gui.objects.*;
 import frost.storage.database.*;
 
+/**
+ * This table contains the currently uploaded files and their state.
+ * Onyl manually added files are saved, the uploading shared files have their own state,
+ * but both types of files appear in the GUI upload table.
+ */
 public class UploadFilesDatabaseTable extends AbstractDatabaseTable {
 
     private static Logger logger = Logger.getLogger(UploadFilesDatabaseTable.class.getName());
     
-    // FIXME: this table should track only the currently uploaded files, either manually added or from SharedFiles!
-
     private final static String SQL_FILES_DDL =
         "CREATE TABLE UPLOADFILES ("+
-        "primkey BIGINT NOT NULL,"+
-        "sha1 VARCHAR NOT NULL,"+
-        "name VARCHAR NOT NULL,"+
-        "path VARCHAR NOT NULL,"+   // complete path, with name
-        "size BIGINT NOT NULL,"+
-        "fnkey VARCHAR,"+           // if NULL file was not uploaded by us yet
-        "lastuploaded DATE,"+       // date of last successful upload
-        "uploadcount INT,"+         // number of uploads for this file so far
-        "lastrequested DATE,"+      // date of last request (from any board)
-        "requestcount INT,"+        // number of requests received for this file so far
-        "state INT,"+
-        "enabled BOOLEAN,"+         // is upload enabled?
-        "laststopped TIMESTAMP NOT NULL,"+   // time of last start of upload
-        "retries INT,"+             // number of upload tries, set to 0 on any successful upload
-        "CONSTRAINT ulfiles_pk PRIMARY KEY (primkey),"+
-        "CONSTRAINT UPLOADFILES_1 UNIQUE(sha1) )";
-
-    // TODO: wie NEWUPLOADFILES darstellen? erstmal als grau in die table, oder einfach einen todo-count ueber die table?
-    
-    private final static String SQL_OWNER_BOARD_DDL =
-        "CREATE TABLE UPLOADFILESOWNERBOARD ("+
-        "refkey BIGINT NOT NULL,"+
-        "board INT NOT NULL,"+   // targetboard
-        "fromname VARCHAR,"+         // if NULL we upload this file as anonymous
-        "lastshared DATE,"+          // date when we sent this file in our index for this board
-        // UNIQUE(refkey,board)!!!
-        "CONSTRAINT UFOB_FK FOREIGN KEY (refkey) REFERENCES UPLOADFILES(primkey) ON DELETE CASCADE,"+
-        "CONSTRAINT UFOB_FK2 FOREIGN KEY (board) REFERENCES BOARDS(primkey) ON DELETE CASCADE )";
+          "path VARCHAR NOT NULL,"+   // complete path, with name
+          "size BIGINT NOT NULL,"+
+          "fnkey VARCHAR,"+           // if NULL file was not uploaded by us yet
+          
+          "enabled BOOLEAN,"+         // is upload enabled?
+          "state INT,"+  // uploading, waiting, finished
+          "uploadaddedtime BIGINT,"+
+          "uploadstartedtime BIGINT,"+
+          "uploadfinishedtime BIGINT,"+
+          "retries INT,"+             // number of upload tries, set to 0 on any successful upload
+          "lastuploadstoptime BIGINT,"+ // millis when upload stopped the last time, needed to schedule uploads
+          "gqid VARCHAR,"+             // global queue identifier (name-unique_id)
+          
+          "sharedfilessha VARCHAR,"+   // if set then this uploadfile is a shared file
+        "CONSTRAINT UPLOADFILES_1 UNIQUE(path) )";
 
     public List getTableDDL() {
-        ArrayList lst = new ArrayList(2);
+        ArrayList lst = new ArrayList(1);
         lst.add(SQL_FILES_DDL);
-        lst.add(SQL_OWNER_BOARD_DDL);
         return lst;
     }
     
     public boolean compact(Statement stmt) throws SQLException {
         stmt.executeUpdate("COMPACT TABLE UPLOADFILES");
-        stmt.executeUpdate("COMPACT TABLE UPLOADFILESOWNERBOARD");
         return true;
     }
 
@@ -84,93 +71,65 @@ public class UploadFilesDatabaseTable extends AbstractDatabaseTable {
         
         Statement s = db.createStatement();
         s.executeUpdate("DELETE FROM UPLOADFILES"); // delete all
-        s.executeUpdate("DELETE FROM UPLOADFILESOWNERBOARD"); // delete all
 
         PreparedStatement ps = db.prepare(
-                "INSERT INTO UPLOADFILES (primkey,sha1,name,path,size,fnkey,lastuploaded,uploadcount,lastrequested,requestcount,"+
-                "state,enabled,laststopped,retries) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
-
-        PreparedStatement ps2 = db.prepare("INSERT INTO UPLOADFILESOWNERBOARD (refkey,board,fromname,lastshared) VALUES (?,?,?,?)");
+                "INSERT INTO UPLOADFILES ("+
+                  "path,size,fnkey,enabled,state," +
+                  "uploadaddedtime,uploadstartedtime,uploadfinishedtime,retries,lastuploadstoptime,gqid," +
+                  "sharedfilessha) "+
+                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
         
         for(Iterator i=uploadFiles.iterator(); i.hasNext(); ) {
 
             FrostUploadItem ulItem = (FrostUploadItem)i.next();
             
-            Long identity = null;
-            Statement stmt = AppLayerDatabase.getInstance().createStatement();
-            ResultSet rs = stmt.executeQuery("select UNIQUEKEY('UPLOADFILES')");
-            if( rs.next() ) {
-                identity = new Long(rs.getLong(1));
-            } else {
-                logger.log(Level.SEVERE,"Could not retrieve a new unique key!");
-            }
-            rs.close();
-            stmt.close();
-
             int ix=1;
-            ps.setLong(ix++, identity.longValue());
-            ps.setString(ix++, ulItem.getSHA1());
-            ps.setString(ix++, ulItem.getFileName());
-            ps.setString(ix++, ulItem.getFilePath());
+            ps.setString(ix++, ulItem.getFile().getPath());
             ps.setLong(ix++, ulItem.getFileSize());
             ps.setString(ix++, ulItem.getKey());
-            ps.setDate(ix++, ulItem.getLastUploadDate());
-            ps.setInt(ix++, ulItem.getUploadCount());
-            ps.setDate(ix++, ulItem.getLastRequestedDate());
-            ps.setInt(ix++, ulItem.getRequestedCount());
-            ps.setInt(ix++, ulItem.getState());
             ps.setBoolean(ix++, (ulItem.isEnabled()==null?true:ulItem.isEnabled().booleanValue()));
-            ps.setTimestamp(ix++, new java.sql.Timestamp(ulItem.getLastUploadStopTimeMillis()));
+            ps.setInt(ix++, ulItem.getState());
+            ps.setLong(ix++, ulItem.getUploadAddedMillis());
+            ps.setLong(ix++, ulItem.getUploadStartedMillis());
+            ps.setLong(ix++, ulItem.getUploadFinishedMillis());
             ps.setInt(ix++, ulItem.getRetries());
+            ps.setLong(ix++, ulItem.getLastUploadStopTimeMillis());
+            ps.setString(ix++, ulItem.getGqIdentifier());
+            
+            ps.setString(ix++, (ulItem.getSharedFileItem()==null?null:ulItem.getSharedFileItem().getSha()));
             
             ps.executeUpdate();
-            
-            // insert all owner/board refs
-            for(Iterator j=ulItem.getFrostUploadItemOwnerBoardList().iterator(); j.hasNext(); ) {
-                FrostUploadItemOwnerBoard fuiob = (FrostUploadItemOwnerBoard)j.next();
-                ix=1;
-                ps2.setLong(ix++, identity.longValue());
-                ps2.setInt(ix++, fuiob.getTargetBoard().getPrimaryKey().intValue());
-                ps2.setString(ix++, fuiob.getOwner());
-                ps2.setDate(ix++, fuiob.getLastSharedDate());
-                ps2.executeUpdate();
-            }
         }
         ps.close();
-        ps2.close();
     }
     
-    public List loadUploadFiles() throws SQLException {
+    public List loadUploadFiles(List sharedFiles) throws SQLException {
 
         LinkedList uploadItems = new LinkedList();
         
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
         PreparedStatement ps = db.prepare(
-                "SELECT primkey,sha1,name,path,size,fnkey,lastuploaded,uploadcount,lastrequested,requestcount,"+
-                "state,enabled,laststopped,retries FROM UPLOADFILES");
+                "SELECT path,size,fnkey,enabled,state," +
+                "uploadaddedtime,uploadstartedtime,uploadfinishedtime,retries,lastuploadstoptime,gqid,sharedfilessha "+
+                "FROM UPLOADFILES");
 
-        PreparedStatement ps2 = db.prepare("SELECT board,fromname,lastshared FROM UPLOADFILESOWNERBOARD "+
-                "WHERE refkey=?");
-        
         ResultSet rs = ps.executeQuery();
         while(rs.next()) {
-            int ix=1;
-            long primkey = rs.getLong(ix++);
-            
-            String sha1 = rs.getString(ix++);
-            String filename = rs.getString(ix++);
+            int ix = 1;
             String filepath = rs.getString(ix++);
             long filesize = rs.getLong(ix++);
             String key = rs.getString(ix++);
-            java.sql.Date lastUploadDate = rs.getDate(ix++);
-            int uploadCount = rs.getInt(ix++);
-            java.sql.Date lastRequestedDate = rs.getDate(ix++);
-            int requestedCount = rs.getInt(ix++);
-            int state = rs.getInt(ix++);
             boolean isEnabled = rs.getBoolean(ix++);
-            long lastUploadStopMillis = rs.getTimestamp(ix++).getTime();
+            int state = rs.getInt(ix++);
+            long uploadAddedTime = rs.getLong(ix++);
+            long uploadStartedTime = rs.getLong(ix++);
+            long uploadFinishedTime = rs.getLong(ix++);
             int retries = rs.getInt(ix++);
+            long lastUploadStopMillis = rs.getLong(ix++);
+            String gqId = rs.getString(ix++);
+            
+            String sharedFilesSha = rs.getString(ix++);
             
             File file = new File(filepath);
             if( !file.isFile() ) {
@@ -182,57 +141,40 @@ public class UploadFilesDatabaseTable extends AbstractDatabaseTable {
                 continue;
             }
             
+            FrostSharedFileItem sharedFileItem = null;
+            if( sharedFilesSha != null && sharedFilesSha.length() > 0 ) {
+                for(Iterator i = sharedFiles.iterator(); i.hasNext(); ) {
+                    FrostSharedFileItem s = (FrostSharedFileItem)i.next();
+                    if( s.getSha().equals(sharedFilesSha) ) {
+                        sharedFileItem = s;
+                        break;
+                    }
+                }
+                if( sharedFileItem == null ) {
+                    logger.warning("Upload items shared file object does not exist, removed from upload files: "+filepath);
+                    continue;
+                }
+            }
+            
             FrostUploadItem ulItem = new FrostUploadItem(
-                    sha1,
-                    filename,
-                    filepath,
+                    file,
                     filesize,
                     key,
-                    lastUploadDate,
-                    uploadCount,
-                    lastRequestedDate,
-                    requestedCount,
-                    state,
                     isEnabled,
+                    state,
+                    uploadAddedTime,
+                    uploadStartedTime,
+                    uploadFinishedTime,
+                    retries,
                     lastUploadStopMillis,
-                    retries);
-
-            ps2.setLong(1, primkey);
-            ResultSet rs2 = ps2.executeQuery();
-            while(rs2.next()) {
-                int boardIx = rs2.getInt(1);
-                String fromname = rs2.getString(2);
-                java.sql.Date lastshared = rs2.getDate(3);
-
-                Board board = null;
-                board = MainFrame.getInstance().getTofTreeModel().getBoardByPrimaryKey(new Integer(boardIx));
-                if (board == null) {
-                    logger.warning("Upload item found (" + filename + ") whose target board (" +
-                            boardIx + ") does not exist. Board reference removed.");
-                    continue;
-                }
-                
-                if( fromname != null && Core.getIdentities().isMySelf(fromname) == false ) {
-                    logger.warning("Own identity does not longer exist, owner reference removed: "+fromname);
-                    continue;
-                }
-
-                FrostUploadItemOwnerBoard ob = new FrostUploadItemOwnerBoard(ulItem, board, fromname, lastshared);
-                ulItem.addFrostUploadItemOwnerBoard(ob);
-            }
-            rs2.close();
+                    gqId);
             
-            if( ulItem.getFrostUploadItemOwnerBoardList().size() == 0 ) {
-                // drop item, no board
-                logger.warning("Upload item removed, no single board/owner ref found: "+filepath);
-                continue;
-            }
-            
+            ulItem.setSharedFileItem(sharedFileItem);
+
             uploadItems.add(ulItem);
         }
         rs.close();
         ps.close();
-        ps2.close();
 
         return uploadItems;
     }

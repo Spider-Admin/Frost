@@ -86,7 +86,6 @@ public class MessageUploadFailedDialog extends JDialog {
     public static final int RETRY_NEXT_STARTUP_VALUE = 2;
     public static final int DISCARD_VALUE = 3;
 
-    private JPanel messagePanel;
     private JButton retryButton, discardButton, tryOnNextStartupButton;
     private String retryButtonText;
     private RetryButtonTimer timer;

@@ -18,18 +18,19 @@
 */
 package frost.fileTransfer.search;
 
-import frost.gui.objects.Board;
-import frost.messages.*;
-import frost.util.model.ModelItem;
+import frost.*;
+import frost.fileTransfer.*;
+import frost.util.model.*;
 
 public class FrostSearchItem extends ModelItem {
 
-    private FrostSharedFileObject fo;
-    private FrostSharedFileObjectOwnerBoard ob;
+    private FrostFileListFileObject fo;
     private int state;
     
     private Long sizeLong = null;
     private String dateStr = null;
+    private Integer rating = null;
+    private Integer sourceCount = null;
 
     public static final int STATE_NONE        = 1; // set if a search table item is only in search table
     public static final int STATE_DOWNLOADED  = 2; // set if the item is already downloaded and is found in download folder
@@ -37,19 +38,27 @@ public class FrostSearchItem extends ModelItem {
     public static final int STATE_UPLOADING   = 4; // set if file is in upload table
     public static final int STATE_OFFLINE     = 5; // set if file is offline
 
-    public FrostSearchItem(
-        FrostSharedFileObject newKey,
-        int newState) 
-    {
+    public FrostSearchItem(FrostFileListFileObject newKey, int newState) {
         fo = newKey;
-        // FIXME: show multiple
-        ob = (FrostSharedFileObjectOwnerBoard)fo.getFrostSharedFileObjectOwnerBoardList().get(0);
-        
         state = newState;
     }
 
     public String getFilename() {
-        return ob.getName();
+        return fo.getDisplayName();
+    }
+
+    public String getComment() {
+        if( fo.getDisplayComment() == null ) {
+            return "";
+        }
+        return fo.getDisplayComment();
+    }
+
+    public Integer getRating() {
+        if( rating == null ) {
+            rating = new Integer(fo.getDisplayRating());
+        }
+        return rating;
     }
 
     public Long getSize() {
@@ -61,7 +70,8 @@ public class FrostSearchItem extends ModelItem {
 
     public String getDate() {
         if( dateStr == null ) {
-            dateStr = (ob.getLastUploaded()==null?"Never":ob.getLastUploaded().toString());
+            long lastUploaded = fo.getDisplayLastUploaded(); 
+            dateStr = (lastUploaded==0?"Never":DateFun.getExtendedDateFromMillis(lastUploaded));
         }
         return dateStr;
     }
@@ -70,23 +80,22 @@ public class FrostSearchItem extends ModelItem {
         return fo.getKey();
     }
 
-    public Board getBoard() {
-        return ob.getBoard();
-    }
-
     public int getState() {
         return state;
     }
 
-    public String getOwner() {
-        return ob.getOwner();
-    }
-
-    public String getSHA1() {
-        return fo.getSha1();
+    public String getSha() {
+        return fo.getSha();
     }
     
-    public FrostSharedFileObject getFrostSharedFileObject() {
+    public FrostFileListFileObject getFrostFileListFileObject() {
         return fo;
+    }
+    
+    public Integer getSourceCount() {
+        if( sourceCount == null ) {
+            sourceCount = new Integer(fo.getFrostFileListFileObjectOwnerList().size());
+        }
+        return sourceCount;
     }
 }
