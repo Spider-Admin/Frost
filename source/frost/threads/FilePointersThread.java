@@ -162,7 +162,7 @@ System.out.println("readPointerFile: result: "+content);
         while( true ) {
             
             // +1 for today
-            final int downloadBack = 1 + Core.frostSettings.getIntValue("maxMessageDownload");
+            final int downloadBack = 1 + Core.frostSettings.getIntValue(SettingsClass.MAX_FILELIST_DOWNLOAD_DAYS);
             try {
                 for (int i=0; i < downloadBack; i++) {
                     boolean isForToday;
