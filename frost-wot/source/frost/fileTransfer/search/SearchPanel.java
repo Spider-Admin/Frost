@@ -36,6 +36,8 @@ import frost.util.model.gui.*;
 
 class SearchPanel extends JPanel {
     
+    // FIXME: open tabs for new searches, use CloseableTabbedPane
+    
     private SearchManager searchManager;
 
     private static Logger logger = Logger.getLogger(SearchPanel.class.getName());
@@ -43,8 +45,6 @@ class SearchPanel extends JPanel {
     private PopupMenuSearch popupMenuSearch = null;
 
     private Listener listener = new Listener();
-
-    private SearchModel model = null;
 
     private Language language = null;
 
@@ -54,7 +54,10 @@ class SearchPanel extends JPanel {
     private JButton downloadButton = new JButton(new ImageIcon(getClass().getResource("/data/save.gif")));
     private JLabel searchResultsCountLabel = new JLabel();
     private JTextField searchTextField = new JTextField(25);
+
+    // move into a tabbed pane
     private SortedModelTable modelTable;
+    private SearchModel model = null;
 
     private boolean initialized = false;
 

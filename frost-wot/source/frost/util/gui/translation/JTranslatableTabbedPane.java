@@ -18,7 +18,8 @@
 */
 package frost.util.gui.translation;
 
-import javax.swing.JTabbedPane;
+import javax.swing.*;
+
 
 /**
  * This subclass of JTabbedPane lets the user add tabs and get their index

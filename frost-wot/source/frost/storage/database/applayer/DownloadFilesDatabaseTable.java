@@ -86,7 +86,7 @@ public class DownloadFilesDatabaseTable extends AbstractDatabaseTable {
             ps.setString(ix++, dlItem.getFileName());
             ps.setString(ix++, dlItem.getTargetPath());
             ps.setLong(ix++, (dlItem.getFileSize()==null?0:dlItem.getFileSize().longValue()));
-            ps.setString(ix++, (dlItem.getKey()==null?"":dlItem.getKey()));
+            ps.setString(ix++, dlItem.getKey());
             ps.setBoolean(ix++, (dlItem.getEnableDownload()==null?true:dlItem.getEnableDownload().booleanValue()));
             ps.setInt(ix++, dlItem.getState());
             ps.setLong(ix++, dlItem.getDownloadAddedTime());
@@ -95,7 +95,7 @@ public class DownloadFilesDatabaseTable extends AbstractDatabaseTable {
             ps.setInt(ix++, dlItem.getRetries());
             ps.setLong(ix++, dlItem.getLastDownloadStopTime());
             ps.setString(ix++, dlItem.getGqId());
-            ps.setString(ix++, (dlItem.getFileListFileObject()==null?"":dlItem.getFileListFileObject().getSha()));
+            ps.setString(ix++, dlItem.getFileListFileObject()==null?null:dlItem.getFileListFileObject().getSha());
             
             ps.executeUpdate();
         }
@@ -131,7 +131,7 @@ public class DownloadFilesDatabaseTable extends AbstractDatabaseTable {
             String sharedFileSha = rs.getString(ix++);
             
             FrostFileListFileObject sharedFileObject = null;
-            if( sharedFileSha.length() > 0 ) {
+            if( sharedFileSha != null && sharedFileSha.length() > 0 ) {
                 sharedFileObject = AppLayerDatabase.getFileListDatabaseTable().retrieveFileBySha(sharedFileSha);
                 if( sharedFileObject == null && key == null ) {
                     // no fileobject and no key -> we can't continue to download this file
@@ -144,7 +144,7 @@ public class DownloadFilesDatabaseTable extends AbstractDatabaseTable {
                     filename,
                     targetPath,
                     (size==0?null:new Long(size)),
-                    (key.length()==0?null:key),
+                    key,
                     Boolean.valueOf(enabledownload),
                     state,
                     downloadAddedTime,
