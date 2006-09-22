@@ -88,7 +88,7 @@ public class SettingsClass implements Savable {
     public static final String SHOW_SMILEYS = "showSmileys";
     public static final String SHOW_KEYS_AS_HYPERLINKS = "showKeysAsHyperlinks";
     
-    public static final String FILE_BASE = "dbgFileBase";  // FIXME: change into "fileBase" before release!!!
+    public static final String FILE_BASE = "fileBase";
 
     public SettingsClass() {
         settingsHash = new Hashtable();
@@ -211,9 +211,11 @@ public class SettingsClass implements Savable {
             this.setValue("messageBase", "news");
         }
 
-        if (this.getValue("fileBase").length() == 0) {
-            this.setValue("fileBase", "files");
-        }
+//        if (this.getValue(FILE_BASE).length() == 0) {
+//            this.setValue(FILE_BASE, "files");
+//        }
+        // FIXME: remove for release and use the lines above
+        this.setValue(FILE_BASE, "testfiles1");
 
         logger.info("Read user configuration");
         return true;
