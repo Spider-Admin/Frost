@@ -90,7 +90,7 @@ public class SettingsClass implements Savable {
     
     public static final String FILE_BASE = "fileBase";
     public static final String MIN_DAYS_BEFORE_FILE_RESHARE = "minDaysBeforeFileReshare";
-    public static final String MAX_FILELIST_DOWNLOAD_DAYS = "fileBase";
+    public static final String MAX_FILELIST_DOWNLOAD_DAYS = "fileListDownloadDays";
 
     public SettingsClass() {
         settingsHash = new Hashtable();
