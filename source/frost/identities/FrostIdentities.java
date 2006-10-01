@@ -112,27 +112,58 @@ public class FrostIdentities implements Savable {
 
         LocalIdentity newIdentity = null;
         
-        // create new identitiy
+        // create new identitiy, get a valid username
         try {
             String nick = null;
+            boolean isNickOk;
             do {
-                nick = MiscToolkit.getInstance().showInputDialog(
-                        language.getString("Core.loadIdentities.ChooseName"));
-                if (!(nick == null || nick.length() == 0)) {
-                    // check for a '@' in nick, this is strongly forbidden
-                    if (nick.indexOf("@") > -1) {
-                        MiscToolkit.getInstance().showMessage(
-                                language.getString("Core.loadIdentities.InvalidNameBody"),
-                                JOptionPane.ERROR_MESSAGE,
-                                language.getString("Core.loadIdentities.InvalidNameTitle"));
-                        nick = "";
+                nick = MiscToolkit.getInstance().showInputDialog(language.getString("Core.loadIdentities.ChooseName"));
+                
+                if( nick == null ) {
+                    break; // user cancelled
+                }
+                
+                nick = nick.trim(); // not only blanks, no trailing/leading blanks 
+                
+                isNickOk = true;
+                
+                // check for invalid values
+                if(nick.length() < 2 || nick.length() > 32 ) {
+                    isNickOk = false; // not only 1 character or more than 32 characters
+                } else if (nick.indexOf("@") > -1) {
+                    isNickOk = false; // @ is forbidden
+                } else if( !Character.isLetter(nick.charAt(0)) ) {
+                    isNickOk = false; // must start with an alphanumeric character
+                } else {
+                    char oldChar = 0;
+                    int charCount = 0;
+                    for(int x=0; x < nick.length(); x++) {
+                        if( nick.charAt(x) == oldChar ) {
+                            charCount++;
+                        } else {
+                            oldChar = nick.charAt(x);
+                            charCount = 1;
+                        }
+                        if( charCount > 3 ) {
+                            isNickOk = false; // not more than 3 occurences of the same character in a row
+                            break;
+                        }
                     }
                 }
-            } while (nick != null && nick.length() == 0);
+                
+                if( !isNickOk ) {
+                    MiscToolkit.getInstance().showMessage(
+                            language.getString("Core.loadIdentities.InvalidNameBody"),
+                            JOptionPane.ERROR_MESSAGE,
+                            language.getString("Core.loadIdentities.InvalidNameTitle"));
+                }
+            } while(!isNickOk);
+            
             if (nick == null) {
-                return null;
+                return null; // user cancelled
             }
-            do { //make sure there's no // in the name.
+            
+            do { //make sure there's no '//' in the generated sha checksum
                 newIdentity = new LocalIdentity(nick);
             } while (newIdentity.getUniqueName().indexOf("//") != -1);
 
