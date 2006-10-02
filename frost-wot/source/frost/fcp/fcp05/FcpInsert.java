@@ -340,7 +340,7 @@ RawDataLength=0
                 PutKeyThread thread = new PutKeyThread( splitfile, block, htl, uri );
                 runningThreads.add( thread );
                 thread.start();
-                Mixed.wait(1111);
+                Mixed.waitRandom(3000);
                 continue;
             }
             // wait before next loop

@@ -921,7 +921,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             }
         }
         
-        MessageFrame newMessageFrame = new MessageFrame(settings, parent, mainFrame.getTofTree());
+        MessageFrame newMessageFrame = new MessageFrame(settings, parent);
         if( origMessage.getRecipientName() != null ) {
             // this message was for me, reply encrypted
             if( origMessage.getFromIdentity() == null ) {
@@ -1279,8 +1279,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     private void tofNewMessageButton_actionPerformed(ActionEvent e) {
         MessageFrame newMessageFrame = new MessageFrame(
                                                 settings, 
-                                                mainFrame,
-                                                mainFrame.getTofTree());
+                                                mainFrame);
         newMessageFrame.composeNewMessage(mainFrame.getTofTreeModel().getSelectedNode(),
                                           "No subject",
                                           "");

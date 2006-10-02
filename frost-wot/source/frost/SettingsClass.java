@@ -65,6 +65,7 @@ public class SettingsClass implements Savable {
     public static final String RECEIVE_DUPLICATE_MESSAGES = "receiveDuplicateMessages";
     public static final String UPLOAD_MAX_RETRIES = "uploadMaxRetries";
     public static final String UPLOAD_RETRIES_WAIT_TIME = "uploadRetriesWaitTime";
+    public static final String ALWAYS_DOWNLOAD_MESSAGES_BACKLOAD = "alwaysDownloadMessagesBackload";
 
     public static final String MSGTABLE_MULTILINE_SELECT = "messageTableMultilineSelect";
     public static final String MSGTABLE_SCROLL_HORIZONTAL = "messageTableScrollHorizontal";
@@ -180,9 +181,7 @@ public class SettingsClass implements Savable {
                             }
                         }
                         // scan all path config values and set correct system file separator
-                        else if (
-                            key.equals("unsent.dir")
-                                || key.equals("sent.dir")
+                        else if (key.equals("sent.dir")
                                 || key.equals("temp.dir")
                                 || key.equals("keypool.dir")
                                 || key.equals("archive.dir")
@@ -576,7 +575,7 @@ public class SettingsClass implements Savable {
         
         // DIRECTORIES
         defaults.put("keypool.dir", "keypool" + fs);
-        defaults.put("unsent.dir", "localdata" + fs + "unsent" + fs);
+//        defaults.put("unsent.dir", "localdata" + fs + "unsent" + fs);
         defaults.put("sent.dir", "localdata" + fs + "sent" + fs);
         defaults.put("temp.dir", "localdata" + fs + "temp" + fs);
         defaults.put("archive.dir", "archive" + fs);
@@ -627,6 +626,7 @@ public class SettingsClass implements Savable {
         defaults.put("htlUpload", "21");
         defaults.put("maxMessageDisplay", "15");
         defaults.put("maxMessageDownload", "5");
+        defaults.put(ALWAYS_DOWNLOAD_MESSAGES_BACKLOAD, "false");
         
         defaults.put(MIN_DAYS_BEFORE_FILE_RESHARE, "3"); // reshare all 3 days
         defaults.put(MAX_FILELIST_DOWNLOAD_DAYS, "7"); // download backward 7 days

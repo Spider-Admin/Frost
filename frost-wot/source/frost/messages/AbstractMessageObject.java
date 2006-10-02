@@ -74,6 +74,10 @@ public abstract class AbstractMessageObject extends AbstractMessageStatusProvide
         return attachments;
     }
 
+    public void setAttachmentList(AttachmentList al) {
+        this.attachments = al;
+    }
+
     /**
      * This method returns an AttachmentList containing all of the
      * attachments of the given type. The type can be one of those:

@@ -57,15 +57,6 @@
 </OL>
 <P>Caution: Once you've uploaded something to Freenet, there is no way to remove it.  The best you can hope for is that no one downloads it.</P>
 
-<P><B>Q: How do i Create a new identity?</B></P>
-<P>A:</P>
-<OL>
-<LI>Stop Frost</LI>
-<LI>Rename or delete the identities.xml file in the frost directory</LI>
-<LI>Restart Frost</LI>
-<LI>Frost will ask you for a new nick name</LI>
-</OL>
-
 <P><B>Q: How do I undelete a message?</B></P>
 <P>A:</P>
 <OL>
@@ -83,29 +74,11 @@
 <LI>Write the message and send it.</LI>
 </OL>
 
-<P><B>Q: Is there a way to send a message directly to someone over freenet other than Frost?</B></P>
-<P>A: Try pm4pigs SSK@htiB09RddHraopVcK05SaHBP5hIPAgM,~EXPz06BymillNMGxoJf9w/1//</P>
-
 <P><B>Q: Why do the same board names appear twice in the Known Boards List? They have different icons (a set of keys, a lock, etc.) I can't seem to add two with the same name, so which should I choose?</B></P>
 <P>A: Frost can have duplicate boards (opened, keyed, and locked).  You can add two with the same name, but it will ask you if you want to over write the board.  Most people are moving to the open boards since giving everyone the keys to a locked board doesn't make sense.  Many of the keyed boards you see were created when Frost had that as the default board type.  Locked board are normally for announcement only.</P>
 
 <P><B>Q: What's the big deal about signing FROST posts? Where's the value to me? Creating a signed NIC that can potentially be traced back to a specific computer seems to go against the freenet ideal of total anonymity. Obviously, I am missing something key - what is it?</B></P>
 <P>A: The early Frost didn't have real signatures, so messages were faked, and you couldn't tell who really wrote the post.  Frost signatures were developed so people could carry on a real conversation.  If everyone posted as anonymous, things would get confusing.  You can change your identity, and have multiple identities if you choose.</P>
-
-<P><B>Q: Can I have multiple identities?</B></P>
-<P>A: Yes, but you can't change them on-the-fly.  To make multiple identities:</P>
-<OL>
-<LI>Stop Frost</LI>
-<LI>Rename your identities.xml file to identities.xml.what-ever-your-identity-is</LI>
-<LI>Start Frost.  It will ask you to create an identity.</LI>
-<LI>Copy the new identities.xml file to identities.xml.your-new-identity</LI>
-<LI>Now you can swap between the identities by stopping Frost and overwriting the identities.xml file with the persona you want to be.</LI>
-</OL>
-<P>Caution: The From field may show your previous identity.  To correct that, uncheck the Sign box, and then set it back.</P>
-<P><B>Caution:</B> Doing this NOT recommended. If you receive messages from new users, their identity is added to the current identities.xml file.
-   If you swap to the other identities file, the new users identity is not yet contained in the identities.xml!
-   This will lead you into several problems. Better use one identity only, or run 2 instances of Frost in different folders (yes, being 2 people
-   is expensive ;) ).</P>
 
 <P><B>Q: Will Freenet always be slow?</B></P>
 <P>A: It will be slower than the normal internet due to the nature of the routing, but it does get better after time.  Your node needs to become acclimated.  Patience is the key.</P>

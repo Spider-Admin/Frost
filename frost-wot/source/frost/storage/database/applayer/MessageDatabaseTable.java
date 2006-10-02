@@ -44,6 +44,9 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
     protected String getBoardAttachmentsTableName() {
         return "BOARDATTACHMENTS";
     }
+    protected String getUniqueMsgConstraint() {
+        return "CONSTRAINT "+getUniqueMsgConstraintName()+" UNIQUE(msgdate,msgindex,board)";
+    }
     protected String getUniqueMsgConstraintName() {
         return "MSG_UNIQUE_ONLY";
     }
@@ -102,8 +105,8 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         "hasboardattachment BOOLEAN,"+
         "CONSTRAINT "+getPrimKeyConstraintName()+" PRIMARY KEY (primkey),"+
         "CONSTRAINT "+getUniqueMsgIdConstraintName()+" UNIQUE(messageid),"+ // multiple null allowed
-        getBoardConstraint()+ // only for messages , not for sent messages
-        "CONSTRAINT "+getUniqueMsgConstraintName()+" UNIQUE(msgdate,msgindex,board)"+
+        getBoardConstraint()+       // only for messages , not for sent or unsend messages
+        getUniqueMsgConstraint()+   // only for messages and sent messages, not for unsend messages
         ")";
     
     // this index is really important because we select messageids

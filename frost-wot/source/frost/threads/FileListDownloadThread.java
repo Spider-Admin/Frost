@@ -66,7 +66,7 @@ public class FileListDownloadThread extends Thread {
 
         while(true) {
             try {
-                // if now work is in queue this call waits for a new queueitem
+                // if there is no work in queue this call waits for a new queue item
                 String chkKey = keyQueue.getKeyFromQueue();
                 
                 if( chkKey == null ) {
@@ -75,7 +75,7 @@ public class FileListDownloadThread extends Thread {
                     continue;
                 } else {
                     // short wait to not to hurt node
-                    Mixed.wait((int) (Math.random() * 3000));
+                    Mixed.waitRandom(3000);
                 }
 System.out.println("FileListDownloadThread: starting download of key: "+chkKey);
                 File downloadedFile = downloadCHKKey(chkKey);
@@ -137,6 +137,9 @@ System.out.println("FileListDownloadThread: processed results");
     private void initializeQueue() {
         // get all waiting keys from database
         List keys = SharedFilesCHKKeyManager.getCHKKeyStringsToDownload();
+        if( keys == null ) {
+            return;
+        }
         for(Iterator i = keys.iterator(); i.hasNext(); ) {
             String chk = (String) i.next();
             keyQueue.appendKeyToQueue(chk);

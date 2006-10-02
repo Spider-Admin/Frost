@@ -218,7 +218,7 @@ public class FcpRequest
                         GetKeyThread thread = new GetKeyThread( splitfile, block, htl );
                         runningThreads.add( thread );
                         thread.start();
-                        Mixed.wait(111); // dont hurt node
+                        Mixed.waitRandom(3000); // dont hurt node
                         continue;
                     }
                     // now we are here, no thread allowed to start, so we wait

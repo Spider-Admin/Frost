@@ -19,20 +19,22 @@
 
 package frost.threads;
 
+import java.io.*;
 import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
 import frost.boards.*;
+import frost.identities.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;
 import frost.transferlayer.*;
 
 /**
- * Download messages.
+ * Download and upload messages for a board.
  */
-public class MessageDownloadThread extends BoardUpdateThreadObject implements BoardUpdateThread {
+public class MessageThread extends BoardUpdateThreadObject implements BoardUpdateThread, MessageUploaderCallback {
 
     private Board board;
     private int maxMessageDownload;
@@ -40,9 +42,9 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
     
     private IndexSlotsDatabaseTable indexSlots;
 
-    private static Logger logger = Logger.getLogger(MessageDownloadThread.class.getName());
+    private static Logger logger = Logger.getLogger(MessageThread.class.getName());
 
-    public MessageDownloadThread(boolean downloadToday, Board boa, int maxmsgdays) {
+    public MessageThread(boolean downloadToday, Board boa, int maxmsgdays) {
         super(boa);
         this.downloadToday = downloadToday;
         this.board = boa;
@@ -71,11 +73,8 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                 tofType = "TOF Download Back";
             }
 
-            // Wait some random time to speed up the update of the TOF table
-            // ... and to not to flood the node
-            int waitTime = (int) (Math.random() * 5000);
             // wait a max. of 5 seconds between start of threads
-            Mixed.wait(waitTime);
+            Mixed.waitRandom(5000);
 
             logger.info("TOFDN: " + tofType + " Thread started for board " + board.getName());
 
@@ -90,6 +89,8 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
             if (this.downloadToday) {
                 // download only current date
                 downloadDate(cal);
+                // after update check if there are messages for upload and upload them
+                uploadMessages();
             } else {
                 // download up to maxMessages days to the past
                 Calendar firstDate = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
@@ -177,7 +178,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
 
                 MessageDownloaderResult mdResult = MessageDownloader.downloadMessage(downKey, index, fastDownload, logInfo);
                 
-                Mixed.wait(1111); // don't hurt node
+                Mixed.waitRandom(3000); // don't hurt node
 
                 if( mdResult == null ) {
                     // file not found
@@ -224,8 +225,6 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
     
     /**
      * First time verify.
-     * @param dirDate
-     * @return
      */
     public boolean isValidFormat(MessageXmlFile mo, Calendar dirDate) {
         String timeStr = mo.getTimeStr();
@@ -344,5 +343,185 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
             return false;
         }
         return true;
+    }
+
+    /**
+     * Upload pending messages for this board.
+     */
+    protected void uploadMessages() {
+
+        FrostMessageObject unsendMsg = UnsendMessagesManager.getUnsendMessage(board);
+        if( unsendMsg == null ) {
+            // currently no msg to send for this board
+            return;
+        }
+        
+        String fromName = unsendMsg.getFromName();
+        while( unsendMsg != null ) {
+            
+            // create a MessageXmlFile, sign, and send
+            
+            Identity recipient = null;
+            if( unsendMsg.getRecipientName() != null && unsendMsg.getRecipientName().length() > 0) {
+                recipient = Core.getIdentities().getIdentity(unsendMsg.getRecipientName());
+                if( recipient == null ) {
+                    logger.severe("Can't send Message '" + unsendMsg.getSubject() + "', the recipient is not longer in your identites list!");
+                    UnsendMessagesManager.deleteMessage(unsendMsg.getMessageId());
+                    continue;
+                }
+            }
+
+            UnsendMessagesManager.incRunningMessageUploads();
+            
+            uploadMessage(unsendMsg, recipient);
+            
+            UnsendMessagesManager.decRunningMessageUploads();
+            
+            Mixed.waitRandom(6000); // wait some time
+            
+            // get next message to upload
+            unsendMsg = UnsendMessagesManager.getUnsendMessage(board, fromName);
+        }
+    }
+
+    private void uploadMessage(FrostMessageObject mo, Identity recipient) {
+        
+        logger.info("Preparing upload of message to board '" + board.getName() + "'");
+
+        try {
+            // prepare upload
+            
+            LocalIdentity senderId = null;
+            if( mo.getFromName().indexOf("@") > 0 ) {
+                // not anonymous
+                if( mo.getFromIdentity() instanceof LocalIdentity ) {
+                    senderId = (LocalIdentity) mo.getFromIdentity();
+                } else {
+                    // apparently the LocalIdentity used to write the msg was deleted
+                    logger.severe("The LocalIdentity used to write this unsent msg was deleted: "+mo.getFromName());
+                    UnsendMessagesManager.deleteMessage(mo.getMessageId());
+                    return;
+                }
+            }
+
+            MessageXmlFile message = new MessageXmlFile(mo); 
+
+            message.setTimeStr(DateFun.getFullExtendedTime() + "GMT");
+            message.setDateStr(DateFun.getDate());
+            
+            File unsentMessageFile = FileAccess.createTempFile("unsendMsg", ".xml");
+            message.setFile(unsentMessageFile);
+            if (!message.save()) {
+                logger.severe("This was a HARD error and the file to upload is lost, please report to a dev!");
+                return;
+            }
+            unsentMessageFile.deleteOnExit();
+            
+            // start upload, this signs and encrypts if needed
+
+            int index = MessageUploader.uploadMessage(
+                    message, 
+                    recipient,
+                    senderId,
+                    this,
+                    indexSlots,
+                    DateFun.getCurrentSqlDateGMT(),
+                    MainFrame.getInstance(), 
+                    board.getName());
+
+            // file is not any longer needed
+            message.getFile().delete();
+
+            if( index < 0 ) {
+                // upload failed, unsend message was handled by MessageUploader (kept or deleted, user choosed)
+                return;
+            }
+
+            // upload was successful, store message in sentmessages database
+            FrostMessageObject sentMo = new FrostMessageObject(message, board, index);
+            try {
+                AppLayerDatabase.getSentMessageTable().insertMessage(sentMo);
+            } catch (SQLException e) {
+                logger.log(Level.SEVERE, "Error inserting sent message", e);
+            }
+
+            // finally delete the message in unsend messages db table
+            UnsendMessagesManager.deleteMessage(mo.getMessageId());
+
+        } catch (Throwable t) {
+            logger.log(Level.SEVERE, "Catched exception", t);
+        }
+        
+        logger.info("Message upload finished");
+    }
+    
+    /**
+     * This method composes the downloading key for the message, given a
+     * certain index number
+     * @param index index number to use to compose the key
+     * @return they composed key
+     */
+    public String composeDownloadKey(MessageXmlFile message, int index) {
+        String key;
+        if (board.isWriteAccessBoard()) {
+            key = new StringBuffer()
+                    .append(board.getPublicKey())
+                    .append("/")
+                    .append(board.getBoardFilename())
+                    .append("/")
+                    .append(message.getDateStr())
+                    .append("-")
+                    .append(index)
+                    .append(".xml")
+                    .toString();
+        } else {
+            key = new StringBuffer()
+                    .append("KSK@frost/message/")
+                    .append(Core.frostSettings.getValue("messageBase"))
+                    .append("/")
+                    .append(message.getDateStr())
+                    .append("-")
+                    .append(board.getBoardFilename())
+                    .append("-")
+                    .append(index)
+                    .append(".xml")
+                    .toString();
+        }
+        return key;
+    }
+
+    /**
+     * This method composes the uploading key for the message, given a
+     * certain index number
+     * @param index index number to use to compose the key
+     * @return they composed key
+     */
+    public String composeUploadKey(MessageXmlFile message, int index) {
+        String key;
+        if (board.isWriteAccessBoard()) {
+            key = new StringBuffer()
+                    .append(board.getPrivateKey())
+                    .append("/")
+                    .append(board.getBoardFilename())
+                    .append("/")
+                    .append(message.getDateStr())
+                    .append("-")
+                    .append(index)
+                    .append(".xml")
+                    .toString();
+        } else {
+            key = new StringBuffer()
+                    .append("KSK@frost/message/")
+                    .append(Core.frostSettings.getValue("messageBase"))
+                    .append("/")
+                    .append(message.getDateStr())
+                    .append("-")
+                    .append(board.getBoardFilename())
+                    .append("-")
+                    .append(index)
+                    .append(".xml")
+                    .toString();
+        }
+        return key;
     }
 }

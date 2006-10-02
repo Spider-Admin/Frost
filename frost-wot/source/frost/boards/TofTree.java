@@ -593,7 +593,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         loadTree();
 
         // enable the machine ;)
-        runningBoardUpdateThreads = new RunningBoardUpdateThreads(mainFrame);
+        runningBoardUpdateThreads = new RunningBoardUpdateThreads();
     }
 
     private void cutNode(Board node) {
@@ -918,21 +918,18 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
 
     /**
      * Returns true if board is allowed to be updated.
-     * Does NOT check if board update is already running.
-     * @param board
-     * @return
+     * Also checks if board update is already running.
      */
     public boolean isUpdateAllowed(Board board) {
-        if (board == null)
+        if ( board == null
+                || board.isFolder() 
+                || board.isSpammed()
+                || board.isUpdating() ) 
+        {
             return false;
-        // Do not allow folders to update
-        if (board.isFolder())
-            return false;
-
-        if (board.isSpammed())
-            return false;
-
-        return true;
+        } else {
+            return true;
+        }
     }
 
     public RunningBoardUpdateThreads getRunningBoardUpdateThreads() {
@@ -980,16 +977,27 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             threadStarted = true;
         }
 
-        // get the older messages
+        // get the older messages, start backload only all X hours if configured
+        long now = System.currentTimeMillis();
+        long before12hours = now - (12 * 60 * 60 * 1000);
+        boolean downloadCompleteBackload = true;
+        if( Core.frostSettings.getBoolValue(SettingsClass.ALWAYS_DOWNLOAD_MESSAGES_BACKLOAD) == false 
+                && board.getLastBackloadUpdateStartMillis() > before12hours )
+        {
+            downloadCompleteBackload = false;
+        } else {
+            // we start a complete backload
+            board.setLastBackloadUpdateStartMillis(now);
+        }
         if (getRunningBoardUpdateThreads().isThreadOfTypeRunning(board, BoardUpdateThread.MSG_DNLOAD_BACK) == false) {
-            getRunningBoardUpdateThreads().startMessageDownloadBack(board, settings, listener);
+            getRunningBoardUpdateThreads().startMessageDownloadBack(board, settings, listener, downloadCompleteBackload);
             logger.info("Starting update (MSG_BACKLOAD) of " + board.getName());
             threadStarted = true;
         }
 
         // if there was a new thread started, update the lastUpdateStartTimeMillis
         if (threadStarted == true) {
-            board.setLastUpdateStartMillis(System.currentTimeMillis());
+            board.setLastUpdateStartMillis(now);
             board.incTimesUpdatedCount();
         }
     }

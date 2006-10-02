@@ -44,14 +44,21 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
     
     /**
      * Constructor.
-     * Used to contruct an instance for a new message.
+     * Used to construct an instance for a new message.
      */
-    public MessageXmlFile(String replyTo) {
+    public MessageXmlFile(FrostMessageObject mo) {
         
-        setInReplyTo(replyTo);
-
-        // new message, create a new unique msg id
-        setMessageId(Mixed.createUniqueId());
+        // date and time is set by the uploadthread
+        
+        setMessageId(mo.getMessageId()); // messageid
+        setInReplyTo(mo.getInReplyTo()); // inreplyto
+        setBoardName(mo.getBoard().getName()); // board
+        setFromName(mo.getFromName()); // from
+        setSubject(mo.getSubject()); // subject
+        setRecipientName(mo.getRecipientName()); // recipient
+        setContent(mo.getContent()); // msgcontent
+        
+        setAttachmentList(mo.getAttachmentList());
     }
 
     /**

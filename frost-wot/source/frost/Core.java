@@ -37,10 +37,12 @@ import frost.fileTransfer.*;
 import frost.gui.*;
 import frost.gui.help.*;
 import frost.identities.*;
+import frost.messages.*;
 import frost.messaging.*;
 import frost.storage.*;
 import frost.storage.database.*;
 import frost.storage.database.applayer.*;
+import frost.threads.*;
 import frost.threads.maintenance.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
@@ -210,16 +212,6 @@ public class Core implements FrostEventDispatcher  {
         return crypto;
     }
 
-    /**
-     * Tries to send old messages that have not been sent yet
-     */
-    protected void resendFailedMessages() {
-        // start a thread that waits some seconds for gui to appear, then searches for unsent messages
-        ResendFailedMessagesThread t =
-            new ResendFailedMessagesThread(getBoardsManager().getTofTree(), getBoardsManager().getTofTreeModel());
-        t.start();
-    }
-
     public void deleteDir(String which) {
         new DeleteWholeDirThread(which).start();
     }
@@ -279,8 +271,6 @@ public class Core implements FrostEventDispatcher  {
 
         // CLEANS TEMP DIR! START NO INSERTS BEFORE THIS RUNNED
         Startup.startupCheck(frostSettings, keypool);
-        // nothing was started until now, its the perfect time to delete all empty date dirs in keypool...
-        CleanUp.deleteEmptyBoardDateDirs( new File(keypool) );
 
         splashscreen.setText(language.getString("Splashscreen.message.2"));
         splashscreen.setProgress(40);
@@ -387,6 +377,9 @@ public class Core implements FrostEventDispatcher  {
         getBoardsManager().initialize();
         getFileTransferManager().initialize();
         
+        UnsendMessagesManager.initialize();
+        FileAttachmentUploadThread.getInstance().start();
+        
         if( doImport ) {
             splashscreen.setText("Importing known boards");
             new ImportKnownBoards().importKnownBoards();
@@ -404,16 +397,8 @@ public class Core implements FrostEventDispatcher  {
 
         mainFrame.initialize();
 
-        if (isFreenetOnline()) {
-            resendFailedMessages();
-        }
-
         splashscreen.setText(language.getString("Splashscreen.message.5"));
         splashscreen.setProgress(80);
-
-        // toftree must be loaded before expiration can run!
-        // (cleanup gets the expiration mode from settings itself)
-//        CleanUp.processExpiredFiles(MainFrame.getInstance().getTofTreeModel().getAllBoards());
 
         initializeTasks(mainFrame);
 
@@ -461,19 +446,8 @@ public class Core implements FrostEventDispatcher  {
             1*60*60*1000, // wait 1 min
             frostSettings.getIntValue("sampleInterval") * 60 * 60 * 1000);
 
-        // initialize the task that discards old files
-        TimerTask cleaner = new TimerTask() {
-            public void run() {
-                // each 6 hours cleanup files
-                logger.info("Timer cleaner: Starting to process expired files.");
-                CleanUp.processExpiredFiles(MainFrame.getInstance().getTofTreeModel().getAllBoards());
-            }
-        };
-        timer.schedule(cleaner, 6*60*60*1000, 6*60*60*1000); // 6 hrs interval, always run during startup
-        cleaner = null;
-
         // initialize the task that frees memory
-        cleaner = new TimerTask() {
+        TimerTask cleaner = new TimerTask() {
             public void run() {
                 // free memory each 30 min
                 logger.info("freeing memory");

@@ -92,17 +92,14 @@ public class MessageFrame extends JFrame {
     private String oldSender = null;
     private String signature = null;
 
-    private TofTree tofTree;
-    
     private FrostMessageObject repliedMessage = null;
 
     private JComboBox ownIdentitiesComboBox = null;
 
-    public MessageFrame(SettingsClass newSettings, Window tparentWindow, TofTree tofTree) {
+    public MessageFrame(SettingsClass newSettings, Window tparentWindow) {
         super();
         parentWindow = tparentWindow;
         this.language = Language.getInstance();
-        this.tofTree = tofTree;
         frostSettings = newSettings;
 
         String fontName = frostSettings.getValue(SettingsClass.MESSAGE_BODY_FONT_NAME);
@@ -770,17 +767,14 @@ public class MessageFrame extends JFrame {
         // for convinience set last used user
         frostSettings.setValue("userName", from);
         frostSettings.setValue("userName."+board.getBoardFilename(), from);
-
-        // create new MessageObject to upload
-        MessageXmlFile mo = new MessageXmlFile(repliedMsgId);
-        mo.setBoardName(board.getName());
+        
+        FrostMessageObject mo = new FrostMessageObject();
+        mo.setMessageId(Mixed.createUniqueId()); // new message, create a new unique msg id
+        mo.setInReplyTo(repliedMsgId);
+        mo.setBoard(board);
         mo.setFromName(from);
         mo.setSubject(subject);
         mo.setContent(text);
-
-        if( senderId != null ) {
-            mo.setPublicKey(senderId.getKey());
-        }
 
         // MessageUploadThread will set date + time !
 
@@ -811,39 +805,35 @@ public class MessageFrame extends JFrame {
             mo.setRecipientName(recipient.getUniqueName());
         }
 
-        // zip the xml file and check for maximum size
-        File tmpFile = FileAccess.createTempFile("msgframe_", "_tmp");
-        tmpFile.deleteOnExit();
-        if( mo.saveToFile(tmpFile) == true ) {
-            File zipFile = new File(tmpFile.getPath() + ".zipped");
-            zipFile.delete(); // just in case it already exists
-            zipFile.deleteOnExit(); // so that it is deleted when Frost exits
-            FileAccess.writeZipFile(FileAccess.readByteArray(tmpFile), "entry", zipFile);
-            long zipLen = zipFile.length();
-            tmpFile.delete();
-            zipFile.delete();
-            if( zipLen > 30000 ) { // 30000 because data+metadata must be smaller than 32k
-                JOptionPane.showMessageDialog( this,
-                        "The zipped message is too large ("+zipLen+" bytes, "+30000+" allowed)! Remove some text.",
-                        "Message text too large!",
-                        JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-        } else {
-            JOptionPane.showMessageDialog( this,
-                    "Error verifying the resulting message size.",
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+        UnsendMessagesManager.addNewUnsendMessage(mo);
 
-        // start upload thread which also saves the file, uploads attachments and signs if choosed
-        tofTree.getRunningBoardUpdateThreads().startMessageUpload(
-                                              board,
-                                              mo,
-                                              null,
-                                              recipient);
-        
+        // FIXME: check size in upload thread
+//        // zip the xml file and check for maximum size
+//        File tmpFile = FileAccess.createTempFile("msgframe_", "_tmp");
+//        tmpFile.deleteOnExit();
+//        if( mo.saveToFile(tmpFile) == true ) {
+//            File zipFile = new File(tmpFile.getPath() + ".zipped");
+//            zipFile.delete(); // just in case it already exists
+//            zipFile.deleteOnExit(); // so that it is deleted when Frost exits
+//            FileAccess.writeZipFile(FileAccess.readByteArray(tmpFile), "entry", zipFile);
+//            long zipLen = zipFile.length();
+//            tmpFile.delete();
+//            zipFile.delete();
+//            if( zipLen > 30000 ) { // 30000 because data+metadata must be smaller than 32k
+//                JOptionPane.showMessageDialog( this,
+//                        "The zipped message is too large ("+zipLen+" bytes, "+30000+" allowed)! Remove some text.",
+//                        "Message text too large!",
+//                        JOptionPane.ERROR_MESSAGE);
+//                return;
+//            }
+//        } else {
+//            JOptionPane.showMessageDialog( this,
+//                    "Error verifying the resulting message size.",
+//                    "Error",
+//                    JOptionPane.ERROR_MESSAGE);
+//            return;
+//        }
+
         // set replied to replied message
         if( repliedMessage != null ) {
             if( repliedMessage.isReplied() == false ) {

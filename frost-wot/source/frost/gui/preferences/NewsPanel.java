@@ -49,6 +49,8 @@ class NewsPanel extends JPanel {
     private JTextField displayDaysTextField = new JTextField(8);
     private JTextField downloadDaysTextField = new JTextField(8);
     private JTextField messageBaseTextField = new JTextField(16);
+    
+    private JCheckBox alwaysDownloadBackloadCheckBox = new JCheckBox();
 
     private AntialiasedTextArea signatureTextArea;
 
@@ -93,7 +95,6 @@ class NewsPanel extends JPanel {
         constraints.weightx = 0;
 
         constraints.insets = new Insets(0, 5, 5, 5);
-        constraints.weightx = 0.4;
         constraints.gridy = 0;
         
         constraints.gridx = 0;
@@ -106,6 +107,12 @@ class NewsPanel extends JPanel {
         add(downloadDaysLabel, constraints);
         constraints.gridx = 1;
         add(downloadDaysTextField, constraints);
+        
+        constraints.gridx = 0;
+        constraints.gridy++;
+        constraints.gridwidth=2;
+        add(alwaysDownloadBackloadCheckBox, constraints);
+        constraints.gridwidth=1;
 
         constraints.gridx = 0;
         constraints.gridy++;
@@ -116,7 +123,6 @@ class NewsPanel extends JPanel {
         constraints.gridy++;
         constraints.gridx = 0;
         add(uploadHtlLabel, constraints);
-        constraints.weightx = 0.6;
         constraints.gridx = 1;
         add(uploadHtlTextField, constraints);
 
@@ -179,6 +185,7 @@ class NewsPanel extends JPanel {
         displayDaysTextField.setText(settings.getValue("maxMessageDisplay"));
         downloadDaysTextField.setText(settings.getValue("maxMessageDownload"));
         messageBaseTextField.setText(settings.getValue("messageBase"));
+        alwaysDownloadBackloadCheckBox.setSelected(settings.getBoolValue(SettingsClass.ALWAYS_DOWNLOAD_MESSAGES_BACKLOAD));
 
         //Load signature
         File signature = new File("signature.txt");
@@ -198,6 +205,8 @@ class NewsPanel extends JPanel {
         downloadDaysLabel.setText(language.getString("Options.news.1.numberOfDaysToDownloadBackwards") + " (5)");
         messageBaseLabel.setText(language.getString("Options.news.1.messageBase") + " (news)");
         signatureLabel.setText(language.getString("Options.news.1.signature"));
+        alwaysDownloadBackloadCheckBox.setText(language.getString("Options.news.1.alwaysDownloadBackload"));
+        alwaysDownloadBackloadCheckBox.setToolTipText(language.getString("Options.news.1.alwaysDownloadBackload.tooltip"));
     }
 
     /**
@@ -209,6 +218,7 @@ class NewsPanel extends JPanel {
         settings.setValue("maxMessageDisplay", displayDaysTextField.getText());
         settings.setValue("maxMessageDownload", downloadDaysTextField.getText());
         settings.setValue("messageBase", messageBaseTextField.getText().trim().toLowerCase());
+        settings.setValue(SettingsClass.ALWAYS_DOWNLOAD_MESSAGES_BACKLOAD, alwaysDownloadBackloadCheckBox.isSelected());
 
         //Save signature
         FileAccess.writeFile(getSignatureTextArea().getText(), "signature.txt", "UTF-8");
