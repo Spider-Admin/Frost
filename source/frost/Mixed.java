@@ -64,6 +64,14 @@ public final class Mixed {
     }
 
     /**
+     * Waits for a random number of millis in the range from 0 to maxMillis.
+     * @param maxMillis  maximum wait time in ms
+     */
+    public static void waitRandom(int maxMillis) {
+        Mixed.wait( (int) (Math.random() * maxMillis) );
+    }
+
+    /**
      * Replaces characters that are not 0-9, a-z or in 'allowedCharacters'
      * with '_' and returns a lowerCase String
      *

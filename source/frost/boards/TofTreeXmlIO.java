@@ -135,8 +135,7 @@ public class TofTreeXmlIO
                 // look for <config/> element and maybe configure board
                 getBoardConfiguration(child, fbobj);
                 // maybe restore lastUpdateStartedMillis ( = board update progress)
-                List ltmp =
-                    XMLTools.getChildElementsByTagName(child, "lastUpdateStartedMillis");
+                List ltmp = XMLTools.getChildElementsByTagName(child, "lastUpdateStartedMillis");
                 if (ltmp.size() > 0) {
                     Text txtname = (Text) ((Node) ltmp.get(0)).getFirstChild();
                     if (txtname != null) {
@@ -149,6 +148,24 @@ public class TofTreeXmlIO
 
                         if (millis > 0) {
                             fbobj.setLastUpdateStartMillis(millis);
+                        }
+                    }
+                }
+
+                // maybe restore lastBackloadUpdateStartedMillis ( = board update progress)
+                ltmp = XMLTools.getChildElementsByTagName(child, "lastBackloadUpdateStartedMillis");
+                if (ltmp.size() > 0) {
+                    Text txtname = (Text) ((Node) ltmp.get(0)).getFirstChild();
+                    if (txtname != null) {
+                        long millis = -1;
+                        try {
+                            millis = Long.parseLong(txtname.getData().trim());
+                        } catch (Exception e) {
+                            ;
+                        }
+
+                        if (millis > 0) {
+                            fbobj.setLastBackloadUpdateStartMillis(millis);
                         }
                     }
                 }
@@ -439,10 +456,18 @@ public class TofTreeXmlIO
             rootBoardElement.appendChild(element);
         }
 
-        // append lastTimeMillisUpdated
+        // append lastUpdateStartedMillis
         if( board.getLastUpdateStartMillis() > 0 ) {
             element = doc.createElement("lastUpdateStartedMillis");
             Text text = doc.createTextNode("" + board.getLastUpdateStartMillis());
+            element.appendChild(text);
+            rootBoardElement.appendChild(element);
+        }
+
+        // append lastBackloadUpdateStartedMillis
+        if( board.getLastUpdateStartMillis() > 0 ) {
+            element = doc.createElement("lastBackloadUpdateStartedMillis");
+            Text text = doc.createTextNode("" + board.getLastBackloadUpdateStartMillis());
             element.appendChild(text);
             rootBoardElement.appendChild(element);
         }

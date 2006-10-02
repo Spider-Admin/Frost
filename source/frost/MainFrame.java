@@ -46,95 +46,25 @@ import frost.util.gui.treetable.*;
 
 public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater, LanguageListener {
     
-    // FIXME: after startup the last selected board is not selected!
-    
-    /**
-     * This listener changes the 'updating' state of a board if a thread starts/finishes.
-     * It also launches popup menus
-     */
-    private class Listener extends WindowAdapter {
-        public void windowClosing(WindowEvent e) {
-            fileExitMenuItem_actionPerformed(null);
-        }
-    }
+    // FIXME: after startup the last selected board is not selected!?!?
 
+    private static Logger logger = Logger.getLogger(MainFrame.class.getName());
+    
     private HelpBrowserFrame helpBrowser = null;
     private SearchMessagesDialog searchMessagesDialog = null;
     private MemoryMonitor memoryMonitor = null;
     
-    ImageIcon progressIconRunning = null;
-    ImageIcon progressIconIdle = null;
-    JLabel progressIconButton = null;
+    private ImageIcon progressIconRunning = null;
+    private ImageIcon progressIconIdle = null;
+    private JLabel progressIconButton = null;
 
-    // saved to frost.ini
     private static SettingsClass frostSettings = null;
 
     private static MainFrame instance = null; // set in constructor
-    // "keypool.dir" is the corresponding key in frostSettings, is set in defaults of SettingsClass.java
-    // this is the new way to access this value :)
+    
     public static String keypool = null;
 
-    /**
-     * Used to sort FrostBoardObjects by lastUpdateStartMillis ascending.
-     */
-    private static final Comparator lastUpdateStartMillisCmp = new Comparator() {
-        /* (non-Javadoc)
-         * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-         */
-        public int compare(Object o1, Object o2) {
-            Board value1 = (Board) o1;
-            Board value2 = (Board) o2;
-            if (value1.getLastUpdateStartMillis() > value2.getLastUpdateStartMillis())
-                return 1;
-            else if (value1.getLastUpdateStartMillis() < value2.getLastUpdateStartMillis())
-                return -1;
-            else
-                return 0;
-        }
-    };
-
-    private static Logger logger = Logger.getLogger(MainFrame.class.getName());
     private static ImageIcon[] newMessage = new ImageIcon[2];
-
-    /**
-     * Selects message icon in lower right corner
-     * @param showNewMessageIcon
-     */
-    public static void displayNewMessageIcon(boolean showNewMessageIcon) {
-        MainFrame mainFrame = MainFrame.getInstance();
-        if (showNewMessageIcon) {
-            ImageIcon frameIcon = new ImageIcon(MainFrame.class.getResource("/data/newmessage.gif"));
-            mainFrame.setIconImage(frameIcon.getImage());
-            mainFrame.statusMessageLabel.setIcon(newMessage[0]);
-            // The title should never be changed on Windows systems (SystemTray.exe expects "Frost" as title)
-            if( System.getProperty("os.name").startsWith("Windows") == false ) {
-                String t = mainFrame.getTitle();
-                // if not already done, append * on begin and end of title string
-                if( !t.equals("*") && !(t.startsWith("*") && t.endsWith("*")) ) {
-                    t = "*" + t + "*";
-                }
-                mainFrame.setTitle(t);
-            }
-        } else {
-            ImageIcon frameIcon = new ImageIcon(MainFrame.class.getResource("/data/jtc.jpg"));
-            mainFrame.setIconImage(frameIcon.getImage());
-            mainFrame.statusMessageLabel.setIcon(newMessage[1]);
-            // The title should never be changed on Windows systems (SystemTray.exe expects "Frost" as title)
-            if( System.getProperty("os.name").startsWith("Windows") == false ) {
-                String t = mainFrame.getTitle();
-                // if not already done, append * on begin and end of title string
-                if( !t.equals("*") && t.startsWith("*") && t.endsWith("*") ) {
-                    // remove * on begin and end
-                    t = t.substring(1, t.length()-1);
-                }
-                mainFrame.setTitle(t);
-            }
-        }
-    }
-
-    public static MainFrame getInstance() {
-        return instance;
-    }
 
     private JButton boardInfoButton = null;
     private long counter = 55;
@@ -160,7 +90,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
     private Language language = null;
 
-    private Listener listener = new Listener();
+    private WindowClosingListener listener = new WindowClosingListener();
 
     // The main menu
     private JMenuBar menuBar;
@@ -204,22 +134,32 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     private JMenuItem tofDisplayKnownBoards = new JMenuItem();
     private JMenuItem tofSearchMessages = new JMenuItem();
 
-    //Messages (tof) Menu
     private JMenu tofMenu = new JMenu();
 
     private TofTree tofTree = null;
     private TofTreeModel tofTreeModel = null;
     
     private JSplitPane treeAndTabbedPaneSplitpane = null;
-
-    public TofTree getTofTree() {
-        return tofTree;
-    }
-
-    public TofTreeModel getTofTreeModel() {
-        return tofTreeModel;
-    }
-
+    
+    /**
+     * Used to sort FrostBoardObjects by lastUpdateStartMillis ascending.
+     */
+    private static final Comparator lastUpdateStartMillisCmp = new Comparator() {
+        // FIXME: prefer boards that have messages waiting for upload
+        // FIXME: update boards with most msgs in last X hours more often
+        public int compare(Object o1, Object o2) {
+            Board value1 = (Board) o1;
+            Board value2 = (Board) o2;
+            if (value1.getLastUpdateStartMillis() > value2.getLastUpdateStartMillis()) {
+                return 1;
+            } else if (value1.getLastUpdateStartMillis() < value2.getLastUpdateStartMillis()) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
+    };
+    
     /**
      * Construct the frame
      * @param frostSettings
@@ -243,8 +183,23 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         setResizable(true);
 
         setTitle(title);
+        
+        // we don't want all of our tooltips to hide after 4 seconds, they should be shown forever
+        ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
 
         addWindowListener(listener);
+    }
+
+    public static MainFrame getInstance() {
+        return instance;
+    }
+
+    public TofTree getTofTree() {
+        return tofTree;
+    }
+
+    public TofTreeModel getTofTreeModel() {
+        return tofTreeModel;
     }
 
     public void addPanel(String title, JPanel panel) {
@@ -665,25 +620,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     }
 
     /**
-     * Returns true if board is allowed to be updated.
-     * Also checks if board update is already running.
-     * @param board
-     * @return
-     */
-    public boolean doUpdate(Board board) {
-        // TODO: hook in to stop running updates (and prevent new starts) if board is currently deleted
-        if (tofTree.isUpdateAllowed(board) == false) {
-            return false;
-        }
-
-        if (board.isUpdating()) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
      * save size,location and state of window
      * let save message panel layouts
      */
@@ -710,11 +646,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
     /**
      * File | Exit action performed
-     * @param e
      */
     private void fileExitMenuItem_actionPerformed(ActionEvent e) {
 
-        if (tofTree.getRunningBoardUpdateThreads().getRunningUploadThreadCount() > 0) {
+        if (UnsendMessagesManager.getRunningMessageUploads() > 0 ) {
             int result = JOptionPane.showConfirmDialog(
                     this,
                     language.getString("MainFrame.runningUploadsWarning.body"),
@@ -769,8 +704,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         } else {
             tofAutomaticUpdateMenuItem.setSelected(false);
         }
-        //      uploadActivateCheckBox.setSelected(frostSettings.getBoolValue("uploadingActivated"));
-        //      reducedBlockCheckCheckBox.setSelected(frostSettings.getBoolValue("reducedBlockCheck"));
 
         if (tofTree.getRowCount() > frostSettings.getIntValue("tofTreeSelectedRow"))
             tofTree.setSelectionRow(frostSettings.getIntValue("tofTreeSelectedRow"));
@@ -839,9 +772,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         validate();
     }
 
-    /* (non-Javadoc)
-     * @see java.awt.datatransfer.ClipboardOwner#lostOwnership(java.awt.datatransfer.Clipboard, java.awt.datatransfer.Transferable)
-     */
     public void lostOwnership(Clipboard clipboard, Transferable contents) {
         //Core.getOut().println("Clipboard contents replaced");
     }
@@ -912,10 +842,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
      * that is allowed to update.
      * Used only for automatic updating.
      * Returns NULL if no board to update is found.
-     * @param boards
-     * @return
      */
-    public Board selectNextBoard(List boards) {
+    protected Board selectNextBoard(List boards) {
         Collections.sort(boards, lastUpdateStartMillisCmp);
         // now first board in list should be the one with latest update of all
         Board board;
@@ -930,12 +858,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         for (Iterator i=boards.iterator(); i.hasNext(); ) {
             board = (Board)i.next();
             if (nextBoard == null
-                && doUpdate(board)
-                && (curTime - minUpdateIntervalMillis) > board.getLastUpdateStartMillis()
-                && // minInterval
-             (
-                    (board.isConfigured() && board.getAutoUpdateEnabled())
-                        || !board.isConfigured())) {
+                && tofTree.isUpdateAllowed(board)
+                && (curTime - minUpdateIntervalMillis) > board.getLastUpdateStartMillis() // minInterval
+                && ( (board.isConfigured() && board.getAutoUpdateEnabled())
+                      || !board.isConfigured()) ) 
+            {
                 nextBoard = board;
                 break;
             }
@@ -984,15 +911,15 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         //////////////////////////////////////////////////
         //   Automatic TOF update
         //////////////////////////////////////////////////
-        if (counter % 15 == 0 && // check all 5 seconds if a board update could be started
-           isAutomaticBoardUpdateEnabled() &&
-           info.getDownloadingBoardCount() < frostSettings.getIntValue("automaticUpdate.concurrentBoardUpdates"))
+        if (counter % 15 == 0 && // check all 15 seconds if a board update could be started
+            isAutomaticBoardUpdateEnabled() &&
+            info.getDownloadingBoardCount() < frostSettings.getIntValue("automaticUpdate.concurrentBoardUpdates"))
         {
             List boards = tofTreeModel.getAllBoards();
             if (boards.size() > 0) {
-                Board actualBoard = selectNextBoard(boards);
-                if (actualBoard != null) {
-                    tofTree.updateBoard(actualBoard);
+                Board nextBoard = selectNextBoard(boards);
+                if (nextBoard != null) {
+                    tofTree.updateBoard(nextBoard);
                 }
             }
         }
@@ -1014,10 +941,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         String newText =
             new StringBuffer()
                 .append("   ").append(language.getString("MainFrame.statusBar.TOFUP")).append(": ")
-                .append(info.getUploadingBoardCount())
-                .append("B / ")
-                .append(info.getRunningUploadThreadCount())
-                .append("T / ")
+                .append(info.getUploadingMessagesCount())
+                .append("R / ")
+                .append(info.getUnsendMessageCount())
+                .append("W / ")
                 .append(info.getAttachmentsToUploadRemainingCount())
                 .append("A   ")
                 .append(language.getString("MainFrame.statusBar.TOFDO")).append(": ")
@@ -1129,6 +1056,41 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     public void updateSettings() {
         frostSettings.setValue("automaticUpdate", tofAutomaticUpdateMenuItem.isSelected());
     }
+    
+    /**
+     * Selects message icon in lower right corner
+     */
+    public static void displayNewMessageIcon(boolean showNewMessageIcon) {
+        MainFrame mainFrame = MainFrame.getInstance();
+        if (showNewMessageIcon) {
+            ImageIcon frameIcon = new ImageIcon(MainFrame.class.getResource("/data/newmessage.gif"));
+            mainFrame.setIconImage(frameIcon.getImage());
+            mainFrame.statusMessageLabel.setIcon(newMessage[0]);
+            // The title should never be changed on Windows systems (SystemTray.exe expects "Frost" as title)
+            if( System.getProperty("os.name").startsWith("Windows") == false ) {
+                String t = mainFrame.getTitle();
+                // if not already done, append * on begin and end of title string
+                if( !t.equals("*") && !(t.startsWith("*") && t.endsWith("*")) ) {
+                    t = "*" + t + "*";
+                }
+                mainFrame.setTitle(t);
+            }
+        } else {
+            ImageIcon frameIcon = new ImageIcon(MainFrame.class.getResource("/data/jtc.jpg"));
+            mainFrame.setIconImage(frameIcon.getImage());
+            mainFrame.statusMessageLabel.setIcon(newMessage[1]);
+            // The title should never be changed on Windows systems (SystemTray.exe expects "Frost" as title)
+            if( System.getProperty("os.name").startsWith("Windows") == false ) {
+                String t = mainFrame.getTitle();
+                // if not already done, append * on begin and end of title string
+                if( !t.equals("*") && t.startsWith("*") && t.endsWith("*") ) {
+                    // remove * on begin and end
+                    t = t.substring(1, t.length()-1);
+                }
+                mainFrame.setTitle(t);
+            }
+        }
+    }
 
     /**
      * Fires a nodeChanged (redraw) for this board and updates buttons.
@@ -1211,4 +1173,15 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         // forward to MessagePanel
         return getMessagePanel().getMessageTable();
     }
+    
+    /**
+     * This listener changes the 'updating' state of a board if a thread starts/finishes.
+     * It also launches popup menus
+     */
+    private class WindowClosingListener extends WindowAdapter {
+        public void windowClosing(WindowEvent e) {
+            fileExitMenuItem_actionPerformed(null);
+        }
+    }
+
 }

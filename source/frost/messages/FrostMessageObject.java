@@ -81,7 +81,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     }
 
     /**
-     * Construct a new FrostMessageObject with the data from a MessageObjectFile.
+     * Construct a new FrostMessageObject with the data from a MessageXmlFile.
      */
     public FrostMessageObject(MessageXmlFile mof, Board b, int msgIndex) {
         setValid(true);
@@ -260,10 +260,6 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         return this.dateAndTime;
     }
     
-    public void setAttachmentList(AttachmentList al) {
-        this.attachments = al;
-    }
-
     public Board getBoard() {
         return board;
     }
@@ -550,5 +546,20 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     
     public String toString() {
         return getSubject();
+    }
+    
+    public LinkedList getUnsendFileAttachments() {
+        LinkedList result = new LinkedList();
+        List fileAttachments = getAttachmentsOfType(Attachment.FILE);
+        if( fileAttachments == null || fileAttachments.size() == 0 ) {
+            return result;
+        }
+        for(Iterator j = fileAttachments.iterator(); j.hasNext(); ) {
+            FileAttachment fa = (FileAttachment) j.next();
+            if( fa.getKey() == null || fa.getKey().length() == 0 ) {
+                result.add(fa);
+            }
+        }
+        return result;
     }
 }

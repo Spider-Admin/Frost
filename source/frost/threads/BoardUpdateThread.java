@@ -26,9 +26,6 @@ public interface BoardUpdateThread
     // thread types
     public final static int MSG_DNLOAD_TODAY  = 1;
     public final static int MSG_DNLOAD_BACK   = 2;
-    public final static int BOARD_FILE_UPLOAD = 3;
-    public final static int MSG_UPLOAD        = 4;
-    public final static int BOARD_FILE_DNLOAD = 5;
 
     int getThreadType();
 

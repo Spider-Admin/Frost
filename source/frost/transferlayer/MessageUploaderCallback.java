@@ -18,6 +18,8 @@
 */
 package frost.transferlayer;
 
+import frost.messages.*;
+
 /**
  * This interface is used by the MessageUploader to ask the GUI
  * for the next free index in the board, because the MessageUploader
@@ -28,10 +30,10 @@ public interface MessageUploaderCallback {
     /**
      * Let the GUI compose the upload key for this index.
      */
-    public String composeUploadKey(int index);
+    public String composeUploadKey(MessageXmlFile msg, int index);
 
     /**
      * Let the GUI compose the download key for this index.
      */
-    public String composeDownloadKey(int index);
+    public String composeDownloadKey(MessageXmlFile msg, int index);
 }

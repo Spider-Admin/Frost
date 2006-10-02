@@ -66,11 +66,11 @@ public class Startup {
             downloadDirectory.mkdirs();
         }
 
-        File keypoolDirectory = new File(keypool);
-        if( !keypoolDirectory.isDirectory() ) {
-            logger.warning("Creating keypool directory");
-            keypoolDirectory.mkdirs();
-        }
+//        File keypoolDirectory = new File(keypool);
+//        if( !keypoolDirectory.isDirectory() ) {
+//            logger.warning("Creating keypool directory");
+//            keypoolDirectory.mkdirs();
+//        }
 
         File execDirectory = new File("exec");
         if( !execDirectory.isDirectory() ) {
@@ -78,17 +78,17 @@ public class Startup {
             execDirectory.mkdirs();
         }
 
-        File unsentDirectory = new File(settings.getValue("unsent.dir"));
-        if( !unsentDirectory.isDirectory() ) {
-            logger.warning("Creating unsent directory");
-            unsentDirectory.mkdirs();
-        }
+//        File unsentDirectory = new File(settings.getValue("unsent.dir"));
+//        if( !unsentDirectory.isDirectory() ) {
+//            logger.warning("Creating unsent directory");
+//            unsentDirectory.mkdirs();
+//        }
 
-        File sentDirectory = new File(settings.getValue("sent.dir"));
-        if( !sentDirectory.isDirectory() ) {
-            logger.warning("Creating sent directory");
-            sentDirectory.mkdirs();
-        }
+//        File sentDirectory = new File(settings.getValue("sent.dir"));
+//        if( !sentDirectory.isDirectory() ) {
+//            logger.warning("Creating sent directory");
+//            sentDirectory.mkdirs();
+//        }
 
         File tempDirectory = new File(settings.getValue("temp.dir"));
         if( !tempDirectory.isDirectory() ) {

@@ -576,7 +576,7 @@ public class TOF {
         public void run() {
             while( updateThread != null ) {
                 // wait for running thread to finish
-                Mixed.wait(250);
+                Mixed.wait(300);
                 if( nextUpdateThread != this ) {
                     // leave, there is a newer thread than we waiting
                     return;
@@ -694,8 +694,7 @@ public class TOF {
         // Block by attached boards
         if (Core.frostSettings.getBoolValue("blockMessageBoardChecked")) {
             List boards = message.getAttachmentsOfType(Attachment.BOARD);
-            StringTokenizer blockWords =
-                new StringTokenizer(Core.frostSettings.getValue("blockMessageBoard"), ";");
+            StringTokenizer blockWords = new StringTokenizer(Core.frostSettings.getValue("blockMessageBoard"), ";");
             boolean found = false;
             while (blockWords.hasMoreTokens() && !found) {
                 String blockWord = blockWords.nextToken().trim();

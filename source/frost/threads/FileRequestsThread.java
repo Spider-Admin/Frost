@@ -82,7 +82,7 @@ System.out.println("uploadRequestFile: fileRequests to send: "+fileRequests.size
         }
 
         // Wait some random time to not to flood the node
-        Mixed.wait((int) (Math.random() * 3000));
+        Mixed.waitRandom(3000);
 
         logger.info("Starting upload of request file containing "+fileRequests.size()+" SHAs");
 System.out.println("uploadRequestFile: Starting upload of request file containing "+fileRequests.size()+" SHAs");
@@ -114,7 +114,7 @@ System.out.println("uploadRequestFile: upload finished, wasOk="+wasOk);
         while (failures < maxFailures && index >= 0 ) {
 
             // Wait some random time to not to flood the node
-            Mixed.wait((int) (Math.random() * 3000));
+            Mixed.waitRandom(3000);
             
             logger.info("Requesting index " + index + " for date " + dateStr);
 

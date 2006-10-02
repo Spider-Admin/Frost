@@ -93,7 +93,7 @@ public class FilePointersThread extends Thread {
         tmpChkStringKeys = null;
 
         // Wait some random time to not to flood the node
-        Mixed.wait((int) (Math.random() * 3000));
+        Mixed.waitRandom(3000);
 
         logger.info("FILEDN: Starting upload of pointer file containing "+sharedFileCHKkeys.size()+" CHK keys");
         
@@ -124,7 +124,7 @@ System.out.println("uploadIndexFile: upload finished, wasOk="+wasOk);
         while (failures < maxFailures && index >= 0 ) {
 
             // Wait some random time to not to flood the node
-            Mixed.wait((int) (Math.random() * 3000));
+            Mixed.waitRandom(3000);
 
             logger.info("FILEDN: Requesting index " + index + " for date " + dateStr);
 
@@ -209,9 +209,7 @@ System.out.println("FilePointersThread: upload for "+dateStr);
             }
             
             // random sleeptime to anonymize our uploaded pointer files
-            int sleepTime = (int)((double)baseSleepTime * Math.random());
-System.out.println("FilePointersThread: sleeping for "+sleepTime);
-            Mixed.wait(sleepTime); 
+            Mixed.waitRandom(baseSleepTime); 
         }
         indexSlots.close();
     }

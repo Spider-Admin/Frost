@@ -170,7 +170,7 @@ public class MessageUploader {
                 FcpResultPut result = null;
     
                 try {
-                    String upKey = wa.callback.composeUploadKey(index);
+                    String upKey = wa.callback.composeUploadKey(wa.message, index);
                     logInfo = " board="+wa.logBoardName+", key="+upKey;
                     // signMetadata is null for unsigned upload. Do not do redirect.
                     result = FcpHandler.inst().putFile(
@@ -282,15 +282,16 @@ public class MessageUploader {
                     MessageUploadFailedDialog faildialog = new MessageUploadFailedDialog(wa.parentFrame);
                     int answer = faildialog.startDialog();
                     if (answer == MessageUploadFailedDialog.RETRY_VALUE) {
-                        logger.info("TOFUP: Will try to upload again.");
+                        logger.info("TOFUP: Will try to upload again immediately.");
                         tryAgain = true;
                     } else if (answer == MessageUploadFailedDialog.RETRY_NEXT_STARTUP_VALUE) {
                         wa.uploadFile.delete();
+                        // message is not re-enqueued in UnsendMessagesManager, we read it during next startup
                         logger.info("TOFUP: Will try to upload again on next startup.");
                         tryAgain = false;
                     } else if (answer == MessageUploadFailedDialog.DISCARD_VALUE) {
                         wa.uploadFile.delete();
-                        wa.unsentMessageFile.delete();
+                        UnsendMessagesManager.deleteMessage(wa.message.getMessageId());
                         logger.warning("TOFUP: Will NOT try to upload message again.");
                         tryAgain = false;
                     } else { // paranoia
@@ -313,7 +314,7 @@ public class MessageUploader {
      */
     private static boolean downloadMessage(int index, File targetFile, MessageUploaderWorkArea wa) {
         try {
-            String downKey = wa.callback.composeDownloadKey(index);
+            String downKey = wa.callback.composeDownloadKey(wa.message, index);
             FcpResultGet res = FcpHandler.inst().getFile(
                     FcpHandler.TYPE_MESSAGE,
                     downKey, 

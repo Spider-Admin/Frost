@@ -23,21 +23,13 @@ package frost.threads;
  */
 public class RunningMessageThreadsInformation {
     
-    private int uploadingBoardCount = 0;
-    private int runningUploadThreadCount = 0;
-    
-    private int attachmentsToUploadCount = 0;
+    private int uploadingMessages = 0;
+    private int unsendMessages = 0;
     private int attachmentsToUploadRemainingCount = 0;
     
     private int downloadingBoardCount = 0;
     private int runningDownloadThreadCount = 0;
     
-    /**
-     * Returns the count of all file attachments of all uploading messages.
-     */
-    public int getAttachmentsToUploadCount() {
-        return attachmentsToUploadCount;
-    }
     /**
      * Returns the count of all file attachments of all uploading messages
      * that still wait to be uploaded.
@@ -52,10 +44,10 @@ public class RunningMessageThreadsInformation {
         return runningDownloadThreadCount;
     }
     /**
-     * Returns the count of ALL running upload threads (of all boards).
+     * Returns the count of ALL running message uploads (of all boards).
      */
-    public int getRunningUploadThreadCount() {
-        return runningUploadThreadCount;
+    public int getUploadingMessagesCount() {
+        return uploadingMessages;
     }
     /**
      * Returns the count of boards that currently have running download threads.
@@ -64,28 +56,25 @@ public class RunningMessageThreadsInformation {
         return downloadingBoardCount;
     }
     /**
-     * Returns the count of boards that currently have running upload threads.
+     * Returns the count of unsend messages.
      */
-    public int getUploadingBoardCount() {
-        return uploadingBoardCount;
+    public int getUnsendMessageCount() {
+        return unsendMessages;
     }
     
-    public void addToAttachmentsToUploadCount(int valueToAdd) {
-        this.attachmentsToUploadCount += valueToAdd;
-    }
     public void addToAttachmentsToUploadRemainingCount(int valueToAdd) {
         this.attachmentsToUploadRemainingCount += valueToAdd;
     }
     public void addToRunningDownloadThreadCount(int valueToAdd) {
         this.runningDownloadThreadCount += valueToAdd;
     }
-    public void addToRunningUploadThreadCount(int valueToAdd) {
-        this.runningUploadThreadCount += valueToAdd;
-    }
     public void addToDownloadingBoardCount(int valueToAdd) {
         this.downloadingBoardCount += valueToAdd;
     }
-    public void addToUploadingBoardCount(int valueToAdd) {
-        this.uploadingBoardCount += valueToAdd;
+    public void setUnsendMessageCount(int unsendMessages) {
+        this.unsendMessages = unsendMessages;
+    }
+    public void setUploadingMessageCount(int uploadingMessages) {
+        this.uploadingMessages = uploadingMessages;
     }
 }

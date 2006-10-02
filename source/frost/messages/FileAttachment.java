@@ -94,6 +94,13 @@ public class FileAttachment extends Attachment {
         key = k;
 	}
 
+    public FileAttachment(String fpath, String k, long s, boolean unsend) {
+        file = new File(fpath);
+        filename = file.getName();
+        size = new Long(s);
+        key = k;
+    }
+
     public FileAttachment(File f) {
         file = f;
         
