@@ -53,6 +53,10 @@ public class FrostSearchItem extends ModelItem {
         }
         return fo.getDisplayComment();
     }
+    
+    public Boolean hasInfosFromMultipleSources() {
+        return fo.hasInfosFromMultipleSources();
+    }
 
     public Integer getRating() {
         if( rating == null ) {

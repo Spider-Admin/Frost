@@ -214,6 +214,21 @@ class SearchPanel extends JPanel {
     }
 
     private void searchTableDoubleClick(MouseEvent e) {
+        // if double click was on the sourceCount cell then maybe show details
+        int row = modelTable.getTable().rowAtPoint(e.getPoint());
+        int col = modelTable.getTable().columnAtPoint(e.getPoint());
+        // sourceCount column = 5
+        if( row > -1 && col == 5 ) {
+            ModelItem item = modelTable.getItemAt(row); //It may be null
+            if (item != null) {
+                FrostSearchItem searchItem = (FrostSearchItem) item;
+                if( searchItem.hasInfosFromMultipleSources().booleanValue() ) {
+                    showDetails();
+                    return;
+                }
+            }
+        }
+        
         ModelItem[] selectedItems = modelTable.getSelectedItems();
         model.addItemsToDownloadModel(selectedItems);
     }
@@ -243,7 +258,16 @@ class SearchPanel extends JPanel {
             }
         }
     }
-    
+
+    private void showDetails() {
+        ModelItem[] selectedItems = modelTable.getSelectedItems();
+        if (selectedItems.length != 1) {
+            return;
+        }
+        FrostSearchItem item = (FrostSearchItem) selectedItems[0];
+        new FileListFileDetailsDialog(MainFrame.getInstance()).startDialog(item.getFrostFileListFileObject());
+    }
+
     private class PopupMenuSearch
         extends JSkinnablePopupMenu
         implements ActionListener, LanguageListener, ClipboardOwner {
@@ -327,15 +351,6 @@ class SearchPanel extends JPanel {
             }
         }
         
-        private void showDetails() {
-            ModelItem[] selectedItems = modelTable.getSelectedItems();
-            if (selectedItems.length != 1) {
-                return;
-            }
-            FrostSearchItem item = (FrostSearchItem) selectedItems[0];
-            new FileListFileDetailsDialog(MainFrame.getInstance()).startDialog(item.getFrostFileListFileObject());
-        }
-    
         /**
          * This method copies the CHK keys and file names of the selected items (if any) to
          * the clipboard.

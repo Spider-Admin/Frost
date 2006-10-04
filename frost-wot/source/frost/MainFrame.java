@@ -147,6 +147,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     private static final Comparator lastUpdateStartMillisCmp = new Comparator() {
         // FIXME: prefer boards that have messages waiting for upload
         // FIXME: update boards with most msgs in last X hours more often
+//        xxx
         public int compare(Object o1, Object o2) {
             Board value1 = (Board) o1;
             Board value2 = (Board) o2;
@@ -160,10 +161,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         }
     };
     
-    /**
-     * Construct the frame
-     * @param frostSettings
-     */
     public MainFrame(SettingsClass settings, String title) {
 
         instance = this;

@@ -24,7 +24,7 @@ import frost.util.model.*;
 public class FrostDownloadItem extends ModelItem {
     
     // FIXME: from time to time, sync sharedfile against database to update sourcecount,...
-
+    
     // the constants representing download states
     public final static int STATE_WAITING    = 1; // wait for start
     public final static int STATE_TRYING     = 2; // download running
@@ -268,6 +268,15 @@ public class FrostDownloadItem extends ModelItem {
     }
 
     public void setFileListFileObject(FrostFileListFileObject sharedFileObject) {
+        if( this.fileListFileObject != null ) {
+            this.fileListFileObject.removeListener(this);
+        }
         this.fileListFileObject = sharedFileObject;
+        if( this.fileListFileObject != null ) {
+            this.fileListFileObject.addListener(this);
+        }
+    }
+    public void fireChange() {
+        super.fireChange();
     }
 }

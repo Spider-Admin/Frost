@@ -25,6 +25,7 @@ import javax.swing.*;
 import javax.swing.table.*;
 
 import frost.*;
+import frost.fileTransfer.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
@@ -33,7 +34,8 @@ import frost.util.model.gui.*;
 class DownloadTableFormat extends SortedTableFormat implements LanguageListener {
     
     private static ImageIcon isSharedIcon = new ImageIcon((MainFrame.class.getResource("/data/shared.png")));
-
+    private static ImageIcon isRequestedIcon = new ImageIcon((MainFrame.class.getResource("/data/signal.png")));
+    
     NumberFormat numberFormat = NumberFormat.getInstance();
     SortedModelTable modelTable = null;
     
@@ -110,6 +112,32 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
             } else {
                 setIcon(null);
             }
+            setToolTipText(isSharedTooltip);
+            return this;
+        }
+    }
+
+    private class IsRequestedRenderer extends DefaultTableCellRenderer {
+        public IsRequestedRenderer() {
+            super();
+        }
+        public Component getTableCellRendererComponent(
+            JTable table,
+            Object value,
+            boolean isSelected,
+            boolean hasFocus,
+            int row,
+            int column) {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            Boolean b = (Boolean)value;
+            setText("");
+            if( b.booleanValue() ) {
+                // show icon
+                setIcon(isRequestedIcon);
+            } else {
+                setIcon(null);
+            }
+            setToolTipText(isRequestedTooltip);
             return this;
         }
     }
@@ -202,7 +230,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 		}
 	}
 
-    private class SharedComparator implements Comparator {
+    private class IsSharedComparator implements Comparator {
         public int compare(Object o1, Object o2) {
             FrostDownloadItem item1 = (FrostDownloadItem) o1;
             FrostDownloadItem item2 = (FrostDownloadItem) o2;
@@ -212,19 +240,31 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
         }
     }
 
+    private class IsRequestedComparator implements Comparator {
+        public int compare(Object o1, Object o2) {
+            FrostDownloadItem item1 = (FrostDownloadItem) o1;
+            FrostDownloadItem item2 = (FrostDownloadItem) o2;
+            Boolean b1 = getIsRequested(item1.getFileListFileObject());
+            Boolean b2 = getIsRequested(item2.getFileListFileObject());
+            return b1.equals(b2) ? 0 : 1 ;
+        }
+    }
+
 	private Language language;
 	
-	private final static int COLUMN_COUNT = 8;
+	private final static int COLUMN_COUNT = 9;
 	
-	String stateWaiting;
-	String stateTrying;
-	String stateFailed;
-	String stateDone;
-	String stateDecoding;
+    private String stateWaiting;
+    private String stateTrying;
+    private String stateFailed;
+    private String stateDone;
+    private String stateDecoding;
 	
-	String offline;
-	String unknown;
-	String anonymous;
+    private String offline;
+    private String unknown;
+    
+    private String isSharedTooltip;
+    private String isRequestedTooltip;
 
 	public DownloadTableFormat() {
 		super(COLUMN_COUNT);
@@ -234,24 +274,26 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 		refreshLanguage();
 
 		setComparator(new EnabledComparator(), 0);
-        setComparator(new SharedComparator(), 1);
-		setComparator(new FileNameComparator(), 2);
-		setComparator(new SizeComparator(), 3);
-		setComparator(new StateComparator(), 4);
-		setComparator(new BlocksComparator(), 5);
-		setComparator(new TriesComparator(), 6);
-		setComparator(new KeyComparator(), 7);
+        setComparator(new IsSharedComparator(), 1);
+        setComparator(new IsRequestedComparator(), 2);
+		setComparator(new FileNameComparator(), 3);
+		setComparator(new SizeComparator(), 4);
+		setComparator(new StateComparator(), 5);
+		setComparator(new BlocksComparator(), 6);
+		setComparator(new TriesComparator(), 7);
+		setComparator(new KeyComparator(), 8);
 	}
 
 	private void refreshLanguage() {
 		setColumnName(0, language.getString("DownloadPane.fileTable.enabled"));
-        setColumnName(1, "...");
-		setColumnName(2, language.getString("DownloadPane.fileTable.filename"));
-		setColumnName(3, language.getString("DownloadPane.fileTable.size"));
-		setColumnName(4, language.getString("DownloadPane.fileTable.state"));
-		setColumnName(5, language.getString("DownloadPane.fileTable.blocks"));
-		setColumnName(6, language.getString("DownloadPane.fileTable.tries"));
-		setColumnName(7, language.getString("DownloadPane.fileTable.key"));
+        setColumnName(1, language.getString("DownloadPane.fileTable.shared")); // isShared
+        setColumnName(2, language.getString("DownloadPane.fileTable.requested")); // isRequested
+		setColumnName(3, language.getString("DownloadPane.fileTable.filename"));
+		setColumnName(4, language.getString("DownloadPane.fileTable.size"));
+		setColumnName(5, language.getString("DownloadPane.fileTable.state"));
+		setColumnName(6, language.getString("DownloadPane.fileTable.blocks"));
+		setColumnName(7, language.getString("DownloadPane.fileTable.tries"));
+		setColumnName(8, language.getString("DownloadPane.fileTable.key"));
 		
 		stateWaiting =     language.getString("DownloadPane.fileTable.states.waiting");
 		stateTrying =      language.getString("DownloadPane.fileTable.states.trying");
@@ -261,7 +303,9 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 	
 		offline =   language.getString("DownloadPane.fileTable.states.offline");
 		unknown =   language.getString("DownloadPane.fileTable.states.unknown");
-		anonymous = language.getString("DownloadPane.fileTable.states.anonymous");
+        
+        isSharedTooltip = language.getString("DownloadPane.fileTable.shared.tooltip");
+        isRequestedTooltip = language.getString("DownloadPane.fileTable.requested.tooltip");
 		
 		refreshColumnNames();
 	}
@@ -269,7 +313,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 	public void languageChanged(LanguageEvent event) {
 		refreshLanguage();	
 	}
-
+    
 	public Object getCellValue(ModelItem item, int columnIndex) {
 		FrostDownloadItem downloadItem = (FrostDownloadItem) item;
 		switch (columnIndex) {
@@ -280,33 +324,36 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
             case 1 : // isShared
                 return Boolean.valueOf( downloadItem.isSharedFile() );
 
-			case 2 : //Filename
+            case 2 : // isRequested
+                return getIsRequested( downloadItem.getFileListFileObject() ); // TODO: is gui update done when state changes???
+
+			case 3 : //Filename
 				return downloadItem.getFileName();
 
-			case 3 : //Size
+			case 4 : //Size
 				if (downloadItem.getFileSize() == null) {
 					return unknown;
 				} else {
 					return numberFormat.format(downloadItem.getFileSize().longValue());
 				}
 
-			case 4 : //State
+			case 5 : //State
 				return getStateAsString(
 					downloadItem.getState(),
 					downloadItem.getTotalBlocks(),
 					downloadItem.getDoneBlocks(),
 					downloadItem.getRequiredBlocks());
 
-			case 5 : //Blocks
+			case 6 : //Blocks
 				return getBlocksAsString(
 					downloadItem.getTotalBlocks(),
 					downloadItem.getDoneBlocks(),
 					downloadItem.getRequiredBlocks());
 
-			case 6 : //Tries
+			case 7 : //Tries
 				return new Integer(downloadItem.getRetries());
 
-			case 7 : //Key
+			case 8 : //Key
 				if (downloadItem.getKey() == null) {
 					return " ?";
 				} else {
@@ -317,6 +364,21 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 				return "**ERROR**";
 		}
 	}
+    
+    private Boolean getIsRequested(FrostFileListFileObject flfo) {
+        if( flfo == null ) {
+            return Boolean.FALSE;
+        }
+        long now = System.currentTimeMillis();
+        long before24hours = now - (24 * 60 * 60 * 1000);
+        if( flfo.getRequestLastReceived() > before24hours 
+                || flfo.getRequestLastSent() > before24hours) 
+        {
+            return Boolean.TRUE;
+        } else {
+            return Boolean.FALSE;
+        }
+    }
 	
 	private String getBlocksAsString(int totalBlocks, int doneBlocks, int requiredBlocks) {
 		if (totalBlocks == 0) {
@@ -380,11 +442,16 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
         columnModel.getColumn(1).setMaxWidth(20);
         columnModel.getColumn(1).setPreferredWidth(20);
         columnModel.getColumn(1).setCellRenderer(new IsSharedRenderer());
+        // hard set sizes of icon column
+        columnModel.getColumn(2).setMinWidth(20);
+        columnModel.getColumn(2).setMaxWidth(20);
+        columnModel.getColumn(2).setPreferredWidth(20);
+        columnModel.getColumn(2).setCellRenderer(new IsRequestedRenderer());
 
         BaseRenderer br = new BaseRenderer();
-        for( int x=2; x <columnModel.getColumnCount(); x++) {
+        for( int x=3; x <columnModel.getColumnCount(); x++) {
             TableColumn col = (TableColumn) columnModel.getColumn(x); 
-            if( x == 3 ) {
+            if( x == 4 ) {
                 // Column size
                 col.setCellRenderer(new SizeRenderer());
             } else {

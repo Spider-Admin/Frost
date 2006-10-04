@@ -70,7 +70,8 @@ class SortedTableHeader extends ModelTableHeader {
 					labelRenderer.setHorizontalTextPosition(JLabel.LEADING);
 				} else {
 					labelRenderer.setIcon(null);	
-				}						
+				}
+                labelRenderer.setToolTipText(value.toString());
 			}
 			return defaultRenderer.getTableCellRendererComponent(lTable, value, isSelected, hasFocus, row, column);
 		}

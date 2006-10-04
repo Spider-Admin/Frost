@@ -49,13 +49,13 @@ public class FileRequestsManager {
         
         // Rules for send of a request:
         // - don't send a request if the file to request was not seen in a file index for more than 14 days
-        // - must be not requested since 24h ( by us or others )
+        // - must be not requested since 23h ( by us or others )
         // - we DON'T have the chk OR
         // - we HAVE the chk, but download was not successful after 10 tries, and last try was not longer
         //   then 2 days before (maybe successful now)
         
         long now = System.currentTimeMillis();
-        long before1day = now - 1 * 24 * 60 * 60 * 1000;
+        long before23hours = now - 1 * 23 * 60 * 60 * 1000;
         long before2days = now - 2 * 24 * 60 * 60 * 1000;
         long before14days = now - 14 * 24 * 60 * 60 * 1000;
         
@@ -81,7 +81,7 @@ public class FileRequestsManager {
                 continue;
             }
 
-            if( sfo.getRequestLastSent() > before1day || sfo.getRequestLastReceived() > before1day ) {
+            if( sfo.getRequestLastSent() > before23hours || sfo.getRequestLastReceived() > before23hours ) {
                 // request received or send in last 24 hours
                 continue;
             }
