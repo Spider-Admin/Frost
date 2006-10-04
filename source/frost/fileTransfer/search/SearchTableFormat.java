@@ -25,12 +25,15 @@ import java.util.Comparator;
 import javax.swing.*;
 import javax.swing.table.*;
 
+import frost.*;
 import frost.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.ModelItem;
 import frost.util.model.gui.*;
 
 public class SearchTableFormat extends SortedTableFormat implements LanguageListener {
+
+    private static ImageIcon hasMoreInfoIcon = new ImageIcon((MainFrame.class.getResource("/data/info.png")));
 
     NumberFormat numberFormat = NumberFormat.getInstance();
 
@@ -42,6 +45,8 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
     private String uploading;
     private String downloading;
     private String downloaded;
+    
+    private String sourceCountTooltip;
 
     public SearchTableFormat() {
         super(COLUMN_COUNT);
@@ -76,6 +81,8 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
         uploading =   language.getString("SearchPane.resultTable.states.uploading");
         downloading = language.getString("SearchPane.resultTable.states.downloading");
         downloaded =  language.getString("SearchPane.resultTable.states.downloaded");
+        
+        sourceCountTooltip = language.getString("SearchPane.resultTable.sources.tooltip");
 
         refreshColumnNames();
     }
@@ -163,9 +170,11 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
 
         // Column "Size"
         columnModel.getColumn(1).setCellRenderer(new NumberRightRenderer());
+        
+        // Column "Source count"
+        columnModel.getColumn(5).setCellRenderer(new SourceCountRenderer((SortedModelTable) modelTable));
     }
     
-
     private class AgeComparator implements Comparator {
         public int compare(Object o1, Object o2) {
             FrostSearchItem item1 = (FrostSearchItem) o1;
@@ -279,6 +288,44 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
                     return this;
                 }
             }
+            return this;
+        }
+    }
+    
+    private class SourceCountRenderer extends DefaultTableCellRenderer {
+
+        private SortedModelTable modelTable;
+
+        public SourceCountRenderer(SortedModelTable newModelTable) {
+            super();
+            modelTable = newModelTable;
+        }
+        public Component getTableCellRendererComponent(
+            JTable table,
+            Object value,
+            boolean isSelected,
+            boolean hasFocus,
+            int row,
+            int column) {
+
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+            setHorizontalAlignment(SwingConstants.RIGHT);
+            // col is right aligned, give some space to next column
+            setBorder(new javax.swing.border.EmptyBorder(0, 0, 0, 3));
+
+            ModelItem item = modelTable.getItemAt(row); //It may be null
+            if (item != null) {
+                FrostSearchItem searchItem = (FrostSearchItem) item;
+                if( searchItem.hasInfosFromMultipleSources().booleanValue() ) {
+                    setIcon(hasMoreInfoIcon);
+                } else {
+                    setIcon(null);
+                }
+            } else {
+                setIcon(null);
+            }
+            setToolTipText(sourceCountTooltip);
             return this;
         }
     }

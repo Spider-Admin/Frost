@@ -97,6 +97,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
             } else {
                 setIcon(null);
             }
+            setToolTipText(isSharedTooltip);
             return this;
         }
     }
@@ -171,7 +172,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
         }
     }
     
-    private class SharedComparator implements Comparator {
+    private class IsSharedComparator implements Comparator {
         public int compare(Object o1, Object o2) {
             FrostUploadItem item1 = (FrostUploadItem) o1;
             FrostUploadItem item2 = (FrostUploadItem) o2;
@@ -265,6 +266,8 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
     private String stateWaiting;
 
     private String unknown;
+    
+    private String isSharedTooltip;
 
     public UploadTableFormat() {
         super(COLUMN_COUNT);
@@ -274,7 +277,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
         refreshLanguage();
 
         setComparator(new EnabledComparator(), 0);
-        setComparator(new SharedComparator(), 1);
+        setComparator(new IsSharedComparator(), 1);
         setComparator(new NameComparator(), 2);
         setComparator(new FileSizeComparator(), 3);
         setComparator(new StateComparator(), 4);
@@ -285,7 +288,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
 
     private void refreshLanguage() {
         setColumnName(0, language.getString("UploadPane.fileTable.enabled"));
-        setColumnName(1, "...");
+        setColumnName(1, language.getString("UploadPane.fileTable.shared"));
         setColumnName(2, language.getString("UploadPane.fileTable.filename"));
         setColumnName(3, language.getString("UploadPane.fileTable.size"));
         setColumnName(4, language.getString("UploadPane.fileTable.state"));
@@ -300,6 +303,8 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
         stateEncoding =           language.getString("UploadPane.fileTable.state.encodingFile") + "...";
         stateWaiting =            language.getString("UploadPane.fileTable.state.waiting");
         unknown =                 language.getString("UploadPane.fileTable.state.unknown");
+        
+        isSharedTooltip = language.getString("UploadPane.fileTable.shared.tooltip");
 
         refreshColumnNames();
     }

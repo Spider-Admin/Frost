@@ -23,6 +23,7 @@ import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
+import frost.fileTransfer.download.*;
 import frost.identities.*;
 import frost.storage.database.applayer.*;
 
@@ -50,8 +51,11 @@ public class FrostFileListFileObject {
     private String displayComment = null;
     private int displayRating = -1;
     private long displayLastUploaded = -1;
+    private Boolean hasInfosFromMultipleSources = null;
 
     private List frostFileListFileObjectOwnerList = new LinkedList();
+    
+    private List listeners = new ArrayList();
     
     /**
      * Used if item is loaded from database.
@@ -183,6 +187,7 @@ public class FrostFileListFileObject {
 
     public void setRequestLastReceived(long requestLastReceived) {
         this.requestLastReceived = requestLastReceived;
+        notifyListeners();
     }
 
     public long getRequestLastSent() {
@@ -191,6 +196,7 @@ public class FrostFileListFileObject {
 
     public void setRequestLastSent(long requestLastSent) {
         this.requestLastSent = requestLastSent;
+        notifyListeners();
     }
 
     public int getRequestsReceivedCount() {
@@ -255,6 +261,39 @@ public class FrostFileListFileObject {
             }
         }
         return displayName;
+    }
+
+    /**
+     * @return  true if this file has infos from multiple sources (comments, ratings, keywords)
+     */
+    public Boolean hasInfosFromMultipleSources() {
+        if( hasInfosFromMultipleSources == null ) {
+            if( getFrostFileListFileObjectOwnerList().size() > 1 ) {
+                int valuesCount = 0;
+                for(Iterator i=getFrostFileListFileObjectOwnerList().iterator(); i.hasNext(); ) {
+                    FrostFileListFileObjectOwner o = (FrostFileListFileObjectOwner) i.next();
+                    // valuesCount is increased by 1 per FrostFileListFileObjectOwner
+                    if( o.getComment() != null && o.getComment().length() > 0 ) {
+                        valuesCount++;
+                    } else if( o.getKeywords() != null && o.getKeywords().length() > 0 ) {
+                        valuesCount++;
+                    } else if( o.getRating() > 0 ) {
+                        valuesCount++;
+                    }
+                    // if valuesCount is greater 1 we have at least 2 sources that provide informations
+                    if( valuesCount > 1 ) {
+                        hasInfosFromMultipleSources = Boolean.TRUE;
+                        break;
+                    }
+                }
+                if( hasInfosFromMultipleSources == null ) {
+                    hasInfosFromMultipleSources = Boolean.FALSE;
+                }
+            } else {
+                hasInfosFromMultipleSources = Boolean.FALSE;
+            }
+        }
+        return hasInfosFromMultipleSources;
     }
 
     public String getDisplayComment() {
@@ -338,5 +377,25 @@ public class FrostFileListFileObject {
             displayLastUploaded = latestUpload;
         }
         return displayLastUploaded;
+    }
+    
+    public void addListener(FrostDownloadItem d) {
+        if( !listeners.contains(d) ) {
+            listeners.add(d);
+        }
+    }
+    public void removeListener(FrostDownloadItem d) {
+        if( listeners.contains(d) ) {
+            listeners.remove(d);
+        }
+    }
+    public List getListeners() {
+        return listeners;
+    }
+    private void notifyListeners() {
+        for(Iterator i=listeners.iterator(); i.hasNext(); ) {
+            FrostDownloadItem dl = (FrostDownloadItem) i.next();
+            dl.fireChange();
+        }
     }
 }
