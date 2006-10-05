@@ -1307,12 +1307,12 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             scfg.searchDates = SearchMessagesConfig.DATE_BETWEEN_DATES;
             try {
                 GregorianCalendar c;
-                c = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-                c.setTime(getDate_TFstartDate().getValue());
+                c = new GregorianCalendar();
+                c.setTimeInMillis(getDate_TFstartDate().getValue().getTime());
                 scfg.startDate = c;
 
-                c = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
-                c.setTime(getDate_TFendDate().getValue());
+                c = new GregorianCalendar();
+                c.setTimeInMillis(getDate_TFendDate().getValue().getTime());
                 scfg.endDate = c;
 
                 // check start before end
