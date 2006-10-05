@@ -18,7 +18,6 @@
 */
 package frost.threads;
 
-import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
@@ -94,17 +93,31 @@ public class SearchMessagesThread extends Thread implements MessageDatabaseTable
     // Format: boards\2006.3.1\2006.3.1-boards-0.xml
     private void searchBoard(Board board, DateRange dr) {
 
-        try {
-            AppLayerDatabase.getMessageTable().retrieveMessagesForSearch(
-                    board, 
-                    dr.startDate, 
-                    dr.endDate, 
-                    ((searchConfig.content==null)?false:true), // withContent
-                    false, // withAttachment
-                    false, // showDeleted
-                    this);
-        } catch(SQLException e) {
-                logger.log(Level.SEVERE, "Catched exception:", e);
+        if( searchConfig.searchInKeypool ) {
+            try {
+                AppLayerDatabase.getMessageTable().retrieveMessagesForSearch(
+                        board, 
+                        dr.startDate, 
+                        dr.endDate, 
+                        ((searchConfig.content==null)?false:true), // withContent
+                        false, // withAttachment
+                        false, // showDeleted
+                        this);
+            } catch(Throwable e) {
+                logger.log(Level.SEVERE, "Catched exception during getMessageTable().retrieveMessagesForSearch:", e);
+            }
+        }
+        if( searchConfig.searchInArchive ) {
+            try {
+                AppLayerDatabase.getMessageArchiveTable().retrieveMessagesForSearch(
+                        board, 
+                        dr.startDate, 
+                        dr.endDate, 
+                        false, // showDeleted
+                        this);
+            } catch(Throwable e) {
+                logger.log(Level.SEVERE, "Catched exception during getMessageArchiveTable().retrieveMessagesForSearch:", e);
+            }
         }
     }
 

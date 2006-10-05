@@ -21,6 +21,8 @@ package frost.storage.database.applayer;
 import java.sql.*;
 import java.util.*;
 
+import frost.*;
+
 /**
  * Class provides functionality to track used index slots
  * for upload and download.
@@ -73,6 +75,12 @@ public class GlobalIndexSlotsDatabaseTable {
     private PreparedStatement ps_NEXT_UNUSED_SLOT = null;
     private PreparedStatement ps_UPDATE_WASDOWNLOADED = null;
     
+    /**
+     * Called by Cleanup.
+     */
+    public GlobalIndexSlotsDatabaseTable() {
+    }
+
     public GlobalIndexSlotsDatabaseTable(int indexName) {
         
         this.indexName = indexName;
@@ -304,5 +312,25 @@ public class GlobalIndexSlotsDatabaseTable {
         
         ResultSet rs = ps.executeQuery();
         return rs;
+    }
+    
+    /**
+     * Delete all table entries older than maxDaysOld.
+     * @return  count of deleted rows
+     */
+    public int cleanupTable(int maxDaysOld) throws SQLException {
+
+        AppLayerDatabase localDB = AppLayerDatabase.getInstance();
+        
+        java.sql.Date sqlDate = DateFun.getSqlDateGMTDaysAgo(maxDaysOld + 1);
+        
+        PreparedStatement ps = localDB.prepare("DELETE FROM GLOBALINDEXSLOTS WHERE msgdate<?");
+        ps.setDate(1, sqlDate);
+        
+        int deletedCount = ps.executeUpdate();
+        
+        ps.close();
+
+        return deletedCount;
     }
 }

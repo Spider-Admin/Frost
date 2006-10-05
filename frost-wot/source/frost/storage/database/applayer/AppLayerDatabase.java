@@ -32,6 +32,7 @@ public class AppLayerDatabase implements Savable {
     private static MessageDatabaseTable messageTable = null;
     private static SentMessageDatabaseTable sentMessageTable = null;
     private static UnsendMessageDatabaseTable unsendMessageTable = null;
+    private static MessageArchiveDatabaseTable messageArchiveTable = null;
     
     private static NewUploadFilesDatabaseTable newUploadFilesTable = null;
     private static FileListDatabaseTable fileListDatabaseTable = null;
@@ -148,6 +149,7 @@ public class AppLayerDatabase implements Savable {
             messageTable = new MessageDatabaseTable();
             sentMessageTable = new SentMessageDatabaseTable();
             unsendMessageTable = new UnsendMessageDatabaseTable();
+            messageArchiveTable = new MessageArchiveDatabaseTable();
             
             newUploadFilesTable = new NewUploadFilesDatabaseTable();
             fileListDatabaseTable = new FileListDatabaseTable();
@@ -167,6 +169,7 @@ public class AppLayerDatabase implements Savable {
             lst.add(messageTable);
             lst.add(sentMessageTable);
             lst.add(unsendMessageTable);
+            lst.add(messageArchiveTable);
             lst.add(newUploadFilesTable);
             lst.add(fileListDatabaseTable);
             lst.add(uploadFilesDatabaseTable);
@@ -216,6 +219,9 @@ public class AppLayerDatabase implements Savable {
     }
     public static UnsendMessageDatabaseTable getUnsendMessageTable() {
         return unsendMessageTable;
+    }
+    public static MessageArchiveDatabaseTable getMessageArchiveTable() {
+        return messageArchiveTable;
     }
     
     public static NewUploadFilesDatabaseTable getNewUploadFilesTable() {
