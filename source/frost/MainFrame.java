@@ -46,8 +46,6 @@ import frost.util.gui.treetable.*;
 
 public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater, LanguageListener {
     
-    // FIXME: after startup the last selected board is not selected!?!?
-
     private static Logger logger = Logger.getLogger(MainFrame.class.getName());
     
     private HelpBrowserFrame helpBrowser = null;

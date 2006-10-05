@@ -105,8 +105,8 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         "hasboardattachment BOOLEAN,"+
         "CONSTRAINT "+getPrimKeyConstraintName()+" PRIMARY KEY (primkey),"+
         "CONSTRAINT "+getUniqueMsgIdConstraintName()+" UNIQUE(messageid),"+ // multiple null allowed
-        getBoardConstraint()+       // only for messages , not for sent or unsend messages
-        getUniqueMsgConstraint()+   // only for messages and sent messages, not for unsend messages
+        getBoardConstraint()+       // only for messages , not for sent messages
+        getUniqueMsgConstraint()+   // only for messages and sent messages
         ")";
     
     // this index is really important because we select messageids
@@ -200,7 +200,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         
         Long identity = null;
         Statement stmt = AppLayerDatabase.getInstance().createStatement();
-        ResultSet rs = stmt.executeQuery("select UNIQUEKEY('UPLOADFILES')");
+        ResultSet rs = stmt.executeQuery("select UNIQUEKEY('"+getMessageTableName()+"')");
         if( rs.next() ) {
             identity = new Long(rs.getLong(1));
         } else {
@@ -239,7 +239,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         ps.close();
 
         if( inserted == 0 ) {
-            System.out.println("INSERTED is 0!!!!");
+            logger.log(Level.SEVERE, "message insert returned 0 !!!");
             return;
         }
         
@@ -252,7 +252,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         pc.setLong(1, mo.getMsgIdentity());
         pc.setString(2, mo.getContent());
         if( pc.executeUpdate() == 0 ) {
-            System.out.println("content INSERTED is 0!!!!");
+            logger.log(Level.SEVERE, "message content insert returned 0 !!!");
         }
         pc.close();
 
@@ -271,7 +271,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
                 p.setString(ix++, fa.getKey()); 
                 int ins = p.executeUpdate();
                 if( ins == 0 ) {
-                    System.out.println("INSERTED is 0!!!!");
+                    logger.log(Level.SEVERE, "fileattachment insert returned 0 !!!");
                 }
             }
             p.close();
@@ -292,7 +292,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
                 p.setString(ix++, b.getDescription()); 
                 int ins = p.executeUpdate();
                 if( ins == 0 ) {
-                    System.out.println("INSERTED is 0!!!!");
+                    logger.log(Level.SEVERE, "boardattachment insert returned 0 !!!");
                 }
             }
             p.close();
@@ -515,7 +515,58 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         rs.close();
         ps.close();
     }
+
+    public void retrieveMessagesForArchive(
+            Board board, 
+            int maxDaysOld, 
+            MessageDatabaseTableCallback mc) 
+    throws SQLException 
+    {
+        java.sql.Date sqlDate = DateFun.getSqlDateGMTDaysAgo(maxDaysOld);
+        
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
+        String sql =
+            "SELECT "+
+            "primkey,messageid,inreplyto,msgdate,msgtime,msgindex,fromname,subject,recipient," +
+            "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
+            "hasfileattachment,hasboardattachment";
+            sql += " FROM "+getMessageTableName()+" WHERE msgdate<? AND board=? AND isvalid=TRUE";
+        PreparedStatement ps = db.prepare(sql);
+        
+        ps.setDate(1, sqlDate);
+        ps.setInt(2, board.getPrimaryKey().intValue());
+        
+        ResultSet rs = ps.executeQuery();
+
+        while( rs.next() ) {
+            FrostMessageObject mo = resultSetToFrostMessageObject(rs, board, true, true);
+            boolean shouldStop = mc.messageRetrieved(mo); // pass to callback
+            if( shouldStop ) {
+                break;
+            }
+        }
+        rs.close();
+        ps.close();
+    }
     
+    public int deleteExpiredMessages(Board board, int maxDaysOld) throws SQLException {
+
+        java.sql.Date sqlDate = DateFun.getSqlDateGMTDaysAgo(maxDaysOld);
+
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
+
+        PreparedStatement ps = db.prepare("DELETE FROM "+getMessageTableName()+" WHERE msgdate<? AND board=?");
+
+        ps.setDate(1, sqlDate);
+        ps.setInt(2, board.getPrimaryKey().intValue());
+        
+        int deletedCount = ps.executeUpdate();
+
+        ps.close();
+        
+        return deletedCount;
+    }
+
     public FrostMessageObject retrieveMessageByMessageId(
             Board board,
             String msgId,

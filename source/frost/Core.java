@@ -399,6 +399,9 @@ public class Core implements FrostEventDispatcher  {
 
         splashscreen.setText(language.getString("Splashscreen.message.5"));
         splashscreen.setProgress(80);
+        
+        // (cleanup gets the expiration mode from settings itself)
+        CleanUp.runExpirationTasks(MainFrame.getInstance().getTofTreeModel().getAllBoards());
 
         initializeTasks(mainFrame);
 
@@ -456,7 +459,7 @@ public class Core implements FrostEventDispatcher  {
         };
         timer.schedule(cleaner, 30 * 60 * 1000, 30 * 60 * 1000);    //30 minutes
         cleaner = null;
-
+        
         // initialize the task that saves data
         StorageManager saver = new StorageManager(frostSettings, this);
         saver.addAutoSavable(getMessageHashes());
@@ -470,7 +473,6 @@ public class Core implements FrostEventDispatcher  {
         saver.addExitSavable(frostSettings);
         // close databases
         saver.addExitSavable(AppLayerDatabase.getInstance());
-        
         
         // after 15 seconds, start filesharing threads if it is enabled
         if( isFreenetOnline() && !frostSettings.getBoolValue(SettingsClass.DISABLE_FILESHARING)) {

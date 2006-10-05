@@ -21,6 +21,7 @@ package frost.storage.database.applayer;
 import java.sql.*;
 import java.util.*;
 
+import frost.*;
 import frost.boards.*;
 
 /**
@@ -78,6 +79,12 @@ public class IndexSlotsDatabaseTable {
     private PreparedStatement ps_UPDATE_WASDOWNLOADED = null;
     
 //    private static boolean dumped=false;
+
+    /**
+     * Called by Cleanup.
+     */
+    public IndexSlotsDatabaseTable() {
+    }
 
     public IndexSlotsDatabaseTable(int indexName, Board board) {
         
@@ -386,7 +393,27 @@ public class IndexSlotsDatabaseTable {
         ResultSet rs = ps.executeQuery();
         return rs;
     }
-    
+
+    /**
+     * Delete all table entries older than maxDaysOld.
+     * @return  count of deleted rows
+     */
+    public int cleanupTable(int maxDaysOld) throws SQLException {
+
+        AppLayerDatabase localDB = AppLayerDatabase.getInstance();
+        
+        java.sql.Date sqlDate = DateFun.getSqlDateGMTDaysAgo(maxDaysOld + 1);
+        
+        PreparedStatement ps = localDB.prepare("DELETE FROM INDEXSLOTS WHERE msgdate<?");
+        ps.setDate(1, sqlDate);
+        
+        int deletedCount = ps.executeUpdate();
+        
+        ps.close();
+
+        return deletedCount;
+    }
+
 //    public static void dump(ResultSet rs) throws SQLException {
 //
 //        // the order of the rows in a cursor

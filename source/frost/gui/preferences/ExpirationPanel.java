@@ -19,8 +19,6 @@
 package frost.gui.preferences;
 
 import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
 
 import javax.swing.*;
 
@@ -30,51 +28,8 @@ import frost.util.gui.translation.*;
 
 class ExpirationPanel extends JPanel {
 
-    private class Listener implements ActionListener {
-        public void actionPerformed(ActionEvent e) {
-            if (e.getSource() == RbKeepExpiredMessages) {
-                radioButtonChanged();
-            }
-            if (e.getSource() == RbArchiveExpiredMessages) {
-                radioButtonChanged();
-            }
-            if (e.getSource() == RbDeleteExpiredMessages) {
-                radioButtonChanged();
-            }
-            if (e.getSource() == BbrowseArchiveDirectory) {
-                browseArchiveDirectory();
-            }
-        }
-
-        private void radioButtonChanged() {
-            LarchiveFolder.setEnabled(RbArchiveExpiredMessages.isSelected());
-            TfArchiveFolder.setEnabled(RbArchiveExpiredMessages.isSelected());
-        }
-
-        private void browseArchiveDirectory() {
-            final JFileChooser fc = new JFileChooser();
-            fc.setDialogTitle(language.getString("Options.expiration.fileChooser.title.selectArchiveDirectory"));
-            fc.setFileHidingEnabled(true);
-            fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            fc.setMultiSelectionEnabled(false);
-            File f = new File(TfArchiveFolder.getText());
-            if( f.isDirectory() ) {
-                fc.setCurrentDirectory(f);
-            }
-
-            int returnVal = fc.showOpenDialog(owner);
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                String fileSeparator = System.getProperty("file.separator");
-                File file = fc.getSelectedFile();
-                TfArchiveFolder.setText(file.getPath() + fileSeparator);
-            }
-        }
-    }
-
     private SettingsClass settings = null;
     private Language language = null;
-
-    private JButton BbrowseArchiveDirectory = new JButton();
 
     private JRadioButton RbKeepExpiredMessages = new JRadioButton();
     private JRadioButton RbArchiveExpiredMessages = new JRadioButton();
@@ -84,19 +39,11 @@ class ExpirationPanel extends JPanel {
     private JLabel LmessageExpireDays = new JLabel();
     private JTextField TfMessageExpireDays = new JTextField(8);
 
-    private JLabel LarchiveFolder = new JLabel();
-    private JTextField TfArchiveFolder = new JTextField(30);
-
-    private Listener listener = new Listener();
-
-    private JDialog owner;
-
     /**
      * @param settings the SettingsClass instance that will be used to get and store the settings of the panel
      */
     protected ExpirationPanel(JDialog owner, SettingsClass settings) {
         super();
-        this.owner = owner;
         this.language = Language.getInstance();
         this.settings = settings;
 
@@ -114,13 +61,12 @@ class ExpirationPanel extends JPanel {
 
         // Adds all of the components
         GridBagConstraints constraints = new GridBagConstraints();
-        constraints.anchor = GridBagConstraints.NORTHWEST;
-        Insets insets5555 = new Insets(5, 5, 5, 5);
-        Insets insets5_30_5_5 = new Insets(5, 30, 5, 5);
+        constraints.anchor = GridBagConstraints.WEST;
+        Insets insets0555 = new Insets(0, 5, 5, 5);
 
-        int maxGridWidth = 3;
+        int maxGridWidth = 2;
 
-        constraints.insets = insets5555;
+        constraints.insets = insets0555;
         constraints.gridy = 0;
 
         constraints.gridx = 0;
@@ -152,18 +98,6 @@ class ExpirationPanel extends JPanel {
         constraints.gridy++;
 
         constraints.gridx = 0;
-        constraints.insets = insets5_30_5_5;
-        add(LarchiveFolder, constraints);
-        constraints.gridx = 1;
-        constraints.insets = insets5555;
-        add(TfArchiveFolder, constraints);
-        constraints.gridx = 2;
-        constraints.insets = insets5555;
-        add(BbrowseArchiveDirectory, constraints);
-
-        constraints.gridy++;
-
-        constraints.gridx = 0;
         constraints.gridwidth = maxGridWidth;
         add(RbDeleteExpiredMessages, constraints);
         constraints.gridwidth = 1;
@@ -177,13 +111,6 @@ class ExpirationPanel extends JPanel {
         constraints.weighty = 1;
         add(new JLabel(""), constraints);
 
-        // Add listeners
-        RbKeepExpiredMessages.addActionListener(listener);
-        RbArchiveExpiredMessages.addActionListener(listener);
-        RbDeleteExpiredMessages.addActionListener(listener);
-
-        BbrowseArchiveDirectory.addActionListener(listener);
-
         // add radiobuttons to buttongroup
         BgExpiredMessages.add( RbKeepExpiredMessages );
         BgExpiredMessages.add( RbArchiveExpiredMessages );
@@ -196,7 +123,6 @@ class ExpirationPanel extends JPanel {
     private void loadSettings() {
 
         TfMessageExpireDays.setText(settings.getValue("messageExpireDays"));
-        TfArchiveFolder.setText(settings.getValue("archive.dir"));
 
         String mode = settings.getValue("messageExpirationMode");
         if( mode.toUpperCase().equals("KEEP") ) {
@@ -216,7 +142,6 @@ class ExpirationPanel extends JPanel {
     private void saveSettings() {
 
         settings.setValue("messageExpireDays", TfMessageExpireDays.getText());
-        settings.setValue("archive.dir", TfArchiveFolder.getText());
 
         if( RbKeepExpiredMessages.isSelected() ) {
             settings.setValue("messageExpirationMode", "KEEP");
@@ -238,8 +163,6 @@ class ExpirationPanel extends JPanel {
         RbArchiveExpiredMessages.setText(language.getString("Options.expiration.archiveExpiredMessages"));
         RbDeleteExpiredMessages.setText(language.getString("Options.expiration.deleteExpiredMessages"));
 
-        LmessageExpireDays.setText(language.getString("Options.expiration.numberOfDaysBeforeMessageExpires") + " (30)");
-        LarchiveFolder.setText(language.getString("Options.expiration.archiveFolder"));
-        BbrowseArchiveDirectory.setText(language.getString("Common.browse") + "...");
+        LmessageExpireDays.setText(language.getString("Options.expiration.numberOfDaysBeforeMessageExpires") + " (90)");
     }
 }

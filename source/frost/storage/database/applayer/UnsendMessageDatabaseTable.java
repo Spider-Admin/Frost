@@ -129,7 +129,7 @@ public class UnsendMessageDatabaseTable extends AbstractDatabaseTable {
         ps.close();
 
         if( inserted == 0 ) {
-            System.out.println("INSERTED is 0!!!!");
+            logger.log(Level.SEVERE, "message insert returned 0 !!!");
             return;
         }
         
@@ -150,7 +150,7 @@ public class UnsendMessageDatabaseTable extends AbstractDatabaseTable {
                 p.setString(ix++, fa.getKey()); 
                 int ins = p.executeUpdate();
                 if( ins == 0 ) {
-                    System.out.println("INSERTED is 0!!!!");
+                    logger.log(Level.SEVERE, "fileattachment insert returned 0 !!!");
                 }
             }
             p.close();
@@ -171,7 +171,7 @@ public class UnsendMessageDatabaseTable extends AbstractDatabaseTable {
                 p.setString(ix++, b.getDescription()); 
                 int ins = p.executeUpdate();
                 if( ins == 0 ) {
-                    System.out.println("INSERTED is 0!!!!");
+                    logger.log(Level.SEVERE, "boardattachment insert returned 0 !!!");
                 }
             }
             p.close();
