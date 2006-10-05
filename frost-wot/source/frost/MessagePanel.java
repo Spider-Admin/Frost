@@ -98,8 +98,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 if (e.getComponent() == messageTable) {
                     showMessageTablePopupMenu(e);
                 }
-                //if leftbtn double click on message show this message
-                //in popup window
+                // if leftbtn double click on message show this message in a new window
             } else if(SwingUtilities.isLeftMouseButton(e)) {
                 // accepting only mouse pressed event as double click, otherwise it will be triggered twice
                 if(e.getID() == MouseEvent.MOUSE_PRESSED ) {
@@ -961,6 +960,14 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     }
 
     private void showMessageTablePopupMenu(MouseEvent e) {
+        // select row where rightclick occurred
+        Point p = e.getPoint();
+        int y = messageTable.rowAtPoint(p);
+        if( y < 0 ) {
+            return;
+        }
+        messageTable.getSelectionModel().setSelectionInterval(y, y);
+        // show popup menu
         getPopupMenuMessageTable().show(e.getComponent(), e.getX(), e.getY());
     }
 
