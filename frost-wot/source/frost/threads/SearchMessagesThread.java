@@ -92,7 +92,8 @@ public class SearchMessagesThread extends Thread implements MessageDatabaseTable
 
     // Format: boards\2006.3.1\2006.3.1-boards-0.xml
     private void searchBoard(Board board, DateRange dr) {
-
+System.out.println("startDate="+dr.startDate);
+System.out.println("endDate="+dr.endDate);
         if( searchConfig.searchInKeypool ) {
             try {
                 AppLayerDatabase.getMessageTable().retrieveMessagesForSearch(
