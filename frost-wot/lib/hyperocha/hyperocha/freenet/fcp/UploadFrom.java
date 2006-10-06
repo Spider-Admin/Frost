@@ -59,7 +59,7 @@ public class UploadFrom {
 	 */
 	public UploadFrom(FreenetKey key) {
 		type = REDIRECT;
-		source = key.getReadKey();
+		source = key.getReadFreenetKey();
 	}
 	
 	

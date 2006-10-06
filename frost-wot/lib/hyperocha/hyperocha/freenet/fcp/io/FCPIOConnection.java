@@ -24,7 +24,6 @@ import hyperocha.freenet.fcp.FCPNode;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.net.SocketException;
@@ -67,7 +66,7 @@ public class FCPIOConnection {
     private /*synchronized*/ void handleIOError(Exception e) {
     	isopen = false;
     	lasterror = e;
-    	e.printStackTrace();
+    	e.printStackTrace();  // FIXME
     	if (connerrh != null) {
     		connerrh.onIOError(e);
     	}
@@ -91,7 +90,7 @@ public class FCPIOConnection {
 		return true;
     }
     
-	public void close() {
+	public synchronized void close() {
         try {
         	fcpOut.close();
 			fcpIn.close();
@@ -184,6 +183,7 @@ public class FCPIOConnection {
 			result = new String(bytes, 0, count, "UTF-8");
 		} catch (Exception e) {
 			handleIOError(e);
+			return null;
 		}
 		return result;
 	}

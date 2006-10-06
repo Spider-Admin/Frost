@@ -33,7 +33,7 @@ public class FreenetKeyType {
      
     private int keyType;
     
-    private final String[] names = { "KSK@",
+    private static final String[] names = { "KSK@",
     		                     "CHK@",
     		                     "SSK@",
     							 "USK@",
@@ -62,5 +62,13 @@ public class FreenetKeyType {
 	public String toString() {
 		return names[keyType];
 	}
+	
+    /**
+     * Returns a list of key types valid for this version of freenet.
+     */
+    public static String[] getFreenetKeyTypes() {
+        return names;
+    }
+ 
 
 }

@@ -33,7 +33,9 @@ import java.net.Socket;
  */
 public class FCPNodeConfig implements IStorageObject {
 	
-	private int nodeID = -1;
+	private String nodeID = null;
+	
+	private int networkType;
 	
 	private boolean initialized = false;
 	
@@ -42,7 +44,10 @@ public class FCPNodeConfig implements IStorageObject {
 	private String hostName = null; // avoid name lookup recursion in security manager
 	private String hostIp = null; // avoid name lookup recursion in security manager
 	
-	private int timeOut = 10 * 60 * 1000; 
+	// default timeout 30 minutes
+	// its asumes a reply from the node after each bucket
+	// Verbosity=1! (Verbosity.SIMPLEPROGRESS)
+	private int timeOut = 30 * 60 * 1000; 
 	
 	private boolean canDownload = true; // the factory can use this node for downloads 
 	private boolean canUpload = true; // the factory can use this node for uploads
@@ -74,7 +79,8 @@ public class FCPNodeConfig implements IStorageObject {
      * @throws Throwable 
      * 
      */
-    public FCPNodeConfig(int id, String serverport) {
+    public FCPNodeConfig(int networktype, String id, String serverport) {
+    	this.networkType = networktype;
 		this.nodeID = id;
 		setServerPort(serverport);
 	}
@@ -90,29 +96,34 @@ public class FCPNodeConfig implements IStorageObject {
 		useDDA = config.useDDA;
 		useGQ = config.useGQ;  
 		havePersistence = config.havePersistence;
+		networkType = config.networkType;
 	}
 
 	/**
 	 * 
 	 */
-	private FCPNodeConfig(int id, Object userObject) {
-		this.nodeID = id;
-		loadConfig(id, userObject);
-	}
+//	private FCPNodeConfig(int id, Object userObject) {
+//		this.nodeID = id;
+//		loadConfig(id, userObject);
+//	}
 	
 	/**
 	 * 
 	 */
-	private FCPNodeConfig(int id) {
-		this.nodeID = id;
-	}
+//	private FCPNodeConfig(int id) {
+//		this.nodeID = id;
+//	}
 	
 	public FCPNodeConfig(DataInputStream dis) {
 		loadData(dis);
 	}
 	
 	public boolean init() {
-		if (initialized) { return true; }
+		return init(false);
+	}
+	
+	public boolean init(boolean force) {
+		if ((!force) && initialized) { return true; }
 		initialized = false;
 		String server = hostName;
 		InetAddress ia = null;
@@ -127,6 +138,7 @@ public class FCPNodeConfig implements IStorageObject {
 			return false;
 		}
 		initialized = true;
+		//System.err.println("init!!!!!");
 		return true;
 	}
 
@@ -139,7 +151,7 @@ public class FCPNodeConfig implements IStorageObject {
         	retValue = setPort(splitServerPort[1]);
 		} catch (Exception e) {
 			lasterror = e;
-			e.printStackTrace();
+			//e.printStackTrace();
 			return false;
 		}
 		return retValue;
@@ -212,7 +224,7 @@ public class FCPNodeConfig implements IStorageObject {
 	
 	public boolean loadData(DataInputStream dis) {
 		try {
-			nodeID = dis.readInt();
+			nodeID = dis.readUTF();
 			port = dis.readInt();
 			hostName = dis.readUTF(); // avoid name lookup recursion in security manager
 			hostIp = dis.readUTF(); // avoid name lookup recursion in security manager
@@ -223,6 +235,7 @@ public class FCPNodeConfig implements IStorageObject {
 			useGQ = dis.readBoolean();  
 			havePersistence = dis.readBoolean();
 		} catch (IOException e) {
+			lasterror = e;
 			return false;
 		}
 		return true;
@@ -230,7 +243,7 @@ public class FCPNodeConfig implements IStorageObject {
 	
 	public boolean storeData(DataOutputStream dos) {
 		try {
-			dos.writeInt(nodeID);
+			dos.writeUTF(nodeID);
 			dos.writeInt(port);
 			dos.writeUTF(hostName); // avoid name lookup recursion in security manager
 			dos.writeUTF(hostIp); // avoid name lookup recursion in security manager
@@ -241,6 +254,7 @@ public class FCPNodeConfig implements IStorageObject {
 			dos.writeBoolean(useGQ);  
 			dos.writeBoolean(havePersistence);
 		} catch (IOException e) {
+			lasterror = e;
 			return false;
 		}
 		return true;
@@ -267,7 +281,7 @@ public class FCPNodeConfig implements IStorageObject {
 	 * @param timeOut  The timeOut to set.
 	 * @uml.property  name="timeOut"
 	 */
-	protected void setTimeOut(int timeOut) {
+	public void setTimeOut(int timeOut) {
 		this.timeOut = timeOut;
 	}
 
@@ -275,7 +289,7 @@ public class FCPNodeConfig implements IStorageObject {
 	 * @return  Returns the host.
 	 * @uml.property  name="host"
 	 */
-	protected InetAddress getHost() {
+	public InetAddress getHost() {
 		return host;
 	}
 
@@ -291,11 +305,11 @@ public class FCPNodeConfig implements IStorageObject {
 	 * @return  Returns the port.
 	 * @uml.property  name="port"
 	 */
-	protected int getPort() {
+	public int getPort() {
 		return port;
 	}
 	
-	protected Exception getLastError() {
+	public Exception getLastError() {
 		return lasterror;
 	}
 	
@@ -307,7 +321,7 @@ public class FCPNodeConfig implements IStorageObject {
 		return initialized;
 	}
 
-	public int getID() {
+	public String getID() {
 		return nodeID;
 	}
 
@@ -319,15 +333,15 @@ public class FCPNodeConfig implements IStorageObject {
 	public boolean isAddress(String h, int p) {
 		//System.out.println("ddd" + h + " . " + p);
 		if( p == port ) {
-			if (initialized) {
-				if(h.equals(hostName)) {
-					return true;
-				}
-			} else {
+//			if (initialized) {
+//				if(h.equals(hostName)) {
+//					return true;
+//				}
+//			} else {
 				if( h.equals(hostIp) || h.equals(hostName)) {
 					return true;
 				}
-			}
+//			}
 		}
 //
 //
@@ -360,6 +374,25 @@ public class FCPNodeConfig implements IStorageObject {
 //
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	public String getHostIp() {
+		return hostIp;
+	}
+
+	public String getHostName() {
+		return hostName;
+	}
+
+	public int getNetworkType() {
+		return networkType;
+	}
+
+	/**
+	 * @param networkType the networkType to set
+	 */
+	protected void setNetworkType(int networkType) {
+		this.networkType = networkType;
 	}
 
 }
