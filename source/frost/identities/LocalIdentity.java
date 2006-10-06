@@ -29,6 +29,7 @@ import frost.*;
 public class LocalIdentity extends Identity {
 
     private String privKey;
+    private String signature;
 
     public Element getXMLElement(Document doc) {
         // external element, "Identity"
@@ -46,10 +47,18 @@ public class LocalIdentity extends Identity {
         while(list.getLength() > 0) {
             el2.appendChild(list.item(0)); // removes Node from el
         }
-        Element element = doc.createElement("privKey");
-        CDATASection cdata = doc.createCDATASection(getPrivKey());
-        element.appendChild( cdata );
-        el2.appendChild( element );
+        {
+            Element element = doc.createElement("privKey");
+            CDATASection cdata = doc.createCDATASection(getPrivKey());
+            element.appendChild( cdata );
+            el2.appendChild( element );
+        }
+        if( getSignature() != null ) {
+            Element element = doc.createElement("signature");
+            CDATASection cdata = doc.createCDATASection(getSignature());
+            element.appendChild( cdata );
+            el2.appendChild( element );
+        }
         
         return el2;
     }
@@ -57,6 +66,7 @@ public class LocalIdentity extends Identity {
     public void loadXMLElement(Element el) throws SAXException {
         super.loadXMLElement(el);
         privKey =  XMLTools.getChildElementsCDATAValue(el, "privKey");
+        signature =  XMLTools.getChildElementsCDATAValue(el, "signature");
     }
 
     public LocalIdentity(String name, String[] keys) {
@@ -64,9 +74,10 @@ public class LocalIdentity extends Identity {
         privKey=keys[0];
     }
     
-    public LocalIdentity(String uname, String pubKey, String prvKey) {
+    public LocalIdentity(String uname, String pubKey, String prvKey, String sign) {
         super(uname, pubKey);
         privKey = prvKey;
+        signature = sign;
     }
 
     public LocalIdentity(Element el) {
@@ -103,6 +114,16 @@ public class LocalIdentity extends Identity {
 
     public String getPrivKey() {
         return privKey;
+    }
+    
+    /**
+     * @return  the signature the user entered for this identity.
+     */
+    public String getSignature() {
+        return signature;
+    }
+    public void setSignature(String s) {
+        signature = s;
     }
 
     public boolean isGOOD() {

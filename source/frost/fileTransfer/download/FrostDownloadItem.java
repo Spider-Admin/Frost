@@ -17,13 +17,16 @@
 */
 package frost.fileTransfer.download;
 
+import java.util.logging.*;
+
 import frost.*;
 import frost.fileTransfer.*;
+import frost.storage.database.applayer.*;
 import frost.util.model.*;
 
 public class FrostDownloadItem extends ModelItem {
     
-    // FIXME: from time to time, sync sharedfile against database to update sourcecount,...
+    private static Logger logger = Logger.getLogger(FrostDownloadItem.class.getName());
     
     // the constants representing download states
     public final static int STATE_WAITING    = 1; // wait for start
@@ -79,9 +82,24 @@ public class FrostDownloadItem extends ModelItem {
     }
 
     // add a shared file from filelist (user searched file and choosed one of the names)
-    // FIXME: ensure that the provided infos are loaded freshly from db! maybe the search table was filled for hours
-    //   and we received a key in the meantime, ...
-    public FrostDownloadItem(FrostFileListFileObject sfo, String newName) {
+    public FrostDownloadItem(FrostFileListFileObject newSfo, String newName) {
+        
+        FrostFileListFileObject sfo = null;
+        
+        // update the shared file object from database (key, owner, sources, ... may have changed)
+        FrostFileListFileObject updatedSfo = null;
+        try {
+            updatedSfo = AppLayerDatabase.getFileListDatabaseTable().retrieveFileBySha(newSfo.getSha());
+        } catch (Throwable t) {
+            logger.log(Level.SEVERE, "Exception in retrieveFileBySha", t);
+        }
+        if( updatedSfo != null ) {
+            sfo = updatedSfo;
+        } else {
+            // paranoia fallback
+            sfo = newSfo;
+        }
+        
         fileName = newName;
         fileSize = new Long(sfo.getSize());
         key = sfo.getKey();
@@ -262,6 +280,22 @@ public class FrostDownloadItem extends ModelItem {
     public void setTargetPath(String targetPath) {
         this.targetPath = targetPath;
     }
+    
+    public long getLastReceived() {
+        if( getFileListFileObject() == null ) {
+            return 0;
+        } else {
+            return getFileListFileObject().getLastReceived();
+        }
+    }
+
+    public long getLastUploaded() {
+        if( getFileListFileObject() == null ) {
+            return 0;
+        } else {
+            return getFileListFileObject().getLastUploaded();
+        }
+    }
 
     public FrostFileListFileObject getFileListFileObject() {
         return fileListFileObject;
@@ -275,8 +309,23 @@ public class FrostDownloadItem extends ModelItem {
         if( this.fileListFileObject != null ) {
             this.fileListFileObject.addListener(this);
         }
+        // take over key and update gui
+        fireValueChanged();
     }
-    public void fireChange() {
+    
+    /**
+     * Called by a FrostFileListFileObject if a value interesting for FrostDownloadItem was set.
+     */
+    public void fireValueChanged() {
+        // maybe take over the key
+        if( this.fileListFileObject != null ) {
+            if( getKey() == null || getKey().length() == 0 ) {
+                if( this.fileListFileObject.getKey() != null && this.fileListFileObject.getKey().length() > 0 ) {
+                    setKey( this.fileListFileObject.getKey() );
+                }
+            }
+        }
+        // remaining values are dynamically fetched from FrostFileListFileObject
         super.fireChange();
     }
 }

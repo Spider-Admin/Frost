@@ -123,7 +123,7 @@ System.out.println("FileListUploadThread: upload finished, key: "+chkKey);
                             SharedFilesCHKKeyManager.addNewCHKKeyToSend(key);
                             
                             // mark uploaded files in sharedfiles
-                            FileListManager.updateFileListWasSuccessfullySend(fileInfo.getFiles());
+                            FileListManager.updateFileListWasSuccessfullySent(fileInfo.getFiles());
                         }
                     }
                     

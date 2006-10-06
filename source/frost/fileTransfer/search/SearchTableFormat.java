@@ -39,7 +39,7 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
 
     private Language language;
 
-    private final static int COLUMN_COUNT = 6;
+    private final static int COLUMN_COUNT = 8;
 
     private String offline;
     private String uploading;
@@ -57,11 +57,12 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
 
         setComparator(new FileNameComparator(), 0);
         setComparator(new SizeComparator(), 1);
-        setComparator(new AgeComparator(), 2);
-        
-        setComparator(new RatingComparator(), 3);
-        setComparator(new CommentComparator(), 4);
-        setComparator(new SourcesComparator(), 5);
+        setComparator(new StateComparator(), 2);
+        setComparator(new LastUploadedComparator(), 3);
+        setComparator(new LastReceivedComparator(), 4);
+        setComparator(new RatingComparator(), 5);
+        setComparator(new CommentComparator(), 6);
+        setComparator(new SourcesComparator(), 7);
     }
 
     public void languageChanged(LanguageEvent event) {
@@ -71,11 +72,12 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
     private void refreshLanguage() {
         setColumnName(0, language.getString("SearchPane.resultTable.filename"));
         setColumnName(1, language.getString("SearchPane.resultTable.size"));
-        setColumnName(2, language.getString("SearchPane.resultTable.age"));
-        
-        setColumnName(3, language.getString("SearchPane.resultTable.rating"));
-        setColumnName(4, language.getString("SearchPane.resultTable.comment"));
-        setColumnName(5, language.getString("SearchPane.resultTable.sources"));
+        setColumnName(2, language.getString("SearchPane.resultTable.state"));
+        setColumnName(3, language.getString("SearchPane.resultTable.lastUploaded"));
+        setColumnName(4, language.getString("SearchPane.resultTable.lastReceived"));
+        setColumnName(5, language.getString("SearchPane.resultTable.rating"));
+        setColumnName(6, language.getString("SearchPane.resultTable.comment"));
+        setColumnName(7, language.getString("SearchPane.resultTable.sources"));
 
         offline =     language.getString("SearchPane.resultTable.states.offline");
         uploading =   language.getString("SearchPane.resultTable.states.uploading");
@@ -97,15 +99,21 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
                 return numberFormat.format(searchItem.getSize().longValue());
 
             case 2 :    //Age
-                return getAgeString(searchItem.getDate(), searchItem.getState());
+                return getStateStr(searchItem.getState());
 
-            case 3 :    //rating
+            case 3 :    //lastUploaded
+                return searchItem.getLastUploadedStr();
+
+            case 4 :    //lastReceived (=lastSeen)
+                return searchItem.getLastReceivedString();
+
+            case 5 :    //rating
                 return RatingStringProvider.getRatingString(searchItem.getRating().intValue());
 
-            case 4 :    //Filename
+            case 6 :    //Filename
                 return searchItem.getComment();
 
-            case 5 :    //Filename
+            case 7 :    //Filename
                 return searchItem.getSourceCount();
 
             default:
@@ -113,8 +121,8 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
         }
     }
 
-    private String getAgeString(String date, int state) {
-        String stateString = null;
+    private String getStateStr(int state) {
+        String stateString = "";
         switch (state) {
             case FrostSearchItem.STATE_OFFLINE :
                 stateString = offline;
@@ -132,20 +140,7 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
                 stateString = downloaded;
                 break;
         }
-
-        if ((date == null) || (date.length() == 0)) {
-            if (state == FrostSearchItem.STATE_NONE) {
-                return "**ERROR**"; //No date, no state
-            } else {
-                return stateString; //State, but no date
-            }
-        } else {
-            if (state == FrostSearchItem.STATE_NONE) {
-                return date;            //Date, but no state
-            } else {
-                return stateString + " (" + date + ")"; //Both state and date
-            }
-        }
+        return stateString;
     }
 
     public int[] getColumnNumbers(int fieldID) {
@@ -159,7 +154,7 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
 
         // Sets the relative widths of the columns
         TableColumnModel columnModel = modelTable.getTable().getColumnModel();
-        int[] widths = { 250, 80, 80, 40, 80, 40 };
+        int[] widths = { 250, 30, 40, 20, 20, 10, 80, 20 };
         for (int i = 0; i < widths.length; i++) {
             columnModel.getColumn(i).setPreferredWidth(widths[i]);
         }
@@ -169,21 +164,29 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
         columnModel.getColumn(0).setCellRenderer(cellRenderer);
 
         // Column "Size"
-        columnModel.getColumn(1).setCellRenderer(new NumberRightRenderer());
-        
+        columnModel.getColumn(1).setCellRenderer(new RightAlignRenderer());
+
+        // Column "lastseen" + "lastuploaded"
+        columnModel.getColumn(3).setCellRenderer(new RightAlignRenderer());
+        columnModel.getColumn(4).setCellRenderer(new RightAlignRenderer());
+
         // Column "Source count"
-        columnModel.getColumn(5).setCellRenderer(new SourceCountRenderer((SortedModelTable) modelTable));
+        columnModel.getColumn(7).setCellRenderer(new SourceCountRenderer((SortedModelTable) modelTable));
     }
     
-    private class AgeComparator implements Comparator {
+    private class StateComparator implements Comparator {
         public int compare(Object o1, Object o2) {
             FrostSearchItem item1 = (FrostSearchItem) o1;
             FrostSearchItem item2 = (FrostSearchItem) o2;
-
-            String age1 = getAgeString(item1.getDate(), item1.getState());
-            String age2 = getAgeString(item2.getDate(), item2.getState());
-
-            return age1.compareToIgnoreCase(age2);
+            int i1 = item1.getState();
+            int i2 = item2.getState();
+            if( i1 < i2 ) {
+                return -1;
+            }
+            if( i1 > i2 ) {
+                return 1;
+            }
+            return 0;
         }
     }
 
@@ -219,6 +222,34 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
         }
     }
 
+    private class LastReceivedComparator implements Comparator {
+        public int compare(Object o1, Object o2) {
+            long l1 = ((FrostSearchItem) o1).getFrostFileListFileObject().getLastReceived();
+            long l2 = ((FrostSearchItem) o2).getFrostFileListFileObject().getLastReceived();
+            if( l1 < l2 ) {
+                return -1;
+            }
+            if( l1 > l2 ) {
+                return 1;
+            }
+            return 0;
+        }
+    }
+
+    private class LastUploadedComparator implements Comparator {
+        public int compare(Object o1, Object o2) {
+            long l1 = ((FrostSearchItem) o1).getFrostFileListFileObject().getLastUploaded();
+            long l2 = ((FrostSearchItem) o2).getFrostFileListFileObject().getLastUploaded();
+            if( l1 < l2 ) {
+                return -1;
+            }
+            if( l1 > l2 ) {
+                return 1;
+            }
+            return 0;
+        }
+    }
+
     private class SourcesComparator implements Comparator {
         public int compare(Object o1, Object o2) {
             Integer sources1 = ((FrostSearchItem) o1).getSourceCount();
@@ -227,7 +258,7 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
         }
     }
 
-    private class NumberRightRenderer extends DefaultTableCellRenderer {
+    private class RightAlignRenderer extends DefaultTableCellRenderer {
         public Component getTableCellRendererComponent(
             JTable table,
             Object value,

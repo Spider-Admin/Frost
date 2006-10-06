@@ -42,7 +42,6 @@ public class SearchModel extends OrderedModel {
             FrostSearchItem searchItem = (FrostSearchItem) selectedItems[i];
             FrostFileListFileObject flf = searchItem.getFrostFileListFileObject();
             
-            // FIXME: reload FileListFile from db, maybe the key arrived in the meantime!
             FrostDownloadItem dlItem = new FrostDownloadItem(flf, flf.getDisplayName());
             downloadModel.addDownloadItem(dlItem);
         }
@@ -54,7 +53,6 @@ public class SearchModel extends OrderedModel {
             FrostSearchItem searchItem = (FrostSearchItem) iterator.next();
             FrostFileListFileObject flf = searchItem.getFrostFileListFileObject();
             
-            // FIXME: reload FileListFile from db, maybe the key arrived in the meantime!
             FrostDownloadItem dlItem = new FrostDownloadItem(flf, flf.getDisplayName());
             downloadModel.addDownloadItem(dlItem);
         }

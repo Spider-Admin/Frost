@@ -73,8 +73,8 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
         }
     }
 
-	private class SizeRenderer extends BaseRenderer {
-        public SizeRenderer() {
+	private class RightAlignRenderer extends BaseRenderer {
+        public RightAlignRenderer() {
             super();
         }
 		public Component getTableCellRendererComponent(
@@ -250,9 +250,41 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
         }
     }
 
+    private class LastReceivedComparator implements Comparator {
+        public int compare(Object o1, Object o2) {
+            FrostDownloadItem item1 = (FrostDownloadItem) o1;
+            FrostDownloadItem item2 = (FrostDownloadItem) o2;
+            long l1 = item1.getLastReceived();
+            long l2 = item2.getLastReceived();
+            if( l1 < l2 ) {
+                return -1;
+            }
+            if( l1 > l2 ) {
+                return 1;
+            }
+            return 0;
+        }
+    }
+
+    private class LastUploadedComparator implements Comparator {
+        public int compare(Object o1, Object o2) {
+            FrostDownloadItem item1 = (FrostDownloadItem) o1;
+            FrostDownloadItem item2 = (FrostDownloadItem) o2;
+            long l1 = item1.getLastUploaded();
+            long l2 = item2.getLastUploaded();
+            if( l1 < l2 ) {
+                return -1;
+            }
+            if( l1 > l2 ) {
+                return 1;
+            }
+            return 0;
+        }
+    }
+
 	private Language language;
 	
-	private final static int COLUMN_COUNT = 9;
+	private final static int COLUMN_COUNT = 11;
 	
     private String stateWaiting;
     private String stateTrying;
@@ -260,7 +292,6 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
     private String stateDone;
     private String stateDecoding;
 	
-    private String offline;
     private String unknown;
     
     private String isSharedTooltip;
@@ -279,29 +310,32 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 		setComparator(new FileNameComparator(), 3);
 		setComparator(new SizeComparator(), 4);
 		setComparator(new StateComparator(), 5);
-		setComparator(new BlocksComparator(), 6);
-		setComparator(new TriesComparator(), 7);
-		setComparator(new KeyComparator(), 8);
+        setComparator(new LastReceivedComparator(), 6);
+        setComparator(new LastUploadedComparator(), 7);
+		setComparator(new BlocksComparator(), 8);
+		setComparator(new TriesComparator(), 9);
+		setComparator(new KeyComparator(), 10);
 	}
 
 	private void refreshLanguage() {
 		setColumnName(0, language.getString("DownloadPane.fileTable.enabled"));
-        setColumnName(1, language.getString("DownloadPane.fileTable.shared")); // isShared
-        setColumnName(2, language.getString("DownloadPane.fileTable.requested")); // isRequested
+        setColumnName(1, language.getString("DownloadPane.fileTable.shared"));
+        setColumnName(2, language.getString("DownloadPane.fileTable.requested"));
 		setColumnName(3, language.getString("DownloadPane.fileTable.filename"));
 		setColumnName(4, language.getString("DownloadPane.fileTable.size"));
 		setColumnName(5, language.getString("DownloadPane.fileTable.state"));
-		setColumnName(6, language.getString("DownloadPane.fileTable.blocks"));
-		setColumnName(7, language.getString("DownloadPane.fileTable.tries"));
-		setColumnName(8, language.getString("DownloadPane.fileTable.key"));
+        setColumnName(6, language.getString("DownloadPane.fileTable.lastReceived"));
+        setColumnName(7, language.getString("DownloadPane.fileTable.lastUploaded"));
+		setColumnName(8, language.getString("DownloadPane.fileTable.blocks"));
+		setColumnName(9, language.getString("DownloadPane.fileTable.tries"));
+		setColumnName(10, language.getString("DownloadPane.fileTable.key"));
 		
-		stateWaiting =     language.getString("DownloadPane.fileTable.states.waiting");
-		stateTrying =      language.getString("DownloadPane.fileTable.states.trying");
-		stateFailed =      language.getString("DownloadPane.fileTable.states.failed");
-		stateDone =        language.getString("DownloadPane.fileTable.states.done");
-		stateDecoding =    language.getString("DownloadPane.fileTable.states.decodingSegment") + "...";
+		stateWaiting =  language.getString("DownloadPane.fileTable.states.waiting");
+		stateTrying =   language.getString("DownloadPane.fileTable.states.trying");
+		stateFailed =   language.getString("DownloadPane.fileTable.states.failed");
+		stateDone =     language.getString("DownloadPane.fileTable.states.done");
+		stateDecoding = language.getString("DownloadPane.fileTable.states.decodingSegment") + "...";
 	
-		offline =   language.getString("DownloadPane.fileTable.states.offline");
 		unknown =   language.getString("DownloadPane.fileTable.states.unknown");
         
         isSharedTooltip = language.getString("DownloadPane.fileTable.shared.tooltip");
@@ -325,35 +359,49 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
                 return Boolean.valueOf( downloadItem.isSharedFile() );
 
             case 2 : // isRequested
-                return getIsRequested( downloadItem.getFileListFileObject() ); // TODO: is gui update done when state changes???
+                return getIsRequested( downloadItem.getFileListFileObject() ); 
 
-			case 3 : //Filename
+			case 3 : // Filename
 				return downloadItem.getFileName();
 
-			case 4 : //Size
+			case 4 : // Size
 				if (downloadItem.getFileSize() == null) {
 					return unknown;
 				} else {
 					return numberFormat.format(downloadItem.getFileSize().longValue());
 				}
 
-			case 5 : //State
+			case 5 : // State
 				return getStateAsString(
 					downloadItem.getState(),
 					downloadItem.getTotalBlocks(),
 					downloadItem.getDoneBlocks(),
 					downloadItem.getRequiredBlocks());
 
-			case 6 : //Blocks
+            case 6 : // lastReceived
+                if( downloadItem.getLastReceived() > 0 ) {
+                    return DateFun.getExtendedDateFromMillis(downloadItem.getLastReceived());
+                } else {
+                    return "";
+                }
+                
+            case 7 : // lastUploaded
+                if( downloadItem.getLastUploaded() > 0 ) {
+                    return DateFun.getExtendedDateFromMillis(downloadItem.getLastUploaded());
+                } else {
+                    return "";
+                }
+                
+			case 8 : // Blocks
 				return getBlocksAsString(
 					downloadItem.getTotalBlocks(),
 					downloadItem.getDoneBlocks(),
 					downloadItem.getRequiredBlocks());
 
-			case 7 : //Tries
+			case 9 : // Tries
 				return new Integer(downloadItem.getRetries());
 
-			case 8 : //Key
+			case 10 : // Key
 				if (downloadItem.getKey() == null) {
 					return " ?";
 				} else {
@@ -424,11 +472,11 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 		
 		// Sets the relative widths of the columns
 		TableColumnModel columnModel = lModelTable.getTable().getColumnModel();
-		int[] widths = { 30, 170, 80, 70, 75, 25, 60 };
+		int[] widths = { 20,20,20, 150, 30, 30, 20, 20, 70, 10, 60 };
 		for (int i = 0; i < widths.length; i++) { // col 0 default width
 			columnModel.getColumn(i).setPreferredWidth(widths[i]);
 		}
-		
+
 		// Column "Enabled"
 		columnModel.getColumn(0).setCellRenderer(BooleanCell.RENDERER);
 		columnModel.getColumn(0).setCellEditor(BooleanCell.EDITOR);
@@ -449,11 +497,11 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
         columnModel.getColumn(2).setCellRenderer(new IsRequestedRenderer());
 
         BaseRenderer br = new BaseRenderer();
-        for( int x=3; x <columnModel.getColumnCount(); x++) {
+        for( int x=3; x < columnModel.getColumnCount(); x++) {
             TableColumn col = (TableColumn) columnModel.getColumn(x); 
-            if( x == 4 ) {
+            if( x == 4 || x == 6 || x == 7 ) {
                 // Column size
-                col.setCellRenderer(new SizeRenderer());
+                col.setCellRenderer(new RightAlignRenderer());
             } else {
                 col.setCellRenderer(br);
             }

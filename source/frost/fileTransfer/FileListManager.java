@@ -114,7 +114,7 @@ public class FileListManager {
      * Update sent files.
      * @param files  List of SharedFileXmlFile objects that were successfully sent inside a CHK file
      */
-    public static boolean updateFileListWasSuccessfullySend(List files) {
+    public static boolean updateFileListWasSuccessfullySent(List files) {
         
         long now = System.currentTimeMillis();
 
@@ -175,35 +175,26 @@ public class FileListManager {
                 logger.log(Level.SEVERE, "Exception in insertOrUpdateFrostSharedFileObject", t);
             }
             
-            // maybe update downloaditem if we received a key for the file
-            if( sfx.getKey() != null && sfx.getKey().length() > 0 ) {
-                
-                for( Iterator j = downloadItems.iterator(); j.hasNext(); ) {
-                    FrostDownloadItem dlItem = (FrostDownloadItem) j.next();
-                    if( !dlItem.isSharedFile() ) {
-                        continue;
+            // if a FrostDownloadItem references this file (by sha), retrieve the updated file from db and set it
+            for( Iterator j = downloadItems.iterator(); j.hasNext(); ) {
+                FrostDownloadItem dlItem = (FrostDownloadItem) j.next();
+                if( !dlItem.isSharedFile() ) {
+                    continue;
+                }
+                FrostFileListFileObject dlSfo = dlItem.getFileListFileObject();
+                if( dlSfo.getSha().equals( sfx.getSha() ) ) {
+                    // this download item references the updated file
+                    // update the shared file object from database (owner, sources, ... may have changed)
+                    FrostFileListFileObject updatedSfo = null;
+                    try {
+                        updatedSfo = AppLayerDatabase.getFileListDatabaseTable().retrieveFileBySha(sfx.getSha());
+                    } catch (Throwable t) {
+                        logger.log(Level.SEVERE, "Exception in retrieveFileBySha", t);
                     }
-
-                    FrostFileListFileObject dlSfo = dlItem.getFileListFileObject();
-                    if( dlSfo.getSha().equals( sfx.getSha() ) ) {
-                        
-                        // this download item references the shared file with sha, maybe set a new key
-                        if( dlSfo.getKey() == null || dlSfo.getKey().length() == 0 ) {
-                            dlItem.setKey(sfx.getKey());
-                            dlSfo.setKey(sfx.getKey());
-                        }
-                        
-                        // update the shared file object from database (owner, sources, ... may have changed)
-                        FrostFileListFileObject updatedSfo = null;
-                        try {
-                            updatedSfo = AppLayerDatabase.getFileListDatabaseTable().retrieveFileBySha(sfx.getSha());
-                        } catch (Throwable t) {
-                            logger.log(Level.SEVERE, "Exception in retrieveFileBySha", t);
-                        }
-                        if( updatedSfo != null ) {
-                            dlItem.setFileListFileObject(updatedSfo);
-                        }
+                    if( updatedSfo != null ) {
+                        dlItem.setFileListFileObject(updatedSfo);
                     }
+                    break; // there is only one file in download table with same sha
                 }
             }
         }

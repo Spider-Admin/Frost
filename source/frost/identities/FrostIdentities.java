@@ -35,8 +35,6 @@ import frost.util.gui.translation.*;
  */
 public class FrostIdentities implements Savable {
 
-    // FIXME: use separate signatures for each identity
-    
     private static Logger logger = Logger.getLogger(FrostIdentities.class.getName());
 
     private Hashtable identities = new Hashtable();
@@ -117,7 +115,7 @@ public class FrostIdentities implements Savable {
             String nick = null;
             boolean isNickOk;
             do {
-                nick = MiscToolkit.getInstance().showInputDialog(language.getString("Core.loadIdentities.ChooseName"));
+                nick = JOptionPane.showInputDialog(language.getString("Core.loadIdentities.ChooseName")); 
                 
                 if( nick == null ) {
                     break; // user cancelled
