@@ -23,6 +23,7 @@ import java.awt.*;
 import java.io.*;
 import java.util.*;
 import java.util.List;
+import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
@@ -31,10 +32,16 @@ import frost.*;
 import frost.identities.*;
 import frost.storage.*;
 import frost.storage.database.*;
+import frost.storage.database.applayer.*;
 import frost.util.gui.translation.*;
+import java.awt.Insets;
+import javax.swing.JButton;
+import java.awt.GridBagConstraints;
 
 public class ManageLocalIdentitiesDialog extends JDialog {
     
+    private static Logger logger = Logger.getLogger(ManageLocalIdentitiesDialog.class.getName());
+
     private Language language = null;
 
     private JPanel jContentPane = null;
@@ -53,6 +60,8 @@ public class ManageLocalIdentitiesDialog extends JDialog {
     private JButton BimportXml = null;
 
     private JButton BexportXml = null;
+
+    private JButton BsetSignature = null;
 
     /**
      * This is the default constructor
@@ -82,6 +91,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
         BimportXml.setText(language.getString("ManageLocalIdentities.button.importXml"));
         BexportXml.setText(language.getString("ManageLocalIdentities.button.exportXml"));
         Bclose.setText(language.getString("ManageLocalIdentities.button.close"));
+        BsetSignature.setText(language.getString("ManageLocalIdentities.button.editSignature"));
     }
     
     /**
@@ -192,28 +202,33 @@ public class ManageLocalIdentitiesDialog extends JDialog {
      */
     private JPanel getJPanel() {
         if( jPanel == null ) {
+            GridBagConstraints gridBagConstraints9 = new GridBagConstraints();
+            gridBagConstraints9.gridx = 0;
+            gridBagConstraints9.insets = new Insets(15, 3, 0, 5);
+            gridBagConstraints9.fill = GridBagConstraints.HORIZONTAL;
+            gridBagConstraints9.gridy = 2;
             GridBagConstraints gridBagConstraints8 = new GridBagConstraints();
             gridBagConstraints8.gridx = 0;
             gridBagConstraints8.fill = java.awt.GridBagConstraints.HORIZONTAL;
             gridBagConstraints8.insets = new java.awt.Insets(5,3,0,5);
-            gridBagConstraints8.gridy = 4;
+            gridBagConstraints8.gridy = 5;
             GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
             gridBagConstraints7.gridx = 0;
             gridBagConstraints7.fill = java.awt.GridBagConstraints.HORIZONTAL;
             gridBagConstraints7.insets = new java.awt.Insets(15,3,0,5);
-            gridBagConstraints7.gridy = 3;
+            gridBagConstraints7.gridy = 4;
             GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
             gridBagConstraints6.gridx = 0;
             gridBagConstraints6.fill = java.awt.GridBagConstraints.VERTICAL;
             gridBagConstraints6.weighty = 1.0;
-            gridBagConstraints6.gridy = 5;
+            gridBagConstraints6.gridy = 6;
             Ldummy = new JLabel();
             Ldummy.setText("");
             GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
             gridBagConstraints5.gridx = 0;
             gridBagConstraints5.insets = new java.awt.Insets(15,3,0,5);
             gridBagConstraints5.fill = java.awt.GridBagConstraints.HORIZONTAL;
-            gridBagConstraints5.gridy = 2;
+            gridBagConstraints5.gridy = 3;
             GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
             gridBagConstraints4.gridx = 0;
             gridBagConstraints4.insets = new java.awt.Insets(5,3,0,5);
@@ -222,7 +237,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
             gridBagConstraints4.gridy = 1;
             GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
             gridBagConstraints3.gridx = 0;
-            gridBagConstraints3.insets = new java.awt.Insets(5,3,0,5);
+            gridBagConstraints3.insets = new Insets(0, 3, 0, 5);
             gridBagConstraints3.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints3.fill = java.awt.GridBagConstraints.HORIZONTAL;
             gridBagConstraints3.gridy = 0;
@@ -234,6 +249,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
             jPanel.add(Ldummy, gridBagConstraints6);
             jPanel.add(getBimportXml(), gridBagConstraints7);
             jPanel.add(getBexportXml(), gridBagConstraints8);
+            jPanel.add(getBsetSignature(), gridBagConstraints9);
         }
         return jPanel;
     }
@@ -579,5 +595,42 @@ public class ManageLocalIdentitiesDialog extends JDialog {
             });
         }
         return BexportXml;
+    }
+
+    /**
+     * This method initializes BsetSignature	
+     * 	
+     * @return javax.swing.JButton	
+     */
+    private JButton getBsetSignature() {
+        if( BsetSignature == null ) {
+            BsetSignature = new JButton();
+            BsetSignature.setText("ManageLocalIdentities.button.editSignature");
+            BsetSignature.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                    LocalIdentity li = (LocalIdentity)getIdentitiesList().getSelectedValue();
+                    if( li == null ) {
+                        return;
+                    }
+                    String idString = li.getUniqueName();
+                    String signature = li.getSignature();
+                    ManageLocalIdentitiesSignatureDialog dlg = new ManageLocalIdentitiesSignatureDialog(ManageLocalIdentitiesDialog.this);
+                    String newSig = dlg.startDialog(idString, signature);
+                    if( newSig != null ) {
+                        newSig = newSig.trim();
+                        if( newSig.length() == 0 ) {
+                            newSig = null;
+                        }
+                        li.setSignature(newSig);
+                        try {
+                            AppLayerDatabase.getIdentitiesDatabaseTable().updateLocalIdentity(li);
+                        } catch(Throwable ex) {
+                            logger.log(Level.SEVERE, "Error updating signature", ex);
+                        }
+                    }
+                }
+            });
+        }
+        return BsetSignature;
     }
 }  //  @jve:decl-index=0:visual-constraint="10,10"

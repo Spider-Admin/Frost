@@ -19,20 +19,15 @@
 package frost.gui.preferences;
 
 import java.awt.*;
-import java.io.*;
-import java.util.logging.*;
 
 import javax.swing.*;
 
 import frost.*;
 import frost.fcp.*;
 import frost.util.gui.*;
-import frost.util.gui.textpane.*;
 import frost.util.gui.translation.*;
 
 class NewsPanel extends JPanel {
-
-    private static Logger logger = Logger.getLogger(NewsPanel.class.getName());
 
     private SettingsClass settings = null;
     private Language language = null;
@@ -42,7 +37,6 @@ class NewsPanel extends JPanel {
     private JLabel displayDaysLabel = new JLabel();
     private JLabel downloadDaysLabel = new JLabel();
     private JLabel messageBaseLabel = new JLabel();
-    private JLabel signatureLabel = new JLabel();
 
     private JTextField uploadHtlTextField = new JTextField(8);
     private JTextField downloadHtlTextField = new JTextField(8);
@@ -51,8 +45,6 @@ class NewsPanel extends JPanel {
     private JTextField messageBaseTextField = new JTextField(16);
     
     private JCheckBox alwaysDownloadBackloadCheckBox = new JCheckBox();
-
-    private AntialiasedTextArea signatureTextArea;
 
     /**
      * @param settings the SettingsClass instance that will be used to get and store the settings of the panel
@@ -132,17 +124,6 @@ class NewsPanel extends JPanel {
         constraints.gridx = 1;
         add(downloadHtlTextField, constraints);
 
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.gridwidth = 2;
-        constraints.weightx = 1;
-        constraints.weighty = 0;
-        constraints.gridx = 0;
-        constraints.gridy++;
-        add(signatureLabel, constraints);
-        constraints.gridy++;
-        JScrollPane signatureScrollPane = new JScrollPane(getSignatureTextArea());
-        add(signatureScrollPane, constraints);
-
         // glue
         constraints.gridy++;
         constraints.gridx = 0;
@@ -151,29 +132,6 @@ class NewsPanel extends JPanel {
         constraints.weightx = 1;
         constraints.weighty = 1;
         add(new JLabel(""), constraints);
-    }
-
-    /**
-     * @return
-     */
-    private AntialiasedTextArea getSignatureTextArea() {
-        if (signatureTextArea == null) {
-            signatureTextArea = new AntialiasedTextArea(6, 50);
-
-            String fontName = settings.getValue(SettingsClass.MESSAGE_BODY_FONT_NAME);
-            int fontStyle = settings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_STYLE);
-            int fontSize = settings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
-            Font tofFont = new Font(fontName, fontStyle, fontSize);
-            if (!tofFont.getFamily().equals(fontName)) {
-                logger.severe("The selected font was not found in your system\n"
-                        + "That selection will be changed to \"Monospaced\".");
-                settings.setValue(SettingsClass.MESSAGE_BODY_FONT_NAME, "Monospaced");
-                tofFont = new Font("Monospaced", fontStyle, fontSize);
-            }
-            signatureTextArea.setFont(tofFont);
-            signatureTextArea.setAntiAliasEnabled(settings.getBoolValue("messageBodyAA"));
-        }
-        return signatureTextArea;
     }
 
     /**
@@ -186,12 +144,6 @@ class NewsPanel extends JPanel {
         downloadDaysTextField.setText(settings.getValue("maxMessageDownload"));
         messageBaseTextField.setText(settings.getValue("messageBase"));
         alwaysDownloadBackloadCheckBox.setSelected(settings.getBoolValue(SettingsClass.ALWAYS_DOWNLOAD_MESSAGES_BACKLOAD));
-
-        //Load signature
-        File signature = new File("signature.txt");
-        if (signature.isFile()) {
-            getSignatureTextArea().setText(FileAccess.readFile(signature, "UTF-8"));
-        }
     }
 
     public void ok() {
@@ -204,7 +156,6 @@ class NewsPanel extends JPanel {
         displayDaysLabel.setText(language.getString("Options.news.1.numberOfDaysToDisplay") + " (15)");
         downloadDaysLabel.setText(language.getString("Options.news.1.numberOfDaysToDownloadBackwards") + " (5)");
         messageBaseLabel.setText(language.getString("Options.news.1.messageBase") + " (news)");
-        signatureLabel.setText(language.getString("Options.news.1.signature"));
         alwaysDownloadBackloadCheckBox.setText(language.getString("Options.news.1.alwaysDownloadBackload"));
         alwaysDownloadBackloadCheckBox.setToolTipText(language.getString("Options.news.1.alwaysDownloadBackload.tooltip"));
     }
@@ -219,8 +170,5 @@ class NewsPanel extends JPanel {
         settings.setValue("maxMessageDownload", downloadDaysTextField.getText());
         settings.setValue("messageBase", messageBaseTextField.getText().trim().toLowerCase());
         settings.setValue(SettingsClass.ALWAYS_DOWNLOAD_MESSAGES_BACKLOAD, alwaysDownloadBackloadCheckBox.isSelected());
-
-        //Save signature
-        FileAccess.writeFile(getSignatureTextArea().getText(), "signature.txt", "UTF-8");
     }
 }

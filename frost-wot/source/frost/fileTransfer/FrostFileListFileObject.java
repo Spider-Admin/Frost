@@ -37,6 +37,7 @@ public class FrostFileListFileObject {
     private String key = null;  // CHK key
     
     private long lastDownloaded = 0;
+    private long lastUploaded = 0;
     private long firstReceived = 0;
     private long lastReceived = 0;
 
@@ -50,7 +51,6 @@ public class FrostFileListFileObject {
     private String displayName = null;
     private String displayComment = null;
     private int displayRating = -1;
-    private long displayLastUploaded = -1;
     private Boolean hasInfosFromMultipleSources = null;
 
     private List frostFileListFileObjectOwnerList = new LinkedList();
@@ -66,6 +66,7 @@ public class FrostFileListFileObject {
             long newSize, 
             String newKey, 
             long newLastDownloaded, 
+            long newLastUploaded, 
             long newFirstReceived,
             long newLastReceived,
             long newRequestLastReceived,
@@ -78,6 +79,7 @@ public class FrostFileListFileObject {
         size = newSize;
         key = newKey;
         lastDownloaded = newLastDownloaded;
+        lastUploaded = newLastUploaded;
         firstReceived = newFirstReceived;
         lastReceived = newLastReceived;
         requestLastReceived = newRequestLastReceived;
@@ -110,6 +112,8 @@ public class FrostFileListFileObject {
                 lastUploadDate = 0;
             }
         }
+        lastUploaded = lastUploadDate;
+        
         FrostFileListFileObjectOwner ob = new FrostFileListFileObjectOwner(
                 sfo.getFilename(),
                 owner.getUniqueName(),
@@ -151,6 +155,7 @@ public class FrostFileListFileObject {
 
     public void setKey(String key) {
         this.key = key;
+        notifyListeners();
     }
 
     public long getLastDownloaded() {
@@ -161,12 +166,22 @@ public class FrostFileListFileObject {
         this.lastDownloaded = lastDownloaded;
     }
 
+    public long getLastUploaded() {
+        return lastUploaded;
+    }
+
+    public void setLastUploaded(long lastUploaded) {
+        this.lastUploaded = lastUploaded;
+        notifyListeners();
+    }
+
     public long getLastReceived() {
         return lastReceived;
     }
 
     public void setLastReceived(long lastReceived) {
         this.lastReceived = lastReceived;
+        notifyListeners();
     }
 
     public String getSha() {
@@ -361,24 +376,6 @@ public class FrostFileListFileObject {
         return displayRating;
     }
     
-    public long getDisplayLastUploaded() {
-        if( displayLastUploaded < 0 ) {
-            List lst = getFrostFileListFileObjectOwnerList();
-            if( lst == null || lst.size() == 0 ) {
-                return 0;
-            }
-            long latestUpload = 0;
-            for( Iterator i = lst.iterator(); i.hasNext(); ) {
-                FrostFileListFileObjectOwner e = (FrostFileListFileObjectOwner) i.next();
-                if( e.getLastUploaded() > latestUpload ) {
-                    latestUpload = e.getLastUploaded();
-                }
-            }
-            displayLastUploaded = latestUpload;
-        }
-        return displayLastUploaded;
-    }
-    
     public void addListener(FrostDownloadItem d) {
         if( !listeners.contains(d) ) {
             listeners.add(d);
@@ -395,7 +392,7 @@ public class FrostFileListFileObject {
     private void notifyListeners() {
         for(Iterator i=listeners.iterator(); i.hasNext(); ) {
             FrostDownloadItem dl = (FrostDownloadItem) i.next();
-            dl.fireChange();
+            dl.fireValueChanged();
         }
     }
 }

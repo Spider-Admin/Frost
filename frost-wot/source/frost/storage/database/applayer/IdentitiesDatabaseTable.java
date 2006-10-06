@@ -42,6 +42,7 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
         "uniquename VARCHAR NOT NULL,"+
         "publickey VARCHAR NOT NULL,"+
         "privatekey VARCHAR NOT NULL,"+
+        "signature VARCHAR,"+
         "CONSTRAINT oids_pk PRIMARY KEY (primkey),"+
         "CONSTRAINT OWNIDENTITIES_1 UNIQUE (uniquename) )";
     
@@ -84,11 +85,12 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
         PreparedStatement ps = db.prepare(
-                "INSERT INTO OWNIDENTITIES (uniquename,publickey,privatekey) VALUES (?,?,?)");
+                "INSERT INTO OWNIDENTITIES (uniquename,publickey,privatekey,signature) VALUES (?,?,?,?)");
         
         ps.setString(1, localIdentity.getUniqueName());
         ps.setString(2, localIdentity.getKey());
         ps.setString(3, localIdentity.getPrivKey());
+        ps.setString(4, localIdentity.getSignature());
         
         boolean insertWasOk = (ps.executeUpdate() == 1);
         ps.close();
@@ -146,14 +148,15 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
         
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
-        PreparedStatement ps = db.prepare("SELECT uniquename,publickey,privatekey FROM OWNIDENTITIES");
+        PreparedStatement ps = db.prepare("SELECT uniquename,publickey,privatekey,signature FROM OWNIDENTITIES");
         
         ResultSet rs = ps.executeQuery();
         while(rs.next()) {
             String uniqueName = rs.getString(1);
             String pubKey = rs.getString(2);
             String prvKey = rs.getString(3);
-            LocalIdentity id = new LocalIdentity(uniqueName, pubKey, prvKey);
+            String signature = rs.getString(4);
+            LocalIdentity id = new LocalIdentity(uniqueName, pubKey, prvKey, signature);
             localIdentities.add(id);
         }
         rs.close();
@@ -164,7 +167,20 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
 
         return localIdentities;
     }
-    
+
+    public boolean updateLocalIdentity(LocalIdentity identity) throws SQLException {
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
+        
+        PreparedStatement ps = db.prepare("UPDATE OWNIDENTITIES SET signature=? WHERE uniquename=?");
+        
+        ps.setString(1, identity.getSignature());
+        ps.setString(2, identity.getUniqueName());
+        
+        boolean updateWasOk = (ps.executeUpdate() == 1);
+        ps.close();
+        return updateWasOk;
+    }
+
     public boolean updateIdentity(Identity identity) throws SQLException {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         

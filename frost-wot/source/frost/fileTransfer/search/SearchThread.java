@@ -30,8 +30,6 @@ import frost.fileTransfer.sharing.*;
 import frost.identities.*;
 import frost.storage.database.applayer.*;
 
-// FIXME: adding to table is too slow, use Timer and add a list all 250ms, or bulk add all X items
-
 class SearchThread extends Thread implements FileListDatabaseTableCallback {
 
     private static Logger logger = Logger.getLogger(SearchThread.class.getName());
@@ -44,8 +42,8 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
     private String[] documentExtension;
     private String[] executableExtension;
     private String[] archiveExtension;
-    int allFileCount;
-    int maxSearchResults;
+    private int allFileCount;
+    private int maxSearchResults;
     private SearchPanel searchPanel = null;
     
     private java.sql.Date currentDate;
@@ -245,13 +243,6 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
     }
 
     /**
-     * Filters items by setting of Hide offline, Hide downloaded/downloading.
-     */
-    private boolean filterBySearchItemState( int state ) {
-        return true;
-    }
-
-    /**
      * Displays search results in search table
      */
     private void displaySearchResults(FrostFileListFileObject fo) {
@@ -287,11 +278,6 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
         } else if (keyData == null) {
             // this file is offline -> gray
             searchItemState = FrostSearchItem.STATE_OFFLINE;
-        }
-
-        // filter by searchItemState
-        if (filterBySearchItemState(searchItemState) == false) {
-            return;
         }
 
         FrostSearchItem searchItem = new FrostSearchItem(fo, searchItemState);

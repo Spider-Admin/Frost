@@ -42,6 +42,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
           "size BIGINT NOT NULL,"+
           "fnkey VARCHAR NOT NULL,"+      // if "" then file is not yet inserted
           "lastdownloaded BIGINT,"+         // last time we successfully downloaded this file
+          "lastuploaded BIGINT,"+           // GLOBAL last time someone uploaded this file
           "firstreceived BIGINT NOT NULL,"+ // first time we saw this file
           "lastreceived BIGINT NOT NULL,"+  // GLOBAL last time we received this file in a fileindex. kept if all refs were removed
 
@@ -102,6 +103,9 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
                 if( oldSfo.getLastReceived() < newSfo.getLastReceived() ) {
                     oldSfo.setLastReceived(newSfo.getLastReceived()); doUpdate = true;
                 }
+                if( oldSfo.getLastUploaded() < newSfo.getLastUploaded() ) {
+                    oldSfo.setLastUploaded(newSfo.getLastUploaded()); doUpdate = true;
+                }
                 if( oldSfo.getLastDownloaded() < newSfo.getLastDownloaded() ) {
                     oldSfo.setLastDownloaded(newSfo.getLastDownloaded()); doUpdate = true;
                 }
@@ -146,7 +150,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
         PreparedStatement ps = db.prepare(
-            "SELECT primkey,size,fnkey,lastdownloaded,firstreceived,lastreceived,"+
+            "SELECT primkey,size,fnkey,lastdownloaded,lastuploaded,firstreceived,lastreceived,"+
                    "requestlastreceived,requestsreceivedcount,requestlastsent,requestssentcount "+
             " FROM FILELIST WHERE sha=?");
         
@@ -160,6 +164,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
             long size = rs.getLong(ix++);
             String key = rs.getString(ix++);
             long lastDownloaded = rs.getLong(ix++);
+            long lastUploaded = rs.getLong(ix++);
             long firstReceived = rs.getLong(ix++);
             long lastReceived = rs.getLong(ix++);
 
@@ -178,6 +183,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
                     size, 
                     key, 
                     lastDownloaded,
+                    lastUploaded,
                     firstReceived,
                     lastReceived,
                     requestLastReceived,
@@ -196,7 +202,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
         PreparedStatement ps = db.prepare(
-            "SELECT sha,size,fnkey,lastdownloaded,firstreceived,lastreceived,"+
+            "SELECT sha,size,fnkey,lastdownloaded,lastuploaded,firstreceived,lastreceived,"+
                    "requestlastreceived,requestsreceivedcount,requestlastsent,requestssentcount "+
             " FROM FILELIST WHERE primkey=?");
         
@@ -210,6 +216,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
             long size = rs.getLong(ix++);
             String key = rs.getString(ix++);
             long lastDownloaded = rs.getLong(ix++);
+            long lastUploaded = rs.getLong(ix++);
             long firstReceived = rs.getLong(ix++);
             long lastReceived = rs.getLong(ix++);
             
@@ -228,6 +235,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
                     size, 
                     key, 
                     lastDownloaded,
+                    lastUploaded,
                     firstReceived,
                     lastReceived,
                     requestLastReceived,
@@ -256,7 +264,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         stmt.close();
         
         PreparedStatement ps = db.prepare(
-            "INSERT INTO FILELIST (primkey,sha,size,fnkey,lastdownloaded,firstreceived,lastreceived,"+
+            "INSERT INTO FILELIST (primkey,sha,size,fnkey,lastdownloaded,lastuploaded,firstreceived,lastreceived,"+
             "requestlastreceived,requestsreceivedcount,requestlastsent,requestssentcount) "+
             "VALUES (?,?,?,?,?,?,?,?,?,?,?)");
 
@@ -266,6 +274,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         ps.setLong(ix++, sfo.getSize());
         ps.setString(ix++, (sfo.getKey()==null?"":sfo.getKey()));
         ps.setLong(ix++, sfo.getLastDownloaded());
+        ps.setLong(ix++, sfo.getLastUploaded());
         ps.setLong(ix++, sfo.getFirstReceived());
         ps.setLong(ix++, sfo.getLastReceived());
         
@@ -294,13 +303,14 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
         PreparedStatement ps = db.prepare(
-            "UPDATE FILELIST SET fnkey=?,lastdownloaded=?,lastreceived=?,"+
+            "UPDATE FILELIST SET fnkey=?,lastdownloaded=?,lastuploaded=?,lastreceived=?,"+
             "requestlastreceived=?,requestsreceivedcount=?,requestlastsent=?,requestssentcount=? "+
             "WHERE sha=?");
 
         int ix = 1;
         ps.setString(ix++, (sfo.getKey()==null?"":sfo.getKey()));
         ps.setLong(ix++, sfo.getLastDownloaded());
+        ps.setLong(ix++, sfo.getLastUploaded());
         ps.setLong(ix++, sfo.getLastReceived());
         
         ps.setLong(ix++, sfo.getRequestLastReceived());

@@ -90,7 +90,7 @@ public class MessageFrame extends JFrame {
     private AntialiasedTextArea messageTextArea = new AntialiasedTextArea(); // Text
     private ImmutableArea headerArea = null;
     private String oldSender = null;
-    private String signature = null;
+    private String currentSignature = null;
 
     private FrostMessageObject repliedMessage = null;
 
@@ -296,37 +296,6 @@ public class MessageFrame extends JFrame {
         }
         oldSender = from;
         
-        String date = DateFun.getExtendedDate() + " - " + DateFun.getFullExtendedTime() + "GMT";
-        String fromLine = "----- " + from + " ----- " + date + " -----";
-
-        int headerAreaStart = newText.length();// begin of non-modifiable area
-        newText += fromLine + "\n\n";
-        int headerAreaEnd = newText.length() - 2; // end of non-modifiable area
-
-        if( altEditText != null ) {
-            newText += altEditText; // maybe append text entered in alternate editor
-        }
-
-        int caretPos = newText.length();
-
-        File signatureFile = new File("signature.txt");
-        if (signatureFile.isFile()) {
-            signature = FileAccess.readFile(signatureFile, "UTF-8").trim();
-            if( signature != null ) {
-                signature = signature.trim();
-                if( signature.length() > 0 ) {
-                    signature = "\n-- \n" + signature;
-                } else {
-                    signature = null;
-                }
-            }
-        }
-
-        messageTextArea.setText(newText);
-        headerArea.setStartPos(headerAreaStart);
-        headerArea.setEndPos(headerAreaEnd);
-        headerArea.setEnabled(true);
-
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         try {
             initialize(newBoard, newSubject);
@@ -404,12 +373,38 @@ public class MessageFrame extends JFrame {
             buddies.setEnabled(false);
         }
 
-        // set sig if msg is marked as signed
-        if( sign.isSelected() && signature != null ) {
-            newText += signature;
-        }
-        
         updateSignToolTip();
+        
+        // prepare message text
+        String date = DateFun.getExtendedDate() + " - " + DateFun.getFullExtendedTime() + "GMT";
+        String fromLine = "----- " + from + " ----- " + date + " -----";
+
+        int headerAreaStart = newText.length();// begin of non-modifiable area
+        newText += fromLine + "\n\n";
+        int headerAreaEnd = newText.length() - 2; // end of non-modifiable area
+
+        if( altEditText != null ) {
+            newText += altEditText; // maybe append text entered in alternate editor
+        }
+
+        // later set cursor to this position in text
+        int caretPos = newText.length();
+
+        // set sig if msg is marked as signed
+        currentSignature = null;
+        if( sign.isSelected()  ) {
+            // maybe append a signature
+            LocalIdentity li = (LocalIdentity)getOwnIdentitiesComboBox().getSelectedItem();
+            if( li.getSignature() != null ) {
+                currentSignature = "\n-- \n" + li.getSignature();
+                newText += currentSignature;
+            }
+        }
+
+        messageTextArea.setText(newText);
+        headerArea.setStartPos(headerAreaStart);
+        headerArea.setEndPos(headerAreaEnd);
+        headerArea.setEnabled(true);
 
         setVisible(true);
 
@@ -857,8 +852,17 @@ public class MessageFrame extends JFrame {
         dispose();
     }
 
-    private void sign_stateChanged(boolean isSigned) {
+    private void senderChanged(LocalIdentity selectedId) {
+        
+        boolean isSigned;
+        if( selectedId == null ) {
+            isSigned = false;
+        } else {
+            isSigned = true;
+        }
+        
         sign.setSelected(isSigned);
+        
         if (isSigned) {
             if( buddies.getItemCount() > 0 ) {
                 encrypt.setEnabled(true);
@@ -868,27 +872,42 @@ public class MessageFrame extends JFrame {
                     buddies.setEnabled(false);
                 }
             }
-            // add signature if not existing
-            String txt = messageTextArea.getText();
-            if (signature != null && !messageTextArea.getText().endsWith(signature)) {
-                try {
-                    messageTextArea.getDocument().insertString(txt.length(), signature, null);
-                } catch (BadLocationException e1) {
-                    logger.log(Level.SEVERE, "Error while updating the signature ", e1);
-                }
-            }
+            
+            removeSignatureFromText(currentSignature); // remove signature if existing
+            currentSignature = addSignatureToText(selectedId.getSignature()); // add new signature if not existing
         } else {
             encrypt.setSelected(false);
             encrypt.setEnabled(false);
             buddies.setEnabled(false);
-            // remove signature if existing
-            if (signature != null && messageTextArea.getText().endsWith(signature)) {
-                try {
-                    messageTextArea.getDocument().remove(messageTextArea.getText().length()-signature.length(),
-                            signature.length());
-                } catch (BadLocationException e1) {
-                    logger.log(Level.SEVERE, "Error while updating the signature ", e1);
-                }
+            removeSignatureFromText(currentSignature); // remove signature if existing
+            currentSignature = null;
+        }
+    }
+    
+    private String addSignatureToText(String sig) {
+        if( sig == null ) {
+            return null;
+        }
+        String newSig = "\n-- \n" + sig;
+        if (!messageTextArea.getText().endsWith(newSig)) {
+            try {
+                messageTextArea.getDocument().insertString(messageTextArea.getText().length(), newSig, null);
+            } catch (BadLocationException e1) {
+                logger.log(Level.SEVERE, "Error while updating the signature ", e1);
+            }
+        }
+        return newSig;
+    }
+    
+    private void removeSignatureFromText(String sig) {
+        if( sig == null ) {
+            return;
+        }
+        if (messageTextArea.getText().endsWith(sig)) {
+            try {
+                messageTextArea.getDocument().remove(messageTextArea.getText().length()-sig.length(), sig.length());
+            } catch (BadLocationException e1) {
+                logger.log(Level.SEVERE, "Error while updating the signature ", e1);
             }
         }
     }
@@ -902,6 +921,9 @@ public class MessageFrame extends JFrame {
     }
 
     protected void updateHeaderArea(String sender) {
+        if( !headerArea.isEnabled() ) {
+            return; // ignore updates
+        }
         headerArea.setEnabled(false);
         if( sender == null || oldSender == null || oldSender.equals(sender) ) {
             return;
@@ -1002,23 +1024,20 @@ public class MessageFrame extends JFrame {
                     if( e.getStateChange() == ItemEvent.DESELECTED ) {
                         return;
                     }
-
-                    boolean isSigned = false;
+                    LocalIdentity selectedId = null;
                     if( ownIdentitiesComboBox.getSelectedIndex() == 0 ) {
                         ownIdentitiesComboBox.setEditable(true); // original anonymous
                         ownIdentitiesComboBox.getEditor().selectAll();
-                        isSigned = false;
                     } else if( ownIdentitiesComboBox.getSelectedIndex() < 0 ) {
                         ownIdentitiesComboBox.setEditable(true); // own value, anonymous
                         ownIdentitiesComboBox.getEditor().selectAll();
-                        isSigned = false;
                     } else {
                         ownIdentitiesComboBox.setEditable(false);
-                        isSigned = true;
+                        selectedId = (LocalIdentity) ownIdentitiesComboBox.getSelectedItem();
                     }
                     String sender = (String)getOwnIdentitiesComboBox().getSelectedItem().toString();
                     updateHeaderArea(sender);
-                    sign_stateChanged(isSigned);
+                    senderChanged(selectedId);
                 }
             });
         }

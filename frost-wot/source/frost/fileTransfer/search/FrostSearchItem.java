@@ -28,7 +28,8 @@ public class FrostSearchItem extends ModelItem {
     private int state;
     
     private Long sizeLong = null;
-    private String dateStr = null;
+    private String lastUploadedStr = null;
+    private String lastReceivedStr = null;
     private Integer rating = null;
     private Integer sourceCount = null;
 
@@ -72,12 +73,27 @@ public class FrostSearchItem extends ModelItem {
         return sizeLong;
     }
 
-    public String getDate() {
-        if( dateStr == null ) {
-            long lastUploaded = fo.getDisplayLastUploaded(); 
-            dateStr = (lastUploaded==0?"Never":DateFun.getExtendedDateFromMillis(lastUploaded));
+    public String getLastUploadedStr() {
+        if( lastUploadedStr == null ) {
+            long lastUploaded = fo.getLastUploaded();
+            if( lastUploaded > 0 ) {
+                lastUploadedStr = DateFun.getExtendedDateFromMillis(lastUploaded);
+            } else {
+                lastUploadedStr = "";
+            }
         }
-        return dateStr;
+        return lastUploadedStr;
+    }
+    
+    public String getLastReceivedString() {
+        if( lastReceivedStr == null ) {
+            if( getFrostFileListFileObject().getLastReceived() > 0 ) {
+                lastReceivedStr = DateFun.getExtendedDateFromMillis(getFrostFileListFileObject().getLastReceived());
+            } else {
+                lastReceivedStr = "";
+            }
+        }
+        return lastReceivedStr;
     }
 
     public String getKey() {
