@@ -20,26 +20,12 @@
  */
 package hyperocha.freenet.fcp;
 
+import java.util.Hashtable;
 
 /**
  * @author saces
- * a helper class for compose this 'offline', do several checks and insert this
+ *
  */
-public class ClientPutComplexDir {
-
-	/**
-	 * 
-	 */
-	public ClientPutComplexDir() {
-	}
-	
-	public void addItem(String virtualName, UploadFrom uf) {
-	}
-	
-	public void makeAllRedirectCHK() {
-		
-	}
-	
-	public void insert(FreenetKey key) {
-	}
+public interface IIncommingData {
+	public void incommingData(FCPConnection conn, Hashtable result);
 }

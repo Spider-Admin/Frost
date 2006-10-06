@@ -25,6 +25,7 @@ import hyperocha.freenet.fcp.io.FCPIOConnectionErrorHandler;
 import hyperocha.freenet.fcp.utils.FCPUtil;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.*;
 
 
@@ -32,6 +33,8 @@ import java.util.*;
  * @author  saces
  */
 public class FCPConnection {
+	
+	private final static byte[] fcp1header = {0,0,0,2};
 	
 	public final static String MESSAGENAME = "hyperMessage-Name";
 	public final static String ENDMESSAGE = "hyper-fin";
@@ -43,42 +46,78 @@ public class FCPConnection {
 
 	/**
 	 * geek constructor
-	 * you own IO-errorhandler is assigned to this connction.
-	 * I guess, you know what you ar doing :)
+	 * your own IO-errorhandler is assigned to this connection.
+	 * I guess, you know what you are doing :)
 	 * so the connection is not open after object creation
 	 * you must do the connect and hello thingy from scratch by yourself 
 	 * @param node
-	 * @param errh
+	 * @param errh Error handler. uses the built in if null.
 	 */
 	public FCPConnection(FCPNode node, FCPIOConnectionErrorHandler ioErrH) {
 		//this(node, node.timeOut, errh);
-		rawErrH = ioErrH;
+		if (ioErrH == null) {
+			rawErrH = new IOErrorHandler();
+		} else {
+			rawErrH = ioErrH;
+		}
 		rawConn = new FCPIOConnection(node, rawErrH);
 	}
+	
+	/**
+	 * 'ready to use' constructor
+	 * all things full automagically
+	 * fcp1: sending the 4 bytes, helo?
+	 * fcp2: helo.
+	 * @param node
+	 * @param errh
+	 */
+	public FCPConnection(FCPNode node) {
+		this(node, null);
+		int nt = node.getNetworkType();
+		switch (nt) {
+			case Network.FCP1: initFCP1(); break;
+			case Network.FCP2: initFCP2(); break;
+			default : throw new Error("Unsupported network type: " + nt);
+		}
+	}
 
+
+
+	private void initFCP2() {
+		rawConn.open(); 
+		fcp2Hello("bla", true, 3);
+		// TODO Auto-generated method stub
+		//throw new Error("Unsupprted network type");
+	}
+
+	private void initFCP1() {
+		rawConn.open("ISO-8859-1"); // ISO-LATIN-1 for .5
+		// TODO Auto-generated method stub
+		throw new Error("Unsupprted network type");
+	}
 
 	/**
 	 * a special constructor for bback
 	 * @param node
 	 * @param errh
 	 */
-	public FCPConnection(FCPNode node, FCPIOConnectionErrorHandler ioErrH, byte[] header) {
-		//this(node, node.timeOut, errh);
-		rawErrH = ioErrH;
-		rawConn = new FCPIOConnection(node, rawErrH);
-		rawConn.open("ISO-8859-1"); // ISO-LATIN-1 for .5
-		rawConn.write(header, 0, header.length);
-		//connectionID = nodeHello();
-	}
+//	private FCPConnection(FCPNode node, FCPIOConnectionErrorHandler ioErrH, byte[] header) {
+//		//this(node, node.timeOut, errh);
+//		rawErrH = ioErrH;
+//		rawConn = new FCPIOConnection(node, rawErrH);
+//		rawConn.open("ISO-8859-1"); // ISO-LATIN-1 for .5
+//		rawConn.write(header, 0, header.length);
+//		//connectionID = nodeHello();
+//	}
 
 	/**
 	 * creates a connection and tries the ClientHollo three times
 	 * getConnectionID "<buildinprefix>-<generatednumber>"
 	 * @param node
 	 */
-	public FCPConnection(FCPNode node) {
-		this(node, CONNECTIONIDPREFIX, true, 3);
-	}
+//	public FCPConnection(FCPNode node) {
+//		this(node, CONNECTIONIDPREFIX, true, 3);
+//	}
 
 	
 	/**
@@ -88,9 +127,9 @@ public class FCPConnection {
 	 * @param node
 	 * @param connectionid
 	 */
-	public FCPConnection(FCPNode node, String connectionid) {
-		this(node, connectionid, false, 1);
-	}
+//	private FCPConnection(FCPNode node, String connectionid) {
+//		this(node, connectionid, false, 1);
+//	}
 	
 	/**
 	 * full constructor
@@ -101,29 +140,28 @@ public class FCPConnection {
 	 * @param connectionid the coonection id prefix
 	 * @param attempt   wie oft das helo probieren?
 	 */
-	public FCPConnection(FCPNode node, String connectionid, boolean prefix, int attempt) {
-		//this(node, node.timeOut, errh);
-		rawErrH = new IOErrorHandler();
-		rawConn = new FCPIOConnection(node, rawErrH);
-		rawConn.open();
-		connectionID = clientHello(connectionid, prefix, attempt);
-	}
+//	private FCPConnection(FCPNode node, String connectionid, boolean prefix, int attempt) {
+//		//this(node, node.timeOut, errh);
+//		rawErrH = new IOErrorHandler();
+//		rawConn = new FCPIOConnection(node, rawErrH);
+//		rawConn.open();
+//		connectionID = clientHello(connectionid, prefix, attempt);
+//	}
 	
 	private class IOErrorHandler implements  FCPIOConnectionErrorHandler {
 
 		public void onIOError(Exception e) {
 			// TODO Auto-generated method stub
 			// on io error the raw connection is closed 
-			
+			// FIXME
 			System.err.println("IO Error: " + e);
-			e.printStackTrace(System.err);
-			
+			e.printStackTrace(System.err);		
 		}
 		
 	}
 
 	/**
-	 * returns the ConnectionID, bestätigt from node or null, if the connection is closed (not opened or closed due an io error or call to close() )
+	 * returns the ConnectionID, bestaetigt from node or null, if the connection is closed (not opened or closed due an io error or call to close() )
 	 * @return
 	 * @uml.property  name="connectionID"
 	 */
@@ -132,7 +170,8 @@ public class FCPConnection {
 	}
 	
 	public boolean isValid() {
-		return (connectionID != null);
+		// TODO return (connectionID != null);
+		return isIOValid();
 	}
 	
 	public boolean isIOValid() {
@@ -198,10 +237,8 @@ public class FCPConnection {
 		String tmp;
 		
 		// the first line is the reason
-		//tmp = readLine();
 		tmp = rawConn.readLine();
 		result.put( MESSAGENAME, tmp);
-		
 		while(true) {
             tmp = rawConn.readLine();
             //result.add(tmp);
@@ -225,13 +262,58 @@ public class FCPConnection {
         return result;	
 	}
 	
+	/**
+	 * reads the connection to the next EndMessage end return the entire
+	 * message
+	 * @return message
+	 */
+	public /*synchronized*/ Hashtable readMessage(IIncommingData callback) {
+		Hashtable result = new Hashtable();
+		String tmp;
+		
+		// the first line is the reason
+		//tmp = readLine();
+		tmp = rawConn.readLine();
+		
+		if (tmp == null) { return null; }
+		
+		result.put( MESSAGENAME, tmp);
+		
+		
+		while(true) {
+            tmp = rawConn.readLine();
+            if (tmp == null) { return result; }
+            //result.add(tmp);
+            //System.out.println("ReadMessage out: " + tmp);
+            if (tmp.compareTo("Data") == 0) {
+            	//System.out.println("ReadMessage y");
+            	callback.incommingData(this, result);
+            	//System.out.println("ReadMessage xxxxx");
+                break; 
+            }
+            if (tmp.compareTo("EndMessage") == 0) {
+            	result.put(ENDMESSAGE, tmp);
+                break; 
+            }
+            if (tmp.indexOf("=") > -1) {
+            	String[] tmp2 = tmp.split("=", 2);
+            	result.put(tmp2[0], tmp2[1]);
+            } else {
+            	System.err.println("this shouldn't happen. FIXME. mpf!: " + tmp);
+            	result.put("Unknown", tmp);
+            }
+        }; // while(tmp.compareTo("EndMessage") != 0);
+        return result;	
+	}
+
+	
 	public void handleIt(String s) throws IOException {
 		// TODO Auto-generated method stub
 		System.out.println("handle it 7");
 		readEndMessage();
 	}
 	
-	private String clientHello(String connectionid, boolean prefix, int attempts) {
+	private String fcp2Hello(String connectionid, boolean prefix, int attempts) {
 		if (attempts < 1) return null;
 		Hashtable result = null;
 		result = helo(FCPUtil.getNewConnectionId(connectionid));
@@ -353,5 +435,40 @@ public class FCPConnection {
 	
 	public Exception getLastIOError() {
 		return rawConn.getLastError();
+	}
+	
+	public void copyFrom(long count, OutputStream os) {
+		int d;
+		//System.err.println("copyFrom called for bytes: " + count);
+		//System.err.println("copyFrom called : " + this);
+		for (int i=0; i<count; i++) {
+			//System.err.println("TEST copyFrom: " + i);
+			try {
+				//System.err.println("TEST01 copyFrom: " + i);
+				d = rawConn.read();
+				//System.err.println("TEST02 copyFrom: " + i);
+				os.write(d);
+				//System.err.println("copyFrom cc: " + i);
+			} catch (Exception e) {
+				// TODO call errerhandler
+				e.printStackTrace();
+				break;
+			}	
+		}
+	}
+	
+	public void copyTo(long count, InputStream is) {
+		int d;
+		
+		for (int i=0; i<count; i++) {
+			try {
+				d = is.read();
+				rawConn.write(d);
+			} catch (Exception e) {
+				// TODO call errerhandler
+				e.printStackTrace();
+				break;
+			}	
+		}
 	}
 }

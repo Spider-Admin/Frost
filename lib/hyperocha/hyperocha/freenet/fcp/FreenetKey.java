@@ -37,17 +37,15 @@ public class FreenetKey {
 	private String cryptoKey;  
 	private String suffiX;    
 
-	 /*
-	 *
-	 *
-	 *
-	 *
-	 */
 	/**
 	 * 
 	 */
 	public FreenetKey() {
 
+	}
+	
+	public String getPrivatePart() {
+		return privKey;
 	}
 	
 	public FreenetKey(FreenetKeyType keytype, String pubkey, String privkey, String cryptokey, String suffix) {
@@ -62,28 +60,61 @@ public class FreenetKey {
 		return keyType.equals(keytype);
 	}
 	
-	public String getReadKey() {
-		return "" + keyType + "@" + pubKey + "," + cryptoKey + "," + suffiX + "/";
+	public String getReadFreenetKey() {
+		if (keyType.equals(FreenetKeyType.KSK)) {
+			return "" + keyType + pubKey;
+		}
+		return "" + keyType + pubKey + "," + cryptoKey + "," + suffiX + "/";
 	}
 	
-	public String getWriteKey() {
-		return "" + keyType + "@" + privKey + "," + cryptoKey + "/";
+	public String getWriteFreenetKey() {
+		return "" + keyType + privKey + "," + cryptoKey + "/";
 	}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
-		return "[INSERT]freenet:" + getWriteKey() + "[REQUEST]freenet:" + getReadKey();
+		return "[INSERT]freenet:" + getWriteFreenetKey() + "[REQUEST]freenet:" + getReadFreenetKey();
 	}
-	
-	
-	public static FreenetKey getFreenetKeyfromString(String s) {
-		return null;
-	}
+
 	
 	public static String FreenetKeyStringNiceness(String s) {
 		return s;
+	}
+
+	public Object getPublicPart() {
+		return pubKey;
+	}
+
+	public Object getCryptoPart() {
+		return cryptoKey;
+	}
+
+	public Object getSuffixPart() {
+		return suffiX;
+	}
+	
+	public static FreenetKey KSKfromString(String s) {
+		FreenetKey newKey = new FreenetKey();
+		newKey.keyType = FreenetKeyType.KSK;
+		newKey.pubKey = s.substring(4);
+		return newKey;
+	}
+	
+	public static FreenetKey CHKfromString(String s) {
+//		System.out.println(s);
+//		System.out.println(s.substring(5,47));
+//		System.out.println(s.substring(48,91));
+//		System.out.println(s.substring(92,99));
+		FreenetKey newKey = new FreenetKey(FreenetKeyType.CHK, s.substring(5,47), null, s.substring(48,91), s.substring(92,99));
+//		
+//		FreenetKey newKey = new FreenetKey();
+//		newKey.keyType = FreenetKeyType.KSK;
+//		newKey.pubKey = s.substring(4);
+		return newKey;
+
+//		return null;
 	}
 
 }

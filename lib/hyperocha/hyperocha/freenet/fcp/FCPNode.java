@@ -169,14 +169,14 @@ public class FCPNode {
 		FCPConnection conn = null; //node.getDefaultFCPConnection();
 //		boolean repeat = true;
 		Hashtable result = null;
-		try { 
+		//try { 
 			conn = getNewFCPConnection();
 			conn.start(cmd);
 			result = conn.readEndMessage();
-    	} catch (Throwable ex) {
-			conn.close();
-			return null;
-		}
+//    	} catch (Throwable ex) {
+//			conn.close();
+//			return null;
+//		}
 
 			
 		if (!("SSKKeypair").equalsIgnoreCase((String)(result.get(FCPConnection.MESSAGENAME)))) {
@@ -281,8 +281,14 @@ public class FCPNode {
 		return result;		
 	}
 
-	public void hello() {
-		// TODO Auto-generated method stub
+	public void initConfig() {
+		nodeConfig.init();
+		// TODO 
+//		switch (networktype) {
+//		case FCP1: hello5; break;
+//		case FCP2: hello7; break;
+//		dafault: unsopportet netzwerk
+//		}
 		
 	}
 
@@ -290,4 +296,19 @@ public class FCPNode {
 		return (lastError == null);
 	}
 
+	public int getNetworkType() {
+		return nodeConfig.getNetworkType();
+	}
+
+	public String getID() {
+		return nodeConfig.getID();
+	}
+
+	public void init() {
+		nodeConfig.init();
+	}
+
+	public boolean isAddress(String host, int port) {
+		return nodeConfig.isAddress(host, port);
+	}
 }

@@ -24,19 +24,20 @@ package hyperocha.freenet.fcp.dispatcher;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.List;
-import java.util.Vector;
+import java.util.Enumeration;
+import java.util.Hashtable;
 
 import hyperocha.freenet.fcp.FCPConnection;
+import hyperocha.freenet.fcp.Network;
 import hyperocha.util.IStorageObject;
 
 /**
- * @author saces
+ * @author sa
  *
  */
 public class Factory implements IStorageObject {
 	
-	private List networks;  // liste der configuratuon
+	private Hashtable networks;  // liste der configuratuon
 	
 	//private NodeList nodes; // liste der knoten, die online sind (hello ok)
 	
@@ -58,7 +59,7 @@ public class Factory implements IStorageObject {
 	private Balancer balancer;
 	
 	public Factory() {
-		networks = new Vector();
+		networks = new Hashtable();
 //		nodes = new NodeList();
 	}
 	
@@ -90,10 +91,14 @@ public class Factory implements IStorageObject {
 		try {
 			dos.writeInt(netCount);
 			
-			int i;
-			for (i=0; i < netCount; i++) {
-				((Network)networks.get(i)).storeData(dos);
-			}
+			for (Enumeration e = networks.elements() ; e.hasMoreElements() ;) {
+				((Network)(e.nextElement())).storeData(dos);
+
+		    }
+//			int i;
+//			for (i=0; i < netCount; i++) {
+//				((Network)networks.get(i)).storeData(dos);
+//			}
 		} catch (IOException e) {
 			return false;
 		}
@@ -101,7 +106,7 @@ public class Factory implements IStorageObject {
 	}
 
 	public void addNetwork(Network net) {
-		networks.add(net.getID(), net);
+		networks.put(net.getID(), net);
 	}
 	
 //	private FCPConnection getNextConnection() {
@@ -112,53 +117,83 @@ public class Factory implements IStorageObject {
 //		return getNextConnection(Network.FCP1);
 //	}
 	
-	private FCPConnection getNextConnection(int networktype) {
-		//TODO
-		return null;
+	protected FCPConnection getNextConnection(int networktype) {
+		Network net = getFirstNetwork(networktype);
+		//throw new Error("TODO");
+		return net.getNextConnection();
 	}
 	
-	private Network getDarknet(int type) {
-		return null;
+	private Network getFirstNetwork(int type) {
+		Network net;
+		for (Enumeration e = networks.elements() ; e.hasMoreElements() ;) {
+			net = (Network)(e.nextElement());
+			if	(net.isType(type)) {
+				return net;
+			}
+		}
+//		int netCount = networks.size();
+//		int i;
+//		
+//		for (i=0; i < netCount; i++) {
+//			net = (Network)(networks.get(i));
+//			if	(net.isType(type)) {
+//				return net;
+//			}
+//		}
+		throw new Error("no network aviable for type: " + type);
+		//return null;
 	}
 
 	protected void init() {
-		int netCount = networks.size();
-		int i;
-		for (i=0; i < netCount; i++) {
-				((Network)networks.get(i)).init();
+		for (Enumeration e = networks.elements() ; e.hasMoreElements() ;) {
+			((Network)(e.nextElement())).init();
 		}
+//
+//		int netCount = networks.size();
+//		int i;
+//		for (i=0; i < netCount; i++) {
+//				((Network)networks.get(i)).init();
+//		}
 	}
 	
 	protected void goOnline() {
-		int netCount = networks.size();
-		int i;
+//		int netCount = networks.size();
+//		int i;
 //		Network net;
-		for (i=0; i < netCount; i++) {
-			((Network)(networks.get(i))).goOnline();
-		}
+		for (Enumeration e = networks.elements() ; e.hasMoreElements() ;) {
+			((Network)(e.nextElement())).goOnline();
+
+	     }
+//		for (i=0; i < netCount; i++) {
+//			((Network)(networks.get(i))).goOnline();
+//		}
 	}
 
 	protected boolean isOnline() {
-		int netCount = networks.size();
-		int i;
-		//Network net;
-		for (i=0; i < netCount; i++) {
-			if (((Network)(networks.get(i))).isOnline()) {
+		for (Enumeration e = networks.elements() ; e.hasMoreElements() ;) {
+			if (((Network)(e.nextElement())).isOnline()) {
 				return true;
 			}
-		}
+
+	     }
+//		int netCount = networks.size();
+//		int i;
+//		//Network net;
+//		for (i=0; i < netCount; i++) {
+//			if (((Network)(networks.get(i))).isOnline()) {
+//				return true;
+//			}
+//		}
 		return false;
 	}
 
 	public boolean isInList(String host, int port) {
-		int netCount = networks.size();
-		int i;
-		Network net;
-		for (i=0; i < netCount; i++) {
-			if (((Network)(networks.get(i))).isInList(host, port)) {
+		for (Enumeration e = networks.elements() ; e.hasMoreElements() ;) {
+			if (((Network)(e.nextElement())).isInList(host, port)) {
 				return true;
 			}
-		}
+
+	     }
 		return false;
 	}
 }
