@@ -632,7 +632,7 @@ public class SettingsClass implements Savable {
         defaults.put(MAX_FILELIST_DOWNLOAD_DAYS, "7"); // download backward 7 days
 
         defaults.put("messageBase", "news");
-        defaults.put("fileBase", "files");
+        defaults.put(FILE_BASE, "files");
 
         defaults.put("showSystrayIcon", "true");
         defaults.put("removeFinishedDownloads", "false");

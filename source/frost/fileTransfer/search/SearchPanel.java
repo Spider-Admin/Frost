@@ -217,8 +217,8 @@ class SearchPanel extends JPanel {
         // if double click was on the sourceCount cell then maybe show details
         int row = modelTable.getTable().rowAtPoint(e.getPoint());
         int col = modelTable.getTable().columnAtPoint(e.getPoint());
-        // sourceCount column = 5
-        if( row > -1 && col == 5 ) {
+        // sourceCount column = 7
+        if( row > -1 && col == 7 ) {
             ModelItem item = modelTable.getItemAt(row); //It may be null
             if (item != null) {
                 FrostSearchItem searchItem = (FrostSearchItem) item;
