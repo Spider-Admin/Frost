@@ -266,7 +266,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         PreparedStatement ps = db.prepare(
             "INSERT INTO FILELIST (primkey,sha,size,fnkey,lastdownloaded,lastuploaded,firstreceived,lastreceived,"+
             "requestlastreceived,requestsreceivedcount,requestlastsent,requestssentcount) "+
-            "VALUES (?,?,?,?,?,?,?,?,?,?,?)");
+            "VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
 
         int ix = 1;
         ps.setLong(ix++, identity.longValue());
