@@ -21,24 +21,44 @@
 package hyperocha.freenet.fcp.dispatcher;
 
 import hyperocha.freenet.fcp.FCPConnection;
+import hyperocha.freenet.fcp.IIncomming;
 import hyperocha.freenet.fcp.dispatcher.job.Job;
 
 import java.io.DataInputStream;
-import java.util.List;
+import java.util.Hashtable;
 
 /**
  * @author saces
  *
  */
 public class Dispatcher {
+	
+	private class MessageCallback implements IIncomming {
+
+		public void incommingMessage(FCPConnection conn, Hashtable message) {
+			// TODO Auto-generated method stub
+			System.out.println("Testinger message: " + message);
+		}
+
+		public void incommingData(FCPConnection conn, Hashtable message) {
+			// TODO Auto-generated method stub
+			System.out.println("Testinger Data: " + message);
+		}
+		
+	}
+	
+	private MessageCallback messageCallback = new MessageCallback(); 
+	
+	
 	private Factory factory;
 	
 	
 	// networkid balancer
-	private List balancer;
+	//private List balancer;
 
 	
 	//listen:
+	private Hashtable runningJobs = new Hashtable();
 	
 	
 	public Dispatcher(Factory f, boolean boot) {
@@ -137,9 +157,26 @@ public class Dispatcher {
 		return false;
 	}
 
-	public FCPConnection getFCPConnection(int networktype) {
-		return factory.getNextConnection(networktype);
+	/**
+	 * returns a new fcpconnection
+	 * @param networktype
+	 * @return
+	 */
+	public FCPConnection getNewFCPConnection(int networktype) {
+		return factory.getNewFCPConnection(networktype);
 	}
+	
+	/**
+	 * returns the nodes default fcpconnection
+	 * use this and the dispatcher use a single connection per node
+	 * (if the node/network supports this)
+	 * @param networktype
+	 * @return
+	 */
+	public FCPConnection getDefaultFCPConnection(int networktype) {
+		return factory.getDefaultFCPConnection(networktype);
+	}
+
 
 	/**
 	 * run a job and do not return until the job is done.
@@ -157,8 +194,18 @@ public class Dispatcher {
 		}
 		
 		//FCPConnection conn = getFCPConnection(job.getRequiredNetworkType());
+		registerJob(job);
 		job.run(this);
+		unregisterJob(job);
 
+	}
+	
+	private void registerJob(Job job) {
+		runningJobs.put(job.getJobID(), job);
+	}
+	
+	private void unregisterJob(Job job) {
+		runningJobs.remove(job.getJobID());		
 	}
 
 }

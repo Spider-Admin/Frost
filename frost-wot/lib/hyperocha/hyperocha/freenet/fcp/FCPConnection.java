@@ -43,6 +43,8 @@ public class FCPConnection {
 	private FCPIOConnection rawConn = null;
 	private FCPIOConnectionErrorHandler rawErrH = null; 
 	private String connectionID = null;
+	
+	//private IIncomming callBack = null;
 
 	/**
 	 * geek constructor
@@ -51,7 +53,7 @@ public class FCPConnection {
 	 * so the connection is not open after object creation
 	 * you must do the connect and hello thingy from scratch by yourself 
 	 * @param node
-	 * @param errh Error handler. uses the built in if null.
+	 * @param errh Error handler. buildin if null. 
 	 */
 	public FCPConnection(FCPNode node, FCPIOConnectionErrorHandler ioErrH) {
 		//this(node, node.timeOut, errh);
@@ -65,88 +67,73 @@ public class FCPConnection {
 	
 	/**
 	 * 'ready to use' constructor
-	 * all things full automagically
+	 * Uses the lib buildin as connection id (CONNECTIONIDPREFIX-<timestamp>)
+	 * all other things full automagically
 	 * fcp1: sending the 4 bytes, helo?
 	 * fcp2: helo.
 	 * @param node
 	 * @param errh
 	 */
 	public FCPConnection(FCPNode node) {
-		this(node, null);
+		this(node, CONNECTIONIDPREFIX, true, 3);
+	}
+	
+	/**
+	 * 'ready to use' constructor
+	 * Uses the given id as is as connection id
+	 * all other things full automagically
+	 * fcp1: sending the 4 bytes, helo?
+	 * fcp2: helo.
+	 * @param node
+	 * @param errh
+	 */
+	public FCPConnection(FCPNode node, String id) {
+		this(node, id, false, 1);
+	}
+	
+	/**
+	 * 'ready to use' full constructor
+	 * 
+	 * all other things full automagically
+	 * fcp1: sending the 4 bytes, helo?
+	 * fcp2: helo.
+	 * @param node
+	 * @param id the connection id
+	 * @param prefix if true, a timstamp will be added <id>-<unixepoch>
+	 * @param attempts how many tries?
+	 */
+	public FCPConnection(FCPNode node, String id, boolean prefix, int attempts) {
+		this(node, (FCPIOConnectionErrorHandler)null);
+		
+		if (prefix) {
+			connectionID = FCPUtil.getNewConnectionId(id);
+		} else {
+			connectionID = id;			
+		}
+		
 		int nt = node.getNetworkType();
+
 		switch (nt) {
-			case Network.FCP1: initFCP1(); break;
-			case Network.FCP2: initFCP2(); break;
+			case Network.FCP1: initFCP1(attempts); break;
+			case Network.FCP2: initFCP2(attempts); break;
 			default : throw new Error("Unsupported network type: " + nt);
 		}
 	}
 
-
-
-	private void initFCP2() {
+	private void initFCP2(int tries) {
 		rawConn.open(); 
-		fcp2Hello("bla", true, 3);
+		fcp2Hello(connectionID, true, 3);
 		// TODO Auto-generated method stub
 		//throw new Error("Unsupprted network type");
 	}
 
-	private void initFCP1() {
+	private void initFCP1(int tries) {
 		rawConn.open("ISO-8859-1"); // ISO-LATIN-1 for .5
+		rawConn.write(fcp1header, 0, fcp1header.length);
 		// TODO Auto-generated method stub
 		throw new Error("Unsupprted network type");
 	}
 
-	/**
-	 * a special constructor for bback
-	 * @param node
-	 * @param errh
-	 */
-//	private FCPConnection(FCPNode node, FCPIOConnectionErrorHandler ioErrH, byte[] header) {
-//		//this(node, node.timeOut, errh);
-//		rawErrH = ioErrH;
-//		rawConn = new FCPIOConnection(node, rawErrH);
-//		rawConn.open("ISO-8859-1"); // ISO-LATIN-1 for .5
-//		rawConn.write(header, 0, header.length);
-//		//connectionID = nodeHello();
-//	}
-
-	/**
-	 * creates a connection and tries the ClientHollo three times
-	 * getConnectionID "<buildinprefix>-<generatednumber>"
-	 * @param node
-	 */
-//	public FCPConnection(FCPNode node) {
-//		this(node, CONNECTIONIDPREFIX, true, 3);
-//	}
-
-	
-	/**
-	 * creates a connection and tries the ClientHollo one time
-	 * uses the given Connection id
-	 * getConnectionID "<connectionid>"
-	 * @param node
-	 * @param connectionid
-	 */
-//	private FCPConnection(FCPNode node, String connectionid) {
-//		this(node, connectionid, false, 1);
-//	}
-	
-	/**
-	 * full constructor
-	 * creates a connection and tries the ClientHollo <attempt> times (<attempt> > 0)
-	 * prefix = true :  getConnectionID "<connectionid>-<generatednumber>"
-	 * prefix = false :  getConnectionID "<connectionid>"
-	 * @param node
-	 * @param connectionid the coonection id prefix
-	 * @param attempt   wie oft das helo probieren?
-	 */
-//	private FCPConnection(FCPNode node, String connectionid, boolean prefix, int attempt) {
-//		//this(node, node.timeOut, errh);
-//		rawErrH = new IOErrorHandler();
-//		rawConn = new FCPIOConnection(node, rawErrH);
-//		rawConn.open();
-//		connectionID = clientHello(connectionid, prefix, attempt);
-//	}
 	
 	private class IOErrorHandler implements  FCPIOConnectionErrorHandler {
 
@@ -159,7 +146,7 @@ public class FCPConnection {
 		}
 		
 	}
-
+	
 	/**
 	 * returns the ConnectionID, bestaetigt from node or null, if the connection is closed (not opened or closed due an io error or call to close() )
 	 * @return
@@ -267,45 +254,93 @@ public class FCPConnection {
 	 * message
 	 * @return message
 	 */
-	public /*synchronized*/ Hashtable readMessage(IIncommingData callback) {
+	public Hashtable readMessage(IIncommingData callback) {
+
 		Hashtable result = new Hashtable();
 		String tmp;
-		
-		// the first line is the reason
-		//tmp = readLine();
-		tmp = rawConn.readLine();
-		
-		if (tmp == null) { return null; }
-		
-		result.put( MESSAGENAME, tmp);
-		
+		boolean isfirstline = true;
 		
 		while(true) {
             tmp = rawConn.readLine();
-            if (tmp == null) { return result; }
-            //result.add(tmp);
-            //System.out.println("ReadMessage out: " + tmp);
+            if (tmp == null) { break; }  // this indicates an error, io connection closed
+            if ((tmp.trim()).length() == 0) { continue; } // a empty line
+
             if (tmp.compareTo("Data") == 0) {
-            	//System.out.println("ReadMessage y");
             	callback.incommingData(this, result);
-            	//System.out.println("ReadMessage xxxxx");
+            	isfirstline = true;
                 break; 
             }
+
             if (tmp.compareTo("EndMessage") == 0) {
             	result.put(ENDMESSAGE, tmp);
+            	isfirstline = true;
                 break; 
             }
+            
+            if (isfirstline) {
+        		result.put( MESSAGENAME, tmp);
+            	isfirstline = false;
+            	continue;      // insert coin
+            }
+
             if (tmp.indexOf("=") > -1) {
             	String[] tmp2 = tmp.split("=", 2);
             	result.put(tmp2[0], tmp2[1]);
             } else {
-            	System.err.println("this shouldn't happen. FIXME. mpf!: " + tmp);
+            	System.err.println("This shouldn't happen. FIXME. mpf!: " + tmp + " -> " + tmp.length());
             	result.put("Unknown", tmp);
+            	throw new Error("www");  // TODO
             }
-        }; // while(tmp.compareTo("EndMessage") != 0);
+        } 
         return result;	
 	}
+	
+	/**
+	 * reads the connection to the next EndMessage end return the entire
+	 * message
+	 * @return message
+	 */
+	public void monitor(IIncomming callback) {
 
+		Hashtable result = null;
+		String tmp;
+		boolean isfirstline = true;
+		
+		while(rawConn.isOpen()) {
+			result = new Hashtable();
+            tmp = rawConn.readLine();
+            if (tmp == null) { break; }  // this indicates an error, io connection closed
+            if ((tmp.trim()).length() == 0) { continue; } // a empty line
+
+            if (tmp.compareTo("Data") == 0) {
+            	callback.incommingData(this, result);
+            	isfirstline = true;
+                break; 
+            }
+
+            if (tmp.compareTo("EndMessage") == 0) {
+            	result.put(ENDMESSAGE, tmp);
+            	callback.incommingMessage(this, result);
+            	isfirstline = true;
+                break; 
+            }
+            
+            if (isfirstline) {
+        		result.put( MESSAGENAME, tmp);
+            	isfirstline = false;
+            	continue;      // insert coin
+            }
+
+            if (tmp.indexOf("=") > -1) {
+            	String[] tmp2 = tmp.split("=", 2);
+            	result.put(tmp2[0], tmp2[1]);
+            } else {
+            	System.err.println("This shouldn't happen. FIXME. mpf!: " + tmp + " -> " + tmp.length());
+            	result.put("Unknown", tmp);
+            	throw new Error("www");  // TODO
+            }
+        } 
+	}
 	
 	public void handleIt(String s) throws IOException {
 		// TODO Auto-generated method stub
@@ -354,84 +389,84 @@ public class FCPConnection {
 	/*
 	 *  the geek ClientPut
 	 */
-	public void ClientPut(FreenetKeyType keytype,
-			                String identifier,
-			                Verbosity verbosity,
-			                int retries,
-			                PriorityClass priority,
-			                boolean keyonly,
-			                boolean global,
-			                boolean compress,
-			                Persistance persistance,
-			                String clienttoken,
-			                UploadFrom uploadfrom) {
-		List cmd = new LinkedList();
-		
-		rawConn.println("ClientPut");
-		rawConn.println("URI=" + keytype);
-		rawConn.println("Identifier=" + identifier);
-		rawConn.println("ClientToken=" + clienttoken); 
-		rawConn.println("Verbosity=" + verbosity);
-		rawConn.println("MaxRetries=" + retries);
-		rawConn.println("PriorityClass=" + priority);
-		rawConn.print("GetCHKOnly=");
-		if (keyonly)
-			rawConn.println("true");
-		else
-			rawConn.println("false");
-		rawConn.print("Global=");
-		if (global)
-			rawConn.println("true");
-		else
-			rawConn.println("false");
-		rawConn.print("DontCompress=");
-		if (compress)
-			rawConn.println("false");
-		else
-			rawConn.println("true");
-		
-		rawConn.println("Persistance=" + persistance);
-		
-		
-		rawConn.print("UploadFrom=");
-		
-		switch(uploadfrom.getType()) {
-			case UploadFrom.REDIRECT:	rawConn.println("redirect"); 
-									   	rawConn.println("TargetURI="+ uploadfrom.getSource());
-									   	rawConn.println("EndMessage"); 
-									   	break;
-			case UploadFrom.DISK: 		rawConn.println("disk"); 
-			   							rawConn.println("Filename="+ uploadfrom.getSource());
-			   							rawConn.println("EndMessage");
-			   							break;
-			case UploadFrom.DIRECT: 	rawConn.println("direct"); 
-										int l = uploadfrom.getCount();
-										InputStream is = uploadfrom.getIs();
-										rawConn.println("DataLength=" + l);
-										rawConn.println("Data");
-										
-										int d;
-										
-										for (int i=0; i<l; i++) {
-											try {
-												d = is.read();
-												rawConn.write(d);
-											} catch (Exception e) {
-												// TODO call errerhandler
-												e.printStackTrace();
-												break;
-											}	
-										}
-										
-										
-										break;
-			default: 					System.err.println("Invald Upload From!");
-										// TODO: call error handler. 
-		}
-		rawConn.flush();
-			
-		
-	}
+//	public void ClientPut(FreenetKeyType keytype,
+//			                String identifier,
+//			                Verbosity verbosity,
+//			                int retries,
+//			                PriorityClass priority,
+//			                boolean keyonly,
+//			                boolean global,
+//			                boolean compress,
+//			                Persistance persistance,
+//			                String clienttoken,
+//			                UploadFrom uploadfrom) {
+//		List cmd = new LinkedList();
+//		
+//		rawConn.println("ClientPut");
+//		rawConn.println("URI=" + keytype);
+//		rawConn.println("Identifier=" + identifier);
+//		rawConn.println("ClientToken=" + clienttoken); 
+//		rawConn.println("Verbosity=" + verbosity);
+//		rawConn.println("MaxRetries=" + retries);
+//		rawConn.println("PriorityClass=" + priority);
+//		rawConn.print("GetCHKOnly=");
+//		if (keyonly)
+//			rawConn.println("true");
+//		else
+//			rawConn.println("false");
+//		rawConn.print("Global=");
+//		if (global)
+//			rawConn.println("true");
+//		else
+//			rawConn.println("false");
+//		rawConn.print("DontCompress=");
+//		if (compress)
+//			rawConn.println("false");
+//		else
+//			rawConn.println("true");
+//		
+//		rawConn.println("Persistance=" + persistance);
+//		
+//		
+//		rawConn.print("UploadFrom=");
+//		
+//		switch(uploadfrom.getType()) {
+//			case UploadFrom.REDIRECT:	rawConn.println("redirect"); 
+//									   	rawConn.println("TargetURI="+ uploadfrom.getSource());
+//									   	rawConn.println("EndMessage"); 
+//									   	break;
+//			case UploadFrom.DISK: 		rawConn.println("disk"); 
+//			   							rawConn.println("Filename="+ uploadfrom.getSource());
+//			   							rawConn.println("EndMessage");
+//			   							break;
+//			case UploadFrom.DIRECT: 	rawConn.println("direct"); 
+//										int l = uploadfrom.getCount();
+//										InputStream is = uploadfrom.getIs();
+//										rawConn.println("DataLength=" + l);
+//										rawConn.println("Data");
+//										
+//										int d;
+//										
+//										for (int i=0; i<l; i++) {
+//											try {
+//												d = is.read();
+//												rawConn.write(d);
+//											} catch (Exception e) {
+//												// TODO call errerhandler
+//												e.printStackTrace();
+//												break;
+//											}	
+//										}
+//										
+//										
+//										break;
+//			default: 					System.err.println("Invald Upload From!");
+//										// TODO: call error handler. 
+//		}
+//		rawConn.flush();
+//			
+//		
+//	}
 	
 	public Exception getLastIOError() {
 		return rawConn.getLastError();

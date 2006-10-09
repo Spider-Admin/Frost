@@ -43,7 +43,6 @@ public class Network implements IStorageObject {
 	//	 the fcp2 thingy,
 	public static final int FCP2 = 2;
 	//	 simulate the execution of commands, not the fcp thingy
-	//	the fcp connection given to jobs run function may be invalid!
 	public static final int SIMULATION = 254; 
 	
 	private int networkType;
@@ -170,18 +169,9 @@ public class Network implements IStorageObject {
 	}
 
 	public void init() {
-//		int nodeCount = confList.size();
-//		int i;
 		for (Enumeration e = nodeList.elements() ; e.hasMoreElements() ;) {
 			((FCPNode)(e.nextElement())).init();
 	     }
-
-//		for (i=0; i < nodeCount; i++) {
-//			((FCPNodeConfig)confList.get(i)).init();
-//			if (((FCPNodeConfig)confList.get(i)).init()) {
-//				confList.add(new FCPNode((FCPNodeConfig)confList.get(i)));
-//			}
-//		}
 	}
 
 	public void goOnline() {
@@ -192,7 +182,7 @@ public class Network implements IStorageObject {
 		
 		for (Enumeration e = nodeList.elements() ; e.hasMoreElements() ;) {
 			((FCPNode)(e.nextElement())).init();
-	     }
+	    }
 
 		
 		
@@ -232,42 +222,23 @@ public class Network implements IStorageObject {
 			if (((FCPNode)(e.nextElement())).isAddress(host, port)) {
 				return true;				
 			}
-	     }
-
-//		int nodeCount = confList.size();
-//		int i;
-//		FCPNodeConfig conf;
-//		//FCPNode node;
-//		for (i=0; i < nodeCount; i++) {
-//			conf = (FCPNodeConfig)(confList.get(i));
-//			if (conf.isAddress(host, port)) {
-//				return true;
-//			}
-//			
-//		}	
-
-		// TODO Auto-generated method stub
-		// TODO Auto-generated method stub
-//		isInList
-//      List nodes = FcpHandler.inst().getNodes();
-//      for(Iterator i=nodes.iterator(); i.hasNext(); ) {
-//      NodeAddress na = (NodeAddress)i.next();
-//      if( port < 0 ) {
-//          return; // allow DNS lookups
-//      }
-//      if( port == na.port ) {
-//          if( host.equals(na.hostIp) || host.equals(na.hostName) ) {
-//              return; // host:port is in our list
-//          }
-//      }            
-//  }
+	    }
 		return false;
 	}
+	
+	public FCPConnection getNewFCPConnection() {
+		return getNextNode().getNewFCPConnection(null);
+	}
+	
+	public FCPConnection getDefaultFCPConnection() {
+		if (networkType != Network.FCP2) { return getNewFCPConnection(); }
+		return getNextNode().getDefaultFCPConnection();
+	}
 
-	public FCPConnection getNextConnection() {
+	public FCPNode getNextNode() {
 		// TODO 
 		// if balancer == null - no balancer assigned
-		return getNextRandomConnection();
+		return getNextRandomNode();
 		// else 
 		//    sort with black magic rules
 		//    return first from list 
@@ -275,35 +246,19 @@ public class Network implements IStorageObject {
 		//return null;
 	}
 	
-	private FCPConnection getNextRandomConnection() {
-		
-//		for (Enumeration e = nodeList.elements() ; e.hasMoreElements() ;) {
-//			((Network)(e.nextElement())).goOnline();
-//
-//		}
-
+	private FCPNode getNextRandomNode() {
 		int size = nodeList.size();
 		FCPNode node = null;
 		Collection keys = nodeList.values();
 		Object[] o = keys.toArray();   // grosse theorie: das sollte jetzt ein array mit nodes sein
-//		for (Enumeration e = nodeList.elements() ; e.hasMoreElements() ;) {
-//			((Network)(e.nextElement())).goOnline();
-//
-//	     }
-		
-		
+
         if(size == 0) {
             throw new Error("All connections to nodes failed. Check your network settings and restart Frost.");
         } else if( size == 1 ) {
-        	//System.err.println("EE" + o );
             node = (FCPNode)o[0];
         } else {
             node = (FCPNode)o[random.nextInt(size)];
         }
-        return node.getNewFCPConnection();
-		// TODO Auto-generated method stub
-		//return (NodeAddress)nodes.get(random.nextInt(nodes.size()));
-		//throw new Error("TODO");
-		//return null;
+        return node;
 	}
 }

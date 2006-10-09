@@ -44,6 +44,8 @@ public class FCPNode {
 	private FCPNodeStatus nodeStatus;
     private FCPConnection defaultConn = null;
     
+	private IIncomming callback = null;
+    
     private Exception lastError = null;
     
     public FCPNode(FCPNodeConfig nodeconfig) {
@@ -111,7 +113,7 @@ public class FCPNode {
 	
 	public FCPConnection getDefaultFCPConnection() {
 		if (defaultConn == null) {
-			defaultConn = getNewFCPConnection();
+			defaultConn = getNewFCPConnection(nodeConfig.getID());
 		}
 		return defaultConn;
 	}
@@ -136,11 +138,14 @@ public class FCPNode {
 	}
 	
 	
-	public FCPConnection getNewFCPConnection() {
-		return new FCPConnection(this);
+	public FCPConnection getNewFCPConnection(String id) {
+		return new FCPConnection(this, id);
 	}
 	
-	
+	public FCPConnection getNewFCPConnection(String id, boolean prefix, int tries) {
+		return new FCPConnection(this, id, prefix, tries);
+	}
+
 	public boolean performNodeTest(FCPNodeConfig config) {
 		// check adresse:Port
 		// if rechable, check for peers, at least one connected is necesary
@@ -170,7 +175,7 @@ public class FCPNode {
 //		boolean repeat = true;
 		Hashtable result = null;
 		//try { 
-			conn = getNewFCPConnection();
+			conn = getNewFCPConnection(null);
 			conn.start(cmd);
 			result = conn.readEndMessage();
 //    	} catch (Throwable ex) {
@@ -254,7 +259,7 @@ public class FCPNode {
 		boolean repeat = true;
 		Hashtable result = null;
 		try { 
-			conn = getNewFCPConnection();
+			conn = getNewFCPConnection("");
 			conn.start(cmd);
 			
 			while (repeat) {
@@ -276,7 +281,7 @@ public class FCPNode {
 	
 	public FCPVersion getFCPVersion() {
 		FCPVersion result = null;
-		FCPConnection conn = new FCPConnection(this);
+		//FCPConnection conn = new FCPConnection("");
 		//result = 
 		return result;		
 	}

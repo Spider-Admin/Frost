@@ -117,11 +117,18 @@ public class Factory implements IStorageObject {
 //		return getNextConnection(Network.FCP1);
 //	}
 	
-	protected FCPConnection getNextConnection(int networktype) {
+	protected FCPConnection getNewFCPConnection(int networktype) {
 		Network net = getFirstNetwork(networktype);
 		//throw new Error("TODO");
-		return net.getNextConnection();
+		return net.getNewFCPConnection();
 	}
+	
+	protected FCPConnection getDefaultFCPConnection(int networktype) {
+		Network net = getFirstNetwork(networktype);
+		//throw new Error("TODO");
+		return net.getDefaultFCPConnection();
+	}
+
 	
 	private Network getFirstNetwork(int type) {
 		Network net;
