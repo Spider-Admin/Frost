@@ -18,6 +18,10 @@
 */
 package frost;
 
+import hyperocha.freenet.fcp.Network;
+import hyperocha.freenet.fcp.dispatcher.Dispatcher;
+import hyperocha.freenet.fcp.dispatcher.Factory;
+
 import java.io.*;
 import java.sql.*;
 import java.util.*;
@@ -78,11 +82,152 @@ public class Core implements FrostEventDispatcher  {
 
     private static FrostIdentities identities;
     private String keypool;
-
+    
     private Core() {
         initializeLanguage();
     }
+/*-----------*/    
 
+    private static int fcpVersion = -1;
+    private static Dispatcher fcpDispatcher;
+    
+    public static int getFcpVersion() {
+    	return fcpVersion;
+    }
+    
+    public static Dispatcher getFcpDispatcher() {
+    	return fcpDispatcher;
+    }
+    
+    /**
+     * This methods parses the list of available nodes (and converts it if it is in
+     * the old format). If there are no available nodes, it shows a Dialog warning the
+     * user of the situation and returns false.
+     * @return boolean false if no nodes are available. True otherwise.
+     */
+    private boolean initializeConnectivity2() {
+
+        // determine configured freenet version
+        int freenetVersion = frostSettings.getIntValue("freenetVersion"); // 5 or 7
+        if( freenetVersion <= 0 ) {
+            FreenetVersionDialog dlg = new FreenetVersionDialog();
+            dlg.setVisible(true);
+            if( dlg.isChoosedExit() ) {
+                return false;
+            }
+            if( dlg.isChoosedFreenet05() ) {
+                frostSettings.setValue("freenetVersion", "5");
+            } else if( dlg.isChoosedFreenet07() ) {
+                frostSettings.setValue("freenetVersion", "7");
+            } else {
+                return false;
+            }
+            freenetVersion = frostSettings.getIntValue("freenetVersion"); // 5 or 7
+        }
+        
+        if (freenetVersion == 5) {
+        	fcpVersion = Network.FCP1;
+        } else {
+        	fcpVersion = Network.FCP2;
+        }
+
+        if( freenetVersion != 5 && freenetVersion != 7 ) {
+            MiscToolkit.getInstance().showMessage(
+                    language.getString("Core.init.UnsupportedFreenetVersionBody")+": "+freenetVersion,
+                    JOptionPane.ERROR_MESSAGE,
+                    language.getString("Core.init.UnsupportedFreenetVersionTitle"));
+            return false;
+        }
+        
+        // get the list of available nodes
+        String nodesUnparsed = frostSettings.getValue("availableNodes");
+        List nodes = new ArrayList();
+
+        if (nodesUnparsed == null) { //old format
+            String converted = new String(frostSettings.getValue("nodeAddress")+":"+frostSettings.getValue("nodePort"));
+            nodes.add(converted.trim());
+            frostSettings.setValue("availableNodes", converted.trim());
+        } else { // new format
+            String[] _nodes = nodesUnparsed.split(",");
+            for (int i = 0; i < _nodes.length; i++) {
+                nodes.add(_nodes[i]);
+            }
+        }
+
+        Network net = new Network(fcpVersion, "frost"+fcpVersion, nodes);
+        
+        Factory factory = new Factory();
+
+        factory.addNetwork(net);
+
+        if (nodes.size() == 0) {
+            MiscToolkit.getInstance().showMessage(
+                "Not a single Freenet node configured. You need at least one.",
+                JOptionPane.ERROR_MESSAGE,
+                "ERROR: No Freenet nodes are configured.");
+            return false;
+        }
+        
+        // init the dispatcher with configured nodes
+                
+        fcpDispatcher = new Dispatcher(factory, false);
+        
+        // install our security manager that only allows connections to the configured FCP hosts
+        System.setSecurityManager(new FrostSecurityManager());
+        
+        // now network and secuity are setted up
+        
+        if( Frost.isOfflineMode() ) {
+        	System.err.println("DEBUG: Frost is in oflline mode");
+            return true;
+        }
+        
+        // and go online (at lest one node noeeds a successful helo)
+        fcpDispatcher.goOnline(true);
+
+        boolean runningOnTestnet = false;
+//        try {
+//            List nodeInfo = FcpHandler.inst().getNodeInfo();
+//            if( nodeInfo != null ) {
+//                // freenet is online
+//                setFreenetOnline(true);
+//                
+//                // on 0.7 check for "Testnet=true" and warn user
+//                if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) {
+//                    for(Iterator i=nodeInfo.iterator(); i.hasNext(); ) {
+//                        String val = (String)i.next();
+//                        if( val.startsWith("Testnet") && val.indexOf("true") > 0 ) {
+//                            runningOnTestnet = true;
+//                        }
+//                    }
+//                }
+//            }
+//        } catch (Exception e) {
+//            logger.log(Level.SEVERE, "Exception thrown in initializeConnectivity", e);
+//        }
+//        
+//        if( runningOnTestnet ) {
+//            MiscToolkit.getInstance().showMessage(
+//                    language.getString("Core.init.TestnetWarningBody"),
+//                    JOptionPane.WARNING_MESSAGE,
+//                    language.getString("Core.init.TestnetWarningTitle"));
+//        }
+
+        // We warn the user if there aren't any running nodes
+        if (!isFreenetOnline()) {
+        	System.err.println("DEBUG: Frost is oflline");
+            MiscToolkit.getInstance().showMessage(
+                language.getString("Core.init.NodeNotRunningBody"),
+                JOptionPane.WARNING_MESSAGE,
+                language.getString("Core.init.NodeNotRunningTitle"));
+            return false;
+        }
+
+        return true;
+    }
+
+/*-----------*/
+    
     /**
      * This methods parses the list of available nodes (and converts it if it is in
      * the old format). If there are no available nodes, it shows a Dialog warning the
@@ -200,7 +345,7 @@ public class Core implements FrostEventDispatcher  {
 
         return true;
     }
-
+    
     public static void setFreenetOnline(boolean v) {
         freenetIsOnline = v;
     }
