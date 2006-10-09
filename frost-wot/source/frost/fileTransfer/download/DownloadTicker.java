@@ -186,7 +186,7 @@ public class DownloadTicker extends Thread {
 		int waitingItems = 0;
 		for (int x = 0; x < model.getItemCount(); x++) {
 			FrostDownloadItem dlItem = (FrostDownloadItem) model.getItemAt(x);
-			if (dlItem.getState() == FrostDownloadItem.STATE_WAITING) {
+			if (dlItem.getState() != FrostDownloadItem.STATE_DONE) {
 				waitingItems++;
 			}
 		}

@@ -44,11 +44,10 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
     private String[] archiveExtension;
     private int allFileCount;
     private int maxSearchResults;
-    private SearchPanel searchPanel = null;
     
     private java.sql.Date currentDate;
 
-    private SearchModel model;
+    private SearchTable searchTable;
     private DownloadModel downloadModel;
     private SharedFilesModel sharedFilesModel;
 
@@ -281,7 +280,7 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
         }
 
         FrostSearchItem searchItem = new FrostSearchItem(fo, searchItemState);
-        model.addSearchItem(searchItem);
+        searchTable.addSearchItem(searchItem);
     }
     
     public boolean fileRetrieved(FrostFileListFileObject fo) {
@@ -301,21 +300,20 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
         } catch(SQLException e) {
             logger.log(Level.SEVERE, "Catched exception:", e);
         }
-
-        searchPanel.setSearchEnabled(true);
+        searchTable.searchFinished();
     }
 
     /**Constructor*/
     public SearchThread(String newRequest,
             String newSearchType,
-            SearchManager searchManager)
+            SearchTable searchTable)
     {
         request = newRequest.toLowerCase();
         if( request.length() == 0 ) {
             // default: search all
             request = "*";
         }
-        model = searchManager.getModel();
+        this.searchTable = searchTable;
         searchType = newSearchType;
         audioExtension = Core.frostSettings.getArrayValue("audioExtension");
         videoExtension = Core.frostSettings.getArrayValue("videoExtension");
@@ -327,7 +325,6 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
         if( maxSearchResults <= 0 ) {
             maxSearchResults = 10000; // default
         }
-        searchPanel = searchManager.getPanel();
         currentDate = DateFun.getCurrentSqlDateGMT();
         
         cachedSingleRequests = prepareSingleRequests(request);
