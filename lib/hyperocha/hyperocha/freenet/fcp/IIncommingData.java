@@ -27,5 +27,5 @@ import java.util.Hashtable;
  *
  */
 public interface IIncommingData {
-	public void incommingData(FCPConnection conn, Hashtable result);
+	public void incommingData(FCPConnection conn, Hashtable message);
 }
