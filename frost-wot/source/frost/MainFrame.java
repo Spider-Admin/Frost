@@ -512,6 +512,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             });
 
             // construct menu
+            
             // File Menu
             fileMenu.add(fileExitMenuItem);
             // News Menu
@@ -521,20 +522,21 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             tofMenu.add(tofDisplayKnownBoards);
             tofMenu.add(tofSearchMessages);
             // Options Menu
-            optionsMenu.add(optionsPreferencesMenuItem);
             optionsMenu.add(optionsManageLocalIdentitiesMenuItem);
             optionsMenu.add(optionsManageIdentitiesMenuItem);
+            optionsMenu.addSeparator();
+            optionsMenu.add(optionsPreferencesMenuItem);
             // Plugin Menu
 //            pluginMenu.add(pluginBrowserMenuItem);
             pluginMenu.add(pluginTranslateMenuItem);
-            
             // Language Menu
             LanguageGuiSupport.getInstance().buildInitialLanguageMenu(languageMenu);
-            
             // Help Menu
             helpMenu.add(helpMemMonMenuItem);
             helpMenu.add(helpHelpMenuItem);
+            helpMenu.addSeparator();
             helpMenu.add(helpAboutMenuItem);
+
             // add all to bar
             menuBar.add(fileMenu);
             menuBar.add(tofMenu);
@@ -542,7 +544,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             menuBar.add(pluginMenu);
             menuBar.add(languageMenu);
             menuBar.add(helpMenu);
-            
+
+            // add time label
             menuBar.add(Box.createHorizontalGlue());
             menuBar.add(timeLabel);
             menuBar.add(Box.createRigidArea(new Dimension(3,3)));
