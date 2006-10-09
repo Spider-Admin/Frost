@@ -24,7 +24,6 @@ import frost.*;
 
 public class SearchManager implements PropertyChangeListener {
 
-    private SearchModel model;
     private SearchPanel panel;
 
     public SearchManager() {
@@ -43,18 +42,10 @@ public class SearchManager implements PropertyChangeListener {
 
     public SearchPanel getPanel() {
         if (panel == null) {
-            panel = new SearchPanel(this);
-            panel.setModel(getModel());
+            panel = new SearchPanel();
             panel.initialize();
         }
         return panel;
-    }
-
-    public SearchModel getModel() {
-        if (model == null) {
-            model = new SearchModel();
-        }
-        return model;
     }
 
     public void propertyChange(PropertyChangeEvent evt) {
