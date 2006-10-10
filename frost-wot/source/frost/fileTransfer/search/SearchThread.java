@@ -33,19 +33,22 @@ import frost.storage.database.applayer.*;
 class SearchThread extends Thread implements FileListDatabaseTableCallback {
 
     private static Logger logger = Logger.getLogger(SearchThread.class.getName());
+    
+    private SearchParameters searchParams;
 
-    private String request;
-    private String searchType;
     private String[] audioExtension;
     private String[] videoExtension;
     private String[] imageExtension;
     private String[] documentExtension;
     private String[] executableExtension;
     private String[] archiveExtension;
+
+    boolean hideBad;
+
     private int allFileCount;
     private int maxSearchResults;
     
-    private java.sql.Date currentDate;
+//    private java.sql.Date currentDate;
 
     private SearchTable searchTable;
     private DownloadModel downloadModel;
@@ -53,122 +56,343 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
 
     private boolean isStopRequested = false;
     
-    private List cachedSingleRequests = null;
-    private List cachedRemoveStrings = null;
-
-    private List getSingleRequests() {
-        return cachedSingleRequests;
-    }
-    private List getRemoveStrings() {
-        return cachedRemoveStrings;
-    }
     private boolean isStopRequested() {
         return isStopRequested;
     }
     private void requestStop() {
         isStopRequested = true;
     }
-
-    /**
-     * Splits a String into single parts
-     * @return Vector containing the single parts as Strings
-     */
-    private List prepareSingleRequests(String req) {
-        List sRequests = new ArrayList();
-        String tmp = req.trim().toLowerCase();
-
-        while( tmp.indexOf(" ") != -1 ) {
-            int pos = tmp.indexOf(" ");
-            // if (DEBUG) Core.getOut().println("Search request: " + (tmp.substring(0, pos)).trim());
-            sRequests.add((tmp.substring(0, pos)).trim());
-            tmp = (tmp.substring(pos, tmp.length())).trim();
+    
+    private String lowerCase(String s) {
+        if( s == null ) {
+            return "";
+        } else {
+            return s.toLowerCase();
         }
-
-        if( tmp.length() > 0 ) {
-            // if (DEBUG) Core.getOut().println("Search request: " + (tmp));
-            sRequests.add(tmp);
-        }
-
-        return sRequests;
     }
-
+    
     /**
-     * Reads index file and adds search results to the search table
+     * Check search options, step 1.
      */
-    private boolean getSearchResults(FrostFileListFileObject fo) {
-        List sRequests = getSingleRequests();
+    private boolean searchFile1(FrostFileListFileObject fo) {
 
-        FrostFileListFileObjectOwner ob = (FrostFileListFileObjectOwner)
-                fo.getFrostFileListFileObjectOwnerList().get(0);
-        
-        // check for name
-        String filename = ob.getName().toLowerCase().trim();
-        for( int j = 0; j < sRequests.size(); j++ ) {
-            String singleRequest = (String) sRequests.get(j);
-            if( !singleRequest.startsWith("*") ) {
-                if( filename.indexOf(singleRequest) < 0 ) {
-                    return false;
-                }
-            }
-        }
-
-        // check for forbidden name
-        for (int j = 0; j < getRemoveStrings().size(); j++) {
-            String notString = (String) getRemoveStrings().get(j);
-            if ((filename.toLowerCase()).indexOf(notString.toLowerCase()) != -1) {
+        // check if file has a key
+        if( searchParams.getWithKeyOnly() ) {
+            if( fo.getKey() == null || fo.getKey().length() == 0 ) {
                 return false;
             }
         }
 
-        // check for search type
-        if( searchType.equals("SearchPane.fileTypes.allFiles") ) {
-            return true;
-        } else {
-            boolean accept = false;
-            if( searchType.equals("SearchPane.fileTypes.audio") ) {
-                accept = checkType(audioExtension, filename);
-            } else if( searchType.equals("SearchPane.fileTypes.video") ) {
-                accept = checkType(videoExtension, filename);
-            } else if( searchType.equals("SearchPane.fileTypes.images") ) {
-                accept = checkType(imageExtension, filename);
-            } else if( searchType.equals("SearchPane.fileTypes.documents") ) {
-                accept = checkType(documentExtension, filename);
-            } else if( searchType.equals("SearchPane.fileTypes.executables") ) {
-                accept = checkType(executableExtension, filename);
-            } else if( searchType.equals("SearchPane.fileTypes.archives") ) {
-                accept = checkType(archiveExtension, filename);
-            }
-            return accept;
-        }
-    }
-    
-    private List prepareRemoveStrings(String req) {
-        List rStrings = new ArrayList();
-        int notPos = req.indexOf("*-");
-        if( notPos < 0 ) {
-            return rStrings;
-        }
-        int nextSpacePos = req.indexOf(" ", notPos);
-        if (nextSpacePos == -1) {
-            nextSpacePos = req.length();
-        }
-
-        String notString = req.substring(notPos + 2, nextSpacePos);
-        if (notString.indexOf(";") == -1) { // only one notString
-            rStrings.add(notString);
-        } else { //more notStrings
-            while (notString.indexOf(";") != -1) {
-                rStrings.add(notString.substring(0, notString.indexOf(";")));
-                if (!notString.endsWith(";")) {
-                    notString = notString.substring(notString.indexOf(";") + 1, notString.length());
+        // hideBadFiles: show file if no bad owner; or if at least 1 owner is good/observe
+        if( hideBad ) {
+            boolean accept = true;
+            for(Iterator i=fo.getFrostFileListFileObjectOwnerList().iterator(); i.hasNext(); ) {
+                FrostFileListFileObjectOwner ob = (FrostFileListFileObjectOwner)i.next();
+                if( ob.getOwner() != null ) {
+                    Identity id = Core.getIdentities().getIdentity(ob.getOwner());
+                    if (id != null ) { 
+                        if( id.isBAD() ) {
+                            accept = false; // dont break, maybe there is a good
+                        }
+                        if( id.isGOOD() || id.isOBSERVE() ) {
+                            accept = true;
+                            break; // break, one GOOD is enough to accept
+                        }
+                    }                
                 }
             }
-            notString = notString.trim();
-            if (notString.length() > 0) {
-                rStrings.add(notString);
+            if( !accept ) {
+                return false;
             }
         }
-        return rStrings;
+
+        // check file extension. if extension of ONE file is ok the file matches
+        if( searchParams.getExtensions() != SearchParameters.EXTENSIONS_ALL ) {
+            boolean accept = false;
+            for( Iterator i=fo.getFrostFileListFileObjectOwnerList().iterator(); i.hasNext(); ) {
+                FrostFileListFileObjectOwner ob = (FrostFileListFileObjectOwner) i.next();
+                String name = lowerCase(ob.getName());
+                // check for search type
+                if( searchParams.getExtensions() == SearchParameters.EXTENSIONS_AUDIO ) {
+                    accept = checkType(audioExtension, name);
+                } else if( searchParams.getExtensions() == SearchParameters.EXTENSIONS_VIDEO ) {
+                    accept = checkType(videoExtension, name);
+                } else if( searchParams.getExtensions() == SearchParameters.EXTENSIONS_IMAGES ) {
+                    accept = checkType(imageExtension, name);
+                } else if( searchParams.getExtensions() == SearchParameters.EXTENSIONS_DOCUMENTS ) {
+                    accept = checkType(documentExtension, name);
+                } else if( searchParams.getExtensions() == SearchParameters.EXTENSIONS_ARCHIVES ) {
+                    accept = checkType(archiveExtension, name);
+                } else if( searchParams.getExtensions() == SearchParameters.EXTENSIONS_EXECUTABLES ) {
+                    accept = checkType(executableExtension, name);
+                }
+                if( accept == true ) {
+                    break; // break, one correct extension is enough to accept
+                }
+            }
+            if( !accept ) {
+                return false;
+            }
+        }
+
+        return true; // accepted
+    }
+    
+    /**
+     * Check search options, step 2.
+     */
+    private boolean searchFile2(FrostFileListFileObject fo) {
+        if( searchParams.isSimpleSearch() ) {
+            return (searchFile2NotStringsSimple(fo) && searchFile2StringsSimple(fo));
+        } else {
+            return (searchFile2NotStringsAdvanced(fo) && searchFile2StringsAdvanced(fo));
+        }
+    }
+
+    /**
+     * Check all NOT strings, if a not string occurs for a file it is not accepted.
+     */
+    private boolean searchFile2NotStringsAdvanced(FrostFileListFileObject fo) {
+        
+        if( searchParams.getNotName().isEmpty()
+                && searchParams.getNotComment().isEmpty()
+                && searchParams.getNotKeyword().isEmpty()
+                && searchParams.getNotOwner().isEmpty() )
+        {
+            return true; // no not strings given
+        }
+
+        for( Iterator i=fo.getFrostFileListFileObjectOwnerList().iterator(); i.hasNext(); ) {
+            
+            FrostFileListFileObjectOwner ob = (FrostFileListFileObjectOwner) i.next();
+
+            String name = lowerCase(ob.getName());
+            String comment = lowerCase(ob.getComment());
+            String keyword = lowerCase(ob.getKeywords());
+            String owner = lowerCase(ob.getOwner()); 
+            
+            // check notName
+            if( !searchParams.getNotName().isEmpty() && name.length() > 0 ) {
+                for(Iterator j=searchParams.getNotName().iterator(); j.hasNext(); ) {
+                    String notName = (String) j.next();
+                    if( name.indexOf(notName) > -1 ) {
+                        return false;
+                    }
+                }
+            }
+            // check notComment
+            if( !searchParams.getNotComment().isEmpty() && comment.length() > 0 ) {
+                for(Iterator j=searchParams.getNotComment().iterator(); j.hasNext(); ) {
+                    String notComment = (String) j.next();
+                    if( comment.indexOf(notComment) > -1 ) {
+                        return false;
+                    }
+                }
+            }
+            // check notKeyword
+            if( !searchParams.getNotKeyword().isEmpty() && keyword.length() > 0 ) {
+                for(Iterator j=searchParams.getNotKeyword().iterator(); j.hasNext(); ) {
+                    String notKeyword = (String) j.next();
+                    if( keyword.indexOf(notKeyword) > -1 ) {
+                        return false;
+                    }
+                }
+            }
+            // check notOwner
+            if( !searchParams.getNotOwner().isEmpty() && owner.length() > 0 ) {
+                for(Iterator j=searchParams.getNotOwner().iterator(); j.hasNext(); ) {
+                    String notOwner = (String) j.next();
+                    if( owner.indexOf(notOwner) > -1 ) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * If a NOT string occurs inside name, comment, keyword then do not accept this file.
+     */
+    private boolean searchFile2NotStringsSimple(FrostFileListFileObject fo) {
+        
+        if( searchParams.getSimpleSearchNotStrings().isEmpty() ) {
+            return true;
+        }
+
+        for( Iterator i=fo.getFrostFileListFileObjectOwnerList().iterator(); i.hasNext(); ) {
+            
+            FrostFileListFileObjectOwner ob = (FrostFileListFileObjectOwner) i.next();
+
+            String name = lowerCase(ob.getName());
+            String comment = lowerCase(ob.getComment());
+            String keyword = lowerCase(ob.getKeywords());
+            
+            for(Iterator j=searchParams.getSimpleSearchNotStrings().iterator(); j.hasNext(); ) {
+                String notString = (String) j.next();
+                if( name.indexOf(notString) > -1 ) {
+                    return false;
+                }
+                if( comment.indexOf(notString) > -1 ) {
+                    return false;
+                }
+                if( keyword.indexOf(notString) > -1 ) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Advanced string search: if the given string does not occur in the field (e.g. comment)
+     * then the file is not accepted.
+     */
+    private boolean searchFile2StringsAdvanced(FrostFileListFileObject fo) {
+
+        boolean nameFound = false;
+        boolean commentFound = false;
+        boolean keywordFound = false;
+        boolean ownerFound = false;
+        
+        if( searchParams.getName().isEmpty() ) {
+            nameFound = true;
+        }
+        if( searchParams.getComment().isEmpty() ) {
+            commentFound = true;
+        }
+        if( searchParams.getKeyword().isEmpty() ) {
+            keywordFound = true;
+        }
+        if( searchParams.getOwner().isEmpty() ) {
+            ownerFound = true;
+        }
+
+        if (nameFound && commentFound && keywordFound && ownerFound) {
+            return true; // find all
+        }
+        
+        for( Iterator i=fo.getFrostFileListFileObjectOwnerList().iterator(); i.hasNext(); ) {
+            
+            FrostFileListFileObjectOwner ob = (FrostFileListFileObjectOwner) i.next();
+
+            String name = lowerCase(ob.getName());
+            String comment = lowerCase(ob.getComment());
+            String keyword = lowerCase(ob.getKeywords());
+            String owner = lowerCase(ob.getOwner()); 
+            
+            // then check for strings, if strings are given they must match
+
+            // check name
+            if( !searchParams.getName().isEmpty() && name.length() > 0 ) {
+                boolean found = true;
+                for(Iterator j=searchParams.getName().iterator(); j.hasNext(); ) {
+                    String obname = (String) j.next();
+                    if( name.indexOf(obname) < 0 ) {
+                        found = false;
+                        break;
+                    }
+                }
+                if( found ) {
+                    nameFound = true;
+                }
+            }
+            // check comment
+            if( !searchParams.getComment().isEmpty() && comment.length() > 0 ) {
+                boolean found = true;
+                for(Iterator j=searchParams.getComment().iterator(); j.hasNext(); ) {
+                    String obcomment = (String) j.next();
+                    if( comment.indexOf(obcomment) < 0 ) {
+                        found = false;
+                        break;
+                    }
+                }
+                if( found ) {
+                    commentFound = true;
+                }
+            }
+            // check keyword
+            if( !searchParams.getKeyword().isEmpty() && keyword.length() > 0 ) {
+                boolean found = true;
+                for(Iterator j=searchParams.getKeyword().iterator(); j.hasNext(); ) {
+                    String obkeyword = (String) j.next();
+                    if( keyword.indexOf(obkeyword) < 0 ) {
+                        found = false;
+                        break;
+                    }
+                }
+                if( found ) {
+                    keywordFound = true;
+                }
+            }
+            // check owner
+            if( !searchParams.getOwner().isEmpty() && owner.length() > 0 ) {
+                boolean found = true;
+                for(Iterator j=searchParams.getOwner().iterator(); j.hasNext(); ) {
+                    String obowner = (String) j.next();
+                    if( owner.indexOf(obowner) < 0 ) {
+                        found = false;
+                        break;
+                    }
+                }
+                if( found ) {
+                    ownerFound = true;
+                }
+            }
+        }
+        
+        return (nameFound && commentFound && keywordFound && ownerFound);
+    }
+
+    /**
+     * Simple string search: each given string must be found at least once in name, comment or keyword.
+     */
+    private boolean searchFile2StringsSimple(FrostFileListFileObject fo) {
+        
+        if( searchParams.getSimpleSearchStrings().isEmpty() ) {
+            return true; // find all
+        }
+
+        // mark all strings not found
+        Hashtable searchStrings = new Hashtable();
+        for(Iterator i=searchParams.getSimpleSearchStrings().iterator(); i.hasNext(); ) {
+            String s = (String) i.next();
+            searchStrings.put(s, Boolean.FALSE);
+        }
+
+        for( Iterator i=fo.getFrostFileListFileObjectOwnerList().iterator(); i.hasNext(); ) {
+            
+            FrostFileListFileObjectOwner ob = (FrostFileListFileObjectOwner) i.next();
+
+            String name = lowerCase(ob.getName());
+            String comment = lowerCase(ob.getComment());
+            String keyword = lowerCase(ob.getKeywords());
+            
+            for(Iterator j=searchParams.getSimpleSearchStrings().iterator(); j.hasNext(); ) {
+                String string = (String) j.next();
+                if( name.indexOf(string) > -1 ) {
+                    searchStrings.put(string, Boolean.TRUE);
+                }
+                if( comment.indexOf(string) > -1 ) {
+                    searchStrings.put(string, Boolean.TRUE);
+                }
+                if( keyword.indexOf(string) > -1 ) {
+                    searchStrings.put(string, Boolean.TRUE);
+                }
+            }
+        }
+        
+        // finally check if all words were found
+        boolean allFound = true;
+        for(Iterator i=searchStrings.values().iterator(); i.hasNext(); ) {
+            Boolean b = (Boolean) i.next();
+            if( b.booleanValue() == false ) {
+                allFound = false;
+                break;
+            }
+        }
+        
+        return allFound;
     }
 
     /**
@@ -188,63 +412,34 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
         return accepted;
     }
 
-    /**
-     * Removes unwanted keys from results
-     */
-    private boolean filterSearchResults(FrostFileListFileObject fo) {
-        if (request.indexOf("*age") != -1) {
-            int agePos = request.indexOf("*age");
-            int nextSpacePos = request.indexOf(" ", agePos);
-            if (nextSpacePos == -1) {
-                nextSpacePos = request.length();
-            }
-
-            int age = 1;
-            try {
-                age = Integer.parseInt(request.substring(agePos + 4, nextSpacePos));
-            } catch (NumberFormatException e) {
-                logger.warning("Did not recognice age, using default 1.");
-            }
-
-            long diffMillis = age * 24 * 60 * 60 * 1000;
-            long minDateMillis = currentDate.getTime() - diffMillis;
-            
-            if( fo.getLastReceived() < minDateMillis ) {
-                return false; // older than age
-            }
-        }
-
-        boolean hideBad = Core.frostSettings.getBoolValue("hideBadFiles");
-
-        // hideBadFiles: show file if no bad owner; or if at least 1 owner is good
-        if( hideBad ) {
-            boolean accept = true;
-            for(Iterator i=fo.getFrostFileListFileObjectOwnerList().iterator(); i.hasNext(); ) {
-                FrostFileListFileObjectOwner ob = (FrostFileListFileObjectOwner)i.next();
-                if( ob.getOwner() != null ) {
-                    Identity id = Core.getIdentities().getIdentity(ob.getOwner());
-                    if (id != null ) { 
-                        if( id.isBAD() ) {
-                            accept = false; // dont break, maybe there is a good
-                        }
-                        if( id.isGOOD() ) {
-                            return true;
-                        }
-                    }                
-                }
-            }
-            if( !accept ) {
-                return false;
-            }
-        }
-        // all test passed
-        return true;
-    }
+//    private boolean filterSearchResults(FrostFileListFileObject fo) {
+//        if (request.indexOf("*age") != -1) {
+//            int agePos = request.indexOf("*age");
+//            int nextSpacePos = request.indexOf(" ", agePos);
+//            if (nextSpacePos == -1) {
+//                nextSpacePos = request.length();
+//            }
+//
+//            int age = 1;
+//            try {
+//                age = Integer.parseInt(request.substring(agePos + 4, nextSpacePos));
+//            } catch (NumberFormatException e) {
+//                logger.warning("Did not recognice age, using default 1.");
+//            }
+//
+//            long diffMillis = age * 24 * 60 * 60 * 1000;
+//            long minDateMillis = currentDate.getTime() - diffMillis;
+//            
+//            if( fo.getLastReceived() < minDateMillis ) {
+//                return false; // older than age
+//            }
+//        }
+//    }
 
     /**
      * Displays search results in search table
      */
-    private void displaySearchResults(FrostFileListFileObject fo) {
+    private void addSearchResult(FrostFileListFileObject fo) {
 
         allFileCount++;
 
@@ -284,14 +479,13 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
     }
     
     public boolean fileRetrieved(FrostFileListFileObject fo) {
-        if( getSearchResults(fo) && filterSearchResults(fo) ) {
-            displaySearchResults(fo);
+        if( searchFile1(fo) && searchFile2(fo) ) {
+            addSearchResult(fo);
         }
         return isStopRequested();
     }
 
     public void run() {
-        logger.info("Search for '" + request + "' started.");
 
         allFileCount = 0;
 
@@ -300,35 +494,30 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
         } catch(SQLException e) {
             logger.log(Level.SEVERE, "Catched exception:", e);
         }
+
         searchTable.searchFinished();
     }
 
     /**Constructor*/
-    public SearchThread(String newRequest,
-            String newSearchType,
-            SearchTable searchTable)
-    {
-        request = newRequest.toLowerCase();
-        if( request.length() == 0 ) {
-            // default: search all
-            request = "*";
-        }
+    public SearchThread(SearchParameters searchParams, SearchTable searchTable) {
+
+        this.searchParams = searchParams; 
+        
         this.searchTable = searchTable;
-        searchType = newSearchType;
-        audioExtension = Core.frostSettings.getArrayValue("audioExtension");
-        videoExtension = Core.frostSettings.getArrayValue("videoExtension");
-        documentExtension = Core.frostSettings.getArrayValue("documentExtension");
+        
+        audioExtension      = Core.frostSettings.getArrayValue("audioExtension");
+        videoExtension      = Core.frostSettings.getArrayValue("videoExtension");
+        documentExtension   = Core.frostSettings.getArrayValue("documentExtension");
         executableExtension = Core.frostSettings.getArrayValue("executableExtension");
-        archiveExtension = Core.frostSettings.getArrayValue("archiveExtension");
-        imageExtension = Core.frostSettings.getArrayValue("imageExtension");
-        maxSearchResults = Core.frostSettings.getIntValue("maxSearchResults");
+        archiveExtension    = Core.frostSettings.getArrayValue("archiveExtension");
+        imageExtension      = Core.frostSettings.getArrayValue("imageExtension");
+        maxSearchResults    = Core.frostSettings.getIntValue("maxSearchResults");
+        
         if( maxSearchResults <= 0 ) {
             maxSearchResults = 10000; // default
         }
-        currentDate = DateFun.getCurrentSqlDateGMT();
-        
-        cachedSingleRequests = prepareSingleRequests(request);
-        cachedRemoveStrings = prepareRemoveStrings(request);
+//        currentDate = DateFun.getCurrentSqlDateGMT();
+        hideBad = Core.frostSettings.getBoolValue("hideBadFiles");
         
         downloadModel = FileTransferManager.getInstance().getDownloadManager().getModel();
         sharedFilesModel = FileTransferManager.getInstance().getSharedFilesManager().getModel();
