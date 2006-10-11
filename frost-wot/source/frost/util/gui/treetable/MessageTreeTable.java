@@ -44,6 +44,7 @@ import java.beans.*;
 import java.util.*;
 
 import javax.swing.*;
+import javax.swing.border.*;
 import javax.swing.event.*;
 import javax.swing.plaf.basic.*;
 import javax.swing.table.*;
@@ -68,6 +69,9 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     /** A subclass of JTree. */
     protected TreeTableCellRenderer tree;
     protected Color secondBackgroundColor = new java.awt.Color(238,238,238);
+
+    protected Border borderNewMsgsInThread = BorderFactory.createMatteBorder(0, 2, 0, 0, Color.blue);
+    protected Border borderEmpty = BorderFactory.createEmptyBorder(0, 2, 0, 0);
 
     private StringCellRenderer stringCellRenderer = new StringCellRenderer();
     private BooleanCellRenderer booleanCellRenderer = new BooleanCellRenderer();
@@ -376,7 +380,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     	    g.translate(0, -visibleRow * getRowHeight());
     	    super.paint(g);
     	}
-        
+
     	/**
     	 * TreeCellRenderer method. Overridden to update the visible row.
     	 */
@@ -447,6 +451,13 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         		    dtcr.setTextNonSelectionColor(foreground);
         		    dtcr.setBackgroundNonSelectionColor(background);
         		}
+
+                if( ((FrostMessageObject)msg.getParent()).isRoot() && msg.hasUnreadChilds() ) {
+                    dtcr.setBorder(borderNewMsgsInThread);
+                } else {
+                    dtcr.setBorder(borderEmpty);
+                }
+                
                 ImageIcon icon;
                 if( msg.isDummy() ) {
                     icon = messageDummyIcon;
@@ -467,7 +478,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                 dtcr.setLeafIcon(icon);
                 dtcr.setOpenIcon(icon);
                 dtcr.setClosedIcon(icon);
-                // FIXME: tooltip not shown?
+
                 dtcr.setToolTipText(msg.getSubject());
     	    }
             
