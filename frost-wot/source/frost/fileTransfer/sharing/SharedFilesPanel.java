@@ -171,6 +171,15 @@ public class SharedFilesPanel extends JPanel {
     }
 
     private void showUploadTablePopupMenu(MouseEvent e) {
+        // select row where rightclick occurred if row under mouse is NOT selected 
+        Point p = e.getPoint();
+        int y = modelTable.getTable().rowAtPoint(p);
+        if( y < 0 ) {
+            return;
+        }
+        if( !modelTable.getTable().getSelectionModel().isSelectedIndex(y) ) {
+            modelTable.getTable().getSelectionModel().setSelectionInterval(y, y);
+        }
         getPopupMenuUpload().show(e.getComponent(), e.getX(), e.getY());
     }
 

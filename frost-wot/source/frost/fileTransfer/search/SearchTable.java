@@ -155,6 +155,15 @@ public class SearchTable extends SortedModelTable {
         }
     
         private void showSearchTablePopupMenu(MouseEvent e) {
+            // select row where rightclick occurred if row under mouse is NOT selected 
+            Point p = e.getPoint();
+            int y = getTable().rowAtPoint(p);
+            if( y < 0 ) {
+                return;
+            }
+            if( !getTable().getSelectionModel().isSelectedIndex(y) ) {
+                getTable().getSelectionModel().setSelectionInterval(y, y);
+            }
             getPopupMenuSearch().show(e.getComponent(), e.getX(), e.getY());
         }
     }
