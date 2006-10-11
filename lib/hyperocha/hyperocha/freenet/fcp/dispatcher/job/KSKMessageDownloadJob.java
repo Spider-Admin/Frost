@@ -63,7 +63,7 @@ public class KSKMessageDownloadJob extends Job {
 	public void runFCP2(Dispatcher dispatcher) {
 		
 		
-		FCPConnection conn = dispatcher.getFCPConnection(getRequiredNetworkType());
+		FCPConnection conn = dispatcher.getDefaultFCPConnection(getRequiredNetworkType());
 		
 		List cmd = new LinkedList();
 		cmd.add("ClientGet");
