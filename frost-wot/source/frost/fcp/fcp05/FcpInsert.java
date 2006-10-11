@@ -28,6 +28,7 @@ import javax.swing.*;
 import frost.*;
 import frost.fcp.*;
 import frost.fileTransfer.upload.*;
+import frost.util.*;
 
 /**
  * This class provides methods to insert data into freenet.

@@ -35,6 +35,7 @@ import frost.gui.model.*;
 import frost.identities.*;
 import frost.storage.*;
 import frost.storage.database.applayer.*;
+import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 

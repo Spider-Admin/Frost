@@ -26,6 +26,7 @@ import frost.*;
 import frost.fileTransfer.*;
 import frost.storage.database.applayer.*;
 import frost.transferlayer.*;
+import frost.util.*;
 
 /**
  * This thread downloads the KSK pointer files for file sharing from the public indices.

@@ -23,6 +23,7 @@ import java.io.*;
 import frost.*;
 import frost.fileTransfer.sharing.*;
 import frost.gui.model.*;
+import frost.util.*;
 import frost.util.model.*;
 
 /**

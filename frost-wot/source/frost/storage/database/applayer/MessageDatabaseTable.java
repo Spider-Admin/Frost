@@ -27,6 +27,7 @@ import frost.boards.*;
 import frost.identities.*;
 import frost.messages.*;
 import frost.storage.database.*;
+import frost.util.*;
 
 // TODO: implement searching for messages without assigned boards (deleted boards)
 // TODO: prepare constraints for CHK keys and/or message ID

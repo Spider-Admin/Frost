@@ -16,7 +16,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost;
+package frost.util;
 
 import java.io.*;
 import java.util.*;
@@ -27,6 +27,8 @@ import javax.xml.parsers.*;
 import org.apache.xml.serialize.*;
 import org.w3c.dom.*;
 import org.xml.sax.*;
+
+import frost.util.*;
 
 /**
  * A place to hold utility methods for XML processing.

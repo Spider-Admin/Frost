@@ -29,6 +29,7 @@ import org.xml.sax.*;
 
 import frost.*;
 import frost.identities.*;
+import frost.util.*;
 
 public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
 
@@ -164,7 +165,7 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
     }
 
     /**
-     * @see frost.XMLizable#getXMLElement(org.w3c.dom.Document)
+     * @see frost.util.XMLizable#getXMLElement(org.w3c.dom.Document)
      */
     public Element getXMLElement(Document d) {
         Element el = d.createElement("FrostMessage");
@@ -382,7 +383,7 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
     }
     
     /**
-     * @see frost.XMLizable#loadXMLElement(org.w3c.dom.Element)
+     * @see frost.util.XMLizable#loadXMLElement(org.w3c.dom.Element)
      */
     public void loadXMLElement(Element e) throws SAXException {
         setMessageId(XMLTools.getChildElementsCDATAValue(e, "MessageId"));

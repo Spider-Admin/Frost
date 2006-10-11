@@ -34,7 +34,7 @@ import frost.boards.*;
 import frost.gui.model.*;
 import frost.messages.*;
 import frost.threads.*;
-import frost.util.*;
+import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
 public class SearchMessagesDialog extends JFrame implements LanguageListener {
@@ -102,6 +102,10 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     private ButtonGroup archive_buttonGroup = null;  //  @jve:decl-index=0:visual-constraint="760,342"
     private JLabel Lsubject = null;
     private JTextField search_TFsubject = null;
+
+    private JCheckBox senderCaseCheckBox = new JCheckBox("");
+    private JCheckBox subjectCaseCheckBox = new JCheckBox("");
+    private JCheckBox contentCaseCheckBox = new JCheckBox("");
 
     /**
      * This is the default constructor
@@ -338,14 +342,31 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             Psearch.setBorder(javax.swing.BorderFactory.createCompoundBorder(javax.swing.BorderFactory.createEmptyBorder(3,3,3,3), javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.LOWERED)));
             Psearch.add(Lsender, gridBagConstraints);
             Psearch.add(Lcontent, gridBagConstraints1);
-            Psearch.add(getSearch_TFsender(), gridBagConstraints11);
-            Psearch.add(getSearch_TFcontent(), gridBagConstraints2);
             Psearch.add(getSearch_CBprivateMsgsOnly(), gridBagConstraints101);
             Psearch.add(getSearch_CBflaggedMsgsOnly(), gridBagConstraints102);
             Psearch.add(getSearch_CBstarredMsgsOnly(), gridBagConstraints103);
             Psearch.add(getSearch_CBrepliedMsgsOnly(), gridBagConstraints104);
             Psearch.add(Lsubject, gridBagConstraints110);
-            Psearch.add(getSearch_TFsubject(), gridBagConstraints29);
+
+            JPanel dummyPanel;
+            
+            dummyPanel = new JPanel();
+            dummyPanel.setLayout(new BoxLayout(dummyPanel, BoxLayout.X_AXIS));
+            dummyPanel.add(getSearch_TFsender());
+            dummyPanel.add(senderCaseCheckBox);
+            Psearch.add(dummyPanel, gridBagConstraints11);
+
+            dummyPanel = new JPanel();
+            dummyPanel.setLayout(new BoxLayout(dummyPanel, BoxLayout.X_AXIS));
+            dummyPanel.add(getSearch_TFcontent());
+            dummyPanel.add(contentCaseCheckBox);
+            Psearch.add(dummyPanel, gridBagConstraints2);
+
+            dummyPanel = new JPanel();
+            dummyPanel.setLayout(new BoxLayout(dummyPanel, BoxLayout.X_AXIS));
+            dummyPanel.add(getSearch_TFsubject());
+            dummyPanel.add(subjectCaseCheckBox);
+            Psearch.add(dummyPanel, gridBagConstraints29);
         }
         return Psearch;
     }
@@ -1239,44 +1260,13 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         getDate_TFdaysBackward().setText("0");
     }
 
-    private List splitString(String str) {
-        List lst = new ArrayList();
-        String[] splitted = str.split(" ");
-        for(int x=0; x < splitted.length; x++) {
-            String s = splitted[x].trim().toLowerCase();
-            if( s.length() > 0 ) {
-                lst.add(s);
-            }
-        }
-        if( lst.size() > 0 ) {
-            return lst;
-        } else {
-            return null;
-        }
-    }
-    
     private SearchMessagesConfig getSearchConfig() {
 
         SearchMessagesConfig scfg = new SearchMessagesConfig();
-
-        // sender_part1; sender_part2
-        // TODO: maybe provide a chooser?
-        String txt = getSearch_TFsender().getText().trim();
-        if( txt.length() > 0 ) {
-            scfg.sender = splitString(txt);
-        }
-
-        // TODO: "text abc"; text2; "hugo;emil"
-        txt = getSearch_TFsubject().getText().trim();
-        if( txt.length() > 0 ) {
-            scfg.subject = splitString(txt);
-        }
-
-        // TODO: "text abc"; text2; "hugo;emil"
-        txt = getSearch_TFcontent().getText().trim();
-        if( txt.length() > 0 ) {
-            scfg.content = splitString(txt);
-        }
+        
+        scfg.setSenderString(getSearch_TFsender().getText().trim(), !senderCaseCheckBox.isSelected());
+        scfg.setSubjectString(getSearch_TFsubject().getText().trim(), !subjectCaseCheckBox.isSelected());
+        scfg.setContentString(getSearch_TFcontent().getText().trim(), !contentCaseCheckBox.isSelected());
 
         scfg.searchPrivateMsgsOnly = getSearch_CBprivateMsgsOnly().getBooleanState();
         scfg.searchFlaggedMsgsOnly = getSearch_CBflaggedMsgsOnly().getBooleanState();
@@ -1717,6 +1707,10 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         Lsender.setText(language.getString("SearchMessages.search.sender"));
         Lcontent.setText(language.getString("SearchMessages.search.content"));
         Lsubject.setText(language.getString("SearchMessages.search.subject"));
+
+        senderCaseCheckBox.setToolTipText(language.getString("SearchMessages.search.tooltip.caseSensitiv"));
+        subjectCaseCheckBox.setToolTipText(language.getString("SearchMessages.search.tooltip.caseSensitiv"));
+        contentCaseCheckBox.setToolTipText(language.getString("SearchMessages.search.tooltip.caseSensitiv"));
 
         LsearchResult.setText(language.getString("SearchMessages.label.searchResult"));
         date_Lto.setText(language.getString("SearchMessages.date.to"));

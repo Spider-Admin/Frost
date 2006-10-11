@@ -25,6 +25,7 @@ import java.util.logging.*;
 import fecimpl.*;
 import freenet.support.*;
 import frost.*;
+import frost.util.*;
 
 /**
  * This class represents a FEC splitfile.

@@ -17,11 +17,12 @@
  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-package frost;
+package frost.util;
 
 import java.util.*;
 import java.util.logging.*;
 
+import frost.*;
 import frost.boards.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;

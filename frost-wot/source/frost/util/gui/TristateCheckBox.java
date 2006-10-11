@@ -1,4 +1,4 @@
-package frost.util;
+package frost.util.gui;
 
 import java.awt.event.*;
 

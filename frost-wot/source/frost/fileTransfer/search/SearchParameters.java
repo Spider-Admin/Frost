@@ -20,6 +20,8 @@ package frost.fileTransfer.search;
 
 import java.util.*;
 
+import frost.util.*;
+
 public class SearchParameters {
     
 //    public static void main(String[] args) {
@@ -61,8 +63,6 @@ public class SearchParameters {
     private List notOwner = null;
 
     private static List emptyList = new LinkedList();
-    
-    private SearchStringParser parser = new SearchStringParser();
     
     public SearchParameters(boolean simpleSearch) {
         isSimpleSearch = simpleSearch;
@@ -124,61 +124,32 @@ public class SearchParameters {
     }
 
     public void setSimpleSearchString(String simpleSearchStr) {
-        List[] res = splitStrings(simpleSearchStr);
+        List[] res = TextSearchFun.splitStrings(simpleSearchStr, true);
         simpleSearchStrings = res[0];
         simpleSearchNotStrings = res[1];
     }
     
     public void setCommentString(String commentStr) {
-        List[] res = splitStrings(commentStr);
+        List[] res = TextSearchFun.splitStrings(commentStr, true);
         comment = res[0];
         notComment = res[1];
     }
     public void setKeywordString(String keywordStr) {
-        List[] res = splitStrings(keywordStr);
+        List[] res = TextSearchFun.splitStrings(keywordStr, true);
         keyword = res[0];
         notKeyword = res[1];
     }
     public void setNameString(String nameStr) {
-        List[] res = splitStrings(nameStr);
+        List[] res = TextSearchFun.splitStrings(nameStr, true);
         name = res[0];
         notName = res[1];
     }
     public void setOwnerString(String ownerStr) {
-        List[] res = splitStrings(ownerStr);
+        List[] res = TextSearchFun.splitStrings(ownerStr, true);
         owner = res[0];
         notOwner = res[1];
     }
     
-    private List[] splitStrings(String input) {
-        
-        List strList = parser.parseSearchText(input);
-
-        List[] retVal = new List[2];
-        List searchStrings = new LinkedList();
-        List notSearchStrings = new LinkedList();
-        retVal[0] = searchStrings;
-        retVal[1] = notSearchStrings;
-        
-        // all strings until SearchStringParser.NOT_IDENT are ANDed, all after NOT are the notStrings
-        boolean collectNotStrings = false;
-        for(Iterator i=strList.iterator(); i.hasNext(); ) {
-            String s = (String) i.next();
-            if( s.equals(SearchStringParser.NOT_IDENT) ) {
-                collectNotStrings = true;
-            } else {
-                s = s.toLowerCase();
-                if( !collectNotStrings ) {
-                    searchStrings.add(s);
-                } else {
-                    notSearchStrings.add(s);
-                }
-            }
-        }
-        return retVal;
-    }
-
-
     public List getComment() {
         if( comment == null ) {
             return emptyList;

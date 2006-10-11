@@ -25,6 +25,7 @@ import frost.*;
 import frost.fileTransfer.*;
 import frost.fileTransfer.sharing.*;
 import frost.storage.database.applayer.*;
+import frost.util.*;
 
 /**
  * Generates the sha checksum of a file.

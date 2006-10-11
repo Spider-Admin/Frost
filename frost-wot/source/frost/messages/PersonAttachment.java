@@ -20,8 +20,8 @@ package frost.messages;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
-import frost.XMLTools;
 import frost.identities.Identity;
+import frost.util.*;
 
 public class PersonAttachment extends Attachment {
 

@@ -22,6 +22,7 @@ import java.util.logging.*;
 import frost.*;
 import frost.fileTransfer.*;
 import frost.storage.database.applayer.*;
+import frost.util.*;
 import frost.util.model.*;
 
 public class FrostDownloadItem extends ModelItem {

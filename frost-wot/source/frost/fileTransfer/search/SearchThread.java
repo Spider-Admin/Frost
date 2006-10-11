@@ -29,6 +29,7 @@ import frost.fileTransfer.download.*;
 import frost.fileTransfer.sharing.*;
 import frost.identities.*;
 import frost.storage.database.applayer.*;
+import frost.util.*;
 
 class SearchThread extends Thread implements FileListDatabaseTableCallback {
 
@@ -172,40 +173,20 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
             String owner = lowerCase(ob.getOwner()); 
             
             // check notName
-            if( !searchParams.getNotName().isEmpty() && name.length() > 0 ) {
-                for(Iterator j=searchParams.getNotName().iterator(); j.hasNext(); ) {
-                    String notName = (String) j.next();
-                    if( name.indexOf(notName) > -1 ) {
-                        return false;
-                    }
-                }
+            if( TextSearchFun.containsAnyString(name, searchParams.getNotName()) ) {
+                return false;
             }
             // check notComment
-            if( !searchParams.getNotComment().isEmpty() && comment.length() > 0 ) {
-                for(Iterator j=searchParams.getNotComment().iterator(); j.hasNext(); ) {
-                    String notComment = (String) j.next();
-                    if( comment.indexOf(notComment) > -1 ) {
-                        return false;
-                    }
-                }
+            if( TextSearchFun.containsAnyString(comment, searchParams.getNotComment()) ) {
+                return false;
             }
             // check notKeyword
-            if( !searchParams.getNotKeyword().isEmpty() && keyword.length() > 0 ) {
-                for(Iterator j=searchParams.getNotKeyword().iterator(); j.hasNext(); ) {
-                    String notKeyword = (String) j.next();
-                    if( keyword.indexOf(notKeyword) > -1 ) {
-                        return false;
-                    }
-                }
+            if( TextSearchFun.containsAnyString(keyword, searchParams.getNotKeyword()) ) {
+                return false;
             }
             // check notOwner
-            if( !searchParams.getNotOwner().isEmpty() && owner.length() > 0 ) {
-                for(Iterator j=searchParams.getNotOwner().iterator(); j.hasNext(); ) {
-                    String notOwner = (String) j.next();
-                    if( owner.indexOf(notOwner) > -1 ) {
-                        return false;
-                    }
-                }
+            if( TextSearchFun.containsAnyString(owner, searchParams.getNotOwner()) ) {
+                return false;
             }
         }
         return true;
@@ -285,57 +266,25 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
 
             // check name
             if( !searchParams.getName().isEmpty() && name.length() > 0 ) {
-                boolean found = true;
-                for(Iterator j=searchParams.getName().iterator(); j.hasNext(); ) {
-                    String obname = (String) j.next();
-                    if( name.indexOf(obname) < 0 ) {
-                        found = false;
-                        break;
-                    }
-                }
-                if( found ) {
+                if( TextSearchFun.containsEachString(name, searchParams.getName()) ) {
                     nameFound = true;
                 }
             }
             // check comment
             if( !searchParams.getComment().isEmpty() && comment.length() > 0 ) {
-                boolean found = true;
-                for(Iterator j=searchParams.getComment().iterator(); j.hasNext(); ) {
-                    String obcomment = (String) j.next();
-                    if( comment.indexOf(obcomment) < 0 ) {
-                        found = false;
-                        break;
-                    }
-                }
-                if( found ) {
+                if( TextSearchFun.containsEachString(comment, searchParams.getComment()) ) {
                     commentFound = true;
                 }
             }
             // check keyword
             if( !searchParams.getKeyword().isEmpty() && keyword.length() > 0 ) {
-                boolean found = true;
-                for(Iterator j=searchParams.getKeyword().iterator(); j.hasNext(); ) {
-                    String obkeyword = (String) j.next();
-                    if( keyword.indexOf(obkeyword) < 0 ) {
-                        found = false;
-                        break;
-                    }
-                }
-                if( found ) {
+                if( TextSearchFun.containsEachString(keyword, searchParams.getKeyword()) ) {
                     keywordFound = true;
                 }
             }
             // check owner
             if( !searchParams.getOwner().isEmpty() && owner.length() > 0 ) {
-                boolean found = true;
-                for(Iterator j=searchParams.getOwner().iterator(); j.hasNext(); ) {
-                    String obowner = (String) j.next();
-                    if( owner.indexOf(obowner) < 0 ) {
-                        found = false;
-                        break;
-                    }
-                }
-                if( found ) {
+                if( TextSearchFun.containsEachString(owner, searchParams.getOwner()) ) {
                     ownerFound = true;
                 }
             }

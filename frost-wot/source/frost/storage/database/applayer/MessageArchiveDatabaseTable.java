@@ -26,6 +26,7 @@ import frost.*;
 import frost.boards.*;
 import frost.messages.*;
 import frost.storage.database.*;
+import frost.util.*;
 
 /**
  * Archived messages. Same as MessageDatabaseTable, but boards are stored as VARCHAR

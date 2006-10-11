@@ -23,6 +23,7 @@ import java.util.*;
 import javax.swing.tree.*;
 
 import frost.*;
+import frost.util.*;
 import frost.util.gui.translation.*;
 
 public class Board extends DefaultMutableTreeNode implements Comparable {

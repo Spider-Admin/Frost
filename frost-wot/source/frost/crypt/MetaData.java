@@ -25,6 +25,7 @@ import org.xml.sax.SAXException;
 
 import frost.*;
 import frost.identities.Identity;
+import frost.util.*;
 
 public abstract class MetaData implements XMLizable {
 

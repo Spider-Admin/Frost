@@ -26,6 +26,7 @@ import javax.swing.table.*;
 
 import frost.*;
 import frost.fileTransfer.*;
+import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;

@@ -30,6 +30,7 @@ import frost.identities.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;
 import frost.transferlayer.*;
+import frost.util.*;
 
 /**
  * Download and upload messages for a board.

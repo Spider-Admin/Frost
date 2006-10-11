@@ -28,6 +28,7 @@ import frost.crypt.*;
 import frost.fcp.*;
 import frost.identities.*;
 import frost.messages.*;
+import frost.util.*;
 
 public class MessageDownloader {
 

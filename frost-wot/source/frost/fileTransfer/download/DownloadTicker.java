@@ -22,6 +22,7 @@ import java.util.*;
 import javax.swing.event.EventListenerList;
 
 import frost.*;
+import frost.util.*;
 
 public class DownloadTicker extends Thread {
 

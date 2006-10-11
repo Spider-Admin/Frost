@@ -27,6 +27,7 @@ import org.xml.sax.*;
 import frost.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;
+import frost.util.*;
 
 /**
  * Represents a user identity, should be immutable.

@@ -28,6 +28,7 @@ import frost.boards.*;
 import frost.gui.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;
+import frost.util.*;
 
 public class ImportXmlMessages {
 

@@ -25,6 +25,7 @@ import java.util.logging.*;
 import javax.swing.*;
 import javax.swing.UIManager.*;
 
+import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 

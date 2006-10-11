@@ -20,14 +20,27 @@ package frost.gui;
 
 import java.util.*;
 
+import frost.util.*;
+
 /**
  * This class contains all configured search options.
  */
 public class SearchMessagesConfig {
 
-    public List sender = null; // List of String
-    public List subject = null; // List of String
-    public List content = null; // List of String
+    private static List emptyList = new LinkedList();
+    
+    public boolean senderMakeLowercase = true;
+    public boolean subjectMakeLowercase = true;
+    public boolean contentMakeLowercase = true;
+
+    public List sender = emptyList; // List of String
+    public List subject = emptyList; // List of String
+    public List content = emptyList; // List of String
+
+    public List notSender = emptyList; // List of String
+    public List notSubject = emptyList; // List of String
+    public List notContent = emptyList; // List of String
+
     public Boolean searchPrivateMsgsOnly = null;
     public Boolean searchFlaggedMsgsOnly = null;
     public Boolean searchStarredMsgsOnly = null;
@@ -63,4 +76,23 @@ public class SearchMessagesConfig {
     
     public boolean msgMustContainBoards = false;
     public boolean msgMustContainFiles = false;
+    
+    public void setSenderString(String s, boolean makeLowerCase) {
+        senderMakeLowercase = makeLowerCase;
+        List[] res = TextSearchFun.splitStrings(s, makeLowerCase);
+        sender = res[0];
+        notSender = res[1];
+    }
+    public void setSubjectString(String s, boolean makeLowerCase) {
+        subjectMakeLowercase = makeLowerCase;
+        List[] res = TextSearchFun.splitStrings(s, makeLowerCase);
+        subject = res[0];
+        notSubject = res[1];
+    }
+    public void setContentString(String s, boolean makeLowerCase) {
+        contentMakeLowercase = makeLowerCase;
+        List[] res = TextSearchFun.splitStrings(s, makeLowerCase);
+        content = res[0];
+        notContent = res[1];
+    }
 }

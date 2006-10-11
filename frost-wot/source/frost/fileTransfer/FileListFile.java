@@ -26,6 +26,7 @@ import org.w3c.dom.*;
 
 import frost.*;
 import frost.identities.*;
+import frost.util.*;
 
 /**
  * Signs and writes file list files into an XML file.

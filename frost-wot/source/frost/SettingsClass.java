@@ -27,6 +27,7 @@ import java.util.*;
 import java.util.logging.*;
 
 import frost.storage.*;
+import frost.util.Logging;
 
 /**
  * Read settings from frost.ini and store them.

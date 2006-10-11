@@ -26,6 +26,7 @@ import java.util.logging.*;
 import frost.*;
 import frost.fcp.*;
 import frost.fileTransfer.download.FrostDownloadItem;
+import frost.util.*;
 
 /**
  * Requests a key from freenet

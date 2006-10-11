@@ -17,7 +17,7 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-package frost;
+package frost.util;
 
 import java.awt.*;
 import java.io.*;
@@ -28,6 +28,8 @@ import java.util.logging.*;
 import java.util.zip.*;
 
 import javax.swing.*;
+
+import frost.*;
 
 public class FileAccess {
 
