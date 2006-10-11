@@ -1,0 +1,190 @@
+/*
+  TextSearchFun.java / Frost
+  Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License as
+  published by the Free Software Foundation; either version 2 of
+  the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+*/
+package frost.util;
+
+import java.util.*;
+
+/**
+ * Provides common functions for text search.
+ */
+public class TextSearchFun {
+
+    private final static SearchStringParser searchStringParser = new SearchStringParser();
+
+    private static final String NOT_IDENT = ">?*NOT*?<";
+
+    /**
+     * Searches text for occurence of any of the provided strings.
+     * @param text  text to search into
+     * @param notStrings  list of strings
+     * @return  true if any string occurs in text, false if no string occurs in text
+     */
+    public static boolean containsAnyString(String text, List notStrings) {
+        if( notStrings != null && !notStrings.isEmpty() && text != null && text.length() > 0 ) {
+            for(Iterator j=notStrings.iterator(); j.hasNext(); ) {
+                String notName = (String) j.next();
+                if( text.indexOf(notName) > -1 ) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Searches text for all occurences of provided strings.
+     * @param text  text to search into
+     * @param strings  List of strings to search
+     * @return true if ALL strings occur in the text, false otherwise
+     */
+    public static boolean containsEachString(String text, List strings) {
+        for(Iterator j=strings.iterator(); j.hasNext(); ) {
+            String obname = (String) j.next();
+            if( text.indexOf(obname) < 0 ) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Splits an input search string into search words and NOT search words.
+     * @return  List[2] where List[0] is a list of search string and List[1] is a List of NOT search strings
+     */
+    public static List[] splitStrings(String input, boolean makeLowerCase) {
+        
+        List strList;
+
+        // we share one instance of the parser
+        synchronized(searchStringParser) {
+            strList = searchStringParser.parseSearchText(input);
+        }
+
+        List[] retVal = new List[2];
+        List searchStrings = new LinkedList();
+        List notSearchStrings = new LinkedList();
+        retVal[0] = searchStrings;
+        retVal[1] = notSearchStrings;
+        
+        // all strings until SearchStringParser.NOT_IDENT are ANDed, all after NOT are the notStrings
+        boolean collectNotStrings = false;
+        for(Iterator i=strList.iterator(); i.hasNext(); ) {
+            String s = (String) i.next();
+            if( s.equals(NOT_IDENT) ) {
+                collectNotStrings = true;
+            } else {
+                if( makeLowerCase ) {
+                    s = s.toLowerCase();
+                }
+                if( !collectNotStrings ) {
+                    searchStrings.add(s);
+                } else {
+                    notSearchStrings.add(s);
+                }
+            }
+        }
+        return retVal;
+    }
+    
+    /**
+     * Splits a String into parts. 
+     * First NOT is converted to ">?*NOT*?<", more NOTs are dropped. "NOT" keeps NOT.
+     * Input: "mars venus \"milky way\" NOT \"NOT\" NOT sun" 
+     * Output: [mars, venus, milky way, >?*NOT*?<, NOT, sun]
+     */
+    private static class SearchStringParser {
+
+        /**
+         * Parse the user's search box input into a Set of String tokens.
+         * 
+         * @return Set of Strings, one for each word in fSearchText; here "word" is defined as either a lone word
+         *         surrounded by whitespace, or as a series of words surrounded by double quotes, "like this".
+         */
+        public List parseSearchText(String aSearchText) {
+            
+            if( aSearchText == null ) {
+                return new LinkedList();
+            }
+            fSearchText = aSearchText;
+            notAdded = false;
+
+            List result = new LinkedList();
+
+            boolean returnTokens = true;
+            String currentDelims = fWHITESPACE_AND_QUOTES;
+            StringTokenizer parser = new StringTokenizer(fSearchText, currentDelims, returnTokens);
+
+            String token = null;
+            boolean inQuotes = false;
+            while( parser.hasMoreTokens() ) {
+                token = parser.nextToken(currentDelims);
+                if( !isDoubleQuote(token) ) {
+                    addNonTrivialWordToResult(token, result, inQuotes);
+                } else {
+                    currentDelims = flipDelimiters(currentDelims);
+                    inQuotes = !inQuotes;
+                }
+            }
+            return result;
+        }
+
+        // PRIVATE //
+        private String fSearchText;
+        private static final String fDOUBLE_QUOTE = "\"";
+
+        // the parser flips between these two sets of delimiters
+        private static final String fWHITESPACE_AND_QUOTES = " \t\r\n\"";
+        private static final String fQUOTES_ONLY = "\"";
+        
+        private boolean notAdded;
+
+        private boolean textHasContent(String aText) {
+            return (aText != null) && (aText.trim().length() > 0);
+        }
+
+        private void addNonTrivialWordToResult(String aToken, List aResult, boolean inQuotes) {
+            if( textHasContent(aToken) ) {
+                aToken = aToken.trim();
+                if( !inQuotes && aToken.equals("NOT") ) {
+                    if( !notAdded ) {
+                        // add NOT one time
+                        aResult.add(NOT_IDENT);
+                        notAdded = true;
+                    }
+                } else {
+                    aResult.add(aToken.trim());
+                }
+            }
+        }
+
+        private boolean isDoubleQuote(String aToken) {
+            return aToken.equals(fDOUBLE_QUOTE);
+        }
+
+        private String flipDelimiters(String aCurrentDelims) {
+            String result = null;
+            if( aCurrentDelims.equals(fWHITESPACE_AND_QUOTES) ) {
+                result = fQUOTES_ONLY;
+            } else {
+                result = fWHITESPACE_AND_QUOTES;
+            }
+            return result;
+        }
+    }
+}

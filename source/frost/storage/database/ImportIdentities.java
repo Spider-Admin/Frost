@@ -30,6 +30,7 @@ import frost.*;
 import frost.identities.*;
 import frost.storage.*;
 import frost.storage.database.applayer.*;
+import frost.util.*;
 
 public class ImportIdentities {
     

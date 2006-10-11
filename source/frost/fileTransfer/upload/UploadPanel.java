@@ -31,6 +31,7 @@ import javax.swing.*;
 
 import frost.*;
 import frost.ext.*;
+import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;

@@ -22,6 +22,7 @@ import org.w3c.dom.*;
 import org.xml.sax.*;
 
 import frost.*;
+import frost.util.*;
 
 /**
  * Represents the main user's identity

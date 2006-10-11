@@ -40,6 +40,7 @@ import frost.gui.preferences.*;
 import frost.messages.*;
 import frost.storage.*;
 import frost.threads.*;
+import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.gui.treetable.*;

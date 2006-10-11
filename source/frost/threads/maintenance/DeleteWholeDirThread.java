@@ -21,6 +21,7 @@ package frost.threads.maintenance;
 import java.io.File;
 
 import frost.*;
+import frost.util.*;
 
 public class DeleteWholeDirThread extends Thread {
     String delDir;

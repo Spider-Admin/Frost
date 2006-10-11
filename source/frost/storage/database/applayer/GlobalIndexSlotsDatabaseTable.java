@@ -22,6 +22,7 @@ import java.sql.*;
 import java.util.*;
 
 import frost.*;
+import frost.util.*;
 
 /**
  * Class provides functionality to track used index slots

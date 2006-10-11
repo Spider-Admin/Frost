@@ -27,6 +27,7 @@ import javax.swing.tree.*;
 import frost.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;
+import frost.util.*;
 import frost.util.gui.*;
 
 /**

@@ -26,6 +26,7 @@ import frost.*;
 import frost.fileTransfer.*;
 import frost.storage.database.applayer.*;
 import frost.transferlayer.*;
+import frost.util.*;
 
 /**
  * Thread receives and sends file requests periodically.

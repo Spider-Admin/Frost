@@ -23,6 +23,8 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
+import frost.util.*;
+
 public class SettingsFun
 {
     private static Logger logger = Logger.getLogger(SettingsFun.class.getName());

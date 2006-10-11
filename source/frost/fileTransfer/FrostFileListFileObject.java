@@ -26,6 +26,7 @@ import frost.*;
 import frost.fileTransfer.download.*;
 import frost.identities.*;
 import frost.storage.database.applayer.*;
+import frost.util.*;
 
 public class FrostFileListFileObject {
 

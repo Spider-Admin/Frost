@@ -27,7 +27,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import frost.*;
-import frost.Logging;
+import frost.util.Logging;
 import frost.util.gui.TextComponentClipboardMenu;
 import frost.util.gui.translation.*;
 

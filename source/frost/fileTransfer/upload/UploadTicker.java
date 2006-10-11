@@ -24,6 +24,7 @@ import javax.swing.event.*;
 
 import frost.*;
 import frost.fcp.*;
+import frost.util.*;
 
 public class UploadTicker extends Thread {
 

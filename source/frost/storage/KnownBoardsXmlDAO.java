@@ -28,6 +28,7 @@ import frost.*;
 import frost.boards.*;
 import frost.fcp.*;
 import frost.messages.*;
+import frost.util.*;
 
 public class KnownBoardsXmlDAO {
  

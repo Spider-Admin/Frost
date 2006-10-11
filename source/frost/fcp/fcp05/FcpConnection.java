@@ -26,6 +26,7 @@ import java.util.logging.*;
 import freenet.support.*;
 import frost.*;
 import frost.fcp.*;
+import frost.util.*;
 
 /**
  * This class is a wrapper to simplify access to the FCP library.

@@ -25,6 +25,7 @@ import java.util.logging.*;
 import org.w3c.dom.*;
 
 import frost.*;
+import frost.util.*;
 
 /**
  * Reads and write pointer files containing CHK keys.

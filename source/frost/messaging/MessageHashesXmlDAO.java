@@ -26,6 +26,7 @@ import org.w3c.dom.*;
 
 import frost.*;
 import frost.storage.*;
+import frost.util.*;
 
 public class MessageHashesXmlDAO implements MessageHashesDAO {
 

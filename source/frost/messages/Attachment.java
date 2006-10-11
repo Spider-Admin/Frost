@@ -23,7 +23,7 @@ import java.util.logging.*;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import frost.XMLizable;
+import frost.util.*;
 
 public abstract class Attachment implements XMLizable, Comparable {
 	public static final int FILE = 0;

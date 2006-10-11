@@ -25,6 +25,7 @@ import org.xml.sax.*;
 
 import frost.*;
 import frost.identities.*;
+import frost.util.*;
 
 /**
  * @author zlatinb

@@ -27,6 +27,7 @@ import frost.*;
 import frost.fcp.*;
 import frost.fileTransfer.upload.*;
 import frost.messages.*;
+import frost.util.*;
 
 /**
  * Uploads file attachments from unsend messages and updates db table after successful uploads.

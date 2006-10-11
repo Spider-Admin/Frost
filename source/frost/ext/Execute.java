@@ -23,6 +23,7 @@ import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
+import frost.util.*;
 
 /**
  * Supports execution of external programs

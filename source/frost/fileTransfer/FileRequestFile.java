@@ -25,6 +25,7 @@ import java.util.logging.*;
 import org.w3c.dom.*;
 
 import frost.*;
+import frost.util.*;
 
 /**
  * Reads and write request files containing SHA keys.

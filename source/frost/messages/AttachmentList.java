@@ -25,6 +25,7 @@ import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
 import frost.*;
+import frost.util.*;
 
 public class AttachmentList extends LinkedList implements XMLizable {
 	

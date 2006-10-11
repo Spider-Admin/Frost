@@ -23,6 +23,7 @@ import org.xml.sax.SAXException;
 
 import frost.*;
 import frost.boards.*;
+import frost.util.*;
 
 public class BoardAttachment extends Attachment {
 

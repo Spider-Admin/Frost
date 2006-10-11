@@ -25,6 +25,7 @@ import java.util.logging.*;
 import frost.*;
 import frost.fcp.*;
 import frost.fileTransfer.*;
+import frost.util.*;
 
 /**
  * Thread that downloads the CHK file lists.

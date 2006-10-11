@@ -21,6 +21,8 @@ package frost;
 import java.io.*;
 import java.util.logging.*;
 
+import frost.util.*;
+
 /**
  * Does some things that have to be done when starting Frost
  */

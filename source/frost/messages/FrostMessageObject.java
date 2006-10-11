@@ -27,6 +27,7 @@ import frost.*;
 import frost.boards.*;
 import frost.gui.model.*;
 import frost.storage.database.applayer.*;
+import frost.util.*;
 
 /**
  * This class holds all informations that are shown in the GUI and stored to the database.

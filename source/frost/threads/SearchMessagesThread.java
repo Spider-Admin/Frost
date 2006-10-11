@@ -26,6 +26,7 @@ import frost.boards.*;
 import frost.gui.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;
+import frost.util.*;
 
 public class SearchMessagesThread extends Thread implements MessageDatabaseTableCallback {
 
@@ -92,8 +93,8 @@ public class SearchMessagesThread extends Thread implements MessageDatabaseTable
 
     // Format: boards\2006.3.1\2006.3.1-boards-0.xml
     private void searchBoard(Board board, DateRange dr) {
-System.out.println("startDate="+dr.startDate);
-System.out.println("endDate="+dr.endDate);
+//System.out.println("startDate="+dr.startDate);
+//System.out.println("endDate="+dr.endDate);
         if( searchConfig.searchInKeypool ) {
             try {
                 AppLayerDatabase.getMessageTable().retrieveMessagesForSearch(
@@ -158,46 +159,50 @@ System.out.println("endDate="+dr.endDate);
         if( searchConfig.msgMustContainFiles && !mo.isHasFileAttachments() ) {
             return;
         }
-
-        // check sender
-        if( searchConfig.sender != null ) {
-            if( searchInText(searchConfig.sender, mo.getFromName()) == false ) {
-                // sender not found
-                return;
-            }
+        
+        if( !matchText(mo.getFromName(), searchConfig.senderMakeLowercase, searchConfig.sender, searchConfig.notSender) ) {
+            return;
         }
 
-        // check subject
-        if( searchConfig.subject != null ) {
-            if( searchInText(searchConfig.subject, mo.getSubject()) == false ) {
-                // subject not found
-                return;
-            }
+        if( !matchText(mo.getSubject(), searchConfig.subjectMakeLowercase, searchConfig.subject, searchConfig.notSubject) ) {
+            return;
         }
 
-        // check content
-        if( searchConfig.content != null ) {
-            if( searchInText(searchConfig.content, mo.getContent()) == false ) {
-                // content not found
-                return;
-            }
+        if( !matchText(mo.getContent(), searchConfig.contentMakeLowercase, searchConfig.content, searchConfig.notContent) ) {
+            return;
         }
 
         // match, add to result table
         searchDialog.addFoundMessage(new FrostSearchResultMessageObject(mo));
     }
 
-    private boolean searchInText(List searchItems, String txt) {
-        boolean found = false;
-        txt = txt.toLowerCase(); // search items are already lowercase
-        for(Iterator i=searchItems.iterator(); i.hasNext(); ) {
-            String item = (String)i.next();
-            if( txt.indexOf(item) > -1 ) {
-                found = true;
-                break; // one match is enough
+    /**
+     * @return  true if text was accepted, false if not
+     */
+    private boolean matchText(String origText, boolean makeLowerCase, List strings, List notStrings) {
+        
+        if( !notStrings.isEmpty() || !strings.isEmpty() ) {
+            String text;
+            if( makeLowerCase ) {
+                text = origText.toLowerCase();
+            } else {
+                text = origText;
+            }
+            
+            // check NOT strings
+            if( !notStrings.isEmpty() ) {
+                if( TextSearchFun.containsAnyString(text, notStrings) ) {
+                    return false;
+                }
+            }
+            // check strings
+            if( !strings.isEmpty() ) {
+                if( !TextSearchFun.containsEachString(text, strings) ) {
+                    return false;
+                }
             }
         }
-        return found;
+        return true; // ok!
     }
 
     private boolean matchesTrustStates(FrostMessageObject msg, TrustStates ts) {
