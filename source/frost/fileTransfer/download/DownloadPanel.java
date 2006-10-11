@@ -319,6 +319,15 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	}
 
 	private void showDownloadTablePopupMenu(MouseEvent e) {
+        // select row where rightclick occurred if row under mouse is NOT selected 
+        Point p = e.getPoint();
+        int y = modelTable.getTable().rowAtPoint(p);
+        if( y < 0 ) {
+            return;
+        }
+        if( !modelTable.getTable().getSelectionModel().isSelectedIndex(y) ) {
+            modelTable.getTable().getSelectionModel().setSelectionInterval(y, y);
+        }
 		getPopupMenuDownload().show(e.getComponent(), e.getX(), e.getY());
 	}
 	

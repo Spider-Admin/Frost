@@ -41,8 +41,6 @@ import frost.util.gui.treetable.*;
 
 public class MessagePanel extends JPanel implements PropertyChangeListener {
 
-    // FIXME: test multiline selects
-    
     private MessageTreeTable messageTable = null;
     private MessageTextPane messageTextPane = null;
     private JScrollPane messageListScrollPane = null;
@@ -197,8 +195,6 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         extends JSkinnablePopupMenu
         implements ActionListener, LanguageListener {
 
-        private JMenuItem cancelItem = new JMenuItem();
-
         private JMenuItem markAllMessagesReadItem = new JMenuItem();
         private JMenuItem markThreadReadItem = new JMenuItem();
         private JMenuItem markMessageUnreadItem = new JMenuItem();
@@ -272,11 +268,11 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             setObserveItem.setText(language.getString("MessagePane.messageTable.popupmenu.setToObserve"));
             deleteItem.setText(language.getString("MessagePane.messageTable.popupmenu.deleteMessage"));
             undeleteItem.setText(language.getString("MessagePane.messageTable.popupmenu.undeleteMessage"));
-            cancelItem.setText(language.getString("Common.cancel"));
         }
 
         public void show(Component invoker, int x, int y) {
-            if( selectedMessage == null ) {
+
+            if( messageTable.getSelectedRowCount() < 1 ) {
                 return;
             }
             
@@ -288,9 +284,6 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     undeleteItem.setEnabled(true);
                     add(deleteItem);
                     add(undeleteItem);
-                    addSeparator();
-                    add(cancelItem);
-                    // ATT: misuse of another menuitem displaying 'Cancel' ;)
                     super.show(invoker, x, y);
                     return;
                 }
@@ -300,7 +293,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     add(markMessageUnreadItem);
                     itemAdded = true;
                 }
-                if( selectedMessage.getBoard().getNewMessageCount() > 0 ) {
+                if( selectedMessage != null && selectedMessage.getBoard().getNewMessageCount() > 0 ) {
                     add(markAllMessagesReadItem);
                     // TODO: check if there are unread msgs in THIS thread
                     add(markThreadReadItem);
@@ -358,10 +351,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                         deleteItem.setEnabled(true);
                     }
                 }
-
-                addSeparator();
-                add(cancelItem);
-                // ATT: misuse of another menuitem displaying 'Cancel' ;)
+                
                 super.show(invoker, x, y);
             }
         }
@@ -960,13 +950,15 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     }
 
     private void showMessageTablePopupMenu(MouseEvent e) {
-        // select row where rightclick occurred
+        // select row where rightclick occurred if row under mouse is NOT selected 
         Point p = e.getPoint();
         int y = messageTable.rowAtPoint(p);
         if( y < 0 ) {
             return;
         }
-        messageTable.getSelectionModel().setSelectionInterval(y, y);
+        if( !messageTable.getSelectionModel().isSelectedIndex(y) ) {
+            messageTable.getSelectionModel().setSelectionInterval(y, y);
+        }
         // show popup menu
         getPopupMenuMessageTable().show(e.getComponent(), e.getX(), e.getY());
     }
