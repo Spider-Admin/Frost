@@ -160,6 +160,20 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         setHasFileAttachments(mof.getAttachmentsOfType(Attachment.FILE).size() > 0);
     }
     
+    public boolean hasUnreadChilds() {
+        if( getChildCount() == 0 ) {
+            return false;
+        }
+        Enumeration e = breadthFirstEnumeration();
+        while(e.hasMoreElements()) {
+            FrostMessageObject m = (FrostMessageObject)e.nextElement();
+            if( m.isNew() ) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
     /**
      * Dynamically loads content.
      */

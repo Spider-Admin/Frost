@@ -54,7 +54,6 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         ActionListener,
         ListSelectionListener,
         TreeSelectionListener,
-        TreeModelListener,
         LanguageListener,
         KeyListener
         {
@@ -168,22 +167,6 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
         public void valueChanged(TreeSelectionEvent e) {
             boardsTree_actionPerformed(e);
-        }
-
-        public void treeNodesChanged(TreeModelEvent e) {
-    //        boardsTreeNode_Changed(e);
-        }
-
-        public void treeNodesInserted(TreeModelEvent e) {
-            //Nothing here
-        }
-
-        public void treeNodesRemoved(TreeModelEvent e) {
-            //Nothing here
-        }
-
-        public void treeStructureChanged(TreeModelEvent e) {
-            //Nothing here
         }
 
         public void languageChanged(LanguageEvent event) {
@@ -582,7 +565,6 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             //other listeners
             mainFrame.getTofTree().addTreeSelectionListener(listener);
             mainFrame.getTofTree().addKeyListener(listener);
-            mainFrame.getTofTreeModel().addTreeModelListener(listener);
 
             // display welcome message if no boards are available
             boardsTree_actionPerformed(null); // set initial states
@@ -638,9 +620,19 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
                     // this is a new message
                     message.setNew(false); // mark as read
-                    
+
                     getMessageTableModel().fireTableRowsUpdated(row, row);
 
+                    // determine thread root msg of this msg
+                    FrostMessageObject threadRootMsg = message;
+                    while( ((FrostMessageObject)threadRootMsg.getParent()).isRoot() == false ) {
+                        threadRootMsg = (FrostMessageObject)threadRootMsg.getParent();
+                    }
+                    // update thread root to reset unread msg childs marker
+                    if( threadRootMsg != message ) {
+                        getMessageTreeModel().nodeChanged(threadRootMsg);
+                    }
+                    
                     board.decNewMessageCount();
 
                     MainFrame.getInstance().updateMessageCountLabels(board);
@@ -1170,8 +1162,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         targetMessage.setNew(true);
 
         // let renderer check for new state
-        DefaultTreeModel model = (DefaultTreeModel)MainFrame.getInstance().getMessagePanel().getMessageTable().getTree().getModel();
-        model.nodeChanged(targetMessage);
+        getMessageTreeModel().nodeChanged(targetMessage);
 
         mainFrame.getTofTreeModel().getSelectedNode().incNewMessageCount();
 
@@ -1254,7 +1245,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         Board board = MainFrame.getInstance().getTofTreeModel().getSelectedNode();
         if( board != null || !board.isFolder() ) {
             // a board is selected and shown
-            DefaultTreeModel model = MainFrame.getInstance().getMessageTreeModel();
+            DefaultTreeModel model = getMessageTreeModel();
             DefaultMutableTreeNode rootnode = (DefaultMutableTreeNode)model.getRoot();
             
             for(Enumeration e=rootnode.depthFirstEnumeration(); e.hasMoreElements(); ) {
@@ -1265,7 +1256,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 FrostMessageObject message = (FrostMessageObject)o;
                 int row = MainFrame.getInstance().getMessageTreeTable().getRowForNode(message);
                 if( row >= 0 ) {
-                    MainFrame.getInstance().getMessageTableModel().fireTableRowsUpdated(row, row);
+                    getMessageTableModel().fireTableRowsUpdated(row, row);
                 }
             }
             MainFrame.getInstance().updateMessageCountLabels(board);
