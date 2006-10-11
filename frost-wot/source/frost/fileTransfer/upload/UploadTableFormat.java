@@ -42,11 +42,9 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
      * Renders DONE with green background and FAILED with red background.
      */
     private class BaseRenderer extends DefaultTableCellRenderer {
-
         public BaseRenderer() {
             super();
         }
-
         public Component getTableCellRendererComponent(
             JTable table,
             Object value,
@@ -73,6 +71,27 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
                 setForeground(Color.black);
             }
             
+            return this;
+        }
+    }
+
+    private class ShowContentTooltipRenderer extends BaseRenderer {
+        public ShowContentTooltipRenderer() {
+            super();
+        }
+        public Component getTableCellRendererComponent(
+            JTable table,
+            Object value,
+            boolean isSelected,
+            boolean hasFocus,
+            int row,
+            int column) {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            String tooltip = null;
+            if( value != null ) {
+                tooltip = value.toString();
+            }
+            setToolTipText(tooltip);
             return this;
         }
     }
@@ -105,12 +124,11 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
     /**
      * This inner class implements the renderer for the column "FileSize"
      */
-    private class NumberRightRenderer extends BaseRenderer {
-        
-        public NumberRightRenderer() {
+    private class RightAlignRenderer extends BaseRenderer {
+        final javax.swing.border.EmptyBorder border = new javax.swing.border.EmptyBorder(0, 0, 0, 3);
+        public RightAlignRenderer() {
             super();
         }
-
         public Component getTableCellRendererComponent(
             JTable table,
             Object value,
@@ -121,7 +139,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             setHorizontalAlignment(SwingConstants.RIGHT);
             // col is right aligned, give some space to next column
-            setBorder(new javax.swing.border.EmptyBorder(0, 0, 0, 3));
+            setBorder(border);
             return this;
         }
     }
@@ -130,10 +148,6 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
      * This inner class implements the comparator for the column "Name"
      */
     private class NameComparator implements Comparator {
-
-        /* (non-Javadoc)
-         * @see freenet.support.Comparator#compare(java.lang.Object, java.lang.Object)
-         */
         public int compare(Object o1, Object o2) {
             FrostUploadItem item1 = (FrostUploadItem) o1;
             FrostUploadItem item2 = (FrostUploadItem) o2;
@@ -145,10 +159,6 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
      * This inner class implements the comparator for the column "Last Upload"
      */
     private class StateComparator implements Comparator {
-
-        /* (non-Javadoc)
-         * @see freenet.support.Comparator#compare(java.lang.Object, java.lang.Object)
-         */
         public int compare(Object o1, Object o2) {
             FrostUploadItem item1 = (FrostUploadItem) o1;
             FrostUploadItem item2 = (FrostUploadItem) o2;
@@ -161,10 +171,6 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
      * This inner class implements the comparator for the column "Tries"
      */
     private class TriesComparator implements Comparator {
-
-        /* (non-Javadoc)
-         * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-         */
         public int compare(Object o1, Object o2) {
             int retries1 = ((FrostUploadItem) o1).getRetries();
             int retries2 = ((FrostUploadItem) o2).getRetries();
@@ -186,10 +192,6 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
      * This inner class implements the comparator for the column "Path"
      */
     private class PathComparator implements Comparator {
-
-        /* (non-Javadoc)
-         * @see freenet.support.Comparator#compare(java.lang.Object, java.lang.Object)
-         */
         public int compare(Object o1, Object o2) {
             FrostUploadItem item1 = (FrostUploadItem) o1;
             FrostUploadItem item2 = (FrostUploadItem) o2;
@@ -201,10 +203,6 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
      * This inner class implements the comparator for the column "Enabled"
      */
     private class EnabledComparator implements Comparator {
-
-        /* (non-Javadoc)
-         * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-         */
         public int compare(Object o1, Object o2) {
             FrostUploadItem item1 = (FrostUploadItem) o1;
             FrostUploadItem item2 = (FrostUploadItem) o2;
@@ -216,10 +214,6 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
      * This inner class implements the comparator for the column "Key"
      */
     private class KeyComparator implements Comparator {
-
-        /* (non-Javadoc)
-         * @see freenet.support.Comparator#compare(java.lang.Object, java.lang.Object)
-         */
         public int compare(Object o1, Object o2) {
             String key1 = ((FrostUploadItem) o1).getKey();
             String key2 = ((FrostUploadItem) o2).getKey();
@@ -237,10 +231,6 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
      * This inner class implements the comparator for the column "FileSize"
      */
     private class FileSizeComparator implements Comparator {
-
-        /* (non-Javadoc)
-         * @see freenet.support.Comparator#compare(java.lang.Object, java.lang.Object)
-         */
         public int compare(Object o1, Object o2) {
             FrostUploadItem item1 = (FrostUploadItem) o1;
             FrostUploadItem item2 = (FrostUploadItem) o2;
@@ -405,7 +395,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
 
         // Sets the relative widths of the columns
         TableColumnModel columnModel = lModelTable.getTable().getColumnModel();
-        int[] widths = { 25, 250, 80, 80, 60, 25, 70 };
+        int[] widths = { 20, 20, 250, 65, 30, 60, 15, 70 };
         for (int i = 0; i < widths.length; i++) {
             columnModel.getColumn(i).setPreferredWidth(widths[i]);
         }
@@ -424,16 +414,16 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
         columnModel.getColumn(1).setPreferredWidth(20);
         columnModel.getColumn(1).setCellRenderer(new IsSharedRenderer());
 
-        BaseRenderer br = new BaseRenderer();
-        for( int x=2; x <columnModel.getColumnCount(); x++) {
-            TableColumn col = (TableColumn) columnModel.getColumn(x); 
-            if( x == 3 ) {
-                // Column "Size"
-                col.setCellRenderer(new NumberRightRenderer());
-            } else {
-                col.setCellRenderer(br);
-            }
-        }
+        BaseRenderer baseRenderer = new BaseRenderer();
+        RightAlignRenderer numberRightRenderer = new RightAlignRenderer();
+        ShowContentTooltipRenderer showContentTooltipRenderer = new ShowContentTooltipRenderer();
+        
+        columnModel.getColumn(2).setCellRenderer(showContentTooltipRenderer); // filename
+        columnModel.getColumn(3).setCellRenderer(numberRightRenderer); // filesize
+        columnModel.getColumn(4).setCellRenderer(baseRenderer); // state
+        columnModel.getColumn(5).setCellRenderer(showContentTooltipRenderer); // path
+        columnModel.getColumn(6).setCellRenderer(numberRightRenderer); // tries
+        columnModel.getColumn(7).setCellRenderer(showContentTooltipRenderer); // key
         
         modelTable = (SortedModelTable) lModelTable;
     }

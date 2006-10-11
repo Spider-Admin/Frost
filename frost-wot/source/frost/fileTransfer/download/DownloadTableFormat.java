@@ -74,6 +74,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
     }
 
 	private class RightAlignRenderer extends BaseRenderer {
+        final javax.swing.border.EmptyBorder border = new javax.swing.border.EmptyBorder(0, 0, 0, 3);
         public RightAlignRenderer() {
             super();
         }
@@ -87,10 +88,31 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 			super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 			setHorizontalAlignment(SwingConstants.RIGHT);
 			// col is right aligned, give some space to next column
-			setBorder(new javax.swing.border.EmptyBorder(0, 0, 0, 3));
+			setBorder(border);
 			return this;
 		}
 	}
+
+    private class ShowContentTooltipRenderer extends BaseRenderer {
+        public ShowContentTooltipRenderer() {
+            super();
+        }
+        public Component getTableCellRendererComponent(
+            JTable table,
+            Object value,
+            boolean isSelected,
+            boolean hasFocus,
+            int row,
+            int column) {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            String tooltip = null;
+            if( value != null ) {
+                tooltip = value.toString();
+            }
+            setToolTipText(tooltip);
+            return this;
+        }
+    }
 
     private class IsSharedRenderer extends DefaultTableCellRenderer {
         public IsSharedRenderer() {
@@ -496,16 +518,18 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
         columnModel.getColumn(2).setPreferredWidth(20);
         columnModel.getColumn(2).setCellRenderer(new IsRequestedRenderer());
 
-        BaseRenderer br = new BaseRenderer();
-        for( int x=3; x < columnModel.getColumnCount(); x++) {
-            TableColumn col = (TableColumn) columnModel.getColumn(x); 
-            if( x == 4 || x == 6 || x == 7 ) {
-                // Column size
-                col.setCellRenderer(new RightAlignRenderer());
-            } else {
-                col.setCellRenderer(br);
-            }
-        }
+        BaseRenderer baseRenderer = new BaseRenderer();
+        RightAlignRenderer rightAlignRenderer = new RightAlignRenderer();
+        ShowContentTooltipRenderer showContentTooltipRenderer = new ShowContentTooltipRenderer();
+        
+        columnModel.getColumn(3).setCellRenderer(showContentTooltipRenderer); // filename 
+        columnModel.getColumn(4).setCellRenderer(rightAlignRenderer); // size
+        columnModel.getColumn(5).setCellRenderer(baseRenderer); // state
+        columnModel.getColumn(6).setCellRenderer(baseRenderer); // lastReceived
+        columnModel.getColumn(7).setCellRenderer(baseRenderer); // lastUploaded
+        columnModel.getColumn(8).setCellRenderer(baseRenderer); // blocks
+        columnModel.getColumn(9).setCellRenderer(rightAlignRenderer); // tries
+        columnModel.getColumn(10).setCellRenderer(showContentTooltipRenderer); // key
         
         modelTable = (SortedModelTable) lModelTable;
 	}

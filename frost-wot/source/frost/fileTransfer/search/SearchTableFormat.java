@@ -110,10 +110,10 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
             case 5 :    //rating
                 return RatingStringProvider.getRatingString(searchItem.getRating().intValue());
 
-            case 6 :    //Filename
+            case 6 :    //comment
                 return searchItem.getComment();
 
-            case 7 :    //Filename
+            case 7 :    //sources
                 return searchItem.getSourceCount();
 
             default:
@@ -154,21 +154,22 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
 
         // Sets the relative widths of the columns
         TableColumnModel columnModel = modelTable.getTable().getColumnModel();
-        int[] widths = { 250, 30, 40, 20, 20, 10, 80, 20 };
+        int[] widths = { 250, 30, 40, 20, 20, 10, 80, 15 };
         for (int i = 0; i < widths.length; i++) {
             columnModel.getColumn(i).setPreferredWidth(widths[i]);
         }
+        
+        RightAlignRenderer rightAlignRenderer = new RightAlignRenderer();
 
         // Column FileName
         FileNameRenderer cellRenderer = new FileNameRenderer((SortedModelTable) modelTable);
         columnModel.getColumn(0).setCellRenderer(cellRenderer);
 
         // Column "Size"
-        columnModel.getColumn(1).setCellRenderer(new RightAlignRenderer());
+        columnModel.getColumn(1).setCellRenderer(rightAlignRenderer);
 
-        // Column "lastseen" + "lastuploaded"
-        columnModel.getColumn(3).setCellRenderer(new RightAlignRenderer());
-        columnModel.getColumn(4).setCellRenderer(new RightAlignRenderer());
+        // Column "Comment"
+        columnModel.getColumn(6).setCellRenderer(new ShowContentTooltipRenderer());
 
         // Column "Source count"
         columnModel.getColumn(7).setCellRenderer(new SourceCountRenderer((SortedModelTable) modelTable));
@@ -258,7 +259,33 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
         }
     }
 
+    private class ShowContentTooltipRenderer extends DefaultTableCellRenderer {
+        public ShowContentTooltipRenderer() {
+            super();
+        }
+        public Component getTableCellRendererComponent(
+            JTable table,
+            Object value,
+            boolean isSelected,
+            boolean hasFocus,
+            int row,
+            int column) 
+        {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            String tooltip = null;
+            if( value != null ) {
+                tooltip = value.toString();
+            }
+            setToolTipText(tooltip);
+            return this;
+        }
+    }
+
     private class RightAlignRenderer extends DefaultTableCellRenderer {
+        final javax.swing.border.EmptyBorder border = new javax.swing.border.EmptyBorder(0, 0, 0, 3);
+        public RightAlignRenderer() {
+            super();
+        }
         public Component getTableCellRendererComponent(
             JTable table,
             Object value,
@@ -270,7 +297,7 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             setHorizontalAlignment(SwingConstants.RIGHT);
             // col is right aligned, give some space to next column
-            setBorder(new javax.swing.border.EmptyBorder(0, 0, 0, 3));
+            setBorder(border);
             return this;
         }
     }
@@ -280,7 +307,7 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
      * depending on state of search item.
      * States are: NONE, DOWNLOADED, DOWNLOADING, UPLOADING
      */
-    private class FileNameRenderer extends DefaultTableCellRenderer {
+    private class FileNameRenderer extends ShowContentTooltipRenderer {
 
         private SortedModelTable modelTable;
 
@@ -326,7 +353,8 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
     private class SourceCountRenderer extends DefaultTableCellRenderer {
 
         private SortedModelTable modelTable;
-
+        final javax.swing.border.EmptyBorder border = new javax.swing.border.EmptyBorder(0, 0, 0, 3);
+        
         public SourceCountRenderer(SortedModelTable newModelTable) {
             super();
             modelTable = newModelTable;
@@ -343,7 +371,7 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
 
             setHorizontalAlignment(SwingConstants.RIGHT);
             // col is right aligned, give some space to next column
-            setBorder(new javax.swing.border.EmptyBorder(0, 0, 0, 3));
+            setBorder(border);
 
             ModelItem item = modelTable.getItemAt(row); //It may be null
             if (item != null) {

@@ -25,18 +25,18 @@ import java.util.List;
 import javax.swing.*;
 
 import frost.fileTransfer.*;
+import frost.util.gui.translation.*;
 import frost.util.model.gui.*;
 
 public class FileListFileDetailsDialog extends JDialog {
 
-    private static final long serialVersionUID = 1L;
+    Language language = Language.getInstance();
+    
     private JPanel jContentPane = null;
     private JPanel buttonPanel = null;
     private JPanel mainPanel = null;
-    private JButton Bok = null;
-    /**
-     * @param owner
-     */
+    private JButton Bclose = null;
+    
     public FileListFileDetailsDialog(Frame owner) {
         super(owner);
         initialize();
@@ -45,19 +45,15 @@ public class FileListFileDetailsDialog extends JDialog {
 
     /**
      * This method initializes this
-     * 
-     * @return void
      */
     private void initialize() {
-        this.setSize(550, 370);
+        this.setSize(600, 370);
         this.setContentPane(getJContentPane());
-        this.setTitle("Properties");
+        this.setTitle(language.getString("FileListFileDetailsDialog.title"));
     }
 
     /**
      * This method initializes jContentPane
-     * 
-     * @return javax.swing.JPanel
      */
     private JPanel getJContentPane() {
         if( jContentPane == null ) {
@@ -71,8 +67,6 @@ public class FileListFileDetailsDialog extends JDialog {
 
     /**
      * This method initializes buttonPanel	
-     * 	
-     * @return javax.swing.JPanel	
      */
     private JPanel getButtonPanel() {
         if( buttonPanel == null ) {
@@ -80,15 +74,13 @@ public class FileListFileDetailsDialog extends JDialog {
             flowLayout.setAlignment(FlowLayout.RIGHT);
             buttonPanel = new JPanel();
             buttonPanel.setLayout(flowLayout);
-            buttonPanel.add(getBok(), null);
+            buttonPanel.add(getBclose(), null);
         }
         return buttonPanel;
     }
 
     /**
      * This method initializes mainPanel	
-     * 	
-     * @return javax.swing.JPanel	
      */
     private JPanel getMainPanel() {
         if( mainPanel == null ) {
@@ -113,20 +105,18 @@ public class FileListFileDetailsDialog extends JDialog {
     
     /**
      * This method initializes Bok	
-     * 	
-     * @return javax.swing.JButton	
      */
-    private JButton getBok() {
-        if( Bok == null ) {
-            Bok = new JButton();
-            Bok.setText("Close");
-            Bok.addActionListener(new java.awt.event.ActionListener() {
+    private JButton getBclose() {
+        if( Bclose == null ) {
+            Bclose = new JButton();
+            Bclose.setText(language.getString("FileListFileDetailsDialog.button.close"));
+            Bclose.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     setVisible(false);
                 }
             });
         }
-        return Bok;
+        return Bclose;
     }
     
     public void startDialog(FrostFileListFileObject fileObject) {
@@ -138,5 +128,4 @@ public class FileListFileDetailsDialog extends JDialog {
         }
         setVisible(true);
     }
-
 }  //  @jve:decl-index=0:visual-constraint="10,10"

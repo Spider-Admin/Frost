@@ -158,9 +158,22 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
             columnModel.getColumn(i).setPreferredWidth(widths[i]);
         }
 
-        columnModel.getColumn(1).setCellRenderer(new NumberRightRenderer()); // fileSize
-        columnModel.getColumn(3).setCellRenderer(new NumberRightRenderer()); // uploadCount
-        columnModel.getColumn(5).setCellRenderer(new NumberRightRenderer()); // requestCount
+        ShowContentTooltipRenderer showContentTooltipRenderer = new ShowContentTooltipRenderer();
+        RightAlignRenderer numberRightRenderer = new RightAlignRenderer();
+
+        columnModel.getColumn(0).setCellRenderer(showContentTooltipRenderer); // filename
+        columnModel.getColumn(1).setCellRenderer(numberRightRenderer); // fileSize
+        columnModel.getColumn(2).setCellRenderer(showContentTooltipRenderer); // owner
+        columnModel.getColumn(3).setCellRenderer(numberRightRenderer); // uploadCount
+//        columnModel.getColumn(4).setCellRenderer(showContentTooltipRenderer); // lastUpload
+        columnModel.getColumn(5).setCellRenderer(numberRightRenderer); // requestCount
+//        columnModel.getColumn(6).setCellRenderer(showContentTooltipRenderer); // lastRequest
+        columnModel.getColumn(7).setCellRenderer(showContentTooltipRenderer); // key
+//        columnModel.getColumn(8).setCellRenderer(showContentTooltipRenderer); // rating
+        columnModel.getColumn(9).setCellRenderer(showContentTooltipRenderer); // comment
+        columnModel.getColumn(10).setCellRenderer(showContentTooltipRenderer); // keywords
+//        columnModel.getColumn(11).setCellRenderer(showContentTooltipRenderer); // lastShared
+        columnModel.getColumn(12).setCellRenderer(showContentTooltipRenderer); // path
     }
 
     public int[] getColumnNumbers(int fieldID) {
@@ -170,19 +183,46 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
     public void languageChanged(LanguageEvent event) {
         refreshLanguage();
     }
-    
-    private class NumberRightRenderer extends DefaultTableCellRenderer {
+
+    private class ShowContentTooltipRenderer extends DefaultTableCellRenderer {
+        public ShowContentTooltipRenderer() {
+            super();
+        }
         public Component getTableCellRendererComponent(
             JTable table,
             Object value,
             boolean isSelected,
             boolean hasFocus,
             int row,
-            int column) {
+            int column) 
+        {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            String tooltip = null;
+            if( value != null ) {
+                tooltip = value.toString();
+            }
+            setToolTipText(tooltip);
+            return this;
+        }
+    }
+
+    private class RightAlignRenderer extends DefaultTableCellRenderer {
+        final javax.swing.border.EmptyBorder border = new javax.swing.border.EmptyBorder(0, 0, 0, 3);
+        public RightAlignRenderer() {
+            super();
+        }
+        public Component getTableCellRendererComponent(
+            JTable table,
+            Object value,
+            boolean isSelected,
+            boolean hasFocus,
+            int row,
+            int column) 
+        {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             setHorizontalAlignment(SwingConstants.RIGHT);
             // col is right aligned, give some space to next column
-            setBorder(new javax.swing.border.EmptyBorder(0, 0, 0, 3));
+            setBorder(border);
             return this;
         }
     }
