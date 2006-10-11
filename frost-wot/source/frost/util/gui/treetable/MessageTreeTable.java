@@ -45,6 +45,7 @@ import java.util.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
+import javax.swing.plaf.basic.*;
 import javax.swing.table.*;
 import javax.swing.tree.*;
 
@@ -285,6 +286,14 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             boldFont = baseFont.deriveFont(Font.BOLD);
             
             setCellRenderer(new OwnTreeCellRenderer());
+            
+            if( getUI() instanceof BasicTreeUI ) {
+                BasicTreeUI treeUI = (BasicTreeUI)getUI();
+//                System.out.println("1:"+treeUI.getLeftChildIndent()); // default 7
+//                System.out.println("2:"+treeUI.getRightChildIndent());// default 13
+                treeUI.setLeftChildIndent(6);
+                treeUI.setRightChildIndent(10);
+            }
     	}
         
         class OwnTreeCellRenderer extends DefaultTreeCellRenderer {
