@@ -18,6 +18,7 @@
 */
 package frost.fileTransfer.common;
 
+import java.awt.*;
 import java.text.*;
 import java.util.*;
 
@@ -29,21 +30,19 @@ import frost.util.gui.translation.*;
 import frost.util.model.*;
 import frost.util.model.gui.*;
 
-public class FileListFileDetailsTableFormat  extends SortedTableFormat implements LanguageListener {
+public class FileListFileDetailsTableFormat extends SortedTableFormat implements LanguageListener {
     
     private String stateNever;
 
     NumberFormat numberFormat = NumberFormat.getInstance();
 
-    private Language language;
+    private Language language = Language.getInstance();;
 
     private final static int COLUMN_COUNT = 7;
 
     public FileListFileDetailsTableFormat() {
         super(COLUMN_COUNT);
 
-        language = Language.getInstance();
-        language.addLanguageListener(this);
         refreshLanguage();
 
         setComparator(new FileNameComparator(), 0);
@@ -60,15 +59,15 @@ public class FileListFileDetailsTableFormat  extends SortedTableFormat implement
     }
 
     private void refreshLanguage() {
-        setColumnName(0, language.getString("SearchItemPropertiesDialog.table.filename"));
-        setColumnName(1, language.getString("SearchItemPropertiesDialog.table.owner"));
-        setColumnName(2, language.getString("SearchItemPropertiesDialog.table.rating"));
-        setColumnName(3, language.getString("SearchItemPropertiesDialog.table.comment"));
-        setColumnName(4, language.getString("SearchItemPropertiesDialog.table.keywords"));
-        setColumnName(5, language.getString("SearchItemPropertiesDialog.table.lastUploaded"));
-        setColumnName(6, language.getString("SearchItemPropertiesDialog.table.lastReceived"));
+        setColumnName(0, language.getString("FileListFileDetailsDialog.table.filename"));
+        setColumnName(1, language.getString("FileListFileDetailsDialog.table.owner"));
+        setColumnName(2, language.getString("FileListFileDetailsDialog.table.rating"));
+        setColumnName(3, language.getString("FileListFileDetailsDialog.table.comment"));
+        setColumnName(4, language.getString("FileListFileDetailsDialog.table.keywords"));
+        setColumnName(5, language.getString("FileListFileDetailsDialog.table.lastUploaded"));
+        setColumnName(6, language.getString("FileListFileDetailsDialog.table.lastReceived"));
 
-        stateNever = language.getString("SearchItemPropertiesDialog.table.state.never");
+        stateNever = language.getString("FileListFileDetailsDialog.table.state.never");
 
         refreshColumnNames();
     }
@@ -121,10 +120,18 @@ public class FileListFileDetailsTableFormat  extends SortedTableFormat implement
 
         // Sets the relative widths of the columns
         TableColumnModel columnModel = modelTable.getTable().getColumnModel();
-        int[] widths = { 175, 80, 30, 60, 60, 70, 70 };
+        int[] widths = { 150, 80, 20, 80, 80, 55, 55 };
         for (int i = 0; i < widths.length; i++) {
             columnModel.getColumn(i).setPreferredWidth(widths[i]);
         }
+        
+        ShowContentTooltipRenderer showContentTooltipRenderer = new ShowContentTooltipRenderer();
+        
+        columnModel.getColumn(0).setCellRenderer(showContentTooltipRenderer); // filename
+        columnModel.getColumn(1).setCellRenderer(showContentTooltipRenderer); // owner
+        
+        columnModel.getColumn(3).setCellRenderer(showContentTooltipRenderer); // comment
+        columnModel.getColumn(4).setCellRenderer(showContentTooltipRenderer); // keywords
     }
 
     private class FileNameComparator implements Comparator {
@@ -180,6 +187,28 @@ public class FileListFileDetailsTableFormat  extends SortedTableFormat implement
             long val1 = ((FileListFileDetailsItem) o1).getFileOwner().getLastReceived();
             long val2 = ((FileListFileDetailsItem) o2).getFileOwner().getLastReceived();
             return new Long(val1).compareTo(new Long(val2));
+        }
+    }
+    
+    private class ShowContentTooltipRenderer extends DefaultTableCellRenderer {
+        public ShowContentTooltipRenderer() {
+            super();
+        }
+        public Component getTableCellRendererComponent(
+            JTable table,
+            Object value,
+            boolean isSelected,
+            boolean hasFocus,
+            int row,
+            int column) 
+        {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            String tooltip = null;
+            if( value != null ) {
+                tooltip = value.toString();
+            }
+            setToolTipText(tooltip);
+            return this;
         }
     }
 }

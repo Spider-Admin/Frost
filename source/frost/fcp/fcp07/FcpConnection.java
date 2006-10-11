@@ -404,7 +404,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
      * @param data  the bytearray with the data to be inserted
      * @return the results filled with metadata and the CHK used to insert the data
      */
-	public String putKeyFromFile(int type, String key, File sourceFile, boolean getchkonly)
+	public String putKeyFromFile(int type, String key, File sourceFile, boolean getChkOnly)
 		throws IOException {
 
         // FIXME: exploit MaxRetries, UploadFrom, type
@@ -432,10 +432,14 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 		fcpOut.println("ClientPut");
 		fcpOut.println("URI=" + key);
 		fcpOut.println("Identifier=put-" + fcpConnectionId );
-		fcpOut.println("Verbosity=1"); // recive SimpleProgress for unterdruecken timeout		
+//		fcpOut.println("Verbosity=1"); // recive SimpleProgress for unterdruecken timeout		
+        fcpOut.println("Verbosity=-1"); // recive SimpleProgress for unterdruecken timeout       
 		fcpOut.println("MaxRetries=3");
 		fcpOut.println("DontCompress=false"); // force compression
-		if(getchkonly){
+        if( key.equals("CHK@") ) { //FIXME: hack!
+            fcpOut.println("TargetFilename=");
+        }
+		if( getChkOnly ) {
 			fcpOut.println("GetCHKOnly=true");
 		} else {
             if( type == FcpHandler.TYPE_FILE ) {
@@ -489,11 +493,14 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 		while ((c = fcpIn.read()) != -1) {
 			output.append((char) c);
 			if (output.toString().indexOf("EndMessage") != -1) {
+                System.out.println("DBG:'"+output.toString()+"'");
 				output.append('\0');
-				if (output.indexOf("Pending") != -1 || 
-                    output.indexOf("Restarted") != -1 || 
-                    output.indexOf("SimpleProgress") != -1 || 
-                    output.indexOf("URIGenerated") != -1) 
+				if (output.indexOf("Pending") > -1 || 
+                    output.indexOf("Restarted") > -1 || 
+                    output.indexOf("SimpleProgress") > -1 || 
+                    output.indexOf("PutFetchable") > -1 || 
+                    output.indexOf("FinishedCompression") > -1 || 
+                    output.indexOf("URIGenerated") > -1) 
                 {
 					//System.out.println("Progress: " + output.toString());
 					output = new StringBuffer();
