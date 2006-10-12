@@ -23,7 +23,6 @@ import java.util.logging.*;
 import org.w3c.dom.*;
 import org.xml.sax.*;
 
-import frost.*;
 import frost.identities.*;
 import frost.util.*;
 

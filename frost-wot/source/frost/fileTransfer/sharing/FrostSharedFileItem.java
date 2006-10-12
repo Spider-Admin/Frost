@@ -21,7 +21,6 @@ package frost.fileTransfer.sharing;
 import java.io.*;
 import java.util.*;
 
-import frost.*;
 import frost.fileTransfer.*;
 import frost.fileTransfer.upload.*;
 import frost.gui.model.*;

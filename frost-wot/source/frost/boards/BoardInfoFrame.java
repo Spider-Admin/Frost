@@ -244,15 +244,11 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         updateButton_actionPerformed(null);
     }
 
-    private void boardTableListModel_valueChanged(ListSelectionEvent e)
-    {
-        if( boardTable.getSelectedRowCount() > 0 )
-        {
+    private void boardTableListModel_valueChanged(ListSelectionEvent e) {
+        if( boardTable.getSelectedRowCount() > 0 ) {
             updateSelectedBoardButton.setEnabled(true);
             MIupdateSelectedBoard.setEnabled(true);
-        }
-        else
-        {
+        } else {
             updateSelectedBoardButton.setEnabled(false);
             MIupdateSelectedBoard.setEnabled(false);
         }
@@ -260,10 +256,10 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
 
     private static UpdateBoardInfoTableThread updateBoardInfoTableThread = null;
 
-    private void updateButton_actionPerformed(ActionEvent e)
-    {
-        if( updateBoardInfoTableThread != null )
+    private void updateButton_actionPerformed(ActionEvent e) {
+        if( updateBoardInfoTableThread != null ) {
             return;
+        }
 
         ((SortedTableModel)boardTable.getModel()).clearDataModel();
 
@@ -324,42 +320,31 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
      * Tries to start update for all allowed boards.
      * Gets list of board from tofTree, because the board table could be
      * not yet finished to load.
-     * @param e
      */
-    private void updateAllBoardsButton_actionPerformed(ActionEvent e)
-    {
+    private void updateAllBoardsButton_actionPerformed(ActionEvent e) {
         List boards = ((TofTreeModel) tofTree.getModel()).getAllBoards();
-        for( Iterator i=boards.iterator(); i.hasNext();  )
-        {
+        for( Iterator i=boards.iterator(); i.hasNext();  ) {
             Board board = (Board)i.next();
-            if( tofTree.isUpdateAllowed(board) == true ) // is update allowed for this board?
-            {
+            if( board.isUpdateAllowed() ) {
                 tofTree.updateBoard(board);
             }
             boardTableModel.fireTableDataChanged();
         }
     }
 
-    /**
-     * @param e
-     */
-    private void updateSelectedBoardButton_actionPerformed(ActionEvent e)
-    {
+    private void updateSelectedBoardButton_actionPerformed(ActionEvent e) {
         int[] selectedRows = boardTable.getSelectedRows();
 
-        if( selectedRows.length > 0 )
-        {
-            for( int z=0; z<selectedRows.length; z++ )
-            {
+        if( selectedRows.length > 0 ) {
+            for( int z = 0; z < selectedRows.length; z++ ) {
                 int rowIx = selectedRows[z];
 
                 if( rowIx >= boardTableModel.getRowCount() )
                     continue; // paranoia
 
-                BoardInfoTableMember row = (BoardInfoTableMember)((BoardInfoTableModel)boardTableModel).getRow(rowIx);
+                BoardInfoTableMember row = (BoardInfoTableMember) ((BoardInfoTableModel) boardTableModel).getRow(rowIx);
 
-                if( tofTree.isUpdateAllowed(row.getBoard()) == true ) // is update allowed for this board?
-                {
+                if( row.getBoard().isUpdateAllowed() ) {
                     tofTree.updateBoard(row.getBoard());
                 }
                 boardTableModel.fireTableCellUpdated(rowIx, 0);
@@ -370,6 +355,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
 
     /**
      * Gets number of new+all messages and files of a board
+     * 
      * @param board name of the board
      * @return Integer value
      */
@@ -411,10 +397,8 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         dispose();
     }
 
-    protected void processWindowEvent(WindowEvent e)
-    {
-        if( e.getID() == WindowEvent.WINDOW_CLOSING )
-        {
+    protected void processWindowEvent(WindowEvent e) {
+        if( e.getID() == WindowEvent.WINDOW_CLOSING ) {
             // setDialogShowing( false ); // also done in closeDialog()
             closeDialog();
         }
@@ -424,108 +408,96 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
     /**
      * The class is a table row, holding the board and its file/message counts.
      */
-    class BoardInfoTableMember implements TableMember
-    {
+    class BoardInfoTableMember implements TableMember {
         Board board;
         Integer allmsg;
         Integer newmsg;
 
-        public BoardInfoTableMember(Board board)
-        {
+        public BoardInfoTableMember(Board board) {
             this.board = board;
             this.allmsg = null;
             this.newmsg = null;
         }
 
-        public Object getValueAt(int column)
-        {
-            switch( column )
-            {
-                case 0: return board.getName();
-                case 1: return board.getStateString();
-                case 2: return allmsg;
-                case 3: return newmsg;
+        public Object getValueAt(int column) {
+            switch( column ) {
+            case 0:
+                return board.getName();
+            case 1:
+                return board.getStateString();
+            case 2:
+                return allmsg;
+            case 3:
+                return newmsg;
             }
             return "*ERR*";
         }
 
-        public int compareTo( TableMember anOther, int tableColumIndex )
-        {
-            Comparable c1 = (Comparable)getValueAt(tableColumIndex);
-            Comparable c2 = (Comparable)anOther.getValueAt(tableColumIndex);
-            return c1.compareTo( c2 );
+        public int compareTo(TableMember anOther, int tableColumIndex) {
+            Comparable c1 = (Comparable) getValueAt(tableColumIndex);
+            Comparable c2 = (Comparable) anOther.getValueAt(tableColumIndex);
+            return c1.compareTo(c2);
         }
 
-        public Board getBoard()
-        {
+        public Board getBoard() {
             return board;
         }
 
-        public Integer getAllMessageCount()
-        {
+        public Integer getAllMessageCount() {
             return allmsg;
         }
 
-        public void setAllMessageCount(int i)
-        {
+        public void setAllMessageCount(int i) {
             allmsg = new Integer(i);
         }
 
-        public void setNewMessageCount(int i)
-        {
+        public void setNewMessageCount(int i) {
             newmsg = new Integer(i);
         }
     }
 
-    private class BoardInfoTableCellRenderer extends DefaultTableCellRenderer
-    {
+    private class BoardInfoTableCellRenderer extends DefaultTableCellRenderer {
         Font boldFont;
         Font origFont;
 
-        public BoardInfoTableCellRenderer()
-        {
+        public BoardInfoTableCellRenderer() {
             super();
             origFont = boardTable.getFont();
-            boldFont = origFont.deriveFont( Font.BOLD );
+            boldFont = origFont.deriveFont(Font.BOLD);
         }
 
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-                                                       boolean hasFocus, int row, int column)
-        {
-            super.getTableCellRendererComponent(table,value,isSelected,hasFocus,row,column);
+                boolean hasFocus, int row, int column) {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-            BoardInfoTableMember tblrow = (BoardInfoTableMember)boardTableModel.getRow(row);
+            BoardInfoTableMember tblrow = (BoardInfoTableMember) boardTableModel.getRow(row);
 
-            if( tblrow.getBoard().isUpdating() )
-            {
-                setFont( boldFont );
-            }
-            else
-            {
-                setFont( origFont );
+            if( tblrow.getBoard().isUpdating() ) {
+                setFont(boldFont);
+            } else {
+                setFont(origFont);
             }
             return this;
         }
     }
 
-    //  Implementing the BoardUpdateThreadListener ...
+    // Implementing the BoardUpdateThreadListener ...
 
      /**
-      * Is called if a Thread is finished.
-      */
-     public void boardUpdateThreadFinished(BoardUpdateThread thread)
-     {
-         boardTableModel.tableEntriesChanged();
-     }
+         * Is called if a Thread is finished.
+         */
+     public void boardUpdateThreadFinished(BoardUpdateThread thread) {
+        boardTableModel.tableEntriesChanged();
+    }
 
     /**
      * Is called if a Thread is started.
+     * 
      * @see frost.threads.BoardUpdateThreadListener#boardUpdateThreadStarted(frost.threads.BoardUpdateThread)
      */
-    public void boardUpdateThreadStarted(BoardUpdateThread thread)
-     {
-         boardTableModel.tableEntriesChanged();
-     }
+    public void boardUpdateThreadStarted(BoardUpdateThread thread) {
+        boardTableModel.tableEntriesChanged();
+    }
 
     public static boolean isDialogShowing() {
         return isShowing;

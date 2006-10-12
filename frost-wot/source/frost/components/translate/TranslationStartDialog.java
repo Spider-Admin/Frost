@@ -129,8 +129,8 @@ public class TranslationStartDialog extends JFrame {
         if( CBoxTargetLanguage == null ) {
             CBoxTargetLanguage = new JComboBox();
             Locale availableLocales[] = Locale.getAvailableLocales();
-            List buildIns = language.getBuildInLocales();
-            List externals = language.getExternalLocales();
+            List buildIns = Language.getBuildInLocales();
+            List externals = Language.getExternalLocales();
             TreeMap tm = new TreeMap();
             for (int i = 0; i < availableLocales.length; i++) {
                 if( availableLocales[i].getCountry().length() > 0 ) {
@@ -176,7 +176,7 @@ public class TranslationStartDialog extends JFrame {
             
             ComboBoxEntry defaultEntry = null;
             
-            List lst_buildin = language.getBuildInLocales();
+            List lst_buildin = Language.getBuildInLocales();
             TreeMap tm_buildin = new TreeMap();
             for( Iterator i=lst_buildin.iterator(); i.hasNext(); ) {
                 Locale locale = (Locale)i.next();
@@ -193,7 +193,7 @@ public class TranslationStartDialog extends JFrame {
                 CBoxSourceLanguage.addItem(i.next());
             }
 
-            List lst_external = language.getExternalLocales();
+            List lst_external = Language.getExternalLocales();
             TreeMap tm_external = new TreeMap();
             for( Iterator i=lst_external.iterator(); i.hasNext(); ) {
                 Locale locale = (Locale)i.next();

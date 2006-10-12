@@ -409,4 +409,16 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
     public void setPrimaryKey(Integer i) {
         primaryKey = i;
     }
+    
+    /**
+     * Returns true if board is allowed to be updated.
+     * Also checks if board update is already running.
+     */
+    public boolean isUpdateAllowed() {
+        if ( isFolder() || isSpammed() || isUpdating() ) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 }

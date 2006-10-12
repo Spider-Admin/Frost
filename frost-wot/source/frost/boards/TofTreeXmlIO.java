@@ -26,7 +26,6 @@ import javax.swing.tree.*;
 
 import org.w3c.dom.*;
 
-import frost.*;
 import frost.util.*;
 
 public class TofTreeXmlIO

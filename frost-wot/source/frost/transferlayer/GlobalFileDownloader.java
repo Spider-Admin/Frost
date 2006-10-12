@@ -21,7 +21,6 @@ package frost.transferlayer;
 import java.io.*;
 import java.util.logging.*;
 
-import frost.*;
 import frost.fcp.*;
 import frost.util.*;
 

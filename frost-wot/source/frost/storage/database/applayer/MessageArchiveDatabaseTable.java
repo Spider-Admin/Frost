@@ -22,7 +22,6 @@ import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
-import frost.*;
 import frost.boards.*;
 import frost.messages.*;
 import frost.storage.database.*;

@@ -22,7 +22,6 @@ import java.io.*;
 import java.net.*;
 import java.util.logging.*;
 
-import frost.*;
 import frost.fcp.*;
 import frost.fileTransfer.download.*;
 import frost.util.*;

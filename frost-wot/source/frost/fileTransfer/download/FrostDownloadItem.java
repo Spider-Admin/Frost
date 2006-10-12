@@ -19,7 +19,6 @@ package frost.fileTransfer.download;
 
 import java.util.logging.*;
 
-import frost.*;
 import frost.fileTransfer.*;
 import frost.storage.database.applayer.*;
 import frost.util.*;

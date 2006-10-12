@@ -21,7 +21,6 @@ package frost.storage.database.applayer;
 import java.sql.*;
 import java.util.*;
 
-import frost.*;
 import frost.util.*;
 
 /**

@@ -19,9 +19,8 @@
 package frost.messages;
 
 import org.w3c.dom.*;
-import org.xml.sax.SAXException;
+import org.xml.sax.*;
 
-import frost.*;
 import frost.boards.*;
 import frost.util.*;
 

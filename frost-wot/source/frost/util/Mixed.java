@@ -21,7 +21,6 @@ package frost.util;
 import java.util.logging.*;
 
 import frost.*;
-import frost.util.*;
 
 public final class Mixed {
 

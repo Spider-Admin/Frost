@@ -28,8 +28,6 @@ import org.apache.xml.serialize.*;
 import org.w3c.dom.*;
 import org.xml.sax.*;
 
-import frost.util.*;
-
 /**
  * A place to hold utility methods for XML processing.
  */
