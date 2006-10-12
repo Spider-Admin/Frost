@@ -28,7 +28,8 @@ import frost.messages.*;
 import frost.storage.database.applayer.*;
 
 /**
- * Expire messages.
+ * Expire messages and cleans several database tables.
+ * Is only called during startup of frost, never during runtime.
  */
 public class CleanUp {
 
@@ -37,6 +38,9 @@ public class CleanUp {
     public static final int DELETE_MESSAGES  = 1;
     public static final int ARCHIVE_MESSAGES = 2;
     public static final int KEEP_MESSAGES    = 3;
+    
+    // we hold indices, chk keys, ... for at least the following count of days:
+    private final static int MINIMUM_DAYS_OLD = 28;
 
     /**
      * Expire messages during startup of Frost.
@@ -57,8 +61,9 @@ public class CleanUp {
         }
         processExpiredMessages(boardList, mode);
         
-        // ALWAYS cleanup indexslot tables
+        // ALWAYS cleanup following
         cleanupIndexSlotTables();
+        cleanupSharedChkKeyTable();
     }
 
     private static void processExpiredMessages(List boardList, int mode) {
@@ -125,36 +130,6 @@ public class CleanUp {
     }
     
     /**
-     * Cleanup old indexslot table entries.
-     * Keep indices files for maxMessageDownload*2 days, but at least 21 days.
-     */
-    private static void cleanupIndexSlotTables() {
-        
-        int maxDaysOld = Core.frostSettings.getIntValue("maxMessageDownload") * 2;
-        if( maxDaysOld < 21 ) {
-            maxDaysOld = 21;
-        }
-        
-        int deletedCount = 0;
-
-        try {
-            GlobalIndexSlotsDatabaseTable gixSlots = new GlobalIndexSlotsDatabaseTable();
-            deletedCount += gixSlots.cleanupTable(maxDaysOld);
-        } catch(Throwable t) {
-            logger.log(Level.SEVERE, "Exception during cleanup of GlobalIndexSlots", t);
-        }
-
-        try {
-            IndexSlotsDatabaseTable ixSlots = new IndexSlotsDatabaseTable();
-            deletedCount += ixSlots.cleanupTable(maxDaysOld);
-        } catch(Throwable t) {
-            logger.log(Level.SEVERE, "Exception during cleanup of IndexSlots", t);
-        }
-
-        logger.info("Finished to delete expired index slot entries, deleted "+deletedCount+" entries.");
-    }
-
-    /**
      * Callback that gets each expired message and tries to insert it into MessageArchive.
      */
     private static class MessageTableCallback implements MessageDatabaseTableCallback {
@@ -177,5 +152,52 @@ public class CleanUp {
         public boolean errorOccurred() {
             return errorOccurred;
         }
+    }
+    
+    /**
+     * Cleanup old indexslot table entries.
+     * Keep indices files for maxMessageDownload*2 days, but at least MINIMUM_DAYS_OLD days.
+     */
+    private static void cleanupIndexSlotTables() {
+        
+        int maxDaysOld = Core.frostSettings.getIntValue("maxMessageDownload") * 2;
+        if( maxDaysOld < MINIMUM_DAYS_OLD ) {
+            maxDaysOld = MINIMUM_DAYS_OLD;
+        }
+        
+        int deletedCount = 0;
+
+        try {
+            GlobalIndexSlotsDatabaseTable gixSlots = new GlobalIndexSlotsDatabaseTable();
+            deletedCount += gixSlots.cleanupTable(maxDaysOld);
+        } catch(Throwable t) {
+            logger.log(Level.SEVERE, "Exception during cleanup of GlobalIndexSlots", t);
+        }
+
+        try {
+            IndexSlotsDatabaseTable ixSlots = new IndexSlotsDatabaseTable();
+            deletedCount += ixSlots.cleanupTable(maxDaysOld);
+        } catch(Throwable t) {
+            logger.log(Level.SEVERE, "Exception during cleanup of IndexSlots", t);
+        }
+
+        logger.info("Finished to delete expired index slots, deleted "+deletedCount+" rows.");
+    }
+
+    /**
+     * Cleanup old CHK keys from pointer files.
+     * All keys we did'nt see for MINIMUM_DAYS_OLD days will be deleted.
+     */
+    private static void cleanupSharedChkKeyTable() {
+        
+        int deletedCount = 0;
+
+        try {
+            deletedCount += AppLayerDatabase.getSharedFilesCHKKeysDatabaseTable().cleanupTable(deletedCount);
+        } catch(Throwable t) {
+            logger.log(Level.SEVERE, "Exception during cleanup of SharedFilesCHKKeys", t);
+        }
+
+        logger.info("Finished to delete expired SharedFilesCHKKeys, deleted "+deletedCount+" rows.");
     }
 }

@@ -31,8 +31,6 @@ public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
 
     private static Logger logger = Logger.getLogger(SharedFilesCHKKeysDatabaseTable.class.getName());
     
-    // FIXME: implement some expiration for old CHK keys and delete them
-
     // Question: how to ensure own CHK keys, track them once uploaded if we ever see them again! 
     // Answer: Ignore lost keys, we resend them after some days!
     //         Handle own received keys like any other keys, we don't even know that this was our key.
@@ -366,5 +364,25 @@ public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
         int updateCount = ps.executeUpdate();
         
         return (updateCount == 1);
+    }
+    
+    /**
+     * Delete all table entries that were not seen longer than maxDaysOld.
+     * @return  count of deleted rows
+     */
+    public int cleanupTable(int maxDaysOld) throws SQLException {
+
+        AppLayerDatabase localDB = AppLayerDatabase.getInstance();
+
+        long minVal = System.currentTimeMillis() - (maxDaysOld * 24 * 60 * 60 * 1000);
+        
+        PreparedStatement ps = localDB.prepare("DELETE FROM SHAREDFILESCHK WHERE lastseen<?");
+        ps.setLong(1, minVal);
+        
+        int deletedCount = ps.executeUpdate();
+        
+        ps.close();
+
+        return deletedCount;
     }
 }
