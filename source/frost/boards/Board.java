@@ -421,4 +421,14 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
             return true;
         }
     }
+    
+    /**
+     * Tells the board that a new message was received right now.
+     * Needed for selective board update.
+     * We can't use newMessageCount for this because this field is updated
+     * also if a message is mark unread. 
+     */
+    public void newMessageReceived() {
+        
+    }
 }
