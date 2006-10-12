@@ -376,7 +376,7 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
 //                logger.warning("Did not recognice age, using default 1.");
 //            }
 //
-//            long diffMillis = age * 24 * 60 * 60 * 1000;
+//            long diffMillis = (long)age * 24L * 60L * 60L * 1000L;
 //            long minDateMillis = currentDate.getTime() - diffMillis;
 //            
 //            if( fo.getLastReceived() < minDateMillis ) {

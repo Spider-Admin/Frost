@@ -270,7 +270,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
         long dirMillis = dirDate.getTimeInMillis();
         long msgMillis = msgDate.getTimeInMillis();
         // compute difference dir - msg
-        long ONE_DAY = (1000 * 60 * 60 * 24);
+        long ONE_DAY = (1000L * 60L * 60L * 24L);
         int diffDays = (int)((dirMillis - msgMillis) / ONE_DAY);
         // now compare dirDate and msgDate using above rules
         if( Math.abs(diffDays) <= 1 ) {

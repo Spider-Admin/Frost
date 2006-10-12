@@ -104,8 +104,8 @@ public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
         // - collect a maximum of 300 keys
         {
             long now = System.currentTimeMillis();
-            long minFirstSeen = now - (14 * 24 * 60 * 60 * 1000); // now - 14 days
-            long maxLastSeen = now - (1 * 24 * 60 * 60 * 1000); // now - 1 day
+            long minFirstSeen = now - (14L * 24L * 60L * 60L * 1000L); // now - 14 days
+            long maxLastSeen = now - (1L * 24L * 60L * 60L * 1000L); // now - 1 day
             String sql = "SELECT chkkey FROM SHAREDFILESCHK WHERE" +
                          " isdownloaded=TRUE" +
                          " AND isvalid=TRUE" +
@@ -374,9 +374,10 @@ public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
 
         AppLayerDatabase localDB = AppLayerDatabase.getInstance();
 
-        long minVal = System.currentTimeMillis() - (maxDaysOld * 24 * 60 * 60 * 1000);
-        
-        PreparedStatement ps = localDB.prepare("DELETE FROM SHAREDFILESCHK WHERE lastseen<?");
+        long minVal = System.currentTimeMillis() - ((long)maxDaysOld * 24L * 60L * 60L * 1000L);
+        System.out.println("now="+System.currentTimeMillis());
+        System.out.println("minval="+minVal);
+        PreparedStatement ps = localDB.prepare("DELETE FROM SHAREDFILESCHK WHERE lastseen>0 AND lastseen<?");
         ps.setLong(1, minVal);
         
         int deletedCount = ps.executeUpdate();

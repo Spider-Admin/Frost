@@ -554,7 +554,7 @@ public class IdentitiesBrowser extends JDialog {
             
             lsStr = DateFun.getExtendedDateFromSqlDate(new java.sql.Date(lastSeen));
             long days = System.currentTimeMillis() - lastSeen;
-            days /= 1000 * 60 * 60 * 24;
+            days /= 1000L * 60L * 60L * 24L;
             lsStr += "  ("+days+")";
             
             return lsStr;
