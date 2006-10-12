@@ -174,6 +174,14 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         return false;
     }
     
+    public FrostMessageObject getThreadRootMessage() {
+        if( ((FrostMessageObject)getParent()).isRoot() ) {
+            return this;
+        } else {
+            return ((FrostMessageObject)getParent()).getThreadRootMessage();
+        }
+    }
+    
     /**
      * Dynamically loads content.
      */

@@ -95,7 +95,7 @@ public class TOF {
      */
     public void setAllMessagesRead(final Board board) {
         // now takes care if board is changed during mark read of many boards! reloads current table if needed
-
+        
         final int oldNewMessageCount = board.getNewMessageCount();
 
         try {

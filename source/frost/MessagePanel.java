@@ -188,6 +188,12 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
         private JMenuItem deleteItem = new JMenuItem();
         private JMenuItem undeleteItem = new JMenuItem();
+        
+        private JMenuItem expandAllItem = new JMenuItem();
+        private JMenuItem collapseAllItem = new JMenuItem();
+        
+        private JMenuItem expandThreadItem = new JMenuItem();
+        private JMenuItem collapseThreadItem = new JMenuItem();
 
         public PopupMenuMessageTable() {
             super();
@@ -206,6 +212,14 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 deleteSelectedMessage();
             } else if (e.getSource() == undeleteItem) {
                 undeleteSelectedMessage();
+            } else if (e.getSource() == expandAllItem) {
+                getMessageTable().expandAll(true);
+            } else if (e.getSource() == collapseAllItem) {
+                getMessageTable().expandAll(false);
+            } else if (e.getSource() == expandThreadItem) {
+                getMessageTable().expandThread(true, selectedMessage);
+            } else if (e.getSource() == collapseThreadItem) {
+                getMessageTable().expandThread(false, selectedMessage);
             }
             Identity id = getSelectedMessageFromIdentity();
             if( id == null ) {
@@ -235,6 +249,10 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             setObserveItem.addActionListener(this);
             deleteItem.addActionListener(this);
             undeleteItem.addActionListener(this);
+            expandAllItem.addActionListener(this);
+            collapseAllItem.addActionListener(this);
+            expandThreadItem.addActionListener(this);
+            collapseThreadItem.addActionListener(this);
         }
 
         public void languageChanged(LanguageEvent event) {
@@ -251,6 +269,10 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             setObserveItem.setText(language.getString("MessagePane.messageTable.popupmenu.setToObserve"));
             deleteItem.setText(language.getString("MessagePane.messageTable.popupmenu.deleteMessage"));
             undeleteItem.setText(language.getString("MessagePane.messageTable.popupmenu.undeleteMessage"));
+            expandAllItem.setText(language.getString("MessagePane.messageTable.popupmenu.expandAll"));
+            collapseAllItem.setText(language.getString("MessagePane.messageTable.popupmenu.collapseAll"));
+            expandThreadItem.setText(language.getString("MessagePane.messageTable.popupmenu.expandThread"));
+            collapseThreadItem.setText(language.getString("MessagePane.messageTable.popupmenu.collapseThread"));
         }
 
         public void show(Component invoker, int x, int y) {
@@ -260,7 +282,18 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             }
             
             if (!mainFrame.getTofTreeModel().getSelectedNode().isFolder()) {
+                
                 removeAll();
+                
+                if( Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS) ) {
+                    if( messageTable.getSelectedRowCount() == 1 ) {
+                        add(expandThreadItem);
+                        add(collapseThreadItem);
+                    }
+                    add(expandAllItem);
+                    add(collapseAllItem);
+                    addSeparator();
+                }
                 
                 if( messageTable.getSelectedRowCount() > 1 ) {
                     deleteItem.setEnabled(true);
@@ -624,12 +657,10 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     getMessageTableModel().fireTableRowsUpdated(row, row);
 
                     // determine thread root msg of this msg
-                    FrostMessageObject threadRootMsg = message;
-                    while( ((FrostMessageObject)threadRootMsg.getParent()).isRoot() == false ) {
-                        threadRootMsg = (FrostMessageObject)threadRootMsg.getParent();
-                    }
+                    FrostMessageObject threadRootMsg = message.getThreadRootMessage();
+                    
                     // update thread root to reset unread msg childs marker
-                    if( threadRootMsg != message ) {
+                    if( threadRootMsg != message && threadRootMsg != null ) {
                         getMessageTreeModel().nodeChanged(threadRootMsg);
                     }
                     
@@ -1146,7 +1177,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     public void setParentFrame(JFrame parentFrame) {
         this.parentFrame = parentFrame;
     }
-
+    
     /**
      * Marks current selected message unread
      */
