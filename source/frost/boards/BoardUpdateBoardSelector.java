@@ -21,6 +21,7 @@ package frost.boards;
 import java.util.*;
 
 import frost.*;
+import frost.messages.*;
 
 /**
  * Selects the next board eligible for updating.
@@ -28,13 +29,14 @@ import frost.*;
  */
 public class BoardUpdateBoardSelector {
 
+    // FIXME: update boards with most msgs in last X hours more often
+    
+    private static Board lastSelectedBoard = null;
+
     /**
      * Used to sort FrostBoardObjects by lastUpdateStartMillis ascending.
      */
     private static final Comparator lastUpdateStartMillisCmp = new Comparator() {
-        // FIXME: prefer boards that have messages waiting for upload
-        // FIXME: update boards with most msgs in last X hours more often
-//        xxx
         public int compare(Object o1, Object o2) {
             Board value1 = (Board) o1;
             Board value2 = (Board) o2;
@@ -57,13 +59,30 @@ public class BoardUpdateBoardSelector {
      */
     public static Board selectNextBoard(TofTreeModel tofTreeModel) {
         
-        List boards = tofTreeModel.getAllBoards();
-        if (boards.size() == 0) {
+        List allBoards = tofTreeModel.getAllBoards();
+        if (allBoards.size() == 0) {
+            lastSelectedBoard = null;
             return null;
         }
+
+        // prefer boards that have waiting sendable messages
+        List boardsWithSendableMsgs = UnsendMessagesManager.getBoardsWithSendableMessages();
+        if( !boardsWithSendableMsgs.isEmpty() ) {
+            Collections.sort(boardsWithSendableMsgs, lastUpdateStartMillisCmp);
+            for(Iterator i=boardsWithSendableMsgs.iterator(); i.hasNext(); ) {
+                // choose first board that is not the last updated board
+                Board board = (Board) i.next();
+                // we compare pointers here
+                if( board != lastSelectedBoard ) {
+                    lastSelectedBoard = board;
+                    return board;
+                }
+            }
+        }
         
-        Collections.sort(boards, lastUpdateStartMillisCmp);
+        Collections.sort(allBoards, lastUpdateStartMillisCmp);
         // now first board in list should be the one with latest update of all
+        
         Board board;
         Board nextBoard = null;
 
@@ -73,7 +92,7 @@ public class BoardUpdateBoardSelector {
         // min -> ms
         long minUpdateIntervalMillis = minUpdateInterval * 60 * 1000;
 
-        for (Iterator i=boards.iterator(); i.hasNext(); ) {
+        for (Iterator i=allBoards.iterator(); i.hasNext(); ) {
             board = (Board)i.next();
             if (nextBoard == null
                 && board.isUpdateAllowed()
@@ -85,6 +104,9 @@ public class BoardUpdateBoardSelector {
                 break;
             }
         }
+        
+        lastSelectedBoard = nextBoard;
+        
         return nextBoard;
     }
 }
