@@ -611,7 +611,7 @@ public class SettingsClass implements Savable {
         defaults.put(HIDE_MESSAGES_OBSERVE, "false");
 
         defaults.put(BLOCK_BOARDS_FROM_UNSIGNED, "false");
-        defaults.put(BLOCK_BOARDS_FROM_BAD, "false");
+        defaults.put(BLOCK_BOARDS_FROM_BAD, "true");
         defaults.put(BLOCK_BOARDS_FROM_CHECK, "false");
         defaults.put(BLOCK_BOARDS_FROM_OBSERVE, "false");
 

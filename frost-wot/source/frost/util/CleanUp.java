@@ -193,7 +193,7 @@ public class CleanUp {
         int deletedCount = 0;
 
         try {
-            deletedCount += AppLayerDatabase.getSharedFilesCHKKeysDatabaseTable().cleanupTable(deletedCount);
+            deletedCount = AppLayerDatabase.getSharedFilesCHKKeysDatabaseTable().cleanupTable(MINIMUM_DAYS_OLD);
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Exception during cleanup of SharedFilesCHKKeys", t);
         }
