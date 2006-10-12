@@ -80,6 +80,18 @@ public class Identity implements XMLizable {
         return el;
     }
 
+    public Element getExportXMLElement(Document doc)  {
+        Element el = getXMLElement(doc);
+
+        if( lastSeenTimestamp > -1 ) {
+            Element element = doc.createElement("lastSeen");
+            Text txt = doc.createTextNode(""+lastSeenTimestamp);
+            element.appendChild( txt );
+            el.appendChild( element );
+        }
+        return el;
+    }
+
     public void loadXMLElement(Element e) throws SAXException {
         uniqueName = XMLTools.getChildElementsCDATAValue(e, "name");
         key =  XMLTools.getChildElementsCDATAValue(e, "key");

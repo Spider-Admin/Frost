@@ -23,7 +23,6 @@ import java.io.*;
 import org.w3c.dom.*;
 import org.xml.sax.*;
 
-import frost.*;
 import frost.util.*;
 
 public class FileAttachment extends Attachment {

@@ -25,7 +25,6 @@ import java.util.logging.*;
 import org.w3c.dom.*;
 import org.xml.sax.*;
 
-import frost.*;
 import frost.identities.*;
 import frost.util.*;
 
@@ -195,7 +194,7 @@ public class IdentitiesXmlDAO {
             Iterator it = hashMap.values().iterator();
             while (it.hasNext()) {
                 Identity id = (Identity) it.next();
-                Element el = id.getXMLElement(doc);
+                Element el = id.getExportXMLElement(doc);
                 main.appendChild(el);
             }
             return main;

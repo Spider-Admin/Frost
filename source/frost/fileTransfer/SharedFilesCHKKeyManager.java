@@ -30,7 +30,7 @@ public class SharedFilesCHKKeyManager {
 
     // FIXME: download bis zu _1 mal hintereinander, wenn fail dann noch bis _2 mal täglich. dann ende.
     private static final int MAX_DOWNLOAD_RETRIES_1 = 7;
-    private static final int MAX_DOWNLOAD_RETRIES_2 = 7 + 3;
+//    private static final int MAX_DOWNLOAD_RETRIES_2 = 7 + 3;
 
     private static final int MAX_KEYS_TO_SEND = 300;
 

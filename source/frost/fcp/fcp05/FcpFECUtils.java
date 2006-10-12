@@ -20,8 +20,8 @@ package frost.fcp.fcp05;
 
 import java.io.*;
 import java.net.*;
-import java.util.Vector;
-import java.util.logging.Logger;
+import java.util.*;
+import java.util.logging.*;
 
 
 /**

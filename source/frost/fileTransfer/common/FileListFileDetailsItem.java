@@ -18,7 +18,6 @@
 */
 package frost.fileTransfer.common;
 
-import frost.*;
 import frost.fileTransfer.*;
 import frost.util.*;
 import frost.util.model.*;

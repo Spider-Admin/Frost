@@ -23,8 +23,6 @@ import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.io.*;
-import java.util.*;
-import java.util.List;
 import java.util.logging.*;
 
 import javax.swing.*;
@@ -139,26 +137,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     private TofTreeModel tofTreeModel = null;
     
     private JSplitPane treeAndTabbedPaneSplitpane = null;
-    
-    /**
-     * Used to sort FrostBoardObjects by lastUpdateStartMillis ascending.
-     */
-    private static final Comparator lastUpdateStartMillisCmp = new Comparator() {
-        // FIXME: prefer boards that have messages waiting for upload
-        // FIXME: update boards with most msgs in last X hours more often
-//        xxx
-        public int compare(Object o1, Object o2) {
-            Board value1 = (Board) o1;
-            Board value2 = (Board) o2;
-            if (value1.getLastUpdateStartMillis() > value2.getLastUpdateStartMillis()) {
-                return 1;
-            } else if (value1.getLastUpdateStartMillis() < value2.getLastUpdateStartMillis()) {
-                return -1;
-            } else {
-                return 0;
-            }
-        }
-    };
     
     public MainFrame(SettingsClass settings, String title) {
 
@@ -836,45 +814,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     }
 
     /**
-     * Chooses the next FrostBoard to update (automatic update).
-     * First sorts by lastUpdateStarted time, then chooses first board
-     * that is allowed to update.
-     * Used only for automatic updating.
-     * Returns NULL if no board to update is found.
-     */
-    protected Board selectNextBoard(List boards) {
-        Collections.sort(boards, lastUpdateStartMillisCmp);
-        // now first board in list should be the one with latest update of all
-        Board board;
-        Board nextBoard = null;
-
-        long curTime = System.currentTimeMillis();
-        // get in minutes
-        int minUpdateInterval = frostSettings.getIntValue("automaticUpdate.boardsMinimumUpdateInterval");
-        // min -> ms
-        long minUpdateIntervalMillis = minUpdateInterval * 60 * 1000;
-
-        for (Iterator i=boards.iterator(); i.hasNext(); ) {
-            board = (Board)i.next();
-            if (nextBoard == null
-                && tofTree.isUpdateAllowed(board)
-                && (curTime - minUpdateIntervalMillis) > board.getLastUpdateStartMillis() // minInterval
-                && ( (board.isConfigured() && board.getAutoUpdateEnabled())
-                      || !board.isConfigured()) ) 
-            {
-                nextBoard = board;
-                break;
-            }
-        }
-        if (nextBoard != null) {
-            logger.info("*** Automatic board update started for: " + nextBoard.getName());
-        } else {
-            logger.info("*** Automatic board update - min update interval not reached.  waiting...");
-        }
-        return nextBoard;
-    }
-
-    /**
      * Refresh the texts in MainFrame with new language.
      */
     public void languageChanged(LanguageEvent e) {
@@ -914,12 +853,12 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             isAutomaticBoardUpdateEnabled() &&
             info.getDownloadingBoardCount() < frostSettings.getIntValue("automaticUpdate.concurrentBoardUpdates"))
         {
-            List boards = tofTreeModel.getAllBoards();
-            if (boards.size() > 0) {
-                Board nextBoard = selectNextBoard(boards);
-                if (nextBoard != null) {
-                    tofTree.updateBoard(nextBoard);
-                }
+            Board nextBoard = BoardUpdateBoardSelector.selectNextBoard(tofTreeModel);
+            if (nextBoard != null) {
+                tofTree.updateBoard(nextBoard);
+                logger.info("*** Automatic board update started for: " + nextBoard.getName());
+            } else {
+                logger.info("*** Automatic board update - min update interval not reached.  waiting...");
             }
         }
 

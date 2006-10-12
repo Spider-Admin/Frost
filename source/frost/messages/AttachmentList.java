@@ -19,12 +19,11 @@
 package frost.messages;
 
 import java.util.*;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
 import org.w3c.dom.*;
-import org.xml.sax.SAXException;
+import org.xml.sax.*;
 
-import frost.*;
 import frost.util.*;
 
 public class AttachmentList extends LinkedList implements XMLizable {

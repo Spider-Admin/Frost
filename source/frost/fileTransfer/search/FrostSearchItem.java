@@ -18,7 +18,6 @@
 */
 package frost.fileTransfer.search;
 
-import frost.*;
 import frost.fileTransfer.*;
 import frost.util.*;
 import frost.util.model.*;

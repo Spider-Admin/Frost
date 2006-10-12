@@ -18,12 +18,11 @@
 */
 package frost.fcp.fcp07;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.util.logging.*;
 
-import frost.*;
 import frost.fcp.*;
 import frost.util.*;
 

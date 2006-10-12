@@ -22,7 +22,6 @@ import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
-import frost.*;
 import frost.fileTransfer.download.*;
 import frost.identities.*;
 import frost.storage.database.applayer.*;

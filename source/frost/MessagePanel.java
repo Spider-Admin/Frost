@@ -996,7 +996,9 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
     private void updateButton_actionPerformed(ActionEvent e) {
         // restarts all finished threads if there are some long running threads
-        if (mainFrame.getTofTree().isUpdateAllowed(mainFrame.getTofTreeModel().getSelectedNode())) {
+        if (mainFrame.getTofTreeModel().getSelectedNode() != null 
+                && mainFrame.getTofTreeModel().getSelectedNode().isUpdateAllowed()) 
+        {
             mainFrame.getTofTree().updateBoard(mainFrame.getTofTreeModel().getSelectedNode());
         }
     }

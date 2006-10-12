@@ -21,10 +21,9 @@ package frost.crypt;
 import java.util.logging.*;
 
 import org.w3c.dom.*;
-import org.xml.sax.SAXException;
+import org.xml.sax.*;
 
-import frost.*;
-import frost.identities.Identity;
+import frost.identities.*;
 import frost.util.*;
 
 public abstract class MetaData implements XMLizable {

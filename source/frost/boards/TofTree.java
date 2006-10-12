@@ -889,7 +889,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             return;
 
         if (node.isFolder() == false) {
-            if (isUpdateAllowed(node)) {
+            if (node.isUpdateAllowed()) {
                 updateBoard(node);
             }
         } else {
@@ -913,22 +913,6 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             while (leafs.hasMoreElements()) {
                 markAllRead((Board)leafs.nextElement());
             }
-        }
-    }
-
-    /**
-     * Returns true if board is allowed to be updated.
-     * Also checks if board update is already running.
-     */
-    public boolean isUpdateAllowed(Board board) {
-        if ( board == null
-                || board.isFolder() 
-                || board.isSpammed()
-                || board.isUpdating() ) 
-        {
-            return false;
-        } else {
-            return true;
         }
     }
 
