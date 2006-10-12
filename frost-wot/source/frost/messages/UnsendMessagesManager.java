@@ -97,6 +97,21 @@ public class UnsendMessagesManager {
         }
         return null;
     }
+    
+    /**
+     * Returns a List of all Boards that currently have sendable messages.
+     */
+    public static List getBoardsWithSendableMessages() {
+        Hashtable ht = new Hashtable();
+        for(Iterator i = unsendMessages.iterator(); i.hasNext(); ) {
+            FrostMessageObject mo = (FrostMessageObject) i.next();
+            if( !ht.containsKey(mo.getBoard().getPrimaryKey()) ) {
+                ht.put(mo.getBoard().getPrimaryKey(), mo.getBoard());
+            }
+        }
+        List result = new ArrayList(ht.values()); 
+        return result;
+    }
 
     public static void addNewUnsendMessage(FrostMessageObject mo) {
         try {
