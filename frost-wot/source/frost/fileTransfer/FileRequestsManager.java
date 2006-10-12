@@ -37,7 +37,7 @@ public class FileRequestsManager {
     
     private static final int MIN_DOWNLOAD_RETRIES = 7; // needed retries before we request a file
     
-    private static final int MIN_LAST_UPLOADED = 3; // start upload if last upload is X days back
+    private static final long MIN_LAST_UPLOADED = 3; // start upload if last upload is X days back
 
     /**
      * @return List with SHA strings that should be requested
@@ -55,9 +55,9 @@ public class FileRequestsManager {
         //   then 2 days before (maybe successful now)
         
         long now = System.currentTimeMillis();
-        long before23hours = now - 1 * 23 * 60 * 60 * 1000;
-        long before2days = now - 2 * 24 * 60 * 60 * 1000;
-        long before14days = now - 14 * 24 * 60 * 60 * 1000;
+        long before23hours = now - 1L * 23L * 60L * 60L * 1000L;
+        long before2days = now - 2L * 24L * 60L * 60L * 1000L;
+        long before14days = now - 14L * 24L * 60L * 60L * 1000L;
         
         List downloadModelItems = FileTransferManager.getInstance().getDownloadManager().getModel().getItems();
         
@@ -199,7 +199,7 @@ public class FileRequestsManager {
                 // search upload table, check if we currently upload this file
                 if( !sfo.isCurrentlyUploading() ) {
                     // is not uploading currently
-                    long minDiff = MIN_LAST_UPLOADED * 24 * 60 * 60 * 1000; // 3 days in milliseconds
+                    long minDiff = MIN_LAST_UPLOADED * 24L * 60L * 60L * 1000L; // 3 days in milliseconds
                     if( sfo.getLastUploaded() < now - minDiff ) {
                         // last upload earlier than 3 days before, start upload
                         // add to upload files

@@ -43,7 +43,7 @@ public class FileListManager {
 
         // compute minDate, items last shared before this date must be reshared
         int maxAge = Core.frostSettings.getIntValue(SettingsClass.MIN_DAYS_BEFORE_FILE_RESHARE);
-        long maxDiff = maxAge * 24 * 60 * 60 * 1000;
+        long maxDiff = (long)maxAge * 24L * 60L * 60L * 1000L;
         long now = System.currentTimeMillis();
         long minDate = now - maxDiff;
         

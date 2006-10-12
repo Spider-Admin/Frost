@@ -294,7 +294,7 @@ public class UploadTicker extends Thread {
                 && (ulItem.getKey() != null || FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) )
             {
                 // check if waittime has expired
-                long waittimeMillis = Core.frostSettings.getIntValue(SettingsClass.UPLOAD_RETRIES_WAIT_TIME) * 60 * 1000;
+                long waittimeMillis = (long)Core.frostSettings.getIntValue(SettingsClass.UPLOAD_RETRIES_WAIT_TIME) * 60L * 1000L;
                 if ((System.currentTimeMillis() - ulItem.getLastUploadStopTimeMillis()) > waittimeMillis) {
                     waitingItems.add(ulItem);
                 }

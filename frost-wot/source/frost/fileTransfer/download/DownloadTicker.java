@@ -235,7 +235,7 @@ public class DownloadTicker extends Thread {
             
 			if( dlItem.getState() == FrostDownloadItem.STATE_WAITING ) {
 				// check if waittime is expired
-				long waittimeMillis = Core.frostSettings.getIntValue("downloadWaittime") * 60 * 1000;
+				long waittimeMillis = (long)Core.frostSettings.getIntValue("downloadWaittime") * 60L * 1000L;
 				// min->millisec
 				if (dlItem.getLastDownloadStopTime() == 0 // never started
 					|| (System.currentTimeMillis() - dlItem.getLastDownloadStopTime()) > waittimeMillis) 

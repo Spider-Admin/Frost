@@ -103,8 +103,8 @@ public class StorageManager extends Timer {
 		int autoSaveIntervalMinutes = frostSettings.getIntValue(SettingsClass.AUTO_SAVE_INTERVAL);
 		schedule(
 			autoTask,
-			autoSaveIntervalMinutes * 60 * 1000,
-			autoSaveIntervalMinutes * 60 * 1000);
+			(long)autoSaveIntervalMinutes * 60L * 1000L,
+			(long)autoSaveIntervalMinutes * 60L * 1000L);
 	}
 
 	/**

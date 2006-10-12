@@ -441,7 +441,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
             return Boolean.FALSE;
         }
         long now = System.currentTimeMillis();
-        long before24hours = now - (24 * 60 * 60 * 1000);
+        long before24hours = now - (24L * 60L * 60L * 1000L);
         if( flfo.getRequestLastReceived() > before24hours 
                 || flfo.getRequestLastSent() > before24hours) 
         {

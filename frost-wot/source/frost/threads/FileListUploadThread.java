@@ -42,7 +42,7 @@ public class FileListUploadThread extends Thread {
     private static FileListUploadThread instance = new FileListUploadThread();
     
     private FileListUploadThread() {
-        nextStartTime = System.currentTimeMillis() + 60 * 1000; // wait 60 seconds before first start
+        nextStartTime = System.currentTimeMillis() + (60L * 1000L); // wait 60 seconds before first start
     }
     
     public static FileListUploadThread getInstance() {

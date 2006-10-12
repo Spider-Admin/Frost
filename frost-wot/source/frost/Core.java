@@ -593,8 +593,8 @@ public class Core implements FrostEventDispatcher  {
         //We initialize the task that checks for spam
         timer.schedule(
             new CheckForSpam(frostSettings, getBoardsManager().getTofTree(), getBoardsManager().getTofTreeModel()),
-            1*60*60*1000, // wait 1 min
-            frostSettings.getIntValue("sampleInterval") * 60 * 60 * 1000);
+            1L * 60L * 60L * 1000L, // wait 1 min
+            (long)frostSettings.getIntValue("sampleInterval") * 60L * 60L * 1000L);
 
         // initialize the task that frees memory
         TimerTask cleaner = new TimerTask() {
@@ -604,7 +604,7 @@ public class Core implements FrostEventDispatcher  {
                 System.gc();
             }
         };
-        timer.schedule(cleaner, 30 * 60 * 1000, 30 * 60 * 1000);    //30 minutes
+        timer.schedule(cleaner, 30L * 60L * 1000L, 30L * 60L * 1000L);    //30 minutes
         cleaner = null;
         
         // initialize the task that saves data

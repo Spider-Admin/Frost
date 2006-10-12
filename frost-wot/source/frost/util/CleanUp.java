@@ -180,7 +180,6 @@ public class CleanUp {
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Exception during cleanup of IndexSlots", t);
         }
-
         logger.info("Finished to delete expired index slots, deleted "+deletedCount+" rows.");
     }
 
@@ -197,7 +196,6 @@ public class CleanUp {
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Exception during cleanup of SharedFilesCHKKeys", t);
         }
-
         logger.info("Finished to delete expired SharedFilesCHKKeys, deleted "+deletedCount+" rows.");
     }
 }
