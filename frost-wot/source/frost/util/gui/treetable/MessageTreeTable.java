@@ -146,6 +146,22 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             }
         });
     }
+    
+    public void expandThread(final boolean expand, FrostMessageObject msg) {
+        if( msg == null ) {
+            return;
+        }
+        // find msgs rootmsg
+        final FrostMessageObject threadRootMsg = msg.getThreadRootMessage();
+        if( threadRootMsg == null ) {
+            return;
+        }
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                expandAll(new TreePath(threadRootMsg.getPath()), expand);
+            }
+        });
+    }
 
     private void expandAll(TreePath parent, boolean expand) {
         // Traverse children
@@ -159,6 +175,11 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         }
     
         // Expansion or collapse must be done bottom-up
+        // never collapse the invisible rootnode!
+        if( node.getParent() == null ) {
+            expand = true;
+        }
+        
         if (expand) {
             if( !tree.isExpanded(parent) ) {
                 tree.expandPath(parent);
