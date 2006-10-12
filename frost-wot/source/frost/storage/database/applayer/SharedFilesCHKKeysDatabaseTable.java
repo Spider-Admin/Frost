@@ -375,8 +375,7 @@ public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
         AppLayerDatabase localDB = AppLayerDatabase.getInstance();
 
         long minVal = System.currentTimeMillis() - ((long)maxDaysOld * 24L * 60L * 60L * 1000L);
-        System.out.println("now="+System.currentTimeMillis());
-        System.out.println("minval="+minVal);
+
         PreparedStatement ps = localDB.prepare("DELETE FROM SHAREDFILESCHK WHERE lastseen>0 AND lastseen<?");
         ps.setLong(1, minVal);
         
