@@ -43,6 +43,8 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
         "publickey VARCHAR NOT NULL,"+
         "privatekey VARCHAR NOT NULL,"+
         "signature VARCHAR,"+
+        "sendmsgdelay INT,"+ // prepared, not used; delay in hours
+        "sendmsgdelayrandom INT,"+ // prepared, not used; +/- delay in hours
         "CONSTRAINT oids_pk PRIMARY KEY (primkey),"+
         "CONSTRAINT OWNIDENTITIES_1 UNIQUE (uniquename) )";
     

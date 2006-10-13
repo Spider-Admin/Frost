@@ -36,12 +36,14 @@ public class UnsendMessageDatabaseTable extends AbstractDatabaseTable {
     private final String SQL_DDL_MESSAGES =
         "CREATE TABLE UNSENDMESSAGES ("+
         "primkey BIGINT NOT NULL,"+
+        "board INT NOT NULL,"+
+        "sendafter BIGINT,"+ // prepared, not used
         "messageid VARCHAR NOT NULL,"+
         "inreplyto VARCHAR,"+
-        "board INT NOT NULL,"+
         "fromname VARCHAR,"+
         "subject VARCHAR,"+
         "recipient VARCHAR,"+
+        "msgcontentold VARCHAR,"+ // prepared, not used; answered content of message (part before our separator line)
         "msgcontent VARCHAR,"+
         "hasfileattachment BOOLEAN,"+
         "hasboardattachment BOOLEAN,"+

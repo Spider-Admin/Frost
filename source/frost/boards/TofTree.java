@@ -192,7 +192,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         }
 
         private void markAllReadSelected() {
-            markAllRead(selectedTreeNode);
+            TOF.getInstance().markAllMessagesRead(selectedTreeNode); // folder or board
         }
 
         private void removeNodeSelected() {
@@ -897,21 +897,6 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             Enumeration leafs = node.children();
             while (leafs.hasMoreElements()) {
                 refreshNode((Board) leafs.nextElement());
-            }
-        }
-    }
-
-    private void markAllRead(Board node) {
-        if (node == null) {
-            return;
-        }
-        if (node.isFolder() == false) {
-            TOF.getInstance().setAllMessagesRead(node);
-        } else {
-            // process all childs recursiv
-            Enumeration leafs = node.children();
-            while (leafs.hasMoreElements()) {
-                markAllRead((Board)leafs.nextElement());
             }
         }
     }
