@@ -570,7 +570,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
     }
     
     /**
-     * Return filecount.
+     * Return file count.
      */
     public int getFileCount() throws SQLException {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
@@ -588,7 +588,25 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
     }
 
     /**
-     * Return filecount.
+     * Return sharer count.
+     */
+    public int getSharerCount() throws SQLException {
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
+
+        PreparedStatement ps = db.prepare("SELECT COUNT(DISTINCT(owner)) FROM FILEOWNERLIST");
+        int count = 0;
+        ResultSet rs = ps.executeQuery();
+        if( rs.next() ) {
+            count = rs.getInt(1);
+        }
+        rs.close();
+        ps.close();
+        
+        return count;
+    }
+
+    /**
+     * Return file sizes.
      */
     public long getFileSizes() throws SQLException {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
