@@ -682,12 +682,14 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             tofAutomaticUpdateMenuItem.setSelected(false);
         }
 
-        if (tofTree.getRowCount() > frostSettings.getIntValue("tofTreeSelectedRow"))
+        if (tofTree.getRowCount() > frostSettings.getIntValue("tofTreeSelectedRow")) {
             tofTree.setSelectionRow(frostSettings.getIntValue("tofTreeSelectedRow"));
+        }
 
         // make sure the font size isn't too small to see
-        if (frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE) < 6)
+        if (frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE) < 6) {
             frostSettings.setValue(SettingsClass.MESSAGE_BODY_FONT_SIZE, 6);
+        }
 
         // load size, location and state of window
         int lastHeight = frostSettings.getIntValue("lastFrameHeight");
