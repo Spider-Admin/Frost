@@ -29,6 +29,7 @@ import frost.messages.*;
 import frost.storage.database.applayer.*;
 import frost.util.*;
 import frost.util.gui.*;
+import frost.util.gui.translation.*;
 
 /**
  * @pattern Singleton
@@ -41,6 +42,8 @@ public class TOF {
     // FIXME: wenn neue ankommt und gerade geupdated wird, dann enqueue und nach abarbeiten processe die neuen (alles im swing thread!)
 
     private static Logger logger = Logger.getLogger(TOF.class.getName());
+    
+    private static Language language = Language.getInstance();
 
     private UpdateTofFilesThread updateThread = null;
     private UpdateTofFilesThread nextUpdateThread = null;
@@ -86,6 +89,40 @@ public class TOF {
             instance = new TOF(tofTreeModel);
         }
     }
+    
+    public void markAllMessagesRead(Board node) {
+        if (node == null) {
+            return;
+        }
+
+        if (node.isFolder() == false) {
+            int answer = JOptionPane.showConfirmDialog(
+                    MainFrame.getInstance(), 
+                    language.formatMessage("TOF.markAllReadConfirmation.board.content", node.getName()), 
+                    language.getString("TOF.markAllReadConfirmation.board.title"), 
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.WARNING_MESSAGE);
+            if( answer != JOptionPane.YES_OPTION) {
+                return;
+            }
+            setAllMessagesRead(node);
+        } else {
+            int answer = JOptionPane.showConfirmDialog(
+                    MainFrame.getInstance(), 
+                    language.formatMessage("TOF.markAllReadConfirmation.folder.content", node.getName()), 
+                    language.getString("TOF.markAllReadConfirmation.folder.title"), 
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.WARNING_MESSAGE);
+            if( answer != JOptionPane.YES_OPTION) {
+                return;
+            }
+            // process all childs recursive
+            Enumeration leafs = node.children();
+            while (leafs.hasMoreElements()) {
+                markAllMessagesRead((Board)leafs.nextElement());
+            }
+        }
+    }
 
     /**
      * Resets the NEW state to READ for all messages shown in board table.
@@ -93,7 +130,7 @@ public class TOF {
      * @param tableModel  the messages table model
      * @param board  the board to reset
      */
-    public void setAllMessagesRead(final Board board) {
+    private void setAllMessagesRead(final Board board) {
         // now takes care if board is changed during mark read of many boards! reloads current table if needed
         
         final int oldNewMessageCount = board.getNewMessageCount();
