@@ -156,9 +156,13 @@ public class Core implements FrostEventDispatcher  {
             }
         }
 
-        Network net = new Network(fcpVersion, "frost"+fcpVersion, nodes);
-        
         Factory factory = new Factory();
+        
+        fcpDispatcher = new Dispatcher(factory);
+        
+        Network net = new Network(fcpVersion, "frost"+fcpVersion, nodes, fcpDispatcher);
+        
+        
 
         factory.addNetwork(net);
 
@@ -172,7 +176,7 @@ public class Core implements FrostEventDispatcher  {
         
         // init the dispatcher with configured nodes
                 
-        fcpDispatcher = new Dispatcher(factory, false);
+        
         
         // install our security manager that only allows connections to the configured FCP hosts
         System.setSecurityManager(new FrostSecurityManager());
