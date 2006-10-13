@@ -938,8 +938,6 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
 
     /**
      * Save the current column positions and column sizes for restore on next startup.
-     * 
-     * @param frostSettings
      */
     public void saveLayout(SettingsClass frostSettings) {
         TableColumnModel tcm = getColumnModel();
@@ -947,17 +945,15 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             TableColumn tc = tcm.getColumn(columnIndexInTable);
             int columnIndexInModel = tc.getModelIndex();
             // save the current index in table for column with the fix index in model
-            frostSettings.setValue("messagetreetable.tableindex.modelcolumn."+columnIndexInModel, columnIndexInTable);
+            frostSettings.setValue("MessageTreeTable.tableindex.modelcolumn."+columnIndexInModel, columnIndexInTable);
             // save the current width of the column
             int columnWidth = tc.getWidth();
-            frostSettings.setValue("messagetreetable.columnwidth.modelcolumn."+columnIndexInModel, columnWidth);
+            frostSettings.setValue("MessageTreeTable.columnwidth.modelcolumn."+columnIndexInModel, columnWidth);
         }
     }
 
     /**
      * Load the saved column positions and column sizes.
-     *
-     * @param frostSettings
      */
     public void loadLayout(SettingsClass frostSettings) {
         TableColumnModel tcm = getColumnModel();
@@ -974,31 +970,41 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         // set icon table header renderer for icon columns
         tcm.getColumn(0).setHeaderRenderer(new IconTableHeaderRenderer(flaggedIcon));
         tcm.getColumn(1).setHeaderRenderer(new IconTableHeaderRenderer(starredIcon));
-
+        
+        if( !loadLayout(frostSettings, tcm) ) {
+            // Sets the relative widths of the columns
+            int[] widths = { 20,20, 185, 95, 50, 130 };
+            for (int i = 0; i < widths.length; i++) { 
+                tcm.getColumn(i).setPreferredWidth(widths[i]);
+            }
+        }
+    }
+    
+    private boolean loadLayout(SettingsClass frostSettings, TableColumnModel tcm) {
         // load the saved tableindex for each column in model, and its saved width
         int[] tableToModelIndex = new int[tcm.getColumnCount()];
         int[] columnWidths = new int[tcm.getColumnCount()];
 
         for(int x=0; x < tableToModelIndex.length; x++) {
-            String indexKey = "messagetreetable.tableindex.modelcolumn."+x;
+            String indexKey = "MessageTreeTable.tableindex.modelcolumn."+x;
             if( frostSettings.getObjectValue(indexKey) == null ) {
-                return; // column not found, abort
+                return false; // column not found, abort
             }
             // build array of table to model associations
             int tableIndex = frostSettings.getIntValue(indexKey);
             if( tableIndex < 0 || tableIndex >= tableToModelIndex.length ) {
-                return; // invalid table index value
+                return false; // invalid table index value
             }
             tableToModelIndex[tableIndex] = x;
 
-            String widthKey = "messagetreetable.columnwidth.modelcolumn."+x;
+            String widthKey = "MessageTreeTable.columnwidth.modelcolumn."+x;
             if( frostSettings.getObjectValue(widthKey) == null ) {
-                return; // column not found, abort
+                return false; // column not found, abort
             }
             // build array of table to model associations
             int columnWidth = frostSettings.getIntValue(widthKey);
             if( columnWidth <= 0 ) {
-                return; // invalid column width
+                return false; // invalid column width
             }
             columnWidths[x] = columnWidth;
         }
@@ -1017,6 +1023,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         for(int x=0; x < tableToModelIndex.length; x++) {
             tcm.addColumn(tcms[tableToModelIndex[x]]);
         }
+        return true;
     }
     
     public void propertyChange(PropertyChangeEvent evt) {
