@@ -440,4 +440,23 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
         
         return count;
     }
+    
+    /**
+     * Returns overall message count.
+     */
+    public int getMessageCount() throws SQLException {
+        
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
+        PreparedStatement ps = db.prepare("SELECT COUNT(primkey) FROM MESSAGEARCHIVE WHERE isvalid=TRUE");
+        
+        int count = 0;
+        ResultSet rs = ps.executeQuery();
+        if( rs.next() ) {
+            count = rs.getInt(1);
+        }
+        rs.close();
+        ps.close();
+        
+        return count;
+    }
 }

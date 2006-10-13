@@ -28,7 +28,6 @@ import frost.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;
 import frost.util.*;
-import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
 /**
@@ -51,8 +50,6 @@ public class TOF {
     private TofTreeModel tofTreeModel;
 
     private static boolean initialized = false;
-
-    private GlassPane glassPane = null;
 
     /**
      * The unique instance of this class.
@@ -393,31 +390,8 @@ public class TOF {
         // start new thread, the thread will set itself to updateThread,
         // but first it waits until the current thread is finished
         nextUpdateThread = new UpdateTofFilesThread(board, daysToRead);
-        activateGlassPane();
+        MainFrame.getInstance().activateGlassPane();
         nextUpdateThread.start();
-    }
-
-    private void activateGlassPane() {
-        MainFrame.getInstance().showProgress();
-        
-        // Mount the glasspane on the component window
-        GlassPane aPane = GlassPane.mount(MainFrame.getInstance(), true);
-
-        // keep track of the glasspane as an instance variable
-        glassPane = aPane;
-
-        if (glassPane != null) {
-            // Start interception UI interactions
-            glassPane.setVisible(true);
-        }
-    }
-    private void deactivateGlassPane() {
-        if (glassPane != null) {
-            // Stop UI interception
-            glassPane.setVisible(false);
-            glassPane = null;
-        }
-        MainFrame.getInstance().hideProgress();
     }
 
     private class UpdateTofFilesThread extends Thread {
@@ -669,7 +643,7 @@ public class TOF {
                     }
                 });
             }
-            deactivateGlassPane();
+            MainFrame.getInstance().deactivateGlassPane();
             updateThread = null;
         }
     }

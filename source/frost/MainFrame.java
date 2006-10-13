@@ -23,6 +23,7 @@ import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.io.*;
+import java.sql.*;
 import java.util.logging.*;
 
 import javax.swing.*;
@@ -37,6 +38,7 @@ import frost.gui.help.*;
 import frost.gui.preferences.*;
 import frost.messages.*;
 import frost.storage.*;
+import frost.storage.database.applayer.*;
 import frost.threads.*;
 import frost.util.*;
 import frost.util.gui.*;
@@ -67,13 +69,14 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     private long counter = 55;
 
     //Panels
-    private JMenuItem fileExitMenuItem = new JMenuItem();
 
     private JButton knownBoardsButton = null;
     private JButton searchMessagesButton = null;
 
     //File Menu
     private JMenu fileMenu = new JMenu();
+    private JMenuItem fileExitMenuItem = new JMenuItem();
+    private JMenuItem fileStatisticsMenuItem = new JMenuItem();
 
     private JMenuItem helpAboutMenuItem = new JMenuItem();
     private JMenuItem helpHelpMenuItem = new JMenuItem();
@@ -137,6 +140,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     private TofTreeModel tofTreeModel = null;
     
     private JSplitPane treeAndTabbedPaneSplitpane = null;
+    
+    private GlassPane glassPane = null;
     
     public MainFrame(SettingsClass settings, String title) {
 
@@ -423,6 +428,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                     fileExitMenuItem_actionPerformed(e);
                 }
             });
+            fileStatisticsMenuItem.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    fileStatisticsMenuItem_actionPerformed(e);
+                }
+            });
             optionsPreferencesMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     optionsPreferencesMenuItem_actionPerformed(e);
@@ -493,6 +503,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             // construct menu
             
             // File Menu
+            fileMenu.add(fileStatisticsMenuItem);
+            fileMenu.addSeparator();
             fileMenu.add(fileExitMenuItem);
             // News Menu
             tofMenu.add(tofAutomaticUpdateMenuItem);
@@ -641,6 +653,54 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         saveLayout();
         
         System.exit(0);
+    }
+
+    /**
+     * File | Statistics action performed
+     */
+    private void fileStatisticsMenuItem_actionPerformed(ActionEvent evt) {
+        int msgCount = -1;
+        int arcMsgCount = -1;
+        int idCount = -1;
+        int fileCount = -1;
+        long fileSizes = -1;
+        
+        activateGlassPane(); // lock gui, show progress
+        
+        try {
+            msgCount = AppLayerDatabase.getMessageTable().getMessageCount();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error retrieving msg count from db", e);
+        }
+
+        try {
+            arcMsgCount = AppLayerDatabase.getMessageArchiveTable().getMessageCount();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error retrieving arc msg count from db", e);
+        }
+
+        try {
+            idCount = AppLayerDatabase.getIdentitiesDatabaseTable().getIdentityCount();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error retrieving id count from db", e);
+        }
+        
+        try {
+            fileCount = AppLayerDatabase.getFileListDatabaseTable().getFileCount();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error retrieving file count from db", e);
+        }
+
+        try {
+            fileSizes = AppLayerDatabase.getFileListDatabaseTable().getFileSizes();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error retrieving file sizes from db", e);
+        }
+
+        deactivateGlassPane();
+        
+        StatisticsDialog dlg = new StatisticsDialog(this);
+        dlg.startDialog(msgCount, arcMsgCount, idCount, fileCount, fileSizes);
     }
 
     public MessagePanel getMessagePanel() {
@@ -974,6 +1034,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     private void translateMainMenu() {
         fileMenu.setText(language.getString("MainFrame.menu.file"));
         fileExitMenuItem.setText(language.getString("Common.exit"));
+        fileStatisticsMenuItem.setText(language.getString("MainFrame.menu.file.statistics"));
         tofMenu.setText(language.getString("MainFrame.menu.news"));
         tofDisplayBoardInfoMenuItem.setText(language.getString("MainFrame.menu.news.displayBoardInformationWindow"));
         tofAutomaticUpdateMenuItem.setText(language.getString("MainFrame.menu.news.automaticBoardUpdate"));
@@ -1123,5 +1184,28 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             fileExitMenuItem_actionPerformed(null);
         }
     }
+    
+    public void activateGlassPane() {
+        showProgress();
+        
+        // Mount the glasspane on the component window
+        GlassPane aPane = GlassPane.mount(this, true);
 
+        // keep track of the glasspane as an instance variable
+        glassPane = aPane;
+
+        if (glassPane != null) {
+            // Start interception UI interactions
+            glassPane.setVisible(true);
+        }
+    }
+    
+    public void deactivateGlassPane() {
+        if (glassPane != null) {
+            // Stop UI interception
+            glassPane.setVisible(false);
+            glassPane = null;
+        }
+        hideProgress();
+    }
 }

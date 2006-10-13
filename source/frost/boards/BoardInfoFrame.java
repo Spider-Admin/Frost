@@ -275,16 +275,8 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         public void run()
         {
             int messageCount = 0;
-            int fileCount = 0;
             int boardCount = 0;
             List boards = ((TofTreeModel) tofTree.getModel()).getAllBoards();
-
-            // filecount is now a fix value
-            try {
-                fileCount = AppLayerDatabase.getFileListDatabaseTable().getFileCount();
-            } catch (SQLException e) {
-                logger.log(Level.SEVERE, "Error retrieving file count from db", e);
-            }
 
             for( Iterator i=boards.iterator(); i.hasNext();  )
             {
@@ -300,16 +292,13 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
                 final BoardInfoTableMember finalRow = newRow;
                 final int finalBoardCount = boardCount;
                 final int finalMessageCount = messageCount;
-                final int finalFileCount = fileCount;
                 SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
                             boardTableModel.addRow(finalRow);
-                            summaryLabel.setText(language.getString("BoardInfoFrame.label.boards") +"   :"+
+                            summaryLabel.setText(language.getString("BoardInfoFrame.label.boards") +": "+
                                                  finalBoardCount +"    "+
-                                                 language.getString("BoardInfoFrame.label.messages") +"  : "+
-                                                 finalMessageCount +"    "+
-                                                 language.getString("BoardInfoFrame.label.files") + "   :"+
-                                                 finalFileCount);
+                                                 language.getString("BoardInfoFrame.label.messages") +": "+
+                                                 finalMessageCount);
                         }});
             }
             updateBoardInfoTableThread = null;

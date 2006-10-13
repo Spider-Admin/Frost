@@ -588,6 +588,24 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
     }
 
     /**
+     * Return filecount.
+     */
+    public long getFileSizes() throws SQLException {
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
+
+        PreparedStatement ps = db.prepare("SELECT SUM(size) FROM FILELIST");
+        long count = 0;
+        ResultSet rs = ps.executeQuery();
+        if( rs.next() ) {
+            count = rs.getLong(1);
+        }
+        rs.close();
+        ps.close();
+        
+        return count;
+    }
+
+    /**
      * Return filecount for specified identity on all boards.
      */
     public int getFileCountForIdentity(Identity identity) throws SQLException {

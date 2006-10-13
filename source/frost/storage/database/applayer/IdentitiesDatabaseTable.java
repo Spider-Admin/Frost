@@ -196,6 +196,26 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
         ps.close();
         return updateWasOk;
     }
+    
+    /**
+     * Returns overall message count.
+     */
+    public int getIdentityCount() throws SQLException {
+        
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
+        PreparedStatement ps = db.prepare("SELECT COUNT(primkey) FROM IDENTITIES");
+        
+        int count = 0;
+        ResultSet rs = ps.executeQuery();
+        if( rs.next() ) {
+            count = rs.getInt(1);
+        }
+        rs.close();
+        ps.close();
+        
+        return count;
+    }
+
 
     private void loadAllLastFilesSharedPerBoard(List localIdentities) throws SQLException {
         
