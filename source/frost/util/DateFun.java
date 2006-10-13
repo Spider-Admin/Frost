@@ -79,6 +79,11 @@ public class DateFun {
     
     public static void main(String[] args) {
         
+        System.out.println("od="+getDateOfCalendar(new GregorianCalendar()));
+        System.out.println("ot="+getExtendedTimeOfCalendar(new GregorianCalendar()));
+
+        System.out.println("---");
+
         System.out.println("->"+getCurrentSqlTimeGMT());
         System.out.println(getExtendedTimeFromSqlTime(getCurrentSqlTimeGMT()));
         System.out.println(getVisibleExtendedDate());
