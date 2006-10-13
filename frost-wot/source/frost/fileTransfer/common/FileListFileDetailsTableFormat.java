@@ -25,6 +25,7 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.table.*;
 
+import frost.*;
 import frost.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
@@ -118,11 +119,14 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
         
         modelTable.getTable().setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
 
-        // Sets the relative widths of the columns
         TableColumnModel columnModel = modelTable.getTable().getColumnModel();
-        int[] widths = { 150, 80, 20, 80, 80, 55, 55 };
-        for (int i = 0; i < widths.length; i++) {
-            columnModel.getColumn(i).setPreferredWidth(widths[i]);
+
+        if( !loadTableLayout(columnModel) ) {
+            // Sets the relative widths of the columns
+            int[] widths = { 150, 80, 20, 80, 80, 55, 55 };
+            for (int i = 0; i < widths.length; i++) {
+                columnModel.getColumn(i).setPreferredWidth(widths[i]);
+            }
         }
         
         ShowContentTooltipRenderer showContentTooltipRenderer = new ShowContentTooltipRenderer();
@@ -132,6 +136,63 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
         
         columnModel.getColumn(3).setCellRenderer(showContentTooltipRenderer); // comment
         columnModel.getColumn(4).setCellRenderer(showContentTooltipRenderer); // keywords
+    }
+    
+    public void saveTableLayout(ModelTable modelTable) {
+        TableColumnModel tcm = modelTable.getTable().getColumnModel();
+        for(int columnIndexInTable=0; columnIndexInTable < tcm.getColumnCount(); columnIndexInTable++) {
+            TableColumn tc = tcm.getColumn(columnIndexInTable);
+            int columnIndexInModel = tc.getModelIndex();
+            // save the current index in table for column with the fix index in model
+            Core.frostSettings.setValue("FileListFileDetailsDialog.tableindex.modelcolumn."+columnIndexInModel, columnIndexInTable);
+            // save the current width of the column
+            int columnWidth = tc.getWidth();
+            Core.frostSettings.setValue("FileListFileDetailsDialog.columnwidth.modelcolumn."+columnIndexInModel, columnWidth);
+        }
+    }
+    
+    private boolean loadTableLayout(TableColumnModel tcm) {
+        
+        // load the saved tableindex for each column in model, and its saved width
+        int[] tableToModelIndex = new int[tcm.getColumnCount()];
+        int[] columnWidths = new int[tcm.getColumnCount()];
+
+        for(int x=0; x < tableToModelIndex.length; x++) {
+            String indexKey = "FileListFileDetailsDialog.tableindex.modelcolumn."+x;
+            if( Core.frostSettings.getObjectValue(indexKey) == null ) {
+                return false; // column not found, abort
+            }
+            // build array of table to model associations
+            int tableIndex = Core.frostSettings.getIntValue(indexKey);
+            if( tableIndex < 0 || tableIndex >= tableToModelIndex.length ) {
+                return false; // invalid table index value
+            }
+            tableToModelIndex[tableIndex] = x;
+
+            String widthKey = "FileListFileDetailsDialog.columnwidth.modelcolumn."+x;
+            if( Core.frostSettings.getObjectValue(widthKey) == null ) {
+                return false; // column not found, abort
+            }
+            // build array of table to model associations
+            int columnWidth = Core.frostSettings.getIntValue(widthKey);
+            if( columnWidth <= 0 ) {
+                return false; // invalid column width
+            }
+            columnWidths[x] = columnWidth;
+        }
+        // columns are currently added in model order, remove them all and save in an array
+        // while on it, set the loaded width of each column
+        TableColumn[] tcms = new TableColumn[tcm.getColumnCount()];
+        for(int x=tcms.length-1; x >= 0; x--) {
+            tcms[x] = tcm.getColumn(x);
+            tcm.removeColumn(tcms[x]);
+            tcms[x].setPreferredWidth(columnWidths[x]);
+        }
+        // add the columns in order loaded from settings
+        for(int x=0; x < tableToModelIndex.length; x++) {
+            tcm.addColumn(tcms[tableToModelIndex[x]]);
+        }
+        return true;
     }
 
     private class FileNameComparator implements Comparator {
