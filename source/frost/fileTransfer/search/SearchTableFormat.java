@@ -42,7 +42,7 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
     private final static int COLUMN_COUNT = 8;
 
     private String offline;
-    private String uploading;
+    private String sharing;
     private String downloading;
     private String downloaded;
     
@@ -80,7 +80,7 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
         setColumnName(7, language.getString("SearchPane.resultTable.sources"));
 
         offline =     language.getString("SearchPane.resultTable.states.offline");
-        uploading =   language.getString("SearchPane.resultTable.states.uploading");
+        sharing =     language.getString("SearchPane.resultTable.states.sharing");
         downloading = language.getString("SearchPane.resultTable.states.downloading");
         downloaded =  language.getString("SearchPane.resultTable.states.downloaded");
         
@@ -129,7 +129,7 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
                 break;
 
             case FrostSearchItem.STATE_UPLOADING :
-                stateString = uploading;
+                stateString = sharing;
                 break;
 
             case FrostSearchItem.STATE_DOWNLOADING :

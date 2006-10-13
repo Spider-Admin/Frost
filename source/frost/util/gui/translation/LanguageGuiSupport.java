@@ -41,6 +41,7 @@ public class LanguageGuiSupport {
     private JRadioButtonMenuItem languageDefaultMenuItem;
     private JRadioButtonMenuItem languageBulgarianMenuItem;
     private JRadioButtonMenuItem languageDutchMenuItem;
+    private JRadioButtonMenuItem languageDanishMenuItem;
     private JRadioButtonMenuItem languageEnglishMenuItem;
     private JRadioButtonMenuItem languageFrenchMenuItem;
     private JRadioButtonMenuItem languageGermanMenuItem;
@@ -57,6 +58,7 @@ public class LanguageGuiSupport {
         languageDefaultMenuItem = new JRadioButtonMenuItem();
         languageBulgarianMenuItem = new JRadioButtonMenuItem();
         languageDutchMenuItem = new JRadioButtonMenuItem();
+        languageDanishMenuItem = new JRadioButtonMenuItem();
         languageEnglishMenuItem = new JRadioButtonMenuItem();
         languageFrenchMenuItem = new JRadioButtonMenuItem();
         languageGermanMenuItem = new JRadioButtonMenuItem();
@@ -75,12 +77,14 @@ public class LanguageGuiSupport {
         languageFrenchMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_fr.png", 16, 16));
         languageItalianMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_it.png", 16, 16));
         languageJapaneseMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_ja.png", 16, 16));
+        languageDanishMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_da.png", 16, 16));
         languageDutchMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_nl.png", 16, 16));
         languageRussianMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_ru.png", 16, 16));
         
         // default action listeners
         languageDefaultMenuItem.addActionListener(   new LanguageAction(null, false));
         languageGermanMenuItem.addActionListener(    new LanguageAction("de", false));
+        languageDanishMenuItem.addActionListener(    new LanguageAction("da", false));
         languageEnglishMenuItem.addActionListener(   new LanguageAction("en", false));
         languageDutchMenuItem.addActionListener(     new LanguageAction("nl", false));
         languageFrenchMenuItem.addActionListener(    new LanguageAction("fr", false));
@@ -93,6 +97,7 @@ public class LanguageGuiSupport {
         buildinLanguageMenuItemsList = new ArrayList();
         buildinLanguageMenuItemsList.add(languageDefaultMenuItem);
         buildinLanguageMenuItemsList.add(languageBulgarianMenuItem);
+        buildinLanguageMenuItemsList.add(languageDanishMenuItem);
         buildinLanguageMenuItemsList.add(languageDutchMenuItem);
         buildinLanguageMenuItemsList.add(languageEnglishMenuItem);
         buildinLanguageMenuItemsList.add(languageFrenchMenuItem);
@@ -104,6 +109,7 @@ public class LanguageGuiSupport {
         
         buildinLanguageMenuItemsMap = new HashMap();
         buildinLanguageMenuItemsMap.put("default", languageDefaultMenuItem);
+        buildinLanguageMenuItemsMap.put("da", languageDanishMenuItem);
         buildinLanguageMenuItemsMap.put("de", languageGermanMenuItem);
         buildinLanguageMenuItemsMap.put("en", languageEnglishMenuItem);
         buildinLanguageMenuItemsMap.put("nl", languageDutchMenuItem);
@@ -167,6 +173,7 @@ public class LanguageGuiSupport {
         languageMenu.add(languageDefaultMenuItem);
         languageMenu.addSeparator();
         languageMenu.add(languageBulgarianMenuItem);
+        languageMenu.add(languageDanishMenuItem);
         languageMenu.add(languageDutchMenuItem);
         languageMenu.add(languageEnglishMenuItem);
         languageMenu.add(languageFrenchMenuItem);
@@ -229,6 +236,7 @@ public class LanguageGuiSupport {
     
     public void translateLanguageMenu() {
         languageDefaultMenuItem.setText(language.getString("MainFrame.menu.language.default"));
+        languageDanishMenuItem.setText(language.getString("MainFrame.menu.language.danish"));
         languageDutchMenuItem.setText(language.getString("MainFrame.menu.language.dutch"));
         languageEnglishMenuItem.setText(language.getString("MainFrame.menu.language.english"));
         languageFrenchMenuItem.setText(language.getString("MainFrame.menu.language.french"));

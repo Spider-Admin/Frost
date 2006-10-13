@@ -170,7 +170,9 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
             String logInfo = null;
 
             try { // we don't want to die for any reason
-                
+
+                Mixed.waitRandom(3000); // don't hurt node
+
                 String downKey = composeDownKey(index, dirdate);
                 logInfo = " board="+board.getName()+", key="+downKey;
                 
@@ -179,8 +181,6 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
 
                 MessageDownloaderResult mdResult = MessageDownloader.downloadMessage(downKey, index, fastDownload, logInfo);
                 
-                Mixed.waitRandom(3000); // don't hurt node
-
                 if( mdResult == null ) {
                     // file not found
                     failures++;
