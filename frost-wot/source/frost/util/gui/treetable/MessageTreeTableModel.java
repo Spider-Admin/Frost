@@ -40,8 +40,10 @@ package frost.util.gui.treetable;
 import java.sql.*;
 import java.util.logging.*;
 
+import javax.swing.table.*;
 import javax.swing.tree.*;
 
+import frost.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;
 import frost.util.gui.translation.*;
@@ -75,6 +77,7 @@ public class MessageTreeTableModel extends DefaultTreeModel implements TreeTable
     public MessageTreeTableModel(TreeNode root) {
         super(root);
         language = Language.getInstance();
+        language.addLanguageListener(this);
         refreshLanguage();
     }
 
@@ -83,15 +86,23 @@ public class MessageTreeTableModel extends DefaultTreeModel implements TreeTable
     }
 
     private void refreshLanguage() {
-//        columnNames[0] = language.getString("MessagePane.messageTable.index");
         columnNames[0] = "!";
         columnNames[1] = "*";
         columnNames[2] = language.getString("MessagePane.messageTable.subject");
         columnNames[3] = language.getString("MessagePane.messageTable.from");
         columnNames[4] = language.getString("MessagePane.messageTable.sig");
         columnNames[5] = language.getString("MessagePane.messageTable.date");
-
-//        fireTableStructureChanged();
+        
+        try {
+            TableColumnModel tcm = MainFrame.getInstance().getMessagePanel().getMessageTable().getTableHeader().getColumnModel();
+            for(int x=0; x<tcm.getColumnCount(); x++) {
+                TableColumn tc = tcm.getColumn(x);
+                tc.setHeaderValue(columnNames[tc.getModelIndex()]);
+            }
+        } catch(NullPointerException e) {
+            // could occur during startup, ignore
+            // this code is intended to manually change the header strings if the language was changed
+        }
     }
 
     //

@@ -87,9 +87,6 @@ public abstract class AbstractTableFormat implements ModelTableFormat {
 		columnNames[index] = name; 
 	}
 	
-	/**
-	 * 
-	 */
 	protected synchronized void refreshColumnNames() {
 		if (tables != null) {
 			Iterator iterator = tables.iterator();
@@ -98,7 +95,7 @@ public abstract class AbstractTableFormat implements ModelTableFormat {
 				TableColumnModel columnModel = table.getColumnModel();
 				for (int i = 0; i < table.getColumnCount(); i++) {
 					TableColumn column = columnModel.getColumn(i);
-					column.setHeaderValue(columnNames[i]);					
+					column.setHeaderValue(columnNames[column.getModelIndex()]);					
 				};
 			}			
 		}	
