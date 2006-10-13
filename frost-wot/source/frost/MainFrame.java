@@ -662,6 +662,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         int msgCount = -1;
         int arcMsgCount = -1;
         int idCount = -1;
+        int sharerCount = -1;
         int fileCount = -1;
         long fileSizes = -1;
         
@@ -692,6 +693,12 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         }
 
         try {
+            sharerCount = AppLayerDatabase.getFileListDatabaseTable().getSharerCount();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error retrieving sharer count from db", e);
+        }
+
+        try {
             fileSizes = AppLayerDatabase.getFileListDatabaseTable().getFileSizes();
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error retrieving file sizes from db", e);
@@ -700,7 +707,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         deactivateGlassPane();
         
         StatisticsDialog dlg = new StatisticsDialog(this);
-        dlg.startDialog(msgCount, arcMsgCount, idCount, fileCount, fileSizes);
+        dlg.startDialog(msgCount, arcMsgCount, idCount, sharerCount, fileCount, fileSizes);
     }
 
     public MessagePanel getMessagePanel() {
