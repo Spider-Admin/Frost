@@ -84,6 +84,8 @@ public class DateFun {
         System.out.println(getVisibleExtendedDate());
         System.out.println(getExtendedTime());
         
+        System.out.println("---");
+        
         System.out.println("->"+getCurrentSqlDateGMT());
         System.out.println(getExtendedDateFromSqlDate(getCurrentSqlDateGMT()));
         
@@ -96,6 +98,13 @@ public class DateFun {
         
         System.out.println(getFullExtendedTime());
         
+        System.out.println("---");
+        
+        java.sql.Date sd = DateFun.getSqlDateOfCalendar(DateFun.getCalendarFromDate("2006.08.21"));
+        System.out.println(sd+" ; "+DateFun.getExtendedDateFromSqlDate(sd));
+        java.sql.Time st = DateFun.getSqlTimeFromString("12:13:14GMT");
+        System.out.println(st+" ; "+DateFun.getExtendedTimeFromSqlTime(st));
+
 //        System.out.println("-->"+getCurrentSqlDateGMT());
         
 //        long v = System.currentTimeMillis() / MILLIS_PER_DAY;
