@@ -40,6 +40,11 @@ public class DownloadManager {
 		}
 	}
     
+    public void save() throws StorageException {
+        getPanel().getTableFormat().saveTableLayout();
+        getModel().save();
+    }
+    
     public void addPanelToMainFrame(MainFrame mainFrame) {
         mainFrame.addPanel("MainFrame.tabbedPane.downloads", getPanel());
         mainFrame.addStatusPanel(getStatusPanel(), 0);

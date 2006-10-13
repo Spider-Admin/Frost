@@ -121,14 +121,6 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
 
         TableColumnModel columnModel = modelTable.getTable().getColumnModel();
 
-        if( !loadTableLayout(columnModel) ) {
-            // Sets the relative widths of the columns
-            int[] widths = { 150, 80, 20, 80, 80, 55, 55 };
-            for (int i = 0; i < widths.length; i++) {
-                columnModel.getColumn(i).setPreferredWidth(widths[i]);
-            }
-        }
-        
         ShowContentTooltipRenderer showContentTooltipRenderer = new ShowContentTooltipRenderer();
         
         columnModel.getColumn(0).setCellRenderer(showContentTooltipRenderer); // filename
@@ -136,6 +128,14 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
         
         columnModel.getColumn(3).setCellRenderer(showContentTooltipRenderer); // comment
         columnModel.getColumn(4).setCellRenderer(showContentTooltipRenderer); // keywords
+
+        if( !loadTableLayout(columnModel) ) {
+            // Sets the relative widths of the columns
+            int[] widths = { 150, 80, 20, 80, 80, 55, 55 };
+            for (int i = 0; i < widths.length; i++) {
+                columnModel.getColumn(i).setPreferredWidth(widths[i]);
+            }
+        }
     }
     
     public void saveTableLayout(ModelTable modelTable) {

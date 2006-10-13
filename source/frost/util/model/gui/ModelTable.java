@@ -465,5 +465,8 @@ public class ModelTable extends AbstractTableModel {
 		Integer index = (Integer) visibleColumns.get(modelColumnIndex);
 		return index.intValue();
 	}
-
+    
+    public ModelTableFormat getTableFormat() {
+        return tableFormat;
+    }
 }

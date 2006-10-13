@@ -62,6 +62,10 @@ public class UploadPanel extends JPanel {
         language = Language.getInstance();
         language.addLanguageListener(listener);
     }
+    
+    public UploadTableFormat getTableFormat() {
+        return (UploadTableFormat) modelTable.getTableFormat();
+    }
 
     public void initialize() {
         if (!initialized) {

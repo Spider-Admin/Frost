@@ -391,14 +391,11 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
     public void customizeTable(ModelTable lModelTable) {
         super.customizeTable(lModelTable);
 
+        modelTable = (SortedModelTable) lModelTable;
+
         lModelTable.getTable().setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
 
-        // Sets the relative widths of the columns
         TableColumnModel columnModel = lModelTable.getTable().getColumnModel();
-        int[] widths = { 20, 20, 250, 65, 30, 60, 15, 70 };
-        for (int i = 0; i < widths.length; i++) {
-            columnModel.getColumn(i).setPreferredWidth(widths[i]);
-        }
 
         // Column "Enabled"
         columnModel.getColumn(0).setCellRenderer(BooleanCell.RENDERER);
@@ -424,9 +421,76 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
         columnModel.getColumn(5).setCellRenderer(showContentTooltipRenderer); // path
         columnModel.getColumn(6).setCellRenderer(numberRightRenderer); // tries
         columnModel.getColumn(7).setCellRenderer(showContentTooltipRenderer); // key
-        
-        modelTable = (SortedModelTable) lModelTable;
+
+        if( !loadTableLayout(columnModel) ) {
+            // Sets the relative widths of the columns
+            int[] widths = { 20, 20, 250, 65, 30, 60, 15, 70 };
+            for (int i = 0; i < widths.length; i++) {
+                columnModel.getColumn(i).setPreferredWidth(widths[i]);
+            }
+        }
     }
+    
+    public void saveTableLayout() {
+        TableColumnModel tcm = modelTable.getTable().getColumnModel();
+        for(int columnIndexInTable=0; columnIndexInTable < tcm.getColumnCount(); columnIndexInTable++) {
+            TableColumn tc = tcm.getColumn(columnIndexInTable);
+            int columnIndexInModel = tc.getModelIndex();
+            // save the current index in table for column with the fix index in model
+            Core.frostSettings.setValue("UploadTable.tableindex.modelcolumn."+columnIndexInModel, columnIndexInTable);
+            // save the current width of the column
+            int columnWidth = tc.getWidth();
+            Core.frostSettings.setValue("UploadTable.columnwidth.modelcolumn."+columnIndexInModel, columnWidth);
+        }
+    }
+    
+    private boolean loadTableLayout(TableColumnModel tcm) {
+        
+        // load the saved tableindex for each column in model, and its saved width
+        int[] tableToModelIndex = new int[tcm.getColumnCount()];
+        int[] columnWidths = new int[tcm.getColumnCount()];
+
+        for(int x=0; x < tableToModelIndex.length; x++) {
+            String indexKey = "UploadTable.tableindex.modelcolumn."+x;
+            if( Core.frostSettings.getObjectValue(indexKey) == null ) {
+                return false; // column not found, abort
+            }
+            // build array of table to model associations
+            int tableIndex = Core.frostSettings.getIntValue(indexKey);
+            if( tableIndex < 0 || tableIndex >= tableToModelIndex.length ) {
+                return false; // invalid table index value
+            }
+            tableToModelIndex[tableIndex] = x;
+
+            String widthKey = "UploadTable.columnwidth.modelcolumn."+x;
+            if( Core.frostSettings.getObjectValue(widthKey) == null ) {
+                return false; // column not found, abort
+            }
+            // build array of table to model associations
+            int columnWidth = Core.frostSettings.getIntValue(widthKey);
+            if( columnWidth <= 0 ) {
+                return false; // invalid column width
+            }
+            columnWidths[x] = columnWidth;
+        }
+        // columns are currently added in model order, remove them all and save in an array
+        // while on it, set the loaded width of each column
+        TableColumn[] tcms = new TableColumn[tcm.getColumnCount()];
+        for(int x=tcms.length-1; x >= 0; x--) {
+            tcms[x] = tcm.getColumn(x);
+            tcm.removeColumn(tcms[x]);
+            // keep icon columns 0,1 as is
+            if(x != 0 && x != 1) {
+                tcms[x].setPreferredWidth(columnWidths[x]);
+            }
+        }
+        // add the columns in order loaded from settings
+        for(int x=0; x < tableToModelIndex.length; x++) {
+            tcm.addColumn(tcms[tableToModelIndex[x]]);
+        }
+        return true;
+    }
+
 
     public int[] getColumnNumbers(int fieldID) {
         return new int[] {};

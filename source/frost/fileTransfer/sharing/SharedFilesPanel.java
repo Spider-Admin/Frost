@@ -55,7 +55,7 @@ public class SharedFilesPanel extends JPanel {
     private SortedModelTable modelTable;
 
     private boolean initialized = false;
-
+    
     public SharedFilesPanel() {
         super();
 
@@ -93,6 +93,10 @@ public class SharedFilesPanel extends JPanel {
 
             initialized = true;
         }
+    }
+    
+    public SharedFilesTableFormat getTableFormat() {
+        return (SharedFilesTableFormat) modelTable.getTableFormat();
     }
 
     public void setAddFilesButtonEnabled(boolean enabled) {

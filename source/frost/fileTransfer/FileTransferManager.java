@@ -136,9 +136,9 @@ public class FileTransferManager implements Savable {
     }
 
     public void save() throws StorageException {
-        getDownloadManager().getModel().save();
-        getUploadManager().getModel().save();
-        getSharedFilesManager().getModel().save();
+        getDownloadManager().save();
+        getUploadManager().save();
+        getSharedFilesManager().save();
         getNewUploadFilesManager().save();
     }
 }

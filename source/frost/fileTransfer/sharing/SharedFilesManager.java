@@ -36,6 +36,11 @@ public class SharedFilesManager implements PropertyChangeListener {
         getPanel();
         getModel().initialize();
     }
+    
+    public void save() throws StorageException {
+        getPanel().getTableFormat().saveTableLayout();
+        getModel().save();
+    }
 
     public void addPanelToMainFrame(MainFrame mainFrame) {
         mainFrame.addPanel("MainFrame.tabbedPane.sharing", getPanel());
