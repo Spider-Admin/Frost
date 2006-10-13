@@ -25,6 +25,7 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.table.*;
 
+import frost.*;
 import frost.gui.*;
 import frost.util.*;
 import frost.util.gui.translation.*;
@@ -41,6 +42,8 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
     private String unknown;
     
     NumberFormat numberFormat = NumberFormat.getInstance();
+    
+    SortedModelTable modelTable;
 
     public SharedFilesTableFormat() {
         super(COLUMN_COUNT);
@@ -146,17 +149,14 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
         }
     }
 
-    public void customizeTable(ModelTable modelTable) {
-        super.customizeTable(modelTable);
+    public void customizeTable(ModelTable lModelTable) {
+        super.customizeTable(lModelTable);
+        
+        modelTable = (SortedModelTable) lModelTable;
 
-        modelTable.getTable().setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
+        lModelTable.getTable().setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
 
-        //Sets the relative widths of the columns
-        TableColumnModel columnModel = modelTable.getTable().getColumnModel();
-        int[] widths = { 150, 65, 80, 40, 60, 40, 60, 80, 30, 50, 50, 60, 50 };
-        for (int i = 0; i < widths.length; i++) {
-            columnModel.getColumn(i).setPreferredWidth(widths[i]);
-        }
+        TableColumnModel columnModel = lModelTable.getTable().getColumnModel();
 
         ShowContentTooltipRenderer showContentTooltipRenderer = new ShowContentTooltipRenderer();
         RightAlignRenderer numberRightRenderer = new RightAlignRenderer();
@@ -174,6 +174,71 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
         columnModel.getColumn(10).setCellRenderer(showContentTooltipRenderer); // keywords
 //        columnModel.getColumn(11).setCellRenderer(showContentTooltipRenderer); // lastShared
         columnModel.getColumn(12).setCellRenderer(showContentTooltipRenderer); // path
+        
+        if( !loadTableLayout(columnModel) ) {
+            //Sets the relative widths of the columns
+            int[] widths = { 150, 65, 80, 40, 60, 40, 60, 80, 30, 50, 50, 60, 50 };
+            for (int i = 0; i < widths.length; i++) {
+                columnModel.getColumn(i).setPreferredWidth(widths[i]);
+            }
+        }
+    }
+    
+    public void saveTableLayout() {
+        TableColumnModel tcm = modelTable.getTable().getColumnModel();
+        for(int columnIndexInTable=0; columnIndexInTable < tcm.getColumnCount(); columnIndexInTable++) {
+            TableColumn tc = tcm.getColumn(columnIndexInTable);
+            int columnIndexInModel = tc.getModelIndex();
+            // save the current index in table for column with the fix index in model
+            Core.frostSettings.setValue("SharedFilesTable.tableindex.modelcolumn."+columnIndexInModel, columnIndexInTable);
+            // save the current width of the column
+            int columnWidth = tc.getWidth();
+            Core.frostSettings.setValue("SharedFilesTable.columnwidth.modelcolumn."+columnIndexInModel, columnWidth);
+        }
+    }
+    
+    private boolean loadTableLayout(TableColumnModel tcm) {
+        
+        // load the saved tableindex for each column in model, and its saved width
+        int[] tableToModelIndex = new int[tcm.getColumnCount()];
+        int[] columnWidths = new int[tcm.getColumnCount()];
+
+        for(int x=0; x < tableToModelIndex.length; x++) {
+            String indexKey = "SharedFilesTable.tableindex.modelcolumn."+x;
+            if( Core.frostSettings.getObjectValue(indexKey) == null ) {
+                return false; // column not found, abort
+            }
+            // build array of table to model associations
+            int tableIndex = Core.frostSettings.getIntValue(indexKey);
+            if( tableIndex < 0 || tableIndex >= tableToModelIndex.length ) {
+                return false; // invalid table index value
+            }
+            tableToModelIndex[tableIndex] = x;
+
+            String widthKey = "SharedFilesTable.columnwidth.modelcolumn."+x;
+            if( Core.frostSettings.getObjectValue(widthKey) == null ) {
+                return false; // column not found, abort
+            }
+            // build array of table to model associations
+            int columnWidth = Core.frostSettings.getIntValue(widthKey);
+            if( columnWidth <= 0 ) {
+                return false; // invalid column width
+            }
+            columnWidths[x] = columnWidth;
+        }
+        // columns are currently added in model order, remove them all and save in an array
+        // while on it, set the loaded width of each column
+        TableColumn[] tcms = new TableColumn[tcm.getColumnCount()];
+        for(int x=tcms.length-1; x >= 0; x--) {
+            tcms[x] = tcm.getColumn(x);
+            tcm.removeColumn(tcms[x]);
+            tcms[x].setPreferredWidth(columnWidths[x]);
+        }
+        // add the columns in order loaded from settings
+        for(int x=0; x < tableToModelIndex.length; x++) {
+            tcm.addColumn(tcms[tableToModelIndex[x]]);
+        }
+        return true;
     }
 
     public int[] getColumnNumbers(int fieldID) {

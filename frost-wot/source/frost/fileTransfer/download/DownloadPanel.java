@@ -70,6 +70,10 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		language.addLanguageListener(listener);
 	}
     
+    public DownloadTableFormat getTableFormat() {
+        return (DownloadTableFormat) modelTable.getTableFormat();
+    }
+    
     /** 
      * This Document changes all newlines in the text into semicolons.
      * Needed if the user pastes multiple download keys, each on a line,
