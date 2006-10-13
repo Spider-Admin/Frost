@@ -402,7 +402,7 @@ public class MessageDownloader {
             }
             
             // update lastSeen for this Identity
-            owner.updateLastSeenTimestamp(System.currentTimeMillis()); // TODO: we should set the time from message!
+            owner.updateLastSeenTimestamp(System.currentTimeMillis()); // FIXME: we should set the time from message!
 
             currentMsg.setSignatureStatusVERIFIED();
             mdResult.message = currentMsg;

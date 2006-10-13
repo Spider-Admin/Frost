@@ -185,6 +185,7 @@ public class Language {
         if( buildInLocales == null ) {
             ArrayList lst = new ArrayList();
             lst.add(new Locale("bg"));
+            lst.add(new Locale("da"));
             lst.add(new Locale("de"));
             lst.add(new Locale("en"));
             lst.add(new Locale("es"));
