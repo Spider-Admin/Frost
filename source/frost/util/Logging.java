@@ -87,9 +87,11 @@ public class Logging {
         LogManager logManager = LogManager.getLogManager();
         rootLogger = logManager.getLogger("");
         //We remove the console handler that is used by default
-        Handler[] handlers = rootLogger.getHandlers();
-        for (int i = 0; i < handlers.length; i++) {
-            rootLogger.removeHandler(handlers[i]);
+        if (!frostSettings.getBoolValue(SettingsClass.LOG_TO_CONSOLE)) {
+        	Handler[] handlers = rootLogger.getHandlers();
+        	for (int i = 0; i < handlers.length; i++) {
+        		rootLogger.removeHandler(handlers[i]);
+        	}
         }
 
         Runtime.getRuntime().addShutdownHook(new ShutdownHook());
