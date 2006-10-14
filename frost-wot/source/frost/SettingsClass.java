@@ -51,6 +51,7 @@ public class SettingsClass implements Savable {
     public static final String DOWNLOADING_ACTIVATED = "downloadingActivated";
     public static final String LOG_FILE_SIZE_LIMIT = "logFileSizeLimit";
     public static final String LOG_LEVEL = "logLevel";
+    public static final String LOG_TO_CONSOLE = "logToConsole";
     public static final String LOG_TO_FILE = "logToFile";
     public static final String FILE_LIST_FONT_NAME = "fileListFontName";
     public static final String FILE_LIST_FONT_SIZE = "fileListFontSize";
@@ -690,6 +691,8 @@ public class SettingsClass implements Savable {
         defaults.put(MSGTABLE_SCROLL_HORIZONTAL, "false");
         
         defaults.put(SHOW_BOARDDESC_TOOLTIPS, "true");
+
+        defaults.put(LOG_TO_CONSOLE, "false");
 
         defaults.put(LOG_TO_FILE, "true");
         defaults.put(LOG_LEVEL, Logging.DEFAULT);
