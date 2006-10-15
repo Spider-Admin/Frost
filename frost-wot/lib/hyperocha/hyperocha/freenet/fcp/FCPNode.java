@@ -24,12 +24,15 @@ package hyperocha.freenet.fcp;
 import hyperocha.freenet.fcp.io.FCPIOConnectionErrorHandler;
 import hyperocha.freenet.fcp.utils.FCPTests;
 import hyperocha.freenet.fcp.utils.FCPUtil;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
+
+import javax.swing.SwingUtilities;
 
 
 /**
@@ -42,14 +45,19 @@ public class FCPNode {
 	private FCPIOConnectionErrorHandler ioErrorHandler = null;
 	private FCPNodeConfig nodeConfig;
 	private FCPNodeStatus nodeStatus;
-    private FCPConnection defaultConn = null;
+    private volatile FCPConnection defaultConn = null;
     
-	private IIncomming callback = null;
+    private IIncomming callBack = null;
     
     private Exception lastError = null;
     
     public FCPNode(FCPNodeConfig nodeconfig) {
+    	this(nodeconfig, null);
+    }
+    
+    public FCPNode(FCPNodeConfig nodeconfig, IIncomming callback) {
     	this.nodeConfig = nodeconfig;
+    	this.callBack = callback;
     }
     
      /**
@@ -113,8 +121,14 @@ public class FCPNode {
 	
 	public FCPConnection getDefaultFCPConnection() {
 		if (defaultConn == null) {
-			defaultConn = getNewFCPConnection(nodeConfig.getID());
+			defaultConn = getNewFCPConnection(callBack, nodeConfig.getID());
+			SwingUtilities.invokeLater(new Runnable() {
+	            public void run() {
+	            	defaultConn.startMonitor(callBack);
+	            }
+	        });
 		}
+		System.out.println("getDefaultFCPConnection" + defaultConn);
 		return defaultConn;
 	}
 	
@@ -138,12 +152,16 @@ public class FCPNode {
 	}
 	
 	
-	public FCPConnection getNewFCPConnection(String id) {
-		return new FCPConnection(this, id);
+	public FCPConnection getNewFCPConnection() {
+		return new FCPConnection(this, null);
 	}
 	
-	public FCPConnection getNewFCPConnection(String id, boolean prefix, int tries) {
-		return new FCPConnection(this, id, prefix, tries);
+	public FCPConnection getNewFCPConnection(IIncomming callback, String id) {
+		return new FCPConnection(this, callback, id);
+	}
+	
+	public FCPConnection getNewFCPConnection(IIncomming callback, String id, boolean prefix, int tries) {
+		return new FCPConnection(this, callback, id, prefix, tries);
 	}
 
 	public boolean performNodeTest(FCPNodeConfig config) {
@@ -175,7 +193,7 @@ public class FCPNode {
 //		boolean repeat = true;
 		Hashtable result = null;
 		//try { 
-			conn = getNewFCPConnection(null);
+			conn = getNewFCPConnection(null, null);
 			conn.start(cmd);
 			result = conn.readEndMessage();
 //    	} catch (Throwable ex) {
@@ -259,7 +277,7 @@ public class FCPNode {
 		boolean repeat = true;
 		Hashtable result = null;
 		try { 
-			conn = getNewFCPConnection("");
+			conn = getNewFCPConnection(null, "");
 			conn.start(cmd);
 			
 			while (repeat) {

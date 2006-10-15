@@ -3,6 +3,8 @@
  */
 package frost.hyperocha;
 
+import java.io.File;
+
 import frost.Core;
 import hyperocha.freenet.fcp.dispatcher.job.Job;
 
@@ -15,7 +17,7 @@ public class FrostCHKFileInsertJob extends Job {
 	/**
 	 * @param requirednetworktype
 	 */
-	public FrostCHKFileInsertJob() {
+	public FrostCHKFileInsertJob(File insertfile) {
 		super(Core.getFcpVersion(), FHUtil.getNextJobID());
 		// TODO Auto-generated constructor stub
 	}
@@ -24,7 +26,7 @@ public class FrostCHKFileInsertJob extends Job {
 	 * @see hyperocha.freenet.fcp.dispatcher.job.Job#doPrepare()
 	 */
 	public boolean doPrepare() {
-		// TODO Auto-generated method stub
+		// TODO test if file is ok
 		return false;
 	}
 

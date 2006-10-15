@@ -21,15 +21,15 @@
 package hyperocha.freenet.fcp.dispatcher;
 
 
+import hyperocha.freenet.fcp.FCPConnection;
+import hyperocha.freenet.fcp.Network;
+import hyperocha.util.IStorageObject;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
-
-import hyperocha.freenet.fcp.FCPConnection;
-import hyperocha.freenet.fcp.Network;
-import hyperocha.util.IStorageObject;
 
 /**
  * @author sa
@@ -56,7 +56,7 @@ public class Factory implements IStorageObject {
 //		}
 //	}
 	
-	private Balancer balancer;
+	//private Balancer balancer;
 	
 	public Factory() {
 		networks = new Hashtable();
