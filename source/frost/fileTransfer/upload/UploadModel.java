@@ -148,7 +148,10 @@ public class UploadModel extends OrderedModel implements Savable {
             // Since it is difficult to identify the states where we are allowed to
             // start an upload we decide based on the states in which we are not allowed
             // start gen chk only if IDLE
-            if (ulItem.getState() == FrostUploadItem.STATE_WAITING && ulItem.getKey() == null) {
+            if ( (ulItem.getState() == FrostUploadItem.STATE_WAITING 
+                    || ulItem.getState() == FrostUploadItem.STATE_FAILED)
+                 && ulItem.getKey() == null) 
+            {
                 ulItem.setState(FrostUploadItem.STATE_ENCODING_REQUESTED);
             }
         }
