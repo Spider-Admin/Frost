@@ -499,7 +499,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
             "primkey,messageid,inreplyto,msgdatetime,msgindex,fromname,subject,recipient," +
             "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
             "hasfileattachment,hasboardattachment,idlinepos,idlinelen";
-            sql += " FROM "+getMessageTableName()+" WHERE msgdatetime>=? AND msgdatetime<=? AND board=? AND isvalid=TRUE AND isdeleted=?";
+            sql += " FROM "+getMessageTableName()+" WHERE msgdatetime>=? AND msgdatetime<? AND board=? AND isvalid=TRUE AND isdeleted=?";
         PreparedStatement ps = db.prepare(sql);
         
         ps.setLong(1, startDate);
