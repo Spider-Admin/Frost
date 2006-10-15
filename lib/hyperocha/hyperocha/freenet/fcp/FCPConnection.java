@@ -23,10 +23,13 @@ package hyperocha.freenet.fcp;
 import hyperocha.freenet.fcp.io.FCPIOConnection;
 import hyperocha.freenet.fcp.io.FCPIOConnectionErrorHandler;
 import hyperocha.freenet.fcp.utils.FCPUtil;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.List;
 
 
 /**
@@ -44,7 +47,7 @@ public class FCPConnection {
 	private FCPIOConnectionErrorHandler rawErrH = null; 
 	private String connectionID = null;
 	
-	//private IIncomming callBack = null;
+	private IIncomming callBack = null;
 
 	/**
 	 * geek constructor
@@ -55,8 +58,9 @@ public class FCPConnection {
 	 * @param node
 	 * @param errh Error handler. buildin if null. 
 	 */
-	public FCPConnection(FCPNode node, FCPIOConnectionErrorHandler ioErrH) {
+	private FCPConnection(FCPNode node, IIncomming callback, FCPIOConnectionErrorHandler ioErrH) {
 		//this(node, node.timeOut, errh);
+		callBack = callback;
 		if (ioErrH == null) {
 			rawErrH = new IOErrorHandler();
 		} else {
@@ -74,8 +78,8 @@ public class FCPConnection {
 	 * @param node
 	 * @param errh
 	 */
-	public FCPConnection(FCPNode node) {
-		this(node, CONNECTIONIDPREFIX, true, 3);
+	public FCPConnection(FCPNode node, IIncomming callback) {
+		this(node, callback, CONNECTIONIDPREFIX, true, 3);
 	}
 	
 	/**
@@ -87,8 +91,8 @@ public class FCPConnection {
 	 * @param node
 	 * @param errh
 	 */
-	public FCPConnection(FCPNode node, String id) {
-		this(node, id, false, 1);
+	public FCPConnection(FCPNode node, IIncomming callback, String id) {
+		this(node, callback, id, false, 1);
 	}
 	
 	/**
@@ -102,13 +106,14 @@ public class FCPConnection {
 	 * @param prefix if true, a timstamp will be added <id>-<unixepoch>
 	 * @param attempts how many tries?
 	 */
-	public FCPConnection(FCPNode node, String id, boolean prefix, int attempts) {
-		this(node, (FCPIOConnectionErrorHandler)null);
+	public FCPConnection(FCPNode node, IIncomming callback, String id, boolean prefix, int attempts) {
+		this(node, callback, (FCPIOConnectionErrorHandler)null);
 		
 		if (prefix) {
 			connectionID = FCPUtil.getNewConnectionId(id);
 		} else {
-			connectionID = id;			
+			connectionID = id;	
+			if (id == null) { throw new Error("sss"); }
 		}
 		
 		int nt = node.getNetworkType();
@@ -300,29 +305,33 @@ public class FCPConnection {
 	 * message
 	 * @return message
 	 */
-	public void monitor(IIncomming callback) {
+	public void startMonitor(IIncomming callback) {
 
 		Hashtable result = null;
 		String tmp;
 		boolean isfirstline = true;
 		
 		while(rawConn.isOpen()) {
-			result = new Hashtable();
+			if (isfirstline) {
+				System.out.println("TestiPipi: FirstLine!");
+				result = new Hashtable(); 
+			}
             tmp = rawConn.readLine();
+            //System.out.println("TestiPipi (" + tmp.length() + "): " + tmp);
             if (tmp == null) { break; }  // this indicates an error, io connection closed
             if ((tmp.trim()).length() == 0) { continue; } // a empty line
 
             if (tmp.compareTo("Data") == 0) {
             	callback.incommingData(this, result);
             	isfirstline = true;
-                break; 
+                continue; 
             }
 
             if (tmp.compareTo("EndMessage") == 0) {
             	result.put(ENDMESSAGE, tmp);
             	callback.incommingMessage(this, result);
             	isfirstline = true;
-                break; 
+                continue; 
             }
             
             if (isfirstline) {
@@ -340,6 +349,7 @@ public class FCPConnection {
             	throw new Error("www");  // TODO
             }
         } 
+		//throw new Error("www"); 
 	}
 	
 	public void handleIt(String s) throws IOException {
@@ -354,7 +364,7 @@ public class FCPConnection {
 		result = helo(FCPUtil.getNewConnectionId(connectionid));
 		//FCPUtil.getNewConnectionId("hyperocha-")
 		// FIXME: repeat loop here and return id 
-		//System.out.println(result);
+		System.out.println("fcp2Hello: " + result);
 		return null;
 	}
 	

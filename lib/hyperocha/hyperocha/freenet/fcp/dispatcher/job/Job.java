@@ -1,17 +1,38 @@
 /**
+ *   This file is part of JHyperochaFCPLib.
+ *   
+ *   Copyright (C) 2006  Hyperocha Project <saces@users.sourceforge.net>
+ * 
+ * JHyperochaFCPLib is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * JHyperochaFCPLib is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with JHyperochaFCPLib; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  * 
  */
 package hyperocha.freenet.fcp.dispatcher.job;
 
+import hyperocha.freenet.fcp.FCPConnection;
+import hyperocha.freenet.fcp.IIncomming;
 import hyperocha.freenet.fcp.Network;
 import hyperocha.freenet.fcp.dispatcher.Dispatcher;
+
+import java.util.Hashtable;
 
 /**
  * a job
  * 
  *
  */
-public abstract class Job {
+public abstract class Job implements IIncomming {
 	private static final int STATUS_ERROR = -1;
 	public static final int STATUS_UNPREPARED = 0;
 	public static final int STATUS_PREPARED = 1;
@@ -26,11 +47,15 @@ public abstract class Job {
 	private Exception lastError = null;
 	
 	private String jobID = null;  // = identifer on fcp 2
-	private String clientToken = "clientToken";
+	private String clientToken = "hyperochaclienttoken";
+	
+	
+	private final Object waitObject = new Object();
 	
 	//private PriorityClass priorityClass = null;
 	
 	protected Job(int requirednetworktype, String id) {
+		if (id == null) { throw new Error("Hmmmm"); }
 		requiredNetworkType = requirednetworktype;
 		jobID = id;
 		status = STATUS_UNPREPARED;
@@ -54,6 +79,15 @@ public abstract class Job {
 	protected void setError(String description) {
 		lastError = new Exception(description);
 		status = STATUS_ERROR;
+	}
+	
+	protected void setSuccess() {
+		//lastError = new Exception(description);
+//		status = STATUS_DONE;
+		synchronized(waitObject) {
+			status = STATUS_DONE;
+			waitObject.notify();
+		}
 	}
 	
 	public int getStatus() {
@@ -107,9 +141,8 @@ public abstract class Job {
 		status = STATUS_STOPPING;
 	}
 
-	
-	public abstract boolean doPrepare();
-
+	public abstract boolean doPrepare(); 
+		
 //	public abstract void cancel();
 //	public abstract void suspend();
 //	public abstract void resume();
@@ -122,6 +155,19 @@ public abstract class Job {
 	public boolean isSuccess() {
 		return ((status == STATUS_DONE) && (lastError == null));
 	}
+	
+	public void waitFine () {
+		synchronized(waitObject) {
+			while ((status == STATUS_RUNNING) && (lastError == null)) {
+				try {
+					waitObject.wait();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}		
+			}
+		}
+	}
 
 	/**
 	 * @return the jobID
@@ -132,5 +178,16 @@ public abstract class Job {
 	
 	protected String getClientToken() {
 		return clientToken;
+	}
+	
+	public void incommingData(FCPConnection conn, Hashtable message) {
+		// TODO Auto-generated method stub
+		throw new Error("Ha!");
+		
+	}
+
+	public void incommingMessage(FCPConnection conn, Hashtable message) {
+		// TODO Auto-generated method stub
+		throw new Error("Hu!");
 	}
 }

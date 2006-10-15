@@ -20,8 +20,6 @@
  */
 package hyperocha.freenet.fcp;
 
-import hyperocha.freenet.fcp.FCPNode;
-import hyperocha.freenet.fcp.FCPNodeConfig;
 import hyperocha.util.IStorageObject;
 
 import java.io.DataInputStream;
@@ -49,10 +47,11 @@ public class Network implements IStorageObject {
 	private String networkID;
 	
 //	private Hashtable confList;  // liste der knoetchen-confs
-	private Hashtable nodeList;  // liste der knoetchen 
+	private Hashtable nodeList = new Hashtable();  // liste der knoetchen 
 	
 	private Random random = new Random();
-
+	
+	
 	public Network(DataInputStream dis) {
 		loadData(dis); 
 	}
@@ -68,28 +67,28 @@ public class Network implements IStorageObject {
 	 * 
 	 */
 	public Network(int networktype, String id) {
-		this(networktype, id, null);
+		networkType = networktype;
+		networkID = id;
 	}
 	
 	/**
 	 * nodelist: eine liste mit strings, jeder string "server:port" fuer jeden server
 	 */
-	public Network(int networktype, String id, List nodelist ) {
-		networkType = networktype;
-		networkID = id;
+	public Network(int networktype, String id, List nodelist, IIncomming callback) {
+		this(networktype, id);
 //		confList = new Hashtable();
-		nodeList = new Hashtable();
+//		nodeList = new Hashtable();
 		if (nodelist == null) {
 			switch (networkType) {
-				case FCP1: addNode("<default fcp1>", "127.0.0.1:8481"); break;  
-				case FCP2: addNode("<default fcp2>", "127.0.0.1:9481"); break; 
+				case FCP1: addNode("<default fcp1>", "127.0.0.1:8481", callback); break;  
+				case FCP2: addNode("<default fcp2>", "127.0.0.1:9481", callback); break; 
 				default :	throw new Error("Unsopported network type: " + networkType); 
 			}
 		} else {
 			int i;
 			for (i = 0; i < nodelist.size(); i++) {
 				//System.err.println("HTEST: " + (String)(nodelist.get(i)));
-                addNode(id+"-<"+i+">", (String)(nodelist.get(i)));
+                addNode(id+"-<"+i+">", (String)(nodelist.get(i)), callback);
             }
 		}
 	}
@@ -149,10 +148,10 @@ public class Network implements IStorageObject {
 		nodeList.put(node.getID(), node);
 	}
 	
-	private void addNode(String id, String serverport) {
+	private void addNode(String id, String serverport, IIncomming callback) {
 		//System.err.println("HTEST 001:" + serverport);
 		FCPNodeConfig conf = new FCPNodeConfig(networkType, id, serverport);
-		FCPNode node = new FCPNode(conf);
+		FCPNode node = new FCPNode(conf, callback);
 		addNode(node);
 	}
 	
@@ -227,7 +226,7 @@ public class Network implements IStorageObject {
 	}
 	
 	public FCPConnection getNewFCPConnection() {
-		return getNextNode().getNewFCPConnection(null);
+		return getNextNode().getNewFCPConnection();
 	}
 	
 	public FCPConnection getDefaultFCPConnection() {
@@ -246,7 +245,8 @@ public class Network implements IStorageObject {
 		//return null;
 	}
 	
-	private FCPNode getNextRandomNode() {
+	private synchronized FCPNode getNextRandomNode() {
+		//System.err.println("XxX");
 		int size = nodeList.size();
 		FCPNode node = null;
 		Collection keys = nodeList.values();

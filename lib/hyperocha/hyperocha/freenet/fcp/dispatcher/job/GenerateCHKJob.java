@@ -3,9 +3,9 @@
  */
 package hyperocha.freenet.fcp.dispatcher.job;
 
-import java.io.File;
-
 import hyperocha.freenet.fcp.FreenetKey;
+
+import java.io.File;
 
 
 /**

@@ -72,11 +72,11 @@ public class FCPIOConnection {
     	}
     }
     
-    public /*synchronized*/ boolean open() {
+    public boolean open() {
     	return open("UTF-8");
     }
     
-    public /*synchronized*/ boolean open(String charset) {
+    public boolean open(String charset) {
     	try {
 			fcpSock = node.createSocket();
 			//fcpSock.setSoTimeout(to);
@@ -90,7 +90,7 @@ public class FCPIOConnection {
 		return true;
     }
     
-	public synchronized void close() {
+	public void close() {
         try {
         	fcpOut.close();
 			fcpIn.close();
@@ -103,9 +103,12 @@ public class FCPIOConnection {
 		fcpOut = null;
 		fcpIn = null;
         fcpSock = null;
+        throw new Error("Hu? close?");
 	}
 	
 	public boolean isOpen() {
+		if (fcpSock.isClosed()) throw new Error("Sock closed");
+		if (!fcpSock.isConnected()) throw new Error("not Connected");
 		return isopen;
 	}
 	
@@ -114,7 +117,7 @@ public class FCPIOConnection {
 	}
 
 	protected boolean setTimeOut(int to) {
-		if (!isopen) return false;
+		if (!isOpen()) return false;
 		try {
 			fcpSock.setSoTimeout(to);
 		} catch (SocketException e) {
@@ -125,7 +128,7 @@ public class FCPIOConnection {
 	}
 	
 	public boolean write(byte[] b, int off, int len) {
-		if (!isopen) return false;
+		if (!isOpen()) return false;
 		try {
 			fcpOut.write(b, off, len);
 		} catch (Exception e) {
@@ -136,7 +139,7 @@ public class FCPIOConnection {
 	}
 	
 	public boolean write(int i) {
-		if (!isopen) return false;
+		if (!isOpen()) return false;
 		try {
 			fcpOut.write(i);
 		} catch (Exception e) {
@@ -147,7 +150,7 @@ public class FCPIOConnection {
 	}
 	
 	public boolean println(String s) {
-		if (!isopen) return false;
+		if (!isOpen()) return false;
 		try {
 			fcpOut.println(s);
 		} catch (Exception e) {
@@ -158,7 +161,7 @@ public class FCPIOConnection {
 	}
 	
 	public boolean print(String s) {
-		if (!isopen) return false;
+		if (!isOpen()) return false;
 		try {
 			fcpOut.print(s);
 		} catch (Exception e) {
@@ -170,26 +173,37 @@ public class FCPIOConnection {
 
 	
 	public String readLine() {
-		if (!isopen) return null;
+//		System.out.println("readLine: Start");
+		if (!isOpen()) {
+//			System.out.println("readLine: not open");
+			return null;
+		}
 		String result = null;
 		int b;
 		byte[] bytes = new byte[1024];  // a key and a funny dir/filename in a ssk site, 256 is verry knapp
 		int count = 0;
+//		System.out.println("readLine: 003");
 		try {
 			while ((b = fcpIn.read()) != '\n' && b != -1 && count < 1024 && (b != '\0')) {
+				//System.out.println("readLine: read:" + b);
 				bytes[count] = (byte) b;
 				count++;
 			}
+			if (count == 0) {
+//				System.out.println("readLine: nix gelesen");
+				return null;
+			}
 			result = new String(bytes, 0, count, "UTF-8");
 		} catch (Exception e) {
+			e.printStackTrace();
 			handleIOError(e);
 			return null;
 		}
 		return result;
 	}
 	
-	public /*synchronized*/ boolean startRaw(FCPIOConnectionHandler h) {
-		if (!isopen) return false;
+	public boolean startRaw(FCPIOConnectionHandler h) {
+		if (!isOpen()) return false;
 		int i = -1;
 		do {
 			//conn.startRaw(this);
@@ -207,7 +221,7 @@ public class FCPIOConnection {
 	}
 
 	public boolean flush() {
-		if (!isopen) return false;
+		if (!isOpen()) return false;
 		try {
 			fcpOut.flush();
 		} catch (Exception e) {
@@ -218,7 +232,7 @@ public class FCPIOConnection {
 	}
 
 	public int read() {
-		if (!isopen) return -1;
+		if (!isOpen()) return -1;
 		int i;
 		try {
 			//System.err.println("TEST IO READ 03");

@@ -19,18 +19,17 @@ public class FrostMessageDownloadJob extends KSKMessageDownloadJob {
 	/**
 	 * @param requirednetworktype
 	 */
-	private FrostMessageDownloadJob(FreenetKey key, File dest) {
-		super(Core.getFcpVersion(), FHUtil.getNextJobID(), key, dest);
+	public FrostMessageDownloadJob(String key, File dest) {
+		super(Core.getFcpVersion(), FHUtil.getNextJobID(), string2key(key), dest);
 	}
 	
-	
-	public static FrostMessageDownloadJob makeFrostMessageDownloadJob(String uri, File dest) {
+	private static FreenetKey string2key(String uri) {
 		FreenetKey key;
 		if (Core.getFcpVersion() == Network.FCP2) {
 			key = FreenetKey.KSKfromString(FHUtil.StripSlashes(uri));
 		} else {
 			key = FreenetKey.KSKfromString(uri);
 		}
-		return new FrostMessageDownloadJob(key, dest);
+		return key;
 	}
 }

@@ -1,4 +1,21 @@
 /**
+ *   This file is part of JHyperochaFCPLib.
+ *   
+ *   Copyright (C) 2006  Hyperocha Project <saces@users.sourceforge.net>
+ * 
+ * JHyperochaFCPLib is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * JHyperochaFCPLib is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with JHyperochaFCPLib; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  * 
  */
 package hyperocha.freenet.fcp.dispatcher.job;
@@ -6,11 +23,11 @@ package hyperocha.freenet.fcp.dispatcher.job;
 import hyperocha.freenet.fcp.FCPConnection;
 import hyperocha.freenet.fcp.FreenetKey;
 import hyperocha.freenet.fcp.FreenetKeyType;
-import hyperocha.freenet.fcp.IIncommingData;
 import hyperocha.freenet.fcp.Persistance;
 import hyperocha.freenet.fcp.dispatcher.Dispatcher;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.Hashtable;
 import java.util.LinkedList;
@@ -23,17 +40,6 @@ import java.util.List;
  */
 public class KSKMessageDownloadJob extends Job {
 
-	private class DataHandler implements IIncommingData {
-
-		public void incommingData(FCPConnection conn, Hashtable result) {
-			long size = Long.parseLong((String)(result.get("DataLength"))); {
-			System.out.println("DataHandler: " + result);
-			conn.copyFrom(size, os);
-		}
-		
-	}}
-
-	
 	private FreenetKey keyToDownload;
 	private File targetFile;
 	private FileOutputStream os;
@@ -44,16 +50,10 @@ public class KSKMessageDownloadJob extends Job {
 		targetFile = dest;
 	}
 
-
-	
-	
-	private DataHandler dataHandler = new DataHandler();
-
-
-
 	public boolean doPrepare() {
 		if (!(keyToDownload.isFreenetKeyType(FreenetKeyType.KSK))) {
-			return false;
+			throw new Error("Not a KSK: " + keyToDownload);
+			//return false;
 		}
 		// TODO 
 		//is targetFile a valid file?
@@ -62,6 +62,7 @@ public class KSKMessageDownloadJob extends Job {
 
 	public void runFCP2(Dispatcher dispatcher) {
 		
+		//if (true) return;
 		
 		FCPConnection conn = dispatcher.getDefaultFCPConnection(getRequiredNetworkType());
 		
@@ -80,54 +81,35 @@ public class KSKMessageDownloadJob extends Job {
 		cmd.add("ReturnType=direct");
 		cmd.add("EndMessage");
 		
-		//boolean repeat = true;
-		Hashtable result = null;
-		try { 
+		conn.start(cmd);
+		
+		try {
 			os = new FileOutputStream(targetFile);
-			//System.out.println("starte: " + cmd);
-			conn.start(cmd);
-			//System.out.println("started io" + conn.isIOValid());
-			//System.out.println("started" + conn.isValid());
-			
-			while (true) {
-				result = conn.readMessage(dataHandler);
-				//System.out.println("Bimmi: " + result);
-				
-				if (("GetFailed").equalsIgnoreCase((String)(result.get(FCPConnection.MESSAGENAME)))) {
-					setError((String)result.get("CodeDescription"));
-					break;
-				}
-				
-				if (("AllData").equalsIgnoreCase((String)(result.get(FCPConnection.MESSAGENAME)))) {
-					break;
-				}
-			}
-			
-//			if (("PutSuccessful").equalsIgnoreCase((String)(result.get(FCPConnection.MESSAGENAME)))) {
-//				conn.close();
-//				return; // the only one case for return ok.
-//			}
-			//System.out.println("Result:" + result.get("judl-reason"));
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			setError(ex);
-		} finally {
-			if( targetFile.length() == 0 ) {
-				targetFile.delete();
-		    }
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return;
 		}
 		
-		//System.out.println("Bimmi ende: " + result);
-//		conn.close();
-//		return false;
-
-		
-		
+		System.out.println("KSK@down gestartet: " + cmd);
+		//conn.startMonitor(this);
+		waitFine();
 		
 		//throw (new Error("hsabhbs"));
-		//if dda 
-		//    download file
-		//else 
-		//    download direct 
 	}
+	
+	public void incommingData(FCPConnection conn, Hashtable result) {
+		long size = Long.parseLong((String)(result.get("DataLength"))); 
+		System.out.println("DataHandler: " + result);
+		conn.copyFrom(size, os);
+		// FIXME: daten sind ins file copiert, feierabend
+		setSuccess();
+	}
+	
+
+
+	public void incommingMessage(FCPConnection conn, Hashtable result) {
+		System.out.println("KSK down MessageHandler: " + result);
+	}
+
 }

@@ -27,28 +27,20 @@ import hyperocha.freenet.fcp.dispatcher.job.Job;
 import java.io.DataInputStream;
 import java.util.Hashtable;
 
+import javax.swing.SwingUtilities;
+
 /**
  * @author saces
  *
  */
-public class Dispatcher {
+public class Dispatcher implements IIncomming {
 	
-	private class MessageCallback implements IIncomming {
 
-		public void incommingMessage(FCPConnection conn, Hashtable message) {
-			// TODO Auto-generated method stub
-			System.out.println("Testinger message: " + message);
-		}
-
-		public void incommingData(FCPConnection conn, Hashtable message) {
-			// TODO Auto-generated method stub
-			System.out.println("Testinger Data: " + message);
-		}
 		
-	}
 	
-	private MessageCallback messageCallback = new MessageCallback(); 
+//	private MessageCallback messageCallback = new MessageCallback(); 
 	
+	private Thread tickTackTicker = null;
 	
 	private Factory factory;
 	
@@ -60,7 +52,10 @@ public class Dispatcher {
 	//listen:
 	private Hashtable runningJobs = new Hashtable();
 	
-	
+	public Dispatcher(Factory f) {
+		this(f, false);
+	}
+
 	public Dispatcher(Factory f, boolean boot) {
 		factory = f;
 	}
@@ -82,19 +77,52 @@ public class Dispatcher {
 	}
 
 
+	public void startDispatcher() {
+		tickTackTicker = new Thread("tick tack ticker") {
+	        public void run() {
+	            while (true) {
+	                try {
+	                    Thread.sleep(3000);
+	                } catch (InterruptedException e) {
+	                }
+	                onTimer();
+	            }
+	        }
+		};
+		tickTackTicker.start();		
+	}
 	/**
-	 * check node hello
+	 * 
 	 */
 	public void goOnline(boolean wait) {
 		factory.goOnline();
+//		if (wait) { factory.goOnline(); }
+//		if (onlineWatcher == null) {
+//			tickerThread = new Thread("tick tack") {
+//		            public void run() {
+//		                while (true) {
+//		                    Mixed.wait(1000);
+//		                    try {
+//		                        Thread.sleep(time);
+//		                    } catch (InterruptedException e) {
+//		                    }
+//		                    // refactor this method in Core. lots of work :)
+//		                    timer_actionPerformed();
+//		                }
+//		            }
+//		        };
+//		        tickerThread.start();
+//
+//			
+//		}
 	}
 
-	/**
-	 * start job queue
-	 */
-	public void startDispatcher() {
-		factory.goOnline();
-	}
+//	/**
+//	 * start job queue
+//	 */
+//	public void startDispatcher() {
+//		factory.goOnline();
+//	}
 
 	/**
 	 * same as panic, but without data loss
@@ -108,6 +136,7 @@ public class Dispatcher {
 	 * but dont start new ones
 	 */
 	public void stopDispatcher() {
+		//tickTackTicker.stop();
 	}
 	
 	public boolean loadState() {
@@ -126,7 +155,7 @@ public class Dispatcher {
 	 * calling this cause data loss.
 	 * @param clearqueue
 	 */
-	public synchronized void panic(boolean clearqueue) {
+	public void panic(boolean clearqueue) {
 		// TODO:
 		// Stop jobmanager
 		// Cancel all active connections (Perstance=Connection)
@@ -173,8 +202,11 @@ public class Dispatcher {
 	 * @param networktype
 	 * @return
 	 */
-	public FCPConnection getDefaultFCPConnection(int networktype) {
-		return factory.getDefaultFCPConnection(networktype);
+	public synchronized FCPConnection getDefaultFCPConnection(int networktype) {
+		System.err.println("HEHE: getDefaultFCPConnection Start " + networktype);
+		FCPConnection conn = factory.getDefaultFCPConnection(networktype);
+		System.err.println("HEHE: getDefaultFCPConnection Ende " + conn);
+		return conn;
 	}
 
 
@@ -182,22 +214,22 @@ public class Dispatcher {
 	 * run a job and do not return until the job is done.
 	 * @param job
 	 */
-	public /*synchronized*/ void runJob(Job job) {
+	public void runJob(Job job) {
+		if (SwingUtilities.isEventDispatchThread()) {
+			throw new Error("Hicks");
+		}
 		if (job.getStatus() == Job.STATUS_UNPREPARED) {
-			System.out.println(job.getJobID() + " -> job unprepared. prepare it");
+			//System.out.println(job.getJobID() + " -> job unprepared. prepare it");
 			job.prepare(); 
 		}
 		if (job.getStatus() != Job.STATUS_PREPARED) {
 			System.out.println(job.getJobID() + " - " + job + " -> job unprepared. return without execution");
-			throw new Error();
+			throw new Error("DEBUG/FIX/TODO");
 			//return; 
 		}
-		
-		//FCPConnection conn = getFCPConnection(job.getRequiredNetworkType());
 		registerJob(job);
 		job.run(this);
 		unregisterJob(job);
-
 	}
 	
 	private void registerJob(Job job) {
@@ -207,5 +239,31 @@ public class Dispatcher {
 	private void unregisterJob(Job job) {
 		runningJobs.remove(job.getJobID());		
 	}
+	
+	public void incommingMessage(FCPConnection conn, Hashtable message) {
+		// TODO Auto-generated method stub
+		System.out.println("Testinger message: " + message);
+		Job j = getRunningJob((String)message.get("Identifier"));
+		if (j == null) { throw new Error("Hmmmm"); }
+		j.incommingMessage(conn, message);
+	}
+
+	public void incommingData(FCPConnection conn, Hashtable message) {
+		System.out.println("Testinger Data: " + message);
+		Job j = getRunningJob((String)message.get("Identifier"));
+		if (j == null) { throw new Error("Hmmmm"); }
+		j.incommingData(conn, message);
+//		getRunningJob((String)message.get("Identifier")).incommingData(conn, message);
+	}
+	
+	private void onTimer() {
+		//System.out.println("Tick Tack Timer");
+	}
+	
+	private Job getRunningJob(String id) {
+		System.out.println("getRunningJob: " + id);
+		return (Job)runningJobs.get(id);
+	}
+
 
 }

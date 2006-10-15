@@ -104,7 +104,7 @@ public class FCPTests {
 		boolean repeat = true;
 		Hashtable result = null;
 		try { 
-			conn = node.getNewFCPConnection("ID");
+			conn = node.getNewFCPConnection(null, "ID");
 			conn.start(cmd);
 			
 			while (repeat) {
@@ -164,7 +164,7 @@ public class FCPTests {
 		FCPConnection conn = null;
 		//try {
 			//conn = node.getNewFCPConnection(5000);
-			conn = node.getNewFCPConnection("ID");
+			conn = node.getNewFCPConnection(null, "ID");
 			//conn.start((String[]) cmd.toArray());
 			//System.out.println("Bla 01");
 			
