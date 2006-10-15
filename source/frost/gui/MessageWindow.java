@@ -310,7 +310,7 @@ public class MessageWindow extends JFrame {
         private JTextField getTFdate() {
             if( TFdate == null ) {
                 TFdate = new JTextField();
-                TFdate.setText(" "+innerMessage.getDateAndTime());
+                TFdate.setText(" "+innerMessage.getDateAndTimeString());
                 TFdate.setBorder(javax.swing.BorderFactory.createEmptyBorder(2,2,2,2));
                 TFdate.setEditable(false);
             }

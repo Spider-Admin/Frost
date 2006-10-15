@@ -21,8 +21,9 @@ package frost.threads;
 
 import java.io.*;
 import java.sql.*;
-import java.util.*;
 import java.util.logging.*;
+
+import org.joda.time.*;
 
 import frost.*;
 import frost.boards.*;
@@ -85,27 +86,19 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 return;
             }
 
-            Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+            LocalDate localDate = new LocalDate(DateTimeZone.UTC);
 
             if (this.downloadToday) {
                 // download only current date
-                downloadDate(cal);
+                downloadDate(localDate);
                 // after update check if there are messages for upload and upload them
                 uploadMessages();
             } else {
                 // download up to maxMessages days to the past
-                Calendar firstDate = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-                firstDate.set(Calendar.YEAR, 2001);
-                firstDate.set(Calendar.MONTH, 5);
-                firstDate.set(Calendar.DATE, 11);
-                int counter = 0;
-                while (!isInterrupted() &&
-                       cal.after(firstDate) &&
-                       counter < maxMessageDownload)
-                {
-                    counter++;
-                    cal.add(Calendar.DATE, -1); // Yesterday
-                    downloadDate(cal);
+                int daysBack = 0;
+                while (!isInterrupted() && daysBack < maxMessageDownload) {
+                    daysBack++;
+                    downloadDate(localDate.minusDays(daysBack));
                 }
             }
             logger.info("TOFDN: " + tofType + " Thread stopped for board " + board.getName());
@@ -146,10 +139,10 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
         return downKey;
     }
 
-    protected void downloadDate(Calendar calDL) throws SQLException {
+    protected void downloadDate(LocalDate localDate) throws SQLException {
 
-        String dirdate = DateFun.getDateOfCalendar(calDL);
-        java.sql.Date date = DateFun.getSqlDateOfCalendar(calDL);
+        String dirdate = DateFun.FORMAT_DATE.print(localDate);
+        long date = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
         
         int index = -1;
         int failures = 0;
@@ -193,15 +186,15 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
 
                 if( mdResult.errorMsg != null ) {
                     // some error occured, don't try this file again
-                    receivedInvalidMessage(board, calDL, index, mdResult.errorMsg);
+                    receivedInvalidMessage(board, localDate, index, mdResult.errorMsg);
                 } else if( mdResult.message != null ) {
                     // message is loaded, delete underlying received file
                     mdResult.message.getFile().delete();
                     // basic validation
-                    if (mdResult.message.isValid() && isValidFormat(mdResult.message, calDL)) {
+                    if (mdResult.message.isValid() && isValidFormat(mdResult.message, localDate)) {
                         receivedValidMessage(mdResult.message, board, index);
                     } else {
-                        receivedInvalidMessage(board, calDL, index, MessageDownloaderResult.INVALID_MSG);
+                        receivedInvalidMessage(board, localDate, index, MessageDownloaderResult.INVALID_MSG);
                         logger.warning("TOFDN: Message was dropped, format validation failed: "+logInfo);
                     }
                 }
@@ -212,8 +205,8 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
         } // end-of: while
     }
     
-    private void receivedInvalidMessage(Board b, Calendar calDL, int index, String reason) {
-        TOF.getInstance().receivedInvalidMessage(b, calDL, index, reason);
+    private void receivedInvalidMessage(Board b, LocalDate calDL, int index, String reason) {
+        TOF.getInstance().receivedInvalidMessage(b, calDL.toDateTimeAtMidnight(), index, reason);
     }
     
     private void receivedValidMessage(MessageXmlFile mo, Board b, int index) {
@@ -227,120 +220,26 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
     /**
      * First time verify.
      */
-    public boolean isValidFormat(MessageXmlFile mo, Calendar dirDate) {
-        String timeStr = mo.getTimeStr();
-        String msgDateStr = mo.getDateStr();
+    public boolean isValidFormat(MessageXmlFile mo, LocalDate dirDate) {
         try { // if something fails here, set msg. to N/A (maybe harmful message)
-            if (verifyDate(msgDateStr,dirDate) == false || verifyTime(timeStr) == false) {
+            DateTime dateTime = null;
+            try {
+                dateTime = mo.getDateAndTime();
+            } catch(Throwable ex) {
+                logger.log(Level.SEVERE, "Exception in isValidFormat() - skipping Message.", ex);
+                return false;
+            }
+
+            // ensure that time/date of msg is max. 1 day before/after dirDate
+            DateMidnight dm = dateTime.toDateMidnight();
+            if( dm.isAfter(dirDate.plusDays(1).toDateMidnight(DateTimeZone.UTC))
+                    || dm.isBefore(dirDate.minusDays(1).toDateMidnight(DateTimeZone.UTC)) )
+            {
+                logger.log(Level.SEVERE, "Invalid date - skipping Message:"+dirDate+";"+dateTime);
                 return false;
             }
         } catch (Throwable t) {
             logger.log(Level.SEVERE, "Exception in isValidFormat() - skipping Message.", t);
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Returns false if the date from inside the message is more than 1 day
-     * before/behind the date in the URL of the message.
-     *
-     * @param dirDate  date of the url that was used to retrieve the message
-     * @return  true if date is valid, or false
-     */
-    private boolean verifyDate(String msgDateStr, Calendar dirDate) {
-        // first check for valid date:
-        // USES: date of msg. url: 'keypool\public\2003.6.9\2003.6.9-public-1.txt'  = given value 'dirDate'
-        // USES: date in message  ( date=2003.6.9 ; time=09:32:31GMT )              = extracted from message
-        
-        Calendar msgDate = DateFun.getCalendarFromDate(msgDateStr);
-        if( msgDate == null ) {
-            logger.warning("* verifyDate(): Invalid date string found, will block message: " + msgDateStr);
-            return false;
-        }
-        // set both dates to same _time_ to allow computing millis
-        msgDate.set(Calendar.HOUR_OF_DAY, 1);
-        msgDate.set(Calendar.MINUTE, 0);
-        msgDate.set(Calendar.SECOND, 0);
-        msgDate.set(Calendar.MILLISECOND, 0);
-        dirDate.set(Calendar.HOUR_OF_DAY, 1);
-        dirDate.set(Calendar.MINUTE, 0);
-        dirDate.set(Calendar.SECOND, 0);
-        dirDate.set(Calendar.MILLISECOND, 0);
-        long dirMillis = dirDate.getTimeInMillis();
-        long msgMillis = msgDate.getTimeInMillis();
-        // compute difference dir - msg
-        long ONE_DAY = (1000L * 60L * 60L * 24L);
-        int diffDays = (int)((dirMillis - msgMillis) / ONE_DAY);
-        // now compare dirDate and msgDate using above rules
-        if( Math.abs(diffDays) <= 1 ) {
-            // message is of this day (less than 1 day difference)
-            // msg is OK, do nothing here
-        } else if( diffDays < 0 ) {
-            // msgDate is later than dirDate
-            logger.warning("* verifyDate(): Date in message is later than date in URL, will block message: " + msgDateStr);
-            return false;
-        } else if( diffDays > 1 ) { // more than 1 day older
-            // dirDate is later than msgDate
-            logger.warning("* verifyDate(): Date in message is earlier than date in URL, will block message: " + msgDateStr);
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Verifies that the time is valid.
-     *
-     * @return  true if time is valid, or false
-     */
-    private boolean verifyTime(String timeStr) {
-        // time=06:52:48GMT  <<-- expected format
-        if (timeStr == null) {
-            logger.warning("* verifyTime(): Time is NULL, blocking message.");
-            return false;
-        }
-        timeStr = timeStr.trim();
-
-        if (timeStr.length() != 11) {
-            logger.warning("* verifyTime(): Time string have invalid length (!=11), blocking message: " + timeStr);
-            return false;
-        }
-        // check format
-        if( !Character.isDigit(timeStr.charAt(0)) ||
-            !Character.isDigit(timeStr.charAt(1)) ||
-            !(timeStr.charAt(2) == ':') ||
-            !Character.isDigit(timeStr.charAt(3)) ||
-            !Character.isDigit(timeStr.charAt(4)) ||
-            !(timeStr.charAt(5) == ':') ||
-            !Character.isDigit(timeStr.charAt(6)) ||
-            !Character.isDigit(timeStr.charAt(7)) ||
-            !(timeStr.charAt(8) == 'G') ||
-            !(timeStr.charAt(9) == 'M') ||
-            !(timeStr.charAt(10) == 'T') )
-        {
-            logger.warning("* verifyTime(): Time string have invalid format (xx:xx:xxGMT), blocking message: " + timeStr);
-            return false;
-        }
-        // check for valid values :)
-        String hours = timeStr.substring(0, 2);
-        String minutes = timeStr.substring(3, 5);
-        String seconds = timeStr.substring(6, 8);
-        int ihours = -1;
-        int iminutes = -1;
-        int iseconds = -1;
-        try {
-            ihours = Integer.parseInt( hours );
-            iminutes = Integer.parseInt( minutes );
-            iseconds = Integer.parseInt( seconds );
-        } catch(Exception ex) {
-            logger.warning("* verifyTime(): Could not parse the numbers, blocking message: " + timeStr);
-            return false;
-        }
-        if( ihours < 0 || ihours > 23 ||
-            iminutes < 0 || iminutes > 59 ||
-            iseconds < 0 || iseconds > 59 )
-        {
-            logger.warning("* verifyTime(): Time is invalid, blocking message: " + timeStr);
             return false;
         }
         return true;
@@ -407,8 +306,8 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
 
             MessageXmlFile message = new MessageXmlFile(mo); 
 
-            message.setTimeStr(DateFun.getFullExtendedTime() + "GMT");
-            message.setDateStr(DateFun.getDate());
+            DateTime now = new DateTime(DateTimeZone.UTC);
+            message.setDateAndTime(now);
             
             File unsentMessageFile = FileAccess.createTempFile("unsendMsg", ".xml");
             message.setFile(unsentMessageFile);
@@ -426,7 +325,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                     senderId,
                     this,
                     indexSlots,
-                    DateFun.getCurrentSqlDateGMT(),
+                    now.toDateMidnight().getMillis(),
                     MainFrame.getInstance(), 
                     board.getName());
 

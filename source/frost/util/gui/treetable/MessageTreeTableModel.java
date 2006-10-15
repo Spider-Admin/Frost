@@ -189,7 +189,7 @@ public class MessageTreeTableModel extends DefaultTreeModel implements TreeTable
                 // 2 is tree+subject column
                 case 3: return mo.getFromName();
                 case 4: return mo.getMessageStatusString();
-                case 5: return mo.getDateAndTime();
+                case 5: return mo.getDateAndTimeString();
                 default: return "*ERR*";
             }
             }

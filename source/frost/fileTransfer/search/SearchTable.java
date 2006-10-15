@@ -100,16 +100,17 @@ public class SearchTable extends SortedModelTable {
         // if double click was on the sourceCount cell then maybe show details
         int row = getTable().rowAtPoint(e.getPoint());
         int col = getTable().columnAtPoint(e.getPoint());
-        // sourceCount column = 7
+
         if( row > -1 && col == 7 ) {
-            ModelItem item = getItemAt(row); //It may be null
-            if (item != null) {
-                FrostSearchItem searchItem = (FrostSearchItem) item;
-                if( searchItem.hasInfosFromMultipleSources().booleanValue() ) {
-                    showDetails();
-                    return;
-                }
-            }
+            showDetails();
+//            ModelItem item = getItemAt(row); //It may be null
+//            if (item != null) {
+//                FrostSearchItem searchItem = (FrostSearchItem) item;
+//                if( searchItem.hasInfosFromMultipleSources().booleanValue() ) {
+//                    showDetails();
+//                    return;
+//                }
+//            }
         }
         
         ModelItem[] selectedItems = getSelectedItems();

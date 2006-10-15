@@ -22,11 +22,12 @@ import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
+import org.joda.time.*;
+
 import frost.boards.*;
 import frost.identities.*;
 import frost.messages.*;
 import frost.storage.database.*;
-import frost.util.*;
 
 // TODO: implement searching for messages without assigned boards (deleted boards)
 // TODO: prepare constraints for CHK keys and/or message ID
@@ -45,7 +46,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         return "BOARDATTACHMENTS";
     }
     protected String getUniqueMsgConstraint() {
-        return "CONSTRAINT "+getUniqueMsgConstraintName()+" UNIQUE(msgdate,msgindex,board)";
+        return "CONSTRAINT "+getUniqueMsgConstraintName()+" UNIQUE(msgdatetime,msgindex,board)";
     }
     protected String getUniqueMsgConstraintName() {
         return "MSG_UNIQUE_ONLY";
@@ -85,8 +86,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         "inreplyto VARCHAR,"+
         "isvalid BOOLEAN,"+
         "invalidreason VARCHAR,"+
-        "msgdate DATE NOT NULL,"+
-        "msgtime TIME,"+
+        "msgdatetime BIGINT NOT NULL,"+
         "msgindex INT NOT NULL,"+
         "board INT NOT NULL,"+
         "fromname VARCHAR,"+
@@ -103,6 +103,8 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         "isstarred BOOLEAN,"+
         "hasfileattachment BOOLEAN,"+
         "hasboardattachment BOOLEAN,"+
+        "idlinepos INT,"+
+        "idlinelen INT,"+
         "CONSTRAINT "+getPrimKeyConstraintName()+" PRIMARY KEY (primkey),"+
         "CONSTRAINT "+getUniqueMsgIdConstraintName()+" UNIQUE(messageid),"+ // multiple null allowed
         getBoardConstraint()+       // only for messages , not for sent messages
@@ -118,7 +120,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
     private final String SQL_DDL_MESSAGES_INDEX_FROM =
         "CREATE INDEX "+getFromnameIndexName()+" ON "+getMessageTableName()+" ( fromname )";
     private final String SQL_DDL_MESSAGES_INDEX_DATE =
-        "CREATE INDEX "+getDateIndexName()+" ON "+getMessageTableName()+" ( msgdate )";
+        "CREATE INDEX "+getDateIndexName()+" ON "+getMessageTableName()+" ( msgdatetime )";
 
     // FIXME: add an index for msgref?
     private final String SQL_DDL_FILEATTACHMENTS =
@@ -194,9 +196,9 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         PreparedStatement ps = db.prepare(
             "INSERT INTO "+getMessageTableName()+" ("+
-            "primkey,messageid,inreplyto,isvalid,invalidreason,msgdate,msgtime,msgindex,board,fromname,subject,recipient,signature," +
-            "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,hasfileattachment,hasboardattachment"+
-            ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+            "primkey,messageid,inreplyto,isvalid,invalidreason,msgdatetime,msgindex,board,fromname,subject,recipient,signature," +
+            "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,hasfileattachment,hasboardattachment,idlinepos,idlinelen"+
+            ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
         
         Long identity = null;
         Statement stmt = AppLayerDatabase.getInstance().createStatement();
@@ -215,8 +217,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         ps.setString(i++, mo.getInReplyTo()); // inreplyto
         ps.setBoolean(i++, mo.isValid()); // isvalid
         ps.setString(i++, mo.getInvalidReason()); // invalidreason
-        ps.setDate(i++, mo.getSqlDate()); // date  
-        ps.setTime(i++, mo.getSqlTime()); // time
+        ps.setLong(i++, mo.getDateAndTime().getMillis()); // date+time  
         ps.setInt(i++, mo.getIndex()); // index
         ps.setInt(i++, mo.getBoard().getPrimaryKey().intValue()); // board
         ps.setString(i++, mo.getFromName()); // from
@@ -233,7 +234,9 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         ps.setBoolean(i++, mo.isStarred()); // isstarred
         ps.setBoolean(i++, (files.size() > 0)); // hasfileattachment
         ps.setBoolean(i++, (boards.size() > 0)); // hasboardattachment
-
+        ps.setInt(i++, 0); // idlinepos
+        ps.setInt(i++, 0); // idlinelen
+        
         // sync to allow no updates until we got the generated identity
         int inserted = ps.executeUpdate();
         ps.close();
@@ -305,7 +308,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         PreparedStatement ps = db.prepare(
             "UPDATE "+getMessageTableName()+" SET isdeleted=?,isnew=?,isreplied=?,isjunk=?,isflagged=?,isstarred=? "+
-            "WHERE msgdate=? AND msgindex=? AND board=?");
+            "WHERE msgdatetime=? AND msgindex=? AND board=?");
         int ix=1;
         ps.setBoolean(ix++, mo.isDeleted()); // isdeleted
         ps.setBoolean(ix++, mo.isNew()); // isnew
@@ -314,7 +317,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         ps.setBoolean(ix++, mo.isFlagged()); // isflagged
         ps.setBoolean(ix++, mo.isStarred()); // isstarred
 
-        ps.setDate(ix++, mo.getSqlDate()); // date
+        ps.setLong(ix++, mo.getDateAndTime().getMillis()); // date
         ps.setInt(ix++, mo.getIndex()); // index
         ps.setInt(ix++, mo.getBoard().getPrimaryKey().intValue()); // board
         
@@ -408,8 +411,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         mo.setMsgIdentity(rs.getLong(ix++));
         mo.setMessageId(rs.getString(ix++));
         mo.setInReplyTo(rs.getString(ix++));
-        mo.setSqlDate(rs.getDate(ix++));
-        mo.setSqlTime(rs.getTime(ix++));
+        mo.setDateAndTime(new DateTime(rs.getLong(ix++), DateTimeZone.UTC));
         mo.setIndex(rs.getInt(ix++));
         mo.setFromName(rs.getString(ix++));
         mo.setSubject(rs.getString(ix++));
@@ -426,6 +428,9 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         
         mo.setHasFileAttachments( rs.getBoolean(ix++) );
         mo.setHasBoardAttachments( rs.getBoolean(ix++) );
+        
+        rs.getInt(ix++); // idlinepos
+        rs.getInt(ix++); // idlinelen
         
         if( withContent ) {
             retrieveMessageContent(mo);
@@ -447,15 +452,13 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
             MessageDatabaseTableCallback mc) 
     throws SQLException 
     {
-        java.sql.Date startDate = DateFun.getSqlDateGMTDaysAgo(maxDaysBack);
-        
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         String sql =
             "SELECT "+
-            "primkey,messageid,inreplyto,msgdate,msgtime,msgindex,fromname,subject,recipient," +
+            "primkey,messageid,inreplyto,msgdatetime,msgindex,fromname,subject,recipient," +
             "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
-            "hasfileattachment,hasboardattachment";
-        sql += " FROM "+getMessageTableName()+" WHERE msgdate>=? AND board=? AND isvalid=TRUE ";
+            "hasfileattachment,hasboardattachment,idlinepos,idlinelen";
+        sql += " FROM "+getMessageTableName()+" WHERE msgdatetime>=? AND board=? AND isvalid=TRUE ";
         if( !showDeleted ) {
             // don't select deleted msgs
             sql += "AND isdeleted=FALSE ";
@@ -463,7 +466,8 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
 
         PreparedStatement ps = db.prepare(sql);
 
-        ps.setDate(1, startDate);
+        LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysBack);
+        ps.setLong(1, localDate.toDateMidnight(DateTimeZone.UTC).getMillis());
         ps.setInt(2, board.getPrimaryKey().intValue());
 
         ResultSet rs = ps.executeQuery();
@@ -481,8 +485,8 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
 
     public void retrieveMessagesForSearch(
             Board board, 
-            java.sql.Date startDate, 
-            java.sql.Date endDate,
+            long startDate, 
+            long endDate,
             boolean withContent,
             boolean withAttachments,
             boolean showDeleted, 
@@ -492,14 +496,14 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         String sql =
             "SELECT "+
-            "primkey,messageid,inreplyto,msgdate,msgtime,msgindex,fromname,subject,recipient," +
+            "primkey,messageid,inreplyto,msgdatetime,msgindex,fromname,subject,recipient," +
             "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
-            "hasfileattachment,hasboardattachment";
-            sql += " FROM "+getMessageTableName()+" WHERE msgdate>=? AND msgdate<=? AND board=? AND isvalid=TRUE AND isdeleted=?";
+            "hasfileattachment,hasboardattachment,idlinepos,idlinelen";
+            sql += " FROM "+getMessageTableName()+" WHERE msgdatetime>=? AND msgdatetime<=? AND board=? AND isvalid=TRUE AND isdeleted=?";
         PreparedStatement ps = db.prepare(sql);
         
-        ps.setDate(1, startDate);
-        ps.setDate(2, endDate);
+        ps.setLong(1, startDate);
+        ps.setLong(2, endDate);
         ps.setInt(3, board.getPrimaryKey().intValue());
         ps.setBoolean(4, showDeleted);
         
@@ -522,18 +526,17 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
             MessageDatabaseTableCallback mc) 
     throws SQLException 
     {
-        java.sql.Date sqlDate = DateFun.getSqlDateGMTDaysAgo(maxDaysOld);
-        
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         String sql =
             "SELECT "+
-            "primkey,messageid,inreplyto,msgdate,msgtime,msgindex,fromname,subject,recipient," +
+            "primkey,messageid,inreplyto,msgdatetime,msgindex,fromname,subject,recipient," +
             "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
-            "hasfileattachment,hasboardattachment";
-            sql += " FROM "+getMessageTableName()+" WHERE msgdate<? AND board=? AND isvalid=TRUE";
+            "hasfileattachment,hasboardattachment,idlinepos,idlinelen";
+            sql += " FROM "+getMessageTableName()+" WHERE msgdatetime<? AND board=? AND isvalid=TRUE";
         PreparedStatement ps = db.prepare(sql);
         
-        ps.setDate(1, sqlDate);
+        LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysOld);
+        ps.setLong(1, localDate.toDateMidnight(DateTimeZone.UTC).getMillis());
         ps.setInt(2, board.getPrimaryKey().intValue());
         
         ResultSet rs = ps.executeQuery();
@@ -551,13 +554,12 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
     
     public int deleteExpiredMessages(Board board, int maxDaysOld) throws SQLException {
 
-        java.sql.Date sqlDate = DateFun.getSqlDateGMTDaysAgo(maxDaysOld);
-
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
-        PreparedStatement ps = db.prepare("DELETE FROM "+getMessageTableName()+" WHERE msgdate<? AND board=?");
+        PreparedStatement ps = db.prepare("DELETE FROM "+getMessageTableName()+" WHERE msgdatetime<? AND board=?");
 
-        ps.setDate(1, sqlDate);
+        LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysOld);
+        ps.setLong(1, localDate.toDateMidnight(DateTimeZone.UTC).getMillis());
         ps.setInt(2, board.getPrimaryKey().intValue());
         
         int deletedCount = ps.executeUpdate();
@@ -578,9 +580,9 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         String sql =
             "SELECT "+
-            "primkey,messageid,inreplyto,msgdate,msgtime,msgindex,fromname,subject,recipient," +
+            "primkey,messageid,inreplyto,msgdatetime,msgindex,fromname,subject,recipient," +
             "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
-            "hasfileattachment,hasboardattachment";
+            "hasfileattachment,hasboardattachment,idlinepos,idlinelen";
             sql += " FROM "+getMessageTableName()+" WHERE board=? AND messageid=?";
         PreparedStatement ps = db.prepare(sql);
         
@@ -611,8 +613,6 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
      * Returns new message count by board. If maxDaysBack is <0 all messages are counted.
      */
     public int getNewMessageCount(Board board, int maxDaysBack) throws SQLException {
-        java.sql.Date startDate = DateFun.getSqlDateGMTDaysAgo(maxDaysBack);
-        
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         PreparedStatement ps;
         if( maxDaysBack < 0 ) {
@@ -620,8 +620,9 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
             ps = db.prepare("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE board=? AND isnew=TRUE AND isvalid=TRUE");
             ps.setInt(1, board.getPrimaryKey().intValue());
         } else {
-            ps = db.prepare("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE msgdate >=? AND board=? AND isnew=TRUE AND isvalid=TRUE");
-            ps.setDate(1, startDate);
+            ps = db.prepare("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE msgdatetime>=? AND board=? AND isnew=TRUE AND isvalid=TRUE");
+            LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysBack);
+            ps.setLong(1, localDate.toDateMidnight(DateTimeZone.UTC).getMillis());
             ps.setInt(2, board.getPrimaryKey().intValue());
         }
         
@@ -648,9 +649,9 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
             ps = db.prepare("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE fromname=? AND isvalid=TRUE");
             ps.setString(1, identity.getUniqueName());
         } else {
-            ps = db.prepare("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE msgdate >=? AND fromname=? AND isvalid=TRUE");
-            java.sql.Date startDate = DateFun.getSqlDateGMTDaysAgo(maxDaysBack);
-            ps.setDate(1, startDate);
+            ps = db.prepare("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE msgdatetime>=? AND fromname=? AND isvalid=TRUE");
+            LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysBack);
+            ps.setLong(1, localDate.toDateMidnight(DateTimeZone.UTC).getMillis());
             ps.setString(2, identity.getUniqueName());
         }
         
@@ -678,9 +679,9 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
             ps = db.prepare("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE board=? AND isvalid=TRUE");
             ps.setInt(1, board.getPrimaryKey().intValue());
         } else {
-            ps = db.prepare("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE msgdate >=? AND board=? AND isvalid=TRUE");
-            java.sql.Date startDate = DateFun.getSqlDateGMTDaysAgo(maxDaysBack);
-            ps.setDate(1, startDate);
+            ps = db.prepare("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE msgdatetime>=? AND board=? AND isvalid=TRUE");
+            LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysBack);
+            ps.setLong(1, localDate.toDateMidnight(DateTimeZone.UTC).getMillis());
             ps.setInt(2, board.getPrimaryKey().intValue());
         }
         

@@ -213,12 +213,16 @@ public class Frost {
             // check for mckoidb.jar
             jarFileName = "mckoidb.jar";
             Class.forName("com.mckoi.JDBCDriver");
+            // check for joda-time.jar
+            jarFileName = "joda-time.jar";
+            Class.forName("org.joda.time.DateTime");
 
         } catch (ClassNotFoundException e1) {
             MiscToolkit.getInstance().showMessage(
                 "Please start Frost using the provided start "
                     + "scripts (frost.bat for Windows, frost.sh for Unix).\n"
-                    + "If Frost was working and you updated just frost.jar, try updating with frost.zip",
+                    + "If Frost was working and you updated just frost.jar, try updating with frost.zip\n"
+                    + "ERROR: The jar file " + jarFileName + " is missing.",
                 JOptionPane.ERROR_MESSAGE,
                 "ERROR: The jar file " + jarFileName + " is missing.");
             return false;

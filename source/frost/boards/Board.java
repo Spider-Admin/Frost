@@ -429,6 +429,5 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
      * also if a message is mark unread. 
      */
     public void newMessageReceived() {
-        
     }
 }

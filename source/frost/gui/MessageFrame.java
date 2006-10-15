@@ -31,6 +31,8 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
 
+import org.joda.time.*;
+
 import frost.*;
 import frost.boards.*;
 import frost.ext.*;
@@ -225,7 +227,10 @@ public class MessageFrame extends JFrame {
             to.senderId = senderId;
             // create a temporary editText that is show in alternate editor
             // the editor will return only new text to us
-            String date = DateFun.getExtendedDate() + " - " + DateFun.getFullExtendedTime() + "GMT";
+            DateTime now = new DateTime(DateTimeZone.UTC);
+            String date = DateFun.FORMAT_DATE_EXT.print(now)
+            + " - " 
+            + DateFun.FORMAT_EXT_TIME.print(now);
             String fromLine = "----- (sender) ----- " + date + " -----";
             String editText = newText + fromLine + "\n\n";
             
@@ -377,7 +382,10 @@ public class MessageFrame extends JFrame {
         updateSignToolTip();
         
         // prepare message text
-        String date = DateFun.getExtendedDate() + " - " + DateFun.getFullExtendedTime() + "GMT";
+        DateTime now = new DateTime(DateTimeZone.UTC);
+        String date = DateFun.FORMAT_DATE_EXT.print(now)
+                        + " - " 
+                        + DateFun.FORMAT_EXT_TIME.print(now);
         String fromLine = "----- " + from + " ----- " + date + " -----";
 
         int headerAreaStart = newText.length();// begin of non-modifiable area
@@ -761,7 +769,10 @@ public class MessageFrame extends JFrame {
         }
 
         // for convinience set last used user
-        frostSettings.setValue("userName", from);
+        if( from.indexOf("@") < 0 ) {
+            // only save anonymous usernames
+            frostSettings.setValue("userName", from);
+        }
         frostSettings.setValue("userName."+board.getBoardFilename(), from);
         
         FrostMessageObject mo = new FrostMessageObject();
@@ -930,6 +941,7 @@ public class MessageFrame extends JFrame {
             return;
         }
         try {
+            // FIXME: add grey background! highlighter mit headerArea um pos zu finden
             messageTextArea.getDocument().remove(headerArea.getStartPos() + 6, oldSender.length());
             messageTextArea.getDocument().insertString(headerArea.getStartPos() + 6, sender, null);
             oldSender = sender;
@@ -937,6 +949,11 @@ public class MessageFrame extends JFrame {
         } catch (BadLocationException exception) {
             logger.log(Level.SEVERE, "Error while updating the message header", exception);
         }
+        String s= messageTextArea.getText().substring(headerArea.getStartPos(), headerArea.getEndPos());
+        System.out.println("DBG: "+headerArea.getStartPos()+" ; "+headerArea.getEndPos()+": '"+s+"'");
+     
+// DBG: 0 ; 77: '----- blubb2@xpDZ5ZfXK9wYiHB_hkVGRCwJl54 ----- 2006.10.13 - 18:20:12GMT -----'
+// DBG: 39 ; 119: '----- wegdami t@plewLcBTHKmPwpWakJNpUdvWSR8 ----- 2006.10.13 - 18:20:12GMT -----'        
     }
 
     class TextComboBoxEditor extends JTextField implements ComboBoxEditor {

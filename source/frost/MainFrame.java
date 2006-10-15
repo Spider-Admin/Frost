@@ -30,6 +30,8 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.tree.*;
 
+import org.joda.time.*;
+
 import frost.boards.*;
 import frost.components.translate.*;
 import frost.ext.*;
@@ -934,12 +936,13 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         //////////////////////////////////////////////////
         //   Display time in button bar
         //////////////////////////////////////////////////
+        // FIXME: performance: maybe don't print date each time, check if date changed!
+        DateTime now = new DateTime(DateTimeZone.UTC);
         timeLabel.setText(
             new StringBuffer()
-                .append(DateFun.getVisibleExtendedDate())
+                .append(DateFun.FORMAT_DATE_VISIBLE.print(now))
                 .append(" - ")
-                .append(DateFun.getFullExtendedTime())
-                .append(" GMT")
+                .append(DateFun.FORMAT_TIME_VISIBLE.print(now))
                 .toString());
 
         /////////////////////////////////////////////////

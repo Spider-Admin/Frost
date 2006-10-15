@@ -29,6 +29,7 @@ public class KnownBoardsDatabaseTable extends AbstractDatabaseTable {
     private final static String SQL_DDL =
         "CREATE TABLE KNOWNBOARDS ("+
 //        "primkey BIGINT NOT NULL IDENTITY PRIMARY KEY,"+
+        // FIXME: hidden bool
         "primkey BIGINT DEFAULT UNIQUEKEY('KNOWNBOARDS') NOT NULL,"+
         "boardname VARCHAR NOT NULL,"+
         "publickey VARCHAR NOT NULL,"+  // "" empty tring means null, select of NULL does not work! 

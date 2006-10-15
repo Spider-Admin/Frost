@@ -105,6 +105,8 @@ public class SettingsClass implements Savable {
         if (!readSettingsFile()) {
             writeSettingsFile();
         }
+        // FIXME: remove for release
+        settingsHash.put(FILE_BASE, "testfiles1");
     }
 
     private String setSystemsFileSeparator(String path) {
@@ -214,11 +216,10 @@ public class SettingsClass implements Savable {
             this.setValue("messageBase", "news");
         }
 
+        // FIXME: enable for release!!!
 //        if (this.getValue(FILE_BASE).length() == 0) {
 //            this.setValue(FILE_BASE, "files");
 //        }
-        // FIXME: remove for release and use the lines above
-        this.setValue(FILE_BASE, "testfiles1");
 
         logger.info("Read user configuration");
         return true;

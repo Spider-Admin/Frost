@@ -21,6 +21,8 @@ package frost.threads;
 import java.util.*;
 import java.util.logging.*;
 
+import org.joda.time.*;
+
 import frost.*;
 import frost.boards.*;
 import frost.gui.*;
@@ -258,19 +260,21 @@ public class SearchMessagesThread extends Thread implements MessageDatabaseTable
     }
 
     private void updateDateRangeForBoard(Board b, DateRange dr) {
+        LocalDate nowLocalDate = new LocalDate(DateTimeZone.UTC);
+        long todayMillis = nowLocalDate.plusDays(1).toDateMidnight(DateTimeZone.UTC).getMillis();
         if( searchConfig.searchDates == SearchMessagesConfig.DATE_DISPLAYED ) {
-            dr.startDate = DateFun.getSqlDateGMTDaysAgo(b.getMaxMessageDisplay());
-            dr.endDate = DateFun.getCurrentSqlDateGMT(); // today
+            dr.startDate = nowLocalDate.minusDays(b.getMaxMessageDisplay()).toDateMidnight(DateTimeZone.UTC).getMillis();
+            dr.endDate = todayMillis;
         } else if( searchConfig.searchDates == SearchMessagesConfig.DATE_DAYS_BACKWARD ) {
-            dr.startDate = DateFun.getSqlDateGMTDaysAgo(searchConfig.daysBackward);
-            dr.endDate = DateFun.getCurrentSqlDateGMT(); // today
+            dr.startDate = nowLocalDate.minusDays(searchConfig.daysBackward).toDateMidnight(DateTimeZone.UTC).getMillis();
+            dr.endDate = todayMillis;
         } else if( searchConfig.searchDates == SearchMessagesConfig.DATE_BETWEEN_DATES ) {
-            dr.startDate = DateFun.getSqlDateOfCalendar(searchConfig.startDate);
-            dr.endDate = DateFun.getSqlDateOfCalendar(searchConfig.endDate);
+            dr.startDate = new LocalDate(searchConfig.startDate).toDateMidnight(DateTimeZone.UTC).getMillis();
+            dr.endDate = new LocalDate(searchConfig.endDate).plusDays(1).toDateMidnight(DateTimeZone.UTC).getMillis();
         } else {
             // all dates
-            dr.startDate = new java.sql.Date(1);
-            dr.endDate = DateFun.getCurrentSqlDateGMT(); // today
+            dr.startDate = 0;
+            dr.endDate = todayMillis;
         }
     }
 
@@ -282,8 +286,8 @@ public class SearchMessagesThread extends Thread implements MessageDatabaseTable
     }
 
     private class DateRange {
-        java.sql.Date startDate;
-        java.sql.Date endDate;
+        long startDate;
+        long endDate;
     }
 
     private class TrustStates {

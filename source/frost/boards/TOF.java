@@ -24,6 +24,8 @@ import java.util.logging.*;
 import javax.swing.*;
 import javax.swing.tree.*;
 
+import org.joda.time.*;
+
 import frost.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;
@@ -177,11 +179,11 @@ public class TOF {
     /**
      * Add new invalid msg to database 
      */
-    public void receivedInvalidMessage(Board b, Calendar calDL, int index, String reason) {
+    public void receivedInvalidMessage(Board b, DateTime date, int index, String reason) {
         
         // first add to database, then mark slot used. this way its ok if Frost is shut down after add to db but
         // before mark of the slot.
-        FrostMessageObject invalidMsg = new FrostMessageObject(b, calDL, index, reason);
+        FrostMessageObject invalidMsg = new FrostMessageObject(b, date, index, reason);
         try {
             AppLayerDatabase.getMessageTable().insertMessage(invalidMsg);
         } catch (SQLException e) {
@@ -212,13 +214,10 @@ public class TOF {
     private void processNewMessage(FrostMessageObject currentMsg, Board board) {
 
         // check if msg would be displayed (maxMessageDays)
-        Calendar minDate = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        minDate.add(Calendar.DATE, -1*board.getMaxMessageDisplay());
+        DateTime min = new LocalDate(DateTimeZone.UTC).minusDays(board.getMaxMessageDisplay()).toDateTimeAtMidnight();
+        DateTime msgDate = new DateTime(currentMsg.getDateAndTime(), DateTimeZone.UTC);
         
-        Calendar msgDate = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
-        msgDate.setTimeInMillis( currentMsg.getSqlDate().getTime());
-        
-        if( !msgDate.before(minDate) ) {
+        if( msgDate.getMillis() > min.getMillis() ) {
             // add new message or notify of arrival
             addNewMessageToGui(currentMsg, board);
         } // else msg is not displayed due to maxMessageDisplay

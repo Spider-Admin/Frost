@@ -22,10 +22,11 @@ import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
+import org.joda.time.*;
+
 import frost.boards.*;
 import frost.messages.*;
 import frost.storage.database.*;
-import frost.util.*;
 
 /**
  * Archived messages. Same as MessageDatabaseTable, but boards are stored as VARCHAR
@@ -43,8 +44,7 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
         "inreplyto VARCHAR,"+
         "isvalid BOOLEAN,"+
         "invalidreason VARCHAR,"+
-        "msgdate DATE NOT NULL,"+
-        "msgtime TIME,"+
+        "msgdatetime BIGINT NOT NULL,"+
         "msgindex INT NOT NULL,"+
         "board VARCHAR NOT NULL,"+
         "fromname VARCHAR,"+
@@ -61,6 +61,8 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
         "isstarred BOOLEAN,"+
         "hasfileattachment BOOLEAN,"+
         "hasboardattachment BOOLEAN,"+
+        "idlinepos INT,"+
+        "idlinelen INT,"+
         "CONSTRAINT msgarc_pk PRIMARY KEY (primkey),"+
         "CONSTRAINT msgarc_unique UNIQUE(messageid)"+ // multiple null allowed
         ")";
@@ -129,9 +131,10 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         PreparedStatement ps = db.prepare(
             "INSERT INTO MESSAGEARCHIVE ("+
-            "primkey,messageid,inreplyto,isvalid,invalidreason,msgdate,msgtime,msgindex,board,fromname,subject,recipient,signature," +
-            "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,hasfileattachment,hasboardattachment"+
-            ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+            "primkey,messageid,inreplyto,isvalid,invalidreason,msgdatetime,msgindex,board,fromname,subject,recipient,signature," +
+            "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,hasfileattachment,hasboardattachment," +
+            "idlinepos,idlinelen"+
+            ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
         
         Long identity = null;
         Statement stmt = AppLayerDatabase.getInstance().createStatement();
@@ -150,8 +153,7 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
         ps.setString(i++, mo.getInReplyTo()); // inreplyto
         ps.setBoolean(i++, mo.isValid()); // isvalid
         ps.setString(i++, mo.getInvalidReason()); // invalidreason
-        ps.setDate(i++, mo.getSqlDate()); // date  
-        ps.setTime(i++, mo.getSqlTime()); // time
+        ps.setLong(i++, mo.getDateAndTime().getMillis()); // date  
         ps.setInt(i++, mo.getIndex()); // index
         ps.setString(i++, mo.getBoard().getNameLowerCase()); // board
         ps.setString(i++, mo.getFromName()); // from
@@ -168,6 +170,8 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
         ps.setBoolean(i++, mo.isStarred()); // isstarred
         ps.setBoolean(i++, (files.size() > 0)); // hasfileattachment
         ps.setBoolean(i++, (boards.size() > 0)); // hasboardattachment
+        ps.setInt(i++, 0); // idlinepos
+        ps.setInt(i++, 0); // idlinelen
 
         int insertedCount;
         // sync to allow no updates until we got the generated identity
@@ -322,8 +326,7 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
         mo.setMsgIdentity(rs.getLong(ix++));
         mo.setMessageId(rs.getString(ix++));
         mo.setInReplyTo(rs.getString(ix++));
-        mo.setSqlDate(rs.getDate(ix++));
-        mo.setSqlTime(rs.getTime(ix++));
+        mo.setDateAndTime(new DateTime(rs.getLong(ix++), DateTimeZone.UTC));
         mo.setIndex(rs.getInt(ix++));
         mo.setFromName(rs.getString(ix++));
         mo.setSubject(rs.getString(ix++));
@@ -341,6 +344,9 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
         mo.setHasFileAttachments( rs.getBoolean(ix++) );
         mo.setHasBoardAttachments( rs.getBoolean(ix++) );
         
+        rs.getInt(ix++); // idlinepos
+        rs.getInt(ix++); // idlinelen
+        
         retrieveMessageContent(mo);
         retrieveAttachments(mo);
         
@@ -349,8 +355,8 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
     
     public void retrieveMessagesForSearch(
             Board board, 
-            java.sql.Date startDate, 
-            java.sql.Date endDate,
+            long startDate, 
+            long endDate,
             boolean showDeleted, 
             MessageDatabaseTableCallback mc) 
     throws SQLException 
@@ -358,14 +364,14 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         String sql =
             "SELECT "+
-            "primkey,messageid,inreplyto,msgdate,msgtime,msgindex,fromname,subject,recipient," +
+            "primkey,messageid,inreplyto,msgdatetime,msgindex,fromname,subject,recipient," +
             "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
-            "hasfileattachment,hasboardattachment";
-            sql += " FROM MESSAGEARCHIVE WHERE msgdate>=? AND msgdate<=? AND board=? AND isvalid=TRUE AND isdeleted=?";
+            "hasfileattachment,hasboardattachment,idlinepos,idlinelen";
+            sql += " FROM MESSAGEARCHIVE WHERE msgdatetime>=? AND msgdatetime<=? AND board=? AND isvalid=TRUE AND isdeleted=?";
         PreparedStatement ps = db.prepare(sql);
         
-        ps.setDate(1, startDate);
-        ps.setDate(2, endDate);
+        ps.setLong(1, startDate);
+        ps.setLong(2, endDate);
         ps.setString(3, board.getNameLowerCase());
         ps.setBoolean(4, showDeleted);
         
@@ -391,9 +397,9 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         String sql =
             "SELECT "+
-            "primkey,messageid,inreplyto,msgdate,msgtime,msgindex,fromname,subject,recipient," +
+            "primkey,messageid,inreplyto,msgdatetime,msgindex,fromname,subject,recipient," +
             "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
-            "hasfileattachment,hasboardattachment";
+            "hasfileattachment,hasboardattachment,idlinepos,idlinelen";
             sql += " FROM MESSAGEARCHIVE WHERE board=? AND messageid=?";
         PreparedStatement ps = db.prepare(sql);
         
@@ -424,9 +430,9 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
             ps = db.prepare("SELECT COUNT(primkey) FROM MESSAGEARCHIVE WHERE board=? AND isvalid=TRUE");
             ps.setString(1, board.getNameLowerCase());
         } else {
-            ps = db.prepare("SELECT COUNT(primkey) FROM MESSAGEARCHIVE WHERE msgdate >=? AND board=? AND isvalid=TRUE");
-            java.sql.Date startDate = DateFun.getSqlDateGMTDaysAgo(maxDaysBack);
-            ps.setDate(1, startDate);
+            ps = db.prepare("SELECT COUNT(primkey) FROM MESSAGEARCHIVE WHERE msgdatetime>=? AND board=? AND isvalid=TRUE");
+            LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysBack);
+            ps.setLong(1, localDate.toDateMidnight(DateTimeZone.UTC).getMillis());
             ps.setString(2, board.getNameLowerCase());
         }
         

@@ -124,7 +124,7 @@ public class FrostSharedFileItem extends ModelItem {
         sfxf.setKey(getChkKey());
         sfxf.setFilename(getFile().getName());
         if( getLastUploaded() != 0 ) {
-            sfxf.setLastUploaded(DateFun.getExtendedDateFromMillis(getLastUploaded()));
+            sfxf.setLastUploaded(DateFun.FORMAT_DATE_EXT.print(getLastUploaded()));
         } else {
             sfxf.setLastUploaded(null);
         }

@@ -22,6 +22,8 @@ import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
+import org.joda.time.*;
+
 import frost.fileTransfer.download.*;
 import frost.identities.*;
 import frost.storage.database.applayer.*;
@@ -106,10 +108,12 @@ public class FrostFileListFileObject {
         long lastUploadDate = 0;
         if( sfo.getKey() != null ) {
             if( sfo.getLastUploaded() != null ) {
-                Calendar cal = DateFun.getCalendarFromDate(sfo.getLastUploaded());
-                lastUploadDate = cal.getTimeInMillis();
-            } else {
-                lastUploadDate = 0;
+                try {
+                    DateTime dt = DateFun.FORMAT_DATE.parseDateTime(sfo.getLastUploaded());
+                    lastUploadDate = dt.getMillis();
+                } catch(Throwable t) {
+                    logger.log(Level.SEVERE, " error parsing file last uploaded date", t);
+                }
             }
         }
         lastUploaded = lastUploadDate;
