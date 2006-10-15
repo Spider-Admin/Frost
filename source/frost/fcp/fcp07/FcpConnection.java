@@ -499,6 +499,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
                     output.indexOf("Restarted") > -1 || 
                     output.indexOf("SimpleProgress") > -1 || 
                     output.indexOf("PutFetchable") > -1 || 
+                    output.indexOf("StartedCompression") > -1 || 
                     output.indexOf("FinishedCompression") > -1 || 
                     output.indexOf("URIGenerated") > -1) 
                 {
