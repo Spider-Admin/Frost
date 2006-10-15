@@ -107,91 +107,91 @@ public class Core implements FrostEventDispatcher  {
      * user of the situation and returns false.
      * @return boolean false if no nodes are available. True otherwise.
      */
-    private boolean initializeConnectivity2() {
-
-        // determine configured freenet version
-        int freenetVersion = frostSettings.getIntValue("freenetVersion"); // 5 or 7
-        if( freenetVersion <= 0 ) {
-            FreenetVersionDialog dlg = new FreenetVersionDialog();
-            dlg.setVisible(true);
-            if( dlg.isChoosedExit() ) {
-                return false;
-            }
-            if( dlg.isChoosedFreenet05() ) {
-                frostSettings.setValue("freenetVersion", "5");
-            } else if( dlg.isChoosedFreenet07() ) {
-                frostSettings.setValue("freenetVersion", "7");
-            } else {
-                return false;
-            }
-            freenetVersion = frostSettings.getIntValue("freenetVersion"); // 5 or 7
-        }
-        
-        if (freenetVersion == 5) {
-        	fcpVersion = Network.FCP1;
-        } else {
-        	fcpVersion = Network.FCP2;
-        }
-
-        if( freenetVersion != 5 && freenetVersion != 7 ) {
-            MiscToolkit.getInstance().showMessage(
-                    language.getString("Core.init.UnsupportedFreenetVersionBody")+": "+freenetVersion,
-                    JOptionPane.ERROR_MESSAGE,
-                    language.getString("Core.init.UnsupportedFreenetVersionTitle"));
-            return false;
-        }
-        
-        // get the list of available nodes
-        String nodesUnparsed = frostSettings.getValue("availableNodes");
-        List nodes = new ArrayList();
-
-        if (nodesUnparsed == null) { //old format
-            String converted = new String(frostSettings.getValue("nodeAddress")+":"+frostSettings.getValue("nodePort"));
-            nodes.add(converted.trim());
-            frostSettings.setValue("availableNodes", converted.trim());
-        } else { // new format
-            String[] _nodes = nodesUnparsed.split(",");
-            for (int i = 0; i < _nodes.length; i++) {
-                nodes.add(_nodes[i]);
-            }
-        }
-
-        Factory factory = new Factory();
-        
-        fcpDispatcher = new Dispatcher(factory);
-        
-        Network net = new Network(fcpVersion, "frost"+fcpVersion, nodes, fcpDispatcher);
-        
-        
-
-        factory.addNetwork(net);
-
-        if (nodes.size() == 0) {
-            MiscToolkit.getInstance().showMessage(
-                "Not a single Freenet node configured. You need at least one.",
-                JOptionPane.ERROR_MESSAGE,
-                "ERROR: No Freenet nodes are configured.");
-            return false;
-        }
-        
-        // init the dispatcher with configured nodes
-                
-        
-        
-        // install our security manager that only allows connections to the configured FCP hosts
-        System.setSecurityManager(new FrostSecurityManager());
-        
-        // now network and secuity are setted up
-        
-        if( Frost.isOfflineMode() ) {
-        	System.err.println("DEBUG: Frost is in oflline mode");
-            return true;
-        }
-        
-        // and go online (at lest one node noeeds a successful helo)
-        fcpDispatcher.goOnline(true);
-
-        boolean runningOnTestnet = false;
+//    private boolean initializeConnectivity2() {
+//
+//        // determine configured freenet version
+//        int freenetVersion = frostSettings.getIntValue("freenetVersion"); // 5 or 7
+//        if( freenetVersion <= 0 ) {
+//            FreenetVersionDialog dlg = new FreenetVersionDialog();
+//            dlg.setVisible(true);
+//            if( dlg.isChoosedExit() ) {
+//                return false;
+//            }
+//            if( dlg.isChoosedFreenet05() ) {
+//                frostSettings.setValue("freenetVersion", "5");
+//            } else if( dlg.isChoosedFreenet07() ) {
+//                frostSettings.setValue("freenetVersion", "7");
+//            } else {
+//                return false;
+//            }
+//            freenetVersion = frostSettings.getIntValue("freenetVersion"); // 5 or 7
+//        }
+//        
+//        if (freenetVersion == 5) {
+//        	fcpVersion = Network.FCP1;
+//        } else {
+//        	fcpVersion = Network.FCP2;
+//        }
+//
+//        if( freenetVersion != 5 && freenetVersion != 7 ) {
+//            MiscToolkit.getInstance().showMessage(
+//                    language.getString("Core.init.UnsupportedFreenetVersionBody")+": "+freenetVersion,
+//                    JOptionPane.ERROR_MESSAGE,
+//                    language.getString("Core.init.UnsupportedFreenetVersionTitle"));
+//            return false;
+//        }
+//        
+//        // get the list of available nodes
+//        String nodesUnparsed = frostSettings.getValue("availableNodes");
+//        List nodes = new ArrayList();
+//
+//        if (nodesUnparsed == null) { //old format
+//            String converted = new String(frostSettings.getValue("nodeAddress")+":"+frostSettings.getValue("nodePort"));
+//            nodes.add(converted.trim());
+//            frostSettings.setValue("availableNodes", converted.trim());
+//        } else { // new format
+//            String[] _nodes = nodesUnparsed.split(",");
+//            for (int i = 0; i < _nodes.length; i++) {
+//                nodes.add(_nodes[i]);
+//            }
+//        }
+//
+//        Factory factory = new Factory();
+//        
+//        fcpDispatcher = new Dispatcher(factory);
+//        
+//        Network net = new Network(fcpVersion, "frost"+fcpVersion, nodes, fcpDispatcher);
+//        
+//        
+//
+//        factory.addNetwork(net);
+//
+//        if (nodes.size() == 0) {
+//            MiscToolkit.getInstance().showMessage(
+//                "Not a single Freenet node configured. You need at least one.",
+//                JOptionPane.ERROR_MESSAGE,
+//                "ERROR: No Freenet nodes are configured.");
+//            return false;
+//        }
+//        
+//        // init the dispatcher with configured nodes
+//                
+//        
+//        
+//        // install our security manager that only allows connections to the configured FCP hosts
+//        System.setSecurityManager(new FrostSecurityManager());
+//        
+//        // now network and secuity are setted up
+//        
+//        if( Frost.isOfflineMode() ) {
+//        	System.err.println("DEBUG: Frost is in oflline mode");
+//            return true;
+//        }
+//        
+//        // and go online (at lest one node noeeds a successful helo)
+//        fcpDispatcher.goOnline(true);
+//
+//        boolean runningOnTestnet = false;
 //        try {
 //            List nodeInfo = FcpHandler.inst().getNodeInfo();
 //            if( nodeInfo != null ) {
@@ -218,19 +218,19 @@ public class Core implements FrostEventDispatcher  {
 //                    JOptionPane.WARNING_MESSAGE,
 //                    language.getString("Core.init.TestnetWarningTitle"));
 //        }
-
-        // We warn the user if there aren't any running nodes
-        if (!isFreenetOnline()) {
-        	System.err.println("DEBUG: Frost is oflline");
-            MiscToolkit.getInstance().showMessage(
-                language.getString("Core.init.NodeNotRunningBody"),
-                JOptionPane.WARNING_MESSAGE,
-                language.getString("Core.init.NodeNotRunningTitle"));
-            return false;
-        }
-
-        return true;
-    }
+//
+//        // We warn the user if there aren't any running nodes
+//        if (!isFreenetOnline()) {
+//        	System.err.println("DEBUG: Frost is oflline");
+//            MiscToolkit.getInstance().showMessage(
+//                language.getString("Core.init.NodeNotRunningBody"),
+//                JOptionPane.WARNING_MESSAGE,
+//                language.getString("Core.init.NodeNotRunningTitle"));
+//            return false;
+//        }
+//
+//        return true;
+//    }
 
 /*-----------*/
     
