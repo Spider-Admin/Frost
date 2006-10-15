@@ -53,7 +53,7 @@ public class MessageUploader {
         File unsentMessageFile;
         MessageUploaderCallback callback;
         IndexSlotsDatabaseTable indexSlots;
-        java.sql.Date date;
+        long date;
         byte[] signMetadata;
         Identity encryptForRecipient;
         LocalIdentity senderId;
@@ -94,7 +94,7 @@ public class MessageUploader {
             LocalIdentity senderId,
             MessageUploaderCallback callback,
             IndexSlotsDatabaseTable indexSlots,
-            java.sql.Date date,
+            long date,
             JFrame parentFrame,
             String logBoardName) {
         
@@ -117,7 +117,7 @@ public class MessageUploader {
         if( prepareMessage(wa) == false ) {
             return -1;
         }
-        
+        wa.message.saveToFile(new File("D:\\"+System.currentTimeMillis()));
         try {
             return uploadMessage(wa);
         } catch (IOException ex) {

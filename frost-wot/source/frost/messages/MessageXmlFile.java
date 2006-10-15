@@ -24,6 +24,7 @@ import java.util.*;
 import java.util.logging.*;
 
 import org.bouncycastle.util.encoders.*;
+import org.joda.time.*;
 import org.w3c.dom.*;
 import org.xml.sax.*;
 
@@ -40,6 +41,8 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
     private String boardName = "";
     private String dateStr = "";
     private String timeStr = "";
+    
+    private DateTime dateAndTime = null;
 
     protected File file;
     
@@ -55,6 +58,13 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
         setInReplyTo(mo.getInReplyTo()); // inreplyto
         setBoardName(mo.getBoard().getName()); // board
         setFromName(mo.getFromName()); // from
+        Identity id = getFromIdentity();
+        if( id == null ) {
+            logger.severe("Error: From identity for new message was not found, using Anonymous!");
+            setFromName("Anonymous");
+        } else {
+            setPublicKey(id.getKey());
+        }
         setSubject(mo.getSubject()); // subject
         setRecipientName(mo.getRecipientName()); // recipient
         setContent(mo.getContent()); // msgcontent
@@ -389,9 +399,9 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
         setMessageId(XMLTools.getChildElementsCDATAValue(e, "MessageId"));
         setInReplyTo(XMLTools.getChildElementsCDATAValue(e, "InReplyTo"));
         setFromName(XMLTools.getChildElementsCDATAValue(e, "From"));
-        setDateStr(XMLTools.getChildElementsCDATAValue(e, "Date"));
         setSubject(XMLTools.getChildElementsCDATAValue(e, "Subject"));
-        setTimeStr(XMLTools.getChildElementsCDATAValue(e, "Time"));
+        dateStr = XMLTools.getChildElementsCDATAValue(e, "Date");
+        timeStr = XMLTools.getChildElementsCDATAValue(e, "Time");
         setPublicKey(XMLTools.getChildElementsCDATAValue(e, "pubKey"));
         setRecipientName(XMLTools.getChildElementsCDATAValue(e, "recipient"));
         setBoardName(XMLTools.getChildElementsCDATAValue(e, "Board"));
@@ -561,12 +571,6 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
     public void setBoardName(String board) {
         this.boardName = board;
     }
-    public void setDateStr(String date) {
-        this.dateStr = date;
-    }
-    public void setTimeStr(String time) {
-        this.timeStr = time;
-    }
     
     public boolean isMessageNew() {
         File newMessage = new File(getFile().getPath() + ".lck");
@@ -575,5 +579,20 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
         } else {
             return false;
         }
+    }
+    
+    public DateTime getDateAndTime() throws Throwable {
+        if( dateAndTime == null ) {
+            long millis = DateFun.FORMAT_DATE.parseDateTime(getDateStr()).getMillis()
+                          + DateFun.FORMAT_TIME.parseDateTime(getTimeStr()).getMillis();
+            dateAndTime = new DateTime(millis, DateTimeZone.UTC);
+        }
+        return dateAndTime;
+    }
+
+    public void setDateAndTime(DateTime dt) {
+        dateAndTime = dt;
+        dateStr = DateFun.FORMAT_DATE.print(dt);
+        timeStr = DateFun.FORMAT_EXT_TIME.print(dt);
     }
 }

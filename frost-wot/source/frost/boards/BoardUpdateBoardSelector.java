@@ -29,9 +29,11 @@ import frost.messages.*;
  */
 public class BoardUpdateBoardSelector {
 
-    // FIXME: update boards with most msgs in last X hours more often
+    // TODO: update boards with most msgs in last X hours more often
     //  -> TOF calls Board.newMessageReceived. somehow count how many message were received during last X updates (?)
     //  -> OR check db table how many messages we received in last 24h?
+    
+    // -> HOLD item for later release, maybe its not longer critical because we do not request the full backload each time now
     
     private static Board lastSelectedBoard = null;
 

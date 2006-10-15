@@ -21,11 +21,10 @@ package frost.storage.database.applayer;
 import java.sql.*;
 import java.util.*;
 
-import frost.util.*;
+import org.joda.time.*;
 
 /**
- * Class provides functionality to track used index slots
- * for upload and download.
+ * Class provides functionality to track used index slots for upload and download.
  * 
  * Same funtionality as IndexSlotsDatabaseTable.java, but without boards and locking.
  */
@@ -42,7 +41,7 @@ public class GlobalIndexSlotsDatabaseTable {
     private AppLayerDatabase db;
 
     private static final String SQL_DDL = 
-        "CREATE TABLE GLOBALINDEXSLOTS (indexname INT, msgdate DATE, msgindex INT,"+
+        "CREATE TABLE GLOBALINDEXSLOTS (indexname INT, msgdate BIGINT, msgindex INT,"+
         " wasdownloaded BOOLEAN, wasuploaded BOOLEAN, "+
         " CONSTRAINT UNIQUE_GLOBALINDICES_ONLY UNIQUE(indexname,msgdate,msgindex) )";
     
@@ -161,12 +160,12 @@ public class GlobalIndexSlotsDatabaseTable {
     }
     
     // find first not downloaded, unlocked
-    public int findFirstDownloadSlot(java.sql.Date date) throws SQLException {
+    public int findFirstDownloadSlot(long date) throws SQLException {
         return findNextDownloadSlot(-1, date);
     }
 
     // find next not downloaded, unlocked
-    public int findNextDownloadSlot(int beforeIndex, java.sql.Date date) throws SQLException {
+    public int findNextDownloadSlot(int beforeIndex, long date) throws SQLException {
         synchronized(syncObj) {
             ResultSet rs = executePsNEXT_DOWNLOAD_SLOT(beforeIndex, date);
             
@@ -198,7 +197,7 @@ public class GlobalIndexSlotsDatabaseTable {
     }
 
     // set used
-    public void setDownloadSlotUsed(int index, java.sql.Date date) throws SQLException {
+    public void setDownloadSlotUsed(int index, long date) throws SQLException {
         boolean updateOk = false;
         try {
             if( executePsUPDATE_WASDOWNLOADED(index, date) == 1 ) {
@@ -216,7 +215,7 @@ public class GlobalIndexSlotsDatabaseTable {
     }
 
     // find first unused, unlocked, and lock!
-    public int findFirstUploadSlot(java.sql.Date date) throws SQLException {
+    public int findFirstUploadSlot(long date) throws SQLException {
         synchronized(syncObj) {
             ResultSet rs = executePsNEXT_MAX_USED_SLOT(-1, date);
             
@@ -232,7 +231,7 @@ public class GlobalIndexSlotsDatabaseTable {
     }
 
     // find next unused, unlocked, and lock!
-    public int findNextUploadSlot(int beforeIndex, java.sql.Date date) throws SQLException {
+    public int findNextUploadSlot(int beforeIndex, long date) throws SQLException {
         synchronized(syncObj) {
             ResultSet rs = executePsNEXT_MAX_USED_SLOT(beforeIndex, date);
             
@@ -248,66 +247,66 @@ public class GlobalIndexSlotsDatabaseTable {
     }
 
     // set used and unlock!
-    public void setUploadSlotUsed(int index, java.sql.Date date) throws SQLException {
+    public void setUploadSlotUsed(int index, long date) throws SQLException {
         executePsUPDATE_WASUPLOADED(index, date);
     }
 
-    private int executePsUPDATE_WASUPLOADED(int index, java.sql.Date date) throws SQLException {
+    private int executePsUPDATE_WASUPLOADED(int index, long date) throws SQLException {
         // "UPDATE INDEXSLOTS SET used=TRUE WHERE indexname=? AND date=? AND index=?";
         PreparedStatement ps = getPsUPDATE_WASUPLOADED();
         ps.setInt(1, indexName);
-        ps.setDate(2, date);
+        ps.setLong(2, date);
         ps.setInt(3, index);
         return ps.executeUpdate();
     }
 
-    private int executePsUPDATE_WASDOWNLOADED(int index, java.sql.Date date) throws SQLException {
+    private int executePsUPDATE_WASDOWNLOADED(int index, long date) throws SQLException {
         // "UPDATE INDEXSLOTS SET wasdownloaded=TRUE WHERE indexname=? AND date=? AND index=?"
         PreparedStatement ps = getPsUPDATE_WASDOWNLOADED();
         ps.setInt(1, indexName);
-        ps.setDate(2, date);
+        ps.setLong(2, date);
         ps.setInt(3, index);
         return ps.executeUpdate();
     }
 
-    private int executePsINSERT(int index, boolean wasdownloaded, boolean wasuploaded, java.sql.Date date) throws SQLException {
+    private int executePsINSERT(int index, boolean wasdownloaded, boolean wasuploaded, long date) throws SQLException {
         // "INSERT INTO INDEXSLOTS (indexname,date,index,wasdownloaded,wasuploaded) VALUES (?,?,?,?,?)"
         PreparedStatement ps = getPsINSERT();
         ps.setInt(1, indexName);
-        ps.setDate(2, date);
+        ps.setLong(2, date);
         ps.setInt(3, index);
         ps.setBoolean(4, wasdownloaded);
         ps.setBoolean(5, wasuploaded);
         return ps.executeUpdate();
     }
 
-    private ResultSet executePsNEXT_DOWNLOAD_SLOT(int beforeIndex, java.sql.Date date) throws SQLException {
+    private ResultSet executePsNEXT_DOWNLOAD_SLOT(int beforeIndex, long date) throws SQLException {
         // "SELECT TOP 1 index FROM INDEXSLOTS WHERE indexname=? AND date=? AND index>? "+
         // "AND used=FALSE ORDER BY index";
         PreparedStatement ps = getPsNEXT_DOWNLOAD_SLOT();
         ps.setInt(1, indexName);
-        ps.setDate(2, date);
+        ps.setLong(2, date);
         ps.setInt(3, beforeIndex);
         
         ResultSet rs = ps.executeQuery();
         return rs;
     }
     
-    private ResultSet executePsMAX_SLOT(java.sql.Date date) throws SQLException {
+    private ResultSet executePsMAX_SLOT(long date) throws SQLException {
         // "SELECT TOP 1 index FROM INDEXSLOTS WHERE indexname=? AND date=? ORDER BY index DESC"
         PreparedStatement ps = getPsMAX_SLOT();
         ps.setInt(1, indexName);
-        ps.setDate(2, date);
+        ps.setLong(2, date);
         ResultSet rs = ps.executeQuery();
         return rs;
     }
     
-    private ResultSet executePsNEXT_MAX_USED_SLOT(int beforeIndex, java.sql.Date date) throws SQLException {
+    private ResultSet executePsNEXT_MAX_USED_SLOT(int beforeIndex, long date) throws SQLException {
         // "SELECT TOP 1 index FROM INDEXSLOTS WHERE indexname=? AND date=? AND index>? "+
         // "AND ( used=TRUE ) ORDER BY index DESC";
         PreparedStatement ps = getPsNEXT_MAX_USED_SLOT();
         ps.setInt(1, indexName);
-        ps.setDate(2, date);
+        ps.setLong(2, date);
         ps.setInt(3, beforeIndex);
         
         ResultSet rs = ps.executeQuery();
@@ -322,10 +321,11 @@ public class GlobalIndexSlotsDatabaseTable {
 
         AppLayerDatabase localDB = AppLayerDatabase.getInstance();
         
-        java.sql.Date sqlDate = DateFun.getSqlDateGMTDaysAgo(maxDaysOld + 1);
+        // millis before maxDaysOld days
+        long date = new LocalDate().minusDays(maxDaysOld + 1).toDateTimeAtMidnight(DateTimeZone.UTC).getMillis();
         
         PreparedStatement ps = localDB.prepare("DELETE FROM GLOBALINDEXSLOTS WHERE msgdate<?");
-        ps.setDate(1, sqlDate);
+        ps.setLong(1, date);
         
         int deletedCount = ps.executeUpdate();
         

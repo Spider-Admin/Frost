@@ -42,13 +42,20 @@ public class MessageDownloader {
      * @return  null if unexpected Exception occurred, or results indicating state or error
      */
     protected static MessageDownloaderResult processDownloadedFile(File tmpFile, FcpResultGet results, String logInfo) {
-        if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
-            return processDownloadedFile05(tmpFile, results, logInfo);
-        } else if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) {
-            return processDownloadedFile07(tmpFile, results, logInfo);
-        } else {
-            logger.severe("Unsupported freenet version: "+FcpHandler.getInitializedVersion());
-            return null;
+        try {
+            if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
+                return processDownloadedFile05(tmpFile, results, logInfo);
+            } else if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) {
+                return processDownloadedFile07(tmpFile, results, logInfo);
+            } else {
+                logger.severe("Unsupported freenet version: "+FcpHandler.getInitializedVersion());
+                return null;
+            }
+        } catch(Throwable t) {
+            logger.log(Level.SEVERE, "Error processing downloaded message", t);
+            MessageDownloaderResult mdResult = new MessageDownloaderResult();
+            mdResult.errorMsg = MessageDownloaderResult.BROKEN_MSG;
+            return mdResult;
         }
     }
     

@@ -22,6 +22,8 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
+import org.joda.time.*;
+
 import frost.*;
 import frost.fileTransfer.*;
 import frost.storage.database.applayer.*;
@@ -65,7 +67,7 @@ public class FilePointersThread extends Thread {
     /**
      * Returns true if no error occured.
      */
-    private boolean uploadIndexFile(String dateStr, java.sql.Date sqlDate) throws Throwable {
+    private boolean uploadIndexFile(String dateStr, long sqlDate) throws Throwable {
 
         // get a list of CHK keys to send
         List sharedFileCHKkeys = SharedFilesCHKKeyManager.getCHKKeysToSend();
@@ -109,7 +111,7 @@ System.out.println("uploadIndexFile: upload finished, wasOk="+wasOk);
         return wasOk;
     }
     
-    private void downloadDate(String dateStr, java.sql.Date sqlDate, boolean isForToday) throws Throwable {
+    private void downloadDate(String dateStr, long date, boolean isForToday) throws Throwable {
         
         // "KSK@frost/filelistpointer/2006.11.1-<index>.xml"
         String requestKey = keyPrefix + dateStr + "-"; 
@@ -120,7 +122,7 @@ System.out.println("uploadIndexFile: upload finished, wasOk="+wasOk);
         } else {
             maxFailures = 2; // skip a maximum of 1 empty slot for backload
         }
-        int index = indexSlots.findFirstDownloadSlot(sqlDate);
+        int index = indexSlots.findFirstDownloadSlot(date);
         int failures = 0;
         while (failures < maxFailures && index >= 0 ) {
 
@@ -137,15 +139,15 @@ System.out.println("FilePointersThread.downloadDate: failure");
                 // download failed. 
                 failures++;
                 // next loop we try next index
-                index = indexSlots.findNextDownloadSlot(index, sqlDate);
+                index = indexSlots.findNextDownloadSlot(index, date);
                 continue;
             }
 System.out.println("FilePointersThread.downloadDate: success");
             
             // download was successful, mark it
-            indexSlots.setDownloadSlotUsed(index, sqlDate);
+            indexSlots.setDownloadSlotUsed(index, date);
             // next loop we try next index
-            index = indexSlots.findNextDownloadSlot(index, sqlDate);
+            index = indexSlots.findNextDownloadSlot(index, date);
             failures = 0;
 
             FilePointerFileContent content = FilePointerFile.readPointerFile(downloadedFile);
@@ -165,6 +167,7 @@ System.out.println("readPointerFile: result: "+content);
             // +1 for today
             final int downloadBack = 1 + Core.frostSettings.getIntValue(SettingsClass.MAX_FILELIST_DOWNLOAD_DAYS);
             try {
+                LocalDate nowDate = new LocalDate(DateTimeZone.UTC);
                 for (int i=0; i < downloadBack; i++) {
                     boolean isForToday;
                     if( i == 0 ) {
@@ -173,20 +176,24 @@ System.out.println("readPointerFile: result: "+content);
                         isForToday = false;
                     }
                     
-                    String dateStr = DateFun.getDate(i);
-                    java.sql.Date sqlDate = DateFun.getSqlDateGMTDaysAgo(i);
+                    LocalDate localDate = nowDate.minusDays(i);
+                    String dateStr = DateFun.FORMAT_DATE.print(localDate);
+                    long date = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
+                    
+//                    String dateStr = DateFun.getDate(i);
+//                    java.sql.Date sqlDate = DateFun.getSqlDateGMTDaysAgo(i);
 
 System.out.println("FilePointersThread: download for "+dateStr);                    
                     // download file pointer files for this date
                     if( !isInterrupted() ) {
-                        downloadDate(dateStr, sqlDate, isForToday);
+                        downloadDate(dateStr, date, isForToday);
                     }
                     
                     // for today, maybe upload a file pointer file
                     if( !isInterrupted() && isForToday ) {
                         try {
 System.out.println("FilePointersThread: upload for "+dateStr);                    
-                            uploadIndexFile(dateStr, sqlDate);
+                            uploadIndexFile(dateStr, date);
                         } catch(Throwable t) {
                             logger.log(Level.SEVERE, "Exception during uploadIndexFile()", t);
                         }

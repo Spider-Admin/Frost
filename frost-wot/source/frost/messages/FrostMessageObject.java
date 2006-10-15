@@ -23,6 +23,8 @@ import java.util.*;
 
 import javax.swing.tree.*;
 
+import org.joda.time.*;
+
 import frost.*;
 import frost.boards.*;
 import frost.gui.model.*;
@@ -45,8 +47,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     
     private int index = -1;
     Board board = null;
-    java.sql.Date sqlDate = null;
-    java.sql.Time sqlTime = null;
+    DateTime dateAndTime = null;
     
     private boolean isDeleted = false;
     private boolean isNew = false;
@@ -60,7 +61,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     
     private LinkedList inReplyToList = null;
     
-    protected String dateAndTime = null;
+    protected String dateAndTimeString = null;
     
     protected long msgIdentity;
     
@@ -74,8 +75,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     
     public FrostMessageObject(boolean isRootnode) {
         setDummy(true);
-        setSqlDate(new java.sql.Date(0));
-        setSqlTime(new java.sql.Time(0));
+        setDateAndTime(new DateTime(0, DateTimeZone.UTC));
         setSubject("(root)");
         setNew(false);
         setFromName("");
@@ -88,9 +88,13 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         setValid(true);
         setBoard(b);
         setIndex(msgIndex);
-        
-        setSqlDate( DateFun.getSqlDateOfCalendar(DateFun.getCalendarFromDate(mof.getDateStr())) );
-        setSqlTime( DateFun.getSqlTimeFromString(mof.getTimeStr()) );
+
+        try {
+            setDateAndTime(mof.getDateAndTime());
+        } catch(Throwable t) {
+            // never happens, we already called this method
+            setDateAndTime(new DateTime(0, DateTimeZone.UTC));
+        }
 //        System.out.println("MSG TIME/DATE: time_in="+mof.getTimeStr()+", date_in="+mof.getDateStr()+", out="+getDateAndTime());
         // copy values from mof
         setAttachmentList(mof.getAttachmentList());
@@ -111,11 +115,11 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     /**
      * Construct a new FrostMessageObject for an invalid message (broken, encrypted for someone else, ...).
      */
-    public FrostMessageObject(Board b, Calendar calDL, int msgIndex, String reason) {
+    public FrostMessageObject(Board b, DateTime dt, int msgIndex, String reason) {
         setValid( false );
         setInvalidReason(reason);
         setBoard(b);
-        setSqlDate( DateFun.getSqlDateOfCalendar(calDL) );
+        setDateAndTime( dt );
         setIndex( msgIndex );
     }
     
@@ -126,8 +130,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         setDummyInReplyToList(ll);
 
         setDummy(true);
-        setSqlDate(new java.sql.Date(0));
-        setSqlTime(new java.sql.Time(0));
+        setDateAndTime(new DateTime(0, DateTimeZone.UTC));
         setSubject("");
         setNew(false);
         setFromName("");
@@ -142,8 +145,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         setBoard(mof.getBoard());
         setIndex(mof.getIndex());
         
-        setSqlDate( mof.getSqlDate() );
-        setSqlTime( mof.getSqlTime() );
+        setDateAndTime( mof.getDateAndTime() );
 
         setAttachmentList(mof.getAttachmentList());
         setContent(mof.getContent());
@@ -264,23 +266,27 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
             case 1: return getFromName();
             case 2: return getSubject();
             case 3: return getMessageStatusString();
-            case 4: return getDateAndTime();
+            case 4: return getDateAndTimeString();
             default: return "*ERR*";
         }
     }
 
-    public String getDateAndTime() {
-        if( dateAndTime == null ) {
-            // Build a String of format yyyy.mm.dd hh:mm:ssGMT        
-            String date = DateFun.getExtendedDateFromSqlDate(getSqlDate());
-            String time = DateFun.getExtendedTimeFromSqlTime(getSqlTime());
+    public String getDateAndTimeString() {
+        if( dateAndTimeString == null ) {
+            // Build a String of format yyyy.mm.dd hh:mm:ssGMT
+            DateTime dateTime = new DateTime(getDateAndTime(), DateTimeZone.UTC);
+            DateMidnight date = dateTime.toDateMidnight();
+            TimeOfDay time = dateTime.toTimeOfDay();
+
+            String dateStr = DateFun.FORMAT_DATE_EXT.print(date);
+            String timeStr = DateFun.FORMAT_EXT_TIME.print(time);
 
             StringBuffer sb = new StringBuffer(29);
-            sb.append(date).append(" ").append(time);
+            sb.append(dateStr).append(" ").append(timeStr);
 
-            this.dateAndTime = sb.toString();
+            this.dateAndTimeString = sb.toString();
         }
-        return this.dateAndTime;
+        return this.dateAndTimeString;
     }
     
     public Board getBoard() {
@@ -386,20 +392,12 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         this.isValid = isValid;
     }
 
-    public java.sql.Date getSqlDate() {
-        return sqlDate;
+    public void setDateAndTime(DateTime dt) {
+        dateAndTime = dt;
     }
 
-    public void setSqlDate(java.sql.Date sqlDate) {
-        this.sqlDate = sqlDate;
-    }
-
-    public java.sql.Time getSqlTime() {
-        return sqlTime;
-    }
-
-    public void setSqlTime(java.sql.Time sqlTime) {
-        this.sqlTime = sqlTime;
+    public DateTime getDateAndTime() {
+        return dateAndTime;
     }
 
     public long getMsgIdentity() {
@@ -535,8 +533,8 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
             FrostMessageObject t1 = (FrostMessageObject)o1; 
             FrostMessageObject t2 = (FrostMessageObject)o2;
             
-            long l1 = t1.getSqlDate().getTime() + t1.getSqlTime().getTime();
-            long l2 = t2.getSqlDate().getTime() + t2.getSqlTime().getTime();
+            long l1 = t1.getDateAndTime().getMillis();
+            long l2 = t2.getDateAndTime().getMillis();
             if( l1 > l2 ) {
                 return retvalGreater;
             }

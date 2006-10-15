@@ -38,12 +38,13 @@ public class UnsendMessageDatabaseTable extends AbstractDatabaseTable {
         "primkey BIGINT NOT NULL,"+
         "board INT NOT NULL,"+
         "sendafter BIGINT,"+ // prepared, not used
+        "idlinepos INT,"+
+        "idlinelen INT,"+
         "messageid VARCHAR NOT NULL,"+
         "inreplyto VARCHAR,"+
         "fromname VARCHAR,"+
         "subject VARCHAR,"+
         "recipient VARCHAR,"+
-        "msgcontentold VARCHAR,"+ // prepared, not used; answered content of message (part before our separator line)
         "msgcontent VARCHAR,"+
         "hasfileattachment BOOLEAN,"+
         "hasboardattachment BOOLEAN,"+
@@ -96,9 +97,9 @@ public class UnsendMessageDatabaseTable extends AbstractDatabaseTable {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         PreparedStatement ps = db.prepare(
             "INSERT INTO UNSENDMESSAGES ("+
-            "primkey,messageid,inreplyto,board,fromname,subject,recipient,msgcontent," +
+            "primkey,messageid,inreplyto,board,sendafter,idlinepos,idlinelen,fromname,subject,recipient,msgcontent," +
             "hasfileattachment,hasboardattachment,timeAdded"+
-            ") VALUES (?,?,?,?,?,?,?,?,?,?,?)");
+            ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
         
         Long identity = null;
         Statement stmt = AppLayerDatabase.getInstance().createStatement();
@@ -118,6 +119,9 @@ public class UnsendMessageDatabaseTable extends AbstractDatabaseTable {
         ps.setString(i++, mo.getMessageId()); // messageid
         ps.setString(i++, mo.getInReplyTo()); // inreplyto
         ps.setInt(i++, mo.getBoard().getPrimaryKey().intValue()); // board
+        ps.setLong(i++, 0); // sendAfter
+        ps.setInt(i++, 0); // idLinePos
+        ps.setInt(i++, 0); // idLineLen
         ps.setString(i++, mo.getFromName()); // from
         ps.setString(i++, mo.getSubject()); // subject
         ps.setString(i++, mo.getRecipientName()); // recipient
@@ -266,7 +270,7 @@ public class UnsendMessageDatabaseTable extends AbstractDatabaseTable {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         String sql =
             "SELECT "+
-            "primkey,messageid,inreplyto,board,fromname,subject,recipient," +
+            "primkey,messageid,inreplyto,board,sendafter,idlinepos,idlinelen,fromname,subject,recipient," +
             "msgcontent,hasfileattachment,hasboardattachment,timeAdded "+
             "FROM UNSENDMESSAGES ORDER BY timeAdded ASC";
         PreparedStatement ps = db.prepare(sql);
@@ -279,6 +283,9 @@ public class UnsendMessageDatabaseTable extends AbstractDatabaseTable {
             mo.setMessageId(rs.getString(ix++));
             mo.setInReplyTo(rs.getString(ix++));
             int boardPrimkey = rs.getInt(ix++);
+            long sendAfter = rs.getLong(ix++);
+            int idlinepos = rs.getInt(ix++);
+            int idlinelen = rs.getInt(ix++);
             mo.setFromName(rs.getString(ix++));
             mo.setSubject(rs.getString(ix++));
             mo.setRecipientName(rs.getString(ix++));

@@ -30,6 +30,8 @@ import javax.swing.event.*;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.table.*;
 
+import org.joda.time.*;
+
 import frost.*;
 import frost.gui.model.*;
 import frost.identities.*;
@@ -550,10 +552,8 @@ public class IdentitiesBrowser extends JDialog {
                 // not set!
                 return "";
             }
-            String lsStr;
-            
-            lsStr = DateFun.getExtendedDateFromSqlDate(new java.sql.Date(lastSeen));
-            long days = System.currentTimeMillis() - lastSeen;
+            String lsStr = DateFun.FORMAT_DATE_EXT.print(lastSeen);
+            long days = new DateMidnight(DateTimeZone.UTC).getMillis() - new DateMidnight(lastSeen, DateTimeZone.UTC).getMillis(); 
             days /= 1000L * 60L * 60L * 24L;
             lsStr += "  ("+days+")";
             

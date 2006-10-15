@@ -1357,7 +1357,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     if( nextMessage == null ) {
                         nextMessage = message;
                     } else {
-                        if( nextMessage.getDateAndTime().compareTo(message.getDateAndTime()) > 0 ) {
+                        if( nextMessage.getDateAndTimeString().compareTo(message.getDateAndTimeString()) > 0 ) {
                             nextMessage = message;
                         }
                     }

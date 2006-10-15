@@ -22,6 +22,8 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
+import org.joda.time.*;
+
 import frost.*;
 import frost.fileTransfer.*;
 import frost.storage.database.applayer.*;
@@ -63,7 +65,7 @@ public class FileRequestsThread extends Thread {
     /**
      * Returns true if no error occured.
      */
-    private boolean uploadRequestFile(String dateStr, java.sql.Date sqlDate) throws Throwable {
+    private boolean uploadRequestFile(String dateStr, long sqlDate) throws Throwable {
 
         // get a list of CHK keys to send
         List fileRequests = FileRequestsManager.getRequestsToSend();
@@ -98,7 +100,7 @@ System.out.println("uploadRequestFile: upload finished, wasOk="+wasOk);
         return wasOk;
     }
     
-    private void downloadDate(String dateStr, java.sql.Date sqlDate, boolean isForToday) throws Throwable {
+    private void downloadDate(String dateStr, long sqlDate, boolean isForToday) throws Throwable {
         
         // "KSK@frost/filerequests/2006.11.1-<index>.xml"
         String requestKey = keyPrefix + dateStr + "-"; 
@@ -150,6 +152,7 @@ System.out.println("uploadRequestFile: upload finished, wasOk="+wasOk);
             // +1 for today
             final int downloadBack = 1 + Core.frostSettings.getIntValue(SettingsClass.MAX_FILELIST_DOWNLOAD_DAYS);
             try {
+                LocalDate nowDate = new LocalDate(DateTimeZone.UTC);
                 for (int i=0; i < downloadBack; i++) {
                     boolean isForToday;
                     if( i == 0 ) {
@@ -158,19 +161,24 @@ System.out.println("uploadRequestFile: upload finished, wasOk="+wasOk);
                         isForToday = false;
                     }
                     
-                    String dateStr = DateFun.getDate(i);
-                    java.sql.Date sqlDate = DateFun.getSqlDateGMTDaysAgo(i);
+                    LocalDate localDate = nowDate.minusDays(i);
+                    String dateStr = DateFun.FORMAT_DATE.print(localDate);
+                    long date = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
+                    
+//                    String dateStr = DateFun.getDate(i);
+//                    java.sql.Date sqlDate = DateFun.getSqlDateGMTDaysAgo(i);
+                    
 System.out.println("FileRequestsThread: starting download for "+dateStr);
                     // download file pointer files for this date
                     if( !isInterrupted() ) {
-                        downloadDate(dateStr, sqlDate, isForToday);
+                        downloadDate(dateStr, date, isForToday);
                     }
                     
                     // for today, maybe upload a file pointer file
                     if( !isInterrupted() && isForToday ) {
                         try {
 System.out.println("FileRequestsThread: starting upload for "+dateStr);
-                            uploadRequestFile(dateStr, sqlDate);
+                            uploadRequestFile(dateStr, date);
                         } catch(Throwable t) {
                             logger.log(Level.SEVERE, "Exception catched during uploadRequestFile()", t);
                         }

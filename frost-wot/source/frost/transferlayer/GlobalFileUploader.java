@@ -33,7 +33,7 @@ public class GlobalFileUploader {
 
     public static boolean uploadFile(
             GlobalIndexSlotsDatabaseTable indexSlots, 
-            java.sql.Date date, 
+            long date, 
             File uploadFile,
             String insertKey,
             String insertKeyExtension) 

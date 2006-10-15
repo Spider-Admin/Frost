@@ -20,6 +20,8 @@ package frost.util;
 
 import java.util.logging.*;
 
+import org.joda.time.*;
+
 import frost.*;
 
 public final class Mixed {
@@ -35,9 +37,9 @@ public final class Mixed {
         
         StringBuffer idStrSb = new StringBuffer();
         idStrSb.append(Long.toString(System.currentTimeMillis())); // millis
-        idStrSb.append(DateFun.getExtendedDate());
+        idStrSb.append(DateFun.FORMAT_DATE_EXT.print(new DateTime()));
         idStrSb.append(Long.toString(Runtime.getRuntime().freeMemory())); // free java mem
-        idStrSb.append(DateFun.getExtendedTime());
+        idStrSb.append(DateFun.FORMAT_EXT_TIME.print(new DateTime()));
         byte[] idStrPart = idStrSb.toString().getBytes();
         
         // finally add some random bytes

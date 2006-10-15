@@ -57,7 +57,7 @@ public class SearchMessagesConfig {
     public static final int DATE_BETWEEN_DATES = 3;
     public static final int DATE_DAYS_BACKWARD = 4;
     public int searchDates;
-    public GregorianCalendar startDate, endDate;
+    public long startDate, endDate;
     public int daysBackward;
 
     public static final int TRUST_DISPLAYED = 1;

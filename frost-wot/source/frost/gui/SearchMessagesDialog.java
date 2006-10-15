@@ -1296,17 +1296,11 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         } else if( getDate_RBbetweenDates().isSelected() ) {
             scfg.searchDates = SearchMessagesConfig.DATE_BETWEEN_DATES;
             try {
-                GregorianCalendar c;
-                c = new GregorianCalendar();
-                c.setTimeInMillis(getDate_TFstartDate().getValue().getTime());
-                scfg.startDate = c;
-
-                c = new GregorianCalendar();
-                c.setTimeInMillis(getDate_TFendDate().getValue().getTime());
-                scfg.endDate = c;
+                scfg.startDate = getDate_TFstartDate().getValue().getTime();
+                scfg.endDate = getDate_TFendDate().getValue().getTime();
 
                 // check start before end
-                if( scfg.startDate.after(scfg.endDate) ) {
+                if( scfg.startDate > scfg.endDate ) {
                     JOptionPane.showMessageDialog(this,
                             language.getString("SearchMessages.errorDialogs.startDateIsAfterEndDate"),
                             language.getString("SearchMessages.errorDialogs.title"),

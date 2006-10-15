@@ -88,7 +88,7 @@ public class FrostSearchResultMessageObject implements TableMember {
             case 4: return messageObject.getBoard().getName();
             case 5: return messageObject.getSubject();
             case 6: return messageObject.getMessageStatusString();
-            case 7: return messageObject.getDateAndTime();
+            case 7: return messageObject.getDateAndTimeString();
             default: return "*ERR*";
         }
     }

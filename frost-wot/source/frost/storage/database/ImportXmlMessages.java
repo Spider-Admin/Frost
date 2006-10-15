@@ -23,6 +23,8 @@ import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
+import org.joda.time.*;
+
 import frost.*;
 import frost.boards.*;
 import frost.gui.*;
@@ -189,7 +191,7 @@ public class ImportXmlMessages {
         }
         
         // set indexslots only until max days back, not for all old messages
-        java.sql.Date maxDateBack = DateFun.getSqlDateGMTDaysAgo(Core.frostSettings.getIntValue("maxMessageDisplay")+1);
+        DateMidnight maxDateBack = new DateMidnight(DateTimeZone.UTC).minusDays(Core.frostSettings.getIntValue("maxMessageDisplay")+1);
         
         for(int i=0; i<boardDirs.length; i++) {
             File boardDir = boardDirs[i];
@@ -218,9 +220,9 @@ public class ImportXmlMessages {
                     continue;
                 }
                 // its a dir, we expect a name like '2006.3.1'
-                Calendar dateDirCal = null;
+                DateMidnight dateDirCal = null;
                 try {
-                    dateDirCal = DateFun.getCalendarFromDate(dateDir.getName());
+                    dateDirCal = DateFun.FORMAT_DATE.parseDateTime(dateDir.getName()).toDateMidnight();
                 } catch(NumberFormatException ex) {
                     logger.warning("Incorrect board date folder name, must be a date: "+dateDir);
                     continue;
@@ -246,7 +248,8 @@ public class ImportXmlMessages {
         }
     }
     
-    private boolean importMessageFile(File msgFile, Board board, Calendar calDL, IndexSlotsDatabaseTable indexSlots, java.sql.Date maxBack) {
+    private boolean importMessageFile(File msgFile, Board board, DateMidnight calDL, IndexSlotsDatabaseTable indexSlots, 
+            DateMidnight maxBack) {
         String fname = msgFile.getName();
         int index = -1;
         try {
@@ -292,7 +295,7 @@ public class ImportXmlMessages {
             }
         } else if( invalidReason != null ) {
             // invalid message, get date from filename
-            FrostMessageObject invalidMsg = new FrostMessageObject(board, calDL, index, invalidReason);
+            FrostMessageObject invalidMsg = new FrostMessageObject(board, calDL.toDateTime(), index, invalidReason);
             try {
                 AppLayerDatabase.getMessageTable().insertMessage(invalidMsg);
             } catch (SQLException e) {
@@ -317,10 +320,9 @@ public class ImportXmlMessages {
         }
         
         // set indexslot used (only for dates until maxMessageDisplay)
-        java.sql.Date sqlDate = DateFun.getSqlDateOfCalendar(calDL);
-        if( sqlDate.after(maxBack) ) {
+        if( calDL.isAfter(maxBack) ) {
             try {
-                indexSlots.setDownloadSlotUsed(index, sqlDate);
+                indexSlots.setDownloadSlotUsed(index, calDL.toDateTime().getMillis());
             } catch (SQLException e) {
                 logger.log(Level.SEVERE, "Error inserting message index into database", e);
             }

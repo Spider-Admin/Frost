@@ -87,12 +87,14 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
         PreparedStatement ps = db.prepare(
-                "INSERT INTO OWNIDENTITIES (uniquename,publickey,privatekey,signature) VALUES (?,?,?,?)");
+                "INSERT INTO OWNIDENTITIES (uniquename,publickey,privatekey,signature,sendmsgdelay,sendmsgdelayrandom) VALUES (?,?,?,?,?,?)");
         
         ps.setString(1, localIdentity.getUniqueName());
         ps.setString(2, localIdentity.getKey());
         ps.setString(3, localIdentity.getPrivKey());
         ps.setString(4, localIdentity.getSignature());
+        ps.setInt(5, 0);
+        ps.setInt(6, 0);
         
         boolean insertWasOk = (ps.executeUpdate() == 1);
         ps.close();
@@ -150,7 +152,7 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
         
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
-        PreparedStatement ps = db.prepare("SELECT uniquename,publickey,privatekey,signature FROM OWNIDENTITIES");
+        PreparedStatement ps = db.prepare("SELECT uniquename,publickey,privatekey,signature,sendmsgdelay,sendmsgdelayrandom FROM OWNIDENTITIES");
         
         ResultSet rs = ps.executeQuery();
         while(rs.next()) {
@@ -158,6 +160,8 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
             String pubKey = rs.getString(2);
             String prvKey = rs.getString(3);
             String signature = rs.getString(4);
+            int sendmsgdelay = rs.getInt(5);
+            int sendmsgdelayrandom = rs.getInt(6);
             LocalIdentity id = new LocalIdentity(uniqueName, pubKey, prvKey, signature);
             localIdentities.add(id);
         }
@@ -173,10 +177,12 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
     public boolean updateLocalIdentity(LocalIdentity identity) throws SQLException {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
-        PreparedStatement ps = db.prepare("UPDATE OWNIDENTITIES SET signature=? WHERE uniquename=?");
+        PreparedStatement ps = db.prepare("UPDATE OWNIDENTITIES SET signature=?,sendmsgdelay,sendmsgdelayrandom WHERE uniquename=?");
         
         ps.setString(1, identity.getSignature());
-        ps.setString(2, identity.getUniqueName());
+        ps.setInt(2, 0);
+        ps.setInt(3, 0);
+        ps.setString(4, identity.getUniqueName());
         
         boolean updateWasOk = (ps.executeUpdate() == 1);
         ps.close();

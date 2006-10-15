@@ -31,6 +31,7 @@ import javax.swing.*;
 
 import frost.*;
 import frost.storage.database.applayer.*;
+import frost.threads.*;
 import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
@@ -171,6 +172,9 @@ public class SharedFilesPanel extends JPanel {
             NewUploadFile nuf = new NewUploadFile(file, owner);
             uploadItems.add(nuf);
         }
+        
+        // notify list upload thread that user changed something
+        FileListUploadThread.getInstance().userActionOccured();
         
         Core.getInstance().getFileTransferManager().getNewUploadFilesManager().addNewUploadFiles(uploadItems);
     }
@@ -345,6 +349,9 @@ public class SharedFilesPanel extends JPanel {
         private void removeSelectedFiles() {
             ModelItem[] selectedItems = modelTable.getSelectedItems();
             model.removeItems(selectedItems);
+            
+            // notify list upload thread that user changed something
+            FileListUploadThread.getInstance().userActionOccured();
         }
 
         /**

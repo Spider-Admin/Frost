@@ -73,6 +73,7 @@
     <pathelement location="${lib.dir}/BCastle.jar"/>
     <pathelement location="${lib.dir}/mckoidb.jar"/>
     <pathelement location="${lib.dir}/jnlp.jar"/>
+    <pathelement location="${lib.dir}/joda-time.jar"/>
     <pathelement location="${build.classes.feclib}"/>
     <pathelement location="${build.classes.genchklib}"/>
     <pathelement location="${build.classes.skinlfFixLib}"/>
@@ -106,17 +107,27 @@ Build log  : ${logfilename}</echo>
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!--  Build the code  -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-  <target name="build"
+  <target name="cleanclass"
           depends="startmsg"
-          description="--> compiles the source code">
+          description="--> cleans the directories containing .class files">
     <mkdir dir="${build.dir}"/>
 
     <delete quiet="true" dir="${build.classes}"/>
- 	<delete quiet="true" dir="${build.classes.feclib}"/>
+   	<delete quiet="true" dir="${build.classes.feclib}"/>
     <delete quiet="true" dir="${build.classes.genchklib}"/>
     <delete quiet="true" dir="${build.classes.skinlfFixLib}"/>
     <delete quiet="true" dir="${build.classes.datechooser}"/>
   	<delete quiet="true" dir="${build.classes.hyperocha}"/>
+
+  </target>
+
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Build the code  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <target name="build"
+          depends="startmsg"
+          description="--> compiles the source code">
+    <mkdir dir="${build.dir}"/>
     <mkdir dir="${build.classes}"/>
     <mkdir dir="${build.classes.feclib}"/>
     <mkdir dir="${build.classes.genchklib}"/>

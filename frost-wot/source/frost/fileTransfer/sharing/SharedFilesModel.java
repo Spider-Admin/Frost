@@ -25,6 +25,7 @@ import java.util.logging.*;
 import frost.fileTransfer.*;
 import frost.storage.*;
 import frost.storage.database.applayer.*;
+import frost.threads.*;
 import frost.util.model.*;
 
 /**
@@ -59,6 +60,10 @@ public class SharedFilesModel extends OrderedModel implements Savable {
         }
         // not in model, add
         addItem(itemToAdd);
+        
+        // notify list upload thread that user changed something
+        FileListUploadThread.getInstance().userActionOccured();
+
         return true;
     }
 
@@ -101,6 +106,9 @@ public class SharedFilesModel extends OrderedModel implements Savable {
                 itemsArray[i] = (FrostSharedFileItem) items.get(i);
             }
             removeItems(itemsArray);
+            
+            // notify list upload thread that user changed something
+            FileListUploadThread.getInstance().userActionOccured();
         }
     }
 
