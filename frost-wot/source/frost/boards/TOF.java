@@ -88,37 +88,45 @@ public class TOF {
             instance = new TOF(tofTreeModel);
         }
     }
-    
+
     public void markAllMessagesRead(Board node) {
+        markAllMessagesRead(node, true);
+    }
+
+    private void markAllMessagesRead(Board node, boolean confirm) {
         if (node == null) {
             return;
         }
 
         if (node.isFolder() == false) {
-            int answer = JOptionPane.showConfirmDialog(
-                    MainFrame.getInstance(), 
-                    language.formatMessage("TOF.markAllReadConfirmation.board.content", node.getName()), 
-                    language.getString("TOF.markAllReadConfirmation.board.title"), 
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.WARNING_MESSAGE);
-            if( answer != JOptionPane.YES_OPTION) {
-                return;
+            if( confirm ) {
+                int answer = JOptionPane.showConfirmDialog(
+                        MainFrame.getInstance(), 
+                        language.formatMessage("TOF.markAllReadConfirmation.board.content", node.getName()), 
+                        language.getString("TOF.markAllReadConfirmation.board.title"), 
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.WARNING_MESSAGE);
+                if( answer != JOptionPane.YES_OPTION) {
+                    return;
+                }
             }
             setAllMessagesRead(node);
         } else {
-            int answer = JOptionPane.showConfirmDialog(
-                    MainFrame.getInstance(), 
-                    language.formatMessage("TOF.markAllReadConfirmation.folder.content", node.getName()), 
-                    language.getString("TOF.markAllReadConfirmation.folder.title"), 
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.WARNING_MESSAGE);
-            if( answer != JOptionPane.YES_OPTION) {
-                return;
+            if( confirm ) {
+                int answer = JOptionPane.showConfirmDialog(
+                        MainFrame.getInstance(), 
+                        language.formatMessage("TOF.markAllReadConfirmation.folder.content", node.getName()), 
+                        language.getString("TOF.markAllReadConfirmation.folder.title"), 
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.WARNING_MESSAGE);
+                if( answer != JOptionPane.YES_OPTION) {
+                    return;
+                }
             }
             // process all childs recursive
             Enumeration leafs = node.children();
             while (leafs.hasMoreElements()) {
-                markAllMessagesRead((Board)leafs.nextElement());
+                markAllMessagesRead((Board)leafs.nextElement(), false);
             }
         }
     }
