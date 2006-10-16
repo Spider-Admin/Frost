@@ -37,7 +37,6 @@ import frost.fileTransfer.download.*;
 import frost.gui.*;
 import frost.gui.model.*;
 import frost.messages.*;
-import frost.storage.database.applayer.*;
 import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.textpane.*;
@@ -77,6 +76,7 @@ public class MessageTextPane extends JPanel {
     private SearchMessagesConfig searchMessagesConfig = null;
     private TextHighlighter textHighlighter = null;
     private static Color highlightColor = new Color(0x20, 0xFF, 0x20); // light green
+    private static Color idLineHighlightColor = Color.LIGHT_GRAY;
 
     public MessageTextPane(Component parentFrame) {
         this(parentFrame, null);
@@ -159,7 +159,16 @@ public class MessageTextPane extends JPanel {
         
         // for search messages don't scroll down to begin of text
         if( searchMessagesConfig == null ) {
-            int pos = selectedMessage.getContent().lastIndexOf("----- "+selectedMessage.getFromName()+" ----- ");
+            int pos = selectedMessage.getIdLinePos();
+            int len = selectedMessage.getIdLineLen();
+            if( pos > -1 && len > 10 ) {
+                // highlite id line if there are valid infos abpout the idline in message
+                TextHighlighter tl = new TextHighlighter(idLineHighlightColor);
+                tl.highlight(messageTextArea, pos, len, false);
+            } else {
+                // fallback
+                pos = selectedMessage.getContent().lastIndexOf("----- "+selectedMessage.getFromName()+" ----- ");
+            }
             if( pos >= 0 ) {
                 // scroll to begin of reply
                 int h = messageTextArea.getFontMetrics(messageTextArea.getFont()).getHeight();
@@ -457,7 +466,7 @@ public class MessageTextPane extends JPanel {
             addBoards.add(ba.getBoardObj());
         }
 
-        AppLayerDatabase.getKnownBoardsDatabaseTable().addNewKnownBoards(addBoards);
+        KnownBoardsManager.addNewKnownBoards(addBoards);
     }
 
     /**

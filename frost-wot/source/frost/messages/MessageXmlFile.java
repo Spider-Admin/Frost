@@ -52,7 +52,7 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
      */
     public MessageXmlFile(FrostMessageObject mo) {
         
-        // date and time is set by the uploadthread
+        // dateAndTime is set by the uploadthread
         
         setMessageId(mo.getMessageId()); // messageid
         setInReplyTo(mo.getInReplyTo()); // inreplyto
@@ -68,6 +68,8 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
         setSubject(mo.getSubject()); // subject
         setRecipientName(mo.getRecipientName()); // recipient
         setContent(mo.getContent()); // msgcontent
+        setIdLinePos(mo.getIdLinePos());
+        setIdLineLen(mo.getIdLineLen());
         
         setAttachmentList(mo.getAttachmentList());
     }
@@ -194,6 +196,18 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
             current = d.createElement("InReplyTo");
             cdata = d.createCDATASection(getInReplyTo());
             current.appendChild(cdata);
+            el.appendChild(current);
+        }
+        
+        if( getIdLinePos() > -1 && getIdLineLen() > -1 ) {
+            Text txt;
+            current = d.createElement("IdLinePos");
+            txt = d.createTextNode(""+getIdLinePos());
+            current.appendChild(txt);
+            el.appendChild(current);
+            current = d.createElement("IdLineLen");
+            txt = d.createTextNode(""+getIdLineLen());
+            current.appendChild(txt);
             el.appendChild(current);
         }
 
@@ -407,6 +421,10 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
         setBoardName(XMLTools.getChildElementsCDATAValue(e, "Board"));
         setContent(XMLTools.getChildElementsCDATAValue(e, "Body"));
         setSignature(XMLTools.getChildElementsCDATAValue(e, "Signature"));
+        
+        String idLinePosStr = XMLTools.getChildElementsTextValue(e, "IdLinePos");
+        String idLineLenStr = XMLTools.getChildElementsTextValue(e, "IdLineLen");
+        setIdLinePosLen(idLinePosStr, idLineLenStr, ((getContent() != null )?getContent().length():0));
 
         // this parameter is contained in local XML messages only
         String sigstat = XMLTools.getChildElementsCDATAValue(e, "signatureStatus");
@@ -419,6 +437,27 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
             Element attachmentsElement = (Element) l.get(0);
             getAttachmentList().loadXMLElement(attachmentsElement);
         }
+    }
+    
+    private void setIdLinePosLen(String pos, String len, int contentLen) {
+        if( pos == null || len == null || pos.length() == 0 || len.length() == 0 ) {
+            return;
+        }
+        int p = -1, l = -1;
+        try {
+            p = Integer.parseInt(pos);
+            l = Integer.parseInt(len);
+        } catch(Throwable t) {
+            return;
+        }
+        if( p < 0 || l < 0 ) {
+            return;
+        }
+        if( p+l > contentLen ) {
+            return;
+        }
+        setIdLinePos(p);
+        setIdLineLen(l);
     }
 
     public void setFile(File f) {

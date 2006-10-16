@@ -47,6 +47,10 @@ public class SharedFilesManager implements PropertyChangeListener {
         Core.frostSettings.addPropertyChangeListener(SettingsClass.DISABLE_FILESHARING, this);
         updateFileSharingStatus();
     }
+    
+    public void selectTab() {
+        MainFrame.getInstance().selectTabbedPaneTab("MainFrame.tabbedPane.sharing");
+    }
 
     public SharedFilesPanel getPanel() {
         if (panel == null) {
@@ -55,6 +59,14 @@ public class SharedFilesManager implements PropertyChangeListener {
             panel.initialize();
         }
         return panel;
+    }
+    
+    public void selectModelItem(FrostSharedFileItem sfItem) {
+        int row = model.indexOf(sfItem);
+        if( row > -1 ) {
+            panel.getModelTable().getTable().getSelectionModel().setSelectionInterval(row, row);
+            panel.getModelTable().getTable().scrollRectToVisible(panel.getModelTable().getTable().getCellRect(row, 0, true));
+        }
     }
 
     public void propertyChange(PropertyChangeEvent evt) {

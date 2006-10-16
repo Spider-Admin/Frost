@@ -167,6 +167,25 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
         }
     }
 
+    private class BlocksComparator implements Comparator {
+        public int compare(Object o1, Object o2) {
+            FrostUploadItem item1 = (FrostUploadItem) o1;
+            FrostUploadItem item2 = (FrostUploadItem) o2;
+//          String blocks1 =
+//              getBlocksAsString(
+//                  item1.getTotalBlocks(),
+//                  item1.getDoneBlocks(),
+//                  item1.getRequiredBlocks());
+//          String blocks2 =
+//              getBlocksAsString(
+//                  item2.getTotalBlocks(),
+//                  item2.getDoneBlocks(),
+//                  item2.getRequiredBlocks());
+//          return blocks1.compareToIgnoreCase(blocks2); 
+            return new Integer(item1.getDoneBlocks()).compareTo(new Integer(item2.getDoneBlocks()));
+        }
+    }
+
     /**
      * This inner class implements the comparator for the column "Tries"
      */
@@ -246,7 +265,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
 
     private Language language;
 
-    private final static int COLUMN_COUNT = 8;
+    private final static int COLUMN_COUNT = 9;
 
     private String stateDone;
     private String stateFailed;
@@ -272,8 +291,9 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
         setComparator(new FileSizeComparator(), 3);
         setComparator(new StateComparator(), 4);
         setComparator(new PathComparator(), 5);
-        setComparator(new TriesComparator(), 6);
-        setComparator(new KeyComparator(), 7);
+        setComparator(new BlocksComparator(), 6);
+        setComparator(new TriesComparator(), 7);
+        setComparator(new KeyComparator(), 8);
     }
 
     private void refreshLanguage() {
@@ -283,8 +303,9 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
         setColumnName(3, language.getString("UploadPane.fileTable.size"));
         setColumnName(4, language.getString("UploadPane.fileTable.state"));
         setColumnName(5, language.getString("UploadPane.fileTable.path"));
-        setColumnName(6, language.getString("UploadPane.fileTable.tries"));
-        setColumnName(7, language.getString("UploadPane.fileTable.key"));
+        setColumnName(6, language.getString("UploadPane.fileTable.blocks"));
+        setColumnName(7, language.getString("UploadPane.fileTable.tries"));
+        setColumnName(8, language.getString("UploadPane.fileTable.key"));
 
         stateDone =               language.getString("UploadPane.fileTable.state.done");
         stateFailed =             language.getString("UploadPane.fileTable.state.failed");
@@ -336,10 +357,13 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
             case 5 :    //Path
                 return uploadItem.getFile().getPath();
 
-            case 6 :    //Tries
+            case 6 :    //blocks
+                return getUploadProgress(uploadItem.getTotalBlocks(), uploadItem.getDoneBlocks());
+
+            case 7 :    //Tries
                 return new Integer(uploadItem.getRetries());
 
-            case 7 :    //Key
+            case 8 :    //Key
                 if (uploadItem.getKey() == null) {
                     return unknown;
                 } else {
@@ -357,7 +381,8 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
                 return stateUploading;
 
             case FrostUploadItem.STATE_PROGRESS :
-                return getUploadProgress(item.getTotalBlocks(), item.getDoneBlocks());
+                return stateUploading;
+//                return getUploadProgress(item.getTotalBlocks(), item.getDoneBlocks());
 
             case FrostUploadItem.STATE_ENCODING_REQUESTED :
                 return stateEncodingRequested;
@@ -380,6 +405,9 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
     }
 
     private String getUploadProgress(int totalBlocks, int doneBlocks) {
+        if( totalBlocks <= 0 && doneBlocks <= 0 ) {
+            return "";
+        }
         int percentDone = 0;
 
         if (totalBlocks > 0) {
@@ -419,12 +447,13 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
         columnModel.getColumn(3).setCellRenderer(numberRightRenderer); // filesize
         columnModel.getColumn(4).setCellRenderer(baseRenderer); // state
         columnModel.getColumn(5).setCellRenderer(showContentTooltipRenderer); // path
-        columnModel.getColumn(6).setCellRenderer(numberRightRenderer); // tries
-        columnModel.getColumn(7).setCellRenderer(showContentTooltipRenderer); // key
+        columnModel.getColumn(6).setCellRenderer(baseRenderer); // blocks
+        columnModel.getColumn(7).setCellRenderer(numberRightRenderer); // tries
+        columnModel.getColumn(8).setCellRenderer(showContentTooltipRenderer); // key
 
         if( !loadTableLayout(columnModel) ) {
             // Sets the relative widths of the columns
-            int[] widths = { 20, 20, 250, 65, 30, 60, 15, 70 };
+            int[] widths = { 20, 20, 200, 65, 30, 60, 50, 15, 70 };
             for (int i = 0; i < widths.length; i++) {
                 columnModel.getColumn(i).setPreferredWidth(widths[i]);
             }

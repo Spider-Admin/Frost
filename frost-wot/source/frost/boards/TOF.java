@@ -27,6 +27,7 @@ import javax.swing.tree.*;
 import org.joda.time.*;
 
 import frost.*;
+import frost.gui.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;
 import frost.util.*;
@@ -764,7 +765,7 @@ public class TOF {
                 BoardAttachment ba = (BoardAttachment) i.next();
                 addBoards.add(ba.getBoardObj());
             }
-            AppLayerDatabase.getKnownBoardsDatabaseTable().addNewKnownBoards(addBoards);
+            KnownBoardsManager.addNewKnownBoards(addBoards);
         }
     }
 

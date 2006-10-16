@@ -22,14 +22,13 @@ import java.sql.*;
 import java.util.*;
 
 import frost.boards.*;
+import frost.gui.*;
 import frost.storage.database.*;
 
 public class KnownBoardsDatabaseTable extends AbstractDatabaseTable {
 
     private final static String SQL_DDL =
         "CREATE TABLE KNOWNBOARDS ("+
-//        "primkey BIGINT NOT NULL IDENTITY PRIMARY KEY,"+
-        // FIXME: hidden bool
         "primkey BIGINT DEFAULT UNIQUEKEY('KNOWNBOARDS') NOT NULL,"+
         "boardname VARCHAR NOT NULL,"+
         "publickey VARCHAR NOT NULL,"+  // "" empty tring means null, select of NULL does not work! 
@@ -37,16 +36,54 @@ public class KnownBoardsDatabaseTable extends AbstractDatabaseTable {
         "description VARCHAR,"+
         "CONSTRAINT kb_pk PRIMARY KEY (primkey),"+
         "CONSTRAINT KNOWNBOARDS_1 UNIQUE (boardname,publickey,privatekey) )";
-    
+
+    private final static String SQL_DDL2 =
+        "CREATE TABLE HIDDENBOARDNAMES (boardname VARCHAR NOT NULL)";
+
     public List getTableDDL() {
-        ArrayList lst = new ArrayList(3);
+        ArrayList lst = new ArrayList(2);
         lst.add(SQL_DDL);
+        lst.add(SQL_DDL2);
         return lst;
     }
     
     public boolean compact(Statement stmt) throws SQLException {
         stmt.executeUpdate("COMPACT TABLE KNOWNBOARDS");
+        stmt.executeUpdate("COMPACT TABLE HIDDENBOARDNAMES");
         return true;
+    }
+    
+    public HashSet loadHiddenNames() throws SQLException {
+        HashSet names = new HashSet();
+        
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
+        
+        Statement stmt = db.createStatement();
+        ResultSet rs = stmt.executeQuery("SELECT boardname FROM HIDDENBOARDNAMES");
+        while(rs.next()) {
+            String bName = rs.getString(1);
+            names.add(bName);
+        }
+        rs.close();
+        stmt.close();
+        
+        return names;
+    }
+
+    public void saveHiddenNames(HashSet names) throws SQLException {
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
+        
+        Statement stmt = db.createStatement();
+        stmt.executeUpdate("DELETE FROM HIDDENBOARDNAMES"); // delete all
+        stmt.close();
+        
+        PreparedStatement ps = db.prepare("INSERT INTO HIDDENBOARDNAMES (boardname) VALUES (?)");
+        for(Iterator i = names.iterator(); i.hasNext(); ) {
+            String bName = (String) i.next();
+            ps.setString(1, bName);
+            ps.executeUpdate();
+        }
+        ps.close();
     }
 
     private boolean insertKnownBoard(Board board) throws SQLException {
@@ -68,7 +105,10 @@ public class KnownBoardsDatabaseTable extends AbstractDatabaseTable {
         
         return insertWasOk;
     }
-    
+
+    /**
+     * @return  List of KnownBoard
+     */
     public List getKnownBoards() throws SQLException {
         
         LinkedList knownBoards = new LinkedList();
@@ -88,7 +128,7 @@ public class KnownBoardsDatabaseTable extends AbstractDatabaseTable {
             String privatekey = (tmp.length()==0?null:tmp);
             String description = rs.getString(4);
             
-            Board b = new Board(boardname, publickey, privatekey, description);
+            KnownBoard b = new KnownBoard(boardname, publickey, privatekey, description);
             knownBoards.add(b);
         }
         rs.close();
@@ -115,9 +155,8 @@ public class KnownBoardsDatabaseTable extends AbstractDatabaseTable {
     }
     
     /**
-     * Called with a list of BoardAttachments, should add all boards
-     * that are not contained already
-     * @param lst
+     * Called with a list of Board, should add all boards that are not contained already
+     * @param lst  List of Board
      */
     public int addNewKnownBoards( List lst ) {
         if( lst == null || lst.size() == 0 ) {
@@ -130,7 +169,6 @@ public class KnownBoardsDatabaseTable extends AbstractDatabaseTable {
             try {
                 insertKnownBoard(newb);
                 added++;
-                // TODO: maybe set a timeAdded for newly added knownboards
             } catch (SQLException e) {
                 // duplicate board, ignore
             }

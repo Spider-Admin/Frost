@@ -278,6 +278,13 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         }
         return tabbedPane;
     }
+    
+    public void selectTabbedPaneTab(String title) {
+        int position = getTabbedPane().indexOfTab(title);
+        if (position != -1) {
+            getTabbedPane().setSelectedIndex(position);
+        }
+    }
 
     private JToolBar getButtonToolBar() {
         if (buttonToolBar == null) {

@@ -16,6 +16,8 @@ public abstract class AbstractMessageObject extends AbstractMessageStatusProvide
     private String signature = ""; // set if message is signed
     private String messageId = null;
     private String inReplyTo = null;
+    private int idLinePos = -1;
+    private int idLineLen = -1;
 
     public String getContent() {
         return content;
@@ -100,5 +102,19 @@ public abstract class AbstractMessageObject extends AbstractMessageStatusProvide
             return true;
         }
         return false;
+    }
+    
+    public int getIdLineLen() {
+        return idLineLen;
+    }
+    public void setIdLineLen(int idLineLen) {
+        this.idLineLen = idLineLen;
+    }
+
+    public int getIdLinePos() {
+        return idLinePos;
+    }
+    public void setIdLinePos(int idLinePos) {
+        this.idLinePos = idLinePos;
     }
 }

@@ -30,7 +30,7 @@ import java.util.logging.*;
 import javax.swing.*;
 
 import frost.*;
-import frost.storage.database.applayer.*;
+import frost.fileTransfer.*;
 import frost.threads.*;
 import frost.util.*;
 import frost.util.gui.*;
@@ -100,6 +100,10 @@ public class SharedFilesPanel extends JPanel {
         return (SharedFilesTableFormat) modelTable.getTableFormat();
     }
 
+    public ModelTable getModelTable() {
+        return modelTable;
+    }
+    
     public void setAddFilesButtonEnabled(boolean enabled) {
         uploadAddFilesButton.setEnabled(enabled);
     }
