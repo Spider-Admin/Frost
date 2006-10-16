@@ -21,7 +21,6 @@ package frost.gui;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
-import java.sql.*;
 import java.util.*;
 import java.util.List;
 import java.util.logging.*;
@@ -35,7 +34,6 @@ import frost.*;
 import frost.boards.*;
 import frost.gui.model.*;
 import frost.storage.*;
-import frost.storage.database.applayer.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
@@ -242,6 +240,9 @@ public class KnownBoardsFrame extends JDialog {
         loadKnownBoardsIntoTable();
         setVisible(true); // blocking!
     }
+
+    // FIXME: popup item to hide the choosed boards by name
+    // FIXME: show all boards and allow to remove the hidden state, or edit hidden names list
     
     private void loadKnownBoardsIntoTable() {
         allKnownBoardsList = new LinkedList();
@@ -250,41 +251,42 @@ public class KnownBoardsFrame extends JDialog {
         TFlookupBoard.setText("");
         // gets all known boards from Core, and shows all not-doubles in table
         List frostboards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
-        try {
-            Iterator i = AppLayerDatabase.getKnownBoardsDatabaseTable().getKnownBoards().iterator();
-            // check each board in list if already in boards tree, if not add to table
-            while( i.hasNext() ) {
-                Board b = (Board) i.next();
-    
-                String bname = b.getName();
-                String bprivkey = b.getPrivateKey();
-                String bpubkey = b.getPublicKey();
-    
-                // check if this board is already in boards tree (currently)
-                boolean addMe = true;
-                Iterator j = frostboards.iterator();
-                while( j.hasNext() ) {
-                    Board board = (Board) j.next();
-                    if( board.getName().equalsIgnoreCase(bname)
-                        && ((board.getPrivateKey() == null && bprivkey == null) ||
-                            (board.getPrivateKey() != null && board.getPrivateKey().equals(bprivkey)))
-                        && ((board.getPublicKey() == null && bpubkey == null) ||
-                            (board.getPublicKey() != null && board.getPublicKey().equals(bpubkey))) )
-                    {
-                        // same boards, dont add
-                        addMe = false;
-                        break;
-                    }
-                }
-                if( addMe ) {
-                    // add this new board to table
-                    KnownBoardsTableMember member = new KnownBoardsTableMember(b);
-                    this.tableModel.addRow(member);
-                    allKnownBoardsList.add(member);
+        Iterator i = KnownBoardsManager.getKnownBoardsList().iterator();
+        // check each board in list if already in boards tree, if not add to table
+        while( i.hasNext() ) {
+            KnownBoard b = (KnownBoard) i.next();
+
+            // check if board name is hidden
+            if( KnownBoardsManager.isNameHidden(b) ) {
+                continue;
+            }
+
+            String bname = b.getName();
+            String bprivkey = b.getPrivateKey();
+            String bpubkey = b.getPublicKey();
+            
+            // check if this board is already in boards tree (currently)
+            boolean addMe = true;
+            Iterator j = frostboards.iterator();
+            while( j.hasNext() ) {
+                Board board = (Board) j.next();
+                if( board.getName().equalsIgnoreCase(bname)
+                    && ((board.getPrivateKey() == null && bprivkey == null) ||
+                        (board.getPrivateKey() != null && board.getPrivateKey().equals(bprivkey)))
+                    && ((board.getPublicKey() == null && bpubkey == null) ||
+                        (board.getPublicKey() != null && board.getPublicKey().equals(bpubkey))) )
+                {
+                    // same boards, dont add
+                    addMe = false;
+                    break;
                 }
             }
-        } catch(SQLException ex) {
-            logger.log(Level.SEVERE, "Error retrieving the known boards", ex);
+            if( addMe ) {
+                // add this new board to table
+                KnownBoardsTableMember member = new KnownBoardsTableMember(b);
+                this.tableModel.addRow(member);
+                allKnownBoardsList.add(member);
+            }
         }
     }
 
@@ -349,14 +351,10 @@ public class KnownBoardsFrame extends JDialog {
                 KnownBoardsTableMember row = (KnownBoardsTableMember) tableModel.getRow(rowIx);
                 tableModel.deleteRow(row);
 
-                Board b = row.getBoard();
+                KnownBoard b = row.getBoard();
                 allKnownBoardsList.remove(b);
                 // remove from global list of known boards
-                try {
-                    AppLayerDatabase.getKnownBoardsDatabaseTable().deleteKnownBoard(b);
-                } catch (SQLException e1) {
-                    logger.log(Level.SEVERE, "Error deleting known board", e1);
-                }
+                KnownBoardsManager.deleteKnownBoard(b);
             }
             boardsTable.clearSelection();
         }
@@ -382,7 +380,7 @@ public class KnownBoardsFrame extends JDialog {
                     JOptionPane.WARNING_MESSAGE, 
                     language.getString("KnownBoardsFrame.noBoardsImported.title"));
         } else {
-            int added = AppLayerDatabase.getKnownBoardsDatabaseTable().addNewKnownBoards(imports);
+            int added = KnownBoardsManager.addNewKnownBoards(imports);
             MiscToolkit.getInstance().showMessage(
                     language.formatMessage("KnownBoardsFrame.boardsImported.body", 
                             ""+imports.size(), 
@@ -399,12 +397,10 @@ public class KnownBoardsFrame extends JDialog {
         if( xmlFile == null ) {
             return;
         }
+        // FIXME: don't export hidden
         List frostboards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
-        try {
-            frostboards.addAll(AppLayerDatabase.getKnownBoardsDatabaseTable().getKnownBoards());
-        } catch(SQLException ex) {
-            logger.log(Level.SEVERE, "Error retrieving the known boards", ex);
-        }
+
+        frostboards.addAll(KnownBoardsManager.getKnownBoardsList());
 
         if( KnownBoardsXmlDAO.saveKnownBoards(xmlFile, frostboards) ) {
             MiscToolkit.getInstance().showMessage(
@@ -479,9 +475,9 @@ public class KnownBoardsFrame extends JDialog {
      */
     class KnownBoardsTableMember implements TableMember {
 
-        Board frostboard;
+        KnownBoard frostboard;
 
-        public KnownBoardsTableMember(Board b) {
+        public KnownBoardsTableMember(KnownBoard b) {
             this.frostboard = b;
         }
 
@@ -505,7 +501,7 @@ public class KnownBoardsFrame extends JDialog {
             return c1.compareToIgnoreCase(c2);
         }
 
-        public Board getBoard() {
+        public KnownBoard getBoard() {
             return frostboard;
         }
     }

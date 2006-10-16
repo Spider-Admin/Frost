@@ -26,6 +26,7 @@ import org.w3c.dom.*;
 
 import frost.boards.*;
 import frost.fcp.*;
+import frost.gui.*;
 import frost.messages.*;
 import frost.util.*;
 
@@ -33,6 +34,10 @@ public class KnownBoardsXmlDAO {
  
     private static Logger logger = Logger.getLogger(KnownBoardsXmlDAO.class.getName());
 
+    /**
+     * @param file
+     * @return  List of KnownBoard
+     */
     public static List loadKnownBoards(File file) {
 
         File boards = file;
@@ -95,6 +100,11 @@ public class KnownBoardsXmlDAO {
         return true; // keys not set or valid
     }
     
+    /**
+     * @param file
+     * @param knownBoards  List of KnownBoard
+     * @return
+     */
     public static boolean saveKnownBoards(File file, List knownBoards) {
         Document doc = XMLTools.createDomDocument();
         if (doc == null) {
@@ -107,7 +117,10 @@ public class KnownBoardsXmlDAO {
 
         Iterator i = knownBoards.iterator();
         while (i.hasNext()) {
-            Board b = (Board)i.next();
+            KnownBoard b = (KnownBoard)i.next();
+            if( b.isHidden() ) {
+                continue;
+            }
             BoardAttachment current = new BoardAttachment(b);
             Element anAttachment = current.getXMLElement(doc);
             rootElement.appendChild(anAttachment);

@@ -18,7 +18,16 @@ public class TextHighlighter {
     private boolean matchAnyCase;
     // An instance of the private subclass of the default highlight painter
     Highlighter.HighlightPainter myHighlightPainter;
-    
+
+    /**
+     * @param col  Background color for highlighted text
+     */
+    public TextHighlighter(Color col) {
+       color = col;
+       myHighlightPainter = new MyHighlightPainter(color);
+       this.matchAnyCase = true;
+    }
+
     /**
      * @param col  Background color for highlighted text
      * @param matchAnyCase  Should HUGO be highlighted if the highlight word is hugo? true means yes
@@ -65,7 +74,20 @@ public class TextHighlighter {
         } catch (BadLocationException e) {
         }
     }
+
+    public void highlight(JTextComponent textComp, int pos, int len, boolean removeOldHighlights) {
+        if( removeOldHighlights ) {
+            // First remove all old highlights
+            removeHighlights(textComp);
+        }
     
+        try {
+            Highlighter hilite = textComp.getHighlighter();
+            hilite.addHighlight(pos, pos+len, myHighlightPainter);
+        } catch (BadLocationException e) {
+        }
+    }
+
     // Removes only our private highlights
     public void removeHighlights(JTextComponent textComp) {
         Highlighter hilite = textComp.getHighlighter();

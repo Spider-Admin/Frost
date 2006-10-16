@@ -26,21 +26,15 @@ import java.util.*;
 import java.util.Timer;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
+import javax.swing.border.*;
 
-import frost.util.gui.translation.Language;
+import frost.messages.*;
+import frost.util.gui.translation.*;
 
-/**
- * @author $Author$
- * @version $Revision$
- */
 public class MessageUploadFailedDialog extends JDialog {
 
     private class ButtonListener implements ActionListener {
 
-        /* (non-Javadoc)
-         * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-         */
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() == retryButton) {
                 userAnswer = RETRY_VALUE;
@@ -90,9 +84,15 @@ public class MessageUploadFailedDialog extends JDialog {
     private String retryButtonText;
     private RetryButtonTimer timer;
     private int userAnswer = NO_VALUE;
+    
+    private MessageXmlFile failedMessage;
+    private String errorString;
 
-    public MessageUploadFailedDialog(Frame owner) {
+    public MessageUploadFailedDialog(Frame owner, MessageXmlFile fm, String error) {
         super(owner, true);
+        
+        failedMessage = fm;
+        errorString = error;
 
         Language language = Language.getInstance();
 
@@ -111,6 +111,13 @@ public class MessageUploadFailedDialog extends JDialog {
 
         Icon warningIcon = UIManager.getIcon("OptionPane.warningIcon");
         String warningText = "  " + language.getString("MessageUploadFailedDialog.body");
+        if( error != null && error.length() > 0 ) {
+            warningText += "\n   Error  : "+errorString;
+        }
+        warningText += "\n   Sender : "+failedMessage.getFromName();
+        warningText += "\n   Subject: "+failedMessage.getSubject();
+        warningText += "\n   Boards : "+failedMessage.getAttachmentsOfType(Attachment.BOARD).size();
+        warningText += "\n   Files  : "+failedMessage.getAttachmentsOfType(Attachment.FILE).size();
         mainPanel.add(new JLabel(warningText, warningIcon, SwingConstants.LEFT), BorderLayout.NORTH);
 
         mainPanel.add(getButtonPanel(language), BorderLayout.SOUTH);

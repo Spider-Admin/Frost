@@ -92,6 +92,7 @@ public class MessageFrame extends JFrame {
 
     private AntialiasedTextArea messageTextArea = new AntialiasedTextArea(); // Text
     private ImmutableArea headerArea = null;
+//    private TextHighlighter textHighlighter = null;
     private String oldSender = null;
     private String currentSignature = null;
 
@@ -121,6 +122,7 @@ public class MessageFrame extends JFrame {
         headerArea = new ImmutableArea(messageDocument);
         messageDocument.addImmutableArea(headerArea); // user must not change the header of the message
         messageTextArea.setDocument(messageDocument);
+//        textHighlighter = new TextHighlighter(Color.LIGHT_GRAY);
     }
 
     private void attachBoards_actionPerformed(ActionEvent e) {
@@ -414,6 +416,8 @@ public class MessageFrame extends JFrame {
         headerArea.setStartPos(headerAreaStart);
         headerArea.setEndPos(headerAreaEnd);
         headerArea.setEnabled(true);
+        
+//        textHighlighter.highlight(messageTextArea, headerAreaStart, headerAreaEnd-headerAreaStart, true);
 
         setVisible(true);
 
@@ -762,8 +766,17 @@ public class MessageFrame extends JFrame {
         int maxTextLength = (64*1024);
         if( text.length() > maxTextLength ) {
             JOptionPane.showMessageDialog( this,
-                    "The text of the message is too large ("+text.length()+" characters, "+maxTextLength+" allowed)!",
-                    "Message text too large!",
+                    language.formatMessage("MessageFrame.textTooLargeError.text", ""+text.length(), ""+maxTextLength),
+                    language.getString("MessageFrame.textTooLargeError.title"),
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        int idLinePos = headerArea.getStartPos();
+        int idLineLen = headerArea.getEndPos() - headerArea.getStartPos();
+        if( text.length() == headerArea.getEndPos() ) {
+            JOptionPane.showMessageDialog( this,
+                    language.getString("MessageFrame.noContentError.text"),
+                    language.getString("MessageFrame.noContentError.title"),
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -782,6 +795,8 @@ public class MessageFrame extends JFrame {
         mo.setFromName(from);
         mo.setSubject(subject);
         mo.setContent(text);
+        mo.setIdLinePos(idLinePos);
+        mo.setIdLineLen(idLineLen);
 
         // MessageUploadThread will set date + time !
 
@@ -941,16 +956,17 @@ public class MessageFrame extends JFrame {
             return;
         }
         try {
-            // FIXME: add grey background! highlighter mit headerArea um pos zu finden
+            // TODO: add grey background! highlighter mit headerArea um pos zu finden
             messageTextArea.getDocument().remove(headerArea.getStartPos() + 6, oldSender.length());
             messageTextArea.getDocument().insertString(headerArea.getStartPos() + 6, sender, null);
             oldSender = sender;
             headerArea.setEnabled(true);
+//            textHighlighter.highlight(messageTextArea, headerArea.getStartPos(), headerArea.getEndPos()-headerArea.getStartPos(), true);
         } catch (BadLocationException exception) {
             logger.log(Level.SEVERE, "Error while updating the message header", exception);
         }
-        String s= messageTextArea.getText().substring(headerArea.getStartPos(), headerArea.getEndPos());
-        System.out.println("DBG: "+headerArea.getStartPos()+" ; "+headerArea.getEndPos()+": '"+s+"'");
+//        String s= messageTextArea.getText().substring(headerArea.getStartPos(), headerArea.getEndPos());
+//        System.out.println("DBG: "+headerArea.getStartPos()+" ; "+headerArea.getEndPos()+": '"+s+"'");
      
 // DBG: 0 ; 77: '----- blubb2@xpDZ5ZfXK9wYiHB_hkVGRCwJl54 ----- 2006.10.13 - 18:20:12GMT -----'
 // DBG: 39 ; 119: '----- wegdami t@plewLcBTHKmPwpWakJNpUdvWSR8 ----- 2006.10.13 - 18:20:12GMT -----'        

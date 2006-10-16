@@ -280,7 +280,7 @@ public class MessageUploader {
                 if (!retrySilently) {
                     // Uploading of that message failed. Ask the user if Frost
                     // should try to upload the message another time.
-                    MessageUploadFailedDialog faildialog = new MessageUploadFailedDialog(wa.parentFrame);
+                    MessageUploadFailedDialog faildialog = new MessageUploadFailedDialog(wa.parentFrame, wa.message, null);
                     int answer = faildialog.startDialog();
                     if (answer == MessageUploadFailedDialog.RETRY_VALUE) {
                         logger.info("TOFUP: Will try to upload again immediately.");

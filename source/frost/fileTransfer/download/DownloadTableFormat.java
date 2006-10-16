@@ -191,17 +191,18 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 		public int compare(Object o1, Object o2) {
 			FrostDownloadItem item1 = (FrostDownloadItem) o1;
 			FrostDownloadItem item2 = (FrostDownloadItem) o2;
-			String blocks1 =
-				getBlocksAsString(
-					item1.getTotalBlocks(),
-					item1.getDoneBlocks(),
-					item1.getRequiredBlocks());
-			String blocks2 =
-				getBlocksAsString(
-					item2.getTotalBlocks(),
-					item2.getDoneBlocks(),
-					item2.getRequiredBlocks());
-			return blocks1.compareToIgnoreCase(blocks2); 
+//			String blocks1 =
+//				getBlocksAsString(
+//					item1.getTotalBlocks(),
+//					item1.getDoneBlocks(),
+//					item1.getRequiredBlocks());
+//			String blocks2 =
+//				getBlocksAsString(
+//					item2.getTotalBlocks(),
+//					item2.getDoneBlocks(),
+//					item2.getRequiredBlocks());
+//			return blocks1.compareToIgnoreCase(blocks2); 
+            return new Integer(item1.getDoneBlocks()).compareTo(new Integer(item2.getDoneBlocks()));
 		}
 	}
 	

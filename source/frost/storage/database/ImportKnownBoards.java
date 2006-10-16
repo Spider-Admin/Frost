@@ -23,6 +23,7 @@ import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
+import frost.gui.*;
 import frost.storage.*;
 import frost.storage.database.applayer.*;
 
@@ -39,7 +40,7 @@ public class ImportKnownBoards {
             logger.log(Level.SEVERE, "error set autocommit off", e);
         }
 
-        AppLayerDatabase.getKnownBoardsDatabaseTable().addNewKnownBoards(knownBoards);
+        KnownBoardsManager.addNewKnownBoards(knownBoards);
         
         try {
             AppLayerDatabase.getInstance().setAutoCommitOn();

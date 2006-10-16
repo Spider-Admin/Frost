@@ -523,6 +523,7 @@ public class Core implements FrostEventDispatcher  {
 
         // Main frame
         mainFrame = new MainFrame(frostSettings, title);
+        KnownBoardsManager.initialize();
         getBoardsManager().initialize();
         getFileTransferManager().initialize();
         
@@ -619,6 +620,7 @@ public class Core implements FrostEventDispatcher  {
         saver.addExitSavable(getIdentities());
         saver.addExitSavable(getBoardsManager().getTofTree());
         saver.addExitSavable(getFileTransferManager());
+        saver.addExitSavable(KnownBoardsManager.getInstance());
         saver.addExitSavable(frostSettings);
         // close databases
         saver.addExitSavable(AppLayerDatabase.getInstance());

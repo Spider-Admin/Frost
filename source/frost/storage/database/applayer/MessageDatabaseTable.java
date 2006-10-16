@@ -234,8 +234,8 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         ps.setBoolean(i++, mo.isStarred()); // isstarred
         ps.setBoolean(i++, (files.size() > 0)); // hasfileattachment
         ps.setBoolean(i++, (boards.size() > 0)); // hasboardattachment
-        ps.setInt(i++, 0); // idlinepos
-        ps.setInt(i++, 0); // idlinelen
+        ps.setInt(i++, mo.getIdLinePos()); // idlinepos
+        ps.setInt(i++, mo.getIdLineLen()); // idlinelen
         
         // sync to allow no updates until we got the generated identity
         int inserted = ps.executeUpdate();
@@ -428,9 +428,9 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         
         mo.setHasFileAttachments( rs.getBoolean(ix++) );
         mo.setHasBoardAttachments( rs.getBoolean(ix++) );
-        
-        rs.getInt(ix++); // idlinepos
-        rs.getInt(ix++); // idlinelen
+
+        mo.setIdLinePos(rs.getInt(ix++)); // idlinepos
+        mo.setIdLineLen(rs.getInt(ix++)); // idlinelen
         
         if( withContent ) {
             retrieveMessageContent(mo);

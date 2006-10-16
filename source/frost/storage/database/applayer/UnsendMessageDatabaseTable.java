@@ -120,8 +120,8 @@ public class UnsendMessageDatabaseTable extends AbstractDatabaseTable {
         ps.setString(i++, mo.getInReplyTo()); // inreplyto
         ps.setInt(i++, mo.getBoard().getPrimaryKey().intValue()); // board
         ps.setLong(i++, 0); // sendAfter
-        ps.setInt(i++, 0); // idLinePos
-        ps.setInt(i++, 0); // idLineLen
+        ps.setInt(i++, mo.getIdLinePos()); // idLinePos
+        ps.setInt(i++, mo.getIdLineLen()); // idLineLen
         ps.setString(i++, mo.getFromName()); // from
         ps.setString(i++, mo.getSubject()); // subject
         ps.setString(i++, mo.getRecipientName()); // recipient
@@ -284,8 +284,8 @@ public class UnsendMessageDatabaseTable extends AbstractDatabaseTable {
             mo.setInReplyTo(rs.getString(ix++));
             int boardPrimkey = rs.getInt(ix++);
             long sendAfter = rs.getLong(ix++);
-            int idlinepos = rs.getInt(ix++);
-            int idlinelen = rs.getInt(ix++);
+            mo.setIdLinePos(rs.getInt(ix++));
+            mo.setIdLineLen(rs.getInt(ix++));
             mo.setFromName(rs.getString(ix++));
             mo.setSubject(rs.getString(ix++));
             mo.setRecipientName(rs.getString(ix++));

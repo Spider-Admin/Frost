@@ -30,7 +30,8 @@ import java.util.logging.*;
 import javax.swing.*;
 
 import frost.*;
-import frost.ext.*;
+import frost.fileTransfer.*;
+import frost.fileTransfer.sharing.*;
 import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
@@ -179,18 +180,13 @@ public class UploadPanel extends JPanel {
         ModelItem[] selectedItems = modelTable.getSelectedItems();
         if (selectedItems.length != 0) {
             FrostUploadItem ulItem = (FrostUploadItem) selectedItems[0];
-            File file = ulItem.getFile();
-            logger.info("Executing: " + file.getPath());
-            if (file.exists()) {
-                try {
-                    Execute.simple_run(new String[] {"exec.bat", file.getPath()} );
-                } catch(Throwable t) {
-                    JOptionPane.showMessageDialog(this,
-                            "Could not open the file: "+file.getName()+"\n"+t.toString(),
-                            "Error",
-                            JOptionPane.ERROR_MESSAGE);
-                }
+            if( !ulItem.isSharedFile() ) {
+                return;
             }
+            // jump to associated shared file in shared files table
+            FrostSharedFileItem sfi = ulItem.getSharedFileItem();
+            FileTransferManager.getInstance().getSharedFilesManager().selectTab();
+            FileTransferManager.getInstance().getSharedFilesManager().selectModelItem(sfi);
         }
     }
 
@@ -220,6 +216,7 @@ public class UploadPanel extends JPanel {
         private JMenuItem generateChkForSelectedFilesItem = new JMenuItem();
         private JMenuItem uploadSelectedFilesItem = new JMenuItem();
         private JMenuItem removeSelectedFilesItem = new JMenuItem();
+        private JMenuItem showSharedFileItem = new JMenuItem();
 
         private JMenu changeDestinationBoardMenu = new JMenu();
         private JMenu copyToClipboardMenu = new JMenu();
@@ -249,6 +246,7 @@ public class UploadPanel extends JPanel {
             removeSelectedFilesItem.addActionListener(this);
             uploadSelectedFilesItem.addActionListener(this);
             generateChkForSelectedFilesItem.addActionListener(this);
+            showSharedFileItem.addActionListener(this);
         }
 
         private void refreshLanguage() {
@@ -263,7 +261,8 @@ public class UploadPanel extends JPanel {
             generateChkForSelectedFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.startEncodingOfSelectedFiles"));
             uploadSelectedFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.uploadSelectedFiles"));
             removeSelectedFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.remove.removeSelectedFiles"));
-
+            showSharedFileItem.setText(language.getString("UploadPane.fileTable.popupmenu.showSharedFile"));
+            
             changeDestinationBoardMenu.setText(language.getString("UploadPane.fileTable.popupmenu.changeDestinationBoard"));
             copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
         }
@@ -293,6 +292,9 @@ public class UploadPanel extends JPanel {
             }
             if (e.getSource() == generateChkForSelectedFilesItem) {
                 generateChkForSelectedFiles();
+            }
+            if (e.getSource() == showSharedFileItem) {
+                uploadTableDoubleClick(null);
             }
         }
 
@@ -416,6 +418,13 @@ public class UploadPanel extends JPanel {
             addSeparator();
             add(generateChkForSelectedFilesItem);
             add(uploadSelectedFilesItem);
+            if( selectedItems.length == 1 ) {
+                FrostUploadItem item = (FrostUploadItem) selectedItems[0];
+                if( item.isSharedFile() ) {
+                    addSeparator();
+                    add(showSharedFileItem);
+                }
+            }
 
             super.show(invoker, x, y);
         }
