@@ -96,7 +96,7 @@ public class MessageTextPane extends JPanel {
     public void update_noBoardsFound() {
         messageSplitPane.setBottomComponent(null);
         messageSplitPane.setDividerSize(0);
-        messageTextArea.setText(language.getString("MessagePane.defaultText.welcomeMessage"));
+        setMessageText(language.getString("MessagePane.defaultText.welcomeMessage"));
     }
 
     /**
@@ -105,7 +105,7 @@ public class MessageTextPane extends JPanel {
     public void update_boardSelected() {
         messageSplitPane.setBottomComponent(null);
         messageSplitPane.setDividerSize(0);
-        messageTextArea.setText(language.getString("MessagePane.defaultText.noMessageSelected"));
+        setMessageText(language.getString("MessagePane.defaultText.noMessageSelected"));
     }
 
     /**
@@ -114,7 +114,12 @@ public class MessageTextPane extends JPanel {
     public void update_folderSelected() {
         messageSplitPane.setBottomComponent(null);
         messageSplitPane.setDividerSize(0);
-        messageTextArea.setText(language.getString("MessagePane.defaultText.noBoardSelected"));
+        setMessageText(language.getString("MessagePane.defaultText.noBoardSelected"));
+    }
+    
+    private void setMessageText(String txt) {
+        idLineTextHighlighter.removeHighlights(messageTextArea);
+        messageTextArea.setText(txt);
     }
 
     /**
@@ -155,9 +160,10 @@ public class MessageTextPane extends JPanel {
         if( textHighlighter != null ) {
             textHighlighter.removeHighlights(messageTextArea);
         }
+        
         idLineTextHighlighter.removeHighlights(messageTextArea);
         
-        messageTextArea.setText(selectedMessage.getContent());
+        setMessageText(selectedMessage.getContent());
         
         // for search messages don't scroll down to begin of text
         if( searchMessagesConfig == null ) {
@@ -165,7 +171,7 @@ public class MessageTextPane extends JPanel {
             int len = selectedMessage.getIdLineLen();
             if( pos > -1 && len > 10 ) {
                 // highlite id line if there are valid infos abpout the idline in message
-                idLineTextHighlighter.highlight(messageTextArea, pos, len, false);
+                idLineTextHighlighter.highlight(messageTextArea, pos, len, true);
             } else {
                 // fallback
                 pos = selectedMessage.getContent().lastIndexOf("----- "+selectedMessage.getFromName()+" ----- ");
@@ -212,6 +218,7 @@ public class MessageTextPane extends JPanel {
         decoder.setFreenetKeysDecode(Core.frostSettings.getBoolValue(SettingsClass.SHOW_KEYS_AS_HYPERLINKS));
         messageTextArea = new AntialiasedTextPane(decoder);
         messageTextArea.setEditable(false);
+        messageTextArea.setDoubleBuffered(true);
         messageTextArea.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
 //        messageTextArea.setLineWrap(true);
 //        messageTextArea.setWrapStyleWord(true);
@@ -374,10 +381,10 @@ public class MessageTextPane extends JPanel {
                     fontChanged();
                 } else if (evt.getPropertyName().equals(SettingsClass.SHOW_SMILEYS)) {
                     ((MessageDecoder)messageTextArea.getDecoder()).setSmileyDecode(Core.frostSettings.getBoolValue(SettingsClass.SHOW_SMILEYS));
-                    messageTextArea.setText(messageTextArea.getText());
+                    setMessageText(messageTextArea.getText());
                 } else if (evt.getPropertyName().equals(SettingsClass.SHOW_KEYS_AS_HYPERLINKS)) {
                     ((MessageDecoder)messageTextArea.getDecoder()).setFreenetKeysDecode(Core.frostSettings.getBoolValue(SettingsClass.SHOW_KEYS_AS_HYPERLINKS));
-                    messageTextArea.setText(messageTextArea.getText());
+                    setMessageText(messageTextArea.getText());
                 }
             }
         };
