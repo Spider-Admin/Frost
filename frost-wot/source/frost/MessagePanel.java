@@ -99,6 +99,9 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             } else if(SwingUtilities.isLeftMouseButton(e)) {
                 // accepting only mouse pressed event as double click, otherwise it will be triggered twice
                 if(e.getID() == MouseEvent.MOUSE_PRESSED ) {
+//                    if(e.getClickCount() == 1 && e.getComponent() == messageTable ) {
+//                        messageTable_itemSelected(null);
+//                    }
                     if(e.getClickCount() == 2 && e.getComponent() == messageTable ) {
                         showCurrentMessagePopupWindow();
                     }
@@ -634,7 +637,9 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
      * @return The content of the message
      */
     private FrostMessageObject evalSelection(ListSelectionEvent e, JTable table, Board board) {
-        if( !e.getValueIsAdjusting() && !table.isEditing() ) {
+//        if( e == null || (!e.getValueIsAdjusting() && !table.isEditing()) ) {
+        if( !table.isEditing() ) {
+
             // more than 1 selected row is handled specially, only used to delete/undelete messages
             if( table.getSelectedRowCount() > 1 ) {
                 return null;
@@ -645,7 +650,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 final FrostMessageObject message = (FrostMessageObject)getMessageTableModel().getRow(row);
 
                 if( message != null ) {
-
+                    
                     if( message.isNew() == false ) {
                         // its a read message, nothing more to do here ...
                         return message;
