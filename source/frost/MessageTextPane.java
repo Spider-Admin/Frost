@@ -77,6 +77,7 @@ public class MessageTextPane extends JPanel {
     private TextHighlighter textHighlighter = null;
     private static Color highlightColor = new Color(0x20, 0xFF, 0x20); // light green
     private static Color idLineHighlightColor = Color.LIGHT_GRAY;
+    private TextHighlighter idLineTextHighlighter = new TextHighlighter(idLineHighlightColor);
 
     public MessageTextPane(Component parentFrame) {
         this(parentFrame, null);
@@ -154,6 +155,7 @@ public class MessageTextPane extends JPanel {
         if( textHighlighter != null ) {
             textHighlighter.removeHighlights(messageTextArea);
         }
+        idLineTextHighlighter.removeHighlights(messageTextArea);
         
         messageTextArea.setText(selectedMessage.getContent());
         
@@ -163,8 +165,7 @@ public class MessageTextPane extends JPanel {
             int len = selectedMessage.getIdLineLen();
             if( pos > -1 && len > 10 ) {
                 // highlite id line if there are valid infos abpout the idline in message
-                TextHighlighter tl = new TextHighlighter(idLineHighlightColor);
-                tl.highlight(messageTextArea, pos, len, false);
+                idLineTextHighlighter.highlight(messageTextArea, pos, len, false);
             } else {
                 // fallback
                 pos = selectedMessage.getContent().lastIndexOf("----- "+selectedMessage.getFromName()+" ----- ");
