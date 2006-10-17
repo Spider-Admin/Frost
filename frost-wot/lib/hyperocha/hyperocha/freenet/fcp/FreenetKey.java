@@ -107,7 +107,7 @@ public class FreenetKey {
 //		System.out.println(s.substring(5,47));
 //		System.out.println(s.substring(48,91));
 //		System.out.println(s.substring(92,99));
-		FreenetKey newKey = new FreenetKey(FreenetKeyType.CHK, s.substring(5,47), null, s.substring(48,91), s.substring(92,99));
+		FreenetKey newKey = new FreenetKey(FreenetKeyType.CHK, s.substring(4,47), null, s.substring(48,91), s.substring(92,99));
 //		
 //		FreenetKey newKey = new FreenetKey();
 //		newKey.keyType = FreenetKeyType.KSK;
