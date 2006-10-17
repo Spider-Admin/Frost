@@ -117,7 +117,10 @@ public class MessageUploader {
         if( prepareMessage(wa) == false ) {
             return -1;
         }
+        
+        // FIXME: remove, debug code!
         wa.message.saveToFile(new File("D:\\"+System.currentTimeMillis()));
+        
         try {
             return uploadMessage(wa);
         } catch (IOException ex) {

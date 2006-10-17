@@ -53,6 +53,7 @@ public class KnownBoardsFrame extends JDialog {
     private JButton BboardActions;
     private JButton Bimport;
     private JButton Bexport;
+    private JCheckBox CBshowHidden;
     private JTextField TFlookupBoard;
     private JTextField TFfilterBoard;
     private SortedTable boardsTable;
@@ -112,6 +113,8 @@ public class KnownBoardsFrame extends JDialog {
         BboardActions = new JButton(language.getString("KnownBoardsFrame.button.actions")+" ...");
         Bimport = new JButton(language.getString("KnownBoardsFrame.button.import")+" ...");
         Bexport = new JButton(language.getString("KnownBoardsFrame.button.export")+" ...");
+        CBshowHidden = new JCheckBox();
+        CBshowHidden.setToolTipText(language.getString("KnownBoardsFrame.tooltip.showHidden"));
         
         TFlookupBoard = new JTextField(10);
         new TextComponentClipboardMenu(TFlookupBoard, language);
@@ -170,6 +173,14 @@ public class KnownBoardsFrame extends JDialog {
                 public void actionPerformed(ActionEvent e) {
                     dispose();
                 } });
+        CBshowHidden.addItemListener(new ItemListener() {
+                public void itemStateChanged(ItemEvent e) {
+                    if( CBshowHidden.isSelected() ) {
+                        loadKnownBoardsIntoTable(true);
+                    } else {
+                        removeHiddenBoards();
+                    }
+                } });
 
         // create panel
         JPanel mainPanel = new JPanel(new BorderLayout());
@@ -185,12 +196,14 @@ public class KnownBoardsFrame extends JDialog {
         buttons.add( TFfilterBoard );
 
         buttons.add( Box.createHorizontalGlue() );
+        buttons.add( CBshowHidden );
+        buttons.add(Box.createRigidArea(new Dimension(5,3)));
         buttons.add( BboardActions );
-        buttons.add(Box.createRigidArea(new Dimension(25,3)));
+        buttons.add(Box.createRigidArea(new Dimension(10,3)));
         buttons.add( Bimport );
         buttons.add(Box.createRigidArea(new Dimension(5,3)));
         buttons.add( Bexport );
-        buttons.add(Box.createRigidArea(new Dimension(25,3)));
+        buttons.add(Box.createRigidArea(new Dimension(10,3)));
         buttons.add( Bclose );
         buttons.setBorder(BorderFactory.createEmptyBorder(10,0,0,0));
 
@@ -215,6 +228,8 @@ public class KnownBoardsFrame extends JDialog {
         JMenuItem addBoardsMenu = new JMenuItem(language.getString("KnownBoardsFrame.button.addBoards"));
         JMenuItem addBoardsToFolderMenu = new JMenuItem(language.getString("KnownBoardsFrame.button.addBoardsToFolder")+" ...");
         JMenuItem removeBoardEntry = new JMenuItem(language.getString("KnownBoardsFrame.button.removeBoard"));
+        JMenuItem hideBoardEntry = new JMenuItem(language.getString("KnownBoardsFrame.button.hideBoard"));
+        JMenuItem unhideBoardEntry = new JMenuItem(language.getString("KnownBoardsFrame.button.unhideBoard"));
 
         addBoardsMenu.addActionListener( new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -228,23 +243,35 @@ public class KnownBoardsFrame extends JDialog {
             public void actionPerformed(ActionEvent e) {
                 deleteBoards_actionPerformed(e);
             } });
+        hideBoardEntry.addActionListener( new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                hideBoards_actionPerformed(e);
+            } });
+        unhideBoardEntry.addActionListener( new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                unhideBoards_actionPerformed(e);
+            } });
 
         tablePopupMenu.add(addBoardsMenu);
         tablePopupMenu.add(addBoardsToFolderMenu);
+        tablePopupMenu.addSeparator();
+        tablePopupMenu.add(hideBoardEntry);
+        tablePopupMenu.add(unhideBoardEntry);
+        tablePopupMenu.addSeparator();
         tablePopupMenu.add(removeBoardEntry);
 
         boardsTable.addMouseListener(new TablePopupMenuMouseListener());
     }
 
     public void startDialog() {
-        loadKnownBoardsIntoTable();
+        loadKnownBoardsIntoTable(CBshowHidden.isSelected());
         setVisible(true); // blocking!
     }
 
     // FIXME: popup item to hide the choosed boards by name
     // FIXME: show all boards and allow to remove the hidden state, or edit hidden names list
     
-    private void loadKnownBoardsIntoTable() {
+    private void loadKnownBoardsIntoTable(boolean showHidden) {
         allKnownBoardsList = new LinkedList();
         this.tableModel.clearDataModel();
         TFfilterBoard.setText("");
@@ -258,7 +285,11 @@ public class KnownBoardsFrame extends JDialog {
 
             // check if board name is hidden
             if( KnownBoardsManager.isNameHidden(b) ) {
-                continue;
+                if( !showHidden ) {
+                    continue;
+                } else {
+                    b.setHidden(true);
+                }
             }
 
             String bname = b.getName();
@@ -338,7 +369,6 @@ public class KnownBoardsFrame extends JDialog {
 
     private void deleteBoards_actionPerformed(ActionEvent e) {
         int[] selectedRows = boardsTable.getSelectedRows();
-
         if( selectedRows.length > 0 ) {
             for( int z = selectedRows.length - 1; z > -1; z-- ) {
                 int rowIx = selectedRows[z];
@@ -347,7 +377,6 @@ public class KnownBoardsFrame extends JDialog {
                     continue; // paranoia
                 }
 
-                // add the board(s) to board tree and remove it from table
                 KnownBoardsTableMember row = (KnownBoardsTableMember) tableModel.getRow(rowIx);
                 tableModel.deleteRow(row);
 
@@ -357,6 +386,57 @@ public class KnownBoardsFrame extends JDialog {
                 KnownBoardsManager.deleteKnownBoard(b);
             }
             boardsTable.clearSelection();
+        }
+    }
+
+    private void hideBoards_actionPerformed(ActionEvent e) {
+        int[] selectedRows = boardsTable.getSelectedRows();
+        if( selectedRows.length > 0 ) {
+            for( int z = selectedRows.length - 1; z > -1; z-- ) {
+                int rowIx = selectedRows[z];
+
+                if( rowIx >= tableModel.getRowCount() ) {
+                    continue; // paranoia
+                }
+
+                KnownBoardsTableMember row = (KnownBoardsTableMember) tableModel.getRow(rowIx);
+                KnownBoardsManager.addHiddenName(row.getBoard().getName());
+                row.getBoard().setHidden(true);
+            }
+            boardsTable.clearSelection();
+            if( !CBshowHidden.isSelected() ) {
+                removeHiddenBoards();
+            } else {
+                tableModel.tableEntriesChanged();
+            }
+        }
+    }
+
+    private void unhideBoards_actionPerformed(ActionEvent e) {
+        int[] selectedRows = boardsTable.getSelectedRows();
+        if( selectedRows.length > 0 ) {
+            for( int z = selectedRows.length - 1; z > -1; z-- ) {
+                int rowIx = selectedRows[z];
+
+                if( rowIx >= tableModel.getRowCount() ) {
+                    continue; // paranoia
+                }
+
+                KnownBoardsTableMember row = (KnownBoardsTableMember) tableModel.getRow(rowIx);
+                KnownBoardsManager.removeHiddenName(row.getBoard().getName());
+                row.getBoard().setHidden(false);
+            }
+            boardsTable.clearSelection();
+            tableModel.tableEntriesChanged();
+        }
+    }
+
+    private void removeHiddenBoards() {
+        for( int row=tableModel.getRowCount()-1; row >= 0; row-- ) {
+            KnownBoardsTableMember memb = (KnownBoardsTableMember)tableModel.getRow(row);
+            if( KnownBoardsManager.isNameHidden(memb.getBoard()) ) {
+                tableModel.removeRow(row);
+            }
         }
     }
 
@@ -388,7 +468,7 @@ public class KnownBoardsFrame extends JDialog {
                             ""+added),
                     JOptionPane.WARNING_MESSAGE, 
                     language.getString("KnownBoardsFrame.boardsImported.title"));
-            loadKnownBoardsIntoTable();
+            loadKnownBoardsIntoTable(CBshowHidden.isSelected());
         }
     }
 
@@ -397,10 +477,15 @@ public class KnownBoardsFrame extends JDialog {
         if( xmlFile == null ) {
             return;
         }
-        // FIXME: don't export hidden
+        // don't export hidden boards
         List frostboards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
-
         frostboards.addAll(KnownBoardsManager.getKnownBoardsList());
+        for(Iterator i=frostboards.iterator(); i.hasNext(); ) {
+            Board b = (Board) i.next();
+            if( KnownBoardsManager.isNameHidden(b) ) {
+                i.remove();
+            }
+        }
 
         if( KnownBoardsXmlDAO.saveKnownBoards(xmlFile, frostboards) ) {
             MiscToolkit.getInstance().showMessage(
@@ -484,7 +569,11 @@ public class KnownBoardsFrame extends JDialog {
         public Object getValueAt(int column) {
             switch( column ) {
             case 0:
-                return frostboard.getName();
+                if( frostboard.isHidden() ) {
+                    return frostboard.getName() + " (H)";
+                } else {
+                    return frostboard.getName();
+                }
             case 1:
                 return ((frostboard.getPublicKey() == null) ? "" : frostboard.getPublicKey());
             case 2:
