@@ -75,7 +75,6 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
 
     private StringCellRenderer stringCellRenderer = new StringCellRenderer();
     private BooleanCellRenderer booleanCellRenderer = new BooleanCellRenderer();
-    private BooleanCellEditor booleanCellEditor = new BooleanCellEditor();
     
     private ImageIcon flaggedIcon = new ImageIcon(getClass().getResource("/data/flagged.gif"));
     private ImageIcon starredIcon = new ImageIcon(getClass().getResource("/data/starred.gif"));
@@ -114,8 +113,6 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         // install cell renderer
         setDefaultRenderer(String.class, stringCellRenderer);
         setDefaultRenderer(Boolean.class, booleanCellRenderer);
-
-        setDefaultEditor(Boolean.class, booleanCellEditor);
 
     	// No grid.
     	setShowGrid(false);
@@ -602,20 +599,6 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     	}
     }
     
-    private class MyCheckBox extends JCheckBox {
-        public MyCheckBox() {
-            super("");
-            setHorizontalAlignment(CENTER);
-            setVerticalAlignment(CENTER);
-        }
-        public void paintComponent (Graphics g) {
-            Dimension size = getSize();
-            g.setColor(getBackground());
-            g.fillRect(0, 0, size.width, size.height);
-            super.paintComponent(g);
-        }
-    }
-
     private class BooleanCellRenderer extends JLabel implements TableCellRenderer {
         
         public BooleanCellRenderer() {
@@ -676,50 +659,6 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
 
             return this;
         }        
-    }
-    
-    private class BooleanCellEditor extends DefaultCellEditor implements TableCellEditor {
-
-        public BooleanCellEditor() {
-            super(new MyCheckBox());
-        }
-        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-            Component c = super.getTableCellEditorComponent(table, value, isSelected, row, column);
-            MyCheckBox cb = (MyCheckBox)c;
-
-            // get the original model column index (maybe columns were reordered by user)
-            TableColumn tableColumn = getColumnModel().getColumn(column);
-            column = tableColumn.getModelIndex();
-
-            if( column == 0 ) {
-                cb.setDisabledIcon(flaggedIcon);
-                cb.setDisabledSelectedIcon(flaggedIcon);
-                cb.setIcon(flaggedIcon);
-                cb.setSelectedIcon(flaggedIcon);
-            } else if( column == 1 ) {
-                cb.setDisabledIcon(starredIcon);
-                cb.setDisabledSelectedIcon(starredIcon);
-                cb.setIcon(starredIcon);
-                cb.setSelectedIcon(starredIcon);
-            }
-            
-            if (!isSelected) {
-                if( showColoredLines ) {
-                    // IBM lineprinter paper
-                    if ((row & 0x0001) == 0) {
-                        cb.setBackground(Color.WHITE);
-                    } else {
-                        cb.setBackground(secondBackgroundColor);
-                    }
-                } else {
-                    cb.setBackground(table.getBackground());
-                }
-            } else {
-                cb.setBackground(table.getSelectionBackground());
-            }
-
-            return cb;
-        }
     }
     
     /**

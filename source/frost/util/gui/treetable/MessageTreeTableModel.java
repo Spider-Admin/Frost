@@ -37,15 +37,11 @@
  */
 
 package frost.util.gui.treetable;
-import java.sql.*;
-import java.util.logging.*;
-
 import javax.swing.table.*;
 import javax.swing.tree.*;
 
 import frost.*;
 import frost.messages.*;
-import frost.storage.database.applayer.*;
 import frost.util.gui.translation.*;
 
 /**
@@ -65,7 +61,7 @@ import frost.util.gui.translation.*;
  */
 public class MessageTreeTableModel extends DefaultTreeModel implements TreeTableModel, LanguageListener {
 
-    private Logger logger = Logger.getLogger(MessageTreeTableModel.class.getName());
+//    private Logger logger = Logger.getLogger(MessageTreeTableModel.class.getName());
 
     private Language language = null;
 
@@ -206,34 +202,31 @@ public class MessageTreeTableModel extends DefaultTreeModel implements TreeTable
      * For all other columns this returns false.
      */
     public boolean isCellEditable(Object node, int column) {
-        if( column == 0 || column == 1 || column == 2 ) {
-            return true;
-        }
         return false;
     }
 
     public void setValueAt(Object aValue, Object node, int column) {
-        final FrostMessageObject message = (FrostMessageObject)node;
-        boolean newValue = ((Boolean)aValue).booleanValue();
-        boolean save = false;
-        if( column == 0 && message.isFlagged() != newValue ) {
-            message.setFlagged(newValue);
-            save = true;
-        } else if( column == 1 && message.isStarred() != newValue ) {
-            message.setStarred(newValue);
-            save = true;
-        }
-        if( save ) {
-            Thread saver = new Thread() {
-                public void run() {
-                    try {
-                        AppLayerDatabase.getMessageTable().updateMessage(message);
-                    } catch (SQLException ex) {
-                        logger.log(Level.SEVERE, "Error updating a message object", ex);
-                    }
-                }
-            };
-            saver.start();
-        }
+//        final FrostMessageObject message = (FrostMessageObject)node;
+//        boolean newValue = ((Boolean)aValue).booleanValue();
+//        boolean save = false;
+//        if( column == 0 && message.isFlagged() != newValue ) {
+//            message.setFlagged(newValue);
+//            save = true;
+//        } else if( column == 1 && message.isStarred() != newValue ) {
+//            message.setStarred(newValue);
+//            save = true;
+//        }
+//        if( save ) {
+//            Thread saver = new Thread() {
+//                public void run() {
+//                    try {
+//                        AppLayerDatabase.getMessageTable().updateMessage(message);
+//                    } catch (SQLException ex) {
+//                        logger.log(Level.SEVERE, "Error updating a message object", ex);
+//                    }
+//                }
+//            };
+//            saver.start();
+//        }
     }
 }
