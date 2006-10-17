@@ -99,14 +99,50 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             } else if(SwingUtilities.isLeftMouseButton(e)) {
                 // accepting only mouse pressed event as double click, otherwise it will be triggered twice
                 if(e.getID() == MouseEvent.MOUSE_PRESSED ) {
-//                    if(e.getClickCount() == 1 && e.getComponent() == messageTable ) {
-//                        messageTable_itemSelected(null);
-//                    }
                     if(e.getClickCount() == 2 && e.getComponent() == messageTable ) {
                         showCurrentMessagePopupWindow();
+                    } else if(e.getClickCount() == 1 && e.getComponent() == messageTable ) {
+                        // 'edit' the icon columns, toggle state flagged/starred
+                        int row = messageTable.rowAtPoint(e.getPoint());
+                        int col = messageTable.columnAtPoint(e.getPoint());
+                        if( row > -1 && col > -1 ) {
+                            int modelCol = messageTable.getColumnModel().getColumn(col).getModelIndex();
+                            editIconColumn(row, modelCol);
+                        }
                     }
                 }
             }
+        }
+
+        /**
+         * Left click onto a row/col occurred. Check if the click was over an icon column and maybe toggle
+         * its state (starred/flagged).
+         */
+        protected void editIconColumn(int row, int modelCol) {
+            if( modelCol > 1 ) {
+                return; // icon columns are at 0,1
+            }
+            final FrostMessageObject message = (FrostMessageObject)getMessageTableModel().getRow(row);
+            if( message == null || message.isDummy() ) {
+                return;
+            }
+            if( modelCol == 0 ) {
+                message.setFlagged( !message.isFlagged() );
+                getMessageTableModel().fireTableCellUpdated(row, modelCol);
+            } else if( modelCol == 1 ) {
+                message.setStarred( !message.isStarred() );
+                getMessageTableModel().fireTableCellUpdated(row, modelCol);
+            }
+            Thread saver = new Thread() {
+                public void run() {
+                    try {
+                        AppLayerDatabase.getMessageTable().updateMessage(message);
+                    } catch (SQLException ex) {
+                        logger.log(Level.SEVERE, "Error updating a message object", ex);
+                    }
+                }
+            };
+            saver.start();
         }
 
         public void mousePressed(MouseEvent e) {
@@ -637,7 +673,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
      * @return The content of the message
      */
     private FrostMessageObject evalSelection(ListSelectionEvent e, JTable table, Board board) {
-//        if( e == null || (!e.getValueIsAdjusting() && !table.isEditing()) ) {
+//        if( (!e.getValueIsAdjusting() && !table.isEditing()) ) {
         if( !table.isEditing() ) {
 
             // more than 1 selected row is handled specially, only used to delete/undelete messages
