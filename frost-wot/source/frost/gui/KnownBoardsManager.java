@@ -26,6 +26,12 @@ import frost.boards.*;
 import frost.storage.*;
 import frost.storage.database.applayer.*;
 
+/**
+ * Manages the access to KnownBoards and hidden board names.
+ * Static class, but one instance is created (Singleton) to
+ * be able to implement the Savable interface for saving of
+ * the hidden board names during shutdown of Frost.
+ */
 public class KnownBoardsManager implements Savable {
 
     private static Logger logger = Logger.getLogger(KnownBoardsManager.class.getName());

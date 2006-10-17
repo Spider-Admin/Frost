@@ -53,6 +53,9 @@ public class KnownBoardsDatabaseTable extends AbstractDatabaseTable {
         return true;
     }
     
+    /**
+     * Load all hidden board names.
+     */
     public HashSet loadHiddenNames() throws SQLException {
         HashSet names = new HashSet();
         
@@ -70,6 +73,9 @@ public class KnownBoardsDatabaseTable extends AbstractDatabaseTable {
         return names;
     }
 
+    /**
+     * Clear table and save all hidden board names.
+     */
     public void saveHiddenNames(HashSet names) throws SQLException {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
