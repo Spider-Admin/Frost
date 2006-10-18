@@ -460,6 +460,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     
     	    TreeCellRenderer tcr = getCellRenderer();
     	    if (tcr instanceof DefaultTreeCellRenderer) {
+
         		DefaultTreeCellRenderer dtcr = ((DefaultTreeCellRenderer)tcr); 
         		if (isSelected) {
         		    dtcr.setTextSelectionColor(foreground);
@@ -479,25 +480,27 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                 ImageIcon icon;
                 if( msg.isDummy() ) {
                     icon = messageDummyIcon;
-                } else if( msg.isNew() ) {
-                    if( msg.isReplied() ) {
-                        icon = messageNewRepliedIcon;
-                    } else {
-                        icon = messageNewIcon;
-                    }
+                    dtcr.setToolTipText(null);
                 } else {
-                    if( msg.isReplied() ) {
-                        icon = messageReadRepliedIcon;
+                    if( msg.isNew() ) {
+                        if( msg.isReplied() ) {
+                            icon = messageNewRepliedIcon;
+                        } else {
+                            icon = messageNewIcon;
+                        }
                     } else {
-                        icon = messageReadIcon;
+                        if( msg.isReplied() ) {
+                            icon = messageReadRepliedIcon;
+                        } else {
+                            icon = messageReadIcon;
+                        }
                     }
+                    dtcr.setToolTipText(msg.getSubject());
                 }
                 dtcr.setIcon(icon);
                 dtcr.setLeafIcon(icon);
                 dtcr.setOpenIcon(icon);
                 dtcr.setClosedIcon(icon);
-
-                dtcr.setToolTipText(msg.getSubject());
     	    }
             
     	    return this;
@@ -734,6 +737,8 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             TableColumn tableColumn = getColumnModel().getColumn(column);
             column = tableColumn.getModelIndex();
 
+            setToolTipText(null);
+
             // do nice things for FROM and SIG column
             if( column == 3 ) {
                 // FROM
@@ -753,7 +758,9 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                         setForeground(Color.BLACK);
                     }
                 }
-                setToolTipText((String)value);
+                if( !msg.isDummy() ) {
+                    setToolTipText((String)value);
+                }
             } else if( column == 4 ) {
                 // SIG
                 // state == good/bad/check/observe -> bold and coloured
@@ -775,13 +782,11 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                         setForeground(Color.BLACK);
                     }
                 }
-                setToolTipText(null);
             } else {
                 setFont(normalFont);
                 if (!isSelected) {
                     setForeground(Color.BLACK);
                 }
-                setToolTipText(null);
             }
 
             setDeleted(msg.isDeleted());

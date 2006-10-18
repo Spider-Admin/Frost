@@ -116,7 +116,60 @@ public class MessageTextPane extends JPanel {
         messageSplitPane.setDividerSize(0);
         setMessageText(language.getString("MessagePane.defaultText.noBoardSelected"));
     }
-    
+
+    /**
+     * Called if root is selected.
+     */
+    public void update_rootSelected() {
+        messageSplitPane.setBottomComponent(null);
+        messageSplitPane.setDividerSize(0);
+        // show infos about waiting/running msg uploads
+        StringBuffer sb = new StringBuffer();
+        sb.append("Unsend messages information:\n\n");
+        List unsend = UnsendMessagesManager.getUnsendMessages();
+        if( unsend.isEmpty() ) {
+            sb.append("Currently there are no unsend messages.");
+        } else {
+            int cnt = 1;
+            for(Iterator i = unsend.iterator(); i.hasNext(); ) {
+                FrostMessageObject mo = (FrostMessageObject) i.next();
+                sb.append("Message ").append(cnt).append(":\n");
+                sb.append("  Board:     ").append(mo.getBoard().getName()).append("\n");
+                sb.append("  Sender:    ").append(mo.getFromName()).append("\n");
+                if( mo.getRecipientName() != null && mo.getRecipientName().length() > 0 ) {
+                    sb.append("  Receiver:  ").append(mo.getRecipientName()).append(" (encrypted)\n");
+                }
+                sb.append("  Subject:   ").append(mo.getSubject()).append("\n");
+                
+                List af = mo.getAttachmentsOfType(Attachment.FILE);
+                List uf = mo.getUnsendFileAttachments();
+                if( !af.isEmpty() ) {
+                    sb.append("  Attached files:").append("\n");
+                    for(Iterator j = af.iterator(); j.hasNext(); ) {
+                        FileAttachment fa = (FileAttachment) j.next(); 
+                        sb.append("     ").append(fa.getInternalFile().getPath());
+                        if( uf.contains(fa) ) {
+                            sb.append(" (unsend)\n");
+                        } else {
+                            sb.append(" (send)\n");
+                        }
+                    }
+                }
+                List ab = mo.getAttachmentsOfType(Attachment.BOARD);
+                if( !ab.isEmpty() ) {
+                    sb.append("  Attached boards:").append("\n");
+                    for(Iterator j = ab.iterator(); j.hasNext(); ) {
+                        BoardAttachment ba = (BoardAttachment) j.next(); 
+                        sb.append("     ").append(ba.getBoardObj().getName()).append("\n");
+                    }
+                }
+                sb.append("\n");
+                cnt++;
+            }
+        }
+        setMessageText(sb.toString());
+    }
+
     private void setMessageText(String txt) {
         idLineTextHighlighter.removeHighlights(messageTextArea);
         messageTextArea.setText(txt);
@@ -160,10 +213,12 @@ public class MessageTextPane extends JPanel {
         if( textHighlighter != null ) {
             textHighlighter.removeHighlights(messageTextArea);
         }
-        
-        idLineTextHighlighter.removeHighlights(messageTextArea);
-        
+
+        // FIXME: das flackert beim wechsel weil er nochmal hochgeht. sofort zur richtigen stelle mit der scrollbar!!
         setMessageText(selectedMessage.getContent());
+        
+        messageBodyScrollPane.getVerticalScrollBar().setValueIsAdjusting(true);
+        messageBodyScrollPane.getVerticalScrollBar().setValue(0);
         
         // for search messages don't scroll down to begin of text
         if( searchMessagesConfig == null ) {
@@ -179,16 +234,19 @@ public class MessageTextPane extends JPanel {
             if( pos >= 0 ) {
                 // scroll to begin of reply
                 int h = messageTextArea.getFontMetrics(messageTextArea.getFont()).getHeight();
-                int s = messageTextArea.getSize().height;
+                int s = messageBodyScrollPane.getViewport().getHeight();
                 int v = s/h - 1; // how many lines are visible?
 
                 pos = calculateCaretPosition(messageTextArea, pos, v);
-                messageTextArea.setCaretPosition(pos);
+                messageTextArea.getCaret().setDot(pos);
             } else {
                 // scroll to end of message
-                messageTextArea.setCaretPosition(selectedMessage.getContent().length());
+                pos = selectedMessage.getContent().length();
+                messageTextArea.getCaret().setDot(pos);
             }
         }
+
+        messageBodyScrollPane.getVerticalScrollBar().setValueIsAdjusting(false);
 
         if( searchMessagesConfig != null && 
             searchMessagesConfig.content != null && 

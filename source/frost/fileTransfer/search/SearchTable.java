@@ -103,6 +103,7 @@ public class SearchTable extends SortedModelTable {
 
         if( row > -1 && col == 7 ) {
             showDetails();
+            return;
 //            ModelItem item = getItemAt(row); //It may be null
 //            if (item != null) {
 //                FrostSearchItem searchItem = (FrostSearchItem) item;
