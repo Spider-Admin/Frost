@@ -64,6 +64,9 @@ public class FileAttachmentUploadThread extends Thread {
 
         while(true) {
             try {
+                while( Core.isFreenetOnline() == false ) {
+                    Mixed.wait(1*60*1000); // wait 1 minute 
+                }
                 // if there is no work in queue this call waits for a new queue item
                 MessageFileAttachment msgFileAttachment = msgQueue.getMessageFromQueue();
 

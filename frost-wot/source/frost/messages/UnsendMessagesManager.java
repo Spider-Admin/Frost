@@ -64,6 +64,10 @@ public class UnsendMessagesManager {
         return unsendMessages.size();
     }
 
+    public static List getUnsendMessages() {
+        return unsendMessages;
+    }
+
     /**
      * Returns a message to upload. The message must have no unsend file attachments.
      * When a message is returned it is dequeued.

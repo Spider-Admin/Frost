@@ -207,9 +207,8 @@ public class KnownBoardsFrame extends JDialog {
         buttons.add( Bclose );
         buttons.setBorder(BorderFactory.createEmptyBorder(10,0,0,0));
 
-        JScrollPane scrollPane = new JScrollPane();
+        JScrollPane scrollPane = new JScrollPane(boardsTable);
         scrollPane.setWheelScrollingEnabled(true);
-        scrollPane.setViewportView(boardsTable);
         
         mainPanel.add( scrollPane, BorderLayout.CENTER );
         mainPanel.add( buttons, BorderLayout.SOUTH );
