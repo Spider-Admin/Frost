@@ -283,7 +283,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
             TimeOfDay time = dateTime.toTimeOfDay();
 
             String dateStr = DateFun.FORMAT_DATE_EXT.print(date);
-            String timeStr = DateFun.FORMAT_EXT_TIME.print(time);
+            String timeStr = DateFun.FORMAT_TIME_EXT.print(time);
 
             StringBuffer sb = new StringBuffer(29);
             sb.append(dateStr).append(" ").append(timeStr);
@@ -571,20 +571,5 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     
     public String toString() {
         return getSubject();
-    }
-    
-    public LinkedList getUnsendFileAttachments() {
-        LinkedList result = new LinkedList();
-        List fileAttachments = getAttachmentsOfType(Attachment.FILE);
-        if( fileAttachments == null || fileAttachments.size() == 0 ) {
-            return result;
-        }
-        for(Iterator j = fileAttachments.iterator(); j.hasNext(); ) {
-            FileAttachment fa = (FileAttachment) j.next();
-            if( fa.getKey() == null || fa.getKey().length() == 0 ) {
-                result.add(fa);
-            }
-        }
-        return result;
     }
 }

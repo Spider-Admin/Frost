@@ -32,7 +32,7 @@ public class DateFun {
     public static DateTimeFormatter FORMAT_DATE_VISIBLE = DateTimeFormat.forPattern("dd.MM.yyyy").withZone(DateTimeZone.UTC);
     
     public static DateTimeFormatter FORMAT_TIME = DateTimeFormat.forPattern("H:m:s'GMT'").withZone(DateTimeZone.UTC);
-    public static DateTimeFormatter FORMAT_EXT_TIME = DateTimeFormat.forPattern("HH:mm:ss'GMT'").withZone(DateTimeZone.UTC);
+    public static DateTimeFormatter FORMAT_TIME_EXT = DateTimeFormat.forPattern("HH:mm:ss'GMT'").withZone(DateTimeZone.UTC);
     public static DateTimeFormatter FORMAT_TIME_VISIBLE = DateTimeFormat.forPattern("HH:mm:ss' GMT'").withZone(DateTimeZone.UTC);
     
 //    private static long getGMTOffset() {

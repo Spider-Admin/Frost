@@ -150,7 +150,7 @@ System.out.println("FileAttachmentUploadManager: upload finished, key: "+chkKey)
         msgQueue.deleteAllItemsOfMessage(messageId);
     }
     
-    public void checkAndEnqueueNewMessage(FrostMessageObject msg) {
+    public void checkAndEnqueueNewMessage(FrostUnsendMessageObject msg) {
         LinkedList unsend = msg.getUnsendFileAttachments();
         if( unsend != null && unsend.size() > 0 ) {
             for(Iterator i=unsend.iterator(); i.hasNext(); ) {
