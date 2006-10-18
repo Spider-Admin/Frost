@@ -17,7 +17,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost;
+package frost.gui;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -30,8 +30,8 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.tree.*;
 
+import frost.*;
 import frost.boards.*;
-import frost.gui.*;
 import frost.identities.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;
@@ -1045,6 +1045,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     }
 
     private void boardsTree_actionPerformed(TreeSelectionEvent e) {
+        
+        boolean showInfoPanel = false;
 
         if (((TreeNode) mainFrame.getTofTreeModel().getRoot()).getChildCount() == 0) {
             //There are no boards. //TODO: check if there are really no boards (folders count as children)
@@ -1072,12 +1074,18 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     saveMessageButton.setEnabled(false);
                     updateButton.setEnabled(false);
                     if( node.isRoot() ) {
-                        getMessageTextPane().update_rootSelected();
+                        showInfoPanel = true;
+//                        getMessageTextPane().update_rootSelected();
                     } else {
                         getMessageTextPane().update_folderSelected();
                     }
                 }
             }
+        }
+        if( showInfoPanel ) {
+            MainFrame.getInstance().showMessageInfoPanelInSplitpane();
+        } else {
+            MainFrame.getInstance().showMessagePanelInSplitpane();
         }
     }
 

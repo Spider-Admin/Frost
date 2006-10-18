@@ -54,6 +54,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     private HelpBrowserFrame helpBrowser = null;
     private SearchMessagesDialog searchMessagesDialog = null;
     private MemoryMonitor memoryMonitor = null;
+
+    private MessagePanel messagePanel = null;
+    private MessageInfoPanel messageInfoPanel = null;
     
     private ImageIcon progressIconRunning = null;
     private ImageIcon progressIconIdle = null;
@@ -96,7 +99,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
     // The main menu
     private JMenuBar menuBar;
-    private MessagePanel messagePanel = null;
 
     // buttons that are enabled/disabled later
     private JButton newBoardButton = null;
@@ -615,6 +617,24 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         getTabbedPane().setSelectedIndex(0);
 
         return getTabbedPane();
+    }
+    
+    public void showMessagePanelInSplitpane() {
+        if( treeAndTabbedPaneSplitpane!= null && treeAndTabbedPaneSplitpane.getRightComponent() != getMessagePanel() ) {
+            treeAndTabbedPaneSplitpane.setRightComponent(getMessagePanel());
+        }
+    }
+    public void showMessageInfoPanelInSplitpane() {
+        if( treeAndTabbedPaneSplitpane != null && treeAndTabbedPaneSplitpane.getRightComponent() != getMessageInfoPanel() ) {
+            treeAndTabbedPaneSplitpane.setRightComponent(getMessageInfoPanel());
+        }
+    }
+    
+    public MessageInfoPanel getMessageInfoPanel() {
+        if( messageInfoPanel == null ) {
+            messageInfoPanel = new MessageInfoPanel();
+        }
+        return messageInfoPanel;
     }
 
     /**
