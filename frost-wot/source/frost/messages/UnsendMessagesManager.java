@@ -55,7 +55,7 @@ public class UnsendMessagesManager {
         
         // initialize the file attachments to upload
         for(Iterator i = unsendMessages.iterator(); i.hasNext(); ) {
-            FrostMessageObject msg = (FrostMessageObject) i.next();
+            FrostUnsendMessageObject msg = (FrostUnsendMessageObject) i.next();
             FileAttachmentUploadThread.getInstance().checkAndEnqueueNewMessage(msg);
         }
     }
@@ -74,7 +74,7 @@ public class UnsendMessagesManager {
      * @param targetBoard  target board for the message
      * @return  a message, or null
      */
-    public static FrostMessageObject getUnsendMessage(Board targetBoard) {
+    public static FrostUnsendMessageObject getUnsendMessage(Board targetBoard) {
         return getUnsendMessage(targetBoard, null);
     }
 
@@ -87,9 +87,9 @@ public class UnsendMessagesManager {
      * @param targetBoard  target board for the message
      * @return  a message, or null
      */
-    public static FrostMessageObject getUnsendMessage(Board targetBoard, String fromName) {
+    public static FrostUnsendMessageObject getUnsendMessage(Board targetBoard, String fromName) {
         for(Iterator i = unsendMessages.iterator(); i.hasNext(); ) {
-            FrostMessageObject mo = (FrostMessageObject) i.next();
+            FrostUnsendMessageObject mo = (FrostUnsendMessageObject) i.next();
             if( mo.getBoard().getPrimaryKey().intValue() == targetBoard.getPrimaryKey().intValue() ) {
                 if( fromName == null || fromName.equals(mo.getFromName()) ) {
                     if( mo.getUnsendFileAttachments().size() == 0 ) {
@@ -117,9 +117,12 @@ public class UnsendMessagesManager {
         return result;
     }
 
-    public static void addNewUnsendMessage(FrostMessageObject mo) {
+    public static void addNewUnsendMessage(FrostUnsendMessageObject mo) {
+        
+        mo.setTimeAdded(System.currentTimeMillis());
+        
         try {
-            AppLayerDatabase.getUnsendMessageTable().insertMessage(mo, System.currentTimeMillis());
+            AppLayerDatabase.getUnsendMessageTable().insertMessage(mo);
         } catch (SQLException e1) {
             logger.log(Level.SEVERE, "Error inserting unsend message", e1);
         }

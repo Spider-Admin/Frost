@@ -132,7 +132,7 @@ public class MessageTextPane extends JPanel {
         } else {
             int cnt = 1;
             for(Iterator i = unsend.iterator(); i.hasNext(); ) {
-                FrostMessageObject mo = (FrostMessageObject) i.next();
+                FrostUnsendMessageObject mo = (FrostUnsendMessageObject) i.next();
                 sb.append("Message ").append(cnt).append(":\n");
                 sb.append("  Board:     ").append(mo.getBoard().getName()).append("\n");
                 sb.append("  Sender:    ").append(mo.getFromName()).append("\n");

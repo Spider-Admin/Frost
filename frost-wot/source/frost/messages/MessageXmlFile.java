@@ -632,6 +632,6 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
     public void setDateAndTime(DateTime dt) {
         dateAndTime = dt;
         dateStr = DateFun.FORMAT_DATE.print(dt);
-        timeStr = DateFun.FORMAT_EXT_TIME.print(dt);
+        timeStr = DateFun.FORMAT_TIME_EXT.print(dt);
     }
 }

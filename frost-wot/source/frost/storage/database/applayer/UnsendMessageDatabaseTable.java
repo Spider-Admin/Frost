@@ -88,7 +88,7 @@ public class UnsendMessageDatabaseTable extends AbstractDatabaseTable {
         return true;
     }
 
-    public synchronized void insertMessage(FrostMessageObject mo, long timeAdded) throws SQLException {
+    public synchronized void insertMessage(FrostUnsendMessageObject mo) throws SQLException {
 
         AttachmentList files = mo.getAttachmentsOfType(Attachment.FILE);
         AttachmentList boards = mo.getAttachmentsOfType(Attachment.BOARD);
@@ -128,7 +128,7 @@ public class UnsendMessageDatabaseTable extends AbstractDatabaseTable {
         ps.setString(i++, mo.getContent()); // msgcontent
         ps.setBoolean(i++, (files.size() > 0)); // hasfileattachment
         ps.setBoolean(i++, (boards.size() > 0)); // hasboardattachment
-        ps.setLong(i++, timeAdded);
+        ps.setLong(i++, mo.getTimeAdded());
 
         // sync to allow no updates until we got the generated identity
         int inserted = ps.executeUpdate();
@@ -276,14 +276,14 @@ public class UnsendMessageDatabaseTable extends AbstractDatabaseTable {
         PreparedStatement ps = db.prepare(sql);
         ResultSet rs = ps.executeQuery();
         while( rs.next() ) {
-            FrostMessageObject mo = new FrostMessageObject();
+            FrostUnsendMessageObject mo = new FrostUnsendMessageObject();
             
             int ix=1;
             mo.setMsgIdentity(rs.getLong(ix++));
             mo.setMessageId(rs.getString(ix++));
             mo.setInReplyTo(rs.getString(ix++));
             int boardPrimkey = rs.getInt(ix++);
-            long sendAfter = rs.getLong(ix++);
+            mo.setSendAfter(rs.getLong(ix++));
             mo.setIdLinePos(rs.getInt(ix++));
             mo.setIdLineLen(rs.getInt(ix++));
             mo.setFromName(rs.getString(ix++));
@@ -293,6 +293,8 @@ public class UnsendMessageDatabaseTable extends AbstractDatabaseTable {
             
             mo.setHasFileAttachments( rs.getBoolean(ix++) );
             mo.setHasBoardAttachments( rs.getBoolean(ix++) );
+            
+            mo.setTimeAdded( rs.getLong(ix++) );
 
             Board board = MainFrame.getInstance().getTofTreeModel().getBoardByPrimaryKey(new Integer(boardPrimkey));
             if( board == null ) {

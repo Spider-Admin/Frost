@@ -232,7 +232,7 @@ public class MessageFrame extends JFrame {
             DateTime now = new DateTime(DateTimeZone.UTC);
             String date = DateFun.FORMAT_DATE_EXT.print(now)
             + " - " 
-            + DateFun.FORMAT_EXT_TIME.print(now);
+            + DateFun.FORMAT_TIME_EXT.print(now);
             String fromLine = "----- (sender) ----- " + date + " -----";
             String editText = newText + fromLine + "\n\n";
             
@@ -387,7 +387,7 @@ public class MessageFrame extends JFrame {
         DateTime now = new DateTime(DateTimeZone.UTC);
         String date = DateFun.FORMAT_DATE_EXT.print(now)
                         + " - " 
-                        + DateFun.FORMAT_EXT_TIME.print(now);
+                        + DateFun.FORMAT_TIME_EXT.print(now);
         String fromLine = "----- " + from + " ----- " + date + " -----";
 
         int headerAreaStart = newText.length();// begin of non-modifiable area
@@ -788,7 +788,7 @@ public class MessageFrame extends JFrame {
         }
         frostSettings.setValue("userName."+board.getBoardFilename(), from);
         
-        FrostMessageObject mo = new FrostMessageObject();
+        FrostUnsendMessageObject mo = new FrostUnsendMessageObject();
         mo.setMessageId(Mixed.createUniqueId()); // new message, create a new unique msg id
         mo.setInReplyTo(repliedMsgId);
         mo.setBoard(board);

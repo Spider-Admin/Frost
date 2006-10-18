@@ -39,7 +39,7 @@ public final class Mixed {
         idStrSb.append(Long.toString(System.currentTimeMillis())); // millis
         idStrSb.append(DateFun.FORMAT_DATE_EXT.print(new DateTime()));
         idStrSb.append(Long.toString(Runtime.getRuntime().freeMemory())); // free java mem
-        idStrSb.append(DateFun.FORMAT_EXT_TIME.print(new DateTime()));
+        idStrSb.append(DateFun.FORMAT_TIME_EXT.print(new DateTime()));
         byte[] idStrPart = idStrSb.toString().getBytes();
         
         // finally add some random bytes
