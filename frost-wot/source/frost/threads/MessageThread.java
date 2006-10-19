@@ -250,7 +250,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
      */
     protected void uploadMessages() {
 
-        FrostMessageObject unsendMsg = UnsendMessagesManager.getUnsendMessage(board);
+        FrostUnsendMessageObject unsendMsg = UnsendMessagesManager.getUnsendMessage(board);
         if( unsendMsg == null ) {
             // currently no msg to send for this board
             return;
@@ -266,7 +266,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 recipient = Core.getIdentities().getIdentity(unsendMsg.getRecipientName());
                 if( recipient == null ) {
                     logger.severe("Can't send Message '" + unsendMsg.getSubject() + "', the recipient is not longer in your identites list!");
-                    UnsendMessagesManager.deleteMessage(unsendMsg.getMessageId());
+                    UnsendMessagesManager.deleteMessage(unsendMsg);
                     continue;
                 }
             }
@@ -284,9 +284,11 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
         }
     }
 
-    private void uploadMessage(FrostMessageObject mo, Identity recipient) {
+    private void uploadMessage(FrostUnsendMessageObject mo, Identity recipient) {
         
         logger.info("Preparing upload of message to board '" + board.getName() + "'");
+        
+        mo.setCurrentUploadThread(this);
 
         try {
             // prepare upload
@@ -299,7 +301,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 } else {
                     // apparently the LocalIdentity used to write the msg was deleted
                     logger.severe("The LocalIdentity used to write this unsent msg was deleted: "+mo.getFromName());
-                    UnsendMessagesManager.deleteMessage(mo.getMessageId());
+                    UnsendMessagesManager.deleteMessage(mo);
                     return;
                 }
             }
@@ -319,7 +321,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
             
             // start upload, this signs and encrypts if needed
 
-            int index = MessageUploader.uploadMessage(
+            MessageUploaderResult result = MessageUploader.uploadMessage(
                     message, 
                     recipient,
                     senderId,
@@ -332,25 +334,33 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
             // file is not any longer needed
             message.getFile().delete();
 
-            if( index < 0 ) {
+            if( !result.isSuccess() ) {
                 // upload failed, unsend message was handled by MessageUploader (kept or deleted, user choosed)
+                if( !result.isKeepMessage() ) {
+                    // user choosed to drop the message
+                    mo.setCurrentUploadThread(null); // must be marked as not uploaded currently before delete!
+                    UnsendMessagesManager.deleteMessage(mo);
+                } else {
+                    // user choosed to retry after next startup, we do not re-enqueue the file now and find it again on next startup
+                }
                 return;
             }
 
+            int index = result.getUploadIndex();
+            
             // upload was successful, store message in sentmessages database
             FrostMessageObject sentMo = new FrostMessageObject(message, board, index);
-            try {
-                AppLayerDatabase.getSentMessageTable().insertMessage(sentMo);
-            } catch (SQLException e) {
-                logger.log(Level.SEVERE, "Error inserting sent message", e);
-            }
+            
+            SentMessagesManager.addSentMessage(sentMo);
 
             // finally delete the message in unsend messages db table
-            UnsendMessagesManager.deleteMessage(mo.getMessageId());
+            mo.setCurrentUploadThread(null); // must be marked as not uploaded currently before delete!
+            UnsendMessagesManager.deleteMessage(mo);
 
         } catch (Throwable t) {
             logger.log(Level.SEVERE, "Catched exception", t);
         }
+        mo.setCurrentUploadThread(null); // paranoia
         
         logger.info("Message upload finished");
     }

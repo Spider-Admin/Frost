@@ -37,6 +37,7 @@ import frost.components.translate.*;
 import frost.ext.*;
 import frost.gui.*;
 import frost.gui.help.*;
+import frost.gui.messagetreetable.*;
 import frost.gui.preferences.*;
 import frost.messages.*;
 import frost.storage.*;
@@ -45,7 +46,6 @@ import frost.threads.*;
 import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
-import frost.util.gui.treetable.*;
 
 public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater, LanguageListener {
     
@@ -622,10 +622,12 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     public void showMessagePanelInSplitpane() {
         if( treeAndTabbedPaneSplitpane!= null && treeAndTabbedPaneSplitpane.getRightComponent() != getMessagePanel() ) {
             treeAndTabbedPaneSplitpane.setRightComponent(getMessagePanel());
+            getMessageInfoPanel().cleanupAfterLeave();
         }
     }
     public void showMessageInfoPanelInSplitpane() {
         if( treeAndTabbedPaneSplitpane != null && treeAndTabbedPaneSplitpane.getRightComponent() != getMessageInfoPanel() ) {
+            getMessageInfoPanel().prepareForShow();
             treeAndTabbedPaneSplitpane.setRightComponent(getMessageInfoPanel());
         }
     }
@@ -658,8 +660,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 treeAndTabbedPaneSplitpane.getDividerLocation());
 
         // let save component layouts
-        getMessagePanel().getMessageTable().saveLayout(frostSettings);
         getMessagePanel().saveLayout(frostSettings);
+        getMessageInfoPanel().saveLayout();
     }
 
     /**

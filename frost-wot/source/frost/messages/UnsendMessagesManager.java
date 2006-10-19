@@ -22,6 +22,7 @@ import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
+import frost.*;
 import frost.boards.*;
 import frost.storage.database.applayer.*;
 import frost.threads.*;
@@ -67,7 +68,7 @@ public class UnsendMessagesManager {
     public static List getUnsendMessages() {
         return unsendMessages;
     }
-
+    
     /**
      * Returns a message to upload. The message must have no unsend file attachments.
      * When a message is returned it is dequeued.
@@ -131,24 +132,38 @@ public class UnsendMessagesManager {
         
         // enqueue in file attachment upload thread if needed
         FileAttachmentUploadThread.getInstance().checkAndEnqueueNewMessage(mo);
+        
+        MainFrame.getInstance().getMessageInfoPanel().addUnsendMessage(mo);
     }
-    
-    public static void deleteMessage(String messageId) {
+
+    /**
+     * @return  false if message is currently uploading and delete is not possible
+     */
+    public static boolean deleteMessage(FrostUnsendMessageObject unsendMsg) {
+        
+        if( unsendMsg.getCurrentUploadThread() != null ) {
+            return false; // msg currently uploaded, delete not possible
+        }
+        
         try {
-            AppLayerDatabase.getUnsendMessageTable().deleteMessage(messageId);
+            AppLayerDatabase.getUnsendMessageTable().deleteMessage(unsendMsg.getMessageId());
         } catch(SQLException ex) {
             logger.log(Level.SEVERE, "Error during delete of unsend message", ex);
         }
         
         for(Iterator i = unsendMessages.iterator(); i.hasNext(); ) {
-            FrostMessageObject mo2 = (FrostMessageObject) i.next();
-            if( messageId.equals(mo2.getMessageId()) ) {
+            FrostUnsendMessageObject mo2 = (FrostUnsendMessageObject) i.next();
+            if( unsendMsg.getMessageId().equals(mo2.getMessageId()) ) {
                 i.remove();
                 break;
             }
         }
         
-        FileAttachmentUploadThread.getInstance().messageWasDeleted(messageId);
+        FileAttachmentUploadThread.getInstance().messageWasDeleted(unsendMsg.getMessageId());
+        
+        MainFrame.getInstance().getMessageInfoPanel().removeUnsendMessage(unsendMsg);
+        
+        return true;
     }
     
     public static void updateMessageFileAttachmentKey(FrostMessageObject mo, FileAttachment fa) throws SQLException {

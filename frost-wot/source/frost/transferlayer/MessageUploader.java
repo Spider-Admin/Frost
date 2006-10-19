@@ -32,6 +32,7 @@ import frost.identities.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;
 import frost.util.*;
+import frost.util.gui.translation.*;
 
 /**
  * This class uploads a message file to freenet. The preparation of the
@@ -88,7 +89,7 @@ public class MessageUploader {
      * If senderId is null the message is sent anonymously.
      * 
      */
-    public static int uploadMessage(
+    public static MessageUploaderResult uploadMessage(
             MessageXmlFile message, 
             Identity encryptForRecipient,
             LocalIdentity senderId,
@@ -115,11 +116,8 @@ public class MessageUploader {
         wa.uploadFile.deleteOnExit(); // so that it is deleted when Frost exits
 
         if( prepareMessage(wa) == false ) {
-            return -1;
+            return new MessageUploaderResult(true); // keep msg
         }
-        
-        // FIXME: remove, debug code!
-        wa.message.saveToFile(new File("D:\\"+System.currentTimeMillis()));
         
         try {
             return uploadMessage(wa);
@@ -128,13 +126,13 @@ public class MessageUploader {
         } catch (Throwable t) {
             logger.log(Level.SEVERE, "Oo. EXCEPTION in MessageUploadThread", t);
         }
-        return -1;
+        return new MessageUploaderResult(true); // keep msg
     }
     
     /**
      * Upload the message file.
      */
-    protected static int uploadMessage(MessageUploaderWorkArea wa) throws IOException {
+    protected static MessageUploaderResult uploadMessage(MessageUploaderWorkArea wa) throws IOException {
 
         logger.info("TOFUP: Uploading message to board '" + wa.logBoardName + "' with HTL " + Core.frostSettings.getIntValue("tofUploadHtl"));
 
@@ -167,7 +165,7 @@ public class MessageUploader {
                     }
                 } catch(SQLException e) {
                     logger.log(Level.SEVERE, "Error finding index in database table", e);
-                    return -1;
+                    return new MessageUploaderResult(true); // keep msg
                 }
     
                 // try to insert message
@@ -267,7 +265,7 @@ public class MessageUploader {
     
                 wa.uploadFile.delete();
                 
-                return index;
+                return new MessageUploaderResult(index); // success
     
             } else { // error == true
                 try {
@@ -292,12 +290,13 @@ public class MessageUploader {
                         wa.uploadFile.delete();
                         // message is not re-enqueued in UnsendMessagesManager, we read it during next startup
                         logger.info("TOFUP: Will try to upload again on next startup.");
-                        tryAgain = false;
+//                        tryAgain = false;
+                        return new MessageUploaderResult(true); // keep msg
                     } else if (answer == MessageUploadFailedDialog.DISCARD_VALUE) {
                         wa.uploadFile.delete();
-                        UnsendMessagesManager.deleteMessage(wa.message.getMessageId());
                         logger.warning("TOFUP: Will NOT try to upload message again.");
-                        tryAgain = false;
+//                        tryAgain = false;
+                        return new MessageUploaderResult(false); // delete msg
                     } else { // paranoia
                         logger.warning("TOFUP: Paranoia - will try to upload message again.");
                         tryAgain = true;
@@ -310,7 +309,7 @@ public class MessageUploader {
         }
         while(tryAgain);
         
-        return -1; // upload failed
+        return new MessageUploaderResult(true); // upload failed, keep msg
     }
 
     /**
@@ -396,11 +395,10 @@ public class MessageUploader {
             allLength += wa.signMetadata.length;
         }
         if( allLength > 32767 ) { // limit in FcpInsert.putFile()
-            String txt = "<html>The data you want to upload is too large ("+allLength+"), "+32767+" is allowed.<br>"+
-                         "This should never happen, please report this to a Frost developer!</html>";
-            JOptionPane.showMessageDialog(wa.parentFrame, txt, "Error: message too large", JOptionPane.ERROR_MESSAGE);
-            // TODO: the msg will be NEVER sent, we need an unsent folder in gui
-            // but no too large message should reach us, see MessageFrame
+            Language language = Language.getInstance();
+            String title = language.getString("MessageUploader.messageToLargeError.title");
+            String txt = language.formatMessage("MessageUploader.messageToLargeError.text", ""+allLength, ""+32767);
+            JOptionPane.showMessageDialog(wa.parentFrame, txt, title, JOptionPane.ERROR_MESSAGE);
             return false;
         }
         return true;

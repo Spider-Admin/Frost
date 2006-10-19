@@ -28,6 +28,7 @@ import frost.fcp.*;
 import frost.fileTransfer.upload.*;
 import frost.messages.*;
 import frost.util.*;
+import frost.util.gui.translation.*;
 
 /**
  * Uploads file attachments from unsend messages and updates db table after successful uploads.
@@ -85,19 +86,22 @@ public class FileAttachmentUploadThread extends Thread {
                     fa.getInternalFile().isFile() == false ||
                     fa.getInternalFile().length() == 0 )
                 {
+                    Language language = Language.getInstance();
+                    String title = language.getString("FileAttachmentUploadThread.fileNotFoundError.title");
+                    String txt = language.formatMessage("FileAttachmentUploadThread.fileNotFoundError.text", fa.getFilename());
                     JOptionPane.showMessageDialog(
                             MainFrame.getInstance(),
-                            "The message that is currently send (maybe a send retry on next startup of Frost)\n"+
-                            "contains a file attachment that does not longer exist, or it is a 0 byte file!\n\n"+
-                            "The send of the message was aborted and the message file was deleted\n"+
-                            "to prevent another upload try on next startup of Frost.\n"+
-                            "File: "+fa.getFilename(),
-                            "Unrecoverable error",
+                            txt,
+                            title,
                             JOptionPane.ERROR_MESSAGE);
 
-                    UnsendMessagesManager.deleteMessage(msgFileAttachment.getMessageObject().getMessageId());
+                    UnsendMessagesManager.deleteMessage(msgFileAttachment.getMessageObject());
                     
                     continue;
+                }
+                
+                if( msgFileAttachment.isDeleted() ) {
+                    continue; // drop
                 }
                 
 System.out.println("FileAttachmentUploadManager: starting upload of file: "+fa.getInternalFile().getPath());
@@ -122,15 +126,18 @@ System.out.println("FileAttachmentUploadManager: starting upload of file: "+fa.g
                 
 System.out.println("FileAttachmentUploadManager: upload finished, key: "+chkKey);
 
-                if( chkKey != null ) {
-                    // upload successful, update message
-                    fa.setKey(chkKey);
-                    UnsendMessagesManager.updateMessageFileAttachmentKey(
-                            msgFileAttachment.getMessageObject(), 
-                            msgFileAttachment.getFileAttachment());
-                } else {
-                    // upload failed, retry
-                    msgQueue.appendToQueue(msgFileAttachment);
+                // if the assiciated msg was deleted by user, forget all updates
+                if( !msgFileAttachment.isDeleted() ) {
+                    if( chkKey != null ) {
+                        // upload successful, update message
+                        fa.setKey(chkKey);
+                        UnsendMessagesManager.updateMessageFileAttachmentKey(
+                                msgFileAttachment.getMessageObject(), 
+                                msgFileAttachment.getFileAttachment());
+                    } else {
+                        // upload failed, retry
+                        msgQueue.appendToQueue(msgFileAttachment);
+                    }
                 }
                 
             } catch(Throwable t) {
@@ -197,6 +204,7 @@ System.out.println("FileAttachmentUploadManager: upload finished, key: "+chkKey)
             for( Iterator i=queue.iterator(); i.hasNext(); ) {
                 MessageFileAttachment mfa = (MessageFileAttachment) i.next();
                 if( mfa.getMessageObject().getMessageId().equals(messageId) ) {
+                    mfa.setDeleted(true);
                     i.remove();
                 }
             }
@@ -209,10 +217,12 @@ System.out.println("FileAttachmentUploadManager: upload finished, key: "+chkKey)
     
     private class MessageFileAttachment {
         
-        FrostMessageObject messageObject;
-        FileAttachment fileAttachment;
+        private FrostUnsendMessageObject messageObject;
+        private FileAttachment fileAttachment;
         
-        public MessageFileAttachment(FrostMessageObject mo, FileAttachment fa) {
+        private boolean isDeleted = false;
+        
+        public MessageFileAttachment(FrostUnsendMessageObject mo, FileAttachment fa) {
             messageObject = mo;
             fileAttachment = fa;
         }
@@ -221,8 +231,16 @@ System.out.println("FileAttachmentUploadManager: upload finished, key: "+chkKey)
             return fileAttachment;
         }
 
-        public FrostMessageObject getMessageObject() {
+        public FrostUnsendMessageObject getMessageObject() {
             return messageObject;
+        }
+
+        public boolean isDeleted() {
+            return isDeleted;
+        }
+
+        public void setDeleted(boolean isDeleted) {
+            this.isDeleted = isDeleted;
         }
     }
 }

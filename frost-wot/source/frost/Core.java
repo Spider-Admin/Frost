@@ -621,6 +621,7 @@ public class Core implements FrostEventDispatcher  {
         saver.addExitSavable(getBoardsManager().getTofTree());
         saver.addExitSavable(getFileTransferManager());
         saver.addExitSavable(KnownBoardsManager.getInstance());
+        
         saver.addExitSavable(frostSettings);
         // close databases
         saver.addExitSavable(AppLayerDatabase.getInstance());

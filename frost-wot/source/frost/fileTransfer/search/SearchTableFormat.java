@@ -336,6 +336,9 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
             String tooltip = null;
             if( value != null ) {
                 tooltip = value.toString();
+                if( tooltip.length() == 0 ) {
+                    tooltip = null;
+                }
             }
             setToolTipText(tooltip);
             return this;

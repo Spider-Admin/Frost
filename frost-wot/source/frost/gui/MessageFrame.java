@@ -788,30 +788,36 @@ public class MessageFrame extends JFrame {
         }
         frostSettings.setValue("userName."+board.getBoardFilename(), from);
         
-        FrostUnsendMessageObject mo = new FrostUnsendMessageObject();
-        mo.setMessageId(Mixed.createUniqueId()); // new message, create a new unique msg id
-        mo.setInReplyTo(repliedMsgId);
-        mo.setBoard(board);
-        mo.setFromName(from);
-        mo.setSubject(subject);
-        mo.setContent(text);
-        mo.setIdLinePos(idLinePos);
-        mo.setIdLineLen(idLineLen);
+        FrostUnsendMessageObject newMessage = new FrostUnsendMessageObject();
+        newMessage.setMessageId(Mixed.createUniqueId()); // new message, create a new unique msg id
+        newMessage.setInReplyTo(repliedMsgId);
+        newMessage.setBoard(board);
+        newMessage.setFromName(from);
+        newMessage.setSubject(subject);
+        newMessage.setContent(text);
+        newMessage.setIdLinePos(idLinePos);
+        newMessage.setIdLineLen(idLineLen);
 
         // MessageUploadThread will set date + time !
 
         // attach all files and boards the user chosed
-        for(int x=0; x < filesTableModel.getRowCount(); x++) {
-            MFAttachedFile af = (MFAttachedFile)filesTableModel.getRow(x);
-            File aChosedFile = af.getFile();
-            FileAttachment fa = new FileAttachment(aChosedFile);
-            mo.addAttachment(fa);
+        if( filesTableModel.getRowCount() > 0 ) {
+            for(int x=0; x < filesTableModel.getRowCount(); x++) {
+                MFAttachedFile af = (MFAttachedFile)filesTableModel.getRow(x);
+                File aChosedFile = af.getFile();
+                FileAttachment fa = new FileAttachment(aChosedFile);
+                newMessage.addAttachment(fa);
+            }
+            newMessage.setHasFileAttachments(true);
         }
-        for(int x=0; x < boardsTableModel.getRowCount(); x++) {
-            MFAttachedBoard ab = (MFAttachedBoard)boardsTableModel.getRow(x);
-            Board aChosedBoard = ab.getBoardObject();
-            BoardAttachment ba = new BoardAttachment(aChosedBoard);
-            mo.addAttachment(ba);
+        if( boardsTableModel.getRowCount() > 0 ) {
+            for(int x=0; x < boardsTableModel.getRowCount(); x++) {
+                MFAttachedBoard ab = (MFAttachedBoard)boardsTableModel.getRow(x);
+                Board aChosedBoard = ab.getBoardObject();
+                BoardAttachment ba = new BoardAttachment(aChosedBoard);
+                newMessage.addAttachment(ba);
+            }
+            newMessage.setHasBoardAttachments(true);
         }
 
         Identity recipient = null;
@@ -824,12 +830,11 @@ public class MessageFrame extends JFrame {
                         JOptionPane.ERROR);
                 return;
             }
-            mo.setRecipientName(recipient.getUniqueName());
+            newMessage.setRecipientName(recipient.getUniqueName());
         }
 
-        UnsendMessagesManager.addNewUnsendMessage(mo);
+        UnsendMessagesManager.addNewUnsendMessage(newMessage);
 
-        // FIXME: check size in upload thread
 //        // zip the xml file and check for maximum size
 //        File tmpFile = FileAccess.createTempFile("msgframe_", "_tmp");
 //        tmpFile.deleteOnExit();
@@ -856,7 +861,7 @@ public class MessageFrame extends JFrame {
 //            return;
 //        }
 
-        // set replied to replied message
+        // set isReplied to replied message
         if( repliedMessage != null ) {
             if( repliedMessage.isReplied() == false ) {
                 repliedMessage.setReplied(true);

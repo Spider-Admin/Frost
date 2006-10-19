@@ -695,6 +695,7 @@ public class MessageTextPane extends JPanel {
         private String fileMessage;
         private String keyMessage;
         private String bytesMessage;
+        private String keyNotAvailableMessage;
         
         public PopupMenuAttachmentFile() throws HeadlessException {
             super();
@@ -731,9 +732,6 @@ public class MessageTextPane extends JPanel {
             saveAttachmentItem.addActionListener(this);
         }
 
-        /* (non-Javadoc)
-         * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
-         */
         public void languageChanged(LanguageEvent event) {
             copyKeysItem.setText(language.getString("Common.copyToClipBoard.copyKeysOnly"));
             copyKeysAndNamesItem.setText(language.getString("Common.copyToClipBoard.copyKeysWithFilenames"));
@@ -744,6 +742,7 @@ public class MessageTextPane extends JPanel {
             saveAttachmentItem.setText(language.getString("MessagePane.fileAttachmentTable.popupmenu.downloadSelectedAttachment"));
             cancelItem.setText(language.getString("Common.cancel"));
 
+            keyNotAvailableMessage = language.getString("Common.copyToClipBoard.extendedInfo.keyNotAvailableYet");
             fileMessage = language.getString("Common.copyToClipBoard.extendedInfo.file")+" ";
             keyMessage = language.getString("Common.copyToClipBoard.extendedInfo.key")+" ";
             bytesMessage = language.getString("Common.copyToClipBoard.extendedInfo.bytes")+" ";
@@ -815,6 +814,9 @@ public class MessageTextPane extends JPanel {
             for(Iterator i = items.iterator(); i.hasNext(); ) {
                 FileAttachment fa = (FileAttachment) i.next();
                 String key = fa.getKey();
+                if (key == null) {
+                    key = keyNotAvailableMessage;
+                }
                 textToCopy.append(key);
                 textToCopy.append("/");
                 textToCopy.append(fa.getFilename());
@@ -840,6 +842,9 @@ public class MessageTextPane extends JPanel {
                 FileAttachment fa = (FileAttachment) i.next();
 
                 String key = fa.getKey();
+                if (key == null) {
+                    key = keyNotAvailableMessage;
+                }
                 textToCopy.append(fileMessage);
                 textToCopy.append(fa.getFilename() + "\n");
                 textToCopy.append(keyMessage);
@@ -867,6 +872,9 @@ public class MessageTextPane extends JPanel {
             for(Iterator i = items.iterator(); i.hasNext(); ) {
                 FileAttachment fa = (FileAttachment) i.next();
                 String key = fa.getKey();
+                if (key == null) {
+                    key = keyNotAvailableMessage;
+                }
                 textToCopy.append(key);
                 textToCopy.append("\n");
             }

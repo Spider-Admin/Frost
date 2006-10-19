@@ -36,7 +36,7 @@
  * maintenance of any nuclear facility.
  */
 
-package frost.util.gui.treetable;
+package frost.gui.messagetreetable;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -70,8 +70,16 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     protected TreeTableCellRenderer tree;
     protected Color secondBackgroundColor = new java.awt.Color(238,238,238);
 
-    protected Border borderNewMsgsInThread = BorderFactory.createMatteBorder(0, 2, 0, 0, Color.blue);
-    protected Border borderEmpty = BorderFactory.createEmptyBorder(0, 2, 0, 0);
+    protected Border borderUnreadAndMarkedMsgsInThread = BorderFactory.createCompoundBorder(
+            BorderFactory.createMatteBorder(0, 2, 0, 0, Color.blue),   // outside
+            BorderFactory.createMatteBorder(0, 2, 0, 0, Color.green) ); // inside
+    protected Border borderMarkedMsgsInThread = BorderFactory.createCompoundBorder(
+            BorderFactory.createEmptyBorder(0, 2, 0, 0),   // outside
+            BorderFactory.createMatteBorder(0, 2, 0, 0, Color.green) ); // inside
+    protected Border borderUnreadMsgsInThread = BorderFactory.createCompoundBorder(
+            BorderFactory.createMatteBorder(0, 2, 0, 0, Color.blue),   // outside
+            BorderFactory.createEmptyBorder(0, 2, 0, 0) ); // inside
+    protected Border borderEmpty = BorderFactory.createEmptyBorder(0, 4, 0, 0);
 
     private StringCellRenderer stringCellRenderer = new StringCellRenderer();
     private BooleanCellRenderer booleanCellRenderer = new BooleanCellRenderer();
@@ -471,10 +479,23 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         		    dtcr.setBackgroundNonSelectionColor(background);
         		}
 
-                if( ((FrostMessageObject)msg.getParent()).isRoot() && msg.hasUnreadChilds() ) {
-                    dtcr.setBorder(borderNewMsgsInThread);
-                } else {
-                    dtcr.setBorder(borderEmpty);
+                dtcr.setBorder(null);
+                if( ((FrostMessageObject)msg.getParent()).isRoot() ) {
+                    boolean hasUnread = msg.hasUnreadChilds();
+                    boolean hasMarked = msg.hasMarkedChilds();
+                    if( hasUnread && !hasMarked ) {
+                        // unread and no marked
+                        dtcr.setBorder(borderUnreadMsgsInThread);
+                    } else if( !hasUnread && hasMarked ) {
+                        // no unread and marked
+                        dtcr.setBorder(borderMarkedMsgsInThread);
+                    } else if( !hasUnread && !hasMarked ) {
+                        // nothing
+                        dtcr.setBorder(borderEmpty);
+                    } else {
+                        // both
+                        dtcr.setBorder(borderUnreadAndMarkedMsgsInThread);
+                    }
                 }
                 
                 ImageIcon icon;

@@ -223,12 +223,6 @@ public class MessageDownloader {
             byte[] plaintext = FileAccess.readByteArray(tmpFile);
             boolean sigIsValid = Core.getCrypto().detachedVerify(plaintext, owner.getKey(), metaData.getSig());
     
-            // only for correct owner (no faking allowed here)
-            if( sigIsValid ) {
-                // update lastSeen for this Identity
-                owner.updateLastSeenTimestamp(System.currentTimeMillis()); // TODO: we should set the time from message!
-            }
-    
             // now check if msg is encrypted and for me, if yes decrypt the zipped data
             if (_metaData.getType() == MetaData.ENCRYPT) {
                 EncryptMetaData encMetaData = (EncryptMetaData)metaData;
@@ -308,6 +302,14 @@ public class MessageDownloader {
                 currentMsg.setSignatureStatusTAMPERED();
                 mdResult.message = currentMsg;
                 return mdResult;
+            }
+            
+            // update lastSeen for this Identity
+            try {
+                long lastSeenMillis = currentMsg.getDateAndTime().getMillis();
+                owner.updateLastSeenTimestamp(lastSeenMillis);
+            } catch(Throwable t) {
+                // ignore
             }
     
             currentMsg.setSignatureStatusVERIFIED();
@@ -409,7 +411,12 @@ public class MessageDownloader {
             }
             
             // update lastSeen for this Identity
-            owner.updateLastSeenTimestamp(System.currentTimeMillis()); // FIXME: we should set the time from message!
+            try {
+                long lastSeenMillis = currentMsg.getDateAndTime().getMillis();
+                owner.updateLastSeenTimestamp(lastSeenMillis);
+            } catch(Throwable t) {
+                // ignore
+            }
 
             currentMsg.setSignatureStatusVERIFIED();
             mdResult.message = currentMsg;

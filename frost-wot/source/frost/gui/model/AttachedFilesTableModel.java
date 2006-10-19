@@ -76,14 +76,19 @@ public class AttachedFilesTableModel extends DefaultTableModel implements Langua
         Iterator files = fileAttachments.iterator();
         while (files.hasNext()) {
             FileAttachment attachment = (FileAttachment) files.next();
-            // There is no point in showing a file without key / name
-            if (attachment.getKey() != null && attachment.getKey().length() > 40 &&
-                    attachment.getFilename() != null && attachment.getFilename().length() > 0 )
-            {
+            // maybe we show a file that is not yet uploaded (unsend message file attachment)
+            String key;
+            if (attachment.getKey() != null && attachment.getKey().length() > 40 ) {
+                key = attachment.getKey();
+            } else {
+                key = "?";
+            }
+            
+            if (attachment.getFilename() != null && attachment.getFilename().length() > 0 ) {
                 Object[] row = {
                         attachment.getFilename(), 
                         numberFormat.format( attachment.getSize().longValue() ), 
-                        attachment.getKey()};
+                        key};
                 addRow(row);
             }
         }

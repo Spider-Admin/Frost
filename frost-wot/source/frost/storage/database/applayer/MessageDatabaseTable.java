@@ -24,6 +24,7 @@ import java.util.logging.*;
 
 import org.joda.time.*;
 
+import frost.*;
 import frost.boards.*;
 import frost.identities.*;
 import frost.messages.*;
@@ -222,7 +223,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         ps.setInt(i++, mo.getBoard().getPrimaryKey().intValue()); // board
         ps.setString(i++, mo.getFromName()); // from
         ps.setString(i++, mo.getSubject()); // subject
-        ps.setString(i++, mo.getRecipientName()); // recipient
+        ps.setString(i++, ((mo.getRecipientName()!=null&&mo.getRecipientName().length()==0)?null:mo.getRecipientName()) ); // recipient
         ps.setString(i++, mo.getSignature()); // signature
         ps.setInt(i++, mo.getSignatureStatus()); // signaturestatus
         ps.setString(i++, mo.getPublicKey()); // publickey
@@ -415,7 +416,11 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         mo.setIndex(rs.getInt(ix++));
         mo.setFromName(rs.getString(ix++));
         mo.setSubject(rs.getString(ix++));
-        mo.setRecipientName(rs.getString(ix++));
+        String recipientName = rs.getString(ix++);
+        if( recipientName != null && recipientName.length() == 0 ) {
+            recipientName = null;
+        }
+        mo.setRecipientName(recipientName);
         mo.setSignatureStatus(rs.getInt(ix++));
         mo.setPublicKey(rs.getString(ix++));
         mo.setDeleted(rs.getBoolean(ix++));
@@ -551,7 +556,38 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         rs.close();
         ps.close();
     }
-    
+
+    public List retrieveAllMessages() throws SQLException {
+        LinkedList list = new LinkedList();
+        
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
+        String sql =
+            "SELECT "+
+            "primkey,messageid,inreplyto,msgdatetime,msgindex,fromname,subject,recipient," +
+            "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
+            "hasfileattachment,hasboardattachment,idlinepos,idlinelen,board";
+            sql += " FROM "+getMessageTableName();
+        PreparedStatement ps = db.prepare(sql);
+        
+        ResultSet rs = ps.executeQuery();
+
+        while( rs.next() ) {
+            
+            int boardIx = rs.getInt("board");
+            Board board = MainFrame.getInstance().getTofTreeModel().getBoardByPrimaryKey(new Integer(boardIx));
+            if( board == null ) {
+                continue;
+            }
+            
+            FrostMessageObject mo = resultSetToFrostMessageObject(rs, board, true, true);
+            list.add( mo );
+        }
+        rs.close();
+        ps.close();
+        
+        return list;
+    }
+
     public int deleteExpiredMessages(Board board, int maxDaysOld) throws SQLException {
 
         AppLayerDatabase db = AppLayerDatabase.getInstance();

@@ -36,7 +36,7 @@
  * maintenance of any nuclear facility.
  */
 
-package frost.util.gui.treetable;
+package frost.gui.messagetreetable;
 import javax.swing.table.*;
 import javax.swing.tree.*;
 
@@ -202,6 +202,9 @@ public class MessageTreeTableModel extends DefaultTreeModel implements TreeTable
      * For all other columns this returns false.
      */
     public boolean isCellEditable(Object node, int column) {
+        if( column == 2 ) {
+            return true; // tree column
+        }
         return false;
     }
 
