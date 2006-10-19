@@ -20,6 +20,8 @@ package frost.messages;
 
 import java.util.*;
 
+import frost.*;
+import frost.threads.*;
 import frost.util.*;
 
 /**
@@ -31,6 +33,8 @@ public class FrostUnsendMessageObject extends FrostMessageObject {
     private String timeAddedString = null;
     
     private long sendAfter = 0;
+    
+    private MessageThread currentUploadThread = null; // is set during upload of message
     
     public FrostUnsendMessageObject() {
         super();
@@ -62,6 +66,16 @@ public class FrostUnsendMessageObject extends FrostMessageObject {
             }
         }
         return result;
+    }
+
+    public MessageThread getCurrentUploadThread() {
+        return currentUploadThread;
+    }
+
+    public void setCurrentUploadThread(MessageThread currentUploadThread) {
+        this.currentUploadThread = currentUploadThread;
+        // update unsend message in unsend messages table
+        MainFrame.getInstance().getMessageInfoPanel().updateUnsendMessage(this);
     }
 
     //////// currently unused

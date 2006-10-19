@@ -41,17 +41,34 @@ public class MessageWindow extends JFrame {
     private Language language = Language.getInstance();
     
     private SearchMessagesConfig searchMessagesConfig = null;
+    
+    private boolean showReplyButton;
 
     public MessageWindow(Window parentWindow, FrostMessageObject message, Dimension size) {
-        this(parentWindow, message, size, null);
+        this(parentWindow, message, size, null, true);
+    }
+
+    public MessageWindow(Window parentWindow, FrostMessageObject message, Dimension size, boolean showReplyButton) {
+        this(parentWindow, message, size, null, showReplyButton);
     }
 
     public MessageWindow(Window parentWindow, FrostMessageObject message, Dimension size, SearchMessagesConfig smc) {
+        this(parentWindow, message, size, smc, true);
+    }
+
+    public MessageWindow(
+            Window parentWindow, 
+            FrostMessageObject message, 
+            Dimension size, 
+            SearchMessagesConfig smc, 
+            boolean showReplyButton) 
+    {
         super();
         this.message = message;
         this.parentWindow = parentWindow;
         this.setSize(size);
         this.searchMessagesConfig = smc;
+        this.showReplyButton = showReplyButton;
 
         initialize();
 
@@ -266,7 +283,9 @@ public class MessageWindow extends JFrame {
             this.add(getTFdate(), TFdateConstraints);
             this.add(Lboard, LboardConstraints);
             this.add(getTFboard(), TFboardConstraints);
-            this.add(getBreply(), BreplyConstraints);
+            if( showReplyButton ) {
+                this.add(getBreply(), BreplyConstraints);
+            }
         }
 
         public void languageChanged(LanguageEvent event) {

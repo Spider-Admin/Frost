@@ -109,6 +109,9 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
             String tooltip = null;
             if( value != null ) {
                 tooltip = value.toString();
+                if( tooltip.length() == 0 ) {
+                    tooltip = null;
+                }
             }
             setToolTipText(tooltip);
             return this;

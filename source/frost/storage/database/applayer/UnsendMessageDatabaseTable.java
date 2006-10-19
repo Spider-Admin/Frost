@@ -187,8 +187,7 @@ public class UnsendMessageDatabaseTable extends AbstractDatabaseTable {
     public synchronized void deleteMessage(String messageId) throws SQLException {
 
         AppLayerDatabase db = AppLayerDatabase.getInstance();
-        PreparedStatement ps = db.prepare(
-            "DELETE FROM UNSENDMESSAGES WHERE messageid=?");
+        PreparedStatement ps = db.prepare("DELETE FROM UNSENDMESSAGES WHERE messageid=?");
         ps.setString(1, messageId);
         
         int updated = ps.executeUpdate();

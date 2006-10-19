@@ -18,15 +18,122 @@
 */
 package frost.gui;
 
+import java.awt.*;
+
 import javax.swing.*;
+
+import frost.gui.sentmessages.*;
+import frost.gui.unsendmessages.*;
+import frost.messages.*;
+import frost.util.gui.translation.*;
 
 /**
  * This panel shows the sent and unsend messages.
  */
-public class MessageInfoPanel extends JPanel {
+public class MessageInfoPanel extends JPanel implements LanguageListener {
 
+    Language language = Language.getInstance();
+    
+    private SentMessagesTable sentMessagesTable;
+    private UnsendMessagesTable unsendMessagesTable;
+    private boolean isShown = false;
+    
+    private JLabel sentMsgsLabel;
+    private JLabel unsendMsgsLabel;
+    
     public MessageInfoPanel() {
         super();
+        language.addLanguageListener(this);
+        initialize();
+        refreshLanguage();
     }
     
+    private void initialize() {
+        setLayout(new GridLayout(2, 1, 5, 5));
+        
+        JPanel sentMsgsPanel = new JPanel();
+        sentMsgsPanel.setLayout(new BorderLayout());
+        sentMsgsLabel = new JLabel();
+        sentMsgsLabel.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
+        sentMsgsPanel.add(sentMsgsLabel, BorderLayout.NORTH);
+        
+        sentMessagesTable = new SentMessagesTable();
+        sentMessagesTable.getScrollPane().setWheelScrollingEnabled(true);
+        sentMsgsPanel.add(sentMessagesTable.getScrollPane(), BorderLayout.CENTER);
+
+        JPanel unsendMsgsPanel = new JPanel();
+        unsendMsgsPanel.setLayout(new BorderLayout());
+        unsendMsgsLabel = new JLabel();
+        unsendMsgsLabel.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
+        unsendMsgsPanel.add(unsendMsgsLabel, BorderLayout.NORTH);
+
+        unsendMessagesTable = new UnsendMessagesTable();
+        unsendMessagesTable.getScrollPane().setWheelScrollingEnabled(true);
+        unsendMsgsPanel.add(unsendMessagesTable.getScrollPane(), BorderLayout.CENTER);
+
+        add(sentMsgsPanel);
+        add(unsendMsgsPanel);
+
+        // apply a bold font to labels
+        Font font = sentMsgsLabel.getFont();
+        font = font.deriveFont(Font.BOLD);
+        sentMsgsLabel.setFont(font);
+        unsendMsgsLabel.setFont(font);
+    }
+    
+    public void saveLayout() {
+        sentMessagesTable.saveTableFormat();
+        unsendMessagesTable.saveTableFormat();
+    }
+
+    /**
+     * Fill table model.
+     */
+    public synchronized void prepareForShow() {
+        sentMessagesTable.loadTableModel();
+        unsendMessagesTable.loadTableModel();
+        isShown = true;
+    }
+    
+    /**
+     * Clear table model.
+     */
+    public synchronized void cleanupAfterLeave() {
+        sentMessagesTable.clearTableModel();
+        unsendMessagesTable.clearTableModel();
+        isShown = false;
+    }
+    
+    public synchronized void addSentMessage(FrostMessageObject mo) {
+        if( isShown ) {
+            sentMessagesTable.addSentMessage(mo);
+        }
+    }
+    
+    public synchronized void addUnsendMessage(FrostUnsendMessageObject mo) {
+        if( isShown ) {
+            unsendMessagesTable.addUnsendMessage(mo);
+        }
+    }
+
+    public synchronized void updateUnsendMessage(FrostUnsendMessageObject mo) {
+        if( isShown ) {
+            unsendMessagesTable.updateUnsendMessage(mo);
+        }
+    }
+
+    public synchronized void removeUnsendMessage(FrostUnsendMessageObject mo) {
+        if( isShown ) {
+            unsendMessagesTable.removeUnsendMessage(mo);
+        }
+    }
+    
+    protected void refreshLanguage() {
+        unsendMsgsLabel.setText( language.getString("UnsendMessages.label"));
+        sentMsgsLabel.setText( language.getString("SentMessages.label"));
+    }
+
+    public void languageChanged(LanguageEvent event) {
+        refreshLanguage();
+    }
 }

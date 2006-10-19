@@ -36,7 +36,7 @@
  * maintenance of any nuclear facility.
  */
 
-package frost.util.gui.treetable;
+package frost.gui.messagetreetable;
 
 import java.util.*;
 

@@ -18,6 +18,11 @@
 */
 package frost.storage.database.applayer;
 
+import java.sql.*;
+import java.util.*;
+
+import frost.messages.*;
+
 /**
  * Uses the functionality of MessageDatabaseTable, but different table names.
  */
@@ -77,4 +82,20 @@ public class SentMessageDatabaseTable extends MessageDatabaseTable {
         return "sentmsgcont_index";
     }
 
+    public int deleteMessages(List messages) throws SQLException {
+
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
+
+        PreparedStatement ps = db.prepare("DELETE FROM "+getMessageTableName()+" WHERE messageid=?");
+        int deletedCount = 0;
+        for(Iterator i=messages.iterator(); i.hasNext(); ) {
+            FrostMessageObject mo = (FrostMessageObject) i.next(); 
+            ps.setString(1, mo.getMessageId());
+            deletedCount += ps.executeUpdate();
+        }
+
+        ps.close();
+        
+        return deletedCount;
+    }
 }

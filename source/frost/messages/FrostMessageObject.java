@@ -37,10 +37,6 @@ import frost.util.*;
  */
 public class FrostMessageObject extends AbstractMessageObject implements TableMember {
 
-    // FIXME: if msg is a reply, send the length of the original msg along with the msg, and the receiving frost
-    //   colors the replied (old) part in grey. ensures everyone recognizes what the new part is.
-    //   also scroll to real beginning of the msg then!
-    
     // additional variables for use in GUI
     private boolean isValid = false;
     private String invalidReason = null;
@@ -179,7 +175,21 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         }
         return false;
     }
-    
+
+    public boolean hasMarkedChilds() {
+        if( getChildCount() == 0 ) {
+            return false;
+        }
+        Enumeration e = breadthFirstEnumeration();
+        while(e.hasMoreElements()) {
+            FrostMessageObject m = (FrostMessageObject)e.nextElement();
+            if( m.isStarred() || m.isFlagged() ) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public FrostMessageObject getThreadRootMessage() {
         if( ((FrostMessageObject)getParent()).isRoot() ) {
             return this;

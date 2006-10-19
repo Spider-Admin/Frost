@@ -32,12 +32,12 @@ import javax.swing.tree.*;
 
 import frost.*;
 import frost.boards.*;
+import frost.gui.messagetreetable.*;
 import frost.identities.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
-import frost.util.gui.treetable.*;
 
 public class MessagePanel extends JPanel implements PropertyChangeListener {
 
@@ -133,6 +133,15 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 message.setStarred( !message.isStarred() );
                 getMessageTableModel().fireTableCellUpdated(row, modelCol);
             }
+            
+            // determine thread root msg of this msg
+            FrostMessageObject threadRootMsg = message.getThreadRootMessage();
+            
+            // update thread root to update the marker border
+            if( threadRootMsg != message && threadRootMsg != null ) {
+                getMessageTreeModel().nodeChanged(threadRootMsg);
+            }
+
             Thread saver = new Thread() {
                 public void run() {
                     try {
@@ -350,7 +359,6 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 }
                 if( selectedMessage != null && selectedMessage.getBoard().getNewMessageCount() > 0 ) {
                     add(markAllMessagesReadItem);
-                    // TODO: check if there are unread msgs in THIS thread
                     add(markThreadReadItem);
                     itemAdded = true;
                 }
@@ -648,6 +656,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     public void saveLayout(SettingsClass frostSettings) {
         frostSettings.setValue("MessagePanel.msgTableAndMsgTextSplitpaneDividerLocation", 
                 msgTableAndMsgTextSplitpane.getDividerLocation());
+        
+        getMessageTable().saveLayout(frostSettings);
     }
 
     private void fontChanged() {
@@ -834,14 +844,11 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             return;
         }
         if(id.isGOOD()) {
-            if (JOptionPane.showConfirmDialog(
-                    parentFrame,
-                    "Are you sure you want to revoke trust to user " // TODO: translate
-                        + selectedMessage.getFromName().substring(0, selectedMessage.getFromName().indexOf("@"))
-                        + " ? \n If you choose yes, future messages from this user will be marked BAD",
-                    "Revoke trust",
-                    JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) 
-            {
+            String title = language.getString("MessagePane.setGoodUserToBadConfirmation.title");
+            String userName = selectedMessage.getFromName().substring(0, selectedMessage.getFromName().indexOf("@"));
+            String txt = language.formatMessage("MessagePane.setGoodUserToBadConfirmation.text", userName);
+            int answer = JOptionPane.showConfirmDialog(parentFrame, txt, title, JOptionPane.YES_NO_OPTION); 
+            if (answer == JOptionPane.NO_OPTION) {
                 return;
             }
         } 
@@ -886,14 +893,11 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             return;
         }
         if(id.isBAD()) {
-            if (JOptionPane.showConfirmDialog(
-                    parentFrame,
-                    "Are you sure you want to grant trust to user " // TODO: translate
-                        + selectedMessage.getFromName().substring(0, selectedMessage.getFromName().indexOf("@"))
-                        + " ? \n If you choose yes, future messages from this user will be marked GOOD",
-                    "Grant trust",
-                    JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) 
-            {
+            String title = language.getString("MessagePane.setBadUserToGoodConfirmation.title");
+            String userName = selectedMessage.getFromName().substring(0, selectedMessage.getFromName().indexOf("@"));
+            String txt = language.formatMessage("MessagePane.setBadUserToGoodConfirmation.text", userName);
+            int answer = JOptionPane.showConfirmDialog(parentFrame, txt, title, JOptionPane.YES_NO_OPTION); 
+            if (answer == JOptionPane.NO_OPTION) {
                 return;
             }
         }
@@ -951,10 +955,9 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
         Board targetBoard = mainFrame.getTofTreeModel().getBoardByName(origMessage.getBoard().getName());
         if( targetBoard == null ) {
-            JOptionPane.showMessageDialog( parent,
-                    "Can't reply, the target board is not in your boardlist: "+origMessage.getBoard().getName(), // TODO: translate
-                    "Error",
-                    JOptionPane.ERROR);
+            String title = language.getString("MessagePane.missingBoardError.title");
+            String txt = language.formatMessage("MessagePane.missingBoardError.text", origMessage.getBoard().getName());
+            JOptionPane.showMessageDialog(parent, txt, title, JOptionPane.ERROR);
             return;
         }
         
@@ -978,20 +981,16 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         if( origMessage.getRecipientName() != null ) {
             // this message was for me, reply encrypted
             if( origMessage.getFromIdentity() == null ) {
-                JOptionPane.showMessageDialog( 
-                        parent,
-                        "Can't reply encrypted, recipients ("+origMessage.getRecipientName()+") public key is missing!", // TODO: translate
-                        "Error",
-                        JOptionPane.ERROR_MESSAGE);
+                String title = language.getString("MessagePane.unknownRecipientError.title");
+                String txt = language.formatMessage("MessagePane.unknownRecipientError.text", origMessage.getFromName());
+                JOptionPane.showMessageDialog(parent, txt, title, JOptionPane.ERROR_MESSAGE);
                 return;
             }
             LocalIdentity senderId = identities.getLocalIdentity(origMessage.getRecipientName());
             if( senderId == null ) {
-                JOptionPane.showMessageDialog( 
-                        parent,
-                        "Can't reply encrypted, your identity ("+origMessage.getRecipientName()+") used to write the original message is missing!", // TODO: translate
-                        "Error",
-                        JOptionPane.ERROR_MESSAGE);
+                String title = language.getString("MessagePane.missingLocalIdentityError.title");
+                String txt = language.formatMessage("MessagePane.missingLocalIdentityError.text", origMessage.getRecipientName());
+                JOptionPane.showMessageDialog(parent, txt, title, JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
