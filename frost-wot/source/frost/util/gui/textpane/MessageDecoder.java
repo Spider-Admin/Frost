@@ -140,40 +140,46 @@ public class MessageDecoder extends Decoder implements Smileys, MessageTypes {
 
     private void processFreenetKeys(String message, TreeSet targetElements) {
         String[] FREENETKEYS = FreenetKeys.getFreenetKeyTypes();
-		for (int i = 0; i < FREENETKEYS.length; i++) {
-			int offset = 0;
-			String testMessage = new String(message);
-			while(true) {
-				int pos = testMessage.indexOf(FREENETKEYS[i]);
-				if(pos > -1) {
-                    int length = testMessage.indexOf("\n", pos);
-                    if( length < 0 ) {
-                        // at end of string
-                        length = testMessage.length() - pos;
-                    } else {
-                        length -= pos;
-                    }
+        
+		try { // don't die here for any reason
+            for (int i = 0; i < FREENETKEYS.length; i++) {
+            	int offset = 0;
+            	String testMessage = new String(message);
+            	while(true) {
+            		int pos = testMessage.indexOf(FREENETKEYS[i]);
+            		if(pos > -1) {
+                        int length = testMessage.indexOf("\n", pos);
+                        if( length < 0 ) {
+                            // at end of string
+                            length = testMessage.length() - pos;
+                        } else {
+                            length -= pos;
+                        }
 
-                    String aFileLink = testMessage.substring(pos, pos+length);
-                    if( FreenetKeys.isValidKey(aFileLink) ) {
-                        // we add all file links (last char of link must not be a '/' or similar) to list of links;
-                        // file links and freesite links will be hyperlinked
-                        targetElements.add(new MessageElement(new Integer(pos + offset),FREENETKEY, i, length));
-                        
-                        if( Character.isLetterOrDigit(testMessage.charAt(pos+length-1)) ) {
-                            // file link must contain at least one '/'
-                            if( aFileLink.indexOf("/") > 0 ) {
-                                hyperlinkedKeys.add(aFileLink);
+                        String aFileLink = testMessage.substring(pos, pos+length);
+                        if( FreenetKeys.isValidKey(aFileLink) ) {
+                            // we add all file links (last char of link must not be a '/' or similar) to list of links;
+                            // file links and freesite links will be hyperlinked
+                            targetElements.add(new MessageElement(new Integer(pos + offset),FREENETKEY, i, length));
+                            
+                            if( Character.isLetterOrDigit(testMessage.charAt(pos+length-1)) ) {
+                                // file link must contain at least one '/'
+                                if( aFileLink.indexOf("/") > 0 ) {
+                                    hyperlinkedKeys.add(aFileLink);
+                                }
                             }
                         }
-                    }
-					offset += pos + length;
-					testMessage = testMessage.substring(pos + length); // FIXME: no substring, remember pos?!
-				} else {
-					break;
-				}
-			}
-		}
+            			offset += pos + length;
+            			testMessage = testMessage.substring(pos + length); // TODO: no substring, remember pos?!
+            		} else {
+            			break;
+            		}
+            	}
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
+            logger.log(Level.SEVERE, "Excption in processFreenetKeys", e);
+        }
 	}
 
 	private void processSmileys(String message, TreeSet targetElements) {

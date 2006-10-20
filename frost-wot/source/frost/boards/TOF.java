@@ -35,14 +35,9 @@ import frost.util.gui.translation.*;
 
 /**
  * @pattern Singleton
- *
- * @author $Author$
- * @version $Revision$
  */
 public class TOF {
     
-    // FIXME: wenn neue ankommt und gerade geupdated wird, dann enqueue und nach abarbeiten processe die neuen (alles im swing thread!)
-
     private static Logger logger = Logger.getLogger(TOF.class.getName());
     
     private static Language language = Language.getInstance();
@@ -75,7 +70,6 @@ public class TOF {
     private TOF(TofTreeModel tofTreeModel) {
         super();
         this.tofTreeModel = tofTreeModel;
-
     }
 
     /**
@@ -265,6 +259,7 @@ public class TOF {
         }
 
         // message is not blocked
+        // FIXME: if we currently retrieve the messages for a board, and a new msg arrives, collect new msgs and sort them in after load completed
         SwingUtilities.invokeLater( new Runnable() {
             public void run() {
 
