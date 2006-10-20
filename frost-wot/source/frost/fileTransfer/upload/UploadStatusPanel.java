@@ -24,30 +24,15 @@ import javax.swing.*;
 
 import frost.util.gui.translation.*;
 
-/**
- * @author $Author$
- * @version $Revision$
- */
 public class UploadStatusPanel extends JPanel {
 
     private class Listener implements UploadTickerListener, LanguageListener {
-        /* (non-Javadoc)
-         * @see frost.fileTransfer.upload.UploadTickerListener#uploadingCountChanged()
-         */
         public void uploadingCountChanged() {
             numberChanged();
         }
-
-        /* (non-Javadoc)
-         * @see frost.fileTransfer.upload.UploadTickerListener#generatingCountChanged()
-         */
         public void generatingCountChanged() {
             numberChanged();
         }
-
-        /* (non-Javadoc)
-         * @see frost.util.gui.translation.LanguageListener#languageChanged(frost.util.gui.translation.LanguageEvent)
-         */
         public void languageChanged(LanguageEvent event) {
             refreshLanguage();
         }
@@ -73,7 +58,7 @@ public class UploadStatusPanel extends JPanel {
 
     private void initialize() {
         refreshLanguage();
-        setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        setLayout(new FlowLayout(FlowLayout.LEFT, 2, 0));
 
         // Init count
         count = ticker.getRunningUploadingThreads();
@@ -90,7 +75,7 @@ public class UploadStatusPanel extends JPanel {
     }
 
     private void refreshLanguage() {
-        uploadingLabel.setText(language.getString("MainFrame.statusBar.uploading")+":");
+        uploadingLabel.setText(language.getString("MainFrame.statusBar.uploading")+": ");
         if (count == 1) {
             filesLabel.setText(language.getString("MainFrame.statusBar.file"));
         } else {

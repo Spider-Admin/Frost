@@ -773,7 +773,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 return;
             }
             
-            MainFrame.displayNewMessageIcon(false);
+            MainFrame.getInstance().displayNewMessageIcon(false);
 
             if (selectedBoard.isReadAccessBoard() == false) {
                 replyButton.setEnabled(true);

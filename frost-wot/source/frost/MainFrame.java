@@ -68,8 +68,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     
     public static String keypool = null;
 
-    private static ImageIcon[] newMessage = new ImageIcon[2];
-
     private JButton boardInfoButton = null;
     private long counter = 55;
 
@@ -105,8 +103,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     private JButton newFolderButton = null;
 
     private JToolBar buttonToolBar;
-
-    private JPanel extendableStatusPanel;
+    
+    private MainFrameStatusBar statusBar;
 
     //Options Menu
     private JMenu optionsMenu = new JMenu();
@@ -124,9 +122,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     private JButton renameFolderButton = null;
     private JButton configBoardButton = null;
 
-    // labels that are updated later
-    private JLabel statusLabel = null;
-    private JLabel statusMessageLabel = null;
     private JButton systemTrayButton = null;
 
     private JTranslatableTabbedPane tabbedPane;
@@ -558,39 +553,19 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         }
         return menuBar;
     }
-
-    /**
-     * This method builds the whole of the status bar (both the extendable and the
-     * static parts)
-     * @return
-     */
-    private JPanel buildStatusBar() {
-        JPanel panel = new JPanel(new BorderLayout());
-
-        statusLabel = new JLabel();
-        statusMessageLabel = new JLabel();
-
-        newMessage[0] = new ImageIcon(MainFrame.class.getResource("/data/messagebright.gif"));
-        newMessage[1] = new ImageIcon(MainFrame.class.getResource("/data/messagedark.gif"));
-        statusMessageLabel.setIcon(newMessage[1]);
-
-        panel.add(getExtendableStatusPanel(), BorderLayout.WEST);
-        panel.add(statusLabel, BorderLayout.CENTER); // Statusbar
-        panel.add(statusMessageLabel, BorderLayout.EAST);
-
-        return panel;
-    }
     
+    private MainFrameStatusBar getStatusBar() {
+        if( statusBar == null ) {
+            statusBar = new MainFrameStatusBar();
+        }
+        return statusBar;
+    }
+
     /**
      * This method returns the extendable part of the status bar.
-     * @return
      */
     private JPanel getExtendableStatusPanel() {
-        if (extendableStatusPanel == null) {
-            extendableStatusPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 2));
-            extendableStatusPanel.setAlignmentY(JComponent.CENTER_ALIGNMENT);
-        }
-        return extendableStatusPanel;
+        return getStatusBar().getExtendableStatusPanel();
     }
 
     private JTabbedPane buildMainPanel() {
@@ -768,7 +743,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
         contentPanel.add(getButtonToolBar(), BorderLayout.NORTH);
         contentPanel.add(buildMainPanel(), BorderLayout.CENTER);
-        contentPanel.add(buildStatusBar(), BorderLayout.SOUTH);
+        contentPanel.add(getStatusBar(), BorderLayout.SOUTH);
         setJMenuBar(getMainMenuBar());
 
         // step through all messages on disk up to maxMessageDisplay and check if there are new messages
@@ -977,26 +952,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         /////////////////////////////////////////////////
         //   Update status bar
         /////////////////////////////////////////////////
-        String newText =
-            new StringBuffer()
-                .append("   ").append(language.getString("MainFrame.statusBar.TOFUP")).append(": ")
-                .append(info.getUploadingMessagesCount())
-                .append("R / ")
-                .append(info.getUnsendMessageCount())
-                .append("W / ")
-                .append(info.getAttachmentsToUploadRemainingCount())
-                .append("A   ")
-                .append(language.getString("MainFrame.statusBar.TOFDO")).append(": ")
-                .append(info.getDownloadingBoardCount())
-                .append("B / ")
-                .append(info.getRunningDownloadThreadCount())
-                .append("T   ")
-                .append(language.getString("MainFrame.statusBar.selectedBoard")).append(": ")
-                .append(tofTreeModel.getSelectedNode().getName())
-                .toString();
-        statusLabel.setText(newText);
+        getStatusBar().setStatusBarInformations(info, tofTreeModel.getSelectedNode().getName());
     }
-
+    
     private void tofDisplayBoardInfoMenuItem_actionPerformed(ActionEvent e) {
         if (BoardInfoFrame.isDialogShowing() == false) {
             BoardInfoFrame boardInfo = new BoardInfoFrame(this, tofTree);
@@ -1100,12 +1058,12 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     /**
      * Selects message icon in lower right corner
      */
-    public static void displayNewMessageIcon(boolean showNewMessageIcon) {
+    public void displayNewMessageIcon(boolean showNewMessageIcon) {
         MainFrame mainFrame = MainFrame.getInstance();
+        getStatusBar().showNewMessageIcon(showNewMessageIcon);
         if (showNewMessageIcon) {
             ImageIcon frameIcon = new ImageIcon(MainFrame.class.getResource("/data/newmessage.gif"));
             mainFrame.setIconImage(frameIcon.getImage());
-            mainFrame.statusMessageLabel.setIcon(newMessage[0]);
             // The title should never be changed on Windows systems (SystemTray.exe expects "Frost" as title)
             if( System.getProperty("os.name").startsWith("Windows") == false ) {
                 String t = mainFrame.getTitle();
@@ -1118,7 +1076,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         } else {
             ImageIcon frameIcon = new ImageIcon(MainFrame.class.getResource("/data/jtc.jpg"));
             mainFrame.setIconImage(frameIcon.getImage());
-            mainFrame.statusMessageLabel.setIcon(newMessage[1]);
             // The title should never be changed on Windows systems (SystemTray.exe expects "Frost" as title)
             if( System.getProperty("os.name").startsWith("Windows") == false ) {
                 String t = mainFrame.getTitle();

@@ -54,7 +54,7 @@ public class MessageInfoPanel extends JPanel implements LanguageListener {
         JPanel sentMsgsPanel = new JPanel();
         sentMsgsPanel.setLayout(new BorderLayout());
         sentMsgsLabel = new JLabel();
-        sentMsgsLabel.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
+        sentMsgsLabel.setBorder(BorderFactory.createEmptyBorder(2,4,2,2));
         sentMsgsPanel.add(sentMsgsLabel, BorderLayout.NORTH);
         
         sentMessagesTable = new SentMessagesTable();
@@ -64,7 +64,7 @@ public class MessageInfoPanel extends JPanel implements LanguageListener {
         JPanel unsendMsgsPanel = new JPanel();
         unsendMsgsPanel.setLayout(new BorderLayout());
         unsendMsgsLabel = new JLabel();
-        unsendMsgsLabel.setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
+        unsendMsgsLabel.setBorder(BorderFactory.createEmptyBorder(2,4,2,2));
         unsendMsgsPanel.add(unsendMsgsLabel, BorderLayout.NORTH);
 
         unsendMessagesTable = new UnsendMessagesTable();
