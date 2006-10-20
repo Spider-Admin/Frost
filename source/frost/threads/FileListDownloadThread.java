@@ -63,6 +63,7 @@ public class FileListDownloadThread extends Thread {
 
         final int maxAllowedExceptions = 5;
         int occuredExceptions = 0;
+        String previousKey = null;
 
         while(true) {
             try {
@@ -73,9 +74,13 @@ public class FileListDownloadThread extends Thread {
                     // paranoia
                     Mixed.wait(wait1minute);
                     continue;
+                } else if( previousKey != null && previousKey.equals(chkKey) ) {
+                    // same key as before, so no more keys else in queue. wait some time longer...
+                    Mixed.wait(wait1minute);
                 } else {
                     // short wait to not to hurt node
-                    Mixed.waitRandom(3000);
+                    Mixed.waitRandom(3500);
+                    previousKey = chkKey; // different key as before, remember
                 }
 System.out.println("FileListDownloadThread: starting download of key: "+chkKey);
                 File downloadedFile = downloadCHKKey(chkKey);

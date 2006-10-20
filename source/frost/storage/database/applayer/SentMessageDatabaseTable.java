@@ -28,8 +28,6 @@ import frost.messages.*;
  */
 public class SentMessageDatabaseTable extends MessageDatabaseTable {
 
-    // FIXME: if msg with this msgid was found in msgstable, then remove msgs from here and set a pointer to it (or add a flag)
-    
     protected String getMessageTableName() {
         return "SENTMESSAGES";
     }

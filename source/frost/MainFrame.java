@@ -940,7 +940,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         //////////////////////////////////////////////////
         //   Display time in button bar
         //////////////////////////////////////////////////
-        // FIXME: performance: maybe don't print date each time, check if date changed!
         DateTime now = new DateTime(DateTimeZone.UTC);
         timeLabel.setText(
             new StringBuffer()

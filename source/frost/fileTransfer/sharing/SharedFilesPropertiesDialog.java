@@ -23,6 +23,7 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.text.*;
 
+import frost.fileTransfer.*;
 import frost.gui.*;
 
 /**
@@ -254,7 +255,7 @@ public class SharedFilesPropertiesDialog extends JDialog {
         if( TFcomment == null ) {
             TFcomment = new JTextField();
             TFcomment.setColumns(32);
-            TFcomment.setDocument(new RestrictSizeDocument(100));
+            TFcomment.setDocument(new RestrictSizeDocument(SharedFileXmlFile.MAX_COMMENT_LENGTH));
         }
         return TFcomment;
     }
@@ -268,7 +269,7 @@ public class SharedFilesPropertiesDialog extends JDialog {
         if( TFkeywords == null ) {
             TFkeywords = new JTextField();
             TFkeywords.setColumns(32);
-            TFkeywords.setDocument(new RestrictSizeDocument(100));
+            TFkeywords.setDocument(new RestrictSizeDocument(SharedFileXmlFile.MAX_KEYWORDS_LENGTH));
         }
         return TFkeywords;
     }
