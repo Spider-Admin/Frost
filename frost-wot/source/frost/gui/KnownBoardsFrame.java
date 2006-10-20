@@ -267,9 +267,6 @@ public class KnownBoardsFrame extends JDialog {
         setVisible(true); // blocking!
     }
 
-    // FIXME: popup item to hide the choosed boards by name
-    // FIXME: show all boards and allow to remove the hidden state, or edit hidden names list
-    
     private void loadKnownBoardsIntoTable(boolean showHidden) {
         allKnownBoardsList = new LinkedList();
         this.tableModel.clearDataModel();

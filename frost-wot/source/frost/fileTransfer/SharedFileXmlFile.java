@@ -27,6 +27,9 @@ import frost.util.*;
 
 public class SharedFileXmlFile implements XMLizable {
     
+    public static final int MAX_COMMENT_LENGTH = 100;
+    public static final int MAX_KEYWORDS_LENGTH = 100;
+    
     private static Logger logger = Logger.getLogger(SharedFileXmlFile.class.getName());
 
     private final static String[] invalidChars = {"/", "\\", "?", "*", "<", ">", "\"", ":", "|"};
@@ -245,6 +248,10 @@ public class SharedFileXmlFile implements XMLizable {
             comment = comment.trim();
             if( comment.length() == 0 ) {
                 comment = null;
+            } else {
+                if( comment.length() > MAX_COMMENT_LENGTH ) {
+                    comment = comment.substring(0, MAX_COMMENT_LENGTH);
+                }
             }
         }
         this.comment = comment;
@@ -258,6 +265,10 @@ public class SharedFileXmlFile implements XMLizable {
             keywords = keywords.trim();
             if( keywords.length() == 0 ) {
                 keywords = null;
+            } else {
+                if( keywords.length() > MAX_KEYWORDS_LENGTH ) {
+                    keywords = keywords.substring(0, MAX_KEYWORDS_LENGTH);
+                }
             }
         }
         this.keywords = keywords;

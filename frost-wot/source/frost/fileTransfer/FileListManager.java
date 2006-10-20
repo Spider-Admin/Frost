@@ -31,6 +31,25 @@ public class FileListManager {
 
     private static Logger logger = Logger.getLogger(FileListManager.class.getName());
     
+    public static final int MAX_FILES_PER_FILE = 250; // TODO: count utf-8 size of sharedxmlfiles, not more than 512kb!
+    
+    /**
+     * Used to sort FrostSharedFileItems by refLastSent ascending.
+     */
+    private static final Comparator refLastSentComparator = new Comparator() {
+        public int compare(Object o1, Object o2) {
+            FrostSharedFileItem value1 = (FrostSharedFileItem) o1;
+            FrostSharedFileItem value2 = (FrostSharedFileItem) o2;
+            if (value1.getRefLastSent() > value2.getRefLastSent()) {
+                return 1;
+            } else if (value1.getRefLastSent() < value2.getRefLastSent()) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
+    };
+    
     /**
      * @return  an info class that is guaranteed to contain an owner and files
      */
@@ -47,11 +66,8 @@ public class FileListManager {
         long now = System.currentTimeMillis();
         long minDate = now - maxDiff;
         
-        // FIXME: if we share files, reshare also files that don't MUST be shared. otherwise we have to reshare them sooner
-        
         List localIdentities = Core.getIdentities().getLocalIdentities();
         int identityCount = localIdentities.size(); 
-        int maxKeys = 250; // FIXME: count utf-8 size of sharedxmlfiles, not more than 512kb!
         while(identityCount > 0) {
             
             LocalIdentity idToUpdate = null;
@@ -70,7 +86,7 @@ public class FileListManager {
             // mark that we tried this owner
             idToUpdate.updateLastFilesSharedMillis();
 
-            LinkedList filesToShare = getUploadItemsToShare(idToUpdate.getUniqueName(), maxKeys, minDate);
+            LinkedList filesToShare = getUploadItemsToShare(idToUpdate.getUniqueName(), MAX_FILES_PER_FILE, minDate);
             if( filesToShare != null && filesToShare.size() > 0 ) {
                 FileListManagerFileInfo fif = new FileListManagerFileInfo(filesToShare, idToUpdate); 
                 return fif;
@@ -87,28 +103,49 @@ public class FileListManager {
 
         LinkedList result = new LinkedList();
         
-        List sharedFileItems = FileTransferManager.getInstance().getSharedFilesManager().getModel().getItems();
-        
-        for( Iterator i = sharedFileItems.iterator(); i.hasNext(); ) {
+        ArrayList sorted = new ArrayList();
+
+        {        
+            List sharedFileItems = FileTransferManager.getInstance().getSharedFilesManager().getModel().getItems();
+            
+            // first collect all items for this owner and sort them
+            for( Iterator i = sharedFileItems.iterator(); i.hasNext(); ) {
+                FrostSharedFileItem sfo = (FrostSharedFileItem) i.next();
+                if( !sfo.getOwner().equals(owner) ) {
+                    continue;
+                }
+                sorted.add(sfo);
+            }
+        }
+
+        if( sorted.isEmpty() ) {
+            // no shared files for this owner
+            return result;
+        }
+
+        // sort ascending, oldest items at the beginning
+        Collections.sort(sorted, refLastSentComparator);
+
+        {
+            // check if oldest item must be shared (maybe its new or updated)
+            FrostSharedFileItem sfo = (FrostSharedFileItem) sorted.get(0);
+            if( sfo.getRefLastSent() > minDate ) {
+                // oldest item is'nt too old, don't share
+                return result;
+            }
+        }
+
+        // finally add up to MAX_FILES items from the sorted list
+        for( Iterator i = sorted.iterator(); i.hasNext(); ) {
             FrostSharedFileItem sfo = (FrostSharedFileItem) i.next();
-            
-            if( !sfo.getOwner().equals(owner) ) {
-                continue;
-            }
-            
-            if( sfo.getRefLastSent() < minDate ) {
-                
-                // we must share this file now, either its new or updated
-                result.add( sfo.getSharedFileXmlFileInstance() );
-            }
-    
+            result.add( sfo.getSharedFileXmlFileInstance() );
             if( result.size() >= maxItems ) {
                 return result;
             }
         }
+        
         return result;
     }
-
 
     /**
      * Update sent files.

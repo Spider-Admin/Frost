@@ -214,7 +214,6 @@ public class MessageTextPane extends JPanel {
             textHighlighter.removeHighlights(messageTextArea);
         }
 
-        // FIXME: das flackert beim wechsel weil er nochmal hochgeht. sofort zur richtigen stelle mit der scrollbar!!
         setMessageText(selectedMessage.getContent());
         
         messageBodyScrollPane.getVerticalScrollBar().setValueIsAdjusting(true);
