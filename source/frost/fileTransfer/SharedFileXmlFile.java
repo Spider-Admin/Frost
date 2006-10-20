@@ -162,25 +162,25 @@ public class SharedFileXmlFile implements XMLizable {
         element.appendChild(textnode);
         fileelement.appendChild(element);
 
-        if( getKey() != null ) {
+        if( getKey() != null && getKey().trim().length() > 0 ) {
             element = doc.createElement("key");
             textnode = doc.createTextNode(getKey());
             element.appendChild(textnode);
             fileelement.appendChild(element);
         }
-        if( getLastUploaded() != null ) {
+        if( getLastUploaded() != null && getLastUploaded().trim().length() > 0 ) {
             element = doc.createElement("uploaded");
             textnode = doc.createTextNode(getLastUploaded());
             element.appendChild(textnode);
             fileelement.appendChild(element);
         }
-        if( getComment() != null ) {
+        if( getComment() != null && getComment().trim().length() > 0 ) {
             element = doc.createElement("comment");
             cdata = doc.createCDATASection(getComment());
             element.appendChild(cdata);
             fileelement.appendChild(element);
         }
-        if( getKeywords() != null ) {
+        if( getKeywords() != null && getKeywords().trim().length() > 0 ) {
             element = doc.createElement("keywords");
             cdata = doc.createCDATASection(getKeywords());
             element.appendChild(cdata);
@@ -241,6 +241,12 @@ public class SharedFileXmlFile implements XMLizable {
         return comment;
     }
     public void setComment(String comment) {
+        if( comment != null ) {
+            comment = comment.trim();
+            if( comment.length() == 0 ) {
+                comment = null;
+            }
+        }
         this.comment = comment;
     }
 
@@ -248,6 +254,12 @@ public class SharedFileXmlFile implements XMLizable {
         return keywords;
     }
     public void setKeywords(String keywords) {
+        if( keywords != null ) {
+            keywords = keywords.trim();
+            if( keywords.length() == 0 ) {
+                keywords = null;
+            }
+        }
         this.keywords = keywords;
     }
 

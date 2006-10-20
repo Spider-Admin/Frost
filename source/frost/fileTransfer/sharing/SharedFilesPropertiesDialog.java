@@ -186,16 +186,16 @@ public class SharedFilesPropertiesDialog extends JDialog {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     String str;
 
-                    str = getTFcomment().getText(); 
+                    str = getTFcomment().getText().trim(); 
                     if( str.length() > 0 ) {
-                        comment = str.trim();
+                        comment = str;
                     } else {
                         comment = null;
                     }
 
-                    str = getTFkeywords().getText(); 
+                    str = getTFkeywords().getText().trim(); 
                     if( str.length() > 0 ) {
-                        keywords = str.trim();
+                        keywords = str;
                     } else {
                         keywords = null;
                     }
