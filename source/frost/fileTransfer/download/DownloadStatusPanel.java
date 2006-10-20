@@ -65,7 +65,7 @@ public class DownloadStatusPanel extends JPanel {
 
 	private void initialize() {
 		refreshLanguage();
-		setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
+		setLayout(new FlowLayout(FlowLayout.LEFT, 2, 0));
 		
 		// Init count
 		count = ticker.getRunningThreads();
@@ -82,7 +82,7 @@ public class DownloadStatusPanel extends JPanel {
 	}
 	
 	private void refreshLanguage() {
-		downloadingLabel.setText(language.getString("MainFrame.statusBar.downloading")+":");
+		downloadingLabel.setText(language.getString("MainFrame.statusBar.downloading")+": ");
 		if (count == 1) {
 			filesLabel.setText(language.getString("MainFrame.statusBar.file"));
 		} else {

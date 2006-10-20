@@ -271,7 +271,7 @@ public class TOF {
                 board.newMessageReceived(); // notify receive of new msg (for board update)
                 board.incNewMessageCount(); // increment new message count
                 MainFrame.getInstance().updateTofTree(board);
-                MainFrame.displayNewMessageIcon(true);
+                MainFrame.getInstance().displayNewMessageIcon(true);
 
                 Board selectedBoard = tofTreeModel.getSelectedNode();
                 // add only if target board is still shown
