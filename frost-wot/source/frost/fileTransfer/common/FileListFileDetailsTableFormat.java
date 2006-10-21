@@ -19,7 +19,6 @@
 package frost.fileTransfer.common;
 
 import java.awt.*;
-import java.text.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -27,6 +26,7 @@ import javax.swing.table.*;
 
 import frost.*;
 import frost.gui.*;
+import frost.identities.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
 import frost.util.model.gui.*;
@@ -35,11 +35,14 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
     
     private String stateNever;
 
-    NumberFormat numberFormat = NumberFormat.getInstance();
-
     private Language language = Language.getInstance();;
+    
+    private static ImageIcon ICON_GOOD = null;
+    private static ImageIcon ICON_OBSERVE = null;
+    private static ImageIcon ICON_CHECK = null;
+    private static ImageIcon ICON_BAD = null;
 
-    private final static int COLUMN_COUNT = 7;
+    private final static int COLUMN_COUNT = 8;
 
     public FileListFileDetailsTableFormat() {
         super(COLUMN_COUNT);
@@ -48,11 +51,28 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
 
         setComparator(new FileNameComparator(), 0);
         setComparator(new OwnerComparator(), 1);
-        setComparator(new RatingComparator(), 2);
-        setComparator(new CommentComparator(), 3);
-        setComparator(new KeywordsComparator(), 4);
-        setComparator(new LastUploadedComparator(), 5);
-        setComparator(new LastReceivedComparator(), 6);
+        setComparator(new IdentityStateComparator(), 2);
+        setComparator(new RatingComparator(), 3);
+        setComparator(new CommentComparator(), 4);
+        setComparator(new KeywordsComparator(), 5);
+        setComparator(new LastUploadedComparator(), 6);
+        setComparator(new LastReceivedComparator(), 7);
+        
+        loadIcons();
+    }
+    
+    private void loadIcons() {
+        if( ICON_GOOD == null ) {
+            // load all icons
+            ICON_GOOD = new ImageIcon(getClass().getResource("/data/trust.gif"));
+            ICON_GOOD = new ImageIcon(ICON_GOOD.getImage().getScaledInstance(12, 12, Image.SCALE_SMOOTH));
+            ICON_OBSERVE = new ImageIcon(getClass().getResource("/data/observe.gif"));
+            ICON_OBSERVE = new ImageIcon(ICON_OBSERVE.getImage().getScaledInstance(12, 12, Image.SCALE_SMOOTH));
+            ICON_CHECK = new ImageIcon(getClass().getResource("/data/check.gif"));
+            ICON_CHECK = new ImageIcon(ICON_CHECK.getImage().getScaledInstance(12, 12, Image.SCALE_SMOOTH));
+            ICON_BAD = new ImageIcon(getClass().getResource("/data/nottrust.gif"));
+            ICON_BAD = new ImageIcon(ICON_BAD.getImage().getScaledInstance(12, 12, Image.SCALE_SMOOTH));
+        }
     }
 
     public void languageChanged(LanguageEvent event) {
@@ -62,11 +82,12 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
     private void refreshLanguage() {
         setColumnName(0, language.getString("FileListFileDetailsDialog.table.filename"));
         setColumnName(1, language.getString("FileListFileDetailsDialog.table.owner"));
-        setColumnName(2, language.getString("FileListFileDetailsDialog.table.rating"));
-        setColumnName(3, language.getString("FileListFileDetailsDialog.table.comment"));
-        setColumnName(4, language.getString("FileListFileDetailsDialog.table.keywords"));
-        setColumnName(5, language.getString("FileListFileDetailsDialog.table.lastUploaded"));
-        setColumnName(6, language.getString("FileListFileDetailsDialog.table.lastReceived"));
+        setColumnName(2, language.getString("FileListFileDetailsDialog.table.trustState"));
+        setColumnName(3, language.getString("FileListFileDetailsDialog.table.rating"));
+        setColumnName(4, language.getString("FileListFileDetailsDialog.table.comment"));
+        setColumnName(5, language.getString("FileListFileDetailsDialog.table.keywords"));
+        setColumnName(6, language.getString("FileListFileDetailsDialog.table.lastUploaded"));
+        setColumnName(7, language.getString("FileListFileDetailsDialog.table.lastReceived"));
 
         stateNever = language.getString("FileListFileDetailsDialog.table.state.never");
 
@@ -82,23 +103,26 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
             case 1 :    // owner
                 return searchItem.getFileOwner().getOwner();
 
-            case 2 :    // rating
+            case 2 :    // state
+                return searchItem.getOwnerIdentity();
+
+            case 3 :    // rating
                 return RatingStringProvider.getRatingString( searchItem.getFileOwner().getRating() );
 
-            case 3 :    // comment
+            case 4 :    // comment
                 return searchItem.getDisplayComment();
 
-            case 4 :    // keyword
+            case 5 :    // keyword
                 return searchItem.getDisplayKeywords();
 
-            case 5 :    // lastUploaded
+            case 6 :    // lastUploaded
                 if( searchItem.getDisplayLastUploaded().length() == 0 ) {
                     return stateNever;
                 } else {
                     return searchItem.getDisplayLastUploaded();
                 }
 
-            case 6 :    // lastReceived
+            case 7 :    // lastReceived
                 if( searchItem.getDisplayLastReceived().length() == 0 ) {
                     return stateNever;
                 } else {
@@ -125,13 +149,14 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
         
         columnModel.getColumn(0).setCellRenderer(showContentTooltipRenderer); // filename
         columnModel.getColumn(1).setCellRenderer(showContentTooltipRenderer); // owner
+        columnModel.getColumn(2).setCellRenderer(new IdentityStateRenderer()); // id state
         
-        columnModel.getColumn(3).setCellRenderer(showContentTooltipRenderer); // comment
-        columnModel.getColumn(4).setCellRenderer(showContentTooltipRenderer); // keywords
+        columnModel.getColumn(4).setCellRenderer(showContentTooltipRenderer); // comment
+        columnModel.getColumn(5).setCellRenderer(showContentTooltipRenderer); // keywords
 
         if( !loadTableLayout(columnModel) ) {
             // Sets the relative widths of the columns
-            int[] widths = { 150, 80, 20, 80, 80, 55, 55 };
+            int[] widths = { 150, 80, 20, 20, 80, 80, 55, 55 };
             for (int i = 0; i < widths.length; i++) {
                 columnModel.getColumn(i).setPreferredWidth(widths[i]);
             }
@@ -211,6 +236,16 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
         }
     }
 
+    private class IdentityStateComparator implements Comparator {
+        public int compare(Object o1, Object o2) {
+            FileListFileDetailsItem item1 = (FileListFileDetailsItem) o1;
+            FileListFileDetailsItem item2 = (FileListFileDetailsItem) o2;
+            Integer i1 = new Integer(item1.getOwnerIdentity().getState());
+            Integer i2 = new Integer(item2.getOwnerIdentity().getState());
+            return i1.compareTo(i2);
+        }
+    }
+
     private class RatingComparator implements Comparator {
         public int compare(Object o1, Object o2) {
             int val1 = ((FileListFileDetailsItem) o1).getFileOwner().getRating();
@@ -275,4 +310,38 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
             return this;
         }
     }
+    
+    private class IdentityStateRenderer extends DefaultTableCellRenderer {
+        public IdentityStateRenderer() {
+            super();
+        }
+        public Component getTableCellRendererComponent(
+            JTable table,
+            Object value,
+            boolean isSelected,
+            boolean hasFocus,
+            int row,
+            int column) 
+        {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            
+            Identity id = (Identity) value;
+            if( id == null ) {
+                setIcon(null);
+            } else if( id.isGOOD() ) {
+                setIcon(ICON_GOOD);
+            } else if( id.isOBSERVE() ) {
+                setIcon(ICON_OBSERVE);
+            } else if( id.isCHECK() ) {
+                setIcon(ICON_CHECK);
+            } else if( id.isBAD() ) {
+                setIcon(ICON_BAD);
+            } else {
+                setIcon(null);
+            }
+            setText("");
+            return this;
+        }
+    }
+
 }

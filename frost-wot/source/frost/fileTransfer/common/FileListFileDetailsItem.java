@@ -18,7 +18,9 @@
 */
 package frost.fileTransfer.common;
 
+import frost.*;
 import frost.fileTransfer.*;
+import frost.identities.*;
 import frost.util.*;
 import frost.util.model.*;
 
@@ -31,6 +33,8 @@ public class FileListFileDetailsItem extends ModelItem {
     
     private String displayLastReceived;
     private String displayLastUploaded;
+    
+    private Identity ownerIdentity = null;
     
     public FileListFileDetailsItem(FrostFileListFileObjectOwner o) {
         fileOwner = o;
@@ -78,6 +82,13 @@ public class FileListFileDetailsItem extends ModelItem {
             }
         }
         return displayLastUploaded;
+    }
+    
+    public Identity getOwnerIdentity() {
+        if( ownerIdentity == null ) {
+            ownerIdentity = Core.getIdentities().getIdentity(fileOwner.getOwner());
+        }
+        return ownerIdentity;
     }
 
     public FrostFileListFileObjectOwner getFileOwner() {
