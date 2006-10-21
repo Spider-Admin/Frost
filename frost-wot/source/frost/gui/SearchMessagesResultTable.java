@@ -23,6 +23,7 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.table.*;
 
+import frost.*;
 import frost.gui.model.*;
 import frost.messages.*;
 import frost.util.gui.*;
@@ -41,6 +42,9 @@ public class SearchMessagesResultTable extends SortedTable {
     private ImageIcon messageNewRepliedIcon = new ImageIcon(getClass().getResource("/data/messagenewrepliedicon.gif"));
     private ImageIcon messageReadRepliedIcon = new ImageIcon(getClass().getResource("/data/messagereadrepliedicon.gif"));
 
+    private boolean showColoredLines;
+    private Color secondBackgroundColor = new java.awt.Color(238,238,238);
+
     public SearchMessagesResultTable(SearchMessagesTableModel m) {
         super(m);
 
@@ -53,6 +57,8 @@ public class SearchMessagesResultTable extends SortedTable {
         resortTable();
         
         initLayout();
+        
+        showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
     }
     
     private void initLayout() {
@@ -275,6 +281,19 @@ public class SearchMessagesResultTable extends SortedTable {
                     setForeground(Color.BLACK);
                 }
             }
+            
+            if (!isSelected) {
+                if( showColoredLines ) {
+                    // IBM lineprinter paper
+                    if ((row & 0x0001) == 0) {
+                        setBackground(Color.WHITE);
+                    } else {
+                        setBackground(secondBackgroundColor);
+                    }
+                } else {
+                    setBackground(table.getBackground());
+                }
+            }
 
             setDeleted(msg.getMessageObject().isDeleted());
 
@@ -338,7 +357,16 @@ public class SearchMessagesResultTable extends SortedTable {
                 }
             }
             if (!isSelected) {
-                setBackground(table.getBackground());
+                if( showColoredLines ) {
+                    // IBM lineprinter paper
+                    if ((row & 0x0001) == 0) {
+                        setBackground(Color.WHITE);
+                    } else {
+                        setBackground(secondBackgroundColor);
+                    }
+                } else {
+                    setBackground(table.getBackground());
+                }
             } else {
                 setBackground(table.getSelectionBackground());
             }
@@ -346,9 +374,6 @@ public class SearchMessagesResultTable extends SortedTable {
         }        
     }
 
-    /* (non-Javadoc)
-     * @see javax.swing.JTable#createDefaultColumnsFromModel()
-     */
     public void createDefaultColumnsFromModel() {
         super.createDefaultColumnsFromModel();
 
@@ -359,9 +384,6 @@ public class SearchMessagesResultTable extends SortedTable {
         }
     }
 
-    /* (non-Javadoc)
-     * @see java.awt.Component#setFont(java.awt.Font)
-     */
     public void setFont(Font font) {
         super.setFont(font);
         if (cellRenderer != null) {

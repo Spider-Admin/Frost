@@ -60,10 +60,14 @@ public class KnownBoardsFrame extends JDialog {
     private KnownBoardsTableModel tableModel;
     private NameColumnRenderer nameColRenderer;
     private DescColumnRenderer descColRenderer;
+    private ShowContentTooltipRenderer showContentTooltipRenderer;
     
     private JSkinnablePopupMenu tablePopupMenu;
 
     private List allKnownBoardsList; // a list of all boards, needed as data source when we filter in the table
+    
+    private boolean showColoredLines;
+    private Color secondBackgroundColor = new java.awt.Color(238,238,238);
 
     public KnownBoardsFrame(JFrame parent, TofTree tofTree) {
 
@@ -83,6 +87,8 @@ public class KnownBoardsFrame extends JDialog {
         setSize((int) (parent.getWidth() * 0.75),
                 (int) (parent.getHeight() * 0.75));
         setLocationRelativeTo( parent );
+        
+        showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
     }
 
     /**
@@ -97,14 +103,16 @@ public class KnownBoardsFrame extends JDialog {
         // add a special renderer to name column which shows the board icon
         nameColRenderer = new NameColumnRenderer();
         descColRenderer = new DescColumnRenderer();
+        showContentTooltipRenderer = new ShowContentTooltipRenderer();
         boardsTable = new SortedTable( tableModel ) {
                 public TableCellRenderer getCellRenderer(int row, int column) {
                     if( column == 0 ) {
                         return nameColRenderer;
                     } else if( column == 3 ) {
                         return descColRenderer;
+                    } else {
+                        return showContentTooltipRenderer;
                     }
-                    return super.getCellRenderer(row, column);
             }};
         boardsTable.setRowSelectionAllowed(true);
         boardsTable.setSelectionMode( ListSelectionModel.MULTIPLE_INTERVAL_SELECTION );
@@ -646,7 +654,7 @@ public class KnownBoardsFrame extends JDialog {
         } catch(Exception ex) {}
     }
 
-    class NameColumnRenderer extends DefaultTableCellRenderer {
+    class NameColumnRenderer extends ShowContentTooltipRenderer {
         public Component getTableCellRendererComponent(
             JTable table,
             Object value,
@@ -685,7 +693,7 @@ public class KnownBoardsFrame extends JDialog {
         }
     }
 
-    class DescColumnRenderer extends DefaultTableCellRenderer {
+    class DescColumnRenderer extends ShowColoredLinesRenderer {
         public Component getTableCellRendererComponent(
             JTable table,
             Object value,
@@ -711,6 +719,62 @@ public class KnownBoardsFrame extends JDialog {
                 setToolTipText(null);
             }
 
+            return this;
+        }
+    }
+    
+    private class ShowColoredLinesRenderer extends DefaultTableCellRenderer {
+        public ShowColoredLinesRenderer() {
+            super();
+        }
+        public Component getTableCellRendererComponent(
+            JTable table,
+            Object value,
+            boolean isSelected,
+            boolean hasFocus,
+            int row,
+            int column) 
+        {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            if (!isSelected) {
+                if( showColoredLines ) {
+                    // IBM lineprinter paper
+                    if ((row & 0x0001) == 0) {
+                        setBackground(Color.WHITE);
+                    } else {
+                        setBackground(secondBackgroundColor);
+                    }
+                } else {
+                    setBackground(table.getBackground());
+                }
+            } else {
+                setBackground(table.getSelectionBackground());
+            }
+            return this;
+        }
+    }
+    
+    private class ShowContentTooltipRenderer extends ShowColoredLinesRenderer {
+        public ShowContentTooltipRenderer() {
+            super();
+        }
+        public Component getTableCellRendererComponent(
+            JTable table,
+            Object value,
+            boolean isSelected,
+            boolean hasFocus,
+            int row,
+            int column) 
+        {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            String tooltip = null;
+            if( value != null ) {
+                tooltip = value.toString();
+                if( tooltip.length() == 0 ) {
+                    tooltip = null;
+                }
+            }
+            setToolTipText(tooltip);
             return this;
         }
     }
