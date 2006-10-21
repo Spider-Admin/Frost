@@ -19,6 +19,7 @@
 package frost.gui.sentmessages;
 
 import java.awt.*;
+import java.beans.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -30,13 +31,16 @@ import frost.util.gui.translation.*;
 import frost.util.model.*;
 import frost.util.model.gui.*;
 
-public class SentMessagesTableFormat extends SortedTableFormat implements LanguageListener {
+public class SentMessagesTableFormat extends SortedTableFormat implements LanguageListener, PropertyChangeListener {
 
     private Language language;
 
     private final static int COLUMN_COUNT = 5;
 
     private SortedModelTable modelTable;
+    
+    private boolean showColoredLines;
+    private Color secondBackgroundColor = new java.awt.Color(238,238,238);
 
     public SentMessagesTableFormat() {
         super(COLUMN_COUNT);
@@ -50,6 +54,9 @@ public class SentMessagesTableFormat extends SortedTableFormat implements Langua
         setComparator(new FromComparator(), 2);
         setComparator(new ToComparator(), 3);
         setComparator(new DateComparator(), 4);
+        
+        showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
+        Core.frostSettings.addPropertyChangeListener(this);
     }
 
     public void languageChanged(LanguageEvent event) {
@@ -107,6 +114,7 @@ public class SentMessagesTableFormat extends SortedTableFormat implements Langua
         columnModel.getColumn(1).setCellRenderer(new SubjectRenderer());
         columnModel.getColumn(2).setCellRenderer(tooltipRenderer);
         columnModel.getColumn(3).setCellRenderer(tooltipRenderer);
+        columnModel.getColumn(4).setCellRenderer(new ShowColoredLinesRenderer());
         
         // Sets the relative widths of the columns
         if( !loadTableLayout(columnModel) ) {
@@ -241,7 +249,7 @@ public class SentMessagesTableFormat extends SortedTableFormat implements Langua
         }
     }
 
-    private class ShowContentTooltipRenderer extends DefaultTableCellRenderer {
+    private class ShowContentTooltipRenderer extends ShowColoredLinesRenderer {
         public ShowContentTooltipRenderer() {
             super();
         }
@@ -263,6 +271,44 @@ public class SentMessagesTableFormat extends SortedTableFormat implements Langua
             }
             setToolTipText(tooltip);
             return this;
+        }
+    }
+    
+    private class ShowColoredLinesRenderer extends DefaultTableCellRenderer {
+        public ShowColoredLinesRenderer() {
+            super();
+        }
+        public Component getTableCellRendererComponent(
+            JTable table,
+            Object value,
+            boolean isSelected,
+            boolean hasFocus,
+            int row,
+            int column) 
+        {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            if (!isSelected) {
+                if( showColoredLines ) {
+                    // IBM lineprinter paper
+                    if ((row & 0x0001) == 0) {
+                        setBackground(Color.WHITE);
+                    } else {
+                        setBackground(secondBackgroundColor);
+                    }
+                } else {
+                    setBackground(table.getBackground());
+                }
+            } else {
+                setBackground(table.getSelectionBackground());
+            }
+            return this;
+        }
+    }
+
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (evt.getPropertyName().equals(SettingsClass.SHOW_COLORED_ROWS)) {
+            showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
+            modelTable.fireTableDataChanged();
         }
     }
 }

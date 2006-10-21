@@ -19,6 +19,7 @@
 package frost.fileTransfer.upload;
 
 import java.awt.*;
+import java.beans.*;
 import java.text.*;
 import java.util.*;
 
@@ -31,12 +32,15 @@ import frost.util.gui.translation.*;
 import frost.util.model.*;
 import frost.util.model.gui.*;
 
-class UploadTableFormat extends SortedTableFormat implements LanguageListener {
+class UploadTableFormat extends SortedTableFormat implements LanguageListener, PropertyChangeListener {
 
     private static ImageIcon isSharedIcon = new ImageIcon((MainFrame.class.getResource("/data/shared.png")));
 
-    NumberFormat numberFormat = NumberFormat.getInstance();
-    SortedModelTable modelTable = null;
+    private NumberFormat numberFormat = NumberFormat.getInstance();
+    private SortedModelTable modelTable = null;
+    
+    private boolean showColoredLines;
+    private Color secondBackgroundColor = new java.awt.Color(238,238,238);
     
     /**
      * Renders DONE with green background and FAILED with red background.
@@ -56,7 +60,18 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
             if( !isSelected ) {
-                Color newBackground = Color.white;
+                
+                Color newBackground;
+                if( showColoredLines ) {
+                    // IBM lineprinter paper
+                    if ((row & 0x0001) == 0) {
+                        newBackground = Color.WHITE;
+                    } else {
+                        newBackground = secondBackgroundColor;
+                    }
+                } else {
+                    newBackground = table.getBackground();
+                }
                 
                 ModelItem item = modelTable.getItemAt(row); //It may be null
                 if (item != null) {
@@ -99,7 +114,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
         }
     }
 
-    private class IsSharedRenderer extends DefaultTableCellRenderer {
+    private class IsSharedRenderer extends BaseRenderer {
         public IsSharedRenderer() {
             super();
         }
@@ -297,6 +312,9 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
         setComparator(new BlocksComparator(), 6);
         setComparator(new TriesComparator(), 7);
         setComparator(new KeyComparator(), 8);
+        
+        showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
+        Core.frostSettings.addPropertyChangeListener(this);
     }
 
     private void refreshLanguage() {
@@ -530,5 +548,12 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
 
     public void languageChanged(LanguageEvent event) {
         refreshLanguage();
+    }
+    
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (evt.getPropertyName().equals(SettingsClass.SHOW_COLORED_ROWS)) {
+            showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
+            modelTable.fireTableDataChanged();
+        }
     }
 }

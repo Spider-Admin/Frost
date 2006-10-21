@@ -43,6 +43,9 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
     private static ImageIcon ICON_BAD = null;
 
     private final static int COLUMN_COUNT = 8;
+    
+    private boolean showColoredLines;
+    private Color secondBackgroundColor = new java.awt.Color(238,238,238);
 
     public FileListFileDetailsTableFormat() {
         super(COLUMN_COUNT);
@@ -59,6 +62,8 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
         setComparator(new LastReceivedComparator(), 7);
         
         loadIcons();
+        
+        showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
     }
     
     private void loadIcons() {
@@ -146,13 +151,16 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
         TableColumnModel columnModel = modelTable.getTable().getColumnModel();
 
         ShowContentTooltipRenderer showContentTooltipRenderer = new ShowContentTooltipRenderer();
+        ShowColoredLinesRenderer showColoredLinesRenderer = new ShowColoredLinesRenderer();
         
         columnModel.getColumn(0).setCellRenderer(showContentTooltipRenderer); // filename
         columnModel.getColumn(1).setCellRenderer(showContentTooltipRenderer); // owner
         columnModel.getColumn(2).setCellRenderer(new IdentityStateRenderer()); // id state
-        
+        columnModel.getColumn(3).setCellRenderer(showColoredLinesRenderer); // rating
         columnModel.getColumn(4).setCellRenderer(showContentTooltipRenderer); // comment
         columnModel.getColumn(5).setCellRenderer(showContentTooltipRenderer); // keywords
+        columnModel.getColumn(6).setCellRenderer(showColoredLinesRenderer); // last uploaded
+        columnModel.getColumn(7).setCellRenderer(showColoredLinesRenderer); // last received
 
         if( !loadTableLayout(columnModel) ) {
             // Sets the relative widths of the columns
@@ -286,7 +294,7 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
         }
     }
     
-    private class ShowContentTooltipRenderer extends DefaultTableCellRenderer {
+    private class ShowContentTooltipRenderer extends ShowColoredLinesRenderer {
         public ShowContentTooltipRenderer() {
             super();
         }
@@ -311,7 +319,7 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
         }
     }
     
-    private class IdentityStateRenderer extends DefaultTableCellRenderer {
+    private class IdentityStateRenderer extends ShowColoredLinesRenderer {
         public IdentityStateRenderer() {
             super();
         }
@@ -343,5 +351,35 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
             return this;
         }
     }
-
+    
+    private class ShowColoredLinesRenderer extends DefaultTableCellRenderer {
+        public ShowColoredLinesRenderer() {
+            super();
+        }
+        public Component getTableCellRendererComponent(
+            JTable table,
+            Object value,
+            boolean isSelected,
+            boolean hasFocus,
+            int row,
+            int column) 
+        {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            if (!isSelected) {
+                if( showColoredLines ) {
+                    // IBM lineprinter paper
+                    if ((row & 0x0001) == 0) {
+                        setBackground(Color.WHITE);
+                    } else {
+                        setBackground(secondBackgroundColor);
+                    }
+                } else {
+                    setBackground(table.getBackground());
+                }
+            } else {
+                setBackground(table.getSelectionBackground());
+            }
+            return this;
+        }
+    }
 }
