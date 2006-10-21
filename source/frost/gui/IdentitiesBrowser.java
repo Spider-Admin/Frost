@@ -66,6 +66,9 @@ public class IdentitiesBrowser extends JDialog {
     
     private List allTableMembers;
     
+    private boolean showColoredLines;
+    private Color secondBackgroundColor = new java.awt.Color(238,238,238);
+
     /**
      * This is the default constructor
      */
@@ -74,6 +77,7 @@ public class IdentitiesBrowser extends JDialog {
         this.parent = parent;
         language = Language.getInstance();
         setModal(true);
+        showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
         initialize();
         
         setLocationRelativeTo(parent);
@@ -158,7 +162,14 @@ public class IdentitiesBrowser extends JDialog {
             for (int i = 0; i < widths.length; i++) {
                 identitiesTable.getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
             }
+            
+            ShowColoredLinesRenderer showColoredLinesRenderer = new ShowColoredLinesRenderer();
+            identitiesTable.getColumnModel().getColumn(0).setCellRenderer(showColoredLinesRenderer);
             identitiesTable.getColumnModel().getColumn(1).setCellRenderer(new StringCellRenderer());
+            identitiesTable.getColumnModel().getColumn(2).setCellRenderer(showColoredLinesRenderer);
+            identitiesTable.getColumnModel().getColumn(3).setCellRenderer(showColoredLinesRenderer);
+            identitiesTable.getColumnModel().getColumn(4).setCellRenderer(showColoredLinesRenderer);
+            
             identitiesTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
                 public void valueChanged(ListSelectionEvent e) {
                     int[] selRows = identitiesTable.getSelectedRows();
@@ -661,7 +672,7 @@ public class IdentitiesBrowser extends JDialog {
         }
     }
     
-    private class StringCellRenderer extends DefaultTableCellRenderer {
+    private class StringCellRenderer extends ShowColoredLinesRenderer {
 
         private Font boldFont = null;
         private Font normalFont = null;
@@ -1099,4 +1110,34 @@ public class IdentitiesBrowser extends JDialog {
         return Bexport;
     }
     
+    private class ShowColoredLinesRenderer extends DefaultTableCellRenderer {
+        public ShowColoredLinesRenderer() {
+            super();
+        }
+        public Component getTableCellRendererComponent(
+            JTable table,
+            Object value,
+            boolean isSelected,
+            boolean hasFocus,
+            int row,
+            int column) 
+        {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            if (!isSelected) {
+                if( showColoredLines ) {
+                    // IBM lineprinter paper
+                    if ((row & 0x0001) == 0) {
+                        setBackground(Color.WHITE);
+                    } else {
+                        setBackground(secondBackgroundColor);
+                    }
+                } else {
+                    setBackground(table.getBackground());
+                }
+            } else {
+                setBackground(table.getSelectionBackground());
+            }
+            return this;
+        }
+    }
 }  //  @jve:decl-index=0:visual-constraint="10,10"
