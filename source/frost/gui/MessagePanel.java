@@ -435,28 +435,29 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
     private PopupMenuMessageTable popupMenuMessageTable = null;
 
-    private JButton setCheckButton =
-        new JButton(new ImageIcon(getClass().getResource("/data/check.gif")));
     //private JButton downloadAttachmentsButton =
     //  new JButton(new ImageIcon(getClass().getResource("/data/attachment.gif")));
     //private JButton downloadBoardsButton =
     //  new JButton(new ImageIcon(getClass().getResource("/data/attachmentBoard.gif")));
     private JButton newMessageButton =
         new JButton(new ImageIcon(getClass().getResource("/data/newmessage.gif")));
-    private JButton setBadButton =
-        new JButton(new ImageIcon(getClass().getResource("/data/nottrust.gif")));
-    private JButton setObserveButton =
-        new JButton(new ImageIcon(getClass().getResource("/data/observe.gif")));
     private JButton replyButton =
         new JButton(new ImageIcon(getClass().getResource("/data/reply.gif")));
     private JButton saveMessageButton =
         new JButton(new ImageIcon(getClass().getResource("/data/save.gif")));
     protected JButton nextUnreadMessageButton =
         new JButton(new ImageIcon(getClass().getResource("/data/nextunreadmessage.gif")));
-    private JButton setGoodButton =
-        new JButton(new ImageIcon(getClass().getResource("/data/trust.gif")));
     private JButton updateButton =
         new JButton(new ImageIcon(getClass().getResource("/data/update.gif")));
+    
+    private JButton setGoodButton =
+        new JButton(new ImageIcon(getClass().getResource("/data/trust.gif")));
+    private JButton setObserveButton =
+        new JButton(new ImageIcon(getClass().getResource("/data/observe.gif")));
+    private JButton setCheckButton =
+        new JButton(new ImageIcon(getClass().getResource("/data/check.gif")));
+    private JButton setBadButton =
+        new JButton(new ImageIcon(getClass().getResource("/data/nottrust.gif")));
     
     private JToggleButton toggleShowThreads = new JToggleButton("");
     private JToggleButton toggleShowSmileys = new JToggleButton("");
