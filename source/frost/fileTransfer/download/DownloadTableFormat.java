@@ -18,6 +18,7 @@
 package frost.fileTransfer.download;
 
 import java.awt.*;
+import java.beans.*;
 import java.text.*;
 import java.util.*;
 
@@ -32,14 +33,17 @@ import frost.util.gui.translation.*;
 import frost.util.model.*;
 import frost.util.model.gui.*;
 
-class DownloadTableFormat extends SortedTableFormat implements LanguageListener {
+class DownloadTableFormat extends SortedTableFormat implements LanguageListener, PropertyChangeListener {
     
     private static ImageIcon isSharedIcon = new ImageIcon((MainFrame.class.getResource("/data/shared.png")));
     private static ImageIcon isRequestedIcon = new ImageIcon((MainFrame.class.getResource("/data/signal.png")));
     
-    NumberFormat numberFormat = NumberFormat.getInstance();
-    SortedModelTable modelTable = null;
-    
+    private NumberFormat numberFormat = NumberFormat.getInstance();
+    private SortedModelTable modelTable = null;
+
+    private boolean showColoredLines;
+    private Color secondBackgroundColor = new java.awt.Color(238,238,238);
+
     private class BaseRenderer extends DefaultTableCellRenderer {
         public BaseRenderer() {
             super();
@@ -55,7 +59,18 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             
             if( !isSelected ) {
-                Color newBackground = Color.white;
+
+                Color newBackground;
+                if( showColoredLines ) {
+                    // IBM lineprinter paper
+                    if ((row & 0x0001) == 0) {
+                        newBackground = Color.WHITE;
+                    } else {
+                        newBackground = secondBackgroundColor;
+                    }
+                } else {
+                    newBackground = table.getBackground();
+                }
                 
                 ModelItem item = modelTable.getItemAt(row); //It may be null
                 if (item != null) {
@@ -118,7 +133,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
         }
     }
 
-    private class IsSharedRenderer extends DefaultTableCellRenderer {
+    private class IsSharedRenderer extends BaseRenderer {
         public IsSharedRenderer() {
             super();
         }
@@ -143,7 +158,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
         }
     }
 
-    private class IsRequestedRenderer extends DefaultTableCellRenderer {
+    private class IsRequestedRenderer extends BaseRenderer {
         public IsRequestedRenderer() {
             super();
         }
@@ -342,6 +357,9 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 		setComparator(new BlocksComparator(), 8);
 		setComparator(new TriesComparator(), 9);
 		setComparator(new KeyComparator(), 10);
+        
+        showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
+        Core.frostSettings.addPropertyChangeListener(this);
 	}
 
 	private void refreshLanguage() {
@@ -618,5 +636,12 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 
     public int[] getColumnNumbers(int fieldID) {
         return null;
+    }
+    
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (evt.getPropertyName().equals(SettingsClass.SHOW_COLORED_ROWS)) {
+            showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
+            modelTable.fireTableDataChanged();
+        }
     }
 }

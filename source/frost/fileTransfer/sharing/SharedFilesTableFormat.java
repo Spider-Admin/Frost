@@ -19,6 +19,7 @@
 package frost.fileTransfer.sharing;
 
 import java.awt.*;
+import java.beans.*;
 import java.text.*;
 import java.util.*;
 
@@ -32,7 +33,7 @@ import frost.util.gui.translation.*;
 import frost.util.model.*;
 import frost.util.model.gui.*;
 
-class SharedFilesTableFormat extends SortedTableFormat implements LanguageListener {
+class SharedFilesTableFormat extends SortedTableFormat implements LanguageListener, PropertyChangeListener  {
 
     private Language language;
 
@@ -41,7 +42,10 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
     private String stateNever;
     private String unknown;
     
-    NumberFormat numberFormat = NumberFormat.getInstance();
+    private NumberFormat numberFormat = NumberFormat.getInstance();
+    
+    private boolean showColoredLines;
+    private Color secondBackgroundColor = new java.awt.Color(238,238,238);
     
     SortedModelTable modelTable;
 
@@ -65,6 +69,9 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
         setComparator(new KeywordsComparator(), 10);
         setComparator(new LastSharedComparator(), 11);
         setComparator(new PathComparator(), 12);
+        
+        showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
+        Core.frostSettings.addPropertyChangeListener(this);
     }
 
     private void refreshLanguage() {
@@ -160,19 +167,20 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
 
         ShowContentTooltipRenderer showContentTooltipRenderer = new ShowContentTooltipRenderer();
         RightAlignRenderer numberRightRenderer = new RightAlignRenderer();
+        ShowColoredLinesRenderer showColoredLinesRenderer = new ShowColoredLinesRenderer();
 
         columnModel.getColumn(0).setCellRenderer(showContentTooltipRenderer); // filename
         columnModel.getColumn(1).setCellRenderer(numberRightRenderer); // fileSize
         columnModel.getColumn(2).setCellRenderer(showContentTooltipRenderer); // owner
         columnModel.getColumn(3).setCellRenderer(numberRightRenderer); // uploadCount
-//        columnModel.getColumn(4).setCellRenderer(showContentTooltipRenderer); // lastUpload
+        columnModel.getColumn(4).setCellRenderer(showColoredLinesRenderer); // lastUpload
         columnModel.getColumn(5).setCellRenderer(numberRightRenderer); // requestCount
-//        columnModel.getColumn(6).setCellRenderer(showContentTooltipRenderer); // lastRequest
+        columnModel.getColumn(6).setCellRenderer(showColoredLinesRenderer); // lastRequest
         columnModel.getColumn(7).setCellRenderer(showContentTooltipRenderer); // key
-//        columnModel.getColumn(8).setCellRenderer(showContentTooltipRenderer); // rating
+        columnModel.getColumn(8).setCellRenderer(showColoredLinesRenderer); // rating
         columnModel.getColumn(9).setCellRenderer(showContentTooltipRenderer); // comment
         columnModel.getColumn(10).setCellRenderer(showContentTooltipRenderer); // keywords
-//        columnModel.getColumn(11).setCellRenderer(showContentTooltipRenderer); // lastShared
+        columnModel.getColumn(11).setCellRenderer(showColoredLinesRenderer); // lastShared
         columnModel.getColumn(12).setCellRenderer(showContentTooltipRenderer); // path
         
         if( !loadTableLayout(columnModel) ) {
@@ -249,7 +257,7 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
         refreshLanguage();
     }
 
-    private class ShowContentTooltipRenderer extends DefaultTableCellRenderer {
+    private class ShowContentTooltipRenderer extends ShowColoredLinesRenderer {
         public ShowContentTooltipRenderer() {
             super();
         }
@@ -274,7 +282,7 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
         }
     }
 
-    private class RightAlignRenderer extends DefaultTableCellRenderer {
+    private class RightAlignRenderer extends ShowColoredLinesRenderer {
         final javax.swing.border.EmptyBorder border = new javax.swing.border.EmptyBorder(0, 0, 0, 3);
         public RightAlignRenderer() {
             super();
@@ -444,6 +452,44 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
             FrostSharedFileItem item1 = (FrostSharedFileItem) o1;
             FrostSharedFileItem item2 = (FrostSharedFileItem) o2;
             return item1.getFile().getPath().compareToIgnoreCase(item2.getFile().getPath());
+        }
+    }
+    
+    private class ShowColoredLinesRenderer extends DefaultTableCellRenderer {
+        public ShowColoredLinesRenderer() {
+            super();
+        }
+        public Component getTableCellRendererComponent(
+            JTable table,
+            Object value,
+            boolean isSelected,
+            boolean hasFocus,
+            int row,
+            int column) 
+        {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            if (!isSelected) {
+                if( showColoredLines ) {
+                    // IBM lineprinter paper
+                    if ((row & 0x0001) == 0) {
+                        setBackground(Color.WHITE);
+                    } else {
+                        setBackground(secondBackgroundColor);
+                    }
+                } else {
+                    setBackground(table.getBackground());
+                }
+            } else {
+                setBackground(table.getSelectionBackground());
+            }
+            return this;
+        }
+    }
+
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (evt.getPropertyName().equals(SettingsClass.SHOW_COLORED_ROWS)) {
+            showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
+            modelTable.fireTableDataChanged();
         }
     }
 }

@@ -19,6 +19,7 @@
 package frost.gui.unsendmessages;
 
 import java.awt.*;
+import java.beans.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -29,7 +30,7 @@ import frost.util.gui.translation.*;
 import frost.util.model.*;
 import frost.util.model.gui.*;
 
-public class UnsendMessagesTableFormat extends SortedTableFormat implements LanguageListener {
+public class UnsendMessagesTableFormat extends SortedTableFormat implements LanguageListener, PropertyChangeListener {
 
     private Language language;
 
@@ -39,6 +40,9 @@ public class UnsendMessagesTableFormat extends SortedTableFormat implements Lang
     
     private String stateWaitingString;
     private String stateUploadingString;
+
+    private boolean showColoredLines;
+    private Color secondBackgroundColor = new java.awt.Color(238,238,238);
 
     public UnsendMessagesTableFormat() {
         super(COLUMN_COUNT);
@@ -53,6 +57,9 @@ public class UnsendMessagesTableFormat extends SortedTableFormat implements Lang
         setComparator(new ToComparator(), 3);
         setComparator(new StateComparator(), 4);
         setComparator(new DateComparator(), 5);
+        
+        showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
+        Core.frostSettings.addPropertyChangeListener(this);
     }
 
     public void languageChanged(LanguageEvent event) {
@@ -117,11 +124,14 @@ public class UnsendMessagesTableFormat extends SortedTableFormat implements Lang
         TableColumnModel columnModel = modelTable.getTable().getColumnModel();
         
         ShowContentTooltipRenderer tooltipRenderer = new ShowContentTooltipRenderer();
+        ShowColoredLinesRenderer showColoredLinesRenderer = new ShowColoredLinesRenderer();
 
         columnModel.getColumn(0).setCellRenderer(tooltipRenderer);
         columnModel.getColumn(1).setCellRenderer(new SubjectRenderer());
         columnModel.getColumn(2).setCellRenderer(tooltipRenderer);
         columnModel.getColumn(3).setCellRenderer(tooltipRenderer);
+        columnModel.getColumn(4).setCellRenderer(showColoredLinesRenderer);
+        columnModel.getColumn(5).setCellRenderer(showColoredLinesRenderer);
         
         // Sets the relative widths of the columns
         if( !loadTableLayout(columnModel) ) {
@@ -237,7 +247,7 @@ public class UnsendMessagesTableFormat extends SortedTableFormat implements Lang
         }
     }
 
-    private class SubjectRenderer extends ShowContentTooltipRenderer {
+    private class SubjectRenderer extends ShowColoredLinesRenderer {
         public SubjectRenderer() {
             super();
         }
@@ -265,7 +275,7 @@ public class UnsendMessagesTableFormat extends SortedTableFormat implements Lang
         }
     }
 
-    private class ShowContentTooltipRenderer extends DefaultTableCellRenderer {
+    private class ShowContentTooltipRenderer extends ShowColoredLinesRenderer {
         public ShowContentTooltipRenderer() {
             super();
         }
@@ -287,6 +297,44 @@ public class UnsendMessagesTableFormat extends SortedTableFormat implements Lang
             }
             setToolTipText(tooltip);
             return this;
+        }
+    }
+    
+    private class ShowColoredLinesRenderer extends DefaultTableCellRenderer {
+        public ShowColoredLinesRenderer() {
+            super();
+        }
+        public Component getTableCellRendererComponent(
+            JTable table,
+            Object value,
+            boolean isSelected,
+            boolean hasFocus,
+            int row,
+            int column) 
+        {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            if (!isSelected) {
+                if( showColoredLines ) {
+                    // IBM lineprinter paper
+                    if ((row & 0x0001) == 0) {
+                        setBackground(Color.WHITE);
+                    } else {
+                        setBackground(secondBackgroundColor);
+                    }
+                } else {
+                    setBackground(table.getBackground());
+                }
+            } else {
+                setBackground(table.getSelectionBackground());
+            }
+            return this;
+        }
+    }
+    
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (evt.getPropertyName().equals(SettingsClass.SHOW_COLORED_ROWS)) {
+            showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
+            modelTable.fireTableDataChanged();
         }
     }
 }
