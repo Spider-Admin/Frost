@@ -70,12 +70,12 @@ public class AltEdit extends Thread {
     public void run() {
 
         // paranoia
-        if( Core.frostSettings.getBoolValue("useAltEdit") == false ) {
+        if( !Core.frostSettings.getBoolValue(SettingsClass.ALTERNATE_EDITOR_ENABLED) ) {
             callbackMessageFrame(null, null);
             return;
         }
 
-        String editor = Core.frostSettings.getValue("altEdit");
+        String editor = Core.frostSettings.getValue(SettingsClass.ALTERNATE_EDITOR_COMMAND);
         
         if( editor == null || editor.length() == 0 ) {
             JOptionPane.showMessageDialog(parentFrame,

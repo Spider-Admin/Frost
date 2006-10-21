@@ -20,15 +20,13 @@ package frost.gui.preferences;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.*;
-import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
 
 import frost.*;
-import frost.util.Logging;
-import frost.util.gui.TextComponentClipboardMenu;
+import frost.util.*;
+import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
 class MiscPanel extends JPanel {
@@ -46,8 +44,6 @@ class MiscPanel extends JPanel {
             }
         }
     }
-
-    private static Logger logger = Logger.getLogger(MiscPanel.class.getName());
 
     private SettingsClass settings = null;
     private Language language = null;
@@ -69,6 +65,7 @@ class MiscPanel extends JPanel {
     private JLabel logLevelLabel = new JLabel();
     private JCheckBox showSystrayIconCheckBox = new JCheckBox();
     private JCheckBox splashScreenCheckBox = new JCheckBox();
+    private JCheckBox compactDatabaseAtNextStartupCheckBox = new JCheckBox();
 
     /**
      * @param settings the SettingsClass instance that will be used to get and store the settings of the panel
@@ -103,11 +100,12 @@ class MiscPanel extends JPanel {
         constraints.gridx = 0;
         constraints.gridy = 0;
         constraints.gridwidth = 2;
+        
         subPanel.add(enableLoggingCheckBox, constraints);
 
         constraints.insets = insets5_30_5_5;
         constraints.gridwidth = 1;
-        constraints.gridy = 1;
+        constraints.gridy++;
         subPanel.add(logLevelLabel, constraints);
         constraints.gridx = 1;
         String[] searchComboBoxKeys =
@@ -182,6 +180,8 @@ class MiscPanel extends JPanel {
         add(splashScreenCheckBox, constraints);
         constraints.gridy++;
         add(showSystrayIconCheckBox, constraints);
+        constraints.gridy++;
+        add(compactDatabaseAtNextStartupCheckBox, constraints);
 
         constraints.gridx = 0;
         constraints.gridy++;
@@ -206,11 +206,12 @@ class MiscPanel extends JPanel {
      * Load the settings of this panel
      */
     private void loadSettings() {
-        altEditCheckBox.setSelected(settings.getBoolValue("useAltEdit"));
+        altEditCheckBox.setSelected(settings.getBoolValue(SettingsClass.ALTERNATE_EDITOR_ENABLED));
         altEditTextField.setEnabled(altEditCheckBox.isSelected());
-        showSystrayIconCheckBox.setSelected(settings.getBoolValue("showSystrayIcon"));
-        availableNodesTextField.setText(settings.getValue("availableNodes"));
-        altEditTextField.setText(settings.getValue("altEdit"));
+        showSystrayIconCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_SYSTRAY_ICON));
+        compactDatabaseAtNextStartupCheckBox.setSelected(settings.getBoolValue(SettingsClass.COMPACT_DBTABLES));
+        availableNodesTextField.setText(settings.getValue(SettingsClass.AVAILABLE_NODES));
+        altEditTextField.setText(settings.getValue(SettingsClass.ALTERNATE_EDITOR_COMMAND));
         autoSaveIntervalTextField.setText(Integer.toString(settings.getIntValue(SettingsClass.AUTO_SAVE_INTERVAL)));
         enableLoggingCheckBox.setSelected(settings.getBoolValue(SettingsClass.LOG_TO_FILE));
         logFileSizeTextField.setText(Integer.toString(settings.getIntValue(SettingsClass.LOG_FILE_SIZE_LIMIT)));
@@ -218,13 +219,7 @@ class MiscPanel extends JPanel {
         logLevelComboBox.setSelectedKey(settings.getDefaultValue(SettingsClass.LOG_LEVEL));
         logLevelComboBox.setSelectedKey(settings.getValue(SettingsClass.LOG_LEVEL));
 
-        // "Load" splashchk
-        File splashchk = new File("nosplash.chk");
-        if (splashchk.exists()) {
-            splashScreenCheckBox.setSelected(true);
-        } else {
-            splashScreenCheckBox.setSelected(false);
-        }
+        splashScreenCheckBox.setSelected(settings.getBoolValue(SettingsClass.DISABLE_SPLASHSCREEN));
 
         refreshLoggingState();
     }
@@ -240,6 +235,7 @@ class MiscPanel extends JPanel {
                 " (15 "+language.getString("Options.common.minutes")+")");
         splashScreenCheckBox.setText(language.getString("Options.miscellaneous.disableSplashscreen"));
         showSystrayIconCheckBox.setText(language.getString("Options.miscellaneous.showSysTrayIcon"));
+        compactDatabaseAtNextStartupCheckBox.setText(language.getString("Options.miscellaneous.compactDatabaseAtNextStartup"));
         String off = language.getString("Options.common.off");
         altEditCheckBox.setText(language.getString("Options.miscellaneous.useEditorForWritingMessages") + " (" + off + ")");
 
@@ -261,25 +257,15 @@ class MiscPanel extends JPanel {
      * Save the settings of this panel
      */
     private void saveSettings() {
-        settings.setValue("availableNodes", availableNodesTextField.getText());
-        settings.setValue("showSystrayIcon", showSystrayIconCheckBox.isSelected());
-        settings.setValue("useAltEdit", altEditCheckBox.isSelected());
-        settings.setValue("altEdit", altEditTextField.getText());
+        settings.setValue(SettingsClass.AVAILABLE_NODES, availableNodesTextField.getText());
+        settings.setValue(SettingsClass.SHOW_SYSTRAY_ICON, showSystrayIconCheckBox.isSelected());
+        settings.setValue(SettingsClass.COMPACT_DBTABLES, compactDatabaseAtNextStartupCheckBox.isSelected());
+        settings.setValue(SettingsClass.ALTERNATE_EDITOR_ENABLED, altEditCheckBox.isSelected());
+        settings.setValue(SettingsClass.ALTERNATE_EDITOR_COMMAND, altEditTextField.getText());
         settings.setValue(SettingsClass.AUTO_SAVE_INTERVAL, autoSaveIntervalTextField.getText());
         settings.setValue(SettingsClass.LOG_TO_FILE, enableLoggingCheckBox.isSelected());
         settings.setValue(SettingsClass.LOG_FILE_SIZE_LIMIT, logFileSizeTextField.getText());
         settings.setValue(SettingsClass.LOG_LEVEL, logLevelComboBox.getSelectedKey());
-
-        // Save splashchk
-        try {
-            File splashFile = new File("nosplash.chk");
-            if (splashScreenCheckBox.isSelected()) {
-                splashFile.createNewFile();
-            } else {
-                splashFile.delete();
-            }
-        } catch (IOException ioex) {
-            logger.log(Level.SEVERE, "Could not create splashscreen checkfile", ioex);
-        }
+        settings.setValue(SettingsClass.DISABLE_SPLASHSCREEN, splashScreenCheckBox.isSelected());
     }
 }

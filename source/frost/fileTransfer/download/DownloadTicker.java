@@ -85,7 +85,7 @@ public class DownloadTicker extends Thread {
 	 */
 	private boolean allocateThread() {
 		synchronized (threadCountLock) {
-			if (allocatedThreads < Core.frostSettings.getIntValue("downloadThreads")) {
+			if (allocatedThreads < Core.frostSettings.getIntValue(SettingsClass.DOWNLOAD_MAX_THREADS)) {
 				allocatedThreads++;
 				return true;
 			} 

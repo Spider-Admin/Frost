@@ -38,6 +38,10 @@ import frost.util.gui.translation.*;
  */
 public class TOF {
     
+    // ATTN: if a new message arrives during update of a board, the msg cannot be inserted into db because
+    //       the methods are synchronized. So the add of msg occurs after the load of the board.
+    //       there is no sync problem.
+    
     private static Logger logger = Logger.getLogger(TOF.class.getName());
     
     private static Language language = Language.getInstance();
@@ -259,7 +263,6 @@ public class TOF {
         }
 
         // message is not blocked
-        // FIXME: if we currently retrieve the messages for a board, and a new msg arrives, collect new msgs and sort them in after load completed
         SwingUtilities.invokeLater( new Runnable() {
             public void run() {
 
@@ -374,7 +377,6 @@ public class TOF {
      */
     public void updateTofTable(Board board) {
         int daysToRead = board.getMaxMessageDisplay();
-        // changed to not block the swing thread
 
         if( updateThread != null ) {
             if( updateThread.toString().equals( board ) ) {
@@ -385,6 +387,7 @@ public class TOF {
                 updateThread.cancel();
             }
         }
+
         // start new thread, the thread will set itself to updateThread,
         // but first it waits until the current thread is finished
         nextUpdateThread = new UpdateTofFilesThread(board, daysToRead);
@@ -634,7 +637,7 @@ public class TOF {
                             
                             MainFrame.getInstance().getMessagePanel().getMessageTable().setNewRootNode(rootNode);
                             MainFrame.getInstance().getMessageTreeTable().expandAll(true);
-                            
+
                             MainFrame.getInstance().updateTofTree(innerTargetBoard);
                             MainFrame.getInstance().updateMessageCountLabels(innerTargetBoard);
                         }

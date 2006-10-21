@@ -19,7 +19,6 @@
 package frost.gui;
 
 import java.awt.*;
-import java.io.*;
 
 import javax.swing.*;
 
@@ -49,7 +48,6 @@ public class Splashscreen extends JDialog {
 //  private static Logger logger = Logger.getLogger(Splashscreen.class.getName());
 
     private static String SPLASH_LOGO_FILENAME = "/data/splash.png";
-    private static String NO_SPLASH_FILENAME = "nosplash.chk";
 
     //Splashscreen size depends on this image.
     private ImageIcon frostLogo = new ImageIcon(Splashscreen.class.getResource(SPLASH_LOGO_FILENAME));
@@ -61,14 +59,9 @@ public class Splashscreen extends JDialog {
 
     private boolean noSplash;
 
-    public Splashscreen() {
-        File splashchk = new File(NO_SPLASH_FILENAME);
-        if (splashchk.exists()) {
-            noSplash = true;
-        } else {
-            noSplash = false;
-            init();
-        }
+    public Splashscreen(boolean hideSplashScreen) {
+        noSplash = hideSplashScreen;
+        init();
     }
 
     /**Close the splashscreen*/
