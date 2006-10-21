@@ -33,6 +33,9 @@ import frost.util.Logging;
  * Read settings from frost.ini and store them.
  */
 public class SettingsClass implements Savable {
+    
+    // FIXME: change all textual references into String
+    
     private File settingsFile;
     private Hashtable settingsHash;
     private Hashtable defaults = null;
@@ -45,7 +48,9 @@ public class SettingsClass implements Savable {
     public static final String REQUESTFILE_HEADER = "FrostRequestedFilesV1";
 
     public static final String COMPACT_DBTABLES = "compactDatabaseTables";
+
     
+    public static final String AVAILABLE_NODES = "availableNodes";
     public static final String AUTO_SAVE_INTERVAL = "autoSaveInterval";
     public static final String DISABLE_FILESHARING = "disableFilesharing";
     public static final String DOWNLOADING_ACTIVATED = "downloadingActivated";
@@ -68,12 +73,16 @@ public class SettingsClass implements Savable {
     public static final String UPLOAD_MAX_RETRIES = "uploadMaxRetries";
     public static final String UPLOAD_RETRIES_WAIT_TIME = "uploadRetriesWaitTime";
     public static final String ALWAYS_DOWNLOAD_MESSAGES_BACKLOAD = "alwaysDownloadMessagesBackload";
+    public static final String DOWNLOAD_MAX_THREADS = "downloadThreads";
+    
 
     public static final String MSGTABLE_MULTILINE_SELECT = "messageTableMultilineSelect";
     public static final String MSGTABLE_SCROLL_HORIZONTAL = "messageTableScrollHorizontal";
     public static final String SHOW_BOARDDESC_TOOLTIPS = "showBoardDescriptionTooltips";
     public static final String SHOW_BOARD_UPDATED_COUNT = "showBoardUpdatedCount";
     public static final String SHOW_BOARD_UPDATE_VISUALIZATION = "boardUpdateVisualization";
+    public static final String DISABLE_SPLASHSCREEN = "disableSplashScreen";
+    public static final String SHOW_SYSTRAY_ICON = "showSystrayIcon";
     
     public static final String HIDE_MESSAGES_OBSERVE = "hideObserveMessages";
     public static final String HIDE_MESSAGES_CHECK = "hideCheckMessages";
@@ -90,6 +99,9 @@ public class SettingsClass implements Savable {
     public static final String SHOW_COLORED_ROWS = "showColoredRows";
     public static final String SHOW_SMILEYS = "showSmileys";
     public static final String SHOW_KEYS_AS_HYPERLINKS = "showKeysAsHyperlinks";
+    
+    public static final String ALTERNATE_EDITOR_ENABLED = "useAltEdit";
+    public static final String ALTERNATE_EDITOR_COMMAND = "altEdit";
     
     public static final String FILE_BASE = "fileBase";
     public static final String MIN_DAYS_BEFORE_FILE_RESHARE = "minDaysBeforeFileReshare";
@@ -588,9 +600,9 @@ public class SettingsClass implements Savable {
         defaults.put("mainframe.showSimpleTitle", "false");
         
         defaults.put(DISABLE_FILESHARING, "false");
+        defaults.put(DISABLE_SPLASHSCREEN, "false");
 
-        defaults.put("allowEvilBert", "false");
-        defaults.put("altEdit", fn + "path" + fs + "to" + fs + "editor" + " %f");
+        defaults.put(ALTERNATE_EDITOR_COMMAND, fn + "path" + fs + "to" + fs + "editor" + " %f");
         defaults.put("automaticUpdate", "true");
         defaults.put("automaticUpdate.concurrentBoardUpdates", "6");
         // no. of concurrent updating boards in auto update
@@ -617,7 +629,7 @@ public class SettingsClass implements Savable {
         defaults.put(BLOCK_BOARDS_FROM_CHECK, "false");
         defaults.put(BLOCK_BOARDS_FROM_OBSERVE, "false");
 
-        defaults.put("downloadThreads", "3");
+        defaults.put(DOWNLOAD_MAX_THREADS, "3");
         defaults.put(DOWNLOADING_ACTIVATED, "true");
 
         defaults.put("downloadMaxRetries", "25");
@@ -637,7 +649,7 @@ public class SettingsClass implements Savable {
         defaults.put("messageBase", "news");
         defaults.put(FILE_BASE, "files");
 
-        defaults.put("showSystrayIcon", "true");
+        defaults.put(SHOW_SYSTRAY_ICON, "true");
         defaults.put("removeFinishedDownloads", "false");
         defaults.put("reducedBlockCheck", "false");
         defaults.put("maxSearchResults", "10000");
@@ -650,7 +662,7 @@ public class SettingsClass implements Savable {
         defaults.put("uploadingActivated", "true");
         defaults.put("hideBadFiles", "true");
         defaults.put("hideAnonFiles", "false");
-        defaults.put("useAltEdit", "false");
+        defaults.put(ALTERNATE_EDITOR_ENABLED, "false");
         defaults.put("userName", "Anonymous");
         defaults.put("audioExtension", ".mp3;.ogg;.wav;.mid;.mod;.flac;.sid");
         defaults.put("videoExtension", ".mpeg;.mpg;.avi;.divx;.asf;.wmv;.rm;.ogm;.mov");

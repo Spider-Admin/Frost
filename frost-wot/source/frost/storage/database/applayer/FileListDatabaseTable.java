@@ -33,7 +33,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
 
     private static Logger logger = Logger.getLogger(FileListDatabaseTable.class.getName());
 
-    // FIXME: startup check: remove fileowners older than 3 month(?), keep files with keys (and owners with keys), but remember last seen if last ref!
+    // TODO: startup check: remove fileowners without uploads and lastseen older than 3 month(?)
 
     private final static String SQL_FILES_DDL =
         "CREATE TABLE FILELIST ("+

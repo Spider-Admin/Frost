@@ -142,13 +142,13 @@ public class Core implements FrostEventDispatcher  {
         }
         
         // get the list of available nodes
-        String nodesUnparsed = frostSettings.getValue("availableNodes");
+        String nodesUnparsed = frostSettings.getValue(SettingsClass.AVAILABLE_NODES);
         List nodes = new ArrayList();
 
         if (nodesUnparsed == null) { //old format
             String converted = new String(frostSettings.getValue("nodeAddress")+":"+frostSettings.getValue("nodePort"));
             nodes.add(converted.trim());
-            frostSettings.setValue("availableNodes", converted.trim());
+            frostSettings.setValue(SettingsClass.AVAILABLE_NODES, converted.trim());
         } else { // new format
             String[] _nodes = nodesUnparsed.split(",");
             for (int i = 0; i < _nodes.length; i++) {
@@ -267,14 +267,14 @@ public class Core implements FrostEventDispatcher  {
         }
         
         // get the list of available nodes
-        String nodesUnparsed = frostSettings.getValue("availableNodes");
+        String nodesUnparsed = frostSettings.getValue(SettingsClass.AVAILABLE_NODES);
         
         List nodes = new ArrayList();
 
         if (nodesUnparsed == null) { //old format
             String converted = new String(frostSettings.getValue("nodeAddress")+":"+frostSettings.getValue("nodePort"));
             nodes.add(converted.trim());
-            frostSettings.setValue("availableNodes", converted.trim());
+            frostSettings.setValue(SettingsClass.AVAILABLE_NODES, converted.trim());
         } else { // new format
             String[] _nodes = nodesUnparsed.split(",");
             for (int i = 0; i < _nodes.length; i++) {
@@ -387,7 +387,7 @@ public class Core implements FrostEventDispatcher  {
      * @throws Exception
      */
     public void initialize() throws Exception {
-        Splashscreen splashscreen = new Splashscreen();
+        Splashscreen splashscreen = new Splashscreen(frostSettings.getBoolValue(SettingsClass.DISABLE_SPLASHSCREEN));
         splashscreen.setVisible(true);
 
         keypool = frostSettings.getValue("keypool.dir");
@@ -450,15 +450,15 @@ public class Core implements FrostEventDispatcher  {
             // init availableNodes with correct port
             if( startdlg.getOwnHostAndPort() != null ) {
                 // user set own host:port
-                frostSettings.setValue("availableNodes", startdlg.getOwnHostAndPort());
+                frostSettings.setValue(SettingsClass.AVAILABLE_NODES, startdlg.getOwnHostAndPort());
             } else if( startdlg.getFreenetVersion() == FcpHandler.FREENET_05 ) {
-                frostSettings.setValue("availableNodes", "127.0.0.1:8481");
+                frostSettings.setValue(SettingsClass.AVAILABLE_NODES, "127.0.0.1:8481");
             } else {
                 // 0.7
                 if( startdlg.isTestnet() == false ) {
-                    frostSettings.setValue("availableNodes", "127.0.0.1:9481");
+                    frostSettings.setValue(SettingsClass.AVAILABLE_NODES, "127.0.0.1:9481");
                 } else {
-                    frostSettings.setValue("availableNodes", "127.0.0.1:9482");
+                    frostSettings.setValue(SettingsClass.AVAILABLE_NODES, "127.0.0.1:9482");
                 }
             }
             if( startdlg.getOldIdentitiesFile() != null && startdlg.getOldIdentitiesFile().length() > 0 ) {
@@ -506,16 +506,17 @@ public class Core implements FrostEventDispatcher  {
 
         getIdentities().initialize(isFreenetOnline());
 
-        // TODO: maybe make this configureable in options dialog for the paranoic people?
         String title;
-//        if( frostSettings.getBoolValue("mainframe.showSimpleTitle") == false ) {
-//            title = "Frost - " + getIdentities().getMyId().getUniqueName();
-//        } else {
+        if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
+            title = "Frost@Freenet 0.5";
+        } else if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) {
+            title = "Frost@Freenet 0.7";
+        } else {
             title = "Frost";
-//        }
+        }
 
         // Display the tray icon (do this before mainframe initializes)
-        if (frostSettings.getBoolValue("showSystrayIcon") == true) {
+        if (frostSettings.getBoolValue(SettingsClass.SHOW_SYSTRAY_ICON) == true) {
             if (JSysTrayIcon.createInstance(0, title, title) == false) {
                 logger.severe("Could not create systray icon.");
             }

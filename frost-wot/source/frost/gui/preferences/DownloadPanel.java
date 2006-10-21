@@ -186,7 +186,7 @@ class DownloadPanel extends JPanel {
     private void loadSettings() {
         removeFinishedDownloadsCheckBox.setSelected(settings.getBoolValue("removeFinishedDownloads"));
         directoryTextField.setText(settings.getValue("downloadDirectory"));
-        threadsTextField.setText(settings.getValue("downloadThreads"));
+        threadsTextField.setText(settings.getValue(SettingsClass.DOWNLOAD_MAX_THREADS));
         splitfileThreadsTextField.setText(settings.getValue("splitfileDownloadThreads"));
         maxRetriesTextField.setText("" + settings.getIntValue("downloadMaxRetries"));
         waitTimeTextField.setText("" + settings.getIntValue("downloadWaittime"));
@@ -230,7 +230,7 @@ class DownloadPanel extends JPanel {
         } else {
             settings.setValue("downloadDirectory", downlDirTxt);
         }
-        settings.setValue("downloadThreads", threadsTextField.getText());
+        settings.setValue(SettingsClass.DOWNLOAD_MAX_THREADS, threadsTextField.getText());
         settings.setValue("removeFinishedDownloads", removeFinishedDownloadsCheckBox.isSelected());
 
         settings.setValue("splitfileDownloadThreads", splitfileThreadsTextField.getText());
