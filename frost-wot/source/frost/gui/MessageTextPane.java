@@ -385,13 +385,22 @@ public class MessageTextPane extends JPanel {
                     fontChanged();
                 } else if (evt.getPropertyName().equals(SettingsClass.SHOW_SMILEYS)) {
                     ((MessageDecoder)messageTextArea.getDecoder()).setSmileyDecode(Core.frostSettings.getBoolValue(SettingsClass.SHOW_SMILEYS));
-                    setMessageText(messageTextArea.getText());
+                    if( selectedMessage != null ) {
+                        update_messageSelected(selectedMessage);
+                    } else {
+                        setMessageText(messageTextArea.getText());
+                    }
                 } else if (evt.getPropertyName().equals(SettingsClass.SHOW_KEYS_AS_HYPERLINKS)) {
                     ((MessageDecoder)messageTextArea.getDecoder()).setFreenetKeysDecode(Core.frostSettings.getBoolValue(SettingsClass.SHOW_KEYS_AS_HYPERLINKS));
-                    setMessageText(messageTextArea.getText());
+                    if( selectedMessage != null ) {
+                        update_messageSelected(selectedMessage);
+                    } else {
+                        setMessageText(messageTextArea.getText());
+                    }
                 }
             }
         };
+
         Core.frostSettings.addPropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_NAME, propertyChangeListener);
         Core.frostSettings.addPropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_SIZE, propertyChangeListener);
         Core.frostSettings.addPropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_STYLE, propertyChangeListener);
