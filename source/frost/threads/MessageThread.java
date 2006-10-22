@@ -100,6 +100,11 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                     daysBack++;
                     downloadDate(localDate.minusDays(daysBack));
                 }
+                // after a complete backload run, remember finish time. 
+                // this ensures we ever update the complete backload days. 
+                if( !isInterrupted() ) {
+                    board.setLastBackloadUpdateFinishedMillis(System.currentTimeMillis());
+                }
             }
             logger.info("TOFDN: " + tofType + " Thread stopped for board " + board.getName());
         } catch (Throwable t) {

@@ -48,7 +48,7 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
 
     private boolean isUpdating = false;
     private long lastUpdateStartMillis = -1; // never updated
-    private long lastBackloadUpdateStartMillis = -1; // never updated
+    private long lastBackloadUpdateFinishedMillis = -1; // never finished
     // following: if set to null then the default will be returned
     private Integer maxMessageDisplay = null;
     private Integer maxMessageDownload = null;
@@ -221,8 +221,8 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
     public long getLastUpdateStartMillis() {
         return lastUpdateStartMillis;
     }
-    public long getLastBackloadUpdateStartMillis() {
-        return lastBackloadUpdateStartMillis;
+    public long getLastBackloadUpdateFinishedMillis() {
+        return lastBackloadUpdateFinishedMillis;
     }
 
     public int getMaxMessageDisplay() {
@@ -372,8 +372,8 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
     public void setLastUpdateStartMillis(long millis) {
         lastUpdateStartMillis = millis;
     }
-    public void setLastBackloadUpdateStartMillis(long millis) {
-        lastBackloadUpdateStartMillis = millis;
+    public void setLastBackloadUpdateFinishedMillis(long millis) {
+        lastBackloadUpdateFinishedMillis = millis;
     }
 
     public void setMaxMessageDays(Integer val) {
