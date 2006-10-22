@@ -826,7 +826,7 @@ public class BoardSettingsFrame extends JDialog {
         publicKeyLabel.setText(language.getString("BoardSettings.label.publicKey") + " :");
         privateKeyLabel.setText(language.getString("BoardSettings.label.privateKey") + " :");
         maxMessageDisplayDaysLabel.setText(language.getString("BoardSettings.label.maximumMessageDisplay"));
-        maxMessageDownloadDaysLabel.setText(language.getString("BoardSettings.label.maximumMessageDownload")); // FIXME
+        maxMessageDownloadDaysLabel.setText(language.getString("BoardSettings.label.maximumMessageDownload"));
         hideUnsignedMessagesLabel.setText(language.getString("BoardSettings.label.hideUnsignedMessages"));
         hideBadMessagesLabel.setText(language.getString("BoardSettings.label.hideBadMessages"));
         hideCheckMessagesLabel.setText(language.getString("BoardSettings.label.hideCheckMessages"));

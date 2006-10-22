@@ -320,7 +320,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         List boards = ((TofTreeModel) tofTree.getModel()).getAllBoards();
         for( Iterator i=boards.iterator(); i.hasNext();  ) {
             Board board = (Board)i.next();
-            if( board.isUpdateAllowed() ) {
+            if( board.isManualUpdateAllowed() ) {
                 tofTree.updateBoard(board);
             }
             boardTableModel.fireTableDataChanged();
@@ -339,7 +339,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
 
                 BoardInfoTableMember row = (BoardInfoTableMember) ((BoardInfoTableModel) boardTableModel).getRow(rowIx);
 
-                if( row.getBoard().isUpdateAllowed() ) {
+                if( row.getBoard().isManualUpdateAllowed() ) {
                     tofTree.updateBoard(row.getBoard());
                 }
                 boardTableModel.fireTableCellUpdated(rowIx, 0);
