@@ -152,8 +152,8 @@ public class TofTreeXmlIO
                     }
                 }
 
-                // maybe restore lastBackloadUpdateStartedMillis ( = board update progress)
-                ltmp = XMLTools.getChildElementsByTagName(child, "lastBackloadUpdateStartedMillis");
+                // maybe restore lastBackloadUpdateFinishedMillis ( = board update progress)
+                ltmp = XMLTools.getChildElementsByTagName(child, "lastBackloadUpdateFinishedMillis");
                 if (ltmp.size() > 0) {
                     Text txtname = (Text) ((Node) ltmp.get(0)).getFirstChild();
                     if (txtname != null) {
@@ -165,7 +165,7 @@ public class TofTreeXmlIO
                         }
 
                         if (millis > 0) {
-                            fbobj.setLastBackloadUpdateStartMillis(millis);
+                            fbobj.setLastBackloadUpdateFinishedMillis(millis);
                         }
                     }
                 }
@@ -474,9 +474,9 @@ public class TofTreeXmlIO
         }
 
         // append lastBackloadUpdateStartedMillis
-        if( board.getLastBackloadUpdateStartMillis() > 0 ) {
-            element = doc.createElement("lastBackloadUpdateStartedMillis");
-            Text text = doc.createTextNode("" + board.getLastBackloadUpdateStartMillis());
+        if( board.getLastBackloadUpdateFinishedMillis() > 0 ) {
+            element = doc.createElement("lastBackloadUpdateFinishedMillis");
+            Text text = doc.createTextNode("" + board.getLastBackloadUpdateFinishedMillis());
             element.appendChild(text);
             rootBoardElement.appendChild(element);
         }

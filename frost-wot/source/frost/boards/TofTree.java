@@ -949,14 +949,14 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         // get the older messages, if configured start backload only after 12 hours
         long now = System.currentTimeMillis();
         long before12hours = now - (12L * 60L * 60L * 1000L); // 12 hours
-        boolean downloadCompleteBackload = true;
+        boolean downloadCompleteBackload;
         if( Core.frostSettings.getBoolValue(SettingsClass.ALWAYS_DOWNLOAD_MESSAGES_BACKLOAD) == false 
-                && before12hours < board.getLastBackloadUpdateStartMillis() )
+                && before12hours < board.getLastBackloadUpdateFinishedMillis() )
         {
             downloadCompleteBackload = false;
         } else {
             // we start a complete backload
-            board.setLastBackloadUpdateStartMillis(now);
+            downloadCompleteBackload = true;
         }
         if (getRunningBoardUpdateThreads().isThreadOfTypeRunning(board, BoardUpdateThread.MSG_DNLOAD_BACK) == false) {
             getRunningBoardUpdateThreads().startMessageDownloadBack(board, settings, listener, downloadCompleteBackload);
