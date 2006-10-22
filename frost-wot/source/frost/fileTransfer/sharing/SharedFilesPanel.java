@@ -244,15 +244,43 @@ public class SharedFilesPanel extends JPanel {
         
         for(Iterator i = items.iterator(); i.hasNext(); ) {
             FrostSharedFileItem item = (FrostSharedFileItem) i.next();
-            // FIXME: check if item was really changed before resetting time
-            item.setComment( dlg.getComment() );
-            item.setRating( dlg.getRating() );
-            item.setKeywords( dlg.getKeywords() );
+            // check if item was really changed, calling a setter will mark the item changed
+            String oldStr, newStr;
             
-            item.itemWasChanged();
+            oldStr = item.getComment();
+            newStr = dlg.getComment();
+            if( !stringsEqual(oldStr, newStr) ) {
+                item.setComment( dlg.getComment() );
+            }
+            
+            oldStr = item.getKeywords();
+            newStr = dlg.getKeywords();
+            if( !stringsEqual(oldStr, newStr) ) {
+                item.setKeywords( dlg.getKeywords() );
+            }
+            
+            if( item.getRating() != dlg.getRating() ) {
+                item.setRating( dlg.getRating() );
+            }
         }
     }
 
+    private boolean stringsEqual(String oldStr, String newStr) {
+        if( oldStr == null && newStr != null ) {
+            return false;
+        }
+        if( oldStr != null && newStr == null ) {
+            return false;
+        }
+        if( oldStr == null && newStr == null ) {
+            return true;
+        }
+        if( oldStr.equals(newStr) ) {
+            return true;
+        } else {
+            return false;
+        }
+    }
     
     private class PopupMenuUpload extends JSkinnablePopupMenu 
       implements ActionListener, LanguageListener, ClipboardOwner {
