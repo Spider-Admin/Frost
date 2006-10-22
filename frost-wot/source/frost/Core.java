@@ -528,7 +528,7 @@ public class Core implements FrostEventDispatcher  {
         getBoardsManager().initialize();
         getFileTransferManager().initialize();
         
-        UnsendMessagesManager.initialize();
+        UnsentMessagesManager.initialize();
         FileAttachmentUploadThread.getInstance().start();
         
         if( doImport ) {

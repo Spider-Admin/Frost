@@ -288,7 +288,7 @@ public class MessageUploader {
                         tryAgain = true;
                     } else if (answer == MessageUploadFailedDialog.RETRY_NEXT_STARTUP_VALUE) {
                         wa.uploadFile.delete();
-                        // message is not re-enqueued in UnsendMessagesManager, we read it during next startup
+                        // message is not re-enqueued in UnsentMessagesManager, we read it during next startup
                         logger.info("TOFUP: Will try to upload again on next startup.");
 //                        tryAgain = false;
                         return new MessageUploaderResult(true); // keep msg

@@ -58,7 +58,7 @@ public class RunningMessageThreadsInformation {
     /**
      * Returns the count of unsend messages.
      */
-    public int getUnsendMessageCount() {
+    public int getUnsentMessageCount() {
         return unsendMessages;
     }
     
@@ -71,7 +71,7 @@ public class RunningMessageThreadsInformation {
     public void addToDownloadingBoardCount(int valueToAdd) {
         this.downloadingBoardCount += valueToAdd;
     }
-    public void setUnsendMessageCount(int unsendMessages) {
+    public void setUnsentMessageCount(int unsendMessages) {
         this.unsendMessages = unsendMessages;
     }
     public void setUploadingMessageCount(int uploadingMessages) {

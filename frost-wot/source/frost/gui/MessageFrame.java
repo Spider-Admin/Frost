@@ -788,7 +788,7 @@ public class MessageFrame extends JFrame {
         }
         frostSettings.setValue("userName."+board.getBoardFilename(), from);
         
-        FrostUnsendMessageObject newMessage = new FrostUnsendMessageObject();
+        FrostUnsentMessageObject newMessage = new FrostUnsentMessageObject();
         newMessage.setMessageId(Mixed.createUniqueId()); // new message, create a new unique msg id
         newMessage.setInReplyTo(repliedMsgId);
         newMessage.setBoard(board);
@@ -833,7 +833,7 @@ public class MessageFrame extends JFrame {
             newMessage.setRecipientName(recipient.getUniqueName());
         }
 
-        UnsendMessagesManager.addNewUnsendMessage(newMessage);
+        UnsentMessagesManager.addNewUnsentMessage(newMessage);
 
 //        // zip the xml file and check for maximum size
 //        File tmpFile = FileAccess.createTempFile("msgframe_", "_tmp");

@@ -204,6 +204,20 @@ public class SearchMessagesResultTable extends SortedTable {
              */
             setIcon(null);
             setToolTipText(null);
+            
+            if (!isSelected) {
+                if( showColoredLines ) {
+                    // IBM lineprinter paper
+                    if ((row & 0x0001) == 0) {
+                        setBackground(Color.WHITE);
+                    } else {
+                        setBackground(secondBackgroundColor);
+                    }
+                } else {
+                    setBackground(table.getBackground());
+                }
+            }
+
             // do nice things for FROM and SIG column and BOARD column
             if( column == 3 ) {
                 // FROM
@@ -282,19 +296,6 @@ public class SearchMessagesResultTable extends SortedTable {
                 }
             }
             
-            if (!isSelected) {
-                if( showColoredLines ) {
-                    // IBM lineprinter paper
-                    if ((row & 0x0001) == 0) {
-                        setBackground(Color.WHITE);
-                    } else {
-                        setBackground(secondBackgroundColor);
-                    }
-                } else {
-                    setBackground(table.getBackground());
-                }
-            }
-
             setDeleted(msg.getMessageObject().isDeleted());
 
             return this;

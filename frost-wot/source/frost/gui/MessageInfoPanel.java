@@ -23,7 +23,7 @@ import java.awt.*;
 import javax.swing.*;
 
 import frost.gui.sentmessages.*;
-import frost.gui.unsendmessages.*;
+import frost.gui.unsentmessages.*;
 import frost.messages.*;
 import frost.util.gui.translation.*;
 
@@ -35,7 +35,7 @@ public class MessageInfoPanel extends JPanel implements LanguageListener {
     Language language = Language.getInstance();
     
     private SentMessagesTable sentMessagesTable;
-    private UnsendMessagesTable unsendMessagesTable;
+    private UnsentMessagesTable unsendMessagesTable;
     private boolean isShown = false;
     
     private JLabel sentMsgsLabel;
@@ -67,7 +67,7 @@ public class MessageInfoPanel extends JPanel implements LanguageListener {
         unsendMsgsLabel.setBorder(BorderFactory.createEmptyBorder(2,4,2,2));
         unsendMsgsPanel.add(unsendMsgsLabel, BorderLayout.NORTH);
 
-        unsendMessagesTable = new UnsendMessagesTable();
+        unsendMessagesTable = new UnsentMessagesTable();
         unsendMessagesTable.getScrollPane().setWheelScrollingEnabled(true);
         unsendMsgsPanel.add(unsendMessagesTable.getScrollPane(), BorderLayout.CENTER);
 
@@ -110,26 +110,26 @@ public class MessageInfoPanel extends JPanel implements LanguageListener {
         }
     }
     
-    public synchronized void addUnsendMessage(FrostUnsendMessageObject mo) {
+    public synchronized void addUnsentMessage(FrostUnsentMessageObject mo) {
         if( isShown ) {
-            unsendMessagesTable.addUnsendMessage(mo);
+            unsendMessagesTable.addUnsentMessage(mo);
         }
     }
 
-    public synchronized void updateUnsendMessage(FrostUnsendMessageObject mo) {
+    public synchronized void updateUnsentMessage(FrostUnsentMessageObject mo) {
         if( isShown ) {
-            unsendMessagesTable.updateUnsendMessage(mo);
+            unsendMessagesTable.updateUnsentMessage(mo);
         }
     }
 
-    public synchronized void removeUnsendMessage(FrostUnsendMessageObject mo) {
+    public synchronized void removeUnsentMessage(FrostUnsentMessageObject mo) {
         if( isShown ) {
-            unsendMessagesTable.removeUnsendMessage(mo);
+            unsendMessagesTable.removeUnsentMessage(mo);
         }
     }
     
     protected void refreshLanguage() {
-        unsendMsgsLabel.setText( language.getString("UnsendMessages.label"));
+        unsendMsgsLabel.setText( language.getString("UnsentMessages.label"));
         sentMsgsLabel.setText( language.getString("SentMessages.label"));
     }
 

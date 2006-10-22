@@ -1,5 +1,5 @@
 /*
-  UnsendMessagesTableFormat.java / Frost
+  UnsentMessagesTableFormat.java / Frost
   Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
@@ -16,7 +16,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.gui.unsendmessages;
+package frost.gui.unsentmessages;
 
 import java.awt.*;
 import java.beans.*;
@@ -30,7 +30,7 @@ import frost.util.gui.translation.*;
 import frost.util.model.*;
 import frost.util.model.gui.*;
 
-public class UnsendMessagesTableFormat extends SortedTableFormat implements LanguageListener, PropertyChangeListener {
+public class UnsentMessagesTableFormat extends SortedTableFormat implements LanguageListener, PropertyChangeListener {
 
     private Language language;
 
@@ -44,7 +44,7 @@ public class UnsendMessagesTableFormat extends SortedTableFormat implements Lang
     private boolean showColoredLines;
     private Color secondBackgroundColor = new java.awt.Color(238,238,238);
 
-    public UnsendMessagesTableFormat() {
+    public UnsentMessagesTableFormat() {
         super(COLUMN_COUNT);
 
         language = Language.getInstance();
@@ -67,21 +67,21 @@ public class UnsendMessagesTableFormat extends SortedTableFormat implements Lang
     }
 
     private void refreshLanguage() {
-        setColumnName(0, language.getString("UnsendMessages.table.board"));
-        setColumnName(1, language.getString("UnsendMessages.table.subject"));
-        setColumnName(2, language.getString("UnsendMessages.table.from"));
-        setColumnName(3, language.getString("UnsendMessages.table.to"));
-        setColumnName(4, language.getString("UnsendMessages.table.state"));
-        setColumnName(5, language.getString("UnsendMessages.table.timeAdded"));
+        setColumnName(0, language.getString("UnsentMessages.table.board"));
+        setColumnName(1, language.getString("UnsentMessages.table.subject"));
+        setColumnName(2, language.getString("UnsentMessages.table.from"));
+        setColumnName(3, language.getString("UnsentMessages.table.to"));
+        setColumnName(4, language.getString("UnsentMessages.table.state"));
+        setColumnName(5, language.getString("UnsentMessages.table.timeAdded"));
         
-        stateWaitingString = language.getString("UnsendMessages.table.stateWaiting");
-        stateUploadingString = language.getString("UnsendMessages.table.stateUploading");
+        stateWaitingString = language.getString("UnsentMessages.table.stateWaiting");
+        stateUploadingString = language.getString("UnsentMessages.table.stateUploading");
 
         refreshColumnNames();
     }
 
     public Object getCellValue(ModelItem item, int columnIndex) {
-        UnsendMessagesTableItem searchItem = (UnsendMessagesTableItem) item;
+        UnsentMessagesTableItem searchItem = (UnsentMessagesTableItem) item;
         switch (columnIndex) {
             case 0 :
                 return searchItem.getBoardName();
@@ -96,7 +96,7 @@ public class UnsendMessagesTableFormat extends SortedTableFormat implements Lang
                 return searchItem.getTo();
 
             case 4 :
-                if( searchItem.getState() == UnsendMessagesTableItem.STATE_UPLOADING ) {
+                if( searchItem.getState() == UnsentMessagesTableItem.STATE_UPLOADING ) {
                     return stateUploadingString;
                 } else {
                     return stateWaitingString;
@@ -148,10 +148,10 @@ public class UnsendMessagesTableFormat extends SortedTableFormat implements Lang
             TableColumn tc = tcm.getColumn(columnIndexInTable);
             int columnIndexInModel = tc.getModelIndex();
             // save the current index in table for column with the fix index in model
-            Core.frostSettings.setValue("UnsendMessagesTable.tableindex.modelcolumn."+columnIndexInModel, columnIndexInTable);
+            Core.frostSettings.setValue("UnsentMessagesTable.tableindex.modelcolumn."+columnIndexInModel, columnIndexInTable);
             // save the current width of the column
             int columnWidth = tc.getWidth();
-            Core.frostSettings.setValue("UnsendMessagesTable.columnwidth.modelcolumn."+columnIndexInModel, columnWidth);
+            Core.frostSettings.setValue("UnsentMessagesTable.columnwidth.modelcolumn."+columnIndexInModel, columnWidth);
         }
     }
     
@@ -162,7 +162,7 @@ public class UnsendMessagesTableFormat extends SortedTableFormat implements Lang
         int[] columnWidths = new int[tcm.getColumnCount()];
 
         for(int x=0; x < tableToModelIndex.length; x++) {
-            String indexKey = "UnsendMessagesTable.tableindex.modelcolumn."+x;
+            String indexKey = "UnsentMessagesTable.tableindex.modelcolumn."+x;
             if( Core.frostSettings.getObjectValue(indexKey) == null ) {
                 return false; // column not found, abort
             }
@@ -173,7 +173,7 @@ public class UnsendMessagesTableFormat extends SortedTableFormat implements Lang
             }
             tableToModelIndex[tableIndex] = x;
 
-            String widthKey = "UnsendMessagesTable.columnwidth.modelcolumn."+x;
+            String widthKey = "UnsentMessagesTable.columnwidth.modelcolumn."+x;
             if( Core.frostSettings.getObjectValue(widthKey) == null ) {
                 return false; // column not found, abort
             }
@@ -201,48 +201,48 @@ public class UnsendMessagesTableFormat extends SortedTableFormat implements Lang
     
     private class DateComparator implements Comparator {
         public int compare(Object o1, Object o2) {
-            String i1 = ((UnsendMessagesTableItem) o1).getTimeAddedString();
-            String i2 = ((UnsendMessagesTableItem) o2).getTimeAddedString();
+            String i1 = ((UnsentMessagesTableItem) o1).getTimeAddedString();
+            String i2 = ((UnsentMessagesTableItem) o2).getTimeAddedString();
             return i1.compareTo(i2);
         }
     }
 
     private class ToComparator implements Comparator {
         public int compare(Object o1, Object o2) {
-            String i1 = ((UnsendMessagesTableItem) o1).getTo();
-            String i2 = ((UnsendMessagesTableItem) o2).getTo();
+            String i1 = ((UnsentMessagesTableItem) o1).getTo();
+            String i2 = ((UnsentMessagesTableItem) o2).getTo();
             return i1.compareTo(i2);
         }
     }
 
     private class FromComparator implements Comparator {
         public int compare(Object o1, Object o2) {
-            String i1 = ((UnsendMessagesTableItem) o1).getFrom();
-            String i2 = ((UnsendMessagesTableItem) o2).getFrom();
+            String i1 = ((UnsentMessagesTableItem) o1).getFrom();
+            String i2 = ((UnsentMessagesTableItem) o2).getFrom();
             return i1.compareTo(i2);
         }
     }
 
     private class StateComparator implements Comparator {
         public int compare(Object o1, Object o2) {
-            int i1 = ((UnsendMessagesTableItem) o1).getState();
-            int i2 = ((UnsendMessagesTableItem) o2).getState();
+            int i1 = ((UnsentMessagesTableItem) o1).getState();
+            int i2 = ((UnsentMessagesTableItem) o2).getState();
             return new Integer(i1).compareTo(new Integer(i2));
         }
     }
 
     private class SubjectComparator implements Comparator {
         public int compare(Object o1, Object o2) {
-            String i1 = ((UnsendMessagesTableItem) o1).getSubject();
-            String i2 = ((UnsendMessagesTableItem) o2).getSubject();
+            String i1 = ((UnsentMessagesTableItem) o1).getSubject();
+            String i2 = ((UnsentMessagesTableItem) o2).getSubject();
             return i1.compareTo(i2);
         }
     }
 
     private class BoardComparator implements Comparator {
         public int compare(Object o1, Object o2) {
-            String i1 = ((UnsendMessagesTableItem) o1).getBoardName();
-            String i2 = ((UnsendMessagesTableItem) o2).getBoardName();
+            String i1 = ((UnsentMessagesTableItem) o1).getBoardName();
+            String i2 = ((UnsentMessagesTableItem) o2).getBoardName();
             return i1.compareTo(i2);
         }
     }
@@ -263,9 +263,9 @@ public class UnsendMessagesTableFormat extends SortedTableFormat implements Lang
 
             if( !isSelected ) {
                 setForeground(Color.BLACK);
-                UnsendMessagesTableItem item = (UnsendMessagesTableItem) modelTable.getItemAt(row);
+                UnsentMessagesTableItem item = (UnsentMessagesTableItem) modelTable.getItemAt(row);
                 if( item != null ) {
-                    if( item.getFrostUnsendMessageObject().containsAttachments() ) {
+                    if( item.getFrostUnsentMessageObject().containsAttachments() ) {
                         setForeground(Color.BLUE);
                     }
                 }

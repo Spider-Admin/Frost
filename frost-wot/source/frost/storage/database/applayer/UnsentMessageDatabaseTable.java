@@ -1,5 +1,5 @@
 /*
-  UnsendMessageDatabaseTable.java / Frost
+  UnsentMessageDatabaseTable.java / Frost
   Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
@@ -27,7 +27,7 @@ import frost.boards.*;
 import frost.messages.*;
 import frost.storage.database.*;
 
-public class UnsendMessageDatabaseTable extends AbstractDatabaseTable {
+public class UnsentMessageDatabaseTable extends AbstractDatabaseTable {
 
     // NOTE: fileattachments: the filename is the complete path of file
     
@@ -88,7 +88,7 @@ public class UnsendMessageDatabaseTable extends AbstractDatabaseTable {
         return true;
     }
 
-    public synchronized void insertMessage(FrostUnsendMessageObject mo) throws SQLException {
+    public synchronized void insertMessage(FrostUnsentMessageObject mo) throws SQLException {
 
         AttachmentList files = mo.getAttachmentsOfType(Attachment.FILE);
         AttachmentList boards = mo.getAttachmentsOfType(Attachment.BOARD);
@@ -275,7 +275,7 @@ public class UnsendMessageDatabaseTable extends AbstractDatabaseTable {
         PreparedStatement ps = db.prepare(sql);
         ResultSet rs = ps.executeQuery();
         while( rs.next() ) {
-            FrostUnsendMessageObject mo = new FrostUnsendMessageObject();
+            FrostUnsentMessageObject mo = new FrostUnsentMessageObject();
             
             int ix=1;
             mo.setMsgIdentity(rs.getLong(ix++));

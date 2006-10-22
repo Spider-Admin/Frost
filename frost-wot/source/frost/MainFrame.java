@@ -644,7 +644,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
      */
     private void fileExitMenuItem_actionPerformed(ActionEvent e) {
 
-        if (UnsendMessagesManager.getRunningMessageUploads() > 0 ) {
+        if (UnsentMessagesManager.getRunningMessageUploads() > 0 ) {
             int result = JOptionPane.showConfirmDialog(
                     this,
                     language.getString("MainFrame.runningUploadsWarning.body"),
