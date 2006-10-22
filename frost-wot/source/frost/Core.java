@@ -403,10 +403,15 @@ public class Core implements FrostEventDispatcher  {
         DAOFactory.initialize(frostSettings);
         
         // open databases
-        // FIXME: COMPACT TABLE xxx , show dialog during compact with current table
         boolean compactTables = frostSettings.getBoolValue(SettingsClass.COMPACT_DBTABLES);
         try {
+            if( compactTables ) {
+                splashscreen.setText("Compacting database tables...");
+            }
             AppLayerDatabase.initialize(compactTables);
+            if( compactTables ) {
+                splashscreen.setText(language.getString("Splashscreen.message.1"));
+            }
         } catch(SQLException ex) {
             logger.log(Level.SEVERE, "Error opening the databases", ex);
             ex.printStackTrace();
