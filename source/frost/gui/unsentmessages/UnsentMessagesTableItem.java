@@ -1,5 +1,5 @@
 /*
-  UnsendMessagesTableItem.java / Frost
+  UnsentMessagesTableItem.java / Frost
   Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
@@ -16,19 +16,19 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.gui.unsendmessages;
+package frost.gui.unsentmessages;
 
 import frost.messages.*;
 import frost.util.model.*;
 
-public class UnsendMessagesTableItem extends ModelItem {
+public class UnsentMessagesTableItem extends ModelItem {
     
     public static final int STATE_WAITING = 1;
     public static final int STATE_UPLOADING = 2;
 
-    private FrostUnsendMessageObject messageObject;
+    private FrostUnsentMessageObject messageObject;
     
-    public UnsendMessagesTableItem(FrostUnsendMessageObject mo) {
+    public UnsentMessagesTableItem(FrostUnsentMessageObject mo) {
         messageObject = mo;
     }
     
@@ -56,12 +56,12 @@ public class UnsendMessagesTableItem extends ModelItem {
         return messageObject.getTimeAddedString();
     }
     
-    public FrostUnsendMessageObject getFrostUnsendMessageObject() {
+    public FrostUnsentMessageObject getFrostUnsentMessageObject() {
         return messageObject;
     }
     
     public int getState() {
-        if( getFrostUnsendMessageObject().getCurrentUploadThread() == null ) {
+        if( getFrostUnsentMessageObject().getCurrentUploadThread() == null ) {
             return STATE_WAITING;
         } else {
             return STATE_UPLOADING;

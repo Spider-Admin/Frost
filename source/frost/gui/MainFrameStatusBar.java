@@ -60,7 +60,7 @@ public class MainFrameStatusBar extends JPanel {
                 }
                 String txt = language.formatMessage("MainFrameStatusBar.tooltip.tofup", 
                         ""+statusBarInformations.getUploadingMessagesCount(),
-                        ""+statusBarInformations.getUnsendMessageCount(),
+                        ""+statusBarInformations.getUnsentMessageCount(),
                         ""+statusBarInformations.getAttachmentsToUploadRemainingCount());
                 return txt;
             }
@@ -177,7 +177,7 @@ public class MainFrameStatusBar extends JPanel {
             .append(language.getString("MainFrame.statusBar.TOFUP")).append(": ")
             .append(info.getUploadingMessagesCount())
             .append("U / ")
-            .append(info.getUnsendMessageCount())
+            .append(info.getUnsentMessageCount())
             .append("W / ")
             .append(info.getAttachmentsToUploadRemainingCount())
             .append("A ")

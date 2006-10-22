@@ -250,7 +250,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
      */
     protected void uploadMessages() {
 
-        FrostUnsendMessageObject unsendMsg = UnsendMessagesManager.getUnsendMessage(board);
+        FrostUnsentMessageObject unsendMsg = UnsentMessagesManager.getUnsentMessage(board);
         if( unsendMsg == null ) {
             // currently no msg to send for this board
             return;
@@ -266,25 +266,25 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 recipient = Core.getIdentities().getIdentity(unsendMsg.getRecipientName());
                 if( recipient == null ) {
                     logger.severe("Can't send Message '" + unsendMsg.getSubject() + "', the recipient is not longer in your identites list!");
-                    UnsendMessagesManager.deleteMessage(unsendMsg);
+                    UnsentMessagesManager.deleteMessage(unsendMsg);
                     continue;
                 }
             }
 
-            UnsendMessagesManager.incRunningMessageUploads();
+            UnsentMessagesManager.incRunningMessageUploads();
             
             uploadMessage(unsendMsg, recipient);
             
-            UnsendMessagesManager.decRunningMessageUploads();
+            UnsentMessagesManager.decRunningMessageUploads();
             
             Mixed.waitRandom(6000); // wait some time
             
             // get next message to upload
-            unsendMsg = UnsendMessagesManager.getUnsendMessage(board, fromName);
+            unsendMsg = UnsentMessagesManager.getUnsentMessage(board, fromName);
         }
     }
 
-    private void uploadMessage(FrostUnsendMessageObject mo, Identity recipient) {
+    private void uploadMessage(FrostUnsentMessageObject mo, Identity recipient) {
         
         logger.info("Preparing upload of message to board '" + board.getName() + "'");
         
@@ -301,7 +301,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 } else {
                     // apparently the LocalIdentity used to write the msg was deleted
                     logger.severe("The LocalIdentity used to write this unsent msg was deleted: "+mo.getFromName());
-                    UnsendMessagesManager.deleteMessage(mo);
+                    UnsentMessagesManager.deleteMessage(mo);
                     return;
                 }
             }
@@ -339,7 +339,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 if( !result.isKeepMessage() ) {
                     // user choosed to drop the message
                     mo.setCurrentUploadThread(null); // must be marked as not uploaded currently before delete!
-                    UnsendMessagesManager.deleteMessage(mo);
+                    UnsentMessagesManager.deleteMessage(mo);
                 } else {
                     // user choosed to retry after next startup, we do not re-enqueue the file now and find it again on next startup
                 }
@@ -355,7 +355,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
 
             // finally delete the message in unsend messages db table
             mo.setCurrentUploadThread(null); // must be marked as not uploaded currently before delete!
-            UnsendMessagesManager.deleteMessage(mo);
+            UnsentMessagesManager.deleteMessage(mo);
 
         } catch (Throwable t) {
             logger.log(Level.SEVERE, "Catched exception", t);

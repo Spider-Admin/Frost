@@ -117,59 +117,6 @@ public class MessageTextPane extends JPanel {
         setMessageText(language.getString("MessagePane.defaultText.noBoardSelected"));
     }
 
-    /**
-     * Called if root is selected.
-     */
-    public void update_rootSelected() {
-        messageSplitPane.setBottomComponent(null);
-        messageSplitPane.setDividerSize(0);
-        // show infos about waiting/running msg uploads
-        StringBuffer sb = new StringBuffer();
-        sb.append("Unsend messages information:\n\n");
-        List unsend = UnsendMessagesManager.getUnsendMessages();
-        if( unsend.isEmpty() ) {
-            sb.append("Currently there are no unsend messages.");
-        } else {
-            int cnt = 1;
-            for(Iterator i = unsend.iterator(); i.hasNext(); ) {
-                FrostUnsendMessageObject mo = (FrostUnsendMessageObject) i.next();
-                sb.append("Message ").append(cnt).append(":\n");
-                sb.append("  Board:     ").append(mo.getBoard().getName()).append("\n");
-                sb.append("  Sender:    ").append(mo.getFromName()).append("\n");
-                if( mo.getRecipientName() != null && mo.getRecipientName().length() > 0 ) {
-                    sb.append("  Receiver:  ").append(mo.getRecipientName()).append(" (encrypted)\n");
-                }
-                sb.append("  Subject:   ").append(mo.getSubject()).append("\n");
-                
-                List af = mo.getAttachmentsOfType(Attachment.FILE);
-                List uf = mo.getUnsendFileAttachments();
-                if( !af.isEmpty() ) {
-                    sb.append("  Attached files:").append("\n");
-                    for(Iterator j = af.iterator(); j.hasNext(); ) {
-                        FileAttachment fa = (FileAttachment) j.next(); 
-                        sb.append("     ").append(fa.getInternalFile().getPath());
-                        if( uf.contains(fa) ) {
-                            sb.append(" (unsend)\n");
-                        } else {
-                            sb.append(" (send)\n");
-                        }
-                    }
-                }
-                List ab = mo.getAttachmentsOfType(Attachment.BOARD);
-                if( !ab.isEmpty() ) {
-                    sb.append("  Attached boards:").append("\n");
-                    for(Iterator j = ab.iterator(); j.hasNext(); ) {
-                        BoardAttachment ba = (BoardAttachment) j.next(); 
-                        sb.append("     ").append(ba.getBoardObj().getName()).append("\n");
-                    }
-                }
-                sb.append("\n");
-                cnt++;
-            }
-        }
-        setMessageText(sb.toString());
-    }
-
     private void setMessageText(String txt) {
         idLineTextHighlighter.removeHighlights(messageTextArea);
         messageTextArea.setText(txt);

@@ -1,5 +1,5 @@
 /*
-  UnsendMessagestable.java / Frost
+  UnsentMessagestable.java / Frost
   Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
@@ -16,7 +16,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.gui.unsendmessages;
+package frost.gui.unsentmessages;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -31,19 +31,19 @@ import frost.util.gui.translation.*;
 import frost.util.model.*;
 import frost.util.model.gui.*;
 
-public class UnsendMessagesTable extends SortedModelTable {
+public class UnsentMessagesTable extends SortedModelTable {
     
-    private UnsendMessagesTableModel tableModel;
-    private UnsendMessagesTableFormat tableFormat;
+    private UnsentMessagesTableModel tableModel;
+    private UnsentMessagesTableFormat tableFormat;
 
-    private PopupMenuSearch popupMenuSearch = null;
+    private PopupMenu popupMenu = null;
     private Language language = Language.getInstance();
     
-    public UnsendMessagesTable() {
-        this(new UnsendMessagesTableModel(), new UnsendMessagesTableFormat());
+    public UnsentMessagesTable() {
+        this(new UnsentMessagesTableModel(), new UnsentMessagesTableFormat());
     }
     
-    private UnsendMessagesTable(UnsendMessagesTableModel m, UnsendMessagesTableFormat f) {
+    private UnsentMessagesTable(UnsentMessagesTableModel m, UnsentMessagesTableFormat f) {
         super(m, f);
         tableModel = m;
         tableFormat = f;
@@ -56,16 +56,16 @@ public class UnsendMessagesTable extends SortedModelTable {
         getScrollPane().addMouseListener(l);
     }
     
-    public void addUnsendMessage(FrostUnsendMessageObject i) {
-        tableModel.addFrostUnsendMessageObject(i);
+    public void addUnsentMessage(FrostUnsentMessageObject i) {
+        tableModel.addFrostUnsentMessageObject(i);
     }
 
-    public void removeUnsendMessage(FrostUnsendMessageObject i) {
-        tableModel.removeFrostUnsendMessageObject(i);
+    public void removeUnsentMessage(FrostUnsentMessageObject i) {
+        tableModel.removeFrostUnsentMessageObject(i);
     }
 
-    public void updateUnsendMessage(FrostUnsendMessageObject i) {
-        tableModel.updateFrostUnsendMessageObject(i);
+    public void updateUnsentMessage(FrostUnsentMessageObject i) {
+        tableModel.updateFrostUnsentMessageObject(i);
     }
 
     public void saveTableFormat() {
@@ -80,12 +80,12 @@ public class UnsendMessagesTable extends SortedModelTable {
         tableModel.clear();
     }
     
-    private PopupMenuSearch getPopupMenuSearch() {
-        if (popupMenuSearch == null) {
-            popupMenuSearch = new PopupMenuSearch();
-            language.addLanguageListener(popupMenuSearch);
+    private PopupMenu getPopupMenu() {
+        if (popupMenu == null) {
+            popupMenu = new PopupMenu();
+            language.addLanguageListener(popupMenu);
         }
-        return popupMenuSearch;
+        return popupMenu;
     }
 
     private void setupTableFont() {
@@ -106,7 +106,7 @@ public class UnsendMessagesTable extends SortedModelTable {
         if( row > -1 ) {
             ModelItem item = getItemAt(row); //It may be null
             if (item != null) {
-                FrostMessageObject sm = ((UnsendMessagesTableItem) item).getFrostUnsendMessageObject();
+                FrostMessageObject sm = ((UnsentMessagesTableItem) item).getFrostUnsentMessageObject();
                 MessageWindow messageWindow = new MessageWindow( 
                         MainFrame.getInstance(), 
                         sm, 
@@ -131,7 +131,7 @@ public class UnsendMessagesTable extends SortedModelTable {
             } else if (e.isPopupTrigger()) {
                 if ((e.getSource() == getTable())
                     || (e.getSource() == getScrollPane())) {
-                    showSearchTablePopupMenu(e);
+                    showTablePopupMenu(e);
                 }
             }
         }
@@ -141,12 +141,12 @@ public class UnsendMessagesTable extends SortedModelTable {
     
                 if ((e.getSource() == getTable())
                     || (e.getSource() == getScrollPane())) {
-                    showSearchTablePopupMenu(e);
+                    showTablePopupMenu(e);
                 }
             }
         }
     
-        private void showSearchTablePopupMenu(MouseEvent e) {
+        private void showTablePopupMenu(MouseEvent e) {
             // select row where rightclick occurred if row under mouse is NOT selected 
             Point p = e.getPoint();
             int y = getTable().rowAtPoint(p);
@@ -156,15 +156,15 @@ public class UnsendMessagesTable extends SortedModelTable {
             if( !getTable().getSelectionModel().isSelectedIndex(y) ) {
                 getTable().getSelectionModel().setSelectionInterval(y, y);
             }
-            getPopupMenuSearch().show(e.getComponent(), e.getX(), e.getY());
+            getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
         }
     }
 
-    private class PopupMenuSearch extends JSkinnablePopupMenu implements ActionListener, LanguageListener {
+    private class PopupMenu extends JSkinnablePopupMenu implements ActionListener, LanguageListener {
 
         JMenuItem deleteItem = new JMenuItem();
     
-        public PopupMenuSearch() {
+        public PopupMenu() {
             super();
             initialize();
         }
@@ -176,7 +176,7 @@ public class UnsendMessagesTable extends SortedModelTable {
         }
     
         private void refreshLanguage() {
-            deleteItem.setText(language.getString("UnsendMessages.table.popup.deleteMessage"));
+            deleteItem.setText(language.getString("UnsentMessages.table.popup.deleteMessage"));
         }
     
         public void actionPerformed(ActionEvent e) {
@@ -187,12 +187,12 @@ public class UnsendMessagesTable extends SortedModelTable {
         
         private void deleteSelectedMessages() {
             ModelItem[] selectedItems = getSelectedItems();
-            FrostUnsendMessageObject failedItem = tableModel.deleteItems(selectedItems);
+            FrostUnsentMessageObject failedItem = tableModel.deleteItems(selectedItems);
             if( failedItem != null ) {
                 JOptionPane.showMessageDialog(
                         MainFrame.getInstance(),
-                        language.getString("UnsendMessages.deleteNotPossibleDialog.text"), 
-                        language.getString("UnsendMessages.deleteNotPossibleDialog.title"), 
+                        language.getString("UnsentMessages.deleteNotPossibleDialog.text"), 
+                        language.getString("UnsentMessages.deleteNotPossibleDialog.title"), 
                         JOptionPane.ERROR_MESSAGE);
             }
         }
@@ -214,8 +214,8 @@ public class UnsendMessagesTable extends SortedModelTable {
             add(deleteItem);
             
             if (selectedItems.length == 1) {
-                UnsendMessagesTableItem item = (UnsendMessagesTableItem) selectedItems[0];
-                if( item.getFrostUnsendMessageObject().getCurrentUploadThread() != null ) {
+                UnsentMessagesTableItem item = (UnsentMessagesTableItem) selectedItems[0];
+                if( item.getFrostUnsentMessageObject().getCurrentUploadThread() != null ) {
                     deleteItem.setEnabled(false); 
                 }
             }

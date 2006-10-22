@@ -1,5 +1,5 @@
 /*
-  UnsendMessagesTableModel.java / Frost
+  UnsentMessagesTableModel.java / Frost
   Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
@@ -16,54 +16,54 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.gui.unsendmessages;
+package frost.gui.unsentmessages;
 
 import java.util.*;
 
 import frost.messages.*;
 import frost.util.model.*;
 
-public class UnsendMessagesTableModel extends OrderedModel {
+public class UnsentMessagesTableModel extends OrderedModel {
 
-    public UnsendMessagesTableModel() {
+    public UnsentMessagesTableModel() {
         super();
     }
     
     public void loadTableModel() {
-        List msgs = UnsendMessagesManager.getUnsendMessages();
+        List msgs = UnsentMessagesManager.getUnsentMessages();
         for( Iterator i = msgs.iterator(); i.hasNext(); ) {
-            FrostUnsendMessageObject mo = (FrostUnsendMessageObject) i.next();
-            UnsendMessagesTableItem item = new UnsendMessagesTableItem(mo);
-            addSendMessageItem(item);
+            FrostUnsentMessageObject mo = (FrostUnsentMessageObject) i.next();
+            UnsentMessagesTableItem item = new UnsentMessagesTableItem(mo);
+            addUnsentMessageItem(item);
         }
     }
     
-    public void addSendMessageItem(UnsendMessagesTableItem item) {
+    public void addUnsentMessageItem(UnsentMessagesTableItem item) {
         addItem(item);
     }
     
-    public void addFrostUnsendMessageObject( FrostUnsendMessageObject mo ) {
-        UnsendMessagesTableItem item = new UnsendMessagesTableItem(mo);
-        addSendMessageItem(item);
+    public void addFrostUnsentMessageObject( FrostUnsentMessageObject mo ) {
+        UnsentMessagesTableItem item = new UnsentMessagesTableItem(mo);
+        addUnsentMessageItem(item);
     }
 
     /**
      * @param mo  the item to remove from the unsend messages table
      */
-    public void removeFrostUnsendMessageObject( FrostUnsendMessageObject mo ) {
+    public void removeFrostUnsentMessageObject( FrostUnsentMessageObject mo ) {
         for(int x=0; x < getItemCount(); x++) {
-            UnsendMessagesTableItem i = (UnsendMessagesTableItem) getItemAt(x);
-            if( i.getFrostUnsendMessageObject().getMessageId().equals(mo.getMessageId()) ) {
+            UnsentMessagesTableItem i = (UnsentMessagesTableItem) getItemAt(x);
+            if( i.getFrostUnsentMessageObject().getMessageId().equals(mo.getMessageId()) ) {
                 removeItems(new ModelItem[] { i } );
                 return;
             }
         }
     }
 
-    public void updateFrostUnsendMessageObject( FrostUnsendMessageObject mo ) {
+    public void updateFrostUnsentMessageObject( FrostUnsentMessageObject mo ) {
         for(int x=0; x < getItemCount(); x++) {
-            UnsendMessagesTableItem i = (UnsendMessagesTableItem) getItemAt(x);
-            if( i.getFrostUnsendMessageObject().getMessageId().equals(mo.getMessageId()) ) {
+            UnsentMessagesTableItem i = (UnsentMessagesTableItem) getItemAt(x);
+            if( i.getFrostUnsentMessageObject().getMessageId().equals(mo.getMessageId()) ) {
                 i.fireChange();
                 return;
             }
@@ -73,11 +73,11 @@ public class UnsendMessagesTableModel extends OrderedModel {
     /**
      * Returns null if ok, or the item that failed deletion.
      */
-    public FrostUnsendMessageObject deleteItems(ModelItem[] selectedItems) {
+    public FrostUnsentMessageObject deleteItems(ModelItem[] selectedItems) {
         for(int x=0; x < selectedItems.length; x++) {
-            UnsendMessagesTableItem item = (UnsendMessagesTableItem) selectedItems[x];
-            if( !UnsendMessagesManager.deleteMessage(item.getFrostUnsendMessageObject()) ) {
-                return item.getFrostUnsendMessageObject();
+            UnsentMessagesTableItem item = (UnsentMessagesTableItem) selectedItems[x];
+            if( !UnsentMessagesManager.deleteMessage(item.getFrostUnsentMessageObject()) ) {
+                return item.getFrostUnsentMessageObject();
             }
             super.removeItems( new ModelItem[] { item } );
         }

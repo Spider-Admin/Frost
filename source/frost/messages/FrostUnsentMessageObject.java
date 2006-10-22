@@ -1,5 +1,5 @@
 /*
-  FrostUnsendMessageObject.java / Frost
+  FrostUnsentMessageObject.java / Frost
   Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
@@ -27,7 +27,7 @@ import frost.util.*;
 /**
  * Same as FrostMessageObject, but adds some stuff needed only for unsend messages.
  */
-public class FrostUnsendMessageObject extends FrostMessageObject {
+public class FrostUnsentMessageObject extends FrostMessageObject {
 
     private long timeAdded = 0;
     private String timeAddedString = null;
@@ -36,7 +36,7 @@ public class FrostUnsendMessageObject extends FrostMessageObject {
     
     private MessageThread currentUploadThread = null; // is set during upload of message
     
-    public FrostUnsendMessageObject() {
+    public FrostUnsentMessageObject() {
         super();
     }
     
@@ -53,7 +53,7 @@ public class FrostUnsendMessageObject extends FrostMessageObject {
         return timeAddedString;
     }
     
-    public LinkedList getUnsendFileAttachments() {
+    public LinkedList getUnsentFileAttachments() {
         LinkedList result = new LinkedList();
         List fileAttachments = getAttachmentsOfType(Attachment.FILE);
         if( fileAttachments == null || fileAttachments.size() == 0 ) {
@@ -75,7 +75,7 @@ public class FrostUnsendMessageObject extends FrostMessageObject {
     public void setCurrentUploadThread(MessageThread currentUploadThread) {
         this.currentUploadThread = currentUploadThread;
         // update unsend message in unsend messages table
-        MainFrame.getInstance().getMessageInfoPanel().updateUnsendMessage(this);
+        MainFrame.getInstance().getMessageInfoPanel().updateUnsentMessage(this);
     }
 
     //////// currently unused

@@ -1,5 +1,5 @@
 /*
-  UnsendMessagesManager.java / Frost
+  UnsentMessagesManager.java / Frost
   Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
@@ -28,13 +28,13 @@ import frost.storage.database.applayer.*;
 import frost.threads.*;
 
 /**
- * Holds unsend messages, makes changes persistent.
+ * Holds unsent messages, makes changes persistent.
  */
-public class UnsendMessagesManager {
+public class UnsentMessagesManager {
 
-    private static Logger logger = Logger.getLogger(UnsendMessagesManager.class.getName());
+    private static Logger logger = Logger.getLogger(UnsentMessagesManager.class.getName());
     
-    private static LinkedList unsendMessages = new LinkedList();
+    private static LinkedList unsentMessages = new LinkedList();
     private static int runningMessageUploads = 0;
 
     /**
@@ -43,7 +43,7 @@ public class UnsendMessagesManager {
     public static void initialize() {
         List msgs;
         try {
-            msgs = AppLayerDatabase.getUnsendMessageTable().retrieveMessages();
+            msgs = AppLayerDatabase.getUnsentMessageTable().retrieveMessages();
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error retrieving unsend messages", e);
             return;
@@ -52,21 +52,21 @@ public class UnsendMessagesManager {
             return;
         }
         
-        unsendMessages.addAll(msgs);
+        unsentMessages.addAll(msgs);
         
         // initialize the file attachments to upload
-        for(Iterator i = unsendMessages.iterator(); i.hasNext(); ) {
-            FrostUnsendMessageObject msg = (FrostUnsendMessageObject) i.next();
+        for(Iterator i = unsentMessages.iterator(); i.hasNext(); ) {
+            FrostUnsentMessageObject msg = (FrostUnsentMessageObject) i.next();
             FileAttachmentUploadThread.getInstance().checkAndEnqueueNewMessage(msg);
         }
     }
     
-    public static int getUnsendMessageCount() {
-        return unsendMessages.size();
+    public static int getUnsentMessageCount() {
+        return unsentMessages.size();
     }
 
-    public static List getUnsendMessages() {
-        return unsendMessages;
+    public static List getUnsentMessages() {
+        return unsentMessages;
     }
     
     /**
@@ -75,8 +75,8 @@ public class UnsendMessagesManager {
      * @param targetBoard  target board for the message
      * @return  a message, or null
      */
-    public static FrostUnsendMessageObject getUnsendMessage(Board targetBoard) {
-        return getUnsendMessage(targetBoard, null);
+    public static FrostUnsentMessageObject getUnsentMessage(Board targetBoard) {
+        return getUnsentMessage(targetBoard, null);
     }
 
     /**
@@ -88,12 +88,12 @@ public class UnsendMessagesManager {
      * @param targetBoard  target board for the message
      * @return  a message, or null
      */
-    public static FrostUnsendMessageObject getUnsendMessage(Board targetBoard, String fromName) {
-        for(Iterator i = unsendMessages.iterator(); i.hasNext(); ) {
-            FrostUnsendMessageObject mo = (FrostUnsendMessageObject) i.next();
+    public static FrostUnsentMessageObject getUnsentMessage(Board targetBoard, String fromName) {
+        for(Iterator i = unsentMessages.iterator(); i.hasNext(); ) {
+            FrostUnsentMessageObject mo = (FrostUnsentMessageObject) i.next();
             if( mo.getBoard().getPrimaryKey().intValue() == targetBoard.getPrimaryKey().intValue() ) {
                 if( fromName == null || fromName.equals(mo.getFromName()) ) {
-                    if( mo.getUnsendFileAttachments().size() == 0 ) {
+                    if( mo.getUnsentFileAttachments().size() == 0 ) {
                         i.remove();
                         return mo;
                     }
@@ -108,7 +108,7 @@ public class UnsendMessagesManager {
      */
     public static List getBoardsWithSendableMessages() {
         Hashtable ht = new Hashtable();
-        for(Iterator i = unsendMessages.iterator(); i.hasNext(); ) {
+        for(Iterator i = unsentMessages.iterator(); i.hasNext(); ) {
             FrostMessageObject mo = (FrostMessageObject) i.next();
             if( !ht.containsKey(mo.getBoard().getPrimaryKey()) ) {
                 ht.put(mo.getBoard().getPrimaryKey(), mo.getBoard());
@@ -118,57 +118,57 @@ public class UnsendMessagesManager {
         return result;
     }
 
-    public static void addNewUnsendMessage(FrostUnsendMessageObject mo) {
+    public static void addNewUnsentMessage(FrostUnsentMessageObject mo) {
         
         mo.setTimeAdded(System.currentTimeMillis());
         
         try {
-            AppLayerDatabase.getUnsendMessageTable().insertMessage(mo);
+            AppLayerDatabase.getUnsentMessageTable().insertMessage(mo);
         } catch (SQLException e1) {
-            logger.log(Level.SEVERE, "Error inserting unsend message", e1);
+            logger.log(Level.SEVERE, "Error inserting unsent message", e1);
         }
 
-        unsendMessages.add(mo);
+        unsentMessages.add(mo);
         
         // enqueue in file attachment upload thread if needed
         FileAttachmentUploadThread.getInstance().checkAndEnqueueNewMessage(mo);
         
-        MainFrame.getInstance().getMessageInfoPanel().addUnsendMessage(mo);
+        MainFrame.getInstance().getMessageInfoPanel().addUnsentMessage(mo);
     }
 
     /**
      * @return  false if message is currently uploading and delete is not possible
      */
-    public static boolean deleteMessage(FrostUnsendMessageObject unsendMsg) {
+    public static boolean deleteMessage(FrostUnsentMessageObject unsentMsg) {
         
-        if( unsendMsg.getCurrentUploadThread() != null ) {
+        if( unsentMsg.getCurrentUploadThread() != null ) {
             return false; // msg currently uploaded, delete not possible
         }
         
         try {
-            AppLayerDatabase.getUnsendMessageTable().deleteMessage(unsendMsg.getMessageId());
+            AppLayerDatabase.getUnsentMessageTable().deleteMessage(unsentMsg.getMessageId());
         } catch(SQLException ex) {
             logger.log(Level.SEVERE, "Error during delete of unsend message", ex);
         }
         
-        for(Iterator i = unsendMessages.iterator(); i.hasNext(); ) {
-            FrostUnsendMessageObject mo2 = (FrostUnsendMessageObject) i.next();
-            if( unsendMsg.getMessageId().equals(mo2.getMessageId()) ) {
+        for(Iterator i = unsentMessages.iterator(); i.hasNext(); ) {
+            FrostUnsentMessageObject mo2 = (FrostUnsentMessageObject) i.next();
+            if( unsentMsg.getMessageId().equals(mo2.getMessageId()) ) {
                 i.remove();
                 break;
             }
         }
         
-        FileAttachmentUploadThread.getInstance().messageWasDeleted(unsendMsg.getMessageId());
+        FileAttachmentUploadThread.getInstance().messageWasDeleted(unsentMsg.getMessageId());
         
-        MainFrame.getInstance().getMessageInfoPanel().removeUnsendMessage(unsendMsg);
+        MainFrame.getInstance().getMessageInfoPanel().removeUnsentMessage(unsentMsg);
         
         return true;
     }
     
     public static void updateMessageFileAttachmentKey(FrostMessageObject mo, FileAttachment fa) throws SQLException {
         try {
-            AppLayerDatabase.getUnsendMessageTable().updateMessageFileAttachmentKey(mo, fa);
+            AppLayerDatabase.getUnsentMessageTable().updateMessageFileAttachmentKey(mo, fa);
         } catch(SQLException ex) {
             logger.log(Level.SEVERE, "Error updating table", ex);
         }

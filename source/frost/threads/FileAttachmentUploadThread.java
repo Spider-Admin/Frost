@@ -95,7 +95,7 @@ public class FileAttachmentUploadThread extends Thread {
                             title,
                             JOptionPane.ERROR_MESSAGE);
 
-                    UnsendMessagesManager.deleteMessage(msgFileAttachment.getMessageObject());
+                    UnsentMessagesManager.deleteMessage(msgFileAttachment.getMessageObject());
                     
                     continue;
                 }
@@ -131,7 +131,7 @@ System.out.println("FileAttachmentUploadManager: upload finished, key: "+chkKey)
                     if( chkKey != null ) {
                         // upload successful, update message
                         fa.setKey(chkKey);
-                        UnsendMessagesManager.updateMessageFileAttachmentKey(
+                        UnsentMessagesManager.updateMessageFileAttachmentKey(
                                 msgFileAttachment.getMessageObject(), 
                                 msgFileAttachment.getFileAttachment());
                     } else {
@@ -157,8 +157,8 @@ System.out.println("FileAttachmentUploadManager: upload finished, key: "+chkKey)
         msgQueue.deleteAllItemsOfMessage(messageId);
     }
     
-    public void checkAndEnqueueNewMessage(FrostUnsendMessageObject msg) {
-        LinkedList unsend = msg.getUnsendFileAttachments();
+    public void checkAndEnqueueNewMessage(FrostUnsentMessageObject msg) {
+        LinkedList unsend = msg.getUnsentFileAttachments();
         if( unsend != null && unsend.size() > 0 ) {
             for(Iterator i=unsend.iterator(); i.hasNext(); ) {
                 FileAttachment fa = (FileAttachment) i.next();
@@ -217,12 +217,12 @@ System.out.println("FileAttachmentUploadManager: upload finished, key: "+chkKey)
     
     private class MessageFileAttachment {
         
-        private FrostUnsendMessageObject messageObject;
+        private FrostUnsentMessageObject messageObject;
         private FileAttachment fileAttachment;
         
         private boolean isDeleted = false;
         
-        public MessageFileAttachment(FrostUnsendMessageObject mo, FileAttachment fa) {
+        public MessageFileAttachment(FrostUnsentMessageObject mo, FileAttachment fa) {
             messageObject = mo;
             fileAttachment = fa;
         }
@@ -231,7 +231,7 @@ System.out.println("FileAttachmentUploadManager: upload finished, key: "+chkKey)
             return fileAttachment;
         }
 
-        public FrostUnsendMessageObject getMessageObject() {
+        public FrostUnsentMessageObject getMessageObject() {
             return messageObject;
         }
 

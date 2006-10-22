@@ -70,7 +70,7 @@ public class BoardUpdateBoardSelector {
         }
 
         // prefer boards that have waiting sendable messages
-        List boardsWithSendableMsgs = UnsendMessagesManager.getBoardsWithSendableMessages();
+        List boardsWithSendableMsgs = UnsentMessagesManager.getBoardsWithSendableMessages();
         if( !boardsWithSendableMsgs.isEmpty() ) {
             Collections.sort(boardsWithSendableMsgs, lastUpdateStartMillisCmp);
             for(Iterator i=boardsWithSendableMsgs.iterator(); i.hasNext(); ) {

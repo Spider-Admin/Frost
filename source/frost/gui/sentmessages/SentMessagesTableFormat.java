@@ -26,7 +26,7 @@ import javax.swing.*;
 import javax.swing.table.*;
 
 import frost.*;
-import frost.gui.unsendmessages.*;
+import frost.gui.unsentmessages.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
 import frost.util.model.gui.*;
@@ -216,8 +216,8 @@ public class SentMessagesTableFormat extends SortedTableFormat implements Langua
 
     private class BoardComparator implements Comparator {
         public int compare(Object o1, Object o2) {
-            String i1 = ((UnsendMessagesTableItem) o1).getBoardName();
-            String i2 = ((UnsendMessagesTableItem) o2).getBoardName();
+            String i1 = ((UnsentMessagesTableItem) o1).getBoardName();
+            String i2 = ((UnsentMessagesTableItem) o2).getBoardName();
             return i1.compareTo(i2);
         }
     }
