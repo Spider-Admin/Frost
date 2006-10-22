@@ -49,7 +49,6 @@ public class SettingsClass implements Savable {
 
     public static final String COMPACT_DBTABLES = "compactDatabaseTables";
 
-    
     public static final String AVAILABLE_NODES = "availableNodes";
     public static final String AUTO_SAVE_INTERVAL = "autoSaveInterval";
     public static final String DISABLE_FILESHARING = "disableFilesharing";
@@ -74,7 +73,6 @@ public class SettingsClass implements Savable {
     public static final String UPLOAD_RETRIES_WAIT_TIME = "uploadRetriesWaitTime";
     public static final String ALWAYS_DOWNLOAD_MESSAGES_BACKLOAD = "alwaysDownloadMessagesBackload";
     public static final String DOWNLOAD_MAX_THREADS = "downloadThreads";
-    
 
     public static final String MSGTABLE_MULTILINE_SELECT = "messageTableMultilineSelect";
     public static final String MSGTABLE_SCROLL_HORIZONTAL = "messageTableScrollHorizontal";
@@ -83,6 +81,9 @@ public class SettingsClass implements Savable {
     public static final String SHOW_BOARD_UPDATE_VISUALIZATION = "boardUpdateVisualization";
     public static final String DISABLE_SPLASHSCREEN = "disableSplashScreen";
     public static final String SHOW_SYSTRAY_ICON = "showSystrayIcon";
+    
+    public static final String MAX_MESSAGE_DISPLAY = "maxMessageDisplay";
+    public static final String MAX_MESSAGE_DOWNLOAD = "maxMessageDownload";
     
     public static final String HIDE_MESSAGES_OBSERVE = "hideObserveMessages";
     public static final String HIDE_MESSAGES_CHECK = "hideCheckMessages";
@@ -639,8 +640,8 @@ public class SettingsClass implements Savable {
         defaults.put("downloadTryAllSegments", "true");
 
         defaults.put("htlUpload", "21");
-        defaults.put("maxMessageDisplay", "15");
-        defaults.put("maxMessageDownload", "5");
+        defaults.put(MAX_MESSAGE_DISPLAY, "15");
+        defaults.put(MAX_MESSAGE_DOWNLOAD, "5");
         defaults.put(ALWAYS_DOWNLOAD_MESSAGES_BACKLOAD, "false");
         
         defaults.put(MIN_DAYS_BEFORE_FILE_RESHARE, "3"); // reshare all 3 days

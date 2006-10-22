@@ -190,11 +190,9 @@ public class TofTreeXmlIO
         }
     }
 
-    private void getBoardConfiguration( Element element, Board board )
-    {
+    private void getBoardConfiguration( Element element, Board board ) {
         List list = XMLTools.getChildElementsByTagName(element, "config");
-        if( list.size() == 0 )
-        {
+        if( list.size() == 0 ) {
             board.setConfigured( false );
             return;
         }
@@ -206,10 +204,18 @@ public class TofTreeXmlIO
         board.setAutoUpdateEnabled( Boolean.valueOf(val).booleanValue() );
 
         val = element.getAttribute("maxMessageDisplay");
-        if( val.length() == 0 )
+        if( val.length() == 0 ) {
             board.setMaxMessageDays( null );
-        else
+        } else {
             board.setMaxMessageDays( new Integer(val) );
+        }
+
+        val = element.getAttribute("maxMessageDownload");
+        if( val.length() == 0 ) {
+            board.setMaxMessageDownload( null );
+        } else {
+            board.setMaxMessageDownload( new Integer(val) );
+        }
 
         val = element.getAttribute("showSignedOnly");
         if( val.length() == 0 )
@@ -441,6 +447,9 @@ public class TofTreeXmlIO
             if( board.getMaxMessageDisplayObj() != null ) {
                 element.setAttribute("maxMessageDisplay", "" + board.getMaxMessageDisplay());
             }
+            if( board.getMaxMessageDownloadObj() != null ) {
+                element.setAttribute("maxMessageDownload", "" + board.getMaxMessageDownload());
+            }
             if( board.getShowSignedOnlyObj() != null ) {
                 element.setAttribute("showSignedOnly", "" + board.getShowSignedOnly());
             }
@@ -465,7 +474,7 @@ public class TofTreeXmlIO
         }
 
         // append lastBackloadUpdateStartedMillis
-        if( board.getLastUpdateStartMillis() > 0 ) {
+        if( board.getLastBackloadUpdateStartMillis() > 0 ) {
             element = doc.createElement("lastBackloadUpdateStartedMillis");
             Text text = doc.createTextNode("" + board.getLastBackloadUpdateStartMillis());
             element.appendChild(text);

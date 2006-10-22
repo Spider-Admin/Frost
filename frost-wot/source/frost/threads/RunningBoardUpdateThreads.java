@@ -57,7 +57,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
         MessageThread tofd = new MessageThread(
                 true,
                 board,
-                config.getIntValue("maxMessageDownload"));
+                board.getMaxMessageDownload());
 
         // register listener and this class as listener
         tofd.addBoardUpdateThreadListener(this);
@@ -84,7 +84,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
     {
         int daysBackward;
         if( downloadCompleteBackload ) {
-            daysBackward = config.getIntValue("maxMessageDownload");
+            daysBackward = board.getMaxMessageDownload();
         } else {
             daysBackward = 1;
         }
