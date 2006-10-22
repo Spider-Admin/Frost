@@ -35,8 +35,8 @@ import frost.util.gui.translation.*;
  */
 public class BoardSettingsFrame extends JDialog {
 
-    // FIXME: configure maxDaysBack (retrieve) in board configuration instead of a global setting
-    
+//  private static Logger logger = Logger.getLogger(BoardSettingsFrame.class.getName());
+
     private class Listener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() == publicBoardRadioButton) { // Public board radio button
@@ -54,8 +54,6 @@ public class BoardSettingsFrame extends JDialog {
             }
         }
     }
-
-//    private static Logger logger = Logger.getLogger(BoardSettingsFrame.class.getName());
 
     private Language language;
     private Board board;
@@ -84,10 +82,15 @@ public class BoardSettingsFrame extends JDialog {
     private JLabel hideObserveMessagesLabel = new JLabel();
     private JLabel hideUnsignedMessagesLabel = new JLabel();
 
-    private JRadioButton maxMsg_default = new JRadioButton();
-    private JRadioButton maxMsg_set = new JRadioButton();
-    private JTextField maxMsg_value = new JTextField(6);
-    private JLabel messageDisplayDaysLabel = new JLabel();
+    private JRadioButton maxMessageDisplay_default = new JRadioButton();
+    private JRadioButton maxMessageDisplay_set = new JRadioButton();
+    private JTextField maxMessageDisplay_value = new JTextField(6);
+    private JLabel maxMessageDisplayDaysLabel = new JLabel();
+
+    private JRadioButton maxMessageDownload_default = new JRadioButton();
+    private JRadioButton maxMessageDownload_set = new JRadioButton();
+    private JTextField maxMessageDownload_value = new JTextField(6);
+    private JLabel maxMessageDownloadDaysLabel = new JLabel();
 
     private JButton okButton = new JButton();
 
@@ -183,8 +186,11 @@ public class BoardSettingsFrame extends JDialog {
         settingsPanel.setLayout(new GridBagLayout());
 
         ButtonGroup bg2 = new ButtonGroup();
-        bg2.add(maxMsg_default);
-        bg2.add(maxMsg_set);
+        bg2.add(maxMessageDisplay_default);
+        bg2.add(maxMessageDisplay_set);
+        ButtonGroup bg1 = new ButtonGroup();
+        bg1.add(maxMessageDownload_default);
+        bg1.add(maxMessageDownload_set);
         ButtonGroup bg3 = new ButtonGroup();
         bg3.add(signedOnly_default);
         bg3.add(signedOnly_false);
@@ -213,26 +219,42 @@ public class BoardSettingsFrame extends JDialog {
 
         constraints.gridwidth = 3;
         settingsPanel.add(overrideSettingsCheckBox, constraints);
-        constraints.gridy = 1;
+        constraints.gridy++;
         constraints.insets = new Insets(5, 25, 0, 5);
         settingsPanel.add(autoUpdateEnabled, constraints);
-        constraints.gridy = 2;
+        constraints.gridy++;
 
         constraints.gridwidth = 3;
         constraints.gridx = 0;
         constraints.insets = new Insets(3, 25, 0, 5);
-        settingsPanel.add(messageDisplayDaysLabel, constraints);
+        settingsPanel.add(maxMessageDisplayDaysLabel, constraints);
         constraints.insets = new Insets(0, 35, 0, 5);
         constraints.gridwidth = 1;
-        constraints.gridy = 3;
+        constraints.gridy++;
         constraints.gridx = 0;
-        settingsPanel.add(maxMsg_default, constraints);
+        settingsPanel.add(maxMessageDisplay_default, constraints);
         constraints.insets = new Insets(0, 0, 0, 5);
         constraints.gridx = 1;
-        settingsPanel.add(maxMsg_set, constraints);
+        settingsPanel.add(maxMessageDisplay_set, constraints);
         constraints.gridx = 2;
-        settingsPanel.add(maxMsg_value, constraints);
-        constraints.gridy = 4;
+        settingsPanel.add(maxMessageDisplay_value, constraints);
+        constraints.gridy++;
+
+        constraints.gridwidth = 3;
+        constraints.gridx = 0;
+        constraints.insets = new Insets(3, 25, 0, 5);
+        settingsPanel.add(maxMessageDownloadDaysLabel, constraints);
+        constraints.insets = new Insets(0, 35, 0, 5);
+        constraints.gridwidth = 1;
+        constraints.gridy++;
+        constraints.gridx = 0;
+        settingsPanel.add(maxMessageDownload_default, constraints);
+        constraints.insets = new Insets(0, 0, 0, 5);
+        constraints.gridx = 1;
+        settingsPanel.add(maxMessageDownload_set, constraints);
+        constraints.gridx = 2;
+        settingsPanel.add(maxMessageDownload_value, constraints);
+        constraints.gridy++;
 
         constraints.gridwidth = 3;
         constraints.gridx = 0;
@@ -240,7 +262,7 @@ public class BoardSettingsFrame extends JDialog {
         settingsPanel.add(hideUnsignedMessagesLabel, constraints);
         constraints.insets = new Insets(0, 35, 0, 5);
         constraints.gridwidth = 1;
-        constraints.gridy = 5;
+        constraints.gridy++;
         constraints.gridx = 0;
         settingsPanel.add(signedOnly_default, constraints);
         constraints.insets = new Insets(0, 0, 0, 5);
@@ -248,7 +270,7 @@ public class BoardSettingsFrame extends JDialog {
         settingsPanel.add(signedOnly_true, constraints);
         constraints.gridx = 2;
         settingsPanel.add(signedOnly_false, constraints);
-        constraints.gridy = 6;
+        constraints.gridy++;
 
         constraints.gridwidth = 3;
         constraints.gridx = 0;
@@ -256,7 +278,7 @@ public class BoardSettingsFrame extends JDialog {
         settingsPanel.add(hideBadMessagesLabel, constraints);
         constraints.insets = new Insets(0, 35, 0, 5);
         constraints.gridwidth = 1;
-        constraints.gridy = 7;
+        constraints.gridy++;
         constraints.gridx = 0;
         settingsPanel.add(hideBad_default, constraints);
         constraints.insets = new Insets(0, 0, 0, 5);
@@ -264,7 +286,7 @@ public class BoardSettingsFrame extends JDialog {
         settingsPanel.add(hideBad_true, constraints);
         constraints.gridx = 2;
         settingsPanel.add(hideBad_false, constraints);
-        constraints.gridy = 8;
+        constraints.gridy++;
 
         constraints.gridwidth = 3;
         constraints.gridx = 0;
@@ -272,7 +294,7 @@ public class BoardSettingsFrame extends JDialog {
         settingsPanel.add(hideCheckMessagesLabel, constraints);
         constraints.insets = new Insets(0, 35, 0, 5);
         constraints.gridwidth = 1;
-        constraints.gridy = 9;
+        constraints.gridy++;
         constraints.gridx = 0;
         settingsPanel.add(hideCheck_default, constraints);
         constraints.insets = new Insets(0, 0, 0, 5);
@@ -280,7 +302,7 @@ public class BoardSettingsFrame extends JDialog {
         settingsPanel.add(hideCheck_true, constraints);
         constraints.gridx = 2;
         settingsPanel.add(hideCheck_false, constraints);
-        constraints.gridy = 10;
+        constraints.gridy++;
 
         constraints.gridwidth = 3;
         constraints.gridx = 0;
@@ -288,7 +310,7 @@ public class BoardSettingsFrame extends JDialog {
         settingsPanel.add(hideObserveMessagesLabel, constraints);
         constraints.insets = new Insets(0, 35, 5, 5);
         constraints.gridwidth = 1;
-        constraints.gridy = 11;
+        constraints.gridy++;
         constraints.gridx = 0;
         settingsPanel.add(hideObserve_default, constraints);
         constraints.insets = new Insets(0, 0, 0, 5);
@@ -313,7 +335,8 @@ public class BoardSettingsFrame extends JDialog {
         refreshLanguage();
 
         // Adds all of the components
-        new TextComponentClipboardMenu(maxMsg_value, language);
+        new TextComponentClipboardMenu(maxMessageDisplay_value, language);
+        new TextComponentClipboardMenu(maxMessageDownload_value, language);
         new TextComponentClipboardMenu(privateKeyTextField, language);
         new TextComponentClipboardMenu(publicKeyTextField, language);
         new TextComponentClipboardMenu(descriptionTextArea, language);
@@ -461,10 +484,17 @@ public class BoardSettingsFrame extends JDialog {
             overrideSettingsCheckBox.setSelected(board.isConfigured());
 
             if (!board.isConfigured() || board.getMaxMessageDisplayObj() == null)
-                maxMsg_default.setSelected(true);
+                maxMessageDisplay_default.setSelected(true);
             else {
-                maxMsg_set.setSelected(true);
-                maxMsg_value.setText("" + board.getMaxMessageDisplay());
+                maxMessageDisplay_set.setSelected(true);
+                maxMessageDisplay_value.setText("" + board.getMaxMessageDisplay());
+            }
+
+            if (!board.isConfigured() || board.getMaxMessageDownloadObj() == null)
+                maxMessageDownload_default.setSelected(true);
+            else {
+                maxMessageDownload_set.setSelected(true);
+                maxMessageDownload_value.setText("" + board.getMaxMessageDownload());
             }
 
             if (!board.isConfigured())
@@ -594,11 +624,18 @@ public class BoardSettingsFrame extends JDialog {
 
             b.setAutoUpdateEnabled(autoUpdateEnabled.isSelected());
 
-            if( maxMsg_default.isSelected() || maxMsg_set.isSelected() ) {
-                if (maxMsg_default.isSelected() == false) {
-                    b.setMaxMessageDays(new Integer(maxMsg_value.getText()));
+            if( maxMessageDisplay_default.isSelected() || maxMessageDisplay_set.isSelected() ) {
+                if (maxMessageDisplay_default.isSelected() == false) {
+                    b.setMaxMessageDays(new Integer(maxMessageDisplay_value.getText()));
                 } else {
                     b.setMaxMessageDays(null);
+                }
+            }
+            if( maxMessageDownload_default.isSelected() || maxMessageDownload_set.isSelected() ) {
+                if (maxMessageDownload_default.isSelected() == false) {
+                    b.setMaxMessageDownload(new Integer(maxMessageDownload_value.getText()));
+                } else {
+                    b.setMaxMessageDownload(null);
                 }
             }
             if( signedOnly_default.isSelected() || signedOnly_true.isSelected() || signedOnly_false.isSelected() ) {
@@ -664,10 +701,15 @@ public class BoardSettingsFrame extends JDialog {
         if (overrideSettingsCheckBox.isSelected()) {
             board.setConfigured(true);
             board.setAutoUpdateEnabled(autoUpdateEnabled.isSelected());
-            if (maxMsg_default.isSelected() == false) {
-                board.setMaxMessageDays(new Integer(maxMsg_value.getText()));
+            if (maxMessageDisplay_default.isSelected() == false) {
+                board.setMaxMessageDays(new Integer(maxMessageDisplay_value.getText()));
             } else {
                 board.setMaxMessageDays(null);
+            }
+            if (maxMessageDownload_default.isSelected() == false) {
+                board.setMaxMessageDownload(new Integer(maxMessageDownload_value.getText()));
+            } else {
+                board.setMaxMessageDownload(null);
             }
             if (signedOnly_default.isSelected() == false) {
                 board.setShowSignedOnly(Boolean.valueOf(signedOnly_true.isSelected()));
@@ -763,8 +805,10 @@ public class BoardSettingsFrame extends JDialog {
         String useDefault = language.getString("BoardSettings.label.useDefault");
         String yes = language.getString("BoardSettings.label.yes");
         String no  = language.getString("BoardSettings.label.no");
-        maxMsg_default.setText(useDefault);
-        maxMsg_set.setText(language.getString("BoardSettings.label.setTo") + ":");
+        maxMessageDisplay_default.setText(useDefault);
+        maxMessageDisplay_set.setText(language.getString("BoardSettings.label.setTo") + ":");
+        maxMessageDownload_default.setText(useDefault);
+        maxMessageDownload_set.setText(language.getString("BoardSettings.label.setTo") + ":");
         signedOnly_default.setText(useDefault);
         signedOnly_true.setText(yes);
         signedOnly_false.setText(no);
@@ -781,7 +825,8 @@ public class BoardSettingsFrame extends JDialog {
 
         publicKeyLabel.setText(language.getString("BoardSettings.label.publicKey") + " :");
         privateKeyLabel.setText(language.getString("BoardSettings.label.privateKey") + " :");
-        messageDisplayDaysLabel.setText(language.getString("BoardSettings.label.maximumMessageDisplay"));
+        maxMessageDisplayDaysLabel.setText(language.getString("BoardSettings.label.maximumMessageDisplay"));
+        maxMessageDownloadDaysLabel.setText(language.getString("BoardSettings.label.maximumMessageDownload")); // FIXME
         hideUnsignedMessagesLabel.setText(language.getString("BoardSettings.label.hideUnsignedMessages"));
         hideBadMessagesLabel.setText(language.getString("BoardSettings.label.hideBadMessages"));
         hideCheckMessagesLabel.setText(language.getString("BoardSettings.label.hideCheckMessages"));

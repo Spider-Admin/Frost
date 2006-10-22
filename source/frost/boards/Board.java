@@ -51,6 +51,7 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
     private long lastBackloadUpdateStartMillis = -1; // never updated
     // following: if set to null then the default will be returned
     private Integer maxMessageDisplay = null;
+    private Integer maxMessageDownload = null;
 
     private int newMessageCount = 0;
     private int numberBlocked = 0; // number of blocked messages for this board
@@ -227,13 +228,23 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
     public int getMaxMessageDisplay() {
         if (!isConfigured() || maxMessageDisplay == null) {
             // return default
-            return Core.frostSettings.getIntValue("maxMessageDisplay");
+            return Core.frostSettings.getIntValue(SettingsClass.MAX_MESSAGE_DISPLAY);
         }
         return maxMessageDisplay.intValue();
     }
-
     public Integer getMaxMessageDisplayObj() {
         return maxMessageDisplay;
+    }
+
+    public int getMaxMessageDownload() {
+        if (!isConfigured() || maxMessageDownload == null) {
+            // return default
+            return Core.frostSettings.getIntValue(SettingsClass.MAX_MESSAGE_DOWNLOAD);
+        }
+        return maxMessageDownload.intValue();
+    }
+    public Integer getMaxMessageDownloadObj() {
+        return maxMessageDownload;
     }
 
     public int getNewMessageCount() {
@@ -367,6 +378,10 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
 
     public void setMaxMessageDays(Integer val) {
         maxMessageDisplay = val;
+    }
+
+    public void setMaxMessageDownload(Integer val) {
+        maxMessageDownload = val;
     }
 
     public void setNewMessageCount(int val) {

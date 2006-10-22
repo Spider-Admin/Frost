@@ -140,8 +140,8 @@ class NewsPanel extends JPanel {
     private void loadSettings() {
         uploadHtlTextField.setText(settings.getValue("tofUploadHtl"));
         downloadHtlTextField.setText(settings.getValue("tofDownloadHtl"));
-        displayDaysTextField.setText(settings.getValue("maxMessageDisplay"));
-        downloadDaysTextField.setText(settings.getValue("maxMessageDownload"));
+        displayDaysTextField.setText(settings.getValue(SettingsClass.MAX_MESSAGE_DISPLAY));
+        downloadDaysTextField.setText(settings.getValue(SettingsClass.MAX_MESSAGE_DOWNLOAD));
         messageBaseTextField.setText(settings.getValue("messageBase"));
         alwaysDownloadBackloadCheckBox.setSelected(settings.getBoolValue(SettingsClass.ALWAYS_DOWNLOAD_MESSAGES_BACKLOAD));
     }
@@ -166,8 +166,8 @@ class NewsPanel extends JPanel {
     private void saveSettings() {
         settings.setValue("tofUploadHtl", uploadHtlTextField.getText());
         settings.setValue("tofDownloadHtl", downloadHtlTextField.getText());
-        settings.setValue("maxMessageDisplay", displayDaysTextField.getText());
-        settings.setValue("maxMessageDownload", downloadDaysTextField.getText());
+        settings.setValue(SettingsClass.MAX_MESSAGE_DISPLAY, displayDaysTextField.getText());
+        settings.setValue(SettingsClass.MAX_MESSAGE_DOWNLOAD, downloadDaysTextField.getText());
         settings.setValue("messageBase", messageBaseTextField.getText().trim().toLowerCase());
         settings.setValue(SettingsClass.ALWAYS_DOWNLOAD_MESSAGES_BACKLOAD, alwaysDownloadBackloadCheckBox.isSelected());
     }

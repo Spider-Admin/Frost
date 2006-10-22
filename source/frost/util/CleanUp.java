@@ -62,7 +62,7 @@ public class CleanUp {
         processExpiredMessages(boardList, mode);
         
         // ALWAYS cleanup following
-        cleanupIndexSlotTables();
+        cleanupIndexSlotTables(boardList);
         cleanupSharedChkKeyTable();
     }
 
@@ -87,19 +87,20 @@ public class CleanUp {
         // take maximum
         int defaultDaysOld = Core.frostSettings.getIntValue("messageExpireDays") + 1;
 
-        if( defaultDaysOld < Core.frostSettings.getIntValue("maxMessageDisplay") ) {
-            defaultDaysOld = Core.frostSettings.getIntValue("maxMessageDisplay") + 1;
+        if( defaultDaysOld < Core.frostSettings.getIntValue(SettingsClass.MAX_MESSAGE_DISPLAY) ) {
+            defaultDaysOld = Core.frostSettings.getIntValue(SettingsClass.MAX_MESSAGE_DISPLAY) + 1;
         }
-        if( defaultDaysOld < Core.frostSettings.getIntValue("maxMessageDownload") ) {
-            defaultDaysOld = Core.frostSettings.getIntValue("maxMessageDownload") + 1;
+        if( defaultDaysOld < Core.frostSettings.getIntValue(SettingsClass.MAX_MESSAGE_DOWNLOAD) ) {
+            defaultDaysOld = Core.frostSettings.getIntValue(SettingsClass.MAX_MESSAGE_DOWNLOAD) + 1;
         }
 
         for(Iterator i=boardList.iterator(); i.hasNext(); ) {
 
             int currentDaysOld = defaultDaysOld;
             Board board = (Board)i.next();
-            if( board.isConfigured() && board.getMaxMessageDisplay() > currentDaysOld ) {
-                currentDaysOld = board.getMaxMessageDisplay();
+            if( board.isConfigured() ) {
+                currentDaysOld = Math.max(board.getMaxMessageDisplay(), currentDaysOld);
+                currentDaysOld = Math.max(board.getMaxMessageDownload(), currentDaysOld);
             }
             
             if( mode == ARCHIVE_MESSAGES ) {
@@ -158,9 +159,17 @@ public class CleanUp {
      * Cleanup old indexslot table entries.
      * Keep indices files for maxMessageDownload*2 days, but at least MINIMUM_DAYS_OLD days.
      */
-    private static void cleanupIndexSlotTables() {
-        
-        int maxDaysOld = Core.frostSettings.getIntValue("maxMessageDownload") * 2;
+    private static void cleanupIndexSlotTables(List boardList) {
+
+        int maxDaysOld = Core.frostSettings.getIntValue(SettingsClass.MAX_MESSAGE_DOWNLOAD) * 2;
+
+        // max from any board
+        for( Iterator i=boardList.iterator(); i.hasNext(); ) {
+            Board board = (Board) i.next();
+            if( board.isConfigured() ) {
+                maxDaysOld = Math.max(board.getMaxMessageDownload(), maxDaysOld);
+            }
+        }
         if( maxDaysOld < MINIMUM_DAYS_OLD ) {
             maxDaysOld = MINIMUM_DAYS_OLD;
         }
