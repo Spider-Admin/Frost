@@ -427,16 +427,28 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
     
     /**
      * Returns true if board is allowed to be updated.
+     * If a board is already updating only not running threads will be started.
+     */
+    public boolean isManualUpdateAllowed() {
+        if ( isFolder() || isSpammed() ) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * Returns true if board is allowed to be updated.
      * Also checks if board update is already running.
      */
-    public boolean isUpdateAllowed() {
+    public boolean isAutomaticUpdateAllowed() {
         if ( isFolder() || isSpammed() || isUpdating() ) {
             return false;
         } else {
             return true;
         }
     }
-    
+
     /**
      * Tells the board that a new message was received right now.
      * Needed for selective board update.

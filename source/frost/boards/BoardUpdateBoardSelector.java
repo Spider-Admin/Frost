@@ -99,7 +99,7 @@ public class BoardUpdateBoardSelector {
         for (Iterator i=allBoards.iterator(); i.hasNext(); ) {
             board = (Board)i.next();
             if (nextBoard == null
-                && board.isUpdateAllowed()
+                && board.isAutomaticUpdateAllowed()
                 && (curTime - minUpdateIntervalMillis) > board.getLastUpdateStartMillis() // minInterval
                 && ( (board.isConfigured() && board.getAutoUpdateEnabled())
                       || !board.isConfigured()) ) 
