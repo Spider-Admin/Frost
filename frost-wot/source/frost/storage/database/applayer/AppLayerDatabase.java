@@ -182,16 +182,19 @@ public class AppLayerDatabase implements Savable {
             instance.ensureTables(lst);
             
             if( compactTables ) {
-                compactDatabaseTables(lst);
+                instance.compactDatabaseTables(lst);
             }
         } else {
             System.out.println("ERROR: AppLayerDatabase already initialized!");
         }
     }
     
-    private static void compactDatabaseTables(List lst) throws SQLException {
+    private void compactDatabaseTables(List lst) throws SQLException {
         System.out.println("Compacting database tables...");
         long beforeTime = System.currentTimeMillis();
+        
+        setAutoCommitOff();
+        
         Statement stmt = instance.createStatement();
         for( Iterator i = lst.iterator(); i.hasNext(); ) {
             AbstractDatabaseTable table = (AbstractDatabaseTable) i.next();
@@ -203,6 +206,11 @@ public class AppLayerDatabase implements Savable {
             }
         }
         stmt.close();
+        
+        commit();
+        
+        setAutoCommitOn();
+        
         long afterTime = System.currentTimeMillis();
         System.out.println("Finished compact of database tables, duration "+(afterTime - beforeTime)+" ms");
     }

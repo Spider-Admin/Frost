@@ -142,7 +142,7 @@ class NewsPanel extends JPanel {
         downloadHtlTextField.setText(settings.getValue("tofDownloadHtl"));
         displayDaysTextField.setText(settings.getValue(SettingsClass.MAX_MESSAGE_DISPLAY));
         downloadDaysTextField.setText(settings.getValue(SettingsClass.MAX_MESSAGE_DOWNLOAD));
-        messageBaseTextField.setText(settings.getValue("messageBase"));
+        messageBaseTextField.setText(settings.getValue(SettingsClass.MESSAGE_BASE));
         alwaysDownloadBackloadCheckBox.setSelected(settings.getBoolValue(SettingsClass.ALWAYS_DOWNLOAD_MESSAGES_BACKLOAD));
     }
 
@@ -168,7 +168,7 @@ class NewsPanel extends JPanel {
         settings.setValue("tofDownloadHtl", downloadHtlTextField.getText());
         settings.setValue(SettingsClass.MAX_MESSAGE_DISPLAY, displayDaysTextField.getText());
         settings.setValue(SettingsClass.MAX_MESSAGE_DOWNLOAD, downloadDaysTextField.getText());
-        settings.setValue("messageBase", messageBaseTextField.getText().trim().toLowerCase());
+        settings.setValue(SettingsClass.MESSAGE_BASE, messageBaseTextField.getText().trim().toLowerCase());
         settings.setValue(SettingsClass.ALWAYS_DOWNLOAD_MESSAGES_BACKLOAD, alwaysDownloadBackloadCheckBox.isSelected());
     }
 }

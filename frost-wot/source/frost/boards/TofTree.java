@@ -473,10 +473,10 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             if (showBoardUpdateVisualization && board.isUpdating() == true) {
                 // set special updating colors
                 Color c;
-                c = (Color) settings.getObjectValue("boardUpdatingNonSelectedBackgroundColor");
+                c = (Color) settings.getObjectValue(SettingsClass.BOARD_UPDATE_VISUALIZATION_BGCOLOR_NOT_SELECTED);
                 setBackgroundNonSelectionColor(c);
 
-                c = (Color) settings.getObjectValue("boardUpdatingSelectedBackgroundColor");
+                c = (Color) settings.getObjectValue(SettingsClass.BOARD_UPDATE_VISUALIZATION_BGCOLOR_SELECTED);
                 setBackgroundSelectionColor(c);
 
             } else {
@@ -644,7 +644,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
      */
     private boolean loadTree() {
         TofTreeXmlIO xmlio = new TofTreeXmlIO();
-        String boardIniFilename = settings.getValue("config.dir") + "boards.xml";
+        String boardIniFilename = settings.getValue(SettingsClass.DIR_CONFIG) + "boards.xml";
         // the call changes the toftree and loads nodes into it
         File iniFile = new File(boardIniFilename);
         if( iniFile.exists() == false ) {
@@ -655,7 +655,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             } else {
                 defaultBoardsFile = "boards.xml.default07";
             }
-            boardIniFilename = settings.getValue("config.dir") + defaultBoardsFile;
+            boardIniFilename = settings.getValue(SettingsClass.DIR_CONFIG) + defaultBoardsFile;
         }
         
         boolean loadWasOk = xmlio.loadBoardTree( this, model, boardIniFilename );
@@ -699,11 +699,11 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
      */
     public void save() throws StorageException {
         TofTreeXmlIO xmlio = new TofTreeXmlIO();
-        String boardIniFilename = settings.getValue("config.dir") + "boards.xml";
+        String boardIniFilename = settings.getValue(SettingsClass.DIR_CONFIG) + "boards.xml";
         File check = new File( boardIniFilename );
         if( check.exists() ) {
             // rename old file to .bak, overwrite older .bak
-            String bakBoardIniFilename = settings.getValue("config.dir") + "boards.xml.bak";
+            String bakBoardIniFilename = settings.getValue(SettingsClass.DIR_CONFIG) + "boards.xml.bak";
             File bakFile = new File(bakBoardIniFilename);
             if( bakFile.exists() ) {
                 bakFile.delete();
@@ -839,20 +839,18 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             return;
         }
 
+        // FIXME: translate, ask user if delete this board from DB too.
+        //  -> implement a way to reattach to boards in DB!
+        
         // ask user if to delete board directory also
         boolean deleteDirectory = false;
-        String boardRelDir = settings.getValue("keypool.dir") + node.getBoardFilename();
         if (node.isFolder() == false) {
             txt =
-                "Do you want to delete also the board directory '"
-                    + boardRelDir
-                    + "' ?\n"
-                    + "This directory contains all received messages and file lists for this board.\n"
+                "Do you want to delete the board from the database too?\n"
                     + "(NOTE: The board MUST not updating to delete it!\n"
                     + "Currently there is no way to stop the updating of a board,\n"
                     + "so please ensure this board is'nt updating right now,\n"
-                    + "or you have to live with the consequences ;) )\n\n"
-                    + "You can also delete the directory by yourself after shutdown of Frost.";
+                    + "or you have to live with the consequences ;) )";
             answer = JOptionPane.showConfirmDialog(
                     this,
                     txt,

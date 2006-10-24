@@ -105,7 +105,7 @@ public class FecSplitfile
 
         fillSegmentValues( this.encoder );
 
-        // working files are placed in keypool
+        // working files are placed in localdata
         // they get name:
         //  c:\myfiles\datafile.abc  -->  _c_myfiles_datafile.abc
         // /home/user/datafile.abc   -->  _home_user_datafile.abc
@@ -121,8 +121,8 @@ public class FecSplitfile
         // now convert all file.separator (e.g. / or \) to _
         filename = filename.replace(System.getProperty("file.separator").charAt(0), '_');
 
-        // append keypool dir and a _ before filename
-        filename = Core.frostSettings.getValue("keypool.dir") + "_" + filename;
+        // append localdata dir and a _ before filename
+        filename = Core.frostSettings.getValue(SettingsClass.DIR_LOCALDATA) + "_" + filename;
 
         logger.fine("DBG-ULFILENAME="+filename);
 

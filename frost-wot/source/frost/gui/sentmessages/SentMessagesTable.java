@@ -58,6 +58,7 @@ public class SentMessagesTable extends SortedModelTable {
     
     public void addSentMessage(FrostMessageObject i) {
         tableModel.addFrostMessageObject(i);
+        MainFrame.getInstance().getMessageInfoPanel().updateSentMessagesCount();
     }
     
     public void saveTableFormat() {
@@ -66,6 +67,7 @@ public class SentMessagesTable extends SortedModelTable {
     
     public void loadTableModel() {
         tableModel.loadTableModel();
+        MainFrame.getInstance().getMessageInfoPanel().updateSentMessagesCount();
     }
     
     public void clearTableModel() {
@@ -180,6 +182,7 @@ public class SentMessagesTable extends SortedModelTable {
         private void deleteSelectedMessages() {
             ModelItem[] selectedItems = getSelectedItems();
             tableModel.removeItems(selectedItems);
+            MainFrame.getInstance().getMessageInfoPanel().updateSentMessagesCount();
         }
     
         public void languageChanged(LanguageEvent event) {

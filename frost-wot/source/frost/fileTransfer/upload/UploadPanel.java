@@ -122,7 +122,7 @@ public class UploadPanel extends JPanel {
 
     public void uploadAddFilesButton_actionPerformed(ActionEvent e) {
 
-        final JFileChooser fc = new JFileChooser(Core.frostSettings.getValue("lastUsedDirectory"));
+        final JFileChooser fc = new JFileChooser(Core.frostSettings.getValue(SettingsClass.DIR_LAST_USED));
         fc.setDialogTitle(language.getString("UploadPane.filechooser.title"));
         fc.setFileHidingEnabled(true);
         fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
@@ -152,7 +152,7 @@ public class UploadPanel extends JPanel {
             }
         }
         if( parentDir != null ) {
-            Core.frostSettings.setValue("lastUsedDirectory", parentDir);
+            Core.frostSettings.setValue(SettingsClass.DIR_LAST_USED, parentDir);
         }
 
         for(Iterator i=uploadFileItems.iterator(); i.hasNext(); ) {

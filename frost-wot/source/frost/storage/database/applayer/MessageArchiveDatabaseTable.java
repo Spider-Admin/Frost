@@ -148,7 +148,7 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
         stmt.close();
         
         int i=1;
-        ps.setLong(i++, identity.longValue()); // messageid
+        ps.setLong(i++, identity.longValue()); // primkey
         ps.setString(i++, mo.getMessageId()); // messageid
         ps.setString(i++, mo.getInReplyTo()); // inreplyto
         ps.setBoolean(i++, mo.isValid()); // isvalid

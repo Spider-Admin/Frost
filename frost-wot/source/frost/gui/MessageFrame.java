@@ -117,7 +117,7 @@ public class MessageFrame extends JFrame {
             tofFont = new Font("Monospaced", fontStyle, fontSize);
         }
         messageTextArea.setFont(tofFont);
-        messageTextArea.setAntiAliasEnabled(frostSettings.getBoolValue("messageBodyAA"));
+        messageTextArea.setAntiAliasEnabled(frostSettings.getBoolValue(SettingsClass.MESSAGE_BODY_ANTIALIAS));
         ImmutableAreasDocument messageDocument = new ImmutableAreasDocument();
         headerArea = new ImmutableArea(messageDocument);
         messageDocument.addImmutableArea(headerArea); // user must not change the header of the message
@@ -166,7 +166,7 @@ public class MessageFrame extends JFrame {
     }
 
     private void attachFile_actionPerformed(ActionEvent e) {
-        String lastUsedDirectory = frostSettings.getValue("lastUsedDirectory");
+        String lastUsedDirectory = frostSettings.getValue(SettingsClass.DIR_LAST_USED);
         final JFileChooser fc = new JFileChooser(lastUsedDirectory);
         fc.setDialogTitle(language.getString("MessageFrame.fileChooser.title"));
         fc.setFileHidingEnabled(false);
@@ -178,7 +178,7 @@ public class MessageFrame extends JFrame {
             File[] selectedFiles = fc.getSelectedFiles();
             for( int i = 0; i < selectedFiles.length; i++ ) {
                 // for convinience remember last used directory
-                frostSettings.setValue("lastUsedDirectory", selectedFiles[i].getPath());
+                frostSettings.setValue(SettingsClass.DIR_LAST_USED, selectedFiles[i].getPath());
 
                 // collect all choosed files + files in all choosed directories
                 ArrayList allFiles = FileAccess.getAllEntries(selectedFiles[i], "");

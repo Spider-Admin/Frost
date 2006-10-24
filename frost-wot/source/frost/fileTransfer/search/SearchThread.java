@@ -408,7 +408,7 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
         int searchItemState = FrostSearchItem.STATE_NONE;
 
         // Already downloaded files get a nice color outfit (see renderer in SearchTable)
-        File file = new File(Core.frostSettings.getValue("downloadDirectory") + filename);
+        File file = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + filename);
         if (file.exists()) {
             // file is already downloaded -> light_gray
             searchItemState = FrostSearchItem.STATE_DOWNLOADED;

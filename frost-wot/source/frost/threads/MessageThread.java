@@ -131,7 +131,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
         } else {
             downKey = new StringBuffer()
                     .append("KSK@frost/message/")
-                    .append(Core.frostSettings.getValue("messageBase"))
+                    .append(Core.frostSettings.getValue(SettingsClass.MESSAGE_BASE))
                     .append("/")
                     .append(dirdate)
                     .append("-")
@@ -392,7 +392,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
         } else {
             key = new StringBuffer()
                     .append("KSK@frost/message/")
-                    .append(Core.frostSettings.getValue("messageBase"))
+                    .append(Core.frostSettings.getValue(SettingsClass.MESSAGE_BASE))
                     .append("/")
                     .append(message.getDateStr())
                     .append("-")
@@ -427,7 +427,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
         } else {
             key = new StringBuffer()
                     .append("KSK@frost/message/")
-                    .append(Core.frostSettings.getValue("messageBase"))
+                    .append(Core.frostSettings.getValue(SettingsClass.MESSAGE_BASE))
                     .append("/")
                     .append(message.getDateStr())
                     .append("-")

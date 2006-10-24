@@ -143,7 +143,7 @@ public class ManageLocalIdentitiesSignatureDialog extends JDialog {
                 tofFont = new Font("Monospaced", fontStyle, fontSize);
             }
             signatureTextArea.setFont(tofFont);
-            signatureTextArea.setAntiAliasEnabled(Core.frostSettings.getBoolValue("messageBodyAA"));
+            signatureTextArea.setAntiAliasEnabled(Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_BODY_ANTIALIAS));
         }
         return signatureTextArea;
     }

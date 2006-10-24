@@ -122,9 +122,9 @@ class ExpirationPanel extends JPanel {
      */
     private void loadSettings() {
 
-        TfMessageExpireDays.setText(settings.getValue("messageExpireDays"));
+        TfMessageExpireDays.setText(settings.getValue(SettingsClass.MESSAGE_EXPIRE_DAYS));
 
-        String mode = settings.getValue("messageExpirationMode");
+        String mode = settings.getValue(SettingsClass.MESSAGE_EXPIRATION_MODE);
         if( mode.toUpperCase().equals("KEEP") ) {
             RbKeepExpiredMessages.doClick();
         } else if( mode.toUpperCase().equals("ARCHIVE") ) {
@@ -141,16 +141,16 @@ class ExpirationPanel extends JPanel {
      */
     private void saveSettings() {
 
-        settings.setValue("messageExpireDays", TfMessageExpireDays.getText());
+        settings.setValue(SettingsClass.MESSAGE_EXPIRE_DAYS, TfMessageExpireDays.getText());
 
         if( RbKeepExpiredMessages.isSelected() ) {
-            settings.setValue("messageExpirationMode", "KEEP");
+            settings.setValue(SettingsClass.MESSAGE_EXPIRATION_MODE, "KEEP");
         } else if( RbArchiveExpiredMessages.isSelected() ) {
-            settings.setValue("messageExpirationMode", "ARCHIVE");
+            settings.setValue(SettingsClass.MESSAGE_EXPIRATION_MODE, "ARCHIVE");
         } else if( RbDeleteExpiredMessages.isSelected() ) {
-            settings.setValue("messageExpirationMode", "DELETE");
+            settings.setValue(SettingsClass.MESSAGE_EXPIRATION_MODE, "DELETE");
         } else {
-            settings.setValue("messageExpirationMode", "KEEP");
+            settings.setValue(SettingsClass.MESSAGE_EXPIRATION_MODE, "KEEP");
         }
     }
 

@@ -131,7 +131,7 @@ public class DownloadModel extends OrderedModel implements Savable {
 	public boolean removeItems(ModelItem[] items) {
 		// First we remove the chunks from disk
 		ArrayList oldChunkFilesList = new ArrayList(items.length);
-		String dlDir = Core.frostSettings.getValue("downloadDirectory");
+		String dlDir = Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD);
 		for (int i = 0; i < items.length; i++) {
 			FrostDownloadItem item = (FrostDownloadItem) items[i];
 			oldChunkFilesList.add(item.getFileName());
@@ -201,7 +201,7 @@ public class DownloadModel extends OrderedModel implements Savable {
 //	public synchronized void removeAllItems() {
 //		//First we remove the chunks from disk
 //		ArrayList oldChunkFilesList = new ArrayList(getItemCount());
-//		String dlDir = Core.frostSettings.getValue("downloadDirectory");
+//		String dlDir = Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD);
 //		for (int i = 0; i < getItemCount(); i++) {
 //			FrostDownloadItem item = (FrostDownloadItem) getItemAt(i);
 //			oldChunkFilesList.add(item.getFileName());

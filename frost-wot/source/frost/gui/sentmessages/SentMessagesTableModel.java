@@ -56,6 +56,7 @@ public class SentMessagesTableModel extends OrderedModel {
         if( SentMessagesManager.deleteSentMessages(itemsToDelete) == 0 ) {
             return false;
         }
-        return super.removeItems(selectedItems);
+        boolean retval = super.removeItems(selectedItems);
+        return retval;
     }
 }

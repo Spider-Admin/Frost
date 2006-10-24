@@ -19,11 +19,13 @@
 
 package frost.util;
 
+import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
 import frost.boards.*;
+import frost.gui.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;
 
@@ -41,15 +43,24 @@ public class CleanUp {
     
     // we hold indices, chk keys, ... for at least the following count of days:
     private final static int MINIMUM_DAYS_OLD = 28;
+    
+    private static int uncommittedMsgs;
+    
+    private static Splashscreen splashScreen;
 
     /**
      * Expire messages during startup of Frost.
      * Clean indexslot tables and file tables.
      * Gets the mode to use from settings.
      */
-    public static void runExpirationTasks(List boardList) {
+    public static void runExpirationTasks(Splashscreen sp, List boardList) {
+
+        splashScreen = sp;
+        uncommittedMsgs = 0;
+
         int mode;
-        String strMode = Core.frostSettings.getValue("messageExpirationMode");
+        
+        String strMode = Core.frostSettings.getValue(SettingsClass.MESSAGE_EXPIRATION_MODE);
         if( strMode.toUpperCase().equals("KEEP") ) {
             mode = KEEP_MESSAGES;
         } else if( strMode.toUpperCase().equals("ARCHIVE") ) {
@@ -59,11 +70,53 @@ public class CleanUp {
         } else {
             mode = KEEP_MESSAGES;
         }
-        processExpiredMessages(boardList, mode);
         
-        // ALWAYS cleanup following
+        try {
+            AppLayerDatabase.getInstance().setAutoCommitOff();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "error set autocommit off", e);
+        }
+
+        processExpiredMessages(boardList, mode);
+
+        doCommit();
+
+        splashScreen.setText("Cleaning index tables");
         cleanupIndexSlotTables(boardList);
+        
+        doCommit();
+
+        splashScreen.setText("Cleaning CHK filelist tables");
         cleanupSharedChkKeyTable();
+
+        doCommit();
+        
+        try {
+            AppLayerDatabase.getInstance().setAutoCommitOn();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "error set autocommit on", e);
+        }
+    }
+    
+    private static void doCommit() {
+        try {
+            AppLayerDatabase.getInstance().commit();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "error on commit", e);
+        }
+    }
+
+    private static void maybeCommit() {
+        // all 200 msgs commit changes to database
+        uncommittedMsgs++;
+        if( uncommittedMsgs > 200 ) {
+            try {
+                AppLayerDatabase.getInstance().commit();
+            } catch (SQLException e) {
+                logger.log(Level.SEVERE, "error on commit", e);
+            }
+            uncommittedMsgs = 0;
+        }
     }
 
     private static void processExpiredMessages(List boardList, int mode) {
@@ -85,7 +138,7 @@ public class CleanUp {
         }
 
         // take maximum
-        int defaultDaysOld = Core.frostSettings.getIntValue("messageExpireDays") + 1;
+        int defaultDaysOld = Core.frostSettings.getIntValue(SettingsClass.MESSAGE_EXPIRE_DAYS) + 1;
 
         if( defaultDaysOld < Core.frostSettings.getIntValue(SettingsClass.MAX_MESSAGE_DISPLAY) ) {
             defaultDaysOld = Core.frostSettings.getIntValue(SettingsClass.MAX_MESSAGE_DISPLAY) + 1;
@@ -104,6 +157,7 @@ public class CleanUp {
             }
             
             if( mode == ARCHIVE_MESSAGES ) {
+                splashScreen.setText("Archiving messages in board: "+board.getName());
                 MessageTableCallback mtCallback = new MessageTableCallback();
                 try {
                     AppLayerDatabase.getMessageTable().retrieveMessagesForArchive(board, currentDaysOld, mtCallback);
@@ -144,8 +198,14 @@ public class CleanUp {
                 if( AppLayerDatabase.getMessageArchiveTable().insertMessage(mo) == false ) {
                     errorOccurred = true;
                 }
-            } catch(Throwable t) {
-                logger.log(Level.SEVERE, "Exception during cleanup of GlobalIndexSlots", t);
+                maybeCommit();
+            } catch(Throwable e) {
+                if( e.getMessage().indexOf("msgarc_unique") > 0 ) {
+                    logger.log(Level.WARNING, "Archive of duplicate message skipped");
+                } else {
+                    logger.log(Level.SEVERE, "Exception during insert of archive message", e);
+                    errorOccurred = true;
+                }
             }
             
             return errorOccurred; // maybe stop

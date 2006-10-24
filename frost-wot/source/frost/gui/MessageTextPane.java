@@ -227,7 +227,7 @@ public class MessageTextPane extends JPanel {
 //        messageTextArea.setLineWrap(true);
 //        messageTextArea.setWrapStyleWord(true);
         
-        messageTextArea.setAntiAliasEnabled(Core.frostSettings.getBoolValue("messageBodyAA"));
+        messageTextArea.setAntiAliasEnabled(Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_BODY_ANTIALIAS));
 
         messageBodyScrollPane = new JScrollPane(messageTextArea);
         messageBodyScrollPane.setWheelScrollingEnabled(true);
@@ -375,8 +375,8 @@ public class MessageTextPane extends JPanel {
 
         propertyChangeListener = new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
-                if (evt.getPropertyName().equals("messageBodyAA")) {
-                    messageTextArea.setAntiAliasEnabled(Core.frostSettings.getBoolValue("messageBodyAA"));
+                if (evt.getPropertyName().equals(SettingsClass.MESSAGE_BODY_ANTIALIAS)) {
+                    messageTextArea.setAntiAliasEnabled(Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_BODY_ANTIALIAS));
                 } else if (evt.getPropertyName().equals(SettingsClass.MESSAGE_BODY_FONT_NAME)) {
                     fontChanged();
                 } else if (evt.getPropertyName().equals(SettingsClass.MESSAGE_BODY_FONT_SIZE)) {
@@ -404,7 +404,7 @@ public class MessageTextPane extends JPanel {
         Core.frostSettings.addPropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_NAME, propertyChangeListener);
         Core.frostSettings.addPropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_SIZE, propertyChangeListener);
         Core.frostSettings.addPropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_STYLE, propertyChangeListener);
-        Core.frostSettings.addPropertyChangeListener("messageBodyAA", propertyChangeListener);
+        Core.frostSettings.addPropertyChangeListener(SettingsClass.MESSAGE_BODY_ANTIALIAS, propertyChangeListener);
         Core.frostSettings.addPropertyChangeListener(SettingsClass.SHOW_SMILEYS, propertyChangeListener);
         Core.frostSettings.addPropertyChangeListener(SettingsClass.SHOW_KEYS_AS_HYPERLINKS, propertyChangeListener);
     }
@@ -465,7 +465,7 @@ public class MessageTextPane extends JPanel {
         FileAccess.saveDialog(
             MainFrame.getInstance(),
             messageTextArea.getText(),
-            Core.frostSettings.getValue("lastUsedDirectory"),
+            Core.frostSettings.getValue(SettingsClass.DIR_LAST_USED),
             language.getString("MessagePane.messageText.saveDialog.title"));
     }
     
@@ -1092,7 +1092,7 @@ public class MessageTextPane extends JPanel {
         Core.frostSettings.removePropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_NAME, propertyChangeListener);
         Core.frostSettings.removePropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_SIZE, propertyChangeListener);
         Core.frostSettings.removePropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_STYLE, propertyChangeListener);
-        Core.frostSettings.removePropertyChangeListener("messageBodyAA", propertyChangeListener);
+        Core.frostSettings.removePropertyChangeListener(SettingsClass.MESSAGE_BODY_ANTIALIAS, propertyChangeListener);
 
         if (popupMenuAttachmentBoard != null) {
             language.removeLanguageListener(popupMenuAttachmentBoard);

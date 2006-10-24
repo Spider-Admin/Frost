@@ -225,17 +225,17 @@ class News3Panel extends JPanel {
      * Load the settings of this panel
      */
     private void loadSettings() {
-        minimumIntervalTextField.setText(settings.getValue("automaticUpdate.boardsMinimumUpdateInterval"));
-        concurrentUpdatesTextField.setText(settings.getValue("automaticUpdate.concurrentBoardUpdates"));
+        minimumIntervalTextField.setText(settings.getValue(SettingsClass.BOARD_AUTOUPDATE_MIN_INTERVAL));
+        concurrentUpdatesTextField.setText(settings.getValue(SettingsClass.BOARD_AUTOUPDATE_CONCURRENT_UPDATES));
 
-        showUpdateCheckBox.setSelected(settings.getBoolValue("boardUpdateVisualization"));
+        showUpdateCheckBox.setSelected(settings.getBoolValue(SettingsClass.BOARD_UPDATE_VISUALIZATION_ENABLED));
         refreshUpdateState();
 
         // this setting is in MainFrame
         automaticBoardUpdateCheckBox.setSelected(MainFrame.getInstance().isAutomaticBoardUpdateEnabled());
 
-        selectedColor = (Color) settings.getObjectValue("boardUpdatingSelectedBackgroundColor");
-        notSelectedColor = (Color) settings.getObjectValue("boardUpdatingNonSelectedBackgroundColor");
+        selectedColor = (Color) settings.getObjectValue(SettingsClass.BOARD_UPDATE_VISUALIZATION_BGCOLOR_SELECTED);
+        notSelectedColor = (Color) settings.getObjectValue(SettingsClass.BOARD_UPDATE_VISUALIZATION_BGCOLOR_NOT_SELECTED);
         selectedColorLabel.setBackground(selectedColor);
         notSelectedColorLabel.setBackground(notSelectedColor);
 
@@ -281,17 +281,17 @@ class News3Panel extends JPanel {
      * Save the settings of this panel
      */
     private void saveSettings() {
-        settings.setValue("automaticUpdate.concurrentBoardUpdates", concurrentUpdatesTextField.getText());
-        settings.setValue("automaticUpdate.boardsMinimumUpdateInterval", minimumIntervalTextField.getText());
+        settings.setValue(SettingsClass.BOARD_AUTOUPDATE_CONCURRENT_UPDATES, concurrentUpdatesTextField.getText());
+        settings.setValue(SettingsClass.BOARD_AUTOUPDATE_MIN_INTERVAL, minimumIntervalTextField.getText());
 
-        settings.setValue("boardUpdateVisualization", showUpdateCheckBox.isSelected());
+        settings.setValue(SettingsClass.BOARD_UPDATE_VISUALIZATION_ENABLED, showUpdateCheckBox.isSelected());
 
-        // settings.setValue("automaticUpdate", automaticBoardUpdateCheckBox.isSelected());
+        // settings.setValue(SettingsClass.BOARD_AUTOUPDATE_ENABLED, automaticBoardUpdateCheckBox.isSelected());
         // we change setting in MainFrame, this is auto-saved during frostSettings.save()
         MainFrame.getInstance().setAutomaticBoardUpdateEnabled(automaticBoardUpdateCheckBox.isSelected());
 
-        settings.setObjectValue("boardUpdatingSelectedBackgroundColor", selectedColor);
-        settings.setObjectValue("boardUpdatingNonSelectedBackgroundColor", notSelectedColor);
+        settings.setObjectValue(SettingsClass.BOARD_UPDATE_VISUALIZATION_BGCOLOR_SELECTED, selectedColor);
+        settings.setObjectValue(SettingsClass.BOARD_UPDATE_VISUALIZATION_BGCOLOR_NOT_SELECTED, notSelectedColor);
 
         settings.setValue(SettingsClass.SILENTLY_RETRY_MESSAGES, silentlyRetryCheckBox.isSelected());
         settings.setValue(SettingsClass.SHOW_DELETED_MESSAGES, showDeletedMessagesCheckBox.isSelected());

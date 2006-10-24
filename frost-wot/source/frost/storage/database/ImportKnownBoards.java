@@ -31,8 +31,8 @@ public class ImportKnownBoards {
     
     private static Logger logger = Logger.getLogger(ImportKnownBoards.class.getName());
 
-    public void importKnownBoards() {
-        List knownBoards = KnownBoardsXmlDAO.loadKnownBoards(new File("knownboards.xml"));
+    public void importKnownBoards(File knownBoardsXmlFile) {
+        List knownBoards = KnownBoardsXmlDAO.loadKnownBoards(knownBoardsXmlFile);
 
         try {
             AppLayerDatabase.getInstance().setAutoCommitOff();

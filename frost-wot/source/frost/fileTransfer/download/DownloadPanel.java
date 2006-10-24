@@ -370,8 +370,8 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			String execFilename =
 				new StringBuffer()
 					.append(System.getProperty("user.dir"))
-					.append(fileSeparator)
-					.append(Core.frostSettings.getValue("downloadDirectory"))
+					.append(fileSeparator) // FIXME: check this logic
+					.append(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD))
 					.append(dlItem.getFileName())
 					.toString();
 			File file = new File(execFilename);
