@@ -55,9 +55,9 @@ public class FcpRequest
     private static boolean getFECSplitFile(File target, File redirect, int htl, FrostDownloadItem dlItem)
     {
         // true = try all segments even if one fails
-        boolean optionTryAllSegments = Core.frostSettings.getBoolValue("downloadTryAllSegments");
+        boolean optionTryAllSegments = Core.frostSettings.getBoolValue(SettingsClass.DOWNLOAD_TRY_ALL_SEGMENTS);
         // true = deocde after download of ALL segments
-        boolean optionDecodeAfterDownload = Core.frostSettings.getBoolValue("downloadDecodeAfterEachSegment");
+        boolean optionDecodeAfterDownload = Core.frostSettings.getBoolValue(SettingsClass.DOWNLOAD_DECODE_AFTER_EACH_SEGMENT);
 
         FecSplitfile splitfile =null;
 

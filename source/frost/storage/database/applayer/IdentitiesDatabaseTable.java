@@ -177,7 +177,7 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
     public boolean updateLocalIdentity(LocalIdentity identity) throws SQLException {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
-        PreparedStatement ps = db.prepare("UPDATE OWNIDENTITIES SET signature=?,sendmsgdelay,sendmsgdelayrandom WHERE uniquename=?");
+        PreparedStatement ps = db.prepare("UPDATE OWNIDENTITIES SET signature=?,sendmsgdelay=?,sendmsgdelayrandom=? WHERE uniquename=?");
         
         ps.setString(1, identity.getSignature());
         ps.setInt(2, 0);

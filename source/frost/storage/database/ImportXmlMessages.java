@@ -41,12 +41,56 @@ public class ImportXmlMessages {
     
     private Splashscreen splashScreen;
     private String origSplashText;
-
-    // TODO: maybe provide keypooldir/archivedir and allow import from other frosts too?
-    public void importXmlMessages(List boards, Splashscreen splash, String origTxt) {
+    
+    private int archiveMode;
+    private int messagesMaxDaysOldDefault;
+    
+    SettingsClass oldSettings;
+    
+    public static final int DELETE_MESSAGES  = 1;
+    public static final int ARCHIVE_MESSAGES = 2;
+    public static final int KEEP_MESSAGES    = 3;
+    
+    // we hold indices, chk keys, ... for at least the following count of days:
+    private final static int MINIMUM_DAYS_OLD = 28;
+    
+    public void importXmlMessages(
+            SettingsClass settings, // settings with imported archive settings
+            List boards, 
+            Splashscreen splash, 
+            String origTxt,
+            File importBaseDir,
+            SettingsClass set)
+    {
         splashScreen = splash;
         origSplashText = origTxt;
+        oldSettings = set;
         
+        String importKeypoolDir = oldSettings.getValue("keypool.dir");
+        String importArchiveDir = oldSettings.getValue("archive.dir");
+        String importSentDir = oldSettings.getValue("sent.dir");
+        
+        // setup archive settings
+        String strMode = oldSettings.getValue(SettingsClass.MESSAGE_EXPIRATION_MODE);
+        if( strMode.toUpperCase().equals("KEEP") ) {
+            archiveMode = KEEP_MESSAGES;
+        } else if( strMode.toUpperCase().equals("ARCHIVE") ) {
+            archiveMode = ARCHIVE_MESSAGES;
+        } else if( strMode.toUpperCase().equals("DELETE") ) {
+            archiveMode = DELETE_MESSAGES;
+        } else {
+            archiveMode = KEEP_MESSAGES;
+        }
+
+        // take maximum
+        messagesMaxDaysOldDefault = Core.frostSettings.getIntValue(SettingsClass.MESSAGE_EXPIRE_DAYS) + 1;
+        if( messagesMaxDaysOldDefault < Core.frostSettings.getIntValue(SettingsClass.MAX_MESSAGE_DISPLAY) ) {
+            messagesMaxDaysOldDefault = Core.frostSettings.getIntValue(SettingsClass.MAX_MESSAGE_DISPLAY) + 1;
+        }
+        if( messagesMaxDaysOldDefault < Core.frostSettings.getIntValue(SettingsClass.MAX_MESSAGE_DOWNLOAD) ) {
+            messagesMaxDaysOldDefault = Core.frostSettings.getIntValue(SettingsClass.MAX_MESSAGE_DOWNLOAD) + 1;
+        }
+
         boardDirNames = new Hashtable();
         for( Iterator iter = boards.iterator(); iter.hasNext(); ) {
             Board board = (Board) iter.next();
@@ -58,54 +102,53 @@ public class ImportXmlMessages {
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "error set autocommit off", e);
         }
-        
-        importKeypool();
-        importArchive();
-        importSentMessages();
-        
-        try {
-            AppLayerDatabase.getInstance().setAutoCommitOn();
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "error set autocommit on", e);
-        }
-    }
-    
-    private void importKeypool() {
-        File keypoolDir = new File(Core.frostSettings.getValue("keypool.dir"));
-        importDir(keypoolDir);
-    }
 
-    private void importArchive() {
-        String archiveDirName = Core.frostSettings.getValue("archive.dir");
-        if( archiveDirName == null || archiveDirName.length() == 0 ) {
+        // keypool
+        File keypoolDir = new File(importKeypoolDir);
+        if( !keypoolDir.isAbsolute() ) {
+            keypoolDir = new File(importBaseDir.getPath() + File.separatorChar + importKeypoolDir);
+        }
+        importDir(keypoolDir);
+
+        // archive
+        File archiveDir = null;
+        String archiveBaseDir = null;
+        if( importArchiveDir == null || importArchiveDir.length() == 0 ) {
             logger.severe("no ARCHIVE DIR specified!");
         } else {
+            File tmpFile = new File(importArchiveDir);
+            if( !tmpFile.isAbsolute() ) {
+                importArchiveDir = importBaseDir.getPath() + File.separatorChar + importArchiveDir;
+            }
+            if( !importArchiveDir.endsWith(File.separator) ) {
+                importArchiveDir += File.separatorChar;
+            }
+    
+            archiveBaseDir = importArchiveDir;
             // append messages subfolder
-            archiveDirName += "messages";
-            File archiveDir = new File(archiveDirName);
+            importArchiveDir += "messages";
+            
+            archiveDir = new File(importArchiveDir);
             if( archiveDir.isDirectory() == false ) {
                 logger.severe("no archive dir found");
                 archiveDir = null;
-            } else {
-                importDir(archiveDir);
             }
         }
-    }
-    
-    private void importSentMessages() {
-        File sentDir = new File(Core.frostSettings.getValue("sent.dir"));
-        if( sentDir.isDirectory() == false ) {
-            logger.severe("no sent dir found");
-        } else {
-            importSentDir(sentDir);
+        if( archiveDir != null ) {
+            importDir(archiveDir);
         }
         
-        String archiveDirName = Core.frostSettings.getValue("archive.dir");
-        if( archiveDirName == null || archiveDirName.length() == 0 ) {
-            logger.severe("no ARCHIVE DIR specified!");
-        } else {
-            archiveDirName += "sent";
-            File archiveDir = new File(archiveDirName);
+        // sent messages
+        File sentDir = new File(importSentDir);
+        if( !sentDir.isAbsolute() ) {
+            sentDir = new File(importBaseDir.getPath() + File.separatorChar + importSentDir);
+        }
+        importSentDir(sentDir);
+        
+        // archived sent messages
+        if( archiveBaseDir != null ) {
+            archiveBaseDir += "sent";
+            archiveDir = new File(archiveBaseDir);
             if( archiveDir.isDirectory() == false ) {
                 logger.severe("no archive sent dir found");
                 archiveDir = null;
@@ -123,6 +166,12 @@ public class ImportXmlMessages {
                     }
                 }
             }
+        }
+        
+        try {
+            AppLayerDatabase.getInstance().setAutoCommitOn();
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "error set autocommit on", e);
         }
     }
     
@@ -190,9 +239,6 @@ public class ImportXmlMessages {
             return;
         }
         
-        // set indexslots only until max days back, not for all old messages
-        DateMidnight maxDateBack = new DateMidnight(DateTimeZone.UTC).minusDays(Core.frostSettings.getIntValue("maxMessageDisplay")+1);
-        
         for(int i=0; i<boardDirs.length; i++) {
             File boardDir = boardDirs[i];
             if( boardDir.isDirectory() == false ) {
@@ -205,6 +251,20 @@ public class ImportXmlMessages {
                 logger.warning("board is not in boardlist, skipping import: "+boardName);
                 continue;
             }
+
+            int messagesMaxDaysOld = messagesMaxDaysOldDefault;
+            if( board.isConfigured() ) {
+                messagesMaxDaysOld = Math.max(board.getMaxMessageDisplay(), messagesMaxDaysOld);
+                messagesMaxDaysOld = Math.max(board.getMaxMessageDownload(), messagesMaxDaysOld);
+            }
+            DateMidnight maxMessageDateBack = new DateMidnight(DateTimeZone.UTC).minusDays(messagesMaxDaysOld);
+
+            // set indexslots only until max days back, not for all old messages
+            int indexMaxDaysOld = Core.frostSettings.getIntValue(SettingsClass.MAX_MESSAGE_DOWNLOAD) * 2;
+            if( indexMaxDaysOld < MINIMUM_DAYS_OLD ) {
+                indexMaxDaysOld = MINIMUM_DAYS_OLD;
+            }
+            DateMidnight maxIndexDateBack = new DateMidnight(DateTimeZone.UTC).minusDays(indexMaxDaysOld);
             
             File[] dateDirs = boardDir.listFiles();
             if( dateDirs == null || dateDirs.length == 0 ) {
@@ -241,15 +301,21 @@ public class ImportXmlMessages {
                         continue;
                     }
                     // import msgFile
-                    importMessageFile(msgFile, board, dateDirCal, indexSlots, maxDateBack);
+                    importMessageFile(msgFile, board, dateDirCal, indexSlots, maxIndexDateBack, maxMessageDateBack);
                 }
             }
             indexSlots.close();
         }
     }
-    
-    private boolean importMessageFile(File msgFile, Board board, DateMidnight calDL, IndexSlotsDatabaseTable indexSlots, 
-            DateMidnight maxBack) {
+
+    private void importMessageFile(
+            File msgFile, 
+            Board board, 
+            DateMidnight calDL, 
+            IndexSlotsDatabaseTable indexSlots, 
+            DateMidnight maxIndexDateBack, 
+            DateMidnight maxMessageDateBack) 
+    {
         String fname = msgFile.getName();
         int index = -1;
         try {
@@ -264,8 +330,8 @@ public class ImportXmlMessages {
             t.printStackTrace();
         }
         if( index < 0 ) {
-            System.out.println("Error getting index from filename: "+fname);
-            return false;
+            logger.severe("Error getting index from filename: "+fname);
+            return;
         }
         
         MessageXmlFile mof = null;
@@ -283,29 +349,33 @@ public class ImportXmlMessages {
             // valid msg, insert
             FrostMessageObject mo = new FrostMessageObject(mof, board, index);
             mo.setNew( mof.isMessageNew() );
-            try {
-                AppLayerDatabase.getMessageTable().insertMessage(mo);
-            } catch (SQLException e) {
-                if( e.getMessage().indexOf("MSG_ID_UNIQUE_ONLY") > 0 ) {
-                    logger.log(Level.WARNING, "Import of duplicate message skipped");
+            
+            // if msg is older than archive date, put it into archive database, reset new state
+            // - if archive mode = KEEP, put all into msgtable
+            // - if archive mode = DELETE, don't import old msgs
+            // - if archive mode = ARCHIVE, put old msgs into archivetable
+            
+            if( mo.getDateAndTime().isBefore(maxMessageDateBack) ) {
+                // archive candidate
+                if( archiveMode == ARCHIVE_MESSAGES ) {
+                    // to archive table
+                    mo.setNew(false);
+                    insertArchiveMessage(mo);
+                } else if( archiveMode == KEEP_MESSAGES ) {
+                    // to message table
+                    insertValidMessage(mo);
                 } else {
-                    logger.log(Level.SEVERE, "Error inserting message into database", e);
+                    // DELETE, don't import message
                 }
-                return false;
+            } else {
+                // not expired, to message table
+                insertValidMessage(mo);
             }
+            
         } else if( invalidReason != null ) {
             // invalid message, get date from filename
             FrostMessageObject invalidMsg = new FrostMessageObject(board, calDL.toDateTime(), index, invalidReason);
-            try {
-                AppLayerDatabase.getMessageTable().insertMessage(invalidMsg);
-            } catch (SQLException e) {
-                if( e.getMessage().indexOf("MSG_ID_UNIQUE_ONLY") > 0 ) {
-                    logger.log(Level.WARNING, "Import of duplicate message skipped");
-                } else {
-                    logger.log(Level.SEVERE, "Error inserting invalid message into database", e);
-                }
-                return false;
-            }
+            insertInvalidMessage(invalidMsg);
         }
 
         // all 5 MB commit changes to database
@@ -320,13 +390,48 @@ public class ImportXmlMessages {
         }
         
         // set indexslot used (only for dates until maxMessageDisplay)
-        if( calDL.isAfter(maxBack) ) {
+        if( calDL.isAfter(maxIndexDateBack) ) {
             try {
                 indexSlots.setDownloadSlotUsed(index, calDL.toDateTime().getMillis());
             } catch (SQLException e) {
                 logger.log(Level.SEVERE, "Error inserting message index into database", e);
             }
         }
-        return true;
+    }
+    
+    private void insertArchiveMessage(FrostMessageObject mo) {
+        try {
+            AppLayerDatabase.getMessageArchiveTable().insertMessage(mo);
+        } catch (SQLException e) {
+            if( e.getMessage().indexOf("msgarc_unique") > 0 ) {
+                logger.log(Level.WARNING, "Archive of duplicate message skipped");
+            } else {
+                logger.log(Level.SEVERE, "Error inserting message into archive database", e);
+            }
+        }
+    }
+    
+    private void insertValidMessage(FrostMessageObject mo) {
+        try {
+            AppLayerDatabase.getMessageTable().insertMessage(mo);
+        } catch (SQLException e) {
+            if( e.getMessage().indexOf("MSG_ID_UNIQUE_ONLY") > 0 ) {
+                logger.log(Level.WARNING, "Import of duplicate message skipped");
+            } else {
+                logger.log(Level.SEVERE, "Error inserting message into database", e);
+            }
+        }
+    }
+    
+    private void insertInvalidMessage(FrostMessageObject mo) {
+        try {
+            AppLayerDatabase.getMessageTable().insertMessage(mo);
+        } catch (SQLException e) {
+            if( e.getMessage().indexOf("MSG_ID_UNIQUE_ONLY") > 0 ) {
+                logger.log(Level.WARNING, "Import of duplicate message skipped");
+            } else {
+                logger.log(Level.SEVERE, "Error inserting invalid message into database", e);
+            }
+        }
     }
 }

@@ -40,11 +40,11 @@ public class ImportIdentities {
     private BuddyList observed = new BuddyList();
     private BuddyList enemies = new BuddyList();
 
-    public void importIdentities() {
+    public void importIdentities(File identitiesXmlFile) {
         FrostIdentities fi = new FrostIdentities();
         FrostIdentities.setDatabaseUpdatesAllowed(false);
         try {
-            load(fi);
+            load(fi, identitiesXmlFile);
             convertOldListsToNew(fi);
         } catch (StorageException e) {
             logger.log(Level.SEVERE, "error importing old identities", e);
@@ -99,21 +99,19 @@ public class ImportIdentities {
         return myId;
     }
 
-    private void load(FrostIdentities identities) throws StorageException {
-        File xmlFile = new File("identities.xml");
-
+    private void load(FrostIdentities identities, File xmlFile) throws StorageException {
         if (xmlFile.exists()) {
             try {
-                loadNewFormat(identities);
+                loadNewFormat(identities, xmlFile);
             } catch (Exception e) {
                 throw new StorageException("Exception while loading the new identities format.", e);
             }
         }
     }
     
-    private void loadNewFormat(FrostIdentities identities) throws SAXException, IllegalArgumentException {
+    private void loadNewFormat(FrostIdentities identities, File xmlFile) throws SAXException, IllegalArgumentException {
         logger.info("Trying to create/load ids");
-        Document d = XMLTools.parseXmlFile("identities.xml", false);
+        Document d = XMLTools.parseXmlFile(xmlFile.getPath(), false);
         Element rootEl = d.getDocumentElement();
 
         //first myself

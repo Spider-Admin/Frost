@@ -66,8 +66,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
     private static MainFrame instance = null; // set in constructor
     
-    public static String keypool = null;
-
     private JButton boardInfoButton = null;
     private long counter = 55;
 
@@ -149,7 +147,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         frostSettings = settings;
         language = Language.getInstance();
 
-        keypool = frostSettings.getValue("keypool.dir");
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
         frostSettings.addUpdater(this);
@@ -750,7 +747,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         TOF.getInstance().searchAllNewMessages(false);
 
         if (Core.isFreenetOnline()) {
-            tofAutomaticUpdateMenuItem.setSelected(frostSettings.getBoolValue("automaticUpdate"));
+            tofAutomaticUpdateMenuItem.setSelected(frostSettings.getBoolValue(SettingsClass.BOARD_AUTOUPDATE_ENABLED));
         } else {
             tofAutomaticUpdateMenuItem.setSelected(false);
         }
@@ -926,7 +923,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         //////////////////////////////////////////////////
         if (counter % 15 == 0 && // check all 15 seconds if a board update could be started
             isAutomaticBoardUpdateEnabled() &&
-            info.getDownloadingBoardCount() < frostSettings.getIntValue("automaticUpdate.concurrentBoardUpdates"))
+            info.getDownloadingBoardCount() < frostSettings.getIntValue(SettingsClass.BOARD_AUTOUPDATE_CONCURRENT_UPDATES))
         {
             Board nextBoard = BoardUpdateBoardSelector.selectNextBoard(tofTreeModel);
             if (nextBoard != null) {
@@ -1051,7 +1048,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     }
 
     public void updateSettings() {
-        frostSettings.setValue("automaticUpdate", tofAutomaticUpdateMenuItem.isSelected());
+        frostSettings.setValue(SettingsClass.BOARD_AUTOUPDATE_ENABLED, tofAutomaticUpdateMenuItem.isSelected());
     }
     
     /**

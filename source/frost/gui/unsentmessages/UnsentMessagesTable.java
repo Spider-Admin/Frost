@@ -58,10 +58,12 @@ public class UnsentMessagesTable extends SortedModelTable {
     
     public void addUnsentMessage(FrostUnsentMessageObject i) {
         tableModel.addFrostUnsentMessageObject(i);
+        MainFrame.getInstance().getMessageInfoPanel().updateUnsentMessagesCount();
     }
 
     public void removeUnsentMessage(FrostUnsentMessageObject i) {
         tableModel.removeFrostUnsentMessageObject(i);
+        MainFrame.getInstance().getMessageInfoPanel().updateUnsentMessagesCount();
     }
 
     public void updateUnsentMessage(FrostUnsentMessageObject i) {
@@ -74,6 +76,7 @@ public class UnsentMessagesTable extends SortedModelTable {
     
     public void loadTableModel() {
         tableModel.loadTableModel();
+        MainFrame.getInstance().getMessageInfoPanel().updateUnsentMessagesCount();
     }
     
     public void clearTableModel() {
@@ -195,6 +198,7 @@ public class UnsentMessagesTable extends SortedModelTable {
                         language.getString("UnsentMessages.deleteNotPossibleDialog.title"), 
                         JOptionPane.ERROR_MESSAGE);
             }
+            MainFrame.getInstance().getMessageInfoPanel().updateUnsentMessagesCount();
         }
     
         public void languageChanged(LanguageEvent event) {

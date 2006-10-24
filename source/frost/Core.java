@@ -83,7 +83,6 @@ public class Core implements FrostEventDispatcher  {
     private static MessageHashes messageHashes;
 
     private static FrostIdentities identities;
-    private String keypool;
     
     private Core() {
         initializeLanguage();
@@ -110,7 +109,7 @@ public class Core implements FrostEventDispatcher  {
     private boolean initializeConnectivity2() {
 
         // determine configured freenet version
-        int freenetVersion = frostSettings.getIntValue("freenetVersion"); // 5 or 7
+        int freenetVersion = frostSettings.getIntValue(SettingsClass.FREENET_VERSION); // 5 or 7
         if( freenetVersion <= 0 ) {
             FreenetVersionDialog dlg = new FreenetVersionDialog();
             dlg.setVisible(true);
@@ -118,13 +117,13 @@ public class Core implements FrostEventDispatcher  {
                 return false;
             }
             if( dlg.isChoosedFreenet05() ) {
-                frostSettings.setValue("freenetVersion", "5");
+                frostSettings.setValue(SettingsClass.FREENET_VERSION, "5");
             } else if( dlg.isChoosedFreenet07() ) {
-                frostSettings.setValue("freenetVersion", "7");
+                frostSettings.setValue(SettingsClass.FREENET_VERSION, "7");
             } else {
                 return false;
             }
-            freenetVersion = frostSettings.getIntValue("freenetVersion"); // 5 or 7
+            freenetVersion = frostSettings.getIntValue(SettingsClass.FREENET_VERSION); // 5 or 7
         }
         
         if (freenetVersion == 5) {
@@ -241,7 +240,7 @@ public class Core implements FrostEventDispatcher  {
     private boolean initializeConnectivity() {
 
         // determine configured freenet version
-        int freenetVersion = frostSettings.getIntValue("freenetVersion"); // 5 or 7
+        int freenetVersion = frostSettings.getIntValue(SettingsClass.FREENET_VERSION); // 5 or 7
         if( freenetVersion <= 0 ) {
             FreenetVersionDialog dlg = new FreenetVersionDialog();
             dlg.setVisible(true);
@@ -249,13 +248,13 @@ public class Core implements FrostEventDispatcher  {
                 return false;
             }
             if( dlg.isChoosedFreenet05() ) {
-                frostSettings.setValue("freenetVersion", "5");
+                frostSettings.setValue(SettingsClass.FREENET_VERSION, "5");
             } else if( dlg.isChoosedFreenet07() ) {
-                frostSettings.setValue("freenetVersion", "7");
+                frostSettings.setValue(SettingsClass.FREENET_VERSION, "7");
             } else {
                 return false;
             }
-            freenetVersion = frostSettings.getIntValue("freenetVersion"); // 5 or 7
+            freenetVersion = frostSettings.getIntValue(SettingsClass.FREENET_VERSION); // 5 or 7
         }
 
         if( freenetVersion != FcpHandler.FREENET_05 && freenetVersion != FcpHandler.FREENET_07 ) {
@@ -384,13 +383,11 @@ public class Core implements FrostEventDispatcher  {
     }
 
     /**
-     * @throws Exception
+     * Initialize, show splashscreen.
      */
     public void initialize() throws Exception {
         Splashscreen splashscreen = new Splashscreen(frostSettings.getBoolValue(SettingsClass.DISABLE_SPLASHSCREEN));
         splashscreen.setVisible(true);
-
-        keypool = frostSettings.getValue("keypool.dir");
 
         splashscreen.setText(language.getString("Splashscreen.message.1"));
         splashscreen.setProgress(20);
@@ -424,7 +421,7 @@ public class Core implements FrostEventDispatcher  {
         messageHashes.initialize();
 
         // CLEANS TEMP DIR! START NO INSERTS BEFORE THIS RUNNED
-        Startup.startupCheck(frostSettings, keypool);
+        Startup.startupCheck(frostSettings);
 
         splashscreen.setText(language.getString("Splashscreen.message.2"));
         splashscreen.setProgress(40);
@@ -433,71 +430,19 @@ public class Core implements FrostEventDispatcher  {
         CheckHtmlIntegrity chi = new CheckHtmlIntegrity();
         isHelpHtmlSecure = chi.scanZipFile("help/help.zip");
         chi = null;
-        
-        boolean doImport = false;
+
+        FirstStartup firstStartup = null;
         
         // check if this is a first startup
-        if( frostSettings.getIntValue("freenetVersion") == 0 ) {
+        if( frostSettings.getIntValue(SettingsClass.FREENET_VERSION) == 0 ) {
             
-            frostSettings.setValue("oneTimeUpdate.importMessages.didRun", true);
-            frostSettings.setValue("oneTimeUpdate.convertSigs.didRun", true);
-            frostSettings.setValue("oneTimeUpdate.repairIdentities.didRun", true);
-
-            // ask user which freenet version to use, set correct default availableNodes,
-            // allow to import an existing identities file
-            FirstStartupDialog startdlg = new FirstStartupDialog();
-            boolean exitChoosed = startdlg.startDialog();
-            if( exitChoosed ) {
-                System.exit(1);
-            }
-            // set used version
-            frostSettings.setValue("freenetVersion", startdlg.getFreenetVersion()); // 5 or 7
-            // init availableNodes with correct port
-            if( startdlg.getOwnHostAndPort() != null ) {
-                // user set own host:port
-                frostSettings.setValue(SettingsClass.AVAILABLE_NODES, startdlg.getOwnHostAndPort());
-            } else if( startdlg.getFreenetVersion() == FcpHandler.FREENET_05 ) {
-                frostSettings.setValue(SettingsClass.AVAILABLE_NODES, "127.0.0.1:8481");
+            firstStartup = new FirstStartup();
+            // if doImport==false then all preparations are done, continue clean startup
+            boolean doImport = firstStartup.run(splashscreen, frostSettings);
+            if( doImport ) {
+                firstStartup.startImport(splashscreen, frostSettings);
             } else {
-                // 0.7
-                if( startdlg.isTestnet() == false ) {
-                    frostSettings.setValue(SettingsClass.AVAILABLE_NODES, "127.0.0.1:9481");
-                } else {
-                    frostSettings.setValue(SettingsClass.AVAILABLE_NODES, "127.0.0.1:9482");
-                }
-            }
-            if( startdlg.getOldIdentitiesFile() != null && startdlg.getOldIdentitiesFile().length() > 0 ) {
-                boolean wasOk = FileAccess.copyFile(startdlg.getOldIdentitiesFile(), "identities.xml");
-                if( wasOk == false ) {
-                    MiscToolkit.getInstance().showMessage(
-                            "Copy of old identities.xml file failed.",
-                            JOptionPane.ERROR_MESSAGE,
-                            "Copy failed");
-                }
-                // import old identities file into database
-                new ImportIdentities().importIdentities();
-            }
-        } else {
-            
-            // import xml messages into database
-            if( frostSettings.getBoolValue("oneTimeUpdate.importMessages.didRun") == false ) {
-
-                String txt = "<html>Frost will now import your existing data, and this could take some time.<br>"+
-                             "Afterwards the files in keypool are not longer needed and will be deleted.<br><br>"+
-                             "<b>BACKUP YOUR FROST DIRECTORY BEFORE STARTING!</b><br>"+
-                             "<br><br>Do you want to start the import NOW press yes.</html>";
-                int answer = JOptionPane.showConfirmDialog(splashscreen, txt, "About to start import process",
-                                JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
-
-                if( answer != JOptionPane.YES_OPTION ) {
-                    System.exit(1);
-                }
-
-                // we need the identities to initialize connectivity
-                System.out.println("Importing identities");
-                new ImportIdentities().importIdentities();
-
-                doImport = true;
+                firstStartup = null;
             }
         }
 
@@ -510,6 +455,25 @@ public class Core implements FrostEventDispatcher  {
         }
 
         getIdentities().initialize(isFreenetOnline());
+        
+        // if we import, read .sig and set it to the one and only local identity
+        if( firstStartup != null ) {
+            if( getIdentities().getLocalIdentities().size() == 1 ) {
+                File sigFile = new File(firstStartup.getImportBaseDir().getPath() + File.separatorChar + "signature.txt");
+                if( sigFile.isFile() ) {
+                    String idSig = FileAccess.readFile(sigFile, "UTF-8").trim();
+                    if( idSig != null && idSig.length() > 0 ) {
+                        LocalIdentity li = (LocalIdentity) getIdentities().getLocalIdentities().get(0);
+                        li.setSignature(idSig);
+                        try {
+                            AppLayerDatabase.getIdentitiesDatabaseTable().updateLocalIdentity(li);
+                        } catch(Throwable ex) {
+                            logger.log(Level.SEVERE, "Error updating signature", ex);
+                        }
+                    }
+                }
+            }
+        }
 
         String title;
         if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
@@ -536,29 +500,36 @@ public class Core implements FrostEventDispatcher  {
         UnsentMessagesManager.initialize();
         FileAttachmentUploadThread.getInstance().start();
         
-        if( doImport ) {
-            splashscreen.setText("Importing known boards");
-            new ImportKnownBoards().importKnownBoards();
+        if( firstStartup != null ) {
+            File oldKnownBoardsXml = new File(firstStartup.getImportBaseDir().getPath() + File.separatorChar + "knownboards.xml");
+            if( oldKnownBoardsXml.isFile() ) {
+                splashscreen.setText("Importing known boards");
+                new ImportKnownBoards().importKnownBoards(oldKnownBoardsXml);
+            }
+            
             splashscreen.setText("Importing messages");
             new ImportXmlMessages().importXmlMessages(
+                    frostSettings,
                     getBoardsManager().getTofTreeModel().getAllBoards(),
                     splashscreen,
-                    "Importing messages");
-
-            frostSettings.setValue("oneTimeUpdate.importMessages.didRun", true);
+                    "Importing messages",
+                    firstStartup.getImportBaseDir(),
+                    firstStartup.getOldSettings());
         }
+        
+        firstStartup = null; 
 
         splashscreen.setText(language.getString("Splashscreen.message.4"));
         splashscreen.setProgress(70);
 
         mainFrame.initialize();
 
+        // (cleanup gets the expiration mode from settings itself)
+        CleanUp.runExpirationTasks(splashscreen, MainFrame.getInstance().getTofTreeModel().getAllBoards());
+
         splashscreen.setText(language.getString("Splashscreen.message.5"));
         splashscreen.setProgress(80);
         
-        // (cleanup gets the expiration mode from settings itself)
-        CleanUp.runExpirationTasks(MainFrame.getInstance().getTofTreeModel().getAllBoards());
-
         initializeTasks(mainFrame);
 
         SwingUtilities.invokeLater(new Runnable() {
@@ -724,9 +695,6 @@ public class Core implements FrostEventDispatcher  {
     }
     
     private class EventDispatcher {
-        /**
-         * @param frostEvent
-         */
         public void dispatchEvent(FrostEvent frostEvent) {
             switch(frostEvent.getId()) {
                 case FrostEvent.STORAGE_ERROR_EVENT_ID:
@@ -736,10 +704,6 @@ public class Core implements FrostEventDispatcher  {
                     logger.severe("Unknown FrostEvent received. Id: '" + frostEvent.getId() + "'");
             }
         }
-
-        /**
-         * @param errorEvent
-         */
         public void dispatchStorageErrorEvent(StorageErrorEvent errorEvent) {
             StringWriter stringWriter = new StringWriter();
             errorEvent.getException().printStackTrace(new PrintWriter(stringWriter));

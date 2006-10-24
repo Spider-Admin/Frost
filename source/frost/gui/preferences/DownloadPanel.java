@@ -89,7 +89,7 @@ class DownloadPanel extends JPanel {
      * browseDownloadDirectoryButton Action Listener (Downloads / Browse)
      */
     private void browseDirectoryPressed() {
-        final JFileChooser fc = new JFileChooser(settings.getValue("lastUsedDirectory"));
+        final JFileChooser fc = new JFileChooser(settings.getValue(SettingsClass.DIR_LAST_USED));
         fc.setDialogTitle(language.getString("Options.downloads.filechooser.title"));
         fc.setFileHidingEnabled(true);
         fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -99,7 +99,7 @@ class DownloadPanel extends JPanel {
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             String fileSeparator = System.getProperty("file.separator");
             File file = fc.getSelectedFile();
-            settings.setValue("lastUsedDirectory", file.getParent());
+            settings.setValue(SettingsClass.DIR_LAST_USED, file.getParent());
             directoryTextField.setText(file.getPath() + fileSeparator);
         }
     }
@@ -185,13 +185,13 @@ class DownloadPanel extends JPanel {
      */
     private void loadSettings() {
         removeFinishedDownloadsCheckBox.setSelected(settings.getBoolValue("removeFinishedDownloads"));
-        directoryTextField.setText(settings.getValue("downloadDirectory"));
+        directoryTextField.setText(settings.getValue(SettingsClass.DIR_DOWNLOAD));
         threadsTextField.setText(settings.getValue(SettingsClass.DOWNLOAD_MAX_THREADS));
         splitfileThreadsTextField.setText(settings.getValue("splitfileDownloadThreads"));
-        maxRetriesTextField.setText("" + settings.getIntValue("downloadMaxRetries"));
-        waitTimeTextField.setText("" + settings.getIntValue("downloadWaittime"));
-        tryAllSegmentsCheckBox.setSelected(settings.getBoolValue("downloadTryAllSegments"));
-        decodeAfterEachSegmentCheckBox.setSelected(settings.getBoolValue("downloadDecodeAfterEachSegment"));
+        maxRetriesTextField.setText("" + settings.getIntValue(SettingsClass.DOWNLOAD_MAX_RETRIES));
+        waitTimeTextField.setText("" + settings.getIntValue(SettingsClass.DOWNLOAD_WAITTIME));
+        tryAllSegmentsCheckBox.setSelected(settings.getBoolValue(SettingsClass.DOWNLOAD_TRY_ALL_SEGMENTS));
+        decodeAfterEachSegmentCheckBox.setSelected(settings.getBoolValue(SettingsClass.DOWNLOAD_DECODE_AFTER_EACH_SEGMENT));
     }
 
     public void ok() {
@@ -226,17 +226,17 @@ class DownloadPanel extends JPanel {
         // always append a fileseparator to the end of string
         if ((!(downlDirTxt.lastIndexOf(filesep) == (downlDirTxt.length() - 1)))
             || downlDirTxt.lastIndexOf(filesep) < 0) {
-                settings.setValue("downloadDirectory", downlDirTxt + filesep);
+                settings.setValue(SettingsClass.DIR_DOWNLOAD, downlDirTxt + filesep);
         } else {
-            settings.setValue("downloadDirectory", downlDirTxt);
+            settings.setValue(SettingsClass.DIR_DOWNLOAD, downlDirTxt);
         }
         settings.setValue(SettingsClass.DOWNLOAD_MAX_THREADS, threadsTextField.getText());
         settings.setValue("removeFinishedDownloads", removeFinishedDownloadsCheckBox.isSelected());
 
         settings.setValue("splitfileDownloadThreads", splitfileThreadsTextField.getText());
-        settings.setValue("downloadMaxRetries", maxRetriesTextField.getText());
-        settings.setValue("downloadWaittime", waitTimeTextField.getText());
-        settings.setValue("downloadTryAllSegments", tryAllSegmentsCheckBox.isSelected());
-        settings.setValue("downloadDecodeAfterEachSegment", decodeAfterEachSegmentCheckBox.isSelected());
+        settings.setValue(SettingsClass.DOWNLOAD_MAX_RETRIES, maxRetriesTextField.getText());
+        settings.setValue(SettingsClass.DOWNLOAD_WAITTIME, waitTimeTextField.getText());
+        settings.setValue(SettingsClass.DOWNLOAD_TRY_ALL_SEGMENTS, tryAllSegmentsCheckBox.isSelected());
+        settings.setValue(SettingsClass.DOWNLOAD_DECODE_AFTER_EACH_SEGMENT, decodeAfterEachSegmentCheckBox.isSelected());
     }
 }

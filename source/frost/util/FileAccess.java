@@ -38,13 +38,13 @@ public class FileAccess {
     public static File createTempFile(String prefix, String suffix) {
         File tmpFile = null;
         try {
-            tmpFile = File.createTempFile(prefix, suffix, new File(Core.frostSettings.getValue("temp.dir")));
+            tmpFile = File.createTempFile(prefix, suffix, new File(Core.frostSettings.getValue(SettingsClass.DIR_TEMP)));
         } catch( Throwable ex ) {
         }
         if( tmpFile == null ) {
             do {
                 tmpFile = new File(
-                        Core.frostSettings.getValue("temp.dir")+
+                        Core.frostSettings.getValue(SettingsClass.DIR_TEMP)+
                         prefix+
                         System.currentTimeMillis()+
                         suffix);
@@ -72,7 +72,7 @@ public class FileAccess {
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = fc.getSelectedFile();
             if (file != null) {
-                Core.frostSettings.setValue("lastUsedDirectory", file.getParent());
+                Core.frostSettings.setValue(SettingsClass.DIR_LAST_USED, file.getParent());
                 if (!file.isDirectory()) {
                     writeFile(content, file, "UTF-8");
                 }

@@ -44,8 +44,14 @@ public class SettingsClass implements Savable {
     private Vector updaters = null;
 
     private static Logger logger = Logger.getLogger(SettingsClass.class.getName());
+
+    public static final String DIR_CONFIG = "config.dir";
+    public static final String DIR_DOWNLOAD = "downloadDirectory";
+    public static final String DIR_LAST_USED = "lastUsedDirectory";
+    public static final String DIR_TEMP = "temp.dir";
+    public static final String DIR_LOCALDATA = "localdata.dir";
     
-    public static final String REQUESTFILE_HEADER = "FrostRequestedFilesV1";
+    public static final String FREENET_VERSION = "freenetVersion";
 
     public static final String COMPACT_DBTABLES = "compactDatabaseTables";
 
@@ -73,12 +79,16 @@ public class SettingsClass implements Savable {
     public static final String UPLOAD_RETRIES_WAIT_TIME = "uploadRetriesWaitTime";
     public static final String ALWAYS_DOWNLOAD_MESSAGES_BACKLOAD = "alwaysDownloadMessagesBackload";
     public static final String DOWNLOAD_MAX_THREADS = "downloadThreads";
+    public static final String DOWNLOAD_MAX_RETRIES = "downloadMaxRetries";
+    public static final String DOWNLOAD_WAITTIME = "downloadWaittime";
+    public static final String DOWNLOAD_TRY_ALL_SEGMENTS = "downloadTryAllSegments";
+    public static final String DOWNLOAD_DECODE_AFTER_EACH_SEGMENT = "downloadDecodeAfterEachSegment";
 
     public static final String MSGTABLE_MULTILINE_SELECT = "messageTableMultilineSelect";
     public static final String MSGTABLE_SCROLL_HORIZONTAL = "messageTableScrollHorizontal";
     public static final String SHOW_BOARDDESC_TOOLTIPS = "showBoardDescriptionTooltips";
     public static final String SHOW_BOARD_UPDATED_COUNT = "showBoardUpdatedCount";
-    public static final String SHOW_BOARD_UPDATE_VISUALIZATION = "boardUpdateVisualization";
+    public static final String SHOW_BOARD_UPDATE_VISUALIZATION = SettingsClass.BOARD_UPDATE_VISUALIZATION_ENABLED;
     public static final String DISABLE_SPLASHSCREEN = "disableSplashScreen";
     public static final String SHOW_SYSTRAY_ICON = "showSystrayIcon";
     
@@ -94,24 +104,38 @@ public class SettingsClass implements Savable {
     public static final String BLOCK_BOARDS_FROM_CHECK = "blockBoardsFromCheck";
     public static final String BLOCK_BOARDS_FROM_BAD = "blockBoardsFromBad";
     public static final String BLOCK_BOARDS_FROM_UNSIGNED = "blockBoardsFromUnsigned";
+    
+    public static final String BOARD_AUTOUPDATE_ENABLED = "automaticUpdate";
+    public static final String BOARD_AUTOUPDATE_CONCURRENT_UPDATES = "automaticUpdate.concurrentBoardUpdates";
+    public static final String BOARD_AUTOUPDATE_MIN_INTERVAL = "automaticUpdate.boardsMinimumUpdateInterval";
+    
+    public static final String BOARD_UPDATE_VISUALIZATION_ENABLED = "boardUpdateVisualization";
+    public static final String BOARD_UPDATE_VISUALIZATION_BGCOLOR_SELECTED = "boardUpdatingSelectedBackgroundColor";
+    public static final String BOARD_UPDATE_VISUALIZATION_BGCOLOR_NOT_SELECTED = "boardUpdatingNonSelectedBackgroundColor";
 
     public static final String SHOW_THREADS = "MessagePanel.showThreads";
 
     public static final String SHOW_COLORED_ROWS = "showColoredRows";
     public static final String SHOW_SMILEYS = "showSmileys";
     public static final String SHOW_KEYS_AS_HYPERLINKS = "showKeysAsHyperlinks";
+    public static final String MESSAGE_BODY_ANTIALIAS = "messageBodyAA";
     
     public static final String ALTERNATE_EDITOR_ENABLED = "useAltEdit";
     public static final String ALTERNATE_EDITOR_COMMAND = "altEdit";
     
     public static final String FILE_BASE = "fileBase";
+    public static final String MESSAGE_BASE = "messageBase";
+    
+    public static final String MESSAGE_EXPIRE_DAYS = "messageExpireDays";
+    public static final String MESSAGE_EXPIRATION_MODE = "messageExpirationMode";
+    
     public static final String MIN_DAYS_BEFORE_FILE_RESHARE = "minDaysBeforeFileReshare";
     public static final String MAX_FILELIST_DOWNLOAD_DAYS = "fileListDownloadDays";
 
     public SettingsClass() {
         settingsHash = new Hashtable();
         // the FIX config.dir
-        settingsHash.put("config.dir", "config" + fs);
+        settingsHash.put(DIR_CONFIG, "config" + fs);
         String configFilename = "config" + fs + "frost.ini";
         settingsFile = new File(configFilename);
         loadDefaults();
@@ -122,7 +146,27 @@ public class SettingsClass implements Savable {
         settingsHash.put(FILE_BASE, "testfiles1");
     }
 
-    private String setSystemsFileSeparator(String path) {
+    /**
+     * Creates a new SettingsClass to read a frost.ini in directory config, relative
+     * to the provided base directory.
+     * The configuration is not read immediately, call readSettingsFile.
+     * @param baseDirectory  the base directory of the config/frost.ini file
+     */
+    public SettingsClass(File baseDirectory) {
+        settingsHash = new Hashtable();
+        // the FIX config.dir
+        settingsHash.put(DIR_CONFIG, baseDirectory.getPath() + fs + "config" + fs);
+        String configFilename = baseDirectory.getPath() + fs + "config" + fs + "frost.ini";
+        settingsFile = new File(configFilename);
+    }
+
+    /**
+     * Takes a path name, replaces all separator chars with the separator chars of the system.
+     * Ensures that the path ends with a separator char.
+     * @param path  input path
+     * @return  changed path
+     */
+    public String setSystemFileSeparator(String path) {
         if (fs.equals("\\")) {
             path = path.replace('/', File.separatorChar);
         } else if (fs.equals("/")) {
@@ -148,12 +192,8 @@ public class SettingsClass implements Savable {
         LineNumberReader settingsReader = null;
         String line;
 
-        if (settingsFile.exists() == false) {
-            // try to get old frost.ini
-            File oldIni = new File("frost.ini");
-            if (oldIni.exists() && oldIni.length() > 0) {
-                oldIni.renameTo(settingsFile);
-            }
+        if (settingsFile.isFile() == false) {
+            return false;
         }
 
         try {
@@ -198,13 +238,11 @@ public class SettingsClass implements Savable {
                             }
                         }
                         // scan all path config values and set correct system file separator
-                        else if (key.equals("sent.dir")
-                                || key.equals("temp.dir")
-                                || key.equals("keypool.dir")
-                                || key.equals("archive.dir")
-                                || key.equals("downloadDirectory")
-                                || key.equals("lastUsedDirectory")) {
-                            value = setSystemsFileSeparator(value);
+                        else if (  key.equals(SettingsClass.DIR_TEMP)
+                                || key.equals(DIR_LOCALDATA)
+                                || key.equals(DIR_DOWNLOAD)
+                                || key.equals(DIR_LAST_USED)) {
+                            value = setSystemFileSeparator(value);
                             objValue = value;
                         } else {
                             // 'old' behaviour
@@ -225,8 +263,8 @@ public class SettingsClass implements Savable {
             logger.log(Level.SEVERE, "Exception thrown in readSettingsFile()", e);
         }
 
-        if (this.getValue("messageBase").length() == 0) {
-            this.setValue("messageBase", "news");
+        if (this.getValue(SettingsClass.MESSAGE_BASE).length() == 0) {
+            this.setValue(SettingsClass.MESSAGE_BASE, "news");
         }
 
         // FIXME: enable for release!!!
@@ -263,7 +301,7 @@ public class SettingsClass implements Savable {
         Iterator i = sortedSettings.keySet().iterator();
         while (i.hasNext()) {
             String key = (String) i.next();
-            if (key.equals("config.dir")) {
+            if (key.equals(DIR_CONFIG)) {
                 continue; // do not save the config dir, its unchangeable
             }
 
@@ -549,7 +587,7 @@ public class SettingsClass implements Savable {
     public void setValue(String key, String value) {
         // for all dirs ensure correct separator chars and a separator checr at end of name
         if( key.endsWith(".dir") ) {
-            value = setSystemsFileSeparator(value);
+            value = setSystemFileSeparator(value);
         }
         Object oldValue = settingsHash.get(key);
         settingsHash.put(key, value);
@@ -590,26 +628,28 @@ public class SettingsClass implements Savable {
         File fn = File.listRoots()[0];
         
         // DIRECTORIES
-        defaults.put("keypool.dir", "keypool" + fs);
+//        defaults.put("keypool.dir", "keypool" + fs);
 //        defaults.put("unsent.dir", "localdata" + fs + "unsent" + fs);
-        defaults.put("sent.dir", "localdata" + fs + "sent" + fs);
-        defaults.put("temp.dir", "localdata" + fs + "temp" + fs);
-        defaults.put("archive.dir", "archive" + fs);
-        defaults.put("downloadDirectory", "downloads" + fs);
-        defaults.put("lastUsedDirectory", "." + fs);
-
-        defaults.put("mainframe.showSimpleTitle", "false");
+//        defaults.put("sent.dir", "localdata" + fs + "sent" + fs);
+//        defaults.put("archive.dir", "archive" + fs);
+        defaults.put(DIR_TEMP, "localdata" + fs + "temp" + fs);
+        defaults.put(DIR_LOCALDATA, "localdata" + fs);
         
+        defaults.put(DIR_DOWNLOAD, "downloads" + fs);
+        defaults.put(DIR_LAST_USED, "." + fs);
+
         defaults.put(DISABLE_FILESHARING, "false");
         defaults.put(DISABLE_SPLASHSCREEN, "false");
 
         defaults.put(ALTERNATE_EDITOR_COMMAND, fn + "path" + fs + "to" + fs + "editor" + " %f");
-        defaults.put("automaticUpdate", "true");
-        defaults.put("automaticUpdate.concurrentBoardUpdates", "6");
-        // no. of concurrent updating boards in auto update
-        defaults.put("automaticUpdate.boardsMinimumUpdateInterval", "45");
-        // time in min to wait between start of updates for 1 board
-        defaults.put("boardUpdateVisualization", "true");
+        defaults.put(BOARD_AUTOUPDATE_ENABLED, "true"); 
+        defaults.put(BOARD_AUTOUPDATE_CONCURRENT_UPDATES, "6"); // no. of concurrent updating boards in auto update
+        defaults.put(BOARD_AUTOUPDATE_MIN_INTERVAL, "45"); // time in min to wait between start of updates for 1 board
+        
+        defaults.put(BOARD_UPDATE_VISUALIZATION_ENABLED, "true");
+        defaults.put(BOARD_UPDATE_VISUALIZATION_BGCOLOR_NOT_SELECTED, new Color(233, 233, 233)); // "type.color(233,233,233)"
+        defaults.put(BOARD_UPDATE_VISUALIZATION_BGCOLOR_SELECTED, new Color(137, 137, 191)); // "type.color(137,137,191)"
+        
         defaults.put("doBoardBackoff", "false");
         defaults.put("spamTreshold", "5");
         defaults.put("sampleInterval", "5");
@@ -633,11 +673,11 @@ public class SettingsClass implements Savable {
         defaults.put(DOWNLOAD_MAX_THREADS, "3");
         defaults.put(DOWNLOADING_ACTIVATED, "true");
 
-        defaults.put("downloadMaxRetries", "25");
-        defaults.put("downloadWaittime", "5");
+        defaults.put(DOWNLOAD_MAX_RETRIES, "25");
+        defaults.put(DOWNLOAD_WAITTIME, "5");
 
-        defaults.put("downloadDecodeAfterEachSegment", "true");
-        defaults.put("downloadTryAllSegments", "true");
+        defaults.put(DOWNLOAD_DECODE_AFTER_EACH_SEGMENT, "true");
+        defaults.put(DOWNLOAD_TRY_ALL_SEGMENTS, "true");
 
         defaults.put("htlUpload", "21");
         defaults.put(MAX_MESSAGE_DISPLAY, "15");
@@ -647,40 +687,37 @@ public class SettingsClass implements Savable {
         defaults.put(MIN_DAYS_BEFORE_FILE_RESHARE, "3"); // reshare all 3 days
         defaults.put(MAX_FILELIST_DOWNLOAD_DAYS, "7"); // download backward 7 days
 
-        defaults.put("messageBase", "news");
+        defaults.put(MESSAGE_BASE, "news");
         defaults.put(FILE_BASE, "files");
 
         defaults.put(SHOW_SYSTRAY_ICON, "true");
         defaults.put("removeFinishedDownloads", "false");
         defaults.put("reducedBlockCheck", "false");
         defaults.put("maxSearchResults", "10000");
-        defaults.put("splitfileDownloadThreads", "30");
-        defaults.put("splitfileUploadThreads", "15");
-        defaults.put("tofDownloadHtl", "23");
+        defaults.put("splitfileDownloadThreads", "30"); // DOWNLOAD_SPLITFILE_THREADS
+        defaults.put("splitfileUploadThreads", "15"); // UPLOAD_SPLITFILE_THREADS
+        defaults.put("tofDownloadHtl", "23"); // HTL_MESSAGE_DOWNLOAD
         defaults.put("tofTreeSelectedRow", "0");
-        defaults.put("tofUploadHtl", "21");
+        defaults.put("tofUploadHtl", "21"); // HTL_MESSAGE_UPLOAD
         defaults.put("uploadThreads", "3");
         defaults.put("uploadingActivated", "true");
         defaults.put("hideBadFiles", "true");
         defaults.put("hideAnonFiles", "false");
         defaults.put(ALTERNATE_EDITOR_ENABLED, "false");
         defaults.put("userName", "Anonymous");
-        defaults.put("audioExtension", ".mp3;.ogg;.wav;.mid;.mod;.flac;.sid");
-        defaults.put("videoExtension", ".mpeg;.mpg;.avi;.divx;.asf;.wmv;.rm;.ogm;.mov");
-        defaults.put("documentExtension", ".doc;.txt;.tex;.pdf;.dvi;.ps;.odt;.sxw;.sdw;.rtf;.pdb;.psw");
-        defaults.put("executableExtension", ".exe;.vbs;.jar;.sh;.bat;.bin");
-        defaults.put("archiveExtension", ".zip;.rar;.jar;.gz;.arj;.ace;.bz;.tar;.tgz;.tbz");
-        defaults.put("imageExtension", ".jpeg;.jpg;.jfif;.gif;.png;.tif;.tiff;.bmp;.xpm");
+        defaults.put("audioExtension", ".mp3;.ogg;.wav;.mid;.mod;.flac;.sid"); // FILEEXTENSION_AUDIO
+        defaults.put("videoExtension", ".mpeg;.mpg;.avi;.divx;.asf;.wmv;.rm;.ogm;.mov"); // FILEEXTENSION_VIDEO
+        defaults.put("documentExtension", ".doc;.txt;.tex;.pdf;.dvi;.ps;.odt;.sxw;.sdw;.rtf;.pdb;.psw"); // FILEEXTENSION_DOCUMENT
+        defaults.put("executableExtension", ".exe;.vbs;.jar;.sh;.bat;.bin"); // FILEEXTENSION_EXECUTABLE
+        defaults.put("archiveExtension", ".zip;.rar;.jar;.gz;.arj;.ace;.bz;.tar;.tgz;.tbz"); // FILEEXTENSION_ARCHIVE
+        defaults.put("imageExtension", ".jpeg;.jpg;.jfif;.gif;.png;.tif;.tiff;.bmp;.xpm"); // FILEEXTENSION_IMAGE
         defaults.put(AUTO_SAVE_INTERVAL, "15");
 
-        defaults.put("messageExpireDays", "90");
-        defaults.put("messageExpirationMode", "KEEP"); // KEEP or ARCHIVE or DELETE, default KEEP
+        defaults.put(MESSAGE_EXPIRE_DAYS, "90");
+        defaults.put(MESSAGE_EXPIRATION_MODE, "KEEP"); // KEEP or ARCHIVE or DELETE, default KEEP
 
-        defaults.put("boardUpdatingNonSelectedBackgroundColor", new Color(233, 233, 233)); // "type.color(233,233,233)"
-        defaults.put("boardUpdatingSelectedBackgroundColor", new Color(137, 137, 191)); // "type.color(137,137,191)"
-
-        defaults.put("skinsEnabled", "false");
-        defaults.put("selectedSkin", "none");
+        defaults.put("skinsEnabled", "false"); // SKINS_ENABLED
+        defaults.put("selectedSkin", "none"); // SKIN_NAME
 
         defaults.put("locale", "default");
 
@@ -700,7 +737,7 @@ public class SettingsClass implements Savable {
         defaults.put(FILE_LIST_FONT_STYLE, new Integer(Font.PLAIN).toString());
         defaults.put(FILE_LIST_FONT_SIZE, "11");
 
-        defaults.put("messageBodyAA", "false");
+        defaults.put(MESSAGE_BODY_ANTIALIAS, "false");
         defaults.put(MSGTABLE_MULTILINE_SELECT, "false");
         defaults.put(MSGTABLE_SCROLL_HORIZONTAL, "false");
         
@@ -719,9 +756,6 @@ public class SettingsClass implements Savable {
         defaults.put(UPLOAD_MAX_RETRIES, "5");
         defaults.put(UPLOAD_RETRIES_WAIT_TIME, "5");
 
-        defaults.put("oneTimeUpdate.convertSigs.didRun", "false");
-        defaults.put("oneTimeUpdate.repairIdentities.didRun", "false");
-        
         defaults.put(SHOW_THREADS, "true");
         
         defaults.put(SHOW_COLORED_ROWS, "true");

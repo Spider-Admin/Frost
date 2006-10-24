@@ -52,7 +52,7 @@ public class DownloadThread extends Thread {
     public void run() {
         ticker.threadStarted();
         try {
-            File newFile = new File(Core.frostSettings.getValue("downloadDirectory") + filename);
+            File newFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + filename);
 
             // if we don't have the CHK, we should not be here
             if (key == null) {
@@ -97,7 +97,7 @@ public class DownloadThread extends Thread {
                 logger.warning("FILEDN: Download of " + filename + " failed.");
                 if (inTable == true) {
                     // set new state -> failed or waiting for another try
-                    if (downloadItem.getRetries() > Core.frostSettings.getIntValue("downloadMaxRetries")) {
+                    if (downloadItem.getRetries() > Core.frostSettings.getIntValue(SettingsClass.DOWNLOAD_MAX_RETRIES)) {
                         downloadItem.setState(FrostDownloadItem.STATE_FAILED);
                     } else {
                         downloadItem.setState(FrostDownloadItem.STATE_WAITING);

@@ -255,7 +255,7 @@ class DisplayPanel extends JPanel {
         selectedFileListFont = new Font(fontName, fontStyle, fontSize);
         selectedFileListFontLabel.setText(getFontLabel(selectedFileListFont));
 
-        messageBodyAACheckBox.setSelected(settings.getBoolValue("messageBodyAA"));
+        messageBodyAACheckBox.setSelected(settings.getBoolValue(SettingsClass.MESSAGE_BODY_ANTIALIAS));
         msgTableMultilineSelectCheckBox.setSelected(settings.getBoolValue(SettingsClass.MSGTABLE_MULTILINE_SELECT));
         msgTableScrollHorizontalCheckBox.setSelected(settings.getBoolValue(SettingsClass.MSGTABLE_SCROLL_HORIZONTAL));
         showBoardUpdateCountCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_BOARD_UPDATED_COUNT));
@@ -332,7 +332,7 @@ class DisplayPanel extends JPanel {
             settings.setValue(SettingsClass.FILE_LIST_FONT_STYLE, selectedFileListFont.getStyle());
             settings.setValue(SettingsClass.FILE_LIST_FONT_SIZE, selectedFileListFont.getSize());
         }
-        settings.setValue("messageBodyAA", messageBodyAACheckBox.isSelected());
+        settings.setValue(SettingsClass.MESSAGE_BODY_ANTIALIAS, messageBodyAACheckBox.isSelected());
         settings.setValue(SettingsClass.MSGTABLE_MULTILINE_SELECT, msgTableMultilineSelectCheckBox.isSelected());
         settings.setValue(SettingsClass.MSGTABLE_SCROLL_HORIZONTAL, msgTableScrollHorizontalCheckBox.isSelected());
         settings.setValue(SettingsClass.SHOW_BOARD_UPDATED_COUNT, showBoardUpdateCountCheckBox.isSelected());
