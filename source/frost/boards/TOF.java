@@ -734,19 +734,19 @@ public class TOF {
      */
     private void processAttachedBoards(FrostMessageObject currentMsg) {
         if( currentMsg.isMessageStatusOLD() &&
-            Core.frostSettings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_UNSIGNED) == true )
+            Core.frostSettings.getBoolValue(SettingsClass.KNOWNBOARDS_BLOCK_FROM_UNSIGNED) == true )
         {
             logger.info("Boards from unsigned message blocked");
         } else if( currentMsg.isMessageStatusBAD() &&
-                   Core.frostSettings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_BAD) == true )
+                   Core.frostSettings.getBoolValue(SettingsClass.KNOWNBOARDS_BLOCK_FROM_BAD) == true )
         {
             logger.info("Boards from BAD message blocked");
         } else if( currentMsg.isMessageStatusCHECK() &&
-                   Core.frostSettings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_CHECK) == true )
+                   Core.frostSettings.getBoolValue(SettingsClass.KNOWNBOARDS_BLOCK_FROM_CHECK) == true )
         {
             logger.info("Boards from CHECK message blocked");
         } else if( currentMsg.isMessageStatusOBSERVE() &&
-                   Core.frostSettings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_OBSERVE) == true )
+                   Core.frostSettings.getBoolValue(SettingsClass.KNOWNBOARDS_BLOCK_FROM_OBSERVE) == true )
         {
             logger.info("Boards from OBSERVE message blocked");
         } else if( currentMsg.isMessageStatusTAMPERED() ) {

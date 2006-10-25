@@ -193,7 +193,7 @@ public class FirstStartup {
     }
     
     private void takeoverOldSettings(SettingsClass importedSettings, SettingsClass newSettings) {
-        // FIXME: take over several frost.ini settings!
+
         newSettings.setValue(SettingsClass.MESSAGE_EXPIRE_DAYS, 
                 importedSettings.getIntValue(SettingsClass.MESSAGE_EXPIRE_DAYS));
         newSettings.setValue(SettingsClass.MESSAGE_EXPIRATION_MODE, 
@@ -208,6 +208,9 @@ public class FirstStartup {
                 importedSettings.getIntValue(SettingsClass.FREENET_VERSION));
         newSettings.setValue(SettingsClass.AVAILABLE_NODES, 
                 importedSettings.getValue(SettingsClass.AVAILABLE_NODES));
+        
+        newSettings.setValue(SettingsClass.LANGUAGE_LOCALE, 
+                importedSettings.getValue(SettingsClass.LANGUAGE_LOCALE));
     }
 
     public File getImportBaseDir() {
