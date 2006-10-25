@@ -182,6 +182,30 @@ public class SentMessagesTable extends SortedModelTable {
         
         private void deleteSelectedMessages() {
             ModelItem[] selectedItems = getSelectedItems();
+            if( selectedItems.length == 0 ) {
+                return;
+            }
+            int answer; 
+            if( selectedItems.length == 1 ) {
+                answer = JOptionPane.showConfirmDialog( 
+                        MainFrame.getInstance(), 
+                        language.getString("SentMessages.confirmDeleteOneMessageDialog.text"), 
+                        language.getString("SentMessages.confirmDeleteOneMessageDialog.title"), 
+                        JOptionPane.YES_NO_OPTION, 
+                        JOptionPane.QUESTION_MESSAGE);
+            } else {
+                answer = JOptionPane.showConfirmDialog( 
+                        MainFrame.getInstance(), 
+                        language.formatMessage("SentMessages.confirmDeleteMessagesDialog.text", ""+selectedItems.length), 
+                        language.getString("SentMessages.confirmDeleteMessagesDialog.title"), 
+                        JOptionPane.YES_NO_OPTION, 
+                        JOptionPane.QUESTION_MESSAGE);
+            }
+            
+            if( answer != JOptionPane.YES_OPTION ) {
+                return;
+            }
+
             tableModel.removeItems(selectedItems);
             MainFrame.getInstance().getMessageInfoPanel().updateSentMessagesCount();
         }

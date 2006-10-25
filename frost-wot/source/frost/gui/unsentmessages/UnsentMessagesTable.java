@@ -190,6 +190,30 @@ public class UnsentMessagesTable extends SortedModelTable {
         
         private void deleteSelectedMessages() {
             ModelItem[] selectedItems = getSelectedItems();
+            if( selectedItems.length == 0 ) {
+                return;
+            }
+            int answer; 
+            if( selectedItems.length == 1 ) {
+                answer = JOptionPane.showConfirmDialog( 
+                        MainFrame.getInstance(), 
+                        language.getString("UnsentMessages.confirmDeleteOneMessageDialog.text"), 
+                        language.getString("UnsentMessages.confirmDeleteOneMessageDialog.title"), 
+                        JOptionPane.YES_NO_OPTION, 
+                        JOptionPane.QUESTION_MESSAGE);
+            } else {
+                answer = JOptionPane.showConfirmDialog( 
+                        MainFrame.getInstance(), 
+                        language.formatMessage("UnsentMessages.confirmDeleteMessagesDialog.text", ""+selectedItems.length), 
+                        language.getString("UnsentMessages.confirmDeleteMessagesDialog.title"), 
+                        JOptionPane.YES_NO_OPTION, 
+                        JOptionPane.QUESTION_MESSAGE);
+            }
+            
+            if( answer != JOptionPane.YES_OPTION ) {
+                return;
+            }
+            
             FrostUnsentMessageObject failedItem = tableModel.deleteItems(selectedItems);
             if( failedItem != null ) {
                 JOptionPane.showMessageDialog(
