@@ -34,8 +34,6 @@ import frost.util.Logging;
  */
 public class SettingsClass implements Savable {
     
-    // FIXME: change all textual references into String
-    
     private File settingsFile;
     private Hashtable settingsHash;
     private Hashtable defaults = null;
@@ -52,6 +50,8 @@ public class SettingsClass implements Savable {
     public static final String DIR_LOCALDATA = "localdata.dir";
     
     public static final String FREENET_VERSION = "freenetVersion";
+    
+    public static final String LANGUAGE_LOCALE = "locale";
 
     public static final String COMPACT_DBTABLES = "compactDatabaseTables";
 
@@ -75,14 +75,22 @@ public class SettingsClass implements Savable {
     public static final String SHOW_DELETED_MESSAGES = "showDeletedMessages";
     public static final String SILENTLY_RETRY_MESSAGES = "silentlyRetryMessages";
     public static final String RECEIVE_DUPLICATE_MESSAGES = "receiveDuplicateMessages";
-    public static final String UPLOAD_MAX_RETRIES = "uploadMaxRetries";
-    public static final String UPLOAD_RETRIES_WAIT_TIME = "uploadRetriesWaitTime";
+
     public static final String ALWAYS_DOWNLOAD_MESSAGES_BACKLOAD = "alwaysDownloadMessagesBackload";
+
+    public static final String UPLOAD_MAX_RETRIES = "uploadMaxRetries";
+    public static final String UPLOAD_WAITTIME = "uploadRetriesWaitTime";
+    public static final String UPLOAD_MAX_THREADS = "uploadThreads";
+    public static final String UPLOAD_FILE_HTL = "htlUpload";
+    public static final String UPLOAD_MAX_SPLITFILE_THREADS = "splitfileUploadThreads";
+
     public static final String DOWNLOAD_MAX_THREADS = "downloadThreads";
     public static final String DOWNLOAD_MAX_RETRIES = "downloadMaxRetries";
     public static final String DOWNLOAD_WAITTIME = "downloadWaittime";
     public static final String DOWNLOAD_TRY_ALL_SEGMENTS = "downloadTryAllSegments";
     public static final String DOWNLOAD_DECODE_AFTER_EACH_SEGMENT = "downloadDecodeAfterEachSegment";
+    public static final String DOWNLOAD_REMOVE_FINISHED = "removeFinishedDownloads";
+    public static final String DOWNLOAD_MAX_SPLITFILE_THREADS = "splitfileDownloadThreads";
 
     public static final String MSGTABLE_MULTILINE_SELECT = "messageTableMultilineSelect";
     public static final String MSGTABLE_SCROLL_HORIZONTAL = "messageTableScrollHorizontal";
@@ -95,10 +103,33 @@ public class SettingsClass implements Savable {
     public static final String MAX_MESSAGE_DISPLAY = "maxMessageDisplay";
     public static final String MAX_MESSAGE_DOWNLOAD = "maxMessageDownload";
     
+    public static final String SKINS_ENABLED = "skinsEnabled";
+    public static final String SKIN_NAME = "selectedSkin";
+    
+    public static final String SEARCH_MAX_RESULTS = "maxSearchResults";
+    public static final String SEARCH_HIDE_BAD = "hideBadFiles";
+    public static final String SEARCH_HIDE_ANONYMOUS = "hideAnonFiles";
+    
+    public static final String BOARDLIST_LAST_SELECTED_BOARD = "tofTreeSelectedRow";
+    
     public static final String HIDE_MESSAGES_OBSERVE = "hideObserveMessages";
     public static final String HIDE_MESSAGES_CHECK = "hideCheckMessages";
     public static final String HIDE_MESSAGES_BAD = "hideBadMessages";
     public static final String HIDE_MESSAGES_UNSIGNED = "signedOnly";
+    
+    public static final String BOARD_CHECK_SPAM_ENABLED = "doBoardBackoff";
+    public static final String BOARD_CHECK_SPAM_TRESHOLD = "spamTreshold";
+    public static final String BOARD_CHECK_SPAM_SAMPLE_INTERVAL = "spamTreshold";
+    
+    public static final String MESSAGE_DOWNLOAD_HTL = "tofDownloadHtl";
+    public static final String MESSAGE_UPLOAD_HTL = "tofUploadHtl";
+    
+    public static final String MESSAGE_BLOCK_SUBJECT = "blockMessage";
+    public static final String MESSAGE_BLOCK_SUBJECT_ENABLED = "blockMessageChecked";
+    public static final String MESSAGE_BLOCK_BODY = "blockMessageBody";
+    public static final String MESSAGE_BLOCK_BODY_ENABLED = "blockMessageBodyChecked";
+    public static final String MESSAGE_BLOCK_BOARDNAME = "blockMessageBoard";
+    public static final String MESSAGE_BLOCK_BOARDNAME_ENABLED = "blockMessageBoardChecked";
 
     public static final String BLOCK_BOARDS_FROM_OBSERVE = "blockBoardsFromObserve";
     public static final String BLOCK_BOARDS_FROM_CHECK = "blockBoardsFromCheck";
@@ -131,6 +162,21 @@ public class SettingsClass implements Savable {
     
     public static final String MIN_DAYS_BEFORE_FILE_RESHARE = "minDaysBeforeFileReshare";
     public static final String MAX_FILELIST_DOWNLOAD_DAYS = "fileListDownloadDays";
+    
+    public static final String FILEEXTENSION_AUDIO = "audioExtension";
+    public static final String FILEEXTENSION_VIDEO = "videoExtension";
+    public static final String FILEEXTENSION_DOCUMENT = "documentExtension";
+    public static final String FILEEXTENSION_EXECUTABLE = "executableExtension";
+    public static final String FILEEXTENSION_ARCHIVE = "archiveExtension";
+    public static final String FILEEXTENSION_IMAGE = "imageExtension";
+    
+    public static final String LAST_USED_FROMNAME = "userName";
+    
+    public static final String MAINFRAME_LAST_WIDTH = "lastFrameWidth";
+    public static final String MAINFRAME_LAST_HEIGHT = "lastFrameHeight";
+    public static final String MAINFRAME_LAST_X = "lastFramePosX";
+    public static final String MAINFRAME_LAST_Y = "lastFramePosY";
+    public static final String MAINFRAME_LAST_MAXIMIZED = "lastFrameMaximized";
 
     public SettingsClass() {
         settingsHash = new Hashtable();
@@ -650,16 +696,17 @@ public class SettingsClass implements Savable {
         defaults.put(BOARD_UPDATE_VISUALIZATION_BGCOLOR_NOT_SELECTED, new Color(233, 233, 233)); // "type.color(233,233,233)"
         defaults.put(BOARD_UPDATE_VISUALIZATION_BGCOLOR_SELECTED, new Color(137, 137, 191)); // "type.color(137,137,191)"
         
-        defaults.put("doBoardBackoff", "false");
-        defaults.put("spamTreshold", "5");
-        defaults.put("sampleInterval", "5");
-        defaults.put("blockMessage", "");
-        defaults.put("blockMessageChecked", "false");
-        defaults.put("blockMessageBody", "");
-        defaults.put("blockMessageBodyChecked", "false");
-        defaults.put("blockMessageBoard", "");
-        defaults.put("blockMessageBoardChecked", "false");
-
+        defaults.put(BOARD_CHECK_SPAM_ENABLED, "false");
+        defaults.put(BOARD_CHECK_SPAM_TRESHOLD, "5"); 
+        defaults.put(BOARD_CHECK_SPAM_SAMPLE_INTERVAL, "5"); 
+        
+        defaults.put(MESSAGE_BLOCK_SUBJECT, "");
+        defaults.put(MESSAGE_BLOCK_SUBJECT_ENABLED, "false");
+        defaults.put(MESSAGE_BLOCK_BODY, ""); 
+        defaults.put(MESSAGE_BLOCK_BODY_ENABLED, "false");
+        defaults.put(MESSAGE_BLOCK_BOARDNAME, "");
+        defaults.put(MESSAGE_BLOCK_BOARDNAME_ENABLED, "false");
+        
         defaults.put(HIDE_MESSAGES_UNSIGNED, "false");
         defaults.put(HIDE_MESSAGES_BAD, "false");
         defaults.put(HIDE_MESSAGES_CHECK, "false");
@@ -679,7 +726,7 @@ public class SettingsClass implements Savable {
         defaults.put(DOWNLOAD_DECODE_AFTER_EACH_SEGMENT, "true");
         defaults.put(DOWNLOAD_TRY_ALL_SEGMENTS, "true");
 
-        defaults.put("htlUpload", "21");
+        defaults.put(UPLOAD_FILE_HTL, "21");
         defaults.put(MAX_MESSAGE_DISPLAY, "15");
         defaults.put(MAX_MESSAGE_DOWNLOAD, "5");
         defaults.put(ALWAYS_DOWNLOAD_MESSAGES_BACKLOAD, "false");
@@ -691,42 +738,43 @@ public class SettingsClass implements Savable {
         defaults.put(FILE_BASE, "files");
 
         defaults.put(SHOW_SYSTRAY_ICON, "true");
-        defaults.put("removeFinishedDownloads", "false");
-        defaults.put("reducedBlockCheck", "false");
-        defaults.put("maxSearchResults", "10000");
-        defaults.put("splitfileDownloadThreads", "30"); // DOWNLOAD_SPLITFILE_THREADS
-        defaults.put("splitfileUploadThreads", "15"); // UPLOAD_SPLITFILE_THREADS
-        defaults.put("tofDownloadHtl", "23"); // HTL_MESSAGE_DOWNLOAD
-        defaults.put("tofTreeSelectedRow", "0");
-        defaults.put("tofUploadHtl", "21"); // HTL_MESSAGE_UPLOAD
-        defaults.put("uploadThreads", "3");
-        defaults.put("uploadingActivated", "true");
-        defaults.put("hideBadFiles", "true");
-        defaults.put("hideAnonFiles", "false");
+        defaults.put(DOWNLOAD_REMOVE_FINISHED, "false");
+        
+        defaults.put(SEARCH_MAX_RESULTS, "10000");
+        defaults.put(SEARCH_HIDE_BAD, "true");
+        defaults.put(SEARCH_HIDE_ANONYMOUS, "false");
+
+        defaults.put(DOWNLOAD_MAX_SPLITFILE_THREADS, "30");
+        defaults.put(UPLOAD_MAX_SPLITFILE_THREADS, "15");
+        
+        defaults.put(MESSAGE_DOWNLOAD_HTL, "23");
+        defaults.put(BOARDLIST_LAST_SELECTED_BOARD, "0");
+        defaults.put(MESSAGE_UPLOAD_HTL, "21"); // HTL_MESSAGE_UPLOAD
+        defaults.put(UPLOAD_MAX_THREADS, "3");
         defaults.put(ALTERNATE_EDITOR_ENABLED, "false");
-        defaults.put("userName", "Anonymous");
-        defaults.put("audioExtension", ".mp3;.ogg;.wav;.mid;.mod;.flac;.sid"); // FILEEXTENSION_AUDIO
-        defaults.put("videoExtension", ".mpeg;.mpg;.avi;.divx;.asf;.wmv;.rm;.ogm;.mov"); // FILEEXTENSION_VIDEO
-        defaults.put("documentExtension", ".doc;.txt;.tex;.pdf;.dvi;.ps;.odt;.sxw;.sdw;.rtf;.pdb;.psw"); // FILEEXTENSION_DOCUMENT
-        defaults.put("executableExtension", ".exe;.vbs;.jar;.sh;.bat;.bin"); // FILEEXTENSION_EXECUTABLE
-        defaults.put("archiveExtension", ".zip;.rar;.jar;.gz;.arj;.ace;.bz;.tar;.tgz;.tbz"); // FILEEXTENSION_ARCHIVE
-        defaults.put("imageExtension", ".jpeg;.jpg;.jfif;.gif;.png;.tif;.tiff;.bmp;.xpm"); // FILEEXTENSION_IMAGE
+        defaults.put(LAST_USED_FROMNAME, "Anonymous");
+        defaults.put(FILEEXTENSION_AUDIO, ".mp3;.ogg;.wav;.mid;.mod;.flac;.sid"); 
+        defaults.put(FILEEXTENSION_VIDEO, ".mpeg;.mpg;.avi;.divx;.asf;.wmv;.rm;.ogm;.mov"); 
+        defaults.put(FILEEXTENSION_DOCUMENT, ".doc;.txt;.tex;.pdf;.dvi;.ps;.odt;.sxw;.sdw;.rtf;.pdb;.psw"); 
+        defaults.put(FILEEXTENSION_EXECUTABLE, ".exe;.vbs;.jar;.sh;.bat;.bin"); 
+        defaults.put(FILEEXTENSION_ARCHIVE, ".zip;.rar;.jar;.gz;.arj;.ace;.bz;.tar;.tgz;.tbz"); 
+        defaults.put(FILEEXTENSION_IMAGE, ".jpeg;.jpg;.jfif;.gif;.png;.tif;.tiff;.bmp;.xpm"); 
         defaults.put(AUTO_SAVE_INTERVAL, "15");
 
         defaults.put(MESSAGE_EXPIRE_DAYS, "90");
         defaults.put(MESSAGE_EXPIRATION_MODE, "KEEP"); // KEEP or ARCHIVE or DELETE, default KEEP
 
-        defaults.put("skinsEnabled", "false"); // SKINS_ENABLED
-        defaults.put("selectedSkin", "none"); // SKIN_NAME
+        defaults.put(SKINS_ENABLED, "false");
+        defaults.put(SKIN_NAME, "none");
 
-        defaults.put("locale", "default");
+        defaults.put(LANGUAGE_LOCALE, "default");
 
-        defaults.put("lastFrameWidth", "700");
-        defaults.put("lastFrameHeight", "500");
-        defaults.put("lastFramePosX", "50");
-        defaults.put("lastFramePosY", "50");
-        defaults.put("lastFrameMaximized", "false");
-
+        defaults.put(MAINFRAME_LAST_WIDTH, "700"); // "lastFrameWidth"
+        defaults.put(MAINFRAME_LAST_HEIGHT, "500"); // "lastFrameHeight"
+        defaults.put(MAINFRAME_LAST_X, "50"); // "lastFramePosX"
+        defaults.put(MAINFRAME_LAST_Y, "50"); // "lastFramePosY"
+        defaults.put(MAINFRAME_LAST_MAXIMIZED, "false"); // "lastFrameMaximized"
+        
         defaults.put(MESSAGE_BODY_FONT_NAME, "Monospaced");
         defaults.put(MESSAGE_BODY_FONT_STYLE, new Integer(Font.PLAIN).toString());
         defaults.put(MESSAGE_BODY_FONT_SIZE, "12");
@@ -754,7 +802,7 @@ public class SettingsClass implements Savable {
         defaults.put(RECEIVE_DUPLICATE_MESSAGES, "false");
 
         defaults.put(UPLOAD_MAX_RETRIES, "5");
-        defaults.put(UPLOAD_RETRIES_WAIT_TIME, "5");
+        defaults.put(UPLOAD_WAITTIME, "5");
 
         defaults.put(SHOW_THREADS, "true");
         

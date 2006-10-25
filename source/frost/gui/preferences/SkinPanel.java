@@ -89,9 +89,9 @@ public class SkinPanel extends JPanel {
      * Load the settings of this panel
      */
     private void loadSettings() {
-        boolean skinsEnabled = settings.getBoolValue("skinsEnabled");
+        boolean skinsEnabled = settings.getBoolValue(SettingsClass.SKINS_ENABLED);
         skinChooser.setSkinsEnabled(skinsEnabled);
-        String selectedSkinPath = settings.getValue("selectedSkin");
+        String selectedSkinPath = settings.getValue(SettingsClass.SKIN_NAME);
         skinChooser.setSelectedSkin(selectedSkinPath);
     }
 
@@ -109,13 +109,13 @@ public class SkinPanel extends JPanel {
      */
     private void saveSettings() {
         boolean skinsEnabled = skinChooser.isSkinsEnabled();
-        settings.setValue("skinsEnabled", skinsEnabled);
+        settings.setValue(SettingsClass.SKINS_ENABLED, skinsEnabled);
 
         String selectedSkin = skinChooser.getSelectedSkin();
         if (selectedSkin == null) {
-            settings.setValue("selectedSkin", "none");
+            settings.setValue(SettingsClass.SKIN_NAME, "none");
         } else {
-            settings.setValue("selectedSkin", selectedSkin);
+            settings.setValue(SettingsClass.SKIN_NAME, selectedSkin);
         }
     }
 }

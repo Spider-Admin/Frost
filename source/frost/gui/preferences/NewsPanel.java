@@ -138,8 +138,8 @@ class NewsPanel extends JPanel {
      * Load the settings of this panel
      */
     private void loadSettings() {
-        uploadHtlTextField.setText(settings.getValue("tofUploadHtl"));
-        downloadHtlTextField.setText(settings.getValue("tofDownloadHtl"));
+        uploadHtlTextField.setText(settings.getValue(SettingsClass.MESSAGE_UPLOAD_HTL));
+        downloadHtlTextField.setText(settings.getValue(SettingsClass.MESSAGE_DOWNLOAD_HTL));
         displayDaysTextField.setText(settings.getValue(SettingsClass.MAX_MESSAGE_DISPLAY));
         downloadDaysTextField.setText(settings.getValue(SettingsClass.MAX_MESSAGE_DOWNLOAD));
         messageBaseTextField.setText(settings.getValue(SettingsClass.MESSAGE_BASE));
@@ -164,8 +164,8 @@ class NewsPanel extends JPanel {
      * Save the settings of this panel
      */
     private void saveSettings() {
-        settings.setValue("tofUploadHtl", uploadHtlTextField.getText());
-        settings.setValue("tofDownloadHtl", downloadHtlTextField.getText());
+        settings.setValue(SettingsClass.MESSAGE_UPLOAD_HTL, uploadHtlTextField.getText());
+        settings.setValue(SettingsClass.MESSAGE_DOWNLOAD_HTL, downloadHtlTextField.getText());
         settings.setValue(SettingsClass.MAX_MESSAGE_DISPLAY, displayDaysTextField.getText());
         settings.setValue(SettingsClass.MAX_MESSAGE_DOWNLOAD, downloadDaysTextField.getText());
         settings.setValue(SettingsClass.MESSAGE_BASE, messageBaseTextField.getText().trim().toLowerCase());

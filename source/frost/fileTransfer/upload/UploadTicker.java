@@ -97,7 +97,7 @@ public class UploadTicker extends Thread {
      */
     private boolean allocateUploadingThread() {
         synchronized (uploadingCountLock) {
-            if (allocatedUploadingThreads < Core.frostSettings.getIntValue("uploadThreads")) {
+            if (allocatedUploadingThreads < Core.frostSettings.getIntValue(SettingsClass.UPLOAD_MAX_THREADS)) {
                 allocatedUploadingThreads++;
                 return true;
             }
@@ -294,7 +294,7 @@ public class UploadTicker extends Thread {
                 && (ulItem.getKey() != null || FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) )
             {
                 // check if waittime has expired
-                long waittimeMillis = (long)Core.frostSettings.getIntValue(SettingsClass.UPLOAD_RETRIES_WAIT_TIME) * 60L * 1000L;
+                long waittimeMillis = (long)Core.frostSettings.getIntValue(SettingsClass.UPLOAD_WAITTIME) * 60L * 1000L;
                 if ((System.currentTimeMillis() - ulItem.getLastUploadStopTimeMillis()) > waittimeMillis) {
                     waitingItems.add(ulItem);
                 }

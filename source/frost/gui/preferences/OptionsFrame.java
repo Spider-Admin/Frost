@@ -496,8 +496,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
             || checkHideBadMessages != frostSettings.getBoolValue(SettingsClass.HIDE_MESSAGES_BAD)
             || checkHideCheckMessages != frostSettings.getBoolValue(SettingsClass.HIDE_MESSAGES_CHECK)
             || checkHideObserveMessages != frostSettings.getBoolValue(SettingsClass.HIDE_MESSAGES_OBSERVE)
-            || checkBlock != frostSettings.getBoolValue("blockMessageChecked")
-            || checkBlockBody != frostSettings.getBoolValue("blockMessageBodyChecked")
+            || checkBlock != frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_SUBJECT_ENABLED)
+            || checkBlockBody != frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BODY_ENABLED)
             || checkShowDeletedMessages != frostSettings.getBoolValue("showDeletedMessages")
             || showColoredRows != frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS)
           )
@@ -519,8 +519,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         checkHideBadMessages = frostSettings.getBoolValue(SettingsClass.HIDE_MESSAGES_BAD);
         checkHideCheckMessages = frostSettings.getBoolValue(SettingsClass.HIDE_MESSAGES_CHECK);
         checkHideObserveMessages = frostSettings.getBoolValue(SettingsClass.HIDE_MESSAGES_OBSERVE);
-        checkBlock = frostSettings.getBoolValue("blockMessageChecked");
-        checkBlockBody = frostSettings.getBoolValue("blockMessageBodyChecked");
+        checkBlock = frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_SUBJECT_ENABLED);
+        checkBlockBody = frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BODY_ENABLED);
         checkShowDeletedMessages = frostSettings.getBoolValue("showDeletedMessages");
         
         showColoredRows = frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);

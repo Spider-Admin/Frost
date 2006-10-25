@@ -299,19 +299,19 @@ class News2Panel extends JPanel {
         blockBoardsFromCheckCheckBox.setSelected(settings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_CHECK));
         blockBoardsFromObserveCheckBox.setSelected(settings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_OBSERVE));
 
-        blockSubjectCheckBox.setSelected(settings.getBoolValue("blockMessageChecked"));
+        blockSubjectCheckBox.setSelected(settings.getBoolValue(SettingsClass.MESSAGE_BLOCK_SUBJECT_ENABLED));
         blockSubjectTextField.setEnabled(blockSubjectCheckBox.isSelected());
-        blockSubjectTextField.setText(settings.getValue("blockMessage"));
-        blockBodyCheckBox.setSelected(settings.getBoolValue("blockMessageBodyChecked"));
+        blockSubjectTextField.setText(settings.getValue(SettingsClass.MESSAGE_BLOCK_SUBJECT));
+        blockBodyCheckBox.setSelected(settings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BODY_ENABLED));
         blockBodyTextField.setEnabled(blockBodyCheckBox.isSelected());
-        blockBodyTextField.setText(settings.getValue("blockMessageBody"));
-        blockBoardCheckBox.setSelected(settings.getBoolValue("blockMessageBoardChecked"));
+        blockBodyTextField.setText(settings.getValue(SettingsClass.MESSAGE_BLOCK_BODY));
+        blockBoardCheckBox.setSelected(settings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BOARDNAME_ENABLED));
         blockBoardTextField.setEnabled(blockBoardCheckBox.isSelected());
-        blockBoardTextField.setText(settings.getValue("blockMessageBoard"));
+        blockBoardTextField.setText(settings.getValue(SettingsClass.MESSAGE_BLOCK_BOARDNAME));
 
-        doBoardBackoffCheckBox.setSelected(settings.getBoolValue("doBoardBackoff"));
-        sampleIntervalTextField.setText(settings.getValue("sampleInterval"));
-        spamTresholdTextField.setText(settings.getValue("spamTreshold"));
+        doBoardBackoffCheckBox.setSelected(settings.getBoolValue(SettingsClass.BOARD_CHECK_SPAM_ENABLED));
+        sampleIntervalTextField.setText(settings.getValue(SettingsClass.BOARD_CHECK_SPAM_SAMPLE_INTERVAL));
+        spamTresholdTextField.setText(settings.getValue(SettingsClass.BOARD_CHECK_SPAM_TRESHOLD));
         refreshSpamDetectionState();
     }
 
@@ -355,15 +355,15 @@ class News2Panel extends JPanel {
      * Save the settings of this panel
      */
     private void saveSettings() {
-        settings.setValue("blockMessage", ((blockSubjectTextField.getText()).trim()).toLowerCase());
-        settings.setValue("blockMessageChecked", blockSubjectCheckBox.isSelected());
-        settings.setValue("blockMessageBody", ((blockBodyTextField.getText()).trim()).toLowerCase());
-        settings.setValue("blockMessageBodyChecked", blockBodyCheckBox.isSelected());
-        settings.setValue("blockMessageBoard", ((blockBoardTextField.getText()).trim()).toLowerCase());
-        settings.setValue("blockMessageBoardChecked", blockBoardCheckBox.isSelected());
-        settings.setValue("doBoardBackoff", doBoardBackoffCheckBox.isSelected());
-        settings.setValue("spamTreshold", spamTresholdTextField.getText());
-        settings.setValue("sampleInterval", sampleIntervalTextField.getText());
+        settings.setValue(SettingsClass.MESSAGE_BLOCK_SUBJECT, ((blockSubjectTextField.getText()).trim()).toLowerCase());
+        settings.setValue(SettingsClass.MESSAGE_BLOCK_SUBJECT_ENABLED, blockSubjectCheckBox.isSelected());
+        settings.setValue(SettingsClass.MESSAGE_BLOCK_BODY, ((blockBodyTextField.getText()).trim()).toLowerCase());
+        settings.setValue(SettingsClass.MESSAGE_BLOCK_BODY_ENABLED, blockBodyCheckBox.isSelected());
+        settings.setValue(SettingsClass.MESSAGE_BLOCK_BOARDNAME, ((blockBoardTextField.getText()).trim()).toLowerCase());
+        settings.setValue(SettingsClass.MESSAGE_BLOCK_BOARDNAME_ENABLED, blockBoardCheckBox.isSelected());
+        settings.setValue(SettingsClass.BOARD_CHECK_SPAM_ENABLED, doBoardBackoffCheckBox.isSelected());
+        settings.setValue(SettingsClass.BOARD_CHECK_SPAM_TRESHOLD, spamTresholdTextField.getText());
+        settings.setValue(SettingsClass.BOARD_CHECK_SPAM_SAMPLE_INTERVAL, sampleIntervalTextField.getText());
 
         settings.setValue(SettingsClass.HIDE_MESSAGES_UNSIGNED, hideUnsignedMessagesCheckBox.isSelected());
         settings.setValue(SettingsClass.HIDE_MESSAGES_BAD, hideBadMessagesCheckBox.isSelected());

@@ -193,7 +193,7 @@ public class FileListManager {
         }
         localOwner.updateLastSeenTimestamp(content.getTimestamp());
         
-        if (localOwner.isBAD() && Core.frostSettings.getBoolValue("hideBadFiles")) {
+        if (localOwner.isBAD() && Core.frostSettings.getBoolValue(SettingsClass.SEARCH_HIDE_BAD)) {
             logger.info("Skipped index file from BAD user " + localOwner.getUniqueName());
             return true;
         }

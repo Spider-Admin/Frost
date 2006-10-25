@@ -157,7 +157,7 @@ public class LanguageGuiSupport {
         // finally select currently choosed language
         boolean anItemIsSelected = false;
         
-        String configuredLang = Core.frostSettings.getValue("locale");
+        String configuredLang = Core.frostSettings.getValue(SettingsClass.LANGUAGE_LOCALE);
         String langIsExternal = Core.frostSettings.getValue("localeExternal");
         boolean isExternal;
         if( langIsExternal == null || langIsExternal.length() == 0 || !langIsExternal.equals("true")) {
@@ -224,11 +224,11 @@ public class LanguageGuiSupport {
      */
     private void setLanguageResource(String newLocaleName, boolean isExternal) {
         if( newLocaleName == null ) {
-            Core.frostSettings.setValue("locale", "default");
+            Core.frostSettings.setValue(SettingsClass.LANGUAGE_LOCALE, "default");
             Core.frostSettings.setValue("localeExternal", "false");
             isExternal = false;
         } else {
-            Core.frostSettings.setValue("locale", newLocaleName);
+            Core.frostSettings.setValue(SettingsClass.LANGUAGE_LOCALE, newLocaleName);
             Core.frostSettings.setValue("localeExternal", ""+isExternal);
         }
         language.changeLanguage(newLocaleName, isExternal);

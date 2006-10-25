@@ -134,7 +134,7 @@ public class MessageUploader {
      */
     protected static MessageUploaderResult uploadMessage(MessageUploaderWorkArea wa) throws IOException {
 
-        logger.info("TOFUP: Uploading message to board '" + wa.logBoardName + "' with HTL " + Core.frostSettings.getIntValue("tofUploadHtl"));
+        logger.info("TOFUP: Uploading message to board '" + wa.logBoardName + "' with HTL " + Core.frostSettings.getIntValue(SettingsClass.MESSAGE_UPLOAD_HTL));
 
         boolean tryAgain;
         do {

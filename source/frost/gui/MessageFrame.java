@@ -287,7 +287,7 @@ public class MessageFrame extends JFrame {
             // use remembered sender name, maybe per board
             String userName = Core.frostSettings.getValue("userName."+board.getBoardFilename());
             if( userName == null || userName.length() == 0 ) {
-                userName = Core.frostSettings.getValue("userName");
+                userName = Core.frostSettings.getValue(SettingsClass.LAST_USED_FROMNAME);
             }
             if( Core.getIdentities().isMySelf(userName) ) {
                 // isSigned
@@ -784,7 +784,7 @@ public class MessageFrame extends JFrame {
         // for convinience set last used user
         if( from.indexOf("@") < 0 ) {
             // only save anonymous usernames
-            frostSettings.setValue("userName", from);
+            frostSettings.setValue(SettingsClass.LAST_USED_FROMNAME, from);
         }
         frostSettings.setValue("userName."+board.getBoardFilename(), from);
         

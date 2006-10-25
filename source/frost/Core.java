@@ -574,7 +574,7 @@ public class Core implements FrostEventDispatcher  {
         timer.schedule(
             new CheckForSpam(frostSettings, getBoardsManager().getTofTree(), getBoardsManager().getTofTreeModel()),
             1L * 60L * 60L * 1000L, // wait 1 min
-            (long)frostSettings.getIntValue("sampleInterval") * 60L * 60L * 1000L);
+            (long)frostSettings.getIntValue(SettingsClass.BOARD_CHECK_SPAM_SAMPLE_INTERVAL) * 60L * 60L * 1000L);
 
         // initialize the task that frees memory
         TimerTask cleaner = new TimerTask() {
@@ -620,9 +620,9 @@ public class Core implements FrostEventDispatcher  {
      * @param frostSettings the SettingsClass that has the preferences to initialize the skins
      */
     private void initializeSkins() {
-        String skinsEnabled = frostSettings.getValue("skinsEnabled");
+        String skinsEnabled = frostSettings.getValue(SettingsClass.SKINS_ENABLED);
         if ((skinsEnabled != null) && (skinsEnabled.equals("true"))) {
-            String selectedSkinPath = frostSettings.getValue("selectedSkin");
+            String selectedSkinPath = frostSettings.getValue(SettingsClass.SKIN_NAME);
             if ((selectedSkinPath != null) && (!selectedSkinPath.equals("none"))) {
                 try {
                     Skin selectedSkin = SkinLookAndFeel.loadThemePack(selectedSkinPath);
@@ -631,11 +631,11 @@ public class Core implements FrostEventDispatcher  {
                 } catch (UnsupportedLookAndFeelException exception) {
                     logger.severe("The selected skin is not supported by your system\n" +
                                 "Skins will be disabled until you choose another one");
-                    frostSettings.setValue("skinsEnabled", false);
+                    frostSettings.setValue(SettingsClass.SKINS_ENABLED, false);
                 } catch (Exception exception) {
                     logger.severe("There was an error while loading the selected skin\n" +
                                 "Skins will be disabled until you choose another one");
-                    frostSettings.setValue("skinsEnabled", false);
+                    frostSettings.setValue(SettingsClass.SKINS_ENABLED, false);
                 }
             }
         }
@@ -664,11 +664,11 @@ public class Core implements FrostEventDispatcher  {
             Language.initializeWithName(Frost.getCmdLineLocaleName());
         } else {
             // use config file parameter (format: de or de;ext
-            String lang = frostSettings.getValue("locale");
+            String lang = frostSettings.getValue(SettingsClass.LANGUAGE_LOCALE);
             String langIsExternal = frostSettings.getValue("localeExternal");
             if( lang == null || lang.length() == 0 || lang.equals("default") ) {
                 // for default or if not set at all
-                frostSettings.setValue("locale", "default");
+                frostSettings.setValue(SettingsClass.LANGUAGE_LOCALE, "default");
                 Language.initializeWithName(null);
             } else {
                 boolean isExternal;
