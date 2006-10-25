@@ -34,8 +34,6 @@ public class SharedFilesDatabaseTable extends AbstractDatabaseTable {
 
     private static Logger logger = Logger.getLogger(SharedFilesDatabaseTable.class.getName());
 
-    // TODO: wie NEWUPLOADFILES darstellen? erstmal als grau in die table, oder einfach einen todo-count ueber die table?
-
     private final static String SQL_SHAREDFILES_DDL =
         "CREATE TABLE SHAREDFILES ("+
 
@@ -57,6 +55,8 @@ public class SharedFilesDatabaseTable extends AbstractDatabaseTable {
 
           "requestlastreceived BIGINT,"+  // time when we received the last request for this sha
           "requestsreceivedcount INT,"+   // received requests count
+          
+          "lastmodified BIGINT"+
 
         "CONSTRAINT SHAREDFILES_1 UNIQUE(sha) )";
 
@@ -81,8 +81,8 @@ public class SharedFilesDatabaseTable extends AbstractDatabaseTable {
         PreparedStatement ps = db.prepare(
                 "INSERT INTO SHAREDFILES ("+
                   "path,size,fnkey,sha,owner,comment,rating,keywords,"+
-                  "lastuploaded,uploadcount,reflastsent,requestlastreceived,requestsreceivedcount) "+
-                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+                  "lastuploaded,uploadcount,reflastsent,requestlastreceived,requestsreceivedcount,lastmodified) "+
+                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
         
         for(Iterator i=sfFiles.iterator(); i.hasNext(); ) {
 
@@ -102,6 +102,7 @@ public class SharedFilesDatabaseTable extends AbstractDatabaseTable {
             ps.setLong(ix++, sfItem.getRefLastSent());
             ps.setLong(ix++, sfItem.getRequestLastReceived());
             ps.setInt(ix++, sfItem.getRequestsReceived());
+            ps.setLong(ix++, sfItem.getLastModified());
             
             ps.executeUpdate();
         }
@@ -117,7 +118,7 @@ public class SharedFilesDatabaseTable extends AbstractDatabaseTable {
         PreparedStatement ps = db.prepare(
                 "SELECT "+
                   "path,size,fnkey,sha,owner,comment,rating,keywords,"+
-                  "lastuploaded,uploadcount,reflastsent,requestlastreceived,requestsreceivedcount "+
+                  "lastuploaded,uploadcount,reflastsent,requestlastreceived,requestsreceivedcount,lastmodified "+
                 "FROM SHAREDFILES");
 
         ResultSet rs = ps.executeQuery();
@@ -137,15 +138,19 @@ public class SharedFilesDatabaseTable extends AbstractDatabaseTable {
             long refLastSent = rs.getLong(ix++);
             long requestLastReceived = rs.getLong(ix++);
             int requestsReceivedCount = rs.getInt(ix++);
-            
+            long lastModified = rs.getLong(ix++);
+
+            boolean fileIsOk = true;
             File file = new File(filepath);
             if( !file.isFile() ) {
-                logger.warning("Shared file items file does not exist, removed from shared files: "+filepath);
-                continue;
-            }
-            if( file.length() != filesize ) {
-                logger.warning("Shared file items file size changed, removed from shared files: "+filepath);
-                continue;
+                logger.warning("Shared file items file does not exist: "+filepath);
+                fileIsOk = false;
+            } else if( file.length() != filesize ) {
+                logger.warning("Shared file items file size changed: "+filepath);
+                fileIsOk = false;
+            } else if( file.lastModified() != lastModified ) {
+                logger.warning("Shared file items last modified changed: "+filepath);
+                fileIsOk = false;
             }
             
             FrostSharedFileItem sfItem = new FrostSharedFileItem(
@@ -161,7 +166,9 @@ public class SharedFilesDatabaseTable extends AbstractDatabaseTable {
                     uploadCount,
                     refLastSent,
                     requestLastReceived,
-                    requestsReceivedCount);
+                    requestsReceivedCount,
+                    lastModified,
+                    fileIsOk);
 
             sfItems.add(sfItem);
         }

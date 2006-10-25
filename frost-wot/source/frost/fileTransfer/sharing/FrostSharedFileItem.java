@@ -23,7 +23,6 @@ import java.util.*;
 
 import frost.fileTransfer.*;
 import frost.fileTransfer.upload.*;
-import frost.gui.model.*;
 import frost.threads.*;
 import frost.util.*;
 import frost.util.model.*;
@@ -52,6 +51,10 @@ public class FrostSharedFileItem extends ModelItem {
     
     long requestLastReceived = 0;      // time when we received the last request for this sha
     int requestsReceived = 0;          // received requests count
+    
+    long lastModified = 0;
+    
+    boolean isValid = true;
 
     /**
      * Used to add a new file. SHA1 must be created and must not be already in table!
@@ -59,12 +62,13 @@ public class FrostSharedFileItem extends ModelItem {
     public FrostSharedFileItem(File newFile, String newOwner, String newSha) {
         file = newFile;
         fileSize = file.length();
+        lastModified = newFile.lastModified();
         owner = newOwner;
         sha = newSha;
     }
 
     /**
-     * Constructor used by loadUploadTable
+     * Complete constructor used when loading from database table.
      */
     public FrostSharedFileItem(
             File newFile,
@@ -79,7 +83,9 @@ public class FrostSharedFileItem extends ModelItem {
             int newUploadCount,
             long newRefLastSent,
             long newRequestLastReceived,
-            int newRequestsReceived)
+            int newRequestsReceived,
+            long newLastModified,
+            boolean newIsValid)
     {
         sha = newSha;
         file = newFile;
@@ -94,22 +100,8 @@ public class FrostSharedFileItem extends ModelItem {
         refLastSent = newRefLastSent;
         requestLastReceived = newRequestLastReceived;
         requestsReceived = newRequestsReceived;
-    }
-
-    /**
-     * Returns the object representing value of column. Can be string or icon
-     *
-     * @param   column  Column to be displayed
-     * @return  Object representing table entry.
-     */
-    public Object getValueAt(int column) {
-       return null;
-    }
-
-    public int compareTo( TableMember anOther, int tableColumIndex ) {
-        Comparable c1 = (Comparable)getValueAt(tableColumIndex);
-        Comparable c2 = (Comparable)anOther.getValueAt(tableColumIndex);
-        return c1.compareTo( c2 );
+        lastModified = newLastModified;
+        isValid = newIsValid;
     }
 
     /**
@@ -266,5 +258,21 @@ public class FrostSharedFileItem extends ModelItem {
             }
         }
         return false; // not in upload table
+    }
+
+    public long getLastModified() {
+        return lastModified;
+    }
+
+    public void setLastModified(long lastModified) {
+        this.lastModified = lastModified;
+    }
+
+    public boolean isValid() {
+        return isValid;
+    }
+
+    public void setValid(boolean isValid) {
+        this.isValid = isValid;
     }
 }

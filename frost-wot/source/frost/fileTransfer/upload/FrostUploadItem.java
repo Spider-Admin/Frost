@@ -21,7 +21,6 @@ package frost.fileTransfer.upload;
 import java.io.*;
 
 import frost.fileTransfer.sharing.*;
-import frost.gui.model.*;
 import frost.util.*;
 import frost.util.model.*;
 
@@ -115,22 +114,6 @@ public class FrostUploadItem extends ModelItem {
     
     public boolean isSharedFile() {
         return getSharedFileItem() != null;
-    }
-
-    /**
-     * Returns the object representing value of column. Can be string or icon
-     *
-     * @param   column  Column to be displayed
-     * @return  Object representing table entry.
-     */
-    public Object getValueAt(int column) {
-       return null;
-    }
-
-    public int compareTo( TableMember anOther, int tableColumIndex ) {
-        Comparable c1 = (Comparable)getValueAt(tableColumIndex);
-        Comparable c2 = (Comparable)anOther.getValueAt(tableColumIndex);
-        return c1.compareTo( c2 );
     }
 
     public long getFileSize() {
