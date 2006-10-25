@@ -112,11 +112,6 @@ public class SettingsClass implements Savable {
     
     public static final String BOARDLIST_LAST_SELECTED_BOARD = "tofTreeSelectedRow";
     
-    public static final String HIDE_MESSAGES_OBSERVE = "hideObserveMessages";
-    public static final String HIDE_MESSAGES_CHECK = "hideCheckMessages";
-    public static final String HIDE_MESSAGES_BAD = "hideBadMessages";
-    public static final String HIDE_MESSAGES_UNSIGNED = "signedOnly";
-    
     public static final String BOARD_CHECK_SPAM_ENABLED = "doBoardBackoff";
     public static final String BOARD_CHECK_SPAM_TRESHOLD = "spamTreshold";
     public static final String BOARD_CHECK_SPAM_SAMPLE_INTERVAL = "spamTreshold";
@@ -131,10 +126,15 @@ public class SettingsClass implements Savable {
     public static final String MESSAGE_BLOCK_BOARDNAME = "blockMessageBoard";
     public static final String MESSAGE_BLOCK_BOARDNAME_ENABLED = "blockMessageBoardChecked";
 
-    public static final String BLOCK_BOARDS_FROM_OBSERVE = "blockBoardsFromObserve";
-    public static final String BLOCK_BOARDS_FROM_CHECK = "blockBoardsFromCheck";
-    public static final String BLOCK_BOARDS_FROM_BAD = "blockBoardsFromBad";
-    public static final String BLOCK_BOARDS_FROM_UNSIGNED = "blockBoardsFromUnsigned";
+    public static final String MESSAGE_HIDE_OBSERVE = "hideObserveMessages";
+    public static final String MESSAGE_HIDE_CHECK = "hideCheckMessages";
+    public static final String MESSAGE_HIDE_BAD = "hideBadMessages";
+    public static final String MESSAGE_HIDE_UNSIGNED = "signedOnly";
+
+    public static final String KNOWNBOARDS_BLOCK_FROM_OBSERVE = "blockBoardsFromObserve";
+    public static final String KNOWNBOARDS_BLOCK_FROM_CHECK = "blockBoardsFromCheck";
+    public static final String KNOWNBOARDS_BLOCK_FROM_BAD = "blockBoardsFromBad";
+    public static final String KNOWNBOARDS_BLOCK_FROM_UNSIGNED = "blockBoardsFromUnsigned";
     
     public static final String BOARD_AUTOUPDATE_ENABLED = "automaticUpdate";
     public static final String BOARD_AUTOUPDATE_CONCURRENT_UPDATES = "automaticUpdate.concurrentBoardUpdates";
@@ -707,15 +707,15 @@ public class SettingsClass implements Savable {
         defaults.put(MESSAGE_BLOCK_BOARDNAME, "");
         defaults.put(MESSAGE_BLOCK_BOARDNAME_ENABLED, "false");
         
-        defaults.put(HIDE_MESSAGES_UNSIGNED, "false");
-        defaults.put(HIDE_MESSAGES_BAD, "false");
-        defaults.put(HIDE_MESSAGES_CHECK, "false");
-        defaults.put(HIDE_MESSAGES_OBSERVE, "false");
+        defaults.put(MESSAGE_HIDE_UNSIGNED, "false");
+        defaults.put(MESSAGE_HIDE_BAD, "false");
+        defaults.put(MESSAGE_HIDE_CHECK, "false");
+        defaults.put(MESSAGE_HIDE_OBSERVE, "false");
 
-        defaults.put(BLOCK_BOARDS_FROM_UNSIGNED, "false");
-        defaults.put(BLOCK_BOARDS_FROM_BAD, "true");
-        defaults.put(BLOCK_BOARDS_FROM_CHECK, "false");
-        defaults.put(BLOCK_BOARDS_FROM_OBSERVE, "false");
+        defaults.put(KNOWNBOARDS_BLOCK_FROM_UNSIGNED, "false");
+        defaults.put(KNOWNBOARDS_BLOCK_FROM_BAD, "true");
+        defaults.put(KNOWNBOARDS_BLOCK_FROM_CHECK, "false");
+        defaults.put(KNOWNBOARDS_BLOCK_FROM_OBSERVE, "false");
 
         defaults.put(DOWNLOAD_MAX_THREADS, "3");
         defaults.put(DOWNLOADING_ACTIVATED, "true");

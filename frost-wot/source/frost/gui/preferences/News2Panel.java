@@ -289,15 +289,15 @@ class News2Panel extends JPanel {
      * Load the settings of this panel
      */
     private void loadSettings() {
-        hideUnsignedMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.HIDE_MESSAGES_UNSIGNED));
-        hideBadMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.HIDE_MESSAGES_BAD));
-        hideCheckMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.HIDE_MESSAGES_CHECK));
-        hideObserveMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.HIDE_MESSAGES_OBSERVE));
+        hideUnsignedMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.MESSAGE_HIDE_UNSIGNED));
+        hideBadMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.MESSAGE_HIDE_BAD));
+        hideCheckMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.MESSAGE_HIDE_CHECK));
+        hideObserveMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.MESSAGE_HIDE_OBSERVE));
 
-        blockBoardsFromUnsignedCheckBox.setSelected(settings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_UNSIGNED));
-        blockBoardsFromBadCheckBox.setSelected(settings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_BAD));
-        blockBoardsFromCheckCheckBox.setSelected(settings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_CHECK));
-        blockBoardsFromObserveCheckBox.setSelected(settings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_OBSERVE));
+        blockBoardsFromUnsignedCheckBox.setSelected(settings.getBoolValue(SettingsClass.KNOWNBOARDS_BLOCK_FROM_UNSIGNED));
+        blockBoardsFromBadCheckBox.setSelected(settings.getBoolValue(SettingsClass.KNOWNBOARDS_BLOCK_FROM_BAD));
+        blockBoardsFromCheckCheckBox.setSelected(settings.getBoolValue(SettingsClass.KNOWNBOARDS_BLOCK_FROM_CHECK));
+        blockBoardsFromObserveCheckBox.setSelected(settings.getBoolValue(SettingsClass.KNOWNBOARDS_BLOCK_FROM_OBSERVE));
 
         blockSubjectCheckBox.setSelected(settings.getBoolValue(SettingsClass.MESSAGE_BLOCK_SUBJECT_ENABLED));
         blockSubjectTextField.setEnabled(blockSubjectCheckBox.isSelected());
@@ -365,14 +365,14 @@ class News2Panel extends JPanel {
         settings.setValue(SettingsClass.BOARD_CHECK_SPAM_TRESHOLD, spamTresholdTextField.getText());
         settings.setValue(SettingsClass.BOARD_CHECK_SPAM_SAMPLE_INTERVAL, sampleIntervalTextField.getText());
 
-        settings.setValue(SettingsClass.HIDE_MESSAGES_UNSIGNED, hideUnsignedMessagesCheckBox.isSelected());
-        settings.setValue(SettingsClass.HIDE_MESSAGES_BAD, hideBadMessagesCheckBox.isSelected());
-        settings.setValue(SettingsClass.HIDE_MESSAGES_CHECK, hideCheckMessagesCheckBox.isSelected());
-        settings.setValue(SettingsClass.HIDE_MESSAGES_OBSERVE, hideObserveMessagesCheckBox.isSelected());
+        settings.setValue(SettingsClass.MESSAGE_HIDE_UNSIGNED, hideUnsignedMessagesCheckBox.isSelected());
+        settings.setValue(SettingsClass.MESSAGE_HIDE_BAD, hideBadMessagesCheckBox.isSelected());
+        settings.setValue(SettingsClass.MESSAGE_HIDE_CHECK, hideCheckMessagesCheckBox.isSelected());
+        settings.setValue(SettingsClass.MESSAGE_HIDE_OBSERVE, hideObserveMessagesCheckBox.isSelected());
 
-        settings.setValue(SettingsClass.BLOCK_BOARDS_FROM_UNSIGNED, blockBoardsFromUnsignedCheckBox.isSelected());
-        settings.setValue(SettingsClass.BLOCK_BOARDS_FROM_BAD, blockBoardsFromBadCheckBox.isSelected());
-        settings.setValue(SettingsClass.BLOCK_BOARDS_FROM_CHECK, blockBoardsFromCheckCheckBox.isSelected());
-        settings.setValue(SettingsClass.BLOCK_BOARDS_FROM_OBSERVE, blockBoardsFromObserveCheckBox.isSelected());
+        settings.setValue(SettingsClass.KNOWNBOARDS_BLOCK_FROM_UNSIGNED, blockBoardsFromUnsignedCheckBox.isSelected());
+        settings.setValue(SettingsClass.KNOWNBOARDS_BLOCK_FROM_BAD, blockBoardsFromBadCheckBox.isSelected());
+        settings.setValue(SettingsClass.KNOWNBOARDS_BLOCK_FROM_CHECK, blockBoardsFromCheckCheckBox.isSelected());
+        settings.setValue(SettingsClass.KNOWNBOARDS_BLOCK_FROM_OBSERVE, blockBoardsFromObserveCheckBox.isSelected());
     }
 }

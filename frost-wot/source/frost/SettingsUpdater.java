@@ -19,8 +19,6 @@
 package frost;
 
 /**
- * @author Administrator
- *
  * All classes that have settings values that have to be updated before
  * the settings are saved to disk must register themselves with SettingsClass
  * and implement this interface.

@@ -492,10 +492,10 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 
         // now check if some settings changed
         if( checkMaxMessageDisplay.equals(frostSettings.getValue(SettingsClass.MAX_MESSAGE_DISPLAY)) == false
-            || checkSignedOnly != frostSettings.getBoolValue(SettingsClass.HIDE_MESSAGES_UNSIGNED)
-            || checkHideBadMessages != frostSettings.getBoolValue(SettingsClass.HIDE_MESSAGES_BAD)
-            || checkHideCheckMessages != frostSettings.getBoolValue(SettingsClass.HIDE_MESSAGES_CHECK)
-            || checkHideObserveMessages != frostSettings.getBoolValue(SettingsClass.HIDE_MESSAGES_OBSERVE)
+            || checkSignedOnly != frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_UNSIGNED)
+            || checkHideBadMessages != frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_BAD)
+            || checkHideCheckMessages != frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_CHECK)
+            || checkHideObserveMessages != frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_OBSERVE)
             || checkBlock != frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_SUBJECT_ENABLED)
             || checkBlockBody != frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BODY_ENABLED)
             || checkShowDeletedMessages != frostSettings.getBoolValue("showDeletedMessages")
@@ -515,10 +515,10 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
     private void setDataElements() {
         // first set some settings to check later if they are changed by user
         checkMaxMessageDisplay = frostSettings.getValue(SettingsClass.MAX_MESSAGE_DISPLAY);
-        checkSignedOnly = frostSettings.getBoolValue(SettingsClass.HIDE_MESSAGES_UNSIGNED);
-        checkHideBadMessages = frostSettings.getBoolValue(SettingsClass.HIDE_MESSAGES_BAD);
-        checkHideCheckMessages = frostSettings.getBoolValue(SettingsClass.HIDE_MESSAGES_CHECK);
-        checkHideObserveMessages = frostSettings.getBoolValue(SettingsClass.HIDE_MESSAGES_OBSERVE);
+        checkSignedOnly = frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_UNSIGNED);
+        checkHideBadMessages = frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_BAD);
+        checkHideCheckMessages = frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_CHECK);
+        checkHideObserveMessages = frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_OBSERVE);
         checkBlock = frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_SUBJECT_ENABLED);
         checkBlockBody = frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BODY_ENABLED);
         checkShowDeletedMessages = frostSettings.getBoolValue("showDeletedMessages");
