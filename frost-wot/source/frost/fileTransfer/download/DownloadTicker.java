@@ -166,7 +166,7 @@ public class DownloadTicker extends Thread {
 	}
 
 	private void removeFinishedDownloads() {
-		if (counter % 300 == 0 && Core.frostSettings.getBoolValue("removeFinishedDownloads")) {
+		if (counter % 300 == 0 && Core.frostSettings.getBoolValue(SettingsClass.DOWNLOAD_REMOVE_FINISHED)) {
 			model.removeFinishedDownloads();
 		}
 	}

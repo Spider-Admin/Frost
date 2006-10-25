@@ -143,11 +143,11 @@ class UploadPanel extends JPanel {
      * Load the settings of this panel
      */
     private void loadSettings() {
-        htlTextField.setText(settings.getValue("htlUpload"));
-        threadsTextField.setText(settings.getValue("uploadThreads"));
-        splitfileThreadsTextField.setText(settings.getValue("splitfileUploadThreads"));
+        htlTextField.setText(settings.getValue(SettingsClass.UPLOAD_FILE_HTL));
+        threadsTextField.setText(settings.getValue(SettingsClass.UPLOAD_MAX_THREADS));
+        splitfileThreadsTextField.setText(settings.getValue(SettingsClass.UPLOAD_MAX_SPLITFILE_THREADS));
         maxRetriesTextField.setText("" + settings.getIntValue(SettingsClass.UPLOAD_MAX_RETRIES));
-        waitTimeTextField.setText("" + settings.getIntValue(SettingsClass.UPLOAD_RETRIES_WAIT_TIME));
+        waitTimeTextField.setText("" + settings.getIntValue(SettingsClass.UPLOAD_WAITTIME));
     }
 
     public void ok() {
@@ -172,10 +172,10 @@ class UploadPanel extends JPanel {
      * Save the settings of this panel
      */
     private void saveSettings() {
-        settings.setValue("htlUpload", htlTextField.getText());
-        settings.setValue("uploadThreads", threadsTextField.getText());
-        settings.setValue("splitfileUploadThreads", splitfileThreadsTextField.getText());
+        settings.setValue(SettingsClass.UPLOAD_FILE_HTL, htlTextField.getText());
+        settings.setValue(SettingsClass.UPLOAD_MAX_THREADS, threadsTextField.getText());
+        settings.setValue(SettingsClass.UPLOAD_MAX_SPLITFILE_THREADS, splitfileThreadsTextField.getText());
         settings.setValue(SettingsClass.UPLOAD_MAX_RETRIES, maxRetriesTextField.getText());
-        settings.setValue(SettingsClass.UPLOAD_RETRIES_WAIT_TIME, waitTimeTextField.getText());
+        settings.setValue(SettingsClass.UPLOAD_WAITTIME, waitTimeTextField.getText());
     }
 }

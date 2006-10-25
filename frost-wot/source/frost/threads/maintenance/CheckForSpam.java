@@ -44,11 +44,11 @@ public class CheckForSpam extends TimerTask
     }
 
     public void run() {
-        if( settings.getBoolValue("doBoardBackoff") ) {
+        if( settings.getBoolValue(SettingsClass.BOARD_CHECK_SPAM_ENABLED) ) {
             Iterator iter = tofTreeModel.getAllBoards().iterator();
             while( iter.hasNext() ) {
                 Board current = (Board) iter.next();
-                if( current.getBlockedCount() > settings.getIntValue("spamTreshold") ) {
+                if( current.getBlockedCount() > settings.getIntValue(SettingsClass.BOARD_CHECK_SPAM_TRESHOLD) ) {
                     //board is spammed
                     logger.warning("######### board '" + current.getName()
                             + "' is spammed, update stops for 24h ############");

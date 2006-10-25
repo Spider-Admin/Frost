@@ -676,9 +676,9 @@ public class TOF {
         }
 
         // Block by subject (and rest of the header)
-        if (Core.frostSettings.getBoolValue("blockMessageChecked")) {
+        if (Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_SUBJECT_ENABLED)) {
             String header = message.getSubject().toLowerCase();
-            StringTokenizer blockWords = new StringTokenizer(Core.frostSettings.getValue("blockMessage"), ";");
+            StringTokenizer blockWords = new StringTokenizer(Core.frostSettings.getValue(SettingsClass.MESSAGE_BLOCK_SUBJECT), ";");
             boolean found = false;
             while (blockWords.hasMoreTokens() && !found) {
                 String blockWord = blockWords.nextToken().trim();
@@ -691,10 +691,10 @@ public class TOF {
             }
         }
         // Block by body
-        if (Core.frostSettings.getBoolValue("blockMessageBodyChecked")) {
+        if (Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BODY_ENABLED)) {
             String content = message.getContent().toLowerCase();
             StringTokenizer blockWords =
-                new StringTokenizer(Core.frostSettings.getValue("blockMessageBody"), ";");
+                new StringTokenizer(Core.frostSettings.getValue(SettingsClass.MESSAGE_BLOCK_BODY), ";");
             boolean found = false;
             while (blockWords.hasMoreTokens() && !found) {
                 String blockWord = blockWords.nextToken().trim();
@@ -707,9 +707,9 @@ public class TOF {
             }
         }
         // Block by attached boards
-        if (Core.frostSettings.getBoolValue("blockMessageBoardChecked")) {
+        if (Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BOARDNAME_ENABLED)) {
             List boards = message.getAttachmentsOfType(Attachment.BOARD);
-            StringTokenizer blockWords = new StringTokenizer(Core.frostSettings.getValue("blockMessageBoard"), ";");
+            StringTokenizer blockWords = new StringTokenizer(Core.frostSettings.getValue(SettingsClass.MESSAGE_BLOCK_BOARDNAME), ";");
             boolean found = false;
             while (blockWords.hasMoreTokens() && !found) {
                 String blockWord = blockWords.nextToken().trim();

@@ -160,14 +160,14 @@ class SearchPanel extends JPanel {
      * Loads the settings of this panel
      */
     private void loadSettings() {
-        audioExtensionTextField.setText(settings.getValue("audioExtension"));
-        imageExtensionTextField.setText(settings.getValue("imageExtension"));
-        videoExtensionTextField.setText(settings.getValue("videoExtension"));
-        documentExtensionTextField.setText(settings.getValue("documentExtension"));
-        executableExtensionTextField.setText(settings.getValue("executableExtension"));
-        archiveExtensionTextField.setText(settings.getValue("archiveExtension"));
-        maxSearchResultsTextField.setText(Integer.toString(settings.getIntValue("maxSearchResults")));
-        hideBadFilesCheckBox.setSelected(settings.getBoolValue("hideBadFiles"));
+        audioExtensionTextField.setText(settings.getValue(SettingsClass.FILEEXTENSION_AUDIO));
+        imageExtensionTextField.setText(settings.getValue(SettingsClass.FILEEXTENSION_IMAGE));
+        videoExtensionTextField.setText(settings.getValue(SettingsClass.FILEEXTENSION_VIDEO));
+        documentExtensionTextField.setText(settings.getValue(SettingsClass.FILEEXTENSION_DOCUMENT));
+        executableExtensionTextField.setText(settings.getValue(SettingsClass.FILEEXTENSION_EXECUTABLE));
+        archiveExtensionTextField.setText(settings.getValue(SettingsClass.FILEEXTENSION_ARCHIVE));
+        maxSearchResultsTextField.setText(Integer.toString(settings.getIntValue(SettingsClass.SEARCH_MAX_RESULTS)));
+        hideBadFilesCheckBox.setSelected(settings.getBoolValue(SettingsClass.SEARCH_HIDE_BAD));
     }
 
     public void ok() {
@@ -190,14 +190,14 @@ class SearchPanel extends JPanel {
      * Save the settings of this panel
      */
     private void saveSettings() {
-        settings.setValue("audioExtension", audioExtensionTextField.getText().toLowerCase());
-        settings.setValue("imageExtension", imageExtensionTextField.getText().toLowerCase());
-        settings.setValue("videoExtension", videoExtensionTextField.getText().toLowerCase());
-        settings.setValue("documentExtension", documentExtensionTextField.getText().toLowerCase());
-        settings.setValue("executableExtension", executableExtensionTextField.getText().toLowerCase());
-        settings.setValue("archiveExtension", archiveExtensionTextField.getText().toLowerCase());
-        settings.setValue("maxSearchResults", maxSearchResultsTextField.getText());
+        settings.setValue(SettingsClass.FILEEXTENSION_AUDIO, audioExtensionTextField.getText().toLowerCase());
+        settings.setValue(SettingsClass.FILEEXTENSION_IMAGE, imageExtensionTextField.getText().toLowerCase());
+        settings.setValue(SettingsClass.FILEEXTENSION_VIDEO, videoExtensionTextField.getText().toLowerCase());
+        settings.setValue(SettingsClass.FILEEXTENSION_DOCUMENT, documentExtensionTextField.getText().toLowerCase());
+        settings.setValue(SettingsClass.FILEEXTENSION_EXECUTABLE, executableExtensionTextField.getText().toLowerCase());
+        settings.setValue(SettingsClass.FILEEXTENSION_ARCHIVE, archiveExtensionTextField.getText().toLowerCase());
+        settings.setValue(SettingsClass.SEARCH_MAX_RESULTS, maxSearchResultsTextField.getText());
 
-        settings.setValue("hideBadFiles", hideBadFilesCheckBox.isSelected());
+        settings.setValue(SettingsClass.SEARCH_HIDE_BAD, hideBadFilesCheckBox.isSelected());
     }
 }

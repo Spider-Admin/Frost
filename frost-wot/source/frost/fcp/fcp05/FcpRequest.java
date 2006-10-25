@@ -171,7 +171,7 @@ public class FcpRequest
                 continue;
             }
 
-            int maxThreads = Core.frostSettings.getIntValue("splitfileDownloadThreads");
+            int maxThreads = Core.frostSettings.getIntValue(SettingsClass.DOWNLOAD_MAX_SPLITFILE_THREADS);
 
             if( segmentsFinishedBlocks < neededBlockCount ) {
                 // we need to receive some more blocks before we are able to decode

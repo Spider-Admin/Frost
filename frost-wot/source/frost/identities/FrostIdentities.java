@@ -169,7 +169,7 @@ public class FrostIdentities implements Savable {
             logger.severe("couldn't create new identitiy" + e.toString());
         }
         if( newIdentity != null && firstIdentity ) {
-            Core.frostSettings.setValue("userName", newIdentity.getUniqueName());
+            Core.frostSettings.setValue(SettingsClass.LAST_USED_FROMNAME, newIdentity.getUniqueName());
         }
         
         return newIdentity;

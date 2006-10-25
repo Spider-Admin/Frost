@@ -454,19 +454,19 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
         
         this.searchTable = searchTable;
         
-        audioExtension      = Core.frostSettings.getArrayValue("audioExtension");
-        videoExtension      = Core.frostSettings.getArrayValue("videoExtension");
-        documentExtension   = Core.frostSettings.getArrayValue("documentExtension");
-        executableExtension = Core.frostSettings.getArrayValue("executableExtension");
-        archiveExtension    = Core.frostSettings.getArrayValue("archiveExtension");
-        imageExtension      = Core.frostSettings.getArrayValue("imageExtension");
-        maxSearchResults    = Core.frostSettings.getIntValue("maxSearchResults");
+        audioExtension      = Core.frostSettings.getArrayValue(SettingsClass.FILEEXTENSION_AUDIO);
+        videoExtension      = Core.frostSettings.getArrayValue(SettingsClass.FILEEXTENSION_VIDEO);
+        documentExtension   = Core.frostSettings.getArrayValue(SettingsClass.FILEEXTENSION_DOCUMENT);
+        executableExtension = Core.frostSettings.getArrayValue(SettingsClass.FILEEXTENSION_EXECUTABLE);
+        archiveExtension    = Core.frostSettings.getArrayValue(SettingsClass.FILEEXTENSION_ARCHIVE);
+        imageExtension      = Core.frostSettings.getArrayValue(SettingsClass.FILEEXTENSION_IMAGE);
+        maxSearchResults    = Core.frostSettings.getIntValue(SettingsClass.SEARCH_MAX_RESULTS);
         
         if( maxSearchResults <= 0 ) {
             maxSearchResults = 10000; // default
         }
 //        currentDate = DateFun.getCurrentSqlDateGMT();
-        hideBad = Core.frostSettings.getBoolValue("hideBadFiles");
+        hideBad = Core.frostSettings.getBoolValue(SettingsClass.SEARCH_HIDE_BAD);
         
         downloadModel = FileTransferManager.getInstance().getDownloadManager().getModel();
         sharedFilesModel = FileTransferManager.getInstance().getSharedFilesManager().getModel();

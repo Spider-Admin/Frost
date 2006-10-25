@@ -619,13 +619,13 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         Rectangle bounds = getBounds();
         boolean isMaximized = ((getExtendedState() & Frame.MAXIMIZED_BOTH) != 0);
 
-        frostSettings.setValue("lastFrameMaximized", isMaximized);
+        frostSettings.setValue(SettingsClass.MAINFRAME_LAST_MAXIMIZED, isMaximized);
 
         if (!isMaximized) { // Only save the current dimension if frame is not maximized
-            frostSettings.setValue("lastFrameHeight", bounds.height);
-            frostSettings.setValue("lastFrameWidth", bounds.width);
-            frostSettings.setValue("lastFramePosX", bounds.x);
-            frostSettings.setValue("lastFramePosY", bounds.y);
+            frostSettings.setValue(SettingsClass.MAINFRAME_LAST_HEIGHT, bounds.height);
+            frostSettings.setValue(SettingsClass.MAINFRAME_LAST_WIDTH, bounds.width);
+            frostSettings.setValue(SettingsClass.MAINFRAME_LAST_X, bounds.x);
+            frostSettings.setValue(SettingsClass.MAINFRAME_LAST_Y, bounds.y);
         }
         
         frostSettings.setValue("MainFrame.treeAndTabbedPaneSplitpaneDividerLocation", 
@@ -752,8 +752,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             tofAutomaticUpdateMenuItem.setSelected(false);
         }
 
-        if (tofTree.getRowCount() > frostSettings.getIntValue("tofTreeSelectedRow")) {
-            tofTree.setSelectionRow(frostSettings.getIntValue("tofTreeSelectedRow"));
+        if (tofTree.getRowCount() > frostSettings.getIntValue(SettingsClass.BOARDLIST_LAST_SELECTED_BOARD)) {
+            tofTree.setSelectionRow(frostSettings.getIntValue(SettingsClass.BOARDLIST_LAST_SELECTED_BOARD));
         }
 
         // make sure the font size isn't too small to see
@@ -762,11 +762,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         }
 
         // load size, location and state of window
-        int lastHeight = frostSettings.getIntValue("lastFrameHeight");
-        int lastWidth = frostSettings.getIntValue("lastFrameWidth");
-        int lastPosX = frostSettings.getIntValue("lastFramePosX");
-        int lastPosY = frostSettings.getIntValue("lastFramePosY");
-        boolean lastMaximized = frostSettings.getBoolValue("lastFrameMaximized");
+        int lastHeight = frostSettings.getIntValue(SettingsClass.MAINFRAME_LAST_HEIGHT);
+        int lastWidth = frostSettings.getIntValue(SettingsClass.MAINFRAME_LAST_WIDTH);
+        int lastPosX = frostSettings.getIntValue(SettingsClass.MAINFRAME_LAST_X);
+        int lastPosY = frostSettings.getIntValue(SettingsClass.MAINFRAME_LAST_Y);
+        boolean lastMaximized = frostSettings.getBoolValue(SettingsClass.MAINFRAME_LAST_MAXIMIZED);
         Dimension scrSize = Toolkit.getDefaultToolkit().getScreenSize();
 
         if (lastWidth < 100) {
@@ -972,7 +972,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     public void tofTree_actionPerformed(TreeSelectionEvent e) {
         int i[] = tofTree.getSelectionRows();
         if (i != null && i.length > 0) {
-            frostSettings.setValue("tofTreeSelectedRow", i[0]);
+            frostSettings.setValue(SettingsClass.BOARDLIST_LAST_SELECTED_BOARD, i[0]);
         }
 
         Board node = (Board) tofTree.getLastSelectedPathComponent();
@@ -1127,7 +1127,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             return;
         }
         if( helpBrowser == null ) {
-            helpBrowser = new HelpBrowserFrame(frostSettings.getValue("locale"), "help/help.zip");
+            helpBrowser = new HelpBrowserFrame(frostSettings.getValue(SettingsClass.LANGUAGE_LOCALE), "help/help.zip");
         }
         // show first time or bring to front
         helpBrowser.setVisible(true);

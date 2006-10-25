@@ -184,10 +184,10 @@ class DownloadPanel extends JPanel {
      * Load the settings of this panel
      */
     private void loadSettings() {
-        removeFinishedDownloadsCheckBox.setSelected(settings.getBoolValue("removeFinishedDownloads"));
+        removeFinishedDownloadsCheckBox.setSelected(settings.getBoolValue(SettingsClass.DOWNLOAD_REMOVE_FINISHED));
         directoryTextField.setText(settings.getValue(SettingsClass.DIR_DOWNLOAD));
         threadsTextField.setText(settings.getValue(SettingsClass.DOWNLOAD_MAX_THREADS));
-        splitfileThreadsTextField.setText(settings.getValue("splitfileDownloadThreads"));
+        splitfileThreadsTextField.setText(settings.getValue(SettingsClass.DOWNLOAD_MAX_SPLITFILE_THREADS));
         maxRetriesTextField.setText("" + settings.getIntValue(SettingsClass.DOWNLOAD_MAX_RETRIES));
         waitTimeTextField.setText("" + settings.getIntValue(SettingsClass.DOWNLOAD_WAITTIME));
         tryAllSegmentsCheckBox.setSelected(settings.getBoolValue(SettingsClass.DOWNLOAD_TRY_ALL_SEGMENTS));
@@ -231,9 +231,9 @@ class DownloadPanel extends JPanel {
             settings.setValue(SettingsClass.DIR_DOWNLOAD, downlDirTxt);
         }
         settings.setValue(SettingsClass.DOWNLOAD_MAX_THREADS, threadsTextField.getText());
-        settings.setValue("removeFinishedDownloads", removeFinishedDownloadsCheckBox.isSelected());
+        settings.setValue(SettingsClass.DOWNLOAD_REMOVE_FINISHED, removeFinishedDownloadsCheckBox.isSelected());
 
-        settings.setValue("splitfileDownloadThreads", splitfileThreadsTextField.getText());
+        settings.setValue(SettingsClass.DOWNLOAD_MAX_SPLITFILE_THREADS, splitfileThreadsTextField.getText());
         settings.setValue(SettingsClass.DOWNLOAD_MAX_RETRIES, maxRetriesTextField.getText());
         settings.setValue(SettingsClass.DOWNLOAD_WAITTIME, waitTimeTextField.getText());
         settings.setValue(SettingsClass.DOWNLOAD_TRY_ALL_SEGMENTS, tryAllSegmentsCheckBox.isSelected());
