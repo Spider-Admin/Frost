@@ -140,6 +140,8 @@ public class UnsentMessagesTableFormat extends SortedTableFormat implements Lang
                 columnModel.getColumn(i).setPreferredWidth(widths[i]);
             }
         }
+        
+        modelTable.setSortedColumn(5, false); // init: sort by timeAdded, descending
     }
     
     public void saveTableLayout() {

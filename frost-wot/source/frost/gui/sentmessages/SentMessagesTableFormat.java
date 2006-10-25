@@ -123,6 +123,8 @@ public class SentMessagesTableFormat extends SortedTableFormat implements Langua
                 columnModel.getColumn(i).setPreferredWidth(widths[i]);
             }
         }
+        
+        modelTable.setSortedColumn(4, false); // init: sort by date, descending
     }
     
     public void saveTableLayout() {
