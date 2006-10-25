@@ -56,40 +56,48 @@ public class SortedModelTable extends ModelTable {
 		} else {
 			ascending = !ascending;
 		}
-		
-		final int columnNumberFinal = columnNumber;
-
-		FrostSwingWorker worker = new FrostSwingWorker(table) {
-
-			protected void doNonUILogic() throws RuntimeException {
-				int index = convertColumnIndexToFormat(columnNumberFinal);
-				((SortedModel) model).sort(index, ascending);
-			}
-
-			protected void doUIUpdateLogic() throws RuntimeException {
-				table.revalidate();
-				table.repaint();
-			}
-
-		};
-		worker.start();
+        
+        resortTable();
 	}
+    
+    public void setSortedColumn(final int col, final boolean asc) {
+        currentColumnNumber = col;
+        ascending = asc;
+        resortTable();
+    }
+    
+    public void resortTable() {
+        FrostSwingWorker worker = new FrostSwingWorker(table) {
+
+            protected void doNonUILogic() throws RuntimeException {
+                int index = convertColumnIndexToFormat(currentColumnNumber);
+                ((SortedModel) model).sort(index, ascending);
+            }
+
+            protected void doUIUpdateLogic() throws RuntimeException {
+                table.revalidate();
+                table.repaint();
+            }
+
+        };
+        worker.start();
+    }
 	
 	/**
 	 * This method returns the number of the column the
-	 * table is currently sorted by (or -1 if none)
+	 * table is currently sorted by (or -1 if none).
 	 * 
 	 * @return the number of the column that is currently sorted.
 	 *   	   -1 if none.
 	 */
-	int getCurrentColumnNumber() {
+	public int getSortedColumnNumber() {
 		return currentColumnNumber;
 	}
 
 	/**
 	 * @return
 	 */
-	boolean isAscending() {
+	public boolean isSortedAscending() {
 		return ascending;
 	}
 	
@@ -116,5 +124,4 @@ public class SortedModelTable extends ModelTable {
 			}
 		}
 	}
-
 }

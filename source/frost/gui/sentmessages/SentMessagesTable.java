@@ -108,9 +108,9 @@ public class SentMessagesTable extends SortedModelTable {
                         false);
                 messageWindow.setVisible(true);
             }
-        }        
+        }
     }
-
+    
     private class Listener extends MouseAdapter implements MouseListener {
 
         public Listener() {
@@ -118,6 +118,7 @@ public class SentMessagesTable extends SortedModelTable {
         }
     
         public void mousePressed(MouseEvent e) {
+
             if (e.getClickCount() == 2) {
                 if (e.getSource() == getTable()) {
                     tableDoubleClick(e);

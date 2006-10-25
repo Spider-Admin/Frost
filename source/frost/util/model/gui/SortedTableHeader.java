@@ -61,8 +61,8 @@ class SortedTableHeader extends ModelTableHeader {
 				JLabel labelRenderer = (JLabel)defaultRenderer;
 				// This translation is done so the real column number is used when the user moves columns around.
 				int modelIndex = lTable.getColumnModel().getColumn(column).getModelIndex();
-				if (sortedTable.getCurrentColumnNumber() == modelIndex) {
-					if (sortedTable.isAscending()) {
+				if (sortedTable.getSortedColumnNumber() == modelIndex) {
+					if (sortedTable.isSortedAscending()) {
 						labelRenderer.setIcon(ascendingIcon);	
 					} else {
 						labelRenderer.setIcon(descendingIcon);			
