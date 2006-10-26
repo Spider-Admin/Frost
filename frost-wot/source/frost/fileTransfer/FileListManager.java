@@ -111,6 +111,9 @@ public class FileListManager {
             // first collect all items for this owner and sort them
             for( Iterator i = sharedFileItems.iterator(); i.hasNext(); ) {
                 FrostSharedFileItem sfo = (FrostSharedFileItem) i.next();
+                if( !sfo.isValid() ) {
+                    continue;
+                }
                 if( !sfo.getOwner().equals(owner) ) {
                     continue;
                 }

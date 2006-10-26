@@ -40,9 +40,23 @@ public class SharedFilesModel extends OrderedModel implements Savable {
     // FIXME: for shared directories: add new files to another table, waiting for owner assignment
 
     private static Logger logger = Logger.getLogger(SharedFilesModel.class.getName());
+    
+    Timer timer;
 
     public SharedFilesModel() {
         super();
+//        timer = new Timer();
+//        TimerTask tt = new TimerTask() {
+//            public void run() {
+//                for (int x = 0; x < getItemCount(); x++) {
+//                    FrostSharedFileItem item = (FrostSharedFileItem) getItemAt(x);
+//                    if( !item.getFile().isFile() 
+//                            || item.getFile().length() !=
+//                }
+//            }
+//        };
+//        // check for not existing files all 5 minutes
+//        timer.schedule(tt, 5L*60L, 5L*60L);
     }
 
     /**

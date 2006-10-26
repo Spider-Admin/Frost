@@ -22,9 +22,13 @@ import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
+import javax.swing.*;
+
+import frost.*;
 import frost.fileTransfer.sharing.*;
 import frost.storage.*;
 import frost.storage.database.applayer.*;
+import frost.util.gui.translation.*;
 import frost.util.model.*;
 
 /**
@@ -109,6 +113,10 @@ public class UploadModel extends OrderedModel implements Savable {
             FrostUploadItem ulItem = (FrostUploadItem) getItemAt(i);
             if (!ulItem.getFile().exists()) {
                 items.add(ulItem);
+                logger.severe("Upload items file does not exist, removed from upload files: "+ulItem.getFile().getPath());
+            } else if( ulItem.getFileSize() != ulItem.getFile().length() ){
+                items.add(ulItem);
+                logger.severe("Upload items file size changed, removed from upload files: "+ulItem.getFile().getPath());
             }
         }
         if (items.size() > 0) {
@@ -117,6 +125,16 @@ public class UploadModel extends OrderedModel implements Savable {
                 itemsArray[i] = (FrostUploadItem) items.get(i);
             }
             removeItems(itemsArray);
+            
+            // notify user that files were removed
+            Language language = Language.getInstance();
+            String title = language.getString("UploadPane.invalidUploadFilesRemoved.title");
+            String text = language.getString("UploadPane.invalidUploadFilesRemoved.text");
+            JOptionPane.showMessageDialog(
+                    MainFrame.getInstance(),
+                    text,
+                    title,
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 

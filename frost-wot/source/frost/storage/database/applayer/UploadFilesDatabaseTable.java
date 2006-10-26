@@ -23,9 +23,13 @@ import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
+import javax.swing.*;
+
+import frost.*;
 import frost.fileTransfer.sharing.*;
 import frost.fileTransfer.upload.*;
 import frost.storage.database.*;
+import frost.util.gui.translation.*;
 
 /**
  * This table contains the currently uploaded files and their state.
@@ -132,12 +136,19 @@ public class UploadFilesDatabaseTable extends AbstractDatabaseTable {
             String sharedFilesSha = rs.getString(ix++);
             
             File file = new File(filepath);
+            Language language = Language.getInstance();
             if( !file.isFile() ) {
-                logger.warning("Upload items file does not exist, removed from upload files: "+filepath);
+                String title = language.getString("StartupMessage.uploadFile.uploadFileNotFound.title");
+                String text = language.formatMessage("StartupMessage.uploadFile.uploadFileNotFound.text", filepath);
+                MainFrame.enqueueStartupMessage(title, text, JOptionPane.ERROR_MESSAGE);
+                logger.severe("Upload items file does not exist, removed from upload files: "+filepath);
                 continue;
             }
             if( file.length() != filesize ) {
-                logger.warning("Upload items file size changed, removed from upload files: "+filepath);
+                String title = language.getString("StartupMessage.uploadFile.uploadFileSizeChanged.title");
+                String text = language.formatMessage("StartupMessage.uploadFile.uploadFileSizeChanged.text", filepath);
+                MainFrame.enqueueStartupMessage(title, text, JOptionPane.ERROR_MESSAGE);
+                logger.severe("Upload items file size changed, removed from upload files: "+filepath);
                 continue;
             }
             
@@ -151,7 +162,11 @@ public class UploadFilesDatabaseTable extends AbstractDatabaseTable {
                     }
                 }
                 if( sharedFileItem == null ) {
-                    logger.warning("Upload items shared file object does not exist, removed from upload files: "+filepath);
+                    logger.severe("Upload items shared file object does not exist, removed from upload files: "+filepath);
+                    continue;
+                }
+                if( !sharedFileItem.isValid() ) {
+                    logger.severe("Upload items shared file is invalid, removed from upload files: "+filepath);
                     continue;
                 }
             }
