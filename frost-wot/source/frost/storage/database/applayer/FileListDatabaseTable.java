@@ -36,7 +36,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
     // TODO: startup check: remove fileowners without uploads and lastseen older than 3 month(?)
 
     private final static String SQL_FILES_DDL =
-        "CREATE TABLE FILELIST ("+
+        "CREATE TABLE IF NOT EXISTS FILELIST ("+
           "primkey BIGINT NOT NULL,"+
           "sha VARCHAR NOT NULL,"+
           "size BIGINT NOT NULL,"+
@@ -56,7 +56,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         "CONSTRAINT FILELIST_1 UNIQUE (sha) )";
     
     private final static String SQL_OWNER_BOARD_DDL =
-        "CREATE TABLE FILEOWNERLIST ("+
+        "CREATE TABLE IF NOT EXISTS FILEOWNERLIST ("+
           "refkey BIGINT NOT NULL,"+
           "owner VARCHAR NOT NULL,"+ // owner identity name
           "name VARCHAR NOT NULL,"+  // file name provided by this owner

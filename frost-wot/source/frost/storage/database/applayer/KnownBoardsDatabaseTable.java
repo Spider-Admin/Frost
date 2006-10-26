@@ -28,7 +28,7 @@ import frost.storage.database.*;
 public class KnownBoardsDatabaseTable extends AbstractDatabaseTable {
 
     private final static String SQL_DDL =
-        "CREATE TABLE KNOWNBOARDS ("+
+        "CREATE TABLE IF NOT EXISTS KNOWNBOARDS ("+
         "primkey BIGINT DEFAULT UNIQUEKEY('KNOWNBOARDS') NOT NULL,"+
         "boardname VARCHAR NOT NULL,"+
         "publickey VARCHAR NOT NULL,"+  // "" empty tring means null, select of NULL does not work! 
@@ -38,7 +38,7 @@ public class KnownBoardsDatabaseTable extends AbstractDatabaseTable {
         "CONSTRAINT KNOWNBOARDS_1 UNIQUE (boardname,publickey,privatekey) )";
 
     private final static String SQL_DDL2 =
-        "CREATE TABLE HIDDENBOARDNAMES (boardname VARCHAR NOT NULL)";
+        "CREATE TABLE IF NOT EXISTS HIDDENBOARDNAMES (boardname VARCHAR NOT NULL)";
 
     public List getTableDDL() {
         ArrayList lst = new ArrayList(2);

@@ -34,7 +34,7 @@ public class DownloadFilesDatabaseTable extends AbstractDatabaseTable {
     private static Logger logger = Logger.getLogger(DownloadFilesDatabaseTable.class.getName());
 
     private final static String SQL_DDL =
-        "CREATE TABLE DOWNLOADFILES ("+
+        "CREATE TABLE IF NOT EXISTS DOWNLOADFILES ("+
 
           "name VARCHAR NOT NULL,"+          // filename
           "targetpath VARCHAR,"+    // set by us
@@ -55,7 +55,7 @@ public class DownloadFilesDatabaseTable extends AbstractDatabaseTable {
         "CONSTRAINT DOWNLOADFILES_1 UNIQUE (fnkey) )";  // check before adding a new file!
     
     public List getTableDDL() {
-        ArrayList lst = new ArrayList(3);
+        ArrayList lst = new ArrayList(1);
         lst.add(SQL_DDL);
         return lst;
     }

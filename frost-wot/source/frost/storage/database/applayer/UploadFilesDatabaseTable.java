@@ -41,7 +41,7 @@ public class UploadFilesDatabaseTable extends AbstractDatabaseTable {
     private static Logger logger = Logger.getLogger(UploadFilesDatabaseTable.class.getName());
     
     private final static String SQL_FILES_DDL =
-        "CREATE TABLE UPLOADFILES ("+
+        "CREATE TABLE IF NOT EXISTS UPLOADFILES ("+
           "path VARCHAR NOT NULL,"+   // complete path, with name
           "size BIGINT NOT NULL,"+
           "fnkey VARCHAR,"+           // if NULL file was not uploaded by us yet

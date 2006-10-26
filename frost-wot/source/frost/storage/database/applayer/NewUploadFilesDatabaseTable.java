@@ -40,7 +40,7 @@ public class NewUploadFilesDatabaseTable extends AbstractDatabaseTable {
     private static Logger logger = Logger.getLogger(NewUploadFilesDatabaseTable.class.getName());
 
     private final static String SQL_DDL =
-        "CREATE TABLE NEWUPLOADFILES ("+
+        "CREATE TABLE IF NOT EXISTS NEWUPLOADFILES ("+
         "filepath VARCHAR NOT NULL,"+
         "fromname VARCHAR,"+
         "CONSTRAINT NEWUPLOADFILES_1 UNIQUE (filepath) )";

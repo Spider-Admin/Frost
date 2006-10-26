@@ -34,7 +34,7 @@ public class UnsentMessageDatabaseTable extends AbstractDatabaseTable {
     private static Logger logger = Logger.getLogger(MessageDatabaseTable.class.getName());
 
     private final String SQL_DDL_MESSAGES =
-        "CREATE TABLE UNSENDMESSAGES ("+
+        "CREATE TABLE IF NOT EXISTS UNSENDMESSAGES ("+
         "primkey BIGINT NOT NULL,"+
         "board INT NOT NULL,"+
         "sendafter BIGINT,"+ // prepared, not used
@@ -55,7 +55,7 @@ public class UnsentMessageDatabaseTable extends AbstractDatabaseTable {
         ")";
     
     private final String SQL_DDL_FILEATTACHMENTS =
-        "CREATE TABLE UNSENDFILEATTACHMENTS ("+
+        "CREATE TABLE IF NOT EXISTS UNSENDFILEATTACHMENTS ("+
         "msgref BIGINT NOT NULL,"+
         "filename VARCHAR,"+
         "filesize BIGINT,"+
@@ -64,7 +64,7 @@ public class UnsentMessageDatabaseTable extends AbstractDatabaseTable {
         ")";
 
     private final String SQL_DDL_BOARDATTACHMENTS =
-        "CREATE TABLE UNSENDBOARDATTACHMENTS ("+
+        "CREATE TABLE IF NOT EXISTS UNSENDBOARDATTACHMENTS ("+
         "msgref BIGINT NOT NULL,"+
         "boardname        VARCHAR,"+
         "boardpublickey   VARCHAR,"+

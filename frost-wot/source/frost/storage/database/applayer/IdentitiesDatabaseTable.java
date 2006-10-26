@@ -27,7 +27,7 @@ import frost.storage.database.*;
 public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
     
     private final static String SQL_IDENTITIES_DDL =
-        "CREATE TABLE IDENTITIES ("+
+        "CREATE TABLE IF NOT EXISTS IDENTITIES ("+
         "primkey BIGINT DEFAULT UNIQUEKEY('IDENTITIES') NOT NULL,"+
         "uniquename VARCHAR NOT NULL,"+
         "publickey VARCHAR NOT NULL,"+
@@ -37,7 +37,7 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
         "CONSTRAINT IDENTITIES_1 UNIQUE (uniquename) )";
 
     private final static String SQL_OWN_IDENTITIES_DDL =
-        "CREATE TABLE OWNIDENTITIES ("+
+        "CREATE TABLE IF NOT EXISTS OWNIDENTITIES ("+
         "primkey BIGINT DEFAULT UNIQUEKEY('OWNIDENTITIES') NOT NULL,"+
         "uniquename VARCHAR NOT NULL,"+
         "publickey VARCHAR NOT NULL,"+
@@ -49,7 +49,7 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
         "CONSTRAINT OWNIDENTITIES_1 UNIQUE (uniquename) )";
     
     private final static String SQL_OWN_IDENTITIES_LASTFILESSHARED_DDL =
-        "CREATE TABLE OWNIDENTITIESLASTFILESSHARED ("+
+        "CREATE TABLE IF NOT EXISTS OWNIDENTITIESLASTFILESSHARED ("+
         "uniquename VARCHAR NOT NULL,"+
         "lastshared BIGINT )";
 
