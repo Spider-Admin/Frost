@@ -56,7 +56,7 @@ public class SharedFilesDatabaseTable extends AbstractDatabaseTable {
           "requestlastreceived BIGINT,"+  // time when we received the last request for this sha
           "requestsreceivedcount INT,"+   // received requests count
           
-          "lastmodified BIGINT"+
+          "lastmodified BIGINT,"+
 
         "CONSTRAINT SHAREDFILES_1 UNIQUE(sha) )";
 
