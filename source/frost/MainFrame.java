@@ -599,8 +599,19 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     }
     public void showMessageInfoPanelInSplitpane() {
         if( treeAndTabbedPaneSplitpane != null && treeAndTabbedPaneSplitpane.getRightComponent() != getMessageInfoPanel() ) {
-            getMessageInfoPanel().prepareForShow();
-            treeAndTabbedPaneSplitpane.setRightComponent(getMessageInfoPanel());
+            Thread t = new Thread() {
+                public void run() {
+                    getMessageInfoPanel().prepareForShow(); // load from db
+                    SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            deactivateGlassPane(); // unblock gui
+                            treeAndTabbedPaneSplitpane.setRightComponent(getMessageInfoPanel());
+                        }
+                    });
+                }
+            };
+            activateGlassPane(); // block gui during load from database
+            t.start();
         }
     }
     
