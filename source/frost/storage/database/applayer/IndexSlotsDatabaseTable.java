@@ -43,7 +43,7 @@ public class IndexSlotsDatabaseTable {
     private AppLayerDatabase db;
 
     private static final String SQL_DDL = 
-        "CREATE TABLE INDEXSLOTS (indexname INT, boardname INT, msgdate BIGINT, msgindex INT,"+
+        "CREATE TABLE IF NOT EXISTS INDEXSLOTS (indexname INT, boardname INT, msgdate BIGINT, msgindex INT,"+
         " wasdownloaded BOOLEAN, wasuploaded BOOLEAN, locked BOOLEAN,"+
         " CONSTRAINT board_ref FOREIGN KEY (boardname) REFERENCES BOARDS (primkey) ON DELETE CASCADE,"+
         " CONSTRAINT UNIQUE_INDICES_ONLY UNIQUE(indexname,boardname,msgdate,msgindex) )";

@@ -41,7 +41,7 @@ public class GlobalIndexSlotsDatabaseTable {
     private AppLayerDatabase db;
 
     private static final String SQL_DDL = 
-        "CREATE TABLE GLOBALINDEXSLOTS (indexname INT, msgdate BIGINT, msgindex INT,"+
+        "CREATE TABLE IF NOT EXISTS GLOBALINDEXSLOTS (indexname INT, msgdate BIGINT, msgindex INT,"+
         " wasdownloaded BOOLEAN, wasuploaded BOOLEAN, "+
         " CONSTRAINT UNIQUE_GLOBALINDICES_ONLY UNIQUE(indexname,msgdate,msgindex) )";
     

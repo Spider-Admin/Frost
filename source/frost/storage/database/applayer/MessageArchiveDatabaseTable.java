@@ -38,7 +38,7 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
     private static Logger logger = Logger.getLogger(MessageArchiveDatabaseTable.class.getName());
 
     private final String SQL_DDL_MESSAGES =
-        "CREATE TABLE MESSAGEARCHIVE ("+
+        "CREATE TABLE IF NOT EXISTS MESSAGEARCHIVE ("+
         "primkey BIGINT NOT NULL,"+
         "messageid VARCHAR,"+
         "inreplyto VARCHAR,"+
@@ -74,7 +74,7 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
         "CREATE INDEX msgarc_ix2 ON MESSAGEARCHIVE ( board )";
 
     private final String SQL_DDL_FILEATTACHMENTS =
-        "CREATE TABLE MESSAGEARCHIVEFILEATTACHMENTS ("+
+        "CREATE TABLE IF NOT EXISTS MESSAGEARCHIVEFILEATTACHMENTS ("+
         "msgref BIGINT NOT NULL,"+
         "filename VARCHAR,"+
         "filesize BIGINT,"+
@@ -83,7 +83,7 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
         ")";
 
     private final String SQL_DDL_BOARDATTACHMENTS =
-        "CREATE TABLE MESSAGEARCHIVEBOARDATTACHMENTS ("+
+        "CREATE TABLE IF NOT EXISTS MESSAGEARCHIVEBOARDATTACHMENTS ("+
         "msgref BIGINT NOT NULL,"+
         "boardname VARCHAR,"+
         "boardpublickey   VARCHAR,"+
@@ -93,7 +93,7 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
         ")";
 
     private final String SQL_DDL_CONTENT =
-        "CREATE TABLE MESSAGEARCHIVECONTENTS ("+
+        "CREATE TABLE IF NOT EXISTS MESSAGEARCHIVECONTENTS ("+
         "msgref BIGINT NOT NULL,"+
         "msgcontent VARCHAR,"+
         "CONSTRAINT msgarcc_fk FOREIGN KEY (msgref) REFERENCES MESSAGEARCHIVE(primkey) ON DELETE CASCADE,"+

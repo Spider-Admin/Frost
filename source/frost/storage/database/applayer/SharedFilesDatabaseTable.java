@@ -39,7 +39,7 @@ public class SharedFilesDatabaseTable extends AbstractDatabaseTable {
     private static Logger logger = Logger.getLogger(SharedFilesDatabaseTable.class.getName());
 
     private final static String SQL_SHAREDFILES_DDL =
-        "CREATE TABLE SHAREDFILES ("+
+        "CREATE TABLE IF NOT EXISTS SHAREDFILES ("+
 
           "path VARCHAR NOT NULL,"+   // complete local path, with name
           "size BIGINT NOT NULL,"+    // file size

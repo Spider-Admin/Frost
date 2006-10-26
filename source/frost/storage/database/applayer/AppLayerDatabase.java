@@ -184,6 +184,7 @@ public class AppLayerDatabase implements Savable {
             if( compactTables ) {
                 instance.compactDatabaseTables(lst);
             }
+            
         } else {
             System.out.println("ERROR: AppLayerDatabase already initialized!");
         }
@@ -264,7 +265,7 @@ public class AppLayerDatabase implements Savable {
     }
 
     private void ensureTables(List lst) {
-        
+
         for(Iterator i=lst.iterator(); i.hasNext(); ) {
             AbstractDatabaseTable t = (AbstractDatabaseTable)i.next();
             for(Iterator j=t.getTableDDL().iterator(); j.hasNext(); ) {

@@ -37,7 +37,7 @@ public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
     //         Handle own received keys like any other keys, we don't even know that this was our key.
     
     private final static String SQL_SHAREDFILESCHK_DDL =
-        "CREATE TABLE SHAREDFILESCHK ("+
+        "CREATE TABLE IF NOT EXISTS SHAREDFILESCHK ("+
           "primkey BIGINT NOT NULL,"+
           "chkkey VARCHAR NOT NULL,"+
           "seencount INT NOT NULL,"+    // how often did we receive this CHK in a KSK pointer file

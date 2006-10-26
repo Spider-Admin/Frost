@@ -30,7 +30,7 @@ public class BoardDatabaseTable extends AbstractDatabaseTable {
     private static Logger logger = Logger.getLogger(BoardDatabaseTable.class.getName());
 
     private final static String SQL_BOARDS_DDL =
-        "CREATE TABLE BOARDS ("+
+        "CREATE TABLE IF NOT EXISTS BOARDS ("+
         "primkey INT NOT NULL,"+
         "boardname VARCHAR NOT NULL,"+
         "CONSTRAINT boards_pk PRIMARY KEY (primkey),"+

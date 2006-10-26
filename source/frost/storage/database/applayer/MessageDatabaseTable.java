@@ -81,7 +81,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
     }
 
     private final String SQL_DDL_MESSAGES =
-        "CREATE TABLE "+getMessageTableName()+" ("+
+        "CREATE TABLE IF NOT EXISTS "+getMessageTableName()+" ("+
         "primkey BIGINT NOT NULL,"+
         "messageid VARCHAR,"+
         "inreplyto VARCHAR,"+
@@ -125,7 +125,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
 
     // FIXME: add an index for msgref?
     private final String SQL_DDL_FILEATTACHMENTS =
-        "CREATE TABLE "+getFileAttachmentsTableName()+" ("+
+        "CREATE TABLE IF NOT EXISTS "+getFileAttachmentsTableName()+" ("+
         "msgref BIGINT NOT NULL,"+
         "filename VARCHAR,"+
         "filesize BIGINT,"+
@@ -134,7 +134,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         ")";
     // FIXME: add an index for msgref?
     private final String SQL_DDL_BOARDATTACHMENTS =
-        "CREATE TABLE "+getBoardAttachmentsTableName()+" ("+
+        "CREATE TABLE IF NOT EXISTS "+getBoardAttachmentsTableName()+" ("+
         "msgref BIGINT NOT NULL,"+
         "boardname VARCHAR,"+
         "boardpublickey   VARCHAR,"+
@@ -144,7 +144,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         ")";
 
     private final String SQL_DDL_CONTENT =
-        "CREATE TABLE "+getContentTableName()+" ("+
+        "CREATE TABLE IF NOT EXISTS "+getContentTableName()+" ("+
         "msgref BIGINT NOT NULL,"+
         "msgcontent VARCHAR,"+
         "CONSTRAINT "+getContentForeignKeyConstraintName()+" FOREIGN KEY (msgref) REFERENCES "+getMessageTableName()+"(primkey) ON DELETE CASCADE,"+
