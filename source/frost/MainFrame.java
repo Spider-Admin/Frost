@@ -24,6 +24,7 @@ import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.io.*;
 import java.sql.*;
+import java.util.*;
 import java.util.logging.*;
 
 import javax.swing.*;
@@ -68,6 +69,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     
     private JButton boardInfoButton = null;
     private long counter = 55;
+    
+    private static java.util.List queuedStartupMessages = new LinkedList();
 
     //Panels
 
@@ -1210,5 +1213,36 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             glassPane = null;
         }
         hideProgress();
+    }
+    
+    private static class StartupMessage {
+        String title;
+        String text;
+        int type;
+    }
+
+    /**
+     * Enqueue a message that is shown after the mainframe became visible.
+     * Used to show messages about problems occured during loading (e.g. missing shared files).
+     */
+    public static void enqueueStartupMessage(String title, String text, int type) {
+        StartupMessage sm = new StartupMessage();
+        sm.title = title;
+        sm.text = text;
+        sm.type = type;
+        queuedStartupMessages.add( sm );
+    }
+
+    /**
+     * Show the enqueued messages and finally clear the messages queue.
+     */
+    public void showStartupMessages() {
+        for(Iterator i=queuedStartupMessages.iterator(); i.hasNext(); ) {
+            StartupMessage sm = (StartupMessage) i.next();
+            JOptionPane.showMessageDialog(this, sm.text, sm.title, sm.type);
+        }
+        // not needed any longer
+        queuedStartupMessages.clear();
+        queuedStartupMessages = null;
     }
 }

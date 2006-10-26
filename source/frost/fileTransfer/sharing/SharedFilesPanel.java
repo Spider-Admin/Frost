@@ -292,7 +292,8 @@ public class SharedFilesPanel extends JPanel {
         private JMenuItem removeSelectedFilesItem = new JMenuItem();
         private JMenuItem propertiesItem = new JMenuItem();
 
-        private JMenu changeDestinationBoardMenu = new JMenu();
+        private JMenuItem setPathItem = new JMenuItem();
+
         private JMenu copyToClipboardMenu = new JMenu();
 
         private String keyNotAvailableMessage;
@@ -320,6 +321,7 @@ public class SharedFilesPanel extends JPanel {
             removeSelectedFilesItem.addActionListener(this);
             uploadSelectedFilesItem.addActionListener(this);
             propertiesItem.addActionListener(this);
+            setPathItem.addActionListener(this);
         }
 
         private void refreshLanguage() {
@@ -332,10 +334,10 @@ public class SharedFilesPanel extends JPanel {
             copyKeysItem.setText(language.getString("Common.copyToClipBoard.copyKeysOnly"));
             copyKeysAndNamesItem.setText(language.getString("Common.copyToClipBoard.copyKeysWithFilenames"));
             copyExtendedInfoItem.setText(language.getString("Common.copyToClipBoard.copyExtendedInfo"));
-            uploadSelectedFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.uploadSelectedFiles"));
-            removeSelectedFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.remove.removeSelectedFiles"));
+            uploadSelectedFilesItem.setText(language.getString("SharedFilesPane.fileTable.popupmenu.uploadSelectedFiles"));
+            removeSelectedFilesItem.setText(language.getString("SharedFilesPane.fileTable.popupmenu.removeSelectedFiles"));
+            setPathItem.setText(language.getString("SharedFilesPane.fileTable.popupmenu.setPath"));
 
-            changeDestinationBoardMenu.setText(language.getString("UploadPane.fileTable.popupmenu.changeDestinationBoard"));
             copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
         }
 
@@ -365,6 +367,62 @@ public class SharedFilesPanel extends JPanel {
             if( e.getSource() == propertiesItem ) {
                 showProperties();
             }
+            if( e.getSource() == setPathItem ) {
+                setPath();
+            }
+        }
+        
+        private void setPath() {
+            
+            ModelItem[] selectedItems = modelTable.getSelectedItems();
+            if( selectedItems.length != 1 ) {
+                return;
+            }
+            
+            final FrostSharedFileItem sfItem = (FrostSharedFileItem) selectedItems[0];
+            
+            final JFileChooser fc = new JFileChooser(Core.frostSettings.getValue(SettingsClass.DIR_LAST_USED));
+            fc.setDialogTitle(language.getString("SharedFilesPane.filechooser.title"));
+            fc.setFileHidingEnabled(true);
+            fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            fc.setMultiSelectionEnabled(false);
+            fc.setPreferredSize(new Dimension(600, 400));
+            fc.setAcceptAllFileFilterUsed(false);
+            javax.swing.filechooser.FileFilter ff = new javax.swing.filechooser.FileFilter() {
+                public boolean accept(File f) {
+                    if( f.isDirectory() || f.getName().equals(sfItem.getFile().getName()) ) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+                public String getDescription() {
+                    return sfItem.getFile().getName();
+                }
+            };
+            fc.addChoosableFileFilter(ff);
+
+            if (fc.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
+                return;
+            }
+            File selectedFile = fc.getSelectedFile();
+            if( selectedFile == null ) {
+                return;
+            }
+            
+            // check if size matches
+            if( sfItem.getFileSize() != selectedFile.length() ) {
+                JOptionPane.showMessageDialog(
+                        MainFrame.getInstance(),
+                        language.getString("SharedFilesPane.sizeChangedErrorDialog.text"), 
+                        language.getString("SharedFilesPane.sizeChangedErrorDialog.title"), 
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            sfItem.setLastModified(selectedFile.lastModified());
+            sfItem.setFile(selectedFile);
+            sfItem.setValid(true);
         }
 
         /**
@@ -474,6 +532,20 @@ public class SharedFilesPanel extends JPanel {
             if( selectedItems.length == 0 ) {
                 return;
             }
+            
+            if( selectedItems.length == 1 
+                    && ! ((FrostSharedFileItem) selectedItems[0]).isValid() )
+            {
+                add(setPathItem);
+                super.show(invoker, x, y);
+            } 
+            // check if all selected items are valid
+            for(int i=0; i < selectedItems.length; i++) {
+                FrostSharedFileItem sfItem = (FrostSharedFileItem) selectedItems[i];
+                if( !sfItem.isValid() ) {
+                    return; // we can't show a menu with items for valid and invalid files
+                }
+            }
 
             // if at least 1 item is selected
             add(copyToClipboardMenu);
@@ -518,7 +590,7 @@ public class SharedFilesPanel extends JPanel {
             }
         }
         public void mousePressed(MouseEvent e) {
-            if (e.getClickCount() == 2) {
+            if (e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1 ) {
                 if (e.getSource() == modelTable.getTable()) {
                     // Start file from download table. Is this a good idea?
                     showProperties();
@@ -531,12 +603,10 @@ public class SharedFilesPanel extends JPanel {
         }
         public void mouseReleased(MouseEvent e) {
             if ((e.getClickCount() == 1) && (e.isPopupTrigger())) {
-
                 if ((e.getSource() == modelTable.getTable())
                     || (e.getSource() == modelTable.getScrollPane())) {
                     showUploadTablePopupMenu(e);
                 }
-
             }
         }
         public void propertyChange(PropertyChangeEvent evt) {

@@ -232,6 +232,11 @@ public class FrostSharedFileItem extends ModelItem {
     public File getFile() {
         return file;
     }
+    
+    public void setFile(File f) {
+        // caller ensured that size is the same
+        file = f;
+    }
 
     public long getFileSize() {
         return fileSize;
@@ -274,5 +279,11 @@ public class FrostSharedFileItem extends ModelItem {
 
     public void setValid(boolean isValid) {
         this.isValid = isValid;
+        if( isValid ) {
+            fireChange();
+            userActionOccured();
+        } else {
+            fireChange();
+        }
     }
 }

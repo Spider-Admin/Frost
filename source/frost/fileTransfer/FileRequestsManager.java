@@ -197,7 +197,7 @@ public class FileRequestsManager {
                 // - only if last upload was'nt earlier than 3 days
                 
                 // search upload table, check if we currently upload this file
-                if( !sfo.isCurrentlyUploading() ) {
+                if( !sfo.isCurrentlyUploading() && sfo.isValid() ) {
                     // is not uploading currently
                     long minDiff = MIN_LAST_UPLOADED * 24L * 60L * 60L * 1000L; // 3 days in milliseconds
                     if( sfo.getLastUploaded() < now - minDiff ) {

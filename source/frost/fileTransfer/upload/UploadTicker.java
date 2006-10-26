@@ -312,8 +312,8 @@ public class UploadTicker extends Thread {
     }
 
     private void removeNotExistingFiles() {
-        // Check uploadTable every 3 minutes
-        if (removeNotExistingFilesCounter >= 180 ) {
+        // Check uploadTable every 5 minutes
+        if (removeNotExistingFilesCounter >= 5*60 ) {
             model.removeNotExistingFiles();
             removeNotExistingFilesCounter = 0;
         }

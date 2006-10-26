@@ -150,7 +150,11 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
                     return DateFun.getExtendedDateFromMillis(sfItem.getRefLastSent());
                 }
             case 12 : // path
-                return sfItem.getFile().getPath();
+                if( sfItem.isValid() ) {
+                    return sfItem.getFile().getPath();
+                } else {
+                    return "???";
+                }
             default:
                 return "**ERROR**";
         }
@@ -167,20 +171,20 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
 
         ShowContentTooltipRenderer showContentTooltipRenderer = new ShowContentTooltipRenderer();
         RightAlignRenderer numberRightRenderer = new RightAlignRenderer();
-        ShowColoredLinesRenderer showColoredLinesRenderer = new ShowColoredLinesRenderer();
+        BaseRenderer baseRenderer = new BaseRenderer();
 
         columnModel.getColumn(0).setCellRenderer(showContentTooltipRenderer); // filename
         columnModel.getColumn(1).setCellRenderer(numberRightRenderer); // fileSize
         columnModel.getColumn(2).setCellRenderer(showContentTooltipRenderer); // owner
         columnModel.getColumn(3).setCellRenderer(numberRightRenderer); // uploadCount
-        columnModel.getColumn(4).setCellRenderer(showColoredLinesRenderer); // lastUpload
+        columnModel.getColumn(4).setCellRenderer(baseRenderer); // lastUpload
         columnModel.getColumn(5).setCellRenderer(numberRightRenderer); // requestCount
-        columnModel.getColumn(6).setCellRenderer(showColoredLinesRenderer); // lastRequest
+        columnModel.getColumn(6).setCellRenderer(baseRenderer); // lastRequest
         columnModel.getColumn(7).setCellRenderer(showContentTooltipRenderer); // key
-        columnModel.getColumn(8).setCellRenderer(showColoredLinesRenderer); // rating
+        columnModel.getColumn(8).setCellRenderer(baseRenderer); // rating
         columnModel.getColumn(9).setCellRenderer(showContentTooltipRenderer); // comment
         columnModel.getColumn(10).setCellRenderer(showContentTooltipRenderer); // keywords
-        columnModel.getColumn(11).setCellRenderer(showColoredLinesRenderer); // lastShared
+        columnModel.getColumn(11).setCellRenderer(baseRenderer); // lastShared
         columnModel.getColumn(12).setCellRenderer(showContentTooltipRenderer); // path
         
         if( !loadTableLayout(columnModel) ) {
@@ -257,7 +261,7 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
         refreshLanguage();
     }
 
-    private class ShowContentTooltipRenderer extends ShowColoredLinesRenderer {
+    private class ShowContentTooltipRenderer extends BaseRenderer {
         public ShowContentTooltipRenderer() {
             super();
         }
@@ -282,7 +286,7 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
         }
     }
 
-    private class RightAlignRenderer extends ShowColoredLinesRenderer {
+    private class RightAlignRenderer extends BaseRenderer {
         final javax.swing.border.EmptyBorder border = new javax.swing.border.EmptyBorder(0, 0, 0, 3);
         public RightAlignRenderer() {
             super();
@@ -455,8 +459,8 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
         }
     }
     
-    private class ShowColoredLinesRenderer extends DefaultTableCellRenderer {
-        public ShowColoredLinesRenderer() {
+    private class BaseRenderer extends DefaultTableCellRenderer {
+        public BaseRenderer() {
             super();
         }
         public Component getTableCellRendererComponent(
@@ -468,19 +472,29 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
             int column) 
         {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            if (!isSelected) {
+
+            if( !isSelected ) {
+                Color newBackground;
                 if( showColoredLines ) {
                     // IBM lineprinter paper
                     if ((row & 0x0001) == 0) {
-                        setBackground(Color.WHITE);
+                        newBackground = Color.WHITE;
                     } else {
-                        setBackground(secondBackgroundColor);
+                        newBackground = secondBackgroundColor;
                     }
                 } else {
-                    setBackground(table.getBackground());
+                    newBackground = table.getBackground();
                 }
-            } else {
-                setBackground(table.getSelectionBackground());
+                
+                ModelItem item = modelTable.getItemAt(row); //It may be null
+                if (item != null) {
+                    FrostSharedFileItem sfItem = (FrostSharedFileItem) item;
+                    if( !sfItem.isValid() ) {
+                        newBackground = Color.red;
+                    }
+                }
+                setBackground(newBackground);
+                setForeground(Color.black);
             }
             return this;
         }

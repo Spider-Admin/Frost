@@ -474,7 +474,7 @@ public class Core implements FrostEventDispatcher  {
                 }
             }
         }
-
+        
         String title;
         if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
             title = "Frost@Freenet 0.5";
@@ -537,8 +537,10 @@ public class Core implements FrostEventDispatcher  {
                 mainFrame.setVisible(true);
             }
         });
-
+        
         splashscreen.closeMe();
+        
+        mainFrame.showStartupMessages();
     }
 
     public FileTransferManager getFileTransferManager() {

@@ -23,8 +23,12 @@ import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
+import javax.swing.*;
+
+import frost.*;
 import frost.fileTransfer.sharing.*;
 import frost.storage.database.*;
+import frost.util.gui.translation.*;
 
 /**
  * This table contains all our own shared files.
@@ -142,14 +146,25 @@ public class SharedFilesDatabaseTable extends AbstractDatabaseTable {
 
             boolean fileIsOk = true;
             File file = new File(filepath);
+
+            Language language = Language.getInstance();
             if( !file.isFile() ) {
-                logger.warning("Shared file items file does not exist: "+filepath);
+                String title = language.getString("StartupMessage.sharedFile.sharedFileNotFound.title");
+                String text = language.formatMessage("StartupMessage.sharedFile.sharedFileNotFound.text", filepath);
+                MainFrame.enqueueStartupMessage(title, text, JOptionPane.WARNING_MESSAGE);
+                logger.severe("Shared file does not exist: "+filepath);
                 fileIsOk = false;
             } else if( file.length() != filesize ) {
-                logger.warning("Shared file items file size changed: "+filepath);
+                String title = language.getString("StartupMessage.sharedFile.sharedFileSizeChanged.title");
+                String text = language.formatMessage("StartupMessage.sharedFile.sharedFileSizeChanged.text", filepath);
+                MainFrame.enqueueStartupMessage(title, text, JOptionPane.WARNING_MESSAGE);
+                logger.severe("Size of shared file changed: "+filepath);
                 fileIsOk = false;
             } else if( file.lastModified() != lastModified ) {
-                logger.warning("Shared file items last modified changed: "+filepath);
+                String title = language.getString("StartupMessage.sharedFile.sharedFileLastModifiedChanged.title");
+                String text = language.formatMessage("StartupMessage.sharedFile.sharedFileLastModifiedChanged.text", filepath);
+                MainFrame.enqueueStartupMessage(title, text, JOptionPane.WARNING_MESSAGE);
+                logger.severe("Last modified date of shared file changed: "+filepath);
                 fileIsOk = false;
             }
             
