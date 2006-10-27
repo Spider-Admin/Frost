@@ -403,8 +403,13 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
      * @param key   the key to be inserted
      * @param data  the bytearray with the data to be inserted
      * @return the results filled with metadata and the CHK used to insert the data
+	 * @throws IOException 
      */
-	public String putKeyFromFile(int type, String key, File sourceFile, boolean getChkOnly)
+	public String putKeyFromFile(int type, String key, File sourceFile, boolean getChkOnly) throws IOException {
+		return putKeyFromFile(type, key, sourceFile, getChkOnly, false);
+	}
+    
+	public String putKeyFromFile(int type, String key, File sourceFile, boolean getChkOnly, boolean doMime)
 		throws IOException {
 
         // FIXME: exploit MaxRetries, UploadFrom, type
@@ -443,7 +448,11 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 			fcpOut.println("GetCHKOnly=true");
 		} else {
             if( type == FcpHandler.TYPE_FILE ) {
-            	fcpOut.println("Metadata.ContentType=" + DefaultMIMETypes.guessMIMEType(sourceFile.getAbsolutePath()));
+            	if (doMime) {
+            		fcpOut.println("Metadata.ContentType=" + DefaultMIMETypes.guessMIMEType(sourceFile.getAbsolutePath()));
+            	} else {
+            		fcpOut.println("Metadata.ContentType=application/octet-stream"); // force this to prevent the node from filename guessing due dda!
+            	}
             	// TODO: 3? 4? maybee an user option?
             	// or done by the balancer (atomagically)
 //            	fcpOut.println("PriorityClass=3");  
