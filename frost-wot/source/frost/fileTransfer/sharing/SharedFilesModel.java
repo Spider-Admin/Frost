@@ -37,7 +37,7 @@ import frost.util.model.*;
  */
 public class SharedFilesModel extends OrderedModel implements Savable {
     
-    // FIXME: for shared directories: add new files to another table, waiting for owner assignment
+    // TODO: for shared directories: add new files to another table, waiting for owner assignment
 
     private static Logger logger = Logger.getLogger(SharedFilesModel.class.getName());
     
