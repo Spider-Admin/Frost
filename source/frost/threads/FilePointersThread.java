@@ -151,7 +151,8 @@ System.out.println("FilePointersThread.downloadDate: success");
             failures = 0;
 
             FilePointerFileContent content = FilePointerFile.readPointerFile(downloadedFile);
-System.out.println("readPointerFile: result: "+content);            
+System.out.println("readPointerFile: result: "+content);
+            downloadedFile.delete();
             SharedFilesCHKKeyManager.processReceivedCHKKeys(content);
         }
         System.out.println("FilePointersThread.downloadDate: finished");        

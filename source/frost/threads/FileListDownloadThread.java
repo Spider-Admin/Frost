@@ -98,7 +98,8 @@ System.out.println("FileListDownloadThread: starting download of key: "+chkKey);
                 
                 FileListFileContent content = FileListFile.readFileListFile(downloadedFile);
                 boolean isValid = FileListManager.processReceivedFileList(content);
-System.out.println("FileListDownloadThread: processed results: "+isValid);                
+System.out.println("FileListDownloadThread: processed results: "+isValid);
+                downloadedFile.delete();
                 SharedFilesCHKKeyManager.updateCHKKeyDownloadSuccessful(chkKey, isValid);
                 
             } catch(Throwable t) {
