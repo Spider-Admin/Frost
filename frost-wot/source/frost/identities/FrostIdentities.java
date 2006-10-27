@@ -299,10 +299,44 @@ public class FrostIdentities implements Savable {
      */
     public void save() throws StorageException {
         try {
-            // TODO: don't save infos for deleted boards
-            AppLayerDatabase.getIdentitiesDatabaseTable().saveAllLastFilesSharedPerBoard(getLocalIdentities());
+            AppLayerDatabase.getIdentitiesDatabaseTable().saveLastFilesSharedPerIdentity(getLocalIdentities());
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "error saving last files shared information", e);
         }
+    }
+    
+    /**
+     * Applies trust state of source identity to target identity.
+     */
+    public static void takeoverTrustState(Identity source, Identity target) {
+        if( source.isGOOD() ) {
+            target.setGOOD();
+        } else if( source.isOBSERVE() ) {
+            target.setOBSERVE();
+        } else if( source.isBAD() ) {
+            target.setBAD();
+        } else if( source.isCHECK() ) {
+            target.setCHECK();
+        }
+    }
+    
+    // TODO: merge the imported identities with the existing identities (WOT), use a mergeIdentities method
+    public int importIdentities(List importedIdentities) {
+        // for now we only import identities that we don't have already, or if our identity state is CHECK
+        int importedCount = 0;
+        for(Iterator i=importedIdentities.iterator(); i.hasNext(); ) {
+            Identity newId = (Identity) i.next();
+            Identity oldId = getIdentity(newId.getUniqueName());
+            if( oldId == null ) {
+                // add new id
+                addIdentity(newId);
+                importedCount++;
+            } else if( oldId.isCHECK() && !newId.isCHECK() ) {
+                // take over trust state
+                takeoverTrustState(newId, oldId);
+                importedCount++;
+            }
+        }
+        return importedCount;
     }
 }

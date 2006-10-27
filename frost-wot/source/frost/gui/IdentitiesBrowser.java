@@ -975,7 +975,7 @@ public class IdentitiesBrowser extends JDialog {
                 return false;
             }
             public String getDescription() {
-                return "identities.xml";
+                return "identities_export.xml";
             }
         };
         
@@ -1055,9 +1055,15 @@ public class IdentitiesBrowser extends JDialog {
                                 JOptionPane.INFORMATION_MESSAGE);
                         return;
                     }
-                    
-                    // FIXME: merge the imported identities with the existing identities
 
+                    int importedCount = Core.getIdentities().importIdentities(importedIdentities);
+                    int skippedCount = importedIdentities.size() - importedCount;
+
+                    JOptionPane.showMessageDialog(
+                            IdentitiesBrowser.this, 
+                            language.formatMessage("IdentitiesBrowser.identitiesImported.body", ""+importedCount, ""+skippedCount), 
+                            language.getString("IdentitiesBrowser.identitiesImported.title"), 
+                            JOptionPane.INFORMATION_MESSAGE);
                 }
             });
         }

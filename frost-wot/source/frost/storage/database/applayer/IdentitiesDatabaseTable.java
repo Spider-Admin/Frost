@@ -169,7 +169,7 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
         ps.close();
 
         // load last files shared per board information
-        loadAllLastFilesSharedPerBoard(localIdentities);
+        loadLastFilesSharedPerIdentity(localIdentities);
 
         return localIdentities;
     }
@@ -223,12 +223,11 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
     }
 
 
-    private void loadAllLastFilesSharedPerBoard(List localIdentities) throws SQLException {
+    private void loadLastFilesSharedPerIdentity(List localIdentities) throws SQLException {
         
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
-        PreparedStatement ps = db.prepare(
-                "SELECT lastshared FROM OWNIDENTITIESLASTFILESSHARED WHERE uniquename=?");
+        PreparedStatement ps = db.prepare("SELECT lastshared FROM OWNIDENTITIESLASTFILESSHARED WHERE uniquename=?");
         
         for(Iterator i=localIdentities.iterator(); i.hasNext(); ) {
             LocalIdentity li = (LocalIdentity)i.next();
@@ -245,15 +244,14 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
         ps.close();
     }
 
-    public void saveAllLastFilesSharedPerBoard(List localIdentities) throws SQLException {
+    public void saveLastFilesSharedPerIdentity(List localIdentities) throws SQLException {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
         Statement s = db.createStatement();
         s.executeUpdate("DELETE FROM OWNIDENTITIESLASTFILESSHARED"); // clear table
         s.close();
         
-        PreparedStatement ps = db.prepare(
-                "INSERT INTO OWNIDENTITIESLASTFILESSHARED (uniquename,lastshared) VALUES (?,?)");
+        PreparedStatement ps = db.prepare("INSERT INTO OWNIDENTITIESLASTFILESSHARED (uniquename,lastshared) VALUES (?,?)");
         
         for(Iterator i=localIdentities.iterator(); i.hasNext(); ) {
             LocalIdentity li = (LocalIdentity)i.next();

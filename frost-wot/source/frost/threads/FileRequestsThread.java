@@ -148,10 +148,20 @@ System.out.println("uploadRequestFile: upload finished, wasOk="+wasOk);
         final int maxAllowedExceptions = 5;
         int occuredExceptions = 0;
 
+        // 2 times after startup we download full backload, then only 1 day backward
+        int downloadFullBackloadCount = 2; 
+
         while( true ) {
             
             // +1 for today
-            final int downloadBack = 1 + Core.frostSettings.getIntValue(SettingsClass.MAX_FILELIST_DOWNLOAD_DAYS);
+            int downloadBack;
+            if( downloadFullBackloadCount > 0 ) {
+                downloadBack = 1 + Core.frostSettings.getIntValue(SettingsClass.MAX_FILELIST_DOWNLOAD_DAYS);
+                downloadFullBackloadCount--;
+            } else {
+                downloadBack = 2; // today and yesterday only
+            }
+
             try {
                 LocalDate nowDate = new LocalDate(DateTimeZone.UTC);
                 for (int i=0; i < downloadBack; i++) {
