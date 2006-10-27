@@ -819,7 +819,6 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
      * @param node
      */
     public void removeNode(Board node) {
-        String txt;
         int answer;
         if (node.isFolder()) {
             answer = JOptionPane.showConfirmDialog(
@@ -839,32 +838,8 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             return;
         }
 
-        // FIXME: translate, ask user if delete this board from DB too.
-        //  -> implement a way to reattach to boards in DB!
-        
-        // ask user if to delete board directory also
-        boolean deleteDirectory = false;
-        if (node.isFolder() == false) {
-            txt =
-                "Do you want to delete the board from the database too?\n"
-                    + "(NOTE: The board MUST not updating to delete it!\n"
-                    + "Currently there is no way to stop the updating of a board,\n"
-                    + "so please ensure this board is'nt updating right now,\n"
-                    + "or you have to live with the consequences ;) )";
-            answer = JOptionPane.showConfirmDialog(
-                    this,
-                    txt,
-                    "Delete directory of '" + node.getName() + "'?",
-                    JOptionPane.YES_NO_CANCEL_OPTION);
-            if (answer == JOptionPane.YES_OPTION) {
-                deleteDirectory = true;
-            } else if (answer == JOptionPane.CANCEL_OPTION) {
-                return;
-            }
-        }
-
         // delete node from tree
-        model.removeNode(node, deleteDirectory);
+        model.removeNode(node, true);
     }
 
     public void setSettings(SettingsClass settings) {

@@ -115,31 +115,58 @@ public class TofTreeModel extends DefaultTreeModel {
 
     /**
      * Removes the node from the board tree.
+     * If node is a folder ALL subfolders and boards and messages are deleted too.
      */
     public void removeNode(Board node, boolean removeFromDatabase) {
         DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
         if (node != null && parent != null) {
-            int[] childIndices = { parent.getIndex(node) };
-            Object[] removedChilds = { node };
             
+            final List boardsToDelete = new LinkedList();
             if( removeFromDatabase ) {
-                try {
-                    AppLayerDatabase.getBoardDatabaseTable().removeBoard(node);
-                } catch (SQLException e) {
-                    logger.log(Level.SEVERE, "Severe error: could not remove a board", e);
-                }
-                // also remove from lookup tables
-                Integer i = (Integer)primaryKeyByBoardname.remove(node.getNameLowerCase());
-                if( i != null ) {
-                    boardnameByPrimaryKey.remove(i);
+                if( node.isFolder() ) {
+                    for(Enumeration e = node.breadthFirstEnumeration(); e.hasMoreElements(); ) {
+                        Board b = (Board) e.nextElement();
+                        if( !b.isFolder() ) {
+                            boardsToDelete.add(b);
+                        }
+                    }
+                } else {
+                    boardsToDelete.add(node);
                 }
             }
+            
+            // remove from tree
+            int[] childIndices = { parent.getIndex(node) };
+            Object[] removedChilds = { node };
 
             node.removeFromParent();
 
             TreePath pathToParent = new TreePath(getPathToRoot(parent));
             nodesWereRemoved(parent, childIndices, removedChilds);
             selectionModel.setSelectionPath(pathToParent);
+            
+            // maybe delete all boards
+            if( !boardsToDelete.isEmpty() ) {
+                Thread worker = new Thread() {
+                    public void run() {
+                        for(Iterator it = boardsToDelete.iterator(); it.hasNext(); ) {
+                            Board board = (Board) it.next();
+                            // remove from lookup tables
+                            Integer i = (Integer)primaryKeyByBoardname.remove(board.getNameLowerCase());
+                            if( i != null ) {
+                                boardnameByPrimaryKey.remove(i);
+                            }
+                            try {
+                                // due to cascade delete this deletes all messages of this board too
+                                AppLayerDatabase.getBoardDatabaseTable().removeBoard(board);
+                            } catch (SQLException e) {
+                                logger.log(Level.SEVERE, "Severe error: could not remove a board", e);
+                            }
+                        }
+                    }
+                };
+                worker.start();
+            }
         }
     }
 

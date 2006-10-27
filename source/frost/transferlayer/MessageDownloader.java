@@ -215,6 +215,7 @@ public class MessageDownloader {
             // if not on any list, use the parsed id and add to our identities list
             if (owner == null) {
                 owner = metaData.getPerson();
+                owner.isIdentityValid(); // not enforced, writes log entry
                 owner.setCHECK();
                 Core.getIdentities().addIdentity(owner);
             }
@@ -395,6 +396,7 @@ public class MessageDownloader {
             // if not on any list, use the parsed id and add to our identities list
             if (owner == null) {
                 owner = new Identity(currentMsg.getFromName(), currentMsg.getPublicKey());
+                owner.isIdentityValid(); // not enforced, writes log entry
                 owner.setCHECK();
                 Core.getIdentities().addIdentity(owner);
             }

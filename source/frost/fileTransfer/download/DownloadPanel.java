@@ -58,7 +58,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
 	private boolean initialized = false;
 
-	private String fileSeparator = System.getProperty("file.separator");
 	private boolean downloadingActivated = false;
 	private long downloadItemCount = 0;
 
@@ -367,28 +366,22 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		ModelItem selectedItem = modelTable.getSelectedItem();
 		if (selectedItem != null) {
 			FrostDownloadItem dlItem = (FrostDownloadItem) selectedItem;
-			String execFilename =
-				new StringBuffer()
-					.append(System.getProperty("user.dir"))
-					.append(fileSeparator) // FIXME: check this logic
-					.append(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD))
-					.append(dlItem.getFileName())
-					.toString();
-			File file = new File(execFilename);
-			logger.info("Executing: " + file.getPath());
-			if (file.exists()) {
-                try {
-                    Execute.simple_run(new String[] {"exec.bat", file.getPath()} );
-                } catch(Throwable t) {
-                    JOptionPane.showMessageDialog(this,
-                            "Could not open the file: "+file.getName()+"\n"+t.toString(),
-                            "Error",
-                            JOptionPane.ERROR_MESSAGE);            
-                }
-			}
+            File targetFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + dlItem.getFileName());
+            if( !targetFile.isFile() ) {
+                return;
+            }
+			logger.info("Executing: " + targetFile.getAbsolutePath());
+            try {
+                Execute.simple_run(new String[] {"exec.bat", targetFile.getAbsolutePath()} );
+            } catch(Throwable t) {
+                JOptionPane.showMessageDialog(this,
+                        "Could not open the file: "+targetFile.getAbsolutePath()+"\n"+t.toString(),
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);            
+            }
 		}
 	}
-
+    
 	/* (non-Javadoc)
 	 * @see frost.SettingsUpdater#updateSettings()
 	 */

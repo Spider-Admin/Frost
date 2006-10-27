@@ -121,6 +121,7 @@ public class Identity implements XMLizable {
         uniqueName = Mixed.makeFilename(uniqueName);
     }
     
+
     public Identity(String uname, String pubkey, long lseen, int s) {
         uniqueName = uname;
         key = pubkey;
@@ -133,38 +134,36 @@ public class Identity implements XMLizable {
     
     // FIXME: for each new identity, check if digest is the same as created from pubKey:
     /**
-     * This method checks if the digest of sharer matches the pubkey,
-     * and adds the NEW identity to list of neutrals.
-     * @param _sharer
-     * @param _pubkey
-     * @return
+     * This method checks if the digest of this Identity matches the pubkey.
+     * (digest is the part after the @ in the username)
      */
-    protected static Identity addNewSharer(String _sharer, String _pubkey) {
+    public boolean isIdentityValid() {
 
-        //check if the digest matches
-        String given_digest = _sharer.substring(_sharer.indexOf("@") + 1,
-                                                _sharer.length()).trim();
-        String calculatedDigest = Core.getCrypto().digest(_pubkey.trim()).trim();
-        calculatedDigest = Mixed.makeFilename( calculatedDigest ).trim();
+        String uName = getUniqueName();
+        String puKey = getKey();
 
-        if( ! Mixed.makeFilename(given_digest).equals( calculatedDigest ) ) {
-            logger.warning("Warning: public key of sharer didn't match its digest:\n" +
-                           "given digest :'" + given_digest + "'\n" +
-                           "pubkey       :'" + _pubkey.trim() + "'\n" +
-                           "calc. digest :'" + calculatedDigest + "'");
-            return null;
-        }
-        //create the identity of the sharer
-        Identity sharer = new Identity( _sharer.substring(0,_sharer.indexOf("@")), _pubkey);
-
-        //add him to the neutral list (if not already on any list)
-        sharer.setCHECK();
-        Core.getIdentities().addIdentity(sharer);
-
-        return sharer;
+        try {
+            // check if the digest matches
+            String given_digest = uName.substring(uName.indexOf("@") + 1, uName.length()).trim();
+            String calculatedDigest = Core.getCrypto().digest(puKey.trim()).trim();
+            calculatedDigest = Mixed.makeFilename(calculatedDigest).trim();
+            if( !Mixed.makeFilename(given_digest).equals(calculatedDigest) ) {
+                logger.severe("Warning: public key of sharer didn't match its digest:\n" + 
+                              "given digest :'" + given_digest + "'\n" + 
+                              "pubkey       :'" + puKey.trim() + "'\n" + 
+                              "calc. digest :'" + calculatedDigest + "'");
+                return false;
+            }
+        } catch (Throwable e) {
+            logger.log(Level.SEVERE, "Exception during key validation", e);
+            return false;
+        }        
+        return true;
     }
 
-
+    /**
+     * @return  the public key of this Identity
+     */
     public String getKey() {
         return key;
     }
