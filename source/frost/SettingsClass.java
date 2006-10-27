@@ -732,7 +732,7 @@ public class SettingsClass implements Savable {
         defaults.put(ALWAYS_DOWNLOAD_MESSAGES_BACKLOAD, "false");
         
         defaults.put(MIN_DAYS_BEFORE_FILE_RESHARE, "3"); // reshare all 3 days
-        defaults.put(MAX_FILELIST_DOWNLOAD_DAYS, "7"); // download backward 7 days
+        defaults.put(MAX_FILELIST_DOWNLOAD_DAYS, "5"); // download backward 5 days
 
         defaults.put(MESSAGE_BASE, "news");
         defaults.put(FILE_BASE, "files");
