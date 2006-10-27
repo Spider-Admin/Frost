@@ -24,6 +24,7 @@ import java.util.logging.*;
 
 import org.w3c.dom.*;
 
+import frost.fcp.*;
 import frost.util.*;
 
 /**
@@ -31,7 +32,7 @@ import frost.util.*;
  * 
  * XML format:
  * 
- * <FrostRequestFile>
+ * <FrostFileRequestFile>
  *   <timestamp>...</timestamp>
  *   <shaList>
  *     <sha>...</sha>
@@ -42,6 +43,11 @@ import frost.util.*;
 public class FileRequestFile {
 
     private static Logger logger = Logger.getLogger(FileRequestFile.class.getName());
+
+    private static final String TAG_FrostFileRequestFile = "FrostFileRequestFile";
+    private static final String TAG_timestamp = "timestamp";
+    private static final String TAG_shaList = "shaList";
+    private static final String TAG_sha = "sha";
 
     /**
      * @param chkKeys  List of String objects with the shas
@@ -56,21 +62,21 @@ public class FileRequestFile {
             return false;
         }
 
-        Element rootElement = doc.createElement("FrostRequestFile");
+        Element rootElement = doc.createElement(TAG_FrostFileRequestFile);
         doc.appendChild(rootElement);
 
-        Element timeStampElement = doc.createElement("timestamp");
+        Element timeStampElement = doc.createElement(TAG_timestamp);
         Text timeStampText = doc.createTextNode( ""+content.getTimestamp() );
         timeStampElement.appendChild(timeStampText);
         rootElement.appendChild( timeStampElement );
 
-        Element rootChkElement = doc.createElement("shaList");
+        Element rootChkElement = doc.createElement(TAG_shaList);
         rootElement.appendChild( rootChkElement );
         
         for( Iterator i = content.getShaStrings().iterator(); i.hasNext(); ) {
             String chkKey = (String) i.next();
             
-            Element nameElement = doc.createElement("sha");
+            Element nameElement = doc.createElement(TAG_sha);
             Text text = doc.createTextNode( chkKey );
             nameElement.appendChild( text );
 
@@ -83,20 +89,56 @@ public class FileRequestFile {
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Exception in writeRequestFile/writeXmlFile", t);
         }
+        
+        // compress file if running on 0.5
+        if( writeOK && FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
+            File tmp = new File(targetFile.getPath() + ".frftmp");
+            if( !FileAccess.compressFileGZip(targetFile, tmp) ) {
+                return false; // error, already logged
+            }
+            targetFile.delete();
+            if( !tmp.renameTo(targetFile) ) {
+                logger.severe("Error: rename failed: "+tmp.getPath()+"','"+targetFile.getPath()+"'");
+                return false;
+            }
+        }
+        
         return writeOK;
     }
     
+    public static void main(String[] args) {
+        File targetFile = new File("D:\\abc.def");
+        File tmp = new File(targetFile.getPath() + ".frftmp");
+        if( !FileAccess.compressFileGZip(targetFile, tmp) ) {
+            return; // error
+        }
+        targetFile.delete();
+        tmp.renameTo(targetFile);
+    }
+    
     /**
-     * @param source  File to read from
+     * @param sourceFile  File to read from
      * @return  List of String objects with the shas
      */
-    public static FileRequestFileContent readRequestFile(File source) {
-        if( !source.isFile() || !(source.length() > 0) ) {
+    public static FileRequestFileContent readRequestFile(File sourceFile) {
+        if( !sourceFile.isFile() || !(sourceFile.length() > 0) ) {
             return null;
-        } 
+        }
+        // decompress file if running on 0.5
+        if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
+            File tmp = new File(sourceFile.getPath() + ".frftmp");
+            if( !FileAccess.decompressFileGZip(sourceFile, tmp) ) {
+                return null; // error, already logged
+            }
+            sourceFile.delete();
+            if( !tmp.renameTo(sourceFile) ) {
+                logger.severe("Error: rename failed: "+tmp.getPath()+"','"+sourceFile.getPath()+"'");
+                return null;
+            }
+        }
         Document d = null;
         try {
-            d = XMLTools.parseXmlFile(source.getPath(), false);
+            d = XMLTools.parseXmlFile(sourceFile.getPath(), false);
         } catch (Throwable t) {
             logger.log(Level.SEVERE, "Exception in readRequestFile, during XML parsing", t);
             return null;
@@ -109,28 +151,28 @@ public class FileRequestFile {
         
         Element rootNode = d.getDocumentElement();
 
-        if( rootNode.getTagName().equals("FrostRequestFile") == false ) {
-            logger.severe("Error: xml request file does not contain the root tag 'FrostRequestFile'");
+        if( rootNode.getTagName().equals(TAG_FrostFileRequestFile) == false ) {
+            logger.severe("Error: xml request file does not contain the root tag '"+TAG_FrostFileRequestFile+"'");
             return null;
         }
         
-        String timeStampStr = XMLTools.getChildElementsTextValue(rootNode, "timestamp");
+        String timeStampStr = XMLTools.getChildElementsTextValue(rootNode, TAG_timestamp);
         if( timeStampStr == null ) {
-            logger.severe("Error: xml file does not contain the tag 'timestamp'");
+            logger.severe("Error: xml file does not contain the tag '"+TAG_timestamp+"'");
             return null;
         }
         long timestamp = Long.parseLong(timeStampStr);
         
-        List nodelist = XMLTools.getChildElementsByTagName(rootNode, "shaList");
+        List nodelist = XMLTools.getChildElementsByTagName(rootNode, TAG_shaList);
         if( nodelist.size() != 1 ) {
-            logger.severe("Error: xml request files must contain only one element 'shaList'");
+            logger.severe("Error: xml request files must contain only one element '"+TAG_shaList+"'");
             return null;
         }
         
         Element rootShaNode = (Element)nodelist.get(0);
         
         List shaList = new LinkedList();
-        List xmlKeys = XMLTools.getChildElementsByTagName(rootShaNode, "sha");
+        List xmlKeys = XMLTools.getChildElementsByTagName(rootShaNode, TAG_sha);
         for( Iterator i = xmlKeys.iterator(); i.hasNext(); ) {
             Element el = (Element) i.next();
             

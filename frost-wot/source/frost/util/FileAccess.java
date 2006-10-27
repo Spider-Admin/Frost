@@ -48,7 +48,7 @@ public class FileAccess {
                         prefix+
                         System.currentTimeMillis()+
                         suffix);
-            } while(tmpFile.exists());
+            } while(tmpFile.isFile());
         }
         return tmpFile;
     }
@@ -130,7 +130,75 @@ public class FileAccess {
             }
         }
     }
+    
+    /**
+     * Compresses a file into a gzip file.
+     * 
+     * @param inputFile   file to compress
+     * @param outputFile  gzip file
+     * @return   true if OK
+     */
+    public static boolean compressFileGZip(File inputFile, File outputFile) {
+        
+        final int bufferSize = 4096;
 
+        GZIPOutputStream out = null;
+        FileInputStream in = null;
+
+        try {
+            in = new FileInputStream(inputFile);
+            out = new GZIPOutputStream(new FileOutputStream(outputFile));
+        
+            byte[] buf = new byte[bufferSize];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+            in.close();
+            out.close();
+            return true;
+        } catch(Throwable t) {
+            logger.log(Level.SEVERE, "Exception catched", t);
+            try { if( in != null) in.close(); } catch(Throwable tt) { }
+            try { if( out != null) out.close(); } catch(Throwable tt) { }
+            return false;
+        }
+    }
+
+    /**
+     * Decompresses a gzip file.
+     * 
+     * @param inputFile   gzip file
+     * @param outputFile  unzipped file
+     * @return   true if OK
+     */
+    public static boolean decompressFileGZip(File inputFile, File outputFile) {
+        
+        final int bufferSize = 4096;
+        
+        GZIPInputStream in = null;
+        OutputStream out = null;
+
+        try {
+            in = new GZIPInputStream(new FileInputStream(inputFile));
+            out = new FileOutputStream(outputFile);
+        
+            byte[] buf = new byte[bufferSize];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+            in.close();
+            out.close();
+            return true;
+        } catch(Throwable t) {
+            logger.log(Level.SEVERE, "Exception catched", t);
+            try { if( in != null) in.close(); } catch(Throwable tt) { }
+            try { if( out != null) out.close(); } catch(Throwable tt) { }
+            return false;
+        }
+    }
+    
     /**
      * Writes zip file
      */
@@ -169,9 +237,10 @@ public class FileAccess {
 
         final int bufferSize = 4096;
         ZipInputStream zis = null;
+        ByteArrayOutputStream out = null;
         try {
             zis = new ZipInputStream(new FileInputStream(file));
-            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            out = new ByteArrayOutputStream();
             zis.getNextEntry();
 
             byte[] zipData = new byte[bufferSize];
@@ -186,10 +255,10 @@ public class FileAccess {
             return out.toByteArray();
 
         } catch( FileNotFoundException e ) {
-            logger.log(Level.SEVERE, "Exception thrown in readZipFile(String path)", e);
-        }
-        catch( IOException e ) {
+            logger.log(Level.SEVERE, "Exception catched", e);
+        } catch( IOException e ) {
             try { if( zis != null) zis.close(); } catch(Throwable t) { }
+            try { if( out != null) out.close(); } catch(Throwable t) { }
             logger.log(Level.SEVERE, "Exception thrown in readZipFile(String path) \n" +
                                      "Offending file saved as badfile.zip, send to a dev for analysis", e);
             copyFile(file.getPath(), "badfile.zip");
@@ -298,47 +367,48 @@ public class FileAccess {
      * Writes a text file in ISO-8859-1 encoding.
      */
     public static boolean writeFile(String content, File file) {
-        OutputStreamWriter f1 = null;
+        OutputStreamWriter out = null;
         try {
             // write the file in single byte codepage (default could be a DBCS codepage)
             try {
-                f1 = new OutputStreamWriter(new FileOutputStream(file), "ISO-8859-1");
+                out = new OutputStreamWriter(new FileOutputStream(file), "ISO-8859-1");
             } catch(UnsupportedEncodingException e) {
-                f1 = new FileWriter(file);
+                out = new FileWriter(file);
             }
-            f1.write(content);
-            f1.close();
+            out.write(content);
+            out.close();
             return true;
         } catch( Throwable e ) {
             logger.log(Level.SEVERE, "Exception thrown in writeFile(String content, File file)", e);
-            if( f1 != null ) {
-                try { f1.close(); } catch(Throwable t) {}
-            }
+            try { if( out != null) out.close(); } catch(Throwable tt) { }
+            return false;
         }
-        return false;
     }
 
     public static boolean writeFile(byte[] content, File file) {
+        FileOutputStream out = null;
         try {
-            FileOutputStream s = new FileOutputStream(file);
-            s.write(content);
-            s.close();
+            out = new FileOutputStream(file);
+            out.write(content);
+            out.close();
             return true;
         } catch( Throwable e ) {
             logger.log(Level.SEVERE, "Exception thrown in writeFile(byte[] content, File file)", e);
+            try { if( out != null) out.close(); } catch(Throwable tt) { }
+            return false;
         }
-        return false;
     }
 
     /**
      * Writes a text file in specified encoding. Converts line separators to target platform.
      */
     public static boolean writeFile(String content, File file, String encoding) {
+        BufferedReader inputReader = null;
         OutputStreamWriter outputWriter = null;
         try {
             outputWriter = new OutputStreamWriter(new FileOutputStream(file), encoding);
 
-            BufferedReader inputReader = new BufferedReader(new StringReader(content));
+            inputReader = new BufferedReader(new StringReader(content));
             String lineSeparator = System.getProperty("line.separator");
             String line = inputReader.readLine();
 
@@ -352,11 +422,10 @@ public class FileAccess {
             return true;
         } catch (Throwable e) {
             logger.log(Level.SEVERE, "Exception thrown in writeFile(String content, File file, String encoding)", e);
-            if( outputWriter != null ) {
-                try { outputWriter.close(); } catch(Throwable t) {}
-            }
+            try { if( inputReader != null) inputReader.close(); } catch(Throwable tt) { }
+            try { if( outputWriter != null) outputWriter.close(); } catch(Throwable tt) { }
+            return false;
         }
-        return false;
     }
 
     /**
@@ -398,25 +467,22 @@ public class FileAccess {
         } catch (Throwable exception) {
             logger.log(Level.SEVERE, "Exception in copyFile", exception);
         } finally {
-            if (sourceChannel != null) {
-                try { sourceChannel.close(); } catch (IOException ex) {}
-            }
-            if (destChannel != null) {
-                try { destChannel.close(); } catch (IOException ex) {}
-            }
+            try { if( sourceChannel != null) sourceChannel.close(); } catch(Throwable tt) { }
+            try { if( destChannel != null) destChannel.close(); } catch(Throwable tt) { }
         }
         return wasOk;
     }
-
 
     /**
      * This method compares 2 file byte by byte.
      * Returns true if they are equals, or false.
      */
     public static boolean compareFiles(File f1, File f2) {
+        BufferedInputStream s1 = null;
+        BufferedInputStream s2 = null;
         try {
-            BufferedInputStream s1 = new BufferedInputStream(new FileInputStream(f1));
-            BufferedInputStream s2 = new BufferedInputStream(new FileInputStream(f2));
+            s1 = new BufferedInputStream(new FileInputStream(f1));
+            s2 = new BufferedInputStream(new FileInputStream(f2));
             int i1, i2;
             boolean equals = false;
             while(true) {
@@ -435,6 +501,8 @@ public class FileAccess {
             s2.close();
             return equals;
         } catch(Throwable e) {
+            try { if( s1 != null) s1.close(); } catch(Throwable tt) { }
+            try { if( s2 != null) s2.close(); } catch(Throwable tt) { }
             return false;
         }
     }

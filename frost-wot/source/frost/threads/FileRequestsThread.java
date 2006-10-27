@@ -138,6 +138,7 @@ System.out.println("uploadRequestFile: upload finished, wasOk="+wasOk);
             failures = 0;
             
             FileRequestFileContent content = FileRequestFile.readRequestFile(downloadedFile);
+            downloadedFile.delete();
             FileRequestsManager.processReceivedRequests(content);
         }
     }

@@ -25,31 +25,40 @@ import java.util.logging.*;
 import org.w3c.dom.*;
 
 import frost.*;
+import frost.fcp.*;
 import frost.identities.*;
 import frost.util.*;
 
 /**
  * Signs and writes file list files into an XML file.
  * Reads and validates file list files from an XML file.
+ * 
+ * XML format:
+ * 
+ * <FrostFileListFile>
+ *   <timestamp>...</timestamp>
+ *   <Identity>....</Identity>
+ *   <sign>...</sign>
+ *   <files>
+ *   ...
+ *   </files>
+ * </FrostFileListFile>
  */
 public class FileListFile {
 
     private static Logger logger = Logger.getLogger(FileListFile.class.getName());
     
+    private static final String TAG_FrostFileListFile = "FrostFileListFile";
+    private static final String TAG_timestamp = "timestamp";
+    private static final String TAG_sign = "sign";
+    private static final String TAG_File = "File";
+    private static final String TAG_files = "files";
+    private static final String TAG_Identity = "Identity";
+    
     /**
      * sign content and create an xml file
      * @param files  List of ... objects
      * @param targetFile  target file
-     * 
-     * XML format:
-     * <FrostFileListFile>
-     *   <timestamp>...</timestamp>
-     *   <Identity>....</Identity>
-     *   <sign>...</sign>
-     *   <files>
-     *   ...
-     *   </files>
-     * </FrostFileListFile>
      */
     public static boolean writeFileListFile(FileListFileContent content, File targetFile) {
 
@@ -59,11 +68,11 @@ public class FileListFile {
             return false;
         }
 
-        Element rootElement = doc.createElement("FrostFileListFile");
+        Element rootElement = doc.createElement(TAG_FrostFileListFile);
         doc.appendChild(rootElement);
 
         {
-            Element timeStampElement = doc.createElement("timestamp");
+            Element timeStampElement = doc.createElement(TAG_timestamp);
             Text timeStampText = doc.createTextNode( ""+content.getTimestamp() );
             timeStampElement.appendChild(timeStampText);
             rootElement.appendChild( timeStampElement );
@@ -82,13 +91,13 @@ public class FileListFile {
                 return false;
             }
     
-            Element element = doc.createElement("sign");
+            Element element = doc.createElement(TAG_sign);
             CDATASection cdata = doc.createCDATASection(sig);
             element.appendChild(cdata);
             rootElement.appendChild(element);
         }
         {
-            Element filesElement = doc.createElement("files");
+            Element filesElement = doc.createElement(TAG_files);
             
             // Iterate through set of files and add them all
             for(Iterator i = content.getFileList().iterator(); i.hasNext(); ) {
@@ -106,6 +115,20 @@ public class FileListFile {
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Exception in writeFileListFile/writeXmlFile", t);
         }
+        
+        // compress file if running on 0.5
+        if( writeOK && FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
+            File tmp = new File(targetFile.getPath() + ".flftmp");
+            if( !FileAccess.compressFileGZip(targetFile, tmp) ) {
+                return false; // error, already logged
+            }
+            targetFile.delete();
+            if( !tmp.renameTo(targetFile) ) {
+                logger.severe("Error: rename failed: "+tmp.getPath()+"','"+targetFile.getPath()+"'");
+                return false;
+            }
+        }
+
         return writeOK;
     }
     
@@ -116,6 +139,18 @@ public class FileListFile {
         if( !sourceFile.isFile() || !(sourceFile.length() > 0) ) {
             return null;
         } 
+        // decompress file if running on 0.5
+        if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
+            File tmp = new File(sourceFile.getPath() + ".flftmp");
+            if( !FileAccess.decompressFileGZip(sourceFile, tmp) ) {
+                return null; // error, already logged
+            }
+            sourceFile.delete();
+            if( !tmp.renameTo(sourceFile) ) {
+                logger.severe("Error: rename failed: "+tmp.getPath()+"','"+sourceFile.getPath()+"'");
+                return null;
+            }
+        }
         Document d = null;
         try {
             d = XMLTools.parseXmlFile(sourceFile.getPath(), false);
@@ -131,44 +166,44 @@ public class FileListFile {
         
         Element rootNode = d.getDocumentElement();
 
-        if( rootNode.getTagName().equals("FrostFileListFile") == false ) {
-            logger.severe("Error: xml file does not contain the root tag 'FrostFileListFile'");
+        if( rootNode.getTagName().equals(TAG_FrostFileListFile) == false ) {
+            logger.severe("Error: xml file does not contain the root tag '"+TAG_FrostFileListFile+"'");
             return null;
         }
         
-        String timeStampStr = XMLTools.getChildElementsTextValue(rootNode, "timestamp");
+        String timeStampStr = XMLTools.getChildElementsTextValue(rootNode, TAG_timestamp);
         if( timeStampStr == null ) {
-            logger.severe("Error: xml file does not contain the tag 'timestamp'");
+            logger.severe("Error: xml file does not contain the tag '"+TAG_timestamp+"'");
             return null;
         }
         long timestamp = Long.parseLong(timeStampStr);
         
-        String signature = XMLTools.getChildElementsCDATAValue(rootNode, "sign");
+        String signature = XMLTools.getChildElementsCDATAValue(rootNode, TAG_sign);
         if( signature == null ) {
-            logger.severe("Error: xml file does not contain the tag 'sign'");
+            logger.severe("Error: xml file does not contain the tag '"+TAG_sign+"'");
             return null;
         }
         
         Element identityNode = null;
         Element filesNode = null;
         {        
-            List nodelist = XMLTools.getChildElementsByTagName(rootNode, "Identity");
+            List nodelist = XMLTools.getChildElementsByTagName(rootNode, TAG_Identity);
             if( nodelist.size() != 1 ) {
-                logger.severe("Error: xml files must contain exactly one element 'Identity'");
+                logger.severe("Error: xml files must contain exactly one element '"+TAG_Identity+"'");
                 return null;
             }
             identityNode = (Element)nodelist.get(0);
     
-            nodelist = XMLTools.getChildElementsByTagName(rootNode, "files");
+            nodelist = XMLTools.getChildElementsByTagName(rootNode, TAG_files);
             if( nodelist.size() != 1 ) {
-                logger.severe("Error: xml files must contain exactly one element 'files'");
+                logger.severe("Error: xml files must contain exactly one element '"+TAG_files+"'");
                 return null;
             }
             filesNode = (Element)nodelist.get(0);
         }
         LinkedList files = new LinkedList();
         {        
-            List _files = XMLTools.getChildElementsByTagName(filesNode, "File");
+            List _files = XMLTools.getChildElementsByTagName(filesNode, TAG_File);
             for( Iterator i = _files.iterator(); i.hasNext(); ) {
                 Element el = (Element) i.next();
                 SharedFileXmlFile file = SharedFileXmlFile.getInstance(el);
