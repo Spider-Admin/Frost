@@ -48,8 +48,8 @@ public abstract class Job implements IIncoming {
 	private String jobID = null;  // = identifer on fcp 2
 	private String clientToken = "hyperochaclienttoken";
 	
-	
 	private final Object waitObject = new Object();
+
 	private long jobstarted = 0;
 	private long jobfinished = 0;
 	
@@ -235,8 +235,27 @@ public abstract class Job implements IIncoming {
 	 * @return the exectuon time in milli sec
 	 */
 	public long getJobDurationMillis() {
-		return (jobfinished - jobstarted) ;
+        if( jobfinished <= 0 ) {
+            // not yet finished, return current duration
+            return System.currentTimeMillis() - jobstarted;
+        } else {
+            return (jobfinished - jobstarted);
+        }
 	}
+    
+    /**
+     * @return  true if job is started
+     */
+    public boolean isStarted() {
+        return jobstarted > 0;
+    }
+
+    /**
+     * @return  true if job is finished
+     */
+    public boolean isFinished() {
+        return jobfinished > 0;
+    }
 
     /**
      * Overwrite this to get notified if the job was actually started.
