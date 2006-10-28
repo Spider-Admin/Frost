@@ -33,6 +33,8 @@ import hyperocha.freenet.fcp.dispatcher.job.KSKMessageRequestJob;
  */
 public class FrostMessageRequestJob extends KSKMessageRequestJob {
 	
+    // FIXME: overwrite doPrepare(), jobStarted(), jobFinished()
+
 	private long metaDataSize;
 	private byte[] metaData;
 

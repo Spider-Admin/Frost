@@ -33,6 +33,8 @@ import javax.swing.*;
  * @author saces
  */
 public class FrostCHKFileInsertJob extends CHKFileInsertJob {
+    
+    // FIXME: overwrite doPrepare(), jobStarted(), jobFinished()
 
     private static Logger logger = Logger.getLogger(FrostCHKFileInsertJob.class.getName());
 

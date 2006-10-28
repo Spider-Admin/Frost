@@ -181,7 +181,7 @@ public class Core implements FrostEventDispatcher  {
         // now network and secuity are setted up
         
         if( Frost.isOfflineMode() ) {
-        	System.err.println("DEBUG: Frost is in oflline mode");
+        	System.err.println("DEBUG: Frost is in offline mode");
             return true;
         }
         

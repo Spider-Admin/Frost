@@ -30,6 +30,8 @@ import hyperocha.freenet.fcp.dispatcher.job.KSKMessageInsertJob;
  */
 public class FrostMessageInsertJob extends KSKMessageInsertJob {
 
+    // FIXME: overwrite doPrepare(), jobStarted(), jobFinished()
+
 	/**
 	 * @param requirednetworktype
 	 */
