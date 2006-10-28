@@ -26,6 +26,8 @@ import hyperocha.freenet.fcp.dispatcher.job.GenerateSSKJob;
  */
 public class FrostGenerateSSKJob extends GenerateSSKJob {
 
+    // FIXME: overwrite doPrepare(), jobStarted(), jobFinished()
+
 	/**
 	 * @param requirednetworktype
 	 */

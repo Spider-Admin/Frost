@@ -34,6 +34,8 @@ import javax.swing.*;
  */
 public class FrostCHKFileRequestJob extends CHKFileRequestJob {
 	
+    // FIXME: overwrite doPrepare(), jobStarted(), jobFinished()
+
     private static Logger logger = Logger.getLogger(FrostCHKFileRequestJob.class.getName());
 
 	private FrostDownloadItem dlItem = null;
