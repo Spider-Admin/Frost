@@ -31,6 +31,7 @@ import java.util.Hashtable;
  * a job
  */
 public abstract class Job implements IIncoming {
+    
 	private static final int STATUS_ERROR = -1;
 	public static final int STATUS_UNPREPARED = 0;
 	public static final int STATUS_PREPARED = 1;
@@ -41,8 +42,8 @@ public abstract class Job implements IIncoming {
 	
 	private int requiredNetworkType;
 	
-	private int status = 0;
-	private Exception lastError = null;
+	private int status = STATUS_UNPREPARED;
+	private Throwable lastError = null;
 	
 	private String jobID = null;  // = identifer on fcp 2
 	private String clientToken = "hyperochaclienttoken";
@@ -67,7 +68,7 @@ public abstract class Job implements IIncoming {
 		status = STATUS_UNPREPARED;
 	}
 	
-	public Exception getLastError() {
+	public Throwable getLastError() {
 		return lastError;
 	}
 	
@@ -107,17 +108,37 @@ public abstract class Job implements IIncoming {
 	public void run(Dispatcher dispatcher) {
 		if (status != STATUS_PREPARED) { throw new Error("FIXME: never run an unprepared job!"); }
 		status = STATUS_RUNNING;
+        
 		jobstarted = System.currentTimeMillis();
-		switch (requiredNetworkType) {
-			case Network.FCP1: runFCP1(dispatcher); break;
-			case Network.FCP2: runFCP2(dispatcher); break;
-			case Network.SIMULATION: runSimulation(dispatcher); break;
-			default: throw (new Error("Unsupported network type or missing implementation."));
-		}
-		if ((status != STATUS_ERROR) && (lastError == null)) {
-			status = STATUS_DONE;
-		}
+        try {
+            jobStarted(); // notify subclasses that job started
+        } catch(Throwable t) {
+            // TODO: log error?
+        }
+
+        // don't die for any reason
+        try {
+    		switch (requiredNetworkType) {
+    			case Network.FCP1: runFCP1(dispatcher); break;
+    			case Network.FCP2: runFCP2(dispatcher); break;
+    			case Network.SIMULATION: runSimulation(dispatcher); break;
+    			default: throw (new Error("Unsupported network type or missing implementation."));
+    		}
+    		if ((status != STATUS_ERROR) && (lastError == null)) {
+    			status = STATUS_DONE;
+    		}
+        } catch(Throwable t) {
+            // TODO: log error?
+            status = STATUS_ERROR;
+            lastError = t;
+        }
+        
 		jobfinished = System.currentTimeMillis();
+        try {
+            jobFinished(); // notify subclasses that job finished
+        } catch(Throwable t) {
+            // TODO: log error?
+        }
 	}
 	
 	public void runFCP1(Dispatcher dispatcher) {
@@ -199,25 +220,33 @@ public abstract class Job implements IIncoming {
 	/**
 	 * @return the start timestamp - System.currentTimeMillis();
 	 */
-	public long jobStarted() {
+	public long getJobStartedMillis() {
 		return jobstarted;
 	}
 	
 	/**
 	 * @return the finished timestamp - System.currentTimeMillis();
-	 * 
 	 */
-	public long jobFinished() {
+	public long getJobFinishedMillis() {
 		return jobfinished ;
 	}
 
 	/**
 	 * @return the exectuon time in milli sec
-	 * 
 	 */
-	public long jobDuration() {
+	public long getJobDurationMillis() {
 		return (jobfinished - jobstarted) ;
 	}
-	
-	
+
+    /**
+     * Overwrite this to get notified if the job was actually started.
+     * The default implementation does nothing.
+     */
+    public void jobStarted() { }
+
+    /**
+     * Overwrite this to get notified if the job was finished.
+     * The default implementation does nothing.
+     */
+    public void jobFinished() { }
 }
