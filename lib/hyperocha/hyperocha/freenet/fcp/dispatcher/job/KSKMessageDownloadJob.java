@@ -21,6 +21,7 @@
 package hyperocha.freenet.fcp.dispatcher.job;
 
 import hyperocha.freenet.fcp.FCPConnection;
+import hyperocha.freenet.fcp.FCPConnectionRunner;
 import hyperocha.freenet.fcp.FreenetKey;
 import hyperocha.freenet.fcp.FreenetKeyType;
 import hyperocha.freenet.fcp.Persistance;
@@ -62,9 +63,7 @@ public class KSKMessageDownloadJob extends Job {
 
 	public void runFCP2(Dispatcher dispatcher) {
 		
-		//if (true) return;
-		
-		FCPConnection conn = dispatcher.getDefaultFCPConnection(getRequiredNetworkType());
+		FCPConnectionRunner conn = dispatcher.getDefaultFCPConnectionRunner(getRequiredNetworkType());
 		
 		List cmd = new LinkedList();
 		cmd.add("ClientGet");
@@ -72,7 +71,7 @@ public class KSKMessageDownloadJob extends Job {
 		cmd.add("DSOnly=false");
 		cmd.add("URI=" + keyToDownload.getReadFreenetKey());
 		cmd.add("Identifier=" + getJobID()); 
-		cmd.add("Verbosity=1");
+		cmd.add("Verbosity=0");  // no simple progress for ksk
 		cmd.add("MaxRetries=0");      // only one try 
 		cmd.add("PriorityClass=2");   // today, please ;) 
 		cmd.add("Global=false");
@@ -81,35 +80,85 @@ public class KSKMessageDownloadJob extends Job {
 		cmd.add("ReturnType=direct");
 		cmd.add("EndMessage");
 		
-		conn.start(cmd);
+		conn.send(cmd);
 		
-		try {
-			os = new FileOutputStream(targetFile);
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		//System.out.println("KSK gestarted: " + getJobID() + " -> " + cmd); 
+
+		waitFine();
+		//System.out.print("KSK fertig: " + getJobID() + " result: ");
+//		if (isSuccess()) {
+//			System.out.println("success");
+//		} else {
+//			System.out.println(getLastError());
+//		}
+	}
+	
+	public void incommingData(String id, Hashtable message, FCPConnection conn) {
+		if ("AllData".equals(message.get(FCPConnection.MESSAGENAME))) {
+			long size = Long.parseLong((String)(message.get("DataLength"))); 
+			//System.out.println("DataHandler: " + message);
+			conn.copyFrom(size, os);
+			// FIXME: daten sind ins file copiert, feierabend
+			setSuccess();
+			return;
+		}
+		if ("DataChunk".equals(message.get(FCPConnection.MESSAGENAME))) {
+			long size = Long.parseLong((String)(message.get("Length")), 16); 
+			//System.out.println("KSK save DataHandler: " + message);
+			conn.copyFrom(size, os);
+			// FIXME: daten sind ins file copiert, feierabend
+			//setSuccess();
+			return;
+		}
+		System.out.println("KSK DataHandler (unhandled): " + message);
+		//if (true) { throw new Error(); }
+	}
+	
+
+
+	public void incommingMessage(String id, Hashtable message) {
+		if ("DataFound".equals(message.get(FCPConnection.MESSAGENAME))) {
+			try {
+				os = new FileOutputStream(targetFile);
+			} catch (FileNotFoundException e) {
+				System.err.println("This scouldn't happen!!!!");
+				System.err.println("Hu! The prepare have to check for valid filenames!");
+				e.printStackTrace();
+				return;
+			}
 			return;
 		}
 		
-		System.out.println("KSK@down gestartet: " + cmd);
-		//conn.startMonitor(this);
-		waitFine();
-		
-		//throw (new Error("hsabhbs"));
+		if ("GetFailed".equals(message.get(FCPConnection.MESSAGENAME))) {
+			setError((String)message.get("CodeDescription"));
+			return;
+		}
+
+		System.out.println("KSK down MessageHandler (unhandled): " + message);
+	}
+
+	/* (non-Javadoc)
+	 * @see hyperocha.freenet.fcp.dispatcher.job.Job#runFCP1(hyperocha.freenet.fcp.dispatcher.Dispatcher)
+	 */
+	public void runFCP1(Dispatcher dispatcher) {
+		// TODO Auto-generated method stub
+		FCPConnectionRunner conn = dispatcher.getNewFCPConnectionRunner(getRequiredNetworkType(), getJobID());
+
+		List cmd = new LinkedList();
+		cmd.add("ClientGet");
+        cmd.add("URI=" + keyToDownload.getReadFreenetKey());
+        cmd.add("HopsToLive=10");
+        cmd.add("EndMessage");
+        
+        conn.send(cmd);
+        
+        System.out.println("KSK gestarted: " + getJobID() + " -> " + cmd); 
+        waitFine();
+		//throw new Error("Hier!");
 	}
 	
-	public void incommingData(FCPConnection conn, Hashtable result) {
-		long size = Long.parseLong((String)(result.get("DataLength"))); 
-		System.out.println("DataHandler: " + result);
-		conn.copyFrom(size, os);
-		// FIXME: daten sind ins file copiert, feierabend
-		setSuccess();
-	}
-	
-
-
-	public void incommingMessage(FCPConnection conn, Hashtable result) {
-		System.out.println("KSK down MessageHandler: " + result);
+	public FileOutputStream getOutStream() {
+		return os;
 	}
 
 }

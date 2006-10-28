@@ -176,7 +176,7 @@ public class FCPTests {
 				return false;
 			}
 			
-			conn.start(cmd, is);
+			conn.start(cmd, 1024, is);
 			//System.out.println("TODO: GQ-Test:10");
 			
 			result = conn.readEndMessage();

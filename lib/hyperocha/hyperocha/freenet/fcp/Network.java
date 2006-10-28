@@ -229,9 +229,14 @@ public class Network implements IStorageObject {
 		return getNextNode().getNewFCPConnection();
 	}
 	
-	public FCPConnection getDefaultFCPConnection() {
-		if (networkType != Network.FCP2) { return getNewFCPConnection(); }
-		return getNextNode().getDefaultFCPConnection();
+	public FCPConnectionRunner getDefaultFCPConnectionRunner() {
+		//if (networkType != Network.FCP2) { return getNewFCPConnection(); }
+		return getNextNode().getDefaultFCPConnectionRunner();
+	}
+	
+	public FCPConnectionRunner getNewFCPConnectionRunner(String id) {
+		//if (networkType != Network.FCP2) { return getNewFCPConnection(); }
+		return getNextNode().getNewFCPConnectionRunner(id);
 	}
 
 	public FCPNode getNextNode() {

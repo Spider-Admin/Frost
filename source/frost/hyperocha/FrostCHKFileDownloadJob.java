@@ -35,16 +35,17 @@ public class FrostCHKFileDownloadJob extends CHKFileDownoadJob {
 	/* (non-Javadoc)
 	 * @see hyperocha.freenet.fcp.dispatcher.job.CHKFileDownoadJob#incommingMessage(hyperocha.freenet.fcp.FCPConnection, java.util.Hashtable)
 	 */
-	public void incommingMessage(FCPConnection conn, Hashtable message) {
+	public void incommingMessage(String id, Hashtable message) {
+		//System.out.println(" -> " + this + " -> " + message);
 		if ("SimpleProgress".equals(message.get(FCPConnection.MESSAGENAME))) {
 			// no DownloadItem set? we are not intrested in progress
 			if (dlItem == null) { return; }
 			
 			// the doc says this is right:
 			// don't belive this value before FinalizedTotal=true
-			if ("true".equals(message.get("FinalizedTotal"))) {
-				dlItem.setTotalBlocks(Integer.parseInt((String)message.get("Total")));
-			}
+			dlItem.setTotalBlocks(Integer.parseInt((String)message.get("Total")));
+			dlItem.setRequiredBlocks(Integer.parseInt((String)message.get("Required")));          
+			
 			dlItem.setDoneBlocks(Integer.parseInt((String)message.get("Succeeded")));
 			// add as neccessary or wanted ;)
 			
@@ -53,6 +54,6 @@ public class FrostCHKFileDownloadJob extends CHKFileDownoadJob {
 			return;
         }
 		// not a simple progress, leave default is the best one atm <g>
-		super.incommingMessage(conn, message);
+		super.incommingMessage(id, message);
 	}
 }

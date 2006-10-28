@@ -63,7 +63,7 @@ public class FCPIOConnection {
      * IO errorhandler: call the error handler, if one is set
      * @param e
      */
-    private /*synchronized*/ void handleIOError(Exception e) {
+    private void handleIOError(Exception e) {
     	isopen = false;
     	lasterror = e;
     	e.printStackTrace();  // FIXME
@@ -150,7 +150,7 @@ public class FCPIOConnection {
 	}
 	
 	public boolean println(String s) {
-		if (!isOpen()) return false;
+		if (!isOpen()) throw new Error(); //return false;
 		try {
 			fcpOut.println(s);
 		} catch (Exception e) {
@@ -221,7 +221,7 @@ public class FCPIOConnection {
 	}
 
 	public boolean flush() {
-		if (!isOpen()) return false;
+		if (!isOpen()) throw new Error(); //return false;
 		try {
 			fcpOut.flush();
 		} catch (Exception e) {
@@ -243,5 +243,12 @@ public class FCPIOConnection {
 			return -1;
 		}
 		return i;
+	}
+
+	/**
+	 * @return the node
+	 */
+	public int getNetworkType() {
+		return node.getNetworkType();
 	}
 }

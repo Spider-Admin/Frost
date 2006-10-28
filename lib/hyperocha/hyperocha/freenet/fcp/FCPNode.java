@@ -45,7 +45,7 @@ public class FCPNode {
 	private FCPIOConnectionErrorHandler ioErrorHandler = null;
 	private FCPNodeConfig nodeConfig;
 	private FCPNodeStatus nodeStatus;
-    private volatile FCPConnection defaultConn = null;
+    private volatile FCPConnectionRunner defaultConn = null;
     
     private IIncomming callBack = null;
     
@@ -118,19 +118,36 @@ public class FCPNode {
 	 * @return
 	 * @throws IOException 
 	 */
-	
-	public FCPConnection getDefaultFCPConnection() {
+    
+	public synchronized FCPConnectionRunner getDefaultFCPConnectionRunner() {
 		if (defaultConn == null) {
-			defaultConn = getNewFCPConnection(callBack, nodeConfig.getID());
-			SwingUtilities.invokeLater(new Runnable() {
-	            public void run() {
-	            	defaultConn.startMonitor(callBack);
-	            }
-	        });
+			defaultConn = new FCPConnectionRunner(this, nodeConfig.getID(), callBack);
+			defaultConn.start();
 		}
-		System.out.println("getDefaultFCPConnection" + defaultConn);
+		//System.out.println("getDefaultFCPConnection" + defaultConn);
 		return defaultConn;
 	}
+	
+	public synchronized FCPConnectionRunner getNewFCPConnectionRunner(String id) {
+		FCPConnectionRunner conn = null;
+		conn = new FCPConnectionRunner(this, id, callBack);
+		conn.start();
+		return conn;
+	}
+
+	
+//	public synchronized FCPConnection getDefaultFCPConnection() {
+//		if (defaultConn == null) {
+//			defaultConn = getNewFCPConnection(callBack, nodeConfig.getID());
+//			SwingUtilities.invokeLater(new Runnable() {
+//	            public void run() {
+//	            	defaultConn.startMonitor(callBack);
+//	            }
+//	        });
+//		}
+//		System.out.println("getDefaultFCPConnection" + defaultConn);
+//		return defaultConn;
+//	}
 	
 	/**
 	 * @return Socket
@@ -223,7 +240,7 @@ public class FCPNode {
 		//System.out.println("Result R:" + rURI.substring(101,107));
 		
 		// public FreenetKey(FreenetKeyType keytype, String pubkey, String privkey, String cryptokey, String suffix) {
-		FreenetKey key = new FreenetKey(FreenetKeyType.SSK, rURI.substring(12,55), iURI.substring(12,55), rURI.substring(56,99), rURI.substring(101,107));
+		FreenetKey key = new FreenetKey(Network.FCP2, FreenetKeyType.SSK, rURI.substring(12,55), iURI.substring(12,55), rURI.substring(56,99), rURI.substring(101,107));
 			
 			
 		//System.out.println("Result:" + result);
@@ -329,9 +346,17 @@ public class FCPNode {
 
 	public void init() {
 		nodeConfig.init();
+		// TODO check for conect error 
 	}
 
 	public boolean isAddress(String host, int port) {
 		return nodeConfig.isAddress(host, port);
+	}
+
+	/**
+	 * @return the nodeConfig
+	 */
+	protected FCPNodeConfig getNodeConfig() {
+		return nodeConfig;
 	}
 }

@@ -26,7 +26,7 @@ package hyperocha.freenet.fcp.utils;
  */
 public class FCPUtil {
 	
-	private static int counter = 1;
+	private static long counter = 1;
 
 	/**
 	 * 
@@ -41,6 +41,10 @@ public class FCPUtil {
 	
 	public static String getNewConnectionId(String prefix, String suffix) {
 		return (prefix + System.currentTimeMillis() + suffix);
+	}
+	
+	public static long getNextConnectionId() {
+		return counter++;
 	}
 	
 	public static String getNewConnectionId2() {

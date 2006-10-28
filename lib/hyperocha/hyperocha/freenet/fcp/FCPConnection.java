@@ -31,6 +31,8 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
+import javax.swing.SwingUtilities;
+
 
 /**
  * @author  saces
@@ -99,7 +101,7 @@ public class FCPConnection {
 	 * 'ready to use' full constructor
 	 * 
 	 * all other things full automagically
-	 * fcp1: sending the 4 bytes, helo?
+	 * fcp1: sending the 4 bytes
 	 * fcp2: helo.
 	 * @param node
 	 * @param id the connection id
@@ -128,15 +130,11 @@ public class FCPConnection {
 	private void initFCP2(int tries) {
 		rawConn.open(); 
 		fcp2Hello(connectionID, true, 3);
-		// TODO Auto-generated method stub
-		//throw new Error("Unsupprted network type");
 	}
 
 	private void initFCP1(int tries) {
 		rawConn.open("ISO-8859-1"); // ISO-LATIN-1 for .5
 		rawConn.write(fcp1header, 0, fcp1header.length);
-		// TODO Auto-generated method stub
-		throw new Error("Unsupprted network type");
 	}
 
 	
@@ -170,52 +168,42 @@ public class FCPConnection {
 		return rawConn.isOpen();
 	}
 	
-	public void start(List l, InputStream s) {
+	public void start(List l, long count, InputStream s) {
+		start(l);
+		copyTo(count, s);
 
-		int sc = l.size();
-		for (int i = 0; i < sc; i++){
-			//System.out.println("Startprint: " + l.get(i));
-			rawConn.println((String)(l.get(i)));
-		}
-		
-		// write complete file to socket
-		while( true ) {
-			int d;
-			try {
-				d = s.read();
-				if( d < 0 ) {
-					break; // EOF
-				}
-				rawConn.write(d);
-			} catch (IOException e) {
-				e.printStackTrace();
-				break;
-			}
-
-		}
-		
+//		int sc = l.size();
+//		for (int i = 0; i < sc; i++){
+//			//System.out.println("Startprint: " + l.get(i));
+//			rawConn.println((String)(l.get(i)));
+//		}
+//		
+//		// write complete file to socket
+//		while( true ) {
+//			int d;
+//			try {
+//				d = s.read();
+//				if( d < 0 ) {
+//					break; // EOF
+//				}
+//				rawConn.write(d);
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//				break;
+//			}
+//
+//		}
+//		
 		rawConn.flush();
 	}
 	
 	
 	public void start(List l) {
-		//open();
 		int sc = l.size();
 		for (int i = 0; i < sc; i++) {
 			//System.out.println("Startprint: " + l.get(i));
 			rawConn.println((String)(l.get(i)));
 		}
-		//fcpOut.println("EndMessage");
-		//System.out.println("Startprint: EndMessage");
-		//conn.flush();
-		//String tmps = fcpInBuf.readLine();
-		//handleIt(tmps);
-		/*
-		fcpIn.close();
-		fcpInBuf.close();
-        fcpOut.close();
-		fcpSock.close();
-		*/
 		rawConn.flush();
 	}
 	
@@ -224,7 +212,7 @@ public class FCPConnection {
 	 * message
 	 * @return message
 	 */
-	public /*synchronized*/ Hashtable readEndMessage() {
+	public Hashtable readEndMessage() {
 		Hashtable result = new Hashtable();
 		String tmp;
 		
@@ -259,7 +247,7 @@ public class FCPConnection {
 	 * message
 	 * @return message
 	 */
-	public Hashtable readMessage(IIncommingData callback) {
+	public Hashtable readMessage(IIncomming callback) {
 
 		Hashtable result = new Hashtable();
 		String tmp;
@@ -271,7 +259,8 @@ public class FCPConnection {
             if ((tmp.trim()).length() == 0) { continue; } // a empty line
 
             if (tmp.compareTo("Data") == 0) {
-            	callback.incommingData(this, result);
+            	if (true) { throw new Error(); }
+            	//callback.incommingData(this, result);
             	isfirstline = true;
                 break; 
             }
@@ -313,23 +302,44 @@ public class FCPConnection {
 		
 		while(rawConn.isOpen()) {
 			if (isfirstline) {
-				System.out.println("TestiPipi: FirstLine!");
+				//System.out.println("TestiPipi: FirstLine!");
 				result = new Hashtable(); 
 			}
             tmp = rawConn.readLine();
-            //System.out.println("TestiPipi (" + tmp.length() + "): " + tmp);
             if (tmp == null) { break; }  // this indicates an error, io connection closed
+            //System.out.println("TestiPipi (" + tmp.length() + "): " + tmp);
             if ((tmp.trim()).length() == 0) { continue; } // a empty line
 
             if (tmp.compareTo("Data") == 0) {
-            	callback.incommingData(this, result);
+            	result.put(ENDMESSAGE, tmp);
+            	String tmpID;
+            	
+            	int nt = rawConn.getNetworkType();
+
+        		switch (nt) {
+        			case Network.FCP1: tmpID = connectionID; break;
+        			case Network.FCP2: tmpID = (String)result.get("Identifier"); break;
+        			default : throw new Error("Unsupported network type: " + nt);
+        		}
+        		
+            	callback.incommingData(tmpID, result, this);
             	isfirstline = true;
                 continue; 
             }
 
             if (tmp.compareTo("EndMessage") == 0) {
             	result.put(ENDMESSAGE, tmp);
-            	callback.incommingMessage(this, result);
+            	String tmpID;
+            	
+            	int nt = rawConn.getNetworkType();
+
+        		switch (nt) {
+        			case Network.FCP1: tmpID = connectionID; break;
+        			case Network.FCP2: tmpID = (String)result.get("Identifier"); break;
+        			default : throw new Error("Unsupported network type: " + nt);
+        		}
+        		
+            	callback.incommingMessage(tmpID, result);
             	isfirstline = true;
                 continue; 
             }
@@ -364,7 +374,7 @@ public class FCPConnection {
 		result = helo(FCPUtil.getNewConnectionId(connectionid));
 		//FCPUtil.getNewConnectionId("hyperocha-")
 		// FIXME: repeat loop here and return id 
-		System.out.println("fcp2Hello: " + result);
+		//System.out.println("fcp2Hello: " + result);
 		return null;
 	}
 	

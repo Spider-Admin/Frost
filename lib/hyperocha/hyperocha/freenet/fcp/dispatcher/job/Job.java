@@ -79,6 +79,9 @@ public abstract class Job implements IIncomming {
 	protected void setError(String description) {
 		lastError = new Exception(description);
 		status = STATUS_ERROR;
+		synchronized(waitObject) {
+			waitObject.notify();
+		}
 	}
 	
 	protected void setSuccess() {
@@ -102,13 +105,13 @@ public abstract class Job implements IIncomming {
 	}
 	
 	public void run(Dispatcher dispatcher) {
-		//System.err.println("Run");
+		if (status != STATUS_PREPARED) { throw new Error("FIXME: never run an unprepared job!"); }
 		status = STATUS_RUNNING;
 		switch (requiredNetworkType) {
-		case Network.FCP1: runFCP1(dispatcher); break;
-		case Network.FCP2: runFCP2(dispatcher); break;
-		case Network.SIMULATION: runSimulation(dispatcher); break;
-		default: throw (new Error("Unsupported network type or missing implementation."));
+			case Network.FCP1: runFCP1(dispatcher); break;
+			case Network.FCP2: runFCP2(dispatcher); break;
+			case Network.SIMULATION: runSimulation(dispatcher); break;
+			default: throw (new Error("Unsupported network type or missing implementation."));
 		}
 		if ((status != STATUS_ERROR) && (lastError == null)) {
 			status = STATUS_DONE;
@@ -126,16 +129,14 @@ public abstract class Job implements IIncomming {
 	private void runSimulation(Dispatcher dispatcher) {
 		throw (new Error("Unsupported network type or missing implementation."));
 	}
-
-
 	
-	public void start() {
-		if (status == STATUS_UNPREPARED) { prepare(); }
-		if (status != STATUS_PREPARED) { return; }
-		
-		// now do the real run
-		
-	}
+//	public void start() {
+//		if (status == STATUS_UNPREPARED) { prepare(); }
+//		if (status != STATUS_PREPARED) { return; }
+//		
+//		// now do the real run
+//		
+//	}
 
 	public void cancel(boolean hard) {
 		status = STATUS_STOPPING;
@@ -160,6 +161,8 @@ public abstract class Job implements IIncomming {
 		synchronized(waitObject) {
 			while ((status == STATUS_RUNNING) && (lastError == null)) {
 				try {
+					//Thread.yield();
+					//Thread.sleep(347);
 					waitObject.wait();
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
@@ -180,13 +183,13 @@ public abstract class Job implements IIncomming {
 		return clientToken;
 	}
 	
-	public void incommingData(FCPConnection conn, Hashtable message) {
+	public void incommingData(String id, Hashtable message, FCPConnection conn) {
 		// TODO Auto-generated method stub
 		throw new Error("Ha!");
 		
 	}
 
-	public void incommingMessage(FCPConnection conn, Hashtable message) {
+	public void incommingMessage(String id, Hashtable message) {
 		// TODO Auto-generated method stub
 		throw new Error("Hu!");
 	}
