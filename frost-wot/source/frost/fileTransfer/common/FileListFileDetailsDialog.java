@@ -19,6 +19,8 @@
 package frost.fileTransfer.common;
 
 import java.awt.*;
+import java.awt.datatransfer.*;
+import java.awt.event.*;
 import java.util.*;
 import java.util.List;
 
@@ -26,7 +28,9 @@ import javax.swing.*;
 
 import frost.*;
 import frost.fileTransfer.*;
+import frost.util.gui.*;
 import frost.util.gui.translation.*;
+import frost.util.model.*;
 import frost.util.model.gui.*;
 
 public class FileListFileDetailsDialog extends JDialog {
@@ -41,6 +45,9 @@ public class FileListFileDetailsDialog extends JDialog {
     private SortedModelTable modelTable = null;
     private FileListFileDetailsTableModel model = null;
     private FileListFileDetailsTableFormat tableFormat = null;
+    
+    private PopupMenu popupMenu = null;
+    private Listener listener = new Listener();
 
     public FileListFileDetailsDialog(Frame owner) {
         super(owner);
@@ -57,6 +64,26 @@ public class FileListFileDetailsDialog extends JDialog {
         setLocationRelativeTo(owner);
     }
     
+    private PopupMenu getPopupMenu() {
+        if (popupMenu == null) {
+            popupMenu = new PopupMenu();
+        }
+        return popupMenu;
+    }
+    
+    private void showUploadTablePopupMenu(MouseEvent e) {
+        // select row where rightclick occurred if row under mouse is NOT selected 
+        Point p = e.getPoint();
+        int y = modelTable.getTable().rowAtPoint(p);
+        if( y < 0 ) {
+            return;
+        }
+        if( !modelTable.getTable().getSelectionModel().isSelectedIndex(y) ) {
+            modelTable.getTable().getSelectionModel().setSelectionInterval(y, y);
+        }
+        getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
+    }
+
     private void loadLayout() {
         
         int lastHeight = Core.frostSettings.getIntValue("FileListFileDetailsDialog.height");
@@ -133,6 +160,9 @@ public class FileListFileDetailsDialog extends JDialog {
             model = new FileListFileDetailsTableModel();
             tableFormat = new FileListFileDetailsTableFormat();
             modelTable = new SortedModelTable(model, tableFormat);
+            
+            modelTable.getScrollPane().addMouseListener(listener);
+            modelTable.getTable().addMouseListener(listener);
         }
         return modelTable;
     }
@@ -163,4 +193,146 @@ public class FileListFileDetailsDialog extends JDialog {
         }
         setVisible(true);
     }
+    
+    private class PopupMenu extends JSkinnablePopupMenu implements ActionListener, LanguageListener, ClipboardOwner {
+
+        private JMenuItem copyKeysAndNamesItem = new JMenuItem();
+        private JMenuItem copyKeysItem = new JMenuItem();
+
+        private JMenu copyToClipboardMenu = new JMenu();
+
+        private String keyNotAvailableMessage;
+
+        private Clipboard clipboard;
+
+        public PopupMenu() {
+            super();
+            initialize();
+        }
+
+        private void initialize() {
+            refreshLanguage();
+
+            copyToClipboardMenu.add(copyKeysAndNamesItem);
+            copyToClipboardMenu.add(copyKeysItem);
+
+            copyKeysAndNamesItem.addActionListener(this);
+            copyKeysItem.addActionListener(this);
+        }
+
+        private void refreshLanguage() {
+            keyNotAvailableMessage = language.getString("Common.copyToClipBoard.extendedInfo.keyNotAvailableYet");
+
+            copyKeysItem.setText(language.getString("Common.copyToClipBoard.copyKeysOnly"));
+            copyKeysAndNamesItem.setText(language.getString("Common.copyToClipBoard.copyKeysWithFilenames"));
+
+            copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
+        }
+
+        private Clipboard getClipboard() {
+            if (clipboard == null) {
+                clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            }
+            return clipboard;
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            if (e.getSource() == copyKeysItem) {
+                copyKeys();
+            }
+            if (e.getSource() == copyKeysAndNamesItem) {
+                copyKeysAndNames();
+            }
+        }
+        
+        /**
+         * This method copies the CHK keys and file names of the selected items (if any) to
+         * the clipboard.
+         */
+        private void copyKeysAndNames() {
+            ModelItem[] selectedItems = modelTable.getSelectedItems();
+            if (selectedItems.length > 0) {
+                StringBuffer textToCopy = new StringBuffer();
+                for (int i = 0; i < selectedItems.length; i++) {
+                    FileListFileDetailsItem item = (FileListFileDetailsItem) selectedItems[i];
+                    String key = item.getKey();
+                    if (key == null) {
+                        key = keyNotAvailableMessage;
+                    }
+                    textToCopy.append(key);
+                    textToCopy.append("/");
+                    textToCopy.append(item.getFileOwner().getName());
+                    textToCopy.append("\n");
+                }
+                StringSelection selection = new StringSelection(textToCopy.toString());
+                getClipboard().setContents(selection, this);
+            }
+        }
+
+        /**
+         * This method copies the CHK keys of the selected items (if any) to
+         * the clipboard.
+         */
+        private void copyKeys() {
+            ModelItem[] selectedItems = modelTable.getSelectedItems();
+            if (selectedItems.length > 0) {
+                StringBuffer textToCopy = new StringBuffer();
+                for (int i = 0; i < selectedItems.length; i++) {
+                    FileListFileDetailsItem item = (FileListFileDetailsItem) selectedItems[i];
+                    String key = item.getKey();
+                    if (key == null) {
+                        key = keyNotAvailableMessage;
+                    }
+                    textToCopy.append(key);
+                    textToCopy.append("\n");
+                }
+                StringSelection selection = new StringSelection(textToCopy.toString());
+                getClipboard().setContents(selection, this);
+            }
+        }
+
+        public void languageChanged(LanguageEvent event) {
+            refreshLanguage();
+        }
+
+        public void show(Component invoker, int x, int y) {
+            removeAll();
+
+            ModelItem[] selectedItems = modelTable.getSelectedItems();
+            
+            if( selectedItems.length == 0 ) {
+                return;
+            }
+            
+            // if at least 1 item is selected
+            add(copyToClipboardMenu);
+
+            super.show(invoker, x, y);
+        }
+
+        public void lostOwnership(Clipboard cb, Transferable contents) {
+        }
+    }
+    
+    private class Listener extends MouseAdapter implements MouseListener {
+        public Listener() {
+            super();
+        }
+        public void mousePressed(MouseEvent e) {
+            if (e.isPopupTrigger())
+                if ((e.getSource() == modelTable.getTable())
+                    || (e.getSource() == modelTable.getScrollPane())) {
+                    showUploadTablePopupMenu(e);
+                }
+        }
+        public void mouseReleased(MouseEvent e) {
+            if ((e.getClickCount() == 1) && (e.isPopupTrigger())) {
+                if ((e.getSource() == modelTable.getTable())
+                    || (e.getSource() == modelTable.getScrollPane())) {
+                    showUploadTablePopupMenu(e);
+                }
+            }
+        }
+    }
+
 }  //  @jve:decl-index=0:visual-constraint="10,10"

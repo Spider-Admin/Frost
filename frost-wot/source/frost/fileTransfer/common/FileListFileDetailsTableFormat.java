@@ -34,6 +34,7 @@ import frost.util.model.gui.*;
 public class FileListFileDetailsTableFormat extends SortedTableFormat implements LanguageListener {
     
     private String stateNever;
+    private String unknown;
 
     private Language language = Language.getInstance();;
     
@@ -42,7 +43,7 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
     private static ImageIcon ICON_CHECK = null;
     private static ImageIcon ICON_BAD = null;
 
-    private final static int COLUMN_COUNT = 8;
+    private final static int COLUMN_COUNT = 9;
     
     private boolean showColoredLines;
     private Color secondBackgroundColor = new java.awt.Color(238,238,238);
@@ -60,6 +61,7 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
         setComparator(new KeywordsComparator(), 5);
         setComparator(new LastUploadedComparator(), 6);
         setComparator(new LastReceivedComparator(), 7);
+        setComparator(new KeyComparator(), 8);
         
         loadIcons();
         
@@ -93,45 +95,54 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
         setColumnName(5, language.getString("FileListFileDetailsDialog.table.keywords"));
         setColumnName(6, language.getString("FileListFileDetailsDialog.table.lastUploaded"));
         setColumnName(7, language.getString("FileListFileDetailsDialog.table.lastReceived"));
+        setColumnName(8, language.getString("FileListFileDetailsDialog.table.key"));
 
         stateNever = language.getString("FileListFileDetailsDialog.table.state.never");
+        unknown =    language.getString("FileListFileDetailsDialog.table.state.unknown");
 
         refreshColumnNames();
     }
 
     public Object getCellValue(ModelItem item, int columnIndex) {
-        FileListFileDetailsItem searchItem = (FileListFileDetailsItem) item;
+        FileListFileDetailsItem detailsItem = (FileListFileDetailsItem) item;
         switch (columnIndex) {
             case 0 :    // filename
-                return searchItem.getFileOwner().getName();
+                return detailsItem.getFileOwner().getName();
 
             case 1 :    // owner
-                return searchItem.getFileOwner().getOwner();
+                return detailsItem.getFileOwner().getOwner();
 
             case 2 :    // state
-                return searchItem.getOwnerIdentity();
+                return detailsItem.getOwnerIdentity();
 
             case 3 :    // rating
-                return RatingStringProvider.getRatingString( searchItem.getFileOwner().getRating() );
+                return RatingStringProvider.getRatingString( detailsItem.getFileOwner().getRating() );
 
             case 4 :    // comment
-                return searchItem.getDisplayComment();
+                return detailsItem.getDisplayComment();
 
             case 5 :    // keyword
-                return searchItem.getDisplayKeywords();
+                return detailsItem.getDisplayKeywords();
 
             case 6 :    // lastUploaded
-                if( searchItem.getDisplayLastUploaded().length() == 0 ) {
+                if( detailsItem.getDisplayLastUploaded().length() == 0 ) {
                     return stateNever;
                 } else {
-                    return searchItem.getDisplayLastUploaded();
+                    return detailsItem.getDisplayLastUploaded();
                 }
 
             case 7 :    // lastReceived
-                if( searchItem.getDisplayLastReceived().length() == 0 ) {
+                if( detailsItem.getDisplayLastReceived().length() == 0 ) {
                     return stateNever;
                 } else {
-                    return searchItem.getDisplayLastReceived();
+                    return detailsItem.getDisplayLastReceived();
+                }
+                
+            case 8 :    // key
+                if( detailsItem.getKey() == null ) {
+                    return unknown;
+                } else {
+                    return detailsItem.getKey();
                 }
 
             default:
@@ -161,10 +172,11 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
         columnModel.getColumn(5).setCellRenderer(showContentTooltipRenderer); // keywords
         columnModel.getColumn(6).setCellRenderer(showColoredLinesRenderer); // last uploaded
         columnModel.getColumn(7).setCellRenderer(showColoredLinesRenderer); // last received
+        columnModel.getColumn(8).setCellRenderer(showContentTooltipRenderer); // key
 
         if( !loadTableLayout(columnModel) ) {
             // Sets the relative widths of the columns
-            int[] widths = { 150, 80, 20, 20, 80, 80, 55, 55 };
+            int[] widths = { 150, 80, 20, 20, 80, 80, 55, 55, 55 };
             for (int i = 0; i < widths.length; i++) {
                 columnModel.getColumn(i).setPreferredWidth(widths[i]);
             }
@@ -291,6 +303,19 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
             long val1 = ((FileListFileDetailsItem) o1).getFileOwner().getLastReceived();
             long val2 = ((FileListFileDetailsItem) o2).getFileOwner().getLastReceived();
             return new Long(val1).compareTo(new Long(val2));
+        }
+    }
+    private class KeyComparator implements Comparator {
+        public int compare(Object o1, Object o2) {
+            String key1 = ((FileListFileDetailsItem) o1).getKey();
+            String key2 = ((FileListFileDetailsItem) o2).getKey();
+            if (key1 == null) {
+                key1 = unknown;
+            }
+            if (key2 == null) {
+                key2 = unknown;
+            }
+            return key1.compareToIgnoreCase(key2);
         }
     }
     

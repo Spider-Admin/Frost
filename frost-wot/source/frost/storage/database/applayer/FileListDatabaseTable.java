@@ -40,7 +40,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
           "primkey BIGINT NOT NULL,"+
           "sha VARCHAR NOT NULL,"+
           "size BIGINT NOT NULL,"+
-          "fnkey VARCHAR NOT NULL,"+      // if "" then file is not yet inserted
+          "fnkey VARCHAR NOT NULL,"+        // if "" then file is not yet inserted
           "lastdownloaded BIGINT,"+         // last time we successfully downloaded this file
           "lastuploaded BIGINT,"+           // GLOBAL last time someone uploaded this file
           "firstreceived BIGINT NOT NULL,"+ // first time we saw this file
@@ -63,8 +63,9 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
           "comment VARCHAR,"+        // file comment provided by this owner
           "rating INT,"+             // rating provided by this owner
           "keywords VARCHAR,"+       // keywords provided by this owner
-          "lastreceived BIGINT,"+      // last time we received this file in a fileindex
-          "lastuploaded BIGINT,"+      // last time this owner uploaded the file
+          "lastreceived BIGINT,"+    // last time we received this file in a fileindex
+          "lastuploaded BIGINT,"+    // last time this owner uploaded the file
+          "fnkey VARCHAR,"+          // the CHK key that this owner provided
         "CONSTRAINT FILEOWNERLIST_FK FOREIGN KEY (refkey) REFERENCES FILELIST(primkey) ON DELETE CASCADE,"+
         "CONSTRAINT FILEOWNERLIST_1 UNIQUE (refkey,owner) )";
 
@@ -439,6 +440,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
                 obOld.setComment(obNew.getComment());
                 obOld.setKeywords(obNew.getKeywords());
                 obOld.setRating(obNew.getRating());
+                obOld.setKey(obNew.getKey());
 
                 return updateFrostFileListFileObjectOwner(obOld);
             }
@@ -447,13 +449,13 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
     }
 
     /** 
-     * update name,lastreceived,lastuploaded,comment,rating,keywords
+     * update name,lastreceived,lastuploaded,comment,rating,keywords,fnkey
      */
     private boolean updateFrostFileListFileObjectOwner(FrostFileListFileObjectOwner ob) throws SQLException {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
         PreparedStatement ps = db.prepare(
-            "UPDATE FILEOWNERLIST SET name=?,comment=?,rating=?,keywords=?,lastreceived=?,lastuploaded=? "+
+            "UPDATE FILEOWNERLIST SET name=?,comment=?,rating=?,keywords=?,lastreceived=?,lastuploaded=?,fnkey=? "+
             "WHERE refkey=? AND owner=?");
 
         // insert board/owner, identity is set
@@ -464,6 +466,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         ps.setString(ix++, ob.getKeywords());
         ps.setLong(ix++, ob.getLastReceived());
         ps.setLong(ix++, ob.getLastUploaded());
+        ps.setString(ix++, ob.getKey());
         
         ps.setLong(ix++, ob.getRefkey());
         ps.setString(ix++, ob.getOwner());
@@ -484,7 +487,8 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
         PreparedStatement ps = db.prepare(
-            "INSERT INTO FILEOWNERLIST (refkey,name,owner,comment,rating,keywords,lastreceived,lastuploaded) VALUES (?,?,?,?,?,?,?,?)");
+            "INSERT INTO FILEOWNERLIST (refkey,name,owner,comment,rating,keywords,lastreceived,lastuploaded,fnkey) " +
+            "VALUES (?,?,?,?,?,?,?,?,?)");
 
         // insert board/owner, identity is set
         int ix = 1;
@@ -496,6 +500,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         ps.setString(ix++, ob.getKeywords());
         ps.setLong(ix++, ob.getLastReceived());
         ps.setLong(ix++, ob.getLastUploaded());
+        ps.setString(ix++, ob.getKey());
 
         boolean result = false;
         try {
@@ -515,7 +520,8 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
         PreparedStatement ps = db.prepare(
-                "SELECT name,comment,rating,keywords,lastreceived,lastuploaded FROM FILEOWNERLIST WHERE refkey=? AND owner=?");
+                "SELECT name,comment,rating,keywords,lastreceived,lastuploaded,fnkey FROM FILEOWNERLIST " +
+                "WHERE refkey=? AND owner=?");
         
         ps.setLong(1, refkey);
         ps.setString(2, owner);
@@ -530,8 +536,9 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
             String keywords = rs.getString(ix++);
             long lastreceived = rs.getLong(ix++);
             long lastuploaded = rs.getLong(ix++);
+            String fnKey = rs.getString(ix++);
             
-            ob = new FrostFileListFileObjectOwner(refkey, name, owner, comment, keywords, rating, lastreceived, lastuploaded);
+            ob = new FrostFileListFileObjectOwner(refkey, name, owner, comment, keywords, rating, lastreceived, lastuploaded, fnKey);
         }
         rs.close();
         ps.close();
@@ -543,7 +550,8 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
         PreparedStatement ps = db.prepare(
-                "SELECT owner,name,comment,rating,keywords,lastreceived,lastuploaded FROM FILEOWNERLIST WHERE refkey=?");
+                "SELECT owner,name,comment,rating,keywords,lastreceived,lastuploaded,fnkey FROM FILEOWNERLIST " +
+                "WHERE refkey=?");
         
         ps.setLong(1, refkey);
 
@@ -558,9 +566,10 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
             String keywords = rs.getString(ix++);
             long lastreceived = rs.getLong(ix++);
             long lastuploaded = rs.getLong(ix++);
+            String fnKey = rs.getString(ix++);
             
             FrostFileListFileObjectOwner ob = null;
-            ob = new FrostFileListFileObjectOwner(refkey, name, owner, comment, keywords, rating, lastreceived, lastuploaded);
+            ob = new FrostFileListFileObjectOwner(refkey, name, owner, comment, keywords, rating, lastreceived, lastuploaded, fnKey);
             frostSharedFileObjectOwnerBoardList.add(ob);
         }
         rs.close();

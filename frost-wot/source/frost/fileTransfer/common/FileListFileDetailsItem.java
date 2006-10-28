@@ -91,6 +91,10 @@ public class FileListFileDetailsItem extends ModelItem {
         return ownerIdentity;
     }
 
+    public String getKey() {
+        return fileOwner.getKey();
+    }
+
     public FrostFileListFileObjectOwner getFileOwner() {
         return fileOwner;
     }
