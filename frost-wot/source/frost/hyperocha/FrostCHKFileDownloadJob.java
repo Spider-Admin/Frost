@@ -64,7 +64,13 @@ public class FrostCHKFileDownloadJob extends CHKFileDownoadJob {
                 
                 // the doc says this is right:
                 // don't belive this value before FinalizedTotal=true
-                boolean isFinalized = Boolean.parseBoolean((String)message.get("FinalizedTotal"));
+                String bolMsg = (String)message.get("FinalizedTotal");
+                boolean isFinalized;
+                if( bolMsg != null && bolMsg.trim().equalsIgnoreCase("true") ) {
+                    isFinalized = true;
+                } else {
+                    isFinalized = false;
+                }
                 dlItem.setFinalized(isFinalized);
                 
                 int totalBlocks = Integer.parseInt((String)message.get("Total"));
