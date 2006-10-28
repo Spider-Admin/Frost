@@ -21,6 +21,7 @@
 package hyperocha.freenet.fcp.dispatcher;
 
 import hyperocha.freenet.fcp.FCPConnection;
+import hyperocha.freenet.fcp.FCPConnectionRunner;
 import hyperocha.freenet.fcp.IIncomming;
 import hyperocha.freenet.fcp.dispatcher.job.Job;
 
@@ -34,22 +35,11 @@ import javax.swing.SwingUtilities;
  *
  */
 public class Dispatcher implements IIncomming {
-	
 
-		
-	
-//	private MessageCallback messageCallback = new MessageCallback(); 
+	private Factory factory;
 	
 	private Thread tickTackTicker = null;
 	
-	private Factory factory;
-	
-	
-	// networkid balancer
-	//private List balancer;
-
-	
-	//listen:
 	private Hashtable runningJobs = new Hashtable();
 	
 	public Dispatcher(Factory f) {
@@ -71,11 +61,9 @@ public class Dispatcher implements IIncomming {
 		factory.init();
 	}
 
-
 	public boolean isOnline() {
 		return factory.isOnline();
 	}
-
 
 	public void startDispatcher() {
 		tickTackTicker = new Thread("tick tack ticker") {
@@ -91,6 +79,7 @@ public class Dispatcher implements IIncomming {
 		};
 		tickTackTicker.start();		
 	}
+
 	/**
 	 * 
 	 */
@@ -163,7 +152,6 @@ public class Dispatcher implements IIncomming {
 		// disconnect all
 	}
 
-
 	/**
 	 * is the host:port in our nodelist?
 	 * needed for security manager
@@ -202,19 +190,28 @@ public class Dispatcher implements IIncomming {
 	 * @param networktype
 	 * @return
 	 */
-	public synchronized FCPConnection getDefaultFCPConnection(int networktype) {
-		System.err.println("HEHE: getDefaultFCPConnection Start " + networktype);
-		FCPConnection conn = factory.getDefaultFCPConnection(networktype);
-		System.err.println("HEHE: getDefaultFCPConnection Ende " + conn);
-		return conn;
+	public FCPConnectionRunner getDefaultFCPConnectionRunner(int networktype) {
+		//System.err.println("HEHE: getDefaultFCPConnection Start " + networktype);
+		//FCPConnection conn = factory.getDefaultFCPConnection(networktype);
+		//System.err.println("HEHE: getDefaultFCPConnection Ende " + conn);
+		return factory.getDefaultFCPConnectionRunner(networktype);
 	}
-
+	
+	public FCPConnectionRunner getNewFCPConnectionRunner(int networktype, String id) {
+		//System.err.println("HEHE: getDefaultFCPConnection Start " + networktype);
+		//FCPConnection conn = factory.getDefaultFCPConnection(networktype);
+		//System.err.println("HEHE: getDefaultFCPConnection Ende " + conn);
+		return factory.getNewFCPConnectionRunner(networktype, id);
+	}
+	
+	
 
 	/**
 	 * run a job and do not return until the job is done.
 	 * @param job
 	 */
 	public void runJob(Job job) {
+		//Object lo = new Object();
 		if (SwingUtilities.isEventDispatchThread()) {
 			throw new Error("Hicks");
 		}
@@ -232,7 +229,7 @@ public class Dispatcher implements IIncomming {
 		unregisterJob(job);
 	}
 	
-	private void registerJob(Job job) {
+	public void registerJob(Job job) {
 		runningJobs.put(job.getJobID(), job);
 	}
 	
@@ -240,19 +237,20 @@ public class Dispatcher implements IIncomming {
 		runningJobs.remove(job.getJobID());		
 	}
 	
-	public void incommingMessage(FCPConnection conn, Hashtable message) {
-		// TODO Auto-generated method stub
-		System.out.println("Testinger message: " + message);
-		Job j = getRunningJob((String)message.get("Identifier"));
-		if (j == null) { throw new Error("Hmmmm"); }
-		j.incommingMessage(conn, message);
+	public void incommingMessage(String id, Hashtable message) {
+		//System.out.println("D Testinger id " + id + " -> message: " + message);
+		//Job j = getRunningJob((String)message.get("Identifier"));
+		Job j = getRunningJob(id);
+		if (j == null) { throw new Error("Hmmmm. this shouldnt happen."); }
+		j.incommingMessage(id, message);
 	}
 
-	public void incommingData(FCPConnection conn, Hashtable message) {
-		System.out.println("Testinger Data: " + message);
-		Job j = getRunningJob((String)message.get("Identifier"));
-		if (j == null) { throw new Error("Hmmmm"); }
-		j.incommingData(conn, message);
+	public void incommingData(String id, Hashtable message, FCPConnection conn) {
+		//System.out.println("D Testinger Data: " + message);
+		//Job j = getRunningJob((String)message.get("Identifier"));
+		Job j = getRunningJob(id);
+		if (j == null) { throw new Error("Hmmmm. this shouldnt happen."); }
+		j.incommingData(id, message, conn);
 //		getRunningJob((String)message.get("Identifier")).incommingData(conn, message);
 	}
 	
@@ -261,9 +259,7 @@ public class Dispatcher implements IIncomming {
 	}
 	
 	private Job getRunningJob(String id) {
-		System.out.println("getRunningJob: " + id);
+		//System.out.println("getRunningJob: " + id);
 		return (Job)runningJobs.get(id);
 	}
-
-
 }

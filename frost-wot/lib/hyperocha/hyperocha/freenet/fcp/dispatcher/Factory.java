@@ -22,6 +22,7 @@ package hyperocha.freenet.fcp.dispatcher;
 
 
 import hyperocha.freenet.fcp.FCPConnection;
+import hyperocha.freenet.fcp.FCPConnectionRunner;
 import hyperocha.freenet.fcp.Network;
 import hyperocha.util.IStorageObject;
 
@@ -123,10 +124,16 @@ public class Factory implements IStorageObject {
 		return net.getNewFCPConnection();
 	}
 	
-	protected FCPConnection getDefaultFCPConnection(int networktype) {
+	protected FCPConnectionRunner getDefaultFCPConnectionRunner(int networktype) {
 		Network net = getFirstNetwork(networktype);
 		//throw new Error("TODO");
-		return net.getDefaultFCPConnection();
+		return net.getDefaultFCPConnectionRunner();
+	}
+	
+	protected FCPConnectionRunner getNewFCPConnectionRunner(int networktype, String id) {
+		Network net = getFirstNetwork(networktype);
+		//throw new Error("TODO");
+		return net.getNewFCPConnectionRunner(id);
 	}
 
 	
