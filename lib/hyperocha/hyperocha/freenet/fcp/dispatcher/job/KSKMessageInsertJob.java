@@ -21,13 +21,13 @@ import hyperocha.util.DefaultMIMETypes;
  * @author saces
  *
  */
-public class KSKMessageUploadJob extends Job {
+public class KSKMessageInsertJob extends Job {
 	
 	private File insertFile;
 	private BufferedInputStream fis;
 	private FreenetKey targetKey;
 
-	public KSKMessageUploadJob(int requirednetworktype, String id, File source, FreenetKey targetkey) {
+	public KSKMessageInsertJob(int requirednetworktype, String id, File source, FreenetKey targetkey) {
 		super(requirednetworktype, id);
 		insertFile = source;
 		targetKey = targetkey;
@@ -102,7 +102,7 @@ public class KSKMessageUploadJob extends Job {
 	/* (non-Javadoc)
 	 * @see hyperocha.freenet.fcp.dispatcher.job.Job#incommingMessage(hyperocha.freenet.fcp.FCPConnection, java.util.Hashtable)
 	 */
-	public void incommingMessage(String id, Hashtable message) {
+	public void incomingMessage(String id, Hashtable message) {
 		// TODO Auto-generated method stub
 		System.err.println("KSK ins: " + message);
 	}

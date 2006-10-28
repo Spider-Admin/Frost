@@ -53,6 +53,7 @@ public class FrostUploadItem extends ModelItem {
     // non-persistent fields
     private int totalBlocks = -1;
     private int doneBlocks = -1; 
+    private Boolean isFinalized = null;
 
     // is only set if this uploaditem is a shared file
     private FrostSharedFileItem sharedFileItem = null; 
@@ -145,7 +146,6 @@ public class FrostUploadItem extends ModelItem {
     }
     public void setTotalBlocks(int newTotalBlocks) {
         totalBlocks = newTotalBlocks;
-        fireChange();
     }
 
     public int getRetries() {
@@ -161,7 +161,6 @@ public class FrostUploadItem extends ModelItem {
     }
     public void setDoneBlocks(int newDoneBlocks) {
         doneBlocks = newDoneBlocks;
-        fireChange();
     }
 
     /**
@@ -226,5 +225,20 @@ public class FrostUploadItem extends ModelItem {
 
     public File getFile() {
         return file;
+    }
+    
+    public Boolean isFinalized() {
+        return isFinalized;
+    }
+    public void setFinalized(boolean finalized) {
+        if( finalized ) {
+            isFinalized = Boolean.TRUE;
+        } else {
+            isFinalized = Boolean.FALSE;
+        }
+    }
+    
+    public void fireValueChanged() {
+        super.fireChange();
     }
 }

@@ -1,6 +1,21 @@
-/**
- * 
- */
+/*
+  FrostCHKFileRequestJob.java / Frost
+  Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License as
+  published by the Free Software Foundation; either version 2 of
+  the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+*/
 package frost.hyperocha;
 
 import frost.*;
@@ -16,22 +31,21 @@ import javax.swing.*;
 
 /**
  * @author saces
- *
  */
-public class FrostCHKFileDownloadJob extends CHKFileDownoadJob {
+public class FrostCHKFileRequestJob extends CHKFileRequestJob {
 	
-    private static Logger logger = Logger.getLogger(FrostCHKFileDownloadJob.class.getName());
+    private static Logger logger = Logger.getLogger(FrostCHKFileRequestJob.class.getName());
 
 	private FrostDownloadItem dlItem = null;
 
 	/**
 	 * @param requirednetworktype
 	 */
-	public FrostCHKFileDownloadJob(String key, File target ) {
+	public FrostCHKFileRequestJob(String key, File target ) {
 		this(key, target, null);
 	}
 		
-	public FrostCHKFileDownloadJob(String key, File target, FrostDownloadItem dli) {	
+	public FrostCHKFileRequestJob(String key, File target, FrostDownloadItem dli) {	
 		super(Core.getFcpVersion(), FHUtil.getNextJobID(), FreenetKey.CHKfromString(key), target);
 		dlItem = dli;
 	}
@@ -39,7 +53,7 @@ public class FrostCHKFileDownloadJob extends CHKFileDownoadJob {
 	/* (non-Javadoc)
 	 * @see hyperocha.freenet.fcp.dispatcher.job.CHKFileDownoadJob#incommingMessage(hyperocha.freenet.fcp.FCPConnection, java.util.Hashtable)
 	 */
-	public void incommingMessage(String id, Hashtable message) {
+	public void incomingMessage(String id, Hashtable message) {
 		//System.out.println(" -> " + this + " -> " + message);
         
         // Sample message:
@@ -53,9 +67,6 @@ public class FrostCHKFileDownloadJob extends CHKFileDownoadJob {
 //        Identifier=Request Number One
 //        EndMessage
         
-        // first let super do its work (we hope it throws nothing to us)
-        super.incommingMessage(id, message);
-
         // we don't want to die for any reason here...
         try {
             if ("SimpleProgress".equals(message.get(FCPConnection.MESSAGENAME))) {
@@ -65,25 +76,25 @@ public class FrostCHKFileDownloadJob extends CHKFileDownoadJob {
                 // the doc says this is right:
                 // don't belive this value before FinalizedTotal=true
                 String bolMsg = (String)message.get("FinalizedTotal");
-                boolean isFinalized;
+                boolean isFinalized0;
                 if( bolMsg != null && bolMsg.trim().equalsIgnoreCase("true") ) {
-                    isFinalized = true;
+                    isFinalized0 = true;
                 } else {
-                    isFinalized = false;
+                    isFinalized0 = false;
                 }
-                dlItem.setFinalized(isFinalized);
                 
-                int totalBlocks = Integer.parseInt((String)message.get("Total"));
-                dlItem.setTotalBlocks(totalBlocks);
+                final boolean isFinalized = isFinalized0;
+                final int totalBlocks = Integer.parseInt((String)message.get("Total"));
+                final int requiredBlocks = Integer.parseInt((String)message.get("Required"));
+                final int doneBlocks = Integer.parseInt((String)message.get("Succeeded"));
                 
-                int requiredBlocks = Integer.parseInt((String)message.get("Required"));
-                dlItem.setRequiredBlocks(requiredBlocks);          
-
-                int doneBlocks = Integer.parseInt((String)message.get("Succeeded"));
-                dlItem.setDoneBlocks(doneBlocks);
-
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
+                        dlItem.setFinalized(isFinalized);
+                        dlItem.setTotalBlocks(totalBlocks);
+                        dlItem.setRequiredBlocks(requiredBlocks);          
+                        dlItem.setDoneBlocks(doneBlocks);
+
                         dlItem.fireValueChanged();
                     }
                 });
@@ -91,5 +102,7 @@ public class FrostCHKFileDownloadJob extends CHKFileDownoadJob {
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Exception catched", t);
         }
+        
+        super.incomingMessage(id, message);
 	}
 }

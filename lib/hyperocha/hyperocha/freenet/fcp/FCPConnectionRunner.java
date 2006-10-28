@@ -16,14 +16,14 @@ public class FCPConnectionRunner extends Thread {
 	private FCPNode fcpNode;
 	private FCPConnection conn;
 	private String connID;
-	private IIncomming callBack;
+	private IIncoming callBack;
 	
 	private volatile boolean isUp = false;
 	
 	/**
 	 * 
 	 */
-	public FCPConnectionRunner(FCPNode node, String id, IIncomming callback) {
+	public FCPConnectionRunner(FCPNode node, String id, IIncoming callback) {
 		super(id);
 		this.connID = id;
 		this.fcpNode = node;

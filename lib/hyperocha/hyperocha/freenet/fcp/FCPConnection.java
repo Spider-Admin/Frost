@@ -49,7 +49,7 @@ public class FCPConnection {
 	private FCPIOConnectionErrorHandler rawErrH = null; 
 	private String connectionID = null;
 	
-	private IIncomming callBack = null;
+	private IIncoming callBack = null;
 
 	/**
 	 * geek constructor
@@ -60,7 +60,7 @@ public class FCPConnection {
 	 * @param node
 	 * @param errh Error handler. buildin if null. 
 	 */
-	private FCPConnection(FCPNode node, IIncomming callback, FCPIOConnectionErrorHandler ioErrH) {
+	private FCPConnection(FCPNode node, IIncoming callback, FCPIOConnectionErrorHandler ioErrH) {
 		//this(node, node.timeOut, errh);
 		callBack = callback;
 		if (ioErrH == null) {
@@ -80,7 +80,7 @@ public class FCPConnection {
 	 * @param node
 	 * @param errh
 	 */
-	public FCPConnection(FCPNode node, IIncomming callback) {
+	public FCPConnection(FCPNode node, IIncoming callback) {
 		this(node, callback, CONNECTIONIDPREFIX, true, 3);
 	}
 	
@@ -93,7 +93,7 @@ public class FCPConnection {
 	 * @param node
 	 * @param errh
 	 */
-	public FCPConnection(FCPNode node, IIncomming callback, String id) {
+	public FCPConnection(FCPNode node, IIncoming callback, String id) {
 		this(node, callback, id, false, 1);
 	}
 	
@@ -108,7 +108,7 @@ public class FCPConnection {
 	 * @param prefix if true, a timstamp will be added <id>-<unixepoch>
 	 * @param attempts how many tries?
 	 */
-	public FCPConnection(FCPNode node, IIncomming callback, String id, boolean prefix, int attempts) {
+	public FCPConnection(FCPNode node, IIncoming callback, String id, boolean prefix, int attempts) {
 		this(node, callback, (FCPIOConnectionErrorHandler)null);
 		
 		if (prefix) {
@@ -247,7 +247,7 @@ public class FCPConnection {
 	 * message
 	 * @return message
 	 */
-	public Hashtable readMessage(IIncomming callback) {
+	public Hashtable readMessage(IIncoming callback) {
 
 		Hashtable result = new Hashtable();
 		String tmp;
@@ -294,7 +294,7 @@ public class FCPConnection {
 	 * message
 	 * @return message
 	 */
-	public void startMonitor(IIncomming callback) {
+	public void startMonitor(IIncoming callback) {
 
 		Hashtable result = null;
 		String tmp;
@@ -322,7 +322,7 @@ public class FCPConnection {
         			default : throw new Error("Unsupported network type: " + nt);
         		}
         		
-            	callback.incommingData(tmpID, result, this);
+            	callback.incomingData(tmpID, result, this);
             	isfirstline = true;
                 continue; 
             }
@@ -339,7 +339,7 @@ public class FCPConnection {
         			default : throw new Error("Unsupported network type: " + nt);
         		}
         		
-            	callback.incommingMessage(tmpID, result);
+            	callback.incomingMessage(tmpID, result);
             	isfirstline = true;
                 continue; 
             }
