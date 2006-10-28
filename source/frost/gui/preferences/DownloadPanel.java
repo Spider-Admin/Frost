@@ -58,6 +58,8 @@ class DownloadPanel extends JPanel {
     private JTextField threadsTextField = new JTextField(6);
     private JLabel threadsTextLabel = new JLabel();
     private JCheckBox tryAllSegmentsCheckBox = new JCheckBox();
+    
+    private JCheckBox logDownloadsCheckBox = new JCheckBox();
 
     private JLabel waitTimeLabel = new JLabel();
     private JTextField waitTimeTextField = new JTextField(6);
@@ -171,10 +173,14 @@ class DownloadPanel extends JPanel {
         
         constraints.gridy++;
         add(tryAllSegmentsCheckBox, constraints);
+        
+        constraints.gridy++;
+        add(decodeAfterEachSegmentCheckBox, constraints);
+        
         constraints.gridy++;
         constraints.weighty = 1.0; // glue
         constraints.anchor = GridBagConstraints.NORTHWEST;
-        add(decodeAfterEachSegmentCheckBox, constraints);
+        add(logDownloadsCheckBox, constraints);
 
         // Add listeners
         browseDirectoryButton.addActionListener(listener);
@@ -191,6 +197,8 @@ class DownloadPanel extends JPanel {
         maxRetriesTextField.setText("" + settings.getIntValue(SettingsClass.DOWNLOAD_MAX_RETRIES));
         waitTimeTextField.setText("" + settings.getIntValue(SettingsClass.DOWNLOAD_WAITTIME));
         tryAllSegmentsCheckBox.setSelected(settings.getBoolValue(SettingsClass.DOWNLOAD_TRY_ALL_SEGMENTS));
+        logDownloadsCheckBox.setSelected(settings.getBoolValue(SettingsClass.LOG_DOWNLOADS_ENABLED));
+        
         decodeAfterEachSegmentCheckBox.setSelected(settings.getBoolValue(SettingsClass.DOWNLOAD_DECODE_AFTER_EACH_SEGMENT));
     }
 
@@ -207,8 +215,10 @@ class DownloadPanel extends JPanel {
                 language.getString("Options.downloads.removeFinishedDownloadsEvery5Minutes") + " (" + off + ")");
         waitTimeLabel.setText(language.getString("Options.downloads.waittimeAfterEachTry") + " (" + minutes + "): ");
         maxRetriesLabel.setText(language.getString("Options.downloads.maximumNumberOfRetries") + ": ");
-        tryAllSegmentsCheckBox.setText(
-                language.getString("Options.downloads.tryToDownloadAllSegments") + " (" + on + ")");
+        tryAllSegmentsCheckBox.setText(language.getString("Options.downloads.tryToDownloadAllSegments") + " (" + on + ")");
+        
+        logDownloadsCheckBox.setText(language.getString("Options.downloads.logDownloads"));
+        
         decodeAfterEachSegmentCheckBox.setText(language.getString("Options.downloads.decodeEachSegmentImmediately"));
 
         directoryLabel.setText(language.getString("Options.downloads.downloadDirectory") + ": ");
@@ -238,5 +248,7 @@ class DownloadPanel extends JPanel {
         settings.setValue(SettingsClass.DOWNLOAD_WAITTIME, waitTimeTextField.getText());
         settings.setValue(SettingsClass.DOWNLOAD_TRY_ALL_SEGMENTS, tryAllSegmentsCheckBox.isSelected());
         settings.setValue(SettingsClass.DOWNLOAD_DECODE_AFTER_EACH_SEGMENT, decodeAfterEachSegmentCheckBox.isSelected());
+        
+        settings.setValue(SettingsClass.LOG_DOWNLOADS_ENABLED, logDownloadsCheckBox.isSelected());
     }
 }

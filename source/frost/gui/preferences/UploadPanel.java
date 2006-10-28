@@ -48,7 +48,9 @@ class UploadPanel extends JPanel {
     private JTextField splitfileThreadsTextField = new JTextField(6);
     private JLabel threadsLabel = new JLabel();
     private JTextField threadsTextField = new JTextField(6);
-
+    
+    private JCheckBox logUploadsCheckBox = new JCheckBox();
+    
     /**
      * @param settings the SettingsClass instance that will be used to get and store the settings of the panel
      */
@@ -128,11 +130,14 @@ class UploadPanel extends JPanel {
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.weightx = 1.0;
         add(splitfileThreadsExplanationLabel, constraints);
-        
-        // glue
+
         constraints.gridy++;
         constraints.gridx = 0;
-        constraints.gridwidth = 2;
+        constraints.gridwidth = 3;
+        add(logUploadsCheckBox, constraints);
+
+        // glue
+        constraints.gridy++;
         constraints.fill = GridBagConstraints.BOTH;
         constraints.weightx = 1;
         constraints.weighty = 1;
@@ -148,6 +153,7 @@ class UploadPanel extends JPanel {
         splitfileThreadsTextField.setText(settings.getValue(SettingsClass.UPLOAD_MAX_SPLITFILE_THREADS));
         maxRetriesTextField.setText("" + settings.getIntValue(SettingsClass.UPLOAD_MAX_RETRIES));
         waitTimeTextField.setText("" + settings.getIntValue(SettingsClass.UPLOAD_WAITTIME));
+        logUploadsCheckBox.setSelected(settings.getBoolValue(SettingsClass.LOG_UPLOADS_ENABLED));
     }
 
     public void ok() {
@@ -161,11 +167,10 @@ class UploadPanel extends JPanel {
         maxRetriesLabel.setText(language.getString("Options.uploads.maximumNumberOfRetries") + ": ");
         htlLabel.setText(language.getString("Options.uploads.uploadHtl") + " (21)");
         htlExplanationLabel.setText(language.getString("Options.uploads.uploadHtlExplanation"));
-        threadsLabel.setText(
-                language.getString("Options.uploads.numberOfSimultaneousUploads") + " (3)");
-        splitfileThreadsLabel.setText(
-                language.getString("Options.uploads.numberOfSplitfileThreads") + " (15)");
+        threadsLabel.setText(language.getString("Options.uploads.numberOfSimultaneousUploads") + " (3)");
+        splitfileThreadsLabel.setText(language.getString("Options.uploads.numberOfSplitfileThreads") + " (15)");
         splitfileThreadsExplanationLabel.setText(language.getString("Options.uploads.numberOfSplitfileThreadsExplanation"));
+        logUploadsCheckBox.setText(language.getString("Options.uploads.logUploads"));
     }
 
     /**
@@ -177,5 +182,6 @@ class UploadPanel extends JPanel {
         settings.setValue(SettingsClass.UPLOAD_MAX_SPLITFILE_THREADS, splitfileThreadsTextField.getText());
         settings.setValue(SettingsClass.UPLOAD_MAX_RETRIES, maxRetriesTextField.getText());
         settings.setValue(SettingsClass.UPLOAD_WAITTIME, waitTimeTextField.getText());
+        settings.setValue(SettingsClass.LOG_UPLOADS_ENABLED, logUploadsCheckBox.isSelected());
     }
 }
