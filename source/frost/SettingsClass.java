@@ -812,6 +812,9 @@ public class SettingsClass implements Savable {
         defaults.put(SHOW_COLORED_ROWS, "true");
         defaults.put(SHOW_SMILEYS, "true");
         defaults.put(SHOW_KEYS_AS_HYPERLINKS, "true");
+        
+        defaults.put(LOG_DOWNLOADS_ENABLED, "false");
+        defaults.put(LOG_UPLOADS_ENABLED, "false");
 
         settingsHash.putAll(defaults);
     }
