@@ -40,7 +40,7 @@ import frost.util.model.gui.*;
 
 public class SharedFilesPanel extends JPanel {
 
-    private PopupMenuUpload popupMenuUpload = null;
+    private PopupMenu popupMenuUpload = null;
 
     private Listener listener = new Listener();
 
@@ -112,9 +112,9 @@ public class SharedFilesPanel extends JPanel {
         uploadAddFilesButton.setToolTipText(language.getString("UploadPane.toolbar.tooltip.browse") + "...");
     }
 
-    private PopupMenuUpload getPopupMenuUpload() {
+    private PopupMenu getPopupMenuUpload() {
         if (popupMenuUpload == null) {
-            popupMenuUpload = new PopupMenuUpload();
+            popupMenuUpload = new PopupMenu();
             language.addLanguageListener(popupMenuUpload);
         }
         return popupMenuUpload;
@@ -282,8 +282,7 @@ public class SharedFilesPanel extends JPanel {
         }
     }
     
-    private class PopupMenuUpload extends JSkinnablePopupMenu 
-      implements ActionListener, LanguageListener, ClipboardOwner {
+    private class PopupMenu extends JSkinnablePopupMenu implements ActionListener, LanguageListener, ClipboardOwner {
 
         private JMenuItem copyKeysAndNamesItem = new JMenuItem();
         private JMenuItem copyKeysItem = new JMenuItem();
@@ -303,7 +302,7 @@ public class SharedFilesPanel extends JPanel {
 
         private Clipboard clipboard;
 
-        public PopupMenuUpload() {
+        public PopupMenu() {
             super();
             initialize();
         }

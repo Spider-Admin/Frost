@@ -125,7 +125,8 @@ public class FrostFileListFileObject {
                 sfo.getKeywords(),
                 sfo.getRating(),
                 timestamp,
-                lastUploadDate);
+                lastUploadDate,
+                sfo.getKey());
 
         addFrostFileListFileObjectOwner(ob);
     }

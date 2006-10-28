@@ -28,6 +28,8 @@ public class FrostFileListFileObjectOwner {
     protected String keywords;
     protected int rating;
     
+    protected String key;
+    
     protected long lastReceived = 0;
     protected long lastUploaded = 0;
     
@@ -39,7 +41,8 @@ public class FrostFileListFileObjectOwner {
             String newKeywords,
             int newRating,
             long newLastReceived,
-            long newLastUploaded) 
+            long newLastUploaded,
+            String newKey) 
     {
         refkey = newRefkey;
         name = newName;
@@ -49,6 +52,7 @@ public class FrostFileListFileObjectOwner {
         rating = newRating;
         lastReceived = newLastReceived;
         lastUploaded = newLastUploaded;
+        key = newKey;
     }
 
     public FrostFileListFileObjectOwner(
@@ -58,9 +62,10 @@ public class FrostFileListFileObjectOwner {
             String newKeywords,
             int newRating,
             long newLastReceived,
-            long newLastUploaded) 
+            long newLastUploaded,
+            String newKey) 
     {
-        this(0, newName, newOwner, newComment, newKeywords, newRating, newLastReceived, newLastUploaded);
+        this(0, newName, newOwner, newComment, newKeywords, newRating, newLastReceived, newLastUploaded, newKey);
     }
 
     public long getLastReceived() {
@@ -122,5 +127,13 @@ public class FrostFileListFileObjectOwner {
 
     public void setRating(int rating) {
         this.rating = rating;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
     }
 }
