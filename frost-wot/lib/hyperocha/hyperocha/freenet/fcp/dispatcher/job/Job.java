@@ -49,6 +49,8 @@ public abstract class Job implements IIncoming {
 	
 	
 	private final Object waitObject = new Object();
+	private long jobstarted = 0;
+	private long jobfinished = 0;
 	
 	//private PriorityClass priorityClass = null;
 	
@@ -105,6 +107,7 @@ public abstract class Job implements IIncoming {
 	public void run(Dispatcher dispatcher) {
 		if (status != STATUS_PREPARED) { throw new Error("FIXME: never run an unprepared job!"); }
 		status = STATUS_RUNNING;
+		jobstarted = System.currentTimeMillis();
 		switch (requiredNetworkType) {
 			case Network.FCP1: runFCP1(dispatcher); break;
 			case Network.FCP2: runFCP2(dispatcher); break;
@@ -114,6 +117,7 @@ public abstract class Job implements IIncoming {
 		if ((status != STATUS_ERROR) && (lastError == null)) {
 			status = STATUS_DONE;
 		}
+		jobfinished = System.currentTimeMillis();
 	}
 	
 	public void runFCP1(Dispatcher dispatcher) {
@@ -191,4 +195,29 @@ public abstract class Job implements IIncoming {
 		// TODO Auto-generated method stub
 		throw new Error("Hu!");
 	}
+	
+	/**
+	 * @return the start timestamp - System.currentTimeMillis();
+	 */
+	public long jobStarted() {
+		return jobstarted;
+	}
+	
+	/**
+	 * @return the finished timestamp - System.currentTimeMillis();
+	 * 
+	 */
+	public long jobFinished() {
+		return jobfinished ;
+	}
+
+	/**
+	 * @return the exectuon time in milli sec
+	 * 
+	 */
+	public long jobDuration() {
+		return (jobfinished - jobstarted) ;
+	}
+	
+	
 }
