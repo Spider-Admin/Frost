@@ -24,6 +24,7 @@ import java.util.logging.*;
 import frost.*;
 import frost.fcp.*;
 import frost.storage.database.applayer.*;
+import frost.util.*;
 
 public class DownloadThread extends Thread {
 
@@ -103,9 +104,8 @@ public class DownloadThread extends Thread {
                         downloadItem.setState(FrostDownloadItem.STATE_WAITING);
                     }
                 }
-            }
-            // download successfull
-            else {
+            } else {
+                // download successful
                 downloadItem.setFileSize(new Long(newFile.length()));
                 downloadItem.setState(FrostDownloadItem.STATE_DONE);
                 downloadItem.setEnableDownload(Boolean.valueOf(false));
@@ -115,6 +115,14 @@ public class DownloadThread extends Thread {
                     AppLayerDatabase.getFileListDatabaseTable().updateFrostFileListFileObjectAfterDownload(
                             downloadItem.getFileListFileObject().getSha(),
                             System.currentTimeMillis() );
+                }
+
+                // maybe log successful download to file localdata/downloads.txt
+                if( Core.frostSettings.getBoolValue(SettingsClass.LOG_DOWNLOADS_ENABLED) ) {
+                    String line = downloadItem.getKey() + "/" + downloadItem.getFileName();
+                    String fileName = Core.frostSettings.getValue(SettingsClass.DIR_LOCALDATA) + "Frost-Downloads.log";
+                    File targetFile = new File(fileName);
+                    FileAccess.appendLineToTextfile(targetFile, line);
                 }
 
                 logger.info("FILEDN: Download of " + filename + " was successful.");

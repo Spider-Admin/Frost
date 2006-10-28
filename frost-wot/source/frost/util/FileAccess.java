@@ -525,4 +525,23 @@ public class FileAccess {
             output.close();
         }
     }
+    
+    /**
+     * Appends a line to the specified text file in UTF-8 encoding.
+     */
+    public static boolean appendLineToTextfile(File file, String line) {
+        BufferedWriter out = null;
+        boolean wasOk = false;
+        try {
+            out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file, true), "UTF-8"));
+            out.write(line);
+            out.write("\n");
+            wasOk = true;
+        } catch (Throwable e) {
+            logger.log(Level.SEVERE, "Exception catched", e);
+        } finally {
+            try { if( out != null) out.close(); } catch(Throwable tt) { }
+        }
+        return wasOk;
+    }
 }
