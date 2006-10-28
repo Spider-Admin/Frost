@@ -21,13 +21,13 @@ import java.util.List;
  * download a file the best way 
  * includes black magic ritual and eating childs for finding the best way
  */
-public class CHKFileDownoadJob extends Job {
+public class CHKFileRequestJob extends Job {
 	
 	private FreenetKey keyToDownload;
 	private File targetFile;
 	private FileOutputStream os;
 	
-	public CHKFileDownoadJob(int requirednetworktype, String id, FreenetKey key, File target) {
+	public CHKFileRequestJob(int requirednetworktype, String id, FreenetKey key, File target) {
 		super(requirednetworktype, id);
 		keyToDownload = key;
 		targetFile = target;
@@ -87,7 +87,7 @@ public class CHKFileDownoadJob extends Job {
 	/* (non-Javadoc)
 	 * @see hyperocha.freenet.fcp.dispatcher.job.Job#incommingData(hyperocha.freenet.fcp.FCPConnection, java.util.Hashtable)
 	 */
-	public void incommingData(String id, Hashtable message, FCPConnection conn) {
+	public void incomingData(String id, Hashtable message, FCPConnection conn) {
 		long size = Long.parseLong((String)(message.get("DataLength"))); 
 		//System.out.println("CHK DataHandler: " + message);
 		conn.copyFrom(size, os);
@@ -98,7 +98,7 @@ public class CHKFileDownoadJob extends Job {
 	/* (non-Javadoc)
 	 * @see hyperocha.freenet.fcp.dispatcher.job.Job#incommingMessage(hyperocha.freenet.fcp.FCPConnection, java.util.Hashtable)
 	 */
-	public void incommingMessage(String id, Hashtable message) {
+	public void incomingMessage(String id, Hashtable message) {
 		System.out.println("CHK down MessageHandler: " + message);
 	}
 }

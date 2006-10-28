@@ -109,7 +109,7 @@ public class CHKFileInsertJob extends Job {
 	/* (non-Javadoc)
 	 * @see hyperocha.freenet.fcp.dispatcher.job.Job#incommingMessage(hyperocha.freenet.fcp.FCPConnection, java.util.Hashtable)
 	 */
-	public void incommingMessage(String id, Hashtable message) {
+	public void incomingMessage(String id, Hashtable message) {
 		if ("URIGenerated".equals(message.get(FCPConnection.MESSAGENAME))) {
 			//trash the uri-generated
 			return;

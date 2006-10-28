@@ -248,7 +248,6 @@ public class FrostDownloadItem extends ModelItem {
         } else {
             isFinalized = Boolean.FALSE;
         }
-        fireChange();
     }
 
     public long getDownloadAddedTime() {

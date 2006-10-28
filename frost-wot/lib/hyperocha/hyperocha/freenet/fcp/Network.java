@@ -74,7 +74,7 @@ public class Network implements IStorageObject {
 	/**
 	 * nodelist: eine liste mit strings, jeder string "server:port" fuer jeden server
 	 */
-	public Network(int networktype, String id, List nodelist, IIncomming callback) {
+	public Network(int networktype, String id, List nodelist, IIncoming callback) {
 		this(networktype, id);
 //		confList = new Hashtable();
 //		nodeList = new Hashtable();
@@ -148,7 +148,7 @@ public class Network implements IStorageObject {
 		nodeList.put(node.getID(), node);
 	}
 	
-	private void addNode(String id, String serverport, IIncomming callback) {
+	private void addNode(String id, String serverport, IIncoming callback) {
 		//System.err.println("HTEST 001:" + serverport);
 		FCPNodeConfig conf = new FCPNodeConfig(networkType, id, serverport);
 		FCPNode node = new FCPNode(conf, callback);

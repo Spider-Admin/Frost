@@ -22,7 +22,7 @@ package hyperocha.freenet.fcp.dispatcher;
 
 import hyperocha.freenet.fcp.FCPConnection;
 import hyperocha.freenet.fcp.FCPConnectionRunner;
-import hyperocha.freenet.fcp.IIncomming;
+import hyperocha.freenet.fcp.IIncoming;
 import hyperocha.freenet.fcp.dispatcher.job.Job;
 
 import java.io.DataInputStream;
@@ -34,7 +34,7 @@ import javax.swing.SwingUtilities;
  * @author saces
  *
  */
-public class Dispatcher implements IIncomming {
+public class Dispatcher implements IIncoming {
 
 	private Factory factory;
 	
@@ -237,20 +237,20 @@ public class Dispatcher implements IIncomming {
 		runningJobs.remove(job.getJobID());		
 	}
 	
-	public void incommingMessage(String id, Hashtable message) {
+	public void incomingMessage(String id, Hashtable message) {
 		//System.out.println("D Testinger id " + id + " -> message: " + message);
 		//Job j = getRunningJob((String)message.get("Identifier"));
 		Job j = getRunningJob(id);
 		if (j == null) { throw new Error("Hmmmm. this shouldnt happen."); }
-		j.incommingMessage(id, message);
+		j.incomingMessage(id, message);
 	}
 
-	public void incommingData(String id, Hashtable message, FCPConnection conn) {
+	public void incomingData(String id, Hashtable message, FCPConnection conn) {
 		//System.out.println("D Testinger Data: " + message);
 		//Job j = getRunningJob((String)message.get("Identifier"));
 		Job j = getRunningJob(id);
 		if (j == null) { throw new Error("Hmmmm. this shouldnt happen."); }
-		j.incommingData(id, message, conn);
+		j.incomingData(id, message, conn);
 //		getRunningJob((String)message.get("Identifier")).incommingData(conn, message);
 	}
 	

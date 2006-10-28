@@ -21,7 +21,7 @@
 package hyperocha.freenet.fcp.dispatcher.job;
 
 import hyperocha.freenet.fcp.FCPConnection;
-import hyperocha.freenet.fcp.IIncomming;
+import hyperocha.freenet.fcp.IIncoming;
 import hyperocha.freenet.fcp.Network;
 import hyperocha.freenet.fcp.dispatcher.Dispatcher;
 
@@ -29,10 +29,8 @@ import java.util.Hashtable;
 
 /**
  * a job
- * 
- *
  */
-public abstract class Job implements IIncomming {
+public abstract class Job implements IIncoming {
 	private static final int STATUS_ERROR = -1;
 	public static final int STATUS_UNPREPARED = 0;
 	public static final int STATUS_PREPARED = 1;
@@ -183,13 +181,13 @@ public abstract class Job implements IIncomming {
 		return clientToken;
 	}
 	
-	public void incommingData(String id, Hashtable message, FCPConnection conn) {
+	public void incomingData(String id, Hashtable message, FCPConnection conn) {
 		// TODO Auto-generated method stub
 		throw new Error("Ha!");
 		
 	}
 
-	public void incommingMessage(String id, Hashtable message) {
+	public void incomingMessage(String id, Hashtable message) {
 		// TODO Auto-generated method stub
 		throw new Error("Hu!");
 	}

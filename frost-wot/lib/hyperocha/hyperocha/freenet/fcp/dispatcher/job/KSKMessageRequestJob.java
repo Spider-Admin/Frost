@@ -39,13 +39,13 @@ import java.util.List;
  * @author saces
  *
  */
-public class KSKMessageDownloadJob extends Job {
+public class KSKMessageRequestJob extends Job {
 
 	private FreenetKey keyToDownload;
 	private File targetFile;
 	private FileOutputStream os;
 	
-	protected KSKMessageDownloadJob(int requirednetworktype, String id, FreenetKey key, File dest) {
+	protected KSKMessageRequestJob(int requirednetworktype, String id, FreenetKey key, File dest) {
 		super(requirednetworktype, id);
 		keyToDownload = key;
 		targetFile = dest;
@@ -93,7 +93,7 @@ public class KSKMessageDownloadJob extends Job {
 //		}
 	}
 	
-	public void incommingData(String id, Hashtable message, FCPConnection conn) {
+	public void incomingData(String id, Hashtable message, FCPConnection conn) {
 		if ("AllData".equals(message.get(FCPConnection.MESSAGENAME))) {
 			long size = Long.parseLong((String)(message.get("DataLength"))); 
 			//System.out.println("DataHandler: " + message);
@@ -116,7 +116,7 @@ public class KSKMessageDownloadJob extends Job {
 	
 
 
-	public void incommingMessage(String id, Hashtable message) {
+	public void incomingMessage(String id, Hashtable message) {
 		if ("DataFound".equals(message.get(FCPConnection.MESSAGENAME))) {
 			try {
 				os = new FileOutputStream(targetFile);

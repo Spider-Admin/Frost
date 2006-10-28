@@ -47,7 +47,7 @@ public class FCPNode {
 	private FCPNodeStatus nodeStatus;
     private volatile FCPConnectionRunner defaultConn = null;
     
-    private IIncomming callBack = null;
+    private IIncoming callBack = null;
     
     private Exception lastError = null;
     
@@ -55,7 +55,7 @@ public class FCPNode {
     	this(nodeconfig, null);
     }
     
-    public FCPNode(FCPNodeConfig nodeconfig, IIncomming callback) {
+    public FCPNode(FCPNodeConfig nodeconfig, IIncoming callback) {
     	this.nodeConfig = nodeconfig;
     	this.callBack = callback;
     }
@@ -173,11 +173,11 @@ public class FCPNode {
 		return new FCPConnection(this, null);
 	}
 	
-	public FCPConnection getNewFCPConnection(IIncomming callback, String id) {
+	public FCPConnection getNewFCPConnection(IIncoming callback, String id) {
 		return new FCPConnection(this, callback, id);
 	}
 	
-	public FCPConnection getNewFCPConnection(IIncomming callback, String id, boolean prefix, int tries) {
+	public FCPConnection getNewFCPConnection(IIncoming callback, String id, boolean prefix, int tries) {
 		return new FCPConnection(this, callback, id, prefix, tries);
 	}
 
