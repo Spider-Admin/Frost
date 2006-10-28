@@ -177,6 +177,9 @@ public class SettingsClass implements Savable {
     public static final String MAINFRAME_LAST_X = "lastFramePosX";
     public static final String MAINFRAME_LAST_Y = "lastFramePosY";
     public static final String MAINFRAME_LAST_MAXIMIZED = "lastFrameMaximized";
+    
+    public static final String LOG_DOWNLOADS_ENABLED = "logDownloads";
+    public static final String LOG_UPLOADS_ENABLED = "logUploads";
 
     public SettingsClass() {
         settingsHash = new Hashtable();

@@ -56,7 +56,8 @@ public class FrostDownloadItem extends ModelItem {
     // non persistent fields
 	private int doneBlocks = 0;
 	private int requiredBlocks = 0;	
-	private int totalBlocks = 0;	
+	private int totalBlocks = 0;
+    private Boolean isFinalized = null;
     
     // add a file from download text box
 	public FrostDownloadItem(String fileName, String key) {
@@ -217,29 +218,38 @@ public class FrostDownloadItem extends ModelItem {
 	public int getDoneBlocks() {
 		return doneBlocks;
 	}
-
+	public void setDoneBlocks(int newDoneBlocks) {
+	    doneBlocks = newDoneBlocks;
+	    fireChange();
+	}
+    
 	public int getRequiredBlocks() {
 		return requiredBlocks;
 	}
-
+	public void setRequiredBlocks(int newRequiredBlocks) {
+	    requiredBlocks = newRequiredBlocks;
+	    fireChange();
+	}
+	
 	public int getTotalBlocks() {
 		return totalBlocks;
 	}
-
-	public void setDoneBlocks(int newDoneBlocks) {
-		doneBlocks = newDoneBlocks;
-        fireChange();
-	}
-
-	public void setRequiredBlocks(int newRequiredBlocks) {
-		requiredBlocks = newRequiredBlocks;
-        fireChange();
-	}
-
 	public void setTotalBlocks(int newTotalBlocks) {
 		totalBlocks = newTotalBlocks;
         fireChange();
 	}
+
+    public Boolean isFinalized() {
+        return isFinalized;
+    }
+    public void setFinalized(boolean finalized) {
+        if( finalized ) {
+            isFinalized = Boolean.TRUE;
+        } else {
+            isFinalized = Boolean.FALSE;
+        }
+        fireChange();
+    }
 
     public long getDownloadAddedTime() {
         return downloadAddedTime;
