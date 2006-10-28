@@ -379,7 +379,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
                 return uploadItem.getFile().getPath();
 
             case 6 :    //blocks
-                return getUploadProgress(uploadItem.getTotalBlocks(), uploadItem.getDoneBlocks());
+                return getUploadProgress(uploadItem);
 
             case 7 :    //Tries
                 return new Integer(uploadItem.getRetries());
@@ -425,16 +425,33 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         }
     }
 
-    private String getUploadProgress(int totalBlocks, int doneBlocks) {
-        if( totalBlocks <= 0 && doneBlocks <= 0 ) {
+    private String getUploadProgress(FrostUploadItem uploadItem) {
+        
+        int totalBlocks = uploadItem.getTotalBlocks(); 
+        int doneBlocks = uploadItem.getDoneBlocks();
+        Boolean isFinalized = uploadItem.isFinalized();
+        
+        // format: ~0% 0/60 [60]
+        
+        if( totalBlocks <= 0 ) {
             return "";
         }
+        
         int percentDone = 0;
-
         if (totalBlocks > 0) {
             percentDone = (int) ((doneBlocks * 100) / totalBlocks);
         }
-        return (doneBlocks + " / " + totalBlocks + " (" + percentDone + "%)");
+        
+        StringBuffer sb = new StringBuffer();
+        
+        if( isFinalized != null && !isFinalized.booleanValue() ) {
+            sb.append("~");
+        }
+        
+        sb.append(percentDone).append("% ");
+        sb.append(doneBlocks).append("/").append(totalBlocks).append(" [").append(totalBlocks).append("]");
+        
+        return sb.toString();
     }
 
     public void customizeTable(ModelTable lModelTable) {

@@ -438,10 +438,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
                 }
                 
 			case 8 : // Blocks
-				return getBlocksAsString(
-					downloadItem.getTotalBlocks(),
-					downloadItem.getDoneBlocks(),
-					downloadItem.getRequiredBlocks());
+				return getBlocksAsString(downloadItem);
 
 			case 9 : // Tries
 				return new Integer(downloadItem.getRetries());
@@ -473,12 +470,35 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
         }
     }
 	
-	private String getBlocksAsString(int totalBlocks, int doneBlocks, int requiredBlocks) {
-		if (totalBlocks == 0) {
-			return "";
-		} else {
-			return (doneBlocks + " / " + requiredBlocks + " (" + totalBlocks + ")");
-		}
+	private String getBlocksAsString(FrostDownloadItem downloadItem) {
+        
+        int totalBlocks = downloadItem.getTotalBlocks();
+        int doneBlocks = downloadItem.getDoneBlocks();
+        int requiredBlocks = downloadItem.getRequiredBlocks();
+        Boolean isFinalized = downloadItem.isFinalized();
+        
+        if( totalBlocks <= 0 ) {
+            return "";
+        }
+        
+        // format: ~0% 0/60 [60]
+        
+        int percentDone = 0;
+
+        if (requiredBlocks > 0) {
+            percentDone = (int) ((doneBlocks * 100) / requiredBlocks);
+        }
+        
+        StringBuffer sb = new StringBuffer();
+        
+        if( isFinalized != null && !isFinalized.booleanValue() ) {
+            sb.append("~");
+        }
+
+        sb.append(percentDone).append("% ");
+        sb.append(doneBlocks).append("/").append(requiredBlocks).append(" [").append(totalBlocks).append("]");
+
+		return sb.toString();
 	}
 
 	private String getStateAsString(int state, int totalBlocks, int doneBlocks, int requiredBlocks) {
