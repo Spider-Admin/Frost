@@ -140,9 +140,9 @@ public class FcpConnection
     public FcpResultGet getKeyToFile(int type, String keyString, String filename)
     throws IOException, FcpToolsException, InterruptedIOException {
 
-        // FIXME: exploit MaxRetries, MaxSize, ReturnType=disk, global queue
+        // TODO: exploit MaxRetries, MaxSize, ReturnType=disk, global queue
     	
-//    	 FIXME and useroption!!!!
+//    	 TODO and useroption!!!!
 //		boolean dda = (type == FcpHandler.TYPE_FILE);
         boolean dda = false;
 		
@@ -412,10 +412,10 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 	public String putKeyFromFile(int type, String key, File sourceFile, boolean getChkOnly, boolean doMime)
 		throws IOException {
 
-        // FIXME: exploit MaxRetries, UploadFrom, type
+        // TODO: exploit MaxRetries, UploadFrom, type
 		
 		
-		// FIXME and useroption!!!!
+		// TODO and useroption!!!!
 //		boolean dda = (type == FcpHandler.TYPE_FILE);
 		boolean dda = false;  // disabled, node bug?  r10003
 		
@@ -441,7 +441,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
         fcpOut.println("Verbosity=-1"); // recive SimpleProgress for unterdruecken timeout       
 		fcpOut.println("MaxRetries=3");
 		fcpOut.println("DontCompress=false"); // force compression
-        if( key.equals("CHK@") ) { //FIXME: hack!
+        if( key.equals("CHK@") ) { //TODO: hack!
             fcpOut.println("TargetFilename=");
         }
 		if( getChkOnly ) {

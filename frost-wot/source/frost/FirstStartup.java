@@ -30,8 +30,6 @@ import frost.util.*;
 
 public class FirstStartup {
     
-    // FIXME: maybe translate???
-
     private static Logger logger = Logger.getLogger(FirstStartup.class.getName());
 
     private SettingsClass oldSettings = null;

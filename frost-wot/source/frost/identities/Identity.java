@@ -132,7 +132,6 @@ public class Identity implements XMLizable {
         uniqueName = Mixed.makeFilename(uniqueName);
     }
     
-    // FIXME: for each new identity, check if digest is the same as created from pubKey:
     /**
      * This method checks if the digest of this Identity matches the pubkey.
      * (digest is the part after the @ in the username)
