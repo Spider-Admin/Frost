@@ -22,7 +22,7 @@ import hyperocha.freenet.fcp.messages.*;
 
 import java.util.*;
 
-public class FCPNodeHelloMessage extends FCPNodeToClientMessage {
+public class FCP2NodeHelloMessage extends FCP2NodeToClientMessage {
     
     private boolean isTestnet;
     private String fcpVersion;
@@ -30,7 +30,7 @@ public class FCPNodeHelloMessage extends FCPNodeToClientMessage {
     private String nodeName;
     private int compressionCodecs;
     
-    public FCPNodeHelloMessage(String connId, Hashtable message) throws MessageEvaluationException {
+    public FCP2NodeHelloMessage(String connId, Hashtable message) throws MessageEvaluationException {
         super(connId);
         evaluate(message);
     }
