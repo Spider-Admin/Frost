@@ -20,20 +20,11 @@
  */
 package hyperocha.freenet.fcp;
 
-import hyperocha.freenet.fcp.io.FCPIOConnection;
-import hyperocha.freenet.fcp.io.FCPIOConnectionErrorHandler;
-import hyperocha.freenet.fcp.messages.*;
-import hyperocha.freenet.fcp.messages.node2client.*;
-import hyperocha.freenet.fcp.utils.FCPUtil;
+import hyperocha.freenet.fcp.io.*;
+import hyperocha.freenet.fcp.utils.*;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.List;
-
-import javax.swing.SwingUtilities;
+import java.io.*;
+import java.util.*;
 
 
 /**
@@ -335,31 +326,16 @@ public class FCPConnection {
             	
             	int nt = rawConn.getNetworkType();
 
-                FCP2NodeToClientMessage message = null;
-                
         		switch (nt) {
         			case Network.FCP1: 
                         tmpID = connectionID;
-//                        try {
-//                            message = FCP1NodeToClientMessageFactory.createMessage(tmpID, result);
-//                        } catch(MessageEvaluationException e) {
-//                            message = null;
-//                        }
                         break;
         			case Network.FCP2: 
                         tmpID = (String)result.get("Identifier"); 
-                        try {
-                            message = FCP2NodeToClientMessageFactory.createMessage(tmpID, result);
-                        } catch(MessageEvaluationException e) {
-                            message = null;
-                        }
                         break;
         			default : throw new Error("Unsupported network type: " + nt);
         		}
 
-                if( message != null ) {
-                    // callback.incomingMessage(message);
-                }
             	callback.incomingMessage(tmpID, result);
             	isfirstline = true;
                 continue; 
