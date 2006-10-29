@@ -41,7 +41,11 @@ public abstract class FCPMessage {
                 return 0;
             }
         }
-        return Integer.parseInt(s);
+        try {
+            return Integer.parseInt(s);
+        } catch(Throwable t) {
+            throw new MessageEvaluationException("Invalid int: "+s, t);
+        }
     }
 
     protected String stringToString(String s, boolean allowEmpty) throws MessageEvaluationException {
