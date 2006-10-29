@@ -23,12 +23,12 @@ import hyperocha.freenet.fcp.messages.*;
 
 import java.util.*;
 
-public abstract class FCPNodeToClientMessage extends FCPMessage {
+public abstract class FCP2NodeToClientMessage extends FCPMessage {
     
     protected String connectionId;
     protected boolean isConsumed = false;
     
-    protected FCPNodeToClientMessage(String connId) {
+    protected FCP2NodeToClientMessage(String connId) {
         connectionId = connId;
     }
 
@@ -40,9 +40,9 @@ public abstract class FCPNodeToClientMessage extends FCPMessage {
 
     private static final String MSGNAME_NodeHello = "NodeHello";
 
-    public static FCPNodeToClientMessage createMessage(String connId, Hashtable message) throws MessageEvaluationException {
+    public static FCP2NodeToClientMessage createMessage(String connId, Hashtable message) throws MessageEvaluationException {
         
-        FCPNodeToClientMessage retVal = null;
+        FCP2NodeToClientMessage retVal = null;
 
         String msgName = FCPConnection.MESSAGENAME;
         if( msgName == null ) {
@@ -50,7 +50,7 @@ public abstract class FCPNodeToClientMessage extends FCPMessage {
         }
         
         if( msgName.equals(MSGNAME_NodeHello) ) {
-            retVal = new FCPNodeHelloMessage(connId, message);
+            retVal = new FCP2NodeHelloMessage(connId, message);
         } else if( msgName.equals(MSGNAME_NodeHello) ) {
             // ...
         } else {
