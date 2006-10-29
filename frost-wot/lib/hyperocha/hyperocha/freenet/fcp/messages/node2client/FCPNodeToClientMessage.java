@@ -26,6 +26,7 @@ import java.util.*;
 public abstract class FCPNodeToClientMessage extends FCPMessage {
     
     protected String connectionId;
+    protected boolean isConsumed = false;
     
     protected FCPNodeToClientMessage(String connId) {
         connectionId = connId;
@@ -57,5 +58,13 @@ public abstract class FCPNodeToClientMessage extends FCPMessage {
         }
         
         return retVal;
+    }
+
+    public boolean isConsumed() {
+        return isConsumed;
+    }
+
+    public void setConsumed(boolean isConsumed) {
+        this.isConsumed = isConsumed;
     }
 }
