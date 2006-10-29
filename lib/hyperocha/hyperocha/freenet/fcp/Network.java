@@ -148,7 +148,7 @@ public class Network implements IStorageObject {
 		nodeList.put(node.getID(), node);
 	}
 	
-	private void addNode(String id, String serverport, IIncoming callback) {
+	public void addNode(String id, String serverport, IIncoming callback) {
 		//System.err.println("HTEST 001:" + serverport);
 		FCPNodeConfig conf = new FCPNodeConfig(networkType, id, serverport);
 		FCPNode node = new FCPNode(conf, callback);
