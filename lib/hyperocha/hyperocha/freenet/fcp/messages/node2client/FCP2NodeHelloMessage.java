@@ -30,8 +30,8 @@ public class FCP2NodeHelloMessage extends FCP2NodeToClientMessage {
     private String nodeName;
     private int compressionCodecs;
     
-    public FCP2NodeHelloMessage(String connId, Hashtable message) throws MessageEvaluationException {
-        super(connId);
+    public FCP2NodeHelloMessage(String connId, String msgName, Hashtable message) throws MessageEvaluationException {
+        super(connId, msgName);
         evaluate(message);
     }
     

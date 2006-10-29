@@ -1,5 +1,5 @@
 /*
-  FCPNodeToClientMessage.java / Frost
+  FCP2CloseConnectionDuplicateClientNameMessage.java / Frost
   Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
@@ -18,29 +18,11 @@
 */
 package hyperocha.freenet.fcp.messages.node2client;
 
-import hyperocha.freenet.fcp.messages.*;
+import java.util.*;
 
-public abstract class FCP2NodeToClientMessage extends FCPMessage {
-    
-    protected String connectionId;
-    protected String messageName;
-    
-    protected boolean isConsumed = false;
-    
-    protected FCP2NodeToClientMessage(String connId, String msgName) {
-        connectionId = connId;
-        messageName = msgName;
-    }
+public class FCP2CloseConnectionDuplicateClientNameMessage extends FCP2NodeToClientMessage {
 
-    public String getConnectionId() {
-        return connectionId;
-    }
-
-    public boolean isConsumed() {
-        return isConsumed;
-    }
-
-    public void setConsumed(boolean isConsumed) {
-        this.isConsumed = isConsumed;
+    public FCP2CloseConnectionDuplicateClientNameMessage(String connId, String msgName, Hashtable ht) {
+        super(connId, msgName);
     }
 }

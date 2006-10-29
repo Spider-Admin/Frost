@@ -22,6 +22,8 @@ package hyperocha.freenet.fcp;
 
 import hyperocha.freenet.fcp.io.FCPIOConnection;
 import hyperocha.freenet.fcp.io.FCPIOConnectionErrorHandler;
+import hyperocha.freenet.fcp.messages.*;
+import hyperocha.freenet.fcp.messages.node2client.*;
 import hyperocha.freenet.fcp.utils.FCPUtil;
 
 import java.io.IOException;
@@ -333,12 +335,31 @@ public class FCPConnection {
             	
             	int nt = rawConn.getNetworkType();
 
+                FCP2NodeToClientMessage message = null;
+                
         		switch (nt) {
-        			case Network.FCP1: tmpID = connectionID; break;
-        			case Network.FCP2: tmpID = (String)result.get("Identifier"); break;
+        			case Network.FCP1: 
+                        tmpID = connectionID;
+//                        try {
+//                            message = FCP1NodeToClientMessageFactory.createMessage(tmpID, result);
+//                        } catch(MessageEvaluationException e) {
+//                            message = null;
+//                        }
+                        break;
+        			case Network.FCP2: 
+                        tmpID = (String)result.get("Identifier"); 
+                        try {
+                            message = FCP2NodeToClientMessageFactory.createMessage(tmpID, result);
+                        } catch(MessageEvaluationException e) {
+                            message = null;
+                        }
+                        break;
         			default : throw new Error("Unsupported network type: " + nt);
         		}
-        		
+
+                if( message != null ) {
+                    // callback.incomingMessage(message);
+                }
             	callback.incomingMessage(tmpID, result);
             	isfirstline = true;
                 continue; 
