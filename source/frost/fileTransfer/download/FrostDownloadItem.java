@@ -48,7 +48,7 @@ public class FrostDownloadItem extends ModelItem {
     private long downloadFinishedTime = 0;
 	private int retries = 0;
     private long lastDownloadStopTime = 0;
-    private String gqId = null;
+    private String gqIdentifier = null;
     
     // if this downloadfile is a shared file then this object is set
     private FrostFileListFileObject fileListFileObject = null;
@@ -59,25 +59,29 @@ public class FrostDownloadItem extends ModelItem {
 	private int totalBlocks = 0;
     private Boolean isFinalized = null;
     
-    // add a file from download text box
+    /**
+     * Add a file from download text box.
+     */ 
 	public FrostDownloadItem(String fileName, String key) {
 		
 		this.fileName = fileName;
 		this.key = key;
-        
-        gqId = fileName.replace(' ', '_')+"-"+Mixed.createUniqueId();
+        // FIXME: gqid only for 0.7
+        gqIdentifier = fileName.replace(' ', '_')+"-"+Mixed.createUniqueId();
 
 		state = STATE_WAITING;
 	}
 
-    // add a file attachment
+    /**
+     * Add a file attachment.
+     */ 
     public FrostDownloadItem(String fileName, String key, Long s) {
         
         this.fileName = fileName;
         fileSize = s;
         this.key = key;
         
-        gqId = fileName.replace(' ', '_')+"-"+Mixed.createUniqueId();
+        gqIdentifier = fileName.replace(' ', '_')+"-"+Mixed.createUniqueId();
 
         state = STATE_WAITING;
     }
@@ -105,14 +109,16 @@ public class FrostDownloadItem extends ModelItem {
         fileSize = new Long(sfo.getSize());
         key = sfo.getKey();
 
-        gqId = fileName.replace(' ', '_')+"-"+Mixed.createUniqueId();
+        gqIdentifier = fileName.replace(' ', '_')+"-"+Mixed.createUniqueId();
 
         setFileListFileObject(sfo);
 
         state = STATE_WAITING;
     }
 
-    // add a saved file 
+    /**
+     * Add a saved file from database.
+     */
 	public FrostDownloadItem(
             String newFilename,
             String newTargetPath,
@@ -138,7 +144,7 @@ public class FrostDownloadItem extends ModelItem {
         downloadFinishedTime = newDownloadFinishedTime;
         retries = newRetries;
         lastDownloadStopTime = newLastDownloadStopTime;
-        gqId = newGqId;
+        gqIdentifier = newGqId;
 
         // set correct state
         if (this.state != FrostDownloadItem.STATE_DONE) {
@@ -274,12 +280,12 @@ public class FrostDownloadItem extends ModelItem {
         this.downloadStartedTime = downloadStartedTime;
     }
 
-    public String getGqId() {
-        return gqId;
+    public String getGqIdentifier() {
+        return gqIdentifier;
     }
 
-    public void setGqId(String gqId) {
-        this.gqId = gqId;
+    public void setGqIdentifier(String gqId) {
+        this.gqIdentifier = gqId;
     }
 
     public String getTargetPath() {

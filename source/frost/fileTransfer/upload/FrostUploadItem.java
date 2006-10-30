@@ -66,12 +66,14 @@ public class FrostUploadItem extends ModelItem {
 
     /**
      * Used to add a new file to upload.
+     * Either manually added or a shared file.
      */
     public FrostUploadItem(File newFile) {
 
         file = newFile;
         fileSize = file.length();
         
+        // FIXME: gqid only for 0.7
         gqIdentifier = file.getName().replace(' ', '_') + Mixed.createUniqueId();
         
         state = STATE_WAITING;
