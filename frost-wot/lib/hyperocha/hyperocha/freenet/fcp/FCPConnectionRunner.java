@@ -61,4 +61,8 @@ public class FCPConnectionRunner extends Thread {
 	public synchronized void send(List cmd, long l, InputStream s) {
 		conn.start(cmd, l, s);
 	}
+
+	public boolean haveDDA() {
+		return fcpNode.haveDDA();
+	}
 }

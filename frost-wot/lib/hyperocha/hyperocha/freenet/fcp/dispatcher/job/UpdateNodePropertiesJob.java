@@ -74,7 +74,6 @@ public class UpdateNodePropertiesJob extends Job {
 		cmd.add("UploadFrom=disk");
 		cmd.add("Filename=" + testFile.getAbsolutePath());
 		cmd.add("EndMessage");
-
 		
 		conn.send(cmd);
 		

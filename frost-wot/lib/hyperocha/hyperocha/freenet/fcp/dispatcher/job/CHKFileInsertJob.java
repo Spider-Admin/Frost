@@ -63,47 +63,70 @@ public class CHKFileInsertJob extends Job {
 	/* (non-Javadoc)
 	 * @see hyperocha.freenet.fcp.dispatcher.job.Job#runFCP2(hyperocha.freenet.fcp.dispatcher.Dispatcher)
 	 */
-	public void runFCP2(Dispatcher dispatcher) {
+	public void runFCP2(Dispatcher dispatcher, boolean resume) {
 		
 		FCPConnectionRunner conn = dispatcher.getDefaultFCPConnectionRunner(getRequiredNetworkType());
 		
+		boolean dda = conn.haveDDA();
+		
 		List cmd = new LinkedList();
 		
-		cmd.add("ClientPut");
-		cmd.add("URI=CHK@");
-		cmd.add("Identifier=" + this.getJobID());
-        cmd.add("Verbosity=257"); // recive SimpleProgress for unterdruecken timeout       
-		cmd.add("MaxRetries=0");
-		cmd.add("DontCompress=false"); // force compression
-        cmd.add("TargetFilename=");  // disable gurken-keys
-        cmd.add("EarlyEncode=false");
-		cmd.add("GetCHKOnly=false");
-        cmd.add("Metadata.ContentType=" + DefaultMIMETypes.guessMIMEType(insertFile.getAbsolutePath()));
-        cmd.add("PriorityClass=2");  
-		
-//		if (dda) {  // direct file acess
-//			//fcpOut.println("Global=true");
-//			fcpOut.println("Persistence=connection");
-//			fcpOut.println("ClientToken=blasuelz");
-//			
-//	        fcpOut.println("UploadFrom=disk");
-//	        fcpOut.println("Filename=" + sourceFile.getAbsolutePath());
-//	        fcpOut.println("EndMessage");
-//	        //System.out.println("FileName -> " + sourceFile.getAbsolutePath());
+		if (resume) {
 			
+			cmd.add("GetRequestStatus");
+			cmd.add("Identifier=" + this.getJobID());
+			cmd.add("Global=true");
+			cmd.add("OnlyData=false");
+			cmd.add("EndMessage");
 
-        cmd.add("UploadFrom=direct");
-
-		cmd.add("DataLength=" + Long.toString(insertFile.length()));
-		cmd.add("Data");
+			conn.send(cmd);
+			//System.err.println("CHK ins: " + cmd);
+			
+		} else {
 		
-		conn.send(cmd, insertFile.length(), fis);
+			cmd.add("ClientPut");
+			cmd.add("URI=CHK@");
+			cmd.add("Identifier=" + this.getJobID());
+			cmd.add("Verbosity=257"); // recive SimpleProgress for unterdruecken timeout       
+			cmd.add("MaxRetries=-1");
+			cmd.add("DontCompress=false"); // force compression
+			cmd.add("TargetFilename=");  // disable gurken-keys
+			cmd.add("EarlyEncode=false");
+			cmd.add("GetCHKOnly=false");
+			cmd.add("Metadata.ContentType=" + DefaultMIMETypes.guessMIMEType(insertFile.getAbsolutePath()));
+			cmd.add("PriorityClass=4");
+			cmd.add("Global=true");
+			cmd.add("Persistence=forever");
+
+		
+			if (dda) {  // direct file acess
+				cmd.add("UploadFrom=disk");
+				cmd.add("Filename=" + insertFile.getAbsolutePath());
+				cmd.add("EndMessage");
+				conn.send(cmd);
+				//System.err.println("CHK ins: " + cmd);
+				
+			} else {
+				cmd.add("UploadFrom=direct");
+				cmd.add("DataLength=" + Long.toString(insertFile.length()));
+				cmd.add("Data");
+				//System.err.println("CHK ins: " + cmd);
+				conn.send(cmd, insertFile.length(), fis);
+			}
+
+		}
 		
 		waitFine();
 		
+		cmd = new LinkedList();
 
-		// TODO Auto-generated method stub
-		//throw new Error();
+		cmd.add("RemovePersistentRequest");
+		cmd.add("Global=true");
+		cmd.add("Identifier=" + this.getJobID());
+		cmd.add("EndMessage");
+		//System.err.println("CHK ins: " + cmd);
+		conn.send(cmd);
+
 	}
 
 	/* (non-Javadoc)
@@ -136,9 +159,9 @@ public class CHKFileInsertJob extends Job {
 		}
 		
 		// TODO Auto-generated method stub
-		System.out.println("CHK ins: " + message);
+		System.out.println("CHK ins not handled: " + message);
 		//super.incommingMessage(conn, message);
 	}
-
+	
 
 }

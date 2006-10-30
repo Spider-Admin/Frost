@@ -45,7 +45,7 @@ public class CHKFileRequestJob extends Job {
 	/* (non-Javadoc)
 	 * @see hyperocha.freenet.fcp.dispatcher.job.Job#runFCP2(hyperocha.freenet.fcp.dispatcher.Dispatcher)
 	 */
-	public void runFCP2(Dispatcher dispatcher) {
+	public void runFCP2(Dispatcher dispatcher, boolean resume) {
 		//System.out.println("runFCP2: 01");
 		FCPConnectionRunner conn = dispatcher.getDefaultFCPConnectionRunner(getRequiredNetworkType());
 
