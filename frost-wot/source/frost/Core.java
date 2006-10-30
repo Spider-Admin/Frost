@@ -157,11 +157,17 @@ public class Core implements FrostEventDispatcher  {
 
         Factory factory = new Factory();
         
-//        fcpDispatcher = new Dispatcher(factory);
+        fcpDispatcher = new Dispatcher(factory);
 //        
-//        Network net = new Network(fcpVersion, "frost"+fcpVersion, nodes, fcpDispatcher);
+        Network net = new Network(fcpVersion, "frost"+fcpVersion);
 //        
-//        factory.addNetwork(net);
+        int i;
+		for (i = 0; i < nodes.size(); i++) {
+			//net.addNode("idstring", "server:port", fcpDispatcher);
+            net.addNode("idstring-"+i, (String)nodes.get(i), fcpDispatcher);
+        }
+
+		factory.addNetwork(net);
 
         if (nodes.size() == 0) {
             MiscToolkit.getInstance().showMessage(
@@ -185,10 +191,13 @@ public class Core implements FrostEventDispatcher  {
             return true;
         }
         
-        // and go online (at lest one node noeeds a successful helo)
+        // and go online (at least one node noeeds a successful helo)
         fcpDispatcher.goOnline(true);
+        
+        fcpDispatcher.testPropertiesAllNodes(true);
 
         boolean runningOnTestnet = false;
+        // TODO
 //        try {
 //            List nodeInfo = FcpHandler.inst().getNodeInfo();
 //            if( nodeInfo != null ) {
@@ -227,6 +236,7 @@ public class Core implements FrostEventDispatcher  {
         }
 
         return true;
+
     }
 
 /*-----------*/
