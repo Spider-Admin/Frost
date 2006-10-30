@@ -22,11 +22,15 @@ package hyperocha.freenet.fcp.dispatcher;
 
 import hyperocha.freenet.fcp.FCPConnection;
 import hyperocha.freenet.fcp.FCPConnectionRunner;
+import hyperocha.freenet.fcp.FCPNode;
 import hyperocha.freenet.fcp.IIncoming;
+import hyperocha.freenet.fcp.Network;
 import hyperocha.freenet.fcp.dispatcher.job.Job;
+import hyperocha.freenet.fcp.dispatcher.job.UpdateNodePropertiesJob;
 
 import java.io.DataInputStream;
 import java.util.Hashtable;
+import java.util.List;
 
 import javax.swing.SwingUtilities;
 
@@ -41,6 +45,30 @@ public class Dispatcher implements IIncoming {
 	private Thread tickTackTicker = null;
 	
 	private Hashtable runningJobs = new Hashtable();
+	private Hashtable dummyJobs = new Hashtable();
+	
+	private class DummyJob extends Job {
+
+		private DummyJob(String id) {
+			super(-1, id);
+		}
+
+		public void incomingData(String id, Hashtable message, FCPConnection conn) {
+			// TODO: daten nach /dev/null
+			// das sollte eigentlich nicht passieren. die klasse sendet keine reqests. 
+			System.out.println("Dummy Daten??? " + id + " -> message: " + message);
+			throw new Error();
+		}
+
+		/* (non-Javadoc)
+		 * @see hyperocha.freenet.fcp.dispatcher.job.Job#incomingMessage(java.lang.String, java.util.Hashtable)
+		 */
+		public void incomingMessage(String id, Hashtable message) {
+			// TODO Auto-generated method stub
+			//System.out.println("Dummy message " + id + " -> message: " + message);
+		}
+		
+	}
 	
 	public Dispatcher(Factory f) {
 		this(f, false);
@@ -224,32 +252,59 @@ public class Dispatcher implements IIncoming {
 			throw new Error("DEBUG/FIX/TODO");
 			//return; 
 		}
+		
+		boolean resume = false;
+		if (dummyJobs.containsKey(job.getJobID())) {
+			dummyJobs.remove(job.getJobID());
+			resume = true;
+		}
 		registerJob(job);
-		job.run(this);
+		job.run(this, resume);
 		unregisterJob(job);
 	}
 	
-	public void registerJob(Job job) {
-		runningJobs.put(job.getJobID(), job);
+	private void registerJob(Job job) {
+		registerJob(job.getJobID(), job);
+	}
+	
+	public void registerJob(String id, Job job) {
+		runningJobs.put(id, job);
 	}
 	
 	private void unregisterJob(Job job) {
+		// FIXME: remove all ids assigned to this job
 		runningJobs.remove(job.getJobID());		
+	}
+	
+	private DummyJob getDummyJob(String id) {
+		DummyJob j = (DummyJob)dummyJobs.get(id);
+		if (j == null) {
+			j = new DummyJob(id);
+			dummyJobs.put(j.getJobID(), j);
+		}
+		return j;
 	}
 	
 	public void incomingMessage(String id, Hashtable message) {
 		//System.out.println("D Testinger id " + id + " -> message: " + message);
 		//Job j = getRunningJob((String)message.get("Identifier"));
 		Job j = getRunningJob(id);
-		if (j == null) { throw new Error("Hmmmm. this shouldnt happen."); }
+		if (j == null) { 
+			j = getDummyJob(id);
+		}
 		j.incomingMessage(id, message);
 	}
+	
+	
 
 	public void incomingData(String id, Hashtable message, FCPConnection conn) {
 		//System.out.println("D Testinger Data: " + message);
 		//Job j = getRunningJob((String)message.get("Identifier"));
 		Job j = getRunningJob(id);
-		if (j == null) { throw new Error("Hmmmm. this shouldnt happen."); }
+		if (j == null) { 
+			j = getDummyJob(id);
+		}
+		//if (j == null) { throw new Error("Hmmmm. this shouldnt happen."); }
 		j.incomingData(id, message, conn);
 //		getRunningJob((String)message.get("Identifier")).incommingData(conn, message);
 	}
@@ -261,5 +316,24 @@ public class Dispatcher implements IIncoming {
 	private Job getRunningJob(String id) {
 		//System.out.println("getRunningJob: " + id);
 		return (Job)runningJobs.get(id);
+	}
+
+	/**
+	 * @param wait true: dont return until all tests are done
+	 */
+	public void testPropertiesAllNodes(boolean wait) {
+		//get all nodes ids für Network.FCP2
+		List tnl = factory.getAllNodes(Network.FCP2);
+		if (tnl == null) {
+			//no fcp2 nodes, return
+			return;
+		}
+		
+		int i;
+		for (i = 0; i < tnl.size(); i++) {
+			UpdateNodePropertiesJob job = new UpdateNodePropertiesJob((FCPNode)tnl.get(i));
+			runJob(job);
+        }
+		
 	}
 }
