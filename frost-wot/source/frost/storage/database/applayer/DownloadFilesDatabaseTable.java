@@ -94,7 +94,7 @@ public class DownloadFilesDatabaseTable extends AbstractDatabaseTable {
             ps.setLong(ix++, dlItem.getDownloadFinishedTime());
             ps.setInt(ix++, dlItem.getRetries());
             ps.setLong(ix++, dlItem.getLastDownloadStopTime());
-            ps.setString(ix++, dlItem.getGqId());
+            ps.setString(ix++, dlItem.getGqIdentifier());
             ps.setString(ix++, dlItem.getFileListFileObject()==null?null:dlItem.getFileListFileObject().getSha());
             
             ps.executeUpdate();
