@@ -28,6 +28,7 @@ import org.joda.time.*;
 
 import frost.*;
 import frost.gui.*;
+import frost.gui.messagetreetable.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;
 import frost.util.*;
@@ -604,13 +605,16 @@ public class TOF {
                 updateThread = this;
             }
 
-            // lower thread prio to allow users to select and view messages while this thread runs
-            try { setPriority(getPriority() - 1); }
-            catch(Throwable t) { }
+//            try { setPriority(getPriority() - 1); }
+//            catch(Throwable t) { }
 
             final FrostMessageObject rootNode = new FrostMessageObject(true);
 
             boolean loadThreads = Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS);
+            
+            // update SortStateBean
+            MessageTreeTableSortStateBean.setThreaded(loadThreads);
+            
             if( loadThreads  ) {
                 ThreadedMessageRetrieval tmr = new ThreadedMessageRetrieval(rootNode);
                 long l1 = System.currentTimeMillis();

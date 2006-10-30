@@ -71,14 +71,14 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     protected Color secondBackgroundColor = new java.awt.Color(238,238,238);
 
     protected Border borderUnreadAndMarkedMsgsInThread = BorderFactory.createCompoundBorder(
-            BorderFactory.createMatteBorder(0, 2, 0, 0, Color.blue),   // outside
+            BorderFactory.createMatteBorder(0, 2, 0, 0, Color.blue),    // outside
             BorderFactory.createMatteBorder(0, 2, 0, 0, Color.green) ); // inside
     protected Border borderMarkedMsgsInThread = BorderFactory.createCompoundBorder(
-            BorderFactory.createEmptyBorder(0, 2, 0, 0),   // outside
+            BorderFactory.createEmptyBorder(0, 2, 0, 0),                // outside
             BorderFactory.createMatteBorder(0, 2, 0, 0, Color.green) ); // inside
     protected Border borderUnreadMsgsInThread = BorderFactory.createCompoundBorder(
-            BorderFactory.createMatteBorder(0, 2, 0, 0, Color.blue),   // outside
-            BorderFactory.createEmptyBorder(0, 2, 0, 0) ); // inside
+            BorderFactory.createMatteBorder(0, 2, 0, 0, Color.blue),    // outside
+            BorderFactory.createEmptyBorder(0, 2, 0, 0) );              // inside
     protected Border borderEmpty = BorderFactory.createEmptyBorder(0, 4, 0, 0);
 
     private StringCellRenderer stringCellRenderer = new StringCellRenderer();
@@ -121,6 +121,10 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         // install cell renderer
         setDefaultRenderer(String.class, stringCellRenderer);
         setDefaultRenderer(Boolean.class, booleanCellRenderer);
+        
+        // install table header renderer
+        MessageTreeTableHeader hdr = new MessageTreeTableHeader(this);
+        setTableHeader(hdr);
 
     	// No grid.
     	setShowGrid(false);
@@ -420,12 +424,12 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             
             TreeTableModelAdapter model = (TreeTableModelAdapter)MessageTreeTable.this.getModel();
             
-            Object o = model.getRow(row);
-            if( !(o instanceof FrostMessageObject) ) {
-                setFont(normalFont);
-                setForeground(Color.BLACK);
-                return this;
-            }
+//            Object o = model.getRow(row);
+//            if( !(o instanceof FrostMessageObject) ) {
+//                setFont(normalFont);
+//                setForeground(Color.BLACK);
+//                return this;
+//            }
             
             FrostMessageObject msg = (FrostMessageObject)model.getRow(row);
     
@@ -436,7 +440,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                 setFont(normalFont);
             }
             
-            // now set color
+            // now set foreground color
             if( msg.getRecipientName() != null && msg.getRecipientName().length() > 0) {
                 foreground = Color.RED;
             } else if (msg.containsAttachments()) {
@@ -473,16 +477,16 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         		if (isSelected) {
         		    dtcr.setTextSelectionColor(foreground);
         		    dtcr.setBackgroundSelectionColor(background);
-        		}
-        		else {
+        		} else {
         		    dtcr.setTextNonSelectionColor(foreground);
         		    dtcr.setBackgroundNonSelectionColor(background);
         		}
 
                 dtcr.setBorder(null);
                 if( ((FrostMessageObject)msg.getParent()).isRoot() ) {
-                    boolean hasUnread = msg.hasUnreadChilds();
-                    boolean hasMarked = msg.hasMarkedChilds();
+                    boolean[] hasUnreadOrMarked = msg.hasUnreadOrMarkedChilds();
+                    boolean hasUnread = hasUnreadOrMarked[0];
+                    boolean hasMarked = hasUnreadOrMarked[1];
                     if( hasUnread && !hasMarked ) {
                         // unread and no marked
                         dtcr.setBorder(borderUnreadMsgsInThread);
@@ -989,6 +993,18 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             tcm.addColumn(tcms[tableToModelIndex[x]]);
         }
         return true;
+    }
+    
+    /**
+     * Resort table based on settings in SortStateBean
+     */
+    public void resortTable() {
+        if( MessageTreeTableSortStateBean.isThreaded() ) {
+            return;
+        }
+        FrostMessageObject root = (FrostMessageObject) getTree().getModel().getRoot();
+        root.resortChildren();
+        ((DefaultTreeModel)getTree().getModel()).reload();
     }
     
     public void propertyChange(PropertyChangeEvent evt) {

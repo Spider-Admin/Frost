@@ -55,8 +55,14 @@ public class SentMessageDatabaseTable extends MessageDatabaseTable {
     protected String getFileForeignKeyConstraintName() {
         return "sentmsgs_fileatt_1";
     }
+    protected String getFileAttachmentsIndexName() {
+        return "sentmsgs_fileatt_ix1";
+    }
     protected String getBoardForeignKeyConstraintName() {
         return "sentmsgs_boardatt_1";
+    }
+    protected String getBoardAttachmentsIndexName() {
+        return "sentmsgs_boardatt_ix1";
     }
     protected String getFromnameIndexName() {
         return "SENTMSG_IX_FROM";

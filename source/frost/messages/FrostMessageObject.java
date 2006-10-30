@@ -27,6 +27,7 @@ import org.joda.time.*;
 
 import frost.*;
 import frost.boards.*;
+import frost.gui.messagetreetable.*;
 import frost.gui.model.*;
 import frost.storage.database.applayer.*;
 import frost.util.*;
@@ -162,32 +163,40 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         setHasFileAttachments(mof.getAttachmentsOfType(Attachment.FILE).size() > 0);
     }
     
-    public boolean hasUnreadChilds() {
+    /**
+     * This is called from within a cell renderer and should finish as fast as
+     * possible. So we check for UNREAD and MARKED here, and return an array with
+     * the results. 
+     * This way we evaluate the childs only one time.
+     * @return  boolean[2] where boolean[0] = hasUnread and boolean[1] = hasMarked
+     */
+    public boolean[] hasUnreadOrMarkedChilds() {
+        boolean[] result = new boolean[2];
+        result[0] = result[1] = false;
+        
         if( getChildCount() == 0 ) {
-            return false;
+            return result;
         }
+        
         Enumeration e = breadthFirstEnumeration();
         while(e.hasMoreElements()) {
             FrostMessageObject m = (FrostMessageObject)e.nextElement();
             if( m.isNew() ) {
-                return true;
+                result[0] = true;
+                // both true? finished.
+                if( result[1] == true ) {
+                    return result;
+                }
             }
-        }
-        return false;
-    }
-
-    public boolean hasMarkedChilds() {
-        if( getChildCount() == 0 ) {
-            return false;
-        }
-        Enumeration e = breadthFirstEnumeration();
-        while(e.hasMoreElements()) {
-            FrostMessageObject m = (FrostMessageObject)e.nextElement();
             if( m.isStarred() || m.isFlagged() ) {
-                return true;
+                result[1] = true;
+                // both true? finished.
+                if( result[0] == true ) {
+                    return result;
+                }
             }
         }
-        return false;
+        return result;
     }
 
     public FrostMessageObject getThreadRootMessage() {
@@ -462,6 +471,17 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
 //        }
 //        return s1;
 //    }
+    
+    public void resortChildren() {
+        if( children == null || children.size() <= 1 ) {
+            return;
+        }
+        // choose a comparator based on settings in SortStateBean
+        Comparator comparator = MessageTreeTableSortStateBean.getComparator(MessageTreeTableSortStateBean.getSortedColumn(), MessageTreeTableSortStateBean.isAscending());
+        if( comparator != null ) {
+            Collections.sort(children, comparator);
+        }
+    }
 
     public void add(MutableTreeNode n) {
         add(n, true);
@@ -472,8 +492,6 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
      */
     public void add(MutableTreeNode nn, boolean silent) {
         // add sorted
-        // FIXME: its more performant to sort all childs after the tree is built when creating the whole tree the first time (load from database)
-        // -> from Board.java:         Collections.sort(children);
         DefaultMutableTreeNode n = (DefaultMutableTreeNode)nn; 
         int[] ixs;
         
@@ -481,16 +499,29 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
             super.add(n);
             ixs = new int[] { 0 };
         } else {
-            // sort first msg of a thread (child of root) descending (newest first),
-            // but inside a thread sort siblings ascending (oldest first). (thunderbird/outlook do it this way)
+            // If threaded:
+            //   sort first msg of a thread (child of root) descending (newest first),
+            //   but inside a thread sort siblings ascending (oldest first). (thunderbird/outlook do it this way)
+            // If not threaded:
+            //   sort as configured in SortStateBean
             int insertPoint;
-            if( isRoot() ) {
-                // child of root, sort descending
-                insertPoint = Collections.binarySearch(children, n, dateComparatorDescending);
+            if( MessageTreeTableSortStateBean.isThreaded() ) {
+                if( isRoot() ) {
+                    // child of root, sort descending
+                    insertPoint = Collections.binarySearch(children, n, MessageTreeTableSortStateBean.dateComparatorDescending);
+                } else {
+                    // inside a thread, sort ascending
+                    insertPoint = Collections.binarySearch(children, n, MessageTreeTableSortStateBean.dateComparatorAscending);
+                }
             } else {
-                // inside a thread, sort ascending
-                insertPoint = Collections.binarySearch(children, n, dateComparatorAscending);
+                Comparator comparator = MessageTreeTableSortStateBean.getComparator(MessageTreeTableSortStateBean.getSortedColumn(), MessageTreeTableSortStateBean.isAscending());
+                if( comparator != null ) {
+                    insertPoint = Collections.binarySearch(children, n, comparator);
+                } else {
+                    insertPoint = 0;
+                }
             }
+            
             if( insertPoint < 0 ) {
                 insertPoint++;
                 insertPoint *= -1;
@@ -519,66 +550,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
 //        FrostMessageObject mo = (FrostMessageObject)n;
 //        System.out.println("ADDED: "+dbg1(mo)+", TO: "+dbg1(this)+", IX="+ixs[0]+", silent="+silent);
     }
-  
-    // FIXME: implement sorting for flat view and maybe for threaded view too!
-//    SubjectComparator subjectComparator = new SubjectComparator();
 
-    DateComparator dateComparatorAscending = new DateComparator(true);
-    DateComparator dateComparatorDescending = new DateComparator(false);
-    
-    class DateComparator implements Comparator {
-        
-        private int retvalGreater;
-        private int retvalSmaller;
-        
-        public DateComparator(boolean ascending) {
-            if( ascending ) {
-                // oldest first
-                retvalGreater = +1;
-                retvalSmaller = -1;
-            } else {
-                // newest first
-                retvalGreater = -1;
-                retvalSmaller = +1;
-            }
-        }
-        
-        public int compare(Object o1, Object o2) {
-            FrostMessageObject t1 = (FrostMessageObject)o1; 
-            FrostMessageObject t2 = (FrostMessageObject)o2;
-            
-            long l1 = t1.getDateAndTime().getMillis();
-            long l2 = t2.getDateAndTime().getMillis();
-            if( l1 > l2 ) {
-                return retvalGreater;
-            }
-            if( l1 < l2 ) {
-                return retvalSmaller;
-            }
-            return 0;
-        }
-    }
-    
-    class SubjectComparator implements Comparator {
-        public int compare(Object arg0, Object arg1) {
-            FrostMessageObject t1 = (FrostMessageObject)arg0; 
-            FrostMessageObject t2 = (FrostMessageObject)arg1;
-            String s1 = t1.getSubject();
-            String s2 = t2.getSubject();
-            if( s1 == null && s2 == null ) {
-                return 0;
-            }
-            if( s1 == null && s2 != null ) {
-                return -1;
-            }
-            if( s1 != null && s2 == null ) {
-                return 1;
-            }
-            int r = s1.toLowerCase().compareTo(s2.toLowerCase());
-            return r;
-        }
-    }
-    
     public String toString() {
         return getSubject();
     }
