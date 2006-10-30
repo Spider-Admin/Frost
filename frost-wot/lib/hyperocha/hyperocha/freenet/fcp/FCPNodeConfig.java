@@ -187,7 +187,7 @@ public class FCPNodeConfig implements IStorageObject {
 	/**
 	 * @param haveDDA The haveDDA to set.
 	 */
-	protected void setDDA(boolean haveDDA) {
+	public void setDDA(boolean haveDDA) {
 		this.useDDA = haveDDA;
 	}
 

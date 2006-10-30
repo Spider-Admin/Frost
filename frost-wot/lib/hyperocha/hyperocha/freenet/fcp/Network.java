@@ -266,4 +266,8 @@ public class Network implements IStorageObject {
         }
         return node;
 	}
+
+	public Collection getNodes() {
+		return nodeList.values();
+	}
 }

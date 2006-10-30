@@ -40,7 +40,7 @@ import javax.swing.SwingUtilities;
  */
 public class FCPNode {
 	
-	private static final String CLIENTTOKEN = "hyperocha test";
+	//private static final String CLIENTTOKEN = "hyperocha test";
 	
 	private FCPIOConnectionErrorHandler ioErrorHandler = null;
 	private FCPNodeConfig nodeConfig;
@@ -123,6 +123,14 @@ public class FCPNode {
 		if (defaultConn == null) {
 			defaultConn = new FCPConnectionRunner(this, nodeConfig.getID(), callBack);
 			defaultConn.start();
+			List cmd = new LinkedList();
+			cmd.add("WatchGlobal");
+			cmd.add("Enabled=true");
+			cmd.add("VerbosityMask=-1");
+			cmd.add("EndMessage");
+			cmd.add("ListPersistentRequests");
+			cmd.add("EndMessage");
+			defaultConn.send(cmd);
 		}
 		//System.out.println("getDefaultFCPConnection" + defaultConn);
 		return defaultConn;
@@ -256,63 +264,63 @@ public class FCPNode {
 		return key;
 	}
 
-	public boolean testDDA() {
-		return testDDA(FCPUtil.getNewConnectionId("InsertDDA-Test-") , CLIENTTOKEN);
-	}
-	
-	public boolean testDDA(String identifier, String clientoken) {
-		File f = FCPTests.createTestFile();
-		return testDDA(identifier, clientoken, f);
-	}
-	
-	public boolean testDDA(String identifier, String clientoken, File testfile) {
-
-		List cmd = new LinkedList();
-		cmd.add("ClientPut");
-		cmd.add("URI=CHK@");
-		cmd.add("Identifier=" + identifier); 
-		cmd.add("Verbosity=0");
-		cmd.add("MaxRetries=1");      // only one try, the node accepts the filename or net
-		cmd.add("PriorityClass=0");   // today, please ;) 
-		cmd.add("GetCHKOnly=true");   // calculate the chk from 1k (the default testfile)
-		cmd.add("Global=false");
-		cmd.add("Persistance=" + Persistance.CONNECTION);
-		cmd.add("DontCompress=true");
-		cmd.add("ClientToken=" + clientoken); 
-		cmd.add("UploadFrom=disk");
-		cmd.add("Filename=w" + testfile.getAbsolutePath());
-		cmd.add("EndMessage");
-		
-		
-		/* we need only to know that the node accept the filename,
-		 * but we run the hole one
-		 * it takes maybe more time and give more stress for the node to cancel the job
-		 * calculate the key from the 1k testfile  
-		 */
-		
-		FCPConnection conn = null; //node.getDefaultFCPConnection();
-		boolean repeat = true;
-		Hashtable result = null;
-		try { 
-			conn = getNewFCPConnection(null, "");
-			conn.start(cmd);
-			
-			while (repeat) {
-				result = conn.readEndMessage();
-				System.out.println("DDA-Test loop: " + result);
-				repeat = ("URIGenerated").equalsIgnoreCase((String)(result.get(FCPConnection.MESSAGENAME)));
-			}
-			
-			if (("PutSuccessful").equalsIgnoreCase((String)(result.get(FCPConnection.MESSAGENAME)))) {
-				conn.close();
-				return true; // the only one case for return ok.
-			}
-			//System.out.println("Result:" + result.get("judl-reason"));
-		} catch (Throwable ex) {		
-		}
-		conn.close();
-		return false;
-	}
+//	public boolean testDDA() {
+//		return testDDA(FCPUtil.getNewConnectionId("InsertDDA-Test-") , CLIENTTOKEN);
+//	}
+//	
+//	public boolean testDDA(String identifier, String clientoken) {
+//		File f = FCPTests.createTestFile();
+//		return testDDA(identifier, clientoken, f);
+//	}
+//	
+//	public boolean testDDA(String identifier, String clientoken, File testfile) {
+//
+//		List cmd = new LinkedList();
+//		cmd.add("ClientPut");
+//		cmd.add("URI=CHK@");
+//		cmd.add("Identifier=" + identifier); 
+//		cmd.add("Verbosity=0");
+//		cmd.add("MaxRetries=1");      // only one try, the node accepts the filename or net
+//		cmd.add("PriorityClass=0");   // today, please ;) 
+//		cmd.add("GetCHKOnly=true");   // calculate the chk from 1k (the default testfile)
+//		cmd.add("Global=false");
+//		cmd.add("Persistance=" + Persistance.CONNECTION);
+//		cmd.add("DontCompress=true");
+//		cmd.add("ClientToken=" + clientoken); 
+//		cmd.add("UploadFrom=disk");
+//		cmd.add("Filename=w" + testfile.getAbsolutePath());
+//		cmd.add("EndMessage");
+//		
+//		
+//		/* we need only to know that the node accept the filename,
+//		 * but we run the hole one
+//		 * it takes maybe more time and give more stress for the node to cancel the job
+//		 * calculate the key from the 1k testfile  
+//		 */
+//		
+//		FCPConnection conn = null; //node.getDefaultFCPConnection();
+//		boolean repeat = true;
+//		Hashtable result = null;
+//		try { 
+//			conn = getNewFCPConnection(null, "");
+//			conn.start(cmd);
+//			
+//			while (repeat) {
+//				result = conn.readEndMessage();
+//				System.out.println("DDA-Test loop: " + result);
+//				repeat = ("URIGenerated").equalsIgnoreCase((String)(result.get(FCPConnection.MESSAGENAME)));
+//			}
+//			
+//			if (("PutSuccessful").equalsIgnoreCase((String)(result.get(FCPConnection.MESSAGENAME)))) {
+//				conn.close();
+//				return true; // the only one case for return ok.
+//			}
+//			//System.out.println("Result:" + result.get("judl-reason"));
+//		} catch (Throwable ex) {		
+//		}
+//		conn.close();
+//		return false;
+//	}
 	
 	public FCPVersion getFCPVersion() {
 		FCPVersion result = null;
@@ -356,7 +364,7 @@ public class FCPNode {
 	/**
 	 * @return the nodeConfig
 	 */
-	protected FCPNodeConfig getNodeConfig() {
+	public FCPNodeConfig getNodeConfig() {
 		return nodeConfig;
 	}
 }

@@ -31,6 +31,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author sa
@@ -176,7 +178,6 @@ public class Factory implements IStorageObject {
 //		Network net;
 		for (Enumeration e = networks.elements() ; e.hasMoreElements() ;) {
 			((Network)(e.nextElement())).goOnline();
-
 	     }
 //		for (i=0; i < netCount; i++) {
 //			((Network)(networks.get(i))).goOnline();
@@ -209,5 +210,35 @@ public class Factory implements IStorageObject {
 
 	     }
 		return false;
+	}
+
+	public List getAllNodes(int networktype) {
+		List l = new LinkedList();
+		List n = getNetworks(networktype); 
+		if (n == null) {
+			// no networks of this type aviable, return nix
+			return null;
+		}
+		
+		int i;
+		for (i = 0; i < n.size(); i++) {
+			l.addAll(((Network)n.get(i)).getNodes());
+        }
+		return l;
+	}
+	
+	private List getNetworks(int networktype) {
+		List l = new LinkedList();
+		for (Enumeration e = networks.elements() ; e.hasMoreElements() ;) {
+			Network n = (Network)(e.nextElement());
+			if (n.isType(networktype)) {
+				l.add(n);
+			}
+		}
+		
+		if (l.isEmpty()) {
+			return null;
+		}
+		return l;
 	}
 }

@@ -105,7 +105,7 @@ public abstract class Job implements IIncoming {
 		}		
 	}
 	
-	public void run(Dispatcher dispatcher) {
+	public void run(Dispatcher dispatcher, boolean resume) {
 		if (status != STATUS_PREPARED) { throw new Error("FIXME: never run an unprepared job!"); }
 		status = STATUS_RUNNING;
         
@@ -117,22 +117,22 @@ public abstract class Job implements IIncoming {
         }
 
         // don't die for any reason
-        try {
+        //try {
     		switch (requiredNetworkType) {
-    			case Network.FCP1: runFCP1(dispatcher); break;
-    			case Network.FCP2: runFCP2(dispatcher); break;
-    			case Network.SIMULATION: runSimulation(dispatcher); break;
+    			case Network.FCP1: runFCP1(dispatcher, resume); break;
+    			case Network.FCP2: runFCP2(dispatcher, resume); break;
+    			case Network.SIMULATION: runSimulation(dispatcher, resume); break;
     			default: throw (new Error("Unsupported network type or missing implementation."));
     		}
     		if ((status != STATUS_ERROR) && (lastError == null)) {
     			status = STATUS_DONE;
     		}
-        } catch(Throwable t) {
-            // TODO: log error?
-            status = STATUS_ERROR;
-            lastError = t;
-        }
-        
+//        } catch(Throwable t) {
+//            // TODO: log error?
+//            status = STATUS_ERROR;
+//            lastError = t;
+//        }
+//        
 		jobfinished = System.currentTimeMillis();
         try {
             jobFinished(); // notify subclasses that job finished
@@ -141,16 +141,16 @@ public abstract class Job implements IIncoming {
         }
 	}
 	
-	public void runFCP1(Dispatcher dispatcher) {
-		throw (new Error("Unsupported network type or missing implementation."));
+	public void runFCP1(Dispatcher dispatcher, boolean resume) {
+		throw (new Error("Unsupported network type or missing implementation." + this));
 	}
 
-	public void runFCP2(Dispatcher dispatcher) {
-		throw (new Error("Unsupported network type or missing implementation."));
+	public void runFCP2(Dispatcher dispatcher, boolean resume) {
+		throw (new Error("Unsupported network type or missing implementation." + this));
 	}
 	
-	private void runSimulation(Dispatcher dispatcher) {
-		throw (new Error("Unsupported network type or missing implementation."));
+	private void runSimulation(Dispatcher dispatcher, boolean resume) {
+		throw (new Error("Unsupported network type or missing implementation." + this));
 	}
 	
 //	public void start() {
@@ -165,7 +165,14 @@ public abstract class Job implements IIncoming {
 		status = STATUS_STOPPING;
 	}
 
-	public abstract boolean doPrepare(); 
+	
+	/**
+	 * overwrite this
+	 * @return
+	 */
+	public boolean doPrepare() {
+		return true;
+	}
 		
 //	public abstract void cancel();
 //	public abstract void suspend();
@@ -184,12 +191,8 @@ public abstract class Job implements IIncoming {
 		synchronized(waitObject) {
 			while ((status == STATUS_RUNNING) && (lastError == null)) {
 				try {
-					//Thread.yield();
-					//Thread.sleep(347);
 					waitObject.wait();
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
 				}		
 			}
 		}

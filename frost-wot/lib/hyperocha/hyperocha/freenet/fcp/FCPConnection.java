@@ -310,8 +310,15 @@ public class FCPConnection {
             	int nt = rawConn.getNetworkType();
 
         		switch (nt) {
-        			case Network.FCP1: tmpID = connectionID; break;
-        			case Network.FCP2: tmpID = (String)result.get("Identifier"); break;
+        			case Network.FCP1:
+        				tmpID = connectionID;
+        				break;
+        			case Network.FCP2:
+        				tmpID = (String)result.get("Identifier");
+        				if (tmpID == null) {
+        					tmpID = connectionID;
+        				}
+        				break;
         			default : throw new Error("Unsupported network type: " + nt);
         		}
         		
@@ -332,6 +339,9 @@ public class FCPConnection {
                         break;
         			case Network.FCP2: 
                         tmpID = (String)result.get("Identifier"); 
+						if (tmpID == null) {
+							tmpID = connectionID;
+						}
                         break;
         			default : throw new Error("Unsupported network type: " + nt);
         		}
