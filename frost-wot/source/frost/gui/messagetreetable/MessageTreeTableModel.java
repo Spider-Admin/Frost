@@ -61,8 +61,6 @@ import frost.util.gui.translation.*;
  */
 public class MessageTreeTableModel extends DefaultTreeModel implements TreeTableModel, LanguageListener {
 
-//    private Logger logger = Logger.getLogger(MessageTreeTableModel.class.getName());
-
     private Language language = null;
 
     protected final static String columnNames[] = new String[6];

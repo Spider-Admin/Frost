@@ -30,9 +30,6 @@ import frost.identities.*;
 import frost.messages.*;
 import frost.storage.database.*;
 
-// TODO: implement searching for messages without assigned boards (deleted boards)
-// TODO: prepare constraints for CHK keys and/or message ID
-
 public class MessageDatabaseTable extends AbstractDatabaseTable {
 
     private static Logger logger = Logger.getLogger(MessageDatabaseTable.class.getName());
@@ -73,11 +70,17 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
     protected String getFileForeignKeyConstraintName() {
         return "msgs_fileatt_1";
     }
+    protected String getFileAttachmentsIndexName() {
+        return "msgs_fileatt_ix1";
+    }
     protected String getBoardForeignKeyConstraintName() {
         return "msgs_boardatt_1";
     }
     protected String getBoardConstraint() {
         return "CONSTRAINT msgs_boardconst_1 FOREIGN KEY (board) REFERENCES BOARDS(primkey) ON DELETE CASCADE,";
+    }
+    protected String getBoardAttachmentsIndexName() {
+        return "msgs_boardatt_ix1";
     }
 
     private final String SQL_DDL_MESSAGES =
@@ -123,7 +126,6 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
     private final String SQL_DDL_MESSAGES_INDEX_DATE =
         "CREATE INDEX "+getDateIndexName()+" ON "+getMessageTableName()+" ( msgdatetime )";
 
-    // FIXME: add an index for msgref?
     private final String SQL_DDL_FILEATTACHMENTS =
         "CREATE TABLE IF NOT EXISTS "+getFileAttachmentsTableName()+" ("+
         "msgref BIGINT NOT NULL,"+
@@ -132,7 +134,9 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         "filekey  VARCHAR,"+
         "CONSTRAINT "+getFileForeignKeyConstraintName()+" FOREIGN KEY (msgref) REFERENCES "+getMessageTableName()+"(primkey) ON DELETE CASCADE"+
         ")";
-    // FIXME: add an index for msgref?
+    private final String SQL_DDL_FILEATT_INDEX =
+        "CREATE INDEX "+getFileAttachmentsIndexName()+" ON "+getFileAttachmentsTableName()+" ( msgref )";
+
     private final String SQL_DDL_BOARDATTACHMENTS =
         "CREATE TABLE IF NOT EXISTS "+getBoardAttachmentsTableName()+" ("+
         "msgref BIGINT NOT NULL,"+
@@ -142,6 +146,8 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         "boarddescription VARCHAR,"+
         "CONSTRAINT "+getBoardForeignKeyConstraintName()+" FOREIGN KEY (msgref) REFERENCES "+getMessageTableName()+"(primkey) ON DELETE CASCADE"+
         ")";
+    private final String SQL_DDL_BOARDATT_INDEX =
+        "CREATE INDEX "+getBoardAttachmentsIndexName()+" ON "+getBoardAttachmentsTableName()+" ( msgref )";
 
     private final String SQL_DDL_CONTENT =
         "CREATE TABLE IF NOT EXISTS "+getContentTableName()+" ("+
@@ -151,7 +157,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         "CONSTRAINT "+getContentUniqueConstraintName()+" UNIQUE(msgref)"+
         ")";
     private final String SQL_DDL_CONTENT_INDEX =
-        "CREATE INDEX "+getContentIndexName()+" ON "+getContentTableName()+" ( msgref )";
+        "CREATE UNIQUE INDEX "+getContentIndexName()+" ON "+getContentTableName()+" ( msgref )";
 
     protected String getContentTableName() {
         return "MESSAGECONTENTS";
@@ -167,7 +173,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
     }
 
     public List getTableDDL() {
-        ArrayList lst = new ArrayList(7);
+        ArrayList lst = new ArrayList(11);
         lst.add(SQL_DDL_MESSAGES);
         lst.add(SQL_DDL_FILEATTACHMENTS);
         lst.add(SQL_DDL_BOARDATTACHMENTS);
@@ -175,6 +181,8 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         lst.add(SQL_DDL_MESSAGES_INDEX_BOARD);
         lst.add(SQL_DDL_MESSAGES_INDEX_FROM);
         lst.add(SQL_DDL_MESSAGES_INDEX_DATE);
+        lst.add(SQL_DDL_FILEATT_INDEX);
+        lst.add(SQL_DDL_BOARDATT_INDEX);
         lst.add(SQL_DDL_CONTENT);
         lst.add(SQL_DDL_CONTENT_INDEX);
         return lst;
@@ -238,7 +246,6 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         ps.setInt(i++, mo.getIdLinePos()); // idlinepos
         ps.setInt(i++, mo.getIdLineLen()); // idlinelen
         
-        // sync to allow no updates until we got the generated identity
         int inserted = ps.executeUpdate();
         ps.close();
 

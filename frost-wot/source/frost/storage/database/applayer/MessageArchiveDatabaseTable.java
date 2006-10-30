@@ -34,6 +34,8 @@ import frost.storage.database.*;
  * Note: boards are stored in lowercase format always!
  */
 public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
+    
+//  TODO: implement searching for messages without assigned boards (deleted boards)
 
     private static Logger logger = Logger.getLogger(MessageArchiveDatabaseTable.class.getName());
 
@@ -67,11 +69,12 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
         "CONSTRAINT msgarc_unique UNIQUE(messageid)"+ // multiple null allowed
         ")";
     
-    // this index is really important because we select messageids
-    private final String SQL_DDL_MESSAGES_INDEX_MSGID =
-        "CREATE UNIQUE INDEX msgarc_ix1 ON MESSAGEARCHIVE ( messageid )";
+//    private final String SQL_DDL_MESSAGES_INDEX_MSGID =
+//        "CREATE UNIQUE INDEX msgarc_ix1 ON MESSAGEARCHIVE ( messageid )";
     private final String SQL_DDL_MESSAGES_INDEX_BOARD =
         "CREATE INDEX msgarc_ix2 ON MESSAGEARCHIVE ( board )";
+    private final String SQL_DDL_MESSAGES_INDEX_DATE =
+        "CREATE INDEX msgarc_ix3 ON MESSAGEARCHIVE ( msgdatetime )";
 
     private final String SQL_DDL_FILEATTACHMENTS =
         "CREATE TABLE IF NOT EXISTS MESSAGEARCHIVEFILEATTACHMENTS ("+
@@ -81,6 +84,8 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
         "filekey  VARCHAR,"+
         "CONSTRAINT msgarcfa_fk FOREIGN KEY (msgref) REFERENCES MESSAGEARCHIVE(primkey) ON DELETE CASCADE"+
         ")";
+    private final String SQL_DDL_FILEATT_INDEX =
+        "CREATE INDEX msgarcfa_ix ON MESSAGEARCHIVEFILEATTACHMENTS ( msgref )";
 
     private final String SQL_DDL_BOARDATTACHMENTS =
         "CREATE TABLE IF NOT EXISTS MESSAGEARCHIVEBOARDATTACHMENTS ("+
@@ -91,6 +96,8 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
         "boarddescription VARCHAR,"+
         "CONSTRAINT msgarcba_fk FOREIGN KEY (msgref) REFERENCES MESSAGEARCHIVE(primkey) ON DELETE CASCADE"+
         ")";
+    private final String SQL_DDL_BOARDATT_INDEX =
+        "CREATE INDEX msgarcba_ix ON MESSAGEARCHIVEBOARDATTACHMENTS ( msgref )";
 
     private final String SQL_DDL_CONTENT =
         "CREATE TABLE IF NOT EXISTS MESSAGEARCHIVECONTENTS ("+
@@ -100,17 +107,19 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
         "CONSTRAINT msgarcc_unique UNIQUE(msgref)"+
         ")";
     private final String SQL_DDL_CONTENT_INDEX =
-        "CREATE INDEX msgarcc_ix ON MESSAGEARCHIVECONTENTS ( msgref )";
+        "CREATE UNIQUE INDEX msgarcc_ix ON MESSAGEARCHIVECONTENTS ( msgref )";
 
     public List getTableDDL() {
-        ArrayList lst = new ArrayList(7);
+        ArrayList lst = new ArrayList(9);
         lst.add(SQL_DDL_MESSAGES);
         lst.add(SQL_DDL_FILEATTACHMENTS);
         lst.add(SQL_DDL_BOARDATTACHMENTS);
-        lst.add(SQL_DDL_MESSAGES_INDEX_MSGID);
+        lst.add(SQL_DDL_MESSAGES_INDEX_DATE);
         lst.add(SQL_DDL_MESSAGES_INDEX_BOARD);
         lst.add(SQL_DDL_CONTENT);
         lst.add(SQL_DDL_CONTENT_INDEX);
+        lst.add(SQL_DDL_BOARDATT_INDEX);
+        lst.add(SQL_DDL_FILEATT_INDEX);
         return lst;
     }
       
