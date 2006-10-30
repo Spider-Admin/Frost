@@ -167,7 +167,7 @@ public class FcpFactory {
             con = new FcpConnection(selectedNode);
         } catch (IOException e) {
             // for now, remove on the first failure.
-            // FIXME: maybe we should give the node few chances?
+            // TODO: maybe we should give the node few chances?
             // also, should we remove it from the settings (i.e. forever)?
 //            delegateRemove(selectedNode);
             throw e;
