@@ -52,54 +52,11 @@ public class MessageTreeTableSortStateBean {
     }
     
     public static Comparator getComparator(int column, boolean ascending) {
-        Comparator comparator;
-        switch(column) {
-        case 0:  // flagged
-            if( ascending ) {
-                comparator = flaggedComparatorAscending;
-            } else {
-                comparator = flaggedComparatorDescending;
-            }
-            break;
-        case 1:  // starred
-            if( ascending ) {
-                comparator = starredComparatorAscending;
-            } else {
-                comparator = starredComparatorDescending;
-            }
-            break;
-        case 2:  // subject
-            if( ascending ) {
-                comparator = subjectComparatorAscending;
-            } else {
-                comparator = subjectComparatorDescending;
-            }
-            break;
-        case 3:  // from
-            if( ascending ) {
-                comparator = fromComparatorAscending;
-            } else {
-                comparator = fromComparatorDescending;
-            }
-            break;
-        case 4:  // trust state
-            if( ascending ) {
-                comparator = trustStateComparatorAscending;
-            } else {
-                comparator = trustStateComparatorDescending;
-            }
-            break;
-        case 5:  // date+time
-            if( ascending ) {
-                comparator = dateComparatorAscending;
-            } else {
-                comparator = dateComparatorDescending;
-            }
-            break;
-        default:
-            return null;
+        if( ascending ) {
+            return ascendingComparators[column];
+        } else {
+            return descendingComparators[column];
         }
-        return comparator;
     }
     
     // sorting for flat view
@@ -120,6 +77,23 @@ public class MessageTreeTableSortStateBean {
 
     public static DateComparator dateComparatorAscending = new DateComparator(true);
     public static DateComparator dateComparatorDescending = new DateComparator(false);
+    
+    private static Comparator[] ascendingComparators = new Comparator[] {
+        flaggedComparatorAscending,
+        starredComparatorAscending,
+        subjectComparatorAscending,
+        fromComparatorAscending,
+        trustStateComparatorAscending,
+        dateComparatorAscending
+    };
+    private static Comparator[] descendingComparators = new Comparator[] {
+        flaggedComparatorDescending,
+        starredComparatorDescending,
+        subjectComparatorDescending,
+        fromComparatorDescending,
+        trustStateComparatorDescending,
+        dateComparatorDescending
+    };
     
     private static class DateComparator implements Comparator {
         private int retvalGreater;
