@@ -61,7 +61,7 @@ public class KSKMessageRequestJob extends Job {
 		return true;
 	}
 
-	public void runFCP2(Dispatcher dispatcher) {
+	public void runFCP2(Dispatcher dispatcher, boolean resume) {
 		
 		FCPConnectionRunner conn = dispatcher.getDefaultFCPConnectionRunner(getRequiredNetworkType());
 		
@@ -140,7 +140,7 @@ public class KSKMessageRequestJob extends Job {
 	/* (non-Javadoc)
 	 * @see hyperocha.freenet.fcp.dispatcher.job.Job#runFCP1(hyperocha.freenet.fcp.dispatcher.Dispatcher)
 	 */
-	public void runFCP1(Dispatcher dispatcher) {
+	public void runFCP1(Dispatcher dispatcher, boolean resume) {
 		// TODO Auto-generated method stub
 		FCPConnectionRunner conn = dispatcher.getNewFCPConnectionRunner(getRequiredNetworkType(), getJobID());
 

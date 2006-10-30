@@ -1,4 +1,21 @@
 /**
+ *   This file is part of JHyperochaFCPLib.
+ *   
+ *   Copyright (C) 2006  Hyperocha Project <saces@users.sourceforge.net>
+ * 
+ * JHyperochaFCPLib is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * JHyperochaFCPLib is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with JHyperochaFCPLib; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  * 
  */
 package hyperocha.freenet.fcp.dispatcher.job;
@@ -54,7 +71,7 @@ public class KSKMessageInsertJob extends Job {
 	/* (non-Javadoc)
 	 * @see hyperocha.freenet.fcp.dispatcher.job.Job#runFCP2(hyperocha.freenet.fcp.dispatcher.Dispatcher)
 	 */
-	public void runFCP2(Dispatcher dispatcher) {
+	public void runFCP2(Dispatcher dispatcher, boolean resume) {
 		
 		FCPConnectionRunner conn = dispatcher.getDefaultFCPConnectionRunner(getRequiredNetworkType());
 		
@@ -103,7 +120,31 @@ public class KSKMessageInsertJob extends Job {
 	 * @see hyperocha.freenet.fcp.dispatcher.job.Job#incommingMessage(hyperocha.freenet.fcp.FCPConnection, java.util.Hashtable)
 	 */
 	public void incomingMessage(String id, Hashtable message) {
-		// TODO Auto-generated method stub
-		System.err.println("KSK ins: " + message);
+		if ("URIGenerated".equals(message.get(FCPConnection.MESSAGENAME))) {
+			//trash the uri-generated
+			return;
+		}
+		
+		if ("PutFetchable".equals(message.get(FCPConnection.MESSAGENAME))) {
+			targetKey = FreenetKey.KSKfromString((String)message.get("URI"));
+			//System.out.println("CHK ins PF: " + message);
+			// if fast mode setSuccess();
+			return;
+		}
+		
+		if ("PutSuccessful".equals(message.get(FCPConnection.MESSAGENAME))) {
+			//System.out.println("CHK ins PS: " + message);
+			targetKey = FreenetKey.KSKfromString((String)message.get("URI"));
+			setSuccess();
+			return;
+		}
+		
+		if ("PutFailed".equals(message.get(FCPConnection.MESSAGENAME))) {
+			targetKey = FreenetKey.CHKfromString((String)message.get("URI"));
+			setError((String)message.get("ShortCodeDescription"));
+			return;
+		}
+
+		System.err.println("KSK ins not handled: " + message);
 	}
 }
