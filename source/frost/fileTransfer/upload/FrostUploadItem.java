@@ -20,12 +20,13 @@ package frost.fileTransfer.upload;
 
 import java.io.*;
 
+import frost.fcp.*;
 import frost.fileTransfer.sharing.*;
 import frost.util.*;
 import frost.util.model.*;
 
 /**
- * Represents a manually added upload.
+ * Represents a file to upload.
  */
 public class FrostUploadItem extends ModelItem {
 
@@ -60,6 +61,8 @@ public class FrostUploadItem extends ModelItem {
 
     /**
      * Dummy to use for uploads of attachments. Is never saved.
+     * Attachment uploads must never be persistent on 0.7.
+     * We indicate this with gqIdentifier == null
      */
     public FrostUploadItem() {
     }
@@ -73,14 +76,13 @@ public class FrostUploadItem extends ModelItem {
         file = newFile;
         fileSize = file.length();
         
-        // FIXME: gqid only for 0.7
-        gqIdentifier = file.getName().replace(' ', '_') + Mixed.createUniqueId();
+        gqIdentifier = buildGqIdentifier(file.getName());
         
         state = STATE_WAITING;
     }
 
     /**
-     * Constructor used by loadUploadTable
+     * Constructor used by loadUploadTable.
      */
     public FrostUploadItem(
             File newFile,
@@ -242,5 +244,22 @@ public class FrostUploadItem extends ModelItem {
     
     public void fireValueChanged() {
         super.fireChange();
+    }
+    
+    /**
+     * Builds a global queue identifier if running on 0.7.
+     * Returns null on 0.5.
+     */
+    private String buildGqIdentifier(String filename) {
+        if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) {
+            return new StringBuffer()
+                .append("Frost-")
+                .append(filename.replace(' ', '_'))
+                .append("-")
+                .append(Mixed.createUniqueId())
+                .toString();
+        } else {
+            return null;
+        }
     }
 }

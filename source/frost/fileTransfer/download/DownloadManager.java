@@ -56,6 +56,41 @@ public class DownloadManager {
 		}
 		return statusPanel;
 	}
+    
+    /**
+     * Checks if a file with this name is already in model, and returns
+     * a new name if needed.
+     */
+    public String ensureUniqueFilename(String filename) {
+        
+        String newFilename = filename;
+        int count = 2;
+        
+        while(true) {
+            boolean loopAgain = false;
+            for(int x=0; x < getModel().getItemCount(); x++) {
+                FrostDownloadItem dlItem = (FrostDownloadItem) getModel().getItemAt(x);
+                if( dlItem.getFileName().equalsIgnoreCase(newFilename) ) {
+                    loopAgain = true;
+                    // we have a duplicate filename
+                    // build new filename like "filename_2.ext"
+                    int pos = filename.lastIndexOf('.'); 
+                    if( pos > 0 ) {
+                        String beforeDot = filename.substring(0, pos);
+                        String afterDot = filename.substring(pos);
+                        newFilename = beforeDot + "_" + (count++) + afterDot;
+                    } else {
+                        // no '.' in filename
+                        newFilename = filename + "_" + (count++);
+                    }
+                }
+            }
+            if( !loopAgain ) {
+                break;
+            }
+        }
+        return newFilename;
+    }
 
 	public DownloadPanel getPanel() {
 		if (panel == null) {
