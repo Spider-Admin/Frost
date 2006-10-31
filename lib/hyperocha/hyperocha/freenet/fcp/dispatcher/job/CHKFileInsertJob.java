@@ -27,12 +27,18 @@ public class CHKFileInsertJob extends Job {
 	private File insertFile;
 	private BufferedInputStream fis;
 	private FreenetKey targetKey;
+	private boolean tryGlobal = false;
 	
 	//private boolean halfDone = false;
 	
 	public CHKFileInsertJob(int requirednetworktype, String id, File source) {
+		this(requirednetworktype, id, source, false);
+	}
+	
+	public CHKFileInsertJob(int requirednetworktype, String id, File source, boolean tryglobal) {
 		super(requirednetworktype, id);
 		insertFile = source;
+		tryGlobal = tryglobal;
 	}
 
 	/* (non-Javadoc)
@@ -67,7 +73,11 @@ public class CHKFileInsertJob extends Job {
 		
 		FCPConnectionRunner conn = dispatcher.getDefaultFCPConnectionRunner(getRequiredNetworkType());
 		
-		boolean dda = conn.haveDDA();
+		boolean dda = false;
+		
+		if (tryGlobal) {
+			dda = conn.haveDDA();
+		}
 		
 		List cmd = new LinkedList();
 		
@@ -95,8 +105,13 @@ public class CHKFileInsertJob extends Job {
 			cmd.add("GetCHKOnly=false");
 			cmd.add("Metadata.ContentType=" + DefaultMIMETypes.guessMIMEType(insertFile.getAbsolutePath()));
 			cmd.add("PriorityClass=4");
-			cmd.add("Global=true");
-			cmd.add("Persistence=forever");
+			
+			if (tryGlobal) {
+				cmd.add("Global=true");
+				cmd.add("Persistence=forever");
+			} else {
+				cmd.add("Persistence=connection");
+			}
 
 		
 			if (dda) {  // direct file acess
