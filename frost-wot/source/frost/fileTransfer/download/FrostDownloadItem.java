@@ -19,6 +19,7 @@ package frost.fileTransfer.download;
 
 import java.util.logging.*;
 
+import frost.fcp.*;
 import frost.fileTransfer.*;
 import frost.storage.database.applayer.*;
 import frost.util.*;
@@ -64,10 +65,12 @@ public class FrostDownloadItem extends ModelItem {
      */ 
 	public FrostDownloadItem(String fileName, String key) {
 		
-		this.fileName = fileName;
+        fileName = FileTransferManager.getInstance().getDownloadManager().ensureUniqueFilename(fileName);
+
+        this.fileName = fileName;
 		this.key = key;
-        // FIXME: gqid only for 0.7
-        gqIdentifier = fileName.replace(' ', '_')+"-"+Mixed.createUniqueId();
+
+        gqIdentifier = buildGqIdentifier(fileName);
 
 		state = STATE_WAITING;
 	}
@@ -76,19 +79,25 @@ public class FrostDownloadItem extends ModelItem {
      * Add a file attachment.
      */ 
     public FrostDownloadItem(String fileName, String key, Long s) {
-        
+
+        fileName = FileTransferManager.getInstance().getDownloadManager().ensureUniqueFilename(fileName);
+
         this.fileName = fileName;
         fileSize = s;
         this.key = key;
         
-        gqIdentifier = fileName.replace(' ', '_')+"-"+Mixed.createUniqueId();
+        gqIdentifier = buildGqIdentifier(fileName);
 
         state = STATE_WAITING;
     }
 
-    // add a shared file from filelist (user searched file and choosed one of the names)
+    /**
+     * Add a shared file from filelist (user searched file and choosed one of the names).
+     */
     public FrostDownloadItem(FrostFileListFileObject newSfo, String newName) {
-        
+
+        newName = FileTransferManager.getInstance().getDownloadManager().ensureUniqueFilename(newName);
+
         FrostFileListFileObject sfo = null;
         
         // update the shared file object from database (key, owner, sources, ... may have changed)
@@ -109,13 +118,13 @@ public class FrostDownloadItem extends ModelItem {
         fileSize = new Long(sfo.getSize());
         key = sfo.getKey();
 
-        gqIdentifier = fileName.replace(' ', '_')+"-"+Mixed.createUniqueId();
+        gqIdentifier = buildGqIdentifier(fileName);
 
         setFileListFileObject(sfo);
 
         state = STATE_WAITING;
     }
-
+    
     /**
      * Add a saved file from database.
      */
@@ -342,5 +351,22 @@ public class FrostDownloadItem extends ModelItem {
         }
         // remaining values are dynamically fetched from FrostFileListFileObject
         super.fireChange();
+    }
+
+    /**
+     * Builds a global queue identifier if running on 0.7.
+     * Returns null on 0.5.
+     */
+    private String buildGqIdentifier(String filename) {
+        if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) {
+            return new StringBuffer()
+                .append("Frost-")
+                .append(filename.replace(' ', '_'))
+                .append("-")
+                .append(Mixed.createUniqueId())
+                .toString();
+        } else {
+            return null;
+        }
     }
 }
