@@ -29,6 +29,7 @@ import hyperocha.freenet.fcp.dispatcher.job.Job;
 import hyperocha.freenet.fcp.dispatcher.job.UpdateNodePropertiesJob;
 
 import java.io.DataInputStream;
+import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -83,12 +84,16 @@ public class Dispatcher implements IIncoming {
 	}
 	
 	/**
-	 * check the erreichbarkeit der knoten und nimm nur erreichbare
+	 * check the erreichbarkeit der knoten und nimm nur erreichbare?
 	 */
 	public void init() {
 		factory.init();
 	}
 
+	/**
+	 * returns true if at least one node is online.
+	 * @return
+	 */
 	public boolean isOnline() {
 		return factory.isOnline();
 	}
@@ -170,7 +175,16 @@ public class Dispatcher implements IIncoming {
 	 * 
 	 * <bold>WARNING<bold>
 	 * calling this cause data loss.
-	 * @param clearqueue
+	 * 
+	 *  - cut all runnings jobs (hard cut off)
+	 *  - try to remove all nown persistant requests
+	 *  - shut down all nodes (if possible)
+	 *  - wipe out all dispatchers data
+	 *  - at least: do a Kill -9 to itself
+	 *  
+	 *  in theory, after calling this you have a nearly clean and fresh install :)
+	 *   
+	 * @param clearqueue try to clear the global queue
 	 */
 	public void panic(boolean clearqueue) {
 		// TODO:
@@ -195,7 +209,7 @@ public class Dispatcher implements IIncoming {
 	 * add a job to the queue and returns
 	 * the balancer start it earlier or later
 	 * @param job
-	 * @return true on success (added) or false on error
+	 * @return true on success (added) or false if somthing goes wrong
 	 */
 	public boolean addJob(Job job) {
 		// TODO
@@ -336,4 +350,21 @@ public class Dispatcher implements IIncoming {
         }
 		
 	}
+	
+	/**
+	 * @return returs a list of all id's seen by the dispatcher without corresponding job
+	 */
+	public ArrayList getUnassignedIDs() {
+		return new ArrayList(dummyJobs.keySet());
+	}
+	
+	/**
+	 * remove the job or the transfer (id without corrospending job) 
+	 * @param id jobid or Indentifer
+	 * @return 
+	 */
+	public boolean removeID(String id) {
+		return false;
+	}
+	
 }
