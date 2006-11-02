@@ -1046,8 +1046,6 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
     private void boardsTree_actionPerformed(TreeSelectionEvent e) {
         
-        boolean showInfoPanel = false;
-
         if (((TreeNode) mainFrame.getTofTreeModel().getRoot()).getChildCount() == 0) {
             //There are no boards. //TODO: check if there are really no boards (folders count as children)
             getMessageTextPane().update_noBoardsFound();
@@ -1061,8 +1059,6 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     updateButton.setEnabled(true);
                     saveMessageButton.setEnabled(false);
                     replyButton.setEnabled(false);
-    //              downloadAttachmentsButton.setEnabled(false);
-    //              downloadBoardsButton.setEnabled(false);
                     if (node.isReadAccessBoard()) {
                         newMessageButton.setEnabled(false);
                     } else {
@@ -1073,19 +1069,11 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     newMessageButton.setEnabled(false);
                     saveMessageButton.setEnabled(false);
                     updateButton.setEnabled(false);
-                    if( node.isRoot() ) {
-                        showInfoPanel = true;
-//                        getMessageTextPane().update_rootSelected();
-                    } else {
+                    if( !node.isRoot() ) {
                         getMessageTextPane().update_folderSelected();
                     }
                 }
             }
-        }
-        if( showInfoPanel ) {
-            MainFrame.getInstance().showMessageInfoPanelInSplitpane();
-        } else {
-            MainFrame.getInstance().showMessagePanelInSplitpane();
         }
     }
 

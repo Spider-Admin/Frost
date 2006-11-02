@@ -580,7 +580,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         });
 
         // Vertical Board Tree / MessagePane Divider
-        treeAndTabbedPaneSplitpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tofTreeScrollPane, getMessagePanel());
+        JPanel p = new JPanel(new BorderLayout());
+        p.add(getMessagePanel(), BorderLayout.CENTER);
+        treeAndTabbedPaneSplitpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tofTreeScrollPane, p);
         
         int dividerLoc = frostSettings.getIntValue("MainFrame.treeAndTabbedPaneSplitpaneDividerLocation");
         if( dividerLoc < 10 ) {
@@ -595,20 +597,30 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     }
     
     public void showMessagePanelInSplitpane() {
-        if( treeAndTabbedPaneSplitpane!= null && treeAndTabbedPaneSplitpane.getRightComponent() != getMessagePanel() ) {
-            treeAndTabbedPaneSplitpane.setRightComponent(getMessagePanel());
+        if( treeAndTabbedPaneSplitpane != null ) {
+            final JPanel p = (JPanel)treeAndTabbedPaneSplitpane.getRightComponent();
+            if( p.getComponent(0) == getMessagePanel() ) {
+                return; // already shown
+            }
+            p.removeAll();
+            p.add(getMessagePanel(), BorderLayout.CENTER);
             getMessageInfoPanel().cleanupAfterLeave();
         }
     }
     public void showMessageInfoPanelInSplitpane() {
-        if( treeAndTabbedPaneSplitpane != null && treeAndTabbedPaneSplitpane.getRightComponent() != getMessageInfoPanel() ) {
+        if( treeAndTabbedPaneSplitpane != null ) {
+            final JPanel p = (JPanel)treeAndTabbedPaneSplitpane.getRightComponent();
+            if( p.getComponent(0) == getMessageInfoPanel() ) {
+                return; // already shown
+            }
             Thread t = new Thread() {
                 public void run() {
                     getMessageInfoPanel().prepareForShow(); // load from db
                     SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
+                            p.removeAll();
+                            p.add(getMessageInfoPanel(), BorderLayout.CENTER);
                             deactivateGlassPane(); // unblock gui
-                            treeAndTabbedPaneSplitpane.setRightComponent(getMessageInfoPanel());
                         }
                     });
                 }
@@ -992,6 +1004,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         Board node = (Board) tofTree.getLastSelectedPathComponent();
 
         if (node != null) {
+            boolean showInfoPanel = false;
+// FIXME: !!!            
             if (node.isFolder() == false) {
                 // node is a board
                 removeBoardButton.setEnabled(true);
@@ -1006,7 +1020,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 getMessagePanel().getMessageTable().setNewRootNode(new FrostMessageObject(true));
                 getMessagePanel().updateMessageCountLabels(node);
 
-                // read all messages for this board into message table
+                // read all messages for this board into message table (starts a thread)
                 TOF.getInstance().updateTofTable(node);
                 
                 getMessagePanel().getMessageTable().clearSelection();
@@ -1018,10 +1032,17 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 renameFolderButton.setEnabled(true);
                 if (node.isRoot()) {
                     removeBoardButton.setEnabled(false);
+                    showInfoPanel = true;
                 } else {
                     removeBoardButton.setEnabled(true);
                 }
                 configBoardButton.setEnabled(false);
+            }
+
+            if( showInfoPanel ) {
+                showMessageInfoPanelInSplitpane();
+            } else {
+                showMessagePanelInSplitpane();
             }
         }
     }
