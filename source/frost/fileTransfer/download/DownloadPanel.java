@@ -192,79 +192,90 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
      * The textfield can contain 1 key to download or multiple keys separated by ';'.
 	 */
 	private void downloadTextField_actionPerformed(ActionEvent e) {
-
-		String keys = downloadTextField.getText().trim();
         
-        if( keys.length() == 0 ) {
-            downloadTextField.setText("");
-            return;
-        }
-        
-        String[] keyList = keys.split("[;\n]");
-        if( keyList == null || keyList.length == 0 ) {
-            downloadTextField.setText("");
-            return;
-        }
-        
-        for(int x=0; x < keyList.length; x++) {
-            String key = keyList[x].trim();
-            // 58 is min size for a key on 0.5
-            if( key.length() < 5 ) {
-                continue;
-            }
-
-            // find key type (chk,ssk,...)
-            int pos = -1;
-            for( int i = 0; i < FreenetKeys.getFreenetKeyTypes().length; i++ ) {
-                String string = FreenetKeys.getFreenetKeyTypes()[i];
-                pos = key.indexOf(string);
-                if( pos >= 0 ) {
-                    break;
-                }
-            }
-            if( pos < 0 ) {
-                // no valid keytype found
-                showInvalidKeyErrorDialog(key);
-                continue;
-            }
-
-            // strip all before key type
-            if( pos > 0 ) {
-                key = key.substring(pos);
+        try {
+    		String keys = downloadTextField.getText().trim();
+            
+            if( keys.length() == 0 ) {
+                downloadTextField.setText("");
+                return;
             }
             
-            if( key.length() < 5 ) {
-                // at least the SSK@? is needed
-                showInvalidKeyErrorDialog(key);
-                continue;
+            String[] keyList = keys.split("[;\n]");
+            if( keyList == null || keyList.length == 0 ) {
+                downloadTextField.setText("");
+                return;
             }
             
-            // maybe convert html codes (e.g. %2c -> , )
-            if( key.indexOf("%") > 0 ) {
-                try {
-                    key = java.net.URLDecoder.decode(key, "UTF-8");
-                } catch (java.io.UnsupportedEncodingException ex) {
-                    logger.log(Level.SEVERE, "Decode of HTML code failed", ex);
+            for(int x=0; x < keyList.length; x++) {
+                String key = keyList[x].trim();
+    
+                if( key.length() < 5 ) {
+                    continue;
                 }
+    
+                // find key type (chk,ssk,...)
+                int pos = -1;
+                for( int i = 0; i < FreenetKeys.getFreenetKeyTypes().length; i++ ) {
+                    String string = FreenetKeys.getFreenetKeyTypes()[i];
+                    pos = key.indexOf(string);
+                    if( pos >= 0 ) {
+                        break;
+                    }
+                }
+                if( pos < 0 ) {
+                    // no valid keytype found
+                    showInvalidKeyErrorDialog(key);
+                    continue;
+                }
+    
+                // strip all before key type
+                if( pos > 0 ) {
+                    key = key.substring(pos);
+                }
+                
+                if( key.length() < 5 ) {
+                    // at least the SSK@? is needed
+                    showInvalidKeyErrorDialog(key);
+                    continue;
+                }
+                
+                // maybe convert html codes (e.g. %2c -> , )
+                if( key.indexOf("%") > 0 ) {
+                    try {
+                        key = java.net.URLDecoder.decode(key, "UTF-8");
+                    } catch (java.io.UnsupportedEncodingException ex) {
+                        logger.log(Level.SEVERE, "Decode of HTML code failed", ex);
+                    }
+                }
+    
+                // take the filename from the last part of the key
+                String fileName;
+                int sepIndex = key.lastIndexOf("/");
+                if ( sepIndex > -1 ) {
+                    fileName = key.substring(sepIndex + 1);
+                } else {
+                    fileName = key.substring(4);
+                }
+    
+                // remove filename from CHK key
+                if (key.startsWith("CHK@") && key.indexOf("/") > -1 ) {
+                    key = key.substring(0, key.indexOf("/"));
+                }
+                
+                // finally check if the key is valid for this network
+                if( !FreenetKeys.isValidKey(key) ) {
+                    showInvalidKeyErrorDialog(key);
+                    continue;
+                }
+    
+                // add valid key to download table
+                FrostDownloadItem dlItem = new FrostDownloadItem(fileName, key);
+                model.addDownloadItem(dlItem); // false if file is already in table
             }
-
-            // take the filename from the last part of the key
-            String fileName;
-            int sepIndex = key.lastIndexOf("/");
-            if ( sepIndex > -1 ) {
-                fileName = key.substring(sepIndex + 1);
-            } else {
-                fileName = key.substring(4);
-            }
-
-            // remove filename from CHK key
-            if (key.startsWith("CHK@") && key.indexOf("/") > -1 ) {
-                key = key.substring(0, key.indexOf("/"));
-            }
-
-            // add valid key to download table
-            FrostDownloadItem dlItem = new FrostDownloadItem(fileName, key);
-            model.addDownloadItem(dlItem); // false if file is already in table
+        } catch(Throwable ex) {
+            logger.log(Level.SEVERE, "Unexpected exception", ex);
+            showInvalidKeyErrorDialog("???");
         }
         downloadTextField.setText("");
 	}
@@ -272,9 +283,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
     private void showInvalidKeyErrorDialog(String invKey) {
         JOptionPane.showMessageDialog(
                 this,
-                "<html>"+ // needed for linebreak in dialog
-                language.getString("DownloadPane.invalidKeyDialog.body")
-                    + " SSK@, KSK@, CHK@ :<br>"+invKey+"</html>",
+                language.formatMessage("DownloadPane.invalidKeyDialog.body", invKey),
                 language.getString("DownloadPane.invalidKeyDialog.title"),
                 JOptionPane.ERROR_MESSAGE);
     }
