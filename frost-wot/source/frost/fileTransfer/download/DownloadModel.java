@@ -69,6 +69,7 @@ public class DownloadModel extends OrderedModel implements Savable {
 				return false;
 			}
 			
+            // FIXME: also check downloaddir for same filename and build new name
             if (item.getFileName().equals(itemToAdd.getFileName())) {
 				// same name, but different key. - rename quitely
 				int cnt = 2;
