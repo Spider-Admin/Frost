@@ -1,0 +1,23 @@
+<body>The Dispatcher.<br>
+
+This class is designed for control fcp commands lika a 
+'high level' api.
+It's supports multiple nodes.. (mehr erz&auml;hle ich euch n&auml;chstes mal)
+<p>
+<b>Initialisation</b><br>
+First you need to create an instance of the dispatcher.
+<pre>
+	Dispatcher dispatcher = new Dispatcher();
+</pre>
+Now set up at least one <code>Network</code> (see {@link hyperocha.freenet.fcp.Network} for details)
+and assign this to the <code>Dispatcher</code>. 
+<pre>
+	dispatcher.addNetwork(network);
+</pre>
+Last not least lets boot the <code>Dispatcher</code>.
+<pre>
+	dispatcher.start();
+</pre>
+<b>Jobs</b><br>
+ 
+</body>

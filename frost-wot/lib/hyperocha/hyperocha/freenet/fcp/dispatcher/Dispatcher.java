@@ -36,7 +36,30 @@ import java.util.List;
 import javax.swing.SwingUtilities;
 
 /**
+ * <b>The Dispatcher.</b><br>
+ * This class is designed for control fcp commands lika a 
+ * 'high level' api.
+ * It's supports multiple nodes.. (mehr erz&auml;hle ich euch n&auml;chstes mal)
+ * <p>
+ * <b>Initialisation</b><br>
+ * First you need to create an instance of the dispatcher.
+ * <pre>
+ * 		Dispatcher dispatcher = new Dispatcher();
+ * </pre>
+ * Now set up at least one <code>Network</code> (see {@link hyperocha.freenet.fcp.Network} for details)
+ * and assign this to the <code>Dispatcher</code>. 
+ * <pre>
+ * 		dispatcher.addNetwork(network);
+ * </pre>
+ * Last not least lets boot the <code>Dispatcher</code>.
+ * <pre>
+ * 		dispatcher.start();
+ * </pre>
+ * <b>Jobs</b><br>
+ * 
  * @author saces
+ * @version 0.0
+ * 
  *
  */
 public class Dispatcher implements IIncoming {
@@ -71,6 +94,16 @@ public class Dispatcher implements IIncoming {
 		
 	}
 	
+	/**
+	 * Creates a new dispatcher with an empty factory
+	 */
+	public Dispatcher() {
+		this(new Factory(), false);
+	}
+
+	/**
+	 * Creates a new dispatcher and assigns the given factory
+	 */
 	public Dispatcher(Factory f) {
 		this(f, false);
 	}
@@ -199,7 +232,7 @@ public class Dispatcher implements IIncoming {
 	 * needed for security manager
 	 * @param host
 	 * @param port
-	 * @return
+	 * @return true, if the host:port is found in the node list, otherwise false 
 	 */
 	public boolean isInList(String host, int port) {
 		return factory.isInList(host, port);
@@ -365,6 +398,14 @@ public class Dispatcher implements IIncoming {
 	 */
 	public boolean removeID(String id) {
 		return false;
+	}
+
+	/**
+	 * Add the network to the Factory
+	 * @param net Network to add
+	 */
+	public void addNetwork(Network net) {
+		factory.addNetwork(net);
 	}
 	
 }
