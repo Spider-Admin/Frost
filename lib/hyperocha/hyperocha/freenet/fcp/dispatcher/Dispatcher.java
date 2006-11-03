@@ -139,12 +139,15 @@ public class Dispatcher implements IIncoming {
 		if (tickTackTicker != null) { return; }
 		tickTackTicker = new Thread("tick tack ticker") {
 	        public void run() {
-	            while (true) {
+	            while (!isInterrupted()) {
 	                try {
+                        // bad polling, rework me
 	                    Thread.sleep(1000);
 	                } catch (InterruptedException e) {
-	                	return;
 	                }
+                    if( isInterrupted() ) {
+                        return;
+                    }
 	                onTimer();
 	            }
 	        }
