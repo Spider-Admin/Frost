@@ -64,6 +64,7 @@
 
   <!--  Set up properties for the frost javadoc -->
   <property name="docs"    value="docs/api"/>
+  <property name="hyperochadocs"    value="docs/hyperocha"/>	
 
   <!--  The CLASSPATH to use for compilation. -->
   <path id="classpath">
@@ -395,6 +396,22 @@ Build log  : ${logfilename}</echo>
              destdir="${docs}"
              windowtitle="Frost Documentation"/>
   </target>
+	
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!-- Building the hyperocha documentation -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+  <target name="hyperochadoc">
+	    <!-- javadoc packagenames="fecimpl.*"
+	             sourcepath="${src.dir.feclib}"
+	             destdir="${docs}"
+	             windowtitle="FECLib Documentation"/ -->
+    <javadoc packagenames="hyperocha.*"
+	             sourcepath="${src.dir.hyperocha}"
+	             destdir="${hyperochadocs}"
+	             windowtitle="Hyperocha Documentation"/>
+	  </target>
+	
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- Main target - runs dist by default -->
