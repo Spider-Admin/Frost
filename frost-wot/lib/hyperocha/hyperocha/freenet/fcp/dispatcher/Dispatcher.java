@@ -66,7 +66,7 @@ public class Dispatcher implements IIncoming {
 
 	private Factory factory;
 	
-	private Thread tickTackTicker = null;
+	private TimerThread tickTackTicker = null;
 	
 	private Hashtable runningJobs = new Hashtable();
 	private Hashtable dummyJobs = new Hashtable();
@@ -137,26 +137,31 @@ public class Dispatcher implements IIncoming {
 	 */
 	public void startDispatcher() {
 		if (tickTackTicker != null) { return; }
-		tickTackTicker = new Thread("tick tack ticker") {
-	        public void run() {
-	            while (!isInterrupted()) {
-	                try {
-                        // bad polling, rework me
-	                    Thread.sleep(1000);
-	                } catch (InterruptedException e) {
-                        if( isInterrupted() ) {
-                            return;
-                        }
-	                }
-                    if( isInterrupted() ) {
-                        return;
-                    }
-	                onTimer();
-	            }
-	        }
-		};
+		tickTackTicker = new TimerThread();
 		tickTackTicker.start();		
 	}
+    
+    private class TimerThread extends Thread {
+        private boolean isCancelled = false;
+        public synchronized boolean isCancelled() {
+            return isCancelled;
+        }
+        public synchronized void cancel() {
+            isCancelled = true;
+        }
+        public void run() {
+            while (!isCancelled()) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                }
+                if( isCancelled() ) {
+                    return;
+                }
+                onTimer();
+            }
+        }
+    }
 
 	/**
 	 * 
@@ -206,7 +211,7 @@ public class Dispatcher implements IIncoming {
 	 */
 	public void stopDispatcher() {
 		if (tickTackTicker == null) { return; }
-		tickTackTicker.interrupt();
+		tickTackTicker.cancel();
 		tickTackTicker = null;
 	}
 	
