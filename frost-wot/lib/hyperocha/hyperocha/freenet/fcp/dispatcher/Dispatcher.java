@@ -144,6 +144,9 @@ public class Dispatcher implements IIncoming {
                         // bad polling, rework me
 	                    Thread.sleep(1000);
 	                } catch (InterruptedException e) {
+                        if( isInterrupted() ) {
+                            return;
+                        }
 	                }
                     if( isInterrupted() ) {
                         return;
