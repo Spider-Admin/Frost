@@ -131,13 +131,19 @@ public class Dispatcher implements IIncoming {
 		return factory.isOnline();
 	}
 
+	/**
+	 * Fires up the dispatcher and returns immediately.<br>
+	 * Does nothing if the dispatcher is already up.
+	 */
 	public void startDispatcher() {
+		if (tickTackTicker != null) { return; }
 		tickTackTicker = new Thread("tick tack ticker") {
 	        public void run() {
 	            while (true) {
 	                try {
-	                    Thread.sleep(3000);
+	                    Thread.sleep(1000);
 	                } catch (InterruptedException e) {
+	                	return;
 	                }
 	                onTimer();
 	            }
@@ -187,11 +193,15 @@ public class Dispatcher implements IIncoming {
 	}
 	
 	/**
-	 * clean and soft shutdown. complete running jobs,
-	 * but dont start new ones
+	 * clean and soft shutdown. complete running jobs (until the next checkpoint,
+	 * if they have one), but don't start new ones
+	 * does nothing if the dispatcher is already down
+	 * 
 	 */
 	public void stopDispatcher() {
-		//tickTackTicker.stop();
+		if (tickTackTicker == null) { return; }
+		tickTackTicker.interrupt();
+		tickTackTicker = null;
 	}
 	
 	public boolean loadState() {
