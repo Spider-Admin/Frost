@@ -192,7 +192,7 @@ public class Core implements FrostEventDispatcher  {
         }
         
         // and go online (at least one node noeeds a successful helo)
-        fcpDispatcher.goOnline(true);
+        //fcpDispatcher.goOnline(true);
         
         fcpDispatcher.testPropertiesAllNodes(true);
 
