@@ -1005,7 +1005,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
         if (node != null) {
             boolean showInfoPanel = false;
-// FIXME: !!!            
+            
             if (node.isFolder() == false) {
                 // node is a board
                 removeBoardButton.setEnabled(true);
