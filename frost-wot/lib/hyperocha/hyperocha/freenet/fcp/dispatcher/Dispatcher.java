@@ -34,6 +34,7 @@ import java.util.Hashtable;
 import java.util.List;
 
 import javax.swing.SwingUtilities;
+import javax.swing.event.EventListenerList;
 
 /**
  * <b>The Dispatcher.</b><br>
@@ -63,10 +64,23 @@ import javax.swing.SwingUtilities;
  *
  */
 public class Dispatcher implements IIncoming {
+	public static final int STATE_UNKNOWN = 0;
+	public static final int STATE_ERROR = -1;
+	public static final int STATE_STARTING = 1;
+	public static final int STATE_RUNNING = 2;
+	public static final int STATE_STOPPING = 4;
+	public static final int STATE_STOPPED = 8;
+	
+	
+	private int state;
+	
+	private EventListenerList stateListeners = new EventListenerList();
 
 	private Factory factory;
 	
 	private TimerThread tickTackTicker = null;
+	private long tick = 0;
+	private long checkOnlineDelay = 180L; // check every three minutes for offline nodes and try to restart
 	
 	private Hashtable runningJobs = new Hashtable();
 	private Hashtable dummyJobs = new Hashtable();
@@ -164,29 +178,13 @@ public class Dispatcher implements IIncoming {
     }
 
 	/**
-	 * 
+	 * search for offline nodes and try to connect
 	 */
-	public void goOnline(boolean wait) {
-		factory.goOnline();
-//		if (wait) { factory.goOnline(); }
-//		if (onlineWatcher == null) {
-//			tickerThread = new Thread("tick tack") {
-//		            public void run() {
-//		                while (true) {
-//		                    Mixed.wait(1000);
-//		                    try {
-//		                        Thread.sleep(time);
-//		                    } catch (InterruptedException e) {
-//		                    }
-//		                    // refactor this method in Core. lots of work :)
-//		                    timer_actionPerformed();
-//		                }
-//		            }
-//		        };
-//		        tickerThread.start();
-//
-//			
-//		}
+	private void goOnline() {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				factory.goOnline();
+			}});
 	}
 
 //	/**
@@ -378,7 +376,11 @@ public class Dispatcher implements IIncoming {
 	}
 	
 	private void onTimer() {
-		//System.out.println("Tick Tack Timer");
+		if ( (tick % checkOnlineDelay) == 0 ) {
+			goOnline();
+		}
+		tick++;
+		//System.out.println("Tick Tack Timer: " + tick);
 	}
 	
 	private Job getRunningJob(String id) {
@@ -429,4 +431,33 @@ public class Dispatcher implements IIncoming {
 		factory.addNetwork(net);
 	}
 	
+	/**
+	 * @param timeout in milliseconds
+	 * @return true - the dispatcher is online<br>
+	 * 			false - wait timeout
+	 */
+	public boolean waitForOnline(long timeout) {
+		throw new Error("Prototype called"); 
+	}
+	
+	public void addDispatcherStateListener( DispatcherStateListener listener ) {
+		stateListeners.add( DispatcherStateListener.class, listener );
+	}
+	
+	public void removeDispatcherStateListener( DispatcherStateListener listener ) {
+		stateListeners.remove( DispatcherStateListener.class, listener );
+	}
+
+	
+	private synchronized void setState( int newState ) {
+		state = newState;
+		DispatcherStateEvent e = new DispatcherStateEvent(this, newState);
+	     // Guaranteed to return a non-null array
+		Object[] listeners = stateListeners.getListenerList();
+	    // Process the listeners last to first, notifying
+	    // those that are interested in this event
+	    for (int i = listeners.length-2; i>=0; i-=2) {
+	    	((DispatcherStateListener)listeners[i+1]).stateChanged(e);
+	    }
+	  }
 }
