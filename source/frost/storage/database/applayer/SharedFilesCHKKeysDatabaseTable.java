@@ -35,7 +35,7 @@ public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
     // Question: how to ensure own CHK keys, track them once uploaded if we ever see them again! 
     // Answer: Ignore lost keys, we resend them after some days!
     //         Handle own received keys like any other keys, we don't even know that this was our key.
-    
+
     private final static String SQL_SHAREDFILESCHK_DDL =
         "CREATE TABLE IF NOT EXISTS SHAREDFILESCHK ("+
           "primkey BIGINT NOT NULL,"+
@@ -52,9 +52,16 @@ public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
         "CONSTRAINT sfiles_pk PRIMARY KEY (primkey),"+
         "CONSTRAINT sfiles_1 UNIQUE (chkkey) )";
 
+    private final static String SQL_SHAREDFILESCHK_INDEX_PRIMKEY =
+        "CREATE UNIQUE INDEX SHAREDFILESCHK_IX_PRIMKEY ON SHAREDFILESCHK ( primkey )";
+    private final static String SQL_SHAREDFILESCHK_INDEX_CHKKEY =
+        "CREATE UNIQUE INDEX SHAREDFILESCHK_IX_CHKKEY ON SHAREDFILESCHK ( chkkey )";
+
     public List getTableDDL() {
-        ArrayList lst = new ArrayList(1);
+        ArrayList lst = new ArrayList(3);
         lst.add(SQL_SHAREDFILESCHK_DDL);
+        lst.add(SQL_SHAREDFILESCHK_INDEX_PRIMKEY);
+        lst.add(SQL_SHAREDFILESCHK_INDEX_CHKKEY);
         return lst;
     }
     

@@ -55,6 +55,11 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         "CONSTRAINT files_pk PRIMARY KEY (primkey),"+
         "CONSTRAINT FILELIST_1 UNIQUE (sha) )";
     
+    private final static String SQL_FILELIST_INDEX_PRIMKEY =
+        "CREATE UNIQUE INDEX FILELIST_IX_PRIMKEY ON FILELIST ( primkey )";
+    private final static String SQL_FILELIST_INDEX_SHA =
+        "CREATE UNIQUE INDEX FILELIST_IX_SHA ON FILELIST ( sha )";
+    
     private final static String SQL_OWNER_BOARD_DDL =
         "CREATE TABLE IF NOT EXISTS FILEOWNERLIST ("+
           "refkey BIGINT NOT NULL,"+
@@ -69,10 +74,16 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         "CONSTRAINT FILEOWNERLIST_FK FOREIGN KEY (refkey) REFERENCES FILELIST(primkey) ON DELETE CASCADE,"+
         "CONSTRAINT FILEOWNERLIST_1 UNIQUE (refkey,owner) )";
 
+    private final static String SQL_FILEOWNERLIST_INDEX_REFKEY =
+        "CREATE INDEX FILEOWNERLIST_IX_REFKEY ON FILEOWNERLIST ( refkey )";
+
     public List getTableDDL() {
-        ArrayList lst = new ArrayList(2);
+        ArrayList lst = new ArrayList(5);
         lst.add(SQL_FILES_DDL);
         lst.add(SQL_OWNER_BOARD_DDL);
+        lst.add(SQL_FILELIST_INDEX_PRIMKEY);
+        lst.add(SQL_FILELIST_INDEX_SHA);
+        lst.add(SQL_FILEOWNERLIST_INDEX_REFKEY);
         return lst;
     }
 
