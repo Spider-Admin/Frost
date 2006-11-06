@@ -102,6 +102,7 @@ public class SettingsClass implements Savable {
     
     public static final String MAX_MESSAGE_DISPLAY = "maxMessageDisplay";
     public static final String MAX_MESSAGE_DOWNLOAD = "maxMessageDownload";
+    public static final String MESSAGE_UPLOAD_DISABLED = "messageUploadDisabled";
     
     public static final String SKINS_ENABLED = "skinsEnabled";
     public static final String SKIN_NAME = "selectedSkin";
@@ -763,6 +764,8 @@ public class SettingsClass implements Savable {
         defaults.put(FILEEXTENSION_ARCHIVE, ".zip;.rar;.jar;.gz;.arj;.ace;.bz;.tar;.tgz;.tbz"); 
         defaults.put(FILEEXTENSION_IMAGE, ".jpeg;.jpg;.jfif;.gif;.png;.tif;.tiff;.bmp;.xpm"); 
         defaults.put(AUTO_SAVE_INTERVAL, "15");
+        
+        defaults.put(MESSAGE_UPLOAD_DISABLED, "false");
 
         defaults.put(MESSAGE_EXPIRE_DAYS, "90");
         defaults.put(MESSAGE_EXPIRATION_MODE, "KEEP"); // KEEP or ARCHIVE or DELETE, default KEEP

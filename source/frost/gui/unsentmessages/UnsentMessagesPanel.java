@@ -19,9 +19,11 @@
 package frost.gui.unsentmessages;
 
 import java.awt.*;
+import java.awt.event.*;
 
 import javax.swing.*;
 
+import frost.*;
 import frost.messages.*;
 import frost.util.gui.translation.*;
 
@@ -31,12 +33,13 @@ public class UnsentMessagesPanel extends JPanel {
 
     private UnsentMessagesTable unsentMessagesTable;
     private JLabel unsentMsgsLabel;
-    
+    private JCheckBox disableMessageUpload; 
+
     public UnsentMessagesPanel() {
         super();
         initialize();
     }
-    
+
     public void addUnsentMessage(FrostUnsentMessageObject i) {
         unsentMessagesTable.addUnsentMessage(i);
     }
@@ -63,14 +66,20 @@ public class UnsentMessagesPanel extends JPanel {
 
     public void refreshLanguage() {
         unsentMsgsLabel.setText( language.getString("UnsentMessages.label") + " ("+unsentMessagesTable.getRowCount()+")");
+        disableMessageUpload.setText( language.getString("UnsentMessages.disableMessageUpload") );
     }
-    
+
     private void initialize() {
 
         this.setLayout(new BorderLayout());
         unsentMsgsLabel = new JLabel();
         unsentMsgsLabel.setBorder(BorderFactory.createEmptyBorder(2,4,2,2));
-        this.add(unsentMsgsLabel, BorderLayout.NORTH);
+        disableMessageUpload = new JCheckBox();
+        disableMessageUpload.setBorder(BorderFactory.createEmptyBorder(2,16,2,2));
+        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        p.add(unsentMsgsLabel);
+        p.add(disableMessageUpload);
+        this.add(p, BorderLayout.NORTH);
 
         unsentMessagesTable = new UnsentMessagesTable();
         unsentMessagesTable.getScrollPane().setWheelScrollingEnabled(true);
@@ -80,5 +89,13 @@ public class UnsentMessagesPanel extends JPanel {
         Font font = unsentMsgsLabel.getFont();
         font = font.deriveFont(Font.BOLD);
         unsentMsgsLabel.setFont(font);
+        
+        // listen to changes on disableMessageUpload checkbox
+        disableMessageUpload.addItemListener(new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                Core.frostSettings.setValue(SettingsClass.MESSAGE_UPLOAD_DISABLED, disableMessageUpload.isSelected());
+                System.out.println("state="+disableMessageUpload.isSelected());
+            }
+        });
     }
 }
