@@ -77,12 +77,16 @@ public class MessageTreeTableSortStateBean {
 
     public static DateComparator dateComparatorAscending = new DateComparator(true);
     public static DateComparator dateComparatorDescending = new DateComparator(false);
-    
+
+    public static IndexComparator indexComparatorAscending = new IndexComparator(true);
+    public static IndexComparator indexComparatorDescending = new IndexComparator(false);
+
     private static Comparator[] ascendingComparators = new Comparator[] {
         flaggedComparatorAscending,
         starredComparatorAscending,
         subjectComparatorAscending,
         fromComparatorAscending,
+        indexComparatorAscending,
         trustStateComparatorAscending,
         dateComparatorAscending
     };
@@ -91,6 +95,7 @@ public class MessageTreeTableSortStateBean {
         starredComparatorDescending,
         subjectComparatorDescending,
         fromComparatorDescending,
+        indexComparatorDescending,
         trustStateComparatorDescending,
         dateComparatorDescending
     };
@@ -298,6 +303,35 @@ public class MessageTreeTableSortStateBean {
                 return 0;
             }
             if( s1 == true ) {
+                return retvalGreater;
+            } else {
+                return retvalSmaller;
+            }
+        }
+    }
+    
+    private static class IndexComparator implements Comparator {
+        private int retvalGreater;
+        private int retvalSmaller;
+        public IndexComparator(boolean ascending) {
+            if( ascending ) {
+                // oldest first
+                retvalGreater = +1;
+                retvalSmaller = -1;
+            } else {
+                // newest first
+                retvalGreater = -1;
+                retvalSmaller = +1;
+            }
+        }
+        public int compare(Object arg0, Object arg1) {
+            FrostMessageObject t1 = (FrostMessageObject)arg0; 
+            FrostMessageObject t2 = (FrostMessageObject)arg1;
+            int s1 = t1.getIndex();
+            int s2 = t2.getIndex();
+            if( s1 == s2 ) {
+                return 0;
+            } else if( s1 > s2 ) {
                 return retvalGreater;
             } else {
                 return retvalSmaller;

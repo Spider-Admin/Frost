@@ -63,7 +63,7 @@ public class MessageTreeTableModel extends DefaultTreeModel implements TreeTable
 
     private Language language = null;
 
-    protected final static String columnNames[] = new String[6];
+    protected final static String columnNames[] = new String[7];
 
     /**
      * Constructor for creating a DynamicTreeTableModel.
@@ -84,8 +84,9 @@ public class MessageTreeTableModel extends DefaultTreeModel implements TreeTable
         columnNames[1] = "*";
         columnNames[2] = language.getString("MessagePane.messageTable.subject");
         columnNames[3] = language.getString("MessagePane.messageTable.from");
-        columnNames[4] = language.getString("MessagePane.messageTable.sig");
-        columnNames[5] = language.getString("MessagePane.messageTable.date");
+        columnNames[4] = language.getString("MessagePane.messageTable.index");
+        columnNames[5] = language.getString("MessagePane.messageTable.sig");
+        columnNames[6] = language.getString("MessagePane.messageTable.date");
         
         try {
             TableColumnModel tcm = MainFrame.getInstance().getMessagePanel().getMessageTable().getTableHeader().getColumnModel();
@@ -174,6 +175,7 @@ public class MessageTreeTableModel extends DefaultTreeModel implements TreeTable
                     case 3: return "";
                     case 4: return "";
                     case 5: return "";
+                    case 6: return "";
                     default: return "*ERR*";
                 }
             } else {
@@ -182,8 +184,9 @@ public class MessageTreeTableModel extends DefaultTreeModel implements TreeTable
                 case 1: return Boolean.valueOf(mo.isStarred());
                 // 2 is tree+subject column
                 case 3: return mo.getFromName();
-                case 4: return mo.getMessageStatusString();
-                case 5: return mo.getDateAndTimeString();
+                case 4: return ""+mo.getIndex();
+                case 5: return mo.getMessageStatusString();
+                case 6: return mo.getDateAndTimeString();
                 default: return "*ERR*";
             }
             }
