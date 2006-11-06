@@ -44,6 +44,7 @@ public class SearchModel extends OrderedModel {
             
             FrostDownloadItem dlItem = new FrostDownloadItem(flf, flf.getDisplayName());
             downloadModel.addDownloadItem(dlItem);
+            searchItem.updateState();
         }
     }
 
@@ -55,6 +56,7 @@ public class SearchModel extends OrderedModel {
             
             FrostDownloadItem dlItem = new FrostDownloadItem(flf, flf.getDisplayName());
             downloadModel.addDownloadItem(dlItem);
+            searchItem.updateState();
         }
     }
 }

@@ -18,6 +18,7 @@
 */
 package frost.crypt;
 
+import java.util.*;
 import java.util.logging.*;
 
 import org.w3c.dom.*;
@@ -99,7 +100,7 @@ public class SignMetaData extends MetaData {
     public Element getXMLElement(Document container) {
 
         Element el = super.getXMLElement(container);
-
+        
         Element _sig = container.createElement("sig");
         CDATASection cdata = container.createCDATASection(sig);
         _sig.appendChild(cdata);
@@ -113,7 +114,14 @@ public class SignMetaData extends MetaData {
      */
     public void loadXMLElement(Element e) throws SAXException {
 
-        Element _person = (Element) XMLTools.getChildElementsByTagName(e, "MyIdentity").iterator().next();
+        // New Frosts send "Identity" and "MyIdentity", old Frosts only "MyIdentity"
+        List tags = XMLTools.getChildElementsByTagName(e, "Identity");
+        if( tags.size() == 0 ) {
+            // fallback to old format
+            tags = XMLTools.getChildElementsByTagName(e, "MyIdentity");
+        }
+        
+        Element _person = (Element) tags.iterator().next();
         person = new Identity(_person);
         sig = XMLTools.getChildElementsCDATAValue(e, "sig");
 

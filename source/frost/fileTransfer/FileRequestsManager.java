@@ -35,8 +35,6 @@ public class FileRequestsManager {
     
     private static final int MAX_SHA_PER_REQUESTFILE = 350;
     
-    private static final int MIN_DOWNLOAD_RETRIES = 7; // needed retries before we request a file
-    
     private static final long MIN_LAST_UPLOADED = 3; // start upload if last upload is X days back
 
     /**
@@ -51,8 +49,7 @@ public class FileRequestsManager {
         // - don't send a request if the file to request was not seen in a file index for more than 14 days
         // - must be not requested since 23h ( by us or others )
         // - we DON'T have the chk OR
-        // - we HAVE the chk, but download was not successful after 10 tries, and last try was not longer
-        //   then 2 days before (maybe successful now)
+        // - we HAVE the chk, but download FAILED, and last try was not longer then 2 days before (maybe successful now)
         
         long now = System.currentTimeMillis();
         long before23hours = now - 1L * 23L * 60L * 60L * 1000L;
@@ -87,8 +84,8 @@ public class FileRequestsManager {
             }
 
             if( dlItem.getKey() != null && dlItem.getKey().length() > 0 ) {
-                if( dlItem.getRetries() < MIN_DOWNLOAD_RETRIES || dlItem.getLastDownloadStopTime() > before2days ) {
-                    // download retries < MIN_DOWNLOAD_RETRIES or last download try was not in last 2 days (retry!)
+                if( dlItem.getState() != FrostDownloadItem.STATE_FAILED || dlItem.getLastDownloadStopTime() < before2days ) {
+                    // download failed OR last download try was not in last 2 days (retry!)
                     continue;
                 }
             }

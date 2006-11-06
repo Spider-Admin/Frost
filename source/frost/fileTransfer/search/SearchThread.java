@@ -18,15 +18,12 @@
 */
 package frost.fileTransfer.search;
 
-import java.io.*;
 import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
 import frost.fileTransfer.*;
-import frost.fileTransfer.download.*;
-import frost.fileTransfer.sharing.*;
 import frost.identities.*;
 import frost.storage.database.applayer.*;
 import frost.util.*;
@@ -52,8 +49,6 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
 //    private java.sql.Date currentDate;
 
     private SearchTable searchTable;
-    private DownloadModel downloadModel;
-    private SharedFilesModel sharedFilesModel;
 
     private boolean isStopRequested = false;
     
@@ -398,32 +393,7 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
             return;
         }
 
-        FrostFileListFileObjectOwner ob = (FrostFileListFileObjectOwner)
-                fo.getFrostFileListFileObjectOwnerList().get(0);
-
-        String filename = ob.getName();
-        String keyData = fo.getKey();
-        String SHA1 = fo.getSha();
-
-        int searchItemState = FrostSearchItem.STATE_NONE;
-
-        // Already downloaded files get a nice color outfit (see renderer in SearchTable)
-        File file = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + filename);
-        if (file.exists()) {
-            // file is already downloaded -> light_gray
-            searchItemState = FrostSearchItem.STATE_DOWNLOADED;
-        } else if (downloadModel.containsItemWithSha(SHA1)) {
-            // this file is in download table -> blue
-            searchItemState = FrostSearchItem.STATE_DOWNLOADING;
-        } else if (sharedFilesModel.containsItemWithSha(SHA1)) {
-            // this file is in upload table -> green
-            searchItemState = FrostSearchItem.STATE_UPLOADING;
-        } else if (keyData == null) {
-            // this file is offline -> gray
-            searchItemState = FrostSearchItem.STATE_OFFLINE;
-        }
-
-        FrostSearchItem searchItem = new FrostSearchItem(fo, searchItemState);
+        FrostSearchItem searchItem = new FrostSearchItem(fo);
         searchTable.addSearchItem(searchItem);
     }
     
@@ -467,8 +437,5 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
         }
 //        currentDate = DateFun.getCurrentSqlDateGMT();
         hideBad = Core.frostSettings.getBoolValue(SettingsClass.SEARCH_HIDE_BAD);
-        
-        downloadModel = FileTransferManager.getInstance().getDownloadManager().getModel();
-        sharedFilesModel = FileTransferManager.getInstance().getSharedFilesManager().getModel();
     }
 }

@@ -41,13 +41,15 @@ class SearchPanel extends JPanel {
     private JLabel executableExtensionLabel = new JLabel();
     private JTextField executableExtensionTextField = new JTextField();
 
-    private JCheckBox hideBadFilesCheckBox = new JCheckBox();
     private JLabel imageExtensionLabel = new JLabel();
     private JTextField imageExtensionTextField = new JTextField();
     private JLabel maxSearchResultsLabel = new JLabel();
     private JTextField maxSearchResultsTextField = new JTextField(8);
     private JLabel videoExtensionLabel = new JLabel();
     private JTextField videoExtensionTextField = new JTextField();
+
+    private JCheckBox hideBadFilesCheckBox = new JCheckBox();
+    private JCheckBox disableFilesharingCheckBox = new JCheckBox();
 
     /**
      * @param settings the SettingsClass instance that will be used to get and store the settings of the panel
@@ -145,6 +147,11 @@ class SearchPanel extends JPanel {
         constraints.gridwidth = 2;
         constraints.gridx = 0;
         add(hideBadFilesCheckBox, constraints);
+        
+        constraints.gridy++;
+        constraints.gridwidth = 2;
+        constraints.gridx = 0;
+        add(disableFilesharingCheckBox, constraints);
 
         // glue
         constraints.gridy++;
@@ -168,6 +175,7 @@ class SearchPanel extends JPanel {
         archiveExtensionTextField.setText(settings.getValue(SettingsClass.FILEEXTENSION_ARCHIVE));
         maxSearchResultsTextField.setText(Integer.toString(settings.getIntValue(SettingsClass.SEARCH_MAX_RESULTS)));
         hideBadFilesCheckBox.setSelected(settings.getBoolValue(SettingsClass.SEARCH_HIDE_BAD));
+        disableFilesharingCheckBox.setSelected(settings.getBoolValue(SettingsClass.DISABLE_FILESHARING));
     }
 
     public void ok() {
@@ -184,6 +192,7 @@ class SearchPanel extends JPanel {
         maxSearchResultsLabel.setText(language.getString("Options.search.maximumSearchResults"));
 
         hideBadFilesCheckBox.setText(language.getString("Options.search.hideFilesFromPeopleMarkedBad"));
+        disableFilesharingCheckBox.setText(language.getString("Options.search.disableFilesharing"));
     }
 
     /**
@@ -199,5 +208,6 @@ class SearchPanel extends JPanel {
         settings.setValue(SettingsClass.SEARCH_MAX_RESULTS, maxSearchResultsTextField.getText());
 
         settings.setValue(SettingsClass.SEARCH_HIDE_BAD, hideBadFilesCheckBox.isSelected());
+        settings.setValue(SettingsClass.DISABLE_FILESHARING, disableFilesharingCheckBox.isSelected());
     }
 }

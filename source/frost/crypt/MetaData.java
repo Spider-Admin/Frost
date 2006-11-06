@@ -46,8 +46,19 @@ public abstract class MetaData implements XMLizable {
 
     public Element getXMLElement(Document container){
         Element el = container.createElement("FrostMetaData");
+        
+        // for backward compatability we add "Identity" and "MyIdentity" to the metadata.
+        // "MyIdentity" is for older Frosts...
+        // SignMetaData class is able to read both types of identity tags
+        
+        // with tag "Identity"
         Element _person = person.getXMLElement(container);
         el.appendChild(_person);
+        
+        // with tag "MyIdentity"
+        Element _person_old = person.getXMLElement_old(container);
+        el.appendChild(_person_old);
+        
         return el;
     }
 

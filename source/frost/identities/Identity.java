@@ -65,7 +65,25 @@ public class Identity implements XMLizable {
     }
 
     public Element getXMLElement(Document doc)  {
+
         Element el = doc.createElement("Identity");
+
+        Element element = doc.createElement("name");
+        CDATASection cdata = doc.createCDATASection(getUniqueName());
+        element.appendChild( cdata );
+        el.appendChild( element );
+
+        element = doc.createElement("key");
+        cdata = doc.createCDATASection(getKey());
+        element.appendChild( cdata );
+        el.appendChild( element );
+
+        return el;
+    }
+
+    public Element getXMLElement_old(Document doc)  {
+
+        Element el = doc.createElement("MyIdentity");
 
         Element element = doc.createElement("name");
         CDATASection cdata = doc.createCDATASection(getUniqueName());

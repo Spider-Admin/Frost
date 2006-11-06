@@ -946,7 +946,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             board.incTimesUpdatedCount();
         }
     }
-
+    
     /**
      * Fires a nodeChanged (redraw) for all boards.
      * ONLY used to redraw tree after run of OptionsFrame.

@@ -62,6 +62,8 @@ public class ManageLocalIdentitiesDialog extends JDialog {
     private JButton BexportXml = null;
 
     private JButton BsetSignature = null;
+    
+    private boolean identitiesImported = false;
 
     /**
      * This is the default constructor
@@ -402,6 +404,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                             language.getString("ManageLocalIdentities.identityImported.title"),
                             JOptionPane.INFORMATION_MESSAGE);
                     ((DefaultListModel)getIdentitiesList().getModel()).addElement(importedIdentity);
+                    identitiesImported = true;
                     return;
                 }
             });
@@ -547,6 +550,9 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                             language.formatMessage("ManageLocalIdentities.localIdentitiesImported.body", ""+count),
                             language.getString("ManageLocalIdentities.localIdentitiesImported.title"), 
                             JOptionPane.WARNING_MESSAGE);
+                    if( count > 0 ) {
+                        identitiesImported = true;
+                    }
                     return;
                 }
             });
@@ -632,5 +638,9 @@ public class ManageLocalIdentitiesDialog extends JDialog {
             });
         }
         return BsetSignature;
+    }
+
+    public boolean isIdentitiesImported() {
+        return identitiesImported;
     }
 }  //  @jve:decl-index=0:visual-constraint="10,10"

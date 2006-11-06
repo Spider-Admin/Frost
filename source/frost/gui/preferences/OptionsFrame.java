@@ -26,15 +26,15 @@ package frost.gui.preferences;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Vector;
+import java.util.*;
 import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
 
-import frost.SettingsClass;
-import frost.storage.StorageException;
-import frost.util.gui.translation.Language;
+import frost.*;
+import frost.storage.*;
+import frost.util.gui.translation.*;
 
 /**
  * Main options frame.
@@ -74,6 +74,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
     private boolean checkHideCheckMessages;
     private boolean checkHideObserveMessages;
     private String checkMaxMessageDisplay;
+    private String checkMaxMessageDownload;
     private boolean checkSignedOnly;
 
     private boolean checkShowDeletedMessages;
@@ -95,7 +96,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
     private JList optionsGroupsList = null;
     private JPanel optionsGroupsPanel = null;
     private SearchPanel searchPanel = null;
+    
     boolean shouldReloadMessages = false;
+    boolean shouldResetLastBackloadUpdateFinishedMillis = false;
 
     private UploadPanel uploadPanel = null;
     
@@ -491,7 +494,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         }
 
         // now check if some settings changed
-        if( checkMaxMessageDisplay.equals(frostSettings.getValue(SettingsClass.MAX_MESSAGE_DISPLAY)) == false
+        if( !checkMaxMessageDisplay.equals(frostSettings.getValue(SettingsClass.MAX_MESSAGE_DISPLAY))
             || checkSignedOnly != frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_UNSIGNED)
             || checkHideBadMessages != frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_BAD)
             || checkHideCheckMessages != frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_CHECK)
@@ -505,6 +508,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
             // at least one setting changed, reload messages
             shouldReloadMessages = true;
         }
+        if( !checkMaxMessageDownload.equals(frostSettings.getValue(SettingsClass.MAX_MESSAGE_DOWNLOAD)) ) {
+            shouldResetLastBackloadUpdateFinishedMillis = true;
+        }
     }
 
     //------------------------------------------------------------------------
@@ -515,6 +521,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
     private void setDataElements() {
         // first set some settings to check later if they are changed by user
         checkMaxMessageDisplay = frostSettings.getValue(SettingsClass.MAX_MESSAGE_DISPLAY);
+        checkMaxMessageDownload = frostSettings.getValue(SettingsClass.MAX_MESSAGE_DOWNLOAD);
         checkSignedOnly = frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_UNSIGNED);
         checkHideBadMessages = frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_BAD);
         checkHideCheckMessages = frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_CHECK);
@@ -536,6 +543,13 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
      */
     public boolean shouldReloadMessages() {
         return shouldReloadMessages;
+    }
+
+    /**
+     * @return  true if the LastBackloadUpdateFinishedMillis for all boards should be resetted (user changed maxDownloadDays)
+     */
+    public boolean shouldResetLastBackloadUpdateFinishedMillis() {
+        return shouldResetLastBackloadUpdateFinishedMillis;
     }
 
     /**
