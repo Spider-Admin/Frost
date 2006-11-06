@@ -1,7 +1,7 @@
 <body>The Dispatcher.<br>
 
-This class is designed for control fcp commands lika a 
-'high level' api.
+This class is designed for control fcp commands and manage nodes lika a 
+'high level' api.<br>
 It's supports multiple nodes.. (mehr erz&auml;hle ich euch n&auml;chstes mal)
 <p>
 <b>Initialisation</b><br>
@@ -14,6 +14,8 @@ and assign this to the <code>Dispatcher</code>.
 <pre>
 	dispatcher.addNetwork(network);
 </pre>
+You should set up the SecurityManager <b>before</b> you start the
+dispatcher.<br>
 <p>
 If configured, add state listeners as wanted/needed. [need to expand] 
 <p>
@@ -23,8 +25,40 @@ Last not least lets boot the <code>Dispatcher</code>.
 </pre>
 Now the engine starts up and its a god time to do other startup
 things in your app (build the gui, for example).
-
-
+<p>
+The Dispatcher checks every 3 minutes the node online state and try to (re)connect
+<p>
 <b>Jobs</b><br>
+<i>blocking mode</i><br>
+text text text
+<pre>
+	job = new Job(...);
+	
+	int ec = dispatcher.runJob(job);
+	
+	if (ec != RUNJOB_NOERROR) {
+		// the job isnt executed due a dispatcher error ('panic' level)
+		// the job may be invalid!
+		.. 
+		return;
+	}
+	
+	if ( job.isSuccess() ) {
+		// the file is sent or recived, for example...
+		Gui.blinkLamp(green);
+	} else {
+		// somethig did a oops.
+		UserDialog(job.getLastError());
+		.. or ..
+		throw job.getLastError();
+		.. or ..
+		// ignore silencly
+	}
+	
+</pre>
+see {@link hyperocha.freenet.dispatcher.job.Job} for details
+<p>
+<i>queued mode</i><br>
+text text text 
  
 </body>
