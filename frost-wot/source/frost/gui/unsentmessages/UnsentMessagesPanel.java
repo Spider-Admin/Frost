@@ -94,7 +94,6 @@ public class UnsentMessagesPanel extends JPanel {
         disableMessageUpload.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
                 Core.frostSettings.setValue(SettingsClass.MESSAGE_UPLOAD_DISABLED, disableMessageUpload.isSelected());
-                System.out.println("state="+disableMessageUpload.isSelected());
             }
         });
     }
