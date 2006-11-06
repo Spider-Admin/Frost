@@ -595,7 +595,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
         }
     
         private void enableAllDownloads() {
-            model.setAllItemsEnabled(Boolean.FALSE);
+            model.setAllItemsEnabled(Boolean.TRUE);
         }
     
         private void removeFinished() {

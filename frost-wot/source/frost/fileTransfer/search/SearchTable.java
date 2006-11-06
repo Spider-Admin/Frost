@@ -114,8 +114,7 @@ public class SearchTable extends SortedModelTable {
 //            }
         }
         
-        ModelItem[] selectedItems = getSelectedItems();
-        searchModel.addItemsToDownloadModel(selectedItems);
+        addItemsToDownloadTable( getSelectedItems() );
     }
 
     private void showDetails() {
@@ -125,6 +124,20 @@ public class SearchTable extends SortedModelTable {
         }
         FrostSearchItem item = (FrostSearchItem) selectedItems[0];
         new FileListFileDetailsDialog(MainFrame.getInstance()).startDialog(item.getFrostFileListFileObject());
+    }
+    
+    /**
+     * Add selected items, or all item if called with null, to the download table.
+     * Updates state of item in search table.
+     */
+    private void addItemsToDownloadTable(ModelItem[] selectedItems) {
+        if( selectedItems == null ) {
+            // add all
+            searchModel.addAllItemsToDownloadModel();
+        } else {
+            // add selected
+            searchModel.addItemsToDownloadModel(selectedItems);
+        }
     }
 
     private class Listener extends MouseAdapter implements MouseListener {
@@ -340,12 +353,11 @@ public class SearchTable extends SortedModelTable {
         }
     
         private void downloadAllKeys() {
-            searchModel.addAllItemsToDownloadModel();
+            addItemsToDownloadTable( null );
         }
     
         private void downloadSelectedKeys() {
-            ModelItem[] selectedItems = getSelectedItems();
-            searchModel.addItemsToDownloadModel(selectedItems);
+            addItemsToDownloadTable( getSelectedItems() );
         }
     
         public void languageChanged(LanguageEvent event) {

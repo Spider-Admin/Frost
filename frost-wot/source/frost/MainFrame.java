@@ -853,7 +853,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
     /**
      * Options | Preferences action performed
-     * @param e
      */
     private void optionsPreferencesMenuItem_actionPerformed(ActionEvent e) {
         try {
@@ -872,14 +871,23 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 // reload all messages
                 tofTree_actionPerformed(null);
             }
+            if( optionsDlg.shouldResetLastBackloadUpdateFinishedMillis() ) {
+                // reset lastBackloadUpdatedMillis for all boards
+                getTofTreeModel().resetLastBackloadUpdateFinishedMillis();
+            }
 
+            // repaint whole tree, in case the update visualization was enabled or disabled (or others)
             tofTree.updateTree();
-            // redraw whole tree, in case the update visualization was enabled or disabled (or others)
         }
     }
     
     private void optionsManageLocalIdentitiesMenuItem_actionPerformed(ActionEvent e) {
-        new ManageLocalIdentitiesDialog().setVisible(true);
+        ManageLocalIdentitiesDialog dlg = new ManageLocalIdentitiesDialog();
+        dlg.setVisible(true); // modal
+        if( dlg.isIdentitiesImported() ) {
+            // identities were imported, reload message table to show 'ME' for imported local identities
+            tofTree_actionPerformed(null);
+        }
     }
 
     private void optionsManageIdentitiesMenuItem_actionPerformed(ActionEvent e) {

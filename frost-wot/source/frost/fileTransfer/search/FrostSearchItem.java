@@ -19,6 +19,8 @@
 package frost.fileTransfer.search;
 
 import frost.fileTransfer.*;
+import frost.fileTransfer.download.*;
+import frost.fileTransfer.sharing.*;
 import frost.util.*;
 import frost.util.model.*;
 
@@ -26,7 +28,7 @@ public class FrostSearchItem extends ModelItem {
 
     private FrostFileListFileObject fo;
     private int state;
-    
+
     private Long sizeLong = null;
     private String lastUploadedStr = null;
     private String lastReceivedStr = null;
@@ -39,9 +41,38 @@ public class FrostSearchItem extends ModelItem {
     public static final int STATE_UPLOADING   = 4; // set if file is in upload table
     public static final int STATE_OFFLINE     = 5; // set if file is offline
 
-    public FrostSearchItem(FrostFileListFileObject newKey, int newState) {
+    public FrostSearchItem(FrostFileListFileObject newKey) {
         fo = newKey;
-        state = newState;
+        updateState();
+    }
+    
+    public void updateState() {
+
+        // Already downloaded files get a nice color outfit (see renderer in SearchTable)
+
+        DownloadModel downloadModel = FileTransferManager.getInstance().getDownloadManager().getModel();
+        SharedFilesModel sharedFilesModel = FileTransferManager.getInstance().getSharedFilesManager().getModel();
+
+        int searchItemState = FrostSearchItem.STATE_NONE;
+
+        String SHA1 = fo.getSha();
+
+        if (downloadModel.containsItemWithSha(SHA1)) {
+            // file was downloaded before -> light_gray
+            searchItemState = FrostSearchItem.STATE_DOWNLOADING;
+        } else if ( fo.getLastDownloaded() > 0 ) {
+            // this file is in download table -> blue
+            searchItemState = FrostSearchItem.STATE_DOWNLOADED;
+        } else if (sharedFilesModel.containsItemWithSha(SHA1)) {
+            // this file is in upload table -> green
+            searchItemState = FrostSearchItem.STATE_UPLOADING;
+        } else if (fo.getKey() == null) {
+            // this file is offline -> gray
+            searchItemState = FrostSearchItem.STATE_OFFLINE;
+        }
+
+        state = searchItemState;
+        fireChange(); //FIXME: item verschwindet aus table???
     }
 
     public String getFilename() {
@@ -54,7 +85,7 @@ public class FrostSearchItem extends ModelItem {
         }
         return fo.getDisplayComment();
     }
-    
+
     public Boolean hasInfosFromMultipleSources() {
         return fo.hasInfosFromMultipleSources();
     }
@@ -84,7 +115,7 @@ public class FrostSearchItem extends ModelItem {
         }
         return lastUploadedStr;
     }
-    
+
     public String getLastReceivedString() {
         if( lastReceivedStr == null ) {
             if( getFrostFileListFileObject().getLastReceived() > 0 ) {

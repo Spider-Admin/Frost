@@ -329,12 +329,29 @@ public class FrostDownloadItem extends ModelItem {
         if( this.fileListFileObject != null ) {
             this.fileListFileObject.removeListener(this);
         }
+        
+        int newState = -1;
+        
+        // if lastUploaded value changed, maybe restart failed download
+        if( sharedFileObject != null && this.fileListFileObject != null ) {
+            if( sharedFileObject.getLastUploaded() > this.fileListFileObject.getLastUploaded() ) {
+                if( getState() == STATE_FAILED ) {
+                    newState = STATE_WAITING;
+                }
+            }
+        }
+        
         this.fileListFileObject = sharedFileObject;
+        
         if( this.fileListFileObject != null ) {
             this.fileListFileObject.addListener(this);
         }
         // take over key and update gui
         fireValueChanged();
+        
+        if( newState > -1 ) {
+            setState(newState);
+        }
     }
     
     /**

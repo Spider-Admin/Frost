@@ -956,12 +956,12 @@ public class MessageFrame extends JFrame {
         if( !headerArea.isEnabled() ) {
             return; // ignore updates
         }
-        headerArea.setEnabled(false);
         if( sender == null || oldSender == null || oldSender.equals(sender) ) {
             return;
         }
         try {
             // TODO: add grey background! highlighter mit headerArea um pos zu finden
+            headerArea.setEnabled(false);
             messageTextArea.getDocument().remove(headerArea.getStartPos() + 6, oldSender.length());
             messageTextArea.getDocument().insertString(headerArea.getStartPos() + 6, sender, null);
             oldSender = sender;
@@ -1063,6 +1063,7 @@ public class MessageFrame extends JFrame {
                     if( e.getStateChange() == ItemEvent.DESELECTED ) {
                         return;
                     }
+                    System.out.println("state changed");
                     LocalIdentity selectedId = null;
                     if( ownIdentitiesComboBox.getSelectedIndex() == 0 ) {
                         ownIdentitiesComboBox.setEditable(true); // original anonymous

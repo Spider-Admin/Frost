@@ -186,6 +186,21 @@ public class TofTreeModel extends DefaultTreeModel {
         }
         return boards;
     }
+    
+    /**
+     * Called if user changed the days to download backward in options.
+     * Resets LastBackloadUpdateFinishedMillis for all boards.
+     */
+    public void resetLastBackloadUpdateFinishedMillis() {
+        Board node = (Board) getRoot();
+        Enumeration e = node.breadthFirstEnumeration();
+        while (e.hasMoreElements()) {
+            Board child = (Board) e.nextElement();
+            if (child.isFolder() == false) {
+                child.setLastBackloadUpdateFinishedMillis(0);
+            }
+        }
+    }
 
     /**
      * This method looks for a board with the name passed as a parameter. The
