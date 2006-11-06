@@ -50,7 +50,7 @@ public class NodeMessage {
 	}
 	
 	public FreenetKey getKeyValue(String name) {
-		return FreenetKey.getKeyFromString((String)items.get(name));
+		//return FreenetKey.getKeyFromString((String)items.get(name));
 	}
 	
 	public boolean getBoolValue(String name) {
