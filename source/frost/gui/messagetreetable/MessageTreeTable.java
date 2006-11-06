@@ -703,6 +703,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         private final Color col_check   = new Color(0xFF, 0xCC, 0x00);
         private final Color col_observe = new Color(0x00, 0xD0, 0x00);
         private final Color col_bad     = new Color(0xFF, 0x00, 0x00);
+        final javax.swing.border.EmptyBorder border = new javax.swing.border.EmptyBorder(0, 0, 0, 3);
 
         public StringCellRenderer() {
             Font baseFont = MessageTreeTable.this.getFont();
@@ -763,6 +764,8 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             column = tableColumn.getModelIndex();
 
             setToolTipText(null);
+            setBorder(null);
+            setHorizontalAlignment(SwingConstants.LEFT);
 
             // do nice things for FROM and SIG column
             if( column == 3 ) {
@@ -787,6 +790,11 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                     setToolTipText((String)value);
                 }
             } else if( column == 4 ) {
+                // index column, right aligned
+                setHorizontalAlignment(SwingConstants.RIGHT);
+                // col is right aligned, give some space to next column
+                setBorder(border);
+            } else if( column == 5 ) {
                 // SIG
                 // state == good/bad/check/observe -> bold and coloured
                 if( msg.isMessageStatusGOOD() ) {
