@@ -350,7 +350,6 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         
         public void processKeyEvent(KeyEvent e) {
             super.processKeyEvent(e);
-            System.out.println("sub kevt:"+e);
         }
         
         class OwnTreeCellRenderer extends DefaultTreeCellRenderer {
