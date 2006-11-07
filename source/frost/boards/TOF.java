@@ -650,11 +650,14 @@ public class TOF {
 
                             MainFrame.getInstance().updateTofTree(innerTargetBoard);
                             MainFrame.getInstance().updateMessageCountLabels(innerTargetBoard);
+                            
+                            MainFrame.getInstance().deactivateGlassPane();
                         }
                     }
                 });
+            } else if( nextUpdateThread == null ) {
+                MainFrame.getInstance().deactivateGlassPane();
             }
-            MainFrame.getInstance().deactivateGlassPane();
             updateThread = null;
         }
     }
