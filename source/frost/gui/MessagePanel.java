@@ -499,19 +499,22 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
         toggleShowThreads.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS));
         toggleShowThreads.setIcon(new ImageIcon(getClass().getResource("/data/togglethreads.gif")));
-        toggleShowThreads.setMargin(new Insets(1, 1, 1, 1));
+        toggleShowThreads.setMargin(new Insets(0, 0, 0, 0));
+        toggleShowThreads.setPreferredSize(new Dimension(24,24));
         toggleShowThreads.setFocusPainted(false);
         toggleShowThreads.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowThreads"));
         
         toggleShowSmileys.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SHOW_SMILEYS));
         toggleShowSmileys.setIcon(new ImageIcon(getClass().getResource("/data/togglesmileys.gif")));
-        toggleShowSmileys.setMargin(new Insets(1, 1, 1, 1));
+        toggleShowSmileys.setMargin(new Insets(0, 0, 0, 0));
+        toggleShowSmileys.setPreferredSize(new Dimension(24,24));
         toggleShowSmileys.setFocusPainted(false);
         toggleShowSmileys.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowSmileys"));
         
         toggleShowHyperlinks.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SHOW_KEYS_AS_HYPERLINKS));
         toggleShowHyperlinks.setIcon(new ImageIcon(getClass().getResource("/data/togglehyperlinks.gif")));
-        toggleShowHyperlinks.setMargin(new Insets(1, 1, 1, 1));
+        toggleShowHyperlinks.setMargin(new Insets(0, 0, 0, 0));
+        toggleShowHyperlinks.setPreferredSize(new Dimension(24,24));
         toggleShowHyperlinks.setFocusPainted(false);
         toggleShowHyperlinks.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowHyperlinks"));
 
