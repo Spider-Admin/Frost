@@ -65,6 +65,7 @@ class News3Panel extends JPanel {
     private JCheckBox silentlyRetryCheckBox = new JCheckBox();
     private JCheckBox showDeletedMessagesCheckBox = new JCheckBox();
     private JCheckBox receiveDuplicateMessagesCheckBox = new JCheckBox();
+    private JCheckBox dontHandleOwnMessagesAsNewCheckBox = new JCheckBox();
 
     private JPanel colorPanel = null;
 
@@ -207,6 +208,9 @@ class News3Panel extends JPanel {
 
         constraints.gridy++;
         add(receiveDuplicateMessagesCheckBox, constraints);
+        
+        constraints.gridy++;
+        add(dontHandleOwnMessagesAsNewCheckBox, constraints);
 
         // glue
         constraints.gridy++;
@@ -242,6 +246,7 @@ class News3Panel extends JPanel {
         silentlyRetryCheckBox.setSelected(settings.getBoolValue(SettingsClass.SILENTLY_RETRY_MESSAGES));
         showDeletedMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_DELETED_MESSAGES));
         receiveDuplicateMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.RECEIVE_DUPLICATE_MESSAGES));
+        dontHandleOwnMessagesAsNewCheckBox.setSelected(settings.getBoolValue(SettingsClass.HANDLE_OWN_MESSAGES_AS_NEW_DISABLED));
     }
 
     public void ok() {
@@ -271,6 +276,7 @@ class News3Panel extends JPanel {
         silentlyRetryCheckBox.setText(language.getString("Options.news.3.silentlyRetryFailedMessages"));
         showDeletedMessagesCheckBox.setText(language.getString("Options.news.3.showDeletedMessages"));
         receiveDuplicateMessagesCheckBox.setText(language.getString("Options.news.3.receiveDuplicateMessages"));
+        dontHandleOwnMessagesAsNewCheckBox.setText(language.getString("Options.news.3.dontHandleOwnMessagesAsNew"));
     }
 
     private void refreshUpdateState() {
@@ -296,6 +302,7 @@ class News3Panel extends JPanel {
         settings.setValue(SettingsClass.SILENTLY_RETRY_MESSAGES, silentlyRetryCheckBox.isSelected());
         settings.setValue(SettingsClass.SHOW_DELETED_MESSAGES, showDeletedMessagesCheckBox.isSelected());
         settings.setValue(SettingsClass.RECEIVE_DUPLICATE_MESSAGES, receiveDuplicateMessagesCheckBox.isSelected());
+        settings.setValue(SettingsClass.HANDLE_OWN_MESSAGES_AS_NEW_DISABLED, dontHandleOwnMessagesAsNewCheckBox.isSelected());
     }
 
     private void selectedColorPressed() {

@@ -205,7 +205,9 @@ public class TOF {
      */
     public void receivedValidMessage(MessageXmlFile currentMsg, Board board, int index) {
         FrostMessageObject newMsg = new FrostMessageObject(currentMsg, board, index);
-        newMsg.setNew(true);
+        if( newMsg.isMessageFromME() && !Core.frostSettings.getBoolValue(SettingsClass.HANDLE_OWN_MESSAGES_AS_NEW_DISABLED) ) {
+            newMsg.setNew(true);
+        }
         try {
             AppLayerDatabase.getMessageTable().insertMessage(newMsg);
         } catch (SQLException e) {
@@ -266,11 +268,13 @@ public class TOF {
         // message is not blocked
         SwingUtilities.invokeLater( new Runnable() {
             public void run() {
-
-                board.newMessageReceived(); // notify receive of new msg (for board update)
-                board.incNewMessageCount(); // increment new message count
-                MainFrame.getInstance().updateTofTree(board);
-                MainFrame.getInstance().displayNewMessageIcon(true);
+                
+                if( message.isNew() ) {
+                    board.newMessageReceived(); // notify receive of new msg (for board update)
+                    board.incNewMessageCount(); // increment new message count
+                    MainFrame.getInstance().updateTofTree(board);
+                    MainFrame.getInstance().displayNewMessageIcon(true);
+                }
 
                 Board selectedBoard = tofTreeModel.getSelectedNode();
                 // add only if target board is still shown

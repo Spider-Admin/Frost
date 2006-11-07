@@ -120,8 +120,18 @@ public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNo
     	Identity i = getFromIdentity();
     	if (i instanceof LocalIdentity) {
 			return "ME";
+        } else {
+            return messageStateStrings[getMessageStatus(i)];
         }
-        return messageStateStrings[getMessageStatus(i)];
+    }
+    
+    public boolean isMessageFromME() {
+        Identity i = getFromIdentity();
+        if (i instanceof LocalIdentity) {
+            return true;
+        } else {
+            return false;
+        }
     }
     
     public boolean isMessageStatusGOOD() {
