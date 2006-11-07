@@ -139,6 +139,24 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     	}
     }
 
+    /**
+     * Overwritten to forward LEFT and RIGHT cursor to the tree to allow JTree-like expand/collapse of nodes.
+     */
+    protected boolean processKeyBinding(KeyStroke ks, KeyEvent e, int condition, boolean pressed) {
+        if( !pressed ) {
+            return super.processKeyBinding(ks, e, condition, pressed);
+        }
+
+        if( e.getKeyCode() == KeyEvent.VK_LEFT ) {
+            getTree().processKeyEvent(e);
+        } else if( e.getKeyCode() == KeyEvent.VK_RIGHT ) {
+            getTree().processKeyEvent(e);
+        } else {
+            return super.processKeyBinding(ks, e, condition, pressed);
+        }
+        return true;
+    }
+    
     public void setNewRootNode(TreeNode t) {
         ((DefaultTreeModel)tree.getModel()).setRoot(t);
     }
@@ -276,7 +294,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     /**
      * Returns the tree that is being shared between the model.
      */
-    public JTree getTree() {
+    public TreeTableCellRenderer getTree() {
         return tree;
     }
     
@@ -329,6 +347,11 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                 treeUI.setRightChildIndent(10);
             }
     	}
+        
+        public void processKeyEvent(KeyEvent e) {
+            super.processKeyEvent(e);
+            System.out.println("sub kevt:"+e);
+        }
         
         class OwnTreeCellRenderer extends DefaultTreeCellRenderer {
             int treeWidth;
