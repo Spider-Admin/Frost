@@ -201,6 +201,7 @@ public class FileListFile {
             }
             filesNode = (Element)nodelist.get(0);
         }
+        
         LinkedList files = new LinkedList();
         {        
             List _files = XMLTools.getChildElementsByTagName(filesNode, TAG_File);
@@ -208,7 +209,7 @@ public class FileListFile {
                 Element el = (Element) i.next();
                 SharedFileXmlFile file = SharedFileXmlFile.getInstance(el);
                 if( file == null ) {
-                    logger.severe("Error: invalid shared file ignored");
+                    logger.severe("Error: shared files xml parsing failed, most likely the signature verification will fail!");
                     continue;
                 }
                 files.add( file );
@@ -222,6 +223,20 @@ public class FileListFile {
         if( !sigIsValid ) {
             logger.severe("Error: invalid file signature from owner "+owner.getUniqueName());
             return null;
+        }
+        
+        // check each file for validity
+        for(Iterator i=files.iterator(); i.hasNext(); ) {
+            SharedFileXmlFile file = (SharedFileXmlFile) i.next();
+            if( !file.isSharedFileValid() ) {
+                String txt = "Shared file is invalid (missing fields or wrong contents):"+
+                             "\n  size="+file.getSize()+
+                             "\n  sha="+file.getSha()+
+                             "\n  name="+file.getFilename()+
+                             "\n  key="+file.getKey();
+                logger.log(Level.SEVERE, txt);
+                i.remove();
+            }
         }
         
         // all is valid

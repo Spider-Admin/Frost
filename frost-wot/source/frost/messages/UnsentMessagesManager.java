@@ -81,7 +81,6 @@ public class UnsentMessagesManager {
 
     /**
      * Returns a message to upload. The message must have no unsend file attachments.
-     * When a message is returned it is dequeued.
      * Takes care that the returned message is from the same userName as specified, 
      * because we don't want to send messages from different userNames together, 
      * this compromises anonymity! 
@@ -91,10 +90,12 @@ public class UnsentMessagesManager {
     public static FrostUnsentMessageObject getUnsentMessage(Board targetBoard, String fromName) {
         for(Iterator i = unsentMessages.iterator(); i.hasNext(); ) {
             FrostUnsentMessageObject mo = (FrostUnsentMessageObject) i.next();
+            if( mo.getCurrentUploadThread() != null ) {
+                continue; // msg is currently uploading
+            }
             if( mo.getBoard().getPrimaryKey().intValue() == targetBoard.getPrimaryKey().intValue() ) {
                 if( fromName == null || fromName.equals(mo.getFromName()) ) {
                     if( mo.getUnsentFileAttachments().size() == 0 ) {
-                        i.remove();
                         return mo;
                     }
                 }
@@ -109,7 +110,10 @@ public class UnsentMessagesManager {
     public static List getBoardsWithSendableMessages() {
         Hashtable ht = new Hashtable();
         for(Iterator i = unsentMessages.iterator(); i.hasNext(); ) {
-            FrostMessageObject mo = (FrostMessageObject) i.next();
+            FrostUnsentMessageObject mo = (FrostUnsentMessageObject) i.next();
+            if( mo.getCurrentUploadThread() != null ) {
+                continue; // msg is currently uploading
+            }
             if( !ht.containsKey(mo.getBoard().getPrimaryKey()) ) {
                 ht.put(mo.getBoard().getPrimaryKey(), mo.getBoard());
             }
@@ -165,7 +169,22 @@ public class UnsentMessagesManager {
         
         return true;
     }
-    
+
+    public static boolean dequeueMessage(FrostUnsentMessageObject unsentMsg) {
+        
+        for(Iterator i = unsentMessages.iterator(); i.hasNext(); ) {
+            FrostUnsentMessageObject mo2 = (FrostUnsentMessageObject) i.next();
+            if( unsentMsg.getMessageId().equals(mo2.getMessageId()) ) {
+                i.remove();
+                break;
+            }
+        }
+        
+        MainFrame.getInstance().getMessageInfoPanel().removeUnsentMessage(unsentMsg);
+        
+        return true;
+    }
+
     public static void updateMessageFileAttachmentKey(FrostMessageObject mo, FileAttachment fa) throws SQLException {
         try {
             AppLayerDatabase.getUnsentMessageTable().updateMessageFileAttachmentKey(mo, fa);

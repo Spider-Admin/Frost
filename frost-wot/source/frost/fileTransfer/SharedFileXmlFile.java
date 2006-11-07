@@ -32,7 +32,7 @@ public class SharedFileXmlFile implements XMLizable {
     
     private static Logger logger = Logger.getLogger(SharedFileXmlFile.class.getName());
 
-    private final static String[] invalidChars = {"/", "\\", "?", "*", "<", ">", "\"", ":", "|"};
+    private final static char[] invalidChars = {'/', '\\', '?', '*', '<', '>', '\"', ':', '|'};
 
     // following fields must be unique in the FILELIST
     String sha = null;  // SHA of the file
@@ -49,11 +49,24 @@ public class SharedFileXmlFile implements XMLizable {
 
     public SharedFileXmlFile() {
     }
+    
+    /**
+     * Ensure that all fields are valid.
+     */
+    public void ensureValidity() {
+        if( filename == null || filename.length() == 0 ) {
+            filename = "filename";
+        } else {
+            // replace invalid characters
+            for( int i = 0; i < invalidChars.length; i++ ) {
+                filename = filename.replace(invalidChars[i], '_');
+            }
+        }
+    }
 
     /**Tests if the filename is valid*/
-    public boolean checkFilename() {
-
-        if( filename==null || filename.length() == 0 || filename.length() > 255 ) {
+    private boolean checkFilename() {
+        if( filename==null || filename.length() == 0 ) {
             return false;
         }
         for( int i = 0; i < invalidChars.length; i++ ) {
@@ -65,11 +78,10 @@ public class SharedFileXmlFile implements XMLizable {
     }
 
     /**Tests if key is valid*/
-    public boolean checkKey() {
+    private boolean checkKey() {
         if (key == null) {
             return true;
         }
-//        if( key.startsWith("CHK@") && key.length() == 58 ) return true;
         if( key.startsWith("CHK@") ) { 
             return true;
         }
@@ -77,7 +89,7 @@ public class SharedFileXmlFile implements XMLizable {
     }
 
     /**Returns true if key is valid*/
-    private boolean isSharedFileValid() {
+    public boolean isSharedFileValid() {
         if( size != null && sha != null && checkFilename() && checkKey() ) {
             return true;
         }
@@ -229,10 +241,6 @@ public class SharedFileXmlFile implements XMLizable {
         try {
             SharedFileXmlFile result = new SharedFileXmlFile();
             result.loadXMLElement(e);
-            if( !result.isSharedFileValid() ) {
-                logger.log(Level.SEVERE, "shared file is invalid (missing fields or wrong contents).");
-                return null;
-            }
             return result;
         } catch(SAXException ex) {
             logger.log(Level.SEVERE, "parsing file failed.", ex);

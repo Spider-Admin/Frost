@@ -59,7 +59,9 @@ public class MiscToolkit {
 	 */
 	public void configureButton(JButton button, String rolloverIcon) {
 		button.setRolloverIcon(new ImageIcon(getClass().getResource(rolloverIcon)));
-		button.setMargin(new Insets(0, 0, 0, 0));
+//		button.setMargin(new Insets(0, 0, 0, 0));
+		button.setMargin(new Insets(4, 4, 4, 4));
+//        button.setB
 		button.setBorderPainted(false);
 		button.setFocusPainted(false);
 	}

@@ -286,7 +286,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     private JToolBar getButtonToolBar() {
         if (buttonToolBar == null) {
             buttonToolBar = new JToolBar();
-
+            
             // configure buttons
             knownBoardsButton = new JButton(new ImageIcon(getClass().getResource("/data/knownboards.gif")));
             searchMessagesButton = new JButton(new ImageIcon(getClass().getResource("/data/searchmessages.gif")));

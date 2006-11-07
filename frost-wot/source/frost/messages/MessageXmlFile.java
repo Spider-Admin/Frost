@@ -58,11 +58,9 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
         setInReplyTo(mo.getInReplyTo()); // inreplyto
         setBoardName(mo.getBoard().getName()); // board
         setFromName(mo.getFromName()); // from
+        
         Identity id = getFromIdentity();
-        if( id == null ) {
-            logger.severe("Error: From identity for new message was not found, using Anonymous!");
-            setFromName("Anonymous");
-        } else {
+        if( id != null ) {
             setPublicKey(id.getKey());
         }
         setSubject(mo.getSubject()); // subject
