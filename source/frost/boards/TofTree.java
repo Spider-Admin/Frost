@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.logging.*;
 
 import javax.swing.*;
+import javax.swing.event.*;
 import javax.swing.tree.*;
 
 import frost.*;
@@ -548,6 +549,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
     public TofTree(TofTreeModel model) {
         super(model);
         this.model = model;
+        
         showBoardDescriptionToolTips = Core.frostSettings.getBoolValue(SettingsClass.SHOW_BOARDDESC_TOOLTIPS);
         showBoardUpdatedCount = Core.frostSettings.getBoolValue(SettingsClass.SHOW_BOARD_UPDATED_COUNT);
         showBoardUpdateVisualization = Core.frostSettings.getBoolValue(SettingsClass.SHOW_BOARD_UPDATE_VISUALIZATION);
@@ -591,6 +593,21 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
 
         // load nodes from disk
         loadTree();
+        
+        // only select folder if a board in this folder was selected before
+        // (this is a fix for a problem that occurs only on linux: collapse a folder with a selected
+        //  board inside and the selection jumps to the root node rather than to the collapsed node)
+        addTreeExpansionListener(new TreeExpansionListener() {
+            public void treeCollapsed(TreeExpansionEvent event) {
+                TreePath selectedPath = getSelectionPath();
+                TreePath collapsedPath = event.getPath();
+                if( collapsedPath.isDescendant(selectedPath) ) {
+                    setSelectionPath(event.getPath());
+                }
+            }
+            public void treeExpanded(TreeExpansionEvent event) {
+            }
+        });
 
         // enable the machine ;)
         runningBoardUpdateThreads = new RunningBoardUpdateThreads();
