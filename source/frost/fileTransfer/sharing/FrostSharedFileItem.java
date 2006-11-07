@@ -124,6 +124,8 @@ public class FrostSharedFileItem extends ModelItem {
         sfxf.setRating(getRating());
         sfxf.setKeywords(getKeywords());
         
+        sfxf.ensureValidity();
+        
         return sfxf;
     }
 

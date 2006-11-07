@@ -843,13 +843,21 @@ public class IdentitiesBrowser extends JDialog {
                     if( answer == JOptionPane.NO_OPTION ) {
                         return;
                     }
-                    
-                    for( Iterator iter = li.iterator(); iter.hasNext(); ) {
-                        Integer element = (Integer) iter.next();
-                        InnerTableMember m = (InnerTableMember)tableModel.getRow(element.intValue());
-                        Identity id = m.getIdentity();
-                        Core.getIdentities().deleteIdentity(id);
-                        tableModel.removeRow(element.intValue());
+
+                    // batch delete, turn off autocommit
+                    try {
+                        AppLayerDatabase.getInstance().setAutoCommitOff();
+                        for( Iterator iter = li.iterator(); iter.hasNext(); ) {
+                            Integer element = (Integer) iter.next();
+                            InnerTableMember m = (InnerTableMember)tableModel.getRow(element.intValue());
+                            Identity id = m.getIdentity();
+                            Core.getIdentities().deleteIdentity(id);
+                            tableModel.removeRow(element.intValue());
+                        }
+                        AppLayerDatabase.getInstance().commit();
+                        AppLayerDatabase.getInstance().setAutoCommitOn();
+                    } catch(Throwable t) {
+                        logger.log(Level.SEVERE, "database exception", t);
                     }
                 }
             });

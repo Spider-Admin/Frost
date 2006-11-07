@@ -343,12 +343,13 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
 
             if( !result.isSuccess() ) {
                 // upload failed, unsend message was handled by MessageUploader (kept or deleted, user choosed)
+                mo.setCurrentUploadThread(null); // must be marked as not uploaded currently before delete!
                 if( !result.isKeepMessage() ) {
                     // user choosed to drop the message
-                    mo.setCurrentUploadThread(null); // must be marked as not uploaded currently before delete!
                     UnsentMessagesManager.deleteMessage(mo);
                 } else {
-                    // user choosed to retry after next startup, we do not re-enqueue the file now and find it again on next startup
+                    // user choosed to retry after next startup, dequeue message now and find it again on next startup
+                    UnsentMessagesManager.dequeueMessage(mo);
                 }
                 return;
             }
