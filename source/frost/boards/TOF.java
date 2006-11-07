@@ -205,7 +205,9 @@ public class TOF {
      */
     public void receivedValidMessage(MessageXmlFile currentMsg, Board board, int index) {
         FrostMessageObject newMsg = new FrostMessageObject(currentMsg, board, index);
-        if( newMsg.isMessageFromME() && !Core.frostSettings.getBoolValue(SettingsClass.HANDLE_OWN_MESSAGES_AS_NEW_DISABLED) ) {
+        if( newMsg.isMessageFromME() && Core.frostSettings.getBoolValue(SettingsClass.HANDLE_OWN_MESSAGES_AS_NEW_DISABLED) ) {
+            newMsg.setNew(false);
+        } else {
             newMsg.setNew(true);
         }
         try {
