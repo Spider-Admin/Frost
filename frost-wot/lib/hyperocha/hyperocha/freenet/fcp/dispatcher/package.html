@@ -47,12 +47,16 @@ text text text
 		// the file is sent or recived, for example...
 		Gui.blinkLamp(green);
 	} else {
-		// somethig did a oops.
+		// something did an oops.
 		UserDialog(job.getLastError());
 		.. or ..
 		throw job.getLastError();
 		.. or ..
 		// ignore silencly
+		.. or ..
+		Screen.explode();
+		.. or ..
+		Child.grabAndEat();
 	}
 	
 </pre>
@@ -60,5 +64,27 @@ see {@link hyperocha.freenet.dispatcher.job.Job} for details
 <p>
 <i>queued mode</i><br>
 text text text 
+<p>
+<b>Dispatcher stati</b><br>
+<dl>
+  <dt>STATE_UNKNOWN</dt>  <dd>The Dispatcher isn't initialized jet.</dd>
+  <dt>STATE_ERROR</dt> <dd>internal unresolved error. can be somthing beetween oops and panic</dd>
+  <dt>STATE_STARTING</dt> <dd>the sheduler is starting up</dd>
+  <dt>STATE_RUNNING</dt> <dd>the job sheduler and online monitor is up and working</dd>
+  <dt>STATE_STOPPING</dt> <dd>the sheduler is shutting down</dd>
+  <dt>STATE_STOPPED</dt> <dd>the sheduler is down</dd>
+  <dt>STATE_IDLE</dt> <dd>up and nothing to do</dd>
+</dl>
+<p>
+<b>Dispatcher.runJob error codes</b><br>
+<dl>
+	<dt>RUNJOB_NOERROR</dt> <dd>everybody like this :)</dd> 
+	<dt>RUNJOB_PREPAREFAILED</dt> <dd>job runs prepare and isn't prepared after.</dd>
+	<dt>RUNJOB_OFFLINE</dt> <dd>return without execution, nix fitting node for this job aviable / online</dd> 
+	<dt>RUNJOB_OVERLOAD</dt> <dd>Box (cpu, mem, net, execution time to high) overloaded.</dd>
+	<dt>RUNJOB_QUEUEFULL</dt> <dd>queue full</dd>
+	<dt>RUNJOB_BROKEN</dt> <dd>urgs? panic() called? panic case
+</dl>
+
  
 </body>
