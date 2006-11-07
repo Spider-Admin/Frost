@@ -25,6 +25,7 @@ import java.io.InputStream;
 
 /**
  * @author saces
+ * @version $ID$
  *
  */
 public class UploadFrom {
@@ -70,10 +71,18 @@ public class UploadFrom {
 		this.type = type;
 		this.source = source;
 	}
+	
+	/**
+	 * this is a cascaded redirect
+	 * will be enrolled while insert
+	 */
+	public UploadFrom(UploadFrom ulf) {
+		// TODO
+		//
+	}
 
 	/**
 	 * @return  Returns the count.
-	 * @uml.property  name="count"
 	 */
 	protected int getCount() {
 		return count;
@@ -81,7 +90,6 @@ public class UploadFrom {
 
 	/**
 	 * @return  Returns the is.
-	 * @uml.property  name="is"
 	 */
 	protected InputStream getIs() {
 		return is;
@@ -89,7 +97,6 @@ public class UploadFrom {
 
 	/**
 	 * @return  Returns the source.
-	 * @uml.property  name="source"
 	 */
 	protected String getSource() {
 		return source;
@@ -97,7 +104,6 @@ public class UploadFrom {
 
 	/**
 	 * @return  Returns the type.
-	 * @uml.property  name="type"
 	 */
 	protected int getType() {
 		return type;
