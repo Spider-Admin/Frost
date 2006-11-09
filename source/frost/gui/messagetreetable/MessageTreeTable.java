@@ -767,27 +767,28 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             } else {
                 setBackground(table.getSelectionBackground());
             }
-            
+
+            // setup defaults
             setAlignmentY(CENTER_ALIGNMENT);
-
-            TreeTableModelAdapter model = (TreeTableModelAdapter) getModel();
-            
-            Object o = model.getRow(row);
-            if( !(o instanceof FrostMessageObject) ) {
-                setFont(normalFont);
+            setFont(normalFont);
+            if (!isSelected) {
                 setForeground(Color.BLACK);
-                return this;
             }
-            
-            FrostMessageObject msg = (FrostMessageObject) model.getRow(row);
-
-            // get the original model column index (maybe columns were reordered by user)
-            TableColumn tableColumn = getColumnModel().getColumn(column);
-            column = tableColumn.getModelIndex();
-
             setToolTipText(null);
             setBorder(null);
             setHorizontalAlignment(SwingConstants.LEFT);
+
+            TreeTableModelAdapter model = (TreeTableModelAdapter) getModel();
+            
+            Object obj = model.getRow(row);
+            if( !(obj instanceof FrostMessageObject) ) {
+                return this; // paranoia
+            }
+            
+            FrostMessageObject msg = (FrostMessageObject) obj;
+
+            // get the original model column index (maybe columns were reordered by user)
+            column = getColumnModel().getColumn(column).getModelIndex();
 
             // do nice things for FROM and SIG column
             if( column == 3 ) {
@@ -795,8 +796,6 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                 // first set font, bold for new msg or normal
                 if (msg.isNew()) {
                     setFont(boldFont);
-                } else {
-                    setFont(normalFont);
                 }
                 // now set color
                 if (!isSelected) {
@@ -804,8 +803,6 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                         setForeground(Color.RED);
                     } else if (msg.containsAttachments()) {
                         setForeground(Color.BLUE);
-                    } else {
-                        setForeground(Color.BLACK);
                     }
                 }
                 if( !msg.isDummy() ) {
@@ -831,16 +828,6 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                 } else if( msg.isMessageStatusBAD() ) {
                     setFont(boldFont);
                     setForeground(col_bad);
-                } else {
-                    setFont(normalFont);
-                    if (!isSelected) {
-                        setForeground(Color.BLACK);
-                    }
-                }
-            } else {
-                setFont(normalFont);
-                if (!isSelected) {
-                    setForeground(Color.BLACK);
                 }
             }
 
@@ -849,14 +836,11 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             return this;
         }
 
-        /* (non-Javadoc)
-         * @see java.awt.Component#setFont(java.awt.Font)
-         */
-        public void setFont(Font font) {
-            super.setFont(font);
-            normalFont = font.deriveFont(Font.PLAIN);
-            boldFont = font.deriveFont(Font.BOLD);
-        }
+//        public void setFont(Font font) {
+//            super.setFont(font);
+//            normalFont = font.deriveFont(Font.PLAIN);
+//            boldFont = font.deriveFont(Font.BOLD);
+//        }
 
         public void setDeleted(boolean value) {
             isDeleted = value;

@@ -20,23 +20,21 @@ package frost.fileTransfer.search;
 
 import java.awt.*;
 import java.beans.*;
-import java.text.*;
-import java.util.Comparator;
+import java.util.*;
 
 import javax.swing.*;
 import javax.swing.table.*;
 
 import frost.*;
 import frost.gui.*;
+import frost.util.*;
 import frost.util.gui.translation.*;
-import frost.util.model.ModelItem;
+import frost.util.model.*;
 import frost.util.model.gui.*;
 
 public class SearchTableFormat extends SortedTableFormat implements LanguageListener, PropertyChangeListener {
 
     private static ImageIcon hasMoreInfoIcon = new ImageIcon((MainFrame.class.getResource("/data/info.png")));
-
-    NumberFormat numberFormat = NumberFormat.getInstance();
 
     private Language language;
 
@@ -105,7 +103,7 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
                 return searchItem.getFilename();
 
             case 1 :    //Size
-                return numberFormat.format(searchItem.getSize().longValue());
+                return SizeFormatter.formatSize(searchItem.getSize().longValue());
 
             case 2 :    //Age
                 return getStateStr(searchItem.getState());

@@ -19,7 +19,6 @@ package frost.fileTransfer.download;
 
 import java.awt.*;
 import java.beans.*;
-import java.text.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -38,7 +37,6 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
     private static ImageIcon isSharedIcon = new ImageIcon((MainFrame.class.getResource("/data/shared.png")));
     private static ImageIcon isRequestedIcon = new ImageIcon((MainFrame.class.getResource("/data/signal.png")));
     
-    private NumberFormat numberFormat = NumberFormat.getInstance();
     private SortedModelTable modelTable = null;
 
     private boolean showColoredLines;
@@ -413,7 +411,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 				if (downloadItem.getFileSize() == null) {
 					return unknown;
 				} else {
-					return numberFormat.format(downloadItem.getFileSize().longValue());
+					return SizeFormatter.formatSize(downloadItem.getFileSize().longValue());
 				}
 
 			case 5 : // State

@@ -861,6 +861,11 @@ public class MessageFrame extends JFrame {
 //            return;
 //        }
 
+        // TODO: if user deletes the unsent msg then the replied state keeps (see below)
+        //  We would have to set the replied state after the msg was successfully sent, because
+        //  we can't remove the state later, maybe the msg was replied twice and we would remove
+        //  the replied state from first reply...
+        
         // set isReplied to replied message
         if( repliedMessage != null ) {
             if( repliedMessage.isReplied() == false ) {

@@ -317,11 +317,7 @@ public class SharedFilesPropertiesDialog extends JDialog {
             if( defaults.getKeywords() != null ) {
                 getTFkeywords().setText(defaults.getKeywords());
             }
-            if( defaults.getRating() == 0 ) {
-                getCBrating().setSelectedItem("");
-            } else {
-                getCBrating().setSelectedItem(new Integer(defaults.getRating()));
-            }
+            getCBrating().setSelectedIndex(defaults.getRating());
         }
         
         exitState = false;

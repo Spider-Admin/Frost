@@ -20,7 +20,6 @@ package frost.fileTransfer.sharing;
 
 import java.awt.*;
 import java.beans.*;
-import java.text.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -41,8 +40,6 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
 
     private String stateNever;
     private String unknown;
-    
-    private NumberFormat numberFormat = NumberFormat.getInstance();
     
     private boolean showColoredLines;
     private Color secondBackgroundColor = new java.awt.Color(238,238,238);
@@ -104,7 +101,7 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
             case 0 : // name
                 return sfItem.getFile().getName();
             case 1 : // size
-                return numberFormat.format(sfItem.getFileSize());
+                return SizeFormatter.formatSize(sfItem.getFileSize());
             case 2 : // owner
                 return sfItem.getOwner();
             case 3 : // uploadCount

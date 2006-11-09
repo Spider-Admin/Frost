@@ -91,6 +91,12 @@ public class CleanUp {
 
         doCommit();
         
+        splashScreen.setText("Cleaning filelist tables");
+        cleanupFileListFileOwners();
+        cleanupFileListFiles();
+
+        doCommit();
+        
         try {
             AppLayerDatabase.getInstance().setAutoCommitOn();
         } catch (SQLException e) {
@@ -179,7 +185,9 @@ public class CleanUp {
                 logger.log(Level.SEVERE, "Exception during deleteExpiredMessages", t);
                 continue;
             }
-            logger.info("Processed "+deletedCount+" expired messages for board "+board.getName());
+            if( deletedCount > 0 ) {
+                logger.warning("INFO: Processed "+deletedCount+" expired messages for board "+board.getName());
+            }
         }
         logger.info("Finished to process expired messages.");
     }
@@ -249,7 +257,9 @@ public class CleanUp {
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Exception during cleanup of IndexSlots", t);
         }
-        logger.info("Finished to delete expired index slots, deleted "+deletedCount+" rows.");
+        if( deletedCount > 0 ) {
+            logger.warning("INFO: Finished to delete expired index slots, deleted "+deletedCount+" rows.");
+        }
     }
 
     /**
@@ -257,14 +267,44 @@ public class CleanUp {
      * All keys we did'nt see for MINIMUM_DAYS_OLD days will be deleted.
      */
     private static void cleanupSharedChkKeyTable() {
-        
         int deletedCount = 0;
-
         try {
             deletedCount = AppLayerDatabase.getSharedFilesCHKKeysDatabaseTable().cleanupTable(MINIMUM_DAYS_OLD);
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Exception during cleanup of SharedFilesCHKKeys", t);
         }
-        logger.info("Finished to delete expired SharedFilesCHKKeys, deleted "+deletedCount+" rows.");
+        if( deletedCount > 0 ) {
+            logger.warning("INFO: Finished to delete expired SharedFilesCHKKeys, deleted "+deletedCount+" rows.");
+        }
+    }
+
+    /**
+     * Remove owners that were not seen for more than MINIMUM_DAYS_OLD days and have no CHK key set.
+     */
+    private static void cleanupFileListFileOwners() {
+        int deletedCount = 0;
+        try {
+            deletedCount = AppLayerDatabase.getFileListDatabaseTable().cleanupFileListFileOwners(MINIMUM_DAYS_OLD);
+        } catch(Throwable t) {
+            logger.log(Level.SEVERE, "Exception during cleanup of FileListFileOwners", t);
+        }
+        if( deletedCount > 0 ) {
+            logger.warning("INFO: Finished to delete expired FileListFileOwners, deleted "+deletedCount+" rows.");
+        }
+    }
+
+    /**
+     * Remove files that have no owner and no CHK key. 
+     */
+    private static void cleanupFileListFiles() {
+        int deletedCount = 0;
+        try {
+            deletedCount = AppLayerDatabase.getFileListDatabaseTable().cleanupFileListFiles();
+        } catch(Throwable t) {
+            logger.log(Level.SEVERE, "Exception during cleanup of FileListFiles", t);
+        }
+        if( deletedCount > 0 ) {
+            logger.warning("INFO: Finished to delete expired FileListFiles, deleted "+deletedCount+" rows.");
+        }
     }
 }

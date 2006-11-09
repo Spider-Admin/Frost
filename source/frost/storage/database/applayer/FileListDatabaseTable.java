@@ -33,8 +33,6 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
 
     private static Logger logger = Logger.getLogger(FileListDatabaseTable.class.getName());
 
-    // TODO: startup check: remove fileowners without uploads and lastseen older than 3 month(?)
-
     private final static String SQL_FILES_DDL =
         "CREATE TABLE IF NOT EXISTS FILELIST ("+
           "primkey BIGINT NOT NULL,"+
@@ -716,5 +714,40 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         ps.close();
         
         return fo;
+    }
+    
+    /**
+     * Remove files that have no owner and no CHK key. 
+     */
+    public int cleanupFileListFiles() throws SQLException {
+        AppLayerDatabase localDB = AppLayerDatabase.getInstance();
+
+        PreparedStatement ps = localDB.prepare(
+                "DELETE FROM FILELIST WHERE fnkey='' AND " +
+                "primkey NOT IN (SELECT refkey FROM FILEOWNERLIST)");
+        
+        int deletedCount = ps.executeUpdate();
+        
+        ps.close();
+
+        return deletedCount;
+    }
+
+    /**
+     * Remove owners that were not seen for more than MINIMUM_DAYS_OLD days and have no CHK key set.
+     */
+    public int cleanupFileListFileOwners(int maxDaysOld) throws SQLException {
+        AppLayerDatabase localDB = AppLayerDatabase.getInstance();
+
+        long minVal = System.currentTimeMillis() - ((long)maxDaysOld * 24L * 60L * 60L * 1000L);
+
+        PreparedStatement ps = localDB.prepare("DELETE FROM FILEOWNERLIST WHERE lastreceived<? AND fnkey IS NULL");
+        ps.setLong(1, minVal);
+        
+        int deletedCount = ps.executeUpdate();
+        
+        ps.close();
+
+        return deletedCount;
     }
 }

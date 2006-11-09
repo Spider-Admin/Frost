@@ -343,7 +343,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
 
             if( !result.isSuccess() ) {
                 // upload failed, unsend message was handled by MessageUploader (kept or deleted, user choosed)
-                mo.setCurrentUploadThread(null); // must be marked as not uploaded currently before delete!
+                mo.setCurrentUploadThread(null); // must be marked as not uploading before delete!
                 if( !result.isKeepMessage() ) {
                     // user choosed to drop the message
                     UnsentMessagesManager.deleteMessage(mo);
@@ -362,7 +362,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
             SentMessagesManager.addSentMessage(sentMo);
 
             // finally delete the message in unsend messages db table
-            mo.setCurrentUploadThread(null); // must be marked as not uploaded currently before delete!
+            mo.setCurrentUploadThread(null); // must be marked as not uploading before delete!
             UnsentMessagesManager.deleteMessage(mo);
 
         } catch (Throwable t) {

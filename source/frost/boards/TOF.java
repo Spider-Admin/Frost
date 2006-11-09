@@ -598,7 +598,7 @@ public class TOF {
         public void run() {
             while( updateThread != null ) {
                 // wait for running thread to finish
-                Mixed.wait(300);
+                Mixed.wait(150);
                 if( nextUpdateThread != this ) {
                     // leave, there is a newer thread than we waiting
                     return;
