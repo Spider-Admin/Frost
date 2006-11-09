@@ -36,6 +36,8 @@ public class UnsentMessagesManager {
     
     private static LinkedList unsentMessages = new LinkedList();
     private static int runningMessageUploads = 0;
+    
+    private static List EMPTY_LIST = new LinkedList();
 
     /**
      * Retrieves all unsend messages from database table.
@@ -108,6 +110,11 @@ public class UnsentMessagesManager {
      * Returns a List of all Boards that currently have sendable messages.
      */
     public static List getBoardsWithSendableMessages() {
+        
+        if( Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_UPLOAD_DISABLED) ) {
+            return EMPTY_LIST;
+        }
+        
         Hashtable ht = new Hashtable();
         for(Iterator i = unsentMessages.iterator(); i.hasNext(); ) {
             FrostUnsentMessageObject mo = (FrostUnsentMessageObject) i.next();
