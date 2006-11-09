@@ -22,6 +22,7 @@ import java.awt.*;
 
 import javax.swing.*;
 
+import frost.*;
 import frost.gui.sentmessages.*;
 import frost.gui.unsentmessages.*;
 import frost.messages.*;
@@ -37,8 +38,10 @@ public class MessageInfoPanel extends JPanel implements LanguageListener {
     
     private SentMessagesPanel sentMessagesPanel;
     private UnsentMessagesPanel unsentMessagesPanel;
+    private JSplitPane splitPane;
     
     private boolean isShown = false;
+    private boolean isFirstShow = true;
 
     public MessageInfoPanel() {
         super();
@@ -48,18 +51,20 @@ public class MessageInfoPanel extends JPanel implements LanguageListener {
     }
     
     private void initialize() {
-        setLayout(new GridLayout(2, 1, 5, 5));
-
+        setLayout(new BorderLayout());
+        
         sentMessagesPanel = new SentMessagesPanel();
         unsentMessagesPanel = new UnsentMessagesPanel();
 
-        add(sentMessagesPanel);
-        add(unsentMessagesPanel);
+        splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, sentMessagesPanel, unsentMessagesPanel);
+
+        add(splitPane, BorderLayout.CENTER);
     }
     
     public void saveLayout() {
         sentMessagesPanel.saveTableFormat();
         unsentMessagesPanel.saveTableFormat();
+        Core.frostSettings.setValue("MessageInfoPanel.splitpaneDividerLocation", splitPane.getDividerLocation());
     }
 
     /**
@@ -69,6 +74,17 @@ public class MessageInfoPanel extends JPanel implements LanguageListener {
         sentMessagesPanel.loadTableModel();
         unsentMessagesPanel.loadTableModel();
         isShown = true;
+        
+        if( isFirstShow ) {
+            int splitPanePos = Core.frostSettings.getIntValue("MessageInfoPanel.splitpaneDividerLocation");
+            if( splitPanePos < 10 ) {
+                // adventurous code to set the splitpane position the first time ;)
+                splitPanePos = MainFrame.getInstance().getHeight() - 110; // calculate appr. height of this panel (before show)
+                splitPanePos = splitPanePos / 2; // set divider to the appr. middle of the panel
+            }
+            splitPane.setDividerLocation(splitPanePos);
+            isFirstShow = false;
+        }
     }
     
     /**

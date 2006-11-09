@@ -25,7 +25,11 @@ import frost.messages.*;
 public class MessageTreeTableSortStateBean {
 
     private static boolean isThreaded;
-    private static int sortedColumn = 5; // default: date
+    
+    private final static int defaultSortedColumn = 6; // default: date
+    private final static boolean defaultIsAscending = false; // default: descending
+    
+    private static int sortedColumn = 6; // default: date
     private static boolean isAscending = false; // default: descending
     
     public static boolean isAscending() {
@@ -47,8 +51,8 @@ public class MessageTreeTableSortStateBean {
         MessageTreeTableSortStateBean.sortedColumn = sortedColumn;
     }
     public static void setDefaults() {
-        setSortedColumn(5);
-        setAscending(false);
+        setSortedColumn(defaultSortedColumn);
+        setAscending(defaultIsAscending);
     }
     
     public static Comparator getComparator(int column, boolean ascending) {

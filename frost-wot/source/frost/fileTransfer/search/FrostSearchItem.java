@@ -72,7 +72,7 @@ public class FrostSearchItem extends ModelItem {
         }
 
         state = searchItemState;
-        fireChange(); //FIXME: item verschwindet aus table???
+        fireChange();
     }
 
     public String getFilename() {

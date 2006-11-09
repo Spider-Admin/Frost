@@ -20,13 +20,13 @@ package frost.fileTransfer.upload;
 
 import java.awt.*;
 import java.beans.*;
-import java.text.*;
 import java.util.*;
 
 import javax.swing.*;
 import javax.swing.table.*;
 
 import frost.*;
+import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
@@ -36,7 +36,6 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
 
     private static ImageIcon isSharedIcon = new ImageIcon((MainFrame.class.getResource("/data/shared.png")));
 
-    private NumberFormat numberFormat = NumberFormat.getInstance();
     private SortedModelTable modelTable = null;
     
     private boolean showColoredLines;
@@ -370,7 +369,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
                 return uploadItem.getFile().getName();
 
             case 3 :    //Size
-                return numberFormat.format(uploadItem.getFileSize());
+                return SizeFormatter.formatSize(uploadItem.getFileSize());
 
             case 4 :    // state
                 return getStateAsString(uploadItem, uploadItem.getState());
