@@ -457,6 +457,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         super.customizeTable(lModelTable);
 
         modelTable = (SortedModelTable) lModelTable;
+        modelTable.setSortedColumn(2, true);
 
         lModelTable.getTable().setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
 
