@@ -161,6 +161,8 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
         super.customizeTable(lModelTable);
         
         modelTable = (SortedModelTable) lModelTable;
+        
+        modelTable.setSortedColumn(0, true);
 
         lModelTable.getTable().setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
 

@@ -532,7 +532,8 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 		super.customizeTable(lModelTable);
 
         modelTable = (SortedModelTable) lModelTable;
-        
+        modelTable.setSortedColumn(3, true);
+
         lModelTable.getTable().setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
 
         TableColumnModel columnModel = lModelTable.getTable().getColumnModel();

@@ -160,6 +160,8 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
         modelTable = (SortedModelTable) lModelTable;
         
         modelTable.getTable().setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
+        
+        modelTable.setSortedColumn(0, true);
 
         TableColumnModel columnModel = modelTable.getTable().getColumnModel();
         

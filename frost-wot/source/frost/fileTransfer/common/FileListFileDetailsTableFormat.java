@@ -158,7 +158,8 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
         super.customizeTable(modelTable);
         
         modelTable.getTable().setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
-
+        ((SortedModelTable)modelTable).setSortedColumn(7, false);
+        
         TableColumnModel columnModel = modelTable.getTable().getColumnModel();
 
         ShowContentTooltipRenderer showContentTooltipRenderer = new ShowContentTooltipRenderer();
