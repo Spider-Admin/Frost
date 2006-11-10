@@ -22,23 +22,19 @@ package hyperocha.freenet.fcp;
 
 
 import hyperocha.freenet.fcp.io.FCPIOConnectionErrorHandler;
-import hyperocha.freenet.fcp.utils.FCPTests;
-import hyperocha.freenet.fcp.utils.FCPUtil;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
-
-import javax.swing.SwingUtilities;
+import java.util.Observable;
 
 
 /**
  * @author  saces
  */
-public class FCPNode {
+public class FCPNode extends Observable {
 	
 	//private static final String CLIENTTOKEN = "hyperocha test";
 	
@@ -167,7 +163,7 @@ public class FCPNode {
 	
 	/**
 	 * @param to timeout
-	 * @return 
+	 * @return Socket
 	 * @throws IOException
 	 */
 	public Socket createSocket(int to) throws IOException {
@@ -366,5 +362,9 @@ public class FCPNode {
 	 */
 	public FCPNodeConfig getNodeConfig() {
 		return nodeConfig;
+	}
+	
+	public boolean isOffline() {
+		return (!(nodeConfig.isInitialized()));
 	}
 }
