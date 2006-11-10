@@ -28,19 +28,25 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Random;
 
 /**
+ * <p>(Network means a logical group of nodes.)
+ * <p><b>Setup</b><br>
+ * 
  * @author saces
  *
  */
-public class Network implements IStorageObject {
+public class Network extends Observable implements IStorageObject, Observer {
 	//	 the fcp1 thingy
 	public static final int FCP1 = 1;
 	//	 the fcp2 thingy,
 	public static final int FCP2 = 2;
-	//	 simulate the execution of commands, not the fcp thingy
+	//	 simulate the execution of jobs, not the fcp thingy
 	public static final int SIMULATION = 254; 
 	
 	private int networkType;
@@ -65,6 +71,8 @@ public class Network implements IStorageObject {
 
 	/**
 	 * 
+	 * @param networktype
+	 * @param id
 	 */
 	public Network(int networktype, String id) {
 		networkType = networktype;
@@ -74,24 +82,24 @@ public class Network implements IStorageObject {
 	/**
 	 * nodelist: eine liste mit strings, jeder string "server:port" fuer jeden server
 	 */
-	public Network(int networktype, String id, List nodelist, IIncoming callback) {
-		this(networktype, id);
-//		confList = new Hashtable();
-//		nodeList = new Hashtable();
-		if (nodelist == null) {
-			switch (networkType) {
-				case FCP1: addNode("<default fcp1>", "127.0.0.1:8481", callback); break;  
-				case FCP2: addNode("<default fcp2>", "127.0.0.1:9481", callback); break; 
-				default :	throw new Error("Unsopported network type: " + networkType); 
-			}
-		} else {
-			int i;
-			for (i = 0; i < nodelist.size(); i++) {
-				//System.err.println("HTEST: " + (String)(nodelist.get(i)));
-                addNode(id+"-<"+i+">", (String)(nodelist.get(i)), callback);
-            }
-		}
-	}
+//	public Network(int networktype, String id, List nodelist, IIncoming callback) {
+//		this(networktype, id);
+////		confList = new Hashtable();
+////		nodeList = new Hashtable();
+//		if (nodelist == null) {
+//			switch (networkType) {
+//				case FCP1: addNode("<default fcp1>", "127.0.0.1:8481", callback); break;  
+//				case FCP2: addNode("<default fcp2>", "127.0.0.1:9481", callback); break; 
+//				default :	throw new Error("Unsopported network type: " + networkType); 
+//			}
+//		} else {
+//			int i;
+//			for (i = 0; i < nodelist.size(); i++) {
+//				//System.err.println("HTEST: " + (String)(nodelist.get(i)));
+//                addNode(id+"-<"+i+">", (String)(nodelist.get(i)), callback);
+//            }
+//		}
+//	}
 
 	public boolean loadData(DataInputStream dis) {
 		int nodeCount;
@@ -166,6 +174,15 @@ public class Network implements IStorageObject {
 	public static boolean isTestnet(Network net) {
 		return false;
 	}
+	
+	public static String getNetworkTypeName(int nt) {
+		switch (nt) {
+		case FCP1: return "FCP 1.0"; 
+		case FCP2: return "FCP 2.0";
+		case SIMULATION: return "Simulation";
+		}
+		return "unknown";
+	}
 
 	public void init() {
 		for (Enumeration e = nodeList.elements() ; e.hasMoreElements() ;) {
@@ -174,44 +191,16 @@ public class Network implements IStorageObject {
 	}
 
 	public void goOnline() {
-//		int nodeCount = confList.size();
-//		int i;
-//		FCPNodeConfig conf;
-//		FCPNode node;
-		
+		for (Enumeration e = nodeList.elements() ; e.hasMoreElements() ;) {
+			((FCPNode)(e.nextElement())).init();
+	    }
+	}
+
+	public boolean isOnline() {
 		for (Enumeration e = nodeList.elements() ; e.hasMoreElements() ;) {
 			((FCPNode)(e.nextElement())).init();
 	    }
 
-		
-		
-//		for (i=0; i < nodeCount; i++) {
-//			conf = (FCPNodeConfig)(confList.get(i));
-//			conf.init();
-////			if (!conf.isValid()) {
-////				conf.init();
-////			}
-////			System.err.println("HEHE: 00");
-//			if (conf.isInitialized()) {
-////				System.err.println("HEHE: 01a");
-//				node = new FCPNode(conf);
-////				System.err.println("HEHE: 01");
-//				node.hello();
-//				if (node.isValid()) {
-////					System.err.println("HEHE: 01-AH");
-//		//			nodeList.put(conf.getID(), node);
-//				} else {
-//					System.err.println("HEHE: 01- Nö");
-//				}
-//			}
-////			if (((FCPNodeConfig)confList.get(i)).init()) {
-////				confList.add(new FCPNode((FCPNodeConfig)confList.get(i)));
-////			}
-//		}
-
-	}
-
-	public boolean isOnline() {
 		//System.err.println("HEHE: is online: nodelistsize: " + nodeList.size());
 		return (nodeList.size() > 0);
 	}
@@ -269,5 +258,25 @@ public class Network implements IStorageObject {
 
 	public Collection getNodes() {
 		return nodeList.values();
+	}
+	
+	public List listOfflineNodes() {
+		List l = new LinkedList();
+		for (Enumeration e = nodeList.elements() ; e.hasMoreElements() ;) {
+			FCPNode n = (FCPNode)(e.nextElement());
+			if (n.isOffline()) {
+				l.add(n);
+			}
+		}
+		
+		if (l.isEmpty()) {
+			return null;
+		}
+		return l;
+	}
+
+	public void update(Observable o, Object arg) {
+		// TODO Auto-generated method stub
+		System.err.println("Observer notify!");
 	}
 }
