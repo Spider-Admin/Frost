@@ -33,11 +33,12 @@ public class FreenetKeyType {
      
     private int keyType;
     
-    private static final String[] names = { "KSK@",
-    		                     "CHK@",
-    		                     "SSK@",
-    							 "USK@",
-    							 "TUK@" };
+    // the same order as declerd
+    private static final String[] names = { "KSK",
+    		                     "CHK",
+    		                     "SSK",
+    							 "USK",
+    							 "TUK" };
 
     /**
 	 * 
@@ -56,18 +57,37 @@ public class FreenetKeyType {
 	}
 
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
+	/** 
+	 * 
 	 */
 	public String toString() {
 		return names[keyType];
 	}
 	
     /**
-     * Returns a list of key types valid for this version of freenet.
+     * Returns a list of key types 
      */
     public static String[] getFreenetKeyTypes() {
         return names;
+    }
+    
+    /**
+     * @param aType ein string, der vermutlich ein keytype ist
+     * @return FreenetKeyType oder null, wenn schief
+     */
+    public static FreenetKeyType getTypeFromString(String aType) {
+    	
+    	if ( aType == null ) { 
+    		return null; 
+    	}
+    	
+    	for (int i = 0; i < names.length; i++) {
+ 	    	if (aType.equalsIgnoreCase(names[i])) {
+ 	    		return new FreenetKeyType(i);
+ 	    	}
+ 	    }
+    	
+    	return null;
     }
  
 
