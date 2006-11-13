@@ -50,12 +50,15 @@ public class NodeMessage {
 	}
 	
 	public FreenetKey getKeyValue(String name) {
-		//return FreenetKey.getKeyFromString((String)items.get(name));
-		return null;
+		return FreenetKey.getKeyFromString((String)items.get(name));
 	}
 	
 	public boolean getBoolValue(String name) {
 		return "true".equalsIgnoreCase((String)items.get(name));
+	}
+	
+	public void addItem(String key, String value) {
+		items.put(key, value); 
 	}
 
 	
