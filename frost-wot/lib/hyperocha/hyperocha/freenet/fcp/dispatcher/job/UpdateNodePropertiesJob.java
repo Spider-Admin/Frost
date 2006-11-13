@@ -3,10 +3,7 @@
  */
 package hyperocha.freenet.fcp.dispatcher.job;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
@@ -77,10 +74,21 @@ public class UpdateNodePropertiesJob extends Job {
 		
 		conn.send(cmd);
 		
+		//waitFine();
+		
 		// TODO:
 		// read the persistance state from config
 		
-		waitFine();
+//		cmd.add("GetNode");
+//		cmd.add("WithPrivate=true");
+//		cmd.add("WithVolatile=true");
+//		cmd.add("EndMessage");
+		
+		
+//		conn.send(cmd);
+//		System.err.println("Gesendet: " + cmd);
+		
+//		waitFine();
 	}
 
 	/* (non-Javadoc)
@@ -91,14 +99,14 @@ public class UpdateNodePropertiesJob extends Job {
 			if ("ProtocolError".equals(message.get(FCPConnection.MESSAGENAME))) {
 				if (Integer.parseInt((String)(message.get("Code")))==9) {
 					// File not found
-					node.getNodeConfig().setDDA(false);
+					node.setDDA(false);
 				}
 				setSuccess();
 				return;
 			}
 			
 			if ("PutSuccessful".equals(message.get(FCPConnection.MESSAGENAME))) {
-				node.getNodeConfig().setDDA(true);  // juhu
+				node.setDDA(true);  // juhu
 				setSuccess();
 				return;
 			}
@@ -113,6 +121,8 @@ public class UpdateNodePropertiesJob extends Job {
 			// all other ignored
 
 		}
+		
+		
 	}
 
 }
