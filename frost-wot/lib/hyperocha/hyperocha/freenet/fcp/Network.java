@@ -110,8 +110,9 @@ public class Network extends Observable implements IStorageObject, Observer {
 
 			int i;
 			for (i=0; i < nodeCount; i++) {
-				FCPNodeConfig conf = new FCPNodeConfig(dis);
-				FCPNode node = new FCPNode(conf);
+				// TODO
+				//FCPNodeConfig conf = new FCPNodeConfig(dis);
+				FCPNode node = null; //new FCPNode(conf);
 				addNode(node);
 			}
 			
@@ -158,8 +159,7 @@ public class Network extends Observable implements IStorageObject, Observer {
 	
 	public void addNode(String id, String serverport, IIncoming callback) {
 		//System.err.println("HTEST 001:" + serverport);
-		FCPNodeConfig conf = new FCPNodeConfig(networkType, id, serverport);
-		FCPNode node = new FCPNode(conf, callback);
+		FCPNode node = new FCPNode(networkType, id, serverport, callback);
 		addNode(node);
 	}
 	

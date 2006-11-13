@@ -24,6 +24,7 @@ package hyperocha.freenet.fcp;
 import hyperocha.freenet.fcp.io.FCPIOConnectionErrorHandler;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Hashtable;
 import java.util.LinkedList;
@@ -38,6 +39,52 @@ public class FCPNode extends Observable {
 	
 	//private static final String CLIENTTOKEN = "hyperocha test";
 	
+	
+	public class FCPNodeConfig {
+		
+		private String nodeID = null;
+		
+		private int networkType;
+		
+		private boolean initialized = false;
+		
+		private InetAddress host = null;
+	    private int port = -1;
+		private String hostName = null; // avoid name lookup recursion in security manager
+		private String hostIp = null; // avoid name lookup recursion in security manager
+		
+		// default timeout 30 minutes
+		// its asumes a reply from the node after each bucket
+		// Verbosity=1! (Verbosity.SIMPLEPROGRESS)
+		private int timeOut = 30 * 60 * 1000; 
+		
+		private boolean canDownload = true; // the factory can use this node for downloads 
+		private boolean canUpload = true; // the factory can use this node for uploads
+
+		
+	    private boolean useDDA = true;
+		
+	    /* seen an option on earlier versions, must ask toad about this */  
+	    private boolean useGQ = true;  
+	    
+	    /* from fproxy config page:
+	     * Whether to enable Persistence=forever for FCP requests. Meaning whether to
+	     * support requests which persist over node restarts; they must be written to
+	     * disk and this may constitute a security risk for some people.
+	     */ 
+	    private boolean havePersistence = true;
+	} 
+	
+	private class FCPNodeStatus {
+		private int nodeID = -1;
+		private boolean reachable = false;
+		private long requestCount = -1;
+		private long onlineSince = 0;  // unix epoch
+		private int averageSpeed = -1; // requests per houeeer
+	}
+	
+	
+	
 	private FCPIOConnectionErrorHandler ioErrorHandler = null;
 	private FCPNodeConfig nodeConfig;
 	private FCPNodeStatus nodeStatus;
@@ -47,15 +94,38 @@ public class FCPNode extends Observable {
     
     private Exception lastError = null;
     
-    public FCPNode(FCPNodeConfig nodeconfig) {
-    	this(nodeconfig, null);
+//    public FCPNode(FCPNodeConfig nodeconfig) {
+//    	this(nodeconfig, null);
+//    }
+    
+	private boolean setServerPort(String serverport) {
+		boolean retValue = false;
+		nodeConfig.initialized = false;
+		String[] splitServerPort = serverport.split(":");
+        try {
+        	nodeConfig.hostName = splitServerPort[0];
+        	retValue = setPort(splitServerPort[1]);
+		} catch (Exception e) {
+			lastError = e;
+			//e.printStackTrace();
+			return false;
+		}
+		return retValue;
+	}
+    
+    
+    public FCPNode(int networktype, String id, String serverport, IIncoming callback) {
+    	nodeConfig.networkType = networktype;
+    	nodeConfig.nodeID = id;
+		setServerPort(serverport);
     }
     
-    public FCPNode(FCPNodeConfig nodeconfig, IIncoming callback) {
-    	this.nodeConfig = nodeconfig;
-    	this.callBack = callback;
-    }
     
+//    public FCPNode(FCPNodeConfig nodeconfig, IIncoming callback) {
+//    	this.nodeConfig = nodeconfig;
+//    	this.callBack = callback;
+//    }
+//    
      /**
      * the constructor checks only the plausibility of 'server:port'
      * but doesn't etablish any connection to it.
@@ -117,7 +187,7 @@ public class FCPNode extends Observable {
     
 	public synchronized FCPConnectionRunner getDefaultFCPConnectionRunner() {
 		if (defaultConn == null) {
-			defaultConn = new FCPConnectionRunner(this, nodeConfig.getID(), callBack);
+			defaultConn = new FCPConnectionRunner(this, nodeConfig.nodeID, callBack);
 			defaultConn.start();
 			List cmd = new LinkedList();
 			cmd.add("WatchGlobal");
@@ -158,7 +228,7 @@ public class FCPNode extends Observable {
 	 * @throws IOException
 	 */
 	public Socket createSocket() throws IOException {
-		return createSocket(nodeConfig.getTimeOut());
+		return createSocket(nodeConfig.timeOut);
 	}
 	
 	/**
@@ -167,7 +237,7 @@ public class FCPNode extends Observable {
 	 * @throws IOException
 	 */
 	public Socket createSocket(int to) throws IOException {
-		Socket sock = new Socket(nodeConfig.getHost(), nodeConfig.getPort());
+		Socket sock = new Socket(nodeConfig.host, nodeConfig.port);
 	    sock.setSoTimeout(to);
 	    return sock;
 	}
@@ -201,7 +271,7 @@ public class FCPNode extends Observable {
 	}
 
 	public boolean haveDDA() {
-		return nodeConfig.haveDDA();
+		return nodeConfig.useDDA;
 	}
 	
 	public FreenetKey generateSSK() {
@@ -326,8 +396,7 @@ public class FCPNode extends Observable {
 	}
 
 	public void initConfig() {
-		nodeConfig.init();
-		// TODO 
+		init();
 //		switch (networktype) {
 //		case FCP1: hello5; break;
 //		case FCP2: hello7; break;
@@ -341,30 +410,73 @@ public class FCPNode extends Observable {
 	}
 
 	public int getNetworkType() {
-		return nodeConfig.getNetworkType();
+		return nodeConfig.networkType;
 	}
 
 	public String getID() {
-		return nodeConfig.getID();
-	}
-
-	public void init() {
-		nodeConfig.init();
-		// TODO check for conect error 
+		return nodeConfig.nodeID;
 	}
 
 	public boolean isAddress(String host, int port) {
-		return nodeConfig.isAddress(host, port);
+		if( port == port ) {
+			if( host.equals(nodeConfig.hostIp) || host.equals(nodeConfig.hostName)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
-	/**
-	 * @return the nodeConfig
-	 */
-	public FCPNodeConfig getNodeConfig() {
-		return nodeConfig;
+	public boolean isOffline() {
+		return (!(nodeConfig.initialized));
 	}
 	
-	public boolean isOffline() {
-		return (!(nodeConfig.isInitialized()));
+	/**
+	 * @param port  the port to set
+	 * @return false if port out of range
+	 */
+	private boolean setPort(int port) {
+		if ((port < 1) || (port > 65535)) return false;
+		nodeConfig.port = port;
+		return true;
+	}
+	
+	private boolean setPort(String port) {
+		return setPort(Integer.parseInt(port));
+	}	
+	
+	public boolean init() {
+		return init(false);
+	}
+	
+	public boolean init(boolean force) {
+		if ((!force) && nodeConfig.initialized) { return true; }
+		nodeConfig.initialized = false;
+		String server = nodeConfig.hostName;
+		InetAddress ia = null;
+        try {
+        	ia = InetAddress.getByName(server);
+        	setAddress(ia);
+        	Socket testsock = new Socket(nodeConfig.host, nodeConfig.port);
+        	testsock.close();
+		} catch (Exception e) {
+			lastError = e;
+			e.printStackTrace();
+			return false;
+		}
+		nodeConfig.initialized = true;
+		return true;
+	}
+	
+	private void setAddress(InetAddress ia) {
+		nodeConfig.host = ia;
+		nodeConfig.hostName = ia.getHostName();
+		nodeConfig.hostIp = ia.getHostAddress();
+	}
+	
+	/**
+	 * @param haveDDA The haveDDA to set.
+	 */
+	public void setDDA(boolean haveDDA) {
+		nodeConfig.useDDA = haveDDA;
 	}
 }
