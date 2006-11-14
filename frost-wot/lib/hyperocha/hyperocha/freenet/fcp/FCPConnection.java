@@ -532,4 +532,20 @@ public class FCPConnection {
 			}	
 		}
 	}
+
+	/**
+	 * Skip n bytes from connection
+	 * @param size
+	 */
+	public void skip(long size) {
+		for (int i=0; i<size; i++) {
+			try {
+				rawConn.read();
+			} catch (Exception e) {
+				// TODO call errerhandler
+				e.printStackTrace();
+				break;
+			}	
+		}
+	}
 }
