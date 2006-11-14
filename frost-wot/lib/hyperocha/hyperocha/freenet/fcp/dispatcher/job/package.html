@@ -1,16 +1,53 @@
 <!-- $Id$ -->
 <body>the jobs.
-<P>predefined jobs<br>
-<dl>
-  <dt>CHKFileInsertJob</dt>
-  <dt>CHKFileRequestJob</dt><dd>full flowered fileinsert/request</dd>
-  <dt>CHKMessageInsertJob</dt>
-  <dt>CHKMessageRequestJob</dt><dd>CHK message insert/request</dd>
-  <dt>KSKMessageInsertJob</dt>
-  <dt>KSKMessageRequestJob</dt><dd>KSK message insert/request</dd>
-</dl>
+<P>predefined jobs:<br>
+<code>CHKFileInsertJob</code><br>
+<code>CHKFileRequestJob</code>: full flowered fileinsert/request<br>
+<code>CHKMessageInsertJob</code><br>
+<code>CHKMessageRequestJob</code>: CHK message insert/request<br>
+<code>KSKMessageInsertJob</code><br>
+<code>KSKMessageRequestJob</code>: KSK message insert/request<br>
 text text
-<P>item zwo<br>
+<P>create your own jobs<br>
+<pre>
+public class MyJob extends Job {
+	public MyJob(int requirednetworktype, String id) {
+		super(requirednetworktype, id);
+	}
+}
+</pre>
+overwrite <code>doPrepare</code> 
+text text
+
+
+<P>Message handling<br>
+fuer eigenes handling <code>public void incomingMessage(String id, NodeMessage msg)</code> oder
+<code>public void incomingData(String id, NodeMessage msg, FCPConnection conn)</code> ueberschreiben.
+<p>&nbsp;</p>
+<pre>
+	public void incomingMessage(String id, NodeMessage msg) {
+		if (msg.isMessageName("FooFromNode")) {
+			//this overwrite the default handler 
+			...
+			// done, stopp handling chain
+			return;  
+		}
+		// pass msg to default handler
+		super.incomingMessage(id, msg);
+		
+		// unhandled (may be new) messages are left
+		if (msg.isMessageName("BarFromNode")) {
+			...
+			// done, stopp handling chain
+			return;  
+		}
+		if (msg.isMessageName("FooBarFromNode")) {
+			...
+			// last in chain
+		}
+	}
+</pre>
+		
 text text
 
 <P>
