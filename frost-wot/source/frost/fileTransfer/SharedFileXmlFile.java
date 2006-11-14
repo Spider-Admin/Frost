@@ -66,14 +66,16 @@ public class SharedFileXmlFile implements XMLizable {
 
     /**Tests if the filename is valid*/
     private boolean checkFilename() {
-        if( filename==null || filename.length() == 0 ) {
+        if( filename == null || filename.length() == 0 ) {
             return false;
         }
-        for( int i = 0; i < invalidChars.length; i++ ) {
-            if( filename.indexOf(invalidChars[i]) != -1 ) {
-                return false;
-            }
-        }
+        // rather than marking a file invalid if invalid chars are in the name we replace this chars
+        ensureValidity();
+//        for( int i = 0; i < invalidChars.length; i++ ) {
+//            if( filename.indexOf(invalidChars[i]) != -1 ) {
+//                return false;
+//            }
+//        }
         return true;
     }
 

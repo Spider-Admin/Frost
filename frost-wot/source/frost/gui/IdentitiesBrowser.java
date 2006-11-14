@@ -118,6 +118,11 @@ public class IdentitiesBrowser extends JDialog {
         Lfilter.setText(language.getString("IdentitiesBrowser.label.filter")+":");
         Llookup.setText(language.getString("IdentitiesBrowser.label.lookup")+":");
     }
+    
+    private void updateTitle() {
+        int idCount = tableModel.getRowCount();
+        setTitle(language.formatMessage("IdentitiesBrowser.title", ""+idCount));
+    }
 
     /**
      * This method initializes jContentPane
@@ -499,6 +504,7 @@ public class IdentitiesBrowser extends JDialog {
 
                         tableModel.removeRow(selRows[x]);
                     }
+                    updateTitle();
                 }
             });
         }
@@ -685,7 +691,7 @@ public class IdentitiesBrowser extends JDialog {
             Font baseFont = getIdentitiesTable().getFont();
             normalFont = baseFont.deriveFont(Font.PLAIN);
             boldFont = baseFont.deriveFont(Font.BOLD);
-            
+
             setVerticalAlignment(CENTER);
         }
 
@@ -699,12 +705,6 @@ public class IdentitiesBrowser extends JDialog {
 
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             
-//            if (!isSelected) {
-//                setBackground(table.getBackground());
-//            } else {
-//                setBackground(table.getSelectionBackground());
-//            }
-            
             setAlignmentY(CENTER_ALIGNMENT);
 
             InnerTableMember tableMember = (InnerTableMember) tableModel.getRow(row);
@@ -713,36 +713,36 @@ public class IdentitiesBrowser extends JDialog {
             TableColumn tableColumn = getIdentitiesTable().getColumnModel().getColumn(column);
             column = tableColumn.getModelIndex();
 
+            // defaults
+            setFont(normalFont);
+            if (!isSelected) {
+                setForeground(Color.BLACK);
+            }
+            setToolTipText(null);
+
             if( column == 0 ) {
                 setToolTipText(tableMember.getIdentity().getUniqueName());
             } else if( column == 1 ) {
+                Identity id = tableMember.getIdentity();
                 // STATE
                 // state == good/bad/check/observe -> bold and coloured
-                if( tableMember.getIdentity().isGOOD() ) {
+                if (Core.getIdentities().isMySelf(id.getUniqueName())) {
+                    setText("ME");
                     setFont(boldFont);
                     setForeground(col_good);
-                } else if( tableMember.getIdentity().isCHECK() ) {
+                } else if( id.isGOOD() ) {
+                    setFont(boldFont);
+                    setForeground(col_good);
+                } else if( id.isCHECK() ) {
                     setFont(boldFont);
                     setForeground(col_check);
-                } else if( tableMember.getIdentity().isOBSERVE() ) {
+                } else if( id.isOBSERVE() ) {
                     setFont(boldFont);
                     setForeground(col_observe);
-                } else if( tableMember.getIdentity().isBAD() ) {
+                } else if( id.isBAD() ) {
                     setFont(boldFont);
                     setForeground(col_bad);
-                } else {
-                    setFont(normalFont);
-                    if (!isSelected) {
-                        setForeground(Color.BLACK);
-                    }
                 }
-                setToolTipText(null);
-            } else {
-                setFont(normalFont);
-                if (!isSelected) {
-                    setForeground(Color.BLACK);
-                }
-                setToolTipText(null);
             }
             return this;
         }
@@ -767,10 +767,13 @@ public class IdentitiesBrowser extends JDialog {
         String msg = language.getString("IdentitiesBrowser.progressDialog.body");
         UIManager.put("ProgressMonitor.progressText", title);
         progressMonitor = new ProgressMonitor(parent, msg, null, 0, max);
+//        progressMonitor.setNote(0+"/"+max);
     }
     
     public void startDialog() {
-        startProgressMonitor(Core.getIdentities().getIdentities().size());
+        final int idCount = Core.getIdentities().getIdentities().size();
+        
+        startProgressMonitor(idCount);
 
         // disables mainframe
         FrostSwingWorker worker = new FrostSwingWorker(parent) {
@@ -785,12 +788,14 @@ public class IdentitiesBrowser extends JDialog {
                     allTableMembers.add(memb);
                     count++;
                     progressMonitor.setProgress(count);
+//                    progressMonitor.setNote(count+" / "+idCount);
                     if( progressMonitor.isCanceled() ) {
                         break;
                     }
                 }
             }
             protected void doUIUpdateLogic() throws RuntimeException {
+                updateTitle();
                 showDialog();
             }
         };
@@ -859,6 +864,7 @@ public class IdentitiesBrowser extends JDialog {
                     } catch(Throwable t) {
                         logger.log(Level.SEVERE, "database exception", t);
                     }
+                    updateTitle();
                 }
             });
         }
@@ -1072,6 +1078,8 @@ public class IdentitiesBrowser extends JDialog {
                             language.formatMessage("IdentitiesBrowser.identitiesImported.body", ""+importedCount, ""+skippedCount), 
                             language.getString("IdentitiesBrowser.identitiesImported.title"), 
                             JOptionPane.INFORMATION_MESSAGE);
+                    
+                    updateTitle();
                 }
             });
         }

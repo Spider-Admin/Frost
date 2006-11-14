@@ -605,7 +605,10 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         if (!initialized) {
             refreshLanguage();
             language.addLanguageListener(listener);
-            
+
+            FrostMessageObject.sortThreadRootMsgsAscending = settings.getBoolValue(SettingsClass.SORT_THREADROOTMSGS_ASCENDING);
+
+            Core.frostSettings.addPropertyChangeListener(SettingsClass.SORT_THREADROOTMSGS_ASCENDING, this);
             Core.frostSettings.addPropertyChangeListener(SettingsClass.MSGTABLE_MULTILINE_SELECT, this);
             Core.frostSettings.addPropertyChangeListener(SettingsClass.MSGTABLE_SCROLL_HORIZONTAL, this);
 
@@ -919,7 +922,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         boolean newValue = !oldValue;
         Core.frostSettings.setValue(SettingsClass.SHOW_THREADS, newValue);
         // reload messages
-        MainFrame.getInstance().tofTree_actionPerformed(null);
+        MainFrame.getInstance().tofTree_actionPerformed(null, true);
     }
 
     private void toggleShowSmileys_actionPerformed(ActionEvent e) {
@@ -981,7 +984,6 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             }
         }
         
-        MessageFrame newMessageFrame = new MessageFrame(settings, parent);
         if( origMessage.getRecipientName() != null ) {
             // this message was for me, reply encrypted
             if( origMessage.getFromIdentity() == null ) {
@@ -998,6 +1000,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 return;
             }
 
+            MessageFrame newMessageFrame = new MessageFrame(settings, parent);
             newMessageFrame.composeEncryptedReply(
                     targetBoard,
                     subject,
@@ -1007,6 +1010,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     senderId,
                     origMessage);
         } else {
+            MessageFrame newMessageFrame = new MessageFrame(settings, parent);
             newMessageFrame.composeReply(
                     targetBoard,
                     subject,
@@ -1453,12 +1457,14 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             getMessageTable().setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
         }
     }
-
+    
     public void propertyChange(PropertyChangeEvent evt) {
         if (evt.getPropertyName().equals(SettingsClass.MSGTABLE_MULTILINE_SELECT)) {
             updateMsgTableMultilineSelect();
         } else if (evt.getPropertyName().equals(SettingsClass.MSGTABLE_SCROLL_HORIZONTAL)) {
             updateMsgTableResizeMode();
+        } else if (evt.getPropertyName().equals(SettingsClass.SORT_THREADROOTMSGS_ASCENDING)) {
+            FrostMessageObject.sortThreadRootMsgsAscending = settings.getBoolValue(SettingsClass.SORT_THREADROOTMSGS_ASCENDING);
         }
     }
 }

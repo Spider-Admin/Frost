@@ -165,13 +165,17 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     // Otherwise, collapses all nodes in the tree.
     public void expandAll(final boolean expand) {
         final TreeNode root = (TreeNode)tree.getModel().getRoot();
-
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                // Traverse tree from root
-                expandAll(new TreePath(root), expand);
-            }
-        });
+        if( SwingUtilities.isEventDispatchThread() ) {
+            // Traverse tree from root
+            expandAll(new TreePath(root), expand);
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    // Traverse tree from root
+                    expandAll(new TreePath(root), expand);
+                }
+            });
+        }
     }
     
     public void expandThread(final boolean expand, FrostMessageObject msg) {
@@ -183,11 +187,15 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         if( threadRootMsg == null ) {
             return;
         }
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                expandAll(new TreePath(threadRootMsg.getPath()), expand);
-            }
-        });
+        if( SwingUtilities.isEventDispatchThread() ) {
+            expandAll(new TreePath(threadRootMsg.getPath()), expand);
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    expandAll(new TreePath(threadRootMsg.getPath()), expand);
+                }
+            });
+        }
     }
 
     private void expandAll(TreePath parent, boolean expand) {
@@ -219,11 +227,15 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     }
     
     public void expandNode(final DefaultMutableTreeNode n) {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                expandAll(new TreePath(n.getPath()), true);
-            }
-        });
+        if( SwingUtilities.isEventDispatchThread() ) {
+            expandAll(new TreePath(n.getPath()), true);
+        } else {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    expandAll(new TreePath(n.getPath()), true);
+                }
+            });
+        }
     }
 
     /**

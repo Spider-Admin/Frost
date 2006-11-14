@@ -364,12 +364,14 @@ public class MessageDownloader {
             try {
                 currentMsg = new MessageXmlFile(tmpFile);
             } catch (MessageCreationException ex) {
-                logger.log(Level.WARNING, "TOFDN: Exception catched."+logInfo, ex);
                 if( ex.getMessageNo() == MessageCreationException.MSG_NOT_FOR_ME ) {
+                    logger.warning("Info: Encrypted message is not for me. "+logInfo);
                     mdResult.errorMsg = MessageDownloaderResult.MSG_NOT_FOR_ME;
                 } else if( ex.getMessageNo() == MessageCreationException.DECRYPT_FAILED ) {
+                    logger.log(Level.WARNING, "TOFDN: Exception catched."+logInfo, ex);
                     mdResult.errorMsg = MessageDownloaderResult.DECRYPT_FAILED;
                 } else {
+                    logger.log(Level.WARNING, "TOFDN: Exception catched."+logInfo, ex);
                     mdResult.errorMsg = MessageDownloaderResult.BROKEN_MSG;
                 }
                 tmpFile.delete();

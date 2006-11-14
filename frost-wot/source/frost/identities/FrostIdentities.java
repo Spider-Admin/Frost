@@ -322,7 +322,7 @@ public class FrostIdentities implements Savable {
     
     // TODO: merge the imported identities with the existing identities (WOT), use a mergeIdentities method
     public int importIdentities(List importedIdentities) {
-        // for now we only import identities that we don't have already, or if our identity state is CHECK
+        // for now we import new identities, and take over the trust state if our identity state is CHECK
         int importedCount = 0;
         for(Iterator i=importedIdentities.iterator(); i.hasNext(); ) {
             Identity newId = (Identity) i.next();

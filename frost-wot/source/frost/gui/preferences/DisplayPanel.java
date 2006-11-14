@@ -60,6 +60,7 @@ class DisplayPanel extends JPanel {
     private JCheckBox msgTableScrollHorizontalCheckBox = new JCheckBox();
     private JCheckBox showBoardDescTooltipsCheckBox = new JCheckBox();
     private JCheckBox showBoardUpdateCountCheckBox = new JCheckBox();
+    private JCheckBox sortThreadRootMsgsAscendingCheckBox = new JCheckBox();
 
     private JCheckBox showColoredRowsCheckBox = new JCheckBox();
 
@@ -221,6 +222,9 @@ class DisplayPanel extends JPanel {
 
         constraints.gridy++;
         add(showColoredRowsCheckBox, constraints);
+        
+        constraints.gridy++;
+        add(sortThreadRootMsgsAscendingCheckBox, constraints);
 
         constraints.gridy++;
         constraints.weighty = 1.0;
@@ -260,6 +264,7 @@ class DisplayPanel extends JPanel {
         msgTableScrollHorizontalCheckBox.setSelected(settings.getBoolValue(SettingsClass.MSGTABLE_SCROLL_HORIZONTAL));
         showBoardUpdateCountCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_BOARD_UPDATED_COUNT));
         showBoardDescTooltipsCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_BOARDDESC_TOOLTIPS));
+        sortThreadRootMsgsAscendingCheckBox.setSelected(settings.getBoolValue(SettingsClass.SORT_THREADROOTMSGS_ASCENDING));
 
         showColoredRowsCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS));
     }
@@ -309,6 +314,7 @@ class DisplayPanel extends JPanel {
         msgTableMultilineSelectCheckBox.setText(language.getString("Options.display.enableMultilineSelectionsInMessageTable"));
         showBoardUpdateCountCheckBox.setText(language.getString("Options.display.showBoardUpdateCount"));
         showBoardDescTooltipsCheckBox.setText(language.getString("Options.display.showTooltipWithBoardDescriptionInBoardTree"));
+        sortThreadRootMsgsAscendingCheckBox.setText(language.getString("Options.display.sortThreadRootMsgsAscending"));
         
         showColoredRowsCheckBox.setText(language.getString("Options.display.showColoredRows"));
     }
@@ -337,6 +343,7 @@ class DisplayPanel extends JPanel {
         settings.setValue(SettingsClass.MSGTABLE_SCROLL_HORIZONTAL, msgTableScrollHorizontalCheckBox.isSelected());
         settings.setValue(SettingsClass.SHOW_BOARD_UPDATED_COUNT, showBoardUpdateCountCheckBox.isSelected());
         settings.setValue(SettingsClass.SHOW_BOARDDESC_TOOLTIPS, showBoardDescTooltipsCheckBox.isSelected());
+        settings.setValue(SettingsClass.SORT_THREADROOTMSGS_ASCENDING, sortThreadRootMsgsAscendingCheckBox.isSelected());
         
         settings.setValue(SettingsClass.SHOW_COLORED_ROWS, showColoredRowsCheckBox.isSelected());
     }

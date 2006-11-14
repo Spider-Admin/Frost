@@ -76,6 +76,7 @@ public class SettingsClass implements Savable {
     public static final String SILENTLY_RETRY_MESSAGES = "silentlyRetryMessages";
     public static final String RECEIVE_DUPLICATE_MESSAGES = "receiveDuplicateMessages";
     public static final String HANDLE_OWN_MESSAGES_AS_NEW_DISABLED = "handleOwnMessagesAsNewDisabled";
+    public static final String SORT_THREADROOTMSGS_ASCENDING = "sortThreadRootMessagesAscending";
 
     public static final String ALWAYS_DOWNLOAD_MESSAGES_BACKLOAD = "alwaysDownloadMessagesBackload";
 
@@ -813,6 +814,7 @@ public class SettingsClass implements Savable {
 
         defaults.put(SHOW_THREADS, "true");
         defaults.put(HANDLE_OWN_MESSAGES_AS_NEW_DISABLED, "false");
+        defaults.put(SORT_THREADROOTMSGS_ASCENDING, "false");
         
         defaults.put(SHOW_COLORED_ROWS, "true");
         defaults.put(SHOW_SMILEYS, "true");
