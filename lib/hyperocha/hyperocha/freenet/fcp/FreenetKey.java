@@ -125,9 +125,14 @@ public class FreenetKey {
 	}
 	
 	/**
-	 * @deprecated
+	 * @deprecated use getKeyFromString(string) instead
+	 * <pre>
+	 * 		key = getKeyFromString(string)
+	 * 		if (key.isFreenetKeyType(FreenetKeyType.KSK)) {
+	 * 			foo();
+	 * 		}
 	 * @param k
-	 * @return
+	 * @return 
 	 */
 	public static FreenetKey KSKfromString(String k) {
 		String tmpS = freenetKeyStringNiceness(k);
@@ -140,7 +145,12 @@ public class FreenetKey {
 	}
 	
 	/**
-	 * @deprecated
+	 * @deprecated use getKeyFromString(string) instead
+	 * <pre>
+	 * 		key = getKeyFromString(string)
+	 * 		if (key.isFreenetKeyType(FreenetKeyType.CHK)) {
+	 * 			foo();
+	 * 		}
 	 * @param k
 	 * @return
 	 */
