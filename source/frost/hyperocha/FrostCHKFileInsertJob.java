@@ -108,7 +108,7 @@ public class FrostCHKFileInsertJob extends CHKFileInsertJob {
 	/* (non-Javadoc)
 	 * @see hyperocha.freenet.fcp.dispatcher.job.Job#onSimpleProgress(boolean, long, long, long, long)
 	 */
-	public void onSimpleProgress(boolean isFinalized, long totalBlocks, long doneBlocks, long failedBlocks, long fatallyFailedBlocks) {
+	public void onSimpleProgress(boolean isFinalized, long totalBlocks,  long requiredBlocks,long doneBlocks, long failedBlocks, long fatallyFailedBlocks) {
 		// no DownloadItem set? we are not intrested in progress
 		if (uploadItem == null) { return; }
 
