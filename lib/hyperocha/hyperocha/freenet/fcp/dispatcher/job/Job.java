@@ -226,16 +226,25 @@ public abstract class Job implements IIncoming {
 	}
 	
 	/** 
-	 * The default handler. you schould allways super to this ;)
+	 * The default handler. 
+	 * skip the incoming data 
 	 */
 	public void incomingData(String id, NodeMessage msg, FCPConnection conn) {
-		// TODO Auto-generated method stub
-		throw new Error("Ha!");
-		
+		// the defaulthandler skip the data
+		if (msg.isMessageName("AllData")) { // FCP 2
+			long size = msg.getLongValue("DataLength"); 
+			conn.skip(size);
+			return;
+		}
+		if (msg.isMessageName("DataChunk")) { // FCP 1
+			long size = msg.getLongValue("Length", 16); 
+			conn.skip(size);
+			return;
+		}
 	}
 
 	/** 
-	 * The default handler. you schould allways super to this ;)
+	 * The default handler. you schould allways super to this. 
 	 */
 	public void incomingMessage(String id, NodeMessage msg) {
 		if (msg.isMessageName("SimpleProgress")) {
@@ -245,7 +254,6 @@ public abstract class Job implements IIncoming {
             final long doneBlocks = msg.getLongValue("Succeeded");
             final long failedBlocks = msg.getLongValue("Failed");
             final long fatallyFailedBlocks = msg.getLongValue("FatallyFailed");
-     
             
             SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
@@ -258,8 +266,6 @@ public abstract class Job implements IIncoming {
 			});
             return;
 		}
-		// TODO Auto-generated method stub
-		throw new Error("Hu!");
 	}
 	
 	/**
