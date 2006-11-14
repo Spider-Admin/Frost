@@ -56,6 +56,7 @@ import frost.util.gui.translation.*;
 /**
  * Class hold the more non-gui parts of Frost.
  * @pattern Singleton
+ * @version $Id$
  */
 public class Core implements FrostEventDispatcher  {
 
@@ -155,9 +156,9 @@ public class Core implements FrostEventDispatcher  {
             }
         }
 
-        Factory factory = new Factory();
+     
         
-        fcpDispatcher = new Dispatcher(factory);
+        fcpDispatcher = new Dispatcher();
 //        
         Network net = new Network(fcpVersion, "frost"+fcpVersion);
 //        
@@ -167,7 +168,7 @@ public class Core implements FrostEventDispatcher  {
             net.addNode("idstring-"+i, (String)nodes.get(i), fcpDispatcher);
         }
 
-		factory.addNetwork(net);
+		fcpDispatcher.addNetwork(net);
 
         if (nodes.size() == 0) {
             MiscToolkit.getInstance().showMessage(
