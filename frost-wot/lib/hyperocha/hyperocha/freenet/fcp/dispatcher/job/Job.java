@@ -255,15 +255,15 @@ public abstract class Job implements IIncoming {
             final long failedBlocks = msg.getLongValue("Failed");
             final long fatallyFailedBlocks = msg.getLongValue("FatallyFailed");
             
-            SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
+//            SwingUtilities.invokeLater(new Runnable() {
+//				public void run() {
 					try {
 						onSimpleProgress(isFinalized, totalBlocks, requiredBlocks, doneBlocks, failedBlocks, fatallyFailedBlocks);
 					} catch (Exception e) {
 						// TODO silence? log?
 					}
-				}
-			});
+//				}
+//			});
             return;
 		}
 		
