@@ -26,7 +26,6 @@ import hyperocha.freenet.fcp.io.FCPIOConnectionErrorHandler;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
@@ -34,6 +33,7 @@ import java.util.Observable;
 
 /**
  * @author  saces
+ * @version $Id$
  */
 public class FCPNode extends Observable {
 	
@@ -86,7 +86,7 @@ public class FCPNode extends Observable {
 	
 	
 	private FCPIOConnectionErrorHandler ioErrorHandler = null;
-	private FCPNodeConfig nodeConfig;
+	private FCPNodeConfig nodeConfig = new FCPNodeConfig();
 	private FCPNodeStatus nodeStatus;
     private volatile FCPConnectionRunner defaultConn = null;
     
@@ -98,6 +98,12 @@ public class FCPNode extends Observable {
 //    	this(nodeconfig, null);
 //    }
     
+    public FCPNode(int networktype, String id, String serverport, IIncoming callback) {
+    	nodeConfig.networkType = networktype;
+    	nodeConfig.nodeID = id;
+		setServerPort(serverport);
+    }
+
 	private boolean setServerPort(String serverport) {
 		boolean retValue = false;
 		nodeConfig.initialized = false;
@@ -113,19 +119,6 @@ public class FCPNode extends Observable {
 		return retValue;
 	}
     
-    
-    public FCPNode(int networktype, String id, String serverport, IIncoming callback) {
-    	nodeConfig.networkType = networktype;
-    	nodeConfig.nodeID = id;
-		setServerPort(serverport);
-    }
-    
-    
-//    public FCPNode(FCPNodeConfig nodeconfig, IIncoming callback) {
-//    	this.nodeConfig = nodeconfig;
-//    	this.callBack = callback;
-//    }
-//    
      /**
      * the constructor checks only the plausibility of 'server:port'
      * but doesn't etablish any connection to it.
@@ -274,61 +267,61 @@ public class FCPNode extends Observable {
 		return nodeConfig.useDDA;
 	}
 	
-	public FreenetKey generateSSK() {
-		List cmd = new LinkedList();
-		cmd.add("GenerateSSK");
-		cmd.add("Identifier=My Identifier Blah Blah");
-		cmd.add("EndMessage");
-
-		FCPConnection conn = null; //node.getDefaultFCPConnection();
-//		boolean repeat = true;
-		Hashtable result = null;
-		//try { 
-			conn = getNewFCPConnection(null, null);
-			conn.start(cmd);
-			result = conn.readEndMessage();
-//    	} catch (Throwable ex) {
+//	public FreenetKey generateSSK() {
+//		List cmd = new LinkedList();
+//		cmd.add("GenerateSSK");
+//		cmd.add("Identifier=My Identifier Blah Blah");
+//		cmd.add("EndMessage");
+//
+//		FCPConnection conn = null; //node.getDefaultFCPConnection();
+////		boolean repeat = true;
+//		NodeMesage result = null;
+//		//try { 
+//			conn = getNewFCPConnection(null, null);
+//			conn.start(cmd);
+//			result = conn.readEndMessage();
+////    	} catch (Throwable ex) {
+////			conn.close();
+////			return null;
+////		}
+//
+//			
+//		if (!("SSKKeypair").equalsIgnoreCase((String)(result.get(FCPConnection.MESSAGENAME)))) {
+//			System.err.println("SSK gen err: " + result);
 //			conn.close();
 //			return null;
 //		}
-
-			
-		if (!("SSKKeypair").equalsIgnoreCase((String)(result.get(FCPConnection.MESSAGENAME)))) {
-			System.err.println("SSK gen err: " + result);
-			conn.close();
-			return null;
-		}
-			
-			
-		String iURI = (String)result.get("InsertURI");
-		String rURI = (String)result.get("RequestURI");
-		
-		
-		//System.out.println("Result I:" + iURI);	
-		
-		//System.out.println("Result I:" + iURI.substring(12,55));
-		
-		//System.out.println("Result R:" + rURI);
-		//System.out.println("Result R:" + rURI.substring(12,55));
-		//System.out.println("Result R:" + rURI.substring(56,99));
-		//System.out.println("Result R:" + rURI.substring(101,107));
-		
-		// public FreenetKey(FreenetKeyType keytype, String pubkey, String privkey, String cryptokey, String suffix) {
-		FreenetKey key = new FreenetKey(Network.FCP2, FreenetKeyType.SSK, rURI.substring(12,55), iURI.substring(12,55), rURI.substring(56,99), rURI.substring(101,107));
-			
-			
-		//System.out.println("Result:" + result);
-//		} catch (Throwable ex) {
-//			conn.close();
-//			return null;
-		
-		conn.close();
-		//return false;
-	
-		//System.out.println("Result:" + key);
-		
-		return key;
-	}
+//			
+//			
+//		String iURI = (String)result.get("InsertURI");
+//		String rURI = (String)result.get("RequestURI");
+//		
+//		
+//		//System.out.println("Result I:" + iURI);	
+//		
+//		//System.out.println("Result I:" + iURI.substring(12,55));
+//		
+//		//System.out.println("Result R:" + rURI);
+//		//System.out.println("Result R:" + rURI.substring(12,55));
+//		//System.out.println("Result R:" + rURI.substring(56,99));
+//		//System.out.println("Result R:" + rURI.substring(101,107));
+//		
+//		// public FreenetKey(FreenetKeyType keytype, String pubkey, String privkey, String cryptokey, String suffix) {
+//		FreenetKey key = new FreenetKey(Network.FCP2, FreenetKeyType.SSK, rURI.substring(12,55), iURI.substring(12,55), rURI.substring(56,99), rURI.substring(101,107));
+//			
+//			
+//		//System.out.println("Result:" + result);
+////		} catch (Throwable ex) {
+////			conn.close();
+////			return null;
+//		
+//		conn.close();
+//		//return false;
+//	
+//		//System.out.println("Result:" + key);
+//		
+//		return key;
+//	}
 
 //	public boolean testDDA() {
 //		return testDDA(FCPUtil.getNewConnectionId("InsertDDA-Test-") , CLIENTTOKEN);

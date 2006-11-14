@@ -23,12 +23,13 @@ package hyperocha.freenet.fcp.dispatcher.job;
 import hyperocha.freenet.fcp.FCPConnection;
 import hyperocha.freenet.fcp.IIncoming;
 import hyperocha.freenet.fcp.Network;
+import hyperocha.freenet.fcp.NodeMessage;
 import hyperocha.freenet.fcp.dispatcher.Dispatcher;
 
-import java.util.Hashtable;
 
 /**
  * a job
+ * @version $Id$
  */
 public abstract class Job implements IIncoming {
     
@@ -68,6 +69,9 @@ public abstract class Job implements IIncoming {
 		status = STATUS_UNPREPARED;
 	}
 	
+	/**
+	 * @return the last occured error
+	 */
 	public Throwable getLastError() {
 		return lastError;
 	}
@@ -75,14 +79,14 @@ public abstract class Job implements IIncoming {
 	protected void setError(Exception e) {
 		lastError = e;
 		status = STATUS_ERROR;
-	}
-	
-	protected void setError(String description) {
-		lastError = new Exception(description);
-		status = STATUS_ERROR;
 		synchronized(waitObject) {
 			waitObject.notify();
 		}
+
+	}
+	
+	protected void setError(String description) {
+		setError(new Exception(description));
 	}
 	
 	protected void setSuccess() {
@@ -98,14 +102,24 @@ public abstract class Job implements IIncoming {
 		return status;
 	}
 	
-	public void prepare() {
+	public final void prepare() {
 		status = STATUS_UNPREPARED;
-		if (doPrepare()) {
+		boolean b = false;
+        try {
+            b = doPrepare();
+        } catch(Throwable t) {
+            // TODO: log error?
+        }
+		if (b) {
 			status = STATUS_PREPARED;
-		}		
+		} else {
+			if (status != STATUS_ERROR) {
+				setError("Prepare Failed!");
+			}
+		}
 	}
 	
-	public void run(Dispatcher dispatcher, boolean resume) {
+	public final void run(Dispatcher dispatcher, boolean resume) {
 		if (status != STATUS_PREPARED) { throw new Error("FIXME: never run an unprepared job!"); }
 		status = STATUS_RUNNING;
         
@@ -149,7 +163,7 @@ public abstract class Job implements IIncoming {
 		throw (new Error("Unsupported network type or missing implementation." + this));
 	}
 	
-	private void runSimulation(Dispatcher dispatcher, boolean resume) {
+	public void runSimulation(Dispatcher dispatcher, boolean resume) {
 		throw (new Error("Unsupported network type or missing implementation." + this));
 	}
 	
@@ -168,7 +182,7 @@ public abstract class Job implements IIncoming {
 	
 	/**
 	 * overwrite this
-	 * @return
+	 * @return bool if succes
 	 */
 	public boolean doPrepare() {
 		return true;
@@ -209,13 +223,13 @@ public abstract class Job implements IIncoming {
 		return clientToken;
 	}
 	
-	public void incomingData(String id, Hashtable message, FCPConnection conn) {
+	public void incomingData(String id, NodeMessage msg, FCPConnection conn) {
 		// TODO Auto-generated method stub
 		throw new Error("Ha!");
 		
 	}
 
-	public void incomingMessage(String id, Hashtable message) {
+	public void incomingMessage(String id, NodeMessage msg) {
 		// TODO Auto-generated method stub
 		throw new Error("Hu!");
 	}
@@ -235,7 +249,7 @@ public abstract class Job implements IIncoming {
 	}
 
 	/**
-	 * @return the exectuon time in milli sec
+	 * @return the execution time in milli sec
 	 */
 	public long getJobDurationMillis() {
         if( jobfinished <= 0 ) {

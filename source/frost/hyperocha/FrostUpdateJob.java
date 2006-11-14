@@ -21,7 +21,7 @@ package frost.hyperocha;
 import hyperocha.freenet.fcp.dispatcher.job.Job;
 
 /**
- * @author saces
+ * @version $Id$
  * .7 : USK@XeMBryjuEaxqazEuxwnn~G7wCUOXFOZlVWbscdCOUFs,209eycYVidlZvhgL5V2a3INFxrofxzQctEZvyJaFL7I,AQABAAE/frost/-2/
  */
 public class FrostUpdateJob extends Job {

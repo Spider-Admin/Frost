@@ -7,13 +7,13 @@ import hyperocha.freenet.fcp.FCPConnection;
 import hyperocha.freenet.fcp.FCPConnectionRunner;
 import hyperocha.freenet.fcp.FreenetKey;
 import hyperocha.freenet.fcp.FreenetKeyType;
+import hyperocha.freenet.fcp.NodeMessage;
 import hyperocha.freenet.fcp.Persistance;
 import hyperocha.freenet.fcp.dispatcher.Dispatcher;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -79,7 +79,7 @@ public class CHKFileRequestJob extends Job {
 		
 		//System.out.println("runFCP2: 04");
 		
-		waitFine();
+		//waitFine();
 		
 		//System.out.println("runFCP2: 05");
 	}
@@ -87,8 +87,8 @@ public class CHKFileRequestJob extends Job {
 	/* (non-Javadoc)
 	 * @see hyperocha.freenet.fcp.dispatcher.job.Job#incommingData(hyperocha.freenet.fcp.FCPConnection, java.util.Hashtable)
 	 */
-	public void incomingData(String id, Hashtable message, FCPConnection conn) {
-		long size = Long.parseLong((String)(message.get("DataLength"))); 
+	public void incomingData(String id, NodeMessage msg, FCPConnection conn) {
+		long size = msg.getLongValue("DataLength"); 
 		//System.out.println("CHK DataHandler: " + message);
 		conn.copyFrom(size, os);
 		// FIXME: daten sind ins file copiert, feierabend
@@ -98,7 +98,7 @@ public class CHKFileRequestJob extends Job {
 	/* (non-Javadoc)
 	 * @see hyperocha.freenet.fcp.dispatcher.job.Job#incommingMessage(hyperocha.freenet.fcp.FCPConnection, java.util.Hashtable)
 	 */
-	public void incomingMessage(String id, Hashtable message) {
-		System.out.println("CHK down MessageHandler: " + message);
+	public void incomingMessage(String id, NodeMessage msg) {
+		System.out.println("CHK down MessageHandler: " + msg);
 	}
 }

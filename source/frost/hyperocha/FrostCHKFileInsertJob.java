@@ -20,17 +20,17 @@ package frost.hyperocha;
 
 import frost.Core;
 import frost.fileTransfer.upload.FrostUploadItem;
-import hyperocha.freenet.fcp.FCPConnection;
+import hyperocha.freenet.fcp.NodeMessage;
 import hyperocha.freenet.fcp.dispatcher.job.CHKFileInsertJob;
 
 import java.io.File;
-import java.util.Hashtable;
-import java.util.logging.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import javax.swing.*;
+import javax.swing.SwingUtilities;
 
 /**
- * @author saces
+ * @version $Id$
  */
 public class FrostCHKFileInsertJob extends CHKFileInsertJob {
     
@@ -51,14 +51,14 @@ public class FrostCHKFileInsertJob extends CHKFileInsertJob {
 	 * @param requirednetworktype
 	 */
 	public FrostCHKFileInsertJob(FrostUploadItem uitem) {
-		super(Core.getFcpVersion(), FHUtil.getNextJobID(), uitem.getFile());
+		super(Core.getFcpVersion(), uitem.getGqIdentifier(), uitem.getFile());
 		uploadItem = uitem;
 	}
 
 	/* (non-Javadoc)
 	 * @see hyperocha.freenet.fcp.dispatcher.job.CHKFileInsertJob#incommingMessage(hyperocha.freenet.fcp.FCPConnection, java.util.Hashtable)
 	 */
-	public void incomingMessage(String id, Hashtable message) {
+	public void incomingMessage(String id, NodeMessage msg) {
         
         // Sample message:
 //      SimpleProgress
@@ -72,22 +72,13 @@ public class FrostCHKFileInsertJob extends CHKFileInsertJob {
 //      EndMessage
 
         try {
-    		if ("SimpleProgress".equals(message.get(FCPConnection.MESSAGENAME))) {
+    		if (msg.isMessageName("SimpleProgress")) {
     			// no DownloadItem set? we are not intrested in progress
     			if (uploadItem == null) { return; }
 
-                String bolMsg = (String)message.get("FinalizedTotal");
-                boolean isFinalized0;
-                if( bolMsg != null && bolMsg.trim().equalsIgnoreCase("true") ) {
-                    isFinalized0 = true;
-                } else {
-                    isFinalized0 = false;
-                }
-
-                final boolean isFinalized = isFinalized0;
-                final int totalBlocks = Integer.parseInt((String)message.get("Total"));
-                final int doneBlocks = Integer.parseInt((String)message.get("Succeeded"));
-                
+                final boolean isFinalized = msg.getBoolValue("FinalizedTotal");
+                final int totalBlocks = (int)msg.getLongValue("Total");
+                final int doneBlocks = (int)msg.getLongValue("Succeeded");
 
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
@@ -111,6 +102,6 @@ public class FrostCHKFileInsertJob extends CHKFileInsertJob {
 //			// dont return, super the putfetchable;
 //		}
 
-		super.incomingMessage(id, message);
+		super.incomingMessage(id, msg);
 	}
 }

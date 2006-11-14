@@ -3,12 +3,11 @@
  */
 package hyperocha.freenet.fcp;
 
-import java.util.Hashtable;
-
 /**
+ * @version $Id$
  * @author saces
  */
 public interface IIncoming {
-	public void incomingMessage(String id, Hashtable message);
-	public void incomingData(String id, Hashtable message, FCPConnection conn);
+	public void incomingMessage(String id, NodeMessage msg);
+	public void incomingData(String id, NodeMessage msg, FCPConnection conn);
 }

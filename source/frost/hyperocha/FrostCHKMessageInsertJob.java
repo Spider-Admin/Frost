@@ -18,25 +18,26 @@
 */
 package frost.hyperocha;
 
+import hyperocha.freenet.fcp.FreenetKey;
+import hyperocha.freenet.fcp.Network;
+import hyperocha.freenet.fcp.dispatcher.job.CHKMessageInsertJob;
+
 import java.io.File;
 
 import frost.Core;
-import hyperocha.freenet.fcp.FreenetKey;
-import hyperocha.freenet.fcp.Network;
-import hyperocha.freenet.fcp.dispatcher.job.KSKMessageInsertJob;
 
 /**
  * @author saces
  */
-public class FrostMessageInsertJob extends KSKMessageInsertJob {
+public class FrostCHKMessageInsertJob extends CHKMessageInsertJob {
 
     // FIXME: overwrite doPrepare(), jobStarted(), jobFinished()
 
 	/**
 	 * @param requirednetworktype
 	 */
-	public FrostMessageInsertJob(String targetKey, File insertFile) {
-		super(Core.getFcpVersion(), FHUtil.getNextJobID(), insertFile, string2key(targetKey));
+	public FrostCHKMessageInsertJob(File insertFile) {
+		super(Core.getFcpVersion(), FHUtil.getNextJobID(), insertFile);
 	}
 	
 	private static FreenetKey string2key(String uri) {

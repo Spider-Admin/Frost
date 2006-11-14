@@ -12,6 +12,7 @@ import hyperocha.freenet.fcp.FCPConnection;
 import hyperocha.freenet.fcp.FCPConnectionRunner;
 import hyperocha.freenet.fcp.FCPNode;
 import hyperocha.freenet.fcp.Network;
+import hyperocha.freenet.fcp.NodeMessage;
 import hyperocha.freenet.fcp.Persistance;
 import hyperocha.freenet.fcp.dispatcher.Dispatcher;
 import hyperocha.freenet.fcp.utils.FCPTests;
@@ -94,10 +95,10 @@ public class UpdateNodePropertiesJob extends Job {
 	/* (non-Javadoc)
 	 * @see hyperocha.freenet.fcp.dispatcher.job.Job#incomingMessage(java.lang.String, java.util.Hashtable)
 	 */
-	public void incomingMessage(String id, Hashtable message) {
+	public void incomingMessage(String id, NodeMessage msg) {
 		if (id.equals(idStringDDA)) {
-			if ("ProtocolError".equals(message.get(FCPConnection.MESSAGENAME))) {
-				if (Integer.parseInt((String)(message.get("Code")))==9) {
+			if (msg.isMessageName("ProtocolError")) {
+				if ( msg.getLongValue("Code")==9 ) {
 					// File not found
 					node.setDDA(false);
 				}
@@ -105,13 +106,13 @@ public class UpdateNodePropertiesJob extends Job {
 				return;
 			}
 			
-			if ("PutSuccessful".equals(message.get(FCPConnection.MESSAGENAME))) {
+			if (msg.isMessageName("PutSuccessful")) {
 				node.setDDA(true);  // juhu
 				setSuccess();
 				return;
 			}
 			
-			if ("PutFailed".equals(message.get(FCPConnection.MESSAGENAME))) {
+			if (msg.isMessageName("PutFailed")) {
 				// hu, das sollte eigentlich nicht passieren.
 				// don't change config
 				setSuccess();
