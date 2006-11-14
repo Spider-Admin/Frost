@@ -71,30 +71,30 @@ public class FrostCHKFileInsertJob extends CHKFileInsertJob {
 //      Identifier=Request Number One
 //      EndMessage
 
-        try {
-    		if (msg.isMessageName("SimpleProgress")) {
-    			// no DownloadItem set? we are not intrested in progress
-    			if (uploadItem == null) { return; }
-
-                final boolean isFinalized = msg.getBoolValue("FinalizedTotal");
-                final int totalBlocks = (int)msg.getLongValue("Total");
-                final int doneBlocks = (int)msg.getLongValue("Succeeded");
-
-                SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        uploadItem.setFinalized(isFinalized);
-                        uploadItem.setTotalBlocks(totalBlocks);
-                        uploadItem.setDoneBlocks(doneBlocks);
-
-                        uploadItem.fireValueChanged();
-                    }
-                });
-    			//System.out.println("SP" + this + message);
-            }
-        } catch(Throwable t) {
-            logger.log(Level.SEVERE, "Exception catched", t);
-        }
-        // maybe we could start to spread the key before complete upload?
+//        try {
+//    		if (msg.isMessageName("SimpleProgress")) {
+//    			// no DownloadItem set? we are not intrested in progress
+//    			if (uploadItem == null) { return; }
+//
+//                final boolean isFinalized = msg.getBoolValue("FinalizedTotal");
+//                final int totalBlocks = (int)msg.getLongValue("Total");
+//                final int doneBlocks = (int)msg.getLongValue("Succeeded");
+//
+//                SwingUtilities.invokeLater(new Runnable() {
+//                    public void run() {
+//                        uploadItem.setFinalized(isFinalized);
+//                        uploadItem.setTotalBlocks(totalBlocks);
+//                        uploadItem.setDoneBlocks(doneBlocks);
+//
+//                        uploadItem.fireValueChanged();
+//                    }
+//                });
+//    			//System.out.println("SP" + this + message);
+//            }
+//        } catch(Throwable t) {
+//            logger.log(Level.SEVERE, "Exception catched", t);
+//        }
+//        // maybe we could start to spread the key before complete upload?
 //		if ("PutFetchable".equals(message.get(FCPConnection.MESSAGENAME))) {
 //			//System.out.println("PutFetchable" + this + message);
 //			if (uploadItem == null) { return; }
@@ -103,5 +103,18 @@ public class FrostCHKFileInsertJob extends CHKFileInsertJob {
 //		}
 
 		super.incomingMessage(id, msg);
+	}
+
+	/* (non-Javadoc)
+	 * @see hyperocha.freenet.fcp.dispatcher.job.Job#onSimpleProgress(boolean, long, long, long, long)
+	 */
+	public void onSimpleProgress(boolean isFinalized, long totalBlocks, long doneBlocks, long failedBlocks, long fatallyFailedBlocks) {
+		// no DownloadItem set? we are not intrested in progress
+		if (uploadItem == null) { return; }
+
+        uploadItem.setFinalized(isFinalized);
+        uploadItem.setTotalBlocks((int)totalBlocks);
+        uploadItem.setDoneBlocks((int)doneBlocks);
+        uploadItem.fireValueChanged();
 	}
 }

@@ -71,32 +71,32 @@ public class FrostCHKFileRequestJob extends CHKFileRequestJob {
 //        EndMessage
         
         // we don't want to die for any reason here...
-        try {
-            if (msg.isMessageName("SimpleProgress")) {
-                // no DownloadItem set? we are not intrested in progress
-                if (dlItem == null) { return; }
-                
-                // the doc says this is right:
-                // don't belive this value before FinalizedTotal=true
-                final boolean isFinalized = msg.getBoolValue("FinalizedTotal");
-                final int totalBlocks = (int)msg.getLongValue("Total");
-                final int requiredBlocks = (int)msg.getLongValue("Required");
-                final int doneBlocks = (int)msg.getLongValue("Succeeded");
-                
-                SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        dlItem.setFinalized(isFinalized);
-                        dlItem.setTotalBlocks(totalBlocks);
-                        dlItem.setRequiredBlocks(requiredBlocks);          
-                        dlItem.setDoneBlocks(doneBlocks);
-
-                        dlItem.fireValueChanged();
-                    }
-                });
-            }
-        } catch(Throwable t) {
-            logger.log(Level.SEVERE, "Exception catched", t);
-        }
+//        try {
+//            if (msg.isMessageName("SimpleProgress")) {
+//                // no DownloadItem set? we are not intrested in progress
+//                if (dlItem == null) { return; }
+//                
+//                // the doc says this is right:
+//                // don't belive this value before FinalizedTotal=true
+//                final boolean isFinalized = msg.getBoolValue("FinalizedTotal");
+//                final int totalBlocks = (int)msg.getLongValue("Total");
+//                final int requiredBlocks = (int)msg.getLongValue("Required");
+//                final int doneBlocks = (int)msg.getLongValue("Succeeded");
+//                
+//                SwingUtilities.invokeLater(new Runnable() {
+//                    public void run() {
+//                        dlItem.setFinalized(isFinalized);
+//                        dlItem.setTotalBlocks(totalBlocks);
+//                        dlItem.setRequiredBlocks(requiredBlocks);          
+//                        dlItem.setDoneBlocks(doneBlocks);
+//
+//                        dlItem.fireValueChanged();
+//                    }
+//                });
+//            }
+//        } catch(Throwable t) {
+//            logger.log(Level.SEVERE, "Exception catched", t);
+//        }
         
         super.incomingMessage(id, msg);
 	}
@@ -106,5 +106,17 @@ public class FrostCHKFileRequestJob extends CHKFileRequestJob {
 			return  FHUtil.getNextJobID();
 		}
 		return dlItem.getGqIdentifier();
+	}
+
+	/* (non-Javadoc)
+	 * @see hyperocha.freenet.fcp.dispatcher.job.Job#onSimpleProgress(boolean, long, long, long, long)
+	 */
+	public void onSimpleProgress(boolean isFinalized, long totalBlocks, long requiredBlocks, long doneBlocks, long failedBlocks, long fatallyFailedBlocks) {
+		 dlItem.setFinalized(isFinalized);
+         dlItem.setTotalBlocks((int)totalBlocks);
+         dlItem.setRequiredBlocks((int)requiredBlocks);          
+         dlItem.setDoneBlocks((int)doneBlocks);
+
+         dlItem.fireValueChanged();
 	}
 }
