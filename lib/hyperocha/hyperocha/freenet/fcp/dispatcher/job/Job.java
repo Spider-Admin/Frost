@@ -47,6 +47,7 @@ public abstract class Job implements IIncoming {
 	
 	private int status = STATUS_UNPREPARED;
 	private Throwable lastError = null;
+	private NodeMessage lastErrorMessage = null;
 	
 	private String jobID = null;  // = identifer on fcp 2
 	private String clientToken = "hyperochaclienttoken";
@@ -84,7 +85,6 @@ public abstract class Job implements IIncoming {
 		synchronized(waitObject) {
 			waitObject.notify();
 		}
-
 	}
 	
 	protected void setError(String description) {
@@ -266,8 +266,29 @@ public abstract class Job implements IIncoming {
 			});
             return;
 		}
+		
+		if (msg.isMessageName("ProtocolError")) {
+			lastErrorMessage = msg;
+			boolean goon = false;
+			try {
+				goon = onProtocolError();
+			} catch (Exception e) {
+				// TODO silence? log?
+			}
+			if (!goon) {
+				setError("ProtocolError");
+			}
+		}
 	}
 	
+    /**
+     * Overwrite this to get notified if a protocoll error occures.
+     * return true - the problem is resolved by your implementation and the job stays running; false - the job fails.
+     */
+	public boolean onProtocolError() {
+		return false;
+	}
+
 	/**
 	 * @return the start timestamp - System.currentTimeMillis();
 	 */
@@ -325,5 +346,12 @@ public abstract class Job implements IIncoming {
      * The default implementation does nothing.
      */
     public void onSimpleProgress(boolean isFinalized, long totalBlocks, long requiredBlocks, long doneBlocks, long failedBlocks, long fatallyFailedBlocks) { }
+
+	/**
+	 * @return the lastErrorMessage
+	 */
+	public NodeMessage getLastErrorMessage() {
+		return lastErrorMessage;
+	}
 
 }
