@@ -3,9 +3,9 @@
  */
 package hyperocha.freenet.fcp.dispatcher.job;
 
-import hyperocha.freenet.fcp.FCPConnection;
 import hyperocha.freenet.fcp.FCPConnectionRunner;
 import hyperocha.freenet.fcp.FreenetKey;
+import hyperocha.freenet.fcp.NodeMessage;
 import hyperocha.freenet.fcp.dispatcher.Dispatcher;
 import hyperocha.util.DefaultMIMETypes;
 
@@ -13,7 +13,6 @@ import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -59,12 +58,6 @@ public class CHKFileInsertJob extends Job {
 	public String getChkKey() {
 		return targetKey.getReadFreenetKey();
 	}
-
-	public boolean isKeyCollision() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
 
 	/* (non-Javadoc)
 	 * @see hyperocha.freenet.fcp.dispatcher.job.Job#runFCP2(hyperocha.freenet.fcp.dispatcher.Dispatcher)
@@ -127,7 +120,7 @@ public class CHKFileInsertJob extends Job {
 
 		}
 		
-		waitFine();
+		//waitFine();
 		
 		cmd = new LinkedList();
 
@@ -143,34 +136,34 @@ public class CHKFileInsertJob extends Job {
 	/* (non-Javadoc)
 	 * @see hyperocha.freenet.fcp.dispatcher.job.Job#incommingMessage(hyperocha.freenet.fcp.FCPConnection, java.util.Hashtable)
 	 */
-	public void incomingMessage(String id, Hashtable message) {
-		if ("URIGenerated".equals(message.get(FCPConnection.MESSAGENAME))) {
+	public void incomingMessage(String id, NodeMessage msg) {
+		if (msg.isMessageName("URIGenerated")) {
 			//trash the uri-generated
 			return;
 		}
 		
-		if ("PutFetchable".equals(message.get(FCPConnection.MESSAGENAME))) {
-			targetKey = FreenetKey.CHKfromString((String)message.get("URI"));
+		if (msg.isMessageName("PutFetchable")) {
+			targetKey = msg.getKeyValue("URI");
 			//System.out.println("CHK ins PF: " + message);
 			// if fast mode setSuccess();
 			return;
 		}
 		
-		if ("PutSuccessful".equals(message.get(FCPConnection.MESSAGENAME))) {
+		if (msg.isMessageName("PutSuccessful")) {
 			//System.out.println("CHK ins PS: " + message);
-			targetKey = FreenetKey.CHKfromString((String)message.get("URI"));
+			targetKey = msg.getKeyValue("URI");
 			setSuccess();
 			return;
 		}
 		
-		if ("PutFailed".equals(message.get(FCPConnection.MESSAGENAME))) {
-			targetKey = FreenetKey.CHKfromString((String)message.get("URI"));
-			setError((String)message.get("ShortCodeDescription"));
+		if (msg.isMessageName("PutFailed")) {
+			//targetKey = FreenetKey.CHKfromString((String)message.get("URI"));
+			setError(msg.getStringValue("ShortCodeDescription"));
 			return;
 		}
 		
 		// TODO Auto-generated method stub
-		System.out.println("CHK ins not handled: " + message);
+		System.out.println("CHK ins not handled: " + msg);
 		//super.incommingMessage(conn, message);
 	}
 	

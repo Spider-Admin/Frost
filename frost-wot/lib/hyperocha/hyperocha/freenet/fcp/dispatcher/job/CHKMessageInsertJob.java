@@ -39,16 +39,15 @@ import hyperocha.util.DefaultMIMETypes;
  * @author saces
  *
  */
-public class KSKMessageInsertJob extends Job {
+public class CHKMessageInsertJob extends Job {
 	
 	private File insertFile;
 	private BufferedInputStream fis;
 	private FreenetKey targetKey;
 
-	public KSKMessageInsertJob(int requirednetworktype, String id, File source, FreenetKey targetkey) {
+	public CHKMessageInsertJob(int requirednetworktype, String id, File source) {
 		super(requirednetworktype, id);
 		insertFile = source;
-		targetKey = targetkey;
 	}
 
 	public boolean doPrepare() {
@@ -63,12 +62,6 @@ public class KSKMessageInsertJob extends Job {
 		return insertFile.exists();
 	}
 	
-	public boolean isKeyCollision() {
-		// TODO Auto-generated method stub
-		if (true) { throw new Error(); }
-		return false;
-	}
-
 	/* (non-Javadoc)
 	 * @see hyperocha.freenet.fcp.dispatcher.job.Job#runFCP2(hyperocha.freenet.fcp.dispatcher.Dispatcher)
 	 */
@@ -79,7 +72,7 @@ public class KSKMessageInsertJob extends Job {
 		List cmd = new LinkedList();
 		
 		cmd.add("ClientPut");
-		cmd.add("URI=" + targetKey.getReadFreenetKey());
+		cmd.add("URI=CHK@");
 		cmd.add("Identifier=" + this.getJobID());
         cmd.add("Verbosity=257"); // recive SimpleProgress for unterdruecken timeout       
 		cmd.add("MaxRetries=0");

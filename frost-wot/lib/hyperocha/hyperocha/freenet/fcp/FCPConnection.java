@@ -29,13 +29,14 @@ import java.util.*;
 
 /**
  * @author  saces
+ * @version $Id$
  */
 public class FCPConnection {
 	
 	private final static byte[] fcp1header = {0,0,0,2};
 	
-	public final static String MESSAGENAME = "hyperMessage-Name";
-	public final static String ENDMESSAGE = "hyper-fin";
+	//public final static String MESSAGENAME = "hyperMessage-Name";
+	//public final static String ENDMESSAGE = "hyper-fin";
 	public final static String CONNECTIONIDPREFIX = "hyperocha-";
 	
 	private FCPIOConnection rawConn = null;
@@ -205,13 +206,13 @@ public class FCPConnection {
 	 * message
 	 * @return message
 	 */
-	public Hashtable readEndMessage() {
-		Hashtable result = new Hashtable();
+	public NodeMessage readEndMessage() {
+		NodeMessage result;
 		String tmp;
 		
 		// the first line is the reason
 		tmp = rawConn.readLine();
-		result.put( MESSAGENAME, tmp);
+		result = new NodeMessage(tmp);
 		while(true) {
             tmp = rawConn.readLine();
             //result.add(tmp);
@@ -221,15 +222,15 @@ public class FCPConnection {
             //    break; 
             //}
             if (tmp.compareTo("EndMessage") == 0) {
-            	result.put(ENDMESSAGE, tmp);
+            	result.setEnd(tmp);
                 break; 
             }
             if (tmp.indexOf("=") > -1) {
             	String[] tmp2 = tmp.split("=", 2);
-            	result.put(tmp2[0], tmp2[1]);
+            	result.addItem(tmp2[0], tmp2[1]);
             } else {
             	System.out.println("this shouldn't happen. FIXME. mpf!");
-            	result.put("Unknown", tmp);
+            	result.addItem("Unknown", tmp);
             }
         } while(tmp.compareTo("EndMessage") != 0);
         return result;	
@@ -240,9 +241,9 @@ public class FCPConnection {
 	 * message
 	 * @return message
 	 */
-	public Hashtable readMessage(IIncoming callback) {
+	public NodeMessage readMessage(IIncoming callback) {
 
-		Hashtable result = new Hashtable();
+		NodeMessage result = null;
 		String tmp;
 		boolean isfirstline = true;
 		
@@ -250,6 +251,13 @@ public class FCPConnection {
             tmp = rawConn.readLine();
             if (tmp == null) { break; }  // this indicates an error, io connection closed
             if ((tmp.trim()).length() == 0) { continue; } // a empty line
+
+            if (isfirstline) {
+        		result = new NodeMessage(tmp);
+            	isfirstline = false;
+            	continue;      // insert coin
+            }
+
 
             if (tmp.compareTo("Data") == 0) {
             	if (true) { throw new Error(); }
@@ -259,23 +267,17 @@ public class FCPConnection {
             }
 
             if (tmp.compareTo("EndMessage") == 0) {
-            	result.put(ENDMESSAGE, tmp);
+            	result.setEnd(tmp);
             	isfirstline = true;
                 break; 
             }
             
-            if (isfirstline) {
-        		result.put( MESSAGENAME, tmp);
-            	isfirstline = false;
-            	continue;      // insert coin
-            }
-
             if (tmp.indexOf("=") > -1) {
             	String[] tmp2 = tmp.split("=", 2);
-            	result.put(tmp2[0], tmp2[1]);
+            	result.addItem(tmp2[0], tmp2[1]);
             } else {
             	System.err.println("This shouldn't happen. FIXME. mpf!: " + tmp + " -> " + tmp.length());
-            	result.put("Unknown", tmp);
+            	result.addItem("Unknown", tmp);
             	throw new Error("www");  // TODO
             }
         } 
@@ -289,22 +291,25 @@ public class FCPConnection {
 	 */
 	public void startMonitor(IIncoming callback) {
 
-		Hashtable result = null;
+		NodeMessage result = null;
 		String tmp;
 		boolean isfirstline = true;
 		
 		while(rawConn.isOpen()) {
-			if (isfirstline) {
-				//System.out.println("TestiPipi: FirstLine!");
-				result = new Hashtable(); 
-			}
             tmp = rawConn.readLine();
             if (tmp == null) { break; }  // this indicates an error, io connection closed
             //System.out.println("TestiPipi (" + tmp.length() + "): " + tmp);
             if ((tmp.trim()).length() == 0) { continue; } // a empty line
 
+            if (isfirstline) {
+				// first line is allways the message name
+				result = new NodeMessage(tmp);
+				isfirstline = false;
+            	continue;      // insert coin
+			}
+ 
             if (tmp.compareTo("Data") == 0) {
-            	result.put(ENDMESSAGE, tmp);
+            	result.setEnd(tmp);
             	String tmpID;
             	
             	int nt = rawConn.getNetworkType();
@@ -314,7 +319,7 @@ public class FCPConnection {
         				tmpID = connectionID;
         				break;
         			case Network.FCP2:
-        				tmpID = (String)result.get("Identifier");
+        				tmpID = (String)result.getStringValue("Identifier");
         				if (tmpID == null) {
         					tmpID = connectionID;
         				}
@@ -328,7 +333,7 @@ public class FCPConnection {
             }
 
             if (tmp.compareTo("EndMessage") == 0) {
-            	result.put(ENDMESSAGE, tmp);
+            	result.setEnd(tmp);
             	String tmpID;
             	
             	int nt = rawConn.getNetworkType();
@@ -338,7 +343,7 @@ public class FCPConnection {
                         tmpID = connectionID;
                         break;
         			case Network.FCP2: 
-                        tmpID = (String)result.get("Identifier"); 
+                        tmpID = (String)result.getStringValue("Identifier"); 
 						if (tmpID == null) {
 							tmpID = connectionID;
 						}
@@ -351,18 +356,12 @@ public class FCPConnection {
                 continue; 
             }
             
-            if (isfirstline) {
-        		result.put( MESSAGENAME, tmp);
-            	isfirstline = false;
-            	continue;      // insert coin
-            }
-
             if (tmp.indexOf("=") > -1) {
             	String[] tmp2 = tmp.split("=", 2);
-            	result.put(tmp2[0], tmp2[1]);
+            	result.addItem(tmp2[0], tmp2[1]);
             } else {
             	System.err.println("This shouldn't happen. FIXME. mpf!: " + tmp + " -> " + tmp.length());
-            	result.put("Unknown", tmp);
+            	result.addItem("Unknown", tmp);
             	throw new Error("www");  // TODO
             }
         } 
@@ -377,7 +376,7 @@ public class FCPConnection {
 	
 	private String fcp2Hello(String connectionid, boolean prefix, int attempts) {
 		if (attempts < 1) return null;
-		Hashtable result = null;
+		NodeMessage result = null;
 		result = helo(FCPUtil.getNewConnectionId(connectionid));
 		//FCPUtil.getNewConnectionId("hyperocha-")
 		// FIXME: repeat loop here and return id 
@@ -390,7 +389,7 @@ public class FCPConnection {
 	 * @param connectionid
 	 * @return
 	 */
-	private Hashtable helo(String connectionid) {
+	private NodeMessage helo(String connectionid) {
 		//System.out.println("TODO: EchtEs holo 07 hier!");
 		
 		ArrayList cmd = new ArrayList();

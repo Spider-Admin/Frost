@@ -40,13 +40,13 @@ import java.util.List;
  * @author saces
  *
  */
-public class KSKMessageRequestJob extends Job {
+public class CHKMessageRequestJob extends Job {
 
 	private FreenetKey keyToDownload;
 	private File targetFile;
 	private FileOutputStream os;
 	
-	protected KSKMessageRequestJob(int requirednetworktype, String id, FreenetKey key, File dest) {
+	protected CHKMessageRequestJob(int requirednetworktype, String id, FreenetKey key, File dest) {
 		super(requirednetworktype, id);
 		keyToDownload = key;
 		targetFile = dest;

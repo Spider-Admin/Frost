@@ -33,37 +33,18 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
- * @author sa
- *
+ * @version $Id$
  */
-public class Factory implements IStorageObject {
+public class Factory implements IStorageObject, Observer {
 	
-	private Hashtable networks;  // liste der configuratuon
-	
-	//private NodeList nodes; // liste der knoten, die online sind (hello ok)
-	
-//	private class NodeList {
-//		
-//		private List nodesByNetwork;
-//		
-//		private NodeList() {
-//			
-//		}
-//		
-//	}
-//	
-//	private class NodeListItem {
-//		private NodeListItem() {
-//		}
-//	}
-	
-	//private Balancer balancer;
+	protected Hashtable networks;  // liste der configuratuon
 	
 	public Factory() {
 		networks = new Hashtable();
-//		nodes = new NodeList();
 	}
 	
 	public Factory(DataInputStream dis) {
@@ -126,13 +107,13 @@ public class Factory implements IStorageObject {
 		return net.getNewFCPConnection();
 	}
 	
-	protected FCPConnectionRunner getDefaultFCPConnectionRunner(int networktype) {
+	public FCPConnectionRunner getDefaultFCPConnectionRunner(int networktype) {
 		Network net = getFirstNetwork(networktype);
 		//throw new Error("TODO");
 		return net.getDefaultFCPConnectionRunner();
 	}
 	
-	protected FCPConnectionRunner getNewFCPConnectionRunner(int networktype, String id) {
+	public FCPConnectionRunner getNewFCPConnectionRunner(int networktype, String id) {
 		Network net = getFirstNetwork(networktype);
 		//throw new Error("TODO");
 		return net.getNewFCPConnectionRunner(id);
@@ -160,38 +141,32 @@ public class Factory implements IStorageObject {
 		//return null;
 	}
 
-	protected void init() {
-		for (Enumeration e = networks.elements() ; e.hasMoreElements() ;) {
-			((Network)(e.nextElement())).init();
-		}
+//	protected void init() {
+//		for (Enumeration e = networks.elements() ; e.hasMoreElements() ;) {
+//			((Network)(e.nextElement())).init();
+//		}
 //
 //		int netCount = networks.size();
 //		int i;
 //		for (i=0; i < netCount; i++) {
 //				((Network)networks.get(i)).init();
 //		}
-	}
+//	}
 	
-	protected void goOnline() {
-//		int netCount = networks.size();
-//		int i;
-//		Network net;
-		for (Enumeration e = networks.elements() ; e.hasMoreElements() ;) {
-			((Network)(e.nextElement())).goOnline();
-	     }
-//		for (i=0; i < netCount; i++) {
-//			((Network)(networks.get(i))).goOnline();
-//		}
-	}
+//	public void goOnline() {
+//		for (Enumeration e = networks.elements() ; e.hasMoreElements() ;) {
+//			((Network)(e.nextElement())).goOnline();
+//	     }
+//	}
 
-	protected boolean isOnline() {
-		for (Enumeration e = networks.elements() ; e.hasMoreElements() ;) {
-			if (((Network)(e.nextElement())).isOnline()) {
-				return true;
-			}
-
-	     }
-//		int netCount = networks.size();
+//	protected boolean isOnline() {
+//		for (Enumeration e = networks.elements() ; e.hasMoreElements() ;) {
+//			if (((Network)(e.nextElement())).isOnline()) {
+//				return true;
+//			}
+//
+//	     }
+////		int netCount = networks.size();
 //		int i;
 //		//Network net;
 //		for (i=0; i < netCount; i++) {
@@ -199,8 +174,8 @@ public class Factory implements IStorageObject {
 //				return true;
 //			}
 //		}
-		return false;
-	}
+//		return false;
+//	}
 
 	public boolean isInList(String host, int port) {
 		for (Enumeration e = networks.elements() ; e.hasMoreElements() ;) {
@@ -240,5 +215,11 @@ public class Factory implements IStorageObject {
 			return null;
 		}
 		return l;
+	}
+
+	public void update(Observable o, Object arg) {
+		// TODO Auto-generated method stub
+		System.err.println("Observer notify!");
+		//throw new Error();
 	}
 }

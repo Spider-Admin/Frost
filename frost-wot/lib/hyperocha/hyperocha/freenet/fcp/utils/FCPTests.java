@@ -82,7 +82,7 @@ public class FCPTests {
 		cmd.add("URI=CHK@");
 		cmd.add("Identifier=" + identifier); 
 		cmd.add("Verbosity=0");
-		cmd.add("MaxRetries=1");      // only one try, the node accepts the filename or net
+		cmd.add("MaxRetries=0");      // only one try, the node accepts the filename or net
 		cmd.add("PriorityClass=3");   // today, please ;) 
 		cmd.add("GetCHKOnly=true");   // calculate the chk from 1k (the default testfile)
 		cmd.add("Global=false");
@@ -102,7 +102,7 @@ public class FCPTests {
 		
 		FCPConnection conn = null; //node.getDefaultFCPConnection();
 		boolean repeat = true;
-		Hashtable result = null;
+		NodeMessage result = null;
 		try { 
 			conn = node.getNewFCPConnection(null, "ID");
 			conn.start(cmd);
@@ -110,10 +110,10 @@ public class FCPTests {
 			while (repeat) {
 				result = conn.readEndMessage();
 				//System.out.println("DDA-Test loop: " + result);
-				repeat = ("URIGenerated").equalsIgnoreCase((String)(result.get(FCPConnection.MESSAGENAME)));
+				repeat = result.isMessageName("URIGenerated");
 			}
 			
-			if (("PutSuccessful").equalsIgnoreCase((String)(result.get(FCPConnection.MESSAGENAME)))) {
+			if (result.isMessageName("PutSuccessful")) {
 				conn.close();
 				return true; // the only one case for return ok.
 			}
@@ -160,7 +160,7 @@ public class FCPTests {
 		cmd.add("DataLength=1024");
 		cmd.add("Data");
 		
-		Hashtable result = null;
+		NodeMessage result = null;
 		FCPConnection conn = null;
 		//try {
 			//conn = node.getNewFCPConnection(5000);
@@ -183,7 +183,7 @@ public class FCPTests {
 			
 			//System.out.println("Result: GQT" + result);
 			
-			if (!("PersistentPut").equalsIgnoreCase((String)(result.get(FCPConnection.MESSAGENAME)))) {
+			if (!result.isMessageName("PersistentPut")) {
 				conn.close();
 				return false; // the only one case for return ok.
 			}

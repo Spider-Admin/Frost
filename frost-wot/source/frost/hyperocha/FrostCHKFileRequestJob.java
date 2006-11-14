@@ -18,19 +18,20 @@
 */
 package frost.hyperocha;
 
-import frost.*;
-import frost.fileTransfer.download.*;
-import hyperocha.freenet.fcp.*;
-import hyperocha.freenet.fcp.dispatcher.job.*;
+import frost.Core;
+import frost.fileTransfer.download.FrostDownloadItem;
+import hyperocha.freenet.fcp.FreenetKey;
+import hyperocha.freenet.fcp.NodeMessage;
+import hyperocha.freenet.fcp.dispatcher.job.CHKFileRequestJob;
 
-import java.io.*;
-import java.util.*;
-import java.util.logging.*;
+import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import javax.swing.*;
+import javax.swing.SwingUtilities;
 
 /**
- * @author saces
+ * @version $Id$
  */
 public class FrostCHKFileRequestJob extends CHKFileRequestJob {
 	
@@ -48,14 +49,14 @@ public class FrostCHKFileRequestJob extends CHKFileRequestJob {
 	}
 		
 	public FrostCHKFileRequestJob(String key, File target, FrostDownloadItem dli) {	
-		super(Core.getFcpVersion(), FHUtil.getNextJobID(), FreenetKey.CHKfromString(key), target);
+		super(Core.getFcpVersion(), makeID(dli), FreenetKey.CHKfromString(key), target);
 		dlItem = dli;
 	}
 
 	/* (non-Javadoc)
 	 * @see hyperocha.freenet.fcp.dispatcher.job.CHKFileDownoadJob#incommingMessage(hyperocha.freenet.fcp.FCPConnection, java.util.Hashtable)
 	 */
-	public void incomingMessage(String id, Hashtable message) {
+	public void incomingMessage(String id, NodeMessage msg) {
 		//System.out.println(" -> " + this + " -> " + message);
         
         // Sample message:
@@ -71,24 +72,16 @@ public class FrostCHKFileRequestJob extends CHKFileRequestJob {
         
         // we don't want to die for any reason here...
         try {
-            if ("SimpleProgress".equals(message.get(FCPConnection.MESSAGENAME))) {
+            if (msg.isMessageName("SimpleProgress")) {
                 // no DownloadItem set? we are not intrested in progress
                 if (dlItem == null) { return; }
                 
                 // the doc says this is right:
                 // don't belive this value before FinalizedTotal=true
-                String bolMsg = (String)message.get("FinalizedTotal");
-                boolean isFinalized0;
-                if( bolMsg != null && bolMsg.trim().equalsIgnoreCase("true") ) {
-                    isFinalized0 = true;
-                } else {
-                    isFinalized0 = false;
-                }
-                
-                final boolean isFinalized = isFinalized0;
-                final int totalBlocks = Integer.parseInt((String)message.get("Total"));
-                final int requiredBlocks = Integer.parseInt((String)message.get("Required"));
-                final int doneBlocks = Integer.parseInt((String)message.get("Succeeded"));
+                final boolean isFinalized = msg.getBoolValue("FinalizedTotal");
+                final int totalBlocks = (int)msg.getLongValue("Total");
+                final int requiredBlocks = (int)msg.getLongValue("Required");
+                final int doneBlocks = (int)msg.getLongValue("Succeeded");
                 
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
@@ -105,6 +98,13 @@ public class FrostCHKFileRequestJob extends CHKFileRequestJob {
             logger.log(Level.SEVERE, "Exception catched", t);
         }
         
-        super.incomingMessage(id, message);
+        super.incomingMessage(id, msg);
+	}
+	
+	private static String makeID(FrostDownloadItem dlItem) {
+		if (dlItem == null) {
+			return  FHUtil.getNextJobID();
+		}
+		return dlItem.getGqIdentifier();
 	}
 }

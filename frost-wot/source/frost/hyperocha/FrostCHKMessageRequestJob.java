@@ -18,20 +18,22 @@
 */
 package frost.hyperocha;
 
+import hyperocha.freenet.fcp.FCPConnection;
+import hyperocha.freenet.fcp.FreenetKey;
+import hyperocha.freenet.fcp.Network;
+import hyperocha.freenet.fcp.NodeMessage;
+import hyperocha.freenet.fcp.dispatcher.job.CHKMessageRequestJob;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.Hashtable;
 
 import frost.Core;
-import hyperocha.freenet.fcp.FCPConnection;
-import hyperocha.freenet.fcp.FreenetKey;
-import hyperocha.freenet.fcp.Network;
-import hyperocha.freenet.fcp.dispatcher.job.KSKMessageRequestJob;
 
 /**
- * @author saces
+ * @version $id"
  */
-public class FrostMessageRequestJob extends KSKMessageRequestJob {
+public class FrostCHKMessageRequestJob extends CHKMessageRequestJob {
 	
     // FIXME: overwrite doPrepare(), jobStarted(), jobFinished()
 
@@ -41,7 +43,7 @@ public class FrostMessageRequestJob extends KSKMessageRequestJob {
 	/**
 	 * @param requirednetworktype
 	 */
-	public FrostMessageRequestJob(String key, File dest) {
+	public FrostCHKMessageRequestJob(String key, File dest) {
 		super(Core.getFcpVersion(), FHUtil.getNextJobID(), string2key(key), dest);
 	}
 	
@@ -60,15 +62,15 @@ public class FrostMessageRequestJob extends KSKMessageRequestJob {
 	/* (non-Javadoc)
 	 * @see hyperocha.freenet.fcp.dispatcher.job.KSKMessageDownloadJob#incommingData(java.lang.String, java.util.Hashtable, hyperocha.freenet.fcp.FCPConnection)
 	 */
-	public void incomingData(String id, Hashtable message, FCPConnection conn) {
+	public void incomingData(String id, NodeMessage msg, FCPConnection conn) {
 		if (Core.getFcpVersion() == Network.FCP1) {
-			if ("DataChunk".equals(message.get(FCPConnection.MESSAGENAME))) {
-				long size = Long.parseLong((String)(message.get("Length")), 16);
+			if (msg.isMessageName("DataChunk")) {
+				long size = msg.getLongValue("Length", 16);
 				
 				// FIXME TODO
 				
 				// write metaDataSize to mo.metadata
-				System.out.println("KSK save DataHandler: " + message);
+				System.out.println("KSK save DataHandler: " + msg);
 				System.out.println("KSK save DataHandler: " + metaDataSize + " -> " + size);
 				
 				ByteArrayOutputStream bos = new ByteArrayOutputStream(); 
@@ -83,19 +85,19 @@ public class FrostMessageRequestJob extends KSKMessageRequestJob {
 				return;
 			}
 		}
-		super.incomingData(id, message, conn);
+		super.incomingData(id, msg, conn);
 	}
 
 	/* (non-Javadoc)
 	 * @see hyperocha.freenet.fcp.dispatcher.job.KSKMessageDownloadJob#incommingMessage(java.lang.String, java.util.Hashtable)
 	 */
-	public void incomingMessage(String id, Hashtable message) {
+	public void incomingMessage(String id, NodeMessage msg) {
 		if (Core.getFcpVersion() == Network.FCP1) {
-			if ("DataFound".equals(message.get(FCPConnection.MESSAGENAME))) {
-				metaDataSize = Long.parseLong((String)(message.get("MetadataLength")), 16); 
+			if (msg.isMessageName("DataFound")) {
+				metaDataSize = msg.getLongValue("MetadataLength", 16); 
 			}
 		}
-		super.incomingMessage(id, message);		
+		super.incomingMessage(id, msg);		
 	}
 
 	public byte[] getMetaData() {
