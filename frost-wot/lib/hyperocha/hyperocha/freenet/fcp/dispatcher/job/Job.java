@@ -20,6 +20,8 @@
  */
 package hyperocha.freenet.fcp.dispatcher.job;
 
+import javax.swing.SwingUtilities;
+
 import hyperocha.freenet.fcp.FCPConnection;
 import hyperocha.freenet.fcp.IIncoming;
 import hyperocha.freenet.fcp.Network;
@@ -223,13 +225,39 @@ public abstract class Job implements IIncoming {
 		return clientToken;
 	}
 	
+	/** 
+	 * The default handler. you schould allways super to this ;)
+	 */
 	public void incomingData(String id, NodeMessage msg, FCPConnection conn) {
 		// TODO Auto-generated method stub
 		throw new Error("Ha!");
 		
 	}
 
+	/** 
+	 * The default handler. you schould allways super to this ;)
+	 */
 	public void incomingMessage(String id, NodeMessage msg) {
+		if (msg.isMessageName("SimpleProgress")) {
+            final boolean isFinalized = msg.getBoolValue("FinalizedTotal");
+            final long totalBlocks = msg.getLongValue("Total");
+            final long requiredBlocks = msg.getLongValue("Required");
+            final long doneBlocks = msg.getLongValue("Succeeded");
+            final long failedBlocks = msg.getLongValue("Failed");
+            final long fatallyFailedBlocks = msg.getLongValue("FatallyFailed");
+     
+            
+            SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					try {
+						onSimpleProgress(isFinalized, totalBlocks, requiredBlocks, doneBlocks, failedBlocks, fatallyFailedBlocks);
+					} catch (Exception e) {
+						// TODO silence? log?
+					}
+				}
+			});
+            return;
+		}
 		// TODO Auto-generated method stub
 		throw new Error("Hu!");
 	}
@@ -285,4 +313,11 @@ public abstract class Job implements IIncoming {
      * The default implementation does nothing.
      */
     public void jobFinished() { }
+    
+    /**
+     * Overwrite this to get notified if the job progress was changed.
+     * The default implementation does nothing.
+     */
+    public void onSimpleProgress(boolean isFinalized, long totalBlocks, long requiredBlocks, long doneBlocks, long failedBlocks, long fatallyFailedBlocks) { }
+
 }
