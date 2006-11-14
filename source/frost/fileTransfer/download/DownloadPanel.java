@@ -193,6 +193,8 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	 */
 	private void downloadTextField_actionPerformed(ActionEvent e) {
         
+        // FIXME: show dialog with all keys like fuqid
+        
         try {
     		String keys = downloadTextField.getText().trim();
             
@@ -213,7 +215,16 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                 if( key.length() < 5 ) {
                     continue;
                 }
-    
+
+                // maybe convert html codes (e.g. %2c -> , )
+                if( key.indexOf("%") > 0 ) {
+                    try {
+                        key = java.net.URLDecoder.decode(key, "UTF-8");
+                    } catch (java.io.UnsupportedEncodingException ex) {
+                        logger.log(Level.SEVERE, "Decode of HTML code failed", ex);
+                    }
+                }
+
                 // find key type (chk,ssk,...)
                 int pos = -1;
                 for( int i = 0; i < FreenetKeys.getFreenetKeyTypes().length; i++ ) {
@@ -233,42 +244,42 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                 if( pos > 0 ) {
                     key = key.substring(pos);
                 }
-                
+
                 if( key.length() < 5 ) {
                     // at least the SSK@? is needed
                     showInvalidKeyErrorDialog(key);
                     continue;
                 }
                 
-                // maybe convert html codes (e.g. %2c -> , )
-                if( key.indexOf("%") > 0 ) {
-                    try {
-                        key = java.net.URLDecoder.decode(key, "UTF-8");
-                    } catch (java.io.UnsupportedEncodingException ex) {
-                        logger.log(Level.SEVERE, "Decode of HTML code failed", ex);
-                    }
-                }
-    
                 // take the filename from the last part of the key
                 String fileName;
                 int sepIndex = key.lastIndexOf("/");
                 if ( sepIndex > -1 ) {
                     fileName = key.substring(sepIndex + 1);
                 } else {
+                    // fallback: use key as filename
                     fileName = key.substring(4);
                 }
-    
+
+                String checkKey = key;
                 // remove filename from CHK key
                 if (key.startsWith("CHK@") && key.indexOf("/") > -1 ) {
-                    key = key.substring(0, key.indexOf("/"));
+                    checkKey = key.substring(0, key.indexOf("/"));
+                }
+
+                // On 0.7 we remember the full provided download uri as key.
+                // If the node reports download failed, error code 11 later, then we strip the filename
+                // from the uri and keep trying with chk only
+                if( FcpHandler.getInitializedVersion() != FcpHandler.FREENET_07 ) {
+                    key = checkKey; // on 0.5 use only key as uri
                 }
                 
                 // finally check if the key is valid for this network
-                if( !FreenetKeys.isValidKey(key) ) {
+                if( !FreenetKeys.isValidKey(checkKey) ) {
                     showInvalidKeyErrorDialog(key);
                     continue;
                 }
-    
+
                 // add valid key to download table
                 FrostDownloadItem dlItem = new FrostDownloadItem(fileName, key);
                 model.addDownloadItem(dlItem); // false if file is already in table

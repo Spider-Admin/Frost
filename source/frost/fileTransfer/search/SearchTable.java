@@ -104,14 +104,6 @@ public class SearchTable extends SortedModelTable {
         if( row > -1 && col == 7 ) {
             showDetails();
             return;
-//            ModelItem item = getItemAt(row); //It may be null
-//            if (item != null) {
-//                FrostSearchItem searchItem = (FrostSearchItem) item;
-//                if( searchItem.hasInfosFromMultipleSources().booleanValue() ) {
-//                    showDetails();
-//                    return;
-//                }
-//            }
         }
         
         addItemsToDownloadTable( getSelectedItems() );
@@ -123,7 +115,7 @@ public class SearchTable extends SortedModelTable {
             return;
         }
         FrostSearchItem item = (FrostSearchItem) selectedItems[0];
-        new FileListFileDetailsDialog(MainFrame.getInstance()).startDialog(item.getFrostFileListFileObject());
+        new FileListFileDetailsDialog(MainFrame.getInstance(), true).startDialog(item.getFrostFileListFileObject());
     }
     
     /**

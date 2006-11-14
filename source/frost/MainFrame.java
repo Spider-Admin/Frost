@@ -666,7 +666,21 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
      * File | Exit action performed
      */
     private void fileExitMenuItem_actionPerformed(ActionEvent e) {
+        
+        // warn if create message windows are open
+        if (MessageFrame.getOpenInstanceCount() > 0 ) {
+            int result = JOptionPane.showConfirmDialog(
+                    this,
+                    language.getString("MainFrame.openCreateMessageWindows.body"),
+                    language.getString("MainFrame.openCreateMessageWindows.title"),
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE);
+            if (result == JOptionPane.NO_OPTION) {
+                return;
+            }
+        }
 
+        // warn if messages are currently uploading
         if (UnsentMessagesManager.getRunningMessageUploads() > 0 ) {
             int result = JOptionPane.showConfirmDialog(
                     this,
@@ -1004,6 +1018,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
      * @param e
      */
     public void tofTree_actionPerformed(TreeSelectionEvent e) {
+        tofTree_actionPerformed(e, false);
+    }
+
+    public void tofTree_actionPerformed(TreeSelectionEvent e, boolean reload) {
         int i[] = tofTree.getSelectionRows();
         if (i != null && i.length > 0) {
             frostSettings.setValue(SettingsClass.BOARDLIST_LAST_SELECTED_BOARD, i[0]);
@@ -1023,13 +1041,22 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 renameFolderButton.setEnabled(false);
                 
                 configBoardButton.setEnabled(true);
+                
+                // save the selected message for later re-select if we changed between threaded/flat view
+                FrostMessageObject previousMessage = null;
+                if( reload ) {
+                    int[] rows = getMessageTreeTable().getSelectedRows();
+                    if( rows != null && rows.length > 0 ) {
+                        previousMessage = (FrostMessageObject)getMessageTableModel().getRow(rows[0]);
+                    }
+                }
 
                 // remove previous msgs
                 getMessagePanel().getMessageTable().setNewRootNode(new FrostMessageObject(true));
                 getMessagePanel().updateMessageCountLabels(node);
 
                 // read all messages for this board into message table (starts a thread)
-                TOF.getInstance().updateTofTable(node);
+                TOF.getInstance().updateTofTable(node, previousMessage);
                 
                 getMessagePanel().getMessageTable().clearSelection();
             } else {

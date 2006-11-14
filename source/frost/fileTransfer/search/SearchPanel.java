@@ -26,7 +26,7 @@ import javax.swing.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
-class SearchPanel extends JPanel implements LanguageListener {
+public class SearchPanel extends JPanel implements LanguageListener {
     
     private Language language = Language.getInstance();
 
@@ -92,7 +92,7 @@ class SearchPanel extends JPanel implements LanguageListener {
         searchTopPanelAdvanced.refreshLanguage();
     }
     
-    private void startNewSearch(SearchParameters searchParams) {
+    public void startNewSearch(SearchParameters searchParams) {
         
         String tabText = searchParams.getTabText();
 

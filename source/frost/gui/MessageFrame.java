@@ -99,12 +99,16 @@ public class MessageFrame extends JFrame {
     private FrostMessageObject repliedMessage = null;
 
     private JComboBox ownIdentitiesComboBox = null;
+    
+    private static int openInstanceCount = 0;
 
     public MessageFrame(SettingsClass newSettings, Window tparentWindow) {
         super();
         parentWindow = tparentWindow;
         this.language = Language.getInstance();
         frostSettings = newSettings;
+        
+        incOpenInstanceCount();
 
         String fontName = frostSettings.getValue(SettingsClass.MESSAGE_BODY_FONT_NAME);
         int fontStyle = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_STYLE);
@@ -123,6 +127,33 @@ public class MessageFrame extends JFrame {
         messageDocument.addImmutableArea(headerArea); // user must not change the header of the message
         messageTextArea.setDocument(messageDocument);
 //        textHighlighter = new TextHighlighter(Color.LIGHT_GRAY);
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                windowIsClosing(e);
+            }
+            public void windowClosed(WindowEvent e) {
+                windowWasClosed(e);
+            }
+        });
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+    }
+    
+    private void windowIsClosing(WindowEvent e) {
+        String title = language.getString("MessageFrame.discardMessage.title");
+        String text = language.getString("MessageFrame.discardMessage.text");
+        int answer = JOptionPane.showConfirmDialog(
+                this, 
+                text, 
+                title, 
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
+        if( answer == JOptionPane.YES_OPTION ) {
+            dispose();
+        }
+    }
+
+    private void windowWasClosed(WindowEvent e) {
+        decOpenInstanceCount();
     }
 
     private void attachBoards_actionPerformed(ActionEvent e) {
@@ -678,13 +709,6 @@ public class MessageFrame extends JFrame {
             attachmentsSplitPane.setTopComponent(filesTableScrollPane);
             attachmentsSplitPane.setBottomComponent(boardsTableScrollPane);
         }
-    }
-
-    protected void processWindowEvent(WindowEvent e) {
-        if( e.getID() == WindowEvent.WINDOW_CLOSING ) {
-            dispose();
-        }
-        super.processWindowEvent(e);
     }
 
     private void refreshLanguage() {
@@ -1402,5 +1426,17 @@ public class MessageFrame extends JFrame {
         public boolean isReply;
         public Identity recipient = null;;
         public LocalIdentity senderId = null;
+    }
+    
+    public static synchronized int getOpenInstanceCount() {
+        return openInstanceCount;
+    }
+    private static synchronized void incOpenInstanceCount() {
+        openInstanceCount++;
+    }
+    private static synchronized void decOpenInstanceCount() {
+        if( openInstanceCount > 0 ) { // paranoia
+            openInstanceCount--;
+        }
     }
 }

@@ -41,7 +41,7 @@ public class SearchParameters {
     public static final int EXTENSIONS_ARCHIVES    = 6;
     public static final int EXTENSIONS_EXECUTABLES = 7;
     
-    private int extensions;
+    private int extensions = EXTENSIONS_ALL;
     
     private String tabText = null;
     

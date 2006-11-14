@@ -60,6 +60,11 @@ public class DownloadModel extends OrderedModel implements Savable {
                     return false;
                 }
             }
+
+            // FIXME: 0.7: if we add a new uri chk/name also check if we already download chk!
+            // Problem: what if CHK is wrong, then we have to add chk/name. But in the reverse case
+            //          we add chk/name and name gets stripped because node reports rc=11, then we have 2 with same
+            //          chk! ==> if node reports 11 then check if we have already same plain chk.
             
 			if (itemToAdd.getKey() != null
 				&& item.getKey() != null

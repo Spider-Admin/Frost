@@ -196,7 +196,9 @@ public class TreeTableModelAdapter extends AbstractTableModel {
             }
 
             public void treeStructureChanged(TreeModelEvent e) {
-                delayedFireTableDataChanged();
+//                delayedFireTableDataChanged();
+                // FIXME:
+                fireTableDataChanged();
             }
         });
     }
@@ -221,7 +223,11 @@ public class TreeTableModelAdapter extends AbstractTableModel {
 
     protected Object nodeForRow(int row) {
         TreePath treePath = tree.getPathForRow(row);
-        return treePath.getLastPathComponent();
+        if( treePath != null ) {
+            return treePath.getLastPathComponent();
+        } else {
+            return null;
+        }
     }
 
     public Object getValueAt(int row, int column) {

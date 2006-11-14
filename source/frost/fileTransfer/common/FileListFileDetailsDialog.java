@@ -28,6 +28,7 @@ import javax.swing.*;
 
 import frost.*;
 import frost.fileTransfer.*;
+import frost.fileTransfer.search.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
@@ -48,10 +49,18 @@ public class FileListFileDetailsDialog extends JDialog {
     
     private PopupMenu popupMenu = null;
     private Listener listener = new Listener();
+    
+    private boolean isOwnerSearchAllowed = false;
 
     public FileListFileDetailsDialog(Frame owner) {
         super(owner);
         initialize(owner);
+    }
+
+    public FileListFileDetailsDialog(Frame owner, boolean allowOwnerSearch) {
+        super(owner);
+        initialize(owner);
+        isOwnerSearchAllowed = allowOwnerSearch;
     }
 
     /**
@@ -201,6 +210,8 @@ public class FileListFileDetailsDialog extends JDialog {
 
         private JMenu copyToClipboardMenu = new JMenu();
 
+        private JMenuItem showOwnerFilesItem = new JMenuItem();
+
         private String keyNotAvailableMessage;
 
         private Clipboard clipboard;
@@ -218,6 +229,7 @@ public class FileListFileDetailsDialog extends JDialog {
 
             copyKeysAndNamesItem.addActionListener(this);
             copyKeysItem.addActionListener(this);
+            showOwnerFilesItem.addActionListener(this);
         }
 
         private void refreshLanguage() {
@@ -227,6 +239,8 @@ public class FileListFileDetailsDialog extends JDialog {
             copyKeysAndNamesItem.setText(language.getString("Common.copyToClipBoard.copyKeysWithFilenames"));
 
             copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
+            
+            showOwnerFilesItem.setText(language.getString("Search files of owner"));
         }
 
         private Clipboard getClipboard() {
@@ -242,6 +256,21 @@ public class FileListFileDetailsDialog extends JDialog {
             }
             if (e.getSource() == copyKeysAndNamesItem) {
                 copyKeysAndNames();
+            }
+            if (e.getSource() == showOwnerFilesItem) {
+                searchFilesOfOwner();
+            }
+        }
+        
+        private void searchFilesOfOwner() {
+            ModelItem[] selectedItems = modelTable.getSelectedItems();
+            if (selectedItems.length == 1) {
+                FileListFileDetailsItem item = (FileListFileDetailsItem) selectedItems[0];
+                String owner = item.getOwnerIdentity().getUniqueName();
+                
+                SearchParameters sp = new SearchParameters(false);
+                sp.setOwnerString(owner);
+                FileTransferManager.getInstance().getSearchManager().getPanel().startNewSearch(sp);
             }
         }
         
@@ -306,6 +335,10 @@ public class FileListFileDetailsDialog extends JDialog {
             
             // if at least 1 item is selected
             add(copyToClipboardMenu);
+            if( isOwnerSearchAllowed && selectedItems.length == 1 ) {
+                addSeparator();
+                add(showOwnerFilesItem);
+            }
 
             super.show(invoker, x, y);
         }

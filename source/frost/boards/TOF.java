@@ -17,8 +17,10 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 package frost.boards;
+import java.awt.*;
 import java.sql.*;
 import java.util.*;
+import java.util.List;
 import java.util.logging.*;
 
 import javax.swing.*;
@@ -382,7 +384,7 @@ public class TOF {
      * @param table The tofTable.
      * @return Vector containing all MessageObjects that are displayed in the table.
      */
-    public void updateTofTable(Board board) {
+    public void updateTofTable(Board board, FrostMessageObject prevSelectedMsg) {
         int daysToRead = board.getMaxMessageDisplay();
 
         if( updateThread != null ) {
@@ -397,7 +399,7 @@ public class TOF {
 
         // start new thread, the thread will set itself to updateThread,
         // but first it waits until the current thread is finished
-        nextUpdateThread = new UpdateTofFilesThread(board, daysToRead);
+        nextUpdateThread = new UpdateTofFilesThread(board, daysToRead, prevSelectedMsg);
         MainFrame.getInstance().activateGlassPane();
         nextUpdateThread.start();
     }
@@ -408,10 +410,12 @@ public class TOF {
         int daysToRead;
         boolean isCancelled = false;
         String fileSeparator = System.getProperty("file.separator");
+        FrostMessageObject previousSelectedMsg;
         
-        public UpdateTofFilesThread(Board board, int daysToRead) {
+        public UpdateTofFilesThread(Board board, int daysToRead, FrostMessageObject prevSelectedMsg) {
             this.board = board;
             this.daysToRead = daysToRead;
+            this.previousSelectedMsg = prevSelectedMsg;
         }
 
         public synchronized void cancel() {
@@ -639,26 +643,53 @@ public class TOF {
             if( !isCancel() ) {
                 // set rootnode to gui and update
                 final Board innerTargetBoard = board;
-
                 SwingUtilities.invokeLater( new Runnable() {
                     public void run() {
-                        if( tofTreeModel.getSelectedNode().isFolder() == false &&
-                            tofTreeModel.getSelectedNode().getName().equals( innerTargetBoard.getName() ) ) {
-                            
-                            MainFrame.getInstance().getMessagePanel().getMessageTable().setNewRootNode(rootNode);
-                            MainFrame.getInstance().getMessageTreeTable().expandAll(true);
-
-                            MainFrame.getInstance().updateTofTree(innerTargetBoard);
-                            MainFrame.getInstance().updateMessageCountLabels(innerTargetBoard);
-                            
-                            MainFrame.getInstance().deactivateGlassPane();
-                        }
+                        setNewRootNode(innerTargetBoard, rootNode, previousSelectedMsg);
                     }
                 });
             } else if( nextUpdateThread == null ) {
                 MainFrame.getInstance().deactivateGlassPane();
             }
             updateThread = null;
+        }
+        
+        /**
+         * Set rootnode to gui and update.
+         */ 
+        private void setNewRootNode(Board innerTargetBoard, FrostMessageObject rootNode, FrostMessageObject previousSelectedMsg) {
+            if( tofTreeModel.getSelectedNode().isFolder() == false &&
+                    tofTreeModel.getSelectedNode().getName().equals( innerTargetBoard.getName() ) ) 
+            {
+                MessageTreeTable treeTable = MainFrame.getInstance().getMessageTreeTable();
+                
+                treeTable.setNewRootNode(rootNode);
+                treeTable.expandAll(true);
+
+                MainFrame.getInstance().updateTofTree(innerTargetBoard);
+                MainFrame.getInstance().updateMessageCountLabels(innerTargetBoard);
+
+                // maybe select previously selected message
+                if( previousSelectedMsg != null && previousSelectedMsg.getMessageId() != null ) {
+                    for(Enumeration e=rootNode.breadthFirstEnumeration(); e.hasMoreElements(); ) {
+                        FrostMessageObject mo = (FrostMessageObject) e.nextElement();
+                        if( mo.getMessageId() != null && mo.getMessageId().equals(previousSelectedMsg.getMessageId()) ) {
+                            int row = treeTable.getRowForNode(mo);
+                            if( row > -1 ) {
+                                treeTable.getSelectionModel().setSelectionInterval(row, row);
+                                // scroll to selected row
+                                if( (row+1) < treeTable.getRowCount() ) {
+                                    row++;
+                                }
+                                Rectangle r = treeTable.getCellRect(row, 0, true);
+                                treeTable.scrollRectToVisible(r);
+                            }
+                            break;
+                        }
+                    }
+                }
+                MainFrame.getInstance().deactivateGlassPane();
+            }
         }
     }
 

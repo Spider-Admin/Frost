@@ -63,6 +63,8 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     protected long msgIdentity;
     
     protected boolean isDummy = false;
+    
+    public static boolean sortThreadRootMsgsAscending;
 
     /**
      * Construct a new empty FrostMessageObject
@@ -508,7 +510,11 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
             if( MessageTreeTableSortStateBean.isThreaded() ) {
                 if( isRoot() ) {
                     // child of root, sort descending
-                    insertPoint = Collections.binarySearch(children, n, MessageTreeTableSortStateBean.dateComparatorDescending);
+                    if( sortThreadRootMsgsAscending ) {
+                        insertPoint = Collections.binarySearch(children, n, MessageTreeTableSortStateBean.dateComparatorAscending);
+                    } else {
+                        insertPoint = Collections.binarySearch(children, n, MessageTreeTableSortStateBean.dateComparatorDescending);
+                    }
                 } else {
                     // inside a thread, sort ascending
                     insertPoint = Collections.binarySearch(children, n, MessageTreeTableSortStateBean.dateComparatorAscending);
