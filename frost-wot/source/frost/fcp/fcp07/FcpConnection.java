@@ -197,7 +197,7 @@ public class FcpConnection
 
         // receive and process node messages
         boolean isSuccess = false;
-        long returnCode = -1;
+        int returnCode = -1;
         boolean isFatal = false;
         while(true) {
             NodeMessage nodeMsg = readMessage(fcpIn);
@@ -261,7 +261,7 @@ public class FcpConnection
                 System.out.println("*** GetFailed:");
                 System.out.println(nodeMsg.toString());
                 // get error code
-                returnCode = nodeMsg.getLongValue("Code");
+                returnCode = (int)nodeMsg.getLongValue("Code");
                 isFatal = nodeMsg.getBoolValue("Fatal");
                 break;
             }
@@ -297,15 +297,19 @@ public class FcpConnection
         fcpSock.close();
         fileOut.close();
         
+        FcpResultGet result = null;
+        
         if( !isSuccess ) {
             // failure
             File checkSize = new File(filename);
             checkSize.delete();
-            throw new DataNotFoundException(returnCode, isFatal);
+            
+            result = new FcpResultGet(false, returnCode, isFatal);
         } else {
             // success
-            return new FcpResultGet();
+            result = new FcpResultGet(true);
         }
+        return result;
     }
 
     /**
@@ -333,7 +337,7 @@ public class FcpConnection
         //System.out.println("test: " + filename);
 
         keyString = StripSlashes(keyString);
-        FcpResultGet result = new FcpResultGet();
+        FcpResultGet result = new FcpResultGet(false);
         FreenetKey key = new FreenetKey(keyString);
         logger.fine("KeyString = " + keyString + "\n" +
                     "Key =       " + key + "\n" +

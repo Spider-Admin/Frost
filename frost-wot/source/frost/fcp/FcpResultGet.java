@@ -28,8 +28,22 @@ public class FcpResultGet {
     private byte [] rawMetadata = null; // only used by freenet 0.5
     
     private String chkUri = null;
+    
+    private boolean isSuccess;
+    
+    private int returnCode = -1;
+    private boolean isFatal = false;
+    
+    public static FcpResultGet RESULT_FAILED = new FcpResultGet(false);
 
-    public FcpResultGet() {
+    public FcpResultGet(boolean isSuccess) {
+        this.isSuccess = isSuccess;
+    }
+
+    public FcpResultGet(boolean isSuccess, int rc, boolean fatal) {
+        this.isSuccess = isSuccess;
+        returnCode = rc;
+        isFatal = fatal;
     }
 
     /**
@@ -80,5 +94,17 @@ public class FcpResultGet {
      */
     public void setRawMetadata(byte[] bs) {
         rawMetadata = bs;
+    }
+
+    public boolean isFatal() {
+        return isFatal;
+    }
+
+    public boolean isSuccess() {
+        return isSuccess;
+    }
+
+    public int getReturnCode() {
+        return returnCode;
     }
 }

@@ -132,7 +132,7 @@ System.out.println("FileListDownloadThread: processed results: "+isValid);
             return null;
         }
         
-        if( results == null ) {
+        if( results == null || results.isSuccess() == false ) {
             tmpFile.delete();
             return null;
         }

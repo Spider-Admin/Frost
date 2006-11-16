@@ -65,10 +65,10 @@ public class DownloadThread extends Thread {
             logger.info("FILEDN: Download of '" + filename + "' started.");
 
             // Download file
-            FcpResultGet success = null;
+            FcpResultGet result = null;
 
             try {
-                success = FcpHandler.inst().getFile(
+                result = FcpHandler.inst().getFile(
                             FcpHandler.TYPE_FILE,
                             key,
                             size,
@@ -91,17 +91,28 @@ public class DownloadThread extends Thread {
                 }
             }
 
-            // download failed
-            if (success == null) {
-                downloadItem.setRetries(downloadItem.getRetries() + 1);
-
-                logger.warning("FILEDN: Download of " + filename + " failed.");
-                if (inTable == true) {
-                    // set new state -> failed or waiting for another try
-                    if (downloadItem.getRetries() > Core.frostSettings.getIntValue(SettingsClass.DOWNLOAD_MAX_RETRIES)) {
-                        downloadItem.setState(FrostDownloadItem.STATE_FAILED);
-                    } else {
-                        downloadItem.setState(FrostDownloadItem.STATE_WAITING);
+            if (result == null || result.isSuccess() == false) {
+                // download failed
+                if( result != null && result.getReturnCode() == 11 ) {
+                    // maybe we have to remove the filename from the CHK key
+                    if( key.startsWith("CHK@") && key.indexOf("/") > 0 ) {
+                        // remove filename, store new key in db
+                        String plainKey = key.substring(0, key.indexOf("/"));
+                        downloadItem.setKey(plainKey);
+                        System.out.println("*!*!* Removed filename from key: "+key+" ; "+plainKey);
+                    }
+                } else {
+                
+                    downloadItem.setRetries(downloadItem.getRetries() + 1);
+    
+                    logger.warning("FILEDN: Download of " + filename + " failed.");
+                    if (inTable == true) {
+                        // set new state -> failed or waiting for another try
+                        if (downloadItem.getRetries() > Core.frostSettings.getIntValue(SettingsClass.DOWNLOAD_MAX_RETRIES)) {
+                            downloadItem.setState(FrostDownloadItem.STATE_FAILED);
+                        } else {
+                            downloadItem.setState(FrostDownloadItem.STATE_WAITING);
+                        }
                     }
                 }
             } else {

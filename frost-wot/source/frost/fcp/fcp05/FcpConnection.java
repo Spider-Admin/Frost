@@ -312,7 +312,6 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
                                    int htl,
                                    boolean fastDownload) throws IOException, FcpToolsException, InterruptedIOException {
 
-        FcpResultGet result = new FcpResultGet();
         FreenetKey key = new FreenetKey(keyString);
         logger.fine("KeyString = " + keyString + "\n" +
                     "Key =       " + key + "\n" +
@@ -466,7 +465,12 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
                 "; filesize="+checkSize.length()+
                 "; mdlen="+metadataLength);
 
+        FcpResultGet result = null;
+
         if( metadataLength > 0 && checkSize.length() > 0 ) {
+            // success, with metadata
+            result = new FcpResultGet(true);
+
             if( metadataLength == checkSize.length() ) {
                 // all data are metadata ...
                 byte[] content = FileAccess.readByteArray(checkSize);
@@ -491,9 +495,16 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
             System.out.println("; finalFileSize="+checkSize.length());
             
         } else if( metadataLength == 0 && checkSize.length() == 0 ) {
+            // failure
+            result = new FcpResultGet(false);
             checkSize.delete();
             
             System.out.println("; deleted!");
+        } else {
+            // success, no metadata
+            result = new FcpResultGet(true);
+            
+            System.out.println("; finalFileSize="+checkSize.length());
         }
         
         return result;
