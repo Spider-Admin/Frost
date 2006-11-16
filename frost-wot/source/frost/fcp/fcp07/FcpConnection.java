@@ -145,10 +145,7 @@ public class FcpConnection
 		File f = new File(filename);
 		filename = f.getAbsolutePath();
 		
-        // for all except CHK convert '/' into '|'
-        if( !keyString.startsWith("CHK@") ) {
-            keyString = StripSlashes(keyString);
-        }
+        keyString = stripSlashes(keyString);
         
         FreenetKey key = new FreenetKey(keyString);
 		logger.fine("KeyString = " + keyString + "\n" +
@@ -209,7 +206,7 @@ public class FcpConnection
                 break;
             }
             
-            if( nodeMsg.getMessageName().equals("AllData") && endMarker.equals("Data") ) {
+            if( nodeMsg.isMessageName("AllData") && endMarker.equals("Data") ) {
                 // data follow, first get datalength
                 long dataLength = nodeMsg.getLongValue("DataLength");
                 
@@ -234,27 +231,27 @@ public class FcpConnection
                 break;
             }
             
-            if( nodeMsg.getMessageName().equals("ProtocolError") ) {
+            if( nodeMsg.isMessageName("ProtocolError") ) {
                 System.out.println("*GET** ProtocolError:");
                 System.out.println(nodeMsg.toString());
                 break;
             }
-            if( nodeMsg.getMessageName().equals("IdentifierCollision") ) {
+            if( nodeMsg.isMessageName("IdentifierCollision") ) {
                 System.out.println("*GET** IdentifierCollision:");
                 System.out.println(nodeMsg.toString());
                 break;
             }
-            if( nodeMsg.getMessageName().equals("UnknownNodeIdentifier") ) {
+            if( nodeMsg.isMessageName("UnknownNodeIdentifier") ) {
                 System.out.println("*** UnknownNodeIdentifier:");
                 System.out.println(nodeMsg.toString());
                 break;
             }
-            if( nodeMsg.getMessageName().equals("UnknownPeerNoteType") ) {
+            if( nodeMsg.isMessageName("UnknownPeerNoteType") ) {
                 System.out.println("*GET** UnknownPeerNoteType:");
                 System.out.println(nodeMsg.toString());
                 break;
             }
-            if( nodeMsg.getMessageName().equals("GetFailed") ) {
+            if( nodeMsg.isMessageName("GetFailed") ) {
                 System.out.println("*GET** GetFailed:");
                 System.out.println(nodeMsg.toString());
                 // get error code
@@ -262,7 +259,7 @@ public class FcpConnection
                 isFatal = nodeMsg.getBoolValue("Fatal");
                 break;
             }
-            if( dlItem != null && nodeMsg.getMessageName().equals("SimpleProgress") ) {
+            if( dlItem != null && nodeMsg.isMessageName("SimpleProgress") ) {
                 System.out.println("*GET** SimpleProgress:");
                 System.out.println(nodeMsg.toString());
                 
@@ -335,7 +332,7 @@ public class FcpConnection
         BufferedInputStream fileInput = new BufferedInputStream(new FileInputStream(sourceFile));
 
 		// stripping slashes
-		key = StripSlashes(key);
+		key = stripSlashes(key);
 		fcpSock = new Socket(nodeAddress.host, nodeAddress.port);
 		fcpSock.setSoTimeout(TIMEOUT);
 
@@ -416,7 +413,7 @@ public class FcpConnection
                 break;
             }
             
-            if( getChkOnly == true && nodeMsg.getMessageName().equals("URIGenerated") ) {
+            if( getChkOnly == true && nodeMsg.isMessageName("URIGenerated") ) {
                 System.out.println("*PUT** URIGenerated:");
                 System.out.println(nodeMsg.toString());
 
@@ -425,7 +422,7 @@ public class FcpConnection
                 
                 break;
             }
-            if( getChkOnly == false && nodeMsg.getMessageName().equals("PutSuccessful") ) {
+            if( getChkOnly == false && nodeMsg.isMessageName("PutSuccessful") ) {
                 System.out.println("*PUT** PutSuccessful:");
                 System.out.println(nodeMsg.toString());
 
@@ -434,7 +431,7 @@ public class FcpConnection
                 
                 break;
             }
-            if( nodeMsg.getMessageName().equals("PutFailed") ) {
+            if( nodeMsg.isMessageName("PutFailed") ) {
                 System.out.println("*PUT** GetFailed:");
                 System.out.println(nodeMsg.toString());
                 // get error code
@@ -443,27 +440,27 @@ public class FcpConnection
                 break;
             }
 
-            if( nodeMsg.getMessageName().equals("ProtocolError") ) {
+            if( nodeMsg.isMessageName("ProtocolError") ) {
                 System.out.println("*PUT** ProtocolError:");
                 System.out.println(nodeMsg.toString());
                 break;
             }
-            if( nodeMsg.getMessageName().equals("IdentifierCollision") ) {
+            if( nodeMsg.isMessageName("IdentifierCollision") ) {
                 System.out.println("*PUT** IdentifierCollision:");
                 System.out.println(nodeMsg.toString());
                 break;
             }
-            if( nodeMsg.getMessageName().equals("UnknownNodeIdentifier") ) {
+            if( nodeMsg.isMessageName("UnknownNodeIdentifier") ) {
                 System.out.println("*PUT** UnknownNodeIdentifier:");
                 System.out.println(nodeMsg.toString());
                 break;
             }
-            if( nodeMsg.getMessageName().equals("UnknownPeerNoteType") ) {
+            if( nodeMsg.isMessageName("UnknownPeerNoteType") ) {
                 System.out.println("*PUT** UnknownPeerNoteType:");
                 System.out.println(nodeMsg.toString());
                 break;
             }
-            if( ulItem != null && nodeMsg.getMessageName().equals("SimpleProgress") ) {
+            if( ulItem != null && nodeMsg.isMessageName("SimpleProgress") ) {
                 System.out.println("*PUT** SimpleProgress:");
                 System.out.println(nodeMsg.toString());
                 
@@ -525,23 +522,18 @@ public class FcpConnection
 
         fcpOut.println("ClientHello");
         logger.fine("ClientHello");
-//        System.out.println("ClientHello");
         fcpOut.println("Name=hello-"+ fcpConnectionId);
         logger.fine("Name=hello-"+ fcpConnectionId);
-//        System.out.println("Name=hello-"+ fcpConnectionId);
         fcpOut.println("ExpectedVersion=2.0");
         logger.fine("ExpectedVersion=2.0");
-//        System.out.println("ExpectedVersion=2.0");
         fcpOut.println("End");
     	logger.fine("End");
-//    	System.out.println("End");
 
         FcpKeyword response;
         int timeout = 0;
         do {
             response = FcpKeyword.getFcpKeyword(fcpIn);
     		logger.fine(response.getFullString());
-//    		System.out.println(response.getFullString());
             try {
                 Thread.sleep(100);
             } catch(InterruptedException e) {}
@@ -580,9 +572,7 @@ public class FcpConnection
 
         doHandshake(fcpSock);
         fcpOut.println("GenerateSSK");
-//        System.out.println("GenerateSSK");
         fcpOut.println("End");
-//        System.out.println("End");
 
         String output = "";
         FcpKeyword response;
@@ -590,7 +580,6 @@ public class FcpConnection
         do {
             response = FcpKeyword.getFcpKeyword(fcpIn);
     		logger.fine(response.getFullString());
-//    		System.out.println(response.getFullString());
 
     		if (response.getId() == FcpKeyword.RequestURI)
     			output += response.getFullString() + "\n";
@@ -629,13 +618,11 @@ public class FcpConnection
         	}
         }
 
-//        System.out.println(result);
         return result;
     }
 
-    //replaces all / with | in url
-    private String StripSlashes(String uri){
-        //replacing all / with |
+    // replaces all / with | in url
+    private String stripSlashes(String uri){
     	if (uri.startsWith("KSK@")) {
     		String myUri = null;
     		myUri= uri.replace('/','|');
@@ -738,7 +725,7 @@ public class FcpConnection
             return messageName;
         }
 
-        protected String getMessageEnd() {
+        public String getMessageEnd() {
             return messageEndMarker;
         }
 
@@ -760,10 +747,6 @@ public class FcpConnection
         public long getLongValue(String name, int radix) {
             return Long.parseLong((String)(items.get(name)), radix);
         }
-        
-//        public FreenetKey getKeyValue(String name) {
-//            return hyperocha.freenet.fcp.FreenetKey.getKeyFromString((String)items.get(name));
-//        }
         
         public boolean getBoolValue(String name) {
             return "true".equalsIgnoreCase((String)items.get(name));
