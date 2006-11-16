@@ -24,7 +24,6 @@ package frost.fcp.fcp07;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
 import java.util.logging.*;
 
 import javax.swing.*;
@@ -36,102 +35,9 @@ import frost.fileTransfer.upload.*;
 /**
  * This class provides methods to insert data into freenet.
  */
-public class FcpInsert
-{
-	private static Logger logger = Logger.getLogger(FcpInsert.class.getName());
-
-	/*
-	 * ClientPut
-URI=KSK@fuckkkk
-DataLength=10
-Identifier=I
-Verbosity=0
-MaxRetries=1
-Daat
-djaskdjalsdj
-oio
-PutSuccessful
-Identifier=I
-URI=freenet:KSK@fuckkkk
-EndMessage
-
-ClientPut
-URI=KSK@fuckkkk
-DataLength=10
-Identifier=I
-Verbosity=0
-MaxRetries=1
-Data
-djalskjdlakjsd
-daksjldaksjd
-PutFailed
-Code=9
-Identifier=I
-ExpectedURI=freenet:KSK@fuckkkk
-CodeDescription=Insert collided with different, pre-existing data at the same key
-EndMessage
-	 */
-
-    private static Map putKeywords = null;
+public class FcpInsert {
     
-    private static Map getKeywords() {
-        if( putKeywords == null ) {
-            // fill a map with possible keyword to result assignments
-            putKeywords = new HashMap();
-            putKeywords.put("Success", new Integer(FcpResultPut.Success));
-            putKeywords.put("RouteNotFound", new Integer(FcpResultPut.Retry));
-            putKeywords.put("KeyCollision", new Integer(FcpResultPut.KeyCollision));
-            putKeywords.put("SizeError", new Integer(FcpResultPut.Error));
-            putKeywords.put("DataNotFound", new Integer(FcpResultPut.Error));
-            putKeywords.put("PutSuccessful", new Integer(FcpResultPut.Success));
-            putKeywords.put("PutFailed", new Integer(FcpResultPut.Error));
-        }
-        return putKeywords;
-    }
-
-    private static FcpResultPut result(String text) {
-
-        logger.info("*** FcpInsert.result: text='"+text+"'");
-//        System.out.println("*** FcpInsert.result: text='"+text+"'");
-
-        if( text == null || text.length() == 0 ) {
-            return FcpResultPut.ERROR_RESULT;
-        }
-
-        int result = FcpResultPut.Error;
-        
-        // check if the keyword returned by freenet is a known keyword
-        for(Iterator i=getKeywords().keySet().iterator(); i.hasNext(); ) {
-            String keyword = (String)i.next();
-            if( text.indexOf(keyword) >= 0 ) {
-                if( keyword.equals("PutFailed") && text.indexOf("Code=9") > -1 ) {
-                    result = FcpResultPut.KeyCollision;
-                    break;
-                } else if( keyword.equals("PutFailed") && text.indexOf("Code=5") > -1 ) {
-                    // "route not found". retry, finally we maybe get Code=8 ("route really not found")
-                    result = FcpResultPut.Retry;
-                    break;
-                } else {
-                    result = ((Integer)getKeywords().get(keyword)).intValue();
-                    break;
-                }
-            }
-        }
-        
-        String chkKey = null;
-        
-        // check if the returned text contains the computed CHK key (key generation)
-        int pos = text.indexOf("CHK@"); 
-        if( pos > -1 ) {
-            chkKey = text.substring(pos);
-            chkKey = chkKey.substring(0, chkKey.indexOf('\n'));
-        }
-//        if( text.indexOf("CHK@") > -1 && text.indexOf("EndMessage") > -1 ) {
-//            chkKey = text.substring(text.lastIndexOf("CHK@"), text.lastIndexOf("EndMessage")).trim();
-//        }
-        
-        return new FcpResultPut(result, chkKey);
-    }
+	private static Logger logger = Logger.getLogger(FcpInsert.class.getName());
 
     /**
      * Inserts a file into freenet.
@@ -148,7 +54,6 @@ EndMessage
     {
         if (file.length() == 0) {
             logger.log(Level.SEVERE, "Error: Can't upload empty file: "+file.getPath());
-//            System.out.println("Error: Can't upload empty file: "+file.getPath());
 			JOptionPane.showMessageDialog(MainFrame.getInstance(),
 							 "FcpInsert: File "+file.getPath()+" is empty!", // message
 							 "Warning",
@@ -167,9 +72,8 @@ EndMessage
                 return FcpResultPut.ERROR_RESULT;
             }
 
-            String output = connection.putKeyFromFile(type, uri, file, false);
-
-            return result(output);
+            FcpResultPut result = connection.putKeyFromFile(type, uri, file, false, ulItem);
+            return result;
 
         } catch( UnknownHostException e ) {
 			logger.log(Level.SEVERE, "UnknownHostException", e);
@@ -183,7 +87,6 @@ EndMessage
 
     	if (file.length() == 0) {
             logger.log(Level.SEVERE, "Error: Can't generate CHK for empty file: "+file.getPath());
-//            System.out.println("Error: Can't generate CHK for empty file: "+file.getPath());
 			JOptionPane.showMessageDialog(MainFrame.getInstance(),
 							 "FcpInsert: File "+file.getPath()+" is empty!", // message
 							 "Warning",
