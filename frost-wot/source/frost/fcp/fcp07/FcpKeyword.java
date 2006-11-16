@@ -305,10 +305,10 @@ public final class FcpKeyword
         return "Success";
     else if (s.startsWith("URIError"))
         return "URIError";
+    else if (s.startsWith("URIGenerated"))
+        return "URIGenerated";
     else if (s.startsWith("URI"))
         return "URI";
-    else if (s.startsWith("URIGenerated"))
-    	return "URIGenerated";
     else if (s.startsWith("Failed"))
         return "Failed";
     else

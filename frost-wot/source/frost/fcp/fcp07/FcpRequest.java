@@ -30,8 +30,8 @@ import frost.util.*;
  * Requests a key from freenet
  */
 // while requesting / inserting, show chunks left to try (incl. trying chunks) -> Warte (9) / 18% (9)
-public class FcpRequest
-{
+public class FcpRequest {
+    
 	final static boolean DEBUG = true;
 
 	private static Logger logger = Logger.getLogger(FcpRequest.class.getName());
@@ -64,7 +64,7 @@ public class FcpRequest
         }
 
         // First we just download the file, not knowing what lies ahead
-        FcpResultGet results = getKey(type, key, tempFile);
+        FcpResultGet results = getKey(type, key, tempFile, dlItem);
 
         if( results != null ) {
 
@@ -94,7 +94,7 @@ public class FcpRequest
     }
 
     // used by getFile
-    private static FcpResultGet getKey(int type, String key, File target) {
+    private static FcpResultGet getKey(int type, String key, File target, FrostDownloadItem dlItem) {
 
         if( key == null || key.length() == 0 || key.startsWith("null") ) {
             return null;
@@ -113,7 +113,7 @@ public class FcpRequest
             int maxtries = 3;
             while( tries < maxtries || results != null ) {
                 try {
-                    results = connection.getKeyToFile(type, key, target.getPath());
+                    results = connection.getKeyToFile(type, key, target.getPath(), dlItem);
                     break;
                 }
                 catch( java.net.ConnectException e ) {
@@ -123,6 +123,7 @@ public class FcpRequest
                 catch( DataNotFoundException ex ) { // frost.FcpTools.DataNotFoundException
                     // do nothing, data not found is usual ...
 					logger.log(Level.INFO, "FcpRequest.getKey(1): DataNotFoundException (usual if not found)", ex);
+                    // FIXME: evaluate returncode and fatal -> rc=11 means retry without filename
 //					System.out.println( "FcpRequest.getKey(1): DataNotFoundException (usual if not found)");
                     break;
                 }
