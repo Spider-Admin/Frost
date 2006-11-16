@@ -32,8 +32,9 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Observable;
 
-import javax.swing.SwingUtilities;
+//import javax.swing.SwingUtilities;
 import javax.swing.event.EventListenerList;
 
 /**
@@ -320,15 +321,12 @@ public class Dispatcher extends Factory implements IIncoming {
 	 * @return return 0 or error code (from dispatcher)
 	 */
 	public int runJob(Job job) {
-		if (SwingUtilities.isEventDispatchThread()) {
-			throw new Error("Hicks - never run the dispatcher in the EventDispatchThread!");
-		}
 		if (job.getStatus() == Job.STATUS_UNPREPARED) {
 			//System.out.println(job.getJobID() + " -> job unprepared. prepare it");
 			job.prepare(); 
 		}
 		if (job.getStatus() != Job.STATUS_PREPARED) {
-			System.err.println(job.getJobID() + " - " + job + " -> job unprepared, but should. return without execution");
+			//System.err.println(job.getJobID() + " - " + job + " -> job unprepared, but should. return without execution");
 			return RUNJOB_PREPAREFAILED;
 		}
 		
@@ -519,7 +517,42 @@ public class Dispatcher extends Factory implements IIncoming {
 	 */
 	public long getUpTime() {
 		// FIXME check if up and return -1 if not up
+		// this indicates up: STATE_STARTING STATE_RUNNING STATE_STOPPING STATE_IDLE
 		return (System.currentTimeMillis() - startTimeStamp);
+	}
+
+	/* (non-Javadoc)
+	 * @see hyperocha.freenet.fcp.dispatcher.Factory#update(java.util.Observable, java.lang.Object)
+	 */
+	public void update(Observable o, Object arg) {
+		Object[] listeners = stateListeners.getListenerList();
+		if ( o instanceof FCPNode) {
+			if ( arg instanceof Integer) {
+				NodeStateEvent e = new NodeStateEvent(this, ((FCPNode)o).getID(), ((Integer)arg).intValue());
+				// Process the listeners last to first, notifying
+				// those that are interested in this event
+				for (int i = listeners.length-2; i>=0; i-=2) {
+					if (listeners[i]==NodeStateListener.class) {
+						((NodeStateListener)listeners[i+1]).stateChanged(e);
+					}
+				}
+		    }
+		    return;
+		}
+		if ( o instanceof Network) {
+			NetworkStateEvent e = new NetworkStateEvent(this, ((Network)o).getID(), ((Integer)arg).intValue());
+			// Process the listeners last to first, notifying
+			// those that are interested in this event
+			for (int i = listeners.length-2; i>=0; i-=2) {
+				if (listeners[i]==NetworkStateListener.class) {
+					((NetworkStateListener)listeners[i+1]).stateChanged(e);
+				}
+			}
+			return;
+	    }
+		
+		System.err.println("D<<Observer notify!" + o);
+		System.err.println("D<<Observer notify!" + arg);
 	}
 
 }

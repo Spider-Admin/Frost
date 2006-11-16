@@ -13,13 +13,13 @@ import java.util.EventObject;
  */
 public class NetworkStateEvent extends EventObject {
 	
-	private boolean newState;
+	private int newState;
 	private String nid;
 
 	/**
 	 * 
 	 */
-	public NetworkStateEvent(Dispatcher d, String id, boolean newstate) {
+	public NetworkStateEvent(Dispatcher d, String id, int newstate) {
 		super(d);
 		newState = newstate;
 		nid = id;
@@ -28,7 +28,7 @@ public class NetworkStateEvent extends EventObject {
 	/**
 	 * @return the newState
 	 */
-	public boolean getNewState() {
+	public int getNewState() {
 		return newState;
 	}
 	
