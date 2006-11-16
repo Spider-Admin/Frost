@@ -78,7 +78,7 @@ public class NodeMessage {
 		return Long.parseLong((String)(items.get(name)));
 	}
 	
-	public long getIntValue(String name) {
+	public int getIntValue(String name) {
 		return Integer.parseInt((String)(items.get(name)));
 	}
 	
@@ -86,7 +86,7 @@ public class NodeMessage {
 		return Long.parseLong((String)(items.get(name)), radix);
 	}
 	
-	public long getIntValue(String name, int radix) {
+	public int getIntValue(String name, int radix) {
 		return Integer.parseInt((String)(items.get(name)), radix);
 	}
 	
@@ -101,7 +101,4 @@ public class NodeMessage {
 	public void addItem(String key, String value) {
 		items.put(key, value); 
 	}
-
-	
-	
 }
