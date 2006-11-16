@@ -21,7 +21,7 @@
  */
 package frost.fcp.fcp07;
 
-import hyperocha.util.DefaultMIMETypes;
+import hyperocha.util.*;
 
 import java.io.*;
 import java.net.*;
@@ -29,6 +29,7 @@ import java.util.*;
 import java.util.logging.*;
 
 import frost.fcp.*;
+import frost.fileTransfer.download.*;
 
 /**
  * This class is a wrapper to simplify access to the FCP library.
@@ -134,27 +135,24 @@ public class FcpConnection
      *
      * @param key  the key to be retrieved
      * @param filename  the filename to which the data should be saved
-     * @param htl the HTL to use in this request
      * @return the results filled with metadata
      */
-    public FcpResultGet getKeyToFile(int type, String keyString, String filename)
+    public FcpResultGet getKeyToFile(int type, String keyString, String filename, FrostDownloadItem dlItem)
     throws IOException, FcpToolsException, InterruptedIOException {
 
         // TODO: exploit MaxRetries, MaxSize, ReturnType=disk, global queue
     	
-//    	 TODO and useroption!!!!
-//		boolean dda = (type == FcpHandler.TYPE_FILE);
         boolean dda = false;
-		
 		
 		// the node needs the absolute filename!
 		File f = new File(filename);
 		filename = f.getAbsolutePath();
 		
-		//System.out.println("test: " + filename);
-
-        keyString = StripSlashes(keyString);
-        FcpResultGet result = new FcpResultGet();
+        // for all except CHK convert '/' into '|'
+        if( !keyString.startsWith("CHK@") ) {
+            keyString = StripSlashes(keyString);
+        }
+        
         FreenetKey key = new FreenetKey(keyString);
 		logger.fine("KeyString = " + keyString + "\n" +
 					"Key =       " + key + "\n" +
@@ -163,6 +161,171 @@ public class FcpConnection
         FileOutputStream fileOut = null;
         if (!dda) {
         	fileOut = new FileOutputStream(filename);
+        }
+        
+        fcpSock = new Socket(nodeAddress.host, nodeAddress.port);
+        fcpSock.setSoTimeout(TIMEOUT);
+
+        doHandshake(fcpSock);
+
+        fcpIn = new BufferedInputStream(fcpSock.getInputStream());
+        fcpOut = new PrintStream(fcpSock.getOutputStream());
+
+        fcpOut.println("ClientGet");
+        fcpOut.println("IgnoreDS=false");
+        fcpOut.println("DSOnly=false");
+        fcpOut.println("URI=" + key);
+        fcpOut.println("Identifier=get-" + fcpConnectionId );
+        fcpOut.println("MaxRetries=1");
+
+        fcpOut.println("Verbosity=-1");
+
+        if (dda) {
+        	fcpOut.println("ReturnType=disk");
+            fcpOut.println("Filename=" + filename);
+         } else {
+        	fcpOut.println("ReturnType=direct");
+        }
+        
+        if( type == FcpHandler.TYPE_FILE ) {
+            fcpOut.println("PriorityClass=2");
+        } else if( type == FcpHandler.TYPE_MESSAGE ) {
+            fcpOut.println("PriorityClass=2");
+        }
+
+        fcpOut.println("EndMessage");
+
+        // receive and process node messages
+        boolean isSuccess = false;
+        long returnCode = -1;
+        boolean isFatal = false;
+        while(true) {
+            NodeMessage nodeMsg = readMessage(fcpIn);
+            if( nodeMsg == null ) {
+                break;
+            }
+            
+            String endMarker = nodeMsg.getMessageEnd(); 
+            if( endMarker == null ) {
+                // should never happen
+                System.out.println("*** ENDMARKER is NULL!");
+                break;
+            }
+            
+            if( nodeMsg.getMessageName().equals("AllData") && endMarker.equals("Data") ) {
+                // data follow, first get datalength
+                long dataLength = nodeMsg.getLongValue("DataLength");
+                
+                byte[] b = new byte[4096];
+                long bytesLeft = dataLength;
+                long bytesWritten = 0;
+                int count;
+                while( bytesLeft > 0 ) {
+                    count = fcpIn.read(b, 0, ((bytesLeft > b.length)?b.length:(int)bytesLeft));
+                    if( count < 0 ) {
+                        break;
+                    } else {
+                        bytesLeft -= count;
+                    }
+                    fileOut.write(b, 0, count);
+                    bytesWritten += count;
+                }
+                System.out.println("*** Wrote "+bytesWritten+" of "+dataLength+" bytes to file.");
+                if( bytesWritten == dataLength ) {
+                    isSuccess = true;
+                }
+                break;
+            }
+            
+            if( nodeMsg.getMessageName().equals("ProtocolError") ) {
+                System.out.println("*** ProtocolError:");
+                System.out.println(nodeMsg.toString());
+                break;
+            }
+            if( nodeMsg.getMessageName().equals("IdentifierCollision") ) {
+                System.out.println("*** IdentifierCollision:");
+                System.out.println(nodeMsg.toString());
+                break;
+            }
+            if( nodeMsg.getMessageName().equals("UnknownNodeIdentifier") ) {
+                System.out.println("*** UnknownNodeIdentifier:");
+                System.out.println(nodeMsg.toString());
+                break;
+            }
+            if( nodeMsg.getMessageName().equals("UnknownPeerNoteType") ) {
+                System.out.println("*** UnknownPeerNoteType:");
+                System.out.println(nodeMsg.toString());
+                break;
+            }
+            if( nodeMsg.getMessageName().equals("GetFailed") ) {
+                System.out.println("*** GetFailed:");
+                System.out.println(nodeMsg.toString());
+                // get error code
+                returnCode = nodeMsg.getLongValue("Code");
+                isFatal = nodeMsg.getBoolValue("Fatal");
+                break;
+            }
+            if( nodeMsg.getMessageName().equals("SimpleProgress") && dlItem != null ) {
+                System.out.println("*** SimpleProgress:");
+                System.out.println(nodeMsg.toString());
+                // FIXME: eval progress and set to dlItem
+                continue;
+            }
+            
+            System.out.println("*** INFO - NodeMessage:");
+            System.out.println(nodeMsg.toString());
+        }
+
+        fcpIn.close();
+        fcpOut.close();
+        fcpSock.close();
+        fileOut.close();
+        
+        if( !isSuccess ) {
+            // failure
+            File checkSize = new File(filename);
+            checkSize.delete();
+            throw new DataNotFoundException(returnCode, isFatal);
+        } else {
+            // success
+            return new FcpResultGet();
+        }
+    }
+
+    /**
+     * Retrieves the specified key and saves it to the file
+     * specified.
+     *
+     * @param key  the key to be retrieved
+     * @param filename  the filename to which the data should be saved
+     * @return the results filled with metadata
+     */
+    public FcpResultGet getKeyToFile_OLD(int type, String keyString, String filename)
+    throws IOException, FcpToolsException, InterruptedIOException {
+
+        // TODO: exploit MaxRetries, MaxSize, ReturnType=disk, global queue
+        
+//       TODO and useroption!!!!
+//      boolean dda = (type == FcpHandler.TYPE_FILE);
+        boolean dda = false;
+        
+        
+        // the node needs the absolute filename!
+        File f = new File(filename);
+        filename = f.getAbsolutePath();
+        
+        //System.out.println("test: " + filename);
+
+        keyString = StripSlashes(keyString);
+        FcpResultGet result = new FcpResultGet();
+        FreenetKey key = new FreenetKey(keyString);
+        logger.fine("KeyString = " + keyString + "\n" +
+                    "Key =       " + key + "\n" +
+                    "KeyType =   " + key.getKeyType());
+
+        FileOutputStream fileOut = null;
+        if (!dda) {
+            fileOut = new FileOutputStream(filename);
         }
         
         fcpSock = new Socket(nodeAddress.host, nodeAddress.port);
@@ -201,12 +364,12 @@ public class FcpConnection
 //        System.out.println("MaxRetries=1");
 
         if (dda) {
-        	fcpOut.println("Verbosity=0");
-        	fcpOut.println("ReturnType=disk");
+            fcpOut.println("Verbosity=0");
+            fcpOut.println("ReturnType=disk");
             fcpOut.println("Filename=" + filename);
          } else {
-        	fcpOut.println("Verbosity=0");
-        	fcpOut.println("ReturnType=direct");
+            fcpOut.println("Verbosity=0");
+            fcpOut.println("ReturnType=direct");
         }
         
         if( type == FcpHandler.TYPE_FILE ) {
@@ -233,18 +396,18 @@ public class FcpConnection
             if( expectingData == false )
             {
                 kw = FcpKeyword.getFcpKeyword(fcpIn);
-				logger.fine("FcpKeyword: " + kw + " for file " + filename);
+                logger.fine("FcpKeyword: " + kw + " for file " + filename);
 
 //                frost.Core.getOut().println("getKey-FcpKeyword: " + kw + " for file " + filename);
-//				System.out.println("got fcp keyword");
-//				System.out.println("FcpKeyword: " + kw + " for file " + filename);
-//				System.out.println(kw.getFullString());
+//              System.out.println("got fcp keyword");
+//              System.out.println("FcpKeyword: " + kw + " for file " + filename);
+//              System.out.println(kw.getFullString());
                 switch( kw.getId() )
                 {
                 case FcpKeyword.DataFound:
-                	if (dda) {
-                		receivedFinalByte = true;
-                	} else
+                    if (dda) {
+                        receivedFinalByte = true;
+                    } else
                     if( flagRestarted == true )
                     {
                         fileOut.close();
@@ -283,34 +446,34 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
                     break;
                 case FcpKeyword.Code:
                     //frost.Core.getOut().println("Data not found - closing streams for " + filename + " ...");
-                	int codeNumber = (int) kw.getLongVal();
-                	if (codeNumber == 13){
-                		fcpIn.close();
-                		fcpOut.close();
-                		fcpSock.close();
-                		fileOut.close();
-                		File checkSize = new File(filename);
-                		if( checkSize.length() == 0 )
-                			checkSize.delete();
-                		throw new DataNotFoundException();
-                	}
-                	break;
+                    int codeNumber = (int) kw.getLongVal();
+                    if (codeNumber == 13){
+                        fcpIn.close();
+                        fcpOut.close();
+                        fcpSock.close();
+                        fileOut.close();
+                        File checkSize = new File(filename);
+                        if( checkSize.length() == 0 )
+                            checkSize.delete();
+                        throw new DataNotFoundException();
+                    }
+                    break;
                 case FcpKeyword.Fatal:
-                	if (kw.getFullString().indexOf("true") > -1){
-                		fcpIn.close();
-                		fcpOut.close();
-                		fcpSock.close();
-                		fileOut.close();
-                		File checkSize = new File(filename);
-                		if( checkSize.length() == 0 )
-                			checkSize.delete();
-                		throw new FcpToolsException("fatalerror on get");
-                	}
-                	receivedFinalByte=true;
+                    if (kw.getFullString().indexOf("true") > -1){
+                        fcpIn.close();
+                        fcpOut.close();
+                        fcpSock.close();
+                        fileOut.close();
+                        File checkSize = new File(filename);
+                        if( checkSize.length() == 0 )
+                            checkSize.delete();
+                        throw new FcpToolsException("fatalerror on get");
+                    }
+                    receivedFinalByte=true;
 
-                	break;
+                    break;
                 case FcpKeyword.GetFailed:
-                	break;
+                    break;
                 case FcpKeyword.RouteNotFound:
                     receivedFinalByte = true;
                     break;
@@ -338,9 +501,9 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
  *
  */
                 case FcpKeyword.AllData:
-                	break;
+                    break;
                 case FcpKeyword.Identifier:
-                	break;
+                    break;
 
                 case FcpKeyword.Timeout:
 // it WOULD be actually better for freenet AND the node to do it this way
@@ -351,10 +514,10 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
                     break;
                 }
             } else { // handle data bytes
-            	
-            	//System.out.println(" -->> try read data");
+                
+                //System.out.println(" -->> try read data");
 
-            	dataChunkLength = (int) totalDataLength;
+                dataChunkLength = (int) totalDataLength;
                 logger.fine("Expecting " + dataChunkLength + " bytes, " + totalDataLength + " total.");
 //                System.out.println("Expecting " + dataChunkLength + " bytes, " + totalDataLength + " total.");
                 byte[] b = new byte[dataChunkLength];
@@ -386,8 +549,8 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
         fcpOut.close();
         fcpSock.close();
         if (!dda) {
-        	fileOut.flush();
-        	fileOut.close();
+            fileOut.flush();
+            fileOut.close();
         }
         File checkSize = new File(filename);
         
@@ -437,8 +600,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 		fcpOut.println("ClientPut");
 		fcpOut.println("URI=" + key);
 		fcpOut.println("Identifier=put-" + fcpConnectionId );
-//		fcpOut.println("Verbosity=1"); // recive SimpleProgress for unterdruecken timeout		
-        fcpOut.println("Verbosity=-1"); // recive SimpleProgress for unterdruecken timeout       
+        fcpOut.println("Verbosity=-1"); // receive SimpleProgress        
 		fcpOut.println("MaxRetries=3");
 		fcpOut.println("DontCompress=false"); // force compression
         if( key.equals("CHK@") ) { //TODO: hack!
@@ -670,6 +832,131 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
     		return sskpart + datapart;
     	} else {
     		return uri;
+        }
+    }
+    
+    public NodeMessage readMessage(BufferedInputStream fcpInp) {
+
+        NodeMessage result = null;
+        String tmp;
+        boolean isfirstline = true;
+        
+        while(true) {
+            tmp = readLine(fcpInp);
+            if (tmp == null) { break; }  // this indicates an error, io connection closed
+            if ((tmp.trim()).length() == 0) { continue; } // an empty line
+
+            if (isfirstline) {
+                result = new NodeMessage(tmp);
+                isfirstline = false;
+                continue;
+            }
+
+            if (tmp.compareTo("Data") == 0) {
+                result.setEnd(tmp);
+                break; 
+            }
+
+            if (tmp.compareTo("EndMessage") == 0) {
+                result.setEnd(tmp);
+                break; 
+            }
+            
+            if (tmp.indexOf("=") > -1) {
+                String[] tmp2 = tmp.split("=", 2);
+                result.addItem(tmp2[0], tmp2[1]);
+            } else {
+                System.err.println("This shouldn't happen. FIXME. mpf!: " + tmp + " -> " + tmp.length());
+                result.addItem("Unknown", tmp);
+            }
+        } 
+        return result;  
+    }
+    
+    public String readLine(BufferedInputStream fcpInp) {
+        int c;
+        StringBuffer sb = new StringBuffer();
+        try {
+            while ((c = fcpInp.read()) != '\n' && c != -1 && c != '\0' ) {
+                sb.append((char)c);
+            }
+            String str = sb.toString();
+            if (str.length() == 0) {
+                str = null;
+            }
+            return str;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
+    class NodeMessage {
+        
+        private String messageName;
+        private Hashtable items;
+        private String messageEndMarker;
+
+        /**
+         * Creates a new Message
+         */
+        public NodeMessage(String name) {
+            messageName = name;
+            items = new Hashtable();
+        }
+
+        /** 
+         * returns the message as string for debug/log output
+         */
+        public String toString() {
+            return messageName + " " + items + " " + messageEndMarker;
+        }
+        
+        protected void setItem(String name, String value) {
+            items.put(name, value);
+        }
+        
+        protected void setEnd(String em) {
+            messageEndMarker = em;
+        }
+        
+        protected String getMessageName() {
+            return messageName;
+        }
+
+        protected String getMessageEnd() {
+            return messageEndMarker;
+        }
+
+        public boolean isMessageName(String aName) {
+            if (aName == null) {
+                return false;
+            }
+            return aName.equalsIgnoreCase(messageName);
+        }
+        
+        public String getStringValue(String name) {
+            return (String)items.get(name);
+        }
+
+        public long getLongValue(String name) {
+            return Long.parseLong((String)(items.get(name)));
+        }
+        
+        public long getLongValue(String name, int radix) {
+            return Long.parseLong((String)(items.get(name)), radix);
+        }
+        
+//        public FreenetKey getKeyValue(String name) {
+//            return hyperocha.freenet.fcp.FreenetKey.getKeyFromString((String)items.get(name));
+//        }
+        
+        public boolean getBoolValue(String name) {
+            return "true".equalsIgnoreCase((String)items.get(name));
+        }
+        
+        public void addItem(String key, String value) {
+            items.put(key, value); 
         }
     }
 }
