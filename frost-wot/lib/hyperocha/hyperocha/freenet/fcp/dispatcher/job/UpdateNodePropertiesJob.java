@@ -13,7 +13,7 @@ import hyperocha.freenet.fcp.FCPConnectionRunner;
 import hyperocha.freenet.fcp.FCPNode;
 import hyperocha.freenet.fcp.Network;
 import hyperocha.freenet.fcp.NodeMessage;
-import hyperocha.freenet.fcp.Persistance;
+import hyperocha.freenet.fcp.Persistence;
 import hyperocha.freenet.fcp.dispatcher.Dispatcher;
 import hyperocha.freenet.fcp.utils.FCPTests;
 import hyperocha.freenet.fcp.utils.FCPUtil;
@@ -66,7 +66,7 @@ public class UpdateNodePropertiesJob extends Job {
 		cmd.add("PriorityClass=0");   // today, please ;) 
 		cmd.add("GetCHKOnly=true");   // calculate the chk from 1k (the default testfile)
 		cmd.add("Global=false");
-		cmd.add("Persistance=" + Persistance.CONNECTION);
+		cmd.add("Persistence=" + Persistence.CONNECTION);
 		cmd.add("DontCompress=true");
 		cmd.add("ClientToken=" + getClientToken()); 
 		cmd.add("UploadFrom=disk");

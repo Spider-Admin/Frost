@@ -90,6 +90,7 @@ public class Factory implements IStorageObject, Observer {
 	}
 
 	public void addNetwork(Network net) {
+		net.addObserver(this);
 		networks.put(net.getID(), net);
 	}
 	
@@ -219,7 +220,8 @@ public class Factory implements IStorageObject, Observer {
 
 	public void update(Observable o, Object arg) {
 		// TODO Auto-generated method stub
-		System.err.println("Observer notify!");
+		System.err.println("Observer notify!" + o);
+		System.err.println("Observer notify!" + arg);
 		//throw new Error();
 	}
 }

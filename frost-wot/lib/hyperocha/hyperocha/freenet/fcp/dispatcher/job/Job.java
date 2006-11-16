@@ -20,8 +20,6 @@
  */
 package hyperocha.freenet.fcp.dispatcher.job;
 
-import javax.swing.SwingUtilities;
-
 import hyperocha.freenet.fcp.FCPConnection;
 import hyperocha.freenet.fcp.IIncoming;
 import hyperocha.freenet.fcp.Network;
@@ -255,15 +253,11 @@ public abstract class Job implements IIncoming {
             final long failedBlocks = msg.getLongValue("Failed");
             final long fatallyFailedBlocks = msg.getLongValue("FatallyFailed");
             
-//            SwingUtilities.invokeLater(new Runnable() {
-//				public void run() {
-					try {
-						onSimpleProgress(isFinalized, totalBlocks, requiredBlocks, doneBlocks, failedBlocks, fatallyFailedBlocks);
-					} catch (Exception e) {
-						// TODO silence? log?
-					}
-//				}
-//			});
+			try {
+				onSimpleProgress(isFinalized, totalBlocks, requiredBlocks, doneBlocks, failedBlocks, fatallyFailedBlocks);
+			} catch (Exception e) {
+				// TODO silence? log?
+			}
             return;
 		}
 		
@@ -277,6 +271,7 @@ public abstract class Job implements IIncoming {
 			}
 			if (!goon) {
 				setError("ProtocolError");
+				return;
 			}
 		}
 	}

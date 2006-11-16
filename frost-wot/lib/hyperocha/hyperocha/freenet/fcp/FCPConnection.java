@@ -26,7 +26,6 @@ import hyperocha.freenet.fcp.utils.*;
 import java.io.*;
 import java.util.*;
 
-
 /**
  * @author  saces
  * @version $Id$
@@ -451,7 +450,7 @@ public class FCPConnection {
 //		else
 //			rawConn.println("true");
 //		
-//		rawConn.println("Persistance=" + persistance);
+//		rawConn.println("Persistence=" + persistence);
 //		
 //		
 //		rawConn.print("UploadFrom=");

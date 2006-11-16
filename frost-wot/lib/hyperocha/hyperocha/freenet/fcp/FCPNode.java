@@ -20,34 +20,30 @@
  */
 package hyperocha.freenet.fcp;
 
-
 import hyperocha.freenet.fcp.io.FCPIOConnectionErrorHandler;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
 
-
 /**
  * @author  saces
  * @version $Id$
  */
 public class FCPNode extends Observable {
+	public static final int STATUS_ERROR = -1;
+	public static final int STATUS_OFFLINE = 0;
+	public static final int STATUS_REACHABLE = 1;
+	public static final int STATUS_ONLINE = 2;
 	
-	//private static final String CLIENTTOKEN = "hyperocha test";
-	
-	
-	public class FCPNodeConfig {
+	private class FCPNodeConfig {
 		
 		private String nodeID = null;
-		
 		private int networkType;
-		
-		private boolean initialized = false;
-		
 		private InetAddress host = null;
 	    private int port = -1;
 		private String hostName = null; // avoid name lookup recursion in security manager
@@ -56,14 +52,12 @@ public class FCPNode extends Observable {
 		// default timeout 30 minutes
 		// its asumes a reply from the node after each bucket
 		// Verbosity=1! (Verbosity.SIMPLEPROGRESS)
-		private int timeOut = 30 * 60 * 1000; 
+		// FIXME testvalue
+		private int timeOut = 3 * 60 * 1000; 
 		
 		private boolean canDownload = true; // the factory can use this node for downloads 
 		private boolean canUpload = true; // the factory can use this node for uploads
-
-		
 	    private boolean useDDA = true;
-		
 	    /* seen an option on earlier versions, must ask toad about this */  
 	    private boolean useGQ = true;  
 	    
@@ -76,18 +70,15 @@ public class FCPNode extends Observable {
 	} 
 	
 	private class FCPNodeStatus {
-		private int nodeID = -1;
-		private boolean reachable = false;
-		private long requestCount = -1;
+		private int status = STATUS_OFFLINE;
+		private long requestCount = -1; // ??
 		private long onlineSince = 0;  // unix epoch
-		private int averageSpeed = -1; // requests per houeeer
+		private int averageSpeed = -1; // requests per houeeer???
 	}
-	
-	
-	
+
 	private FCPIOConnectionErrorHandler ioErrorHandler = null;
 	private FCPNodeConfig nodeConfig = new FCPNodeConfig();
-	private FCPNodeStatus nodeStatus;
+	private FCPNodeStatus nodeStatus = new FCPNodeStatus();
     private volatile FCPConnectionRunner defaultConn = null;
     
     private IIncoming callBack = null;
@@ -106,72 +97,19 @@ public class FCPNode extends Observable {
 
 	private boolean setServerPort(String serverport) {
 		boolean retValue = false;
-		nodeConfig.initialized = false;
+		nodeStatus.status = STATUS_OFFLINE;
 		String[] splitServerPort = serverport.split(":");
         try {
         	nodeConfig.hostName = splitServerPort[0];
         	retValue = setPort(splitServerPort[1]);
 		} catch (Exception e) {
 			lastError = e;
-			//e.printStackTrace();
+			e.printStackTrace();
 			return false;
 		}
 		return retValue;
 	}
     
-     /**
-     * the constructor checks only the plausibility of 'server:port'
-     * but doesn't etablish any connection to it.
-     * @param String 'server:port'
-     * @throws Throwable 
-     * 
-     */
-    
- /*   
-    
-    
-    public FCPNode(String serverport) {
-    	this(serverport, null);
-    }
-    
-	public FCPNode(String serverport, IOConnectionErrorHandler errh) {
-		String[] splitServerPort = serverport.split(":");
-		InetAddress ia = null;
-		//InetSocketAddress isa = null;
-//        try {
-            try {
-				ia = InetAddress.getByName(splitServerPort[0]);
-				this.host = ia;
-	            this.hostName = ia.getHostName();
-	            this.hostIp = ia.getHostAddress();
-			} catch (UnknownHostException e) {
-				errh.onIOError(e);
-				//System.out.println("ERROR: Unknown FCP host: "+ serverport);
-				//e.printStackTrace();
-			}
-            
-//        } catch(Throwable t) {
-//            System.out.println("ERROR: Unknown FCP host: "+ serverport);
-            //System.out.println(t);
-//        }
-        try {
-            port = Integer.parseInt(splitServerPort[1]);
-            if ((port < 1) || (port > 65535)) { throw new IllegalArgumentException(); }
-           // isa = InetSocketAddress.createUnresolved(this.hostName, port);
-        } catch(IllegalArgumentException e) {
-        	errh.onIOError(e);
-          //System.out.println("ERROR: Unknown FCP server:port: "+ serverport);
-         // System.out.println(t);
-      }
-            //if ((port < 1) || (port > 65535)) { throw new IllegalArgumentException(); } 
-            //isa = InetSocketAddress.createUnresolved(this.hostName, port);
-//        } catch(Throwable t) {
-//            System.out.println("ERROR: Unknown FCP port: "+ serverport);
-           // System.out.println(t);
-//        }
-        
-    }
-*/	
 	/**
 	 * 
 	 * @return
@@ -343,7 +281,7 @@ public class FCPNode extends Observable {
 //		cmd.add("PriorityClass=0");   // today, please ;) 
 //		cmd.add("GetCHKOnly=true");   // calculate the chk from 1k (the default testfile)
 //		cmd.add("Global=false");
-//		cmd.add("Persistance=" + Persistance.CONNECTION);
+//		cmd.add("Persistence=" + Persistence.CONNECTION);
 //		cmd.add("DontCompress=true");
 //		cmd.add("ClientToken=" + clientoken); 
 //		cmd.add("UploadFrom=disk");
@@ -420,7 +358,11 @@ public class FCPNode extends Observable {
 	}
 
 	public boolean isOffline() {
-		return (!(nodeConfig.initialized));
+		return (nodeStatus.status < 1);
+	}
+	
+	public boolean isOnline() {
+		return (nodeStatus.status > 0);
 	}
 	
 	/**
@@ -441,9 +383,29 @@ public class FCPNode extends Observable {
 		return init(false);
 	}
 	
+	private void setStatus(int newStatus) {
+		//System.err.println("Node Status set: " + newStatus);
+		//new Error().printStackTrace();
+		if ( nodeStatus.status == newStatus ) { return; }
+		setChanged();
+		nodeStatus.status = newStatus;
+		notifyObservers(new Integer(newStatus));
+	}
+	
+	private void setError(Exception e) {
+		lastError = e;
+		setStatus(STATUS_ERROR);
+	}
+	
+	/**
+	 * test if server:port is reachable (atablish connection), but 
+	 * do not any real transfer
+	 * @param force true - reset state before testing 
+	 * @return true if 
+	 */
 	public boolean init(boolean force) {
-		if ((!force) && nodeConfig.initialized) { return true; }
-		nodeConfig.initialized = false;
+		if ((!force) && (nodeStatus.status > 0)) { return true; }
+		//nodeStatus.status = STATUS_OFFLINE;
 		String server = nodeConfig.hostName;
 		InetAddress ia = null;
         try {
@@ -451,12 +413,16 @@ public class FCPNode extends Observable {
         	setAddress(ia);
         	Socket testsock = new Socket(nodeConfig.host, nodeConfig.port);
         	testsock.close();
+        } catch (ConnectException ce) {
+        	lastError = ce;
+        	setStatus(STATUS_OFFLINE);
+        	return false;
 		} catch (Exception e) {
-			lastError = e;
+			setError(e);
 			e.printStackTrace();
 			return false;
 		}
-		nodeConfig.initialized = true;
+		setStatus(STATUS_REACHABLE);
 		return true;
 	}
 	

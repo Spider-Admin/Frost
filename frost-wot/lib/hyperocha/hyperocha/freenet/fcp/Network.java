@@ -39,9 +39,16 @@ import java.util.Random;
  * <p><b>Setup</b><br>
  * 
  * @author saces
+ * @version $Id$
  *
  */
 public class Network extends Observable implements IStorageObject, Observer {
+	public static final int STATUS_ERROR = -1;
+	public static final int STATUS_OFFLINE = 0;
+	public static final int STATUS_ONLINE = 1;
+	
+	public int status = STATUS_OFFLINE;
+
 	//	 the fcp1 thingy
 	public static final int FCP1 = 1;
 	//	 the fcp2 thingy,
@@ -154,6 +161,7 @@ public class Network extends Observable implements IStorageObject, Observer {
 //	}
 //	
 	private void addNode(FCPNode node) {
+		node.addObserver(this);
 		nodeList.put(node.getID(), node);
 	}
 	
@@ -274,9 +282,47 @@ public class Network extends Observable implements IStorageObject, Observer {
 		}
 		return l;
 	}
+	
+	public List listOnlineNodes() {
+		List l = new LinkedList();
+		for (Enumeration e = nodeList.elements() ; e.hasMoreElements() ;) {
+			FCPNode n = (FCPNode)(e.nextElement());
+			if (n.isOnline()) {
+				l.add(n);
+			}
+		}
+		
+		if (l.isEmpty()) {
+			return null;
+		}
+		return l;
+	}
 
 	public void update(Observable o, Object arg) {
-		// TODO Auto-generated method stub
-		System.err.println("Observer notify!");
+		if ( listOnlineNodes() == null ) {
+			setStatus(STATUS_OFFLINE);
+			return;
+		}
+		setStatus(STATUS_ONLINE);
+		//System.err.println("||Observer notify!" + o);
+		//System.err.println("||Observer notify!" + arg);
+	}
+	
+	private void setStatus(int newStatus) {
+		if ( status == newStatus ) { return; }
+		setChanged();
+		status = newStatus;
+		notifyObservers(new Integer(newStatus));
+	}
+
+	/* (non-Javadoc)
+	 * @see java.util.Observable#addObserver(java.util.Observer)
+	 */
+	public synchronized void addObserver(Observer o) {
+		for (Enumeration e = nodeList.elements() ; e.hasMoreElements() ;) {
+			FCPNode n = (FCPNode)(e.nextElement());
+			n.addObserver(o); 
+		}
+		super.addObserver(o);
 	}
 }
