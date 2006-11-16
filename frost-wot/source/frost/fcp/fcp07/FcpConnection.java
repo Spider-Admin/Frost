@@ -235,6 +235,10 @@ public class FcpConnection
             if( nodeMsg.isMessageName("ProtocolError") ) {
                 System.out.println("*GET** ProtocolError:");
                 System.out.println(nodeMsg.toString());
+                
+                returnCode = (int)nodeMsg.getLongValue("Code");
+                isFatal = nodeMsg.getBoolValue("Fatal");
+                codeDescription = nodeMsg.getStringValue("CodeDescription");
                 break;
             }
             if( nodeMsg.isMessageName("IdentifierCollision") ) {
@@ -407,6 +411,7 @@ public class FcpConnection
         // receive and process node messages
         boolean isSuccess = false;
         int returnCode = -1;
+        String codeDescription = null;
         boolean isFatal = false;
         String chkKey = null;
         while(true) {
@@ -439,12 +444,16 @@ public class FcpConnection
                 // get error code
                 returnCode = (int)nodeMsg.getLongValue("Code");
                 isFatal = nodeMsg.getBoolValue("Fatal");
+                codeDescription = nodeMsg.getStringValue("CodeDescription");
                 break;
             }
 
             if( nodeMsg.isMessageName("ProtocolError") ) {
                 System.out.println("*PUT** ProtocolError:");
                 System.out.println(nodeMsg.toString());
+                returnCode = (int)nodeMsg.getLongValue("Code");
+                isFatal = nodeMsg.getBoolValue("Fatal");
+                codeDescription = nodeMsg.getStringValue("CodeDescription");
                 break;
             }
             if( nodeMsg.isMessageName("IdentifierCollision") ) {
@@ -496,11 +505,11 @@ public class FcpConnection
         if( !isSuccess ) {
             // failure
             if( returnCode == 9 ) {
-                return new FcpResultPut(FcpResultPut.KeyCollision, null);
+                return new FcpResultPut(FcpResultPut.KeyCollision, returnCode, codeDescription, isFatal);
             } else if( returnCode == 5 ) {
-                return new FcpResultPut(FcpResultPut.Retry, null);
+                return new FcpResultPut(FcpResultPut.Retry, returnCode, codeDescription, isFatal);
             } else {
-                return new FcpResultPut(FcpResultPut.Error, null);
+                return new FcpResultPut(FcpResultPut.Error, returnCode, codeDescription, isFatal);
             }
         } else {
             // success

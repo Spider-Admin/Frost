@@ -113,6 +113,32 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         }
     }
 
+    private class ShowStateContentTooltipRenderer extends BaseRenderer {
+        public ShowStateContentTooltipRenderer() {
+            super();
+        }
+        public Component getTableCellRendererComponent(
+            JTable table,
+            Object value,
+            boolean isSelected,
+            boolean hasFocus,
+            int row,
+            int column) {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            String tooltip = null;
+            ModelItem item = modelTable.getItemAt(row); //It may be null
+            if (item != null) {
+                FrostUploadItem uploadItem = (FrostUploadItem) item;
+                String errorCodeDescription = uploadItem.getErrorCodeDescription();
+                if( errorCodeDescription != null && errorCodeDescription.length() > 0 ) {
+                    tooltip = "Last error: "+errorCodeDescription;
+                }
+            }
+            setToolTipText(tooltip);
+            return this;
+        }
+    }
+
     private class IsSharedRenderer extends BaseRenderer {
         public IsSharedRenderer() {
             super();
@@ -483,7 +509,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         
         columnModel.getColumn(2).setCellRenderer(showContentTooltipRenderer); // filename
         columnModel.getColumn(3).setCellRenderer(numberRightRenderer); // filesize
-        columnModel.getColumn(4).setCellRenderer(baseRenderer); // state
+        columnModel.getColumn(4).setCellRenderer(new ShowStateContentTooltipRenderer()); // state
         columnModel.getColumn(5).setCellRenderer(showContentTooltipRenderer); // path
         columnModel.getColumn(6).setCellRenderer(baseRenderer); // blocks
         columnModel.getColumn(7).setCellRenderer(numberRightRenderer); // tries

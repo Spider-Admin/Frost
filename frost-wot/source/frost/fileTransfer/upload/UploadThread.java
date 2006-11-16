@@ -94,15 +94,21 @@ class UploadThread extends Thread {
             // upload failed
             logger.warning("Upload of " + uploadItem.getFile().getName() + " was NOT successful.");
 
-            uploadItem.setRetries(uploadItem.getRetries() + 1);
-            
-            if (uploadItem.getRetries() > Core.frostSettings.getIntValue(SettingsClass.UPLOAD_MAX_RETRIES)) {
+            if( result.isFatal() ) {
                 uploadItem.setEnabled(Boolean.FALSE);
                 uploadItem.setState(FrostUploadItem.STATE_FAILED);
             } else {
-                // retry
-                uploadItem.setState(FrostUploadItem.STATE_WAITING);
+                uploadItem.setRetries(uploadItem.getRetries() + 1);
+                
+                if (uploadItem.getRetries() > Core.frostSettings.getIntValue(SettingsClass.UPLOAD_MAX_RETRIES)) {
+                    uploadItem.setEnabled(Boolean.FALSE);
+                    uploadItem.setState(FrostUploadItem.STATE_FAILED);
+                } else {
+                    // retry
+                    uploadItem.setState(FrostUploadItem.STATE_WAITING);
+                }
             }
+            uploadItem.setErrorCodeDescription(result.getCodeDescription());
         }
         uploadItem.setLastUploadStopTimeMillis(System.currentTimeMillis());
     }
