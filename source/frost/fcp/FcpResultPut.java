@@ -30,8 +30,19 @@ public class FcpResultPut {
     private int resultVal;
     private String chkKey;
     
+    private int returnCode = -1;
+    private String codeDescription = null;
+    private boolean isFatal = false;
+
     public FcpResultPut(int result) {
         this(result, null);
+    }
+
+    public FcpResultPut(int result, int rc, String cd, boolean fatal) {
+        this(result, null);
+        returnCode = rc;
+        codeDescription = cd;
+        isFatal = fatal;
     }
 
     public FcpResultPut(int result, String chk) {
@@ -54,5 +65,17 @@ public class FcpResultPut {
 
     public String getChkKey() {
         return chkKey;
+    }
+    
+    public boolean isFatal() {
+        return isFatal;
+    }
+
+    public int getReturnCode() {
+        return returnCode;
+    }
+
+    public String getCodeDescription() {
+        return codeDescription;
     }
 }

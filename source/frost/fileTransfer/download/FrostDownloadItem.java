@@ -59,6 +59,7 @@ public class FrostDownloadItem extends ModelItem {
 	private int requiredBlocks = 0;	
 	private int totalBlocks = 0;
     private Boolean isFinalized = null;
+    private String errorCodeDescription = null;
     
     /**
      * Add a file from download text box.
@@ -385,5 +386,12 @@ public class FrostDownloadItem extends ModelItem {
         } else {
             return null;
         }
+    }
+
+    public String getErrorCodeDescription() {
+        return errorCodeDescription;
+    }
+    public void setErrorCodeDescription(String errorCodeDescription) {
+        this.errorCodeDescription = errorCodeDescription;
     }
 }

@@ -55,6 +55,7 @@ public class FrostUploadItem extends ModelItem {
     private int totalBlocks = -1;
     private int doneBlocks = -1; 
     private Boolean isFinalized = null;
+    private String errorCodeDescription = null;
 
     // is only set if this uploaditem is a shared file
     private FrostSharedFileItem sharedFileItem = null; 
@@ -261,5 +262,12 @@ public class FrostUploadItem extends ModelItem {
         } else {
             return null;
         }
+    }
+    
+    public String getErrorCodeDescription() {
+        return errorCodeDescription;
+    }
+    public void setErrorCodeDescription(String errorCodeDescription) {
+        this.errorCodeDescription = errorCodeDescription;
     }
 }

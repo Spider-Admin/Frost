@@ -103,6 +103,7 @@ public class DownloadThread extends Thread {
                     }
                 } else if( result != null && result.isFatal() ) {
                     // fatal, don't retry
+                    downloadItem.setEnableDownload(Boolean.valueOf(false));
                     downloadItem.setState(FrostDownloadItem.STATE_FAILED);
                     logger.warning("FILEDN: Download of " + filename + " failed fatally.");
                 } else {
@@ -112,10 +113,14 @@ public class DownloadThread extends Thread {
                     logger.warning("FILEDN: Download of " + filename + " failed.");
                     // set new state -> failed or waiting for another try
                     if (downloadItem.getRetries() > Core.frostSettings.getIntValue(SettingsClass.DOWNLOAD_MAX_RETRIES)) {
+                        downloadItem.setEnableDownload(Boolean.valueOf(false));
                         downloadItem.setState(FrostDownloadItem.STATE_FAILED);
                     } else {
                         downloadItem.setState(FrostDownloadItem.STATE_WAITING);
                     }
+                }
+                if( result != null ) {
+                    downloadItem.setErrorCodeDescription(result.getCodeDescription());
                 }
             } else {
                 // download successful
