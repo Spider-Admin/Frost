@@ -20,23 +20,7 @@ package frost.fcp;
 
 public class DataNotFoundException extends FcpToolsException {
     
-    long returnCode = -1;
-    boolean isFatal = false;
-    
     public DataNotFoundException() {
         super("Data Not Found.");
-    }
-    
-    public DataNotFoundException(long rc, boolean fatal) {
-        super("Data Not Found.");
-        returnCode = rc;
-        isFatal = fatal;
-    }
-
-    public long getReturnCode() {
-        return returnCode;
-    }
-    public boolean isFatal() {
-        return isFatal;
     }
 }

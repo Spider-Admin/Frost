@@ -35,7 +35,7 @@ public class FcpRequest {
 	final static boolean DEBUG = true;
 
 	private static Logger logger = Logger.getLogger(FcpRequest.class.getName());
-
+    
     /**
      * getFile retrieves a file from Freenet. It does detect if this file is a redirect, a splitfile or
      * just a simple file. It checks the size for the file and returns false if sizes do not match.
@@ -66,11 +66,7 @@ public class FcpRequest {
         // First we just download the file, not knowing what lies ahead
         FcpResultGet results = getKey(type, key, tempFile, dlItem);
 
-        if( results != null ) {
-
-//        System.out.println("RESULTS:");
-//        System.out.println(tempFile.getName());
-//        System.out.println(tempFile.length());
+        if( results.isSuccess() ) {
 
             // If the target file exists, we remove it
             if( target.isFile() ) {
@@ -83,21 +79,21 @@ public class FcpRequest {
                 			  "Maybe the locations are on different filesystems where a move is not allowed.\n" +
                   			  "Please try change the location of 'temp.dir' in the frost.ini file,"+
                               " and copy the file to a save location by yourself.");
-               return null;
-            } else {
-                return results;
+               return FcpResultGet.RESULT_FAILED;
             }
+        } else {
+            // if we reach here, the download was NOT successful in any way
+            tempFile.delete();
         }
-        // if we reach here, the download was NOT successful in any way
-        tempFile.delete();
-        return null;
+        return results;
     }
 
     // used by getFile
     private static FcpResultGet getKey(int type, String key, File target, FrostDownloadItem dlItem) {
 
         if( key == null || key.length() == 0 || key.startsWith("null") ) {
-            return null;
+            System.out.println("getKey: KEY IS NULL!");
+            return FcpResultGet.RESULT_FAILED;
         }
 
         FcpResultGet results = null;
@@ -123,7 +119,6 @@ public class FcpRequest {
                 catch( DataNotFoundException ex ) { // frost.FcpTools.DataNotFoundException
                     // do nothing, data not found is usual ...
 					logger.log(Level.INFO, "FcpRequest.getKey(1): DataNotFoundException (usual if not found)", ex);
-                    // FIXME: evaluate returncode and fatal -> rc=11 means retry without filename
 //					System.out.println( "FcpRequest.getKey(1): DataNotFoundException (usual if not found)");
                     break;
                 }
@@ -150,16 +145,16 @@ public class FcpRequest {
                                              .append("...")
                                              .append(keyUrl).toString();
         }
-
-        if( results != null && target.length() > 0 ) {
+        
+        if( results == null ) {
+            // paranoia
+            results = FcpResultGet.RESULT_FAILED;
+        } else if( results.isSuccess() && target.length() > 0 ) {
             logger.info("getKey - Success: " + printableKey );
-//            System.out.println("getKey - Success: " + printableKey );
-            return results;
         } else {
             target.delete();
-            logger.info("getKey - Failed: " + printableKey );
-//            System.out.println("getKey - Failed: " + printableKey );
-            return null;
+            logger.info("getKey - Failed: " + printableKey + "; rc="+results.getReturnCode()+"; isFatal="+results.isFatal() );
         }
+        return results;
     }
 }

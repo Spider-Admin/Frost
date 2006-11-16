@@ -88,7 +88,7 @@ public class MessageDownloader {
             return null;
         }
         
-        if( results == null ) {
+        if( results == null || results.isSuccess() == false ) {
             tmpFile.delete();
             return null;
         }

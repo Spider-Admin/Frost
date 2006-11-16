@@ -325,7 +325,7 @@ public class MessageUploader {
                     targetFile, 
                     false, 
                     false);
-            if( res != null && targetFile.length() > 0 ) {
+            if( res != null && res.isSuccess() && targetFile.length() > 0 ) {
                 return true;
             }
         } catch(Throwable t) {

@@ -41,7 +41,7 @@ public class GlobalFileDownloader {
                     tmpFile,
                     false); // doRedirect, like in uploadIndexFile()
     
-            if (fcpresults == null || tmpFile.length() == 0) {
+            if (fcpresults == null || fcpresults.isSuccess() == false || tmpFile.length() == 0) {
                 // download failed. Sometimes there are some 0 byte
                 // files left, we better remove them now.
                 tmpFile.delete();
