@@ -192,6 +192,7 @@ public class FcpConnection
         // receive and process node messages
         boolean isSuccess = false;
         int returnCode = -1;
+        String codeDescription = null;
         boolean isFatal = false;
         while(true) {
             NodeMessage nodeMsg = readMessage(fcpIn);
@@ -256,6 +257,7 @@ public class FcpConnection
                 System.out.println(nodeMsg.toString());
                 // get error code
                 returnCode = (int)nodeMsg.getLongValue("Code");
+                codeDescription = nodeMsg.getStringValue("CodeDescription");
                 isFatal = nodeMsg.getBoolValue("Fatal");
                 break;
             }
@@ -298,7 +300,7 @@ public class FcpConnection
             File checkSize = new File(filename);
             checkSize.delete();
             
-            result = new FcpResultGet(false, returnCode, isFatal);
+            result = new FcpResultGet(false, returnCode, codeDescription, isFatal);
         } else {
             // success
             result = new FcpResultGet(true);
