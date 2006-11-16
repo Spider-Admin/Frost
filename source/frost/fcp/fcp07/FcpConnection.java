@@ -265,10 +265,26 @@ public class FcpConnection
                 isFatal = nodeMsg.getBoolValue("Fatal");
                 break;
             }
-            if( nodeMsg.getMessageName().equals("SimpleProgress") && dlItem != null ) {
+            if( dlItem != null && nodeMsg.getMessageName().equals("SimpleProgress") ) {
                 System.out.println("*** SimpleProgress:");
                 System.out.println(nodeMsg.toString());
-                // FIXME: eval progress and set to dlItem
+                
+                // eval progress and set to dlItem
+                int doneBlocks;
+                int requiredBlocks;
+                int totalBlocks;
+                boolean isFinalized;
+                
+                doneBlocks = (int)nodeMsg.getLongValue("Succeeded");
+                requiredBlocks = (int)nodeMsg.getLongValue("Required");
+                totalBlocks = (int)nodeMsg.getLongValue("Total");
+                isFinalized = nodeMsg.getBoolValue("FinalizedTotal");
+                
+                dlItem.setDoneBlocks(doneBlocks);
+                dlItem.setRequiredBlocks(requiredBlocks);
+                dlItem.setTotalBlocks(totalBlocks);
+                dlItem.setFinalized(isFinalized);
+                
                 continue;
             }
             
