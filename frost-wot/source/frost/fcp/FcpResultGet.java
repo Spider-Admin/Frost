@@ -32,6 +32,7 @@ public class FcpResultGet {
     private boolean isSuccess;
     
     private int returnCode = -1;
+    private String codeDescription = null;
     private boolean isFatal = false;
     
     public static FcpResultGet RESULT_FAILED = new FcpResultGet(false);
@@ -40,9 +41,10 @@ public class FcpResultGet {
         this.isSuccess = isSuccess;
     }
 
-    public FcpResultGet(boolean isSuccess, int rc, boolean fatal) {
+    public FcpResultGet(boolean isSuccess, int rc, String cd, boolean fatal) {
         this.isSuccess = isSuccess;
         returnCode = rc;
+        codeDescription = cd;
         isFatal = fatal;
     }
 
@@ -106,5 +108,9 @@ public class FcpResultGet {
 
     public int getReturnCode() {
         return returnCode;
+    }
+
+    public String getCodeDescription() {
+        return codeDescription;
     }
 }

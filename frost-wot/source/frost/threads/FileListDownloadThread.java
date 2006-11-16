@@ -22,8 +22,8 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
-import frost.fcp.*;
 import frost.fileTransfer.*;
+import frost.transferlayer.*;
 import frost.util.*;
 
 /**
@@ -83,7 +83,7 @@ public class FileListDownloadThread extends Thread {
                     previousKey = chkKey; // different key as before, remember
                 }
 System.out.println("FileListDownloadThread: starting download of key: "+chkKey);
-                File downloadedFile = downloadCHKKey(chkKey);
+                File downloadedFile = GlobalFileDownloader.downloadFile(chkKey);
                 
                 if( downloadedFile == null ) {
                     // download failed
@@ -112,31 +112,6 @@ System.out.println("FileListDownloadThread: processed results: "+isValid);
                 break;
             }
         }
-    }
-    
-    private File downloadCHKKey(String chkKey) {
-        File tmpFile = FileAccess.createTempFile("fileList_", ".xml.tmp");
-        FcpResultGet results;
-        try {
-            results = FcpHandler.inst().getFile(
-                    FcpHandler.TYPE_FILE,
-                    chkKey,
-                    null,
-                    tmpFile,
-                    false,
-                    false);
-        } catch(Throwable t) {
-            logger.log(Level.SEVERE, "TOFDN: Exception thrown in downloadCHKKey", t);
-            // download failed
-            tmpFile.delete();
-            return null;
-        }
-        
-        if( results == null || results.isSuccess() == false ) {
-            tmpFile.delete();
-            return null;
-        }
-        return tmpFile;
     }
     
     private void initializeQueue() {

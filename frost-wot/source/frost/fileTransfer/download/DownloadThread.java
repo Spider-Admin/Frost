@@ -39,7 +39,7 @@ public class DownloadThread extends Thread {
     private String key;
 
     private FrostDownloadItem downloadItem;
-    private DownloadModel downloadModel;
+//    private DownloadModel downloadModel;
     
     public DownloadThread(DownloadTicker newTicker, FrostDownloadItem item, DownloadModel model) {
         filename = item.getFileName();
@@ -47,7 +47,7 @@ public class DownloadThread extends Thread {
         key = item.getKey();
         ticker = newTicker;
         downloadItem = item;
-        downloadModel = model;
+//        downloadModel = model;
     }
 
     public void run() {
@@ -81,15 +81,15 @@ public class DownloadThread extends Thread {
                 logger.log(Level.SEVERE, "Exception thrown in run()", t);
             }
 
-            // file might be erased from table during download...
-            boolean inTable = false;
-            for (int x = 0; x < downloadModel.getItemCount(); x++) {
-                FrostDownloadItem actItem = (FrostDownloadItem) downloadModel.getItemAt(x);
-                if (actItem.getKey() != null && actItem.getKey().equals(downloadItem.getKey())) {
-                    inTable = true;
-                    break;
-                }
-            }
+//            // file might be erased from table during download...
+//            boolean inTable = false;
+//            for (int x = 0; x < downloadModel.getItemCount(); x++) {
+//                FrostDownloadItem actItem = (FrostDownloadItem) downloadModel.getItemAt(x);
+//                if (actItem.getKey() != null && actItem.getKey().equals(downloadItem.getKey())) {
+//                    inTable = true;
+//                    break;
+//                }
+//            }
 
             if (result == null || result.isSuccess() == false) {
                 // download failed
@@ -101,18 +101,20 @@ public class DownloadThread extends Thread {
                         downloadItem.setKey(plainKey);
                         System.out.println("*!*!* Removed filename from key: "+key+" ; "+plainKey);
                     }
+                } else if( result != null && result.isFatal() ) {
+                    // fatal, don't retry
+                    downloadItem.setState(FrostDownloadItem.STATE_FAILED);
+                    logger.warning("FILEDN: Download of " + filename + " failed fatally.");
                 } else {
                 
                     downloadItem.setRetries(downloadItem.getRetries() + 1);
     
                     logger.warning("FILEDN: Download of " + filename + " failed.");
-                    if (inTable == true) {
-                        // set new state -> failed or waiting for another try
-                        if (downloadItem.getRetries() > Core.frostSettings.getIntValue(SettingsClass.DOWNLOAD_MAX_RETRIES)) {
-                            downloadItem.setState(FrostDownloadItem.STATE_FAILED);
-                        } else {
-                            downloadItem.setState(FrostDownloadItem.STATE_WAITING);
-                        }
+                    // set new state -> failed or waiting for another try
+                    if (downloadItem.getRetries() > Core.frostSettings.getIntValue(SettingsClass.DOWNLOAD_MAX_RETRIES)) {
+                        downloadItem.setState(FrostDownloadItem.STATE_FAILED);
+                    } else {
+                        downloadItem.setState(FrostDownloadItem.STATE_WAITING);
                     }
                 }
             } else {
