@@ -30,6 +30,7 @@ import java.util.logging.*;
 
 import frost.fcp.*;
 import frost.fileTransfer.download.*;
+import frost.fileTransfer.upload.*;
 
 /**
  * This class is a wrapper to simplify access to the FCP library.
@@ -101,13 +102,9 @@ public class FcpConnection
         BufferedReader in = new BufferedReader(new InputStreamReader(fcpSock.getInputStream()));
 
         fcpOut.println("ClientHello");
-//        System.out.println("ClientHello");
         fcpOut.println("Name=hello-"+fcpConnectionId);
-//        System.out.println("Name=hello-"+fcpConnectionId);
         fcpOut.println("ExpectedVersion=2.0");
-//        System.out.println("ExpectedVersion=2.0");
         fcpOut.println("EndMessage");
-//        System.out.println("EndMessage");
 
         while(true) {
             String tmp = in.readLine();
@@ -208,7 +205,7 @@ public class FcpConnection
             String endMarker = nodeMsg.getMessageEnd(); 
             if( endMarker == null ) {
                 // should never happen
-                System.out.println("*** ENDMARKER is NULL!");
+                System.out.println("*GET** ENDMARKER is NULL!");
                 break;
             }
             
@@ -230,7 +227,7 @@ public class FcpConnection
                     fileOut.write(b, 0, count);
                     bytesWritten += count;
                 }
-                System.out.println("*** Wrote "+bytesWritten+" of "+dataLength+" bytes to file.");
+                System.out.println("*GET** Wrote "+bytesWritten+" of "+dataLength+" bytes to file.");
                 if( bytesWritten == dataLength ) {
                     isSuccess = true;
                 }
@@ -238,12 +235,12 @@ public class FcpConnection
             }
             
             if( nodeMsg.getMessageName().equals("ProtocolError") ) {
-                System.out.println("*** ProtocolError:");
+                System.out.println("*GET** ProtocolError:");
                 System.out.println(nodeMsg.toString());
                 break;
             }
             if( nodeMsg.getMessageName().equals("IdentifierCollision") ) {
-                System.out.println("*** IdentifierCollision:");
+                System.out.println("*GET** IdentifierCollision:");
                 System.out.println(nodeMsg.toString());
                 break;
             }
@@ -253,12 +250,12 @@ public class FcpConnection
                 break;
             }
             if( nodeMsg.getMessageName().equals("UnknownPeerNoteType") ) {
-                System.out.println("*** UnknownPeerNoteType:");
+                System.out.println("*GET** UnknownPeerNoteType:");
                 System.out.println(nodeMsg.toString());
                 break;
             }
             if( nodeMsg.getMessageName().equals("GetFailed") ) {
-                System.out.println("*** GetFailed:");
+                System.out.println("*GET** GetFailed:");
                 System.out.println(nodeMsg.toString());
                 // get error code
                 returnCode = (int)nodeMsg.getLongValue("Code");
@@ -266,7 +263,7 @@ public class FcpConnection
                 break;
             }
             if( dlItem != null && nodeMsg.getMessageName().equals("SimpleProgress") ) {
-                System.out.println("*** SimpleProgress:");
+                System.out.println("*GET** SimpleProgress:");
                 System.out.println(nodeMsg.toString());
                 
                 // eval progress and set to dlItem
@@ -288,7 +285,7 @@ public class FcpConnection
                 continue;
             }
             
-            System.out.println("*** INFO - NodeMessage:");
+            System.out.println("*GET** INFO - NodeMessage:");
             System.out.println(nodeMsg.toString());
         }
 
@@ -312,274 +309,6 @@ public class FcpConnection
         return result;
     }
 
-    /**
-     * Retrieves the specified key and saves it to the file
-     * specified.
-     *
-     * @param key  the key to be retrieved
-     * @param filename  the filename to which the data should be saved
-     * @return the results filled with metadata
-     */
-    public FcpResultGet getKeyToFile_OLD(int type, String keyString, String filename)
-    throws IOException, FcpToolsException, InterruptedIOException {
-
-        // TODO: exploit MaxRetries, MaxSize, ReturnType=disk, global queue
-        
-//       TODO and useroption!!!!
-//      boolean dda = (type == FcpHandler.TYPE_FILE);
-        boolean dda = false;
-        
-        
-        // the node needs the absolute filename!
-        File f = new File(filename);
-        filename = f.getAbsolutePath();
-        
-        //System.out.println("test: " + filename);
-
-        keyString = StripSlashes(keyString);
-        FcpResultGet result = new FcpResultGet(false);
-        FreenetKey key = new FreenetKey(keyString);
-        logger.fine("KeyString = " + keyString + "\n" +
-                    "Key =       " + key + "\n" +
-                    "KeyType =   " + key.getKeyType());
-
-        FileOutputStream fileOut = null;
-        if (!dda) {
-            fileOut = new FileOutputStream(filename);
-        }
-        
-        fcpSock = new Socket(nodeAddress.host, nodeAddress.port);
-        fcpSock.setSoTimeout(TIMEOUT);
-
-        doHandshake(fcpSock);
-
-        fcpIn = new BufferedInputStream(fcpSock.getInputStream());
-        fcpOut = new PrintStream(fcpSock.getOutputStream());
-
-        fcpOut.println("ClientGet");
-//        System.out.println("ClientGet");
-        fcpOut.println("IgnoreDS=false");
-//        System.out.println("IgnoreDS=false");
-        fcpOut.println("DSOnly=false");
-//        System.out.println("DSOnly=false");
-        fcpOut.println("URI=" + key);
-//        System.out.println("URI=" + key);
-
-//        System.out.println("Verbosity=0");
-        fcpOut.println("Identifier=get-" + fcpConnectionId );
-//        System.out.println("Identifier=get");
-
-//        System.out.println("ReturnType=direct");
-
-        //fcpOut.println("ReturnType=disk");
-        //System.out.println("Filename=<filename_on_disk>");
-
-        //fcpOut.println("MaxSize=256");
-        //System.out.println("MaxSize=256");
-        //fcpOut.println("MaxTempSize=1024");
-        //System.out.println("MaxTempSize=1024");
-
-
-        fcpOut.println("MaxRetries=1");
-//        System.out.println("MaxRetries=1");
-
-        if (dda) {
-            fcpOut.println("Verbosity=0");
-            fcpOut.println("ReturnType=disk");
-            fcpOut.println("Filename=" + filename);
-         } else {
-            fcpOut.println("Verbosity=0");
-            fcpOut.println("ReturnType=direct");
-        }
-        
-        if( type == FcpHandler.TYPE_FILE ) {
-//            fcpOut.println("PriorityClass=4");
-            fcpOut.println("PriorityClass=2");
-        } else if( type == FcpHandler.TYPE_MESSAGE ) {
-            fcpOut.println("PriorityClass=2");
-        }
-
-        fcpOut.println("EndMessage");
-//        System.out.println("EndMessage");
-
-        FcpKeyword kw;
-        boolean receivedFinalByte = false;
-        long totalDataLength = 0;
-        int dataChunkLength = 0;
-        boolean expectingData = false;
-        boolean flagRestarted = false;
-        long expectedTotalDataLength = 0;
-
-        while( receivedFinalByte == false )
-        {
-            //frost.Core.getOut().print("*");
-            if( expectingData == false )
-            {
-                kw = FcpKeyword.getFcpKeyword(fcpIn);
-                logger.fine("FcpKeyword: " + kw + " for file " + filename);
-
-//                frost.Core.getOut().println("getKey-FcpKeyword: " + kw + " for file " + filename);
-//              System.out.println("got fcp keyword");
-//              System.out.println("FcpKeyword: " + kw + " for file " + filename);
-//              System.out.println(kw.getFullString());
-                switch( kw.getId() )
-                {
-                case FcpKeyword.DataFound:
-                    if (dda) {
-                        receivedFinalByte = true;
-                    } else
-                    if( flagRestarted == true )
-                    {
-                        fileOut.close();
-                        new File(filename).delete();
-                        fileOut = new FileOutputStream(filename);
-
-                        totalDataLength = 0;
-                        expectedTotalDataLength = 0;
-                        dataChunkLength = 0;
-
-                        flagRestarted = false;
-                    }
-                    break;
-                case FcpKeyword.DataLength:
-                    totalDataLength = kw.getLongVal();
-                    expectedTotalDataLength = totalDataLength;
-                    break;
-                case FcpKeyword.FormatError:
-                    receivedFinalByte = true;
-                    break;
-                case FcpKeyword.URIError:
-                    receivedFinalByte = true;
-                    break;
-                case FcpKeyword.Restarted:
-/*
-   At any time when the full payload of data has not been sent a
-   Restarted message may be sent. This means that the data to verify and
-   the transfer will be restarted. The client should return to the
-   waiting state, and if a DataFound is then received, the data transfer
-   will start over from the beginning. Otherwise, when the final
-   DataChunk is received, the transaction is complete and the connection
-   dies.
-bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
-*/
-                    flagRestarted = true;
-                    break;
-                case FcpKeyword.Code:
-                    //frost.Core.getOut().println("Data not found - closing streams for " + filename + " ...");
-                    int codeNumber = (int) kw.getLongVal();
-                    if (codeNumber == 13){
-                        fcpIn.close();
-                        fcpOut.close();
-                        fcpSock.close();
-                        fileOut.close();
-                        File checkSize = new File(filename);
-                        if( checkSize.length() == 0 )
-                            checkSize.delete();
-                        throw new DataNotFoundException();
-                    }
-                    break;
-                case FcpKeyword.Fatal:
-                    if (kw.getFullString().indexOf("true") > -1){
-                        fcpIn.close();
-                        fcpOut.close();
-                        fcpSock.close();
-                        fileOut.close();
-                        File checkSize = new File(filename);
-                        if( checkSize.length() == 0 )
-                            checkSize.delete();
-                        throw new FcpToolsException("fatalerror on get");
-                    }
-                    receivedFinalByte=true;
-
-                    break;
-                case FcpKeyword.GetFailed:
-                    break;
-                case FcpKeyword.RouteNotFound:
-                    receivedFinalByte = true;
-                    break;
-                case FcpKeyword.Failed:
-                    receivedFinalByte = true;
-                    break;
-                case FcpKeyword.UnknownError:
-                    receivedFinalByte = true;
-                    break;
-                case FcpKeyword.EndMessage:
-                    break;
-                case FcpKeyword.DataChunk:
-                    break;
-
-                case FcpKeyword.Data:
-                    expectingData = true;
-                    break;
-/*
- * DEFAULT RESPONSE NOW
- * AllData
- * Identifier=get
- * DataLength=361
- * Data
- *
- *
- */
-                case FcpKeyword.AllData:
-                    break;
-                case FcpKeyword.Identifier:
-                    break;
-
-                case FcpKeyword.Timeout:
-// it WOULD be actually better for freenet AND the node to do it this way
-// would be , but after 25 minutes my 5 boards did not finish to update, 4 days backload
-// thats really too slow ...
-// now the fast mode is only used by MessageDownloadThread ...
-//                    if( fastDownload )  receivedFinalByte = true;
-                    break;
-                }
-            } else { // handle data bytes
-                
-                //System.out.println(" -->> try read data");
-
-                dataChunkLength = (int) totalDataLength;
-                logger.fine("Expecting " + dataChunkLength + " bytes, " + totalDataLength + " total.");
-//                System.out.println("Expecting " + dataChunkLength + " bytes, " + totalDataLength + " total.");
-                byte[] b = new byte[dataChunkLength];
-                int bytesRead = 0, count;
-
-                while( bytesRead < dataChunkLength ) {
-                    count = fcpIn.read(b, bytesRead, dataChunkLength - bytesRead);
-//                    System.out.println("read following:");
-                    //System.out.println(new String(b, Charset.defaultCharset().name()));
-//                    System.out.println(count);
-                    if( count < 0 ) {
-                        break;
-                    } else {
-                        bytesRead += count;
-                    }
-                }
-
-//                System.out.println("GOT DATA");
-                fileOut.write(b);
-                expectingData = false;
-                totalDataLength -= bytesRead;
-                if( totalDataLength <= 0 ) {
-                    receivedFinalByte = true;
-                }
-            }
-        }
-
-        fcpIn.close();
-        fcpOut.close();
-        fcpSock.close();
-        if (!dda) {
-            fileOut.flush();
-            fileOut.close();
-        }
-        File checkSize = new File(filename);
-        
-        if( checkSize.length() == 0 ) {
-            checkSize.delete();
-        }
-        return result;
-    }
-
 	/**
      * Inserts the specified key with the data from the file specified.
      *
@@ -588,15 +317,14 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
      * @return the results filled with metadata and the CHK used to insert the data
 	 * @throws IOException 
      */
-	public String putKeyFromFile(int type, String key, File sourceFile, boolean getChkOnly) throws IOException {
-		return putKeyFromFile(type, key, sourceFile, getChkOnly, false);
+	public FcpResultPut putKeyFromFile(int type, String key, File sourceFile, boolean getChkOnly, FrostUploadItem ulItem) throws IOException {
+		return putKeyFromFile(type, key, sourceFile, getChkOnly, false, ulItem);
 	}
     
-	public String putKeyFromFile(int type, String key, File sourceFile, boolean getChkOnly, boolean doMime)
+	public FcpResultPut putKeyFromFile(int type, String key, File sourceFile, boolean getChkOnly, boolean doMime, FrostUploadItem ulItem)
 		throws IOException {
 
         // TODO: exploit MaxRetries, UploadFrom, type
-		
 		
 		// TODO and useroption!!!!
 //		boolean dda = (type == FcpHandler.TYPE_FILE);
@@ -676,40 +404,114 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 		}
 
 		dOut.flush();
-// Verbosity=1 sends only Success/error messages and SimpleProgress
-// so Frost should never affected by new messege types
-		int c;
-		StringBuffer output = new StringBuffer();
-		// nio doesn't always close the connection.  workaround:
-		while ((c = fcpIn.read()) != -1) {
-			output.append((char) c);
-			if (output.toString().indexOf("EndMessage") != -1) {
-                System.out.println("DBG:'"+output.toString()+"'");
-				output.append('\0');
-				if (output.indexOf("Pending") > -1 || 
-                    output.indexOf("Restarted") > -1 || 
-                    output.indexOf("SimpleProgress") > -1 || 
-                    output.indexOf("PutFetchable") > -1 || 
-                    output.indexOf("StartedCompression") > -1 || 
-                    output.indexOf("FinishedCompression") > -1 || 
-                    output.indexOf("URIGenerated") > -1) 
-                {
-					//System.out.println("Progress: " + output.toString());
-					output = new StringBuffer();
-					continue;
-				}
-				break;
-			}
-		}
-		//System.out.println("fin: " + output.toString());
+
+        // receive and process node messages
+        boolean isSuccess = false;
+        int returnCode = -1;
+        boolean isFatal = false;
+        String chkKey = null;
+        while(true) {
+            NodeMessage nodeMsg = readMessage(fcpIn);
+            if( nodeMsg == null ) {
+                break;
+            }
+            
+            if( getChkOnly == true && nodeMsg.getMessageName().equals("URIGenerated") ) {
+                System.out.println("*PUT** URIGenerated:");
+                System.out.println(nodeMsg.toString());
+
+                isSuccess = true;
+                chkKey = nodeMsg.getStringValue("URI");
+                
+                break;
+            }
+            if( getChkOnly == false && nodeMsg.getMessageName().equals("PutSuccessful") ) {
+                System.out.println("*PUT** PutSuccessful:");
+                System.out.println(nodeMsg.toString());
+
+                isSuccess = true;
+                chkKey = nodeMsg.getStringValue("URI");
+                
+                break;
+            }
+            if( nodeMsg.getMessageName().equals("PutFailed") ) {
+                System.out.println("*PUT** GetFailed:");
+                System.out.println(nodeMsg.toString());
+                // get error code
+                returnCode = (int)nodeMsg.getLongValue("Code");
+                isFatal = nodeMsg.getBoolValue("Fatal");
+                break;
+            }
+
+            if( nodeMsg.getMessageName().equals("ProtocolError") ) {
+                System.out.println("*PUT** ProtocolError:");
+                System.out.println(nodeMsg.toString());
+                break;
+            }
+            if( nodeMsg.getMessageName().equals("IdentifierCollision") ) {
+                System.out.println("*PUT** IdentifierCollision:");
+                System.out.println(nodeMsg.toString());
+                break;
+            }
+            if( nodeMsg.getMessageName().equals("UnknownNodeIdentifier") ) {
+                System.out.println("*PUT** UnknownNodeIdentifier:");
+                System.out.println(nodeMsg.toString());
+                break;
+            }
+            if( nodeMsg.getMessageName().equals("UnknownPeerNoteType") ) {
+                System.out.println("*PUT** UnknownPeerNoteType:");
+                System.out.println(nodeMsg.toString());
+                break;
+            }
+            if( ulItem != null && nodeMsg.getMessageName().equals("SimpleProgress") ) {
+                System.out.println("*PUT** SimpleProgress:");
+                System.out.println(nodeMsg.toString());
+                
+                // eval progress and set to dlItem
+                int doneBlocks;
+                int totalBlocks;
+                boolean isFinalized;
+                
+                doneBlocks = (int)nodeMsg.getLongValue("Succeeded");
+                totalBlocks = (int)nodeMsg.getLongValue("Total");
+                isFinalized = nodeMsg.getBoolValue("FinalizedTotal");
+                
+                ulItem.setDoneBlocks(doneBlocks);
+                ulItem.setTotalBlocks(totalBlocks);
+                ulItem.setFinalized(isFinalized);
+                
+                continue;
+            }
+            
+            System.out.println("*PUT** INFO - NodeMessage:");
+            System.out.println(nodeMsg.toString());
+        }
+        
 		dOut.close();
 		fcpOut.close();
 		fcpIn.close();
 		fcpSock.close();
         
         fileInput.close();
-
-		return output.toString();
+        
+        if( !isSuccess ) {
+            // failure
+            if( returnCode == 9 ) {
+                return new FcpResultPut(FcpResultPut.KeyCollision, null);
+            } else if( returnCode == 5 ) {
+                return new FcpResultPut(FcpResultPut.Retry, null);
+            } else {
+                return new FcpResultPut(FcpResultPut.Error, null);
+            }
+        } else {
+            // success
+            // check if the returned text contains the computed CHK key (key generation)
+            int pos = chkKey.indexOf("CHK@"); 
+            if( pos > -1 ) {
+                chkKey = chkKey.substring(pos).trim();
+            }
+            return new FcpResultPut(FcpResultPut.Success, chkKey);
+        }
 	}
 
     /**
@@ -757,20 +559,12 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
      * Generates a CHK key for the given File (no upload).
      */
     public String generateCHK(File file) throws IOException {
-
-   	   	String uri = "";
-    	String output = putKeyFromFile(FcpHandler.TYPE_FILE, "CHK@", file, true);
-//    	System.out.println("GOT OUTPUT " + output + "\n STARTING CHK GENERATION");
-    	int URIstart = output.indexOf("CHK@");
-    	String substr = output.substring(URIstart);
-//    	System.out.println("Substring is " + substr);
-    	int URIend = substr.indexOf('\n');
-//    	System.out.println(URIend);
-
-    	uri = substr.substring(0, URIend);
-
-//    	System.out.println("URI is " + uri);
-    	return uri;
+        FcpResultPut result = putKeyFromFile(FcpHandler.TYPE_FILE, "CHK@", file, true, null);
+        if( result == null || result.isSuccess() == false ) {
+            return null;
+        } else {
+            return result.getChkKey();
+        }
     }
 
     /**
