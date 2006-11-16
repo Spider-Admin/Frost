@@ -8,7 +8,7 @@ import hyperocha.freenet.fcp.FCPConnectionRunner;
 import hyperocha.freenet.fcp.FreenetKey;
 import hyperocha.freenet.fcp.FreenetKeyType;
 import hyperocha.freenet.fcp.NodeMessage;
-import hyperocha.freenet.fcp.Persistance;
+import hyperocha.freenet.fcp.Persistence;
 import hyperocha.freenet.fcp.dispatcher.Dispatcher;
 
 import java.io.File;
@@ -59,7 +59,7 @@ public class CHKFileRequestJob extends Job {
 		cmd.add("MaxRetries=0");      // only one try 
 		cmd.add("PriorityClass=2");   // today, please ;) 
 		cmd.add("Global=false");
-		cmd.add("Persistance=" + Persistance.CONNECTION);
+		cmd.add("Persistence=" + Persistence.CONNECTION);
 		cmd.add("ClientToken=" + getClientToken()); 
 		cmd.add("ReturnType=direct");
 		cmd.add("EndMessage");

@@ -83,10 +83,10 @@ public class FCPTests {
 		cmd.add("Identifier=" + identifier); 
 		cmd.add("Verbosity=0");
 		cmd.add("MaxRetries=0");      // only one try, the node accepts the filename or net
-		cmd.add("PriorityClass=3");   // today, please ;) 
+		cmd.add("PriorityClass=0");   // today, please ;) 
 		cmd.add("GetCHKOnly=true");   // calculate the chk from 1k (the default testfile)
 		cmd.add("Global=false");
-		cmd.add("Persistance=" + Persistance.CONNECTION);
+		cmd.add("Persistence=" + Persistence.CONNECTION);
 		cmd.add("DontCompress=true");
 		cmd.add("ClientToken=" + clientoken); 
 		cmd.add("UploadFrom=disk");
@@ -154,7 +154,7 @@ public class FCPTests {
 		cmd.add("GetCHKOnly=false");
 		cmd.add("Global=true");
 		cmd.add("DontCompress=true");
-		cmd.add("Persistence=" + Persistance.REBOOT);
+		cmd.add("Persistence=" + Persistence.REBOOT);
 		cmd.add("ClientToken=" + clientoken);
 		cmd.add("UploadFrom=direct");
 		cmd.add("DataLength=1024");
