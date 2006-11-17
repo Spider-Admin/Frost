@@ -342,7 +342,7 @@ public class FCPNode extends Observable {
 	}
 	
 	public synchronized void goOffline() {
-		if (defaultConnRunner == null) {
+		if (defaultConnRunner != null) {
 			defaultConnRunner.close();
 			defaultConnRunner = null;
 		}
