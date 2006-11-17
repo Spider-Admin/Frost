@@ -79,7 +79,7 @@ public class FCPNode extends Observable {
 	private FCPIOConnectionErrorHandler ioErrorHandler = null;
 	private FCPNodeConfig nodeConfig = new FCPNodeConfig();
 	private FCPNodeStatus nodeStatus = new FCPNodeStatus();
-    private volatile FCPConnectionRunner defaultConn = null;
+    private volatile FCPConnectionRunner defaultConnRunner = null;
     
     private IIncoming callBack = null;
     
@@ -114,11 +114,12 @@ public class FCPNode extends Observable {
 	 * 
 	 * @return FCPConnectionRunner
 	 */
-    
 	public synchronized FCPConnectionRunner getDefaultFCPConnectionRunner() {
-		if (defaultConn == null) {
-			defaultConn = new FCPConnectionRunner(this, nodeConfig.nodeID, callBack);
-			defaultConn.start();
+		if (defaultConnRunner == null) {
+			defaultConnRunner = new FCPConnectionRunner(this, nodeConfig.nodeID, callBack);
+			defaultConnRunner.start();
+			
+			// hack for parse gq on startup.
 			List cmd = new LinkedList();
 			cmd.add("WatchGlobal");
 			cmd.add("Enabled=true");
@@ -126,10 +127,17 @@ public class FCPNode extends Observable {
 			cmd.add("EndMessage");
 			cmd.add("ListPersistentRequests");
 			cmd.add("EndMessage");
-			defaultConn.send(cmd);
+			defaultConnRunner.send(cmd);
 		}
 		//System.out.println("getDefaultFCPConnection" + defaultConn);
-		return defaultConn;
+		return defaultConnRunner;
+	}
+	
+	public synchronized void closeDefaultConnectionrunner() {
+		if (defaultConnRunner == null) {
+			defaultConnRunner.close();
+			defaultConnRunner = null;
+		}
 	}
 	
 	public synchronized FCPConnectionRunner getNewFCPConnectionRunner(String id) {
@@ -325,15 +333,22 @@ public class FCPNode extends Observable {
 		return result;		
 	}
 
-	public void initConfig() {
-		init();
-//		switch (networktype) {
-//		case FCP1: hello5; break;
-//		case FCP2: hello7; break;
-//		dafault: unsopportet netzwerk
-//		}
-		
+	public void goOnline() {
+		if (!init()) { return; }
+		FCPConnection conn = getNewFCPConnection();
+		if(!conn.isValid()) { return; } // helo failed
+		conn.close();
+		setStatus(STATUS_ONLINE);
 	}
+	
+	public synchronized void goOffline() {
+		if (defaultConnRunner == null) {
+			defaultConnRunner.close();
+			defaultConnRunner = null;
+		}
+		setStatus(STATUS_OFFLINE);
+	}
+	
 
 	public boolean isValid() {
 		return (lastError == null);
@@ -378,7 +393,7 @@ public class FCPNode extends Observable {
 		return setPort(Integer.parseInt(port));
 	}	
 	
-	public boolean init() {
+	private boolean init() {
 		return init(false);
 	}
 	
@@ -402,7 +417,7 @@ public class FCPNode extends Observable {
 	 * @param force true - reset state before testing 
 	 * @return true if 
 	 */
-	public boolean init(boolean force) {
+	private boolean init(boolean force) {
 		if ((!force) && (nodeStatus.status > 0)) { return true; }
 		//nodeStatus.status = STATUS_OFFLINE;
 		String server = nodeConfig.hostName;

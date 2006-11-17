@@ -30,6 +30,7 @@ import java.net.SocketException;
 
 /**
  * @author  saces
+ * @version $Id$
  */
 public class FCPIOConnection {
 	private FCPNode node;
@@ -103,7 +104,6 @@ public class FCPIOConnection {
 		fcpOut = null;
 		fcpIn = null;
         fcpSock = null;
-        throw new Error("Hu? close?");
 	}
 	
 	public boolean isOpen() {

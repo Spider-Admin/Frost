@@ -59,20 +59,18 @@ public class TestDispatcher implements DispatcherStateListener, NetworkStateList
 		dispatcher.addNetwork(net1);
 		dispatcher.addNetwork(net2);
 		
+		System.out.println("Starting test...");
 		dispatcher.startDispatcher();
 		
-		System.out.println("gestarted");
-		
 		try {
-			Thread.sleep(20000);
+			Thread.sleep(10000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+			
 		dispatcher.stopDispatcher();
-		System.out.println("gestoppt");
-
+		System.out.println("Test done.");
 	}
 
 	public void stateChanged(DispatcherStateEvent e) {
@@ -125,8 +123,7 @@ public class TestDispatcher implements DispatcherStateListener, NetworkStateList
 			case FCPNode.STATUS_ONLINE : s = "Helo ok."; break;
 			default :  s = "Hmmm!?!?!?";
 		}
-		return s;
-		
+		return s;	
 	}
 
 }
