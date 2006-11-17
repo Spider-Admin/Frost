@@ -72,7 +72,7 @@ public class Dispatcher extends Factory implements IIncoming {
 	//private Factory factory;
 	
 	private TimerThread tickTackTicker = null;
-	private long tick = 0;
+	private long tick = 1; // tricky thing, don't start with 0!
 	private long startTimeStamp = 0;
 	private long checkOnlineDelay = 180L; // check every three minutes for offline nodes and try to restart
 	
@@ -150,8 +150,15 @@ public class Dispatcher extends Factory implements IIncoming {
 		if (tickTackTicker != null) { return; }
 		startTimeStamp = System.currentTimeMillis();
 		setState(STATE_STARTING);
+		// now the first online & properties check
+		goOnline();
+		testPropertiesAllNodes(true);
+		
+		// start timer
 		tickTackTicker = new TimerThread();
-		tickTackTicker.start();		
+		tickTackTicker.start();
+		
+		setState(STATE_RUNNING);
 	}
     
     private class TimerThread extends Thread {
@@ -180,25 +187,16 @@ public class Dispatcher extends Factory implements IIncoming {
 	 * search for offline nodes and try to connect
 	 */
 	private void goOnline() {
-		System.err.println("goonlone start");
+		//System.err.println("goonline start");
 		Network net;
 		
 		for (Enumeration e = networks.elements() ; e.hasMoreElements() ;) {
 			net =  (Network)(e.nextElement());
 			net.goOnline();
-	     }
-	//}
-
+	    }
 		
-		
-		
-//		SwingUtilities.invokeLater(new Runnable() {
-//			public void run() {
-//				factory.goOnline();
-//			}});
-		
-		testPropertiesAllNodes(false);
-		System.err.println("goonlone ende");
+		//testPropertiesAllNodes(false);
+		//System.err.println("goonlone ende");
 	}
 
 //	/**
@@ -221,13 +219,14 @@ public class Dispatcher extends Factory implements IIncoming {
 	 * does nothing if the dispatcher is already down
 	 * 
 	 */
-	public void stopDispatcher() {
+	public synchronized void stopDispatcher() {
 		if (tickTackTicker == null) { return; }
 		setState(STATE_STOPPING);
 		tickTackTicker.cancel();
 		tickTackTicker = null;
 		
 		// TODO hier
+		setState(STATE_STOPPED);
 	}
 	
 	public boolean loadState() {
@@ -321,6 +320,14 @@ public class Dispatcher extends Factory implements IIncoming {
 	 * @return return 0 or error code (from dispatcher)
 	 */
 	public int runJob(Job job) {
+		if (state == STATE_IDLE) {
+			setState(STATE_RUNNING);
+		}
+		
+		if (state != STATE_RUNNING) {
+			return RUNJOB_OFFLINE;
+		}
+		
 		if (job.getStatus() == Job.STATUS_UNPREPARED) {
 			//System.out.println(job.getJobID() + " -> job unprepared. prepare it");
 			job.prepare(); 
@@ -338,7 +345,7 @@ public class Dispatcher extends Factory implements IIncoming {
 		registerJob(job);
 		job.run(this, resume);
 		job.waitFine();
-		System.err.println("Job done:" + job.getJobID() + " -> " + job);
+		//System.err.println("Job done:" + job.getJobID() + " -> " + job);
 		unregisterJob(job);
 		return RUNJOB_NOERROR;
 	}
@@ -443,26 +450,28 @@ public class Dispatcher extends Factory implements IIncoming {
 //		factory.addNetwork(net);
 //	}
 	
-	/**
-	 * @param timeout in milliseconds
-	 * @return true - the dispatcher is online<br>
-	 * 			false - wait timeout
-	 */
-	public boolean waitForOnline(long timeout) {
-		if (state == STATE_RUNNING) {
-			return true;
-		}
-		try {
-			this.readyWaiter.wait(timeout);
-		} catch (InterruptedException e) {
-			if (state == STATE_RUNNING) {
-				return true;
-			}
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return false;
-	}
+//	/**
+//	 * @param timeout in milliseconds
+//	 * @return true - the dispatcher is online<br>
+//	 * 			false - wait timeout
+//	 */
+//	public boolean waitForOnline(long timeout) {
+//		if (state == STATE_RUNNING) {
+//			return true;
+//		}
+//		try {
+//			synchronized (readyWaiter) {
+//				readyWaiter.wait(timeout);
+//			}
+//		} catch (InterruptedException e) {
+//			if (state == STATE_RUNNING) {
+//				return true;
+//			}
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		return false;
+//	}
 	
 	public void addDispatcherStateListener( DispatcherStateListener listener ) {
 		stateListeners.add( DispatcherStateListener.class, listener );
@@ -487,14 +496,14 @@ public class Dispatcher extends Factory implements IIncoming {
 	public void removeNodeStateListener( NodeStateListener listener ) {
 		stateListeners.remove( NodeStateListener.class, listener );
 	}
-
-
 	
-	private synchronized void setState( int newState ) {
+	private void setState( int newState ) {
 		state = newState;
 		
 		if (state == STATE_RUNNING) {
-			this.readyWaiter.notifyAll();
+			synchronized (readyWaiter) {
+				readyWaiter.notifyAll();
+			}
 		}
 		DispatcherStateEvent e = new DispatcherStateEvent(this, newState);
 	     // Guaranteed to return a non-null array

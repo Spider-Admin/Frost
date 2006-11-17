@@ -192,21 +192,22 @@ public class Network extends Observable implements IStorageObject, Observer {
 		return "unknown";
 	}
 
-	public void init() {
-		for (Enumeration e = nodeList.elements() ; e.hasMoreElements() ;) {
-			((FCPNode)(e.nextElement())).init();
-	     }
-	}
+//	public void init() {
+//		for (Enumeration e = nodeList.elements() ; e.hasMoreElements() ;) {
+//			((FCPNode)(e.nextElement())).init();
+//	     }
+//	}
 
 	public void goOnline() {
 		for (Enumeration e = nodeList.elements() ; e.hasMoreElements() ;) {
-			((FCPNode)(e.nextElement())).init();
+			((FCPNode)(e.nextElement())).goOnline();
 	    }
 	}
 
 	public boolean isOnline() {
+		// TODO
 		for (Enumeration e = nodeList.elements() ; e.hasMoreElements() ;) {
-			((FCPNode)(e.nextElement())).init();
+			((FCPNode)(e.nextElement())).isOnline();
 	    }
 
 		//System.err.println("HEHE: is online: nodelistsize: " + nodeList.size());

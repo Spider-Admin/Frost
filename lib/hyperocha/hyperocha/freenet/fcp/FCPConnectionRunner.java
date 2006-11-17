@@ -70,7 +70,7 @@ public class FCPConnectionRunner extends Thread {
 		super.start();
 		while (!isUp) {
 			try {
-				wait(1500);
+				wait(500);
 			} catch (InterruptedException e) {
 			}
 		}
@@ -83,4 +83,9 @@ public class FCPConnectionRunner extends Thread {
 	public boolean haveDDA() {
 		return fcpNode.haveDDA();
 	}
+	
+	public synchronized void close() {
+		conn.close();
+	}
+	
 }
