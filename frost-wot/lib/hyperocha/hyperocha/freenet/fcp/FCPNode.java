@@ -112,8 +112,7 @@ public class FCPNode extends Observable {
     
 	/**
 	 * 
-	 * @return
-	 * @throws IOException 
+	 * @return FCPConnectionRunner
 	 */
     
 	public synchronized FCPConnectionRunner getDefaultFCPConnectionRunner() {

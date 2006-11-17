@@ -132,7 +132,7 @@ public class FreenetKey {
 	 * 			foo();
 	 * 		}
 	 * @param k
-	 * @return 
+	 * @return key
 	 */
 	public static FreenetKey KSKfromString(String k) {
 		String tmpS = freenetKeyStringNiceness(k);
@@ -152,7 +152,7 @@ public class FreenetKey {
 	 * 			foo();
 	 * 		}
 	 * @param k
-	 * @return
+	 * @return key
 	 */
 	public static FreenetKey CHKfromString(String k) {
 		String tmpS = freenetKeyStringNiceness(k);
@@ -238,7 +238,7 @@ public class FreenetKey {
 	}
 
 	/**
-	 * @param String
+	 * @param aKey
 	 * @return true if param entspricht irgendein valid freenet key schema
 	 */
 	public static boolean isValidKey(String aKey) {

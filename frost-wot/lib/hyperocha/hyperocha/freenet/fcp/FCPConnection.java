@@ -71,7 +71,6 @@ public class FCPConnection {
 	 * fcp1: sending the 4 bytes, helo?
 	 * fcp2: helo.
 	 * @param node
-	 * @param errh
 	 */
 	public FCPConnection(FCPNode node, IIncoming callback) {
 		this(node, callback, CONNECTIONIDPREFIX, true, 3);
@@ -84,7 +83,6 @@ public class FCPConnection {
 	 * fcp1: sending the 4 bytes, helo?
 	 * fcp2: helo.
 	 * @param node
-	 * @param errh
 	 */
 	public FCPConnection(FCPNode node, IIncoming callback, String id) {
 		this(node, callback, id, false, 1);
@@ -145,8 +143,7 @@ public class FCPConnection {
 	
 	/**
 	 * returns the ConnectionID, bestaetigt from node or null, if the connection is closed (not opened or closed due an io error or call to close() )
-	 * @return
-	 * @uml.property  name="connectionID"
+	 * @return coonection id
 	 */
 	public String getConnectionID() {
 		return connectionID;
