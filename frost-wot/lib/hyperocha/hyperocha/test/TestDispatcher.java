@@ -63,13 +63,20 @@ public class TestDispatcher implements DispatcherStateListener, NetworkStateList
 		dispatcher.startDispatcher();
 		
 		try {
-			Thread.sleep(10000);
+			Thread.sleep(7000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 			
 		dispatcher.stopDispatcher();
+		
+//		try {
+//			Thread.sleep(4000);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 		System.out.println("Test done.");
 	}
 
