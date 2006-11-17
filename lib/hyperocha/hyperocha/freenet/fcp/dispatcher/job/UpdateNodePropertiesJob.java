@@ -4,11 +4,9 @@
 package hyperocha.freenet.fcp.dispatcher.job;
 
 import java.io.File;
-import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 
-import hyperocha.freenet.fcp.FCPConnection;
 import hyperocha.freenet.fcp.FCPConnectionRunner;
 import hyperocha.freenet.fcp.FCPNode;
 import hyperocha.freenet.fcp.Network;
@@ -34,8 +32,7 @@ public class UpdateNodePropertiesJob extends Job {
 	private FCPNode node;
 
 	/**
-	 * @param requirednetworktype
-	 * @param id
+	 * @param aNode
 	 */
 	public UpdateNodePropertiesJob(FCPNode aNode) {
 		super(Network.FCP2, aNode.getID());

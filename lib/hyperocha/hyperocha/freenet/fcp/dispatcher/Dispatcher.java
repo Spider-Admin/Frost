@@ -429,7 +429,7 @@ public class Dispatcher extends Factory implements IIncoming {
 	/**
 	 * remove the job or the transfer (id without corrospending job) 
 	 * @param id jobid or Indentifer
-	 * @return 
+	 * @return false of not removed
 	 */
 	public boolean removeID(String id) {
 		return false;

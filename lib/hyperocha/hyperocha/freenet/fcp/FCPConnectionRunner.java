@@ -63,7 +63,8 @@ public class FCPConnectionRunner extends Thread {
 	
 	
 	/** 
-	 * @see java.lang.Thread#start(), but dosn't return until the connection is up and ready to use (send)
+	 * @see java.lang.Thread#start()
+	 * but dosn't return until the connection is up and ready to use (send)
 	 */
 	public synchronized void start() {
 		super.start();

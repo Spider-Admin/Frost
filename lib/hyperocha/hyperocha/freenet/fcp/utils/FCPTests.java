@@ -62,7 +62,7 @@ public class FCPTests {
 	
 	/**
 	 * generate a chk from a 1K temfile for testing dda
-	 * @param FCPNode the node to test
+	 * @param node the node to test
 	 * @return true if the test is OK. (DDA aviable)
 	 */
 	public static boolean TestNodeDDA(FCPNode node) {
@@ -128,7 +128,7 @@ public class FCPTests {
 	 * testing the presence of GQ. 
 	 * atm (#950) the node have a bug (global=true and persistance=connection dont work :()
 	 * @param node
-	 * @return
+	 * @return boolean
 	 */
 	public static boolean TestNodeGQ(FCPNode node) {
 		return TestNodeGQ(node, FCPUtil.getNewConnectionId("GQ-Test-", "- u can delete me safely") , CLIENTTOKEN); 
