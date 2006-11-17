@@ -20,6 +20,7 @@
  */
 package hyperocha.test;
 
+import hyperocha.freenet.fcp.FCPNode;
 import hyperocha.freenet.fcp.Network;
 import hyperocha.freenet.fcp.dispatcher.Dispatcher;
 import hyperocha.freenet.fcp.dispatcher.DispatcherStateEvent;
@@ -75,18 +76,57 @@ public class TestDispatcher implements DispatcherStateListener, NetworkStateList
 	}
 
 	public void stateChanged(DispatcherStateEvent e) {
-		// TODO Auto-generated method stub
-		System.out.println("Disp State changed: " + e.getNewState() + " -> " + e);
+		// System.out.println("Disp State changed: " + e.getNewState() + " -> " + e);
+		System.out.println("Disp State changed: " + getDispatcherStateName(e.getNewState()));
 	}
-
+	
 	public void stateChanged(NetworkStateEvent e) {
-		// TODO Auto-generated method stub
-		System.out.println("Net State changed: " + e.getNetworkID() + "; " + e.getNewState() + " -> " + e);
+		// System.out.println("Net State changed: " + e.getNetworkID() + "; " + e.getNewState() + " -> " + e);
+		System.out.println("Network '" + e.getNetworkID() + "' is now " + getNetworkStateName(e.getNewState()));
 	}
 
 	public void stateChanged(NodeStateEvent e) {
-		// TODO Auto-generated method stub
-		System.out.println("Node State changed: " + e.getNodeID() + "; " + e.getNewState() + " -> " + e);
+		//System.out.println("Node State changed: " + e.getNodeID() + "; " + e.getNewState() + " -> " + e);
+		System.out.println("Node '" + e.getNodeID() + "' is now " + getNodeStateName(e.getNewState()));
+	}
+
+	private String getDispatcherStateName(int state) {
+		String s;
+		switch (state) {
+			case Dispatcher.STATE_ERROR : s = "buaah! buaa!"; break;
+			case Dispatcher.STATE_UNKNOWN : s = "unknown"; break;
+			case Dispatcher.STATE_STARTING : s = "starting"; break;
+			case Dispatcher.STATE_RUNNING : s = "running"; break;
+			case Dispatcher.STATE_STOPPING : s = "shuting down"; break;
+			case Dispatcher.STATE_STOPPED : s = "stopped"; break;
+			case Dispatcher.STATE_IDLE : s = "zzZZzz"; break;
+			default :  s = "Hmmm!?!?!?";
+		}
+		return s;
+	}
+
+	private String getNetworkStateName(int state) {
+		String s;
+		switch (state) {
+			case Network.STATUS_ERROR : s = "buaah! buaa!"; break;
+			case Network.STATUS_OFFLINE : s = "offline."; break;
+			case Network.STATUS_ONLINE : s = "online."; break;
+			default :  s = "Hmmm!?!?!?";
+		}
+		return s;
+	}
+	
+	private String getNodeStateName(int state) {
+		String s;
+		switch (state) {
+			case FCPNode.STATUS_ERROR : s = "buaah! buaa!"; break;
+			case FCPNode.STATUS_OFFLINE : s = "offline."; break;
+			case FCPNode.STATUS_REACHABLE : s = "reachable. (helo not testet)"; break;
+			case FCPNode.STATUS_ONLINE : s = "Helo ok."; break;
+			default :  s = "Hmmm!?!?!?";
+		}
+		return s;
+		
 	}
 
 }
