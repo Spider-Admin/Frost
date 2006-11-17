@@ -203,6 +203,12 @@ public class Network extends Observable implements IStorageObject, Observer {
 			((FCPNode)(e.nextElement())).goOnline();
 	    }
 	}
+	
+	public void goOffline() {
+		for (Enumeration e = nodeList.elements() ; e.hasMoreElements() ;) {
+			((FCPNode)(e.nextElement())).goOffline();
+	    }
+	}
 
 	public boolean isOnline() {
 		// TODO
@@ -305,8 +311,6 @@ public class Network extends Observable implements IStorageObject, Observer {
 			return;
 		}
 		setStatus(STATUS_ONLINE);
-		//System.err.println("||Observer notify!" + o);
-		//System.err.println("||Observer notify!" + arg);
 	}
 	
 	private void setStatus(int newStatus) {

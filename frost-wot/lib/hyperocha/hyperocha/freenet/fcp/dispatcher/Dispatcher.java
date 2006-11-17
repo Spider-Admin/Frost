@@ -183,20 +183,20 @@ public class Dispatcher extends Factory implements IIncoming {
         }
     }
 
-	/**
-	 * search for offline nodes and try to connect
-	 */
 	private void goOnline() {
-		//System.err.println("goonline start");
 		Network net;
-		
 		for (Enumeration e = networks.elements() ; e.hasMoreElements() ;) {
 			net =  (Network)(e.nextElement());
 			net.goOnline();
 	    }
-		
-		//testPropertiesAllNodes(false);
-		//System.err.println("goonlone ende");
+	}
+	
+	private void goOffline() {
+		Network net;
+		for (Enumeration e = networks.elements() ; e.hasMoreElements() ;) {
+			net =  (Network)(e.nextElement());
+			net.goOffline();
+	    }
 	}
 
 //	/**
@@ -224,6 +224,8 @@ public class Dispatcher extends Factory implements IIncoming {
 		setState(STATE_STOPPING);
 		tickTackTicker.cancel();
 		tickTackTicker = null;
+		
+		goOffline();
 		
 		// TODO hier
 		setState(STATE_STOPPED);
