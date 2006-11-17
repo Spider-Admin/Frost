@@ -81,7 +81,7 @@ public abstract class Job implements IIncoming {
 		lastError = e;
 		status = STATUS_ERROR;
 		synchronized(waitObject) {
-			waitObject.notify();
+			waitObject.notifyAll();
 		}
 	}
 	
@@ -94,7 +94,7 @@ public abstract class Job implements IIncoming {
 //		status = STATUS_DONE;
 		synchronized(waitObject) {
 			status = STATUS_DONE;
-			waitObject.notify();
+			waitObject.notifyAll();
 		}
 	}
 	
