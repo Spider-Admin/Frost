@@ -93,21 +93,24 @@ public class DownloadThread extends Thread {
 
             if (result == null || result.isSuccess() == false) {
                 // download failed
-                if( result != null && result.getReturnCode() == 11 ) {
-                    // maybe we have to remove the filename from the CHK key
-                    if( key.startsWith("CHK@") && key.indexOf("/") > 0 ) {
-                        // remove filename, store new key in db
-                        String plainKey = key.substring(0, key.indexOf("/"));
-                        downloadItem.setKey(plainKey);
-                        System.out.println("*!*!* Removed filename from key: "+key+" ; "+plainKey);
-                    }
+                if( result != null
+                        && result.getReturnCode() == 11 
+                        && key.startsWith("CHK@")
+                        && key.indexOf("/") > 0 ) 
+                {
+                    // remove filename from CHK, store new key in db
+                    String plainKey = key.substring(0, key.indexOf("/"));
+                    downloadItem.setKey(plainKey);
+                    downloadItem.setLastDownloadStopTime(0);
+                    
+                    System.out.println("*!*!* Removed filename from key: "+key+" ; "+plainKey);
+                    
                 } else if( result != null && result.isFatal() ) {
                     // fatal, don't retry
                     downloadItem.setEnableDownload(Boolean.valueOf(false));
                     downloadItem.setState(FrostDownloadItem.STATE_FAILED);
-                    logger.warning("FILEDN: Download of " + filename + " failed fatally.");
+                    logger.warning("FILEDN: Download of " + filename + " failed FATALLY.");
                 } else {
-                
                     downloadItem.setRetries(downloadItem.getRetries() + 1);
     
                     logger.warning("FILEDN: Download of " + filename + " failed.");

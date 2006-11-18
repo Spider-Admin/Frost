@@ -25,4 +25,8 @@ public class NodeAddress {
     public int port = -1;
     public String hostName = null; // avoid name lookup recursion in security manager
     public String hostIp = null; // avoid name lookup recursion in security manager
+    
+    // for 0.7: during first connect test if DDA is possible
+    public boolean isDirectDiskAccessTested = false;
+    public boolean isDirectDiskAccessPossible = false;
 }
