@@ -172,6 +172,18 @@ public class FcpFactory {
 //            delegateRemove(selectedNode);
             throw e;
         }
+        
+        // FIXME: if node is connected the first time, test if dda is available!
+        if( !selectedNode.isDirectDiskAccessTested ) {
+            selectedNode.isDirectDiskAccessTested = true;
+            selectedNode.isDirectDiskAccessPossible = con.testNodeDDA();
+            // get a new connection
+            try {
+                con = new FcpConnection(selectedNode);
+            } catch (IOException e) {
+                throw e;
+            }
+        }
         return con;
     }
 }
