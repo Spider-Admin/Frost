@@ -52,6 +52,9 @@ public class DownloadThread extends Thread {
 
     public void run() {
         ticker.threadStarted();
+        
+        boolean retryImmediately = false;
+
         try {
             File newFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + filename);
 
@@ -98,10 +101,11 @@ public class DownloadThread extends Thread {
                         && key.startsWith("CHK@")
                         && key.indexOf("/") > 0 ) 
                 {
-                    // remove filename from CHK, store new key in db
+                    // remove filename from CHK
                     String plainKey = key.substring(0, key.indexOf("/"));
                     downloadItem.setKey(plainKey);
-                    downloadItem.setLastDownloadStopTime(0);
+                    downloadItem.setState(FrostDownloadItem.STATE_WAITING);
+                    retryImmediately = true;
                     
                     System.out.println("*!*!* Removed filename from key: "+key+" ; "+plainKey);
                     
@@ -152,7 +156,11 @@ public class DownloadThread extends Thread {
             logger.log(Level.SEVERE, "Oo. EXCEPTION in requestThread.run", t);
         }
 
-        downloadItem.setLastDownloadStopTime(System.currentTimeMillis());
+        if( retryImmediately ) {
+            downloadItem.setLastDownloadStopTime(0);
+        } else {
+            downloadItem.setLastDownloadStopTime(System.currentTimeMillis());
+        }
         ticker.threadFinished();
     }
 }
