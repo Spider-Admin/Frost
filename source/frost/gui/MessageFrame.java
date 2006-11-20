@@ -1092,7 +1092,6 @@ public class MessageFrame extends JFrame {
                     if( e.getStateChange() == ItemEvent.DESELECTED ) {
                         return;
                     }
-                    System.out.println("state changed");
                     LocalIdentity selectedId = null;
                     if( ownIdentitiesComboBox.getSelectedIndex() == 0 ) {
                         ownIdentitiesComboBox.setEditable(true); // original anonymous

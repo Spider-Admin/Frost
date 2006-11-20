@@ -196,7 +196,7 @@ public class FcpConnection {
         String codeDescription = null;
         boolean isFatal = false;
         while(true) {
-            NodeMessage nodeMsg = readMessage(fcpIn);
+            NodeMessage nodeMsg = NodeMessage.readMessage(fcpIn);
             if( nodeMsg == null ) {
                 break;
             }
@@ -387,7 +387,7 @@ public class FcpConnection {
         boolean isFatal = false;
         String chkKey = null;
         while(true) {
-            NodeMessage nodeMsg = readMessage(fcpIn);
+            NodeMessage nodeMsg = NodeMessage.readMessage(fcpIn);
             if( nodeMsg == null ) {
                 break;
             }
@@ -486,14 +486,14 @@ public class FcpConnection {
         // receive and process node messages
         boolean isSuccess = false;
         while(true) {
-            NodeMessage nodeMsg = readMessage(fcpIn);
+            NodeMessage nodeMsg = NodeMessage.readMessage(fcpIn);
             if( nodeMsg == null ) {
                 break;
             }
             
 //            System.out.println("*HANDSHAKE** INFO - NodeMessage:");
 //            System.out.println(nodeMsg.toString());
-            
+
             if( nodeMsg.isMessageName("NodeHello") ) {
                 isSuccess = true;
                 break;
@@ -533,7 +533,7 @@ public class FcpConnection {
         // receive and process node messages
         String[] result = null;
         while(true) {
-            NodeMessage nodeMsg = readMessage(fcpIn);
+            NodeMessage nodeMsg = NodeMessage.readMessage(fcpIn);
             if( nodeMsg == null ) {
                 break;
             }
@@ -551,9 +551,16 @@ public class FcpConnection {
                 if( pos > -1 ) {
                     insertURI = insertURI.substring(pos).trim();
                 }
+                if( insertURI.endsWith("/") ) {
+                    insertURI = insertURI.substring(0, insertURI.length()-1);
+                }
+
                 pos = requestURI.indexOf("SSK@"); 
                 if( pos > -1 ) {
                     requestURI = requestURI.substring(pos).trim();
+                }
+                if( requestURI.endsWith("/") ) {
+                    requestURI = requestURI.substring(0, requestURI.length()-1);
                 }
 
                 result = new String[2];
@@ -597,7 +604,7 @@ public class FcpConnection {
         fcpOut.println("Verbosity=0");
         fcpOut.println("MaxRetries=0");      // only one try, the node accepts the filename or net
         fcpOut.println("PriorityClass=1");   // today, please ;) 
-        fcpOut.println("GetCHKOnly=true");   // calculate the chk from 1k (the default testfile)
+        fcpOut.println("GetCHKOnly=true");   // calculate the chk of 1k (the default testfile)
         fcpOut.println("Global=false");
         fcpOut.println("Persistence=connection");
         fcpOut.println("DontCompress=true");
@@ -609,7 +616,7 @@ public class FcpConnection {
 
         boolean isSuccess = false;
         while(true) {
-            NodeMessage nodeMsg = readMessage(fcpIn);
+            NodeMessage nodeMsg = NodeMessage.readMessage(fcpIn);
             if( nodeMsg == null ) {
                 break;
             }
@@ -671,123 +678,5 @@ public class FcpConnection {
             return null;
         }
         return file;
-    }
-    
-    private NodeMessage readMessage(BufferedInputStream fcpInp) {
-
-        NodeMessage result = null;
-        String tmp;
-        boolean isfirstline = true;
-        
-        while(true) {
-            tmp = readLine(fcpInp);
-            if (tmp == null) { break; }  // this indicates an error, io connection closed
-            if ((tmp.trim()).length() == 0) { continue; } // an empty line
-
-            if (isfirstline) {
-                result = new NodeMessage(tmp);
-                isfirstline = false;
-                continue;
-            }
-
-            if (tmp.compareTo("Data") == 0) {
-                result.setEnd(tmp);
-                break; 
-            }
-
-            if (tmp.compareTo("EndMessage") == 0) {
-                result.setEnd(tmp);
-                break; 
-            }
-            
-            if (tmp.indexOf("=") > -1) {
-                String[] tmp2 = tmp.split("=", 2);
-                result.addItem(tmp2[0], tmp2[1]);
-            } else {
-                System.err.println("This shouldn't happen. FIXME. mpf!: " + tmp + " -> " + tmp.length());
-                result.addItem("Unknown", tmp);
-            }
-        } 
-        return result;  
-    }
-    
-    private String readLine(BufferedInputStream fcpInp) {
-        int c;
-        StringBuffer sb = new StringBuffer();
-        try {
-            while ((c = fcpInp.read()) != '\n' && c != -1 && c != '\0' ) {
-                sb.append((char)c);
-            }
-            String str = sb.toString();
-            if (str.length() == 0) {
-                str = null;
-            }
-            return str;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-    
-    private class NodeMessage {
-        
-        private String messageName;
-        private Hashtable items;
-        private String messageEndMarker;
-
-        /**
-         * Creates a new Message
-         */
-        public NodeMessage(String name) {
-            messageName = name;
-            items = new Hashtable();
-        }
-
-        /** 
-         * returns the message as string for debug/log output
-         */
-        public String toString() {
-            return messageName + " " + items + " " + messageEndMarker;
-        }
-        
-        protected void setItem(String name, String value) {
-            items.put(name, value);
-        }
-        
-        protected void setEnd(String em) {
-            messageEndMarker = em;
-        }
-        
-        protected String getMessageName() {
-            return messageName;
-        }
-
-        public String getMessageEnd() {
-            return messageEndMarker;
-        }
-
-        public boolean isMessageName(String aName) {
-            if (aName == null) {
-                return false;
-            }
-            return aName.equalsIgnoreCase(messageName);
-        }
-        
-        public String getStringValue(String name) {
-            return (String)items.get(name);
-        }
-        public long getLongValue(String name) {
-            return Long.parseLong((String)(items.get(name)));
-        }
-        public int getIntValue(String name) {
-            return Integer.parseInt((String)(items.get(name)));
-        }
-        public boolean getBoolValue(String name) {
-            return "true".equalsIgnoreCase((String)items.get(name));
-        }
-        
-        public void addItem(String key, String value) {
-            items.put(key, value); 
-        }
     }
 }
