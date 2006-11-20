@@ -404,7 +404,6 @@ public class FCPConnection {
 	}
 	
 	public void close() {
-		connectionID = null;
 		rawConn.close();
 	}
 	
