@@ -157,6 +157,28 @@ public class FreenetKey {
 	public String getSuffixPart() {
 		return extra;
 	}
+
+	/**
+	 * return the filename part of the key
+	 * @return filename or null if empty
+	 */
+	public String getFileName() {
+		return fileName;
+	}
+	
+	/**
+	 * return true if the filename part of the key is empty
+	 * @return false, if not
+	 */
+	public boolean isFileNameEmpty() {
+		if (fileName == null) { 
+			return true; 
+		}
+		if ((fileName.trim()).length() == 0) {
+			return true;
+		}
+		return false;
+	}
 	
 	/**
 	 * @deprecated use getKeyFromString(string) instead
