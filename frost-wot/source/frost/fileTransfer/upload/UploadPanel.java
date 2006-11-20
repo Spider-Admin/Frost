@@ -30,6 +30,7 @@ import java.util.logging.*;
 import javax.swing.*;
 
 import frost.*;
+import frost.fcp.*;
 import frost.fileTransfer.*;
 import frost.fileTransfer.sharing.*;
 import frost.util.*;
@@ -54,6 +55,9 @@ public class UploadPanel extends JPanel {
     private JButton uploadAddFilesButton = new JButton(new ImageIcon(getClass().getResource("/data/browse.gif")));
 
     private SortedModelTable modelTable;
+    
+    private JLabel uploadItemCountLabel = new JLabel();
+    private int uploadItemCount = 0;
 
     private boolean initialized = false;
 
@@ -75,9 +79,13 @@ public class UploadPanel extends JPanel {
             // create the top panel
             MiscToolkit toolkit = MiscToolkit.getInstance();
             toolkit.configureButton(uploadAddFilesButton, "/data/browse_rollover.gif");
-            uploadTopPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 8, 0));
+            BoxLayout dummyLayout = new BoxLayout(uploadTopPanel, BoxLayout.X_AXIS);
+            uploadTopPanel.setLayout(dummyLayout);
             uploadTopPanel.add(uploadAddFilesButton);
-
+            uploadTopPanel.add(Box.createRigidArea(new Dimension(80, 0)));
+            uploadTopPanel.add(Box.createHorizontalGlue());
+            uploadTopPanel.add(uploadItemCountLabel);
+            
             // create the main upload panel
             UploadTableFormat tableFormat = new UploadTableFormat();
 
@@ -100,8 +108,20 @@ public class UploadPanel extends JPanel {
         }
     }
 
+    private Dimension calculateLabelSize(String text) {
+        JLabel dummyLabel = new JLabel(text);
+        dummyLabel.doLayout();
+        return dummyLabel.getPreferredSize();
+    }
+
     private void refreshLanguage() {
         uploadAddFilesButton.setToolTipText(language.getString("UploadPane.toolbar.tooltip.browse") + "...");
+        
+        String waiting = language.getString("UploadPane.toolbar.waiting");
+        Dimension labelSize = calculateLabelSize(waiting + ": 00000");
+        uploadItemCountLabel.setPreferredSize(labelSize);
+        uploadItemCountLabel.setMinimumSize(labelSize);
+        uploadItemCountLabel.setText(waiting + ": " + uploadItemCount);
     }
 
     private PopupMenuUpload getPopupMenuUpload() {
@@ -208,6 +228,18 @@ public class UploadPanel extends JPanel {
         this.model = model;
     }
     
+    public void setUploadItemCount(int newUploadItemCount) {
+        uploadItemCount = newUploadItemCount;
+
+        String s =
+            new StringBuffer()
+                .append(language.getString("UploadPane.toolbar.waiting"))
+                .append(": ")
+                .append(uploadItemCount)
+                .toString();
+        uploadItemCountLabel.setText(s);
+    }
+    
     private class PopupMenuUpload extends JSkinnablePopupMenu implements ActionListener, LanguageListener, ClipboardOwner {
 
         private JMenuItem copyKeysAndNamesItem = new JMenuItem();
@@ -237,7 +269,9 @@ public class UploadPanel extends JPanel {
             refreshLanguage();
 
             copyToClipboardMenu.add(copyKeysAndNamesItem);
-            copyToClipboardMenu.add(copyKeysItem);
+            if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05) {
+                copyToClipboardMenu.add(copyKeysItem);
+            }
             copyToClipboardMenu.add(copyExtendedInfoItem);
 
             copyKeysAndNamesItem.addActionListener(this);
@@ -337,8 +371,10 @@ public class UploadPanel extends JPanel {
                         key = keyNotAvailableMessage;
                     }
                     textToCopy.append(key);
-                    textToCopy.append("/");
-                    textToCopy.append(item.getFile().getName());
+                    if( key.indexOf('/') < 0 ) {
+                        textToCopy.append("/");
+                        textToCopy.append(item.getFile().getName());
+                    }
                     textToCopy.append("\n");
                 }
                 StringSelection selection = new StringSelection(textToCopy.toString());

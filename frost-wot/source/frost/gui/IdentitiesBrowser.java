@@ -33,6 +33,7 @@ import javax.swing.table.*;
 import org.joda.time.*;
 
 import frost.*;
+import frost.fileTransfer.common.*;
 import frost.gui.model.*;
 import frost.identities.*;
 import frost.storage.*;
@@ -67,7 +68,6 @@ public class IdentitiesBrowser extends JDialog {
     private List allTableMembers;
     
     private boolean showColoredLines;
-    private Color secondBackgroundColor = new java.awt.Color(238,238,238);
 
     /**
      * This is the default constructor
@@ -591,7 +591,7 @@ public class IdentitiesBrowser extends JDialog {
             if( tableColumnIndex == 0 || tableColumnIndex == 1 ) {
                 String s1 = (String)getValueAt(tableColumnIndex);
                 String s2 = (String)anOther.getValueAt(tableColumnIndex);
-                return s1.compareTo(s2);
+                return s1.compareToIgnoreCase(s2);
             }
             if( tableColumnIndex == 2 ) {
                 long l1 = getIdentity().getLastSeenTimestamp();
@@ -788,7 +788,6 @@ public class IdentitiesBrowser extends JDialog {
                     allTableMembers.add(memb);
                     count++;
                     progressMonitor.setProgress(count);
-//                    progressMonitor.setNote(count+" / "+idCount);
                     if( progressMonitor.isCanceled() ) {
                         break;
                     }
@@ -1146,16 +1145,8 @@ public class IdentitiesBrowser extends JDialog {
         {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             if (!isSelected) {
-                if( showColoredLines ) {
-                    // IBM lineprinter paper
-                    if ((row & 0x0001) == 0) {
-                        setBackground(Color.WHITE);
-                    } else {
-                        setBackground(secondBackgroundColor);
-                    }
-                } else {
-                    setBackground(table.getBackground());
-                }
+                Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
+                setBackground(newBackground);
             } else {
                 setBackground(table.getSelectionBackground());
             }

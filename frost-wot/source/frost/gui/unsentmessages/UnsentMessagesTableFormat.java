@@ -26,6 +26,7 @@ import javax.swing.*;
 import javax.swing.table.*;
 
 import frost.*;
+import frost.fileTransfer.common.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
 import frost.util.model.gui.*;
@@ -42,7 +43,6 @@ public class UnsentMessagesTableFormat extends SortedTableFormat implements Lang
     private String stateUploadingString;
 
     private boolean showColoredLines;
-    private Color secondBackgroundColor = new java.awt.Color(238,238,238);
 
     public UnsentMessagesTableFormat() {
         super(COLUMN_COUNT);
@@ -315,17 +315,10 @@ public class UnsentMessagesTableFormat extends SortedTableFormat implements Lang
             int column) 
         {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            
             if (!isSelected) {
-                if( showColoredLines ) {
-                    // IBM lineprinter paper
-                    if ((row & 0x0001) == 0) {
-                        setBackground(Color.WHITE);
-                    } else {
-                        setBackground(secondBackgroundColor);
-                    }
-                } else {
-                    setBackground(table.getBackground());
-                }
+                Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
+                setBackground(newBackground);
             } else {
                 setBackground(table.getSelectionBackground());
             }

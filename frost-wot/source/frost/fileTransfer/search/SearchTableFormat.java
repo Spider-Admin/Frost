@@ -26,6 +26,7 @@ import javax.swing.*;
 import javax.swing.table.*;
 
 import frost.*;
+import frost.fileTransfer.common.*;
 import frost.gui.*;
 import frost.util.*;
 import frost.util.gui.translation.*;
@@ -50,7 +51,6 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
     private SortedModelTable modelTable;
 
     private boolean showColoredLines;
-    private Color secondBackgroundColor = new java.awt.Color(238,238,238);
 
     public SearchTableFormat() {
         super(COLUMN_COUNT);
@@ -408,17 +408,10 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
             int column) 
         {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
             if (!isSelected) {
-                if( showColoredLines ) {
-                    // IBM lineprinter paper
-                    if ((row & 0x0001) == 0) {
-                        setBackground(Color.WHITE);
-                    } else {
-                        setBackground(secondBackgroundColor);
-                    }
-                } else {
-                    setBackground(table.getBackground());
-                }
+                Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
+                setBackground(newBackground);
             } else {
                 setBackground(table.getSelectionBackground());
             }

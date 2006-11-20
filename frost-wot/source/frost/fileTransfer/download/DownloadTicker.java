@@ -29,7 +29,7 @@ public class DownloadTicker extends Thread {
 	private DownloadPanel panel;
 	private DownloadModel model;
 
-	private int counter;
+	private long counter;
 	
 	/**
 	 * The number of allocated threads is used to limit the total of threads
@@ -60,10 +60,7 @@ public class DownloadTicker extends Thread {
 		}
 	};
 
-	public DownloadTicker(
-		DownloadModel newModel,
-		DownloadPanel newPanel) {
-
+	public DownloadTicker(DownloadModel newModel, DownloadPanel newPanel) {
 		super("Download");
 		model = newModel;
 		panel = newPanel;
@@ -187,7 +184,9 @@ public class DownloadTicker extends Thread {
 		int waitingItems = 0;
 		for (int x = 0; x < model.getItemCount(); x++) {
 			FrostDownloadItem dlItem = (FrostDownloadItem) model.getItemAt(x);
-			if (dlItem.getState() != FrostDownloadItem.STATE_DONE) {
+			if (dlItem.getState() != FrostDownloadItem.STATE_DONE 
+                    && dlItem.getState() != FrostDownloadItem.STATE_FAILED) 
+            {
 				waitingItems++;
 			}
 		}

@@ -26,6 +26,7 @@ import javax.swing.*;
 import javax.swing.table.*;
 
 import frost.*;
+import frost.fileTransfer.common.*;
 import frost.gui.unsentmessages.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
@@ -40,7 +41,6 @@ public class SentMessagesTableFormat extends SortedTableFormat implements Langua
     private SortedModelTable modelTable;
     
     private boolean showColoredLines;
-    private Color secondBackgroundColor = new java.awt.Color(238,238,238);
 
     public SentMessagesTableFormat() {
         super(COLUMN_COUNT);
@@ -289,17 +289,10 @@ public class SentMessagesTableFormat extends SortedTableFormat implements Langua
             int column) 
         {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            
             if (!isSelected) {
-                if( showColoredLines ) {
-                    // IBM lineprinter paper
-                    if ((row & 0x0001) == 0) {
-                        setBackground(Color.WHITE);
-                    } else {
-                        setBackground(secondBackgroundColor);
-                    }
-                } else {
-                    setBackground(table.getBackground());
-                }
+                Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
+                setBackground(newBackground);
             } else {
                 setBackground(table.getSelectionBackground());
             }

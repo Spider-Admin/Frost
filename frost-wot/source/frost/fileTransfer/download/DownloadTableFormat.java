@@ -26,6 +26,7 @@ import javax.swing.table.*;
 
 import frost.*;
 import frost.fileTransfer.*;
+import frost.fileTransfer.common.*;
 import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
@@ -40,8 +41,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
     private SortedModelTable modelTable = null;
 
     private boolean showColoredLines;
-    private Color secondBackgroundColor = new java.awt.Color(238,238,238);
-
+    
     private class BaseRenderer extends DefaultTableCellRenderer {
         public BaseRenderer() {
             super();
@@ -57,32 +57,69 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             
             if( !isSelected ) {
-
-                Color newBackground;
-                if( showColoredLines ) {
-                    // IBM lineprinter paper
-                    if ((row & 0x0001) == 0) {
-                        newBackground = Color.WHITE;
-                    } else {
-                        newBackground = secondBackgroundColor;
-                    }
-                } else {
-                    newBackground = table.getBackground();
-                }
                 
-                ModelItem item = modelTable.getItemAt(row); //It may be null
+                Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
+                
+                ModelItem item = modelTable.getItemAt(row);
                 if (item != null) {
                     FrostDownloadItem downloadItem = (FrostDownloadItem) item;
-                    if( downloadItem.getState() == FrostDownloadItem.STATE_DONE) {
-                        newBackground = Color.green;
-                    } else if( downloadItem.getState() == FrostDownloadItem.STATE_FAILED) {
-                        newBackground = Color.red;
+                    int itemState = downloadItem.getState();
+                    if( itemState == FrostDownloadItem.STATE_DONE) {
+                        newBackground = TableBackgroundColors.getBackgroundColorDone(table, row, showColoredLines);
+                    } else if( itemState == FrostDownloadItem.STATE_FAILED) {
+                        newBackground = TableBackgroundColors.getBackgroundColorFailed(table, row, showColoredLines);
                     }
                 }
                 setBackground(newBackground);
                 setForeground(Color.black);
             }
-            
+            return this;
+        }
+    }
+    
+    private class BlocksProgressRenderer extends JProgressBar implements TableCellRenderer {
+        public BlocksProgressRenderer() {
+            super();
+            setMinimum(0);
+            setMaximum(100);
+            setStringPainted(true);
+            setBorderPainted(false);
+        }
+        public Component getTableCellRendererComponent(
+            JTable table,
+            Object value,
+            boolean isSelected,
+            boolean hasFocus,
+            int row,
+            int column) {
+
+            Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
+            setBackground(newBackground);
+
+            ModelItem item = modelTable.getItemAt(row); //It may be null
+            if (item != null) {
+                FrostDownloadItem downloadItem = (FrostDownloadItem) item;
+                
+                int totalBlocks = downloadItem.getTotalBlocks();
+                int doneBlocks = downloadItem.getDoneBlocks();
+                int requiredBlocks = downloadItem.getRequiredBlocks();
+                
+                if( totalBlocks > 0 ) {
+                    // format: ~0% 0/60 [60]
+                    
+                    int percentDone = 0;
+
+                    if (requiredBlocks > 0) {
+                        percentDone = (int) ((doneBlocks * 100) / requiredBlocks);
+                    }
+                    if( percentDone > 100 ) {
+                        percentDone = 100;
+                    }
+                    setValue(percentDone);
+                }
+            }
+            setString(value.toString());
+
             return this;
         }
     }
@@ -252,16 +289,8 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 		public int compare(Object o1, Object o2) {
 			FrostDownloadItem item1 = (FrostDownloadItem) o1;
 			FrostDownloadItem item2 = (FrostDownloadItem) o2;
-			String state1 =	getStateAsString(
-								item1.getState(),
-								item1.getTotalBlocks(),
-								item1.getDoneBlocks(),
-								item1.getRequiredBlocks());
-			String state2 =	getStateAsString(
-								item2.getState(),
-								item2.getTotalBlocks(),
-								item2.getDoneBlocks(),
-								item2.getRequiredBlocks());
+			String state1 =	getStateAsString(item1.getState());
+			String state2 =	getStateAsString(item2.getState());
 			return state1.compareToIgnoreCase(state2);
 		}
 	}
@@ -357,6 +386,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
     private String stateFailed;
     private String stateDone;
     private String stateDecoding;
+    private String stateDownloading;
 	
     private String unknown;
     
@@ -404,6 +434,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 		stateFailed =   language.getString("DownloadPane.fileTable.states.failed");
 		stateDone =     language.getString("DownloadPane.fileTable.states.done");
 		stateDecoding = language.getString("DownloadPane.fileTable.states.decodingSegment") + "...";
+        stateDownloading = language.getString("DownloadPane.fileTable.states.downloading");
 	
 		unknown =   language.getString("DownloadPane.fileTable.states.unknown");
         
@@ -441,11 +472,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 				}
 
 			case 5 : // State
-				return getStateAsString(
-					downloadItem.getState(),
-					downloadItem.getTotalBlocks(),
-					downloadItem.getDoneBlocks(),
-					downloadItem.getRequiredBlocks());
+				return getStateAsString(downloadItem.getState());
 
             case 6 : // lastReceived
                 if( downloadItem.getLastReceived() > 0 ) {
@@ -512,6 +539,9 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
         if (requiredBlocks > 0) {
             percentDone = (int) ((doneBlocks * 100) / requiredBlocks);
         }
+        if( percentDone > 100 ) {
+            percentDone = 100;
+        }
         
         StringBuffer sb = new StringBuffer();
         
@@ -525,7 +555,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 		return sb.toString();
 	}
 
-	private String getStateAsString(int state, int totalBlocks, int doneBlocks, int requiredBlocks) {
+	private String getStateAsString(int state) {
 		switch (state) {
 			case FrostDownloadItem.STATE_WAITING :
 				return stateWaiting;
@@ -543,11 +573,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 				return stateDecoding;
 			
 			case FrostDownloadItem.STATE_PROGRESS :
-				if (totalBlocks > 0) {
-					return (int) ((doneBlocks * 100) / requiredBlocks) + "%";
-				} else {
-					return "0%";
-				}
+                return stateDownloading;
 				
 			default :
 				return "**ERROR**";
@@ -592,7 +618,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
         columnModel.getColumn(5).setCellRenderer(new ShowStateContentTooltipRenderer()); // state
         columnModel.getColumn(6).setCellRenderer(baseRenderer); // lastReceived
         columnModel.getColumn(7).setCellRenderer(baseRenderer); // lastUploaded
-        columnModel.getColumn(8).setCellRenderer(baseRenderer); // blocks
+        columnModel.getColumn(8).setCellRenderer(new BlocksProgressRenderer()); // blocks
         columnModel.getColumn(9).setCellRenderer(rightAlignRenderer); // tries
         columnModel.getColumn(10).setCellRenderer(showContentTooltipRenderer); // key
 

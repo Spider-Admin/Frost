@@ -26,6 +26,7 @@ import javax.swing.*;
 import javax.swing.table.*;
 
 import frost.*;
+import frost.fileTransfer.common.*;
 import frost.gui.*;
 import frost.util.*;
 import frost.util.gui.translation.*;
@@ -42,7 +43,6 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
     private String unknown;
     
     private boolean showColoredLines;
-    private Color secondBackgroundColor = new java.awt.Color(238,238,238);
     
     SortedModelTable modelTable;
 
@@ -473,23 +473,13 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
             if( !isSelected ) {
-                Color newBackground;
-                if( showColoredLines ) {
-                    // IBM lineprinter paper
-                    if ((row & 0x0001) == 0) {
-                        newBackground = Color.WHITE;
-                    } else {
-                        newBackground = secondBackgroundColor;
-                    }
-                } else {
-                    newBackground = table.getBackground();
-                }
+                Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
                 
                 ModelItem item = modelTable.getItemAt(row); //It may be null
                 if (item != null) {
                     FrostSharedFileItem sfItem = (FrostSharedFileItem) item;
                     if( !sfItem.isValid() ) {
-                        newBackground = Color.red;
+                        newBackground = TableBackgroundColors.getBackgroundColorFailed(table, row, showColoredLines);
                     }
                 }
                 setBackground(newBackground);

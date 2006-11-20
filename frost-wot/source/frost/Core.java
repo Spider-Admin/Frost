@@ -18,9 +18,8 @@
 */
 package frost;
 
-import hyperocha.freenet.fcp.Network;
-import hyperocha.freenet.fcp.dispatcher.Dispatcher;
-import hyperocha.freenet.fcp.dispatcher.Factory;
+import hyperocha.freenet.fcp.*;
+import hyperocha.freenet.fcp.dispatcher.*;
 
 import java.io.*;
 import java.sql.*;

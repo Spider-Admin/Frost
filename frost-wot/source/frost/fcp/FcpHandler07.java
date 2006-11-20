@@ -109,6 +109,9 @@ public class FcpHandler07 extends FcpHandler {
         }
 
         String[] keyPair = connection.getKeyPair();
+        if( keyPair == null ) {
+            return null;
+        }
         String privKey = keyPair[0];
         String pubKey = keyPair[1];
         return new BoardKeyPair(pubKey, privKey);

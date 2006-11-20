@@ -51,6 +51,7 @@ import javax.swing.table.*;
 import javax.swing.tree.*;
 
 import frost.*;
+import frost.fileTransfer.common.*;
 import frost.messages.*;
 import frost.util.gui.*;
 
@@ -68,7 +69,6 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
 
     /** A subclass of JTree. */
     protected TreeTableCellRenderer tree;
-    protected Color secondBackgroundColor = new java.awt.Color(238,238,238);
 
     protected Border borderUnreadAndMarkedMsgsInThread = BorderFactory.createCompoundBorder(
             BorderFactory.createMatteBorder(0, 2, 0, 0, Color.blue),    // outside
@@ -482,23 +482,15 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             } else {
                 foreground = Color.BLACK;
             }
-                
+
             if (!isSelected) {
-                if( showColoredLines ) {
-                    // IBM lineprinter paper
-                    if ((row & 0x0001) == 0) {
-                    	background = Color.WHITE;
-                    } else {
-                    	background = secondBackgroundColor;
-                    }
-                } else {
-                    background = table.getBackground();
-                }
+                Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
+                background = newBackground;
             } else {
                 background = table.getSelectionBackground();
                 foreground = table.getSelectionForeground();
             }
-            
+
             setDeleted(msg.isDeleted());
     
     	    visibleRow = row;
@@ -705,16 +697,8 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             }
             
             if (!isSelected) {
-                if( showColoredLines ) {
-                    // IBM lineprinter paper
-                    if ((row & 0x0001) == 0) {
-                        setBackground(Color.WHITE);
-                    } else {
-                        setBackground(secondBackgroundColor);
-                    }
-                } else {
-                    setBackground(table.getBackground());
-                }
+                Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
+                setBackground(newBackground);
             } else {
                 setBackground(table.getSelectionBackground());
             }
@@ -766,16 +750,8 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             super.getTableCellRendererComponent(table, value, isSelected, /*hasFocus*/ false, row, column);
             
             if (!isSelected) {
-                if( showColoredLines ) {
-                    // IBM lineprinter paper
-                    if ((row & 0x0001) == 0) {
-                    	setBackground(Color.WHITE);
-                    } else {
-                    	setBackground(secondBackgroundColor);
-                    }
-                } else {
-                    setBackground(table.getBackground());
-                }
+                Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
+                setBackground(newBackground);
             } else {
                 setBackground(table.getSelectionBackground());
             }

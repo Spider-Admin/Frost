@@ -272,7 +272,6 @@ public class TOF {
         // message is not blocked
         SwingUtilities.invokeLater( new Runnable() {
             public void run() {
-                
                 if( message.isNew() ) {
                     board.newMessageReceived(); // notify receive of new msg (for board update)
                     board.incNewMessageCount(); // increment new message count
@@ -283,15 +282,7 @@ public class TOF {
                 Board selectedBoard = tofTreeModel.getSelectedNode();
                 // add only if target board is still shown
                 if( !selectedBoard.isFolder() && selectedBoard.getName().equals( board.getName() ) ) {
-                    
                     addNewMessageToModel(message, board);
-                    
-//                    // after adding the message ensure that selected message is still shown
-//                    FrostMessageObject selectedMessage = MainFrame.getInstance().getMessagePanel().getSelectedMessage();
-//                    if( selectedMessage != null ) {
-//                        MainFrame.getInstance().getMessagePanel().makeNodeViewable(selectedMessage);
-//                    }
-
                     MainFrame.getInstance().updateMessageCountLabels(board);
                 }
             }
@@ -553,7 +544,7 @@ public class TOF {
                     }
                 }
                 
-                // finally, remove blocked msgs from the leafs!
+                // remove blocked msgs from the leafs
                 LinkedList itemsToRemove = new LinkedList(); 
                 while(true) {
                     for(Enumeration e=rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
@@ -615,9 +606,6 @@ public class TOF {
                 updateThread = this;
             }
 
-//            try { setPriority(getPriority() - 1); }
-//            catch(Throwable t) { }
-
             final FrostMessageObject rootNode = new FrostMessageObject(true);
 
             boolean loadThreads = Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS);
@@ -641,10 +629,20 @@ public class TOF {
             }
             
             if( !isCancel() ) {
+                // count new messages
+                int newMessageCountWork = 0;
+                for(Enumeration e=rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
+                    FrostMessageObject mo = (FrostMessageObject)e.nextElement();
+                    if( mo.isNew() ) {
+                        newMessageCountWork++;
+                    }
+                }
                 // set rootnode to gui and update
                 final Board innerTargetBoard = board;
+                final int newMessageCount = newMessageCountWork;
                 SwingUtilities.invokeLater( new Runnable() {
                     public void run() {
+                        innerTargetBoard.setNewMessageCount(newMessageCount);
                         setNewRootNode(innerTargetBoard, rootNode, previousSelectedMsg);
                     }
                 });
