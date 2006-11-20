@@ -71,7 +71,7 @@ public class UploadManager {
 
     private UploadTicker getTicker() {
         if (ticker == null) {
-            ticker = new UploadTicker(getModel());
+            ticker = new UploadTicker(getModel(), getPanel());
         }
         return ticker;
     }

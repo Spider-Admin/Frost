@@ -25,6 +25,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import frost.*;
+import frost.fcp.*;
 import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
@@ -53,8 +54,9 @@ class MiscPanel extends JPanel {
     private JLabel autoSaveIntervalLabel = new JLabel();
     private JTextField autoSaveIntervalTextField = new JTextField(8);
     private JLabel availableNodesLabel1 = new JLabel();
-//    private JLabel availableNodesLabel2 = new JLabel();
     private JTextField availableNodesTextField = new JTextField();
+    
+    private JCheckBox useDDACheckBox = new JCheckBox();
     private JCheckBox enableLoggingCheckBox = new JCheckBox();
     
     private Listener listener = new Listener();
@@ -78,6 +80,11 @@ class MiscPanel extends JPanel {
 
         initialize();
         loadSettings();
+        
+        if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
+            // disable 0.7-only items
+            useDDACheckBox.setEnabled(false);
+        }
     }
 
     private void altEditChanged() {
@@ -139,7 +146,6 @@ class MiscPanel extends JPanel {
         constraints.anchor = GridBagConstraints.NORTHWEST;
         constraints.fill = GridBagConstraints.HORIZONTAL;
         Insets insets5555 = new Insets(5, 5, 5, 5);
-        Insets insets10_555 = new Insets(10, 5, 5, 5);
 
         constraints.weightx = 0;
         constraints.insets = insets5555;
@@ -151,11 +157,15 @@ class MiscPanel extends JPanel {
         constraints.weightx = 1;
         add(availableNodesTextField, constraints);
 
-//        constraints.anchor = GridBagConstraints.CENTER;
+        constraints.weightx = 0;
+        constraints.gridwidth = 2;
+        constraints.gridx = 0;
+        constraints.gridy++;
+        add(useDDACheckBox, constraints);
+
         constraints.weightx = 0;
         constraints.gridwidth = 1;
 
-        constraints.insets = insets10_555;
         constraints.gridx = 0;
         constraints.gridy++;
         add(altEditCheckBox, constraints);
@@ -220,6 +230,7 @@ class MiscPanel extends JPanel {
         logLevelComboBox.setSelectedKey(settings.getValue(SettingsClass.LOG_LEVEL));
 
         splashScreenCheckBox.setSelected(settings.getBoolValue(SettingsClass.DISABLE_SPLASHSCREEN));
+        useDDACheckBox.setSelected(settings.getBoolValue(SettingsClass.FCP2_USE_DDA));
 
         refreshLoggingState();
     }
@@ -230,7 +241,8 @@ class MiscPanel extends JPanel {
 
     private void refreshLanguage() {
         availableNodesLabel1.setText(language.getString("Options.miscellaneous.listOfFcpNodes")+" "+language.getString("Options.miscellaneous.listOfFcpNodesExplanation"));
-//        availableNodesLabel2.setText(language.getString("Options.miscellaneous.listOfFcpNodesExplanation"));
+        useDDACheckBox.setText(language.getString("Options.miscellaneous.useDDA"));
+        useDDACheckBox.setToolTipText(language.getString("Options.miscellaneous.useDDA.tooltip"));
         autoSaveIntervalLabel.setText(language.getString("Options.miscellaneous.automaticSavingInterval") + 
                 " (15 "+language.getString("Options.common.minutes")+")");
         splashScreenCheckBox.setText(language.getString("Options.miscellaneous.disableSplashscreen"));
@@ -267,5 +279,6 @@ class MiscPanel extends JPanel {
         settings.setValue(SettingsClass.LOG_FILE_SIZE_LIMIT, logFileSizeTextField.getText());
         settings.setValue(SettingsClass.LOG_LEVEL, logLevelComboBox.getSelectedKey());
         settings.setValue(SettingsClass.DISABLE_SPLASHSCREEN, splashScreenCheckBox.isSelected());
+        settings.setValue(SettingsClass.FCP2_USE_DDA, useDDACheckBox.isSelected());
     }
 }

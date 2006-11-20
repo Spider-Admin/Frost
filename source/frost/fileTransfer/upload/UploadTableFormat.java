@@ -26,6 +26,7 @@ import javax.swing.*;
 import javax.swing.table.*;
 
 import frost.*;
+import frost.fileTransfer.common.*;
 import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
@@ -39,7 +40,6 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
     private SortedModelTable modelTable = null;
     
     private boolean showColoredLines;
-    private Color secondBackgroundColor = new java.awt.Color(238,238,238);
     
     /**
      * Renders DONE with green background and FAILED with red background.
@@ -59,32 +59,65 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
             if( !isSelected ) {
+                Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
                 
-                Color newBackground;
-                if( showColoredLines ) {
-                    // IBM lineprinter paper
-                    if ((row & 0x0001) == 0) {
-                        newBackground = Color.WHITE;
-                    } else {
-                        newBackground = secondBackgroundColor;
-                    }
-                } else {
-                    newBackground = table.getBackground();
-                }
-                
-                ModelItem item = modelTable.getItemAt(row); //It may be null
+                ModelItem item = modelTable.getItemAt(row);
                 if (item != null) {
                     FrostUploadItem uploadItem = (FrostUploadItem) item;
-                    if( uploadItem.getState() == FrostUploadItem.STATE_DONE) {
-                        newBackground = Color.green;
-                    } else if( uploadItem.getState() == FrostUploadItem.STATE_FAILED) {
-                        newBackground = Color.red;
+                    int itemState = uploadItem.getState();
+                    if( itemState == FrostUploadItem.STATE_DONE) {
+                        newBackground = TableBackgroundColors.getBackgroundColorDone(table, row, showColoredLines);
+                    } else if( itemState == FrostUploadItem.STATE_FAILED) {
+                        newBackground = TableBackgroundColors.getBackgroundColorFailed(table, row, showColoredLines);
                     }
                 }
                 setBackground(newBackground);
                 setForeground(Color.black);
             }
-            
+            return this;
+        }
+    }
+    
+    private class BlocksProgressRenderer extends JProgressBar implements TableCellRenderer {
+        public BlocksProgressRenderer() {
+            super();
+            setMinimum(0);
+            setMaximum(100);
+            setStringPainted(true);
+            setBorderPainted(false);
+        }
+        public Component getTableCellRendererComponent(
+            JTable table,
+            Object value,
+            boolean isSelected,
+            boolean hasFocus,
+            int row,
+            int column) {
+
+            Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
+            setBackground(newBackground);
+
+            ModelItem item = modelTable.getItemAt(row);
+            if (item != null) {
+                FrostUploadItem uploadItem = (FrostUploadItem) item;
+                
+                int totalBlocks = uploadItem.getTotalBlocks();
+                int doneBlocks = uploadItem.getDoneBlocks();
+                
+                if( totalBlocks > 0 ) {
+                    // format: ~0% 0/60 [60]
+                    
+                    int percentDone = 0;
+
+                    percentDone = (int) ((doneBlocks * 100) / totalBlocks);
+                    if( percentDone > 100 ) {
+                        percentDone = 100;
+                    }
+                    setValue(percentDone);
+                }
+            }
+            setString(value.toString());
+
             return this;
         }
     }
@@ -466,6 +499,9 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         if (totalBlocks > 0) {
             percentDone = (int) ((doneBlocks * 100) / totalBlocks);
         }
+        if( percentDone > 100 ) {
+            percentDone = 100;
+        }
         
         StringBuffer sb = new StringBuffer();
         
@@ -503,7 +539,6 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         columnModel.getColumn(1).setPreferredWidth(20);
         columnModel.getColumn(1).setCellRenderer(new IsSharedRenderer());
 
-        BaseRenderer baseRenderer = new BaseRenderer();
         RightAlignRenderer numberRightRenderer = new RightAlignRenderer();
         ShowContentTooltipRenderer showContentTooltipRenderer = new ShowContentTooltipRenderer();
         
@@ -511,7 +546,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         columnModel.getColumn(3).setCellRenderer(numberRightRenderer); // filesize
         columnModel.getColumn(4).setCellRenderer(new ShowStateContentTooltipRenderer()); // state
         columnModel.getColumn(5).setCellRenderer(showContentTooltipRenderer); // path
-        columnModel.getColumn(6).setCellRenderer(baseRenderer); // blocks
+        columnModel.getColumn(6).setCellRenderer(new BlocksProgressRenderer()); // blocks
         columnModel.getColumn(7).setCellRenderer(numberRightRenderer); // tries
         columnModel.getColumn(8).setCellRenderer(showContentTooltipRenderer); // key
 

@@ -167,7 +167,15 @@ public class TreeTableModelAdapter extends AbstractTableModel {
 //                System.out.println("a="+MainFrame.getInstance().getMessageTreeTable().getRowForNode(node));
 //                System.out.println("b="+childIndices[0]);
 //                System.out.println("c="+node);
-                final int row = MainFrame.getInstance().getMessageTreeTable().getRowForNode(node) + 1 + childIndices[0];
+                // FIXME: offset war immer 1; loest nun 0 das select problem wenn neue row an pos=0 ?
+                int offset;
+                if( childIndices[0] == 0 ) {
+                    offset = 0;
+                } else {
+                    offset = 1;
+                }
+                final int row = MainFrame.getInstance().getMessageTreeTable().getRowForNode(node) + offset + childIndices[0];
+//                final int row = MainFrame.getInstance().getMessageTreeTable().getRowForNode(node) + 1 + childIndices[0];
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
 //                        System.out.println("treeNodesInserted: "+row);
@@ -197,7 +205,6 @@ public class TreeTableModelAdapter extends AbstractTableModel {
 
             public void treeStructureChanged(TreeModelEvent e) {
 //                delayedFireTableDataChanged();
-                // FIXME:
                 fireTableDataChanged();
             }
         });

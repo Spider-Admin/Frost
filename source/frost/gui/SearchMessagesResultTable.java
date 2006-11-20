@@ -24,6 +24,7 @@ import javax.swing.*;
 import javax.swing.table.*;
 
 import frost.*;
+import frost.fileTransfer.common.*;
 import frost.gui.model.*;
 import frost.messages.*;
 import frost.util.gui.*;
@@ -43,7 +44,6 @@ public class SearchMessagesResultTable extends SortedTable {
     private ImageIcon messageReadRepliedIcon = new ImageIcon(getClass().getResource("/data/messagereadrepliedicon.gif"));
 
     private boolean showColoredLines;
-    private Color secondBackgroundColor = new java.awt.Color(238,238,238);
 
     public SearchMessagesResultTable(SearchMessagesTableModel m) {
         super(m);
@@ -206,16 +206,8 @@ public class SearchMessagesResultTable extends SortedTable {
             setToolTipText(null);
             
             if (!isSelected) {
-                if( showColoredLines ) {
-                    // IBM lineprinter paper
-                    if ((row & 0x0001) == 0) {
-                        setBackground(Color.WHITE);
-                    } else {
-                        setBackground(secondBackgroundColor);
-                    }
-                } else {
-                    setBackground(table.getBackground());
-                }
+                Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
+                setBackground(newBackground);
             }
 
             // do nice things for FROM and SIG column and BOARD column
@@ -357,17 +349,10 @@ public class SearchMessagesResultTable extends SortedTable {
                     setIcon(null);
                 }
             }
+            
             if (!isSelected) {
-                if( showColoredLines ) {
-                    // IBM lineprinter paper
-                    if ((row & 0x0001) == 0) {
-                        setBackground(Color.WHITE);
-                    } else {
-                        setBackground(secondBackgroundColor);
-                    }
-                } else {
-                    setBackground(table.getBackground());
-                }
+                Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
+                setBackground(newBackground);
             } else {
                 setBackground(table.getSelectionBackground());
             }

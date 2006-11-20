@@ -56,6 +56,8 @@ public class SettingsClass implements Savable {
     public static final String COMPACT_DBTABLES = "compactDatabaseTables";
 
     public static final String AVAILABLE_NODES = "availableNodes";
+    public static final String FCP2_USE_DDA = "fcp2.useDDA";
+    
     public static final String AUTO_SAVE_INTERVAL = "autoSaveInterval";
     public static final String DISABLE_FILESHARING = "disableFilesharing";
     public static final String DOWNLOADING_ACTIVATED = "downloadingActivated";
@@ -692,6 +694,8 @@ public class SettingsClass implements Savable {
 
         defaults.put(DISABLE_FILESHARING, "false");
         defaults.put(DISABLE_SPLASHSCREEN, "false");
+        
+        defaults.put(FCP2_USE_DDA, "true");
 
         defaults.put(ALTERNATE_EDITOR_COMMAND, fn + "path" + fs + "to" + fs + "editor" + " %f");
         defaults.put(BOARD_AUTOUPDATE_ENABLED, "true"); 

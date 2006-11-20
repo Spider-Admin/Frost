@@ -23,6 +23,7 @@ import java.net.*;
 import java.util.*;
 import java.util.logging.*;
 
+import frost.*;
 import frost.fcp.*;
 import frost.util.*;
 
@@ -173,15 +174,17 @@ public class FcpFactory {
             throw e;
         }
         
-        // FIXME: if node is connected the first time, test if dda is available!
-        if( !selectedNode.isDirectDiskAccessTested ) {
-            selectedNode.isDirectDiskAccessTested = true;
-            selectedNode.isDirectDiskAccessPossible = con.testNodeDDA();
-            // get a new connection
-            try {
-                con = new FcpConnection(selectedNode);
-            } catch (IOException e) {
-                throw e;
+        // if node is connected the first time, test if dda is available!
+        if( Core.frostSettings.getBoolValue(SettingsClass.FCP2_USE_DDA) ) {
+            if( !selectedNode.isDirectDiskAccessTested ) {
+                selectedNode.isDirectDiskAccessTested = true;
+                selectedNode.isDirectDiskAccessPossible = con.testNodeDDA();
+                // get a new connection
+                try {
+                    con = new FcpConnection(selectedNode);
+                } catch (IOException e) {
+                    throw e;
+                }
             }
         }
         return con;

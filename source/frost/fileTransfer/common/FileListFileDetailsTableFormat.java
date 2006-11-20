@@ -46,7 +46,6 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
     private final static int COLUMN_COUNT = 9;
     
     private boolean showColoredLines;
-    private Color secondBackgroundColor = new java.awt.Color(238,238,238);
 
     public FileListFileDetailsTableFormat() {
         super(COLUMN_COUNT);
@@ -391,17 +390,10 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
             int column) 
         {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            
             if (!isSelected) {
-                if( showColoredLines ) {
-                    // IBM lineprinter paper
-                    if ((row & 0x0001) == 0) {
-                        setBackground(Color.WHITE);
-                    } else {
-                        setBackground(secondBackgroundColor);
-                    }
-                } else {
-                    setBackground(table.getBackground());
-                }
+                Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
+                setBackground(newBackground);
             } else {
                 setBackground(table.getSelectionBackground());
             }

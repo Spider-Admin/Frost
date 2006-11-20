@@ -27,6 +27,7 @@ import java.util.List;
 import javax.swing.*;
 
 import frost.*;
+import frost.fcp.*;
 import frost.fileTransfer.*;
 import frost.fileTransfer.search.*;
 import frost.util.gui.*;
@@ -225,7 +226,9 @@ public class FileListFileDetailsDialog extends JDialog {
             refreshLanguage();
 
             copyToClipboardMenu.add(copyKeysAndNamesItem);
-            copyToClipboardMenu.add(copyKeysItem);
+            if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05) {
+                copyToClipboardMenu.add(copyKeysItem);
+            }
 
             copyKeysAndNamesItem.addActionListener(this);
             copyKeysItem.addActionListener(this);
@@ -289,8 +292,10 @@ public class FileListFileDetailsDialog extends JDialog {
                         key = keyNotAvailableMessage;
                     }
                     textToCopy.append(key);
-                    textToCopy.append("/");
-                    textToCopy.append(item.getFileOwner().getName());
+                    if( key.indexOf('/') < 0 ) {
+                        textToCopy.append("/");
+                        textToCopy.append(item.getFileOwner().getName());
+                    }
                     textToCopy.append("\n");
                 }
                 StringSelection selection = new StringSelection(textToCopy.toString());

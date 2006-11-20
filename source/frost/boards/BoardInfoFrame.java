@@ -31,6 +31,7 @@ import javax.swing.event.*;
 import javax.swing.table.*;
 
 import frost.*;
+import frost.fileTransfer.common.*;
 import frost.gui.*;
 import frost.gui.model.*;
 import frost.storage.database.applayer.*;
@@ -41,7 +42,6 @@ import frost.util.gui.translation.*;
 public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener {
 
     private boolean showColoredLines;
-    private Color secondBackgroundColor = new java.awt.Color(238,238,238);
 
     private class Listener implements MouseListener, LanguageListener {
         public Listener() {
@@ -472,18 +472,11 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
             } else {
                 setFont(origFont);
             }
-            
+
+
             if (!isSelected) {
-                if( showColoredLines ) {
-                    // IBM lineprinter paper
-                    if ((row & 0x0001) == 0) {
-                        setBackground(Color.WHITE);
-                    } else {
-                        setBackground(secondBackgroundColor);
-                    }
-                } else {
-                    setBackground(table.getBackground());
-                }
+                Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
+                setBackground(newBackground);
             }
             return this;
         }

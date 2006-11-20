@@ -107,9 +107,9 @@ public class FcpRequest {
         if( connection != null ) {
             int tries = 0;
             int maxtries = 3;
-            while( tries < maxtries || results != null ) {
+            while( tries < maxtries ) {
                 try {
-                    results = connection.getKeyToFile(type, key, target.getPath(), dlItem);
+                    results = connection.getKeyToFile(type, key, target, dlItem);
                     break;
                 }
                 catch( java.net.ConnectException e ) {
@@ -146,14 +146,19 @@ public class FcpRequest {
                                              .append(keyUrl).toString();
         }
         
+        System.out.println("getKey: file='"+target.getPath()+"' ; len="+target.length());
+        
         if( results == null ) {
             // paranoia
             results = FcpResultGet.RESULT_FAILED;
+            System.out.println("getKey - Failed, result=null");
         } else if( results.isSuccess() && target.length() > 0 ) {
             logger.info("getKey - Success: " + printableKey );
+            System.out.println("getKey - Success: " + printableKey);
         } else {
             target.delete();
             logger.info("getKey - Failed: " + printableKey + "; rc="+results.getReturnCode()+"; isFatal="+results.isFatal() );
+            System.out.println("getKey - Failed: " + printableKey + "; rc="+results.getReturnCode()+"; isFatal="+results.isFatal());
         }
         return results;
     }

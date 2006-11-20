@@ -59,7 +59,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	private boolean initialized = false;
 
 	private boolean downloadingActivated = false;
-	private long downloadItemCount = 0;
+	private int downloadItemCount = 0;
 
 	public DownloadPanel() {
 		super();
@@ -152,10 +152,10 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
         downloadTextField.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.addKeys"));
 
 		String waiting = language.getString("DownloadPane.toolbar.waiting");
-		Dimension labelSize = calculateLabelSize(waiting + " : 00000");
+		Dimension labelSize = calculateLabelSize(waiting + ": 00000");
 		downloadItemCountLabel.setPreferredSize(labelSize);
 		downloadItemCountLabel.setMinimumSize(labelSize);
-		downloadItemCountLabel.setText(waiting + " : " + downloadItemCount);
+		downloadItemCountLabel.setText(waiting + ": " + downloadItemCount);
 	}
 
 	public void setModel(DownloadModel model) {
@@ -321,13 +321,13 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
         downloadPauseButton.setEnabled(downloadingActivated);
 	}
 
-	public void setDownloadItemCount(long newDownloadItemCount) {
+	public void setDownloadItemCount(int newDownloadItemCount) {
 		downloadItemCount = newDownloadItemCount;
 
 		String s =
 			new StringBuffer()
-				.append(language.getString("DownloadPane.fileTable.states.waiting"))
-				.append(" : ")
+				.append(language.getString("DownloadPane.toolbar.waiting"))
+				.append(": ")
 				.append(downloadItemCount)
 				.toString();
 		downloadItemCountLabel.setText(s);
@@ -480,7 +480,9 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
             // TODO: implement cancel of downloading
     
             copyToClipboardMenu.add(copyKeysAndNamesItem);
-            copyToClipboardMenu.add(copyKeysItem);
+            if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05) {
+                copyToClipboardMenu.add(copyKeysItem);
+            }
             copyToClipboardMenu.add(copyExtendedInfoItem);
     
             copyKeysAndNamesItem.addActionListener(this);
@@ -638,8 +640,10 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                         key = keyNotAvailableMessage;
                     }
                     textToCopy.append(key);
-                    textToCopy.append("/");
-                    textToCopy.append(item.getFileName());
+                    if( key.indexOf('/') < 0 ) {
+                        textToCopy.append("/");
+                        textToCopy.append(item.getFileName());
+                    }
                     textToCopy.append("\n");
                 }               
                 StringSelection selection = new StringSelection(textToCopy.toString());

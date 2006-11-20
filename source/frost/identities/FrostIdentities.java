@@ -77,12 +77,13 @@ public class FrostIdentities implements Savable {
             }
             localIdentitiesList = null;
             
-            // all identities
+            // load all identities
             List identitiesList = AppLayerDatabase.getIdentitiesDatabaseTable().getIdentities();
             for(Iterator i=identitiesList.iterator(); i.hasNext(); ) {
                 Identity li = (Identity)i.next();
                 identities.put(li.getUniqueName(), li);
             }
+            
         } catch(SQLException ex) {
             logger.log(Level.SEVERE, "error loading from database", ex);
             throw new StorageException("error loading from database");

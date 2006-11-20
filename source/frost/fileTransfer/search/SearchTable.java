@@ -26,6 +26,7 @@ import java.util.*;
 import javax.swing.*;
 
 import frost.*;
+import frost.fcp.*;
 import frost.fileTransfer.common.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
@@ -206,7 +207,9 @@ public class SearchTable extends SortedModelTable {
             refreshLanguage();
     
             copyToClipboardMenu.add(copyKeysAndNamesItem);
-            copyToClipboardMenu.add(copyKeysItem);
+            if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05) {
+                copyToClipboardMenu.add(copyKeysItem);
+            }
             copyToClipboardMenu.add(copyExtendedInfoItem);
     
             downloadSelectedKeysItem.addActionListener(this);
@@ -273,8 +276,10 @@ public class SearchTable extends SortedModelTable {
                         key = keyNotAvailableMessage;
                     }
                     textToCopy.append(key);
-                    textToCopy.append("/");
-                    textToCopy.append(item.getFilename());
+                    if( key.indexOf('/') < 0 ) {
+                        textToCopy.append("/");
+                        textToCopy.append(item.getFilename());
+                    }
                     textToCopy.append("\n");
                 }
                 StringSelection selection = new StringSelection(textToCopy.toString());

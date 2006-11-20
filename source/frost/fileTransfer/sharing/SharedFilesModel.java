@@ -77,7 +77,7 @@ public class SharedFilesModel extends OrderedModel implements Savable {
         
         // notify list upload thread that user changed something
         FileListUploadThread.getInstance().userActionOccured();
-
+        
         return true;
     }
 
@@ -101,30 +101,30 @@ public class SharedFilesModel extends OrderedModel implements Savable {
         return false;
     }
 
-    /**
-     * This method removes from the model the items whose associated files
-     * no longer exist on hard disk. Using this method may be very expensive
-     * if the model has a lot of items.
-     */
-    public synchronized void removeNotExistingFiles() {
-        ArrayList items = new ArrayList();
-        for (int i = getItemCount() - 1; i >= 0; i--) {
-            FrostSharedFileItem sfItem = (FrostSharedFileItem) getItemAt(i);
-            if (!sfItem.getFile().exists()) {
-                items.add(sfItem);
-            }
-        }
-        if (items.size() > 0) {
-            FrostSharedFileItem[] itemsArray = new FrostSharedFileItem[items.size()];
-            for (int i = 0; i < itemsArray.length; i++) {
-                itemsArray[i] = (FrostSharedFileItem) items.get(i);
-            }
-            removeItems(itemsArray);
-            
-            // notify list upload thread that user changed something
-            FileListUploadThread.getInstance().userActionOccured();
-        }
-    }
+//    /**
+//     * This method removes from the model the items whose associated files
+//     * no longer exist on hard disk. Using this method may be very expensive
+//     * if the model has a lot of items.
+//     */
+//    public synchronized void removeNotExistingFiles() {
+//        ArrayList items = new ArrayList();
+//        for (int i = getItemCount() - 1; i >= 0; i--) {
+//            FrostSharedFileItem sfItem = (FrostSharedFileItem) getItemAt(i);
+//            if (!sfItem.getFile().exists()) {
+//                items.add(sfItem);
+//            }
+//        }
+//        if (items.size() > 0) {
+//            FrostSharedFileItem[] itemsArray = new FrostSharedFileItem[items.size()];
+//            for (int i = 0; i < itemsArray.length; i++) {
+//                itemsArray[i] = (FrostSharedFileItem) items.get(i);
+//            }
+//            removeItems(itemsArray);
+//            
+//            // notify list upload thread that user changed something
+//            FileListUploadThread.getInstance().userActionOccured();
+//        }
+//    }
 
     /**
      * This method tells all items to start uploading (if their current state allows it)

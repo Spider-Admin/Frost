@@ -30,6 +30,7 @@ import java.util.logging.*;
 import javax.swing.*;
 
 import frost.*;
+import frost.fcp.*;
 import frost.fileTransfer.*;
 import frost.threads.*;
 import frost.util.*;
@@ -50,8 +51,11 @@ public class SharedFilesPanel extends JPanel {
 
     private Language language = null;
 
-    private JPanel uploadTopPanel = new JPanel();
-    private JButton uploadAddFilesButton = new JButton(new ImageIcon(getClass().getResource("/data/browse.gif")));
+    private JPanel sharedFilesTopPanel = new JPanel();
+    private JButton addSharedFilesButton = new JButton(new ImageIcon(getClass().getResource("/data/browse.gif")));
+    
+    private int sharedFilesCount = 0;
+    private JLabel sharedFilesCountLabel = new JLabel();
 
     private SortedModelTable modelTable;
 
@@ -70,21 +74,25 @@ public class SharedFilesPanel extends JPanel {
 
             // create the top panel
             MiscToolkit toolkit = MiscToolkit.getInstance();
-            toolkit.configureButton(uploadAddFilesButton, "/data/browse_rollover.gif");
-            uploadTopPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 8, 0));
-            uploadTopPanel.add(uploadAddFilesButton);
+            toolkit.configureButton(addSharedFilesButton, "/data/browse_rollover.gif");
+            BoxLayout dummyLayout = new BoxLayout(sharedFilesTopPanel, BoxLayout.X_AXIS);
+            sharedFilesTopPanel.setLayout(dummyLayout);
+            sharedFilesTopPanel.add(addSharedFilesButton);
+            sharedFilesTopPanel.add(Box.createRigidArea(new Dimension(80, 0)));
+            sharedFilesTopPanel.add(Box.createHorizontalGlue());
+            sharedFilesTopPanel.add(sharedFilesCountLabel);
 
             // create the main upload panel
             SharedFilesTableFormat tableFormat = new SharedFilesTableFormat();
 
             modelTable = new SortedModelTable(model, tableFormat);
             setLayout(new BorderLayout());
-            add(uploadTopPanel, BorderLayout.NORTH);
+            add(sharedFilesTopPanel, BorderLayout.NORTH);
             add(modelTable.getScrollPane(), BorderLayout.CENTER);
             fontChanged();
 
             // listeners
-            uploadAddFilesButton.addActionListener(listener);
+            addSharedFilesButton.addActionListener(listener);
             modelTable.getScrollPane().addMouseListener(listener);
             modelTable.getTable().addKeyListener(listener);
             modelTable.getTable().addMouseListener(listener);
@@ -105,11 +113,24 @@ public class SharedFilesPanel extends JPanel {
     }
     
     public void setAddFilesButtonEnabled(boolean enabled) {
-        uploadAddFilesButton.setEnabled(enabled);
+        addSharedFilesButton.setEnabled(enabled);
+    }
+
+    private Dimension calculateLabelSize(String text) {
+        JLabel dummyLabel = new JLabel(text);
+        dummyLabel.doLayout();
+        return dummyLabel.getPreferredSize();
     }
 
     private void refreshLanguage() {
-        uploadAddFilesButton.setToolTipText(language.getString("UploadPane.toolbar.tooltip.browse") + "...");
+        addSharedFilesButton.setToolTipText(language.getString("SharedFilesPane.toolbar.tooltip.browse") + "...");
+        
+        String waiting = language.getString("SharedFilesPane.toolbar.files");
+        Dimension labelSize = calculateLabelSize(waiting + ": 00000");
+        sharedFilesCountLabel.setPreferredSize(labelSize);
+        sharedFilesCountLabel.setMinimumSize(labelSize);
+        sharedFilesCountLabel.setText(waiting + ": " + sharedFilesCount);
+
     }
 
     private PopupMenu getPopupMenuUpload() {
@@ -212,6 +233,22 @@ public class SharedFilesPanel extends JPanel {
 
     public void setModel(SharedFilesModel model) {
         this.model = model;
+        
+        model.addModelListener(new ModelListener() {
+            public void itemAdded(ModelItem item) {
+                updateSharedFilesItemCount();
+            }
+            public void itemChanged(ModelItem item, int fieldID, Object oldValue, Object newValue) {
+            }
+            public void itemChanged(ModelItem item) {
+            }
+            public void itemsRemoved(ModelItem[] items) {
+                updateSharedFilesItemCount();
+            }
+            public void modelCleared() {
+                updateSharedFilesItemCount();
+            }
+        });
     }
 
     private void showProperties() {
@@ -264,6 +301,17 @@ public class SharedFilesPanel extends JPanel {
             }
         }
     }
+    
+    private void updateSharedFilesItemCount() {
+        sharedFilesCount = model.getItemCount();
+        String s =
+            new StringBuffer()
+                .append(language.getString("SharedFilesPane.toolbar.files"))
+                .append(": ")
+                .append(sharedFilesCount)
+                .toString();
+        sharedFilesCountLabel.setText(s);
+    }
 
     private boolean stringsEqual(String oldStr, String newStr) {
         if( oldStr == null && newStr != null ) {
@@ -311,7 +359,9 @@ public class SharedFilesPanel extends JPanel {
             refreshLanguage();
 
             copyToClipboardMenu.add(copyKeysAndNamesItem);
-            copyToClipboardMenu.add(copyKeysItem);
+            if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05) {
+                copyToClipboardMenu.add(copyKeysItem);
+            }
             copyToClipboardMenu.add(copyExtendedInfoItem);
 
             copyKeysAndNamesItem.addActionListener(this);
@@ -458,8 +508,10 @@ public class SharedFilesPanel extends JPanel {
                         key = keyNotAvailableMessage;
                     }
                     textToCopy.append(key);
-                    textToCopy.append("/");
-                    textToCopy.append(item.getFile().getName());
+                    if( key.indexOf('/') < 0 ) {
+                        textToCopy.append("/");
+                        textToCopy.append(item.getFile().getName());
+                    }
                     textToCopy.append("\n");
                 }
                 StringSelection selection = new StringSelection(textToCopy.toString());
@@ -536,6 +588,8 @@ public class SharedFilesPanel extends JPanel {
                     && ! ((FrostSharedFileItem) selectedItems[0]).isValid() )
             {
                 add(setPathItem);
+                addSeparator();
+                add(removeSelectedFilesItem);
                 super.show(invoker, x, y);
             } 
             // check if all selected items are valid
@@ -584,7 +638,7 @@ public class SharedFilesPanel extends JPanel {
             // Nothing here
         }
         public void actionPerformed(ActionEvent e) {
-            if (e.getSource() == uploadAddFilesButton) {
+            if (e.getSource() == addSharedFilesButton) {
                 uploadAddFilesButton_actionPerformed(e);
             }
         }
