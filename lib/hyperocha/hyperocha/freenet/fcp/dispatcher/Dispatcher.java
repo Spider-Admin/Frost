@@ -319,7 +319,7 @@ public class Dispatcher extends Factory implements IIncoming {
 	/**
 	 *  run a job and do not return until the job is done.
 	 * @param job
-	 * @return return 0 or error code (from dispatcher)
+	 * @return int - error code from dispatcher
 	 */
 	public int runJob(Job job) {
 		if (state == STATE_IDLE) {
@@ -345,8 +345,7 @@ public class Dispatcher extends Factory implements IIncoming {
 			resume = true;
 		}
 		registerJob(job);
-		job.run(this, resume);
-		job.waitFine();
+		job.run(this, true, resume);
 		//System.err.println("Job done:" + job.getJobID() + " -> " + job);
 		unregisterJob(job);
 		return RUNJOB_NOERROR;
@@ -401,7 +400,7 @@ public class Dispatcher extends Factory implements IIncoming {
 			goOnline();
 		}
 		tick++;
-		System.out.println("Tick Tack Timer: " + tick);
+		//System.out.println("Tick Tack Timer: " + tick);
 	}
 	
 	private Job getRunningJob(String id) {

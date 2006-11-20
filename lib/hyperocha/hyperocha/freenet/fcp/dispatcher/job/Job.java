@@ -119,7 +119,7 @@ public abstract class Job implements IIncoming {
 		}
 	}
 	
-	public final void run(Dispatcher dispatcher, boolean resume) {
+	public final void run(Dispatcher dispatcher, boolean block, boolean resume) {
 		if (status != STATUS_PREPARED) { throw new Error("FIXME: never run an unprepared job!"); }
 		status = STATUS_RUNNING;
         
@@ -138,9 +138,12 @@ public abstract class Job implements IIncoming {
     			case Network.SIMULATION: runSimulation(dispatcher, resume); break;
     			default: throw (new Error("Unsupported network type or missing implementation."));
     		}
-    		if ((status != STATUS_ERROR) && (lastError == null)) {
-    			status = STATUS_DONE;
-    		}
+        	if (block) {
+        		waitFine();
+        	}
+//    		if ((status != STATUS_ERROR) && (lastError == null)) {
+//    			status = STATUS_DONE;
+//    		}
 //        } catch(Throwable t) {
 //            // TODO: log error?
 //            status = STATUS_ERROR;
