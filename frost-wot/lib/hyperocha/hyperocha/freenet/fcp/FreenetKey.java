@@ -22,7 +22,8 @@ package hyperocha.freenet.fcp;
 
 
 /**
- * Keys: sss@jdj,aab,xxx/bla/bla
+ * <p>hyperocha's freentkey
+ * <p>Keys: sss@jdj,aab,xxx/bla/bla
  * <pre>
  *   sss@ - type
  *   jdj,aab,xxx - the key itselfs
@@ -31,6 +32,7 @@ package hyperocha.freenet.fcp;
  *   
  * all static functions expect an untainted key-string 
  * @author  saces
+ * @version $Id$
  */
 public class FreenetKey {
 	private int networkType; 
@@ -40,7 +42,8 @@ public class FreenetKey {
 	private String cryptoKey;  
 	private String extra; 
 	private String docName;
-	private int revision = -1;  // the latest one.
+	private String fileName;
+	private int revision = 0;  // negative means update first
 
 	/**
 	 * 
@@ -68,11 +71,44 @@ public class FreenetKey {
 	
 	public String getReadFreenetKey() {
 		if (keyType.equals(FreenetKeyType.KSK)) {
-			return "KSK@" + docName;
+			return "KSK@" + fileName;
 		}
-		String s = keyType + "@" + pubKey + "," + cryptoKey + "," + extra + "/";
-		if (docName != null) {
-			s = s + docName;
+		String s = keyType.toString() + '@' + pubKey;
+		if (cryptoKey != null) {
+			s = s + ',' + cryptoKey;
+		}
+		if (extra != null) {
+			s = s + ',' + extra;
+		}
+
+		if (keyType.equals(FreenetKeyType.CHK)) {
+			return s + '/' +  (fileName == null ? "" : fileName);
+		}
+		//String s = keyType + "@" + pubKey + "," + cryptoKey + "," + extra + "/";
+
+		// docname-revision
+		if ((isFreenetKeyType(FreenetKeyType.SSK)) && (networkType == Network.FCP2)) {
+			s = s + '/' + docName + '-' + revision;
+		} else {
+	        if (docName != null) {
+	        	s = s + '/' + docName;
+	        }
+	        if (revision != 0) {
+	        	s = s + '/' + revision;
+	        } else {
+	        	if (networkType == Network.FCP2) {
+	        		s = s + "/-1";
+	        	}
+	        }
+		}
+		if (networkType == Network.FCP1) {
+			s = s + "//";
+		} else {
+			s = s + "/";
+		}
+		
+		if (fileName != null) {
+			s = s + fileName;
 		}
 		//return "" + keyType + pubKey + "," + cryptoKey + "," + suffiX + "/";
 		return s;
@@ -84,10 +120,11 @@ public class FreenetKey {
 
 	/** 
 	 * returns a string representation of the (hyperocha) Key
-	 * @see java.lang.Object#toString()
+	 * 
 	 */
 	public String toString() {
-		return "[INSERT]freenet:" + getWriteFreenetKey() + "[REQUEST]freenet:" + getReadFreenetKey();
+		String s = privKey == null ? "" : "[INSERT]freenet:" + getWriteFreenetKey() + "[REQUEST]";
+		return s + "freenet:" + getReadFreenetKey();
 	}
 	
 	/**
@@ -100,16 +137,13 @@ public class FreenetKey {
 	public static String freenetKeyStringNiceness(String aString) {
 		if (aString == null) { return null; }
 		String s = aString.trim();
-		String tmpS;
 		if (s.startsWith("freenet:")) {
-			tmpS = s.substring(8);
-		} else {
-			tmpS = s;
+			s = s.substring(8);
 		}
-		if (tmpS.length() < 5) { //at least KSK@x
+		if (s.length() < 5) { //at least KSK@x
 			return null;
 		}
-		return tmpS;
+		return s;
 	}
 
 	public String getPublicPart() {
@@ -135,12 +169,12 @@ public class FreenetKey {
 	 * @return key
 	 */
 	public static FreenetKey KSKfromString(String k) {
-		String tmpS = freenetKeyStringNiceness(k);
-		if ( tmpS == null ) { return null; }
-		
-		FreenetKey newKey = new FreenetKey();
-		newKey.keyType = FreenetKeyType.KSK;
-		newKey.docName = tmpS.substring(4);
+		FreenetKey newKey = getKeyFromString(k); 
+		if (newKey != null) {
+			if (!newKey.isFreenetKeyType(FreenetKeyType.KSK)) {
+				return null;
+			}
+		}
 		return newKey;
 	}
 	
@@ -155,25 +189,12 @@ public class FreenetKey {
 	 * @return key
 	 */
 	public static FreenetKey CHKfromString(String k) {
-		String tmpS = freenetKeyStringNiceness(k);
-		if ( tmpS == null ) { return null; }
-		
-//		System.out.println(s);
-//		System.out.println(s.substring(5,47));
-//		System.out.println(s.substring(48,91));
-//		System.out.println(s.substring(92,99));
-		FreenetKey newKey = new FreenetKey(Network.FCP2, FreenetKeyType.CHK, tmpS.substring(4,47), null, tmpS.substring(48,91), tmpS.substring(92,99));
-
-		System.out.println("Keytest" + tmpS);
-		
-		if (tmpS.length() > 100) {
-			tmpS = tmpS.substring(100);
-			newKey.docName = tmpS;
+		FreenetKey newKey = getKeyFromString(k); 
+		if (newKey != null) {
+			if (!newKey.isFreenetKeyType(FreenetKeyType.CHK)) {
+				return null;
+			}
 		}
-		System.out.println("Keytest" + tmpS);
-//		FreenetKey newKey = new FreenetKey();
-//		newKey.keyType = FreenetKeyType.KSK;
-//		newKey.pubKey = s.substring(4);
 		return newKey;
 	}
 	
@@ -183,7 +204,6 @@ public class FreenetKey {
 		
 		FreenetKey newKey = new FreenetKey();
 		
-		// vorlage aus knotensource geklaut:
 //		 decode keyType
         int atchar = tmpS.indexOf('@');
         if (atchar == -1) { // kein '@' drinne, buh!
@@ -199,41 +219,92 @@ public class FreenetKey {
         
         
         if ( newKey.keyType.equals(FreenetKeyType.KSK) ) {
-        	newKey.docName = tmpS;
-        	
+        	newKey.fileName = tmpS;
         	// KSK kann .5 und .7 sein, mal sehen was der bei 1.0 alles kann ;)
         	return newKey;        	
-        	
         }
 
         // meta string abschnippeln
         int slash2 = tmpS.indexOf('/');
-        if (slash2 != -1) { // ein '/' drinne, alles danach kommt nach docName
-        	newKey.docName = tmpS.substring(slash2 + "/".length());
+        if (slash2 != -1) { // ein '/' drinne, alles danach kommt nach fileName
+        	newKey.fileName = tmpS.substring(slash2 + 1);
         	tmpS = tmpS.substring(0 ,slash2);
         }
 
-		//if (true) throw new Error("Hier key parse hineinbasteln");
-
-		// wenn nicht ksk ist jetz der zahlenmus uebrig
-        
+		// wenn nicht ksk ist jetzt der nakte zahlenmus uebrig
         int comma = tmpS.indexOf(',');
-        //System.err.println("comma: " + comma);
         if ( comma == 43) { // 0.7 key
         	newKey.setNetworkType(Network.FCP2);
-//        	System.err.println("mus: " + tmpS);
         	newKey.pubKey = tmpS.substring(0,43);
         	newKey.cryptoKey = tmpS.substring(44,87);
         	newKey.extra = tmpS.substring(88,95);
-        
-        } else { // .5 krempel
-    //    	newKey.setNetworkType(Network.FCP1);
-	//         	newKey.pubKey = tmpS.substring(0,43);
-	//        	newKey.cryptoKey = tmpS.substring(44,87);
-	//        	newKey.extra = tmpS.substring(88,95);
-        	// not suppoted yet
-        	return null;
+        } else {	//        	 .5 krempel
+        	newKey.setNetworkType(Network.FCP1);
+        	newKey.pubKey = tmpS.substring(0,31);
+        	if ( comma == 31) { 
+        		newKey.cryptoKey = tmpS.substring(32,54);
+        	} 
         }
+        
+        // der zahlenmus ist jetzt hinfort, alles nach dem
+        // ersten slash ist in filename
+        if ( newKey.keyType.equals(FreenetKeyType.CHK) ) {
+        	// chk behält den filenamen wie er ist
+        	return newKey;        	
+        }
+        
+        // Sites sind übrig, doc und revision rausknobeln
+       	// FCP version ist nun bekannt
+        
+       	tmpS = newKey.fileName;
+       	newKey.fileName = null;
+       	
+       	// key/docname-revision/filename
+        if ((newKey.isFreenetKeyType(FreenetKeyType.SSK)) && (newKey.networkType == Network.FCP2)) {
+        	int schar = tmpS.indexOf('-');
+            if (schar == -1) { // kein '-' drinne, buh!
+             	return null;
+            }
+            newKey.docName = tmpS.substring(0, schar);
+            tmpS = tmpS.substring(schar+1);
+            
+            // alles bis zum nächsten slash ist revisionsnummer, 
+            // der rest ist filename
+            String rev;
+            int slash1 = tmpS.indexOf('/');
+            if (slash1 == -1) { 
+             	rev = tmpS;
+            } else {
+            	rev = tmpS.substring(0, slash1);
+            	newKey.fileName = tmpS.substring(slash1+1);
+            }
+            newKey.revision = Integer.parseInt(rev);
+        	return newKey;
+        }
+        
+        // key/docname/revision//filename
+        // bis zum // docname/revision, danach filename
+        if (newKey.networkType == Network.FCP1) {
+        	String docrev;
+        	int dslash = tmpS.indexOf("//");
+        	if (dslash == -1) { // buh!
+        		docrev = tmpS;
+        	} else {
+        		docrev = tmpS.substring(0, dslash);
+            	newKey.fileName = tmpS.substring(dslash+2);
+        	}
+        	// filename ist weg,
+        	// jetzt docrev aufdröseln
+        	int slash4 = docrev.indexOf('/');
+        	if (slash4 == -1) { // kein /, nur docname
+        		newKey.docName = docrev;
+        	} else {
+        		newKey.docName = docrev.substring(0, slash4);
+        		docrev = docrev.substring(slash4+1);
+        		newKey.revision = Integer.parseInt(docrev);
+        	}
+        }
+
 		return newKey;
 	}
 
@@ -242,9 +313,7 @@ public class FreenetKey {
 	 * @return true if param entspricht irgendein valid freenet key schema
 	 */
 	public static boolean isValidKey(String aKey) {
-		
 		return ( getKeyFromString(aKey) != null );
-		
 	}
 	
 	/**
@@ -262,14 +331,17 @@ public class FreenetKey {
         String w = privKey == null ? "none" : privKey;
         String k = cryptoKey == null ? "none" : cryptoKey;
         String e = extra == null ? "none" : extra;
-        System.out.println("FreenetKey: " + this);
+        System.out.println("FreenetKey: " + this.toString());
         
         System.out.println("Network type : " + Network.getNetworkTypeName(networkType));
-        System.out.println("Key type   : " + keyType);
-        System.out.println("Read key: " + r);
-        System.out.println("Write key: " + r);
-        System.out.println("Crypto key : " + k);
-        System.out.println("Extra      : " + e);
-        System.out.println("File name   : " + (docName == null ? "none" : docName));
+        System.out.println("Key type     : " + keyType);
+        System.out.println("Read key     : " + r);
+        System.out.println("Write key    : " + w);
+        System.out.println("Crypto key 	 : " + k);
+        System.out.println("Extra      	 : " + e);
+        System.out.println("Revision   	 : " + revision);
+        System.out.println("Doc name   	 : " + (docName == null ? "none" : docName));
+        System.out.println("File name    : " + (fileName == null ? "none" : fileName));
     }
+	
 }
