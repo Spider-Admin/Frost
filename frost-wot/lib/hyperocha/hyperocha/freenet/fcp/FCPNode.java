@@ -93,6 +93,7 @@ public class FCPNode extends Observable {
     	nodeConfig.networkType = networktype;
     	nodeConfig.nodeID = id;
 		setServerPort(serverport);
+		callBack = callback;
     }
 
 	private boolean setServerPort(String serverport) {
@@ -134,7 +135,7 @@ public class FCPNode extends Observable {
 	}
 	
 	public synchronized void closeDefaultConnectionrunner() {
-		if (defaultConnRunner == null) {
+		if (defaultConnRunner != null) {
 			defaultConnRunner.close();
 			defaultConnRunner = null;
 		}
@@ -182,7 +183,7 @@ public class FCPNode extends Observable {
 	
 	
 	public FCPConnection getNewFCPConnection() {
-		return new FCPConnection(this, null);
+		return new FCPConnection(this, callBack);
 	}
 	
 	public FCPConnection getNewFCPConnection(IIncoming callback, String id) {
