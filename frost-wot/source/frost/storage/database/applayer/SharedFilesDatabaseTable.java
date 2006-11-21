@@ -147,25 +147,28 @@ public class SharedFilesDatabaseTable extends AbstractDatabaseTable {
             boolean fileIsOk = true;
             File file = new File(filepath);
 
-            Language language = Language.getInstance();
-            if( !file.isFile() ) {
-                String title = language.getString("StartupMessage.sharedFile.sharedFileNotFound.title");
-                String text = language.formatMessage("StartupMessage.sharedFile.sharedFileNotFound.text", filepath);
-                MainFrame.enqueueStartupMessage(title, text, JOptionPane.WARNING_MESSAGE);
-                logger.severe("Shared file does not exist: "+filepath);
-                fileIsOk = false;
-            } else if( file.length() != filesize ) {
-                String title = language.getString("StartupMessage.sharedFile.sharedFileSizeChanged.title");
-                String text = language.formatMessage("StartupMessage.sharedFile.sharedFileSizeChanged.text", filepath);
-                MainFrame.enqueueStartupMessage(title, text, JOptionPane.WARNING_MESSAGE);
-                logger.severe("Size of shared file changed: "+filepath);
-                fileIsOk = false;
-            } else if( file.lastModified() != lastModified ) {
-                String title = language.getString("StartupMessage.sharedFile.sharedFileLastModifiedChanged.title");
-                String text = language.formatMessage("StartupMessage.sharedFile.sharedFileLastModifiedChanged.text", filepath);
-                MainFrame.enqueueStartupMessage(title, text, JOptionPane.WARNING_MESSAGE);
-                logger.severe("Last modified date of shared file changed: "+filepath);
-                fileIsOk = false;
+            // report modified/missing shared files only if filesharing is enabled
+            if( !Core.frostSettings.getBoolValue(SettingsClass.DISABLE_FILESHARING) ) {
+                Language language = Language.getInstance();
+                if( !file.isFile() ) {
+                    String title = language.getString("StartupMessage.sharedFile.sharedFileNotFound.title");
+                    String text = language.formatMessage("StartupMessage.sharedFile.sharedFileNotFound.text", filepath);
+                    MainFrame.enqueueStartupMessage(title, text, JOptionPane.WARNING_MESSAGE);
+                    logger.severe("Shared file does not exist: "+filepath);
+                    fileIsOk = false;
+                } else if( file.length() != filesize ) {
+                    String title = language.getString("StartupMessage.sharedFile.sharedFileSizeChanged.title");
+                    String text = language.formatMessage("StartupMessage.sharedFile.sharedFileSizeChanged.text", filepath);
+                    MainFrame.enqueueStartupMessage(title, text, JOptionPane.WARNING_MESSAGE);
+                    logger.severe("Size of shared file changed: "+filepath);
+                    fileIsOk = false;
+                } else if( file.lastModified() != lastModified ) {
+                    String title = language.getString("StartupMessage.sharedFile.sharedFileLastModifiedChanged.title");
+                    String text = language.formatMessage("StartupMessage.sharedFile.sharedFileLastModifiedChanged.text", filepath);
+                    MainFrame.enqueueStartupMessage(title, text, JOptionPane.WARNING_MESSAGE);
+                    logger.severe("Last modified date of shared file changed: "+filepath);
+                    fileIsOk = false;
+                }
             }
             
             FrostSharedFileItem sfItem = new FrostSharedFileItem(

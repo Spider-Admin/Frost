@@ -155,9 +155,9 @@ public class FecSplitfile
          int dataBlockCount;
          int checkBlockCount;
 
-         String v1 = SettingsFun.getValue(lines,"SplitFile.BlockCount");
-         String v2 = SettingsFun.getValue(lines,"SplitFile.CheckBlockCount");
-         String v3 = SettingsFun.getValue(lines,"SplitFile.Size");
+         String v1 = getValue(lines,"SplitFile.BlockCount");
+         String v2 = getValue(lines,"SplitFile.CheckBlockCount");
+         String v3 = getValue(lines,"SplitFile.Size");
          try {
             dataBlockCount = Integer.parseInt(v1, 16);
             checkBlockCount = Integer.parseInt(v2, 16);
@@ -204,7 +204,7 @@ public class FecSplitfile
          * first time the download runs or there is not yet any block downloaded.
          */
 
-         boolean transferContinues = SettingsFun.getValue(lines, FROST_TRANSFER_INDICATOR).toLowerCase().equals("true");
+         boolean transferContinues = getValue(lines, FROST_TRANSFER_INDICATOR).toLowerCase().equals("true");
 
         /* IF downloadContinues == true
          * This file download was in progress before.
@@ -254,7 +254,7 @@ public class FecSplitfile
          // read in all data block CHKs
          for( int x = 0; x < this.fileDataBlockCount; x++ ) {
             String blockParameter = "SplitFile.Block." + Integer.toHexString(x + 1);
-            String blockChk = SettingsFun.getValue(lines, blockParameter);
+            String blockChk = getValue(lines, blockParameter);
 
             if( blockChk == null ) {
                 throw new IllegalStateException("Redirect file contains an invalid CHK for a data block");
@@ -273,7 +273,7 @@ public class FecSplitfile
                 }
                 blockChk = null;
             } else if( transferContinues ) {
-                String isBlockFinished = SettingsFun .getValue(lines, FROST_TRANSFER_FINISHED_INDICATOR + blockParameter);
+                String isBlockFinished = getValue(lines, FROST_TRANSFER_FINISHED_INDICATOR + blockParameter);
                 if( isBlockFinished != null && isBlockFinished.toLowerCase().equals("true") ) {
                     b.setCurrentState(FecBlock.STATE_TRANSFER_FINISHED);
                 }
@@ -284,7 +284,7 @@ public class FecSplitfile
          // read in all check CHKs
          for( int x = 0; x < this.fileCheckBlockCount; x++ ) {
             String blockParameter = "SplitFile.CheckBlock." + Integer.toHexString(x + 1);
-            String blockChk = SettingsFun.getValue(lines, blockParameter);
+            String blockChk = getValue(lines, blockParameter);
             if( blockChk == null ) {
                 throw new IllegalStateException("Redirect file contains an invalid CHK for a check block");
             }
@@ -300,7 +300,7 @@ public class FecSplitfile
                 }
                 blockChk = null;
             } else if( transferContinues ) {
-                String isBlockFinished = SettingsFun.getValue(lines, FROST_TRANSFER_FINISHED_INDICATOR + blockParameter);
+                String isBlockFinished = getValue(lines, FROST_TRANSFER_FINISHED_INDICATOR + blockParameter);
                 if( isBlockFinished != null && isBlockFinished.toLowerCase().equals("true") ) {
                     b.setCurrentState(FecBlock.STATE_TRANSFER_FINISHED);
                 }
@@ -412,7 +412,7 @@ public class FecSplitfile
                 && this.checkBlocksFile.length() > 0 ) {
             // check for sure if filesize in redirect file is same as datafilesize
             List lines = FileAccess.readLines(this.redirectFile);
-            String slen = SettingsFun.getValue(lines, "SplitFile.Size");
+            String slen = getValue(lines, "SplitFile.Size");
             if( slen.length() > 0 ) {
                 long fsize = Long.parseLong(slen, 16);
                 if( fsize == this.dataFile.length() ) {
@@ -955,5 +955,27 @@ End
         newfile.delete(); // delete file on error
         logger.severe("ERROR: Could not create the work file " + newfile.getPath());
         return false;
+    }
+    
+    /**
+     * Returns the requested value in a settings vector
+     * 
+     * @param lines
+     *            Vector containing lines of a settings file
+     * @param value
+     *            the requested value
+     * @return String the requested value as a String
+     */
+    private static String getValue(List lines, String value) {
+        for( int i = 0; i < lines.size(); i++ ) {
+            String line = (String) lines.get(i);
+            if( line.startsWith(value + "=") || line.startsWith(value + " ") ) {
+                if( line.indexOf("=") != -1 ) {
+                    return line.substring(line.indexOf("=") + 1, line.length()).trim();
+                }
+            }
+        }
+        logger.fine("Setting not found: " + value);
+        return "";
     }
 }
