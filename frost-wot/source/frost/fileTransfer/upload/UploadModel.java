@@ -176,6 +176,26 @@ public class UploadModel extends OrderedModel implements Savable {
     }
 
     /**
+     * Removes finished uploads from the model.
+     */
+    public synchronized void removeFinishedUploads() {
+        ArrayList items = new ArrayList();
+        for (int i = getItemCount() - 1; i >= 0; i--) {
+            FrostUploadItem dlItem = (FrostUploadItem) getItemAt(i);
+            if (dlItem.getState() == FrostUploadItem.STATE_DONE) {
+                items.add(dlItem);
+            }
+        }
+        if (items.size() > 0) {
+            FrostUploadItem[] itemsArray = new FrostUploadItem[items.size()];
+            for (int i = 0; i < itemsArray.length; i++) {
+                itemsArray[i] = (FrostUploadItem) items.get(i);
+            }
+            removeItems(itemsArray);
+        }
+    }
+
+    /**
      * Initializes and loads the model
      */
     public void initialize(List sharedFiles) throws StorageException {

@@ -285,6 +285,7 @@ public class FcpConnection {
                     dlItem.setRequiredBlocks(requiredBlocks);
                     dlItem.setTotalBlocks(totalBlocks);
                     dlItem.setFinalized(isFinalized);
+                    dlItem.fireValueChanged();
                 }
                 continue;
             }
@@ -442,6 +443,7 @@ public class FcpConnection {
                     ulItem.setDoneBlocks(doneBlocks);
                     ulItem.setTotalBlocks(totalBlocks);
                     ulItem.setFinalized(isFinalized);
+                    ulItem.fireValueChanged();
                 }
                 continue;
             }

@@ -249,7 +249,8 @@ public class UploadPanel extends JPanel {
         private JMenuItem uploadSelectedFilesItem = new JMenuItem();
         private JMenuItem removeSelectedFilesItem = new JMenuItem();
         private JMenuItem showSharedFileItem = new JMenuItem();
-
+        private JMenuItem removeFinishedFilesItem = new JMenuItem();
+// FIXME: remove finished
         private JMenu changeDestinationBoardMenu = new JMenu();
         private JMenu copyToClipboardMenu = new JMenu();
 
@@ -281,6 +282,7 @@ public class UploadPanel extends JPanel {
             uploadSelectedFilesItem.addActionListener(this);
             generateChkForSelectedFilesItem.addActionListener(this);
             showSharedFileItem.addActionListener(this);
+            removeFinishedFilesItem.addActionListener(this);
         }
 
         private void refreshLanguage() {
@@ -296,6 +298,7 @@ public class UploadPanel extends JPanel {
             uploadSelectedFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.uploadSelectedFiles"));
             removeSelectedFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.remove.removeSelectedFiles"));
             showSharedFileItem.setText(language.getString("UploadPane.fileTable.popupmenu.showSharedFile"));
+            removeFinishedFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.removeFinishedUploads"));
             
             changeDestinationBoardMenu.setText(language.getString("UploadPane.fileTable.popupmenu.changeDestinationBoard"));
             copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
@@ -330,6 +333,9 @@ public class UploadPanel extends JPanel {
             if (e.getSource() == showSharedFileItem) {
                 uploadTableDoubleClick(null);
             }
+            if (e.getSource() == removeFinishedFilesItem) {
+                removeFinished();
+            }
         }
 
         /**
@@ -338,6 +344,10 @@ public class UploadPanel extends JPanel {
         private void generateChkForSelectedFiles() {
             ModelItem[] selectedItems = modelTable.getSelectedItems();
             model.generateChkItems(selectedItems);
+        }
+
+        private void removeFinished() {
+            model.removeFinishedUploads();
         }
 
         /**
@@ -454,6 +464,8 @@ public class UploadPanel extends JPanel {
             addSeparator();
             add(generateChkForSelectedFilesItem);
             add(uploadSelectedFilesItem);
+            addSeparator();
+            add(removeFinishedFilesItem);
             if( selectedItems.length == 1 ) {
                 FrostUploadItem item = (FrostUploadItem) selectedItems[0];
                 if( item.isSharedFile() ) {
@@ -461,7 +473,6 @@ public class UploadPanel extends JPanel {
                     add(showSharedFileItem);
                 }
             }
-
             super.show(invoker, x, y);
         }
 
