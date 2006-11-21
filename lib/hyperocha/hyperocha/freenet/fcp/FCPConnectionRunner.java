@@ -87,5 +87,9 @@ public class FCPConnectionRunner extends Thread {
 	public synchronized void close() {
 		conn.close();
 	}
+
+	public boolean haveGQ() {
+		return fcpNode.haveGQ();
+	}
 	
 }

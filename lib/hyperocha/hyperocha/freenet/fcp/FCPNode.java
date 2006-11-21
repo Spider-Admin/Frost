@@ -453,4 +453,8 @@ public class FCPNode extends Observable {
 	public void setDDA(boolean haveDDA) {
 		nodeConfig.useDDA = haveDDA;
 	}
+
+	public boolean haveGQ() {
+		return nodeConfig.useGQ;
+	}
 }
