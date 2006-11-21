@@ -181,12 +181,6 @@ public class FreenetKey {
 	}
 	
 	/**
-	 * @deprecated use getKeyFromString(string) instead
-	 * <pre>
-	 * 		key = getKeyFromString(string)
-	 * 		if (key.isFreenetKeyType(FreenetKeyType.KSK)) {
-	 * 			foo();
-	 * 		}
 	 * @param k
 	 * @return key
 	 */
@@ -201,12 +195,6 @@ public class FreenetKey {
 	}
 	
 	/**
-	 * @deprecated use getKeyFromString(string) instead
-	 * <pre>
-	 * 		key = getKeyFromString(string)
-	 * 		if (key.isFreenetKeyType(FreenetKeyType.CHK)) {
-	 * 			foo();
-	 * 		}
 	 * @param k
 	 * @return key
 	 */
