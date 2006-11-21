@@ -49,7 +49,7 @@ public class SentMessagesTableModel extends OrderedModel {
     
     public boolean removeItems(ModelItem[] selectedItems) {
         LinkedList itemsToDelete = new LinkedList();
-        for(int x=0; x < selectedItems.length; x++) {
+        for( int x = selectedItems.length - 1; x >= 0; x-- ) {
             SentMessagesTableItem item = (SentMessagesTableItem) selectedItems[x];
             itemsToDelete.add(item.getFrostMessageObject());
         }

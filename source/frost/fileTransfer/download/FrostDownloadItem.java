@@ -236,7 +236,6 @@ public class FrostDownloadItem extends ModelItem {
 	}
 	public void setDoneBlocks(int newDoneBlocks) {
 	    doneBlocks = newDoneBlocks;
-	    fireChange();
 	}
     
 	public int getRequiredBlocks() {
@@ -244,7 +243,6 @@ public class FrostDownloadItem extends ModelItem {
 	}
 	public void setRequiredBlocks(int newRequiredBlocks) {
 	    requiredBlocks = newRequiredBlocks;
-	    fireChange();
 	}
 	
 	public int getTotalBlocks() {
@@ -252,7 +250,6 @@ public class FrostDownloadItem extends ModelItem {
 	}
 	public void setTotalBlocks(int newTotalBlocks) {
 		totalBlocks = newTotalBlocks;
-        fireChange();
 	}
 
     public Boolean isFinalized() {
