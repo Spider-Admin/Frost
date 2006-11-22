@@ -105,7 +105,7 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
             case 1 :    //Size
                 return SizeFormatter.formatSize(searchItem.getSize().longValue());
 
-            case 2 :    //Age
+            case 2 :    //State
                 return getStateStr(searchItem.getState());
 
             case 3 :    //lastUploaded

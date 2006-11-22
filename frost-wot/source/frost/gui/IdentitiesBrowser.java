@@ -780,6 +780,8 @@ public class IdentitiesBrowser extends JDialog {
             protected void doNonUILogic() throws RuntimeException {
                 allTableMembers = new LinkedList(); // remember all table data for filter
                 List allIdentities = Core.getIdentities().getIdentities();
+                // show own identities also
+                allIdentities.addAll(Core.getIdentities().getLocalIdentities());
                 int count = 0;
                 for( Iterator iter = allIdentities.iterator(); iter.hasNext(); ) {
                     Identity identity = (Identity) iter.next();

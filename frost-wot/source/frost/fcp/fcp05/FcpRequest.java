@@ -134,7 +134,7 @@ public class FcpRequest
             dlItem.setDoneBlocks(displayedFinishedBlocks);
             dlItem.setRequiredBlocks(displayedRequiredBlocks);
             dlItem.setTotalBlocks(displayedAvailableBlocks);
-            dlItem.setState( FrostDownloadItem.STATE_PROGRESS );
+            dlItem.setState( FrostDownloadItem.STATE_PROGRESS ); // fires change
         }
 
         boolean[] wasSegmentSuccessful = new boolean[splitfile.getSegmentCount()];
@@ -198,6 +198,7 @@ public class FcpRequest
                                     dlItem.setDoneBlocks(displayedFinishedBlocks);
                                     dlItem.setRequiredBlocks(displayedRequiredBlocks);
                                     dlItem.setTotalBlocks(displayedAvailableBlocks);
+                                    dlItem.fireValueChanged();
                                 }
                                 // now done in thread
                                 // splitfile.createRedirectFile(true);
@@ -248,6 +249,7 @@ public class FcpRequest
                                     dlItem.setDoneBlocks(displayedFinishedBlocks);
                                     dlItem.setRequiredBlocks(displayedRequiredBlocks);
                                     dlItem.setTotalBlocks(displayedAvailableBlocks);
+                                    dlItem.fireValueChanged();
                                 }
                             }
                             runningThreads.remove(y);

@@ -38,7 +38,7 @@ public class SearchModel extends OrderedModel {
     }
 
     public void addItemsToDownloadModel(ModelItem[] selectedItems) {
-        for (int i = 0; i < selectedItems.length; i++) {
+        for (int i = selectedItems.length - 1; i >= 0; i--) {
             FrostSearchItem searchItem = (FrostSearchItem) selectedItems[i];
             FrostFileListFileObject flf = searchItem.getFrostFileListFileObject();
             

@@ -34,6 +34,7 @@ import javax.swing.text.*;
 
 import frost.*;
 import frost.boards.*;
+import frost.fcp.*;
 import frost.fileTransfer.download.*;
 import frost.gui.model.*;
 import frost.messages.*;
@@ -967,8 +968,14 @@ public class MessageTextPane extends JPanel {
             Iterator it = items.iterator();
             while (it.hasNext()) {
                 String item = (String)it.next();
-                String key = item.substring(0, item.indexOf("/") );
-                String name = item.substring(item.indexOf("/")+1);
+                String key;
+                // 0.5: remove filename from key; 0.7: use key/filename
+                if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
+                    key = item.substring(0, item.indexOf("/") );
+                } else {
+                    key = item;
+                }
+                String name = item.substring(item.lastIndexOf("/")+1);
                 FrostDownloadItem dlItem = new FrostDownloadItem(name, key, null); 
                 downloadModel.addDownloadItem(dlItem);
             }

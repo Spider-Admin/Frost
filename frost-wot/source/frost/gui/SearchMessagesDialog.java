@@ -1512,7 +1512,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             }
         });
     }
-
+// TODO: add 'jump to msg in board'. not for archived msgs
     private void openSelectedMessage() {
         int row = getSearchResultTable().getSelectedRow();
         if (row < 0) {

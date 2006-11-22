@@ -80,8 +80,14 @@ public class FrostIdentities implements Savable {
             // load all identities
             List identitiesList = AppLayerDatabase.getIdentitiesDatabaseTable().getIdentities();
             for(Iterator i=identitiesList.iterator(); i.hasNext(); ) {
-                Identity li = (Identity)i.next();
-                identities.put(li.getUniqueName(), li);
+                Identity id = (Identity)i.next();
+                identities.put(id.getUniqueName(), id);
+            }
+            
+            // remove all own identities from identities
+            for(Iterator i=localIdentities.values().iterator(); i.hasNext(); ) {
+                LocalIdentity li = (LocalIdentity) i.next();
+                identities.remove(li.getUniqueName());
             }
             
         } catch(SQLException ex) {

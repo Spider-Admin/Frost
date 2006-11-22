@@ -262,7 +262,7 @@ RawDataLength=0
         if( ulItem != null && ulItem.getKey() != null ) {
             ulItem.setTotalBlocks( totalAvailableBlocks );
             ulItem.setDoneBlocks( 0 );
-            ulItem.setState( FrostUploadItem.STATE_PROGRESS );
+            ulItem.setState( FrostUploadItem.STATE_PROGRESS ); // fires change
         }
 
         LinkedList allBlocksToUpload = new LinkedList();
@@ -290,6 +290,7 @@ RawDataLength=0
             totalFinishedBlocks += segmentBlockCount - blocksToUploadCount;
             if( ulItem != null && ulItem.getKey() != null ) {
                 ulItem.setDoneBlocks( totalFinishedBlocks );
+                ulItem.fireValueChanged();
             }
 
             if( blocksToUploadCount == 0 ) {
@@ -317,6 +318,7 @@ RawDataLength=0
                         // don't add block back to list
                         if( ulItem != null && ulItem.getKey() != null ) {
                             ulItem.setDoneBlocks( totalFinishedBlocks );
+                            ulItem.fireValueChanged();
                         }
                         // now done in thread
                         // splitfile.createRedirectFile(true);

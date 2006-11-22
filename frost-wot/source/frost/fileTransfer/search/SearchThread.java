@@ -204,8 +204,8 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
             String comment = lowerCase(ob.getComment());
             String keyword = lowerCase(ob.getKeywords());
             
-            for(Iterator j=searchParams.getSimpleSearchNotStrings().iterator(); j.hasNext(); ) {
-                String notString = (String) j.next();
+            for(int x=0; x < searchParams.getSimpleSearchNotStrings().size(); x++ ) {
+                String notString = (String) searchParams.getSimpleSearchNotStrings().get(x);
                 if( name.indexOf(notString) > -1 ) {
                     return false;
                 }
@@ -260,25 +260,25 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
             // then check for strings, if strings are given they must match
 
             // check name
-            if( !searchParams.getName().isEmpty() && name.length() > 0 ) {
+            if( !nameFound && name.length() > 0 ) {
                 if( TextSearchFun.containsEachString(name, searchParams.getName()) ) {
                     nameFound = true;
                 }
             }
             // check comment
-            if( !searchParams.getComment().isEmpty() && comment.length() > 0 ) {
+            if( !commentFound && comment.length() > 0 ) {
                 if( TextSearchFun.containsEachString(comment, searchParams.getComment()) ) {
                     commentFound = true;
                 }
             }
             // check keyword
-            if( !searchParams.getKeyword().isEmpty() && keyword.length() > 0 ) {
+            if( !keywordFound && keyword.length() > 0 ) {
                 if( TextSearchFun.containsEachString(keyword, searchParams.getKeyword()) ) {
                     keywordFound = true;
                 }
             }
             // check owner
-            if( !searchParams.getOwner().isEmpty() && owner.length() > 0 ) {
+            if( !ownerFound && owner.length() > 0 ) {
                 if( TextSearchFun.containsEachString(owner, searchParams.getOwner()) ) {
                     ownerFound = true;
                 }
@@ -299,9 +299,9 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
 
         // mark all strings not found
         Hashtable searchStrings = new Hashtable();
-        for(Iterator i=searchParams.getSimpleSearchStrings().iterator(); i.hasNext(); ) {
-            String s = (String) i.next();
-            searchStrings.put(s, Boolean.FALSE);
+        for(int x=0; x < searchParams.getSimpleSearchStrings().size(); x++) {
+            String string = (String) searchParams.getSimpleSearchStrings().get(x);
+            searchStrings.put(string, Boolean.FALSE);
         }
 
         for( Iterator i=fo.getFrostFileListFileObjectOwnerList().iterator(); i.hasNext(); ) {
@@ -312,8 +312,8 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
             String comment = lowerCase(ob.getComment());
             String keyword = lowerCase(ob.getKeywords());
             
-            for(Iterator j=searchParams.getSimpleSearchStrings().iterator(); j.hasNext(); ) {
-                String string = (String) j.next();
+            for(int x=0; x < searchParams.getSimpleSearchStrings().size(); x++) {
+                String string = (String) searchParams.getSimpleSearchStrings().get(x);
                 if( name.indexOf(string) > -1 ) {
                     searchStrings.put(string, Boolean.TRUE);
                 }
