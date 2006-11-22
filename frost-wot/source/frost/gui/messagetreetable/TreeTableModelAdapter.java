@@ -192,7 +192,7 @@ public class TreeTableModelAdapter extends AbstractTableModel {
                 if( childIndices.length != 1 ) {
                     System.out.println("****** FIXME3: more than 1 child: "+childIndices.length+" ********");
                 }
-                // TODO: will getRowForNode work if node was already removed from tree?
+                // ATTN: will getRowForNode work if node was already removed from tree?
                 //  -> we currently don't remove nodes from tree anywhere in Frost
                 DefaultMutableTreeNode childNode = (DefaultMutableTreeNode)node.getChildAt(childIndices[0]);
                 final int row = MainFrame.getInstance().getMessageTreeTable().getRowForNode(childNode);
@@ -253,15 +253,15 @@ public class TreeTableModelAdapter extends AbstractTableModel {
         treeTableModel.setValueAt(value, nodeForRow(row), column);
     }
 
-    /**
-     * Invokes fireTableDataChanged after all the pending events have been processed. SwingUtilities.invokeLater is used
-     * to handle this.
-     */
-    protected void delayedFireTableDataChanged() {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                fireTableDataChanged();
-            }
-        });
-    }
+//    /**
+//     * Invokes fireTableDataChanged after all the pending events have been processed. SwingUtilities.invokeLater is used
+//     * to handle this.
+//     */
+//    protected void delayedFireTableDataChanged() {
+//        SwingUtilities.invokeLater(new Runnable() {
+//            public void run() {
+//                fireTableDataChanged();
+//            }
+//        });
+//    }
 }
