@@ -28,6 +28,7 @@ import java.net.*;
 import java.util.*;
 import java.util.logging.*;
 
+import frost.*;
 import frost.fcp.*;
 import frost.fileTransfer.download.*;
 import frost.fileTransfer.upload.*;
@@ -661,22 +662,20 @@ public class FcpConnection {
     }
     
     /**
-     * Create a 1k file with random data for testing the node cabalities
-     * in the given dir
-     * @return File Filehandle of the file or null if somthing goes wrong
+     * Create an 1 kb file with random data to test if the node can access the file directly
+     * @return File  the file or null if somthing went wrong
      */
     private File createTestFile() {
         File file = FileAccess.createTempFile("dda_", ".tmp");
-        Random rnd = new Random();
         byte[] b = new byte[1024]; 
-        rnd.nextBytes(b);
+        Core.getCrypto().getSecureRandom().nextBytes(b);
         try {
             file.deleteOnExit();
             FileOutputStream os = new FileOutputStream(file);
             os.write(b, 0, b.length);
             os.close();
         } catch (IOException ex) {
-            logger.log(Level.SEVERE, "Testfile creation failed", ex);
+            logger.log(Level.SEVERE, "DDA testfile creation failed", ex);
             return null;
         }
         return file;
