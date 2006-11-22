@@ -58,10 +58,10 @@ public class FrostSearchItem extends ModelItem {
         String SHA1 = fo.getSha();
 
         if (downloadModel.containsItemWithSha(SHA1)) {
-            // file was downloaded before -> light_gray
+            // this file is in download table -> blue
             searchItemState = FrostSearchItem.STATE_DOWNLOADING;
         } else if ( fo.getLastDownloaded() > 0 ) {
-            // this file is in download table -> blue
+            // file was downloaded before -> light_gray
             searchItemState = FrostSearchItem.STATE_DOWNLOADED;
         } else if (sharedFilesModel.containsItemWithSha(SHA1)) {
             // this file is in upload table -> green
@@ -72,7 +72,6 @@ public class FrostSearchItem extends ModelItem {
         }
 
         state = searchItemState;
-        fireChange();
     }
 
     public String getFilename() {

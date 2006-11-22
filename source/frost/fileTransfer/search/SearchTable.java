@@ -106,7 +106,6 @@ public class SearchTable extends SortedModelTable {
             showDetails();
             return;
         }
-        
         addItemsToDownloadTable( getSelectedItems() );
     }
 
@@ -130,6 +129,13 @@ public class SearchTable extends SortedModelTable {
         } else {
             // add selected
             searchModel.addItemsToDownloadModel(selectedItems);
+        }
+
+        // update items in model
+        for(int x=0; x < selectedItems.length; x++) {
+            FrostSearchItem si = (FrostSearchItem) selectedItems[x];
+            int i = model.indexOf(si);
+            fireTableRowsUpdated(i,i);
         }
     }
 

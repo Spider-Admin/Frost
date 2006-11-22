@@ -28,6 +28,8 @@ public class TextSearchFun {
     private final static SearchStringParser searchStringParser = new SearchStringParser();
 
     private static final String NOT_IDENT = ">?*NOT*?<";
+    
+    private static List emptyList = new LinkedList();
 
     /**
      * Searches text for occurence of any of the provided strings.
@@ -37,8 +39,8 @@ public class TextSearchFun {
      */
     public static boolean containsAnyString(String text, List notStrings) {
         if( notStrings != null && !notStrings.isEmpty() && text != null && text.length() > 0 ) {
-            for(Iterator j=notStrings.iterator(); j.hasNext(); ) {
-                String notName = (String) j.next();
+            for(int x=0; x < notStrings.size(); x++) {
+                String notName = (String) notStrings.get(x);
                 if( text.indexOf(notName) > -1 ) {
                     return true;
                 }
@@ -54,9 +56,9 @@ public class TextSearchFun {
      * @return true if ALL strings occur in the text, false otherwise
      */
     public static boolean containsEachString(String text, List strings) {
-        for(Iterator j=strings.iterator(); j.hasNext(); ) {
-            String obname = (String) j.next();
-            if( text.indexOf(obname) < 0 ) {
+        for(int x=0; x < strings.size(); x++) {
+            String string = (String) strings.get(x);
+            if( text.indexOf(string) < 0 ) {
                 return false;
             }
         }
@@ -77,8 +79,8 @@ public class TextSearchFun {
         }
 
         List[] retVal = new List[2];
-        List searchStrings = new LinkedList();
-        List notSearchStrings = new LinkedList();
+        List searchStrings = new ArrayList();
+        List notSearchStrings = new ArrayList();
         retVal[0] = searchStrings;
         retVal[1] = notSearchStrings;
         
@@ -119,7 +121,7 @@ public class TextSearchFun {
         public List parseSearchText(String aSearchText) {
             
             if( aSearchText == null ) {
-                return new LinkedList();
+                return emptyList;
             }
             fSearchText = aSearchText;
             notAdded = false;
