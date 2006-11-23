@@ -87,15 +87,14 @@ public class SortedModelTable extends ModelTable {
 	 * This method returns the number of the column the
 	 * table is currently sorted by (or -1 if none).
 	 * 
-	 * @return the number of the column that is currently sorted.
-	 *   	   -1 if none.
+	 * @return the number of the column that is currently sorted. -1 if none.
 	 */
-	public int getSortedColumnNumber() {
+	public int getSortedColumn() {
 		return currentColumnNumber;
 	}
 
 	/**
-	 * @return
+	 * @return  true if the sort order is ascending
 	 */
 	public boolean isSortedAscending() {
 		return ascending;

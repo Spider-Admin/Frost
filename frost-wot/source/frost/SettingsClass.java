@@ -96,6 +96,7 @@ public class SettingsClass implements Savable {
     public static final String DOWNLOAD_REMOVE_FINISHED = "removeFinishedDownloads";
     public static final String DOWNLOAD_MAX_SPLITFILE_THREADS = "splitfileDownloadThreads";
 
+    public static final String SAVE_SORT_STATES = "saveSortStates";
     public static final String MSGTABLE_MULTILINE_SELECT = "messageTableMultilineSelect";
     public static final String MSGTABLE_SCROLL_HORIZONTAL = "messageTableScrollHorizontal";
     public static final String SHOW_BOARDDESC_TOOLTIPS = "showBoardDescriptionTooltips";
@@ -800,6 +801,8 @@ public class SettingsClass implements Savable {
         defaults.put(MESSAGE_BODY_ANTIALIAS, "false");
         defaults.put(MSGTABLE_MULTILINE_SELECT, "false");
         defaults.put(MSGTABLE_SCROLL_HORIZONTAL, "false");
+        
+        defaults.put(SAVE_SORT_STATES, "false");
         
         defaults.put(SHOW_BOARDDESC_TOOLTIPS, "true");
 
