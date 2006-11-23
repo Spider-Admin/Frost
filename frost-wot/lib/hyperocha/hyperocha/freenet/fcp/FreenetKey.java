@@ -69,7 +69,12 @@ public class FreenetKey {
 		return keyType.equals(keytype);
 	}
 	
-	public String getReadFreenetKey() {
+	
+	/**
+	 * returns the key without metadata
+	 * @return String the key without metadata
+	 */
+	public String getBaseReadKey() {
 		if (keyType.equals(FreenetKeyType.KSK)) {
 			return "KSK@" + fileName;
 		}
@@ -80,7 +85,17 @@ public class FreenetKey {
 		if (extra != null) {
 			s = s + ',' + extra;
 		}
+		return s;
+	}
+	
+	public String getReadFreenetKey() {
 
+		String s = getBaseReadKey();
+
+		if (keyType.equals(FreenetKeyType.KSK)) {
+			return s;
+		}
+		
 		if (keyType.equals(FreenetKeyType.CHK)) {
 			return s + '/' +  (fileName == null ? "" : fileName);
 		}
