@@ -34,6 +34,11 @@ import frost.util.model.gui.*;
 
 public class SentMessagesTableFormat extends SortedTableFormat implements LanguageListener, PropertyChangeListener {
 
+    private static final String CFGKEY_SORTSTATE_SORTEDCOLUMN = "SentMessagesTable.sortState.sortedColumn";
+    private static final String CFGKEY_SORTSTATE_SORTEDASCENDING = "SentMessagesTable.sortState.sortedAscending";
+    private static final String CFGKEY_COLUMN_TABLEINDEX = "SentMessagesTable.tableindex.modelcolumn.";
+    private static final String CFGKEY_COLUMN_WIDTH = "SentMessagesTable.columnwidth.modelcolumn.";
+
     private Language language;
 
     private final static int COLUMN_COUNT = 5;
@@ -123,8 +128,19 @@ public class SentMessagesTableFormat extends SortedTableFormat implements Langua
                 columnModel.getColumn(i).setPreferredWidth(widths[i]);
             }
         }
-        
-        modelTable.setSortedColumn(4, false); // init: sort by date, descending
+
+        if( Core.frostSettings.getBoolValue(SettingsClass.SAVE_SORT_STATES)
+                && Core.frostSettings.getObjectValue(CFGKEY_SORTSTATE_SORTEDCOLUMN) != null
+                && Core.frostSettings.getObjectValue(CFGKEY_SORTSTATE_SORTEDASCENDING) != null )
+        {
+            int sortedColumn = Core.frostSettings.getIntValue(CFGKEY_SORTSTATE_SORTEDCOLUMN);
+            boolean isSortedAsc = Core.frostSettings.getBoolValue(CFGKEY_SORTSTATE_SORTEDASCENDING);
+            if( sortedColumn > -1 ) {
+                modelTable.setSortedColumn(sortedColumn, isSortedAsc);
+            }
+        } else {
+            modelTable.setSortedColumn(4, false); // init: sort by date, descending
+        }
     }
     
     public void saveTableLayout() {
@@ -133,10 +149,17 @@ public class SentMessagesTableFormat extends SortedTableFormat implements Langua
             TableColumn tc = tcm.getColumn(columnIndexInTable);
             int columnIndexInModel = tc.getModelIndex();
             // save the current index in table for column with the fix index in model
-            Core.frostSettings.setValue("SentMessagesTable.tableindex.modelcolumn."+columnIndexInModel, columnIndexInTable);
+            Core.frostSettings.setValue(CFGKEY_COLUMN_TABLEINDEX + columnIndexInModel, columnIndexInTable);
             // save the current width of the column
             int columnWidth = tc.getWidth();
-            Core.frostSettings.setValue("SentMessagesTable.columnwidth.modelcolumn."+columnIndexInModel, columnWidth);
+            Core.frostSettings.setValue(CFGKEY_COLUMN_WIDTH + columnIndexInModel, columnWidth);
+        }
+        
+        if( Core.frostSettings.getBoolValue(SettingsClass.SAVE_SORT_STATES) && modelTable.getSortedColumn() > -1 ) {
+            int sortedColumn = modelTable.getSortedColumn();
+            boolean isSortedAsc = modelTable.isSortedAscending();
+            Core.frostSettings.setValue(CFGKEY_SORTSTATE_SORTEDCOLUMN, sortedColumn);
+            Core.frostSettings.setValue(CFGKEY_SORTSTATE_SORTEDASCENDING, isSortedAsc);
         }
     }
     
@@ -147,7 +170,7 @@ public class SentMessagesTableFormat extends SortedTableFormat implements Langua
         int[] columnWidths = new int[tcm.getColumnCount()];
 
         for(int x=0; x < tableToModelIndex.length; x++) {
-            String indexKey = "SentMessagesTable.tableindex.modelcolumn."+x;
+            String indexKey = CFGKEY_COLUMN_TABLEINDEX + x;
             if( Core.frostSettings.getObjectValue(indexKey) == null ) {
                 return false; // column not found, abort
             }
@@ -158,7 +181,7 @@ public class SentMessagesTableFormat extends SortedTableFormat implements Langua
             }
             tableToModelIndex[tableIndex] = x;
 
-            String widthKey = "SentMessagesTable.columnwidth.modelcolumn."+x;
+            String widthKey = CFGKEY_COLUMN_WIDTH + x;
             if( Core.frostSettings.getObjectValue(widthKey) == null ) {
                 return false; // column not found, abort
             }

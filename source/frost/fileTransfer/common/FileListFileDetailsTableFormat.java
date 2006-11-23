@@ -33,6 +33,11 @@ import frost.util.model.gui.*;
 
 public class FileListFileDetailsTableFormat extends SortedTableFormat implements LanguageListener {
     
+    private static final String CFGKEY_SORTSTATE_SORTEDCOLUMN = "FileListFileDetailsDialog.sortState.sortedColumn";
+    private static final String CFGKEY_SORTSTATE_SORTEDASCENDING = "FileListFileDetailsDialog.sortState.sortedAscending";
+    private static final String CFGKEY_COLUMN_TABLEINDEX = "FileListFileDetailsDialog.tableindex.modelcolumn.";
+    private static final String CFGKEY_COLUMN_WIDTH = "FileListFileDetailsDialog.columnwidth.modelcolumn.";
+
     private String stateNever;
     private String unknown;
 
@@ -46,7 +51,7 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
     private final static int COLUMN_COUNT = 9;
     
     private boolean showColoredLines;
-
+    
     public FileListFileDetailsTableFormat() {
         super(COLUMN_COUNT);
 
@@ -153,11 +158,25 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
         return new int[] {};
     }
 
-    public void customizeTable(ModelTable modelTable) {
-        super.customizeTable(modelTable);
+    public void customizeTable(ModelTable table) {
+        super.customizeTable(table);
+        
+        SortedModelTable modelTable = (SortedModelTable)table;
         
         modelTable.getTable().setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
-        ((SortedModelTable)modelTable).setSortedColumn(7, false);
+        
+        if( Core.frostSettings.getBoolValue(SettingsClass.SAVE_SORT_STATES)
+                && Core.frostSettings.getObjectValue(CFGKEY_SORTSTATE_SORTEDCOLUMN) != null
+                && Core.frostSettings.getObjectValue(CFGKEY_SORTSTATE_SORTEDASCENDING) != null )
+        {
+            int sortedColumn = Core.frostSettings.getIntValue(CFGKEY_SORTSTATE_SORTEDCOLUMN);
+            boolean isSortedAsc = Core.frostSettings.getBoolValue(CFGKEY_SORTSTATE_SORTEDASCENDING);
+            if( sortedColumn > -1 ) {
+                modelTable.setSortedColumn(sortedColumn, isSortedAsc);
+            }
+        } else {
+            modelTable.setSortedColumn(7, false);
+        }
         
         TableColumnModel columnModel = modelTable.getTable().getColumnModel();
 
@@ -182,17 +201,27 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
             }
         }
     }
-    
-    public void saveTableLayout(ModelTable modelTable) {
+
+    public void saveTableLayout(ModelTable table) {
+        
+        SortedModelTable modelTable = (SortedModelTable)table;
+
         TableColumnModel tcm = modelTable.getTable().getColumnModel();
         for(int columnIndexInTable=0; columnIndexInTable < tcm.getColumnCount(); columnIndexInTable++) {
             TableColumn tc = tcm.getColumn(columnIndexInTable);
             int columnIndexInModel = tc.getModelIndex();
             // save the current index in table for column with the fix index in model
-            Core.frostSettings.setValue("FileListFileDetailsDialog.tableindex.modelcolumn."+columnIndexInModel, columnIndexInTable);
+            Core.frostSettings.setValue(CFGKEY_COLUMN_TABLEINDEX + columnIndexInModel, columnIndexInTable);
             // save the current width of the column
             int columnWidth = tc.getWidth();
-            Core.frostSettings.setValue("FileListFileDetailsDialog.columnwidth.modelcolumn."+columnIndexInModel, columnWidth);
+            Core.frostSettings.setValue(CFGKEY_COLUMN_WIDTH + columnIndexInModel, columnWidth);
+        }
+
+        if( Core.frostSettings.getBoolValue(SettingsClass.SAVE_SORT_STATES) && modelTable.getSortedColumn() > -1 ) {
+            int sortedColumn = modelTable.getSortedColumn();
+            boolean isSortedAsc = modelTable.isSortedAscending();
+            Core.frostSettings.setValue(CFGKEY_SORTSTATE_SORTEDCOLUMN, sortedColumn);
+            Core.frostSettings.setValue(CFGKEY_SORTSTATE_SORTEDASCENDING, isSortedAsc);
         }
     }
     
@@ -203,7 +232,7 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
         int[] columnWidths = new int[tcm.getColumnCount()];
 
         for(int x=0; x < tableToModelIndex.length; x++) {
-            String indexKey = "FileListFileDetailsDialog.tableindex.modelcolumn."+x;
+            String indexKey = CFGKEY_COLUMN_TABLEINDEX + x;
             if( Core.frostSettings.getObjectValue(indexKey) == null ) {
                 return false; // column not found, abort
             }
@@ -214,7 +243,7 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
             }
             tableToModelIndex[tableIndex] = x;
 
-            String widthKey = "FileListFileDetailsDialog.columnwidth.modelcolumn."+x;
+            String widthKey = CFGKEY_COLUMN_WIDTH + x;
             if( Core.frostSettings.getObjectValue(widthKey) == null ) {
                 return false; // column not found, abort
             }
