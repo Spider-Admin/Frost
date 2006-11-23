@@ -92,6 +92,10 @@ public class Core implements FrostEventDispatcher  {
     private static int fcpVersion = -1;
     private static Dispatcher fcpDispatcher;
     
+    public static boolean useHyperocha() {
+    	return true;
+    }
+    
     public static int getFcpVersion() {
     	return fcpVersion;
     }
@@ -106,7 +110,7 @@ public class Core implements FrostEventDispatcher  {
      * user of the situation and returns false.
      * @return boolean false if no nodes are available. True otherwise.
      */
-    private boolean initializeConnectivity2() {
+    private boolean initializeConnectivity_h() {
 
         // determine configured freenet version
         int freenetVersion = frostSettings.getIntValue(SettingsClass.FREENET_VERSION); // 5 or 7
@@ -164,7 +168,7 @@ public class Core implements FrostEventDispatcher  {
         int i;
 		for (i = 0; i < nodes.size(); i++) {
 			//net.addNode("idstring", "server:port", fcpDispatcher);
-            net.addNode("idstring-"+i, (String)nodes.get(i), fcpDispatcher);
+            net.addNode("frosty-"+i, (String)nodes.get(i), fcpDispatcher);
         }
 
 		fcpDispatcher.addNetwork(net);
@@ -186,6 +190,10 @@ public class Core implements FrostEventDispatcher  {
         
         // now network and secuity are setted up
         
+        fcpDispatcher.startDispatcher();
+        
+        //fcpDispatcher.waitForOnline(3000);
+        
         if( Frost.isOfflineMode() ) {
         	System.err.println("DEBUG: Frost is in offline mode");
             return true;
@@ -194,7 +202,7 @@ public class Core implements FrostEventDispatcher  {
         // and go online (at least one node noeeds a successful helo)
         //fcpDispatcher.goOnline(true);
         
-        fcpDispatcher.testPropertiesAllNodes(true);
+        //fcpDispatcher.testPropertiesAllNodes(true);
 
         boolean runningOnTestnet = false;
         // TODO
@@ -248,7 +256,10 @@ public class Core implements FrostEventDispatcher  {
      * @return boolean false if no nodes are available. True otherwise.
      */
     private boolean initializeConnectivity() {
-
+    	if (useHyperocha()) {
+    		return initializeConnectivity_h();
+    	}
+ 
         // determine configured freenet version
         int freenetVersion = frostSettings.getIntValue(SettingsClass.FREENET_VERSION); // 5 or 7
         if( freenetVersion <= 0 ) {
@@ -363,6 +374,12 @@ public class Core implements FrostEventDispatcher  {
         freenetIsOnline = v;
     }
     public static boolean isFreenetOnline() {
+    	if (useHyperocha()) {
+    		// FIXME
+    		//throw new Error();
+    		//return fcpDispatcher.isOnline();
+    		return true;
+    	}
         return freenetIsOnline;
     }
 
@@ -486,12 +503,20 @@ public class Core implements FrostEventDispatcher  {
         }
         
         String title;
-        if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
-            title = "Frost@Freenet 0.5";
-        } else if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) {
-            title = "Frost@Freenet 0.7";
+        if (useHyperocha()) {
+        	switch (getFcpVersion()) {
+        	case Network.FCP1: title = "Frost@Freenet 0.5"; break;
+        	case Network.FCP2: title = "Frost@Freenet 0.7"; break;
+        	default: title = "Frost";
+        	}
         } else {
-            title = "Frost";
+        	if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
+        		title = "Frost@Freenet 0.5";
+        	} else if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) {
+        		title = "Frost@Freenet 0.7";
+        	} else {
+        		title = "Frost";
+        	}
         }
 
         // Display the tray icon (do this before mainframe initializes)
@@ -551,6 +576,11 @@ public class Core implements FrostEventDispatcher  {
         splashscreen.closeMe();
         
         mainFrame.showStartupMessages();
+        
+        if (useHyperocha()) {
+        	Mixed.wait(3000);
+        	fcpDispatcher.startDispatcher();
+        }
     }
 
     public FileTransferManager getFileTransferManager() {
