@@ -86,7 +86,6 @@ public class FcpConnection {
         } else {
             useDDA = false;
         }
-        useDDA = false;
     }
 
     public void closeConnection() {
@@ -173,7 +172,7 @@ public class FcpConnection {
         fcpOut.println("Identifier=get-" + getNextFcpId() );
         fcpOut.println("MaxRetries=1");
         fcpOut.println("Verbosity=-1");
-
+System.out.println("useDDA = "+useDDA);
         if (useDDA) {
             fcpOut.println("Persistence=connection");
         	fcpOut.println("ReturnType=disk");
@@ -211,7 +210,7 @@ public class FcpConnection {
                 System.out.println("*GET** ENDMARKER is NULL!");
                 break;
             }
-            
+
             if( !useDDA && nodeMsg.isMessageName("AllData") && endMarker.equals("Data") ) {
                 // data follow, first get datalength
                 long dataLength = nodeMsg.getLongValue("DataLength");
@@ -235,6 +234,9 @@ public class FcpConnection {
                 System.out.println("*GET** Wrote "+bytesWritten+" of "+dataLength+" bytes to file.");
                 if( bytesWritten == dataLength ) {
                     isSuccess = true;
+                    if( dlItem != null && dlItem.getRequiredBlocks() > 0 ) {
+                        dlItem.setDoneBlocks(dlItem.getRequiredBlocks());
+                    }
                 }
                 break;
             }
@@ -244,6 +246,9 @@ public class FcpConnection {
                 long dataLength = nodeMsg.getLongValue("DataLength");
                 isSuccess = true;
                 System.out.println("*GET**: DataFound, len="+dataLength);
+                if( dlItem != null && dlItem.getRequiredBlocks() > 0 ) {
+                    dlItem.setDoneBlocks(dlItem.getRequiredBlocks());
+                }
                 break;
             }
             
@@ -405,6 +410,9 @@ public class FcpConnection {
             if( getChkOnly == false && nodeMsg.isMessageName("PutSuccessful") ) {
                 isSuccess = true;
                 chkKey = nodeMsg.getStringValue("URI");
+                if( ulItem != null && ulItem.getTotalBlocks() > 0 ) {
+                    ulItem.setDoneBlocks(ulItem.getTotalBlocks());
+                }
                 break;
             }
             if( nodeMsg.isMessageName("PutFailed") ) {
