@@ -68,7 +68,7 @@ public class FrostDownloadItem extends ModelItem {
 		
         fileName = FileTransferManager.getInstance().getDownloadManager().ensureUniqueFilename(fileName);
 
-        this.fileName = fileName;
+        this.fileName = Mixed.makeFilename(fileName);
 		this.key = key;
 
         gqIdentifier = buildGqIdentifier(fileName);
@@ -83,7 +83,7 @@ public class FrostDownloadItem extends ModelItem {
 
         fileName = FileTransferManager.getInstance().getDownloadManager().ensureUniqueFilename(fileName);
 
-        this.fileName = fileName;
+        this.fileName = Mixed.makeFilename(fileName);
         fileSize = s;
         this.key = key;
         
