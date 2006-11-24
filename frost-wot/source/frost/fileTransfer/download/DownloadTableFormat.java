@@ -101,6 +101,8 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
             Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
             setBackground(newBackground);
 
+            setValue(0);
+
             ModelItem item = modelTable.getItemAt(row); //It may be null
             if (item != null) {
                 FrostDownloadItem downloadItem = (FrostDownloadItem) item;

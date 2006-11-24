@@ -102,6 +102,8 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
             Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
             setBackground(newBackground);
 
+            setValue(0);
+
             ModelItem item = modelTable.getItemAt(row);
             if (item != null) {
                 FrostUploadItem uploadItem = (FrostUploadItem) item;
