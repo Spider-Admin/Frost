@@ -95,14 +95,6 @@ public class Factory implements IStorageObject, Observer {
 		networks.put(net.getID(), net);
 	}
 	
-//	private FCPConnection getNextConnection() {
-//		return getNextConnection(Network.HEAD);
-//	}
-	
-//	private FCPConnection getNextConnection5() {
-//		return getNextConnection(Network.FCP1);
-//	}
-	
 	protected FCPNode getNextNode(int networktype) {
 		Network net = getFirstNetwork(networktype);
 		//throw new Error("TODO");
@@ -136,55 +128,18 @@ public class Factory implements IStorageObject, Observer {
 				return net;
 			}
 		}
-//		int netCount = networks.size();
-//		int i;
-//		
-//		for (i=0; i < netCount; i++) {
-//			net = (Network)(networks.get(i));
-//			if	(net.isType(type)) {
-//				return net;
-//			}
-//		}
-		throw new Error("no network aviable for type: " + type);
+		// DEBUG
+		throw new Error("DEBUG: no network aviable for type: " + type);
 		//return null;
 	}
 
-//	protected void init() {
-//		for (Enumeration e = networks.elements() ; e.hasMoreElements() ;) {
-//			((Network)(e.nextElement())).init();
-//		}
-//
-//		int netCount = networks.size();
-//		int i;
-//		for (i=0; i < netCount; i++) {
-//				((Network)networks.get(i)).init();
-//		}
-//	}
-	
-//	public void goOnline() {
-//		for (Enumeration e = networks.elements() ; e.hasMoreElements() ;) {
-//			((Network)(e.nextElement())).goOnline();
-//	     }
-//	}
-
-//	protected boolean isOnline() {
-//		for (Enumeration e = networks.elements() ; e.hasMoreElements() ;) {
-//			if (((Network)(e.nextElement())).isOnline()) {
-//				return true;
-//			}
-//
-//	     }
-////		int netCount = networks.size();
-//		int i;
-//		//Network net;
-//		for (i=0; i < netCount; i++) {
-//			if (((Network)(networks.get(i))).isOnline()) {
-//				return true;
-//			}
-//		}
-//		return false;
-//	}
-
+	/**
+	 * is the host:port in our nodelist?
+	 * needed for security manager
+	 * @param host
+	 * @param port
+	 * @return true, if the host:port is found in the node list, otherwise false 
+	 */
 	public boolean isInList(String host, int port) {
 		for (Enumeration e = networks.elements() ; e.hasMoreElements() ;) {
 			if (((Network)(e.nextElement())).isInList(host, port)) {
@@ -206,6 +161,21 @@ public class Factory implements IStorageObject, Observer {
 		int i;
 		for (i = 0; i < n.size(); i++) {
 			l.addAll(((Network)n.get(i)).getNodes());
+        }
+		return l;
+	}
+	
+	public List getAllOnlineNodes(int networktype) {
+		List l = new LinkedList();
+		List n = getNetworks(networktype); 
+		if (n == null) {
+			// no networks of this type aviable, return nix
+			return null;
+		}
+		
+		int i;
+		for (i = 0; i < n.size(); i++) {
+			l.addAll(((Network)n.get(i)).listOnlineNodes());
         }
 		return l;
 	}
