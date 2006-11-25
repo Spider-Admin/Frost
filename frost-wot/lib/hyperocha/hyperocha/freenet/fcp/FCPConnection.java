@@ -135,8 +135,9 @@ public class FCPConnection {
 			// TODO Auto-generated method stub
 			// on io error the raw connection is closed 
 			// FIXME
-			System.err.println("IO Error: " + e);
-			e.printStackTrace(System.err);		
+			//System.err.println("IO Error: " + e);
+			//e.printStackTrace(System.err);
+			close();
 		}
 		
 	}

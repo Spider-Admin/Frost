@@ -67,7 +67,7 @@ public class FCPIOConnection {
     private void handleIOError(Exception e) {
     	isopen = false;
     	lasterror = e;
-    	e.printStackTrace();  // FIXME
+    	//e.printStackTrace();  // FIXME
     	if (connerrh != null) {
     		connerrh.onIOError(e);
     	}
@@ -195,7 +195,7 @@ public class FCPIOConnection {
 			}
 			result = new String(bytes, 0, count, "UTF-8");
 		} catch (Exception e) {
-			e.printStackTrace();
+			//e.printStackTrace();
 			handleIOError(e);
 			return null;
 		}
