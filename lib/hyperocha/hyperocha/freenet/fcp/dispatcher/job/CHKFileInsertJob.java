@@ -66,7 +66,7 @@ public class CHKFileInsertJob extends Job {
 		
 		FCPConnectionRunner conn = dispatcher.getDefaultFCPConnectionRunner(getRequiredNetworkType());
 		
-		boolean dda = conn.haveDDA();
+		boolean dda = true;//conn.haveDDA();
 
 		List cmd = new LinkedList();
 		
