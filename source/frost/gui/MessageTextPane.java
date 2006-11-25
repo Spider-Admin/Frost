@@ -681,7 +681,9 @@ public class MessageTextPane extends JPanel {
             copyToClipboardMenu.add(copyExtendedInfoItem);
 
             copyKeysAndNamesItem.addActionListener(this);
-            copyKeysItem.addActionListener(this);
+            if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05) {
+                copyToClipboardMenu.add(copyKeysItem);
+            }
             copyExtendedInfoItem.addActionListener(this);
 
             saveAttachmentsItem.addActionListener(this);
@@ -772,10 +774,20 @@ public class MessageTextPane extends JPanel {
                 String key = fa.getKey();
                 if (key == null) {
                     key = keyNotAvailableMessage;
+                } else {
+                    textToCopy.append(key);
+                    if( key.startsWith("CHK@") ) {
+                        // CHK
+                        if( key.indexOf('/') < 0 ) {
+                            textToCopy.append("/");
+                            textToCopy.append(fa.getFilename());
+                        }
+                    } 
+//                    else {
+//                        // KSK, SSK or USK
+//                        // don't append filename, key is enough
+//                    }
                 }
-                textToCopy.append(key);
-                textToCopy.append("/");
-                textToCopy.append(fa.getFilename());
                 textToCopy.append("\n");
             }
             StringSelection selection = new StringSelection(textToCopy.toString());

@@ -379,11 +379,19 @@ public class UploadPanel extends JPanel {
                     String key = item.getKey();
                     if (key == null) {
                         key = keyNotAvailableMessage;
-                    }
-                    textToCopy.append(key);
-                    if( key.indexOf('/') < 0 ) {
-                        textToCopy.append("/");
-                        textToCopy.append(item.getFile().getName());
+                    } else {
+                        textToCopy.append(key);
+                        if( key.startsWith("CHK@") ) {
+                            // CHK
+                            if( key.indexOf('/') < 0 ) {
+                                textToCopy.append("/");
+                                textToCopy.append(item.getFile().getName());
+                            }
+                        } 
+//                        else {
+//                            // KSK, SSK or USK
+//                            // don't append filename, key is enough
+//                        }
                     }
                     textToCopy.append("\n");
                 }
