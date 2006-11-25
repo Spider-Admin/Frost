@@ -93,7 +93,7 @@ public class Core implements FrostEventDispatcher  {
     private static Dispatcher fcpDispatcher;
     
     public static boolean useHyperocha() {
-    	return true;
+    	return false;
     }
     
     public static int getFcpVersion() {
