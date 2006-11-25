@@ -21,6 +21,7 @@
 package hyperocha.freenet.fcp.dispatcher;
 
 import hyperocha.freenet.fcp.FCPConnection;
+import hyperocha.freenet.fcp.FCPConnectionRunner;
 import hyperocha.freenet.fcp.FCPNode;
 import hyperocha.freenet.fcp.IIncoming;
 import hyperocha.freenet.fcp.Network;
@@ -31,6 +32,7 @@ import hyperocha.freenet.fcp.dispatcher.job.UpdateNodePropertiesJob;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
 
@@ -51,37 +53,39 @@ import javax.swing.event.EventListenerList;
  *
  */
 public class Dispatcher extends Factory implements IIncoming {
-	public static final int STATE_UNKNOWN = 0;
 	public static final int STATE_ERROR = -1;
-	public static final int STATE_STARTING = 1;
-	public static final int STATE_RUNNING = 2;
+	public static final int STATE_UNKNOWN = 0; 
+	public static final int STATE_STARTING = 1; 
+	public static final int STATE_RUNNING = 2; 
 	public static final int STATE_STOPPING = 4;
-	public static final int STATE_STOPPED = 8;
+	public static final int STATE_STOPPED = 8;  
 	public static final int STATE_IDLE = 16;
 	
-	public static final int RUNJOB_NOERROR = 0; 
-	public static final int RUNJOB_PREPAREFAILED = 1; 
-	public static final int RUNJOB_OFFLINE = 2;  
+	public static final int RUNJOB_NOERROR = 0;
+	public static final int RUNJOB_PREPAREFAILED = 1;
+	public static final int RUNJOB_OFFLINE = 2;
 	public static final int RUNJOB_OVERLOAD = 3;
-	public static final int RUNJOB_BROKEN = 4; 
+	public static final int RUNJOB_BROKEN = 4;
 	
+	private long checkOnlineDelay = 180L; // check every three minutes for offline nodes and try to restart
+	private long checkGQueueDelay = 20L; // check every 20 sec the gq
+
+	private Hashtable dummyJobs = new Hashtable();
+	private Object readyWaiter = new Object();
+	private Hashtable runningJobs = new Hashtable();
+	private long startTimeStamp = 0;
 	private int state;
 	
 	private EventListenerList stateListeners = new EventListenerList();
-
-	//private Factory factory;
+	private long tick = 1; // tricky thing, don't start with 0!
 	
 	private TimerThread tickTackTicker = null;
-	private long tick = 1; // tricky thing, don't start with 0!
-	private long startTimeStamp = 0;
-	private long checkOnlineDelay = 180L; // check every three minutes for offline nodes and try to restart
-	
-	private Hashtable runningJobs = new Hashtable();
-	private Hashtable dummyJobs = new Hashtable();
-	
-	private Object readyWaiter = new Object();
 	
 	
+	/**
+	 * internal helper
+	 *
+	 */
 	private class DummyJob extends Job {
 
 		private DummyJob(String id) {
@@ -100,74 +104,22 @@ public class Dispatcher extends Factory implements IIncoming {
 		 */
 		public void incomingMessage(String id, Hashtable message) {
 			// TODO Auto-generated method stub
-			//System.out.println("Dummy message " + id + " -> message: " + message);
+			System.out.println("Dummy message " + id + " -> message: " + message);
 		}
 		
 	}
 	
 	/**
-	 * Creates a new dispatcher with an empty factory
+	 * internal ticker
+	 *
 	 */
-	public Dispatcher() {
-		super();
-	}
-
-	/**
-	 * Creates a new dispatcher and assigns the given factory
-	 */
-//	public Dispatcher(Factory f) {
-//		this(f, false);
-//	}
-
-//	public Dispatcher(Factory f, boolean boot) {
-//		factory = f;
-//	}
-//	
-//	public Dispatcher(DataInputStream dis, boolean boot) {
-//		factory = new Factory(dis);
-//	}
-	
-	/**
-	 * check the erreichbarkeit der knoten und nimm nur erreichbare?
-	 */
-//	public void init() {
-//		factory.init();
-//	}
-
-	/**
-	 * returns true if at least one node is online.
-	 * @return
-	 */
-//	public boolean isOnline() {
-//		return factory.isOnline();
-//	}
-
-	/**
-	 * Fires up the dispatcher and returns immediately.<br>
-	 * Does nothing if the dispatcher is already up.
-	 */
-	public synchronized void startDispatcher() {
-		if (tickTackTicker != null) { return; }
-		startTimeStamp = System.currentTimeMillis();
-		setState(STATE_STARTING);
-		// now the first online & properties check
-		goOnline();
-		testPropertiesAllNodes(true);
-		
-		// start timer
-		tickTackTicker = new TimerThread();
-		tickTackTicker.start();
-		
-		setState(STATE_RUNNING);
-	}
-    
-    private class TimerThread extends Thread {
+	private class TimerThread extends Thread {
         private boolean isCancelled = false;
-        public synchronized boolean isCancelled() {
-            return isCancelled;
-        }
         public synchronized void cancel() {
             isCancelled = true;
+        }
+        public synchronized boolean isCancelled() {
+            return isCancelled;
         }
         public void run() {
             while (!isCancelled()) {
@@ -183,12 +135,75 @@ public class Dispatcher extends Factory implements IIncoming {
         }
     }
 
-	private void goOnline() {
-		Network net;
-		for (Enumeration e = networks.elements() ; e.hasMoreElements() ;) {
-			net =  (Network)(e.nextElement());
-			net.goOnline();
-	    }
+	/**
+	 * Creates a new dispatcher with an empty factory
+	 */
+	public Dispatcher() {
+		super();
+	}
+    
+	public void addDispatcherStateListener( DispatcherStateListener listener ) {
+		stateListeners.add( DispatcherStateListener.class, listener );
+	}
+
+	/**
+	 * add a job to the queue and returns
+	 * the balancer start it earlier or later
+	 * @param job
+	 * @return true on success (added) or false if somthing goes wrong
+	 */
+	public boolean addJob(Job job) {
+		// TODO
+		return false;
+	}
+	
+	public void addNetworkStateListener( NetworkStateListener listener ) {
+		stateListeners.add( NetworkStateListener.class, listener );
+	}
+
+	public void addNodeStateListener( NodeStateListener listener ) {
+		stateListeners.add( NodeStateListener.class, listener );
+	}
+	
+	/**
+	 * same as panic, but without data loss
+	 * state is saved an can be resumed
+	 */
+	public void freezeDispatcher() {
+	}
+	
+	private DummyJob getDummyJob(String id) {
+		DummyJob j = (DummyJob)dummyJobs.get(id);
+		if (j == null) {
+			j = new DummyJob(id);
+			dummyJobs.put(j.getJobID(), j);
+		}
+		return j;
+	}
+	
+	private Job getRunningJob(String id) {
+		//System.out.println("getRunningJob: " + id);
+		return (Job)runningJobs.get(id);
+	}
+
+	/**
+	 * @return returs a list of all id's seen by the dispatcher without corresponding job
+	 */
+	public ArrayList getUnassignedIDs() {
+		return new ArrayList(dummyJobs.keySet());
+	}
+
+	private long getuptime() {
+		return (System.currentTimeMillis() - startTimeStamp);
+	}
+
+	/**
+	 * @return the uptime in milliseconds
+	 */
+	public long getUpTime() {
+		// FIXME check if up and return -1 if not up
+		// this indicates up: STATE_STARTING STATE_RUNNING STATE_STOPPING STATE_IDLE
+		return (System.currentTimeMillis() - startTimeStamp);
 	}
 	
 	private void goOffline() {
@@ -198,47 +213,76 @@ public class Dispatcher extends Factory implements IIncoming {
 			net.goOffline();
 	    }
 	}
-
-//	/**
-//	 * start job queue
-//	 */
-//	public void startDispatcher() {
-//		factory.goOnline();
-//	}
-
-	/**
-	 * same as panic, but without data loss
-	 * state is saved an can be resumed
-	 */
-	public void freezeDispatcher() {
+	
+	private void goOnline() {
+		Network net;
+		for (Enumeration e = networks.elements() ; e.hasMoreElements() ;) {
+			net =  (Network)(e.nextElement());
+			net.goOnline();
+	    }
 	}
 	
-	/**
-	 * clean and soft shutdown. complete running jobs (until the next checkpoint,
-	 * if they have one), but don't start new ones
-	 * does nothing if the dispatcher is already down
-	 * 
-	 */
-	public synchronized void stopDispatcher() {
-		if (tickTackTicker == null) { return; }
-		setState(STATE_STOPPING);
-		tickTackTicker.cancel();
-		tickTackTicker = null;
-		
-		goOffline();
-		
-		// TODO hier
-		setState(STATE_STOPPED);
+	public void incomingData(String id, NodeMessage message, FCPConnection conn) {
+		//System.out.println("D Testinger Data: " + message);
+		//Job j = getRunningJob((String)message.get("Identifier"));
+		Job j = getRunningJob(id);
+		if (j == null) { 
+			j = getDummyJob(id);
+		}
+		//if (j == null) { throw new Error("Hmmmm. this shouldnt happen."); }
+		j.incomingData(id, message, conn);
+//		getRunningJob((String)message.get("Identifier")).incommingData(conn, message);
+	}
+	
+	public void incomingMessage(String id, NodeMessage message) {
+		System.out.println("D Testinger id " + id + " -> message: " + message);
+		//Job j = getRunningJob((String)message.get("Identifier"));
+		Job j = getRunningJob(id);
+		if (j == null) { 
+			j = getDummyJob(id);
+		}
+		j.incomingMessage(id, message);
 	}
 	
 	public boolean loadState() {
 		return false;	
 	}
-	
-	public boolean saveState() {
-		return false;	
-	}
 
+	private void onTimer() {
+		if ( (tick % checkOnlineDelay) == 0 ) {
+			goOnline();
+		}
+		if ( (tick % checkGQueueDelay) == 0 ) {
+			checkGQueue();
+		}
+		tick++;
+		//System.out.println("Tick Tack Timer: " + tick);
+	}
+	
+	private void checkGQueue() {
+		List l = getAllOnlineNodes(Network.FCP2);
+		
+		if (l == null) {
+			//no fcp2 nodes online, return
+			return;
+		}
+		
+		int i;
+		for (i = 0; i < l.size(); i++) {
+			FCPConnectionRunner r = ((FCPNode)l.get(i)).getDefaultFCPConnectionRunner();
+			// hack for parse gq on startup.
+			List cmd = new LinkedList();
+			cmd.add("WatchGlobal");
+			cmd.add("Enabled=true");
+			cmd.add("VerbosityMask=-1");
+			cmd.add("EndMessage");
+			cmd.add("ListPersistentRequests");
+			cmd.add("EndMessage");
+			r.send(cmd);
+		}
+		
+	}
+	
 	/**
 	 * The panic-button. Neccesary for all freenet apps :)
 	 * This function don't return until all is done.
@@ -263,59 +307,36 @@ public class Dispatcher extends Factory implements IIncoming {
 		// ? clear all queues (Perstance=reboot/forever)
 		// disconnect all
 	}
+	
+	private void registerJob(Job job) {
+		registerJob(job.getJobID(), job);
+	}
 
-	/**
-	 * is the host:port in our nodelist?
-	 * needed for security manager
-	 * @param host
-	 * @param port
-	 * @return true, if the host:port is found in the node list, otherwise false 
-	 */
-//	public boolean isInList(String host, int port) {
-//		return factory.isInList(host, port);
-//	}
+	public void registerJob(String id, Job job) {
+		runningJobs.put(id, job);
+	}
+	
+	public void removeDispatcherStateListener( DispatcherStateListener listener ) {
+		stateListeners.remove( DispatcherStateListener.class, listener );
+	}
 	
 	/**
-	 * add a job to the queue and returns
-	 * the balancer start it earlier or later
-	 * @param job
-	 * @return true on success (added) or false if somthing goes wrong
+	 * remove the job or the transfer (id without corrospending job) 
+	 * @param id jobid or Indentifer
+	 * @return false of not removed
 	 */
-	public boolean addJob(Job job) {
-		// TODO
+	public boolean removeID(String id) {
 		return false;
 	}
 
-	/**
-	 * returns a new fcpconnection
-	 * @param networktype
-	 * @return
-	 */
-//	public FCPConnection getNewFCPConnection(int networktype) {
-//		return factory.getNewFCPConnection(networktype);
-//	}
+	public void removeNetworkStateListener( NetworkStateListener listener ) {
+		stateListeners.remove( NetworkStateListener.class, listener );
+	}
 	
-	/**
-	 * returns the nodes default fcpconnection
-	 * use this and the dispatcher use a single connection per node
-	 * (if the node/network supports this)
-	 * @param networktype
-	 * @return
-	 */
-//	public FCPConnectionRunner getDefaultFCPConnectionRunner(int networktype) {
-//		//System.err.println("HEHE: getDefaultFCPConnection Start " + networktype);
-//		//FCPConnection conn = factory.getDefaultFCPConnection(networktype);
-//		//System.err.println("HEHE: getDefaultFCPConnection Ende " + conn);
-//		return factory.getDefaultFCPConnectionRunner(networktype);
-//	}
+	public void removeNodeStateListener( NodeStateListener listener ) {
+		stateListeners.remove( NodeStateListener.class, listener );
+	}
 	
-//	public FCPConnectionRunner getNewFCPConnectionRunner(int networktype, String id) {
-//		//System.err.println("HEHE: getDefaultFCPConnection Start " + networktype);
-//		//FCPConnection conn = factory.getDefaultFCPConnection(networktype);
-//		//System.err.println("HEHE: getDefaultFCPConnection Ende " + conn);
-//		return factory.getNewFCPConnectionRunner(networktype, id);
-//	}
-
 	/**
 	 *  run a job and do not return until the job is done.
 	 * @param job
@@ -351,153 +372,10 @@ public class Dispatcher extends Factory implements IIncoming {
 		return RUNJOB_NOERROR;
 	}
 	
-	private void registerJob(Job job) {
-		registerJob(job.getJobID(), job);
-	}
-	
-	public void registerJob(String id, Job job) {
-		runningJobs.put(id, job);
-	}
-	
-	private void unregisterJob(Job job) {
-		// FIXME: remove all ids assigned to this job
-		runningJobs.remove(job.getJobID());		
-	}
-	
-	private DummyJob getDummyJob(String id) {
-		DummyJob j = (DummyJob)dummyJobs.get(id);
-		if (j == null) {
-			j = new DummyJob(id);
-			dummyJobs.put(j.getJobID(), j);
-		}
-		return j;
-	}
-	
-	public void incomingMessage(String id, NodeMessage message) {
-		//System.out.println("D Testinger id " + id + " -> message: " + message);
-		//Job j = getRunningJob((String)message.get("Identifier"));
-		Job j = getRunningJob(id);
-		if (j == null) { 
-			j = getDummyJob(id);
-		}
-		j.incomingMessage(id, message);
+	public boolean saveState() {
+		return false;	
 	}
 
-	public void incomingData(String id, NodeMessage message, FCPConnection conn) {
-		//System.out.println("D Testinger Data: " + message);
-		//Job j = getRunningJob((String)message.get("Identifier"));
-		Job j = getRunningJob(id);
-		if (j == null) { 
-			j = getDummyJob(id);
-		}
-		//if (j == null) { throw new Error("Hmmmm. this shouldnt happen."); }
-		j.incomingData(id, message, conn);
-//		getRunningJob((String)message.get("Identifier")).incommingData(conn, message);
-	}
-	
-	private void onTimer() {
-		if ( (tick % checkOnlineDelay) == 0 ) {
-			goOnline();
-		}
-		tick++;
-		//System.out.println("Tick Tack Timer: " + tick);
-	}
-	
-	private Job getRunningJob(String id) {
-		//System.out.println("getRunningJob: " + id);
-		return (Job)runningJobs.get(id);
-	}
-
-	/**
-	 * @param wait true: dont return until all tests are done
-	 */
-	public void testPropertiesAllNodes(boolean wait) {
-		//get all nodes ids für Network.FCP2
-		List tnl = getAllNodes(Network.FCP2);
-		if (tnl == null) {
-			//no fcp2 nodes, return
-			return;
-		}
-		
-		int i;
-		for (i = 0; i < tnl.size(); i++) {
-			UpdateNodePropertiesJob job = new UpdateNodePropertiesJob((FCPNode)tnl.get(i));
-			runJob(job);
-        }
-		
-	}
-	
-	/**
-	 * @return returs a list of all id's seen by the dispatcher without corresponding job
-	 */
-	public ArrayList getUnassignedIDs() {
-		return new ArrayList(dummyJobs.keySet());
-	}
-	
-	/**
-	 * remove the job or the transfer (id without corrospending job) 
-	 * @param id jobid or Indentifer
-	 * @return false of not removed
-	 */
-	public boolean removeID(String id) {
-		return false;
-	}
-
-	/**
-	 * Add the network to the Factory
-	 * @param net Network to add
-	 */
-//	public void addNetwork(Network net) {
-//		factory.addNetwork(net);
-//	}
-	
-//	/**
-//	 * @param timeout in milliseconds
-//	 * @return true - the dispatcher is online<br>
-//	 * 			false - wait timeout
-//	 */
-//	public boolean waitForOnline(long timeout) {
-//		if (state == STATE_RUNNING) {
-//			return true;
-//		}
-//		try {
-//			synchronized (readyWaiter) {
-//				readyWaiter.wait(timeout);
-//			}
-//		} catch (InterruptedException e) {
-//			if (state == STATE_RUNNING) {
-//				return true;
-//			}
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
-//		return false;
-//	}
-	
-	public void addDispatcherStateListener( DispatcherStateListener listener ) {
-		stateListeners.add( DispatcherStateListener.class, listener );
-	}
-	
-	public void removeDispatcherStateListener( DispatcherStateListener listener ) {
-		stateListeners.remove( DispatcherStateListener.class, listener );
-	}
-	
-	public void addNetworkStateListener( NetworkStateListener listener ) {
-		stateListeners.add( NetworkStateListener.class, listener );
-	}
-	
-	public void removeNetworkStateListener( NetworkStateListener listener ) {
-		stateListeners.remove( NetworkStateListener.class, listener );
-	}
-
-	public void addNodeStateListener( NodeStateListener listener ) {
-		stateListeners.add( NodeStateListener.class, listener );
-	}
-	
-	public void removeNodeStateListener( NodeStateListener listener ) {
-		stateListeners.remove( NodeStateListener.class, listener );
-	}
-	
 	private void setState( int newState ) {
 		state = newState;
 		
@@ -518,17 +396,46 @@ public class Dispatcher extends Factory implements IIncoming {
 	    }
 	 }
 	
-	private long getuptime() {
-		return (System.currentTimeMillis() - startTimeStamp);
+	/**
+	 * Fires up the dispatcher and returns immediately.<br>
+	 * Does nothing if the dispatcher is already up.
+	 */
+	public synchronized void startDispatcher() {
+		if (tickTackTicker != null) { return; }
+		startTimeStamp = System.currentTimeMillis();
+		setState(STATE_STARTING);
+		// now the first online & properties check
+		goOnline();
+		// start gq monitoring
+		checkGQueue();
+		// start ticker
+		tickTackTicker = new TimerThread();
+		tickTackTicker.start();
+		
+		setState(STATE_RUNNING);
 	}
 	
 	/**
-	 * @return the uptime in milliseconds
+	 * clean and soft shutdown. complete running jobs (until the next checkpoint,
+	 * if they have one), but don't start new ones
+	 * does nothing if the dispatcher is already down
+	 * 
 	 */
-	public long getUpTime() {
-		// FIXME check if up and return -1 if not up
-		// this indicates up: STATE_STARTING STATE_RUNNING STATE_STOPPING STATE_IDLE
-		return (System.currentTimeMillis() - startTimeStamp);
+	public synchronized void stopDispatcher() {
+		if (tickTackTicker == null) { return; }
+		setState(STATE_STOPPING);
+		tickTackTicker.cancel();
+		tickTackTicker = null;
+		
+		goOffline();
+		
+		// TODO hier
+		setState(STATE_STOPPED);
+	}
+	
+	private void unregisterJob(Job job) {
+		// FIXME: remove all ids assigned to this job
+		runningJobs.remove(job.getJobID());		
 	}
 
 	/* (non-Javadoc)
@@ -539,6 +446,11 @@ public class Dispatcher extends Factory implements IIncoming {
 		if ( o instanceof FCPNode) {
 			if ( arg instanceof Integer) {
 				NodeStateEvent e = new NodeStateEvent(this, ((FCPNode)o).getID(), ((Integer)arg).intValue());
+				if (e.getNewState() == FCPNode.STATUS_ONLINE) {
+					// node have helo ok, test properties
+					UpdateNodePropertiesJob job = new UpdateNodePropertiesJob((FCPNode)o);
+					runJob(job);
+				}
 				// Process the listeners last to first, notifying
 				// those that are interested in this event
 				for (int i = listeners.length-2; i>=0; i-=2) {
@@ -561,6 +473,7 @@ public class Dispatcher extends Factory implements IIncoming {
 			return;
 	    }
 		
+		// monitor all unhandled for debugging
 		System.err.println("D<<Observer notify!" + o);
 		System.err.println("D<<Observer notify!" + arg);
 	}
