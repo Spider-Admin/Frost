@@ -268,7 +268,7 @@ public abstract class Job implements IIncoming {
 			lastErrorMessage = msg;
 			boolean goon = false;
 			try {
-				goon = onProtocolError();
+				goon = onProtocolError(msg);
 			} catch (Exception e) {
 				// TODO silence? log?
 			}
@@ -283,7 +283,7 @@ public abstract class Job implements IIncoming {
      * Overwrite this to get notified if a protocoll error occures.
      * @return true - the problem is resolved by your implementation and the job stays running; false - the job fails.
      */
-	public boolean onProtocolError() {
+	public boolean onProtocolError(NodeMessage msg) {
 		return false;
 	}
 
