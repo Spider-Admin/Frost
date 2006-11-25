@@ -24,7 +24,8 @@ package hyperocha.freenet.fcp;
  * callback for NodeToClient messages
  * @author saces
  * @version $Id$
- */
+ * 
+ */ 
 public interface IIncoming {
 	public void incomingMessage(String id, NodeMessage msg);
 	public void incomingData(String id, NodeMessage msg, FCPConnection conn);

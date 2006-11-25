@@ -56,11 +56,9 @@ public class FCPConnectionRunner extends Thread {
 	 */
 	public void run() {
 		conn = fcpNode.getNewFCPConnection(callBack, connID);
-
 		isUp = true;
 		conn.startMonitor(callBack);
 	}
-	
 	
 	/** 
 	 * @see java.lang.Thread#start()
@@ -80,16 +78,7 @@ public class FCPConnectionRunner extends Thread {
 		conn.start(cmd, l, s);
 	}
 
-	public boolean haveDDA() {
-		return fcpNode.haveDDA();
-	}
-	
 	public synchronized void close() {
 		conn.close();
 	}
-
-	public boolean haveGQ() {
-		return fcpNode.haveGQ();
-	}
-	
 }
