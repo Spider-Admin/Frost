@@ -159,18 +159,19 @@ public class Core implements FrostEventDispatcher  {
             }
         }
 
-     
-        
+        // create new dispatcher
         fcpDispatcher = new Dispatcher();
-//        
+
+        // nodeconfiguration, see doc
         Network net = new Network(fcpVersion, "frost"+fcpVersion);
-//        
+        
         int i;
 		for (i = 0; i < nodes.size(); i++) {
 			//net.addNode("idstring", "server:port", fcpDispatcher);
             net.addNode("frosty-"+i, (String)nodes.get(i), fcpDispatcher);
         }
 
+		// assign configured nodes to dispatcher
 		fcpDispatcher.addNetwork(net);
 
         if (nodes.size() == 0) {
@@ -181,15 +182,11 @@ public class Core implements FrostEventDispatcher  {
             return false;
         }
         
-        // init the dispatcher with configured nodes
-                
-        
-        
         // install our security manager that only allows connections to the configured FCP hosts
         System.setSecurityManager(new FrostSecurityManager());
         
         // now network and secuity are setted up
-        
+        // press »START ENGINE« button
         fcpDispatcher.startDispatcher();
         
         //fcpDispatcher.waitForOnline(3000);
@@ -199,11 +196,6 @@ public class Core implements FrostEventDispatcher  {
             return true;
         }
         
-        // and go online (at least one node noeeds a successful helo)
-        //fcpDispatcher.goOnline(true);
-        
-        //fcpDispatcher.testPropertiesAllNodes(true);
-
         boolean runningOnTestnet = false;
         // TODO
 //        try {
