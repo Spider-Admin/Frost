@@ -630,8 +630,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
          * the clipboard.
          */
         private void copyKeysAndNames() {
-            // FIXME: KSK@ -> key with filename not possible. copy key only
-            // FIXME: KSK@ download: remove bad chars in filename (e.g. frost|blah.xml) 
             ModelItem[] selectedItems = modelTable.getSelectedItems();
             if (selectedItems.length > 0) {
                 StringBuffer textToCopy = new StringBuffer();
@@ -640,11 +638,19 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                     String key = item.getKey();
                     if (key == null) {
                         key = keyNotAvailableMessage;
-                    }
-                    textToCopy.append(key);
-                    if( key.indexOf('/') < 0 ) {
-                        textToCopy.append("/");
-                        textToCopy.append(item.getFileName());
+                    } else {
+                        textToCopy.append(key);
+                        if( key.startsWith("CHK@") ) {
+                            // CHK
+                            if( key.indexOf('/') < 0 ) {
+                                textToCopy.append("/");
+                                textToCopy.append(item.getFileName());
+                            }
+                        } 
+//                        else {
+//                            // KSK, SSK or USK
+//                            // don't append filename, key is enough
+//                        }
                     }
                     textToCopy.append("\n");
                 }               
