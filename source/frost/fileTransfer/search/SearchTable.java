@@ -28,6 +28,7 @@ import javax.swing.*;
 import frost.*;
 import frost.fcp.*;
 import frost.fileTransfer.common.*;
+import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
@@ -277,24 +278,7 @@ public class SearchTable extends SortedModelTable {
                 StringBuffer textToCopy = new StringBuffer();
                 for (int i = 0; i < selectedItems.length; i++) {
                     FrostSearchItem item = (FrostSearchItem) selectedItems[i];
-                    String key = item.getKey();
-                    if (key == null) {
-                        key = keyNotAvailableMessage;
-                    } else {
-                        textToCopy.append(key);
-                        if( key.startsWith("CHK@") ) {
-                            // CHK
-                            if( key.indexOf('/') < 0 ) {
-                                textToCopy.append("/");
-                                textToCopy.append(item.getFilename());
-                            }
-                        } 
-//                        else {
-//                            // KSK, SSK or USK
-//                            // don't append filename, key is enough
-//                        }
-                    }
-                    textToCopy.append("\n");
+                    Mixed.appendKeyAndFilename(textToCopy, item.getKey(), item.getFilename(), keyNotAvailableMessage);
                 }
                 StringSelection selection = new StringSelection(textToCopy.toString());
                 getClipboard().setContents(selection, this);

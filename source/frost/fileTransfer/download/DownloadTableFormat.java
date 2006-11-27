@@ -320,7 +320,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 		public int compare(Object o1, Object o2) {
 			FrostDownloadItem item1 = (FrostDownloadItem) o1;
 			FrostDownloadItem item2 = (FrostDownloadItem) o2;
-			return item1.getFileName().compareToIgnoreCase(item2.getFileName());
+			return item1.getFilename().compareToIgnoreCase(item2.getFilename());
 		}
 	}
 	
@@ -469,7 +469,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
                 return getIsRequested( downloadItem.getFileListFileObject() ); 
 
 			case 3 : // Filename
-				return downloadItem.getFileName();
+				return downloadItem.getFilename();
 
 			case 4 : // Size
 				if (downloadItem.getFileSize() == null) {

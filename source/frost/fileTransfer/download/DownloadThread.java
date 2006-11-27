@@ -23,6 +23,7 @@ import java.util.logging.*;
 
 import frost.*;
 import frost.fcp.*;
+import frost.fileTransfer.*;
 import frost.storage.database.applayer.*;
 import frost.util.*;
 
@@ -42,7 +43,7 @@ public class DownloadThread extends Thread {
 //    private DownloadModel downloadModel;
     
     public DownloadThread(DownloadTicker newTicker, FrostDownloadItem item, DownloadModel model) {
-        filename = item.getFileName();
+        filename = item.getFilename();
         size = item.getFileSize();
         key = item.getKey();
         ticker = newTicker;
@@ -96,6 +97,11 @@ public class DownloadThread extends Thread {
 
             if (result == null || result.isSuccess() == false) {
                 // download failed
+
+                if( result != null ) {
+                    downloadItem.setErrorCodeDescription(result.getCodeDescription());
+                }
+
                 if( result != null
                         && result.getReturnCode() == 11 
                         && key.startsWith("CHK@")
@@ -126,10 +132,10 @@ public class DownloadThread extends Thread {
                         downloadItem.setState(FrostDownloadItem.STATE_WAITING);
                     }
                 }
-                if( result != null ) {
-                    downloadItem.setErrorCodeDescription(result.getCodeDescription());
-                }
             } else {
+                
+                logger.info("FILEDN: Download of " + filename + " was successful.");
+
                 // download successful
                 downloadItem.setFileSize(new Long(newFile.length()));
                 downloadItem.setState(FrostDownloadItem.STATE_DONE);
@@ -144,13 +150,16 @@ public class DownloadThread extends Thread {
 
                 // maybe log successful download to file localdata/downloads.txt
                 if( Core.frostSettings.getBoolValue(SettingsClass.LOG_DOWNLOADS_ENABLED) ) {
-                    String line = downloadItem.getKey() + "/" + downloadItem.getFileName();
+                    String line = downloadItem.getKey() + "/" + downloadItem.getFilename();
                     String fileName = Core.frostSettings.getValue(SettingsClass.DIR_LOCALDATA) + "Frost-Downloads.log";
                     File targetFile = new File(fileName);
                     FileAccess.appendLineToTextfile(targetFile, line);
                 }
 
-                logger.info("FILEDN: Download of " + filename + " was successful.");
+                // maybe remove finished download immediately
+                if( Core.frostSettings.getBoolValue(SettingsClass.DOWNLOAD_REMOVE_FINISHED) ) {
+                    FileTransferManager.getInstance().getDownloadManager().getModel().removeFinishedDownloads();
+                }
             }
         } catch (Throwable t) {
             logger.log(Level.SEVERE, "Oo. EXCEPTION in requestThread.run", t);

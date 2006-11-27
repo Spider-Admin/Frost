@@ -29,8 +29,6 @@ public class DownloadTicker extends Thread {
 	private DownloadPanel panel;
 	private DownloadModel model;
 
-	private long counter;
-	
 	/**
 	 * The number of allocated threads is used to limit the total of threads
 	 * that can be running at a given time, whereas the number of running
@@ -134,11 +132,9 @@ public class DownloadTicker extends Thread {
 		super.run();
 		while (true) {
 			Mixed.wait(1000);
-			// this method is called by a timer each second, so this counter counts seconds
-			counter++;
+			// this method is called by a timer each second
 			updateDownloadCountLabel();
 			startDownloadThread();
-			removeFinishedDownloads();
 		}
 	}
 	
@@ -162,12 +158,6 @@ public class DownloadTicker extends Thread {
 		fireThreadCountChanged();
 	}
 
-	private void removeFinishedDownloads() {
-		if (counter % 300 == 0 && Core.frostSettings.getBoolValue(SettingsClass.DOWNLOAD_REMOVE_FINISHED)) {
-			model.removeFinishedDownloads();
-		}
-	}
-	
 	/**
 	 * Removes an <code>DownloadTickerListener</code> from the DownloadTicker.
 	 * @param listener the <code>DownloadTickerListener</code> to be removed

@@ -75,11 +75,11 @@ public class DownloadModel extends OrderedModel implements Savable {
 			}
 			
             // FIXME: also check downloaddir for same filename and build new name
-            if (item.getFileName().equals(itemToAdd.getFileName())) {
+            if (item.getFilename().equals(itemToAdd.getFilename())) {
 				// same name, but different key. - rename quitely
 				int cnt = 2;
 				while (true) {
-					String nextNewName = itemToAdd.getFileName() + "_" + cnt;
+					String nextNewName = itemToAdd.getFilename() + "_" + cnt;
 					itemToAdd.setFileName(nextNewName);
 					if (addDownloadItem(itemToAdd) == true) {
 						// added to model
@@ -140,7 +140,7 @@ public class DownloadModel extends OrderedModel implements Savable {
 		String dlDir = Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD);
 		for (int i = 0; i < items.length; i++) {
 			FrostDownloadItem item = (FrostDownloadItem) items[i];
-			oldChunkFilesList.add(item.getFileName());
+			oldChunkFilesList.add(item.getFilename());
 		}
 		RemoveChunksThread t = new RemoveChunksThread(oldChunkFilesList, dlDir);
 		t.start();

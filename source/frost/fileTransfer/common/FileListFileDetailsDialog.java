@@ -30,6 +30,7 @@ import frost.*;
 import frost.fcp.*;
 import frost.fileTransfer.*;
 import frost.fileTransfer.search.*;
+import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
@@ -287,24 +288,7 @@ public class FileListFileDetailsDialog extends JDialog {
                 StringBuffer textToCopy = new StringBuffer();
                 for (int i = 0; i < selectedItems.length; i++) {
                     FileListFileDetailsItem item = (FileListFileDetailsItem) selectedItems[i];
-                    String key = item.getKey();
-                    if (key == null) {
-                        key = keyNotAvailableMessage;
-                    } else {
-                        textToCopy.append(key);
-                        if( key.startsWith("CHK@") ) {
-                            // CHK
-                            if( key.indexOf('/') < 0 ) {
-                                textToCopy.append("/");
-                                textToCopy.append(item.getFileOwner().getName());
-                            }
-                        } 
-//                        else {
-//                            // KSK, SSK or USK
-//                            // don't append filename, key is enough
-//                        }
-                    }
-                    textToCopy.append("\n");
+                    Mixed.appendKeyAndFilename(textToCopy, item.getKey(), item.getFileOwner().getName(), keyNotAvailableMessage);
                 }
                 StringSelection selection = new StringSelection(textToCopy.toString());
                 getClipboard().setContents(selection, this);

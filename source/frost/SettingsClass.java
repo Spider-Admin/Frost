@@ -94,6 +94,7 @@ public class SettingsClass implements Savable {
     public static final String DOWNLOAD_TRY_ALL_SEGMENTS = "downloadTryAllSegments";
     public static final String DOWNLOAD_DECODE_AFTER_EACH_SEGMENT = "downloadDecodeAfterEachSegment";
     public static final String DOWNLOAD_REMOVE_FINISHED = "removeFinishedDownloads";
+    public static final String UPLOAD_REMOVE_FINISHED = "removeFinishedUploads";
     public static final String DOWNLOAD_MAX_SPLITFILE_THREADS = "splitfileDownloadThreads";
 
     public static final String SAVE_SORT_STATES = "saveSortStates";
@@ -749,7 +750,9 @@ public class SettingsClass implements Savable {
         defaults.put(FILE_BASE, "files");
 
         defaults.put(SHOW_SYSTRAY_ICON, "true");
+        
         defaults.put(DOWNLOAD_REMOVE_FINISHED, "false");
+        defaults.put(UPLOAD_REMOVE_FINISHED, "false");
         
         defaults.put(SEARCH_MAX_RESULTS, "10000");
         defaults.put(SEARCH_HIDE_BAD, "true");

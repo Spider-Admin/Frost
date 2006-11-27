@@ -172,7 +172,7 @@ public class FrostDownloadItem extends ModelItem {
     public void setFileName(String s) {
         fileName = s;
     }
-	public String getFileName() {
+	public String getFilename() {
 		return fileName;
 	}
 

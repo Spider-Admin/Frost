@@ -76,12 +76,14 @@ public class SearchParameters {
             List allStrings = new LinkedList();
             if( isSimpleSearch() ) {
                 allStrings.addAll(getSimpleSearchStrings());
+                allStrings.add("NOT");
                 allStrings.addAll(getSimpleSearchNotStrings());
             } else {
                 allStrings.addAll(getName());
                 allStrings.addAll(getComment());
                 allStrings.addAll(getKeyword());
                 allStrings.addAll(getOwner());
+                allStrings.add("NOT");
                 allStrings.addAll(getNotName());
                 allStrings.addAll(getNotComment());
                 allStrings.addAll(getNotKeyword());
