@@ -32,6 +32,7 @@ import frost.*;
 import frost.ext.*;
 import frost.fcp.*;
 import frost.fileTransfer.common.*;
+import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
@@ -54,6 +55,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
     private JButton downloadPauseButton = new JButton(new ImageIcon(getClass().getResource("/data/down.gif")));
 	private JTextField downloadTextField = new JTextField(25);
 	private JLabel downloadItemCountLabel = new JLabel();
+    private JCheckBox removeFinishedDownloadsCheckBox = new JCheckBox();
 	private SortedModelTable modelTable;
 
 	private boolean initialized = false;
@@ -107,6 +109,8 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			downloadTopPanel.add(Box.createRigidArea(new Dimension(8, 0)));
 			downloadTopPanel.add(downloadActivateButton); //Download/Start transfer
 			downloadTopPanel.add(downloadPauseButton); //Download/Start transfer
+            downloadTopPanel.add(Box.createRigidArea(new Dimension(8, 0)));
+            downloadTopPanel.add(removeFinishedDownloadsCheckBox);
 			downloadTopPanel.add(Box.createRigidArea(new Dimension(80, 0)));
 			downloadTopPanel.add(Box.createHorizontalGlue());
 			downloadTopPanel.add(downloadItemCountLabel);
@@ -129,11 +133,13 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			modelTable.getScrollPane().addMouseListener(listener);
 			modelTable.getTable().addKeyListener(listener);
 			modelTable.getTable().addMouseListener(listener);
+            removeFinishedDownloadsCheckBox.addItemListener(listener);
             Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_NAME, listener);
             Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_SIZE, listener);
             Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_STYLE, listener);
 
 			//Settings
+            removeFinishedDownloadsCheckBox.setSelected(Core.frostSettings.getBoolValue(SettingsClass.DOWNLOAD_REMOVE_FINISHED));
 			setDownloadingActivated(Core.frostSettings.getBoolValue(SettingsClass.DOWNLOADING_ACTIVATED));
 
 			initialized = true;
@@ -150,6 +156,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		downloadActivateButton.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.activateDownloading"));
         downloadPauseButton.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.pauseDownloading"));
         downloadTextField.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.addKeys"));
+        removeFinishedDownloadsCheckBox.setText(language.getString("DownloadPane.removeFinishedDownloads"));
 
 		String waiting = language.getString("DownloadPane.toolbar.waiting");
 		Dimension labelSize = calculateLabelSize(waiting + ": 00000");
@@ -386,7 +393,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		ModelItem selectedItem = modelTable.getSelectedItem();
 		if (selectedItem != null) {
 			FrostDownloadItem dlItem = (FrostDownloadItem) selectedItem;
-            File targetFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + dlItem.getFileName());
+            File targetFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + dlItem.getFilename());
             if( !targetFile.isFile() ) {
                 return;
             }
@@ -456,7 +463,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
         private JMenuItem enableSelectedDownloadsItem = new JMenuItem();
         private JMenuItem invertEnabledAllItem = new JMenuItem();
         private JMenuItem invertEnabledSelectedItem = new JMenuItem();
-        private JMenuItem removeFinishedItem = new JMenuItem();
         private JMenuItem removeSelectedDownloadsItem = new JMenuItem();
         private JMenuItem restartSelectedDownloadsItem = new JMenuItem();
     
@@ -490,7 +496,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
             copyExtendedInfoItem.addActionListener(this);
             restartSelectedDownloadsItem.addActionListener(this);
             removeSelectedDownloadsItem.addActionListener(this);
-            removeFinishedItem.addActionListener(this);
             enableAllDownloadsItem.addActionListener(this);
             disableAllDownloadsItem.addActionListener(this);
             enableSelectedDownloadsItem.addActionListener(this);
@@ -512,7 +517,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
             copyExtendedInfoItem.setText(language.getString("Common.copyToClipBoard.copyExtendedInfo"));
             restartSelectedDownloadsItem.setText(language.getString("DownloadPane.fileTable.popupmenu.restartSelectedDownloads"));
             removeSelectedDownloadsItem.setText(language.getString("DownloadPane.fileTable.popupmenu.remove.removeSelectedDownloads"));
-            removeFinishedItem.setText(language.getString("DownloadPane.fileTable.popupmenu.remove.removeFinishedDownloads"));
             enableAllDownloadsItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.enableAllDownloads"));
             disableAllDownloadsItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.disableAllDownloads"));
             enableSelectedDownloadsItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.enableSelectedDownloads"));
@@ -545,9 +549,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
             }
             if (e.getSource() == removeSelectedDownloadsItem) {
                 removeSelectedDownloads();
-            }
-            if (e.getSource() == removeFinishedItem) {
-                removeFinished();
             }
             if (e.getSource() == enableAllDownloadsItem) {
                 enableAllDownloads();
@@ -611,10 +612,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
             model.setAllItemsEnabled(Boolean.TRUE);
         }
     
-        private void removeFinished() {
-            model.removeFinishedDownloads();
-        }
-    
         private void removeSelectedDownloads() {
             ModelItem[] selectedItems = modelTable.getSelectedItems();
             model.removeItems(selectedItems);
@@ -635,24 +632,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                 StringBuffer textToCopy = new StringBuffer();
                 for (int i = 0; i < selectedItems.length; i++) {
                     FrostDownloadItem item = (FrostDownloadItem) selectedItems[i];
-                    String key = item.getKey();
-                    if (key == null) {
-                        key = keyNotAvailableMessage;
-                    } else {
-                        textToCopy.append(key);
-                        if( key.startsWith("CHK@") ) {
-                            // CHK
-                            if( key.indexOf('/') < 0 ) {
-                                textToCopy.append("/");
-                                textToCopy.append(item.getFileName());
-                            }
-                        } 
-//                        else {
-//                            // KSK, SSK or USK
-//                            // don't append filename, key is enough
-//                        }
-                    }
-                    textToCopy.append("\n");
+                    Mixed.appendKeyAndFilename(textToCopy, item.getKey(), item.getFilename(), keyNotAvailableMessage);
                 }               
                 StringSelection selection = new StringSelection(textToCopy.toString());
                 getClipboard().setContents(selection, this);    
@@ -675,7 +655,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                         key = keyNotAvailableMessage;
                     }
                     textToCopy.append(fileMessage);
-                    textToCopy.append(item.getFileName() + "\n");
+                    textToCopy.append(item.getFilename() + "\n");
                     textToCopy.append(keyMessage);
                     textToCopy.append(key + "\n");
                     textToCopy.append(bytesMessage);
@@ -752,8 +732,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                 add(removeSelectedDownloadsItem);
             }
     
-            addSeparator();
-            add(removeFinishedItem);
             if( selectedItems.length == 1 ) {
                 FrostDownloadItem item = (FrostDownloadItem) selectedItems[0];
                 if( item.isSharedFile() ) {
@@ -768,7 +746,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
     private class Listener
         extends MouseAdapter
-        implements LanguageListener, ActionListener, KeyListener, MouseListener, PropertyChangeListener {
+        implements LanguageListener, ActionListener, KeyListener, MouseListener, PropertyChangeListener, ItemListener {
     
         public Listener() {
             super();
@@ -836,6 +814,15 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
             }
             if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_STYLE)) {
                 fontChanged();
+            }
+        }
+
+        public void itemStateChanged(ItemEvent e) {
+            if( removeFinishedDownloadsCheckBox.isSelected() ) {
+                Core.frostSettings.setValue(SettingsClass.DOWNLOAD_REMOVE_FINISHED, true);
+                model.removeFinishedDownloads();
+            } else {
+                Core.frostSettings.setValue(SettingsClass.DOWNLOAD_REMOVE_FINISHED, false);
             }
         }
     }

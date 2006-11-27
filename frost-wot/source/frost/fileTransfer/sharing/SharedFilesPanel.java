@@ -503,24 +503,7 @@ public class SharedFilesPanel extends JPanel {
                 StringBuffer textToCopy = new StringBuffer();
                 for (int i = 0; i < selectedItems.length; i++) {
                     FrostSharedFileItem item = (FrostSharedFileItem) selectedItems[i];
-                    String key = item.getChkKey();
-                    if (key == null) {
-                        key = keyNotAvailableMessage;
-                    } else {
-                        textToCopy.append(key);
-                        if( key.startsWith("CHK@") ) {
-                            // CHK
-                            if( key.indexOf('/') < 0 ) {
-                                textToCopy.append("/");
-                                textToCopy.append(item.getFile().getName());
-                            }
-                        } 
-//                        else {
-//                            // KSK, SSK or USK
-//                            // don't append filename, key is enough
-//                        }
-                    }
-                    textToCopy.append("\n");
+                    Mixed.appendKeyAndFilename(textToCopy, item.getChkKey(), item.getFile().getName(), keyNotAvailableMessage);
                 }
                 StringSelection selection = new StringSelection(textToCopy.toString());
                 getClipboard().setContents(selection, this);

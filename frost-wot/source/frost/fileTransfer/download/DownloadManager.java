@@ -70,7 +70,7 @@ public class DownloadManager {
             boolean loopAgain = false;
             for(int x=0; x < getModel().getItemCount(); x++) {
                 FrostDownloadItem dlItem = (FrostDownloadItem) getModel().getItemAt(x);
-                if( dlItem.getFileName().equalsIgnoreCase(newFilename) ) {
+                if( dlItem.getFilename().equalsIgnoreCase(newFilename) ) {
                     loopAgain = true;
                     // we have a duplicate filename
                     // build new filename like "filename_2.ext"

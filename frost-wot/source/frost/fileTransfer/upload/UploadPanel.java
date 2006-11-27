@@ -53,6 +53,7 @@ public class UploadPanel extends JPanel {
 
     private JPanel uploadTopPanel = new JPanel();
     private JButton uploadAddFilesButton = new JButton(new ImageIcon(getClass().getResource("/data/browse.gif")));
+    private JCheckBox removeFinishedUploadsCheckBox = new JCheckBox();
 
     private SortedModelTable modelTable;
     
@@ -82,6 +83,8 @@ public class UploadPanel extends JPanel {
             BoxLayout dummyLayout = new BoxLayout(uploadTopPanel, BoxLayout.X_AXIS);
             uploadTopPanel.setLayout(dummyLayout);
             uploadTopPanel.add(uploadAddFilesButton);
+            uploadTopPanel.add(Box.createRigidArea(new Dimension(8, 0)));
+            uploadTopPanel.add(removeFinishedUploadsCheckBox);
             uploadTopPanel.add(Box.createRigidArea(new Dimension(80, 0)));
             uploadTopPanel.add(Box.createHorizontalGlue());
             uploadTopPanel.add(uploadItemCountLabel);
@@ -100,9 +103,12 @@ public class UploadPanel extends JPanel {
             modelTable.getScrollPane().addMouseListener(listener);
             modelTable.getTable().addKeyListener(listener);
             modelTable.getTable().addMouseListener(listener);
+            removeFinishedUploadsCheckBox.addItemListener(listener);
             Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_NAME, listener);
             Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_SIZE, listener);
             Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_STYLE, listener);
+            
+            removeFinishedUploadsCheckBox.setSelected(Core.frostSettings.getBoolValue(SettingsClass.UPLOAD_REMOVE_FINISHED));
 
             initialized = true;
         }
@@ -122,6 +128,7 @@ public class UploadPanel extends JPanel {
         uploadItemCountLabel.setPreferredSize(labelSize);
         uploadItemCountLabel.setMinimumSize(labelSize);
         uploadItemCountLabel.setText(waiting + ": " + uploadItemCount);
+        removeFinishedUploadsCheckBox.setText(language.getString("UploadPane.removeFinishedUploads"));
     }
 
     private PopupMenuUpload getPopupMenuUpload() {
@@ -249,8 +256,6 @@ public class UploadPanel extends JPanel {
         private JMenuItem uploadSelectedFilesItem = new JMenuItem();
         private JMenuItem removeSelectedFilesItem = new JMenuItem();
         private JMenuItem showSharedFileItem = new JMenuItem();
-        private JMenuItem removeFinishedFilesItem = new JMenuItem();
-// FIXME: remove finished
         private JMenu changeDestinationBoardMenu = new JMenu();
         private JMenu copyToClipboardMenu = new JMenu();
 
@@ -282,7 +287,6 @@ public class UploadPanel extends JPanel {
             uploadSelectedFilesItem.addActionListener(this);
             generateChkForSelectedFilesItem.addActionListener(this);
             showSharedFileItem.addActionListener(this);
-            removeFinishedFilesItem.addActionListener(this);
         }
 
         private void refreshLanguage() {
@@ -298,7 +302,6 @@ public class UploadPanel extends JPanel {
             uploadSelectedFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.uploadSelectedFiles"));
             removeSelectedFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.remove.removeSelectedFiles"));
             showSharedFileItem.setText(language.getString("UploadPane.fileTable.popupmenu.showSharedFile"));
-            removeFinishedFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.removeFinishedUploads"));
             
             changeDestinationBoardMenu.setText(language.getString("UploadPane.fileTable.popupmenu.changeDestinationBoard"));
             copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
@@ -333,9 +336,6 @@ public class UploadPanel extends JPanel {
             if (e.getSource() == showSharedFileItem) {
                 uploadTableDoubleClick(null);
             }
-            if (e.getSource() == removeFinishedFilesItem) {
-                removeFinished();
-            }
         }
 
         /**
@@ -344,10 +344,6 @@ public class UploadPanel extends JPanel {
         private void generateChkForSelectedFiles() {
             ModelItem[] selectedItems = modelTable.getSelectedItems();
             model.generateChkItems(selectedItems);
-        }
-
-        private void removeFinished() {
-            model.removeFinishedUploads();
         }
 
         /**
@@ -376,24 +372,7 @@ public class UploadPanel extends JPanel {
                 StringBuffer textToCopy = new StringBuffer();
                 for (int i = 0; i < selectedItems.length; i++) {
                     FrostUploadItem item = (FrostUploadItem) selectedItems[i];
-                    String key = item.getKey();
-                    if (key == null) {
-                        key = keyNotAvailableMessage;
-                    } else {
-                        textToCopy.append(key);
-                        if( key.startsWith("CHK@") ) {
-                            // CHK
-                            if( key.indexOf('/') < 0 ) {
-                                textToCopy.append("/");
-                                textToCopy.append(item.getFile().getName());
-                            }
-                        } 
-//                        else {
-//                            // KSK, SSK or USK
-//                            // don't append filename, key is enough
-//                        }
-                    }
-                    textToCopy.append("\n");
+                    Mixed.appendKeyAndFilename(textToCopy, item.getKey(), item.getFile().getName(), keyNotAvailableMessage);
                 }
                 StringSelection selection = new StringSelection(textToCopy.toString());
                 getClipboard().setContents(selection, this);
@@ -472,8 +451,6 @@ public class UploadPanel extends JPanel {
             addSeparator();
             add(generateChkForSelectedFilesItem);
             add(uploadSelectedFilesItem);
-            addSeparator();
-            add(removeFinishedFilesItem);
             if( selectedItems.length == 1 ) {
                 FrostUploadItem item = (FrostUploadItem) selectedItems[0];
                 if( item.isSharedFile() ) {
@@ -490,7 +467,7 @@ public class UploadPanel extends JPanel {
     }
 
     private class Listener extends MouseAdapter
-        implements LanguageListener, KeyListener, ActionListener, MouseListener, PropertyChangeListener 
+        implements LanguageListener, KeyListener, ActionListener, MouseListener, PropertyChangeListener, ItemListener
     {
         public Listener() {
             super();
@@ -545,6 +522,14 @@ public class UploadPanel extends JPanel {
             }
             if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_STYLE)) {
                 fontChanged();
+            }
+        }
+        public void itemStateChanged(ItemEvent e) {
+            if( removeFinishedUploadsCheckBox.isSelected() ) {
+                Core.frostSettings.setValue(SettingsClass.UPLOAD_REMOVE_FINISHED, true);
+                model.removeFinishedUploads();
+            } else {
+                Core.frostSettings.setValue(SettingsClass.UPLOAD_REMOVE_FINISHED, false);
             }
         }
     }

@@ -52,7 +52,6 @@ class DownloadPanel extends JPanel {
     private Listener listener = new Listener();
     private JLabel maxRetriesLabel = new JLabel();
     private JTextField maxRetriesTextField = new JTextField(6);
-    private JCheckBox removeFinishedDownloadsCheckBox = new JCheckBox();
     private JLabel splitfileThreadsLabel = new JLabel();
     private JTextField splitfileThreadsTextField = new JTextField(6);
     private JTextField threadsTextField = new JTextField(6);
@@ -167,13 +166,10 @@ class DownloadPanel extends JPanel {
         constraints.insets = new Insets(5,5,5,5);
         constraints.gridy++;
         constraints.gridx = 0;
-        add(removeFinishedDownloadsCheckBox, constraints);
-        
-        constraints.insets = insets0555;
-        
-        constraints.gridy++;
         add(tryAllSegmentsCheckBox, constraints);
-        
+
+        constraints.insets = insets0555;
+
         constraints.gridy++;
         add(decodeAfterEachSegmentCheckBox, constraints);
         
@@ -190,7 +186,6 @@ class DownloadPanel extends JPanel {
      * Load the settings of this panel
      */
     private void loadSettings() {
-        removeFinishedDownloadsCheckBox.setSelected(settings.getBoolValue(SettingsClass.DOWNLOAD_REMOVE_FINISHED));
         directoryTextField.setText(settings.getValue(SettingsClass.DIR_DOWNLOAD));
         threadsTextField.setText(settings.getValue(SettingsClass.DOWNLOAD_MAX_THREADS));
         splitfileThreadsTextField.setText(settings.getValue(SettingsClass.DOWNLOAD_MAX_SPLITFILE_THREADS));
@@ -207,12 +202,9 @@ class DownloadPanel extends JPanel {
     }
 
     private void refreshLanguage() {
-        String off = language.getString("Options.common.off");
         String on = language.getString("Options.common.on");
         String minutes = language.getString("Options.common.minutes");
         
-        removeFinishedDownloadsCheckBox.setText(
-                language.getString("Options.downloads.removeFinishedDownloadsEvery5Minutes") + " (" + off + ")");
         waitTimeLabel.setText(language.getString("Options.downloads.waittimeAfterEachTry") + " (" + minutes + "): ");
         maxRetriesLabel.setText(language.getString("Options.downloads.maximumNumberOfRetries") + ": ");
         tryAllSegmentsCheckBox.setText(language.getString("Options.downloads.tryToDownloadAllSegments") + " (" + on + ")");
@@ -241,7 +233,6 @@ class DownloadPanel extends JPanel {
             settings.setValue(SettingsClass.DIR_DOWNLOAD, downlDirTxt);
         }
         settings.setValue(SettingsClass.DOWNLOAD_MAX_THREADS, threadsTextField.getText());
-        settings.setValue(SettingsClass.DOWNLOAD_REMOVE_FINISHED, removeFinishedDownloadsCheckBox.isSelected());
 
         settings.setValue(SettingsClass.DOWNLOAD_MAX_SPLITFILE_THREADS, splitfileThreadsTextField.getText());
         settings.setValue(SettingsClass.DOWNLOAD_MAX_RETRIES, maxRetriesTextField.getText());

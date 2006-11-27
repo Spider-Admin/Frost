@@ -67,12 +67,14 @@ class UploadThread extends Thread {
                 uploadItem); // provide the uploadItem to indicate that this upload is contained in table
 
         if (result.isSuccess() || result.isKeyCollision() ) {
+            
+            logger.info("Upload of " + uploadItem.getFile().getName() + " was successful.");
+
             // upload successful
             uploadItem.setKey(result.getChkKey());
             if( uploadItem.isSharedFile() ) {
                 uploadItem.getSharedFileItem().notifySuccessfulUpload(result.getChkKey());
             }
-            logger.info("Upload of " + uploadItem.getFile().getName() + " was successful.");
 
             uploadItem.setEnabled(Boolean.FALSE);
             uploadItem.setState(FrostUploadItem.STATE_DONE);
@@ -89,7 +91,12 @@ class UploadThread extends Thread {
                     FileAccess.appendLineToTextfile(targetFile, line);
                 }
             }
-            
+
+            // maybe remove finished upload immediately
+            if( Core.frostSettings.getBoolValue(SettingsClass.UPLOAD_REMOVE_FINISHED) ) {
+                FileTransferManager.getInstance().getUploadManager().getModel().removeFinishedUploads();
+            }
+
         } else {
             // upload failed
             logger.warning("Upload of " + uploadItem.getFile().getName() + " was NOT successful.");

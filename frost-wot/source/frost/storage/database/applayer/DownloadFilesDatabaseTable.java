@@ -83,7 +83,7 @@ public class DownloadFilesDatabaseTable extends AbstractDatabaseTable {
             FrostDownloadItem dlItem = (FrostDownloadItem)i.next();
 
             int ix=1;
-            ps.setString(ix++, dlItem.getFileName());
+            ps.setString(ix++, dlItem.getFilename());
             ps.setString(ix++, dlItem.getTargetPath());
             ps.setLong(ix++, (dlItem.getFileSize()==null?0:dlItem.getFileSize().longValue()));
             ps.setString(ix++, dlItem.getKey());
