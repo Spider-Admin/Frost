@@ -1,18 +1,32 @@
 /**
+ *   This file is part of JHyperochaFCPLib.
+ *   
+ *   Copyright (C) 2006  Hyperocha Project <saces@users.sourceforge.net>
+ * 
+ * JHyperochaFCPLib is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * JHyperochaFCPLib is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with JHyperochaFCPLib; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  * 
  */
 package hyperocha.freenet.fcp.dispatcher.job;
 
-import hyperocha.freenet.fcp.FCPConnectionRunner;
+import hyperocha.freenet.fcp.FCPNode;
 import hyperocha.freenet.fcp.FreenetKey;
 import hyperocha.freenet.fcp.NodeMessage;
 import hyperocha.freenet.fcp.dispatcher.Dispatcher;
-import hyperocha.util.DefaultMIMETypes;
 
 import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -20,43 +34,41 @@ import java.util.List;
  * insert a file the best way 
  * includes black magic ritual and making coffe for finding the best way
  *
+ * @version $Id$
+ * 
  */
 public class CHKFileInsertJob extends Job {
 	
 	private File insertFile;
 	private BufferedInputStream fis;
 	private FreenetKey targetKey;
-	private boolean tryGlobal = false;
 	
-	//private boolean halfDone = false;
+	private FCPNode node; // run job on this node
 	
 	public CHKFileInsertJob(int requirednetworktype, String id, File source) {
-		this(requirednetworktype, id, source, false);
-	}
-	
-	public CHKFileInsertJob(int requirednetworktype, String id, File source, boolean tryglobal) {
 		super(requirednetworktype, id);
 		insertFile = source;
-		tryGlobal = tryglobal;
 	}
 
 	/* (non-Javadoc)
 	 * @see hyperocha.freenet.fcp.job.Job#doPrepare()
 	 */
 	public boolean doPrepare() {
-		// TODO Check file exists, is file, read 
-		try {
-			fis = new BufferedInputStream(new FileInputStream(insertFile));
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		}
+		// TODO Check file exists, is file readable? etc pp 
 		return insertFile.exists();
 	}
 
 	public String getChkKey() {
 		return targetKey.getReadFreenetKey();
+	}
+	
+	private List composeResume(List cmd) {
+		cmd.add("GetRequestStatus");
+		cmd.add("Identifier=" + this.getJobID());
+		cmd.add("Global=true");
+		cmd.add("OnlyData=false");
+		cmd.add("EndMessage");
+		return cmd;
 	}
 
 	/* (non-Javadoc)
@@ -64,25 +76,13 @@ public class CHKFileInsertJob extends Job {
 	 */
 	public void runFCP2(Dispatcher dispatcher, boolean resume) {
 		
-		FCPConnectionRunner conn = dispatcher.getDefaultFCPConnectionRunner(getRequiredNetworkType());
-		
-		boolean dda = true;//conn.haveDDA();
+		node = dispatcher.getNextNode(getRequiredNetworkType());
 
 		List cmd = new LinkedList();
-		
-		if (resume) {
-			
-			cmd.add("GetRequestStatus");
-			cmd.add("Identifier=" + this.getJobID());
-			cmd.add("Global=true");
-			cmd.add("OnlyData=false");
-			cmd.add("EndMessage");
 
-			conn.send(cmd);
-			//System.err.println("CHK ins: " + cmd);
-			
+		if (resume) {
+			composeResume(cmd);
 		} else {
-		
 			cmd.add("ClientPut");
 			cmd.add("URI=CHK@");
 			cmd.add("Identifier=" + this.getJobID());
@@ -92,10 +92,10 @@ public class CHKFileInsertJob extends Job {
 			cmd.add("TargetFilename=");  // disable gurken-keys
 			cmd.add("EarlyEncode=false");
 			cmd.add("GetCHKOnly=false");
-			cmd.add("Metadata.ContentType=" + DefaultMIMETypes.guessMIMEType(insertFile.getAbsolutePath()));
+			cmd.add("Metadata.ContentType=application/octet-stream");
 			cmd.add("PriorityClass=4");
 			
-			if (tryGlobal) {
+			if (node.haveGQ()) {
 				cmd.add("Global=true");
 				cmd.add("Persistence=forever");
 			} else {
@@ -103,11 +103,11 @@ public class CHKFileInsertJob extends Job {
 			}
 
 		
-			if (dda) {  // direct file acess
+			if (node.haveDDA()) {  // direct file acess
 				cmd.add("UploadFrom=disk");
 				cmd.add("Filename=" + insertFile.getAbsolutePath());
 				cmd.add("EndMessage");
-				conn.send(cmd);
+				node.getDefaultFCPConnectionRunner().send(cmd);
 				//System.err.println("CHK ins: " + cmd);
 				
 			} else {
@@ -115,21 +115,12 @@ public class CHKFileInsertJob extends Job {
 				cmd.add("DataLength=" + Long.toString(insertFile.length()));
 				cmd.add("Data");
 				//System.err.println("CHK ins: " + cmd);
-				conn.send(cmd, insertFile.length(), fis);
+				node.getDefaultFCPConnectionRunner().send(cmd, insertFile.length(), fis);
 			}
+			
+			System.err.println("CHK ins: " + cmd);
 
 		}
-		
-		//waitFine();
-		
-		cmd = new LinkedList();
-
-		cmd.add("RemovePersistentRequest");
-		cmd.add("Global=true");
-		cmd.add("Identifier=" + this.getJobID());
-		cmd.add("EndMessage");
-		//System.err.println("CHK ins: " + cmd);
-		conn.send(cmd);
 
 	}
 
@@ -137,6 +128,7 @@ public class CHKFileInsertJob extends Job {
 	 * @see hyperocha.freenet.fcp.dispatcher.job.Job#incommingMessage(hyperocha.freenet.fcp.FCPConnection, java.util.Hashtable)
 	 */
 	public void incomingMessage(String id, NodeMessage msg) {
+		super.incomingMessage(id, msg);
 		if (msg.isMessageName("URIGenerated")) {
 			//trash the uri-generated
 			return;
