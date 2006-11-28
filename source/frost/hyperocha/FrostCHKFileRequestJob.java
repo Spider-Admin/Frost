@@ -25,10 +25,7 @@ import hyperocha.freenet.fcp.NodeMessage;
 import hyperocha.freenet.fcp.dispatcher.job.CHKFileRequestJob;
 
 import java.io.File;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.swing.SwingUtilities;
 
 /**
  * @version $Id$
@@ -44,61 +41,25 @@ public class FrostCHKFileRequestJob extends CHKFileRequestJob {
 	/**
 	 * @param requirednetworktype
 	 */
-	public FrostCHKFileRequestJob(String key, File target ) {
-		this(key, target, null);
-	}
+//	public FrostCHKFileRequestJob(String key, File target ) {
+//		this(key, target, null);
+//	}
 		
 	public FrostCHKFileRequestJob(String key, File target, FrostDownloadItem dli) {	
 		super(Core.getFcpVersion(), makeID(dli), FreenetKey.CHKfromString(key), target);
 		dlItem = dli;
 	}
 
-	/* (non-Javadoc)
-	 * @see hyperocha.freenet.fcp.dispatcher.job.CHKFileDownoadJob#incommingMessage(hyperocha.freenet.fcp.FCPConnection, java.util.Hashtable)
+	/* on dda wo dont know the filesize until the node says DataFound
+	 * we watch for DataFound and pass it to super.
+	 * @see hyperocha.freenet.fcp.dispatcher.job.CHKFileRequestJob#incomingMessage(java.lang.String, hyperocha.freenet.fcp.NodeMessage)
 	 */
 	public void incomingMessage(String id, NodeMessage msg) {
-		//System.out.println(" -> " + this + " -> " + message);
-        
-        // Sample message:
-//        SimpleProgress
-//        Total=12288 // 12,288 blocks we can fetch
-//        Required=8192 // we only need 8,192 of them (because of splitfile redundancy)
-//        Failed=452 // 452 of them have failed due to running out of retries
-//        FatallyFailed=0 // none of them have encountered fatal errors
-//        Succeeded=1027 // we have successfully fetched 1,027 blocks
-//        FinalizedTotal=true // the Total will not increase any further (if this is false, it may increase; it will never decrease)
-//        Identifier=Request Number One
-//        EndMessage
-        
-        // we don't want to die for any reason here...
-//        try {
-//            if (msg.isMessageName("SimpleProgress")) {
-//                // no DownloadItem set? we are not intrested in progress
-//                if (dlItem == null) { return; }
-//                
-//                // the doc says this is right:
-//                // don't belive this value before FinalizedTotal=true
-//                final boolean isFinalized = msg.getBoolValue("FinalizedTotal");
-//                final int totalBlocks = (int)msg.getLongValue("Total");
-//                final int requiredBlocks = (int)msg.getLongValue("Required");
-//                final int doneBlocks = (int)msg.getLongValue("Succeeded");
-//                
-//                SwingUtilities.invokeLater(new Runnable() {
-//                    public void run() {
-//                        dlItem.setFinalized(isFinalized);
-//                        dlItem.setTotalBlocks(totalBlocks);
-//                        dlItem.setRequiredBlocks(requiredBlocks);          
-//                        dlItem.setDoneBlocks(doneBlocks);
-//
-//                        dlItem.fireValueChanged();
-//                    }
-//                });
-//            }
-//        } catch(Throwable t) {
-//            logger.log(Level.SEVERE, "Exception catched", t);
-//        }
-        
-        super.incomingMessage(id, msg);
+		if (msg.isMessageName("DataFound")) {
+			dlItem.setFileSize(new Long(msg.getLongValue("DataLength")));
+			dlItem.fireValueChanged();
+		}
+		super.incomingMessage(id, msg);
 	}
 	
 	private static String makeID(FrostDownloadItem dlItem) {
@@ -116,7 +77,6 @@ public class FrostCHKFileRequestJob extends CHKFileRequestJob {
          dlItem.setTotalBlocks((int)totalBlocks);
          dlItem.setRequiredBlocks((int)requiredBlocks);          
          dlItem.setDoneBlocks((int)doneBlocks);
-
          dlItem.fireValueChanged();
 	}
 }
