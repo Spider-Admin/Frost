@@ -90,7 +90,7 @@ public class CHKFileRequestJob extends Job {
 			cmd.add("URI=" + keyToDownload.getBaseReadKey());
 		}
 		cmd.add("Identifier=" + getJobID()); 
-		cmd.add("Verbosity=1");
+		cmd.add("Verbosity=1"); // SimpleProgress only
 		cmd.add("MaxRetries=2");       
 		cmd.add("PriorityClass=4");   
 		
