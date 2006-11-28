@@ -95,9 +95,13 @@ public class Factory implements IStorageObject, Observer {
 		networks.put(net.getID(), net);
 	}
 	
-	protected FCPNode getNextNode(int networktype) {
+	/**
+	 * returns the best next node for this network type
+	 * @param networktype
+	 * @return FCPNode
+	 */
+	public FCPNode getNextNode(int networktype) {
 		Network net = getFirstNetwork(networktype);
-		//throw new Error("TODO");
 		return net.getNextNode();
 	}
 	
