@@ -43,66 +43,9 @@ public class FrostCHKFileInsertJob extends CHKFileInsertJob {
 	/**
 	 * @param requirednetworktype
 	 */
-	public FrostCHKFileInsertJob(File uploadfile) {
-		super(Core.getFcpVersion(), FHUtil.getNextJobID(), uploadfile);
-	}
-
-	/**
-	 * @param requirednetworktype
-	 */
 	public FrostCHKFileInsertJob(FrostUploadItem uitem) {
 		super(Core.getFcpVersion(), uitem.getGqIdentifier(), uitem.getFile());
 		uploadItem = uitem;
-	}
-
-	/* (non-Javadoc)
-	 * @see hyperocha.freenet.fcp.dispatcher.job.CHKFileInsertJob#incommingMessage(hyperocha.freenet.fcp.FCPConnection, java.util.Hashtable)
-	 */
-	public void incomingMessage(String id, NodeMessage msg) {
-        
-        // Sample message:
-//      SimpleProgress
-//      Total=12288 // 12,288 blocks we can fetch
-//      Required=8192 // we only need 8,192 of them (because of splitfile redundancy)
-//      Failed=452 // 452 of them have failed due to running out of retries
-//      FatallyFailed=0 // none of them have encountered fatal errors
-//      Succeeded=1027 // we have successfully fetched 1,027 blocks
-//      FinalizedTotal=true // the Total will not increase any further (if this is false, it may increase; it will never decrease)
-//      Identifier=Request Number One
-//      EndMessage
-
-//        try {
-//    		if (msg.isMessageName("SimpleProgress")) {
-//    			// no DownloadItem set? we are not intrested in progress
-//    			if (uploadItem == null) { return; }
-//
-//                final boolean isFinalized = msg.getBoolValue("FinalizedTotal");
-//                final int totalBlocks = (int)msg.getLongValue("Total");
-//                final int doneBlocks = (int)msg.getLongValue("Succeeded");
-//
-//                SwingUtilities.invokeLater(new Runnable() {
-//                    public void run() {
-//                        uploadItem.setFinalized(isFinalized);
-//                        uploadItem.setTotalBlocks(totalBlocks);
-//                        uploadItem.setDoneBlocks(doneBlocks);
-//
-//                        uploadItem.fireValueChanged();
-//                    }
-//                });
-//    			//System.out.println("SP" + this + message);
-//            }
-//        } catch(Throwable t) {
-//            logger.log(Level.SEVERE, "Exception catched", t);
-//        }
-//        // maybe we could start to spread the key before complete upload?
-//		if ("PutFetchable".equals(message.get(FCPConnection.MESSAGENAME))) {
-//			//System.out.println("PutFetchable" + this + message);
-//			if (uploadItem == null) { return; }
-//			uploadItem.setKey((String)message.get("URI"));
-//			// dont return, super the putfetchable;
-//		}
-
-		super.incomingMessage(id, msg);
 	}
 
 	/* (non-Javadoc)
