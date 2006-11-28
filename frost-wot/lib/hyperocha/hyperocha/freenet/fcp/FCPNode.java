@@ -184,8 +184,12 @@ public class FCPNode extends Observable {
 		return nodeConfig.useDDA;
 	}
 	
+	public boolean haveGQ() {
+		return nodeConfig.useGQ;
+	}
 	
 	public FCPVersion getFCPVersion() {
+		// TODO
 		FCPVersion result = null;
 		//FCPConnection conn = new FCPConnection("");
 		//result = 
@@ -311,7 +315,4 @@ public class FCPNode extends Observable {
 		nodeConfig.useDDA = haveDDA;
 	}
 
-	public boolean haveGQ() {
-		return nodeConfig.useGQ;
-	}
 }

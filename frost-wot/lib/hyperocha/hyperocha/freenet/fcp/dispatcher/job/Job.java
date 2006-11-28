@@ -234,11 +234,13 @@ public abstract class Job implements IIncoming {
 		// the defaulthandler skip the data
 		if (msg.isMessageName("AllData")) { // FCP 2
 			long size = msg.getLongValue("DataLength"); 
+			System.err.println("Skipping Data: " + msg);
 			conn.skip(size);
 			return;
 		}
 		if (msg.isMessageName("DataChunk")) { // FCP 1
-			long size = msg.getLongValue("Length", 16); 
+			long size = msg.getLongValue("Length", 16);
+			System.err.println("Skipping Data: " + msg);
 			conn.skip(size);
 			return;
 		}
