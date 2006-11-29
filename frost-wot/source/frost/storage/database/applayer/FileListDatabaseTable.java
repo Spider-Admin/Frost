@@ -18,10 +18,13 @@
 */
 package frost.storage.database.applayer;
 
+import java.beans.*;
 import java.sql.*;
+import java.sql.Statement;
 import java.util.*;
 import java.util.logging.*;
 
+import frost.*;
 import frost.fileTransfer.*;
 import frost.identities.*;
 import frost.storage.database.*;
@@ -29,9 +32,11 @@ import frost.storage.database.*;
 /**
  * Contains all shared files from all owners.
  */
-public class FileListDatabaseTable extends AbstractDatabaseTable {
+public class FileListDatabaseTable extends AbstractDatabaseTable implements PropertyChangeListener {
 
     private static Logger logger = Logger.getLogger(FileListDatabaseTable.class.getName());
+    
+    private boolean rememberSharedFileDownloaded;
 
     private final static String SQL_FILES_DDL =
         "CREATE TABLE IF NOT EXISTS FILELIST ("+
@@ -89,6 +94,11 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         stmt.executeUpdate("COMPACT TABLE FILELIST");
         stmt.executeUpdate("COMPACT TABLE FILEOWNERLIST");
         return true;
+    }
+    
+    public FileListDatabaseTable() {
+        rememberSharedFileDownloaded = Core.frostSettings.getBoolValue(SettingsClass.REMEMBER_SHAREDFILE_DOWNLOADED);
+        Core.frostSettings.addPropertyChangeListener(SettingsClass.REMEMBER_SHAREDFILE_DOWNLOADED, this);
     }
 
     /**
@@ -283,7 +293,11 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         ps.setString(ix++, sfo.getSha());
         ps.setLong(ix++, sfo.getSize());
         ps.setString(ix++, (sfo.getKey()==null?"":sfo.getKey()));
-        ps.setLong(ix++, sfo.getLastDownloaded());
+        if( rememberSharedFileDownloaded ) {
+            ps.setLong(ix++, sfo.getLastDownloaded());
+        } else {
+            ps.setLong(ix++, 0);
+        }
         ps.setLong(ix++, sfo.getLastUploaded());
         ps.setLong(ix++, sfo.getFirstReceived());
         ps.setLong(ix++, sfo.getLastReceived());
@@ -319,7 +333,11 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
 
         int ix = 1;
         ps.setString(ix++, (sfo.getKey()==null?"":sfo.getKey()));
-        ps.setLong(ix++, sfo.getLastDownloaded());
+        if( rememberSharedFileDownloaded ) {
+            ps.setLong(ix++, sfo.getLastDownloaded());
+        } else {
+            ps.setLong(ix++, 0);
+        }
         ps.setLong(ix++, sfo.getLastUploaded());
         ps.setLong(ix++, sfo.getLastReceived());
         
@@ -406,6 +424,11 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
      * Update the item with SHA, set lastdownloaded
      */
     public boolean updateFrostFileListFileObjectAfterDownload(String sha, long lastDownloaded) throws SQLException {
+
+        if( !rememberSharedFileDownloaded ) {
+            return true;
+        }
+        
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
         PreparedStatement ps = db.prepare("UPDATE FILELIST SET lastdownloaded=? WHERE sha=?");
@@ -749,5 +772,20 @@ public class FileListDatabaseTable extends AbstractDatabaseTable {
         ps.close();
 
         return deletedCount;
+    }
+    
+    /**
+     * Reset the lastdownloaded column for all file entries.
+     */
+    public void resetLastDownloaded() throws SQLException {
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
+        
+        PreparedStatement ps = db.prepare("UPDATE FILELIST SET lastdownloaded=0");
+        ps.executeUpdate();
+        ps.close();
+    }
+
+    public void propertyChange(PropertyChangeEvent evt) {
+        rememberSharedFileDownloaded = Core.frostSettings.getBoolValue(SettingsClass.REMEMBER_SHAREDFILE_DOWNLOADED);
     }
 }

@@ -76,6 +76,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
     private String checkMaxMessageDisplay;
     private String checkMaxMessageDownload;
     private boolean checkSignedOnly;
+    private boolean checkRememberSharedFileDownloaded;
 
     private boolean checkShowDeletedMessages;
     private boolean showColoredRows;
@@ -85,7 +86,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
     private SkinPanel skinPanel = null;
     private DownloadPanel downloadPanel = null;
 
-    boolean exitState;
+    private boolean exitState;
 
     private JPanel mainPanel = null;
     private MiscPanel miscPanel = null;
@@ -97,8 +98,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
     private JPanel optionsGroupsPanel = null;
     private SearchPanel searchPanel = null;
     
-    boolean shouldReloadMessages = false;
-    boolean shouldResetLastBackloadUpdateFinishedMillis = false;
+    private boolean shouldReloadMessages = false;
+    private boolean shouldResetLastBackloadUpdateFinishedMillis = false;
+    private boolean shouldResetSharedFilesLastDownloaded = false;
 
     private UploadPanel uploadPanel = null;
     
@@ -508,8 +510,16 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
             // at least one setting changed, reload messages
             shouldReloadMessages = true;
         }
+        
         if( !checkMaxMessageDownload.equals(frostSettings.getValue(SettingsClass.MAX_MESSAGE_DOWNLOAD)) ) {
             shouldResetLastBackloadUpdateFinishedMillis = true;
+        }
+        
+        // if settings was true before and now its disabled
+        if( checkRememberSharedFileDownloaded == true 
+                && frostSettings.getBoolValue(SettingsClass.REMEMBER_SHAREDFILE_DOWNLOADED) == false )
+        {
+            shouldResetSharedFilesLastDownloaded = true;
         }
     }
 
@@ -529,6 +539,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         checkBlock = frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_SUBJECT_ENABLED);
         checkBlockBody = frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BODY_ENABLED);
         checkShowDeletedMessages = frostSettings.getBoolValue("showDeletedMessages");
+        
+        checkRememberSharedFileDownloaded = frostSettings.getBoolValue(SettingsClass.REMEMBER_SHAREDFILE_DOWNLOADED);
         
         showColoredRows = frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
     }
@@ -550,6 +562,10 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
      */
     public boolean shouldResetLastBackloadUpdateFinishedMillis() {
         return shouldResetLastBackloadUpdateFinishedMillis;
+    }
+    
+    public boolean shouldResetSharedFilesLastDownloaded() {
+        return shouldResetSharedFilesLastDownloaded;
     }
 
     /**

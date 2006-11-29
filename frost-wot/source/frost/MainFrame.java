@@ -889,6 +889,19 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 // reset lastBackloadUpdatedMillis for all boards
                 getTofTreeModel().resetLastBackloadUpdateFinishedMillis();
             }
+            if( optionsDlg.shouldResetSharedFilesLastDownloaded() ) {
+                // reset lastDownloaded of all shared files
+                Thread t = new Thread() {
+                    public void run() {
+                        try {
+                            AppLayerDatabase.getFileListDatabaseTable().resetLastDownloaded();
+                        } catch(Throwable tt) {
+                            logger.log(Level.SEVERE, "Exception during resetLastDownloaded", tt);
+                        }
+                    }
+                };
+                t.start();
+            }
 
             // repaint whole tree, in case the update visualization was enabled or disabled (or others)
             tofTree.updateTree();

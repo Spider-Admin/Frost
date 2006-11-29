@@ -50,6 +50,7 @@ class SearchPanel extends JPanel {
 
     private JCheckBox hideBadFilesCheckBox = new JCheckBox();
     private JCheckBox disableFilesharingCheckBox = new JCheckBox();
+    private JCheckBox rememberSharedFileDownloadedCheckBox = new JCheckBox();
 
     /**
      * @param settings the SettingsClass instance that will be used to get and store the settings of the panel
@@ -153,6 +154,11 @@ class SearchPanel extends JPanel {
         constraints.gridx = 0;
         add(disableFilesharingCheckBox, constraints);
 
+        constraints.gridy++;
+        constraints.gridwidth = 2;
+        constraints.gridx = 0;
+        add(rememberSharedFileDownloadedCheckBox, constraints);
+
         // glue
         constraints.gridy++;
         constraints.gridx = 0;
@@ -176,6 +182,7 @@ class SearchPanel extends JPanel {
         maxSearchResultsTextField.setText(Integer.toString(settings.getIntValue(SettingsClass.SEARCH_MAX_RESULTS)));
         hideBadFilesCheckBox.setSelected(settings.getBoolValue(SettingsClass.SEARCH_HIDE_BAD));
         disableFilesharingCheckBox.setSelected(settings.getBoolValue(SettingsClass.DISABLE_FILESHARING));
+        rememberSharedFileDownloadedCheckBox.setSelected(settings.getBoolValue(SettingsClass.REMEMBER_SHAREDFILE_DOWNLOADED));
     }
 
     public void ok() {
@@ -193,6 +200,7 @@ class SearchPanel extends JPanel {
 
         hideBadFilesCheckBox.setText(language.getString("Options.search.hideFilesFromPeopleMarkedBad"));
         disableFilesharingCheckBox.setText(language.getString("Options.search.disableFilesharing"));
+        rememberSharedFileDownloadedCheckBox.setText(language.getString("Options.search.rememberSharedFileDownloaded"));
     }
 
     /**
@@ -209,5 +217,6 @@ class SearchPanel extends JPanel {
 
         settings.setValue(SettingsClass.SEARCH_HIDE_BAD, hideBadFilesCheckBox.isSelected());
         settings.setValue(SettingsClass.DISABLE_FILESHARING, disableFilesharingCheckBox.isSelected());
+        settings.setValue(SettingsClass.REMEMBER_SHAREDFILE_DOWNLOADED, rememberSharedFileDownloadedCheckBox.isSelected());
     }
 }

@@ -60,6 +60,7 @@ public class SettingsClass implements Savable {
     
     public static final String AUTO_SAVE_INTERVAL = "autoSaveInterval";
     public static final String DISABLE_FILESHARING = "disableFilesharing";
+    public static final String REMEMBER_SHAREDFILE_DOWNLOADED = "rememberSharedFileDownloaded";
     public static final String DOWNLOADING_ACTIVATED = "downloadingActivated";
     public static final String LOG_FILE_SIZE_LIMIT = "logFileSizeLimit";
     public static final String LOG_LEVEL = "logLevel";
@@ -696,6 +697,8 @@ public class SettingsClass implements Savable {
 
         defaults.put(DISABLE_FILESHARING, "false");
         defaults.put(DISABLE_SPLASHSCREEN, "false");
+        
+        defaults.put(REMEMBER_SHAREDFILE_DOWNLOADED, "true");
         
         defaults.put(FCP2_USE_DDA, "true");
 
