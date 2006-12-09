@@ -76,22 +76,31 @@ public class SearchParameters {
             List allStrings = new LinkedList();
             if( isSimpleSearch() ) {
                 allStrings.addAll(getSimpleSearchStrings());
-                allStrings.add("NOT");
-                allStrings.addAll(getSimpleSearchNotStrings());
+                if( getSimpleSearchNotStrings().size() > 0 ) {
+                    allStrings.add("NOT");
+                    allStrings.addAll(getSimpleSearchNotStrings());
+                }
             } else {
                 allStrings.addAll(getName());
                 allStrings.addAll(getComment());
                 allStrings.addAll(getKeyword());
                 allStrings.addAll(getOwner());
-                allStrings.add("NOT");
-                allStrings.addAll(getNotName());
-                allStrings.addAll(getNotComment());
-                allStrings.addAll(getNotKeyword());
-                allStrings.addAll(getNotOwner());
+                if( getNotName().size() > 0 
+                        || getNotComment().size() > 0 
+                        || getNotKeyword().size() > 0 
+                        || getNotOwner().size() > 0 ) 
+                {
+                    allStrings.add("NOT");
+                    allStrings.addAll(getNotName());
+                    allStrings.addAll(getNotComment());
+                    allStrings.addAll(getNotKeyword());
+                    allStrings.addAll(getNotOwner());
+                }
             }
             
             StringBuffer sb = new StringBuffer();
             for( Iterator i = allStrings.iterator(); i.hasNext() && ( !(sb.length() > 30) ); ) {
+                // FIXME: don't append only the 'NOT' to end of final string
                 String s = (String) i.next();
                 sb.append(s).append(" ");
             }
