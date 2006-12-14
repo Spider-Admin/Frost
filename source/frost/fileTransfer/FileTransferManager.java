@@ -61,9 +61,6 @@ public class FileTransferManager implements Savable {
         getUploadManager().addPanelToMainFrame(mainFrame);
         getSearchManager().addPanelToMainFrame(mainFrame);
         getSharedFilesManager().addPanelToMainFrame(mainFrame);
-
-        //Until the downloads and uploads are fully separated from frame1:
-        MainFrame.getInstance().getMessagePanel().getMessageTextPane().setDownloadModel(getDownloadManager().getModel());
     }
 
     public DownloadManager getDownloadManager() {

@@ -75,6 +75,8 @@ public class UploadFilesDatabaseTable extends AbstractDatabaseTable {
         
         Statement s = db.createStatement();
         s.executeUpdate("DELETE FROM UPLOADFILES"); // delete all
+        s.close();
+        s = null;
 
         PreparedStatement ps = db.prepare(
                 "INSERT INTO UPLOADFILES ("+

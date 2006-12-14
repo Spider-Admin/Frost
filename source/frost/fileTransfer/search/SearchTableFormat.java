@@ -39,7 +39,7 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
 
     private Language language;
 
-    private final static int COLUMN_COUNT = 8;
+    private final static int COLUMN_COUNT = 9;
 
     private String offline;
     private String sharing;
@@ -66,7 +66,8 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
         setComparator(new LastReceivedComparator(), 4);
         setComparator(new RatingComparator(), 5);
         setComparator(new CommentComparator(), 6);
-        setComparator(new SourcesComparator(), 7);
+        setComparator(new KeywordsComparator(), 7);
+        setComparator(new SourcesComparator(), 8);
         
         showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
         Core.frostSettings.addPropertyChangeListener(this);
@@ -84,7 +85,8 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
         setColumnName(4, language.getString("SearchPane.resultTable.lastReceived"));
         setColumnName(5, language.getString("SearchPane.resultTable.rating"));
         setColumnName(6, language.getString("SearchPane.resultTable.comment"));
-        setColumnName(7, language.getString("SearchPane.resultTable.sources"));
+        setColumnName(7, language.getString("SearchPane.resultTable.keywords"));
+        setColumnName(8, language.getString("SearchPane.resultTable.sources"));
 
         offline =     language.getString("SearchPane.resultTable.states.offline");
         sharing =     language.getString("SearchPane.resultTable.states.sharing");
@@ -120,7 +122,10 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
             case 6 :    //comment
                 return searchItem.getComment();
 
-            case 7 :    //sources
+            case 7 :    // keyword
+                return searchItem.getKeywords();
+
+            case 8 :    //sources
                 return searchItem.getSourceCount();
 
             default:
@@ -175,9 +180,10 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
         columnModel.getColumn(4).setCellRenderer(showColoredLinesRenderer); // last received
         columnModel.getColumn(5).setCellRenderer(showColoredLinesRenderer); // rating
         columnModel.getColumn(6).setCellRenderer(new ShowContentTooltipRenderer()); // comment
-        columnModel.getColumn(7).setCellRenderer(new SourceCountRenderer()); // source count
+        columnModel.getColumn(7).setCellRenderer(showColoredLinesRenderer); // keywords
+        columnModel.getColumn(8).setCellRenderer(new SourceCountRenderer()); // source count
         
-        int[] widths = { 250, 30, 40, 20, 20, 10, 80, 15 };
+        int[] widths = { 250, 30, 40, 20, 20, 10, 50, 80, 15 };
         for (int i = 0; i < widths.length; i++) {
             columnModel.getColumn(i).setPreferredWidth(widths[i]);
         }
@@ -220,6 +226,14 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
             String comment1 = ((FrostSearchItem) o1).getComment();
             String comment2 = ((FrostSearchItem) o2).getComment();
             return comment1.compareToIgnoreCase(comment2);
+        }
+    }
+
+    private class KeywordsComparator implements Comparator {
+        public int compare(Object o1, Object o2) {
+            String keywords1 = ((FrostSearchItem) o1).getKeywords();
+            String keywords2 = ((FrostSearchItem) o2).getKeywords();
+            return keywords1.compareToIgnoreCase(keywords2);
         }
     }
 

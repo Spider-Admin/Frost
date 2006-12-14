@@ -85,6 +85,13 @@ public class FrostSearchItem extends ModelItem {
         return fo.getDisplayComment();
     }
 
+    public String getKeywords() {
+        if( fo.getDisplayKeywords() == null ) {
+            return "";
+        }
+        return fo.getDisplayKeywords();
+    }
+
     public Boolean hasInfosFromMultipleSources() {
         return fo.hasInfosFromMultipleSources();
     }

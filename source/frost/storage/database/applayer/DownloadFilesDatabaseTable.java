@@ -72,6 +72,7 @@ public class DownloadFilesDatabaseTable extends AbstractDatabaseTable {
         Statement s = db.createStatement();
         s.executeUpdate("DELETE FROM DOWNLOADFILES"); // delete all
         s.close();
+        s = null;
 
         PreparedStatement ps = db.prepare(
                 "INSERT INTO DOWNLOADFILES " +

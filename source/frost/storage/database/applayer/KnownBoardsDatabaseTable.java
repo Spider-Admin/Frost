@@ -82,6 +82,7 @@ public class KnownBoardsDatabaseTable extends AbstractDatabaseTable {
         Statement stmt = db.createStatement();
         stmt.executeUpdate("DELETE FROM HIDDENBOARDNAMES"); // delete all
         stmt.close();
+        stmt = null;
         
         PreparedStatement ps = db.prepare("INSERT INTO HIDDENBOARDNAMES (boardname) VALUES (?)");
         for(Iterator i = names.iterator(); i.hasNext(); ) {

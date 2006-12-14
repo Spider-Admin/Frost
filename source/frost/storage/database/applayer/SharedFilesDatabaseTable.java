@@ -81,6 +81,8 @@ public class SharedFilesDatabaseTable extends AbstractDatabaseTable {
         
         Statement s = db.createStatement();
         s.executeUpdate("DELETE FROM SHAREDFILES"); // delete all
+        s.close();
+        s = null;
 
         PreparedStatement ps = db.prepare(
                 "INSERT INTO SHAREDFILES ("+
