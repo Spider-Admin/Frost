@@ -63,6 +63,7 @@ public class NewUploadFilesDatabaseTable extends AbstractDatabaseTable {
         Statement s = db.createStatement();
         s.executeUpdate("DELETE FROM NEWUPLOADFILES");
         s.close();
+        s = null;
         
         PreparedStatement ps = db.prepare("INSERT INTO NEWUPLOADFILES (filepath,fromname) VALUES (?,?)");
         

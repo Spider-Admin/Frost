@@ -35,6 +35,7 @@ import javax.swing.text.*;
 import frost.*;
 import frost.boards.*;
 import frost.fcp.*;
+import frost.fileTransfer.*;
 import frost.fileTransfer.download.*;
 import frost.gui.model.*;
 import frost.messages.*;
@@ -68,7 +69,6 @@ public class MessageTextPane extends JPanel {
     private FrostMessageObject selectedMessage;
 
     private MainFrame mainFrame = MainFrame.getInstance();
-    private DownloadModel downloadModel = null;
 
     private Component parentFrame;
 
@@ -734,7 +734,7 @@ public class MessageTextPane extends JPanel {
                         fa.getFilename(), 
                         fa.getKey(), 
                         fa.getSize()); 
-                downloadModel.addDownloadItem(dlItem);
+                getDownloadModel().addDownloadItem(dlItem);
             }
         }
 
@@ -989,7 +989,7 @@ public class MessageTextPane extends JPanel {
                 }
                 String name = item.substring(item.lastIndexOf("/")+1);
                 FrostDownloadItem dlItem = new FrostDownloadItem(name, key, null); 
-                downloadModel.addDownloadItem(dlItem);
+                getDownloadModel().addDownloadItem(dlItem);
             }
         }
         
@@ -1103,8 +1103,8 @@ public class MessageTextPane extends JPanel {
         }
     }
 
-    public void setDownloadModel(DownloadModel table) {
-        downloadModel = table;
+    private DownloadModel getDownloadModel() {
+        return FileTransferManager.getInstance().getDownloadManager().getModel();
     }
 
     public void close() {

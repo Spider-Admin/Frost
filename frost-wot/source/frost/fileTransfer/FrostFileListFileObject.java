@@ -52,6 +52,7 @@ public class FrostFileListFileObject {
     // non-persistent fields
     private String displayName = null;
     private String displayComment = null;
+    private String displayKeywords = null;
     private int displayRating = -1;
     private Boolean hasInfosFromMultipleSources = null;
 
@@ -353,6 +354,43 @@ public class FrostFileListFileObject {
         return displayComment;
     }
     
+    public String getDisplayKeywords() {
+        if( displayKeywords == null ) {
+            List lst = getFrostFileListFileObjectOwnerList();
+            if( lst == null || lst.size() == 0 ) {
+                displayKeywords = "(no sources)";
+            } else {
+                // choose most often used name
+                Hashtable ht = new Hashtable();
+                for( Iterator i = lst.iterator(); i.hasNext(); ) {
+                    FrostFileListFileObjectOwner e = (FrostFileListFileObjectOwner) i.next();
+                    String c = e.getKeywords();
+                    if( c == null || c.length() == 0 ) {
+                        continue;
+                    }
+                    MutableInt mi = (MutableInt)ht.get( c );
+                    if( mi == null ) {
+                        mi = new MutableInt();
+                        mi.name = c;
+                        mi.i = 1;
+                        ht.put(c, mi);
+                    } else {
+                        mi.i++;
+                    }
+                }
+                MutableInt bestMi = defaultMutableInt;
+                for(Iterator i = ht.values().iterator(); i.hasNext(); ) {
+                    MutableInt mi = (MutableInt)i.next();
+                    if( mi.i > bestMi.i ) {
+                        bestMi = mi;
+                    }
+                }
+                displayKeywords = bestMi.name;
+            }
+        }
+        return displayKeywords;
+    }
+
     public int getDisplayRating() {
         if( displayRating < 0 ) {
             List lst = getFrostFileListFileObjectOwnerList();

@@ -250,6 +250,7 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
         Statement s = db.createStatement();
         s.executeUpdate("DELETE FROM OWNIDENTITIESLASTFILESSHARED"); // clear table
         s.close();
+        s = null;
         
         PreparedStatement ps = db.prepare("INSERT INTO OWNIDENTITIESLASTFILESSHARED (uniquename,lastshared) VALUES (?,?)");
         

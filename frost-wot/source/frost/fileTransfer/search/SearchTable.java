@@ -103,7 +103,7 @@ public class SearchTable extends SortedModelTable {
         int row = getTable().rowAtPoint(e.getPoint());
         int col = getTable().columnAtPoint(e.getPoint());
 
-        if( row > -1 && col == 7 ) {
+        if( row > -1 && col == 8 ) {
             showDetails();
             return;
         }
