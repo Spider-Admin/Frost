@@ -154,6 +154,8 @@ public class FcpConnection {
     public FcpResultGet getKeyToFile(int type, String keyString, File targetFile, FrostDownloadItem dlItem)
     throws IOException, FcpToolsException, InterruptedIOException {
 
+        File ddaTempFile = null;
+        
         keyString = stripSlashes(keyString);
         
         FreenetKey key = new FreenetKey(keyString);
@@ -162,7 +164,8 @@ public class FcpConnection {
 					"KeyType =   " + key.getKeyType());
 
         if (useDDA) {
-            targetFile.delete(); // delete before download, else download fails, node will not overwrite anything!
+            // delete before download, else download fails, node will not overwrite anything!
+            targetFile.delete();
         }
         
         fcpOut.println("ClientGet");
@@ -172,11 +175,17 @@ public class FcpConnection {
         fcpOut.println("Identifier=get-" + getNextFcpId() );
         fcpOut.println("MaxRetries=1");
         fcpOut.println("Verbosity=-1");
-System.out.println("useDDA = "+useDDA);
+
         if (useDDA) {
             fcpOut.println("Persistence=connection");
         	fcpOut.println("ReturnType=disk");
-            fcpOut.println("Filename=" + targetFile.getAbsoluteFile());
+            fcpOut.println("Filename=" + targetFile.getAbsolutePath());
+            ddaTempFile = new File( targetFile.getAbsolutePath() + "-w");
+            if( ddaTempFile.isFile() ) {
+                // delete before download, else download fails, node will not overwrite anything!
+                ddaTempFile.delete();
+            }
+            fcpOut.println("TempFilename=" + ddaTempFile.getAbsolutePath());
          } else {
         	fcpOut.println("ReturnType=direct");
         }
@@ -303,12 +312,20 @@ System.out.println("useDDA = "+useDDA);
         
         if( !isSuccess ) {
             // failure
-            targetFile.delete();
+            if( targetFile.isFile() ) {
+                targetFile.delete();
+            }
             result = new FcpResultGet(false, returnCode, codeDescription, isFatal);
         } else {
             // success
             result = new FcpResultGet(true);
         }
+        
+        // in either case, remove dda temp file
+        if( ddaTempFile != null && ddaTempFile.isFile() ) {
+            ddaTempFile.delete();
+        }
+        
         return result;
     }
 
