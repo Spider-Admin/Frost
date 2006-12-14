@@ -18,6 +18,7 @@
 */
 package frost.fileTransfer.search;
 
+import java.awt.*;
 import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
@@ -51,6 +52,8 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
     private SearchTable searchTable;
 
     private boolean isStopRequested = false;
+    
+    private Component tabComponent;
     
     private boolean isStopRequested() {
         return isStopRequested;
@@ -414,14 +417,14 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
             logger.log(Level.SEVERE, "Catched exception:", e);
         }
 
-        searchTable.searchFinished();
+        searchTable.searchFinished(tabComponent);
     }
 
     /**Constructor*/
-    public SearchThread(SearchParameters searchParams, SearchTable searchTable) {
+    public SearchThread(SearchParameters searchParams, SearchTable searchTable, Component tabComponent) {
 
         this.searchParams = searchParams; 
-        
+        this.tabComponent = tabComponent;
         this.searchTable = searchTable;
         
         audioExtension      = Core.frostSettings.getArrayValue(SettingsClass.FILEEXTENSION_AUDIO);

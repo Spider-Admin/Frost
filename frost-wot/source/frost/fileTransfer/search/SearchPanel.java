@@ -37,7 +37,7 @@ public class SearchPanel extends JPanel implements LanguageListener {
     
     private boolean isInitialized = false;
     
-    private CloseableTabbedPane searchTabs = new CloseableTabbedPane();
+    private CloseableTabbedPane searchTabs;
 
     private String[] searchComboBoxKeys =
         { "SearchPane.fileTypes.allFiles", 
@@ -64,7 +64,7 @@ public class SearchPanel extends JPanel implements LanguageListener {
 
             setLayout(new BorderLayout());
             
-            searchTabs = new CloseableTabbedPane();
+            searchTabs = new SearchCloseableTabbedPane();
             add(searchTabs, BorderLayout.CENTER);
 
             // adds simple top panel
@@ -100,9 +100,11 @@ public class SearchPanel extends JPanel implements LanguageListener {
         SearchModel model = new SearchModel();
         SearchTable modelTable = new SearchTable(model, tableFormat, searchTabs, tabText);
         
-        searchTabs.addTab(tabText + " (...)", modelTable.getScrollPane());
+        ProxyPanel pp = new ProxyPanel(modelTable.getScrollPane(), model);
         
-        SearchThread searchThread = new SearchThread(searchParams, modelTable);
+        searchTabs.addTab(tabText + " (...)", pp);
+        
+        SearchThread searchThread = new SearchThread(searchParams, modelTable, pp);
         searchThread.start();
     }
 
@@ -294,6 +296,39 @@ public class SearchPanel extends JPanel implements LanguageListener {
             searchOwnerLabel.setText(language.getString("SearchPane.toolbar.owner")+":");
             withKeyOnlyCheckBox.setText(language.getString("SearchPane.toolbar.chkKey"));
             withKeyOnlyCheckBox.setToolTipText(language.getString("SearchPane.toolbar.tooltip.chkKey"));
+        }
+    }
+
+    /**
+     * Own closeable tabbed pane to get notified if a tab was closed.
+     * Needed to explicitely clear the tablemodel.
+     */
+    private class SearchCloseableTabbedPane extends CloseableTabbedPane {
+        public SearchCloseableTabbedPane() {
+            super();
+        }
+        protected void tabWasClosed(Component c) {
+            if( c instanceof ProxyPanel ) {
+                // explicitely clear the model after tab was closed to make life easier for the gc
+                ProxyPanel pp = (ProxyPanel)c;
+                pp.getModel().clear();
+            }
+        }
+    }
+    
+    /**
+     * Panel component that holds a SearchModel.
+     * Is added to a tabbed pane.
+     */
+    private class ProxyPanel extends JPanel {
+        SearchModel model; 
+        public ProxyPanel(Component c, SearchModel m) {
+            model = m;
+            setLayout(new BorderLayout());
+            add(c, BorderLayout.CENTER);
+        }
+        public SearchModel getModel() {
+            return model;
         }
     }
 

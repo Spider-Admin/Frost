@@ -101,11 +101,9 @@ public class CloseableTabbedPane extends JTabbedPane
 
 
     //--- Inner Class(es) ---
-
     
     protected class ClosingListener extends MouseAdapter
     {
-	
 		public void mouseReleased(MouseEvent e)
 		{
 			int i = getSelectedIndex();
@@ -119,10 +117,14 @@ public class CloseableTabbedPane extends JTabbedPane
 	    
 			// close tab, if icon was clicked
 			if (icon != null && icon.contains(e.getX(), e.getY())) {
+                Component c = getComponentAt(i);
 				removeTabAt(i);
+                tabWasClosed(c);
 			}
 		}
-	
+    }
+    
+    protected void tabWasClosed(Component c) {
     }
 
     /**
