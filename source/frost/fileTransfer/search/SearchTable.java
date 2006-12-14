@@ -66,14 +66,14 @@ public class SearchTable extends SortedModelTable {
     /**
      * Called if the searchthread finished.
      */
-    public void searchFinished() {
+    public void searchFinished(Component tabComponent) {
         // add all chached items to model
         for( Iterator i = searchItems.iterator(); i.hasNext(); ) {
             FrostSearchItem fsi = (FrostSearchItem) i.next();
             searchModel.addSearchItem(fsi);
         }
         
-        int myIx = tabPane.indexOfComponent(this.getScrollPane());
+        int myIx = tabPane.indexOfComponent(tabComponent);
         String newTitle = searchText + " ("+searchModel.getItemCount()+")";
         tabPane.setTitleAt(myIx, newTitle);
     }
