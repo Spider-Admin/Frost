@@ -68,6 +68,10 @@ fi
  */
 public class ExecuteDocument {
 	
+	public static void openDocument(String document) throws IOException {
+		openDocument(new File(document));
+	}
+	
 	/**
 	 * opens a document with the assiozitätä app on all plattforms
 	 * supports doze, kde, gnome, macos? 
@@ -80,13 +84,13 @@ public class ExecuteDocument {
 		String cmd;
 		
 		if ("Windows".equalsIgnoreCase(osn)) {
-			cmd = "start \"" + document.getAbsolutePath() + "\"";
+			cmd = "start \"" + document.getCanonicalPath() + "\"";
 			Runtime.getRuntime().exec(cmd);
 			return;
 		}
 		
 		if ("MacOs".equalsIgnoreCase(osn)) {
-			cmd = "open \"" + document.getAbsolutePath() + "\"";
+			cmd = "open \"" + document.getCanonicalPath() + "\"";
 			Runtime.getRuntime().exec(cmd);
 			return;
 		}
@@ -94,14 +98,14 @@ public class ExecuteDocument {
 		// test for kde
 		ExecResult r1 = Execute.run_wait("which kfmclient");
 		if (r1.retcode == 0) {
-			cmd = r1.stdOut.toString() + " exec \"" + document.getAbsolutePath() + "\"";
+			cmd = r1.stdOut.toString() + " exec file://" + document.getCanonicalPath();
 			Runtime.getRuntime().exec(cmd);
 			return;
 		}
 		// test for gnome
 		ExecResult r2 = Execute.run_wait("which gnome-open");
 		if (r2.retcode == 0) {
-			cmd = r2.stdOut.toString() + " \"" + document.getAbsolutePath() + "\"";
+			cmd = r2.stdOut.toString() + " file://" + document.getCanonicalPath();
 			Runtime.getRuntime().exec(cmd);
 			return;
 		}
@@ -110,9 +114,21 @@ public class ExecuteDocument {
 		
 	}
 
+	/**
+	 * right klick and run as app should open the help index
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		String osn = System.getProperty("os.name");
 		System.out.println(osn);
+		
+		try {
+			ExecuteDocument.openDocument("./help/index.html");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 	
 }
