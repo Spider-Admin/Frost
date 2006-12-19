@@ -79,20 +79,26 @@ public class ExecuteDocument {
 	 * @throws IOException 
 	 */
 	public static void openDocument(File document) throws IOException {
-		String osn = System.getProperty("os.name");
+		String osn = System.getProperty("os.name").toLowerCase();
 		String cmd;
 		
-		if (osn.indexOf("Windows") != -1) {
-			Runtime.getRuntime().exec(new String[] { "cmd.exe", "/c", "start", document.getCanonicalPath() });
+		if (osn.indexOf("windows") != -1) {
+			if ((osn.indexOf("9") != 1) || (osn.indexOf("me") != 1)) {
+				cmd = "command.com";
+			} else {
+				cmd = "cmd.exe";
+			}
+			
+			Runtime.getRuntime().exec(new String[] { cmd, "/c", "start", document.getCanonicalPath() });
 			return;
 		}
 		
 		// if (MacUser) {
 		//     TODO / FIXME
 		// }
-		if ("MacOs".equalsIgnoreCase(osn)) {
+		if (osn.indexOf("mac") != -1) {
 			cmd = "open \"" + document.getCanonicalPath() + "\"";
-			Runtime.getRuntime().exec(cmd);
+			Runtime.getRuntime().exec(new String[] { "open", document.getCanonicalPath() });
 			return;
 		}
 		
