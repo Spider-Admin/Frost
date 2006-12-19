@@ -84,6 +84,12 @@ public class ExecuteDocument {
 			Runtime.getRuntime().exec(new String[] { "gnome-open", document.getCanonicalPath() });
 			return;
 		}
+		// test for gnustep
+		ExecResult r3 = Execute.run_wait(new String[] {"which", "gopen"});
+		if (r3.retcode == 0) {
+			Runtime.getRuntime().exec(new String[] { "gopen", document.getCanonicalPath() });
+			return;
+		}
 		
 		// hu, only 1,3254% of guis should arrive here ;)
 		
