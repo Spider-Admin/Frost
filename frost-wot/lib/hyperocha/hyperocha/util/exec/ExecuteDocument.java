@@ -34,37 +34,7 @@ import java.io.IOException;
  * kde: 'kfmclient exec' docname 
  * gnome: 'gnome-open' docname
  * mac-os : 'open' docname ??? guessed from google, no macos aviable :(
- * 
- * auto.sh?
  *
-#/bin/sh
-#
-# This file is part of JHyperochaUtilLib.
-#
-
-OD_KDE_CMD=`which kfmclient 2>/dev/null`
-
-if [ -n "$OD_KDE_CMD" ]  
-then
-    #echo "KDE"
-    $OD_KDE_CMD exec $@
-else
-
-OD_GNOME_CMD=`which gnome-open 2>/dev/null`
-if [ -n "$OD_GNOME_CMD" ]   
-then
-    #echo "G"
-    $OD_GNOME_CMD $@
-else
-    # weder kde noch gnome
-    #echo "o nooo"
-    exit -1
-fi
-
-fi      
- *
- *
- * 
  */
 public class ExecuteDocument {
 	
@@ -97,7 +67,6 @@ public class ExecuteDocument {
 		//     TODO / FIXME
 		// }
 		if (osn.indexOf("mac") != -1) {
-			cmd = "open \"" + document.getCanonicalPath() + "\"";
 			Runtime.getRuntime().exec(new String[] { "open", document.getCanonicalPath() });
 			return;
 		}
@@ -106,15 +75,13 @@ public class ExecuteDocument {
 		// test for kde
 		ExecResult r1 = Execute.run_wait(new String[] {"which", "kfmclient"});
 		if (r1.retcode == 0) {
-			cmd = r1.stdOut.toString() + " exec file://" + document.getCanonicalPath();
-			Runtime.getRuntime().exec(cmd);
+			Runtime.getRuntime().exec(new String[] { "kfmclient", "exec", document.getCanonicalPath() });
 			return;
 		}
 		// test for gnome
 		ExecResult r2 = Execute.run_wait(new String[] {"which", "gnome-open"});
 		if (r2.retcode == 0) {
-			cmd = r2.stdOut.toString() + " file://" + document.getCanonicalPath();
-			Runtime.getRuntime().exec(cmd);
+			Runtime.getRuntime().exec(new String[] { "gnome-open", document.getCanonicalPath() });
 			return;
 		}
 		
