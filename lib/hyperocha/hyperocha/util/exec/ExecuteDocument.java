@@ -79,31 +79,33 @@ public class ExecuteDocument {
 	 * @throws IOException 
 	 */
 	public static void openDocument(File document) throws IOException {
-		// proposal
 		String osn = System.getProperty("os.name");
 		String cmd;
 		
-		if ("Windows".equalsIgnoreCase(osn)) {
-			cmd = "start \"" + document.getCanonicalPath() + "\"";
-			Runtime.getRuntime().exec(cmd);
+		if (osn.indexOf("Windows") != -1) {
+			Runtime.getRuntime().exec(new String[] { "cmd.exe", "/c", "start", document.getCanonicalPath() });
 			return;
 		}
 		
+		// if (MacUser) {
+		//     TODO / FIXME
+		// }
 		if ("MacOs".equalsIgnoreCase(osn)) {
 			cmd = "open \"" + document.getCanonicalPath() + "\"";
 			Runtime.getRuntime().exec(cmd);
 			return;
 		}
+		
 		// unix left
 		// test for kde
-		ExecResult r1 = Execute.run_wait("which kfmclient");
+		ExecResult r1 = Execute.run_wait(new String[] {"which", "kfmclient"});
 		if (r1.retcode == 0) {
 			cmd = r1.stdOut.toString() + " exec file://" + document.getCanonicalPath();
 			Runtime.getRuntime().exec(cmd);
 			return;
 		}
 		// test for gnome
-		ExecResult r2 = Execute.run_wait("which gnome-open");
+		ExecResult r2 = Execute.run_wait(new String[] {"which", "gnome-open"});
 		if (r2.retcode == 0) {
 			cmd = r2.stdOut.toString() + " file://" + document.getCanonicalPath();
 			Runtime.getRuntime().exec(cmd);
