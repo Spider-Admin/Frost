@@ -483,14 +483,18 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         ps.setInt(2, board.getPrimaryKey().intValue());
 
         ResultSet rs = ps.executeQuery();
-
+int cnt=0;
         while( rs.next() ) {
             FrostMessageObject mo = resultSetToFrostMessageObject(rs, board, withContent, withAttachments);
             boolean shouldStop = mc.messageRetrieved(mo); // pass to callback
+            if( mo.isNew() ) {
+                cnt++;
+            }
             if( shouldStop ) {
                 break;
             }
         }
+
         rs.close();
         ps.close();
     }
@@ -658,6 +662,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
     public int getNewMessageCount(Board board, int maxDaysBack) throws SQLException {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         PreparedStatement ps;
+
         if( maxDaysBack < 0 ) {
             // no date restriction
             ps = db.prepare("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE board=? AND isnew=TRUE AND isvalid=TRUE");
@@ -676,7 +681,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         }
         rs.close();
         ps.close();
-        
+
         return count;
     }
     

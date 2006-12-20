@@ -308,7 +308,7 @@ public class UploadTicker extends Thread {
             return null;
         }
 
-        if (waitingItems.size() > 1) { // performance issues
+        if (waitingItems.size() > 1) {
             Collections.sort(waitingItems, uploadDlStopMillisCmp);
         }
         return (FrostUploadItem) waitingItems.get(0);

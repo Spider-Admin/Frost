@@ -212,20 +212,29 @@ public class TOF {
         } else {
             newMsg.setNew(true);
         }
+        
+        boolean isBlocked = false;
+        if( isBlocked(newMsg, board) ) {
+            // if message is blocked, then set it to not new
+            newMsg.setNew(false);
+            isBlocked = true;
+        }
+        
         try {
             AppLayerDatabase.getMessageTable().insertMessage(newMsg);
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error inserting new message into database", e);
             return;
         }
+
         // after add to database
-        processNewMessage(newMsg, board);
+        processNewMessage(newMsg, board, isBlocked);
     }
 
     /**
      * Process incoming message.
      */
-    private void processNewMessage(FrostMessageObject currentMsg, Board board) {
+    private void processNewMessage(FrostMessageObject currentMsg, Board board, boolean isBlocked) {
 
         // check if msg would be displayed (maxMessageDays)
         DateTime min = new LocalDate(DateTimeZone.UTC).minusDays(board.getMaxMessageDisplay()).toDateTimeAtMidnight();
@@ -233,7 +242,7 @@ public class TOF {
         
         if( msgDate.getMillis() > min.getMillis() ) {
             // add new message or notify of arrival
-            addNewMessageToGui(currentMsg, board);
+            addNewMessageToGui(currentMsg, board, isBlocked);
         } // else msg is not displayed due to maxMessageDisplay
         
         processAttachedBoards(currentMsg);
@@ -242,10 +251,10 @@ public class TOF {
     /**
      * Called by non-swing thread.
      */
-    private void addNewMessageToGui(final FrostMessageObject message, final Board board) {
+    private void addNewMessageToGui(final FrostMessageObject message, final Board board, boolean isBlocked) {
         
         // check if message is blocked
-        if( isBlocked(message, board) ) {
+        if( isBlocked ) {
 //            // add this msg if it replaces a dummy!
 //            // DISCUSSION: better not, if a new GOOD msg arrives later in reply to this BAD, the BAD is not loaded and 
 //            // dummy is created. this differes from behaviour of clean load from database            
@@ -432,6 +441,8 @@ public class TOF {
             public boolean messageRetrieved(FrostMessageObject mo) {
                 if( isBlocked(mo, board) == false ) {
                     rootNode.add(mo);
+                } else {
+                    System.out.println("block!");
                 }
                 return isCancel();
             }
@@ -712,9 +723,14 @@ public class TOF {
         if (board.getHideObserve() && message.isMessageStatusOBSERVE()) {
             return true;
         }
+
         //If the message is not signed and contains a @ character in the from field, we block it.
         if (message.isMessageStatusOLD() && message.getFromName().indexOf('@') > -1) {
-            return true;
+            // FIXME: here we fix a problem with older frosts: a message is sent anonymously,
+            //        but the sender is a unique name. We remove the '@' to avoid confusion
+            // -> this solves the problem that a new msg is indicated, but not shown
+            message.setFromName(message.getFromName().replace('@','_'));
+            // return false; // we would block this message
         }
 
         // Block by subject (and rest of the header)

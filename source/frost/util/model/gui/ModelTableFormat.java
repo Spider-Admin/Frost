@@ -53,7 +53,7 @@ public interface ModelTableFormat {
 	 * @param modelTable
 	 */
 	public void customizeTable(ModelTable modelTable);
-	
+
 	/**
 	 * This method returns the numbers of the columns that reflect
 	 * the information of the model field passed as a parameter

@@ -39,9 +39,6 @@ import frost.util.model.*;
  * 
  * Besides, the user can choose which columns will be shown via a menu
  * that pops up when he right clicks on the header.
- * 
- * @author $Author$
- * @version $Revision$
  */
 public class ModelTable extends AbstractTableModel {
 	/**
@@ -442,7 +439,11 @@ public class ModelTable extends AbstractTableModel {
 	public Iterator getColumns() {
 		return columns.iterator();
 	}
-	
+
+    public List getColumnsList() {
+        return columns;
+    }
+
 	/**
 	 * This method maps the index that a column has in the associated TableFormat to
 	 * the index that column has in this ModelTable.

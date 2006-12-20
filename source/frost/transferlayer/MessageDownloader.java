@@ -215,7 +215,12 @@ public class MessageDownloader {
             // if not on any list, use the parsed id and add to our identities list
             if (owner == null) {
                 owner = metaData.getPerson();
-                owner.isIdentityValid(); // not enforced, writes log entry
+                if( !owner.isIdentityValid() ) {
+                    // hash of public key does not match the unique name
+                    mdResult.errorMsg = MessageDownloaderResult.INVALID_MSG;
+                    tmpFile.delete();
+                    return mdResult;
+                }
                 owner.setCHECK();
                 Core.getIdentities().addIdentity(owner);
             }
@@ -398,7 +403,12 @@ public class MessageDownloader {
             // if not on any list, use the parsed id and add to our identities list
             if (owner == null) {
                 owner = new Identity(currentMsg.getFromName(), currentMsg.getPublicKey());
-                owner.isIdentityValid(); // not enforced, writes log entry
+                if( !owner.isIdentityValid() ) {
+                    // hash of public key does not match the unique name
+                    mdResult.errorMsg = MessageDownloaderResult.INVALID_MSG;
+                    tmpFile.delete();
+                    return mdResult;
+                }
                 owner.setCHECK();
                 Core.getIdentities().addIdentity(owner);
             }

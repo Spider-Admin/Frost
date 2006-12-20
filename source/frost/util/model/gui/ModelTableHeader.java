@@ -29,8 +29,6 @@ import javax.swing.table.*;
  * This is subclass of JTableHeader that listens for mouse clicks on it.
  * It does nothing with them, but provides a couple of methods (headerClicked 
  * and headerReleased) that subclasses can override as necessary.
- * @author $Author$
- * @version $Revision$
  */
 public class ModelTableHeader extends JTableHeader {
 

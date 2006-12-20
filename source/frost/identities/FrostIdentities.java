@@ -333,7 +333,11 @@ public class FrostIdentities implements Savable {
         int importedCount = 0;
         for(Iterator i=importedIdentities.iterator(); i.hasNext(); ) {
             Identity newId = (Identity) i.next();
-            newId.isIdentityValid(); // not enforced, writes log entry
+            if( !newId.isIdentityValid() ) {
+                // hash of public key does not match the unique name
+                // skip identity
+                continue;
+            }
             Identity oldId = getIdentity(newId.getUniqueName());
             if( oldId == null ) {
                 // add new id
