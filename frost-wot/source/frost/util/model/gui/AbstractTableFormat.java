@@ -52,8 +52,11 @@ public abstract class AbstractTableFormat implements ModelTableFormat {
 	 */
 	public void customizeTable(ModelTable modelTable) {
 		// Nothing here. Override in subclasses if necessary.
-
 	}
+
+    public void customizeTableAfterInitialize(ModelTable modelTable) {
+        // Nothing here. Override in subclasses if necessary.
+    }
 
 	/**
 	 * @return

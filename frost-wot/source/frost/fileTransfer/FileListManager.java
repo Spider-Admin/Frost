@@ -190,8 +190,11 @@ public class FileListManager {
         
         Identity localOwner = Core.getIdentities().getIdentity(content.getReceivedOwner().getUniqueName());
         if( localOwner == null ) {
-            // new identity, add
-            content.getReceivedOwner().isIdentityValid(); // not enforced, writes log entry
+            // new identity, maybe add
+            if( !content.getReceivedOwner().isIdentityValid() ) {
+                // hash of public key does not match the unique name
+                return false;
+            }
             Core.getIdentities().addIdentity(content.getReceivedOwner());
             localOwner = content.getReceivedOwner();
         }

@@ -34,15 +34,15 @@ import frost.util.*;
  */
 public class Identity implements XMLizable {
 
-    private static final int GOOD  = 1;
-    private static final int CHECK = 2;
+    private static final int GOOD    = 1;
+    private static final int CHECK   = 2;
     private static final int OBSERVE = 3;
-    private static final int BAD   = 4;
+    private static final int BAD     = 4;
     
-    private static final String GOOD_STRING = "GOOD";
-    private static final String CHECK_STRING = "CHECK";
+    private static final String GOOD_STRING    = "GOOD";
+    private static final String CHECK_STRING   = "CHECK";
     private static final String OBSERVE_STRING = "OBSERVE";
-    private static final String BAD_STRING = "BAD";
+    private static final String BAD_STRING     = "BAD";
 
     private String uniqueName;
     protected String key;

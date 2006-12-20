@@ -164,26 +164,21 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
         for( Iterator i=fo.getFrostFileListFileObjectOwnerList().iterator(); i.hasNext(); ) {
             
             FrostFileListFileObjectOwner ob = (FrostFileListFileObjectOwner) i.next();
-
-            String name = lowerCase(ob.getName());
-            String comment = lowerCase(ob.getComment());
-            String keyword = lowerCase(ob.getKeywords());
-            String owner = lowerCase(ob.getOwner()); 
             
             // check notName
-            if( TextSearchFun.containsAnyString(name, searchParams.getNotName()) ) {
+            if( TextSearchFun.containsAnyString(lowerCase(ob.getName()), searchParams.getNotName()) ) {
                 return false;
             }
             // check notComment
-            if( TextSearchFun.containsAnyString(comment, searchParams.getNotComment()) ) {
+            if( TextSearchFun.containsAnyString(lowerCase(ob.getComment()), searchParams.getNotComment()) ) {
                 return false;
             }
             // check notKeyword
-            if( TextSearchFun.containsAnyString(keyword, searchParams.getNotKeyword()) ) {
+            if( TextSearchFun.containsAnyString(lowerCase(ob.getKeywords()), searchParams.getNotKeyword()) ) {
                 return false;
             }
             // check notOwner
-            if( TextSearchFun.containsAnyString(owner, searchParams.getNotOwner()) ) {
+            if( TextSearchFun.containsAnyString(lowerCase(ob.getOwner()), searchParams.getNotOwner()) ) {
                 return false;
             }
         }
@@ -255,36 +250,40 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
             
             FrostFileListFileObjectOwner ob = (FrostFileListFileObjectOwner) i.next();
 
-            String name = lowerCase(ob.getName());
-            String comment = lowerCase(ob.getComment());
-            String keyword = lowerCase(ob.getKeywords());
-            String owner = lowerCase(ob.getOwner()); 
-            
             // then check for strings, if strings are given they must match
 
             // check name
+            String name = lowerCase(ob.getName());
             if( !nameFound && name.length() > 0 ) {
                 if( TextSearchFun.containsEachString(name, searchParams.getName()) ) {
                     nameFound = true;
                 }
             }
             // check comment
+            String comment = lowerCase(ob.getComment());
             if( !commentFound && comment.length() > 0 ) {
                 if( TextSearchFun.containsEachString(comment, searchParams.getComment()) ) {
                     commentFound = true;
                 }
             }
             // check keyword
+            String keyword = lowerCase(ob.getKeywords());
             if( !keywordFound && keyword.length() > 0 ) {
                 if( TextSearchFun.containsEachString(keyword, searchParams.getKeyword()) ) {
                     keywordFound = true;
                 }
             }
             // check owner
+            String owner = lowerCase(ob.getOwner()); 
             if( !ownerFound && owner.length() > 0 ) {
                 if( TextSearchFun.containsEachString(owner, searchParams.getOwner()) ) {
                     ownerFound = true;
                 }
+            }
+
+            // stop if all were found
+            if (nameFound && commentFound && keywordFound && ownerFound) {
+                return true;
             }
         }
         

@@ -575,6 +575,7 @@ public class SharedFilesPanel extends JPanel {
                 return;
             }
             
+            // check if the one invalid selected item is selected, allow removal and set path
             if( selectedItems.length == 1 
                     && ! ((FrostSharedFileItem) selectedItems[0]).isValid() )
             {
@@ -582,24 +583,31 @@ public class SharedFilesPanel extends JPanel {
                 addSeparator();
                 add(removeSelectedFilesItem);
                 super.show(invoker, x, y);
-            } 
-            // check if all selected items are valid
+                return;
+            }
+
+            // if all selected items are valid, then show long menu
+            boolean allValid = true;
             for(int i=0; i < selectedItems.length; i++) {
                 FrostSharedFileItem sfItem = (FrostSharedFileItem) selectedItems[i];
                 if( !sfItem.isValid() ) {
-                    return; // we can't show a menu with items for valid and invalid files
+                    allValid = false;
+                    break;
                 }
             }
-
-            // if at least 1 item is selected
-            add(copyToClipboardMenu);
-            addSeparator();
-            add(removeSelectedFilesItem);
-            addSeparator();
-            add(uploadSelectedFilesItem);
-            addSeparator();
-            add(propertiesItem);
-
+            if( allValid ) {
+                add(copyToClipboardMenu);
+                addSeparator();
+                add(removeSelectedFilesItem);
+                addSeparator();
+                add(uploadSelectedFilesItem);
+                addSeparator();
+                add(propertiesItem);
+            } else {
+                // we have either valid+invalid items selected, or multiple invalid items
+                // allow removal
+                add(removeSelectedFilesItem);
+            }
             super.show(invoker, x, y);
         }
 
