@@ -203,6 +203,10 @@ public class FcpConnection {
         boolean isSuccess = false;
         int returnCode = -1;
         String codeDescription = null;
+        int doneBlocks = 0;
+        int requiredBlocks = 0;
+        int totalBlocks = 0;
+        boolean isFinalized = false;
         boolean isFatal = false;
         while(true) {
             NodeMessage nodeMsg = NodeMessage.readMessage(fcpIn);
@@ -283,19 +287,16 @@ public class FcpConnection {
                 isFatal = nodeMsg.getBoolValue("Fatal");
                 break;
             }
-            if( dlItem != null && nodeMsg.isMessageName("SimpleProgress") ) {
-                // eval progress and set to dlItem
-                int doneBlocks;
-                int requiredBlocks;
-                int totalBlocks;
-                boolean isFinalized;
+            if( nodeMsg.isMessageName("SimpleProgress") ) {
                 
                 doneBlocks = nodeMsg.getIntValue("Succeeded");
                 requiredBlocks = nodeMsg.getIntValue("Required");
                 totalBlocks = nodeMsg.getIntValue("Total");
                 isFinalized = nodeMsg.getBoolValue("FinalizedTotal");
                 
-                if( totalBlocks > 0 && requiredBlocks > 0 ) {
+                System.err.println(">*GET** SimpleProgress - " + doneBlocks);
+                
+                if( dlItem != null &&  totalBlocks > 0 && requiredBlocks > 0 ) {
                     dlItem.setDoneBlocks(doneBlocks);
                     dlItem.setRequiredBlocks(requiredBlocks);
                     dlItem.setTotalBlocks(totalBlocks);
@@ -315,7 +316,7 @@ public class FcpConnection {
             if( targetFile.isFile() ) {
                 targetFile.delete();
             }
-            result = new FcpResultGet(false, returnCode, codeDescription, isFatal);
+            result = new FcpResultGet(false, returnCode, codeDescription, isFatal, doneBlocks);
         } else {
             // success
             result = new FcpResultGet(true);

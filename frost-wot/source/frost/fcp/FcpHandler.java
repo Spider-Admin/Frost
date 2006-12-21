@@ -23,6 +23,7 @@ import java.net.*;
 import java.util.*;
 import java.util.logging.*;
 
+import frost.Core;
 import frost.fileTransfer.download.*;
 import frost.fileTransfer.upload.*;
 
@@ -45,11 +46,12 @@ public abstract class FcpHandler {
     }
     
     public static int getInitializedVersion() {
+    	if (Core.useHyperocha()) { throw new Error("dont use with hyperocha!"); }
         return initializedVersion;
     }
 
     public static void initializeFcp(List nodes, int freenetVersion) throws UnsupportedOperationException {
-        
+        if (Core.useHyperocha()) { throw new Error("dont use with hyperocha!"); }
         if( freenetVersion == FREENET_05 ) {
             instance = new FcpHandler05();
             instance.initialize(nodes);
