@@ -52,8 +52,8 @@ public class ExecuteDocument {
 		String osn = System.getProperty("os.name").toLowerCase();
 		String cmd;
 		
-		if (osn.indexOf("windows") != -1) {
-			if ((osn.indexOf("9") != 1) || (osn.indexOf("me") != 1)) {
+		if (osn.indexOf("windows") > -1) {
+			if ((osn.indexOf("9") > -1) || (osn.indexOf("me") > -1)) {
 				cmd = "command.com";
 			} else {
 				cmd = "cmd.exe";
@@ -66,7 +66,7 @@ public class ExecuteDocument {
 		// if (MacUser) {
 		//     TODO / FIXME
 		// }
-		if (osn.indexOf("mac") != -1) {
+		if (osn.indexOf("mac") > -1) {
 			Runtime.getRuntime().exec(new String[] { "open", document.getCanonicalPath() });
 			return;
 		}
