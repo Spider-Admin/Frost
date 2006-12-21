@@ -34,7 +34,8 @@ public class MessageDownloaderResult {
     public static final String BROKEN_MSG      = "BrokenMsg";      // could not load xml
     public static final String MSG_NOT_FOR_ME  = "NotForMe";       // encrypted for someone other
     public static final String DECRYPT_FAILED  = "DecryptFailed";  // encrypted for me, but decrypt failed
-    public static final String INVALID_MSG     = "InvalidMsg";     // message format validation failed
+    public static final String INVALID_MSG     = "InvalidMsg";	 // message format validation failed
+    public static final String BROKEN_KSK     = "BrokenKSK";		 // Contents of message key partially missing
 
     public MessageXmlFile message = null;
     
