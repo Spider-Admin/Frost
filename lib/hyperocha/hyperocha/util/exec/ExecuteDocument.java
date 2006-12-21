@@ -61,10 +61,11 @@ public class ExecuteDocument {
 			if ((osn.indexOf("9") > -1) || (osn.indexOf("me") > -1)) {
 				cmd = "command.com";
 			} else {
-				cmd = "cmd.exe";
+				cmd = "CMD";
 			}
 			
-			Runtime.getRuntime().exec(new String[] { cmd, "/c", "start", document.getCanonicalPath() });
+			cmd = cmd + " /k start \" \" \"" + /*"/b",*/ document.getCanonicalPath() + "\"" ; 
+			Runtime.getRuntime().exec(cmd);
 			return;
 		}
 		
