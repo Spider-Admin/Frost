@@ -68,9 +68,6 @@ public class ExecuteDocument {
 			return;
 		}
 		
-		// if (MacUser) {
-		//     TODO / FIXME
-		// }
 		if (osn.indexOf("mac") > -1) {
 			Runtime.getRuntime().exec(new String[] { "open", document.getCanonicalPath() });
 			return;
