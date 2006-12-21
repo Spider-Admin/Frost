@@ -26,26 +26,31 @@ import java.io.IOException;
 /**
  * @author saces
  *
- * * dont forget quotes (space in path/docname)
- * "/usr/bin/kfmclient exec \"/path/to/doc.ext\""
- * 
  * running on
  * windoze: 'start' docname
  * kde: 'kfmclient exec' docname 
  * gnome: 'gnome-open' docname
- * mac-os : 'open' docname ??? guessed from google, no macos aviable :(
+ * mac-os : 'open' docname
+ * gnustep : 'gopen' docname  
  *
+ * thanks slinky for the mac/gnustep hints.
  */
 public class ExecuteDocument {
-	
+
+	/**
+	 * opens a document with the assigned app on many plattforms
+	 * supports windoze 9x/me/ >= NT, mac x, kde, gnome, gnustep 
+	 * @param document the name of the file to open
+	 * @throws IOException 
+	 */
 	public static void openDocument(String document) throws IOException {
 		openDocument(new File(document));
 	}
 	
 	/**
-	 * opens a document with the assiozitätä app on all plattforms
-	 * supports doze, kde, gnome, macos? 
-	 * @param document
+	 * opens a document with the assigned app on many plattforms
+	 * supports windoze 9x/me/ >= NT, kde, gnome, macos, gnustep 
+	 * @param document the file to open
 	 * @throws IOException 
 	 */
 	public static void openDocument(File document) throws IOException {
@@ -95,21 +100,21 @@ public class ExecuteDocument {
 		
 	}
 
-	/**
-	 * right klick and run as app should open the help index
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		String osn = System.getProperty("os.name");
-		System.out.println(osn);
-		
-		try {
-			ExecuteDocument.openDocument("./help/index.html");
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	}
+//	/**
+//	 * right klick and run as app should open the help index
+//	 * @param args
+//	 */
+//	public static void main(String[] args) {
+//		String osn = System.getProperty("os.name");
+//		System.out.println(osn);
+//		
+//		try {
+//			ExecuteDocument.openDocument("./help/index.html");
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		
+//	}
 	
 }
