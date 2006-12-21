@@ -35,17 +35,14 @@ public class FcpResultGet {
     private String codeDescription = null;
     private boolean isFatal = false;
     
-    private int doneBlocks = 0;
-    
     public static FcpResultGet RESULT_FAILED = new FcpResultGet(false);
 
     public FcpResultGet(boolean isSuccess) {
         this.isSuccess = isSuccess;
     }
     
-    public FcpResultGet(boolean isSuccess, int rc, String cd, boolean fatal, int doneBlocks) {
+    public FcpResultGet(boolean isSuccess, int rc, String cd, boolean fatal) {
         this.isSuccess = isSuccess;
-        this.doneBlocks = doneBlocks;
         returnCode = rc;
         codeDescription = cd;
         isFatal = fatal;
@@ -115,9 +112,5 @@ public class FcpResultGet {
 
     public String getCodeDescription() {
         return codeDescription;
-    }
-    
-    public int getDoneBlocks() {
-    	return doneBlocks;
     }
 }

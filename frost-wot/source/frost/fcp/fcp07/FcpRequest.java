@@ -158,7 +158,7 @@ public class FcpRequest {
         } else {
             target.delete();
             logger.info("getKey - Failed: " + printableKey + "; rc="+results.getReturnCode()+"; isFatal="+results.isFatal() );
-            System.out.println("getKey - Failed: " + printableKey + "; rc="+results.getReturnCode()+"; isFatal="+results.isFatal()+";  doneBlocks="+results.getDoneBlocks());
+            System.out.println("getKey - Failed: " + printableKey + "; rc="+results.getReturnCode()+"; isFatal="+results.isFatal());
         }
         return results;
     }

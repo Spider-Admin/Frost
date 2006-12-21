@@ -29,13 +29,13 @@ public class MessageDownloaderResult {
      * Constants for content of XML files if the message was dropped for some reason.
      * .xml files with this content are ignored by the gui (in fact all .xml files with length smaller than 20)
      */
-    public static final String DUPLICATE_MSG   = "DuplicateMsg";   // msg was already received
-    public static final String BROKEN_METADATA = "BrokenMetaData"; // could not load metadata
-    public static final String BROKEN_MSG      = "BrokenMsg";      // could not load xml
-    public static final String MSG_NOT_FOR_ME  = "NotForMe";       // encrypted for someone other
-    public static final String DECRYPT_FAILED  = "DecryptFailed";  // encrypted for me, but decrypt failed
-    public static final String INVALID_MSG     = "InvalidMsg";	 // message format validation failed
-    public static final String BROKEN_KSK     = "BrokenKSK";		 // Contents of message key partially missing
+    public static final String DUPLICATE_MSG   = "DuplicateMsg";    // msg was already received
+    public static final String BROKEN_METADATA = "BrokenMetaData";  // could not load metadata
+    public static final String BROKEN_MSG      = "BrokenMsg";       // could not load xml
+    public static final String MSG_NOT_FOR_ME  = "NotForMe";        // encrypted for someone other
+    public static final String DECRYPT_FAILED  = "DecryptFailed";   // encrypted for me, but decrypt failed
+    public static final String INVALID_MSG     = "InvalidMsg";	  // message format validation failed
+    public static final String ALLDATANOTFOUND = "AllDataNotFound"; // Not enough data found; some data was fetched but redirect may point to nowhere 
 
     public MessageXmlFile message = null;
     
