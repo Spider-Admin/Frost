@@ -88,17 +88,20 @@ public class MessageDownloader {
             return null;
         }
         
- 	    if(results != null && results.getDoneBlocks() > 0) {
- 	    	logger.severe("TOFDN: Contents of message key partially missing."+logInfo);
- 	    	System.out.println("TOFDN: Contents of message key partially missing.");
- 	    	MessageDownloaderResult mdResult = new MessageDownloaderResult();
- 	    	mdResult.errorMsg = MessageDownloaderResult.BROKEN_KSK;
-	    	return mdResult;
+ 	    if(results != null && results.getReturnCode() == 28) {
  	    }
         
         if( results == null || results.isSuccess() == false ) {
-            tmpFile.delete();
-            return null;
+        	tmpFile.delete();
+        	if(results != null && results.getReturnCode() == 28) {
+     	    	logger.severe("TOFDN: All data not found."+logInfo);
+     	    	System.out.println("TOFDN: Contents of message key partially missing.");
+     	    	MessageDownloaderResult mdResult = new MessageDownloaderResult();
+     	    	mdResult.errorMsg = MessageDownloaderResult.ALLDATANOTFOUND;
+    	    	return mdResult;
+        	} else {
+        		return null;
+        	}
         }
         
         return processDownloadedFile(tmpFile, results, logInfo);
