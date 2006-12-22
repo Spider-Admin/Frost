@@ -44,14 +44,6 @@ public class Startup {
         String fileSeparator = System.getProperty("file.separator");
 
         try {
-            File execfile = new File("exec.bat");
-            if( !execfile.isFile() )
-                FileAccess.copyFromResource("/data/exec.bat", execfile);
-        } catch (IOException e) {
-            ;
-        }
-
-        try {
             File tray1file = new File("exec" + fileSeparator + "JSysTray.dll");
             if( !tray1file.isFile() )
                 FileAccess.copyFromResource("/data/JSysTray.dll", tray1file);

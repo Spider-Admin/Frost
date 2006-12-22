@@ -401,9 +401,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
             }
 			logger.info("Executing: " + targetFile.getAbsolutePath());
             try {
-                // old code is uncanged, only disabled
-            	// the new should work (or can be implemented) on nearly any gui
-                //Execute.simple_run(new String[] {"exec.bat", targetFile.getAbsolutePath()} );
             	ExecuteDocument.openDocument(targetFile);
             } catch(Throwable t) {
                 JOptionPane.showMessageDialog(this,
