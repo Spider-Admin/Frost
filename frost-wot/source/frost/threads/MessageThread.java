@@ -191,15 +191,15 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 
                 indexSlots.setDownloadSlotUsed(index, date);
 
-                if( mdResult.errorMsg != null ) {
+                if( mdResult.isFailure() ) {
                     // some error occured, don't try this file again
-                    receivedInvalidMessage(board, localDate, index, mdResult.errorMsg);
-                } else if( mdResult.message != null ) {
+                    receivedInvalidMessage(board, localDate, index, mdResult.getErrorMessage());
+                } else if( mdResult.getMessage() != null ) {
                     // message is loaded, delete underlying received file
-                    mdResult.message.getFile().delete();
+                    mdResult.getMessage().getFile().delete();
                     // basic validation
-                    if (mdResult.message.isValid() && isValidFormat(mdResult.message, localDate)) {
-                        receivedValidMessage(mdResult.message, board, index);
+                    if (mdResult.getMessage().isValid() && isValidFormat(mdResult.getMessage(), localDate)) {
+                        receivedValidMessage(mdResult.getMessage(), board, index);
                     } else {
                         receivedInvalidMessage(board, localDate, index, MessageDownloaderResult.INVALID_MSG);
                         logger.warning("TOFDN: Message was dropped, format validation failed: "+logInfo);

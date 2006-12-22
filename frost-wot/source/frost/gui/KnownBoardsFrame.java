@@ -90,6 +90,11 @@ public class KnownBoardsFrame extends JDialog {
         
         showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
     }
+    
+    private void updateBoardCountInTitle() {
+        int count = tableModel.getRowCount();
+        setTitle( language.getString("KnownBoardsFrame.title") + " (" + count + ")");
+    }
 
     /**
      * Build the GUI.
@@ -323,6 +328,7 @@ public class KnownBoardsFrame extends JDialog {
                 allKnownBoardsList.add(member);
             }
         }
+        updateBoardCountInTitle();
     }
 
     private void addBoards_actionPerformed(ActionEvent e) {
@@ -342,6 +348,8 @@ public class KnownBoardsFrame extends JDialog {
                 allKnownBoardsList.remove(row.getBoard());
             }
             boardsTable.clearSelection();
+
+            updateBoardCountInTitle();
         }
     }
 
@@ -368,6 +376,8 @@ public class KnownBoardsFrame extends JDialog {
                 allKnownBoardsList.remove(row.getBoard());
             }
             boardsTable.clearSelection();
+
+            updateBoardCountInTitle();
         }
     }
 
@@ -390,6 +400,8 @@ public class KnownBoardsFrame extends JDialog {
                 KnownBoardsManager.deleteKnownBoard(b);
             }
             boardsTable.clearSelection();
+            
+            updateBoardCountInTitle();
         }
     }
 
@@ -413,6 +425,7 @@ public class KnownBoardsFrame extends JDialog {
             } else {
                 tableModel.tableEntriesChanged();
             }
+            updateBoardCountInTitle();
         }
     }
 
@@ -432,6 +445,8 @@ public class KnownBoardsFrame extends JDialog {
             }
             boardsTable.clearSelection();
             tableModel.tableEntriesChanged();
+            
+            updateBoardCountInTitle();
         }
     }
 
@@ -442,6 +457,7 @@ public class KnownBoardsFrame extends JDialog {
                 tableModel.removeRow(row);
             }
         }
+        updateBoardCountInTitle();
     }
 
     private void boardsTableListModel_valueChanged(ListSelectionEvent e) {
@@ -652,6 +668,7 @@ public class KnownBoardsFrame extends JDialog {
                 tableModel.addRow(tm);
             }
         } catch(Exception ex) {}
+        updateBoardCountInTitle();
     }
 
     class NameColumnRenderer extends ShowContentTooltipRenderer {
