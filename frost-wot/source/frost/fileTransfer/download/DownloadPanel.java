@@ -17,6 +17,8 @@
 */
 package frost.fileTransfer.download;
 
+import hyperocha.util.exec.ExecuteDocument;
+
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.event.*;
@@ -399,9 +401,10 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
             }
 			logger.info("Executing: " + targetFile.getAbsolutePath());
             try {
-                // FIXME: check!!!
-                Execute.simple_run(new String[] {"exec.bat", targetFile.getAbsolutePath()} );
-//            	ExecuteDocument.openDocument(targetFile);
+                // old code is uncanged, only disabled
+            	// the new should work (or can be implemented) on nearly any gui
+                //Execute.simple_run(new String[] {"exec.bat", targetFile.getAbsolutePath()} );
+            	ExecuteDocument.openDocument(targetFile);
             } catch(Throwable t) {
                 JOptionPane.showMessageDialog(this,
                         "Could not open the file: "+targetFile.getAbsolutePath()+"\n"+t.toString(),
