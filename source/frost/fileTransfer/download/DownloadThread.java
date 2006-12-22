@@ -107,13 +107,13 @@ public class DownloadThread extends Thread {
                         && key.startsWith("CHK@")
                         && key.indexOf("/") > 0 ) 
                 {
-                    // remove filename from CHK
-                    String plainKey = key.substring(0, key.indexOf("/"));
-                    downloadItem.setKey(plainKey);
+                    // remove one path level from CHK
+                    String newKey = key.substring(0, key.lastIndexOf("/"));
+                    downloadItem.setKey(newKey);
                     downloadItem.setState(FrostDownloadItem.STATE_WAITING);
                     retryImmediately = true;
                     
-                    System.out.println("*!*!* Removed filename from key: "+key+" ; "+plainKey);
+                    System.out.println("*!*!* Removed filename from key: "+key+" ; "+newKey);
                     
                 } else if( result != null && result.isFatal() ) {
                     // fatal, don't retry

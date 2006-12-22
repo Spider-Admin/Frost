@@ -37,7 +37,31 @@ public class MessageDownloaderResult {
     public static final String INVALID_MSG     = "InvalidMsg";	  // message format validation failed
     public static final String ALLDATANOTFOUND = "AllDataNotFound"; // Not enough data found; some data was fetched but redirect may point to nowhere 
 
-    public MessageXmlFile message = null;
+    private MessageXmlFile message = null;
     
-    public String errorMsg = null;
+    private String errorMessage = null;
+    
+    public MessageDownloaderResult(String errorMsg) {
+        errorMessage = errorMsg;
+    }
+    
+    public MessageDownloaderResult(MessageXmlFile msg) {
+        message = msg;
+    }
+    
+    public boolean isSuccess() {
+        return (errorMessage == null);
+    }
+
+    public boolean isFailure() {
+        return (errorMessage != null);
+    }
+    
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+    
+    public MessageXmlFile getMessage() {
+        return message;
+    }
 }

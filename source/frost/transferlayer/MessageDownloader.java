@@ -53,8 +53,7 @@ public class MessageDownloader {
             }
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Error processing downloaded message", t);
-            MessageDownloaderResult mdResult = new MessageDownloaderResult();
-            mdResult.errorMsg = MessageDownloaderResult.BROKEN_MSG;
+            MessageDownloaderResult mdResult = new MessageDownloaderResult(MessageDownloaderResult.BROKEN_MSG);
             return mdResult;
         }
     }
@@ -93,9 +92,7 @@ public class MessageDownloader {
         	if(results != null && results.getReturnCode() == 28) {
      	    	logger.severe("TOFDN: All data not found."+logInfo);
      	    	System.out.println("TOFDN: Contents of message key partially missing.");
-     	    	MessageDownloaderResult mdResult = new MessageDownloaderResult();
-     	    	mdResult.errorMsg = MessageDownloaderResult.ALLDATANOTFOUND;
-    	    	return mdResult;
+     	    	return new MessageDownloaderResult(MessageDownloaderResult.ALLDATANOTFOUND);
         	} else {
         		return null;
         	}
@@ -113,8 +110,6 @@ public class MessageDownloader {
      */
     protected static MessageDownloaderResult processDownloadedFile05(File tmpFile, FcpResultGet results, String logInfo) {
         
-        MessageDownloaderResult mdResult = new MessageDownloaderResult();
-
         try {
             // we downloaded something
             logger.info("TOFDN: A message was downloaded."+logInfo);
@@ -133,9 +128,8 @@ public class MessageDownloader {
                     // something bad happened if we ever come here :)
                     logger.severe("TOFDN: Received something, but bad things happened in code, maybe a bug or a faked message."+logInfo);
                 }
-                mdResult.errorMsg = MessageDownloaderResult.BROKEN_MSG;
                 tmpFile.delete();
-                return mdResult;
+                return new MessageDownloaderResult(MessageDownloaderResult.BROKEN_MSG);
             }
     
             // compute the sha1 checksum of the original msg file
@@ -151,9 +145,8 @@ public class MessageDownloader {
                 logger.info(Thread.currentThread().getName()+": TOFDN: *** Duplicate Message."+logInfo+" ***");
                 if( Core.frostSettings.getBoolValue(SettingsClass.RECEIVE_DUPLICATE_MESSAGES) == false ) {
                     // user don't want to see the duplicate messages
-                    mdResult.errorMsg = MessageDownloaderResult.DUPLICATE_MSG;
                     tmpFile.delete();
-                    return mdResult;
+                    return new MessageDownloaderResult(MessageDownloaderResult.DUPLICATE_MSG);
                 }
             }
     
@@ -162,22 +155,19 @@ public class MessageDownloader {
                 byte[] unzippedXml = FileAccess.readZipFileBinary(tmpFile);
                 if( unzippedXml == null ) {
                     logger.log(Level.SEVERE, "TOFDN: Unzip of unsigned xml failed."+logInfo);
-                    mdResult.errorMsg = MessageDownloaderResult.BROKEN_MSG;
                     tmpFile.delete();
-                    return mdResult;
+                    return new MessageDownloaderResult(MessageDownloaderResult.BROKEN_MSG);
                 }
                 FileAccess.writeFile(unzippedXml, tmpFile);
                 try {
                     MessageXmlFile currentMsg = new MessageXmlFile(tmpFile);
                     currentMsg.setSignatureStatusOLD();
-                    mdResult.message = currentMsg;
-                    return mdResult;
+                    return new MessageDownloaderResult(currentMsg);
                 } catch (Exception ex) {
                     logger.log(Level.SEVERE, "TOFDN: Unsigned message is invalid."+logInfo, ex);
                     // file could not be read, mark it invalid not to confuse gui
-                    mdResult.errorMsg = MessageDownloaderResult.BROKEN_MSG;
                     tmpFile.delete();
-                    return mdResult;
+                    return new MessageDownloaderResult(MessageDownloaderResult.BROKEN_MSG);
                 }
             }
     
@@ -199,17 +189,15 @@ public class MessageDownloader {
                 File badmetadata = new File("badmetadata.xml");
                 FileAccess.writeFile(metadata, badmetadata);
                 // don't try this file again
-                mdResult.errorMsg = MessageDownloaderResult.BROKEN_METADATA;
                 tmpFile.delete();
-                return mdResult;
+                return new MessageDownloaderResult(MessageDownloaderResult.BROKEN_METADATA);
             }
     
             if( _metaData.getType() != MetaData.SIGN && _metaData.getType() != MetaData.ENCRYPT ) {
                 logger.severe("TOFDN: Unknown type of metadata."+logInfo);
                 // don't try this file again
-                mdResult.errorMsg = MessageDownloaderResult.BROKEN_METADATA;
                 tmpFile.delete();
-                return mdResult;
+                return new MessageDownloaderResult(MessageDownloaderResult.BROKEN_METADATA);
             }
     
             // now the msg could be signed OR signed and encrypted
@@ -225,9 +213,8 @@ public class MessageDownloader {
                 owner = metaData.getPerson();
                 if( !owner.isIdentityValid() ) {
                     // hash of public key does not match the unique name
-                    mdResult.errorMsg = MessageDownloaderResult.INVALID_MSG;
                     tmpFile.delete();
-                    return mdResult;
+                    return new MessageDownloaderResult(MessageDownloaderResult.INVALID_MSG);
                 }
                 owner.setCHECK();
                 Core.getIdentities().addIdentity(owner);
@@ -244,9 +231,8 @@ public class MessageDownloader {
                 // 1. check if the message is for me
                 if (!Core.getIdentities().isMySelf(encMetaData.getRecipient())) {
                     logger.fine("TOFDN: Encrypted message was not for me.");
-                    mdResult.errorMsg = MessageDownloaderResult.MSG_NOT_FOR_ME;
                     tmpFile.delete();
-                    return mdResult;
+                    return new MessageDownloaderResult(MessageDownloaderResult.MSG_NOT_FOR_ME);
                 }
     
                 // 2. if yes, decrypt the content
@@ -257,9 +243,8 @@ public class MessageDownloader {
                 if( zipData == null ) {
                     logger.log(Level.SEVERE, "TOFDN: Encrypted message from "+encMetaData.getPerson().getUniqueName()+
                                              " could not be decrypted!"+logInfo);
-                    mdResult.errorMsg = MessageDownloaderResult.DECRYPT_FAILED;
                     tmpFile.delete();
-                    return mdResult;
+                    return new MessageDownloaderResult(MessageDownloaderResult.DECRYPT_FAILED);
                 }
     
                 tmpFile.delete();
@@ -275,9 +260,8 @@ public class MessageDownloader {
             byte[] unzippedXml = FileAccess.readZipFileBinary(tmpFile);
             if( unzippedXml == null ) {
                 logger.log(Level.SEVERE, "TOFDN: Unzip of signed xml failed."+logInfo);
-                mdResult.errorMsg = MessageDownloaderResult.BROKEN_MSG;
                 tmpFile.delete();
-                return mdResult;
+                return new MessageDownloaderResult(MessageDownloaderResult.BROKEN_MSG);
             }
             FileAccess.writeFile(unzippedXml, tmpFile);
             
@@ -289,19 +273,18 @@ public class MessageDownloader {
             } catch (Exception ex) {
                 logger.log(Level.SEVERE, "TOFDN: Exception when creating message object"+logInfo, ex);
                 // file could not be read, mark it invalid not to confuse gui
-                mdResult.errorMsg = MessageDownloaderResult.BROKEN_MSG;
                 tmpFile.delete();
-                return mdResult;
+                return new MessageDownloaderResult(MessageDownloaderResult.BROKEN_MSG);
             }
     
             //then check if the signature was ok
             if (!sigIsValid) {
                 logger.warning("TOFDN: message failed verification, status set to TAMPERED."+logInfo);
                 currentMsg.setSignatureStatusTAMPERED();
-                mdResult.message = currentMsg;
-                return mdResult;
+                return new MessageDownloaderResult(currentMsg);
             }
-    
+
+            // FIXME: do it the same way like when owners hash is invalid? see above
             //make sure the pubkey and from fields in the xml file are the same as those in the metadata
             String metaDataHash = Mixed.makeFilename(Core.getCrypto().digest(metaData.getPerson().getKey()));
             String messageHash = Mixed.makeFilename(
@@ -314,8 +297,7 @@ public class MessageDownloader {
                                "metadata : "+metaDataHash+" , message: " + messageHash+
                                ". Message failed verification, status set to TAMPERED."+logInfo);
                 currentMsg.setSignatureStatusTAMPERED();
-                mdResult.message = currentMsg;
-                return mdResult;
+                return new MessageDownloaderResult(currentMsg);
             }
             
             // update lastSeen for this Identity
@@ -327,8 +309,7 @@ public class MessageDownloader {
             }
     
             currentMsg.setSignatureStatusVERIFIED();
-            mdResult.message = currentMsg;
-            return mdResult;
+            return new MessageDownloaderResult(currentMsg);
     
         } catch (Throwable t) {
             logger.log(Level.SEVERE, "TOFDN: Exception thrown in downloadDate part 2."+logInfo, t);
@@ -347,8 +328,6 @@ public class MessageDownloader {
      */
     protected static MessageDownloaderResult processDownloadedFile07(File tmpFile, FcpResultGet results, String logInfo) {
         
-        MessageDownloaderResult mdResult = new MessageDownloaderResult();
-
         try { // we don't want to die for any reason
 
             // a file was downloaded
@@ -366,9 +345,8 @@ public class MessageDownloader {
                 logger.info(Thread.currentThread().getName()+": TOFDN: *** Duplicate Message."+logInfo+" ***");
                 if( Core.frostSettings.getBoolValue(SettingsClass.RECEIVE_DUPLICATE_MESSAGES) == false ) {
                     // user don't want to see the duplicate messages
-                    mdResult.errorMsg = MessageDownloaderResult.DUPLICATE_MSG;
                     tmpFile.delete();
-                    return mdResult;
+                    return new MessageDownloaderResult(MessageDownloaderResult.DUPLICATE_MSG);
                 }
             }
             
@@ -377,32 +355,31 @@ public class MessageDownloader {
             try {
                 currentMsg = new MessageXmlFile(tmpFile);
             } catch (MessageCreationException ex) {
+                String errorMessage;
                 if( ex.getMessageNo() == MessageCreationException.MSG_NOT_FOR_ME ) {
                     logger.warning("Info: Encrypted message is not for me. "+logInfo);
-                    mdResult.errorMsg = MessageDownloaderResult.MSG_NOT_FOR_ME;
+                    errorMessage = MessageDownloaderResult.MSG_NOT_FOR_ME;
                 } else if( ex.getMessageNo() == MessageCreationException.DECRYPT_FAILED ) {
                     logger.log(Level.WARNING, "TOFDN: Exception catched."+logInfo, ex);
-                    mdResult.errorMsg = MessageDownloaderResult.DECRYPT_FAILED;
+                    errorMessage = MessageDownloaderResult.DECRYPT_FAILED;
                 } else {
                     logger.log(Level.WARNING, "TOFDN: Exception catched."+logInfo, ex);
-                    mdResult.errorMsg = MessageDownloaderResult.BROKEN_MSG;
+                    errorMessage = MessageDownloaderResult.BROKEN_MSG;
                 }
                 tmpFile.delete();
-                return mdResult;
+                return new MessageDownloaderResult(errorMessage);
             } catch (Exception ex) {
                 logger.log(Level.SEVERE, "TOFDN: Exception catched."+logInfo, ex);
                 // file could not be read, mark it invalid not to confuse gui
-                mdResult.errorMsg = MessageDownloaderResult.BROKEN_MSG;
                 tmpFile.delete();
-                return mdResult;
+                return new MessageDownloaderResult(MessageDownloaderResult.BROKEN_MSG);
             }
             
             if( currentMsg.getSignature() == null || currentMsg.getSignature().length() == 0 ) {
                 // unsigned msg
                 // check and maybe add msg to gui, set to unsigned
                 currentMsg.setSignatureStatusOLD();
-                mdResult.message = currentMsg;
-                return mdResult;
+                return new MessageDownloaderResult(currentMsg);
             }
             
             // check if we have the owner (sender) already on the lists
@@ -413,9 +390,8 @@ public class MessageDownloader {
                 owner = new Identity(currentMsg.getFromName(), currentMsg.getPublicKey());
                 if( !owner.isIdentityValid() ) {
                     // hash of public key does not match the unique name
-                    mdResult.errorMsg = MessageDownloaderResult.INVALID_MSG;
                     tmpFile.delete();
-                    return mdResult;
+                    return new MessageDownloaderResult(MessageDownloaderResult.INVALID_MSG);
                 }
                 owner.setCHECK();
                 Core.getIdentities().addIdentity(owner);
@@ -428,8 +404,7 @@ public class MessageDownloader {
             if (!sigIsValid) {
                 logger.warning("TOFDN: message failed verification, status set to TAMPERED."+logInfo);
                 currentMsg.setSignatureStatusTAMPERED();
-                mdResult.message = currentMsg;
-                return mdResult;
+                return new MessageDownloaderResult(currentMsg);
             }
             
             // update lastSeen for this Identity
@@ -441,8 +416,7 @@ public class MessageDownloader {
             }
 
             currentMsg.setSignatureStatusVERIFIED();
-            mdResult.message = currentMsg;
-            return mdResult;
+            return new MessageDownloaderResult(currentMsg);
 
         } catch (Throwable t) {
             logger.log(Level.SEVERE, "TOFDN: Exception catched."+logInfo, t);
