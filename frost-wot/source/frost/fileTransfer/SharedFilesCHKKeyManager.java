@@ -28,7 +28,7 @@ public class SharedFilesCHKKeyManager {
 
     private static Logger logger = Logger.getLogger(SharedFilesCHKKeyManager.class.getName());
 
-    // TODO: download bis zu _1 mal hintereinander, wenn fail dann noch bis _2 mal täglich. dann ende.
+    // TODO: download bis zu _1 mal hintereinander, wenn fail dann noch bis _2 mal taeglich. dann ende.
     private static final int MAX_DOWNLOAD_RETRIES_1 = 7;
 //    private static final int MAX_DOWNLOAD_RETRIES_2 = 7 + 3;
 
