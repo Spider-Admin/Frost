@@ -30,7 +30,7 @@ public class FcpJobDispatcher {
     // - ??? node information (ip)? fcp information (status,dda,...)?
     
     // -> FcpJobDispatcher - enqueued und verteilt jobs, gibt listen raus, startet mit einem FcpJob
-    // -> FcpJob hat prepare, und callback für finished, statusinfos, und prio
+    // -> FcpJob hat prepare, und callback fuer finished, statusinfos, und prio
     // -> hat enqueue time und started time
     
     // - bottom up designen!
