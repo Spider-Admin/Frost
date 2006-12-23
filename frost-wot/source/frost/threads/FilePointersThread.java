@@ -132,24 +132,34 @@ System.out.println("uploadIndexFile: upload finished, wasOk="+wasOk);
             logger.info("FILEDN: Requesting index " + index + " for date " + dateStr);
 
             String downKey = requestKey + index + ".xml";
-System.out.println("FilePointersThread.downloadDate: requesting: "+downKey);        
-            File downloadedFile = GlobalFileDownloader.downloadFile(downKey); 
-            if(  downloadedFile == null ) {
+System.out.println("FilePointersThread.downloadDate: requesting: "+downKey);       
+
+            GlobalFileDownloaderResult result = GlobalFileDownloader.downloadFile(downKey);
+            
+            if(  result == null ) {
 System.out.println("FilePointersThread.downloadDate: failure");
                 // download failed. 
                 failures++;
                 // next loop we try next index
                 index = indexSlots.findNextDownloadSlot(index, date);
                 continue;
-            }
-System.out.println("FilePointersThread.downloadDate: success");
-            
-            // download was successful, mark it
+            } 
+
+            // downloaded something, mark it
             indexSlots.setDownloadSlotUsed(index, date);
             // next loop we try next index
             index = indexSlots.findNextDownloadSlot(index, date);
             failures = 0;
 
+            if( result.isInvalidKey() ) {
+System.out.println("FilePointersThread.downloadDate: empty KSK redirect");
+                continue;
+            }
+            
+System.out.println("FilePointersThread.downloadDate: success");
+
+            File downloadedFile = result.getResultFile(); 
+            
             FilePointerFileContent content = FilePointerFile.readPointerFile(downloadedFile);
 System.out.println("readPointerFile: result: "+content);
             downloadedFile.delete();
