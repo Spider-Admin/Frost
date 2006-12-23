@@ -122,8 +122,9 @@ System.out.println("uploadRequestFile: upload finished, wasOk="+wasOk);
             logger.info("Requesting index " + index + " for date " + dateStr);
 
             String downKey = requestKey + index + ".xml";
-            File downloadedFile = GlobalFileDownloader.downloadFile(downKey); 
-            if(  downloadedFile == null ) {
+            GlobalFileDownloaderResult result = GlobalFileDownloader.downloadFile(downKey);
+
+            if(  result == null ) {
                 // download failed. 
                 failures++;
                 // next loop we try next index
@@ -131,12 +132,19 @@ System.out.println("uploadRequestFile: upload finished, wasOk="+wasOk);
                 continue;
             }
             
-            // download was successful, mark it
+            // downloaded something, mark it
             indexSlots.setDownloadSlotUsed(index, sqlDate);
             // next loop we try next index
             index = indexSlots.findNextDownloadSlot(index, sqlDate);
             failures = 0;
-            
+
+            if( result.isInvalidKey() ) {
+System.out.println("FileRequestsThread.downloadDate: empty KSK redirect");
+                continue;
+            }
+
+            File downloadedFile = result.getResultFile(); 
+
             FileRequestFileContent content = FileRequestFile.readRequestFile(downloadedFile);
             downloadedFile.delete();
             FileRequestsManager.processReceivedRequests(content);

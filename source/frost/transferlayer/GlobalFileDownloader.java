@@ -28,7 +28,11 @@ public class GlobalFileDownloader {
 
     private static Logger logger = Logger.getLogger(GlobalFileDownloader.class.getName());
 
-    public static File downloadFile(String downKey) {
+    /**
+     * Returns null if file not found.
+     * Returns a GlobalFileDownloaderResult if File was downloaded, or if key was invalid. 
+     */
+    public static GlobalFileDownloaderResult downloadFile(String downKey) {
         
         try {
             File tmpFile = FileAccess.createTempFile("frost_",".tmp");
@@ -41,13 +45,19 @@ public class GlobalFileDownloader {
                     tmpFile,
                     false); // doRedirect, like in uploadIndexFile()
     
-            if (fcpresults == null || !fcpresults.isSuccess() ) {
-                // download failed. Sometimes there are some 0 byte
-                // files left, we better remove them now.
+            if( fcpresults == null || !fcpresults.isSuccess() ) {
+                // download failed
                 tmpFile.delete();
-                return null;
+                if( fcpresults != null 
+                        && fcpresults.getReturnCode() == 28 
+                        && downKey.startsWith("KSK@") ) 
+                {
+                    return new GlobalFileDownloaderResult(false); // invalid KSK key
+                } else {
+                    return null; // file not found
+                }
             }
-            return tmpFile;
+            return new GlobalFileDownloaderResult(tmpFile);
             
         } catch (Throwable t) {
             logger.log(Level.SEVERE, "Error in downloadFile", t);

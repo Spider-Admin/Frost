@@ -83,9 +83,10 @@ public class FileListDownloadThread extends Thread {
                     previousKey = chkKey; // different key as before, remember
                 }
 System.out.println("FileListDownloadThread: starting download of key: "+chkKey);
-                File downloadedFile = GlobalFileDownloader.downloadFile(chkKey);
-                
-                if( downloadedFile == null ) {
+
+                GlobalFileDownloaderResult result = GlobalFileDownloader.downloadFile(chkKey);
+
+                if( result == null || result.isInvalidKey() ) {
                     // download failed
                     boolean retryDownload = SharedFilesCHKKeyManager.updateCHKKeyDownloadFailed(chkKey);
                     if( retryDownload ) {
@@ -95,6 +96,7 @@ System.out.println("FileListDownloadThread: starting download of key: "+chkKey);
                 }
                 
                 // download successful, read file and validate
+                File downloadedFile = result.getResultFile();
                 
                 FileListFileContent content = FileListFile.readFileListFile(downloadedFile);
                 boolean isValid = FileListManager.processReceivedFileList(content);
