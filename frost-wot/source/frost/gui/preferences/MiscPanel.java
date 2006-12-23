@@ -244,7 +244,7 @@ class MiscPanel extends JPanel {
         useDDACheckBox.setText(language.getString("Options.miscellaneous.useDDA"));
         useDDACheckBox.setToolTipText(language.getString("Options.miscellaneous.useDDA.tooltip"));
         autoSaveIntervalLabel.setText(language.getString("Options.miscellaneous.automaticSavingInterval") + 
-                " (15 "+language.getString("Options.common.minutes")+")");
+                " (60 "+language.getString("Options.common.minutes")+")");
         splashScreenCheckBox.setText(language.getString("Options.miscellaneous.disableSplashscreen"));
         showSystrayIconCheckBox.setText(language.getString("Options.miscellaneous.showSysTrayIcon"));
         compactDatabaseAtNextStartupCheckBox.setText(language.getString("Options.miscellaneous.compactDatabaseAtNextStartup"));

@@ -776,7 +776,7 @@ public class SettingsClass implements Savable {
         defaults.put(FILEEXTENSION_EXECUTABLE, ".exe;.vbs;.jar;.sh;.bat;.bin"); 
         defaults.put(FILEEXTENSION_ARCHIVE, ".zip;.rar;.jar;.gz;.arj;.ace;.bz;.tar;.tgz;.tbz"); 
         defaults.put(FILEEXTENSION_IMAGE, ".jpeg;.jpg;.jfif;.gif;.png;.tif;.tiff;.bmp;.xpm"); 
-        defaults.put(AUTO_SAVE_INTERVAL, "15");
+        defaults.put(AUTO_SAVE_INTERVAL, "60");
         
         defaults.put(MESSAGE_UPLOAD_DISABLED, "false");
 
