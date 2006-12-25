@@ -30,8 +30,8 @@ public class GlobalFileDownloaderResult {
         resultFile = result;
     }
     
-    public GlobalFileDownloaderResult(boolean invalid) {
-        invalidKey = invalid;
+    public GlobalFileDownloaderResult(boolean isInvalid) {
+        invalidKey = isInvalid;
     }
 
     public boolean isInvalidKey() {
