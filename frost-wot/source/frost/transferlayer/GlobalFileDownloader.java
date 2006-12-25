@@ -52,7 +52,7 @@ public class GlobalFileDownloader {
                         && fcpresults.getReturnCode() == 28 
                         && downKey.startsWith("KSK@") ) 
                 {
-                    return new GlobalFileDownloaderResult(false); // invalid KSK key
+                    return new GlobalFileDownloaderResult(true); // invalid KSK key
                 } else {
                     return null; // file not found
                 }
