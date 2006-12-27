@@ -55,22 +55,23 @@ public class ExecuteDocument {
 	 */
 	public static void openDocument(File document) throws IOException {
 		String osn = System.getProperty("os.name").toLowerCase();
-		String cmd;
 		
 		if (osn.indexOf("windows") > -1) {
+			
+			String cmd;
+			
 			if ((osn.indexOf("9") > -1) || (osn.indexOf("me") > -1)) {
 				cmd = "command.com";
 			} else {
 				cmd = "CMD";
 			}
-			
-			cmd = cmd + " /k start \" \" \"" + /*"/b",*/ document.getCanonicalPath() + "\"" ; 
-			Runtime.getRuntime().exec(cmd);
+
+			Execute.runtimeExec(new String[] {cmd, "/k", "start", document.getCanonicalPath() });
 			return;
 		}
 		
 		if (osn.indexOf("mac") > -1) {
-			Runtime.getRuntime().exec(new String[] { "open", document.getCanonicalPath() });
+			Execute.runtimeExec(new String[] { "open", document.getCanonicalPath() });
 			return;
 		}
 		
@@ -78,19 +79,19 @@ public class ExecuteDocument {
 		// test for kde
 		ExecResult r1 = Execute.run_wait(new String[] {"which", "kfmclient"});
 		if (r1.retcode == 0) {
-			Runtime.getRuntime().exec(new String[] { "kfmclient", "exec", document.getCanonicalPath() });
+			Execute.runtimeExec(new String[] { "kfmclient", "exec", document.getCanonicalPath() });
 			return;
 		}
 		// test for gnome
 		ExecResult r2 = Execute.run_wait(new String[] {"which", "gnome-open"});
 		if (r2.retcode == 0) {
-			Runtime.getRuntime().exec(new String[] { "gnome-open", document.getCanonicalPath() });
+			Execute.runtimeExec(new String[] { "gnome-open", document.getCanonicalPath() });
 			return;
 		}
 		// test for gnustep
 		ExecResult r3 = Execute.run_wait(new String[] {"which", "gopen"});
 		if (r3.retcode == 0) {
-			Runtime.getRuntime().exec(new String[] { "gopen", document.getCanonicalPath() });
+			Execute.runtimeExec(new String[] { "gopen", document.getCanonicalPath() });
 			return;
 		}
 		
