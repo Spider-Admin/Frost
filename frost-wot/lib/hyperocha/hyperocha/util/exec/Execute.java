@@ -21,6 +21,7 @@
 package hyperocha.util.exec;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
@@ -50,41 +51,41 @@ public class Execute {
 
         try {
 			
-			cbuf = new char[BUFF_SIZE];
-			p = Runtime.getRuntime().exec(cmd); // java 1.4 String Order
-        //ProcessBuilder pb = new ProcessBuilder(order);   // java 1.5 List<String> order 
-        //Process p = pb.start();
+			cbuf = new char[BUFF_SIZE];		
+			p = runtimeExec(cmd);
+		//ProcessBuilder pb = new ProcessBuilder(order);   // java 1.5 List<String> order 
+		//Process p = pb.start();
         
         InputStream isStdOut = p.getInputStream();
         InputStream isStdErr = p.getErrorStream();
         
         result.stdOut = new StringBuffer();
         
-        InputStreamReader iSReader = new InputStreamReader(isStdOut, cs);
-        BufferedReader reader = new BufferedReader(iSReader);
-        int count = 0;
-        while( count != -1 ) {
-         	count = reader.read(cbuf, 0, BUFF_SIZE);
-           	if (count != -1)
-          		result.stdOut.append(cbuf, 0, count);
-        }
-        reader.close();
-
+		InputStreamReader iSReader = new InputStreamReader(isStdOut, cs);
+		BufferedReader reader = new BufferedReader(iSReader);
+		int count = 0;
+		while( count != -1 ) {
+			count = reader.read(cbuf, 0, BUFF_SIZE);
+			if (count != -1)
+				result.stdOut.append(cbuf, 0, count);
+		}
+		reader.close();
+			
         result.stdErr = new StringBuffer();
         
-        iSReader = new InputStreamReader(isStdErr, cs);
-        reader = new BufferedReader(iSReader);
-        count = 0;
-        while( count != -1 ) {
-           	count = reader.read(cbuf, 0, BUFF_SIZE);
-          	if (count != -1)
-           		result.stdOut.append(cbuf, 0, count);
-        }
-        reader.close();
+			iSReader = new InputStreamReader(isStdErr, cs);
+			reader = new BufferedReader(iSReader);
+			count = 0;
+			while( count != -1 ) {
+				count = reader.read(cbuf, 0, BUFF_SIZE);
+				if (count != -1)
+					result.stdOut.append(cbuf, 0, count);
+			}
+			reader.close();
+			
+			p.waitFor();
         
-        p.waitFor();
-        
-        result.retcode = p.exitValue();
+			result.retcode = p.exitValue();
         
 		} catch (Throwable t) {
 			// DEBUG
@@ -93,6 +94,30 @@ public class Execute {
 		}  
         
         return result;
+    }
+    
+    public static Process runtimeExec(String[] cmd) throws IOException {
+    	Process p;
+		if (System.getProperty("os.name").toLowerCase().indexOf("windows") > -1) {
+			StringBuffer winCmd = new StringBuffer();
+			winCmd.append(cmd[0]); 
+			int sc = cmd.length;
+			for (int i = 1; i < sc; i++) {
+				winCmd.append(' ');
+				if (cmd[i].indexOf(' ') > -1) {
+					winCmd.append('"');
+					winCmd.append(cmd[i]);
+					winCmd.append('"');
+				} else {
+					winCmd.append(cmd[i]);
+				}
+			}
+			p = Runtime.getRuntime().exec(winCmd.toString());
+		} else {
+			p = Runtime.getRuntime().exec(cmd);
+		}
+
+		return p;
     }
 
 }
