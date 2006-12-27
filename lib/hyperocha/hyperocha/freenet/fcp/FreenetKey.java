@@ -23,7 +23,7 @@ package hyperocha.freenet.fcp;
 
 /**
  * <p>hyperocha's freentkey
- * <p>Keys: sss@jdj,aab,xxx/bla/bla
+ * <p>Keys: [freenet:]sss@jdj,aab,xxx/bla/bla
  * <pre>
  *   sss@ - type
  *   jdj,aab,xxx - the key itselfs
@@ -103,7 +103,9 @@ public class FreenetKey {
 
 		// docname-revision
 		if ((isFreenetKeyType(FreenetKeyType.SSK)) && (networkType == Network.FCP2)) {
-			s = s + '/' + docName + '-' + revision;
+			if (isSetDocName()) {
+				s = s + '/' + docName + '-' + revision;
+			}
 		} else {
 	        if (docName != null) {
 	        	s = s + '/' + docName;
@@ -129,6 +131,10 @@ public class FreenetKey {
 		return s;
 	}
 	
+	private boolean isSetDocName() {
+		return ((docName != null) && (docName.trim().length() > 0));
+	}
+
 	public String getWriteFreenetKey() {
 		return "" + keyType + "@" + privKey + "," + cryptoKey + "/";
 	}
@@ -223,6 +229,13 @@ public class FreenetKey {
 		return newKey;
 	}
 	
+	public static FreenetKey getSSKKeyFromSSKKeypair(NodeMessage msg){
+		FreenetKey newKey = getKeyFromString(msg.getStringValue("RequestURI"));
+		FreenetKey tmpKey = getKeyFromString(msg.getStringValue("InsertURI"));
+		newKey.privKey = tmpKey.pubKey;
+		return newKey;
+	}
+	
 	public static FreenetKey getKeyFromString(String aKey) {
 		String tmpS = freenetKeyStringNiceness(aKey);
 		if ( tmpS == null ) { return null; }
@@ -262,7 +275,9 @@ public class FreenetKey {
         	newKey.setNetworkType(Network.FCP2);
         	newKey.pubKey = tmpS.substring(0,43);
         	newKey.cryptoKey = tmpS.substring(44,87);
-        	newKey.extra = tmpS.substring(88,95);
+        	if (tmpS.length() > 94) {
+        		newKey.extra = tmpS.substring(88,95);
+        	}
         } else {	//        	 .5 krempel
         	newKey.setNetworkType(Network.FCP1);
         	newKey.pubKey = tmpS.substring(0,31);
@@ -280,6 +295,11 @@ public class FreenetKey {
         
         // Sites sind übrig, doc und revision rausknobeln
        	// FCP version ist nun bekannt
+
+        if ((newKey.isFreenetKeyType(FreenetKeyType.SSK) && ((newKey.fileName == null) || (newKey.fileName.length() == 0)))) {
+        	// this is a just generatet key from the node, site and rev are emty
+        	return newKey;
+        }
         
        	tmpS = newKey.fileName;
        	newKey.fileName = null;
