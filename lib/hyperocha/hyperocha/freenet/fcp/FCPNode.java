@@ -102,7 +102,7 @@ public class FCPNode extends Observable {
         	retValue = setPort(splitServerPort[1]);
 		} catch (Exception e) {
 			lastError = e;
-			e.printStackTrace();
+			//e.printStackTrace();
 			return false;
 		}
 		return retValue;
@@ -295,7 +295,7 @@ public class FCPNode extends Observable {
         	return false;
 		} catch (Exception e) {
 			setError(e);
-			e.printStackTrace();
+			//e.printStackTrace();
 			return false;
 		}
 		setStatus(STATUS_REACHABLE);
@@ -313,6 +313,13 @@ public class FCPNode extends Observable {
 	 */
 	public void setDDA(boolean haveDDA) {
 		nodeConfig.useDDA = haveDDA;
+	}
+	
+	/**
+	 * @return Exception the last occured error or null if none occures
+	 */
+	public Exception getLastError() {
+		return lastError;
 	}
 
 }
