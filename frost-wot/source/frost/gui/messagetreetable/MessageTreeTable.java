@@ -845,6 +845,9 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                 } else if( msg.isMessageStatusBAD() ) {
                     setFont(boldFont);
                     setForeground(col_bad);
+                } else if( msg.isMessageStatusTAMPERED() ) {
+                    setFont(boldFont);
+                    setForeground(col_bad);
                 }
             }
 

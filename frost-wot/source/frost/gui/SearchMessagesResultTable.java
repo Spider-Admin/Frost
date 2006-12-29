@@ -275,6 +275,9 @@ public class SearchMessagesResultTable extends SortedTable {
                 } else if( msg.getMessageObject().isMessageStatusBAD() ) {
                     setFont(boldFont);
                     setForeground(col_bad);
+                } else if( msg.getMessageObject().isMessageStatusTAMPERED() ) {
+                    setFont(boldFont);
+                    setForeground(col_bad);
                 } else {
                     setFont(normalFont);
                     if (!isSelected) {
