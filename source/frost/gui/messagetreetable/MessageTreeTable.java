@@ -93,12 +93,17 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     private ImageIcon messageNewRepliedIcon = new ImageIcon(getClass().getResource("/data/messagenewrepliedicon.gif"));
     private ImageIcon messageReadRepliedIcon = new ImageIcon(getClass().getResource("/data/messagereadrepliedicon.gif"));
 
-    private boolean showColoredLines = true;
-
+    private boolean showColoredLines;
+    
     public MessageTreeTable(TreeTableModel treeTableModel) {
     	super();
         
-        Core.frostSettings.addPropertyChangeListener(this);
+        showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
+        
+        Core.frostSettings.addPropertyChangeListener(SettingsClass.SHOW_COLORED_ROWS, this);
+        Core.frostSettings.addPropertyChangeListener(SettingsClass.MESSAGE_LIST_FONT_NAME, this);
+        Core.frostSettings.addPropertyChangeListener(SettingsClass.MESSAGE_LIST_FONT_SIZE, this);
+        Core.frostSettings.addPropertyChangeListener(SettingsClass.MESSAGE_LIST_FONT_STYLE, this);
 
     	// Creates the tree. It will be used as a renderer and editor. 
     	tree = new TreeTableCellRenderer(treeTableModel);
@@ -338,7 +343,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     public class TreeTableCellRenderer extends JTree implements TableCellRenderer {
     	/** Last table/tree row asked to renderer. */
     	protected int visibleRow;
-        
+
         private Font boldFont = null;
         private Font normalFont = null;
         private boolean isDeleted = false;
@@ -359,6 +364,11 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                 treeUI.setRightChildIndent(10);
             }
     	}
+        
+        public void fontChanged(Font font) {
+            normalFont = font.deriveFont(Font.PLAIN);
+            boldFont = font.deriveFont(Font.BOLD);
+        }
         
         public void processKeyEvent(KeyEvent e) {
             super.processKeyEvent(e);
@@ -707,13 +717,27 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         }        
     }
     
+    public void setFont(Font font) {
+        super.setFont(font);
+
+        if( stringCellRenderer != null ) {
+            stringCellRenderer.fontChanged(font);
+        }
+        if( tree != null ) {
+            tree.fontChanged(font);
+        }
+        repaint();
+    }
+    
+    
+    
     /**
      * This renderer renders rows in different colors.
      * New messages gets a bold look, messages with attachments a blue color.
      * Encrypted messages get a red color, no matter if they have attachments.
      */
     private class StringCellRenderer extends DefaultTableCellRenderer {
-
+// FIXME: use configured font
         private Font boldFont = null;
         private Font normalFont = null;
         private boolean isDeleted = false;
@@ -737,6 +761,11 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                 Dimension size = getSize();
                 g.drawLine(0, size.height / 2, size.width, size.height / 2);
             }
+        }
+        
+        public void fontChanged(Font font) {
+            normalFont = font.deriveFont(Font.PLAIN);
+            boldFont = font.deriveFont(Font.BOLD);
         }
 
         public Component getTableCellRendererComponent(
@@ -1008,10 +1037,31 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         root.resortChildren();
         ((DefaultTreeModel)getTree().getModel()).reload();
     }
-    
+
+    private void fontChanged() {
+        String fontName = Core.frostSettings.getValue(SettingsClass.MESSAGE_LIST_FONT_NAME);
+        int fontStyle = Core.frostSettings.getIntValue(SettingsClass.MESSAGE_LIST_FONT_STYLE);
+        int fontSize = Core.frostSettings.getIntValue(SettingsClass.MESSAGE_LIST_FONT_SIZE);
+        Font font = new Font(fontName, fontStyle, fontSize);
+        if (!font.getFamily().equals(fontName)) {
+//            logger.severe(
+//                "The selected font was not found in your system\n"
+//                    + "That selection will be changed to \"Monospaced\".");
+            Core.frostSettings.setValue(SettingsClass.MESSAGE_LIST_FONT_NAME, "Monospaced");
+            font = new Font("Monospaced", fontStyle, fontSize);
+        }
+        setFont(font);
+    }
+
     public void propertyChange(PropertyChangeEvent evt) {
         if (evt.getPropertyName().equals(SettingsClass.SHOW_COLORED_ROWS)) {
             showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
+        } else if (evt.getPropertyName().equals(SettingsClass.MESSAGE_LIST_FONT_NAME)) {
+            fontChanged();
+        } else if (evt.getPropertyName().equals(SettingsClass.MESSAGE_LIST_FONT_SIZE)) {
+            fontChanged();
+        } else if (evt.getPropertyName().equals(SettingsClass.MESSAGE_LIST_FONT_STYLE)) {
+            fontChanged();
         }
     }
 }

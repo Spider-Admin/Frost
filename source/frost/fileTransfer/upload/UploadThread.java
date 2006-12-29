@@ -66,7 +66,7 @@ class UploadThread extends Thread {
                 true, // removeLocalKey, insert with full HTL even if existing in local store
                 uploadItem); // provide the uploadItem to indicate that this upload is contained in table
 
-        if (result.isSuccess() || result.isKeyCollision() ) {
+        if (result != null && (result.isSuccess() || result.isKeyCollision()) ) {
             
             logger.info("Upload of " + uploadItem.getFile().getName() + " was successful.");
 
