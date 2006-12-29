@@ -113,7 +113,7 @@ public class DownloadThread extends Thread {
                     downloadItem.setState(FrostDownloadItem.STATE_WAITING);
                     retryImmediately = true;
                     
-                    System.out.println("*!*!* Removed filename from key: "+key+" ; "+newKey);
+                    System.out.println("*!*!* Removed one path level from key: "+key+" ; "+newKey);
                     
                 } else if( result != null && result.isFatal() ) {
                     // fatal, don't retry
