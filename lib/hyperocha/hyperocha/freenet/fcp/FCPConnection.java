@@ -528,6 +528,10 @@ public class FCPConnection {
 			}	
 		}
 	}
+	
+	public void write(byte[] b) {
+		rawConn.write(b);
+	}
 
 	/**
 	 * Skip n bytes from connection
