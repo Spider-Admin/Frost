@@ -149,6 +149,17 @@ public class FCPIOConnection {
 		return true;
 	}
 	
+	public boolean write(byte[] b) {
+		if (!isOpen()) return false;
+		try {
+			fcpOut.write(b);
+		} catch (Exception e) {
+			handleIOError(e);
+			return false;
+		}
+		return true;
+	}
+	
 	public boolean println(String s) {
 		if (!isOpen()) throw new Error(); //return false;
 		try {
