@@ -17,7 +17,7 @@
 */
 package frost.fileTransfer.download;
 
-import hyperocha.util.exec.ExecuteDocument;
+import hyperocha.util.exec.*;
 
 import java.awt.*;
 import java.awt.datatransfer.*;
@@ -31,7 +31,6 @@ import javax.swing.table.*;
 import javax.swing.text.*;
 
 import frost.*;
-import frost.ext.*;
 import frost.fcp.*;
 import frost.fileTransfer.common.*;
 import frost.util.*;

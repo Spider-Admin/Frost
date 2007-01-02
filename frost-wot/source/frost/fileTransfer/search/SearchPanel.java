@@ -34,6 +34,7 @@ public class SearchPanel extends JPanel implements LanguageListener {
     private AdvancedPanel searchTopPanelAdvanced;
     
     private ImageIcon searchIcon = new ImageIcon(getClass().getResource("/data/search.gif"));
+    private ImageIcon clearIcon = new ImageIcon(getClass().getResource("/data/remove.gif"));
     
     private boolean isInitialized = false;
     
@@ -184,6 +185,7 @@ public class SearchPanel extends JPanel implements LanguageListener {
 
         private JTranslatableComboBox searchComboBox = null;
         private JButton searchButton = new JButton(searchIcon);
+        private JButton clearButton = new JButton(clearIcon);
         private JButton toggleModeButtonToSimple = new JButton("<<");
 
         private JLabel searchNameLabel = new JLabel();
@@ -214,6 +216,7 @@ public class SearchPanel extends JPanel implements LanguageListener {
 
             MiscToolkit toolkit = MiscToolkit.getInstance();
             toolkit.configureButton(searchButton, "/data/search_rollover.gif");
+            toolkit.configureButton(clearButton, "/data/remove_rollover.gif");
             searchComboBox.setMaximumSize(searchComboBox.getPreferredSize());
             searchNameTextField.setMaximumSize(searchNameTextField.getPreferredSize());
             searchCommentTextField.setMaximumSize(searchCommentTextField.getPreferredSize());
@@ -250,6 +253,8 @@ public class SearchPanel extends JPanel implements LanguageListener {
             add(searchComboBox);
             add(Box.createRigidArea(blankSpace));
             add(withKeyOnlyCheckBox);
+            add(Box.createRigidArea(smallSpace));
+            add(clearButton);
             add(Box.createRigidArea(blankSpace));
             add(searchButton);
             add(Box.createHorizontalGlue());
@@ -259,6 +264,7 @@ public class SearchPanel extends JPanel implements LanguageListener {
             searchKeywordsTextField.addActionListener(this);
             searchOwnerTextField.addActionListener(this);
             searchButton.addActionListener(this);
+            clearButton.addActionListener(this);
             toggleModeButtonToSimple.addActionListener(this);
         }
 
@@ -278,17 +284,26 @@ public class SearchPanel extends JPanel implements LanguageListener {
                     || e.getSource() == searchNameTextField
                     || e.getSource() == searchCommentTextField
                     || e.getSource() == searchKeywordsTextField
-                    || e.getSource() == searchOwnerTextField) 
+                    || e.getSource() == searchOwnerTextField)
             {
                 startNewSearch(getSearchParameters());
-            }
-            if (e.getSource() == toggleModeButtonToSimple) {
+            } else if (e.getSource() == toggleModeButtonToSimple) {
                 toggleMode(true);
+            } else if (e.getSource() == clearButton) {
+                clearTextfields();
             }
+        }
+        
+        private void clearTextfields() {
+            searchNameTextField.setText("");
+            searchCommentTextField.setText("");
+            searchKeywordsTextField.setText("");
+            searchOwnerTextField.setText("");
         }
 
         public void refreshLanguage() {
             searchButton.setToolTipText(language.getString("SearchPane.toolbar.tooltip.search"));
+            clearButton.setToolTipText(language.getString("SearchPane.toolbar.tooltip.clear"));
             toggleModeButtonToSimple.setToolTipText(language.getString("SearchPane.toolbar.tooltip.toggleMode"));
             searchNameLabel.setText(language.getString("SearchPane.toolbar.name")+":");
             searchCommentLabel.setText(language.getString("SearchPane.toolbar.comment")+":");
