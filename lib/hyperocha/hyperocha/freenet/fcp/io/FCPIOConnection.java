@@ -37,7 +37,7 @@ public class FCPIOConnection {
 	private Socket fcpSock;
     private BufferedInputStream fcpIn;
     private PrintStream fcpOut;
-    private boolean isopen = false;
+    //private boolean isopen = false;
     private Exception lasterror = null;
     
     private FCPIOConnectionErrorHandler connerrh = null;
@@ -65,7 +65,7 @@ public class FCPIOConnection {
      * @param e
      */
     private void handleIOError(Exception e) {
-    	isopen = false;
+    	//isopen = false;
     	lasterror = e;
     	//e.printStackTrace();  // FIXME
     	if (connerrh != null) {
@@ -87,7 +87,7 @@ public class FCPIOConnection {
 			handleIOError(e);
 			return false;
 		}
-		isopen = true;
+		//isopen = true;
 		return true;
     }
     
@@ -100,16 +100,22 @@ public class FCPIOConnection {
 			// ignore errors while closing
 			// egal, die connection ist eh ungueltig danach.
 		}
-		isopen = false;
+		//isopen = false;
 		fcpOut = null;
 		fcpIn = null;
         fcpSock = null;
 	}
 	
+	// DEBUG the IOErrorHandler should have called close (set sock = null) before this
+	// here can thrown
 	public boolean isOpen() {
-		if (fcpSock.isClosed()) throw new Error("Sock closed");
-		if (!fcpSock.isConnected()) throw new Error("not Connected");
-		return isopen;
+		if (fcpSock == null) 
+			return false;
+		if (fcpSock.isClosed()) 
+			throw new Error("Sock closed");
+		if (!fcpSock.isConnected()) 
+			throw new Error("not Connected");
+		return true;
 	}
 	
 	public Exception getLastError() {

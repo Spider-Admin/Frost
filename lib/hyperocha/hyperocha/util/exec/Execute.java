@@ -47,31 +47,30 @@ public class Execute {
     	
     	ExecResult result = new ExecResult();; 
     	char[] cbuf; 
-        Process p;
 
         try {
-			
+        			
 			cbuf = new char[BUFF_SIZE];		
-			p = runtimeExec(cmd);
-		//ProcessBuilder pb = new ProcessBuilder(order);   // java 1.5 List<String> order 
-		//Process p = pb.start();
+			result.proc = runtimeExec(cmd);
+			//ProcessBuilder pb = new ProcessBuilder(order);   // java 1.5 List<String> order 
+			//Process p = pb.start();
         
-        InputStream isStdOut = p.getInputStream();
-        InputStream isStdErr = p.getErrorStream();
+			InputStream isStdOut = result.proc.getInputStream();
+			InputStream isStdErr = result.proc.getErrorStream();
         
-        result.stdOut = new StringBuffer();
+			result.stdOut = new StringBuffer();
         
-		InputStreamReader iSReader = new InputStreamReader(isStdOut, cs);
-		BufferedReader reader = new BufferedReader(iSReader);
-		int count = 0;
-		while( count != -1 ) {
-			count = reader.read(cbuf, 0, BUFF_SIZE);
-			if (count != -1)
-				result.stdOut.append(cbuf, 0, count);
-		}
-		reader.close();
+			InputStreamReader iSReader = new InputStreamReader(isStdOut, cs);
+			BufferedReader reader = new BufferedReader(iSReader);
+			int count = 0;
+			while( count != -1 ) {
+				count = reader.read(cbuf, 0, BUFF_SIZE);
+				if (count != -1)
+					result.stdOut.append(cbuf, 0, count);
+			}
+			reader.close();
 			
-        result.stdErr = new StringBuffer();
+			result.stdErr = new StringBuffer();
         
 			iSReader = new InputStreamReader(isStdErr, cs);
 			reader = new BufferedReader(iSReader);
@@ -83,13 +82,11 @@ public class Execute {
 			}
 			reader.close();
 			
-			p.waitFor();
+			result.proc.waitFor();
         
-			result.retcode = p.exitValue();
+			result.retcode = result.proc.exitValue();
         
 		} catch (Throwable t) {
-			// DEBUG
-			t.printStackTrace(); 
 			result.error = t;
 		}  
         

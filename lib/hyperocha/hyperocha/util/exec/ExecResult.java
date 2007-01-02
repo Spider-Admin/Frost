@@ -25,6 +25,7 @@ package hyperocha.util.exec;
  *
  */
 public class ExecResult {
+	public Process proc = null;
 	public int retcode = -1;
 	public StringBuffer stdOut = null;
 	public StringBuffer stdErr = null;

@@ -369,6 +369,24 @@ public class FreenetKey {
 	}
 	
 	/**
+	 * @param aKey
+	 * @return
+	 */
+	public static String decodeKeyFromNode(String aKey) {
+		String r = aKey;
+		if( aKey.indexOf("%") > 0 ) {
+			try {
+				r = java.net.URLDecoder.decode(aKey, "UTF-8");
+			} catch (java.io.UnsupportedEncodingException ex) {
+				// this is really an error!!!!!!! (no utf-8 from node?)
+				throw new Error(ex);
+			}
+		}
+		return r;	
+	}
+
+	
+	/**
 	 * debug und test: print detailed key 
 	 */
 	public void decompose() {

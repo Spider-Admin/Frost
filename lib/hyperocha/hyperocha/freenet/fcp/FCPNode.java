@@ -47,10 +47,9 @@ public class FCPNode extends Observable {
 		private String hostName = null; // avoid name lookup recursion in security manager
 		private String hostIp = null; // avoid name lookup recursion in security manager
 		
-		// default timeout 30 minutes
-		// its asumes a reply from the node after each bucket
-		// Verbosity=1! (Verbosity.SIMPLEPROGRESS)
-		private int timeOut = 3 * 60 * 1000; 
+		// default timeout 90 minutes
+		// its freenet. feel free to be patient ;)
+		private int timeOut = 90 * 60 * 1000; 
 		
 		private boolean canDownload = true; // the factory can use this node for downloads 
 		private boolean canUpload = true; // the factory can use this node for uploads
@@ -270,6 +269,7 @@ public class FCPNode extends Observable {
 	
 	private void setError(Exception e) {
 		lastError = e;
+		e.printStackTrace();
 		setStatus(STATUS_ERROR);
 	}
 	
