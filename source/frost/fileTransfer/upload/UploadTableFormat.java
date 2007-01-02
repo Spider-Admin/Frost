@@ -286,7 +286,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
             FrostUploadItem item2 = (FrostUploadItem) o2;
             Boolean b1 = Boolean.valueOf( item1.isSharedFile() );
             Boolean b2 = Boolean.valueOf( item2.isSharedFile() );
-            return b1.compareTo(b2);
+            return Mixed.compareTo_Boolean(b1, b2);
         }
     }
 
@@ -310,7 +310,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
             FrostUploadItem item2 = (FrostUploadItem) o2;
             Boolean b1 = Boolean.valueOf( item1.isEnabled().booleanValue() );
             Boolean b2 = Boolean.valueOf( item2.isEnabled().booleanValue() );
-            return b1.compareTo(b2);
+            return Mixed.compareTo_Boolean(b1, b2);
         }
     }
 

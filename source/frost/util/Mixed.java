@@ -29,7 +29,14 @@ public final class Mixed {
     private static Logger logger = Logger.getLogger(Mixed.class.getName());
 
     private static char[] invalidChars = { '/', '\\', '?', '*', '<', '>', '\"', ':', '|', '#', '&' };
-    
+
+    /**
+     * Own Boolean.compareTo(). Used until Java 1.5 becomes mandatory for Frost.
+     */
+    public static int compareTo_Boolean(Boolean a, Boolean b) {
+        return (b.booleanValue() == a.booleanValue() ? 0 : (a.booleanValue() ? 1 : -1));
+    }
+
     /**
      * Creates a new unique ID.
      */
