@@ -215,7 +215,7 @@ public class FrostDownloadItem extends ModelItem {
         fireChange();
 	}
 
-	public Boolean getEnableDownload() {
+	public Boolean isEnabled() {
 		return enableDownload;
 	}
 	/**

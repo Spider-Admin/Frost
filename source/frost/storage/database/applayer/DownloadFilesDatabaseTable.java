@@ -88,7 +88,7 @@ public class DownloadFilesDatabaseTable extends AbstractDatabaseTable {
             ps.setString(ix++, dlItem.getTargetPath());
             ps.setLong(ix++, (dlItem.getFileSize()==null?0:dlItem.getFileSize().longValue()));
             ps.setString(ix++, dlItem.getKey());
-            ps.setBoolean(ix++, (dlItem.getEnableDownload()==null?true:dlItem.getEnableDownload().booleanValue()));
+            ps.setBoolean(ix++, (dlItem.isEnabled()==null?true:dlItem.isEnabled().booleanValue()));
             ps.setInt(ix++, dlItem.getState());
             ps.setLong(ix++, dlItem.getDownloadAddedTime());
             ps.setLong(ix++, dlItem.getDownloadStartedTime());
