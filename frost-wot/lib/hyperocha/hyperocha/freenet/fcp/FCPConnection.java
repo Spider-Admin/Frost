@@ -214,10 +214,10 @@ public class FCPConnection {
             tmp = rawConn.readLine();
             //result.add(tmp);
             //System.out.println("ReadEndMessage out: " + tmp);
-            //if (tmp.compareTo("Data") == 0) {
-            	//TODO: callback.incommingData(result, streamtoread);
-            //    break; 
-            //}
+            if (tmp.compareTo("Data") == 0) {
+            	result.setEnd(tmp);
+                break; 
+            }
             if (tmp.compareTo("EndMessage") == 0) {
             	result.setEnd(tmp);
                 break; 
@@ -229,7 +229,7 @@ public class FCPConnection {
             	System.out.println("this shouldn't happen. FIXME. mpf!");
             	result.addItem("Unknown", tmp);
             }
-        } while(tmp.compareTo("EndMessage") != 0);
+        } //while(tmp.compareTo("EndMessage") != 0);
         return result;	
 	}
 	

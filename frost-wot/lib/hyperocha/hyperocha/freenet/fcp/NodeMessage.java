@@ -90,8 +90,12 @@ public class NodeMessage {
 		return Integer.parseInt((String)(items.get(name)), radix);
 	}
 	
+	public String getKeyString(String name) {
+		return FreenetKey.decodeKeyFromNode((String)items.get(name));
+	}
+	
 	public FreenetKey getKeyValue(String name) {
-		return FreenetKey.getKeyFromString((String)items.get(name));
+		return FreenetKey.getKeyFromString(FreenetKey.decodeKeyFromNode((String)items.get(name)));
 	}
 	
 	public boolean getBoolValue(String name) {
