@@ -24,18 +24,18 @@ public class GlobalFileDownloaderResult {
 
     File resultFile = null;
     
-    boolean invalidKey = false;
+    boolean isEmptyRedirect = false;
     
     public GlobalFileDownloaderResult(File result) {
         resultFile = result;
     }
     
-    public GlobalFileDownloaderResult(boolean isInvalid) {
-        invalidKey = isInvalid;
+    public GlobalFileDownloaderResult(boolean newIsEmptyRedirect) {
+        isEmptyRedirect = newIsEmptyRedirect;
     }
 
-    public boolean isInvalidKey() {
-        return invalidKey;
+    public boolean isEmptyRedirect() {
+        return isEmptyRedirect;
     }
 
     public File getResultFile() {

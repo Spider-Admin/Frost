@@ -124,7 +124,7 @@ System.out.println("uploadRequestFile: upload finished, wasOk="+wasOk);
             String downKey = requestKey + index + ".xml";
             GlobalFileDownloaderResult result = GlobalFileDownloader.downloadFile(downKey);
 
-            if(  result == null ) {
+            if( result == null ) {
                 // download failed. 
                 failures++;
                 // next loop we try next index
@@ -132,16 +132,20 @@ System.out.println("uploadRequestFile: upload finished, wasOk="+wasOk);
                 continue;
             }
             
+            failures = 0;
+
+            if( result.isEmptyRedirect() ) {
+                // try index again later
+                System.out.println("FileRequestsThread.downloadDate: Skipping index "+index+" for now, will try again later.");
+                // next loop we try next index
+                index = indexSlots.findNextDownloadSlot(index, sqlDate);
+                continue;
+            }
+
             // downloaded something, mark it
             indexSlots.setDownloadSlotUsed(index, sqlDate);
             // next loop we try next index
             index = indexSlots.findNextDownloadSlot(index, sqlDate);
-            failures = 0;
-
-            if( result.isInvalidKey() ) {
-System.out.println("FileRequestsThread.downloadDate: empty KSK redirect");
-                continue;
-            }
 
             File downloadedFile = result.getResultFile(); 
 

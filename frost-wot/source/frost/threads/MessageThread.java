@@ -188,7 +188,16 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 }
 
                 failures = 0;
-                
+
+                if( mdResult.isFailure()
+                        && mdResult.getErrorMessage() != null 
+                        && mdResult.getErrorMessage().equals(MessageDownloaderResult.ALLDATANOTFOUND) )
+                {
+                    // don't set slot used, try to retrieve the file again
+                    System.out.println("TOFDN: Skipping index "+index+" for now, will try again later.");
+                    continue;
+                }
+
                 indexSlots.setDownloadSlotUsed(index, date);
 
                 if( mdResult.isFailure() ) {

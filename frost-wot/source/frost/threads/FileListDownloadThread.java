@@ -86,7 +86,7 @@ System.out.println("FileListDownloadThread: starting download of key: "+chkKey);
 
                 GlobalFileDownloaderResult result = GlobalFileDownloader.downloadFile(chkKey);
 
-                if( result == null || result.isInvalidKey() ) {
+                if( result == null || result.isEmptyRedirect() ) {
                     // download failed
                     boolean retryDownload = SharedFilesCHKKeyManager.updateCHKKeyDownloadFailed(chkKey);
                     if( retryDownload ) {

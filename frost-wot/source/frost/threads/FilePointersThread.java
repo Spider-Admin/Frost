@@ -145,17 +145,20 @@ System.out.println("FilePointersThread.downloadDate: failure");
                 continue;
             } 
 
+            failures = 0;
+
+            if( result.isEmptyRedirect() ) {
+                System.out.println("FilePointersThread.downloadDate: Skipping index "+index+" for now, will try again later.");
+                // next loop we try next index
+                index = indexSlots.findNextDownloadSlot(index, date);
+                continue;
+            }
+
             // downloaded something, mark it
             indexSlots.setDownloadSlotUsed(index, date);
             // next loop we try next index
             index = indexSlots.findNextDownloadSlot(index, date);
-            failures = 0;
 
-            if( result.isInvalidKey() ) {
-System.out.println("FilePointersThread.downloadDate: empty KSK redirect");
-                continue;
-            }
-            
 System.out.println("FilePointersThread.downloadDate: success");
 
             File downloadedFile = result.getResultFile(); 
