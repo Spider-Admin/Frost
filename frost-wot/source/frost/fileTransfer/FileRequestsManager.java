@@ -67,7 +67,7 @@ public class FileRequestsManager {
                 continue;
             }
 
-            if( dlItem.getEnableDownload().booleanValue() == false ) {
+            if( dlItem.isEnabled().booleanValue() == false ) {
                 continue;
             }
 

@@ -25,6 +25,7 @@ import javax.swing.*;
 import javax.swing.table.*;
 
 import frost.*;
+import frost.fcp.*;
 import frost.fileTransfer.*;
 import frost.fileTransfer.common.*;
 import frost.util.*;
@@ -42,6 +43,8 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 
     private static ImageIcon isSharedIcon = new ImageIcon((MainFrame.class.getResource("/data/shared.png")));
     private static ImageIcon isRequestedIcon = new ImageIcon((MainFrame.class.getResource("/data/signal.png")));
+    
+    private static final long CONST_32k = 32 * 1024;
     
     private SortedModelTable modelTable = null;
 
@@ -303,15 +306,42 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 	}
 	
 	private class SizeComparator implements Comparator {
+        private Long unknownSize = new Long(-1);
 		public int compare(Object o1, Object o2) {
-			Long size1 = ((FrostDownloadItem) o1).getFileSize();
-			Long size2 = ((FrostDownloadItem) o2).getFileSize();
-			if (size1 == null) {
-				size1 = new Long(-1);
-			}
-			if (size2 == null) {
-				size2 = new Long(-1);
-			}	
+            FrostDownloadItem dli1 = (FrostDownloadItem) o1;
+            FrostDownloadItem dli2 = (FrostDownloadItem) o2;
+            
+			Long size1 = dli1.getFileSize();
+			Long size2 = dli2.getFileSize();
+            
+			if (dli1.getFileSize() != null) {
+                size1 = dli1.getFileSize();
+            } else if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 
+                           && dli1.getTotalBlocks() > 0 
+                           && dli1.isFinalized() != null 
+                           && dli1.isFinalized().booleanValue() == true ) 
+            {
+                // on 0.7, compute appr. size out of finalized block count
+                long apprSize = dli1.getTotalBlocks() * CONST_32k;
+                size1 = new Long(apprSize);
+            } else {
+                size1 = unknownSize;
+            }
+            
+            if (dli2.getFileSize() != null) {
+                size2 = dli2.getFileSize();
+            } else if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 
+                           && dli2.getTotalBlocks() > 0 
+                           && dli2.isFinalized() != null 
+                           && dli2.isFinalized().booleanValue() == true ) 
+            {
+                // on 0.7, compute appr. size out of finalized block count
+                long apprSize = dli2.getTotalBlocks() * CONST_32k;
+                size2 = new Long(apprSize);
+            } else {
+                size2 = unknownSize;
+            }
+            
 			return size1.compareTo(size2);
 		}
 	}
@@ -328,7 +358,9 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 		public int compare(Object o1, Object o2) {
 			FrostDownloadItem item1 = (FrostDownloadItem) o1;
 			FrostDownloadItem item2 = (FrostDownloadItem) o2;
-            return item1.getEnableDownload().equals(item2.getEnableDownload()) ? 0 : 1 ;
+            Boolean b1 = Boolean.valueOf( item1.isEnabled().booleanValue() );
+            Boolean b2 = Boolean.valueOf( item2.isEnabled().booleanValue() );
+            return b1.compareTo(b2);
 		}
 	}
 
@@ -338,7 +370,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
             FrostDownloadItem item2 = (FrostDownloadItem) o2;
             Boolean b1 = Boolean.valueOf( item1.isSharedFile() );
             Boolean b2 = Boolean.valueOf( item2.isSharedFile() );
-            return b1.equals(b2) ? 0 : 1 ;
+            return b1.compareTo(b2);
         }
     }
 
@@ -348,7 +380,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
             FrostDownloadItem item2 = (FrostDownloadItem) o2;
             Boolean b1 = getIsRequested(item1.getFileListFileObject());
             Boolean b2 = getIsRequested(item2.getFileListFileObject());
-            return b1.equals(b2) ? 0 : 1 ;
+            return b1.compareTo(b2);
         }
     }
 
@@ -460,7 +492,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 		switch (columnIndex) {
 
 			case 0 : //Enabled
-				return downloadItem.getEnableDownload();
+				return downloadItem.isEnabled();
 
             case 1 : // isShared
                 return Boolean.valueOf( downloadItem.isSharedFile() );
@@ -472,10 +504,20 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 				return downloadItem.getFilename();
 
 			case 4 : // Size
-				if (downloadItem.getFileSize() == null) {
+                if( downloadItem.getFileSize() != null ) {
+                    // size is set
+                    return SizeFormatter.formatSize(downloadItem.getFileSize().longValue());
+
+                } else if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 
+                           && downloadItem.getTotalBlocks() > 0 
+                           && downloadItem.isFinalized() != null 
+                           && downloadItem.isFinalized().booleanValue() == true ) 
+                {
+                    // on 0.7, compute appr. size out of finalized block count
+                    long apprSize = downloadItem.getTotalBlocks() * CONST_32k;
+                    return "~" + SizeFormatter.formatSize(apprSize);
+                } else {
 					return unknown;
-				} else {
-					return SizeFormatter.formatSize(downloadItem.getFileSize().longValue());
 				}
 
 			case 5 : // State
@@ -552,7 +594,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
         
         StringBuffer sb = new StringBuffer();
         
-        if( isFinalized != null && !isFinalized.booleanValue() ) {
+        if( isFinalized != null && isFinalized.booleanValue() == false ) {
             sb.append("~");
         }
 

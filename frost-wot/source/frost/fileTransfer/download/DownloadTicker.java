@@ -213,7 +213,7 @@ public class DownloadTicker extends Thread {
 		ArrayList waitingItems = new ArrayList();
 		for (int i = 0; i < model.getItemCount(); i++) {
 			FrostDownloadItem dlItem = (FrostDownloadItem) model.getItemAt(i);
-            boolean itemIsEnabled = (dlItem.getEnableDownload()==null?true:dlItem.getEnableDownload().booleanValue());
+            boolean itemIsEnabled = (dlItem.isEnabled()==null?true:dlItem.isEnabled().booleanValue());
             if( !itemIsEnabled ) {
                 continue;
             }
