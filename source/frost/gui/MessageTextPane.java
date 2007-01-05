@@ -1104,7 +1104,7 @@ public class MessageTextPane extends JPanel {
     }
 
     private DownloadModel getDownloadModel() {
-        return FileTransferManager.getInstance().getDownloadManager().getModel();
+        return FileTransferManager.inst().getDownloadManager().getModel();
     }
 
     public void close() {

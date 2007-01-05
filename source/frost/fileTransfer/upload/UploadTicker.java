@@ -43,10 +43,8 @@ public class UploadTicker extends Thread {
     /**
      * Used to sort FrostUploadItems by lastUploadStopTimeMillis ascending.
      */
-    static final Comparator uploadDlStopMillisCmp = new Comparator() {
-        public int compare(Object o1, Object o2) {
-            FrostUploadItem value1 = (FrostUploadItem) o1;
-            FrostUploadItem value2 = (FrostUploadItem) o2;
+    static final Comparator<FrostUploadItem> uploadDlStopMillisCmp = new Comparator<FrostUploadItem>() {
+        public int compare(FrostUploadItem value1, FrostUploadItem value2) {
             if (value1.getLastUploadStopTimeMillis() > value2.getLastUploadStopTimeMillis())
                 return 1;
             else if (value1.getLastUploadStopTimeMillis() < value2.getLastUploadStopTimeMillis())
@@ -287,7 +285,7 @@ public class UploadTicker extends Thread {
      */
     private FrostUploadItem selectNextUploadItem() {
 
-        ArrayList waitingItems = new ArrayList();
+        ArrayList<FrostUploadItem> waitingItems = new ArrayList<FrostUploadItem>();
 
         for (int i = 0; i < model.getItemCount(); i++) {
             FrostUploadItem ulItem = (FrostUploadItem) model.getItemAt(i);

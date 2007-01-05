@@ -181,7 +181,8 @@ public class MessageUploader {
                             wa.uploadFile,
                             wa.signMetadata,
                             false,  // doRedirect
-                            false); // removeLocalKey, we want a KeyCollision if key does already exist in local store!
+                            false,  // removeLocalKey, we want a KeyCollision if key does already exist in local store!
+                            true);  // doMime
                 } catch (Throwable t) {
                     logger.log(Level.SEVERE, "TOFUP: Error in FcpInsert.putFile."+logInfo, t);
                 }
@@ -324,7 +325,8 @@ public class MessageUploader {
                     null, 
                     targetFile, 
                     false, 
-                    false);
+                    false,
+                    FcpHandler.MAX_KSK_SIZE_ON_07);
             if( res != null && res.isSuccess() && targetFile.length() > 0 ) {
                 return true;
             }

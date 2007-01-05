@@ -171,7 +171,7 @@ public class FileRequestFile {
         
         Element rootShaNode = (Element)nodelist.get(0);
         
-        List shaList = new LinkedList();
+        List<String> shaList = new LinkedList<String>();
         List xmlKeys = XMLTools.getChildElementsByTagName(rootShaNode, TAG_sha);
         for( Iterator i = xmlKeys.iterator(); i.hasNext(); ) {
             Element el = (Element) i.next();

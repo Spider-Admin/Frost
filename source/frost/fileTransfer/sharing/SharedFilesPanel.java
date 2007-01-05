@@ -166,7 +166,7 @@ public class SharedFilesPanel extends JPanel {
             return;
         }
         String parentDir = null;
-        List uploadFileItems = new LinkedList();
+        List<File> uploadFileItems = new LinkedList<File>();
         for (int i = 0; i < selectedFiles.length; i++) {
             // collect all choosed files + files in all choosed directories
             ArrayList allFiles = FileAccess.getAllEntries(selectedFiles[i], "");
@@ -191,9 +191,9 @@ public class SharedFilesPanel extends JPanel {
         }
         String owner = dlg.getChoosedIdentityName();
 
-        List uploadItems = new LinkedList();
-        for(Iterator i=uploadFileItems.iterator(); i.hasNext(); ) {
-            File file = (File)i.next();
+        List<NewUploadFile> uploadItems = new LinkedList<NewUploadFile>();
+        for(Iterator<File> i=uploadFileItems.iterator(); i.hasNext(); ) {
+            File file = i.next();
             NewUploadFile nuf = new NewUploadFile(file, owner);
             uploadItems.add(nuf);
         }
@@ -257,12 +257,12 @@ public class SharedFilesPanel extends JPanel {
             return;
         }
         
-        List items = new LinkedList();
+        List<FrostSharedFileItem> items = new LinkedList<FrostSharedFileItem>();
         for (int i = 0; i < selectedItems.length; i++) {
             FrostSharedFileItem item = (FrostSharedFileItem) selectedItems[i];
             items.add(item);
         }
-        FrostSharedFileItem defaultItem = (FrostSharedFileItem)items.get(0);
+        FrostSharedFileItem defaultItem = items.get(0);
         SharedFilesPropertiesDialog dlg = new SharedFilesPropertiesDialog(MainFrame.getInstance());
         
         String singleFilename = null;

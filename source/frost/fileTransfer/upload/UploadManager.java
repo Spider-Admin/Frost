@@ -38,6 +38,9 @@ public class UploadManager {
         getPanel();
         getStatusPanel();
         getModel().initialize(sharedFiles);
+    }
+    
+    public void startTicker() {
         if (Core.isFreenetOnline()) {
             getTicker().start();
         }

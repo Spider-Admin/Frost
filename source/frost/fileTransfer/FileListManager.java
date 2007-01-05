@@ -18,6 +18,7 @@
 */
 package frost.fileTransfer;
 
+import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
@@ -36,10 +37,8 @@ public class FileListManager {
     /**
      * Used to sort FrostSharedFileItems by refLastSent ascending.
      */
-    private static final Comparator refLastSentComparator = new Comparator() {
-        public int compare(Object o1, Object o2) {
-            FrostSharedFileItem value1 = (FrostSharedFileItem) o1;
-            FrostSharedFileItem value2 = (FrostSharedFileItem) o2;
+    private static final Comparator<FrostSharedFileItem> refLastSentComparator = new Comparator<FrostSharedFileItem>() {
+        public int compare(FrostSharedFileItem value1, FrostSharedFileItem value2) {
             if (value1.getRefLastSent() > value2.getRefLastSent()) {
                 return 1;
             } else if (value1.getRefLastSent() < value2.getRefLastSent()) {
@@ -86,7 +85,7 @@ public class FileListManager {
             // mark that we tried this owner
             idToUpdate.updateLastFilesSharedMillis();
 
-            LinkedList filesToShare = getUploadItemsToShare(idToUpdate.getUniqueName(), MAX_FILES_PER_FILE, minDate);
+            LinkedList<SharedFileXmlFile> filesToShare = getUploadItemsToShare(idToUpdate.getUniqueName(), MAX_FILES_PER_FILE, minDate);
             if( filesToShare != null && filesToShare.size() > 0 ) {
                 FileListManagerFileInfo fif = new FileListManagerFileInfo(filesToShare, idToUpdate); 
                 return fif;
@@ -99,14 +98,14 @@ public class FileListManager {
         return null;
     }
 
-    private static LinkedList getUploadItemsToShare(String owner, int maxItems, long minDate) {
+    private static LinkedList<SharedFileXmlFile> getUploadItemsToShare(String owner, int maxItems, long minDate) {
 
-        LinkedList result = new LinkedList();
+        LinkedList<SharedFileXmlFile> result = new LinkedList<SharedFileXmlFile>();
         
-        ArrayList sorted = new ArrayList();
+        ArrayList<FrostSharedFileItem> sorted = new ArrayList<FrostSharedFileItem>();
 
         {        
-            List sharedFileItems = FileTransferManager.getInstance().getSharedFilesManager().getModel().getItems();
+            List sharedFileItems = FileTransferManager.inst().getSharedFilesManager().getModel().getItems();
             
             // first collect all items for this owner and sort them
             for( Iterator i = sharedFileItems.iterator(); i.hasNext(); ) {
@@ -131,7 +130,7 @@ public class FileListManager {
 
         {
             // check if oldest item must be shared (maybe its new or updated)
-            FrostSharedFileItem sfo = (FrostSharedFileItem) sorted.get(0);
+            FrostSharedFileItem sfo = sorted.get(0);
             if( sfo.getRefLastSent() > minDate ) {
                 // oldest item is'nt too old, don't share
                 return result;
@@ -158,7 +157,7 @@ public class FileListManager {
         
         long now = System.currentTimeMillis();
 
-        List sharedFileItems = FileTransferManager.getInstance().getSharedFilesManager().getModel().getItems();
+        List sharedFileItems = FileTransferManager.inst().getSharedFilesManager().getModel().getItems();
 
         for( Iterator i = files.iterator(); i.hasNext(); ) {
             SharedFileXmlFile sfx = (SharedFileXmlFile) i.next();
@@ -205,20 +204,52 @@ public class FileListManager {
             return true;
         }
 
-        List downloadItems = FileTransferManager.getInstance().getDownloadManager().getModel().getItems();
+        // first, update all filelist files
+        
+        // get a connection for updates
+        // works well if no duplicate SHA is in the received list, otherwise we have false updates
+        Connection conn = AppLayerDatabase.getInstance().getPooledConnection();
+
+        boolean errorOccured = false;
+        try {
+            conn.setAutoCommit(false);
+        
+            for( Iterator i = content.getFileList().iterator(); i.hasNext(); ) {
+                SharedFileXmlFile sfx = (SharedFileXmlFile) i.next();
+                
+                FrostFileListFileObject sfo = new FrostFileListFileObject(sfx, localOwner, content.getTimestamp());
+                
+                // update filelist database table
+                boolean wasOk = AppLayerDatabase.getFileListDatabaseTable().insertOrUpdateFrostFileListFileObject(sfo, conn);
+                if( wasOk == false ) {
+                    // if there is one error we skip the whole processing
+                    conn.rollback();
+                    errorOccured = true;
+                    break;
+                }
+            }
+            if( errorOccured == false ) {
+                conn.commit();
+            }
+            conn.setAutoCommit(true);
+        } catch(Throwable t) {
+            logger.log(Level.SEVERE, "Exception during insertOrUpdateFrostSharedFileObject", t);
+            try { conn.rollback(); } catch(Throwable t1) { logger.log(Level.SEVERE, "Exception during rollback", t1); }
+            try { conn.setAutoCommit(true); } catch(Throwable t1) { }
+        } finally {
+            AppLayerDatabase.getInstance().givePooledConnection(conn);
+        }
+        
+        if( errorOccured ) {
+            return false;
+        }
+
+        // after updating the db, check if we have to update download items with the new informations
+        List downloadItems = FileTransferManager.inst().getDownloadManager().getModel().getItems();
 
         for( Iterator i = content.getFileList().iterator(); i.hasNext(); ) {
             SharedFileXmlFile sfx = (SharedFileXmlFile) i.next();
-            
-            FrostFileListFileObject sfo = new FrostFileListFileObject(sfx, localOwner, content.getTimestamp());
-            
-            // update filelist database table
-            try {
-                AppLayerDatabase.getFileListDatabaseTable().insertOrUpdateFrostFileListFileObject(sfo);
-            } catch (Throwable t) {
-                logger.log(Level.SEVERE, "Exception in insertOrUpdateFrostSharedFileObject", t);
-            }
-            
+
             // if a FrostDownloadItem references this file (by sha), retrieve the updated file from db and set it
             for( Iterator j = downloadItems.iterator(); j.hasNext(); ) {
                 FrostDownloadItem dlItem = (FrostDownloadItem) j.next();
@@ -238,10 +269,11 @@ public class FileListManager {
                     if( updatedSfo != null ) {
                         dlItem.setFileListFileObject(updatedSfo);
                     }
-                    break; // there is only one file in download table with same sha
+                    break; // there is only one file in download table with same SHA
                 }
             }
         }
+
         return true;
     }
 }

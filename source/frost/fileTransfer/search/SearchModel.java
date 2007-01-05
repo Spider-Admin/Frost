@@ -30,7 +30,7 @@ public class SearchModel extends OrderedModel {
 
     public SearchModel() {
         super();
-        downloadModel = FileTransferManager.getInstance().getDownloadManager().getModel();
+        downloadModel = FileTransferManager.inst().getDownloadManager().getModel();
     }
 
     public void addSearchItem(FrostSearchItem searchItem) {

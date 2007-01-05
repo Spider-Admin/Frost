@@ -108,7 +108,7 @@ public class UploadModel extends OrderedModel implements Savable {
      * if the model has a lot of items.
      */
     public synchronized void removeNotExistingFiles() {
-        ArrayList items = new ArrayList();
+        ArrayList<FrostUploadItem> items = new ArrayList<FrostUploadItem>();
         for (int i = getItemCount() - 1; i >= 0; i--) {
             FrostUploadItem ulItem = (FrostUploadItem) getItemAt(i);
             if (!ulItem.getFile().exists()) {
@@ -179,7 +179,7 @@ public class UploadModel extends OrderedModel implements Savable {
      * Removes finished uploads from the model.
      */
     public synchronized void removeFinishedUploads() {
-        ArrayList items = new ArrayList();
+        ArrayList<FrostUploadItem> items = new ArrayList<FrostUploadItem>();
         for (int i = getItemCount() - 1; i >= 0; i--) {
             FrostUploadItem dlItem = (FrostUploadItem) getItemAt(i);
             if (dlItem.getState() == FrostUploadItem.STATE_DONE) {

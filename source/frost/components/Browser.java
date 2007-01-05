@@ -237,19 +237,19 @@ public class Browser extends JPanel {
     /**
      * Reads file and returns a Vector of lines
      */
-    Vector readLines(File file) {
-    return readLines(file.getPath());
+    Vector<String> readLines(File file) {
+        return readLines(file.getPath());
     }
-    Vector readLines(String path) {
+    Vector<String> readLines(String path) {
     BufferedReader f;
     String line;
     line = "";
-    Vector data = new Vector();
+    Vector<String> data = new Vector<String>();
 
     try {
         f = new BufferedReader(new FileReader(path));
         while ((line = f.readLine()) != null) {
-        data.add(line.trim());
+            data.add(line.trim());
         }
         f.close();
     }

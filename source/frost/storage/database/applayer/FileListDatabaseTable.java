@@ -80,8 +80,8 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
     private final static String SQL_FILEOWNERLIST_INDEX_REFKEY =
         "CREATE INDEX FILEOWNERLIST_IX_REFKEY ON FILEOWNERLIST ( refkey )";
 
-    public List getTableDDL() {
-        ArrayList lst = new ArrayList(5);
+    public List<String> getTableDDL() {
+        ArrayList<String> lst = new ArrayList<String>(5);
         lst.add(SQL_FILES_DDL);
         lst.add(SQL_OWNER_BOARD_DDL);
         lst.add(SQL_FILELIST_INDEX_PRIMKEY);
@@ -104,64 +104,99 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
     /**
      * Insert/updates a new NewFrostSharedFileObject. 
      */
-    public boolean insertOrUpdateFrostFileListFileObject(FrostFileListFileObject newSfo) throws SQLException {
-        long identity;
-        synchronized(getSyncObj()) {
-
-            FrostFileListFileObject oldSfo = getFrostFileListFileObject(newSfo.getSha());
-            if( oldSfo != null ) {
-                // file is already in FILELIST table, maybe add new FILEOWNER and update fields
-                identity = oldSfo.getPrimkey().longValue();
-                // maybe update oldSfo
-                boolean doUpdate = false;
-                if( oldSfo.getKey() == null && newSfo.getKey() != null ) {
-                    oldSfo.setKey(newSfo.getKey()); doUpdate = true;
-                }
-                if( oldSfo.getFirstReceived() > newSfo.getFirstReceived() ) {
-                    oldSfo.setFirstReceived(newSfo.getFirstReceived()); doUpdate = true;
-                }
-                if( oldSfo.getLastReceived() < newSfo.getLastReceived() ) {
-                    oldSfo.setLastReceived(newSfo.getLastReceived()); doUpdate = true;
-                }
-                if( oldSfo.getLastUploaded() < newSfo.getLastUploaded() ) {
-                    oldSfo.setLastUploaded(newSfo.getLastUploaded()); doUpdate = true;
-                }
-                if( oldSfo.getLastDownloaded() < newSfo.getLastDownloaded() ) {
-                    oldSfo.setLastDownloaded(newSfo.getLastDownloaded()); doUpdate = true;
-                }
-                if( oldSfo.getRequestLastReceived() < newSfo.getRequestLastReceived() ) {
-                    oldSfo.setRequestLastReceived(newSfo.getRequestLastReceived()); doUpdate = true;
-                }
-                if( oldSfo.getRequestLastSent() < newSfo.getRequestLastSent() ) {
-                    oldSfo.setRequestLastSent(newSfo.getRequestLastSent()); doUpdate = true;
-                }
-                if( oldSfo.getRequestsReceivedCount() < newSfo.getRequestsReceivedCount() ) {
-                    oldSfo.setRequestsReceivedCount(newSfo.getRequestsReceivedCount()); doUpdate = true;
-                }
-                if( oldSfo.getRequestsSentCount() < newSfo.getRequestsSentCount() ) {
-                    oldSfo.setRequestsSentCount(newSfo.getRequestsSentCount()); doUpdate = true;
-                }
-                if( doUpdate ) {
-                    updateFrostFileListFileObjectInFILELIST(oldSfo);
-                }
-            } else {
-                // file is not yet in FILELIST table
-                Long longIdentity = insertFrostFileListFileObjectIntoFILELIST(newSfo);
-                if( longIdentity == null ) {
+    public synchronized boolean insertOrUpdateFrostFileListFileObject(FrostFileListFileObject newSfo, Connection conn) 
+    throws SQLException {
+        FrostFileListFileObject currentSfo = null;
+        FrostFileListFileObject oldSfo = getFrostFileListFileObject(newSfo.getSha());
+        if( oldSfo != null ) {
+            // file is already in FILELIST table, maybe add new FILEOWNER and update fields
+            // maybe update oldSfo
+            boolean doUpdate = false;
+            if( oldSfo.getKey() == null && newSfo.getKey() != null ) {
+                oldSfo.setKey(newSfo.getKey()); doUpdate = true;
+            }
+            if( oldSfo.getFirstReceived() > newSfo.getFirstReceived() ) {
+                oldSfo.setFirstReceived(newSfo.getFirstReceived()); doUpdate = true;
+            }
+            if( oldSfo.getLastReceived() < newSfo.getLastReceived() ) {
+                oldSfo.setLastReceived(newSfo.getLastReceived()); doUpdate = true;
+            }
+            if( oldSfo.getLastUploaded() < newSfo.getLastUploaded() ) {
+                oldSfo.setLastUploaded(newSfo.getLastUploaded()); doUpdate = true;
+            }
+            if( oldSfo.getLastDownloaded() < newSfo.getLastDownloaded() ) {
+                oldSfo.setLastDownloaded(newSfo.getLastDownloaded()); doUpdate = true;
+            }
+            if( oldSfo.getRequestLastReceived() < newSfo.getRequestLastReceived() ) {
+                oldSfo.setRequestLastReceived(newSfo.getRequestLastReceived()); doUpdate = true;
+            }
+            if( oldSfo.getRequestLastSent() < newSfo.getRequestLastSent() ) {
+                oldSfo.setRequestLastSent(newSfo.getRequestLastSent()); doUpdate = true;
+            }
+            if( oldSfo.getRequestsReceivedCount() < newSfo.getRequestsReceivedCount() ) {
+                oldSfo.setRequestsReceivedCount(newSfo.getRequestsReceivedCount()); doUpdate = true;
+            }
+            if( oldSfo.getRequestsSentCount() < newSfo.getRequestsSentCount() ) {
+                oldSfo.setRequestsSentCount(newSfo.getRequestsSentCount()); doUpdate = true;
+            }
+            if( doUpdate ) {
+                boolean wasOk = updateFrostFileListFileObjectInFILELIST(oldSfo, conn);
+                if( wasOk == false ) {
                     return false;
                 }
-                identity = longIdentity.longValue();
             }
-            
-            // UNIQUE: refkey,owner
-            for(Iterator i=newSfo.getFrostFileListFileObjectOwnerList().iterator(); i.hasNext(); ) {
-                    
-                FrostFileListFileObjectOwner ob = (FrostFileListFileObjectOwner)i.next();
-                ob.setRefkey(identity);
+            currentSfo = oldSfo; // updated sfo
+        } else {
+            // file is not yet in FILELIST table
+            boolean wasOk = insertFrostFileListFileObjectIntoFILELIST(newSfo, conn); // sets new primkey
+            if( wasOk == false ) {
+                return false;
+            }
+            currentSfo = newSfo;
+        }
+        
+        long primkey = currentSfo.getPrimkey().longValue();
+
+        /**
+         * Updates or inserts fields in db. 
+         * If refkey,boardname,owner is already in db, name,lastreceived and lastupdated will be updated.
+         * Otherwise the fields will be inserted.
+         */
+        // UNIQUE: refkey,owner
+        for(Iterator<FrostFileListFileObjectOwner> i=newSfo.getFrostFileListFileObjectOwnerList().iterator(); i.hasNext(); ) {
                 
-                updateOrInsertFrostFileListFileObjectOwner(ob);
-            }            
-        }        
+            FrostFileListFileObjectOwner obNew = i.next();
+            obNew.setRefkey(primkey);
+            
+            FrostFileListFileObjectOwner obOld = getFrostFileListFileObjectOwner(
+                    obNew.getRefkey(),
+                    obNew.getOwner());
+            
+            if( obOld == null ) {
+                // insert new
+                boolean wasOk = insertFrostFileListFileObjectOwner(obNew, conn);
+                if( wasOk == false ) {
+                    return false;
+                }
+            } else {
+                // update existing
+                if( obOld.getLastReceived() < obNew.getLastReceived() ) {
+
+                    obOld.setLastReceived(obNew.getLastReceived());
+                    obOld.setName(obNew.getName());
+                    obOld.setLastUploaded(obNew.getLastUploaded());
+                    obOld.setComment(obNew.getComment());
+                    obOld.setKeywords(obNew.getKeywords());
+                    obOld.setRating(obNew.getRating());
+                    obOld.setKey(obNew.getKey());
+
+                    boolean wasOk = updateFrostFileListFileObjectOwner(obOld, conn);
+                    if( wasOk == false ) {
+                        return false;
+                    }
+                }
+            }
+        }
         return true;
     }
 
@@ -169,7 +204,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
 
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
-        PreparedStatement ps = db.prepare(
+        PreparedStatement ps = db.prepareStatement(
             "SELECT primkey,size,fnkey,lastdownloaded,lastuploaded,firstreceived,lastreceived,"+
                    "requestlastreceived,requestsreceivedcount,requestlastsent,requestssentcount "+
             " FROM FILELIST WHERE sha=?");
@@ -221,7 +256,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
 
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
-        PreparedStatement ps = db.prepare(
+        PreparedStatement ps = db.prepareStatement(
             "SELECT sha,size,fnkey,lastdownloaded,lastuploaded,firstreceived,lastreceived,"+
                    "requestlastreceived,requestsreceivedcount,requestlastsent,requestssentcount "+
             " FROM FILELIST WHERE primkey=?");
@@ -269,8 +304,8 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
         return fo;
     }
 
-    private synchronized Long insertFrostFileListFileObjectIntoFILELIST(FrostFileListFileObject sfo) throws SQLException {
-        AppLayerDatabase db = AppLayerDatabase.getInstance();
+    private synchronized boolean insertFrostFileListFileObjectIntoFILELIST(FrostFileListFileObject sfo, Connection conn) 
+    throws SQLException {
         
         Long identity = null;
         Statement stmt = AppLayerDatabase.getInstance().createStatement();
@@ -283,13 +318,15 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
         rs.close();
         stmt.close();
         
-        PreparedStatement ps = db.prepare(
+        sfo.setPrimkey(identity);
+        
+        PreparedStatement ps = conn.prepareStatement(
             "INSERT INTO FILELIST (primkey,sha,size,fnkey,lastdownloaded,lastuploaded,firstreceived,lastreceived,"+
             "requestlastreceived,requestsreceivedcount,requestlastsent,requestssentcount) "+
             "VALUES (?,?,?,?,?,?,?,?,?,?,?,?)");
 
         int ix = 1;
-        ps.setLong(ix++, identity.longValue());
+        ps.setLong(ix++, sfo.getPrimkey().longValue());
         ps.setString(ix++, sfo.getSha());
         ps.setLong(ix++, sfo.getSize());
         ps.setString(ix++, (sfo.getKey()==null?"":sfo.getKey()));
@@ -312,21 +349,21 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
         
         if( !wasOk ) {
             logger.log(Level.SEVERE,"Error inserting new item into filelist");
-            return null;
+            return false;
         }
 
         rs.close();
 
-        return identity;
+        return true;
     }
 
     /**
      * Update item with SHA, set key,lastreceived,lastdownloaded and all request infos
      */
-    private boolean updateFrostFileListFileObjectInFILELIST(FrostFileListFileObject sfo) throws SQLException {
-        AppLayerDatabase db = AppLayerDatabase.getInstance();
+    private boolean updateFrostFileListFileObjectInFILELIST(FrostFileListFileObject sfo, Connection conn) 
+    throws SQLException {
         
-        PreparedStatement ps = db.prepare(
+        PreparedStatement ps = conn.prepareStatement(
             "UPDATE FILELIST SET fnkey=?,lastdownloaded=?,lastuploaded=?,lastreceived=?,"+
             "requestlastreceived=?,requestsreceivedcount=?,requestlastsent=?,requestssentcount=? "+
             "WHERE sha=?");
@@ -369,7 +406,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
             return false;
         }
         
-        PreparedStatement ps = db.prepare("UPDATE FILELIST SET requestlastsent=?,requestssentcount=? WHERE sha=?");
+        PreparedStatement ps = db.prepareStatement("UPDATE FILELIST SET requestlastsent=?,requestssentcount=? WHERE sha=?");
 
         int ix = 1;
         ps.setLong(ix++, requestLastSent);
@@ -402,7 +439,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
             requestLastReceived = oldSfo.getRequestLastReceived();
         }
         
-        PreparedStatement ps = db.prepare("UPDATE FILELIST SET requestlastreceived=?,requestsreceivedcount=? WHERE sha=?");
+        PreparedStatement ps = db.prepareStatement("UPDATE FILELIST SET requestlastreceived=?,requestsreceivedcount=? WHERE sha=?");
 
         int ix = 1;
         ps.setLong(ix++, requestLastReceived);
@@ -431,7 +468,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
         
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
-        PreparedStatement ps = db.prepare("UPDATE FILELIST SET lastdownloaded=? WHERE sha=?");
+        PreparedStatement ps = db.prepareStatement("UPDATE FILELIST SET lastdownloaded=? WHERE sha=?");
 
         int ix = 1;
         ps.setLong(ix++, lastDownloaded);
@@ -448,45 +485,13 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
         return true;
     }
 
-    /**
-     * Updates or inserts fields in db. 
-     * If refkey,boardname,owner is already in db, name,lastreceived and lastupdated will be updated.
-     * Oterwise the fields will be inserted
-     */
-    private boolean updateOrInsertFrostFileListFileObjectOwner(FrostFileListFileObjectOwner obNew) throws SQLException {
-        
-        FrostFileListFileObjectOwner obOld = getFrostFileListFileObjectOwner(
-                obNew.getRefkey(),
-                obNew.getOwner());
-        
-        if( obOld == null ) {
-            // insert new
-            return insertFrostFileListFileObjectOwner(obNew);
-        } else {
-            // update existing
-            if( obOld.getLastReceived() < obNew.getLastReceived() ) {
-
-                obOld.setLastReceived(obNew.getLastReceived());
-                obOld.setName(obNew.getName());
-                obOld.setLastUploaded(obNew.getLastUploaded());
-                obOld.setComment(obNew.getComment());
-                obOld.setKeywords(obNew.getKeywords());
-                obOld.setRating(obNew.getRating());
-                obOld.setKey(obNew.getKey());
-
-                return updateFrostFileListFileObjectOwner(obOld);
-            }
-            return true; // no need to update, lastReceived of new was earlier
-        }
-    }
-
     /** 
      * update name,lastreceived,lastuploaded,comment,rating,keywords,fnkey
      */
-    private boolean updateFrostFileListFileObjectOwner(FrostFileListFileObjectOwner ob) throws SQLException {
-        AppLayerDatabase db = AppLayerDatabase.getInstance();
+    private boolean updateFrostFileListFileObjectOwner(FrostFileListFileObjectOwner ob, Connection conn) 
+    throws SQLException {
 
-        PreparedStatement ps = db.prepare(
+        PreparedStatement ps = conn.prepareStatement(
             "UPDATE FILEOWNERLIST SET name=?,comment=?,rating=?,keywords=?,lastreceived=?,lastuploaded=?,fnkey=? "+
             "WHERE refkey=? AND owner=?");
 
@@ -515,10 +520,10 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
         return result;
     }
 
-    private boolean insertFrostFileListFileObjectOwner(FrostFileListFileObjectOwner ob) throws SQLException {
-        AppLayerDatabase db = AppLayerDatabase.getInstance();
+    private boolean insertFrostFileListFileObjectOwner(FrostFileListFileObjectOwner ob, Connection conn) 
+    throws SQLException {
 
-        PreparedStatement ps = db.prepare(
+        PreparedStatement ps = conn.prepareStatement(
             "INSERT INTO FILEOWNERLIST (refkey,name,owner,comment,rating,keywords,lastreceived,lastuploaded,fnkey) " +
             "VALUES (?,?,?,?,?,?,?,?,?)");
 
@@ -551,7 +556,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
 
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
-        PreparedStatement ps = db.prepare(
+        PreparedStatement ps = db.prepareStatement(
                 "SELECT name,comment,rating,keywords,lastreceived,lastuploaded,fnkey FROM FILEOWNERLIST " +
                 "WHERE refkey=? AND owner=?");
         
@@ -578,16 +583,16 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
         return ob;
     }
 
-    private List getFrostFileListFileObjectOwnerList(long refkey) throws SQLException {
+    private List<FrostFileListFileObjectOwner> getFrostFileListFileObjectOwnerList(long refkey) throws SQLException {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
-        PreparedStatement ps = db.prepare(
+        PreparedStatement ps = db.prepareStatement(
                 "SELECT owner,name,comment,rating,keywords,lastreceived,lastuploaded,fnkey FROM FILEOWNERLIST " +
                 "WHERE refkey=?");
         
         ps.setLong(1, refkey);
 
-        LinkedList frostSharedFileObjectOwnerBoardList = new LinkedList(); 
+        LinkedList<FrostFileListFileObjectOwner> frostSharedFileObjectOwnerBoardList = new LinkedList<FrostFileListFileObjectOwner>(); 
         ResultSet rs = ps.executeQuery();
         while( rs.next() ) {
             int ix = 1;
@@ -616,7 +621,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
     public int getFileCount() throws SQLException {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
-        PreparedStatement ps = db.prepare("SELECT COUNT(primkey) FROM FILELIST");
+        PreparedStatement ps = db.prepareStatement("SELECT COUNT(primkey) FROM FILELIST");
         int count = 0;
         ResultSet rs = ps.executeQuery();
         if( rs.next() ) {
@@ -634,7 +639,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
     public int getSharerCount() throws SQLException {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
-        PreparedStatement ps = db.prepare("SELECT COUNT(DISTINCT(owner)) FROM FILEOWNERLIST");
+        PreparedStatement ps = db.prepareStatement("SELECT COUNT(DISTINCT(owner)) FROM FILEOWNERLIST");
         int count = 0;
         ResultSet rs = ps.executeQuery();
         if( rs.next() ) {
@@ -652,7 +657,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
     public long getFileSizes() throws SQLException {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
-        PreparedStatement ps = db.prepare("SELECT SUM(size) FROM FILELIST");
+        PreparedStatement ps = db.prepareStatement("SELECT SUM(size) FROM FILELIST");
         long count = 0;
         ResultSet rs = ps.executeQuery();
         if( rs.next() ) {
@@ -671,7 +676,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
         // count of all all SHA that have at least one reference to a OwnerBoard with the given identity
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
-        PreparedStatement ps = db.prepare(
+        PreparedStatement ps = db.prepareStatement(
             "SELECT COUNT(primkey) FROM FILELIST WHERE primkey in (SELECT refkey FROM FILEOWNERLIST WHERE owner=? GROUP BY refkey)");
         ps.setString(1, identity.getUniqueName());
         int count = 0;
@@ -693,14 +698,14 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
         // select only files that have an owner
         String sql = "SELECT DISTINCT refkey FROM FILEOWNERLIST";
         
-        PreparedStatement ps = db.prepare(sql);
+        PreparedStatement ps = db.prepareStatement(sql);
         
         ResultSet rs = ps.executeQuery();
         while( rs.next() ) {
             long refkey = rs.getLong(1);
             
             FrostFileListFileObject fo = getFrostFileListFileObject(refkey);
-            List obs = getFrostFileListFileObjectOwnerList(refkey);
+            List<FrostFileListFileObjectOwner> obs = getFrostFileListFileObjectOwnerList(refkey);
             fo.getFrostFileListFileObjectOwnerList().addAll(obs);
             
             boolean shouldStop = callback.fileRetrieved(fo); // pass to callback
@@ -720,7 +725,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
         
         String sql = "SELECT primkey FROM FILELIST WHERE sha=?";
         
-        PreparedStatement ps = db.prepare(sql);
+        PreparedStatement ps = db.prepareStatement(sql);
         ps.setString(1, sha);
         
         FrostFileListFileObject fo = null;
@@ -730,7 +735,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
             long primkey = rs.getLong(1);
             
             fo = getFrostFileListFileObject(primkey);
-            List obs = getFrostFileListFileObjectOwnerList(primkey);
+            List<FrostFileListFileObjectOwner> obs = getFrostFileListFileObjectOwnerList(primkey);
             fo.getFrostFileListFileObjectOwnerList().addAll(obs);
         }
         rs.close();
@@ -745,7 +750,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
     public int cleanupFileListFiles() throws SQLException {
         AppLayerDatabase localDB = AppLayerDatabase.getInstance();
 
-        PreparedStatement ps = localDB.prepare(
+        PreparedStatement ps = localDB.prepareStatement(
                 "DELETE FROM FILELIST WHERE fnkey='' AND " +
                 "primkey NOT IN (SELECT refkey FROM FILEOWNERLIST)");
         
@@ -764,7 +769,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
 
         long minVal = System.currentTimeMillis() - ((long)maxDaysOld * 24L * 60L * 60L * 1000L);
 
-        PreparedStatement ps = localDB.prepare("DELETE FROM FILEOWNERLIST WHERE lastreceived<? AND fnkey IS NULL");
+        PreparedStatement ps = localDB.prepareStatement("DELETE FROM FILEOWNERLIST WHERE lastreceived<? AND fnkey IS NULL");
         ps.setLong(1, minVal);
         
         int deletedCount = ps.executeUpdate();
@@ -780,7 +785,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
     public void resetLastDownloaded() throws SQLException {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
-        PreparedStatement ps = db.prepare("UPDATE FILELIST SET lastdownloaded=0");
+        PreparedStatement ps = db.prepareStatement("UPDATE FILELIST SET lastdownloaded=0");
         ps.executeUpdate();
         ps.close();
     }

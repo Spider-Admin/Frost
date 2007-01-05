@@ -49,6 +49,8 @@ public class StorageManager extends Timer {
 						listener.dispatchEvent(errorEvent);
 					}
 				}
+                // autosave consumes some memory, clean up now
+                System.gc();
 			}
 		}
 	}
@@ -89,8 +91,8 @@ public class StorageManager extends Timer {
 	private ShutdownThread shutdownThread = new ShutdownThread();
 	private AutoTask autoTask = new AutoTask();
 	
-	private Vector autoSavables;
-	private Vector exitSavables;
+	private Vector<Savable> autoSavables;
+	private Vector<Savable> exitSavables;
     
 	/**
 	 * @param frostSettings
@@ -121,7 +123,7 @@ public class StorageManager extends Timer {
 			return;
 		}
 		if (autoSavables == null) {
-			autoSavables = new Vector();
+			autoSavables = new Vector<Savable>();
 		}
 		autoSavables.addElement(autoSavable);
 	}
@@ -140,7 +142,7 @@ public class StorageManager extends Timer {
 			return;
 		}
 		if (exitSavables == null) {
-			exitSavables = new Vector();
+			exitSavables = new Vector<Savable>();
 		}
 		exitSavables.addElement(exitSavable);
 	}

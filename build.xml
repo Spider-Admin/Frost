@@ -27,8 +27,8 @@
   <property name="deprecation" value="true" />
   <property name="verbose" value="false" />
   <property name="optimize" value="true" />
-  <property name="source" value="1.4" />         <!-- overwritten by atomative -->
-  <property name="target" value="1.4" />         <!-- overwritten by atomative -->
+  <property name="source" value="1.5" />         <!-- overwritten by atomative -->
+  <property name="target" value="1.5" />         <!-- overwritten by atomative -->
 
   <!-- moved to target main, the old one should keep alive. :)  -->
   <!-- property name="revision" value="${NOW.DATE}"/ --> <!-- overwritten by atomative -->
@@ -64,7 +64,7 @@
 
   <!--  Set up properties for the frost javadoc -->
   <property name="docs"    value="docs/api"/>
-  <property name="hyperochadocs"    value="docs/hyperocha"/>	
+  <property name="hyperochadocs"    value="docs/hyperocha"/>
 
   <!--  The CLASSPATH to use for compilation. -->
   <path id="classpath">
@@ -396,7 +396,7 @@ Build log  : ${logfilename}</echo>
              destdir="${docs}"
              windowtitle="Frost Documentation"/>
   </target>
-	
+
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- Building the hyperocha documentation -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -411,7 +411,7 @@ Build log  : ${logfilename}</echo>
 	             destdir="${hyperochadocs}"
 	             windowtitle="Hyperocha Documentation"/>
 	  </target>
-	
+
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- Main target - runs dist by default -->

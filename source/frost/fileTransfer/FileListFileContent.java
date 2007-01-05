@@ -27,21 +27,21 @@ public class FileListFileContent {
     long timestamp;
     Identity receivedOwner = null;
     LocalIdentity sendOwner = null;
-    LinkedList fileList;
+    LinkedList<SharedFileXmlFile> fileList;
     
-    public FileListFileContent(long timestamp, Identity owner, LinkedList fileList) {
+    public FileListFileContent(long timestamp, Identity owner, LinkedList<SharedFileXmlFile> fileList) {
         this.timestamp = timestamp;
         this.receivedOwner = owner;
         this.fileList = fileList;
     }
     
-    public FileListFileContent(long timestamp, LocalIdentity owner, LinkedList fileList) {
+    public FileListFileContent(long timestamp, LocalIdentity owner, LinkedList<SharedFileXmlFile> fileList) {
         this.timestamp = timestamp;
         this.sendOwner = owner;
         this.fileList = fileList;
     }
 
-    public LinkedList getFileList() {
+    public LinkedList<SharedFileXmlFile> getFileList() {
         return fileList;
     }
 

@@ -347,7 +347,7 @@ public class TOF {
             return;
         }
 
-        LinkedList msgParents = new LinkedList(newMessage.getInReplyToList());
+        LinkedList<String> msgParents = new LinkedList<String>(newMessage.getInReplyToList());
         
         // find direct parent
         while( msgParents.size() > 0 ) {
@@ -452,8 +452,10 @@ public class TOF {
          * Adds new messages threaded to the rootnode, blocked msgs are removed if not needed for thread.
          */
         private class ThreadedMessageRetrieval implements MessageDatabaseTableCallback {
+            
             FrostMessageObject rootNode;
-            LinkedList messageList = new LinkedList();
+            LinkedList<FrostMessageObject> messageList = new LinkedList<FrostMessageObject>();
+            
             public ThreadedMessageRetrieval(FrostMessageObject root) {
                 rootNode = root;
             }
@@ -465,7 +467,7 @@ public class TOF {
                 // messageList was filled by callback
                 
                 // HashSet contains a msgid if the msg was loaded OR was not existing
-                HashSet messageIds = new HashSet();
+                HashSet<String> messageIds = new HashSet<String>();
 
                 for(Iterator i=messageList.iterator(); i.hasNext(); ) {
                     FrostMessageObject mo = (FrostMessageObject)i.next();
@@ -483,10 +485,10 @@ public class TOF {
                 
                 // for threads, check msgrefs and load all existing msgs pointed to by refs
                 boolean showDeletedMessages = Core.frostSettings.getBoolValue("showDeletedMessages");
-                LinkedList newLoadedMsgs = new LinkedList();
+                LinkedList<FrostMessageObject> newLoadedMsgs = new LinkedList<FrostMessageObject>();
                 for(Iterator i=messageList.iterator(); i.hasNext(); ) {
                     FrostMessageObject mo = (FrostMessageObject)i.next();
-                    List l = mo.getInReplyToList();
+                    List<String> l = mo.getInReplyToList();
                     if( l.size() == 0 ) {
                         continue; // no msg refs
                     }
@@ -510,7 +512,7 @@ public class TOF {
                         if( fmo == null ) {
                             // for each missing msg create a dummy FrostMessageObject and add it to tree.
                             // if the missing msg arrives later, replace dummy with true msg in tree
-                            LinkedList ll = new LinkedList();
+                            LinkedList<String> ll = new LinkedList<String>();
                             if( x > 0 ) {
                                 for(int y=0; y < x; y++) {
                                     ll.add(l.get(y));
@@ -525,7 +527,10 @@ public class TOF {
 
                 messageList.addAll(newLoadedMsgs);
                 
+                // help the garbage collector
+                newLoadedMsgs.clear();
                 newLoadedMsgs = null;
+                messageIds.clear();
                 messageIds = null;
                 
                 // all msgs are loaded and dummies for missing msgs were created, now build the threads
@@ -534,21 +539,25 @@ public class TOF {
                 // - add msgs with msgid and ref to its direct parent (last refid in list)
                 
                 // first collect msgs with id into a hashtable for lookups
-                Hashtable messagesTableById = new Hashtable();
+                Hashtable<String,FrostMessageObject> messagesTableById = new Hashtable<String,FrostMessageObject>();
                 for(Iterator i=messageList.iterator(); i.hasNext(); ) {
                     FrostMessageObject mo = (FrostMessageObject)i.next();
                     messagesTableById.put(mo.getMessageId(), mo);
                 }
-                
+
+                // help the garbage collector
+                messageList.clear();
                 messageList = null;
 
                 // build the threads
                 for(Iterator i=messagesTableById.values().iterator(); i.hasNext(); ) {
                     FrostMessageObject mo = (FrostMessageObject)i.next();
-                    LinkedList l = mo.getInReplyToList();
+                    LinkedList<String> l = mo.getInReplyToList();
                     if( l.size() == 0 ) {
+                        // a root message, no replyTo
                         rootNode.add(mo);
                     } else {
+                        // add to direct parent
                         String directParentId = (String)l.getLast();
                         FrostMessageObject parentMo = (FrostMessageObject)messagesTableById.get(directParentId);
                         parentMo.add(mo);
@@ -556,7 +565,7 @@ public class TOF {
                 }
                 
                 // remove blocked msgs from the leafs
-                LinkedList itemsToRemove = new LinkedList(); 
+                LinkedList<FrostMessageObject> itemsToRemove = new LinkedList<FrostMessageObject>(); 
                 while(true) {
                     for(Enumeration e=rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
                         FrostMessageObject mo = (FrostMessageObject)e.nextElement();
@@ -567,8 +576,8 @@ public class TOF {
                         }
                     }
                     if( itemsToRemove.size() > 0 ) {
-                        for( Iterator iter = itemsToRemove.iterator(); iter.hasNext(); ) {
-                            FrostMessageObject removeMo = (FrostMessageObject) iter.next();
+                        for( Iterator<FrostMessageObject> iter = itemsToRemove.iterator(); iter.hasNext(); ) {
+                            FrostMessageObject removeMo = iter.next();
                             removeMo.removeFromParent();
                         }
                         itemsToRemove.clear(); // clear for next run
@@ -811,7 +820,7 @@ public class TOF {
             logger.info("Boards from TAMPERED message blocked");
         } else {
             // either GOOD user or not blocked by user
-            LinkedList addBoards = new LinkedList();
+            LinkedList<Board> addBoards = new LinkedList<Board>();
             for(Iterator i=currentMsg.getAttachmentsOfType(Attachment.BOARD).iterator(); i.hasNext(); ) {
                 BoardAttachment ba = (BoardAttachment) i.next();
                 addBoards.add(ba.getBoardObj());

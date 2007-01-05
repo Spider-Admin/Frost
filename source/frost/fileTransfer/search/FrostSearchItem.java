@@ -50,8 +50,8 @@ public class FrostSearchItem extends ModelItem {
 
         // Already downloaded files get a nice color outfit (see renderer in SearchTable)
 
-        DownloadModel downloadModel = FileTransferManager.getInstance().getDownloadManager().getModel();
-        SharedFilesModel sharedFilesModel = FileTransferManager.getInstance().getSharedFilesManager().getModel();
+        DownloadModel downloadModel = FileTransferManager.inst().getDownloadManager().getModel();
+        SharedFilesModel sharedFilesModel = FileTransferManager.inst().getSharedFilesManager().getModel();
 
         int searchItemState = FrostSearchItem.STATE_NONE;
 

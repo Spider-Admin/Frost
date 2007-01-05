@@ -50,6 +50,7 @@ public class FcpInsert {
             int type,
             String uri,
             File file,
+            boolean doMime,
             FrostUploadItem ulItem)
     {
         if (file.length() == 0) {
@@ -72,7 +73,7 @@ public class FcpInsert {
                 return FcpResultPut.ERROR_RESULT;
             }
 
-            FcpResultPut result = connection.putKeyFromFile(type, uri, file, false, ulItem);
+            FcpResultPut result = connection.putKeyFromFile(type, uri, file, false, doMime, ulItem);
             return result;
 
         } catch( UnknownHostException e ) {

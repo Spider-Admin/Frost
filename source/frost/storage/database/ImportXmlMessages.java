@@ -36,7 +36,7 @@ public class ImportXmlMessages {
 
     private static Logger logger = Logger.getLogger(ImportXmlMessages.class.getName());
     
-    private Hashtable boardDirNames;
+    private Hashtable<String,Board> boardDirNames;
     private long uncommittedBytes = 0;
     
     private Splashscreen splashScreen;
@@ -91,7 +91,7 @@ public class ImportXmlMessages {
             messagesMaxDaysOldDefault = Core.frostSettings.getIntValue(SettingsClass.MAX_MESSAGE_DOWNLOAD) + 1;
         }
 
-        boardDirNames = new Hashtable();
+        boardDirNames = new Hashtable<String,Board>();
         for( Iterator iter = boards.iterator(); iter.hasNext(); ) {
             Board board = (Board) iter.next();
             boardDirNames.put( board.getBoardFilename(), board );

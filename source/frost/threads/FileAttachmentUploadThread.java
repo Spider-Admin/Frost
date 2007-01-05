@@ -115,6 +115,7 @@ System.out.println("FileAttachmentUploadManager: starting upload of file: "+fa.g
                             null,
                             true, // doRedirect
                             true, // removeLocalKey, insert with full HTL even if existing in local store
+                            true, // doMime
                             new FrostUploadItem());
 
                     if (result.isSuccess() || result.isKeyCollision()) {
@@ -174,7 +175,7 @@ System.out.println("FileAttachmentUploadManager: upload finished, key: "+chkKey)
     
     private class MessageQueue {
         
-        private LinkedList queue = new LinkedList();
+        private LinkedList<MessageFileAttachment> queue = new LinkedList<MessageFileAttachment>();
         
         public synchronized MessageFileAttachment getMessageFromQueue() {
             try {
@@ -187,7 +188,7 @@ System.out.println("FileAttachmentUploadManager: upload finished, key: "+chkKey)
             }
             
             if( queue.isEmpty() == false ) {
-                MessageFileAttachment msg = (MessageFileAttachment) queue.removeFirst();
+                MessageFileAttachment msg = queue.removeFirst();
                 return msg;
             }
             return null;
@@ -201,8 +202,8 @@ System.out.println("FileAttachmentUploadManager: upload finished, key: "+chkKey)
          * Delete all items that reference message mo.
          */
         public synchronized void deleteAllItemsOfMessage(String messageId) {
-            for( Iterator i=queue.iterator(); i.hasNext(); ) {
-                MessageFileAttachment mfa = (MessageFileAttachment) i.next();
+            for( Iterator<MessageFileAttachment> i=queue.iterator(); i.hasNext(); ) {
+                MessageFileAttachment mfa = i.next();
                 if( mfa.getMessageObject().getMessageId().equals(messageId) ) {
                     mfa.setDeleted(true);
                     i.remove();

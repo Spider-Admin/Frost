@@ -33,6 +33,14 @@ public class GlobalFileDownloader {
      * Returns a GlobalFileDownloaderResult if File was downloaded, or if key was invalid. 
      */
     public static GlobalFileDownloaderResult downloadFile(String downKey) {
+        return downloadFile(downKey, -1);
+    }
+
+    /**
+     * Returns null if file not found.
+     * Returns a GlobalFileDownloaderResult if File was downloaded, or if key was invalid. 
+     */
+    public static GlobalFileDownloaderResult downloadFile(String downKey, int maxSize) {
         
         try {
             File tmpFile = FileAccess.createTempFile("frost_",".tmp");
@@ -43,7 +51,9 @@ public class GlobalFileDownloader {
                     downKey,
                     null,
                     tmpFile,
-                    false); // doRedirect, like in uploadIndexFile()
+                    false,    // doRedirect, like in uploadIndexFile()
+                    false,    // fastDownload (0.5)
+                    maxSize); 
     
             if( fcpresults == null || !fcpresults.isSuccess() ) {
                 // download failed
@@ -52,7 +62,12 @@ public class GlobalFileDownloader {
                         && fcpresults.getReturnCode() == 28 
                         && downKey.startsWith("KSK@") ) 
                 {
-                    return new GlobalFileDownloaderResult(true); // invalid KSK key
+                    return new GlobalFileDownloaderResult(GlobalFileDownloaderResult.ERROR_EMPTY_REDIRECT); // invalid KSK key
+                }
+                else if( fcpresults != null 
+                        && fcpresults.getReturnCode() == 21 ) 
+                {
+                    return new GlobalFileDownloaderResult(GlobalFileDownloaderResult.ERROR_FILE_TOO_BIG);
                 } else {
                     return null; // file not found
                 }

@@ -86,7 +86,7 @@ System.out.println("FileListDownloadThread: starting download of key: "+chkKey);
 
                 GlobalFileDownloaderResult result = GlobalFileDownloader.downloadFile(chkKey);
 
-                if( result == null || result.isEmptyRedirect() ) {
+                if( result == null || result.getResultFile() == null ) {
                     // download failed
                     boolean retryDownload = SharedFilesCHKKeyManager.updateCHKKeyDownloadFailed(chkKey);
                     if( retryDownload ) {
@@ -135,7 +135,7 @@ System.out.println("FileListDownloadThread: processed results: "+isValid);
     
     private class CHKKeyQueue {
         
-        private LinkedList queue = new LinkedList();
+        private LinkedList<String> queue = new LinkedList<String>();
         
         public synchronized String getKeyFromQueue() {
             try {
@@ -148,7 +148,7 @@ System.out.println("FileListDownloadThread: processed results: "+isValid);
             }
             
             if( queue.isEmpty() == false ) {
-                String key = (String) queue.removeFirst();
+                String key = queue.removeFirst();
                 return key;
             }
             return null;

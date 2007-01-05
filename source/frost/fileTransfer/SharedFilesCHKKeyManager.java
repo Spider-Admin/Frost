@@ -18,6 +18,7 @@
 */
 package frost.fileTransfer;
 
+import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
@@ -80,48 +81,73 @@ public class SharedFilesCHKKeyManager {
         if( content == null || content.getChkKeyStrings() == null || content.getChkKeyStrings().size() == 0 ) {
             return;
         }
-System.out.println("processReceivedCHKKeys: processing keys");
-        for( Iterator i = content.getChkKeyStrings().iterator(); i.hasNext(); ) {
-            String chkStr = (String) i.next();
+        
+        Connection conn = AppLayerDatabase.getInstance().getPooledConnection();
+        
+        try {
+            conn.setAutoCommit(false);
 
-            try {
-                SharedFilesCHKKey ck = AppLayerDatabase.getSharedFilesCHKKeysDatabaseTable().retrieveSharedFilesCHKKey(chkStr);
-                if( ck == null ) {
-                    // new key
-System.out.println("processReceivedCHKKeys: enqueueing new key");
-                    // add to database
-                    ck = new SharedFilesCHKKey(chkStr, content.getTimestamp());
-                    AppLayerDatabase.getSharedFilesCHKKeysDatabaseTable().insertSharedFilesCHKKey(ck);
-                    
-                    // new key, directly enqueue for download
-                    FileListDownloadThread.getInstance().enqueueNewKey(chkStr);
-
-                } else {
-                    
-                    boolean isOurOwnKey = (ck.getSeenCount() == 0); // its in database, but we never saw it, its ours
-                    
-                    ck.incrementSeenCount();
-                    
-                    if( ck.getLastSeen() < content.getTimestamp() ) {
-                        ck.setLastSeen(content.getTimestamp());
-                    }
-                    if( ck.getFirstSeen() > content.getTimestamp() ) {
-                        ck.setFirstSeen(content.getTimestamp());
-                    }
-                    AppLayerDatabase.getSharedFilesCHKKeysDatabaseTable().updateSharedFilesCHKKeyAfterReceive(ck);
-
-                    // enqueue key immediately if it is one of our keys and was never received
-                    if( isOurOwnKey && !ck.isDownloaded() ) {
-                        // enqueue for download
+System.out.println("processReceivedCHKKeys: processing "+content.getChkKeyStrings().size()+" keys");
+            int newKeys = 0;
+            int seenKeys = 0;
+            int newOwnKeys = 0;
+            
+            for( Iterator<String> i = content.getChkKeyStrings().iterator(); i.hasNext(); ) {
+                String chkStr = i.next();
+                try {
+                    SharedFilesCHKKey ck = AppLayerDatabase.getSharedFilesCHKKeysDatabaseTable().retrieveSharedFilesCHKKey(chkStr);
+                    if( ck == null ) {
+                        // new key
+//                        System.out.println("processReceivedCHKKeys: enqueueing new key");
+                        newKeys++;
+                        // add to database
+                        ck = new SharedFilesCHKKey(chkStr, content.getTimestamp());
+                        AppLayerDatabase.getSharedFilesCHKKeysDatabaseTable().insertSharedFilesCHKKey(ck, conn);
+                        
+                        // new key, directly enqueue for download
                         FileListDownloadThread.getInstance().enqueueNewKey(chkStr);
-System.out.println("processReceivedCHKKeys: new own key enqueued");
+
+                    } else {
+                        
+                        boolean isOurOwnKey = (ck.getSeenCount() == 0); // its in database, but we never saw it, its ours
+                        
+                        ck.incrementSeenCount();
+                        
+                        if( ck.getLastSeen() < content.getTimestamp() ) {
+                            ck.setLastSeen(content.getTimestamp());
+                        }
+                        if( ck.getFirstSeen() > content.getTimestamp() ) {
+                            ck.setFirstSeen(content.getTimestamp());
+                        }
+                        AppLayerDatabase.getSharedFilesCHKKeysDatabaseTable().updateSharedFilesCHKKeyAfterReceive(ck, conn);
+
+                        // enqueue key immediately if it is one of our keys and was never received
+                        if( isOurOwnKey && !ck.isDownloaded() ) {
+                            // enqueue for download
+                            FileListDownloadThread.getInstance().enqueueNewKey(chkStr);
+//                            System.out.println("processReceivedCHKKeys: new own key enqueued");
+                            newOwnKeys++;
+                        } else {
+//                            System.out.println("processReceivedCHKKeys: key seen again");
+                            seenKeys++;
+                        }
                     }
-                    
-System.out.println("processReceivedCHKKeys: key seen again");
+                } catch(Throwable t) {
+                    logger.log(Level.SEVERE, "Exception in processReceivedCHKKeys", t);
                 }
-            } catch(Throwable t) {
-                logger.log(Level.SEVERE, "Exception in processReceivedCHKKeys", t);
             }
+
+System.out.println("processReceivedCHKKeys: finished processing keys, new="+newKeys+", seen="+seenKeys+", newOwn="+newOwnKeys);
+
+            conn.commit();
+            conn.setAutoCommit(true);
+        } catch(Throwable t) {
+            logger.log(Level.SEVERE, "Exception during chk key processing", t);
+            // we commit all done changes
+            try { conn.commit(); } catch(Throwable t1) { logger.log(Level.SEVERE, "Exception during rollback", t1); }
+            try { conn.setAutoCommit(true); } catch(Throwable t1) { }
+        } finally {
+            AppLayerDatabase.getInstance().givePooledConnection(conn);
         }
     }
 
@@ -130,7 +156,7 @@ System.out.println("processReceivedCHKKeys: key seen again");
         try {
             // rules what chks are choosed are in the following method
             List chkKeys = AppLayerDatabase.getSharedFilesCHKKeysDatabaseTable().retrieveSharedFilesCHKKeysToDownload(7);
-System.out.println("getCHKKeyStringsToDownload: returing keys: "+(chkKeys==null?"null":""+chkKeys.size()));            
+System.out.println("getCHKKeyStringsToDownload: returning keys: "+(chkKeys==null?"(none)":""+chkKeys.size()));            
             return chkKeys;
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Exception in retrieveSharedFilesCHKKeysToDownload", t);
@@ -144,7 +170,7 @@ System.out.println("getCHKKeyStringsToDownload: returing keys: "+(chkKeys==null?
     public static boolean updateCHKKeyDownloadSuccessful(String chkKey, boolean isValid) {
         // this chk was successfully downloaded, update database
         try {
-System.out.println("updateCHKKeyDownloadSuccessful: "+chkKey+","+isValid);
+System.out.println("updateCHKKeyDownloadSuccessful: key="+chkKey+", isValid="+isValid);
             return AppLayerDatabase.getSharedFilesCHKKeysDatabaseTable().updateSharedFilesCHKKeyAfterDownloadSuccessful(chkKey, isValid);
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Exception in updateSharedFilesCHKKeyAfterDownloadSuccessful", t);

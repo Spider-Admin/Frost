@@ -254,7 +254,7 @@ public class FrostSharedFileItem extends ModelItem {
     }
     
     public boolean isCurrentlyUploading() {
-        List uploadItems = FileTransferManager.getInstance().getUploadManager().getModel().getItems();
+        List uploadItems = FileTransferManager.inst().getUploadManager().getModel().getItems();
         for(Iterator k = uploadItems.iterator(); k.hasNext(); ) {
             FrostUploadItem ulItem = (FrostUploadItem) k.next();
             FrostSharedFileItem sfi = ulItem.getSharedFileItem();

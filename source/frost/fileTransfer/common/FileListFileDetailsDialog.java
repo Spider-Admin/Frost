@@ -274,7 +274,7 @@ public class FileListFileDetailsDialog extends JDialog {
                 
                 SearchParameters sp = new SearchParameters(false);
                 sp.setOwnerString(owner);
-                FileTransferManager.getInstance().getSearchManager().getPanel().startNewSearch(sp);
+                FileTransferManager.inst().getSearchManager().getPanel().startNewSearch(sp);
             }
         }
         

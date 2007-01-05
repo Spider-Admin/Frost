@@ -59,7 +59,7 @@ public class FcpRequest
         // true = deocde after download of ALL segments
         boolean optionDecodeAfterDownload = Core.frostSettings.getBoolValue(SettingsClass.DOWNLOAD_DECODE_AFTER_EACH_SEGMENT);
 
-        FecSplitfile splitfile =null;
+        FecSplitfile splitfile = null;
 
         // getFECSplitFile expects (e.g. for file 'download.zip')
         //  target like 'downloaddir/download.zip.data
@@ -111,7 +111,7 @@ public class FcpRequest
                 missingBlocks.addAll( getBlocksInSegmentWithState(splitfile.getCheckBlocks(),
                     segmentNo,
                     FecBlock.STATE_TRANSFER_WAITING) );
-                int missingOverallBlockCount = missingBlocks.size();
+//                int missingOverallBlockCount = missingBlocks.size();
                 ArrayList finishedBlocks = getBlocksInSegmentWithState(splitfile.getDataBlocks(),
                     segmentNo,
                     FecBlock.STATE_TRANSFER_FINISHED);
@@ -236,6 +236,7 @@ public class FcpRequest
                         if( segmentsFinishedBlocks >= neededBlockCount && gkt.isAborted() == false ) {
                             // we got all needed blocks, abort remaining running threads
                             gkt.abortTransfer();
+                            Mixed.wait(500);
                         }
                         
                         if( gkt.isAlive() == false ) {
@@ -403,6 +404,7 @@ public class FcpRequest
             if( success == true ) {
                 block.setCurrentState(FecBlock.STATE_TRANSFER_FINISHED);
                 splitfile.createRedirectFile(true);
+                block.close();
             } else {
                 block.setCurrentState(FecBlock.STATE_TRANSFER_WAITING);
                 // no need to update redirect file

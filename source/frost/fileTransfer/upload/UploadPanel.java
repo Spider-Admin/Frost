@@ -164,7 +164,7 @@ public class UploadPanel extends JPanel {
             return;
         }
         String parentDir = null;
-        List uploadFileItems = new LinkedList();
+        List<File> uploadFileItems = new LinkedList<File>();
         for (int i = 0; i < selectedFiles.length; i++) {
             // collect all choosed files + files in all choosed directories
             ArrayList allFiles = FileAccess.getAllEntries(selectedFiles[i], "");
@@ -182,8 +182,8 @@ public class UploadPanel extends JPanel {
             Core.frostSettings.setValue(SettingsClass.DIR_LAST_USED, parentDir);
         }
 
-        for(Iterator i=uploadFileItems.iterator(); i.hasNext(); ) {
-            File file = (File)i.next();
+        for(Iterator<File> i=uploadFileItems.iterator(); i.hasNext(); ) {
+            File file = i.next();
             FrostUploadItem ulItem = new FrostUploadItem(file);
             
             model.addNewUploadItem(ulItem);
@@ -212,8 +212,8 @@ public class UploadPanel extends JPanel {
             }
             // jump to associated shared file in shared files table
             FrostSharedFileItem sfi = ulItem.getSharedFileItem();
-            FileTransferManager.getInstance().getSharedFilesManager().selectTab();
-            FileTransferManager.getInstance().getSharedFilesManager().selectModelItem(sfi);
+            FileTransferManager.inst().getSharedFilesManager().selectTab();
+            FileTransferManager.inst().getSharedFilesManager().selectModelItem(sfi);
         }
     }
 

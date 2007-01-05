@@ -33,22 +33,18 @@ public class DownloadThread extends Thread {
 
     private static Logger logger = Logger.getLogger(DownloadThread.class.getName());
 
-    public static final String KEYCOLL_INDICATOR = "ERROR: key collision";
-
     private String filename;
     private Long size;
     private String key;
 
     private FrostDownloadItem downloadItem;
-//    private DownloadModel downloadModel;
     
-    public DownloadThread(DownloadTicker newTicker, FrostDownloadItem item, DownloadModel model) {
+    public DownloadThread(DownloadTicker newTicker, FrostDownloadItem item) {
         filename = item.getFilename();
         size = item.getFileSize();
         key = item.getKey();
         ticker = newTicker;
         downloadItem = item;
-//        downloadModel = model;
     }
 
     public void run() {
@@ -77,23 +73,14 @@ public class DownloadThread extends Thread {
                             key,
                             size,
                             newFile,
-                            true, // doRedirect
+                            true,  // doRedirect
                             false, // fastDownload
+                            -1,    // maxSize
                             false, // createTempFile
                             downloadItem);
             } catch (Throwable t) {
                 logger.log(Level.SEVERE, "Exception thrown in run()", t);
             }
-
-//            // file might be erased from table during download...
-//            boolean inTable = false;
-//            for (int x = 0; x < downloadModel.getItemCount(); x++) {
-//                FrostDownloadItem actItem = (FrostDownloadItem) downloadModel.getItemAt(x);
-//                if (actItem.getKey() != null && actItem.getKey().equals(downloadItem.getKey())) {
-//                    inTable = true;
-//                    break;
-//                }
-//            }
 
             if (result == null || result.isSuccess() == false) {
                 // download failed
@@ -158,7 +145,7 @@ public class DownloadThread extends Thread {
 
                 // maybe remove finished download immediately
                 if( Core.frostSettings.getBoolValue(SettingsClass.DOWNLOAD_REMOVE_FINISHED) ) {
-                    FileTransferManager.getInstance().getDownloadManager().getModel().removeFinishedDownloads();
+                    FileTransferManager.inst().getDownloadManager().getModel().removeFinishedDownloads();
                 }
             }
         } catch (Throwable t) {

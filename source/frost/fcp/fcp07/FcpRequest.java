@@ -53,6 +53,7 @@ public class FcpRequest {
             String key,
             Long size,
             File target,
+            int maxSize,
             boolean createTempFile,
             FrostDownloadItem dlItem)
     {
@@ -64,7 +65,7 @@ public class FcpRequest {
         }
 
         // First we just download the file, not knowing what lies ahead
-        FcpResultGet results = getKey(type, key, tempFile, dlItem);
+        FcpResultGet results = getKey(type, key, tempFile, maxSize, dlItem);
 
         if( results.isSuccess() ) {
 
@@ -89,7 +90,7 @@ public class FcpRequest {
     }
 
     // used by getFile
-    private static FcpResultGet getKey(int type, String key, File target, FrostDownloadItem dlItem) {
+    private static FcpResultGet getKey(int type, String key, File target, int maxSize, FrostDownloadItem dlItem) {
 
         if( key == null || key.length() == 0 || key.startsWith("null") ) {
             System.out.println("getKey: KEY IS NULL!");
@@ -109,7 +110,7 @@ public class FcpRequest {
             int maxtries = 3;
             while( tries < maxtries ) {
                 try {
-                    results = connection.getKeyToFile(type, key, target, dlItem);
+                    results = connection.getKeyToFile(type, key, target, maxSize, dlItem);
                     break;
                 }
                 catch( java.net.ConnectException e ) {

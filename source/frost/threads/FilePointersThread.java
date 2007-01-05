@@ -25,6 +25,7 @@ import java.util.logging.*;
 import org.joda.time.*;
 
 import frost.*;
+import frost.fcp.*;
 import frost.fileTransfer.*;
 import frost.storage.database.applayer.*;
 import frost.transferlayer.*;
@@ -77,7 +78,7 @@ public class FilePointersThread extends Thread {
         }
 
         // write a pointerfile to a tempfile
-        List tmpChkStringKeys = new ArrayList(sharedFileCHKkeys.size());
+        List<String> tmpChkStringKeys = new ArrayList<String>(sharedFileCHKkeys.size());
         for( Iterator i = sharedFileCHKkeys.iterator(); i.hasNext(); ) {
             SharedFilesCHKKey ck = (SharedFilesCHKKey) i.next();
             tmpChkStringKeys.add( ck.getChkKey() );
@@ -85,7 +86,7 @@ public class FilePointersThread extends Thread {
         
         FilePointerFileContent content = new FilePointerFileContent(System.currentTimeMillis(), tmpChkStringKeys);
 
-        File tmpPointerFile = FileAccess.createTempFile("kskptr_", "_xml");
+        File tmpPointerFile = FileAccess.createTempFile("kskptr_", ".xml");
         tmpPointerFile.deleteOnExit();
         if( !FilePointerFile.writePointerFile(content, tmpPointerFile) ) {
             logger.severe("FILEDN: Error writing the KSK pointer file.");
@@ -102,7 +103,7 @@ public class FilePointersThread extends Thread {
         
         String insertKey = keyPrefix + dateStr + "-";
 System.out.println("uploadIndexFile: Starting upload of pointer file containing "+sharedFileCHKkeys.size()+" CHK keys to "+insertKey);
-        boolean wasOk = GlobalFileUploader.uploadFile(indexSlots, sqlDate, tmpPointerFile, insertKey, ".xml");
+        boolean wasOk = GlobalFileUploader.uploadFile(indexSlots, sqlDate, tmpPointerFile, insertKey, ".xml", true);
 System.out.println("uploadIndexFile: upload finished, wasOk="+wasOk);
         tmpPointerFile.delete();
         if( wasOk ) {
@@ -134,7 +135,7 @@ System.out.println("uploadIndexFile: upload finished, wasOk="+wasOk);
             String downKey = requestKey + index + ".xml";
 System.out.println("FilePointersThread.downloadDate: requesting: "+downKey);       
 
-            GlobalFileDownloaderResult result = GlobalFileDownloader.downloadFile(downKey);
+            GlobalFileDownloaderResult result = GlobalFileDownloader.downloadFile(downKey, FcpHandler.MAX_KSK_SIZE_ON_07);
             
             if(  result == null ) {
 System.out.println("FilePointersThread.downloadDate: failure");
@@ -147,7 +148,7 @@ System.out.println("FilePointersThread.downloadDate: failure");
 
             failures = 0;
 
-            if( result.isEmptyRedirect() ) {
+            if( result.getErrorCode() == GlobalFileDownloaderResult.ERROR_EMPTY_REDIRECT ) {
                 System.out.println("FilePointersThread.downloadDate: Skipping index "+index+" for now, will try again later.");
                 // next loop we try next index
                 index = indexSlots.findNextDownloadSlot(index, date);
@@ -158,6 +159,11 @@ System.out.println("FilePointersThread.downloadDate: failure");
             indexSlots.setDownloadSlotUsed(index, date);
             // next loop we try next index
             index = indexSlots.findNextDownloadSlot(index, date);
+            
+            if( result.getErrorCode() == GlobalFileDownloaderResult.ERROR_FILE_TOO_BIG ) {
+                System.out.println("FilePointersThread.downloadDate: Dropping index "+index+", FILE_TOO_BIG.");
+                continue;
+            }
 
 System.out.println("FilePointersThread.downloadDate: success");
 

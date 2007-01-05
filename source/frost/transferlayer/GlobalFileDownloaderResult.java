@@ -22,20 +22,23 @@ import java.io.*;
 
 public class GlobalFileDownloaderResult {
 
-    File resultFile = null;
+    public static final int ERROR_EMPTY_REDIRECT = 1;
+    public static final int ERROR_FILE_TOO_BIG = 2;
     
-    boolean isEmptyRedirect = false;
+    private File resultFile = null;
+    
+    private int errorCode = 0;
     
     public GlobalFileDownloaderResult(File result) {
         resultFile = result;
     }
     
-    public GlobalFileDownloaderResult(boolean newIsEmptyRedirect) {
-        isEmptyRedirect = newIsEmptyRedirect;
+    public GlobalFileDownloaderResult(int error) {
+        errorCode = error;
     }
 
-    public boolean isEmptyRedirect() {
-        return isEmptyRedirect;
+    public int getErrorCode() {
+        return errorCode;
     }
 
     public File getResultFile() {

@@ -56,7 +56,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     private boolean hasFileAttachments = false;
     private boolean hasBoardAttachments = false;
     
-    private LinkedList inReplyToList = null;
+    private LinkedList<String> inReplyToList = null;
     
     protected String dateAndTimeString = null;
     
@@ -125,7 +125,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     }
     
     // create a dummy msg
-    public FrostMessageObject(String msgId, Board b, LinkedList ll) {
+    public FrostMessageObject(String msgId, Board b, LinkedList<String> ll) {
         setMessageId(msgId);
         setBoard(b);
         setDummyInReplyToList(ll);
@@ -441,13 +441,13 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         return isDummy;
     }
     
-    private void setDummyInReplyToList(LinkedList l) {
+    private void setDummyInReplyToList(LinkedList<String> l) {
         inReplyToList = l;
     }
     
-    public LinkedList getInReplyToList() {
+    public LinkedList<String> getInReplyToList() {
         if( inReplyToList == null ) {
-            inReplyToList = new LinkedList();
+            inReplyToList = new LinkedList<String>();
             String s = getInReplyTo(); 
             if( s != null && s.length() > 0 ) {
                 String[] sl = s.split(",");

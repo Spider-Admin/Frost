@@ -36,8 +36,8 @@ public class TofTreeModel extends DefaultTreeModel {
 
     private DefaultTreeSelectionModel selectionModel;
     
-    private Hashtable boardnameByPrimaryKey = new Hashtable(); // <Integer,String> 
-    private Hashtable primaryKeyByBoardname = new Hashtable(); // <String, Integer> 
+    private Hashtable<Integer,String> boardnameByPrimaryKey = new Hashtable<Integer,String>();  
+    private Hashtable<String,Integer> primaryKeyByBoardname = new Hashtable<String,Integer>();
 
     /**
      * This method creates a new TofTreeModel with the given TreeNode
@@ -50,7 +50,7 @@ public class TofTreeModel extends DefaultTreeModel {
         
         // load all board primary keys
         try {
-            Hashtable boardPrimaryKeysByName = AppLayerDatabase.getBoardDatabaseTable().loadBoards();
+            Hashtable<String,Integer> boardPrimaryKeysByName = AppLayerDatabase.getBoardDatabaseTable().loadBoards();
             primaryKeyByBoardname = boardPrimaryKeysByName;
             // for reverse lookup
             for( Iterator iter = primaryKeyByBoardname.keySet().iterator(); iter.hasNext(); ) {
@@ -121,7 +121,7 @@ public class TofTreeModel extends DefaultTreeModel {
         DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
         if (node != null && parent != null) {
             
-            final List boardsToDelete = new LinkedList();
+            final List<Board> boardsToDelete = new LinkedList<Board>();
             if( removeFromDatabase ) {
                 if( node.isFolder() ) {
                     for(Enumeration e = node.breadthFirstEnumeration(); e.hasMoreElements(); ) {
@@ -174,9 +174,9 @@ public class TofTreeModel extends DefaultTreeModel {
      * Returns Vector containing all Boards of the model.
      * @return Vector containing all the Boards of the model.
      */
-    public LinkedList getAllBoards() {
+    public LinkedList<Board> getAllBoards() {
         Board node = (Board) getRoot();
-        LinkedList boards = new LinkedList();
+        LinkedList<Board> boards = new LinkedList<Board>();
         Enumeration e = node.depthFirstEnumeration();
         while (e.hasMoreElements()) {
             Board child = (Board) e.nextElement();

@@ -92,9 +92,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 // download only current date
                 downloadDate(localDate);
                 // after update check if there are messages for upload and upload them
-                if( !Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_UPLOAD_DISABLED) ) {
-                    uploadMessages();
-                }
+                uploadMessages(); // does'nt get a message when message upload is disabled
             } else {
                 // download up to maxMessages days to the past
                 int daysBack = 0;

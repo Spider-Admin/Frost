@@ -37,10 +37,10 @@ public class KnownBoardsXmlDAO {
      * @param file
      * @return  List of Board
      */
-    public static List loadKnownBoards(File file) {
+    public static List<Board> loadKnownBoards(File file) {
 
         File boards = file;
-        ArrayList knownBoards = new ArrayList();
+        ArrayList<Board> knownBoards = new ArrayList<Board>();
         if( boards.exists() ) {
             Document doc = null;
             try {
@@ -68,7 +68,7 @@ public class KnownBoardsXmlDAO {
                 
                 Board b = ba.getBoardObj();
                 if( isBoardKeyValidForFreenetVersion(b) ) {
-                    knownBoards.add(ba.getBoardObj());
+                    knownBoards.add(b);
                 } else {
                     logger.warning("Known board keys are invalid for this freenet version, board ignored: "+b.getName());
                 }
@@ -104,7 +104,7 @@ public class KnownBoardsXmlDAO {
      * @param knownBoards  List of KnownBoard
      * @return
      */
-    public static boolean saveKnownBoards(File file, List knownBoards) {
+    public static boolean saveKnownBoards(File file, List<Board> knownBoards) {
         Document doc = XMLTools.createDomDocument();
         if (doc == null) {
             logger.severe("Error - saveBoardTree: factory couldn't create XML Document.");

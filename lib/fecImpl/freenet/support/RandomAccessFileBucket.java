@@ -195,8 +195,6 @@ public class RandomAccessFileBucket implements Bucket {
     ////////////////////////////////////////////////////////////
     // InputStream and OutputStream implementations
     //
-    private final static boolean vociferous = false;
-
     class RAInputStream extends InputStream  {
         public RAInputStream(RandomAccessFileBucket rafb, String prefix) throws IOException {
             this.rafb = rafb;
@@ -312,7 +310,6 @@ public class RandomAccessFileBucket implements Bucket {
         ////////////////////////////////////////////////////////////
         private RandomAccessFileBucket rafb = null;
         private RandomAccessFile raf = null;
-        private String prefix = "";
     }
 
     private class RAOutputStream extends OutputStream {
@@ -350,15 +347,15 @@ public class RandomAccessFileBucket implements Bucket {
             }
         }
 
-        public void write(byte[] buf, int off, int len) throws IOException {
+        public void write(byte[] buf, int off, int llen) throws IOException {
             synchronized (rafb) {
 //                println(".write(buf,off,len)");
                 checkValid();
                 int nAvailable = bytesLeft();
-                if (nAvailable < len) {
+                if (nAvailable < llen) {
                     throw new IOException("Attempt to write past end of Bucket.");
                 }
-                raf.write(buf, off, len);
+                raf.write(buf, off, llen);
             }
         }
 

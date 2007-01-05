@@ -35,7 +35,9 @@ public class LanguageGuiSupport {
     private static LanguageGuiSupport instance = null;
     
     private Language language = Language.getInstance();
-    
+
+    private static List buildInLocales = null;
+
     private List buildinLanguageMenuItemsList;
     private HashMap buildinLanguageMenuItemsMap;
     private JRadioButtonMenuItem languageDefaultMenuItem;
@@ -49,6 +51,7 @@ public class LanguageGuiSupport {
     private JRadioButtonMenuItem languageJapaneseMenuItem;
     private JRadioButtonMenuItem languageSpanishMenuItem;
     private JRadioButtonMenuItem languageRussianMenuItem;
+    private JRadioButtonMenuItem languagePolishMenuItem;
     
     private ButtonGroup languageMenuButtonGroup;
 
@@ -66,6 +69,7 @@ public class LanguageGuiSupport {
         languageJapaneseMenuItem = new JRadioButtonMenuItem();
         languageSpanishMenuItem = new JRadioButtonMenuItem();
         languageRussianMenuItem = new JRadioButtonMenuItem();
+        languagePolishMenuItem = new JRadioButtonMenuItem();
         
         languageMenuButtonGroup = new ButtonGroup();
         
@@ -80,6 +84,7 @@ public class LanguageGuiSupport {
         languageDanishMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_da.png", 16, 16));
         languageDutchMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_nl.png", 16, 16));
         languageRussianMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_ru.png", 16, 16));
+        languagePolishMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_pl.png", 16, 16));
         
         // default action listeners
         languageDefaultMenuItem.addActionListener(   new LanguageAction(null, false));
@@ -93,6 +98,7 @@ public class LanguageGuiSupport {
         languageItalianMenuItem.addActionListener(   new LanguageAction("it", false));
         languageSpanishMenuItem.addActionListener(   new LanguageAction("es", false));
         languageBulgarianMenuItem.addActionListener( new LanguageAction("bg", false));
+        languagePolishMenuItem.addActionListener(    new LanguageAction("pl", false));
 
         buildinLanguageMenuItemsList = new ArrayList();
         buildinLanguageMenuItemsList.add(languageDefaultMenuItem);
@@ -104,6 +110,7 @@ public class LanguageGuiSupport {
         buildinLanguageMenuItemsList.add(languageGermanMenuItem);
         buildinLanguageMenuItemsList.add(languageItalianMenuItem);
         buildinLanguageMenuItemsList.add(languageJapaneseMenuItem);
+        buildinLanguageMenuItemsList.add(languagePolishMenuItem);
         buildinLanguageMenuItemsList.add(languageRussianMenuItem);
         buildinLanguageMenuItemsList.add(languageSpanishMenuItem);
         
@@ -119,6 +126,7 @@ public class LanguageGuiSupport {
         buildinLanguageMenuItemsMap.put("es", languageSpanishMenuItem);
         buildinLanguageMenuItemsMap.put("bg", languageBulgarianMenuItem);
         buildinLanguageMenuItemsMap.put("ru", languageRussianMenuItem);
+        buildinLanguageMenuItemsMap.put("pl", languagePolishMenuItem);
     }
     
     public static LanguageGuiSupport getInstance() {
@@ -180,6 +188,7 @@ public class LanguageGuiSupport {
         languageMenu.add(languageGermanMenuItem);
         languageMenu.add(languageItalianMenuItem);
         languageMenu.add(languageJapaneseMenuItem);
+        languageMenu.add(languagePolishMenuItem);
         languageMenu.add(languageRussianMenuItem);
         languageMenu.add(languageSpanishMenuItem);
         
@@ -246,6 +255,26 @@ public class LanguageGuiSupport {
         languageSpanishMenuItem.setText(language.getString("MainFrame.menu.language.spanish"));
         languageBulgarianMenuItem.setText(language.getString("MainFrame.menu.language.bulgarian"));
         languageRussianMenuItem.setText(language.getString("MainFrame.menu.language.russian"));
+        languagePolishMenuItem.setText(language.getString("MainFrame.menu.language.polish"));
+    }
+    
+    public static List getBuildInLocales() {
+        if( buildInLocales == null ) {
+            ArrayList lst = new ArrayList();
+            lst.add(new Locale("bg"));
+            lst.add(new Locale("da"));
+            lst.add(new Locale("de"));
+            lst.add(new Locale("en"));
+            lst.add(new Locale("es"));
+            lst.add(new Locale("fr"));
+            lst.add(new Locale("it"));
+            lst.add(new Locale("ja"));
+            lst.add(new Locale("nl"));
+            lst.add(new Locale("ru"));
+            lst.add(new Locale("pl"));
+            buildInLocales = lst;
+        }
+        return buildInLocales;
     }
 
     class LanguageAction implements ActionListener {

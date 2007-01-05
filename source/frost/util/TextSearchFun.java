@@ -29,7 +29,7 @@ public class TextSearchFun {
 
     private static final String NOT_IDENT = ">?*NOT*?<";
     
-    private static List emptyList = new LinkedList();
+    private static List<String> emptyList = new LinkedList<String>();
 
     /**
      * Searches text for occurence of any of the provided strings.
@@ -69,18 +69,18 @@ public class TextSearchFun {
      * Splits an input search string into search words and NOT search words.
      * @return  List[2] where List[0] is a list of search string and List[1] is a List of NOT search strings
      */
-    public static List[] splitStrings(String input, boolean makeLowerCase) {
+    public static List<String>[] splitStrings(String input, boolean makeLowerCase) {
         
-        List strList;
+        List<String> strList;
 
         // we share one instance of the parser
         synchronized(searchStringParser) {
             strList = searchStringParser.parseSearchText(input);
         }
 
-        List[] retVal = new List[2];
-        List searchStrings = new ArrayList();
-        List notSearchStrings = new ArrayList();
+        List<String>[] retVal = new List[2];
+        List<String> searchStrings = new ArrayList<String>();
+        List<String> notSearchStrings = new ArrayList<String>();
         retVal[0] = searchStrings;
         retVal[1] = notSearchStrings;
         
@@ -118,7 +118,7 @@ public class TextSearchFun {
          * @return Set of Strings, one for each word in fSearchText; here "word" is defined as either a lone word
          *         surrounded by whitespace, or as a series of words surrounded by double quotes, "like this".
          */
-        public List parseSearchText(String aSearchText) {
+        public List<String> parseSearchText(String aSearchText) {
             
             if( aSearchText == null ) {
                 return emptyList;
@@ -126,7 +126,7 @@ public class TextSearchFun {
             fSearchText = aSearchText;
             notAdded = false;
 
-            List result = new LinkedList();
+            List<String> result = new LinkedList<String>();
 
             boolean returnTokens = true;
             String currentDelims = fWHITESPACE_AND_QUOTES;
@@ -160,7 +160,7 @@ public class TextSearchFun {
             return (aText != null) && (aText.trim().length() > 0);
         }
 
-        private void addNonTrivialWordToResult(String aToken, List aResult, boolean inQuotes) {
+        private void addNonTrivialWordToResult(String aToken, List<String> aResult, boolean inQuotes) {
             if( textHasContent(aToken) ) {
                 aToken = aToken.trim();
                 if( !inQuotes && aToken.equals("NOT") ) {

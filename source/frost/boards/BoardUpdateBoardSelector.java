@@ -40,10 +40,8 @@ public class BoardUpdateBoardSelector {
     /**
      * Used to sort FrostBoardObjects by lastUpdateStartMillis ascending.
      */
-    private static final Comparator lastUpdateStartMillisCmp = new Comparator() {
-        public int compare(Object o1, Object o2) {
-            Board value1 = (Board) o1;
-            Board value2 = (Board) o2;
+    private static final Comparator<Board> lastUpdateStartMillisCmp = new Comparator<Board>() {
+        public int compare(Board value1, Board value2) {
             if (value1.getLastUpdateStartMillis() > value2.getLastUpdateStartMillis()) {
                 return 1;
             } else if (value1.getLastUpdateStartMillis() < value2.getLastUpdateStartMillis()) {
@@ -63,14 +61,14 @@ public class BoardUpdateBoardSelector {
      */
     public static Board selectNextBoard(TofTreeModel tofTreeModel) {
         
-        List allBoards = tofTreeModel.getAllBoards();
+        List<Board> allBoards = tofTreeModel.getAllBoards();
         if (allBoards.size() == 0) {
             lastSelectedBoard = null;
             return null;
         }
 
         // prefer boards that have waiting sendable messages
-        List boardsWithSendableMsgs = UnsentMessagesManager.getBoardsWithSendableMessages();
+        List<Board> boardsWithSendableMsgs = UnsentMessagesManager.getBoardsWithSendableMessages();
         if( !boardsWithSendableMsgs.isEmpty() ) {
             Collections.sort(boardsWithSendableMsgs, lastUpdateStartMillisCmp);
             for(Iterator i=boardsWithSendableMsgs.iterator(); i.hasNext(); ) {

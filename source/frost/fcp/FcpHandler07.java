@@ -43,6 +43,7 @@ public class FcpHandler07 extends FcpHandler {
             File target,
             boolean doRedirect,
             boolean fastDownload,
+            int maxSize,
             boolean createTempFile,
             FrostDownloadItem dlItem)
     {
@@ -51,7 +52,7 @@ public class FcpHandler07 extends FcpHandler {
         int cnt = count++;
         long l = System.currentTimeMillis();
         System.out.println("GET_START("+cnt+"):"+key);
-        FcpResultGet r = FcpRequest.getFile(type, key, size, target, createTempFile, dlItem);
+        FcpResultGet r = FcpRequest.getFile(type, key, size, target, maxSize, createTempFile, dlItem);
         System.out.println("GET_END("+cnt+"):"+key+", duration="+(System.currentTimeMillis()-l));
         return r;
     }
@@ -65,14 +66,14 @@ public class FcpHandler07 extends FcpHandler {
             byte[] metadata,
             boolean doRedirect,
             boolean removeLocalKey,
+            boolean doMime,
             FrostUploadItem ulItem)
     {
         // unused by 07:  metadata, htl, doRedirect, removeLocalKey,
-//        FcpResultPut result = FcpInsert.putFile(type, uri, file,ulItem);
         int cnt = count++;
         long l = System.currentTimeMillis();
         System.out.println("PUT_START("+cnt+"):"+uri);
-        FcpResultPut result = FcpInsert.putFile(type, uri, file,ulItem);
+        FcpResultPut result = FcpInsert.putFile(type, uri, file, doMime, ulItem);
         System.out.println("PUT_END("+cnt+"):"+uri+", duration="+(System.currentTimeMillis()-l));
         
         if( result == null ) {

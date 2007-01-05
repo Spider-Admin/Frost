@@ -56,6 +56,14 @@ class UploadThread extends Thread {
     private void upload() { // real upload
 
         logger.info("Upload of " + uploadItem.getFile().getName() + " started.");
+        
+        boolean doMime;
+        // shared files are always inserted as octet-stream
+        if( uploadItem.isSharedFile() ) {
+            doMime = false;
+        } else {
+            doMime = true;
+        }
 
         FcpResultPut result = FcpHandler.inst().putFile(
                 FcpHandler.TYPE_FILE,
@@ -64,6 +72,7 @@ class UploadThread extends Thread {
                 null, // metadata
                 true, // doRedirect
                 true, // removeLocalKey, insert with full HTL even if existing in local store
+                doMime,
                 uploadItem); // provide the uploadItem to indicate that this upload is contained in table
 
         if (result != null && (result.isSuccess() || result.isKeyCollision()) ) {
@@ -81,7 +90,7 @@ class UploadThread extends Thread {
             
             // notify model that shared upload file can be removed
             if( uploadItem.isSharedFile() ) {
-                FileTransferManager.getInstance().getUploadManager().getModel().notifySharedFileUploadWasSuccessful(uploadItem);
+                FileTransferManager.inst().getUploadManager().getModel().notifySharedFileUploadWasSuccessful(uploadItem);
             } else {
                 // maybe log successful manual upload to file localdata/uploads.txt
                 if( Core.frostSettings.getBoolValue(SettingsClass.LOG_UPLOADS_ENABLED) ) {
@@ -94,7 +103,7 @@ class UploadThread extends Thread {
 
             // maybe remove finished upload immediately
             if( Core.frostSettings.getBoolValue(SettingsClass.UPLOAD_REMOVE_FINISHED) ) {
-                FileTransferManager.getInstance().getUploadManager().getModel().removeFinishedUploads();
+                FileTransferManager.inst().getUploadManager().getModel().removeFinishedUploads();
             }
 
         } else {

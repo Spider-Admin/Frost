@@ -151,7 +151,7 @@ public class FcpConnection {
      * @param filename  the filename to which the data should be saved
      * @return the results filled with metadata
      */
-    public FcpResultGet getKeyToFile(int type, String keyString, File targetFile, FrostDownloadItem dlItem)
+    public FcpResultGet getKeyToFile(int type, String keyString, File targetFile, int maxSize, FrostDownloadItem dlItem)
     throws IOException, FcpToolsException, InterruptedIOException {
 
         File ddaTempFile = null;
@@ -194,6 +194,10 @@ public class FcpConnection {
             fcpOut.println("PriorityClass=2");
         } else if( type == FcpHandler.TYPE_MESSAGE ) {
             fcpOut.println("PriorityClass=2");
+        }
+        
+        if( maxSize > 0 ) {
+            fcpOut.println("MaxSize="+maxSize);
         }
 
         fcpOut.println("EndMessage");
@@ -337,10 +341,6 @@ public class FcpConnection {
      * @return the results filled with metadata and the CHK used to insert the data
 	 * @throws IOException 
      */
-	public FcpResultPut putKeyFromFile(int type, String key, File sourceFile, boolean getChkOnly, FrostUploadItem ulItem) throws IOException {
-		return putKeyFromFile(type, key, sourceFile, getChkOnly, false, ulItem);
-	}
-    
 	public FcpResultPut putKeyFromFile(int type, String keyString, File sourceFile, boolean getChkOnly, boolean doMime, FrostUploadItem ulItem)
 	throws IOException {
 
@@ -539,7 +539,7 @@ public class FcpConnection {
      * Generates a CHK key for the given File (no upload).
      */
     public String generateCHK(File file) throws IOException {
-        FcpResultPut result = putKeyFromFile(FcpHandler.TYPE_FILE, "CHK@", file, true, null);
+        FcpResultPut result = putKeyFromFile(FcpHandler.TYPE_FILE, "CHK@", file, true, false, null);
         if( result == null || result.isSuccess() == false ) {
             return null;
         } else {

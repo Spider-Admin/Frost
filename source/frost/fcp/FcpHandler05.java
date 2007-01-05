@@ -44,6 +44,7 @@ public class FcpHandler05 extends FcpHandler {
             File target,
             boolean doRedirect,
             boolean fastDownload,
+            int maxSize,    // not used by 0.5
             boolean createTempFile,
             FrostDownloadItem dlItem)
     {
@@ -78,8 +79,10 @@ public class FcpHandler05 extends FcpHandler {
             byte[] metadata,
             boolean doRedirect,
             boolean removeLocalKey,
+            boolean doMime,
             FrostUploadItem ulItem)
     {
+        // doMime is ignored on 0.5
         int htl = getUploadHtlForType(type);
         FcpResultPut result = FcpInsert.putFile(uri, file, metadata, htl, doRedirect, removeLocalKey, ulItem); 
         if( result == null ) {

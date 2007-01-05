@@ -172,8 +172,8 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         return "msgcont_index";
     }
 
-    public List getTableDDL() {
-        ArrayList lst = new ArrayList(11);
+    public List<String> getTableDDL() {
+        ArrayList<String> lst = new ArrayList<String>(11);
         lst.add(SQL_DDL_MESSAGES);
         lst.add(SQL_DDL_FILEATTACHMENTS);
         lst.add(SQL_DDL_BOARDATTACHMENTS);
@@ -203,7 +203,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
 
         // insert msg and all attachments
         AppLayerDatabase db = AppLayerDatabase.getInstance();
-        PreparedStatement ps = db.prepare(
+        PreparedStatement ps = db.prepareStatement(
             "INSERT INTO "+getMessageTableName()+" ("+
             "primkey,messageid,inreplyto,isvalid,invalidreason,msgdatetime,msgindex,board,fromname,subject,recipient,signature," +
             "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,hasfileattachment,hasboardattachment,idlinepos,idlinelen"+
@@ -257,7 +257,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         mo.setMsgIdentity(identity.longValue());
         
         // content
-        PreparedStatement pc = db.prepare(
+        PreparedStatement pc = db.prepareStatement(
                 "INSERT INTO "+getContentTableName()+
                 " (msgref,msgcontent) VALUES (?,?)");
         pc.setLong(1, mo.getMsgIdentity());
@@ -269,7 +269,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
 
         // attachments
         if( files.size() > 0 ) {
-            PreparedStatement p = db.prepare(
+            PreparedStatement p = db.prepareStatement(
                     "INSERT INTO "+getFileAttachmentsTableName()+
                     " (msgref,filename,filesize,filekey)"+
                     " VALUES (?,?,?,?)");
@@ -288,7 +288,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
             p.close();
         }
         if( boards.size() > 0 ) {
-            PreparedStatement p = db.prepare(
+            PreparedStatement p = db.prepareStatement(
                     "INSERT INTO "+getBoardAttachmentsTableName()+
                     " (msgref,boardname,boardpublickey,boardprivatekey,boarddescription)"+
                     " VALUES (?,?,?,?,?)");
@@ -314,7 +314,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         // update msg, date, board, index are not changeable
         // insert msg and all attachments
         AppLayerDatabase db = AppLayerDatabase.getInstance();
-        PreparedStatement ps = db.prepare(
+        PreparedStatement ps = db.prepareStatement(
             "UPDATE "+getMessageTableName()+" SET isdeleted=?,isnew=?,isreplied=?,isjunk=?,isflagged=?,isstarred=? "+
             "WHERE msgdatetime=? AND msgindex=? AND board=?");
         int ix=1;
@@ -341,7 +341,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         // retrieve attachments
         if( mo.isHasFileAttachments() ) {
-            PreparedStatement p2 = db.prepare(
+            PreparedStatement p2 = db.prepareStatement(
                     "SELECT filename,filesize,filekey FROM "+getFileAttachmentsTableName()+
                     " WHERE msgref=? ORDER BY filename");
             p2.setLong(1, mo.getMsgIdentity());
@@ -360,7 +360,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
             p2.close();
         }
         if( mo.isHasBoardAttachments() ) {
-            PreparedStatement p2 = db.prepare(
+            PreparedStatement p2 = db.prepareStatement(
                     "SELECT boardname,boardpublickey,boardprivatekey,boarddescription FROM "+getBoardAttachmentsTableName()+
                     " WHERE msgref=? ORDER BY boardname");
             p2.setLong(1, mo.getMsgIdentity());
@@ -390,7 +390,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
-        PreparedStatement p2 = db.prepare(
+        PreparedStatement p2 = db.prepareStatement(
                 "SELECT msgcontent FROM "+getContentTableName()+" WHERE msgref=?");
         p2.setLong(1, mo.getMsgIdentity());
         ResultSet rs2 = p2.executeQuery();
@@ -476,7 +476,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
             sql += "AND isdeleted=FALSE ";
         }
 
-        PreparedStatement ps = db.prepare(sql);
+        PreparedStatement ps = db.prepareStatement(sql);
 
         LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysBack);
         ps.setLong(1, localDate.toDateMidnight(DateTimeZone.UTC).getMillis());
@@ -516,7 +516,7 @@ int cnt=0;
             "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
             "hasfileattachment,hasboardattachment,idlinepos,idlinelen";
             sql += " FROM "+getMessageTableName()+" WHERE msgdatetime>=? AND msgdatetime<? AND board=? AND isvalid=TRUE AND isdeleted=?";
-        PreparedStatement ps = db.prepare(sql);
+        PreparedStatement ps = db.prepareStatement(sql);
         
         ps.setLong(1, startDate);
         ps.setLong(2, endDate);
@@ -549,7 +549,7 @@ int cnt=0;
             "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
             "hasfileattachment,hasboardattachment,idlinepos,idlinelen";
             sql += " FROM "+getMessageTableName()+" WHERE msgdatetime<? AND board=? AND isvalid=TRUE";
-        PreparedStatement ps = db.prepare(sql);
+        PreparedStatement ps = db.prepareStatement(sql);
         
         LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysOld);
         ps.setLong(1, localDate.toDateMidnight(DateTimeZone.UTC).getMillis());
@@ -568,8 +568,8 @@ int cnt=0;
         ps.close();
     }
 
-    public List retrieveAllMessages() throws SQLException {
-        LinkedList list = new LinkedList();
+    public List<FrostMessageObject> retrieveAllMessages() throws SQLException {
+        LinkedList<FrostMessageObject> list = new LinkedList<FrostMessageObject>();
         
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         String sql =
@@ -578,7 +578,7 @@ int cnt=0;
             "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
             "hasfileattachment,hasboardattachment,idlinepos,idlinelen,board";
             sql += " FROM "+getMessageTableName();
-        PreparedStatement ps = db.prepare(sql);
+        PreparedStatement ps = db.prepareStatement(sql);
         
         ResultSet rs = ps.executeQuery();
 
@@ -603,7 +603,7 @@ int cnt=0;
 
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
-        PreparedStatement ps = db.prepare("DELETE FROM "+getMessageTableName()+" WHERE msgdatetime<? AND board=?");
+        PreparedStatement ps = db.prepareStatement("DELETE FROM "+getMessageTableName()+" WHERE msgdatetime<? AND board=?");
 
         LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysOld);
         ps.setLong(1, localDate.toDateMidnight(DateTimeZone.UTC).getMillis());
@@ -631,7 +631,7 @@ int cnt=0;
             "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
             "hasfileattachment,hasboardattachment,idlinepos,idlinelen";
             sql += " FROM "+getMessageTableName()+" WHERE board=? AND messageid=?";
-        PreparedStatement ps = db.prepare(sql);
+        PreparedStatement ps = db.prepareStatement(sql);
         
         ps.setInt(1, board.getPrimaryKey().intValue());
         ps.setString(2, msgId);
@@ -650,7 +650,7 @@ int cnt=0;
 
     public synchronized void setAllMessagesRead(Board board) throws SQLException {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
-        PreparedStatement ps = db.prepare("UPDATE "+getMessageTableName()+" SET isnew=FALSE WHERE board=? and isnew=TRUE");
+        PreparedStatement ps = db.prepareStatement("UPDATE "+getMessageTableName()+" SET isnew=FALSE WHERE board=? and isnew=TRUE");
         ps.setInt(1, board.getPrimaryKey().intValue());
         ps.executeUpdate();
         ps.close();
@@ -665,10 +665,10 @@ int cnt=0;
 
         if( maxDaysBack < 0 ) {
             // no date restriction
-            ps = db.prepare("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE board=? AND isnew=TRUE AND isvalid=TRUE");
+            ps = db.prepareStatement("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE board=? AND isnew=TRUE AND isvalid=TRUE");
             ps.setInt(1, board.getPrimaryKey().intValue());
         } else {
-            ps = db.prepare("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE msgdatetime>=? AND board=? AND isnew=TRUE AND isvalid=TRUE");
+            ps = db.prepareStatement("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE msgdatetime>=? AND board=? AND isnew=TRUE AND isvalid=TRUE");
             LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysBack);
             ps.setLong(1, localDate.toDateMidnight(DateTimeZone.UTC).getMillis());
             ps.setInt(2, board.getPrimaryKey().intValue());
@@ -694,10 +694,10 @@ int cnt=0;
         PreparedStatement ps;
         if( maxDaysBack < 0 ) {
             // no date restriction
-            ps = db.prepare("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE fromname=? AND isvalid=TRUE");
+            ps = db.prepareStatement("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE fromname=? AND isvalid=TRUE");
             ps.setString(1, identity.getUniqueName());
         } else {
-            ps = db.prepare("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE msgdatetime>=? AND fromname=? AND isvalid=TRUE");
+            ps = db.prepareStatement("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE msgdatetime>=? AND fromname=? AND isvalid=TRUE");
             LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysBack);
             ps.setLong(1, localDate.toDateMidnight(DateTimeZone.UTC).getMillis());
             ps.setString(2, identity.getUniqueName());
@@ -724,10 +724,10 @@ int cnt=0;
         PreparedStatement ps;
         if( maxDaysBack < 0 ) {
             // no date restriction
-            ps = db.prepare("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE board=? AND isvalid=TRUE");
+            ps = db.prepareStatement("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE board=? AND isvalid=TRUE");
             ps.setInt(1, board.getPrimaryKey().intValue());
         } else {
-            ps = db.prepare("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE msgdatetime>=? AND board=? AND isvalid=TRUE");
+            ps = db.prepareStatement("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE msgdatetime>=? AND board=? AND isvalid=TRUE");
             LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysBack);
             ps.setLong(1, localDate.toDateMidnight(DateTimeZone.UTC).getMillis());
             ps.setInt(2, board.getPrimaryKey().intValue());
@@ -750,7 +750,7 @@ int cnt=0;
     public int getMessageCount() throws SQLException {
         
         AppLayerDatabase db = AppLayerDatabase.getInstance();
-        PreparedStatement ps = db.prepare("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE isvalid=TRUE");
+        PreparedStatement ps = db.prepareStatement("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE isvalid=TRUE");
         
         int count = 0;
         ResultSet rs = ps.executeQuery();

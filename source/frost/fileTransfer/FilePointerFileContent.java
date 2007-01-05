@@ -23,9 +23,9 @@ import java.util.*;
 public class FilePointerFileContent {
 
     long timestamp;
-    List chkKeyStrings;
+    List<String> chkKeyStrings;
     
-    public FilePointerFileContent(long timestamp, List chkKeyStrings) {
+    public FilePointerFileContent(long timestamp, List<String> chkKeyStrings) {
         this.timestamp = timestamp;
         this.chkKeyStrings = chkKeyStrings;
     }
@@ -33,7 +33,7 @@ public class FilePointerFileContent {
     public long getTimestamp() {
         return timestamp;
     }
-    public List getChkKeyStrings() {
+    public List<String> getChkKeyStrings() {
         return chkKeyStrings;
     }
     

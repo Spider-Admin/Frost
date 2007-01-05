@@ -109,8 +109,8 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
     private final String SQL_DDL_CONTENT_INDEX =
         "CREATE UNIQUE INDEX msgarcc_ix ON MESSAGEARCHIVECONTENTS ( msgref )";
 
-    public List getTableDDL() {
-        ArrayList lst = new ArrayList(9);
+    public List<String> getTableDDL() {
+        ArrayList<String> lst = new ArrayList<String>(9);
         lst.add(SQL_DDL_MESSAGES);
         lst.add(SQL_DDL_FILEATTACHMENTS);
         lst.add(SQL_DDL_BOARDATTACHMENTS);
@@ -138,7 +138,7 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
 
         // insert msg and all attachments
         AppLayerDatabase db = AppLayerDatabase.getInstance();
-        PreparedStatement ps = db.prepare(
+        PreparedStatement ps = db.prepareStatement(
             "INSERT INTO MESSAGEARCHIVE ("+
             "primkey,messageid,inreplyto,isvalid,invalidreason,msgdatetime,msgindex,board,fromname,subject,recipient,signature," +
             "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,hasfileattachment,hasboardattachment," +
@@ -195,7 +195,7 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
         mo.setMsgIdentity(identity.longValue());
         
         // content
-        PreparedStatement pc = db.prepare(
+        PreparedStatement pc = db.prepareStatement(
                 "INSERT INTO MESSAGEARCHIVECONTENTS"+
                 " (msgref,msgcontent) VALUES (?,?)");
         pc.setLong(1, mo.getMsgIdentity());
@@ -211,7 +211,7 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
 
         // attachments
         if( files.size() > 0 ) {
-            PreparedStatement p = db.prepare(
+            PreparedStatement p = db.prepareStatement(
                     "INSERT INTO MESSAGEARCHIVEFILEATTACHMENTS"+
                     " (msgref,filename,filesize,filekey)"+
                     " VALUES (?,?,?,?)");
@@ -232,7 +232,7 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
             p.close();
         }
         if( boards.size() > 0 ) {
-            PreparedStatement p = db.prepare(
+            PreparedStatement p = db.prepareStatement(
                     "INSERT INTO MESSAGEARCHIVEBOARDATTACHMENTS"+
                     " (msgref,boardname,boardpublickey,boardprivatekey,boarddescription)"+
                     " VALUES (?,?,?,?,?)");
@@ -261,7 +261,7 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         // retrieve attachments
         if( mo.isHasFileAttachments() ) {
-            PreparedStatement p2 = db.prepare(
+            PreparedStatement p2 = db.prepareStatement(
                     "SELECT filename,filesize,filekey FROM MESSAGEARCHIVEFILEATTACHMENTS"+
                     " WHERE msgref=? ORDER BY filename");
             p2.setLong(1, mo.getMsgIdentity());
@@ -280,7 +280,7 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
             p2.close();
         }
         if( mo.isHasBoardAttachments() ) {
-            PreparedStatement p2 = db.prepare(
+            PreparedStatement p2 = db.prepareStatement(
                     "SELECT boardname,boardpublickey,boardprivatekey,boarddescription FROM MESSAGEARCHIVEBOARDATTACHMENTS"+
                     " WHERE msgref=? ORDER BY boardname");
             p2.setLong(1, mo.getMsgIdentity());
@@ -310,7 +310,7 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
         
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
-        PreparedStatement p2 = db.prepare("SELECT msgcontent FROM MESSAGEARCHIVECONTENTS WHERE msgref=?");
+        PreparedStatement p2 = db.prepareStatement("SELECT msgcontent FROM MESSAGEARCHIVECONTENTS WHERE msgref=?");
         p2.setLong(1, mo.getMsgIdentity());
         ResultSet rs2 = p2.executeQuery();
         if(rs2.next()) {
@@ -377,7 +377,7 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
             "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
             "hasfileattachment,hasboardattachment,idlinepos,idlinelen";
             sql += " FROM MESSAGEARCHIVE WHERE msgdatetime>=? AND msgdatetime<? AND board=? AND isvalid=TRUE AND isdeleted=?";
-        PreparedStatement ps = db.prepare(sql);
+        PreparedStatement ps = db.prepareStatement(sql);
         
         ps.setLong(1, startDate);
         ps.setLong(2, endDate);
@@ -410,7 +410,7 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
             "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
             "hasfileattachment,hasboardattachment,idlinepos,idlinelen";
             sql += " FROM MESSAGEARCHIVE WHERE board=? AND messageid=?";
-        PreparedStatement ps = db.prepare(sql);
+        PreparedStatement ps = db.prepareStatement(sql);
         
         ps.setString(1, board.getNameLowerCase());
         ps.setString(2, msgId);
@@ -436,10 +436,10 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
         PreparedStatement ps;
         if( maxDaysBack < 0 ) {
             // no date restriction
-            ps = db.prepare("SELECT COUNT(primkey) FROM MESSAGEARCHIVE WHERE board=? AND isvalid=TRUE");
+            ps = db.prepareStatement("SELECT COUNT(primkey) FROM MESSAGEARCHIVE WHERE board=? AND isvalid=TRUE");
             ps.setString(1, board.getNameLowerCase());
         } else {
-            ps = db.prepare("SELECT COUNT(primkey) FROM MESSAGEARCHIVE WHERE msgdatetime>=? AND board=? AND isvalid=TRUE");
+            ps = db.prepareStatement("SELECT COUNT(primkey) FROM MESSAGEARCHIVE WHERE msgdatetime>=? AND board=? AND isvalid=TRUE");
             LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysBack);
             ps.setLong(1, localDate.toDateMidnight(DateTimeZone.UTC).getMillis());
             ps.setString(2, board.getNameLowerCase());
@@ -462,7 +462,7 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
     public int getMessageCount() throws SQLException {
         
         AppLayerDatabase db = AppLayerDatabase.getInstance();
-        PreparedStatement ps = db.prepare("SELECT COUNT(primkey) FROM MESSAGEARCHIVE WHERE isvalid=TRUE");
+        PreparedStatement ps = db.prepareStatement("SELECT COUNT(primkey) FROM MESSAGEARCHIVE WHERE isvalid=TRUE");
         
         int count = 0;
         ResultSet rs = ps.executeQuery();

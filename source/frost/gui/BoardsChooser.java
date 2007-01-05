@@ -41,7 +41,7 @@ public class BoardsChooser extends JDialog {
     BoardsTableModel boardsTableModel;
     
     JButton Bcancel;
-    List boardList;
+    List<BoardTableEntry> boardList;
     JButton Bok;
     boolean okPressed = false;
 
@@ -51,7 +51,7 @@ public class BoardsChooser extends JDialog {
         setTitle(language.getString("BoardsChooser.title"));
         
         // fill given board into our list as BoardListEntries
-        boardList = new ArrayList();
+        boardList = new ArrayList<BoardTableEntry>();
         for(Iterator i=boards.iterator(); i.hasNext(); ) {
             Board b = (Board)i.next();
             BoardTableEntry e = new BoardTableEntry();
@@ -147,7 +147,7 @@ public class BoardsChooser extends JDialog {
             return null;
         }
 
-        ArrayList chosed = new ArrayList();
+        ArrayList<Board> chosed = new ArrayList<Board>();
         for(Iterator i=boardList.iterator(); i.hasNext(); ) {
             BoardTableEntry e = (BoardTableEntry)i.next();
             if( e.isSelected.booleanValue() ) {
@@ -173,7 +173,7 @@ public class BoardsChooser extends JDialog {
         public String getColumnName(int col) {
             return "";
         }
-        public Class getColumnClass(int c) {
+        public Class<?> getColumnClass(int c) {
             return getValueAt(0, c).getClass();
         }
         public int getRowCount() {

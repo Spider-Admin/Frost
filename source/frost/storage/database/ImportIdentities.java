@@ -192,11 +192,11 @@ public class ImportIdentities {
     
     public class BuddyList implements XMLizable {
 
-        private HashMap hashMap = null;
+        private HashMap<String,Identity> hashMap = null;
 
         /**constructor*/
         public BuddyList() {
-            hashMap = new HashMap(100); //that sounds like a reasonable number
+            hashMap = new HashMap<String,Identity>(100); //that sounds like a reasonable number
         }
 
         void clearAll() {

@@ -36,8 +36,6 @@ public class Language {
     private FrostResourceBundle ROOT_RESOURCE_BUNDLE = null;
 //    private BreakIterator LINE_BREAKER = null;
 
-    private static List buildInLocales = null;
-
     private static boolean initialized = false;
     
     private final MessageFormat formatter = new MessageFormat("");
@@ -181,24 +179,6 @@ public class Language {
         }
     }
     
-    public static List getBuildInLocales() {
-        if( buildInLocales == null ) {
-            ArrayList lst = new ArrayList();
-            lst.add(new Locale("bg"));
-            lst.add(new Locale("da"));
-            lst.add(new Locale("de"));
-            lst.add(new Locale("en"));
-            lst.add(new Locale("es"));
-            lst.add(new Locale("fr"));
-            lst.add(new Locale("it"));
-            lst.add(new Locale("ja"));
-            lst.add(new Locale("nl"));
-            lst.add(new Locale("ru"));
-            buildInLocales = lst;
-        }
-        return buildInLocales;
-    }
-
     /**
      * Scans for existing properties files in localdata/i18n each time.
      */ 

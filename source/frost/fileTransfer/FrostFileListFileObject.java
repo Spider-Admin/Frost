@@ -18,7 +18,6 @@
 */
 package frost.fileTransfer;
 
-import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
@@ -26,7 +25,6 @@ import org.joda.time.*;
 
 import frost.fileTransfer.download.*;
 import frost.identities.*;
-import frost.storage.database.applayer.*;
 import frost.util.*;
 
 public class FrostFileListFileObject {
@@ -56,9 +54,9 @@ public class FrostFileListFileObject {
     private int displayRating = -1;
     private Boolean hasInfosFromMultipleSources = null;
 
-    private List frostFileListFileObjectOwnerList = new LinkedList();
+    private List<FrostFileListFileObjectOwner> frostFileListFileObjectOwnerList = new LinkedList<FrostFileListFileObjectOwner>();
     
-    private List listeners = new ArrayList();
+    private List<FrostDownloadItem> listeners = new ArrayList<FrostDownloadItem>();
     
     /**
      * Used if item is loaded from database.
@@ -132,20 +130,7 @@ public class FrostFileListFileObject {
         addFrostFileListFileObjectOwner(ob);
     }
 
-    /**
-     * Save this item to the database (insert or update).
-     */
-    public boolean save() {
-        try {
-            AppLayerDatabase.getFileListDatabaseTable().insertOrUpdateFrostFileListFileObject(this);
-        } catch(SQLException e) {
-            logger.log(Level.SEVERE, "Error updating shared file object", e);
-            return false;
-        }
-        return true;
-    }
-    
-    public List getFrostFileListFileObjectOwnerList() {
+    public List<FrostFileListFileObjectOwner> getFrostFileListFileObjectOwnerList() {
         return frostFileListFileObjectOwnerList;
     }
     public void addFrostFileListFileObjectOwner(FrostFileListFileObjectOwner v) {
@@ -200,6 +185,9 @@ public class FrostFileListFileObject {
 
     public Long getPrimkey() {
         return primkey;
+    }
+    public void setPrimkey(Long pk) {
+        primkey = pk;
     }
 
     public long getRequestLastReceived() {
@@ -258,7 +246,7 @@ public class FrostFileListFileObject {
                 displayName = "(no sources)";
             } else {
                 // choose most often used name
-                Hashtable ht = new Hashtable();
+                Hashtable<String,MutableInt> ht = new Hashtable<String,MutableInt>();
                 for( Iterator i = lst.iterator(); i.hasNext(); ) {
                     FrostFileListFileObjectOwner e = (FrostFileListFileObjectOwner) i.next();
                     MutableInt mi = (MutableInt)ht.get( e.getName() );
@@ -324,7 +312,7 @@ public class FrostFileListFileObject {
                 displayComment = "(no sources)";
             } else {
                 // choose most often used name
-                Hashtable ht = new Hashtable();
+                Hashtable<String,MutableInt> ht = new Hashtable<String,MutableInt>();
                 for( Iterator i = lst.iterator(); i.hasNext(); ) {
                     FrostFileListFileObjectOwner e = (FrostFileListFileObjectOwner) i.next();
                     String c = e.getComment();
@@ -361,7 +349,7 @@ public class FrostFileListFileObject {
                 displayKeywords = "(no sources)";
             } else {
                 // choose most often used name
-                Hashtable ht = new Hashtable();
+                Hashtable<String,MutableInt> ht = new Hashtable<String,MutableInt>();
                 for( Iterator i = lst.iterator(); i.hasNext(); ) {
                     FrostFileListFileObjectOwner e = (FrostFileListFileObjectOwner) i.next();
                     String c = e.getKeywords();
@@ -433,8 +421,8 @@ public class FrostFileListFileObject {
         return listeners;
     }
     private void notifyListeners() {
-        for(Iterator i=listeners.iterator(); i.hasNext(); ) {
-            FrostDownloadItem dl = (FrostDownloadItem) i.next();
+        for(Iterator<FrostDownloadItem> i=listeners.iterator(); i.hasNext(); ) {
+            FrostDownloadItem dl = i.next();
             dl.fireValueChanged();
         }
     }

@@ -25,6 +25,7 @@ import java.util.logging.*;
 import org.joda.time.*;
 
 import frost.*;
+import frost.fcp.*;
 import frost.fileTransfer.*;
 import frost.storage.database.applayer.*;
 import frost.transferlayer.*;
@@ -68,7 +69,7 @@ public class FileRequestsThread extends Thread {
     private boolean uploadRequestFile(String dateStr, long sqlDate) throws Throwable {
 
         // get a list of CHK keys to send
-        List fileRequests = FileRequestsManager.getRequestsToSend();
+        List<String> fileRequests = FileRequestsManager.getRequestsToSend();
 System.out.println("uploadRequestFile: fileRequests to send: "+fileRequests.size());
         if( fileRequests == null || fileRequests.size() == 0 ) {
             logger.info("No requests to send.");
@@ -78,7 +79,7 @@ System.out.println("uploadRequestFile: fileRequests to send: "+fileRequests.size
         FileRequestFileContent content = new FileRequestFileContent(System.currentTimeMillis(), fileRequests); 
 
         // write a file with requests to a tempfile
-        File tmpRequestFile = FileAccess.createTempFile("filereq_", "_xml");
+        File tmpRequestFile = FileAccess.createTempFile("filereq_", ".xml");
         if( !FileRequestFile.writeRequestFile(content, tmpRequestFile) ) {
             logger.severe("Error writing the file requests file.");
             return false;
@@ -91,7 +92,7 @@ System.out.println("uploadRequestFile: fileRequests to send: "+fileRequests.size
 System.out.println("uploadRequestFile: Starting upload of request file containing "+fileRequests.size()+" SHAs");
         
         String insertKey = keyPrefix + dateStr + "-";
-        boolean wasOk = GlobalFileUploader.uploadFile(indexSlots, sqlDate, tmpRequestFile, insertKey, ".xml");
+        boolean wasOk = GlobalFileUploader.uploadFile(indexSlots, sqlDate, tmpRequestFile, insertKey, ".xml", true);
         tmpRequestFile.delete();
 System.out.println("uploadRequestFile: upload finished, wasOk="+wasOk);
         if( wasOk ) {
@@ -122,7 +123,7 @@ System.out.println("uploadRequestFile: upload finished, wasOk="+wasOk);
             logger.info("Requesting index " + index + " for date " + dateStr);
 
             String downKey = requestKey + index + ".xml";
-            GlobalFileDownloaderResult result = GlobalFileDownloader.downloadFile(downKey);
+            GlobalFileDownloaderResult result = GlobalFileDownloader.downloadFile(downKey, FcpHandler.MAX_KSK_SIZE_ON_07);
 
             if( result == null ) {
                 // download failed. 
@@ -134,7 +135,7 @@ System.out.println("uploadRequestFile: upload finished, wasOk="+wasOk);
             
             failures = 0;
 
-            if( result.isEmptyRedirect() ) {
+            if( result.getErrorCode() == GlobalFileDownloaderResult.ERROR_EMPTY_REDIRECT ) {
                 // try index again later
                 System.out.println("FileRequestsThread.downloadDate: Skipping index "+index+" for now, will try again later.");
                 // next loop we try next index
@@ -146,6 +147,11 @@ System.out.println("uploadRequestFile: upload finished, wasOk="+wasOk);
             indexSlots.setDownloadSlotUsed(index, sqlDate);
             // next loop we try next index
             index = indexSlots.findNextDownloadSlot(index, sqlDate);
+
+            if( result.getErrorCode() == GlobalFileDownloaderResult.ERROR_FILE_TOO_BIG ) {
+                System.out.println("FileRequestsThread.downloadDate: Dropping index "+index+", FILE_TOO_BIG.");
+                continue;
+            }
 
             File downloadedFile = result.getResultFile(); 
 

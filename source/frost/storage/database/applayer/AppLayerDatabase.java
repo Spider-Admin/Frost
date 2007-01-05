@@ -21,6 +21,7 @@ package frost.storage.database.applayer;
 import java.io.*;
 import java.sql.*;
 import java.util.*;
+import java.util.concurrent.*;
 
 import frost.storage.*;
 import frost.storage.database.*;
@@ -49,6 +50,8 @@ public class AppLayerDatabase implements Savable {
     private static BoardDatabaseTable boardDatabaseTable = null;
 
     private Connection connection;
+    
+    private ConnectionPool connectionPool;
 
     protected AppLayerDatabase() throws SQLException {
         
@@ -56,18 +59,19 @@ public class AppLayerDatabase implements Savable {
         storeDir.mkdirs();
         
         // ensure database is created
-        String url = "jdbc:mckoi:local://store/applayerdb.conf?create=true";
+        String createUrl = "jdbc:mckoi:local://store/applayerdb.conf?create=true";
+        String url = "jdbc:mckoi:local://store/applayerdb.conf";
         String username = "frost";
         String password = "tsorf";
         try {
-          connection = DriverManager.getConnection(url, username, password);
+          connection = DriverManager.getConnection(createUrl, username, password);
         } catch (SQLException e) {
             // TODO: check if there is another error than 'already existing'
-            
+
             // create a non-create connection to work with. if this fails too, exception is thrown to caller
-            url = "jdbc:mckoi:local://store/applayerdb.conf";
             connection = DriverManager.getConnection(url, username, password);
         }
+        connectionPool = new ConnectionPool(url, username, password);
     }
     
     static {
@@ -83,13 +87,15 @@ public class AppLayerDatabase implements Savable {
         st.execute("SHUTDOWN");
         getConnection().close();
         connection = null;
+        
+        connectionPool.closeConnections();
     }
     
     public Connection getConnection() {
         return connection;
     }
     
-    public PreparedStatement prepare(String p) throws SQLException {
+    public PreparedStatement prepareStatement(String p) throws SQLException {
         return getConnection().prepareStatement(p);
     }
     
@@ -164,7 +170,7 @@ public class AppLayerDatabase implements Savable {
             knownBoardsDatabaseTable = new KnownBoardsDatabaseTable();
             boardDatabaseTable = new BoardDatabaseTable();
             
-            ArrayList lst = new ArrayList();
+            ArrayList<AbstractDatabaseTable> lst = new ArrayList<AbstractDatabaseTable>();
             lst.add(boardDatabaseTable);
             lst.add(messageTable);
             lst.add(sentMessageTable);
@@ -190,15 +196,15 @@ public class AppLayerDatabase implements Savable {
         }
     }
     
-    private void compactDatabaseTables(List lst) throws SQLException {
+    private void compactDatabaseTables(List<AbstractDatabaseTable> lst) throws SQLException {
         System.out.println("Compacting database tables...");
         long beforeTime = System.currentTimeMillis();
         
         setAutoCommitOff();
         
         Statement stmt = instance.createStatement();
-        for( Iterator i = lst.iterator(); i.hasNext(); ) {
-            AbstractDatabaseTable table = (AbstractDatabaseTable) i.next();
+        for( Iterator<AbstractDatabaseTable> i = lst.iterator(); i.hasNext(); ) {
+            AbstractDatabaseTable table = i.next();
             try {
                 table.compact(stmt);
             } catch (SQLException e) {
@@ -264,10 +270,10 @@ public class AppLayerDatabase implements Savable {
         return boardDatabaseTable;
     }
 
-    private void ensureTables(List lst) {
+    private void ensureTables(List<AbstractDatabaseTable> lst) {
 
-        for(Iterator i=lst.iterator(); i.hasNext(); ) {
-            AbstractDatabaseTable t = (AbstractDatabaseTable)i.next();
+        for(Iterator<AbstractDatabaseTable> i=lst.iterator(); i.hasNext(); ) {
+            AbstractDatabaseTable t = i.next();
             for(Iterator j=t.getTableDDL().iterator(); j.hasNext(); ) {
                 String tableDDL = (String)j.next();
                 try {
@@ -314,5 +320,80 @@ public class AppLayerDatabase implements Savable {
     public void setAutoCommitOn() throws SQLException {
         getConnection().commit();
         getConnection().setAutoCommit(true);
+    }
+    
+    public Connection getPooledConnection() {
+        while(true) {
+            try {
+                return connectionPool.getConnection();
+            } catch(InterruptedException ex) {
+            }
+            System.out.println("***LOOPING IN SEMAPHORE***");
+        }
+    }
+    
+    public void givePooledConnection(Connection c) {
+        connectionPool.putConnection(c);
+    }
+    
+    private class ConnectionPool {
+
+        private int MAX_AVAILABLE = 3;
+        private final Semaphore available = new Semaphore(MAX_AVAILABLE, true);
+
+        // Not a particularly efficient data structure
+        protected Connection[] items = new Connection[MAX_AVAILABLE];
+        protected boolean[] used = new boolean[MAX_AVAILABLE];
+
+        public ConnectionPool(String url, String username, String password) throws SQLException {
+            
+            Connection pc; 
+            for( int i = 0; i < MAX_AVAILABLE; ++i ) {
+                pc = DriverManager.getConnection(url, username, password);
+                items[i] = pc;
+            }
+        }
+        
+        public void closeConnections() {
+            available.acquireUninterruptibly(MAX_AVAILABLE);
+            Connection c;
+            while((c = getNextAvailableItem()) != null ) {
+                try { c.close(); } catch(SQLException ex) { ex.printStackTrace(); }
+            }
+        }
+
+        public Connection getConnection() throws InterruptedException {
+            available.acquire();
+            return getNextAvailableItem();
+        }
+
+        public void putConnection(Connection x) {
+            if( markAsUnused(x) ) {
+                available.release();
+            }
+        }
+
+        protected synchronized Connection getNextAvailableItem() {
+            for( int i = 0; i < MAX_AVAILABLE; ++i ) {
+                if( !used[i] ) {
+                    used[i] = true;
+                    return items[i];
+                }
+            }
+            return null; // not reached
+        }
+
+        protected synchronized boolean markAsUnused(Connection item) {
+            for( int i = 0; i < MAX_AVAILABLE; ++i ) {
+                if( item == items[i] ) {
+                    if( used[i] ) {
+                        used[i] = false;
+                        return true;
+                    } else
+                        return false;
+                }
+            }
+            return false;
+        }
     }
 }
