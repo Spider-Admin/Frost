@@ -134,7 +134,7 @@ public class SharedFilesModel extends OrderedModel implements Savable {
         while (iterator.hasNext()) {
             FrostSharedFileItem sfItem = (FrostSharedFileItem) iterator.next();
             if( !sfItem.isCurrentlyUploading() ) {
-                FileTransferManager.getInstance().getUploadManager().getModel().addNewUploadItemFromSharedFile(sfItem);
+                FileTransferManager.inst().getUploadManager().getModel().addNewUploadItemFromSharedFile(sfItem);
             }
         }
     }
@@ -146,7 +146,7 @@ public class SharedFilesModel extends OrderedModel implements Savable {
         for (int i = 0; i < items.length; i++) {
             FrostSharedFileItem sfItem = (FrostSharedFileItem) items[i];
             if( !sfItem.isCurrentlyUploading() ) {
-                FileTransferManager.getInstance().getUploadManager().getModel().addNewUploadItemFromSharedFile(sfItem);
+                FileTransferManager.inst().getUploadManager().getModel().addNewUploadItemFromSharedFile(sfItem);
             }
         }
     }
@@ -171,8 +171,9 @@ public class SharedFilesModel extends OrderedModel implements Savable {
     /**
      * Saves the upload model to database.
      */
+    @SuppressWarnings("unchecked")
     public void save() throws StorageException {
-        List itemList = getItems();
+        List<FrostSharedFileItem> itemList = (List<FrostSharedFileItem>)getItems();
         try {
             AppLayerDatabase.getSharedFilesDatabaseTable().saveSharedFiles(itemList);
         } catch (SQLException e) {

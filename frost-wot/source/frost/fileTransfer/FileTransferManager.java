@@ -41,7 +41,7 @@ public class FileTransferManager implements Savable {
         super();
     }
     
-    public static FileTransferManager getInstance() {
+    public static FileTransferManager inst() {
         if( instance == null ) {
             instance = new FileTransferManager();
         }
@@ -61,6 +61,12 @@ public class FileTransferManager implements Savable {
         getUploadManager().addPanelToMainFrame(mainFrame);
         getSearchManager().addPanelToMainFrame(mainFrame);
         getSharedFilesManager().addPanelToMainFrame(mainFrame);
+    }
+    
+    public void startTickers() {
+        getDownloadManager().startTicker();
+        getUploadManager().startTicker();
+        getNewUploadFilesManager().start();
     }
 
     public DownloadManager getDownloadManager() {

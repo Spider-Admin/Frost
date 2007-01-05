@@ -79,7 +79,8 @@ public class MessageDownloader {
                     null,
                     tmpFile,
                     false,
-                    fastDownload);
+                    fastDownload,
+                    FcpHandler.MAX_KSK_SIZE_ON_07);
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "TOFDN: Exception thrown in downloadDate part 1."+logInfo, t);
             // download failed
@@ -93,6 +94,10 @@ public class MessageDownloader {
      	    	logger.severe("TOFDN: All data not found."+logInfo);
      	    	System.out.println("TOFDN: Contents of message key partially missing.");
      	    	return new MessageDownloaderResult(MessageDownloaderResult.ALLDATANOTFOUND);
+            } else if(results != null && results.getReturnCode() == 21) {
+                    logger.severe("TOFDN: Message file too big."+logInfo);
+                    System.out.println("TOFDN: Message file too big.");
+                    return new MessageDownloaderResult(MessageDownloaderResult.MSG_TOO_BIG);
         	} else {
         		return null;
         	}

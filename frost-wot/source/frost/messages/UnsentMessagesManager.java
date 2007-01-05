@@ -34,16 +34,16 @@ public class UnsentMessagesManager {
 
     private static Logger logger = Logger.getLogger(UnsentMessagesManager.class.getName());
     
-    private static LinkedList unsentMessages = new LinkedList();
+    private static LinkedList<FrostUnsentMessageObject> unsentMessages = new LinkedList<FrostUnsentMessageObject>();
     private static int runningMessageUploads = 0;
     
-    private static List EMPTY_LIST = new LinkedList();
+    private static List<Board> EMPTY_BOARD_LIST = new LinkedList<Board>();
 
     /**
      * Retrieves all unsend messages from database table.
      */
     public static void initialize() {
-        List msgs;
+        List<FrostUnsentMessageObject> msgs;
         try {
             msgs = AppLayerDatabase.getUnsentMessageTable().retrieveMessages();
         } catch (SQLException e) {
@@ -90,6 +90,11 @@ public class UnsentMessagesManager {
      * @return  a message, or null
      */
     public static FrostUnsentMessageObject getUnsentMessage(Board targetBoard, String fromName) {
+        
+        if( Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_UPLOAD_DISABLED) ) {
+            return null;
+        }
+
         for(Iterator i = unsentMessages.iterator(); i.hasNext(); ) {
             FrostUnsentMessageObject mo = (FrostUnsentMessageObject) i.next();
             if( mo.getCurrentUploadThread() != null ) {
@@ -109,13 +114,13 @@ public class UnsentMessagesManager {
     /**
      * Returns a List of all Boards that currently have sendable messages.
      */
-    public static List getBoardsWithSendableMessages() {
+    public static List<Board> getBoardsWithSendableMessages() {
         
         if( Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_UPLOAD_DISABLED) ) {
-            return EMPTY_LIST;
+            return EMPTY_BOARD_LIST;
         }
         
-        Hashtable ht = new Hashtable();
+        Hashtable<Integer,Board> ht = new Hashtable<Integer,Board>();
         for(Iterator i = unsentMessages.iterator(); i.hasNext(); ) {
             FrostUnsentMessageObject mo = (FrostUnsentMessageObject) i.next();
             if( mo.getCurrentUploadThread() != null ) {
@@ -125,7 +130,7 @@ public class UnsentMessagesManager {
                 ht.put(mo.getBoard().getPrimaryKey(), mo.getBoard());
             }
         }
-        List result = new ArrayList(ht.values()); 
+        List<Board> result = new ArrayList<Board>(ht.values()); 
         return result;
     }
 

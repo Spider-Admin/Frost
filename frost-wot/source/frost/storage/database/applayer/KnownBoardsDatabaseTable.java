@@ -20,12 +20,15 @@ package frost.storage.database.applayer;
 
 import java.sql.*;
 import java.util.*;
+import java.util.logging.*;
 
 import frost.boards.*;
 import frost.gui.*;
 import frost.storage.database.*;
 
 public class KnownBoardsDatabaseTable extends AbstractDatabaseTable {
+    
+    private static Logger logger = Logger.getLogger(KnownBoardsDatabaseTable.class.getName());
 
     private final static String SQL_DDL =
         "CREATE TABLE IF NOT EXISTS KNOWNBOARDS ("+
@@ -40,8 +43,8 @@ public class KnownBoardsDatabaseTable extends AbstractDatabaseTable {
     private final static String SQL_DDL2 =
         "CREATE TABLE IF NOT EXISTS HIDDENBOARDNAMES (boardname VARCHAR NOT NULL)";
 
-    public List getTableDDL() {
-        ArrayList lst = new ArrayList(2);
+    public List<String> getTableDDL() {
+        ArrayList<String> lst = new ArrayList<String>(2);
         lst.add(SQL_DDL);
         lst.add(SQL_DDL2);
         return lst;
@@ -56,8 +59,8 @@ public class KnownBoardsDatabaseTable extends AbstractDatabaseTable {
     /**
      * Load all hidden board names.
      */
-    public HashSet loadHiddenNames() throws SQLException {
-        HashSet names = new HashSet();
+    public HashSet<String> loadHiddenNames() throws SQLException {
+        HashSet<String> names = new HashSet<String>();
         
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
@@ -77,27 +80,41 @@ public class KnownBoardsDatabaseTable extends AbstractDatabaseTable {
      * Clear table and save all hidden board names.
      */
     public void saveHiddenNames(HashSet names) throws SQLException {
-        AppLayerDatabase db = AppLayerDatabase.getInstance();
         
-        Statement stmt = db.createStatement();
-        stmt.executeUpdate("DELETE FROM HIDDENBOARDNAMES"); // delete all
-        stmt.close();
-        stmt = null;
+        Connection conn = AppLayerDatabase.getInstance().getPooledConnection();
         
-        PreparedStatement ps = db.prepare("INSERT INTO HIDDENBOARDNAMES (boardname) VALUES (?)");
-        for(Iterator i = names.iterator(); i.hasNext(); ) {
-            String bName = (String) i.next();
-            ps.setString(1, bName);
-            ps.executeUpdate();
+        try {
+            conn.setAutoCommit(false);
+        
+            Statement stmt = conn.createStatement();
+            stmt.executeUpdate("DELETE FROM HIDDENBOARDNAMES"); // delete all
+            stmt.close();
+            stmt = null;
+            
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO HIDDENBOARDNAMES (boardname) VALUES (?)");
+            for(Iterator i = names.iterator(); i.hasNext(); ) {
+                String bName = (String) i.next();
+                ps.setString(1, bName);
+                ps.executeUpdate();
+            }
+            ps.close();
+            
+            conn.commit();
+            conn.setAutoCommit(true);
+        } catch(Throwable t) {
+            logger.log(Level.SEVERE, "Exception during save", t);
+            try { conn.rollback(); } catch(Throwable t1) { logger.log(Level.SEVERE, "Exception during rollback", t1); }
+            try { conn.setAutoCommit(true); } catch(Throwable t1) { }
+        } finally {
+            AppLayerDatabase.getInstance().givePooledConnection(conn);
         }
-        ps.close();
     }
 
     private boolean insertKnownBoard(Board board) throws SQLException {
 
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
-        PreparedStatement ps = db.prepare(
+        PreparedStatement ps = db.prepareStatement(
                 "INSERT INTO KNOWNBOARDS "+
                 "(boardname,publickey,privatekey,description) VALUES (?,?,?,?)");
         
@@ -116,13 +133,13 @@ public class KnownBoardsDatabaseTable extends AbstractDatabaseTable {
     /**
      * @return  List of KnownBoard
      */
-    public List getKnownBoards() throws SQLException {
+    public List<KnownBoard> getKnownBoards() throws SQLException {
         
-        LinkedList knownBoards = new LinkedList();
+        LinkedList<KnownBoard> knownBoards = new LinkedList<KnownBoard>();
 
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
-        PreparedStatement ps = db.prepare(
+        PreparedStatement ps = db.prepareStatement(
                 "SELECT boardname,publickey,privatekey,description FROM KNOWNBOARDS ORDER BY boardname");
         
         ResultSet rs = ps.executeQuery();
@@ -148,7 +165,7 @@ public class KnownBoardsDatabaseTable extends AbstractDatabaseTable {
 
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
-        PreparedStatement ps = db.prepare(
+        PreparedStatement ps = db.prepareStatement(
                 "DELETE FROM KNOWNBOARDS WHERE boardname=? AND publickey=? AND privatekey=?");
         
         ps.setString(1, b.getName());

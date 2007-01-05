@@ -31,9 +31,9 @@ public class LocalIdentitiesXmlDAO {
 
     private static Logger logger = Logger.getLogger(KnownBoardsXmlDAO.class.getName());
 
-    public static List loadLocalidentities(File file) {
+    public static List<LocalIdentity> loadLocalidentities(File file) {
 
-        LinkedList localIdentities = new LinkedList();
+        LinkedList<LocalIdentity> localIdentities = new LinkedList<LocalIdentity>();
         if( file.exists() ) {
             Document doc = null;
             try {
@@ -61,7 +61,7 @@ public class LocalIdentitiesXmlDAO {
     /**
      * ATTN: appends private key!
      */
-    public static boolean saveLocalIdentities(File file, List localIdentities) {
+    public static boolean saveLocalIdentities(File file, List<LocalIdentity> localIdentities) {
         Document doc = XMLTools.createDomDocument();
         if (doc == null) {
             logger.severe("Error - saveLocalIdentities: factory couldn't create XML Document.");

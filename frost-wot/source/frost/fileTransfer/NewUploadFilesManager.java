@@ -30,7 +30,7 @@ public class NewUploadFilesManager implements Savable {
     
     private static Logger logger = Logger.getLogger(NewUploadFilesManager.class.getName());
 
-    LinkedList newUploadFiles;
+    LinkedList<NewUploadFile> newUploadFiles;
     GenerateShaThread generateShaThread;
     
     public void initialize() throws StorageException {
@@ -41,6 +41,12 @@ public class NewUploadFilesManager implements Savable {
             throw new StorageException("Error loading new upload files");
         }
         generateShaThread = new GenerateShaThread();
+    }
+    
+    /**
+     * Start the generate SHA thread.
+     */
+    public void start() {
         generateShaThread.start();
     }
 
@@ -53,7 +59,7 @@ public class NewUploadFilesManager implements Savable {
         }
     }
     
-    public void addNewUploadFiles(List newFiles) {
+    public void addNewUploadFiles(List<NewUploadFile> newFiles) {
         for(Iterator i=newFiles.iterator(); i.hasNext(); ) {
             NewUploadFile nuf = (NewUploadFile)i.next();
             newUploadFiles.add(nuf);

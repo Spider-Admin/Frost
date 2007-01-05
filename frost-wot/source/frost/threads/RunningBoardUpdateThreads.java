@@ -31,17 +31,17 @@ import frost.messages.*;
 public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
     
     // listeners are notified of each finished thread
-    Hashtable threadListenersForBoard = null; // contains all listeners registered for 1 board
-    Vector threadListenersForAllBoards = null; // contains all listeners for all boards
+    Hashtable<String,Vector> threadListenersForBoard = null; // contains all listeners registered for 1 board
+    Vector<BoardUpdateThreadListener> threadListenersForAllBoards = null; // contains all listeners for all boards
 
     // contains key=board, data=vector of BoardUpdateThread's, (max. 1 of a kind (MSG_DOWNLOAD_TODAY,...)
-    Hashtable runningDownloadThreads = null;
+    Hashtable<String,Vector> runningDownloadThreads = null;
 
     public RunningBoardUpdateThreads() {
-        threadListenersForBoard = new Hashtable();
-        threadListenersForAllBoards = new Vector();
+        threadListenersForBoard = new Hashtable<String,Vector>();
+        threadListenersForAllBoards = new Vector<BoardUpdateThreadListener>();
 
-        runningDownloadThreads = new Hashtable();
+        runningDownloadThreads = new Hashtable<String,Vector>();
     }
 
     /**
@@ -112,7 +112,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
      * Gets an Vector from a Hashtable with given key. If key is not contained
      * in Hashtable, an empty Vector will be created and put in the Hashtable.
      */
-    private Vector getVectorFromHashtable(Hashtable t, Board key) {
+    private Vector getVectorFromHashtable(Hashtable<String,Vector> t, Board key) {
         Vector retval = null;
         synchronized( t ) {
             retval = (Vector) t.get(key.getName());

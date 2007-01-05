@@ -70,7 +70,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     private JButton boardInfoButton = null;
     private long counter = 55;
     
-    private static java.util.List queuedStartupMessages = new LinkedList();
+    private static java.util.List<StartupMessage> queuedStartupMessages = new LinkedList<StartupMessage>();
 
     //Panels
 
@@ -846,7 +846,13 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             setExtendedState(getExtendedState() | Frame.MAXIMIZED_BOTH);
         }
 
-        //note: changed this from timertask so that I can give it a name --zab
+        validate();
+    }
+
+    /**
+     * Start the ticker that makes the mainframe waggle and starts board updates.
+     */
+    public void startTickerThread() {
         Thread tickerThread = new Thread("tick tack") {
             public void run() {
                 while (true) {
@@ -857,8 +863,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             }
         };
         tickerThread.start();
-
-        validate();
     }
 
     public void lostOwnership(Clipboard clipboard, Transferable contents) {

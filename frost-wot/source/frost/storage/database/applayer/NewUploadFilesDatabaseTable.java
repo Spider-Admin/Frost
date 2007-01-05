@@ -45,8 +45,8 @@ public class NewUploadFilesDatabaseTable extends AbstractDatabaseTable {
         "fromname VARCHAR,"+
         "CONSTRAINT NEWUPLOADFILES_1 UNIQUE (filepath) )";
 
-    public List getTableDDL() {
-        ArrayList lst = new ArrayList(1);
+    public List<String> getTableDDL() {
+        ArrayList<String> lst = new ArrayList<String>(1);
         lst.add(SQL_DDL);
         return lst;
     }
@@ -65,7 +65,7 @@ public class NewUploadFilesDatabaseTable extends AbstractDatabaseTable {
         s.close();
         s = null;
         
-        PreparedStatement ps = db.prepare("INSERT INTO NEWUPLOADFILES (filepath,fromname) VALUES (?,?)");
+        PreparedStatement ps = db.prepareStatement("INSERT INTO NEWUPLOADFILES (filepath,fromname) VALUES (?,?)");
         
         for(Iterator i=newUploadFiles.iterator(); i.hasNext(); ) {
             NewUploadFile nuf = (NewUploadFile)i.next(); 
@@ -78,13 +78,13 @@ public class NewUploadFilesDatabaseTable extends AbstractDatabaseTable {
         ps.close();
     }
 
-    public LinkedList loadNewUploadFiles() throws SQLException {
+    public LinkedList<NewUploadFile> loadNewUploadFiles() throws SQLException {
 
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
-        PreparedStatement ps = db.prepare("SELECT filepath,fromname FROM NEWUPLOADFILES");
+        PreparedStatement ps = db.prepareStatement("SELECT filepath,fromname FROM NEWUPLOADFILES");
 
-        LinkedList newUploadFiles = new LinkedList();
+        LinkedList<NewUploadFile> newUploadFiles = new LinkedList<NewUploadFile>();
         
         ResultSet rs = ps.executeQuery();
         while( rs.next() ) {

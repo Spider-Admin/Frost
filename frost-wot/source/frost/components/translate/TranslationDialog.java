@@ -187,17 +187,13 @@ public class TranslationDialog extends JFrame {
                     int newIndex = getMinSelectionIndex();
                     if (oldIndex > -1 && oldIndex != newIndex) {
                         // auto apply of changes
-                        applyChanges(oldIndex);
-                    }
-                } 
-            });
-            Lkeys.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-                public void valueChanged(javax.swing.event.ListSelectionEvent e) {
-                    if( e.getValueIsAdjusting() ) {
-                        return;
+                        String oldKey = (String)getLkeys().getModel().getElementAt(oldIndex);
+                        if( oldKey != null ) {
+                            applyChanges(oldKey, oldIndex);
+                        }
                     }
                     keySelectionChanged();
-                }
+                } 
             });
         }
         return Lkeys;
@@ -351,7 +347,8 @@ public class TranslationDialog extends JFrame {
             BdeleteKey.setMnemonic(java.awt.event.KeyEvent.VK_D);
             BdeleteKey.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
-                    deleteKey();
+                    String selectedKey = (String)getLkeys().getSelectedValue();
+                    deleteKey(selectedKey);
                 }
             });
         }
@@ -406,7 +403,12 @@ public class TranslationDialog extends JFrame {
             BapplyChanges.setMnemonic(java.awt.event.KeyEvent.VK_A);
             BapplyChanges.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
-                    applyChanges();
+                    String selectedKey = (String)getLkeys().getSelectedValue();
+                    if( selectedKey == null ) {
+                        return;
+                    }
+                    int selectedIx = getLkeys().getSelectedIndex();
+                    applyChanges(selectedKey, selectedIx);
                 }
             });
         }
@@ -513,13 +515,13 @@ public class TranslationDialog extends JFrame {
         setVisible(true);
     }
     
-    private List getAllKeys() {
-        TreeMap sorter = new TreeMap();
+    private List<String> getAllKeys() {
+        TreeMap<String,String> sorter = new TreeMap<String,String>();
         for(Iterator i=rootBundle.getKeys().iterator(); i.hasNext(); ) {
             String key = (String)i.next();
             sorter.put(key, key);
         }
-        List itemList = new ArrayList();
+        List<String> itemList = new ArrayList<String>();
         for(Iterator i=sorter.keySet().iterator(); i.hasNext(); ) {
             String key = (String)i.next();
             itemList.add(key);
@@ -527,15 +529,15 @@ public class TranslationDialog extends JFrame {
         return itemList;
     }
     
-    private List getMissingKeys() {
-        TreeMap sorter = new TreeMap();
+    private List<String> getMissingKeys() {
+        TreeMap<String,String> sorter = new TreeMap<String,String>();
         for(Iterator i=rootBundle.getKeys().iterator(); i.hasNext(); ) {
             String key = (String)i.next();
             if( targetBundle.containsKey(key) == false ) {
                 sorter.put(key, key);
             }
         }
-        List itemList = new ArrayList();
+        List<String> itemList = new ArrayList<String>();
         for(Iterator i=sorter.keySet().iterator(); i.hasNext(); ) {
             String key = (String)i.next();
             itemList.add(key);
@@ -571,27 +573,10 @@ public class TranslationDialog extends JFrame {
         getLkeys().setModel(new ItemListModel(items));
     }
     
-    private void applyChanges() {
-        String selectedKey = (String)getLkeys().getSelectedValue();
-        if( selectedKey == null ) {
-            return;
-        }
-        int selectedIx = getLkeys().getSelectedIndex();
-        applyChanges(selectedKey, selectedIx);
-    }
-
-    private void applyChanges(int oldIx) {
-        String oldKey = (String)getLkeys().getModel().getElementAt(oldIx);
-        if( oldKey == null ) {
-            return;
-        }
-        applyChanges(oldKey, oldIx);
-    }
-
     private void applyChanges(String selectedKey, int ix) {
         String txt = getTAtranslation().getText().trim();
         if( txt.length() == 0 ) {
-            deleteKey();
+            deleteKey(selectedKey);
             return;
         }
         targetBundle.setKey(selectedKey, txt);
@@ -601,6 +586,11 @@ public class TranslationDialog extends JFrame {
             ((ItemListModel)getLkeys().getModel()).itemChanged(ix);
         } else {
             ((ItemListModel)getLkeys().getModel()).removeItem(ix);
+            if( getLkeys().getSelectedValue() == null ) {
+                // nothing selected now, clear textfields
+                getTAsource().setText("");
+                getTAtranslation().setText("");
+            }
         }
     }
 
@@ -618,8 +608,7 @@ public class TranslationDialog extends JFrame {
         getTAtranslation().setText(val);
     }
 
-    private void deleteKey() {
-        String selectedKey = (String)getLkeys().getSelectedValue();
+    private void deleteKey(String selectedKey) {
         if( selectedKey == null ) {
             return;
         }

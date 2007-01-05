@@ -23,12 +23,6 @@ import java.util.*;
 
 public abstract class AbstractDatabaseTable {
     
-    protected static final Object syncObj = new Object();
-    
-    protected Object getSyncObj() {
-        return syncObj;
-    }
-    
     abstract public List getTableDDL();
     
     abstract public boolean compact(Statement stmt) throws SQLException;

@@ -32,12 +32,12 @@ public class BoardUpdateThreadObject extends Thread {
     Board targetBoard = null;
     long startTimeMillis = -1;
     boolean isFinished = false;
-    Vector registeredListeners = null;
+    Vector<BoardUpdateThreadListener> registeredListeners = null;
     
     public BoardUpdateThreadObject(Board board) {
         super(board.getName());
         this.targetBoard = board;
-        this.registeredListeners = new Vector();
+        this.registeredListeners = new Vector<BoardUpdateThreadListener>();
     }
     
     // FrostBoard getTargetBoard()

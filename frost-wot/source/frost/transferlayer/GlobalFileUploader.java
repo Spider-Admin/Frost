@@ -36,7 +36,8 @@ public class GlobalFileUploader {
             long date, 
             File uploadFile,
             String insertKey,
-            String insertKeyExtension) 
+            String insertKeyExtension,
+            boolean doMime) 
     {
         boolean success = false;
         boolean error = false;
@@ -54,7 +55,8 @@ public class GlobalFileUploader {
                         uploadFile,
                         null,
                         false, // doRedirect
-                        true); // removeLocalKey, insert with full HTL even if existing in local store
+                        true,  // removeLocalKey, insert with full HTL even if existing in local store
+                        doMime); 
 
                 if( result.isSuccess() ) {
                     // my files are already added to totalIdx, we don't need to download this index

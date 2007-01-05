@@ -36,8 +36,8 @@ public class BoardDatabaseTable extends AbstractDatabaseTable {
         "CONSTRAINT boards_pk PRIMARY KEY (primkey),"+
         "CONSTRAINT UNIQUE_BOARDS_ONLY UNIQUE(boardname) )";
 
-    public List getTableDDL() {
-        ArrayList lst = new ArrayList(1);
+    public List<String> getTableDDL() {
+        ArrayList<String> lst = new ArrayList<String>(1);
         lst.add(SQL_BOARDS_DDL);
         return lst;
     }
@@ -67,7 +67,7 @@ public class BoardDatabaseTable extends AbstractDatabaseTable {
         
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
-        PreparedStatement ps = db.prepare("INSERT INTO BOARDS (primkey,boardname) VALUES (?,?)");
+        PreparedStatement ps = db.prepareStatement("INSERT INTO BOARDS (primkey,boardname) VALUES (?,?)");
         ps.setInt(1, board.getPrimaryKey().intValue());
         ps.setString(2, board.getNameLowerCase());
         
@@ -84,7 +84,7 @@ public class BoardDatabaseTable extends AbstractDatabaseTable {
         
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
-        PreparedStatement ps = db.prepare("DELETE FROM BOARDS WHERE primkey=?");
+        PreparedStatement ps = db.prepareStatement("DELETE FROM BOARDS WHERE primkey=?");
         
         ps.setInt(1, board.getPrimaryKey().intValue());
         
@@ -93,12 +93,12 @@ public class BoardDatabaseTable extends AbstractDatabaseTable {
         ps.close();
     }
     
-    public Hashtable loadBoards() throws SQLException {
-        Hashtable ht = new Hashtable();
+    public Hashtable<String,Integer> loadBoards() throws SQLException {
+        Hashtable<String,Integer> ht = new Hashtable<String,Integer>();
         
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
-        PreparedStatement ps = db.prepare("SELECT primkey,boardname FROM BOARDS");
+        PreparedStatement ps = db.prepareStatement("SELECT primkey,boardname FROM BOARDS");
 
         ResultSet rs = ps.executeQuery();
         while(rs.next()) {

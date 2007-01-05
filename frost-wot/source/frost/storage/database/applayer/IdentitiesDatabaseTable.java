@@ -53,8 +53,8 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
         "uniquename VARCHAR NOT NULL,"+
         "lastshared BIGINT )";
 
-    public List getTableDDL() {
-        ArrayList lst = new ArrayList(3);
+    public List<String> getTableDDL() {
+        ArrayList<String> lst = new ArrayList<String>(3);
         lst.add(SQL_IDENTITIES_DDL);
         lst.add(SQL_OWN_IDENTITIES_DDL);
         lst.add(SQL_OWN_IDENTITIES_LASTFILESSHARED_DDL);
@@ -71,7 +71,7 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
     public boolean insertIdentity(Identity identity) throws SQLException {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
-        PreparedStatement ps = db.prepare("INSERT INTO IDENTITIES (uniquename,publickey,lastseen,state) VALUES (?,?,?,?)");
+        PreparedStatement ps = db.prepareStatement("INSERT INTO IDENTITIES (uniquename,publickey,lastseen,state) VALUES (?,?,?,?)");
         
         ps.setString(1, identity.getUniqueName());
         ps.setString(2, identity.getKey());
@@ -86,7 +86,7 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
     public boolean insertLocalIdentity(LocalIdentity localIdentity) throws SQLException {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
-        PreparedStatement ps = db.prepare(
+        PreparedStatement ps = db.prepareStatement(
                 "INSERT INTO OWNIDENTITIES (uniquename,publickey,privatekey,signature,sendmsgdelay,sendmsgdelayrandom) VALUES (?,?,?,?,?,?)");
         
         ps.setString(1, localIdentity.getUniqueName());
@@ -104,7 +104,7 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
     public boolean removeLocalIdentity(LocalIdentity localIdentity) throws SQLException {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
-        PreparedStatement ps = db.prepare("DELETE FROM OWNIDENTITIES WHERE uniquename=?");
+        PreparedStatement ps = db.prepareStatement("DELETE FROM OWNIDENTITIES WHERE uniquename=?");
         
         ps.setString(1, localIdentity.getUniqueName());
         
@@ -116,7 +116,7 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
     public boolean removeIdentity(Identity identity) throws SQLException {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
-        PreparedStatement ps = db.prepare("DELETE FROM IDENTITIES WHERE uniquename=?");
+        PreparedStatement ps = db.prepareStatement("DELETE FROM IDENTITIES WHERE uniquename=?");
         
         ps.setString(1, identity.getUniqueName());
         
@@ -125,12 +125,12 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
         return deleteWasOk;
     }
 
-    public List getIdentities() throws SQLException {
-        ArrayList identities = new ArrayList();
+    public List<Identity> getIdentities() throws SQLException {
+        ArrayList<Identity> identities = new ArrayList<Identity>();
         
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
-        PreparedStatement ps = db.prepare("SELECT uniquename,publickey,lastseen,state FROM IDENTITIES");
+        PreparedStatement ps = db.prepareStatement("SELECT uniquename,publickey,lastseen,state FROM IDENTITIES");
         
         ResultSet rs = ps.executeQuery();
         while(rs.next()) {
@@ -147,12 +147,12 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
         return identities;
     }
 
-    public List getLocalIdentities() throws SQLException {
-        ArrayList localIdentities = new ArrayList();
+    public List<LocalIdentity> getLocalIdentities() throws SQLException {
+        ArrayList<LocalIdentity> localIdentities = new ArrayList<LocalIdentity>();
         
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
-        PreparedStatement ps = db.prepare("SELECT uniquename,publickey,privatekey,signature,sendmsgdelay,sendmsgdelayrandom FROM OWNIDENTITIES");
+        PreparedStatement ps = db.prepareStatement("SELECT uniquename,publickey,privatekey,signature,sendmsgdelay,sendmsgdelayrandom FROM OWNIDENTITIES");
         
         ResultSet rs = ps.executeQuery();
         while(rs.next()) {
@@ -177,7 +177,7 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
     public boolean updateLocalIdentity(LocalIdentity identity) throws SQLException {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
-        PreparedStatement ps = db.prepare("UPDATE OWNIDENTITIES SET signature=?,sendmsgdelay=?,sendmsgdelayrandom=? WHERE uniquename=?");
+        PreparedStatement ps = db.prepareStatement("UPDATE OWNIDENTITIES SET signature=?,sendmsgdelay=?,sendmsgdelayrandom=? WHERE uniquename=?");
         
         ps.setString(1, identity.getSignature());
         ps.setInt(2, 0);
@@ -192,7 +192,7 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
     public boolean updateIdentity(Identity identity) throws SQLException {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
-        PreparedStatement ps = db.prepare("UPDATE IDENTITIES SET lastseen=?,state=? WHERE uniquename=?");
+        PreparedStatement ps = db.prepareStatement("UPDATE IDENTITIES SET lastseen=?,state=? WHERE uniquename=?");
         
         ps.setTimestamp(1, new Timestamp(identity.getLastSeenTimestamp()));
         ps.setInt(2, identity.getState());
@@ -209,7 +209,7 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
     public int getIdentityCount() throws SQLException {
         
         AppLayerDatabase db = AppLayerDatabase.getInstance();
-        PreparedStatement ps = db.prepare("SELECT COUNT(primkey) FROM IDENTITIES");
+        PreparedStatement ps = db.prepareStatement("SELECT COUNT(primkey) FROM IDENTITIES");
         
         int count = 0;
         ResultSet rs = ps.executeQuery();
@@ -227,7 +227,7 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
         
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
-        PreparedStatement ps = db.prepare("SELECT lastshared FROM OWNIDENTITIESLASTFILESSHARED WHERE uniquename=?");
+        PreparedStatement ps = db.prepareStatement("SELECT lastshared FROM OWNIDENTITIESLASTFILESSHARED WHERE uniquename=?");
         
         for(Iterator i=localIdentities.iterator(); i.hasNext(); ) {
             LocalIdentity li = (LocalIdentity)i.next();
@@ -252,7 +252,7 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
         s.close();
         s = null;
         
-        PreparedStatement ps = db.prepare("INSERT INTO OWNIDENTITIESLASTFILESSHARED (uniquename,lastshared) VALUES (?,?)");
+        PreparedStatement ps = db.prepareStatement("INSERT INTO OWNIDENTITIESLASTFILESSHARED (uniquename,lastshared) VALUES (?,?)");
         
         for(Iterator i=localIdentities.iterator(); i.hasNext(); ) {
             LocalIdentity li = (LocalIdentity)i.next();

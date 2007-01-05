@@ -202,7 +202,7 @@ public class FileListFile {
             filesNode = (Element)nodelist.get(0);
         }
         
-        LinkedList files = new LinkedList();
+        LinkedList<SharedFileXmlFile> files = new LinkedList<SharedFileXmlFile>();
         {        
             List _files = XMLTools.getChildElementsByTagName(filesNode, TAG_File);
             for( Iterator i = _files.iterator(); i.hasNext(); ) {
@@ -226,8 +226,8 @@ public class FileListFile {
         }
         
         // check each file for validity
-        for(Iterator i=files.iterator(); i.hasNext(); ) {
-            SharedFileXmlFile file = (SharedFileXmlFile) i.next();
+        for(Iterator<SharedFileXmlFile> i=files.iterator(); i.hasNext(); ) {
+            SharedFileXmlFile file = i.next();
             if( !file.isSharedFileValid() ) {
                 String txt = "Shared file is invalid (missing fields or wrong contents):"+
                              "\n  size="+file.getSize()+
@@ -244,12 +244,12 @@ public class FileListFile {
         return content;
     }
     
-    private static String getSignableContent(LinkedList files, String owner, long timestamp) {
+    private static String getSignableContent(LinkedList<SharedFileXmlFile> files, String owner, long timestamp) {
         StringBuffer signContent = new StringBuffer();
         signContent.append(owner);
         signContent.append(timestamp);
-        for(Iterator i = files.iterator(); i.hasNext(); ) {
-            SharedFileXmlFile sfo = (SharedFileXmlFile)i.next();
+        for(Iterator<SharedFileXmlFile> i = files.iterator(); i.hasNext(); ) {
+            SharedFileXmlFile sfo = i.next();
             signContent.append( sfo.getSha() );
             signContent.append( sfo.getFilename() );
             signContent.append( sfo.getSize().toString() );

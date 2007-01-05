@@ -232,7 +232,7 @@ RawDataLength=0
     private static FcpResultPut putFECSplitFile(String uri, File file,
                                            int htl, FrostUploadItem ulItem)
     {
-        FecSplitfile splitfile =null;
+        FecSplitfile splitfile = null;
 
 /*      if( ulItem != null && ulItem.getKey() == null ) {
         // FIXED: this is an attachment upload!
@@ -256,7 +256,7 @@ RawDataLength=0
 
         logger.info("Starting upload of "+file.getName());
 
-        int totalAvailableBlocks = splitfile.getDataBlocks().size() + splitfile.getCheckBlocks().size();;
+        int totalAvailableBlocks = splitfile.getDataBlocks().size() + splitfile.getCheckBlocks().size();
         int totalFinishedBlocks = 0;
 
         if( ulItem != null && ulItem.getKey() != null ) {
@@ -411,6 +411,9 @@ RawDataLength=0
                 logger.log(Level.SEVERE, "Error uploading redirect file", e);
             }
         }
+        
+        // close all internal buckets
+        splitfile.closeBuckets();
 
         if( ulItem == null ) {
             // if we tried to upload a file not contained in upload table, remove work files,
@@ -482,6 +485,7 @@ RawDataLength=0
             if( success == true ) {
                 block.setCurrentState(FecBlock.STATE_TRANSFER_FINISHED);
                 splitfile.createRedirectFile(true);
+                block.close();
             } else {
                 block.setCurrentState(FecBlock.STATE_TRANSFER_WAITING);
                 // no need to update redirect file

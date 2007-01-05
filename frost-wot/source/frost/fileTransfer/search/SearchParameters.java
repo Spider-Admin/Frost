@@ -48,21 +48,21 @@ public class SearchParameters {
     private boolean withKeyOnly = false;
     
     // simple search
-    private List simpleSearchStrings = null;
-    private List simpleSearchNotStrings = null;
+    private List<String> simpleSearchStrings = null;
+    private List<String> simpleSearchNotStrings = null;
     
     // advanced search
-    private List name = null;
-    private List comment = null;
-    private List keyword = null;
-    private List owner = null;
+    private List<String> name = null;
+    private List<String> comment = null;
+    private List<String> keyword = null;
+    private List<String> owner = null;
 
-    private List notName = null;
-    private List notComment = null;
-    private List notKeyword = null;
-    private List notOwner = null;
+    private List<String> notName = null;
+    private List<String> notComment = null;
+    private List<String> notKeyword = null;
+    private List<String> notOwner = null;
 
-    private static List emptyList = new LinkedList();
+    private static List<String> emptyList = new LinkedList<String>();
     
     public SearchParameters(boolean simpleSearch) {
         isSimpleSearch = simpleSearch;
@@ -73,7 +73,7 @@ public class SearchParameters {
      */
     public String getTabText() {
         if( tabText == null ) {
-            List allStrings = new LinkedList();
+            List<String> allStrings = new LinkedList<String>();
             if( isSimpleSearch() ) {
                 allStrings.addAll(getSimpleSearchStrings());
                 if( getSimpleSearchNotStrings().size() > 0 ) {
@@ -135,82 +135,82 @@ public class SearchParameters {
     }
 
     public void setSimpleSearchString(String simpleSearchStr) {
-        List[] res = TextSearchFun.splitStrings(simpleSearchStr, true);
+        List<String>[] res = TextSearchFun.splitStrings(simpleSearchStr, true);
         simpleSearchStrings = res[0];
         simpleSearchNotStrings = res[1];
     }
     
     public void setCommentString(String commentStr) {
-        List[] res = TextSearchFun.splitStrings(commentStr, true);
+        List<String>[] res = TextSearchFun.splitStrings(commentStr, true);
         comment = res[0];
         notComment = res[1];
     }
     public void setKeywordString(String keywordStr) {
-        List[] res = TextSearchFun.splitStrings(keywordStr, true);
+        List<String>[] res = TextSearchFun.splitStrings(keywordStr, true);
         keyword = res[0];
         notKeyword = res[1];
     }
     public void setNameString(String nameStr) {
-        List[] res = TextSearchFun.splitStrings(nameStr, true);
+        List<String>[] res = TextSearchFun.splitStrings(nameStr, true);
         name = res[0];
         notName = res[1];
     }
     public void setOwnerString(String ownerStr) {
-        List[] res = TextSearchFun.splitStrings(ownerStr, true);
+        List<String>[] res = TextSearchFun.splitStrings(ownerStr, true);
         owner = res[0];
         notOwner = res[1];
     }
     
-    public List getComment() {
+    public List<String> getComment() {
         if( comment == null ) {
             return emptyList;
         }
         return comment;
     }
 
-    public List getKeyword() {
+    public List<String> getKeyword() {
         if( keyword == null ) {
             return emptyList;
         }
         return keyword;
     }
 
-    public List getName() {
+    public List<String> getName() {
         if( name == null ) {
             return emptyList;
         }
         return name;
     }
 
-    public List getOwner() {
+    public List<String> getOwner() {
         if( owner == null ) {
             return emptyList;
         }
         return owner;
     }
     
-    public List getNotComment() {
+    public List<String> getNotComment() {
         if( notComment == null ) {
             return emptyList;
         }
         return notComment;
     }
 
-    public List getNotKeyword() {
+    public List<String> getNotKeyword() {
         if( notKeyword == null ) {
             return emptyList;
         }
         return notKeyword;
     }
 
-    public List getNotName() {
+    public List<String> getNotName() {
         if( notName == null ) {
             return emptyList;
         }
         return notName;
     }
 
-    public List getNotOwner() {
+    public List<String> getNotOwner() {
         if( notOwner == null ) {
             return emptyList;
         }
@@ -228,11 +228,11 @@ public class SearchParameters {
         return isSimpleSearch;
     }
 
-    public List getSimpleSearchNotStrings() {
+    public List<String> getSimpleSearchNotStrings() {
         return simpleSearchNotStrings;
     }
 
-    public List getSimpleSearchStrings() {
+    public List<String> getSimpleSearchStrings() {
         return simpleSearchStrings;
     }
 }

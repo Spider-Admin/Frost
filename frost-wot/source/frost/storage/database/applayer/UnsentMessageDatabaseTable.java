@@ -73,8 +73,8 @@ public class UnsentMessageDatabaseTable extends AbstractDatabaseTable {
         "CONSTRAINT unsendmsg_board_fk FOREIGN KEY (msgref) REFERENCES UNSENDMESSAGES(primkey) ON DELETE CASCADE"+
         ")";
 
-    public List getTableDDL() {
-        ArrayList lst = new ArrayList(3);
+    public List<String> getTableDDL() {
+        ArrayList<String> lst = new ArrayList<String>(3);
         lst.add(SQL_DDL_MESSAGES);
         lst.add(SQL_DDL_FILEATTACHMENTS);
         lst.add(SQL_DDL_BOARDATTACHMENTS);
@@ -95,7 +95,7 @@ public class UnsentMessageDatabaseTable extends AbstractDatabaseTable {
 
         // insert msg and all attachments
         AppLayerDatabase db = AppLayerDatabase.getInstance();
-        PreparedStatement ps = db.prepare(
+        PreparedStatement ps = db.prepareStatement(
             "INSERT INTO UNSENDMESSAGES ("+
             "primkey,messageid,inreplyto,board,sendafter,idlinepos,idlinelen,fromname,subject,recipient,msgcontent," +
             "hasfileattachment,hasboardattachment,timeAdded"+
@@ -143,7 +143,7 @@ public class UnsentMessageDatabaseTable extends AbstractDatabaseTable {
         
         // attachments
         if( files.size() > 0 ) {
-            PreparedStatement p = db.prepare(
+            PreparedStatement p = db.prepareStatement(
                     "INSERT INTO UNSENDFILEATTACHMENTS"+
                     " (msgref,filename,filesize,filekey)"+
                     " VALUES (?,?,?,?)");
@@ -162,7 +162,7 @@ public class UnsentMessageDatabaseTable extends AbstractDatabaseTable {
             p.close();
         }
         if( boards.size() > 0 ) {
-            PreparedStatement p = db.prepare(
+            PreparedStatement p = db.prepareStatement(
                     "INSERT INTO UNSENDBOARDATTACHMENTS"+
                     " (msgref,boardname,boardpublickey,boardprivatekey,boarddescription)"+
                     " VALUES (?,?,?,?,?)");
@@ -187,7 +187,7 @@ public class UnsentMessageDatabaseTable extends AbstractDatabaseTable {
     public synchronized void deleteMessage(String messageId) throws SQLException {
 
         AppLayerDatabase db = AppLayerDatabase.getInstance();
-        PreparedStatement ps = db.prepare("DELETE FROM UNSENDMESSAGES WHERE messageid=?");
+        PreparedStatement ps = db.prepareStatement("DELETE FROM UNSENDMESSAGES WHERE messageid=?");
         ps.setString(1, messageId);
         
         int updated = ps.executeUpdate();
@@ -202,7 +202,7 @@ public class UnsentMessageDatabaseTable extends AbstractDatabaseTable {
      */
     public synchronized void updateMessageFileAttachmentKey(FrostMessageObject mo, FileAttachment fa) throws SQLException {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
-        PreparedStatement ps = db.prepare("UPDATE UNSENDFILEATTACHMENTS SET filekey=? WHERE msgref=? AND filename=?");
+        PreparedStatement ps = db.prepareStatement("UPDATE UNSENDFILEATTACHMENTS SET filekey=? WHERE msgref=? AND filename=?");
         int ix=1;
         ps.setString(ix++, fa.getKey());
 
@@ -220,7 +220,7 @@ public class UnsentMessageDatabaseTable extends AbstractDatabaseTable {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         // retrieve attachments
         if( mo.isHasFileAttachments() ) {
-            PreparedStatement p2 = db.prepare(
+            PreparedStatement p2 = db.prepareStatement(
                     "SELECT filename,filesize,filekey FROM UNSENDFILEATTACHMENTS"+
                     " WHERE msgref=? ORDER BY filename");
             p2.setLong(1, mo.getMsgIdentity());
@@ -239,7 +239,7 @@ public class UnsentMessageDatabaseTable extends AbstractDatabaseTable {
             p2.close();
         }
         if( mo.isHasBoardAttachments() ) {
-            PreparedStatement p2 = db.prepare(
+            PreparedStatement p2 = db.prepareStatement(
                     "SELECT boardname,boardpublickey,boardprivatekey,boarddescription FROM UNSENDBOARDATTACHMENTS"+
                     " WHERE msgref=? ORDER BY boardname");
             p2.setLong(1, mo.getMsgIdentity());
@@ -263,8 +263,8 @@ public class UnsentMessageDatabaseTable extends AbstractDatabaseTable {
      * Retrieves all unsend messages. Drops messages without boards.
      * Result list is sorted by timeAdded ASC.
      */
-    public LinkedList retrieveMessages() throws SQLException {
-        LinkedList unsendMessages = new LinkedList();
+    public LinkedList<FrostUnsentMessageObject> retrieveMessages() throws SQLException {
+        LinkedList<FrostUnsentMessageObject> unsendMessages = new LinkedList<FrostUnsentMessageObject>();
         
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         String sql =
@@ -272,7 +272,7 @@ public class UnsentMessageDatabaseTable extends AbstractDatabaseTable {
             "primkey,messageid,inreplyto,board,sendafter,idlinepos,idlinelen,fromname,subject,recipient," +
             "msgcontent,hasfileattachment,hasboardattachment,timeAdded "+
             "FROM UNSENDMESSAGES ORDER BY timeAdded ASC";
-        PreparedStatement ps = db.prepare(sql);
+        PreparedStatement ps = db.prepareStatement(sql);
         ResultSet rs = ps.executeQuery();
         while( rs.next() ) {
             FrostUnsentMessageObject mo = new FrostUnsentMessageObject();
@@ -322,9 +322,9 @@ public class UnsentMessageDatabaseTable extends AbstractDatabaseTable {
         PreparedStatement ps;
         if( board == null ) {
             // no board restriction
-            ps = db.prepare("SELECT COUNT(primkey) FROM UNSENDMESSAGES");
+            ps = db.prepareStatement("SELECT COUNT(primkey) FROM UNSENDMESSAGES");
         } else {
-            ps = db.prepare("SELECT COUNT(primkey) FROM UNSENDMESSAGES WHERE board=?");
+            ps = db.prepareStatement("SELECT COUNT(primkey) FROM UNSENDMESSAGES WHERE board=?");
             ps.setInt(1, board.getPrimaryKey().intValue());
         }
         

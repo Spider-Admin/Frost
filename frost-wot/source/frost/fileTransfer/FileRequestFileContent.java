@@ -23,9 +23,9 @@ import java.util.*;
 public class FileRequestFileContent {
 
     long timestamp;
-    List shaStrings;
+    List<String> shaStrings;
     
-    public FileRequestFileContent(long timestamp, List shaStrings) {
+    public FileRequestFileContent(long timestamp, List<String> shaStrings) {
         this.timestamp = timestamp;
         this.shaStrings = shaStrings;
     }
@@ -33,7 +33,7 @@ public class FileRequestFileContent {
     public long getTimestamp() {
         return timestamp;
     }
-    public List getShaStrings() {
+    public List<String> getShaStrings() {
         return shaStrings;
     }
 

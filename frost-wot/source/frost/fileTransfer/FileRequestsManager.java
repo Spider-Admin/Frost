@@ -40,7 +40,7 @@ public class FileRequestsManager {
     /**
      * @return List with SHA strings that should be requested
      */
-    public static List getRequestsToSend() {
+    public static List<String> getRequestsToSend() {
         
         // get files from downloadtable that are shared and check if we should send a request for them
         // sha256 = 64 bytes, send a maximum of 350 requests per file (<32kb)
@@ -56,9 +56,9 @@ public class FileRequestsManager {
         long before2days = now - 2L * 24L * 60L * 60L * 1000L;
         long before14days = now - 14L * 24L * 60L * 60L * 1000L;
         
-        List downloadModelItems = FileTransferManager.getInstance().getDownloadManager().getModel().getItems();
+        List downloadModelItems = FileTransferManager.inst().getDownloadManager().getModel().getItems();
         
-        List mustSendRequests = new LinkedList();
+        List<String> mustSendRequests = new LinkedList<String>();
 
         for( Iterator i = downloadModelItems.iterator(); i.hasNext(); ) {
             FrostDownloadItem dlItem = (FrostDownloadItem) i.next();
@@ -112,7 +112,7 @@ public class FileRequestsManager {
             String sha = (String) i.next();
             
             // filelist files in download table
-            List downloadModelItems = FileTransferManager.getInstance().getDownloadManager().getModel().getItems();
+            List downloadModelItems = FileTransferManager.inst().getDownloadManager().getModel().getItems();
 
             for( Iterator j = downloadModelItems.iterator(); j.hasNext(); ) {
                 FrostDownloadItem dlItem = (FrostDownloadItem) j.next();
@@ -147,8 +147,8 @@ public class FileRequestsManager {
         
         long now = System.currentTimeMillis();
         
-        List downloadModelItems = FileTransferManager.getInstance().getDownloadManager().getModel().getItems();
-        List sharedFilesModelItems = FileTransferManager.getInstance().getSharedFilesManager().getModel().getItems();
+        List downloadModelItems = FileTransferManager.inst().getDownloadManager().getModel().getItems();
+        List sharedFilesModelItems = FileTransferManager.inst().getSharedFilesManager().getModel().getItems();
         
         for( Iterator i = content.getShaStrings().iterator(); i.hasNext(); ) {
             String sha = (String) i.next();
@@ -178,7 +178,7 @@ public class FileRequestsManager {
             
             // our own shared files in shared files table
             for( Iterator j = sharedFilesModelItems.iterator(); j.hasNext(); ) {
-                FrostSharedFileItem sfo = (FrostSharedFileItem) j.next();
+                FrostSharedFileItem sfo = (FrostSharedFileItem)j.next();
                 if( !sfo.getSha().equals(sha) ) {
                     continue;
                 }
@@ -200,7 +200,7 @@ public class FileRequestsManager {
                     if( sfo.getLastUploaded() < now - minDiff ) {
                         // last upload earlier than 3 days before, start upload
                         // add to upload files
-                        FileTransferManager.getInstance().getUploadManager().getModel().addNewUploadItemFromSharedFile(sfo);
+                        FileTransferManager.inst().getUploadManager().getModel().addNewUploadItemFromSharedFile(sfo);
                     }
                 }
             }

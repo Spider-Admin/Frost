@@ -35,9 +35,9 @@ public class IdentitiesXmlDAO {
     /**
      * Loads good, observe and bad identities from xml file.
      */
-    public static List loadIdentities(File file) {
+    public static List<Identity> loadIdentities(File file) {
         
-        LinkedList identities = new LinkedList();
+        LinkedList<Identity> identities = new LinkedList<Identity>();
 
         Document d = XMLTools.parseXmlFile(file, false);
         Element rootEl = d.getDocumentElement();
@@ -105,7 +105,7 @@ public class IdentitiesXmlDAO {
      * Returns -1 on error, 0 if no identity is to export and no file was created,
      * or >0 for exported identity count.
      */
-    public static int saveIdentities(File file, List identities) {
+    public static int saveIdentities(File file, List<Identity> identities) {
         
         BuddyList friends = new BuddyList();
         BuddyList observed = new BuddyList();
@@ -160,11 +160,11 @@ public class IdentitiesXmlDAO {
 
     private static class BuddyList implements XMLizable {
 
-        private HashMap hashMap = null;
+        private HashMap<String,Identity> hashMap = null;
 
         /**constructor*/
         public BuddyList() {
-            hashMap = new HashMap(100); //that sounds like a reasonable number
+            hashMap = new HashMap<String,Identity>(100); //that sounds like a reasonable number
         }
 
         void clearAll() {

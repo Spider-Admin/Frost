@@ -191,7 +191,7 @@ public class DownloadTicker extends Thread {
 			if (dlItem != null) {
 				dlItem.setState(FrostDownloadItem.STATE_TRYING);
 
-				DownloadThread newRequest = new DownloadThread(this, dlItem, model);
+				DownloadThread newRequest = new DownloadThread(this, dlItem);
 				newRequest.start();
 				threadLaunched = true;
 			}
@@ -209,7 +209,7 @@ public class DownloadTicker extends Thread {
 	 */
 	private FrostDownloadItem selectNextDownloadItem() {
 
-		// get the item with state "Waiting", minimum htl and not over maximum htl
+		// get the item with state "Waiting"
 		ArrayList waitingItems = new ArrayList();
 		for (int i = 0; i < model.getItemCount(); i++) {
 			FrostDownloadItem dlItem = (FrostDownloadItem) model.getItemAt(i);

@@ -23,13 +23,13 @@ import java.util.*;
 import frost.identities.*;
 
 public class FileListManagerFileInfo {
-    LinkedList files;
+    LinkedList<SharedFileXmlFile> files;
     LocalIdentity owner;
-    public FileListManagerFileInfo(LinkedList l, LocalIdentity li) {
+    public FileListManagerFileInfo(LinkedList<SharedFileXmlFile> l, LocalIdentity li) {
         files = l;
         owner = li;
     }
-    public LinkedList getFiles() {
+    public LinkedList<SharedFileXmlFile> getFiles() {
         return files;
     }
     public LocalIdentity getOwner() {

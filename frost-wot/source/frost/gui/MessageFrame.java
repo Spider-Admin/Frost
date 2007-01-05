@@ -524,6 +524,16 @@ public class MessageFrame extends JFrame {
             List budList = Core.getIdentities().getAllGOODIdentities();
             if( budList.size() > 0 ) {
                 Collections.sort( budList, new BuddyComparator() );
+                if( repliedMessage != null ) {
+                    Identity id = repliedMessage.getFromIdentity();
+                    if( id != null ) { 
+                        if( id.isGOOD() == true ) {
+                            budList.remove(id); // remove before put to top of list
+                        }
+                        // add id to top of list in case the user enables 'encrypt'
+                        budList.add(0, id);
+                    }
+                }
                 buddies = new JComboBox(new Vector(budList));
                 buddies.setSelectedItem(budList.get(0));
             } else {
@@ -615,11 +625,13 @@ public class MessageFrame extends JFrame {
             panelButtons.add(buddies);
 //            panelButtons.add(addAttachedFilesToUploadTable);
 
+            ScrollableBar panelButtonsScrollable = new ScrollableBar(panelButtons);
+
             JPanel dummyPanel = new JPanel(new BorderLayout());
             dummyPanel.add(panelLabels, BorderLayout.WEST);
             dummyPanel.add(panelTextfields, BorderLayout.CENTER);
 
-            panelToolbar.add(panelButtons, BorderLayout.NORTH);
+            panelToolbar.add(panelButtonsScrollable, BorderLayout.NORTH);
             panelToolbar.add(dummyPanel, BorderLayout.SOUTH);
 
             //Put everything together

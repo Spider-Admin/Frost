@@ -35,10 +35,13 @@ public class DownloadManager {
         getPanel();
         getStatusPanel();
 		getModel().initialize();
-		if (Core.isFreenetOnline()) {
-			getTicker().start();
-		}
 	}
+    
+    public void startTicker() {
+        if (Core.isFreenetOnline()) {
+            getTicker().start();
+        }
+    }
     
     public void save() throws StorageException {
         getPanel().getTableFormat().saveTableLayout();

@@ -129,9 +129,9 @@ public class TranslationStartDialog extends JFrame {
         if( CBoxTargetLanguage == null ) {
             CBoxTargetLanguage = new JComboBox();
             Locale availableLocales[] = Locale.getAvailableLocales();
-            List buildIns = Language.getBuildInLocales();
+            List buildIns = LanguageGuiSupport.getBuildInLocales();
             List externals = Language.getExternalLocales();
-            TreeMap tm = new TreeMap();
+            TreeMap<ComboBoxEntry,ComboBoxEntry> tm = new TreeMap<ComboBoxEntry,ComboBoxEntry>();
             for (int i = 0; i < availableLocales.length; i++) {
                 if( availableLocales[i].getCountry().length() > 0 ) {
                     // for now we concentrate on the main languages ;)
@@ -176,8 +176,8 @@ public class TranslationStartDialog extends JFrame {
             
             ComboBoxEntry defaultEntry = null;
             
-            List lst_buildin = Language.getBuildInLocales();
-            TreeMap tm_buildin = new TreeMap();
+            List lst_buildin = LanguageGuiSupport.getBuildInLocales();
+            TreeMap<ComboBoxEntry,ComboBoxEntry> tm_buildin = new TreeMap<ComboBoxEntry,ComboBoxEntry>();
             for( Iterator i=lst_buildin.iterator(); i.hasNext(); ) {
                 Locale locale = (Locale)i.next();
                 String localeDesc = locale.getDisplayName() + "  (" + locale.getLanguage() + ")";
@@ -194,7 +194,7 @@ public class TranslationStartDialog extends JFrame {
             }
 
             List lst_external = Language.getExternalLocales();
-            TreeMap tm_external = new TreeMap();
+            TreeMap<ComboBoxEntry,ComboBoxEntry> tm_external = new TreeMap<ComboBoxEntry,ComboBoxEntry>();
             for( Iterator i=lst_external.iterator(); i.hasNext(); ) {
                 Locale locale = (Locale)i.next();
                 String localeDesc = locale.getDisplayName() + "  (external) (" + locale.getLanguage() + ")";

@@ -37,8 +37,8 @@ public class FrostIdentities implements Savable {
 
     private static Logger logger = Logger.getLogger(FrostIdentities.class.getName());
 
-    private Hashtable identities = new Hashtable();
-    private Hashtable localIdentities = new Hashtable();
+    private Hashtable<String,Identity> identities = new Hashtable<String,Identity>();
+    private Hashtable<String,LocalIdentity> localIdentities = new Hashtable<String,LocalIdentity>();
     
     Language language = Language.getInstance();
     
@@ -273,8 +273,8 @@ public class FrostIdentities implements Savable {
         return li;
     }
 
-    public List getAllGOODIdentities() {
-        LinkedList list = new LinkedList();
+    public List<Identity> getAllGOODIdentities() {
+        LinkedList<Identity> list = new LinkedList<Identity>();
         for( Iterator i = identities.values().iterator(); i.hasNext(); ) {
             Identity id = (Identity)i.next();
             if( id.isGOOD() ) {
@@ -284,12 +284,12 @@ public class FrostIdentities implements Savable {
         return list;
     }
 
-    public List getLocalIdentities() {
-        return new ArrayList(localIdentities.values());
+    public List<LocalIdentity> getLocalIdentities() {
+        return new ArrayList<LocalIdentity>(localIdentities.values());
     }
 
-    public List getIdentities() {
-        return new ArrayList(identities.values());
+    public List<Identity> getIdentities() {
+        return new ArrayList<Identity>(identities.values());
     }
 
     public static boolean isDatabaseUpdatesAllowed() {

@@ -146,7 +146,7 @@ public class Core implements FrostEventDispatcher  {
         
         // get the list of available nodes
         String nodesUnparsed = frostSettings.getValue(SettingsClass.AVAILABLE_NODES);
-        List nodes = new ArrayList();
+        List<String> nodes = new ArrayList<String>();
 
         if (nodesUnparsed == null) { //old format
             String converted = new String(frostSettings.getValue("nodeAddress")+":"+frostSettings.getValue("nodePort"));
@@ -281,7 +281,7 @@ public class Core implements FrostEventDispatcher  {
         // get the list of available nodes
         String nodesUnparsed = frostSettings.getValue(SettingsClass.AVAILABLE_NODES);
         
-        List nodes = new ArrayList();
+        List<String> nodes = new ArrayList<String>();
 
         if (nodesUnparsed == null) { //old format
             String converted = new String(frostSettings.getValue("nodeAddress")+":"+frostSettings.getValue("nodePort"));
@@ -377,10 +377,6 @@ public class Core implements FrostEventDispatcher  {
 
     public static FrostCrypt getCrypto() {
         return crypto;
-    }
-
-    public void deleteDir(String which) {
-        new DeleteWholeDirThread(which).start();
     }
 
     public static void schedule(TimerTask task, long delay) {
@@ -523,9 +519,7 @@ public class Core implements FrostEventDispatcher  {
         KnownBoardsManager.initialize();
         getBoardsManager().initialize();
         getFileTransferManager().initialize();
-        
         UnsentMessagesManager.initialize();
-        FileAttachmentUploadThread.getInstance().start();
         
         if( firstStartup != null ) {
             File oldKnownBoardsXml = new File(firstStartup.getImportBaseDir().getPath() + File.separatorChar + "knownboards.xml");
@@ -557,6 +551,7 @@ public class Core implements FrostEventDispatcher  {
         splashscreen.setText(language.getString("Splashscreen.message.5"));
         splashscreen.setProgress(80);
         
+        // boot up the machinery ;)
         initializeTasks(mainFrame);
 
         SwingUtilities.invokeLater(new Runnable() {
@@ -577,7 +572,7 @@ public class Core implements FrostEventDispatcher  {
 
     public FileTransferManager getFileTransferManager() {
         if (fileTransferManager == null) {
-            fileTransferManager = FileTransferManager.getInstance();
+            fileTransferManager = FileTransferManager.inst();
         }
         return fileTransferManager;
     }
@@ -603,7 +598,7 @@ public class Core implements FrostEventDispatcher  {
      *          dialog that has to be shown in case an error happens
      *          in one of those tasks
      */
-    private void initializeTasks(JFrame parentFrame) {
+    private void initializeTasks(MainFrame mainframe) {
         //We initialize the task that checks for spam
         timer.schedule(
             new CheckForSpam(frostSettings, getBoardsManager().getTofTree(), getBoardsManager().getTofTreeModel()),
@@ -618,7 +613,8 @@ public class Core implements FrostEventDispatcher  {
                 System.gc();
             }
         };
-        timer.schedule(cleaner, 30L * 60L * 1000L, 30L * 60L * 1000L);    //30 minutes
+        long gcMinutes = 10;
+        timer.schedule(cleaner, gcMinutes * 60L * 1000L, gcMinutes * 60L * 1000L);
         cleaner = null;
         
         // initialize the task that saves data
@@ -636,8 +632,17 @@ public class Core implements FrostEventDispatcher  {
         saver.addExitSavable(frostSettings);
         // close databases
         saver.addExitSavable(AppLayerDatabase.getInstance());
+
+        // invoke the mainframe ticker (board updates, clock, ...)
+        mainframe.startTickerThread();
         
-        // after 15 seconds, start filesharing threads if it is enabled
+        // start file attachment uploads
+        FileAttachmentUploadThread.getInstance().start();
+        
+        // start all filetransfer tickers
+        getFileTransferManager().startTickers();
+        
+        // after 15 seconds, start filesharing threads if enabled
         if( isFreenetOnline() && !frostSettings.getBoolValue(SettingsClass.DISABLE_FILESHARING)) {
             Thread t = new Thread() {
                 public void run() {

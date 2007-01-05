@@ -87,36 +87,36 @@ public class GlobalIndexSlotsDatabaseTable {
         db = AppLayerDatabase.getInstance();
     }
     
-    public static List getTableDDL() {
-        ArrayList lst = new ArrayList(1);
+    public static List<String> getTableDDL() {
+        ArrayList<String> lst = new ArrayList<String>(1);
         lst.add(SQL_DDL);
         return lst;
     }
     
     private PreparedStatement getPsINSERT() throws SQLException {
         if( ps_INSERT == null ) {
-            ps_INSERT = db.prepare(SQL_INSERT);
+            ps_INSERT = db.prepareStatement(SQL_INSERT);
         }
         return ps_INSERT;
     }
 
     private PreparedStatement getPsUPDATE_WASUPLOADED() throws SQLException {
         if( ps_UPDATE_WASUPLOADED == null ) {
-            ps_UPDATE_WASUPLOADED = db.prepare(SQL_UPDATE_WASUPLOADED);
+            ps_UPDATE_WASUPLOADED = db.prepareStatement(SQL_UPDATE_WASUPLOADED);
         }
         return ps_UPDATE_WASUPLOADED;
     }
 
     private PreparedStatement getPsUPDATE_WASDOWNLOADED() throws SQLException {
         if( ps_UPDATE_WASDOWNLOADED == null ) {
-            ps_UPDATE_WASDOWNLOADED = db.prepare(SQL_UPDATE_WASDOWNLOADED);
+            ps_UPDATE_WASDOWNLOADED = db.prepareStatement(SQL_UPDATE_WASDOWNLOADED);
         }
         return ps_UPDATE_WASDOWNLOADED;
     }
 
     private PreparedStatement getPsNEXT_DOWNLOAD_SLOT() throws SQLException {
         if( ps_NEXT_UNUSED_SLOT == null ) {
-            ps_NEXT_UNUSED_SLOT = db.prepare(SQL_NEXT_DOWNLOAD_SLOT);
+            ps_NEXT_UNUSED_SLOT = db.prepareStatement(SQL_NEXT_DOWNLOAD_SLOT);
             ps_NEXT_UNUSED_SLOT.setMaxRows(1);
         }
         return ps_NEXT_UNUSED_SLOT;
@@ -124,7 +124,7 @@ public class GlobalIndexSlotsDatabaseTable {
 
     private PreparedStatement getPsNEXT_MAX_USED_SLOT() throws SQLException {
         if( ps_NEXT_MAX_USED_SLOT == null ) {
-            ps_NEXT_MAX_USED_SLOT = db.prepare(SQL_NEXT_MAX_USED_SLOT);
+            ps_NEXT_MAX_USED_SLOT = db.prepareStatement(SQL_NEXT_MAX_USED_SLOT);
             ps_NEXT_MAX_USED_SLOT.setMaxRows(1);
         }
         return ps_NEXT_MAX_USED_SLOT;
@@ -132,7 +132,7 @@ public class GlobalIndexSlotsDatabaseTable {
 
     private PreparedStatement getPsMAX_SLOT() throws SQLException {
         if( ps_MAX_SLOT == null ) {
-            ps_MAX_SLOT = db.prepare(SQL_MAX_SLOT);
+            ps_MAX_SLOT = db.prepareStatement(SQL_MAX_SLOT);
             ps_MAX_SLOT.setMaxRows(1);
         }
         return ps_MAX_SLOT;
@@ -324,7 +324,7 @@ public class GlobalIndexSlotsDatabaseTable {
         // millis before maxDaysOld days
         long date = new LocalDate().minusDays(maxDaysOld + 1).toDateTimeAtMidnight(DateTimeZone.UTC).getMillis();
         
-        PreparedStatement ps = localDB.prepare("DELETE FROM GLOBALINDEXSLOTS WHERE msgdate<?");
+        PreparedStatement ps = localDB.prepareStatement("DELETE FROM GLOBALINDEXSLOTS WHERE msgdate<?");
         ps.setLong(1, date);
         
         int deletedCount = ps.executeUpdate();

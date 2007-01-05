@@ -34,6 +34,8 @@ public abstract class FcpHandler {
     public static final int TYPE_MESSAGE = 1;
     public static final int TYPE_FILE = 2;
     
+    public static final int MAX_KSK_SIZE_ON_07 = 64 * 1024;
+    
     private static FcpHandler instance = null;
     
     public static int FREENET_05 = 5;
@@ -92,7 +94,7 @@ public abstract class FcpHandler {
             boolean doRedirect)
     {
         // use temp file by default, only filedownload needs the target file to monitor download progress
-        return getFile(type,key,size,target,doRedirect, false, true, null);
+        return getFile(type,key,size,target,doRedirect, false, -1, true, null);
     }
 
     /**
@@ -114,10 +116,11 @@ public abstract class FcpHandler {
             Long size,
             File target,
             boolean doRedirect,
-            boolean fastDownload)
+            boolean fastDownload,
+            int maxSize)
     {
         // use temp file by default, only filedownload needs the target file to monitor download progress
-        return getFile(type, key,size,target,doRedirect, fastDownload, true, null);
+        return getFile(type, key,size,target,doRedirect, fastDownload, maxSize, true, null);
     }
 
     /**
@@ -142,6 +145,7 @@ public abstract class FcpHandler {
             File target,
             boolean doRedirect,
             boolean fastDownload,
+            int maxSize,
             boolean createTempFile,
             FrostDownloadItem dlItem);
     
@@ -157,9 +161,10 @@ public abstract class FcpHandler {
             File file,
             byte[] metadata,
             boolean doRedirect,
-            boolean removeLocalKey)
+            boolean removeLocalKey,
+            boolean doMime)
     {
-        return putFile(type, uri, file, metadata, doRedirect, removeLocalKey, null);
+        return putFile(type, uri, file, metadata, doRedirect, removeLocalKey, doMime, null);
     }
 
     /**
@@ -176,6 +181,7 @@ public abstract class FcpHandler {
             byte[] metadata,
             boolean doRedirect,
             boolean removeLocalKey,
+            boolean doMime,
             FrostUploadItem ulItem);
     
     public abstract String generateCHK(File file) throws Throwable;

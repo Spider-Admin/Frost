@@ -66,7 +66,7 @@ public class FrostDownloadItem extends ModelItem {
      */ 
 	public FrostDownloadItem(String fileName, String key) {
 		
-        fileName = FileTransferManager.getInstance().getDownloadManager().ensureUniqueFilename(fileName);
+        fileName = FileTransferManager.inst().getDownloadManager().ensureUniqueFilename(fileName);
 
         this.fileName = Mixed.makeFilename(fileName);
 		this.key = key;
@@ -81,7 +81,7 @@ public class FrostDownloadItem extends ModelItem {
      */ 
     public FrostDownloadItem(String fileName, String key, Long s) {
 
-        fileName = FileTransferManager.getInstance().getDownloadManager().ensureUniqueFilename(fileName);
+        fileName = FileTransferManager.inst().getDownloadManager().ensureUniqueFilename(fileName);
 
         this.fileName = Mixed.makeFilename(fileName);
         fileSize = s;
@@ -97,7 +97,7 @@ public class FrostDownloadItem extends ModelItem {
      */
     public FrostDownloadItem(FrostFileListFileObject newSfo, String newName) {
 
-        newName = FileTransferManager.getInstance().getDownloadManager().ensureUniqueFilename(newName);
+        newName = FileTransferManager.inst().getDownloadManager().ensureUniqueFilename(newName);
 
         FrostFileListFileObject sfo = null;
         

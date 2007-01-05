@@ -106,8 +106,9 @@ System.out.println("FileListUploadThread: starting upload of files: "+fileInfo.g
                                     "CHK@",
                                     targetFile,
                                     null,
-                                    false, // doRedirect
-                                    true); // removeLocalKey, insert with full HTL even if existing in local store
+                                    false,  // doRedirect
+                                    true,   // removeLocalKey, insert with full HTL even if existing in local store
+                                    false); // doMime
 
                             if (result.isSuccess() || result.isKeyCollision()) {
                                 chkKey = result.getChkKey();

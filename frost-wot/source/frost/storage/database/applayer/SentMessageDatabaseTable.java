@@ -90,7 +90,7 @@ public class SentMessageDatabaseTable extends MessageDatabaseTable {
 
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
-        PreparedStatement ps = db.prepare("DELETE FROM "+getMessageTableName()+" WHERE primkey=?");
+        PreparedStatement ps = db.prepareStatement("DELETE FROM "+getMessageTableName()+" WHERE primkey=?");
         int deletedCount = 0;
         for(Iterator i=messages.iterator(); i.hasNext(); ) {
             FrostMessageObject mo = (FrostMessageObject) i.next(); 

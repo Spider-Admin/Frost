@@ -76,7 +76,7 @@ public class GenerateShaThread extends Thread {
                             sha);
                     
                     // add to shared files
-                    FileTransferManager.getInstance().getSharedFilesManager().getModel().addNewSharedFile(sfi);
+                    FileTransferManager.inst().getSharedFilesManager().getModel().addNewSharedFile(sfi);
                     
                     // delete from newuploadfiles database
                     Core.getInstance().getFileTransferManager().getNewUploadFilesManager().deleteNewUploadFile(newUploadFile);
@@ -96,7 +96,7 @@ public class GenerateShaThread extends Thread {
     
     private class FileQueue {
         
-        private LinkedList queue = new LinkedList();
+        private LinkedList<NewUploadFile> queue = new LinkedList<NewUploadFile>();
         
         public synchronized NewUploadFile getFileFromQueue() {
             try {
@@ -109,7 +109,7 @@ public class GenerateShaThread extends Thread {
             }
             
             if( queue.isEmpty() == false ) {
-                NewUploadFile key = (NewUploadFile) queue.removeFirst();
+                NewUploadFile key = queue.removeFirst();
                 return key;
             }
             return null;

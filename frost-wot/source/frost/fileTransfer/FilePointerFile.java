@@ -161,7 +161,7 @@ public class FilePointerFile {
         
         Element rootChkNode = (Element)nodelist.get(0);
         
-        List chkKeyList = new LinkedList();
+        List<String> chkKeyList = new LinkedList<String>();
         List xmlKeys = XMLTools.getChildElementsByTagName(rootChkNode, TAG_chk);
         for( Iterator i = xmlKeys.iterator(); i.hasNext(); ) {
             Element el = (Element) i.next();

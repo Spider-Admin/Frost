@@ -65,7 +65,7 @@ public class IdentitiesBrowser extends JDialog {
     private JButton Bcleanup = null;
     private JFrame parent;
     
-    private List allTableMembers;
+    private List<InnerTableMember> allTableMembers;
     
     private boolean showColoredLines;
 
@@ -663,7 +663,7 @@ public class IdentitiesBrowser extends JDialog {
             return columnNames.length;
         }
 
-        public Class getColumnClass(int column) {
+        public Class<?> getColumnClass(int column) {
             if( column >= 0 && column < columnClasses.length )
                 return columnClasses[column];
             return null;
@@ -778,8 +778,8 @@ public class IdentitiesBrowser extends JDialog {
         // disables mainframe
         FrostSwingWorker worker = new FrostSwingWorker(parent) {
             protected void doNonUILogic() throws RuntimeException {
-                allTableMembers = new LinkedList(); // remember all table data for filter
-                List allIdentities = Core.getIdentities().getIdentities();
+                allTableMembers = new LinkedList<InnerTableMember>(); // remember all table data for filter
+                List<Identity> allIdentities = Core.getIdentities().getIdentities();
                 // show own identities also
                 allIdentities.addAll(Core.getIdentities().getLocalIdentities());
                 int count = 0;
@@ -825,7 +825,7 @@ public class IdentitiesBrowser extends JDialog {
             Bcleanup.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     
-                    LinkedList li = new LinkedList();
+                    LinkedList<Integer> li = new LinkedList<Integer>();
                     for( int i=tableModel.getRowCount()-1; i >= 0; i-- ) {
                         InnerTableMember m = (InnerTableMember)tableModel.getRow(i);
                         if( m.isDeleteable() ) {
@@ -1102,7 +1102,7 @@ public class IdentitiesBrowser extends JDialog {
                     if( xmlFile == null ) {
                         return;
                     }
-                    List allIdentities = Core.getIdentities().getIdentities();
+                    List<Identity> allIdentities = Core.getIdentities().getIdentities();
                     // saves only good,observe,bad
                     int count = IdentitiesXmlDAO.saveIdentities(xmlFile, allIdentities);
                     if( count > 0 ) {
