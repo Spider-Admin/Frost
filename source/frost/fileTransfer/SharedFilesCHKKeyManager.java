@@ -38,7 +38,7 @@ public class SharedFilesCHKKeyManager {
     /**
      * @return List with SharedFileCHKKey object that should be send inside a KSK pointer file
      */
-    public static List getCHKKeysToSend() {
+    public static List<SharedFilesCHKKey> getCHKKeysToSend() {
         // get a number of CHK keys from database that must be send
         // include only 1 of our new CHK keys into this list, don't send CHK keys of different identities
         // together, this compromises anonymity!
@@ -54,21 +54,35 @@ public class SharedFilesCHKKeyManager {
     /**
      * @param chkKeys a List of SharedFileCHKKey objects that were successfully sent within a KSK pointer file
      */
-    public static void updateCHKKeysWereSuccessfullySent(List chkKeys) {
+    public static void updateCHKKeysWereSuccessfullySent(List<SharedFilesCHKKey> chkKeys) {
         
-        long now = System.currentTimeMillis();
-        
-        for( Iterator i = chkKeys.iterator(); i.hasNext(); ) {
-            SharedFilesCHKKey key = (SharedFilesCHKKey) i.next();
-            
-            key.incrementSentCount();
-            key.setLastSent(now);
-            
-            try {
-                AppLayerDatabase.getSharedFilesCHKKeysDatabaseTable().updateSharedFilesCHKKeyAfterSend(key);
-            } catch (Throwable t) {
-                logger.log(Level.SEVERE, "Exception in SharedFilesCHKKeysDatabaseTable().updateCHKKeysWereSuccessfullySent", t);
-            }            
+        final long now = System.currentTimeMillis();
+
+        Connection conn = AppLayerDatabase.getInstance().getPooledConnection();
+        try {
+            conn.setAutoCommit(false);
+
+            for( Iterator<SharedFilesCHKKey> i = chkKeys.iterator(); i.hasNext(); ) {
+                SharedFilesCHKKey key = i.next();
+                
+                key.incrementSentCount();
+                key.setLastSent(now);
+                
+                try {
+                    AppLayerDatabase.getSharedFilesCHKKeysDatabaseTable().updateSharedFilesCHKKeyAfterSend(key, conn);
+                } catch (Throwable t) {
+                    logger.log(Level.SEVERE, "Exception in SharedFilesCHKKeysDatabaseTable().updateCHKKeysWereSuccessfullySent", t);
+                }            
+            }
+            conn.commit();
+            conn.setAutoCommit(true);
+        } catch(Throwable t) {
+            logger.log(Level.SEVERE, "Exception during database update", t);
+            // we commit all done changes
+            try { conn.commit(); } catch(Throwable t1) { logger.log(Level.SEVERE, "Exception during commit", t1); }
+            try { conn.setAutoCommit(true); } catch(Throwable t1) { }
+        } finally {
+            AppLayerDatabase.getInstance().givePooledConnection(conn);
         }
     }
     
@@ -144,7 +158,7 @@ System.out.println("processReceivedCHKKeys: finished processing keys, new="+newK
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Exception during chk key processing", t);
             // we commit all done changes
-            try { conn.commit(); } catch(Throwable t1) { logger.log(Level.SEVERE, "Exception during rollback", t1); }
+            try { conn.commit(); } catch(Throwable t1) { logger.log(Level.SEVERE, "Exception during commit", t1); }
             try { conn.setAutoCommit(true); } catch(Throwable t1) { }
         } finally {
             AppLayerDatabase.getInstance().givePooledConnection(conn);

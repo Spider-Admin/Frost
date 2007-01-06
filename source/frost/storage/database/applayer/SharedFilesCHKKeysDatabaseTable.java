@@ -299,11 +299,10 @@ public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
      * Updates newkey in database.
      * Updates only sentcount and lastsent
      */
-    public boolean updateSharedFilesCHKKeyAfterSend(SharedFilesCHKKey newkey) throws SQLException {
+    public boolean updateSharedFilesCHKKeyAfterSend(SharedFilesCHKKey newkey, Connection conn) 
+    throws SQLException {
 
-        AppLayerDatabase db = AppLayerDatabase.getInstance();
-        
-        PreparedStatement ps = db.prepareStatement("UPDATE SHAREDFILESCHK SET sentcount=?,lastsent=? WHERE primkey=?");
+        PreparedStatement ps = conn.prepareStatement("UPDATE SHAREDFILESCHK SET sentcount=?,lastsent=? WHERE primkey=?");
 
         int ix=1;
         ps.setInt(ix++, newkey.getSentCount());

@@ -71,7 +71,7 @@ public class FilePointersThread extends Thread {
     private boolean uploadIndexFile(String dateStr, long sqlDate) throws Throwable {
 
         // get a list of CHK keys to send
-        List sharedFileCHKkeys = SharedFilesCHKKeyManager.getCHKKeysToSend();
+        List<SharedFilesCHKKey> sharedFileCHKkeys = SharedFilesCHKKeyManager.getCHKKeysToSend();
         if( sharedFileCHKkeys == null || sharedFileCHKkeys.size() == 0 ) {
             logger.info("FILEDN: No CHK keys to send.");
             return true;
@@ -102,7 +102,7 @@ public class FilePointersThread extends Thread {
         logger.info("FILEDN: Starting upload of pointer file containing "+sharedFileCHKkeys.size()+" CHK keys");
         
         String insertKey = keyPrefix + dateStr + "-";
-System.out.println("uploadIndexFile: Starting upload of pointer file containing "+sharedFileCHKkeys.size()+" CHK keys to "+insertKey);
+System.out.println("uploadIndexFile: Starting upload of pointer file containing "+sharedFileCHKkeys.size()+" CHK keys to "+insertKey+"...");
         boolean wasOk = GlobalFileUploader.uploadFile(indexSlots, sqlDate, tmpPointerFile, insertKey, ".xml", true);
 System.out.println("uploadIndexFile: upload finished, wasOk="+wasOk);
         tmpPointerFile.delete();
