@@ -398,15 +398,15 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
     /**
      * Update the item with SHA, set requestlastsent and requestssentcount
      */
-    public boolean updateFrostFileListFileObjectAfterRequestSend(String sha, long requestLastSent) throws SQLException {
-        AppLayerDatabase db = AppLayerDatabase.getInstance();
+    public boolean updateFrostFileListFileObjectAfterRequestSent(String sha, long requestLastSent, Connection conn) 
+    throws SQLException {
         
         FrostFileListFileObject oldSfo = getFrostFileListFileObject(sha);
         if( oldSfo == null) {
             return false;
         }
         
-        PreparedStatement ps = db.prepareStatement("UPDATE FILELIST SET requestlastsent=?,requestssentcount=? WHERE sha=?");
+        PreparedStatement ps = conn.prepareStatement("UPDATE FILELIST SET requestlastsent=?,requestssentcount=? WHERE sha=?");
 
         int ix = 1;
         ps.setLong(ix++, requestLastSent);
@@ -427,8 +427,8 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
     /**
      * Update the item with SHA, set requestlastsent and requestssentcount
      */
-    public boolean updateFrostFileListFileObjectAfterRequestReceived(String sha, long requestLastReceived) throws SQLException {
-        AppLayerDatabase db = AppLayerDatabase.getInstance();
+    public boolean updateFrostFileListFileObjectAfterRequestReceived(String sha, long requestLastReceived, Connection conn) 
+    throws SQLException {
         
         FrostFileListFileObject oldSfo = getFrostFileListFileObject(sha);
         if( oldSfo == null) {
@@ -439,7 +439,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
             requestLastReceived = oldSfo.getRequestLastReceived();
         }
         
-        PreparedStatement ps = db.prepareStatement("UPDATE FILELIST SET requestlastreceived=?,requestsreceivedcount=? WHERE sha=?");
+        PreparedStatement ps = conn.prepareStatement("UPDATE FILELIST SET requestlastreceived=?,requestsreceivedcount=? WHERE sha=?");
 
         int ix = 1;
         ps.setLong(ix++, requestLastReceived);

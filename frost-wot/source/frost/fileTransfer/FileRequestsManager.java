@@ -18,6 +18,7 @@
 */
 package frost.fileTransfer;
 
+import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
@@ -51,10 +52,10 @@ public class FileRequestsManager {
         // - we DON'T have the chk OR
         // - we HAVE the chk, but download FAILED, and last try was not longer then 2 days before (maybe successful now)
         
-        long now = System.currentTimeMillis();
-        long before23hours = now - 1L * 23L * 60L * 60L * 1000L;
-        long before2days = now - 2L * 24L * 60L * 60L * 1000L;
-        long before14days = now - 14L * 24L * 60L * 60L * 1000L;
+        final long now = System.currentTimeMillis();
+        final long before23hours = now - 1L * 23L * 60L * 60L * 1000L;
+        final long before2days = now - 2L * 24L * 60L * 60L * 1000L;
+        final long before14days = now - 14L * 24L * 60L * 60L * 1000L;
         
         List downloadModelItems = FileTransferManager.inst().getDownloadManager().getModel().getItems();
         
@@ -104,12 +105,13 @@ public class FileRequestsManager {
     /**
      * @param requests a List of String objects with SHAs that were successfully sent within a request file
      */
-    public static void updateRequestsWereSuccessfullySent(List requests) {
+    public static void updateRequestsWereSuccessfullySent(List<String> requests) {
 
-        long now = System.currentTimeMillis();
-        
-        for( Iterator i = requests.iterator(); i.hasNext(); ) {
-            String sha = (String) i.next();
+        final long now = System.currentTimeMillis();
+
+        // first update filelistfiles in memory
+        for( Iterator<String> i = requests.iterator(); i.hasNext(); ) {
+            String sha = i.next();
             
             // filelist files in download table
             List downloadModelItems = FileTransferManager.inst().getDownloadManager().getModel().getItems();
@@ -126,13 +128,29 @@ public class FileRequestsManager {
                 sfo.setRequestsSentCount(sfo.getRequestsSentCount() + 1);
                 sfo.setRequestLastSent(now);
             }
-            
-            // same filelist file, but in database
-            try {
-                AppLayerDatabase.getFileListDatabaseTable().updateFrostFileListFileObjectAfterRequestSend(sha, now);
-            } catch (Throwable t) {
-                logger.log(Level.SEVERE, "Exception during updateFrostSharedFileObjectAfterRequestSend", t);
-            }            
+        }
+
+        // then update same filelistfiles in database
+        Connection conn = AppLayerDatabase.getInstance().getPooledConnection();
+        try {
+            conn.setAutoCommit(false);
+            for( Iterator<String> i = requests.iterator(); i.hasNext(); ) {
+                String sha = i.next();
+                try {
+                    AppLayerDatabase.getFileListDatabaseTable().updateFrostFileListFileObjectAfterRequestSent(sha, now, conn);
+                } catch (Throwable t) {
+                    logger.log(Level.SEVERE, "Exception during updateFrostSharedFileObjectAfterRequestSend", t);
+                }            
+            }
+            conn.commit();
+            conn.setAutoCommit(true);
+        } catch(Throwable t) {
+            logger.log(Level.SEVERE, "Exception during database update", t);
+            // we commit all done changes
+            try { conn.commit(); } catch(Throwable t1) { logger.log(Level.SEVERE, "Exception during commit", t1); }
+            try { conn.setAutoCommit(true); } catch(Throwable t1) { }
+        } finally {
+            AppLayerDatabase.getInstance().givePooledConnection(conn);
         }
     }
     
@@ -140,18 +158,19 @@ public class FileRequestsManager {
      * Process the List of newly received requests (sha keys)
      */
     public static void processReceivedRequests(FileRequestFileContent content) {
-        
+
         if( content == null || content.getShaStrings() == null || content.getShaStrings().size() == 0 ) {
             return;
         }
-        
-        long now = System.currentTimeMillis();
-        
+
+        final long now = System.currentTimeMillis();
+
         List downloadModelItems = FileTransferManager.inst().getDownloadManager().getModel().getItems();
         List sharedFilesModelItems = FileTransferManager.inst().getSharedFilesManager().getModel().getItems();
-        
-        for( Iterator i = content.getShaStrings().iterator(); i.hasNext(); ) {
-            String sha = (String) i.next();
+
+        // first update the download and shared files in memory
+        for( Iterator<String> i = content.getShaStrings().iterator(); i.hasNext(); ) {
+            String sha = i.next();
 
             // filelist files in download table
             for( Iterator j = downloadModelItems.iterator(); j.hasNext(); ) {
@@ -167,13 +186,6 @@ public class FileRequestsManager {
                 if( sfo.getRequestLastReceived() < content.getTimestamp() ) {
                     sfo.setRequestLastReceived(content.getTimestamp());
                 }
-            }
-            
-            // same filelist file, but in database
-            try {
-                AppLayerDatabase.getFileListDatabaseTable().updateFrostFileListFileObjectAfterRequestReceived(sha, content.getTimestamp());
-            } catch (Throwable t) {
-                logger.log(Level.SEVERE, "Exception during updateFrostSharedFileObjectAfterRequestReceived", t);
             }
             
             // our own shared files in shared files table
@@ -204,6 +216,31 @@ public class FileRequestsManager {
                     }
                 }
             }
+        }
+        
+        // now update the filelistfiles in database
+        Connection conn = AppLayerDatabase.getInstance().getPooledConnection();
+        try {
+            conn.setAutoCommit(false);
+
+            for( Iterator<String> i = content.getShaStrings().iterator(); i.hasNext(); ) {
+                String sha = i.next();
+                try {
+                    AppLayerDatabase.getFileListDatabaseTable().updateFrostFileListFileObjectAfterRequestReceived(
+                            sha, content.getTimestamp(), conn);
+                } catch (Throwable t) {
+                    logger.log(Level.SEVERE, "Exception during updateFrostSharedFileObjectAfterRequestReceived", t);
+                }
+            }
+            conn.commit();
+            conn.setAutoCommit(true);
+        } catch(Throwable t) {
+            logger.log(Level.SEVERE, "Exception during database update", t);
+            // we commit all done changes
+            try { conn.commit(); } catch(Throwable t1) { logger.log(Level.SEVERE, "Exception during commit", t1); }
+            try { conn.setAutoCommit(true); } catch(Throwable t1) { }
+        } finally {
+            AppLayerDatabase.getInstance().givePooledConnection(conn);
         }
     }
 }
