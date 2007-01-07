@@ -213,16 +213,18 @@ public class MessageDownloader {
             //check if we have the owner already on the lists
             String _owner = metaData.getPerson().getUniqueName();
             Identity owner = Core.getIdentities().getIdentity(_owner);
+            boolean ownerIsNew = false;
             // if not on any list, use the parsed id and add to our identities list
             if (owner == null) {
                 owner = metaData.getPerson();
                 if( !Core.getIdentities().isNewIdentityValid(owner) ) {
                     // hash of public key does not match the unique name
+                    logger.severe("TOFDN: identity failed verification, message dropped."+logInfo);
                     tmpFile.delete();
                     return new MessageDownloaderResult(MessageDownloaderResult.INVALID_MSG);
                 }
                 owner.setCHECK();
-                Core.getIdentities().addIdentity(owner);
+                ownerIsNew = true;
             }
     
             // verify signature
@@ -246,8 +248,8 @@ public class MessageDownloader {
                 byte[] zipData = Core.getCrypto().decrypt(cipherText,receiverId.getPrivKey());
     
                 if( zipData == null ) {
-                    logger.log(Level.SEVERE, "TOFDN: Encrypted message from "+encMetaData.getPerson().getUniqueName()+
-                                             " could not be decrypted!"+logInfo);
+                    logger.severe( "TOFDN: Encrypted message from "+encMetaData.getPerson().getUniqueName()+
+                                   " could not be decrypted!"+logInfo);
                     tmpFile.delete();
                     return new MessageDownloaderResult(MessageDownloaderResult.DECRYPT_FAILED);
                 }
@@ -264,7 +266,7 @@ public class MessageDownloader {
             // unzip
             byte[] unzippedXml = FileAccess.readZipFileBinary(tmpFile);
             if( unzippedXml == null ) {
-                logger.log(Level.SEVERE, "TOFDN: Unzip of signed xml failed."+logInfo);
+                logger.severe("TOFDN: Unzip of signed xml failed."+logInfo);
                 tmpFile.delete();
                 return new MessageDownloaderResult(MessageDownloaderResult.BROKEN_MSG);
             }
@@ -282,15 +284,14 @@ public class MessageDownloader {
                 return new MessageDownloaderResult(MessageDownloaderResult.BROKEN_MSG);
             }
     
-            //then check if the signature was ok
+            // then check if the signature was ok
             if (!sigIsValid) {
-                logger.warning("TOFDN: message failed verification, status set to TAMPERED."+logInfo);
-                currentMsg.setSignatureStatusTAMPERED();
-                return new MessageDownloaderResult(currentMsg);
+                logger.severe("TOFDN: message failed verification, message dropped."+logInfo);
+                tmpFile.delete();
+                return new MessageDownloaderResult(MessageDownloaderResult.INVALID_MSG);
             }
 
-            // FIXME: do it the same way like when owners hash is invalid? see above
-            //make sure the pubkey and from fields in the xml file are the same as those in the metadata
+            // make sure the pubkey and from fields in the xml file are the same as those in the metadata
             String metaDataHash = Mixed.makeFilename(Core.getCrypto().digest(metaData.getPerson().getKey()));
             String messageHash = Mixed.makeFilename(
                         currentMsg.getFromName().substring(
@@ -298,13 +299,18 @@ public class MessageDownloader {
                         currentMsg.getFromName().length()));
     
             if (!metaDataHash.equals(messageHash)) {
-                logger.warning("TOFDN: Hash in metadata doesn't match hash in message!\n" +
+                logger.severe("TOFDN: Hash in metadata doesn't match hash in message!\n" +
                                "metadata : "+metaDataHash+" , message: " + messageHash+
-                               ". Message failed verification, status set to TAMPERED."+logInfo);
-                currentMsg.setSignatureStatusTAMPERED();
-                return new MessageDownloaderResult(currentMsg);
+                               ". Message failed verification and was dropped."+logInfo);
+                tmpFile.delete();
+                return new MessageDownloaderResult(MessageDownloaderResult.INVALID_MSG);
             }
-            
+
+            // if sig was valid and owner is new, add owner to identities list
+            if( ownerIsNew ) {
+                Core.getIdentities().addIdentity(owner);
+            }
+
             // update lastSeen for this Identity
             try {
                 long lastSeenMillis = currentMsg.getDateAndTime().getMillis();
@@ -390,16 +396,18 @@ public class MessageDownloader {
             // check if we have the owner (sender) already on the lists
             String _owner = currentMsg.getFromName();
             Identity owner = Core.getIdentities().getIdentity(_owner);
-            // if not on any list, use the parsed id and add to our identities list
+            boolean ownerIsNew = false;
+            // if not on any list, use the parsed id and check it
             if (owner == null) {
                 owner = new Identity(currentMsg.getFromName(), currentMsg.getPublicKey());
                 if( !Core.getIdentities().isNewIdentityValid(owner) ) {
                     // hash of public key does not match the unique name
+                    logger.severe("TOFDN: identity failed verification, message dropped."+logInfo);
                     tmpFile.delete();
                     return new MessageDownloaderResult(MessageDownloaderResult.INVALID_MSG);
                 }
                 owner.setCHECK();
-                Core.getIdentities().addIdentity(owner);
+                ownerIsNew = true;
             }
 
             // now verify signed content
@@ -407,9 +415,14 @@ public class MessageDownloader {
 
             // then check if the signature was ok
             if (!sigIsValid) {
-                logger.warning("TOFDN: message failed verification, status set to TAMPERED."+logInfo);
-                currentMsg.setSignatureStatusTAMPERED();
-                return new MessageDownloaderResult(currentMsg);
+                logger.severe("TOFDN: message failed verification, message dropped."+logInfo);
+                tmpFile.delete();
+                return new MessageDownloaderResult(MessageDownloaderResult.INVALID_MSG);
+            }
+            
+            // if sig was valid and owner is new, add owner to identities list
+            if( ownerIsNew ) {
+                Core.getIdentities().addIdentity(owner);
             }
             
             // update lastSeen for this Identity
