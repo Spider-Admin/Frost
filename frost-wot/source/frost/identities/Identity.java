@@ -151,34 +151,6 @@ public class Identity implements XMLizable {
     }
     
     /**
-     * This method checks if the digest of this Identity matches the pubkey.
-     * (digest is the part after the @ in the username)
-     */
-    public boolean isIdentityValid() {
-
-        String uName = getUniqueName();
-        String puKey = getKey();
-
-        try {
-            // check if the digest matches
-            String given_digest = uName.substring(uName.indexOf("@") + 1, uName.length()).trim();
-            String calculatedDigest = Core.getCrypto().digest(puKey.trim()).trim();
-            calculatedDigest = Mixed.makeFilename(calculatedDigest).trim();
-            if( !Mixed.makeFilename(given_digest).equals(calculatedDigest) ) {
-                logger.severe("Warning: public key of sharer didn't match its digest:\n" + 
-                              "given digest :'" + given_digest + "'\n" + 
-                              "pubkey       :'" + puKey.trim() + "'\n" + 
-                              "calc. digest :'" + calculatedDigest + "'");
-                return false;
-            }
-        } catch (Throwable e) {
-            logger.log(Level.SEVERE, "Exception during key validation", e);
-            return false;
-        }        
-        return true;
-    }
-
-    /**
      * @return  the public key of this Identity
      */
     public String getKey() {
