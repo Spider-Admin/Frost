@@ -324,7 +324,7 @@ public class SettingsClass implements Savable {
             this.setValue(SettingsClass.MESSAGE_BASE, "news");
         }
 
-        // FIXME: enable for release!!!
+        // maybe enable for a later release
 //        if (this.getValue(FILE_BASE).length() == 0) {
 //            this.setValue(FILE_BASE, "files");
 //        }
