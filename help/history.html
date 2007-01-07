@@ -9,6 +9,32 @@
   <BODY>
 <H2>Frost History</H2>
       <PRE>
+2007.01.07:
+------------
+
+FIXED BUGS:
+
+- font is correctly applied in message list, and its applied after it was changed in
+  the option dialog
+- fixed sorting of 'Enabled' columns in upload and download table
+- fixed several problems in translation plugin
+- restructured database access code, greatly reduces load and memory footprint.
+  also fixes the lost shared files issue.
+- fixed problem with new identity handling, new identities with same pubkey
+  as already known identities are now dropped (together with the message).
+  (the FAKE message state is not any longer used for new messages, all invalid
+   messages are dropped and a log entry is written)
+- 0.5: fixed a memory leak in splitfile insertion
+
+NEW FEATURES:
+
+- message state FAKE is now drawn in red color
+- added a button to advanced search panel to clear all text fields
+- added polish translation
+- 0.7: now showing appr. filesize for downloads, computed from the total finalized blocks
+- 0.7: MIME type is now set for manual uploads and attachment uploads
+- 0.7: MaxSize is used for message and filelist downloads
+
 2006.12.23:
 ------------
 
