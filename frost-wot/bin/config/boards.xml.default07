@@ -31,8 +31,17 @@
     <FrostBoardTreeEntry isfolder="true" isexpanded="false" >
       <name>freenet</name>
       <FrostBoardTreeEntry>
+        <name><![CDATA[Announce]]></name>
+        <publicKey><![CDATA[SSK@NFfDn-A~x0sjUKDXWUUGrmYox5kjnBCXVZEnSXEsBE4,erPVKXubIYDCUiFeIB~HBF5u8HkBdMUJgnfz9d8ZCUg,AQABAAE]]></publicKey>
+        <description><![CDATA[Announcement of new Freenet versions]]></description>
+      </FrostBoardTreeEntry>
+      <FrostBoardTreeEntry>
         <name><![CDATA[freenet]]></name>
-        <description><![CDATA[Board for all common freenet related stuff]]></description>
+        <description><![CDATA[All common freenet related stuff]]></description>
+      </FrostBoardTreeEntry>
+      <FrostBoardTreeEntry>
+        <name><![CDATA[freenet.0.7.bugs]]></name>
+        <description><![CDATA[Report bugs and problems with Freenet]]></description>
       </FrostBoardTreeEntry>
       <FrostBoardTreeEntry>
         <name><![CDATA[freenet-refs]]></name>
