@@ -27,6 +27,7 @@ import javax.swing.*;
 import frost.*;
 import frost.storage.*;
 import frost.storage.database.applayer.*;
+import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
@@ -333,7 +334,7 @@ public class FrostIdentities implements Savable {
         int importedCount = 0;
         for(Iterator i=importedIdentities.iterator(); i.hasNext(); ) {
             Identity newId = (Identity) i.next();
-            if( !newId.isIdentityValid() ) {
+            if( !isNewIdentityValid(newId) ) {
                 // hash of public key does not match the unique name
                 // skip identity
                 continue;
@@ -350,5 +351,67 @@ public class FrostIdentities implements Savable {
             }
         }
         return importedCount;
+    }
+    
+    /**
+     * This method checks an Identity for validity.
+     * Checks if the digest of this Identity matches the pubkey (digest is the part after the @ in the username)
+     */
+    public boolean isIdentityValid(Identity id) {
+
+        String uName = id.getUniqueName();
+        String puKey = id.getKey();
+
+        try {
+            // check if the digest matches
+            String given_digest = uName.substring(uName.indexOf("@") + 1, uName.length()).trim();
+            String calculatedDigest = Core.getCrypto().digest(puKey.trim()).trim();
+            calculatedDigest = Mixed.makeFilename(calculatedDigest).trim();
+            if( !Mixed.makeFilename(given_digest).equals(calculatedDigest) ) {
+                logger.severe("Warning: public key of sharer didn't match its digest:\n" + 
+                              "given digest :'" + given_digest + "'\n" + 
+                              "pubkey       :'" + puKey.trim() + "'\n" + 
+                              "calc. digest :'" + calculatedDigest + "'");
+                return false;
+            }
+        } catch (Throwable e) {
+            logger.log(Level.SEVERE, "Exception during key validation", e);
+            return false;
+        }        
+        return true;
+    }
+    
+    /**
+     * Checks if we can accept this new identity.
+     * If the public key of this identity is already assigned to another identity, then it is not valid.
+     */
+    public boolean isNewIdentityValid(Identity id) {
+        
+        // check if hash matches the public key
+        if( !isIdentityValid(id) ) {
+            return false;
+        }
+        
+        // check if the public key is known, maybe someone sends with same pubkey but different names before the @
+        for( Iterator<Identity> i=getIdentities().iterator(); i.hasNext(); ) {
+            Identity anId = i.next();
+            if( id.getKey().equals(anId.getKey()) ) {
+                logger.severe("Rejecting new Identity because its public key is already used by another known Identity. "+
+                        "newId='"+id.getUniqueName()+"', oldId='"+anId.getUniqueName()+"'");
+                return false;
+            }
+        }
+        
+        // for sure, check own identities too
+        for( Iterator<LocalIdentity> i=getLocalIdentities().iterator(); i.hasNext(); ) {
+            Identity anId = i.next();
+            if( id.getKey().equals(anId.getKey()) ) {
+                logger.severe("Rejecting new Identity because its public key is already used by an OWN Identity. "+
+                        "newId='"+id.getUniqueName()+"', oldId='"+anId.getUniqueName()+"'");
+                return false;
+            }
+        }
+        
+        return true;
     }
 }
