@@ -57,6 +57,8 @@ public class SettingsClass implements Savable {
 
     public static final String AVAILABLE_NODES = "availableNodes";
     public static final String FCP2_USE_DDA = "fcp2.useDDA";
+    public static final String FCP2_USE_PERSISTENCE = "fcp2.usePersistence";
+    public static final String FCP2_USE_GLOBALQUEUE = "fcp2.useGlobalQueue";
     
     public static final String AUTO_SAVE_INTERVAL = "autoSaveInterval";
     public static final String DISABLE_FILESHARING = "disableFilesharing";
@@ -701,6 +703,8 @@ public class SettingsClass implements Savable {
         defaults.put(REMEMBER_SHAREDFILE_DOWNLOADED, "true");
         
         defaults.put(FCP2_USE_DDA, "true");
+        defaults.put(FCP2_USE_PERSISTENCE, "true");
+        defaults.put(FCP2_USE_GLOBALQUEUE, "true");
 
         defaults.put(ALTERNATE_EDITOR_COMMAND, fn + "path" + fs + "to" + fs + "editor" + " %f");
         defaults.put(BOARD_AUTOUPDATE_ENABLED, "true"); 

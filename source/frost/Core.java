@@ -293,6 +293,7 @@ public class Core implements FrostEventDispatcher  {
                 nodes.add(_nodes[i]);
             }
         }
+
         if (nodes.size() == 0) {
             MiscToolkit.getInstance().showMessage(
                 "Not a single Freenet node configured. You need at least one.",
@@ -300,7 +301,21 @@ public class Core implements FrostEventDispatcher  {
                 "ERROR: No Freenet nodes are configured.");
             return false;
         }
-        
+
+        if( freenetVersion == FcpHandler.FREENET_07 ) {
+            if (nodes.size() > 1) {
+                if( frostSettings.getBoolValue(SettingsClass.FCP2_USE_PERSISTENCE) ) {
+                    // persistence is not possible with more than 1 node
+                    MiscToolkit.getInstance().showMessage(
+                            "Persistence is not possible with more than 1 node. Persistence disabled.",
+                            JOptionPane.ERROR_MESSAGE,
+                            "Warning: Persistence is not possible");
+                    frostSettings.setValue(SettingsClass.FCP2_USE_PERSISTENCE, false);
+                    frostSettings.setValue(SettingsClass.FCP2_USE_GLOBALQUEUE, false);
+                }
+            }
+        }
+
         // init the factory with configured nodes
         try {
             FcpHandler.initializeFcp(nodes, freenetVersion); 

@@ -57,6 +57,8 @@ class MiscPanel extends JPanel {
     private JTextField availableNodesTextField = new JTextField();
     
     private JCheckBox useDDACheckBox = new JCheckBox();
+    private JCheckBox usePersistenceCheckBox = new JCheckBox();
+    private JCheckBox useGlobalQueueCheckBox = new JCheckBox();
     private JCheckBox enableLoggingCheckBox = new JCheckBox();
     
     private Listener listener = new Listener();
@@ -84,6 +86,8 @@ class MiscPanel extends JPanel {
         if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
             // disable 0.7-only items
             useDDACheckBox.setEnabled(false);
+            usePersistenceCheckBox.setEnabled(false);
+            useGlobalQueueCheckBox.setEnabled(false);
         }
     }
 
@@ -164,6 +168,18 @@ class MiscPanel extends JPanel {
         add(useDDACheckBox, constraints);
 
         constraints.weightx = 0;
+        constraints.gridwidth = 2;
+        constraints.gridx = 0;
+        constraints.gridy++;
+        add(usePersistenceCheckBox, constraints);
+
+        constraints.weightx = 0;
+        constraints.gridwidth = 2;
+        constraints.gridx = 0;
+        constraints.gridy++;
+        add(useGlobalQueueCheckBox, constraints);
+
+        constraints.weightx = 0;
         constraints.gridwidth = 1;
 
         constraints.gridx = 0;
@@ -231,11 +247,26 @@ class MiscPanel extends JPanel {
 
         splashScreenCheckBox.setSelected(settings.getBoolValue(SettingsClass.DISABLE_SPLASHSCREEN));
         useDDACheckBox.setSelected(settings.getBoolValue(SettingsClass.FCP2_USE_DDA));
+        usePersistenceCheckBox.setSelected(settings.getBoolValue(SettingsClass.FCP2_USE_PERSISTENCE));
+        useGlobalQueueCheckBox.setSelected(settings.getBoolValue(SettingsClass.FCP2_USE_GLOBALQUEUE));
 
         refreshLoggingState();
     }
 
     public void ok() {
+        
+        String nodes = availableNodesTextField.getText();
+        if( nodes.indexOf(",") > -1 ) {
+            if( usePersistenceCheckBox.isSelected() ) {
+                MiscToolkit.getInstance().showMessage(
+                        "Persistence is not possible with more than 1 node. Persistence disabled.",
+                        JOptionPane.ERROR_MESSAGE,
+                        "Warning: Persistence is not possible");
+                usePersistenceCheckBox.setSelected(false);
+                useGlobalQueueCheckBox.setSelected(false);
+            }
+        }
+        
         saveSettings();
     }
 
@@ -243,6 +274,10 @@ class MiscPanel extends JPanel {
         availableNodesLabel1.setText(language.getString("Options.miscellaneous.listOfFcpNodes")+" "+language.getString("Options.miscellaneous.listOfFcpNodesExplanation"));
         useDDACheckBox.setText(language.getString("Options.miscellaneous.useDDA"));
         useDDACheckBox.setToolTipText(language.getString("Options.miscellaneous.useDDA.tooltip"));
+        
+        usePersistenceCheckBox.setText(language.getString("Options.miscellaneous.usePersistence"));
+        useGlobalQueueCheckBox.setText(language.getString("Options.miscellaneous.useGlobalQueue"));
+        
         autoSaveIntervalLabel.setText(language.getString("Options.miscellaneous.automaticSavingInterval") + 
                 " (60 "+language.getString("Options.common.minutes")+")");
         splashScreenCheckBox.setText(language.getString("Options.miscellaneous.disableSplashscreen"));
@@ -280,5 +315,7 @@ class MiscPanel extends JPanel {
         settings.setValue(SettingsClass.LOG_LEVEL, logLevelComboBox.getSelectedKey());
         settings.setValue(SettingsClass.DISABLE_SPLASHSCREEN, splashScreenCheckBox.isSelected());
         settings.setValue(SettingsClass.FCP2_USE_DDA, useDDACheckBox.isSelected());
+        settings.setValue(SettingsClass.FCP2_USE_PERSISTENCE, usePersistenceCheckBox.isSelected());
+        settings.setValue(SettingsClass.FCP2_USE_GLOBALQUEUE, useGlobalQueueCheckBox.isSelected());
     }
 }
