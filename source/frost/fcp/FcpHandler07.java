@@ -28,11 +28,11 @@ import frost.fileTransfer.upload.*;
 
 public class FcpHandler07 extends FcpHandler {
 
-    public void initialize(List nodes) {
+    public void initialize(List<String> nodes) {
         FcpFactory.init(nodes); // init the factory with configured nodes
     }
 
-    public List getNodes() {
+    public List<NodeAddress> getNodes() {
         return FcpFactory.getNodes();
     }
  

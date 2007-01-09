@@ -38,7 +38,7 @@ public class FcpFECUtils {
     private Socket fcpSock;
     private BufferedInputStream fcpIn;
     private PrintStream fcpOut;
-    private byte[] header = {0,0,0,2};
+//    private byte[] header = {0,0,0,2};
 
 /* Not used today
     public static void main(String[] args) throws UnknownHostException, IOException, SocketException {

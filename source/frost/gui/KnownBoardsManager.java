@@ -36,7 +36,7 @@ public class KnownBoardsManager implements Savable {
 
     private static Logger logger = Logger.getLogger(KnownBoardsManager.class.getName());
 
-    private static HashSet hiddenNames = null;
+    private static HashSet<String> hiddenNames = null;
     
     private static KnownBoardsManager instance = null;
     
@@ -69,8 +69,8 @@ public class KnownBoardsManager implements Savable {
     public static void removeHiddenName(String n) {
         hiddenNames.remove(n.toLowerCase());
     }
-    public static List getHiddenNamesList() {
-        return new ArrayList(hiddenNames);
+    public static List<String> getHiddenNamesList() {
+        return new ArrayList<String>(hiddenNames);
     }
 
     public static void initialize() {
@@ -79,7 +79,7 @@ public class KnownBoardsManager implements Savable {
             hiddenNames = AppLayerDatabase.getKnownBoardsDatabaseTable().loadHiddenNames();
         } catch(SQLException ex) {
             logger.log(Level.SEVERE, "Error retrieving the hidden names", ex);
-            hiddenNames = new HashSet();
+            hiddenNames = new HashSet<String>();
         }
     }
 
@@ -108,7 +108,7 @@ public class KnownBoardsManager implements Savable {
      * Called with a list of Board, should add all boards that are not contained already
      * @param lst  List of Board
      */
-    public static int addNewKnownBoards( List lst ) {
+    public static int addNewKnownBoards( List<Board> lst ) {
         if( lst == null || lst.size() == 0 ) {
             return 0;
         }

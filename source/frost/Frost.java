@@ -230,7 +230,7 @@ public class Frost {
         return true;
     }
     
-    private static File runLockFile = new File(".frost_run_lock");
+    private static File runLockFile = new File("frost.lock");
     private static FileChannel lockChannel;
     private static FileLock fileLock;
 
@@ -266,7 +266,7 @@ public class Frost {
                 language.getString("Frost.lockFileFound") + "'" +
                     runLockFile.getAbsolutePath() + "'",
                 JOptionPane.ERROR_MESSAGE,
-                "ERROR: Found Frost lock file '.frost_run_lock'.");
+                "ERROR: Found Frost lock file 'frost.lock'.");
             return false;
         }
         return true;

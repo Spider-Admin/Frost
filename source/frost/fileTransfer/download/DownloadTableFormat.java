@@ -360,7 +360,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 			FrostDownloadItem item2 = (FrostDownloadItem) o2;
             Boolean b1 = Boolean.valueOf( item1.isEnabled().booleanValue() );
             Boolean b2 = Boolean.valueOf( item2.isEnabled().booleanValue() );
-            return Mixed.compareTo_Boolean(b1, b2);
+            return b1.compareTo(b2);
 		}
 	}
 
@@ -370,7 +370,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
             FrostDownloadItem item2 = (FrostDownloadItem) o2;
             Boolean b1 = Boolean.valueOf( item1.isSharedFile() );
             Boolean b2 = Boolean.valueOf( item2.isSharedFile() );
-            return Mixed.compareTo_Boolean(b1, b2);
+            return b1.compareTo(b2);
         }
     }
 
@@ -380,7 +380,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
             FrostDownloadItem item2 = (FrostDownloadItem) o2;
             Boolean b1 = getIsRequested(item1.getFileListFileObject());
             Boolean b2 = getIsRequested(item2.getFileListFileObject());
-            return Mixed.compareTo_Boolean(b1, b2);
+            return b1.compareTo(b2);
         }
     }
 

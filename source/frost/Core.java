@@ -18,9 +18,6 @@
 */
 package frost;
 
-import hyperocha.freenet.fcp.*;
-import hyperocha.freenet.fcp.dispatcher.*;
-
 import java.io.*;
 import java.sql.*;
 import java.util.*;
@@ -87,159 +84,6 @@ public class Core implements FrostEventDispatcher  {
     private Core() {
         initializeLanguage();
     }
-/*-----------*/    
-
-    private static int fcpVersion = -1;
-    private static Dispatcher fcpDispatcher;
-    
-    public static boolean useHyperocha() {
-    	return false;
-    }
-    
-    public static int getFcpVersion() {
-    	return fcpVersion;
-    }
-    
-    public static Dispatcher getFcpDispatcher() {
-    	return fcpDispatcher;
-    }
-    
-    /**
-     * This methods parses the list of available nodes (and converts it if it is in
-     * the old format). If there are no available nodes, it shows a Dialog warning the
-     * user of the situation and returns false.
-     * @return boolean false if no nodes are available. True otherwise.
-     */
-    private boolean initializeConnectivity_h() {
-
-        // determine configured freenet version
-        int freenetVersion = frostSettings.getIntValue(SettingsClass.FREENET_VERSION); // 5 or 7
-        if( freenetVersion <= 0 ) {
-            FreenetVersionDialog dlg = new FreenetVersionDialog();
-            dlg.setVisible(true);
-            if( dlg.isChoosedExit() ) {
-                return false;
-            }
-            if( dlg.isChoosedFreenet05() ) {
-                frostSettings.setValue(SettingsClass.FREENET_VERSION, "5");
-            } else if( dlg.isChoosedFreenet07() ) {
-                frostSettings.setValue(SettingsClass.FREENET_VERSION, "7");
-            } else {
-                return false;
-            }
-            freenetVersion = frostSettings.getIntValue(SettingsClass.FREENET_VERSION); // 5 or 7
-        }
-        
-        if (freenetVersion == 5) {
-        	fcpVersion = Network.FCP1;
-        } else {
-        	fcpVersion = Network.FCP2;
-        }
-
-        if( freenetVersion != 5 && freenetVersion != 7 ) {
-            MiscToolkit.getInstance().showMessage(
-                    language.getString("Core.init.UnsupportedFreenetVersionBody")+": "+freenetVersion,
-                    JOptionPane.ERROR_MESSAGE,
-                    language.getString("Core.init.UnsupportedFreenetVersionTitle"));
-            return false;
-        }
-        
-        // get the list of available nodes
-        String nodesUnparsed = frostSettings.getValue(SettingsClass.AVAILABLE_NODES);
-        List<String> nodes = new ArrayList<String>();
-
-        if (nodesUnparsed == null) { //old format
-            String converted = new String(frostSettings.getValue("nodeAddress")+":"+frostSettings.getValue("nodePort"));
-            nodes.add(converted.trim());
-            frostSettings.setValue(SettingsClass.AVAILABLE_NODES, converted.trim());
-        } else { // new format
-            String[] _nodes = nodesUnparsed.split(",");
-            for (int i = 0; i < _nodes.length; i++) {
-                nodes.add(_nodes[i]);
-            }
-        }
-
-        // create new dispatcher
-        fcpDispatcher = new Dispatcher();
-
-        // nodeconfiguration, see doc
-        Network net = new Network(fcpVersion, "frost"+fcpVersion);
-        
-        int i;
-		for (i = 0; i < nodes.size(); i++) {
-			//net.addNode("idstring", "server:port", fcpDispatcher);
-            net.addNode("frosty-"+i, (String)nodes.get(i), fcpDispatcher);
-        }
-
-		// assign configured nodes to dispatcher
-		fcpDispatcher.addNetwork(net);
-
-        if (nodes.size() == 0) {
-            MiscToolkit.getInstance().showMessage(
-                "Not a single Freenet node configured. You need at least one.",
-                JOptionPane.ERROR_MESSAGE,
-                "ERROR: No Freenet nodes are configured.");
-            return false;
-        }
-        
-        // install our security manager that only allows connections to the configured FCP hosts
-        System.setSecurityManager(new FrostSecurityManager());
-        
-        // now network and secuity are setted up
-        // press »START ENGINE« button
-        fcpDispatcher.startDispatcher();
-        
-        //fcpDispatcher.waitForOnline(3000);
-        
-        if( Frost.isOfflineMode() ) {
-        	System.err.println("DEBUG: Frost is in offline mode");
-            return true;
-        }
-        
-        boolean runningOnTestnet = false;
-        // TODO
-//        try {
-//            List nodeInfo = FcpHandler.inst().getNodeInfo();
-//            if( nodeInfo != null ) {
-//                // freenet is online
-//                setFreenetOnline(true);
-//                
-//                // on 0.7 check for "Testnet=true" and warn user
-//                if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) {
-//                    for(Iterator i=nodeInfo.iterator(); i.hasNext(); ) {
-//                        String val = (String)i.next();
-//                        if( val.startsWith("Testnet") && val.indexOf("true") > 0 ) {
-//                            runningOnTestnet = true;
-//                        }
-//                    }
-//                }
-//            }
-//        } catch (Exception e) {
-//            logger.log(Level.SEVERE, "Exception thrown in initializeConnectivity", e);
-//        }
-//        
-//        if( runningOnTestnet ) {
-//            MiscToolkit.getInstance().showMessage(
-//                    language.getString("Core.init.TestnetWarningBody"),
-//                    JOptionPane.WARNING_MESSAGE,
-//                    language.getString("Core.init.TestnetWarningTitle"));
-//        }
-
-        // We warn the user if there aren't any running nodes
-        if (!isFreenetOnline()) {
-        	System.err.println("DEBUG: Frost is oflline");
-            MiscToolkit.getInstance().showMessage(
-                language.getString("Core.init.NodeNotRunningBody"),
-                JOptionPane.WARNING_MESSAGE,
-                language.getString("Core.init.NodeNotRunningTitle"));
-            return false;
-        }
-
-        return true;
-
-    }
-
-/*-----------*/
     
     /**
      * This methods parses the list of available nodes (and converts it if it is in
@@ -248,9 +92,6 @@ public class Core implements FrostEventDispatcher  {
      * @return boolean false if no nodes are available. True otherwise.
      */
     private boolean initializeConnectivity() {
-    	if (useHyperocha()) {
-    		return initializeConnectivity_h();
-    	}
  
         // determine configured freenet version
         int freenetVersion = frostSettings.getIntValue(SettingsClass.FREENET_VERSION); // 5 or 7
@@ -311,7 +152,6 @@ public class Core implements FrostEventDispatcher  {
                             JOptionPane.ERROR_MESSAGE,
                             "Warning: Persistence is not possible");
                     frostSettings.setValue(SettingsClass.FCP2_USE_PERSISTENCE, false);
-                    frostSettings.setValue(SettingsClass.FCP2_USE_GLOBALQUEUE, false);
                 }
             }
         }
@@ -381,12 +221,6 @@ public class Core implements FrostEventDispatcher  {
         freenetIsOnline = v;
     }
     public static boolean isFreenetOnline() {
-    	if (useHyperocha()) {
-    		// FIXME
-    		//throw new Error();
-    		//return fcpDispatcher.isOnline();
-    		return true;
-    	}
         return freenetIsOnline;
     }
 
@@ -506,21 +340,13 @@ public class Core implements FrostEventDispatcher  {
         }
         
         String title;
-        if (useHyperocha()) {
-        	switch (getFcpVersion()) {
-        	case Network.FCP1: title = "Frost@Freenet 0.5"; break;
-        	case Network.FCP2: title = "Frost@Freenet 0.7"; break;
-        	default: title = "Frost";
-        	}
-        } else {
-        	if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
-        		title = "Frost@Freenet 0.5";
-        	} else if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) {
-        		title = "Frost@Freenet 0.7";
-        	} else {
-        		title = "Frost";
-        	}
-        }
+    	if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
+    		title = "Frost@Freenet 0.5";
+    	} else if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) {
+    		title = "Frost@Freenet 0.7";
+    	} else {
+    		title = "Frost";
+    	}
 
         // Display the tray icon (do this before mainframe initializes)
         if (frostSettings.getBoolValue(SettingsClass.SHOW_SYSTRAY_ICON) == true) {
@@ -578,11 +404,6 @@ public class Core implements FrostEventDispatcher  {
         splashscreen.closeMe();
         
         mainFrame.showStartupMessages();
-        
-        if (useHyperocha()) {
-        	Mixed.wait(3000);
-        	fcpDispatcher.startDispatcher();
-        }
     }
 
     public FileTransferManager getFileTransferManager() {

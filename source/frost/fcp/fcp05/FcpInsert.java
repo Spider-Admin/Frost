@@ -46,12 +46,12 @@ public class FcpInsert
     //in RandomAccessFileBucket2.segment(). Kevloral 20-02-2004
     public final static int smallestChunk = 768 * 1024;
 
-    private static Map putKeywords = null;
+    private static Map<String,Integer> putKeywords = null;
     
-    private static Map getKeywords() {
+    private static Map<String,Integer> getKeywords() {
         if( putKeywords == null ) {
             // fill a map with possible keyword to result assignments
-            putKeywords = new HashMap();
+            putKeywords = new HashMap<String,Integer>();
             putKeywords.put("Success", new Integer(FcpResultPut.Success));
             putKeywords.put("RouteNotFound", new Integer(FcpResultPut.Retry));
             putKeywords.put("KeyCollision", new Integer(FcpResultPut.KeyCollision));

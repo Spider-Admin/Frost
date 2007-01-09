@@ -1,7 +1,4 @@
-/**
- * 
- */
-package hyperocha.util;
+package frost.ext;
 
 /* taken from freenet (http://www.freenetproject.org/) */ 
 

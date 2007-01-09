@@ -275,7 +275,7 @@ public class FrostIdentities implements Savable {
     }
 
     public List<Identity> getAllGOODIdentities() {
-        LinkedList<Identity> list = new LinkedList<Identity>();
+        List<Identity> list = new ArrayList<Identity>();
         for( Iterator i = identities.values().iterator(); i.hasNext(); ) {
             Identity id = (Identity)i.next();
             if( id.isGOOD() ) {
