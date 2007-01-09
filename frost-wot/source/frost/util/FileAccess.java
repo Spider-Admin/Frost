@@ -107,7 +107,7 @@ public class FileAccess {
      * Returns all files starting from given directory/file that have a given extension.
      */
     public static ArrayList getAllEntries(File file, final String extension) {
-        ArrayList files = new ArrayList();
+        ArrayList<File> files = new ArrayList<File>();
         getAllFiles(file, extension, files);
         return files;
     }
@@ -115,7 +115,7 @@ public class FileAccess {
     /**
      * Returns all files starting from given directory/file that have a given extension.
      */
-    private static void getAllFiles(File file, String extension, ArrayList filesLst) {
+    private static void getAllFiles(File file, String extension, ArrayList<File> filesLst) {
         if( file != null ) {
             if( file.isDirectory() ) {
                 File[] dirfiles = file.listFiles();
@@ -291,9 +291,9 @@ public class FileAccess {
     /**
      * Reads an InputStream and returns a List of lines.
      */
-    public static ArrayList readLines(InputStream is, String encoding) {
+    public static ArrayList<String> readLines(InputStream is, String encoding) {
         String line;
-        ArrayList data = new ArrayList();
+        ArrayList<String> data = new ArrayList<String>();
         try {
             InputStreamReader iSReader = new InputStreamReader(is, encoding);
             BufferedReader reader = new BufferedReader(iSReader);

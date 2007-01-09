@@ -482,7 +482,7 @@ public class MessageTextPane extends JPanel {
             }
         }
         LinkedList boards = selectedMessage.getAttachmentsOfType(Attachment.BOARD);
-        LinkedList addBoards = new LinkedList();
+        LinkedList<Board> addBoards = new LinkedList<Board>();
         for (int i = 0; i < selectedRows.length; i++) {
             BoardAttachment ba = (BoardAttachment) boards.get(selectedRows[i]);
             addBoards.add(ba.getBoardObj());
@@ -741,15 +741,15 @@ public class MessageTextPane extends JPanel {
         /**
          * Returns a list of all items to process, either selected ones or all.
          */
-        private List getItems() {
-            List items = null;
+        private List<FileAttachment> getItems() {
+            List<FileAttachment> items = null;
             int[] selectedRows = filesTable.getSelectedRows();
             if (selectedRows.length == 0) {
                 // If no rows are selected, add all attachments to download table
                 items = selectedMessage.getAttachmentsOfType(Attachment.FILE);
             } else {
                 LinkedList attachments = selectedMessage.getAttachmentsOfType(Attachment.FILE);
-                items = new LinkedList();
+                items = new LinkedList<FileAttachment>();
                 for (int i = 0; i < selectedRows.length; i++) {
                     FileAttachment fo = (FileAttachment) attachments.get(selectedRows[i]);
                     items.add(fo);

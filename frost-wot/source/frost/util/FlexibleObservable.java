@@ -27,14 +27,14 @@ import java.util.Vector;
 public class FlexibleObservable {
 
 	private boolean changed = false;
-	protected Vector observers;
+	protected Vector<FlexibleObserver> observers;
 
 	/**
 	 * Construct an Observable with zero Observers.
 	 */
 	public FlexibleObservable() {
 		super();
-		observers = new Vector();
+		observers = new Vector<FlexibleObserver>();
 	}
 
 	/**

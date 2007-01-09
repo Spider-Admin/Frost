@@ -1115,7 +1115,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
         DefaultTreeModel model = MainFrame.getInstance().getMessagePanel().getMessageTreeModel();
         Board board = mainFrame.getTofTreeModel().getSelectedNode();
-        final LinkedList msgList = new LinkedList();
+        final LinkedList<FrostMessageObject> msgList = new LinkedList<FrostMessageObject>();
         
         for(Enumeration e = levelOneMsg.depthFirstEnumeration(); e.hasMoreElements(); ) {
             FrostMessageObject mo = (FrostMessageObject)e.nextElement();
@@ -1154,7 +1154,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         
         // set all selected messages deleted
         int[] rows = messageTable.getSelectedRows();
-        final ArrayList saveMessages = new ArrayList();
+        final ArrayList<FrostMessageObject> saveMessages = new ArrayList<FrostMessageObject>();
         for(int x=rows.length-1; x >= 0; x--) {
             FrostMessageObject targetMessage = (FrostMessageObject)getMessageTableModel().getRow(rows[x]);
             targetMessage.setDeleted(true);
@@ -1192,7 +1192,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
         // set all selected messages deleted
         int[] rows = messageTable.getSelectedRows();
-        final ArrayList saveMessages = new ArrayList();
+        final ArrayList<FrostMessageObject> saveMessages = new ArrayList<FrostMessageObject>();
         for(int x=0; x < rows.length; x++) {
             FrostMessageObject targetMessage = (FrostMessageObject)getMessageTableModel().getRow(rows[x]);
             targetMessage.setDeleted(false);
@@ -1377,7 +1377,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
             	for( int idx = initial.getLevel(); idx > 0 && nextMessage == null; idx-- ) {
             		FrostMessageObject parent = (FrostMessageObject) path[idx];
-            		LinkedList queue = new LinkedList();
+            		LinkedList<FrostMessageObject> queue = new LinkedList<FrostMessageObject>();
             		for( queue.add(parent); !queue.isEmpty() && nextMessage == null; ) {
             			final FrostMessageObject message = (FrostMessageObject) queue.removeFirst();
             			if( message.isNew() ) {
@@ -1387,7 +1387,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
             			Enumeration children = message.children();
             			while( children.hasMoreElements() ) {
-            				TreeNode t = (TreeNode) children.nextElement();
+                            FrostMessageObject t = (FrostMessageObject) children.nextElement();
             				if( !path_list.contains(t) ) {
             					queue.add(t);
             				}

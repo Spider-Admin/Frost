@@ -35,11 +35,11 @@ import frost.util.Logging;
 public class SettingsClass implements Savable {
     
     private File settingsFile;
-    private Hashtable settingsHash;
-    private Hashtable defaults = null;
+    private Hashtable<String,Object> settingsHash;
+    private Hashtable<String,Object> defaults = null;
     private final String fs = System.getProperty("file.separator");
     private PropertyChangeSupport changeSupport = null;
-    private Vector updaters = null;
+    private Vector<SettingsUpdater> updaters = null;
 
     private static Logger logger = Logger.getLogger(SettingsClass.class.getName());
 
@@ -58,7 +58,6 @@ public class SettingsClass implements Savable {
     public static final String AVAILABLE_NODES = "availableNodes";
     public static final String FCP2_USE_DDA = "fcp2.useDDA";
     public static final String FCP2_USE_PERSISTENCE = "fcp2.usePersistence";
-    public static final String FCP2_USE_GLOBALQUEUE = "fcp2.useGlobalQueue";
     
     public static final String AUTO_SAVE_INTERVAL = "autoSaveInterval";
     public static final String DISABLE_FILESHARING = "disableFilesharing";
@@ -192,7 +191,7 @@ public class SettingsClass implements Savable {
     public static final String LOG_UPLOADS_ENABLED = "logUploads";
 
     public SettingsClass() {
-        settingsHash = new Hashtable();
+        settingsHash = new Hashtable<String,Object>();
         // the FIX config.dir
         settingsHash.put(DIR_CONFIG, "config" + fs);
         String configFilename = "config" + fs + "frost.ini";
@@ -212,7 +211,7 @@ public class SettingsClass implements Savable {
      * @param baseDirectory  the base directory of the config/frost.ini file
      */
     public SettingsClass(File baseDirectory) {
-        settingsHash = new Hashtable();
+        settingsHash = new Hashtable<String,Object>();
         // the FIX config.dir
         settingsHash.put(DIR_CONFIG, baseDirectory.getPath() + fs + "config" + fs);
         String configFilename = baseDirectory.getPath() + fs + "config" + fs + "frost.ini";
@@ -356,7 +355,7 @@ public class SettingsClass implements Savable {
             }
         }
 
-        TreeMap sortedSettings = new TreeMap(settingsHash); // sort the lines
+        TreeMap<String,Object> sortedSettings = new TreeMap<String,Object>(settingsHash); // sort the lines
         Iterator i = sortedSettings.keySet().iterator();
         while (i.hasNext()) {
             String key = (String) i.next();
@@ -452,7 +451,7 @@ public class SettingsClass implements Savable {
             return;
         }
         if (updaters == null) {
-            updaters = new Vector();
+            updaters = new Vector<SettingsUpdater>();
         }
         updaters.addElement(updater);
     }
@@ -683,7 +682,7 @@ public class SettingsClass implements Savable {
      * Contains all default values that are used if no value is found in .ini file.
      */
     public void loadDefaults() {
-        defaults = new Hashtable();
+        defaults = new Hashtable<String,Object>();
         File fn = File.listRoots()[0];
         
         // DIRECTORIES
@@ -704,7 +703,6 @@ public class SettingsClass implements Savable {
         
         defaults.put(FCP2_USE_DDA, "true");
         defaults.put(FCP2_USE_PERSISTENCE, "true");
-        defaults.put(FCP2_USE_GLOBALQUEUE, "true");
 
         defaults.put(ALTERNATE_EDITOR_COMMAND, fn + "path" + fs + "to" + fs + "editor" + " %f");
         defaults.put(BOARD_AUTOUPDATE_ENABLED, "true"); 

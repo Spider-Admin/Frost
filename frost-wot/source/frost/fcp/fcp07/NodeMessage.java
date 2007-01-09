@@ -27,7 +27,7 @@ public class NodeMessage {
     private static Logger logger = Logger.getLogger(NodeMessage.class.getName());
 
     private String messageName;
-    private Hashtable items;
+    private Hashtable<String,String> items;
     private String messageEndMarker = null;
     
     /////////////////////////////////////////////////////////////////////////////////////////
@@ -99,7 +99,7 @@ public class NodeMessage {
      */
     protected NodeMessage(String name) {
         messageName = name;
-        items = new Hashtable();
+        items = new Hashtable<String,String>();
     }
 
     /** 

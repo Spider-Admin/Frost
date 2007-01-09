@@ -74,8 +74,8 @@ public class FcpConnection
         }
     }
 
-    public List getNodeInfo() throws IOException {
-        ArrayList result = new ArrayList();
+    public List<String> getNodeInfo() throws IOException {
+        ArrayList<String> result = new ArrayList<String>();
 
         fcpSock = new Socket(nodeAddress.host, nodeAddress.port);
         fcpSock.setSoTimeout(TIMEOUT);

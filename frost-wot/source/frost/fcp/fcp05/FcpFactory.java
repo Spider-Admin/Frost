@@ -30,7 +30,7 @@ public class FcpFactory {
     
     private static Logger logger = Logger.getLogger(FcpFactory.class.getName());
 
-    private static List nodes = new ArrayList(); //list of available nodes, NodeAddress objects
+    private static List<NodeAddress> nodes = new ArrayList<NodeAddress>(); //list of available nodes
     private static Random random = new Random();
 
     /**
@@ -83,7 +83,7 @@ public class FcpFactory {
     /**
      * @return  Returns a list of available NodeAddress objects.
      */
-    public static List getNodes() {
+    public static List<NodeAddress> getNodes() {
         return nodes;
     }
 
@@ -112,7 +112,7 @@ public class FcpFactory {
     /**
      * Process provided List of string (host:port or host) and create InetAddress objects for each.
      */
-    public static void init(List nodeList) {
+    public static void init(List<String> nodeList) {
         for(Iterator i=nodeList.iterator(); i.hasNext(); ) {
             String nodeName = (String)i.next();
             NodeAddress na = new NodeAddress();

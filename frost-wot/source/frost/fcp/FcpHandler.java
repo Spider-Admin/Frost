@@ -23,7 +23,6 @@ import java.net.*;
 import java.util.*;
 import java.util.logging.*;
 
-import frost.Core;
 import frost.fileTransfer.download.*;
 import frost.fileTransfer.upload.*;
 
@@ -48,12 +47,10 @@ public abstract class FcpHandler {
     }
     
     public static int getInitializedVersion() {
-    	if (Core.useHyperocha()) { throw new Error("dont use with hyperocha!"); }
         return initializedVersion;
     }
 
-    public static void initializeFcp(List nodes, int freenetVersion) throws UnsupportedOperationException {
-        if (Core.useHyperocha()) { throw new Error("dont use with hyperocha!"); }
+    public static void initializeFcp(List<String> nodes, int freenetVersion) throws UnsupportedOperationException {
         if( freenetVersion == FREENET_05 ) {
             instance = new FcpHandler05();
             instance.initialize(nodes);
@@ -70,9 +67,9 @@ public abstract class FcpHandler {
         }
     }
     
-    public abstract void initialize(List nodes);
+    public abstract void initialize(List<String> nodes);
     
-    public abstract List getNodes();
+    public abstract List<NodeAddress> getNodes();
     
     /**
      * getFile retrieves a file from Freenet. It does detect if this file is a redirect, a splitfile or

@@ -520,8 +520,8 @@ public class MessageFrame extends JFrame {
             filesTableScrollPane = new JScrollPane(filesTable);
             filesTableScrollPane.setWheelScrollingEnabled(true);
             filesTable.addMouseListener(listener);
-
-            List budList = Core.getIdentities().getAllGOODIdentities();
+// FIXME: option to show own identities in list, or to hide them
+            List<Identity> budList = Core.getIdentities().getAllGOODIdentities();
             if( budList.size() > 0 ) {
                 Collections.sort( budList, new BuddyComparator() );
                 if( repliedMessage != null ) {
@@ -534,7 +534,7 @@ public class MessageFrame extends JFrame {
                         budList.add(0, id);
                     }
                 }
-                buddies = new JComboBox(new Vector(budList));
+                buddies = new JComboBox(new Vector<Identity>(budList));
                 buddies.setSelectedItem(budList.get(0));
             } else {
                 buddies = new JComboBox();
@@ -1047,7 +1047,7 @@ public class MessageFrame extends JFrame {
             ownIdentitiesComboBox = new JComboBox();
             ownIdentitiesComboBox.addItem("Anonymous");
             // sort own unique names
-            TreeMap sortedIds = new TreeMap();
+            TreeMap<String,LocalIdentity> sortedIds = new TreeMap<String,LocalIdentity>();
             for(Iterator i=Core.getIdentities().getLocalIdentities().iterator(); i.hasNext(); ) {
                 LocalIdentity li = (LocalIdentity)i.next();
                 sortedIds.put(li.getUniqueName(), li);
@@ -1124,10 +1124,10 @@ public class MessageFrame extends JFrame {
         return ownIdentitiesComboBox;
     }
     
-    class BuddyComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            String s1 = o1.toString();
-            String s2 = o2.toString();
+    class BuddyComparator implements Comparator<Identity> {
+        public int compare(Identity id1, Identity id2) {
+            String s1 = id1.getUniqueName();
+            String s2 = id2.getUniqueName();
             return s1.toLowerCase().compareTo( s2.toLowerCase() );
         }
     }

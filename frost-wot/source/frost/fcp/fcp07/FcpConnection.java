@@ -21,14 +21,13 @@
  */
 package frost.fcp.fcp07;
 
-import hyperocha.util.*;
-
 import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
+import frost.ext.*;
 import frost.fcp.*;
 import frost.fileTransfer.download.*;
 import frost.fileTransfer.upload.*;
@@ -40,29 +39,8 @@ import frost.util.*;
 public class FcpConnection {
 
 	private static Logger logger = Logger.getLogger(FcpConnection.class.getName());
-
-    // This is the timeout set in Socket.setSoTimeout().
-    // The value was 900000 (15 minutes), but I often saw INSERT errors caused by a timeout in the read socket part;
-    //   this sometimes leaded to double inserted messages.
-    // Using infinite (0) is'nt a good idea, because due to freenet bugs it happened in the past that
-    //   the socket blocked forever.
-    // We now use with 60 minutes to be sure. mxbee (fuqid developer) told that he would maybe use 90 minutes!
-    private final static int TIMEOUT = 60 * 60 * 1000;
-
-    private NodeAddress nodeAddress;
     
-    private Socket fcpSock;
-    private BufferedInputStream fcpIn;
-    private PrintStream fcpOut;
-
-    private static long staticFcpConnectionId = 0;
-    
-    private boolean useDDA;
-    
-    public static synchronized String getNextFcpId() {
-        StringBuffer sb = new StringBuffer().append(System.currentTimeMillis()).append(staticFcpConnectionId++);
-        return sb.toString();
-    }
+    private FcpSocket fcpSocket;
 
     /**
      * Create a connection to a host using FCP
@@ -70,59 +48,27 @@ public class FcpConnection {
      * @param host the host to which we connect
      * @param port the FCP port on the host
      * @exception UnknownHostException if the FCP host is unknown
-     * @exception IOException if there is a problem with the connection
-     * to the FCP host.
+     * @exception IOException if there is a problem with the connection to the FCP host.
      */
     public FcpConnection(NodeAddress na) throws UnknownHostException, IOException {
-        nodeAddress = na;
-        fcpSock = new Socket(nodeAddress.host, nodeAddress.port);
-        fcpSock.setSoTimeout(TIMEOUT);
-        fcpIn = new BufferedInputStream(fcpSock.getInputStream());
-        fcpOut = new PrintStream(fcpSock.getOutputStream());
-        doHandshake();
-        
-        if( na.isDirectDiskAccessTested ) {
-            useDDA = na.isDirectDiskAccessPossible;
-        } else {
-            useDDA = false;
-        }
+        fcpSocket = new FcpSocket(na);
     }
 
-    public void closeConnection() {
-        if( fcpIn != null ) {
-            try {
-                fcpIn.close();
-            } catch (Throwable e) {
-            }
-            fcpIn = null;
-        }
-        if( fcpOut != null ) {
-            try {
-                fcpOut.close();
-            } catch (Throwable e) {
-            }
-            fcpOut = null;
-        }
-        if( fcpSock != null ) {
-            try {
-                fcpSock.close();
-            } catch (Throwable e) {
-            }
-            fcpSock = null;
-        }
+    public void close() {
+        fcpSocket.close();
     }
 
     // needs reimplementation, fetches data from hello
-    public List getNodeInfo() throws IOException {
+    public List<String> getNodeInfo() throws IOException {
 
-    	ArrayList result = new ArrayList();
-        BufferedReader in = new BufferedReader(new InputStreamReader(fcpSock.getInputStream()));
+    	ArrayList<String> result = new ArrayList<String>();
+        BufferedReader in = new BufferedReader(new InputStreamReader(fcpSocket.getFcpSock().getInputStream()));
 
-        fcpOut.println("ClientHello");
-        fcpOut.println("Name=hello-"+getNextFcpId());
-        fcpOut.println("ExpectedVersion=2.0");
-        fcpOut.println("EndMessage");
-        fcpOut.flush();
+        fcpSocket.getFcpOut().println("ClientHello");
+        fcpSocket.getFcpOut().println("Name=hello-"+FcpSocket.getNextFcpId());
+        fcpSocket.getFcpOut().println("ExpectedVersion=2.0");
+        fcpSocket.getFcpOut().println("EndMessage");
+        fcpSocket.getFcpOut().flush();
 
         while(true) {
             String tmp = in.readLine();
@@ -133,7 +79,7 @@ public class FcpConnection {
         }
 
         in.close();
-        closeConnection();
+        close();
         
         if( result.isEmpty() ) {
             logger.warning("No ClientInfo response!");
@@ -163,45 +109,45 @@ public class FcpConnection {
 					"Key =       " + key + "\n" +
 					"KeyType =   " + key.getKeyType());
 
-        if (useDDA) {
+        if (fcpSocket.isDDA()) {
             // delete before download, else download fails, node will not overwrite anything!
             targetFile.delete();
         }
         
-        fcpOut.println("ClientGet");
-        fcpOut.println("IgnoreDS=false");
-        fcpOut.println("DSOnly=false");
-        fcpOut.println("URI=" + key);
-        fcpOut.println("Identifier=get-" + getNextFcpId() );
-        fcpOut.println("MaxRetries=1");
-        fcpOut.println("Verbosity=-1");
+        fcpSocket.getFcpOut().println("ClientGet");
+        fcpSocket.getFcpOut().println("IgnoreDS=false");
+        fcpSocket.getFcpOut().println("DSOnly=false");
+        fcpSocket.getFcpOut().println("URI=" + key);
+        fcpSocket.getFcpOut().println("Identifier=get-" + FcpSocket.getNextFcpId() );
+        fcpSocket.getFcpOut().println("MaxRetries=1");
+        fcpSocket.getFcpOut().println("Verbosity=-1");
 
-        if (useDDA) {
-            fcpOut.println("Persistence=connection");
-        	fcpOut.println("ReturnType=disk");
-            fcpOut.println("Filename=" + targetFile.getAbsolutePath());
+        if (fcpSocket.isDDA()) {
+            fcpSocket.getFcpOut().println("Persistence=connection");
+            fcpSocket.getFcpOut().println("ReturnType=disk");
+            fcpSocket.getFcpOut().println("Filename=" + targetFile.getAbsolutePath());
             ddaTempFile = new File( targetFile.getAbsolutePath() + "-w");
             if( ddaTempFile.isFile() ) {
                 // delete before download, else download fails, node will not overwrite anything!
                 ddaTempFile.delete();
             }
-            fcpOut.println("TempFilename=" + ddaTempFile.getAbsolutePath());
+            fcpSocket.getFcpOut().println("TempFilename=" + ddaTempFile.getAbsolutePath());
          } else {
-        	fcpOut.println("ReturnType=direct");
+             fcpSocket.getFcpOut().println("ReturnType=direct");
         }
         
         if( type == FcpHandler.TYPE_FILE ) {
-            fcpOut.println("PriorityClass=2");
+            fcpSocket.getFcpOut().println("PriorityClass=2");
         } else if( type == FcpHandler.TYPE_MESSAGE ) {
-            fcpOut.println("PriorityClass=2");
+            fcpSocket.getFcpOut().println("PriorityClass=2");
         }
         
         if( maxSize > 0 ) {
-            fcpOut.println("MaxSize="+maxSize);
+            fcpSocket.getFcpOut().println("MaxSize="+maxSize);
         }
 
-        fcpOut.println("EndMessage");
-        fcpOut.flush();
+        fcpSocket.getFcpOut().println("EndMessage");
+        fcpSocket.getFcpOut().flush();
 
         // receive and process node messages
         boolean isSuccess = false;
@@ -209,7 +155,7 @@ public class FcpConnection {
         String codeDescription = null;
         boolean isFatal = false;
         while(true) {
-            NodeMessage nodeMsg = NodeMessage.readMessage(fcpIn);
+            NodeMessage nodeMsg = NodeMessage.readMessage(fcpSocket.getFcpIn());
             if( nodeMsg == null ) {
                 break;
             }
@@ -224,7 +170,7 @@ public class FcpConnection {
                 break;
             }
 
-            if( !useDDA && nodeMsg.isMessageName("AllData") && endMarker.equals("Data") ) {
+            if( !fcpSocket.isDDA() && nodeMsg.isMessageName("AllData") && endMarker.equals("Data") ) {
                 // data follow, first get datalength
                 long dataLength = nodeMsg.getLongValue("DataLength");
 
@@ -234,7 +180,7 @@ public class FcpConnection {
                 long bytesWritten = 0;
                 int count;
                 while( bytesLeft > 0 ) {
-                    count = fcpIn.read(b, 0, ((bytesLeft > b.length)?b.length:(int)bytesLeft));
+                    count = fcpSocket.getFcpIn().read(b, 0, ((bytesLeft > b.length)?b.length:(int)bytesLeft));
                     if( count < 0 ) {
                         break;
                     } else {
@@ -254,7 +200,7 @@ public class FcpConnection {
                 break;
             }
             
-            if( useDDA && nodeMsg.isMessageName("DataFound") ) {
+            if( fcpSocket.isDDA() && nodeMsg.isMessageName("DataFound") ) {
 
                 long dataLength = nodeMsg.getLongValue("DataLength");
                 isSuccess = true;
@@ -310,7 +256,7 @@ public class FcpConnection {
             }
         }
 
-        closeConnection();
+        close();
         
         FcpResultGet result = null;
         
@@ -347,49 +293,50 @@ public class FcpConnection {
         keyString = stripSlashes(keyString);
 
         BufferedOutputStream dataOutput = null;
-        if( !useDDA ) {
-            dataOutput = new BufferedOutputStream(fcpSock.getOutputStream());
+        if( !fcpSocket.isDDA() ) {
+            dataOutput = new BufferedOutputStream(fcpSocket.getFcpSock().getOutputStream());
         }
 
-		fcpOut.println("ClientPut");
-		fcpOut.println("URI=" + keyString);
-		fcpOut.println("Identifier=put-" + getNextFcpId() );
-        fcpOut.println("Verbosity=-1"); // receive SimpleProgress        
-		fcpOut.println("MaxRetries=3");
-		fcpOut.println("DontCompress=false"); // force compression
+        fcpSocket.getFcpOut().println("ClientPut");
+        fcpSocket.getFcpOut().println("URI=" + keyString);
+        fcpSocket.getFcpOut().println("Identifier=put-" + FcpSocket.getNextFcpId() );
+        fcpSocket.getFcpOut().println("Verbosity=-1"); // receive SimpleProgress        
+        fcpSocket.getFcpOut().println("MaxRetries=3");
+        fcpSocket.getFcpOut().println("DontCompress=false"); // force compression
         // Frost always uploads without a filename
         if( keyString.equals("CHK@") ) {
-            fcpOut.println("TargetFilename=");
+            fcpSocket.getFcpOut().println("TargetFilename=");
         }
 		if( getChkOnly ) {
-			fcpOut.println("GetCHKOnly=true");
+            fcpSocket.getFcpOut().println("GetCHKOnly=true");
 		} else {
             if( type == FcpHandler.TYPE_FILE ) {
             	if (doMime) {
-            		fcpOut.println("Metadata.ContentType=" + DefaultMIMETypes.guessMIMEType(sourceFile.getAbsolutePath()));
+                    fcpSocket.getFcpOut().println("Metadata.ContentType=" + DefaultMIMETypes.guessMIMEType(sourceFile.getAbsolutePath()));
             	} else {
-            		fcpOut.println("Metadata.ContentType=application/octet-stream"); // force this to prevent the node from filename guessing due dda!
+            		fcpSocket.getFcpOut().println("Metadata.ContentType=application/octet-stream"); // force this to prevent the node from filename guessing due dda!
             	}
-            	fcpOut.println("PriorityClass=2");  
+                fcpSocket.getFcpOut().println("PriorityClass=2");  
             } else if( type == FcpHandler.TYPE_MESSAGE ) {
-                fcpOut.println("PriorityClass=2");
+                fcpSocket.getFcpOut().println("PriorityClass=2");
             }
         }
 		
-		if (useDDA) {
-            // direct file acess
-			fcpOut.println("Persistence=connection");
-	        fcpOut.println("UploadFrom=disk");
-	        fcpOut.println("Filename=" + sourceFile.getAbsolutePath());
-	        fcpOut.println("EndMessage");
-            fcpOut.flush();
+        fcpSocket.getFcpOut().println("Persistence=connection");
+
+        if (fcpSocket.isDDA()) {
+            // direct file access
+            fcpSocket.getFcpOut().println("UploadFrom=disk");
+            fcpSocket.getFcpOut().println("Filename=" + sourceFile.getAbsolutePath());
+            fcpSocket.getFcpOut().println("EndMessage");
+            fcpSocket.getFcpOut().flush();
 			
 		} else {    
             // send data
-	        fcpOut.println("UploadFrom=direct");
-			fcpOut.println("DataLength=" + Long.toString(sourceFile.length()));
-			fcpOut.println("Data");
-			fcpOut.flush();
+            fcpSocket.getFcpOut().println("UploadFrom=direct");
+            fcpSocket.getFcpOut().println("DataLength=" + Long.toString(sourceFile.length()));
+            fcpSocket.getFcpOut().println("Data");
+            fcpSocket.getFcpOut().flush();
 
 			// write complete file to socket
             BufferedInputStream fileInput = new BufferedInputStream(new FileInputStream(sourceFile));
@@ -411,7 +358,7 @@ public class FcpConnection {
         boolean isFatal = false;
         String chkKey = null;
         while(true) {
-            NodeMessage nodeMsg = NodeMessage.readMessage(fcpIn);
+            NodeMessage nodeMsg = NodeMessage.readMessage(fcpSocket.getFcpIn());
             if( nodeMsg == null ) {
                 break;
             }
@@ -479,7 +426,7 @@ public class FcpConnection {
             dataOutput.close();
         }
 
-        closeConnection();
+        close();
         
         if( !isSuccess ) {
             // failure
@@ -502,40 +449,6 @@ public class FcpConnection {
 	}
 
     /**
-     * Performs a handshake using this FcpConnection
-     */
-    public void doHandshake() throws IOException, ConnectException {
-        fcpOut.println("ClientHello");
-        fcpOut.println("Name=hello-" + getNextFcpId());
-        fcpOut.println("ExpectedVersion=2.0");
-        fcpOut.println("EndMessage");
-        fcpOut.flush();
-
-        // receive and process node messages
-        boolean isSuccess = false;
-        while(true) {
-            NodeMessage nodeMsg = NodeMessage.readMessage(fcpIn);
-            if( nodeMsg == null ) {
-                break;
-            }
-            
-//            System.out.println("*HANDSHAKE** INFO - NodeMessage:");
-//            System.out.println(nodeMsg.toString());
-
-            if( nodeMsg.isMessageName("NodeHello") ) {
-                isSuccess = true;
-                break;
-            }
-            // any other message means error here
-            break;
-        }
-        
-        if( !isSuccess ) {
-            throw new ConnectException();
-        }
-    }
-
-    /**
      * Generates a CHK key for the given File (no upload).
      */
     public String generateCHK(File file) throws IOException {
@@ -553,15 +466,15 @@ public class FcpConnection {
      */
     public String[] getKeyPair() throws IOException, ConnectException {
 
-        fcpOut.println("GenerateSSK");
-        fcpOut.println("Identifier=genssk-" + getNextFcpId());
-        fcpOut.println("EndMessage");
-        fcpOut.flush();
+        fcpSocket.getFcpOut().println("GenerateSSK");
+        fcpSocket.getFcpOut().println("Identifier=genssk-" + FcpSocket.getNextFcpId());
+        fcpSocket.getFcpOut().println("EndMessage");
+        fcpSocket.getFcpOut().flush();
         
         // receive and process node messages
         String[] result = null;
         while(true) {
-            NodeMessage nodeMsg = NodeMessage.readMessage(fcpIn);
+            NodeMessage nodeMsg = NodeMessage.readMessage(fcpSocket.getFcpIn());
             if( nodeMsg == null ) {
                 break;
             }
@@ -600,7 +513,7 @@ public class FcpConnection {
             // any other message means error here
             break;
         }
-        closeConnection();
+        close();
         return result;
     }
 
@@ -626,25 +539,25 @@ public class FcpConnection {
             return false;
         }
 
-        fcpOut.println("ClientPut");
-        fcpOut.println("URI=CHK@");
-        fcpOut.println("Identifier=testdda-" + getNextFcpId()); 
-        fcpOut.println("Verbosity=0");
-        fcpOut.println("MaxRetries=0");      // only one try, the node accepts the filename or net
-        fcpOut.println("PriorityClass=1");   // today, please ;) 
-        fcpOut.println("GetCHKOnly=true");   // calculate the chk of 1k (the default testfile)
-        fcpOut.println("Global=false");
-        fcpOut.println("Persistence=connection");
-        fcpOut.println("DontCompress=true");
-        fcpOut.println("ClientToken=testdda"); 
-        fcpOut.println("UploadFrom=disk");
-        fcpOut.println("Filename=" + testFile.getAbsolutePath());
-        fcpOut.println("EndMessage");
-        fcpOut.flush();
+        fcpSocket.getFcpOut().println("ClientPut");
+        fcpSocket.getFcpOut().println("URI=CHK@");
+        fcpSocket.getFcpOut().println("Identifier=testdda-" + FcpSocket.getNextFcpId()); 
+        fcpSocket.getFcpOut().println("Verbosity=0");
+        fcpSocket.getFcpOut().println("MaxRetries=0");      // only one try, the node accepts the filename or net
+        fcpSocket.getFcpOut().println("PriorityClass=1");   // today, please ;) 
+        fcpSocket.getFcpOut().println("GetCHKOnly=true");   // calculate the chk of 1k (the default testfile)
+        fcpSocket.getFcpOut().println("Global=false");
+        fcpSocket.getFcpOut().println("Persistence=connection");
+        fcpSocket.getFcpOut().println("DontCompress=true");
+        fcpSocket.getFcpOut().println("ClientToken=testdda"); 
+        fcpSocket.getFcpOut().println("UploadFrom=disk");
+        fcpSocket.getFcpOut().println("Filename=" + testFile.getAbsolutePath());
+        fcpSocket.getFcpOut().println("EndMessage");
+        fcpSocket.getFcpOut().flush();
 
         boolean isSuccess = false;
         while(true) {
-            NodeMessage nodeMsg = NodeMessage.readMessage(fcpIn);
+            NodeMessage nodeMsg = NodeMessage.readMessage(fcpSocket.getFcpIn());
             if( nodeMsg == null ) {
                 break;
             }
@@ -679,7 +592,7 @@ public class FcpConnection {
             }
         }
         
-        closeConnection();
+        close();
         
         testFile.delete();
 

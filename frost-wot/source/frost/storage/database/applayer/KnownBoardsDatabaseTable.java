@@ -182,7 +182,7 @@ public class KnownBoardsDatabaseTable extends AbstractDatabaseTable {
      * Called with a list of Board, should add all boards that are not contained already
      * @param lst  List of Board
      */
-    public int addNewKnownBoards( List lst ) {
+    public int addNewKnownBoards( List<Board> lst ) {
         if( lst == null || lst.size() == 0 ) {
             return 0;
         }
