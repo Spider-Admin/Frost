@@ -17,6 +17,7 @@
 */
 package frost.fileTransfer.download;
 
+import java.io.*;
 import java.util.*;
 
 import javax.swing.event.EventListenerList;
@@ -44,17 +45,15 @@ public class DownloadTicker extends Thread {
 	/**
 	 * Used to sort FrostDownloadItems by lastUpdateStartTimeMillis ascending.
 	 */
-	static final Comparator downloadDlStopMillisCmp = new Comparator() {
-		public int compare(Object o1, Object o2) {
-			FrostDownloadItem value1 = (FrostDownloadItem) o1;
-			FrostDownloadItem value2 = (FrostDownloadItem) o2;
-			if (value1.getLastDownloadStopTime() > value2.getLastDownloadStopTime())
+	static final Comparator<FrostDownloadItem> downloadDlStopMillisCmp = new Comparator<FrostDownloadItem>() {
+		public int compare(FrostDownloadItem value1, FrostDownloadItem value2) {
+			if (value1.getLastDownloadStopTime() > value2.getLastDownloadStopTime()) {
 				return 1;
-			else if (
-				value1.getLastDownloadStopTime() < value2.getLastDownloadStopTime())
+            } else if (value1.getLastDownloadStopTime() < value2.getLastDownloadStopTime()) {
 				return -1;
-			else
+            } else {
 				return 0;
+            }
 		}
 	};
 
@@ -191,7 +190,8 @@ public class DownloadTicker extends Thread {
 			if (dlItem != null) {
 				dlItem.setState(FrostDownloadItem.STATE_TRYING);
 
-				DownloadThread newRequest = new DownloadThread(this, dlItem);
+                File targetFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + dlItem.getFilename());
+				DownloadThread newRequest = new DownloadThread(this, dlItem, targetFile);
 				newRequest.start();
 				threadLaunched = true;
 			}
@@ -210,7 +210,7 @@ public class DownloadTicker extends Thread {
 	private FrostDownloadItem selectNextDownloadItem() {
 
 		// get the item with state "Waiting"
-		ArrayList waitingItems = new ArrayList();
+		ArrayList<FrostDownloadItem> waitingItems = new ArrayList<FrostDownloadItem>();
 		for (int i = 0; i < model.getItemCount(); i++) {
 			FrostDownloadItem dlItem = (FrostDownloadItem) model.getItemAt(i);
             boolean itemIsEnabled = (dlItem.isEnabled()==null?true:dlItem.isEnabled().booleanValue());

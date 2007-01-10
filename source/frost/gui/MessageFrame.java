@@ -1098,7 +1098,7 @@ public class MessageFrame extends JFrame {
             
             ownIdentitiesComboBox.setEditable(true);
 
-            ownIdentitiesComboBox.getEditor().selectAll();
+//            ownIdentitiesComboBox.getEditor().selectAll();
             ownIdentitiesComboBox.addItemListener(new java.awt.event.ItemListener() {
                 public void itemStateChanged(java.awt.event.ItemEvent e) {
                     if( e.getStateChange() == ItemEvent.DESELECTED ) {
@@ -1107,10 +1107,10 @@ public class MessageFrame extends JFrame {
                     LocalIdentity selectedId = null;
                     if( ownIdentitiesComboBox.getSelectedIndex() == 0 ) {
                         ownIdentitiesComboBox.setEditable(true); // original anonymous
-                        ownIdentitiesComboBox.getEditor().selectAll();
+//                        ownIdentitiesComboBox.getEditor().selectAll();
                     } else if( ownIdentitiesComboBox.getSelectedIndex() < 0 ) {
                         ownIdentitiesComboBox.setEditable(true); // own value, anonymous
-                        ownIdentitiesComboBox.getEditor().selectAll();
+//                        ownIdentitiesComboBox.getEditor().selectAll();
                     } else {
                         ownIdentitiesComboBox.setEditable(false);
                         selectedId = (LocalIdentity) ownIdentitiesComboBox.getSelectedItem();
