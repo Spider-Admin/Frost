@@ -191,7 +191,7 @@ public class UploadTicker extends Thread {
      * thread has finished (so that it can notify its listeners of the fact). It also
      * releases the thread so that new generating threads can start if needed.
      */
-    void uploadingThreadFinished() {
+    void uploadThreadFinished() {
         runningUploadingThreads--;
         fireUploadingCountChanged();
         releaseUploadingThread();
@@ -268,10 +268,17 @@ public class UploadTicker extends Thread {
 
     private void startUploadThread() {
         if (Core.isFreenetOnline() && allocateUploadingThread()) {
-            FrostUploadItem item = selectNextUploadItem();
-            if (item != null) {
-                item.setState(FrostUploadItem.STATE_UPLOADING);
-                UploadThread newInsert = new UploadThread(this, item);
+            FrostUploadItem uploadItem = selectNextUploadItem();
+            if (uploadItem != null) {
+                uploadItem.setState(FrostUploadItem.STATE_UPLOADING);
+                boolean doMime;
+                // shared files are always inserted as octet-stream
+                if( uploadItem.isSharedFile() ) {
+                    doMime = false;
+                } else {
+                    doMime = true;
+                }
+                UploadThread newInsert = new UploadThread(this, uploadItem, doMime);
                 newInsert.start();
             } else {
                 releaseUploadingThread();

@@ -21,46 +21,40 @@ package frost.fileTransfer.download;
 import java.io.*;
 import java.util.logging.*;
 
-import frost.*;
 import frost.fcp.*;
 import frost.fileTransfer.*;
-import frost.storage.database.applayer.*;
-import frost.util.*;
 
 public class DownloadThread extends Thread {
 
-    private DownloadTicker ticker;
-
     private static Logger logger = Logger.getLogger(DownloadThread.class.getName());
 
+    private DownloadTicker ticker;
     private String filename;
     private Long size;
     private String key;
+    private File targetFile;
 
     private FrostDownloadItem downloadItem;
     
-    public DownloadThread(DownloadTicker newTicker, FrostDownloadItem item) {
+    public DownloadThread(DownloadTicker newTicker, FrostDownloadItem item, File target) {
         filename = item.getFilename();
         size = item.getFileSize();
         key = item.getKey();
         ticker = newTicker;
         downloadItem = item;
+        targetFile = target;
     }
 
     public void run() {
         ticker.threadStarted();
+
+        // if we don't have the CHK, we should not be here
+        if (key == null) {
+            ticker.threadFinished();
+            return;
+        }
         
-        boolean retryImmediately = false;
-
         try {
-            File newFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + filename);
-
-            // if we don't have the CHK, we should not be here
-            if (key == null) {
-                ticker.threadFinished();
-                return;
-            }
-
             // otherwise, proceed as usual
             logger.info("FILEDN: Download of '" + filename + "' started.");
 
@@ -72,91 +66,22 @@ public class DownloadThread extends Thread {
                             FcpHandler.TYPE_FILE,
                             key,
                             size,
-                            newFile,
+                            targetFile,
                             true,  // doRedirect
                             false, // fastDownload
                             -1,    // maxSize
                             false, // createTempFile
                             downloadItem);
             } catch (Throwable t) {
-                logger.log(Level.SEVERE, "Exception thrown in run()", t);
+                logger.log(Level.SEVERE, "Exception thrown in getFile()", t);
             }
+            
+            FileTransferManager.inst().getDownloadManager().notifyDownloadFinished(downloadItem, result, targetFile);
 
-            if (result == null || result.isSuccess() == false) {
-                // download failed
-
-                if( result != null ) {
-                    downloadItem.setErrorCodeDescription(result.getCodeDescription());
-                }
-
-                if( result != null
-                        && result.getReturnCode() == 11 
-                        && key.startsWith("CHK@")
-                        && key.indexOf("/") > 0 ) 
-                {
-                    // remove one path level from CHK
-                    String newKey = key.substring(0, key.lastIndexOf("/"));
-                    downloadItem.setKey(newKey);
-                    downloadItem.setState(FrostDownloadItem.STATE_WAITING);
-                    retryImmediately = true;
-                    
-                    System.out.println("*!*!* Removed one path level from key: "+key+" ; "+newKey);
-                    
-                } else if( result != null && result.isFatal() ) {
-                    // fatal, don't retry
-                    downloadItem.setEnableDownload(Boolean.valueOf(false));
-                    downloadItem.setState(FrostDownloadItem.STATE_FAILED);
-                    logger.warning("FILEDN: Download of " + filename + " failed FATALLY.");
-                } else {
-                    downloadItem.setRetries(downloadItem.getRetries() + 1);
-    
-                    logger.warning("FILEDN: Download of " + filename + " failed.");
-                    // set new state -> failed or waiting for another try
-                    if (downloadItem.getRetries() > Core.frostSettings.getIntValue(SettingsClass.DOWNLOAD_MAX_RETRIES)) {
-                        downloadItem.setEnableDownload(Boolean.valueOf(false));
-                        downloadItem.setState(FrostDownloadItem.STATE_FAILED);
-                    } else {
-                        downloadItem.setState(FrostDownloadItem.STATE_WAITING);
-                    }
-                }
-            } else {
-                
-                logger.info("FILEDN: Download of " + filename + " was successful.");
-
-                // download successful
-                downloadItem.setFileSize(new Long(newFile.length()));
-                downloadItem.setState(FrostDownloadItem.STATE_DONE);
-                downloadItem.setEnableDownload(Boolean.valueOf(false));
-
-                // update lastDownloaded time in filelist
-                if( downloadItem.isSharedFile() ) {
-                    AppLayerDatabase.getFileListDatabaseTable().updateFrostFileListFileObjectAfterDownload(
-                            downloadItem.getFileListFileObject().getSha(),
-                            System.currentTimeMillis() );
-                }
-
-                // maybe log successful download to file localdata/downloads.txt
-                if( Core.frostSettings.getBoolValue(SettingsClass.LOG_DOWNLOADS_ENABLED) ) {
-                    String line = downloadItem.getKey() + "/" + downloadItem.getFilename();
-                    String fileName = Core.frostSettings.getValue(SettingsClass.DIR_LOCALDATA) + "Frost-Downloads.log";
-                    File targetFile = new File(fileName);
-                    FileAccess.appendLineToTextfile(targetFile, line);
-                }
-
-                // maybe remove finished download immediately
-                if( Core.frostSettings.getBoolValue(SettingsClass.DOWNLOAD_REMOVE_FINISHED) ) {
-                    FileTransferManager.inst().getDownloadManager().getModel().removeFinishedDownloads();
-                }
-            }
         } catch (Throwable t) {
             logger.log(Level.SEVERE, "Oo. EXCEPTION in requestThread.run", t);
         }
 
-        if( retryImmediately ) {
-            downloadItem.setLastDownloadStopTime(0);
-        } else {
-            downloadItem.setLastDownloadStopTime(System.currentTimeMillis());
-        }
         ticker.threadFinished();
     }
 }

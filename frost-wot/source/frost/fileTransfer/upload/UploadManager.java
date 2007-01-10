@@ -18,12 +18,18 @@
 */
 package frost.fileTransfer.upload;
 
+import java.io.*;
 import java.util.*;
+import java.util.logging.*;
 
 import frost.*;
+import frost.fcp.*;
 import frost.storage.*;
+import frost.util.*;
 
 public class UploadManager {
+
+    private static Logger logger = Logger.getLogger(UploadManager.class.getName());
 
     private UploadModel model;
     private UploadPanel panel;
@@ -84,5 +90,66 @@ public class UploadManager {
             model = new UploadModel();
         }
         return model;
+    }
+
+    /**
+     * Handle a finished file upload, either successful or failed.
+     */
+    public void notifyUploadFinished(FrostUploadItem uploadItem, FcpResultPut result) {
+
+        if (result != null && (result.isSuccess() || result.isKeyCollision()) ) {
+            
+            logger.info("Upload of " + uploadItem.getFile().getName() + " was successful.");
+
+            // upload successful
+            uploadItem.setKey(result.getChkKey());
+            if( uploadItem.isSharedFile() ) {
+                uploadItem.getSharedFileItem().notifySuccessfulUpload(result.getChkKey());
+            }
+
+            uploadItem.setEnabled(Boolean.FALSE);
+            uploadItem.setState(FrostUploadItem.STATE_DONE);
+            
+            // notify model that shared upload file can be removed
+            if( uploadItem.isSharedFile() ) {
+                getModel().notifySharedFileUploadWasSuccessful(uploadItem);
+            } else {
+                // maybe log successful manual upload to file localdata/uploads.txt
+                if( Core.frostSettings.getBoolValue(SettingsClass.LOG_UPLOADS_ENABLED) ) {
+                    String line = uploadItem.getKey() + "/" + uploadItem.getFile().getName();
+                    String fileName = Core.frostSettings.getValue(SettingsClass.DIR_LOCALDATA) + "Frost-Uploads.log";
+                    File targetFile = new File(fileName);
+                    FileAccess.appendLineToTextfile(targetFile, line);
+                }
+            }
+
+            // maybe remove finished upload immediately
+            if( Core.frostSettings.getBoolValue(SettingsClass.UPLOAD_REMOVE_FINISHED) ) {
+                getModel().removeFinishedUploads();
+            }
+
+        } else {
+            // upload failed
+            logger.warning("Upload of " + uploadItem.getFile().getName() + " was NOT successful.");
+
+            if( result != null && result.isFatal() ) {
+                uploadItem.setEnabled(Boolean.FALSE);
+                uploadItem.setState(FrostUploadItem.STATE_FAILED);
+            } else {
+                uploadItem.setRetries(uploadItem.getRetries() + 1);
+                
+                if (uploadItem.getRetries() > Core.frostSettings.getIntValue(SettingsClass.UPLOAD_MAX_RETRIES)) {
+                    uploadItem.setEnabled(Boolean.FALSE);
+                    uploadItem.setState(FrostUploadItem.STATE_FAILED);
+                } else {
+                    // retry
+                    uploadItem.setState(FrostUploadItem.STATE_WAITING);
+                }
+            }
+            if( result != null ) {
+                uploadItem.setErrorCodeDescription(result.getCodeDescription());
+            }
+        }
+        uploadItem.setLastUploadStopTimeMillis(System.currentTimeMillis());
     }
 }

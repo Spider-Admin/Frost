@@ -18,29 +18,23 @@
 */
 package frost.fileTransfer.upload;
 
-import java.io.*;
 import java.util.logging.*;
 
-import frost.*;
 import frost.fcp.*;
 import frost.fileTransfer.*;
-import frost.util.*;
 
 class UploadThread extends Thread {
-    
-    private UploadTicker ticker;
 
     private static Logger logger = Logger.getLogger(UploadThread.class.getName());
 
-    public static final int MODE_GENERATE_CHK  = 2;
-    public static final int MODE_UPLOAD        = 3;
+    private UploadTicker ticker;
+    private FrostUploadItem uploadItem;
+    private boolean doMime;
 
-    FrostUploadItem uploadItem = null; // for upload and generate CHK
-
-    protected UploadThread(UploadTicker newTicker, FrostUploadItem ulItem) {
-
+    protected UploadThread(UploadTicker newTicker, FrostUploadItem ulItem, boolean doMim) {
         ticker = newTicker;
         uploadItem = ulItem;
+        doMime = doMim;
     }
 
     public void run() {
@@ -50,82 +44,28 @@ class UploadThread extends Thread {
         } catch (Throwable e) {
             logger.log(Level.SEVERE, "Exception thrown in run()", e);
         }
-        ticker.uploadingThreadFinished();
+        ticker.uploadThreadFinished();
     }
 
     private void upload() { // real upload
 
         logger.info("Upload of " + uploadItem.getFile().getName() + " started.");
+
+        FcpResultPut result = null;
+        try {
+            result = FcpHandler.inst().putFile(
+                    FcpHandler.TYPE_FILE,
+                    "CHK@",
+                    uploadItem.getFile(),
+                    null, // metadata
+                    true, // doRedirect
+                    true, // removeLocalKey, insert with full HTL even if existing in local store
+                    doMime,
+                    uploadItem); // provide the uploadItem to indicate that this upload is contained in table
+        } catch(Throwable t) {
+            logger.log(Level.SEVERE, "Exception thrown in putFile()", t);
+        }
         
-        boolean doMime;
-        // shared files are always inserted as octet-stream
-        if( uploadItem.isSharedFile() ) {
-            doMime = false;
-        } else {
-            doMime = true;
-        }
-
-        FcpResultPut result = FcpHandler.inst().putFile(
-                FcpHandler.TYPE_FILE,
-                "CHK@",
-                uploadItem.getFile(),
-                null, // metadata
-                true, // doRedirect
-                true, // removeLocalKey, insert with full HTL even if existing in local store
-                doMime,
-                uploadItem); // provide the uploadItem to indicate that this upload is contained in table
-
-        if (result != null && (result.isSuccess() || result.isKeyCollision()) ) {
-            
-            logger.info("Upload of " + uploadItem.getFile().getName() + " was successful.");
-
-            // upload successful
-            uploadItem.setKey(result.getChkKey());
-            if( uploadItem.isSharedFile() ) {
-                uploadItem.getSharedFileItem().notifySuccessfulUpload(result.getChkKey());
-            }
-
-            uploadItem.setEnabled(Boolean.FALSE);
-            uploadItem.setState(FrostUploadItem.STATE_DONE);
-            
-            // notify model that shared upload file can be removed
-            if( uploadItem.isSharedFile() ) {
-                FileTransferManager.inst().getUploadManager().getModel().notifySharedFileUploadWasSuccessful(uploadItem);
-            } else {
-                // maybe log successful manual upload to file localdata/uploads.txt
-                if( Core.frostSettings.getBoolValue(SettingsClass.LOG_UPLOADS_ENABLED) ) {
-                    String line = uploadItem.getKey() + "/" + uploadItem.getFile().getName();
-                    String fileName = Core.frostSettings.getValue(SettingsClass.DIR_LOCALDATA) + "Frost-Uploads.log";
-                    File targetFile = new File(fileName);
-                    FileAccess.appendLineToTextfile(targetFile, line);
-                }
-            }
-
-            // maybe remove finished upload immediately
-            if( Core.frostSettings.getBoolValue(SettingsClass.UPLOAD_REMOVE_FINISHED) ) {
-                FileTransferManager.inst().getUploadManager().getModel().removeFinishedUploads();
-            }
-
-        } else {
-            // upload failed
-            logger.warning("Upload of " + uploadItem.getFile().getName() + " was NOT successful.");
-
-            if( result.isFatal() ) {
-                uploadItem.setEnabled(Boolean.FALSE);
-                uploadItem.setState(FrostUploadItem.STATE_FAILED);
-            } else {
-                uploadItem.setRetries(uploadItem.getRetries() + 1);
-                
-                if (uploadItem.getRetries() > Core.frostSettings.getIntValue(SettingsClass.UPLOAD_MAX_RETRIES)) {
-                    uploadItem.setEnabled(Boolean.FALSE);
-                    uploadItem.setState(FrostUploadItem.STATE_FAILED);
-                } else {
-                    // retry
-                    uploadItem.setState(FrostUploadItem.STATE_WAITING);
-                }
-            }
-            uploadItem.setErrorCodeDescription(result.getCodeDescription());
-        }
-        uploadItem.setLastUploadStopTimeMillis(System.currentTimeMillis());
+        FileTransferManager.inst().getUploadManager().notifyUploadFinished(uploadItem, result);
     }
 }
