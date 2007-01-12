@@ -19,6 +19,7 @@
 package frost.fileTransfer;
 
 import frost.*;
+import frost.fcp.*;
 import frost.fileTransfer.download.*;
 import frost.fileTransfer.search.*;
 import frost.fileTransfer.sharing.*;
@@ -54,6 +55,7 @@ public class FileTransferManager implements Savable {
         getSharedFilesManager().initialize();
         getUploadManager().initialize( getSharedFilesManager().getModel().getItems() );
         getNewUploadFilesManager().initialize();
+        PersistenceManager.initialize(getUploadManager().getModel(), getDownloadManager().getModel());
         
         // call order is order of panels in gui
         MainFrame mainFrame = MainFrame.getInstance();
@@ -67,6 +69,17 @@ public class FileTransferManager implements Savable {
         getDownloadManager().startTicker();
         getUploadManager().startTicker();
         getNewUploadFilesManager().start();
+        
+        // maybe start persistence threads
+        if( FcpHandler.isFreenet07()
+                && Core.frostSettings.getBoolValue(SettingsClass.FCP2_USE_PERSISTENCE) )
+        {
+            boolean wasOk = ((FcpHandler07)FcpHandler.inst()).initializePersistence();
+            if( !wasOk ) {
+                System.out.println("FAILED TO ESTABLISH THE PERSISTENT CONNECTION!");
+            }
+            PersistenceManager.startThreads(); // was initialized by FileTransferManager
+        }
     }
 
     public DownloadManager getDownloadManager() {

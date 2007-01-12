@@ -35,6 +35,20 @@ public class FcpHandler07 extends FcpHandler {
     public List<NodeAddress> getNodes() {
         return FcpFactory.getNodes();
     }
+    
+    public boolean initializePersistence() {
+        if( getNodes().isEmpty() ) {
+            return false;
+        }
+        NodeAddress na = getNodes().get(0);
+        try {
+            FcpPersistentConnection.initialize(na);
+            return true;
+        } catch (Throwable t) {
+            t.printStackTrace();
+            return false;
+        }
+    }
  
     public FcpResultGet getFile(
             int type,

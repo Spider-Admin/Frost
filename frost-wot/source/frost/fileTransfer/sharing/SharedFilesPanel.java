@@ -359,7 +359,7 @@ public class SharedFilesPanel extends JPanel {
             refreshLanguage();
 
             copyToClipboardMenu.add(copyKeysAndNamesItem);
-            if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05) {
+            if( FcpHandler.isFreenet05() ) {
                 copyToClipboardMenu.add(copyKeysItem);
             }
             copyToClipboardMenu.add(copyExtendedInfoItem);

@@ -27,7 +27,7 @@ public class FcpResultGet {
     
     private byte [] rawMetadata = null; // only used by freenet 0.5
     
-    private String chkUri = null;
+//    private String chkUri = null;
     
     private boolean isSuccess;
     
@@ -48,25 +48,25 @@ public class FcpResultGet {
         isFatal = fatal;
     }
 
-    /**
-     * Retrieves the CHK URI.
-     * Valid for uploading.
-     *
-     * @return the CHK URI
-     */
-    public String getChkUri() {
-       return chkUri;
-    }
-
-    /**
-     * Sets the CHK URI.
-     * Valid for uploading.
-     *
-     * @param chkUri the CHK URI
-     */
-    void setChkUri(String chkUri) {
-       this.chkUri = chkUri;
-    }
+//    /**
+//     * Retrieves the CHK URI.
+//     * Valid for uploading.
+//     *
+//     * @return the CHK URI
+//     */
+//    public String getChkUri() {
+//       return chkUri;
+//    }
+//
+//    /**
+//     * Sets the CHK URI.
+//     * Valid for uploading.
+//     *
+//     * @param chkUri the CHK URI
+//     */
+//    void setChkUri(String chkUri) {
+//       this.chkUri = chkUri;
+//    }
 
     /**
      * Retrieves the metadata.

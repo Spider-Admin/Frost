@@ -70,12 +70,12 @@ public class MessageUploader {
      */
     protected static boolean prepareMessage(MessageUploaderWorkArea wa) {
         
-        if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
+        if( FcpHandler.isFreenet05() ) {
             return prepareMessage05(wa);
-        } else if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) {
+        } else if( FcpHandler.isFreenet07() ) {
             return prepareMessage07(wa);
         } else {
-            logger.severe("Unsupported freenet version: "+FcpHandler.getInitializedVersion());
+            logger.severe("Unsupported freenet version, not 0.5 or 0.7");
             return false;
         }
     }

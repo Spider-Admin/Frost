@@ -24,6 +24,7 @@ import javax.swing.event.*;
 
 import frost.*;
 import frost.fcp.*;
+import frost.fileTransfer.*;
 import frost.util.*;
 
 public class UploadTicker extends Thread {
@@ -231,10 +232,12 @@ public class UploadTicker extends Thread {
             removeNotExistingFilesCounter++;
             removeNotExistingFiles();
             generateCHKs();
-            startUploadThread();
+            if( PersistenceManager.isPersistenceEnabled() == false ) {
+                startUploadThread();
+            }
         }
     }
-
+    
     /**
      * This method generates CHK's for upload table entries
      */
@@ -248,7 +251,7 @@ public class UploadTicker extends Thread {
                 // encode if requested by user, OR
                 // if state is WAITING for upload and its 0.5 and there is no chkKey, we must encode the file
                 if (ulItem.getState() == FrostUploadItem.STATE_ENCODING_REQUESTED
-                    || ( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05
+                    || ( FcpHandler.isFreenet05()
                          && ulItem.getKey() == null
                          && ulItem.getState() == FrostUploadItem.STATE_WAITING ) 
                    )    
@@ -270,7 +273,7 @@ public class UploadTicker extends Thread {
         if (Core.isFreenetOnline() && allocateUploadingThread()) {
             FrostUploadItem uploadItem = selectNextUploadItem();
             if (uploadItem != null) {
-                uploadItem.setState(FrostUploadItem.STATE_UPLOADING);
+                uploadItem.setState(FrostUploadItem.STATE_PROGRESS);
                 boolean doMime;
                 // shared files are always inserted as octet-stream
                 if( uploadItem.isSharedFile() ) {
@@ -285,7 +288,7 @@ public class UploadTicker extends Thread {
             }
         }
     }
-
+    
     /**
      * Chooses next upload item to start from upload table.
      * @return the next upload item to start uploading or null if a suitable one was not found.
@@ -299,7 +302,7 @@ public class UploadTicker extends Thread {
             // we choose items that are waiting, enabled and for 0.5 the encoding must be done before
             if (ulItem.getState() == FrostUploadItem.STATE_WAITING
                 && (ulItem.isEnabled() == null || ulItem.isEnabled().booleanValue())
-                && (ulItem.getKey() != null || FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) )
+                && (ulItem.getKey() != null || FcpHandler.isFreenet07() ) )
             {
                 // check if waittime has expired
                 long waittimeMillis = (long)Core.frostSettings.getIntValue(SettingsClass.UPLOAD_WAITTIME) * 60L * 1000L;

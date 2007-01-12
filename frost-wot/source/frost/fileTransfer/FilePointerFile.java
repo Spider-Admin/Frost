@@ -91,7 +91,7 @@ public class FilePointerFile {
         }
         
         // compress file if running on 0.5
-        if( writeOK && FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
+        if( writeOK && FcpHandler.isFreenet05() ) {
             File tmp = new File(targetFile.getPath() + ".wfpftmp");
             if( !FileAccess.compressFileGZip(targetFile, tmp) ) {
                 return false; // error, already logged
@@ -115,7 +115,7 @@ public class FilePointerFile {
             return null;
         }
         // decompress file if running on 0.5
-        if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
+        if( FcpHandler.isFreenet05() ) {
             File tmp = new File(sourceFile.getPath() + ".fpftmp");
             if( !FileAccess.decompressFileGZip(sourceFile, tmp) ) {
                 return null; // error, already logged

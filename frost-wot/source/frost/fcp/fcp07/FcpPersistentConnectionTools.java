@@ -21,14 +21,13 @@ package frost.fcp.fcp07;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import java.util.logging.*;
 
 import frost.ext.*;
 import frost.fcp.*;
 
 public class FcpPersistentConnectionTools {
 
-    private static Logger logger = Logger.getLogger(FcpPersistentConnectionTools.class.getName());
+//    private static Logger logger = Logger.getLogger(FcpPersistentConnectionTools.class.getName());
 
     public static void main(String[] args) throws Throwable {
         NodeAddress na = new NodeAddress();
@@ -97,32 +96,23 @@ public class FcpPersistentConnectionTools {
     }
 
     /**
-     * Starts a persistent put. If DDA=false the data are transferred to the node.
+     * Starts a persistent put.
      * @return  null if something went wrong (log entry written), or the NodeMessage from the node (which could also report an error)
      */
     public static NodeMessage startPersistentPut(String id, File sourceFile, boolean doMime) {
 
-        if( FcpPersistentConnection.getInstance().isDDA() == false ) {
-            try {
-                return startDirectPersistentPut(id, sourceFile, doMime);
-            } catch(Throwable t) {
-                logger.log(Level.SEVERE, "Exception catched", t);
-                return null;
-            }
+        // else start a new request with DDA
+        List<String> msg = getDefaultPutMessage(id, sourceFile, doMime);
+        msg.add("UploadFrom=disk");
+        msg.add("Filename=" + sourceFile.getAbsolutePath());
+        msg.add("EndMessage");
+        
+        // we expect one NodeMessage
+        List<NodeMessage> lst = FcpPersistentConnection.getInstance().sendMessage(msg, "", true);
+        if( lst.size() == 0 ) {
+            return null;
         } else {
-            // else start a new request with DDA
-            List<String> msg = getDefaultPutMessage(id, sourceFile, doMime);
-            msg.add("UploadFrom=disk");
-            msg.add("Filename=" + sourceFile.getAbsolutePath());
-            msg.add("EndMessage");
-            
-            // we expect one NodeMessage
-            List<NodeMessage> lst = FcpPersistentConnection.getInstance().sendMessage(msg, "", true);
-            if( lst.size() == 0 ) {
-                return null;
-            } else {
-                return lst.get(0);
-            }
+            return lst.get(0);
         }
     }
 
@@ -204,7 +194,7 @@ public class FcpPersistentConnectionTools {
      * Returns the first NodeMessage sent by the node after the transfer (PersistentPut or any error message).
      * After this method was called this connection is unuseable.
      */
-    private static NodeMessage startDirectPersistentPut(String id, File sourceFile, boolean doMime) throws IOException {
+    public static NodeMessage startDirectPersistentPut(String id, File sourceFile, boolean doMime) throws IOException {
         
         FcpSocket newSocket = FcpSocket.create(FcpPersistentConnection.getInstance().getNodeAddress());
         if( newSocket == null ) {

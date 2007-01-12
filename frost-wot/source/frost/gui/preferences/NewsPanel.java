@@ -58,7 +58,7 @@ class NewsPanel extends JPanel {
         initialize();
         loadSettings();
         
-        if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) {
+        if( FcpHandler.isFreenet07() ) {
             // disable 0.5-only items
             uploadHtlLabel.setEnabled(false);
             uploadHtlTextField.setEnabled(false);

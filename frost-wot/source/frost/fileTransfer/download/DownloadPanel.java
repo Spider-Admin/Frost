@@ -277,7 +277,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                 // On 0.7 we remember the full provided download uri as key.
                 // If the node reports download failed, error code 11 later, then we strip the filename
                 // from the uri and keep trying with chk only
-                if( FcpHandler.getInitializedVersion() != FcpHandler.FREENET_07 ) {
+                if( FcpHandler.isFreenet05() ) {
                     key = checkKey; // on 0.5 use only key as uri
                 }
                 
@@ -486,7 +486,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
             // TODO: implement cancel of downloading
     
             copyToClipboardMenu.add(copyKeysAndNamesItem);
-            if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05) {
+            if( FcpHandler.isFreenet05() ) {
                 copyToClipboardMenu.add(copyKeysItem);
             }
             copyToClipboardMenu.add(copyExtendedInfoItem);

@@ -82,7 +82,7 @@ class MiscPanel extends JPanel {
         initialize();
         loadSettings();
         
-        if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
+        if( FcpHandler.isFreenet05() ) {
             // disable 0.7-only items
             useDDACheckBox.setEnabled(false);
             usePersistenceCheckBox.setEnabled(false);

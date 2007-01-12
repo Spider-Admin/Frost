@@ -52,6 +52,10 @@ public class UploadModel extends OrderedModel implements Savable {
         
         return addNewUploadItem(newUlItem);
     }
+    
+    public void addExternalItem(FrostUploadItem i) {
+        addItem(i);
+    }
 
     /**
      * Will add this item to the model if not already in the model.
@@ -111,6 +115,9 @@ public class UploadModel extends OrderedModel implements Savable {
         ArrayList<FrostUploadItem> items = new ArrayList<FrostUploadItem>();
         for (int i = getItemCount() - 1; i >= 0; i--) {
             FrostUploadItem ulItem = (FrostUploadItem) getItemAt(i);
+            if( ulItem.isExternal() ) {
+                continue;
+            }
             if (!ulItem.getFile().exists()) {
                 items.add(ulItem);
                 logger.severe("Upload items file does not exist, removed from upload files: "+ulItem.getFile().getPath());

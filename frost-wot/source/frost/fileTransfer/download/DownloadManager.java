@@ -141,9 +141,9 @@ public class DownloadManager {
             if( result != null ) {
                 downloadItem.setErrorCodeDescription(result.getCodeDescription());
             }
-            
+
             if( result != null
-                    && FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07
+                    && FcpHandler.isFreenet07()
                     && result.getReturnCode() == 11 
                     && key.startsWith("CHK@")
                     && key.indexOf("/") > 0 ) 
@@ -207,7 +207,6 @@ public class DownloadManager {
             }
         }
 
-        // FIXME: mit persistenz: remove from queue, add new item with new key to queue
         if( retryImmediately ) {
             downloadItem.setLastDownloadStopTime(0);
         } else {
