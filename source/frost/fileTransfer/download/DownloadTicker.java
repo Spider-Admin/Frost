@@ -23,6 +23,7 @@ import java.util.*;
 import javax.swing.event.EventListenerList;
 
 import frost.*;
+import frost.fileTransfer.*;
 import frost.util.*;
 
 public class DownloadTicker extends Thread {
@@ -133,7 +134,9 @@ public class DownloadTicker extends Thread {
 			Mixed.wait(1000);
 			// this method is called by a timer each second
 			updateDownloadCountLabel();
-			startDownloadThread();
+            if( PersistenceManager.isPersistenceEnabled() == false ) {
+                startDownloadThread();
+            }
 		}
 	}
 	

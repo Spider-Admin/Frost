@@ -32,7 +32,7 @@ public class FrostUploadItem extends ModelItem {
 
     // the constants representing upload states
     public final static int STATE_DONE       = 1;   // a start of uploading is requested
-    public final static int STATE_UPLOADING  = 3;
+//    public final static int STATE_UPLOADING  = 3;
     public final static int STATE_PROGRESS   = 4;   // upload runs, shows "... kb"
     public final static int STATE_ENCODING_REQUESTED  = 5; // an encoding of file is requested
     public final static int STATE_ENCODING   = 6;   // the encode is running
@@ -58,7 +58,9 @@ public class FrostUploadItem extends ModelItem {
     private String errorCodeDescription = null;
 
     // is only set if this uploaditem is a shared file
-    private FrostSharedFileItem sharedFileItem = null; 
+    private FrostSharedFileItem sharedFileItem = null;
+    
+    private boolean isExternal = false;
 
     /**
      * Dummy to use for uploads of attachments. Is never saved.
@@ -111,7 +113,7 @@ public class FrostUploadItem extends ModelItem {
         gqIdentifier = newGqIdentifier;
 
         // set correct state
-        if ((state == FrostUploadItem.STATE_PROGRESS) || (state == FrostUploadItem.STATE_UPLOADING)) {
+        if ((state == FrostUploadItem.STATE_PROGRESS) /*|| (state == FrostUploadItem.STATE_UPLOADING)*/ ) {
             state = FrostUploadItem.STATE_WAITING;
         } else if ((state == FrostUploadItem.STATE_ENCODING) || (state == FrostUploadItem.STATE_ENCODING_REQUESTED)) {
             state = FrostUploadItem.STATE_WAITING;
@@ -219,6 +221,9 @@ public class FrostUploadItem extends ModelItem {
     public String getGqIdentifier() {
         return gqIdentifier;
     }
+    public void setGqIdentifier(String i) {
+        gqIdentifier = i;
+    }
 
     public FrostSharedFileItem getSharedFileItem() {
         return sharedFileItem;
@@ -230,6 +235,9 @@ public class FrostUploadItem extends ModelItem {
 
     public File getFile() {
         return file;
+    }
+    public void setFile(File f) {
+        file = f;
     }
     
     public Boolean isFinalized() {
@@ -252,7 +260,7 @@ public class FrostUploadItem extends ModelItem {
      * Returns null on 0.5.
      */
     private String buildGqIdentifier(String filename) {
-        if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) {
+        if( FcpHandler.isFreenet07() ) {
             return new StringBuffer()
                 .append("Frost-")
                 .append(filename.replace(' ', '_'))
@@ -269,5 +277,15 @@ public class FrostUploadItem extends ModelItem {
     }
     public void setErrorCodeDescription(String errorCodeDescription) {
         this.errorCodeDescription = errorCodeDescription;
+    }
+    
+    /**
+     * @return  true if this item is an external global queue item
+     */
+    public boolean isExternal() {
+        return isExternal;
+    }
+    public void setExternal(boolean e) {
+        isExternal = e;
     }
 }

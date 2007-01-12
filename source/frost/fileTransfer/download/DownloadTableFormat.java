@@ -316,7 +316,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
             
 			if (dli1.getFileSize() != null) {
                 size1 = dli1.getFileSize();
-            } else if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 
+            } else if( FcpHandler.isFreenet07() 
                            && dli1.getTotalBlocks() > 0 
                            && dli1.isFinalized() != null 
                            && dli1.isFinalized().booleanValue() == true ) 
@@ -330,7 +330,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
             
             if (dli2.getFileSize() != null) {
                 size2 = dli2.getFileSize();
-            } else if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 
+            } else if( FcpHandler.isFreenet07() 
                            && dli2.getTotalBlocks() > 0 
                            && dli2.isFinalized() != null 
                            && dli2.isFinalized().booleanValue() == true ) 
@@ -508,7 +508,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
                     // size is set
                     return SizeFormatter.formatSize(downloadItem.getFileSize().longValue());
 
-                } else if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 
+                } else if( FcpHandler.isFreenet07() 
                            && downloadItem.getTotalBlocks() > 0 
                            && downloadItem.isFinalized() != null 
                            && downloadItem.isFinalized().booleanValue() == true ) 

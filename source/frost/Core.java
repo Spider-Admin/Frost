@@ -186,7 +186,7 @@ public class Core implements FrostEventDispatcher  {
                 setFreenetOnline(true);
                 
                 // on 0.7 check for "Testnet=true" and warn user
-                if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) {
+                if( FcpHandler.isFreenet07() ) {
                     for(Iterator i=nodeInfo.iterator(); i.hasNext(); ) {
                         String val = (String)i.next();
                         if( val.startsWith("Testnet") && val.indexOf("true") > 0 ) {
@@ -340,9 +340,9 @@ public class Core implements FrostEventDispatcher  {
         }
         
         String title;
-    	if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
+    	if( FcpHandler.isFreenet05() ) {
     		title = "Frost@Freenet 0.5";
-    	} else if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) {
+    	} else if( FcpHandler.isFreenet07() ) {
     		title = "Frost@Freenet 0.7";
     	} else {
     		title = "Frost";

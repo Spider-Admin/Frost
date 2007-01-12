@@ -92,6 +92,10 @@ public class UploadFilesDatabaseTable extends AbstractDatabaseTable {
     
                 FrostUploadItem ulItem = (FrostUploadItem)i.next();
                 
+                if( ulItem.isExternal() ) {
+                    continue;
+                }
+                
                 int ix=1;
                 ps.setString(ix++, ulItem.getFile().getPath());
                 ps.setLong(ix++, ulItem.getFileSize());

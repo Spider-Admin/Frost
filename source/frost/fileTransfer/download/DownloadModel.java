@@ -94,6 +94,10 @@ public class DownloadModel extends OrderedModel implements Savable {
 		addItem(itemToAdd);
 		return true;
 	}
+    
+    public void addExternalItem(FrostDownloadItem i) {
+        addItem(i);
+    }
 	
 	/**
 	 * Returns true if the model contains an item with the given sha.

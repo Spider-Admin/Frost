@@ -85,6 +85,10 @@ public class DownloadFilesDatabaseTable extends AbstractDatabaseTable {
             for(Iterator i=downloadFiles.iterator(); i.hasNext(); ) {
     
                 FrostDownloadItem dlItem = (FrostDownloadItem)i.next();
+                
+                if( dlItem.isExternal() ) {
+                    continue;
+                }
     
                 int ix=1;
                 ps.setString(ix++, dlItem.getFilename());

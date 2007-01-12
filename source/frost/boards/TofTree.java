@@ -667,7 +667,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         if( iniFile.exists() == false ) {
             logger.warning("boards.xml file not found, reading default file (will be saved to boards.xml on exit).");
             String defaultBoardsFile;
-            if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
+            if( FcpHandler.isFreenet05() ) {
                 defaultBoardsFile = "boards.xml.default";
             } else {
                 defaultBoardsFile = "boards.xml.default07";
@@ -682,7 +682,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
 
         // check if the board 'frost-announce' is contained in the list, add it if not found
         String expectedPubkey;
-        if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
+        if( FcpHandler.isFreenet05() ) {
             expectedPubkey = FREENET_05_FROST_ANNOUNCE_PUBKEY;
         } else {
             expectedPubkey = FREENET_07_FROST_ANNOUNCE_PUBKEY;

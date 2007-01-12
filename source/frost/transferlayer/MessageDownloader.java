@@ -43,12 +43,12 @@ public class MessageDownloader {
      */
     protected static MessageDownloaderResult processDownloadedFile(File tmpFile, FcpResultGet results, String logInfo) {
         try {
-            if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
+            if( FcpHandler.isFreenet05() ) {
                 return processDownloadedFile05(tmpFile, results, logInfo);
-            } else if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) {
+            } else if( FcpHandler.isFreenet07() ) {
                 return processDownloadedFile07(tmpFile, results, logInfo);
             } else {
-                logger.severe("Unsupported freenet version: "+FcpHandler.getInitializedVersion());
+                logger.severe("Unsupported freenet version, not 0.5 or 0.7");
                 return null;
             }
         } catch(Throwable t) {

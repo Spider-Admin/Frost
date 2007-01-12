@@ -117,7 +117,7 @@ public class NodeMessage {
         messageEndMarker = em;
     }
     
-    protected String getMessageName() {
+    public String getMessageName() {
         return messageName;
     }
 

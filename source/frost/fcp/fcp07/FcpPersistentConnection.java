@@ -176,7 +176,7 @@ public class FcpPersistentConnection {
                 }
                 
                 nodeMessages.add(nodeMsg);
-                System.out.println("Added: "+nodeMsg.toString());
+//                System.out.println("Added: "+nodeMsg.toString());
                 
                 if( expectedEndMessage != null ) {
                     if( expectedEndMessage.length() == 0 || nodeMsg.isMessageName(expectedEndMessage) ) {

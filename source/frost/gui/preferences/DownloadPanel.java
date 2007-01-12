@@ -77,7 +77,7 @@ class DownloadPanel extends JPanel {
         initialize();
         loadSettings();
         
-        if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) {
+        if( FcpHandler.isFreenet07() ) {
             // disable 0.5-only items
             splitfileThreadsLabel.setEnabled(false);
             splitfileThreadsTextField.setEnabled(false);

@@ -43,7 +43,7 @@ public class SearchTable extends SortedModelTable {
     private PopupMenuSearch popupMenuSearch = null;
     private Language language = Language.getInstance();
     
-    private java.util.List searchItems = new LinkedList();
+    private java.util.List<FrostSearchItem> searchItems = new LinkedList<FrostSearchItem>();
     
     public SearchTable(SearchModel m, SearchTableFormat f, CloseableTabbedPane t, String searchText) {
         super(m, f);
@@ -214,7 +214,7 @@ public class SearchTable extends SortedModelTable {
             refreshLanguage();
     
             copyToClipboardMenu.add(copyKeysAndNamesItem);
-            if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05) {
+            if( FcpHandler.isFreenet05() ) {
                 copyToClipboardMenu.add(copyKeysItem);
             }
             copyToClipboardMenu.add(copyExtendedInfoItem);

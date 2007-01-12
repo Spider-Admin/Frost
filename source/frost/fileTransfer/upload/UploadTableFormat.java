@@ -465,12 +465,11 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
     private String getStateAsString(FrostUploadItem item, int state) {
         switch (state) {
 
-            case FrostUploadItem.STATE_UPLOADING :
-                return stateUploading;
+//            case FrostUploadItem.STATE_UPLOADING :
+//                return stateUploading;
 
             case FrostUploadItem.STATE_PROGRESS :
                 return stateUploading;
-//                return getUploadProgress(item.getTotalBlocks(), item.getDoneBlocks());
 
             case FrostUploadItem.STATE_ENCODING_REQUESTED :
                 return stateEncodingRequested;

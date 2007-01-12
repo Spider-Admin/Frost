@@ -106,7 +106,7 @@ public class FileAccess {
     /**
      * Returns all files starting from given directory/file that have a given extension.
      */
-    public static ArrayList getAllEntries(File file, final String extension) {
+    public static ArrayList<File> getAllEntries(File file, final String extension) {
         ArrayList<File> files = new ArrayList<File>();
         getAllFiles(file, extension, files);
         return files;

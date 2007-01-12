@@ -61,6 +61,9 @@ public class FrostDownloadItem extends ModelItem {
     private Boolean isFinalized = null;
     private String errorCodeDescription = null;
     
+    private boolean isDirect = false;
+    private boolean isExternal = false;
+    
     /**
      * Add a file from download text box.
      */ 
@@ -373,7 +376,7 @@ public class FrostDownloadItem extends ModelItem {
      * Returns null on 0.5.
      */
     private String buildGqIdentifier(String filename) {
-        if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) {
+        if( FcpHandler.isFreenet07() ) {
             return new StringBuffer()
                 .append("Frost-")
                 .append(filename.replace(' ', '_'))
@@ -390,5 +393,22 @@ public class FrostDownloadItem extends ModelItem {
     }
     public void setErrorCodeDescription(String errorCodeDescription) {
         this.errorCodeDescription = errorCodeDescription;
+    }
+    
+    /**
+     * @return  true if this item is an external global queue item
+     */
+    public boolean isExternal() {
+        return isExternal;
+    }
+    public void setExternal(boolean e) {
+        isExternal = e;
+    }
+    
+    public boolean isDirect() {
+        return isDirect;
+    }
+    public void setDirect(boolean d) {
+        isDirect = d;
     }
 }

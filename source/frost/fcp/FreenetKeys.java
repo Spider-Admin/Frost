@@ -102,7 +102,7 @@ public class FreenetKeys {
         
         // check length
         boolean isKeyLenOk = false;
-        if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
+        if( FcpHandler.isFreenet05() ) {
             if( keytype == KEYTYPE_CHK ) {
                 if( length == KEYLEN_05_CHK ) {
                     isKeyLenOk = true;
@@ -112,7 +112,7 @@ public class FreenetKeys {
                     isKeyLenOk = true;
                 }
             }
-        } else if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) {
+        } else if( FcpHandler.isFreenet07() ) {
             if( keytype == KEYTYPE_CHK ) {
                 if( length == KEYLEN_07_CHK ) {
                     isKeyLenOk = true;

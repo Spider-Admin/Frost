@@ -68,7 +68,7 @@ public class UploadPanel extends JPanel {
         language = Language.getInstance();
         language.addLanguageListener(listener);
     }
-    
+
     public UploadTableFormat getTableFormat() {
         return (UploadTableFormat) modelTable.getTableFormat();
     }
@@ -167,9 +167,8 @@ public class UploadPanel extends JPanel {
         List<File> uploadFileItems = new LinkedList<File>();
         for (int i = 0; i < selectedFiles.length; i++) {
             // collect all choosed files + files in all choosed directories
-            ArrayList allFiles = FileAccess.getAllEntries(selectedFiles[i], "");
-            for (int j = 0; j < allFiles.size(); j++) {
-                File newFile = (File) allFiles.get(j);
+            ArrayList<File> allFiles = FileAccess.getAllEntries(selectedFiles[i], "");
+            for (File newFile : allFiles) {
                 if (newFile.isFile() && newFile.length() > 0) {
                     uploadFileItems.add(newFile);
                     if( parentDir == null ) {
@@ -182,10 +181,8 @@ public class UploadPanel extends JPanel {
             Core.frostSettings.setValue(SettingsClass.DIR_LAST_USED, parentDir);
         }
 
-        for(Iterator<File> i=uploadFileItems.iterator(); i.hasNext(); ) {
-            File file = i.next();
+        for(File file : uploadFileItems ) {
             FrostUploadItem ulItem = new FrostUploadItem(file);
-            
             model.addNewUploadItem(ulItem);
         }
     }
@@ -275,7 +272,7 @@ public class UploadPanel extends JPanel {
             refreshLanguage();
 
             copyToClipboardMenu.add(copyKeysAndNamesItem);
-            if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05) {
+            if( FcpHandler.isFreenet05() ) {
                 copyToClipboardMenu.add(copyKeysItem);
             }
             copyToClipboardMenu.add(copyExtendedInfoItem);

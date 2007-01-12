@@ -681,7 +681,7 @@ public class MessageTextPane extends JPanel {
             copyToClipboardMenu.add(copyExtendedInfoItem);
 
             copyKeysAndNamesItem.addActionListener(this);
-            if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05) {
+            if( FcpHandler.isFreenet05() ) {
                 copyToClipboardMenu.add(copyKeysItem);
             }
             copyExtendedInfoItem.addActionListener(this);
@@ -982,7 +982,7 @@ public class MessageTextPane extends JPanel {
                 String item = (String)it.next();
                 String key;
                 // 0.5: remove filename from key; 0.7: use key/filename
-                if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
+                if( FcpHandler.isFreenet05() ) {
                     key = item.substring(0, item.indexOf("/") );
                 } else {
                     key = item;

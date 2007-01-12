@@ -31,7 +31,7 @@ public abstract class FcpHandler {
     private static Logger logger = Logger.getLogger(FcpHandler.class.getName());
     
     public static final int TYPE_MESSAGE = 1;
-    public static final int TYPE_FILE = 2;
+    public static final int TYPE_FILE    = 2;
     
     public static final int MAX_KSK_SIZE_ON_07 = 64 * 1024;
     
@@ -46,8 +46,12 @@ public abstract class FcpHandler {
         return instance;
     }
     
-    public static int getInitializedVersion() {
-        return initializedVersion;
+    public static boolean isFreenet05() {
+        return initializedVersion == FREENET_05;
+    }
+
+    public static boolean isFreenet07() {
+        return initializedVersion == FREENET_07;
     }
 
     public static void initializeFcp(List<String> nodes, int freenetVersion) throws UnsupportedOperationException {
