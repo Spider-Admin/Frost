@@ -21,8 +21,9 @@ package frost.fcp.fcp07;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import java.util.concurrent.*;
 import java.util.concurrent.locks.*;
+
+import javax.swing.event.*;
 
 import frost.fcp.*;
 
@@ -35,9 +36,10 @@ public class FcpPersistentConnection {
     private FcpSocket fcpSocket = null;
 
     private ReentrantLock writeSocketLock = null;
-    private Semaphore waitForEndOfReceiveLock = null;
     
     private ReceiveThread receiveThread = null;
+    
+    private EventListenerList listenerList = new EventListenerList();
 
     /**
      * Create a connection to a host using FCP.
@@ -52,7 +54,6 @@ public class FcpPersistentConnection {
         fcpSocket = new FcpSocket(na);
         
         writeSocketLock = new ReentrantLock(true);
-        waitForEndOfReceiveLock = new Semaphore(1, true);
         
         receiveThread = new ReceiveThread(fcpSocket.getFcpIn());
         receiveThread.start();
@@ -77,44 +78,59 @@ public class FcpPersistentConnection {
     public NodeAddress getNodeAddress() {
         return fcpSocket.getNodeAddress();
     }
+    
+    public void addNodeMessageListener(NodeMessageListener l) {
+        listenerList.add(NodeMessageListener.class, l);
+    }
+
+    public void NodeMessageListener(NodeMessageListener  l) {
+        listenerList.remove(NodeMessageListener.class, l);
+    }
+    
+    protected void handleNodeMessage(NodeMessage nodeMsg) {
+        
+//        System.out.println("Added: "+nodeMsg.toString());
+        
+        String id = nodeMsg.getStringValue("Identifier");
+        // Guaranteed to return a non-null array
+        Object[] listeners = listenerList.getListenerList();
+        // Process the listeners last to first, notifying those that are interested in this event
+        for (int i = listeners.length-2; i>=0; i-=2) {
+            if (listeners[i] == NodeMessageListener.class) {
+                if( id != null ) {
+                    ((NodeMessageListener)listeners[i+1]).handleNodeMessage(id, nodeMsg);
+                } else {
+                    ((NodeMessageListener)listeners[i+1]).handleNodeMessage(nodeMsg);
+                }
+            }
+        }
+    }
 
     /**
      * Writes a message to the socket. Ensures that only 1 thread writes at any time.
-     * Returns the output as list of NodeMessages.
      * @param message     the message to send
-     * @param endMessage  optional end message name - if null no endMessage is expected, if "" then one, else the exact endMessage
      * @param sendEndMsg  if true EndMessage is appended
      */
-    public List<NodeMessage> sendMessage(List<String> message, String endMessage, boolean sendEndMsg) {
+    public void sendMessage(List<String> message, boolean sendEndMsg) {
 
         writeSocketLock.lock();
         
-        receiveThread.startNewNodeMessageList(endMessage);
-        
-        boolean acquired = false;
         try {
+            System.out.println("### SEND >>>>>>>");
             for(Iterator<String> i=message.iterator(); i.hasNext(); ) {
                 String msgLine = i.next();
                 fcpSocket.getFcpOut().println(msgLine);
+                System.out.println(msgLine);
             }
             if( sendEndMsg ) {
                 fcpSocket.getFcpOut().println("EndMessage");
+                System.out.println("*EndMessage*");
             }
             fcpSocket.getFcpOut().flush();
-
-            if( endMessage != null ) {
-                // wait for receivethread to finish
-                waitForEndOfReceiveLock.acquireUninterruptibly();
-                acquired = true;
-            }
-
-            return receiveThread.getNodeMessageList();
+            System.out.println("### SEND <<<<<<<");
 
         } finally {
             writeSocketLock.unlock();
-            if( acquired ) {
-                waitForEndOfReceiveLock.release();
-            }
         }
     }
 
@@ -156,8 +172,6 @@ public class FcpPersistentConnection {
     private class ReceiveThread extends Thread {
         
         private BufferedInputStream fcpInp;
-        private List<NodeMessage> nodeMessages = null;
-        private String expectedEndMessage = null;
         
         public ReceiveThread(BufferedInputStream fcpInp) {
             this.fcpInp = fcpInp;
@@ -170,40 +184,10 @@ public class FcpPersistentConnection {
                     break; // socket closed
                 }
                 
-                if( nodeMessages == null ) {
-                    System.out.println("Unrequested NodeMessage dropped: "+nodeMsg.toString());
-                    continue;
-                }
-                
-                nodeMessages.add(nodeMsg);
-//                System.out.println("Added: "+nodeMsg.toString());
-                
-                if( expectedEndMessage != null ) {
-                    if( expectedEndMessage.length() == 0 || nodeMsg.isMessageName(expectedEndMessage) ) {
-                        waitForEndOfReceiveLock.release();
-                    }
-                }
+                // notify listeners
+                handleNodeMessage(nodeMsg);
             }
             System.out.println("ReceiveThread ended!");
-        }
-        
-        /**
-         * If caller waits for an given endmessage, then lock until this message is received.
-         * This will block the caller.
-         */
-        public void startNewNodeMessageList(String endMsg) {
-            nodeMessages = new LinkedList<NodeMessage>();
-            expectedEndMessage = endMsg;
-            if( expectedEndMessage != null ) {
-                waitForEndOfReceiveLock.acquireUninterruptibly();
-            }
-        }
-        
-        public List<NodeMessage> getNodeMessageList() {
-            List<NodeMessage> retList = nodeMessages;
-            nodeMessages = null;
-            expectedEndMessage = null;
-            return retList;
         }
     }
 }

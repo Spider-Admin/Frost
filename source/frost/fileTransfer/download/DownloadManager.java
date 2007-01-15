@@ -19,6 +19,7 @@ package frost.fileTransfer.download;
 
 import java.io.*;
 import java.sql.*;
+import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
@@ -158,7 +159,7 @@ public class DownloadManager {
                 
             } else if( result != null && result.isFatal() ) {
                 // fatal, don't retry
-                downloadItem.setEnableDownload(Boolean.valueOf(false));
+                downloadItem.setEnabled(Boolean.valueOf(false));
                 downloadItem.setState(FrostDownloadItem.STATE_FAILED);
                 logger.warning("FILEDN: Download of " + filename + " failed FATALLY.");
             } else {
@@ -167,7 +168,7 @@ public class DownloadManager {
                 logger.warning("FILEDN: Download of " + filename + " failed.");
                 // set new state -> failed or waiting for another try
                 if (downloadItem.getRetries() > Core.frostSettings.getIntValue(SettingsClass.DOWNLOAD_MAX_RETRIES)) {
-                    downloadItem.setEnableDownload(Boolean.valueOf(false));
+                    downloadItem.setEnabled(Boolean.valueOf(false));
                     downloadItem.setState(FrostDownloadItem.STATE_FAILED);
                 } else {
                     downloadItem.setState(FrostDownloadItem.STATE_WAITING);
@@ -180,7 +181,7 @@ public class DownloadManager {
             // download successful
             downloadItem.setFileSize(new Long(targetFile.length()));
             downloadItem.setState(FrostDownloadItem.STATE_DONE);
-            downloadItem.setEnableDownload(Boolean.valueOf(false));
+            downloadItem.setEnabled(Boolean.valueOf(false));
 
             // update lastDownloaded time in filelist
             if( downloadItem.isSharedFile() ) {
@@ -208,9 +209,69 @@ public class DownloadManager {
         }
 
         if( retryImmediately ) {
-            downloadItem.setLastDownloadStopTime(0);
+            downloadItem.setLastDownloadStopTime(-1);
         } else {
             downloadItem.setLastDownloadStopTime(System.currentTimeMillis());
         }
     }
+    
+    /**
+     * Chooses next download item to start from download table.
+     * @return the next download item to start downloading or null if a suitable
+     *          one was not found.
+     */
+    public FrostDownloadItem selectNextDownloadItem() {
+
+        // get the item with state "Waiting"
+        ArrayList<FrostDownloadItem> waitingItems = new ArrayList<FrostDownloadItem>();
+        for (int i = 0; i < model.getItemCount(); i++) {
+            FrostDownloadItem dlItem = (FrostDownloadItem) model.getItemAt(i);
+            boolean itemIsEnabled = (dlItem.isEnabled()==null?true:dlItem.isEnabled().booleanValue());
+            if( !itemIsEnabled ) {
+                continue;
+            }
+            if( dlItem.isExternal() ) {
+                continue;
+            }
+            if( dlItem.getKey() == null ) {
+                // still no key, wait
+                continue;
+            }
+            
+            if( dlItem.getState() == FrostDownloadItem.STATE_WAITING ) {
+                // check if waittime is expired
+                long waittimeMillis = (long)Core.frostSettings.getIntValue(SettingsClass.DOWNLOAD_WAITTIME) * 60L * 1000L;
+                // min->millisec
+                if (dlItem.getLastDownloadStopTime() == 0 // never started
+                    || (System.currentTimeMillis() - dlItem.getLastDownloadStopTime()) > waittimeMillis) 
+                {
+                    waitingItems.add(dlItem);
+                }
+            }
+        }
+
+        if (waitingItems.size() == 0) {
+            return null;
+        }
+
+        if (waitingItems.size() > 1) { // performance issues
+            Collections.sort(waitingItems, downloadDlStopMillisCmp);
+        }
+        return (FrostDownloadItem) waitingItems.get(0);
+    }
+    
+    /**
+     * Used to sort FrostDownloadItems by lastUpdateStartTimeMillis ascending.
+     */
+    private static final Comparator<FrostDownloadItem> downloadDlStopMillisCmp = new Comparator<FrostDownloadItem>() {
+        public int compare(FrostDownloadItem value1, FrostDownloadItem value2) {
+            if (value1.getLastDownloadStopTime() > value2.getLastDownloadStopTime()) {
+                return 1;
+            } else if (value1.getLastDownloadStopTime() < value2.getLastDownloadStopTime()) {
+                return -1;
+            } else {
+                return 0;
+            }
+        }
+    };
 }

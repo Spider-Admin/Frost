@@ -18,7 +18,6 @@
 */
 package frost.fileTransfer.search;
 
-import java.awt.*;
 import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
@@ -53,12 +52,12 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
 
     private boolean isStopRequested = false;
     
-    private Component tabComponent;
+    private SearchPanel.ProxyPanel tabComponent;
     
     private boolean isStopRequested() {
         return isStopRequested;
     }
-    private void requestStop() {
+    public void requestStop() {
         isStopRequested = true;
     }
     
@@ -420,10 +419,11 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
     }
 
     /**Constructor*/
-    public SearchThread(SearchParameters searchParams, SearchTable searchTable, Component tabComponent) {
+    public SearchThread(SearchParameters searchParams, SearchTable searchTable, SearchPanel.ProxyPanel tabComponent) {
 
         this.searchParams = searchParams; 
         this.tabComponent = tabComponent;
+        tabComponent.setSearchThread(this); // will notify this thread to stop if tab was closed
         this.searchTable = searchTable;
         
         audioExtension      = Core.frostSettings.getArrayValue(SettingsClass.FILEEXTENSION_AUDIO);

@@ -169,7 +169,7 @@ public class DownloadModel extends OrderedModel implements Savable {
 				dlItem.setState(FrostDownloadItem.STATE_WAITING);
 				dlItem.setRetries(0);
 				dlItem.setLastDownloadStopTime(0);
-				dlItem.setEnableDownload(Boolean.valueOf(true)); // enable download on restart
+				dlItem.setEnabled(Boolean.valueOf(true)); // enable download on restart
 			}
 		}
 	}
@@ -184,7 +184,7 @@ public class DownloadModel extends OrderedModel implements Savable {
 		for (int x = 0; x < getItemCount(); x++) {
 			FrostDownloadItem dlItem = (FrostDownloadItem) getItemAt(x);
 			if (dlItem.getState() != FrostDownloadItem.STATE_DONE) {
-				dlItem.setEnableDownload(enabled);
+				dlItem.setEnabled(enabled);
 			}
 		}
 	}
@@ -200,7 +200,7 @@ public class DownloadModel extends OrderedModel implements Savable {
 		for (int i = 0; i < items.length; i++) { 
 			FrostDownloadItem item = (FrostDownloadItem) items[i];
 			if (item.getState() != FrostDownloadItem.STATE_DONE) {
-				item.setEnableDownload(enabled);
+				item.setEnabled(enabled);
 			}
 		}
 	}

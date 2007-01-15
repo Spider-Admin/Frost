@@ -765,7 +765,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 
 			case 0 : //Enabled
 				Boolean valueBoolean = (Boolean) value;
-				downloadItem.setEnableDownload(valueBoolean);
+				downloadItem.setEnabled(valueBoolean);
 				break;
 
 			default :

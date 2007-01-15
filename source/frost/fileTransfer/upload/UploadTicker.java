@@ -18,8 +18,6 @@
 */
 package frost.fileTransfer.upload;
 
-import java.util.*;
-
 import javax.swing.event.*;
 
 import frost.*;
@@ -40,20 +38,6 @@ public class UploadTicker extends Thread {
     private UploadPanel panel;
 
     private int removeNotExistingFilesCounter = 0;
-
-    /**
-     * Used to sort FrostUploadItems by lastUploadStopTimeMillis ascending.
-     */
-    static final Comparator<FrostUploadItem> uploadDlStopMillisCmp = new Comparator<FrostUploadItem>() {
-        public int compare(FrostUploadItem value1, FrostUploadItem value2) {
-            if (value1.getLastUploadStopTimeMillis() > value2.getLastUploadStopTimeMillis())
-                return 1;
-            else if (value1.getLastUploadStopTimeMillis() < value2.getLastUploadStopTimeMillis())
-                return -1;
-            else
-                return 0;
-        }
-    };
 
     /**
      * The number of allocated threads is used to limit the total of threads
@@ -271,7 +255,7 @@ public class UploadTicker extends Thread {
 
     private void startUploadThread() {
         if (Core.isFreenetOnline() && allocateUploadingThread()) {
-            FrostUploadItem uploadItem = selectNextUploadItem();
+            FrostUploadItem uploadItem = FileTransferManager.inst().getUploadManager().selectNextUploadItem();
             if (uploadItem != null) {
                 uploadItem.setState(FrostUploadItem.STATE_PROGRESS);
                 boolean doMime;
@@ -289,39 +273,6 @@ public class UploadTicker extends Thread {
         }
     }
     
-    /**
-     * Chooses next upload item to start from upload table.
-     * @return the next upload item to start uploading or null if a suitable one was not found.
-     */
-    private FrostUploadItem selectNextUploadItem() {
-
-        ArrayList<FrostUploadItem> waitingItems = new ArrayList<FrostUploadItem>();
-
-        for (int i = 0; i < model.getItemCount(); i++) {
-            FrostUploadItem ulItem = (FrostUploadItem) model.getItemAt(i);
-            // we choose items that are waiting, enabled and for 0.5 the encoding must be done before
-            if (ulItem.getState() == FrostUploadItem.STATE_WAITING
-                && (ulItem.isEnabled() == null || ulItem.isEnabled().booleanValue())
-                && (ulItem.getKey() != null || FcpHandler.isFreenet07() ) )
-            {
-                // check if waittime has expired
-                long waittimeMillis = (long)Core.frostSettings.getIntValue(SettingsClass.UPLOAD_WAITTIME) * 60L * 1000L;
-                if ((System.currentTimeMillis() - ulItem.getLastUploadStopTimeMillis()) > waittimeMillis) {
-                    waitingItems.add(ulItem);
-                }
-            }
-        }
-
-        if (waitingItems.size() == 0) {
-            return null;
-        }
-
-        if (waitingItems.size() > 1) {
-            Collections.sort(waitingItems, uploadDlStopMillisCmp);
-        }
-        return (FrostUploadItem) waitingItems.get(0);
-    }
-
     private void removeNotExistingFiles() {
         // Check uploadTable every 5 minutes
         if (removeNotExistingFilesCounter >= 5*60 ) {

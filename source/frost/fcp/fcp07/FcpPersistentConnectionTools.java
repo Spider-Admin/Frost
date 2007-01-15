@@ -19,46 +19,14 @@
 package frost.fcp.fcp07;
 
 import java.io.*;
-import java.net.*;
 import java.util.*;
 
 import frost.ext.*;
-import frost.fcp.*;
 
 public class FcpPersistentConnectionTools {
 
 //    private static Logger logger = Logger.getLogger(FcpPersistentConnectionTools.class.getName());
 
-    public static void main(String[] args) throws Throwable {
-        NodeAddress na = new NodeAddress();
-        na.host = InetAddress.getByName("192.168.130.129");
-        na.port = 9481;
-        
-        FcpPersistentConnection.initialize(na);
-        
-        watchGlobal();
-        List<NodeMessage> lst = listPersistentRequests();
-        
-        for(Iterator<NodeMessage> i=lst.iterator(); i.hasNext(); ) {
-            NodeMessage nm = i.next();
-            System.out.println("msg="+nm.toString());
-            if( nm.isMessageName("PersistentPut") ) {
-                String id = nm.getStringValue("Identifier");
-                System.out.println("id="+id);
-                changeRequestPriority(id, 5);
-            }
-        }
-
-        lst = listPersistentRequests();
-
-//      NodeAddress na = new NodeAddress();
-//      na.host = InetAddress.getByName("192.168.130.129");
-//      na.port = 9481;
-//      FcpPersistentDirectConnection c = new FcpPersistentDirectConnection(na);
-//      File f = new File("D:\\7keys.png");
-//      c.startDirectPersistentPut("myid1", f, true);
-    }
-    
     public static boolean isInitialized() {
         return FcpPersistentConnection.isInitialized();
     }
@@ -66,63 +34,56 @@ public class FcpPersistentConnectionTools {
     /**
      * No answer from node is expected.
      */
-    public static List<NodeMessage> changeRequestPriority(String id, int newPrio) {
+    public static void changeRequestPriority(String id, int newPrio) {
         List<String> msg = new LinkedList<String>();
         msg.add("ModifyPersistentRequest");
         msg.add("Global=true");
         msg.add("Identifier="+id);
         msg.add("PriorityClass="+newPrio);
-        return FcpPersistentConnection.getInstance().sendMessage(msg, null, true);
+        FcpPersistentConnection.getInstance().sendMessage(msg, true);
     }
 
     /**
      * No answer from node is expected.
      */
-    public static List<NodeMessage> removeRequest(String id) {
+    public static void removeRequest(String id) {
         List<String> msg = new LinkedList<String>();
         msg.add("RemovePersistentRequest");
         msg.add("Global=true");
         msg.add("Identifier="+id);
-        return FcpPersistentConnection.getInstance().sendMessage(msg, null, true);
+        FcpPersistentConnection.getInstance().sendMessage(msg, true);
     }
     
     /**
      * No answer from node is expected.
      */
-    public static List<NodeMessage> watchGlobal() {
+    public static void watchGlobal() {
         List<String> msg = new LinkedList<String>();
         msg.add("WatchGlobal");
-        return FcpPersistentConnection.getInstance().sendMessage(msg, null, true);
+        msg.add("Enabled=true");
+        msg.add("VerbosityMask=1");
+        FcpPersistentConnection.getInstance().sendMessage(msg, true);
     }
 
     /**
      * Starts a persistent put.
-     * @return  null if something went wrong (log entry written), or the NodeMessage from the node (which could also report an error)
      */
-    public static NodeMessage startPersistentPut(String id, File sourceFile, boolean doMime) {
+    public static void startPersistentPut(String id, File sourceFile, boolean doMime) {
 
         // else start a new request with DDA
         List<String> msg = getDefaultPutMessage(id, sourceFile, doMime);
         msg.add("UploadFrom=disk");
         msg.add("Filename=" + sourceFile.getAbsolutePath());
-        msg.add("EndMessage");
         
-        // we expect one NodeMessage
-        List<NodeMessage> lst = FcpPersistentConnection.getInstance().sendMessage(msg, "", true);
-        if( lst.size() == 0 ) {
-            return null;
-        } else {
-            return lst.get(0);
-        }
+        FcpPersistentConnection.getInstance().sendMessage(msg, true);
     }
 
     /**
      * Starts a new persistent get and returns the first message returned by the node.
      * If DDA=false then the request is enqueued as DIRECT and must be retrieved manually
      * after the get completed successfully. Use startDirectPersistentGet to fetch the data.
-     * @return  null if something went wrong (log entry written), or the NodeMessage from the node (which could also report an error)
      */
-    public static NodeMessage startPersistentGet(String key, String id, File targetFile) {
+    public static void startPersistentGet(String key, String id, File targetFile) {
         // start the persistent get. if DDA=false, then we have to fetch the file after the successful get from node
         List<String> msg = new LinkedList<String>();
         msg.add("ClientGet");
@@ -149,21 +110,13 @@ public class FcpPersistentConnectionTools {
              msg.add("ReturnType=direct");
         }
 
-        msg.add("EndMessage");
-
-        // we expect one NodeMessage
-        List<NodeMessage> lst = FcpPersistentConnection.getInstance().sendMessage(msg, "", true);
-        if( lst.size() == 0 ) {
-            return null;
-        } else {
-            return lst.get(0);
-        }
+        FcpPersistentConnection.getInstance().sendMessage(msg, true);
     }
 
-    public static List<NodeMessage> listPersistentRequests() {
+    public static void listPersistentRequests() {
         List<String> msg = new LinkedList<String>();
         msg.add("ListPersistentRequests");
-        return FcpPersistentConnection.getInstance().sendMessage(msg, "EndListPersistentRequests", true);
+        FcpPersistentConnection.getInstance().sendMessage(msg, true);
     }
 
     /**
@@ -256,7 +209,6 @@ public class FcpPersistentConnectionTools {
         newSocket.getFcpOut().println("Global=true");
         newSocket.getFcpOut().println("Identifier=" + id);
         newSocket.getFcpOut().println("OnlyData=true");
-        newSocket.getFcpOut().println("EndMessage");
 
         // we expect an immediate answer
         NodeMessage nodeMsg = NodeMessage.readMessage(newSocket.getFcpIn());

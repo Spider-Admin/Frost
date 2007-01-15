@@ -72,13 +72,15 @@ public class FileTransferManager implements Savable {
         
         // maybe start persistence threads
         if( FcpHandler.isFreenet07()
+                && Core.isFreenetOnline()
                 && Core.frostSettings.getBoolValue(SettingsClass.FCP2_USE_PERSISTENCE) )
         {
             boolean wasOk = ((FcpHandler07)FcpHandler.inst()).initializePersistence();
             if( !wasOk ) {
                 System.out.println("FAILED TO ESTABLISH THE PERSISTENT CONNECTION!");
+            } else {
+                PersistenceManager.startThreads(); // was initialized by FileTransferManager
             }
-            PersistenceManager.startThreads(); // was initialized by FileTransferManager
         }
     }
 

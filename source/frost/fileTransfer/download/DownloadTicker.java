@@ -18,9 +18,8 @@
 package frost.fileTransfer.download;
 
 import java.io.*;
-import java.util.*;
 
-import javax.swing.event.EventListenerList;
+import javax.swing.event.*;
 
 import frost.*;
 import frost.fileTransfer.*;
@@ -42,21 +41,6 @@ public class DownloadTicker extends Thread {
 	private Object threadCountLock = new Object();
 	
 	protected EventListenerList listenerList = new EventListenerList();
-
-	/**
-	 * Used to sort FrostDownloadItems by lastUpdateStartTimeMillis ascending.
-	 */
-	static final Comparator<FrostDownloadItem> downloadDlStopMillisCmp = new Comparator<FrostDownloadItem>() {
-		public int compare(FrostDownloadItem value1, FrostDownloadItem value2) {
-			if (value1.getLastDownloadStopTime() > value2.getLastDownloadStopTime()) {
-				return 1;
-            } else if (value1.getLastDownloadStopTime() < value2.getLastDownloadStopTime()) {
-				return -1;
-            } else {
-				return 0;
-            }
-		}
-	};
 
 	public DownloadTicker(DownloadModel newModel, DownloadPanel newPanel) {
 		super("Download");
@@ -189,7 +173,7 @@ public class DownloadTicker extends Thread {
 		if (Core.isFreenetOnline() && panel.isDownloadingActivated() && allocateThread()) {
 			boolean threadLaunched = false;
 
-			FrostDownloadItem dlItem = selectNextDownloadItem();
+			FrostDownloadItem dlItem = FileTransferManager.inst().getDownloadManager().selectNextDownloadItem();
 			if (dlItem != null) {
 				dlItem.setState(FrostDownloadItem.STATE_TRYING);
 
@@ -203,47 +187,5 @@ public class DownloadTicker extends Thread {
 				releaseThread();
 			}
 		}
-	}
-
-	/**
-	 * Chooses next download item to start from download table.
-	 * @return the next download item to start downloading or null if a suitable
-	 * 			one was not found.
-	 */
-	private FrostDownloadItem selectNextDownloadItem() {
-
-		// get the item with state "Waiting"
-		ArrayList<FrostDownloadItem> waitingItems = new ArrayList<FrostDownloadItem>();
-		for (int i = 0; i < model.getItemCount(); i++) {
-			FrostDownloadItem dlItem = (FrostDownloadItem) model.getItemAt(i);
-            boolean itemIsEnabled = (dlItem.isEnabled()==null?true:dlItem.isEnabled().booleanValue());
-            if( !itemIsEnabled ) {
-                continue;
-            }
-            if( dlItem.getKey() == null ) {
-                // still no key, wait
-                continue;
-            }
-            
-			if( dlItem.getState() == FrostDownloadItem.STATE_WAITING ) {
-				// check if waittime is expired
-				long waittimeMillis = (long)Core.frostSettings.getIntValue(SettingsClass.DOWNLOAD_WAITTIME) * 60L * 1000L;
-				// min->millisec
-				if (dlItem.getLastDownloadStopTime() == 0 // never started
-					|| (System.currentTimeMillis() - dlItem.getLastDownloadStopTime()) > waittimeMillis) 
-                {
-					waitingItems.add(dlItem);
-				}
-			}
-		}
-
-        if (waitingItems.size() == 0) {
-			return null;
-        }
-
-		if (waitingItems.size() > 1) { // performance issues
-			Collections.sort(waitingItems, downloadDlStopMillisCmp);
-		}
-		return (FrostDownloadItem) waitingItems.get(0);
 	}
 }
