@@ -326,6 +326,7 @@ public class SearchPanel extends JPanel implements LanguageListener {
             if( c instanceof ProxyPanel ) {
                 // explicitely clear the model after tab was closed to make life easier for the gc
                 ProxyPanel pp = (ProxyPanel)c;
+                pp.tabWasClosed(); // stop search thread
                 pp.getModel().clear();
             }
         }
@@ -335,12 +336,21 @@ public class SearchPanel extends JPanel implements LanguageListener {
      * Panel component that holds a SearchModel.
      * Is added to a tabbed pane.
      */
-    private class ProxyPanel extends JPanel {
-        SearchModel model; 
+    public class ProxyPanel extends JPanel {
+        SearchModel model;
+        SearchThread thread = null;
         public ProxyPanel(Component c, SearchModel m) {
             model = m;
             setLayout(new BorderLayout());
             add(c, BorderLayout.CENTER);
+        }
+        public void setSearchThread(SearchThread t) {
+            thread = t;
+        }
+        public void tabWasClosed() {
+            if( thread != null ) {
+                thread.requestStop();
+            }
         }
         public SearchModel getModel() {
             return model;

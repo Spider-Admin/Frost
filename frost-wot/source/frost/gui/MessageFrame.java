@@ -520,19 +520,21 @@ public class MessageFrame extends JFrame {
             filesTableScrollPane = new JScrollPane(filesTable);
             filesTableScrollPane.setWheelScrollingEnabled(true);
             filesTable.addMouseListener(listener);
+
 // FIXME: option to show own identities in list, or to hide them
             List<Identity> budList = Core.getIdentities().getAllGOODIdentities();
-            if( budList.size() > 0 ) {
+            Identity id = null;
+            if( repliedMessage != null ) {
+                id = repliedMessage.getFromIdentity();
+            }
+            if( budList.size() > 0 || id != null ) {
                 Collections.sort( budList, new BuddyComparator() );
-                if( repliedMessage != null ) {
-                    Identity id = repliedMessage.getFromIdentity();
-                    if( id != null ) { 
-                        if( id.isGOOD() == true ) {
-                            budList.remove(id); // remove before put to top of list
-                        }
-                        // add id to top of list in case the user enables 'encrypt'
-                        budList.add(0, id);
+                if( id != null ) { 
+                    if( id.isGOOD() == true ) {
+                        budList.remove(id); // remove before put to top of list
                     }
+                    // add id to top of list in case the user enables 'encrypt'
+                    budList.add(0, id);
                 }
                 buddies = new JComboBox(new Vector<Identity>(budList));
                 buddies.setSelectedItem(budList.get(0));

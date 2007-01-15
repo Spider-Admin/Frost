@@ -42,7 +42,7 @@ public class FrostDownloadItem extends ModelItem {
 	private Long fileSize = null;	
 	private String key = null;
     
-    private Boolean enableDownload = Boolean.TRUE;
+    private Boolean enabled = Boolean.TRUE;
     private int state = STATE_WAITING;
     private long downloadAddedTime = 0;
     private long downloadStartedTime = 0;
@@ -150,7 +150,7 @@ public class FrostDownloadItem extends ModelItem {
         targetPath = newTargetPath;
         fileSize = newSize;   
         key = newKey;
-        enableDownload = newEnabledownload;
+        enabled = newEnabledownload;
         state = newState;
         downloadAddedTime = newDownloadAddedTime;
         downloadStartedTime = newDownloadStartedTime;
@@ -219,18 +219,18 @@ public class FrostDownloadItem extends ModelItem {
 	}
 
 	public Boolean isEnabled() {
-		return enableDownload;
+		return enabled;
 	}
 	/**
 	 * @param enabled new enable status of the item. If null, the current status is inverted
 	 */
-	public void setEnableDownload(Boolean newEnabled) {
-		if (newEnabled == null && enableDownload != null) {
+	public void setEnabled(Boolean newEnabled) {
+		if (newEnabled == null && enabled != null) {
 			//Invert the enable status
-			boolean enable = enableDownload.booleanValue();
+			boolean enable = enabled.booleanValue();
 			newEnabled = new Boolean(!enable);
 		}
-		enableDownload = newEnabled;
+		enabled = newEnabled;
         fireChange();
 	}
 

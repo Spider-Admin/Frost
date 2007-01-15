@@ -20,6 +20,7 @@ package frost.fileTransfer;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.*;
 import java.util.logging.*;
 
 import frost.*;
@@ -37,19 +38,14 @@ public class PersistenceManager {
 
     private static Logger logger = Logger.getLogger(PersistenceManager.class.getName());
 
-    /*
-     * - sekuendlich die gq prüfen + items in beiden models updaten
-     * - hashtable für schnelles finden verwenden? wo pflegen? modellistener?
-     * 
-     * - neue uploads/downloads sofort rein, max. aus options beachten (neue option ohne max?)
-     * - wenn DIRECT, dann in eigene queue + thread, der nur directs überträgt,
-     *   STATE ist dann transfer to/from node, mit %.
-     *   -->> beachten: entweder haben alle DDA oder nicht. nicht zuviele zu starten!
-     * 
-     * - prios ermöglichen, auch delay usw.
-     * 
+    /* FIXME:
+     * - update count in status bar
+     * - implement prio changing in gui, show prio on 0.7. allow 'pause' which is minimum prio
+     * - add a 'show all' to tables, if disabled don't show external items in this table (remove all)
+     * - shorter gqid, maybe currenttimemillis and a random short number?
      */
-    
+
+    // this would belong to the models, but not needed for 0.5 or without persistence, hence we maintain it here
     private static Hashtable<String,FrostUploadItem> uploadModelItems = new Hashtable<String,FrostUploadItem>(); 
     private static Hashtable<String,FrostDownloadItem> downloadModelItems = new Hashtable<String,FrostDownloadItem>();
     
@@ -60,7 +56,9 @@ public class PersistenceManager {
     
     private static DirectTransferQueue directTransferQueue;
     private static DirectTransferThread directTransferThread;
-
+    
+    private static NodeMessageHandler nodeMessageHandler = new NodeMessageHandler(); 
+    
     /**
      * @return  true if Frost is configured to use persistent uploads and downloads, false if not
      */
@@ -173,6 +171,7 @@ public class PersistenceManager {
     
     public static void startThreads() {
         
+        FcpPersistentConnection.getInstance().addNodeMessageListener(nodeMessageHandler);
         FcpPersistentConnectionTools.watchGlobal();
 
         directTransferThread.start();
@@ -187,6 +186,7 @@ public class PersistenceManager {
     private static class SyncThread extends Thread {
         
         public SyncThread() {
+            super();
         }
         
         public void run() {
@@ -195,234 +195,25 @@ public class PersistenceManager {
 
             while(true) {
                 try {
-                    Mixed.wait(1300); // refresh time
-
-                    // FIXME: gegencheck, was wenn gelöscht aus global queue waehrend frost laeuft??
-                    //  -> auf failed setzen mit msg das user gecancelt hat
-                    // check: alle internal die wir als progress haben sollten noch in gq sein,
-                    //        externals die weg sind aus table löschen
-                    Hashtable<String,FrostUploadItem> runningUploads = new Hashtable<String,FrostUploadItem>(); 
-                    Hashtable<String,FrostDownloadItem> runningDownloads = new Hashtable<String,FrostDownloadItem>(); 
-                    for(int x=0; x < uploadModel.getItemCount(); x++) {
-                        FrostUploadItem ul = (FrostUploadItem) uploadModel.getItemAt(x);
-                        if( ul.getGqIdentifier() != null ) {
-                            if( ul.getState() == FrostUploadItem.STATE_PROGRESS || ul.isExternal() ) {
-                                runningUploads.put(ul.getGqIdentifier(), ul);
-                            }
-                        }
-                    }
-                    for(int x=0; x < downloadModel.getItemCount(); x++) {
-                        FrostDownloadItem ul = (FrostDownloadItem) downloadModel.getItemAt(x);
-                        if( ul.getGqIdentifier() != null ) {
-                            if( ul.getState() == FrostDownloadItem.STATE_PROGRESS || ul.isExternal() ) {
-                                runningDownloads.put(ul.getGqIdentifier(), ul);
-                            }
-                        }
-                    }
-
-                    List<NodeMessage> nodeMsgs = FcpPersistentConnectionTools.listPersistentRequests();
                     
-                    for(NodeMessage nm : nodeMsgs) {
-                        // expected:
-                        // ----------
-                        //  PersistentGet
-                        //  DataFound -> entweder holen oder fertig
-                        //  GetFailed
-                        //
-                        //  PersistentPut
-                        //  PutSuccessful
-                        //  PutFailed
-                        //
-                        //  SimpleProgress
-                        
-                        if( nm.isMessageName("PersistentGet") ) {
-                            String id = nm.getStringValue("Identifier");
-                            FrostDownloadItem dlItem = downloadModelItems.get(id);
-                            runningDownloads.remove(id);
-                            if( dlItem == null ) {
-                                FrostDownloadItem newDlItem = new FrostDownloadItem(
-                                        nm.getStringValue("Filename"), 
-                                        nm.getStringValue("URI"));
-                                newDlItem.setExternal(true);
-                                newDlItem.setGqIdentifier(id);
-                                downloadModel.addExternalItem(newDlItem);
-                                continue;
-                            }
-                            String isDirect = nm.getStringValue("ReturnType");
-                            if( isDirect.equalsIgnoreCase("disk") ) {
-                                dlItem.setDirect(false);
-                            } else {
-                                dlItem.setDirect(true);
-                            }
-                            
-                        } else if( nm.isMessageName("DataFound") ) {
-                            // get request completed
-                            String id = nm.getStringValue("Identifier");
-                            FrostDownloadItem dlItem = downloadModelItems.get(id);
-                            if( dlItem == null ) {
-                                continue;
-                            }
-                            if( dlItem.isExternal() ) {
-                                dlItem.setState(FrostDownloadItem.STATE_DONE);
-                                dlItem.setFileSize(nm.getLongValue("DataLength"));
-                                continue;
-                            }
-                            if( dlItem.isDirect() ) {
-                                directTransferQueue.appendItemToQueue(dlItem);
-                            } else {
-                                FcpResultGet result = new FcpResultGet(true);
-                                File targetFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + dlItem.getFilename());
-                                FileTransferManager.inst().getDownloadManager().notifyDownloadFinished(dlItem, result, targetFile);
-                                FcpPersistentConnectionTools.removeRequest(dlItem.getGqIdentifier());
-                            }
-                            
-                        } else if( nm.isMessageName("GetFailed") ) {
-                            String id = nm.getStringValue("Identifier");
-                            FrostDownloadItem dlItem = downloadModelItems.get(id);
-                            if( dlItem == null ) {
-                                continue;
-                            }
-                            String desc = nm.getStringValue("CodeDescription");
-                            if( dlItem.isExternal() ) {
-                                dlItem.setState(FrostDownloadItem.STATE_FAILED);
-                                dlItem.setErrorCodeDescription(desc);
-                                continue;
-                            }
-                            int code = nm.getIntValue("Code");
-                            boolean isFatal = nm.getBoolValue("Fatal");
-                            
-                            FcpResultGet result = new FcpResultGet(false, code, desc, isFatal);
-                            File targetFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + dlItem.getFilename());
-                            FileTransferManager.inst().getDownloadManager().notifyDownloadFinished(dlItem, result, targetFile);
-
-                            FcpPersistentConnectionTools.removeRequest(dlItem.getGqIdentifier());
-
-                        } else if( nm.isMessageName("PersistentPut") ) {
-                            String id = nm.getStringValue("Identifier");
-                            FrostUploadItem ulItem = uploadModelItems.get(id);
-                            runningUploads.remove(id);
-                            if( ulItem == null ) {
-                                FrostUploadItem newUlItem = new FrostUploadItem();
-                                newUlItem.setGqIdentifier(id);
-                                newUlItem.setExternal(true);
-                                newUlItem.setFile(new File(nm.getStringValue("Filename")));
-                                uploadModel.addExternalItem(newUlItem);
-                                continue;
-                            }
-                        } else if( nm.isMessageName("PutSuccessful") ) {
-                            String id = nm.getStringValue("Identifier");
-                            FrostUploadItem dlItem = uploadModelItems.get(id);
-                            if( dlItem == null ) {
-                                continue;
-                            }
-                            String chkKey = nm.getStringValue("URI");
-                            int pos = chkKey.indexOf("CHK@"); 
-                            if( pos > -1 ) {
-                                chkKey = chkKey.substring(pos).trim();
-                            }
-                            if( dlItem.isExternal() ) {
-                                dlItem.setState(FrostDownloadItem.STATE_DONE);
-                                dlItem.setKey(chkKey);
-                                continue;
-                            }
-                            FcpResultPut result = new FcpResultPut(FcpResultPut.Success, chkKey);
-                            FileTransferManager.inst().getUploadManager().notifyUploadFinished(dlItem, result);
-
-                        } else if( nm.isMessageName("PutFailed") ) {
-                            String id = nm.getStringValue("Identifier");
-                            FrostUploadItem dlItem = uploadModelItems.get(id);
-                            if( dlItem == null ) {
-                                continue;
-                            }
-                            String desc = nm.getStringValue("CodeDescription");
-                            if( dlItem.isExternal() ) {
-                                dlItem.setState(FrostUploadItem.STATE_FAILED);
-                                dlItem.setErrorCodeDescription(desc);
-                                continue;
-                            }
-                            int returnCode = nm.getIntValue("Code");
-                            boolean isFatal = nm.getBoolValue("Fatal");
-                            
-                            FcpResultPut result;
-                            if( returnCode == 9 ) {
-                                result = new FcpResultPut(FcpResultPut.KeyCollision, returnCode, desc, isFatal);
-                            } else if( returnCode == 5 ) {
-                                result = new FcpResultPut(FcpResultPut.Retry, returnCode, desc, isFatal);
-                            } else {
-                                result = new FcpResultPut(FcpResultPut.Error, returnCode, desc, isFatal);
-                            }
-                            FileTransferManager.inst().getUploadManager().notifyUploadFinished(dlItem, result);
-                            
-                        } else if( nm.isMessageName("SimpleProgress") ) {
-                            // item auf progress setzen
-
-                            int doneBlocks = nm.getIntValue("Succeeded");
-                            int totalBlocks = nm.getIntValue("Total");
-                            boolean isFinalized = nm.getBoolValue("FinalizedTotal");
-                            
-                            String id = nm.getStringValue("Identifier");
-                            if( uploadModelItems.containsKey(id) ) {
-                                FrostUploadItem ulItem = uploadModelItems.get(id);
-                                if( totalBlocks > 0 ) {
-                                    ulItem.setDoneBlocks(doneBlocks);
-                                    ulItem.setTotalBlocks(totalBlocks);
-                                    ulItem.setFinalized(isFinalized);
-                                    ulItem.fireValueChanged();
-                                }
-                                if( ulItem.getState() != FrostUploadItem.STATE_PROGRESS ) {
-                                    ulItem.setState(FrostUploadItem.STATE_PROGRESS);
-                                }
-                            } else if( downloadModelItems.containsKey(id) ) {
-                                FrostDownloadItem dlItem = downloadModelItems.get(id);
-                                if( totalBlocks > 0 ) {
-                                    dlItem.setDoneBlocks(doneBlocks);
-                                    dlItem.setTotalBlocks(totalBlocks);
-                                    dlItem.setFinalized(isFinalized);
-                                    dlItem.fireValueChanged();
-                                }
-                                if( dlItem.getState() != FrostDownloadItem.STATE_PROGRESS ) {
-                                    dlItem.setState(FrostDownloadItem.STATE_PROGRESS);
-                                }
-                            }
-                        } else if( nm.isMessageName("EndListPersistentRequests") ) {
-                        } else {
-                            System.out.println("SyncThread: Unhandled NodeMessage: "+nm);
-                        }
-                    }
+                    nodeMessageHandler.clearKnownIdentifiers();
+                    FcpPersistentConnectionTools.listPersistentRequests();
                     
-                    // all items still in runningUploads and runningDownloads were not in the nodelist
-                    // remove external items, or flag internal items as cancelled
-                    {
-                        List<ModelItem> itemsToRemove = new LinkedList<ModelItem>();
-                        for(FrostUploadItem ui : runningUploads.values()) {
-                            if( ui.isExternal() ) {
-                                itemsToRemove.add(ui);
-                            } else {
-                                ui.setState(FrostUploadItem.STATE_FAILED);
-                                ui.setErrorCodeDescription("Disappeared from global queue");
-                            }
-                        }
-                        ModelItem[] ri = (ModelItem[]) itemsToRemove.toArray(new ModelItem[itemsToRemove.size()]);
-                        uploadModel.removeItems(ri);
-                    }
-                    {
-                        List<ModelItem> itemsToRemove = new LinkedList<ModelItem>();
-                        for(FrostDownloadItem ui : runningDownloads.values()) {
-                            if( ui.isExternal() ) {
-                                itemsToRemove.add(ui);
-                            } else {
-                                ui.setState(FrostDownloadItem.STATE_FAILED);
-                                ui.setErrorCodeDescription("Disappeared from global queue");
-                            }
-                        }
-                        ModelItem[] ri = (ModelItem[]) itemsToRemove.toArray(new ModelItem[itemsToRemove.size()]);
-                        downloadModel.removeItems(ri);
-                    }
+                    // wait for end of list
+                    Set<String> identifiers = nodeMessageHandler.waitForEnd();
                     
-                    // now search for waiting internal items and start them if this would'nt exceed the limits
+                    // find items that disappeared from the global queue
+                    handleDisappearedItems(identifiers);
+                    
+                    // start new requests
+                    // search for waiting internal items and start them if this would'nt exceed the limits
                     // before put into queue set state to progress!
                     startNewUploads();
                     startNewDownloads();
+                    
+                    // delay until next run
+                    // FIXME: allow to interrupt the wait to add new requests faster!
+                    Mixed.wait(10000);
                     
                 } catch(Throwable t) {
                     logger.log(Level.SEVERE, "Exception catched",t);
@@ -436,32 +227,83 @@ public class PersistenceManager {
             }
         }
     }
+    
+    private static void handleDisappearedItems(Set<String> existingIds) {
+
+        // remove external items, or flag internal items as cancelled
+        {
+            List<ModelItem> itemsToRemove = new LinkedList<ModelItem>();
+            for(int x=0; x < uploadModel.getItemCount(); x++) {
+                FrostUploadItem ulItem = (FrostUploadItem) uploadModel.getItemAt(x);
+                if( ulItem.getGqIdentifier() != null ) {
+                    if( ulItem.getState() == FrostUploadItem.STATE_PROGRESS || ulItem.isExternal() ) {
+                        // this item should be in the global queue
+                        boolean isInGlobalQueue = existingIds.contains(ulItem.getGqIdentifier());
+                        if( !isInGlobalQueue ) {
+                            if( ulItem.isExternal() ) {
+                                itemsToRemove.add(ulItem);
+                            } else {
+                                ulItem.setEnabled(false);
+                                ulItem.setState(FrostUploadItem.STATE_FAILED);
+                                ulItem.setErrorCodeDescription("Disappeared from global queue");
+                            }
+                        }
+                    }
+                }
+            }
+            ModelItem[] ri = (ModelItem[]) itemsToRemove.toArray(new ModelItem[itemsToRemove.size()]);
+            uploadModel.removeItems(ri);
+        }
+        {
+            List<ModelItem> itemsToRemove = new LinkedList<ModelItem>();
+            for(int x=0; x < downloadModel.getItemCount(); x++) {
+                FrostDownloadItem dlItem = (FrostDownloadItem) downloadModel.getItemAt(x);
+                if( dlItem.getGqIdentifier() != null ) {
+                    if( dlItem.getState() == FrostDownloadItem.STATE_PROGRESS || dlItem.isExternal() ) {
+                        // this item should be in the global queue
+                        boolean isInGlobalQueue = existingIds.contains(dlItem.getGqIdentifier());
+                        if( !isInGlobalQueue ) {
+                            if( dlItem.isExternal() ) {
+                                itemsToRemove.add(dlItem);
+                            } else {
+                                dlItem.setEnabled(false);
+                                dlItem.setState(FrostUploadItem.STATE_FAILED);
+                                dlItem.setErrorCodeDescription("Disappeared from global queue");
+                            }
+                        }
+                    }
+                }
+            }
+            ModelItem[] ri = (ModelItem[]) itemsToRemove.toArray(new ModelItem[itemsToRemove.size()]);
+            downloadModel.removeItems(ri);
+        }
+    }
 
     private static void startNewUploads() {
+        boolean isLimited = true;
         int currentAllowedUploadCount = 0;
         {
             int allowedConcurrentUploads = Core.frostSettings.getIntValue(SettingsClass.UPLOAD_MAX_THREADS);
-            int runningUploads = 0;
-            for(FrostUploadItem ulItem : uploadModelItems.values() ) {
-                if( ulItem.getState() == FrostUploadItem.STATE_PROGRESS) {
-                    runningUploads++;
+            if( allowedConcurrentUploads <= 0 ) {
+                isLimited = false;
+            } else {
+                int runningUploads = 0;
+                for(FrostUploadItem ulItem : uploadModelItems.values() ) {
+                    if( ulItem.getState() == FrostUploadItem.STATE_PROGRESS) {
+                        runningUploads++;
+                    }
                 }
-            }
-            currentAllowedUploadCount = allowedConcurrentUploads - runningUploads;
-            if( currentAllowedUploadCount < 0 ) {
-                currentAllowedUploadCount = 0;
+                currentAllowedUploadCount = allowedConcurrentUploads - runningUploads;
+                if( currentAllowedUploadCount < 0 ) {
+                    currentAllowedUploadCount = 0;
+                }
             }
         }
-        {                    
-            for(FrostUploadItem ulItem : uploadModelItems.values() ) {
-                if( currentAllowedUploadCount <= 0 ) {
+        {
+            while( !isLimited || currentAllowedUploadCount > 0 ) {
+                FrostUploadItem ulItem = FileTransferManager.inst().getUploadManager().selectNextUploadItem();
+                if( ulItem == null ) {
                     break;
-                }
-                if( ulItem.isExternal() ) {
-                    continue;
-                }
-                if( ulItem.getState() != FrostUploadItem.STATE_WAITING ) {
-                    continue;
                 }
                 // start the upload
                 if( isDDA() ) {
@@ -471,11 +313,10 @@ public class PersistenceManager {
                     } else {
                         doMime = true;
                     }
-                    NodeMessage answer = FcpPersistentConnectionTools.startPersistentPut(
+                    FcpPersistentConnectionTools.startPersistentPut(
                             ulItem.getGqIdentifier(),
                             ulItem.getFile(),
                             doMime);
-                    handleStartPersistentPutAnswer(answer, ulItem);
                 } else {
                     directTransferQueue.appendItemToQueue(ulItem);
                 }
@@ -487,39 +328,38 @@ public class PersistenceManager {
     }
     
     private static void startNewDownloads() {
+        boolean isLimited = true;
         int currentAllowedDownloadCount = 0;
         {
             int allowedConcurrentDownloads = Core.frostSettings.getIntValue(SettingsClass.DOWNLOAD_MAX_THREADS);
-            int runningDownloads = 0;
-            for(FrostDownloadItem dlItem : downloadModelItems.values() ) {
-                if( dlItem.getState() == FrostDownloadItem.STATE_PROGRESS) {
-                    runningDownloads++;
+            if( allowedConcurrentDownloads <= 0 ) {
+                isLimited = false;
+            } else {
+                int runningDownloads = 0;
+                for(FrostDownloadItem dlItem : downloadModelItems.values() ) {
+                    if( dlItem.getState() == FrostDownloadItem.STATE_PROGRESS) {
+                        runningDownloads++;
+                    }
                 }
-            }
-            currentAllowedDownloadCount = allowedConcurrentDownloads - runningDownloads;
-            if( currentAllowedDownloadCount < 0 ) {
-                currentAllowedDownloadCount = 0;
+                currentAllowedDownloadCount = allowedConcurrentDownloads - runningDownloads;
+                if( currentAllowedDownloadCount < 0 ) {
+                    currentAllowedDownloadCount = 0;
+                }
             }
         }
         {
-            for(FrostDownloadItem dlItem : downloadModelItems.values() ) {
-                if( currentAllowedDownloadCount <= 0 ) {
+            while( !isLimited || currentAllowedDownloadCount > 0 ) {
+                FrostDownloadItem dlItem = FileTransferManager.inst().getDownloadManager().selectNextDownloadItem();
+                if (dlItem == null) {
                     break;
-                }
-                if( dlItem.isExternal() ) {
-                    continue;
-                }
-                if( dlItem.getState() != FrostDownloadItem.STATE_WAITING ) {
-                    continue;
                 }
                 // start the download
                 String gqid = dlItem.getGqIdentifier();
                 File targetFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + dlItem.getFilename());
-                NodeMessage answer = FcpPersistentConnectionTools.startPersistentGet(
+                FcpPersistentConnectionTools.startPersistentGet(
                         dlItem.getKey(),
                         gqid,
                         targetFile);
-                handleStartPersistentGetAnswer(answer, dlItem);
                 
                 dlItem.setState(FrostDownloadItem.STATE_PROGRESS);
                 currentAllowedDownloadCount--;
@@ -527,46 +367,7 @@ public class PersistenceManager {
         }
     }
     
-    /**
-     * Called to handle the node answer after the transfer of a persistent get.
-     */
-    private static void handleStartPersistentGetAnswer(NodeMessage answer, FrostDownloadItem dlItem) {
-        if( answer == null ) {
-            dlItem.setState(FrostDownloadItem.STATE_FAILED);
-            dlItem.setErrorCodeDescription("Unable to start persistent request");
-        } else if(answer.isMessageName("PersistentGet")) {
-            dlItem.setState(FrostDownloadItem.STATE_PROGRESS);
-        } else if(answer.isMessageName("ProtocolError")) {
-            dlItem.setState(FrostUploadItem.STATE_FAILED);
-            dlItem.setErrorCodeDescription(answer.getStringValue("CodeDescription"));
-        } else {
-            dlItem.setState(FrostUploadItem.STATE_FAILED);
-            dlItem.setErrorCodeDescription(answer.getMessageName());
-        }
-    }
-
-    /**
-     * Called to handle the node answer after the start of a persistent put.
-     */
-    private static void handleStartPersistentPutAnswer(NodeMessage answer, FrostUploadItem ulItem) {
-        if( answer == null ) {
-            ulItem.setState(FrostUploadItem.STATE_FAILED);
-            ulItem.setErrorCodeDescription("Unable to start persistent request");
-        } else if(answer.isMessageName("PersistentPut")) {
-            ulItem.setState(FrostUploadItem.STATE_PROGRESS);
-        } else if(answer.isMessageName("ProtocolError")) {
-            ulItem.setState(FrostUploadItem.STATE_FAILED);
-            ulItem.setErrorCodeDescription(answer.getStringValue("CodeDescription"));
-        } else {
-            ulItem.setState(FrostUploadItem.STATE_FAILED);
-            ulItem.setErrorCodeDescription(answer.getMessageName());
-        }
-    }
-
     private static class DirectTransferThread extends Thread {
-        
-        public DirectTransferThread() {
-        }
         
         public void run() {
             
@@ -579,8 +380,8 @@ public class PersistenceManager {
                     ModelItem item = directTransferQueue.getItemFromQueue();
                     
                     if( item == null ) {
-                        // paranoia
-                        Mixed.wait(60*1000);
+                        // paranoia, should never happen
+                        Mixed.wait(5*1000);
                         continue;
                     }
                     
@@ -597,7 +398,8 @@ public class PersistenceManager {
                             doMime = true;
                         }
                         NodeMessage answer = FcpPersistentConnectionTools.startDirectPersistentPut(gqid, sourceFile, doMime);
-                        handleStartPersistentPutAnswer(answer, ulItem);
+                        
+                        nodeMessageHandler.handleNodeMessage(gqid, answer);
                         
                     } else if( item instanceof FrostDownloadItem ) {
                         // transfer bytes from node
@@ -630,11 +432,12 @@ public class PersistenceManager {
         }
     }
     
+    /**
+     * A queue class that queues items waiting for its direct transfer (put to node or get from node).
+     */
     private static class DirectTransferQueue {
         
         private LinkedList<ModelItem> queue = new LinkedList<ModelItem>();
-        private int uploadItemCount = 0;
-        private int downloadItemCount = 0;
         
         public synchronized ModelItem getItemFromQueue() {
             try {
@@ -648,38 +451,258 @@ public class PersistenceManager {
             
             if( queue.isEmpty() == false ) {
                 ModelItem item = queue.removeFirst();
-                if( item instanceof FrostUploadItem ) {
-                    uploadItemCount--;
-                } else if( item instanceof FrostDownloadItem ) {
-                    downloadItemCount--;
-                }
                 return item;
             }
             return null;
         }
 
-        public synchronized void appendItemToQueue(FrostUploadItem item) {
+        public synchronized void appendItemToQueue(ModelItem item) {
             queue.addLast(item);
-            uploadItemCount++;
             notifyAll(); // notify all waiters (if any) of new record
         }
 
-        public synchronized void appendItemToQueue(FrostDownloadItem item) {
-            queue.addLast(item);
-            downloadItemCount++;
-            notifyAll(); // notify all waiters (if any) of new record
-        }
-        
         public synchronized int getQueueSize() {
             return queue.size();
         }
-
-        public int getDownloadItemCount() {
-            return downloadItemCount;
+    }
+    
+    private static class NodeMessageHandler implements NodeMessageListener {
+        
+        private Set<String> knownIdentifiers = new HashSet<String>();
+        private Semaphore waitForEndLock = new Semaphore(1);
+        private boolean collectingIdentifiers = false;
+        
+        public synchronized void clearKnownIdentifiers() {
+            knownIdentifiers.clear();
+            if( waitForEndLock.tryAcquire() == false ) {
+                System.out.println("ALERT: semaphore could not be acquired!");
+            }
+            collectingIdentifiers = true;
+        }
+        
+        public synchronized void addIdentifier(String id) {
+            knownIdentifiers.add(id);
+        }
+        
+        /**
+         * Called by SyncThread to wait for end of list.
+         */
+        public Set<String> waitForEnd() {
+            waitForEndLock.acquireUninterruptibly();
+            // give back immediately for next run
+            waitForEndLock.release();
+            // return collected identifiers
+            collectingIdentifiers = false;
+            return knownIdentifiers;
         }
 
-        public int getUploadItemCount() {
-            return uploadItemCount;
+        public void handleNodeMessage(NodeMessage nm) {
+            // bei start hashtables vorbereiten
+            if( nm.isMessageName("EndListPersistentRequests") ) {
+                // unlock syncthread
+                waitForEndLock.release();
+            }
+        }
+        
+        public void handleNodeMessage(String id, NodeMessage nm) {
+
+            if( collectingIdentifiers ) {
+                addIdentifier(id);
+            }
+            
+            if( nm.isMessageName("PersistentGet") ) {
+                onPersistentGet(id, nm);
+            } else if( nm.isMessageName("DataFound") ) {
+                onDataFound(id, nm);
+            } else if( nm.isMessageName("GetFailed") ) {
+                onGetFailed(id, nm);
+            } else if( nm.isMessageName("PersistentPut") ) {
+                onPersistentPut(id, nm);
+            } else if( nm.isMessageName("PutSuccessful") ) {
+                onPutSuccessful(id, nm);
+            } else if( nm.isMessageName("PutFailed") ) {
+                onPutFailed(id, nm);
+            } else if( nm.isMessageName("SimpleProgress") ) {
+                onSimpleProgress(id, nm);
+            } else if( nm.isMessageName("IdentifierCollision") ) {
+                onIdentifierCollision(id, nm);
+            } else if( nm.isMessageName("ProtocolError") ) {
+                onProtocolError(id, nm);
+            } else {
+                // unhandled msg
+//                System.out.println("### INFO - Unhandled msg: "+nm);
+            }
+        }
+        
+        protected void onPersistentGet(String id, NodeMessage nm) {
+            FrostDownloadItem dlItem = downloadModelItems.get(id);
+            if( dlItem == null ) {
+                FrostDownloadItem newDlItem = new FrostDownloadItem(
+                        nm.getStringValue("Filename"), 
+                        nm.getStringValue("URI"));
+                newDlItem.setExternal(true);
+                newDlItem.setGqIdentifier(id);
+                downloadModel.addExternalItem(newDlItem);
+                return;
+            }
+            if( dlItem.getState() == FrostDownloadItem.STATE_WAITING ) {
+                dlItem.setState(FrostDownloadItem.STATE_PROGRESS);
+            }
+            String isDirect = nm.getStringValue("ReturnType");
+            if( isDirect.equalsIgnoreCase("disk") ) {
+                dlItem.setDirect(false);
+            } else {
+                dlItem.setDirect(true);
+            }
+        }
+        protected void onDataFound(String id, NodeMessage nm) {
+            // get request completed
+            FrostDownloadItem dlItem = downloadModelItems.get(id);
+            if( dlItem == null ) {
+                return;
+            }
+            if( dlItem.isExternal() ) {
+                dlItem.setState(FrostDownloadItem.STATE_DONE);
+                dlItem.setFileSize(nm.getLongValue("DataLength"));
+                return;
+            }
+            if( dlItem.isDirect() ) {
+                directTransferQueue.appendItemToQueue(dlItem);
+            } else {
+                FcpResultGet result = new FcpResultGet(true);
+                File targetFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + dlItem.getFilename());
+                FileTransferManager.inst().getDownloadManager().notifyDownloadFinished(dlItem, result, targetFile);
+                FcpPersistentConnectionTools.removeRequest(dlItem.getGqIdentifier());
+            }
+        }
+        protected void onGetFailed(String id, NodeMessage nm) {
+            FrostDownloadItem dlItem = downloadModelItems.get(id);
+            if( dlItem == null ) {
+                return;
+            }
+            String desc = nm.getStringValue("CodeDescription");
+            if( dlItem.isExternal() ) {
+                dlItem.setState(FrostDownloadItem.STATE_FAILED);
+                dlItem.setErrorCodeDescription(desc);
+                return;
+            }
+            int code = nm.getIntValue("Code");
+            boolean isFatal = nm.getBoolValue("Fatal");
+            
+            FcpResultGet result = new FcpResultGet(false, code, desc, isFatal);
+            File targetFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + dlItem.getFilename());
+            FileTransferManager.inst().getDownloadManager().notifyDownloadFinished(dlItem, result, targetFile);
+
+            FcpPersistentConnectionTools.removeRequest(dlItem.getGqIdentifier());
+        }
+        protected void onPersistentPut(String id, NodeMessage nm) {
+            FrostUploadItem ulItem = uploadModelItems.get(id);
+            if( ulItem == null ) {
+                FrostUploadItem newUlItem = new FrostUploadItem();
+                newUlItem.setGqIdentifier(id);
+                newUlItem.setExternal(true);
+                newUlItem.setFile(new File(nm.getStringValue("Filename")));
+                uploadModel.addExternalItem(newUlItem);
+                return;
+            }
+            if( ulItem.getState() == FrostUploadItem.STATE_WAITING ) {
+                ulItem.setState(FrostUploadItem.STATE_PROGRESS);
+            }
+        }
+        protected void onPutSuccessful(String id, NodeMessage nm) {
+            FrostUploadItem dlItem = uploadModelItems.get(id);
+            if( dlItem == null ) {
+                return;
+            }
+            String chkKey = nm.getStringValue("URI");
+            int pos = chkKey.indexOf("CHK@"); 
+            if( pos > -1 ) {
+                chkKey = chkKey.substring(pos).trim();
+            }
+            if( dlItem.isExternal() ) {
+                dlItem.setState(FrostDownloadItem.STATE_DONE);
+                dlItem.setKey(chkKey);
+                return;
+            }
+            FcpResultPut result = new FcpResultPut(FcpResultPut.Success, chkKey);
+            FileTransferManager.inst().getUploadManager().notifyUploadFinished(dlItem, result);
+        }
+        protected void onPutFailed(String id, NodeMessage nm) {
+            FrostUploadItem dlItem = uploadModelItems.get(id);
+            if( dlItem == null ) {
+                return;
+            }
+            String desc = nm.getStringValue("CodeDescription");
+            if( dlItem.isExternal() ) {
+                dlItem.setState(FrostUploadItem.STATE_FAILED);
+                dlItem.setErrorCodeDescription(desc);
+                return;
+            }
+            int returnCode = nm.getIntValue("Code");
+            boolean isFatal = nm.getBoolValue("Fatal");
+            
+            FcpResultPut result;
+            if( returnCode == 9 ) {
+                result = new FcpResultPut(FcpResultPut.KeyCollision, returnCode, desc, isFatal);
+            } else if( returnCode == 5 ) {
+                result = new FcpResultPut(FcpResultPut.Retry, returnCode, desc, isFatal);
+            } else {
+                result = new FcpResultPut(FcpResultPut.Error, returnCode, desc, isFatal);
+            }
+            FileTransferManager.inst().getUploadManager().notifyUploadFinished(dlItem, result);
+        }
+        protected void onSimpleProgress(String id, NodeMessage nm) {
+            if( uploadModelItems.containsKey(id) ) {
+                FrostUploadItem ulItem = uploadModelItems.get(id);
+                int doneBlocks = nm.getIntValue("Succeeded");
+                int totalBlocks = nm.getIntValue("Total");
+                boolean isFinalized = nm.getBoolValue("FinalizedTotal");
+                if( totalBlocks > 0 ) {
+                    ulItem.setDoneBlocks(doneBlocks);
+                    ulItem.setTotalBlocks(totalBlocks);
+                    ulItem.setFinalized(isFinalized);
+                    ulItem.fireValueChanged();
+                }
+                if( ulItem.getState() != FrostUploadItem.STATE_PROGRESS ) {
+                    ulItem.setState(FrostUploadItem.STATE_PROGRESS);
+                }
+            } else if( downloadModelItems.containsKey(id) ) {
+                FrostDownloadItem dlItem = downloadModelItems.get(id);
+                int doneBlocks = nm.getIntValue("Succeeded");
+                int requiredBlocks = nm.getIntValue("Required");
+                int totalBlocks = nm.getIntValue("Total");
+                boolean isFinalized = nm.getBoolValue("FinalizedTotal");
+                if( totalBlocks > 0 ) {
+                    dlItem.setDoneBlocks(doneBlocks);
+                    dlItem.setRequiredBlocks(requiredBlocks);
+                    dlItem.setTotalBlocks(totalBlocks);
+                    dlItem.setFinalized(isFinalized);
+                    dlItem.fireValueChanged();
+                }
+                if( dlItem.getState() != FrostDownloadItem.STATE_PROGRESS ) {
+                    dlItem.setState(FrostDownloadItem.STATE_PROGRESS);
+                }
+            }
+        }
+        protected void onProtocolError(String id, NodeMessage nm) {
+            // should not happen, set item to failed
+            if( uploadModelItems.containsKey(id) ) {
+                FrostUploadItem ulItem = uploadModelItems.get(id);
+                String desc = nm.getStringValue("CodeDescription");
+                ulItem.setEnabled(false);
+                ulItem.setState(FrostUploadItem.STATE_FAILED);
+                ulItem.setErrorCodeDescription(nm.getMessageName()+": "+desc);
+            } else if( downloadModelItems.containsKey(id) ) {
+                FrostDownloadItem dlItem = downloadModelItems.get(id);
+                String desc = nm.getStringValue("CodeDescription");
+                dlItem.setEnabled(false);
+                dlItem.setState(FrostUploadItem.STATE_FAILED);
+                dlItem.setErrorCodeDescription(nm.getMessageName()+": "+desc);
+            }            
+        }
+        protected void onIdentifierCollision(String id, NodeMessage nm) {
+            // since we use the same unique gqid, most likly this request already runs!
+            System.out.println("### ATTENTION ###: "+nm);
         }
     }
 }
