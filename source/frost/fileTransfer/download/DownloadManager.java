@@ -66,7 +66,7 @@ public class DownloadManager {
 	
 	private DownloadStatusPanel getStatusPanel() {
 		if (statusPanel == null) {
-			statusPanel = new DownloadStatusPanel(getTicker());
+			statusPanel = new DownloadStatusPanel();
 		}
 		return statusPanel;
 	}
@@ -124,7 +124,7 @@ public class DownloadManager {
 	
 	private DownloadTicker getTicker() {
 		if (ticker == null) {
-			ticker = new DownloadTicker(getModel(), getPanel());
+			ticker = new DownloadTicker(getModel(), getPanel(), getStatusPanel());
 		}
 		return ticker;
 	}
