@@ -260,8 +260,16 @@ public class UploadPanel extends JPanel {
         private JMenuItem uploadSelectedFilesItem = new JMenuItem();
         private JMenuItem removeSelectedFilesItem = new JMenuItem();
         private JMenuItem showSharedFileItem = new JMenuItem();
-        private JMenu changeDestinationBoardMenu = new JMenu();
         private JMenu copyToClipboardMenu = new JMenu();
+
+        private JMenu changePriorityMenu = null;
+        private JMenuItem prio0Item = null;
+        private JMenuItem prio1Item = null;
+        private JMenuItem prio2Item = null;
+        private JMenuItem prio3Item = null;
+        private JMenuItem prio4Item = null;
+        private JMenuItem prio5Item = null;
+        private JMenuItem prio6Item = null;
 
         private String keyNotAvailableMessage;
         private String fileMessage;
@@ -276,6 +284,34 @@ public class UploadPanel extends JPanel {
         }
 
         private void initialize() {
+            
+            if( PersistenceManager.isPersistenceEnabled() ) {
+                changePriorityMenu = new JMenu();
+                prio0Item = new JMenuItem();
+                prio1Item = new JMenuItem();
+                prio2Item = new JMenuItem();
+                prio3Item = new JMenuItem();
+                prio4Item = new JMenuItem();
+                prio5Item = new JMenuItem();
+                prio6Item = new JMenuItem();
+                
+                changePriorityMenu.add(prio0Item);
+                changePriorityMenu.add(prio1Item);
+                changePriorityMenu.add(prio2Item);
+                changePriorityMenu.add(prio3Item);
+                changePriorityMenu.add(prio4Item);
+                changePriorityMenu.add(prio5Item);
+                changePriorityMenu.add(prio6Item);
+                
+                prio0Item.addActionListener(this);
+                prio1Item.addActionListener(this);
+                prio2Item.addActionListener(this);
+                prio3Item.addActionListener(this);
+                prio4Item.addActionListener(this);
+                prio5Item.addActionListener(this);
+                prio6Item.addActionListener(this);
+            }
+            
             refreshLanguage();
 
             copyToClipboardMenu.add(copyKeysAndNamesItem);
@@ -307,8 +343,19 @@ public class UploadPanel extends JPanel {
             removeSelectedFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.remove.removeSelectedFiles"));
             showSharedFileItem.setText(language.getString("UploadPane.fileTable.popupmenu.showSharedFile"));
             
-            changeDestinationBoardMenu.setText(language.getString("UploadPane.fileTable.popupmenu.changeDestinationBoard"));
             copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
+            
+            // FIXME: translate
+            if( PersistenceManager.isPersistenceEnabled() ) {
+                changePriorityMenu.setText(language.getString("Common.priority.changePriority"));
+                prio0Item.setText(language.getString("Common.priority.priority0"));
+                prio1Item.setText(language.getString("Common.priority.priority1"));
+                prio2Item.setText(language.getString("Common.priority.priority2"));
+                prio3Item.setText(language.getString("Common.priority.priority3"));
+                prio4Item.setText(language.getString("Common.priority.priority4"));
+                prio5Item.setText(language.getString("Common.priority.priority5"));
+                prio6Item.setText(language.getString("Common.priority.priority6"));
+            }
         }
 
         private Clipboard getClipboard() {
@@ -321,25 +368,38 @@ public class UploadPanel extends JPanel {
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() == copyKeysItem) {
                 copyKeys();
-            }
-            if (e.getSource() == copyKeysAndNamesItem) {
+            } else if (e.getSource() == copyKeysAndNamesItem) {
                 copyKeysAndNames();
-            }
-            if (e.getSource() == copyExtendedInfoItem) {
+            } else if (e.getSource() == copyExtendedInfoItem) {
                 copyExtendedInfo();
-            }
-            if (e.getSource() == removeSelectedFilesItem) {
+            } else if (e.getSource() == removeSelectedFilesItem) {
                 removeSelectedFiles();
-            }
-            if (e.getSource() == uploadSelectedFilesItem) {
+            } else if (e.getSource() == uploadSelectedFilesItem) {
                 uploadSelectedFiles();
-            }
-            if (e.getSource() == generateChkForSelectedFilesItem) {
+            } else if (e.getSource() == generateChkForSelectedFilesItem) {
                 generateChkForSelectedFiles();
-            }
-            if (e.getSource() == showSharedFileItem) {
+            } else if (e.getSource() == showSharedFileItem) {
                 uploadTableDoubleClick(null);
-            }
+            } else if (e.getSource() == prio0Item) {
+                changePriority(0);
+            } else if (e.getSource() == prio1Item) {
+                changePriority(1);
+            } else if (e.getSource() == prio2Item) {
+                changePriority(2);
+            } else if (e.getSource() == prio3Item) {
+                changePriority(3);
+            } else if (e.getSource() == prio4Item) {
+                changePriority(4);
+            } else if (e.getSource() == prio5Item) {
+                changePriority(5);
+            } else if (e.getSource() == prio6Item) {
+                changePriority(6);
+            } 
+        }
+        
+        private void changePriority(int prio) {
+            ModelItem[] selectedItems = modelTable.getSelectedItems();
+            PersistenceManager.changeItemPriorites(selectedItems, prio);
         }
 
         /**
@@ -451,10 +511,15 @@ public class UploadPanel extends JPanel {
             // if at least 1 item is selected
             add(copyToClipboardMenu);
             addSeparator();
-            add(removeSelectedFilesItem);
-            addSeparator();
+            
+            if( PersistenceManager.isPersistenceEnabled() ) {
+                add(changePriorityMenu);
+                addSeparator();
+            }
             add(generateChkForSelectedFilesItem);
             add(uploadSelectedFilesItem);
+            addSeparator();
+            add(removeSelectedFilesItem);
             if( selectedItems.length == 1 ) {
                 FrostUploadItem item = (FrostUploadItem) selectedItems[0];
                 if( item.isSharedFile() ) {

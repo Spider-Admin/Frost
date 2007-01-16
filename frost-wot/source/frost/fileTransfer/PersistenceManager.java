@@ -41,8 +41,6 @@ public class PersistenceManager {
 
     /* FIXME:
      * - update count in status bar
-     * - implement prio changing in gui, show prio on 0.7. allow 'pause' which is minimum prio
-     * - shorter gqid, maybe currenttimemillis and a random short number?
      * - show if external in table
      */
 
@@ -99,8 +97,14 @@ public class PersistenceManager {
             public void propertyChange(PropertyChangeEvent evt) {
                 if( evt.getPropertyName().equals(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_DOWNLOAD) ) {
                     showExternalItemsDownload = Core.frostSettings.getBoolValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_DOWNLOAD);
+                    if( showExternalItemsDownload ) {
+                        awakeSyncThread();
+                    }
                 } else if( evt.getPropertyName().equals(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_UPLOAD) ) {
                     showExternalItemsUpload = Core.frostSettings.getBoolValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_UPLOAD);
+                    if( showExternalItemsUpload ) {
+                        awakeSyncThread();
+                    }
                 }
             }
         });
@@ -128,7 +132,7 @@ public class PersistenceManager {
                     public void itemAdded(ModelItem item) {
                         FrostUploadItem ul = (FrostUploadItem) item;
                         uploadModelItems.put(ul.getGqIdentifier(), ul);
-                        newItemsAdded();
+                        awakeSyncThread();
                     }
                     public void itemsRemoved(ModelItem[] items) {
                         for(ModelItem item : items) {
@@ -158,7 +162,7 @@ public class PersistenceManager {
                     public void itemAdded(ModelItem item) {
                         FrostDownloadItem ul = (FrostDownloadItem) item;
                         downloadModelItems.put(ul.getGqIdentifier(), ul);
-                        newItemsAdded();
+                        awakeSyncThread();
                     }
                     public void itemsRemoved(ModelItem[] items) {
                         for(ModelItem item : items) {
@@ -200,9 +204,29 @@ public class PersistenceManager {
     /**
      * Awake waiting syncthread to maybe start new requests immediately.
      */
-    public static void newItemsAdded() {
+    public static void awakeSyncThread() {
         if( syncThread != null && !syncThread.isInterrupted() ) {
             syncThread.interrupt();
+        }
+    }
+    
+    public static void changeItemPriorites(ModelItem[] items, int newPrio) {
+        if( items == null || items.length == 0 ) {
+            return;
+        }
+        for( int i = 0; i < items.length; i++ ) {
+            ModelItem item = items[i];
+            String gqid = null;
+            if( item instanceof FrostUploadItem ) {
+                FrostUploadItem ui = (FrostUploadItem) item; 
+                gqid = ui.getGqIdentifier();
+            } else if( item instanceof FrostUploadItem ) {
+                FrostDownloadItem di = (FrostDownloadItem) item; 
+                gqid = di.getGqIdentifier();
+            }
+            if( gqid != null ) {
+                FcpPersistentConnectionTools.changeRequestPriority(gqid, newPrio);
+            }
         }
     }
     
@@ -220,6 +244,9 @@ public class PersistenceManager {
         public void run() {
             final int maxAllowedExceptions = 5;
             int occuredExceptions = 0;
+            
+            // initial delay
+            Mixed.wait(1000);
 
             while(true) {
                 try {
@@ -246,7 +273,7 @@ public class PersistenceManager {
                         // if we were interrupted then new items were added
                         // wait some more time to let batch adds finished, then begin process
                         // we hold the interrupted state to not get interrupted during this wait again
-                        Mixed.wait(750);
+                        Mixed.wait(500);
                     }
                     interrupted(); // clear interrupted state
                     
@@ -575,6 +602,7 @@ public class PersistenceManager {
         }
         
         protected void onPersistentGet(String id, NodeMessage nm) {
+            int prio = nm.getIntValue("PriorityClass");
             FrostDownloadItem dlItem = downloadModelItems.get(id);
             if( dlItem == null && showExternalItemsDownload ) {
                 dlItem = new FrostDownloadItem(
@@ -583,17 +611,20 @@ public class PersistenceManager {
                 dlItem.setExternal(true);
                 dlItem.setGqIdentifier(id);
                 dlItem.setState(FrostDownloadItem.STATE_PROGRESS);
+                dlItem.setPriority(prio);
                 downloadModel.addExternalItem(dlItem);
                 return;
-            }
-            if( dlItem.getState() == FrostDownloadItem.STATE_WAITING ) {
-                dlItem.setState(FrostDownloadItem.STATE_PROGRESS);
-            }
-            String isDirect = nm.getStringValue("ReturnType");
-            if( isDirect.equalsIgnoreCase("disk") ) {
-                dlItem.setDirect(false);
             } else {
-                dlItem.setDirect(true);
+                if( dlItem.getState() == FrostDownloadItem.STATE_WAITING ) {
+                    dlItem.setState(FrostDownloadItem.STATE_PROGRESS);
+                }
+                dlItem.setPriority(prio);
+                String isDirect = nm.getStringValue("ReturnType");
+                if( isDirect.equalsIgnoreCase("disk") ) {
+                    dlItem.setDirect(false);
+                } else {
+                    dlItem.setDirect(true);
+                }
             }
         }
         protected void onDataFound(String id, NodeMessage nm) {
@@ -637,6 +668,7 @@ public class PersistenceManager {
             FcpPersistentConnectionTools.removeRequest(dlItem.getGqIdentifier());
         }
         protected void onPersistentPut(String id, NodeMessage nm) {
+            int prio = nm.getIntValue("PriorityClass");
             FrostUploadItem ulItem = uploadModelItems.get(id);
             if( ulItem == null && showExternalItemsUpload ) {
                 ulItem = new FrostUploadItem();
@@ -644,11 +676,14 @@ public class PersistenceManager {
                 ulItem.setExternal(true);
                 ulItem.setFile(new File(nm.getStringValue("Filename")));
                 ulItem.setState(FrostUploadItem.STATE_PROGRESS);
+                ulItem.setPriority(prio);
                 uploadModel.addExternalItem(ulItem);
                 return;
-            }
-            if( ulItem.getState() == FrostUploadItem.STATE_WAITING ) {
-                ulItem.setState(FrostUploadItem.STATE_PROGRESS);
+            } else {
+                ulItem.setPriority(prio);
+                if( ulItem.getState() == FrostUploadItem.STATE_WAITING ) {
+                    ulItem.setState(FrostUploadItem.STATE_PROGRESS);
+                }
             }
         }
         protected void onPutSuccessful(String id, NodeMessage nm) {
