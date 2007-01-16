@@ -20,12 +20,13 @@ package frost.fcp.fcp07;
 
 import java.io.*;
 import java.util.*;
+import java.util.logging.*;
 
 import frost.ext.*;
 
 public class FcpPersistentConnectionTools {
 
-//    private static Logger logger = Logger.getLogger(FcpPersistentConnectionTools.class.getName());
+    private static Logger logger = Logger.getLogger(FcpPersistentConnectionTools.class.getName());
 
     public static boolean isInitialized() {
         return FcpPersistentConnection.isInitialized();
@@ -209,6 +210,8 @@ public class FcpPersistentConnectionTools {
         newSocket.getFcpOut().println("Global=true");
         newSocket.getFcpOut().println("Identifier=" + id);
         newSocket.getFcpOut().println("OnlyData=true");
+        newSocket.getFcpOut().println("EndMessage");
+        newSocket.getFcpOut().flush();
 
         // we expect an immediate answer
         NodeMessage nodeMsg = NodeMessage.readMessage(newSocket.getFcpIn());
@@ -222,7 +225,7 @@ public class FcpPersistentConnectionTools {
         String endMarker = nodeMsg.getMessageEnd(); 
         if( endMarker == null ) {
             // should never happen
-            System.out.println("*PGET** ENDMARKER is NULL! "+nodeMsg.toString());
+            logger.severe("*PGET** ENDMARKER is NULL! "+nodeMsg.toString());
             return null;
         }
 
@@ -256,6 +259,7 @@ public class FcpPersistentConnectionTools {
                 return null;
             }
         } else {
+            logger.severe("Invalid node answer, expected AllData: "+nodeMsg);
             newSocket.close();
             return null;
         }

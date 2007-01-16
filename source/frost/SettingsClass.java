@@ -99,6 +99,9 @@ public class SettingsClass implements Savable {
     public static final String UPLOAD_REMOVE_FINISHED = "removeFinishedUploads";
     public static final String DOWNLOAD_MAX_SPLITFILE_THREADS = "splitfileDownloadThreads";
 
+    public static final String GQ_SHOW_EXTERNAL_ITEMS_DOWNLOAD = "showExternalGlobalQueueDownloads";
+    public static final String GQ_SHOW_EXTERNAL_ITEMS_UPLOAD = "showExternalGlobalQueueUploads";
+
     public static final String SAVE_SORT_STATES = "saveSortStates";
     public static final String MSGTABLE_MULTILINE_SELECT = "messageTableMultilineSelect";
     public static final String MSGTABLE_SCROLL_HORIZONTAL = "messageTableScrollHorizontal";
@@ -765,6 +768,9 @@ public class SettingsClass implements Savable {
 
         defaults.put(DOWNLOAD_MAX_SPLITFILE_THREADS, "30");
         defaults.put(UPLOAD_MAX_SPLITFILE_THREADS, "15");
+        
+        defaults.put(GQ_SHOW_EXTERNAL_ITEMS_DOWNLOAD, "false");
+        defaults.put(GQ_SHOW_EXTERNAL_ITEMS_UPLOAD, "false");
         
         defaults.put(MESSAGE_DOWNLOAD_HTL, "23");
         defaults.put(BOARDLIST_LAST_SELECTED_BOARD, "0");

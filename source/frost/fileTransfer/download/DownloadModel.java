@@ -134,7 +134,27 @@ public class DownloadModel extends OrderedModel implements Savable {
 			removeItems(itemsArray);
 		}
 	}
-	
+
+    /**
+     * Removes external downloads from the download model.
+     */
+    public synchronized void removeExternalDownloads() {
+        ArrayList<FrostDownloadItem> items = new ArrayList<FrostDownloadItem>();
+        for (int i = getItemCount() - 1; i >= 0; i--) {
+            FrostDownloadItem dlItem = (FrostDownloadItem) getItemAt(i);
+            if (dlItem.isExternal()) {
+                items.add(dlItem);
+            }
+        }
+        if (items.size() > 0) {
+            FrostDownloadItem[] itemsArray = new FrostDownloadItem[items.size()];
+            for (int i = 0; i < itemsArray.length; i++) {
+                itemsArray[i] = (FrostDownloadItem) items.get(i);
+            }
+            removeItems(itemsArray);
+        }
+    }
+
 	/**
 	 * Removes download items from the download model.
 	 */
