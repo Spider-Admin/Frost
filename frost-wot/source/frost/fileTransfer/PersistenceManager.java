@@ -219,7 +219,7 @@ public class PersistenceManager {
             if( item instanceof FrostUploadItem ) {
                 FrostUploadItem ui = (FrostUploadItem) item; 
                 gqid = ui.getGqIdentifier();
-            } else if( item instanceof FrostUploadItem ) {
+            } else if( item instanceof FrostDownloadItem ) {
                 FrostDownloadItem di = (FrostDownloadItem) item; 
                 gqid = di.getGqIdentifier();
             }
@@ -603,16 +603,17 @@ public class PersistenceManager {
         protected void onPersistentGet(String id, NodeMessage nm) {
             int prio = nm.getIntValue("PriorityClass");
             FrostDownloadItem dlItem = downloadModelItems.get(id);
-            if( dlItem == null && showExternalItemsDownload ) {
-                dlItem = new FrostDownloadItem(
-                        nm.getStringValue("Filename"), 
-                        nm.getStringValue("URI"));
-                dlItem.setExternal(true);
-                dlItem.setGqIdentifier(id);
-                dlItem.setState(FrostDownloadItem.STATE_PROGRESS);
-                dlItem.setPriority(prio);
-                downloadModel.addExternalItem(dlItem);
-                return;
+            if( dlItem == null ) {
+                if ( showExternalItemsDownload ) {
+                    dlItem = new FrostDownloadItem(
+                            nm.getStringValue("Filename"), 
+                            nm.getStringValue("URI"));
+                    dlItem.setExternal(true);
+                    dlItem.setGqIdentifier(id);
+                    dlItem.setState(FrostDownloadItem.STATE_PROGRESS);
+                    dlItem.setPriority(prio);
+                    downloadModel.addExternalItem(dlItem);
+                }
             } else {
                 if( dlItem.getState() == FrostDownloadItem.STATE_WAITING ) {
                     dlItem.setState(FrostDownloadItem.STATE_PROGRESS);
@@ -669,15 +670,16 @@ public class PersistenceManager {
         protected void onPersistentPut(String id, NodeMessage nm) {
             int prio = nm.getIntValue("PriorityClass");
             FrostUploadItem ulItem = uploadModelItems.get(id);
-            if( ulItem == null && showExternalItemsUpload ) {
-                ulItem = new FrostUploadItem();
-                ulItem.setGqIdentifier(id);
-                ulItem.setExternal(true);
-                ulItem.setFile(new File(nm.getStringValue("Filename")));
-                ulItem.setState(FrostUploadItem.STATE_PROGRESS);
-                ulItem.setPriority(prio);
-                uploadModel.addExternalItem(ulItem);
-                return;
+            if( ulItem == null ) {
+                if( showExternalItemsUpload ) {
+                    ulItem = new FrostUploadItem();
+                    ulItem.setGqIdentifier(id);
+                    ulItem.setExternal(true);
+                    ulItem.setFile(new File(nm.getStringValue("Filename")));
+                    ulItem.setState(FrostUploadItem.STATE_PROGRESS);
+                    ulItem.setPriority(prio);
+                    uploadModel.addExternalItem(ulItem);
+                }
             } else {
                 ulItem.setPriority(prio);
                 if( ulItem.getState() == FrostUploadItem.STATE_WAITING ) {
