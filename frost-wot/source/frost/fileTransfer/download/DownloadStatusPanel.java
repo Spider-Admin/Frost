@@ -23,29 +23,8 @@ import javax.swing.*;
 
 import frost.util.gui.translation.*;
 
-/**
- * @author $Author$
- * @version $Revision$
- */
-public class DownloadStatusPanel extends JPanel {
-
-	private class Listener implements DownloadTickerListener, LanguageListener {
-		/* (non-Javadoc)
-		 * @see frost.fileTransfer.download.DownloadTickerListener#threadCountChanged()
-		 */
-		public void threadCountChanged() {
-			numberChanged();
-		}
-
-		/* (non-Javadoc)
-		 * @see frost.util.gui.translation.LanguageListener#languageChanged(frost.util.gui.translation.LanguageEvent)
-		 */
-		public void languageChanged(LanguageEvent event) {
-			refreshLanguage();			
-		}
-	}
+public class DownloadStatusPanel extends JPanel implements LanguageListener {
 	
-	private DownloadTicker ticker;
 	private Language language;
 	
 	private JLabel downloadingLabel = new JLabel();
@@ -54,11 +33,8 @@ public class DownloadStatusPanel extends JPanel {
 	
 	int count = 0;
 	
-	private Listener listener = new Listener();
-	
-	public DownloadStatusPanel(DownloadTicker ticker) {
+	public DownloadStatusPanel() {
 		super();
-		this.ticker = ticker;
 		language = Language.getInstance();
 		initialize();
 	}
@@ -68,7 +44,7 @@ public class DownloadStatusPanel extends JPanel {
 		setLayout(new FlowLayout(FlowLayout.LEFT, 2, 0));
 		
 		// Init count
-		count = ticker.getRunningThreads();
+		count = 0;
 		countLabel.setText("" + count);
 		
 		// Add components
@@ -77,8 +53,7 @@ public class DownloadStatusPanel extends JPanel {
 		add(filesLabel);
 		
 		// Add listeners
-		ticker.addDownloadTickerListener(listener);
-		language.addLanguageListener(listener);
+		language.addLanguageListener(this);
 	}
 	
 	private void refreshLanguage() {
@@ -90,9 +65,13 @@ public class DownloadStatusPanel extends JPanel {
 		}
 	}
 	
-	private void numberChanged() {
-		count = ticker.getRunningThreads();
+	public void numberChanged(int num) {
+		count = num;
 		countLabel.setText("" + count);
 		refreshLanguage();
 	}
+    
+    public void languageChanged(LanguageEvent event) {
+        refreshLanguage();          
+    }
 }

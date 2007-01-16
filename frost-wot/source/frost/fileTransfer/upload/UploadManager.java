@@ -73,14 +73,14 @@ public class UploadManager {
 
     private UploadStatusPanel getStatusPanel() {
         if (statusPanel == null) {
-            statusPanel = new UploadStatusPanel(getTicker());
+            statusPanel = new UploadStatusPanel();
         }
         return statusPanel;
     }
 
     private UploadTicker getTicker() {
         if (ticker == null) {
-            ticker = new UploadTicker(getModel(), getPanel());
+            ticker = new UploadTicker(getModel(), getPanel(), getStatusPanel());
         }
         return ticker;
     }

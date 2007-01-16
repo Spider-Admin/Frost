@@ -40,7 +40,6 @@ public class PersistenceManager {
     private static Logger logger = Logger.getLogger(PersistenceManager.class.getName());
 
     /* FIXME:
-     * - update count in status bar
      * - show if external in table
      */
 

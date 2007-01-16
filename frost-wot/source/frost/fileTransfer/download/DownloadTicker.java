@@ -19,8 +19,6 @@ package frost.fileTransfer.download;
 
 import java.io.*;
 
-import javax.swing.event.*;
-
 import frost.*;
 import frost.fileTransfer.*;
 import frost.util.*;
@@ -39,23 +37,16 @@ public class DownloadTicker extends Thread {
 	private int runningThreads = 0;
 	
 	private Object threadCountLock = new Object();
+    
+    DownloadStatusPanel statusPanel;
 	
-	protected EventListenerList listenerList = new EventListenerList();
-
-	public DownloadTicker(DownloadModel newModel, DownloadPanel newPanel) {
+	public DownloadTicker(DownloadModel newModel, DownloadPanel newPanel, DownloadStatusPanel newStatusPanel) {
 		super("Download");
 		model = newModel;
 		panel = newPanel;
+        statusPanel = newStatusPanel;
 	}
 	
-	/**
-	 * Adds a <code>DownloadTickerListener</code> to the DownloadTicker.
-	 * @param listener the <code>DownloadTickerListener</code> to be added
-	 */
-	public void addDownloadTickerListener(DownloadTickerListener listener) {
-		listenerList.add(DownloadTickerListener.class, listener);
-	}
-
 	/**
 	 * This method is called to find out if a new thread can start. It temporarily 
 	 * allocates it and it will have to be relased when it is no longer
@@ -70,24 +61,6 @@ public class DownloadTicker extends Thread {
 			} 
 		}
 		return false;	
-	}
-	
-	/**
-	 * Notifies all listeners that have registered interest for
-	 * notification on this event type.  
-	 *
-	 * @see EventListenerList
-	 */
-	protected void fireThreadCountChanged() {
-		// Guaranteed to return a non-null array
-		Object[] listeners = listenerList.getListenerList();
-		// Process the listeners last to first, notifying
-		// those that are interested in this event
-		for (int i = listeners.length - 2; i >= 0; i -= 2) {
-			if (listeners[i] == DownloadTickerListener.class) {
-				((DownloadTickerListener) listeners[i + 1]).threadCountChanged();
-			}
-		}
 	}
 	
 	/**
@@ -131,7 +104,6 @@ public class DownloadTicker extends Thread {
 	 */
 	void threadFinished() {
 		runningThreads--;
-		fireThreadCountChanged();
 		releaseThread();
 	}
 	
@@ -141,15 +113,6 @@ public class DownloadTicker extends Thread {
 	 */
 	void threadStarted() {
 		runningThreads++;
-		fireThreadCountChanged();
-	}
-
-	/**
-	 * Removes an <code>DownloadTickerListener</code> from the DownloadTicker.
-	 * @param listener the <code>DownloadTickerListener</code> to be removed
-	 */
-	public void removeDownloadTickerListener(DownloadTickerListener listener) {
-		listenerList.remove(DownloadTickerListener.class, listener);
 	}
 
 	/**
@@ -158,6 +121,7 @@ public class DownloadTicker extends Thread {
 	 */
 	public void updateDownloadCountLabel() {
 		int waitingItems = 0;
+        int runningItems = 0;
 		for (int x = 0; x < model.getItemCount(); x++) {
 			FrostDownloadItem dlItem = (FrostDownloadItem) model.getItemAt(x);
 			if (dlItem.getState() != FrostDownloadItem.STATE_DONE 
@@ -165,8 +129,12 @@ public class DownloadTicker extends Thread {
             {
 				waitingItems++;
 			}
+            if (dlItem.getState() == FrostDownloadItem.STATE_PROGRESS) {
+                runningItems++;
+            }
 		}
 		panel.setDownloadItemCount(waitingItems);
+        statusPanel.numberChanged(runningItems);
 	}
 
 	private void startDownloadThread() {

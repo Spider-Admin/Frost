@@ -24,21 +24,8 @@ import javax.swing.*;
 
 import frost.util.gui.translation.*;
 
-public class UploadStatusPanel extends JPanel {
+public class UploadStatusPanel extends JPanel implements LanguageListener {
 
-    private class Listener implements UploadTickerListener, LanguageListener {
-        public void uploadingCountChanged() {
-            numberChanged();
-        }
-        public void generatingCountChanged() {
-            numberChanged();
-        }
-        public void languageChanged(LanguageEvent event) {
-            refreshLanguage();
-        }
-    }
-
-    private UploadTicker ticker;
     private Language language;
 
     private JLabel uploadingLabel = new JLabel();
@@ -47,11 +34,8 @@ public class UploadStatusPanel extends JPanel {
 
     int count = 0;
 
-    private Listener listener = new Listener();
-
-    public UploadStatusPanel(UploadTicker ticker) {
+    public UploadStatusPanel() {
         super();
-        this.ticker = ticker;
         language = Language.getInstance();
         initialize();
     }
@@ -61,7 +45,7 @@ public class UploadStatusPanel extends JPanel {
         setLayout(new FlowLayout(FlowLayout.LEFT, 2, 0));
 
         // Init count
-        count = ticker.getRunningUploadingThreads();
+        count = 0;
         countLabel.setText("" + count);
 
         // Add components
@@ -70,8 +54,7 @@ public class UploadStatusPanel extends JPanel {
         add(filesLabel);
 
         // Add listeners
-        ticker.addUploadTickerListener(listener);
-        language.addLanguageListener(listener);
+        language.addLanguageListener(this);
     }
 
     private void refreshLanguage() {
@@ -83,9 +66,13 @@ public class UploadStatusPanel extends JPanel {
         }
     }
 
-    private void numberChanged() {
-        count = ticker.getRunningUploadingThreads();
+    public void numberChanged(int num) {
+        count = num;
         countLabel.setText("" + count);
+        refreshLanguage();
+    }
+    
+    public void languageChanged(LanguageEvent event) {
         refreshLanguage();
     }
 }

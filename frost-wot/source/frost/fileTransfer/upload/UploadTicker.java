@@ -18,8 +18,6 @@
 */
 package frost.fileTransfer.upload;
 
-import javax.swing.event.*;
-
 import frost.*;
 import frost.fcp.*;
 import frost.fileTransfer.*;
@@ -51,27 +49,14 @@ public class UploadTicker extends Thread {
 
     private Object uploadingCountLock = new Object();
     private Object generatingCountLock = new Object();
+    
+    private UploadStatusPanel statusPanel;
 
-    protected EventListenerList listenerList = new EventListenerList();
-
-    /**
-     * @param newSettings
-     * @param newModel
-     * @param newPanel
-     * @param newMyID
-     */
-    public UploadTicker(UploadModel newModel, UploadPanel newPanel) {
+    public UploadTicker(UploadModel newModel, UploadPanel newPanel, UploadStatusPanel newStatusPanel) {
         super("Upload");
         model = newModel;
         panel = newPanel;
-    }
-
-    /**
-     * Adds an <code>UploadTickerListener</code> to the UploadTicker.
-     * @param listener the <code>UploadTickerListener</code> to be added
-     */
-    public void addUploadTickerListener(UploadTickerListener listener) {
-        listenerList.add(UploadTickerListener.class, listener);
+        statusPanel = newStatusPanel;
     }
 
     /**
@@ -88,42 +73,6 @@ public class UploadTicker extends Thread {
             }
         }
         return false;
-    }
-
-    /**
-     * Notifies all listeners that have registered interest for
-     * notification on this event type.
-     *
-     * @see EventListenerList
-     */
-    protected void fireUploadingCountChanged() {
-        // Guaranteed to return a non-null array
-        Object[] listeners = listenerList.getListenerList();
-        // Process the listeners last to first, notifying
-        // those that are interested in this event
-        for (int i = listeners.length - 2; i >= 0; i -= 2) {
-            if (listeners[i] == UploadTickerListener.class) {
-                ((UploadTickerListener) listeners[i + 1]).uploadingCountChanged();
-            }
-        }
-    }
-
-    /**
-     * Notifies all listeners that have registered interest for
-     * notification on this event type.
-     *
-     * @see EventListenerList
-     */
-    protected void fireGeneratingCountChanged() {
-        // Guaranteed to return a non-null array
-        Object[] listeners = listenerList.getListenerList();
-        // Process the listeners last to first, notifying
-        // those that are interested in this event
-        for (int i = listeners.length - 2; i >= 0; i -= 2) {
-            if (listeners[i] == UploadTickerListener.class) {
-                ((UploadTickerListener) listeners[i + 1]).generatingCountChanged();
-            }
-        }
     }
 
     /**
@@ -148,7 +97,6 @@ public class UploadTicker extends Thread {
      */
     public void generatingThreadStarted() {
         runningGeneratingThreads++;
-        fireGeneratingCountChanged();
     }
 
     /**
@@ -158,7 +106,6 @@ public class UploadTicker extends Thread {
      */
     public void generatingThreadFinished() {
         runningGeneratingThreads--;
-        fireGeneratingCountChanged();
         releaseGeneratingThread();
     }
 
@@ -168,7 +115,6 @@ public class UploadTicker extends Thread {
      */
     void uploadingThreadStarted() {
         runningUploadingThreads++;
-        fireUploadingCountChanged();
     }
 
     /**
@@ -178,7 +124,6 @@ public class UploadTicker extends Thread {
      */
     void uploadThreadFinished() {
         runningUploadingThreads--;
-        fireUploadingCountChanged();
         releaseUploadingThread();
     }
 
@@ -282,14 +227,6 @@ public class UploadTicker extends Thread {
     }
 
     /**
-     * Removes an <code>UploadTickerListener</code> from the UploadTicker.
-     * @param listener the <code>UploadTickerListener</code> to be removed
-     */
-    public void removeUploadTickerListener(UploadTickerListener listener) {
-        listenerList.remove(UploadTickerListener.class, listener);
-    }
-
-    /**
      * This method returns the number of generating threads that are running
      * @return the number of generating threads that are running
      */
@@ -307,6 +244,7 @@ public class UploadTicker extends Thread {
     
     public void updateUploadCountLabel() {
         int waitingItems = 0;
+        int runningItems = 0;
         for (int x = 0; x < model.getItemCount(); x++) {
             FrostUploadItem ulItem = (FrostUploadItem) model.getItemAt(x);
             if (ulItem.getState() != FrostUploadItem.STATE_DONE 
@@ -314,7 +252,11 @@ public class UploadTicker extends Thread {
             {
                 waitingItems++;
             }
+            if (ulItem.getState() == FrostUploadItem.STATE_PROGRESS) {
+                runningItems++;
+            }
         }
         panel.setUploadItemCount(waitingItems);
+        statusPanel.numberChanged(runningItems);
     }
 }
