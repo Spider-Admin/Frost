@@ -31,6 +31,7 @@ import javax.swing.text.*;
 import frost.*;
 import frost.ext.*;
 import frost.fcp.*;
+import frost.fileTransfer.*;
 import frost.fileTransfer.common.*;
 import frost.util.*;
 import frost.util.gui.*;
@@ -56,6 +57,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	private JTextField downloadTextField = new JTextField(25);
 	private JLabel downloadItemCountLabel = new JLabel();
     private JCheckBox removeFinishedDownloadsCheckBox = new JCheckBox();
+    private JCheckBox showExternalGlobalQueueItems = new JCheckBox();
 	private SortedModelTable modelTable;
 
 	private boolean initialized = false;
@@ -111,6 +113,9 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			downloadTopPanel.add(downloadPauseButton); //Download/Start transfer
             downloadTopPanel.add(Box.createRigidArea(new Dimension(8, 0)));
             downloadTopPanel.add(removeFinishedDownloadsCheckBox);
+            if( PersistenceManager.isPersistenceEnabled() ) {
+                downloadTopPanel.add(showExternalGlobalQueueItems);
+            }
 			downloadTopPanel.add(Box.createRigidArea(new Dimension(80, 0)));
 			downloadTopPanel.add(Box.createHorizontalGlue());
 			downloadTopPanel.add(downloadItemCountLabel);
@@ -134,12 +139,14 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			modelTable.getTable().addKeyListener(listener);
 			modelTable.getTable().addMouseListener(listener);
             removeFinishedDownloadsCheckBox.addItemListener(listener);
+            showExternalGlobalQueueItems.addItemListener(listener);
             Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_NAME, listener);
             Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_SIZE, listener);
             Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_STYLE, listener);
 
 			//Settings
             removeFinishedDownloadsCheckBox.setSelected(Core.frostSettings.getBoolValue(SettingsClass.DOWNLOAD_REMOVE_FINISHED));
+            showExternalGlobalQueueItems.setSelected(Core.frostSettings.getBoolValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_DOWNLOAD));
 			setDownloadingActivated(Core.frostSettings.getBoolValue(SettingsClass.DOWNLOADING_ACTIVATED));
 
 			initialized = true;
@@ -157,6 +164,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
         downloadPauseButton.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.pauseDownloading"));
         downloadTextField.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.addKeys"));
         removeFinishedDownloadsCheckBox.setText(language.getString("DownloadPane.removeFinishedDownloads"));
+        showExternalGlobalQueueItems.setText(language.getString("DownloadPane.showExternalGlobalQueueItems"));
 
 		String waiting = language.getString("DownloadPane.toolbar.waiting");
 		Dimension labelSize = calculateLabelSize(waiting + ": 00000");
@@ -537,38 +545,27 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() == copyKeysItem) {
                 copyKeys();
-            }
-            if (e.getSource() == copyKeysAndNamesItem) {
+            } else if (e.getSource() == copyKeysAndNamesItem) {
                 copyKeysAndNames();
-            }
-            if (e.getSource() == copyExtendedInfoItem) {
+            } else if (e.getSource() == copyExtendedInfoItem) {
                 copyExtendedInfo();
-            }
-            if (e.getSource() == restartSelectedDownloadsItem) {
+            } else if (e.getSource() == restartSelectedDownloadsItem) {
                 restartSelectedDownloads();
-            }
-            if (e.getSource() == removeSelectedDownloadsItem) {
+            } else if (e.getSource() == removeSelectedDownloadsItem) {
                 removeSelectedDownloads();
-            }
-            if (e.getSource() == enableAllDownloadsItem) {
+            } else if (e.getSource() == enableAllDownloadsItem) {
                 enableAllDownloads();
-            }
-            if (e.getSource() == disableAllDownloadsItem) {
+            } else if (e.getSource() == disableAllDownloadsItem) {
                 disableAllDownloads();
-            }
-            if (e.getSource() == enableSelectedDownloadsItem) {
+            } else if (e.getSource() == enableSelectedDownloadsItem) {
                 enableSelectedDownloads();
-            }
-            if (e.getSource() == disableSelectedDownloadsItem) {
+            } else if (e.getSource() == disableSelectedDownloadsItem) {
                 disableSelectedDownloads();
-            }
-            if (e.getSource() == invertEnabledAllItem) {
+            } else if (e.getSource() == invertEnabledAllItem) {
                 invertEnabledAll();
-            }
-            if (e.getSource() == invertEnabledSelectedItem) {
+            } else if (e.getSource() == invertEnabledSelectedItem) {
                 invertEnabledSelected();
-            }
-            if (e.getSource() == detailsItem) {
+            } else if (e.getSource() == detailsItem) {
                 showDetails();
             }
         }
@@ -823,6 +820,12 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                 model.removeFinishedDownloads();
             } else {
                 Core.frostSettings.setValue(SettingsClass.DOWNLOAD_REMOVE_FINISHED, false);
+            }
+            if( showExternalGlobalQueueItems.isSelected() ) {
+                Core.frostSettings.setValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_DOWNLOAD, true);
+            } else {
+                Core.frostSettings.setValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_DOWNLOAD, false);
+                model.removeExternalDownloads();
             }
         }
     }

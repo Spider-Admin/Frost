@@ -18,6 +18,7 @@
 */
 package frost.fileTransfer;
 
+import java.beans.*;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
@@ -41,8 +42,8 @@ public class PersistenceManager {
     /* FIXME:
      * - update count in status bar
      * - implement prio changing in gui, show prio on 0.7. allow 'pause' which is minimum prio
-     * - add a 'show all' to tables, if disabled don't show external items in this table (remove all)
      * - shorter gqid, maybe currenttimemillis and a random short number?
+     * - show if external in table
      */
 
     // this would belong to the models, but not needed for 0.5 or without persistence, hence we maintain it here
@@ -57,7 +58,10 @@ public class PersistenceManager {
     private static DirectTransferQueue directTransferQueue;
     private static DirectTransferThread directTransferThread;
     
-    private static NodeMessageHandler nodeMessageHandler = new NodeMessageHandler(); 
+    private static NodeMessageHandler nodeMessageHandler = new NodeMessageHandler();
+    
+    private static boolean showExternalItemsDownload;
+    private static boolean showExternalItemsUpload;
     
     /**
      * @return  true if Frost is configured to use persistent uploads and downloads, false if not
@@ -88,6 +92,19 @@ public class PersistenceManager {
      */
     public static void initialize(UploadModel um, DownloadModel dm) {
         
+        showExternalItemsDownload = Core.frostSettings.getBoolValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_DOWNLOAD);
+        showExternalItemsUpload = Core.frostSettings.getBoolValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_UPLOAD);
+        
+        Core.frostSettings.addPropertyChangeListener(new PropertyChangeListener() {
+            public void propertyChange(PropertyChangeEvent evt) {
+                if( evt.getPropertyName().equals(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_DOWNLOAD) ) {
+                    showExternalItemsDownload = Core.frostSettings.getBoolValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_DOWNLOAD);
+                } else if( evt.getPropertyName().equals(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_UPLOAD) ) {
+                    showExternalItemsUpload = Core.frostSettings.getBoolValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_UPLOAD);
+                }
+            }
+        });
+        
         uploadModel = um;
         downloadModel = dm;
         
@@ -111,6 +128,7 @@ public class PersistenceManager {
                     public void itemAdded(ModelItem item) {
                         FrostUploadItem ul = (FrostUploadItem) item;
                         uploadModelItems.put(ul.getGqIdentifier(), ul);
+                        newItemsAdded();
                     }
                     public void itemsRemoved(ModelItem[] items) {
                         for(ModelItem item : items) {
@@ -140,6 +158,7 @@ public class PersistenceManager {
                     public void itemAdded(ModelItem item) {
                         FrostDownloadItem ul = (FrostDownloadItem) item;
                         downloadModelItems.put(ul.getGqIdentifier(), ul);
+                        newItemsAdded();
                     }
                     public void itemsRemoved(ModelItem[] items) {
                         for(ModelItem item : items) {
@@ -179,6 +198,15 @@ public class PersistenceManager {
     }
     
     /**
+     * Awake waiting syncthread to maybe start new requests immediately.
+     */
+    public static void newItemsAdded() {
+        if( syncThread != null && !syncThread.isInterrupted() ) {
+            syncThread.interrupt();
+        }
+    }
+    
+    /**
      * Receives persistent requests list from node and syncs them against the items in
      * upload and download model.
      * Starts uploads and downloads, adds / removes external requests 
@@ -212,8 +240,15 @@ public class PersistenceManager {
                     startNewDownloads();
                     
                     // delay until next run
-                    // FIXME: allow to interrupt the wait to add new requests faster!
-                    Mixed.wait(10000);
+                    try {
+                        Thread.sleep(10000);
+                    } catch (InterruptedException e) {
+                        // if we were interrupted then new items were added
+                        // wait some more time to let batch adds finished, then begin process
+                        // we hold the interrupted state to not get interrupted during this wait again
+                        Mixed.wait(750);
+                    }
+                    interrupted(); // clear interrupted state
                     
                 } catch(Throwable t) {
                     logger.log(Level.SEVERE, "Exception catched",t);
@@ -398,8 +433,11 @@ public class PersistenceManager {
                             doMime = true;
                         }
                         NodeMessage answer = FcpPersistentConnectionTools.startDirectPersistentPut(gqid, sourceFile, doMime);
-                        
-                        nodeMessageHandler.handleNodeMessage(gqid, answer);
+                        if( answer == null ) {
+                            logger.severe("Could not open a new fcp socket for direct put!");
+                        } else {
+                            nodeMessageHandler.handleNodeMessage(gqid, answer);
+                        }
                         
                     } else if( item instanceof FrostDownloadItem ) {
                         // transfer bytes from node
@@ -412,11 +450,13 @@ public class PersistenceManager {
                         if( answer != null ) {
                             FcpResultGet result = new FcpResultGet(true);
                             FileTransferManager.inst().getDownloadManager().notifyDownloadFinished(dlItem, result, targetFile);
+
+                            FcpPersistentConnectionTools.removeRequest(dlItem.getGqIdentifier());
                         } else {
+                            logger.severe("Could not open a new fcp socket for direct get!");
                             FcpResultGet result = new FcpResultGet(false);
                             FileTransferManager.inst().getDownloadManager().notifyDownloadFinished(dlItem, result, targetFile);
                         }
-                        FcpPersistentConnectionTools.removeRequest(dlItem.getGqIdentifier());
                     }
                     
                 } catch(Throwable t) {
@@ -536,13 +576,14 @@ public class PersistenceManager {
         
         protected void onPersistentGet(String id, NodeMessage nm) {
             FrostDownloadItem dlItem = downloadModelItems.get(id);
-            if( dlItem == null ) {
-                FrostDownloadItem newDlItem = new FrostDownloadItem(
+            if( dlItem == null && showExternalItemsDownload ) {
+                dlItem = new FrostDownloadItem(
                         nm.getStringValue("Filename"), 
                         nm.getStringValue("URI"));
-                newDlItem.setExternal(true);
-                newDlItem.setGqIdentifier(id);
-                downloadModel.addExternalItem(newDlItem);
+                dlItem.setExternal(true);
+                dlItem.setGqIdentifier(id);
+                dlItem.setState(FrostDownloadItem.STATE_PROGRESS);
+                downloadModel.addExternalItem(dlItem);
                 return;
             }
             if( dlItem.getState() == FrostDownloadItem.STATE_WAITING ) {
@@ -597,12 +638,13 @@ public class PersistenceManager {
         }
         protected void onPersistentPut(String id, NodeMessage nm) {
             FrostUploadItem ulItem = uploadModelItems.get(id);
-            if( ulItem == null ) {
-                FrostUploadItem newUlItem = new FrostUploadItem();
-                newUlItem.setGqIdentifier(id);
-                newUlItem.setExternal(true);
-                newUlItem.setFile(new File(nm.getStringValue("Filename")));
-                uploadModel.addExternalItem(newUlItem);
+            if( ulItem == null && showExternalItemsUpload ) {
+                ulItem = new FrostUploadItem();
+                ulItem.setGqIdentifier(id);
+                ulItem.setExternal(true);
+                ulItem.setFile(new File(nm.getStringValue("Filename")));
+                ulItem.setState(FrostUploadItem.STATE_PROGRESS);
+                uploadModel.addExternalItem(ulItem);
                 return;
             }
             if( ulItem.getState() == FrostUploadItem.STATE_WAITING ) {

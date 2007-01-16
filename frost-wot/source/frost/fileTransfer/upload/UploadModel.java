@@ -188,9 +188,29 @@ public class UploadModel extends OrderedModel implements Savable {
     public synchronized void removeFinishedUploads() {
         ArrayList<FrostUploadItem> items = new ArrayList<FrostUploadItem>();
         for (int i = getItemCount() - 1; i >= 0; i--) {
-            FrostUploadItem dlItem = (FrostUploadItem) getItemAt(i);
-            if (dlItem.getState() == FrostUploadItem.STATE_DONE) {
-                items.add(dlItem);
+            FrostUploadItem ulItem = (FrostUploadItem) getItemAt(i);
+            if (ulItem.getState() == FrostUploadItem.STATE_DONE) {
+                items.add(ulItem);
+            }
+        }
+        if (items.size() > 0) {
+            FrostUploadItem[] itemsArray = new FrostUploadItem[items.size()];
+            for (int i = 0; i < itemsArray.length; i++) {
+                itemsArray[i] = (FrostUploadItem) items.get(i);
+            }
+            removeItems(itemsArray);
+        }
+    }
+
+    /**
+     * Removes external uploads from the model.
+     */
+    public synchronized void removeExternalUploads() {
+        ArrayList<FrostUploadItem> items = new ArrayList<FrostUploadItem>();
+        for (int i = getItemCount() - 1; i >= 0; i--) {
+            FrostUploadItem ulItem = (FrostUploadItem) getItemAt(i);
+            if (ulItem.isExternal()) {
+                items.add(ulItem);
             }
         }
         if (items.size() > 0) {

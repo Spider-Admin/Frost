@@ -54,6 +54,7 @@ public class UploadPanel extends JPanel {
     private JPanel uploadTopPanel = new JPanel();
     private JButton uploadAddFilesButton = new JButton(new ImageIcon(getClass().getResource("/data/browse.gif")));
     private JCheckBox removeFinishedUploadsCheckBox = new JCheckBox();
+    private JCheckBox showExternalGlobalQueueItems = new JCheckBox();
 
     private SortedModelTable modelTable;
     
@@ -85,6 +86,9 @@ public class UploadPanel extends JPanel {
             uploadTopPanel.add(uploadAddFilesButton);
             uploadTopPanel.add(Box.createRigidArea(new Dimension(8, 0)));
             uploadTopPanel.add(removeFinishedUploadsCheckBox);
+            if( PersistenceManager.isPersistenceEnabled() ) {
+                uploadTopPanel.add(showExternalGlobalQueueItems);
+            }
             uploadTopPanel.add(Box.createRigidArea(new Dimension(80, 0)));
             uploadTopPanel.add(Box.createHorizontalGlue());
             uploadTopPanel.add(uploadItemCountLabel);
@@ -104,11 +108,13 @@ public class UploadPanel extends JPanel {
             modelTable.getTable().addKeyListener(listener);
             modelTable.getTable().addMouseListener(listener);
             removeFinishedUploadsCheckBox.addItemListener(listener);
+            showExternalGlobalQueueItems.addItemListener(listener);
             Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_NAME, listener);
             Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_SIZE, listener);
             Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_STYLE, listener);
             
             removeFinishedUploadsCheckBox.setSelected(Core.frostSettings.getBoolValue(SettingsClass.UPLOAD_REMOVE_FINISHED));
+            showExternalGlobalQueueItems.setSelected(Core.frostSettings.getBoolValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_UPLOAD));
 
             initialized = true;
         }
@@ -129,6 +135,7 @@ public class UploadPanel extends JPanel {
         uploadItemCountLabel.setMinimumSize(labelSize);
         uploadItemCountLabel.setText(waiting + ": " + uploadItemCount);
         removeFinishedUploadsCheckBox.setText(language.getString("UploadPane.removeFinishedUploads"));
+        showExternalGlobalQueueItems.setText(language.getString("UploadPane.showExternalGlobalQueueItems"));
     }
 
     private PopupMenuUpload getPopupMenuUpload() {
@@ -527,6 +534,12 @@ public class UploadPanel extends JPanel {
                 model.removeFinishedUploads();
             } else {
                 Core.frostSettings.setValue(SettingsClass.UPLOAD_REMOVE_FINISHED, false);
+            }
+            if( showExternalGlobalQueueItems.isSelected() ) {
+                Core.frostSettings.setValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_UPLOAD, true);
+            } else {
+                Core.frostSettings.setValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_UPLOAD, false);
+                model.removeExternalUploads();
             }
         }
     }
