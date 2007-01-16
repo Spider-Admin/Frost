@@ -473,6 +473,15 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
         private JMenuItem invertEnabledSelectedItem = new JMenuItem();
         private JMenuItem removeSelectedDownloadsItem = new JMenuItem();
         private JMenuItem restartSelectedDownloadsItem = new JMenuItem();
+        
+        private JMenu changePriorityMenu = null;
+        private JMenuItem prio0Item = null;
+        private JMenuItem prio1Item = null;
+        private JMenuItem prio2Item = null;
+        private JMenuItem prio3Item = null;
+        private JMenuItem prio4Item = null;
+        private JMenuItem prio5Item = null;
+        private JMenuItem prio6Item = null;
     
         private JMenu copyToClipboardMenu = new JMenu();
         
@@ -489,6 +498,34 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
         }
     
         private void initialize() {
+            
+            if( PersistenceManager.isPersistenceEnabled() ) {
+                changePriorityMenu = new JMenu();
+                prio0Item = new JMenuItem();
+                prio1Item = new JMenuItem();
+                prio2Item = new JMenuItem();
+                prio3Item = new JMenuItem();
+                prio4Item = new JMenuItem();
+                prio5Item = new JMenuItem();
+                prio6Item = new JMenuItem();
+                
+                changePriorityMenu.add(prio0Item);
+                changePriorityMenu.add(prio1Item);
+                changePriorityMenu.add(prio2Item);
+                changePriorityMenu.add(prio3Item);
+                changePriorityMenu.add(prio4Item);
+                changePriorityMenu.add(prio5Item);
+                changePriorityMenu.add(prio6Item);
+                
+                prio0Item.addActionListener(this);
+                prio1Item.addActionListener(this);
+                prio2Item.addActionListener(this);
+                prio3Item.addActionListener(this);
+                prio4Item.addActionListener(this);
+                prio5Item.addActionListener(this);
+                prio6Item.addActionListener(this);
+            }
+
             refreshLanguage();
     
             // TODO: implement cancel of downloading
@@ -533,6 +570,17 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
             invertEnabledSelectedItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.invertEnabledStateForSelectedDownloads"));
     
             copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
+            
+            if( PersistenceManager.isPersistenceEnabled() ) {
+                changePriorityMenu.setText(language.getString("Common.priority.changePriority"));
+                prio0Item.setText(language.getString("Common.priority.priority0"));
+                prio1Item.setText(language.getString("Common.priority.priority1"));
+                prio2Item.setText(language.getString("Common.priority.priority2"));
+                prio3Item.setText(language.getString("Common.priority.priority3"));
+                prio4Item.setText(language.getString("Common.priority.priority4"));
+                prio5Item.setText(language.getString("Common.priority.priority5"));
+                prio6Item.setText(language.getString("Common.priority.priority6"));
+            }
         }
         
         private Clipboard getClipboard() {
@@ -567,9 +615,28 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                 invertEnabledSelected();
             } else if (e.getSource() == detailsItem) {
                 showDetails();
+            } else if (e.getSource() == prio0Item) {
+                changePriority(0);
+            } else if (e.getSource() == prio1Item) {
+                changePriority(1);
+            } else if (e.getSource() == prio2Item) {
+                changePriority(2);
+            } else if (e.getSource() == prio3Item) {
+                changePriority(3);
+            } else if (e.getSource() == prio4Item) {
+                changePriority(4);
+            } else if (e.getSource() == prio5Item) {
+                changePriority(5);
+            } else if (e.getSource() == prio6Item) {
+                changePriority(6);
             }
         }
-        
+
+        private void changePriority(int prio) {
+            ModelItem[] selectedItems = modelTable.getSelectedItems();
+            PersistenceManager.changeItemPriorites(selectedItems, prio);
+        }
+
         private void showDetails() {
             ModelItem[] selectedItems = modelTable.getSelectedItems();
             if (selectedItems.length != 1) {
@@ -708,6 +775,11 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
             if (selectedItems.length != 0) {
                 // If at least 1 item is selected
                 add(restartSelectedDownloadsItem);
+                addSeparator();
+            }
+            
+            if( PersistenceManager.isPersistenceEnabled() ) {
+                add(changePriorityMenu);
                 addSeparator();
             }
     

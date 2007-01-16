@@ -20,9 +20,9 @@ package frost.fileTransfer.upload;
 
 import java.io.*;
 
+import frost.*;
 import frost.fcp.*;
 import frost.fileTransfer.sharing.*;
-import frost.util.*;
 import frost.util.model.*;
 
 /**
@@ -56,6 +56,7 @@ public class FrostUploadItem extends ModelItem {
     private int doneBlocks = -1; 
     private Boolean isFinalized = null;
     private String errorCodeDescription = null;
+    private int priority = -1;
 
     // is only set if this uploaditem is a shared file
     private FrostSharedFileItem sharedFileItem = null;
@@ -265,7 +266,8 @@ public class FrostUploadItem extends ModelItem {
                 .append("Frost-")
                 .append(filename.replace(' ', '_'))
                 .append("-")
-                .append(Mixed.createUniqueId())
+                .append(System.currentTimeMillis())
+                .append(Core.getCrypto().getSecureRandom().nextInt(10)) // 0-9
                 .toString();
         } else {
             return null;
@@ -287,5 +289,13 @@ public class FrostUploadItem extends ModelItem {
     }
     public void setExternal(boolean e) {
         isExternal = e;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
     }
 }

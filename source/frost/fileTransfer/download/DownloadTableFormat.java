@@ -491,7 +491,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 		FrostDownloadItem downloadItem = (FrostDownloadItem) item;
 		switch (columnIndex) {
 
-			case 0 : //Enabled
+			case 0 : // Enabled
 				return downloadItem.isEnabled();
 
             case 1 : // isShared

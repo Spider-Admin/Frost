@@ -19,6 +19,7 @@ package frost.fileTransfer.download;
 
 import java.util.logging.*;
 
+import frost.*;
 import frost.fcp.*;
 import frost.fileTransfer.*;
 import frost.storage.database.applayer.*;
@@ -60,7 +61,8 @@ public class FrostDownloadItem extends ModelItem {
 	private int totalBlocks = 0;
     private Boolean isFinalized = null;
     private String errorCodeDescription = null;
-    
+    private int priority = -1;
+
     private boolean isDirect = false;
     private boolean isExternal = false;
     
@@ -381,7 +383,8 @@ public class FrostDownloadItem extends ModelItem {
                 .append("Frost-")
                 .append(filename.replace(' ', '_'))
                 .append("-")
-                .append(Mixed.createUniqueId())
+                .append(System.currentTimeMillis())
+                .append(Core.getCrypto().getSecureRandom().nextInt(10)) // 0-9
                 .toString();
         } else {
             return null;
@@ -410,5 +413,13 @@ public class FrostDownloadItem extends ModelItem {
     }
     public void setDirect(boolean d) {
         isDirect = d;
+    }
+
+    public int getPriority() {
+        return priority;
+    }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
     }
 }
