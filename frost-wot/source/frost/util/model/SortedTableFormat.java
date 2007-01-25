@@ -16,7 +16,7 @@
  along with this program; if not, write to the Free Software
  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.util.model.gui;
+package frost.util.model;
 
 import java.util.Comparator;
 

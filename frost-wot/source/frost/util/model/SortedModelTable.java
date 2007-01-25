@@ -16,10 +16,9 @@
  along with this program; if not, write to the Free Software
  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.util.model.gui;
+package frost.util.model;
 
 import frost.util.gui.*;
-import frost.util.model.*;
 
 public class SortedModelTable extends ModelTable {
 	
@@ -27,21 +26,20 @@ public class SortedModelTable extends ModelTable {
 	 * Index in the ModelTable of the column the model is 
 	 * sorted by (or -1 if it is not currently sorted). 
 	 */
-	private int currentColumnNumber = -1;
+	private int currentSortedColumnNumber = -1;
 	private boolean ascending;
 	
 	/**
 	 * @param newModel
 	 * @param newTableFormat
 	 */
-	public SortedModelTable(
-		OrderedModel newModel,
-		SortedTableFormat newTableFormat) {
+	public SortedModelTable(SortedModel newModel) {
 			
-		super(newTableFormat);
-		
-		SortedModel sortedModel = new SortedModel(newModel, newTableFormat);
-		setModel(sortedModel);
+		super(newModel.getTableFormat());
+        
+        newModel.setTable(this);
+        
+		setModel(newModel);
 		initialize();
 		
 		getTable().setTableHeader(new SortedTableHeader(this));
@@ -50,8 +48,8 @@ public class SortedModelTable extends ModelTable {
 	 * @param columnNumber
 	 */
 	void columnClicked(int columnNumber) {
-		if (columnNumber != currentColumnNumber) {
-			currentColumnNumber = columnNumber;
+		if (columnNumber != currentSortedColumnNumber) {
+			currentSortedColumnNumber = columnNumber;
 			ascending = true;
 		} else {
 			ascending = !ascending;
@@ -61,7 +59,7 @@ public class SortedModelTable extends ModelTable {
 	}
     
     public void setSortedColumn(final int col, final boolean asc) {
-        currentColumnNumber = col;
+        currentSortedColumnNumber = col;
         ascending = asc;
         resortTable();
     }
@@ -70,8 +68,8 @@ public class SortedModelTable extends ModelTable {
         FrostSwingWorker worker = new FrostSwingWorker(table) {
 
             protected void doNonUILogic() throws RuntimeException {
-                int index = convertColumnIndexToFormat(currentColumnNumber);
-                ((SortedModel) model).sort(index, ascending);
+                int index = convertColumnIndexToFormat(currentSortedColumnNumber);
+                model.sort(index, ascending);
             }
 
             protected void doUIUpdateLogic() throws RuntimeException {
@@ -82,6 +80,11 @@ public class SortedModelTable extends ModelTable {
         };
         worker.start();
     }
+    
+    public void refreshView() {
+        table.revalidate();
+        table.repaint();
+    }
 	
 	/**
 	 * This method returns the number of the column the
@@ -90,7 +93,7 @@ public class SortedModelTable extends ModelTable {
 	 * @return the number of the column that is currently sorted. -1 if none.
 	 */
 	public int getSortedColumn() {
-		return currentColumnNumber;
+		return currentSortedColumnNumber;
 	}
 
 	/**
@@ -116,10 +119,10 @@ public class SortedModelTable extends ModelTable {
 	public void setColumnVisible(int index, boolean visible) {
 		super.setColumnVisible(index, visible);
 		if (!visible) {
-			if (index == currentColumnNumber) {
-				currentColumnNumber = -1;
-			} else if (index < currentColumnNumber) {
-				currentColumnNumber--;
+			if (index == currentSortedColumnNumber) {
+				currentSortedColumnNumber = -1;
+			} else if (index < currentSortedColumnNumber) {
+				currentSortedColumnNumber--;
 			}
 		}
 	}

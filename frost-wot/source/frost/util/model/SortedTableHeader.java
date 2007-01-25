@@ -16,7 +16,7 @@
  along with this program; if not, write to the Free Software
  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.util.model.gui;
+package frost.util.model;
 
 import java.awt.Component;
 import java.awt.event.*;
@@ -127,7 +127,7 @@ class SortedTableHeader extends ModelTableHeader {
 	 * This method is called by the superclass when the user clicks on a column (the mouse
 	 * button is pressed). It gets the number of the column whose header was clicked and
 	 * notifies the associated SortedModelTable of the event.
-	 * @see frost.util.model.gui.ModelTableHeader#headerClicked(java.awt.event.MouseEvent)
+	 * @see frost.util.model.ModelTableHeader#headerClicked(java.awt.event.MouseEvent)
 	 */
 	protected void headerClicked(MouseEvent e) {
 		super.headerClicked(e);

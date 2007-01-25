@@ -26,12 +26,12 @@ import javax.swing.*;
 import javax.swing.table.*;
 
 import frost.*;
+import frost.fileTransfer.*;
 import frost.fileTransfer.common.*;
 import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
-import frost.util.model.gui.*;
 
 class UploadTableFormat extends SortedTableFormat implements LanguageListener, PropertyChangeListener {
 
@@ -82,7 +82,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
             return this;
         }
     }
-    
+
     private class BlocksProgressRenderer extends JProgressBar implements TableCellRenderer {
         public BlocksProgressRenderer() {
             super();
@@ -238,6 +238,15 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         }
     }
 
+    private class PriorityComparator implements Comparator {
+        public int compare(Object o1, Object o2) {
+            int prio1 = ((FrostUploadItem) o1).getPriority();
+            int prio2 = ((FrostUploadItem) o2).getPriority();
+            return Mixed.compareInt(prio1, prio2);
+//          return new Integer(retries1).compareTo(new Integer(retries2));
+        }
+    }
+
     /**
      * This inner class implements the comparator for the column "Last Upload"
      */
@@ -245,8 +254,9 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         public int compare(Object o1, Object o2) {
             FrostUploadItem item1 = (FrostUploadItem) o1;
             FrostUploadItem item2 = (FrostUploadItem) o2;
-            return getStateAsString(item1, item1.getState()).
-                        compareToIgnoreCase(getStateAsString(item2, item2.getState()));
+            return Mixed.compareInt(item1.getState(), item2.getState());
+//            return getStateAsString(item1, item1.getState()).
+//                        compareToIgnoreCase(getStateAsString(item2, item2.getState()));
         }
     }
 
@@ -265,7 +275,8 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
 //                  item2.getDoneBlocks(),
 //                  item2.getRequiredBlocks());
 //          return blocks1.compareToIgnoreCase(blocks2); 
-            return new Integer(item1.getDoneBlocks()).compareTo(new Integer(item2.getDoneBlocks()));
+//            return new Integer(item1.getDoneBlocks()).compareTo(new Integer(item2.getDoneBlocks()));
+            return Mixed.compareInt(item1.getDoneBlocks(), item2.getDoneBlocks());
         }
     }
 
@@ -276,7 +287,8 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         public int compare(Object o1, Object o2) {
             int retries1 = ((FrostUploadItem) o1).getRetries();
             int retries2 = ((FrostUploadItem) o2).getRetries();
-            return new Integer(retries1).compareTo(new Integer(retries2));
+            return Mixed.compareInt(retries1, retries2);
+//            return new Integer(retries1).compareTo(new Integer(retries2));
         }
     }
     
@@ -338,19 +350,21 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         public int compare(Object o1, Object o2) {
             FrostUploadItem item1 = (FrostUploadItem) o1;
             FrostUploadItem item2 = (FrostUploadItem) o2;
-            if( item1.getFileSize() > item2.getFileSize() ) {
-                return 1;
-            } else if( item1.getFileSize() < item2.getFileSize() ) {
-                return -1;
-            } else {
-                return 0;
-            }
+            return Mixed.compareLong(item1.getFileSize(), item2.getFileSize());
+//            if( item1.getFileSize() > item2.getFileSize() ) {
+//                return 1;
+//            } else if( item1.getFileSize() < item2.getFileSize() ) {
+//                return -1;
+//            } else {
+//                return 0;
+//            }
         }
     }
 
     private Language language;
 
-    private final static int COLUMN_COUNT = 9;
+    // with persistence we have 1 additional column: priority
+    private final static int COLUMN_COUNT = ( PersistenceManager.isPersistenceEnabled() ? 10 : 9 );
 
     private String stateDone;
     private String stateFailed;
@@ -379,6 +393,9 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         setComparator(new BlocksComparator(), 6);
         setComparator(new TriesComparator(), 7);
         setComparator(new KeyComparator(), 8);
+        if( PersistenceManager.isPersistenceEnabled() ) {
+            setComparator(new PriorityComparator(), 9);
+        }
         
         showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
         Core.frostSettings.addPropertyChangeListener(this);
@@ -394,6 +411,9 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         setColumnName(6, language.getString("UploadPane.fileTable.blocks"));
         setColumnName(7, language.getString("UploadPane.fileTable.tries"));
         setColumnName(8, language.getString("UploadPane.fileTable.key"));
+        if( PersistenceManager.isPersistenceEnabled() ) {
+            setColumnName(9, language.getString("UploadPane.fileTable.priority"));
+        }
 
         stateDone =               language.getString("UploadPane.fileTable.state.done");
         stateFailed =             language.getString("UploadPane.fileTable.state.failed");
@@ -457,6 +477,15 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
                 } else {
                     return uploadItem.getKey();
                 }
+                
+            case 9: // Priority
+                int value = uploadItem.getPriority();
+                if( value < 0 ) {
+                    return "-";
+                } else {
+                    return new Integer(value);
+                }
+                
             default:
                 return "**ERROR**";
         }
@@ -464,9 +493,6 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
 
     private String getStateAsString(FrostUploadItem item, int state) {
         switch (state) {
-
-//            case FrostUploadItem.STATE_UPLOADING :
-//                return stateUploading;
 
             case FrostUploadItem.STATE_PROGRESS :
                 return stateUploading;
@@ -558,6 +584,12 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         columnModel.getColumn(1).setMaxWidth(20);
         columnModel.getColumn(1).setPreferredWidth(20);
         columnModel.getColumn(1).setCellRenderer(new IsSharedRenderer());
+        if( PersistenceManager.isPersistenceEnabled() ) {
+            // hard set sizes of priority column
+            columnModel.getColumn(9).setMinWidth(20);
+            columnModel.getColumn(9).setMaxWidth(20);
+            columnModel.getColumn(9).setPreferredWidth(20);
+        }
 
         RightAlignRenderer numberRightRenderer = new RightAlignRenderer();
         ShowContentTooltipRenderer showContentTooltipRenderer = new ShowContentTooltipRenderer();
@@ -569,10 +601,21 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         columnModel.getColumn(6).setCellRenderer(new BlocksProgressRenderer()); // blocks
         columnModel.getColumn(7).setCellRenderer(numberRightRenderer); // tries
         columnModel.getColumn(8).setCellRenderer(showContentTooltipRenderer); // key
+        if( PersistenceManager.isPersistenceEnabled() ) {
+            columnModel.getColumn(9).setCellRenderer(numberRightRenderer);
+        }
 
         if( !loadTableLayout(columnModel) ) {
             // Sets the relative widths of the columns
-            int[] widths = { 20, 20, 200, 65, 30, 60, 50, 15, 70 };
+            int[] widths;
+            if( PersistenceManager.isPersistenceEnabled() ) {
+                int[] newWidths = { 20, 20, 200, 65, 30, 60, 50, 15, 70, 20 };
+                widths = newWidths;
+            } else {
+                int[] newWidths = { 20, 20, 200, 65, 30, 60, 50, 15, 70 };
+                widths = newWidths;
+            }
+
             for (int i = 0; i < widths.length; i++) {
                 columnModel.getColumn(i).setPreferredWidth(widths[i]);
             }

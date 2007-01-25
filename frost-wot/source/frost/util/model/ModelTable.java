@@ -16,17 +16,16 @@
  along with this program; if not, write to the Free Software
  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.util.model.gui;
+package frost.util.model;
 
-import java.awt.Font;
-import java.lang.reflect.InvocationTargetException;
+import java.awt.*;
+import java.lang.reflect.*;
 import java.util.*;
+import java.util.List;
 import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.table.*;
-
-import frost.util.model.*;
 
 /**
  * This subclass of AbstractTableModel is passed an OrderedModel and a
@@ -41,59 +40,6 @@ import frost.util.model.*;
  * that pops up when he right clicks on the header.
  */
 public class ModelTable extends AbstractTableModel {
-	/**
-	 * This inner class listens for the changes in the model and updates the 
-	 * table in the Swing event thread.
-	 */
-	private class Listener implements OrderedModelListener {
-	
-		/**
-		 * This constructor creates a new instance of Listener
-		 */
-		public Listener() {
-			super();
-		}
-
-		/* (non-Javadoc)
-		 * @see frost.util.model.OrderedModelListener#itemChanged(int, frost.util.model.ModelItem, int, java.lang.Object, java.lang.Object)
-		 */
-		public void itemChanged(int position, ModelItem item, int fieldID, Object oldValue, Object newValue) {
-			int[] lColumns = tableFormat.getColumnNumbers(fieldID);
-			for (int i = 0; i < lColumns.length; i++) {
-				int columnIndex = convertColumnIndexToModel(lColumns[i]);
-				fireTableCellUpdated(position, columnIndex);
-			}
-		}
-
-		/* (non-Javadoc)
-		 * @see frost.util.model.OrderedModelListener#itemChanged(int, frost.util.model.ModelItem)
-		 */
-		public void itemChanged(int position, ModelItem item) {
-			fireTableRowsUpdated(position, position);			
-		}
-
-		/* (non-Javadoc)
-		 * @see frost.util.model.OrderedModelListener#itemAdded(int, frost.util.model.ModelItem)
-		 */
-		public void itemAdded(int position, ModelItem item) {
-			fireTableRowsInserted(position, position);			
-		}
-
-		/* (non-Javadoc)
-		 * @see frost.util.model.OrderedModelListener#itemsRemoved(int[], frost.util.model.ModelItem[])
-		 */
-		public void itemsRemoved(int[] positions, ModelItem[] items) {
-			fireTableRowsDeleted(positions);			
-		}
-
-		/* (non-Javadoc)
-		 * @see frost.util.model.OrderedModelListener#modelCleared()
-		 */
-		public void modelCleared() {
-			fireTableDataChanged();			
-		}
-
-	}
 	
 	/**
 	 * Helper class to be able to safely get the selection fron any thread
@@ -184,10 +130,8 @@ public class ModelTable extends AbstractTableModel {
 	
 	private static Logger logger = Logger.getLogger(ModelTable.class.getName());
 
-	private Listener listener = new Listener();
-
 	protected ModelTableFormat tableFormat;	
-	protected OrderedModel model;
+	protected SortedModel model;
 	
 	protected JTable table;
 	private JScrollPane scrollPane;
@@ -195,12 +139,12 @@ public class ModelTable extends AbstractTableModel {
 	/**
 	 * This ArrayList contains the model indexes of the columns that are being shown
 	 */
-	private ArrayList visibleColumns = new ArrayList();
+	private ArrayList<Integer> visibleColumns = new ArrayList<Integer>();
 	
 	/**
 	 * This ArrayList contains all of the TableColumns that this ModelTable may show.
 	 */
-	private ArrayList columns = new ArrayList();
+	private ArrayList<TableColumn> columns = new ArrayList<TableColumn>();
 
 	/**
 	 * This method creates an instance of Model table with the given ModelTableFormat
@@ -222,7 +166,7 @@ public class ModelTable extends AbstractTableModel {
 	 * @param newTableFormat the ModelTableFormat that defines the visual representation
 	 * 						  of the data in the OrderedModel.
 	 */
-	public ModelTable(OrderedModel newModel, ModelTableFormat newTableFormat) {
+	protected ModelTable(SortedModel newModel, ModelTableFormat newTableFormat) {
 		super();
 		
 		model = newModel;
@@ -252,8 +196,6 @@ public class ModelTable extends AbstractTableModel {
 		for (int i = 0; i < columnModel.getColumnCount(); i++) {
 			columns.add(columnModel.getColumn(i));
 		}
-
-		model.addOrderedModelListener(listener);
 	}
 
 	/* (non-Javadoc)
@@ -426,7 +368,7 @@ public class ModelTable extends AbstractTableModel {
 	 * used in conjunction with the constructor that is only passed a ModelTableFormat)
 	 * @param model the OrderedModel this ModelTable will get the data from
 	 */
-	protected void setModel(OrderedModel newModel) {
+	protected void setModel(SortedModel newModel) {
 		model = newModel;
 	}
 

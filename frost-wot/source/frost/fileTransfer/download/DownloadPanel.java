@@ -22,6 +22,8 @@ import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.beans.*;
 import java.io.*;
+import java.util.*;
+import java.util.List;
 import java.util.logging.*;
 
 import javax.swing.*;
@@ -37,7 +39,6 @@ import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
-import frost.util.model.gui.*;
 
 public class DownloadPanel extends JPanel implements SettingsUpdater {
 	
@@ -121,9 +122,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			downloadTopPanel.add(downloadItemCountLabel);
 
 			// create the main download panel
-			DownloadTableFormat tableFormat = new DownloadTableFormat();
-
-			modelTable = new SortedModelTable(model, tableFormat);
+			modelTable = new SortedModelTable(model);
 			setLayout(new BorderLayout());
 			add(downloadTopPanel, BorderLayout.NORTH);
 			add(modelTable.getScrollPane(), BorderLayout.CENTER);
@@ -482,6 +481,9 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
         private JMenuItem prio4Item = null;
         private JMenuItem prio5Item = null;
         private JMenuItem prio6Item = null;
+        
+        private JMenuItem deleteExternalDownloads = null;
+        private JMenuItem retrieveDirectExternalDownloads = null;
     
         private JMenu copyToClipboardMenu = new JMenu();
         
@@ -524,6 +526,12 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                 prio4Item.addActionListener(this);
                 prio5Item.addActionListener(this);
                 prio6Item.addActionListener(this);
+                
+                deleteExternalDownloads = new JMenuItem();
+                deleteExternalDownloads.addActionListener(this);
+
+                retrieveDirectExternalDownloads = new JMenuItem();
+                retrieveDirectExternalDownloads.addActionListener(this);
             }
 
             refreshLanguage();
@@ -580,6 +588,9 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                 prio4Item.setText(language.getString("Common.priority.priority4"));
                 prio5Item.setText(language.getString("Common.priority.priority5"));
                 prio6Item.setText(language.getString("Common.priority.priority6"));
+                
+                deleteExternalDownloads.setText(language.getString("DownloadPane.fileTable.popupmenu.deleteExternalDownloads"));
+                retrieveDirectExternalDownloads.setText(language.getString("DownloadPane.fileTable.popupmenu.retrieveDirectExternalDownloads"));
             }
         }
         
@@ -629,12 +640,40 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                 changePriority(5);
             } else if (e.getSource() == prio6Item) {
                 changePriority(6);
+            } else if (e.getSource() == deleteExternalDownloads) {
+                deleteExternalDownloads();
+            } else if (e.getSource() == retrieveDirectExternalDownloads) {
+                retrieveDirectExternalDownloads();
             }
+        }
+
+        private void retrieveDirectExternalDownloads() {
+            ModelItem[] selectedItems = modelTable.getSelectedItems();
+            for(ModelItem mi : selectedItems) {
+                FrostDownloadItem item = (FrostDownloadItem) mi;
+                if( item.isExternal() && item.isDirect() && item.getState() == FrostDownloadItem.STATE_DONE ) {
+                    long expectedFileSize = item.getFileSize(); // set from global queue
+                    FileTransferManager.inst().getPersistenceManager().maybeEnqueueDirectGet(item, expectedFileSize);
+                }
+            }
+        }
+
+        private void deleteExternalDownloads() {
+            List<String> requestsToRemove = new LinkedList<String>();
+            ModelItem[] selectedItems = modelTable.getSelectedItems();
+            for( ModelItem mi : selectedItems ) {
+                FrostDownloadItem i = (FrostDownloadItem)mi;
+                if( !i.isExternal() ) {
+                    continue;
+                }
+                requestsToRemove.add(i.getGqIdentifier());
+            }
+            FileTransferManager.inst().getPersistenceManager().removeRequests(requestsToRemove);
         }
 
         private void changePriority(int prio) {
             ModelItem[] selectedItems = modelTable.getSelectedItems();
-            PersistenceManager.changeItemPriorites(selectedItems, prio);
+            FileTransferManager.inst().getPersistenceManager().changeItemPriorites(selectedItems, prio);
         }
 
         private void showDetails() {
@@ -766,17 +805,15 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
             removeAll();
     
             ModelItem[] selectedItems = modelTable.getSelectedItems();
-    
-            if (selectedItems.length > 0) {
-                add(copyToClipboardMenu);
-                addSeparator();
+
+            if( selectedItems.length == 0 ) {
+                return;
             }
-    
-            if (selectedItems.length != 0) {
-                // If at least 1 item is selected
-                add(restartSelectedDownloadsItem);
-                addSeparator();
-            }
+
+            add(copyToClipboardMenu);
+            addSeparator();
+            add(restartSelectedDownloadsItem);
+            addSeparator();
             
             if( PersistenceManager.isPersistenceEnabled() ) {
                 add(changePriorityMenu);
@@ -784,21 +821,34 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
             }
     
             JMenu enabledSubMenu = new JMenu(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads") + "...");
-            if (selectedItems.length != 0) {
-                // If at least 1 item is selected
-                enabledSubMenu.add(enableSelectedDownloadsItem);
-                enabledSubMenu.add(disableSelectedDownloadsItem);
-                enabledSubMenu.add(invertEnabledSelectedItem);
-                enabledSubMenu.addSeparator();
-            }
+            enabledSubMenu.add(enableSelectedDownloadsItem);
+            enabledSubMenu.add(disableSelectedDownloadsItem);
+            enabledSubMenu.add(invertEnabledSelectedItem);
+            enabledSubMenu.addSeparator();
+
             enabledSubMenu.add(enableAllDownloadsItem);
             enabledSubMenu.add(disableAllDownloadsItem);
             enabledSubMenu.add(invertEnabledAllItem);
             add(enabledSubMenu);
+            
+            for(ModelItem mi : selectedItems) {
+                FrostDownloadItem item = (FrostDownloadItem) mi;
+                // we only find external items if persistence is enabled
+                if( item.isExternal() && item.isDirect() && item.getState() == FrostDownloadItem.STATE_DONE ) {
+                    add(retrieveDirectExternalDownloads);
+                    break;
+                }
+            }
     
-            if (selectedItems.length != 0) {
-                // If at least 1 item is selected
-                add(removeSelectedDownloadsItem);
+            add(removeSelectedDownloadsItem);
+
+            for(ModelItem mi : selectedItems) {
+                FrostDownloadItem item = (FrostDownloadItem) mi;
+                // we only find external items if persistence is enabled
+                if( item.isExternal() ) {
+                    add(deleteExternalDownloads);
+                    break;
+                }
             }
     
             if( selectedItems.length == 1 ) {

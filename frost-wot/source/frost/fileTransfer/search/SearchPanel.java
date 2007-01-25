@@ -97,9 +97,8 @@ public class SearchPanel extends JPanel implements LanguageListener {
         
         String tabText = searchParams.getTabText();
 
-        SearchTableFormat tableFormat = new SearchTableFormat();
-        SearchModel model = new SearchModel();
-        SearchTable modelTable = new SearchTable(model, tableFormat, searchTabs, tabText);
+        SearchModel model = new SearchModel(new SearchTableFormat());
+        SearchTable modelTable = new SearchTable(model, searchTabs, tabText);
         
         ProxyPanel pp = new ProxyPanel(modelTable.getScrollPane(), model);
         

@@ -35,7 +35,7 @@ import frost.util.model.*;
  * protected attribute data when necessary). It is also assumed that the load
  * and save methods will not be used while other threads are under way.
  */
-public class SharedFilesModel extends OrderedModel implements Savable {
+public class SharedFilesModel extends SortedModel implements Savable {
     
     // TODO: for shared directories: add new files to another table, waiting for owner assignment
 
@@ -43,8 +43,8 @@ public class SharedFilesModel extends OrderedModel implements Savable {
     
     Timer timer;
 
-    public SharedFilesModel() {
-        super();
+    public SharedFilesModel(SortedTableFormat f) {
+        super(f);
 //        timer = new Timer();
 //        TimerTask tt = new TimerTask() {
 //            public void run() {

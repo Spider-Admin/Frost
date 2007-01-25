@@ -24,6 +24,7 @@ import java.util.logging.*;
 
 import frost.*;
 import frost.fcp.*;
+import frost.fileTransfer.*;
 import frost.storage.*;
 import frost.util.*;
 
@@ -87,7 +88,7 @@ public class UploadManager {
 
     public UploadModel getModel() {
         if (model == null) {
-            model = new UploadModel();
+            model = new UploadModel(new UploadTableFormat());
         }
         return model;
     }
@@ -171,6 +172,12 @@ public class UploadManager {
                 continue;
             }
             
+            if( FileTransferManager.inst().getPersistenceManager() != null ) {
+                if( FileTransferManager.inst().getPersistenceManager().isDirectTransferInProgress(ulItem) ) {
+                    continue;
+                }
+            }
+            
             // we choose items that are waiting, enabled and for 0.5 the encoding must be done before
             if (ulItem.getState() == FrostUploadItem.STATE_WAITING
                 && (ulItem.getKey() != null || FcpHandler.isFreenet07() ) )
@@ -198,12 +205,7 @@ public class UploadManager {
      */
     private static final Comparator<FrostUploadItem> uploadDlStopMillisCmp = new Comparator<FrostUploadItem>() {
         public int compare(FrostUploadItem value1, FrostUploadItem value2) {
-            if (value1.getLastUploadStopTimeMillis() > value2.getLastUploadStopTimeMillis())
-                return 1;
-            else if (value1.getLastUploadStopTimeMillis() < value2.getLastUploadStopTimeMillis())
-                return -1;
-            else
-                return 0;
+            return Mixed.compareLong(value1.getLastUploadStopTimeMillis(), value2.getLastUploadStopTimeMillis());
         }
     };
 }

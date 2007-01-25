@@ -23,10 +23,10 @@ import java.util.*;
 import frost.messages.*;
 import frost.util.model.*;
 
-public class UnsentMessagesTableModel extends OrderedModel {
+public class UnsentMessagesTableModel extends SortedModel {
 
-    public UnsentMessagesTableModel() {
-        super();
+    public UnsentMessagesTableModel(SortedTableFormat f) {
+        super(f);
     }
     
     public void loadTableModel() {

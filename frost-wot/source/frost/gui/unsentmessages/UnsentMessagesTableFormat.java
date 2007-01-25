@@ -29,7 +29,6 @@ import frost.*;
 import frost.fileTransfer.common.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
-import frost.util.model.gui.*;
 
 public class UnsentMessagesTableFormat extends SortedTableFormat implements LanguageListener, PropertyChangeListener {
 

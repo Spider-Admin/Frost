@@ -32,7 +32,6 @@ import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
-import frost.util.model.gui.*;
 
 class DownloadTableFormat extends SortedTableFormat implements LanguageListener, PropertyChangeListener {
 
@@ -43,6 +42,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 
     private static ImageIcon isSharedIcon = new ImageIcon((MainFrame.class.getResource("/data/shared.png")));
     private static ImageIcon isRequestedIcon = new ImageIcon((MainFrame.class.getResource("/data/signal.png")));
+    private static ImageIcon isDDAIcon = new ImageIcon((MainFrame.class.getResource("/data/hook.png")));
     
     private static final long CONST_32k = 32 * 1024;
     
@@ -254,6 +254,31 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
         }
     }
 
+    private class IsDDARenderer extends BaseRenderer {
+        public IsDDARenderer() {
+            super();
+        }
+        public Component getTableCellRendererComponent(
+            JTable table,
+            Object value,
+            boolean isSelected,
+            boolean hasFocus,
+            int row,
+            int column) {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+            Boolean b = (Boolean)value;
+            setText("");
+            if( b.booleanValue() ) {
+                // show icon
+                setIcon(isDDAIcon);
+            } else {
+                setIcon(null);
+            }
+            setToolTipText(isDDATooltip);
+            return this;
+        }
+    }
+
 	private class KeyComparator implements Comparator {
 		public int compare(Object o1, Object o2) {
 			String key1 = ((FrostDownloadItem) o1).getKey();
@@ -272,10 +297,20 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 		public int compare(Object o1, Object o2) {
 			int retries1 = ((FrostDownloadItem) o1).getRetries();
 			int retries2 = ((FrostDownloadItem) o2).getRetries();
-			return new Integer(retries1).compareTo(new Integer(retries2));
+			return Mixed.compareInt(retries1, retries2);
+//			return new Integer(retries1).compareTo(new Integer(retries2));
 		}
 	}
-	
+
+    private class PriorityComparator implements Comparator {
+        public int compare(Object o1, Object o2) {
+            int prio1 = ((FrostDownloadItem) o1).getPriority();
+            int prio2 = ((FrostDownloadItem) o2).getPriority();
+            return Mixed.compareInt(prio1, prio2);
+//          return new Integer(retries1).compareTo(new Integer(retries2));
+        }
+    }
+
 	private class BlocksComparator implements Comparator {
 		public int compare(Object o1, Object o2) {
 			FrostDownloadItem item1 = (FrostDownloadItem) o1;
@@ -291,7 +326,8 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 //					item2.getDoneBlocks(),
 //					item2.getRequiredBlocks());
 //			return blocks1.compareToIgnoreCase(blocks2); 
-            return new Integer(item1.getDoneBlocks()).compareTo(new Integer(item2.getDoneBlocks()));
+            return Mixed.compareInt(item1.getDoneBlocks(), item2.getDoneBlocks());
+//            return new Integer(item1.getDoneBlocks()).compareTo(new Integer(item2.getDoneBlocks()));
 		}
 	}
 	
@@ -384,19 +420,21 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
         }
     }
 
+    private class IsDDAComparator implements Comparator {
+        public int compare(Object o1, Object o2) {
+            FrostDownloadItem item1 = (FrostDownloadItem) o1;
+            FrostDownloadItem item2 = (FrostDownloadItem) o2;
+            Boolean b1 = Boolean.valueOf(item1.isDirect());
+            Boolean b2 = Boolean.valueOf(item2.isDirect());
+            return b1.compareTo(b2);
+        }
+    }
+
     private class LastReceivedComparator implements Comparator {
         public int compare(Object o1, Object o2) {
             FrostDownloadItem item1 = (FrostDownloadItem) o1;
             FrostDownloadItem item2 = (FrostDownloadItem) o2;
-            long l1 = item1.getLastReceived();
-            long l2 = item2.getLastReceived();
-            if( l1 < l2 ) {
-                return -1;
-            }
-            if( l1 > l2 ) {
-                return 1;
-            }
-            return 0;
+            return Mixed.compareLong(item1.getLastReceived(), item2.getLastReceived());
         }
     }
 
@@ -404,21 +442,14 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
         public int compare(Object o1, Object o2) {
             FrostDownloadItem item1 = (FrostDownloadItem) o1;
             FrostDownloadItem item2 = (FrostDownloadItem) o2;
-            long l1 = item1.getLastUploaded();
-            long l2 = item2.getLastUploaded();
-            if( l1 < l2 ) {
-                return -1;
-            }
-            if( l1 > l2 ) {
-                return 1;
-            }
-            return 0;
+            return Mixed.compareLong(item1.getLastUploaded(), item2.getLastUploaded());
         }
     }
 
 	private Language language;
 	
-	private final static int COLUMN_COUNT = 11;
+    // with persistence we have 2 additional columns: priority and isDDA
+    private final static int COLUMN_COUNT = ( PersistenceManager.isPersistenceEnabled() ? 13 : 11 );
 	
     private String stateWaiting;
     private String stateTrying;
@@ -431,6 +462,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
     
     private String isSharedTooltip;
     private String isRequestedTooltip;
+    private String isDDATooltip;
 
 	public DownloadTableFormat() {
 		super(COLUMN_COUNT);
@@ -450,6 +482,10 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 		setComparator(new BlocksComparator(), 8);
 		setComparator(new TriesComparator(), 9);
 		setComparator(new KeyComparator(), 10);
+        if( PersistenceManager.isPersistenceEnabled() ) {
+            setComparator(new IsDDAComparator(), 11);
+            setComparator(new PriorityComparator(), 12);
+        }
         
         showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
         Core.frostSettings.addPropertyChangeListener(this);
@@ -467,6 +503,10 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 		setColumnName(8, language.getString("DownloadPane.fileTable.blocks"));
 		setColumnName(9, language.getString("DownloadPane.fileTable.tries"));
 		setColumnName(10, language.getString("DownloadPane.fileTable.key"));
+        if( PersistenceManager.isPersistenceEnabled() ) {
+            setColumnName(11, language.getString("DownloadPane.fileTable.isDDA"));
+            setColumnName(12, language.getString("DownloadPane.fileTable.priority"));
+        }
 		
 		stateWaiting =  language.getString("DownloadPane.fileTable.states.waiting");
 		stateTrying =   language.getString("DownloadPane.fileTable.states.trying");
@@ -479,6 +519,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
         
         isSharedTooltip = language.getString("DownloadPane.fileTable.shared.tooltip");
         isRequestedTooltip = language.getString("DownloadPane.fileTable.requested.tooltip");
+        isDDATooltip = language.getString("DownloadPane.fileTable.isDDA.tooltip");
 		
 		refreshColumnNames();
 	}
@@ -549,6 +590,17 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 				} else {
 					return downloadItem.getKey();
 				}
+
+            case 11: // IsDDA
+                return Boolean.valueOf(!downloadItem.isDirect());
+
+            case 12: // Priority
+                int value = downloadItem.getPriority();
+                if( value < 0 ) {
+                    return "-";
+                } else {
+                    return new Integer(value);
+                }
 
 			default :
 				return "**ERROR**";
@@ -669,7 +721,17 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
         columnModel.getColumn(2).setMaxWidth(20);
         columnModel.getColumn(2).setPreferredWidth(20);
         columnModel.getColumn(2).setCellRenderer(new IsRequestedRenderer());
-
+        if( PersistenceManager.isPersistenceEnabled() ) {
+            // hard set sizes of IsDDA column
+            columnModel.getColumn(11).setMinWidth(20);
+            columnModel.getColumn(11).setMaxWidth(20);
+            columnModel.getColumn(11).setPreferredWidth(20);
+            // hard set sizes of priority column
+            columnModel.getColumn(12).setMinWidth(20);
+            columnModel.getColumn(12).setMaxWidth(20);
+            columnModel.getColumn(12).setPreferredWidth(20);
+        }
+        
         BaseRenderer baseRenderer = new BaseRenderer();
         RightAlignRenderer rightAlignRenderer = new RightAlignRenderer();
         ShowContentTooltipRenderer showContentTooltipRenderer = new ShowContentTooltipRenderer();
@@ -682,10 +744,22 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
         columnModel.getColumn(8).setCellRenderer(new BlocksProgressRenderer()); // blocks
         columnModel.getColumn(9).setCellRenderer(rightAlignRenderer); // tries
         columnModel.getColumn(10).setCellRenderer(showContentTooltipRenderer); // key
+        if( PersistenceManager.isPersistenceEnabled() ) {
+            columnModel.getColumn(11).setCellRenderer(new IsDDARenderer());
+            columnModel.getColumn(12).setCellRenderer(rightAlignRenderer);
+        }
 
         if( !loadTableLayout(columnModel) ) {
     		// Sets the relative widths of the columns
-    		int[] widths = { 20,20,20, 150, 30, 30, 20, 20, 70, 10, 60 };
+    		int[] widths;
+            if( PersistenceManager.isPersistenceEnabled() ) {
+                int[] newWidths = { 20,20,20, 150, 30, 30, 20, 20, 70, 10, 60, 20, 20 };
+                widths = newWidths;
+            } else {
+                int[] newWidths = { 20,20,20, 150, 30, 30, 20, 20, 70, 10, 60 };
+                widths = newWidths;
+            }
+
     		for (int i = 0; i < widths.length; i++) { 
     			columnModel.getColumn(i).setPreferredWidth(widths[i]);
     		}

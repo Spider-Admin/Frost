@@ -37,7 +37,6 @@ import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
-import frost.util.model.gui.*;
 
 public class SharedFilesPanel extends JPanel {
 
@@ -83,9 +82,7 @@ public class SharedFilesPanel extends JPanel {
             sharedFilesTopPanel.add(sharedFilesCountLabel);
 
             // create the main upload panel
-            SharedFilesTableFormat tableFormat = new SharedFilesTableFormat();
-
-            modelTable = new SortedModelTable(model, tableFormat);
+            modelTable = new SortedModelTable(model);
             setLayout(new BorderLayout());
             add(sharedFilesTopPanel, BorderLayout.NORTH);
             add(modelTable.getScrollPane(), BorderLayout.CENTER);
@@ -234,18 +231,16 @@ public class SharedFilesPanel extends JPanel {
     public void setModel(SharedFilesModel model) {
         this.model = model;
         
-        model.addModelListener(new ModelListener() {
-            public void itemAdded(ModelItem item) {
-                updateSharedFilesItemCount();
-            }
-            public void itemChanged(ModelItem item, int fieldID, Object oldValue, Object newValue) {
-            }
-            public void itemChanged(ModelItem item) {
-            }
-            public void itemsRemoved(ModelItem[] items) {
-                updateSharedFilesItemCount();
-            }
+        model.addOrderedModelListener(new SortedModelListener() {
             public void modelCleared() {
+                updateSharedFilesItemCount();
+            }
+            public void itemAdded(int position, ModelItem item) {
+                updateSharedFilesItemCount();
+            }
+            public void itemChanged(int position, ModelItem item) {
+            }
+            public void itemsRemoved(int[] positions, ModelItem[] items) {
                 updateSharedFilesItemCount();
             }
         });

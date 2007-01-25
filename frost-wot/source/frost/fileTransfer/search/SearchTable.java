@@ -32,7 +32,6 @@ import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
-import frost.util.model.gui.*;
 
 public class SearchTable extends SortedModelTable {
 
@@ -45,8 +44,8 @@ public class SearchTable extends SortedModelTable {
     
     private java.util.List<FrostSearchItem> searchItems = new LinkedList<FrostSearchItem>();
     
-    public SearchTable(SearchModel m, SearchTableFormat f, CloseableTabbedPane t, String searchText) {
-        super(m, f);
+    public SearchTable(SearchModel m, CloseableTabbedPane t, String searchText) {
+        super(m);
         
         searchModel = m;
         tabPane = t;

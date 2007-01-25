@@ -35,6 +35,8 @@ public class FileTransferManager implements Savable {
     private UploadManager uploadManager;
     private SharedFilesManager sharedFilesManager;
     private NewUploadFilesManager newUploadFilesManager;
+
+    private PersistenceManager persistenceManager = null;
     
     private static FileTransferManager instance = null;
     
@@ -55,7 +57,16 @@ public class FileTransferManager implements Savable {
         getSharedFilesManager().initialize();
         getUploadManager().initialize( getSharedFilesManager().getModel().getItems() );
         getNewUploadFilesManager().initialize();
-        PersistenceManager.initialize(getUploadManager().getModel(), getDownloadManager().getModel());
+        
+        if( PersistenceManager.isPersistenceEnabled() && Core.isFreenetOnline() ) {
+
+            boolean wasOk = ((FcpHandler07)FcpHandler.inst()).initializePersistence();
+            if( !wasOk ) {
+                System.out.println("FAILED TO ESTABLISH THE PERSISTENT CONNECTION!");
+            } else {
+                persistenceManager = new PersistenceManager(getUploadManager().getModel(), getDownloadManager().getModel());
+            }
+        }
         
         // call order is order of panels in gui
         MainFrame mainFrame = MainFrame.getInstance();
@@ -64,6 +75,13 @@ public class FileTransferManager implements Savable {
         getSearchManager().addPanelToMainFrame(mainFrame);
         getSharedFilesManager().addPanelToMainFrame(mainFrame);
     }
+
+    /**
+     * @return  null if not using persistence
+     */
+    public PersistenceManager getPersistenceManager() {
+        return persistenceManager;
+    }
     
     public void startTickers() {
         getDownloadManager().startTicker();
@@ -71,16 +89,8 @@ public class FileTransferManager implements Savable {
         getNewUploadFilesManager().start();
         
         // maybe start persistence threads
-        if( FcpHandler.isFreenet07()
-                && Core.isFreenetOnline()
-                && Core.frostSettings.getBoolValue(SettingsClass.FCP2_USE_PERSISTENCE) )
-        {
-            boolean wasOk = ((FcpHandler07)FcpHandler.inst()).initializePersistence();
-            if( !wasOk ) {
-                System.out.println("FAILED TO ESTABLISH THE PERSISTENT CONNECTION!");
-            } else {
-                PersistenceManager.startThreads(); // was initialized by FileTransferManager
-            }
+        if( getPersistenceManager() != null ) {
+            getPersistenceManager().startThreads();
         }
     }
 

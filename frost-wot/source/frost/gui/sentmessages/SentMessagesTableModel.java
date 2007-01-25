@@ -23,10 +23,10 @@ import java.util.*;
 import frost.messages.*;
 import frost.util.model.*;
 
-public class SentMessagesTableModel extends OrderedModel {
+public class SentMessagesTableModel extends SortedModel {
 
-    public SentMessagesTableModel() {
-        super();
+    public SentMessagesTableModel(SortedTableFormat f) {
+        super(f);
     }
     
     public void loadTableModel() {

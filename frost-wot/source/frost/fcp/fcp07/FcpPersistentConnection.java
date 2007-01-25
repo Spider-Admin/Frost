@@ -89,7 +89,7 @@ public class FcpPersistentConnection {
     
     protected void handleNodeMessage(NodeMessage nodeMsg) {
         
-//        System.out.println("Added: "+nodeMsg.toString());
+//        System.out.println("### Added: "+nodeMsg.toString());
         
         String id = nodeMsg.getStringValue("Identifier");
         // Guaranteed to return a non-null array
@@ -183,7 +183,7 @@ public class FcpPersistentConnection {
                 if( nodeMsg == null ) {
                     break; // socket closed
                 }
-                
+
                 // notify listeners
                 handleNodeMessage(nodeMsg);
             }

@@ -29,7 +29,6 @@ import frost.messages.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
-import frost.util.model.gui.*;
 
 public class UnsentMessagesTable extends SortedModelTable {
     
@@ -40,13 +39,13 @@ public class UnsentMessagesTable extends SortedModelTable {
     private Language language = Language.getInstance();
     
     public UnsentMessagesTable() {
-        this(new UnsentMessagesTableModel(), new UnsentMessagesTableFormat());
+        this(new UnsentMessagesTableModel(new UnsentMessagesTableFormat()));
     }
     
-    private UnsentMessagesTable(UnsentMessagesTableModel m, UnsentMessagesTableFormat f) {
-        super(m, f);
+    private UnsentMessagesTable(UnsentMessagesTableModel m) {
+        super(m);
         tableModel = m;
-        tableFormat = f;
+        tableFormat = (UnsentMessagesTableFormat)m.getTableFormat();
         
         setupTableFont();
         getTable().setBorder(BorderFactory.createEmptyBorder(2,2,2,2));

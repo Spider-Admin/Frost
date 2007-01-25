@@ -34,7 +34,6 @@ import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
-import frost.util.model.gui.*;
 
 public class FileListFileDetailsDialog extends JDialog {
 
@@ -168,9 +167,9 @@ public class FileListFileDetailsDialog extends JDialog {
     
     private SortedModelTable getModelTable() {
         if( modelTable == null ) {
-            model = new FileListFileDetailsTableModel();
             tableFormat = new FileListFileDetailsTableFormat();
-            modelTable = new SortedModelTable(model, tableFormat);
+            model = new FileListFileDetailsTableModel(tableFormat);
+            modelTable = new SortedModelTable(model);
             
             modelTable.getScrollPane().addMouseListener(listener);
             modelTable.getTable().addMouseListener(listener);
