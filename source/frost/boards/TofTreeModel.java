@@ -25,6 +25,7 @@ import java.util.logging.*;
 
 import javax.swing.tree.*;
 
+import frost.gui.*;
 import frost.storage.database.applayer.*;
 
 /**
@@ -134,7 +135,10 @@ public class TofTreeModel extends DefaultTreeModel {
                     boardsToDelete.add(node);
                 }
             }
-            
+
+            // add to known boards
+            KnownBoardsManager.addNewKnownBoards(boardsToDelete);
+
             // remove from tree
             int[] childIndices = { parent.getIndex(node) };
             Object[] removedChilds = { node };

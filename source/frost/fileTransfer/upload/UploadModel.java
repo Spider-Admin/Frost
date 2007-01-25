@@ -38,12 +38,12 @@ import frost.util.model.*;
  * protected attribute data when necessary). It is also assumed that the load
  * and save methods will not be used while other threads are under way.
  */
-public class UploadModel extends OrderedModel implements Savable {
+public class UploadModel extends SortedModel implements Savable {
     
     private static Logger logger = Logger.getLogger(UploadModel.class.getName());
 
-    public UploadModel() {
-        super();
+    public UploadModel(SortedTableFormat f) {
+        super(f);
     }
     
     public boolean addNewUploadItemFromSharedFile(FrostSharedFileItem sfi) {

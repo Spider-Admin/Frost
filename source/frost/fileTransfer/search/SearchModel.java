@@ -24,12 +24,12 @@ import frost.fileTransfer.*;
 import frost.fileTransfer.download.*;
 import frost.util.model.*;
 
-public class SearchModel extends OrderedModel {
+public class SearchModel extends SortedModel {
 
     private DownloadModel downloadModel;
 
-    public SearchModel() {
-        super();
+    public SearchModel(SortedTableFormat f) {
+        super(f);
         downloadModel = FileTransferManager.inst().getDownloadManager().getModel();
     }
 

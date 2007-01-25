@@ -27,15 +27,15 @@ import frost.ext.*;
 public class FcpPersistentConnectionTools {
 
     private static Logger logger = Logger.getLogger(FcpPersistentConnectionTools.class.getName());
-
-    public static boolean isInitialized() {
+    
+    public boolean isInitialized() {
         return FcpPersistentConnection.isInitialized();
     }
 
     /**
      * No answer from node is expected.
      */
-    public static void changeRequestPriority(String id, int newPrio) {
+    public void changeRequestPriority(String id, int newPrio) {
         List<String> msg = new LinkedList<String>();
         msg.add("ModifyPersistentRequest");
         msg.add("Global=true");
@@ -47,7 +47,7 @@ public class FcpPersistentConnectionTools {
     /**
      * No answer from node is expected.
      */
-    public static void removeRequest(String id) {
+    public void removeRequest(String id) {
         List<String> msg = new LinkedList<String>();
         msg.add("RemovePersistentRequest");
         msg.add("Global=true");
@@ -58,7 +58,7 @@ public class FcpPersistentConnectionTools {
     /**
      * No answer from node is expected.
      */
-    public static void watchGlobal() {
+    public void watchGlobal() {
         List<String> msg = new LinkedList<String>();
         msg.add("WatchGlobal");
         msg.add("Enabled=true");
@@ -69,7 +69,7 @@ public class FcpPersistentConnectionTools {
     /**
      * Starts a persistent put.
      */
-    public static void startPersistentPut(String id, File sourceFile, boolean doMime) {
+    public void startPersistentPut(String id, File sourceFile, boolean doMime) {
 
         // else start a new request with DDA
         List<String> msg = getDefaultPutMessage(id, sourceFile, doMime);
@@ -84,7 +84,7 @@ public class FcpPersistentConnectionTools {
      * If DDA=false then the request is enqueued as DIRECT and must be retrieved manually
      * after the get completed successfully. Use startDirectPersistentGet to fetch the data.
      */
-    public static void startPersistentGet(String key, String id, File targetFile) {
+    public void startPersistentGet(String key, String id, File targetFile) {
         // start the persistent get. if DDA=false, then we have to fetch the file after the successful get from node
         List<String> msg = new LinkedList<String>();
         msg.add("ClientGet");
@@ -114,7 +114,7 @@ public class FcpPersistentConnectionTools {
         FcpPersistentConnection.getInstance().sendMessage(msg, true);
     }
 
-    public static void listPersistentRequests() {
+    public void listPersistentRequests() {
         List<String> msg = new LinkedList<String>();
         msg.add("ListPersistentRequests");
         FcpPersistentConnection.getInstance().sendMessage(msg, true);
@@ -123,7 +123,7 @@ public class FcpPersistentConnectionTools {
     /**
      * Returns the common part of a put request, used for a put with type DIRECT and DISK together.
      */
-    private static List<String> getDefaultPutMessage(String id, File sourceFile, boolean doMime) {
+    private List<String> getDefaultPutMessage(String id, File sourceFile, boolean doMime) {
         LinkedList<String> lst = new LinkedList<String>();
         lst.add("ClientPut");
         lst.add("URI=CHK@");
@@ -148,7 +148,7 @@ public class FcpPersistentConnectionTools {
      * Returns the first NodeMessage sent by the node after the transfer (PersistentPut or any error message).
      * After this method was called this connection is unuseable.
      */
-    public static NodeMessage startDirectPersistentPut(String id, File sourceFile, boolean doMime) throws IOException {
+    public NodeMessage startDirectPersistentPut(String id, File sourceFile, boolean doMime) throws IOException {
         
         FcpSocket newSocket = FcpSocket.create(FcpPersistentConnection.getInstance().getNodeAddress());
         if( newSocket == null ) {
@@ -199,7 +199,7 @@ public class FcpPersistentConnectionTools {
      * Retrieves a completed get from the node buffer DIRECT.
      * After this method was called this connection is unuseable.
      */
-    public static NodeMessage startDirectPersistentGet(String id, File targetFile) throws IOException {
+    public NodeMessage startDirectPersistentGet(String id, File targetFile) throws IOException {
 
         FcpSocket newSocket = FcpSocket.create(FcpPersistentConnection.getInstance().getNodeAddress());
         if( newSocket == null ) {

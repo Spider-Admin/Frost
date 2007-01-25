@@ -29,7 +29,6 @@ import frost.messages.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
-import frost.util.model.gui.*;
 
 public class SentMessagesTable extends SortedModelTable {
 
@@ -40,13 +39,13 @@ public class SentMessagesTable extends SortedModelTable {
     private Language language = Language.getInstance();
     
     public SentMessagesTable() {
-        this(new SentMessagesTableModel(), new SentMessagesTableFormat());
+        this(new SentMessagesTableModel(new SentMessagesTableFormat()));
     }
     
-    private SentMessagesTable(SentMessagesTableModel m, SentMessagesTableFormat f) {
-        super(m, f);
+    private SentMessagesTable(SentMessagesTableModel m) {
+        super(m);
         tableModel = m;
-        tableFormat = f;
+        tableFormat = (SentMessagesTableFormat)m.getTableFormat();
         
         setupTableFont();
         getTable().setBorder(BorderFactory.createEmptyBorder(2,2,2,2));

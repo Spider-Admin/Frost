@@ -82,7 +82,7 @@ public class SharedFilesManager implements PropertyChangeListener {
 
     public SharedFilesModel getModel() {
         if (model == null) {
-            model = new SharedFilesModel();
+            model = new SharedFilesModel(new SharedFilesTableFormat());
         }
         return model;
     }

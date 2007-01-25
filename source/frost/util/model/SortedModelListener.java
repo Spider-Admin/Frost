@@ -1,5 +1,5 @@
 /*
- ModelListener.java / Frost
+ SortedModelListener.java / Frost
  Copyright (C) 2003  Frost Project <jtcfrost.sourceforge.net>
 
  This program is free software; you can redistribute it and/or
@@ -20,34 +20,28 @@ package frost.util.model;
 
 import java.util.EventListener;
 
-public interface ModelListener extends EventListener {
+public interface SortedModelListener extends EventListener {
 
 	/**
-	 * @param item
-	 * @param fieldID
-	 * @param oldValue
-	 * @param newValue
+	 * @param position
+	 * @param item 
 	 */
-	void itemChanged(ModelItem item, int fieldID, Object oldValue, Object newValue);
+	void itemChanged(int position, ModelItem item);
 
 	/**
+	 * @param position
 	 * @param item
 	 */
-	void itemChanged(ModelItem item);
+	void itemAdded(int position, ModelItem item);
 
 	/**
-	 * @param item
+	 * @param positions
+	 * @param items
 	 */
-	void itemAdded(ModelItem item);
+	void itemsRemoved(int[] positions, ModelItem[] items);
 	
 	/**
 	 * @param item
 	 */
 	void modelCleared();
-
-	/**
-	 * @param items
-	 */
-	void itemsRemoved(ModelItem[] items);
-
 }

@@ -133,16 +133,16 @@ public class NodeMessage {
     }
     
     public String getStringValue(String name) {
-        return (String)items.get(name);
+        return items.get(name);
     }
     public long getLongValue(String name) {
-        return Long.parseLong((String)(items.get(name)));
+        return Long.parseLong(items.get(name));
     }
     public int getIntValue(String name) {
-        return Integer.parseInt((String)(items.get(name)));
+        return Integer.parseInt(items.get(name));
     }
     public boolean getBoolValue(String name) {
-        return "true".equalsIgnoreCase((String)items.get(name));
+        return "true".equalsIgnoreCase(items.get(name));
     }
     
     public void addItem(String key, String value) {

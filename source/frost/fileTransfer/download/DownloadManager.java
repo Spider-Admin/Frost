@@ -117,7 +117,7 @@ public class DownloadManager {
 	
 	public DownloadModel getModel() {
 		if (model == null) {
-			model = new DownloadModel();	
+			model = new DownloadModel(new DownloadTableFormat());	
 		}
 		return model;
 	}
@@ -129,7 +129,10 @@ public class DownloadManager {
 		return ticker;
 	}
 
-    public void notifyDownloadFinished(FrostDownloadItem downloadItem, FcpResultGet result, File targetFile) {
+    /**
+     * @return  true if request should be retried
+     */
+    public boolean notifyDownloadFinished(FrostDownloadItem downloadItem, FcpResultGet result, File targetFile) {
 
         String filename = downloadItem.getFilename();
         String key = downloadItem.getKey();
@@ -213,6 +216,8 @@ public class DownloadManager {
         } else {
             downloadItem.setLastDownloadStopTime(System.currentTimeMillis());
         }
+        
+        return retryImmediately;
     }
     
     /**
@@ -265,13 +270,7 @@ public class DownloadManager {
      */
     private static final Comparator<FrostDownloadItem> downloadDlStopMillisCmp = new Comparator<FrostDownloadItem>() {
         public int compare(FrostDownloadItem value1, FrostDownloadItem value2) {
-            if (value1.getLastDownloadStopTime() > value2.getLastDownloadStopTime()) {
-                return 1;
-            } else if (value1.getLastDownloadStopTime() < value2.getLastDownloadStopTime()) {
-                return -1;
-            } else {
-                return 0;
-            }
+            return Mixed.compareLong(value1.getLastDownloadStopTime(), value2.getLastDownloadStopTime());
         }
     };
 }

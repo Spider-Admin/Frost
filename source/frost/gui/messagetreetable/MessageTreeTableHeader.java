@@ -26,7 +26,7 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.table.*;
 
-import frost.util.model.gui.*;
+import frost.util.model.*;
 
 public class MessageTreeTableHeader extends JTableHeader {
     

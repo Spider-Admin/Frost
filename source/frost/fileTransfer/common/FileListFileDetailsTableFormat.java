@@ -29,7 +29,6 @@ import frost.gui.*;
 import frost.identities.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
-import frost.util.model.gui.*;
 
 public class FileListFileDetailsTableFormat extends SortedTableFormat implements LanguageListener {
     

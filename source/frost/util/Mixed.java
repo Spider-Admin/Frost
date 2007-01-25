@@ -55,6 +55,32 @@ public final class Mixed {
         
         return uniqueId;
     }
+    
+    /**
+     * Returns same as Integer.compareTo(), but without to create Integer objects.
+     */
+    public static int compareInt(int i1, int i2) {
+        if( i1 < i2 ) {
+            return -1;
+        } else if( i1 > i2 ) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    /**
+     * Returns same as Long.compareTo(), but without to create Long objects.
+     */
+    public static int compareLong(long i1, long i2) {
+        if( i1 < i2 ) {
+            return -1;
+        } else if( i1 > i2 ) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
 
     /**
      * Waits for a specific number of ms

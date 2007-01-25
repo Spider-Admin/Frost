@@ -35,12 +35,12 @@ import frost.util.model.*;
  * protected attribute data when necessary). It is also assumed that the load
  * and save methods will not be used while other threads are under way.
  */
-public class DownloadModel extends OrderedModel implements Savable {
+public class DownloadModel extends SortedModel implements Savable {
 	
 	private static Logger logger = Logger.getLogger(DownloadModel.class.getName());
 
-	public DownloadModel() {
-		super();
+	public DownloadModel(SortedTableFormat f) {
+		super(f);
 	}
 	
 	/**

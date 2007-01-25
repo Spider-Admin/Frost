@@ -31,7 +31,6 @@ import frost.gui.*;
 import frost.util.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
-import frost.util.model.gui.*;
 
 class SharedFilesTableFormat extends SortedTableFormat implements LanguageListener, PropertyChangeListener  {
 

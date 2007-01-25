@@ -16,7 +16,7 @@
  along with this program; if not, write to the Free Software
  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.util.model.gui;
+package frost.util.model;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -24,7 +24,6 @@ import java.util.logging.Logger;
 import javax.swing.JTable;
 import javax.swing.table.*;
 
-import frost.util.model.ModelItem;
 
 public abstract class AbstractTableFormat implements ModelTableFormat {
 
