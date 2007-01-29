@@ -200,113 +200,125 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
 
         AttachmentList files = mo.getAttachmentsOfType(Attachment.FILE);
         AttachmentList boards = mo.getAttachmentsOfType(Attachment.BOARD);
-
+        
         // insert msg and all attachments
-        AppLayerDatabase db = AppLayerDatabase.getInstance();
-        PreparedStatement ps = db.prepareStatement(
-            "INSERT INTO "+getMessageTableName()+" ("+
-            "primkey,messageid,inreplyto,isvalid,invalidreason,msgdatetime,msgindex,board,fromname,subject,recipient,signature," +
-            "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,hasfileattachment,hasboardattachment,idlinepos,idlinelen"+
-            ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+        Connection conn = AppLayerDatabase.getInstance().getPooledConnection();
+        try {
+            conn.setAutoCommit(false);
         
-        Long identity = null;
-        Statement stmt = AppLayerDatabase.getInstance().createStatement();
-        ResultSet rs = stmt.executeQuery("select UNIQUEKEY('"+getMessageTableName()+"')");
-        if( rs.next() ) {
-            identity = new Long(rs.getLong(1));
-        } else {
-            logger.log(Level.SEVERE,"Could not retrieve a new unique key!");
-        }
-        rs.close();
-        stmt.close();
-        
-        int i=1;
-        ps.setLong(i++, identity.longValue()); // primkey
-        ps.setString(i++, mo.getMessageId()); // messageid
-        ps.setString(i++, mo.getInReplyTo()); // inreplyto
-        ps.setBoolean(i++, mo.isValid()); // isvalid
-        ps.setString(i++, mo.getInvalidReason()); // invalidreason
-        ps.setLong(i++, mo.getDateAndTime().getMillis()); // date+time  
-        ps.setInt(i++, mo.getIndex()); // index
-        ps.setInt(i++, mo.getBoard().getPrimaryKey().intValue()); // board
-        ps.setString(i++, mo.getFromName()); // from
-        ps.setString(i++, mo.getSubject()); // subject
-        ps.setString(i++, ((mo.getRecipientName()!=null&&mo.getRecipientName().length()==0)?null:mo.getRecipientName()) ); // recipient
-        ps.setString(i++, mo.getSignature()); // signature
-        ps.setInt(i++, mo.getSignatureStatus()); // signaturestatus
-        ps.setString(i++, mo.getPublicKey()); // publickey
-        ps.setBoolean(i++, mo.isDeleted()); // isdeleted
-        ps.setBoolean(i++, mo.isNew()); // isnew
-        ps.setBoolean(i++, mo.isReplied()); // isreplied
-        ps.setBoolean(i++, mo.isJunk()); // isjunk
-        ps.setBoolean(i++, mo.isFlagged()); // isflagged
-        ps.setBoolean(i++, mo.isStarred()); // isstarred
-        ps.setBoolean(i++, (files.size() > 0)); // hasfileattachment
-        ps.setBoolean(i++, (boards.size() > 0)); // hasboardattachment
-        ps.setInt(i++, mo.getIdLinePos()); // idlinepos
-        ps.setInt(i++, mo.getIdLineLen()); // idlinelen
-        
-        int inserted = ps.executeUpdate();
-        ps.close();
-
-        if( inserted == 0 ) {
-            logger.log(Level.SEVERE, "message insert returned 0 !!!");
-            return;
-        }
-        
-        mo.setMsgIdentity(identity.longValue());
-        
-        // content
-        PreparedStatement pc = db.prepareStatement(
-                "INSERT INTO "+getContentTableName()+
-                " (msgref,msgcontent) VALUES (?,?)");
-        pc.setLong(1, mo.getMsgIdentity());
-        pc.setString(2, mo.getContent());
-        if( pc.executeUpdate() == 0 ) {
-            logger.log(Level.SEVERE, "message content insert returned 0 !!!");
-        }
-        pc.close();
-
-        // attachments
-        if( files.size() > 0 ) {
-            PreparedStatement p = db.prepareStatement(
-                    "INSERT INTO "+getFileAttachmentsTableName()+
-                    " (msgref,filename,filesize,filekey)"+
-                    " VALUES (?,?,?,?)");
-            for(Iterator it=files.iterator(); it.hasNext(); ) {
-                FileAttachment fa = (FileAttachment)it.next();
-                int ix=1;
-                p.setLong(ix++, mo.getMsgIdentity()); 
-                p.setString(ix++, fa.getFilename()); 
-                p.setLong(ix++, fa.getSize().longValue()); 
-                p.setString(ix++, fa.getKey()); 
-                int ins = p.executeUpdate();
-                if( ins == 0 ) {
-                    logger.log(Level.SEVERE, "fileattachment insert returned 0 !!!");
-                }
+            PreparedStatement ps = conn.prepareStatement(
+                "INSERT INTO "+getMessageTableName()+" ("+
+                "primkey,messageid,inreplyto,isvalid,invalidreason,msgdatetime,msgindex,board,fromname,subject,recipient,signature," +
+                "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,hasfileattachment,hasboardattachment,idlinepos,idlinelen"+
+                ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+            
+            Long identity = null;
+            Statement stmt = AppLayerDatabase.getInstance().createStatement();
+            ResultSet rs = stmt.executeQuery("select UNIQUEKEY('"+getMessageTableName()+"')");
+            if( rs.next() ) {
+                identity = new Long(rs.getLong(1));
+            } else {
+                logger.log(Level.SEVERE,"Could not retrieve a new unique key!");
             }
-            p.close();
-        }
-        if( boards.size() > 0 ) {
-            PreparedStatement p = db.prepareStatement(
-                    "INSERT INTO "+getBoardAttachmentsTableName()+
-                    " (msgref,boardname,boardpublickey,boardprivatekey,boarddescription)"+
-                    " VALUES (?,?,?,?,?)");
-            for(Iterator it=boards.iterator(); it.hasNext(); ) {
-                BoardAttachment ba = (BoardAttachment)it.next();
-                Board b = ba.getBoardObj();
-                int ix=1;
-                p.setLong(ix++, mo.getMsgIdentity()); 
-                p.setString(ix++, b.getNameLowerCase()); 
-                p.setString(ix++, b.getPublicKey()); 
-                p.setString(ix++, b.getPrivateKey()); 
-                p.setString(ix++, b.getDescription()); 
-                int ins = p.executeUpdate();
-                if( ins == 0 ) {
-                    logger.log(Level.SEVERE, "boardattachment insert returned 0 !!!");
-                }
+            rs.close();
+            stmt.close();
+            
+            int i=1;
+            ps.setLong(i++, identity.longValue()); // primkey
+            ps.setString(i++, mo.getMessageId()); // messageid
+            ps.setString(i++, mo.getInReplyTo()); // inreplyto
+            ps.setBoolean(i++, mo.isValid()); // isvalid
+            ps.setString(i++, mo.getInvalidReason()); // invalidreason
+            ps.setLong(i++, mo.getDateAndTime().getMillis()); // date+time  
+            ps.setInt(i++, mo.getIndex()); // index
+            ps.setInt(i++, mo.getBoard().getPrimaryKey().intValue()); // board
+            ps.setString(i++, mo.getFromName()); // from
+            ps.setString(i++, mo.getSubject()); // subject
+            ps.setString(i++, ((mo.getRecipientName()!=null&&mo.getRecipientName().length()==0)?null:mo.getRecipientName()) ); // recipient
+            ps.setString(i++, mo.getSignature()); // signature
+            ps.setInt(i++, mo.getSignatureStatus()); // signaturestatus
+            ps.setString(i++, mo.getPublicKey()); // publickey
+            ps.setBoolean(i++, mo.isDeleted()); // isdeleted
+            ps.setBoolean(i++, mo.isNew()); // isnew
+            ps.setBoolean(i++, mo.isReplied()); // isreplied
+            ps.setBoolean(i++, mo.isJunk()); // isjunk
+            ps.setBoolean(i++, mo.isFlagged()); // isflagged
+            ps.setBoolean(i++, mo.isStarred()); // isstarred
+            ps.setBoolean(i++, (files.size() > 0)); // hasfileattachment
+            ps.setBoolean(i++, (boards.size() > 0)); // hasboardattachment
+            ps.setInt(i++, mo.getIdLinePos()); // idlinepos
+            ps.setInt(i++, mo.getIdLineLen()); // idlinelen
+            
+            int inserted = ps.executeUpdate();
+            ps.close();
+    
+            if( inserted == 0 ) {
+                logger.log(Level.SEVERE, "message insert returned 0 !!!");
+                return;
             }
-            p.close();
+            
+            mo.setMsgIdentity(identity.longValue());
+            
+            // content
+            PreparedStatement pc = conn.prepareStatement(
+                    "INSERT INTO "+getContentTableName()+
+                    " (msgref,msgcontent) VALUES (?,?)");
+            pc.setLong(1, mo.getMsgIdentity());
+            pc.setString(2, mo.getContent());
+            if( pc.executeUpdate() == 0 ) {
+                logger.log(Level.SEVERE, "message content insert returned 0 !!!");
+            }
+            pc.close();
+    
+            // attachments
+            if( files.size() > 0 ) {
+                PreparedStatement p = conn.prepareStatement(
+                        "INSERT INTO "+getFileAttachmentsTableName()+
+                        " (msgref,filename,filesize,filekey)"+
+                        " VALUES (?,?,?,?)");
+                for(Iterator it=files.iterator(); it.hasNext(); ) {
+                    FileAttachment fa = (FileAttachment)it.next();
+                    int ix=1;
+                    p.setLong(ix++, mo.getMsgIdentity()); 
+                    p.setString(ix++, fa.getFilename()); 
+                    p.setLong(ix++, fa.getSize().longValue()); 
+                    p.setString(ix++, fa.getKey()); 
+                    int ins = p.executeUpdate();
+                    if( ins == 0 ) {
+                        logger.log(Level.SEVERE, "fileattachment insert returned 0 !!!");
+                    }
+                }
+                p.close();
+            }
+            if( boards.size() > 0 ) {
+                PreparedStatement p = conn.prepareStatement(
+                        "INSERT INTO "+getBoardAttachmentsTableName()+
+                        " (msgref,boardname,boardpublickey,boardprivatekey,boarddescription)"+
+                        " VALUES (?,?,?,?,?)");
+                for(Iterator it=boards.iterator(); it.hasNext(); ) {
+                    BoardAttachment ba = (BoardAttachment)it.next();
+                    Board b = ba.getBoardObj();
+                    int ix=1;
+                    p.setLong(ix++, mo.getMsgIdentity()); 
+                    p.setString(ix++, b.getNameLowerCase()); 
+                    p.setString(ix++, b.getPublicKey()); 
+                    p.setString(ix++, b.getPrivateKey()); 
+                    p.setString(ix++, b.getDescription()); 
+                    int ins = p.executeUpdate();
+                    if( ins == 0 ) {
+                        logger.log(Level.SEVERE, "boardattachment insert returned 0 !!!");
+                    }
+                }
+                p.close();
+            }
+            conn.commit();
+            conn.setAutoCommit(true);
+        } catch(Throwable t) {
+            logger.log(Level.SEVERE, "Exception during insert of message", t);
+            try { conn.rollback(); } catch(Throwable t1) { logger.log(Level.SEVERE, "Exception during rollback", t1); }
+            try { conn.setAutoCommit(true); } catch(Throwable t1) { }
+        } finally {
+            AppLayerDatabase.getInstance().givePooledConnection(conn);
         }
     }
 

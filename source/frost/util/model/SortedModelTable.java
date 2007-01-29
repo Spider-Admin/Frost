@@ -34,8 +34,8 @@ public class SortedModelTable extends ModelTable {
 	 * @param newTableFormat
 	 */
 	public SortedModelTable(SortedModel newModel) {
-			
-		super(newModel.getTableFormat());
+
+        super(newModel.getTableFormat());
         
         newModel.setTable(this);
         
