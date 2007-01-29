@@ -42,7 +42,7 @@ public class DownloadModel extends SortedModel implements Savable {
 	public DownloadModel(SortedTableFormat f) {
 		super(f);
 	}
-	
+    
 	/**
 	 * Will add this item to model if not already in model.
 	 */

@@ -705,6 +705,10 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
             long refkey = rs.getLong(1);
             
             FrostFileListFileObject fo = getFrostFileListFileObject(refkey);
+            if( fo == null ) {
+                // db corrupted, no file for this owner refkey, should not be possible due to constraints
+                continue;
+            }
             List<FrostFileListFileObjectOwner> obs = getFrostFileListFileObjectOwnerList(refkey);
             fo.getFrostFileListFileObjectOwnerList().addAll(obs);
             

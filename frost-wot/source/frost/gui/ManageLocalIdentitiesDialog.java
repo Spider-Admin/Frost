@@ -69,9 +69,10 @@ public class ManageLocalIdentitiesDialog extends JDialog {
      * This is the default constructor
      */
     public ManageLocalIdentitiesDialog() {
-        super();
+        super(MainFrame.getInstance());
         language = Language.getInstance();
         initialize();
+        setModal(true);
         setLocationRelativeTo(MainFrame.getInstance());
     }
 
@@ -84,7 +85,6 @@ public class ManageLocalIdentitiesDialog extends JDialog {
         this.setSize(488, 311);
         this.setTitle(language.getString("ManageLocalIdentities.title"));
         this.setContentPane(getJContentPane());
-        setModal(true);
         
         jLabel.setText(language.getString("ManageLocalidentities.listLabel")+":");
         BimportIdentityXml.setText(language.getString("ManageLocalIdentities.button.importIdentity"));
@@ -582,7 +582,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                     if( xmlFile == null ) {
                         return;
                     }
-                    List lIds = Core.getIdentities().getLocalIdentities();
+                    List<LocalIdentity> lIds = Core.getIdentities().getLocalIdentities();
                     boolean wasOk = LocalIdentitiesXmlDAO.saveLocalIdentities(xmlFile, lIds);
                     if( wasOk ) {
                         JOptionPane.showMessageDialog(
