@@ -124,10 +124,6 @@ public class SettingsClass implements Savable {
     
     public static final String BOARDLIST_LAST_SELECTED_BOARD = "tofTreeSelectedRow";
     
-    public static final String BOARD_CHECK_SPAM_ENABLED = "doBoardBackoff";
-    public static final String BOARD_CHECK_SPAM_TRESHOLD = "spamTreshold";
-    public static final String BOARD_CHECK_SPAM_SAMPLE_INTERVAL = "spamTreshold";
-    
     public static final String MESSAGE_DOWNLOAD_HTL = "tofDownloadHtl";
     public static final String MESSAGE_UPLOAD_HTL = "tofUploadHtl";
     
@@ -715,10 +711,6 @@ public class SettingsClass implements Savable {
         defaults.put(BOARD_UPDATE_VISUALIZATION_ENABLED, "true");
         defaults.put(BOARD_UPDATE_VISUALIZATION_BGCOLOR_NOT_SELECTED, new Color(233, 233, 233)); // "type.color(233,233,233)"
         defaults.put(BOARD_UPDATE_VISUALIZATION_BGCOLOR_SELECTED, new Color(137, 137, 191)); // "type.color(137,137,191)"
-        
-        defaults.put(BOARD_CHECK_SPAM_ENABLED, "false");
-        defaults.put(BOARD_CHECK_SPAM_TRESHOLD, "5"); 
-        defaults.put(BOARD_CHECK_SPAM_SAMPLE_INTERVAL, "5"); 
         
         defaults.put(MESSAGE_BLOCK_SUBJECT, "");
         defaults.put(MESSAGE_BLOCK_SUBJECT_ENABLED, "false");

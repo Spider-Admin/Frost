@@ -43,7 +43,6 @@ import frost.storage.*;
 import frost.storage.database.*;
 import frost.storage.database.applayer.*;
 import frost.threads.*;
-import frost.threads.maintenance.*;
 import frost.util.*;
 import frost.util.Logging;
 import frost.util.gui.*;
@@ -435,12 +434,6 @@ public class Core implements FrostEventDispatcher  {
      *          in one of those tasks
      */
     private void initializeTasks(MainFrame mainframe) {
-        //We initialize the task that checks for spam
-        timer.schedule(
-            new CheckForSpam(frostSettings, getBoardsManager().getTofTree(), getBoardsManager().getTofTreeModel()),
-            1L * 60L * 60L * 1000L, // wait 1 min
-            (long)frostSettings.getIntValue(SettingsClass.BOARD_CHECK_SPAM_SAMPLE_INTERVAL) * 60L * 60L * 1000L);
-
         // initialize the task that frees memory
         TimerTask cleaner = new TimerTask() {
             public void run() {
