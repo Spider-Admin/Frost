@@ -22,11 +22,10 @@ import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 
-import frost.SettingsClass;
-import frost.util.gui.TextComponentClipboardMenu;
-import frost.util.gui.translation.Language;
+import frost.*;
+import frost.util.gui.*;
+import frost.util.gui.translation.*;
 
 class News2Panel extends JPanel {
 
@@ -41,9 +40,6 @@ class News2Panel extends JPanel {
             if (e.getSource() == blockBoardCheckBox) {
                 blockBoardPressed();
             }
-            if (e.getSource() == doBoardBackoffCheckBox) {
-                refreshSpamDetectionState();
-            }
         }
     }
 
@@ -56,7 +52,6 @@ class News2Panel extends JPanel {
     private JTextField blockBodyTextField = new JTextField();
     private JCheckBox blockSubjectCheckBox = new JCheckBox();
     private JTextField blockSubjectTextField = new JTextField();
-    private JCheckBox doBoardBackoffCheckBox = new JCheckBox();
 
     private JCheckBox hideBadMessagesCheckBox = new JCheckBox();
     private JCheckBox hideCheckMessagesCheckBox = new JCheckBox();
@@ -68,17 +63,10 @@ class News2Panel extends JPanel {
     private JCheckBox blockBoardsFromObserveCheckBox = new JCheckBox();
     private JCheckBox blockBoardsFromUnsignedCheckBox = new JCheckBox();
 
-    private JLabel intervalLabel = new JLabel();
     private JLabel hideMessagesLabel = new JLabel();
     private JLabel blockBoardsLabel = new JLabel();
 
     private Listener listener = new Listener();
-
-    private JTextField sampleIntervalTextField = new JTextField(8);
-
-    private JTextField spamTresholdTextField = new JTextField(8);
-
-    private JLabel tresholdLabel = new JLabel();
 
     /**
      * @param settings the SettingsClass instance that will be used to get and store the settings of the panel
@@ -103,38 +91,6 @@ class News2Panel extends JPanel {
 
     private void blockSubjectPressed() {
         blockSubjectTextField.setEnabled(blockSubjectCheckBox.isSelected());
-    }
-
-    private JPanel getSpamPanel() {
-        JPanel spamPanel = new JPanel(new GridBagLayout());
-        spamPanel.setBorder(new EmptyBorder(5, 30, 5, 5));
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.insets = new Insets(5, 5, 5, 5);
-        constraints.weighty = 1;
-        constraints.weightx = 1;
-        constraints.anchor = GridBagConstraints.NORTHWEST;
-
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        constraints.weightx = 0.5;
-        spamPanel.add(intervalLabel, constraints);
-        constraints.fill = GridBagConstraints.NONE;
-        constraints.gridx = 1;
-        constraints.weightx = 1;
-        spamPanel.add(sampleIntervalTextField, constraints);
-
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.gridx = 0;
-        constraints.gridy = 1;
-        constraints.weightx = 0.5;
-        spamPanel.add(tresholdLabel, constraints);
-        constraints.fill = GridBagConstraints.NONE;
-        constraints.gridx = 1;
-        constraints.weightx = 1;
-        spamPanel.add(spamTresholdTextField, constraints);
-
-        return spamPanel;
     }
 
     private JPanel getHideMessagesPanel() {
@@ -216,8 +172,6 @@ class News2Panel extends JPanel {
         new TextComponentClipboardMenu(blockBoardTextField, language);
         new TextComponentClipboardMenu(blockBodyTextField, language);
         new TextComponentClipboardMenu(blockSubjectTextField, language);
-        new TextComponentClipboardMenu(spamTresholdTextField, language);
-        new TextComponentClipboardMenu(sampleIntervalTextField, language);
 
         // Adds all of the components
         GridBagConstraints constraints = new GridBagConstraints();
@@ -260,14 +214,6 @@ class News2Panel extends JPanel {
         constraints.gridy++;
         add(getBlockBoardsPanel(), constraints);
 
-        constraints.gridwidth = 2;
-        constraints.gridx = 0;
-        constraints.gridy++;
-        add(doBoardBackoffCheckBox, constraints);
-        constraints.gridy++;
-        constraints.weighty = 0;
-        add(getSpamPanel(), constraints);
-
         // glue
         constraints.gridy++;
         constraints.gridx = 0;
@@ -282,7 +228,6 @@ class News2Panel extends JPanel {
         blockSubjectCheckBox.addActionListener(listener);
         blockBodyCheckBox.addActionListener(listener);
         blockBoardCheckBox.addActionListener(listener);
-        doBoardBackoffCheckBox.addActionListener(listener);
     }
 
     /**
@@ -308,11 +253,6 @@ class News2Panel extends JPanel {
         blockBoardCheckBox.setSelected(settings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BOARDNAME_ENABLED));
         blockBoardTextField.setEnabled(blockBoardCheckBox.isSelected());
         blockBoardTextField.setText(settings.getValue(SettingsClass.MESSAGE_BLOCK_BOARDNAME));
-
-        doBoardBackoffCheckBox.setSelected(settings.getBoolValue(SettingsClass.BOARD_CHECK_SPAM_ENABLED));
-        sampleIntervalTextField.setText(settings.getValue(SettingsClass.BOARD_CHECK_SPAM_SAMPLE_INTERVAL));
-        spamTresholdTextField.setText(settings.getValue(SettingsClass.BOARD_CHECK_SPAM_TRESHOLD));
-        refreshSpamDetectionState();
     }
 
     public void ok() {
@@ -320,11 +260,6 @@ class News2Panel extends JPanel {
     }
 
     private void refreshLanguage() {
-        String hours = language.getString("Options.common.hours");
-
-        intervalLabel.setText(language.getString("Options.news.2.sampleInterval") + " (" + hours + ")");
-        tresholdLabel.setText(language.getString("Options.news.2.thresholdOfBlockedMessages"));
-
         hideMessagesLabel.setText(language.getString("Options.news.2.hideMessagesWithTrustStates")+":");
         hideUnsignedMessagesCheckBox.setText(language.getString("Options.news.2.trustState.none"));
         hideBadMessagesCheckBox.setText(language.getString("Options.news.2.trustState.bad"));
@@ -340,15 +275,6 @@ class News2Panel extends JPanel {
         blockSubjectCheckBox.setText(language.getString("Options.news.2.blockMessagesWithSubject")+ ": ");
         blockBodyCheckBox.setText(language.getString("Options.news.2.blockMessagesWithBody")+ ": ");
         blockBoardCheckBox.setText(language.getString("Options.news.2.blockMessagesWithTheseBoards")+ ": ");
-        doBoardBackoffCheckBox.setText(language.getString("Options.news.2.doSpamDetection"));
-    }
-
-    private void refreshSpamDetectionState() {
-        boolean enableSpamDetection = doBoardBackoffCheckBox.isSelected();
-        sampleIntervalTextField.setEnabled(enableSpamDetection);
-        spamTresholdTextField.setEnabled(enableSpamDetection);
-        tresholdLabel.setEnabled(enableSpamDetection);
-        intervalLabel.setEnabled(enableSpamDetection);
     }
 
     /**
@@ -361,9 +287,6 @@ class News2Panel extends JPanel {
         settings.setValue(SettingsClass.MESSAGE_BLOCK_BODY_ENABLED, blockBodyCheckBox.isSelected());
         settings.setValue(SettingsClass.MESSAGE_BLOCK_BOARDNAME, ((blockBoardTextField.getText()).trim()).toLowerCase());
         settings.setValue(SettingsClass.MESSAGE_BLOCK_BOARDNAME_ENABLED, blockBoardCheckBox.isSelected());
-        settings.setValue(SettingsClass.BOARD_CHECK_SPAM_ENABLED, doBoardBackoffCheckBox.isSelected());
-        settings.setValue(SettingsClass.BOARD_CHECK_SPAM_TRESHOLD, spamTresholdTextField.getText());
-        settings.setValue(SettingsClass.BOARD_CHECK_SPAM_SAMPLE_INTERVAL, sampleIntervalTextField.getText());
 
         settings.setValue(SettingsClass.MESSAGE_HIDE_UNSIGNED, hideUnsignedMessagesCheckBox.isSelected());
         settings.setValue(SettingsClass.MESSAGE_HIDE_BAD, hideBadMessagesCheckBox.isSelected());
