@@ -45,6 +45,9 @@ public class FcpPersistentPut extends FcpPersistentRequest {
         } else {
             isDirect = true;
         }
+        if( filename == null ) {
+            filename = getIdentifier();
+        }
     }
     
     public boolean isPut() {
