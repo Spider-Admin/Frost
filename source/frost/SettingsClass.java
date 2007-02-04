@@ -107,6 +107,7 @@ public class SettingsClass implements Savable {
     public static final String MSGTABLE_SCROLL_HORIZONTAL = "messageTableScrollHorizontal";
     public static final String SHOW_BOARDDESC_TOOLTIPS = "showBoardDescriptionTooltips";
     public static final String SHOW_BOARD_UPDATED_COUNT = "showBoardUpdatedCount";
+    public static final String PREVENT_BOARDTREE_REORDERING = "preventBoardTreeReordering";
     public static final String SHOW_BOARD_UPDATE_VISUALIZATION = SettingsClass.BOARD_UPDATE_VISUALIZATION_ENABLED;
     public static final String DISABLE_SPLASHSCREEN = "disableSplashScreen";
     public static final String SHOW_SYSTRAY_ICON = "showSystrayIcon";
@@ -811,6 +812,7 @@ public class SettingsClass implements Savable {
         defaults.put(SAVE_SORT_STATES, "false");
         
         defaults.put(SHOW_BOARDDESC_TOOLTIPS, "true");
+        defaults.put(PREVENT_BOARDTREE_REORDERING, "false");
 
         defaults.put(LOG_TO_CONSOLE, "false");
 

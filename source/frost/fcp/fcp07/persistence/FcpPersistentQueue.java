@@ -172,6 +172,8 @@ public class FcpPersistentQueue {
         
         public void handleNodeMessage(String id, NodeMessage nm) {
 
+//            System.out.println("MSG="+nm);
+            
             if( nm.isMessageName("PersistentGet") ) {
                 onPersistentGet(id, nm);
             } else if( nm.isMessageName("DataFound") ) {
@@ -192,7 +194,7 @@ public class FcpPersistentQueue {
                 onProtocolError(id, nm);
             } else {
                 // unhandled msg
-//                System.out.println("### INFO - Unhandled msg: "+nm);
+                System.out.println("### INFO - Unhandled msg: "+nm);
             }
         }
         

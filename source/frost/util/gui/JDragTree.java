@@ -23,12 +23,14 @@ import java.awt.datatransfer.*;
 import java.awt.dnd.*;
 import java.awt.event.*;
 import java.awt.geom.*;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
+import java.awt.image.*;
+import java.io.*;
 import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.tree.*;
+
+import frost.*;
 
 public class JDragTree extends JTree implements DragGestureListener, DragSourceListener {
 
@@ -412,6 +414,11 @@ public class JDragTree extends JTree implements DragGestureListener, DragSourceL
 	// DragGestureListener interface method
 	public void dragGestureRecognized(DragGestureEvent e)
 	{
+        if( Core.frostSettings.getBoolValue(SettingsClass.PREVENT_BOARDTREE_REORDERING) ) {
+            // drag n drop not allowed
+            return;
+        }
+        
 		//we should make sure we aren't in edit mode
 		InputEvent ievent=e.getTriggerEvent();
 		if( ievent instanceof MouseEvent )
