@@ -60,6 +60,7 @@ class DisplayPanel extends JPanel {
     private JCheckBox msgTableScrollHorizontalCheckBox = new JCheckBox();
     private JCheckBox showBoardDescTooltipsCheckBox = new JCheckBox();
     private JCheckBox showBoardUpdateCountCheckBox = new JCheckBox();
+    private JCheckBox preventBoardtreeReordering = new JCheckBox();
     private JCheckBox sortThreadRootMsgsAscendingCheckBox = new JCheckBox();
     private JCheckBox saveSortStatesCheckBox = new JCheckBox();
 
@@ -222,6 +223,9 @@ class DisplayPanel extends JPanel {
         add(showBoardDescTooltipsCheckBox, constraints);
 
         constraints.gridy++;
+        add(preventBoardtreeReordering, constraints);
+
+        constraints.gridy++;
         add(showColoredRowsCheckBox, constraints);
         
         constraints.gridy++;
@@ -268,6 +272,7 @@ class DisplayPanel extends JPanel {
         msgTableScrollHorizontalCheckBox.setSelected(settings.getBoolValue(SettingsClass.MSGTABLE_SCROLL_HORIZONTAL));
         showBoardUpdateCountCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_BOARD_UPDATED_COUNT));
         showBoardDescTooltipsCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_BOARDDESC_TOOLTIPS));
+        preventBoardtreeReordering.setSelected(settings.getBoolValue(SettingsClass.PREVENT_BOARDTREE_REORDERING));
         sortThreadRootMsgsAscendingCheckBox.setSelected(settings.getBoolValue(SettingsClass.SORT_THREADROOTMSGS_ASCENDING));
         saveSortStatesCheckBox.setSelected(settings.getBoolValue(SettingsClass.SAVE_SORT_STATES));
 
@@ -319,6 +324,7 @@ class DisplayPanel extends JPanel {
         msgTableMultilineSelectCheckBox.setText(language.getString("Options.display.enableMultilineSelectionsInMessageTable"));
         showBoardUpdateCountCheckBox.setText(language.getString("Options.display.showBoardUpdateCount"));
         showBoardDescTooltipsCheckBox.setText(language.getString("Options.display.showTooltipWithBoardDescriptionInBoardTree"));
+        preventBoardtreeReordering.setText(language.getString("Options.display.preventBoardtreeReordering"));
         sortThreadRootMsgsAscendingCheckBox.setText(language.getString("Options.display.sortThreadRootMsgsAscending"));
         saveSortStatesCheckBox.setText(language.getString("Options.display.saveSortStates"));
         
@@ -349,6 +355,7 @@ class DisplayPanel extends JPanel {
         settings.setValue(SettingsClass.MSGTABLE_SCROLL_HORIZONTAL, msgTableScrollHorizontalCheckBox.isSelected());
         settings.setValue(SettingsClass.SHOW_BOARD_UPDATED_COUNT, showBoardUpdateCountCheckBox.isSelected());
         settings.setValue(SettingsClass.SHOW_BOARDDESC_TOOLTIPS, showBoardDescTooltipsCheckBox.isSelected());
+        settings.setValue(SettingsClass.PREVENT_BOARDTREE_REORDERING, preventBoardtreeReordering.isSelected());
         settings.setValue(SettingsClass.SORT_THREADROOTMSGS_ASCENDING, sortThreadRootMsgsAscendingCheckBox.isSelected());
         settings.setValue(SettingsClass.SAVE_SORT_STATES, saveSortStatesCheckBox.isSelected());
         

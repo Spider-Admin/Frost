@@ -47,7 +47,7 @@ public class GlobalFileDownloader {
             tmpFile.deleteOnExit();
 
             FcpResultGet fcpresults = FcpHandler.inst().getFile(
-                    FcpHandler.TYPE_FILE,
+                    FcpHandler.TYPE_MESSAGE,
                     downKey,
                     null,
                     tmpFile,

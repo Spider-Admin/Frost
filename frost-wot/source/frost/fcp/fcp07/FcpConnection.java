@@ -41,6 +41,8 @@ public class FcpConnection {
 	private static Logger logger = Logger.getLogger(FcpConnection.class.getName());
     
     private FcpSocket fcpSocket;
+    
+    // FIXME: no DDA for TYPE_MESSAGE !
 
     /**
      * Create a connection to a host using FCP
@@ -108,8 +110,15 @@ public class FcpConnection {
 		logger.fine("KeyString = " + keyString + "\n" +
 					"Key =       " + key + "\n" +
 					"KeyType =   " + key.getKeyType());
+        
+        boolean useDDA;
+        if( type == FcpHandler.TYPE_MESSAGE ) {
+            useDDA = false;
+        } else {
+            useDDA = fcpSocket.isDDA();
+        }
 
-        if (fcpSocket.isDDA()) {
+        if (useDDA) {
             // delete before download, else download fails, node will not overwrite anything!
             targetFile.delete();
         }
@@ -122,7 +131,7 @@ public class FcpConnection {
         fcpSocket.getFcpOut().println("MaxRetries=1");
         fcpSocket.getFcpOut().println("Verbosity=-1");
 
-        if (fcpSocket.isDDA()) {
+        if (useDDA) {
             fcpSocket.getFcpOut().println("Persistence=connection");
             fcpSocket.getFcpOut().println("ReturnType=disk");
             fcpSocket.getFcpOut().println("Filename=" + targetFile.getAbsolutePath());
@@ -170,7 +179,7 @@ public class FcpConnection {
                 break;
             }
 
-            if( !fcpSocket.isDDA() && nodeMsg.isMessageName("AllData") && endMarker.equals("Data") ) {
+            if( !useDDA && nodeMsg.isMessageName("AllData") && endMarker.equals("Data") ) {
                 // data follow, first get datalength
                 long dataLength = nodeMsg.getLongValue("DataLength");
 
@@ -200,7 +209,7 @@ public class FcpConnection {
                 break;
             }
             
-            if( fcpSocket.isDDA() && nodeMsg.isMessageName("DataFound") ) {
+            if( useDDA && nodeMsg.isMessageName("DataFound") ) {
 
                 long dataLength = nodeMsg.getLongValue("DataLength");
                 isSuccess = true;
@@ -292,8 +301,15 @@ public class FcpConnection {
 
         keyString = stripSlashes(keyString);
 
+        boolean useDDA;
+        if( type == FcpHandler.TYPE_MESSAGE ) {
+            useDDA = false;
+        } else {
+            useDDA = fcpSocket.isDDA();
+        }
+
         BufferedOutputStream dataOutput = null;
-        if( !fcpSocket.isDDA() ) {
+        if( !useDDA ) {
             dataOutput = new BufferedOutputStream(fcpSocket.getFcpSock().getOutputStream());
         }
 
@@ -324,7 +340,7 @@ public class FcpConnection {
 		
         fcpSocket.getFcpOut().println("Persistence=connection");
 
-        if (fcpSocket.isDDA()) {
+        if (useDDA) {
             // direct file access
             fcpSocket.getFcpOut().println("UploadFrom=disk");
             fcpSocket.getFcpOut().println("Filename=" + sourceFile.getAbsolutePath());
