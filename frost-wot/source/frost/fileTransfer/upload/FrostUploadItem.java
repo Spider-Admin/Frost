@@ -297,5 +297,6 @@ public class FrostUploadItem extends ModelItem {
 
     public void setPriority(int priority) {
         this.priority = priority;
+        super.fireChange();
     }
 }

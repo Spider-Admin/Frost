@@ -86,7 +86,6 @@ public class FcpPersistentQueue {
 
             while(true) {
                 try {
-                    
                     nodeMessageHandler.clearKnownIdentifiers();
                     fcpTools.listPersistentRequests();
                     
@@ -135,6 +134,7 @@ public class FcpPersistentQueue {
             downloadRequests.clear();
             if( waitForEndLock.tryAcquire() == false ) {
                 System.out.println("ALERT: semaphore could not be acquired!");
+                logger.severe("ALERT: semaphore could not be acquired!");
             }
         }
 
@@ -162,7 +162,6 @@ public class FcpPersistentQueue {
         }
 
         public void handleNodeMessage(NodeMessage nm) {
-            // bei start hashtables vorbereiten
             if( nm.isMessageName("EndListPersistentRequests") ) {
                 // unlock syncthread
                 isProcessingList = false;
@@ -200,6 +199,9 @@ public class FcpPersistentQueue {
         
         protected void onPersistentGet(String id, NodeMessage nm) {
             if( downloadRequests.containsKey(id) ) {
+                FcpPersistentGet pg = downloadRequests.get(id);
+                pg.setRequest(nm);
+                persistenceHandler.downloadRequestUpdated(pg);
                 return;
             } else {
                 FcpPersistentGet fpg = new FcpPersistentGet(nm, id);
@@ -233,6 +235,9 @@ public class FcpPersistentQueue {
         }
         protected void onPersistentPut(String id, NodeMessage nm) {
             if( uploadRequests.containsKey(id) ) {
+                FcpPersistentPut pg = uploadRequests.get(id);
+                pg.setRequest(nm);
+                persistenceHandler.uploadRequestUpdated(pg);
                 return;
             } else {
                 FcpPersistentPut fpg = new FcpPersistentPut(nm, id);

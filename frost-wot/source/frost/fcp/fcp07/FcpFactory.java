@@ -186,6 +186,10 @@ public class FcpFactory {
                     throw e;
                 }
             }
+        } else {
+            // don't use DDA
+            selectedNode.isDirectDiskAccessTested = true;
+            selectedNode.isDirectDiskAccessPossible = false;
         }
         return con;
     }
