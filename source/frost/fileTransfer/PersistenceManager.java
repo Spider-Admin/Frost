@@ -297,7 +297,21 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
      * Apply the states of FcpRequestGet to the FrostDownloadItem.
      */
     private void applyState(FrostDownloadItem dlItem, FcpPersistentGet getReq) {
-        dlItem.setPriority(getReq.getPriority());
+        if( dlItem.getPriority() != getReq.getPriority() ) {
+            dlItem.setPriority(getReq.getPriority());
+        }
+        
+        if( dlItem.isDirect() != getReq.isDirect() ) {
+            dlItem.setDirect(getReq.isDirect());
+        }
+
+        if( !getReq.isProgressSet() && !getReq.isSuccess() && !getReq.isFailed() ) {
+            if( dlItem.getState() == FrostDownloadItem.STATE_WAITING ) {
+                dlItem.setState(FrostDownloadItem.STATE_PROGRESS);
+            }
+            return;
+        }
+
         if( getReq.isProgressSet() ) {
             int doneBlocks = getReq.getDoneBlocks();
             int requiredBlocks = getReq.getRequiredBlocks();
@@ -315,6 +329,10 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             }
         }
         if( getReq.isSuccess() ) {
+            // maybe progress was not completely sent
+            if( dlItem.getTotalBlocks() > 0 && dlItem.getDoneBlocks() < dlItem.getRequiredBlocks() ) {
+                dlItem.setDoneBlocks(dlItem.getRequiredBlocks());
+            }
             if( dlItem.isExternal() ) {
                 dlItem.setState(FrostDownloadItem.STATE_DONE);
                 dlItem.setFileSize(getReq.getFilesize());
@@ -356,8 +374,18 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             // we got an answer
             directPUTsWithoutAnswer.remove(ulItem.getGqIdentifier());
         }
-        
-        ulItem.setPriority(putReq.getPriority());
+
+        if( ulItem.getPriority() != putReq.getPriority() ) {
+            ulItem.setPriority(putReq.getPriority());
+        }
+
+        if( !putReq.isProgressSet() && !putReq.isSuccess() && !putReq.isFailed() ) {
+            if( ulItem.getState() == FrostUploadItem.STATE_WAITING ) {
+                ulItem.setState(FrostUploadItem.STATE_PROGRESS);
+            }
+            return;
+        }
+
         if( putReq.isProgressSet() ) {
             int doneBlocks = putReq.getDoneBlocks();
             int totalBlocks = putReq.getTotalBlocks();
@@ -373,6 +401,10 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             }
         }
         if( putReq.isSuccess() ) {
+            // maybe progress was not completely sent
+            if( ulItem.getTotalBlocks() > 0 && ulItem.getDoneBlocks() != ulItem.getTotalBlocks() ) {
+                ulItem.setDoneBlocks(ulItem.getTotalBlocks());
+            }
             String chkKey = putReq.getUri();
             if( ulItem.isExternal() ) {
                 ulItem.setState(FrostDownloadItem.STATE_DONE);
@@ -460,6 +492,9 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             for(int x=0; x < uploadModel.getItemCount(); x++) {
                 FrostUploadItem ulItem = (FrostUploadItem) uploadModel.getItemAt(x);
                 if( ulItem.getGqIdentifier() != null ) {
+                    if( isDirectTransferInProgress(ulItem) ) {
+                        continue;
+                    }
                     if( ulItem.getState() == FrostUploadItem.STATE_PROGRESS || ulItem.isExternal() ) {
                         // this item should be in the global queue
                         boolean isInGlobalQueue = uploadRequests.containsKey(ulItem.getGqIdentifier());
@@ -581,6 +616,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                 // start the download
                 String gqid = dlItem.getGqIdentifier();
                 File targetFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + dlItem.getFilename());
+                dlItem.setDirect( !fcpTools.isDDA() ); // set before start!
                 fcpTools.startPersistentGet(
                         dlItem.getKey(),
                         gqid,

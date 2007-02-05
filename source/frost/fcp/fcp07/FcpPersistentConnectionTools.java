@@ -78,6 +78,10 @@ public class FcpPersistentConnectionTools {
         
         FcpPersistentConnection.getInstance().sendMessage(msg, true);
     }
+    
+    public boolean isDDA() {
+        return FcpPersistentConnection.getInstance().isDDA();
+    }
 
     /**
      * Starts a new persistent get and returns the first message returned by the node.
@@ -98,7 +102,7 @@ public class FcpPersistentConnectionTools {
         msg.add("Global=true");
         msg.add("PriorityClass=3");
         
-        if (FcpPersistentConnection.getInstance().isDDA()) {
+        if (isDDA()) {
             msg.add("ReturnType=disk");
             msg.add("Filename=" + targetFile.getAbsolutePath());
             File ddaTempFile = new File( targetFile.getAbsolutePath() + "-f");

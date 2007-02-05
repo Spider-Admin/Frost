@@ -51,6 +51,11 @@ public abstract class FcpPersistentRequest extends Observable {
     public String getIdentifier() {
         return identifier;
     }
+    
+    public void setRequest(NodeMessage msg) {
+        // maybe prio was changed
+        priority = msg.getIntValue("PriorityClass");
+    }
 
     public void setFailed(NodeMessage msg) {
         // GetFailed msg

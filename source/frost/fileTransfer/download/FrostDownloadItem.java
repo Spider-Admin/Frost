@@ -413,6 +413,7 @@ public class FrostDownloadItem extends ModelItem {
     }
     public void setDirect(boolean d) {
         isDirect = d;
+        super.fireChange();
     }
 
     public int getPriority() {
@@ -421,5 +422,6 @@ public class FrostDownloadItem extends ModelItem {
 
     public void setPriority(int priority) {
         this.priority = priority;
+        super.fireChange();
     }
 }
