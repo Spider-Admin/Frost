@@ -171,7 +171,7 @@ public class FcpPersistentQueue {
         
         public void handleNodeMessage(String id, NodeMessage nm) {
 
-//            System.out.println("MSG="+nm);
+            System.out.println("MSG="+nm);
             
             if( nm.isMessageName("PersistentGet") ) {
                 onPersistentGet(id, nm);
@@ -187,6 +187,8 @@ public class FcpPersistentQueue {
                 onPutFailed(id, nm);
             } else if( nm.isMessageName("SimpleProgress") ) {
                 onSimpleProgress(id, nm);
+            } else if( nm.isMessageName("PersistentRequestRemoved") ) {
+                onPersistentRequestRemoved(id, nm);
             } else if( nm.isMessageName("IdentifierCollision") ) {
                 onIdentifierCollision(id, nm);
             } else if( nm.isMessageName("ProtocolError") ) {
@@ -287,6 +289,9 @@ public class FcpPersistentQueue {
                 System.out.println("No item in queue: "+nm);
                 return;
             }
+        }
+        protected void onPersistentRequestRemoved(String id, NodeMessage nm) {
+            persistenceHandler.persistentRequestRemoved(id);
         }
         protected void onProtocolError(String id, NodeMessage nm) {
             if( downloadRequests.containsKey(id) ) {
