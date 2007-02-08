@@ -448,8 +448,13 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                     applyState(dlItem, dlReq);
                 } else {
                     if ( showExternalItemsDownload ) {
+                        // direct downloads maybe have no filename, use identifier
+                        String fileName = dlReq.getFilename();
+                        if( fileName == null ) {
+                            fileName = dlReq.getIdentifier();
+                        }
                         dlItem = new FrostDownloadItem(
-                                dlReq.getFilename(), 
+                                fileName, 
                                 dlReq.getUri());
                         dlItem.setExternal(true);
                         dlItem.setGqIdentifier(dlReq.getIdentifier());
@@ -471,7 +476,12 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                         ulItem = new FrostUploadItem();
                         ulItem.setGqIdentifier(ulReq.getIdentifier());
                         ulItem.setExternal(true);
-                        ulItem.setFile(new File(ulReq.getFilename()));
+                        // direct uploads maybe have no filename, use identifier
+                        String fileName = ulReq.getFilename();
+                        if( fileName == null ) {
+                            fileName = ulReq.getIdentifier();
+                        }
+                        ulItem.setFile(new File(fileName));
                         ulItem.setState(FrostUploadItem.STATE_PROGRESS);
                         uploadModel.addExternalItem(ulItem);
 
@@ -482,6 +492,28 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         }
     }
     
+    public void persistentRequestRemoved(String id) {
+        if( uploadModelItems.containsKey(id) ) {
+            FrostUploadItem ulItem = uploadModelItems.get(id);
+            if( ulItem.isExternal() ) {
+                uploadModel.removeItems(new ModelItem[] { ulItem });
+            } else {
+                ulItem.setEnabled(false);
+                ulItem.setState(FrostUploadItem.STATE_FAILED);
+                ulItem.setErrorCodeDescription("Disappeared from global queue");
+            }
+        } else if( downloadModelItems.containsKey(id) ) {
+            FrostDownloadItem dlItem = downloadModelItems.get(id);
+            if( dlItem.isExternal() ) {
+                downloadModel.removeItems(new ModelItem[] { dlItem });
+            } else {
+                dlItem.setEnabled(false);
+                dlItem.setState(FrostUploadItem.STATE_FAILED);
+                dlItem.setErrorCodeDescription("Disappeared from global queue");
+            }
+        }
+    }
+
     private void handleDisappearedItems(
             Map<String,FcpPersistentPut> uploadRequests, 
             Map<String,FcpPersistentGet> downloadRequests) 

@@ -36,4 +36,6 @@ public interface IFcpPersistentRequestsHandler {
      * Called if an download request was updated between ListPersistentRequest.
      */
     public void downloadRequestUpdated(FcpPersistentGet downloadRequest);
+    
+    public void persistentRequestRemoved(String id);
 }
