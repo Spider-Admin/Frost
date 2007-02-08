@@ -31,8 +31,8 @@
     <FrostBoardTreeEntry isfolder="true" isexpanded="false" >
       <name>freenet</name>
       <FrostBoardTreeEntry>
-        <name><![CDATA[Announce]]></name>
-        <publicKey><![CDATA[SSK@NFfDn-A~x0sjUKDXWUUGrmYox5kjnBCXVZEnSXEsBE4,erPVKXubIYDCUiFeIB~HBF5u8HkBdMUJgnfz9d8ZCUg,AQABAAE]]></publicKey>
+        <name><![CDATA[freenet-announce]]></name>
+        <publicKey><![CDATA[SSK@MGJOpsf32MDiti3I3ipzdLwKAXZFumiih-YE5ABZNQE,gcUpKZ17E18pyAtXzk4FVjLPo8IgpUqiCa~yBB0RSZo,AQACAAE]]></publicKey>
         <description><![CDATA[Announcement of new Freenet versions]]></description>
       </FrostBoardTreeEntry>
       <FrostBoardTreeEntry>
