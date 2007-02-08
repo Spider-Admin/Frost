@@ -407,7 +407,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             }
             String chkKey = putReq.getUri();
             if( ulItem.isExternal() ) {
-                ulItem.setState(FrostDownloadItem.STATE_DONE);
+                ulItem.setState(FrostUploadItem.STATE_DONE);
                 ulItem.setKey(chkKey);
             } else {
                 FcpResultPut result = new FcpResultPut(FcpResultPut.Success, chkKey);
