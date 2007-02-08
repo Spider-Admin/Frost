@@ -346,6 +346,10 @@ public class Core implements FrostEventDispatcher  {
     	} else {
     		title = "Frost";
     	}
+        
+        if( !isFreenetOnline() ) {
+            title += " (offline mode)";
+        }
 
         // Display the tray icon (do this before mainframe initializes)
         if (frostSettings.getBoolValue(SettingsClass.SHOW_SYSTRAY_ICON) == true) {
