@@ -786,11 +786,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         // step through all messages on disk up to maxMessageDisplay and check if there are new messages
         TOF.getInstance().searchAllNewMessages(false);
 
-        if (Core.isFreenetOnline()) {
-            tofAutomaticUpdateMenuItem.setSelected(frostSettings.getBoolValue(SettingsClass.BOARD_AUTOUPDATE_ENABLED));
-        } else {
-            tofAutomaticUpdateMenuItem.setSelected(false);
-        }
+        tofAutomaticUpdateMenuItem.setSelected(frostSettings.getBoolValue(SettingsClass.BOARD_AUTOUPDATE_ENABLED));
 
         if (tofTree.getRowCount() > frostSettings.getIntValue(SettingsClass.BOARDLIST_LAST_SELECTED_BOARD)) {
             tofTree.setSelectionRow(frostSettings.getIntValue(SettingsClass.BOARDLIST_LAST_SELECTED_BOARD));
@@ -986,7 +982,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         //////////////////////////////////////////////////
         //   Automatic TOF update
         //////////////////////////////////////////////////
-        if (counter % 15 == 0 && // check all 15 seconds if a board update could be started
+        if (Core.isFreenetOnline() &&
+            counter % 15 == 0 && // check all 15 seconds if a board update could be started
             isAutomaticBoardUpdateEnabled() &&
             info.getDownloadingBoardCount() < frostSettings.getIntValue(SettingsClass.BOARD_AUTOUPDATE_CONCURRENT_UPDATES))
         {
