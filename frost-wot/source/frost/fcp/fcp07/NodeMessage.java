@@ -39,9 +39,11 @@ public class NodeMessage {
         NodeMessage result = null;
         String tmp;
         boolean isfirstline = true;
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         
         while(true) {
-            tmp = readLine(fcpInp);
+            bytes.reset();
+            tmp = readLine(fcpInp, bytes);
             if (tmp == null) { break; }  // this indicates an error, io connection closed
             if ((tmp.trim()).length() == 0) { continue; } // an empty line
 
@@ -71,15 +73,14 @@ public class NodeMessage {
         } 
         return result;  
     }
-    
-    private static String readLine(BufferedInputStream fcpInp) {
+
+    private static String readLine(BufferedInputStream fcpInp, ByteArrayOutputStream bytes) {
         int c;
-        StringBuffer sb = new StringBuffer();
         try {
             while ((c = fcpInp.read()) != '\n' && c != -1 && c != '\0' ) {
-                sb.append((char)c);
+                bytes.write(c);
             }
-            String str = sb.toString();
+            String str = new String(bytes.toByteArray(), "UTF-8");
             if (str.length() == 0) {
                 str = null;
             }

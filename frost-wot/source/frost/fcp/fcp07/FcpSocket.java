@@ -64,7 +64,7 @@ public class FcpSocket {
         fcpSock = new Socket(nodeAddress.host, nodeAddress.port);
         fcpSock.setSoTimeout(TIMEOUT);
         fcpIn = new BufferedInputStream(fcpSock.getInputStream());
-        fcpOut = new PrintStream(fcpSock.getOutputStream());
+        fcpOut = new PrintStream(fcpSock.getOutputStream(), false, "UTF-8");
 
         if( na.isDirectDiskAccessTested ) {
             useDDA = na.isDirectDiskAccessPossible;
