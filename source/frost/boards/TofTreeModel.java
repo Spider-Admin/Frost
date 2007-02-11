@@ -138,17 +138,25 @@ public class TofTreeModel extends DefaultTreeModel {
 
             // add to known boards
             KnownBoardsManager.addNewKnownBoards(boardsToDelete);
+            
+            // find item to select after delete (the item before or after the deleted node)
+            TreeNode nextSelectedNode = node.getPreviousSibling();
+            if( nextSelectedNode == null ) {
+                nextSelectedNode = node.getNextSibling();
+                if( nextSelectedNode == null ) {
+                    nextSelectedNode = parent;
+                }
+            }
+            TreePath nextSelectionPath = new TreePath(getPathToRoot(nextSelectedNode));
 
             // remove from tree
             int[] childIndices = { parent.getIndex(node) };
             Object[] removedChilds = { node };
 
             node.removeFromParent();
-
-            // FIXME: select next/prev sibling if possible
-            TreePath pathToParent = new TreePath(getPathToRoot(parent));
             nodesWereRemoved(parent, childIndices, removedChilds);
-            selectionModel.setSelectionPath(pathToParent);
+            
+            selectionModel.setSelectionPath(nextSelectionPath);
             
             // maybe delete all boards
             if( !boardsToDelete.isEmpty() ) {
