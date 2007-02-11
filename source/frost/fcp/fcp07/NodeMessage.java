@@ -39,11 +39,11 @@ public class NodeMessage {
         NodeMessage result = null;
         String tmp;
         boolean isfirstline = true;
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream(128);
         
         while(true) {
-            bytes.reset();
             tmp = readLine(fcpInp, bytes);
+            bytes.reset(); // reset for next run
             if (tmp == null) { break; }  // this indicates an error, io connection closed
             if ((tmp.trim()).length() == 0) { continue; } // an empty line
 
