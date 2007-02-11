@@ -288,6 +288,9 @@ public class FileListFileDetailsDialog extends JDialog {
                 for (int i = 0; i < selectedItems.length; i++) {
                     FileListFileDetailsItem item = (FileListFileDetailsItem) selectedItems[i];
                     Mixed.appendKeyAndFilename(textToCopy, item.getKey(), item.getFileOwner().getName(), keyNotAvailableMessage);
+                    if( selectedItems.length > 1 ) {
+                        textToCopy.append("\n");
+                    }
                 }
                 StringSelection selection = new StringSelection(textToCopy.toString());
                 getClipboard().setContents(selection, this);
@@ -309,7 +312,9 @@ public class FileListFileDetailsDialog extends JDialog {
                         key = keyNotAvailableMessage;
                     }
                     textToCopy.append(key);
-                    textToCopy.append("\n");
+                    if( selectedItems.length > 1 ) {
+                        textToCopy.append("\n");
+                    }
                 }
                 StringSelection selection = new StringSelection(textToCopy.toString());
                 getClipboard().setContents(selection, this);

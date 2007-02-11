@@ -736,6 +736,9 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                 for (int i = 0; i < selectedItems.length; i++) {
                     FrostDownloadItem item = (FrostDownloadItem) selectedItems[i];
                     Mixed.appendKeyAndFilename(textToCopy, item.getKey(), item.getFilename(), keyNotAvailableMessage);
+                    if( selectedItems.length > 1 ) {
+                        textToCopy.append("\n");
+                    }
                 }               
                 StringSelection selection = new StringSelection(textToCopy.toString());
                 getClipboard().setContents(selection, this);    
@@ -787,7 +790,9 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                         key = keyNotAvailableMessage;
                     }
                     textToCopy.append(key);
-                    textToCopy.append("\n");
+                    if( selectedItems.length > 1 ) {
+                        textToCopy.append("\n");
+                    }
                 }               
                 StringSelection selection = new StringSelection(textToCopy.toString());
                 getClipboard().setContents(selection, this);    

@@ -352,12 +352,6 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                     Core.getIdentities().addIdentity( myOld );
                     
                     ((DefaultListModel)getIdentitiesList().getModel()).removeElement(li);
-                    
-                    JOptionPane.showMessageDialog(
-                            ManageLocalIdentitiesDialog.this, 
-                            language.formatMessage("ManageLocalIdentities.identityDeleted.body", li.getUniqueName()),
-                            language.getString("ManageLocalIdentities.identityDeleted.title"),
-                            JOptionPane.INFORMATION_MESSAGE);
                 }
             });
         }

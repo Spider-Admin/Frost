@@ -145,6 +145,7 @@ public class TofTreeModel extends DefaultTreeModel {
 
             node.removeFromParent();
 
+            // FIXME: select next/prev sibling if possible
             TreePath pathToParent = new TreePath(getPathToRoot(parent));
             nodesWereRemoved(parent, childIndices, removedChilds);
             selectionModel.setSelectionPath(pathToParent);

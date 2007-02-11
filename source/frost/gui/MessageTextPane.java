@@ -1016,12 +1016,18 @@ public class MessageTextPane extends JPanel {
                 return;
             }
             
-            StringBuffer textToCopy = new StringBuffer();
-            for(Iterator i = items.iterator(); i.hasNext(); ) {
-                String key = (String)i.next();
-                textToCopy.append(key).append("\n");
+            StringSelection selection;
+            if( items.size() > 1 ) {
+                StringBuffer textToCopy = new StringBuffer();
+            	for(Iterator i = items.iterator(); i.hasNext(); ) {
+            		String key = (String)i.next();
+            		textToCopy.append(key).append("\n");
+            	}
+            	selection = new StringSelection(textToCopy.toString());
+            } else {
+            	// don't include a trailing \n if we only have one item
+            	selection = new StringSelection((String)items.get(0));
             }
-            StringSelection selection = new StringSelection(textToCopy.toString());
             getClipboard().setContents(selection, this);
         }
     

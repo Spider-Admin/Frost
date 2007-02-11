@@ -58,10 +58,10 @@ public class FcpPersistentConnectionTools {
     /**
      * No answer from node is expected.
      */
-    public void watchGlobal() {
+    public void watchGlobal(boolean enabled) {
         List<String> msg = new LinkedList<String>();
         msg.add("WatchGlobal");
-        msg.add("Enabled=true");
+        msg.add("Enabled="+enabled);
         msg.add("VerbosityMask=1");
         FcpPersistentConnection.getInstance().sendMessage(msg, true);
     }
