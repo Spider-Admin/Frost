@@ -250,6 +250,7 @@ public class JDragTree extends JTree implements DragGestureListener, DragSourceL
 									 int insertedIndex[] = { idx };
 									 model.nodesWereInserted( newParent, insertedIndex );
 								 }
+                                 pathNewChild = new TreePath(model.getPathToRoot(sourceNode));
 							 }
 						 }
 						 else
@@ -264,10 +265,13 @@ public class JDragTree extends JTree implements DragGestureListener, DragSourceL
 							 targetNode.insert( sourceNode, 0 );
 							 int insertedIndex[] = { 0 };
 							 model.nodesWereInserted( targetNode, insertedIndex );
+                             
+                             pathNewChild = new TreePath(model.getPathToRoot(sourceNode));
 						 }
 
-						 if (pathNewChild != null)
+						 if (pathNewChild != null) {
 							 setSelectionPath(pathNewChild); // Mark this as the selected path in the tree
+                         }
 						 break; // No need to check remaining flavors
 					 }
 					 catch (UnsupportedFlavorException ufe)

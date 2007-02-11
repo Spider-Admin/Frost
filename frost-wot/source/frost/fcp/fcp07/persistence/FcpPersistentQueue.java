@@ -45,7 +45,7 @@ public class FcpPersistentQueue {
     
     public void startThreads() {
         FcpPersistentConnection.getInstance().addNodeMessageListener(messageHandler);
-        fcpTools.watchGlobal();
+        fcpTools.watchGlobal(true);
 
         syncThread.start();        
     }

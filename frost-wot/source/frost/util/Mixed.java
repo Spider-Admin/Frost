@@ -196,6 +196,5 @@ public final class Mixed {
             }
         }
         // else for KSK,SSK,USK: don't append filename, key is enough
-        textToCopy.append("\n");
     }
 }

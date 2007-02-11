@@ -278,6 +278,9 @@ public class SearchTable extends SortedModelTable {
                 for (int i = 0; i < selectedItems.length; i++) {
                     FrostSearchItem item = (FrostSearchItem) selectedItems[i];
                     Mixed.appendKeyAndFilename(textToCopy, item.getKey(), item.getFilename(), keyNotAvailableMessage);
+                    if( selectedItems.length > 1 ) {
+                        textToCopy.append("\n");
+                    }
                 }
                 StringSelection selection = new StringSelection(textToCopy.toString());
                 getClipboard().setContents(selection, this);
@@ -339,7 +342,9 @@ public class SearchTable extends SortedModelTable {
                         key = keyNotAvailableMessage;
                     }
                     textToCopy.append(key);
-                    textToCopy.append("\n");
+                    if( selectedItems.length > 1 ) {
+                        textToCopy.append("\n");
+                    }
                 }
                 StringSelection selection = new StringSelection(textToCopy.toString());
                 getClipboard().setContents(selection, this);
