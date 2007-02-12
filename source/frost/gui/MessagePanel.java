@@ -141,6 +141,26 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             if( threadRootMsg != message && threadRootMsg != null ) {
                 getMessageTreeModel().nodeChanged(threadRootMsg);
             }
+            
+            // update flagged/starred indicators in board tree
+            boolean hasStarredWork = false;
+            boolean hasFlaggedWork = false;
+            DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode)message.getRoot(); 
+            for(Enumeration e=rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
+                FrostMessageObject mo = (FrostMessageObject)e.nextElement();
+                if( !hasStarredWork && mo.isStarred() ) {
+                    hasStarredWork = true;
+                }
+                if( !hasFlaggedWork && mo.isFlagged() ) {
+                    hasFlaggedWork = true;
+                }
+                if( hasFlaggedWork && hasStarredWork ) {
+                    break; // finished
+                }
+            }
+            message.getBoard().hasFlaggedMessages(hasFlaggedWork);
+            message.getBoard().hasStarredMessages(hasStarredWork);
+            MainFrame.getInstance().updateTofTree(message.getBoard());
 
             Thread saver = new Thread() {
                 public void run() {

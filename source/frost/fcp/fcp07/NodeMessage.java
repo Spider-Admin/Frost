@@ -132,7 +132,9 @@ public class NodeMessage {
         }
         return aName.equalsIgnoreCase(messageName);
     }
-    
+    public boolean isValueSet(String name) {
+        return items.get(name) != null;
+    }
     public String getStringValue(String name) {
         return items.get(name);
     }

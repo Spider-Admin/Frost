@@ -63,6 +63,9 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
     private boolean spammed = false;
     
     private int timesUpdatedCount = 0;
+    
+    private boolean hasFlaggedMessages = false;
+    private boolean hasStarredMessages = false;
 
     /**
      * Constructs a new FrostBoardObject wich is a Board.
@@ -456,5 +459,19 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
      * also if a message is mark unread. 
      */
     public void newMessageReceived() {
+    }
+
+    public boolean hasFlaggedMessages() {
+        return hasFlaggedMessages;
+    }
+    public void hasFlaggedMessages(boolean newHasFlaggedMessages) {
+        this.hasFlaggedMessages = newHasFlaggedMessages;
+    }
+
+    public boolean hasStarredMessages() {
+        return hasStarredMessages;
+    }
+    public void hasStarredMessages(boolean newHasStarredMessages) {
+        this.hasStarredMessages = newHasStarredMessages;
     }
 }

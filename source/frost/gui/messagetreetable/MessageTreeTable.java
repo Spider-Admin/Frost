@@ -729,15 +729,13 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         repaint();
     }
     
-    
-    
     /**
      * This renderer renders rows in different colors.
      * New messages gets a bold look, messages with attachments a blue color.
      * Encrypted messages get a red color, no matter if they have attachments.
      */
     private class StringCellRenderer extends DefaultTableCellRenderer {
-// FIXME: use configured font
+
         private Font boldFont = null;
         private Font normalFont = null;
         private boolean isDeleted = false;

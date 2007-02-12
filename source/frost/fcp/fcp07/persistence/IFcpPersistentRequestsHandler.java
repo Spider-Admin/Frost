@@ -38,4 +38,6 @@ public interface IFcpPersistentRequestsHandler {
     public void downloadRequestUpdated(FcpPersistentGet downloadRequest);
     
     public void persistentRequestRemoved(String id);
+    
+    public void persistentRequestModified(String id, int newPriorityClass);
 }

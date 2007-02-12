@@ -189,6 +189,8 @@ public class FcpPersistentQueue {
                 onSimpleProgress(id, nm);
             } else if( nm.isMessageName("PersistentRequestRemoved") ) {
                 onPersistentRequestRemoved(id, nm);
+            } else if( nm.isMessageName("PersistentRequestModified") ) {
+                onPersistentRequestModified(id, nm);
             } else if( nm.isMessageName("IdentifierCollision") ) {
                 onIdentifierCollision(id, nm);
             } else if( nm.isMessageName("ProtocolError") ) {
@@ -292,6 +294,13 @@ public class FcpPersistentQueue {
         }
         protected void onPersistentRequestRemoved(String id, NodeMessage nm) {
             persistenceHandler.persistentRequestRemoved(id);
+        }
+        protected void onPersistentRequestModified(String id, NodeMessage nm) {
+            // check if the priorityClass changed, ignore other changes
+            if( nm.isValueSet("PriorityClass") ) {
+                int newPriorityClass = nm.getIntValue("PriorityClass");
+                persistenceHandler.persistentRequestModified(id, newPriorityClass);
+            }
         }
         protected void onProtocolError(String id, NodeMessage nm) {
             if( downloadRequests.containsKey(id) ) {

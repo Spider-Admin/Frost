@@ -514,6 +514,16 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         }
     }
 
+    public void persistentRequestModified(String id, int newPriorityClass) {
+        if( uploadModelItems.containsKey(id) ) {
+            FrostUploadItem ulItem = uploadModelItems.get(id);
+            ulItem.setPriority(newPriorityClass);
+        } else if( downloadModelItems.containsKey(id) ) {
+            FrostDownloadItem dlItem = downloadModelItems.get(id);
+            dlItem.setPriority(newPriorityClass);
+        }
+    }
+
     private void handleDisappearedItems(
             Map<String,FcpPersistentPut> uploadRequests, 
             Map<String,FcpPersistentGet> downloadRequests) 
