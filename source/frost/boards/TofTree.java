@@ -383,13 +383,13 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
     private class CellRenderer extends DefaultTreeCellRenderer {
 
         private Border borderFlaggedAndStarredMsgs = BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 2, 0, 0, Color.blue),    // outside
-                BorderFactory.createMatteBorder(0, 2, 0, 0, Color.green) ); // inside
+                BorderFactory.createMatteBorder(0, 2, 0, 0, Color.red),    // outside
+                BorderFactory.createMatteBorder(0, 2, 0, 0, Color.blue) ); // inside
         private Border borderStarredMsgs = BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(0, 2, 0, 0),                // outside
-                BorderFactory.createMatteBorder(0, 2, 0, 0, Color.green) ); // inside
+                BorderFactory.createMatteBorder(0, 2, 0, 0, Color.blue) ); // inside
         private Border borderFlaggedMsgs = BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 2, 0, 0, Color.blue),    // outside
+                BorderFactory.createMatteBorder(0, 2, 0, 0, Color.red),    // outside
                 BorderFactory.createEmptyBorder(0, 2, 0, 0) );              // inside
         private Border borderEmpty = BorderFactory.createEmptyBorder(0, 4, 0, 0);
 
