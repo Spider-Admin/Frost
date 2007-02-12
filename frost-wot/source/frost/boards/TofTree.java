@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.logging.*;
 
 import javax.swing.*;
+import javax.swing.border.*;
 import javax.swing.event.*;
 import javax.swing.tree.*;
 
@@ -381,20 +382,29 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
 
     private class CellRenderer extends DefaultTreeCellRenderer {
 
-        ImageIcon writeAccessIcon;
-        ImageIcon writeAccessNewIcon;
-        ImageIcon readAccessIcon;
-        ImageIcon readAccessNewIcon;
-        ImageIcon boardIcon;
-        ImageIcon boardNewIcon;
-        ImageIcon boardSpammedIcon;
-        String fileSeparator;
+        private Border borderFlaggedAndStarredMsgs = BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 2, 0, 0, Color.blue),    // outside
+                BorderFactory.createMatteBorder(0, 2, 0, 0, Color.green) ); // inside
+        private Border borderStarredMsgs = BorderFactory.createCompoundBorder(
+                BorderFactory.createEmptyBorder(0, 2, 0, 0),                // outside
+                BorderFactory.createMatteBorder(0, 2, 0, 0, Color.green) ); // inside
+        private Border borderFlaggedMsgs = BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 2, 0, 0, Color.blue),    // outside
+                BorderFactory.createEmptyBorder(0, 2, 0, 0) );              // inside
+        private Border borderEmpty = BorderFactory.createEmptyBorder(0, 4, 0, 0);
 
-        Font boldFont = null;
-        Font normalFont = null;
+        private final ImageIcon writeAccessIcon;
+        private final ImageIcon writeAccessNewIcon;
+        private final ImageIcon readAccessIcon;
+        private final ImageIcon readAccessNewIcon;
+        private final ImageIcon boardIcon;
+        private final ImageIcon boardNewIcon;
+        private final ImageIcon boardSpammedIcon;
+
+        private Font boldFont = null;
+        private Font normalFont = null;
 
         public CellRenderer() {
-            fileSeparator = System.getProperty("file.separator");
             boardIcon = new ImageIcon(getClass().getResource("/data/board.gif"));
             boardNewIcon = new ImageIcon(getClass().getResource("/data/boardnew.gif"));
             boardSpammedIcon = new ImageIcon(getClass().getResource("/data/boardspam.gif"));
@@ -418,7 +428,8 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             boolean expanded,
             boolean leaf,
             int row,
-            boolean localHasFocus) {
+            boolean localHasFocus) 
+        {
             super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, localHasFocus);
 
             Board board = null;
@@ -446,6 +457,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
                 } else {
                     setFont(normalFont);
                 }
+                setBorder(borderEmpty);
             } else {
                 // set the special text (board name + if new msg. a ' (2)' is appended and bold)
                 if (containsNewMessage) {
@@ -469,6 +481,22 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
                     } else {
                         setText(board.getName());
                     }
+                }
+                // for a board we set indicators if board contains flagged or starred messages
+                boolean hasStarred = board.hasStarredMessages();
+                boolean hasFlagged = board.hasFlaggedMessages();
+                if( hasStarred && !hasFlagged ) {
+                    // unread and no marked
+                    setBorder(borderStarredMsgs);
+                } else if( !hasStarred && hasFlagged ) {
+                    // no unread and marked
+                    setBorder(borderFlaggedMsgs);
+                } else if( !hasStarred && !hasFlagged ) {
+                    // nothing
+                    setBorder(borderEmpty);
+                } else {
+                    // both
+                    setBorder(borderFlaggedAndStarredMsgs);
                 }
             }
 

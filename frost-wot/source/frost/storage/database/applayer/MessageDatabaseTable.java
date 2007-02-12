@@ -696,7 +696,69 @@ int cnt=0;
 
         return count;
     }
-    
+
+    /**
+     * Returns true if the board has flagged messages.
+     */
+    public boolean hasFlaggedMessages(Board board, int maxDaysBack) throws SQLException {
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
+        PreparedStatement ps;
+
+        if( maxDaysBack < 0 ) {
+            // no date restriction
+            ps = db.prepareStatement("SELECT isflagged FROM "+getMessageTableName()+" WHERE board=? AND isflagged=TRUE AND isvalid=TRUE");
+            ps.setInt(1, board.getPrimaryKey().intValue());
+        } else {
+            ps = db.prepareStatement("SELECT isflagged FROM "+getMessageTableName()+" WHERE msgdatetime>=? AND board=? AND isflagged=TRUE AND isvalid=TRUE");
+            LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysBack);
+            ps.setLong(1, localDate.toDateMidnight(DateTimeZone.UTC).getMillis());
+            ps.setInt(2, board.getPrimaryKey().intValue());
+        }
+        
+        ps.setMaxRows(1);
+        
+        boolean hasFlagged = false;
+        ResultSet rs = ps.executeQuery();
+        if( rs.next() ) {
+            hasFlagged = rs.getBoolean(1);
+        }
+        rs.close();
+        ps.close();
+
+        return hasFlagged;
+    }
+
+    /**
+     * Returns true if the board has flagged messages.
+     */
+    public boolean hasStarredMessages(Board board, int maxDaysBack) throws SQLException {
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
+        PreparedStatement ps;
+
+        if( maxDaysBack < 0 ) {
+            // no date restriction
+            ps = db.prepareStatement("SELECT isstarred FROM "+getMessageTableName()+" WHERE board=? AND isstarred=TRUE AND isvalid=TRUE");
+            ps.setInt(1, board.getPrimaryKey().intValue());
+        } else {
+            ps = db.prepareStatement("SELECT isstarred FROM "+getMessageTableName()+" WHERE msgdatetime>=? AND board=? AND isstarred=TRUE AND isvalid=TRUE");
+            LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysBack);
+            ps.setLong(1, localDate.toDateMidnight(DateTimeZone.UTC).getMillis());
+            ps.setInt(2, board.getPrimaryKey().intValue());
+        }
+        
+        ps.setMaxRows(1);
+        
+        boolean hasStarred = false;
+        ResultSet rs = ps.executeQuery();
+        if( rs.next() ) {
+            hasStarred = rs.getBoolean(1);
+        }
+        rs.close();
+        ps.close();
+
+        return hasStarred;
+    }
+
     /**
      * Returns message count by identity. If maxDaysBack is <0 all messages are counted.
      */

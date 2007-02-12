@@ -649,20 +649,33 @@ public class TOF {
             }
             
             if( !isCancel() ) {
-                // count new messages
+                // count new messages, check if board has flagged or starred messages
                 int newMessageCountWork = 0;
+                boolean hasStarredWork = false;
+                boolean hasFlaggedWork = false;
                 for(Enumeration e=rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
                     FrostMessageObject mo = (FrostMessageObject)e.nextElement();
                     if( mo.isNew() ) {
                         newMessageCountWork++;
                     }
+                    if( !hasStarredWork && mo.isStarred() ) {
+                        hasStarredWork = true;
+                    }
+                    if( !hasFlaggedWork && mo.isFlagged() ) {
+                        hasFlaggedWork = true;
+                    }
                 }
+
                 // set rootnode to gui and update
                 final Board innerTargetBoard = board;
                 final int newMessageCount = newMessageCountWork;
+                final boolean newHasFlagged = hasFlaggedWork;
+                final boolean newHasStarred = hasStarredWork;
                 SwingUtilities.invokeLater( new Runnable() {
                     public void run() {
                         innerTargetBoard.setNewMessageCount(newMessageCount);
+                        innerTargetBoard.hasFlaggedMessages(newHasFlagged);
+                        innerTargetBoard.hasStarredMessages(newHasStarred);
                         setNewRootNode(innerTargetBoard, rootNode, previousSelectedMsg);
                     }
                 });
@@ -880,6 +893,19 @@ public class TOF {
         }
 
         board.setNewMessageCount(newMessages);
+        
+        // check for flagged and starred messages in board
+        boolean hasFlagged = false;
+        boolean hasStarred = false;
+        try {
+            hasFlagged = AppLayerDatabase.getMessageTable().hasFlaggedMessages(board, daysToRead);
+            hasStarred = AppLayerDatabase.getMessageTable().hasStarredMessages(board, daysToRead);
+        } catch (SQLException e) {
+            logger.log(Level.SEVERE, "Error retrieving flag states", e);
+        }
+
+        board.hasFlaggedMessages(hasFlagged);
+        board.hasStarredMessages(hasStarred);
 
         // now a board is finished, update the tree
         SwingUtilities.invokeLater( new Runnable() {
