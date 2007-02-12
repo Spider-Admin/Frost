@@ -365,8 +365,14 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
             
             // upload was successful, store message in sentmessages database
             FrostMessageObject sentMo = new FrostMessageObject(message, board, index);
-            
+
             SentMessagesManager.addSentMessage(sentMo);
+            
+            // save own private messages into the message table
+            if( sentMo.getRecipientName() != null && sentMo.getRecipientName().length() > 0 ) {
+                sentMo.setSignatureStatusVERIFIED();
+                TOF.getInstance().receivedValidMessage(sentMo, board, index);
+            }
 
             // finally delete the message in unsend messages db table
             mo.setCurrentUploadThread(null); // must be marked as not uploading before delete!

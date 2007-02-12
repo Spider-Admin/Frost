@@ -1006,18 +1006,26 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         
         if( origMessage.getRecipientName() != null ) {
             // this message was for me, reply encrypted
+
             if( origMessage.getFromIdentity() == null ) {
                 String title = language.getString("MessagePane.unknownRecipientError.title");
                 String txt = language.formatMessage("MessagePane.unknownRecipientError.text", origMessage.getFromName());
                 JOptionPane.showMessageDialog(parent, txt, title, JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            LocalIdentity senderId = identities.getLocalIdentity(origMessage.getRecipientName());
-            if( senderId == null ) {
-                String title = language.getString("MessagePane.missingLocalIdentityError.title");
-                String txt = language.formatMessage("MessagePane.missingLocalIdentityError.text", origMessage.getRecipientName());
-                JOptionPane.showMessageDialog(parent, txt, title, JOptionPane.ERROR_MESSAGE);
-                return;
+            LocalIdentity senderId = null;
+            if( origMessage.getFromIdentity() instanceof LocalIdentity ) {
+                // we want to reply to our own message
+                senderId = (LocalIdentity)origMessage.getFromIdentity();
+            } else {
+                // we want to reply, find our identity that was the recipient of this message
+                senderId = identities.getLocalIdentity(origMessage.getRecipientName());
+                if( senderId == null ) {
+                    String title = language.getString("MessagePane.missingLocalIdentityError.title");
+                    String txt = language.formatMessage("MessagePane.missingLocalIdentityError.text", origMessage.getRecipientName());
+                    JOptionPane.showMessageDialog(parent, txt, title, JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
             }
 
             MessageFrame newMessageFrame = new MessageFrame(settings, parent);

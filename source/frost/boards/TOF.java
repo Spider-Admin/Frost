@@ -201,12 +201,19 @@ public class TOF {
             return;
         }
     }
-    
+
     /**
      * Add new valid msg to database 
      */
     public void receivedValidMessage(MessageXmlFile currentMsg, Board board, int index) {
         FrostMessageObject newMsg = new FrostMessageObject(currentMsg, board, index);
+        receivedValidMessage(newMsg, board, index);
+    }
+    /**
+     * Add new valid msg to database 
+     */
+    public void receivedValidMessage(FrostMessageObject newMsg, Board board, int index) {
+        
         if( newMsg.isMessageFromME() && Core.frostSettings.getBoolValue(SettingsClass.HANDLE_OWN_MESSAGES_AS_NEW_DISABLED) ) {
             newMsg.setNew(false);
         } else {
