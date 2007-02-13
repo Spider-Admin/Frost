@@ -482,7 +482,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
         private JMenuItem prio5Item = null;
         private JMenuItem prio6Item = null;
         
-        private JMenuItem deleteExternalDownloads = null;
         private JMenuItem retrieveDirectExternalDownloads = null;
     
         private JMenu copyToClipboardMenu = new JMenu();
@@ -527,9 +526,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                 prio5Item.addActionListener(this);
                 prio6Item.addActionListener(this);
                 
-                deleteExternalDownloads = new JMenuItem();
-                deleteExternalDownloads.addActionListener(this);
-
                 retrieveDirectExternalDownloads = new JMenuItem();
                 retrieveDirectExternalDownloads.addActionListener(this);
             }
@@ -589,7 +585,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                 prio5Item.setText(language.getString("Common.priority.priority5"));
                 prio6Item.setText(language.getString("Common.priority.priority6"));
                 
-                deleteExternalDownloads.setText(language.getString("DownloadPane.fileTable.popupmenu.deleteExternalDownloads"));
                 retrieveDirectExternalDownloads.setText(language.getString("DownloadPane.fileTable.popupmenu.retrieveDirectExternalDownloads"));
             }
         }
@@ -640,8 +635,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                 changePriority(5);
             } else if (e.getSource() == prio6Item) {
                 changePriority(6);
-            } else if (e.getSource() == deleteExternalDownloads) {
-                deleteExternalDownloads();
             } else if (e.getSource() == retrieveDirectExternalDownloads) {
                 retrieveDirectExternalDownloads();
             }
@@ -656,19 +649,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                     FileTransferManager.inst().getPersistenceManager().maybeEnqueueDirectGet(item, expectedFileSize);
                 }
             }
-        }
-
-        private void deleteExternalDownloads() {
-            List<String> requestsToRemove = new LinkedList<String>();
-            ModelItem[] selectedItems = modelTable.getSelectedItems();
-            for( ModelItem mi : selectedItems ) {
-                FrostDownloadItem i = (FrostDownloadItem)mi;
-                if( !i.isExternal() ) {
-                    continue;
-                }
-                requestsToRemove.add(i.getGqIdentifier());
-            }
-            FileTransferManager.inst().getPersistenceManager().removeRequests(requestsToRemove);
         }
 
         private void changePriority(int prio) {
@@ -717,7 +697,26 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
     
         private void removeSelectedDownloads() {
             ModelItem[] selectedItems = modelTable.getSelectedItems();
-            model.removeItems(selectedItems);
+            
+            final List<String> externalRequestsToRemove = new LinkedList<String>();
+            final List<ModelItem> internalRequestsToRemove = new LinkedList<ModelItem>();
+            for( ModelItem mi : selectedItems ) {
+                FrostDownloadItem i = (FrostDownloadItem)mi;
+                if( !i.isExternal() ) {
+                    internalRequestsToRemove.add(mi);
+                } else {
+                    externalRequestsToRemove.add(i.getGqIdentifier());
+                }
+            }
+
+            ModelItem[] ri = (ModelItem[]) internalRequestsToRemove.toArray(new ModelItem[internalRequestsToRemove.size()]);
+            model.removeItems(ri);
+            
+            new Thread() {
+                public void run() {
+                    FileTransferManager.inst().getPersistenceManager().removeRequests(externalRequestsToRemove);
+                }
+            }.start();
         }
     
         private void restartSelectedDownloads() {
@@ -844,18 +843,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                     break;
                 }
             }
-    
             add(removeSelectedDownloadsItem);
-
-            for(ModelItem mi : selectedItems) {
-                FrostDownloadItem item = (FrostDownloadItem) mi;
-                // we only find external items if persistence is enabled
-                if( item.isExternal() ) {
-                    add(deleteExternalDownloads);
-                    break;
-                }
-            }
-    
             if( selectedItems.length == 1 ) {
                 FrostDownloadItem item = (FrostDownloadItem) selectedItems[0];
                 if( item.isSharedFile() ) {

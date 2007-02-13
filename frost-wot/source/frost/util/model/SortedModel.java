@@ -197,6 +197,10 @@ public class SortedModel {
 	}
 
 	public ModelItem getItemAt(int position) {
+        if( position >= data.size() ) {
+            System.out.println("SortedModel.getItemAt: position="+position+", but size="+data.size());
+            return null;
+        }
 		return (ModelItem) data.get(position);
 	}
 
