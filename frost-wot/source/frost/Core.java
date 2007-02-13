@@ -395,10 +395,7 @@ public class Core implements FrostEventDispatcher  {
         splashscreen.setText(language.getString("Splashscreen.message.5"));
         splashscreen.setProgress(80);
         
-        // boot up the machinery ;)
-        initializeTasks(mainFrame);
-
-        SwingUtilities.invokeLater(new Runnable() {
+        SwingUtilities.invokeAndWait(new Runnable() {
             public void run() {
                 mainFrame.setVisible(true);
             }
@@ -406,7 +403,14 @@ public class Core implements FrostEventDispatcher  {
         
         splashscreen.closeMe();
         
-        mainFrame.showStartupMessages();
+        SwingUtilities.invokeAndWait(new Runnable() {
+            public void run() {
+                mainFrame.showStartupMessages();
+            }
+        });
+        
+        // boot up the machinery ;)
+        initializeTasks(mainFrame);
     }
 
     public FileTransferManager getFileTransferManager() {
@@ -441,7 +445,6 @@ public class Core implements FrostEventDispatcher  {
         // initialize the task that frees memory
         TimerTask cleaner = new TimerTask() {
             public void run() {
-                // free memory each 30 min
                 logger.info("freeing memory");
                 System.gc();
             }
