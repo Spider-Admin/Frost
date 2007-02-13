@@ -268,8 +268,6 @@ public class UploadPanel extends JPanel {
         private JMenuItem prio5Item = null;
         private JMenuItem prio6Item = null;
         
-        private JMenuItem deleteExternalUploads = null;
-
         private String keyNotAvailableMessage;
         private String fileMessage;
         private String keyMessage;
@@ -309,9 +307,6 @@ public class UploadPanel extends JPanel {
                 prio4Item.addActionListener(this);
                 prio5Item.addActionListener(this);
                 prio6Item.addActionListener(this);
-                
-                deleteExternalUploads = new JMenuItem();
-                deleteExternalUploads.addActionListener(this);
             }
             
             refreshLanguage();
@@ -356,8 +351,6 @@ public class UploadPanel extends JPanel {
                 prio4Item.setText(language.getString("Common.priority.priority4"));
                 prio5Item.setText(language.getString("Common.priority.priority5"));
                 prio6Item.setText(language.getString("Common.priority.priority6"));
-                
-                deleteExternalUploads.setText(language.getString("UploadPane.fileTable.popupmenu.deleteExternalUploads"));
             }
         }
 
@@ -397,27 +390,12 @@ public class UploadPanel extends JPanel {
                 changePriority(5);
             } else if (e.getSource() == prio6Item) {
                 changePriority(6);
-            } else if (e.getSource() == deleteExternalUploads) {
-                deleteExternalUploads();
             }
         }
         
         private void changePriority(int prio) {
             ModelItem[] selectedItems = modelTable.getSelectedItems();
             FileTransferManager.inst().getPersistenceManager().changeItemPriorites(selectedItems, prio);
-        }
-
-        private void deleteExternalUploads() {
-            List<String> requestsToRemove = new LinkedList<String>();
-            ModelItem[] selectedItems = modelTable.getSelectedItems();
-            for( ModelItem mi : selectedItems ) {
-                FrostUploadItem i = (FrostUploadItem)mi;
-                if( !i.isExternal() ) {
-                    continue;
-                }
-                requestsToRemove.add(i.getGqIdentifier());
-            }
-            FileTransferManager.inst().getPersistenceManager().removeRequests(requestsToRemove);
         }
 
         /**
@@ -441,7 +419,26 @@ public class UploadPanel extends JPanel {
          */
         private void removeSelectedFiles() {
             ModelItem[] selectedItems = modelTable.getSelectedItems();
-            model.removeItems(selectedItems);
+            
+            final List<String> externalRequestsToRemove = new LinkedList<String>();
+            final List<ModelItem> internalRequestsToRemove = new LinkedList<ModelItem>();
+            for( ModelItem mi : selectedItems ) {
+                FrostUploadItem i = (FrostUploadItem)mi;
+                if( !i.isExternal() ) {
+                    internalRequestsToRemove.add(mi);
+                } else {
+                    externalRequestsToRemove.add(i.getGqIdentifier());
+                }
+            }
+
+            ModelItem[] ri = (ModelItem[]) internalRequestsToRemove.toArray(new ModelItem[internalRequestsToRemove.size()]);
+            model.removeItems(ri);
+            
+            new Thread() {
+                public void run() {
+                    FileTransferManager.inst().getPersistenceManager().removeRequests(externalRequestsToRemove);
+                }
+            }.start();
         }
 
         /**
@@ -543,14 +540,6 @@ public class UploadPanel extends JPanel {
             add(uploadSelectedFilesItem);
             addSeparator();
             add(removeSelectedFilesItem);
-            for(ModelItem mi : selectedItems) {
-                FrostUploadItem item = (FrostUploadItem) mi;
-                // we only find external items if persistence is enabled
-                if( item.isExternal() ) {
-                    add(deleteExternalUploads);
-                    break;
-                }
-            }
             if( selectedItems.length == 1 ) {
                 FrostUploadItem item = (FrostUploadItem) selectedItems[0];
                 if( item.isSharedFile() ) {

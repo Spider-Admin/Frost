@@ -484,6 +484,8 @@ public class SharedFilesPanel extends JPanel {
             ModelItem[] selectedItems = modelTable.getSelectedItems();
             model.removeItems(selectedItems);
             
+            // currently running upload items are removed during next startup
+            
             // notify list upload thread that user changed something
             FileListUploadThread.getInstance().userActionOccured();
         }
