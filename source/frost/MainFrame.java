@@ -1285,21 +1285,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         hideProgress();
     }
     
-    private static class StartupMessage {
-        String title;
-        String text;
-        int type;
-    }
-
     /**
      * Enqueue a message that is shown after the mainframe became visible.
      * Used to show messages about problems occured during loading (e.g. missing shared files).
      */
-    public static void enqueueStartupMessage(String title, String text, int type) {
-        StartupMessage sm = new StartupMessage();
-        sm.title = title;
-        sm.text = text;
-        sm.type = type;
+    public static void enqueueStartupMessage(StartupMessage sm) {
         queuedStartupMessages.add( sm );
     }
 
@@ -1309,9 +1299,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     public void showStartupMessages() {
         for(Iterator i=queuedStartupMessages.iterator(); i.hasNext(); ) {
             StartupMessage sm = (StartupMessage) i.next();
-            JOptionPane.showMessageDialog(this, sm.text, sm.title, sm.type);
+            sm.display(this);
         }
-        // not needed any longer
+        // cleanup
+        StartupMessage.cleanup();
         queuedStartupMessages.clear();
         queuedStartupMessages = null;
     }

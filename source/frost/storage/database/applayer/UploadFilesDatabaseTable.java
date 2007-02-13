@@ -29,6 +29,7 @@ import frost.*;
 import frost.fileTransfer.sharing.*;
 import frost.fileTransfer.upload.*;
 import frost.storage.database.*;
+import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
 /**
@@ -137,6 +138,7 @@ public class UploadFilesDatabaseTable extends AbstractDatabaseTable {
                 "uploadaddedtime,uploadstartedtime,uploadfinishedtime,retries,lastuploadstoptime,gqid,sharedfilessha "+
                 "FROM UPLOADFILES");
 
+        Language language = Language.getInstance();
         ResultSet rs = ps.executeQuery();
         while(rs.next()) {
             int ix = 1;
@@ -155,18 +157,29 @@ public class UploadFilesDatabaseTable extends AbstractDatabaseTable {
             String sharedFilesSha = rs.getString(ix++);
             
             File file = new File(filepath);
-            Language language = Language.getInstance();
             if( !file.isFile() ) {
                 String title = language.getString("StartupMessage.uploadFile.uploadFileNotFound.title");
                 String text = language.formatMessage("StartupMessage.uploadFile.uploadFileNotFound.text", filepath);
-                MainFrame.enqueueStartupMessage(title, text, JOptionPane.ERROR_MESSAGE);
+                StartupMessage sm = new StartupMessage(
+                        StartupMessage.MessageType.UploadFileNotFound,
+                        title,
+                        text,
+                        JOptionPane.ERROR_MESSAGE,
+                        true);
+                MainFrame.enqueueStartupMessage(sm);
                 logger.severe("Upload items file does not exist, removed from upload files: "+filepath);
                 continue;
             }
             if( file.length() != filesize ) {
                 String title = language.getString("StartupMessage.uploadFile.uploadFileSizeChanged.title");
                 String text = language.formatMessage("StartupMessage.uploadFile.uploadFileSizeChanged.text", filepath);
-                MainFrame.enqueueStartupMessage(title, text, JOptionPane.ERROR_MESSAGE);
+                StartupMessage sm = new StartupMessage(
+                        StartupMessage.MessageType.UploadFileSizeChanged,
+                        title,
+                        text,
+                        JOptionPane.ERROR_MESSAGE,
+                        true);
+                MainFrame.enqueueStartupMessage(sm);
                 logger.severe("Upload items file size changed, removed from upload files: "+filepath);
                 continue;
             }
