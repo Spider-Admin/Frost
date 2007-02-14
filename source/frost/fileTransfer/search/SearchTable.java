@@ -19,7 +19,6 @@
 package frost.fileTransfer.search;
 
 import java.awt.*;
-import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.util.*;
 
@@ -184,7 +183,7 @@ public class SearchTable extends SortedModelTable {
 
     private class PopupMenuSearch
     extends JSkinnablePopupMenu
-    implements ActionListener, LanguageListener, ClipboardOwner {
+    implements ActionListener, LanguageListener {
 
         JMenuItem cancelItem = new JMenuItem();
         JMenuItem downloadAllKeysItem = new JMenuItem();
@@ -196,13 +195,6 @@ public class SearchTable extends SortedModelTable {
         private JMenuItem copyExtendedInfoItem = new JMenuItem();
     
         private JMenuItem detailsItem = new JMenuItem();
-    
-        private String keyNotAvailableMessage;
-        private String fileMessage;
-        private String keyMessage;
-        private String bytesMessage;
-    
-        private Clipboard clipboard;
     
         public PopupMenuSearch() {
             super();
@@ -233,11 +225,6 @@ public class SearchTable extends SortedModelTable {
             downloadAllKeysItem.setText(language.getString("SearchPane.resultTable.popupmenu.downloadAllKeys"));
             cancelItem.setText(language.getString("Common.cancel"));
     
-            keyNotAvailableMessage = language.getString("Common.copyToClipBoard.extendedInfo.keyNotAvailableYet");
-            fileMessage = language.getString("Common.copyToClipBoard.extendedInfo.file")+" ";
-            keyMessage = language.getString("Common.copyToClipBoard.extendedInfo.key")+" ";
-            bytesMessage = language.getString("Common.copyToClipBoard.extendedInfo.bytes")+" ";
-    
             copyKeysItem.setText(language.getString("Common.copyToClipBoard.copyKeysOnly"));
             copyKeysAndNamesItem.setText(language.getString("Common.copyToClipBoard.copyKeysWithFilenames"));
             copyExtendedInfoItem.setText(language.getString("Common.copyToClipBoard.copyExtendedInfo"));
@@ -254,103 +241,19 @@ public class SearchTable extends SortedModelTable {
                 downloadAllKeys();
             }
             if (e.getSource() == copyKeysItem) {
-                copyKeys();
+                CopyToClipboard.copyKeys(getSelectedItems());
             }
             if (e.getSource() == copyKeysAndNamesItem) {
-                copyKeysAndNames();
+                CopyToClipboard.copyKeysAndFilenames(getSelectedItems());
             }
             if (e.getSource() == copyExtendedInfoItem) {
-                copyExtendedInfo();
+                CopyToClipboard.copyExtendedInfo(getSelectedItems());
             }
             if (e.getSource() == detailsItem) {
                 showDetails();
             }
         }
         
-        /**
-         * This method copies the CHK keys and file names of the selected items (if any) to
-         * the clipboard.
-         */
-        private void copyKeysAndNames() {
-            ModelItem[] selectedItems = getSelectedItems();
-            if (selectedItems.length > 0) {
-                StringBuffer textToCopy = new StringBuffer();
-                for (int i = 0; i < selectedItems.length; i++) {
-                    FrostSearchItem item = (FrostSearchItem) selectedItems[i];
-                    Mixed.appendKeyAndFilename(textToCopy, item.getKey(), item.getFilename(), keyNotAvailableMessage);
-                    if( selectedItems.length > 1 ) {
-                        textToCopy.append("\n");
-                    }
-                }
-                StringSelection selection = new StringSelection(textToCopy.toString());
-                getClipboard().setContents(selection, this);
-            }
-        }
-    
-        private Clipboard getClipboard() {
-            if (clipboard == null) {
-                clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            }
-            return clipboard;
-        }
-    
-        public void lostOwnership(Clipboard tclipboard, Transferable contents) {
-        }
-    
-        /**
-         * This method copies extended information about the selected items (if any) to
-         * the clipboard. That information is composed of the filename, the key and
-         * the size in bytes.
-         */
-        private void copyExtendedInfo() {
-            ModelItem[] selectedItems = getSelectedItems();
-            if (selectedItems.length > 0) {
-                StringBuffer textToCopy = new StringBuffer();
-                for (int i = 0; i < selectedItems.length; i++) {
-                    FrostSearchItem item = (FrostSearchItem) selectedItems[i];
-                    String key = item.getKey();
-                    if (key == null) {
-                        key = keyNotAvailableMessage;
-                    }
-                    textToCopy.append(fileMessage);
-                    textToCopy.append(item.getFilename() + "\n");
-                    textToCopy.append(keyMessage);
-                    textToCopy.append(key + "\n");
-                    textToCopy.append(bytesMessage);
-                    textToCopy.append(item.getSize() + "\n\n");
-                }
-                //We remove the additional \n at the end
-                String result = textToCopy.substring(0, textToCopy.length() - 1);
-    
-                StringSelection selection = new StringSelection(result);
-                getClipboard().setContents(selection, this);
-            }
-        }
-    
-        /**
-         * This method copies the CHK keys of the selected items (if any) to
-         * the clipboard.
-         */
-        private void copyKeys() {
-            ModelItem[] selectedItems = getSelectedItems();
-            if (selectedItems.length > 0) {
-                StringBuffer textToCopy = new StringBuffer();
-                for (int i = 0; i < selectedItems.length; i++) {
-                    FrostSearchItem item = (FrostSearchItem) selectedItems[i];
-                    String key = item.getKey();
-                    if (key == null) {
-                        key = keyNotAvailableMessage;
-                    }
-                    textToCopy.append(key);
-                    if( selectedItems.length > 1 ) {
-                        textToCopy.append("\n");
-                    }
-                }
-                StringSelection selection = new StringSelection(textToCopy.toString());
-                getClipboard().setContents(selection, this);
-            }
-        }
-    
         private void downloadAllKeys() {
             addItemsToDownloadTable( null );
         }

@@ -187,6 +187,7 @@ public class ModelTable extends AbstractTableModel {
 
 		table = new JTable(this);
 		scrollPane = new JScrollPane(table);
+        
         scrollPane.setWheelScrollingEnabled(true);
 		tableFormat.addTable(table);
 

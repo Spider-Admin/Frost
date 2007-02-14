@@ -125,10 +125,10 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
                     return DateFun.getExtendedDateFromMillis(sfItem.getRequestLastReceived());
                 }
             case 7 :    // Key
-                if (sfItem.getChkKey() == null) {
+                if (sfItem.getKey() == null) {
                     return unknown;
                 } else {
-                    return sfItem.getChkKey();
+                    return sfItem.getKey();
                 }
             case 8 : // rating
                 return RatingStringProvider.getRatingString(sfItem.getRating());
@@ -409,8 +409,8 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
     }
     private class KeyComparator implements Comparator {
         public int compare(Object o1, Object o2) {
-            String key1 = ((FrostSharedFileItem) o1).getChkKey();
-            String key2 = ((FrostSharedFileItem) o2).getChkKey();
+            String key1 = ((FrostSharedFileItem) o1).getKey();
+            String key2 = ((FrostSharedFileItem) o2).getKey();
             if (key1 == null) {
                 key1 = unknown;
             }

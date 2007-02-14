@@ -19,7 +19,6 @@
 package frost.fileTransfer.sharing;
 
 import java.awt.*;
-import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.beans.*;
 import java.io.*;
@@ -140,10 +139,20 @@ public class SharedFilesPanel extends JPanel {
 
     private void uploadTable_keyPressed(KeyEvent e) {
         if (e.getKeyChar() == KeyEvent.VK_DELETE && !modelTable.getTable().isEditing()) {
-            ModelItem[] selectedItems = modelTable.getSelectedItems();
-            model.removeItems(selectedItems);
-            modelTable.getTable().clearSelection();
+            removeSelectedFiles();
         }
+    }
+
+    private void removeSelectedFiles() {
+        ModelItem[] selectedItems = modelTable.getSelectedItems();
+        model.removeItems(selectedItems);
+
+        modelTable.getTable().clearSelection();
+
+        // currently running upload items are removed during next startup
+        
+        // notify list upload thread that user changed something
+        FileListUploadThread.getInstance().userActionOccured();
     }
 
     public void uploadAddFilesButton_actionPerformed(ActionEvent e) {
@@ -325,7 +334,7 @@ public class SharedFilesPanel extends JPanel {
         }
     }
     
-    private class PopupMenu extends JSkinnablePopupMenu implements ActionListener, LanguageListener, ClipboardOwner {
+    private class PopupMenu extends JSkinnablePopupMenu implements ActionListener, LanguageListener {
 
         private JMenuItem copyKeysAndNamesItem = new JMenuItem();
         private JMenuItem copyKeysItem = new JMenuItem();
@@ -337,13 +346,6 @@ public class SharedFilesPanel extends JPanel {
         private JMenuItem setPathItem = new JMenuItem();
 
         private JMenu copyToClipboardMenu = new JMenu();
-
-        private String keyNotAvailableMessage;
-        private String fileMessage;
-        private String keyMessage;
-        private String bytesMessage;
-
-        private Clipboard clipboard;
 
         public PopupMenu() {
             super();
@@ -369,11 +371,6 @@ public class SharedFilesPanel extends JPanel {
         }
 
         private void refreshLanguage() {
-            keyNotAvailableMessage = language.getString("Common.copyToClipBoard.extendedInfo.keyNotAvailableYet");
-            fileMessage = language.getString("Common.copyToClipBoard.extendedInfo.file")+" ";
-            keyMessage = language.getString("Common.copyToClipBoard.extendedInfo.key")+" ";
-            bytesMessage = language.getString("Common.copyToClipBoard.extendedInfo.bytes")+" ";
-
             propertiesItem.setText(language.getString("Common.properties"));
             copyKeysItem.setText(language.getString("Common.copyToClipBoard.copyKeysOnly"));
             copyKeysAndNamesItem.setText(language.getString("Common.copyToClipBoard.copyKeysWithFilenames"));
@@ -385,22 +382,15 @@ public class SharedFilesPanel extends JPanel {
             copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
         }
 
-        private Clipboard getClipboard() {
-            if (clipboard == null) {
-                clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            }
-            return clipboard;
-        }
-
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() == copyKeysItem) {
-                copyKeys();
+                CopyToClipboard.copyKeys(modelTable.getSelectedItems());
             }
             if (e.getSource() == copyKeysAndNamesItem) {
-                copyKeysAndNames();
+                CopyToClipboard.copyKeysAndFilenames(modelTable.getSelectedItems());
             }
             if (e.getSource() == copyExtendedInfoItem) {
-                copyExtendedInfo();
+                CopyToClipboard.copyExtendedInfo(modelTable.getSelectedItems());
             }
             if (e.getSource() == removeSelectedFilesItem) {
                 removeSelectedFiles();
@@ -477,93 +467,6 @@ public class SharedFilesPanel extends JPanel {
             model.requestItems(selectedItems);
         }
 
-        /**
-         * Remove selected files
-         */
-        private void removeSelectedFiles() {
-            ModelItem[] selectedItems = modelTable.getSelectedItems();
-            model.removeItems(selectedItems);
-            
-            // currently running upload items are removed during next startup
-            
-            // notify list upload thread that user changed something
-            FileListUploadThread.getInstance().userActionOccured();
-        }
-
-        /**
-         * This method copies the CHK keys and file names of the selected items (if any) to
-         * the clipboard.
-         */
-        private void copyKeysAndNames() {
-            ModelItem[] selectedItems = modelTable.getSelectedItems();
-            if (selectedItems.length > 0) {
-                StringBuffer textToCopy = new StringBuffer();
-                for (int i = 0; i < selectedItems.length; i++) {
-                    FrostSharedFileItem item = (FrostSharedFileItem) selectedItems[i];
-                    Mixed.appendKeyAndFilename(textToCopy, item.getChkKey(), item.getFile().getName(), keyNotAvailableMessage);
-                    if( selectedItems.length > 1 ) {
-                        textToCopy.append("\n");
-                    }
-                }
-                StringSelection selection = new StringSelection(textToCopy.toString());
-                getClipboard().setContents(selection, this);
-            }
-        }
-
-        /**
-         * This method copies extended information about the selected items (if any) to
-         * the clipboard. That information is composed of the filename, the key and
-         * the size in bytes.
-         */
-        private void copyExtendedInfo() {
-            ModelItem[] selectedItems = modelTable.getSelectedItems();
-            if (selectedItems.length > 0) {
-                StringBuffer textToCopy = new StringBuffer();
-                for (int i = 0; i < selectedItems.length; i++) {
-                    FrostSharedFileItem item = (FrostSharedFileItem) selectedItems[i];
-                    String key = item.getChkKey();
-                    if (key == null) {
-                        key = keyNotAvailableMessage;
-                    }
-                    textToCopy.append(fileMessage);
-                    textToCopy.append(item.getFile().getName() + "\n");
-                    textToCopy.append(keyMessage);
-                    textToCopy.append(key + "\n");
-                    textToCopy.append(bytesMessage);
-                    textToCopy.append(item.getFileSize() + "\n\n");
-                }
-                //We remove the additional \n at the end
-                String result = textToCopy.substring(0, textToCopy.length() - 1);
-
-                StringSelection selection = new StringSelection(result);
-                getClipboard().setContents(selection, this);
-            }
-        }
-
-        /**
-         * This method copies the CHK keys of the selected items (if any) to
-         * the clipboard.
-         */
-        private void copyKeys() {
-            ModelItem[] selectedItems = modelTable.getSelectedItems();
-            if (selectedItems.length > 0) {
-                StringBuffer textToCopy = new StringBuffer();
-                for (int i = 0; i < selectedItems.length; i++) {
-                    FrostSharedFileItem item = (FrostSharedFileItem) selectedItems[i];
-                    String key = item.getChkKey();
-                    if (key == null) {
-                        key = keyNotAvailableMessage;
-                    }
-                    textToCopy.append(key);
-                    if( selectedItems.length > 1 ) {
-                        textToCopy.append("\n");
-                    }
-                }
-                StringSelection selection = new StringSelection(textToCopy.toString());
-                getClipboard().setContents(selection, this);
-            }
-        }
-
         public void languageChanged(LanguageEvent event) {
             refreshLanguage();
         }
@@ -611,9 +514,6 @@ public class SharedFilesPanel extends JPanel {
                 add(removeSelectedFilesItem);
             }
             super.show(invoker, x, y);
-        }
-
-        public void lostOwnership(Clipboard cb, Transferable contents) {
         }
     }
 

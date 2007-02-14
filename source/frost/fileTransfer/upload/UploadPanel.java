@@ -19,7 +19,6 @@
 package frost.fileTransfer.upload;
 
 import java.awt.*;
-import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.beans.*;
 import java.io.*;
@@ -145,9 +144,38 @@ public class UploadPanel extends JPanel {
 
     private void uploadTable_keyPressed(KeyEvent e) {
         if (e.getKeyChar() == KeyEvent.VK_DELETE && !modelTable.getTable().isEditing()) {
-            ModelItem[] selectedItems = modelTable.getSelectedItems();
-            model.removeItems(selectedItems);
-            modelTable.getTable().clearSelection();
+            removeSelectedFiles();
+        }
+    }
+
+    /**
+     * Remove selected files
+     */
+    private void removeSelectedFiles() {
+        ModelItem[] selectedItems = modelTable.getSelectedItems();
+        
+        final List<String> externalRequestsToRemove = new LinkedList<String>();
+        final List<ModelItem> internalRequestsToRemove = new LinkedList<ModelItem>();
+        for( ModelItem mi : selectedItems ) {
+            FrostUploadItem i = (FrostUploadItem)mi;
+            if( !i.isExternal() ) {
+                internalRequestsToRemove.add(mi);
+            } else {
+                externalRequestsToRemove.add(i.getGqIdentifier());
+            }
+        }
+
+        ModelItem[] ri = (ModelItem[]) internalRequestsToRemove.toArray(new ModelItem[internalRequestsToRemove.size()]);
+        model.removeItems(ri);
+
+        modelTable.getTable().clearSelection();
+
+        if( FileTransferManager.inst().getPersistenceManager() != null && externalRequestsToRemove.size() > 0 ) {
+            new Thread() {
+                public void run() {
+                    FileTransferManager.inst().getPersistenceManager().removeRequests(externalRequestsToRemove);
+                }
+            }.start();
         }
     }
 
@@ -248,7 +276,7 @@ public class UploadPanel extends JPanel {
         uploadItemCountLabel.setText(s);
     }
     
-    private class PopupMenuUpload extends JSkinnablePopupMenu implements ActionListener, LanguageListener, ClipboardOwner {
+    private class PopupMenuUpload extends JSkinnablePopupMenu implements ActionListener, LanguageListener {
 
         private JMenuItem copyKeysAndNamesItem = new JMenuItem();
         private JMenuItem copyKeysItem = new JMenuItem();
@@ -267,13 +295,6 @@ public class UploadPanel extends JPanel {
         private JMenuItem prio4Item = null;
         private JMenuItem prio5Item = null;
         private JMenuItem prio6Item = null;
-        
-        private String keyNotAvailableMessage;
-        private String fileMessage;
-        private String keyMessage;
-        private String bytesMessage;
-
-        private Clipboard clipboard;
 
         public PopupMenuUpload() {
             super();
@@ -327,11 +348,6 @@ public class UploadPanel extends JPanel {
         }
 
         private void refreshLanguage() {
-            keyNotAvailableMessage = language.getString("Common.copyToClipBoard.extendedInfo.keyNotAvailableYet");
-            fileMessage = language.getString("Common.copyToClipBoard.extendedInfo.file")+" ";
-            keyMessage = language.getString("Common.copyToClipBoard.extendedInfo.key")+" ";
-            bytesMessage = language.getString("Common.copyToClipBoard.extendedInfo.bytes")+" ";
-
             copyKeysItem.setText(language.getString("Common.copyToClipBoard.copyKeysOnly"));
             copyKeysAndNamesItem.setText(language.getString("Common.copyToClipBoard.copyKeysWithFilenames"));
             copyExtendedInfoItem.setText(language.getString("Common.copyToClipBoard.copyExtendedInfo"));
@@ -354,20 +370,13 @@ public class UploadPanel extends JPanel {
             }
         }
 
-        private Clipboard getClipboard() {
-            if (clipboard == null) {
-                clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            }
-            return clipboard;
-        }
-
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() == copyKeysItem) {
-                copyKeys();
+                CopyToClipboard.copyKeys(modelTable.getSelectedItems());
             } else if (e.getSource() == copyKeysAndNamesItem) {
-                copyKeysAndNames();
+                CopyToClipboard.copyKeysAndFilenames(modelTable.getSelectedItems());
             } else if (e.getSource() == copyExtendedInfoItem) {
-                copyExtendedInfo();
+                CopyToClipboard.copyExtendedInfo(modelTable.getSelectedItems());
             } else if (e.getSource() == removeSelectedFilesItem) {
                 removeSelectedFiles();
             } else if (e.getSource() == uploadSelectedFilesItem) {
@@ -414,107 +423,6 @@ public class UploadPanel extends JPanel {
             model.uploadItems(selectedItems);
         }
 
-        /**
-         * Remove selected files
-         */
-        private void removeSelectedFiles() {
-            ModelItem[] selectedItems = modelTable.getSelectedItems();
-            
-            final List<String> externalRequestsToRemove = new LinkedList<String>();
-            final List<ModelItem> internalRequestsToRemove = new LinkedList<ModelItem>();
-            for( ModelItem mi : selectedItems ) {
-                FrostUploadItem i = (FrostUploadItem)mi;
-                if( !i.isExternal() ) {
-                    internalRequestsToRemove.add(mi);
-                } else {
-                    externalRequestsToRemove.add(i.getGqIdentifier());
-                }
-            }
-
-            ModelItem[] ri = (ModelItem[]) internalRequestsToRemove.toArray(new ModelItem[internalRequestsToRemove.size()]);
-            model.removeItems(ri);
-            
-            new Thread() {
-                public void run() {
-                    FileTransferManager.inst().getPersistenceManager().removeRequests(externalRequestsToRemove);
-                }
-            }.start();
-        }
-
-        /**
-         * This method copies the CHK keys and file names of the selected items (if any) to
-         * the clipboard.
-         */
-        private void copyKeysAndNames() {
-            ModelItem[] selectedItems = modelTable.getSelectedItems();
-            if (selectedItems.length > 0) {
-                StringBuffer textToCopy = new StringBuffer();
-                for (int i = 0; i < selectedItems.length; i++) {
-                    FrostUploadItem item = (FrostUploadItem) selectedItems[i];
-                    Mixed.appendKeyAndFilename(textToCopy, item.getKey(), item.getFile().getName(), keyNotAvailableMessage);
-                    if( selectedItems.length > 1 ) {
-                        textToCopy.append("\n");
-                    }
-                }
-                StringSelection selection = new StringSelection(textToCopy.toString());
-                getClipboard().setContents(selection, this);
-            }
-        }
-
-        /**
-         * This method copies extended information about the selected items (if any) to
-         * the clipboard. That information is composed of the filename, the key and
-         * the size in bytes.
-         */
-        private void copyExtendedInfo() {
-            ModelItem[] selectedItems = modelTable.getSelectedItems();
-            if (selectedItems.length > 0) {
-                StringBuffer textToCopy = new StringBuffer();
-                for (int i = 0; i < selectedItems.length; i++) {
-                    FrostUploadItem item = (FrostUploadItem) selectedItems[i];
-                    String key = item.getKey();
-                    if (key == null) {
-                        key = keyNotAvailableMessage;
-                    }
-                    textToCopy.append(fileMessage);
-                    textToCopy.append(item.getFile().getName() + "\n");
-                    textToCopy.append(keyMessage);
-                    textToCopy.append(key + "\n");
-                    textToCopy.append(bytesMessage);
-                    textToCopy.append(item.getFileSize() + "\n\n");
-                }
-                //We remove the additional \n at the end
-                String result = textToCopy.substring(0, textToCopy.length() - 1);
-
-                StringSelection selection = new StringSelection(result);
-                getClipboard().setContents(selection, this);
-            }
-        }
-
-        /**
-         * This method copies the CHK keys of the selected items (if any) to
-         * the clipboard.
-         */
-        private void copyKeys() {
-            ModelItem[] selectedItems = modelTable.getSelectedItems();
-            if (selectedItems.length > 0) {
-                StringBuffer textToCopy = new StringBuffer();
-                for (int i = 0; i < selectedItems.length; i++) {
-                    FrostUploadItem item = (FrostUploadItem) selectedItems[i];
-                    String key = item.getKey();
-                    if (key == null) {
-                        key = keyNotAvailableMessage;
-                    }
-                    textToCopy.append(key);
-                    if( selectedItems.length > 1 ) {
-                        textToCopy.append("\n");
-                    }
-                }
-                StringSelection selection = new StringSelection(textToCopy.toString());
-                getClipboard().setContents(selection, this);
-            }
-        }
-
         public void languageChanged(LanguageEvent event) {
             refreshLanguage();
         }
@@ -548,10 +456,6 @@ public class UploadPanel extends JPanel {
                 }
             }
             super.show(invoker, x, y);
-        }
-
-        public void lostOwnership(Clipboard cb, Transferable contents) {
-            // Nothing here
         }
     }
 

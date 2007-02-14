@@ -18,7 +18,6 @@
 package frost.fileTransfer.download;
 
 import java.awt.*;
-import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.beans.*;
 import java.io.*;
@@ -319,10 +318,37 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	private void downloadTable_keyPressed(KeyEvent e) {
 		char key = e.getKeyChar();
 		if (key == KeyEvent.VK_DELETE && !modelTable.getTable().isEditing()) {
-			ModelItem[] selectedItems = modelTable.getSelectedItems();
-			model.removeItems(selectedItems);
+            removeSelectedDownloads();
 		}
 	}
+
+    private void removeSelectedDownloads() {
+        ModelItem[] selectedItems = modelTable.getSelectedItems();
+        
+        final List<String> externalRequestsToRemove = new LinkedList<String>();
+        final List<ModelItem> internalRequestsToRemove = new LinkedList<ModelItem>();
+        for( ModelItem mi : selectedItems ) {
+            FrostDownloadItem i = (FrostDownloadItem)mi;
+            if( !i.isExternal() ) {
+                internalRequestsToRemove.add(mi);
+            } else {
+                externalRequestsToRemove.add(i.getGqIdentifier());
+            }
+        }
+
+        ModelItem[] ri = (ModelItem[]) internalRequestsToRemove.toArray(new ModelItem[internalRequestsToRemove.size()]);
+        model.removeItems(ri);
+
+        modelTable.getTable().clearSelection();
+
+        if( FileTransferManager.inst().getPersistenceManager() != null && externalRequestsToRemove.size() > 0 ) {
+            new Thread() {
+                public void run() {
+                    FileTransferManager.inst().getPersistenceManager().removeRequests(externalRequestsToRemove);
+                }
+            }.start();
+        }
+    }
 
 	public boolean isDownloadingActivated() {
 		return downloadingActivated;
@@ -458,7 +484,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
     }
     
     private class PopupMenuDownload extends JSkinnablePopupMenu
-    implements ActionListener, LanguageListener, ClipboardOwner {
+    implements ActionListener, LanguageListener {
 
         private JMenuItem detailsItem = new JMenuItem();
         private JMenuItem copyKeysAndNamesItem = new JMenuItem();
@@ -486,13 +512,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
     
         private JMenu copyToClipboardMenu = new JMenu();
         
-        private String keyNotAvailableMessage;
-        private String fileMessage;
-        private String keyMessage;
-        private String bytesMessage;
-        
-        private Clipboard clipboard;
-    
         public PopupMenuDownload() {
             super();
             initialize();
@@ -555,11 +574,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
         }
     
         private void refreshLanguage() {
-            keyNotAvailableMessage = language.getString("Common.copyToClipBoard.extendedInfo.keyNotAvailableYet");
-            fileMessage = language.getString("Common.copyToClipBoard.extendedInfo.file")+" ";
-            keyMessage = language.getString("Common.copyToClipBoard.extendedInfo.key")+" ";
-            bytesMessage = language.getString("Common.copyToClipBoard.extendedInfo.bytes")+" ";
-            
             detailsItem.setText(language.getString("Common.details"));
             copyKeysItem.setText(language.getString("Common.copyToClipBoard.copyKeysOnly"));
             copyKeysAndNamesItem.setText(language.getString("Common.copyToClipBoard.copyKeysWithFilenames"));
@@ -589,20 +603,13 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
             }
         }
         
-        private Clipboard getClipboard() {
-            if (clipboard == null) {
-                clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            }
-            return clipboard;
-        }
-    
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() == copyKeysItem) {
-                copyKeys();
+                CopyToClipboard.copyKeys(modelTable.getSelectedItems());
             } else if (e.getSource() == copyKeysAndNamesItem) {
-                copyKeysAndNames();
+                CopyToClipboard.copyKeysAndFilenames(modelTable.getSelectedItems());
             } else if (e.getSource() == copyExtendedInfoItem) {
-                copyExtendedInfo();
+                CopyToClipboard.copyExtendedInfo(modelTable.getSelectedItems());
             } else if (e.getSource() == restartSelectedDownloadsItem) {
                 restartSelectedDownloads();
             } else if (e.getSource() == removeSelectedDownloadsItem) {
@@ -695,116 +702,15 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
             model.setAllItemsEnabled(Boolean.TRUE);
         }
     
-        private void removeSelectedDownloads() {
-            ModelItem[] selectedItems = modelTable.getSelectedItems();
-            
-            final List<String> externalRequestsToRemove = new LinkedList<String>();
-            final List<ModelItem> internalRequestsToRemove = new LinkedList<ModelItem>();
-            for( ModelItem mi : selectedItems ) {
-                FrostDownloadItem i = (FrostDownloadItem)mi;
-                if( !i.isExternal() ) {
-                    internalRequestsToRemove.add(mi);
-                } else {
-                    externalRequestsToRemove.add(i.getGqIdentifier());
-                }
-            }
-
-            ModelItem[] ri = (ModelItem[]) internalRequestsToRemove.toArray(new ModelItem[internalRequestsToRemove.size()]);
-            model.removeItems(ri);
-            
-            new Thread() {
-                public void run() {
-                    FileTransferManager.inst().getPersistenceManager().removeRequests(externalRequestsToRemove);
-                }
-            }.start();
-        }
-    
         private void restartSelectedDownloads() {
             ModelItem[] selectedItems = modelTable.getSelectedItems();
             model.restartItems(selectedItems);
-        }
-    
-        /**
-         * This method copies the CHK keys and file names of the selected items (if any) to
-         * the clipboard.
-         */
-        private void copyKeysAndNames() {
-            ModelItem[] selectedItems = modelTable.getSelectedItems();
-            if (selectedItems.length > 0) {
-                StringBuffer textToCopy = new StringBuffer();
-                for (int i = 0; i < selectedItems.length; i++) {
-                    FrostDownloadItem item = (FrostDownloadItem) selectedItems[i];
-                    Mixed.appendKeyAndFilename(textToCopy, item.getKey(), item.getFilename(), keyNotAvailableMessage);
-                    if( selectedItems.length > 1 ) {
-                        textToCopy.append("\n");
-                    }
-                }               
-                StringSelection selection = new StringSelection(textToCopy.toString());
-                getClipboard().setContents(selection, this);    
-            }
-        }
-        
-        /**
-         * This method copies extended information about the selected items (if any) to
-         * the clipboard. That information is composed of the filename, the key and
-         * the size in bytes.
-         */
-        private void copyExtendedInfo() {
-            ModelItem[] selectedItems = modelTable.getSelectedItems();
-            if (selectedItems.length > 0) {
-                StringBuffer textToCopy = new StringBuffer();
-                for (int i = 0; i < selectedItems.length; i++) {
-                    FrostDownloadItem item = (FrostDownloadItem) selectedItems[i];
-                    String key = item.getKey();
-                    if (key == null) {
-                        key = keyNotAvailableMessage;
-                    }
-                    textToCopy.append(fileMessage);
-                    textToCopy.append(item.getFilename() + "\n");
-                    textToCopy.append(keyMessage);
-                    textToCopy.append(key + "\n");
-                    textToCopy.append(bytesMessage);
-                    textToCopy.append(item.getFileSize() + "\n\n");
-                }               
-                //We remove the additional \n at the end
-                String result = textToCopy.substring(0, textToCopy.length() - 1);
-                
-                StringSelection selection = new StringSelection(result);
-                getClipboard().setContents(selection, this);    
-            }
-        }
-    
-        /**
-         * This method copies the CHK keys of the selected items (if any) to
-         * the clipboard.
-         */
-        private void copyKeys() {
-            ModelItem[] selectedItems = modelTable.getSelectedItems();
-            if (selectedItems.length > 0) {
-                StringBuffer textToCopy = new StringBuffer();
-                for (int i = 0; i < selectedItems.length; i++) {
-                    FrostDownloadItem item = (FrostDownloadItem) selectedItems[i];
-                    String key = item.getKey();
-                    if (key == null) {
-                        key = keyNotAvailableMessage;
-                    }
-                    textToCopy.append(key);
-                    if( selectedItems.length > 1 ) {
-                        textToCopy.append("\n");
-                    }
-                }               
-                StringSelection selection = new StringSelection(textToCopy.toString());
-                getClipboard().setContents(selection, this);    
-            }
         }
     
         public void languageChanged(LanguageEvent event) {
             refreshLanguage();
         }
         
-        public void lostOwnership(Clipboard tclipboard, Transferable contents) {
-        }
-    
         public void show(Component invoker, int x, int y) {
             removeAll();
     
