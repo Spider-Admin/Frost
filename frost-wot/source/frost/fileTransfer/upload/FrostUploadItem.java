@@ -23,12 +23,13 @@ import java.io.*;
 import frost.*;
 import frost.fcp.*;
 import frost.fileTransfer.sharing.*;
+import frost.util.*;
 import frost.util.model.*;
 
 /**
  * Represents a file to upload.
  */
-public class FrostUploadItem extends ModelItem {
+public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
 
     // the constants representing upload states
     public final static int STATE_DONE       = 1;   // a start of uploading is requested
@@ -232,6 +233,10 @@ public class FrostUploadItem extends ModelItem {
 
     public void setSharedFileItem(FrostSharedFileItem sharedFileItem) {
         this.sharedFileItem = sharedFileItem;
+    }
+    
+    public String getFilename() {
+        return file.getName();
     }
 
     public File getFile() {

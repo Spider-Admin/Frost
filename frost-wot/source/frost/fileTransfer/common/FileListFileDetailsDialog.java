@@ -19,7 +19,6 @@
 package frost.fileTransfer.common;
 
 import java.awt.*;
-import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.util.*;
 import java.util.List;
@@ -204,7 +203,7 @@ public class FileListFileDetailsDialog extends JDialog {
         setVisible(true);
     }
     
-    private class PopupMenu extends JSkinnablePopupMenu implements ActionListener, LanguageListener, ClipboardOwner {
+    private class PopupMenu extends JSkinnablePopupMenu implements ActionListener, LanguageListener {
 
         private JMenuItem copyKeysAndNamesItem = new JMenuItem();
         private JMenuItem copyKeysItem = new JMenuItem();
@@ -212,10 +211,6 @@ public class FileListFileDetailsDialog extends JDialog {
         private JMenu copyToClipboardMenu = new JMenu();
 
         private JMenuItem showOwnerFilesItem = new JMenuItem();
-
-        private String keyNotAvailableMessage;
-
-        private Clipboard clipboard;
 
         public PopupMenu() {
             super();
@@ -236,8 +231,6 @@ public class FileListFileDetailsDialog extends JDialog {
         }
 
         private void refreshLanguage() {
-            keyNotAvailableMessage = language.getString("Common.copyToClipBoard.extendedInfo.keyNotAvailableYet");
-
             copyKeysItem.setText(language.getString("Common.copyToClipBoard.copyKeysOnly"));
             copyKeysAndNamesItem.setText(language.getString("Common.copyToClipBoard.copyKeysWithFilenames"));
 
@@ -246,21 +239,12 @@ public class FileListFileDetailsDialog extends JDialog {
             showOwnerFilesItem.setText(language.getString("Search files of owner"));
         }
 
-        private Clipboard getClipboard() {
-            if (clipboard == null) {
-                clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            }
-            return clipboard;
-        }
-
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() == copyKeysItem) {
-                copyKeys();
-            }
-            if (e.getSource() == copyKeysAndNamesItem) {
-                copyKeysAndNames();
-            }
-            if (e.getSource() == showOwnerFilesItem) {
+                CopyToClipboard.copyKeys(modelTable.getSelectedItems());
+            } else if (e.getSource() == copyKeysAndNamesItem) {
+                CopyToClipboard.copyKeysAndFilenames(modelTable.getSelectedItems());
+            } else if (e.getSource() == showOwnerFilesItem) {
                 searchFilesOfOwner();
             }
         }
@@ -274,50 +258,6 @@ public class FileListFileDetailsDialog extends JDialog {
                 SearchParameters sp = new SearchParameters(false);
                 sp.setOwnerString(owner);
                 FileTransferManager.inst().getSearchManager().getPanel().startNewSearch(sp);
-            }
-        }
-        
-        /**
-         * This method copies the CHK keys and file names of the selected items (if any) to
-         * the clipboard.
-         */
-        private void copyKeysAndNames() {
-            ModelItem[] selectedItems = modelTable.getSelectedItems();
-            if (selectedItems.length > 0) {
-                StringBuffer textToCopy = new StringBuffer();
-                for (int i = 0; i < selectedItems.length; i++) {
-                    FileListFileDetailsItem item = (FileListFileDetailsItem) selectedItems[i];
-                    Mixed.appendKeyAndFilename(textToCopy, item.getKey(), item.getFileOwner().getName(), keyNotAvailableMessage);
-                    if( selectedItems.length > 1 ) {
-                        textToCopy.append("\n");
-                    }
-                }
-                StringSelection selection = new StringSelection(textToCopy.toString());
-                getClipboard().setContents(selection, this);
-            }
-        }
-
-        /**
-         * This method copies the CHK keys of the selected items (if any) to
-         * the clipboard.
-         */
-        private void copyKeys() {
-            ModelItem[] selectedItems = modelTable.getSelectedItems();
-            if (selectedItems.length > 0) {
-                StringBuffer textToCopy = new StringBuffer();
-                for (int i = 0; i < selectedItems.length; i++) {
-                    FileListFileDetailsItem item = (FileListFileDetailsItem) selectedItems[i];
-                    String key = item.getKey();
-                    if (key == null) {
-                        key = keyNotAvailableMessage;
-                    }
-                    textToCopy.append(key);
-                    if( selectedItems.length > 1 ) {
-                        textToCopy.append("\n");
-                    }
-                }
-                StringSelection selection = new StringSelection(textToCopy.toString());
-                getClipboard().setContents(selection, this);
             }
         }
 
@@ -342,9 +282,6 @@ public class FileListFileDetailsDialog extends JDialog {
             }
 
             super.show(invoker, x, y);
-        }
-
-        public void lostOwnership(Clipboard cb, Transferable contents) {
         }
     }
     

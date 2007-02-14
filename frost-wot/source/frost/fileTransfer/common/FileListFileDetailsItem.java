@@ -24,7 +24,7 @@ import frost.identities.*;
 import frost.util.*;
 import frost.util.model.*;
 
-public class FileListFileDetailsItem extends ModelItem {
+public class FileListFileDetailsItem extends ModelItem implements CopyToClipboardItem {
 
     private FrostFileListFileObjectOwner fileOwner;
     
@@ -93,6 +93,14 @@ public class FileListFileDetailsItem extends ModelItem {
 
     public String getKey() {
         return fileOwner.getKey();
+    }
+    
+    public String getFilename() {
+        return getFileOwner().getName();
+    }
+
+    public long getFileSize() {
+        return -1; // not used
     }
 
     public FrostFileListFileObjectOwner getFileOwner() {

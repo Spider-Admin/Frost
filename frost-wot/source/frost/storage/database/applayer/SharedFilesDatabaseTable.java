@@ -101,7 +101,7 @@ public class SharedFilesDatabaseTable extends AbstractDatabaseTable {
                 int ix=1;
                 ps.setString(ix++, sfItem.getFile().getPath());
                 ps.setLong(ix++, sfItem.getFileSize());
-                ps.setString(ix++, sfItem.getChkKey());
+                ps.setString(ix++, sfItem.getKey());
                 ps.setString(ix++, sfItem.getSha());
                 ps.setString(ix++, sfItem.getOwner());
                 ps.setString(ix++, sfItem.getComment());

@@ -24,7 +24,7 @@ import frost.fileTransfer.sharing.*;
 import frost.util.*;
 import frost.util.model.*;
 
-public class FrostSearchItem extends ModelItem {
+public class FrostSearchItem extends ModelItem implements CopyToClipboardItem {
 
     private FrostFileListFileObject fo;
     private int state;
@@ -108,6 +108,10 @@ public class FrostSearchItem extends ModelItem {
             sizeLong = new Long(fo.getSize());
         }
         return sizeLong;
+    }
+
+    public long getFileSize() {
+        return getSize().longValue();
     }
 
     public String getLastUploadedStr() {

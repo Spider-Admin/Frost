@@ -733,7 +733,7 @@ public class MessageTextPane extends JPanel {
                 FrostDownloadItem dlItem = new FrostDownloadItem(
                         fa.getFilename(), 
                         fa.getKey(), 
-                        fa.getSize()); 
+                        fa.getSize().longValue()); 
                 getDownloadModel().addDownloadItem(dlItem);
             }
         }
@@ -988,7 +988,7 @@ public class MessageTextPane extends JPanel {
                     key = item;
                 }
                 String name = item.substring(item.lastIndexOf("/")+1);
-                FrostDownloadItem dlItem = new FrostDownloadItem(name, key, null); 
+                FrostDownloadItem dlItem = new FrostDownloadItem(name, key); 
                 getDownloadModel().addDownloadItem(dlItem);
             }
         }

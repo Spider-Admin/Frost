@@ -350,7 +350,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 			Long size1 = dli1.getFileSize();
 			Long size2 = dli2.getFileSize();
             
-			if (dli1.getFileSize() != null) {
+			if (dli1.getFileSize() >= 0) {
                 size1 = dli1.getFileSize();
             } else if( FcpHandler.isFreenet07() 
                            && dli1.getTotalBlocks() > 0 
@@ -364,7 +364,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
                 size1 = unknownSize;
             }
             
-            if (dli2.getFileSize() != null) {
+            if (dli2.getFileSize() >= 0) {
                 size2 = dli2.getFileSize();
             } else if( FcpHandler.isFreenet07() 
                            && dli2.getTotalBlocks() > 0 
@@ -545,9 +545,9 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 				return downloadItem.getFilename();
 
 			case 4 : // Size
-                if( downloadItem.getFileSize() != null ) {
+                if( downloadItem.getFileSize() >= 0 ) {
                     // size is set
-                    return SizeFormatter.formatSize(downloadItem.getFileSize().longValue());
+                    return SizeFormatter.formatSize(downloadItem.getFileSize());
 
                 } else if( FcpHandler.isFreenet07() 
                            && downloadItem.getRequiredBlocks() > 0 

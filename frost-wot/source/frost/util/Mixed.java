@@ -177,24 +177,4 @@ public final class Mixed {
         }
         return true;
     }
-
-    /**
-     * Appends key/filename to the stringbuffer.
-     * Does not append filename if there is already a filename.
-     * Only appends filename for CHK keys.
-     */
-    public static void appendKeyAndFilename(StringBuffer textToCopy, String key, String filename, String keyNotAvailableMessage) {
-        if (key == null) {
-            key = keyNotAvailableMessage;
-        } 
-        textToCopy.append(key);
-        if( key.startsWith("CHK@") ) {
-            // CHK, append filename if there is not already a filename
-            if( key.indexOf('/') < 0 ) {
-                textToCopy.append("/");
-                textToCopy.append(filename);
-            }
-        }
-        // else for KSK,SSK,USK: don't append filename, key is enough
-    }
 }

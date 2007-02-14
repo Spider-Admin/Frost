@@ -26,7 +26,7 @@ import frost.storage.database.applayer.*;
 import frost.util.*;
 import frost.util.model.*;
 
-public class FrostDownloadItem extends ModelItem {
+public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem {
     
     private static Logger logger = Logger.getLogger(FrostDownloadItem.class.getName());
     
@@ -40,7 +40,7 @@ public class FrostDownloadItem extends ModelItem {
 
 	private String fileName = null;
     private String targetPath = null;
-	private Long fileSize = null;	
+	private long fileSize = -1;	
 	private String key = null;
     
     private Boolean enabled = Boolean.TRUE;
@@ -84,17 +84,9 @@ public class FrostDownloadItem extends ModelItem {
     /**
      * Add a file attachment.
      */ 
-    public FrostDownloadItem(String fileName, String key, Long s) {
-
-        fileName = FileTransferManager.inst().getDownloadManager().ensureUniqueFilename(fileName);
-
-        this.fileName = Mixed.makeFilename(fileName);
-        fileSize = s;
-        this.key = key;
-        
-        gqIdentifier = buildGqIdentifier(fileName);
-
-        state = STATE_WAITING;
+    public FrostDownloadItem(String fileName, String key, long s) {
+        this(fileName, key);
+        this.fileSize = s;
     }
 
     /**
@@ -121,7 +113,7 @@ public class FrostDownloadItem extends ModelItem {
         }
         
         fileName = newName;
-        fileSize = new Long(sfo.getSize());
+        fileSize = sfo.getSize();
         key = sfo.getKey();
 
         gqIdentifier = buildGqIdentifier(fileName);
@@ -137,7 +129,7 @@ public class FrostDownloadItem extends ModelItem {
 	public FrostDownloadItem(
             String newFilename,
             String newTargetPath,
-            Long newSize,
+            long newSize,
             String newKey,
             Boolean newEnabledownload,
             int newState,
@@ -181,7 +173,7 @@ public class FrostDownloadItem extends ModelItem {
 		return fileName;
 	}
 
-    public Long getFileSize() {
+    public long getFileSize() {
 		return fileSize;
 	}
 	public void setFileSize(Long newFileSize) {

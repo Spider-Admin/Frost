@@ -31,13 +31,13 @@ import frost.util.model.*;
  * This item is shown in the shared files panel, and it can be shown in the
  * table of current uploads.
  */
-public class FrostSharedFileItem extends ModelItem {
+public class FrostSharedFileItem extends ModelItem implements CopyToClipboardItem {
     
     String sha = null;
     
     File file = null;
     long fileSize = 0;
-    String chkKey = null;
+    String key = null;
     
     String owner = null;
     String comment = null;
@@ -90,7 +90,7 @@ public class FrostSharedFileItem extends ModelItem {
         sha = newSha;
         file = newFile;
         fileSize = newFilesize;
-        chkKey = newKey;
+        key = newKey;
         owner = newOwner;
         comment = newComment;
         rating = newRating;
@@ -113,7 +113,7 @@ public class FrostSharedFileItem extends ModelItem {
 
         sfxf.setSha(getSha());
         sfxf.setSize(getFileSize());
-        sfxf.setKey(getChkKey());
+        sfxf.setKey(getKey());
         sfxf.setFilename(getFile().getName());
         if( getLastUploaded() != 0 ) {
             sfxf.setLastUploaded(DateFun.FORMAT_DATE_EXT.print(getLastUploaded()));
@@ -222,22 +222,25 @@ public class FrostSharedFileItem extends ModelItem {
         FileListUploadThread.getInstance().userActionOccured();
     }
 
-    public String getChkKey() {
-        return chkKey;
+    public String getKey() {
+        return key;
     }
 
-    public void setChkKey(String chkKey) {
-        this.chkKey = chkKey;
+    public void setKey(String chkKey) {
+        this.key = chkKey;
         itemWasChanged();
     }
 
     public File getFile() {
         return file;
     }
-    
     public void setFile(File f) {
         // caller ensured that size is the same
         file = f;
+    }
+    
+    public String getFilename() {
+        return file.getName();
     }
 
     public long getFileSize() {
@@ -246,7 +249,7 @@ public class FrostSharedFileItem extends ModelItem {
     
     public void notifySuccessfulUpload(String newKey) {
         // an upload of this file was successful
-        setChkKey(newKey);
+        setKey(newKey);
         setLastUploaded(System.currentTimeMillis());
         setUploadCount(getUploadCount() + 1);
         
