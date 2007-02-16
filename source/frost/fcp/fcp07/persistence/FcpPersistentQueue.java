@@ -41,7 +41,8 @@ public class FcpPersistentQueue {
     
     public void startThreads() {
         FcpPersistentConnection.getInstance().addNodeMessageListener(messageHandler);
-        fcpTools.watchGlobal(true); // returns a ListPersistentRequest answer, all requests in global queue 
+        fcpTools.watchGlobal(true);
+        fcpTools.listPersistentRequests();
     }
     
     public Map<String,FcpPersistentPut> getUploadRequests() {
