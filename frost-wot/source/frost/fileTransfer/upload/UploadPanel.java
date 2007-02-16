@@ -155,17 +155,16 @@ public class UploadPanel extends JPanel {
         ModelItem[] selectedItems = modelTable.getSelectedItems();
         
         final List<String> externalRequestsToRemove = new LinkedList<String>();
-        final List<ModelItem> internalRequestsToRemove = new LinkedList<ModelItem>();
+        final List<ModelItem> requestsToRemove = new LinkedList<ModelItem>();
         for( ModelItem mi : selectedItems ) {
             FrostUploadItem i = (FrostUploadItem)mi;
-            if( !i.isExternal() ) {
-                internalRequestsToRemove.add(mi);
-            } else {
+            requestsToRemove.add(mi);
+            if( i.isExternal() ) {
                 externalRequestsToRemove.add(i.getGqIdentifier());
             }
         }
 
-        ModelItem[] ri = (ModelItem[]) internalRequestsToRemove.toArray(new ModelItem[internalRequestsToRemove.size()]);
+        ModelItem[] ri = (ModelItem[]) requestsToRemove.toArray(new ModelItem[requestsToRemove.size()]);
         model.removeItems(ri);
 
         modelTable.getTable().clearSelection();
