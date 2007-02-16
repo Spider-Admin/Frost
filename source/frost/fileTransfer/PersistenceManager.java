@@ -23,6 +23,8 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
+import javax.swing.*;
+
 import frost.*;
 import frost.fcp.*;
 import frost.fcp.fcp07.*;
@@ -103,12 +105,14 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                 if( evt.getPropertyName().equals(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_DOWNLOAD) ) {
                     showExternalItemsDownload = Core.frostSettings.getBoolValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_DOWNLOAD);
                     if( showExternalItemsDownload ) {
-                        persistentQueue.awakeSyncThread();
+                        // get external items
+                        showExternalDownloadItems();
                     }
                 } else if( evt.getPropertyName().equals(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_UPLOAD) ) {
                     showExternalItemsUpload = Core.frostSettings.getBoolValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_UPLOAD);
                     if( showExternalItemsUpload ) {
-                        persistentQueue.awakeSyncThread();
+                        // get external items
+                        showExternalUploadItems();
                     }
                 }
             }
@@ -146,7 +150,8 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                         FrostUploadItem ul = (FrostUploadItem) item;
                         uploadModelItems.put(ul.getGqIdentifier(), ul);
                         if( !ul.isExternal() ) {
-                            persistentQueue.awakeSyncThread();
+                            // maybe start immediately
+                            startNewUploads();
                         }
                     }
                     public void itemChanged(int position, ModelItem item) {
@@ -176,7 +181,8 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                         FrostDownloadItem ul = (FrostDownloadItem) item;
                         downloadModelItems.put(ul.getGqIdentifier(), ul);
                         if( !ul.isExternal() ) {
-                            persistentQueue.awakeSyncThread();
+                            // maybe start immediately
+                            startNewDownloads();
                         }
                     }
                     public void itemChanged(int position, ModelItem item) {
@@ -200,21 +206,19 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
     
     public void startThreads() {
         directTransferThread.start();
-        persistentQueue.startThreads();        
+        persistentQueue.startThreads();
+        TimerTask task = new TimerTask() {
+            public void run() {
+                maybeStartRequests();
+            }
+        };
+        Core.schedule(task, 3000, 3000); 
     }
 
     public void removeRequests(List<String> requests) {
         for( String id : requests ) {
             fcpTools.removeRequest(id);
         }
-        awakeSyncThread();
-    }
-    
-    /**
-     * Awake waiting syncthread to maybe start new requests immediately.
-     */
-    public void awakeSyncThread() {
-        persistentQueue.awakeSyncThread();
     }
     
     public void changeItemPriorites(ModelItem[] items, int newPrio) {
@@ -235,47 +239,16 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                 fcpTools.changeRequestPriority(gqid, newPrio);
             }
         }
-        // finally awake sync thread to get back the changed prios
-        awakeSyncThread();
     }
     
     /**
-     * Called after ListPersistentRequests with current upload and download requests.
+     * Periodically check if we could start a new request.
+     * This could be done better if we check if a request finished, but later...
      */
-    public void requestsUpdated(Map<String,FcpPersistentPut> uploadRequests, Map<String,FcpPersistentGet> downloadRequests) {
-        // handle disappeared requests
-        handleDisappearedItems(uploadRequests, downloadRequests);
-        
-        // handle new requests
-        handleNewRequests(uploadRequests, downloadRequests);
-        
+    private void maybeStartRequests() {
         // start new requests
         startNewUploads();
         startNewDownloads();
-    }
-
-    /**
-     * Called if an upload request was updated between ListPersistentRequest.
-     */
-    public void uploadRequestUpdated(FcpPersistentPut uploadRequest) {
-        FrostUploadItem ui = uploadModelItems.get(uploadRequest.getIdentifier());
-        if( ui == null ) {
-            // not (yet) in our model
-            return;
-        }
-        applyState(ui, uploadRequest);
-    }
-    
-    /**
-     * Called if an download request was updated between ListPersistentRequest.
-     */
-    public void downloadRequestUpdated(FcpPersistentGet downloadRequest) {
-        FrostDownloadItem dl = downloadModelItems.get( downloadRequest.getIdentifier() );
-        if( dl == null ) {
-            // not (yet) in our model
-            return;
-        }
-        applyState(dl, downloadRequest);
     }
 
     /**
@@ -436,150 +409,6 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         }
     }
 
-    private void handleNewRequests(
-            Map<String,FcpPersistentPut> uploadRequests, 
-            Map<String,FcpPersistentGet> downloadRequests) 
-    {
-        // check if there are new items, external or own started items
-        {
-            for( FcpPersistentGet dlReq : downloadRequests.values() ) {
-                FrostDownloadItem dlItem = downloadModelItems.get(dlReq.getIdentifier());
-                if( dlItem != null ) {
-                    applyState(dlItem, dlReq);
-                } else {
-                    if ( showExternalItemsDownload ) {
-                        // direct downloads maybe have no filename, use identifier
-                        String fileName = dlReq.getFilename();
-                        if( fileName == null ) {
-                            fileName = dlReq.getIdentifier();
-                        }
-                        dlItem = new FrostDownloadItem(
-                                fileName, 
-                                dlReq.getUri());
-                        dlItem.setExternal(true);
-                        dlItem.setGqIdentifier(dlReq.getIdentifier());
-                        dlItem.setState(FrostDownloadItem.STATE_PROGRESS);
-                        downloadModel.addExternalItem(dlItem);
-
-                        applyState(dlItem, dlReq);
-                    }
-                }
-            }
-        }
-        {
-            for( FcpPersistentPut ulReq : uploadRequests.values() ) {
-                FrostUploadItem ulItem = uploadModelItems.get(ulReq.getIdentifier());
-                if( ulItem != null ) {
-                    applyState(ulItem, ulReq);
-                } else {
-                    if( showExternalItemsUpload ) {
-                        ulItem = new FrostUploadItem();
-                        ulItem.setGqIdentifier(ulReq.getIdentifier());
-                        ulItem.setExternal(true);
-                        // direct uploads maybe have no filename, use identifier
-                        String fileName = ulReq.getFilename();
-                        if( fileName == null ) {
-                            fileName = ulReq.getIdentifier();
-                        }
-                        ulItem.setFile(new File(fileName));
-                        ulItem.setState(FrostUploadItem.STATE_PROGRESS);
-                        uploadModel.addExternalItem(ulItem);
-
-                        applyState(ulItem, ulReq);
-                    }
-                }
-            }
-        }
-    }
-    
-    public void persistentRequestRemoved(String id) {
-        if( uploadModelItems.containsKey(id) ) {
-            FrostUploadItem ulItem = uploadModelItems.get(id);
-            if( ulItem.isExternal() ) {
-                uploadModel.removeItems(new ModelItem[] { ulItem });
-            } else {
-                ulItem.setEnabled(false);
-                ulItem.setState(FrostUploadItem.STATE_FAILED);
-                ulItem.setErrorCodeDescription("Disappeared from global queue");
-            }
-        } else if( downloadModelItems.containsKey(id) ) {
-            FrostDownloadItem dlItem = downloadModelItems.get(id);
-            if( dlItem.isExternal() ) {
-                downloadModel.removeItems(new ModelItem[] { dlItem });
-            } else {
-                dlItem.setEnabled(false);
-                dlItem.setState(FrostUploadItem.STATE_FAILED);
-                dlItem.setErrorCodeDescription("Disappeared from global queue");
-            }
-        }
-    }
-
-    public void persistentRequestModified(String id, int newPriorityClass) {
-        if( uploadModelItems.containsKey(id) ) {
-            FrostUploadItem ulItem = uploadModelItems.get(id);
-            ulItem.setPriority(newPriorityClass);
-        } else if( downloadModelItems.containsKey(id) ) {
-            FrostDownloadItem dlItem = downloadModelItems.get(id);
-            dlItem.setPriority(newPriorityClass);
-        }
-    }
-
-    private void handleDisappearedItems(
-            Map<String,FcpPersistentPut> uploadRequests, 
-            Map<String,FcpPersistentGet> downloadRequests) 
-    {
-        // remove external items, or flag internal items as disappeared from global queue
-        {
-            List<ModelItem> itemsToRemove = new LinkedList<ModelItem>();
-            for(int x=0; x < uploadModel.getItemCount(); x++) {
-                FrostUploadItem ulItem = (FrostUploadItem) uploadModel.getItemAt(x);
-                if( ulItem.getGqIdentifier() != null ) {
-                    if( isDirectTransferInProgress(ulItem) ) {
-                        continue;
-                    }
-                    if( ulItem.getState() == FrostUploadItem.STATE_PROGRESS || ulItem.isExternal() ) {
-                        // this item should be in the global queue
-                        boolean isInGlobalQueue = uploadRequests.containsKey(ulItem.getGqIdentifier());
-                        if( !isInGlobalQueue ) {
-                            if( ulItem.isExternal() ) {
-                                itemsToRemove.add(ulItem);
-                            } else {
-                                ulItem.setEnabled(false);
-                                ulItem.setState(FrostUploadItem.STATE_FAILED);
-                                ulItem.setErrorCodeDescription("Disappeared from global queue");
-                            }
-                        }
-                    }
-                }
-            }
-            ModelItem[] ri = (ModelItem[]) itemsToRemove.toArray(new ModelItem[itemsToRemove.size()]);
-            uploadModel.removeItems(ri);
-        }
-        {
-            List<ModelItem> itemsToRemove = new LinkedList<ModelItem>();
-            for(int x=0; x < downloadModel.getItemCount(); x++) {
-                FrostDownloadItem dlItem = (FrostDownloadItem) downloadModel.getItemAt(x);
-                if( dlItem.getGqIdentifier() != null ) {
-                    if( dlItem.getState() == FrostDownloadItem.STATE_PROGRESS || dlItem.isExternal() ) {
-                        // this item should be in the global queue
-                        boolean isInGlobalQueue = downloadRequests.containsKey(dlItem.getGqIdentifier());
-                        if( !isInGlobalQueue ) {
-                            if( dlItem.isExternal() ) {
-                                itemsToRemove.add(dlItem);
-                            } else {
-                                dlItem.setEnabled(false);
-                                dlItem.setState(FrostUploadItem.STATE_FAILED);
-                                dlItem.setErrorCodeDescription("Disappeared from global queue");
-                            }
-                        }
-                    }
-                }
-            }
-            ModelItem[] ri = (ModelItem[]) itemsToRemove.toArray(new ModelItem[itemsToRemove.size()]);
-            downloadModel.removeItems(ri);
-        }
-    }
-
     private void startNewUploads() {
         boolean isLimited = true;
         int currentAllowedUploadCount = 0;
@@ -670,6 +499,63 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         }
     }
     
+    private void showExternalUploadItems() {
+        Map<String,FcpPersistentPut> items = persistentQueue.getUploadRequests();
+        for(FcpPersistentPut uploadRequest : items.values() ) {
+            if( !uploadModelItems.containsKey(uploadRequest.getIdentifier()) ) {
+                addExternalItem(uploadRequest);
+            }
+        }
+    }
+
+    private void showExternalDownloadItems() {
+        Map<String,FcpPersistentGet> items = persistentQueue.getDownloadRequests();
+        for(FcpPersistentGet downloadRequest : items.values() ) {
+            if( !uploadModelItems.containsKey(downloadRequest.getIdentifier()) ) {
+                addExternalItem(downloadRequest);
+            }
+        }
+    }
+
+    private void addExternalItem(FcpPersistentPut uploadRequest) {
+        final FrostUploadItem ulItem = new FrostUploadItem();
+        ulItem.setGqIdentifier(uploadRequest.getIdentifier());
+        ulItem.setExternal(true);
+        // direct uploads maybe have no filename, use identifier
+        String fileName = uploadRequest.getFilename();
+        if( fileName == null ) {
+            fileName = uploadRequest.getIdentifier();
+        }
+        ulItem.setFile(new File(fileName));
+        ulItem.setState(FrostUploadItem.STATE_PROGRESS);
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                uploadModel.addExternalItem(ulItem);
+            }
+        });
+        applyState(ulItem, uploadRequest);
+    }
+
+    private void addExternalItem(FcpPersistentGet downloadRequest) {
+        // direct downloads maybe have no filename, use identifier
+        String fileName = downloadRequest.getFilename();
+        if( fileName == null ) {
+            fileName = downloadRequest.getIdentifier();
+        }
+        final FrostDownloadItem dlItem = new FrostDownloadItem(
+                fileName, 
+                downloadRequest.getUri());
+        dlItem.setExternal(true);
+        dlItem.setGqIdentifier(downloadRequest.getIdentifier());
+        dlItem.setState(FrostDownloadItem.STATE_PROGRESS);
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                downloadModel.addExternalItem(dlItem);
+            }
+        });
+        applyState(dlItem, downloadRequest);
+    }
+
     public boolean isDirectTransferInProgress(FrostDownloadItem dlItem) {
         String id = dlItem.getGqIdentifier();
         return directGETsInProgress.contains(id);
@@ -807,5 +693,103 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         public synchronized int getQueueSize() {
             return queue.size();
         }
+    }
+
+    public void persistentRequestAdded(FcpPersistentPut uploadRequest) {
+        if( uploadModelItems.containsKey(uploadRequest.getIdentifier()) ) {
+            System.out.println("PUT item already in queue: "+uploadRequest.getIdentifier());
+            return;
+        }        
+        FrostUploadItem ulItem = uploadModelItems.get(uploadRequest.getIdentifier());
+        if( ulItem != null ) {
+            // own item added to queue
+            applyState(ulItem, uploadRequest);
+        } else {
+            if( showExternalItemsUpload ) {
+                addExternalItem(uploadRequest);
+            }
+        }
+    }
+
+    public void persistentRequestAdded(FcpPersistentGet downloadRequest) {
+        if( downloadModelItems.containsKey(downloadRequest.getIdentifier()) ) {
+            System.out.println("GET item already in queue: "+downloadRequest.getIdentifier());
+            return;
+        }        
+        FrostDownloadItem dlItem = downloadModelItems.get(downloadRequest.getIdentifier());
+        if( dlItem != null ) {
+            // own item added to queue
+            applyState(dlItem, downloadRequest);
+        } else {
+            if ( showExternalItemsDownload ) {
+                addExternalItem(downloadRequest);
+            }
+        }
+    }
+
+    public void persistentRequestModified(FcpPersistentPut uploadRequest) {
+        if( uploadModelItems.containsKey(uploadRequest.getIdentifier()) ) {
+            FrostUploadItem ulItem = uploadModelItems.get(uploadRequest.getIdentifier());
+            ulItem.setPriority(uploadRequest.getPriority());
+        }
+    }
+
+    public void persistentRequestModified(FcpPersistentGet downloadRequest) {
+        if( downloadModelItems.containsKey(downloadRequest.getIdentifier()) ) {
+            FrostDownloadItem dlItem = downloadModelItems.get(downloadRequest.getIdentifier());
+            dlItem.setPriority(downloadRequest.getPriority());
+        }
+    }
+
+    public void persistentRequestRemoved(FcpPersistentPut uploadRequest) {
+        if( uploadModelItems.containsKey(uploadRequest.getIdentifier()) ) {
+            final FrostUploadItem ulItem = uploadModelItems.get(uploadRequest.getIdentifier());
+            if( ulItem.isExternal() ) {
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        uploadModel.removeItems(new ModelItem[] { ulItem });
+                    }
+                });
+            } else {
+                ulItem.setEnabled(false);
+                ulItem.setState(FrostUploadItem.STATE_FAILED);
+                ulItem.setErrorCodeDescription("Disappeared from global queue");
+            }
+        }
+    }
+
+    public void persistentRequestRemoved(FcpPersistentGet downloadRequest) {
+        if( downloadModelItems.containsKey(downloadRequest.getIdentifier()) ) {
+            final FrostDownloadItem dlItem = downloadModelItems.get(downloadRequest.getIdentifier());
+            if( dlItem.isExternal() ) {
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        downloadModel.removeItems(new ModelItem[] { dlItem });
+                    }
+                });
+            } else {
+                dlItem.setEnabled(false);
+                dlItem.setState(FrostUploadItem.STATE_FAILED);
+                dlItem.setErrorCodeDescription("Disappeared from global queue");
+            }
+        }    
+    }
+    
+    public void persistentRequestUpdated(FcpPersistentPut uploadRequest) {
+        FrostUploadItem ui = uploadModelItems.get(uploadRequest.getIdentifier());
+        if( ui == null ) {
+            // not (yet) in our model
+            return;
+        }
+        applyState(ui, uploadRequest);
+    }
+    
+    public void persistentRequestUpdated(FcpPersistentGet downloadRequest) {
+        FrostDownloadItem dl = downloadModelItems.get( downloadRequest.getIdentifier() );
+        if( dl == null ) {
+            // not (yet) in our model
+            return;
+        }
+        applyState(dl, downloadRequest);
     }
 }

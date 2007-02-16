@@ -19,12 +19,10 @@
 package frost.fcp.fcp07.persistence;
 
 import java.util.*;
-import java.util.concurrent.*;
 import java.util.logging.*;
 
 import frost.fcp.fcp07.*;
 import frost.fileTransfer.*;
-import frost.util.*;
 
 public class FcpPersistentQueue {
 
@@ -33,29 +31,19 @@ public class FcpPersistentQueue {
     private FcpPersistentConnectionTools fcpTools;
     private IFcpPersistentRequestsHandler persistenceHandler;
     
-    private SyncThread syncThread;
     private NodeMessageHandler messageHandler;
     
     public FcpPersistentQueue(FcpPersistentConnectionTools tools, PersistenceManager pman) {
         fcpTools = tools;
         persistenceHandler = pman;
         messageHandler = new NodeMessageHandler();
-        syncThread = new SyncThread(messageHandler);
     }
     
     public void startThreads() {
         FcpPersistentConnection.getInstance().addNodeMessageListener(messageHandler);
-        fcpTools.watchGlobal(true);
-
-        syncThread.start();        
+        fcpTools.watchGlobal(true); // returns a ListPersistentRequest answer, all requests in global queue 
     }
-
-    public void awakeSyncThread() {
-        if( syncThread != null && !syncThread.isInterrupted() ) {
-            syncThread.interrupt();
-        }
-    }
-
+    
     public Map<String,FcpPersistentPut> getUploadRequests() {
         return messageHandler.getUploadRequestsCopy();
     }
@@ -63,110 +51,23 @@ public class FcpPersistentQueue {
         return messageHandler.getDownloadRequestsCopy();
     }
 
-    /**
-     * Receives persistent requests list from node and syncs them against the items in
-     * upload and download model.
-     * Starts uploads and downloads, adds / removes external requests 
-     */
-    private class SyncThread extends Thread {
-        
-        NodeMessageHandler nodeMessageHandler;
-        
-        public SyncThread(NodeMessageHandler newNodeMessageHandler) {
-            super();
-            nodeMessageHandler = newNodeMessageHandler;
-        }
-        
-        public void run() {
-            final int maxAllowedExceptions = 5;
-            int occuredExceptions = 0;
-            
-            // initial delay
-            Mixed.wait(1000);
-
-            while(true) {
-                try {
-                    nodeMessageHandler.clearKnownIdentifiers();
-                    fcpTools.listPersistentRequests();
-                    
-                    // wait for end of list
-                    nodeMessageHandler.waitForEnd();
-                    
-                    // notify manager
-                    persistenceHandler.requestsUpdated(getUploadRequests(), getDownloadRequests());
-                    
-                    // delay until next run
-                    try {
-                        Thread.sleep(10000);
-                    } catch (InterruptedException e) {
-                        // if we were interrupted then new items were added
-                        // wait some more time to let batch adds finished, then begin process
-                        // we hold the interrupted state to not get interrupted during this wait again
-                        Mixed.wait(500);
-                    }
-                    interrupted(); // clear interrupted state
-                    
-                } catch(Throwable t) {
-                    logger.log(Level.SEVERE, "Exception catched",t);
-                    occuredExceptions++;
-                }
-                
-                if( occuredExceptions > maxAllowedExceptions ) {
-                    logger.log(Level.SEVERE, "Stopping SyncThread because of too much exceptions");
-                    break;
-                }
-            }
-        }
-    }
-    
     private class NodeMessageHandler implements NodeMessageListener {
 
+        // we hold all requests, gui shows only the wanted requests (all or own)
         private HashMap<String,FcpPersistentPut> uploadRequests = new HashMap<String,FcpPersistentPut>();
         private HashMap<String,FcpPersistentGet> downloadRequests = new HashMap<String,FcpPersistentGet>();
 
-        private Semaphore waitForEndLock = new Semaphore(1);
-        
-        private boolean isProcessingList = false; // true during processing of ListPersistentRequests
-        
-        public synchronized void clearKnownIdentifiers() {
-            isProcessingList = true;
-            uploadRequests.clear();
-            downloadRequests.clear();
-            if( waitForEndLock.tryAcquire() == false ) {
-                System.out.println("ALERT: semaphore could not be acquired!");
-                logger.severe("ALERT: semaphore could not be acquired!");
-            }
+        public void handleNodeMessage(NodeMessage nm) {
+            // handle a NodeMessage without identifier
         }
-
+        
         @SuppressWarnings("unchecked")
         public synchronized Map<String,FcpPersistentPut> getUploadRequestsCopy() {
             return (Map<String,FcpPersistentPut>)uploadRequests.clone();
         }
-        
         @SuppressWarnings("unchecked")
         public synchronized Map<String,FcpPersistentGet> getDownloadRequestsCopy() {
             return (Map<String,FcpPersistentGet>)downloadRequests.clone();
-        }
-        
-        /**
-         * Called by SyncThread to wait for end of list.
-         */
-        public void waitForEnd() {
-            waitForEndLock.acquireUninterruptibly();
-            // give back immediately for next run
-            waitForEndLock.release();
-        }
-        
-        private boolean isProcessingList() {
-            return isProcessingList;
-        }
-
-        public void handleNodeMessage(NodeMessage nm) {
-            if( nm.isMessageName("EndListPersistentRequests") ) {
-                // unlock syncthread
-                isProcessingList = false;
-                waitForEndLock.release();
-            }
         }
         
         public void handleNodeMessage(String id, NodeMessage nm) {
@@ -205,48 +106,41 @@ public class FcpPersistentQueue {
             if( downloadRequests.containsKey(id) ) {
                 FcpPersistentGet pg = downloadRequests.get(id);
                 pg.setRequest(nm);
-                persistenceHandler.downloadRequestUpdated(pg);
+                persistenceHandler.persistentRequestUpdated(pg);
                 return;
             } else {
                 FcpPersistentGet fpg = new FcpPersistentGet(nm, id);
                 downloadRequests.put(id, fpg);
-                // we don't add new items on the fly
+                persistenceHandler.persistentRequestAdded(fpg);
             }
         }
         protected void onDataFound(String id, NodeMessage nm) {
             if( !downloadRequests.containsKey(id) ) {
                 System.out.println("No item in download queue: "+nm);
-                return;
             } else {
                 FcpPersistentGet pg = downloadRequests.get(id); 
                 pg.setSuccess(nm);
-                if( !isProcessingList() ) {
-                    persistenceHandler.downloadRequestUpdated(pg);
-                }
+                persistenceHandler.persistentRequestUpdated(pg);
             }
         }
         protected void onGetFailed(String id, NodeMessage nm) {
             if( !downloadRequests.containsKey(id) ) {
                 System.out.println("No item in download queue: "+nm);
-                return;
             } else {
                 FcpPersistentGet pg = downloadRequests.get(id); 
                 pg.setFailed(nm);
-                if( !isProcessingList() ) {
-                    persistenceHandler.downloadRequestUpdated(pg);
-                }
+                persistenceHandler.persistentRequestUpdated(pg);
             }
         }
         protected void onPersistentPut(String id, NodeMessage nm) {
             if( uploadRequests.containsKey(id) ) {
                 FcpPersistentPut pg = uploadRequests.get(id);
                 pg.setRequest(nm);
-                persistenceHandler.uploadRequestUpdated(pg);
-                return;
+                persistenceHandler.persistentRequestUpdated(pg);
             } else {
                 FcpPersistentPut fpg = new FcpPersistentPut(nm, id);
                 uploadRequests.put(id, fpg);
-                // we don't add new items on the fly
+                persistenceHandler.persistentRequestAdded(fpg);
             }
         }
         protected void onPutSuccessful(String id, NodeMessage nm) {
@@ -256,9 +150,7 @@ public class FcpPersistentQueue {
             } else {
                 FcpPersistentPut pg = uploadRequests.get(id); 
                 pg.setSuccess(nm);
-                if( !isProcessingList() ) {
-                    persistenceHandler.uploadRequestUpdated(pg);
-                }
+                persistenceHandler.persistentRequestUpdated(pg);
             }
         }
         protected void onPutFailed(String id, NodeMessage nm) {
@@ -268,53 +160,62 @@ public class FcpPersistentQueue {
             } else {
                 FcpPersistentPut pp = uploadRequests.get(id); 
                 pp.setFailed(nm);
-                if( !isProcessingList() ) {
-                    persistenceHandler.uploadRequestUpdated(pp);
-                }
+                persistenceHandler.persistentRequestUpdated(pp);
             }
         }
         protected void onSimpleProgress(String id, NodeMessage nm) {
             if( downloadRequests.containsKey(id) ) {
                 FcpPersistentGet pg = downloadRequests.get(id); 
                 pg.setProgress(nm);
-                if( !isProcessingList() ) {
-                    persistenceHandler.downloadRequestUpdated(pg);
-                }
-
+                persistenceHandler.persistentRequestUpdated(pg);
             } else if( uploadRequests.containsKey(id) ) {
                 FcpPersistentPut pg = uploadRequests.get(id); 
                 pg.setProgress(nm);
-                if( !isProcessingList() ) {
-                    persistenceHandler.uploadRequestUpdated(pg);
-                }
+                persistenceHandler.persistentRequestUpdated(pg);
             } else {
                 System.out.println("No item in queue: "+nm);
                 return;
             }
         }
         protected void onPersistentRequestRemoved(String id, NodeMessage nm) {
-            persistenceHandler.persistentRequestRemoved(id);
+            if( downloadRequests.containsKey(id) ) {
+                FcpPersistentGet pg = downloadRequests.remove(id); 
+                persistenceHandler.persistentRequestRemoved(pg);
+            } else if( uploadRequests.containsKey(id) ) {
+                FcpPersistentPut pg = uploadRequests.remove(id);
+                persistenceHandler.persistentRequestRemoved(pg);
+            } else {
+                System.out.println("No item in queue: "+nm);
+                return;
+            }
         }
         protected void onPersistentRequestModified(String id, NodeMessage nm) {
             // check if the priorityClass changed, ignore other changes
             if( nm.isValueSet("PriorityClass") ) {
                 int newPriorityClass = nm.getIntValue("PriorityClass");
-                persistenceHandler.persistentRequestModified(id, newPriorityClass);
+                if( downloadRequests.containsKey(id) ) {
+                    FcpPersistentGet pg = downloadRequests.get(id);
+                    pg.setPriority(newPriorityClass);
+                    persistenceHandler.persistentRequestModified(pg);
+                } else if( uploadRequests.containsKey(id) ) {
+                    FcpPersistentPut pg = uploadRequests.get(id); 
+                    pg.setPriority(newPriorityClass);
+                    persistenceHandler.persistentRequestModified(pg);
+                } else {
+                    System.out.println("No item in queue: "+nm);
+                    return;
+                }
             }
         }
         protected void onProtocolError(String id, NodeMessage nm) {
             if( downloadRequests.containsKey(id) ) {
                 FcpPersistentGet pg = downloadRequests.get(id); 
                 pg.setFailed(nm);
-                if( !isProcessingList() ) {
-                    persistenceHandler.downloadRequestUpdated(pg);
-                }
+                persistenceHandler.persistentRequestUpdated(pg);
             } else if( uploadRequests.containsKey(id) ) {
                 FcpPersistentPut pg = uploadRequests.get(id); 
                 pg.setFailed(nm);
-                if( !isProcessingList() ) {
-                    persistenceHandler.uploadRequestUpdated(pg);
-                }
+                persistenceHandler.persistentRequestUpdated(pg);
             } else {
                 System.out.println("No item in queue: +nm");
                 return;

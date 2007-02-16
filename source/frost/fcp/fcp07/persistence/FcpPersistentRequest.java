@@ -112,4 +112,7 @@ public abstract class FcpPersistentRequest extends Observable {
     public int getPriority() {
         return priority;
     }
+    public void setPriority(int newp) {
+        priority = newp;
+    }
 }

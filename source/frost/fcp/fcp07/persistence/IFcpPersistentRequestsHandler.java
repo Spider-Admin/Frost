@@ -18,26 +18,18 @@
 */
 package frost.fcp.fcp07.persistence;
 
-import java.util.*;
 
 public interface IFcpPersistentRequestsHandler {
 
-    /**
-     * Called after ListPersistentRequests with current upload and download requests.
-     */
-    public void requestsUpdated(Map<String,FcpPersistentPut> uploadRequests, Map<String,FcpPersistentGet> downloadRequests);
+    public void persistentRequestAdded(FcpPersistentPut uploadRequest);
+    public void persistentRequestAdded(FcpPersistentGet downloadRequest);
+
+    public void persistentRequestUpdated(FcpPersistentPut uploadRequest);
+    public void persistentRequestUpdated(FcpPersistentGet downloadRequest);
     
-    /**
-     * Called if an upload request was updated between ListPersistentRequest.
-     */
-    public void uploadRequestUpdated(FcpPersistentPut uploadRequest);
+    public void persistentRequestRemoved(FcpPersistentPut uploadRequest);
+    public void persistentRequestRemoved(FcpPersistentGet downloadRequest);
     
-    /**
-     * Called if an download request was updated between ListPersistentRequest.
-     */
-    public void downloadRequestUpdated(FcpPersistentGet downloadRequest);
-    
-    public void persistentRequestRemoved(String id);
-    
-    public void persistentRequestModified(String id, int newPriorityClass);
+    public void persistentRequestModified(FcpPersistentPut uploadRequest);
+    public void persistentRequestModified(FcpPersistentGet downloadRequest);
 }
