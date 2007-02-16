@@ -112,6 +112,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
             // file is already in FILELIST table, maybe add new FILEOWNER and update fields
             // maybe update oldSfo
             boolean doUpdate = false;
+            // FIXME: 1010 fix?!
             if( oldSfo.getKey() == null && newSfo.getKey() != null ) {
                 oldSfo.setKey(newSfo.getKey()); doUpdate = true;
             }
