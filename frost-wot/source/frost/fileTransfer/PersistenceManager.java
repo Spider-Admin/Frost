@@ -419,7 +419,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             } else {
                 int runningUploads = 0;
                 for(FrostUploadItem ulItem : uploadModelItems.values() ) {
-                    if( ulItem.getState() == FrostUploadItem.STATE_PROGRESS) {
+                    if( !ulItem.isExternal() && ulItem.getState() == FrostUploadItem.STATE_PROGRESS) {
                         runningUploads++;
                     }
                 }
@@ -468,7 +468,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             } else {
                 int runningDownloads = 0;
                 for(FrostDownloadItem dlItem : downloadModelItems.values() ) {
-                    if( dlItem.getState() == FrostDownloadItem.STATE_PROGRESS) {
+                    if( !dlItem.isExternal() && dlItem.getState() == FrostDownloadItem.STATE_PROGRESS) {
                         runningDownloads++;
                     }
                 }
@@ -751,9 +751,11 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                     }
                 });
             } else {
-                ulItem.setEnabled(false);
-                ulItem.setState(FrostUploadItem.STATE_FAILED);
-                ulItem.setErrorCodeDescription("Disappeared from global queue");
+                if( ulItem.getState() != FrostUploadItem.STATE_DONE ) {
+                    ulItem.setEnabled(false);
+                    ulItem.setState(FrostUploadItem.STATE_FAILED);
+                    ulItem.setErrorCodeDescription("Disappeared from global queue");
+                }
             }
         }
     }
@@ -768,9 +770,11 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                     }
                 });
             } else {
-                dlItem.setEnabled(false);
-                dlItem.setState(FrostUploadItem.STATE_FAILED);
-                dlItem.setErrorCodeDescription("Disappeared from global queue");
+                if( dlItem.getState() != FrostDownloadItem.STATE_DONE ) {
+                    dlItem.setEnabled(false);
+                    dlItem.setState(FrostUploadItem.STATE_FAILED);
+                    dlItem.setErrorCodeDescription("Disappeared from global queue");
+                }
             }
         }    
     }
