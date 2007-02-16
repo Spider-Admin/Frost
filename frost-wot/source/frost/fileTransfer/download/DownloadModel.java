@@ -148,9 +148,7 @@ public class DownloadModel extends SortedModel implements Savable {
         }
         if (items.size() > 0) {
             FrostDownloadItem[] itemsArray = new FrostDownloadItem[items.size()];
-            for (int i = 0; i < itemsArray.length; i++) {
-                itemsArray[i] = (FrostDownloadItem) items.get(i);
-            }
+            items.toArray(itemsArray);
             removeItems(itemsArray);
         }
     }
