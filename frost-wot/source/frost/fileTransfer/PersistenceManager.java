@@ -511,7 +511,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
     private void showExternalDownloadItems() {
         Map<String,FcpPersistentGet> items = persistentQueue.getDownloadRequests();
         for(FcpPersistentGet downloadRequest : items.values() ) {
-            if( !uploadModelItems.containsKey(downloadRequest.getIdentifier()) ) {
+            if( !downloadModelItems.containsKey(downloadRequest.getIdentifier()) ) {
                 addExternalItem(downloadRequest);
             }
         }
