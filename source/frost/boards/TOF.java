@@ -599,7 +599,7 @@ public class TOF {
         /**
          * Start to load messages one by one.
          */
-        private void loadMessages(MessageDatabaseTableCallback callback) {
+        private void loadMessages(MessageDatabaseTableCallback callback, boolean showUnreadOnly) {
             
             boolean showDeletedMessages = Core.frostSettings.getBoolValue("showDeletedMessages");
             
@@ -610,6 +610,7 @@ public class TOF {
                         false, 
                         false, 
                         showDeletedMessages,
+                        showUnreadOnly,
                         callback);
                 
             } catch (SQLException e) {
@@ -636,6 +637,7 @@ public class TOF {
             final FrostMessageObject rootNode = new FrostMessageObject(true);
 
             boolean loadThreads = Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS);
+            boolean showUnreadOnly = Core.frostSettings.getBoolValue(SettingsClass.SHOW_UNREAD_ONLY);
             
             // update SortStateBean
             MessageTreeTableSortStateBean.setThreaded(loadThreads);
@@ -643,7 +645,7 @@ public class TOF {
             if( loadThreads  ) {
                 ThreadedMessageRetrieval tmr = new ThreadedMessageRetrieval(rootNode);
                 long l1 = System.currentTimeMillis();
-                loadMessages(tmr);
+                loadMessages(tmr, showUnreadOnly);
                 long l2 = System.currentTimeMillis();
                 tmr.buildThreads();
                 long l3 = System.currentTimeMillis();
@@ -652,7 +654,7 @@ public class TOF {
             } else {
                 // load flat
                 FlatMessageRetrieval ffr = new FlatMessageRetrieval(rootNode);
-                loadMessages(ffr);
+                loadMessages(ffr, showUnreadOnly);
             }
             
             if( !isCancel() ) {
