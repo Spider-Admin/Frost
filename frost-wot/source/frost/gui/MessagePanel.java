@@ -81,6 +81,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 setCheckButton_actionPerformed(e);
             } else if (e.getSource() == setObserveButton) {
                 setObserveButton_actionPerformed(e);
+            } else if (e.getSource() == toggleShowUnreadOnly) {
+                toggleShowUnreadOnly_actionPerformed(e);
             } else if (e.getSource() == toggleShowThreads) {
                 toggleShowThreads_actionPerformed(e);
             } else if (e.getSource() == toggleShowSmileys) {
@@ -479,6 +481,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     private JButton setBadButton =
         new JButton(new ImageIcon(getClass().getResource("/data/nottrust.gif")));
     
+    private JToggleButton toggleShowUnreadOnly = new JToggleButton("");
+
     private JToggleButton toggleShowThreads = new JToggleButton("");
     private JToggleButton toggleShowSmileys = new JToggleButton("");
     private JToggleButton toggleShowHyperlinks = new JToggleButton("");
@@ -516,6 +520,15 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         setCheckButton.setEnabled(false);
         setBadButton.setEnabled(false);
         setObserveButton.setEnabled(false);
+
+        toggleShowUnreadOnly.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SHOW_UNREAD_ONLY));
+        toggleShowUnreadOnly.setText("Unread");
+//        toggleShowUnreadOnly.setIcon(new ImageIcon(getClass().getResource("/data/togglethreads.gif")));
+        toggleShowUnreadOnly.setMargin(new Insets(0, 0, 0, 0));
+        toggleShowUnreadOnly.setPreferredSize(new Dimension(24,24));
+        toggleShowUnreadOnly.setFocusPainted(false);
+//      FIXME: translate
+        toggleShowUnreadOnly.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowUnreadOnly"));
 
         toggleShowThreads.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS));
         toggleShowThreads.setIcon(new ImageIcon(getClass().getResource("/data/togglethreads.gif")));
@@ -574,6 +587,10 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         buttonsToolbar.add(Box.createRigidArea(blankSpace));
         buttonsToolbar.addSeparator();
         buttonsToolbar.add(Box.createRigidArea(blankSpace));
+        buttonsToolbar.add(toggleShowUnreadOnly);
+        buttonsToolbar.add(Box.createRigidArea(blankSpace));
+        buttonsToolbar.addSeparator();
+        buttonsToolbar.add(Box.createRigidArea(blankSpace));
         buttonsToolbar.add(toggleShowThreads);
         buttonsToolbar.add(Box.createRigidArea(blankSpace));
         buttonsToolbar.add(toggleShowSmileys);
@@ -606,6 +623,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         setCheckButton.addActionListener(listener);
         setBadButton.addActionListener(listener);
         setObserveButton.addActionListener(listener);
+        toggleShowUnreadOnly.addActionListener(listener);
         toggleShowThreads.addActionListener(listener);
         toggleShowSmileys.addActionListener(listener);
         toggleShowHyperlinks.addActionListener(listener);
@@ -937,6 +955,14 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         updateTableAfterChangeOfIdentityState();
     }
     
+    private void toggleShowUnreadOnly_actionPerformed(ActionEvent e) {
+        boolean oldValue = Core.frostSettings.getBoolValue(SettingsClass.SHOW_UNREAD_ONLY);
+        boolean newValue = !oldValue;
+        Core.frostSettings.setValue(SettingsClass.SHOW_UNREAD_ONLY, newValue);
+        // reload messages
+        MainFrame.getInstance().tofTree_actionPerformed(null, true);
+    }
+
     private void toggleShowThreads_actionPerformed(ActionEvent e) {
         boolean oldValue = Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS);
         boolean newValue = !oldValue;
@@ -971,6 +997,10 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         setCheckButton.setToolTipText(language.getString("MessagePane.toolbar.tooltip.setToCheck"));
         setObserveButton.setToolTipText(language.getString("MessagePane.toolbar.tooltip.setToObserve"));
         updateButton.setToolTipText(language.getString("MessagePane.toolbar.tooltip.update"));
+        toggleShowUnreadOnly.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowUnreadOnly"));
+        toggleShowThreads.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowThreads"));
+        toggleShowSmileys.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowSmileys"));
+        toggleShowHyperlinks.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowHyperlinks"));
     }
 
     private void replyButton_actionPerformed(ActionEvent e) {

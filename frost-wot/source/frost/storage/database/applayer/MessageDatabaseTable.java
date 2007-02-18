@@ -472,7 +472,8 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
             int maxDaysBack, 
             boolean withContent,
             boolean withAttachments,
-            boolean showDeleted, 
+            boolean showDeleted,
+            boolean showUnreadOnly,
             MessageDatabaseTableCallback mc) 
     throws SQLException 
     {
@@ -482,10 +483,14 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
             "primkey,messageid,inreplyto,msgdatetime,msgindex,fromname,subject,recipient," +
             "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
             "hasfileattachment,hasboardattachment,idlinepos,idlinelen";
-        sql += " FROM "+getMessageTableName()+" WHERE msgdatetime>=? AND board=? AND isvalid=TRUE ";
+        sql += " FROM "+getMessageTableName()+" WHERE msgdatetime>=? AND board=? AND isvalid=TRUE";
         if( !showDeleted ) {
             // don't select deleted msgs
-            sql += "AND isdeleted=FALSE ";
+            sql += " AND isdeleted=FALSE";
+        }
+        if( showUnreadOnly ) {
+            // only new messages
+            sql += " AND isnew=TRUE";
         }
 
         PreparedStatement ps = db.prepareStatement(sql);
@@ -495,13 +500,10 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         ps.setInt(2, board.getPrimaryKey().intValue());
 
         ResultSet rs = ps.executeQuery();
-int cnt=0;
+
         while( rs.next() ) {
             FrostMessageObject mo = resultSetToFrostMessageObject(rs, board, withContent, withAttachments);
             boolean shouldStop = mc.messageRetrieved(mo); // pass to callback
-            if( mo.isNew() ) {
-                cnt++;
-            }
             if( shouldStop ) {
                 break;
             }

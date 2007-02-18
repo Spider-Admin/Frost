@@ -155,6 +155,8 @@ public class SettingsClass implements Savable {
 
     public static final String SHOW_THREADS = "MessagePanel.showThreads";
 
+    public static final String SHOW_UNREAD_ONLY = "MessagePanel.showUnreadOnly";
+
     public static final String SHOW_COLORED_ROWS = "showColoredRows";
     public static final String SHOW_SMILEYS = "showSmileys";
     public static final String SHOW_KEYS_AS_HYPERLINKS = "showKeysAsHyperlinks";
