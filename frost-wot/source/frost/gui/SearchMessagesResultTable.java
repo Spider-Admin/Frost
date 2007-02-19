@@ -192,16 +192,6 @@ public class SearchMessagesResultTable extends SortedTable {
             TableColumn tableColumn = getColumnModel().getColumn(column);
             column = tableColumn.getModelIndex();
             
-            /*
-                case 0: return Boolean.valueOf(messageObject.isFlagged());
-                case 1: return Boolean.valueOf(messageObject.isStarred());
-                case 2: return ""+messageObject.getIndex();
-                case 3: return messageObject.getFromName();
-                case 4: return messageObject.getBoard().getName();
-                case 5: return messageObject.getSubject();
-                case 6: return messageObject.getMessageStatusString();
-                case 7: return messageObject.getDateAndTime();
-             */
             setIcon(null);
             setToolTipText(null);
             

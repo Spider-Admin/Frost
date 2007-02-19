@@ -121,7 +121,7 @@ public class IdentitiesBrowser extends JDialog {
     
     private void updateTitle() {
         int idCount = tableModel.getRowCount();
-        setTitle(language.formatMessage("IdentitiesBrowser.title", ""+idCount));
+        setTitle(language.formatMessage("IdentitiesBrowser.title", Integer.toString(idCount)));
     }
 
     /**
@@ -488,7 +488,7 @@ public class IdentitiesBrowser extends JDialog {
                     int[] selRows = getIdentitiesTable().getSelectedRows();
                     int answer = JOptionPane.showConfirmDialog(
                             IdentitiesBrowser.this,
-                            language.formatMessage("IdentitiesBrowser.deleteDialog.body", ""+selRows.length), 
+                            language.formatMessage("IdentitiesBrowser.deleteDialog.body", Integer.toString(selRows.length)), 
                             language.getString("IdentitiesBrowser.deleteDialog.title"), 
                             JOptionPane.YES_NO_OPTION,
                             JOptionPane.QUESTION_MESSAGE);
@@ -842,7 +842,7 @@ public class IdentitiesBrowser extends JDialog {
                     }
                     int answer = JOptionPane.showConfirmDialog(
                             IdentitiesBrowser.this,
-                            language.formatMessage("IdentitiesBrowser.cleanupDialog.deleteIdentities.body", ""+li.size()), 
+                            language.formatMessage("IdentitiesBrowser.cleanupDialog.deleteIdentities.body", Integer.toString(li.size())), 
                             language.getString("IdentitiesBrowser.cleanupDialog.deleteIdentities.title"), 
                             JOptionPane.YES_NO_OPTION,
                             JOptionPane.QUESTION_MESSAGE);
@@ -1076,9 +1076,12 @@ public class IdentitiesBrowser extends JDialog {
 
                     JOptionPane.showMessageDialog(
                             IdentitiesBrowser.this, 
-                            language.formatMessage("IdentitiesBrowser.identitiesImported.body", ""+importedCount, ""+skippedCount), 
-                            language.getString("IdentitiesBrowser.identitiesImported.title"), 
-                            JOptionPane.INFORMATION_MESSAGE);
+                            language.formatMessage(
+                                    "IdentitiesBrowser.identitiesImported.body", 
+                                    Integer.toString(importedCount), 
+                                    Integer.toString(skippedCount)), 
+                                language.getString("IdentitiesBrowser.identitiesImported.title"), 
+                                JOptionPane.INFORMATION_MESSAGE);
                     
                     updateTitle();
                 }
@@ -1109,7 +1112,7 @@ public class IdentitiesBrowser extends JDialog {
                         // 'count' identities exported
                         JOptionPane.showMessageDialog(
                                 IdentitiesBrowser.this, 
-                                language.formatMessage("IdentitiesBrowser.identitiesExported.body", ""+count), 
+                                language.formatMessage("IdentitiesBrowser.identitiesExported.body", Integer.toString(count)), 
                                 language.getString("IdentitiesBrowser.identitiesExported.title"), 
                                 JOptionPane.INFORMATION_MESSAGE);
                     } else if( count < 0 ) {

@@ -399,7 +399,9 @@ public class MessageUploader {
         if( allLength > 32767 ) { // limit in FcpInsert.putFile()
             Language language = Language.getInstance();
             String title = language.getString("MessageUploader.messageToLargeError.title");
-            String txt = language.formatMessage("MessageUploader.messageToLargeError.text", ""+allLength, ""+32767);
+            String txt = language.formatMessage("MessageUploader.messageToLargeError.text", 
+                    Long.toString(allLength), 
+                    Integer.toString(32767));
             JOptionPane.showMessageDialog(wa.parentFrame, txt, title, JOptionPane.ERROR_MESSAGE);
             return false;
         }

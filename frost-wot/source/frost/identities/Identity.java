@@ -103,7 +103,7 @@ public class Identity implements XMLizable {
 
         if( lastSeenTimestamp > -1 ) {
             Element element = doc.createElement("lastSeen");
-            Text txt = doc.createTextNode(""+lastSeenTimestamp);
+            Text txt = doc.createTextNode(Long.toString(lastSeenTimestamp));
             element.appendChild( txt );
             el.appendChild( element );
         }

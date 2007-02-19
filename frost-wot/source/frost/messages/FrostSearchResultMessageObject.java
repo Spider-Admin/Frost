@@ -83,7 +83,7 @@ public class FrostSearchResultMessageObject implements TableMember {
         switch(column) {
             case 0: return Boolean.valueOf(messageObject.isFlagged());
             case 1: return Boolean.valueOf(messageObject.isStarred());
-            case 2: return ""+messageObject.getIndex();
+            case 2: return Integer.toString(messageObject.getIndex());
             case 3: return messageObject.getFromName();
             case 4: return messageObject.getBoard().getName();
             case 5: return messageObject.getSubject();

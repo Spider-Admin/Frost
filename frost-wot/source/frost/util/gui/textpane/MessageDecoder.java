@@ -226,10 +226,10 @@ public class MessageDecoder extends Decoder implements Smileys, MessageTypes {
         return getCachedSmiley(i, getClass().getClassLoader());
 	}
 
-    protected static Hashtable smileyCache = new Hashtable();
+    protected static Hashtable<String,ImageIcon> smileyCache = new Hashtable<String,ImageIcon>();
     
     protected static synchronized ImageIcon getCachedSmiley(int i, ClassLoader cl) {
-        String si = ""+i;
+        String si = Integer.toString(i);
         ImageIcon ii = (ImageIcon)smileyCache.get(si);
         if( ii == null ) {
             ii = new ImageIcon(cl.getResource("data/smileys/"+i+".gif"));

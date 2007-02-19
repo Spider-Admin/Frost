@@ -65,7 +65,7 @@ public class KnownBoardsFrame extends JDialog {
     
     private JSkinnablePopupMenu tablePopupMenu;
 
-    private List allKnownBoardsList; // a list of all boards, needed as data source when we filter in the table
+    private List<KnownBoardsTableMember> allKnownBoardsList; // a list of all boards, needed as data source when we filter in the table
     
     private boolean showColoredLines;
 
@@ -281,7 +281,7 @@ public class KnownBoardsFrame extends JDialog {
     }
 
     private void loadKnownBoardsIntoTable(boolean showHidden) {
-        allKnownBoardsList = new LinkedList();
+        allKnownBoardsList = new LinkedList<KnownBoardsTableMember>();
         this.tableModel.clearDataModel();
         TFfilterBoard.setText("");
         TFlookupBoard.setText("");
@@ -345,7 +345,7 @@ public class KnownBoardsFrame extends JDialog {
                 KnownBoardsTableMember row = (KnownBoardsTableMember) tableModel.getRow(rowIx);
                 tofTree.addNewBoard(row.getBoard());
                 tableModel.deleteRow(row);
-                allKnownBoardsList.remove(row.getBoard());
+                allKnownBoardsList.remove(row);
             }
             boardsTable.clearSelection();
 
@@ -373,7 +373,7 @@ public class KnownBoardsFrame extends JDialog {
                 KnownBoardsTableMember row = (KnownBoardsTableMember) tableModel.getRow(rowIx);
                 MainFrame.getInstance().getTofTreeModel().addNodeToTree(row.getBoard(), targetFolder);
                 tableModel.deleteRow(row);
-                allKnownBoardsList.remove(row.getBoard());
+                allKnownBoardsList.remove(row);
             }
             boardsTable.clearSelection();
 
@@ -394,10 +394,9 @@ public class KnownBoardsFrame extends JDialog {
                 KnownBoardsTableMember row = (KnownBoardsTableMember) tableModel.getRow(rowIx);
                 tableModel.deleteRow(row);
 
-                KnownBoard b = row.getBoard();
-                allKnownBoardsList.remove(b);
+                allKnownBoardsList.remove(row);
                 // remove from global list of known boards
-                KnownBoardsManager.deleteKnownBoard(b);
+                KnownBoardsManager.deleteKnownBoard(row.getBoard());
             }
             boardsTable.clearSelection();
             
@@ -473,7 +472,7 @@ public class KnownBoardsFrame extends JDialog {
         if( xmlFile == null ) {
             return;
         }
-        List imports = KnownBoardsXmlDAO.loadKnownBoards(xmlFile);
+        List<Board> imports = KnownBoardsXmlDAO.loadKnownBoards(xmlFile);
         if( imports.size() == 0 ) {
             MiscToolkit.getInstance().showMessage(
                     language.getString("KnownBoardsFrame.noBoardsImported.body"),
@@ -483,9 +482,9 @@ public class KnownBoardsFrame extends JDialog {
             int added = KnownBoardsManager.addNewKnownBoards(imports);
             MiscToolkit.getInstance().showMessage(
                     language.formatMessage("KnownBoardsFrame.boardsImported.body", 
-                            ""+imports.size(), 
+                            Integer.toString(imports.size()), 
                             xmlFile.getName(),
-                            ""+added),
+                            Integer.toString(added)),
                     JOptionPane.WARNING_MESSAGE, 
                     language.getString("KnownBoardsFrame.boardsImported.title"));
             loadKnownBoardsIntoTable(CBshowHidden.isSelected());
@@ -498,7 +497,7 @@ public class KnownBoardsFrame extends JDialog {
             return;
         }
         // don't export hidden boards
-        List frostboards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
+        List<Board> frostboards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
         frostboards.addAll(KnownBoardsManager.getKnownBoardsList());
         for(Iterator i=frostboards.iterator(); i.hasNext(); ) {
             Board b = (Board) i.next();
@@ -509,7 +508,7 @@ public class KnownBoardsFrame extends JDialog {
 
         if( KnownBoardsXmlDAO.saveKnownBoards(xmlFile, frostboards) ) {
             MiscToolkit.getInstance().showMessage(
-                    language.formatMessage("KnownBoardsFrame.boardsExported.body", ""+frostboards.size(), xmlFile.getName()),
+                    language.formatMessage("KnownBoardsFrame.boardsExported.body", Integer.toString(frostboards.size()), xmlFile.getName()),
                     JOptionPane.INFORMATION_MESSAGE, 
                     language.getString("KnownBoardsFrame.boardsExported.title"));
         } else {
@@ -657,8 +656,8 @@ public class KnownBoardsFrame extends JDialog {
             txt = txt.toLowerCase();
             // filter: show all boards that have this txt in name
             tableModel.clearDataModel();
-            for(Iterator i = allKnownBoardsList.iterator(); i.hasNext();  ) {
-                KnownBoardsTableMember tm = (KnownBoardsTableMember)i.next();
+            for(Iterator<KnownBoardsTableMember> i = allKnownBoardsList.iterator(); i.hasNext();  ) {
+                KnownBoardsTableMember tm = i.next();
                 if( txt.length() > 0 ) {
                     String bn = tm.getBoard().getName().toLowerCase();
                     if( bn.indexOf(txt) < 0 ) {

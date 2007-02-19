@@ -804,7 +804,9 @@ public class MessageFrame extends JFrame {
         int maxTextLength = (64*1024);
         if( text.length() > maxTextLength ) {
             JOptionPane.showMessageDialog( this,
-                    language.formatMessage("MessageFrame.textTooLargeError.text", ""+text.length(), ""+maxTextLength),
+                    language.formatMessage("MessageFrame.textTooLargeError.text", 
+                            Integer.toString(text.length()), 
+                            Integer.toString(maxTextLength)),
                     language.getString("MessageFrame.textTooLargeError.title"),
                     JOptionPane.ERROR_MESSAGE);
             return;
@@ -1379,7 +1381,7 @@ public class MessageFrame extends JFrame {
         public Object getValueAt(int column)  {
             switch(column) {
                 case 0: return aFile.getName();
-                case 1: return ""+aFile.length();
+                case 1: return Long.toString(aFile.length());
             }
             return "*ERR*";
         }

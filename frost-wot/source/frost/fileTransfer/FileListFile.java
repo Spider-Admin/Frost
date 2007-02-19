@@ -73,7 +73,7 @@ public class FileListFile {
 
         {
             Element timeStampElement = doc.createElement(TAG_timestamp);
-            Text timeStampText = doc.createTextNode( ""+content.getTimestamp() );
+            Text timeStampText = doc.createTextNode( Long.toString(content.getTimestamp()) );
             timeStampElement.appendChild(timeStampText);
             rootElement.appendChild( timeStampElement );
         }
