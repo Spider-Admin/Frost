@@ -441,12 +441,20 @@ public class TOF {
          * Adds new messages flat to the rootnode, blocked msgs are not added.
          */
         private class FlatMessageRetrieval implements MessageDatabaseTableCallback {
-            FrostMessageObject rootNode;
+
+            private final FrostMessageObject rootNode;
+            private final boolean blockMsgSubject;
+            private final boolean blockMsgBody;
+            private final boolean blockMsgBoardname;
+
             public FlatMessageRetrieval(FrostMessageObject root) {
                 rootNode = root;
+                blockMsgSubject = Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_SUBJECT_ENABLED);
+                blockMsgBody = Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BODY_ENABLED);
+                blockMsgBoardname = Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BOARDNAME_ENABLED);
             }
             public boolean messageRetrieved(FrostMessageObject mo) {
-                if( isBlocked(mo, board) == false ) {
+                if( isBlocked(mo, board, blockMsgSubject, blockMsgBody, blockMsgBoardname) == false ) {
                     rootNode.add(mo);
                 } else {
                     System.out.println("block!");
@@ -499,7 +507,7 @@ public class TOF {
                     if( l.size() == 0 ) {
                         continue; // no msg refs
                     }
-                    // try to load each msgid that is referenced, put tried ids into hashset msgIds
+                    // try to load each referenced msgid, put tried ids into hashset msgIds
                     for(int x=l.size()-1; x>=0; x--) {
                         String anId = (String)l.get(x);
                         if( messageIds.contains(anId) ) {
@@ -545,15 +553,15 @@ public class TOF {
                 // - add msgs with msgid and no ref to rootnode
                 // - add msgs with msgid and ref to its direct parent (last refid in list)
                 
-                // first collect msgs with id into a hashtable for lookups
-                Hashtable<String,FrostMessageObject> messagesTableById = new Hashtable<String,FrostMessageObject>();
+                // first collect msgs with id into a Map for lookups
+                HashMap<String,FrostMessageObject> messagesTableById = new HashMap<String,FrostMessageObject>();
                 for(Iterator i=messageList.iterator(); i.hasNext(); ) {
                     FrostMessageObject mo = (FrostMessageObject)i.next();
                     messagesTableById.put(mo.getMessageId(), mo);
                 }
 
                 // help the garbage collector
-                messageList.clear();
+//                messageList.clear();
                 messageList = null;
 
                 // build the threads
@@ -570,15 +578,33 @@ public class TOF {
                         parentMo.add(mo);
                     }
                 }
-                
+
                 // remove blocked msgs from the leafs
-                LinkedList<FrostMessageObject> itemsToRemove = new LinkedList<FrostMessageObject>(); 
+                final boolean blockMsgSubject = Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_SUBJECT_ENABLED);
+                final boolean blockMsgBody = Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BODY_ENABLED);
+                final boolean blockMsgBoardname = Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BOARDNAME_ENABLED);
+                List<FrostMessageObject> itemsToRemove = new ArrayList<FrostMessageObject>();
+                Set<String> checkedMessageIds = new HashSet<String>();
                 while(true) {
                     for(Enumeration e=rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
                         FrostMessageObject mo = (FrostMessageObject)e.nextElement();
                         if( mo.isLeaf() && mo != rootNode ) {
-                            if( mo.isDummy() || isBlocked(mo, mo.getBoard()) ) {
+                            if( mo.isDummy() ) {
                                 itemsToRemove.add(mo);
+                            } else if( mo.getMessageId() != null) {
+                                if( isBlocked(mo, mo.getBoard(), blockMsgSubject, blockMsgBody, blockMsgBoardname) ) {
+                                    itemsToRemove.add(mo);
+                                }
+                            } else {
+                                if( checkedMessageIds.contains(mo.getMessageId()) ) {
+                                    continue; // already checked
+                                }
+                                if( isBlocked(mo, mo.getBoard(), blockMsgSubject, blockMsgBody, blockMsgBoardname) ) {
+                                    itemsToRemove.add(mo);
+                                } else {
+                                    // checked and not blocked
+                                    checkedMessageIds.add(mo.getMessageId());
+                                }
                             }
                         }
                     }
@@ -593,15 +619,35 @@ public class TOF {
                         break;
                     }
                 }
+                // clean up
+                checkedMessageIds.clear();
+                
+                // apply the subject of first child message to dummy ROOT messages
+                for(Enumeration e=rootNode.children(); e.hasMoreElements(); ) {
+                    FrostMessageObject mo = (FrostMessageObject)e.nextElement();
+                    if( mo.isDummy() ) {
+                        // this thread root node has no subject, get subject of first valid child
+                        for(Enumeration e2=mo.breadthFirstEnumeration(); e2.hasMoreElements(); ) {
+                            FrostMessageObject childMo = (FrostMessageObject)e2.nextElement();
+                            if( !childMo.isDummy() && childMo.getSubject() != null ) {
+                                StringBuffer sb = new StringBuffer(childMo.getSubject().length() + 2);
+                                sb.append("[").append(childMo.getSubject()).append("]");
+                                mo.setSubject(sb.toString());
+                                break;
+                            }
+                        }
+                    }
+                }
             }
         }
 
         /**
          * Start to load messages one by one.
          */
-        private void loadMessages(MessageDatabaseTableCallback callback, boolean showUnreadOnly) {
+        private void loadMessages(MessageDatabaseTableCallback callback) {
             
             boolean showDeletedMessages = Core.frostSettings.getBoolValue("showDeletedMessages");
+            boolean showUnreadOnly = Core.frostSettings.getBoolValue(SettingsClass.SHOW_UNREAD_ONLY);
             
             try {
                 AppLayerDatabase.getMessageTable().retrieveMessagesForShow(
@@ -637,7 +683,6 @@ public class TOF {
             final FrostMessageObject rootNode = new FrostMessageObject(true);
 
             boolean loadThreads = Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS);
-            boolean showUnreadOnly = Core.frostSettings.getBoolValue(SettingsClass.SHOW_UNREAD_ONLY);
             
             // update SortStateBean
             MessageTreeTableSortStateBean.setThreaded(loadThreads);
@@ -645,7 +690,7 @@ public class TOF {
             if( loadThreads  ) {
                 ThreadedMessageRetrieval tmr = new ThreadedMessageRetrieval(rootNode);
                 long l1 = System.currentTimeMillis();
-                loadMessages(tmr, showUnreadOnly);
+                loadMessages(tmr);
                 long l2 = System.currentTimeMillis();
                 tmr.buildThreads();
                 long l3 = System.currentTimeMillis();
@@ -654,11 +699,11 @@ public class TOF {
             } else {
                 // load flat
                 FlatMessageRetrieval ffr = new FlatMessageRetrieval(rootNode);
-                loadMessages(ffr, showUnreadOnly);
+                loadMessages(ffr);
             }
             
             if( !isCancel() ) {
-                // count new messages, check if board has flagged or starred messages
+                // count new messages and check if board has flagged or starred messages
                 int newMessageCountWork = 0;
                 boolean hasStarredWork = false;
                 boolean hasFlaggedWork = false;
@@ -735,10 +780,28 @@ public class TOF {
 
     /**
      * Returns true if the message should not be displayed
-     * @param message The message object to check
      * @return true if message is blocked, else false
      */
     public boolean isBlocked(FrostMessageObject message, Board board) {
+        return isBlocked(
+                message,
+                board,
+                Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_SUBJECT_ENABLED),
+                Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BODY_ENABLED),
+                Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BOARDNAME_ENABLED));
+    }
+    
+    /**
+     * Returns true if the message should not be displayed
+     * @return true if message is blocked, else false
+     */
+    public boolean isBlocked(
+            FrostMessageObject message, 
+            Board board, 
+            boolean blockMsgSubject, 
+            boolean blockMsgBody,
+            boolean blockMsgBoardname) 
+    {
 
         if (board.getShowSignedOnly()
             && (message.isMessageStatusOLD() || message.isMessageStatusTAMPERED()) )
@@ -765,7 +828,7 @@ public class TOF {
         }
 
         // Block by subject (and rest of the header)
-        if (Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_SUBJECT_ENABLED)) {
+        if ( blockMsgSubject ) {
             String header = message.getSubject().toLowerCase();
             StringTokenizer blockWords = new StringTokenizer(Core.frostSettings.getValue(SettingsClass.MESSAGE_BLOCK_SUBJECT), ";");
             boolean found = false;
@@ -780,7 +843,7 @@ public class TOF {
             }
         }
         // Block by body
-        if (Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BODY_ENABLED)) {
+        if ( blockMsgBody ) {
             String content = message.getContent().toLowerCase();
             StringTokenizer blockWords =
                 new StringTokenizer(Core.frostSettings.getValue(SettingsClass.MESSAGE_BLOCK_BODY), ";");
@@ -796,7 +859,7 @@ public class TOF {
             }
         }
         // Block by attached boards
-        if (Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BOARDNAME_ENABLED)) {
+        if ( blockMsgBoardname ) {
             List boards = message.getAttachmentsOfType(Attachment.BOARD);
             StringTokenizer blockWords = new StringTokenizer(Core.frostSettings.getValue(SettingsClass.MESSAGE_BLOCK_BOARDNAME), ";");
             boolean found = false;
