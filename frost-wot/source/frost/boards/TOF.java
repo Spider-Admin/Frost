@@ -749,7 +749,9 @@ public class TOF {
                 MessageTreeTable treeTable = MainFrame.getInstance().getMessageTreeTable();
                 
                 treeTable.setNewRootNode(rootNode);
-                treeTable.expandAll(true);
+                if( !Core.frostSettings.getBoolValue(SettingsClass.MSGTABLE_SHOW_COLLAPSED_THREADS) ) {
+                    treeTable.expandAll(true);
+                }
 
                 MainFrame.getInstance().updateTofTree(innerTargetBoard);
                 MainFrame.getInstance().updateMessageCountLabels(innerTargetBoard);

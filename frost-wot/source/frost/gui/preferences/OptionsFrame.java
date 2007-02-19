@@ -395,6 +395,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         if (displayBoardTreePanel != null) {
             displayBoardTreePanel.ok();
         }
+        if (displayMessagesPanel != null) {
+            displayMessagesPanel.ok();
+        }
         if( skinPanel != null ) {
             skinPanel.ok();
         }

@@ -105,6 +105,7 @@ public class SettingsClass implements Savable {
     public static final String SAVE_SORT_STATES = "saveSortStates";
     public static final String MSGTABLE_MULTILINE_SELECT = "messageTableMultilineSelect";
     public static final String MSGTABLE_SCROLL_HORIZONTAL = "messageTableScrollHorizontal";
+    public static final String MSGTABLE_SHOW_COLLAPSED_THREADS = "messageTableShowCollapsedThreads";
     public static final String SHOW_BOARDDESC_TOOLTIPS = "showBoardDescriptionTooltips";
     public static final String SHOW_BOARD_UPDATED_COUNT = "showBoardUpdatedCount";
     public static final String PREVENT_BOARDTREE_REORDERING = "preventBoardTreeReordering";
@@ -811,11 +812,13 @@ public class SettingsClass implements Savable {
         defaults.put(MESSAGE_BODY_ANTIALIAS, "false");
         defaults.put(MSGTABLE_MULTILINE_SELECT, "false");
         defaults.put(MSGTABLE_SCROLL_HORIZONTAL, "false");
+        defaults.put(MSGTABLE_SHOW_COLLAPSED_THREADS, "false");
         
         defaults.put(SAVE_SORT_STATES, "false");
         
         defaults.put(SHOW_BOARDDESC_TOOLTIPS, "true");
         defaults.put(PREVENT_BOARDTREE_REORDERING, "false");
+        defaults.put(SHOW_BOARDTREE_FLAGGEDSTARRED_INDICATOR, "true");
 
         defaults.put(LOG_TO_CONSOLE, "false");
 

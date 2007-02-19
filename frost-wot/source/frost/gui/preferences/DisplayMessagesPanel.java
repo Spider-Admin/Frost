@@ -34,6 +34,7 @@ public class DisplayMessagesPanel extends JPanel {
     private JCheckBox msgTableMultilineSelectCheckBox = new JCheckBox();
     private JCheckBox msgTableScrollHorizontalCheckBox = new JCheckBox();
     private JCheckBox sortThreadRootMsgsAscendingCheckBox = new JCheckBox();
+    private JCheckBox showCollapsedThreadsCheckBox = new JCheckBox();
 
     /**
      * @param owner the JDialog that will be used as owner of any dialog that is popped up from this panel
@@ -80,6 +81,9 @@ public class DisplayMessagesPanel extends JPanel {
         
         constraints.gridy++;
         add(sortThreadRootMsgsAscendingCheckBox, constraints);
+
+        constraints.gridy++;
+        add(showCollapsedThreadsCheckBox, constraints);
         
         constraints.gridy++;
         constraints.weighty = 1.0;
@@ -95,6 +99,7 @@ public class DisplayMessagesPanel extends JPanel {
         msgTableMultilineSelectCheckBox.setSelected(settings.getBoolValue(SettingsClass.MSGTABLE_MULTILINE_SELECT));
         msgTableScrollHorizontalCheckBox.setSelected(settings.getBoolValue(SettingsClass.MSGTABLE_SCROLL_HORIZONTAL));
         sortThreadRootMsgsAscendingCheckBox.setSelected(settings.getBoolValue(SettingsClass.SORT_THREADROOTMSGS_ASCENDING));
+        showCollapsedThreadsCheckBox.setSelected(settings.getBoolValue(SettingsClass.MSGTABLE_SHOW_COLLAPSED_THREADS));
     }
 
     public void ok() {
@@ -106,6 +111,7 @@ public class DisplayMessagesPanel extends JPanel {
         msgTableScrollHorizontalCheckBox.setText(language.getString("Options.display.showHorizontalScrollbarInMessageTable"));
         msgTableMultilineSelectCheckBox.setText(language.getString("Options.display.enableMultilineSelectionsInMessageTable"));
         sortThreadRootMsgsAscendingCheckBox.setText(language.getString("Options.display.sortThreadRootMsgsAscending"));
+        showCollapsedThreadsCheckBox.setText(language.getString("Options.display.showCollapsedThreads"));
     }
 
     /**
@@ -116,5 +122,6 @@ public class DisplayMessagesPanel extends JPanel {
         settings.setValue(SettingsClass.MSGTABLE_MULTILINE_SELECT, msgTableMultilineSelectCheckBox.isSelected());
         settings.setValue(SettingsClass.MSGTABLE_SCROLL_HORIZONTAL, msgTableScrollHorizontalCheckBox.isSelected());
         settings.setValue(SettingsClass.SORT_THREADROOTMSGS_ASCENDING, sortThreadRootMsgsAscendingCheckBox.isSelected());
+        settings.setValue(SettingsClass.MSGTABLE_SHOW_COLLAPSED_THREADS, showCollapsedThreadsCheckBox.isSelected());
     }
 }
