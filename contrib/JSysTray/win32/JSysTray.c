@@ -1,6 +1,6 @@
 /**
 *************************************************************************
-Copyright (c) 2003 Ingo Franzki
+Copyright (c) 2003, 2007 Ingo Franzki
 All rights reserved.
 
 * BSD style license *
@@ -95,6 +95,7 @@ int JShowWindow(LPSTR szTitle,int iCmd)
         ShowWindow(hWnd,SW_RESTORE);
       else
         ShowWindow(hWnd,SW_SHOWNORMAL);
+      SetForegroundWindow(hWnd);
       break;
 
     default:
@@ -137,11 +138,15 @@ int JSystrayClicked(HWND hWnd,WPARAM wParam)
       ShowWindow(lpSystray->hWindow,SW_SHOWMAXIMIZED);
     else
       ShowWindow(lpSystray->hWindow,SW_SHOWNORMAL);
+    SetForegroundWindow(lpSystray->hWindow);
   }
   else
   {
     if(WndPlace.showCmd==SW_SHOWMINIMIZED)
+    {
       ShowWindow(lpSystray->hWindow,SW_RESTORE);
+      SetForegroundWindow(lpSystray->hWindow);
+    }
     else
       ShowWindow(lpSystray->hWindow,SW_HIDE);
   }

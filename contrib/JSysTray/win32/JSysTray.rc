@@ -13,7 +13,7 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Deutsch (Deutschland) resources
+// German (Germany) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_DEU)
 #ifdef _WIN32
@@ -33,6 +33,7 @@ IDI_ICON2               ICON    DISCARDABLE     "icon2.ico"
 IDI_ICON3               ICON    DISCARDABLE     "icon3.ico"
 IDI_ICON4               ICON    DISCARDABLE     "icon4.ico"
 IDI_ICON5               ICON    DISCARDABLE     "icon5.ico"
+IDI_ICON6               ICON    DISCARDABLE     "icon6.ico"
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -67,8 +68,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,0,1
- PRODUCTVERSION 1,0,0,1
+ FILEVERSION 1,0,0,2
+ PRODUCTVERSION 1,0,0,2
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -86,15 +87,12 @@ BEGIN
             VALUE "Comments", "Native library for JSysTrayIcon\r\n* BSD style license *\0"
             VALUE "CompanyName", "\0"
             VALUE "FileDescription", "JSysTray.dll\0"
-            VALUE "FileVersion", "1, 0, 0, 1\0"
+            VALUE "FileVersion", "1, 0, 0, 2\0"
             VALUE "InternalName", "JSysTray.dll\0"
-            VALUE "LegalCopyright", "Copyright © 2003 Ingo Franzki\0"
-            VALUE "LegalTrademarks", "\0"
+            VALUE "LegalCopyright", "Copyright © 2003, 2007 Ingo Franzki\0"
             VALUE "OriginalFilename", "JSysTray.dll\0"
-            VALUE "PrivateBuild", "\0"
             VALUE "ProductName", "JSysTray.dll\0"
-            VALUE "ProductVersion", "1, 0, 0, 1\0"
-            VALUE "SpecialBuild", "\0"
+            VALUE "ProductVersion", "1, 0, 0, 2\0"
         END
     END
     BLOCK "VarFileInfo"
@@ -105,7 +103,7 @@ END
 
 #endif    // !_MAC
 
-#endif    // Deutsch (Deutschland) resources
+#endif    // German (Germany) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
