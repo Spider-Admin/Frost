@@ -195,7 +195,7 @@ public class SentMessagesTable extends SortedModelTable {
             } else {
                 answer = JOptionPane.showConfirmDialog( 
                         MainFrame.getInstance(), 
-                        language.formatMessage("SentMessages.confirmDeleteMessagesDialog.text", ""+selectedItems.length), 
+                        language.formatMessage("SentMessages.confirmDeleteMessagesDialog.text", Integer.toString(selectedItems.length)), 
                         language.getString("SentMessages.confirmDeleteMessagesDialog.title"), 
                         JOptionPane.YES_NO_OPTION, 
                         JOptionPane.QUESTION_MESSAGE);

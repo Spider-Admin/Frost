@@ -205,7 +205,7 @@ public class SharedFileXmlFile implements XMLizable {
         }
         if( getRating() != 0 ) {
             element = doc.createElement("rating");
-            textnode = doc.createTextNode(""+getRating());
+            textnode = doc.createTextNode(Integer.toString(getRating()));
             element.appendChild(textnode);
             fileelement.appendChild(element);
         }

@@ -287,7 +287,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
      */
     public Object getValueAt(int column) {
         switch(column) {
-            case 0: return ""+getIndex();
+            case 0: return Integer.toString(getIndex());
             case 1: return getFromName();
             case 2: return getSubject();
             case 3: return getMessageStatusString();

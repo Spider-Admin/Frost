@@ -95,13 +95,13 @@ public class KnownBoardsManager implements Savable {
     /**
      * @return  List of KnownBoard
      */
-    public static List getKnownBoardsList() {
+    public static List<KnownBoard> getKnownBoardsList() {
         try {
             return AppLayerDatabase.getKnownBoardsDatabaseTable().getKnownBoards();
         } catch(SQLException ex) {
             logger.log(Level.SEVERE, "Error retrieving the known boards", ex);
         }
-        return new LinkedList();
+        return new LinkedList<KnownBoard>();
     }
     
     /**

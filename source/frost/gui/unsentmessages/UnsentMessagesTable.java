@@ -203,7 +203,7 @@ public class UnsentMessagesTable extends SortedModelTable {
             } else {
                 answer = JOptionPane.showConfirmDialog( 
                         MainFrame.getInstance(), 
-                        language.formatMessage("UnsentMessages.confirmDeleteMessagesDialog.text", ""+selectedItems.length), 
+                        language.formatMessage("UnsentMessages.confirmDeleteMessagesDialog.text", Integer.toString(selectedItems.length)), 
                         language.getString("UnsentMessages.confirmDeleteMessagesDialog.title"), 
                         JOptionPane.YES_NO_OPTION, 
                         JOptionPane.QUESTION_MESSAGE);

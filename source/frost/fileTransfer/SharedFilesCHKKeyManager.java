@@ -170,7 +170,7 @@ System.out.println("processReceivedCHKKeys: finished processing keys, new="+newK
         try {
             // rules what chks are choosed are in the following method
             List chkKeys = AppLayerDatabase.getSharedFilesCHKKeysDatabaseTable().retrieveSharedFilesCHKKeysToDownload(7);
-System.out.println("getCHKKeyStringsToDownload: returning keys: "+(chkKeys==null?"(none)":""+chkKeys.size()));            
+System.out.println("getCHKKeyStringsToDownload: returning keys: "+(chkKeys==null?"(none)":Integer.toString(chkKeys.size())));            
             return chkKeys;
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Exception in retrieveSharedFilesCHKKeysToDownload", t);

@@ -335,7 +335,9 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                         answer =
                             JOptionPane.showConfirmDialog(
                                 ManageLocalIdentitiesDialog.this,
-                                language.formatMessage("ManageLocalIdentities.deleteIdentitiesSharedFilesConfirmation.body", li.getUniqueName(), ""+count),
+                                language.formatMessage("ManageLocalIdentities.deleteIdentitiesSharedFilesConfirmation.body", 
+                                        li.getUniqueName(), 
+                                        Integer.toString(count)),
                                 language.getString("ManageLocalIdentities.deleteIdentitiesSharedFilesConfirmation.title"),
                                 JOptionPane.YES_NO_OPTION,
                                 JOptionPane.WARNING_MESSAGE);
@@ -541,7 +543,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                     }
                     JOptionPane.showMessageDialog(
                             ManageLocalIdentitiesDialog.this, 
-                            language.formatMessage("ManageLocalIdentities.localIdentitiesImported.body", ""+count),
+                            language.formatMessage("ManageLocalIdentities.localIdentitiesImported.body", Integer.toString(count)),
                             language.getString("ManageLocalIdentities.localIdentitiesImported.title"), 
                             JOptionPane.WARNING_MESSAGE);
                     if( count > 0 ) {
@@ -581,7 +583,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                     if( wasOk ) {
                         JOptionPane.showMessageDialog(
                                 ManageLocalIdentitiesDialog.this, 
-                                language.formatMessage("ManageLocalIdentities.identitiesExported.body", ""+lIds.size()), 
+                                language.formatMessage("ManageLocalIdentities.identitiesExported.body", Integer.toString(lIds.size())), 
                                 language.getString("ManageLocalIdentities.identitiesExported.title"), 
                                 JOptionPane.INFORMATION_MESSAGE);
                     } else {

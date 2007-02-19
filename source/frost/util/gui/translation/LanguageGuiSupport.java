@@ -36,10 +36,10 @@ public class LanguageGuiSupport {
     
     private Language language = Language.getInstance();
 
-    private static List buildInLocales = null;
+    private static List<Locale> buildInLocales = null;
 
-    private List buildinLanguageMenuItemsList;
-    private HashMap buildinLanguageMenuItemsMap;
+    private List<JRadioButtonMenuItem> buildinLanguageMenuItemsList;
+    private HashMap<String,JRadioButtonMenuItem> buildinLanguageMenuItemsMap;
     private JRadioButtonMenuItem languageDefaultMenuItem;
     private JRadioButtonMenuItem languageBulgarianMenuItem;
     private JRadioButtonMenuItem languageDutchMenuItem;
@@ -100,7 +100,7 @@ public class LanguageGuiSupport {
         languageBulgarianMenuItem.addActionListener( new LanguageAction("bg", false));
         languagePolishMenuItem.addActionListener(    new LanguageAction("pl", false));
 
-        buildinLanguageMenuItemsList = new ArrayList();
+        buildinLanguageMenuItemsList = new ArrayList<JRadioButtonMenuItem>();
         buildinLanguageMenuItemsList.add(languageDefaultMenuItem);
         buildinLanguageMenuItemsList.add(languageBulgarianMenuItem);
         buildinLanguageMenuItemsList.add(languageDanishMenuItem);
@@ -114,7 +114,7 @@ public class LanguageGuiSupport {
         buildinLanguageMenuItemsList.add(languageRussianMenuItem);
         buildinLanguageMenuItemsList.add(languageSpanishMenuItem);
         
-        buildinLanguageMenuItemsMap = new HashMap();
+        buildinLanguageMenuItemsMap = new HashMap<String,JRadioButtonMenuItem>();
         buildinLanguageMenuItemsMap.put("default", languageDefaultMenuItem);
         buildinLanguageMenuItemsMap.put("da", languageDanishMenuItem);
         buildinLanguageMenuItemsMap.put("de", languageGermanMenuItem);
@@ -238,7 +238,7 @@ public class LanguageGuiSupport {
             isExternal = false;
         } else {
             Core.frostSettings.setValue(SettingsClass.LANGUAGE_LOCALE, newLocaleName);
-            Core.frostSettings.setValue("localeExternal", ""+isExternal);
+            Core.frostSettings.setValue("localeExternal", Boolean.toString(isExternal));
         }
         language.changeLanguage(newLocaleName, isExternal);
     }
@@ -258,9 +258,9 @@ public class LanguageGuiSupport {
         languagePolishMenuItem.setText(language.getString("MainFrame.menu.language.polish"));
     }
     
-    public static List getBuildInLocales() {
+    public static List<Locale> getBuildInLocales() {
         if( buildInLocales == null ) {
-            ArrayList lst = new ArrayList();
+            ArrayList<Locale> lst = new ArrayList<Locale>();
             lst.add(new Locale("bg"));
             lst.add(new Locale("da"));
             lst.add(new Locale("de"));

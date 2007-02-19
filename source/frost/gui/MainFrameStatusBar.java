@@ -59,9 +59,9 @@ public class MainFrameStatusBar extends JPanel {
                     return null;
                 }
                 String txt = language.formatMessage("MainFrameStatusBar.tooltip.tofup", 
-                        ""+statusBarInformations.getUploadingMessagesCount(),
-                        ""+statusBarInformations.getUnsentMessageCount(),
-                        ""+statusBarInformations.getAttachmentsToUploadRemainingCount());
+                        Integer.toString(statusBarInformations.getUploadingMessagesCount()),
+                        Integer.toString(statusBarInformations.getUnsentMessageCount()),
+                        Integer.toString(statusBarInformations.getAttachmentsToUploadRemainingCount()));
                 return txt;
             }
         };
@@ -78,8 +78,8 @@ public class MainFrameStatusBar extends JPanel {
                     return null;
                 }
                 String txt = language.formatMessage("MainFrameStatusBar.tooltip.tofdn", 
-                        ""+statusBarInformations.getDownloadingBoardCount(),
-                        ""+statusBarInformations.getRunningDownloadThreadCount());
+                        Integer.toString(statusBarInformations.getDownloadingBoardCount()),
+                        Integer.toString(statusBarInformations.getRunningDownloadThreadCount()));
                 return txt;
             }
         };

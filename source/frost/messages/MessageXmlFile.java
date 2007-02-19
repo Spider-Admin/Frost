@@ -200,11 +200,11 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
         if( getIdLinePos() > -1 && getIdLineLen() > -1 ) {
             Text txt;
             current = d.createElement("IdLinePos");
-            txt = d.createTextNode(""+getIdLinePos());
+            txt = d.createTextNode(Integer.toString(getIdLinePos()));
             current.appendChild(txt);
             el.appendChild(current);
             current = d.createElement("IdLineLen");
-            txt = d.createTextNode(""+getIdLineLen());
+            txt = d.createTextNode(Integer.toString(getIdLineLen()));
             current.appendChild(txt);
             el.appendChild(current);
         }

@@ -109,7 +109,7 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
             case 2 : // owner
                 return sfItem.getOwner();
             case 3 : // uploadCount
-                return ""+sfItem.getUploadCount();
+                return Integer.toString(sfItem.getUploadCount());
             case 4 : // lastUploaded
                 if( sfItem.getLastUploaded() == 0 ) {
                     return stateNever;
@@ -117,7 +117,7 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
                     return DateFun.getExtendedDateFromMillis(sfItem.getLastUploaded());
                 }
             case 5 : // requestCount
-                return ""+sfItem.getRequestsReceived();
+                return Integer.toString(sfItem.getRequestsReceived());
             case 6 : // lastRequestDate
                 if( sfItem.getRequestLastReceived() == 0 ) {
                     return stateNever;
