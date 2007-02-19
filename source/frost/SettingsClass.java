@@ -108,6 +108,7 @@ public class SettingsClass implements Savable {
     public static final String SHOW_BOARDDESC_TOOLTIPS = "showBoardDescriptionTooltips";
     public static final String SHOW_BOARD_UPDATED_COUNT = "showBoardUpdatedCount";
     public static final String PREVENT_BOARDTREE_REORDERING = "preventBoardTreeReordering";
+    public static final String SHOW_BOARDTREE_FLAGGEDSTARRED_INDICATOR = "showBoardtreeFlaggedStarredIndicators";
     public static final String SHOW_BOARD_UPDATE_VISUALIZATION = SettingsClass.BOARD_UPDATE_VISUALIZATION_ENABLED;
     public static final String DISABLE_SPLASHSCREEN = "disableSplashScreen";
     public static final String SHOW_SYSTRAY_ICON = "showSystrayIcon";

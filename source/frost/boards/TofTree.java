@@ -52,6 +52,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
     private boolean showBoardDescriptionToolTips;
     private boolean showBoardUpdatedCount;
     private boolean showBoardUpdateVisualization;
+    private boolean showFlaggedStarredIndicators;
 
     private class PopupMenuTofTree
         extends JSkinnablePopupMenu
@@ -483,20 +484,24 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
                     }
                 }
                 // for a board we set indicators if board contains flagged or starred messages
-                boolean hasStarred = board.hasStarredMessages();
-                boolean hasFlagged = board.hasFlaggedMessages();
-                if( hasStarred && !hasFlagged ) {
-                    // unread and no marked
-                    setBorder(borderStarredMsgs);
-                } else if( !hasStarred && hasFlagged ) {
-                    // no unread and marked
-                    setBorder(borderFlaggedMsgs);
-                } else if( !hasStarred && !hasFlagged ) {
-                    // nothing
-                    setBorder(borderEmpty);
+                if( showFlaggedStarredIndicators ) {
+                    boolean hasStarred = board.hasStarredMessages();
+                    boolean hasFlagged = board.hasFlaggedMessages();
+                    if( hasStarred && !hasFlagged ) {
+                        // unread and no marked
+                        setBorder(borderStarredMsgs);
+                    } else if( !hasStarred && hasFlagged ) {
+                        // no unread and marked
+                        setBorder(borderFlaggedMsgs);
+                    } else if( !hasStarred && !hasFlagged ) {
+                        // nothing
+                        setBorder(borderEmpty);
+                    } else {
+                        // both
+                        setBorder(borderFlaggedAndStarredMsgs);
+                    }
                 } else {
-                    // both
-                    setBorder(borderFlaggedAndStarredMsgs);
+                    setBorder(null);
                 }
             }
 
@@ -583,6 +588,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         showBoardDescriptionToolTips = Core.frostSettings.getBoolValue(SettingsClass.SHOW_BOARDDESC_TOOLTIPS);
         showBoardUpdatedCount = Core.frostSettings.getBoolValue(SettingsClass.SHOW_BOARD_UPDATED_COUNT);
         showBoardUpdateVisualization = Core.frostSettings.getBoolValue(SettingsClass.SHOW_BOARD_UPDATE_VISUALIZATION);
+        showFlaggedStarredIndicators = Core.frostSettings.getBoolValue(SettingsClass.SHOW_BOARDTREE_FLAGGEDSTARRED_INDICATOR);
     }
 
     private PopupMenuTofTree getPopupMenuTofTree() {
@@ -601,6 +607,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         Core.frostSettings.addPropertyChangeListener(SettingsClass.SHOW_BOARDDESC_TOOLTIPS, this);
         Core.frostSettings.addPropertyChangeListener(SettingsClass.SHOW_BOARD_UPDATED_COUNT, this);
         Core.frostSettings.addPropertyChangeListener(SettingsClass.SHOW_BOARD_UPDATE_VISUALIZATION, this);
+        Core.frostSettings.addPropertyChangeListener(SettingsClass.SHOW_BOARDTREE_FLAGGEDSTARRED_INDICATOR, this);
 
         MiscToolkit toolkit = MiscToolkit.getInstance();
         configBoardMenuItem.setIcon(toolkit.getScaledImage("/data/configure.gif", 16, 16));
@@ -1014,6 +1021,9 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             showBoardDescriptionToolTips = Core.frostSettings.getBoolValue(SettingsClass.SHOW_BOARDDESC_TOOLTIPS);
         } else if (evt.getPropertyName().equals(SettingsClass.SHOW_BOARD_UPDATED_COUNT)) {
             showBoardUpdatedCount = Core.frostSettings.getBoolValue(SettingsClass.SHOW_BOARD_UPDATED_COUNT);
+            updateTree(); // redraw tree nodes
+        } else if (evt.getPropertyName().equals(SettingsClass.SHOW_BOARDTREE_FLAGGEDSTARRED_INDICATOR)) {
+            showFlaggedStarredIndicators = Core.frostSettings.getBoolValue(SettingsClass.SHOW_BOARDTREE_FLAGGEDSTARRED_INDICATOR);
             updateTree(); // redraw tree nodes
         } else if (evt.getPropertyName().equals(SettingsClass.SHOW_BOARD_UPDATE_VISUALIZATION)) {
             showBoardUpdateVisualization = Core.frostSettings.getBoolValue(SettingsClass.SHOW_BOARD_UPDATE_VISUALIZATION);

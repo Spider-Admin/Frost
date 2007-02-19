@@ -19,6 +19,7 @@
 package frost;
 
 import java.io.*;
+import java.net.*;
 import java.util.logging.*;
 
 import frost.util.*;
@@ -44,9 +45,23 @@ public class Startup {
         String fileSeparator = System.getProperty("file.separator");
 
         try {
+            boolean copyResource = false;
             File tray1file = new File("exec" + fileSeparator + "JSysTray.dll");
-            if( !tray1file.isFile() )
+            if( !tray1file.isFile() ) {
+                copyResource = true;
+            } else {
+                // check if size of existing dll file is different. If yes extract new version from jar.
+                URL url = MainFrame.class.getResource("/data/JSysTray.dll");
+                URLConnection urlConn = url.openConnection();
+                long len = urlConn.getContentLength();
+                if( len != tray1file.length() ) {
+                    tray1file.delete();
+                    copyResource = true;
+                }
+            }
+            if( copyResource ) {
                 FileAccess.copyFromResource("/data/JSysTray.dll", tray1file);
+            }
         } catch (IOException e) {
             ;
         }
