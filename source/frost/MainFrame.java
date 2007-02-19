@@ -51,7 +51,10 @@ import frost.util.gui.translation.*;
 public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater, LanguageListener {
     
     private static Logger logger = Logger.getLogger(MainFrame.class.getName());
-    
+
+    private final ImageIcon frameIconDefault = new ImageIcon(MainFrame.class.getResource("/data/jtc.jpg"));
+    private final ImageIcon frameIconNewMessage = new ImageIcon(MainFrame.class.getResource("/data/newmessage.gif"));
+
     private HelpBrowserFrame helpBrowser = null;
     private SearchMessagesDialog searchMessagesDialog = null;
     private MemoryMonitor memoryMonitor = null;
@@ -156,8 +159,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 
-        ImageIcon frameIcon = new ImageIcon(getClass().getResource("/data/jtc.jpg"));
-        setIconImage(frameIcon.getImage());
+        setIconImage(frameIconDefault.getImage());
         setResizable(true);
 
         setTitle(title);
@@ -1139,34 +1141,35 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
      * Selects message icon in lower right corner
      */
     public void displayNewMessageIcon(boolean showNewMessageIcon) {
-        MainFrame mainFrame = MainFrame.getInstance();
+
         getStatusBar().showNewMessageIcon(showNewMessageIcon);
+
+        final ImageIcon iconToSet;
         if (showNewMessageIcon) {
-            ImageIcon frameIcon = new ImageIcon(MainFrame.class.getResource("/data/newmessage.gif"));
-            mainFrame.setIconImage(frameIcon.getImage());
+            iconToSet = frameIconNewMessage;
             // The title should never be changed on Windows systems (SystemTray.exe expects "Frost" as title)
             if( System.getProperty("os.name").startsWith("Windows") == false ) {
-                String t = mainFrame.getTitle();
+                String t = getTitle();
                 // if not already done, append * on begin and end of title string
                 if( !t.equals("*") && !(t.startsWith("*") && t.endsWith("*")) ) {
                     t = "*" + t + "*";
                 }
-                mainFrame.setTitle(t);
+                setTitle(t);
             }
         } else {
-            ImageIcon frameIcon = new ImageIcon(MainFrame.class.getResource("/data/jtc.jpg"));
-            mainFrame.setIconImage(frameIcon.getImage());
+            iconToSet = frameIconDefault;
             // The title should never be changed on Windows systems (SystemTray.exe expects "Frost" as title)
             if( System.getProperty("os.name").startsWith("Windows") == false ) {
-                String t = mainFrame.getTitle();
-                // if not already done, append * on begin and end of title string
+                String t = getTitle();
+                // if not already done, remove * on begin and end of title string
                 if( !t.equals("*") && t.startsWith("*") && t.endsWith("*") ) {
                     // remove * on begin and end
                     t = t.substring(1, t.length()-1);
                 }
-                mainFrame.setTitle(t);
+                setTitle(t);
             }
         }
+        setIconImage(iconToSet.getImage());
     }
 
     /**
