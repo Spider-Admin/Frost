@@ -522,12 +522,10 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         setObserveButton.setEnabled(false);
 
         toggleShowUnreadOnly.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SHOW_UNREAD_ONLY));
-        toggleShowUnreadOnly.setText("Unread");
-//        toggleShowUnreadOnly.setIcon(new ImageIcon(getClass().getResource("/data/togglethreads.gif")));
+        toggleShowUnreadOnly.setIcon(new ImageIcon(getClass().getResource("/data/showunreadonly.gif")));
         toggleShowUnreadOnly.setMargin(new Insets(0, 0, 0, 0));
         toggleShowUnreadOnly.setPreferredSize(new Dimension(24,24));
         toggleShowUnreadOnly.setFocusPainted(false);
-//      FIXME: translate
         toggleShowUnreadOnly.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowUnreadOnly"));
 
         toggleShowThreads.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS));

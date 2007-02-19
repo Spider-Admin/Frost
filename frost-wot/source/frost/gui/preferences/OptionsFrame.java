@@ -83,6 +83,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 
     private JPanel contentAreaPanel = null;
     private DisplayPanel displayPanel = null;
+    private DisplayBoardTreePanel displayBoardTreePanel = null;
+    private DisplayMessagesPanel displayMessagesPanel = null;
     private SkinPanel skinPanel = null;
     private DownloadPanel downloadPanel = null;
 
@@ -219,17 +221,27 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         return buttonPanel;
     }
 
-    /**
-     * Build the display panel.
-     * @return
-     */
     private DisplayPanel getDisplayPanel() {
         if (displayPanel == null) {
             displayPanel = new DisplayPanel(this, frostSettings);
         }
         return displayPanel;
     }
-    
+
+    private DisplayBoardTreePanel getDisplayBoardTreePanel() {
+        if (displayBoardTreePanel == null) {
+            displayBoardTreePanel = new DisplayBoardTreePanel(this, frostSettings);
+        }
+        return displayBoardTreePanel;
+    }
+
+    private DisplayMessagesPanel getDisplayMessagesPanel() {
+        if (displayMessagesPanel == null) {
+            displayMessagesPanel = new DisplayMessagesPanel(this, frostSettings);
+        }
+        return displayMessagesPanel;
+    }
+
     private SkinPanel getSkinPanel() {
         if( skinPanel == null ) {
             skinPanel = new SkinPanel(this, frostSettings);
@@ -237,10 +249,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         return skinPanel;
     }
 
-    /**
-     * Build the download panel.
-     * @return
-     */
     private DownloadPanel getDownloadPanel() {
         if (downloadPanel == null) {
             downloadPanel = new DownloadPanel(this, frostSettings);
@@ -248,10 +256,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         return downloadPanel;
     }
 
-    /**
-     * Build the misc. panel.
-     * @return
-     */
     private MiscPanel getMiscPanel() {
         if (miscPanel == null) {
             miscPanel = new MiscPanel(frostSettings);
@@ -259,10 +263,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         return miscPanel;
     }
 
-    /**
-     * Build the news2 panel (spam options).
-     * @return
-     */
     private News2Panel getNews2Panel() {
         if (news2Panel == null) {
             news2Panel = new News2Panel(frostSettings);
@@ -270,10 +270,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         return news2Panel;
     }
 
-    /**
-     * Build the news3 panel (update options).
-     * @return
-     */
     private News3Panel getNews3Panel() {
         if (news3Panel == null) {
             news3Panel = new News3Panel(frostSettings);
@@ -288,10 +284,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         return expirationPanel;
     }
 
-    /**
-     * Build the news panel (general options).
-     * @return
-     */
     private NewsPanel getNewsPanel() {
         if (newsPanel == null) {
             newsPanel = new NewsPanel(frostSettings);
@@ -306,7 +298,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
     protected JPanel getOptionsGroupsPanel() {
         if (optionsGroupsPanel == null) {
             // init the list
-            Vector listData = new Vector();
+            Vector<ListBoxData> listData = new Vector<ListBoxData>();
             listData.add( new ListBoxData(" "+language.getString("Options.downloads")+" ", getDownloadPanel()));
             listData.add( new ListBoxData(" "+language.getString("Options.uploads")+" ", getUploadPanel()));
             listData.add( new ListBoxData(" "+language.getString("Options.news")+" (1) ", getNewsPanel()));
@@ -315,6 +307,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
             listData.add( new ListBoxData(" "+language.getString("Options.expiration")+" ", getExpirationPanel()));
             listData.add( new ListBoxData(" "+language.getString("Options.search")+" ", getSearchPanel()));
             listData.add( new ListBoxData(" "+language.getString("Options.display")+" ", getDisplayPanel()));
+            listData.add( new ListBoxData("    "+"Board tree"+" ", getDisplayBoardTreePanel()));
+            listData.add( new ListBoxData("    "+"Messages"+" ", getDisplayMessagesPanel()));
             listData.add( new ListBoxData(" "+language.getString("Options.skins")+" ", getSkinPanel()));
             listData.add( new ListBoxData(" "+language.getString("Options.miscellaneous")+" ", getMiscPanel()));
             optionsGroupsList = new JList(listData);
@@ -339,10 +333,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         return optionsGroupsPanel;
     }
 
-    /**
-     * Build the search panel
-     * @return
-     */
     private SearchPanel getSearchPanel() {
         if (searchPanel == null) {
             searchPanel = new SearchPanel(frostSettings);
@@ -350,10 +340,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         return searchPanel;
     }
 
-    /**
-     * Build the upload panel.
-     * @return
-     */
     private UploadPanel getUploadPanel() {
         if (uploadPanel == null) {
             uploadPanel = new UploadPanel(frostSettings);
@@ -404,51 +390,36 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         exitState = true;
 
         if (displayPanel != null) {
-            //If the display panel has been used, commit its changes
             displayPanel.ok();
         }
-        
+        if (displayBoardTreePanel != null) {
+            displayBoardTreePanel.ok();
+        }
         if( skinPanel != null ) {
             skinPanel.ok();
         }
-
         if (downloadPanel != null) {
-            //If the download panel has been used, commit its changes
             downloadPanel.ok();
         }
-
         if (searchPanel != null) {
-            //If the search panel has been used, commit its changes
             searchPanel.ok();
         }
-
         if (uploadPanel != null) {
-            //If the upload panel has been used, commit its changes
             uploadPanel.ok();
         }
-
         if (miscPanel != null) {
-            //If the misc panel has been used, commit its changes
             miscPanel.ok();
         }
-
         if (newsPanel != null) {
-            //If the news panel has been used, commit its changes
             newsPanel.ok();
         }
-
         if (news2Panel != null) {
-            //If the news 2 panel has been used, commit its changes
             news2Panel.ok();
         }
-
         if (news3Panel != null) {
-            //If the news 3 panel has been used, commit its changes
             news3Panel.ok();
         }
-
         if (expirationPanel != null) {
-            //If the expiration panel has been used, commit its changes
             expirationPanel.ok();
         }
 

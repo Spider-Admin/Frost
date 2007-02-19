@@ -55,15 +55,7 @@ class DisplayPanel extends JPanel {
 
     private JLabel fontsLabel = new JLabel();
 
-    private JCheckBox messageBodyAACheckBox = new JCheckBox();
-    private JCheckBox msgTableMultilineSelectCheckBox = new JCheckBox();
-    private JCheckBox msgTableScrollHorizontalCheckBox = new JCheckBox();
-    private JCheckBox showBoardDescTooltipsCheckBox = new JCheckBox();
-    private JCheckBox showBoardUpdateCountCheckBox = new JCheckBox();
-    private JCheckBox preventBoardtreeReordering = new JCheckBox();
-    private JCheckBox sortThreadRootMsgsAscendingCheckBox = new JCheckBox();
     private JCheckBox saveSortStatesCheckBox = new JCheckBox();
-
     private JCheckBox showColoredRowsCheckBox = new JCheckBox();
 
     private JLabel messageBodyLabel = new JLabel();
@@ -206,31 +198,12 @@ class DisplayPanel extends JPanel {
         add(getFontsPanel(), constraints);
         
         constraints.insets = insets2;
-        constraints.gridy++;
-        add(messageBodyAACheckBox, constraints);
-
-        constraints.insets = inset5511;
-        constraints.gridy++;
-        add(msgTableMultilineSelectCheckBox, constraints);
         
-        constraints.gridy++;
-        add(msgTableScrollHorizontalCheckBox, constraints);
-        
-        constraints.gridy++;
-        add(showBoardUpdateCountCheckBox, constraints);
-
-        constraints.gridy++;
-        add(showBoardDescTooltipsCheckBox, constraints);
-
-        constraints.gridy++;
-        add(preventBoardtreeReordering, constraints);
-
         constraints.gridy++;
         add(showColoredRowsCheckBox, constraints);
-        
-        constraints.gridy++;
-        add(sortThreadRootMsgsAscendingCheckBox, constraints);
-        
+
+        constraints.insets = inset5511;
+
         constraints.gridy++;
         add(saveSortStatesCheckBox, constraints);
 
@@ -267,15 +240,7 @@ class DisplayPanel extends JPanel {
         selectedFileListFont = new Font(fontName, fontStyle, fontSize);
         selectedFileListFontLabel.setText(getFontLabel(selectedFileListFont));
 
-        messageBodyAACheckBox.setSelected(settings.getBoolValue(SettingsClass.MESSAGE_BODY_ANTIALIAS));
-        msgTableMultilineSelectCheckBox.setSelected(settings.getBoolValue(SettingsClass.MSGTABLE_MULTILINE_SELECT));
-        msgTableScrollHorizontalCheckBox.setSelected(settings.getBoolValue(SettingsClass.MSGTABLE_SCROLL_HORIZONTAL));
-        showBoardUpdateCountCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_BOARD_UPDATED_COUNT));
-        showBoardDescTooltipsCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_BOARDDESC_TOOLTIPS));
-        preventBoardtreeReordering.setSelected(settings.getBoolValue(SettingsClass.PREVENT_BOARDTREE_REORDERING));
-        sortThreadRootMsgsAscendingCheckBox.setSelected(settings.getBoolValue(SettingsClass.SORT_THREADROOTMSGS_ASCENDING));
         saveSortStatesCheckBox.setSelected(settings.getBoolValue(SettingsClass.SAVE_SORT_STATES));
-
         showColoredRowsCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS));
     }
 
@@ -319,15 +284,7 @@ class DisplayPanel extends JPanel {
         fileListLabel.setText(language.getString("Options.display.fileList"));
         fileListButton.setText(choose);
         selectedFileListFontLabel.setText(getFontLabel(selectedFileListFont));
-        messageBodyAACheckBox.setText(language.getString("Options.display.enableAntialiasingForMessageBody"));
-        msgTableScrollHorizontalCheckBox.setText(language.getString("Options.display.showHorizontalScrollbarInMessageTable"));
-        msgTableMultilineSelectCheckBox.setText(language.getString("Options.display.enableMultilineSelectionsInMessageTable"));
-        showBoardUpdateCountCheckBox.setText(language.getString("Options.display.showBoardUpdateCount"));
-        showBoardDescTooltipsCheckBox.setText(language.getString("Options.display.showTooltipWithBoardDescriptionInBoardTree"));
-        preventBoardtreeReordering.setText(language.getString("Options.display.preventBoardtreeReordering"));
-        sortThreadRootMsgsAscendingCheckBox.setText(language.getString("Options.display.sortThreadRootMsgsAscending"));
         saveSortStatesCheckBox.setText(language.getString("Options.display.saveSortStates"));
-        
         showColoredRowsCheckBox.setText(language.getString("Options.display.showColoredRows"));
     }
 
@@ -350,15 +307,7 @@ class DisplayPanel extends JPanel {
             settings.setValue(SettingsClass.FILE_LIST_FONT_STYLE, selectedFileListFont.getStyle());
             settings.setValue(SettingsClass.FILE_LIST_FONT_SIZE, selectedFileListFont.getSize());
         }
-        settings.setValue(SettingsClass.MESSAGE_BODY_ANTIALIAS, messageBodyAACheckBox.isSelected());
-        settings.setValue(SettingsClass.MSGTABLE_MULTILINE_SELECT, msgTableMultilineSelectCheckBox.isSelected());
-        settings.setValue(SettingsClass.MSGTABLE_SCROLL_HORIZONTAL, msgTableScrollHorizontalCheckBox.isSelected());
-        settings.setValue(SettingsClass.SHOW_BOARD_UPDATED_COUNT, showBoardUpdateCountCheckBox.isSelected());
-        settings.setValue(SettingsClass.SHOW_BOARDDESC_TOOLTIPS, showBoardDescTooltipsCheckBox.isSelected());
-        settings.setValue(SettingsClass.PREVENT_BOARDTREE_REORDERING, preventBoardtreeReordering.isSelected());
-        settings.setValue(SettingsClass.SORT_THREADROOTMSGS_ASCENDING, sortThreadRootMsgsAscendingCheckBox.isSelected());
         settings.setValue(SettingsClass.SAVE_SORT_STATES, saveSortStatesCheckBox.isSelected());
-        
         settings.setValue(SettingsClass.SHOW_COLORED_ROWS, showColoredRowsCheckBox.isSelected());
     }
 }
