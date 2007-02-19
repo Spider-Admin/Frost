@@ -1144,10 +1144,22 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
         getStatusBar().showNewMessageIcon(showNewMessageIcon);
 
+        if( JSysTrayIcon.getInstance() != null ) {
+            try {
+                if( showNewMessageIcon ) {
+                    JSysTrayIcon.getInstance().setIcon(5); // new message icon
+                } else {
+                    JSysTrayIcon.getInstance().setIcon(0); // default icon
+                }
+            } catch(IOException ex) {
+                logger.log(Level.SEVERE, "Exception during JSysTrayIcon.setIcon()", ex);
+            }
+        }
+
         final ImageIcon iconToSet;
         if (showNewMessageIcon) {
             iconToSet = frameIconNewMessage;
-            // The title should never be changed on Windows systems (SystemTray.exe expects "Frost" as title)
+            // The title should never be changed on Windows systems (JSysTray.dll expects "Frost" as title)
             if( System.getProperty("os.name").startsWith("Windows") == false ) {
                 String t = getTitle();
                 // if not already done, append * on begin and end of title string
@@ -1158,7 +1170,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             }
         } else {
             iconToSet = frameIconDefault;
-            // The title should never be changed on Windows systems (SystemTray.exe expects "Frost" as title)
+            // The title should never be changed on Windows systems (JSysTray.dll expects "Frost" as title)
             if( System.getProperty("os.name").startsWith("Windows") == false ) {
                 String t = getTitle();
                 // if not already done, remove * on begin and end of title string
