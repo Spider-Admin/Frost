@@ -613,7 +613,7 @@ public class FecSplitfile
     public synchronized String getRedirectFileContent(boolean transferInProgress) {
         // TODO: maybe add metafile information and checksum
 
-        StringBuffer redirect = new StringBuffer(512);
+        StringBuilder redirect = new StringBuilder(512);
         redirect.append("Version\n");
         redirect.append("Revision=1\n");
         redirect.append("EndPart\n");

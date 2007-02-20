@@ -35,7 +35,7 @@ class ErrorStreamThread extends Thread {
 
     public void run() {
 
-        StringBuffer output = new StringBuffer();
+        StringBuilder output = new StringBuilder();
         DataInputStream dis = new DataInputStream(p.getErrorStream());
 
         try {

@@ -175,7 +175,7 @@ public class DateFun {
 //        int hour = cal.get(Calendar.HOUR_OF_DAY);
 //        int minute = cal.get(Calendar.MINUTE);
 //        int second = cal.get(Calendar.SECOND);
-//        StringBuffer sb = new StringBuffer(12);
+//        StringBuilder sb = new StringBuilder(12);
 //        if( hour<10 )
 //            sb.append('0');
 //        sb.append(hour).append(':');
@@ -262,7 +262,7 @@ public class DateFun {
 //        int year = cal.get(Calendar.YEAR);
 //        int month = cal.get(Calendar.MONTH) + 1;
 //        int day = cal.get(Calendar.DATE);
-//        StringBuffer sb = new StringBuffer(11);
+//        StringBuilder sb = new StringBuilder(11);
 //        if( day < 10 )
 //            sb.append('0');
 //        sb.append(day).append('.');
@@ -280,7 +280,7 @@ public class DateFun {
 //    public static String getTime() {
 //        GregorianCalendar cal = new GregorianCalendar();
 //        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-//        return new StringBuffer(9).append(cal.get(Calendar.HOUR_OF_DAY)).append(':')
+//        return new StringBuilder(9).append(cal.get(Calendar.HOUR_OF_DAY)).append(':')
 //        .append(cal.get(Calendar.MINUTE)).append(':').append(cal.get(Calendar.SECOND)).toString();
 //    }
 
@@ -299,7 +299,7 @@ public class DateFun {
 //        int hour = cal.get(Calendar.HOUR_OF_DAY);
 //        int minute = cal.get(Calendar.MINUTE);
 //        int second = cal.get(Calendar.SECOND);
-//        StringBuffer sb = new StringBuffer(9);
+//        StringBuilder sb = new StringBuilder(9);
 //        //    if( hour<10 )  // commented out to keep old behaviour, see below
 //        //        sb.append('0');
 //        sb.append(hour).append(':');
@@ -336,7 +336,7 @@ public class DateFun {
 //        int hour = cal.get(Calendar.HOUR_OF_DAY);
 //        int minute = cal.get(Calendar.MINUTE);
 //        int second = cal.get(Calendar.SECOND);
-//        StringBuffer sb = new StringBuffer(9);
+//        StringBuilder sb = new StringBuilder(9);
 //        if( hour<10 )
 //            sb.append('0');
 //        sb.append(hour).append(':');
@@ -401,7 +401,7 @@ public class DateFun {
      * Returns the date from Calendar as String with format yyyy.m.d
      */
 //    public static String getDateOfCalendar(Calendar calDL) {
-//        String date = new StringBuffer(11).append(calDL.get(Calendar.YEAR)).append('.')
+//        String date = new StringBuilder(11).append(calDL.get(Calendar.YEAR)).append('.')
 //                      .append(calDL.get(Calendar.MONTH) + 1).append('.')
 //                      .append(calDL.get(Calendar.DATE)).toString();
 //        return date;
@@ -414,7 +414,7 @@ public class DateFun {
 //        int year = cal.get(Calendar.YEAR);
 //        int month = cal.get(Calendar.MONTH) + 1;
 //        int day = cal.get(Calendar.DATE);
-//        StringBuffer sb = new StringBuffer(11);
+//        StringBuilder sb = new StringBuilder(11);
 //        sb.append(year).append('.');
 //        if( month < 10 )
 //            sb.append('0');
@@ -435,7 +435,7 @@ public class DateFun {
 //            int year = Integer.parseInt(date.substring(0, firstPoint));
 //            int month = Integer.parseInt(date.substring(firstPoint + 1, secondPoint));
 //            int day = Integer.parseInt(date.substring(secondPoint + 1, date.length()));
-//            StringBuffer sb = new StringBuffer(11);
+//            StringBuilder sb = new StringBuilder(11);
 //            sb.append(year).append('.');
 //            if( month < 10 )
 //                sb.append('0');

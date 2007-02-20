@@ -172,7 +172,7 @@ public class MainFrameStatusBar extends JPanel {
         }
         
         // update labels
-        String newText = new StringBuffer()
+        String newText = new StringBuilder()
             .append(" ")
             .append(language.getString("MainFrame.statusBar.TOFUP")).append(": ")
             .append(info.getUploadingMessagesCount())
@@ -184,7 +184,7 @@ public class MainFrameStatusBar extends JPanel {
             .toString();
         statusLabelTofup.setText(newText);
 
-        newText = new StringBuffer()
+        newText = new StringBuilder()
             .append(" ")
             .append(language.getString("MainFrame.statusBar.TOFDO")).append(": ")
             .append(info.getDownloadingBoardCount())
@@ -194,7 +194,7 @@ public class MainFrameStatusBar extends JPanel {
             .toString();
         statusLabelTofdn.setText(newText);
 
-        newText = new StringBuffer()
+        newText = new StringBuilder()
             .append(" ")
             .append(language.getString("MainFrame.statusBar.selectedBoard")).append(": ")
             .append(selectedNode)

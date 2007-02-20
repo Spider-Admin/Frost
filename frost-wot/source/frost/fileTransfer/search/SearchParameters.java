@@ -98,7 +98,7 @@ public class SearchParameters {
                 }
             }
             
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             for( Iterator i = allStrings.iterator(); i.hasNext() && ( !(sb.length() > 30) ); ) {
                 // FIXME: don't append only the 'NOT' to end of final string
                 String s = (String) i.next();

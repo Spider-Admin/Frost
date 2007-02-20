@@ -537,7 +537,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
             percentDone = 100;
         }
         
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         
         if( isFinalized != null && !isFinalized.booleanValue() ) {
             sb.append("~");

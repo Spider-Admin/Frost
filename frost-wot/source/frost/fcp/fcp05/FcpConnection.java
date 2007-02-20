@@ -567,14 +567,14 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
         dOut.flush();
 
         int c;
-        StringBuffer output = new StringBuffer();
+        StringBuilder output = new StringBuilder();
         // nio doesn't always close the connection.  workaround:
         while ((c = fcpIn.read()) != -1) {
             output.append((char) c);
             if (output.toString().indexOf("EndMessage") != -1) {
                 output.append('\0');
                 if (output.indexOf("Pending") != -1 || output.indexOf("Restarted") != -1) {
-                    output = new StringBuffer();
+                    output = new StringBuilder();
                     continue;
                 }
                 break;
@@ -638,7 +638,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
         fcpOut.println("EndMessage");
 
         int c;
-        StringBuffer output = new StringBuffer();
+        StringBuilder output = new StringBuilder();
 
         while ((c = fcpIn.read()) != -1) {
             output.append((char)c);

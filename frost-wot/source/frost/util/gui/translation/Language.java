@@ -252,7 +252,7 @@ public class Language {
 //        int end = LINE_BREAKER.next();
 //        int lineLength = 0;
 //        
-//        StringBuffer result = new StringBuffer();
+//        StringBuilder result = new StringBuilder();
 //
 //        while (end != BreakIterator.DONE) {
 //            String word = source.substring(start,end);
@@ -284,7 +284,7 @@ public class Language {
 //        int end = LINE_BREAKER.next();
 //        int lineLength = 0;
 //        
-//        StringBuffer result = new StringBuffer();
+//        StringBuilder result = new StringBuilder();
 //        result.append("<html>");
 //
 //        while (end != BreakIterator.DONE) {

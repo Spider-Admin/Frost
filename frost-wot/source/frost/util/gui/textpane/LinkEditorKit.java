@@ -39,7 +39,7 @@ public class LinkEditorKit extends StyledEditorKit {
 	/**
 	 *  attribute on inline elements
 	 */
-	public static final Object LINK = new StringBuffer("link");
+	public static final Object LINK = new String("link");
 	
 	/**
 	 * can be static because it picks up the editor from the MouseEvent

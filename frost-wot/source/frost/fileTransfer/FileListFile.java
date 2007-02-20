@@ -245,7 +245,7 @@ public class FileListFile {
     }
     
     private static String getSignableContent(LinkedList<SharedFileXmlFile> files, String owner, long timestamp) {
-        StringBuffer signContent = new StringBuffer();
+        StringBuilder signContent = new StringBuilder();
         signContent.append(owner);
         signContent.append(timestamp);
         for(Iterator<SharedFileXmlFile> i = files.iterator(); i.hasNext(); ) {

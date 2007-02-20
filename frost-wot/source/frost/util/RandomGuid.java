@@ -49,7 +49,7 @@ public class RandomGuid {
 	 */
 	private void generateGuid() throws NoSuchAlgorithmException {
 		MessageDigest md5 = MessageDigest.getInstance("MD5");
-		StringBuffer stringToDigest = new StringBuffer();
+		StringBuilder stringToDigest = new StringBuilder();
 		
 		long time = System.currentTimeMillis();
 		long rand = random.nextLong();
@@ -60,7 +60,7 @@ public class RandomGuid {
 		
 		md5.update(stringToDigest.toString().getBytes());
 		byte[] digestBytes = md5.digest();	//This is always 128 bits long.
-		StringBuffer digest = new StringBuffer();
+		StringBuilder digest = new StringBuilder();
 		for (int i = 0; i < digestBytes.length; ++i) {
 			int b = digestBytes[i] & 0xFF;
 			if (b < 0x10) {
@@ -78,19 +78,19 @@ public class RandomGuid {
 	 */	
 	public String toString() {
 		String guidUpperCase = guid.toUpperCase();
-		StringBuffer stringBuffer = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		
-		stringBuffer.append(guidUpperCase.substring(0, 8));
-		stringBuffer.append("-");
-		stringBuffer.append(guidUpperCase.substring(8, 12));
-		stringBuffer.append("-");
-		stringBuffer.append(guidUpperCase.substring(12, 16));
-		stringBuffer.append("-");
-		stringBuffer.append(guidUpperCase.substring(16, 20));
-		stringBuffer.append("-");
-		stringBuffer.append(guidUpperCase.substring(20));
+		sb.append(guidUpperCase.substring(0, 8));
+		sb.append("-");
+		sb.append(guidUpperCase.substring(8, 12));
+		sb.append("-");
+		sb.append(guidUpperCase.substring(12, 16));
+		sb.append("-");
+		sb.append(guidUpperCase.substring(16, 20));
+		sb.append("-");
+		sb.append(guidUpperCase.substring(20));
 
-		return stringBuffer.toString();
+		return sb.toString();
 	}
 	
 }

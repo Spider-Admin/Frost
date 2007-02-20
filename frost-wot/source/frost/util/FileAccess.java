@@ -313,17 +313,17 @@ public class FileAccess {
      */
     public static String readFile(File file) {
         String line;
-        StringBuffer stringBuffer = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         try {
             BufferedReader f = new BufferedReader(new FileReader(file));
             while( (line = f.readLine()) != null ) {
-                stringBuffer.append(line).append("\n");
+                sb.append(line).append("\n");
             }
             f.close();
         } catch (IOException e) {
             logger.log(Level.SEVERE, "Exception thrown in readFile(String path)", e);
         }
-        return stringBuffer.toString();
+        return sb.toString();
     }
 
     /**
@@ -335,18 +335,18 @@ public class FileAccess {
      */
     public static String readFile(File file, String encoding) {
         String line;
-        StringBuffer stringBuffer = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         try {
             InputStreamReader iSReader = new InputStreamReader(new FileInputStream(file), encoding);
             BufferedReader reader = new BufferedReader(iSReader);
             while ((line = reader.readLine()) != null) {
-                stringBuffer.append(line).append("\n");
+                sb.append(line).append("\n");
             }
             reader.close();
         } catch (IOException e) {
             logger.log(Level.SEVERE, "Exception thrown in readFile(String path, String encoding)", e);
         }
-        return stringBuffer.toString();
+        return sb.toString();
     }
 
     /**

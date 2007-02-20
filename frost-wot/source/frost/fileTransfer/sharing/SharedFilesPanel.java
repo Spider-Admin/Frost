@@ -309,7 +309,7 @@ public class SharedFilesPanel extends JPanel {
     private void updateSharedFilesItemCount() {
         sharedFilesCount = model.getItemCount();
         String s =
-            new StringBuffer()
+            new StringBuilder()
                 .append(language.getString("SharedFilesPane.toolbar.files"))
                 .append(": ")
                 .append(sharedFilesCount)

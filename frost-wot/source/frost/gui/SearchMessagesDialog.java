@@ -1238,7 +1238,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         List resultBoards = bc.runDialog();
         if( resultBoards != null ) {
             chosedBoardsList = resultBoards;
-            StringBuffer txt = new StringBuffer();
+            StringBuilder txt = new StringBuilder();
             for(Iterator i=chosedBoardsList.iterator(); i.hasNext(); ) {
                 Board b = (Board)i.next();
                 txt.append(b.getName());

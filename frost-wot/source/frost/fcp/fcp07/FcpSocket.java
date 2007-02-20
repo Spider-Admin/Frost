@@ -47,7 +47,7 @@ public class FcpSocket {
     private static long staticFcpConnectionId = 0;
     
     public static synchronized String getNextFcpId() {
-        StringBuffer sb = new StringBuffer().append("fcps-").append(System.currentTimeMillis()).append(staticFcpConnectionId++);
+        StringBuilder sb = new StringBuilder().append("fcps-").append(System.currentTimeMillis()).append(staticFcpConnectionId++);
         return sb.toString();
     }
 

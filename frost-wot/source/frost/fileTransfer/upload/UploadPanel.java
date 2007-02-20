@@ -267,7 +267,7 @@ public class UploadPanel extends JPanel {
         uploadItemCount = newUploadItemCount;
 
         String s =
-            new StringBuffer()
+            new StringBuilder()
                 .append(language.getString("UploadPane.toolbar.waiting"))
                 .append(": ")
                 .append(uploadItemCount)

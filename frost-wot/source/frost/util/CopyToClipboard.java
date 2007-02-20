@@ -50,7 +50,7 @@ public class CopyToClipboard {
             return;
         }
         String keyNotAvailableMessage = Language.getInstance().getString("Common.copyToClipBoard.extendedInfo.keyNotAvailableYet");
-        StringBuffer textToCopy = new StringBuffer();
+        StringBuilder textToCopy = new StringBuilder();
         CopyToClipboardItem item;
         for (ModelItem ditem : items) {
             if( !(ditem instanceof CopyToClipboardItem) ) {
@@ -81,7 +81,7 @@ public class CopyToClipboard {
         String fileMessage = Language.getInstance().getString("Common.copyToClipBoard.extendedInfo.file")+" ";
         String keyMessage = Language.getInstance().getString("Common.copyToClipBoard.extendedInfo.key")+" ";
         String bytesMessage = Language.getInstance().getString("Common.copyToClipBoard.extendedInfo.bytes")+" ";
-        StringBuffer textToCopy = new StringBuffer();
+        StringBuilder textToCopy = new StringBuilder();
         CopyToClipboardItem item;
         for (ModelItem ditem : items) {
             if( !(ditem instanceof CopyToClipboardItem) ) {
@@ -122,7 +122,7 @@ public class CopyToClipboard {
             return;
         }
         String keyNotAvailableMessage = Language.getInstance().getString("Common.copyToClipBoard.extendedInfo.keyNotAvailableYet");
-        StringBuffer textToCopy = new StringBuffer();
+        StringBuilder textToCopy = new StringBuilder();
         CopyToClipboardItem item;
         for (ModelItem ditem : items) {
             if( !(ditem instanceof CopyToClipboardItem) ) {
@@ -143,11 +143,11 @@ public class CopyToClipboard {
     }
 
     /**
-     * Appends key/filename to the stringbuffer.
+     * Appends key/filename to the StringBuilder.
      * Does not append filename if there is already a filename.
      * Only appends filename for CHK keys.
      */
-    private static void appendKeyAndFilename(StringBuffer textToCopy, String key, String filename, String keyNotAvailableMessage) {
+    private static void appendKeyAndFilename(StringBuilder textToCopy, String key, String filename, String keyNotAvailableMessage) {
         if (key == null) {
             key = keyNotAvailableMessage;
         } 
