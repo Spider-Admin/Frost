@@ -218,8 +218,8 @@ public class FcpPersistentQueue {
                 pg.setFailed(nm);
                 persistenceHandler.persistentRequestUpdated(pg);
             } else {
-                System.out.println("No item in queue: +nm");
-                return;
+                System.out.println("No item in queue, calling error handler: "+nm);
+                persistenceHandler.persistentRequestError(id, nm);
             }
         }
         protected void onIdentifierCollision(String id, NodeMessage nm) {

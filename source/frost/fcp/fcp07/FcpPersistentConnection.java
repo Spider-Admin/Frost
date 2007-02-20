@@ -22,16 +22,20 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.util.concurrent.locks.*;
+import java.util.logging.*;
 
 import javax.swing.event.*;
 
 import frost.fcp.*;
+import frost.util.*;
 
 public class FcpPersistentConnection {
 
-//    private static Logger logger = Logger.getLogger(FcpPersistentConnection.class.getName());
+    private static Logger logger = Logger.getLogger(FcpPersistentConnection.class.getName());
     
     private static FcpPersistentConnection instance = null;
+    
+    private final NodeAddress nodeAddress;
     
     private FcpSocket fcpSocket = null;
 
@@ -50,8 +54,10 @@ public class FcpPersistentConnection {
      * @exception IOException if there is a problem with the connection to the FCP host.
      */
     protected FcpPersistentConnection(NodeAddress na) throws UnknownHostException, IOException {
+
+        nodeAddress = na;
         
-        fcpSocket = new FcpSocket(na);
+        fcpSocket = new FcpSocket(nodeAddress);
         
         writeSocketLock = new ReentrantLock(true);
         
@@ -69,6 +75,25 @@ public class FcpPersistentConnection {
     
     public static boolean isInitialized() {
         return instance != null;
+    }
+    
+    private void reconnect() {
+        int count = 0;
+        while(true) {
+            logger.severe("reconnect try no. "+count);
+            try {
+                fcpSocket = new FcpSocket(nodeAddress);
+                break;
+            } catch(Throwable t) {
+                logger.log(Level.SEVERE, "reconnect failed, exception catched", t);
+            }
+            logger.severe("waiting 30 seconds before next reconnect try");
+            Mixed.wait(30000);
+            count++;
+        }
+        logger.severe("reconnect was successful, restarting ReceiveThread now");
+        receiveThread = new ReceiveThread(fcpSocket.getFcpIn());
+        receiveThread.start();
     }
     
     public boolean isDDA() {
@@ -107,14 +132,13 @@ public class FcpPersistentConnection {
     }
 
     /**
-     * Writes a message to the socket. Ensures that only 1 thread writes at any time.
+     * Writes a message to the socket. Ensures that only 1 thread writes at any time (writeSocketLock).
      * @param message     the message to send
      * @param sendEndMsg  if true EndMessage is appended
      */
-    public void sendMessage(List<String> message, boolean sendEndMsg) {
+    public boolean sendMessage(List<String> message, boolean sendEndMsg) {
 
         writeSocketLock.lock();
-        
         try {
             System.out.println("### SEND >>>>>>>");
             for(Iterator<String> i=message.iterator(); i.hasNext(); ) {
@@ -126,9 +150,9 @@ public class FcpPersistentConnection {
                 fcpSocket.getFcpOut().println("EndMessage");
                 System.out.println("*EndMessage*");
             }
-            fcpSocket.getFcpOut().flush();
-            System.out.println("### SEND <<<<<<<");
-
+            boolean isError = fcpSocket.getFcpOut().checkError();
+            System.out.println("### SEND <<<<<<< isError="+isError);
+            return isError;
         } finally {
             writeSocketLock.unlock();
         }
@@ -187,7 +211,9 @@ public class FcpPersistentConnection {
                 // notify listeners
                 handleNodeMessage(nodeMsg);
             }
-            System.out.println("ReceiveThread ended!");
+            logger.severe("Socket closed, ReceiveThread ended, trying to reconnect now");
+            System.out.println("ReceiveThread ended, trying to reconnect now!");
+            reconnect();
         }
     }
 }

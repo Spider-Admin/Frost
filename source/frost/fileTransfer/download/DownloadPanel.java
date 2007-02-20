@@ -647,6 +647,9 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
         }
 
         private void retrieveDirectExternalDownloads() {
+            if( FileTransferManager.inst().getPersistenceManager() == null ) {
+                return;
+            }
             ModelItem[] selectedItems = modelTable.getSelectedItems();
             for(ModelItem mi : selectedItems) {
                 FrostDownloadItem item = (FrostDownloadItem) mi;
@@ -658,6 +661,9 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
         }
 
         private void changePriority(int prio) {
+            if( FileTransferManager.inst().getPersistenceManager() == null ) {
+                return;
+            }
             ModelItem[] selectedItems = modelTable.getSelectedItems();
             FileTransferManager.inst().getPersistenceManager().changeItemPriorites(selectedItems, prio);
         }
