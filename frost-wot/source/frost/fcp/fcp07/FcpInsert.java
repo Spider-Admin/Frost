@@ -70,7 +70,7 @@ public class FcpInsert {
                 connection = null;
             }
             if( connection == null ) {
-                return FcpResultPut.ERROR_RESULT;
+                return FcpResultPut.NO_CONNECTION_RESULT;
             }
 
             FcpResultPut result = connection.putKeyFromFile(type, uri, file, false, doMime, ulItem);

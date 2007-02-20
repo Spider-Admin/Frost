@@ -26,8 +26,8 @@ public class NodeMessage {
     
     private static Logger logger = Logger.getLogger(NodeMessage.class.getName());
 
-    private String messageName;
-    private Hashtable<String,String> items;
+    private final String messageName;
+    private final HashMap<String,String> items;
     private String messageEndMarker = null;
     
     /////////////////////////////////////////////////////////////////////////////////////////
@@ -37,14 +37,16 @@ public class NodeMessage {
     public static NodeMessage readMessage(BufferedInputStream fcpInp) {
 
         NodeMessage result = null;
-        String tmp;
         boolean isfirstline = true;
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream(128);
+        final ByteArrayOutputStream bytes = new ByteArrayOutputStream(128);
         
         while(true) {
-            tmp = readLine(fcpInp, bytes);
+            String tmp = readLine(fcpInp, bytes);
             bytes.reset(); // reset for next run
-            if (tmp == null) { break; }  // this indicates an error, io connection closed
+            if (tmp == null) {
+                // error, io connection closed
+                break; 
+            }
             if ((tmp.trim()).length() == 0) { continue; } // an empty line
 
             if (isfirstline) {
@@ -75,16 +77,19 @@ public class NodeMessage {
     }
 
     private static String readLine(BufferedInputStream fcpInp, ByteArrayOutputStream bytes) {
-        int c;
         try {
-            while ((c = fcpInp.read()) != '\n' && c != -1 && c != '\0' ) {
-                bytes.write(c);
+            while(true) {
+                int c = fcpInp.read();
+                if( c < 0 ) {
+                    // unexpected socket close in middle of a line
+                    return null;
+                } else if ( c == '\n' ) {
+                    // end of line
+                    return new String(bytes.toByteArray(), "UTF-8");
+                } else {
+                    bytes.write(c);
+                }
             }
-            String str = new String(bytes.toByteArray(), "UTF-8");
-            if (str.length() == 0) {
-                str = null;
-            }
-            return str;
         } catch (Throwable e) {
             logger.log(Level.SEVERE, "Throwable catched", e);
             return null;
@@ -100,7 +105,7 @@ public class NodeMessage {
      */
     protected NodeMessage(String name) {
         messageName = name;
-        items = new Hashtable<String,String>();
+        items = new HashMap<String,String>();
     }
 
     /** 
