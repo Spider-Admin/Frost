@@ -370,7 +370,7 @@ public class SettingsClass implements Savable {
             String val = null;
             if (sortedSettings.get(key) instanceof Color) {
                 Color c = (Color) sortedSettings.get(key);
-                val = new StringBuffer()
+                val = new StringBuilder()
                         .append("type.color(")
                         .append(c.getRed()).append(",")
                         .append(c.getGreen()).append(",")

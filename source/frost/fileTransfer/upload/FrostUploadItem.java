@@ -267,7 +267,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
      */
     private String buildGqIdentifier(String filename) {
         if( FcpHandler.isFreenet07() ) {
-            return new StringBuffer()
+            return new StringBuilder()
                 .append("Frost-")
                 .append(filename.replace(' ', '_'))
                 .append("-")

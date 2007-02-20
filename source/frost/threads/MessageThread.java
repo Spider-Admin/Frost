@@ -118,7 +118,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
         String downKey = null;
         // switch public / secure board
         if (board.isPublicBoard() == false) {
-            downKey = new StringBuffer()
+            downKey = new StringBuilder()
                     .append(board.getPublicKey())
                     .append("/")
                     .append(board.getBoardFilename())
@@ -129,7 +129,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                     .append(".xml")
                     .toString();
         } else {
-            downKey = new StringBuffer()
+            downKey = new StringBuilder()
                     .append("KSK@frost/message/")
                     .append(Core.frostSettings.getValue(SettingsClass.MESSAGE_BASE))
                     .append("/")
@@ -395,7 +395,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
     public String composeDownloadKey(MessageXmlFile message, int index) {
         String key;
         if (board.isWriteAccessBoard()) {
-            key = new StringBuffer()
+            key = new StringBuilder()
                     .append(board.getPublicKey())
                     .append("/")
                     .append(board.getBoardFilename())
@@ -406,7 +406,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                     .append(".xml")
                     .toString();
         } else {
-            key = new StringBuffer()
+            key = new StringBuilder()
                     .append("KSK@frost/message/")
                     .append(Core.frostSettings.getValue(SettingsClass.MESSAGE_BASE))
                     .append("/")
@@ -430,7 +430,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
     public String composeUploadKey(MessageXmlFile message, int index) {
         String key;
         if (board.isWriteAccessBoard()) {
-            key = new StringBuffer()
+            key = new StringBuilder()
                     .append(board.getPrivateKey())
                     .append("/")
                     .append(board.getBoardFilename())
@@ -441,7 +441,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                     .append(".xml")
                     .toString();
         } else {
-            key = new StringBuffer()
+            key = new StringBuilder()
                     .append("KSK@frost/message/")
                     .append(Core.frostSettings.getValue(SettingsClass.MESSAGE_BASE))
                     .append("/")

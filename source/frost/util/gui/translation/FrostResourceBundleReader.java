@@ -156,7 +156,7 @@ public class FrostResourceBundleReader {
     private static String loadConvert(String str) {
         char aChar;
         int len = str.length();
-        StringBuffer result = new StringBuffer(len);
+        StringBuilder result = new StringBuilder(len);
         // note that uneven backslashes were removed from end of line (continuation),
         // hence the double ++ should work ;)
         for (int x=0; x<len; ) {

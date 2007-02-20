@@ -464,19 +464,19 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
                 if (containsNewMessage) {
                     setFont(boldFont);
                     if( showBoardUpdatedCount ) {
-                        StringBuffer sb = new StringBuffer();
+                        StringBuilder sb = new StringBuilder();
                         sb.append(board.getName()).append(" (").append(board.getNewMessageCount()).append(") [");
                         sb.append(board.getTimesUpdatedCount()).append("]");
                         setText(sb.toString());
                     } else {
-                        StringBuffer sb = new StringBuffer();
+                        StringBuilder sb = new StringBuilder();
                         sb.append(board.getName()).append(" (").append(board.getNewMessageCount()).append(")");
                         setText(sb.toString());
                     }
                 } else {
                     setFont(normalFont);
                     if( showBoardUpdatedCount ) {
-                        StringBuffer sb = new StringBuffer();
+                        StringBuilder sb = new StringBuilder();
                         sb.append(board.getName()).append(" [").append(board.getTimesUpdatedCount()).append("]");
                         setText(sb.toString());
                     } else {

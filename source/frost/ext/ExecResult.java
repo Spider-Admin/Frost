@@ -24,7 +24,7 @@ package frost.ext;
 public class ExecResult {
 	public Process proc = null;
 	public int retcode = -1;
-	public StringBuffer stdOut = null;
-	public StringBuffer stdErr = null;
+	public StringBuilder stdOut = null;
+	public StringBuilder stdErr = null;
 	public Throwable error = null;
 }

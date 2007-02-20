@@ -768,7 +768,7 @@ public class MessageTextPane extends JPanel {
                 return;
             }
 
-            StringBuffer textToCopy = new StringBuffer();
+            StringBuilder textToCopy = new StringBuilder();
             for(Iterator i = items.iterator(); i.hasNext(); ) {
                 FileAttachment fa = (FileAttachment) i.next();
                 String key = fa.getKey();
@@ -805,7 +805,7 @@ public class MessageTextPane extends JPanel {
                 return;
             }
 
-            StringBuffer textToCopy = new StringBuffer();
+            StringBuilder textToCopy = new StringBuilder();
             for(Iterator i = items.iterator(); i.hasNext(); ) {
                 FileAttachment fa = (FileAttachment) i.next();
 
@@ -836,7 +836,7 @@ public class MessageTextPane extends JPanel {
                 return;
             }
 
-            StringBuffer textToCopy = new StringBuffer();
+            StringBuilder textToCopy = new StringBuilder();
             for(Iterator i = items.iterator(); i.hasNext(); ) {
                 FileAttachment fa = (FileAttachment) i.next();
                 String key = fa.getKey();
@@ -1018,7 +1018,7 @@ public class MessageTextPane extends JPanel {
             
             StringSelection selection;
             if( items.size() > 1 ) {
-                StringBuffer textToCopy = new StringBuffer();
+                StringBuilder textToCopy = new StringBuilder();
             	for(Iterator i = items.iterator(); i.hasNext(); ) {
             		String key = (String)i.next();
             		textToCopy.append(key).append("\n");

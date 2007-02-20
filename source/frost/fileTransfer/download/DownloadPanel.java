@@ -364,7 +364,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		downloadItemCount = newDownloadItemCount;
 
 		String s =
-			new StringBuffer()
+			new StringBuilder()
 				.append(language.getString("DownloadPane.toolbar.waiting"))
 				.append(": ")
 				.append(downloadItemCount)

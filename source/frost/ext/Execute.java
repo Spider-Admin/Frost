@@ -55,7 +55,7 @@ public class Execute {
 			InputStream isStdOut = result.proc.getInputStream();
 			InputStream isStdErr = result.proc.getErrorStream();
         
-			result.stdOut = new StringBuffer();
+			result.stdOut = new StringBuilder();
         
 			InputStreamReader iSReader = new InputStreamReader(isStdOut, cs);
 			BufferedReader reader = new BufferedReader(iSReader);
@@ -67,7 +67,7 @@ public class Execute {
 			}
 			reader.close();
 			
-			result.stdErr = new StringBuffer();
+			result.stdErr = new StringBuilder();
         
 			iSReader = new InputStreamReader(isStdErr, cs);
 			reader = new BufferedReader(iSReader);
@@ -99,7 +99,7 @@ public class Execute {
     public static Process runtimeExec(String[] cmd) throws IOException {
     	Process p;
 		if (isWindows()) {
-			StringBuffer winCmd = new StringBuffer();
+			StringBuilder winCmd = new StringBuilder();
 			winCmd.append(cmd[0]); 
 			int sc = cmd.length;
 			for (int i = 1; i < sc; i++) {

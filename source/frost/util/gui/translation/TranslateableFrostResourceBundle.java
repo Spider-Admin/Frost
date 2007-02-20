@@ -87,7 +87,7 @@ public class TranslateableFrostResourceBundle extends FrostResourceBundle {
                 key = key.trim();
                 val = val.trim();
                 // change newlines in val into \n
-                StringBuffer sbTmp = new StringBuffer();
+                StringBuilder sbTmp = new StringBuilder();
                 for(int x=0; x < val.length(); x++) {
                     char c = val.charAt(x);
                     if( c == '\n' ) {

@@ -644,7 +644,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
             percentDone = 100;
         }
         
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         
         if( isFinalized != null && isFinalized.booleanValue() == false ) {
             sb.append("~");

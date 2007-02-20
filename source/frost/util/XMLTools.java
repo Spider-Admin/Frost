@@ -276,7 +276,7 @@ public class XMLTools {
             return txtname.getData();
         }
         
-        StringBuffer sb = new StringBuffer(txtname.getData());
+        StringBuilder sb = new StringBuilder(txtname.getData());
         while( txtname.getNextSibling() != null ) {
             txtname = (CDATASection)txtname.getNextSibling();
             sb.append(txtname.getData());

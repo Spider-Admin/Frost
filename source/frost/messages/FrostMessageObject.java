@@ -306,7 +306,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
             String dateStr = DateFun.FORMAT_DATE_EXT.print(date);
             String timeStr = DateFun.FORMAT_TIME_EXT.print(time);
 
-            StringBuffer sb = new StringBuffer(29);
+            StringBuilder sb = new StringBuilder(29);
             sb.append(dateStr).append(" ").append(timeStr);
 
             this.dateAndTimeString = sb.toString();

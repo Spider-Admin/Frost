@@ -698,7 +698,7 @@ Document
             if( key.indexOf("@") > -1 )  keyPrefix = key.substring(0, key.indexOf("@")+1);
             String keyUrl = "";
             if( key.indexOf("/") > -1 )  keyUrl = key.substring(key.indexOf("/"));
-            printableKey = new StringBuffer().append(keyPrefix)
+            printableKey = new StringBuilder().append(keyPrefix)
                                              .append("...")
                                              .append(keyUrl).toString();
         }

@@ -148,7 +148,7 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
      */
     private String getSignableContent() {
         
-        StringBuffer allContent = new StringBuffer();
+        StringBuilder allContent = new StringBuilder();
         allContent.append(getDateStr());
         allContent.append(getTimeStr());
         allContent.append(getSubject());

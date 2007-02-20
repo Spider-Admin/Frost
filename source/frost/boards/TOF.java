@@ -630,7 +630,7 @@ public class TOF {
                         for(Enumeration e2=mo.breadthFirstEnumeration(); e2.hasMoreElements(); ) {
                             FrostMessageObject childMo = (FrostMessageObject)e2.nextElement();
                             if( !childMo.isDummy() && childMo.getSubject() != null ) {
-                                StringBuffer sb = new StringBuffer(childMo.getSubject().length() + 2);
+                                StringBuilder sb = new StringBuilder(childMo.getSubject().length() + 2);
                                 sb.append("[").append(childMo.getSubject()).append("]");
                                 mo.setSubject(sb.toString());
                                 break;

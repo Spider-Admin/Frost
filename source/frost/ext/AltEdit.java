@@ -105,7 +105,7 @@ public class AltEdit extends Thread {
         File editFile = FileAccess.createTempFile("frostmsg", ".txt");
         editFile.deleteOnExit();
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(language.getString("AltEdit.textFileMessage.1")).append(linesep);
         sb.append(language.getString("AltEdit.textFileMessage.2")).append(linesep);
         sb.append(language.getString("AltEdit.textFileMessage.3")).append(linesep).append(linesep);
@@ -152,7 +152,7 @@ public class AltEdit extends Thread {
         }
 
         String newSubject = null;
-        StringBuffer newTextSb = new StringBuffer();
+        StringBuilder newTextSb = new StringBuilder();
 
         boolean inNewText = false;
         for( Iterator it=lines.iterator(); it.hasNext(); ) {

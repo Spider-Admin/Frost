@@ -35,7 +35,7 @@ public final class Mixed {
      */
     public static String createUniqueId() {
         
-        StringBuffer idStrSb = new StringBuffer();
+        StringBuilder idStrSb = new StringBuilder();
         idStrSb.append(Long.toString(System.currentTimeMillis())); // millis
         idStrSb.append(DateFun.FORMAT_DATE_EXT.print(new DateTime()));
         idStrSb.append(Long.toString(Runtime.getRuntime().freeMemory())); // free java mem
@@ -117,7 +117,7 @@ public final class Mixed {
             return null;
         }
 
-        StringBuffer newText = new StringBuffer();
+        StringBuilder newText = new StringBuilder();
 
         if (text.startsWith("."))
             newText.append("_"); // dont allow a boardfilename like "."
@@ -137,7 +137,7 @@ public final class Mixed {
      */
     public static String makeASCIIFilename(String text){
 
-        StringBuffer newText = new StringBuffer();
+        StringBuilder newText = new StringBuilder();
         String allowedCharacters = "()-!.";
         for (int i = 0; i < text.length(); i++)
               {

@@ -108,7 +108,7 @@ class DisplayPanel extends JPanel {
         if (font == null) {
             return "";
         } else {
-            StringBuffer returnValue = new StringBuffer();
+            StringBuilder returnValue = new StringBuilder();
             returnValue.append(font.getFamily());
             if (font.isBold()) {
                 returnValue.append(" " + language.getString("Options.display.fontChooser.bold"));

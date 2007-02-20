@@ -1018,7 +1018,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         //////////////////////////////////////////////////
         DateTime now = new DateTime(DateTimeZone.UTC);
         timeLabel.setText(
-            new StringBuffer()
+            new StringBuilder()
                 .append(DateFun.FORMAT_DATE_VISIBLE.print(now))
                 .append(" - ")
                 .append(DateFun.FORMAT_TIME_VISIBLE.print(now))
