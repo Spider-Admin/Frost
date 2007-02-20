@@ -64,7 +64,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     
     private ImageIcon progressIconRunning = null;
     private ImageIcon progressIconIdle = null;
-    private JLabel progressIconButton = null;
+    private JLabel progressIconLabel = null;
+    
+    private JLabel disconnectedLabel = null;
 
     private static SettingsClass frostSettings = null;
 
@@ -303,7 +305,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
             progressIconRunning = new ImageIcon(getClass().getResource("/data/progress_running.gif"));
             progressIconIdle = new ImageIcon(getClass().getResource("/data/progress_idle.gif"));
-            progressIconButton = new JLabel(progressIconIdle);
+            progressIconLabel = new JLabel(progressIconIdle);
+            disconnectedLabel = new JLabel("");
 
             MiscToolkit toolkit = MiscToolkit.getInstance();
             toolkit.configureButton(newBoardButton, "MainFrame.toolbar.tooltip.newBoard", "/data/newboard_rollover.gif", language);
@@ -404,18 +407,30 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 buttonToolBar.add(systemTrayButton);
             }
             buttonToolBar.add(Box.createHorizontalGlue());
-            buttonToolBar.add(progressIconButton);
+            buttonToolBar.add(disconnectedLabel);
+            buttonToolBar.add(Box.createRigidArea(blankSpace));
+            buttonToolBar.add(progressIconLabel);
             buttonToolBar.add(Box.createRigidArea(blankSpace));
         }
         return buttonToolBar;
     }
     
     public void showProgress() {
-        progressIconButton.setIcon(progressIconRunning);
+        progressIconLabel.setIcon(progressIconRunning);
     }
-
     public void hideProgress() {
-        progressIconButton.setIcon(progressIconIdle);
+        progressIconLabel.setIcon(progressIconIdle);
+    }
+    
+    public void setDisconnected() {
+        disconnectedLabel.setOpaque(true);
+        disconnectedLabel.setBackground(Color.yellow);
+        disconnectedLabel.setText(" DISCONNECTED ");
+    }
+    public void setConnected() {
+        disconnectedLabel.setOpaque(false);
+        disconnectedLabel.setBackground(progressIconLabel.getBackground());
+        disconnectedLabel.setText("");
     }
 
     /**

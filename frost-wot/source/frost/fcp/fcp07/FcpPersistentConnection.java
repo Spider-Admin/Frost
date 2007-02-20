@@ -26,6 +26,7 @@ import java.util.logging.*;
 
 import javax.swing.event.*;
 
+import frost.*;
 import frost.fcp.*;
 import frost.util.*;
 
@@ -78,6 +79,9 @@ public class FcpPersistentConnection {
     }
     
     private void reconnect() {
+        // we are disconnected
+        MainFrame.getInstance().setDisconnected();
+        
         int count = 0;
         while(true) {
             logger.severe("reconnect try no. "+count);
@@ -94,6 +98,8 @@ public class FcpPersistentConnection {
         logger.severe("reconnect was successful, restarting ReceiveThread now");
         receiveThread = new ReceiveThread(fcpSocket.getFcpIn());
         receiveThread.start();
+        
+        MainFrame.getInstance().setConnected();
     }
     
     public boolean isDDA() {
