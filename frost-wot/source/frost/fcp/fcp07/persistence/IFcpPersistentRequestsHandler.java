@@ -18,6 +18,8 @@
 */
 package frost.fcp.fcp07.persistence;
 
+import frost.fcp.fcp07.*;
+
 
 public interface IFcpPersistentRequestsHandler {
 
@@ -32,4 +34,11 @@ public interface IFcpPersistentRequestsHandler {
     
     public void persistentRequestModified(FcpPersistentPut uploadRequest);
     public void persistentRequestModified(FcpPersistentGet downloadRequest);
+
+    /**
+     * Error received for an identifier without existing PersistentRequest.
+     * E.g. we sent a ClientGet, but file exists, node refuses to overwrite
+     * and sends a ProtocolError immediately. 
+     */
+    public void persistentRequestError(String id, NodeMessage nm);
 }

@@ -694,6 +694,22 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             return queue.size();
         }
     }
+    
+    public void persistentRequestError(String id, NodeMessage nm) {
+        if( uploadModelItems.containsKey(id) ) {
+            FrostUploadItem item = uploadModelItems.get(id);
+            item.setEnabled(Boolean.FALSE);
+            item.setState(FrostUploadItem.STATE_FAILED);
+            item.setErrorCodeDescription(nm.getStringValue("CodeDescription"));
+        } else if( downloadModelItems.containsKey(id) ) {
+            FrostDownloadItem item = downloadModelItems.get(id);
+            item.setEnabled(Boolean.FALSE);
+            item.setState(FrostDownloadItem.STATE_FAILED);
+            item.setErrorCodeDescription(nm.getStringValue("CodeDescription"));
+        } else {
+            System.out.println("persistentRequestError: ID not in any model: "+id);
+        }
+    }
 
     public void persistentRequestAdded(FcpPersistentPut uploadRequest) {
         if( uploadModelItems.containsKey(uploadRequest.getIdentifier()) ) {
