@@ -19,14 +19,13 @@
 package frost.fcp.fcp07.persistence;
 
 import java.util.*;
-import java.util.logging.*;
 
 import frost.fcp.fcp07.*;
 import frost.fileTransfer.*;
 
 public class FcpPersistentQueue {
 
-    private static Logger logger = Logger.getLogger(FcpPersistentQueue.class.getName());
+//    private static Logger logger = Logger.getLogger(FcpPersistentQueue.class.getName());
 
     private FcpPersistentConnectionTools fcpTools;
     private IFcpPersistentRequestsHandler persistenceHandler;

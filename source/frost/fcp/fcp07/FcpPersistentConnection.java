@@ -32,7 +32,7 @@ import frost.util.*;
 
 public class FcpPersistentConnection {
 
-    private static Logger logger = Logger.getLogger(FcpPersistentConnection.class.getName());
+    private static final Logger logger = Logger.getLogger(FcpPersistentConnection.class.getName());
     
     private static FcpPersistentConnection instance = null;
     
@@ -89,7 +89,7 @@ public class FcpPersistentConnection {
                 fcpSocket = new FcpSocket(nodeAddress);
                 break;
             } catch(Throwable t) {
-                logger.log(Level.SEVERE, "reconnect failed, exception catched", t);
+                logger.log(Level.SEVERE, "reconnect failed, exception catched: "+t.getMessage());
             }
             logger.severe("waiting 30 seconds before next reconnect try");
             Mixed.wait(30000);

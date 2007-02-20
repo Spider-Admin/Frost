@@ -228,6 +228,10 @@ public class MessageUploader {
                 } else if (result.isKeyCollision()) {
                     logger.warning("TOFUP: Upload collided, trying next free index."+logInfo);
                     Mixed.wait(waitTime);
+                } else if (result.isNoConnection()) {
+                    // no connection to node, try after next update 
+                    logger.severe("TOFUP: Upload failed, no node connection."+logInfo);
+                    error = true;
                 } else {
                     // other error
                     if (tries > maxTries) {
@@ -307,8 +311,7 @@ public class MessageUploader {
                     tryAgain = true;
                 }
             }
-        }
-        while(tryAgain);
+        } while(tryAgain);
         
         return new MessageUploaderResult(true); // upload failed, keep msg
     }

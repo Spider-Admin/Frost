@@ -24,8 +24,10 @@ public class FcpResultPut {
     public static final int KeyCollision = 2;
     public static final int Error        = 3;
     public static final int Retry        = 4;
+    public static final int NoConnection = 5;
     
     public static final FcpResultPut ERROR_RESULT = new FcpResultPut(Error);
+    public static final FcpResultPut NO_CONNECTION_RESULT = new FcpResultPut(NoConnection);
     
     private int resultVal;
     private String chkKey;
@@ -57,10 +59,13 @@ public class FcpResultPut {
         return (resultVal == KeyCollision);
     }
     public boolean isError() {
-        return (resultVal == Error);
+        return (resultVal == Error) || (resultVal == NoConnection);
     }
     public boolean isRetry() {
         return (resultVal == Retry);
+    }
+    public boolean isNoConnection() {
+        return (resultVal == NoConnection);
     }
 
     public String getChkKey() {
