@@ -256,10 +256,12 @@ public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
         ps.setInt(ix++, newkey.getSentCount());
         ps.setLong(ix++, newkey.getLastSent());
         
-        int insertCount = ps.executeUpdate();
-
-        ps.close();
-
+        int insertCount = 0; 
+        try {
+            insertCount = ps.executeUpdate();
+        } finally {
+            ps.close();
+        }
         return (insertCount == 1);
     }
 

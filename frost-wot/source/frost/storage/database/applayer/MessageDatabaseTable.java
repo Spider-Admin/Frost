@@ -249,8 +249,13 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
             ps.setInt(i++, mo.getIdLinePos()); // idlinepos
             ps.setInt(i++, mo.getIdLineLen()); // idlinelen
             
-            int inserted = ps.executeUpdate();
-            ps.close();
+            int inserted;
+
+            try {
+                inserted = ps.executeUpdate();
+            } finally {
+                ps.close();
+            }
     
             if( inserted == 0 ) {
                 logger.log(Level.SEVERE, "message insert returned 0 !!!");
@@ -265,10 +270,15 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
                     " (msgref,msgcontent) VALUES (?,?)");
             pc.setLong(1, mo.getMsgIdentity());
             pc.setString(2, mo.getContent());
-            if( pc.executeUpdate() == 0 ) {
+            try {
+                inserted = pc.executeUpdate();
+            } finally {
+                pc.close();
+            }
+
+            if( inserted == 0 ) {
                 logger.log(Level.SEVERE, "message content insert returned 0 !!!");
             }
-            pc.close();
     
             // attachments
             if( files.size() > 0 ) {
@@ -314,7 +324,11 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
             conn.commit();
             conn.setAutoCommit(true);
         } catch(Throwable t) {
-            logger.log(Level.SEVERE, "Exception during insert of message", t);
+            if( t.getMessage().indexOf("constraint violation") > 0 && t.getMessage().indexOf("MSG_ID_UNIQUE_ONLY") > 0 ) {
+                logger.warning("Duplicate message id, not added to database table.");
+            } else {
+                logger.log(Level.SEVERE, "Exception during insert of message", t);
+            }
             try { conn.rollback(); } catch(Throwable t1) { logger.log(Level.SEVERE, "Exception during rollback", t1); }
             try { conn.setAutoCommit(true); } catch(Throwable t1) { }
         } finally {
