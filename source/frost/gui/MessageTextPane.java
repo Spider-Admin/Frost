@@ -324,7 +324,7 @@ public class MessageTextPane extends JPanel {
             public void keyTyped(KeyEvent e) {
                 if( e == null ) {
                     return;
-                } else if(e.getKeyChar() == KeyEvent.VK_N && parentFrame == mainFrame ) {
+                } else if(e.getKeyChar() == 'n' && parentFrame == mainFrame ) {
                     mainFrame.getMessagePanel().selectNextUnreadMessage();
                 } else if(e.getKeyChar() == KeyEvent.VK_DELETE && parentFrame == mainFrame ) {
                     mainFrame.getMessagePanel().deleteSelectedMessage();
