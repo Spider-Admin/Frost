@@ -78,8 +78,12 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
         ps.setTimestamp(3, new Timestamp(identity.getLastSeenTimestamp()));
         ps.setInt(4, identity.getState());
         
-        boolean insertWasOk = (ps.executeUpdate() == 1);
-        ps.close();
+        boolean insertWasOk = false; 
+        try {
+            insertWasOk = (ps.executeUpdate() == 1);
+        } finally {
+            ps.close();
+        }
         return insertWasOk;
     }
 
@@ -96,8 +100,12 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
         ps.setInt(5, 0);
         ps.setInt(6, 0);
         
-        boolean insertWasOk = (ps.executeUpdate() == 1);
-        ps.close();
+        boolean insertWasOk = false;
+        try {
+            insertWasOk = (ps.executeUpdate() == 1);
+        } finally {
+            ps.close();
+        }
         return insertWasOk;
     }
 

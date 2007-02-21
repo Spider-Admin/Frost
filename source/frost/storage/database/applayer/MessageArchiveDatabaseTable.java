@@ -187,8 +187,11 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
     
             int insertedCount;
             // sync to allow no updates until we got the generated identity
-            insertedCount = ps.executeUpdate();
-            ps.close();
+            try {
+                insertedCount = ps.executeUpdate();
+            } finally {
+                ps.close();
+            }
     
             if( insertedCount == 0 ) {
                 logger.log(Level.SEVERE, "message insert returned 0 !!!");
@@ -204,8 +207,11 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
             pc.setLong(1, mo.getMsgIdentity());
             pc.setString(2, mo.getContent());
             
-            insertedCount = pc.executeUpdate();
-            pc.close();
+            try {
+                insertedCount = pc.executeUpdate();
+            } finally {
+                pc.close();
+            }
             
             if( insertedCount == 0 ) {
                 logger.log(Level.SEVERE, "message content insert returned 0 !!!");

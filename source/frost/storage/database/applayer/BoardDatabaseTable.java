@@ -71,8 +71,11 @@ public class BoardDatabaseTable extends AbstractDatabaseTable {
         ps.setInt(1, board.getPrimaryKey().intValue());
         ps.setString(2, board.getNameLowerCase());
         
-        ps.executeUpdate();
-        ps.close();
+        try {
+            ps.executeUpdate();
+        } finally {
+            ps.close();
+        }
         
         return board;
     }

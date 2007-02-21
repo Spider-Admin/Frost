@@ -83,6 +83,7 @@ public class KnownBoardsDatabaseTable extends AbstractDatabaseTable {
         
         Connection conn = AppLayerDatabase.getInstance().getPooledConnection();
         
+        PreparedStatement ps = null;
         try {
             conn.setAutoCommit(false);
         
@@ -91,7 +92,7 @@ public class KnownBoardsDatabaseTable extends AbstractDatabaseTable {
             stmt.close();
             stmt = null;
             
-            PreparedStatement ps = conn.prepareStatement("INSERT INTO HIDDENBOARDNAMES (boardname) VALUES (?)");
+            ps = conn.prepareStatement("INSERT INTO HIDDENBOARDNAMES (boardname) VALUES (?)");
             for(Iterator i = names.iterator(); i.hasNext(); ) {
                 String bName = (String) i.next();
                 ps.setString(1, bName);
@@ -107,6 +108,7 @@ public class KnownBoardsDatabaseTable extends AbstractDatabaseTable {
             try { conn.setAutoCommit(true); } catch(Throwable t1) { }
         } finally {
             AppLayerDatabase.getInstance().givePooledConnection(conn);
+            try { if(ps!=null) ps.close(); } catch(Throwable t1) { };
         }
     }
 
@@ -123,10 +125,12 @@ public class KnownBoardsDatabaseTable extends AbstractDatabaseTable {
         ps.setString(3, (board.getPrivateKey()==null?"":board.getPrivateKey()));
         ps.setString(4, board.getDescription());
         
-        boolean insertWasOk = (ps.executeUpdate() == 1);
-
-        ps.close();
-        
+        boolean insertWasOk = false; 
+        try {
+            insertWasOk = (ps.executeUpdate() == 1);
+        } finally {
+            ps.close();
+        }
         return insertWasOk;
     }
 
@@ -172,9 +176,12 @@ public class KnownBoardsDatabaseTable extends AbstractDatabaseTable {
         ps.setString(2, (b.getPublicKey()==null?"":b.getPublicKey()));
         ps.setString(3, (b.getPrivateKey()==null?"":b.getPrivateKey()));
 
-        boolean deleteWasOk = (ps.executeUpdate() == 1);
-        ps.close();
-
+        boolean deleteWasOk = false; 
+        try {
+            deleteWasOk = (ps.executeUpdate() == 1);
+        } finally {
+            ps.close();
+        }
         return deleteWasOk;
     }
     

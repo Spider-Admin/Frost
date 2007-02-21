@@ -25,6 +25,7 @@ import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
+import frost.fcp.*;
 import frost.fileTransfer.*;
 import frost.identities.*;
 import frost.storage.database.*;
@@ -102,7 +103,8 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
     }
 
     /**
-     * Insert/updates a new NewFrostSharedFileObject. 
+     * Insert/updates a new NewFrostSharedFileObject.
+     * If method returns false/exception, the caller rolls back.
      */
     public synchronized boolean insertOrUpdateFrostFileListFileObject(FrostFileListFileObject newSfo, Connection conn) 
     throws SQLException {
@@ -112,9 +114,14 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
             // file is already in FILELIST table, maybe add new FILEOWNER and update fields
             // maybe update oldSfo
             boolean doUpdate = false;
-            // FIXME: 1010 fix?!
             if( oldSfo.getKey() == null && newSfo.getKey() != null ) {
                 oldSfo.setKey(newSfo.getKey()); doUpdate = true;
+            } else if( oldSfo.getKey() != null && newSfo.getKey() != null ) {
+                // fix to replace 0.7 keys before 1010 on the fly
+                if( FreenetKeys.isOld07ChkKey(oldSfo.getKey()) && !FreenetKeys.isOld07ChkKey(newSfo.getKey()) ) {
+                    // replace old chk key with new one
+                    oldSfo.setKey(newSfo.getKey()); doUpdate = true;
+                }
             }
             if( oldSfo.getFirstReceived() > newSfo.getFirstReceived() ) {
                 oldSfo.setFirstReceived(newSfo.getFirstReceived()); doUpdate = true;
@@ -345,7 +352,12 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
         ps.setLong(ix++, sfo.getRequestLastSent());
         ps.setInt(ix++, sfo.getRequestsSentCount());
         
-        boolean wasOk = (ps.executeUpdate()==1);
+        boolean wasOk = false; 
+        try {
+            wasOk = (ps.executeUpdate()==1);
+        } catch(SQLException ex) {
+            logger.log(Level.SEVERE,"Error inserting new item into filelist", ex);
+        }
         ps.close();
         
         if( !wasOk ) {
@@ -359,7 +371,8 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
     }
 
     /**
-     * Update item with SHA, set key,lastreceived,lastdownloaded and all request infos
+     * Update item with SHA, set key,lastreceived,lastdownloaded and all request infos.
+     * The provided FrostFileListFileObject must have a valid primkey set.
      */
     private boolean updateFrostFileListFileObjectInFILELIST(FrostFileListFileObject sfo, Connection conn) 
     throws SQLException {
@@ -367,7 +380,7 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
         PreparedStatement ps = conn.prepareStatement(
             "UPDATE FILELIST SET fnkey=?,lastdownloaded=?,lastuploaded=?,lastreceived=?,"+
             "requestlastreceived=?,requestsreceivedcount=?,requestlastsent=?,requestssentcount=? "+
-            "WHERE sha=?");
+            "WHERE primkey=?");
 
         int ix = 1;
         ps.setString(ix++, (sfo.getKey()==null?"":sfo.getKey()));
@@ -384,16 +397,22 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
         ps.setLong(ix++, sfo.getRequestLastSent());
         ps.setInt(ix++, sfo.getRequestsSentCount());
         
-        ps.setString(ix++, sfo.getSha());
+        ps.setLong(ix++, sfo.getPrimkey());
         
-        boolean wasOk = (ps.executeUpdate()==1);
+        boolean wasOk = false; 
+        try {
+            wasOk = (ps.executeUpdate()==1);
+        } catch(SQLException ex) {
+            logger.log(Level.SEVERE,"Error updating item in filelist", ex);
+        }
         ps.close();
         
         if( !wasOk ) {
             logger.log(Level.SEVERE,"Error updating item in filelist");
             return false;
+        } else {
+            return true;
         }
-        return true;
     }
 
     /**
@@ -406,23 +425,29 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
         if( oldSfo == null) {
             return false;
         }
-        
-        PreparedStatement ps = conn.prepareStatement("UPDATE FILELIST SET requestlastsent=?,requestssentcount=? WHERE sha=?");
+        // oldSfo has a valid primkey!
+        PreparedStatement ps = conn.prepareStatement(
+                "UPDATE FILELIST SET requestlastsent=?,requestssentcount=? WHERE primkey=?");
 
         int ix = 1;
         ps.setLong(ix++, requestLastSent);
         ps.setInt(ix++, oldSfo.getRequestsSentCount() + 1);
         
-        ps.setString(ix++, sha);
+        ps.setLong(ix++, oldSfo.getPrimkey());
         
-        boolean wasOk = (ps.executeUpdate()==1);
-        ps.close();
+        boolean wasOk = false; 
+        try {
+            wasOk = (ps.executeUpdate()==1);
+        } finally {
+            ps.close();
+        }
         
         if( !wasOk ) {
             logger.log(Level.SEVERE,"Error updating item in filelist");
             return false;
+        } else {
+            return true;
         }
-        return true;
     }
 
     /**
@@ -439,23 +464,29 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
         if( oldSfo.getRequestLastReceived() > requestLastReceived ) {
             requestLastReceived = oldSfo.getRequestLastReceived();
         }
-        
-        PreparedStatement ps = conn.prepareStatement("UPDATE FILELIST SET requestlastreceived=?,requestsreceivedcount=? WHERE sha=?");
+        // oldSfo has a valid primkey!
+        PreparedStatement ps = conn.prepareStatement(
+                "UPDATE FILELIST SET requestlastreceived=?,requestsreceivedcount=? WHERE primkey=?");
 
         int ix = 1;
         ps.setLong(ix++, requestLastReceived);
         ps.setInt(ix++, oldSfo.getRequestsSentCount() + 1);
         
-        ps.setString(ix++, sha);
+        ps.setLong(ix++, oldSfo.getPrimkey());
         
-        boolean wasOk = (ps.executeUpdate()==1);
-        ps.close();
+        boolean wasOk = false; 
+        try {
+            wasOk = (ps.executeUpdate()==1);
+        } finally {
+            ps.close();
+        }
         
         if( !wasOk ) {
             logger.log(Level.SEVERE,"Error updating item in filelist");
             return false;
+        } else {
+            return true;
         }
-        return true;
     }
 
     /**
@@ -476,14 +507,19 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
         
         ps.setString(ix++, sha);
         
-        boolean wasOk = (ps.executeUpdate()==1);
-        ps.close();
+        boolean wasOk = false; 
+        try {
+            wasOk = (ps.executeUpdate()==1);
+        } finally {
+            ps.close();
+        }
         
         if( !wasOk ) {
             logger.log(Level.SEVERE,"Error updating item in filelist");
             return false;
+        } else {
+            return true;
         }
-        return true;
     }
 
     /** 

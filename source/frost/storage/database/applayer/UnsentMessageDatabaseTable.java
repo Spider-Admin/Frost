@@ -133,8 +133,12 @@ public class UnsentMessageDatabaseTable extends AbstractDatabaseTable {
             ps.setLong(i++, mo.getTimeAdded());
     
             // sync to allow no updates until we got the generated identity
-            int inserted = ps.executeUpdate();
-            ps.close();
+            int inserted = 0; 
+            try {
+                inserted = ps.executeUpdate();
+            } finally {
+                ps.close();
+            }
     
             if( inserted == 0 ) {
                 logger.log(Level.SEVERE, "message insert returned 0 !!!");
