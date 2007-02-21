@@ -43,6 +43,8 @@ public class MessageWindow extends JFrame {
     private SearchMessagesConfig searchMessagesConfig = null;
     
     private boolean showReplyButton;
+    
+    private static final ImageIcon frameIcon = new ImageIcon(MessageWindow.class.getResource("/data/messagebright.gif"));
 
     public MessageWindow(Window parentWindow, FrostMessageObject message, Dimension size) {
         this(parentWindow, message, size, null, true);
@@ -96,7 +98,6 @@ public class MessageWindow extends JFrame {
         topPanel.addKeyListener(listener);
         this.addWindowListener(listener);
 
-        ImageIcon frameIcon = new ImageIcon(MessageWindow.class.getResource("/data/messagebright.gif"));
         this.setIconImage(frameIcon.getImage());
         this.setLocationRelativeTo(parentWindow);
     }

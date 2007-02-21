@@ -162,8 +162,15 @@ public class MessageTextPane extends JPanel {
             textHighlighter.removeHighlights(messageTextArea);
         }
 
+        List fileAttachments = selectedMessage.getAttachmentsOfType(Attachment.FILE);
+        List boardAttachments = selectedMessage.getAttachmentsOfType(Attachment.BOARD);
+        attachedFilesModel.setData(fileAttachments);
+        attachedBoardsModel.setData(boardAttachments);
+
+        int textViewHeight = positionDividers(fileAttachments.size(), boardAttachments.size());
+
         setMessageText(selectedMessage.getContent());
-        
+
         messageBodyScrollPane.getVerticalScrollBar().setValueIsAdjusting(true);
         messageBodyScrollPane.getVerticalScrollBar().setValue(0);
         
@@ -178,13 +185,15 @@ public class MessageTextPane extends JPanel {
                 // fallback
                 pos = selectedMessage.getContent().lastIndexOf("----- "+selectedMessage.getFromName()+" ----- ");
             }
+
             if( pos >= 0 ) {
                 // scroll to begin of reply
                 int h = messageTextArea.getFontMetrics(messageTextArea.getFont()).getHeight();
-                int s = messageBodyScrollPane.getViewport().getHeight();
+                int s = textViewHeight; // messageBodyScrollPane.getViewport().getHeight();
                 int v = s/h - 1; // how many lines are visible?
-
+                
                 pos = calculateCaretPosition(messageTextArea, pos, v);
+                
                 messageTextArea.getCaret().setDot(pos);
             } else {
                 // scroll to end of message
@@ -205,13 +214,6 @@ public class MessageTextPane extends JPanel {
             }
             textHighlighter.highlight(messageTextArea, searchMessagesConfig.content, false);
         }
-
-        List fileAttachments = selectedMessage.getAttachmentsOfType(Attachment.FILE);
-        List boardAttachments = selectedMessage.getAttachmentsOfType(Attachment.BOARD);
-        attachedFilesModel.setData(fileAttachments);
-        attachedBoardsModel.setData(boardAttachments);
-
-        positionDividers(fileAttachments.size(), boardAttachments.size());
     }
     
     private void initialize() {
@@ -425,13 +427,14 @@ public class MessageTextPane extends JPanel {
         messageTextArea.setFont(font);
     }
 
-    private void positionDividers(int attachedFiles, int attachedBoards) {
+    private int positionDividers(int attachedFiles, int attachedBoards) {
 
         if (attachedFiles == 0 && attachedBoards == 0) {
             // Neither files nor boards
             messageSplitPane.setBottomComponent(null);
             messageSplitPane.setDividerSize(0);
-            return;
+            messageSplitPane.setDividerLocation(1.0);
+            return messageSplitPane.getDividerLocation();
         }
 
         messageSplitPane.setDividerSize(3);
@@ -443,7 +446,7 @@ public class MessageTextPane extends JPanel {
             attachmentsSplitPane.setBottomComponent(null);
 
             messageSplitPane.setBottomComponent(filesTableScrollPane);
-            return;
+            return messageSplitPane.getDividerLocation();
         }
         if (attachedFiles == 0 && attachedBoards != 0) {
             // Only boards
@@ -451,7 +454,7 @@ public class MessageTextPane extends JPanel {
             attachmentsSplitPane.setBottomComponent(null);
 
             messageSplitPane.setBottomComponent(boardsTableScrollPane);
-            return;
+            return messageSplitPane.getDividerLocation();
         }
         if (attachedFiles != 0 && attachedBoards != 0) {
             // Both files and boards
@@ -460,6 +463,7 @@ public class MessageTextPane extends JPanel {
 
             messageSplitPane.setBottomComponent(attachmentsSplitPane);
         }
+        return messageSplitPane.getDividerLocation();
     }
 
     public void saveMessageButton_actionPerformed() {
