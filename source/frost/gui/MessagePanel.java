@@ -1206,7 +1206,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         saver.start();
     }
 
-    private void deleteSelectedMessage() {
+    public void deleteSelectedMessage() {
 
         if( messageTable.getSelectedRowCount() <= 1 && !isCorrectlySelectedMessage() ) {
             return;
