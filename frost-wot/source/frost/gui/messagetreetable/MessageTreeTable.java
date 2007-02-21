@@ -347,6 +347,8 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         private Font boldFont = null;
         private Font normalFont = null;
         private boolean isDeleted = false;
+        
+        private String toolTipText = null;
     
     	public TreeTableCellRenderer(TreeModel model) {
     	    super(model);
@@ -468,13 +470,6 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             
             TreeTableModelAdapter model = (TreeTableModelAdapter)MessageTreeTable.this.getModel();
             
-//            Object o = model.getRow(row);
-//            if( !(o instanceof FrostMessageObject) ) {
-//                setFont(normalFont);
-//                setForeground(Color.BLACK);
-//                return this;
-//            }
-            
             FrostMessageObject msg = (FrostMessageObject)model.getRow(row);
     
             // first set font, bold for new msg or normal
@@ -541,7 +536,12 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                 ImageIcon icon;
                 if( msg.isDummy() ) {
                     icon = messageDummyIcon;
-                    dtcr.setToolTipText(null);
+//                    dtcr.setToolTipText(null);
+                    if( msg.getSubject() != null && msg.getSubject().length() > 0 ) {
+                        setToolTipText(msg.getSubject());
+                    } else {
+                        setToolTipText(null);
+                    }
                 } else {
                     if( msg.isNew() ) {
                         if( msg.isReplied() ) {
@@ -556,7 +556,9 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                             icon = messageReadIcon;
                         }
                     }
-                    dtcr.setToolTipText(msg.getSubject());
+//                    dtcr.setToolTipText(msg.getSubject());
+                    setToolTipText(null);
+                    setToolTipText(msg.getSubject());
                 }
                 dtcr.setIcon(icon);
                 dtcr.setLeafIcon(icon);
@@ -566,6 +568,15 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             
     	    return this;
     	}
+        public void setToolTipText(String t) {
+            toolTipText = t;
+        }
+        /**
+         * Override to always return a tooltext for the table column.
+         */
+        public String getToolTipText(MouseEvent event) {
+            return toolTipText;
+        }
         }
     
         /**
