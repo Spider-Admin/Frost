@@ -224,6 +224,10 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         public void keyPressed(KeyEvent e){
             if(e.getSource() == messageTable && e.getKeyChar() == KeyEvent.VK_DELETE) {
                 deleteSelectedMessage();
+                e.consume();
+            } else if(e.getSource() == messageTable && e.getKeyChar() == KeyEvent.VK_ENTER) {
+                showCurrentMessagePopupWindow();
+                e.consume();
             }
         }
 
