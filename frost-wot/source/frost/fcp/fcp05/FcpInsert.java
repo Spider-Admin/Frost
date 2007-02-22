@@ -164,7 +164,7 @@ RawDataLength=0
                 try {
                     FcpConnection connection = FcpFactory.getFcpConnectionInstance();
                     if( connection == null ) {
-                        return FcpResultPut.ERROR_RESULT;
+                        return FcpResultPut.NO_CONNECTION_RESULT;
                     }
 
                     byte[] data = FileAccess.readByteArray(file);

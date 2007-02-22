@@ -46,8 +46,6 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
     private int allFileCount;
     private int maxSearchResults;
     
-//    private java.sql.Date currentDate;
-
     private SearchTable searchTable;
 
     private boolean isStopRequested = false;
@@ -290,7 +288,8 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
     }
 
     /**
-     * Simple string search: each given string must be found at least once in name, comment or keyword.
+     * Simple string search: each given string must be found at least once in name, comment or keyword
+     * of any owner.
      */
     private boolean searchFile2StringsSimple(FrostFileListFileObject fo) {
         
@@ -299,30 +298,38 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
         }
 
         // mark all strings not found
-        Hashtable searchStrings = new Hashtable();
+        Map<String,Boolean> searchStrings = new HashMap<String,Boolean>();
         for(int x=0; x < searchParams.getSimpleSearchStrings().size(); x++) {
             String string = (String) searchParams.getSimpleSearchStrings().get(x);
             searchStrings.put(string, Boolean.FALSE);
         }
 
-        for( Iterator i=fo.getFrostFileListFileObjectOwnerList().iterator(); i.hasNext(); ) {
+        // success if all was found
+        for( Iterator<FrostFileListFileObjectOwner> i=fo.getFrostFileListFileObjectOwnerList().iterator(); i.hasNext(); ) {
             
-            FrostFileListFileObjectOwner ob = (FrostFileListFileObjectOwner) i.next();
+            FrostFileListFileObjectOwner ob = i.next();
 
             String name = lowerCase(ob.getName());
             String comment = lowerCase(ob.getComment());
             String keyword = lowerCase(ob.getKeywords());
             
+            boolean checkName = (name.length() > 0);
+            boolean checkComment = (comment.length() > 0);
+            boolean checkKeyword = (keyword.length() > 0);
+            
             for(int x=0; x < searchParams.getSimpleSearchStrings().size(); x++) {
-                String string = (String) searchParams.getSimpleSearchStrings().get(x);
-                if( name.indexOf(string) > -1 ) {
+                String string = searchParams.getSimpleSearchStrings().get(x);
+                if( checkName && name.indexOf(string) > -1 ) {
                     searchStrings.put(string, Boolean.TRUE);
+                    checkName = false;
                 }
-                if( comment.indexOf(string) > -1 ) {
+                if( checkComment && comment.indexOf(string) > -1 ) {
                     searchStrings.put(string, Boolean.TRUE);
+                    checkComment = false;
                 }
-                if( keyword.indexOf(string) > -1 ) {
+                if( checkKeyword && keyword.indexOf(string) > -1 ) {
                     searchStrings.put(string, Boolean.TRUE);
+                    checkKeyword = false;
                 }
             }
         }
@@ -437,7 +444,6 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
         if( maxSearchResults <= 0 ) {
             maxSearchResults = 10000; // default
         }
-//        currentDate = DateFun.getCurrentSqlDateGMT();
         hideBad = Core.frostSettings.getBoolValue(SettingsClass.SEARCH_HIDE_BAD);
     }
 }
