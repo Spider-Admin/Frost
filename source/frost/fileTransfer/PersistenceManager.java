@@ -525,6 +525,12 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         String fileName = uploadRequest.getFilename();
         if( fileName == null ) {
             fileName = uploadRequest.getIdentifier();
+        } else if( fileName.indexOf('/') > -1 || fileName.indexOf('\\') > -1 ) {
+            // filename contains directories, use only filename
+            String stmp = new File(fileName).getName();
+            if( stmp.length() > 0 ) {
+                fileName = stmp; // use plain filename
+            }
         }
         ulItem.setFile(new File(fileName));
         ulItem.setState(FrostUploadItem.STATE_PROGRESS);
@@ -541,6 +547,12 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         String fileName = downloadRequest.getFilename();
         if( fileName == null ) {
             fileName = downloadRequest.getIdentifier();
+        } else if( fileName.indexOf('/') > -1 || fileName.indexOf('\\') > -1 ) {
+            // filename contains directories, use only filename
+            String stmp = new File(fileName).getName();
+            if( stmp.length() > 0 ) {
+                fileName = stmp; // use plain filename
+            }
         }
         final FrostDownloadItem dlItem = new FrostDownloadItem(
                 fileName, 

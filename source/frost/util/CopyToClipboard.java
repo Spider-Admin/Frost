@@ -77,6 +77,7 @@ public class CopyToClipboard {
         if (items == null && items.length == 0) {
             return;
         }
+        // FIXME: on 0.7 (or 0.5 also?) copy key+name
         String keyNotAvailableMessage = Language.getInstance().getString("Common.copyToClipBoard.extendedInfo.keyNotAvailableYet");
         String fileMessage = Language.getInstance().getString("Common.copyToClipBoard.extendedInfo.file")+" ";
         String keyMessage = Language.getInstance().getString("Common.copyToClipBoard.extendedInfo.key")+" ";
@@ -99,14 +100,14 @@ public class CopyToClipboard {
                 fs = Long.toString(item.getFileSize());
             }
             textToCopy.append(fileMessage);
-            textToCopy.append(item.getFilename() + "\n");
+            textToCopy.append(item.getFilename()).append("\n");
             textToCopy.append(keyMessage);
-            textToCopy.append(key + "\n");
+            textToCopy.append(key).append("\n");
             textToCopy.append(bytesMessage);
-            textToCopy.append(fs + "\n\n");
+            textToCopy.append(fs).append("\n\n");
         }               
-//        //We remove the additional \n at the end
-//        String result = textToCopy.substring(0, textToCopy.length() - 1);
+        // We remove the additional \n at the end
+        textToCopy.deleteCharAt(textToCopy.length() - 1);
         
         StringSelection selection = new StringSelection(textToCopy.toString());
         getClipboard().setContents(selection, dummyClipboardOwner);    

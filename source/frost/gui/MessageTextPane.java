@@ -334,7 +334,7 @@ public class MessageTextPane extends JPanel {
         messageTextArea.addHyperlinkListener(new HyperlinkListener() {
             public void hyperlinkUpdate(HyperlinkEvent evt) {
                 if( !(evt instanceof MouseHyperlinkEvent) ) {
-                    System.out.println("INTERNAL ERROR, hyperlinkevent is wrong object!");
+                    logger.severe("INTERNAL ERROR, hyperlinkevent is wrong object!");
                     return;
                 }
                 MouseHyperlinkEvent e = (MouseHyperlinkEvent) evt;
