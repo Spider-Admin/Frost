@@ -262,54 +262,58 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
 
     private FrostFileListFileObject getFrostFileListFileObject(long primkey) throws SQLException {
 
-        AppLayerDatabase db = AppLayerDatabase.getInstance();
+        Connection conn = AppLayerDatabase.getInstance().getPooledConnection();
+        try {
 
-        PreparedStatement ps = db.prepareStatement(
-            "SELECT sha,size,fnkey,lastdownloaded,lastuploaded,firstreceived,lastreceived,"+
-                   "requestlastreceived,requestsreceivedcount,requestlastsent,requestssentcount "+
-            " FROM FILELIST WHERE primkey=?");
-        
-        ps.setLong(1, primkey);
-        
-        FrostFileListFileObject fo = null;
-        ResultSet rs = ps.executeQuery();
-        if( rs.next() ) {
-            int ix = 1;
-            String sha = rs.getString(ix++);
-            long size = rs.getLong(ix++);
-            String key = rs.getString(ix++);
-            long lastDownloaded = rs.getLong(ix++);
-            long lastUploaded = rs.getLong(ix++);
-            long firstReceived = rs.getLong(ix++);
-            long lastReceived = rs.getLong(ix++);
+            PreparedStatement ps = conn.prepareStatement(
+                "SELECT sha,size,fnkey,lastdownloaded,lastuploaded,firstreceived,lastreceived,"+
+                       "requestlastreceived,requestsreceivedcount,requestlastsent,requestssentcount "+
+                " FROM FILELIST WHERE primkey=?");
             
-            long requestLastReceived = rs.getLong(ix++);  
-            int requestsReceivedCount = rs.getInt(ix++);
-            long requestLastSent = rs.getLong(ix++);      
-            int requestsSentCount = rs.getInt(ix++);
+            ps.setLong(1, primkey);
             
-            if( key.length() == 0 ) {
-                key = null;
+            FrostFileListFileObject fo = null;
+            ResultSet rs = ps.executeQuery();
+            if( rs.next() ) {
+                int ix = 1;
+                String sha = rs.getString(ix++);
+                long size = rs.getLong(ix++);
+                String key = rs.getString(ix++);
+                long lastDownloaded = rs.getLong(ix++);
+                long lastUploaded = rs.getLong(ix++);
+                long firstReceived = rs.getLong(ix++);
+                long lastReceived = rs.getLong(ix++);
+                
+                long requestLastReceived = rs.getLong(ix++);  
+                int requestsReceivedCount = rs.getInt(ix++);
+                long requestLastSent = rs.getLong(ix++);      
+                int requestsSentCount = rs.getInt(ix++);
+                
+                if( key.length() == 0 ) {
+                    key = null;
+                }
+                
+                fo = new FrostFileListFileObject(
+                        primkey, 
+                        sha, 
+                        size, 
+                        key, 
+                        lastDownloaded,
+                        lastUploaded,
+                        firstReceived,
+                        lastReceived,
+                        requestLastReceived,
+                        requestsReceivedCount,
+                        requestLastSent,
+                        requestsSentCount);
             }
+            rs.close();
+            ps.close();
             
-            fo = new FrostFileListFileObject(
-                    primkey, 
-                    sha, 
-                    size, 
-                    key, 
-                    lastDownloaded,
-                    lastUploaded,
-                    firstReceived,
-                    lastReceived,
-                    requestLastReceived,
-                    requestsReceivedCount,
-                    requestLastSent,
-                    requestsSentCount);
+            return fo;
+        } finally {
+            AppLayerDatabase.getInstance().givePooledConnection(conn);
         }
-        rs.close();
-        ps.close();
-        
-        return fo;
     }
 
     private synchronized boolean insertFrostFileListFileObjectIntoFILELIST(FrostFileListFileObject sfo, Connection conn) 
@@ -733,9 +737,24 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
     public void retrieveFiles(FileListDatabaseTableCallback callback) throws SQLException {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         // select only files that have an owner
-        String sql = "SELECT DISTINCT refkey FROM FILEOWNERLIST";
         
-        PreparedStatement ps = db.prepareStatement(sql);
+        String sql = "SELECT DISTINCT refkey FROM FILEOWNERLIST WHERE " +
+        "LOWER(name) LIKE ? OR " +
+        "LOWER(comment) LIKE ?";
+
+//String sql = "SELECT DISTINCT refkey FROM FILEOWNERLIST WHERE";
+//if( names != null && names.size() > 0 ) {
+//  sql += " LOWER(name) LIKE ";
+//}
+
+
+PreparedStatement ps = db.prepareStatement(sql);
+ps.setString(1, "%gesetz%");
+ps.setString(2, "%gesetz%");
+
+//        String sql = "SELECT DISTINCT refkey FROM FILEOWNERLIST";
+//        
+//        PreparedStatement ps = db.prepareStatement(sql);
         
         ResultSet rs = ps.executeQuery();
         while( rs.next() ) {
@@ -757,7 +776,90 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
         rs.close();
         ps.close();
     }
-    
+
+    /**
+     * Retrieves a list of FrostSharedFileOjects.
+     */
+    public void retrieveFiles(
+            FileListDatabaseTableCallback callback,
+            List<String> names,
+            List<String> comments,
+            List<String> keywords,
+            List<String> owners) 
+    throws SQLException 
+    {
+/*        
+SQL='SELECT DISTINCT refkey FROM FILEOWNERLIST WHERE LOWER(name) LIKE ? OR LOWER(name) LIKE ? OR LOWER(comment) LIKE ? OR LOWER(comment) LIKE ? OR LOWER(keywords) LIKE ? OR LOWER(keywords) LIKE ?'        
+*/        
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
+        // select only files that have an owner
+        String sql = "SELECT DISTINCT refkey FROM FILEOWNERLIST";
+
+        List<String> values = new LinkedList<String>();
+
+        if( (names != null && names.size() > 0) 
+         || (comments != null && comments.size() > 0 ) 
+         || (keywords != null && keywords.size() > 0)
+         || (owners != null && owners.size() > 0) )
+        {
+            sql += " WHERE";
+
+            if( names != null && names.size() > 0 ) {
+                for(String name : names) {
+                    sql += " LOWER(name) LIKE ? OR";
+                    values.add(name);
+                }
+            }
+            if( comments != null && comments.size() > 0 ) {
+                for(String comment : comments) {
+                    sql += " LOWER(comment) LIKE ? OR";
+                    values.add(comment);
+                }
+            }
+            if( keywords != null && keywords.size() > 0 ) {
+                for(String keyword : keywords) {
+                    sql += " LOWER(keywords) LIKE ? OR";
+                    values.add(keyword);
+                }
+            }
+            if( owners != null && owners.size() > 0 ) {
+                for(String owner : owners) {
+                    sql += " LOWER(owner) LIKE ? OR";
+                    values.add(owner);
+                }
+            }
+            // remove last OR
+            sql = sql.substring(0, sql.length() - 3);
+        }
+        
+        PreparedStatement ps = db.prepareStatement(sql);
+
+        int ix = 1;
+        for( String value : values ) {
+            ps.setString(ix++,"%"+value+"%");
+        }
+        
+        ResultSet rs = ps.executeQuery();
+        while( rs.next() ) {
+            long refkey = rs.getLong(1);
+            
+            FrostFileListFileObject fo = getFrostFileListFileObject(refkey);
+            if( fo == null ) {
+                // db corrupted, no file for this owner refkey, should not be possible due to constraints
+                continue;
+            }
+            List<FrostFileListFileObjectOwner> obs = getFrostFileListFileObjectOwnerList(refkey);
+            fo.getFrostFileListFileObjectOwnerList().addAll(obs);
+            
+            boolean shouldStop = callback.fileRetrieved(fo); // pass to callback
+            if( shouldStop ) {
+                break;
+            }
+        }
+        rs.close();
+        ps.close();
+    }
+
     /**
      * Retrieves a list of FrostSharedFileOjects.
      */

@@ -312,7 +312,7 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
             String name = lowerCase(ob.getName());
             String comment = lowerCase(ob.getComment());
             String keyword = lowerCase(ob.getKeywords());
-            // FIXME: remove found strings from Map!
+
             boolean checkName = (name.length() > 0);
             boolean checkComment = (comment.length() > 0);
             boolean checkKeyword = (keyword.length() > 0);
@@ -321,15 +321,12 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
                 String string = searchParams.getSimpleSearchStrings().get(x);
                 if( checkName && name.indexOf(string) > -1 ) {
                     searchStrings.put(string, Boolean.TRUE);
-                    checkName = false;
                 }
                 if( checkComment && comment.indexOf(string) > -1 ) {
                     searchStrings.put(string, Boolean.TRUE);
-                    checkComment = false;
                 }
                 if( checkKeyword && keyword.indexOf(string) > -1 ) {
                     searchStrings.put(string, Boolean.TRUE);
-                    checkKeyword = false;
                 }
             }
         }
@@ -343,7 +340,6 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
                 break;
             }
         }
-        
         return allFound;
     }
 
@@ -415,14 +411,37 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
     public void run() {
 
         allFileCount = 0;
-
+//        long start = System.currentTimeMillis();
+//        System.out.println(">>> Filesearch started...");
         try {
-            AppLayerDatabase.getFileListDatabaseTable().retrieveFiles(this);
+            if( searchParams.isSimpleSearch() ) {
+                AppLayerDatabase.getFileListDatabaseTable().retrieveFiles(
+                        this,
+                        searchParams.getSimpleSearchStrings(),
+                        searchParams.getSimpleSearchStrings(),
+                        searchParams.getSimpleSearchStrings(),
+                        null); // no owner search
+            } else {
+                AppLayerDatabase.getFileListDatabaseTable().retrieveFiles(
+                        this,
+                        searchParams.getName(),
+                        searchParams.getComment(),
+                        searchParams.getKeyword(),
+                        searchParams.getOwner());
+                AppLayerDatabase.getFileListDatabaseTable().retrieveFiles(this);
+            }
         } catch(SQLException e) {
-            logger.log(Level.SEVERE, "Catched exception:", e);
+            logger.log(Level.SEVERE, "Catched exception", e);
         }
+        
+//        long duration = System.currentTimeMillis() - start;
+//        System.out.println("<<< Filesearch finished, duration="+duration);
 
-        searchTable.searchFinished(tabComponent);
+        if( isStopRequested() ) {
+            searchTable.searchCancelled();
+        } else {
+            searchTable.searchFinished(tabComponent);
+        }
     }
 
     /**Constructor*/

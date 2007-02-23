@@ -167,6 +167,7 @@ public class FcpConnection {
         while(true) {
             NodeMessage nodeMsg = NodeMessage.readMessage(fcpSocket.getFcpIn());
             if( nodeMsg == null ) {
+                // socket closed
                 break;
             }
 
@@ -204,6 +205,7 @@ public class FcpConnection {
                 if( bytesWritten == dataLength ) {
                     isSuccess = true;
                     if( dlItem != null && dlItem.getRequiredBlocks() > 0 ) {
+                        dlItem.setFinalized(true);
                         dlItem.setDoneBlocks(dlItem.getRequiredBlocks());
                     }
                 }
@@ -211,11 +213,11 @@ public class FcpConnection {
             }
             
             if( useDDA && nodeMsg.isMessageName("DataFound") ) {
-
                 long dataLength = nodeMsg.getLongValue("DataLength");
                 isSuccess = true;
                 System.out.println("*GET**: DataFound, len="+dataLength);
                 if( dlItem != null && dlItem.getRequiredBlocks() > 0 ) {
+                    dlItem.setFinalized(true);
                     dlItem.setDoneBlocks(dlItem.getRequiredBlocks());
                 }
                 break;
