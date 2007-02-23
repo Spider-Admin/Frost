@@ -428,7 +428,6 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
                         searchParams.getComment(),
                         searchParams.getKeyword(),
                         searchParams.getOwner());
-                AppLayerDatabase.getFileListDatabaseTable().retrieveFiles(this);
             }
         } catch(SQLException e) {
             logger.log(Level.SEVERE, "Catched exception", e);

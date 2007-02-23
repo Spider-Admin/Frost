@@ -734,52 +734,6 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
     /**
      * Retrieves a list of FrostSharedFileOjects.
      */
-    public void retrieveFiles(FileListDatabaseTableCallback callback) throws SQLException {
-        AppLayerDatabase db = AppLayerDatabase.getInstance();
-        // select only files that have an owner
-        
-        String sql = "SELECT DISTINCT refkey FROM FILEOWNERLIST WHERE " +
-        "LOWER(name) LIKE ? OR " +
-        "LOWER(comment) LIKE ?";
-
-//String sql = "SELECT DISTINCT refkey FROM FILEOWNERLIST WHERE";
-//if( names != null && names.size() > 0 ) {
-//  sql += " LOWER(name) LIKE ";
-//}
-
-
-PreparedStatement ps = db.prepareStatement(sql);
-ps.setString(1, "%gesetz%");
-ps.setString(2, "%gesetz%");
-
-//        String sql = "SELECT DISTINCT refkey FROM FILEOWNERLIST";
-//        
-//        PreparedStatement ps = db.prepareStatement(sql);
-        
-        ResultSet rs = ps.executeQuery();
-        while( rs.next() ) {
-            long refkey = rs.getLong(1);
-            
-            FrostFileListFileObject fo = getFrostFileListFileObject(refkey);
-            if( fo == null ) {
-                // db corrupted, no file for this owner refkey, should not be possible due to constraints
-                continue;
-            }
-            List<FrostFileListFileObjectOwner> obs = getFrostFileListFileObjectOwnerList(refkey);
-            fo.getFrostFileListFileObjectOwnerList().addAll(obs);
-            
-            boolean shouldStop = callback.fileRetrieved(fo); // pass to callback
-            if( shouldStop ) {
-                break;
-            }
-        }
-        rs.close();
-        ps.close();
-    }
-
-    /**
-     * Retrieves a list of FrostSharedFileOjects.
-     */
     public void retrieveFiles(
             FileListDatabaseTableCallback callback,
             List<String> names,
