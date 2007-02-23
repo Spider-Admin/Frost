@@ -41,10 +41,6 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
 
     private static Logger logger = Logger.getLogger(PersistenceManager.class.getName());
 
-    /* FIXME:
-     * - show if external in table
-     */
-    
     // this would belong to the models, but not needed for 0.5 or without persistence, hence we maintain it here
     private Hashtable<String,FrostUploadItem> uploadModelItems = new Hashtable<String,FrostUploadItem>(); 
     private Hashtable<String,FrostDownloadItem> downloadModelItems = new Hashtable<String,FrostDownloadItem>();

@@ -68,7 +68,6 @@ public class BooleanCell {
 			setSelected((value != null && ((Boolean) value).booleanValue()));
 			return this;
 		}
-
 	}
 	
 	public static Renderer RENDERER = new Renderer();

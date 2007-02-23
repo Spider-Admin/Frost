@@ -38,6 +38,8 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
     private static Logger logger = Logger.getLogger(FileListDatabaseTable.class.getName());
     
     private boolean rememberSharedFileDownloaded;
+    
+    // FIXME: move extension to a separate table column and select with SQL WHERE val IN ...
 
     private final static String SQL_FILES_DDL =
         "CREATE TABLE IF NOT EXISTS FILELIST ("+

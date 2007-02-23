@@ -178,6 +178,41 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
             return this;
         }
     }
+    
+    private class IsEnabledRenderer extends JCheckBox implements TableCellRenderer {
+        public IsEnabledRenderer() {
+            super();
+        }
+        public Component getTableCellRendererComponent(
+            JTable table,
+            Object value,
+            boolean isSelected,
+            boolean hasFocus,
+            int row,
+            int column) 
+        {
+            if (isSelected) {
+                setForeground(table.getSelectionForeground());
+                super.setBackground(table.getSelectionBackground());
+            } else {
+                setForeground(table.getForeground());
+                setBackground(table.getBackground());
+            }
+
+            ModelItem item = modelTable.getItemAt(row); //It may be null
+            if (item != null) {
+                FrostUploadItem uploadItem = (FrostUploadItem) item;
+                if( uploadItem.isExternal() ) {
+                    setEnabled(false);
+                    setSelected(false);
+                } else {
+                    setEnabled(true);
+                    setSelected((value != null && ((Boolean) value).booleanValue()));
+                }
+            }            
+            return this;
+        }
+    }
 
     private class IsSharedRenderer extends BaseRenderer {
         public IsSharedRenderer() {
@@ -575,6 +610,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         columnModel.getColumn(0).setCellRenderer(BooleanCell.RENDERER);
         columnModel.getColumn(0).setCellEditor(BooleanCell.EDITOR);
         setColumnEditable(0, true);
+        columnModel.getColumn(0).setCellRenderer(new IsEnabledRenderer());
         // hard set sizes of checkbox column
         columnModel.getColumn(0).setMinWidth(20);
         columnModel.getColumn(0).setMaxWidth(20);
