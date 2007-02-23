@@ -23,12 +23,22 @@ import java.util.*;
 public interface NodeMessageListener extends EventListener {
 
     /**
-     * Handle a generic node message.
+     * Called to handle a generic node message.
      */
     public void handleNodeMessage(NodeMessage nm);
     
     /**
-     * Handle a node message for a specific Identifier.
+     * Called to handle a node message for a specific Identifier.
      */
     public void handleNodeMessage(String id, NodeMessage nm);
+    
+    /**
+     * Called when the persistent connection was established (first connect or reconnect).
+     */
+    public void connected(); 
+
+    /**
+     * Called when the persistent connection was disconnected.
+     */
+    public void disconnected(); 
 }

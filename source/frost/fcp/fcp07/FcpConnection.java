@@ -163,6 +163,7 @@ public class FcpConnection {
         int returnCode = -1;
         String codeDescription = null;
         boolean isFatal = false;
+        String redirectURI = null;
         while(true) {
             NodeMessage nodeMsg = NodeMessage.readMessage(fcpSocket.getFcpIn());
             if( nodeMsg == null ) {
@@ -240,6 +241,7 @@ public class FcpConnection {
                 returnCode = nodeMsg.getIntValue("Code");
                 codeDescription = nodeMsg.getStringValue("CodeDescription");
                 isFatal = nodeMsg.getBoolValue("Fatal");
+                redirectURI = nodeMsg.getStringValue("RedirectURI");
                 break;
             }
             if( dlItem != null && nodeMsg.isMessageName("SimpleProgress") ) {
@@ -274,7 +276,7 @@ public class FcpConnection {
             if( targetFile.isFile() ) {
                 targetFile.delete();
             }
-            result = new FcpResultGet(false, returnCode, codeDescription, isFatal);
+            result = new FcpResultGet(false, returnCode, codeDescription, isFatal, redirectURI);
         } else {
             // success
             result = new FcpResultGet(true);

@@ -312,7 +312,7 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
             String name = lowerCase(ob.getName());
             String comment = lowerCase(ob.getComment());
             String keyword = lowerCase(ob.getKeywords());
-            
+            // FIXME: remove found strings from Map!
             boolean checkName = (name.length() > 0);
             boolean checkComment = (comment.length() > 0);
             boolean checkKeyword = (keyword.length() > 0);

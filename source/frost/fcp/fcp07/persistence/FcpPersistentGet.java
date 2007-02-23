@@ -35,7 +35,10 @@ public class FcpPersistentGet extends FcpPersistentRequest {
 
     // success
     private long filesize = -1;
-    
+
+    // failed
+    private String redirectURI = null;
+
     public FcpPersistentGet(NodeMessage msg, String id) {
         super(msg, id);
         // PersistentGet message
@@ -70,6 +73,7 @@ public class FcpPersistentGet extends FcpPersistentRequest {
     
     public void setFailed(NodeMessage msg) {
         super.setFailed(msg);
+        redirectURI = msg.getStringValue("RedirectURI");
     }
 
 //    public void updateFrostDownloadItem(FrostDownloadItem item) {
@@ -105,5 +109,9 @@ public class FcpPersistentGet extends FcpPersistentRequest {
 
     public String getUri() {
         return uri;
+    }
+    
+    public String getRedirectURI() {
+        return redirectURI;
     }
 }

@@ -66,6 +66,8 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
     private boolean isDirect = false;
     private boolean isExternal = false;
     
+    private boolean internalRemoveExpected = false;
+    
     /**
      * Add a file from download text box.
      */ 
@@ -411,9 +413,23 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
     public int getPriority() {
         return priority;
     }
-
     public void setPriority(int priority) {
         this.priority = priority;
         super.fireChange();
+    }
+
+    /**
+     * @return  true if the remove of this request was expected and item should not be removed from the table
+     */
+    public boolean isInternalRemoveExpected() {
+        return internalRemoveExpected;
+    }
+    /**
+     * Set to true if we restart a download (code=11 or 27). 
+     * onPersistentRequestRemoved method checks this and does not remove the request
+     * from the table if the remove was expected. 
+     */
+    public void setInternalRemoveExpected(boolean internalRemoveExpected) {
+        this.internalRemoveExpected = internalRemoveExpected;
     }
 }

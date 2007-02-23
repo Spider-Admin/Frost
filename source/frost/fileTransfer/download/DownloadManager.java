@@ -156,10 +156,24 @@ public class DownloadManager {
                 String newKey = key.substring(0, key.lastIndexOf("/"));
                 downloadItem.setKey(newKey);
                 downloadItem.setState(FrostDownloadItem.STATE_WAITING);
+                downloadItem.setInternalRemoveExpected(true);
                 retryImmediately = true;
                 
-                System.out.println("*!*!* Removed one path level from key: "+key+" ; "+newKey);
+                logger.warning("Removed one path level from key: "+key+" ; "+newKey);
+
+            } else if( result != null
+                        && FcpHandler.isFreenet07()
+                        && result.getReturnCode() == 27
+                        && result.getRedirectURI() != null)
+            {
+                // permanent redirect, use new uri
+                downloadItem.setKey(result.getRedirectURI());
+                downloadItem.setState(FrostDownloadItem.STATE_WAITING);
+                downloadItem.setInternalRemoveExpected(true);
+                retryImmediately = true;
                 
+                logger.warning("Redirected to URI: "+result.getRedirectURI());
+
             } else if( result != null && result.isFatal() ) {
                 // fatal, don't retry
                 downloadItem.setEnabled(Boolean.valueOf(false));

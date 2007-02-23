@@ -26,23 +26,22 @@ import java.util.logging.*;
 
 import javax.swing.event.*;
 
-import frost.*;
 import frost.fcp.*;
 import frost.util.*;
 
 public class FcpPersistentConnection {
 
     private static final Logger logger = Logger.getLogger(FcpPersistentConnection.class.getName());
-    
+
     private static FcpPersistentConnection instance = null;
-    
+
     private final NodeAddress nodeAddress;
     
     private FcpSocket fcpSocket = null;
 
-    private ReentrantLock writeSocketLock = null;
+    private final ReentrantLock writeSocketLock;
     
-    private ReceiveThread receiveThread = null;
+    private final ReceiveThread receiveThread;
     
     private EventListenerList listenerList = new EventListenerList();
 
@@ -59,11 +58,13 @@ public class FcpPersistentConnection {
         nodeAddress = na;
         
         fcpSocket = new FcpSocket(nodeAddress);
-        
+
+        notifyConnected();
+
         writeSocketLock = new ReentrantLock(true);
         
-        receiveThread = new ReceiveThread(fcpSocket.getFcpIn());
-        receiveThread.start();
+        receiveThread = new ReceiveThread();
+        receiveThread.start(fcpSocket.getFcpIn());
     }
     
     public static FcpPersistentConnection getInstance() {
@@ -71,17 +72,21 @@ public class FcpPersistentConnection {
     }
     
     public static void initialize(NodeAddress na) throws UnknownHostException, IOException {
-        instance = new FcpPersistentConnection(na);
+        if( !isInitialized() ) {
+            instance = new FcpPersistentConnection(na);
+        } else {
+            logger.severe("Already initialized!");
+        }
     }
     
     public static boolean isInitialized() {
         return instance != null;
     }
     
-    private void reconnect() {
+    protected void reconnect() {
         // we are disconnected
-        MainFrame.getInstance().setDisconnected();
-        
+        notifyDisconnected();
+
         int count = 0;
         while(true) {
             logger.severe("reconnect try no. "+count);
@@ -96,10 +101,10 @@ public class FcpPersistentConnection {
             count++;
         }
         logger.severe("reconnect was successful, restarting ReceiveThread now");
-        receiveThread = new ReceiveThread(fcpSocket.getFcpIn());
-        receiveThread.start();
-        
-        MainFrame.getInstance().setConnected();
+
+        notifyConnected();
+
+        receiveThread.start(fcpSocket.getFcpIn());
     }
     
     public boolean isDDA() {
@@ -119,9 +124,6 @@ public class FcpPersistentConnection {
     }
     
     protected void handleNodeMessage(NodeMessage nodeMsg) {
-        
-//        System.out.println("### Added: "+nodeMsg.toString());
-        
         String id = nodeMsg.getStringValue("Identifier");
         // Guaranteed to return a non-null array
         Object[] listeners = listenerList.getListenerList();
@@ -137,10 +139,32 @@ public class FcpPersistentConnection {
         }
     }
 
+    protected void notifyConnected() {
+        // Guaranteed to return a non-null array
+        Object[] listeners = listenerList.getListenerList();
+        // Process the listeners last to first, notifying those that are interested in this event
+        for (int i = listeners.length-2; i>=0; i-=2) {
+            if (listeners[i] == NodeMessageListener.class) {
+                ((NodeMessageListener)listeners[i+1]).connected();
+            }
+        }
+    }
+
+    protected void notifyDisconnected() {
+        // Guaranteed to return a non-null array
+        Object[] listeners = listenerList.getListenerList();
+        // Process the listeners last to first, notifying those that are interested in this event
+        for (int i = listeners.length-2; i>=0; i-=2) {
+            if (listeners[i] == NodeMessageListener.class) {
+                ((NodeMessageListener)listeners[i+1]).disconnected();
+            }
+        }
+    }
+
     /**
      * Writes a message to the socket. Ensures that only 1 thread writes at any time (writeSocketLock).
      * @param message     the message to send
-     * @param sendEndMsg  if true EndMessage is appended
+     * @param sendEndMsg  if true EndMessage should be appended
      */
     public boolean sendMessage(List<String> message, boolean sendEndMsg) {
 
@@ -203,22 +227,31 @@ public class FcpPersistentConnection {
         
         private BufferedInputStream fcpInp;
         
-        public ReceiveThread(BufferedInputStream fcpInp) {
-            this.fcpInp = fcpInp;
+        public ReceiveThread() {
+            super();
         }
-        
+
+        public void start(BufferedInputStream newFcpInp) {
+            this.fcpInp = newFcpInp;
+            start();
+        }
+
         public void run() {
             while(true) {
                 NodeMessage nodeMsg = NodeMessage.readMessage(fcpInp);
                 if( nodeMsg == null ) {
                     break; // socket closed
+                } else {
+                    // notify listeners
+                    handleNodeMessage(nodeMsg);
                 }
-
-                // notify listeners
-                handleNodeMessage(nodeMsg);
             }
-            logger.severe("Socket closed, ReceiveThread ended, trying to reconnect now");
-            System.out.println("ReceiveThread ended, trying to reconnect now!");
+
+            logger.severe("Socket closed, ReceiveThread ended, trying to reconnect");
+            System.out.println("ReceiveThread ended, trying to reconnect");
+            
+            fcpInp = null;
+
             reconnect();
         }
     }
