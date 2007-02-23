@@ -41,7 +41,7 @@ public class FcpPersistentConnection {
 
     private final ReentrantLock writeSocketLock;
     
-    private final ReceiveThread receiveThread;
+    private ReceiveThread receiveThread;
     
     private EventListenerList listenerList = new EventListenerList();
 
@@ -63,8 +63,8 @@ public class FcpPersistentConnection {
 
         writeSocketLock = new ReentrantLock(true);
         
-        receiveThread = new ReceiveThread();
-        receiveThread.start(fcpSocket.getFcpIn());
+        receiveThread = new ReceiveThread(fcpSocket.getFcpIn());
+        receiveThread.start();
     }
     
     public static FcpPersistentConnection getInstance() {
@@ -104,7 +104,8 @@ public class FcpPersistentConnection {
 
         notifyConnected();
 
-        receiveThread.start(fcpSocket.getFcpIn());
+        receiveThread = new ReceiveThread(fcpSocket.getFcpIn());
+        receiveThread.start();
     }
     
     public boolean isDDA() {
@@ -225,15 +226,11 @@ public class FcpPersistentConnection {
     
     private class ReceiveThread extends Thread {
         
-        private BufferedInputStream fcpInp;
+        private final BufferedInputStream fcpInp;
         
-        public ReceiveThread() {
+        public ReceiveThread(BufferedInputStream newFcpInp) {
             super();
-        }
-
-        public void start(BufferedInputStream newFcpInp) {
             this.fcpInp = newFcpInp;
-            start();
         }
 
         public void run() {
@@ -250,8 +247,6 @@ public class FcpPersistentConnection {
             logger.severe("Socket closed, ReceiveThread ended, trying to reconnect");
             System.out.println("ReceiveThread ended, trying to reconnect");
             
-            fcpInp = null;
-
             reconnect();
         }
     }
