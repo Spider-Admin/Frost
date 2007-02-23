@@ -22,6 +22,9 @@ import frost.fcp.fcp07.*;
 
 
 public interface IFcpPersistentRequestsHandler {
+    
+    public void connected();
+    public void disconnected();
 
     public void persistentRequestAdded(FcpPersistentPut uploadRequest);
     public void persistentRequestAdded(FcpPersistentGet downloadRequest);

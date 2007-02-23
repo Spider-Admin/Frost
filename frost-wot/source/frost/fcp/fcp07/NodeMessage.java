@@ -34,6 +34,9 @@ public class NodeMessage {
     // BEGIN OF STATIC FACTORY ///////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////////
     
+    /**
+     * Returns null if socket was closed, or a nodemessage.
+     */
     public static NodeMessage readMessage(BufferedInputStream fcpInp) {
 
         NodeMessage result = null;
@@ -42,11 +45,14 @@ public class NodeMessage {
         
         while(true) {
             String tmp = readLine(fcpInp, bytes);
-            bytes.reset(); // reset for next run
+            
             if (tmp == null) {
                 // error, io connection closed
-                break; 
+                return null; 
             }
+            
+            bytes.reset(); // reset for next run
+
             if ((tmp.trim()).length() == 0) { continue; } // an empty line
 
             if (isfirstline) {

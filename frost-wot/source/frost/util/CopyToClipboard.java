@@ -77,7 +77,6 @@ public class CopyToClipboard {
         if (items == null && items.length == 0) {
             return;
         }
-        // FIXME: on 0.7 (or 0.5 also?) copy key+name
         String keyNotAvailableMessage = Language.getInstance().getString("Common.copyToClipBoard.extendedInfo.keyNotAvailableYet");
         String fileMessage = Language.getInstance().getString("Common.copyToClipBoard.extendedInfo.file")+" ";
         String keyMessage = Language.getInstance().getString("Common.copyToClipBoard.extendedInfo.key")+" ";
@@ -92,6 +91,8 @@ public class CopyToClipboard {
             String key = item.getKey();
             if (key == null) {
                 key = keyNotAvailableMessage;
+            } else {
+                key = key + item.getFilename(); // always use key+filename, also on 0.5. wait for user feedback :)
             }
             String fs;
             if( item.getFileSize() < 0 ) {

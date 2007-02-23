@@ -250,6 +250,20 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         startNewUploads();
         startNewDownloads();
     }
+    
+    public void connected() {
+        MainFrame.getInstance().setConnected();
+    }
+    public void disconnected() {
+        MainFrame.getInstance().setDisconnected();
+
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                uploadModel.removeExternalUploads();
+                downloadModel.removeExternalDownloads();
+            }
+        });
+    }
 
     /**
      * Enqueue a direct GET if not already enqueued, or already downloaded to download dir.
@@ -303,6 +317,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         }
         if( getReq.isSuccess() ) {
             // maybe progress was not completely sent
+            dlItem.setFinalized(true);
             if( dlItem.getTotalBlocks() > 0 && dlItem.getDoneBlocks() < dlItem.getRequiredBlocks() ) {
                 dlItem.setDoneBlocks(dlItem.getRequiredBlocks());
             }
@@ -327,8 +342,8 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             } else {
                 int code = getReq.getCode();
                 boolean isFatal = getReq.isFatal();
-                
-                FcpResultGet result = new FcpResultGet(false, code, desc, isFatal);
+                String redirectURI = getReq.getRedirectURI();
+                FcpResultGet result = new FcpResultGet(false, code, desc, isFatal, redirectURI);
                 File targetFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + dlItem.getFilename());
                 boolean retry = FileTransferManager.inst().getDownloadManager().notifyDownloadFinished(dlItem, result, targetFile);
                 if( retry ) {
@@ -375,6 +390,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         }
         if( putReq.isSuccess() ) {
             // maybe progress was not completely sent
+            ulItem.setFinalized(true);
             if( ulItem.getTotalBlocks() > 0 && ulItem.getDoneBlocks() != ulItem.getTotalBlocks() ) {
                 ulItem.setDoneBlocks(ulItem.getTotalBlocks());
             }
@@ -724,13 +740,9 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
     }
 
     public void persistentRequestAdded(FcpPersistentPut uploadRequest) {
-        if( uploadModelItems.containsKey(uploadRequest.getIdentifier()) ) {
-            System.out.println("PUT item already in queue: "+uploadRequest.getIdentifier());
-            return;
-        }        
         FrostUploadItem ulItem = uploadModelItems.get(uploadRequest.getIdentifier());
         if( ulItem != null ) {
-            // own item added to queue
+            // own item added to global queue, or existing external item
             applyState(ulItem, uploadRequest);
         } else {
             if( showExternalItemsUpload ) {
@@ -740,13 +752,9 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
     }
 
     public void persistentRequestAdded(FcpPersistentGet downloadRequest) {
-        if( downloadModelItems.containsKey(downloadRequest.getIdentifier()) ) {
-            System.out.println("GET item already in queue: "+downloadRequest.getIdentifier());
-            return;
-        }        
         FrostDownloadItem dlItem = downloadModelItems.get(downloadRequest.getIdentifier());
         if( dlItem != null ) {
-            // own item added to queue
+            // own item added to global queue, or existing external item
             applyState(dlItem, downloadRequest);
         } else {
             if ( showExternalItemsDownload ) {
@@ -798,9 +806,11 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                     }
                 });
             } else {
-                if( dlItem.getState() != FrostDownloadItem.STATE_DONE ) {
+                if( dlItem.isInternalRemoveExpected() ) {
+                    dlItem.setInternalRemoveExpected(false); // clear flag
+                } else if( dlItem.getState() != FrostDownloadItem.STATE_DONE ) {
                     dlItem.setEnabled(false);
-                    dlItem.setState(FrostUploadItem.STATE_FAILED);
+                    dlItem.setState(FrostDownloadItem.STATE_FAILED);
                     dlItem.setErrorCodeDescription("Disappeared from global queue");
                 }
             }
