@@ -70,10 +70,15 @@ public class SearchTable extends SortedModelTable {
             FrostSearchItem fsi = (FrostSearchItem) i.next();
             searchModel.addSearchItem(fsi);
         }
+        searchItems.clear();
         
         int myIx = tabPane.indexOfComponent(tabComponent);
         String newTitle = searchText + " ("+searchModel.getItemCount()+")";
         tabPane.setTitleAt(myIx, newTitle);
+    }
+
+    public void searchCancelled() {
+        searchItems.clear();
     }
 
     private PopupMenuSearch getPopupMenuSearch() {

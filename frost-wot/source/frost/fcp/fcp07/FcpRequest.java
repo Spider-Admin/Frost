@@ -97,14 +97,15 @@ public class FcpRequest {
             return FcpResultGet.RESULT_FAILED;
         }
 
-        FcpResultGet results = null;
-
         FcpConnection connection;
         try {
             connection = FcpFactory.getFcpConnectionInstance();
         } catch (ConnectException e1) {
             connection = null;
         }
+        
+        FcpResultGet results = null;
+
         if( connection != null ) {
             int tries = 0;
             int maxtries = 3;
@@ -112,25 +113,18 @@ public class FcpRequest {
                 try {
                     results = connection.getKeyToFile(type, key, target, maxSize, dlItem);
                     break;
-                }
-                catch( java.net.ConnectException e ) {
+                } catch( java.net.ConnectException e ) {
                     tries++;
                     continue;
-                }
-                catch( DataNotFoundException ex ) { // frost.FcpTools.DataNotFoundException
+                } catch( DataNotFoundException ex ) { // frost.FcpTools.DataNotFoundException
                     // do nothing, data not found is usual ...
 					logger.log(Level.INFO, "FcpRequest.getKey(1): DataNotFoundException (usual if not found)", ex);
-//					System.out.println( "FcpRequest.getKey(1): DataNotFoundException (usual if not found)");
                     break;
-                }
-                catch( FcpToolsException e ) {
+                } catch( FcpToolsException e ) {
 					logger.log(Level.SEVERE, "FcpRequest.getKey(1): FcpToolsException", e);
-//					System.out.println("FcpRequest.getKey(1): FcpToolsException");
                     break;
-                }
-                catch( IOException e ) {
+                } catch( IOException e ) {
 					logger.log(Level.SEVERE, "FcpRequest.getKey(1): IOException", e);
-//					System.out.println("FcpRequest.getKey(1): IOException");
                     break;
                 }
             }
