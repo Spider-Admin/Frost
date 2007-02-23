@@ -193,13 +193,49 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
             String tooltip = null;
             ModelItem item = modelTable.getItemAt(row); //It may be null
             if (item != null) {
-                FrostDownloadItem uploadItem = (FrostDownloadItem) item;
-                String errorCodeDescription = uploadItem.getErrorCodeDescription();
+                FrostDownloadItem downloadItem = (FrostDownloadItem) item;
+                String errorCodeDescription = downloadItem.getErrorCodeDescription();
                 if( errorCodeDescription != null && errorCodeDescription.length() > 0 ) {
                     tooltip = "Last error: "+errorCodeDescription;
                 }
             }
             setToolTipText(tooltip);
+            return this;
+        }
+    }
+
+    private class IsEnabledRenderer extends JCheckBox implements TableCellRenderer {
+        public IsEnabledRenderer() {
+            super();
+            setHorizontalAlignment(JLabel.CENTER);  
+        }
+        public Component getTableCellRendererComponent(
+            JTable table,
+            Object value,
+            boolean isSelected,
+            boolean hasFocus,
+            int row,
+            int column) 
+        {
+            if (isSelected) {
+                setForeground(table.getSelectionForeground());
+                super.setBackground(table.getSelectionBackground());
+            } else {
+                setForeground(table.getForeground());
+                setBackground(table.getBackground());
+            }
+
+            ModelItem item = modelTable.getItemAt(row); //It may be null
+            if (item != null) {
+                FrostDownloadItem downloadItem = (FrostDownloadItem) item;
+                if( downloadItem.isExternal() ) {
+                    setEnabled(false);
+                    setSelected(false);
+                } else {
+                    setEnabled(true);
+                    setSelected((value != null && ((Boolean) value).booleanValue()));
+                }
+            }            
             return this;
         }
     }
@@ -214,7 +250,8 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
             boolean isSelected,
             boolean hasFocus,
             int row,
-            int column) {
+            int column) 
+        {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             Boolean b = (Boolean)value;
             setText("");
@@ -239,7 +276,8 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
             boolean isSelected,
             boolean hasFocus,
             int row,
-            int column) {
+            int column) 
+        {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             Boolean b = (Boolean)value;
             setText("");
@@ -264,7 +302,8 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
             boolean isSelected,
             boolean hasFocus,
             int row,
-            int column) {
+            int column) 
+        {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             Boolean b = (Boolean)value;
             setText("");
@@ -704,13 +743,14 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
         TableColumnModel columnModel = lModelTable.getTable().getColumnModel();
 
         // Column "Enabled"
-        columnModel.getColumn(0).setCellRenderer(BooleanCell.RENDERER);
+//        columnModel.getColumn(0).setCellRenderer(BooleanCell.RENDERER);
         columnModel.getColumn(0).setCellEditor(BooleanCell.EDITOR);
         setColumnEditable(0, true);
         // hard set sizes of checkbox column
         columnModel.getColumn(0).setMinWidth(20);
         columnModel.getColumn(0).setMaxWidth(20);
         columnModel.getColumn(0).setPreferredWidth(20);
+        columnModel.getColumn(0).setCellRenderer(new IsEnabledRenderer());
         // hard set sizes of icon column
         columnModel.getColumn(1).setMinWidth(20);
         columnModel.getColumn(1).setMaxWidth(20);

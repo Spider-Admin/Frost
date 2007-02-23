@@ -309,23 +309,19 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
             
             FrostFileListFileObjectOwner ob = i.next();
 
-            String name = lowerCase(ob.getName());
+            String name = lowerCase(ob.getName()); 
             String comment = lowerCase(ob.getComment());
             String keyword = lowerCase(ob.getKeywords());
 
-            boolean checkName = (name.length() > 0);
-            boolean checkComment = (comment.length() > 0);
-            boolean checkKeyword = (keyword.length() > 0);
-            
             for(int x=0; x < searchParams.getSimpleSearchStrings().size(); x++) {
                 String string = searchParams.getSimpleSearchStrings().get(x);
-                if( checkName && name.indexOf(string) > -1 ) {
+                if( name.indexOf(string) > -1 ) {
                     searchStrings.put(string, Boolean.TRUE);
                 }
-                if( checkComment && comment.indexOf(string) > -1 ) {
+                if( comment.indexOf(string) > -1 ) {
                     searchStrings.put(string, Boolean.TRUE);
                 }
-                if( checkKeyword && keyword.indexOf(string) > -1 ) {
+                if( keyword.indexOf(string) > -1 ) {
                     searchStrings.put(string, Boolean.TRUE);
                 }
             }
