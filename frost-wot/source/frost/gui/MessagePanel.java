@@ -54,9 +54,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         ActionListener,
         ListSelectionListener,
         TreeSelectionListener,
-        LanguageListener,
-        KeyListener
-        {
+        LanguageListener
+    {
 
         public Listener() {
             super();
@@ -184,57 +183,6 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             maybeShowPopup(e);
         }
 
-        /**
-         * Handles keystrokes for message table.
-         * Currently implemented:
-         * - 'n' for next message
-         * - 'b' mark BAD
-         * - 'c' mark CHECK
-         * - 'o' mark OBSERVE
-         * - 'g' mark GOOD
-         */
-        public void keyTyped(KeyEvent e){
-            if( e == null ) {
-                return;
-            }
-            if ( (e.getSource() == messageTable ||
-                  e.getSource() == mainFrame.getTofTree() ) &&
-                e.getKeyChar() == 'n') {
-
-                selectNextUnreadMessage();
-
-            } else if (e.getSource() == messageTable ) {
-                Identity id = getSelectedMessageFromIdentity();
-                if( id == null ) {
-                    return;
-                }
-                if (e.getKeyChar() == 'b')  {
-                    id.setBAD();
-                } else if (e.getKeyChar() == 'g') {
-                    id.setGOOD();
-                } else if (e.getKeyChar() == 'c') {
-                    id.setCHECK();
-                } else if (e.getKeyChar() == 'o') {
-                    id.setOBSERVE();
-                }
-                updateTableAfterChangeOfIdentityState();
-            }
-        }
-
-        public void keyPressed(KeyEvent e){
-            if(e.getSource() == messageTable && e.getKeyChar() == KeyEvent.VK_DELETE) {
-                deleteSelectedMessage();
-                e.consume();
-            } else if(e.getSource() == messageTable && e.getKeyChar() == KeyEvent.VK_ENTER) {
-                showCurrentMessagePopupWindow();
-                e.consume();
-            }
-        }
-
-        public void keyReleased(KeyEvent e){
-            //Nothing here
-        }
-
         public void valueChanged(ListSelectionEvent e) {
             messageTable_itemSelected(e);
         }
@@ -294,21 +242,15 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 getMessageTable().expandThread(true, selectedMessage);
             } else if (e.getSource() == collapseThreadItem) {
                 getMessageTable().expandThread(false, selectedMessage);
-            }
-            Identity id = getSelectedMessageFromIdentity();
-            if( id == null ) {
-                return;
-            }
-            if (e.getSource() == setGoodItem) {
-                id.setGOOD();
+            } else if (e.getSource() == setGoodItem) {
+                setGoodButton_actionPerformed(e);
             } else if (e.getSource() == setBadItem) {
-                id.setBAD();
+                setBadButton_actionPerformed(e);
             } else if (e.getSource() == setCheckItem) {
-                id.setCHECK();
+                setCheckButton_actionPerformed(e);
             } else if (e.getSource() == setObserveItem) {
-                id.setOBSERVE();
+                setObserveButton_actionPerformed(e);
             }
-            updateTableAfterChangeOfIdentityState();
         }
 
         private void initialize() {
@@ -629,7 +571,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         toggleShowThreads.addActionListener(listener);
         toggleShowSmileys.addActionListener(listener);
         toggleShowHyperlinks.addActionListener(listener);
-
+        
         return buttonsToolbar;
     }
 
@@ -685,19 +627,82 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             add(getButtonsToolbar(), BorderLayout.NORTH);
             add(msgTableAndMsgTextSplitpane, BorderLayout.CENTER);
 
-            //listeners
+            // listeners
             messageTable.addMouseListener(listener);
-            messageTable.addKeyListener(listener);
 
-            //other listeners
             mainFrame.getTofTree().addTreeSelectionListener(listener);
-            mainFrame.getTofTree().addKeyListener(listener);
+
+            assignHotkeys();
 
             // display welcome message if no boards are available
             boardsTree_actionPerformed(null); // set initial states
 
             initialized = true;
         }
+    }
+    
+    private void assignHotkeys() {
+        // assign DELETE key - delete message
+        this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), "DEL_MSG");
+        this.getActionMap().put("DEL_MSG", new AbstractAction() {
+            public void actionPerformed(ActionEvent event) {
+                deleteSelectedMessage();
+            }
+        });
+
+        // remove ENTER assignment from table
+        messageTable.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).getParent().remove(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,0));
+        // assign ENTER key - open message viewer
+        this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "OPEN_MSG");
+        this.getActionMap().put("OPEN_MSG", new AbstractAction() {
+            public void actionPerformed(ActionEvent event) {
+                showCurrentMessagePopupWindow();
+            }
+        });
+
+        // assign N key - next unread
+        Action nextUnreadAction = new AbstractAction() {
+            public void actionPerformed(ActionEvent event) {
+                selectNextUnreadMessage();
+            }
+        };
+        this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_N, 0), "NEXT_MSG");
+        this.getActionMap().put("NEXT_MSG", nextUnreadAction);
+        // install this action on the tofTree too
+        mainFrame.getTofTree().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_N, 0), "NEXT_MSG");
+        mainFrame.getTofTree().getActionMap().put("NEXT_MSG", nextUnreadAction);
+
+        // assign B key - set BAD
+        this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_B, 0), "SET_BAD");
+        this.getActionMap().put("SET_BAD", new AbstractAction() {
+            public void actionPerformed(ActionEvent event) {
+                setBadButton_actionPerformed(event);
+            }
+        });
+
+        // assign G key - set GOOD
+        this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_G, 0), "SET_GOOD");
+        this.getActionMap().put("SET_GOOD", new AbstractAction() {
+            public void actionPerformed(ActionEvent event) {
+                setGoodButton_actionPerformed(event);
+            }
+        });
+
+        // assign C key - set CHECK
+        this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_C, 0), "SET_CHECK");
+        this.getActionMap().put("SET_CHECK", new AbstractAction() {
+            public void actionPerformed(ActionEvent event) {
+                setCheckButton_actionPerformed(event);
+            }
+        });
+
+        // assign O key - set OBSERVE
+        this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_O, 0), "SET_OBSERVE");
+        this.getActionMap().put("SET_OBSERVE", new AbstractAction() {
+            public void actionPerformed(ActionEvent event) {
+                setObserveButton_actionPerformed(event);
+            }
+        });
     }
     
     public void saveLayout(SettingsClass frostSettings) {
@@ -887,7 +892,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
     private void setBadButton_actionPerformed(ActionEvent e) {
         Identity id = getSelectedMessageFromIdentity();
-        if( id == null ) {
+        if( id == null || id.isBAD() ) {
             return;
         }
         if(id.isGOOD()) {
@@ -910,7 +915,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
     private void setCheckButton_actionPerformed(ActionEvent e) {
         Identity id = getSelectedMessageFromIdentity();
-        if( id == null ) {
+        if( id == null || id.isCHECK() ) {
             return;
         }
         setGoodButton.setEnabled(true);
@@ -923,7 +928,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
     private void setObserveButton_actionPerformed(ActionEvent e) {
         Identity id = getSelectedMessageFromIdentity();
-        if( id == null ) {
+        if( id == null || id.isOBSERVE() ) {
             return;
         }
         setGoodButton.setEnabled(true);
@@ -936,7 +941,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
     private void setGoodButton_actionPerformed(ActionEvent e) {
         Identity id = getSelectedMessageFromIdentity();
-        if( id == null ) {
+        if( id == null || id.isGOOD() ) {
             return;
         }
         if(id.isBAD()) {
@@ -1215,20 +1220,24 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         // set all selected messages deleted
         int[] rows = messageTable.getSelectedRows();
         final ArrayList<FrostMessageObject> saveMessages = new ArrayList<FrostMessageObject>();
+        DefaultTreeModel model = (DefaultTreeModel)MainFrame.getInstance().getMessagePanel().getMessageTable().getTree().getModel();        
         for(int x=rows.length-1; x >= 0; x--) {
             FrostMessageObject targetMessage = (FrostMessageObject)getMessageTableModel().getRow(rows[x]);
             targetMessage.setDeleted(true);
-            targetMessage.setNew(false);
-
+            if( targetMessage.isNew() ) {
+                targetMessage.setNew(false);
+                mainFrame.getTofTreeModel().getSelectedNode().decNewMessageCount();
+            }
             // we don't remove the message immediately, they are not loaded during next change to this board
             // needs repaint or the line which crosses the message isn't completely seen
-            DefaultTreeModel model = (DefaultTreeModel)MainFrame.getInstance().getMessagePanel().getMessageTable().getTree().getModel();
             model.nodeChanged(targetMessage);
             saveMessages.add(targetMessage);
         }
+
         // update new and shown message count
         updateMessageCountLabels(mainFrame.getTofTreeModel().getSelectedNode());
-        
+        mainFrame.updateTofTree(mainFrame.getTofTreeModel().getSelectedNode());
+
         Thread saver = new Thread() {
             public void run() {
                 // save message, we must save the changed deleted state
@@ -1253,12 +1262,15 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         // set all selected messages deleted
         int[] rows = messageTable.getSelectedRows();
         final ArrayList<FrostMessageObject> saveMessages = new ArrayList<FrostMessageObject>();
+        DefaultTreeModel model = (DefaultTreeModel)MainFrame.getInstance().getMessagePanel().getMessageTable().getTree().getModel();
         for(int x=0; x < rows.length; x++) {
             FrostMessageObject targetMessage = (FrostMessageObject)getMessageTableModel().getRow(rows[x]);
+            if( !targetMessage.isDeleted() ) {
+                continue;
+            }
             targetMessage.setDeleted(false);
 
             // needs repaint or the line which crosses the message isn't completely seen
-            DefaultTreeModel model = (DefaultTreeModel)MainFrame.getInstance().getMessagePanel().getMessageTable().getTree().getModel();
             model.nodeChanged(targetMessage);
 
             saveMessages.add(targetMessage);
@@ -1297,6 +1309,10 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         }
 
         final FrostMessageObject targetMessage = selectedMessage;
+        
+        if( targetMessage.isDeleted() ) {
+            return;
+        }
 
         messageTable.removeRowSelectionInterval(0, messageTable.getRowCount() - 1);
 

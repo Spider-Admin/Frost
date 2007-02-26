@@ -261,9 +261,12 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
     public RunningMessageThreadsInformation getRunningMessageThreadsInformation() {
         
         RunningMessageThreadsInformation info = new RunningMessageThreadsInformation();
-        
-        info.setUnsentMessageCount(UnsentMessagesManager.getUnsentMessageCount());
-        info.setUploadingMessageCount(UnsentMessagesManager.getRunningMessageUploads());
+
+        int uploadingMessages = UnsentMessagesManager.getRunningMessageUploads();
+        info.setUploadingMessageCount(uploadingMessages);
+        // the manager count uploading messages as unsent, we show Uploading/Waiting in statusbar,
+        // hence we decrease the unsent by uploading messages
+        info.setUnsentMessageCount(UnsentMessagesManager.getUnsentMessageCount() - uploadingMessages);
         
         info.addToAttachmentsToUploadRemainingCount(FileAttachmentUploadThread.getInstance().getQueueSize());
 
