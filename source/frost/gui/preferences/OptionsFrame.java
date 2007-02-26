@@ -94,7 +94,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
     private MiscPanel miscPanel = null;
     private NewsPanel newsPanel = null;
     private News2Panel news2Panel = null;
-    private News3Panel news3Panel = null;
     private ExpirationPanel expirationPanel = null;
     private JList optionsGroupsList = null;
     private JPanel optionsGroupsPanel = null;
@@ -270,13 +269,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         return news2Panel;
     }
 
-    private News3Panel getNews3Panel() {
-        if (news3Panel == null) {
-            news3Panel = new News3Panel(frostSettings);
-        }
-        return news3Panel;
-    }
-
     private ExpirationPanel getExpirationPanel() {
         if (expirationPanel == null) {
             expirationPanel = new ExpirationPanel(this, frostSettings);
@@ -303,12 +295,11 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
             listData.add( new ListBoxData(" "+language.getString("Options.uploads")+" ", getUploadPanel()));
             listData.add( new ListBoxData(" "+language.getString("Options.news")+" (1) ", getNewsPanel()));
             listData.add( new ListBoxData(" "+language.getString("Options.news")+" (2) ", getNews2Panel()));
-            listData.add( new ListBoxData(" "+language.getString("Options.news")+" (3) ", getNews3Panel()));
-            listData.add( new ListBoxData(" "+language.getString("Options.expiration")+" ", getExpirationPanel()));
-            listData.add( new ListBoxData(" "+language.getString("Options.search")+" ", getSearchPanel()));
             listData.add( new ListBoxData(" "+language.getString("Options.display")+" ", getDisplayPanel()));
             listData.add( new ListBoxData("    "+"Board tree"+" ", getDisplayBoardTreePanel()));
             listData.add( new ListBoxData("    "+"Messages"+" ", getDisplayMessagesPanel()));
+            listData.add( new ListBoxData(" "+language.getString("Options.expiration")+" ", getExpirationPanel()));
+            listData.add( new ListBoxData(" "+language.getString("Options.search")+" ", getSearchPanel()));
             listData.add( new ListBoxData(" "+language.getString("Options.skins")+" ", getSkinPanel()));
             listData.add( new ListBoxData(" "+language.getString("Options.miscellaneous")+" ", getMiscPanel()));
             optionsGroupsList = new JList(listData);
@@ -418,9 +409,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         }
         if (news2Panel != null) {
             news2Panel.ok();
-        }
-        if (news3Panel != null) {
-            news3Panel.ok();
         }
         if (expirationPanel != null) {
             expirationPanel.ok();
