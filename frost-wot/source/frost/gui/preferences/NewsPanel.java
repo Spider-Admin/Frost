@@ -19,8 +19,10 @@
 package frost.gui.preferences;
 
 import java.awt.*;
+import java.awt.event.*;
 
 import javax.swing.*;
+import javax.swing.border.*;
 
 import frost.*;
 import frost.fcp.*;
@@ -28,6 +30,14 @@ import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
 class NewsPanel extends JPanel {
+
+    private class Listener implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            if (e.getSource() == automaticBoardUpdateCheckBox) {
+                refreshUpdateState();
+            }
+        }
+    }
 
     private SettingsClass settings = null;
     private Language language = null;
@@ -45,6 +55,18 @@ class NewsPanel extends JPanel {
     private JTextField messageBaseTextField = new JTextField(16);
     
     private JCheckBox alwaysDownloadBackloadCheckBox = new JCheckBox();
+
+    private JCheckBox automaticBoardUpdateCheckBox = new JCheckBox();
+    private JPanel updatePanel = null;
+    private JLabel minimumIntervalLabel = new JLabel();
+    private JTextField minimumIntervalTextField = new JTextField(8);
+    private JLabel concurrentUpdatesLabel = new JLabel();
+    private JTextField concurrentUpdatesTextField = new JTextField(8);
+    
+    private JCheckBox silentlyRetryCheckBox = new JCheckBox();
+    private JCheckBox receiveDuplicateMessagesCheckBox = new JCheckBox();
+
+    private Listener listener = new Listener();
 
     /**
      * @param settings the SettingsClass instance that will be used to get and store the settings of the panel
@@ -67,6 +89,39 @@ class NewsPanel extends JPanel {
         }
     }
 
+    private JPanel getUpdatePanel() {
+        if( updatePanel == null ) {
+            updatePanel = new JPanel(new GridBagLayout());
+            updatePanel.setBorder(new EmptyBorder(5, 30, 5, 5));
+            GridBagConstraints constraints = new GridBagConstraints();
+            constraints.insets = new Insets(0, 5, 5, 5);
+            constraints.weighty = 0;
+            constraints.weightx = 0;
+            constraints.anchor = GridBagConstraints.NORTHWEST;
+            constraints.gridy = 0;
+    
+            constraints.fill = GridBagConstraints.HORIZONTAL;
+            constraints.gridx = 0;
+            constraints.weightx = 0.5;
+            updatePanel.add(minimumIntervalLabel, constraints);
+            constraints.fill = GridBagConstraints.NONE;
+            constraints.gridx = 1;
+            constraints.weightx = 1;
+            updatePanel.add(minimumIntervalTextField, constraints);
+    
+            constraints.fill = GridBagConstraints.HORIZONTAL;
+            constraints.gridx = 0;
+            constraints.gridy++;
+            constraints.weightx = 0.5;
+            updatePanel.add(concurrentUpdatesLabel, constraints);
+            constraints.fill = GridBagConstraints.NONE;
+            constraints.gridx = 1;
+            constraints.weightx = 1;
+            updatePanel.add(concurrentUpdatesTextField, constraints);
+        }
+        return updatePanel;
+    }
+
     private void initialize() {
         setName("NewsPanel");
         setLayout(new GridBagLayout());
@@ -78,6 +133,8 @@ class NewsPanel extends JPanel {
         new TextComponentClipboardMenu(displayDaysTextField, language);
         new TextComponentClipboardMenu(downloadDaysTextField, language);
         new TextComponentClipboardMenu(messageBaseTextField, language);
+        new TextComponentClipboardMenu(minimumIntervalTextField, language);
+        new TextComponentClipboardMenu(concurrentUpdatesTextField, language);
 
         // Adds all of the components
         GridBagConstraints constraints = new GridBagConstraints();
@@ -123,6 +180,19 @@ class NewsPanel extends JPanel {
         add(downloadHtlLabel, constraints);
         constraints.gridx = 1;
         add(downloadHtlTextField, constraints);
+        constraints.gridx = 0;
+
+        constraints.gridy++;
+        add(automaticBoardUpdateCheckBox, constraints);
+
+        constraints.gridy++;
+        add(getUpdatePanel(), constraints);
+
+        constraints.gridy++;
+        add(silentlyRetryCheckBox, constraints);
+
+        constraints.gridy++;
+        add(receiveDuplicateMessagesCheckBox, constraints);
 
         // glue
         constraints.gridy++;
@@ -132,6 +202,9 @@ class NewsPanel extends JPanel {
         constraints.weightx = 1;
         constraints.weighty = 1;
         add(new JLabel(""), constraints);
+        
+        // Add listeners
+        automaticBoardUpdateCheckBox.addActionListener(listener);
     }
 
     /**
@@ -144,6 +217,16 @@ class NewsPanel extends JPanel {
         downloadDaysTextField.setText(settings.getValue(SettingsClass.MAX_MESSAGE_DOWNLOAD));
         messageBaseTextField.setText(settings.getValue(SettingsClass.MESSAGE_BASE));
         alwaysDownloadBackloadCheckBox.setSelected(settings.getBoolValue(SettingsClass.ALWAYS_DOWNLOAD_MESSAGES_BACKLOAD));
+        
+        minimumIntervalTextField.setText(settings.getValue(SettingsClass.BOARD_AUTOUPDATE_MIN_INTERVAL));
+        concurrentUpdatesTextField.setText(settings.getValue(SettingsClass.BOARD_AUTOUPDATE_CONCURRENT_UPDATES));
+
+        // this setting is in MainFrame
+        automaticBoardUpdateCheckBox.setSelected(MainFrame.getInstance().isAutomaticBoardUpdateEnabled());
+        refreshUpdateState();
+
+        silentlyRetryCheckBox.setSelected(settings.getBoolValue(SettingsClass.SILENTLY_RETRY_MESSAGES));
+        receiveDuplicateMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.RECEIVE_DUPLICATE_MESSAGES));
     }
 
     public void ok() {
@@ -158,6 +241,16 @@ class NewsPanel extends JPanel {
         messageBaseLabel.setText(language.getString("Options.news.1.messageBase") + " (news)");
         alwaysDownloadBackloadCheckBox.setText(language.getString("Options.news.1.alwaysDownloadBackload"));
         alwaysDownloadBackloadCheckBox.setToolTipText(language.getString("Options.news.1.alwaysDownloadBackload.tooltip"));
+        
+        String minutes = language.getString("Options.common.minutes");
+
+        minimumIntervalLabel.setText(language.getString("Options.news.3.minimumUpdateInterval") + " (" + minutes + ") (45)");
+        concurrentUpdatesLabel.setText(language.getString("Options.news.3.numberOfConcurrentlyUpdatingBoards") + " (6)");
+
+        automaticBoardUpdateCheckBox.setText(language.getString("Options.news.3.automaticBoardUpdate"));
+
+        silentlyRetryCheckBox.setText(language.getString("Options.news.3.silentlyRetryFailedMessages"));
+        receiveDuplicateMessagesCheckBox.setText(language.getString("Options.news.3.receiveDuplicateMessages"));
     }
 
     /**
@@ -170,5 +263,19 @@ class NewsPanel extends JPanel {
         settings.setValue(SettingsClass.MAX_MESSAGE_DOWNLOAD, downloadDaysTextField.getText());
         settings.setValue(SettingsClass.MESSAGE_BASE, messageBaseTextField.getText().trim().toLowerCase());
         settings.setValue(SettingsClass.ALWAYS_DOWNLOAD_MESSAGES_BACKLOAD, alwaysDownloadBackloadCheckBox.isSelected());
+        
+        settings.setValue(SettingsClass.BOARD_AUTOUPDATE_CONCURRENT_UPDATES, concurrentUpdatesTextField.getText());
+        settings.setValue(SettingsClass.BOARD_AUTOUPDATE_MIN_INTERVAL, minimumIntervalTextField.getText());
+
+        // settings.setValue(SettingsClass.BOARD_AUTOUPDATE_ENABLED, automaticBoardUpdateCheckBox.isSelected());
+        // we change setting in MainFrame, this is auto-saved during frostSettings.save()
+        MainFrame.getInstance().setAutomaticBoardUpdateEnabled(automaticBoardUpdateCheckBox.isSelected());
+
+        settings.setValue(SettingsClass.SILENTLY_RETRY_MESSAGES, silentlyRetryCheckBox.isSelected());
+        settings.setValue(SettingsClass.RECEIVE_DUPLICATE_MESSAGES, receiveDuplicateMessagesCheckBox.isSelected());
+    }
+    
+    private void refreshUpdateState() {
+        MiscToolkit.getInstance().setContainerEnabled(getUpdatePanel(), automaticBoardUpdateCheckBox.isSelected());
     }
 }

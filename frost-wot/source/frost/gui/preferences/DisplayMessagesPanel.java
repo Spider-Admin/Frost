@@ -35,6 +35,8 @@ public class DisplayMessagesPanel extends JPanel {
     private JCheckBox msgTableScrollHorizontalCheckBox = new JCheckBox();
     private JCheckBox sortThreadRootMsgsAscendingCheckBox = new JCheckBox();
     private JCheckBox showCollapsedThreadsCheckBox = new JCheckBox();
+    private JCheckBox showDeletedMessagesCheckBox = new JCheckBox();
+    private JCheckBox dontShowOwnMessagesAsNewCheckBox = new JCheckBox();
 
     /**
      * @param owner the JDialog that will be used as owner of any dialog that is popped up from this panel
@@ -84,7 +86,13 @@ public class DisplayMessagesPanel extends JPanel {
 
         constraints.gridy++;
         add(showCollapsedThreadsCheckBox, constraints);
-        
+
+        constraints.gridy++;
+        add(showDeletedMessagesCheckBox, constraints);
+
+        constraints.gridy++;
+        add(dontShowOwnMessagesAsNewCheckBox, constraints);
+
         constraints.gridy++;
         constraints.weighty = 1.0;
         constraints.fill = GridBagConstraints.BOTH;
@@ -100,6 +108,8 @@ public class DisplayMessagesPanel extends JPanel {
         msgTableScrollHorizontalCheckBox.setSelected(settings.getBoolValue(SettingsClass.MSGTABLE_SCROLL_HORIZONTAL));
         sortThreadRootMsgsAscendingCheckBox.setSelected(settings.getBoolValue(SettingsClass.SORT_THREADROOTMSGS_ASCENDING));
         showCollapsedThreadsCheckBox.setSelected(settings.getBoolValue(SettingsClass.MSGTABLE_SHOW_COLLAPSED_THREADS));
+        showDeletedMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_DELETED_MESSAGES));
+        dontShowOwnMessagesAsNewCheckBox.setSelected(settings.getBoolValue(SettingsClass.HANDLE_OWN_MESSAGES_AS_NEW_DISABLED));
     }
 
     public void ok() {
@@ -112,6 +122,8 @@ public class DisplayMessagesPanel extends JPanel {
         msgTableMultilineSelectCheckBox.setText(language.getString("Options.display.enableMultilineSelectionsInMessageTable"));
         sortThreadRootMsgsAscendingCheckBox.setText(language.getString("Options.display.sortThreadRootMsgsAscending"));
         showCollapsedThreadsCheckBox.setText(language.getString("Options.display.showCollapsedThreads"));
+        showDeletedMessagesCheckBox.setText(language.getString("Options.news.3.showDeletedMessages"));
+        dontShowOwnMessagesAsNewCheckBox.setText(language.getString("Options.news.3.dontHandleOwnMessagesAsNew"));
     }
 
     /**
@@ -123,5 +135,7 @@ public class DisplayMessagesPanel extends JPanel {
         settings.setValue(SettingsClass.MSGTABLE_SCROLL_HORIZONTAL, msgTableScrollHorizontalCheckBox.isSelected());
         settings.setValue(SettingsClass.SORT_THREADROOTMSGS_ASCENDING, sortThreadRootMsgsAscendingCheckBox.isSelected());
         settings.setValue(SettingsClass.MSGTABLE_SHOW_COLLAPSED_THREADS, showCollapsedThreadsCheckBox.isSelected());
+        settings.setValue(SettingsClass.SHOW_DELETED_MESSAGES, showDeletedMessagesCheckBox.isSelected());
+        settings.setValue(SettingsClass.HANDLE_OWN_MESSAGES_AS_NEW_DISABLED, dontShowOwnMessagesAsNewCheckBox.isSelected());
     }
 }
