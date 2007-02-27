@@ -712,7 +712,7 @@ public class SettingsClass implements Savable {
         defaults.put(FCP2_USE_PERSISTENCE, "true");
 
         defaults.put(FCP2_DEFAULT_PRIO_MESSAGE, "2");
-        defaults.put(FCP2_DEFAULT_PRIO_FILE, "2");
+        defaults.put(FCP2_DEFAULT_PRIO_FILE, "3");
 
         defaults.put(ALTERNATE_EDITOR_COMMAND, fn + "path" + fs + "to" + fs + "editor" + " %f");
         defaults.put(BOARD_AUTOUPDATE_ENABLED, "true"); 
