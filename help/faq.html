@@ -14,6 +14,7 @@
 <code>TOFUP: 0U / 0W / 0A   TOFDN: 0B / 0T</code>
 <P>TOFUP: Text Over Freenet UPloads. U is the count of running message uploads. W is the count of messages waiting for upload. A is the count of attachments waiting for upload.</P>
 <P>TOFDN: Text Over Freenet DowNloads. B is the count of currently updating boards. T is the count of threads running to update the boards.</P>
+<P>(This is also described in the tooltip of the status bar entries)</P>
 
 <H3>Searching for files:</H3>
 <P>To search for files select the 'Search' tab in the main view. You can choose between 2 search modes, the simple mode and the advanced mode.
@@ -35,7 +36,9 @@ A file is found if any of the search words are found in the appropriate field. I
 - 'g' changes sender of the selected message to state GOOD
 - 'o' changes sender of the selected message to state OBSERVE
 - 'c' changes sender of the selected message to state CHECK
-- 'b' changes sender of the selected message to state BAD</PRE>
+- 'b' changes sender of the selected message to state BAD
+- DELETE key deletes the selected message
+- ENTER key opens the message in a new message viewer window</PRE>
 
 <H3>Command line options:</H3>
 <PRE>-?   Display all command line options
@@ -43,7 +46,8 @@ A file is found if any of the search words are found in the appropriate field. I
        javax.swing.plaf.metal.MetalLookAndFeel
        com.sun.java.swing.plaf.windows.WindowsLookAndFeel
        com.sun.java.swing.plaf.motif.MotifLookAndFeel
-       javax.swing.plaf.mac.MacLookAndFeel</PRE>
+       javax.swing.plaf.mac.MacLookAndFeel
+-offline  Starts Frost in offline mode</PRE>
 <P>for example turning on motif laf: frost -lf com.sun.java.swing.plaf.motif.MotifLookAndFeel</P>
 
 <H3>Some FAQ's... (the old faq.txt file)</H3>
@@ -70,7 +74,7 @@ A file is found if any of the search words are found in the appropriate field. I
 <P>A: Hehe, no way.</P>
 
 <P><B>Q: What Datastore size should I use for my Freenet Node?</B></P>
-<P>A: The larger the better. At least the size of the largest file you want to download. For example if you want to download large movies, 1Gb is a good size.</P>
+<P>A: The larger the better. At least the size of the largest file you want to download. For example if you want to download large movies, 10Gb is a good size.</P>
 
 <P><B>Q: My upload was aborted because... (fill in your story here). Do I have to upload everything again?</B></P>
 <P>A: No, if you restart the upload you'll probably see that it progresses much faster. Only parts of the file that have not been uploaded yet will be uploaded. (This is not true for files with a size below 256Kb, because they are not split into smaller parts)</P>
@@ -89,13 +93,10 @@ A file is found if any of the search words are found in the appropriate field. I
 <P>A5: Increase the splitfile threads to 5.</P>
 <P>If none of this works, your best bet is to keep asking on different (related) boards.</P>
 
-<P><B>Q: The attachments of messages appear in the public keyindex!</B></P>
-<P>A: Yes, they do. If you want only a specific person to see your attachments, please use PGP to encrypt the files.
-
 <P><B>Q: Why can I see not very many messages?</B></P>
 <P>A: Frost by default only downloads messages for 5 days into the past. If you want to see more past messages increase "Number of days to download backwards" in Preferences->News(1) (I suggest increasing it to 15). Make sure that  this is less than "Number of days to display".</P>
 
-<P><B>Q: How do I get access to the <name> board?</B></P>
+<P><B>Q: How do I get access to the &lt;name&gt; board?</B></P>
 <P>A: Just add it as a "New Board". If it is the same name as a public board someone else has created then this will work!</P>
 
 </BODY>
