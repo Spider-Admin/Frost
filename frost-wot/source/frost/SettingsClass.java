@@ -58,15 +58,18 @@ public class SettingsClass implements Savable {
     public static final String AVAILABLE_NODES = "availableNodes";
     public static final String FCP2_USE_DDA = "fcp2.useDDA";
     public static final String FCP2_USE_PERSISTENCE = "fcp2.usePersistence";
-    
+
+    public static final String FCP2_DEFAULT_PRIO_MESSAGE = "fcp2.defaultPriorityMessage"; // not in gui dialog!
+    public static final String FCP2_DEFAULT_PRIO_FILE = "fcp2.defaultPriorityMessage";    // not in gui dialog!
+
     public static final String AUTO_SAVE_INTERVAL = "autoSaveInterval";
     public static final String DISABLE_FILESHARING = "disableFilesharing";
     public static final String REMEMBER_SHAREDFILE_DOWNLOADED = "rememberSharedFileDownloaded";
     public static final String DOWNLOADING_ACTIVATED = "downloadingActivated";
     public static final String LOG_FILE_SIZE_LIMIT = "logFileSizeLimit";
     public static final String LOG_LEVEL = "logLevel";
-    public static final String LOG_TO_CONSOLE = "logToConsole";
-    public static final String LOG_TO_FILE = "logToFile";
+    public static final String LOG_TO_CONSOLE = "logToConsole"; // not in gui dialog!
+    public static final String LOG_TO_FILE = "logToFile";       // not in gui dialog!
     public static final String FILE_LIST_FONT_NAME = "fileListFontName";
     public static final String FILE_LIST_FONT_SIZE = "fileListFontSize";
     public static final String FILE_LIST_FONT_STYLE = "fileListFontStyle";
@@ -707,6 +710,9 @@ public class SettingsClass implements Savable {
         
         defaults.put(FCP2_USE_DDA, "true");
         defaults.put(FCP2_USE_PERSISTENCE, "true");
+
+        defaults.put(FCP2_DEFAULT_PRIO_MESSAGE, "2");
+        defaults.put(FCP2_DEFAULT_PRIO_FILE, "2");
 
         defaults.put(ALTERNATE_EDITOR_COMMAND, fn + "path" + fs + "to" + fs + "editor" + " %f");
         defaults.put(BOARD_AUTOUPDATE_ENABLED, "true"); 

@@ -144,12 +144,16 @@ public class FcpConnection {
          } else {
              fcpSocket.getFcpOut().println("ReturnType=direct");
         }
-        
+
+        final int prio;
         if( type == FcpHandler.TYPE_FILE ) {
-            fcpSocket.getFcpOut().println("PriorityClass=2");
+            prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE);
         } else if( type == FcpHandler.TYPE_MESSAGE ) {
-            fcpSocket.getFcpOut().println("PriorityClass=2");
+            prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE);
+        } else {
+            prio = 3; // fallback
         }
+        fcpSocket.getFcpOut().println("PriorityClass="+Integer.toString(prio));
         
         if( maxSize > 0 ) {
             fcpSocket.getFcpOut().println("MaxSize="+maxSize);
@@ -329,17 +333,22 @@ public class FcpConnection {
         }
 		if( getChkOnly ) {
             fcpSocket.getFcpOut().println("GetCHKOnly=true");
+            fcpSocket.getFcpOut().println("PriorityClass=3");  
 		} else {
+            final int prio;
             if( type == FcpHandler.TYPE_FILE ) {
             	if (doMime) {
                     fcpSocket.getFcpOut().println("Metadata.ContentType=" + DefaultMIMETypes.guessMIMEType(sourceFile.getAbsolutePath()));
             	} else {
             		fcpSocket.getFcpOut().println("Metadata.ContentType=application/octet-stream"); // force this to prevent the node from filename guessing due dda!
             	}
-                fcpSocket.getFcpOut().println("PriorityClass=2");  
+                prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE);
             } else if( type == FcpHandler.TYPE_MESSAGE ) {
-                fcpSocket.getFcpOut().println("PriorityClass=2");
+                prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE);
+            } else {
+                prio = 3; // fallback
             }
+            fcpSocket.getFcpOut().println("PriorityClass="+Integer.toString(prio));  
         }
 		
         fcpSocket.getFcpOut().println("Persistence=connection");

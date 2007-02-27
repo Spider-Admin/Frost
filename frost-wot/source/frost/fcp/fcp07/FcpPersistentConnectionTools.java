@@ -22,6 +22,7 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
+import frost.*;
 import frost.ext.*;
 
 public class FcpPersistentConnectionTools {
@@ -40,7 +41,7 @@ public class FcpPersistentConnectionTools {
         msg.add("ModifyPersistentRequest");
         msg.add("Global=true");
         msg.add("Identifier="+id);
-        msg.add("PriorityClass="+newPrio);
+        msg.add("PriorityClass="+Integer.toString(newPrio));
         FcpPersistentConnection.getInstance().sendMessage(msg, true);
     }
 
@@ -84,7 +85,7 @@ public class FcpPersistentConnectionTools {
     }
 
     /**
-     * Starts a new persistent get and returns the first message returned by the node.
+     * Starts a new persistent get.
      * If DDA=false then the request is enqueued as DIRECT and must be retrieved manually
      * after the get completed successfully. Use startDirectPersistentGet to fetch the data.
      */
@@ -97,10 +98,11 @@ public class FcpPersistentConnectionTools {
         msg.add("URI=" + key);
         msg.add("Identifier="+id );
         msg.add("MaxRetries=-1");
-        msg.add("Verbosity=0");
+        msg.add("Verbosity=-1");
         msg.add("Persistence=forever");
         msg.add("Global=true");
-        msg.add("PriorityClass=3");
+        final int prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE);
+        msg.add("PriorityClass="+Integer.toString(prio));
         
         if (isDDA()) {
             msg.add("ReturnType=disk");
@@ -132,7 +134,7 @@ public class FcpPersistentConnectionTools {
         lst.add("ClientPut");
         lst.add("URI=CHK@");
         lst.add("Identifier=" + id);
-        lst.add("Verbosity=0"); // progress arrives within ListPersistentRequests        
+        lst.add("Verbosity=-1");        
         lst.add("MaxRetries=-1");
         lst.add("DontCompress=false"); // force compression
         lst.add("TargetFilename=");
@@ -141,7 +143,8 @@ public class FcpPersistentConnectionTools {
         } else {
             lst.add("Metadata.ContentType=application/octet-stream"); // force this to prevent the node from filename guessing due dda!
         }
-        lst.add("PriorityClass=3");  
+        final int prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE);
+        lst.add("PriorityClass="+Integer.toString(prio));
         lst.add("Persistence=forever");
         lst.add("Global=true");
         return lst;
