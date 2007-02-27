@@ -60,7 +60,7 @@ public class SettingsClass implements Savable {
     public static final String FCP2_USE_PERSISTENCE = "fcp2.usePersistence";
 
     public static final String FCP2_DEFAULT_PRIO_MESSAGE = "fcp2.defaultPriorityMessage"; // not in gui dialog!
-    public static final String FCP2_DEFAULT_PRIO_FILE = "fcp2.defaultPriorityMessage";    // not in gui dialog!
+    public static final String FCP2_DEFAULT_PRIO_FILE = "fcp2.defaultPriorityFile";       // not in gui dialog!
 
     public static final String AUTO_SAVE_INTERVAL = "autoSaveInterval";
     public static final String DISABLE_FILESHARING = "disableFilesharing";
