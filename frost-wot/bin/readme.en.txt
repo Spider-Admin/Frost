@@ -1,33 +1,62 @@
 * Frost - text over freenet *
 _---------------------------_
 
-
 Frost can run on Freenet 0.5 and Freenet 0.7. During the first startup of
 Frost you decide which Freenet version is used. Each installed Frost
 instance can only run with one Freenet version, you can't run one Frost
 instance on both Freenet versions, because the freenet key format is different.
 
-Frost assumes a first startup if the identities.xml file is not found. The
-first startup dialog allows you to choose the Freenet version, and optionally
-you can import an existing identities.xml file from another installed Frost
-instance (0.5 or 0.7).
+The first startup dialog allows you to choose the Freenet version, and
+optionally you can import an existing identities.xml file from another installed
+Frost instance (0.5 or 0.7). You must export the identities from the existing
+Frost installation. You can also export your own identities, and import them
+into the new installion after the first startup.
+
+NOTE: You should always have a backup of your own identities. Export your own
+      identities and store the file on a save place.
 
 
-Updating Frost 0.5 or 0.7 to a new version:
---------------------------------------------
+Update from a Frost 23-Dec-2006 or higher to latest version:
+-------------------------------------------------------------
+
 Stop Frost if it is running, and copy the contents of the downloaded ZIP file
-over your existing Frost installation, replace all existing files. All your
-settings are preserved. As always, a backup is recommended before updating :)
+over your existing Frost installation, replace all existing files.
+
+NOTE: All your settings, messages, etc... will be preserved, but making a backup
+      of your Frost directory prior to updating is strongly recommended just in
+      case something goes wrong.
+
+NOTE: If you changed the file store/applayerdb.conf for any reason (e.g. you
+      moved your database to another place), do NOT overwrite this file!
+
+
+Update from Frost 20-Jun-2006 to latest version:
+-------------------------------------------------
+
+Do NOT update your existing Frost! Start a new installation in a new folder.
+
+Download the zip file, extract it into a NEW folder and start Frost as usual.
+The first dialog allows you to choose: start a clean new Frost, or import
+messages and identities from an existing Frost version 20-Jun-2006.
+The import could take some time, depending on the amount of messages you have
+in the keypool and in your archive.
+
+
+Update from Frost older than 20-Jun-2006 to latest version:
+------------------------------------------------------------
+
+You can't update from versions older than 20-Jun-2006 to the latest version.
+Upgrade to version 20-Jun-2006 first, then to a later version.
 
 
 You have Frost 0.5 running and want to start to use Frost 0.7 (or vice versa):
 -------------------------------------------------------------------------------
 Copy the contents of the downloaded ZIP file into a NEW directory and start
 Frost. In the first startup dialog, choose the Freenet version you want to use
-with this Frost installation, and optionally choose to import an existing
-identities.xml file (the Frost instance from which the identities.xml file is
-imported should be stopped before importing the file). Or you decide to create
-a new identity.
+with this Frost installation. Create an identity (you can delete it later).
+Export your own identities from the existing Frost installation, and import
+them into the new Frost installation if you want to use your existing
+identities.
 
 
 Troubleshooting:

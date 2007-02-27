@@ -7,30 +7,51 @@ Frost gedacht ist. Jede Frost Installation kann nur entweder auf
 Freenet 0.5 oder auf Freenet 0.7 laufen, nicht auf beiden gleichzeitig, da die
 Freenet Keys ein anderes Format haben.
 
-Frost nimmt an, das er das erste Mal gestartet wird wenn, er keine Datei
-'identities.xml' findet. Dann erscheint der Startdialog, in dem man die
-gewuenschte Freenet Version waehlen kann, und falls man moechte,
-kann eine bestehende identities.xml Datei einer anderen Frost-
-installation (0.5 oder 0.7) importiert werden.
+Beim ersten Start von Frost kann man die gewuenschte Freenet Version waehlen,
+und eine existierende identities.xml Datei importieren. Diese Datei muss man
+vorher im alten Frost exportieren. Man kann aus dem alten Frost auch seine
+eigenenen Identitaeten exportieren, und diese nach dem Start ins neue Frost
+importieren.
+
+ACHTUNG: Man sollte immer eine Sicherheitskopie seiner eigenen Identitaeten
+         an einem sicheren Ort aufbewahren!
 
 
-Frost 0.5 oder 0.7 auf eine neuere Version updaten:
-----------------------------------------------------
-Beende Frost falls es laeuft und kopiere den inhalt der heruntergeladenen
+Frost Version 23-Dec-2006 oder neuer auf eine neuere Version updaten:
+----------------------------------------------------------------------
+Beende Frost falls es laeuft und kopiere den Inhalt der heruntergeladenen
 ZIP-Datei in den bestehenden Frost Ordner. Einfach alle Dateien ueberschreiben.
 Alle Einstellungen, nachrichten usw. bleiben dabei erhalten. Aber wie immer
 empfehlen wir eine Sicherung des Frost-Ordners vor dem Update :)
+
+ACHTUNG: Wenn die Datei store/applayerdb.conf geaendert wurde (z.B. um die
+          Datenbank an einen anderen Ort zu legen) dann diese Datei nicht
+          ueberschreiben lassen!
+
+
+Frost Version 20-Jun-2006 auf eine neuere Version updaten:
+-----------------------------------------------------------
+NICHT das bestehende Frost updaten!
+
+Entpacke die neue Frost Version in ein neues verzeichnis und start sie. Im
+ersten Dialog kann man entscheiden ob man die Daten (Identitaeten und
+Nachrichten) aus dem alten Frost importieren will, oder mit einer neuen
+Installation beginnen will. Der Import der alten Daten kann eine Weile dauern.
+
+
+Frost aelter als Version 20-Jun-2006 auf eine neuere Version updaten:
+----------------------------------------------------------------------
+Ein direktes Update von aelteren Versionen ist nicht moeglich. Man muss zuerst
+zur Version 20-Jun-2006 hochziehen, und dann zu der neuesten Version.
 
 
 Frost 0.5 laeuft schon und du moechtest jetzt auch Frost 0.7 verwenden (oder andersrum):
 -----------------------------------------------------------------------------------------
 Entpacke den Inhalt der heruntergeladenen ZIP Datei in einen NEUEN Ordner.
 Dann starte Frost. In dem ersten Startdialog kann man waehlen fuer welches
-Freenet diese Frost Installation gedacht ist, und optional kann eine
-existierende identities.xml Datei importiert werden (von Frost 0.5 oder 0.7).
-Die Frost Installation, von der die identities.xml Datei importiert wird,
-sollte auf jeden Fall beendet sein. Oder du erstellst einfach eine neue
-Identitaet. ;)
+Freenet diese Frost Installation gedacht ist. Lege eine neue Identitaet an,
+diese kann spaeter wieder geloescht werden. Exportiere die eigenen Identitaeten
+aus dem alten Frost und importiere sie in das neue Frost (wenn gewuenscht).
 
 
 Problemloesungen:
