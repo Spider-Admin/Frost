@@ -42,7 +42,7 @@ public class TargetFolderChooser extends JDialog {
 
     private Board choosedFolder = null;
     private JScrollPane jScrollPane = null;
-    
+
     private Language language;
 
     /**
@@ -94,7 +94,7 @@ public class TargetFolderChooser extends JDialog {
 
         this.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         this.setModal(true);
-        this.setTitle(language.getString("Choose a target folder"));
+        this.setTitle(language.getString("TargetFolderChooser.title"));
         this.setContentPane(getJContentPane());
         this.addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent e) {
