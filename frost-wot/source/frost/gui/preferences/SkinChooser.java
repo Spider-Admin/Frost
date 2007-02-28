@@ -254,7 +254,7 @@ public class SkinChooser extends JPanel {
 
 			Collections.sort(skinsListData);
 			if (skinsListData.isEmpty()) {
-				skinsListData.add(language.getString("NoSkinsFound")); // TODO:
+				skinsListData.add(language.getString("Options.display.noSkinsFound"));
 				getSkinsList().setEnabled(false);
 				getSkinsList().setEnabled(false);
 			} else {
