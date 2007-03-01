@@ -320,17 +320,6 @@ public class MessageTextPane extends JPanel {
                 }
             }
         });
-        messageTextArea.addKeyListener(new KeyAdapter() {
-            public void keyTyped(KeyEvent e) {
-                if( e == null ) {
-                    return;
-                } else if(e.getKeyChar() == 'n' && parentFrame == mainFrame ) {
-                    mainFrame.getMessagePanel().selectNextUnreadMessage();
-                } else if(e.getKeyChar() == KeyEvent.VK_DELETE && parentFrame == mainFrame ) {
-                    mainFrame.getMessagePanel().deleteSelectedMessage();
-                }
-            }
-        });
         messageTextArea.addHyperlinkListener(new HyperlinkListener() {
             public void hyperlinkUpdate(HyperlinkEvent evt) {
                 if( !(evt instanceof MouseHyperlinkEvent) ) {

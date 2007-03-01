@@ -659,17 +659,13 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             }
         });
 
-        // assign N key - next unread
+        // assign N key - next unread (to whole new panel, including tree)
         Action nextUnreadAction = new AbstractAction() {
             public void actionPerformed(ActionEvent event) {
                 selectNextUnreadMessage();
             }
         };
-        this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_N, 0), "NEXT_MSG");
-        this.getActionMap().put("NEXT_MSG", nextUnreadAction);
-        // install this action on the tofTree too
-        mainFrame.getTofTree().getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_N, 0), "NEXT_MSG");
-        mainFrame.getTofTree().getActionMap().put("NEXT_MSG", nextUnreadAction);
+        MainFrame.getInstance().setKeyActionForNewsTab(nextUnreadAction, "NEXT_MSG", KeyStroke.getKeyStroke(KeyEvent.VK_N, 0));
 
         // assign B key - set BAD
         this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_B, 0), "SET_BAD");
