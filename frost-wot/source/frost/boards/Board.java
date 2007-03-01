@@ -44,7 +44,8 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
     // if isConfigured=true then below options may apply
     private boolean isConfigured = false;
 
-    private boolean isFolder = false;
+    private final boolean isBoard;
+    private final boolean isFolder;
 
     private boolean isUpdating = false;
     private long lastUpdateStartMillis = -1; // never updated
@@ -71,20 +72,16 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
      * Constructs a new FrostBoardObject wich is a Board.
      */
     public Board(String name, String description) {
-        super();
-        boardName = name;
-        boardDescription = description;
-        boardFileName = Mixed.makeFilename(boardName.toLowerCase());
+        this(name, null, null, description, true, false);
     }
 
     /**
      * Constructs a new FrostBoardObject.
      * @param name
-     * @param isFold if true, this will be a folder, else a board.
+     * @param isFold if true, this will be a folder, else a board
      */
     public Board(String name, boolean isFold) {
-        this(name, null);
-        isFolder = isFold;
+        this(name, null, null, null, !isFold, isFold);
     }
 
     /**
@@ -95,7 +92,18 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
      * @param description the description of the board, or null if none.
      */
     public Board(String name, String pubKey, String privKey, String description) {
-        this(name, description);
+        this(name, pubKey, privKey, description, true, false);
+    }
+
+    protected Board(String name, String pubKey, String privKey, String description, boolean newIsBoard, boolean newIsFolder) {
+        super();
+
+        isBoard = newIsBoard;
+        isFolder = newIsFolder;
+
+        boardName = name;
+        boardDescription = description;
+        boardFileName = Mixed.makeFilename(boardName.toLowerCase());
         setPublicKey(pubKey);
         setPrivateKey(privKey);
     }
@@ -106,7 +114,9 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
     public int compareTo(Object o) {
         if (o instanceof Board) {
             Board board = (Board) o;
-            if (board.isFolder() == isFolder()) {
+            // If both objects are of the same kind, sort by name
+            if (board.isFolder() == isFolder()
+                || board.isBoard() == isBoard() ) {
                 //If both objects are of the same kind, sort by name
                 return getNameLowerCase().compareTo(board.getNameLowerCase());
             } else {
@@ -303,13 +313,13 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
     public boolean isConfigured() {
         return isConfigured;
     }
+    
+    public boolean isBoard() {
+        return isBoard;
+    }
 
     public boolean isFolder() {
         return isFolder;
-    }
-
-    public boolean isLeaf() {
-        return (isFolder() == false);
     }
 
     public boolean isPublicBoard() {
@@ -350,7 +360,7 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
 
     public void setName(String name) {
         if( isFolder() == false ) {
-            return; // ignore
+            return; // ignore, only folder can be renamed
         }
         boardName = name;
         boardFileName = Mixed.makeFilename(boardName.toLowerCase());
@@ -433,7 +443,7 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
      * If a board is already updating only not running threads will be started.
      */
     public boolean isManualUpdateAllowed() {
-        if ( isFolder() || isSpammed() ) {
+        if ( !isBoard() || isSpammed() ) {
             return false;
         } else {
             return true;
@@ -445,7 +455,7 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
      * Also checks if board update is already running.
      */
     public boolean isAutomaticUpdateAllowed() {
-        if ( isFolder() || isSpammed() || isUpdating() ) {
+        if ( !isBoard() || isSpammed() || isUpdating() ) {
             return false;
         } else {
             return true;

@@ -389,17 +389,12 @@ public class TofTreeXmlIO
                                      DefaultTreeModel model, JTree tree)
     {
         // parentElement = element to append to
-        for(int x=0; x < treeNode.getChildCount(); x++)
-        {
+        for(int x=0; x < treeNode.getChildCount(); x++) {
             Board boardObject = (Board)treeNode.getChildAt(x);
-
-            if( boardObject.isFolder() == false )
-            {
+            if( boardObject.isBoard() ) {
                 // its a board
                 appendBoard(parentElement, boardObject, doc);
-            }
-            else
-            {
+            } else if( boardObject.isFolder() ) {
                 // its a folder
                 Element newFolder = appendFolder(parentElement, boardObject, doc, model, tree);
                 saveProcessFolder(newFolder, boardObject, doc, model, tree);

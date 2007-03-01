@@ -65,15 +65,14 @@ public class TofTreeModel extends DefaultTreeModel {
     }
     
     /**
-     * Overwritten to fill the boards in tree with its primary keys
-     * after the board tree was loaded from xml file.
+     * Fill the boards in tree with its primary keys after the board tree was loaded from xml file.
      */
     public void initialSetPrimaryKeys() {
         // load boards, create if not existing (should not happen!)
         DefaultMutableTreeNode rootn = (DefaultMutableTreeNode)getRoot(); 
         for(Enumeration e = rootn.depthFirstEnumeration(); e.hasMoreElements(); ) {
             Board b = (Board)e.nextElement();
-            if( b.isFolder() == false ) {
+            if( b.isBoard() ) {
                 setBoardsPrimaryKey(b);
             }
         }
@@ -119,6 +118,9 @@ public class TofTreeModel extends DefaultTreeModel {
      * If node is a folder ALL subfolders and boards and messages are deleted too.
      */
     public void removeNode(Board node, boolean removeFromDatabase) {
+        if( !node.isFolder() && !node.isBoard() ) {
+            return;
+        }
         DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
         if (node != null && parent != null) {
             
@@ -193,7 +195,7 @@ public class TofTreeModel extends DefaultTreeModel {
         Enumeration e = node.depthFirstEnumeration();
         while (e.hasMoreElements()) {
             Board child = (Board) e.nextElement();
-            if (child.isFolder() == false) {
+            if (child.isBoard()) {
                 boards.add(child);
             }
         }
@@ -209,7 +211,7 @@ public class TofTreeModel extends DefaultTreeModel {
         Enumeration e = node.breadthFirstEnumeration();
         while (e.hasMoreElements()) {
             Board child = (Board) e.nextElement();
-            if (child.isFolder() == false) {
+            if (child.isBoard()) {
                 child.setLastBackloadUpdateFinishedMillis(0);
             }
         }
@@ -226,8 +228,9 @@ public class TofTreeModel extends DefaultTreeModel {
         Enumeration e = node.depthFirstEnumeration();
         while (e.hasMoreElements()) {
             Board child = (Board) e.nextElement();
-            if (child.isFolder() == false &&
-                child.getName().compareToIgnoreCase(boardName) == 0) {
+            if (child.isBoard() == false &&
+                child.getName().compareToIgnoreCase(boardName) == 0) 
+            {
                 return child;
             }
         }

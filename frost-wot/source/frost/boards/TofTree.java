@@ -209,7 +209,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
          */
         public void show(Component invoker, int x, int y) {
             int selRow = getRowForLocation(x, y);
-
+// FIXME: NEW NODE, popupmenu!!!
             if (selRow != -1) { // only if a node is selected
                 removeAll();
 
@@ -459,7 +459,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
                     setFont(normalFont);
                 }
                 setBorder(borderEmpty);
-            } else {
+            } else if(board.isBoard()) {
                 // set the special text (board name + if new msg. a ' (2)' is appended and bold)
                 if (containsNewMessage) {
                     setFont(boldFont);
@@ -880,12 +880,14 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
                     language.formatMessage("BoardTree.removeFolderConfirmation.body", node.getName()),
                     language.formatMessage("BoardTree.removeFolderConfirmation.title", node.getName()),
                     JOptionPane.YES_NO_OPTION);
-        } else {
+        } else if(node.isBoard()) {
             answer = JOptionPane.showConfirmDialog(
                     this,
                     language.formatMessage("BoardTree.removeBoardConfirmation.body", node.getName()),
                     language.formatMessage("BoardTree.removeBoardConfirmation.title", node.getName()),
                     JOptionPane.YES_NO_OPTION);
+        } else {
+            return;
         }
 
         if (answer == JOptionPane.NO_OPTION) {
@@ -915,11 +917,11 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         if (node == null)
             return;
 
-        if (node.isFolder() == false) {
+        if (node.isBoard()) {
             if (node.isManualUpdateAllowed()) {
                 updateBoard(node);
             }
-        } else {
+        } else if (node.isFolder()) {
             // update all childs recursiv
             Enumeration leafs = node.children();
             while (leafs.hasMoreElements()) {
@@ -952,7 +954,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
      * @param board
      */
     public void updateBoard(Board board) {
-        if (board == null || board.isFolder()) {
+        if (board == null || !board.isBoard()) {
             return;
         }
         
