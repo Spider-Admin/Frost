@@ -100,7 +100,7 @@ public class TOF {
             return;
         }
 
-        if (node.isFolder() == false) {
+        if (node.isBoard()) {
             if( confirm ) {
                 int answer = JOptionPane.showConfirmDialog(
                         MainFrame.getInstance(), 
@@ -113,7 +113,7 @@ public class TOF {
                 }
             }
             setAllMessagesRead(node);
-        } else {
+        } else if(node.isFolder()) {
             if( confirm ) {
                 int answer = JOptionPane.showConfirmDialog(
                         MainFrame.getInstance(), 
@@ -743,7 +743,7 @@ public class TOF {
          * Set rootnode to gui and update.
          */ 
         private void setNewRootNode(Board innerTargetBoard, FrostMessageObject rootNode, FrostMessageObject previousSelectedMsg) {
-            if( tofTreeModel.getSelectedNode().isFolder() == false &&
+            if( tofTreeModel.getSelectedNode().isBoard() &&
                     tofTreeModel.getSelectedNode().getName().equals( innerTargetBoard.getName() ) ) 
             {
                 MessageTreeTable treeTable = MainFrame.getInstance().getMessageTreeTable();
@@ -945,7 +945,7 @@ public class TOF {
     }
     
     private void searchNewMessagesInBoard(final Board board) {
-        if( board.isFolder() == true ) {
+        if( !board.isBoard() ) {
             return;
         }
 

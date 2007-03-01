@@ -473,7 +473,7 @@ public class BoardSettingsFrame extends JDialog {
             descriptionTextArea.setEnabled(false);
             overrideSettingsCheckBox.setSelected(false);
 
-        } else {
+        } else if( board.isBoard() ) {
             descriptionLabel.setEnabled(true);
             descriptionTextArea.setEnabled(true);
             // its a single board
@@ -535,7 +535,7 @@ public class BoardSettingsFrame extends JDialog {
     }
 
     /**
-     * Loads keypair from file
+     * Loads keypair
      */
     private void loadKeypair() {
 
@@ -546,7 +546,7 @@ public class BoardSettingsFrame extends JDialog {
             publicBoardRadioButton.setEnabled(false);
             secureBoardRadioButton.setEnabled(false);
 
-        } else {
+        } else if( board.isBoard() ) {
             String privateKey = board.getPrivateKey();
             String publicKey = board.getPublicKey();
 
@@ -581,6 +581,13 @@ public class BoardSettingsFrame extends JDialog {
      * Close window and save settings
      */
     private void ok() {
+        
+        if( !board.isFolder() && !board.isBoard() ) {
+            // we should not be here!
+            exitState = true;
+            dispose();
+            return;
+        }
 
         if( board.isFolder() == false ) {
             // if board was secure before and now its public, ask user if ok to remove the keys
@@ -737,7 +744,7 @@ public class BoardSettingsFrame extends JDialog {
     }
 
     private void updateBoard(Board b) {
-        if( b.isFolder() == false ) {
+        if( b.isBoard() ) {
             MainFrame.getInstance().updateTofTree(b);
             // update the new msg. count for board
             TOF.getInstance().searchNewMessages(b);
@@ -746,7 +753,7 @@ public class BoardSettingsFrame extends JDialog {
                 // reload all messages if board is shown
                 MainFrame.getInstance().tofTree_actionPerformed(null);
             }
-        } else {
+        } else if( b.isFolder() ) {
             for(int x=0; x < b.getChildCount(); x++) {
                 Board b2 = (Board)b.getChildAt(x);
                 updateBoard(b2);
@@ -791,7 +798,7 @@ public class BoardSettingsFrame extends JDialog {
     private void refreshLanguage() {
         if( board.isFolder() ) {
             setTitle(language.getString("BoardSettings.title.folderSettings") + " '" + board.getName() + "'");
-        } else {
+        } else if( board.isBoard() ) {
             setTitle(language.getString("BoardSettings.title.boardSettings") + " '" + board.getName() + "'");
         }
 

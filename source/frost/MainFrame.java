@@ -1063,7 +1063,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         if (node != null) {
             boolean showInfoPanel = false;
             
-            if (node.isFolder() == false) {
+            if (node.isBoard()) {
                 // node is a board
                 removeBoardButton.setEnabled(true);
 
@@ -1090,7 +1090,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 TOF.getInstance().updateTofTable(node, previousMessage);
                 
                 getMessagePanel().getMessageTable().clearSelection();
-            } else {
+            } else if (node.isFolder()) {
                 // node is a folder
                 getMessagePanel().getMessageTable().setNewRootNode(new FrostMessageObject(true));
                 getMessagePanel().updateMessageCountLabels(node);
@@ -1104,6 +1104,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 }
                 configBoardButton.setEnabled(false);
             }
+            // FIXME: NEW NODE
 
             if( showInfoPanel ) {
                 showMessageInfoPanelInSplitpane();

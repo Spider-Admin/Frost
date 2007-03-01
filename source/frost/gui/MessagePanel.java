@@ -297,7 +297,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 return;
             }
             
-            if (!mainFrame.getTofTreeModel().getSelectedNode().isFolder()) {
+            if (mainFrame.getTofTreeModel().getSelectedNode().isBoard()) {
                 
                 removeAll();
                 
@@ -802,6 +802,9 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             replyButton.setEnabled(false);
             saveMessageButton.setEnabled(false);
             return;
+        } else if(!selectedBoard.isBoard()) {
+            // FIXME: new node
+            return;
         }
 
         // board selected
@@ -1119,13 +1122,13 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     private void boardsTree_actionPerformed(TreeSelectionEvent e) {
         
         if (((TreeNode) mainFrame.getTofTreeModel().getRoot()).getChildCount() == 0) {
-            //There are no boards. //TODO: check if there are really no boards (folders count as children)
+            // There are no boards
             getMessageTextPane().update_noBoardsFound();
         } else {
-            //There are boards.
+            // There are boards
             Board node = (Board) mainFrame.getTofTree().getLastSelectedPathComponent();
             if (node != null) {
-                if (!node.isFolder()) {
+                if (node.isBoard()) {
                     // node is a board
                     getMessageTextPane().update_boardSelected();
                     updateButton.setEnabled(true);
@@ -1136,7 +1139,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     } else {
                         newMessageButton.setEnabled(true);
                     }
-                } else {
+                } else if(node.isFolder()) {
                     // node is a folder
                     newMessageButton.setEnabled(false);
                     saveMessageButton.setEnabled(false);
@@ -1145,6 +1148,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                         getMessageTextPane().update_folderSelected();
                     }
                 }
+                // FIXME: NEW NODE
             }
         }
     }
@@ -1158,7 +1162,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         if (row < 0
             || selectedMessage == null
             || mainFrame.getTofTreeModel().getSelectedNode() == null
-            || mainFrame.getTofTreeModel().getSelectedNode().isFolder() == true
+            || !mainFrame.getTofTreeModel().getSelectedNode().isBoard()
             || selectedMessage.isDummy() )
         {
             return false;
@@ -1345,11 +1349,11 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
      * @param board
      */
     public void updateMessageCountLabels(Board board) {
-        if (board.isFolder() == true) {
+        if (board.isFolder()) {
             allMessagesCountLabel.setText("");
             newMessagesCountLabel.setText("");
             nextUnreadMessageButton.setEnabled(false);
-        } else {
+        } else if (board.isBoard()) {
             int allMessages = 0;
             FrostMessageObject rootNode = (FrostMessageObject)MainFrame.getInstance().getMessageTreeModel().getRoot();
             for(Enumeration e=rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
@@ -1368,6 +1372,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 nextUnreadMessageButton.setEnabled(false);
             }
         }
+        // FIXME: NEW NODE
     }
     
     private Identity getSelectedMessageFromIdentity() {
@@ -1400,7 +1405,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         // walk through shown messages and remove unneeded (e.g. if hideBad)
         // remember selected msg and select next
         Board board = MainFrame.getInstance().getTofTreeModel().getSelectedNode();
-        if( board != null || !board.isFolder() ) {
+        if( board != null && board.isBoard() ) {
             // a board is selected and shown
             DefaultTreeModel model = getMessageTreeModel();
             DefaultMutableTreeNode rootnode = (DefaultMutableTreeNode)model.getRoot();
