@@ -38,7 +38,7 @@ public abstract class AbstractNode extends DefaultMutableTreeNode implements Com
     }
 
     public boolean isLeaf() {
-        return true; // all except Folder
+        return true; // all return true except Folder
     }
 
     public String getName() {

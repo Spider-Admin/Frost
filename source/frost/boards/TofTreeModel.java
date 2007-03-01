@@ -130,7 +130,6 @@ public class TofTreeModel extends DefaultTreeModel {
                 if( node.isFolder() ) {
                     for(Enumeration e = node.breadthFirstEnumeration(); e.hasMoreElements(); ) {
                         AbstractNode b = (AbstractNode) e.nextElement();
-                        // FIXME: fails to remove nested folders 
                         if( !b.isFolder() ) {
                             boardsToDelete.add((Board)b);
                         }
@@ -212,9 +211,9 @@ public class TofTreeModel extends DefaultTreeModel {
         Board node = (Board) getRoot();
         Enumeration e = node.breadthFirstEnumeration();
         while (e.hasMoreElements()) {
-            Board child = (Board) e.nextElement();
+            AbstractNode child = (AbstractNode) e.nextElement();
             if (child.isBoard()) {
-                child.setLastBackloadUpdateFinishedMillis(0);
+                ((Board)child).setLastBackloadUpdateFinishedMillis(0);
             }
         }
     }
@@ -226,6 +225,9 @@ public class TofTreeModel extends DefaultTreeModel {
      * @return the FrostBoardObject if there was a board with that name. Null otherwise.
      */
     public Board getBoardByName(String boardName) {
+        if( boardName == null ) {
+            return null;
+        }
         AbstractNode node = (AbstractNode) getRoot();
         Enumeration e = node.depthFirstEnumeration();
         while (e.hasMoreElements()) {
@@ -238,13 +240,9 @@ public class TofTreeModel extends DefaultTreeModel {
         }
         return null; // not found
     }
-    
+
     public Board getBoardByPrimaryKey(Integer i) {
-        String bname = (String)boardnameByPrimaryKey.get(i);
-        if( bname != null ) {
-            return (Board)getBoardByName(bname);
-        }
-        return null;
+        return getBoardByName(boardnameByPrimaryKey.get(i));
     }
 
     /**
@@ -260,7 +258,7 @@ public class TofTreeModel extends DefaultTreeModel {
         if (selectedPath != null) {
             node = (AbstractNode) selectedPath.getLastPathComponent();
         } else {
-            // nothing selected? unbelievable ! so select the root ...
+            // nothing selected? unbelievable! so select the root ...
             node = (AbstractNode) getRoot();
             selectionModel.setSelectionPath(new TreePath(node));
         }
@@ -274,12 +272,12 @@ public class TofTreeModel extends DefaultTreeModel {
     TreeSelectionModel getSelectionModel() {
         return selectionModel;
     }
-    
+
     /**
      * Retrieve the primary key of the board, or insert it into database.
      */
     private boolean setBoardsPrimaryKey(Board newNode) {
-        Integer pk = (Integer)primaryKeyByBoardname.get(newNode.getNameLowerCase());
+        Integer pk = primaryKeyByBoardname.get(newNode.getNameLowerCase());
         if( pk == null ) {
             // add board to db
             try {
