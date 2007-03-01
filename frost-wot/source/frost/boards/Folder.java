@@ -39,15 +39,8 @@ public class Folder extends AbstractNode {
     public boolean containsNewMessages() {
         for (int i = 0; i < getChildCount(); i++) {
             AbstractNode an = (AbstractNode) getChildAt(i);
-            if( an.isBoard() ) {
-                Board child = (Board) getChildAt(i);
-                if (child.containsNewMessages()) {
-                    return true;
-                }
-            } else if( an.isFolder() ) {
-                if( ((Folder)an).containsNewMessages() ) {
-                    return true;
-                }
+            if (an.containsNewMessages()) {
+                return true;
             }
         }
         return false;
