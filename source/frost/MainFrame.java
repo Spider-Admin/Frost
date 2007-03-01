@@ -598,8 +598,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
         // Vertical Board Tree / MessagePane Divider
         JPanel p = new JPanel(new BorderLayout());
-        p.add(getMessagePanel(), BorderLayout.CENTER);
         treeAndTabbedPaneSplitpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tofTreeScrollPane, p);
+
+        p.add(getMessagePanel(), BorderLayout.CENTER);
         
         int dividerLoc = frostSettings.getIntValue("MainFrame.treeAndTabbedPaneSplitpaneDividerLocation");
         if( dividerLoc < 10 ) {
@@ -611,6 +612,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         getTabbedPane().setSelectedIndex(0);
 
         return getTabbedPane();
+    }
+    
+    public void setKeyActionForNewsTab(Action action, String actionName, KeyStroke keyStroke) {
+        treeAndTabbedPaneSplitpane.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(keyStroke, actionName);
+        treeAndTabbedPaneSplitpane.getActionMap().put(actionName, action);
     }
     
     public void showMessagePanelInSplitpane() {
