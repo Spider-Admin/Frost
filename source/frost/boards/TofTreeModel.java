@@ -71,9 +71,9 @@ public class TofTreeModel extends DefaultTreeModel {
         // load boards, create if not existing (should not happen!)
         DefaultMutableTreeNode rootn = (DefaultMutableTreeNode)getRoot(); 
         for(Enumeration e = rootn.depthFirstEnumeration(); e.hasMoreElements(); ) {
-            Board b = (Board)e.nextElement();
+            AbstractNode b = (AbstractNode)e.nextElement();
             if( b.isBoard() ) {
-                setBoardsPrimaryKey(b);
+                setBoardsPrimaryKey((Board)b);
             }
         }
     }
@@ -89,23 +89,28 @@ public class TofTreeModel extends DefaultTreeModel {
      *
      * @param newNode Board to be added to the model.
      */
-    public void addNodeToTree(Board newNode) {
-        Board selectedNode = (Board) getSelectedNode();
+    public void addNodeToTree(AbstractNode newNode) {
+        AbstractNode selectedNode = (AbstractNode) getSelectedNode();
+        final Folder targetFolder;
         if (selectedNode.isFolder() != true) {
             // add to parent of selected node
-            selectedNode = (Board) selectedNode.getParent();
+            targetFolder = (Folder) selectedNode.getParent();
+        } else {
+            targetFolder = (Folder) selectedNode;
         }
-        addNodeToTree(newNode, selectedNode);
+        addNodeToTree(newNode, targetFolder);
     }
 
     /**
      * Adds a new boards to the specified target folder.
      */
-    public void addNodeToTree(Board newNode, Board targetFolder) {
+    public void addNodeToTree(AbstractNode newNode, Folder targetFolder) {
         targetFolder.add(newNode);
         
-        if( setBoardsPrimaryKey(newNode) == false ) {
-            return;
+        if( newNode.isBoard() ) {
+            if( setBoardsPrimaryKey((Board)newNode) == false ) {
+                return;
+            }
         }
         
         // last in list is the newly added
@@ -117,24 +122,21 @@ public class TofTreeModel extends DefaultTreeModel {
      * Removes the node from the board tree.
      * If node is a folder ALL subfolders and boards and messages are deleted too.
      */
-    public void removeNode(Board node, boolean removeFromDatabase) {
-        if( !node.isFolder() && !node.isBoard() ) {
-            return;
-        }
+    public void removeNode(AbstractNode node, boolean removeFromDatabase) {
         DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
         if (node != null && parent != null) {
-            
             final List<Board> boardsToDelete = new LinkedList<Board>();
             if( removeFromDatabase ) {
                 if( node.isFolder() ) {
                     for(Enumeration e = node.breadthFirstEnumeration(); e.hasMoreElements(); ) {
-                        Board b = (Board) e.nextElement();
+                        AbstractNode b = (AbstractNode) e.nextElement();
+                        // FIXME: fails to remove nested folders 
                         if( !b.isFolder() ) {
-                            boardsToDelete.add(b);
+                            boardsToDelete.add((Board)b);
                         }
                     }
-                } else {
-                    boardsToDelete.add(node);
+                } else if( node.isBoard() ) {
+                    boardsToDelete.add((Board)node);
                 }
             }
 
@@ -157,7 +159,7 @@ public class TofTreeModel extends DefaultTreeModel {
 
             node.removeFromParent();
             nodesWereRemoved(parent, childIndices, removedChilds);
-            
+
             selectionModel.setSelectionPath(nextSelectionPath);
             
             // maybe delete all boards
@@ -190,13 +192,13 @@ public class TofTreeModel extends DefaultTreeModel {
      * @return Vector containing all the Boards of the model.
      */
     public LinkedList<Board> getAllBoards() {
-        Board node = (Board) getRoot();
+        AbstractNode node = (AbstractNode) getRoot();
         LinkedList<Board> boards = new LinkedList<Board>();
         Enumeration e = node.depthFirstEnumeration();
         while (e.hasMoreElements()) {
-            Board child = (Board) e.nextElement();
+            AbstractNode child = (AbstractNode) e.nextElement();
             if (child.isBoard()) {
-                boards.add(child);
+                boards.add((Board)child);
             }
         }
         return boards;
@@ -224,14 +226,14 @@ public class TofTreeModel extends DefaultTreeModel {
      * @return the FrostBoardObject if there was a board with that name. Null otherwise.
      */
     public Board getBoardByName(String boardName) {
-        Board node = (Board) getRoot();
+        AbstractNode node = (AbstractNode) getRoot();
         Enumeration e = node.depthFirstEnumeration();
         while (e.hasMoreElements()) {
-            Board child = (Board) e.nextElement();
-            if (child.isBoard() == false &&
-                child.getName().compareToIgnoreCase(boardName) == 0) 
+            AbstractNode child = (AbstractNode) e.nextElement();
+            if (child.isBoard() 
+                    && child.getName().compareToIgnoreCase(boardName) == 0) 
             {
-                return child;
+                return (Board)child;
             }
         }
         return null; // not found
@@ -252,14 +254,14 @@ public class TofTreeModel extends DefaultTreeModel {
      * @return the last node of the first selected path or the root if
      *          nothing was selected.
      */
-    public Board getSelectedNode() {
+    public AbstractNode getSelectedNode() {
         TreePath selectedPath = selectionModel.getSelectionPath();
-        Board node;
+        AbstractNode node;
         if (selectedPath != null) {
-            node = (Board) selectedPath.getLastPathComponent();
+            node = (AbstractNode) selectedPath.getLastPathComponent();
         } else {
             // nothing selected? unbelievable ! so select the root ...
-            node = (Board) getRoot();
+            node = (AbstractNode) getRoot();
             selectionModel.setSelectionPath(new TreePath(node));
         }
         return node;

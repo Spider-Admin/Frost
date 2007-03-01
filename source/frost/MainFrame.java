@@ -343,7 +343,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             });
             renameFolderButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    renameFolder(tofTreeModel.getSelectedNode());
+                    renameFolder((Folder)tofTreeModel.getSelectedNode());
                 }
             });
             removeBoardButton.addActionListener(new java.awt.event.ActionListener() {
@@ -941,12 +941,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     /**
      * Opens dialog to rename a folder.
      */
-    public void renameFolder(Board selected) {
+    public void renameFolder(Folder selected) {
         if (selected == null) {
             return;
-        }
-        if(selected.isFolder() == false) {
-            return; // must never be called for boards
         }
         String newname = null;
         do {
@@ -1058,59 +1055,60 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             frostSettings.setValue(SettingsClass.BOARDLIST_LAST_SELECTED_BOARD, i[0]);
         }
 
-        Board node = (Board) tofTree.getLastSelectedPathComponent();
+        AbstractNode node = (AbstractNode) tofTree.getLastSelectedPathComponent();
+        if (node == null) {
+            return;
+        }
 
-        if (node != null) {
-            boolean showInfoPanel = false;
+        boolean showInfoPanel = false;
+        
+        if (node.isBoard()) {
+            // node is a board
+            removeBoardButton.setEnabled(true);
+
+            logger.info("Board " + node.getName() + " blocked count: " + ((Board)node).getBlockedCount());
+
+            renameFolderButton.setEnabled(false);
             
-            if (node.isBoard()) {
-                // node is a board
-                removeBoardButton.setEnabled(true);
-
-                logger.info("Board " + node.getName() + " blocked count: " + node.getBlockedCount());
-
-                renameFolderButton.setEnabled(false);
-                
-                configBoardButton.setEnabled(true);
-                
-                // save the selected message for later re-select if we changed between threaded/flat view
-                FrostMessageObject previousMessage = null;
-                if( reload ) {
-                    int[] rows = getMessageTreeTable().getSelectedRows();
-                    if( rows != null && rows.length > 0 ) {
-                        previousMessage = (FrostMessageObject)getMessageTableModel().getRow(rows[0]);
-                    }
+            configBoardButton.setEnabled(true);
+            
+            // save the selected message for later re-select if we changed between threaded/flat view
+            FrostMessageObject previousMessage = null;
+            if( reload ) {
+                int[] rows = getMessageTreeTable().getSelectedRows();
+                if( rows != null && rows.length > 0 ) {
+                    previousMessage = (FrostMessageObject)getMessageTableModel().getRow(rows[0]);
                 }
-
-                // remove previous msgs
-                getMessagePanel().getMessageTable().setNewRootNode(new FrostMessageObject(true));
-                getMessagePanel().updateMessageCountLabels(node);
-
-                // read all messages for this board into message table (starts a thread)
-                TOF.getInstance().updateTofTable(node, previousMessage);
-                
-                getMessagePanel().getMessageTable().clearSelection();
-            } else if (node.isFolder()) {
-                // node is a folder
-                getMessagePanel().getMessageTable().setNewRootNode(new FrostMessageObject(true));
-                getMessagePanel().updateMessageCountLabels(node);
-
-                renameFolderButton.setEnabled(true);
-                if (node.isRoot()) {
-                    removeBoardButton.setEnabled(false);
-                    showInfoPanel = true;
-                } else {
-                    removeBoardButton.setEnabled(true);
-                }
-                configBoardButton.setEnabled(false);
             }
-            // FIXME: NEW NODE
 
-            if( showInfoPanel ) {
-                showMessageInfoPanelInSplitpane();
+            // remove previous msgs
+            getMessagePanel().getMessageTable().setNewRootNode(new FrostMessageObject(true));
+            getMessagePanel().updateMessageCountLabels(node);
+
+            // read all messages for this board into message table (starts a thread)
+            TOF.getInstance().updateTofTable((Board)node, previousMessage);
+            
+            getMessagePanel().getMessageTable().clearSelection();
+        } else if (node.isFolder()) {
+            // node is a folder
+            getMessagePanel().getMessageTable().setNewRootNode(new FrostMessageObject(true));
+            getMessagePanel().updateMessageCountLabels(node);
+
+            renameFolderButton.setEnabled(true);
+            if (node.isRoot()) {
+                removeBoardButton.setEnabled(false);
+                showInfoPanel = true;
             } else {
-                showMessagePanelInSplitpane();
+                removeBoardButton.setEnabled(true);
             }
+            configBoardButton.setEnabled(false);
+        }
+        // FIXME: NEW NODE
+
+        if( showInfoPanel ) {
+            showMessageInfoPanelInSplitpane();
+        } else {
+            showMessagePanelInSplitpane();
         }
     }
 
@@ -1203,12 +1201,12 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     /**
      * Fires a nodeChanged (redraw) for this board and updates buttons.
      */
-    public void updateTofTree(Board board) {
+    public void updateTofTree(AbstractNode board) {
         // fire update for node
         tofTreeModel.nodeChanged(board);
         // also update all parents
-        TreeNode parentFolder = (Board) board.getParent();
-        if (parentFolder != null) {
+        TreeNode parentFolder = board.getParent();
+        while (parentFolder != null) {
             tofTreeModel.nodeChanged(parentFolder);
             parentFolder = parentFolder.getParent();
         }

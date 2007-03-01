@@ -73,7 +73,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
 
         private JMenuItem markAllReadItem = new JMenuItem();
 
-        private Board selectedTreeNode = null;
+        private AbstractNode selectedTreeNode = null;
         private JMenuItem sortFolderItem = new JMenuItem();
 
         public PopupMenuTofTree() {
@@ -214,7 +214,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
                 removeAll();
 
                 TreePath selPath = getPathForLocation(x, y);
-                selectedTreeNode = (Board) selPath.getLastPathComponent();
+                selectedTreeNode = (AbstractNode) selPath.getLastPathComponent();
 
                 String folderOrBoard1 =
                     ((selectedTreeNode.isFolder())
@@ -259,8 +259,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
                         ((clipboard.isFolder())
                             ? language.getString("BoardTree.popupmenu.folder")
                             : language.getString("BoardTree.popupmenu.board"));
-                    pasteNodeItem.setText(
-                            language.getString("BoardTree.popupmenu.paste")
+                    pasteNodeItem.setText(language.getString("BoardTree.popupmenu.paste")
                             + " "
                             + folderOrBoard3
                             + " '"
@@ -276,12 +275,12 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         }
 
         private void sortFolderSelected() {
-            selectedTreeNode.sortChildren();
+            ((Folder)selectedTreeNode).sortChildren();
             model.nodeStructureChanged(selectedTreeNode);
         }
 
         private void renameFolderSelected() {
-            MainFrame.getInstance().renameFolder( selectedTreeNode );
+            MainFrame.getInstance().renameFolder( (Folder)selectedTreeNode );
         }
     }
 
@@ -433,33 +432,24 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         {
             super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, localHasFocus);
 
-            Board board = null;
-            if (value instanceof Board) {
-                board = (Board) value;
-            } else {
-                logger.severe(
-                    "Error - TofTreeCellRenderer: got a tree value wich is no FrostBoardObject:\n"
-                        + "   node value='"
-                        + value
-                        + "'  ;  node class='"
-                        + value.getClass()
-                        + "'\n"
-                        + "This should never happen, please report the error.");
-                return this;
-            }
+            AbstractNode node = (AbstractNode)value;
 
-            boolean containsNewMessage = board.containsNewMessages();
+            boolean containsNewMessage = node.containsNewMessages();
 
-            if (board.isFolder()) {
+            if (node.isFolder()) {
+                Folder folder = (Folder) node;
                 // if this is a folder, check board for new messages
-                setText(board.getName());
+                setText(folder.getName());
                 if (containsNewMessage) {
                     setFont(boldFont);
                 } else {
                     setFont(normalFont);
                 }
                 setBorder(borderEmpty);
-            } else if(board.isBoard()) {
+
+            } else if(node.isBoard()) {
+
+                Board board = (Board) node;
                 // set the special text (board name + if new msg. a ' (2)' is appended and bold)
                 if (containsNewMessage) {
                     setFont(boldFont);
@@ -483,6 +473,30 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
                         setText(board.getName());
                     }
                 }
+                
+                // set the icon
+                if (board.isPublicBoard()) {
+                    if (containsNewMessage) {
+                        setIcon(boardNewIcon);
+                    } else {
+                        setIcon(boardIcon);
+                    }
+                } else if (board.isSpammed()) {
+                    setIcon(boardSpammedIcon);
+                } else if (board.isWriteAccessBoard()) {
+                    if (containsNewMessage) {
+                        setIcon(writeAccessNewIcon);
+                    } else {
+                        setIcon(writeAccessIcon);
+                    }
+                } else if (board.isReadAccessBoard()) {
+                    if (containsNewMessage) {
+                        setIcon(readAccessNewIcon);
+                    } else {
+                        setIcon(readAccessIcon);
+                    }
+                }
+
                 // for a board we set indicators if board contains flagged or starred messages
                 if( showFlaggedStarredIndicators ) {
                     boolean hasStarred = board.hasStarredMessages();
@@ -506,7 +520,13 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             }
 
             // maybe update visualization
-            if (showBoardUpdateVisualization && board.isUpdating() == true) {
+            final boolean isUpdating;
+            if( node.isBoard() && ((Board)node).isUpdating() ) {
+                isUpdating = true;
+            } else {
+                isUpdating = false;
+            }
+            if (showBoardUpdateVisualization && isUpdating) {
                 // set special updating colors
                 Color c;
                 c = (Color) settings.getObjectValue(SettingsClass.BOARD_UPDATE_VISUALIZATION_BGCOLOR_NOT_SELECTED);
@@ -523,37 +543,13 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
                 setBackgroundSelectionColor(UIManager.getColor("Tree.selectionBackground"));
             }
 
-            // set the icon
-            if (leaf == true) {
-                if (board.isPublicBoard()) {
-                    if (containsNewMessage) {
-                        setIcon(boardNewIcon);
-                    } else {
-                        setIcon(boardIcon);
-                    }
-                } else if (board.isSpammed()) {
-                    setIcon(boardSpammedIcon);
-                } else if (board.isWriteAccessBoard()) {
-                    if (containsNewMessage) {
-                        setIcon(writeAccessNewIcon);
-                    } else {
-                        setIcon(writeAccessIcon);
-                    }
-                } else if (board.isReadAccessBoard()) {
-                    if (containsNewMessage) {
-                        setIcon(readAccessNewIcon);
-                    } else {
-                        setIcon(readAccessIcon);
-                    }
-                }
-            }
-            
             // set board description as tooltip
-            if( showBoardDescriptionToolTips && 
-                board.getDescription() != null && 
-                board.getDescription().length() > 0 ) 
+            if( showBoardDescriptionToolTips 
+                    && node.isBoard()
+                    && ((Board)node).getDescription() != null 
+                    && ((Board)node).getDescription().length() > 0 ) 
             {
-                setToolTipText(board.getDescription());
+                setToolTipText(((Board)node).getDescription());
             } else {
                 setToolTipText(null);
             }
@@ -577,7 +573,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
 
     private JMenuItem configBoardMenuItem = new JMenuItem();
 
-    private Board clipboard = null;
+    private AbstractNode clipboard = null;
 
     private RunningBoardUpdateThreads runningBoardUpdateThreads = null;
 
@@ -650,13 +646,13 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         runningBoardUpdateThreads = new RunningBoardUpdateThreads();
     }
 
-    private void cutNode(Board node) {
+    private void cutNode(AbstractNode node) {
         if (node != null) {
             clipboard = node;
         }
     }
 
-    private void pasteNode(Board position) {
+    private void pasteNode(AbstractNode position) {
         if (clipboard == null) {
             return;
         }
@@ -739,9 +735,9 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             }
         }
         if( !boardFound ) {
-            Board newBoard = new Board(FROST_ANNOUNCE_NAME, false);
+            Board newBoard = new Board(FROST_ANNOUNCE_NAME, "Announcement of new Frost versions");
             newBoard.setPublicKey(expectedPubkey);
-            Board root = (Board)model.getRoot();
+            Folder root = (Folder)model.getRoot();
             model.addNodeToTree(newBoard, root);
         }
         
@@ -865,14 +861,14 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
 
         } while (nodeName.length() == 0);
 
-        model.addNodeToTree(new Board(nodeName, true));
+        model.addNodeToTree(new Folder(nodeName));
     }
 
     /**
      * Removes the given tree node, asks before deleting.
      * @param node
      */
-    public void removeNode(Board node) {
+    public void removeNode(AbstractNode node) {
         int answer;
         if (node.isFolder()) {
             answer = JOptionPane.showConfirmDialog(
@@ -913,13 +909,13 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
     /**
      * starts update for the selected board, or for all childs (and their childs) of a folder
      */
-    private void refreshNode(Board node) {
+    private void refreshNode(AbstractNode node) {
         if (node == null)
             return;
 
         if (node.isBoard()) {
-            if (node.isManualUpdateAllowed()) {
-                updateBoard(node);
+            if (((Board)node).isManualUpdateAllowed()) {
+                updateBoard((Board)node);
             }
         } else if (node.isFolder()) {
             // update all childs recursiv
@@ -938,11 +934,10 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
      * News | Configure Board action performed
      * @param board
      */
-    public void configureBoard(Board board) {
+    public void configureBoard(AbstractNode board) {
         if (board == null ) {
             return;
         }
-
         BoardSettingsFrame newFrame = new BoardSettingsFrame(mainFrame, board);
         newFrame.runDialog(); // all needed updates of boards are done by the dialog before it closes
     }
@@ -1009,9 +1004,9 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
      */
     public void updateTree() {
         // fire update for node
-        Enumeration e = ((Board) model.getRoot()).depthFirstEnumeration();
+        Enumeration e = ((AbstractNode) model.getRoot()).depthFirstEnumeration();
         while (e.hasMoreElements()) {
-            model.nodeChanged(((Board) e.nextElement()));
+            model.nodeChanged(((TreeNode) e.nextElement()));
         }
     }
     protected JMenuItem getConfigBoardMenuItem() {

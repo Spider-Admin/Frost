@@ -356,7 +356,7 @@ public class KnownBoardsFrame extends JDialog {
     private void addBoardsToFolder_actionPerformed(ActionEvent e) {
 
         TargetFolderChooser tfc = new TargetFolderChooser(MainFrame.getInstance().getTofTreeModel());
-        Board targetFolder = tfc.startDialog();
+        Folder targetFolder = tfc.startDialog();
         if( targetFolder == null ) {
             return;
         }

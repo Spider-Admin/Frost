@@ -31,6 +31,7 @@ import javax.swing.*;
 import javax.swing.tree.*;
 
 import frost.*;
+import frost.boards.*;
 
 public class JDragTree extends JTree implements DragGestureListener, DragSourceListener {
 
@@ -215,7 +216,6 @@ public class JDragTree extends JTree implements DragGestureListener, DragSourceL
 
 						 DefaultTreeModel model = (DefaultTreeModel)getModel();
 						 TreePath pathNewChild = null;
-
 						 if( targetNode.isLeaf() || isCollapsed(pathTarget) )
 						 {
 							 // collapsed tree node or leaf
