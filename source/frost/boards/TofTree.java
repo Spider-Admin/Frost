@@ -721,7 +721,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             expectedPubkey = FREENET_07_FROST_ANNOUNCE_PUBKEY;
         }
 
-        List existingBoards = model.getAllBoards();
+        List<Board> existingBoards = model.getAllBoards();
         boolean boardFound = false;
         for(Iterator i=existingBoards.iterator(); i.hasNext(); ) {
             Board b = (Board)i.next();
@@ -921,7 +921,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             // update all childs recursiv
             Enumeration leafs = node.children();
             while (leafs.hasMoreElements()) {
-                refreshNode((Board) leafs.nextElement());
+                refreshNode((AbstractNode) leafs.nextElement());
             }
         }
     }
