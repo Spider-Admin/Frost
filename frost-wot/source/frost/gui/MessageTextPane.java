@@ -500,7 +500,7 @@ public class MessageTextPane extends JPanel {
      * Adds all boards from the attachedBoardsTable to board list.
      * If targetFolder is null the boards are added to the root folder.
      */
-    private void downloadBoards(Board targetFolder) {
+    private void downloadBoards(Folder targetFolder) {
         logger.info("adding boards");
         int[] selectedRows = boardsTable.getSelectedRows();
 
@@ -601,7 +601,7 @@ public class MessageTextPane extends JPanel {
                 downloadBoards(null);
             } else if (e.getSource() == saveBoardsToFolderItem) {
                 TargetFolderChooser tfc = new TargetFolderChooser(mainFrame.getTofTreeModel());
-                Board targetFolder = tfc.startDialog();
+                Folder targetFolder = tfc.startDialog();
                 if( targetFolder != null ) {
                     downloadBoards(targetFolder);
                 }

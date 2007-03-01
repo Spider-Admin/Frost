@@ -56,7 +56,7 @@ public class BoardSettingsFrame extends JDialog {
     }
 
     private Language language;
-    private Board board;
+    private AbstractNode node;
     private JFrame parentFrame;
 
     private Listener listener = new Listener();
@@ -120,11 +120,11 @@ public class BoardSettingsFrame extends JDialog {
      * @param parentFrame
      * @param board
      */
-    public BoardSettingsFrame(JFrame parentFrame, Board board) {
+    public BoardSettingsFrame(JFrame parentFrame, AbstractNode node) {
         super(parentFrame);
 
         this.parentFrame = parentFrame;
-        this.board = board;
+        this.node = node;
         this.language = Language.getInstance();
 
         setModal(true);
@@ -322,7 +322,7 @@ public class BoardSettingsFrame extends JDialog {
         // Adds listeners
         overrideSettingsCheckBox.addActionListener(listener);
 
-        setPanelEnabled(settingsPanel, board.isConfigured());
+        setPanelEnabled(settingsPanel, (node.isBoard())?((Board)node).isConfigured():false);
 
         return settingsPanel;
     }
@@ -467,13 +467,14 @@ public class BoardSettingsFrame extends JDialog {
      * Set initial values for board settings.
      */
     private void loadBoardSettings() {
-        if( board.isFolder() ) {
+        if( node.isFolder() ) {
 
             descriptionLabel.setEnabled(false);
             descriptionTextArea.setEnabled(false);
             overrideSettingsCheckBox.setSelected(false);
 
-        } else if( board.isBoard() ) {
+        } else if( node.isBoard() ) {
+            Board board = (Board)node;
             descriptionLabel.setEnabled(true);
             descriptionTextArea.setEnabled(true);
             // its a single board
@@ -539,14 +540,15 @@ public class BoardSettingsFrame extends JDialog {
      */
     private void loadKeypair() {
 
-        if( board.isFolder() ) {
+        if( node.isFolder() ) {
             privateKeyTextField.setEnabled(false);
             publicKeyTextField.setEnabled(false);
             generateKeyButton.setEnabled(false);
             publicBoardRadioButton.setEnabled(false);
             secureBoardRadioButton.setEnabled(false);
 
-        } else if( board.isBoard() ) {
+        } else if( node.isBoard() ) {
+            Board board = (Board)node;
             String privateKey = board.getPrivateKey();
             String publicKey = board.getPublicKey();
 
@@ -581,17 +583,10 @@ public class BoardSettingsFrame extends JDialog {
      * Close window and save settings
      */
     private void ok() {
-        
-        if( !board.isFolder() && !board.isBoard() ) {
-            // we should not be here!
-            exitState = true;
-            dispose();
-            return;
-        }
 
-        if( board.isFolder() == false ) {
+        if( node.isBoard() ) {
             // if board was secure before and now its public, ask user if ok to remove the keys
-            if( publicBoardRadioButton.isSelected() && board.isPublicBoard() == false ) {
+            if( publicBoardRadioButton.isSelected() && ((Board)node).isPublicBoard() == false ) {
                 int result = JOptionPane.showConfirmDialog(
                         this,
                         language.getString("BoardSettings.looseKeysWarningDialog.body"),
@@ -602,84 +597,85 @@ public class BoardSettingsFrame extends JDialog {
                     return;
                 }
             }
-            applySettingsToBoard();
-        } else {
+            applySettingsToBoard((Board)node);
+        } else if(node.isFolder()) {
             // apply settings to all boards in a folder
-            applySettingsToFolder(board);
+            applySettingsToFolder((Folder)node);
         }
 
         // finally update all involved boards before we close the dialog
-        updateBoard(board); // board or folder
+        updateBoard(node); // board or folder
 
         exitState = true;
         dispose();
     }
 
-    private void applySettingsToFolder(Board b) {
+    private void applySettingsToFolder(AbstractNode b) {
 
         // process all childs recursiv
         if( b.isFolder() ) {
             for(int x=0; x < b.getChildCount(); x++) {
-                Board b2 = (Board)b.getChildAt(x);
+                AbstractNode b2 = (AbstractNode)b.getChildAt(x);
                 applySettingsToFolder(b2);
             }
             return;
         }
+
+        Board board = (Board)b; 
         // apply set settings to the board, unset options are not changed
         if (overrideSettingsCheckBox.isSelected()) {
-            b.setConfigured(true);
+            board.setConfigured(true);
 
-            b.setAutoUpdateEnabled(autoUpdateEnabled.isSelected());
+            board.setAutoUpdateEnabled(autoUpdateEnabled.isSelected());
 
             if( maxMessageDisplay_default.isSelected() || maxMessageDisplay_set.isSelected() ) {
                 if (maxMessageDisplay_default.isSelected() == false) {
-                    b.setMaxMessageDays(new Integer(maxMessageDisplay_value.getText()));
+                    board.setMaxMessageDays(new Integer(maxMessageDisplay_value.getText()));
                 } else {
-                    b.setMaxMessageDays(null);
+                    board.setMaxMessageDays(null);
                 }
             }
             if( maxMessageDownload_default.isSelected() || maxMessageDownload_set.isSelected() ) {
                 if (maxMessageDownload_default.isSelected() == false) {
-                    b.setMaxMessageDownload(new Integer(maxMessageDownload_value.getText()));
+                    board.setMaxMessageDownload(new Integer(maxMessageDownload_value.getText()));
                 } else {
-                    b.setMaxMessageDownload(null);
+                    board.setMaxMessageDownload(null);
                 }
             }
             if( signedOnly_default.isSelected() || signedOnly_true.isSelected() || signedOnly_false.isSelected() ) {
                 if (signedOnly_default.isSelected() == false) {
-                    b.setShowSignedOnly(Boolean.valueOf(signedOnly_true.isSelected()));
+                    board.setShowSignedOnly(Boolean.valueOf(signedOnly_true.isSelected()));
                 } else {
-                    b.setShowSignedOnly(null);
+                    board.setShowSignedOnly(null);
                 }
             }
             if( hideBad_default.isSelected() || hideBad_true.isSelected() || hideBad_false.isSelected() ) {
                 if (hideBad_default.isSelected() == false) {
-                    b.setHideBad(Boolean.valueOf(hideBad_true.isSelected()));
+                    board.setHideBad(Boolean.valueOf(hideBad_true.isSelected()));
                 } else {
-                    b.setHideBad(null);
+                    board.setHideBad(null);
                 }
             }
             if( hideCheck_default.isSelected() || hideCheck_true.isSelected() || hideCheck_false.isSelected() ) {
                 if (hideCheck_default.isSelected() == false) {
-                    b.setHideCheck(Boolean.valueOf(hideCheck_true.isSelected()));
+                    board.setHideCheck(Boolean.valueOf(hideCheck_true.isSelected()));
                 } else {
-                    b.setHideCheck(null);
+                    board.setHideCheck(null);
                 }
             }
             if( hideObserve_default.isSelected() || hideObserve_true.isSelected() || hideObserve_false.isSelected() ) {
                 if (hideObserve_default.isSelected() == false) {
-                    b.setHideObserve(Boolean.valueOf(hideObserve_true.isSelected()));
+                    board.setHideObserve(Boolean.valueOf(hideObserve_true.isSelected()));
                 } else {
-                    b.setHideObserve(null);
+                    board.setHideObserve(null);
                 }
             }
         } else {
-            b.setConfigured(false);
+            board.setConfigured(false);
         }
-
     }
 
-    private void applySettingsToBoard() {
+    private void applySettingsToBoard(Board board) {
         String desc = descriptionTextArea.getText().trim();
         if( desc.length() > 0 ) {
             board.setDescription(desc);
@@ -743,11 +739,11 @@ public class BoardSettingsFrame extends JDialog {
         }
     }
 
-    private void updateBoard(Board b) {
+    private void updateBoard(AbstractNode b) {
         if( b.isBoard() ) {
-            MainFrame.getInstance().updateTofTree(b);
+            MainFrame.getInstance().updateTofTree((Board)b);
             // update the new msg. count for board
-            TOF.getInstance().searchNewMessages(b);
+            TOF.getInstance().searchNewMessages((Board)b);
 
             if (b == MainFrame.getInstance().getTofTreeModel().getSelectedNode()) {
                 // reload all messages if board is shown
@@ -755,7 +751,7 @@ public class BoardSettingsFrame extends JDialog {
             }
         } else if( b.isFolder() ) {
             for(int x=0; x < b.getChildCount(); x++) {
-                Board b2 = (Board)b.getChildAt(x);
+                AbstractNode b2 = (AbstractNode)b.getChildAt(x);
                 updateBoard(b2);
             }
         }
@@ -796,10 +792,10 @@ public class BoardSettingsFrame extends JDialog {
     }
 
     private void refreshLanguage() {
-        if( board.isFolder() ) {
-            setTitle(language.getString("BoardSettings.title.folderSettings") + " '" + board.getName() + "'");
-        } else if( board.isBoard() ) {
-            setTitle(language.getString("BoardSettings.title.boardSettings") + " '" + board.getName() + "'");
+        if( node.isFolder() ) {
+            setTitle(language.getString("BoardSettings.title.folderSettings") + " '" + node.getName() + "'");
+        } else if( node.isBoard() ) {
+            setTitle(language.getString("BoardSettings.title.boardSettings") + " '" + node.getName() + "'");
         }
 
         publicBoardRadioButton.setText(language.getString("BoardSettings.label.publicBoard"));

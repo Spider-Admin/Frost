@@ -40,7 +40,7 @@ public class TargetFolderChooser extends JDialog {
 
     private DefaultTreeModel treeModel;
 
-    private Board choosedFolder = null;
+    private Folder choosedFolder = null;
     private JScrollPane jScrollPane = null;
 
     private Language language;
@@ -60,7 +60,7 @@ public class TargetFolderChooser extends JDialog {
      * Build a new tree which contains all folders of the TofTree.
      */
     private MyTreeNode buildTree(TofTreeModel origModel) {
-        MyTreeNode rootNode = new MyTreeNode((Board)origModel.getRoot());
+        MyTreeNode rootNode = new MyTreeNode((Folder)origModel.getRoot());
 
         addNodesRecursiv(rootNode, (DefaultMutableTreeNode)origModel.getRoot());
 
@@ -69,10 +69,10 @@ public class TargetFolderChooser extends JDialog {
 
     private void addNodesRecursiv(MyTreeNode addNode, DefaultMutableTreeNode origNode) {
 
-        for(int x=0; x<origNode.getChildCount(); x++) {
-            Board b = (Board)origNode.getChildAt(x);
+        for(int x=0; x < origNode.getChildCount(); x++) {
+            AbstractNode b = (AbstractNode)origNode.getChildAt(x);
             if( b.isFolder() ) {
-                MyTreeNode newNode = new MyTreeNode(b);
+                MyTreeNode newNode = new MyTreeNode((Folder)b);
                 addNode.add(newNode);
                 addNodesRecursiv(newNode, b);
             }
@@ -196,7 +196,7 @@ public class TargetFolderChooser extends JDialog {
         setVisible(false);
     }
 
-    public Board startDialog() {
+    public Folder startDialog() {
 
         setVisible(true);
         return choosedFolder;
@@ -248,17 +248,16 @@ public class TargetFolderChooser extends JDialog {
      * A simple treenode implementation that holds a Board and returns its name as toString()
      */
     private class MyTreeNode extends DefaultMutableTreeNode {
-        Board folder;
-        public MyTreeNode(Object usrObj) {
+        Folder folder;
+        public MyTreeNode(Folder usrObj) {
             super(usrObj);
-            folder = (Board)usrObj;
+            folder = usrObj;
         }
         public String toString() {
             return folder.getName();
         }
-        public Board getFolder() {
+        public Folder getFolder() {
             return folder;
         }
     }
-
 }  //  @jve:decl-index=0:visual-constraint="10,10"

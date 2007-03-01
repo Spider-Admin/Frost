@@ -63,7 +63,7 @@ public class BoardsManager {
 			// this rootnode is discarded later, but if we create the tree without parameters,
 			// a new Model is created wich contains some sample data by default (swing)
 			// this confuses our renderer wich only expects FrostBoardObjects in the tree
-			Board dummyRootNode = new Board("Frost Message System", true);
+			Folder dummyRootNode = new Folder("Frost Message System");
 			tofTreeModel = new TofTreeModel(dummyRootNode);
 		}
 		return tofTreeModel;

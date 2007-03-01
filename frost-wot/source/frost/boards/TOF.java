@@ -91,11 +91,11 @@ public class TOF {
         }
     }
 
-    public void markAllMessagesRead(Board node) {
+    public void markAllMessagesRead(AbstractNode node) {
         markAllMessagesRead(node, true);
     }
 
-    private void markAllMessagesRead(Board node, boolean confirm) {
+    private void markAllMessagesRead(AbstractNode node, boolean confirm) {
         if (node == null) {
             return;
         }
@@ -112,7 +112,7 @@ public class TOF {
                     return;
                 }
             }
-            setAllMessagesRead(node);
+            setAllMessagesRead((Board)node);
         } else if(node.isFolder()) {
             if( confirm ) {
                 int answer = JOptionPane.showConfirmDialog(
@@ -128,7 +128,7 @@ public class TOF {
             // process all childs recursive
             Enumeration leafs = node.children();
             while (leafs.hasMoreElements()) {
-                markAllMessagesRead((Board)leafs.nextElement(), false);
+                markAllMessagesRead((AbstractNode)leafs.nextElement(), false);
             }
         }
     }
@@ -295,9 +295,9 @@ public class TOF {
                     MainFrame.getInstance().displayNewMessageIcon(true);
                 }
 
-                Board selectedBoard = tofTreeModel.getSelectedNode();
+                AbstractNode selectedNode = tofTreeModel.getSelectedNode();
                 // add only if target board is still shown
-                if( !selectedBoard.isFolder() && selectedBoard.getName().equals( board.getName() ) ) {
+                if( !selectedNode.isFolder() && selectedNode.getName().equals( board.getName() ) ) {
                     addNewMessageToModel(message, board);
                     MainFrame.getInstance().updateMessageCountLabels(board);
                 }
@@ -939,8 +939,10 @@ public class TOF {
     private void searchAllNewMessages() {
         Enumeration e = ((DefaultMutableTreeNode) tofTreeModel.getRoot()).depthFirstEnumeration();
         while( e.hasMoreElements() ) {
-            Board board = (Board)e.nextElement();
-            searchNewMessagesInBoard(board);
+            AbstractNode node = (AbstractNode) e.nextElement();
+            if( node.isBoard() ) {
+                searchNewMessagesInBoard((Board)node);
+            }
         }
     }
     

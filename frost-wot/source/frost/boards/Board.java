@@ -18,15 +18,11 @@
 */
 package frost.boards;
 
-import java.util.*;
-
-import javax.swing.tree.*;
-
 import frost.*;
 import frost.util.*;
 import frost.util.gui.translation.*;
 
-public class Board extends DefaultMutableTreeNode implements Comparable {
+public class Board extends AbstractNode {
     
     private static Language language = Language.getInstance();
     
@@ -36,16 +32,12 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
     private String boardDescription = null;
     private String boardFileName = null;
     private String boardName = null;
-    private String boardNameLowerCase = null; // often used
     private Boolean hideBad = null;
     private Boolean hideCheck = null;
     private Boolean hideObserve = null;
 
     // if isConfigured=true then below options may apply
     private boolean isConfigured = false;
-
-    private final boolean isBoard;
-    private final boolean isFolder;
 
     private boolean isUpdating = false;
     private long lastUpdateStartMillis = -1; // never updated
@@ -69,19 +61,10 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
     private boolean hasStarredMessages = false;
 
     /**
-     * Constructs a new FrostBoardObject wich is a Board.
+     * Constructs a new Board
      */
     public Board(String name, String description) {
-        this(name, null, null, description, true, false);
-    }
-
-    /**
-     * Constructs a new FrostBoardObject.
-     * @param name
-     * @param isFold if true, this will be a folder, else a board
-     */
-    public Board(String name, boolean isFold) {
-        this(name, null, null, null, !isFold, isFold);
+        this(name, null, null, description);
     }
 
     /**
@@ -92,40 +75,12 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
      * @param description the description of the board, or null if none.
      */
     public Board(String name, String pubKey, String privKey, String description) {
-        this(name, pubKey, privKey, description, true, false);
-    }
-
-    protected Board(String name, String pubKey, String privKey, String description, boolean newIsBoard, boolean newIsFolder) {
-        super();
-
-        isBoard = newIsBoard;
-        isFolder = newIsFolder;
-
+        super(name);
         boardName = name;
         boardDescription = description;
         boardFileName = Mixed.makeFilename(boardName.toLowerCase());
         setPublicKey(pubKey);
         setPrivateKey(privKey);
-    }
-
-    /* (non-Javadoc)
-     * @see java.lang.Comparable#compareTo(java.lang.Object)
-     */
-    public int compareTo(Object o) {
-        if (o instanceof Board) {
-            Board board = (Board) o;
-            // If both objects are of the same kind, sort by name
-            if (board.isFolder() == isFolder()
-                || board.isBoard() == isBoard() ) {
-                //If both objects are of the same kind, sort by name
-                return getNameLowerCase().compareTo(board.getNameLowerCase());
-            } else {
-                //If they are of a different kind, the folder is first.
-                return isFolder() ? -1 : 1;
-            }
-        } else {
-            return 0;
-        }
     }
 
     /**
@@ -136,20 +91,9 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
      * @return true if there are new messages. False otherwise.
      */
     public boolean containsNewMessages() {
-        if (!isFolder) {
-            // This is a board.
-            if (getNewMessageCount() > 0) {
-                return true;
-            } else {
-                return false;
-            }
+        if (getNewMessageCount() > 0) {
+            return true;
         } else {
-            for (int i = 0; i < getChildCount(); i++) {
-                Board child = (Board) getChildAt(i);
-                if (child.containsNewMessages()) {
-                    return true;
-                }
-            }
             return false;
         }
     }
@@ -174,17 +118,6 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
 
     public String getBoardFilename() {
         return boardFileName;
-    }
-
-    public String getName() {
-        return boardName;
-    }
-
-    public String getNameLowerCase() {
-        if( boardNameLowerCase == null ) {
-            boardNameLowerCase = getName().toLowerCase();
-        }
-        return boardNameLowerCase;
     }
 
     public String getDescription() {
@@ -315,11 +248,7 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
     }
     
     public boolean isBoard() {
-        return isBoard;
-    }
-
-    public boolean isFolder() {
-        return isFolder;
+        return true;
     }
 
     public boolean isPublicBoard() {
@@ -356,14 +285,6 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
 
     public void setAutoUpdateEnabled(boolean val) {
         autoUpdateEnabled = val;
-    }
-
-    public void setName(String name) {
-        if( isFolder() == false ) {
-            return; // ignore, only folder can be renamed
-        }
-        boardName = name;
-        boardFileName = Mixed.makeFilename(boardName.toLowerCase());
     }
 
     public void setConfigured(boolean val) {
@@ -427,10 +348,6 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
         isUpdating = val;
     }
 
-    public void sortChildren() {
-        Collections.sort(children);
-    }
-    
     public Integer getPrimaryKey() {
         return primaryKey;
     }
