@@ -418,7 +418,7 @@ public class TOF {
         boolean isCancelled = false;
         String fileSeparator = System.getProperty("file.separator");
         FrostMessageObject previousSelectedMsg;
-        
+
         public UpdateTofFilesThread(Board board, int daysToRead, FrostMessageObject prevSelectedMsg) {
             this.board = board;
             this.daysToRead = daysToRead;

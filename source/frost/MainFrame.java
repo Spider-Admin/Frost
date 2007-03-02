@@ -650,6 +650,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             }
             Thread t = new Thread() {
                 public void run() {
+                    try { setPriority(getPriority() - 1); } catch(Throwable t) {}
                     getSentMessagesPanel().prepareForShow(); // load from db
                     SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
@@ -676,6 +677,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             }
             Thread t = new Thread() {
                 public void run() {
+                    try { setPriority(getPriority() - 1); } catch(Throwable t) {}
                     getUnsentMessagesPanel().prepareForShow(); // load from db
                     SwingUtilities.invokeLater(new Runnable() {
                         public void run() {

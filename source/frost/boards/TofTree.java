@@ -501,6 +501,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
                 // sent/unsent folder
                 AbstractNode folder = (AbstractNode) node;
                 setText(folder.getName());
+                setFont(normalFont);
                 if( folder.isSentMessagesFolder() ) {
                     setIcon(sentMessagesFolderIcon);
                 } else if( folder.isUnsentMessagesFolder() ) {

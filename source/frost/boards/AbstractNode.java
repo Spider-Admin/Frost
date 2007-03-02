@@ -84,4 +84,8 @@ public abstract class AbstractNode extends DefaultMutableTreeNode implements Com
     public boolean isSentMessagesFolder() {
         return false;
     }
+    
+    public String toString() {
+        return getName();
+    }
 }
