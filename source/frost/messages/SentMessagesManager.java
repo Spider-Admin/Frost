@@ -46,7 +46,7 @@ public class SentMessagesManager {
             logger.log(Level.SEVERE, "Error inserting sent message", e);
             return false;
         }
-        MainFrame.getInstance().getMessageInfoPanel().addSentMessage(sentMo);
+        MainFrame.getInstance().getSentMessagesPanel().addSentMessage(sentMo);
         return true;
     }
     

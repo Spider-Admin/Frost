@@ -18,6 +18,9 @@
 */
 package frost.boards;
 
+/**
+ * Represents the sent messages folder in the board tree.
+ */
 public class SentMessagesFolder extends AbstractNode {
 
     public SentMessagesFolder(String newName) {

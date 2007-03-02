@@ -442,6 +442,13 @@ public class JDragTree extends JTree implements DragGestureListener, DragSourceL
 			return;
 		if (isRootPath(path))
 			return; // Ignore user trying to drag the root node
+        Object dragObj = path.getLastPathComponent();
+        if( dragObj instanceof AbstractNode ) {
+            AbstractNode n = (AbstractNode) dragObj; 
+            if( !n.isBoard() && !n.isFolder() ) {
+                return; // only boards and folder can be dragged
+            }
+        }
 
 		// Work out the offset of the drag point from the TreePath bounding rectangle origin
 		Rectangle raPath = getPathBounds(path);

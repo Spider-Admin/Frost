@@ -18,6 +18,9 @@
 */
 package frost.boards;
 
+/**
+ * Represents the unsent messages folder in the board tree.
+ */
 public class UnsentMessagesFolder extends AbstractNode  {
 
     public UnsentMessagesFolder(String newName) {

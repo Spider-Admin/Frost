@@ -25,22 +25,46 @@ import javax.swing.*;
 import frost.messages.*;
 import frost.util.gui.translation.*;
 
-public class SentMessagesPanel extends JPanel {
+public class SentMessagesPanel extends JPanel implements LanguageListener {
 
     Language language = Language.getInstance();
 
     private JLabel sentMsgsLabel;
     private SentMessagesTable sentMessagesTable;
+    
+    private boolean isShown = false;
 
     public SentMessagesPanel() {
         super();
+        language.addLanguageListener(this);
         initialize();
-    }
-    
-    public void addSentMessage(FrostMessageObject i) {
-        sentMessagesTable.addSentMessage(i);
+        refreshLanguage();
     }
 
+    public synchronized void prepareForShow() {
+        loadTableModel();
+        isShown = true;
+    }
+    
+    public boolean isShown() {
+        return isShown;
+    }
+    
+    public synchronized void cleanupAfterLeave() {
+        clearTableModel();
+        isShown = false;
+    }
+
+    public synchronized void addSentMessage(FrostMessageObject i) {
+        if( isShown ) {
+            sentMessagesTable.addSentMessage(i);
+        }
+    }
+
+    public void updateSentMessagesCount() {
+        refreshLanguage();
+    }
+    
     public void clearTableModel() {
         sentMessagesTable.clearTableModel();
     }
@@ -56,6 +80,10 @@ public class SentMessagesPanel extends JPanel {
     
     public void refreshLanguage() {
         sentMsgsLabel.setText( language.getString("SentMessages.label") + " ("+sentMessagesTable.getRowCount()+")");
+    }
+
+    public void languageChanged(LanguageEvent event) {
+        refreshLanguage();
     }
 
     private void initialize() {

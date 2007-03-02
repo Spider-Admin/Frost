@@ -75,7 +75,7 @@ public class FrostUnsentMessageObject extends FrostMessageObject {
     public void setCurrentUploadThread(MessageThread currentUploadThread) {
         this.currentUploadThread = currentUploadThread;
         // update unsend message in unsend messages table
-        MainFrame.getInstance().getMessageInfoPanel().updateUnsentMessage(this);
+        MainFrame.getInstance().getUnsentMessagesPanel().updateUnsentMessage(this);
     }
 
     //////// currently unused

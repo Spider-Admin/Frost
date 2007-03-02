@@ -27,7 +27,7 @@ import frost.*;
 import frost.messages.*;
 import frost.util.gui.translation.*;
 
-public class UnsentMessagesPanel extends JPanel {
+public class UnsentMessagesPanel extends JPanel implements LanguageListener {
 
     Language language = Language.getInstance();
 
@@ -35,21 +35,49 @@ public class UnsentMessagesPanel extends JPanel {
     private JLabel unsentMsgsLabel;
     private JCheckBox disableMessageUpload; 
 
+    private boolean isShown = false;
+
     public UnsentMessagesPanel() {
         super();
+        language.addLanguageListener(this);
         initialize();
+        refreshLanguage();
     }
 
-    public void addUnsentMessage(FrostUnsentMessageObject i) {
-        unsentMessagesTable.addUnsentMessage(i);
+    public synchronized void prepareForShow() {
+        loadTableModel();
+        isShown = true;
+    }
+    
+    public boolean isShown() {
+        return isShown;
+    }
+    
+    public synchronized void cleanupAfterLeave() {
+        clearTableModel();
+        isShown = false;
     }
 
-    public void removeUnsentMessage(FrostUnsentMessageObject i) {
-        unsentMessagesTable.removeUnsentMessage(i);
+    public synchronized void addUnsentMessage(FrostUnsentMessageObject i) {
+        if( isShown ) {
+            unsentMessagesTable.addUnsentMessage(i);
+        }
     }
 
-    public void updateUnsentMessage(FrostUnsentMessageObject i) {
-        unsentMessagesTable.updateUnsentMessage(i);
+    public synchronized void removeUnsentMessage(FrostUnsentMessageObject i) {
+        if( isShown ) {
+            unsentMessagesTable.removeUnsentMessage(i);
+        }
+    }
+
+    public synchronized void updateUnsentMessage(FrostUnsentMessageObject i) {
+        if( isShown ) {
+            unsentMessagesTable.updateUnsentMessage(i);
+        }
+    }
+
+    public void updateUnsentMessagesCount() {
+        refreshLanguage();
     }
 
     public void clearTableModel() {
@@ -67,6 +95,10 @@ public class UnsentMessagesPanel extends JPanel {
     public void refreshLanguage() {
         unsentMsgsLabel.setText( language.getString("UnsentMessages.label") + " ("+unsentMessagesTable.getRowCount()+")");
         disableMessageUpload.setText( language.getString("UnsentMessages.disableMessageUpload") );
+    }
+
+    public void languageChanged(LanguageEvent event) {
+        refreshLanguage();
     }
 
     private void initialize() {

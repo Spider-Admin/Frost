@@ -60,7 +60,6 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
 
         private JMenuItem addBoardItem = new JMenuItem();
         private JMenuItem addFolderItem = new JMenuItem();
-        private JMenuItem cancelItem = new JMenuItem();
         private JMenuItem configureBoardItem = new JMenuItem();
         private JMenuItem configureFolderItem = new JMenuItem();
         private JMenuItem cutNodeItem = new JMenuItem();
@@ -186,7 +185,6 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             addFolderItem.setText(language.getString("BoardTree.popupmenu.addNewFolder"));
             configureBoardItem.setText(language.getString("BoardTree.popupmenu.configureSelectedBoard"));
             configureFolderItem.setText(language.getString("BoardTree.popupmenu.configureSelectedFolder"));
-            cancelItem.setText(language.getString("Common.cancel"));
             sortFolderItem.setText(language.getString("BoardTree.popupmenu.sortFolder"));
             markAllReadItem.setText(language.getString("BoardTree.popupmenu.markAllMessagesRead"));
             renameFolderItem.setText(language.getString("BoardTree.popupmenu.renameFolder"));
@@ -209,12 +207,16 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
          */
         public void show(Component invoker, int x, int y) {
             int selRow = getRowForLocation(x, y);
-// FIXME: NEW NODE, popupmenu!!!
+
             if (selRow != -1) { // only if a node is selected
                 removeAll();
 
                 TreePath selPath = getPathForLocation(x, y);
                 selectedTreeNode = (AbstractNode) selPath.getLastPathComponent();
+                
+                if( !selectedTreeNode.isFolder() && !selectedTreeNode.isBoard() ) {
+                    return; // no menu for sent/unsent
+                }
 
                 String folderOrBoard1 =
                     ((selectedTreeNode.isFolder())
@@ -267,8 +269,6 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
                             + "'");
                     add(pasteNodeItem);
                 }
-                addSeparator();
-                add(cancelItem);
 
                 super.show(invoker, x, y);
             }
@@ -372,6 +372,9 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         private final ImageIcon boardNewIcon;
         private final ImageIcon boardSpammedIcon;
 
+        private final ImageIcon sentMessagesFolderIcon;
+        private final ImageIcon unsentMessagesFolderIcon;
+
         private Font boldFont = null;
         private Font normalFont = null;
 
@@ -383,6 +386,8 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             writeAccessNewIcon = new ImageIcon(getClass().getResource("/data/waboardnew.jpg"));
             readAccessIcon = new ImageIcon(getClass().getResource("/data/raboard.jpg"));
             readAccessNewIcon = new ImageIcon(getClass().getResource("/data/raboardnew.jpg"));
+            sentMessagesFolderIcon = new ImageIcon(getClass().getResource("/data/messagedark.gif"));
+            unsentMessagesFolderIcon = new ImageIcon(getClass().getResource("/data/messagebright.gif"));
             this.setLeafIcon(new ImageIcon(getClass().getResource("/data/board.gif")));
             this.setClosedIcon(new ImageIcon(getClass().getResource("/data/closed.gif")));
             this.setOpenIcon(new ImageIcon(getClass().getResource("/data/open.gif")));
@@ -416,7 +421,11 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
                 } else {
                     setFont(normalFont);
                 }
-                setBorder(borderEmpty);
+                if( showFlaggedStarredIndicators ) {
+                    setBorder(borderEmpty);
+                } else {
+                    setBorder(null);
+                }
 
             } else if(node.isBoard()) {
 
@@ -488,6 +497,20 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
                 } else {
                     setBorder(null);
                 }
+            } else {
+                // sent/unsent folder
+                AbstractNode folder = (AbstractNode) node;
+                setText(folder.getName());
+                if( folder.isSentMessagesFolder() ) {
+                    setIcon(sentMessagesFolderIcon);
+                } else if( folder.isUnsentMessagesFolder() ) {
+                    setIcon(unsentMessagesFolderIcon);
+                }
+                if( showFlaggedStarredIndicators ) {
+                    setBorder(borderEmpty);
+                } else {
+                    setBorder(null);
+                }
             }
 
             // maybe update visualization
@@ -527,7 +550,6 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             
             return this;
         }
-
     }
 
     private Language language;
@@ -675,7 +697,12 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             boardIniFilename = settings.getValue(SettingsClass.DIR_CONFIG) + defaultBoardsFile;
         }
         
-        boolean loadWasOk = xmlio.loadBoardTree( this, model, boardIniFilename );
+        String unsentName = language.getString("UnsentMessages.folderName");
+        String sentName = language.getString("SentMessages.folderName");
+        UnsentMessagesFolder unsentMsgs = new UnsentMessagesFolder("["+unsentName+"]"); 
+        SentMessagesFolder sentMsgs = new SentMessagesFolder("["+sentName+"]"); 
+
+        boolean loadWasOk = xmlio.loadBoardTree( this, model, boardIniFilename, unsentMsgs, sentMsgs );
         if( !loadWasOk ) {
             return loadWasOk;
         }
@@ -707,7 +734,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             Folder root = (Folder)model.getRoot();
             model.addNodeToTree(newBoard, root);
         }
-        
+
         return loadWasOk;
     }
 

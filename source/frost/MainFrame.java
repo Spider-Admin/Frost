@@ -40,6 +40,8 @@ import frost.gui.*;
 import frost.gui.help.*;
 import frost.gui.messagetreetable.*;
 import frost.gui.preferences.*;
+import frost.gui.sentmessages.*;
+import frost.gui.unsentmessages.*;
 import frost.messages.*;
 import frost.storage.*;
 import frost.storage.database.applayer.*;
@@ -60,7 +62,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     private MemoryMonitor memoryMonitor = null;
 
     private MessagePanel messagePanel = null;
-    private MessageInfoPanel messageInfoPanel = null;
+    
+    private SentMessagesPanel sentMessagesPanel = null;
+    private UnsentMessagesPanel unsentMessagesPanel = null;
     
     private ImageIcon progressIconRunning = null;
     private ImageIcon progressIconIdle = null;
@@ -627,23 +631,34 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             }
             p.removeAll();
             p.add(getMessagePanel(), BorderLayout.CENTER);
-            getMessageInfoPanel().cleanupAfterLeave();
+            p.repaint();
+
+            if( getSentMessagesPanel().isShown() ) {
+                getSentMessagesPanel().cleanupAfterLeave();
+            }
+            if( getUnsentMessagesPanel().isShown() ) {
+                getUnsentMessagesPanel().cleanupAfterLeave();
+            }
         }
     }
-    public void showMessageInfoPanelInSplitpane() {
+
+    public void showSentMessagePanelInSplitpane() {
         if( treeAndTabbedPaneSplitpane != null ) {
             final JPanel p = (JPanel)treeAndTabbedPaneSplitpane.getRightComponent();
-            if( p.getComponent(0) == getMessageInfoPanel() ) {
+            if( p.getComponent(0) == getSentMessagesPanel() ) {
                 return; // already shown
             }
             Thread t = new Thread() {
                 public void run() {
-                    getMessageInfoPanel().prepareForShow(); // load from db
+                    getSentMessagesPanel().prepareForShow(); // load from db
                     SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
                             p.removeAll();
-                            p.add(getMessageInfoPanel(), BorderLayout.CENTER);
+                            p.add(getSentMessagesPanel(), BorderLayout.CENTER);
                             deactivateGlassPane(); // unblock gui
+                            if( getUnsentMessagesPanel().isShown() ) {
+                                getUnsentMessagesPanel().cleanupAfterLeave();
+                            }
                         }
                     });
                 }
@@ -652,12 +667,45 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             t.start();
         }
     }
-    
-    public MessageInfoPanel getMessageInfoPanel() {
-        if( messageInfoPanel == null ) {
-            messageInfoPanel = new MessageInfoPanel();
+
+    public void showUnsentMessagePanelInSplitpane() {
+        if( treeAndTabbedPaneSplitpane != null ) {
+            final JPanel p = (JPanel)treeAndTabbedPaneSplitpane.getRightComponent();
+            if( p.getComponent(0) == getUnsentMessagesPanel() ) {
+                return; // already shown
+            }
+            Thread t = new Thread() {
+                public void run() {
+                    getUnsentMessagesPanel().prepareForShow(); // load from db
+                    SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            p.removeAll();
+                            p.add(getUnsentMessagesPanel(), BorderLayout.CENTER);
+                            deactivateGlassPane(); // unblock gui
+                            if( getSentMessagesPanel().isShown() ) {
+                                getSentMessagesPanel().cleanupAfterLeave();
+                            }
+                        }
+                    });
+                }
+            };
+            activateGlassPane(); // block gui during load from database
+            t.start();
         }
-        return messageInfoPanel;
+    }
+
+    public SentMessagesPanel getSentMessagesPanel() {
+        if( sentMessagesPanel == null ) {
+            sentMessagesPanel = new SentMessagesPanel();
+        }
+        return sentMessagesPanel;
+    }
+
+    public UnsentMessagesPanel getUnsentMessagesPanel() {
+        if( unsentMessagesPanel == null ) {
+            unsentMessagesPanel = new UnsentMessagesPanel();
+        }
+        return unsentMessagesPanel;
     }
 
     /**
@@ -682,7 +730,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
         // let save component layouts
         getMessagePanel().saveLayout(frostSettings);
-        getMessageInfoPanel().saveLayout();
+        getSentMessagesPanel().saveTableFormat();
+        getUnsentMessagesPanel().saveTableFormat();
     }
 
     /**
@@ -1054,6 +1103,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     public void tofTree_actionPerformed(TreeSelectionEvent e) {
         tofTree_actionPerformed(e, false);
     }
+    
+    private final static FrostMessageObject EMPTY_ROOTNODE = new FrostMessageObject(true);
 
     public void tofTree_actionPerformed(TreeSelectionEvent e, boolean reload) {
         int i[] = tofTree.getSelectionRows();
@@ -1066,16 +1117,13 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             return;
         }
 
-        boolean showInfoPanel = false;
+        boolean showSentMessagesPanel = false;
+        boolean showUnsentMessagesPanel = false;
         
         if (node.isBoard()) {
             // node is a board
             removeBoardButton.setEnabled(true);
-
-            logger.info("Board " + node.getName() + " blocked count: " + ((Board)node).getBlockedCount());
-
             renameFolderButton.setEnabled(false);
-            
             configBoardButton.setEnabled(true);
             
             // save the selected message for later re-select if we changed between threaded/flat view
@@ -1088,31 +1136,47 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             }
 
             // remove previous msgs
-            getMessagePanel().getMessageTable().setNewRootNode(new FrostMessageObject(true));
+            getMessagePanel().getMessageTable().setNewRootNode(EMPTY_ROOTNODE);
             getMessagePanel().updateMessageCountLabels(node);
 
             // read all messages for this board into message table (starts a thread)
             TOF.getInstance().updateTofTable((Board)node, previousMessage);
-            
+
             getMessagePanel().getMessageTable().clearSelection();
         } else if (node.isFolder()) {
             // node is a folder
-            getMessagePanel().getMessageTable().setNewRootNode(new FrostMessageObject(true));
+            getMessagePanel().getMessageTable().setNewRootNode(EMPTY_ROOTNODE);
             getMessagePanel().updateMessageCountLabels(node);
 
             renameFolderButton.setEnabled(true);
             if (node.isRoot()) {
                 removeBoardButton.setEnabled(false);
-                showInfoPanel = true;
             } else {
                 removeBoardButton.setEnabled(true);
             }
             configBoardButton.setEnabled(false);
-        }
-        // FIXME: NEW NODE
+        } else if (node.isUnsentMessagesFolder()) {
+            // remove previous msgs to save memory
+            getMessagePanel().getMessageTable().setNewRootNode(EMPTY_ROOTNODE);
 
-        if( showInfoPanel ) {
-            showMessageInfoPanelInSplitpane();
+            removeBoardButton.setEnabled(false);
+            configBoardButton.setEnabled(false);
+
+            showUnsentMessagesPanel = true;
+        } else if (node.isSentMessagesFolder()) {
+            // remove previous msgs to save memory
+            getMessagePanel().getMessageTable().setNewRootNode(EMPTY_ROOTNODE);
+
+            removeBoardButton.setEnabled(false);
+            configBoardButton.setEnabled(false);
+
+            showSentMessagesPanel = true;
+        }
+
+        if( showSentMessagesPanel ) {
+            showSentMessagePanelInSplitpane();
+        } else if( showUnsentMessagesPanel ) {
+            showUnsentMessagePanelInSplitpane();
         } else {
             showMessagePanelInSplitpane();
         }
