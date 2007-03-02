@@ -37,10 +37,6 @@ public abstract class AbstractNode extends DefaultMutableTreeNode implements Com
         return false;
     }
 
-    public boolean isLeaf() {
-        return true; // all return true except Folder
-    }
-
     public String getName() {
         return name;
     }
@@ -70,6 +66,10 @@ public abstract class AbstractNode extends DefaultMutableTreeNode implements Com
         } else {
             return 0;
         }
+    }
+
+    public boolean isLeaf() {
+        return true; // all return true except Folder
     }
 
     public boolean isBoard() {

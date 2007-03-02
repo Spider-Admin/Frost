@@ -22,6 +22,9 @@ import frost.*;
 import frost.util.*;
 import frost.util.gui.translation.*;
 
+/**
+ * Represents a board in the board tree.
+ */
 public class Board extends AbstractNode {
     
     private static Language language = Language.getInstance();
@@ -30,8 +33,7 @@ public class Board extends AbstractNode {
 
     private boolean autoUpdateEnabled = true; // must apply, no default
     private String boardDescription = null;
-    private String boardFileName = null;
-    private String boardName = null;
+    private final String boardFileName;
     private Boolean hideBad = null;
     private Boolean hideCheck = null;
     private Boolean hideObserve = null;
@@ -76,9 +78,8 @@ public class Board extends AbstractNode {
      */
     public Board(String name, String pubKey, String privKey, String description) {
         super(name);
-        boardName = name;
         boardDescription = description;
-        boardFileName = Mixed.makeFilename(boardName.toLowerCase());
+        boardFileName = Mixed.makeFilename(getNameLowerCase());
         setPublicKey(pubKey);
         setPrivateKey(privKey);
     }

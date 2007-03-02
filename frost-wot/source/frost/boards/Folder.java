@@ -20,7 +20,9 @@ package frost.boards;
 
 import java.util.*;
 
-
+/**
+ * Represents a folder in the board tree.
+ */
 public class Folder extends AbstractNode {
     
     public Folder(String newName) {

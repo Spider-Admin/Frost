@@ -57,12 +57,12 @@ public class UnsentMessagesTable extends SortedModelTable {
     
     public void addUnsentMessage(FrostUnsentMessageObject i) {
         tableModel.addFrostUnsentMessageObject(i);
-        MainFrame.getInstance().getMessageInfoPanel().updateUnsentMessagesCount();
+        MainFrame.getInstance().getUnsentMessagesPanel().updateUnsentMessagesCount();
     }
 
     public void removeUnsentMessage(FrostUnsentMessageObject i) {
         tableModel.removeFrostUnsentMessageObject(i);
-        MainFrame.getInstance().getMessageInfoPanel().updateUnsentMessagesCount();
+        MainFrame.getInstance().getUnsentMessagesPanel().updateUnsentMessagesCount();
     }
 
     public void updateUnsentMessage(FrostUnsentMessageObject i) {
@@ -75,7 +75,7 @@ public class UnsentMessagesTable extends SortedModelTable {
     
     public void loadTableModel() {
         tableModel.loadTableModel();
-        MainFrame.getInstance().getMessageInfoPanel().updateUnsentMessagesCount();
+        MainFrame.getInstance().getUnsentMessagesPanel().updateUnsentMessagesCount();
     }
     
     public void clearTableModel() {
@@ -112,7 +112,7 @@ public class UnsentMessagesTable extends SortedModelTable {
                 MessageWindow messageWindow = new MessageWindow( 
                         MainFrame.getInstance(), 
                         sm, 
-                        MainFrame.getInstance().getMessageInfoPanel().getSize(),
+                        MainFrame.getInstance().getUnsentMessagesPanel().getSize(),
                         false); // no reply button for unsend messages
                 messageWindow.setVisible(true);
             }
@@ -221,7 +221,7 @@ public class UnsentMessagesTable extends SortedModelTable {
                         language.getString("UnsentMessages.deleteNotPossibleDialog.title"), 
                         JOptionPane.ERROR_MESSAGE);
             }
-            MainFrame.getInstance().getMessageInfoPanel().updateUnsentMessagesCount();
+            MainFrame.getInstance().getUnsentMessagesPanel().updateUnsentMessagesCount();
         }
     
         public void languageChanged(LanguageEvent event) {

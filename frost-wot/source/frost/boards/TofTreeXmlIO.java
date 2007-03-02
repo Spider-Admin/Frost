@@ -41,7 +41,13 @@ public class TofTreeXmlIO
      * Model needs to be created here because we want to expand rows on loading.
      * So we also need the tree to call expandRow() on it.
      */
-    public boolean loadBoardTree(TofTree tree, TofTreeModel model, String filename) {
+    public boolean loadBoardTree(
+            TofTree tree, 
+            TofTreeModel model, 
+            String filename,
+            UnsentMessagesFolder unsentMsgs, 
+            SentMessagesFolder sentMsgs) 
+    {
         Document doc = null;
         try {
             doc = XMLTools.parseXmlFile(filename, false);
@@ -78,14 +84,17 @@ public class TofTreeXmlIO
         String name = getName( boardRootNode );
 
         boolean isFolder = isFolder( boardRootNode );
-        if( isFolder == false )
-        {
+        if( isFolder == false ) {
             logger.severe("Error - boards.xml invalid: first element must be a folder (the root folder)");
             return false;
         }
 
         Folder treeRootNode = new Folder(name);
         model.setRoot(treeRootNode);
+        
+        // add sent/unsent messages folders to root
+        treeRootNode.add(unsentMsgs);
+        treeRootNode.add(sentMsgs);
 
         // now process all childs of this node recursively
         // and add all boards/folder to root node

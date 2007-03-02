@@ -1143,11 +1143,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     newMessageButton.setEnabled(false);
                     saveMessageButton.setEnabled(false);
                     updateButton.setEnabled(false);
-                    if( !node.isRoot() ) {
-                        getMessageTextPane().update_folderSelected();
-                    }
+                    getMessageTextPane().update_folderSelected();
                 }
-                // FIXME: NEW NODE
             }
         }
     }
