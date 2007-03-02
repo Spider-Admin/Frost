@@ -30,5 +30,4 @@ public class SentMessagesFolder extends AbstractNode {
     public boolean isSentMessagesFolder() {
         return true;
     }
-
 }
