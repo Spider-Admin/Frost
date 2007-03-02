@@ -63,6 +63,7 @@ public class FcpSocket {
         nodeAddress = na;
         fcpSock = new Socket(nodeAddress.host, nodeAddress.port);
         fcpSock.setSoTimeout(TIMEOUT);
+        fcpSock.setKeepAlive(true);
         fcpIn = new BufferedInputStream(fcpSock.getInputStream());
         fcpOut = new PrintStream(fcpSock.getOutputStream(), false, "UTF-8");
 

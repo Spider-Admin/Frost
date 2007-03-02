@@ -77,7 +77,6 @@ public class SharedFilesDatabaseTable extends AbstractDatabaseTable {
     }
 
     public void saveSharedFiles(List<FrostSharedFileItem> sfFiles) throws SQLException {
-// FIXME: lock the shared files list during save!
         Connection conn = AppLayerDatabase.getInstance().getPooledConnection();
         
         try {

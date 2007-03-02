@@ -48,7 +48,7 @@ public class SentMessagesTableModel extends SortedModel {
     }
     
     public boolean removeItems(ModelItem[] selectedItems) {
-        LinkedList itemsToDelete = new LinkedList();
+        LinkedList<FrostMessageObject> itemsToDelete = new LinkedList<FrostMessageObject>();
         for( int x = selectedItems.length - 1; x >= 0; x-- ) {
             SentMessagesTableItem item = (SentMessagesTableItem) selectedItems[x];
             itemsToDelete.add(item.getFrostMessageObject());

@@ -221,9 +221,9 @@ public class XMLTools {
     /**
      * Returns a list containing all Elements of this parent with given tag name.
      */
-    public static List getChildElementsByTagName(Element parent, String name) {
+    public static List<Element> getChildElementsByTagName(Element parent, String name) {
 
-        LinkedList newList = new LinkedList();
+        LinkedList<Element> newList = new LinkedList<Element>();
 
         NodeList childs = parent.getChildNodes();
         for( int x=0; x<childs.getLength(); x++ ) {

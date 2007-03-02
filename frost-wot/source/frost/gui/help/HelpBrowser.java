@@ -44,7 +44,7 @@ public class HelpBrowser extends JPanel {
     private static Language language = Language.getInstance();
     
     private String url_prefix;
-    private String url_locale;
+//    private String url_locale;
     private String homePage;
     
     private BrowserHistory browserHistory = null;
@@ -72,7 +72,7 @@ public class HelpBrowser extends JPanel {
         this.parent = parent;
         this.url_prefix = zipfile;
         this.homePage = homePage;
-        SetHelpLocale(locale);
+        setHelpLocale(locale);
         init();
     }
     
@@ -284,18 +284,18 @@ public class HelpBrowser extends JPanel {
         backButton.setEnabled( browserHistory.isBackwardPossible() ); 
     }
 
-    void SetHelpLocale(String newLocale) {
+    void setHelpLocale(String newLocale) {
         // Hier ist ne schoene stelle zum pruefen.        
-        if( newLocale.equals("default") ) {
-            url_locale = "";
-        } else {
-            url_locale = newLocale;
-        }
+//        if( newLocale.equals("default") ) {
+//            url_locale = "";
+//        } else {
+//            url_locale = newLocale;
+//        }
     }
     
     private class BrowserHistory {
 
-        private ArrayList history = new ArrayList();
+        private ArrayList<String> history = new ArrayList<String>();
         private int historypos = -1; // this means history ist invalid
 
         public boolean isForwardPossible() {
