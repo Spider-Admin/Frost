@@ -798,7 +798,6 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             saveMessageButton.setEnabled(false);
             return;
         } else if(!selectedNode.isBoard()) {
-            // FIXME: new node
             return;
         }
         
@@ -1129,6 +1128,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             if (node != null) {
                 if (node.isBoard()) {
                     // node is a board
+                    // FIXME: reset message history!
                     getMessageTextPane().update_boardSelected();
                     updateButton.setEnabled(true);
                     saveMessageButton.setEnabled(false);
@@ -1384,7 +1384,6 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 nextUnreadMessageButton.setEnabled(false);
             }
         }
-        // FIXME: NEW NODE
     }
     
     private Identity getSelectedMessageFromIdentity() {

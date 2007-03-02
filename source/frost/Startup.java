@@ -62,8 +62,8 @@ public class Startup {
             if( copyResource ) {
                 FileAccess.copyFromResource("/data/JSysTray.dll", tray1file);
             }
-        } catch (IOException e) {
-            ;
+        } catch (Throwable e) {
+            e.printStackTrace();
         }
     }
 
