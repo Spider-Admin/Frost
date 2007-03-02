@@ -122,6 +122,10 @@ public class MessageTextPane extends JPanel {
         idLineTextHighlighter.removeHighlights(messageTextArea);
         messageTextArea.setText(txt);
     }
+    
+    public TextPane getTextArea() {
+        return messageTextArea;
+    }
 
     /**
      * Find the offset in text where the caret must be positioned to
@@ -317,6 +321,15 @@ public class MessageTextPane extends JPanel {
             public void mouseReleased(MouseEvent e) {
                 if (e.isPopupTrigger()) {
                     showTofTextAreaPopupMenu(e);
+                }
+            }
+        });
+        messageTextArea.addKeyListener(new KeyAdapter() {
+            public void keyTyped(KeyEvent e) {
+                if( e == null ) {
+                    return;
+                } else if(e.getKeyChar() == KeyEvent.VK_DELETE && parentFrame == mainFrame ) {
+                    mainFrame.getMessagePanel().deleteSelectedMessage();
                 }
             }
         });
@@ -1124,12 +1137,18 @@ public class MessageTextPane extends JPanel {
         }
     }
 
+    /**
+     * Used by MessageWindow to attach a KeyListener for ESC.
+     */
     public void addKeyListener(KeyListener l) {
         super.addKeyListener(l);
         messageTextArea.addKeyListener(l);
         filesTable.addKeyListener(l);
         boardsTable.addKeyListener(l);
     }
+    /**
+     * Used by MessageWindow to detach a KeyListener for ESC.
+     */
     public void removeKeyListener(KeyListener l) {
         super.removeKeyListener(l);
         messageTextArea.removeKeyListener(l);

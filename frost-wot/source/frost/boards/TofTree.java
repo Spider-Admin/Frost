@@ -285,49 +285,29 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
     }
 
     private class Listener extends MouseAdapter implements LanguageListener, ActionListener,
-                                KeyListener, BoardUpdateThreadListener  {
-
-        /* (non-Javadoc)
-         * @see frost.util.gui.translation.LanguageListener#languageChanged(frost.util.gui.translation.LanguageEvent)
-         */
+                                KeyListener, BoardUpdateThreadListener  
+    {
         public void languageChanged(LanguageEvent event) {
             refreshLanguage();
         }
 
-        /* (non-Javadoc)
-         * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-         */
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() == configBoardMenuItem) {
                 configureBoard(model.getSelectedNode());
             }
         }
 
-        /* (non-Javadoc)
-         * @see java.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)
-         */
         public void keyPressed(KeyEvent e) {
             char key = e.getKeyChar();
             pressedKey(key);
         }
 
-        /* (non-Javadoc)
-         * @see java.awt.event.KeyListener#keyTyped(java.awt.event.KeyEvent)
-         */
         public void keyTyped(KeyEvent e) {
-            // Nothing here
         }
 
-        /* (non-Javadoc)
-         * @see java.awt.event.KeyListener#keyReleased(java.awt.event.KeyEvent)
-         */
         public void keyReleased(KeyEvent e) {
-            // Nothing here
         }
 
-        /* (non-Javadoc)
-         * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
-         */
         public void mousePressed(MouseEvent e) {
             if (e.isPopupTrigger()) {
                 if (e.getSource() == TofTree.this) {
@@ -336,9 +316,6 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             }
         }
 
-        /* (non-Javadoc)
-         * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
-         */
         public void mouseReleased(MouseEvent e) {
             if (e.isPopupTrigger()) {
                 if (e.getSource() == TofTree.this) {
@@ -347,9 +324,6 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             }
         }
 
-        /* (non-Javadoc)
-         * @see frost.threads.BoardUpdateThreadListener#boardUpdateThreadFinished(frost.threads.BoardUpdateThread)
-         */
         public void boardUpdateThreadFinished(final BoardUpdateThread thread) {
             int running =
                 getRunningBoardUpdateThreads()
@@ -367,9 +341,6 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             }
         }
 
-        /* (non-Javadoc)
-         * @see frost.threads.BoardUpdateThreadListener#boardUpdateThreadStarted(frost.threads.BoardUpdateThread)
-         */
         public void boardUpdateThreadStarted(final BoardUpdateThread thread) {
             thread.getTargetBoard().setUpdating(true);
             SwingUtilities.invokeLater(new Runnable() {
@@ -676,15 +647,11 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
     /**
      * Get keyTyped for tofTree
      */
-    public void pressedKey(char key ) {
+    public void pressedKey(char key) {
         if (!isEditing()) {
-            if (key == KeyEvent.VK_DELETE)
-                removeNode(model.getSelectedNode());
-            if (key == KeyEvent.VK_N)
-                createNewBoard(mainFrame);
-            if (key == KeyEvent.VK_X)
+            if (key == 'x' || key == 'X')
                 cutNode(model.getSelectedNode());
-            if (key == KeyEvent.VK_V)
+            if (key == 'v' || key == 'V')
                 pasteNode(model.getSelectedNode());
         }
     }
