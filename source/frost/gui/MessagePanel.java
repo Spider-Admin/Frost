@@ -642,22 +642,22 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     
     private void assignHotkeys() {
         // assign DELETE key - delete message
-        this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0), "DEL_MSG");
-        this.getActionMap().put("DEL_MSG", new AbstractAction() {
+        Action deleteMessageAction = new AbstractAction() {
             public void actionPerformed(ActionEvent event) {
                 deleteSelectedMessage();
             }
-        });
+        };
+        MainFrame.getInstance().setKeyActionForNewsTab(deleteMessageAction, "DEL_MSG", KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
 
         // remove ENTER assignment from table
         messageTable.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).getParent().remove(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,0));
         // assign ENTER key - open message viewer
-        this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "OPEN_MSG");
-        this.getActionMap().put("OPEN_MSG", new AbstractAction() {
+        Action openMessageAction = new AbstractAction() {
             public void actionPerformed(ActionEvent event) {
                 showCurrentMessagePopupWindow();
             }
-        });
+        };
+        MainFrame.getInstance().setKeyActionForNewsTab(openMessageAction, "OPEN_MSG", KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0));
 
         // assign N key - next unread (to whole new panel, including tree)
         Action nextUnreadAction = new AbstractAction() {
@@ -1220,15 +1220,15 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
     public void deleteSelectedMessage() {
 
-        if( messageTable.getSelectedRowCount() <= 1 && !isCorrectlySelectedMessage() ) {
-            return;
-        }
-
         AbstractNode node = mainFrame.getTofTreeModel().getSelectedNode();
         if( node == null || !node.isBoard() ) {
             return;
         }
         Board board = (Board) node;
+        
+        if( messageTable.getSelectedRowCount() <= 1 && !isCorrectlySelectedMessage() ) {
+            return;
+        }
 
         // set all selected messages deleted
         int[] rows = messageTable.getSelectedRows();
