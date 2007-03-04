@@ -1280,7 +1280,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         } else if( getBoards_RBchosed().isSelected() ) {
             if( chosedBoardsList.size() == 0 ) {
                 JOptionPane.showMessageDialog(this,
-                        language.getString("SearchMessages.errorDialogs.noBoardsChosed"),
+                        language.getString("SearchMessages.errorDialogs.noBoardsChosen"),
                         language.getString("SearchMessages.errorDialogs.title"),
                         JOptionPane.ERROR_MESSAGE);
                 return null;
