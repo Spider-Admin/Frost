@@ -609,7 +609,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         setCellRenderer(new CellRenderer());
         setSelectionModel(model.getSelectionModel());
         getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-
+        
         // Add listeners
         addKeyListener(listener);
         addMouseListener(listener);
@@ -676,6 +676,18 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
                 cutNode(model.getSelectedNode());
             if (key == 'v' || key == 'V')
                 pasteNode(model.getSelectedNode());
+        }
+    }
+
+    @Override
+    protected void processKeyEvent(KeyEvent e) {
+        // ugly hack to prevent the standard JTree idiom (selects nodes starting with pressed key)
+        if( e.getID()==KeyEvent.KEY_TYPED && (e.getKeyChar() == 'n' || e.getKeyChar() == 'N') ) {
+            MainFrame.getInstance().getMessagePanel().selectNextUnreadMessage();
+        } else if( Character.isLetter(e.getKeyChar()) || Character.isDigit(e.getKeyChar()) ) {
+            // ignore
+        } else {
+            super.processKeyEvent(e);
         }
     }
 

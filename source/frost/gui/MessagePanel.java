@@ -666,7 +666,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             }
         };
         MainFrame.getInstance().setKeyActionForNewsTab(nextUnreadAction, "NEXT_MSG", KeyStroke.getKeyStroke(KeyEvent.VK_N, 0));
-
+        
         // assign B key - set BAD
         this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_B, 0), "SET_BAD");
         this.getActionMap().put("SET_BAD", new AbstractAction() {
