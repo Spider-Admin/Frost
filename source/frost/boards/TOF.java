@@ -194,6 +194,7 @@ public class TOF {
         // first add to database, then mark slot used. this way its ok if Frost is shut down after add to db but
         // before mark of the slot.
         FrostMessageObject invalidMsg = new FrostMessageObject(b, date, index, reason);
+        invalidMsg.setNew(false);
         try {
             AppLayerDatabase.getMessageTable().insertMessage(invalidMsg);
         } catch (SQLException e) {
@@ -297,7 +298,7 @@ public class TOF {
 
                 AbstractNode selectedNode = tofTreeModel.getSelectedNode();
                 // add only if target board is still shown
-                if( !selectedNode.isFolder() && selectedNode.getName().equals( board.getName() ) ) {
+                if( selectedNode.isBoard() && selectedNode.getName().equals( board.getName() ) ) {
                     addNewMessageToModel(message, board);
                     MainFrame.getInstance().updateMessageCountLabels(board);
                 }

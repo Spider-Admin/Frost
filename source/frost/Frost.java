@@ -56,7 +56,6 @@ public class Frost {
         System.out.println();
 
         parseCommandLine(args);
-        initializeLookAndFeel();
 
         new Frost();
     }
@@ -65,13 +64,47 @@ public class Frost {
      * This method sets the look and feel specified in the command line arguments.
      * If none was specified, the System Look and Feel is set.
      */
-    private static void initializeLookAndFeel() {
+    private void initializeLookAndFeel() {
+        LookAndFeel laf = null;
         try {
-            if (lookAndFeel == null) {
-                String systemLFName = UIManager.getSystemLookAndFeelClassName();
-                UIManager.setLookAndFeel(systemLFName);
-            } else {
-                UIManager.setLookAndFeel(lookAndFeel);
+            // use cmd line setting
+            if (lookAndFeel != null) {
+                try {
+                    laf = (LookAndFeel) Class.forName(lookAndFeel).newInstance();
+                } catch(Throwable t) {}
+                if (laf == null || !laf.isSupportedLookAndFeel()) {
+                    laf = null;
+                }
+            }
+            
+            // still not set? use config file setting
+            if( laf == null ) {
+                String landf = Core.frostSettings.getValue(SettingsClass.LOOK_AND_FEEL);
+                if( landf == null || landf.length() == 0 ) {
+                    try {
+                        laf = (LookAndFeel) Class.forName(landf).newInstance();
+                    } catch(Throwable t) {}
+                    if (laf == null || !laf.isSupportedLookAndFeel()) {
+                        laf = null;
+                    }
+                }
+            }
+            
+            // still not set? use system default
+            if( laf == null ) {
+                String landf = UIManager.getSystemLookAndFeelClassName();
+                if( landf == null || landf.length() == 0 ) {
+                    try {
+                        laf = (LookAndFeel) Class.forName(landf).newInstance();
+                    } catch(Throwable t) {}
+                    if (laf == null || !laf.isSupportedLookAndFeel()) {
+                        laf = null;
+                    }
+                }
+            }            
+            
+            if (laf != null) {
+                UIManager.setLookAndFeel(laf);
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -161,6 +194,8 @@ public class Frost {
      */
     public Frost() {
         Core core = Core.getInstance();
+
+        initializeLookAndFeel();
 
         if (!initializeLockFile(Language.getInstance())) {
             System.exit(1);

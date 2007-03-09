@@ -52,6 +52,8 @@ public class SettingsClass implements Savable {
     public static final String FREENET_VERSION = "freenetVersion";
     
     public static final String LANGUAGE_LOCALE = "locale";
+    
+    public static final String LOOK_AND_FEEL = "ChoosenLookAndFeel";
 
     public static final String COMPACT_DBTABLES = "compactDatabaseTables";
 
