@@ -25,6 +25,7 @@ import java.awt.event.*;
 import java.io.*;
 import java.sql.*;
 import java.util.*;
+import java.util.List;
 import java.util.logging.*;
 
 import javax.swing.*;
@@ -151,6 +152,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     private JSplitPane treeAndTabbedPaneSplitpane = null;
     
     private GlassPane glassPane = null;
+    
+    private List<JRadioButtonMenuItem> lookAndFeels = new ArrayList<JRadioButtonMenuItem>();
     
     public MainFrame(SettingsClass settings, String title) {
 
@@ -543,6 +546,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             optionsMenu.add(optionsManageLocalIdentitiesMenuItem);
             optionsMenu.add(optionsManageIdentitiesMenuItem);
             optionsMenu.addSeparator();
+            optionsMenu.add( getLookAndFeelMenu() );
+            optionsMenu.addSeparator();
             optionsMenu.add(optionsPreferencesMenuItem);
             // Plugin Menu
 //            pluginMenu.add(pluginBrowserMenuItem);
@@ -573,6 +578,47 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             language.addLanguageListener(this);
         }
         return menuBar;
+    }
+    
+    private JMenu getLookAndFeelMenu() {
+        // init look and feel menu
+        UIManager.LookAndFeelInfo[] info = UIManager.getInstalledLookAndFeels();
+        JMenu lfMenu = new JMenu("Look and feel");
+
+        ButtonGroup group = new ButtonGroup();
+        
+        ActionListener al = new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String lfName = e.getActionCommand();
+                try {
+                    UIManager.setLookAndFeel(lfName);
+                    SwingUtilities.updateComponentTreeUI(MainFrame.this);
+                    MainFrame.this.repaint();
+                } catch(Throwable t) {
+                    logger.log(Level.SEVERE, "Exception changing l&f", t);
+                }
+            }
+        };
+        
+        for(int i=0;i<info.length;i++) {
+            String lfClassName = info[i].getClassName();
+            try {
+                LookAndFeel laf = (LookAndFeel) Class.forName(lfClassName).newInstance();
+                if (laf.isSupportedLookAndFeel()) {
+                    JRadioButtonMenuItem rmItem = new JRadioButtonMenuItem(laf.getName()+"  ["+lfClassName+"]");
+                    rmItem.setActionCommand(lfClassName);
+                    rmItem.setSelected(UIManager.getLookAndFeel().getName().equals(laf.getName()));
+                    group.add(rmItem);
+                    rmItem.addActionListener(al);
+                    lfMenu.add(rmItem);
+                    lookAndFeels.add(rmItem);
+                }
+            }
+            catch(Throwable t) {
+                logger.log(Level.SEVERE, "Exception adding l&f menu", t);
+            }
+        }
+        return lfMenu;
     }
     
     private MainFrameStatusBar getStatusBar() {
@@ -729,6 +775,12 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         
         frostSettings.setValue("MainFrame.treeAndTabbedPaneSplitpaneDividerLocation", 
                 treeAndTabbedPaneSplitpane.getDividerLocation());
+        
+        for( JRadioButtonMenuItem rbmi : lookAndFeels ) {
+            if( rbmi.isSelected() ) {
+                frostSettings.setValue(SettingsClass.LOOK_AND_FEEL, rbmi.getActionCommand());
+            }
+        }
 
         // let save component layouts
         getMessagePanel().saveLayout(frostSettings);
@@ -1106,8 +1158,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         tofTree_actionPerformed(e, false);
     }
     
-    private final static FrostMessageObject EMPTY_ROOTNODE = new FrostMessageObject(true);
-
     public void tofTree_actionPerformed(TreeSelectionEvent e, boolean reload) {
         int i[] = tofTree.getSelectionRows();
         if (i != null && i.length > 0) {
@@ -1138,7 +1188,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             }
 
             // remove previous msgs
-            getMessagePanel().getMessageTable().setNewRootNode(EMPTY_ROOTNODE);
+            getMessagePanel().getMessageTable().setNewRootNode(new FrostMessageObject(true));
             getMessagePanel().updateMessageCountLabels(node);
 
             // read all messages for this board into message table (starts a thread)
@@ -1147,7 +1197,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             getMessagePanel().getMessageTable().clearSelection();
         } else if (node.isFolder()) {
             // node is a folder
-            getMessagePanel().getMessageTable().setNewRootNode(EMPTY_ROOTNODE);
+            getMessagePanel().getMessageTable().setNewRootNode(new FrostMessageObject(true));
             getMessagePanel().updateMessageCountLabels(node);
 
             renameFolderButton.setEnabled(true);
@@ -1159,7 +1209,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             configBoardButton.setEnabled(false);
         } else if (node.isUnsentMessagesFolder()) {
             // remove previous msgs to save memory
-            getMessagePanel().getMessageTable().setNewRootNode(EMPTY_ROOTNODE);
+            getMessagePanel().getMessageTable().setNewRootNode(new FrostMessageObject(true));
 
             removeBoardButton.setEnabled(false);
             configBoardButton.setEnabled(false);
@@ -1167,7 +1217,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             showUnsentMessagesPanel = true;
         } else if (node.isSentMessagesFolder()) {
             // remove previous msgs to save memory
-            getMessagePanel().getMessageTable().setNewRootNode(EMPTY_ROOTNODE);
+            getMessagePanel().getMessageTable().setNewRootNode(new FrostMessageObject(true));
 
             removeBoardButton.setEnabled(false);
             configBoardButton.setEnabled(false);

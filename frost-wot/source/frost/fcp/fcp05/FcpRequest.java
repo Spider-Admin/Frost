@@ -31,11 +31,8 @@ import frost.util.*;
 /**
  * Requests a key from freenet
  */
+public class FcpRequest {
 
-// while requesting / inserting, show chunks left to try (incl. trying chunks) -> Warte (9) / 18% (9)
-
-public class FcpRequest
-{
     final static boolean DEBUG = true;
 
     private static Logger logger = Logger.getLogger(FcpRequest.class.getName());
@@ -306,6 +303,7 @@ public class FcpRequest
         for(int x=0; x<wasSegmentSuccessful.length; x++) {
             if( wasSegmentSuccessful[x] == false ) {
                 success = false;
+                break;
             }
         }
 
