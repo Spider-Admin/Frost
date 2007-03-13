@@ -24,6 +24,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import frost.util.gui.*;
+import frost.util.gui.search.*;
 import frost.util.gui.translation.*;
 
 public class SearchPanel extends JPanel implements LanguageListener {
@@ -35,6 +36,8 @@ public class SearchPanel extends JPanel implements LanguageListener {
     
     private ImageIcon searchIcon = new ImageIcon(getClass().getResource("/data/search.gif"));
     private ImageIcon clearIcon = new ImageIcon(getClass().getResource("/data/remove.gif"));
+    
+    TableFindAction tableFindAction = new TableFindAction();
     
     private boolean isInitialized = false;
     
@@ -99,8 +102,9 @@ public class SearchPanel extends JPanel implements LanguageListener {
 
         SearchModel model = new SearchModel(new SearchTableFormat());
         SearchTable modelTable = new SearchTable(model, searchTabs, tabText);
-        
-        ProxyPanel pp = new ProxyPanel(modelTable.getScrollPane(), model);
+        tableFindAction.install( modelTable.getTable() );
+
+        ProxyPanel pp = new ProxyPanel(modelTable.getScrollPane(), model, modelTable.getTable());
         
         searchTabs.addTab(tabText + " (...)", pp);
         
@@ -345,8 +349,10 @@ public class SearchPanel extends JPanel implements LanguageListener {
     public class ProxyPanel extends JPanel {
         SearchModel model;
         SearchThread thread = null;
-        public ProxyPanel(Component c, SearchModel m) {
+        JTable table;
+        public ProxyPanel(Component c, SearchModel m, JTable table) {
             model = m;
+            this.table = table;
             setLayout(new BorderLayout());
             add(c, BorderLayout.CENTER);
         }
@@ -357,6 +363,7 @@ public class SearchPanel extends JPanel implements LanguageListener {
             if( thread != null ) {
                 thread.requestStop();
             }
+            tableFindAction.deinstall(table);
         }
         public SearchModel getModel() {
             return model;

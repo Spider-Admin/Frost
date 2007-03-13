@@ -36,6 +36,7 @@ import frost.fileTransfer.*;
 import frost.fileTransfer.common.*;
 import frost.util.*;
 import frost.util.gui.*;
+import frost.util.gui.search.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
 
@@ -126,6 +127,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
 			// create the main download panel
 			modelTable = new SortedModelTable(model);
+            new TableFindAction().install(modelTable.getTable());
 			setLayout(new BorderLayout());
 			add(downloadToolBar, BorderLayout.NORTH);
 			add(modelTable.getScrollPane(), BorderLayout.CENTER);

@@ -291,4 +291,8 @@ public class FrostSharedFileItem extends ModelItem implements CopyToClipboardIte
             fireChange();
         }
     }
+    
+    public String toString() {
+        return getFilename();
+    }
 }

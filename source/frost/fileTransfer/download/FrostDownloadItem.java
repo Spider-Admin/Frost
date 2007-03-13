@@ -432,4 +432,8 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
     public void setInternalRemoveExpected(boolean internalRemoveExpected) {
         this.internalRemoveExpected = internalRemoveExpected;
     }
+    
+    public String toString() {
+        return getFilename();
+    }
 }

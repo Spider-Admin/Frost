@@ -16,7 +16,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.util.gui;
+package frost.util.gui.search;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -141,5 +141,9 @@ public abstract class FindAction extends AbstractAction implements DocumentListe
     public void install(JComponent comp2){
         comp2.registerKeyboardAction(this, KeyStroke.getKeyStroke('I', KeyEvent.CTRL_MASK), JComponent.WHEN_FOCUSED);
         comp2.registerKeyboardAction(this, KeyStroke.getKeyStroke('I', KeyEvent.CTRL_MASK|KeyEvent.SHIFT_MASK), JComponent.WHEN_FOCUSED);
+    }
+    public void deinstall(JComponent comp2){
+        comp2.unregisterKeyboardAction(KeyStroke.getKeyStroke('I', KeyEvent.CTRL_MASK));
+        comp2.unregisterKeyboardAction(KeyStroke.getKeyStroke('I', KeyEvent.CTRL_MASK|KeyEvent.SHIFT_MASK));
     }
 }

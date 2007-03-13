@@ -183,6 +183,7 @@ public class MessageTreeTableModel extends DefaultTreeModel implements TreeTable
                 case 0: return Boolean.valueOf(mo.isFlagged());
                 case 1: return Boolean.valueOf(mo.isStarred());
                 // 2 is tree+subject column
+                case 2: return mo.getSubject();
                 case 3: return mo.getFromName();
                 case 4: return Integer.toString(mo.getIndex());
                 case 5: return mo.getMessageStatusString();

@@ -38,6 +38,7 @@ import frost.messages.*;
 import frost.storage.database.applayer.*;
 import frost.util.*;
 import frost.util.gui.*;
+import frost.util.gui.search.*;
 import frost.util.gui.translation.*;
 
 public class MessagePanel extends JPanel implements PropertyChangeListener {
@@ -647,6 +648,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             MessageTreeTableModel messageTableModel = new MessageTreeTableModel(new DefaultMutableTreeNode());
             language.addLanguageListener(messageTableModel);
             messageTable = new MessageTreeTable(messageTableModel);
+            new TableFindAction().install(messageTable);
             updateMsgTableResizeMode();
             updateMsgTableMultilineSelect();
             messageTable.getSelectionModel().addListSelectionListener(listener);

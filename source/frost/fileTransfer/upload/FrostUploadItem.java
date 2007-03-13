@@ -304,4 +304,8 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
         this.priority = priority;
         super.fireChange();
     }
+    
+    public String toString() {
+        return getFilename();
+    }
 }
