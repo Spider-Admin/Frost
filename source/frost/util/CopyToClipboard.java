@@ -40,6 +40,11 @@ public class CopyToClipboard {
         }
         return clipboard;
     }
+    
+    public static void copyText(String text) {
+        StringSelection selection = new StringSelection(text);
+        getClipboard().setContents(selection, dummyClipboardOwner);    
+    }
 
     /**
      * This method copies the CHK keys and file names of the selected items (if any) to the clipboard.
