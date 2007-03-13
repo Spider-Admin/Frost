@@ -34,6 +34,7 @@ import frost.fileTransfer.*;
 import frost.fileTransfer.sharing.*;
 import frost.util.*;
 import frost.util.gui.*;
+import frost.util.gui.search.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
 
@@ -97,6 +98,7 @@ public class UploadPanel extends JPanel {
             
             // create the main upload panel
             modelTable = new SortedModelTable(model);
+            new TableFindAction().install(modelTable.getTable());
             setLayout(new BorderLayout());
             add(uploadToolBar, BorderLayout.NORTH);
             add(modelTable.getScrollPane(), BorderLayout.CENTER);

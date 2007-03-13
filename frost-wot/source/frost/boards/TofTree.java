@@ -37,6 +37,7 @@ import frost.gui.*;
 import frost.storage.*;
 import frost.threads.*;
 import frost.util.gui.*;
+import frost.util.gui.search.*;
 import frost.util.gui.translation.*;
 
 public class TofTree extends JDragTree implements Savable, PropertyChangeListener {
@@ -593,6 +594,8 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
 
         language = Language.getInstance();
         language.addLanguageListener(listener);
+        
+        new TreeFindAction().install(this);
         
         Core.frostSettings.addPropertyChangeListener(SettingsClass.SHOW_BOARDDESC_TOOLTIPS, this);
         Core.frostSettings.addPropertyChangeListener(SettingsClass.SHOW_BOARD_UPDATED_COUNT, this);

@@ -159,4 +159,8 @@ public class FrostSearchItem extends ModelItem implements CopyToClipboardItem {
         }
         return sourceCount;
     }
+    
+    public String toString() {
+        return getFilename();
+    }
 }

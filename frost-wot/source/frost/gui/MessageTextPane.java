@@ -41,6 +41,7 @@ import frost.gui.model.*;
 import frost.messages.*;
 import frost.util.*;
 import frost.util.gui.*;
+import frost.util.gui.search.*;
 import frost.util.gui.textpane.*;
 import frost.util.gui.translation.*;
 
