@@ -30,8 +30,8 @@ public class SearchPanel extends JPanel implements LanguageListener {
     
     private Language language = Language.getInstance();
 
-    private SimplePanel searchTopPanelSimple;
-    private AdvancedPanel searchTopPanelAdvanced;
+    private SearchSimpleToolBar searchSimpleToolBar;
+    private SearchAdvancedToolBar searchAdvancedToolBar;
     
     private ImageIcon searchIcon = new ImageIcon(getClass().getResource("/data/search.gif"));
     private ImageIcon clearIcon = new ImageIcon(getClass().getResource("/data/remove.gif"));
@@ -58,8 +58,8 @@ public class SearchPanel extends JPanel implements LanguageListener {
     public void initialize() {
         if (!isInitialized) {
             
-            searchTopPanelSimple = new SimplePanel();
-            searchTopPanelAdvanced = new AdvancedPanel();
+            searchSimpleToolBar = new SearchSimpleToolBar();
+            searchAdvancedToolBar = new SearchAdvancedToolBar();
 
             languageChanged(null);
 
@@ -78,19 +78,19 @@ public class SearchPanel extends JPanel implements LanguageListener {
     private void toggleMode(boolean toSimpleMode) {
         if( toSimpleMode ) {
             // switch to simple
-            remove(searchTopPanelAdvanced);
-            add(searchTopPanelSimple, BorderLayout.NORTH);
+            remove(searchAdvancedToolBar);
+            add(searchSimpleToolBar, BorderLayout.NORTH);
         } else {
             // switch to extented
-            remove(searchTopPanelSimple);
-            add(searchTopPanelAdvanced, BorderLayout.NORTH);
+            remove(searchSimpleToolBar);
+            add(searchAdvancedToolBar, BorderLayout.NORTH);
         }
         updateUI();
     }
     
     public void languageChanged(LanguageEvent event) {
-        searchTopPanelSimple.refreshLanguage();
-        searchTopPanelAdvanced.refreshLanguage();
+        searchSimpleToolBar.refreshLanguage();
+        searchAdvancedToolBar.refreshLanguage();
     }
     
     public void startNewSearch(SearchParameters searchParams) {
@@ -108,7 +108,7 @@ public class SearchPanel extends JPanel implements LanguageListener {
         searchThread.start();
     }
 
-    private class SimplePanel extends JPanel implements ActionListener {
+    private class SearchSimpleToolBar extends JToolBar implements ActionListener {
 
         private JTranslatableComboBox searchComboBox = null;
         private JButton searchButton = new JButton(searchIcon);
@@ -116,15 +116,21 @@ public class SearchPanel extends JPanel implements LanguageListener {
         private JButton toggleModeButtonToAdvanced = new JButton(">>");
         private JCheckBox withKeyOnlyCheckBox = new JCheckBox();
 
-        public SimplePanel() {
+        public SearchSimpleToolBar() {
             super();
             initialize();
         }
         
         private void initialize() {
+            
+            setRollover(true);
+            setFloatable(false);
+
             new TextComponentClipboardMenu(searchTextField, language);
 
             searchComboBox = new JTranslatableComboBox(language, searchComboBoxKeys);
+            withKeyOnlyCheckBox.setOpaque(false);
+            toggleModeButtonToAdvanced.setOpaque(false);
 
             MiscToolkit toolkit = MiscToolkit.getInstance();
             toolkit.configureButton(searchButton, "/data/search_rollover.gif");
@@ -136,9 +142,7 @@ public class SearchPanel extends JPanel implements LanguageListener {
             toggleModeButtonToAdvanced.setFocusPainted(false);
             toggleModeButtonToAdvanced.setRolloverEnabled(true);
 
-            BoxLayout boxLayout = new BoxLayout(this, BoxLayout.X_AXIS);
             Dimension blankSpace = new Dimension(8, 0);
-            setLayout(boxLayout);
             add(toggleModeButtonToAdvanced);
             add(Box.createRigidArea(blankSpace));
             add(searchTextField);
@@ -180,7 +184,7 @@ public class SearchPanel extends JPanel implements LanguageListener {
         }
     }
 
-    private class AdvancedPanel extends JPanel implements ActionListener {
+    private class SearchAdvancedToolBar extends JToolBar implements ActionListener {
 
         private JTranslatableComboBox searchComboBox = null;
         private JButton searchButton = new JButton(searchIcon);
@@ -199,12 +203,15 @@ public class SearchPanel extends JPanel implements LanguageListener {
 
         private JCheckBox withKeyOnlyCheckBox = new JCheckBox();
 
-        public AdvancedPanel() {
+        public SearchAdvancedToolBar() {
             super();
             initialize();
         }
         
         private void initialize() {
+
+            setRollover(true);
+            setFloatable(false);
 
             new TextComponentClipboardMenu(searchNameTextField, language);
             new TextComponentClipboardMenu(searchCommentTextField, language);
@@ -212,6 +219,8 @@ public class SearchPanel extends JPanel implements LanguageListener {
             new TextComponentClipboardMenu(searchOwnerTextField, language);
 
             searchComboBox = new JTranslatableComboBox(language, searchComboBoxKeys);
+            withKeyOnlyCheckBox.setOpaque(false);
+            toggleModeButtonToSimple.setOpaque(false);
 
             MiscToolkit toolkit = MiscToolkit.getInstance();
             toolkit.configureButton(searchButton, "/data/search_rollover.gif");
@@ -227,10 +236,8 @@ public class SearchPanel extends JPanel implements LanguageListener {
             toggleModeButtonToSimple.setFocusPainted(false);
             toggleModeButtonToSimple.setRolloverEnabled(true);
 
-            BoxLayout boxLayout = new BoxLayout(this, BoxLayout.X_AXIS);
             Dimension blankSpace = new Dimension(8, 0);
             Dimension smallSpace = new Dimension(3, 0);
-            setLayout(boxLayout);
             add(toggleModeButtonToSimple);
             add(Box.createRigidArea(blankSpace));
             add(searchNameLabel);

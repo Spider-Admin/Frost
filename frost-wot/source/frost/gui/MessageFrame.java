@@ -567,6 +567,9 @@ public class MessageFrame extends JFrame {
             messageTextArea.setLineWrap(true);
             messageTextArea.setWrapStyleWord(true);
             messageTextArea.addMouseListener(listener);
+            
+            sign.setOpaque(false);
+            encrypt.setOpaque(false);
 
             //------------------------------------------------------------------------
             // Actionlistener
@@ -604,7 +607,9 @@ public class MessageFrame extends JFrame {
             JPanel panelTextfields = new JPanel(new BorderLayout()); // Textfields
             JPanel panelToolbar = new JPanel(new BorderLayout()); // Toolbar / Textfields
             JPanel panelLabels = new JPanel(new BorderLayout()); // Labels
-            JPanel panelButtons = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
+            JToolBar panelButtons = new JToolBar();
+            panelButtons.setRollover(true);
+            panelButtons.setFloatable(false);
 
             JScrollPane bodyScrollPane = new JScrollPane(messageTextArea); // Textscrollpane
             bodyScrollPane.setWheelScrollingEnabled(true);

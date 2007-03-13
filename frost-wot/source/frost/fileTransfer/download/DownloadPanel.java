@@ -51,7 +51,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
 	private Language language = null;
 
-	private JPanel downloadTopPanel = new JPanel();
+	private JToolBar downloadToolBar = new JToolBar();
 	private JButton downloadActivateButton = new JButton(new ImageIcon(getClass().getResource("/data/down_selected.gif")));
     private JButton downloadPauseButton = new JButton(new ImageIcon(getClass().getResource("/data/down.gif")));
 	private JTextField downloadTextField = new JTextField(25);
@@ -101,29 +101,33 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			
 			new TextComponentClipboardMenu(downloadTextField, language);
 
-			BoxLayout dummyLayout = new BoxLayout(downloadTopPanel, BoxLayout.X_AXIS);
-			downloadTopPanel.setLayout(dummyLayout);
+            downloadToolBar.setRollover(true);
+            downloadToolBar.setFloatable(false);
+
+            removeFinishedDownloadsCheckBox.setOpaque(false);
+            showExternalGlobalQueueItems.setOpaque(false);
+
 			downloadTextField.setMaximumSize(downloadTextField.getPreferredSize());
             downloadTextField.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.addKeys"));
             downloadTextField.setDocument(new HandleMultiLineKeysDocument());
                 
-			downloadTopPanel.add(downloadTextField); //Download/Quickload
-			downloadTopPanel.add(Box.createRigidArea(new Dimension(8, 0)));
-			downloadTopPanel.add(downloadActivateButton); //Download/Start transfer
-			downloadTopPanel.add(downloadPauseButton); //Download/Start transfer
-            downloadTopPanel.add(Box.createRigidArea(new Dimension(8, 0)));
-            downloadTopPanel.add(removeFinishedDownloadsCheckBox);
+			downloadToolBar.add(downloadTextField); //Download/Quickload
+			downloadToolBar.add(Box.createRigidArea(new Dimension(8, 0)));
+			downloadToolBar.add(downloadActivateButton); //Download/Start transfer
+			downloadToolBar.add(downloadPauseButton); //Download/Start transfer
+            downloadToolBar.add(Box.createRigidArea(new Dimension(8, 0)));
+            downloadToolBar.add(removeFinishedDownloadsCheckBox);
             if( PersistenceManager.isPersistenceEnabled() ) {
-                downloadTopPanel.add(showExternalGlobalQueueItems);
+                downloadToolBar.add(showExternalGlobalQueueItems);
             }
-			downloadTopPanel.add(Box.createRigidArea(new Dimension(80, 0)));
-			downloadTopPanel.add(Box.createHorizontalGlue());
-			downloadTopPanel.add(downloadItemCountLabel);
+			downloadToolBar.add(Box.createRigidArea(new Dimension(80, 0)));
+			downloadToolBar.add(Box.createHorizontalGlue());
+			downloadToolBar.add(downloadItemCountLabel);
 
 			// create the main download panel
 			modelTable = new SortedModelTable(model);
 			setLayout(new BorderLayout());
-			add(downloadTopPanel, BorderLayout.NORTH);
+			add(downloadToolBar, BorderLayout.NORTH);
 			add(modelTable.getScrollPane(), BorderLayout.CENTER);
 			fontChanged();
             

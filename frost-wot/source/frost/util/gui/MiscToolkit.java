@@ -63,6 +63,7 @@ public class MiscToolkit {
         button.setPreferredSize(new Dimension(30,25));
 		button.setBorderPainted(false);
 		button.setFocusPainted(false);
+        button.setOpaque(false);
 	}
 
     /**
