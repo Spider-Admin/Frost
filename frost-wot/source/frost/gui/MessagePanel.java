@@ -36,6 +36,7 @@ import frost.gui.messagetreetable.*;
 import frost.identities.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;
+import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
@@ -45,6 +46,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     private MessageTextPane messageTextPane = null;
     private JScrollPane messageListScrollPane = null;
     private JSplitPane msgTableAndMsgTextSplitpane = null;
+    private JLabel subjectLabel = new JLabel();
+    private JLabel subjectTextLabel = new JLabel();
 
     MainFrame mainFrame;
 
@@ -95,6 +98,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             if (e.isPopupTrigger()) {
                 if (e.getComponent() == messageTable) {
                     showMessageTablePopupMenu(e);
+                } else if( e.getComponent() == subjectTextLabel ) {
+                    getPopupMenuSubjectText().show(e.getComponent(), e.getX(), e.getY());
                 }
                 // if leftbtn double click on message show this message in a new window
             } else if(SwingUtilities.isLeftMouseButton(e)) {
@@ -114,7 +119,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 }
             }
         }
-
+        
         /**
          * Left click onto a row/col occurred. Check if the click was over an icon column and maybe toggle
          * its state (starred/flagged).
@@ -191,6 +196,42 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             boardsTree_actionPerformed(e);
         }
 
+        public void languageChanged(LanguageEvent event) {
+            refreshLanguage();
+        }
+    }
+
+    private class PopupMenuSubjectText
+        extends JSkinnablePopupMenu
+        implements ActionListener, LanguageListener 
+    {
+        JMenuItem copySubjectText = new JMenuItem();
+
+        public PopupMenuSubjectText() {
+            super();
+            initialize();
+        }
+
+        private void initialize() {
+            refreshLanguage();
+            copySubjectText.addActionListener(this);
+        }
+        
+        public void actionPerformed(ActionEvent e) {
+            if (e.getSource() == copySubjectText) {
+                CopyToClipboard.copyText(subjectTextLabel.getText());
+            }
+        }
+
+        public void show(Component invoker, int x, int y) {
+            removeAll();
+            add(copySubjectText);
+            super.show(invoker, x, y);
+        }
+
+        private void refreshLanguage() {
+            copySubjectText.setText(language.getString("MessagePane.subjectText.popupmenu.copySubjectText"));
+        }
         public void languageChanged(LanguageEvent event) {
             refreshLanguage();
         }
@@ -401,6 +442,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     private FrostMessageObject selectedMessage;
 
     private PopupMenuMessageTable popupMenuMessageTable = null;
+    private PopupMenuSubjectText popupMenuSubjectText = null;
 
     //private JButton downloadAttachmentsButton =
     //  new JButton(new ImageIcon(getClass().getResource("/data/attachment.gif")));
@@ -581,7 +623,15 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         }
         return popupMenuMessageTable;
     }
-    
+
+    private PopupMenuSubjectText getPopupMenuSubjectText() {
+        if (popupMenuSubjectText == null) {
+            popupMenuSubjectText = new PopupMenuSubjectText();
+            language.addLanguageListener(popupMenuSubjectText);
+        }
+        return popupMenuSubjectText;
+    }
+
     public void initialize() {
         if (!initialized) {
             refreshLanguage();
@@ -592,7 +642,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             Core.frostSettings.addPropertyChangeListener(SettingsClass.SORT_THREADROOTMSGS_ASCENDING, this);
             Core.frostSettings.addPropertyChangeListener(SettingsClass.MSGTABLE_MULTILINE_SELECT, this);
             Core.frostSettings.addPropertyChangeListener(SettingsClass.MSGTABLE_SCROLL_HORIZONTAL, this);
-
+            
             // build messages list scroll pane
             MessageTreeTableModel messageTableModel = new MessageTreeTableModel(new DefaultMutableTreeNode());
             language.addLanguageListener(messageTableModel);
@@ -605,13 +655,24 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             messageListScrollPane.getViewport().setBackground(messageTable.getBackground());
 
             messageTextPane = new MessageTextPane(mainFrame);
+            
+            JPanel subjectPanel = new JPanel(new FlowLayout(FlowLayout.LEFT,3,0));
+            subjectPanel.add(subjectLabel);
+            subjectPanel.add(subjectTextLabel);
+            subjectPanel.setBorder(BorderFactory.createEmptyBorder(2, 3, 2, 3));
+            
+            subjectTextLabel.addMouseListener(listener);
 
             // load message table layout
             messageTable.loadLayout(settings);
 
             fontChanged();
+            
+            JPanel dummyPanel = new JPanel(new BorderLayout());
+            dummyPanel.add(subjectPanel, BorderLayout.NORTH);
+            dummyPanel.add(messageTextPane, BorderLayout.CENTER);
 
-            msgTableAndMsgTextSplitpane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, messageListScrollPane, messageTextPane);
+            msgTableAndMsgTextSplitpane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, messageListScrollPane, dummyPanel);
             msgTableAndMsgTextSplitpane.setDividerSize(10);
             msgTableAndMsgTextSplitpane.setResizeWeight(0.5d);
             msgTableAndMsgTextSplitpane.setMinimumSize(new Dimension(50, 20));
@@ -815,6 +876,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             
             if( selectedMessage.isDummy() ) {
                 getMessageTextPane().update_boardSelected();
+                subjectTextLabel.setText("");
                 setGoodButton.setEnabled(false);
                 setCheckButton.setEnabled(false);
                 setBadButton.setEnabled(false);
@@ -865,6 +927,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             }
             
             getMessageTextPane().update_messageSelected(selectedMessage);
+            subjectTextLabel.setText(selectedMessage.getSubject());
             
             if (selectedMessage.getContent().length() > 0) {
                 saveMessageButton.setEnabled(true);
@@ -875,6 +938,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         } else {
             // no msg selected
             getMessageTextPane().update_boardSelected();
+            subjectTextLabel.setText("");
             replyButton.setEnabled(false);
             saveMessageButton.setEnabled(false);
 
@@ -994,8 +1058,6 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     private void refreshLanguage() {
         newMessageButton.setToolTipText(language.getString("MessagePane.toolbar.tooltip.newMessage"));
         replyButton.setToolTipText(language.getString("MessagePane.toolbar.tooltip.reply"));
-    //  downloadAttachmentsButton.setToolTipText(language.getString("Download attachment(s)"));
-    //  downloadBoardsButton.setToolTipText(language.getString("Add Board(s)"));
         saveMessageButton.setToolTipText(language.getString("MessagePane.toolbar.tooltip.saveMessage"));
         nextUnreadMessageButton.setToolTipText(language.getString("MessagePane.toolbar.tooltip.nextUnreadMessage"));
         setGoodButton.setToolTipText(language.getString("MessagePane.toolbar.tooltip.setToGood"));
@@ -1007,6 +1069,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         toggleShowThreads.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowThreads"));
         toggleShowSmileys.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowSmileys"));
         toggleShowHyperlinks.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowHyperlinks"));
+
+        subjectLabel.setText(language.getString("MessageWindow.subject")+": ");
     }
 
     private void replyButton_actionPerformed(ActionEvent e) {
@@ -1122,6 +1186,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         if (((TreeNode) mainFrame.getTofTreeModel().getRoot()).getChildCount() == 0) {
             // There are no boards
             getMessageTextPane().update_noBoardsFound();
+            subjectTextLabel.setText("");
         } else {
             // There are boards
             AbstractNode node = (AbstractNode)mainFrame.getTofTree().getLastSelectedPathComponent();
@@ -1130,6 +1195,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     // node is a board
                     // FIXME: reset message history!
                     getMessageTextPane().update_boardSelected();
+                    subjectTextLabel.setText("");
                     updateButton.setEnabled(true);
                     saveMessageButton.setEnabled(false);
                     replyButton.setEnabled(false);
@@ -1144,6 +1210,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     saveMessageButton.setEnabled(false);
                     updateButton.setEnabled(false);
                     getMessageTextPane().update_folderSelected();
+                    subjectTextLabel.setText("");
                 }
             }
         }
