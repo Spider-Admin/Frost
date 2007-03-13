@@ -333,6 +333,10 @@ public class MessageTextPane extends JPanel {
                 }
             }
         });
+        
+        FindAction findAction = new TextComponentFindAction();
+        findAction.install(messageTextArea); 
+        
         messageTextArea.addHyperlinkListener(new HyperlinkListener() {
             public void hyperlinkUpdate(HyperlinkEvent evt) {
                 if( !(evt instanceof MouseHyperlinkEvent) ) {
