@@ -49,7 +49,7 @@ public class SharedFilesPanel extends JPanel {
 
     private Language language = null;
 
-    private JPanel sharedFilesTopPanel = new JPanel();
+    private JToolBar sharedFilesToolBar = new JToolBar();
     private JButton addSharedFilesButton = new JButton(new ImageIcon(getClass().getResource("/data/browse.gif")));
     
     private int sharedFilesCount = 0;
@@ -73,17 +73,19 @@ public class SharedFilesPanel extends JPanel {
             // create the top panel
             MiscToolkit toolkit = MiscToolkit.getInstance();
             toolkit.configureButton(addSharedFilesButton, "/data/browse_rollover.gif");
-            BoxLayout dummyLayout = new BoxLayout(sharedFilesTopPanel, BoxLayout.X_AXIS);
-            sharedFilesTopPanel.setLayout(dummyLayout);
-            sharedFilesTopPanel.add(addSharedFilesButton);
-            sharedFilesTopPanel.add(Box.createRigidArea(new Dimension(80, 0)));
-            sharedFilesTopPanel.add(Box.createHorizontalGlue());
-            sharedFilesTopPanel.add(sharedFilesCountLabel);
+
+            sharedFilesToolBar.setRollover(true);
+            sharedFilesToolBar.setFloatable(false);
+
+            sharedFilesToolBar.add(addSharedFilesButton);
+            sharedFilesToolBar.add(Box.createRigidArea(new Dimension(80, 0)));
+            sharedFilesToolBar.add(Box.createHorizontalGlue());
+            sharedFilesToolBar.add(sharedFilesCountLabel);
 
             // create the main upload panel
             modelTable = new SortedModelTable(model);
             setLayout(new BorderLayout());
-            add(sharedFilesTopPanel, BorderLayout.NORTH);
+            add(sharedFilesToolBar, BorderLayout.NORTH);
             add(modelTable.getScrollPane(), BorderLayout.CENTER);
             fontChanged();
 

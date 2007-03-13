@@ -49,7 +49,7 @@ public class UploadPanel extends JPanel {
 
     private Language language = null;
 
-    private JPanel uploadTopPanel = new JPanel();
+    private JToolBar uploadToolBar = new JToolBar();
     private JButton uploadAddFilesButton = new JButton(new ImageIcon(getClass().getResource("/data/browse.gif")));
     private JCheckBox removeFinishedUploadsCheckBox = new JCheckBox();
     private JCheckBox showExternalGlobalQueueItems = new JCheckBox();
@@ -75,26 +75,30 @@ public class UploadPanel extends JPanel {
     public void initialize() {
         if (!initialized) {
             refreshLanguage();
+            
+            uploadToolBar.setRollover(true);
+            uploadToolBar.setFloatable(false);
+            
+            removeFinishedUploadsCheckBox.setOpaque(false);
+            showExternalGlobalQueueItems.setOpaque(false);
 
             // create the top panel
             MiscToolkit toolkit = MiscToolkit.getInstance();
             toolkit.configureButton(uploadAddFilesButton, "/data/browse_rollover.gif");
-            BoxLayout dummyLayout = new BoxLayout(uploadTopPanel, BoxLayout.X_AXIS);
-            uploadTopPanel.setLayout(dummyLayout);
-            uploadTopPanel.add(uploadAddFilesButton);
-            uploadTopPanel.add(Box.createRigidArea(new Dimension(8, 0)));
-            uploadTopPanel.add(removeFinishedUploadsCheckBox);
+            uploadToolBar.add(uploadAddFilesButton);
+            uploadToolBar.add(Box.createRigidArea(new Dimension(8, 0)));
+            uploadToolBar.add(removeFinishedUploadsCheckBox);
             if( PersistenceManager.isPersistenceEnabled() ) {
-                uploadTopPanel.add(showExternalGlobalQueueItems);
+                uploadToolBar.add(showExternalGlobalQueueItems);
             }
-            uploadTopPanel.add(Box.createRigidArea(new Dimension(80, 0)));
-            uploadTopPanel.add(Box.createHorizontalGlue());
-            uploadTopPanel.add(uploadItemCountLabel);
+            uploadToolBar.add(Box.createRigidArea(new Dimension(80, 0)));
+            uploadToolBar.add(Box.createHorizontalGlue());
+            uploadToolBar.add(uploadItemCountLabel);
             
             // create the main upload panel
             modelTable = new SortedModelTable(model);
             setLayout(new BorderLayout());
-            add(uploadTopPanel, BorderLayout.NORTH);
+            add(uploadToolBar, BorderLayout.NORTH);
             add(modelTable.getScrollPane(), BorderLayout.CENTER);
             fontChanged();
 

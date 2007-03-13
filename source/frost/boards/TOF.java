@@ -221,11 +221,10 @@ public class TOF {
             newMsg.setNew(true);
         }
         
-        boolean isBlocked = false;
-        if( isBlocked(newMsg, board) ) {
-            // if message is blocked, then set it to not new
+        boolean isBlocked = isBlocked(newMsg, board);
+        if( isBlocked ) {
+            // if message is blocked, reset new state
             newMsg.setNew(false);
-            isBlocked = true;
         }
         
         try {
