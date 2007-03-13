@@ -52,6 +52,7 @@ public class LanguageGuiSupport {
     private JRadioButtonMenuItem languageSpanishMenuItem;
     private JRadioButtonMenuItem languageRussianMenuItem;
     private JRadioButtonMenuItem languagePolishMenuItem;
+    private JRadioButtonMenuItem languageSwedishMenuItem;
     
     private ButtonGroup languageMenuButtonGroup;
 
@@ -70,6 +71,7 @@ public class LanguageGuiSupport {
         languageSpanishMenuItem = new JRadioButtonMenuItem();
         languageRussianMenuItem = new JRadioButtonMenuItem();
         languagePolishMenuItem = new JRadioButtonMenuItem();
+        languageSwedishMenuItem = new JRadioButtonMenuItem();
         
         languageMenuButtonGroup = new ButtonGroup();
         
@@ -85,6 +87,7 @@ public class LanguageGuiSupport {
         languageDutchMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_nl.png", 16, 16));
         languageRussianMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_ru.png", 16, 16));
         languagePolishMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_pl.png", 16, 16));
+        languageSwedishMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_sv.png", 16, 16));
         
         // default action listeners
         languageDefaultMenuItem.addActionListener(   new LanguageAction(null, false));
@@ -99,6 +102,7 @@ public class LanguageGuiSupport {
         languageSpanishMenuItem.addActionListener(   new LanguageAction("es", false));
         languageBulgarianMenuItem.addActionListener( new LanguageAction("bg", false));
         languagePolishMenuItem.addActionListener(    new LanguageAction("pl", false));
+        languageSwedishMenuItem.addActionListener(   new LanguageAction("sv", false));
 
         buildinLanguageMenuItemsList = new ArrayList<JRadioButtonMenuItem>();
         buildinLanguageMenuItemsList.add(languageDefaultMenuItem);
@@ -113,6 +117,7 @@ public class LanguageGuiSupport {
         buildinLanguageMenuItemsList.add(languagePolishMenuItem);
         buildinLanguageMenuItemsList.add(languageRussianMenuItem);
         buildinLanguageMenuItemsList.add(languageSpanishMenuItem);
+        buildinLanguageMenuItemsList.add(languageSwedishMenuItem);
         
         buildinLanguageMenuItemsMap = new HashMap<String,JRadioButtonMenuItem>();
         buildinLanguageMenuItemsMap.put("default", languageDefaultMenuItem);
@@ -127,6 +132,7 @@ public class LanguageGuiSupport {
         buildinLanguageMenuItemsMap.put("bg", languageBulgarianMenuItem);
         buildinLanguageMenuItemsMap.put("ru", languageRussianMenuItem);
         buildinLanguageMenuItemsMap.put("pl", languagePolishMenuItem);
+        buildinLanguageMenuItemsMap.put("sv", languageSwedishMenuItem);
     }
     
     public static LanguageGuiSupport getInstance() {
@@ -191,6 +197,7 @@ public class LanguageGuiSupport {
         languageMenu.add(languagePolishMenuItem);
         languageMenu.add(languageRussianMenuItem);
         languageMenu.add(languageSpanishMenuItem);
+        languageMenu.add(languageSwedishMenuItem);
         
         List externalLocales = Language.getExternalLocales();
         if( externalLocales.size() > 0 ) {
@@ -256,6 +263,7 @@ public class LanguageGuiSupport {
         languageBulgarianMenuItem.setText(language.getString("MainFrame.menu.language.bulgarian"));
         languageRussianMenuItem.setText(language.getString("MainFrame.menu.language.russian"));
         languagePolishMenuItem.setText(language.getString("MainFrame.menu.language.polish"));
+        languageSwedishMenuItem.setText(language.getString("MainFrame.menu.language.swedish"));
     }
     
     public static List<Locale> getBuildInLocales() {
@@ -272,6 +280,7 @@ public class LanguageGuiSupport {
             lst.add(new Locale("nl"));
             lst.add(new Locale("ru"));
             lst.add(new Locale("pl"));
+            lst.add(new Locale("sv"));
             buildInLocales = lst;
         }
         return buildInLocales;
