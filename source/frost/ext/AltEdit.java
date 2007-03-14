@@ -236,6 +236,7 @@ public class AltEdit extends Thread {
         if( tmpList != null ) {
             result.addAll(tmpList);
         }
+        p.waitFor(); // wait really!
         return result;
     }
 }
