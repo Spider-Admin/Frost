@@ -71,7 +71,7 @@ public class Frost {
             if (lookAndFeel != null) {
                 try {
                     laf = (LookAndFeel) Class.forName(lookAndFeel).newInstance();
-                } catch(Throwable t) {}
+                } catch(Throwable t) {t.printStackTrace();}
                 if (laf == null || !laf.isSupportedLookAndFeel()) {
                     laf = null;
                 }
@@ -80,10 +80,10 @@ public class Frost {
             // still not set? use config file setting
             if( laf == null ) {
                 String landf = Core.frostSettings.getValue(SettingsClass.LOOK_AND_FEEL);
-                if( landf == null || landf.length() == 0 ) {
+                if( landf != null && landf.length() > 0 ) {
                     try {
                         laf = (LookAndFeel) Class.forName(landf).newInstance();
-                    } catch(Throwable t) {}
+                    } catch(Throwable t) {t.printStackTrace();}
                     if (laf == null || !laf.isSupportedLookAndFeel()) {
                         laf = null;
                     }
@@ -93,7 +93,7 @@ public class Frost {
             // still not set? use system default
             if( laf == null ) {
                 String landf = UIManager.getSystemLookAndFeelClassName();
-                if( landf == null || landf.length() == 0 ) {
+                if( landf != null && landf.length() > 0 ) {
                     try {
                         laf = (LookAndFeel) Class.forName(landf).newInstance();
                     } catch(Throwable t) {}
