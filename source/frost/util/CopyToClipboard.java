@@ -97,7 +97,8 @@ public class CopyToClipboard {
             if (key == null) {
                 key = keyNotAvailableMessage;
             } else {
-                key = key + item.getFilename(); // always use key+filename, also on 0.5. wait for user feedback :)
+                // always use key+filename, also on 0.5. wait for user feedback :)
+                key = new StringBuffer().append(key).append("/").append(item.getFilename()).toString();
             }
             String fs;
             if( item.getFileSize() < 0 ) {
