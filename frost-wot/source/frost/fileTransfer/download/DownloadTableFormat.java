@@ -230,7 +230,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
                 FrostDownloadItem downloadItem = (FrostDownloadItem) item;
                 if( downloadItem.isExternal() ) {
                     setEnabled(false);
-                    setSelected(false);
+                    setSelected(true); // external items are always enabled
                 } else {
                     setEnabled(true);
                     setSelected((value != null && ((Boolean) value).booleanValue()));

@@ -817,7 +817,8 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
      * @param description
      */
     private void addNewBoard(String bname, String bpubkey, String bprivkey, String description) {
-        if (model.getBoardByName(bname) != null) {
+        Board existingBoard = model.getBoardByName(bname); 
+        if (existingBoard != null) {
             int answer =
                 JOptionPane.showConfirmDialog(
                     getTopLevelAncestor(),
@@ -825,14 +826,19 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
                     language.getString("BoardTree.overWriteBoardConfirmation.title"),
                     JOptionPane.YES_NO_OPTION,
                     JOptionPane.WARNING_MESSAGE);
-            if (answer == JOptionPane.NO_OPTION) {
-                return; // do not add
+            if (answer == JOptionPane.YES_OPTION) {
+                // overwrite keys and description of existing board
+                existingBoard.setPublicKey(bpubkey);
+                existingBoard.setPrivateKey(bprivkey);
+                existingBoard.setDescription(description);
+                model.nodeChanged(existingBoard); // refresh board icon
             }
+        } else {
+            Board newBoard = new Board(bname, bpubkey, bprivkey, description);
+            model.addNodeToTree(newBoard);
+            // maybe this boardfolder already exists, scan for new messages
+            TOF.getInstance().searchNewMessages(newBoard);
         }
-        Board newBoard = new Board(bname, bpubkey, bprivkey, description);
-        model.addNodeToTree(newBoard);
-        // maybe this boardfolder already exists, scan for new messages
-        TOF.getInstance().searchNewMessages(newBoard);
     }
 
     /**

@@ -291,6 +291,13 @@ public class UploadPanel extends JPanel {
         private JMenuItem removeSelectedFilesItem = new JMenuItem();
         private JMenuItem showSharedFileItem = new JMenuItem();
         private JMenu copyToClipboardMenu = new JMenu();
+        
+        private JMenuItem disableAllDownloadsItem = new JMenuItem();
+        private JMenuItem disableSelectedDownloadsItem = new JMenuItem();
+        private JMenuItem enableAllDownloadsItem = new JMenuItem();
+        private JMenuItem enableSelectedDownloadsItem = new JMenuItem();
+        private JMenuItem invertEnabledAllItem = new JMenuItem();
+        private JMenuItem invertEnabledSelectedItem = new JMenuItem();
 
         private JMenu changePriorityMenu = null;
         private JMenuItem prio0Item = null;
@@ -350,6 +357,13 @@ public class UploadPanel extends JPanel {
             uploadSelectedFilesItem.addActionListener(this);
             generateChkForSelectedFilesItem.addActionListener(this);
             showSharedFileItem.addActionListener(this);
+            
+            enableAllDownloadsItem.addActionListener(this);
+            disableAllDownloadsItem.addActionListener(this);
+            enableSelectedDownloadsItem.addActionListener(this);
+            disableSelectedDownloadsItem.addActionListener(this);
+            invertEnabledAllItem.addActionListener(this);
+            invertEnabledSelectedItem.addActionListener(this);
         }
 
         private void refreshLanguage() {
@@ -362,7 +376,14 @@ public class UploadPanel extends JPanel {
             showSharedFileItem.setText(language.getString("UploadPane.fileTable.popupmenu.showSharedFile"));
             
             copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
-            
+
+            enableAllDownloadsItem.setText(language.getString("UploadPane.fileTable.popupmenu.enableUploads.enableAllUploads"));
+            disableAllDownloadsItem.setText(language.getString("UploadPane.fileTable.popupmenu.enableUploads.disableAllUploads"));
+            enableSelectedDownloadsItem.setText(language.getString("UploadPane.fileTable.popupmenu.enableUploads.enableSelectedUploads"));
+            disableSelectedDownloadsItem.setText(language.getString("UploadPane.fileTable.popupmenu.enableUploads.disableSelectedUploads"));
+            invertEnabledAllItem.setText(language.getString("UploadPane.fileTable.popupmenu.enableUploads.invertEnabledStateForAllUploads"));
+            invertEnabledSelectedItem.setText(language.getString("UploadPane.fileTable.popupmenu.enableUploads.invertEnabledStateForSelectedUploads"));
+
             if( PersistenceManager.isPersistenceEnabled() ) {
                 changePriorityMenu.setText(language.getString("Common.priority.changePriority"));
                 prio0Item.setText(language.getString("Common.priority.priority0"));
@@ -404,6 +425,18 @@ public class UploadPanel extends JPanel {
                 changePriority(5);
             } else if (e.getSource() == prio6Item) {
                 changePriority(6);
+            } else if (e.getSource() == enableAllDownloadsItem) {
+                enableAllDownloads();
+            } else if (e.getSource() == disableAllDownloadsItem) {
+                disableAllDownloads();
+            } else if (e.getSource() == enableSelectedDownloadsItem) {
+                enableSelectedDownloads();
+            } else if (e.getSource() == disableSelectedDownloadsItem) {
+                disableSelectedDownloads();
+            } else if (e.getSource() == invertEnabledAllItem) {
+                invertEnabledAll();
+            } else if (e.getSource() == invertEnabledSelectedItem) {
+                invertEnabledSelected();
             }
         }
         
@@ -435,6 +468,33 @@ public class UploadPanel extends JPanel {
             refreshLanguage();
         }
 
+        private void invertEnabledSelected() {
+            ModelItem[] selectedItems = modelTable.getSelectedItems();
+            model.setItemsEnabled(null, selectedItems);
+        }
+    
+        private void invertEnabledAll() {
+            model.setAllItemsEnabled(null);
+        }
+    
+        private void disableSelectedDownloads() {
+            ModelItem[] selectedItems = modelTable.getSelectedItems();
+            model.setItemsEnabled(Boolean.FALSE, selectedItems);
+        }
+    
+        private void enableSelectedDownloads() {
+            ModelItem[] selectedItems = modelTable.getSelectedItems();
+            model.setItemsEnabled(Boolean.TRUE, selectedItems);
+        }
+    
+        private void disableAllDownloads() {
+            model.setAllItemsEnabled(Boolean.FALSE);
+        }
+    
+        private void enableAllDownloads() {
+            model.setAllItemsEnabled(Boolean.TRUE);
+        }
+
         public void show(Component invoker, int x, int y) {
             removeAll();
 
@@ -452,6 +512,18 @@ public class UploadPanel extends JPanel {
                 add(changePriorityMenu);
                 addSeparator();
             }
+
+            JMenu enabledSubMenu = new JMenu(language.getString("UploadPane.fileTable.popupmenu.enableUploads") + "...");
+            enabledSubMenu.add(enableSelectedDownloadsItem);
+            enabledSubMenu.add(disableSelectedDownloadsItem);
+            enabledSubMenu.add(invertEnabledSelectedItem);
+            enabledSubMenu.addSeparator();
+
+            enabledSubMenu.add(enableAllDownloadsItem);
+            enabledSubMenu.add(disableAllDownloadsItem);
+            enabledSubMenu.add(invertEnabledAllItem);
+            add(enabledSubMenu);
+            
             add(generateChkForSelectedFilesItem);
             add(uploadSelectedFilesItem);
             addSeparator();

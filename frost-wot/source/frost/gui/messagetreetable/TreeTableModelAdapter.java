@@ -167,8 +167,6 @@ public class TreeTableModelAdapter extends AbstractTableModel {
 //                System.out.println("a="+MainFrame.getInstance().getMessageTreeTable().getRowForNode(node));
 //                System.out.println("b="+childIndices[0]);
 //                System.out.println("c="+node);
-                // FIXME: offset war immer 1; loest nun 0 das select problem wenn neue row an pos=0 ?
-                // FIXME: new test: always 0 for all
                 // FIXME: fails again: 1st child of a thread selected, new message arrived and replaced the selected
                 //        message! new message was shown in preview and marked unread!
                 int offset = 0;

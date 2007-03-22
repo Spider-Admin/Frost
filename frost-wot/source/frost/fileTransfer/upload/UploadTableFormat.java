@@ -204,7 +204,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
                 FrostUploadItem uploadItem = (FrostUploadItem) item;
                 if( uploadItem.isExternal() ) {
                     setEnabled(false);
-                    setSelected(false);
+                    setSelected(true); // external items are always enabled
                 } else {
                     setEnabled(true);
                     setSelected((value != null && ((Boolean) value).booleanValue()));

@@ -326,6 +326,9 @@ public class Board extends AbstractNode {
     public void setPrivateKey(String val) {
         if (val != null) {
             val = val.trim();
+            if( val.length() == 0 ) {
+                val = null;
+            }
         }
         privateKey = val;
     }
@@ -333,6 +336,9 @@ public class Board extends AbstractNode {
     public void setPublicKey(String val) {
         if (val != null) {
             val = val.trim();
+            if( val.length() == 0 ) {
+                val = null;
+            }
         }
         publicKey = val;
     }
