@@ -593,7 +593,7 @@ public class MessageTextPane extends JPanel {
     extends JSkinnablePopupMenu
     implements ActionListener, LanguageListener {
 
-        private JMenuItem cancelItem = new JMenuItem();
+//        private JMenuItem cancelItem = new JMenuItem();
         private JMenuItem saveBoardsItem = new JMenuItem();
         private JMenuItem saveBoardsToFolderItem = new JMenuItem();
         private JMenuItem addBoardsToKnownBoards = new JMenuItem();
@@ -629,7 +629,7 @@ public class MessageTextPane extends JPanel {
             saveBoardsItem.setText(language.getString("MessagePane.boardAttachmentTable.popupmenu.addBoards"));
             saveBoardsToFolderItem.setText(language.getString("MessagePane.boardAttachmentTable.popupmenu.addBoardsToFolder")+" ...");
             addBoardsToKnownBoards.setText(language.getString("MessagePane.boardAttachmentTable.popupmenu.addBoardsToKnownBoards"));
-            cancelItem.setText(language.getString("Common.cancel"));
+//            cancelItem.setText(language.getString("Common.cancel"));
         }
 
         public void show(Component invoker, int x, int y) {
@@ -638,8 +638,8 @@ public class MessageTextPane extends JPanel {
             add(saveBoardsItem);
             add(saveBoardsToFolderItem);
             add(addBoardsToKnownBoards);
-            addSeparator();
-            add(cancelItem);
+//            addSeparator();
+//            add(cancelItem);
 
             super.show(invoker, x, y);
         }
@@ -649,7 +649,7 @@ public class MessageTextPane extends JPanel {
         extends JSkinnablePopupMenu
         implements ActionListener, LanguageListener, ClipboardOwner {
 
-        private JMenuItem cancelItem = new JMenuItem();
+//        private JMenuItem cancelItem = new JMenuItem();
         private JMenuItem saveAttachmentItem = new JMenuItem();
         private JMenuItem saveAttachmentsItem = new JMenuItem();
 
@@ -673,14 +673,11 @@ public class MessageTextPane extends JPanel {
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() == saveAttachmentsItem || e.getSource() == saveAttachmentItem) {
                 downloadAttachments();
-            }
-            if (e.getSource() == copyKeysItem) {
+            } else if (e.getSource() == copyKeysItem) {
                 copyKeys();
-            }
-            if (e.getSource() == copyKeysAndNamesItem) {
+            } else if (e.getSource() == copyKeysAndNamesItem) {
                 copyKeysAndNames();
-            }
-            if (e.getSource() == copyExtendedInfoItem) {
+            } else if (e.getSource() == copyExtendedInfoItem) {
                 copyExtendedInfo();
             }
         }
@@ -689,13 +686,13 @@ public class MessageTextPane extends JPanel {
             languageChanged(null);
 
             copyToClipboardMenu.add(copyKeysAndNamesItem);
-            copyToClipboardMenu.add(copyKeysItem);
+            if( FcpHandler.isFreenet05() ) {
+                copyToClipboardMenu.add(copyKeysItem);
+                copyKeysItem.addActionListener(this);
+            }
             copyToClipboardMenu.add(copyExtendedInfoItem);
 
             copyKeysAndNamesItem.addActionListener(this);
-            if( FcpHandler.isFreenet05() ) {
-                copyToClipboardMenu.add(copyKeysItem);
-            }
             copyExtendedInfoItem.addActionListener(this);
 
             saveAttachmentsItem.addActionListener(this);
@@ -710,7 +707,7 @@ public class MessageTextPane extends JPanel {
 
             saveAttachmentsItem.setText(language.getString("MessagePane.fileAttachmentTable.popupmenu.downloadAttachments"));
             saveAttachmentItem.setText(language.getString("MessagePane.fileAttachmentTable.popupmenu.downloadSelectedAttachment"));
-            cancelItem.setText(language.getString("Common.cancel"));
+//            cancelItem.setText(language.getString("Common.cancel"));
 
             keyNotAvailableMessage = language.getString("Common.copyToClipBoard.extendedInfo.keyNotAvailableYet");
             fileMessage = language.getString("Common.copyToClipBoard.extendedInfo.file")+" ";
@@ -729,8 +726,8 @@ public class MessageTextPane extends JPanel {
             } else {
                 add(saveAttachmentItem);
             }
-            addSeparator();
-            add(cancelItem);
+//            addSeparator();
+//            add(cancelItem);
 
             super.show(invoker, x, y);
         }

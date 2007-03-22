@@ -247,4 +247,35 @@ public class UploadModel extends SortedModel implements Savable {
             throw new StorageException("Error saving upload items");
         }
     }
+    
+    /**
+     * This method enables / disables download items in the model. If the
+     * enabled parameter is null, the current state of the item is inverted.
+     * @param enabled new state of the items. If null, the current state 
+     *        is inverted
+     */
+    public synchronized void setAllItemsEnabled(Boolean enabled) {
+        for (int x = 0; x < getItemCount(); x++) {
+            FrostUploadItem dlItem = (FrostUploadItem) getItemAt(x);
+            if (dlItem.getState() != FrostUploadItem.STATE_DONE) {
+                dlItem.setEnabled(enabled);
+            }
+        }
+    }
+    
+    /**
+     * This method enables / disables download items in the model. If the
+     * enabled parameter is null, the current state of the item is inverted.
+     * @param enabled new state of the items. If null, the current state 
+     *        is inverted
+     * @param items items to modify
+     */
+    public void setItemsEnabled(Boolean enabled, ModelItem[] items) {
+        for (int i = 0; i < items.length; i++) { 
+            FrostUploadItem item = (FrostUploadItem) items[i];
+            if (item.getState() != FrostUploadItem.STATE_DONE) {
+                item.setEnabled(enabled);
+            }
+        }
+    }
 }
