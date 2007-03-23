@@ -158,7 +158,7 @@ public class UnsentMessageDatabaseTable extends AbstractDatabaseTable {
                     int ix=1;
                     p.setLong(ix++, mo.getMsgIdentity()); 
                     p.setString(ix++, fa.getInternalFile().getPath()); 
-                    p.setLong(ix++, fa.getSize().longValue()); 
+                    p.setLong(ix++, fa.getFileSize()); 
                     p.setString(ix++, fa.getKey()); 
                     int ins = p.executeUpdate();
                     if( ins == 0 ) {

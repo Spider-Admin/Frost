@@ -229,7 +229,7 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
                     int ix=1;
                     p.setLong(ix++, mo.getMsgIdentity()); 
                     p.setString(ix++, fa.getFilename()); 
-                    p.setLong(ix++, fa.getSize().longValue()); 
+                    p.setLong(ix++, fa.getFileSize()); 
                     p.setString(ix++, fa.getKey()); 
                     insertedCount = p.executeUpdate();
                     if( insertedCount == 0 ) {

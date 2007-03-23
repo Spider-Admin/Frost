@@ -22,7 +22,6 @@ import java.awt.*;
 import java.awt.datatransfer.*;
 
 import frost.util.gui.translation.*;
-import frost.util.model.*;
 
 public class CopyToClipboard {
 
@@ -50,14 +49,14 @@ public class CopyToClipboard {
      * This method copies the CHK keys and file names of the selected items (if any) to the clipboard.
      * Each ModelItem must implement interface ICopyToClipboardItem.
      */
-    public static void copyKeysAndFilenames(ModelItem[] items) {
+    public static void copyKeysAndFilenames(Object[] items) {
         if (items == null && items.length == 0) {
             return;
         }
         String keyNotAvailableMessage = Language.getInstance().getString("Common.copyToClipBoard.extendedInfo.keyNotAvailableYet");
         StringBuilder textToCopy = new StringBuilder();
         CopyToClipboardItem item;
-        for (ModelItem ditem : items) {
+        for (Object ditem : items) {
             if( !(ditem instanceof CopyToClipboardItem) ) {
                 continue;
             }
@@ -78,7 +77,7 @@ public class CopyToClipboard {
      * the size in bytes.
      * Each ModelItem must implement interface ICopyToClipboardItem.
      */
-    public static void copyExtendedInfo(ModelItem[] items) {
+    public static void copyExtendedInfo(Object[] items) {
         if (items == null && items.length == 0) {
             return;
         }
@@ -88,7 +87,7 @@ public class CopyToClipboard {
         String bytesMessage = Language.getInstance().getString("Common.copyToClipBoard.extendedInfo.bytes")+" ";
         StringBuilder textToCopy = new StringBuilder();
         CopyToClipboardItem item;
-        for (ModelItem ditem : items) {
+        for (Object ditem : items) {
             if( !(ditem instanceof CopyToClipboardItem) ) {
                 continue;
             }
@@ -125,14 +124,14 @@ public class CopyToClipboard {
      * Used only for 0.5 items.
      * Each ModelItem must implement interface ICopyToClipboardItem.
      */
-    public static void copyKeys(ModelItem[] items) {
+    public static void copyKeys(Object[] items) {
         if (items == null && items.length == 0) {
             return;
         }
         String keyNotAvailableMessage = Language.getInstance().getString("Common.copyToClipBoard.extendedInfo.keyNotAvailableYet");
         StringBuilder textToCopy = new StringBuilder();
         CopyToClipboardItem item;
-        for (ModelItem ditem : items) {
+        for (Object ditem : items) {
             if( !(ditem instanceof CopyToClipboardItem) ) {
                 continue;
             }

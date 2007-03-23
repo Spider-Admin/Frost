@@ -25,12 +25,12 @@ import org.xml.sax.*;
 
 import frost.util.*;
 
-public class FileAttachment extends Attachment {
+public class FileAttachment extends Attachment implements CopyToClipboardItem {
     
     private File file = null;
 
     private String key = null; // Name of this key
-    private Long size = new Long(0); // Filesize
+    private long size = 0; // Filesize
     private String filename = new String();
 
 	/* (non-Javadoc)
@@ -53,7 +53,7 @@ public class FileAttachment extends Attachment {
         fileelement.appendChild(element);
 
         element = doc.createElement("size");
-        Text textnode = doc.createTextNode("" + getSize().toString());
+        Text textnode = doc.createTextNode("" + getFileSize());
         element.appendChild(textnode);
         fileelement.appendChild(element);
 
@@ -77,7 +77,7 @@ public class FileAttachment extends Attachment {
         
         filename = XMLTools.getChildElementsCDATAValue(_file, "name");
         key = XMLTools.getChildElementsTextValue(_file, "key");
-        size = new Long(XMLTools.getChildElementsTextValue(_file, "size"));
+        size = new Long(XMLTools.getChildElementsTextValue(_file, "size")).longValue();
 	}
 
 	/**
@@ -90,22 +90,21 @@ public class FileAttachment extends Attachment {
 
 	public FileAttachment(String fname, String k, long s) {
         filename = fname;
-        size = new Long(s);
+        size = s;
         key = k;
 	}
 
     public FileAttachment(String fpath, String k, long s, boolean unsend) {
         file = new File(fpath);
         filename = file.getName();
-        size = new Long(s);
+        size = s;
         key = k;
     }
 
     public FileAttachment(File f) {
         file = f;
-        
         filename = file.getName();
-        size = new Long(file.length());
+        size = file.length();
     }
 
     /* 
@@ -126,7 +125,7 @@ public class FileAttachment extends Attachment {
     public void setKey(String k) {
         key = k;
     }
-    public Long getSize() {
+    public long getFileSize() {
         return size;
     }
     public File getInternalFile() {
