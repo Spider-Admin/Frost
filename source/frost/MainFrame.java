@@ -578,7 +578,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         }
         return menuBar;
     }
-    
+
     private JMenu getLookAndFeelMenu() {
         // init look and feel menu
         UIManager.LookAndFeelInfo[] info = UIManager.getInstalledLookAndFeels();
@@ -591,12 +591,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
                 String lfName = e.getActionCommand();
                 try {
                     UIManager.setLookAndFeel(lfName);
-                    MiscToolkit.getInstance().updateComponentTreesUI();
-                    // the panels are not all in the component tree, update them manually
-                    SwingUtilities.updateComponentTreeUI(getMessagePanel());
-                    SwingUtilities.updateComponentTreeUI(getSentMessagesPanel());
-                    SwingUtilities.updateComponentTreeUI(getUnsentMessagesPanel());
-                    MainFrame.this.repaint();
+                    updateComponentTreesUI();
                 } catch(Throwable t) {
                     logger.log(Level.SEVERE, "Exception changing l&f", t);
                 }
@@ -1433,6 +1428,31 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
             glassPane = null;
         }
         hideProgress();
+    }
+    
+    /**
+     *  Updates the component tree UI of all the frames and dialogs of the application
+     */
+    public void updateComponentTreesUI() {
+        Frame[] appFrames = Frame.getFrames();
+        JSkinnablePopupMenu[] appPopups = JSkinnablePopupMenu.getSkinnablePopupMenus();
+        for (int i = 0; i < appFrames.length; i++) { //Loop to update all the frames
+            SwingUtilities.updateComponentTreeUI(appFrames[i]);
+            Window[] ownedWindows = appFrames[i].getOwnedWindows();
+            for (int j = 0; j < ownedWindows.length; j++) { //Loop to update the dialogs
+                if (ownedWindows[j] instanceof Dialog) {
+                    SwingUtilities.updateComponentTreeUI(ownedWindows[j]);
+                }
+            }
+        }
+        for (int i = 0; i < appPopups.length; i++) { //Loop to update all the popups
+            SwingUtilities.updateComponentTreeUI(appPopups[i]);
+        }
+        // the panels are not all in the component tree, update them manually
+        SwingUtilities.updateComponentTreeUI(getMessagePanel());
+        SwingUtilities.updateComponentTreeUI(getSentMessagesPanel());
+        SwingUtilities.updateComponentTreeUI(getUnsentMessagesPanel());
+        repaint();
     }
     
     /**
