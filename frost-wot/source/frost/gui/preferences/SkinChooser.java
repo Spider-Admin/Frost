@@ -19,7 +19,6 @@
 package frost.gui.preferences;
 
 import java.awt.*;
-import java.awt.Window;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
@@ -225,7 +224,7 @@ public class SkinChooser extends JPanel {
 					Skin skin = SkinLookAndFeel.loadThemePack(selectedSkin);
 					SkinLookAndFeel.setSkin(skin);
 					UIManager.setLookAndFeel(new SkinLookAndFeel());
-					updateComponentTreesUI();
+                    MiscToolkit.getInstance().updateComponentTreesUI();
 				} catch (UnsupportedLookAndFeelException exception) {
 					logger.log(Level.SEVERE, "The selected skin is not supported by your system", exception);
 					setSelectedSkin("none");
@@ -237,7 +236,7 @@ public class SkinChooser extends JPanel {
 				String systemLF = UIManager.getSystemLookAndFeelClassName();
 				try {
 					UIManager.setLookAndFeel(systemLF);
-					updateComponentTreesUI();
+                    MiscToolkit.getInstance().updateComponentTreesUI();
 				} catch (Exception exception) {
 					logger.log(Level.SEVERE, "There was an error while setting the system look and feel", exception);
 				}
@@ -436,29 +435,9 @@ public class SkinChooser extends JPanel {
 			if (initialLookAndFeel instanceof SkinLookAndFeel) {
 				SkinLookAndFeel.setSkin(initialSkin);
 			}
-			updateComponentTreesUI();
+			MiscToolkit.getInstance().updateComponentTreesUI();
 		} catch (UnsupportedLookAndFeelException exception) { //This exception will never be throwed, but just in case...
 			logger.log(Level.SEVERE, "There was an exception when restoring the state of the Look and Feel", exception);
-		}
-	}
-	
-	/**
-	 *	Updates the component tree UI of all the frames and dialogs of the application
-	 */
-	private void updateComponentTreesUI() {
-		Frame[] appFrames = Frame.getFrames();
-		JSkinnablePopupMenu[] appPopups = JSkinnablePopupMenu.getSkinnablePopupMenus();
-		for (int i = 0; i < appFrames.length; i++) { //Loop to update all the frames
-			SwingUtilities.updateComponentTreeUI(appFrames[i]);
-			Window[] ownedWindows = appFrames[i].getOwnedWindows();
-			for (int j = 0; j < ownedWindows.length; j++) { //Loop to update the dialogs
-				if (ownedWindows[j] instanceof Dialog) {
-					SwingUtilities.updateComponentTreeUI(ownedWindows[j]);
-				}
-			}
-		}
-		for (int i = 0; i < appPopups.length; i++) { //Loop to update all the popups
-			SwingUtilities.updateComponentTreeUI(appPopups[i]);
 		}
 	}
 	
