@@ -591,7 +591,11 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
                 String lfName = e.getActionCommand();
                 try {
                     UIManager.setLookAndFeel(lfName);
-                    SwingUtilities.updateComponentTreeUI(MainFrame.this);
+                    MiscToolkit.getInstance().updateComponentTreesUI();
+                    // the panels are not all in the component tree, update them manually
+                    SwingUtilities.updateComponentTreeUI(getMessagePanel());
+                    SwingUtilities.updateComponentTreeUI(getSentMessagesPanel());
+                    SwingUtilities.updateComponentTreeUI(getUnsentMessagesPanel());
                     MainFrame.this.repaint();
                 } catch(Throwable t) {
                     logger.log(Level.SEVERE, "Exception changing l&f", t);

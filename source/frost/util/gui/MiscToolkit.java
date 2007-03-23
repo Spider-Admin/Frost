@@ -228,5 +228,24 @@ public class MiscToolkit {
 		frame.dispose();
 		return returnValue;
 	}
-
+    
+    /**
+     *  Updates the component tree UI of all the frames and dialogs of the application
+     */
+    public void updateComponentTreesUI() {
+        Frame[] appFrames = Frame.getFrames();
+        JSkinnablePopupMenu[] appPopups = JSkinnablePopupMenu.getSkinnablePopupMenus();
+        for (int i = 0; i < appFrames.length; i++) { //Loop to update all the frames
+            SwingUtilities.updateComponentTreeUI(appFrames[i]);
+            Window[] ownedWindows = appFrames[i].getOwnedWindows();
+            for (int j = 0; j < ownedWindows.length; j++) { //Loop to update the dialogs
+                if (ownedWindows[j] instanceof Dialog) {
+                    SwingUtilities.updateComponentTreeUI(ownedWindows[j]);
+                }
+            }
+        }
+        for (int i = 0; i < appPopups.length; i++) { //Loop to update all the popups
+            SwingUtilities.updateComponentTreeUI(appPopups[i]);
+        }
+    }
 }
