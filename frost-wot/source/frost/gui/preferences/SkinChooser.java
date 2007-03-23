@@ -29,7 +29,7 @@ import javax.swing.event.*;
 
 import com.l2fprod.gui.plaf.skin.*;
 
-import frost.util.gui.*;
+import frost.*;
 import frost.util.gui.translation.*;
 
 /**
@@ -224,7 +224,7 @@ public class SkinChooser extends JPanel {
 					Skin skin = SkinLookAndFeel.loadThemePack(selectedSkin);
 					SkinLookAndFeel.setSkin(skin);
 					UIManager.setLookAndFeel(new SkinLookAndFeel());
-                    MiscToolkit.getInstance().updateComponentTreesUI();
+                    MainFrame.getInstance().updateComponentTreesUI();
 				} catch (UnsupportedLookAndFeelException exception) {
 					logger.log(Level.SEVERE, "The selected skin is not supported by your system", exception);
 					setSelectedSkin("none");
@@ -233,10 +233,9 @@ public class SkinChooser extends JPanel {
 					setSelectedSkin("none");
 				}
 			} else {
-				String systemLF = UIManager.getSystemLookAndFeelClassName();
 				try {
-					UIManager.setLookAndFeel(systemLF);
-                    MiscToolkit.getInstance().updateComponentTreesUI();
+					UIManager.setLookAndFeel(initialLookAndFeel);
+                    MainFrame.getInstance().updateComponentTreesUI();
 				} catch (Exception exception) {
 					logger.log(Level.SEVERE, "There was an error while setting the system look and feel", exception);
 				}
@@ -435,7 +434,7 @@ public class SkinChooser extends JPanel {
 			if (initialLookAndFeel instanceof SkinLookAndFeel) {
 				SkinLookAndFeel.setSkin(initialSkin);
 			}
-			MiscToolkit.getInstance().updateComponentTreesUI();
+            MainFrame.getInstance().updateComponentTreesUI();
 		} catch (UnsupportedLookAndFeelException exception) { //This exception will never be throwed, but just in case...
 			logger.log(Level.SEVERE, "There was an exception when restoring the state of the Look and Feel", exception);
 		}
