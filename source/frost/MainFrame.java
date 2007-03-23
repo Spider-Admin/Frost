@@ -20,7 +20,6 @@
 package frost;
 
 import java.awt.*;
-import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.io.*;
 import java.sql.*;
@@ -51,7 +50,7 @@ import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
-public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater, LanguageListener {
+public class MainFrame extends JFrame implements SettingsUpdater, LanguageListener {
     
     private static Logger logger = Logger.getLogger(MainFrame.class.getName());
 
@@ -985,10 +984,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             }
         };
         tickerThread.start();
-    }
-
-    public void lostOwnership(Clipboard clipboard, Transferable contents) {
-        //Core.getOut().println("Clipboard contents replaced");
     }
 
     /**

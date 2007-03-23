@@ -20,7 +20,6 @@
 package frost.gui;
 
 import java.awt.*;
-import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.beans.*;
 import java.util.*;
@@ -647,7 +646,7 @@ public class MessageTextPane extends JPanel {
 
     private class PopupMenuAttachmentFile
         extends JSkinnablePopupMenu
-        implements ActionListener, LanguageListener, ClipboardOwner {
+        implements ActionListener, LanguageListener {
 
 //        private JMenuItem cancelItem = new JMenuItem();
         private JMenuItem saveAttachmentItem = new JMenuItem();
@@ -658,13 +657,6 @@ public class MessageTextPane extends JPanel {
         private JMenuItem copyKeysItem = new JMenuItem();
         private JMenuItem copyExtendedInfoItem = new JMenuItem();
 
-        private Clipboard clipboard;
-
-        private String fileMessage;
-        private String keyMessage;
-        private String bytesMessage;
-        private String keyNotAvailableMessage;
-        
         public PopupMenuAttachmentFile() throws HeadlessException {
             super();
             initialize();
@@ -674,11 +666,11 @@ public class MessageTextPane extends JPanel {
             if (e.getSource() == saveAttachmentsItem || e.getSource() == saveAttachmentItem) {
                 downloadAttachments();
             } else if (e.getSource() == copyKeysItem) {
-                copyKeys();
+                CopyToClipboard.copyKeys( getItems().toArray() );
             } else if (e.getSource() == copyKeysAndNamesItem) {
-                copyKeysAndNames();
+                CopyToClipboard.copyKeysAndFilenames( getItems().toArray() );
             } else if (e.getSource() == copyExtendedInfoItem) {
-                copyExtendedInfo();
+                CopyToClipboard.copyExtendedInfo( getItems().toArray() );
             }
         }
 
@@ -708,11 +700,6 @@ public class MessageTextPane extends JPanel {
             saveAttachmentsItem.setText(language.getString("MessagePane.fileAttachmentTable.popupmenu.downloadAttachments"));
             saveAttachmentItem.setText(language.getString("MessagePane.fileAttachmentTable.popupmenu.downloadSelectedAttachment"));
 //            cancelItem.setText(language.getString("Common.cancel"));
-
-            keyNotAvailableMessage = language.getString("Common.copyToClipBoard.extendedInfo.keyNotAvailableYet");
-            fileMessage = language.getString("Common.copyToClipBoard.extendedInfo.file")+" ";
-            keyMessage = language.getString("Common.copyToClipBoard.extendedInfo.key")+" ";
-            bytesMessage = language.getString("Common.copyToClipBoard.extendedInfo.bytes")+" ";
         }
 
         public void show(Component invoker, int x, int y) {
@@ -742,7 +729,7 @@ public class MessageTextPane extends JPanel {
                 FrostDownloadItem dlItem = new FrostDownloadItem(
                         fa.getFilename(), 
                         fa.getKey(), 
-                        fa.getSize().longValue()); 
+                        fa.getFileSize()); 
                 getDownloadModel().addDownloadItem(dlItem);
             }
         }
@@ -766,114 +753,11 @@ public class MessageTextPane extends JPanel {
             }
             return items;
         }
-
-        /**
-         * This method copies the CHK keys and file names of the selected or all items to the clipboard.
-         */
-        private void copyKeysAndNames() {
-
-            List items = getItems();
-            if( items.size() == 0 ) {
-                return;
-            }
-
-            StringBuilder textToCopy = new StringBuilder();
-            for(Iterator i = items.iterator(); i.hasNext(); ) {
-                FileAttachment fa = (FileAttachment) i.next();
-                String key = fa.getKey();
-                if (key == null) {
-                    key = keyNotAvailableMessage;
-                } else {
-                    textToCopy.append(key);
-                    if( key.startsWith("CHK@") ) {
-                        // CHK
-                        if( key.indexOf('/') < 0 ) {
-                            textToCopy.append("/");
-                            textToCopy.append(fa.getFilename());
-                        }
-                    } 
-//                    else {
-//                        // KSK, SSK or USK
-//                        // don't append filename, key is enough
-//                    }
-                }
-                textToCopy.append("\n");
-            }
-            StringSelection selection = new StringSelection(textToCopy.toString());
-            getClipboard().setContents(selection, this);
-        }
-
-        /**
-         * This method copies extended information about the selected items (if any) to
-         * the clipboard. That information is composed of the filename, the key and
-         * the size in bytes.
-         */
-        private void copyExtendedInfo() {
-            List items = getItems();
-            if( items.size() == 0 ) {
-                return;
-            }
-
-            StringBuilder textToCopy = new StringBuilder();
-            for(Iterator i = items.iterator(); i.hasNext(); ) {
-                FileAttachment fa = (FileAttachment) i.next();
-
-                String key = fa.getKey();
-                if (key == null) {
-                    key = keyNotAvailableMessage;
-                }
-                textToCopy.append(fileMessage);
-                textToCopy.append(fa.getFilename() + "\n");
-                textToCopy.append(keyMessage);
-                textToCopy.append(key + "\n");
-                textToCopy.append(bytesMessage);
-                textToCopy.append(fa.getSize() + "\n\n");
-            }
-            //We remove the additional \n at the end
-            String result = textToCopy.substring(0, textToCopy.length() - 1);
-
-            StringSelection selection = new StringSelection(result);
-            getClipboard().setContents(selection, this);
-        }
-
-        /**
-         * This method copies the CHK keys of the selected items (if any) to the clipboard.
-         */
-        private void copyKeys() {
-            List items = getItems();
-            if( items.size() == 0 ) {
-                return;
-            }
-
-            StringBuilder textToCopy = new StringBuilder();
-            for(Iterator i = items.iterator(); i.hasNext(); ) {
-                FileAttachment fa = (FileAttachment) i.next();
-                String key = fa.getKey();
-                if (key == null) {
-                    key = keyNotAvailableMessage;
-                }
-                textToCopy.append(key);
-                textToCopy.append("\n");
-            }
-            StringSelection selection = new StringSelection(textToCopy.toString());
-            getClipboard().setContents(selection, this);
-        }
-
-        private Clipboard getClipboard() {
-            if (clipboard == null) {
-                clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            }
-            return clipboard;
-        }
-
-        public void lostOwnership(Clipboard tclipboard, Transferable contents) {
-            // Nothing here
-        }
     }
 
     private class PopupMenuHyperLink 
     extends JSkinnablePopupMenu
-    implements ActionListener, LanguageListener, ClipboardOwner {
+    implements ActionListener, LanguageListener {
 
         private JMenuItem cancelItem = new JMenuItem();
 
@@ -886,8 +770,6 @@ public class MessageTextPane extends JPanel {
 
         private JMenuItem downloadFile = new JMenuItem();
         private JMenuItem downloadAllFiles = new JMenuItem();
-        
-        private Clipboard clipboard;
     
         private String clickedKey = null;
         private List allKeys = null;
@@ -1025,38 +907,25 @@ public class MessageTextPane extends JPanel {
                 return;
             }
             
-            StringSelection selection;
+            String text;
             if( items.size() > 1 ) {
                 StringBuilder textToCopy = new StringBuilder();
             	for(Iterator i = items.iterator(); i.hasNext(); ) {
             		String key = (String)i.next();
             		textToCopy.append(key).append("\n");
             	}
-            	selection = new StringSelection(textToCopy.toString());
+            	text = textToCopy.toString();
             } else {
             	// don't include a trailing \n if we only have one item
-            	selection = new StringSelection((String)items.get(0));
+            	text = (String)items.get(0);
             }
-            getClipboard().setContents(selection, this);
-        }
-    
-        private Clipboard getClipboard() {
-            if (clipboard == null) {
-                clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            }
-            return clipboard;
-        }
-
-        public void lostOwnership(Clipboard tclipboard, Transferable contents) {
-            // Nothing here
+            CopyToClipboard.copyText(text);
         }
     }
 
     private class PopupMenuTofText
     extends JSkinnablePopupMenu
-    implements ActionListener, LanguageListener, ClipboardOwner {
-
-        private Clipboard clipboard;
+    implements ActionListener, LanguageListener {
 
         private JTextComponent sourceTextComponent;
 
@@ -1075,16 +944,13 @@ public class MessageTextPane extends JPanel {
                 saveMessageButton_actionPerformed();
             } else if (e.getSource() == copyItem) {
                 // copy selected text
-                StringSelection selection = new StringSelection(sourceTextComponent.getSelectedText());
-                clipboard.setContents(selection, this);
+                String text = sourceTextComponent.getSelectedText();
+                CopyToClipboard.copyText(text);
             }
         }
 
         private void initialize() {
             languageChanged(null);
-
-            Toolkit toolkit = Toolkit.getDefaultToolkit();
-            clipboard = toolkit.getSystemClipboard();
 
             copyItem.addActionListener(this);
             saveMessageItem.addActionListener(this);
@@ -1111,10 +977,6 @@ public class MessageTextPane extends JPanel {
                 }
                 super.show(invoker, x, y);
             }
-        }
-
-        public void lostOwnership(Clipboard tclipboard, Transferable contents) {
-            // Nothing here
         }
     }
 
