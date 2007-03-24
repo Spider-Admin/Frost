@@ -23,8 +23,10 @@
             <privateKey><![CDATA[SSK@P6lGZQDMKSGZH0naN-PKAOT0LqY]]></privateKey>
         </FrostBoardTreeEntry>
         <FrostBoardTreeEntry>
-            <name><![CDATA[spam-hq]]></name>
-            <publicKey><![CDATA[SSK@RQq1UXamxynFMpAgHx6AmuaHAbMPAgM]]></publicKey>
+            <name><![CDATA[successful]]></name>
+            <publicKey><![CDATA[SSK@Y~p2Aqpn~kTZ~FVynE5GG2VxAekPAgM]]></publicKey>
+            <privateKey><![CDATA[SSK@SoURyG1vDr0q5yFfy74-zI5Vy80]]></privateKey>
+            <description><![CDATA[Report successful downloads here]]></description>
         </FrostBoardTreeEntry>
         <FrostBoardTreeEntry>
             <name><![CDATA[frost-announce]]></name>
