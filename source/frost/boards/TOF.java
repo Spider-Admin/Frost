@@ -510,6 +510,10 @@ public class TOF {
                     // try to load each referenced msgid, put tried ids into hashset msgIds
                     for(int x=l.size()-1; x>=0; x--) {
                         String anId = (String)l.get(x);
+                        if( anId == null ) {
+                            logger.log(Level.SEVERE, "Should never happen: message id is null!"+mo.getMessageId());
+                            continue;
+                        }
                         if( messageIds.contains(anId) ) {
                             continue;
                         }
@@ -574,7 +578,15 @@ public class TOF {
                     } else {
                         // add to direct parent
                         String directParentId = (String)l.getLast();
+                        if( directParentId == null ) {
+                            logger.log(Level.SEVERE, "Should never happen: directParentId is null!!!"+mo.getMessageId());
+                            continue;
+                        }
                         FrostMessageObject parentMo = (FrostMessageObject)messagesTableById.get(directParentId);
+                        if( parentMo == null ) {
+                            logger.log(Level.SEVERE, "Should never happen: parentMo is null!!!"+mo.getMessageId());
+                            continue;
+                        }
                         parentMo.add(mo);
                     }
                 }
