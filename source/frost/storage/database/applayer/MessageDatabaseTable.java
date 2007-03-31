@@ -196,7 +196,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         return true;
     }
 
-    public synchronized void insertMessage(FrostMessageObject mo) throws SQLException {
+    public synchronized boolean insertMessage(FrostMessageObject mo) throws SQLException {
 
         AttachmentList files = mo.getAttachmentsOfType(Attachment.FILE);
         AttachmentList boards = mo.getAttachmentsOfType(Attachment.BOARD);
@@ -259,7 +259,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
     
             if( inserted == 0 ) {
                 logger.log(Level.SEVERE, "message insert returned 0 !!!");
-                return;
+                return false; // message not inserted
             }
             
             mo.setMsgIdentity(identity.longValue());
@@ -323,6 +323,8 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
             }
             conn.commit();
             conn.setAutoCommit(true);
+
+            return true; // message inserted
         } catch(Throwable t) {
             if( t.getMessage().indexOf("constraint violation") > 0 && t.getMessage().indexOf("MSG_ID_UNIQUE_ONLY") > 0 ) {
                 logger.warning("Duplicate message id, not added to database table.");
@@ -334,6 +336,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         } finally {
             AppLayerDatabase.getInstance().givePooledConnection(conn);
         }
+        return false; // message not inserted
     }
 
     public synchronized void updateMessage(FrostMessageObject mo) throws SQLException {

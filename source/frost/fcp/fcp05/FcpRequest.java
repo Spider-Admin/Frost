@@ -38,6 +38,64 @@ public class FcpRequest {
     private static Logger logger = Logger.getLogger(FcpRequest.class.getName());
 
     /**
+     * Reads the progress information of the provided items and updates the item.
+     */
+    public static void updateProgress(FrostDownloadItem dlItem) {
+
+        if( dlItem == null || dlItem.getKey() == null ) {
+            return;
+        }
+
+        File t1 = new File(dlItem.getTargetPath() + ".redirect");
+        if( !t1.isFile() || t1.length() == 0 ) {
+            return;
+        }
+
+        FecSplitfile splitfile;
+        try {
+            splitfile = new FecSplitfile(new File(dlItem.getTargetPath()), t1);
+        } catch(Exception ex) {
+            logger.log(Level.SEVERE, "Exception thrown in updateProgress", ex);
+            return;
+        }
+        int displayedRequiredBlocks = splitfile.getDataBlocks().size();
+        int displayedAvailableBlocks = splitfile.getDataBlocks().size() + splitfile.getCheckBlocks().size();
+        int displayedFinishedBlocks = 0;
+
+        for( int segmentNo=0; segmentNo < splitfile.getSegmentCount(); segmentNo++ ) {
+
+            FecSplitfile.SingleSegmentValues seginf =
+                (FecSplitfile.SingleSegmentValues)splitfile.getValuesForSegment(segmentNo);
+            int neededBlockCount = seginf.dataBlockCount;
+            
+            int segmentsFinishedBlocks = 0;
+            
+            segmentsFinishedBlocks += getBlocksInSegmentWithState(splitfile.getDataBlocks(),
+                                            segmentNo,
+                                            FecBlock.STATE_TRANSFER_FINISHED).size();
+            segmentsFinishedBlocks += getBlocksInSegmentWithState(splitfile.getCheckBlocks(),
+                                            segmentNo,
+                                            FecBlock.STATE_TRANSFER_FINISHED).size();
+
+            // only count needed blocks, do not finish more than needed blocks.
+            // this special counting is only needed for progress display
+            if( segmentsFinishedBlocks > neededBlockCount ) {
+                displayedFinishedBlocks += neededBlockCount;
+            } else {
+                displayedFinishedBlocks += segmentsFinishedBlocks;
+            }
+        }
+        
+        splitfile.closeBuckets();
+        
+        // update gui table
+        dlItem.setDoneBlocks(displayedFinishedBlocks);
+        dlItem.setRequiredBlocks(displayedRequiredBlocks);
+        dlItem.setTotalBlocks(displayedAvailableBlocks);
+        dlItem.fireValueChanged();
+    }
+
+    /**
      * Downloads a FEC splitfile.
      * If downloadItem == null, we download a file not contained in download table
      * (e.g. an index file). Then do not update progress, and remove working files
@@ -102,20 +160,29 @@ public class FcpRequest {
                     (FecSplitfile.SingleSegmentValues)splitfile.getValuesForSegment(segmentNo);
                 int neededBlockCount = seginf.dataBlockCount;
 //                int availableBlockCount = seginf.dataBlockCount + seginf.checkBlockCount;
-                ArrayList missingBlocks = getBlocksInSegmentWithState(splitfile.getDataBlocks(),
-                    segmentNo,
-                    FecBlock.STATE_TRANSFER_WAITING);
-                missingBlocks.addAll( getBlocksInSegmentWithState(splitfile.getCheckBlocks(),
-                    segmentNo,
-                    FecBlock.STATE_TRANSFER_WAITING) );
+//                ArrayList missingBlocks = getBlocksInSegmentWithState(splitfile.getDataBlocks(),
+//                    segmentNo,
+//                    FecBlock.STATE_TRANSFER_WAITING);
+//                missingBlocks.addAll( getBlocksInSegmentWithState(splitfile.getCheckBlocks(),
+//                    segmentNo,
+//                    FecBlock.STATE_TRANSFER_WAITING) );
 //                int missingOverallBlockCount = missingBlocks.size();
-                ArrayList finishedBlocks = getBlocksInSegmentWithState(splitfile.getDataBlocks(),
-                    segmentNo,
-                    FecBlock.STATE_TRANSFER_FINISHED);
-                finishedBlocks.addAll( getBlocksInSegmentWithState(splitfile.getCheckBlocks(),
-                    segmentNo,
-                    FecBlock.STATE_TRANSFER_FINISHED) );
-                int segmentsFinishedBlocks = finishedBlocks.size();
+
+                int segmentsFinishedBlocks = 0;
+                segmentsFinishedBlocks += getBlocksInSegmentWithState(splitfile.getDataBlocks(),
+                                                segmentNo,
+                                                FecBlock.STATE_TRANSFER_FINISHED).size();
+                segmentsFinishedBlocks += getBlocksInSegmentWithState(splitfile.getCheckBlocks(),
+                                                segmentNo,
+                                                FecBlock.STATE_TRANSFER_FINISHED).size();
+                
+//                ArrayList finishedBlocks = getBlocksInSegmentWithState(splitfile.getDataBlocks(),
+//                    segmentNo,
+//                    FecBlock.STATE_TRANSFER_FINISHED);
+//                finishedBlocks.addAll( getBlocksInSegmentWithState(splitfile.getCheckBlocks(),
+//                    segmentNo,
+//                    FecBlock.STATE_TRANSFER_FINISHED) );
+//                int segmentsFinishedBlocks = finishedBlocks.size();
 
                 // only count needed blocks, do not finish more than needed blocks.
                 // this special counting is only needed for progress display
@@ -145,21 +212,30 @@ public class FcpRequest {
                 (FecSplitfile.SingleSegmentValues)splitfile.getValuesForSegment(segmentNo);
             int neededBlockCount = seginf.dataBlockCount;
 //            int availableBlockCount = seginf.dataBlockCount + seginf.checkBlockCount;
-            ArrayList missingBlocks = getBlocksInSegmentWithState(splitfile.getDataBlocks(),
+            ArrayList<FecBlock> missingBlocks = getBlocksInSegmentWithState(splitfile.getDataBlocks(),
                 segmentNo,
                 FecBlock.STATE_TRANSFER_WAITING);
             missingBlocks.addAll( getBlocksInSegmentWithState(splitfile.getCheckBlocks(),
                 segmentNo,
                 FecBlock.STATE_TRANSFER_WAITING) );
             int missingOverallBlockCount = missingBlocks.size();
-            ArrayList finishedBlocks = getBlocksInSegmentWithState(splitfile.getDataBlocks(),
-                segmentNo,
-                FecBlock.STATE_TRANSFER_FINISHED);
-            finishedBlocks.addAll( getBlocksInSegmentWithState(splitfile.getCheckBlocks(),
-                segmentNo,
-                FecBlock.STATE_TRANSFER_FINISHED) );
-            int segmentsFinishedBlocks = finishedBlocks.size();
-            finishedBlocks = null; // not longer needed
+            
+            int segmentsFinishedBlocks = 0;
+            segmentsFinishedBlocks += getBlocksInSegmentWithState(splitfile.getDataBlocks(),
+                                            segmentNo,
+                                            FecBlock.STATE_TRANSFER_FINISHED).size();
+            segmentsFinishedBlocks += getBlocksInSegmentWithState(splitfile.getCheckBlocks(),
+                                            segmentNo,
+                                            FecBlock.STATE_TRANSFER_FINISHED).size();
+            
+//            ArrayList finishedBlocks = getBlocksInSegmentWithState(splitfile.getDataBlocks(),
+//                segmentNo,
+//                FecBlock.STATE_TRANSFER_FINISHED);
+//            finishedBlocks.addAll( getBlocksInSegmentWithState(splitfile.getCheckBlocks(),
+//                segmentNo,
+//                FecBlock.STATE_TRANSFER_FINISHED) );
+//            int segmentsFinishedBlocks = finishedBlocks.size();
+//            finishedBlocks = null; // not longer needed
 
             if( missingOverallBlockCount == 0 ) {
                 // when a segment is decoded, ALL blocks are set to finished
@@ -175,7 +251,7 @@ public class FcpRequest {
                 Collections.shuffle( missingBlocks );
                 // start configured amount of splitfile threads
                 int actBlockIx = 0;
-                Vector runningThreads = new Vector(maxThreads);
+                Vector<GetKeyThread> runningThreads = new Vector<GetKeyThread>(maxThreads);
 
                 while( segmentsFinishedBlocks < neededBlockCount &&
                        actBlockIx < missingBlocks.size() )
@@ -428,8 +504,8 @@ public class FcpRequest {
         }
     }
 
-    private static ArrayList getBlocksInSegmentWithState(List allBlocks, int segno, int state) {
-        ArrayList l = new ArrayList();
+    private static ArrayList<FecBlock> getBlocksInSegmentWithState(List allBlocks, int segno, int state) {
+        ArrayList<FecBlock> l = new ArrayList<FecBlock>();
         for( int x=0; x<allBlocks.size(); x++ ) {
             FecBlock b = (FecBlock)allBlocks.get(x);
             if( b.getSegmentNo() == segno &&
@@ -441,7 +517,7 @@ public class FcpRequest {
         return l;
     }
 
-    private static void setBlocksInSegmentFinished(List allBlocks, int segno) {
+    private static void setBlocksInSegmentFinished(List<FecBlock> allBlocks, int segno) {
         for( int x=0; x<allBlocks.size(); x++ ) {
             FecBlock b = (FecBlock)allBlocks.get(x);
             if( b.getSegmentNo() == segno &&

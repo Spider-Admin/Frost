@@ -212,7 +212,7 @@ public class SortedModel {
      * @return  a new List containing all items of this model, in unspecific order
      */
     public List getItems() {
-        return new ArrayList(data);
+        return new ArrayList<ModelItem>(data);
     }
 	
 	/**

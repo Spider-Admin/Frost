@@ -226,12 +226,16 @@ public class TOF {
             // if message is blocked, reset new state
             newMsg.setNew(false);
         }
-        
+
+        boolean messageWasInserted = false;
         try {
-            AppLayerDatabase.getMessageTable().insertMessage(newMsg);
+            messageWasInserted = AppLayerDatabase.getMessageTable().insertMessage(newMsg);
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Error inserting new message into database", e);
             return;
+        }
+        if( !messageWasInserted ) {
+            return; // not inserted into database, do not add to gui
         }
 
         // after add to database
@@ -584,6 +588,8 @@ public class TOF {
                         }
                         FrostMessageObject parentMo = (FrostMessageObject)messagesTableById.get(directParentId);
                         if( parentMo == null ) {
+                            // FIXME: happens if someone sends a faked msg with parentids from 2 different threads.
+                            //  gives NPE if one of the messages is already in its own thread
                             logger.log(Level.SEVERE, "Should never happen: parentMo is null!!!"+mo.getMessageId());
                             continue;
                         }
@@ -699,19 +705,23 @@ public class TOF {
             // update SortStateBean
             MessageTreeTableSortStateBean.setThreaded(loadThreads);
             
-            if( loadThreads  ) {
-                ThreadedMessageRetrieval tmr = new ThreadedMessageRetrieval(rootNode);
-                long l1 = System.currentTimeMillis();
-                loadMessages(tmr);
-                long l2 = System.currentTimeMillis();
-                tmr.buildThreads();
-                long l3 = System.currentTimeMillis();
-                // FIXME: debug output only!
-                System.out.println("loading board "+board.getName()+": load="+(l2-l1)+", build+subretrieve="+(l3-l2)); 
-            } else {
-                // load flat
-                FlatMessageRetrieval ffr = new FlatMessageRetrieval(rootNode);
-                loadMessages(ffr);
+            try {
+                if( loadThreads  ) {
+                    ThreadedMessageRetrieval tmr = new ThreadedMessageRetrieval(rootNode);
+                    long l1 = System.currentTimeMillis();
+                    loadMessages(tmr);
+                    long l2 = System.currentTimeMillis();
+                    tmr.buildThreads();
+                    long l3 = System.currentTimeMillis();
+                    // FIXME: debug output only!
+                    System.out.println("loading board "+board.getName()+": load="+(l2-l1)+", build+subretrieve="+(l3-l2)); 
+                } else {
+                    // load flat
+                    FlatMessageRetrieval ffr = new FlatMessageRetrieval(rootNode);
+                    loadMessages(ffr);
+                }
+            } catch (Throwable t) {
+                logger.log(Level.SEVERE, "Excpetion during thread load/build", t);
             }
             
             if( !isCancel() ) {

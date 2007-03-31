@@ -45,6 +45,14 @@ public class UploadManager {
         getPanel();
         getStatusPanel();
         getModel().initialize(sharedFiles);
+        
+        // on 0.5, load progress of all files
+        if( FcpHandler.isFreenet05() ) {
+            for(int x=0; x < getModel().getItemCount(); x++) {
+                FrostUploadItem item = (FrostUploadItem) getModel().getItemAt(x);
+                frost.fcp.fcp05.FcpInsert.updateProgress(item);
+            }
+        }
     }
     
     public void startTicker() {
@@ -161,33 +169,43 @@ public class UploadManager {
     public FrostUploadItem selectNextUploadItem() {
 
         ArrayList<FrostUploadItem> waitingItems = new ArrayList<FrostUploadItem>();
+        
+        final long currentTime = System.currentTimeMillis();
 
         for (int i = 0; i < model.getItemCount(); i++) {
             FrostUploadItem ulItem = (FrostUploadItem) model.getItemAt(i);
+
+            // don't start disabled items
             boolean itemIsEnabled = (ulItem.isEnabled()==null?true:ulItem.isEnabled().booleanValue());
             if( !itemIsEnabled ) {
                 continue;
             }
+            // don't start external 0.7 items
             if( ulItem.isExternal() ) {
                 continue;
             }
-            
+            // don't start items whose direct transfer to the node is already in progress
             if( FileTransferManager.inst().getPersistenceManager() != null ) {
                 if( FileTransferManager.inst().getPersistenceManager().isDirectTransferInProgress(ulItem) ) {
                     continue;
                 }
             }
-            
-            // we choose items that are waiting, enabled and for 0.5 the encoding must be done before
-            if (ulItem.getState() == FrostUploadItem.STATE_WAITING
-                && (ulItem.getKey() != null || FcpHandler.isFreenet07() ) )
-            {
-                // check if waittime has expired
-                long waittimeMillis = (long)Core.frostSettings.getIntValue(SettingsClass.UPLOAD_WAITTIME) * 60L * 1000L;
-                if ((System.currentTimeMillis() - ulItem.getLastUploadStopTimeMillis()) > waittimeMillis) {
-                    waitingItems.add(ulItem);
-                }
+            // only start waiting items
+            if (ulItem.getState() != FrostUploadItem.STATE_WAITING) {
+                continue;
             }
+            // for 0.5 the encoding must be done before so we have a key
+            if( FcpHandler.isFreenet05() && ulItem.getKey() == null ) {
+                continue;
+            }
+            // check if items waittime between tries is expired so we could restart it
+            long waittimeMillis = (long)Core.frostSettings.getIntValue(SettingsClass.UPLOAD_WAITTIME) * 60L * 1000L;
+            if ((currentTime - ulItem.getLastUploadStopTimeMillis()) < waittimeMillis) {
+                continue;
+            }
+
+            // we could start this item
+            waitingItems.add(ulItem);
         }
 
         if (waitingItems.size() == 0) {
@@ -195,17 +213,41 @@ public class UploadManager {
         }
 
         if (waitingItems.size() > 1) {
-            Collections.sort(waitingItems, uploadDlStopMillisCmp);
+            Collections.sort(waitingItems, nextItemCmp);
         }
+
         return (FrostUploadItem) waitingItems.get(0);
     }
 
-    /**
-     * Used to sort FrostUploadItems by lastUploadStopTimeMillis ascending.
-     */
-    private static final Comparator<FrostUploadItem> uploadDlStopMillisCmp = new Comparator<FrostUploadItem>() {
+    private static final Comparator<FrostUploadItem> nextItemCmp = new Comparator<FrostUploadItem>() {
         public int compare(FrostUploadItem value1, FrostUploadItem value2) {
-            return Mixed.compareLong(value1.getLastUploadStopTimeMillis(), value2.getLastUploadStopTimeMillis());
+            
+            int blocksTodo1;
+            int blocksTodo2;
+
+            // compute remaining blocks
+            if( value1.getTotalBlocks() > 0 && value1.getDoneBlocks() > 0 ) {
+                blocksTodo1 = value1.getTotalBlocks() - value1.getDoneBlocks(); 
+            } else if( FcpHandler.isFreenet05() && value1.getFileSize() <= frost.fcp.fcp05.FcpInsert.smallestChunk ) {
+                blocksTodo1 = 1; // 0.5, one block file
+            } else {
+                blocksTodo1 = Integer.MAX_VALUE; // never started
+            }
+            if( value2.getTotalBlocks() > 0 && value2.getDoneBlocks() > 0 ) {
+                blocksTodo2 = value2.getTotalBlocks() - value2.getDoneBlocks(); 
+            } else if( FcpHandler.isFreenet05() && value2.getFileSize() <= frost.fcp.fcp05.FcpInsert.smallestChunk ) {
+                blocksTodo2 = 1; // 0.5, one block file
+            } else {
+                blocksTodo2 = Integer.MAX_VALUE; // never started
+            }
+            
+            int cmp = Mixed.compareInt(blocksTodo1, blocksTodo2);
+            if( cmp == 0 ) {
+                // equal remainingBlocks, choose smaller file
+                return Mixed.compareLong(value1.getFileSize(), value2.getFileSize());
+            } else {
+                return cmp;
+            }
         }
     };
 }
