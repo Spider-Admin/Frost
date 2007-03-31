@@ -44,7 +44,7 @@ public class FecSplitfile
 
     protected int transferMode; // the mode for this file: is it to upload or download?
 
-    protected ArrayList segmentValues; // holds infos about the segmentation of file
+    protected ArrayList<SingleSegmentValues> segmentValues; // holds infos about the segmentation of file
     protected File dataFile; // the target file + ".data"
     protected long dataFileSize;
     protected File checkBlocksFile; // the target file + ".checkblocks"
@@ -60,7 +60,7 @@ public class FecSplitfile
     protected FrostFECDecodeBucketFactory fecDecodeFactory = null;
 
     // the lists holding the data+check blocks
-    protected ArrayList dataBlocks, checkBlocks;
+    protected ArrayList<FecBlock> dataBlocks, checkBlocks;
 
     /**
      * This constructor expects that both files are valid.
@@ -357,8 +357,8 @@ public class FecSplitfile
         // init decoder for this segment
         this.decoder.setSegment( segmentNo );
 
-        ArrayList requestedDataBlocksIxList = new ArrayList(); // Integer
-        ArrayList requestedDataBlocksBucketList = new ArrayList(); // RandomAccessFileBuckets
+        ArrayList<Integer> requestedDataBlocksIxList = new ArrayList<Integer>(); // Integer
+        ArrayList<RandomAccessFileBucket> requestedDataBlocksBucketList = new ArrayList<RandomAccessFileBucket>(); // RandomAccessFileBuckets
 
         // search downloaded data blocks, put existing into decoder,
         // and remember the missing for the list of missing blocks
@@ -503,8 +503,8 @@ public class FecSplitfile
      * @throws Exception
      */
     protected void buildFecBlocks(boolean encodeBlocks) throws Exception {
-        this.dataBlocks = new ArrayList();
-        this.checkBlocks = new ArrayList();
+        this.dataBlocks = new ArrayList<FecBlock>();
+        this.checkBlocks = new ArrayList<FecBlock>();
 
         int dataBlockIndexInFile = 0;
         int checkBlockIndexInFile = 0;
@@ -690,7 +690,7 @@ End
     protected void fillSegmentValues(OnionFECBase myEncoder) {
 
         int segmentCount = myEncoder.getSegmentCount();
-        this.segmentValues = new ArrayList(segmentCount);
+        this.segmentValues = new ArrayList<SingleSegmentValues>(segmentCount);
         this.checkBlocksFileSize = 0;
 
         this.fileDataBlockCount = 0;
@@ -730,11 +730,11 @@ End
         return this.segmentValues.size();
     }
 
-    public List getCheckBlocks() {
+    public List<FecBlock> getCheckBlocks() {
         return checkBlocks;
     }
 
-    public List getDataBlocks() {
+    public List<FecBlock> getDataBlocks() {
         return dataBlocks;
     }
 

@@ -218,6 +218,50 @@ RawDataLength=0
     }
 
     /**
+     * Reads the progress information of the provided items and updates the item.
+     */
+    public static void updateProgress(FrostUploadItem ulItem) {
+
+        if( ulItem == null || ulItem.getKey() == null ) {
+            return;
+        }
+
+        FecSplitfile splitfile = new FecSplitfile( ulItem.getFile() );
+        boolean alreadyEncoded = splitfile.uploadInit();
+        if( alreadyEncoded == false ) {
+            return;
+        }
+        int totalAvailableBlocks = splitfile.getDataBlocks().size() + splitfile.getCheckBlocks().size();
+        int totalFinishedBlocks = 0;
+        for( int segmentNo=0; segmentNo < splitfile.getSegmentCount(); segmentNo++ ) {
+
+            FecSplitfile.SingleSegmentValues seginf =
+                (FecSplitfile.SingleSegmentValues)splitfile.getValuesForSegment(segmentNo);
+
+            int blocksToUploadCount = 0;
+            
+            blocksToUploadCount += getFecBlocksInSegmentWithState(
+                                        splitfile.getDataBlocks(),
+                                        segmentNo,
+                                        FecBlock.STATE_TRANSFER_WAITING).size();
+
+            blocksToUploadCount += getFecBlocksInSegmentWithState(
+                                        splitfile.getCheckBlocks(),
+                                        segmentNo,
+                                        FecBlock.STATE_TRANSFER_WAITING).size();
+
+
+            int segmentBlockCount = seginf.dataBlockCount + seginf.checkBlockCount;
+            totalFinishedBlocks += segmentBlockCount - blocksToUploadCount;
+        }
+        splitfile.closeBuckets();
+
+        ulItem.setTotalBlocks( totalAvailableBlocks );
+        ulItem.setDoneBlocks( totalFinishedBlocks );
+        ulItem.fireValueChanged();
+    }
+
+    /**
      * Uploads a FEC splitfile.
      * If uploadItem == null, we upload a file not contained in upload table
      * (e.g. an index file). Then do not update progress, and remove working files
@@ -265,14 +309,14 @@ RawDataLength=0
             ulItem.setState( FrostUploadItem.STATE_PROGRESS ); // fires change
         }
 
-        LinkedList allBlocksToUpload = new LinkedList();
+        LinkedList<FecBlock> allBlocksToUpload = new LinkedList<FecBlock>();
 
         for( int segmentNo=0; segmentNo < splitfile.getSegmentCount(); segmentNo++ ) {
 
             FecSplitfile.SingleSegmentValues seginf =
                 (FecSplitfile.SingleSegmentValues)splitfile.getValuesForSegment(segmentNo);
 
-            List blocksToUpload;
+            List<FecBlock> blocksToUpload;
 
             blocksToUpload = getFecBlocksInSegmentWithState(splitfile.getDataBlocks(),
                 segmentNo,
@@ -303,7 +347,7 @@ RawDataLength=0
 
         // insert all blocks
 
-        ArrayList runningThreads = new ArrayList();
+        ArrayList<PutKeyThread> runningThreads = new ArrayList<PutKeyThread>();
 
         while( allBlocksToUpload.size() > 0 || runningThreads.size() > 0 ) {
 
@@ -501,8 +545,8 @@ RawDataLength=0
         }
     }
 
-    private static List getFecBlocksInSegmentWithState(List allBlocks, int segno, int state) {
-        ArrayList l = new ArrayList();
+    private static List<FecBlock> getFecBlocksInSegmentWithState(List allBlocks, int segno, int state) {
+        ArrayList<FecBlock> l = new ArrayList<FecBlock>();
         for( int x=0; x<allBlocks.size(); x++ ) {
             FecBlock b = (FecBlock)allBlocks.get(x);
             if( b.getSegmentNo() == segno &&

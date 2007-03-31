@@ -46,6 +46,14 @@ public class DownloadManager {
         getPanel();
         getStatusPanel();
 		getModel().initialize();
+        
+        // on 0.5, load progress of all files
+        if( FcpHandler.isFreenet05() ) {
+            for(int x=0; x < getModel().getItemCount(); x++) {
+                FrostDownloadItem item = (FrostDownloadItem) getModel().getItemAt(x);
+                frost.fcp.fcp05.FcpRequest.updateProgress(item);
+            }
+        }
 	}
     
     public void startTicker() {
@@ -257,15 +265,17 @@ public class DownloadManager {
                 continue;
             }
             
-            if( dlItem.getState() == FrostDownloadItem.STATE_WAITING ) {
-                // check if waittime is expired
-                long waittimeMillis = (long)Core.frostSettings.getIntValue(SettingsClass.DOWNLOAD_WAITTIME) * 60L * 1000L;
-                // min->millisec
-                if (dlItem.getLastDownloadStopTime() == 0 // never started
-                    || (System.currentTimeMillis() - dlItem.getLastDownloadStopTime()) > waittimeMillis) 
-                {
-                    waitingItems.add(dlItem);
-                }
+            if( dlItem.getState() != FrostDownloadItem.STATE_WAITING ) {
+                continue;
+            }
+            
+            // check if waittime is expired
+            long waittimeMillis = (long)Core.frostSettings.getIntValue(SettingsClass.DOWNLOAD_WAITTIME) * 60L * 1000L;
+            // min->millisec
+            if (dlItem.getLastDownloadStopTime() == 0 // never started
+                || (System.currentTimeMillis() - dlItem.getLastDownloadStopTime()) > waittimeMillis) 
+            {
+                waitingItems.add(dlItem);
             }
         }
 
@@ -274,7 +284,7 @@ public class DownloadManager {
         }
 
         if (waitingItems.size() > 1) { // performance issues
-            Collections.sort(waitingItems, downloadDlStopMillisCmp);
+            Collections.sort(waitingItems, nextItemCmp);
         }
         return (FrostDownloadItem) waitingItems.get(0);
     }
@@ -282,9 +292,30 @@ public class DownloadManager {
     /**
      * Used to sort FrostDownloadItems by lastUpdateStartTimeMillis ascending.
      */
-    private static final Comparator<FrostDownloadItem> downloadDlStopMillisCmp = new Comparator<FrostDownloadItem>() {
+    private static final Comparator<FrostDownloadItem> nextItemCmp = new Comparator<FrostDownloadItem>() {
         public int compare(FrostDownloadItem value1, FrostDownloadItem value2) {
-            return Mixed.compareLong(value1.getLastDownloadStopTime(), value2.getLastDownloadStopTime());
+            int blocksTodo1;
+            int blocksTodo2;
+
+            // compute remaining blocks
+            if( value1.getRequiredBlocks() > 0 && value1.getDoneBlocks() > 0 ) {
+                blocksTodo1 = value1.getRequiredBlocks() - value1.getDoneBlocks(); 
+            } else {
+                blocksTodo1 = Integer.MAX_VALUE; // never started
+            }
+            if( value2.getRequiredBlocks() > 0 && value2.getDoneBlocks() > 0 ) {
+                blocksTodo2 = value2.getRequiredBlocks() - value2.getDoneBlocks(); 
+            } else {
+                blocksTodo2 = Integer.MAX_VALUE; // never started
+            }
+            
+            int cmp = Mixed.compareInt(blocksTodo1, blocksTodo2);
+            if( cmp == 0 ) {
+                // equal remainingBlocks, choose smaller file (filesize can be -1)
+                return Mixed.compareLong(value1.getFileSize(), value2.getFileSize());
+            } else {
+                return cmp;
+            }
         }
     };
 }

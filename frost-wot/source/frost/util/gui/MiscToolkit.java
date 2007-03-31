@@ -20,11 +20,11 @@ package frost.util.gui;
 
 import java.awt.*;
 import java.util.*;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
 import javax.swing.*;
 
-import frost.util.gui.translation.Language;
+import frost.util.gui.translation.*;
 
 /**
  * This a gui related utilities class.
@@ -228,4 +228,19 @@ public class MiscToolkit {
 		frame.dispose();
 		return returnValue;
 	}
+    
+    public int showConfirmDialog(Component parentComponent, Object message, String title, int optionType, int messageType) {
+        /*
+    int answer = JOptionPane.showConfirmDialog(
+            MainFrame.getInstance(), 
+            language.formatMessage("TOF.markAllReadConfirmation.board.content", node.getName()), 
+            language.getString("TOF.markAllReadConfirmation.board.title"), 
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.WARNING_MESSAGE);
+        */
+        // FIXME: use own yes/no strings
+        // JOptionPane.YES_NO_CANCEL_OPTION,
+
+        return JOptionPane.showConfirmDialog(parentComponent, message, title, optionType, messageType);
+    }
 }
