@@ -100,9 +100,7 @@ public class Execute {
     	Process p;
 		if (isWindows()) {
 			StringBuilder winCmd = new StringBuilder();
-			winCmd.append(cmd[0]); 
-			int sc = cmd.length;
-			for (int i = 1; i < sc; i++) {
+			for (int i = 0; i < cmd.length; i++) {
 				winCmd.append(' ');
 				if (cmd[i].indexOf(' ') > -1) {
 					winCmd.append('"');

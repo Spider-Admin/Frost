@@ -361,7 +361,7 @@ public class SearchPanel extends JPanel implements LanguageListener {
         }
         public void tabWasClosed() {
             if( thread != null ) {
-                thread.requestStop();
+                thread.requestCancel();
             }
             tableFindAction.deinstall(table);
         }

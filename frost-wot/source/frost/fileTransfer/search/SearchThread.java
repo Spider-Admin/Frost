@@ -48,17 +48,25 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
     
     private SearchTable searchTable;
 
-    private boolean isStopRequested = false;
+    private boolean isCancelRequested = false;
+    private boolean isMaximumSearchResultsReached = false;
     
     private SearchPanel.ProxyPanel tabComponent;
     
-    private boolean isStopRequested() {
-        return isStopRequested;
+    private boolean isCancelRequested() {
+        return isCancelRequested;
     }
-    public void requestStop() {
-        isStopRequested = true;
+    public void requestCancel() {
+        isCancelRequested = true;
     }
-    
+
+    private boolean isMaximumSearchResultsReached() {
+        return isMaximumSearchResultsReached;
+    }
+    public void maximumSearchResultsReached() {
+        isMaximumSearchResultsReached = true;
+    }
+
     private String lowerCase(String s) {
         if( s == null ) {
             return "";
@@ -389,7 +397,7 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
 
         if (allFileCount > this.maxSearchResults) {
             logger.info("NOTE: maxSearchResults reached (" + maxSearchResults + ")!");
-            requestStop();
+            maximumSearchResultsReached();
             return;
         }
 
@@ -398,10 +406,13 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
     }
     
     public boolean fileRetrieved(FrostFileListFileObject fo) {
+        if( isMaximumSearchResultsReached() ) {
+            return isMaximumSearchResultsReached();
+        }
         if( searchFile1(fo) && searchFile2(fo) ) {
             addSearchResult(fo);
         }
-        return isStopRequested();
+        return isCancelRequested();
     }
 
     public void run() {
@@ -432,7 +443,7 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
 //        long duration = System.currentTimeMillis() - start;
 //        System.out.println("<<< Filesearch finished, duration="+duration);
 
-        if( isStopRequested() ) {
+        if( isCancelRequested() ) {
             searchTable.searchCancelled();
         } else {
             searchTable.searchFinished(tabComponent);

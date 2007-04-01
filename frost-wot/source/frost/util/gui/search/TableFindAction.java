@@ -87,7 +87,7 @@ public class TableFindAction extends FindAction{
                 String text = item.toString(); 
                 if(ignoreCase) 
                     text = text.toUpperCase(); 
-System.out.println("comp:"+prefix+","+text+","+item);
+//System.out.println("comp:"+prefix+","+text+","+item);
                 // we search for any occurence
                 if(text!=null && text.indexOf(prefix) > -1){ 
                     return index; 
