@@ -99,7 +99,9 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
     public void setCellValue(Object value, ModelItem item, int columnIndex) { }
 
     public Object getCellValue(ModelItem item, int columnIndex) {
-
+        if( item == null ) {
+            return "*null*";
+        }
         FrostSharedFileItem sfItem = (FrostSharedFileItem) item;
         switch (columnIndex) {
             case 0 : // name

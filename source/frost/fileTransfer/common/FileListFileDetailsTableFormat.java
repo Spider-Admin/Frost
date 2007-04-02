@@ -107,6 +107,9 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
     }
 
     public Object getCellValue(ModelItem item, int columnIndex) {
+        if( item == null ) {
+            return "*null*";
+        }
         FileListFileDetailsItem detailsItem = (FileListFileDetailsItem) item;
         switch (columnIndex) {
             case 0 :    // filename
