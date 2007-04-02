@@ -85,6 +85,9 @@ public class UnsentMessagesTableFormat extends SortedTableFormat implements Lang
     }
 
     public Object getCellValue(ModelItem item, int columnIndex) {
+        if( item == null ) {
+            return "*null*";
+        }
         UnsentMessagesTableItem searchItem = (UnsentMessagesTableItem) item;
         switch (columnIndex) {
             case 0 :

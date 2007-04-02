@@ -478,7 +478,9 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
     }
 
     public Object getCellValue(ModelItem item, int columnIndex) {
-
+        if( item == null ) {
+            return "*null*";
+        }
         FrostUploadItem uploadItem = (FrostUploadItem) item;
         switch (columnIndex) {
 

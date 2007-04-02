@@ -568,6 +568,9 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 	}
     
 	public Object getCellValue(ModelItem item, int columnIndex) {
+        if( item == null ) {
+            return "*null*";
+        }
 		FrostDownloadItem downloadItem = (FrostDownloadItem) item;
 		switch (columnIndex) {
 

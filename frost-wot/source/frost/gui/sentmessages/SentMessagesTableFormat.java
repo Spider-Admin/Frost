@@ -77,6 +77,9 @@ public class SentMessagesTableFormat extends SortedTableFormat implements Langua
     }
 
     public Object getCellValue(ModelItem item, int columnIndex) {
+        if( item == null ) {
+            return "*null*";
+        }
         SentMessagesTableItem searchItem = (SentMessagesTableItem) item;
         switch (columnIndex) {
             case 0 :

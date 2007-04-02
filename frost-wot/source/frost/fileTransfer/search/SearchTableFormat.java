@@ -98,6 +98,9 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
     }
 
     public Object getCellValue(ModelItem item, int columnIndex) {
+        if( item == null ) {
+            return "*null*";
+        }
         FrostSearchItem searchItem = (FrostSearchItem) item;
         switch (columnIndex) {
             case 0 :    //Filename
