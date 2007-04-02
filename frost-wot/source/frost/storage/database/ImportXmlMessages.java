@@ -226,7 +226,8 @@ public class ImportXmlMessages {
             FrostMessageObject mo = new FrostMessageObject(mof, board, index);
             try {
                 AppLayerDatabase.getSentMessageTable().insertMessage(mo);
-            } catch (SQLException e) {
+            } catch (Throwable e) {
+                // paranoia
                 logger.log(Level.SEVERE, "Error inserting sent message into database", e);
             }
         }
@@ -402,36 +403,27 @@ public class ImportXmlMessages {
     private void insertArchiveMessage(FrostMessageObject mo) {
         try {
             AppLayerDatabase.getMessageArchiveTable().insertMessage(mo);
-        } catch (SQLException e) {
-            if( e.getMessage().indexOf("msgarc_unique") > 0 ) {
-                logger.log(Level.WARNING, "Archive of duplicate message skipped");
-            } else {
-                logger.log(Level.SEVERE, "Error inserting message into archive database", e);
-            }
+        } catch (Throwable e) {
+            // paranoia
+            logger.log(Level.SEVERE, "Error inserting message into archive database", e);
         }
     }
     
     private void insertValidMessage(FrostMessageObject mo) {
         try {
             AppLayerDatabase.getMessageTable().insertMessage(mo);
-        } catch (SQLException e) {
-            if( e.getMessage().indexOf("MSG_ID_UNIQUE_ONLY") > 0 ) {
-                logger.log(Level.WARNING, "Import of duplicate message skipped");
-            } else {
-                logger.log(Level.SEVERE, "Error inserting message into database", e);
-            }
+        } catch (Throwable e) {
+            // paranoia
+            logger.log(Level.SEVERE, "Error inserting message into database", e);
         }
     }
     
     private void insertInvalidMessage(FrostMessageObject mo) {
         try {
             AppLayerDatabase.getMessageTable().insertMessage(mo);
-        } catch (SQLException e) {
-            if( e.getMessage().indexOf("MSG_ID_UNIQUE_ONLY") > 0 ) {
-                logger.log(Level.WARNING, "Import of duplicate message skipped");
-            } else {
-                logger.log(Level.SEVERE, "Error inserting invalid message into database", e);
-            }
+        } catch (Throwable e) {
+            // paranoia
+            logger.log(Level.SEVERE, "Error inserting message into database", e);
         }
     }
 }

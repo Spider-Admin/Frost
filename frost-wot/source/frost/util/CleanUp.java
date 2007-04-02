@@ -203,17 +203,15 @@ public class CleanUp {
             }
             
             try {
-                if( AppLayerDatabase.getMessageArchiveTable().insertMessage(mo) == false ) {
+                int rc = AppLayerDatabase.getMessageArchiveTable().insertMessage(mo);
+                if( rc == MessageArchiveDatabaseTable.INSERT_ERROR ) {
                     errorOccurred = true;
                 }
                 maybeCommit();
             } catch(Throwable e) {
-                if( e.getMessage().indexOf("msgarc_unique") > 0 ) {
-                    logger.log(Level.WARNING, "Archive of duplicate message skipped");
-                } else {
-                    logger.log(Level.SEVERE, "Exception during insert of archive message", e);
-                    errorOccurred = true;
-                }
+                // should not happen, paranoia
+                logger.log(Level.SEVERE, "Exception during insert of archive message", e);
+                errorOccurred = true;
             }
             
             return errorOccurred; // maybe stop
