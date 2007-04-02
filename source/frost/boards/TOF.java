@@ -190,16 +190,15 @@ public class TOF {
      * Add new invalid msg to database 
      */
     public void receivedInvalidMessage(Board b, DateTime date, int index, String reason) {
-        
         // first add to database, then mark slot used. this way its ok if Frost is shut down after add to db but
         // before mark of the slot.
         FrostMessageObject invalidMsg = new FrostMessageObject(b, date, index, reason);
         invalidMsg.setNew(false);
         try {
             AppLayerDatabase.getMessageTable().insertMessage(invalidMsg);
-        } catch (SQLException e) {
+        } catch (Throwable e) {
+            // paranoia
             logger.log(Level.SEVERE, "Error inserting invalid message into database", e);
-            return;
         }
     }
 
@@ -227,14 +226,17 @@ public class TOF {
             newMsg.setNew(false);
         }
 
-        boolean messageWasInserted = false;
+        int messageInsertedRC;
         try {
-            messageWasInserted = AppLayerDatabase.getMessageTable().insertMessage(newMsg);
-        } catch (SQLException e) {
+            messageInsertedRC = AppLayerDatabase.getMessageTable().insertMessage(newMsg);
+        } catch (Throwable e) {
+            // paranoia
             logger.log(Level.SEVERE, "Error inserting new message into database", e);
             return;
         }
-        if( !messageWasInserted ) {
+
+        // don't add msg if it was a duplicate or if insert into database failed
+        if( messageInsertedRC != MessageDatabaseTable.INSERT_OK ) {
             return; // not inserted into database, do not add to gui
         }
 

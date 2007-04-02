@@ -39,6 +39,10 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
 
     private static Logger logger = Logger.getLogger(MessageArchiveDatabaseTable.class.getName());
 
+    public static final int INSERT_OK        = 1;
+    public static final int INSERT_DUPLICATE = 2;
+    public static final int INSERT_ERROR     = 3;
+
     private final String SQL_DDL_MESSAGES =
         "CREATE TABLE IF NOT EXISTS MESSAGEARCHIVE ("+
         "primkey BIGINT NOT NULL,"+
@@ -131,7 +135,7 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
         return true;
     }
 
-    public synchronized boolean insertMessage(FrostMessageObject mo) throws SQLException {
+    public synchronized int insertMessage(FrostMessageObject mo) {
 
         AttachmentList files = mo.getAttachmentsOfType(Attachment.FILE);
         AttachmentList boards = mo.getAttachmentsOfType(Attachment.BOARD);
@@ -224,57 +228,74 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
                         "INSERT INTO MESSAGEARCHIVEFILEATTACHMENTS"+
                         " (msgref,filename,filesize,filekey)"+
                         " VALUES (?,?,?,?)");
-                for(Iterator it=files.iterator(); it.hasNext(); ) {
-                    FileAttachment fa = (FileAttachment)it.next();
-                    int ix=1;
-                    p.setLong(ix++, mo.getMsgIdentity()); 
-                    p.setString(ix++, fa.getFilename()); 
-                    p.setLong(ix++, fa.getFileSize()); 
-                    p.setString(ix++, fa.getKey()); 
-                    insertedCount = p.executeUpdate();
-                    if( insertedCount == 0 ) {
-                        logger.log(Level.SEVERE, "fileattachment insert returned 0 !!!");
-                        p.close();
-                        throw new Exception("fileattachment insert returned 0 !!!");
+                try {
+                    for(Iterator it=files.iterator(); it.hasNext(); ) {
+                        FileAttachment fa = (FileAttachment)it.next();
+                        int ix=1;
+                        p.setLong(ix++, mo.getMsgIdentity()); 
+                        p.setString(ix++, fa.getFilename()); 
+                        p.setLong(ix++, fa.getFileSize()); 
+                        p.setString(ix++, fa.getKey()); 
+                        insertedCount = p.executeUpdate();
+                        if( insertedCount == 0 ) {
+                            logger.log(Level.SEVERE, "fileattachment insert returned 0 !!!");
+                            throw new Exception("fileattachment insert returned 0 !!!");
+                        }
                     }
+                } finally {
+                    p.close();
                 }
-                p.close();
             }
             if( boards.size() > 0 ) {
                 PreparedStatement p = conn.prepareStatement(
                         "INSERT INTO MESSAGEARCHIVEBOARDATTACHMENTS"+
                         " (msgref,boardname,boardpublickey,boardprivatekey,boarddescription)"+
                         " VALUES (?,?,?,?,?)");
-                for(Iterator it=boards.iterator(); it.hasNext(); ) {
-                    BoardAttachment ba = (BoardAttachment)it.next();
-                    Board b = ba.getBoardObj();
-                    int ix=1;
-                    p.setLong(ix++, mo.getMsgIdentity()); 
-                    p.setString(ix++, b.getNameLowerCase()); 
-                    p.setString(ix++, b.getPublicKey()); 
-                    p.setString(ix++, b.getPrivateKey()); 
-                    p.setString(ix++, b.getDescription()); 
-                    insertedCount = p.executeUpdate();
-                    if( insertedCount == 0 ) {
-                        logger.log(Level.SEVERE, "boardattachment insert returned 0 !!!");
-                        p.close();
-                        throw new Exception("boardattachment insert returned 0 !!!");
+                try {
+                    for(Iterator it=boards.iterator(); it.hasNext(); ) {
+                        BoardAttachment ba = (BoardAttachment)it.next();
+                        Board b = ba.getBoardObj();
+                        int ix=1;
+                        p.setLong(ix++, mo.getMsgIdentity()); 
+                        p.setString(ix++, b.getNameLowerCase()); 
+                        p.setString(ix++, b.getPublicKey()); 
+                        p.setString(ix++, b.getPrivateKey()); 
+                        p.setString(ix++, b.getDescription()); 
+                        insertedCount = p.executeUpdate();
+                        if( insertedCount == 0 ) {
+                            logger.log(Level.SEVERE, "boardattachment insert returned 0 !!!");
+                            throw new Exception("boardattachment insert returned 0 !!!");
+                        }
                     }
+                } finally {
+                    p.close();
                 }
-                p.close();
             }
 
             conn.commit();
             conn.setAutoCommit(true);
+
+            return INSERT_OK;
         } catch(Throwable t) {
-            logger.log(Level.SEVERE, "Exception during insert of message", t);
-            try { conn.rollback(); } catch(Throwable t1) { logger.log(Level.SEVERE, "Exception during rollback", t1); }
+            boolean isDuplicate;
+            if( t.getMessage().indexOf("constraint violation") > 0 && t.getMessage().indexOf("msgarc_unique") > 0 ) {
+                isDuplicate = true;
+                logger.log(Level.SEVERE, "Archive of message skipped, message is already in archive");
+            } else {
+                isDuplicate = false;
+                logger.log(Level.SEVERE, "Exception during insert of message", t);
+                try { conn.rollback(); } catch(Throwable t1) { logger.log(Level.SEVERE, "Exception during rollback", t1); }
+            }
             try { conn.setAutoCommit(true); } catch(Throwable t1) { }
-            return false;
+
+            if( isDuplicate ) {
+                return INSERT_DUPLICATE; // skip msg
+            } else {
+                return INSERT_ERROR; // error
+            }
         } finally {
             AppLayerDatabase.getInstance().givePooledConnection(conn);
         }
-        return true;
     }
 
     private void retrieveAttachments(FrostMessageObject mo) throws SQLException {

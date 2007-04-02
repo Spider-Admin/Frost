@@ -18,7 +18,6 @@
 */
 package frost.messages;
 
-import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
@@ -42,12 +41,12 @@ public class SentMessagesManager {
     public static boolean addSentMessage(FrostMessageObject sentMo) {
         try {
             AppLayerDatabase.getSentMessageTable().insertMessage(sentMo);
-        } catch (SQLException e) {
+        } catch (Throwable e) {
+            // paranoia
             logger.log(Level.SEVERE, "Error inserting sent message", e);
-            return false;
         }
         MainFrame.getInstance().getSentMessagesPanel().addSentMessage(sentMo);
-        return true;
+        return true; // if we return false the msg is resent !
     }
     
     public static int deleteSentMessages(List msgObjects) {
