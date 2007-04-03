@@ -228,7 +228,7 @@ public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
     public boolean insertSharedFilesCHKKey(SharedFilesCHKKey newkey, Connection conn) throws SQLException {
         
         Long identity = null;
-        Statement stmt = AppLayerDatabase.getInstance().createStatement();
+        Statement stmt = conn.createStatement();
         ResultSet rs = stmt.executeQuery("select UNIQUEKEY('SHAREDFILESCHK')");
         if( rs.next() ) {
             identity = new Long(rs.getLong(1));

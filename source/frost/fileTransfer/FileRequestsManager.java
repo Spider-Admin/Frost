@@ -36,7 +36,7 @@ public class FileRequestsManager {
     
     private static final int MAX_SHA_PER_REQUESTFILE = 350;
     
-    private static final long MIN_LAST_UPLOADED = 3; // start upload if last upload is X days back
+    private static final long MIN_LAST_UPLOADED = 7; // start upload if last upload is X days back
 
     /**
      * @return List with SHA strings that should be requested
@@ -208,7 +208,7 @@ public class FileRequestsManager {
                 // search upload table, check if we currently upload this file
                 if( !sfo.isCurrentlyUploading() && sfo.isValid() ) {
                     // is not uploading currently
-                    long minDiff = MIN_LAST_UPLOADED * 24L * 60L * 60L * 1000L; // 3 days in milliseconds
+                    long minDiff = MIN_LAST_UPLOADED * 24L * 60L * 60L * 1000L; // MIN_LAST_UPLOADED days in milliseconds
                     if( sfo.getLastUploaded() < now - minDiff ) {
                         // last upload earlier than 3 days before, start upload
                         // add to upload files
