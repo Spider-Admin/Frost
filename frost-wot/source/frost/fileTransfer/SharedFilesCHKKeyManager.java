@@ -169,7 +169,7 @@ System.out.println("processReceivedCHKKeys: finished processing keys, new="+newK
         // retrieve all CHK keys that must be downloaded
         try {
             // rules what chks are choosed are in the following method
-            List chkKeys = AppLayerDatabase.getSharedFilesCHKKeysDatabaseTable().retrieveSharedFilesCHKKeysToDownload(7);
+            List chkKeys = AppLayerDatabase.getSharedFilesCHKKeysDatabaseTable().retrieveSharedFilesCHKKeysToDownload(MAX_DOWNLOAD_RETRIES_1);
 System.out.println("getCHKKeyStringsToDownload: returning keys: "+(chkKeys==null?"(none)":Integer.toString(chkKeys.size())));            
             return chkKeys;
         } catch(Throwable t) {

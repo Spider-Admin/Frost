@@ -136,7 +136,7 @@ System.out.println("FileListDownloadThread: processed results: "+isValid);
     private class CHKKeyQueue {
         
         private LinkedList<String> queue = new LinkedList<String>();
-        
+        // FIXME: first return all keys not older than 3 days, then all older keys ???
         public synchronized String getKeyFromQueue() {
             try {
                 // let dequeueing threads wait for work
