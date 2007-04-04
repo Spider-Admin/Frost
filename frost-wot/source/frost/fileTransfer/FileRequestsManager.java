@@ -164,6 +164,8 @@ public class FileRequestsManager {
         }
 
         final long now = System.currentTimeMillis();
+        final long minDiff = MIN_LAST_UPLOADED * 24L * 60L * 60L * 1000L; // MIN_LAST_UPLOADED days in milliseconds
+        final long minLastUploaded = now - minDiff; // starts items whose lastupload was before this time
 
         List downloadModelItems = FileTransferManager.inst().getDownloadManager().getModel().getItems();
         List sharedFilesModelItems = FileTransferManager.inst().getSharedFilesManager().getModel().getItems();
@@ -204,15 +206,22 @@ public class FileRequestsManager {
                 // Rules: 
                 // - only if upload is not running already
                 // - only if last upload was'nt earlier than 3 days
+                // - only if our lastuploaded is NOT after the request timestamp
                 
                 // search upload table, check if we currently upload this file
                 if( !sfo.isCurrentlyUploading() && sfo.isValid() ) {
                     // is not uploading currently
-                    long minDiff = MIN_LAST_UPLOADED * 24L * 60L * 60L * 1000L; // MIN_LAST_UPLOADED days in milliseconds
-                    if( sfo.getLastUploaded() < now - minDiff ) {
+                    if( sfo.getLastUploaded() < minLastUploaded 
+                            && sfo.getLastUploaded() < content.getTimestamp() ) 
+                    {
                         // last upload earlier than 3 days before, start upload
                         // add to upload files
                         FileTransferManager.inst().getUploadManager().getModel().addNewUploadItemFromSharedFile(sfo);
+
+                        logger.log(Level.SEVERE, "INFO: Shared file upload started, file="+sfo.getFilename()+
+                                ", contentTimestamp="+content.getTimestamp()+
+                                ", lastUploaded="+sfo.getLastUploaded()+
+                                ", minLastUploaded="+minLastUploaded);
                     }
                 }
             }
