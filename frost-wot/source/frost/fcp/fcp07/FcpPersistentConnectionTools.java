@@ -27,7 +27,7 @@ import frost.ext.*;
 
 public class FcpPersistentConnectionTools {
 
-    private static Logger logger = Logger.getLogger(FcpPersistentConnectionTools.class.getName());
+    private static final Logger logger = Logger.getLogger(FcpPersistentConnectionTools.class.getName());
     
     public boolean isInitialized() {
         return FcpPersistentConnection.isInitialized();
@@ -36,8 +36,8 @@ public class FcpPersistentConnectionTools {
     /**
      * No answer from node is expected.
      */
-    public void changeRequestPriority(String id, int newPrio) {
-        List<String> msg = new LinkedList<String>();
+    public void changeRequestPriority(final String id, final int newPrio) {
+        final List<String> msg = new LinkedList<String>();
         msg.add("ModifyPersistentRequest");
         msg.add("Global=true");
         msg.add("Identifier="+id);
@@ -48,8 +48,8 @@ public class FcpPersistentConnectionTools {
     /**
      * No answer from node is expected.
      */
-    public void removeRequest(String id) {
-        List<String> msg = new LinkedList<String>();
+    public void removeRequest(final String id) {
+        final List<String> msg = new LinkedList<String>();
         msg.add("RemovePersistentRequest");
         msg.add("Global=true");
         msg.add("Identifier="+id);
@@ -59,8 +59,8 @@ public class FcpPersistentConnectionTools {
     /**
      * No answer from node is expected.
      */
-    public void watchGlobal(boolean enabled) {
-        List<String> msg = new LinkedList<String>();
+    public void watchGlobal(final boolean enabled) {
+        final List<String> msg = new LinkedList<String>();
         msg.add("WatchGlobal");
         msg.add("Enabled="+enabled);
         msg.add("VerbosityMask=1");
@@ -70,10 +70,10 @@ public class FcpPersistentConnectionTools {
     /**
      * Starts a persistent put.
      */
-    public void startPersistentPut(String id, File sourceFile, boolean doMime) {
+    public void startPersistentPut(final String id, final File sourceFile, final boolean doMime) {
 
         // else start a new request with DDA
-        List<String> msg = getDefaultPutMessage(id, sourceFile, doMime);
+        final List<String> msg = getDefaultPutMessage(id, sourceFile, doMime);
         msg.add("UploadFrom=disk");
         msg.add("Filename=" + sourceFile.getAbsolutePath());
         
@@ -89,9 +89,9 @@ public class FcpPersistentConnectionTools {
      * If DDA=false then the request is enqueued as DIRECT and must be retrieved manually
      * after the get completed successfully. Use startDirectPersistentGet to fetch the data.
      */
-    public void startPersistentGet(String key, String id, File targetFile) {
+    public void startPersistentGet(final String key, final String id, final File targetFile) {
         // start the persistent get. if DDA=false, then we have to fetch the file after the successful get from node
-        List<String> msg = new LinkedList<String>();
+        final List<String> msg = new LinkedList<String>();
         msg.add("ClientGet");
         msg.add("IgnoreDS=false");
         msg.add("DSOnly=false");
@@ -107,7 +107,7 @@ public class FcpPersistentConnectionTools {
         if (isDDA()) {
             msg.add("ReturnType=disk");
             msg.add("Filename=" + targetFile.getAbsolutePath());
-            File ddaTempFile = new File( targetFile.getAbsolutePath() + "-f");
+            final File ddaTempFile = new File( targetFile.getAbsolutePath() + "-f");
             if( ddaTempFile.isFile() ) {
                 // delete before download, else download fails, node will not overwrite anything!
                 ddaTempFile.delete();
@@ -121,7 +121,7 @@ public class FcpPersistentConnectionTools {
     }
 
     public void listPersistentRequests() {
-        List<String> msg = new LinkedList<String>();
+        final List<String> msg = new LinkedList<String>();
         msg.add("ListPersistentRequests");
         FcpPersistentConnection.getInstance().sendMessage(msg, true);
     }
@@ -129,8 +129,8 @@ public class FcpPersistentConnectionTools {
     /**
      * Returns the common part of a put request, used for a put with type DIRECT and DISK together.
      */
-    private List<String> getDefaultPutMessage(String id, File sourceFile, boolean doMime) {
-        LinkedList<String> lst = new LinkedList<String>();
+    private List<String> getDefaultPutMessage(final String id, final File sourceFile, final boolean doMime) {
+        final LinkedList<String> lst = new LinkedList<String>();
         lst.add("ClientPut");
         lst.add("URI=CHK@");
         lst.add("Identifier=" + id);
@@ -155,30 +155,30 @@ public class FcpPersistentConnectionTools {
      * Returns the first NodeMessage sent by the node after the transfer (PersistentPut or any error message).
      * After this method was called this connection is unuseable.
      */
-    public NodeMessage startDirectPersistentPut(String id, File sourceFile, boolean doMime) throws IOException {
+    public NodeMessage startDirectPersistentPut(final String id, final File sourceFile, final boolean doMime) throws IOException {
         
-        FcpSocket newSocket = FcpSocket.create(FcpPersistentConnection.getInstance().getNodeAddress());
+        final FcpSocket newSocket = FcpSocket.create(FcpPersistentConnection.getInstance().getNodeAddress());
         if( newSocket == null ) {
             return null;
         }
 
-        BufferedOutputStream dataOutput = new BufferedOutputStream(newSocket.getFcpSock().getOutputStream());
+        final BufferedOutputStream dataOutput = new BufferedOutputStream(newSocket.getFcpSock().getOutputStream());
         
-        List<String> msg = getDefaultPutMessage(id, sourceFile, doMime);
+        final List<String> msg = getDefaultPutMessage(id, sourceFile, doMime);
         msg.add("UploadFrom=direct");
         msg.add("DataLength=" + Long.toString(sourceFile.length()));
         msg.add("Data");
         
         for(Iterator<String> i=msg.iterator(); i.hasNext(); ) {
-            String line = i.next();
+            final String line = i.next();
             newSocket.getFcpOut().println(line);
         }
         newSocket.getFcpOut().flush();
 
         // write complete file to socket
-        BufferedInputStream fileInput = new BufferedInputStream(new FileInputStream(sourceFile));
+        final BufferedInputStream fileInput = new BufferedInputStream(new FileInputStream(sourceFile));
         while( true ) {
-            int d = fileInput.read();
+            final int d = fileInput.read();
             if( d < 0 ) {
                 break; // EOF
             }
@@ -190,7 +190,7 @@ public class FcpPersistentConnectionTools {
         // wait for a message from node
         // good: PersistentPut
         // -> IdentifierCollision {Global=true, Identifier=myid1} EndMessage
-        NodeMessage nodeMsg = NodeMessage.readMessage(newSocket.getFcpIn());
+        final NodeMessage nodeMsg = NodeMessage.readMessage(newSocket.getFcpIn());
 
         System.out.println("*PPUT** INFO - NodeMessage:");
         System.out.println((nodeMsg==null)?"(null)":nodeMsg.toString());
@@ -206,9 +206,9 @@ public class FcpPersistentConnectionTools {
      * Retrieves a completed get from the node buffer DIRECT.
      * After this method was called this connection is unuseable.
      */
-    public NodeMessage startDirectPersistentGet(String id, File targetFile) throws IOException {
+    public NodeMessage startDirectPersistentGet(final String id, final File targetFile) throws IOException {
 
-        FcpSocket newSocket = FcpSocket.create(FcpPersistentConnection.getInstance().getNodeAddress());
+        final FcpSocket newSocket = FcpSocket.create(FcpPersistentConnection.getInstance().getNodeAddress());
         if( newSocket == null ) {
             return null;
         }
@@ -221,7 +221,7 @@ public class FcpPersistentConnectionTools {
         newSocket.getFcpOut().flush();
 
         // we expect an immediate answer
-        NodeMessage nodeMsg = NodeMessage.readMessage(newSocket.getFcpIn());
+        final NodeMessage nodeMsg = NodeMessage.readMessage(newSocket.getFcpIn());
         if( nodeMsg == null ) {
             return null;
         }
@@ -229,7 +229,7 @@ public class FcpPersistentConnectionTools {
         System.out.println("*PGET** INFO - NodeMessage:");
         System.out.println(nodeMsg.toString());
 
-        String endMarker = nodeMsg.getMessageEnd(); 
+        final String endMarker = nodeMsg.getMessageEnd(); 
         if( endMarker == null ) {
             // should never happen
             logger.severe("*PGET** ENDMARKER is NULL! "+nodeMsg.toString());
@@ -238,15 +238,14 @@ public class FcpPersistentConnectionTools {
 
         if( nodeMsg.isMessageName("AllData") && endMarker.equals("Data") ) {
             // data follow, first get datalength
-            long dataLength = nodeMsg.getLongValue("DataLength");
+            final long dataLength = nodeMsg.getLongValue("DataLength");
 
-            BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(targetFile));
-            byte[] b = new byte[4096];
+            final BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(targetFile));
+            final byte[] b = new byte[4096];
             long bytesLeft = dataLength;
             long bytesWritten = 0;
-            int count;
             while( bytesLeft > 0 ) {
-                count = newSocket.getFcpIn().read(b, 0, ((bytesLeft > b.length)?b.length:(int)bytesLeft));
+                final int count = newSocket.getFcpIn().read(b, 0, ((bytesLeft > b.length)?b.length:(int)bytesLeft));
                 if( count < 0 ) {
                     break;
                 } else {

@@ -55,23 +55,23 @@ import frost.util.gui.translation.*;
  */
 public class Core implements FrostEventDispatcher  {
 
-    private static Logger logger = Logger.getLogger(Core.class.getName());
+    private static final Logger logger = Logger.getLogger(Core.class.getName());
 
     // Core instanciates itself, frostSettings must be created before instance=Core() !
     public static SettingsClass frostSettings = new SettingsClass();
 
     private static Core instance = null;
 
-    private static FrostCrypt crypto = new FrostCrypt();
+    private static final FrostCrypt crypto = new FrostCrypt();
 
     private static boolean isHelpHtmlSecure = false;
 
-    private EventDispatcher dispatcher = new EventDispatcher();
+    private final EventDispatcher dispatcher = new EventDispatcher();
     private Language language = null;
 
     private static boolean freenetIsOnline = false;
 
-    private Timer timer = new Timer(true);
+    private final Timer timer = new Timer(true);
 
     private MainFrame mainFrame;
     private BoardsManager boardsManager;

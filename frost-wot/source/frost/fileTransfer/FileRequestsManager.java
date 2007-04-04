@@ -32,7 +32,7 @@ import frost.storage.database.applayer.*;
  */
 public class FileRequestsManager {
 
-    private static Logger logger = Logger.getLogger(SharedFilesCHKKeyManager.class.getName());
+    private static final Logger logger = Logger.getLogger(SharedFilesCHKKeyManager.class.getName());
     
     private static final int MAX_SHA_PER_REQUESTFILE = 350;
     
@@ -50,19 +50,19 @@ public class FileRequestsManager {
         // - don't send a request if the file to request was not seen in a file index for more than 14 days
         // - must be not requested since 23h ( by us or others )
         // - we DON'T have the chk OR
-        // - we HAVE the chk, but download FAILED, and last try was not longer then 2 days before (maybe successful now)
+        // - we HAVE the chk, but download FAILED, and last try was not longer then 3 days before (maybe successful now)
         
         final long now = System.currentTimeMillis();
-        final long before23hours = now - 1L * 23L * 60L * 60L * 1000L;
-        final long before2days = now - 2L * 24L * 60L * 60L * 1000L;
-        final long before14days = now - 14L * 24L * 60L * 60L * 1000L;
+        final long before23hours = now -  1L * 23L * 60L * 60L * 1000L;
+        final long before3days =   now -  3L * 24L * 60L * 60L * 1000L;
+        final long before14days =  now - 14L * 24L * 60L * 60L * 1000L;
         
-        List downloadModelItems = FileTransferManager.inst().getDownloadManager().getModel().getItems();
+        final List downloadModelItems = FileTransferManager.inst().getDownloadManager().getModel().getItems();
         
-        List<String> mustSendRequests = new LinkedList<String>();
+        final List<String> mustSendRequests = new LinkedList<String>();
 
         for( Iterator i = downloadModelItems.iterator(); i.hasNext(); ) {
-            FrostDownloadItem dlItem = (FrostDownloadItem) i.next();
+            final FrostDownloadItem dlItem = (FrostDownloadItem) i.next();
 
             if( !dlItem.isSharedFile() ) {
                 continue;
@@ -85,7 +85,7 @@ public class FileRequestsManager {
             }
 
             if( dlItem.getKey() != null && dlItem.getKey().length() > 0 ) {
-                if( dlItem.getState() != FrostDownloadItem.STATE_FAILED || dlItem.getLastDownloadStopTime() < before2days ) {
+                if( dlItem.getState() != FrostDownloadItem.STATE_FAILED || dlItem.getLastDownloadStopTime() < before3days ) {
                     // download failed OR last download try was not in last 2 days (retry!)
                     continue;
                 }
@@ -111,13 +111,13 @@ public class FileRequestsManager {
 
         // first update filelistfiles in memory
         for( Iterator<String> i = requests.iterator(); i.hasNext(); ) {
-            String sha = i.next();
+            final String sha = i.next();
             
             // filelist files in download table
-            List downloadModelItems = FileTransferManager.inst().getDownloadManager().getModel().getItems();
+            final List downloadModelItems = FileTransferManager.inst().getDownloadManager().getModel().getItems();
 
             for( Iterator j = downloadModelItems.iterator(); j.hasNext(); ) {
-                FrostDownloadItem dlItem = (FrostDownloadItem) j.next();
+                final FrostDownloadItem dlItem = (FrostDownloadItem) j.next();
                 if( !dlItem.isSharedFile() ) {
                     continue;
                 }
@@ -131,11 +131,11 @@ public class FileRequestsManager {
         }
 
         // then update same filelistfiles in database
-        Connection conn = AppLayerDatabase.getInstance().getPooledConnection();
+        final Connection conn = AppLayerDatabase.getInstance().getPooledConnection();
         try {
             conn.setAutoCommit(false);
             for( Iterator<String> i = requests.iterator(); i.hasNext(); ) {
-                String sha = i.next();
+                final String sha = i.next();
                 try {
                     AppLayerDatabase.getFileListDatabaseTable().updateFrostFileListFileObjectAfterRequestSent(sha, now, conn);
                 } catch (Throwable t) {
@@ -157,7 +157,7 @@ public class FileRequestsManager {
     /**
      * Process the List of newly received requests (sha keys)
      */
-    public static void processReceivedRequests(FileRequestFileContent content) {
+    public static void processReceivedRequests(final FileRequestFileContent content) {
 
         if( content == null || content.getShaStrings() == null || content.getShaStrings().size() == 0 ) {
             return;
@@ -167,20 +167,20 @@ public class FileRequestsManager {
         final long minDiff = MIN_LAST_UPLOADED * 24L * 60L * 60L * 1000L; // MIN_LAST_UPLOADED days in milliseconds
         final long minLastUploaded = now - minDiff; // starts items whose lastupload was before this time
 
-        List downloadModelItems = FileTransferManager.inst().getDownloadManager().getModel().getItems();
-        List sharedFilesModelItems = FileTransferManager.inst().getSharedFilesManager().getModel().getItems();
+        final List downloadModelItems = FileTransferManager.inst().getDownloadManager().getModel().getItems();
+        final List sharedFilesModelItems = FileTransferManager.inst().getSharedFilesManager().getModel().getItems();
 
         // first update the download and shared files in memory
         for( Iterator<String> i = content.getShaStrings().iterator(); i.hasNext(); ) {
-            String sha = i.next();
+            final String sha = i.next();
 
             // filelist files in download table
             for( Iterator j = downloadModelItems.iterator(); j.hasNext(); ) {
-                FrostDownloadItem dlItem = (FrostDownloadItem) j.next();
+                final FrostDownloadItem dlItem = (FrostDownloadItem) j.next();
                 if( !dlItem.isSharedFile() ) {
                     continue;
                 }
-                FrostFileListFileObject sfo = dlItem.getFileListFileObject();
+                final FrostFileListFileObject sfo = dlItem.getFileListFileObject();
                 if( !sfo.getSha().equals(sha) ) {
                     continue;
                 }
@@ -192,7 +192,7 @@ public class FileRequestsManager {
             
             // our own shared files in shared files table
             for( Iterator j = sharedFilesModelItems.iterator(); j.hasNext(); ) {
-                FrostSharedFileItem sfo = (FrostSharedFileItem)j.next();
+                final FrostSharedFileItem sfo = (FrostSharedFileItem)j.next();
                 if( !sfo.getSha().equals(sha) ) {
                     continue;
                 }
@@ -218,8 +218,8 @@ public class FileRequestsManager {
                         // add to upload files
                         FileTransferManager.inst().getUploadManager().getModel().addNewUploadItemFromSharedFile(sfo);
 
-                        logger.log(Level.SEVERE, "INFO: Shared file upload started, file="+sfo.getFilename()+
-                                ", now="+now+
+                        logger.log(Level.SEVERE, "INFO: Shared file upload started, file='"+sfo.getFilename()+
+                                "', timeNow="+now+
                                 ", minLastUploaded="+minLastUploaded+
                                 ", requestTimestamp="+content.getTimestamp()+
                                 ", lastUploaded="+sfo.getLastUploaded());
@@ -229,12 +229,12 @@ public class FileRequestsManager {
         }
         
         // now update the filelistfiles in database
-        Connection conn = AppLayerDatabase.getInstance().getPooledConnection();
+        final Connection conn = AppLayerDatabase.getInstance().getPooledConnection();
         try {
             conn.setAutoCommit(false);
 
             for( Iterator<String> i = content.getShaStrings().iterator(); i.hasNext(); ) {
-                String sha = i.next();
+                final String sha = i.next();
                 try {
                     AppLayerDatabase.getFileListDatabaseTable().updateFrostFileListFileObjectAfterRequestReceived(
                             sha, content.getTimestamp(), conn);
