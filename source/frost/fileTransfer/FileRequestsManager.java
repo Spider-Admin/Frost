@@ -36,10 +36,8 @@ public class FileRequestsManager {
     
     private static final int MAX_SHA_PER_REQUESTFILE = 350;
     
-    private static final long MIN_LAST_UPLOADED = 7; // start upload if last upload is X days back
+    private static final long MIN_LAST_UPLOADED = 8; // start upload if last upload is X days back
 
-    // FIXME: nur request wenn wir kür
-    
     /**
      * @return List with SHA strings that should be requested
      */
