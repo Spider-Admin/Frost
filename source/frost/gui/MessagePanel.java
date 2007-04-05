@@ -51,6 +51,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     private JLabel subjectTextLabel = new JLabel();
 
     MainFrame mainFrame;
+    
+    private enum IdentityState { GOOD, CHECK, OBSERVE, BAD };
 
     private class Listener
     extends MouseAdapter
@@ -77,13 +79,13 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             } else if (e.getSource() == nextUnreadMessageButton) {
                 selectNextUnreadMessage();
             } else if (e.getSource() == setGoodButton) {
-                setGoodButton_actionPerformed(e);
+                setTrustState_actionPerformed(IdentityState.GOOD);
             } else if (e.getSource() == setBadButton) {
-                setBadButton_actionPerformed(e);
+                setTrustState_actionPerformed(IdentityState.BAD);
             } else if (e.getSource() == setCheckButton) {
-                setCheckButton_actionPerformed(e);
+                setTrustState_actionPerformed(IdentityState.CHECK);
             } else if (e.getSource() == setObserveButton) {
-                setObserveButton_actionPerformed(e);
+                setTrustState_actionPerformed(IdentityState.OBSERVE);
             } else if (e.getSource() == toggleShowUnreadOnly) {
                 toggleShowUnreadOnly_actionPerformed(e);
             } else if (e.getSource() == toggleShowThreads) {
@@ -291,13 +293,13 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             } else if (e.getSource() == collapseThreadItem) {
                 getMessageTable().expandThread(false, selectedMessage);
             } else if (e.getSource() == setGoodItem) {
-                setGoodButton_actionPerformed(e);
+                setTrustState_actionPerformed(IdentityState.GOOD);
             } else if (e.getSource() == setBadItem) {
-                setBadButton_actionPerformed(e);
+                setTrustState_actionPerformed(IdentityState.BAD);
             } else if (e.getSource() == setCheckItem) {
-                setCheckButton_actionPerformed(e);
+                setTrustState_actionPerformed(IdentityState.CHECK);
             } else if (e.getSource() == setObserveItem) {
-                setObserveButton_actionPerformed(e);
+                setTrustState_actionPerformed(IdentityState.OBSERVE);
             }
         }
 
@@ -328,10 +330,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         private void refreshLanguage() {
             markMessageUnreadItem.setText(language.getString("MessagePane.messageTable.popupmenu.markMessageUnread"));
             markAllMessagesReadItem.setText(language.getString("MessagePane.messageTable.popupmenu.markAllMessagesRead"));
-            // FIXME: translate
             markSelectedMessagesReadItem.setText(language.getString("MessagePane.messageTable.popupmenu.markSelectedMessagesReadItem"));
             markSelectedMessagesUnreadItem.setText(language.getString("MessagePane.messageTable.popupmenu.markSelectedMessagesUnreadItem"));
-
             markThreadReadItem.setText(language.getString("MessagePane.messageTable.popupmenu.markThreadRead"));
             setGoodItem.setText(language.getString("MessagePane.messageTable.popupmenu.setToGood"));
             setBadItem.setText(language.getString("MessagePane.messageTable.popupmenu.setToBad"));
@@ -357,14 +357,26 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
                 // menu shown if multiple rows are selected
                 if( messageTable.getSelectedRowCount() > 1 ) {
-                    deleteItem.setEnabled(true);
-                    undeleteItem.setEnabled(true);
 
                     add(markSelectedMessagesReadItem);
                     add(markSelectedMessagesUnreadItem);
                     addSeparator();
                     add(deleteItem);
                     add(undeleteItem);
+                    addSeparator();
+                    add(setGoodItem);
+                    add(setObserveItem);
+                    add(setCheckItem);
+                    add(setBadItem);
+
+                    deleteItem.setEnabled(true);
+                    undeleteItem.setEnabled(true);
+
+                    setGoodItem.setEnabled(true);
+                    setObserveItem.setEnabled(true);
+                    setCheckItem.setEnabled(true);
+                    setBadItem.setEnabled(true);
+
                     super.show(invoker, x, y);
                     return;
                 }
@@ -752,7 +764,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_B, 0), "SET_BAD");
         this.getActionMap().put("SET_BAD", new AbstractAction() {
             public void actionPerformed(ActionEvent event) {
-                setBadButton_actionPerformed(event);
+                setTrustState_actionPerformed(IdentityState.BAD);
             }
         });
 
@@ -760,7 +772,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_G, 0), "SET_GOOD");
         this.getActionMap().put("SET_GOOD", new AbstractAction() {
             public void actionPerformed(ActionEvent event) {
-                setGoodButton_actionPerformed(event);
+                setTrustState_actionPerformed(IdentityState.GOOD);
             }
         });
 
@@ -768,7 +780,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_C, 0), "SET_CHECK");
         this.getActionMap().put("SET_CHECK", new AbstractAction() {
             public void actionPerformed(ActionEvent event) {
-                setCheckButton_actionPerformed(event);
+                setTrustState_actionPerformed(IdentityState.CHECK);
             }
         });
 
@@ -776,7 +788,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_O, 0), "SET_OBSERVE");
         this.getActionMap().put("SET_OBSERVE", new AbstractAction() {
             public void actionPerformed(ActionEvent event) {
-                setObserveButton_actionPerformed(event);
+                setTrustState_actionPerformed(IdentityState.OBSERVE);
             }
         });
     }
@@ -973,76 +985,49 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         tofNewMessageButton_actionPerformed(e);
     }
 
-    private void setBadButton_actionPerformed(ActionEvent e) {
-        Identity id = getSelectedMessageFromIdentity();
-        if( id == null || id.isBAD() ) {
+    private void setTrustState_actionPerformed(IdentityState idState) {
+
+        if( messageTable.getSelectedRowCount() <= 1 && !isCorrectlySelectedMessage() ) {
             return;
         }
-        if(id.isGOOD()) {
-            String title = language.getString("MessagePane.setGoodUserToBadConfirmation.title");
-            String userName = selectedMessage.getFromName().substring(0, selectedMessage.getFromName().indexOf("@"));
-            String txt = language.formatMessage("MessagePane.setGoodUserToBadConfirmation.text", userName);
-            int answer = JOptionPane.showConfirmDialog(parentFrame, txt, title, JOptionPane.YES_NO_OPTION); 
-            if (answer == JOptionPane.NO_OPTION) {
-                return;
+
+        // set all selected messages unread
+        final int[] rows = messageTable.getSelectedRows();
+        boolean idChanged = false;
+        for(int x=rows.length-1; x >= 0; x--) {
+            final FrostMessageObject targetMessage = (FrostMessageObject)getMessageTableModel().getRow(rows[x]);
+            Identity id = getSelectedMessageFromIdentity(targetMessage);
+            if( id == null ) {
+                continue;
             }
-        } 
-        // now mark BAD
-        setGoodButton.setEnabled(true);
-        setCheckButton.setEnabled(true);
-        setBadButton.setEnabled(false);
-        setObserveButton.setEnabled(true);
-        id.setBAD();
-        updateTableAfterChangeOfIdentityState();
-    }
-
-    private void setCheckButton_actionPerformed(ActionEvent e) {
-        Identity id = getSelectedMessageFromIdentity();
-        if( id == null || id.isCHECK() ) {
-            return;
-        }
-        setGoodButton.setEnabled(true);
-        setCheckButton.setEnabled(false);
-        setBadButton.setEnabled(true);
-        setObserveButton.setEnabled(true);
-        id.setCHECK();
-        updateTableAfterChangeOfIdentityState();
-    }
-
-    private void setObserveButton_actionPerformed(ActionEvent e) {
-        Identity id = getSelectedMessageFromIdentity();
-        if( id == null || id.isOBSERVE() ) {
-            return;
-        }
-        setGoodButton.setEnabled(true);
-        setCheckButton.setEnabled(true);
-        setBadButton.setEnabled(true);
-        setObserveButton.setEnabled(false);
-        id.setOBSERVE();
-        updateTableAfterChangeOfIdentityState();
-    }
-
-    private void setGoodButton_actionPerformed(ActionEvent e) {
-        Identity id = getSelectedMessageFromIdentity();
-        if( id == null || id.isGOOD() ) {
-            return;
-        }
-        if(id.isBAD()) {
-            String title = language.getString("MessagePane.setBadUserToGoodConfirmation.title");
-            String userName = selectedMessage.getFromName().substring(0, selectedMessage.getFromName().indexOf("@"));
-            String txt = language.formatMessage("MessagePane.setBadUserToGoodConfirmation.text", userName);
-            int answer = JOptionPane.showConfirmDialog(parentFrame, txt, title, JOptionPane.YES_NO_OPTION); 
-            if (answer == JOptionPane.NO_OPTION) {
-                return;
+            if( idState == IdentityState.GOOD && !id.isGOOD() ) {
+                id.setGOOD();
+                idChanged = true;
+            } else if( idState == IdentityState.OBSERVE && !id.isOBSERVE() ) {
+                id.setOBSERVE();
+                idChanged = true;
+            } else if( idState == IdentityState.CHECK && !id.isCHECK() ) {
+                id.setCHECK();
+                idChanged = true;
+            } else if( idState == IdentityState.BAD && !id.isBAD() ) {
+                id.setBAD();
+                idChanged = true;
             }
         }
-        // now mark GOOD
-        setGoodButton.setEnabled(false);
-        setCheckButton.setEnabled(true);
-        setBadButton.setEnabled(true);
-        setObserveButton.setEnabled(true);
-        id.setGOOD();
-        updateTableAfterChangeOfIdentityState();
+        // any id changed, gui update needed?
+        if( idChanged ) {
+            updateTableAfterChangeOfIdentityState();
+        }
+
+        if( rows.length == 1 ) {
+            // keep msg selected, change toolbar buttons
+            setGoodButton.setEnabled( !(idState == IdentityState.GOOD) );
+            setCheckButton.setEnabled( !(idState == IdentityState.CHECK) );
+            setBadButton.setEnabled( !(idState == IdentityState.BAD) );
+            setObserveButton.setEnabled( !(idState == IdentityState.OBSERVE) );
+        } else {
+            messageTable.removeRowSelectionInterval(0, messageTable.getRowCount() - 1);
+        }
     }
     
     private void toggleShowUnreadOnly_actionPerformed(ActionEvent e) {
@@ -1456,51 +1441,6 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     }
     
     /**
-     * Marks current selected message unread
-     */
-//    private void markSelectedMessageUnread() {
-//        if( !isCorrectlySelectedMessage() ) {
-//            return;
-//        }
-//
-//        final FrostMessageObject targetMessage = selectedMessage;
-//        
-//        if( targetMessage.isDeleted() ) {
-//            return;
-//        }
-//
-//        AbstractNode node = mainFrame.getTofTreeModel().getSelectedNode();
-//        if( node == null || !node.isBoard() ) {
-//            return;
-//        }
-//        Board board = (Board) node;
-//
-//        messageTable.removeRowSelectionInterval(0, messageTable.getRowCount() - 1);
-//
-//        targetMessage.setNew(true);
-//
-//        // let renderer check for new state
-//        getMessageTreeModel().nodeChanged(targetMessage);
-//
-//        board.incNewMessageCount();
-//
-//        updateMessageCountLabels(board);
-//        mainFrame.updateTofTree(board);
-//        
-//        Thread saver = new Thread() {
-//            public void run() {
-//                // save message, we must save the changed deleted state into the database
-//                try {
-//                    AppLayerDatabase.getMessageTable().updateMessage(targetMessage);
-//                } catch (SQLException e) {
-//                    logger.log(Level.SEVERE, "Error updating a message object", e);
-//                }
-//            }
-//        };
-//        saver.start();
-//    }
-
-    /**
      * Method that update the Msg and New counts for tof table
      * Expects that the boards messages are shown in table
      * @param board
@@ -1531,16 +1471,16 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         }
     }
     
-    private Identity getSelectedMessageFromIdentity() {
-        if( !isCorrectlySelectedMessage() ) {
+    private Identity getSelectedMessageFromIdentity(FrostMessageObject msg) {
+        if( msg == null ) {
             return null;
         }
-        if( !selectedMessage.isSignatureStatusVERIFIED() ) {
+        if( !msg.isSignatureStatusVERIFIED() ) {
             return null;
         }
-        Identity ident = selectedMessage.getFromIdentity();
+        Identity ident = msg.getFromIdentity();
         if(ident == null ) {
-            logger.severe("no identity in list for from: "+selectedMessage.getFromName());
+            logger.severe("no identity in list for from: "+msg.getFromName());
             return null;
         }
         if( ident instanceof LocalIdentity ) {
