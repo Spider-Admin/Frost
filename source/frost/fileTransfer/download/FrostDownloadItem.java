@@ -331,11 +331,11 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
         
         // if lastUploaded value changed, maybe restart failed download
         if( sharedFileObject != null && this.fileListFileObject != null ) {
-            if( sharedFileObject.getLastUploaded() > this.fileListFileObject.getLastUploaded() ) {
+//            if( sharedFileObject.getLastUploaded() > this.fileListFileObject.getLastUploaded() ) {
                 if( getState() == STATE_FAILED ) {
                     newState = STATE_WAITING;
                 }
-            }
+//            }
         }
         
         this.fileListFileObject = sharedFileObject;
@@ -355,13 +355,13 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
      * Called by a FrostFileListFileObject if a value interesting for FrostDownloadItem was set.
      */
     public void fireValueChanged() {
-        // maybe take over the key
+        // maybe take over the key, or set new key
         if( this.fileListFileObject != null ) {
-            if( getKey() == null || getKey().length() == 0 ) {
+//            if( getKey() == null || getKey().length() == 0 ) {
                 if( this.fileListFileObject.getKey() != null && this.fileListFileObject.getKey().length() > 0 ) {
                     setKey( this.fileListFileObject.getKey() );
                 }
-            }
+//            }
         }
         // remaining values are dynamically fetched from FrostFileListFileObject
         super.fireChange();
