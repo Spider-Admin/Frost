@@ -38,6 +38,8 @@ public class FileRequestsManager {
     
     private static final long MIN_LAST_UPLOADED = 7; // start upload if last upload is X days back
 
+    // FIXME: nur request wenn wir kür
+    
     /**
      * @return List with SHA strings that should be requested
      */
@@ -47,15 +49,18 @@ public class FileRequestsManager {
         // sha256 = 64 bytes, send a maximum of 350 requests per file (<32kb)
         
         // Rules for send of a request:
-        // - don't send a request if the file to request was not seen in a file index for more than 14 days
+        // - don't send a request if the file to request was not seen in a file index for more than 3 days
+        //   -> maybe file was already uploaded!
         // - must be not requested since 23h ( by us or others )
         // - we DON'T have the chk OR
         // - we HAVE the chk, but download FAILED, and last try was not longer then 3 days before (maybe successful now)
         
+        // FIXME: maybe only request FAILED if failed reason was Data_Not_Found! 
+        //        But this requires that the dlitem remembers the failed reason!  
+        
         final long now = System.currentTimeMillis();
         final long before23hours = now -  1L * 23L * 60L * 60L * 1000L;
         final long before3days =   now -  3L * 24L * 60L * 60L * 1000L;
-        final long before14days =  now - 14L * 24L * 60L * 60L * 1000L;
         
         final List downloadModelItems = FileTransferManager.inst().getDownloadManager().getModel().getItems();
         
@@ -74,8 +79,8 @@ public class FileRequestsManager {
 
             FrostFileListFileObject sfo = dlItem.getFileListFileObject();
             
-            if( sfo.getLastReceived() < before14days ) {
-                // sha not received for 14 days, is it still shared? don't request it.
+            if( sfo.getLastReceived() < before3days ) {
+                // sha not received for 3 days, is it still shared, or maybe already uploaded? don't request it.
                 continue;
             }
 

@@ -243,6 +243,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         implements ActionListener, LanguageListener {
 
         private JMenuItem markAllMessagesReadItem = new JMenuItem();
+        private JMenuItem markSelectedMessagesReadItem = new JMenuItem();
+        private JMenuItem markSelectedMessagesUnreadItem = new JMenuItem();
         private JMenuItem markThreadReadItem = new JMenuItem();
         private JMenuItem markMessageUnreadItem = new JMenuItem();
         private JMenuItem setBadItem = new JMenuItem();
@@ -252,10 +254,10 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
         private JMenuItem deleteItem = new JMenuItem();
         private JMenuItem undeleteItem = new JMenuItem();
-        
+
         private JMenuItem expandAllItem = new JMenuItem();
         private JMenuItem collapseAllItem = new JMenuItem();
-        
+
         private JMenuItem expandThreadItem = new JMenuItem();
         private JMenuItem collapseThreadItem = new JMenuItem();
 
@@ -266,9 +268,14 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() == markMessageUnreadItem) {
-                markSelectedMessageUnread();
+//                markSelectedMessageUnread();
+                markSelectedMessagesReadOrUnread(false);
             } else if (e.getSource() == markAllMessagesReadItem) {
                 TOF.getInstance().markAllMessagesRead(mainFrame.getTofTreeModel().getSelectedNode());
+            } else if (e.getSource() == markSelectedMessagesReadItem) {
+                markSelectedMessagesReadOrUnread(true);
+            } else if (e.getSource() == markSelectedMessagesUnreadItem) {
+                markSelectedMessagesReadOrUnread(false);
             } else if (e.getSource() == markThreadReadItem) {
                 markThreadRead();
             } else if (e.getSource() == deleteItem) {
@@ -299,6 +306,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
             markMessageUnreadItem.addActionListener(this);
             markAllMessagesReadItem.addActionListener(this);
+            markSelectedMessagesReadItem.addActionListener(this);
+            markSelectedMessagesUnreadItem.addActionListener(this);
             markThreadReadItem.addActionListener(this);
             setGoodItem.addActionListener(this);
             setBadItem.addActionListener(this);
@@ -319,6 +328,10 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         private void refreshLanguage() {
             markMessageUnreadItem.setText(language.getString("MessagePane.messageTable.popupmenu.markMessageUnread"));
             markAllMessagesReadItem.setText(language.getString("MessagePane.messageTable.popupmenu.markAllMessagesRead"));
+            // FIXME: translate
+            markSelectedMessagesReadItem.setText(language.getString("MessagePane.messageTable.popupmenu.markSelectedMessagesReadItem"));
+            markSelectedMessagesUnreadItem.setText(language.getString("MessagePane.messageTable.popupmenu.markSelectedMessagesUnreadItem"));
+
             markThreadReadItem.setText(language.getString("MessagePane.messageTable.popupmenu.markThreadRead"));
             setGoodItem.setText(language.getString("MessagePane.messageTable.popupmenu.setToGood"));
             setBadItem.setText(language.getString("MessagePane.messageTable.popupmenu.setToBad"));
@@ -341,7 +354,21 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             if (mainFrame.getTofTreeModel().getSelectedNode().isBoard()) {
                 
                 removeAll();
-                
+
+                // menu shown if multiple rows are selected
+                if( messageTable.getSelectedRowCount() > 1 ) {
+                    deleteItem.setEnabled(true);
+                    undeleteItem.setEnabled(true);
+
+                    add(markSelectedMessagesReadItem);
+                    add(markSelectedMessagesUnreadItem);
+                    addSeparator();
+                    add(deleteItem);
+                    add(undeleteItem);
+                    super.show(invoker, x, y);
+                    return;
+                }
+
                 if( Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS) ) {
                     if( messageTable.getSelectedRowCount() == 1 ) {
                         add(expandThreadItem);
@@ -352,15 +379,6 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     addSeparator();
                 }
                 
-                if( messageTable.getSelectedRowCount() > 1 ) {
-                    deleteItem.setEnabled(true);
-                    undeleteItem.setEnabled(true);
-                    add(deleteItem);
-                    add(undeleteItem);
-                    super.show(invoker, x, y);
-                    return;
-                }
-
                 boolean itemAdded = false;
                 if (messageTable.getSelectedRow() > -1) {
                     add(markMessageUnreadItem);
@@ -1223,7 +1241,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
      * @return
      */
     private boolean isCorrectlySelectedMessage() {
-        int row = messageTable.getSelectedRow();
+        final int row = messageTable.getSelectedRow();
         if (row < 0
             || selectedMessage == null
             || mainFrame.getTofTreeModel().getSelectedNode() == null
@@ -1233,6 +1251,64 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             return false;
         }
         return true;
+    }
+    
+    private void markSelectedMessagesReadOrUnread(final boolean markRead) {
+        final AbstractNode node = mainFrame.getTofTreeModel().getSelectedNode();
+        if( node == null || !node.isBoard() ) {
+            return;
+        }
+        final Board board = (Board) node;
+
+        if( messageTable.getSelectedRowCount() <= 1 && !isCorrectlySelectedMessage() ) {
+            return;
+        }
+
+        // set all selected messages unread
+        final int[] rows = messageTable.getSelectedRows();
+        final ArrayList<FrostMessageObject> saveMessages = new ArrayList<FrostMessageObject>();
+        final DefaultTreeModel model = (DefaultTreeModel)MainFrame.getInstance().getMessagePanel().getMessageTable().getTree().getModel();        
+        for(int x=rows.length-1; x >= 0; x--) {
+            final FrostMessageObject targetMessage = (FrostMessageObject)getMessageTableModel().getRow(rows[x]);
+            if( markRead ) {
+                // mark read
+                if( targetMessage.isNew() ) {
+                    targetMessage.setNew(false);
+                    board.decNewMessageCount();
+                }
+            } else {
+                // mark unread
+                if( !targetMessage.isNew() ) {
+                    targetMessage.setNew(true);
+                    board.incNewMessageCount();
+                }
+            }
+            model.nodeChanged(targetMessage);
+            saveMessages.add(targetMessage);
+        }
+        
+        if( !markRead ) {
+            messageTable.removeRowSelectionInterval(0, messageTable.getRowCount() - 1);
+        }
+
+        // update new and shown message count
+        updateMessageCountLabels(board);
+        mainFrame.updateTofTree(board);
+
+        final Thread saver = new Thread() {
+            public void run() {
+                // save message, we must save the changed deleted state
+                for(Iterator i=saveMessages.iterator(); i.hasNext(); ) {
+                    final FrostMessageObject targetMessage = (FrostMessageObject)i.next();
+                    try {
+                        AppLayerDatabase.getMessageTable().updateMessage(targetMessage);
+                    } catch (SQLException e) {
+                        logger.log(Level.SEVERE, "Error updating a message object", e);
+                    }
+                }
+            }
+        };
+        saver.start();
     }
     
     private void markThreadRead() {
@@ -1382,47 +1458,47 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     /**
      * Marks current selected message unread
      */
-    private void markSelectedMessageUnread() {
-        if( !isCorrectlySelectedMessage() ) {
-            return;
-        }
-
-        final FrostMessageObject targetMessage = selectedMessage;
-        
-        if( targetMessage.isDeleted() ) {
-            return;
-        }
-
-        AbstractNode node = mainFrame.getTofTreeModel().getSelectedNode();
-        if( node == null || !node.isBoard() ) {
-            return;
-        }
-        Board board = (Board) node;
-
-        messageTable.removeRowSelectionInterval(0, messageTable.getRowCount() - 1);
-
-        targetMessage.setNew(true);
-
-        // let renderer check for new state
-        getMessageTreeModel().nodeChanged(targetMessage);
-
-        board.incNewMessageCount();
-
-        updateMessageCountLabels(board);
-        mainFrame.updateTofTree(board);
-        
-        Thread saver = new Thread() {
-            public void run() {
-                // save message, we must save the changed deleted state into the database
-                try {
-                    AppLayerDatabase.getMessageTable().updateMessage(targetMessage);
-                } catch (SQLException e) {
-                    logger.log(Level.SEVERE, "Error updating a message object", e);
-                }
-            }
-        };
-        saver.start();
-    }
+//    private void markSelectedMessageUnread() {
+//        if( !isCorrectlySelectedMessage() ) {
+//            return;
+//        }
+//
+//        final FrostMessageObject targetMessage = selectedMessage;
+//        
+//        if( targetMessage.isDeleted() ) {
+//            return;
+//        }
+//
+//        AbstractNode node = mainFrame.getTofTreeModel().getSelectedNode();
+//        if( node == null || !node.isBoard() ) {
+//            return;
+//        }
+//        Board board = (Board) node;
+//
+//        messageTable.removeRowSelectionInterval(0, messageTable.getRowCount() - 1);
+//
+//        targetMessage.setNew(true);
+//
+//        // let renderer check for new state
+//        getMessageTreeModel().nodeChanged(targetMessage);
+//
+//        board.incNewMessageCount();
+//
+//        updateMessageCountLabels(board);
+//        mainFrame.updateTofTree(board);
+//        
+//        Thread saver = new Thread() {
+//            public void run() {
+//                // save message, we must save the changed deleted state into the database
+//                try {
+//                    AppLayerDatabase.getMessageTable().updateMessage(targetMessage);
+//                } catch (SQLException e) {
+//                    logger.log(Level.SEVERE, "Error updating a message object", e);
+//                }
+//            }
+//        };
+//        saver.start();
+//    }
 
     /**
      * Method that update the Msg and New counts for tof table
