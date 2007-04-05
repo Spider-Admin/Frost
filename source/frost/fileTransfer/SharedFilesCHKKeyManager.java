@@ -165,11 +165,11 @@ System.out.println("processReceivedCHKKeys: finished processing keys, new="+newK
         }
     }
 
-    public static List getCHKKeyStringsToDownload() {
+    public static List<String> getCHKKeyStringsToDownload() {
         // retrieve all CHK keys that must be downloaded
         try {
             // rules what chks are choosed are in the following method
-            List chkKeys = AppLayerDatabase.getSharedFilesCHKKeysDatabaseTable().retrieveSharedFilesCHKKeysToDownload(MAX_DOWNLOAD_RETRIES_1);
+            List<String> chkKeys = AppLayerDatabase.getSharedFilesCHKKeysDatabaseTable().retrieveSharedFilesCHKKeysToDownload(MAX_DOWNLOAD_RETRIES_1);
 System.out.println("getCHKKeyStringsToDownload: returning keys: "+(chkKeys==null?"(none)":Integer.toString(chkKeys.size())));            
             return chkKeys;
         } catch(Throwable t) {

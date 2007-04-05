@@ -72,35 +72,40 @@ public class FileListDownloadThread extends Thread {
                 
                 if( chkKey == null ) {
                     // paranoia
+                    logger.log(Level.WARNING, "FileListDownloadThread: waiting 1 minute, chkKey=null");
                     Mixed.wait(wait1minute);
                     continue;
                 } else if( previousKey != null && previousKey.equals(chkKey) ) {
                     // same key as before, so no more keys else in queue. wait some time longer...
+                    logger.log(Level.WARNING, "FileListDownloadThread: waiting 1 minute, same key as before");
                     Mixed.wait(wait1minute);
                 } else {
                     // short wait to not to hurt node
-                    Mixed.waitRandom(3500);
+                    Mixed.waitRandom(1500);
                     previousKey = chkKey; // different key as before, remember
                 }
-System.out.println("FileListDownloadThread: starting download of key: "+chkKey);
+                logger.log(Level.WARNING, "FileListDownloadThread: starting download of key: "+chkKey);
 
                 GlobalFileDownloaderResult result = GlobalFileDownloader.downloadFile(chkKey);
 
                 if( result == null || result.getResultFile() == null ) {
                     // download failed
                     boolean retryDownload = SharedFilesCHKKeyManager.updateCHKKeyDownloadFailed(chkKey);
+                    logger.log(Level.WARNING, "FileListDownloadThread: download failed, key="+chkKey+"; retry="+retryDownload);
                     if( retryDownload ) {
                         keyQueue.appendKeyToQueue(chkKey);
                     }
                     continue;
                 }
-                
+
+                logger.log(Level.WARNING, "FileListDownloadThread: download successful, key="+chkKey);
+
                 // download successful, read file and validate
                 File downloadedFile = result.getResultFile();
                 
                 FileListFileContent content = FileListFile.readFileListFile(downloadedFile);
                 boolean isValid = FileListManager.processReceivedFileList(content);
-System.out.println("FileListDownloadThread: processed results: "+isValid);
+                logger.log(Level.WARNING, "FileListDownloadThread: processed results, isValid="+isValid);
                 downloadedFile.delete();
                 SharedFilesCHKKeyManager.updateCHKKeyDownloadSuccessful(chkKey, isValid);
                 
@@ -118,13 +123,12 @@ System.out.println("FileListDownloadThread: processed results: "+isValid);
     
     private void initializeQueue() {
         // get all waiting keys from database
-        List keys = SharedFilesCHKKeyManager.getCHKKeyStringsToDownload();
+        List<String> keys = SharedFilesCHKKeyManager.getCHKKeyStringsToDownload();
         if( keys == null ) {
             return;
         }
-        for(Iterator i = keys.iterator(); i.hasNext(); ) {
-            String chk = (String) i.next();
-            keyQueue.appendKeyToQueue(chk);
+        for(String chk : keys ) {
+            keyQueue.initialAppendKeyToQueue(chk);
         }
     }
     
@@ -141,21 +145,31 @@ System.out.println("FileListDownloadThread: processed results: "+isValid);
             try {
                 // let dequeueing threads wait for work
                 while( queue.isEmpty() ) {
+                    logger.log(Level.WARNING, "CHKKeyQueue: Waiting for work, queue length="+getQueueSize());
                     wait();
                 }
             } catch (InterruptedException e) {
+                logger.log(Level.WARNING, "CHKKeyQueue: NO key returned(1), queue length="+getQueueSize());
                 return null; // waiting abandoned
             }
             
             if( queue.isEmpty() == false ) {
                 String key = queue.removeFirst();
+                logger.log(Level.WARNING, "CHKKeyQueue: Key returned, new queue length="+getQueueSize());
                 return key;
             }
+            logger.log(Level.WARNING, "CHKKeyQueue: NO key returned(2), queue length="+getQueueSize());
             return null;
+        }
+
+        public synchronized void initialAppendKeyToQueue(String key) {
+            queue.addLast(key);
+            notifyAll(); // notify all waiters (if any) of new record
         }
 
         public synchronized void appendKeyToQueue(String key) {
             queue.addLast(key);
+            logger.log(Level.WARNING, "CHKKeyQueue: Key appended, new queue length="+getQueueSize());
             notifyAll(); // notify all waiters (if any) of new record
         }
         
