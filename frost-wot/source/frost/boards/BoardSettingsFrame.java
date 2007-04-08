@@ -620,6 +620,10 @@ public class BoardSettingsFrame extends JDialog {
             }
             return;
         }
+        
+        if( !(b instanceof Board) ) {
+            return;
+        }
 
         Board board = (Board)b; 
         // apply set settings to the board, unset options are not changed
