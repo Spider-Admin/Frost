@@ -9,6 +9,94 @@
   <BODY>
 <H2>Frost History</H2>
       <PRE>
+2007.04.12:
+------------
+
+FIXED BUGS:
+
+- close of a searchtab cancels a running search
+- modal dialogs will not be hidden in the background
+- redesigned several database transactions to avoid database
+  corruption in case of a crash
+- after drag'n drop or delete of a board the root node is not any
+  longer selected each time
+- message subject tooltip bug fixed
+- message viewer scrolls not to idline bug fixed
+- delete key deletes message, also when selection is in preview pane
+- Windows platform: restore from systray shows Frost window topmost
+- fixed 'n' key bug
+- fixed 'threads shown during message load' bug
+- GUI fixes (button layout in metal look and feel)
+- finally fixed bug that showed new messages for a board,
+  but when you clicked on the board there was no new message
+- fixed a 'hang' when more than the maximum allowed files
+  were found in the file search
+- fixed archiving of messages with duplicate ids
+- fixed NPE in table formats (happened very seldom)
+- added 'Mark selected messages read' for multiple selected
+  messages
+- added set of trust states for multiple selected messages
+- balanced the file sharing/file requesting logic
+
+NEW FEATURES:
+
+- implemented sent/unsent folders in board tree
+- if node is down during startup, automatic board update is not
+  disabled (not really a new feature but a change), but the title
+  bar displays "(offline mode)"
+- redesigned options dialog (splitted the display panel)
+- new option to prevent reordering of boards in board tree
+- new option: board in board tree show indicators if board
+  contains flagged or starred messages
+- new option to show message threads collapsed (default is expanded)
+- if the root message of a thread is missing, it shows the subject
+  of a child message
+- during startup of Frost, if multiple shared files are missing,
+  Frost showed one dialog for each missing file. Now you can choose
+  to skip further dialogs of same type
+- sent private messages are now shown in the message list (I hope
+  there are no bad side effects caused by this enhancement)
+- added a button to show only unread messages (flat view) or only
+  the threads with unread messages (threaded view)
+- file search performance was improved when searching for any words
+  (its currently faster to search for 'mp3' than to select 'Audio files')
+- restructured and cleanup up the options dialog
+- added 'look and feel' menu to options menu
+- added swedish translation
+- added subject text to message preview pane, popup menu
+  allows to copy subject text
+- added incremental search feature to message preview and viewer.
+  click in the text area and press ctrl-i to start case-insensitive
+  search or ctrl-shift-i for case-sensitive search. While searching
+  press up/down key to select next/previous match in text. Press ESC
+  to end the search.
+- incremental search also works in download table, upload table,
+  shared files table, search table and in message tree/list.
+  The selected column is searched.
+- incremental search also works in board tree
+- Look and feel is correctly saved
+- Look and feel is applied to all panels
+- Look and feel does not reset when closing the options dialog
+- Copy extented info to clipboard copies correct key/filename
+- 'Copy keys only' for attached files works now on 0.5;
+  and is not longer shown on 0.7
+- 'Copy keys ...' for attached files does not longer attach a
+  newline when only 1 key is copied
+- added menu items to enable/disable upload items to popup menu
+- added esperanto translation
+- download/upload starts smallest items first and continues
+  started items correctly on 0.5
+
+- Windows platform: the systray icon indicates new messages
+
+- 0.7: Frost now uses the global queue for file uploads and downloads
+- 0.7: no DDA for message transfers (as recommended by toad)
+- 0.7: more robust code to handle disappeared nodes, Frost shows
+       when node is disconnected and reconnects automatically
+- 0.7: added config file options to set default priority for files and
+       messages, useful when using the HARD scheduler.
+       "fcp2.defaultPriorityMessage" and "fcp2.defaultP
+
 2007.01.07:
 ------------
 
