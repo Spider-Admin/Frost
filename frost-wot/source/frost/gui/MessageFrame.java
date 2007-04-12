@@ -806,8 +806,9 @@ public class MessageFrame extends JFrame {
                                 JOptionPane.ERROR);
             return;
         }
-        int maxTextLength = (64*1024);
-        if( text.length() > maxTextLength ) {
+        int maxTextLength = (60*1024);
+        int msgSize = text.length() + subject.length() + from.length() + ((repliedMsgId!=null)?repliedMsgId.length():0); 
+        if( msgSize > maxTextLength ) {
             JOptionPane.showMessageDialog( this,
                     language.formatMessage("MessageFrame.textTooLargeError.text", 
                             Integer.toString(text.length()), 

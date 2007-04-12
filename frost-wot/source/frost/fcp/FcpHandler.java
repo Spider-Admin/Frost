@@ -33,7 +33,7 @@ public abstract class FcpHandler {
     public static final int TYPE_MESSAGE = 1;
     public static final int TYPE_FILE    = 2;
     
-    public static final int MAX_KSK_SIZE_ON_07 = 64 * 1024;
+    public static final int MAX_KSK_SIZE_ON_07 = (64 * 1024) + (16 * 1024); // 64kb + 16kb
     
     private static FcpHandler instance = null;
     
