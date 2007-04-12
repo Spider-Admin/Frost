@@ -31,7 +31,7 @@ import frost.util.*;
  */
 public class FileListUploadThread extends Thread {
 
-    private static Logger logger = Logger.getLogger(FileListUploadThread.class.getName());
+    private static final Logger logger = Logger.getLogger(FileListUploadThread.class.getName());
 
     private final int minutes6 = 6 * 60 * 1000;
     

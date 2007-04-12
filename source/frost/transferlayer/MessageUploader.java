@@ -42,7 +42,7 @@ import frost.util.gui.translation.*;
  */
 public class MessageUploader {
     
-    private static Logger logger = Logger.getLogger(MessageUploader.class.getName());
+    private static final Logger logger = Logger.getLogger(MessageUploader.class.getName());
 
     /**
      * The work area for MessageUploader.

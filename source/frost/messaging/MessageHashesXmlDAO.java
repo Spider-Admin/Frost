@@ -29,7 +29,7 @@ import frost.util.*;
 
 public class MessageHashesXmlDAO implements MessageHashesDAO {
 
-    private static Logger logger = Logger.getLogger(MessageHashesXmlDAO.class.getName());
+    private static final Logger logger = Logger.getLogger(MessageHashesXmlDAO.class.getName());
 
     private static final String XML_FILENAME = "hashes.xml";
     private static final String TMP_FILENAME = "hashes.xml.tmp";

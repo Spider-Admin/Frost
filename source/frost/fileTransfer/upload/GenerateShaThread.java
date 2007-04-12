@@ -31,7 +31,7 @@ import frost.util.*;
  */
 public class GenerateShaThread extends Thread {
 
-    private static Logger logger = Logger.getLogger(GenerateShaThread.class.getName());
+    private static final Logger logger = Logger.getLogger(GenerateShaThread.class.getName());
 
     private static final int wait1minute = 1 * 60 * 1000;
     FileQueue fileQueue;

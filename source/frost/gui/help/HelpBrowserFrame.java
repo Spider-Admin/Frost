@@ -28,7 +28,7 @@ import frost.*;
 
 public class HelpBrowserFrame extends JFrame {
     
-  private static Logger logger = Logger.getLogger(HelpBrowserFrame.class.getName());
+  private static final Logger logger = Logger.getLogger(HelpBrowserFrame.class.getName());
 
   boolean plugin;    
   HelpBrowser browser;

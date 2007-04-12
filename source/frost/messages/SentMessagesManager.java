@@ -26,7 +26,7 @@ import frost.storage.database.applayer.*;
 
 public class SentMessagesManager {
 
-    private static Logger logger = Logger.getLogger(SentMessagesManager.class.getName());
+    private static final Logger logger = Logger.getLogger(SentMessagesManager.class.getName());
     
     public static List retrieveSentMessages() {
         try {

@@ -27,7 +27,7 @@ import frost.gui.SortedTable;
 
 public class SortedTableModel extends DefaultTableModel
 {
-    private static Logger logger = Logger.getLogger(SortedTableModel.class.getName());
+    private static final Logger logger = Logger.getLogger(SortedTableModel.class.getName());
 
     private boolean bWasResized = false;
     private ArrayList rows = null;

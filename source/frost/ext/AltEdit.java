@@ -38,7 +38,7 @@ import frost.util.gui.translation.*;
  */
 public class AltEdit extends Thread {
 
-    private static Logger logger = Logger.getLogger(AltEdit.class.getName());
+    private static final Logger logger = Logger.getLogger(AltEdit.class.getName());
 
     private Language language = Language.getInstance();
 

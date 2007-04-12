@@ -28,7 +28,7 @@ import frost.fileTransfer.upload.*;
 
 public abstract class FcpHandler {
 
-    private static Logger logger = Logger.getLogger(FcpHandler.class.getName());
+    private static final Logger logger = Logger.getLogger(FcpHandler.class.getName());
     
     public static final int TYPE_MESSAGE = 1;
     public static final int TYPE_FILE    = 2;

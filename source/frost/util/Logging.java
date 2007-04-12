@@ -26,7 +26,7 @@ import frost.*;
 
 public class Logging {
 
-    private static Logger logger = Logger.getLogger(Logging.class.getName());
+    private static final Logger logger = Logger.getLogger(Logging.class.getName());
 
     private class ShutdownHook extends Thread {
 
@@ -71,11 +71,11 @@ public class Logging {
 
     private static final String LOG_FILE_NAME = "frost%g.log";
 
-    private SettingsClass frostSettings = null;
-    private Listener listener = new Listener();
+    private final SettingsClass frostSettings;
+    private final Listener listener = new Listener();
     private Logger rootLogger = null;
     private FileHandler fileHandler = null;
-    private SimpleFormatter simpleFormatter = new SimpleFormatter();
+    private final SimpleFormatter simpleFormatter = new SimpleFormatter();
 
     public Logging(SettingsClass frostSettings) {
         super();

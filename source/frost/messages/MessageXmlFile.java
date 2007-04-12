@@ -34,7 +34,7 @@ import frost.util.*;
 
 public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
 
-    private static Logger logger = Logger.getLogger(MessageXmlFile.class.getName());
+    private static final Logger logger = Logger.getLogger(MessageXmlFile.class.getName());
     
 //    private static final char[] evilChars = {'/', '\\', '*', '=', '|', '&', '#', '\"', '<', '>'}; // will be converted to _
 

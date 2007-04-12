@@ -26,7 +26,7 @@ import frost.util.*;
 
 public class GlobalFileDownloader {
 
-    private static Logger logger = Logger.getLogger(GlobalFileDownloader.class.getName());
+    private static final Logger logger = Logger.getLogger(GlobalFileDownloader.class.getName());
 
     /**
      * Returns null if file not found.

@@ -26,7 +26,7 @@ public class GenerateChkThread extends Thread {
 
     private UploadTicker ticker;
 
-    private static Logger logger = Logger.getLogger(GenerateChkThread.class.getName());
+    private static final Logger logger = Logger.getLogger(GenerateChkThread.class.getName());
 
     FrostUploadItem uploadItem = null; // for upload and generate CHK
 

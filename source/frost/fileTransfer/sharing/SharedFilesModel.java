@@ -39,7 +39,7 @@ public class SharedFilesModel extends SortedModel implements Savable {
     
     // TODO: for shared directories: add new files to another table, waiting for owner assignment
 
-    private static Logger logger = Logger.getLogger(SharedFilesModel.class.getName());
+    private static final Logger logger = Logger.getLogger(SharedFilesModel.class.getName());
     
     Timer timer;
 

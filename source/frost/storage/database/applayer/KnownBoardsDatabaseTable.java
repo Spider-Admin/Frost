@@ -28,7 +28,7 @@ import frost.storage.database.*;
 
 public class KnownBoardsDatabaseTable extends AbstractDatabaseTable {
     
-    private static Logger logger = Logger.getLogger(KnownBoardsDatabaseTable.class.getName());
+    private static final Logger logger = Logger.getLogger(KnownBoardsDatabaseTable.class.getName());
 
     private final static String SQL_DDL =
         "CREATE TABLE IF NOT EXISTS KNOWNBOARDS ("+

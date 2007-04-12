@@ -26,7 +26,7 @@ import java.util.logging.*;
 import javax.swing.JFrame;
 
 public class BrowserFrame extends JFrame {
-    private static Logger logger = Logger.getLogger(BrowserFrame.class.getName());
+    private static final Logger logger = Logger.getLogger(BrowserFrame.class.getName());
 
     boolean plugin;
 

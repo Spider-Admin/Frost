@@ -35,7 +35,7 @@ import frost.storage.database.*;
  */
 public class FileListDatabaseTable extends AbstractDatabaseTable implements PropertyChangeListener {
 
-    private static Logger logger = Logger.getLogger(FileListDatabaseTable.class.getName());
+    private static final Logger logger = Logger.getLogger(FileListDatabaseTable.class.getName());
     
     private boolean rememberSharedFileDownloaded;
     

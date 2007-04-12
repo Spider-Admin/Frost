@@ -28,7 +28,7 @@ import frost.util.*;
 
 public class AttachmentList extends LinkedList implements XMLizable {
 	
-	private static Logger logger = Logger.getLogger(AttachmentList.class.getName());
+	private static final Logger logger = Logger.getLogger(AttachmentList.class.getName());
 	
 	/**
 	 * traverses the list for attachment of given type

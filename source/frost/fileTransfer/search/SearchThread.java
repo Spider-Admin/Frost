@@ -30,7 +30,7 @@ import frost.util.*;
 
 class SearchThread extends Thread implements FileListDatabaseTableCallback {
 
-    private static Logger logger = Logger.getLogger(SearchThread.class.getName());
+    private static final Logger logger = Logger.getLogger(SearchThread.class.getName());
     
     private SearchParameters searchParams;
 

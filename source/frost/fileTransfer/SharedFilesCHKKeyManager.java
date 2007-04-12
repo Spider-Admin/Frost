@@ -27,7 +27,7 @@ import frost.threads.*;
 
 public class SharedFilesCHKKeyManager {
 
-    private static Logger logger = Logger.getLogger(SharedFilesCHKKeyManager.class.getName());
+    private static final Logger logger = Logger.getLogger(SharedFilesCHKKeyManager.class.getName());
 
     // TODO: download bis zu _1 mal hintereinander, wenn fail dann noch bis _2 mal taeglich. dann ende.
     private static final int MAX_DOWNLOAD_RETRIES_1 = 7;
@@ -156,7 +156,12 @@ System.out.println("processReceivedCHKKeys: finished processing keys, new="+newK
             conn.commit();
             conn.setAutoCommit(true);
         } catch(Throwable t) {
-            logger.log(Level.SEVERE, "Exception during chk key processing", t);
+            if( t.getMessage() != null && t.getMessage().indexOf("Select from table that has committed changes") > 0 ) {
+                // only a warning!
+                logger.log(Level.WARNING, "INFO: Select from table that has committed changes");
+            } else {
+                logger.log(Level.SEVERE, "Exception during chk key processing", t);
+            }
             // we commit all done changes
             try { conn.commit(); } catch(Throwable t1) { logger.log(Level.SEVERE, "Exception during commit", t1); }
             try { conn.setAutoCommit(true); } catch(Throwable t1) { }

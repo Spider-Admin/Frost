@@ -37,7 +37,7 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
     
 //  TODO: implement searching for messages without assigned boards (deleted boards)
 
-    private static Logger logger = Logger.getLogger(MessageArchiveDatabaseTable.class.getName());
+    private static final Logger logger = Logger.getLogger(MessageArchiveDatabaseTable.class.getName());
 
     public static final int INSERT_OK        = 1;
     public static final int INSERT_DUPLICATE = 2;

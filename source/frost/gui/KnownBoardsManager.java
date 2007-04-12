@@ -34,7 +34,7 @@ import frost.storage.database.applayer.*;
  */
 public class KnownBoardsManager implements Savable {
 
-    private static Logger logger = Logger.getLogger(KnownBoardsManager.class.getName());
+    private static final Logger logger = Logger.getLogger(KnownBoardsManager.class.getName());
 
     private static HashSet<String> hiddenNames = null;
     

@@ -40,7 +40,7 @@ import frost.util.gui.translation.*;
 
 public class KnownBoardsFrame extends JDialog {
     
-    private static Logger logger = Logger.getLogger(KnownBoardsFrame.class.getName());
+    private static final Logger logger = Logger.getLogger(KnownBoardsFrame.class.getName());
 
     private Language language;
 

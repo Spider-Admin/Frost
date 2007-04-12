@@ -32,7 +32,7 @@ import frost.util.*;
 
 public class SearchMessagesThread extends Thread implements MessageDatabaseTableCallback {
 
-    private static Logger logger = Logger.getLogger(SearchMessagesThread.class.getName());
+    private static final Logger logger = Logger.getLogger(SearchMessagesThread.class.getName());
 
     SearchMessagesDialog searchDialog; // used to add found messages
     SearchMessagesConfig searchConfig;

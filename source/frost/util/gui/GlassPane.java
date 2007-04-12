@@ -35,7 +35,7 @@ public class GlassPane extends JComponent implements AWTEventListener {
 	private Window theWindow;
 	private Component activeComponent;
 	
-	private static Logger logger = Logger.getLogger(GlassPane.class.getName());
+	private static final Logger logger = Logger.getLogger(GlassPane.class.getName());
 	
 	/**
 	 * GlassPane constructor comment.

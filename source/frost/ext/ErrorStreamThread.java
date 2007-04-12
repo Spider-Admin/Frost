@@ -28,7 +28,7 @@ import java.util.logging.*;
  */
 class ErrorStreamThread extends Thread {
 
-    private static Logger logger = Logger.getLogger(ErrorStreamThread.class.getName());
+    private static final Logger logger = Logger.getLogger(ErrorStreamThread.class.getName());
 
     Process p;
     Transit data;

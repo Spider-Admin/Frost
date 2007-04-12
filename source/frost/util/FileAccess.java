@@ -33,7 +33,7 @@ import frost.*;
 
 public class FileAccess {
 
-    private static Logger logger = Logger.getLogger(FileAccess.class.getName());
+    private static final Logger logger = Logger.getLogger(FileAccess.class.getName());
     
     public static File createTempFile(String prefix, String suffix) {
         File tmpFile = null;

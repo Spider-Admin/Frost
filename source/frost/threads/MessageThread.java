@@ -44,7 +44,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
     
     private IndexSlotsDatabaseTable indexSlots;
 
-    private static Logger logger = Logger.getLogger(MessageThread.class.getName());
+    private static final Logger logger = Logger.getLogger(MessageThread.class.getName());
 
     public MessageThread(boolean downloadToday, Board boa, int maxmsgdays) {
         super(boa);

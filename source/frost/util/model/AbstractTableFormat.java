@@ -27,7 +27,7 @@ import javax.swing.table.*;
 
 public abstract class AbstractTableFormat implements ModelTableFormat {
 
-	private static Logger logger = Logger.getLogger(AbstractTableFormat.class.getName());
+	private static final Logger logger = Logger.getLogger(AbstractTableFormat.class.getName());
 
 	private int columnCount;
 	private String columnNames[];

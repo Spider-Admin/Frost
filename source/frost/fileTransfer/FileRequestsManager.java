@@ -36,7 +36,7 @@ public class FileRequestsManager {
     
     private static final int MAX_SHA_PER_REQUESTFILE = 350;
     
-    private static final long MIN_LAST_UPLOADED = 8; // start upload if last upload is X days back
+    private static final long MIN_LAST_UPLOADED = 10; // start upload if last upload is X days back
 
     /**
      * @return List with SHA strings that should be requested
@@ -54,14 +54,15 @@ public class FileRequestsManager {
         // - we HAVE the chk, but download FAILED, and last try was not longer then 3 days before (maybe successful now)
         
         // FIXME: maybe only request FAILED if failed reason was Data_Not_Found! 
-        //        But this requires that the dlitem remembers the failed reason!  
+        //        But this requires that the dlitem remembers the failed reason!
+        // FIXME: maybe only send requests when CHK queue is empty
         
         final long now = System.currentTimeMillis();
         final long before23hours = now -  1L * 23L * 60L * 60L * 1000L;
         final long before3days =   now -  3L * 24L * 60L * 60L * 1000L;
-        
+
         final List downloadModelItems = FileTransferManager.inst().getDownloadManager().getModel().getItems();
-        
+
         final List<String> mustSendRequests = new LinkedList<String>();
 
         for( Iterator i = downloadModelItems.iterator(); i.hasNext(); ) {
@@ -217,7 +218,7 @@ public class FileRequestsManager {
                     if( sfo.getLastUploaded() < minLastUploaded 
                             && sfo.getLastUploaded() < content.getTimestamp() ) 
                     {
-                        // last upload earlier than 3 days before, start upload
+                        // last upload earlier than X days before, start upload
                         // add to upload files
                         FileTransferManager.inst().getUploadManager().getModel().addNewUploadItemFromSharedFile(sfo);
 

@@ -37,7 +37,7 @@ import frost.fileTransfer.upload.*;
  */
 public class FcpInsert {
     
-	private static Logger logger = Logger.getLogger(FcpInsert.class.getName());
+	private static final Logger logger = Logger.getLogger(FcpInsert.class.getName());
 
     /**
      * Inserts a file into freenet.

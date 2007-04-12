@@ -34,7 +34,7 @@ import frost.util.*;
  */
 public class FileListDownloadThread extends Thread {
     
-    private static Logger logger = Logger.getLogger(FileListDownloadThread.class.getName());
+    private static final Logger logger = Logger.getLogger(FileListDownloadThread.class.getName());
     
     private static final int wait1minute = 1 * 60 * 1000;
     

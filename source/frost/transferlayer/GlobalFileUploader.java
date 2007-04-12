@@ -29,7 +29,7 @@ import frost.storage.database.applayer.*;
  */
 public class GlobalFileUploader {
 
-    private static Logger logger = Logger.getLogger(GlobalFileUploader.class.getName());
+    private static final Logger logger = Logger.getLogger(GlobalFileUploader.class.getName());
 
     public static boolean uploadFile(
             GlobalIndexSlotsDatabaseTable indexSlots, 

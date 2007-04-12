@@ -35,7 +35,7 @@ import frost.util.*;
  */
 public class FcpInsert
 {
-    private static Logger logger = Logger.getLogger(FcpInsert.class.getName());
+    private static final Logger logger = Logger.getLogger(FcpInsert.class.getName());
 
     //public final static int smallestChunk = 262144;
     // changed to freenets behaviour. also smaller values will produce errors in RandomAccessFile2.segment()

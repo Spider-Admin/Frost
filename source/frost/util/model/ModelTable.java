@@ -128,7 +128,7 @@ public class ModelTable extends AbstractTableModel {
 
 	}
 	
-	private static Logger logger = Logger.getLogger(ModelTable.class.getName());
+	private static final Logger logger = Logger.getLogger(ModelTable.class.getName());
 
 	protected ModelTableFormat tableFormat;	
 	protected SortedModel model;

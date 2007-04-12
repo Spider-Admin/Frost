@@ -37,7 +37,7 @@ import frost.util.gui.translation.*;
  */
 public class SkinChooser extends JPanel {
 	
-	private static Logger logger = Logger.getLogger(SkinChooser.class.getName());
+	private static final Logger logger = Logger.getLogger(SkinChooser.class.getName());
 
 	private static final String THEMES_DIR = "themes"; //Directory where themes are stored
 

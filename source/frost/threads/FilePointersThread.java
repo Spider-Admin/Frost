@@ -41,7 +41,7 @@ import frost.util.*;
  */
 public class FilePointersThread extends Thread {
     
-    private static Logger logger = Logger.getLogger(FilePointersThread.class.getName());
+    private static final Logger logger = Logger.getLogger(FilePointersThread.class.getName());
     
     private static final int baseSleepTime = 15 * 60 * 1000;
 

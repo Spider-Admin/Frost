@@ -30,7 +30,7 @@ import frost.util.*;
 
 public class UploadManager {
 
-    private static Logger logger = Logger.getLogger(UploadManager.class.getName());
+    private static final Logger logger = Logger.getLogger(UploadManager.class.getName());
 
     private UploadModel model;
     private UploadPanel panel;

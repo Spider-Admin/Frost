@@ -36,7 +36,7 @@ import frost.util.gui.translation.*;
  */
 public class FrostIdentities implements Savable {
 
-    private static Logger logger = Logger.getLogger(FrostIdentities.class.getName());
+    private static final Logger logger = Logger.getLogger(FrostIdentities.class.getName());
 
     private Hashtable<String,Identity> identities = new Hashtable<String,Identity>();
     private Hashtable<String,LocalIdentity> localIdentities = new Hashtable<String,LocalIdentity>();

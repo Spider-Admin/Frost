@@ -35,7 +35,7 @@ public class FcpRequest {
 
     final static boolean DEBUG = true;
 
-    private static Logger logger = Logger.getLogger(FcpRequest.class.getName());
+    private static final Logger logger = Logger.getLogger(FcpRequest.class.getName());
 
     /**
      * Reads the progress information of the provided items and updates the item.

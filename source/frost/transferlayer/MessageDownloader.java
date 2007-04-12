@@ -32,7 +32,7 @@ import frost.util.*;
 
 public class MessageDownloader {
 
-    private static Logger logger = Logger.getLogger(MessageDownloader.class.getName());
+    private static final Logger logger = Logger.getLogger(MessageDownloader.class.getName());
 
     /**
      * Process the downloaded file, decrypt, check sign.

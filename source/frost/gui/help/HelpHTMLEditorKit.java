@@ -26,7 +26,7 @@ import javax.swing.text.html.*;
  */
 public class HelpHTMLEditorKit extends HTMLEditorKit {
 
-//    private static Logger logger = Logger.getLogger(HelpHTMLEditorKit.class.getName());
+//    private static final Logger logger = Logger.getLogger(HelpHTMLEditorKit.class.getName());
     
     private String url_prefix;
     

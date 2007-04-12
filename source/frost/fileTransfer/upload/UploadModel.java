@@ -40,7 +40,7 @@ import frost.util.model.*;
  */
 public class UploadModel extends SortedModel implements Savable {
     
-    private static Logger logger = Logger.getLogger(UploadModel.class.getName());
+    private static final Logger logger = Logger.getLogger(UploadModel.class.getName());
 
     public UploadModel(SortedTableFormat f) {
         super(f);
@@ -186,15 +186,15 @@ public class UploadModel extends SortedModel implements Savable {
      * Removes finished uploads from the model.
      */
     public synchronized void removeFinishedUploads() {
-        ArrayList<FrostUploadItem> items = new ArrayList<FrostUploadItem>();
+        final ArrayList<FrostUploadItem> items = new ArrayList<FrostUploadItem>();
         for (int i = getItemCount() - 1; i >= 0; i--) {
-            FrostUploadItem ulItem = (FrostUploadItem) getItemAt(i);
+            final FrostUploadItem ulItem = (FrostUploadItem) getItemAt(i);
             if (ulItem.getState() == FrostUploadItem.STATE_DONE) {
                 items.add(ulItem);
             }
         }
         if (items.size() > 0) {
-            FrostUploadItem[] itemsArray = new FrostUploadItem[items.size()];
+            final FrostUploadItem[] itemsArray = new FrostUploadItem[items.size()];
             items.toArray(itemsArray);
             removeItems(itemsArray);
         }
@@ -204,15 +204,15 @@ public class UploadModel extends SortedModel implements Savable {
      * Removes external uploads from the model.
      */
     public synchronized void removeExternalUploads() {
-        ArrayList<FrostUploadItem> items = new ArrayList<FrostUploadItem>();
+        final ArrayList<FrostUploadItem> items = new ArrayList<FrostUploadItem>();
         for (int i = getItemCount() - 1; i >= 0; i--) {
-            FrostUploadItem ulItem = (FrostUploadItem) getItemAt(i);
+            final FrostUploadItem ulItem = (FrostUploadItem) getItemAt(i);
             if (ulItem.isExternal()) {
                 items.add(ulItem);
             }
         }
         if (items.size() > 0) {
-            FrostUploadItem[] itemsArray = new FrostUploadItem[items.size()];
+            final FrostUploadItem[] itemsArray = new FrostUploadItem[items.size()];
             items.toArray(itemsArray);
             removeItems(itemsArray);
         }
@@ -222,7 +222,7 @@ public class UploadModel extends SortedModel implements Savable {
      * Initializes and loads the model
      */
     public void initialize(List sharedFiles) throws StorageException {
-        List uploadItems;
+        final List uploadItems;
         try {
             uploadItems = AppLayerDatabase.getUploadFilesDatabaseTable().loadUploadFiles(sharedFiles);
         } catch (SQLException e) {

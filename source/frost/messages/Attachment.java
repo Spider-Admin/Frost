@@ -30,7 +30,7 @@ public abstract class Attachment implements XMLizable, Comparable {
 	public static final int BOARD = 1;
 	public static final int PERSON = 2;
 
-	private static Logger logger = Logger.getLogger(Attachment.class.getName());
+	private static final Logger logger = Logger.getLogger(Attachment.class.getName());
 
 	/**
 	 * @return the type of this attachment

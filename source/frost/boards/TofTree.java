@@ -42,13 +42,10 @@ import frost.util.gui.translation.*;
 
 public class TofTree extends JDragTree implements Savable, PropertyChangeListener {
 
-    // pubkey for 0.5: "SSK@7i~oLj~57mQVRrKfMxYgLULJ2r0PAgM"
-    // pubkey for 0.7: "SSK@ub2QMcPy4jmtmqyEIML0cDdbbSTFGBgX3jEYLGoN9lg,IUYrv~GBW0~dn6k3orf9CRKUBz9CLZSA6wGrax73BCk,AQABAAE"
-    // NEW pubkey for 0.7: "SSK@l4YxTKAc-sCho~6w-unV6pl-uxIbfuGnGRzo3BJH0ck,4N48yl8E4rh9UPPV26Ev1ZGrRRgeGOTgw1Voka6lk4g,AQACAAE"
     private static final String FROST_ANNOUNCE_NAME = "frost-announce";
     private static final String FREENET_05_FROST_ANNOUNCE_PUBKEY = "SSK@7i~oLj~57mQVRrKfMxYgLULJ2r0PAgM";
-    //FIXME: new keys
-    private static final String FREENET_07_FROST_ANNOUNCE_PUBKEY = "SSK@ub2QMcPy4jmtmqyEIML0cDdbbSTFGBgX3jEYLGoN9lg,IUYrv~GBW0~dn6k3orf9CRKUBz9CLZSA6wGrax73BCk,AQABAAE";
+    // new 0.7 key
+    private static final String FREENET_07_FROST_ANNOUNCE_PUBKEY = "SSK@l4YxTKAc-sCho~6w-unV6pl-uxIbfuGnGRzo3BJH0ck,4N48yl8E4rh9UPPV26Ev1ZGrRRgeGOTgw1Voka6lk4g,AQACAAE";
     
     private boolean showBoardDescriptionToolTips;
     private boolean showBoardUpdatedCount;
@@ -562,7 +559,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
 
     private PopupMenuTofTree popupMenuTofTree;
 
-    private static Logger logger = Logger.getLogger(TofTree.class.getName());
+    private static final Logger logger = Logger.getLogger(TofTree.class.getName());
 
     private TofTreeModel model;
 
@@ -724,7 +721,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         }
 
         // check if the board 'frost-announce' is contained in the list, add it if not found
-        String expectedPubkey;
+        final String expectedPubkey;
         if( FcpHandler.isFreenet05() ) {
             expectedPubkey = FREENET_05_FROST_ANNOUNCE_PUBKEY;
         } else {

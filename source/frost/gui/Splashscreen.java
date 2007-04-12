@@ -45,7 +45,7 @@ import javax.swing.*;
  */
 public class Splashscreen extends JDialog {
 
-//  private static Logger logger = Logger.getLogger(Splashscreen.class.getName());
+//  private static final Logger logger = Logger.getLogger(Splashscreen.class.getName());
 
     private static String SPLASH_LOGO_FILENAME = "/data/splash.png";
 

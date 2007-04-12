@@ -37,7 +37,7 @@ import frost.util.model.*;
  */
 public class DownloadModel extends SortedModel implements Savable {
 	
-	private static Logger logger = Logger.getLogger(DownloadModel.class.getName());
+	private static final Logger logger = Logger.getLogger(DownloadModel.class.getName());
 
 	public DownloadModel(SortedTableFormat f) {
 		super(f);

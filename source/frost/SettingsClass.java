@@ -41,7 +41,7 @@ public class SettingsClass implements Savable {
     private PropertyChangeSupport changeSupport = null;
     private Vector<SettingsUpdater> updaters = null;
 
-    private static Logger logger = Logger.getLogger(SettingsClass.class.getName());
+    private static final Logger logger = Logger.getLogger(SettingsClass.class.getName());
 
     public static final String DIR_CONFIG = "config.dir";
     public static final String DIR_DOWNLOAD = "downloadDirectory";

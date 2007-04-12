@@ -34,7 +34,7 @@ public class FcpRequest {
     
 	final static boolean DEBUG = true;
 
-	private static Logger logger = Logger.getLogger(FcpRequest.class.getName());
+	private static final Logger logger = Logger.getLogger(FcpRequest.class.getName());
     
     /**
      * getFile retrieves a file from Freenet. It does detect if this file is a redirect, a splitfile or

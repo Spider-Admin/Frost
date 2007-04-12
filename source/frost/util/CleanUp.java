@@ -35,7 +35,7 @@ import frost.storage.database.applayer.*;
  */
 public class CleanUp {
 
-    private static Logger logger = Logger.getLogger(CleanUp.class.getName());
+    private static final Logger logger = Logger.getLogger(CleanUp.class.getName());
 
     public static final int DELETE_MESSAGES  = 1;
     public static final int ARCHIVE_MESSAGES = 2;

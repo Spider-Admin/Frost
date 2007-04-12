@@ -30,7 +30,7 @@ import frost.util.*;
 
 public class TofTreeXmlIO
 {
-    private static Logger logger = Logger.getLogger(TofTreeXmlIO.class.getName());
+    private static final Logger logger = Logger.getLogger(TofTreeXmlIO.class.getName());
 
     /**************************************************
      * TREE LOAD METHODS ******************************

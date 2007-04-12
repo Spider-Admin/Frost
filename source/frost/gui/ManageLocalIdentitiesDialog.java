@@ -40,7 +40,7 @@ import java.awt.GridBagConstraints;
 
 public class ManageLocalIdentitiesDialog extends JDialog {
     
-    private static Logger logger = Logger.getLogger(ManageLocalIdentitiesDialog.class.getName());
+    private static final Logger logger = Logger.getLogger(ManageLocalIdentitiesDialog.class.getName());
 
     private Language language = null;
 
