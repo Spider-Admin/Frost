@@ -35,7 +35,7 @@ import frost.util.gui.translation.*;
  */
 public class BoardSettingsFrame extends JDialog {
 
-//  private static Logger logger = Logger.getLogger(BoardSettingsFrame.class.getName());
+//  private static final Logger logger = Logger.getLogger(BoardSettingsFrame.class.getName());
 
     private class Listener implements ActionListener {
         public void actionPerformed(ActionEvent e) {

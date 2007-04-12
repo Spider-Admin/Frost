@@ -33,7 +33,7 @@ import javax.swing.SwingUtilities;
  */
 public abstract class FrostSwingWorker {
 	
-	private static Logger logger = Logger.getLogger(FrostSwingWorker.class.getName());
+	private static final Logger logger = Logger.getLogger(FrostSwingWorker.class.getName());
 
 	/**
 	 * Class to maintain reference to current worker thread

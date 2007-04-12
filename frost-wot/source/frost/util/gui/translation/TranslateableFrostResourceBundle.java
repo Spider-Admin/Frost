@@ -24,7 +24,7 @@ import java.util.logging.*;
 
 public class TranslateableFrostResourceBundle extends FrostResourceBundle {
 
-    private static Logger logger = Logger.getLogger(TranslateableFrostResourceBundle.class.getName());
+    private static final Logger logger = Logger.getLogger(TranslateableFrostResourceBundle.class.getName());
 
     /**
      * Changed default constructor:

@@ -31,7 +31,7 @@ import frost.util.*;
 
 public class DownloadManager {
 
-    private static Logger logger = Logger.getLogger(DownloadManager.class.getName());
+    private static final Logger logger = Logger.getLogger(DownloadManager.class.getName());
 
 	private DownloadModel model;
 	private DownloadPanel panel;

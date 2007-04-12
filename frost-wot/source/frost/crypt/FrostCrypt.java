@@ -44,7 +44,7 @@ import org.bouncycastle.util.encoders.*;
  */
 public final class FrostCrypt {
 
-    private static Logger logger = Logger.getLogger(FrostCrypt.class.getName());
+    private static final Logger logger = Logger.getLogger(FrostCrypt.class.getName());
 
     private PSSSigner signer;
     private SecureRandom secureRandom = null;

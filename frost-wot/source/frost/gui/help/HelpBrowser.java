@@ -39,7 +39,7 @@ import frost.util.gui.translation.*;
  */
 public class HelpBrowser extends JPanel {
 
-    private static Logger logger = Logger.getLogger(HelpBrowser.class.getName());
+    private static final Logger logger = Logger.getLogger(HelpBrowser.class.getName());
     
     private static Language language = Language.getInstance();
     

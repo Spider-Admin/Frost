@@ -45,9 +45,9 @@ public class TOF {
     //       the methods are synchronized. So the add of msg occurs after the load of the board.
     //       there is no sync problem.
     
-    private static Logger logger = Logger.getLogger(TOF.class.getName());
+    private static final Logger logger = Logger.getLogger(TOF.class.getName());
     
-    private static Language language = Language.getInstance();
+    private static final Language language = Language.getInstance();
 
     private UpdateTofFilesThread updateThread = null;
     private UpdateTofFilesThread nextUpdateThread = null;

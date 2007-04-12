@@ -32,7 +32,7 @@ import frost.*;
  */
 public class FrostResourceBundleReader {
 
-    private static Logger logger = Logger.getLogger(FrostResourceBundleReader.class.getName());
+    private static final Logger logger = Logger.getLogger(FrostResourceBundleReader.class.getName());
 
     /**
      * Loads the properties from a jarResource. Provide resource as '/i18n/langres.properties'.

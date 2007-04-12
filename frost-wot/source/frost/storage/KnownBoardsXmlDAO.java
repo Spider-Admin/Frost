@@ -31,7 +31,7 @@ import frost.util.*;
 
 public class KnownBoardsXmlDAO {
  
-    private static Logger logger = Logger.getLogger(KnownBoardsXmlDAO.class.getName());
+    private static final Logger logger = Logger.getLogger(KnownBoardsXmlDAO.class.getName());
 
     /**
      * @param file

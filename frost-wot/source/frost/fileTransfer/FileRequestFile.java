@@ -42,7 +42,7 @@ import frost.util.*;
  */
 public class FileRequestFile {
 
-    private static Logger logger = Logger.getLogger(FileRequestFile.class.getName());
+    private static final Logger logger = Logger.getLogger(FileRequestFile.class.getName());
 
     private static final String TAG_FrostFileRequestFile = "FrostFileRequestFile";
     private static final String TAG_timestamp = "timestamp";

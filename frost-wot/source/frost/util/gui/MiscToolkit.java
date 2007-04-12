@@ -35,7 +35,7 @@ public class MiscToolkit {
 
 	private static MiscToolkit instance = new MiscToolkit();
 
-	private static Logger logger = Logger.getLogger(MiscToolkit.class.getName());
+	private static final Logger logger = Logger.getLogger(MiscToolkit.class.getName());
 	
 	/**
 	 * Return the unique instance of this class.

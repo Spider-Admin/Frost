@@ -30,7 +30,7 @@ import javax.swing.event.*;
  */
 public class Language {
     
-    private static Logger logger = Logger.getLogger(Language.class.getName());
+    private static final Logger logger = Logger.getLogger(Language.class.getName());
 
     private FrostResourceBundle RESOURCE_BUNDLE = null;
     private FrostResourceBundle ROOT_RESOURCE_BUNDLE = null;

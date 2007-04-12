@@ -44,7 +44,7 @@ public class SharedFilesPanel extends JPanel {
 
     private Listener listener = new Listener();
 
-    private static Logger logger = Logger.getLogger(SharedFilesPanel.class.getName());
+    private static final Logger logger = Logger.getLogger(SharedFilesPanel.class.getName());
 
     private SharedFilesModel model = null;
 

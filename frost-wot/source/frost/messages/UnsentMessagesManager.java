@@ -32,7 +32,7 @@ import frost.threads.*;
  */
 public class UnsentMessagesManager {
 
-    private static Logger logger = Logger.getLogger(UnsentMessagesManager.class.getName());
+    private static final Logger logger = Logger.getLogger(UnsentMessagesManager.class.getName());
     
     private static LinkedList<FrostUnsentMessageObject> unsentMessages = new LinkedList<FrostUnsentMessageObject>();
     private static int runningMessageUploads = 0;

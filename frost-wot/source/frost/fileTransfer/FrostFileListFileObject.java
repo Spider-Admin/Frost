@@ -29,7 +29,7 @@ import frost.util.*;
 
 public class FrostFileListFileObject {
 
-    private static Logger logger = Logger.getLogger(FrostFileListFileObject.class.getName());
+    private static final Logger logger = Logger.getLogger(FrostFileListFileObject.class.getName());
 
     private Long primkey = null;
     private String sha = null;  // SHA of the file

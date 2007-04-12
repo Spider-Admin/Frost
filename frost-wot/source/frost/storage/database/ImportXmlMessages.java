@@ -34,7 +34,7 @@ import frost.util.*;
 
 public class ImportXmlMessages {
 
-    private static Logger logger = Logger.getLogger(ImportXmlMessages.class.getName());
+    private static final Logger logger = Logger.getLogger(ImportXmlMessages.class.getName());
     
     private Hashtable<String,Board> boardDirNames;
     private long uncommittedBytes = 0;

@@ -31,7 +31,7 @@ public class UnsentMessageDatabaseTable extends AbstractDatabaseTable {
 
     // NOTE: fileattachments: the filename is the complete path of file
     
-    private static Logger logger = Logger.getLogger(MessageDatabaseTable.class.getName());
+    private static final Logger logger = Logger.getLogger(MessageDatabaseTable.class.getName());
 
     private final String SQL_DDL_MESSAGES =
         "CREATE TABLE IF NOT EXISTS UNSENDMESSAGES ("+

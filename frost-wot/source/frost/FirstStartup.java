@@ -30,7 +30,7 @@ import frost.util.*;
 
 public class FirstStartup {
     
-    private static Logger logger = Logger.getLogger(FirstStartup.class.getName());
+    private static final Logger logger = Logger.getLogger(FirstStartup.class.getName());
 
     private SettingsClass oldSettings = null;
     private File importBaseDir = null;

@@ -30,7 +30,7 @@ import frost.storage.database.applayer.*;
 
 public class FileListManager {
 
-    private static Logger logger = Logger.getLogger(FileListManager.class.getName());
+    private static final Logger logger = Logger.getLogger(FileListManager.class.getName());
     
     public static final int MAX_FILES_PER_FILE = 250; // TODO: count utf-8 size of sharedxmlfiles, not more than 512kb!
     

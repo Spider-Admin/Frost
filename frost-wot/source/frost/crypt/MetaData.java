@@ -28,7 +28,7 @@ import frost.util.*;
 
 public abstract class MetaData implements XMLizable {
 
-    private static Logger logger = Logger.getLogger(MetaData.class.getName());
+    private static final Logger logger = Logger.getLogger(MetaData.class.getName());
 
     public static final int SIGN    = 0;
     public static final int ENCRYPT = 1;

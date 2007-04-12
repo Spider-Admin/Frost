@@ -37,7 +37,7 @@ import frost.util.gui.translation.*;
  */
 public class SharedFilesDatabaseTable extends AbstractDatabaseTable {
 
-    private static Logger logger = Logger.getLogger(SharedFilesDatabaseTable.class.getName());
+    private static final Logger logger = Logger.getLogger(SharedFilesDatabaseTable.class.getName());
 
     private final static String SQL_SHAREDFILES_DDL =
         "CREATE TABLE IF NOT EXISTS SHAREDFILES ("+

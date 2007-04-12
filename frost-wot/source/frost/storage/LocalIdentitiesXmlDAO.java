@@ -29,7 +29,7 @@ import frost.util.*;
 
 public class LocalIdentitiesXmlDAO {
 
-    private static Logger logger = Logger.getLogger(KnownBoardsXmlDAO.class.getName());
+    private static final Logger logger = Logger.getLogger(KnownBoardsXmlDAO.class.getName());
 
     public static List<LocalIdentity> loadLocalidentities(File file) {
 

@@ -25,7 +25,7 @@ import frost.fileTransfer.*;
 
 class UploadThread extends Thread {
 
-    private static Logger logger = Logger.getLogger(UploadThread.class.getName());
+    private static final Logger logger = Logger.getLogger(UploadThread.class.getName());
 
     private UploadTicker ticker;
     private FrostUploadItem uploadItem;

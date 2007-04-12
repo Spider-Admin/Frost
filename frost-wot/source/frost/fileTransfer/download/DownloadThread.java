@@ -26,7 +26,7 @@ import frost.fileTransfer.*;
 
 public class DownloadThread extends Thread {
 
-    private static Logger logger = Logger.getLogger(DownloadThread.class.getName());
+    private static final Logger logger = Logger.getLogger(DownloadThread.class.getName());
 
     private DownloadTicker ticker;
     private String filename;

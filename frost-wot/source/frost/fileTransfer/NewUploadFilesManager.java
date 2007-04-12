@@ -28,7 +28,7 @@ import frost.storage.database.applayer.*;
 
 public class NewUploadFilesManager implements Savable {
     
-    private static Logger logger = Logger.getLogger(NewUploadFilesManager.class.getName());
+    private static final Logger logger = Logger.getLogger(NewUploadFilesManager.class.getName());
 
     LinkedList<NewUploadFile> newUploadFiles;
     GenerateShaThread generateShaThread;

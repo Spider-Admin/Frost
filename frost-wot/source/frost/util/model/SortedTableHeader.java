@@ -78,7 +78,7 @@ class SortedTableHeader extends ModelTableHeader {
 	
 	}
 	
-	private static Logger logger = Logger.getLogger(SortedTableHeader.class.getName());	
+	private static final Logger logger = Logger.getLogger(SortedTableHeader.class.getName());	
 	
 	private static Icon ascendingIcon;
 	private static Icon descendingIcon;

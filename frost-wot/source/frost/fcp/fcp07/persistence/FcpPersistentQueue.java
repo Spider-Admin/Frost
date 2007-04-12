@@ -25,7 +25,7 @@ import frost.fileTransfer.*;
 
 public class FcpPersistentQueue implements NodeMessageListener {
 
-//    private static Logger logger = Logger.getLogger(FcpPersistentQueue.class.getName());
+//    private static final Logger logger = Logger.getLogger(FcpPersistentQueue.class.getName());
 
     private FcpPersistentConnectionTools fcpTools;
     private IFcpPersistentRequestsHandler persistenceHandler;

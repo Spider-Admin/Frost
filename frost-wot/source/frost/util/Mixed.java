@@ -26,32 +26,32 @@ import frost.*;
 
 public final class Mixed {
 
-    private static Logger logger = Logger.getLogger(Mixed.class.getName());
+    private static final Logger logger = Logger.getLogger(Mixed.class.getName());
 
-    private static char[] invalidChars = { '/', '\\', '?', '*', '<', '>', '\"', ':', '|', '#', '&' };
+    private static final char[] invalidChars = { '/', '\\', '?', '*', '<', '>', '\"', ':', '|', '#', '&' };
 
     /**
      * Creates a new unique ID.
      */
     public static String createUniqueId() {
         
-        StringBuilder idStrSb = new StringBuilder();
+        final StringBuilder idStrSb = new StringBuilder();
         idStrSb.append(Long.toString(System.currentTimeMillis())); // millis
         idStrSb.append(DateFun.FORMAT_DATE_EXT.print(new DateTime()));
         idStrSb.append(Long.toString(Runtime.getRuntime().freeMemory())); // free java mem
         idStrSb.append(DateFun.FORMAT_TIME_EXT.print(new DateTime()));
-        byte[] idStrPart = idStrSb.toString().getBytes();
+        final byte[] idStrPart = idStrSb.toString().getBytes();
         
         // finally add some random bytes
-        byte[] idRandomPart = new byte[64];
+        final byte[] idRandomPart = new byte[64];
         Core.getCrypto().getSecureRandom().nextBytes(idRandomPart);
 
         // concat both parts
-        byte[] idBytes = new byte[idStrPart.length + idRandomPart.length];
+        final byte[] idBytes = new byte[idStrPart.length + idRandomPart.length];
         System.arraycopy(idStrPart, 0, idBytes, 0, idStrPart.length);
         System.arraycopy(idRandomPart, 0, idBytes, idStrPart.length-1, idRandomPart.length);
         
-        String uniqueId = Core.getCrypto().computeChecksumSHA256(idBytes);
+        final String uniqueId = Core.getCrypto().computeChecksumSHA256(idBytes);
         
         return uniqueId;
     }
@@ -59,7 +59,7 @@ public final class Mixed {
     /**
      * Returns same as Integer.compareTo(), but without to create Integer objects.
      */
-    public static int compareInt(int i1, int i2) {
+    public static int compareInt(final int i1, final int i2) {
         if( i1 < i2 ) {
             return -1;
         } else if( i1 > i2 ) {
@@ -72,7 +72,7 @@ public final class Mixed {
     /**
      * Returns same as Long.compareTo(), but without to create Long objects.
      */
-    public static int compareLong(long i1, long i2) {
+    public static int compareLong(final long i1, final long i2) {
         if( i1 < i2 ) {
             return -1;
         } else if( i1 > i2 ) {
@@ -86,7 +86,7 @@ public final class Mixed {
      * Waits for a specific number of ms
      * @param time Time to wait in ms
      */
-    public static void wait(int time) {
+    public static void wait(final int time) {
         try {
             Thread.sleep(time);
         } catch (InterruptedException e) {
@@ -97,7 +97,7 @@ public final class Mixed {
      * Waits for a random number of millis in the range from 0 to maxMillis.
      * @param maxMillis  maximum wait time in ms
      */
-    public static void waitRandom(int maxMillis) {
+    public static void waitRandom(final int maxMillis) {
         Mixed.wait( (int) (Math.random() * maxMillis) );
     }
 
@@ -117,7 +117,7 @@ public final class Mixed {
             return null;
         }
 
-        StringBuilder newText = new StringBuilder();
+        final StringBuilder newText = new StringBuilder();
 
         if (text.startsWith("."))
             newText.append("_"); // dont allow a boardfilename like "."
@@ -135,9 +135,9 @@ public final class Mixed {
      * @param text the text to be filtered
      * @return the filtered text
      */
-    public static String makeASCIIFilename(String text){
+    public static String makeASCIIFilename(final String text){
 
-        StringBuilder newText = new StringBuilder();
+        final StringBuilder newText = new StringBuilder();
         String allowedCharacters = "()-!.";
         for (int i = 0; i < text.length(); i++)
               {
@@ -163,9 +163,9 @@ public final class Mixed {
 //        Character c = new Character(chars[0]);
 //        return false;
 //    }
-    public static boolean binaryCompare(byte[] src, int offs, String searchTxt)
+    public static boolean binaryCompare(final byte[] src, final int offs, final String searchTxt)
     {
-        int searchLen = searchTxt.length();
+        final int searchLen = searchTxt.length();
         for(int x=0; x < searchLen; x++)
         {
             byte a = (byte)searchTxt.charAt(x);

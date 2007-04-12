@@ -28,7 +28,7 @@ import java.util.logging.Logger;
  */
 public final class FcpKeyword
 {
-    private static Logger logger = Logger.getLogger(FcpKeyword.class.getName());
+    private static final Logger logger = Logger.getLogger(FcpKeyword.class.getName());
 
     public final static int UnknownError = -1;
     public final static int ClientGet = 0;

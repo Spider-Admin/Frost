@@ -33,11 +33,11 @@ import frost.storage.database.applayer.*;
  */
 public class TofTreeModel extends DefaultTreeModel {
 
-    private static Logger logger = Logger.getLogger(TofTreeModel.class.getName());
+    private static final Logger logger = Logger.getLogger(TofTreeModel.class.getName());
 
     private DefaultTreeSelectionModel selectionModel;
     
-    private Hashtable<Integer,String> boardnameByPrimaryKey = new Hashtable<Integer,String>();  
+    private Hashtable<Integer,String> boardnameByPrimaryKey= new Hashtable<Integer,String>();  
     private Hashtable<String,Integer> primaryKeyByBoardname = new Hashtable<String,Integer>();
 
     /**

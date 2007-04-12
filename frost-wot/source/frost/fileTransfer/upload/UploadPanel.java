@@ -44,7 +44,7 @@ public class UploadPanel extends JPanel {
 
     private Listener listener = new Listener();
 
-    private static Logger logger = Logger.getLogger(UploadPanel.class.getName());
+    private static final Logger logger = Logger.getLogger(UploadPanel.class.getName());
 
     private UploadModel model = null;
 

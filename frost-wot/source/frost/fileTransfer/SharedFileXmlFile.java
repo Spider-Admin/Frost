@@ -30,7 +30,7 @@ public class SharedFileXmlFile implements XMLizable {
     public static final int MAX_COMMENT_LENGTH = 100;
     public static final int MAX_KEYWORDS_LENGTH = 100;
     
-    private static Logger logger = Logger.getLogger(SharedFileXmlFile.class.getName());
+    private static final Logger logger = Logger.getLogger(SharedFileXmlFile.class.getName());
 
     private final static char[] invalidChars = {'/', '\\', '?', '*', '<', '>', '\"', ':', '|'};
 

@@ -30,7 +30,7 @@ import frost.storage.database.*;
  */
 public class SharedFilesCHKKeysDatabaseTable extends AbstractDatabaseTable {
 
-    private static Logger logger = Logger.getLogger(SharedFilesCHKKeysDatabaseTable.class.getName());
+    private static final Logger logger = Logger.getLogger(SharedFilesCHKKeysDatabaseTable.class.getName());
     
     // Question: how to ensure own CHK keys, track them once uploaded if we ever see them again! 
     // Answer: Ignore lost keys, we resend them after some days!

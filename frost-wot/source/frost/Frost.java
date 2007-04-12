@@ -31,7 +31,7 @@ import frost.util.gui.translation.*;
 
 public class Frost {
 
-    private static Logger logger = Logger.getLogger(Frost.class.getName());
+    private static final Logger logger = Logger.getLogger(Frost.class.getName());
     private static String lookAndFeel = null;
     
     private static String cmdLineLocaleName = null;

@@ -86,7 +86,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
     private Language language = null;
     private Listener listener = new Listener();
 
-    private static Logger logger = Logger.getLogger(BoardInfoFrame.class.getName());
+    private static final Logger logger = Logger.getLogger(BoardInfoFrame.class.getName());
 
     private JPanel mainPanel = new JPanel(new BorderLayout());
     private JPanel boardTablePanel = new JPanel(new BorderLayout());

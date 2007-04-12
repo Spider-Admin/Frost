@@ -59,7 +59,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         }
     }
 
-    private static Logger logger = Logger.getLogger(OptionsFrame.class.getName());
+    private static final Logger logger = Logger.getLogger(OptionsFrame.class.getName());
 
     private SettingsClass frostSettings;
     private Language language;

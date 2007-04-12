@@ -58,7 +58,7 @@ public class Core implements FrostEventDispatcher  {
     private static final Logger logger = Logger.getLogger(Core.class.getName());
 
     // Core instanciates itself, frostSettings must be created before instance=Core() !
-    public static SettingsClass frostSettings = new SettingsClass();
+    public static final SettingsClass frostSettings = new SettingsClass();
 
     private static Core instance = null;
 

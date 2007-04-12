@@ -37,7 +37,7 @@ import frost.util.*;
  */
 public class FileRequestsThread extends Thread {
 
-    private static Logger logger = Logger.getLogger(FilePointersThread.class.getName());
+    private static final Logger logger = Logger.getLogger(FilePointersThread.class.getName());
     
     // sleeptime between request loops
     private static final int sleepTime = 10 * 60 * 1000;

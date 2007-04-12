@@ -34,7 +34,7 @@ import javax.swing.event.*;
  */
 public class Browser extends JPanel {
 
-    private static Logger logger = Logger.getLogger(Browser.class.getName());
+    private static final Logger logger = Logger.getLogger(Browser.class.getName());
 
     // Global Variables
     String[] imageExtensions = {".jpg", ".gif", ".jpeg", ".png", ".bmp"};

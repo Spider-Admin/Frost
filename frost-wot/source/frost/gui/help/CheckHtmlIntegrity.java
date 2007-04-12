@@ -31,7 +31,7 @@ import java.util.zip.*;
  */
 public class CheckHtmlIntegrity {
 
-    private static Logger logger = Logger.getLogger(CheckHtmlIntegrity.class.getName());
+    private static final Logger logger = Logger.getLogger(CheckHtmlIntegrity.class.getName());
 
     private boolean isHtmlSecure = false;
     

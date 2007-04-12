@@ -46,7 +46,7 @@ import frost.util.*;
  */
 public class FileListFile {
 
-    private static Logger logger = Logger.getLogger(FileListFile.class.getName());
+    private static final Logger logger = Logger.getLogger(FileListFile.class.getName());
     
     private static final String TAG_FrostFileListFile = "FrostFileListFile";
     private static final String TAG_timestamp = "timestamp";

@@ -32,7 +32,7 @@ import frost.storage.database.*;
 
 public class MessageDatabaseTable extends AbstractDatabaseTable {
 
-    private static Logger logger = Logger.getLogger(MessageDatabaseTable.class.getName());
+    private static final Logger logger = Logger.getLogger(MessageDatabaseTable.class.getName());
     
     public static final int INSERT_OK        = 1;
     public static final int INSERT_DUPLICATE = 2;

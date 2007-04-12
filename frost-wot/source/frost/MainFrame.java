@@ -52,7 +52,7 @@ import frost.util.gui.translation.*;
 
 public class MainFrame extends JFrame implements SettingsUpdater, LanguageListener {
     
-    private static Logger logger = Logger.getLogger(MainFrame.class.getName());
+    private static final Logger logger = Logger.getLogger(MainFrame.class.getName());
 
     private final ImageIcon frameIconDefault = new ImageIcon(MainFrame.class.getResource("/data/jtc.jpg"));
     private final ImageIcon frameIconNewMessage = new ImageIcon(MainFrame.class.getResource("/data/newmessage.gif"));

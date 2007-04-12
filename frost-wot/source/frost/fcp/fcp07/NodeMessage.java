@@ -24,7 +24,7 @@ import java.util.logging.*;
 
 public class NodeMessage {
     
-    private static Logger logger = Logger.getLogger(NodeMessage.class.getName());
+    private static final Logger logger = Logger.getLogger(NodeMessage.class.getName());
 
     private final String messageName;
     private final HashMap<String,String> items;

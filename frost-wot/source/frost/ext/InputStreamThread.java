@@ -28,7 +28,7 @@ import java.util.logging.*;
  */
 class InputStreamThread extends Thread {
 
-    private static Logger logger = Logger.getLogger(InputStreamThread.class.getName());
+    private static final Logger logger = Logger.getLogger(InputStreamThread.class.getName());
 
     Process p;
     Transit data;

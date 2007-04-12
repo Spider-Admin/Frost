@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 
 public class FcpFECUtilsSegmentHeader {
 
-    private static Logger logger = Logger.getLogger(FcpFECUtilsSegmentHeader.class.getName());
+    private static final Logger logger = Logger.getLogger(FcpFECUtilsSegmentHeader.class.getName());
 
     public String FECAlgorithm;
     public long CheckBlockOffset;

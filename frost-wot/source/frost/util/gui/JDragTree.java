@@ -365,7 +365,7 @@ public class JDragTree extends JTree implements DragGestureListener, DragSourceL
 		}
 	} 
 
-	private static Logger logger = Logger.getLogger(JDragTree.class.getName());
+	private static final Logger logger = Logger.getLogger(JDragTree.class.getName());
 	
 	private TreePath        _pathSource;                // The path being dragged
 	private BufferedImage   _imgGhost;                  // The 'drag image'

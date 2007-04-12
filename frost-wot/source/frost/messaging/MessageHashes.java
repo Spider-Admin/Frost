@@ -30,7 +30,7 @@ import frost.storage.*;
  */
 public class MessageHashes implements Savable {
 
-//  private static Logger logger = Logger.getLogger(MessageHashes.class.getName());
+//  private static final Logger logger = Logger.getLogger(MessageHashes.class.getName());
 
     private final static int MAX_HASHES = 3000; // 30 new files for 100 boards per day, is this enough?
 

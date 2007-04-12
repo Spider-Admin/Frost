@@ -28,7 +28,7 @@ import frost.util.*;
  * Does some things that have to be done when starting Frost.
  */
 public class Startup {
-    private static Logger logger = Logger.getLogger(Startup.class.getName());
+    private static final Logger logger = Logger.getLogger(Startup.class.getName());
 
     /**
      * The Main method, check if allowed to run

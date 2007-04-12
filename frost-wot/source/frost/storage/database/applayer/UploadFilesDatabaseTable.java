@@ -39,7 +39,7 @@ import frost.util.gui.translation.*;
  */
 public class UploadFilesDatabaseTable extends AbstractDatabaseTable {
 
-    private static Logger logger = Logger.getLogger(UploadFilesDatabaseTable.class.getName());
+    private static final Logger logger = Logger.getLogger(UploadFilesDatabaseTable.class.getName());
     
     private final static String SQL_FILES_DDL =
         "CREATE TABLE IF NOT EXISTS UPLOADFILES ("+

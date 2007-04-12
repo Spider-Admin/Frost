@@ -38,7 +38,7 @@ import frost.util.*;
  */
 public class FcpConnection {
 
-	private static Logger logger = Logger.getLogger(FcpConnection.class.getName());
+	private static final Logger logger = Logger.getLogger(FcpConnection.class.getName());
     
     private FcpSocket fcpSocket;
     

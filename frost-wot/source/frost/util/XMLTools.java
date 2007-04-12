@@ -33,7 +33,7 @@ import org.xml.sax.*;
  */
 public class XMLTools {
 
-    private static Logger logger = Logger.getLogger(XMLTools.class.getName());
+    private static final Logger logger = Logger.getLogger(XMLTools.class.getName());
 
     private static DocumentBuilderFactory validatingFactory = DocumentBuilderFactory.newInstance();
     private static DocumentBuilderFactory nonValidatingFactory = DocumentBuilderFactory.newInstance();

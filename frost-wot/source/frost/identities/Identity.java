@@ -51,7 +51,7 @@ public class Identity implements XMLizable {
     int state = 2;
     String stateString = CHECK_STRING; 
 
-    private static Logger logger = Logger.getLogger(Identity.class.getName());
+    private static final Logger logger = Logger.getLogger(Identity.class.getName());
 
     //if this was C++ LocalIdentity wouldn't work
     //fortunately we have virtual construction so loadXMLElement will be called

@@ -33,7 +33,7 @@ import frost.util.*;
 
 public class ImportIdentities {
     
-    private static Logger logger = Logger.getLogger(ImportIdentities.class.getName());
+    private static final Logger logger = Logger.getLogger(ImportIdentities.class.getName());
     
     private BuddyList friends = new BuddyList();
     private BuddyList neutrals = new BuddyList();

@@ -31,7 +31,7 @@ import java.util.logging.*;
 public class FcpFECUtils {
     static String description = "FEC file inserted by FROST";
 
-    private static Logger logger = Logger.getLogger(FcpFECUtils.class.getName());
+    private static final Logger logger = Logger.getLogger(FcpFECUtils.class.getName());
 
     private InetAddress host;
     private int port;

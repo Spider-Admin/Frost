@@ -29,7 +29,7 @@ import frost.storage.database.applayer.*;
 
 public class ImportKnownBoards {
     
-    private static Logger logger = Logger.getLogger(ImportKnownBoards.class.getName());
+    private static final Logger logger = Logger.getLogger(ImportKnownBoards.class.getName());
 
     public void importKnownBoards(File knownBoardsXmlFile) {
         List knownBoards = KnownBoardsXmlDAO.loadKnownBoards(knownBoardsXmlFile);

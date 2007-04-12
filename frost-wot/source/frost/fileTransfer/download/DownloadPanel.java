@@ -46,7 +46,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
 	private Listener listener = new Listener();
 	
-	private static Logger logger = Logger.getLogger(DownloadPanel.class.getName());
+	private static final Logger logger = Logger.getLogger(DownloadPanel.class.getName());
 
 	private DownloadModel model = null;
 

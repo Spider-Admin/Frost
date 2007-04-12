@@ -35,7 +35,7 @@ import frost.util.gui.translation.*;
  */
 public class FileAttachmentUploadThread extends Thread {
 
-    private static Logger logger = Logger.getLogger(FileAttachmentUploadThread.class.getName());
+    private static final Logger logger = Logger.getLogger(FileAttachmentUploadThread.class.getName());
     
     private static final int wait1minute = 1 * 60 * 1000;
     

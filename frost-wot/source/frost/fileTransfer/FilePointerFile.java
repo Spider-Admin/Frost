@@ -42,7 +42,7 @@ import frost.util.*;
  */
 public class FilePointerFile {
 
-    private static Logger logger = Logger.getLogger(FilePointerFile.class.getName());
+    private static final Logger logger = Logger.getLogger(FilePointerFile.class.getName());
     
     private static final String TAG_FrostFilePointerFile = "FrostFilePointerFile";
     private static final String TAG_timestamp = "timestamp";

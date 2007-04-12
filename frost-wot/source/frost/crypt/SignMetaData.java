@@ -43,7 +43,7 @@ import frost.util.*;
  */
 public class SignMetaData extends MetaData {
 
-    private static Logger logger = Logger.getLogger(SignMetaData.class.getName());
+    private static final Logger logger = Logger.getLogger(SignMetaData.class.getName());
 
     String sig;
 

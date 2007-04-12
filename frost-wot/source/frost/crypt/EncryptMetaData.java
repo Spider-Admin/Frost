@@ -44,7 +44,7 @@ import frost.util.*;
  */
 public class EncryptMetaData extends SignMetaData {
 
-    private static Logger logger = Logger.getLogger(EncryptMetaData.class.getName());
+    private static final Logger logger = Logger.getLogger(EncryptMetaData.class.getName());
 
     String recipient; // unique name of recipient
 

@@ -28,7 +28,7 @@ import frost.fcp.*;
 import frost.util.*;
 
 public class FcpFactory {
-    private static Logger logger = Logger.getLogger(FcpFactory.class.getName());
+    private static final Logger logger = Logger.getLogger(FcpFactory.class.getName());
 
     private static List<NodeAddress> nodes = new ArrayList<NodeAddress>(); //list of available nodes
     private static Random random = new Random();

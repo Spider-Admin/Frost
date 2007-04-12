@@ -30,7 +30,7 @@ import frost.util.*;
 
 public class IdentitiesXmlDAO {
 
-    private static Logger logger = Logger.getLogger(IdentitiesXmlDAO.class.getName());
+    private static final Logger logger = Logger.getLogger(IdentitiesXmlDAO.class.getName());
 
     /**
      * Loads good, observe and bad identities from xml file.

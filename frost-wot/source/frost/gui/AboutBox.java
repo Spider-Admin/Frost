@@ -36,7 +36,7 @@ public class AboutBox extends JDialogWithDetails {
     // because a growing amount of users use CVS version:
     private String version = null;
 
-    private final static String copyright = "Copyright (c) 2006 Frost Project";
+    private final static String copyright = "Copyright (c) 2007 Frost Project";
     private final static String comments2 = "http://jtcfrost.sourceforge.net/";
 
     private JPanel imagePanel = new JPanel();

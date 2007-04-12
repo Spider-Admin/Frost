@@ -31,7 +31,7 @@ import frost.util.gui.translation.Language;
 
 public class TextComponentClipboardMenu extends MouseAdapter implements ClipboardOwner, ActionListener {
 
-	private static Logger logger = Logger.getLogger(TextComponentClipboardMenu.class.getName());
+	private static final Logger logger = Logger.getLogger(TextComponentClipboardMenu.class.getName());
 	
 	private Language language;
 	private JTextComponent textComponent;

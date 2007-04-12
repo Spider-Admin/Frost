@@ -83,7 +83,7 @@ public class StorageManager extends Timer {
 		}
 	}
 	
-	private static Logger logger = Logger.getLogger(StorageManager.class.getName());
+	private static final Logger logger = Logger.getLogger(StorageManager.class.getName());
 
 	private Language language;
 	private FrostEventDispatcher listener;

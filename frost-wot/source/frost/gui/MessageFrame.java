@@ -47,7 +47,7 @@ import frost.util.gui.translation.*;
 
 public class MessageFrame extends JFrame {
     
-    private static Logger logger = Logger.getLogger(MessageFrame.class.getName());
+    private static final Logger logger = Logger.getLogger(MessageFrame.class.getName());
 
     private Language language;
 
