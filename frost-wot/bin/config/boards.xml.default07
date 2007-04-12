@@ -25,7 +25,7 @@
     </FrostBoardTreeEntry>
     <FrostBoardTreeEntry>
       <name><![CDATA[frost-announce]]></name>
-      <publicKey><![CDATA[SSK@ub2QMcPy4jmtmqyEIML0cDdbbSTFGBgX3jEYLGoN9lg,IUYrv~GBW0~dn6k3orf9CRKUBz9CLZSA6wGrax73BCk,AQABAAE]]></publicKey>
+      <publicKey><![CDATA[SSK@l4YxTKAc-sCho~6w-unV6pl-uxIbfuGnGRzo3BJH0ck,4N48yl8E4rh9UPPV26Ev1ZGrRRgeGOTgw1Voka6lk4g,AQACAAE]]></publicKey>
       <description><![CDATA[Announcement of new Frost versions]]></description>
     </FrostBoardTreeEntry>
     <FrostBoardTreeEntry isfolder="true" isexpanded="false" >
