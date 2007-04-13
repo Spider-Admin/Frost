@@ -222,19 +222,26 @@ public class FileListManager {
                 // update filelist database table
                 boolean wasOk = AppLayerDatabase.getFileListDatabaseTable().insertOrUpdateFrostFileListFileObject(sfo, conn);
                 if( wasOk == false ) {
-                    // if there is one error we skip the whole processing
-                    conn.rollback();
                     errorOccured = true;
                     break;
                 }
             }
             if( errorOccured == false ) {
                 conn.commit();
+            } else {
+                // if there is one error we skip the whole processing
+                conn.rollback();
             }
             conn.setAutoCommit(true);
         } catch(Throwable t) {
-            logger.log(Level.SEVERE, "Exception during insertOrUpdateFrostSharedFileObject", t);
-            try { conn.rollback(); } catch(Throwable t1) { logger.log(Level.SEVERE, "Exception during rollback", t1); }
+            if( t.getMessage() != null && t.getMessage().indexOf("Select from table that has committed changes") > 0 ) {
+                // only a warning!
+                logger.log(Level.WARNING, "INFO: Select from table that has committed changes");
+                try { conn.commit(); } catch(Throwable t1) { logger.log(Level.SEVERE, "Exception during commit", t1); }
+            } else {
+                logger.log(Level.SEVERE, "Exception during insertOrUpdateFrostSharedFileObject", t);
+                try { conn.rollback(); } catch(Throwable t1) { logger.log(Level.SEVERE, "Exception during rollback", t1); }
+            }
             try { conn.setAutoCommit(true); } catch(Throwable t1) { }
         } finally {
             AppLayerDatabase.getInstance().givePooledConnection(conn);
