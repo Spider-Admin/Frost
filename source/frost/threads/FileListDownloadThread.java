@@ -21,7 +21,7 @@ package frost.threads;
 import java.io.*;
 import java.util.*;
 import java.util.logging.*;
-
+import frost.fcp.FcpHandler;
 import frost.fileTransfer.*;
 import frost.transferlayer.*;
 import frost.util.*;
@@ -86,7 +86,7 @@ public class FileListDownloadThread extends Thread {
                 }
                 logger.log(Level.WARNING, "FileListDownloadThread: starting download of key: "+chkKey);
 
-                GlobalFileDownloaderResult result = GlobalFileDownloader.downloadFile(chkKey);
+                GlobalFileDownloaderResult result = GlobalFileDownloader.downloadFile(chkKey, FcpHandler.MAX_KSK_SIZE_ON_07);
 
                 if( result == null || result.getResultFile() == null ) {
                     // download failed
