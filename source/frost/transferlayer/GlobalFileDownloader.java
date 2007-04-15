@@ -28,13 +28,13 @@ public class GlobalFileDownloader {
 
     private static final Logger logger = Logger.getLogger(GlobalFileDownloader.class.getName());
 
-    /**
-     * Returns null if file not found.
-     * Returns a GlobalFileDownloaderResult if File was downloaded, or if key was invalid. 
-     */
-    public static GlobalFileDownloaderResult downloadFile(String downKey) {
-        return downloadFile(downKey, -1);
-    }
+//    /**
+//     * Returns null if file not found.
+//     * Returns a GlobalFileDownloaderResult if File was downloaded, or if key was invalid. 
+//     */
+//    public static GlobalFileDownloaderResult downloadFile(String downKey) {
+//        return downloadFile(downKey, -1);
+//    }
 
     /**
      * Returns null if file not found.

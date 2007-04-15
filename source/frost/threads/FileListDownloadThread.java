@@ -21,7 +21,8 @@ package frost.threads;
 import java.io.*;
 import java.util.*;
 import java.util.logging.*;
-import frost.fcp.FcpHandler;
+
+import frost.fcp.*;
 import frost.fileTransfer.*;
 import frost.transferlayer.*;
 import frost.util.*;
