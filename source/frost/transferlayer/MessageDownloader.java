@@ -432,10 +432,10 @@ public class MessageDownloader {
             final boolean sigIsValid;
             if( isSignedV2 ) {
                 sigIsValid = currentMsg.verifyMessageSignatureV2(owner.getKey());
-                logger.severe("TOFDN: verification of V2 signature: "+sigIsValid+"."+logInfo);
+                logger.info("TOFDN: verification of V2 signature: "+sigIsValid+"."+logInfo);
             } else {
                 sigIsValid = currentMsg.verifyMessageSignatureV1(owner.getKey());
-                logger.severe("TOFDN: verification of V1 signature: "+sigIsValid+"."+logInfo);
+                logger.info("TOFDN: verification of V1 signature: "+sigIsValid+"."+logInfo);
             }
 
             // then check if the signature was ok

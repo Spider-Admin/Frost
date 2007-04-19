@@ -51,6 +51,7 @@ import javax.swing.table.*;
 import javax.swing.tree.*;
 
 import frost.*;
+import frost.fcp.*;
 import frost.fileTransfer.common.*;
 import frost.messages.*;
 import frost.util.gui.*;
@@ -843,7 +844,9 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                 // SIG
                 // state == good/bad/check/observe -> bold and coloured
                 final Font f;
-                if( msg.isSignatureStatusVERIFIED_V2() ) {
+                if( FcpHandler.isFreenet05() ) {
+                    f = boldFont;
+                } else if( msg.isSignatureStatusVERIFIED_V2() ) {
                     f = boldFont;
                 } else {
                     f = boldItalicFont;
