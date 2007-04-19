@@ -53,6 +53,11 @@ public class SettingsClass implements Savable {
     
     public static final String LANGUAGE_LOCALE = "locale";
     
+    // only v1: use v1 if old signs are allowed
+    // v1+v2  : use v2, ignore v1
+    // only v2: use v2
+    public static final String ACCEPT_SIGNATURE_FORMAT_V1 = "acceptSignatureFormatV1";
+    
     public static final String LOOK_AND_FEEL = "ChoosenLookAndFeel";
 
     public static final String COMPACT_DBTABLES = "compactDatabaseTables";
@@ -707,6 +712,8 @@ public class SettingsClass implements Savable {
 
         defaults.put(DISABLE_FILESHARING, "false");
         defaults.put(DISABLE_SPLASHSCREEN, "false");
+        
+        defaults.put(ACCEPT_SIGNATURE_FORMAT_V1, "true");
         
         defaults.put(REMEMBER_SHAREDFILE_DOWNLOADED, "true");
         

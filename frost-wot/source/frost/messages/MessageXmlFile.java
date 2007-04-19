@@ -123,41 +123,58 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
 
     /**
      * Signs message and sets signature.
-     * 
      * @param privateKey
      */
-    public void signMessage(String privateKey) {
-        String sig = Core.getCrypto().detachedSign(getSignableContent(), privateKey);
-        setSignature(sig);
+    public void signMessageV1(String privateKey) {
+        String sig = Core.getCrypto().detachedSign(getSignableContentV1(), privateKey);
+        setSignatureV1(sig);
     }
-    
+
+    /**
+     * Signs message and sets signature.
+     * @param privateKey
+     */
+    public void signMessageV2(String privateKey) {
+        String sig = Core.getCrypto().detachedSign(getSignableContentV2(), privateKey);
+        setSignatureV2(sig);
+    }
+
     /**
      * Returns true if the message signature is valid.
-     * 
      * @param pubKey
      * @return
      */
-    public boolean verifyMessageSignature(String pubKey) {
-        boolean sigIsValid = Core.getCrypto().detachedVerify(getSignableContent(), pubKey, getSignature());
+    public boolean verifyMessageSignatureV1(String pubKey) {
+        boolean sigIsValid = Core.getCrypto().detachedVerify(getSignableContentV1(), pubKey, getSignatureV1());
         return sigIsValid;
     }
-    
+
+    /**
+     * Returns true if the message signature is valid.
+     * @param pubKey
+     * @return
+     */
+    public boolean verifyMessageSignatureV2(String pubKey) {
+        boolean sigIsValid = Core.getCrypto().detachedVerify(getSignableContentV2(), pubKey, getSignatureV2());
+        return sigIsValid;
+    }
+
     /**
      * Returns a String containing all content that is used to sign/verify the message. 
      * @return
      */
-    private String getSignableContent() {
+    private String getSignableContentV1() {
         
-        StringBuilder allContent = new StringBuilder();
+        final StringBuilder allContent = new StringBuilder();
         allContent.append(getDateStr());
         allContent.append(getTimeStr());
         allContent.append(getSubject());
         allContent.append(getContent());
         // attachments
         for(Iterator it = getAttachmentList().iterator(); it.hasNext(); ) {
-            Attachment a = (Attachment)it.next();
+            final Attachment a = (Attachment)it.next();
             if( a.getType() == Attachment.BOARD ) {
-                BoardAttachment ba = (BoardAttachment)a;
+                final BoardAttachment ba = (BoardAttachment)a;
                 allContent.append( ba.getBoardObj().getBoardFilename() );
                 if( ba.getBoardObj().getPublicKey() != null ) {
                     allContent.append( ba.getBoardObj().getPublicKey() );
@@ -166,9 +183,58 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
                     allContent.append( ba.getBoardObj().getPrivateKey() );
                 }
             } else if( a.getType() == Attachment.FILE ) {
-                FileAttachment fa = (FileAttachment)a;
+                final FileAttachment fa = (FileAttachment)a;
                 allContent.append( fa.getFilename() );
                 allContent.append( fa.getKey() );
+            }
+        }
+        return allContent.toString();
+    }
+
+    /**
+     * Returns a String containing all content that is used to sign/verify the message. 
+     * @return
+     */
+    private String getSignableContentV2() {
+
+        final String escapeChar = "|";
+        final StringBuilder allContent = new StringBuilder();
+
+        allContent.append(getDateStr()).append(escapeChar);
+        allContent.append(getTimeStr()).append(escapeChar);
+
+        // enhanced V2 stuff
+        allContent.append(getBoardName()).append(escapeChar);
+        allContent.append(getFromName()).append(escapeChar);
+        allContent.append(getMessageId()).append(escapeChar);
+        if( getInReplyTo() != null && getInReplyTo().length() > 0 ) {
+            allContent.append(getInReplyTo()).append(escapeChar);
+        }
+        if( getRecipientName() != null && getRecipientName().length() > 0 ) {
+            allContent.append(getRecipientName()).append(escapeChar);
+        }
+        allContent.append(getIdLinePos()).append(escapeChar);
+        allContent.append(getIdLineLen()).append(escapeChar);
+        // eov2
+
+        allContent.append(getSubject()).append(escapeChar);
+        allContent.append(getContent()).append(escapeChar);
+        // attachments
+        for(Iterator it = getAttachmentList().iterator(); it.hasNext(); ) {
+            final Attachment a = (Attachment)it.next();
+            if( a.getType() == Attachment.BOARD ) {
+                final BoardAttachment ba = (BoardAttachment)a;
+                allContent.append( ba.getBoardObj().getBoardFilename() ).append(escapeChar);
+                if( ba.getBoardObj().getPublicKey() != null ) {
+                    allContent.append( ba.getBoardObj().getPublicKey() ).append(escapeChar);
+                }
+                if( ba.getBoardObj().getPrivateKey() != null ) {
+                    allContent.append( ba.getBoardObj().getPrivateKey() ).append(escapeChar);
+                }
+            } else if( a.getType() == Attachment.FILE ) {
+                final FileAttachment fa = (FileAttachment)a;
+                allContent.append( fa.getFilename() ).append(escapeChar);
+                allContent.append( fa.getKey() ).append(escapeChar);
             }
         }
         return allContent.toString();
@@ -261,10 +327,18 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
             el.appendChild(current);
         }
 
-        // signature
-        if (getSignature() != null && getSignature().length() > 0) {
+        // signature V1
+        if (getSignatureV1() != null && getSignatureV1().length() > 0) {
             current = d.createElement("Signature");
-            cdata = d.createCDATASection(getSignature());
+            cdata = d.createCDATASection(getSignatureV1());
+            current.appendChild(cdata);
+            el.appendChild(current);
+        }
+
+        // signature V2
+        if (getSignatureV2() != null && getSignatureV2().length() > 0) {
+            current = d.createElement("SignatureV2");
+            cdata = d.createCDATASection(getSignatureV2());
             current.appendChild(cdata);
             el.appendChild(current);
         }
@@ -418,7 +492,9 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
         setRecipientName(XMLTools.getChildElementsCDATAValue(e, "recipient"));
         setBoardName(XMLTools.getChildElementsCDATAValue(e, "Board"));
         setContent(XMLTools.getChildElementsCDATAValue(e, "Body"));
-        setSignature(XMLTools.getChildElementsCDATAValue(e, "Signature"));
+
+        setSignatureV1(XMLTools.getChildElementsCDATAValue(e, "Signature"));
+        setSignatureV2(XMLTools.getChildElementsCDATAValue(e, "SignatureV2"));
         
         String idLinePosStr = XMLTools.getChildElementsTextValue(e, "IdLinePos");
         String idLineLenStr = XMLTools.getChildElementsTextValue(e, "IdLineLen");

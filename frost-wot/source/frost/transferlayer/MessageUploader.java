@@ -351,7 +351,8 @@ public class MessageUploader {
             
             // we put the signature into the message too, but it is not used for verification currently
             // to keep compatability to previous frosts for 0.5
-            wa.message.signMessage(wa.senderId.getPrivKey());
+            wa.message.signMessageV1(wa.senderId.getPrivKey());
+            wa.message.signMessageV2(wa.senderId.getPrivKey());
             
             if( !wa.message.save() ) {
                 logger.severe("Save of signed msg failed. This was a HARD error, please report to a dev!");
@@ -421,17 +422,18 @@ public class MessageUploader {
             // for sure, set fromname
             wa.message.setFromName(wa.senderId.getUniqueName());
             // sign msg
-            wa.message.signMessage(wa.senderId.getPrivKey());
+            wa.message.signMessageV1(wa.senderId.getPrivKey());
+            wa.message.signMessageV2(wa.senderId.getPrivKey());
         }
 
-        // save msg to uploadFile   
+        // save msg to uploadFile
         if (!wa.message.saveToFile(wa.uploadFile)) {
             logger.severe("Save to file '"+wa.uploadFile.getPath()+"' failed. This was a HARD error, file was NOT uploaded, please report to a dev!");
             return false;
         }
 
-        if( wa.message.getSignature() != null && 
-            wa.message.getSignature().length() > 0 && // we signed, so encrypt is possible
+        if( wa.message.getSignatureV2() != null && 
+            wa.message.getSignatureV2().length() > 0 && // we signed, so encrypt is possible
             wa.encryptForRecipient != null )
         {
             // encrypt file to temp. upload file

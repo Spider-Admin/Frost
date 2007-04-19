@@ -103,7 +103,8 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         setMessageId(mof.getMessageId());
         setPublicKey(mof.getPublicKey());
         setRecipientName(mof.getRecipientName());
-        setSignature(mof.getSignature());
+        setSignatureV1(mof.getSignatureV1());
+        setSignatureV2(mof.getSignatureV2());
         setSignatureStatus(mof.getSignatureStatus());
         setSubject(mof.getSubject());
         setIdLinePos(mof.getIdLinePos());
@@ -155,7 +156,8 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         setMessageId(mof.getMessageId());
         setPublicKey(mof.getPublicKey());
         setRecipientName(mof.getRecipientName());
-        setSignature(mof.getSignature());
+        setSignatureV1(mof.getSignatureV1());
+        setSignatureV2(mof.getSignatureV2());
         setSignatureStatus(mof.getSignatureStatus());
         setSubject(mof.getSubject());
         setIdLinePos(mof.getIdLinePos());
