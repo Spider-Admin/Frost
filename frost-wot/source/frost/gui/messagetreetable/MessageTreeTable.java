@@ -747,8 +747,9 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
      */
     private class StringCellRenderer extends DefaultTableCellRenderer {
 
-        private Font boldFont = null;
-        private Font normalFont = null;
+        private Font boldFont;
+        private Font boldItalicFont;
+        private Font normalFont;
         private boolean isDeleted = false;
         private final Color col_good    = new Color(0x00, 0x80, 0x00);
         private final Color col_check   = new Color(0xFF, 0xCC, 0x00);
@@ -757,11 +758,9 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         final javax.swing.border.EmptyBorder border = new javax.swing.border.EmptyBorder(0, 0, 0, 3);
 
         public StringCellRenderer() {
-            Font baseFont = MessageTreeTable.this.getFont();
-            normalFont = baseFont.deriveFont(Font.PLAIN);
-            boldFont = baseFont.deriveFont(Font.BOLD);
-            
             setVerticalAlignment(CENTER);
+            Font baseFont = MessageTreeTable.this.getFont();
+            fontChanged( baseFont );
         }
 
         public void paintComponent (Graphics g) {
@@ -775,6 +774,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         public void fontChanged(Font font) {
             normalFont = font.deriveFont(Font.PLAIN);
             boldFont = font.deriveFont(Font.BOLD);
+            boldItalicFont = font.deriveFont(Font.BOLD|Font.ITALIC);
         }
 
         public Component getTableCellRendererComponent(
@@ -842,20 +842,26 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             } else if( column == 5 ) {
                 // SIG
                 // state == good/bad/check/observe -> bold and coloured
+                final Font f;
+                if( msg.isSignatureStatusVERIFIED_V2() ) {
+                    f = boldFont;
+                } else {
+                    f = boldItalicFont;
+                }
                 if( msg.isMessageStatusGOOD() ) {
-                    setFont(boldFont);
+                    setFont(f);
                     setForeground(col_good);
                 } else if( msg.isMessageStatusCHECK() ) {
-                    setFont(boldFont);
+                    setFont(f);
                     setForeground(col_check);
                 } else if( msg.isMessageStatusOBSERVE() ) {
-                    setFont(boldFont);
+                    setFont(f);
                     setForeground(col_observe);
                 } else if( msg.isMessageStatusBAD() ) {
-                    setFont(boldFont);
+                    setFont(f);
                     setForeground(col_bad);
                 } else if( msg.isMessageStatusTAMPERED() ) {
-                    setFont(boldFont);
+                    setFont(f);
                     setForeground(col_bad);
                 }
             }
