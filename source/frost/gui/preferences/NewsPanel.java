@@ -65,6 +65,7 @@ class NewsPanel extends JPanel {
     
     private JCheckBox silentlyRetryCheckBox = new JCheckBox();
     private JCheckBox receiveDuplicateMessagesCheckBox = new JCheckBox();
+    private JCheckBox acceptSignatureFormatV1CheckBox = new JCheckBox();
 
     private Listener listener = new Listener();
 
@@ -194,6 +195,9 @@ class NewsPanel extends JPanel {
         constraints.gridy++;
         add(receiveDuplicateMessagesCheckBox, constraints);
 
+        constraints.gridy++;
+        add(acceptSignatureFormatV1CheckBox, constraints);
+        
         // glue
         constraints.gridy++;
         constraints.gridx = 0;
@@ -227,6 +231,7 @@ class NewsPanel extends JPanel {
 
         silentlyRetryCheckBox.setSelected(settings.getBoolValue(SettingsClass.SILENTLY_RETRY_MESSAGES));
         receiveDuplicateMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.RECEIVE_DUPLICATE_MESSAGES));
+        acceptSignatureFormatV1CheckBox.setSelected(settings.getBoolValue(SettingsClass.ACCEPT_SIGNATURE_FORMAT_V1));
     }
 
     public void ok() {
@@ -251,6 +256,7 @@ class NewsPanel extends JPanel {
 
         silentlyRetryCheckBox.setText(language.getString("Options.news.3.silentlyRetryFailedMessages"));
         receiveDuplicateMessagesCheckBox.setText(language.getString("Options.news.3.receiveDuplicateMessages"));
+        acceptSignatureFormatV1CheckBox.setText(language.getString("Options.news.3.acceptSignatureFormatV1"));
     }
 
     /**
@@ -273,6 +279,7 @@ class NewsPanel extends JPanel {
 
         settings.setValue(SettingsClass.SILENTLY_RETRY_MESSAGES, silentlyRetryCheckBox.isSelected());
         settings.setValue(SettingsClass.RECEIVE_DUPLICATE_MESSAGES, receiveDuplicateMessagesCheckBox.isSelected());
+        settings.setValue(SettingsClass.ACCEPT_SIGNATURE_FORMAT_V1, acceptSignatureFormatV1CheckBox.isSelected());
     }
     
     private void refreshUpdateState() {

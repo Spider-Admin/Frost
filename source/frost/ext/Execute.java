@@ -18,10 +18,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 package frost.ext;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 
 /**
  * @author saces
@@ -103,6 +100,7 @@ public class Execute {
 			for (int i = 0; i < cmd.length; i++) {
 				winCmd.append(' ');
 				if (cmd[i].indexOf(' ') > -1) {
+                    winCmd.append("\"\" "); // append empty ""
 					winCmd.append('"');
 					winCmd.append(cmd[i]);
 					winCmd.append('"');

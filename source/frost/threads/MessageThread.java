@@ -205,7 +205,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                     // message is loaded, delete underlying received file
                     mdResult.getMessage().getFile().delete();
                     // basic validation
-                    if (mdResult.getMessage().isValid() && isValidFormat(mdResult.getMessage(), localDate)) {
+                    if (mdResult.getMessage().isValid() && isValidFormat(mdResult.getMessage(), localDate, board)) {
                         receivedValidMessage(mdResult.getMessage(), board, index);
                     } else {
                         receivedInvalidMessage(board, localDate, index, MessageDownloaderResult.INVALID_MSG);
@@ -234,13 +234,13 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
     /**
      * First time verify.
      */
-    public boolean isValidFormat(MessageXmlFile mo, LocalDate dirDate) {
-        try { // if something fails here, set msg. to N/A (maybe harmful message)
-            DateTime dateTime = null;
+    public boolean isValidFormat(MessageXmlFile mo, LocalDate dirDate, Board b) {
+        try {
+            final DateTime dateTime;
             try {
                 dateTime = mo.getDateAndTime();
             } catch(Throwable ex) {
-                logger.log(Level.SEVERE, "Exception in isValidFormat() - skipping Message.", ex);
+                logger.log(Level.SEVERE, "Exception in isValidFormat() - skipping message.", ex);
                 return false;
             }
 
@@ -249,11 +249,24 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
             if( dm.isAfter(dirDate.plusDays(1).toDateMidnight(DateTimeZone.UTC))
                     || dm.isBefore(dirDate.minusDays(1).toDateMidnight(DateTimeZone.UTC)) )
             {
-                logger.log(Level.SEVERE, "Invalid date - skipping Message:"+dirDate+";"+dateTime);
+                logger.log(Level.SEVERE, "Invalid date - skipping Message: "+dirDate+";"+dateTime);
                 return false;
             }
+            
+            // ensure that board inside xml message is the board we currently download
+            if( mo.getBoardName() == null ) {
+                logger.log(Level.SEVERE, "No or invalid boardname in message - skipping message: (null)");
+                return false;
+            }
+            final String boardNameInMsg = mo.getBoardName().toLowerCase();
+            final String downloadingBoardName = b.getName().toLowerCase();
+            if( boardNameInMsg.equals(downloadingBoardName) == false ) {
+                logger.log(Level.SEVERE, "Unequal boardnames - skipping message: "+mo.getBoardName().toLowerCase()+";"+b.getName().toLowerCase());
+                return false;
+            }
+            
         } catch (Throwable t) {
-            logger.log(Level.SEVERE, "Exception in isValidFormat() - skipping Message.", t);
+            logger.log(Level.SEVERE, "Exception in isValidFormat() - skipping message.", t);
             return false;
         }
         return true;
@@ -370,7 +383,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
             
             // save own private messages into the message table
             if( sentMo.getRecipientName() != null && sentMo.getRecipientName().length() > 0 ) {
-                sentMo.setSignatureStatusVERIFIED();
+                sentMo.setSignatureStatusVERIFIED_V2();
                 TOF.getInstance().receivedValidMessage(sentMo, board, index);
             }
 

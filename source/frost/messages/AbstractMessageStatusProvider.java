@@ -1,3 +1,21 @@
+/*
+ AbstractMessageStatusProvider.java / Frost
+ Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License as
+ published by the Free Software Foundation; either version 2 of
+ the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+*/
 package frost.messages;
 
 import javax.swing.tree.*;
@@ -29,6 +47,8 @@ public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNo
     private static final int SIGNATURESTATUS_TAMPERED = 1; // wrong signature
     private static final int SIGNATURESTATUS_OLD      = 2; // no signature
     private static final int SIGNATURESTATUS_VERIFIED = 3; // signature was OK
+    private static final int SIGNATURESTATUS_VERIFIED_V1 = 4; // signature was OK
+    private static final int SIGNATURESTATUS_VERIFIED_V2 = 5; // signature was OK
 
     private static final String SIGNATURESTATUS_TAMPERED_STR = "TAMPERED"; // wrong signature
     private static final String SIGNATURESTATUS_OLD_STR      = "OLD";      // no signature
@@ -68,10 +88,11 @@ public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNo
     /**
      * Converts the signature status string contained in local XML message file
      * into the internal constant.
+     * Only used for imports!
      */
     public boolean setSignatureStatusFromString(String sigStatusStr) {
         if( sigStatusStr.equalsIgnoreCase(SIGNATURESTATUS_VERIFIED_STR) ) {
-            setSignatureStatusVERIFIED();
+            setSignatureStatusVERIFIED_V1();
             return true;
         } else if( sigStatusStr.equalsIgnoreCase(SIGNATURESTATUS_OLD_STR) ) {
             setSignatureStatusOLD();
@@ -84,7 +105,7 @@ public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNo
     }
     
     private int getMessageStatus(Identity fromIdent) {
-        if( getSignatureStatus() == SIGNATURESTATUS_VERIFIED ) {
+        if( isSignatureStatusVERIFIED() ) {
             // get state of user
             if( fromIdent == null ) {
                 return xOLD;
@@ -101,10 +122,10 @@ public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNo
             if( fromIdent.isBAD() ) {
                 return xBAD;
             }
-        } else if( getSignatureStatus() == SIGNATURESTATUS_OLD ) {
+        } else if( isSignatureStatusOLD() ) {
             // no signature
             return xOLD;
-        } else if( getSignatureStatus() == SIGNATURESTATUS_TAMPERED ) {
+        } else if( isSignatureStatusTAMPERED() ) {
             // invalid signature
             return xTAMPERED;
         }
@@ -154,7 +175,20 @@ public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNo
     }
     
     public boolean isSignatureStatusVERIFIED() {
-        return (getSignatureStatus() == SIGNATURESTATUS_VERIFIED);
+        if( getSignatureStatus() == SIGNATURESTATUS_VERIFIED
+                || getSignatureStatus() == SIGNATURESTATUS_VERIFIED_V1
+                || getSignatureStatus() == SIGNATURESTATUS_VERIFIED_V2
+          ) 
+        {
+            return true;
+        }
+        return false;
+    }
+    public boolean isSignatureStatusVERIFIED_V1() {
+        return (getSignatureStatus() == SIGNATURESTATUS_VERIFIED_V1);
+    }
+    public boolean isSignatureStatusVERIFIED_V2() {
+        return (getSignatureStatus() == SIGNATURESTATUS_VERIFIED_V2);
     }
     public boolean isSignatureStatusOLD() {
         return (getSignatureStatus() == SIGNATURESTATUS_OLD);
@@ -163,8 +197,11 @@ public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNo
         return (getSignatureStatus() == SIGNATURESTATUS_TAMPERED);
     }
     
-    public void setSignatureStatusVERIFIED() {
-        signatureStatus = SIGNATURESTATUS_VERIFIED;
+    public void setSignatureStatusVERIFIED_V1() {
+        signatureStatus = SIGNATURESTATUS_VERIFIED_V1;
+    }
+    public void setSignatureStatusVERIFIED_V2() {
+        signatureStatus = SIGNATURESTATUS_VERIFIED_V2;
     }
     public void setSignatureStatusOLD() {
         signatureStatus = SIGNATURESTATUS_OLD;

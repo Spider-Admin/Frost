@@ -239,7 +239,11 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
             ps.setString(i++, mo.getFromName()); // from
             ps.setString(i++, mo.getSubject()); // subject
             ps.setString(i++, ((mo.getRecipientName()!=null&&mo.getRecipientName().length()==0)?null:mo.getRecipientName()) ); // recipient
-            ps.setString(i++, mo.getSignature()); // signature
+            if( mo.getSignatureV2() == null || mo.getSignatureV2().length() == 0 ) {
+                ps.setString(i++, mo.getSignatureV1()); // signature
+            } else {
+                ps.setString(i++, mo.getSignatureV2()); // signature
+            }
             ps.setInt(i++, mo.getSignatureStatus()); // signaturestatus
             ps.setString(i++, mo.getPublicKey()); // publickey
             ps.setBoolean(i++, mo.isDeleted()); // isdeleted

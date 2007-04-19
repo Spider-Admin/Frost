@@ -1,6 +1,23 @@
+/*
+ AbstractMessageObject.java / Frost
+ Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License as
+ published by the Free Software Foundation; either version 2 of
+ the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+*/
+
 package frost.messages;
-
-
 
 /**
  * This class holds the basic variables of a message.
@@ -13,7 +30,8 @@ public abstract class AbstractMessageObject extends AbstractMessageStatusProvide
     protected String content = null;
     private String subject = "";
     private String recipientName = ""; // set if msg was encrypted
-    private String signature = ""; // set if message is signed
+    private String signatureV1 = ""; // set if message is signed with V1 format
+    private String signatureV2 = ""; // set if message is signed with V2 format
     private String messageId = null;
     private String inReplyTo = null;
     private int idLinePos = -1;
@@ -25,8 +43,11 @@ public abstract class AbstractMessageObject extends AbstractMessageStatusProvide
     public String getRecipientName() {
         return recipientName;
     }
-    public String getSignature() {
-        return signature;
+    public String getSignatureV1() {
+        return signatureV1;
+    }
+    public String getSignatureV2() {
+        return signatureV2;
     }
     public String getSubject() {
         return subject;
@@ -47,8 +68,11 @@ public abstract class AbstractMessageObject extends AbstractMessageStatusProvide
     public void setRecipientName(String rec) {
         recipientName = rec;
     }
-    public void setSignature(String sig) {
-        signature = sig;
+    public void setSignatureV1(String sig) {
+        signatureV1 = sig;
+    }
+    public void setSignatureV2(String sig) {
+        signatureV2 = sig;
     }
     public void setInReplyTo(String s) {
         this.inReplyTo = s;

@@ -319,7 +319,7 @@ public class MessageDownloader {
                 // ignore
             }
     
-            currentMsg.setSignatureStatusVERIFIED();
+            currentMsg.setSignatureStatusVERIFIED_V2();
             return new MessageDownloaderResult(currentMsg);
     
         } catch (Throwable t) {
@@ -386,11 +386,29 @@ public class MessageDownloader {
                 return new MessageDownloaderResult(MessageDownloaderResult.BROKEN_MSG);
             }
             
-            if( currentMsg.getSignature() == null || currentMsg.getSignature().length() == 0 ) {
+            boolean isSignedV1 = false;
+            boolean isSignedV2 = false;
+
+            if( currentMsg.getSignatureV1() != null && currentMsg.getSignatureV1().length() > 0 ) {
+                isSignedV1 = true;
+            }
+            if( currentMsg.getSignatureV2() != null && currentMsg.getSignatureV2().length() > 0 ) {
+                isSignedV2 = true;
+            }
+            
+            if( !isSignedV1 && !isSignedV2 ) {
                 // unsigned msg
                 // check and maybe add msg to gui, set to unsigned
                 currentMsg.setSignatureStatusOLD();
                 return new MessageDownloaderResult(currentMsg);
+            } else if( isSignedV1 && !isSignedV2 ) {
+                // only V1 signed
+                final boolean acceptV1 = Core.frostSettings.getBoolValue(SettingsClass.ACCEPT_SIGNATURE_FORMAT_V1);
+                if( !acceptV1 ) {
+                    logger.severe("TOFDN: message has only V1 signature which is not accepted, message dropped."+logInfo);
+                    tmpFile.delete();
+                    return new MessageDownloaderResult(MessageDownloaderResult.INVALID_MSG);
+                }
             }
             
             // check if we have the owner (sender) already on the lists
@@ -411,7 +429,14 @@ public class MessageDownloader {
             }
 
             // now verify signed content
-            boolean sigIsValid = currentMsg.verifyMessageSignature(owner.getKey());
+            final boolean sigIsValid;
+            if( isSignedV2 ) {
+                sigIsValid = currentMsg.verifyMessageSignatureV2(owner.getKey());
+                logger.severe("TOFDN: verification of V2 signature: "+sigIsValid+"."+logInfo);
+            } else {
+                sigIsValid = currentMsg.verifyMessageSignatureV1(owner.getKey());
+                logger.severe("TOFDN: verification of V1 signature: "+sigIsValid+"."+logInfo);
+            }
 
             // then check if the signature was ok
             if (!sigIsValid) {
@@ -432,8 +457,13 @@ public class MessageDownloader {
             } catch(Throwable t) {
                 // ignore
             }
+            
+            if( isSignedV2 ) {
+                currentMsg.setSignatureStatusVERIFIED_V2();
+            } else {
+                currentMsg.setSignatureStatusVERIFIED_V1();
+            }
 
-            currentMsg.setSignatureStatusVERIFIED();
             return new MessageDownloaderResult(currentMsg);
 
         } catch (Throwable t) {
