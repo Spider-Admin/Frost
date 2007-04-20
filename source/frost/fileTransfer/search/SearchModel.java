@@ -18,40 +18,30 @@
 */
 package frost.fileTransfer.search;
 
-import java.util.*;
-
 import frost.fileTransfer.*;
 import frost.fileTransfer.download.*;
 import frost.util.model.*;
 
 public class SearchModel extends SortedModel {
 
-    private DownloadModel downloadModel;
-
     public SearchModel(SortedTableFormat f) {
         super(f);
-        downloadModel = FileTransferManager.inst().getDownloadManager().getModel();
     }
 
     public void addSearchItem(FrostSearchItem searchItem) {
         addItem(searchItem);
     }
 
-    public void addItemsToDownloadModel(ModelItem[] selectedItems) {
+    public void addItemsToDownloadTable(ModelItem[] selectedItems) {
+
+        if( selectedItems == null ) {
+            return;
+        }
+
+        final DownloadModel downloadModel = FileTransferManager.inst().getDownloadManager().getModel();
+
         for (int i = selectedItems.length - 1; i >= 0; i--) {
             FrostSearchItem searchItem = (FrostSearchItem) selectedItems[i];
-            FrostFileListFileObject flf = searchItem.getFrostFileListFileObject();
-            
-            FrostDownloadItem dlItem = new FrostDownloadItem(flf, flf.getDisplayName());
-            downloadModel.addDownloadItem(dlItem);
-            searchItem.updateState();
-        }
-    }
-
-    public synchronized void addAllItemsToDownloadModel() {
-        Iterator iterator = data.iterator();
-        while (iterator.hasNext()) {
-            FrostSearchItem searchItem = (FrostSearchItem) iterator.next();
             FrostFileListFileObject flf = searchItem.getFrostFileListFileObject();
             
             FrostDownloadItem dlItem = new FrostDownloadItem(flf, flf.getDisplayName());

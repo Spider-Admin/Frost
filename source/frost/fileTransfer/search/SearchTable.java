@@ -128,14 +128,13 @@ public class SearchTable extends SortedModelTable {
      */
     private void addItemsToDownloadTable(ModelItem[] selectedItems) {
         if( selectedItems == null ) {
-            // add all
-            searchModel.addAllItemsToDownloadModel();
-        } else {
-            // add selected
-            searchModel.addItemsToDownloadModel(selectedItems);
+            // add all items
+            selectedItems = (ModelItem[]) searchModel.getItems().toArray();
         }
 
-        // update items in model
+        searchModel.addItemsToDownloadTable(selectedItems);
+
+        // redraw items in model
         for(int x=0; x < selectedItems.length; x++) {
             FrostSearchItem si = (FrostSearchItem) selectedItems[x];
             int i = model.indexOf(si);
