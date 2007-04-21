@@ -80,7 +80,7 @@ public class MessageDownloader {
                     tmpFile,
                     false,
                     fastDownload,
-                    FcpHandler.MAX_KSK_SIZE_ON_07);
+                    FcpHandler.MAX_MESSAGE_SIZE_07);
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "TOFDN: Exception thrown in downloadDate part 1."+logInfo, t);
             // download failed

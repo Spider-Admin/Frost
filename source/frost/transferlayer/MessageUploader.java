@@ -329,7 +329,7 @@ public class MessageUploader {
                     targetFile, 
                     false, 
                     false,
-                    FcpHandler.MAX_KSK_SIZE_ON_07);
+                    FcpHandler.MAX_MESSAGE_SIZE_07);
             if( res != null && res.isSuccess() && targetFile.length() > 0 ) {
                 return true;
             }

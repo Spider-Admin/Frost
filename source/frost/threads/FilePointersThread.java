@@ -135,7 +135,7 @@ System.out.println("uploadIndexFile: upload finished, wasOk="+wasOk);
             String downKey = requestKey + index + ".xml";
 System.out.println("FilePointersThread.downloadDate: requesting: "+downKey);       
 
-            GlobalFileDownloaderResult result = GlobalFileDownloader.downloadFile(downKey, FcpHandler.MAX_KSK_SIZE_ON_07);
+            GlobalFileDownloaderResult result = GlobalFileDownloader.downloadFile(downKey, FcpHandler.MAX_MESSAGE_SIZE_07);
             
             if(  result == null ) {
 System.out.println("FilePointersThread.downloadDate: failure");
