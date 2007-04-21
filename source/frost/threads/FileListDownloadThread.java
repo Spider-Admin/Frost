@@ -87,7 +87,9 @@ public class FileListDownloadThread extends Thread {
                 }
                 logger.log(Level.WARNING, "FileListDownloadThread: starting download of key: "+chkKey);
 
-                GlobalFileDownloaderResult result = GlobalFileDownloader.downloadFile(chkKey, FcpHandler.MAX_KSK_SIZE_ON_07);
+                // FIXME: frost is still sending large ones, should be turned back if the
+                // limited sender is mandatory/widhtly spreaded
+                GlobalFileDownloaderResult result = GlobalFileDownloader.downloadFile(chkKey, FcpHandler.MAX_KSK_SIZE_ON_07*3);
 
                 if( result == null || result.getResultFile() == null ) {
                     // download failed
