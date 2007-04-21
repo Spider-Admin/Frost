@@ -33,12 +33,13 @@ public abstract class FcpHandler {
     public static final int TYPE_MESSAGE = 1;
     public static final int TYPE_FILE    = 2;
     
-    public static final int MAX_KSK_SIZE_ON_07 = (64 * 1024) + (16 * 1024); // 64kb + 16kb
+    public static final int MAX_MESSAGE_SIZE_07 = (64 * 1024) + (16 * 1024); // 64kb + 16kb
+    public static final int MAX_FILELIST_SIZE_07 = (512 * 1024) + (16 * 1024); // 512kb + 16kb
     
     private static FcpHandler instance = null;
     
-    public static int FREENET_05 = 5;
-    public static int FREENET_07 = 7;
+    public static final int FREENET_05 = 5;
+    public static final int FREENET_07 = 7;
     
     private static int initializedVersion = -1;
     

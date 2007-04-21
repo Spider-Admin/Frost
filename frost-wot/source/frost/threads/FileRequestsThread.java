@@ -123,7 +123,7 @@ System.out.println("uploadRequestFile: upload finished, wasOk="+wasOk);
             logger.info("Requesting index " + index + " for date " + dateStr);
 
             String downKey = requestKey + index + ".xml";
-            GlobalFileDownloaderResult result = GlobalFileDownloader.downloadFile(downKey, FcpHandler.MAX_KSK_SIZE_ON_07);
+            GlobalFileDownloaderResult result = GlobalFileDownloader.downloadFile(downKey, FcpHandler.MAX_MESSAGE_SIZE_07);
 
             if( result == null ) {
                 // download failed. 

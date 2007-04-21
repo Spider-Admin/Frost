@@ -23,7 +23,6 @@ import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
-import frost.fcp.FcpHandler;
 import frost.fileTransfer.download.*;
 import frost.fileTransfer.sharing.*;
 import frost.identities.*;
@@ -86,13 +85,7 @@ public class FileListManager {
             // mark that we tried this owner
             idToUpdate.updateLastFilesSharedMillis();
 
-            int maxfiles;
-            if (FcpHandler.isFreenet07()) {
-            	maxfiles = 35; // should ideally fit in a single chunk on .7
-            } else {
-            	maxfiles = MAX_FILES_PER_FILE;
-            }
-            LinkedList<SharedFileXmlFile> filesToShare = getUploadItemsToShare(idToUpdate.getUniqueName(), maxfiles, minDate);
+            LinkedList<SharedFileXmlFile> filesToShare = getUploadItemsToShare(idToUpdate.getUniqueName(), MAX_FILES_PER_FILE, minDate);
             if( filesToShare != null && filesToShare.size() > 0 ) {
                 FileListManagerFileInfo fif = new FileListManagerFileInfo(filesToShare, idToUpdate); 
                 return fif;
