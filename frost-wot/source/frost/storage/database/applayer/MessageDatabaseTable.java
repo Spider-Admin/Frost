@@ -26,7 +26,6 @@ import org.joda.time.*;
 
 import frost.*;
 import frost.boards.*;
-import frost.identities.*;
 import frost.messages.*;
 import frost.storage.database.*;
 
@@ -802,36 +801,6 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
 
         return hasStarred;
     }
-
-    /**
-     * Returns message count by identity. If maxDaysBack is <0 all messages are counted.
-     */
-    public int getMessageCountByIdentity(Identity identity, int maxDaysBack) throws SQLException {
-        
-        AppLayerDatabase db = AppLayerDatabase.getInstance();
-        PreparedStatement ps;
-        if( maxDaysBack < 0 ) {
-            // no date restriction
-            ps = db.prepareStatement("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE fromname=? AND isvalid=TRUE");
-            ps.setString(1, identity.getUniqueName());
-        } else {
-            ps = db.prepareStatement("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE msgdatetime>=? AND fromname=? AND isvalid=TRUE");
-            LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysBack);
-            ps.setLong(1, localDate.toDateMidnight(DateTimeZone.UTC).getMillis());
-            ps.setString(2, identity.getUniqueName());
-        }
-        
-        int count = 0;
-        ResultSet rs = ps.executeQuery();
-        if( rs.next() ) {
-            count = rs.getInt(1);
-        }
-        rs.close();
-        ps.close();
-        
-        return count;
-    }
-
 
     /**
      * Returns message count by board. If maxDaysBack is <0 all messages are counted.

@@ -519,10 +519,18 @@ public class IdentitiesBrowser extends JDialog {
         String lastSeenStr;
         String htmlName;
         
-        public InnerTableMember(Identity i) {
+        public InnerTableMember(Identity i, Hashtable<String,IdentitiesDatabaseTable.IdentityMsgAndFileCount> idDatas) {
             identity = i;
-            msgCount = retrieveMessageCount(i);
-            fileCount = retrieveFileCount(i);
+            
+            IdentitiesDatabaseTable.IdentityMsgAndFileCount data = idDatas.get(identity.getUniqueName());
+            if( data != null ) {
+                msgCount = new Integer(data.getMessageCount());
+                fileCount = new Integer(data.getFileCount());
+            } else {
+                // error
+                msgCount = new Integer(-1);
+                fileCount = new Integer(-1);
+            }
             lastSeenStr = buildLastSeenString(identity.getLastSeenTimestamp());
             htmlName = buildHtmlName(i.getUniqueName());
         }
@@ -543,25 +551,6 @@ public class IdentitiesBrowser extends JDialog {
 //            System.out.println("r="+r);
 //            return r;
             return n;
-        }
-        private Integer retrieveFileCount(Identity id) {
-            int i = 0;
-            try {
-                i = AppLayerDatabase.getFileListDatabaseTable().getFileCountForIdentity(id);
-                fileCount = new Integer(i);
-            } catch(SQLException ex) {
-                logger.log(Level.SEVERE, "Exception counting files", ex);
-            }
-            return new Integer(i);
-        }
-        private Integer retrieveMessageCount(Identity id) {
-            int i = 0;
-            try {
-                i = AppLayerDatabase.getMessageTable().getMessageCountByIdentity(id, -1);
-            } catch(SQLException ex) {
-                logger.log(Level.SEVERE, "Exception counting msgs", ex);
-            }
-            return new Integer(i);
         }
         private String buildLastSeenString(long lastSeen) {
             // date (days_before)
@@ -771,29 +760,46 @@ public class IdentitiesBrowser extends JDialog {
     }
     
     public void startDialog() {
-        final int idCount = Core.getIdentities().getIdentities().size();
         
-        startProgressMonitor(idCount);
+        startProgressMonitor(3);
 
         // disables mainframe
         FrostSwingWorker worker = new FrostSwingWorker(parent) {
             protected void doNonUILogic() throws RuntimeException {
+
+                progressMonitor.setProgress(1);
+                if( progressMonitor.isCanceled() ) {
+                    return;
+                }
+
+                // query ALL data for all identities, each InnerTableMember gets its values from the complete list
+                Hashtable<String,IdentitiesDatabaseTable.IdentityMsgAndFileCount> idDatas;
+                try {
+                    idDatas = AppLayerDatabase.getIdentitiesDatabaseTable().retrieveMsgAndFileCountPerIdentity();
+                } catch(SQLException ex) {
+                    logger.log(Level.SEVERE, "Error retrieving idDatas", ex);
+                    idDatas = new Hashtable<String,IdentitiesDatabaseTable.IdentityMsgAndFileCount>();
+                }
+
+                progressMonitor.setProgress(2);
+                if( progressMonitor.isCanceled() ) {
+                    return;
+                }
+
                 allTableMembers = new LinkedList<InnerTableMember>(); // remember all table data for filter
                 List<Identity> allIdentities = Core.getIdentities().getIdentities();
                 // show own identities also
                 allIdentities.addAll(Core.getIdentities().getLocalIdentities());
-                int count = 0;
                 for( Iterator iter = allIdentities.iterator(); iter.hasNext(); ) {
                     Identity identity = (Identity) iter.next();
-                    InnerTableMember memb = new InnerTableMember(identity);
+                    InnerTableMember memb = new InnerTableMember(identity, idDatas);
                     tableModel.addRow(memb);
                     allTableMembers.add(memb);
-                    count++;
-                    progressMonitor.setProgress(count);
-                    if( progressMonitor.isCanceled() ) {
-                        break;
-                    }
                 }
+                
+                progressMonitor.setProgress(3);
+                
+                idDatas.clear();
             }
             protected void doUIUpdateLogic() throws RuntimeException {
                 updateTitle();
