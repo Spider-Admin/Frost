@@ -274,4 +274,85 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
         }
         ps.close();
     }
+    
+    public static class IdentityMsgAndFileCount {
+        final int fileCount;
+        final int messageCount;
+        public IdentityMsgAndFileCount(int mc, int fc) {
+            messageCount = mc;
+            fileCount = fc;
+        }
+        public int getFileCount() {
+            return fileCount;
+        }
+        public int getMessageCount() {
+            return messageCount;
+        }
+    }
+    
+    /**
+     * Retrieve msgCount and fileCount for each identity.
+     */
+    public Hashtable<String,IdentityMsgAndFileCount> retrieveMsgAndFileCountPerIdentity() throws SQLException {
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
+        // query powered by database-man
+        String query = 
+        "SELECT "+
+        "i.uniquename, "+
+        "COALESCE(m.msg_count, 0) messages, "+
+        "COALESCE(f.file_count, 0) files "+
+        "FROM IDENTITIES i "+
+        "LEFT JOIN (SELECT fromname, COUNT(*) msg_count "+ 
+        "           FROM MESSAGES WHERE isvalid=TRUE "+
+        "           GROUP BY fromname) m "+
+        "    ON m.fromname = i.uniquename "+
+        "LEFT JOIN (SELECT owner, COUNT(*) file_count "+ 
+        "           FROM FILEOWNERLIST "+
+        "           GROUP BY owner) f "+
+        "    ON f.owner = i.uniquename "+
+        "ORDER BY i.uniquename";
+        
+        Statement stmt = db.createStatement();
+        ResultSet rs = stmt.executeQuery(query);
+        Hashtable<String,IdentityMsgAndFileCount> data = new Hashtable<String,IdentityMsgAndFileCount>();
+        while(rs.next()) {
+            final String uniqueName = rs.getString(1);
+            final int messageCount = rs.getInt(2);
+            final int fileCount = rs.getInt(3);
+            IdentityMsgAndFileCount s = new IdentityMsgAndFileCount(messageCount, fileCount);
+            data.put(uniqueName, s);
+        }
+        rs.close();
+        
+        // same for ownidentities
+        query = 
+            "SELECT "+
+            "i.uniquename, "+
+            "COALESCE(m.msg_count, 0) messages, "+
+            "COALESCE(f.file_count, 0) files "+
+            "FROM OWNIDENTITIES i "+
+            "LEFT JOIN (SELECT fromname, COUNT(*) msg_count "+ 
+            "           FROM MESSAGES WHERE isvalid=TRUE "+
+            "           GROUP BY fromname) m "+
+            "    ON m.fromname = i.uniquename "+
+            "LEFT JOIN (SELECT owner, COUNT(*) file_count "+ 
+            "           FROM FILEOWNERLIST "+
+            "           GROUP BY owner) f "+
+            "    ON f.owner = i.uniquename "+
+            "ORDER BY i.uniquename";
+        rs = stmt.executeQuery(query);
+        while(rs.next()) {
+            final String uniqueName = rs.getString(1);
+            final int messageCount = rs.getInt(2);
+            final int fileCount = rs.getInt(3);
+            IdentityMsgAndFileCount s = new IdentityMsgAndFileCount(messageCount, fileCount);
+            data.put(uniqueName, s);
+        }
+        rs.close();
+
+        stmt.close();
+        
+        return data;
+    }
+    
 }

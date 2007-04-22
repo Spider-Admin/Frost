@@ -27,7 +27,6 @@ import java.util.logging.*;
 import frost.*;
 import frost.fcp.*;
 import frost.fileTransfer.*;
-import frost.identities.*;
 import frost.storage.database.*;
 
 /**
@@ -705,27 +704,6 @@ public class FileListDatabaseTable extends AbstractDatabaseTable implements Prop
         ResultSet rs = ps.executeQuery();
         if( rs.next() ) {
             count = rs.getLong(1);
-        }
-        rs.close();
-        ps.close();
-        
-        return count;
-    }
-
-    /**
-     * Return filecount for specified identity on all boards.
-     */
-    public int getFileCountForIdentity(Identity identity) throws SQLException {
-        // count of all all SHA that have at least one reference to a OwnerBoard with the given identity
-        AppLayerDatabase db = AppLayerDatabase.getInstance();
-
-        PreparedStatement ps = db.prepareStatement(
-            "SELECT COUNT(primkey) FROM FILELIST WHERE primkey in (SELECT refkey FROM FILEOWNERLIST WHERE owner=? GROUP BY refkey)");
-        ps.setString(1, identity.getUniqueName());
-        int count = 0;
-        ResultSet rs = ps.executeQuery();
-        if( rs.next() ) {
-            count = rs.getInt(1);
         }
         rs.close();
         ps.close();
