@@ -70,6 +70,7 @@
     <pathelement location="${lib.dir}/xmlParserAPIs.jar"/>
     <pathelement location="${lib.dir}/BCastle.jar"/>
     <pathelement location="${lib.dir}/mckoidb.jar"/>
+    <pathelement location="${lib.dir}/perst15.jar"/>
     <pathelement location="${lib.dir}/jnlp.jar"/>
     <pathelement location="${lib.dir}/joda-time.jar"/>
     <pathelement location="${build.classes.feclib}"/>
