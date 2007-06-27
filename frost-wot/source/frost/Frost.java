@@ -51,8 +51,8 @@ public class Frost {
         System.out.println("redistribute it under the GPL conditions.");
         System.out.println("Frost uses code from apache.org (Apache license),");
         System.out.println("bouncycastle.org (BSD license), Onion Networks (BSD license),");
-        System.out.println("L2FProd.com (Apache license), Martin Newstead (LGPL license) and");
-        System.out.println("Volker H. Simonis (GPL v2 license).");
+        System.out.println("L2FProd.com (Apache license), Martin Newstead (LGPL license),");
+        System.out.println("Volker H. Simonis (GPL v2 license) and McObject LLC (GPL v2 license).");
         System.out.println();
 
         parseCommandLine(args);
@@ -252,6 +252,9 @@ public class Frost {
             // check for joda-time.jar
             jarFileName = "joda-time.jar";
             Class.forName("org.joda.time.DateTime");
+            // check for perst15.jar
+            jarFileName = "perst15.jar";
+            Class.forName("org.garret.perst.Persistent");
 
         } catch (ClassNotFoundException e1) {
             MiscToolkit.getInstance().showMessage(
