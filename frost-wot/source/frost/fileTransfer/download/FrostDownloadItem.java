@@ -79,6 +79,8 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
 		this.key = key;
 
         gqIdentifier = buildGqIdentifier(fileName);
+        
+        downloadAddedTime = System.currentTimeMillis();
 
 		state = STATE_WAITING;
 	}
@@ -121,6 +123,8 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
         gqIdentifier = buildGqIdentifier(fileName);
 
         setFileListFileObject(sfo);
+
+        downloadAddedTime = System.currentTimeMillis();
 
         state = STATE_WAITING;
     }
@@ -264,10 +268,6 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
 
     public long getDownloadAddedTime() {
         return downloadAddedTime;
-    }
-
-    public void setDownloadAddedTime(long downloadAddedTime) {
-        this.downloadAddedTime = downloadAddedTime;
     }
 
     public long getDownloadFinishedTime() {

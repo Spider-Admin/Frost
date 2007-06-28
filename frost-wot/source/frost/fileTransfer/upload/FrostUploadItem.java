@@ -83,6 +83,8 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
         
         gqIdentifier = buildGqIdentifier(file.getName());
         
+        uploadAddedMillis = System.currentTimeMillis();
+        
         state = STATE_WAITING;
     }
 
@@ -199,11 +201,6 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
     public long getUploadAddedMillis() {
         return uploadAddedMillis;
     }
-    public void setUploadAddedMillis(long v) {
-        uploadAddedMillis = v;
-        fireChange();
-    }
-
     public long getUploadStartedMillis() {
         return uploadStartedMillis;
     }
