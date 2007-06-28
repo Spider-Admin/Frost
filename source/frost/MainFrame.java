@@ -694,7 +694,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
             }
             Thread t = new Thread() {
                 public void run() {
-                    try { setPriority(getPriority() - 1); } catch(Throwable t) {}
+                    try { setPriority(getPriority() - 1); } catch(Throwable lt) {}
                     getSentMessagesPanel().prepareForShow(); // load from db
                     SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
@@ -721,7 +721,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
             }
             Thread t = new Thread() {
                 public void run() {
-                    try { setPriority(getPriority() - 1); } catch(Throwable t) {}
+                    try { setPriority(getPriority() - 1); } catch(Throwable lt) {}
                     getUnsentMessagesPanel().prepareForShow(); // load from db
                     SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
