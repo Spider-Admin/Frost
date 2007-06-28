@@ -28,6 +28,7 @@ import frost.boards.*;
 import frost.gui.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;
+import frost.storage.perst.*;
 
 /**
  * Expire messages and cleans several database tables.
@@ -57,7 +58,31 @@ public class CleanUp {
 
         splashScreen = sp;
         uncommittedMsgs = 0;
+        
+        // each time run cleanup for perst storages
+        cleanPerstStorages(boardList);
+        
+        // cleanup/archive McKoi tables all X days
+        int cleanupDatabaseInterval = Core.frostSettings.getIntValue(SettingsClass.DB_CLEANUP_INTERVAL);
+        long lastCleanupTime = Core.frostSettings.getLongValue(SettingsClass.DB_CLEANUP_LASTRUN);
+        long now = System.currentTimeMillis();
+        long intervalMillis = ((long)cleanupDatabaseInterval) * 24L * 60L * 60L * 1000L; // interval days into millis
 
+        // when last cleanup was before the chosen interval days then run cleanup and archiving
+        if( lastCleanupTime < (now - intervalMillis) ) {
+            cleanMcKoiTables(boardList);
+        }
+    }
+    
+    private static void cleanPerstStorages(List boardList) {
+        splashScreen.setText("Cleaning index tables");
+        cleanupIndexSlotsStorage(boardList);
+        
+        splashScreen.setText("Cleaning CHK filelist tables");
+        cleanupSharedCHKKeyStorage();
+    }
+    
+    private static void cleanMcKoiTables(List boardList) {
         int mode;
         
         String strMode = Core.frostSettings.getValue(SettingsClass.MESSAGE_EXPIRATION_MODE);
@@ -81,16 +106,6 @@ public class CleanUp {
 
         doCommit();
 
-        splashScreen.setText("Cleaning index tables");
-        cleanupIndexSlotTables(boardList);
-        
-        doCommit();
-
-        splashScreen.setText("Cleaning CHK filelist tables");
-        cleanupSharedChkKeyTable();
-
-        doCommit();
-        
         splashScreen.setText("Cleaning filelist tables");
         cleanupFileListFileOwners();
         cleanupFileListFiles();
@@ -164,6 +179,7 @@ public class CleanUp {
             
             if( mode == ARCHIVE_MESSAGES ) {
                 splashScreen.setText("Archiving messages in board: "+board.getName());
+
                 MessageTableCallback mtCallback = new MessageTableCallback();
                 try {
                     AppLayerDatabase.getMessageTable().retrieveMessagesForArchive(board, currentDaysOld, mtCallback);
@@ -188,6 +204,8 @@ public class CleanUp {
             if( deletedCount > 0 ) {
                 logger.warning("INFO: Processed "+deletedCount+" expired messages for board "+board.getName());
             }
+            
+            maybeCommit();
         }
         logger.info("Finished to process expired messages.");
     }
@@ -207,7 +225,6 @@ public class CleanUp {
                 if( rc == MessageArchiveDatabaseTable.INSERT_ERROR ) {
                     errorOccurred = true;
                 }
-                maybeCommit();
             } catch(Throwable e) {
                 // should not happen, paranoia
                 logger.log(Level.SEVERE, "Exception during insert of archive message", e);
@@ -225,7 +242,7 @@ public class CleanUp {
      * Cleanup old indexslot table entries.
      * Keep indices files for maxMessageDownload*2 days, but at least MINIMUM_DAYS_OLD days.
      */
-    private static void cleanupIndexSlotTables(List boardList) {
+    private static void cleanupIndexSlotsStorage(List boardList) {
 
         int maxDaysOld = Core.frostSettings.getIntValue(SettingsClass.MAX_MESSAGE_DOWNLOAD) * 2;
 
@@ -243,15 +260,7 @@ public class CleanUp {
         int deletedCount = 0;
 
         try {
-            GlobalIndexSlotsDatabaseTable gixSlots = new GlobalIndexSlotsDatabaseTable();
-            deletedCount += gixSlots.cleanupTable(maxDaysOld);
-        } catch(Throwable t) {
-            logger.log(Level.SEVERE, "Exception during cleanup of GlobalIndexSlots", t);
-        }
-
-        try {
-            IndexSlotsDatabaseTable ixSlots = new IndexSlotsDatabaseTable();
-            deletedCount += ixSlots.cleanupTable(maxDaysOld);
+            deletedCount += IndexSlotsStorage.inst().cleanup(maxDaysOld);
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Exception during cleanup of IndexSlots", t);
         }
@@ -264,10 +273,10 @@ public class CleanUp {
      * Cleanup old CHK keys from pointer files.
      * All keys we did'nt see for MINIMUM_DAYS_OLD days will be deleted.
      */
-    private static void cleanupSharedChkKeyTable() {
+    private static void cleanupSharedCHKKeyStorage() {
         int deletedCount = 0;
         try {
-            deletedCount = AppLayerDatabase.getSharedFilesCHKKeysDatabaseTable().cleanupTable(MINIMUM_DAYS_OLD);
+            deletedCount = SharedFilesCHKKeyStorage.inst().cleanupTable(MINIMUM_DAYS_OLD);
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Exception during cleanup of SharedFilesCHKKeys", t);
         }

@@ -18,14 +18,13 @@
 package frost.fileTransfer.download;
 
 import java.io.*;
-import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
 import frost.fileTransfer.*;
 import frost.storage.*;
-import frost.storage.database.applayer.*;
+import frost.storage.perst.*;
 import frost.util.model.*;
 
 /**
@@ -248,8 +247,8 @@ public class DownloadModel extends SortedModel implements Savable {
         
         List itemList = getItems();
         try {
-            AppLayerDatabase.getDownloadFilesDatabaseTable().saveDownloadFiles(itemList);
-        } catch (SQLException e) {
+            FrostFilesStorage.inst().saveDownloadFiles((List<FrostDownloadItem>)itemList);
+        } catch (Throwable e) {
             logger.log(Level.SEVERE, "Error saving download items", e);
             throw new StorageException("Error saving download items");
         }
@@ -262,8 +261,8 @@ public class DownloadModel extends SortedModel implements Savable {
         
         List downloadItems; 
         try {
-            downloadItems = AppLayerDatabase.getDownloadFilesDatabaseTable().loadDownloadFiles();
-        } catch (SQLException e) {
+            downloadItems = FrostFilesStorage.inst().loadDownloadFiles();
+        } catch (Throwable e) {
             logger.log(Level.SEVERE, "Error loading download items", e);
             throw new StorageException("Error loading download items");
         }

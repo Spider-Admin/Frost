@@ -137,24 +137,6 @@ public class MessageDownloader {
                 return new MessageDownloaderResult(MessageDownloaderResult.BROKEN_MSG);
             }
     
-            // compute the sha1 checksum of the original msg file
-            // this digest is ONLY used to check for incoming exact duplicate files, because
-            // the locally stored message xml file could be changed later by Frost
-            String messageId = Core.getCrypto().digest(tmpFile);
-            // Does a duplicate message exist?
-            boolean isDuplicateMsg = Core.getMessageHashes().contains(messageId);
-            // add to the list of message hashes to track this received message
-            Core.getMessageHashes().add(messageId);
-    
-            if( isDuplicateMsg ) {
-                logger.info(Thread.currentThread().getName()+": TOFDN: *** Duplicate Message."+logInfo+" ***");
-                if( Core.frostSettings.getBoolValue(SettingsClass.RECEIVE_DUPLICATE_MESSAGES) == false ) {
-                    // user don't want to see the duplicate messages
-                    tmpFile.delete();
-                    return new MessageDownloaderResult(MessageDownloaderResult.DUPLICATE_MSG);
-                }
-            }
-    
             // if no metadata, message wasn't signed
             if (metadata == null) {
                 byte[] unzippedXml = FileAccess.readZipFileBinary(tmpFile);
@@ -342,24 +324,6 @@ public class MessageDownloader {
         try { // we don't want to die for any reason
 
             // a file was downloaded
-            
-            // compute the sha1 checksum of the original msg file
-            // this digest is ONLY used to check for incoming exact duplicate files, because
-            // the locally stored message xml file could be changed later by Frost
-            String messageId = Core.getCrypto().digest(tmpFile);
-            // Does a duplicate message exist?
-            boolean isDuplicateMsg = Core.getMessageHashes().contains(messageId);
-            // add to the list of message hashes to track this received message
-            Core.getMessageHashes().add(messageId);
-    
-            if( isDuplicateMsg ) {
-                logger.info(Thread.currentThread().getName()+": TOFDN: *** Duplicate Message."+logInfo+" ***");
-                if( Core.frostSettings.getBoolValue(SettingsClass.RECEIVE_DUPLICATE_MESSAGES) == false ) {
-                    // user don't want to see the duplicate messages
-                    tmpFile.delete();
-                    return new MessageDownloaderResult(MessageDownloaderResult.DUPLICATE_MSG);
-                }
-            }
             
             MessageXmlFile currentMsg = null;
             

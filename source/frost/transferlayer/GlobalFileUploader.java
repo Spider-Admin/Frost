@@ -22,7 +22,7 @@ import java.io.*;
 import java.util.logging.*;
 
 import frost.fcp.*;
-import frost.storage.database.applayer.*;
+import frost.storage.perst.*;
 
 /**
  * Provides an upload functionality, using the global index slots.
@@ -32,8 +32,7 @@ public class GlobalFileUploader {
     private static final Logger logger = Logger.getLogger(GlobalFileUploader.class.getName());
 
     public static boolean uploadFile(
-            GlobalIndexSlotsDatabaseTable indexSlots, 
-            long date, 
+            IndexSlot gis, 
             File uploadFile,
             String insertKey,
             String insertKeyExtension,
@@ -45,7 +44,7 @@ public class GlobalFileUploader {
             int tries = 0;
             final int maxTries = 3;
             // get first index and lock it
-            int index = indexSlots.findFirstUploadSlot(date);
+            int index = gis.findFirstUploadSlot();
             while( !success && !error) {
                 logger.info("Trying file upload to index "+index);
 
@@ -60,13 +59,14 @@ public class GlobalFileUploader {
 
                 if( result.isSuccess() ) {
                     // my files are already added to totalIdx, we don't need to download this index
-                    indexSlots.setUploadSlotUsed(index, date);
+                    gis.setUploadSlotUsed(index);
+                    gis.modify();
                     logger.info("FILEDN: File successfully uploaded.");
                     success = true;
                 } else {
                     if( result.isKeyCollision() ) {
                         // get next index and lock slot
-                        index = indexSlots.findNextUploadSlot(index, date);
+                        index = gis.findNextUploadSlot(index);
                         tries = 0; // reset tries
                         logger.info("FILEDN: File collided, increasing index.");
                         continue;

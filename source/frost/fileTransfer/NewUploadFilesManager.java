@@ -18,13 +18,12 @@
 */
 package frost.fileTransfer;
 
-import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
 import frost.fileTransfer.upload.*;
 import frost.storage.*;
-import frost.storage.database.applayer.*;
+import frost.storage.perst.*;
 
 public class NewUploadFilesManager implements Savable {
     
@@ -35,8 +34,8 @@ public class NewUploadFilesManager implements Savable {
     
     public void initialize() throws StorageException {
         try {
-            newUploadFiles = AppLayerDatabase.getNewUploadFilesTable().loadNewUploadFiles();
-        } catch (SQLException e) {
+            newUploadFiles = FrostFilesStorage.inst().loadNewUploadFiles();
+        } catch (Throwable e) {
             logger.log(Level.SEVERE, "Error loading new upload files", e);
             throw new StorageException("Error loading new upload files");
         }
@@ -52,8 +51,8 @@ public class NewUploadFilesManager implements Savable {
 
     public void save() throws StorageException {
         try {
-            AppLayerDatabase.getNewUploadFilesTable().saveNewUploadFiles(newUploadFiles);
-        } catch (SQLException e) {
+            FrostFilesStorage.inst().saveNewUploadFiles(newUploadFiles);
+        } catch (Throwable e) {
             logger.log(Level.SEVERE, "Error saving new upload files", e);
             throw new StorageException("Error saving new upload files");
         }

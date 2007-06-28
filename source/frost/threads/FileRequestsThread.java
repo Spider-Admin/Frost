@@ -27,7 +27,7 @@ import org.joda.time.*;
 import frost.*;
 import frost.fcp.*;
 import frost.fileTransfer.*;
-import frost.storage.database.applayer.*;
+import frost.storage.perst.*;
 import frost.transferlayer.*;
 import frost.util.*;
 
@@ -42,15 +42,12 @@ public class FileRequestsThread extends Thread {
     // sleeptime between request loops
     private static final int sleepTime = 10 * 60 * 1000;
 
-    private GlobalIndexSlotsDatabaseTable indexSlots;
     private String keyPrefix;
     
     // one and only instance
     private static FileRequestsThread instance = new FileRequestsThread();
     
     private FileRequestsThread() {
-        indexSlots = new GlobalIndexSlotsDatabaseTable(GlobalIndexSlotsDatabaseTable.REQUESTS);
-        
         String fileBase = Core.frostSettings.getValue(SettingsClass.FILE_BASE);
         keyPrefix = "KSK@frost/filerequests/" + fileBase + "-"; 
     }
@@ -66,7 +63,7 @@ public class FileRequestsThread extends Thread {
     /**
      * Returns true if no error occured.
      */
-    private boolean uploadRequestFile(String dateStr, long sqlDate) throws Throwable {
+    private boolean uploadRequestFile(String dateStr, IndexSlot gis) throws Throwable {
 
         // get a list of CHK keys to send
         List<String> fileRequests = FileRequestsManager.getRequestsToSend();
@@ -92,7 +89,7 @@ System.out.println("uploadRequestFile: fileRequests to send: "+fileRequests.size
 System.out.println("uploadRequestFile: Starting upload of request file containing "+fileRequests.size()+" SHAs");
         
         String insertKey = keyPrefix + dateStr + "-";
-        boolean wasOk = GlobalFileUploader.uploadFile(indexSlots, sqlDate, tmpRequestFile, insertKey, ".xml", true);
+        boolean wasOk = GlobalFileUploader.uploadFile(gis, tmpRequestFile, insertKey, ".xml", true);
         tmpRequestFile.delete();
 System.out.println("uploadRequestFile: upload finished, wasOk="+wasOk);
         if( wasOk ) {
@@ -101,7 +98,7 @@ System.out.println("uploadRequestFile: upload finished, wasOk="+wasOk);
         return wasOk;
     }
     
-    private void downloadDate(String dateStr, long sqlDate, boolean isForToday) throws Throwable {
+    private void downloadDate(String dateStr, IndexSlot gis, boolean isForToday) throws Throwable {
         
         // "KSK@frost/filerequests/2006.11.1-<index>.xml"
         String requestKey = keyPrefix + dateStr + "-"; 
@@ -112,7 +109,7 @@ System.out.println("uploadRequestFile: upload finished, wasOk="+wasOk);
         } else {
             maxFailures = 2; // skip a maximum of 1 empty slot for backload
         }
-        int index = indexSlots.findFirstDownloadSlot(sqlDate);
+        int index = gis.findFirstDownloadSlot();
         int failures = 0;
 
         while (failures < maxFailures && index >= 0 ) {
@@ -127,9 +124,12 @@ System.out.println("uploadRequestFile: upload finished, wasOk="+wasOk);
 
             if( result == null ) {
                 // download failed. 
-                failures++;
+                if( gis.isDownloadIndexBehindLastSetIndex(index) ) {
+                    // we stop if we tried maxFailures indices behind the last known index
+                    failures++;
+                }
                 // next loop we try next index
-                index = indexSlots.findNextDownloadSlot(index, sqlDate);
+                index = gis.findNextDownloadSlot(index);
                 continue;
             }
             
@@ -139,14 +139,14 @@ System.out.println("uploadRequestFile: upload finished, wasOk="+wasOk);
                 // try index again later
                 System.out.println("FileRequestsThread.downloadDate: Skipping index "+index+" for now, will try again later.");
                 // next loop we try next index
-                index = indexSlots.findNextDownloadSlot(index, sqlDate);
+                index = gis.findNextDownloadSlot(index);
                 continue;
             }
 
             // downloaded something, mark it
-            indexSlots.setDownloadSlotUsed(index, sqlDate);
+            gis.setDownloadSlotUsed(index);
             // next loop we try next index
-            index = indexSlots.findNextDownloadSlot(index, sqlDate);
+            index = gis.findNextDownloadSlot(index);
 
             if( result.getErrorCode() == GlobalFileDownloaderResult.ERROR_FILE_TOO_BIG ) {
                 System.out.println("FileRequestsThread.downloadDate: Dropping index "+index+", FILE_TOO_BIG.");
@@ -194,25 +194,27 @@ System.out.println("uploadRequestFile: upload finished, wasOk="+wasOk);
                     String dateStr = DateFun.FORMAT_DATE.print(localDate);
                     long date = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
                     
-//                    String dateStr = DateFun.getDate(i);
-//                    java.sql.Date sqlDate = DateFun.getSqlDateGMTDaysAgo(i);
+                    IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(
+                            IndexSlotsStorage.REQUESTS, date);
                     
 System.out.println("FileRequestsThread: starting download for "+dateStr);
                     // download file pointer files for this date
                     if( !isInterrupted() ) {
-                        downloadDate(dateStr, date, isForToday);
+                        downloadDate(dateStr, gis, isForToday);
                     }
                     
                     // for today, maybe upload a file pointer file
                     if( !isInterrupted() && isForToday ) {
                         try {
 System.out.println("FileRequestsThread: starting upload for "+dateStr);
-                            uploadRequestFile(dateStr, date);
+                            uploadRequestFile(dateStr, gis);
                         } catch(Throwable t) {
                             logger.log(Level.SEVERE, "Exception catched during uploadRequestFile()", t);
                         }
                     }
-                    
+            
+                    IndexSlotsStorage.inst().storeSlot(gis);
+
                     if( isInterrupted() ) {
                         break;
                     }
@@ -229,10 +231,11 @@ System.out.println("FileRequestsThread: starting upload for "+dateStr);
             if( isInterrupted() ) {
                 break;
             }
+            
+            IndexSlotsStorage.inst().commitStore(); // commit changes for this run
+            
 System.out.println("FileRequestsThread: sleeping 10 minutes");            
             Mixed.wait(sleepTime); // sleep 10 minutes
         }
-            
-        indexSlots.close();
     }
 }

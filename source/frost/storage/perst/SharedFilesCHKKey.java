@@ -16,31 +16,39 @@
  along with this program; if not, write to the Free Software
  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.fileTransfer;
+package frost.storage.perst;
+
+import org.garret.perst.*;
 
 /**
  * Represents the CHK key of a filelist.
  */
-public class SharedFilesCHKKey {
-    
-    long primaryKey;
-    String chkKey;
-    int seenCount;
-    long firstSeen;
-    long lastSeen; // when got we this CHK in a pointer file last time
-    boolean isDownloaded;
-    boolean isValid; // set after receive of CHK key, don't send invvalid keys in KSK pointer file
-    int downloadRetries; // don't try too often
-    long lastDownloadTryStopTime;
-    int sentCount; // how often did we sent this CHK
-    long lastSent; // time when we last sent this CHK within a pointer file
+public class SharedFilesCHKKey extends Persistent {
+
+    // Question: how to ensure own CHK keys, track them once uploaded if we ever see them again! 
+    // Answer: Ignore lost keys, we resend them after some days!
+    //         Handle own received keys like any other keys, we don't even know that this was our key.
+
+    private String chkKey;
+    private int seenCount; // how often did we receive this CHK in a KSK pointer file
+    private long firstSeen; // when did we receive this CHK the first time (time in millis)
+    private long lastSeen; // when got we this CHK in a pointer file last time (time in millis)
+    private boolean isDownloaded; // did we download this file?
+    private boolean isValid; // set after receive of CHK key, don't send invalid keys in KSK pointer file
+    private int downloadRetries; // our tries to download this CHK, don't try too often
+    private long lastDownloadTryStopTime; // when was the download stopped the last time (time in millis)
+    private int sentCount; // how often we send this CHK within a pointer file
+    private long lastSent; // time in millis when we sent this CHK the last time within a pointer file
+
+    // used by perst
+    public SharedFilesCHKKey() {
+    }
     
     // used during load from database
-    public SharedFilesCHKKey(long primKey, String chkKey, int seenCount, long firstSeen, long lastSeen,
+    public SharedFilesCHKKey(String chkKey, int seenCount, long firstSeen, long lastSeen,
             boolean isDownloaded, boolean isValid, int downloadRetries, long lastDownloadTryStopTime,
             int sentcount, long lastsent) 
     {
-        this.primaryKey = primKey;
         this.chkKey = chkKey;
         this.seenCount = seenCount;
         this.firstSeen = firstSeen;
@@ -55,7 +63,6 @@ public class SharedFilesCHKKey {
 
     // used if a new CHK key was received in a pointer file
     public SharedFilesCHKKey(String chkKey, long timestamp) {
-        this.primaryKey = -1; // unset
         this.chkKey = chkKey;
         this.seenCount = 1;
         this.firstSeen = timestamp;
@@ -70,7 +77,6 @@ public class SharedFilesCHKKey {
     
     // used if we uploaded an own new CHK key which must be send inside a pointer file the first time
     public SharedFilesCHKKey(String chkKey) {
-        this.primaryKey = -1; // unset
         this.chkKey = chkKey;
         this.seenCount = 0;
         this.firstSeen = 0;
@@ -115,9 +121,6 @@ public class SharedFilesCHKKey {
     }
     public void setLastSeen(long lseen) {
         lastSeen = lseen;
-    }
-    public long getPrimaryKey() {
-        return primaryKey;
     }
     public int getSeenCount() {
         return seenCount;

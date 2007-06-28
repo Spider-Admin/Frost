@@ -16,15 +16,15 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.storage.database.applayer;
+package frost.util.migration.migrate0to1;
 
 import java.io.*;
 import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
-import frost.fileTransfer.*;
-import frost.storage.database.*;
+import frost.storage.database.applayer.*;
+import frost.storage.perst.*;
 
 /**
  * Access to a database table that holds the new upload files which
@@ -35,57 +35,18 @@ import frost.storage.database.*;
  * This table is needed in case the user shuts down Frost until all
  * SHA checksums were deleted.
  */
-public class NewUploadFilesDatabaseTable extends AbstractDatabaseTable {
+public class NewUploadFilesDatabaseTable {
 
     private static final Logger logger = Logger.getLogger(NewUploadFilesDatabaseTable.class.getName());
 
-    private final static String SQL_DDL =
-        "CREATE TABLE IF NOT EXISTS NEWUPLOADFILES ("+
-        "filepath VARCHAR NOT NULL,"+
-        "fromname VARCHAR,"+
-        "CONSTRAINT NEWUPLOADFILES_1 UNIQUE (filepath) )";
-
-    public List<String> getTableDDL() {
-        ArrayList<String> lst = new ArrayList<String>(1);
-        lst.add(SQL_DDL);
-        return lst;
-    }
-    
-    public boolean compact(Statement stmt) throws SQLException {
-        stmt.executeUpdate("COMPACT TABLE NEWUPLOADFILES");
-        return true;
-    }
-    
-    public void saveNewUploadFiles(List newUploadFiles) throws SQLException {
-        
-        AppLayerDatabase db = AppLayerDatabase.getInstance();
-        
-        Statement s = db.createStatement();
-        s.executeUpdate("DELETE FROM NEWUPLOADFILES");
-        s.close();
-        s = null;
-        
-        PreparedStatement ps = db.prepareStatement("INSERT INTO NEWUPLOADFILES (filepath,fromname) VALUES (?,?)");
-        
-        for(Iterator i=newUploadFiles.iterator(); i.hasNext(); ) {
-            NewUploadFile nuf = (NewUploadFile)i.next(); 
-            
-            ps.setString(1, nuf.getFile().getPath());
-            ps.setString(2, nuf.getFrom());
-            
-            ps.executeUpdate();
-        }
-        ps.close();
-    }
-
-    public LinkedList<NewUploadFile> loadNewUploadFiles() throws SQLException {
+    public static List<NewUploadFile> migrateNewUploadFiles() throws SQLException {
 
         AppLayerDatabase db = AppLayerDatabase.getInstance();
+
+        LinkedList<NewUploadFile> newUploadFiles = new LinkedList<NewUploadFile>();
 
         PreparedStatement ps = db.prepareStatement("SELECT filepath,fromname FROM NEWUPLOADFILES");
 
-        LinkedList<NewUploadFile> newUploadFiles = new LinkedList<NewUploadFile>();
-        
         ResultSet rs = ps.executeQuery();
         while( rs.next() ) {
             String filepath = rs.getString(1);
@@ -96,7 +57,7 @@ public class NewUploadFilesDatabaseTable extends AbstractDatabaseTable {
                 logger.warning("File ("+filepath+") is missing. File removed.");
                 continue;
             }
-            
+
             NewUploadFile nuf = new NewUploadFile(f, from);
             newUploadFiles.add(nuf);
         }

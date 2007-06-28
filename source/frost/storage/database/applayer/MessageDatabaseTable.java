@@ -622,7 +622,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         rs.close();
         ps.close();
     }
-
+    
     public List<FrostMessageObject> retrieveAllMessages() throws SQLException {
         LinkedList<FrostMessageObject> list = new LinkedList<FrostMessageObject>();
         

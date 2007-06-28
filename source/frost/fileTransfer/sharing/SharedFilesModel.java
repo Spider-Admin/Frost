@@ -18,13 +18,12 @@
 */
 package frost.fileTransfer.sharing;
 
-import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
 import frost.fileTransfer.*;
 import frost.storage.*;
-import frost.storage.database.applayer.*;
+import frost.storage.perst.*;
 import frost.threads.*;
 import frost.util.model.*;
 
@@ -155,15 +154,15 @@ public class SharedFilesModel extends SortedModel implements Savable {
      * Initializes the model
      */
     public void initialize() throws StorageException {
-        List uploadItems; 
+        List<FrostSharedFileItem> uploadItems; 
         try {
-            uploadItems = AppLayerDatabase.getSharedFilesDatabaseTable().loadSharedFiles();
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error loading upload items", e);
-            throw new StorageException("Error loading upload items");
+            uploadItems = FrostFilesStorage.inst().loadSharedFiles();
+        } catch (Throwable e) {
+            logger.log(Level.SEVERE, "Error loading shared file items", e);
+            throw new StorageException("Error loading shared file items");
         }
-        for(Iterator i=uploadItems.iterator(); i.hasNext(); ) {
-            FrostSharedFileItem di = (FrostSharedFileItem)i.next();
+        for(Iterator<FrostSharedFileItem> i=uploadItems.iterator(); i.hasNext(); ) {
+            FrostSharedFileItem di = i.next();
             addConsistentSharedFileItem(di); // no check for dups
         }
     }
@@ -175,8 +174,8 @@ public class SharedFilesModel extends SortedModel implements Savable {
     public void save() throws StorageException {
         List<FrostSharedFileItem> itemList = (List<FrostSharedFileItem>)getItems();
         try {
-            AppLayerDatabase.getSharedFilesDatabaseTable().saveSharedFiles(itemList);
-        } catch (SQLException e) {
+            FrostFilesStorage.inst().saveSharedFiles(itemList);
+        } catch (Throwable e) {
             logger.log(Level.SEVERE, "Error saving shared file items", e);
             throw new StorageException("Error saving shared file items");
         }

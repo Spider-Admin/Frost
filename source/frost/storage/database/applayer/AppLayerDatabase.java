@@ -35,13 +35,7 @@ public class AppLayerDatabase implements Savable {
     private static UnsentMessageDatabaseTable unsendMessageTable = null;
     private static MessageArchiveDatabaseTable messageArchiveTable = null;
     
-    private static NewUploadFilesDatabaseTable newUploadFilesTable = null;
     private static FileListDatabaseTable fileListDatabaseTable = null;
-    private static UploadFilesDatabaseTable uploadFilesDatabaseTable = null;
-    private static DownloadFilesDatabaseTable downloadFilesDatabaseTable = null;
-    private static SharedFilesDatabaseTable sharedFilesDatabaseTable = null; 
-    
-    private static SharedFilesCHKKeysDatabaseTable sharedFilesCHKKeysDatabaseTable = null;
     
     private static IdentitiesDatabaseTable identitiesDatabaseTable = null;
     
@@ -157,13 +151,7 @@ public class AppLayerDatabase implements Savable {
             unsendMessageTable = new UnsentMessageDatabaseTable();
             messageArchiveTable = new MessageArchiveDatabaseTable();
             
-            newUploadFilesTable = new NewUploadFilesDatabaseTable();
             fileListDatabaseTable = new FileListDatabaseTable();
-            uploadFilesDatabaseTable = new UploadFilesDatabaseTable();
-            downloadFilesDatabaseTable = new DownloadFilesDatabaseTable();
-            sharedFilesDatabaseTable = new SharedFilesDatabaseTable();
-            
-            sharedFilesCHKKeysDatabaseTable = new SharedFilesCHKKeysDatabaseTable();
             
             identitiesDatabaseTable = new IdentitiesDatabaseTable();
             
@@ -176,14 +164,9 @@ public class AppLayerDatabase implements Savable {
             lst.add(sentMessageTable);
             lst.add(unsendMessageTable);
             lst.add(messageArchiveTable);
-            lst.add(newUploadFilesTable);
             lst.add(fileListDatabaseTable);
-            lst.add(uploadFilesDatabaseTable);
-            lst.add(downloadFilesDatabaseTable);
-            lst.add(sharedFilesDatabaseTable);
             lst.add(identitiesDatabaseTable);
             lst.add(knownBoardsDatabaseTable);
-            lst.add(sharedFilesCHKKeysDatabaseTable);
 
             instance.ensureTables(lst);
             
@@ -239,23 +222,8 @@ public class AppLayerDatabase implements Savable {
         return messageArchiveTable;
     }
     
-    public static NewUploadFilesDatabaseTable getNewUploadFilesTable() {
-        return newUploadFilesTable;
-    }
     public static FileListDatabaseTable getFileListDatabaseTable() {
         return fileListDatabaseTable;
-    }
-    public static UploadFilesDatabaseTable getUploadFilesDatabaseTable() {
-        return uploadFilesDatabaseTable;
-    }
-    public static DownloadFilesDatabaseTable getDownloadFilesDatabaseTable() {
-        return downloadFilesDatabaseTable;
-    }
-    public static SharedFilesDatabaseTable getSharedFilesDatabaseTable() {
-        return sharedFilesDatabaseTable;
-    }
-    public static SharedFilesCHKKeysDatabaseTable getSharedFilesCHKKeysDatabaseTable() {
-        return sharedFilesCHKKeysDatabaseTable;
     }
         
     public static IdentitiesDatabaseTable getIdentitiesDatabaseTable() {
@@ -289,24 +257,24 @@ public class AppLayerDatabase implements Savable {
             }
         }
         // indexslots table (static)
-        List ddls = IndexSlotsDatabaseTable.getTableDDL();
-        for(Iterator i=ddls.iterator(); i.hasNext(); ) {
-            String tableDDL = (String)i.next();
-            try {
-                update(tableDDL);
-            } catch(SQLException ex) {
-                // table already exists
-            }
-        }
-        List gddls = GlobalIndexSlotsDatabaseTable.getTableDDL();
-        for(Iterator i=gddls.iterator(); i.hasNext(); ) {
-            String tableDDL = (String)i.next();
-            try {
-                update(tableDDL);
-            } catch(SQLException ex) {
-                // table already exists
-            }
-        }
+//        List ddls = IndexSlotsDatabaseTable.getTableDDL();
+//        for(Iterator i=ddls.iterator(); i.hasNext(); ) {
+//            String tableDDL = (String)i.next();
+//            try {
+//                update(tableDDL);
+//            } catch(SQLException ex) {
+//                // table already exists
+//            }
+//        }
+//        List gddls = GlobalIndexSlotsDatabaseTable.getTableDDL();
+//        for(Iterator i=gddls.iterator(); i.hasNext(); ) {
+//            String tableDDL = (String)i.next();
+//            try {
+//                update(tableDDL);
+//            } catch(SQLException ex) {
+//                // table already exists
+//            }
+//        }
     }
     
     public void setAutoCommitOff() throws SQLException {

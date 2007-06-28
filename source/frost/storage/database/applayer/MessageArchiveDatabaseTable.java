@@ -141,17 +141,17 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
         AttachmentList boards = mo.getAttachmentsOfType(Attachment.BOARD);
 
         // insert msg and all attachments
-        Connection conn = AppLayerDatabase.getInstance().getPooledConnection();
+        AppLayerDatabase db = AppLayerDatabase.getInstance();
         try {
-            conn.setAutoCommit(false);
+//            conn.setAutoCommit(false);
 
-            PreparedStatement ps = conn.prepareStatement(
+            PreparedStatement ps = db.prepareStatement(
                 "INSERT INTO MESSAGEARCHIVE ("+
                 "primkey,messageid,inreplyto,isvalid,invalidreason,msgdatetime,msgindex,board,fromname,subject,recipient,signature," +
                 "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,hasfileattachment,hasboardattachment," +
                 "idlinepos,idlinelen"+
                 ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
-            
+
             Long identity = null;
             Statement stmt = AppLayerDatabase.getInstance().createStatement();
             ResultSet rs = stmt.executeQuery("select UNIQUEKEY('MESSAGEARCHIVE')");
@@ -209,7 +209,7 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
             mo.setMsgIdentity(identity.longValue());
             
             // content
-            PreparedStatement pc = conn.prepareStatement(
+            PreparedStatement pc = db.prepareStatement(
                     "INSERT INTO MESSAGEARCHIVECONTENTS"+
                     " (msgref,msgcontent) VALUES (?,?)");
             pc.setLong(1, mo.getMsgIdentity());
@@ -228,7 +228,7 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
     
             // attachments
             if( files.size() > 0 ) {
-                PreparedStatement p = conn.prepareStatement(
+                PreparedStatement p = db.prepareStatement(
                         "INSERT INTO MESSAGEARCHIVEFILEATTACHMENTS"+
                         " (msgref,filename,filesize,filekey)"+
                         " VALUES (?,?,?,?)");
@@ -251,7 +251,7 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
                 }
             }
             if( boards.size() > 0 ) {
-                PreparedStatement p = conn.prepareStatement(
+                PreparedStatement p = db.prepareStatement(
                         "INSERT INTO MESSAGEARCHIVEBOARDATTACHMENTS"+
                         " (msgref,boardname,boardpublickey,boardprivatekey,boarddescription)"+
                         " VALUES (?,?,?,?,?)");
@@ -276,8 +276,8 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
                 }
             }
 
-            conn.commit();
-            conn.setAutoCommit(true);
+//            conn.commit();
+//            conn.setAutoCommit(true);
 
             return INSERT_OK;
         } catch(Throwable t) {
@@ -288,9 +288,9 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
             } else {
                 isDuplicate = false;
                 logger.log(Level.SEVERE, "Exception during insert of message", t);
-                try { conn.rollback(); } catch(Throwable t1) { logger.log(Level.SEVERE, "Exception during rollback", t1); }
+//                try { conn.rollback(); } catch(Throwable t1) { logger.log(Level.SEVERE, "Exception during rollback", t1); }
             }
-            try { conn.setAutoCommit(true); } catch(Throwable t1) { }
+//            try { conn.setAutoCommit(true); } catch(Throwable t1) { }
 
             if( isDuplicate ) {
                 return INSERT_DUPLICATE; // skip msg
@@ -298,7 +298,7 @@ public class MessageArchiveDatabaseTable extends AbstractDatabaseTable {
                 return INSERT_ERROR; // error
             }
         } finally {
-            AppLayerDatabase.getInstance().givePooledConnection(conn);
+//            AppLayerDatabase.getInstance().givePooledConnection(conn);
         }
     }
 

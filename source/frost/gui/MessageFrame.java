@@ -607,7 +607,8 @@ public class MessageFrame extends JFrame {
             JPanel panelTextfields = new JPanel(new BorderLayout()); // Textfields
             JPanel panelToolbar = new JPanel(new BorderLayout()); // Toolbar / Textfields
             JPanel panelLabels = new JPanel(new BorderLayout()); // Labels
-            JToolBar panelButtons = new JToolBar();
+            
+            JToolBar panelButtons = new JToolBar(); // toolbar
             panelButtons.setRollover(true);
             panelButtons.setFloatable(false);
 
@@ -632,14 +633,15 @@ public class MessageFrame extends JFrame {
             panelButtons.add(buddies);
 //            panelButtons.add(addAttachedFilesToUploadTable);
 
-            ScrollableBar panelButtonsScrollable = new ScrollableBar(panelButtons);
+            //ScrollableBar panelButtonsScrollable = new ScrollableBar(panelButtons);
 
             JPanel dummyPanel = new JPanel(new BorderLayout());
             dummyPanel.add(panelLabels, BorderLayout.WEST);
             dummyPanel.add(panelTextfields, BorderLayout.CENTER);
 
-            panelToolbar.add(panelButtonsScrollable, BorderLayout.NORTH);
-            panelToolbar.add(dummyPanel, BorderLayout.SOUTH);
+//            panelToolbar.add(panelButtonsScrollable, BorderLayout.PAGE_START);
+            panelToolbar.add(panelButtons, BorderLayout.PAGE_START);
+            panelToolbar.add(dummyPanel, BorderLayout.CENTER);
 
             //Put everything together
             attachmentsSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, filesTableScrollPane,
