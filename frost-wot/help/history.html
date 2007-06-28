@@ -9,6 +9,24 @@
   <BODY>
 <H2>Frost History</H2>
       <PRE>
+2007.06.28:
+------------
+
+- greatly enhanced startup speed for 'Manage identities' dialog,
+  thanks to database-man
+- removed import from old Frost versions (previous version must
+  be at least 23-Dec-2006)
+- migrated various internal tables from McKoi SQL database to
+  perst object database, much faster, lesser usage of disk space
+  and memory (messages are still in in McKoi database)
+- archiving and cleanup of McKoi tables now only all 5 days
+- fixed message download bug, it happened that Frost stopped to
+  download message indices of a board too early
+- fixed another message download bug, not all days backwards
+  were correctly downloaded
+- Frost now receives only messages from Frost version 20-Jun-2006
+  or later (the message must have a valid unique message id!)
+      
 2007.04.19:
 ------------
 
