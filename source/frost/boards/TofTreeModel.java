@@ -208,7 +208,7 @@ public class TofTreeModel extends DefaultTreeModel {
      * Resets LastBackloadUpdateFinishedMillis for all boards.
      */
     public void resetLastBackloadUpdateFinishedMillis() {
-        Board node = (Board) getRoot();
+        AbstractNode node = (AbstractNode) getRoot();
         Enumeration e = node.breadthFirstEnumeration();
         while (e.hasMoreElements()) {
             AbstractNode child = (AbstractNode) e.nextElement();
