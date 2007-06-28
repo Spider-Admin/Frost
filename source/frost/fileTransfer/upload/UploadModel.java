@@ -48,7 +48,6 @@ public class UploadModel extends SortedModel implements Savable {
     public boolean addNewUploadItemFromSharedFile(FrostSharedFileItem sfi) {
         FrostUploadItem newUlItem = new FrostUploadItem(sfi.getFile());
         newUlItem.setSharedFileItem(sfi);
-        
         return addNewUploadItem(newUlItem);
     }
     
