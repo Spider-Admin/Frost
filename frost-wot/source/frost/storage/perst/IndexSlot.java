@@ -100,12 +100,12 @@ public class IndexSlot extends Persistent {
         }
     }
     
-    public void onStore() {
-        if( indexName < 0 ) return;
-        System.out.println(">>>>>>>>>>STORE>>>");
-        System.out.println(this);
-        System.out.println("<<<<<<<<<<STORE<<<");
-    }
+//    public void onStore() {
+//        if( indexName < 0 ) return;
+//        System.out.println(">>>>>>>>>>STORE>>>");
+//        System.out.println(this);
+//        System.out.println("<<<<<<<<<<STORE<<<");
+//    }
 
 //    public void onLoad() {
 //        if( indexName < 0 ) return;
