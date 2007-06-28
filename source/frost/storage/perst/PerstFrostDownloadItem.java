@@ -26,6 +26,8 @@ import org.garret.perst.*;
  */
 public class PerstFrostDownloadItem extends Persistent {
 
+    public PerstFrostDownloadItem() {}
+    
     public String fileName;
     public String targetPath;
     public long fileSize; 

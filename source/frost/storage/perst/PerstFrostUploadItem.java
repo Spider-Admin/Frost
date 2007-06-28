@@ -21,6 +21,8 @@ package frost.storage.perst;
 import org.garret.perst.*;
 
 public class PerstFrostUploadItem extends Persistent {
+    
+    public PerstFrostUploadItem() {}
 
     public String filePath;
     public long fileSize;   

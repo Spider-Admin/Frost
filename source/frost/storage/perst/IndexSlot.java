@@ -31,8 +31,7 @@ public class IndexSlot extends Persistent {
     private BitSet wasDownloaded;
     private BitSet wasUploaded;
     
-    public IndexSlot() {
-    }
+    public IndexSlot() {}
 
     public IndexSlot(int newIndexName, long newMsgDate) {
         indexName = newIndexName;

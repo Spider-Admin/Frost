@@ -21,6 +21,9 @@ package frost.storage.perst;
 import org.garret.perst.*;
 
 public class PerstFrostSharedFileItem extends Persistent {
+    
+    public PerstFrostSharedFileItem() {}
+    
     public String sha;
 
     public String filePath;

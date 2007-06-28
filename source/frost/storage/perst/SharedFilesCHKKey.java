@@ -41,8 +41,7 @@ public class SharedFilesCHKKey extends Persistent {
     private long lastSent; // time in millis when we sent this CHK the last time within a pointer file
 
     // used by perst
-    public SharedFilesCHKKey() {
-    }
+    public SharedFilesCHKKey() {}
     
     // used during load from database
     public SharedFilesCHKKey(String chkKey, int seenCount, long firstSeen, long lastSeen,
