@@ -633,14 +633,14 @@ public class MessageFrame extends JFrame {
             panelButtons.add(buddies);
 //            panelButtons.add(addAttachedFilesToUploadTable);
 
-            //ScrollableBar panelButtonsScrollable = new ScrollableBar(panelButtons);
+            ScrollableBar panelButtonsScrollable = new ScrollableBar(panelButtons);
 
             JPanel dummyPanel = new JPanel(new BorderLayout());
             dummyPanel.add(panelLabels, BorderLayout.WEST);
             dummyPanel.add(panelTextfields, BorderLayout.CENTER);
 
-//            panelToolbar.add(panelButtonsScrollable, BorderLayout.PAGE_START);
-            panelToolbar.add(panelButtons, BorderLayout.PAGE_START);
+            panelToolbar.add(panelButtonsScrollable, BorderLayout.PAGE_START);
+//            panelToolbar.add(panelButtons, BorderLayout.PAGE_START);
             panelToolbar.add(dummyPanel, BorderLayout.CENTER);
 
             //Put everything together
