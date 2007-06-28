@@ -1,4 +1,0 @@
-Since Frost 011202
-------------------
-
-* Renamed STR_FREENETNOTFOUND to STR_JAVAFOUND and modified the string
