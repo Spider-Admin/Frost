@@ -93,7 +93,6 @@ public class SettingsClass implements Savable {
     public static final String MESSAGE_LIST_FONT_STYLE = "messageListFontStyle";
     public static final String SHOW_DELETED_MESSAGES = "showDeletedMessages";
     public static final String SILENTLY_RETRY_MESSAGES = "silentlyRetryMessages";
-    public static final String RECEIVE_DUPLICATE_MESSAGES = "receiveDuplicateMessages";
     public static final String HANDLE_OWN_MESSAGES_AS_NEW_DISABLED = "handleOwnMessagesAsNewDisabled";
     public static final String SORT_THREADROOTMSGS_ASCENDING = "sortThreadRootMessagesAscending";
 
@@ -868,7 +867,6 @@ public class SettingsClass implements Savable {
 
         defaults.put(SILENTLY_RETRY_MESSAGES, "false");
         defaults.put(SHOW_DELETED_MESSAGES, "false");
-        defaults.put(RECEIVE_DUPLICATE_MESSAGES, "false");
 
         defaults.put(UPLOAD_MAX_RETRIES, "5");
         defaults.put(UPLOAD_WAITTIME, "5");
