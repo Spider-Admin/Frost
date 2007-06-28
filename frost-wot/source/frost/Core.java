@@ -251,6 +251,10 @@ public class Core implements FrostEventDispatcher  {
         if( exitChoosed ) {
             System.exit(1);
         }
+        
+        // first startup, no migrate needed
+        frostSettings.setValue(SettingsClass.MIGRATE_VERSION, 1);
+        
         // set used version
         frostSettings.setValue(SettingsClass.FREENET_VERSION, startdlg.getFreenetVersion()); // 5 or 7
         // init availableNodes with correct port
