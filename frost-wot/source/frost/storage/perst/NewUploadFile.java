@@ -29,7 +29,10 @@ public class NewUploadFile extends Persistent {
     
     protected String filePath;
     protected String from;
-    
+
+    public NewUploadFile() {
+    }
+
     public NewUploadFile(File f, String fromName) {
         filePath = f.getPath();
         from = fromName;
