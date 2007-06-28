@@ -18,12 +18,14 @@
 */
 package frost.fileTransfer.upload;
 
+import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
 import frost.fileTransfer.*;
 import frost.fileTransfer.sharing.*;
+import frost.storage.perst.*;
 import frost.util.*;
 
 /**
@@ -65,13 +67,15 @@ public class GenerateShaThread extends Thread {
                     continue;
                 }
                 
-                String sha = Core.getCrypto().computeChecksumSHA256(newUploadFile.getFile());
+                File newFile = new File(newUploadFile.getFilePath());
+                
+                String sha = Core.getCrypto().computeChecksumSHA256(newFile);
                 
                 if( sha != null ) {
                     
                     // create new item
                     FrostSharedFileItem sfi = new FrostSharedFileItem(
-                            newUploadFile.getFile(),
+                            newFile,
                             newUploadFile.getFrom(),
                             sha);
                     

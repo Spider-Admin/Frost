@@ -30,6 +30,10 @@ public final class Mixed {
 
     private static final char[] invalidChars = { '/', '\\', '?', '*', '<', '>', '\"', ':', '|', '#', '&' };
 
+    public static void main(String[] args) {
+        System.out.println(createUniqueId());
+    }
+    
     /**
      * Creates a new unique ID.
      */

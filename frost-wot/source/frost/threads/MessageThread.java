@@ -29,7 +29,7 @@ import frost.*;
 import frost.boards.*;
 import frost.identities.*;
 import frost.messages.*;
-import frost.storage.database.applayer.*;
+import frost.storage.perst.*;
 import frost.transferlayer.*;
 import frost.util.*;
 
@@ -42,8 +42,6 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
     private int maxMessageDownload;
     private boolean downloadToday;
     
-    private IndexSlotsDatabaseTable indexSlots;
-
     private static final Logger logger = Logger.getLogger(MessageThread.class.getName());
 
     public MessageThread(boolean downloadToday, Board boa, int maxmsgdays) {
@@ -51,8 +49,6 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
         this.downloadToday = downloadToday;
         this.board = boa;
         this.maxMessageDownload = maxmsgdays;
-        
-        this.indexSlots = new IndexSlotsDatabaseTable(IndexSlotsDatabaseTable.MESSAGES, board);
     }
 
     public int getThreadType() {
@@ -81,24 +77,30 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
             logger.info("TOFDN: " + tofType + " Thread started for board " + board.getName());
 
             if (isInterrupted()) {
-                indexSlots.close();
+                IndexSlotsStorage.inst().commitStore();
                 notifyThreadFinished(this);
                 return;
             }
 
             LocalDate localDate = new LocalDate(DateTimeZone.UTC);
+            long date = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
+            
+            IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(board.getPrimaryKey(), date);
 
             if (this.downloadToday) {
                 // download only current date
-                downloadDate(localDate);
+                downloadDate(localDate, gis);
                 // after update check if there are messages for upload and upload them
-                uploadMessages(); // does'nt get a message when message upload is disabled
+                uploadMessages(gis); // doesn't get a message when message upload is disabled
             } else {
                 // download up to maxMessages days to the past
                 int daysBack = 0;
                 while (!isInterrupted() && daysBack < maxMessageDownload) {
                     daysBack++;
-                    downloadDate(localDate.minusDays(daysBack));
+                    localDate = localDate.minusDays(1);
+                    date = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
+                    gis = IndexSlotsStorage.inst().getSlotForDate(board.getPrimaryKey(), date);
+                    downloadDate(localDate, gis);
                 }
                 // after a complete backload run, remember finish time. 
                 // this ensures we ever update the complete backload days. 
@@ -106,11 +108,14 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                     board.setLastBackloadUpdateFinishedMillis(System.currentTimeMillis());
                 }
             }
+            
+            IndexSlotsStorage.inst().storeSlot(gis);
+
             logger.info("TOFDN: " + tofType + " Thread stopped for board " + board.getName());
         } catch (Throwable t) {
             logger.log(Level.SEVERE, Thread.currentThread().getName() + ": Oo. Exception in MessageDownloadThread:", t);
         }
-        indexSlots.close();
+        IndexSlotsStorage.inst().commitStore();
         notifyThreadFinished(this);
     }
     
@@ -144,14 +149,13 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
         return downKey;
     }
 
-    protected void downloadDate(LocalDate localDate) throws SQLException {
+    protected void downloadDate(LocalDate localDate, IndexSlot gis) throws SQLException {
 
-        String dirdate = DateFun.FORMAT_DATE.print(localDate);
-        long date = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
-        
+        final String dirdate = DateFun.FORMAT_DATE.print(localDate);
+
         int index = -1;
         int failures = 0;
-        int maxFailures = 2; // skip a maximum of 2 empty slots
+        int maxFailures = 2; // skip a maximum of 2 empty slots at the end of known indices
 
         while (failures < maxFailures) {
 
@@ -160,9 +164,9 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
             }
 
             if( index < 0 ) {
-                index = indexSlots.findFirstDownloadSlot(date);
+                index = gis.findFirstDownloadSlot();
             } else {
-                index = indexSlots.findNextDownloadSlot(index, date);
+                index = gis.findNextDownloadSlot(index);
             }
             
             String logInfo = null;
@@ -178,10 +182,12 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 boolean fastDownload = !downloadToday;
 
                 MessageDownloaderResult mdResult = MessageDownloader.downloadMessage(downKey, index, fastDownload, logInfo);
-                
                 if( mdResult == null ) {
                     // file not found
-                    failures++;
+                    if( gis.isDownloadIndexBehindLastSetIndex(index) ) {
+                        // we stop if we tried maxFailures indices behind the last known index
+                        failures++;
+                    }
                     continue;
                 }
 
@@ -196,7 +202,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                     continue;
                 }
 
-                indexSlots.setDownloadSlotUsed(index, date);
+                gis.setDownloadSlotUsed(index);
 
                 if( mdResult.isFailure() ) {
                     // some error occured, don't try this file again
@@ -244,6 +250,12 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 return false;
             }
 
+            // e.g. "E6936D085FC1AE75D43275161B50B0CEDB43716C1CE54E420F3C6FEB9352B462" (len=64)
+            if( mo.getMessageId() == null || mo.getMessageId().length() < 60 || mo.getMessageId().length() > 68 ) {
+                logger.log(Level.SEVERE, "Message has no unique message id - skipping Message: "+dirDate+";"+dateTime);
+                return false;
+            }
+
             // ensure that time/date of msg is max. 1 day before/after dirDate
             DateMidnight dm = dateTime.toDateMidnight();
             if( dm.isAfter(dirDate.plusDays(1).toDateMidnight(DateTimeZone.UTC))
@@ -261,7 +273,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
             final String boardNameInMsg = mo.getBoardName().toLowerCase();
             final String downloadingBoardName = b.getName().toLowerCase();
             if( boardNameInMsg.equals(downloadingBoardName) == false ) {
-                logger.log(Level.SEVERE, "Unequal boardnames - skipping message: "+mo.getBoardName().toLowerCase()+";"+b.getName().toLowerCase());
+                logger.log(Level.SEVERE, "Different boardnames - skipping message: "+mo.getBoardName().toLowerCase()+";"+b.getName().toLowerCase());
                 return false;
             }
             
@@ -275,7 +287,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
     /**
      * Upload pending messages for this board.
      */
-    protected void uploadMessages() {
+    protected void uploadMessages(IndexSlot gis) {
 
         FrostUnsentMessageObject unsendMsg = UnsentMessagesManager.getUnsentMessage(board);
         if( unsendMsg == null ) {
@@ -300,7 +312,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
 
             UnsentMessagesManager.incRunningMessageUploads();
             
-            uploadMessage(unsendMsg, recipient);
+            uploadMessage(unsendMsg, recipient, gis);
             
             UnsentMessagesManager.decRunningMessageUploads();
             
@@ -311,7 +323,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
         }
     }
 
-    private void uploadMessage(FrostUnsentMessageObject mo, Identity recipient) {
+    private void uploadMessage(FrostUnsentMessageObject mo, Identity recipient, IndexSlot gis) {
         
         logger.info("Preparing upload of message to board '" + board.getName() + "'");
         
@@ -353,8 +365,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                     recipient,
                     senderId,
                     this,
-                    indexSlots,
-                    now.toDateMidnight().getMillis(),
+                    gis,
                     MainFrame.getInstance(), 
                     board.getName());
 

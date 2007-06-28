@@ -1,6 +1,6 @@
 /*
- XmlDAOFactory.java / Frost
- Copyright (C) 2003  Frost Project <jtcfrost.sourceforge.net>
+ NewUploadFile.java / Frost
+ Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License as
@@ -16,27 +16,30 @@
  along with this program; if not, write to the Free Software
  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.storage;
+package frost.storage.perst;
 
-import frost.*;
-import frost.messaging.*;
+import java.io.*;
+
+import org.garret.perst.*;
 
 /**
- * @author $author$
- * @version $revision$
+ * Holds the data for a new upload file before SHA is calculated.
  */
-public class XmlDAOFactory extends DAOFactory {
-	
-	/**
-	 * @param settings
-	 */
-	protected XmlDAOFactory(SettingsClass settings) {
-	}
-
-	/* (non-Javadoc)
-	 * @see frost.storage.DAOFactory#getMessageHashesDAO()
-	 */
-	public MessageHashesDAO getMessageHashesDAO() {
-		return new MessageHashesXmlDAO();
-	}
+public class NewUploadFile extends Persistent {
+    
+    protected String filePath;
+    protected String from;
+    
+    public NewUploadFile(File f, String fromName) {
+        filePath = f.getPath();
+        from = fromName;
+    }
+    
+    public String getFilePath() {
+        return filePath;
+    }
+    
+    public String getFrom() {
+        return from;
+    }
 }

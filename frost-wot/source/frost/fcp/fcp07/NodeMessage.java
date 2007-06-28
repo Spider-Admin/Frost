@@ -22,6 +22,16 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
+/**
+ * Method to read a message from freenet 0.7 node (InputStream).
+ * Format is usually:
+ *   MessageName
+ *   key1=value1
+ *   key2=value2
+ *   EndMessage 
+ * If binary data is sent, the data length is given in a value, the message
+ * ends with Data instead of EndMessage and the binary data follows. 
+ */
 public class NodeMessage {
     
     private static final Logger logger = Logger.getLogger(NodeMessage.class.getName());

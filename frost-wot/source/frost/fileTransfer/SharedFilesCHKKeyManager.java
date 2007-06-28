@@ -18,11 +18,10 @@
 */
 package frost.fileTransfer;
 
-import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
-import frost.storage.database.applayer.*;
+import frost.storage.perst.*;
 import frost.threads.*;
 
 public class SharedFilesCHKKeyManager {
@@ -44,7 +43,7 @@ public class SharedFilesCHKKeyManager {
         // together, this compromises anonymity!
         try {
             // rules what chks are choosed are in the following method
-            return AppLayerDatabase.getSharedFilesCHKKeysDatabaseTable().getSharedFilesCHKKeysToSend(MAX_KEYS_TO_SEND);
+            return SharedFilesCHKKeyStorage.inst().getSharedFilesCHKKeysToSend(MAX_KEYS_TO_SEND);
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Exception in SharedFilesCHKKeysDatabaseTable().getSharedFilesCHKKeysToSend", t);
         }
@@ -58,32 +57,19 @@ public class SharedFilesCHKKeyManager {
         
         final long now = System.currentTimeMillis();
 
-        Connection conn = AppLayerDatabase.getInstance().getPooledConnection();
         try {
-            conn.setAutoCommit(false);
-
             for( Iterator<SharedFilesCHKKey> i = chkKeys.iterator(); i.hasNext(); ) {
                 SharedFilesCHKKey key = i.next();
                 
                 key.incrementSentCount();
                 key.setLastSent(now);
-                
-                try {
-                    AppLayerDatabase.getSharedFilesCHKKeysDatabaseTable().updateSharedFilesCHKKeyAfterSend(key, conn);
-                } catch (Throwable t) {
-                    logger.log(Level.SEVERE, "Exception in SharedFilesCHKKeysDatabaseTable().updateCHKKeysWereSuccessfullySent", t);
-                }            
+
+                key.modify();
             }
-            conn.commit();
-            conn.setAutoCommit(true);
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Exception during database update", t);
-            // we commit all done changes
-            try { conn.commit(); } catch(Throwable t1) { logger.log(Level.SEVERE, "Exception during commit", t1); }
-            try { conn.setAutoCommit(true); } catch(Throwable t1) { }
-        } finally {
-            AppLayerDatabase.getInstance().givePooledConnection(conn);
         }
+        SharedFilesCHKKeyStorage.inst().commitStore();
     }
     
     /**
@@ -96,11 +82,7 @@ public class SharedFilesCHKKeyManager {
             return;
         }
         
-        Connection conn = AppLayerDatabase.getInstance().getPooledConnection();
-        
         try {
-            conn.setAutoCommit(false);
-
 System.out.println("processReceivedCHKKeys: processing "+content.getChkKeyStrings().size()+" keys");
             int newKeys = 0;
             int seenKeys = 0;
@@ -109,14 +91,14 @@ System.out.println("processReceivedCHKKeys: processing "+content.getChkKeyString
             for( Iterator<String> i = content.getChkKeyStrings().iterator(); i.hasNext(); ) {
                 String chkStr = i.next();
                 try {
-                    SharedFilesCHKKey ck = AppLayerDatabase.getSharedFilesCHKKeysDatabaseTable().retrieveSharedFilesCHKKey(chkStr);
+                    SharedFilesCHKKey ck = SharedFilesCHKKeyStorage.inst().retrieveSharedFilesCHKKey(chkStr);
                     if( ck == null ) {
                         // new key
 //                        System.out.println("processReceivedCHKKeys: enqueueing new key");
                         newKeys++;
                         // add to database
                         ck = new SharedFilesCHKKey(chkStr, content.getTimestamp());
-                        AppLayerDatabase.getSharedFilesCHKKeysDatabaseTable().insertSharedFilesCHKKey(ck, conn);
+                        SharedFilesCHKKeyStorage.inst().storeItem(ck);
                         
                         // new key, directly enqueue for download
                         FileListDownloadThread.getInstance().enqueueNewKey(chkStr);
@@ -133,7 +115,7 @@ System.out.println("processReceivedCHKKeys: processing "+content.getChkKeyString
                         if( ck.getFirstSeen() > content.getTimestamp() ) {
                             ck.setFirstSeen(content.getTimestamp());
                         }
-                        AppLayerDatabase.getSharedFilesCHKKeysDatabaseTable().updateSharedFilesCHKKeyAfterReceive(ck, conn);
+                        ck.modify();
 
                         // enqueue key immediately if it is one of our keys and was never received
                         if( isOurOwnKey && !ck.isDownloaded() ) {
@@ -152,29 +134,17 @@ System.out.println("processReceivedCHKKeys: processing "+content.getChkKeyString
             }
 
 System.out.println("processReceivedCHKKeys: finished processing keys, new="+newKeys+", seen="+seenKeys+", newOwn="+newOwnKeys);
-
-            conn.commit();
-            conn.setAutoCommit(true);
         } catch(Throwable t) {
-            if( t.getMessage() != null && t.getMessage().indexOf("Select from table that has committed changes") > 0 ) {
-                // only a warning!
-                logger.log(Level.WARNING, "INFO: Select from table that has committed changes");
-            } else {
-                logger.log(Level.SEVERE, "Exception during chk key processing", t);
-            }
-            // we commit all done changes
-            try { conn.commit(); } catch(Throwable t1) { logger.log(Level.SEVERE, "Exception during commit", t1); }
-            try { conn.setAutoCommit(true); } catch(Throwable t1) { }
-        } finally {
-            AppLayerDatabase.getInstance().givePooledConnection(conn);
+            logger.log(Level.SEVERE, "Exception during chk key processing", t);
         }
+        SharedFilesCHKKeyStorage.inst().commitStore();
     }
 
     public static List<String> getCHKKeyStringsToDownload() {
         // retrieve all CHK keys that must be downloaded
         try {
             // rules what chks are choosed are in the following method
-            List<String> chkKeys = AppLayerDatabase.getSharedFilesCHKKeysDatabaseTable().retrieveSharedFilesCHKKeysToDownload(MAX_DOWNLOAD_RETRIES_1);
+            List<String> chkKeys = SharedFilesCHKKeyStorage.inst().retrieveSharedFilesCHKKeysToDownload(MAX_DOWNLOAD_RETRIES_1);
 System.out.println("getCHKKeyStringsToDownload: returning keys: "+(chkKeys==null?"(none)":Integer.toString(chkKeys.size())));            
             return chkKeys;
         } catch(Throwable t) {
@@ -190,7 +160,7 @@ System.out.println("getCHKKeyStringsToDownload: returning keys: "+(chkKeys==null
         // this chk was successfully downloaded, update database
         try {
 System.out.println("updateCHKKeyDownloadSuccessful: key="+chkKey+", isValid="+isValid);
-            return AppLayerDatabase.getSharedFilesCHKKeysDatabaseTable().updateSharedFilesCHKKeyAfterDownloadSuccessful(chkKey, isValid);
+            return SharedFilesCHKKeyStorage.inst().updateSharedFilesCHKKeyAfterDownloadSuccessful(chkKey, isValid);
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Exception in updateSharedFilesCHKKeyAfterDownloadSuccessful", t);
         }
@@ -202,20 +172,8 @@ System.out.println("updateCHKKeyDownloadSuccessful: key="+chkKey+", isValid="+is
      */
     public static boolean updateCHKKeyDownloadFailed(String chkKey) {
         try {
-            SharedFilesCHKKey ck = AppLayerDatabase.getSharedFilesCHKKeysDatabaseTable().retrieveSharedFilesCHKKey(chkKey);
-            if( ck == null ) {
-                return false;
-            }
-            ck.incDownloadRetries();
-            ck.setLastDownloadTryStopTime(System.currentTimeMillis());
-            boolean wasOk = AppLayerDatabase.getSharedFilesCHKKeysDatabaseTable().updateSharedFilesCHKKeyAfterDownloadFailed(ck);
-            if( !wasOk ) {
-                // don't retry
-                return false;
-            }
-            if( ck.getDownloadRetries() < MAX_DOWNLOAD_RETRIES_1 ) {
-                return true; // retry download
-            }
+            boolean doRetry = SharedFilesCHKKeyStorage.inst().updateSharedFilesCHKKeyAfterDownloadFailed(chkKey, MAX_DOWNLOAD_RETRIES_1);
+            return doRetry;
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Exception in updateCHKKeyDownloadFailed", t);
         }
@@ -224,8 +182,9 @@ System.out.println("updateCHKKeyDownloadSuccessful: key="+chkKey+", isValid="+is
     
     public static boolean addNewCHKKeyToSend(SharedFilesCHKKey key) {
         try {
-System.out.println("addNewCHKKeyToSend: "+key);            
-            return AppLayerDatabase.getSharedFilesCHKKeysDatabaseTable().insertSharedFilesCHKKey(key);
+System.out.println("addNewCHKKeyToSend: "+key);
+            SharedFilesCHKKeyStorage.inst().storeItem(key);
+            return true;
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Exception in addNewCHKKeyToSend", t);
         }

@@ -27,7 +27,7 @@ import org.joda.time.*;
 import frost.*;
 import frost.fcp.*;
 import frost.fileTransfer.*;
-import frost.storage.database.applayer.*;
+import frost.storage.perst.*;
 import frost.transferlayer.*;
 import frost.util.*;
 
@@ -45,14 +45,12 @@ public class FilePointersThread extends Thread {
     
     private static final int baseSleepTime = 15 * 60 * 1000;
 
-    private GlobalIndexSlotsDatabaseTable indexSlots;
     private String keyPrefix;
 
     // one and only instance
     private static FilePointersThread instance = new FilePointersThread();
     
     private FilePointersThread() {
-        indexSlots = new GlobalIndexSlotsDatabaseTable(GlobalIndexSlotsDatabaseTable.FILELISTS);
         String fileBase = Core.frostSettings.getValue(SettingsClass.FILE_BASE);
         keyPrefix = "KSK@frost/filepointers/" + fileBase + "-";
     }
@@ -68,7 +66,7 @@ public class FilePointersThread extends Thread {
     /**
      * Returns true if no error occured.
      */
-    private boolean uploadIndexFile(String dateStr, long sqlDate) throws Throwable {
+    private boolean uploadIndexFile(String dateStr, IndexSlot gis) throws Throwable {
 
         // get a list of CHK keys to send
         List<SharedFilesCHKKey> sharedFileCHKkeys = SharedFilesCHKKeyManager.getCHKKeysToSend();
@@ -103,7 +101,7 @@ public class FilePointersThread extends Thread {
         
         String insertKey = keyPrefix + dateStr + "-";
 System.out.println("uploadIndexFile: Starting upload of pointer file containing "+sharedFileCHKkeys.size()+" CHK keys to "+insertKey+"...");
-        boolean wasOk = GlobalFileUploader.uploadFile(indexSlots, sqlDate, tmpPointerFile, insertKey, ".xml", true);
+        boolean wasOk = GlobalFileUploader.uploadFile(gis, tmpPointerFile, insertKey, ".xml", true);
 System.out.println("uploadIndexFile: upload finished, wasOk="+wasOk);
         tmpPointerFile.delete();
         if( wasOk ) {
@@ -112,7 +110,7 @@ System.out.println("uploadIndexFile: upload finished, wasOk="+wasOk);
         return wasOk;
     }
     
-    private void downloadDate(String dateStr, long date, boolean isForToday) throws Throwable {
+    private void downloadDate(String dateStr, IndexSlot gis, boolean isForToday) throws Throwable {
         
         // "KSK@frost/filelistpointer/2006.11.1-<index>.xml"
         String requestKey = keyPrefix + dateStr + "-"; 
@@ -123,7 +121,7 @@ System.out.println("uploadIndexFile: upload finished, wasOk="+wasOk);
         } else {
             maxFailures = 2; // skip a maximum of 1 empty slot for backload
         }
-        int index = indexSlots.findFirstDownloadSlot(date);
+        int index = gis.findFirstDownloadSlot();
         int failures = 0;
         while (failures < maxFailures && index >= 0 ) {
 
@@ -140,9 +138,12 @@ System.out.println("FilePointersThread.downloadDate: requesting: "+downKey);
             if(  result == null ) {
 System.out.println("FilePointersThread.downloadDate: failure");
                 // download failed. 
-                failures++;
+                if( gis.isDownloadIndexBehindLastSetIndex(index) ) {
+                    // we stop if we tried maxFailures indices behind the last known index
+                    failures++;
+                }
                 // next loop we try next index
-                index = indexSlots.findNextDownloadSlot(index, date);
+                index = gis.findNextDownloadSlot(index);
                 continue;
             } 
 
@@ -151,14 +152,15 @@ System.out.println("FilePointersThread.downloadDate: failure");
             if( result.getErrorCode() == GlobalFileDownloaderResult.ERROR_EMPTY_REDIRECT ) {
                 System.out.println("FilePointersThread.downloadDate: Skipping index "+index+" for now, will try again later.");
                 // next loop we try next index
-                index = indexSlots.findNextDownloadSlot(index, date);
+                index = gis.findNextDownloadSlot(index);
                 continue;
             }
 
             // downloaded something, mark it
-            indexSlots.setDownloadSlotUsed(index, date);
+            gis.setDownloadSlotUsed(index);
+            gis.modify();
             // next loop we try next index
-            index = indexSlots.findNextDownloadSlot(index, date);
+            index = gis.findNextDownloadSlot(index);
             
             if( result.getErrorCode() == GlobalFileDownloaderResult.ERROR_FILE_TOO_BIG ) {
                 System.out.println("FilePointersThread.downloadDate: Dropping index "+index+", FILE_TOO_BIG.");
@@ -210,24 +212,26 @@ System.out.println("readPointerFile: result: "+content);
                     String dateStr = DateFun.FORMAT_DATE.print(localDate);
                     long date = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
                     
-//                    String dateStr = DateFun.getDate(i);
-//                    java.sql.Date sqlDate = DateFun.getSqlDateGMTDaysAgo(i);
-
+                    IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(
+                            IndexSlotsStorage.FILELISTS, date);
+                    
 System.out.println("FilePointersThread: download for "+dateStr);                    
                     // download file pointer files for this date
                     if( !isInterrupted() ) {
-                        downloadDate(dateStr, date, isForToday);
+                        downloadDate(dateStr, gis, isForToday);
                     }
                     
                     // for today, maybe upload a file pointer file
                     if( !isInterrupted() && isForToday ) {
                         try {
 System.out.println("FilePointersThread: upload for "+dateStr);                    
-                            uploadIndexFile(dateStr, date);
+                            uploadIndexFile(dateStr, gis);
                         } catch(Throwable t) {
                             logger.log(Level.SEVERE, "Exception during uploadIndexFile()", t);
                         }
                     }
+                    
+                    IndexSlotsStorage.inst().storeSlot(gis);
                     
                     if( isInterrupted() ) {
                         break;
@@ -246,9 +250,10 @@ System.out.println("FilePointersThread: upload for "+dateStr);
                 break;
             }
             
+            IndexSlotsStorage.inst().commitStore(); // commit changes for this run
+            
             // random sleeptime to anonymize our uploaded pointer files
             Mixed.waitRandom(baseSleepTime); 
         }
-        indexSlots.close();
     }
 }

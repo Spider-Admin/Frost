@@ -28,15 +28,14 @@ import java.util.logging.*;
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 
+import org.w3c.dom.*;
+
 import frost.*;
 import frost.identities.*;
 import frost.storage.*;
-import frost.storage.database.*;
 import frost.storage.database.applayer.*;
+import frost.util.*;
 import frost.util.gui.translation.*;
-import java.awt.Insets;
-import javax.swing.JButton;
-import java.awt.GridBagConstraints;
 
 public class ManageLocalIdentitiesDialog extends JDialog {
     
@@ -359,6 +358,18 @@ public class ManageLocalIdentitiesDialog extends JDialog {
         }
         return BdeleteIdentity;
     }
+    
+    protected LocalIdentity importLocalIdentityFromIdentityXml(File identitiesXmlFile) {
+        Document d = XMLTools.parseXmlFile(identitiesXmlFile, false);
+        Element rootEl = d.getDocumentElement();
+
+        Element myself = (Element) XMLTools.getChildElementsByTagName(rootEl, "MyIdentity").get(0);
+        LocalIdentity myId = null;
+        if( myself != null ) {
+            myId = new LocalIdentity(myself);
+        }
+        return myId;
+    }
 
     /**
      * This method initializes BimportIdentityXml	
@@ -375,7 +386,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                     if( xmlFile == null ) {
                         return;
                     }
-                    LocalIdentity importedIdentity = ImportIdentities.importLocalIdentityFromIdentityXml(xmlFile);
+                    LocalIdentity importedIdentity = importLocalIdentityFromIdentityXml(xmlFile);
                     if( importedIdentity == null ) {
                         // load failed
                         JOptionPane.showMessageDialog(

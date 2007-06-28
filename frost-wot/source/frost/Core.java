@@ -38,15 +38,15 @@ import frost.gui.*;
 import frost.gui.help.*;
 import frost.identities.*;
 import frost.messages.*;
-import frost.messaging.*;
 import frost.storage.*;
-import frost.storage.database.*;
 import frost.storage.database.applayer.*;
+import frost.storage.perst.*;
 import frost.threads.*;
 import frost.util.*;
 import frost.util.Logging;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
+import frost.util.migration.*;
 
 /**
  * Class hold the more non-gui parts of Frost.
@@ -76,7 +76,6 @@ public class Core implements FrostEventDispatcher  {
     private MainFrame mainFrame;
     private BoardsManager boardsManager;
     private FileTransferManager fileTransferManager;
-    private static MessageHashes messageHashes;
 
     private static FrostIdentities identities;
     
@@ -244,6 +243,31 @@ public class Core implements FrostEventDispatcher  {
         }
         return instance;
     }
+    
+    private void showFirstStartupDialog() {
+        // clean startup, ask user which freenet version to use, set correct default availableNodes
+        FirstStartupDialog startdlg = new FirstStartupDialog();
+        boolean exitChoosed = startdlg.startDialog();
+        if( exitChoosed ) {
+            System.exit(1);
+        }
+        // set used version
+        frostSettings.setValue(SettingsClass.FREENET_VERSION, startdlg.getFreenetVersion()); // 5 or 7
+        // init availableNodes with correct port
+        if( startdlg.getOwnHostAndPort() != null ) {
+            // user set own host:port
+            frostSettings.setValue(SettingsClass.AVAILABLE_NODES, startdlg.getOwnHostAndPort());
+        } else if( startdlg.getFreenetVersion() == FcpHandler.FREENET_05 ) {
+            frostSettings.setValue(SettingsClass.AVAILABLE_NODES, "127.0.0.1:8481");
+        } else {
+            // 0.7
+            if( startdlg.isTestnet() == false ) {
+                frostSettings.setValue(SettingsClass.AVAILABLE_NODES, "127.0.0.1:9481");
+            } else {
+                frostSettings.setValue(SettingsClass.AVAILABLE_NODES, "127.0.0.1:9482");
+            }
+        }
+    }
 
     /**
      * Initialize, show splashscreen.
@@ -258,10 +282,12 @@ public class Core implements FrostEventDispatcher  {
         //Initializes the logging and skins
         new Logging(frostSettings);
         initializeSkins();
-
-        //Initializes storage
-        DAOFactory.initialize(frostSettings);
         
+        // if first startup ask user for freenet version to use
+        if( frostSettings.getIntValue(SettingsClass.FREENET_VERSION) == 0 ) {
+            showFirstStartupDialog();
+        }
+
         // open databases
         boolean compactTables = frostSettings.getBoolValue(SettingsClass.COMPACT_DBTABLES);
         try {
@@ -279,34 +305,32 @@ public class Core implements FrostEventDispatcher  {
         }
         frostSettings.setValue(SettingsClass.COMPACT_DBTABLES, false);
         
-        // initialize messageHashes
-        messageHashes = new MessageHashes();
-        messageHashes.initialize();
-
-        // CLEANS TEMP DIR! START NO INSERTS BEFORE THIS RUNNED
+        // initialize perst storages
+        IndexSlotsStorage.inst().initStorage();
+        SharedFilesCHKKeyStorage.inst().initStorage();
+        FrostFilesStorage.inst().initStorage();
+        
+        // migrate various tables from McKoi to perst (migrate version 0 -> 1 )
+        if( frostSettings.getIntValue(SettingsClass.MIGRATE_VERSION) < 1 ) {
+            if( new Migrate0to1().run() == false ) {
+                System.out.println("Error during migration!");
+                System.exit(8);
+            }
+            frostSettings.setValue(SettingsClass.MIGRATE_VERSION, 1);
+            frostSettings.save();
+        }
+        
+        // CLEANS TEMP DIR! START NO INSERTS BEFORE THIS DID RUN
         Startup.startupCheck(frostSettings);
 
         splashscreen.setText(language.getString("Splashscreen.message.2"));
         splashscreen.setProgress(40);
 
         // check if help.zip contains only secure files (no http or ftp links at all)
-        CheckHtmlIntegrity chi = new CheckHtmlIntegrity();
-        isHelpHtmlSecure = chi.scanZipFile("help/help.zip");
-        chi = null;
-
-        FirstStartup firstStartup = null;
-        
-        // check if this is a first startup
-        if( frostSettings.getIntValue(SettingsClass.FREENET_VERSION) == 0 ) {
-            
-            firstStartup = new FirstStartup();
-            // if doImport==false then all preparations are done, continue clean startup
-            boolean doImport = firstStartup.run(splashscreen, frostSettings);
-            if( doImport ) {
-                firstStartup.startImport(splashscreen, frostSettings);
-            } else {
-                firstStartup = null;
-            }
+        {
+            CheckHtmlIntegrity chi = new CheckHtmlIntegrity();
+            isHelpHtmlSecure = chi.scanZipFile("help/help.zip");
+            chi = null;
         }
 
         splashscreen.setText(language.getString("Splashscreen.message.3"));
@@ -318,25 +342,6 @@ public class Core implements FrostEventDispatcher  {
         }
 
         getIdentities().initialize(isFreenetOnline());
-        
-        // if we import, read .sig and set it to the one and only local identity
-        if( firstStartup != null ) {
-            if( getIdentities().getLocalIdentities().size() == 1 ) {
-                File sigFile = new File(firstStartup.getImportBaseDir().getPath() + File.separatorChar + "signature.txt");
-                if( sigFile.isFile() ) {
-                    String idSig = FileAccess.readFile(sigFile, "UTF-8").trim();
-                    if( idSig != null && idSig.length() > 0 ) {
-                        LocalIdentity li = (LocalIdentity) getIdentities().getLocalIdentities().get(0);
-                        li.setSignature(idSig);
-                        try {
-                            AppLayerDatabase.getIdentitiesDatabaseTable().updateLocalIdentity(li);
-                        } catch(Throwable ex) {
-                            logger.log(Level.SEVERE, "Error updating signature", ex);
-                        }
-                    }
-                }
-            }
-        }
         
         String title;
     	if( FcpHandler.isFreenet05() ) {
@@ -351,13 +356,6 @@ public class Core implements FrostEventDispatcher  {
             title += " (offline mode)";
         }
 
-        // Display the tray icon (do this before mainframe initializes)
-        if (frostSettings.getBoolValue(SettingsClass.SHOW_SYSTRAY_ICON) == true) {
-            if (JSysTrayIcon.createInstance(0, title, title) == false) {
-                logger.severe("Could not create systray icon.");
-            }
-        }
-
         // Main frame
         mainFrame = new MainFrame(frostSettings, title);
         KnownBoardsManager.initialize();
@@ -365,25 +363,6 @@ public class Core implements FrostEventDispatcher  {
         getFileTransferManager().initialize();
         UnsentMessagesManager.initialize();
         
-        if( firstStartup != null ) {
-            File oldKnownBoardsXml = new File(firstStartup.getImportBaseDir().getPath() + File.separatorChar + "knownboards.xml");
-            if( oldKnownBoardsXml.isFile() ) {
-                splashscreen.setText("Importing known boards");
-                new ImportKnownBoards().importKnownBoards(oldKnownBoardsXml);
-            }
-            
-            splashscreen.setText("Importing messages");
-            new ImportXmlMessages().importXmlMessages(
-                    frostSettings,
-                    getBoardsManager().getTofTreeModel().getAllBoards(),
-                    splashscreen,
-                    "Importing messages",
-                    firstStartup.getImportBaseDir(),
-                    firstStartup.getOldSettings());
-        }
-        
-        firstStartup = null; 
-
         splashscreen.setText(language.getString("Splashscreen.message.4"));
         splashscreen.setProgress(70);
 
@@ -400,7 +379,14 @@ public class Core implements FrostEventDispatcher  {
                 mainFrame.setVisible(true);
             }
         });
-        
+
+        // Display the tray icon (do this before mainframe initializes)
+        if (frostSettings.getBoolValue(SettingsClass.SHOW_SYSTRAY_ICON) == true) {
+            if (JSysTrayIcon.createInstance(0, title, title) == false) {
+                logger.severe("Could not create systray icon.");
+            }
+        }
+
         splashscreen.closeMe();
         
         SwingUtilities.invokeAndWait(new Runnable() {
@@ -420,10 +406,6 @@ public class Core implements FrostEventDispatcher  {
         return fileTransferManager;
     }
 
-    public static MessageHashes getMessageHashes() {
-        return messageHashes;
-    }
-    
     public MainFrame getMainFrame(){
     	return mainFrame;
     }
@@ -455,19 +437,22 @@ public class Core implements FrostEventDispatcher  {
         
         // initialize the task that saves data
         StorageManager saver = new StorageManager(frostSettings, this);
-        saver.addAutoSavable(getMessageHashes());
         saver.addAutoSavable(getBoardsManager().getTofTree());
         saver.addAutoSavable(getFileTransferManager());
         
-        saver.addExitSavable(getMessageHashes());
         saver.addExitSavable(getIdentities());
         saver.addExitSavable(getBoardsManager().getTofTree());
         saver.addExitSavable(getFileTransferManager());
         saver.addExitSavable(KnownBoardsManager.getInstance());
         
         saver.addExitSavable(frostSettings);
+
         // close databases
         saver.addExitSavable(AppLayerDatabase.getInstance());
+        // close perst Storages
+        saver.addExitSavable(IndexSlotsStorage.inst());
+        saver.addExitSavable(SharedFilesCHKKeyStorage.inst());
+        saver.addExitSavable(FrostFilesStorage.inst());
 
         // invoke the mainframe ticker (board updates, clock, ...)
         mainframe.startTickerThread();

@@ -474,7 +474,7 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
             }
             throw new Exception("Error - invalid message: does not contain the root tag 'FrostMessage'");
         }
-        // load the message load itself
+        // load the message itself
         loadXMLElement(rootNode);
     }
     

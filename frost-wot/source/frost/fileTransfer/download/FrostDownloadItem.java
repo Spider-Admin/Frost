@@ -28,15 +28,15 @@ import frost.util.model.*;
 
 public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem {
     
-    private static final Logger logger = Logger.getLogger(FrostDownloadItem.class.getName());
+    private transient static final Logger logger = Logger.getLogger(FrostDownloadItem.class.getName());
     
     // the constants representing download states
-    public final static int STATE_WAITING    = 1; // wait for start
-    public final static int STATE_TRYING     = 2; // download running
-    public final static int STATE_DONE       = 3;
-    public final static int STATE_FAILED     = 4;
-    public final static int STATE_PROGRESS   = 5; // download runs
-    public final static int STATE_DECODING   = 6; // decoding runs
+    public transient final static int STATE_WAITING    = 1; // wait for start
+    public transient final static int STATE_TRYING     = 2; // download running
+    public transient final static int STATE_DONE       = 3;
+    public transient final static int STATE_FAILED     = 4;
+    public transient final static int STATE_PROGRESS   = 5; // download runs
+    public transient final static int STATE_DECODING   = 6; // decoding runs
 
 	private String fileName = null;
     private String targetPath = null;
@@ -53,20 +53,20 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
     private String gqIdentifier = null;
     
     // if this downloadfile is a shared file then this object is set
-    private FrostFileListFileObject fileListFileObject = null;
+    private transient FrostFileListFileObject fileListFileObject = null;
     
     // non persistent fields
-	private int doneBlocks = 0;
-	private int requiredBlocks = 0;	
-	private int totalBlocks = 0;
-    private Boolean isFinalized = null;
-    private String errorCodeDescription = null;
-    private int priority = -1;
+	private transient int doneBlocks = 0;
+	private transient int requiredBlocks = 0;	
+	private transient int totalBlocks = 0;
+    private transient Boolean isFinalized = null;
+    private transient String errorCodeDescription = null;
+    private transient int priority = -1;
 
-    private boolean isDirect = false;
-    private boolean isExternal = false;
+    private transient boolean isDirect = false;
+    private transient boolean isExternal = false;
     
-    private boolean internalRemoveExpected = false;
+    private transient boolean internalRemoveExpected = false;
     
     /**
      * Add a file from download text box.

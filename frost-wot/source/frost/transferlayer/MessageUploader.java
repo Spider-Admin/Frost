@@ -19,7 +19,6 @@
 package frost.transferlayer;
 
 import java.io.*;
-import java.sql.*;
 import java.util.logging.*;
 
 import javax.swing.*;
@@ -30,7 +29,7 @@ import frost.fcp.*;
 import frost.gui.*;
 import frost.identities.*;
 import frost.messages.*;
-import frost.storage.database.applayer.*;
+import frost.storage.perst.*;
 import frost.util.*;
 import frost.util.gui.translation.*;
 
@@ -53,12 +52,12 @@ public class MessageUploader {
         File uploadFile;
         File unsentMessageFile;
         MessageUploaderCallback callback;
-        IndexSlotsDatabaseTable indexSlots;
-        long date;
         byte[] signMetadata;
         Identity encryptForRecipient;
         LocalIdentity senderId;
         JFrame parentFrame;
+        
+        IndexSlot indexSlot;
         
         String logBoardName;
     }
@@ -94,8 +93,7 @@ public class MessageUploader {
             Identity encryptForRecipient,
             LocalIdentity senderId,
             MessageUploaderCallback callback,
-            IndexSlotsDatabaseTable indexSlots,
-            long date,
+            IndexSlot indexSlot,
             JFrame parentFrame,
             String logBoardName) {
         
@@ -105,8 +103,7 @@ public class MessageUploader {
         wa.unsentMessageFile = message.getFile();
         wa.parentFrame = parentFrame;
         wa.callback = callback;
-        wa.indexSlots = indexSlots;
-        wa.date = date;
+        wa.indexSlot = indexSlot;
         wa.encryptForRecipient = encryptForRecipient;
         wa.senderId = senderId; // maybe null for anonymous
         wa.logBoardName = logBoardName;
@@ -150,22 +147,17 @@ public class MessageUploader {
     
             while ( success == false && error == false ) {
 
-                try {
-                    if( retrySameIndex == false ) {
-                        // find next free index slot
-                        if( index < 0 ) {
-                            index = wa.indexSlots.findFirstUploadSlot(wa.date);
-                        } else {
-                            index = wa.indexSlots.findNextUploadSlot(index,wa.date);
-                        }
+                if( retrySameIndex == false ) {
+                    // find next free index slot
+                    if( index < 0 ) {
+                        index = wa.indexSlot.findFirstUploadSlot();
                     } else {
-                        // we retry the index
-                        // reset flag
-                        retrySameIndex = false;
+                        index = wa.indexSlot.findNextUploadSlot(index);
                     }
-                } catch(SQLException e) {
-                    logger.log(Level.SEVERE, "Error finding index in database table", e);
-                    return new MessageUploaderResult(true); // keep msg
+                } else {
+                    // we retry the index
+                    // reset flag
+                    retrySameIndex = false;
                 }
     
                 // try to insert message
@@ -244,25 +236,11 @@ public class MessageUploader {
                         Mixed.wait(waitTime);
                     }
                 }
-
-                if ( retrySameIndex == false && success == false && error == false ) {
-                    // there will be a next loop, and we try another slot
-                    try {
-                        // unlock this slot
-                        wa.indexSlots.setUploadSlotUnlocked(index, wa.date);
-                    } catch(SQLException e) {
-                        logger.log(Level.SEVERE, "Error updating database", e);
-                    }
-                }
             }
     
             if (success) {
-                try {
-                    // mark slot used and unlock
-                    wa.indexSlots.setUploadSlotUsed(index, wa.date);
-                } catch (SQLException e) {
-                    logger.log(Level.SEVERE, "Error updating database", e);
-                }
+                // mark slot used
+                wa.indexSlot.setUploadSlotUsed(index);
                 
                 logger.info("*********************************************************************\n"
                         + "Message successfully uploaded."+logInfo+"\n"
@@ -273,13 +251,6 @@ public class MessageUploader {
                 return new MessageUploaderResult(index); // success
     
             } else { // error == true
-                try {
-                    // unlock slot
-                    wa.indexSlots.setUploadSlotUnlocked(index, wa.date);
-                } catch (SQLException e) {
-                    logger.log(Level.SEVERE, "Error updating database", e);
-                }
-
                 logger.warning("TOFUP: Error while uploading message.");
     
                 boolean retrySilently = Core.frostSettings.getBoolValue(SettingsClass.SILENTLY_RETRY_MESSAGES);

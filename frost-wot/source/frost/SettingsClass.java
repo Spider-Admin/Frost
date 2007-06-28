@@ -43,6 +43,11 @@ public class SettingsClass implements Savable {
 
     private static final Logger logger = Logger.getLogger(SettingsClass.class.getName());
 
+    public static final String MIGRATE_VERSION = "migrate.version";
+
+    public static final String DB_CLEANUP_INTERVAL = "database.cleanup.interval";
+    public static final String DB_CLEANUP_LASTRUN = "database.cleanup.lastRun";
+
     public static final String DIR_CONFIG = "config.dir";
     public static final String DIR_DOWNLOAD = "downloadDirectory";
     public static final String DIR_LAST_USED = "lastUsedDirectory";
@@ -641,6 +646,21 @@ public class SettingsClass implements Savable {
         return val;
     }
 
+    public long getLongValue(String key) {
+        String str = (String) settingsHash.get(key);
+        if (str == null)
+            return 0L;
+        long val = 0L;
+        try {
+            val = Long.parseLong(str);
+        } catch (NumberFormatException e) {
+            return getLongValue(getDefaultValue(key));
+        } catch (Exception e) {
+            return 0L;
+        }
+        return val;
+    }
+
     public float getFloatValue(String key) {
         float val = 0.0f;
         String str = (String) settingsHash.get(key);
@@ -698,7 +718,12 @@ public class SettingsClass implements Savable {
     public void loadDefaults() {
         defaults = new Hashtable<String,Object>();
         File fn = File.listRoots()[0];
+
+        defaults.put(MIGRATE_VERSION, "0");
         
+        defaults.put(DB_CLEANUP_INTERVAL, "5");
+        defaults.put(DB_CLEANUP_LASTRUN, "0");
+
         // DIRECTORIES
 //        defaults.put("keypool.dir", "keypool" + fs);
 //        defaults.put("unsent.dir", "localdata" + fs + "unsent" + fs);

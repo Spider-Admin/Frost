@@ -18,7 +18,6 @@
 */
 package frost.fileTransfer.upload;
 
-import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
@@ -27,7 +26,7 @@ import javax.swing.*;
 import frost.*;
 import frost.fileTransfer.sharing.*;
 import frost.storage.*;
-import frost.storage.database.applayer.*;
+import frost.storage.perst.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
 
@@ -222,15 +221,15 @@ public class UploadModel extends SortedModel implements Savable {
      * Initializes and loads the model
      */
     public void initialize(List sharedFiles) throws StorageException {
-        final List uploadItems;
+        final List<FrostUploadItem> uploadItems;
         try {
-            uploadItems = AppLayerDatabase.getUploadFilesDatabaseTable().loadUploadFiles(sharedFiles);
-        } catch (SQLException e) {
+            uploadItems = FrostFilesStorage.inst().loadUploadFiles(sharedFiles);
+        } catch (Throwable e) {
             logger.log(Level.SEVERE, "Error loading upload items", e);
             throw new StorageException("Error loading upload items");
         }
-        for(Iterator i=uploadItems.iterator(); i.hasNext(); ) {
-            FrostUploadItem di = (FrostUploadItem)i.next();
+        for(Iterator<FrostUploadItem> i=uploadItems.iterator(); i.hasNext(); ) {
+            FrostUploadItem di = i.next();
             addConsistentUploadItem(di); // no check for dups
         }
     }
@@ -241,8 +240,8 @@ public class UploadModel extends SortedModel implements Savable {
     public void save() throws StorageException {
         List itemList = getItems();
         try {
-            AppLayerDatabase.getUploadFilesDatabaseTable().saveUploadFiles(itemList);
-        } catch (SQLException e) {
+            FrostFilesStorage.inst().saveUploadFiles((List<FrostUploadItem>)itemList);
+        } catch (Throwable e) {
             logger.log(Level.SEVERE, "Error saving upload items", e);
             throw new StorageException("Error saving upload items");
         }
