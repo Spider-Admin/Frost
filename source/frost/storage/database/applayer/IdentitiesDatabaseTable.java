@@ -252,7 +252,7 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
         ps.close();
     }
 
-    public void saveLastFilesSharedPerIdentity(List localIdentities) throws SQLException {
+    public void saveLastFilesSharedPerIdentity(List<LocalIdentity> localIdentities) throws SQLException {
         AppLayerDatabase db = AppLayerDatabase.getInstance();
         
         Statement s = db.createStatement();
@@ -262,8 +262,8 @@ public class IdentitiesDatabaseTable extends AbstractDatabaseTable {
         
         PreparedStatement ps = db.prepareStatement("INSERT INTO OWNIDENTITIESLASTFILESSHARED (uniquename,lastshared) VALUES (?,?)");
         
-        for(Iterator i=localIdentities.iterator(); i.hasNext(); ) {
-            LocalIdentity li = (LocalIdentity)i.next();
+        for(Iterator<LocalIdentity> i=localIdentities.iterator(); i.hasNext(); ) {
+            LocalIdentity li = i.next();
             long l = li.getLastFilesSharedMillis();
             if( l > 0 ) {
                 ps.setString(1, li.getUniqueName());
