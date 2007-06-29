@@ -30,8 +30,7 @@ public class StartBrowser {
 
     if (packFrame) {
         frame.pack();
-    }
-    else {
+    } else {
         frame.validate();
     }
 
@@ -49,6 +48,6 @@ public class StartBrowser {
 
     /**Main method*/
     public static void main(String[] args) {
-    new StartBrowser();
+        new StartBrowser();
     }
 }
