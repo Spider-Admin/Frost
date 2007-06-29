@@ -68,6 +68,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
      * Dummy to use for uploads of attachments. Is never saved.
      * Attachment uploads must never be persistent on 0.7.
      * We indicate this with gqIdentifier == null
+     * Also used for external global queue items on 0.7.
      */
     public FrostUploadItem() {
     }
