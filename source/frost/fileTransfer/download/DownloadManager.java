@@ -156,14 +156,33 @@ public class DownloadManager {
 
             if( result != null
                     && FcpHandler.isFreenet07()
+                    && result.getReturnCode() == 5 
+                    && key.startsWith("CHK@")
+                    && key.indexOf("/") > 0 ) 
+            {
+                // 5 - Archive failure
+                // node tries to access the .zip file, try download again without any path
+                String newKey = key.substring(0, key.indexOf("/"));
+                downloadItem.setKey(newKey);
+                downloadItem.setState(FrostDownloadItem.STATE_WAITING);
+                downloadItem.setLastDownloadStopTime(0);
+                downloadItem.setInternalRemoveExpected(true);
+                retryImmediately = true;
+                
+                logger.warning("Removed all path levels from key: "+key+" ; "+newKey);
+                
+            } else if( result != null
+                    && FcpHandler.isFreenet07()
                     && result.getReturnCode() == 11 
                     && key.startsWith("CHK@")
                     && key.indexOf("/") > 0 ) 
             {
+                // 11 - The URI has more metastrings and I can't deal with them
                 // remove one path level from CHK
                 String newKey = key.substring(0, key.lastIndexOf("/"));
                 downloadItem.setKey(newKey);
                 downloadItem.setState(FrostDownloadItem.STATE_WAITING);
+                downloadItem.setLastDownloadStopTime(0);
                 downloadItem.setInternalRemoveExpected(true);
                 retryImmediately = true;
                 
