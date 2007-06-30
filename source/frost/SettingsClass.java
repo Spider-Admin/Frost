@@ -691,6 +691,9 @@ public class SettingsClass implements Savable {
     public void setValue(String key, int value) {
         setValue(key, String.valueOf(value));
     }
+    public void setValue(String key, long value) {
+        setValue(key, String.valueOf(value));
+    }
     public void setValue(String key, Float value) {
         setValue(key, String.valueOf(value));
     }
