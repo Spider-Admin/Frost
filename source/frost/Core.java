@@ -370,6 +370,13 @@ public class Core implements FrostEventDispatcher  {
         splashscreen.setText(language.getString("Splashscreen.message.4"));
         splashscreen.setProgress(70);
 
+        // Display the tray icon (do this before mainframe initializes)
+        if (frostSettings.getBoolValue(SettingsClass.SHOW_SYSTRAY_ICON) == true) {
+            if (JSysTrayIcon.createInstance(0, title, title) == false) {
+                logger.severe("Could not create systray icon.");
+            }
+        }
+
         mainFrame.initialize();
 
         // (cleanup gets the expiration mode from settings itself)
@@ -383,13 +390,6 @@ public class Core implements FrostEventDispatcher  {
                 mainFrame.setVisible(true);
             }
         });
-
-        // Display the tray icon (do this before mainframe initializes)
-        if (frostSettings.getBoolValue(SettingsClass.SHOW_SYSTRAY_ICON) == true) {
-            if (JSysTrayIcon.createInstance(0, title, title) == false) {
-                logger.severe("Could not create systray icon.");
-            }
-        }
 
         splashscreen.closeMe();
         
