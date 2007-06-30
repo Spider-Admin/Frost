@@ -70,10 +70,14 @@ public class FcpPersistentConnectionTools {
     /**
      * Starts a persistent put.
      */
-    public void startPersistentPut(final String id, final File sourceFile, final boolean doMime) {
-
+    public void startPersistentPut(
+            final String id, 
+            final File sourceFile, 
+            final boolean doMime,
+            final boolean setTargetFileName) 
+    {
         // else start a new request with DDA
-        final List<String> msg = getDefaultPutMessage(id, sourceFile, doMime);
+        final List<String> msg = getDefaultPutMessage(id, sourceFile, doMime, setTargetFileName);
         msg.add("UploadFrom=disk");
         msg.add("Filename=" + sourceFile.getAbsolutePath());
         
@@ -129,7 +133,12 @@ public class FcpPersistentConnectionTools {
     /**
      * Returns the common part of a put request, used for a put with type DIRECT and DISK together.
      */
-    private List<String> getDefaultPutMessage(final String id, final File sourceFile, final boolean doMime) {
+    private List<String> getDefaultPutMessage(
+            final String id, 
+            final File sourceFile, 
+            final boolean doMime,
+            final boolean setTargetFileName) 
+    {
         final LinkedList<String> lst = new LinkedList<String>();
         lst.add("ClientPut");
         lst.add("URI=CHK@");
@@ -137,7 +146,11 @@ public class FcpPersistentConnectionTools {
         lst.add("Verbosity=-1");        
         lst.add("MaxRetries=-1");
         lst.add("DontCompress=false"); // force compression
-        lst.add("TargetFilename=");
+        if( setTargetFileName ) {
+            lst.add("TargetFilename="+sourceFile.getName()); // prevents problems downloading this file with other apps
+        } else {
+            lst.add("TargetFilename="); // default for shared files: we always want the same key for the same content!
+        }
         if (doMime) {
             lst.add("Metadata.ContentType=" + DefaultMIMETypes.guessMIMEType(sourceFile.getAbsolutePath()));
         } else {
@@ -155,8 +168,13 @@ public class FcpPersistentConnectionTools {
      * Returns the first NodeMessage sent by the node after the transfer (PersistentPut or any error message).
      * After this method was called this connection is unuseable.
      */
-    public NodeMessage startDirectPersistentPut(final String id, final File sourceFile, final boolean doMime) throws IOException {
-        
+    public NodeMessage startDirectPersistentPut(
+            final String id, 
+            final File sourceFile, 
+            final boolean doMime,
+            final boolean setTargetFileName) 
+    throws IOException 
+    {
         final FcpSocket newSocket = FcpSocket.create(FcpPersistentConnection.getInstance().getNodeAddress());
         if( newSocket == null ) {
             return null;
@@ -164,7 +182,7 @@ public class FcpPersistentConnectionTools {
 
         final BufferedOutputStream dataOutput = new BufferedOutputStream(newSocket.getFcpSock().getOutputStream());
         
-        final List<String> msg = getDefaultPutMessage(id, sourceFile, doMime);
+        final List<String> msg = getDefaultPutMessage(id, sourceFile, doMime, setTargetFileName);
         msg.add("UploadFrom=direct");
         msg.add("DataLength=" + Long.toString(sourceFile.length()));
         msg.add("Data");
