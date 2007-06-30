@@ -73,6 +73,7 @@ public class SettingsClass implements Savable {
 
     public static final String FCP2_DEFAULT_PRIO_MESSAGE = "fcp2.defaultPriorityMessage"; // not in gui dialog!
     public static final String FCP2_DEFAULT_PRIO_FILE = "fcp2.defaultPriorityFile";       // not in gui dialog!
+    public static final String FCP2_SET_TARGETFILENAME_FOR_MANUAL_PUT = "fcp2.setTargetfilenameForManualPut"; // not in gui dialog!
 
     public static final String AUTO_SAVE_INTERVAL = "autoSaveInterval";
     public static final String DISABLE_FILESHARING = "disableFilesharing";
@@ -749,6 +750,7 @@ public class SettingsClass implements Savable {
 
         defaults.put(FCP2_DEFAULT_PRIO_MESSAGE, "2");
         defaults.put(FCP2_DEFAULT_PRIO_FILE, "3");
+        defaults.put(FCP2_SET_TARGETFILENAME_FOR_MANUAL_PUT, "true");
 
         defaults.put(ALTERNATE_EDITOR_COMMAND, fn + "path" + fs + "to" + fs + "editor" + " %f");
         defaults.put(BOARD_AUTOUPDATE_ENABLED, "true"); 

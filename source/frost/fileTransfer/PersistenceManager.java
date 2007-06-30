@@ -450,15 +450,19 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                 // start the upload
                 if( isDDA() ) {
                     final boolean doMime;
+                    final boolean setTargetFileName;
                     if( ulItem.isSharedFile() ) {
                         doMime = false;
+                        setTargetFileName = false;
                     } else {
                         doMime = true;
+                        setTargetFileName = true;
                     }
                     fcpTools.startPersistentPut(
                             ulItem.getGqIdentifier(),
                             ulItem.getFile(),
-                            doMime);
+                            doMime,
+                            setTargetFileName);
                 } else {
                     // if UploadManager selected this file then it is not already in progress!
                     directTransferQueue.appendItemToQueue(ulItem);
@@ -601,7 +605,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         public void run() {
             
             final int maxAllowedExceptions = 5;
-            int occuredExceptions = 0;
+            int catchedExceptions = 0;
 
             while(true) {
                 try {
@@ -621,12 +625,15 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                         final String gqid = ulItem.getGqIdentifier();
                         final File sourceFile = ulItem.getFile();
                         final boolean doMime;
+                        final boolean setTargetFileName;
                         if( ulItem.isSharedFile() ) {
                             doMime = false;
+                            setTargetFileName = false;
                         } else {
                             doMime = true;
+                            setTargetFileName = true;
                         }
-                        final NodeMessage answer = fcpTools.startDirectPersistentPut(gqid, sourceFile, doMime);
+                        final NodeMessage answer = fcpTools.startDirectPersistentPut(gqid, sourceFile, doMime, setTargetFileName);
                         if( answer == null ) {
                             final String desc = "Could not open a new FCP2 socket for direct put!";
                             final FcpResultPut result = new FcpResultPut(FcpResultPut.Error, -1, desc, false);
@@ -662,10 +669,10 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                     
                 } catch(Throwable t) {
                     logger.log(Level.SEVERE, "Exception catched",t);
-                    occuredExceptions++;
+                    catchedExceptions++;
                 }
                 
-                if( occuredExceptions > maxAllowedExceptions ) {
+                if( catchedExceptions > maxAllowedExceptions ) {
                     logger.log(Level.SEVERE, "Stopping DirectTransferThread because of too much exceptions");
                     break;
                 }
