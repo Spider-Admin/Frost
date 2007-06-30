@@ -29,20 +29,11 @@ ACHTUNG: Wenn die Datei store/applayerdb.conf geaendert wurde (z.B. um die
           ueberschreiben lassen!
 
 
-Frost Version 20-Jun-2006 auf eine neuere Version updaten:
------------------------------------------------------------
-NICHT das bestehende Frost updaten!
-
-Entpacke die neue Frost Version in ein neues verzeichnis und start sie. Im
-ersten Dialog kann man entscheiden ob man die Daten (Identitaeten und
-Nachrichten) aus dem alten Frost importieren will, oder mit einer neuen
-Installation beginnen will. Der Import der alten Daten kann eine Weile dauern.
-
-
-Frost aelter als Version 20-Jun-2006 auf eine neuere Version updaten:
+Frost aelter als Version 23-Dec-2006 auf eine neuere Version updaten:
 ----------------------------------------------------------------------
 Ein direktes Update von aelteren Versionen ist nicht moeglich. Man muss zuerst
-zur Version 20-Jun-2006 hochziehen, und dann zu der neuesten Version.
+zur Version 23-Dec-2006 (oder neuer, bis max. 21-Apr-2007) hochziehen, und dann
+zu der neuesten Version.
 
 
 Frost 0.5 laeuft schon und du moechtest jetzt auch Frost 0.7 verwenden (oder andersrum):
