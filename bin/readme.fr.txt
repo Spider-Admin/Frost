@@ -13,16 +13,10 @@ Mise à jour depuis Frost version 23-Dec-2006 ou plus récent:
 Si Frost est lancé, arrêtez-le puis copiez le contenu du fichier ZIP téléchargé dans le répertoire où il est installé ; en écrasant tous les fichiers existants. Tous vos paramètres seront conservés. Comme toujours, il est recommandé de faire une sauvegarde avant la mise à jour. :)
 
 
-Mise à jour depuis Frost version 20-Jun-2006 ou plus récent:
-----------------------------------------------------------
-
-Ne mettez pas à jour Frost en utilisant la procédure "habituelle" : Créez une nouvelle installation dans un nouveau répertoire et importez votre configuration et vos messages en utilisant l'interface. Le temps d'importation des message est variable et dépend du nombre de messages à traiter.
-
-
-Mise à jour depuis Frost version 20-Jun-2006 ou plus ancienne:
+Mise à jour à partir d'une version plus ancienne que 23-Dec-2006:
 -------------------------------------------------------------------------------
 
-Il n'existe pas de procédure de mise à jour : Créez une nouvelle installation dans un nouveau répertoire.
+Il n'existe pas de procédure de mise à jour : Installez la version 23-Dec-2006 en suivant sa procédure de mise à jour puis faites la mise à jour vers la nouvelle version.
 
 
 Vous utilisez déja Frost 0.5 et vous voulez démarrer Frost 0.7 (ou vice versa):

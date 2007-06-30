@@ -30,23 +30,12 @@ NOTE: If you changed the file store/applayerdb.conf for any reason (e.g. you
       moved your database to another place), do NOT overwrite this file!
 
 
-Update from Frost 20-Jun-2006 to latest version:
--------------------------------------------------
-
-Do NOT update your existing Frost! Start a new installation in a new folder.
-
-Download the zip file, extract it into a NEW folder and start Frost as usual.
-The first dialog allows you to choose: start a clean new Frost, or import
-messages and identities from an existing Frost version 20-Jun-2006.
-The import could take some time, depending on the amount of messages you have
-in the keypool and in your archive.
-
-
-Update from Frost older than 20-Jun-2006 to latest version:
+Update from Frost older than 23-Dec-2006 to latest version:
 ------------------------------------------------------------
 
 You can't update from versions older than 20-Jun-2006 to the latest version.
-Upgrade to version 20-Jun-2006 first, then to a later version.
+Upgrade to version 23-Dec-2006 (or later, until 21-Apr-2007) first, then to a
+later version.
 
 
 You have Frost 0.5 running and want to start to use Frost 0.7 (or vice versa):
