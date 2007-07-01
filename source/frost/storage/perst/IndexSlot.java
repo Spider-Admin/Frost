@@ -22,8 +22,14 @@ import java.util.*;
 
 import org.garret.perst.*;
 
+import frost.*;
+import frost.boards.*;
+import frost.util.*;
+
 public class IndexSlot extends Persistent {
-    
+
+//    private static final Logger logger = Logger.getLogger(IndexSlot.class.getName());
+
     private int indexName;
     private long msgDate;
 
@@ -50,7 +56,12 @@ public class IndexSlot extends Persistent {
     public String toString() {
         String result = "";
         result += "indexName     = "+indexName+"\n";
+        Board b = Core.getInstance().getMainFrame().getTofTreeModel().getBoardByPrimaryKey(indexName);
+        if( b != null ) {
+            result += "board         = "+b.getName()+"\n";
+        }
         result += "msgDate       = "+msgDate+"\n";
+        result += "msgDate (fmt) = "+DateFun.getExtendedDateFromMillis(msgDate)+"\n";
         result += "wasDownloaded = "+wasDownloaded+"\n";
         result += "wasUploaded   = "+wasUploaded+"\n";
         return result;
@@ -101,16 +112,20 @@ public class IndexSlot extends Persistent {
     
 //    public void onStore() {
 //        if( indexName < 0 ) return;
-//        System.out.println(">>>>>>>>>>STORE>>>");
-//        System.out.println(this);
-//        System.out.println("<<<<<<<<<<STORE<<<");
+//        String s = "";
+//        s += ">>>>>>>>>>STORE>>>\n";
+//        s += this;
+//        s += "<<<<<<<<<<STORE<<<\n";
+//        logger.warning(s);
 //    }
-
+//
 //    public void onLoad() {
 //        if( indexName < 0 ) return;
-//        System.out.println(">>>>>>>>>>LOAD>>>");
-//        System.out.println(this);
-//        System.out.println("<<<<<<<<<<LOAD<<<");
+//        String s = "";
+//        s += ">>>>>>>>>>LOAD>>>\n";
+//        s += this;
+//        s += "<<<<<<<<<<LOAD<<<\n";
+//        logger.warning(s);
 //    }
 
     // testcase
