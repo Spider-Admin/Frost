@@ -345,10 +345,12 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
             boolean isDuplicate;
             if( t.getMessage().indexOf("constraint violation") > 0 && t.getMessage().indexOf("MSG_ID_UNIQUE_ONLY") > 0 ) {
                 isDuplicate = true;
-                logger.warning("Duplicate message id, not added to database table.");
+                logger.warning("Duplicate message id, not added to database table: msgid='"+mo.getMessageId()+
+                        "', board="+mo.getBoard().getName()+", date='"+mo.getDateAndTimeString()+"', index="+mo.getIndex());
             } else {
                 isDuplicate = false;
-                logger.log(Level.SEVERE, "Exception during insert of message", t);
+                logger.log(Level.SEVERE, "Exception during insert of message: msgid='"+mo.getMessageId()+
+                    "', board="+mo.getBoard().getName()+", date='"+mo.getDateAndTimeString()+"', index="+mo.getIndex(), t);
                 try { conn.rollback(); } catch(Throwable t1) { logger.log(Level.SEVERE, "Exception during rollback", t1); }
             }
             try { conn.setAutoCommit(true); } catch(Throwable t1) { }
