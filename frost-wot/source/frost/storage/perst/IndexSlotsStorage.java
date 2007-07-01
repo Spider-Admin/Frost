@@ -30,6 +30,8 @@ import frost.storage.*;
  */
 public class IndexSlotsStorage implements Savable {
     
+//    private static final Logger logger = Logger.getLogger(IndexSlotsStorage.class.getName());
+    
     // boards have positive indexNames (their primkey)
     public static final int FILELISTS = -1;
     public static final int REQUESTS  = -2;
@@ -114,14 +116,19 @@ public class IndexSlotsStorage implements Savable {
     public synchronized IndexSlot getSlotForDate(int indexName, long date) {
         Key dateKey = new Key(indexName, date);
         IndexSlot gis = (IndexSlot)storageRoot.slotsIndexIL.get(dateKey);
+//        String s = "";
+//        s += "getSlotForDate: indexName="+indexName+", date="+date+"\n";
         if( gis == null ) {
             // not yet in storage
             gis = new IndexSlot(indexName, date);
+//            s += "getSlotForDate: NEW SLOT CREATED!\n";
         }
+//        logger.warning(s);
         return gis;
     }
     
     public synchronized void storeSlot(IndexSlot gis) {
+//        logger.warning(gis.toString());
         if( gis.getStorage() == null ) {
             gis.makePersistent(getStorage());
             addToIndices(gis);
@@ -131,6 +138,7 @@ public class IndexSlotsStorage implements Savable {
     }
     
     public synchronized void commitStore() {
+//        logger.info("commitStore!");
         getStorage().commit();
     }
 
