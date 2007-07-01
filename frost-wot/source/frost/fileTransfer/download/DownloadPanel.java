@@ -354,6 +354,26 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
             }.start();
         }
     }
+    
+    private void startSelectedDownloadsItemNow() {
+        ModelItem[] selectedItems = modelTable.getSelectedItems();
+        
+        final List<FrostDownloadItem> itemsToStart = new LinkedList<FrostDownloadItem>();
+        for( ModelItem mi : selectedItems ) {
+            FrostDownloadItem i = (FrostDownloadItem)mi;
+            if( i.isExternal() ) {
+                continue;
+            }
+            if( i.getState() != FrostDownloadItem.STATE_WAITING ) {
+                continue;
+            }
+            itemsToStart.add(i);
+        }
+        
+        for(FrostDownloadItem dlItem : itemsToStart) {
+            FileTransferManager.inst().getDownloadManager().startDownload(dlItem);
+        }
+    }
 
 	public boolean isDownloadingActivated() {
 		return downloadingActivated;
@@ -503,7 +523,9 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
         private JMenuItem invertEnabledSelectedItem = new JMenuItem();
         private JMenuItem removeSelectedDownloadsItem = new JMenuItem();
         private JMenuItem restartSelectedDownloadsItem = new JMenuItem();
-        
+
+        private JMenuItem startSelectedDownloadsItemNow = new JMenuItem();
+
         private JMenu changePriorityMenu = null;
         private JMenuItem prio0Item = null;
         private JMenuItem prio1Item = null;
@@ -576,6 +598,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
             invertEnabledAllItem.addActionListener(this);
             invertEnabledSelectedItem.addActionListener(this);
             detailsItem.addActionListener(this);
+            startSelectedDownloadsItemNow.addActionListener(this);
         }
     
         private void refreshLanguage() {
@@ -591,6 +614,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
             disableSelectedDownloadsItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.disableSelectedDownloads"));
             invertEnabledAllItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.invertEnabledStateForAllDownloads"));
             invertEnabledSelectedItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.invertEnabledStateForSelectedDownloads"));
+            startSelectedDownloadsItemNow.setText(language.getString("DownloadPane.fileTable.popupmenu.startSelectedDownloadsItemNow"));
     
             copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
             
@@ -649,6 +673,8 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                 changePriority(6);
             } else if (e.getSource() == retrieveDirectExternalDownloads) {
                 retrieveDirectExternalDownloads();
+            } else if (e.getSource() == startSelectedDownloadsItemNow ) {
+                startSelectedDownloadsItemNow();
             }
         }
 
@@ -733,6 +759,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
             add(copyToClipboardMenu);
             addSeparator();
+            add(startSelectedDownloadsItemNow);
             add(restartSelectedDownloadsItem);
             addSeparator();
             

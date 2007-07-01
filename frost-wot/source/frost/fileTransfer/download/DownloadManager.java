@@ -55,6 +55,17 @@ public class DownloadManager {
             }
         }
 	}
+	
+	/**
+	 * Start download now (manually).
+	 */
+	public void startDownload(FrostDownloadItem dlItem) {
+	    if( FileTransferManager.inst().getPersistenceManager() != null ) {
+	        FileTransferManager.inst().getPersistenceManager().startDownload(dlItem);
+	    } else {
+	        ticker.startDownload(dlItem);
+	    }
+	}
     
     public void startTicker() {
         if (Core.isFreenetOnline()) {

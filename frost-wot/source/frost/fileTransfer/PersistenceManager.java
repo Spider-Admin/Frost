@@ -501,18 +501,30 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                     break;
                 }
                 // start the download
-                final String gqid = dlItem.getGqIdentifier();
-                final File targetFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + dlItem.getFilename());
-                dlItem.setDirect( !fcpTools.isDDA() ); // set before start!
-                fcpTools.startPersistentGet(
-                        dlItem.getKey(),
-                        gqid,
-                        targetFile);
-                
-                dlItem.setState(FrostDownloadItem.STATE_PROGRESS);
-                currentAllowedDownloadCount--;
+                if( startDownload(dlItem) ) {
+                    currentAllowedDownloadCount--;
+                }
             }
         }
+    }
+    
+    public boolean startDownload(FrostDownloadItem dlItem) {
+
+        if( dlItem.getState() != FrostDownloadItem.STATE_WAITING ) {
+            return false;
+        }
+        
+        dlItem.setState(FrostDownloadItem.STATE_PROGRESS);
+
+        final String gqid = dlItem.getGqIdentifier();
+        final File targetFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + dlItem.getFilename());
+        dlItem.setDirect( !fcpTools.isDDA() ); // set before start!
+        fcpTools.startPersistentGet(
+                dlItem.getKey(),
+                gqid,
+                targetFile);
+
+        return true;
     }
     
     private void showExternalUploadItems() {

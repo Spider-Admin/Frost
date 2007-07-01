@@ -143,17 +143,32 @@ public class DownloadTicker extends Thread {
 
 			FrostDownloadItem dlItem = FileTransferManager.inst().getDownloadManager().selectNextDownloadItem();
 			if (dlItem != null) {
-				dlItem.setState(FrostDownloadItem.STATE_TRYING);
-
-                File targetFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + dlItem.getFilename());
-				DownloadThread newRequest = new DownloadThread(this, dlItem, targetFile);
-				newRequest.start();
-				threadLaunched = true;
+			    if( startDownload(dlItem) ) {
+			        threadLaunched = true;
+			    }
 			}
 
 			if (!threadLaunched) {
 				releaseThread();
 			}
 		}
+	}
+	
+	public boolean startDownload(FrostDownloadItem dlItem) {
+	    
+        if( dlItem.getState() != FrostDownloadItem.STATE_WAITING ) {
+            return false;
+        }
+
+        dlItem.setState(FrostDownloadItem.STATE_TRYING);
+
+        synchronized (threadCountLock) {
+            allocatedThreads++;
+        }
+
+        File targetFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + dlItem.getFilename());
+        DownloadThread newRequest = new DownloadThread(this, dlItem, targetFile);
+        newRequest.start();
+        return true;
 	}
 }
