@@ -65,10 +65,15 @@ public class UploadTicker extends Thread {
      * needed (no matter whether the thread was actually used or not).
      * @return true if a new uploading thread can start. False otherwise.
      */
-    private boolean allocateUploadingThread() {
+    private void allocateUploadingThread() {
+        synchronized (uploadingCountLock) {
+            allocatedUploadingThreads++;
+        }
+    }
+    
+    private boolean canAllocateUploadingThread() {
         synchronized (uploadingCountLock) {
             if (allocatedUploadingThreads < Core.frostSettings.getIntValue(SettingsClass.UPLOAD_MAX_THREADS)) {
-                allocatedUploadingThreads++;
                 return true;
             }
         }
@@ -198,24 +203,38 @@ public class UploadTicker extends Thread {
         }
     }
 
+    /**
+     * Maybe start a new upload automatically.
+     */
     private void startUploadThread() {
-        if (Core.isFreenetOnline() && allocateUploadingThread()) {
+        if (Core.isFreenetOnline() && canAllocateUploadingThread()) {
             FrostUploadItem uploadItem = FileTransferManager.inst().getUploadManager().selectNextUploadItem();
-            if (uploadItem != null) {
-                uploadItem.setState(FrostUploadItem.STATE_PROGRESS);
-                boolean doMime;
-                // shared files are always inserted as octet-stream
-                if( uploadItem.isSharedFile() ) {
-                    doMime = false;
-                } else {
-                    doMime = true;
-                }
-                UploadThread newInsert = new UploadThread(this, uploadItem, doMime);
-                newInsert.start();
-            } else {
-                releaseUploadingThread();
-            }
+            startUpload(uploadItem);
         }
+    }
+    
+    public boolean startUpload(FrostUploadItem ulItem) {
+        if (!Core.isFreenetOnline() ) {
+            return false;
+        }
+        if( ulItem == null || ulItem.getState() != FrostUploadItem.STATE_WAITING ) {
+            return false;
+        }
+        
+        // increase allocated threads
+        allocateUploadingThread();
+        
+        ulItem.setState(FrostUploadItem.STATE_PROGRESS);
+        boolean doMime;
+        // shared files are always inserted as octet-stream
+        if( ulItem.isSharedFile() ) {
+            doMime = false;
+        } else {
+            doMime = true;
+        }
+        UploadThread newInsert = new UploadThread(this, ulItem, doMime);
+        newInsert.start();
+        return true;
     }
     
     private void removeNotExistingFiles() {
