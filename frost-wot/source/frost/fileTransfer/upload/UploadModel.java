@@ -219,7 +219,7 @@ public class UploadModel extends SortedModel implements Savable {
     /**
      * Initializes and loads the model
      */
-    public void initialize(List sharedFiles) throws StorageException {
+    public void initialize(List<FrostSharedFileItem> sharedFiles) throws StorageException {
         final List<FrostUploadItem> uploadItems;
         try {
             uploadItems = FrostFilesStorage.inst().loadUploadFiles(sharedFiles);

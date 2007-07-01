@@ -25,6 +25,7 @@ import java.util.logging.*;
 import frost.*;
 import frost.fcp.*;
 import frost.fileTransfer.*;
+import frost.fileTransfer.sharing.*;
 import frost.storage.*;
 import frost.util.*;
 
@@ -41,7 +42,7 @@ public class UploadManager {
         super();
     }
 
-    public void initialize(List sharedFiles) throws StorageException {
+    public void initialize(List<FrostSharedFileItem> sharedFiles) throws StorageException {
         getPanel();
         getStatusPanel();
         getModel().initialize(sharedFiles);
@@ -160,6 +161,17 @@ public class UploadManager {
             }
         }
         uploadItem.setLastUploadStopTimeMillis(System.currentTimeMillis());
+    }
+    
+    /**
+     * Start upload now (manually).
+     */
+    public boolean startUpload(FrostUploadItem ulItem) {
+        if( FileTransferManager.inst().getPersistenceManager() != null ) {
+            return FileTransferManager.inst().getPersistenceManager().startUpload(ulItem);
+        } else {
+            return ticker.startUpload(ulItem);
+        }
     }
     
     /**

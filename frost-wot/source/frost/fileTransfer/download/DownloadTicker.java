@@ -53,16 +53,21 @@ public class DownloadTicker extends Thread {
 	 * needed (no matter whether the thread was actually used or not).
 	 * @return true if a new thread can start. False otherwise.
 	 */
-	private boolean allocateThread() {
+	private void allocateDownloadThread() {
 		synchronized (threadCountLock) {
-			if (allocatedThreads < Core.frostSettings.getIntValue(SettingsClass.DOWNLOAD_MAX_THREADS)) {
-				allocatedThreads++;
-				return true;
-			} 
+			allocatedThreads++;
 		}
-		return false;	
 	}
-	
+
+    private boolean canAllocateDownloadThread() {
+         synchronized (threadCountLock) {
+             if (allocatedThreads < Core.frostSettings.getIntValue(SettingsClass.DOWNLOAD_MAX_THREADS)) {
+                 return true;
+             } 
+         }
+         return false;   
+    }
+
 	/**
 	 * This method is used to release a thread.
 	 */
@@ -137,34 +142,29 @@ public class DownloadTicker extends Thread {
         statusPanel.numberChanged(runningItems);
 	}
 
+    /**
+     * Maybe start a new download automatically.
+     */
 	private void startDownloadThread() {
-		if (Core.isFreenetOnline() && panel.isDownloadingActivated() && allocateThread()) {
-			boolean threadLaunched = false;
-
-			FrostDownloadItem dlItem = FileTransferManager.inst().getDownloadManager().selectNextDownloadItem();
-			if (dlItem != null) {
-			    if( startDownload(dlItem) ) {
-			        threadLaunched = true;
-			    }
-			}
-
-			if (!threadLaunched) {
-				releaseThread();
-			}
-		}
-	}
+        if( Core.isFreenetOnline() && panel.isDownloadingActivated() && canAllocateDownloadThread() ) {
+            FrostDownloadItem dlItem = FileTransferManager.inst().getDownloadManager().selectNextDownloadItem();
+            startDownload(dlItem);
+        }
+    }
 	
 	public boolean startDownload(FrostDownloadItem dlItem) {
-	    
-        if( dlItem.getState() != FrostDownloadItem.STATE_WAITING ) {
+
+	    if (!Core.isFreenetOnline() ) {
+            return false;
+        }
+        if( dlItem == null || dlItem.getState() != FrostDownloadItem.STATE_WAITING ) {
             return false;
         }
 
-        dlItem.setState(FrostDownloadItem.STATE_TRYING);
+        // increase allocated threads
+        allocateDownloadThread();
 
-        synchronized (threadCountLock) {
-            allocatedThreads++;
-        }
+        dlItem.setState(FrostDownloadItem.STATE_TRYING);
 
         File targetFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + dlItem.getFilename());
         DownloadThread newRequest = new DownloadThread(this, dlItem, targetFile);

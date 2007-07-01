@@ -447,31 +447,40 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                 if( ulItem == null ) {
                     break;
                 }
-                // start the upload
-                if( isDDA() ) {
-                    final boolean doMime;
-                    final boolean setTargetFileName;
-                    if( ulItem.isSharedFile() ) {
-                        doMime = false;
-                        setTargetFileName = false;
-                    } else {
-                        doMime = true;
-                        setTargetFileName = true;
-                    }
-                    fcpTools.startPersistentPut(
-                            ulItem.getGqIdentifier(),
-                            ulItem.getFile(),
-                            doMime,
-                            setTargetFileName);
-                } else {
-                    // if UploadManager selected this file then it is not already in progress!
-                    directTransferQueue.appendItemToQueue(ulItem);
+                if( startUpload(ulItem) ) {
+                    currentAllowedUploadCount--;
                 }
-                
-                ulItem.setState(FrostUploadItem.STATE_PROGRESS);
-                currentAllowedUploadCount--;
             }
         }
+    }
+    
+    public boolean startUpload(FrostUploadItem ulItem) {
+        if( ulItem == null || ulItem.getState() != FrostUploadItem.STATE_WAITING ) {
+            return false;
+        }
+        ulItem.setState(FrostUploadItem.STATE_PROGRESS);
+        
+        // start the upload
+        if( isDDA() ) {
+            final boolean doMime;
+            final boolean setTargetFileName;
+            if( ulItem.isSharedFile() ) {
+                doMime = false;
+                setTargetFileName = false;
+            } else {
+                doMime = true;
+                setTargetFileName = true;
+            }
+            fcpTools.startPersistentPut(
+                    ulItem.getGqIdentifier(),
+                    ulItem.getFile(),
+                    doMime,
+                    setTargetFileName);
+        } else {
+            // if UploadManager selected this file then it is not already in progress!
+            directTransferQueue.appendItemToQueue(ulItem);
+        }
+        return true;
     }
     
     private void startNewDownloads() {
@@ -510,7 +519,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
     
     public boolean startDownload(FrostDownloadItem dlItem) {
 
-        if( dlItem.getState() != FrostDownloadItem.STATE_WAITING ) {
+        if( dlItem == null || dlItem.getState() != FrostDownloadItem.STATE_WAITING ) {
             return false;
         }
         

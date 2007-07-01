@@ -290,6 +290,7 @@ public class UploadPanel extends JPanel {
         private JMenuItem uploadSelectedFilesItem = new JMenuItem();
         private JMenuItem removeSelectedFilesItem = new JMenuItem();
         private JMenuItem showSharedFileItem = new JMenuItem();
+        private JMenuItem startSelectedUploadsNow = new JMenuItem();
         private JMenu copyToClipboardMenu = new JMenu();
         
         private JMenuItem disableAllDownloadsItem = new JMenuItem();
@@ -355,6 +356,7 @@ public class UploadPanel extends JPanel {
             copyExtendedInfoItem.addActionListener(this);
             removeSelectedFilesItem.addActionListener(this);
             uploadSelectedFilesItem.addActionListener(this);
+            startSelectedUploadsNow.addActionListener(this);
             generateChkForSelectedFilesItem.addActionListener(this);
             showSharedFileItem.addActionListener(this);
             
@@ -372,6 +374,7 @@ public class UploadPanel extends JPanel {
             copyExtendedInfoItem.setText(language.getString("Common.copyToClipBoard.copyExtendedInfo"));
             generateChkForSelectedFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.startEncodingOfSelectedFiles"));
             uploadSelectedFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.uploadSelectedFiles"));
+            startSelectedUploadsNow.setText(language.getString("UploadPane.fileTable.popupmenu.startSelectedUploadsNow"));
             removeSelectedFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.remove.removeSelectedFiles"));
             showSharedFileItem.setText(language.getString("UploadPane.fileTable.popupmenu.showSharedFile"));
             
@@ -437,6 +440,8 @@ public class UploadPanel extends JPanel {
                 invertEnabledAll();
             } else if (e.getSource() == invertEnabledSelectedItem) {
                 invertEnabledSelected();
+            } else if (e.getSource() == startSelectedUploadsNow ) {
+                startSelectedUploadsNow();
             }
         }
         
@@ -454,6 +459,26 @@ public class UploadPanel extends JPanel {
         private void generateChkForSelectedFiles() {
             ModelItem[] selectedItems = modelTable.getSelectedItems();
             model.generateChkItems(selectedItems);
+        }
+
+        private void startSelectedUploadsNow() {
+            ModelItem[] selectedItems = modelTable.getSelectedItems();
+            
+            final List<FrostUploadItem> itemsToStart = new LinkedList<FrostUploadItem>();
+            for( ModelItem mi : selectedItems ) {
+                FrostUploadItem i = (FrostUploadItem)mi;
+                if( i.isExternal() ) {
+                    continue;
+                }
+                if( i.getState() != FrostUploadItem.STATE_WAITING ) {
+                    continue;
+                }
+                itemsToStart.add(i);
+            }
+            
+            for(FrostUploadItem ulItem : itemsToStart) {
+                FileTransferManager.inst().getUploadManager().startUpload(ulItem);
+            }
         }
 
         /**
@@ -524,6 +549,7 @@ public class UploadPanel extends JPanel {
             enabledSubMenu.add(invertEnabledAllItem);
             add(enabledSubMenu);
             
+            add(startSelectedUploadsNow);
             add(generateChkForSelectedFilesItem);
             add(uploadSelectedFilesItem);
             addSeparator();

@@ -59,11 +59,11 @@ public class DownloadManager {
 	/**
 	 * Start download now (manually).
 	 */
-	public void startDownload(FrostDownloadItem dlItem) {
+	public boolean startDownload(FrostDownloadItem dlItem) {
 	    if( FileTransferManager.inst().getPersistenceManager() != null ) {
-	        FileTransferManager.inst().getPersistenceManager().startDownload(dlItem);
+	        return FileTransferManager.inst().getPersistenceManager().startDownload(dlItem);
 	    } else {
-	        ticker.startDownload(dlItem);
+	        return ticker.startDownload(dlItem);
 	    }
 	}
     

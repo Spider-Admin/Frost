@@ -355,7 +355,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
         }
     }
     
-    private void startSelectedDownloadsItemNow() {
+    private void startSelectedDownloadsNow() {
         ModelItem[] selectedItems = modelTable.getSelectedItems();
         
         final List<FrostDownloadItem> itemsToStart = new LinkedList<FrostDownloadItem>();
@@ -524,7 +524,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
         private JMenuItem removeSelectedDownloadsItem = new JMenuItem();
         private JMenuItem restartSelectedDownloadsItem = new JMenuItem();
 
-        private JMenuItem startSelectedDownloadsItemNow = new JMenuItem();
+        private JMenuItem startSelectedDownloadsNow = new JMenuItem();
 
         private JMenu changePriorityMenu = null;
         private JMenuItem prio0Item = null;
@@ -598,7 +598,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
             invertEnabledAllItem.addActionListener(this);
             invertEnabledSelectedItem.addActionListener(this);
             detailsItem.addActionListener(this);
-            startSelectedDownloadsItemNow.addActionListener(this);
+            startSelectedDownloadsNow.addActionListener(this);
         }
     
         private void refreshLanguage() {
@@ -614,7 +614,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
             disableSelectedDownloadsItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.disableSelectedDownloads"));
             invertEnabledAllItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.invertEnabledStateForAllDownloads"));
             invertEnabledSelectedItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.invertEnabledStateForSelectedDownloads"));
-            startSelectedDownloadsItemNow.setText(language.getString("DownloadPane.fileTable.popupmenu.startSelectedDownloadsItemNow"));
+            startSelectedDownloadsNow.setText(language.getString("DownloadPane.fileTable.popupmenu.startSelectedDownloadsNow"));
     
             copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
             
@@ -673,8 +673,8 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                 changePriority(6);
             } else if (e.getSource() == retrieveDirectExternalDownloads) {
                 retrieveDirectExternalDownloads();
-            } else if (e.getSource() == startSelectedDownloadsItemNow ) {
-                startSelectedDownloadsItemNow();
+            } else if (e.getSource() == startSelectedDownloadsNow ) {
+                startSelectedDownloadsNow();
             }
         }
 
@@ -759,7 +759,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
             add(copyToClipboardMenu);
             addSeparator();
-            add(startSelectedDownloadsItemNow);
+            add(startSelectedDownloadsNow);
             add(restartSelectedDownloadsItem);
             addSeparator();
             
