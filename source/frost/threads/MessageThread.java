@@ -84,14 +84,16 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
 
             LocalDate localDate = new LocalDate(DateTimeZone.UTC);
             long date = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
-            
-            IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(board.getPrimaryKey(), date);
-
+ 
             if (this.downloadToday) {
+                // get IndexSlot for today
+                IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(board.getPrimaryKey(), date);
                 // download only current date
                 downloadDate(localDate, gis);
                 // after update check if there are messages for upload and upload them
                 uploadMessages(gis); // doesn't get a message when message upload is disabled
+                // store index slot
+                IndexSlotsStorage.inst().storeSlot(gis);
             } else {
                 // download up to maxMessages days to the past
                 int daysBack = 0;
@@ -99,8 +101,9 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                     daysBack++;
                     localDate = localDate.minusDays(1);
                     date = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
-                    gis = IndexSlotsStorage.inst().getSlotForDate(board.getPrimaryKey(), date);
+                    IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(board.getPrimaryKey(), date);
                     downloadDate(localDate, gis);
+                    IndexSlotsStorage.inst().storeSlot(gis);
                 }
                 // after a complete backload run, remember finish time. 
                 // this ensures we ever update the complete backload days. 
@@ -108,9 +111,6 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                     board.setLastBackloadUpdateFinishedMillis(System.currentTimeMillis());
                 }
             }
-            
-            IndexSlotsStorage.inst().storeSlot(gis);
-
             logger.info("TOFDN: " + tofType + " Thread stopped for board " + board.getName());
         } catch (Throwable t) {
             logger.log(Level.SEVERE, Thread.currentThread().getName() + ": Oo. Exception in MessageDownloadThread:", t);
