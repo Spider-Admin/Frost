@@ -21,8 +21,11 @@ package frost.storage.perst;
 import org.garret.perst.*;
 
 public class FrostFilesStorageRoot extends Persistent {
-    IPersistentList downloadFiles;
-    IPersistentList uploadFiles;
-    IPersistentList sharedFiles;
-    IPersistentList newUploadFiles;
+    
+    public FrostFilesStorageRoot() {}
+    
+    IPersistentList<PerstFrostDownloadItem> downloadFiles;
+    IPersistentList<PerstFrostUploadItem> uploadFiles;
+    IPersistentList<PerstFrostSharedFileItem> sharedFiles;
+    IPersistentList<NewUploadFile> newUploadFiles;
 }

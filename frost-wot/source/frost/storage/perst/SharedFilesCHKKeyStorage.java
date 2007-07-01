@@ -104,9 +104,9 @@ public class SharedFilesCHKKeyStorage implements Savable {
 
         // first search for CHK keys that were created by us, but were never send
         {
-            Iterator i = storageRoot.chkKeys.iterator();
+            Iterator<SharedFilesCHKKey> i = storageRoot.chkKeys.iterator();
             while(i.hasNext()) {
-                SharedFilesCHKKey sfk = (SharedFilesCHKKey)i.next();
+                SharedFilesCHKKey sfk = i.next();
                 if( sfk.getSeenCount() == 0 ) {
                     keysToSend.add(sfk);
                     if( keysToSend.size() >= ownKeysToSend ) {
@@ -133,9 +133,9 @@ public class SharedFilesCHKKeyStorage implements Savable {
 
             // first collect ALL other keys to send, then sort them and choose maxKeys items
             List<SharedFilesCHKKey> otherKeysToSend = new ArrayList<SharedFilesCHKKey>();
-            Iterator i = storageRoot.chkKeys.iterator();
+            Iterator<SharedFilesCHKKey> i = storageRoot.chkKeys.iterator();
             while(i.hasNext()) {
-                SharedFilesCHKKey sfk = (SharedFilesCHKKey)i.next();
+                SharedFilesCHKKey sfk = i.next();
                 if( sfk.isDownloaded()
                         && sfk.isValid()
                         && sfk.getLastSeen() < maxLastSeen
@@ -173,8 +173,8 @@ public class SharedFilesCHKKeyStorage implements Savable {
 
         List<SharedFilesCHKKey> keysToDownload = new ArrayList<SharedFilesCHKKey>();
         
-        for(Iterator i = storageRoot.chkKeys.iterator(); i.hasNext(); ) {
-            SharedFilesCHKKey sfk = (SharedFilesCHKKey)i.next();
+        for(Iterator<SharedFilesCHKKey> i = storageRoot.chkKeys.iterator(); i.hasNext(); ) {
+            SharedFilesCHKKey sfk = i.next();
             if( !sfk.isDownloaded()
                     && sfk.getDownloadRetries() < maxRetries)
             {
@@ -186,8 +186,8 @@ public class SharedFilesCHKKeyStorage implements Savable {
         
         // now create a list of string only
         List<String> chkKeys = new LinkedList<String>();
-        for(Iterator i=keysToDownload.iterator(); i.hasNext(); ) {
-            SharedFilesCHKKey sfk = (SharedFilesCHKKey)i.next();
+        for(Iterator<SharedFilesCHKKey> i=keysToDownload.iterator(); i.hasNext(); ) {
+            SharedFilesCHKKey sfk = i.next();
             chkKeys.add( sfk.getChkKey() );
         }
         keysToDownload.clear();
@@ -249,10 +249,10 @@ public class SharedFilesCHKKeyStorage implements Savable {
         // delete all items with lastSeen < minVal, but lastSeen > 0 
         int deletedCount = 0;
         
-        Iterator i = storageRoot.chkKeys.iterator();
+        Iterator<SharedFilesCHKKey> i = storageRoot.chkKeys.iterator();
         
         while(i.hasNext()) {
-            SharedFilesCHKKey sfk = (SharedFilesCHKKey)i.next();
+            SharedFilesCHKKey sfk = i.next();
             if( sfk.getLastSeen() > 0 && sfk.getLastSeen() < minVal ) {
                 i.remove(); // remove from iterated index
                 sfk.deallocate(); // remove from Storage
@@ -317,20 +317,16 @@ public class SharedFilesCHKKeyStorage implements Savable {
 //    }
     
     protected final static LastDownloadTryStopTimeComparator lastDownloadTryStopTimeComparator = new LastDownloadTryStopTimeComparator();
-    protected static class LastDownloadTryStopTimeComparator implements Comparator {
-        public int compare(Object arg0, Object arg1) {
-            SharedFilesCHKKey k1 = (SharedFilesCHKKey)arg0;
-            SharedFilesCHKKey k2 = (SharedFilesCHKKey)arg1;
-            return Mixed.compareLong(k1.getLastDownloadTryStopTime(), k2.getLastDownloadTryStopTime());
+    protected static class LastDownloadTryStopTimeComparator implements Comparator<SharedFilesCHKKey> {
+        public int compare(SharedFilesCHKKey arg0, SharedFilesCHKKey arg1) {
+            return Mixed.compareLong(arg0.getLastDownloadTryStopTime(), arg1.getLastDownloadTryStopTime());
         }
     }
 
     protected final static SeenCountComparator seenCountComparator = new SeenCountComparator();
-    protected static class SeenCountComparator implements Comparator {
-        public int compare(Object arg0, Object arg1) {
-            SharedFilesCHKKey k1 = (SharedFilesCHKKey)arg0;
-            SharedFilesCHKKey k2 = (SharedFilesCHKKey)arg1;
-            return Mixed.compareInt(k1.getSeenCount(), k2.getSeenCount());
+    protected static class SeenCountComparator implements Comparator<SharedFilesCHKKey> {
+        public int compare(SharedFilesCHKKey arg0, SharedFilesCHKKey arg1) {
+            return Mixed.compareInt(arg0.getSeenCount(), arg0.getSeenCount());
         }
     }
 }
