@@ -21,5 +21,8 @@ package frost.storage.perst;
 import org.garret.perst.*;
 
 public class SharedFilesCHKKeyStorageRoot extends Persistent {
-    Index chkKeys;
+    
+    public SharedFilesCHKKeyStorageRoot() {}
+    
+    Index<SharedFilesCHKKey> chkKeys;
 }

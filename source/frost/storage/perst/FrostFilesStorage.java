@@ -110,18 +110,25 @@ public class FrostFilesStorage implements Savable {
         storage.commit();
     }
 
+    /**
+     * Removes all items from the given List and deallocates each item from Storage.
+     * @param plst  IPersistentList of persistent items
+     */
+    private void removeAllFromStorage(IPersistentList<? extends Persistent> plst) {
+        for(Iterator<? extends Persistent> i=plst.iterator(); i.hasNext(); ) {
+            Persistent pi = (Persistent)i.next();
+            i.remove(); // remove from List
+            pi.deallocate(); // remove from Storage
+        }
+    }
+
     public void saveDownloadFiles(List<FrostDownloadItem> downloadFiles) {
 
-        // clear old items and list
-        for(Iterator i=storageRoot.downloadFiles.iterator(); i.hasNext(); ) {
-            Persistent pi = (Persistent)i.next();
-            i.remove();
-            pi.deallocate();
-        }
+        removeAllFromStorage(storageRoot.downloadFiles);
         
-        for(Iterator i=downloadFiles.iterator(); i.hasNext(); ) {
+        for(Iterator<FrostDownloadItem> i=downloadFiles.iterator(); i.hasNext(); ) {
             
-            FrostDownloadItem dlItem = (FrostDownloadItem)i.next();
+            FrostDownloadItem dlItem = i.next();
             
             if( dlItem.isExternal() ) {
                 continue;
@@ -157,9 +164,9 @@ public class FrostFilesStorage implements Savable {
 
         LinkedList<FrostDownloadItem> downloadItems = new LinkedList<FrostDownloadItem>();
 
-        for(Iterator i=storageRoot.downloadFiles.iterator(); i.hasNext(); ) {
+        for(Iterator<PerstFrostDownloadItem> i=storageRoot.downloadFiles.iterator(); i.hasNext(); ) {
 
-            PerstFrostDownloadItem pi = (PerstFrostDownloadItem)i.next();
+            PerstFrostDownloadItem pi = i.next();
 
             String filename = pi.fileName;
             String targetPath = pi.targetPath;
@@ -223,16 +230,11 @@ public class FrostFilesStorage implements Savable {
 
     public void saveUploadFiles(List<FrostUploadItem> uploadFiles) {
 
-        // clear old items and list
-        for(Iterator i=storageRoot.uploadFiles.iterator(); i.hasNext(); ) {
-            Persistent pi = (Persistent)i.next();
-            i.remove();
-            pi.deallocate();
-        }
+        removeAllFromStorage(storageRoot.uploadFiles);
 
-        for(Iterator i=uploadFiles.iterator(); i.hasNext(); ) {
+        for(Iterator<FrostUploadItem> i=uploadFiles.iterator(); i.hasNext(); ) {
 
-            FrostUploadItem ulItem = (FrostUploadItem)i.next();
+            FrostUploadItem ulItem = i.next();
             
             if( ulItem.isExternal() ) {
                 continue;
@@ -263,15 +265,15 @@ public class FrostFilesStorage implements Savable {
         storage.commit();
     }
     
-    public List<FrostUploadItem> loadUploadFiles(List sharedFiles) {
+    public List<FrostUploadItem> loadUploadFiles(List<FrostSharedFileItem> sharedFiles) {
 
         LinkedList<FrostUploadItem> uploadItems = new LinkedList<FrostUploadItem>();
 
         Language language = Language.getInstance();
 
-        for(Iterator i=storageRoot.uploadFiles.iterator(); i.hasNext(); ) {
+        for(Iterator<PerstFrostUploadItem> i=storageRoot.uploadFiles.iterator(); i.hasNext(); ) {
 
-            PerstFrostUploadItem pi = (PerstFrostUploadItem)i.next();
+            PerstFrostUploadItem pi = i.next();
 
             String filepath = pi.filePath;
             long filesize = pi.fileSize;
@@ -317,8 +319,8 @@ public class FrostFilesStorage implements Savable {
             
             FrostSharedFileItem sharedFileItem = null;
             if( sharedFilesSha != null && sharedFilesSha.length() > 0 ) {
-                for(Iterator j = sharedFiles.iterator(); j.hasNext(); ) {
-                    FrostSharedFileItem s = (FrostSharedFileItem)j.next();
+                for(Iterator<FrostSharedFileItem> j = sharedFiles.iterator(); j.hasNext(); ) {
+                    FrostSharedFileItem s = j.next();
                     if( s.getSha().equals(sharedFilesSha) ) {
                         sharedFileItem = s;
                         break;
@@ -367,12 +369,7 @@ public class FrostFilesStorage implements Savable {
 
     public void saveSharedFiles(List<FrostSharedFileItem> sfFiles) {
 
-        // clear old items and list
-        for(Iterator i=storageRoot.sharedFiles.iterator(); i.hasNext(); ) {
-            Persistent pi = (Persistent)i.next();
-            i.remove();
-            pi.deallocate();
-        }
+        removeAllFromStorage(storageRoot.sharedFiles);
             
         for(Iterator<FrostSharedFileItem> i=sfFiles.iterator(); i.hasNext(); ) {
 
@@ -409,9 +406,9 @@ public class FrostFilesStorage implements Savable {
         LinkedList<FrostSharedFileItem> sfItems = new LinkedList<FrostSharedFileItem>();
         
         Language language = Language.getInstance();
-        for(Iterator i=storageRoot.sharedFiles.iterator(); i.hasNext(); ) {
+        for(Iterator<PerstFrostSharedFileItem> i=storageRoot.sharedFiles.iterator(); i.hasNext(); ) {
 
-            PerstFrostSharedFileItem pi = (PerstFrostSharedFileItem)i.next();
+            PerstFrostSharedFileItem pi = i.next();
             
             String filepath = pi.filePath;
             long filesize = pi.fileSize;
@@ -495,17 +492,12 @@ public class FrostFilesStorage implements Savable {
         return sfItems;
     }
     
-    public void saveNewUploadFiles(List newUploadFiles) {
+    public void saveNewUploadFiles(List<NewUploadFile> newUploadFiles) {
 
-        // clear old items and list
-        for(Iterator i=storageRoot.newUploadFiles.iterator(); i.hasNext(); ) {
-            Persistent pi = (Persistent)i.next();
-            i.remove();
-            pi.deallocate();
-        }
+        removeAllFromStorage(storageRoot.newUploadFiles);
 
-        for(Iterator i=newUploadFiles.iterator(); i.hasNext(); ) {
-            NewUploadFile nuf = (NewUploadFile)i.next();
+        for(Iterator<NewUploadFile> i=newUploadFiles.iterator(); i.hasNext(); ) {
+            NewUploadFile nuf = i.next();
             nuf.makePersistent(storage);
             nuf.modify(); // for already persistent items
             
@@ -520,8 +512,8 @@ public class FrostFilesStorage implements Savable {
 
         LinkedList<NewUploadFile> newUploadFiles = new LinkedList<NewUploadFile>();
 
-        for(Iterator i=storageRoot.newUploadFiles.iterator(); i.hasNext(); ) {
-            NewUploadFile nuf = (NewUploadFile)i.next();
+        for(Iterator<NewUploadFile> i=storageRoot.newUploadFiles.iterator(); i.hasNext(); ) {
+            NewUploadFile nuf = i.next();
             File f = new File(nuf.getFilePath());
             if (!f.isFile()) {
                 logger.warning("File ("+nuf.getFilePath()+") is missing. File removed.");

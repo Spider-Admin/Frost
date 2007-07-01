@@ -93,13 +93,13 @@ public class IndexSlotsStorage implements Savable {
         // delete all items with msgDate < maxDaysOld
         int deletedCount = 0;
         
-        Iterator i = storageRoot.slotsIndexLI.iterator(
+        Iterator<IndexSlot> i = storageRoot.slotsIndexLI.iterator(
                 new Key(Long.MIN_VALUE, Integer.MIN_VALUE, true), 
                 new Key(date, Integer.MAX_VALUE, true), 
                 Index.ASCENT_ORDER);
         
         while(i.hasNext()) {
-            IndexSlot gis = (IndexSlot)i.next();
+            IndexSlot gis = i.next();
             storageRoot.slotsIndexIL.remove(gis); // also remove from IL index
             i.remove(); // remove from iterated LI index
             gis.deallocate(); // remove from Storage
@@ -149,8 +149,8 @@ public class IndexSlotsStorage implements Savable {
         
         IndexSlotsStorageRoot root = (IndexSlotsStorageRoot)s.getStorage().getRoot();
 
-        for( Iterator i = root.slotsIndexIL.iterator(); i.hasNext(); ) {
-            IndexSlot gi = (IndexSlot)i.next();
+        for( Iterator<IndexSlot> i = root.slotsIndexIL.iterator(); i.hasNext(); ) {
+            IndexSlot gi = i.next();
             System.out.println("----GI-------");
             System.out.println(gi);
         }

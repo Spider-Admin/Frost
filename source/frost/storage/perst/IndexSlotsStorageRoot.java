@@ -21,6 +21,9 @@ package frost.storage.perst;
 import org.garret.perst.*;
 
 public class IndexSlotsStorageRoot extends Persistent {
-    Index slotsIndexIL; // int,long index for iteration over int
-    Index slotsIndexLI; // long,int index for iteration over long
+    
+    public IndexSlotsStorageRoot() {}
+    
+    Index<IndexSlot> slotsIndexIL; // int,long index for iteration over int
+    Index<IndexSlot> slotsIndexLI; // long,int index for iteration over long
 }
