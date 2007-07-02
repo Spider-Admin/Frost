@@ -224,6 +224,8 @@ public class UploadTicker extends Thread {
         // increase allocated threads
         allocateUploadingThread();
         
+        ulItem.setUploadStartedMillis(System.currentTimeMillis());
+
         ulItem.setState(FrostUploadItem.STATE_PROGRESS);
         boolean doMime;
         // shared files are always inserted as octet-stream

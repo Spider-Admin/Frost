@@ -160,6 +160,8 @@ public class DownloadTicker extends Thread {
         if( dlItem == null || dlItem.getState() != FrostDownloadItem.STATE_WAITING ) {
             return false;
         }
+        
+        dlItem.setDownloadStartedTime(System.currentTimeMillis());
 
         // increase allocated threads
         allocateDownloadThread();
