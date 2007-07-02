@@ -326,6 +326,14 @@ public class DownloadManager {
      */
     private static final Comparator<FrostDownloadItem> nextItemCmp = new Comparator<FrostDownloadItem>() {
         public int compare(FrostDownloadItem value1, FrostDownloadItem value2) {
+            
+            // choose item that with lowest addedTime
+            int cmp1 = Mixed.compareLong(value1.getDownloadAddedMillis(), value2.getDownloadAddedMillis());
+            if( cmp1 != 0 ) {
+                return cmp1;
+            }
+
+            // equal addedTimes, choose by blocksRemaining
             int blocksTodo1;
             int blocksTodo2;
 
@@ -341,13 +349,13 @@ public class DownloadManager {
                 blocksTodo2 = Integer.MAX_VALUE; // never started
             }
             
-            int cmp = Mixed.compareInt(blocksTodo1, blocksTodo2);
-            if( cmp == 0 ) {
-                // equal remainingBlocks, choose smaller file (filesize can be -1)
-                return Mixed.compareLong(value1.getFileSize(), value2.getFileSize());
-            } else {
-                return cmp;
+            int cmp2 = Mixed.compareInt(blocksTodo1, blocksTodo2);
+            if( cmp2 != 0 ) {
+                return cmp2;
             }
+            
+            // equal remainingBlocks, choose smaller file (filesize can be -1)
+            return Mixed.compareLong(value1.getFileSize(), value2.getFileSize());
         }
     };
 }
