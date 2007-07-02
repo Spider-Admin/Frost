@@ -76,7 +76,12 @@ public class DownloadThread extends Thread {
                 logger.log(Level.SEVERE, "Exception thrown in getFile()", t);
             }
             
-            FileTransferManager.inst().getDownloadManager().notifyDownloadFinished(downloadItem, result, targetFile);
+            boolean retryNow = 
+                FileTransferManager.inst().getDownloadManager().notifyDownloadFinished(downloadItem, result, targetFile);
+            
+            if( retryNow ) {
+                FileTransferManager.inst().getDownloadManager().startDownload(downloadItem);
+            }
 
         } catch (Throwable t) {
             logger.log(Level.SEVERE, "Oo. EXCEPTION in requestThread.run", t);

@@ -120,6 +120,8 @@ public class UploadManager {
             uploadItem.setEnabled(Boolean.FALSE);
             uploadItem.setState(FrostUploadItem.STATE_DONE);
             
+            uploadItem.setUploadFinishedMillis(System.currentTimeMillis());
+
             // notify model that shared upload file can be removed
             if( uploadItem.isSharedFile() ) {
                 getModel().notifySharedFileUploadWasSuccessful(uploadItem);

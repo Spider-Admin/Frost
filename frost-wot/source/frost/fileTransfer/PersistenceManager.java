@@ -681,17 +681,23 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                         final String gqid = dlItem.getGqIdentifier();
                         final File targetFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + dlItem.getFilename());
 
+                        final boolean retryNow;
                         final NodeMessage answer = fcpTools.startDirectPersistentGet(gqid, targetFile);
                         if( answer != null ) {
                             final FcpResultGet result = new FcpResultGet(true);
                             FileTransferManager.inst().getDownloadManager().notifyDownloadFinished(dlItem, result, targetFile);
+                            retryNow = false;
                         } else {
                             logger.severe("Could not open a new fcp socket for direct get!");
                             final FcpResultGet result = new FcpResultGet(false);
-                            FileTransferManager.inst().getDownloadManager().notifyDownloadFinished(dlItem, result, targetFile);
+                            retryNow = FileTransferManager.inst().getDownloadManager().notifyDownloadFinished(dlItem, result, targetFile);
                         }
                         
                         directGETsInProgress.remove(gqid);
+                        
+                        if( retryNow ) {
+                            startDownload(dlItem);
+                        }
                     }
                     
                 } catch(Throwable t) {

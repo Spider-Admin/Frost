@@ -237,6 +237,8 @@ public class DownloadManager {
             downloadItem.setFileSize(new Long(targetFile.length()));
             downloadItem.setState(FrostDownloadItem.STATE_DONE);
             downloadItem.setEnabled(Boolean.valueOf(false));
+            
+            downloadItem.setDownloadFinishedTime(System.currentTimeMillis());
 
             // update lastDownloaded time in filelist
             if( downloadItem.isSharedFile() ) {
