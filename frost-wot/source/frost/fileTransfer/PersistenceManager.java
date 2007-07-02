@@ -459,6 +459,9 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         if( ulItem == null || ulItem.getState() != FrostUploadItem.STATE_WAITING ) {
             return false;
         }
+        
+        ulItem.setUploadStartedMillis(System.currentTimeMillis());
+
         ulItem.setState(FrostUploadItem.STATE_PROGRESS);
         
         // start the upload
@@ -524,6 +527,8 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             return false;
         }
         
+        dlItem.setDownloadStartedTime(System.currentTimeMillis());
+
         dlItem.setState(FrostDownloadItem.STATE_PROGRESS);
 
         final String gqid = dlItem.getGqIdentifier();
