@@ -344,8 +344,14 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         } catch(Throwable t) {
             boolean isDuplicate;
             if( t.getMessage().indexOf("constraint violation") > 0 && t.getMessage().indexOf("MSG_ID_UNIQUE_ONLY") > 0 ) {
+                // duplicate msgid
                 isDuplicate = true;
                 logger.warning("Duplicate message id, not added to database table: msgid='"+mo.getMessageId()+
+                        "', board="+mo.getBoard().getName()+", date='"+mo.getDateAndTimeString()+"', index="+mo.getIndex());
+            } else if( t.getMessage().indexOf("constraint violation") > 0 && t.getMessage().indexOf("MSG_UNIQUE_ONLY") > 0 ) {
+                // duplicate msgdatetime,index,board
+                isDuplicate = true;
+                logger.warning("Duplicate msgdatetime,index,board, not added to database table: msgid='"+mo.getMessageId()+
                         "', board="+mo.getBoard().getName()+", date='"+mo.getDateAndTimeString()+"', index="+mo.getIndex());
             } else {
                 isDuplicate = false;
@@ -353,6 +359,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
                     "', board="+mo.getBoard().getName()+", date='"+mo.getDateAndTimeString()+"', index="+mo.getIndex(), t);
                 try { conn.rollback(); } catch(Throwable t1) { logger.log(Level.SEVERE, "Exception during rollback", t1); }
             }
+            
             try { conn.setAutoCommit(true); } catch(Throwable t1) { }
             
             if( isDuplicate ) {
