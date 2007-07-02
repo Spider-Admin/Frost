@@ -141,7 +141,7 @@ public class FrostFilesStorage implements Savable {
             pi.key = dlItem.getKey();
             pi.enabled = (dlItem.isEnabled()==null?true:dlItem.isEnabled().booleanValue());
             pi.state = dlItem.getState();
-            pi.downloadAddedTime = dlItem.getDownloadAddedTime();
+            pi.downloadAddedTime = dlItem.getDownloadAddedMillis();
             pi.downloadStartedTime = dlItem.getDownloadStartedTime();
             pi.downloadFinishedTime = dlItem.getDownloadFinishedTime();
             pi.retries = dlItem.getRetries();

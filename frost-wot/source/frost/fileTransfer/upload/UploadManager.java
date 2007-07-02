@@ -235,7 +235,14 @@ public class UploadManager {
 
     private static final Comparator<FrostUploadItem> nextItemCmp = new Comparator<FrostUploadItem>() {
         public int compare(FrostUploadItem value1, FrostUploadItem value2) {
-            
+
+            // choose item that with lowest addedTime
+            int cmp1 = Mixed.compareLong(value1.getUploadAddedMillis(), value2.getUploadAddedMillis());
+            if( cmp1 != 0 ) {
+                return cmp1;
+            }
+
+            // equal addedTimes, choose by blocksRemaining
             int blocksTodo1;
             int blocksTodo2;
 
@@ -255,13 +262,13 @@ public class UploadManager {
                 blocksTodo2 = Integer.MAX_VALUE; // never started
             }
             
-            int cmp = Mixed.compareInt(blocksTodo1, blocksTodo2);
-            if( cmp == 0 ) {
-                // equal remainingBlocks, choose smaller file
-                return Mixed.compareLong(value1.getFileSize(), value2.getFileSize());
-            } else {
-                return cmp;
+            int cmp2 = Mixed.compareInt(blocksTodo1, blocksTodo2);
+            if( cmp2 != 0 ) {
+                return cmp2;
             }
+            
+            // equal remainingBlocks, choose smaller file
+            return Mixed.compareLong(value1.getFileSize(), value2.getFileSize());
         }
     };
 }

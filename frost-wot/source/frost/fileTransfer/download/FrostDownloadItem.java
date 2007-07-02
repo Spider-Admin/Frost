@@ -266,7 +266,7 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
         }
     }
 
-    public long getDownloadAddedTime() {
+    public long getDownloadAddedMillis() {
         return downloadAddedTime;
     }
 
