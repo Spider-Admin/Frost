@@ -344,6 +344,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                 final boolean retry = FileTransferManager.inst().getDownloadManager().notifyDownloadFinished(dlItem, result, targetFile);
                 if( retry ) {
                     fcpTools.removeRequest(getReq.getIdentifier());
+                    startDownload(dlItem); // restart immediately
                 }
             }
         }
