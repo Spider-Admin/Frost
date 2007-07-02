@@ -1404,6 +1404,16 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         public void windowClosing(WindowEvent e) {
             fileExitMenuItem_actionPerformed(null);
         }
+        public void windowIconified(WindowEvent e) {
+            try { // Hide the Frost window
+                if ( Core.frostSettings.getBoolValue(SettingsClass.MINIMIZE_TO_SYSTRAY)
+                        && JSysTrayIcon.getInstance() != null) 
+                {
+                    JSysTrayIcon.getInstance().showWindow(JSysTrayIcon.SHOW_CMD_HIDE);
+                }
+            } catch (IOException _IoExc) {
+            }
+        }
     }
     
     public void activateGlassPane() {
