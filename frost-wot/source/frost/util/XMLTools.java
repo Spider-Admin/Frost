@@ -247,7 +247,7 @@ public class XMLTools {
      */
     public static String getChildElementsTextValue( Element parent, String childname ) {
 
-        List nodes = getChildElementsByTagName( parent, childname );
+        List<Element> nodes = getChildElementsByTagName( parent, childname );
         if( nodes.size() == 0 ) {
             return null;
         }
@@ -263,7 +263,7 @@ public class XMLTools {
      */
     public static String getChildElementsCDATAValue( Element parent, String childname ) {
 
-        List nodes = getChildElementsByTagName( parent, childname );
+        List<Element> nodes = getChildElementsByTagName( parent, childname );
         if( nodes.size() == 0 ) {
             return null;
         }

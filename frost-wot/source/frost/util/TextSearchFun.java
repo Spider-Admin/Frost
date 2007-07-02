@@ -37,10 +37,10 @@ public class TextSearchFun {
      * @param notStrings  list of strings
      * @return  true if any string occurs in text, false if no string occurs in text
      */
-    public static boolean containsAnyString(String text, List notStrings) {
+    public static boolean containsAnyString(String text, List<String> notStrings) {
         if( notStrings != null && !notStrings.isEmpty() && text != null && text.length() > 0 ) {
             for(int x=0; x < notStrings.size(); x++) {
-                String notName = (String) notStrings.get(x);
+                String notName = notStrings.get(x);
                 if( text.indexOf(notName) > -1 ) {
                     return true;
                 }
@@ -55,9 +55,9 @@ public class TextSearchFun {
      * @param strings  List of strings to search
      * @return true if ALL strings occur in the text, false otherwise
      */
-    public static boolean containsEachString(String text, List strings) {
+    public static boolean containsEachString(String text, List<String> strings) {
         for(int x=0; x < strings.size(); x++) {
-            String string = (String) strings.get(x);
+            String string = strings.get(x);
             if( text.indexOf(string) < 0 ) {
                 return false;
             }
@@ -86,8 +86,8 @@ public class TextSearchFun {
         
         // all strings until SearchStringParser.NOT_IDENT are ANDed, all after NOT are the notStrings
         boolean collectNotStrings = false;
-        for(Iterator i=strList.iterator(); i.hasNext(); ) {
-            String s = (String) i.next();
+        for(Iterator<String> i=strList.iterator(); i.hasNext(); ) {
+            String s = i.next();
             if( s.equals(NOT_IDENT) ) {
                 collectNotStrings = true;
             } else {

@@ -32,12 +32,9 @@ import freenet.support.*;
  *
  * Class uses the implementation of freenet to do computations.
  */
-public class FecTools
-{
+public class FecTools {
     
 	private static java.util.logging.Logger logger = java.util.logging.Logger.getLogger(FecTools.class.getName());
-
-    
 
     /****************************************
      * Methods for CHK@ key generation
@@ -48,65 +45,64 @@ public class FecTools
      *
      * @return String with generated CHK@ key _or_ null on error
      */
-    public static String generateCHK(File inputfile)
-    {
-        return generateCHK( inputfile, 0 );
+    public static String generateCHK(File inputfile) {
+        return generateCHK(inputfile, 0);
     }
 
     /**
      * Generate the CHK@ key of META data in a given file.
+     * 
      * @return String with generated CHK@ key _or_ null on error
      */
-    public static String generateCHK(File inputfile, long metalength)
-    {
-        if( inputfile == null || inputfile.exists() == false || inputfile.length() == 0 )
+    public static String generateCHK(File inputfile, long metalength) {
+        if( inputfile == null || inputfile.exists() == false || inputfile.length() == 0 ) {
             return null;
+        }
 
         Bucket data = new FileBucket(inputfile);
-        return generateCHK( data, metalength );
+        return generateCHK(data, metalength);
     }
 
     /**
      * Generate CHK@ key of data in a given byte array.
-     *
+     * 
      * @return String with generated CHK@ key _or_ null on error
      */
-    public static String generateCHK(byte[] inputdata)
-    {
-        return generateCHK( inputdata, 0 );
+    public static String generateCHK(byte[] inputdata) {
+        return generateCHK(inputdata, 0);
     }
 
-    public static String generateCHK(byte[] inputdata, long metalength)
-    {
-        if( inputdata == null || inputdata.length == 0 )
+    public static String generateCHK(byte[] inputdata, long metalength) {
+        if( inputdata == null || inputdata.length == 0 ) {
             return null;
+        }
 
         Bucket data = new ArrayBucket(inputdata);
-        return generateCHK( data, metalength );
+        return generateCHK(data, metalength);
     }
 
-    public static String generateCHK(Bucket inputbucket)
-    {
-        return generateCHK( inputbucket, 0 );
+    public static String generateCHK(Bucket inputbucket) {
+        return generateCHK(inputbucket, 0);
     }
+
     /**
      * Generate CHK@ key of data in a given Bucket.
-     *
+     * 
      * @return String with generated CHK@ key _or_ null on error
      */
-    public static String generateCHK(Bucket inputbucket, long metalength)
-    {
-        if( inputbucket == null || inputbucket.size() <= 0 )
+    public static String generateCHK(Bucket inputbucket, long metalength) {
+        if( inputbucket == null || inputbucket.size() <= 0 ) {
             return null;
+        }
 
         try {
             long size = inputbucket.size();
             ClientCHK chk = new ClientCHK();
-            // chk.setCipher("Twofish");   // this is the default!
+            // chk.setCipher("Twofish"); // this is the default!
 
             // provide some temp storage for computation
-            byte[] tmpStorage = new byte[ (int)chk.getTotalLength( size ) ];
-            Bucket ctBucket = new ArrayBucket( tmpStorage );
+            byte[] tmpStorage = new byte[(int) chk.getTotalLength(size)];
+            Bucket ctBucket = new ArrayBucket(tmpStorage);
 
             String chkKey = null;
 
@@ -115,59 +111,51 @@ public class FecTools
             chkKey = chk.getURI().toString();
             // System.out.println("chk="+chkKey);
             return chkKey;
-        }
-        catch(Throwable t) {
+        } catch (Throwable t) {
             logger.log(Level.SEVERE, "Exception in FecTools.generateCHK()", t);
         }
         return null;
     }
 
-    /****************************************
+    /*******************************************************************************************************************
      * Methods for FEC check block encoding
-     ****************************************/
+     ******************************************************************************************************************/
 
     /**
      * Prepares an file for upload.
      * Builds a complete FecSplitfile object containing the
      * check blocks, the CHK@ keys of all blocks and the redirect file.
      */
-    public static FecSplitfile prepareFECSplitfile(File inputFile) throws Throwable
-    {
-        if( inputFile == null || inputFile.isFile() == false || inputFile.length() == 0 )
+    public static FecSplitfile prepareFECSplitfile(File inputFile) throws Throwable {
+        if( inputFile == null || inputFile.isFile() == false || inputFile.length() == 0 ) {
             return null;
+        }
 
         FecSplitfile splitfile = new FecSplitfile( inputFile );
         try {
             splitfile.encode();
-        }
-        catch(Throwable t)
-        {
+        } catch(Throwable t) {
             logger.log(Level.SEVERE, "Error while encoding FEC splitfile", t);
             return null;
         }
 
-        List datab, checkb;
-        datab = splitfile.getDataBlocks();
-        checkb = splitfile.getCheckBlocks();
+        List<FecBlock> datab = splitfile.getDataBlocks();
+        List<FecBlock> checkb = splitfile.getCheckBlocks();
 
-        Iterator i = datab.iterator();
         int cnt = 0;
-        while( i.hasNext() )
-        {
-            FecBlock b = (FecBlock)i.next();
+        for(Iterator<FecBlock> i = datab.iterator(); i.hasNext(); ) {
+            FecBlock b = i.next();
             logger.finer("data_" + cnt + ": '" + b.getChkKey() + "'");
             cnt++;
         }
-        i = checkb.iterator();
+
         cnt = 0;
-        while( i.hasNext() )
-        {
-            FecBlock b = (FecBlock)i.next();
+        for(Iterator<FecBlock> i = checkb.iterator(); i.hasNext(); ) {
+            FecBlock b = i.next();
             logger.finer("check_" + cnt + ": '" + b.getChkKey() + "'");
             cnt++;
         }
 
         return splitfile;
     }
-
 }

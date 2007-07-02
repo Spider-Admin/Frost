@@ -104,6 +104,7 @@ public class SettingsClass implements Savable {
     public static final String UPLOAD_MAX_THREADS = "uploadThreads";
     public static final String UPLOAD_FILE_HTL = "htlUpload";
     public static final String UPLOAD_MAX_SPLITFILE_THREADS = "splitfileUploadThreads";
+    public static final String UPLOAD_REMOVE_CHUNKS = "removeOldUploadFileChunks";
 
     public static final String DOWNLOAD_MAX_THREADS = "downloadThreads";
     public static final String DOWNLOAD_MAX_RETRIES = "downloadMaxRetries";
@@ -375,9 +376,9 @@ public class SettingsClass implements Savable {
         }
 
         TreeMap<String,Object> sortedSettings = new TreeMap<String,Object>(settingsHash); // sort the lines
-        Iterator i = sortedSettings.keySet().iterator();
+        Iterator<String> i = sortedSettings.keySet().iterator();
         while (i.hasNext()) {
-            String key = (String) i.next();
+            String key = i.next();
             if (key.equals(DIR_CONFIG)) {
                 continue; // do not save the config dir, its unchangeable
             }
@@ -809,6 +810,7 @@ public class SettingsClass implements Savable {
 
         defaults.put(DOWNLOAD_MAX_SPLITFILE_THREADS, "30");
         defaults.put(UPLOAD_MAX_SPLITFILE_THREADS, "15");
+        defaults.put(UPLOAD_REMOVE_CHUNKS, "true");
         
         defaults.put(GQ_SHOW_EXTERNAL_ITEMS_DOWNLOAD, "false");
         defaults.put(GQ_SHOW_EXTERNAL_ITEMS_UPLOAD, "false");
@@ -898,9 +900,9 @@ public class SettingsClass implements Savable {
      */
     public void save() throws StorageException {
         if (updaters != null) {
-            Enumeration enumeration = updaters.elements();
+            Enumeration<SettingsUpdater> enumeration = updaters.elements();
             while (enumeration.hasMoreElements()) {
-                ((SettingsUpdater) enumeration.nextElement()).updateSettings();
+                enumeration.nextElement().updateSettings();
             }
         }
         if (!writeSettingsFile()) {

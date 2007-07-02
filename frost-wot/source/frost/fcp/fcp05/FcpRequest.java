@@ -46,7 +46,7 @@ public class FcpRequest {
             return;
         }
 
-        File t1 = new File(dlItem.getTargetPath() + ".redirect");
+        File t1 = new File(dlItem.getTargetPath() + FecSplitfile.FILE_REDIRECT_EXTENSION);
         if( !t1.isFile() || t1.length() == 0 ) {
             return;
         }
@@ -121,14 +121,14 @@ public class FcpRequest {
         //  redirect    'downloaddir/download.zip.redirect'
 
         // check if there is already a redirect file, size > 0
-        File t1 = new File(target.getPath() + ".redirect");
+        File t1 = new File(target.getPath() + FecSplitfile.FILE_REDIRECT_EXTENSION);
 
         // TODO: check if redirect files have same content (sizes could differ, thats ok!)
         if( t1.exists() == false || t1.length() == 0 ) {
             // move redirect file to working location
             t1.delete();
             redirect.renameTo(t1);
-            redirect = new File(target.getPath() + ".redirect");
+            redirect = new File(target.getPath() + FecSplitfile.FILE_REDIRECT_EXTENSION);
         } else {
             // we dont need the redirect file any longer, delete it
             // we use existing redirect file
@@ -504,7 +504,7 @@ public class FcpRequest {
         }
     }
 
-    private static ArrayList<FecBlock> getBlocksInSegmentWithState(List allBlocks, int segno, int state) {
+    private static ArrayList<FecBlock> getBlocksInSegmentWithState(List<FecBlock> allBlocks, int segno, int state) {
         ArrayList<FecBlock> l = new ArrayList<FecBlock>();
         for( int x=0; x<allBlocks.size(); x++ ) {
             FecBlock b = (FecBlock)allBlocks.get(x);

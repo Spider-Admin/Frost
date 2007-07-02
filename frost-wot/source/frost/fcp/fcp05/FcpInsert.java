@@ -72,8 +72,8 @@ public class FcpInsert
         int result = FcpResultPut.Error;
         
         // check if the keyword returned by freenet is a known keyword
-        for(Iterator i=getKeywords().keySet().iterator(); i.hasNext(); ) {
-            String keyword = (String)i.next();
+        for(Iterator<String> i=getKeywords().keySet().iterator(); i.hasNext(); ) {
+            String keyword = i.next();
             if( text.indexOf(keyword) >= 0 ) {
                 result = ((Integer)getKeywords().get(keyword)).intValue();
                 break;
@@ -545,13 +545,11 @@ RawDataLength=0
         }
     }
 
-    private static List<FecBlock> getFecBlocksInSegmentWithState(List allBlocks, int segno, int state) {
+    private static List<FecBlock> getFecBlocksInSegmentWithState(List<FecBlock> allBlocks, int segno, int state) {
         ArrayList<FecBlock> l = new ArrayList<FecBlock>();
-        for( int x=0; x<allBlocks.size(); x++ ) {
-            FecBlock b = (FecBlock)allBlocks.get(x);
-            if( b.getSegmentNo() == segno &&
-                b.getCurrentState() == state )
-            {
+        for( Iterator<FecBlock> i=allBlocks.iterator(); i.hasNext(); ) {
+            FecBlock b = i.next();
+            if( b.getSegmentNo() == segno && b.getCurrentState() == state ) {
                 l.add( b );
             }
         }

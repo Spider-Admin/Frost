@@ -18,6 +18,8 @@
 */
 package frost.fileTransfer;
 
+import java.util.*;
+
 import frost.*;
 import frost.fcp.*;
 import frost.fileTransfer.download.*;
@@ -55,7 +57,7 @@ public class FileTransferManager implements Savable {
         getDownloadManager().initialize();
         getSearchManager().initialize();
         getSharedFilesManager().initialize();
-        getUploadManager().initialize( getSharedFilesManager().getModel().getItems() );
+        getUploadManager().initialize( (List<FrostSharedFileItem>)getSharedFilesManager().getModel().getItems() );
         getNewUploadFilesManager().initialize();
         
         if( PersistenceManager.isPersistenceEnabled() && Core.isFreenetOnline() ) {
