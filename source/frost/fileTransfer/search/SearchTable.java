@@ -66,8 +66,8 @@ public class SearchTable extends SortedModelTable {
      */
     public void searchFinished(Component tabComponent) {
         // add all chached items to model
-        for( Iterator i = searchItems.iterator(); i.hasNext(); ) {
-            FrostSearchItem fsi = (FrostSearchItem) i.next();
+        for( Iterator<FrostSearchItem> i = searchItems.iterator(); i.hasNext(); ) {
+            FrostSearchItem fsi = i.next();
             searchModel.addSearchItem(fsi);
         }
         searchItems.clear();

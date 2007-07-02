@@ -194,9 +194,9 @@ public class FileListFileDetailsDialog extends JDialog {
     }
     
     public void startDialog(FrostFileListFileObject fileObject) {
-        List lst = fileObject.getFrostFileListFileObjectOwnerList();
-        for( Iterator i = lst.iterator(); i.hasNext(); ) {
-            FrostFileListFileObjectOwner o = (FrostFileListFileObjectOwner) i.next();
+        List<FrostFileListFileObjectOwner> lst = fileObject.getFrostFileListFileObjectOwnerList();
+        for( Iterator<FrostFileListFileObjectOwner> i = lst.iterator(); i.hasNext(); ) {
+            FrostFileListFileObjectOwner o = i.next();
             FileListFileDetailsItem item = new FileListFileDetailsItem(o); 
             model.addPropertiesItem(item);
         }

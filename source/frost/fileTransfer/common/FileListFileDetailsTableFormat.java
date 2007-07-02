@@ -271,75 +271,65 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
         return true;
     }
 
-    private class FileNameComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            FileListFileDetailsItem item1 = (FileListFileDetailsItem) o1;
-            FileListFileDetailsItem item2 = (FileListFileDetailsItem) o2;
+    private class FileNameComparator implements Comparator<FileListFileDetailsItem> {
+        public int compare(FileListFileDetailsItem item1, FileListFileDetailsItem item2) {
             return item1.getFileOwner().getName().compareToIgnoreCase(item2.getFileOwner().getName());
         }
     }
 
-    private class OwnerComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            FileListFileDetailsItem item1 = (FileListFileDetailsItem) o1;
-            FileListFileDetailsItem item2 = (FileListFileDetailsItem) o2;
+    private class OwnerComparator implements Comparator<FileListFileDetailsItem> {
+        public int compare(FileListFileDetailsItem item1, FileListFileDetailsItem item2) {
             return item1.getFileOwner().getOwner().compareToIgnoreCase(item2.getFileOwner().getOwner());
         }
     }
 
-    private class IdentityStateComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            FileListFileDetailsItem item1 = (FileListFileDetailsItem) o1;
-            FileListFileDetailsItem item2 = (FileListFileDetailsItem) o2;
+    private class IdentityStateComparator implements Comparator<FileListFileDetailsItem> {
+        public int compare(FileListFileDetailsItem item1, FileListFileDetailsItem item2) {
             Integer i1 = new Integer(item1.getOwnerIdentity().getState());
             Integer i2 = new Integer(item2.getOwnerIdentity().getState());
             return i1.compareTo(i2);
         }
     }
 
-    private class RatingComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            int val1 = ((FileListFileDetailsItem) o1).getFileOwner().getRating();
-            int val2 = ((FileListFileDetailsItem) o2).getFileOwner().getRating();
+    private class RatingComparator implements Comparator<FileListFileDetailsItem> {
+        public int compare(FileListFileDetailsItem o1, FileListFileDetailsItem o2) {
+            int val1 = o1.getFileOwner().getRating();
+            int val2 = o2.getFileOwner().getRating();
             return new Long(val1).compareTo(new Long(val2));
         }
     }
 
-    private class CommentComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            FileListFileDetailsItem item1 = (FileListFileDetailsItem) o1;
-            FileListFileDetailsItem item2 = (FileListFileDetailsItem) o2;
+    private class CommentComparator implements Comparator<FileListFileDetailsItem> {
+        public int compare(FileListFileDetailsItem item1, FileListFileDetailsItem item2) {
             return item1.getDisplayComment().compareToIgnoreCase(item2.getDisplayComment());
         }
     }
 
-    private class KeywordsComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            FileListFileDetailsItem item1 = (FileListFileDetailsItem) o1;
-            FileListFileDetailsItem item2 = (FileListFileDetailsItem) o2;
+    private class KeywordsComparator implements Comparator<FileListFileDetailsItem> {
+        public int compare(FileListFileDetailsItem item1, FileListFileDetailsItem item2) {
             return item1.getDisplayKeywords().compareToIgnoreCase(item2.getDisplayKeywords());
         }
     }
 
-    private class LastUploadedComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            long val1 = ((FileListFileDetailsItem) o1).getFileOwner().getLastUploaded();
-            long val2 = ((FileListFileDetailsItem) o2).getFileOwner().getLastUploaded();
+    private class LastUploadedComparator implements Comparator<FileListFileDetailsItem> {
+        public int compare(FileListFileDetailsItem o1, FileListFileDetailsItem o2) {
+            long val1 = o1.getFileOwner().getLastUploaded();
+            long val2 = o2.getFileOwner().getLastUploaded();
             return new Long(val1).compareTo(new Long(val2));
         }
     }
 
-    private class LastReceivedComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            long val1 = ((FileListFileDetailsItem) o1).getFileOwner().getLastReceived();
-            long val2 = ((FileListFileDetailsItem) o2).getFileOwner().getLastReceived();
+    private class LastReceivedComparator implements Comparator<FileListFileDetailsItem> {
+        public int compare(FileListFileDetailsItem o1, FileListFileDetailsItem o2) {
+            long val1 = o1.getFileOwner().getLastReceived();
+            long val2 = o2.getFileOwner().getLastReceived();
             return new Long(val1).compareTo(new Long(val2));
         }
     }
-    private class KeyComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            String key1 = ((FileListFileDetailsItem) o1).getKey();
-            String key2 = ((FileListFileDetailsItem) o2).getKey();
+    private class KeyComparator implements Comparator<FileListFileDetailsItem> {
+        public int compare(FileListFileDetailsItem o1, FileListFileDetailsItem o2) {
+            String key1 = o1.getKey();
+            String key2 = o2.getKey();
             if (key1 == null) {
                 key1 = unknown;
             }

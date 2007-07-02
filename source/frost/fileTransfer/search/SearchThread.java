@@ -90,8 +90,7 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
         // hideBadFiles: show file if no bad owner; or if at least 1 owner is good/observe
         if( hideBad ) {
             boolean accept = true;
-            for(Iterator i=fo.getFrostFileListFileObjectOwnerList().iterator(); i.hasNext(); ) {
-                FrostFileListFileObjectOwner ob = (FrostFileListFileObjectOwner)i.next();
+            for( FrostFileListFileObjectOwner ob : fo.getFrostFileListFileObjectOwnerList() ) {
                 if( ob.getOwner() != null ) {
                     Identity id = Core.getIdentities().getIdentity(ob.getOwner());
                     if (id != null ) { 
@@ -113,8 +112,7 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
         // check file extension. if extension of ONE file is ok the file matches
         if( searchParams.getExtensions() != SearchParameters.EXTENSIONS_ALL ) {
             boolean accept = false;
-            for( Iterator i=fo.getFrostFileListFileObjectOwnerList().iterator(); i.hasNext(); ) {
-                FrostFileListFileObjectOwner ob = (FrostFileListFileObjectOwner) i.next();
+            for( FrostFileListFileObjectOwner ob : fo.getFrostFileListFileObjectOwnerList() ) {
                 String name = lowerCase(ob.getName());
                 // check for search type
                 if( searchParams.getExtensions() == SearchParameters.EXTENSIONS_AUDIO ) {
@@ -166,9 +164,7 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
             return true; // no not strings given
         }
 
-        for( Iterator i=fo.getFrostFileListFileObjectOwnerList().iterator(); i.hasNext(); ) {
-            
-            FrostFileListFileObjectOwner ob = (FrostFileListFileObjectOwner) i.next();
+        for( FrostFileListFileObjectOwner ob : fo.getFrostFileListFileObjectOwnerList() ) {
             
             // check notName
             if( TextSearchFun.containsAnyString(lowerCase(ob.getName()), searchParams.getNotName()) ) {
@@ -199,9 +195,7 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
             return true;
         }
 
-        for( Iterator i=fo.getFrostFileListFileObjectOwnerList().iterator(); i.hasNext(); ) {
-            
-            FrostFileListFileObjectOwner ob = (FrostFileListFileObjectOwner) i.next();
+        for( FrostFileListFileObjectOwner ob : fo.getFrostFileListFileObjectOwnerList() ) {
 
             String name = lowerCase(ob.getName());
             String comment = lowerCase(ob.getComment());
@@ -251,9 +245,7 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
             return true; // find all
         }
         
-        for( Iterator i=fo.getFrostFileListFileObjectOwnerList().iterator(); i.hasNext(); ) {
-            
-            FrostFileListFileObjectOwner ob = (FrostFileListFileObjectOwner) i.next();
+        for( FrostFileListFileObjectOwner ob : fo.getFrostFileListFileObjectOwnerList() ) {
 
             // then check for strings, if strings are given they must match
 
@@ -337,8 +329,7 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
         
         // finally check if all words were found
         boolean allFound = true;
-        for(Iterator i=searchStrings.values().iterator(); i.hasNext(); ) {
-            Boolean b = (Boolean) i.next();
+        for( Boolean b : searchStrings.values() ) {
             if( b.booleanValue() == false ) {
                 allFound = false;
                 break;

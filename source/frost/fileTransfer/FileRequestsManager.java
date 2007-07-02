@@ -61,12 +61,10 @@ public class FileRequestsManager {
         final long before23hours = now -  1L * 23L * 60L * 60L * 1000L;
         final long before3days =   now -  3L * 24L * 60L * 60L * 1000L;
 
-        final List downloadModelItems = FileTransferManager.inst().getDownloadManager().getModel().getItems();
-
         final List<String> mustSendRequests = new LinkedList<String>();
 
-        for( Iterator i = downloadModelItems.iterator(); i.hasNext(); ) {
-            final FrostDownloadItem dlItem = (FrostDownloadItem) i.next();
+        final List<FrostDownloadItem> downloadModelItems = FileTransferManager.inst().getDownloadManager().getModel().getItems();
+        for( final FrostDownloadItem dlItem : downloadModelItems ) {
 
             if( !dlItem.isSharedFile() ) {
                 continue;
@@ -113,15 +111,14 @@ public class FileRequestsManager {
 
         final long now = System.currentTimeMillis();
 
+        final List<FrostDownloadItem> downloadModelItems = FileTransferManager.inst().getDownloadManager().getModel().getItems();
+
         // first update filelistfiles in memory
         for( Iterator<String> i = requests.iterator(); i.hasNext(); ) {
             final String sha = i.next();
             
             // filelist files in download table
-            final List downloadModelItems = FileTransferManager.inst().getDownloadManager().getModel().getItems();
-
-            for( Iterator j = downloadModelItems.iterator(); j.hasNext(); ) {
-                final FrostDownloadItem dlItem = (FrostDownloadItem) j.next();
+            for( final FrostDownloadItem dlItem : downloadModelItems ) {
                 if( !dlItem.isSharedFile() ) {
                     continue;
                 }
@@ -171,16 +168,15 @@ public class FileRequestsManager {
         final long minDiff = MIN_LAST_UPLOADED * 24L * 60L * 60L * 1000L; // MIN_LAST_UPLOADED days in milliseconds
         final long minLastUploaded = now - minDiff; // starts items whose lastupload was before this time
 
-        final List downloadModelItems = FileTransferManager.inst().getDownloadManager().getModel().getItems();
-        final List sharedFilesModelItems = FileTransferManager.inst().getSharedFilesManager().getModel().getItems();
+        final List<FrostDownloadItem> downloadModelItems = FileTransferManager.inst().getDownloadManager().getModel().getItems();
+        final List<FrostSharedFileItem> sharedFilesModelItems = FileTransferManager.inst().getSharedFilesManager().getModel().getItems();
 
         // first update the download and shared files in memory
         for( Iterator<String> i = content.getShaStrings().iterator(); i.hasNext(); ) {
             final String sha = i.next();
 
             // filelist files in download table
-            for( Iterator j = downloadModelItems.iterator(); j.hasNext(); ) {
-                final FrostDownloadItem dlItem = (FrostDownloadItem) j.next();
+            for( final FrostDownloadItem dlItem : downloadModelItems ) {
                 if( !dlItem.isSharedFile() ) {
                     continue;
                 }
@@ -195,8 +191,7 @@ public class FileRequestsManager {
             }
             
             // our own shared files in shared files table
-            for( Iterator j = sharedFilesModelItems.iterator(); j.hasNext(); ) {
-                final FrostSharedFileItem sfo = (FrostSharedFileItem)j.next();
+            for( final FrostSharedFileItem sfo : sharedFilesModelItems ) {
                 if( !sfo.getSha().equals(sha) ) {
                     continue;
                 }

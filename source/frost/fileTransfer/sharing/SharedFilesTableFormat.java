@@ -330,17 +330,13 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
         }
     }
 
-    private class NameComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            FrostSharedFileItem item1 = (FrostSharedFileItem) o1;
-            FrostSharedFileItem item2 = (FrostSharedFileItem) o2;
+    private class NameComparator implements Comparator<FrostSharedFileItem> {
+        public int compare(FrostSharedFileItem item1, FrostSharedFileItem item2) {
             return item1.getFile().getName().compareToIgnoreCase(item2.getFile().getName());
         }
     }
-    private class FileSizeComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            FrostSharedFileItem item1 = (FrostSharedFileItem) o1;
-            FrostSharedFileItem item2 = (FrostSharedFileItem) o2;
+    private class FileSizeComparator implements Comparator<FrostSharedFileItem> {
+        public int compare(FrostSharedFileItem item1, FrostSharedFileItem item2) {
             if( item1.getFileSize() > item2.getFileSize() ) {
                 return 1;
             } else if( item1.getFileSize() < item2.getFileSize() ) {
@@ -350,17 +346,13 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
             }
         }
     }
-    private class OwnerComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            FrostSharedFileItem item1 = (FrostSharedFileItem) o1;
-            FrostSharedFileItem item2 = (FrostSharedFileItem) o2;
+    private class OwnerComparator implements Comparator<FrostSharedFileItem> {
+        public int compare(FrostSharedFileItem item1, FrostSharedFileItem item2) {
             return item1.getOwner().compareToIgnoreCase(item2.getOwner());
         }
     }
-    private class UploadCountComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            FrostSharedFileItem item1 = (FrostSharedFileItem) o1;
-            FrostSharedFileItem item2 = (FrostSharedFileItem) o2;
+    private class UploadCountComparator implements Comparator<FrostSharedFileItem> {
+        public int compare(FrostSharedFileItem item1, FrostSharedFileItem item2) {
             if( item1.getUploadCount() > item2.getUploadCount() ) {
                 return 1;
             } else if( item1.getUploadCount() < item2.getUploadCount() ) {
@@ -370,10 +362,8 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
             }
         }
     }
-    private class LastUploadComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            FrostSharedFileItem item1 = (FrostSharedFileItem) o1;
-            FrostSharedFileItem item2 = (FrostSharedFileItem) o2;
+    private class LastUploadComparator implements Comparator<FrostSharedFileItem> {
+        public int compare(FrostSharedFileItem item1, FrostSharedFileItem item2) {
             if( item1.getLastUploaded() > item2.getLastUploaded() ) {
                 return 1;
             } else if( item1.getLastUploaded() < item2.getLastUploaded() ) {
@@ -383,10 +373,8 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
             }
         }
     }
-    private class RequestCountComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            FrostSharedFileItem item1 = (FrostSharedFileItem) o1;
-            FrostSharedFileItem item2 = (FrostSharedFileItem) o2;
+    private class RequestCountComparator implements Comparator<FrostSharedFileItem> {
+        public int compare(FrostSharedFileItem item1, FrostSharedFileItem item2) {
             if( item1.getRequestsReceived() > item2.getRequestsReceived() ) {
                 return 1;
             } else if( item1.getRequestsReceived() < item2.getRequestsReceived() ) {
@@ -396,10 +384,8 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
             }
         }
     }
-    private class LastRequestComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            FrostSharedFileItem item1 = (FrostSharedFileItem) o1;
-            FrostSharedFileItem item2 = (FrostSharedFileItem) o2;
+    private class LastRequestComparator implements Comparator<FrostSharedFileItem> {
+        public int compare(FrostSharedFileItem item1, FrostSharedFileItem item2) {
             if( item1.getRequestLastReceived() > item2.getRequestLastReceived() ) {
                 return 1;
             } else if( item1.getRequestLastReceived() < item2.getRequestLastReceived() ) {
@@ -409,10 +395,10 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
             }
         }
     }
-    private class KeyComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            String key1 = ((FrostSharedFileItem) o1).getKey();
-            String key2 = ((FrostSharedFileItem) o2).getKey();
+    private class KeyComparator implements Comparator<FrostSharedFileItem> {
+        public int compare(FrostSharedFileItem o1, FrostSharedFileItem o2) {
+            String key1 = o1.getKey();
+            String key2 = o2.getKey();
             if (key1 == null) {
                 key1 = unknown;
             }
@@ -422,10 +408,8 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
             return key1.compareToIgnoreCase(key2);
         }
     }
-    private class RatingComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            FrostSharedFileItem item1 = (FrostSharedFileItem) o1;
-            FrostSharedFileItem item2 = (FrostSharedFileItem) o2;
+    private class RatingComparator implements Comparator<FrostSharedFileItem> {
+        public int compare(FrostSharedFileItem item1, FrostSharedFileItem item2) {
             if( item1.getRating() > item2.getRating() ) {
                 return 1;
             } else if( item1.getRating() < item2.getRating() ) {
@@ -435,10 +419,10 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
             }
         }
     }
-    private class CommentComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            String key1 = ((FrostSharedFileItem) o1).getComment();
-            String key2 = ((FrostSharedFileItem) o2).getComment();
+    private class CommentComparator implements Comparator<FrostSharedFileItem> {
+        public int compare(FrostSharedFileItem o1, FrostSharedFileItem o2) {
+            String key1 = o1.getComment();
+            String key2 = o2.getComment();
             if (key1 == null) {
                 key1 = unknown;
             }
@@ -448,10 +432,10 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
             return key1.compareToIgnoreCase(key2);
         }
     }
-    private class KeywordsComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            String key1 = ((FrostSharedFileItem) o1).getKeywords();
-            String key2 = ((FrostSharedFileItem) o2).getKeywords();
+    private class KeywordsComparator implements Comparator<FrostSharedFileItem> {
+        public int compare(FrostSharedFileItem o1, FrostSharedFileItem o2) {
+            String key1 = o1.getKeywords();
+            String key2 = o2.getKeywords();
             if (key1 == null) {
                 key1 = unknown;
             }
@@ -461,10 +445,8 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
             return key1.compareToIgnoreCase(key2);
         }
     }
-    private class LastSharedComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            FrostSharedFileItem item1 = (FrostSharedFileItem) o1;
-            FrostSharedFileItem item2 = (FrostSharedFileItem) o2;
+    private class LastSharedComparator implements Comparator<FrostSharedFileItem> {
+        public int compare(FrostSharedFileItem item1, FrostSharedFileItem item2) {
             if( item1.getRefLastSent() > item2.getRefLastSent() ) {
                 return 1;
             } else if( item1.getRefLastSent() < item2.getRefLastSent() ) {
@@ -474,10 +456,8 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
             }
         }
     }
-    private class PathComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            FrostSharedFileItem item1 = (FrostSharedFileItem) o1;
-            FrostSharedFileItem item2 = (FrostSharedFileItem) o2;
+    private class PathComparator implements Comparator<FrostSharedFileItem> {
+        public int compare(FrostSharedFileItem item1, FrostSharedFileItem item2) {
             return item1.getFile().getPath().compareToIgnoreCase(item2.getFile().getPath());
         }
     }

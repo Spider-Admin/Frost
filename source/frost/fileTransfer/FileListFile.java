@@ -100,8 +100,7 @@ public class FileListFile {
             Element filesElement = doc.createElement(TAG_files);
             
             // Iterate through set of files and add them all
-            for(Iterator i = content.getFileList().iterator(); i.hasNext(); ) {
-                SharedFileXmlFile current = (SharedFileXmlFile)i.next();
+            for( SharedFileXmlFile current : content.getFileList() ) {
                 Element currentElement = current.getXMLElement(doc);
                 filesElement.appendChild(currentElement);
             }
@@ -187,7 +186,7 @@ public class FileListFile {
         Element identityNode = null;
         Element filesNode = null;
         {        
-            List nodelist = XMLTools.getChildElementsByTagName(rootNode, TAG_Identity);
+            List<Element> nodelist = XMLTools.getChildElementsByTagName(rootNode, TAG_Identity);
             if( nodelist.size() != 1 ) {
                 logger.severe("Error: xml files must contain exactly one element '"+TAG_Identity+"'");
                 return null;
@@ -199,14 +198,13 @@ public class FileListFile {
                 logger.severe("Error: xml files must contain exactly one element '"+TAG_files+"'");
                 return null;
             }
-            filesNode = (Element)nodelist.get(0);
+            filesNode = nodelist.get(0);
         }
         
         LinkedList<SharedFileXmlFile> files = new LinkedList<SharedFileXmlFile>();
         {        
-            List _files = XMLTools.getChildElementsByTagName(filesNode, TAG_File);
-            for( Iterator i = _files.iterator(); i.hasNext(); ) {
-                Element el = (Element) i.next();
+            List<Element> _files = XMLTools.getChildElementsByTagName(filesNode, TAG_File);
+            for( Element el : _files ) {
                 SharedFileXmlFile file = SharedFileXmlFile.getInstance(el);
                 if( file == null ) {
                     logger.severe("Error: shared files xml parsing failed, most likely the signature verification will fail!");

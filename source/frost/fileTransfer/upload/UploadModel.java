@@ -237,9 +237,9 @@ public class UploadModel extends SortedModel implements Savable {
      * Saves the upload model to database.
      */
     public void save() throws StorageException {
-        List itemList = getItems();
+        List<FrostUploadItem> itemList = (List<FrostUploadItem>)getItems();
         try {
-            FrostFilesStorage.inst().saveUploadFiles((List<FrostUploadItem>)itemList);
+            FrostFilesStorage.inst().saveUploadFiles(itemList);
         } catch (Throwable e) {
             logger.log(Level.SEVERE, "Error saving upload items", e);
             throw new StorageException("Error saving upload items");

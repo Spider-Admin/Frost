@@ -257,9 +257,8 @@ public class FrostSharedFileItem extends ModelItem implements CopyToClipboardIte
     }
     
     public boolean isCurrentlyUploading() {
-        List uploadItems = FileTransferManager.inst().getUploadManager().getModel().getItems();
-        for(Iterator k = uploadItems.iterator(); k.hasNext(); ) {
-            FrostUploadItem ulItem = (FrostUploadItem) k.next();
+        List<FrostUploadItem> uploadItems = FileTransferManager.inst().getUploadManager().getModel().getItems();
+        for( FrostUploadItem ulItem : uploadItems ) {
             FrostSharedFileItem sfi = ulItem.getSharedFileItem();
             if( sfi == this ) {
                 // this upload item is for this shared file

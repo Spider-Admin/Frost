@@ -73,8 +73,7 @@ public class FileRequestFile {
         Element rootChkElement = doc.createElement(TAG_shaList);
         rootElement.appendChild( rootChkElement );
         
-        for( Iterator i = content.getShaStrings().iterator(); i.hasNext(); ) {
-            String chkKey = (String) i.next();
+        for( String chkKey : content.getShaStrings() ) {
             
             Element nameElement = doc.createElement(TAG_sha);
             Text text = doc.createTextNode( chkKey );
@@ -163,7 +162,7 @@ public class FileRequestFile {
         }
         long timestamp = Long.parseLong(timeStampStr);
         
-        List nodelist = XMLTools.getChildElementsByTagName(rootNode, TAG_shaList);
+        List<Element> nodelist = XMLTools.getChildElementsByTagName(rootNode, TAG_shaList);
         if( nodelist.size() != 1 ) {
             logger.severe("Error: xml request files must contain only one element '"+TAG_shaList+"'");
             return null;
@@ -172,9 +171,8 @@ public class FileRequestFile {
         Element rootShaNode = (Element)nodelist.get(0);
         
         List<String> shaList = new LinkedList<String>();
-        List xmlKeys = XMLTools.getChildElementsByTagName(rootShaNode, TAG_sha);
-        for( Iterator i = xmlKeys.iterator(); i.hasNext(); ) {
-            Element el = (Element) i.next();
+        List<Element> xmlKeys = XMLTools.getChildElementsByTagName(rootShaNode, TAG_sha);
+        for( Element el : xmlKeys ) {
             
             Text txtname = (Text) el.getFirstChild();
             if( txtname == null ) {
