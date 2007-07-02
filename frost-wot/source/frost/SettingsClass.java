@@ -129,6 +129,7 @@ public class SettingsClass implements Savable {
     public static final String SHOW_BOARD_UPDATE_VISUALIZATION = SettingsClass.BOARD_UPDATE_VISUALIZATION_ENABLED;
     public static final String DISABLE_SPLASHSCREEN = "disableSplashScreen";
     public static final String SHOW_SYSTRAY_ICON = "showSystrayIcon";
+    public static final String MINIMIZE_TO_SYSTRAY = "minimizeToSystray";
     
     public static final String MAX_MESSAGE_DISPLAY = "maxMessageDisplay";
     public static final String MAX_MESSAGE_DOWNLOAD = "maxMessageDownload";
@@ -800,6 +801,7 @@ public class SettingsClass implements Savable {
         defaults.put(FILE_BASE, "files");
 
         defaults.put(SHOW_SYSTRAY_ICON, "true");
+        defaults.put(MINIMIZE_TO_SYSTRAY, "false");
         
         defaults.put(DOWNLOAD_REMOVE_FINISHED, "false");
         defaults.put(UPLOAD_REMOVE_FINISHED, "false");
