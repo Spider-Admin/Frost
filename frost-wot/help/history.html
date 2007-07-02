@@ -9,6 +9,37 @@
   <BODY>
 <H2>Frost History</H2>
       <PRE>
+2007.07.02:
+------------
+
+- 'minimize to systray' button fixed
+- new option to automatically minimize Frost to tray when the
+  window is minimized (systray icon must be enabled)
+- respect archive interval days (don't run archiving each startup)
+- downloads/uploads are now started in the same order as
+  they were added
+- fixed ugly bug: backward messages were downloaded again and again
+- new popup menu entry for uploads and downloads table:
+  'Start selected Uploads/downloads immediately'. Overrules the 
+  configured maximum count of running uploads/downloads.
+- the filename tooltip in upload table or download table shows
+  the time when the item was added/started/finished
+  (only shown when informations are set)
+- 0.5: during startup old upload file chunks are removed from
+       localdata directory (.checkblocks/.redirect files).
+       ("removeOldUploadFileChunks" in frost.ini)
+- 0.7: fixed problem that Frost was not able to download
+       keys with a filename that ends to .zip. The node
+       tries to do fancy things in this case and the download
+       fails even if the file is there. Frost now recognizes
+       this case and restarts the download using a key without
+       any path level.
+- 0.7: the target filename of a PUT is now set when you
+       add a file manually to the uploads. This prevents
+       problems when downloading the file with applications
+       that have no special circumvention handling like Frost.
+       ("fcp2.setTargetfilenameForManualPut" in frost.ini)
+
 2007.06.28:
 ------------
 
