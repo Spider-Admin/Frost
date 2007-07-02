@@ -152,6 +152,51 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
             return this;
         }
     }
+    
+    private class ShowNameTooltipRenderer extends BaseRenderer {
+        public ShowNameTooltipRenderer() {
+            super();
+        }
+        public Component getTableCellRendererComponent(
+            JTable table,
+            Object value,
+            boolean isSelected,
+            boolean hasFocus,
+            int row,
+            int column) {
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+            String tooltip = null;
+            ModelItem item = modelTable.getItemAt(row); //It may be null
+            if (item != null) {
+                FrostUploadItem uploadItem = (FrostUploadItem) item;
+                StringBuilder sb = new StringBuilder();
+                sb.append("<html>").append(uploadItem.getFilename());
+                if( uploadItem.getUploadAddedMillis() > 0 ) {
+                    sb.append("<br>Added: "); 
+                    sb.append(DateFun.FORMAT_DATE_VISIBLE.print(uploadItem.getUploadAddedMillis())); 
+                    sb.append("  ");
+                    sb.append(DateFun.FORMAT_TIME_VISIBLE.print(uploadItem.getUploadAddedMillis()));
+                }
+                if( uploadItem.getUploadStartedMillis() > 0 ) {
+                    sb.append("<br>Started: "); 
+                    sb.append(DateFun.FORMAT_DATE_VISIBLE.print(uploadItem.getUploadStartedMillis())); 
+                    sb.append("  ");
+                    sb.append(DateFun.FORMAT_TIME_VISIBLE.print(uploadItem.getUploadStartedMillis()));
+                }
+                if( uploadItem.getUploadFinishedMillis() > 0 ) {
+                    sb.append("<br>Finished: "); 
+                    sb.append(DateFun.FORMAT_DATE_VISIBLE.print(uploadItem.getUploadFinishedMillis())); 
+                    sb.append("  ");
+                    sb.append(DateFun.FORMAT_TIME_VISIBLE.print(uploadItem.getUploadFinishedMillis()));
+                }
+                sb.append("</html>");
+                tooltip = sb.toString();
+            }
+            setToolTipText(tooltip);
+            return this;
+        }
+    }
 
     private class ShowStateContentTooltipRenderer extends BaseRenderer {
         public ShowStateContentTooltipRenderer() {
@@ -618,7 +663,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         RightAlignRenderer numberRightRenderer = new RightAlignRenderer();
         ShowContentTooltipRenderer showContentTooltipRenderer = new ShowContentTooltipRenderer();
         
-        columnModel.getColumn(2).setCellRenderer(showContentTooltipRenderer); // filename
+        columnModel.getColumn(2).setCellRenderer(new ShowNameTooltipRenderer()); // filename
         columnModel.getColumn(3).setCellRenderer(numberRightRenderer); // filesize
         columnModel.getColumn(4).setCellRenderer(new ShowStateContentTooltipRenderer()); // state
         columnModel.getColumn(5).setCellRenderer(showContentTooltipRenderer); // path
