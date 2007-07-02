@@ -31,14 +31,17 @@ import frost.util.*;
  * This class represents a FEC splitfile.
  * Contains all data / check blocks.
  */
-public class FecSplitfile
-{
+public class FecSplitfile {
     public static final int MODE_UPLOAD = 1; // intendet mode for this file
     public static final int MODE_DOWNLOAD = 2;
     public static final int MODE_FINISHED = 3; // we are finished, currently only set in setCorrect...
 
     private static final String FROST_TRANSFER_INDICATOR = "namespace.frost.transferInProgress";
     private static final String FROST_TRANSFER_FINISHED_INDICATOR = "namespace.frost.transferFinished.";
+    
+    public final static String FILE_CHECKBLOCKS_EXTENSION = ".checkblocks";
+    public final static String FILE_DATA_EXTENSION = ".data";
+    public final static String FILE_REDIRECT_EXTENSION = ".redirect";
 
     private static java.util.logging.Logger logger = java.util.logging.Logger.getLogger(FecSplitfile.class.getName());
 
@@ -76,15 +79,14 @@ public class FecSplitfile
      * @param downloadTargetFile
      * @param redirectFile
      */
-    public FecSplitfile(File downloadFile, File redirectFile) throws IllegalStateException, Exception
-    {
+    public FecSplitfile(File downloadFile, File redirectFile) throws IllegalStateException, Exception {
         transferMode = MODE_DOWNLOAD;
         this.downloadTargetFile = downloadFile;
-        this.dataFile = new File(downloadTargetFile.getPath()+".data");
+        this.dataFile = new File(downloadTargetFile.getPath() + FILE_DATA_EXTENSION);
         this.redirectFile = redirectFile;
         // filesize and others is determined by parsing the redirect file
 
-        this.checkBlocksFile = new File( downloadTargetFile.getPath() + ".checkblocks" );
+        this.checkBlocksFile = new File( downloadTargetFile.getPath() + FILE_CHECKBLOCKS_EXTENSION );
 
         initFromRedirectFile();
     }
@@ -93,8 +95,7 @@ public class FecSplitfile
      * Constructor reads all info about splitfile from encoder and stores it.
      * Used to construct a file to upload.
      */
-    public FecSplitfile(File uploadFile)
-    {
+    public FecSplitfile(File uploadFile) {
         transferMode = MODE_UPLOAD;
         dataFile = uploadFile;
         dataFileSize = uploadFile.length();
@@ -106,12 +107,23 @@ public class FecSplitfile
         fillSegmentValues( this.encoder );
 
         // working files are placed in localdata
-        // they get name:
-        //  c:\myfiles\datafile.abc  -->  _c_myfiles_datafile.abc
-        // /home/user/datafile.abc   -->  _home_user_datafile.abc
+        String filename = convertUploadFilename(uploadFile);
+
+        this.checkBlocksFile = new File( filename + FILE_CHECKBLOCKS_EXTENSION );
+        this.redirectFile = new File( filename + FILE_REDIRECT_EXTENSION );
+    }
+
+    /**
+     * Convert path of File into a filename:
+     *  c:\myfiles\datafile.abc  -->  _c_myfiles_datafile.abc
+     *  /home/user/datafile.abc  -->  _home_user_datafile.abc
+     *  
+     *  and put the DIR_LOCALDATA property in front of the filename.
+     */
+    public static String convertUploadFilename(File uploadFile) {
         String filename = uploadFile.getPath();
-        if( System.getProperty("os.name").startsWith("Windows") ) {
-            // first a special windows handling: remove the ':'
+        if( System.getProperty("os.name").toLowerCase().indexOf("windows") >= 0 ) {
+            // special windows handling: remove the ':'
             int pos = filename.indexOf(":");
             if( pos > -1 ) {
                 String newfilename = filename.substring(0, pos) + filename.substring(pos + 1);
@@ -119,15 +131,12 @@ public class FecSplitfile
             }
         }
         // now convert all file.separator (e.g. / or \) to _
-        filename = filename.replace(System.getProperty("file.separator").charAt(0), '_');
+        filename = filename.replace(File.separatorChar, '_');
 
         // append localdata dir and a _ before filename
         filename = Core.frostSettings.getValue(SettingsClass.DIR_LOCALDATA) + "_" + filename;
-
-        logger.fine("DBG-ULFILENAME="+filename);
-
-        this.checkBlocksFile = new File( filename + ".checkblocks" );
-        this.redirectFile = new File( filename + ".redirect" );
+        
+        return filename;
     }
 
     /**
@@ -141,15 +150,11 @@ public class FecSplitfile
      * @throws IllegalStateException
      * @throws Exception
      */
-    protected void initFromRedirectFile() throws IllegalStateException, Exception
-    {
-         List lines = FileAccess.readLines(this.redirectFile);
-         if( lines.size() == 0 )
-            throw new IllegalStateException("Empty redirect file");
-
-// DEBUG
-//for(int s=0;s<lines.size();s++)
-//    Core.getOut().println(lines.get(s).toString());
+    protected void initFromRedirectFile() throws IllegalStateException, Exception {
+         List<String> lines = FileAccess.readLines(this.redirectFile);
+         if( lines.size() == 0 ) {
+             throw new IllegalStateException("Empty redirect file");
+         }
 
          long fileSize;
          int dataBlockCount;
@@ -411,7 +416,7 @@ public class FecSplitfile
         if( this.redirectFile.isFile() && this.redirectFile.length() > 0 && this.checkBlocksFile.isFile()
                 && this.checkBlocksFile.length() > 0 ) {
             // check for sure if filesize in redirect file is same as datafilesize
-            List lines = FileAccess.readLines(this.redirectFile);
+            List<String> lines = FileAccess.readLines(this.redirectFile);
             String slen = getValue(lines, "SplitFile.Size");
             if( slen.length() > 0 ) {
                 long fsize = Long.parseLong(slen, 16);
@@ -481,14 +486,14 @@ public class FecSplitfile
     
     public void closeBuckets() {
         if( dataBlocks != null ) {
-            for(Iterator i=dataBlocks.iterator(); i.hasNext(); ) {
-                FecBlock fb = (FecBlock)i.next();
+            for(Iterator<FecBlock> i=dataBlocks.iterator(); i.hasNext(); ) {
+                FecBlock fb = i.next();
                 fb.close();
             }
         }
         if( checkBlocks != null ) {
-            for(Iterator i=checkBlocks.iterator(); i.hasNext(); ) {
-                FecBlock fb = (FecBlock)i.next();
+            for(Iterator<FecBlock> i=checkBlocks.iterator(); i.hasNext(); ) {
+                FecBlock fb = i.next();
                 fb.close();
             }
         }
@@ -966,9 +971,9 @@ End
      *            the requested value
      * @return String the requested value as a String
      */
-    private static String getValue(List lines, String value) {
+    private static String getValue(List<String> lines, String value) {
         for( int i = 0; i < lines.size(); i++ ) {
-            String line = (String) lines.get(i);
+            String line = lines.get(i);
             if( line.startsWith(value + "=") || line.startsWith(value + " ") ) {
                 if( line.indexOf("=") != -1 ) {
                     return line.substring(line.indexOf("=") + 1, line.length()).trim();

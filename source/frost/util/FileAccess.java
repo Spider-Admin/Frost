@@ -270,14 +270,14 @@ public class FileAccess {
      * Reads file and returns a List of lines.
      * Encoding "ISO-8859-1" is used.
      */
-    public static List readLines(File file) {
+    public static List<String> readLines(File file) {
         return readLines(file, "ISO-8859-1");
     }
     /**
      * Reads a File and returns a List of lines
      */
-    public static List readLines(File file, String encoding) {
-        List result = null;
+    public static List<String> readLines(File file, String encoding) {
+        List<String> result = null;
         try {
             FileInputStream fis = new FileInputStream(file);
             result = readLines(fis, encoding);

@@ -19,12 +19,16 @@
 
 package frost.util;
 
+import java.io.*;
 import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
 import frost.boards.*;
+import frost.fcp.*;
+import frost.fcp.fcp05.*;
+import frost.fileTransfer.upload.*;
 import frost.gui.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;
@@ -48,19 +52,27 @@ public class CleanUp {
     private static int uncommittedMsgs;
     
     private static Splashscreen splashScreen;
-
+    
     /**
      * Expire messages during startup of Frost.
      * Clean indexslot tables and file tables.
      * Gets the mode to use from settings.
      */
-    public static void runExpirationTasks(Splashscreen sp, List boardList) {
+    public static void runExpirationTasks(Splashscreen sp, List<Board> boardList) {
 
         splashScreen = sp;
         uncommittedMsgs = 0;
         
         // each time run cleanup for perst storages
         cleanPerstStorages(boardList);
+        
+        // on 0.5, delete old upload file chunks
+        if( Core.frostSettings.getBoolValue(SettingsClass.UPLOAD_REMOVE_CHUNKS) 
+                && FcpHandler.isFreenet05() ) 
+        {
+            splashScreen.setText("Removing old upload chunks");
+            cleanup05UploadChunks();
+        }
         
         // cleanup/archive McKoi tables all X days
         int cleanupDatabaseInterval = Core.frostSettings.getIntValue(SettingsClass.DB_CLEANUP_INTERVAL);
@@ -75,7 +87,7 @@ public class CleanUp {
         }
     }
     
-    private static void cleanPerstStorages(List boardList) {
+    private static void cleanPerstStorages(List<Board> boardList) {
         splashScreen.setText("Cleaning index tables");
         cleanupIndexSlotsStorage(boardList);
         
@@ -83,7 +95,7 @@ public class CleanUp {
         cleanupSharedCHKKeyStorage();
     }
     
-    private static void cleanMcKoiTables(List boardList) {
+    private static void cleanMcKoiTables(List<Board> boardList) {
         int mode;
         
         String strMode = Core.frostSettings.getValue(SettingsClass.MESSAGE_EXPIRATION_MODE);
@@ -141,7 +153,7 @@ public class CleanUp {
         }
     }
 
-    private static void processExpiredMessages(List boardList, int mode) {
+    private static void processExpiredMessages(List<Board> boardList, int mode) {
 
         if( mode == ARCHIVE_MESSAGES ) {
             logger.info("Expiration mode is ARCHIVE_MESSAGES.");
@@ -169,10 +181,10 @@ public class CleanUp {
             defaultDaysOld = Core.frostSettings.getIntValue(SettingsClass.MAX_MESSAGE_DOWNLOAD) + 1;
         }
 
-        for(Iterator i=boardList.iterator(); i.hasNext(); ) {
+        for(Iterator<Board> i=boardList.iterator(); i.hasNext(); ) {
 
             int currentDaysOld = defaultDaysOld;
-            Board board = (Board)i.next();
+            Board board = i.next();
             if( board.isConfigured() ) {
                 currentDaysOld = Math.max(board.getMaxMessageDisplay(), currentDaysOld);
                 currentDaysOld = Math.max(board.getMaxMessageDownload(), currentDaysOld);
@@ -243,13 +255,13 @@ public class CleanUp {
      * Cleanup old indexslot table entries.
      * Keep indices files for maxMessageDownload*2 days, but at least MINIMUM_DAYS_OLD days.
      */
-    private static void cleanupIndexSlotsStorage(List boardList) {
+    private static void cleanupIndexSlotsStorage(List<Board> boardList) {
 
         int maxDaysOld = Core.frostSettings.getIntValue(SettingsClass.MAX_MESSAGE_DOWNLOAD) * 2;
 
         // max from any board
-        for( Iterator i=boardList.iterator(); i.hasNext(); ) {
-            Board board = (Board) i.next();
+        for( Iterator<Board> i=boardList.iterator(); i.hasNext(); ) {
+            Board board = i.next();
             if( board.isConfigured() ) {
                 maxDaysOld = Math.max(board.getMaxMessageDownload(), maxDaysOld);
             }
@@ -314,5 +326,57 @@ public class CleanUp {
         if( deletedCount > 0 ) {
             logger.warning("INFO: Finished to delete expired FileListFiles, deleted "+deletedCount+" rows.");
         }
+    }
+    
+    /**
+     * Scans all 0.5 upload file chunks in LOCALDATA folder (.redirect, .checkblocks).
+     * Scans files currently in upload table.
+     * Deletes all chunks of files which are not in upload table.
+     */
+    private static void cleanup05UploadChunks() {
+        
+        // upload items are already loaded into model
+        List<FrostUploadItem> ulItems = Core.getInstance().getFileTransferManager().getUploadManager().getModel().getItems();
+
+        // prepare a Set of all known valid absolute filenames
+        HashSet<String> ulItemFilePaths = new HashSet<String>();
+        for(Iterator<FrostUploadItem> i=ulItems.iterator(); i.hasNext(); ) {
+            FrostUploadItem ulItem = i.next();
+            
+            File uploadFile = ulItem.getFile();
+            String ulFilename = FecSplitfile.convertUploadFilename(uploadFile);
+            File checkBlocksFile = new File( ulFilename + FecSplitfile.FILE_CHECKBLOCKS_EXTENSION );
+            File redirectFile = new File( ulFilename + FecSplitfile.FILE_REDIRECT_EXTENSION );
+            
+            ulItemFilePaths.add(checkBlocksFile.getAbsolutePath());
+            ulItemFilePaths.add(redirectFile.getAbsolutePath());
+        }
+
+        // get a List of all files in LOCALDATA directory that have extension .redirect or .checkblocks
+        File localdataDir = new File(Core.frostSettings.getValue(SettingsClass.DIR_LOCALDATA));
+        
+        FilenameFilter ffilter = new FilenameFilter() {
+            public boolean accept(File dir, String name) {
+                if( name.endsWith(FecSplitfile.FILE_CHECKBLOCKS_EXTENSION) 
+                        || name.endsWith(FecSplitfile.FILE_REDIRECT_EXTENSION) )
+                {
+                    return true;
+                }
+                return false;
+            }
+        };
+
+        int deletedCount = 0;
+        long deletedSize = 0L;
+        File[] allUploadChunks = localdataDir.listFiles(ffilter);
+        for( File aFile : allUploadChunks ) {
+            if( aFile.isFile() && !ulItemFilePaths.contains(aFile.getAbsolutePath()) ) {
+                // file is not known, delete
+                deletedSize += aFile.length();
+                aFile.delete();
+                deletedCount++;
+            }
+        }
+        logger.warning("INFO: Finished to delete old upload file chunks, deleted "+deletedCount+" files, overall size "+deletedSize);
     }
 }

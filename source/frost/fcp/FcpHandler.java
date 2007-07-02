@@ -188,7 +188,7 @@ public abstract class FcpHandler {
     
     public abstract String generateCHK(File file) throws Throwable;
     
-    public abstract List getNodeInfo() throws IOException, ConnectException;
+    public abstract List<String> getNodeInfo() throws IOException, ConnectException;
     
     public abstract BoardKeyPair generateBoardKeyPair() throws IOException, ConnectException;
 }

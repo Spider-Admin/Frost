@@ -178,15 +178,15 @@ public class Core implements FrostEventDispatcher  {
         
         boolean runningOnTestnet = false;
         try {
-            List nodeInfo = FcpHandler.inst().getNodeInfo();
+            List<String> nodeInfo = FcpHandler.inst().getNodeInfo();
             if( nodeInfo != null ) {
                 // freenet is online
                 setFreenetOnline(true);
                 
                 // on 0.7 check for "Testnet=true" and warn user
                 if( FcpHandler.isFreenet07() ) {
-                    for(Iterator i=nodeInfo.iterator(); i.hasNext(); ) {
-                        String val = (String)i.next();
+                    for(Iterator<String> i=nodeInfo.iterator(); i.hasNext(); ) {
+                        String val = i.next();
                         if( val.startsWith("Testnet") && val.indexOf("true") > 0 ) {
                             runningOnTestnet = true;
                         }
@@ -379,7 +379,7 @@ public class Core implements FrostEventDispatcher  {
 
         mainFrame.initialize();
 
-        // (cleanup gets the expiration mode from settings itself)
+        // (cleanup gets the expiration mode from settings)
         CleanUp.runExpirationTasks(splashscreen, MainFrame.getInstance().getTofTreeModel().getAllBoards());
 
         splashscreen.setText(language.getString("Splashscreen.message.5"));

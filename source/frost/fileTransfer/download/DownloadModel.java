@@ -22,6 +22,7 @@ import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
+import frost.fcp.fcp05.*;
 import frost.fileTransfer.*;
 import frost.storage.*;
 import frost.storage.perst.*;
@@ -245,9 +246,9 @@ public class DownloadModel extends SortedModel implements Savable {
 	 */
 	public void save() throws StorageException {
         
-        List itemList = getItems();
+        List<FrostDownloadItem> itemList = (List<FrostDownloadItem>)getItems();
         try {
-            FrostFilesStorage.inst().saveDownloadFiles((List<FrostDownloadItem>)itemList);
+            FrostFilesStorage.inst().saveDownloadFiles(itemList);
         } catch (Throwable e) {
             logger.log(Level.SEVERE, "Error saving download items", e);
             throw new StorageException("Error saving download items");
@@ -259,22 +260,22 @@ public class DownloadModel extends SortedModel implements Savable {
 	 */
 	public void initialize() throws StorageException {
         
-        List downloadItems; 
+        List<FrostDownloadItem> downloadItems; 
         try {
             downloadItems = FrostFilesStorage.inst().loadDownloadFiles();
         } catch (Throwable e) {
             logger.log(Level.SEVERE, "Error loading download items", e);
             throw new StorageException("Error loading download items");
         }
-        for(Iterator i=downloadItems.iterator(); i.hasNext(); ) {
-            FrostDownloadItem di = (FrostDownloadItem)i.next();
+        for(Iterator<FrostDownloadItem> i=downloadItems.iterator(); i.hasNext(); ) {
+            FrostDownloadItem di = i.next();
             addDownloadItem(di);
         }
 	}
     
     private class RemoveChunksThread extends Thread {
         
-        private ArrayList oldChunkFilesList;
+        private ArrayList<String> oldChunkFilesList;
         private String dlDir;
         
         public RemoveChunksThread(ArrayList<String> al, String dlDir) {
@@ -288,9 +289,9 @@ public class DownloadModel extends SortedModel implements Savable {
                 String filename = (String) oldChunkFilesList.get(i);
                 for (int j = 0; j < files.length; j++) { 
                     // remove filename.data , .redirect, .checkblocks
-                    if (files[j].getName().equals(filename + ".data")
-                        || files[j].getName().equals(filename + ".redirect")
-                        || files[j].getName().equals(filename + ".checkblocks")) {
+                    if (files[j].getName().equals(filename + FecSplitfile.FILE_DATA_EXTENSION)
+                        || files[j].getName().equals(filename + FecSplitfile.FILE_REDIRECT_EXTENSION)
+                        || files[j].getName().equals(filename + FecSplitfile.FILE_CHECKBLOCKS_EXTENSION)) {
                         logger.info("Removing " + files[j].getName());
                         files[j].delete();
                     }

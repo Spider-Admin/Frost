@@ -23,7 +23,6 @@ import java.net.*;
 import java.util.*;
 import java.util.logging.*;
 
-
 /**
  * FEC routines for Frost. However quite a lot of code currently spread
  * over other modules needs to be moved into that file.
@@ -142,7 +141,6 @@ public class FcpFECUtils {
 
     public String FECMakeMetadata(Vector headers, Vector chunkMaps, Vector checkMaps, String mimeType) throws UnknownHostException, IOException, SocketException{
     String listString = "";
-    String outData = "";
     fcpSock = new Socket(host, port);
     fcpSock.setSoTimeout(10000);
     fcpOut = new PrintStream(fcpSock.getOutputStream());

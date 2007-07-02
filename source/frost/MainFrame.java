@@ -1467,8 +1467,8 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
      * Show the enqueued messages and finally clear the messages queue.
      */
     public void showStartupMessages() {
-        for(Iterator i=queuedStartupMessages.iterator(); i.hasNext(); ) {
-            StartupMessage sm = (StartupMessage) i.next();
+        for(Iterator<StartupMessage> i=queuedStartupMessages.iterator(); i.hasNext(); ) {
+            StartupMessage sm = i.next();
             sm.display(this);
         }
         // cleanup
