@@ -270,7 +270,7 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
         return downloadAddedTime;
     }
 
-    public long getDownloadFinishedTime() {
+    public long getDownloadFinishedMillis() {
         return downloadFinishedTime;
     }
 
@@ -278,7 +278,7 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
         this.downloadFinishedTime = downloadFinishedTime;
     }
 
-    public long getDownloadStartedTime() {
+    public long getDownloadStartedMillis() {
         return downloadStartedTime;
     }
 
