@@ -73,8 +73,7 @@ public class FilePointerFile {
         Element rootChkElement = doc.createElement(TAG_CHKKeys);
         rootElement.appendChild( rootChkElement );
         
-        for( Iterator i = content.getChkKeyStrings().iterator(); i.hasNext(); ) {
-            String chkKey = (String) i.next();
+        for( String chkKey : content.getChkKeyStrings() ) {
             
             Element nameElement = doc.createElement(TAG_chk);
             Text text = doc.createTextNode( chkKey );
@@ -153,7 +152,7 @@ public class FilePointerFile {
         }
         long timestamp = Long.parseLong(timeStampStr);
         
-        List nodelist = XMLTools.getChildElementsByTagName(rootNode, TAG_CHKKeys);
+        List<Element> nodelist = XMLTools.getChildElementsByTagName(rootNode, TAG_CHKKeys);
         if( nodelist.size() != 1 ) {
             logger.severe("Error: xml pointer files must contain only one element '"+TAG_CHKKeys+"'");
             return null;
@@ -162,9 +161,8 @@ public class FilePointerFile {
         Element rootChkNode = (Element)nodelist.get(0);
         
         List<String> chkKeyList = new LinkedList<String>();
-        List xmlKeys = XMLTools.getChildElementsByTagName(rootChkNode, TAG_chk);
-        for( Iterator i = xmlKeys.iterator(); i.hasNext(); ) {
-            Element el = (Element) i.next();
+        List<Element> xmlKeys = XMLTools.getChildElementsByTagName(rootChkNode, TAG_chk);
+        for( Element el : xmlKeys ) {
             
             Text txtname = (Text) el.getFirstChild();
             if( txtname == null ) {

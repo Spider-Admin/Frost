@@ -241,14 +241,13 @@ public class FrostFileListFileObject {
 
     public String getDisplayName() {
         if( displayName == null ) {
-            List lst = getFrostFileListFileObjectOwnerList();
+            List<FrostFileListFileObjectOwner> lst = getFrostFileListFileObjectOwnerList();
             if( lst == null || lst.size() == 0 ) {
                 displayName = "(no sources)";
             } else {
                 // choose most often used name
                 Hashtable<String,MutableInt> ht = new Hashtable<String,MutableInt>();
-                for( Iterator i = lst.iterator(); i.hasNext(); ) {
-                    FrostFileListFileObjectOwner e = (FrostFileListFileObjectOwner) i.next();
+                for( FrostFileListFileObjectOwner e : lst ) {
                     MutableInt mi = (MutableInt)ht.get( e.getName() );
                     if( mi == null ) {
                         mi = new MutableInt();
@@ -260,8 +259,7 @@ public class FrostFileListFileObject {
                     }
                 }
                 MutableInt bestMi = defaultMutableInt;
-                for(Iterator i = ht.values().iterator(); i.hasNext(); ) {
-                    MutableInt mi = (MutableInt)i.next();
+                for( MutableInt mi : ht.values() ) {
                     if( mi.i > bestMi.i ) {
                         bestMi = mi;
                     }
@@ -279,8 +277,7 @@ public class FrostFileListFileObject {
         if( hasInfosFromMultipleSources == null ) {
             if( getFrostFileListFileObjectOwnerList().size() > 1 ) {
                 int valuesCount = 0;
-                for(Iterator i=getFrostFileListFileObjectOwnerList().iterator(); i.hasNext(); ) {
-                    FrostFileListFileObjectOwner o = (FrostFileListFileObjectOwner) i.next();
+                for( FrostFileListFileObjectOwner o : getFrostFileListFileObjectOwnerList() ) {
                     // valuesCount is increased by 1 per FrostFileListFileObjectOwner
                     if( o.getComment() != null && o.getComment().length() > 0 ) {
                         valuesCount++;
@@ -307,14 +304,13 @@ public class FrostFileListFileObject {
 
     public String getDisplayComment() {
         if( displayComment == null ) {
-            List lst = getFrostFileListFileObjectOwnerList();
+            List<FrostFileListFileObjectOwner> lst = getFrostFileListFileObjectOwnerList();
             if( lst == null || lst.size() == 0 ) {
                 displayComment = "(no sources)";
             } else {
                 // choose most often used name
                 Hashtable<String,MutableInt> ht = new Hashtable<String,MutableInt>();
-                for( Iterator i = lst.iterator(); i.hasNext(); ) {
-                    FrostFileListFileObjectOwner e = (FrostFileListFileObjectOwner) i.next();
+                for( FrostFileListFileObjectOwner e : lst ) {
                     String c = e.getComment();
                     if( c == null || c.length() == 0 ) {
                         continue;
@@ -330,8 +326,7 @@ public class FrostFileListFileObject {
                     }
                 }
                 MutableInt bestMi = defaultMutableInt;
-                for(Iterator i = ht.values().iterator(); i.hasNext(); ) {
-                    MutableInt mi = (MutableInt)i.next();
+                for( MutableInt mi : ht.values() ) {
                     if( mi.i > bestMi.i ) {
                         bestMi = mi;
                     }
@@ -344,14 +339,13 @@ public class FrostFileListFileObject {
     
     public String getDisplayKeywords() {
         if( displayKeywords == null ) {
-            List lst = getFrostFileListFileObjectOwnerList();
+            List<FrostFileListFileObjectOwner> lst = getFrostFileListFileObjectOwnerList();
             if( lst == null || lst.size() == 0 ) {
                 displayKeywords = "(no sources)";
             } else {
                 // choose most often used name
                 Hashtable<String,MutableInt> ht = new Hashtable<String,MutableInt>();
-                for( Iterator i = lst.iterator(); i.hasNext(); ) {
-                    FrostFileListFileObjectOwner e = (FrostFileListFileObjectOwner) i.next();
+                for( FrostFileListFileObjectOwner e : lst ) {
                     String c = e.getKeywords();
                     if( c == null || c.length() == 0 ) {
                         continue;
@@ -367,8 +361,7 @@ public class FrostFileListFileObject {
                     }
                 }
                 MutableInt bestMi = defaultMutableInt;
-                for(Iterator i = ht.values().iterator(); i.hasNext(); ) {
-                    MutableInt mi = (MutableInt)i.next();
+                for( MutableInt mi : ht.values() ) {
                     if( mi.i > bestMi.i ) {
                         bestMi = mi;
                     }
@@ -381,15 +374,14 @@ public class FrostFileListFileObject {
 
     public int getDisplayRating() {
         if( displayRating < 0 ) {
-            List lst = getFrostFileListFileObjectOwnerList();
+            List<FrostFileListFileObjectOwner> lst = getFrostFileListFileObjectOwnerList();
             if( lst == null || lst.size() == 0 ) {
                 return 0;
             }
             // choose most often used rating
             // choose most often used name
             int ratings[] = new int[6];
-            for( Iterator i = lst.iterator(); i.hasNext(); ) {
-                FrostFileListFileObjectOwner e = (FrostFileListFileObjectOwner) i.next();
+            for( FrostFileListFileObjectOwner e : lst ) {
                 int r = e.getRating();
                 if( r < 1 || r > 5 ) {
                     continue;
@@ -417,7 +409,7 @@ public class FrostFileListFileObject {
             listeners.remove(d);
         }
     }
-    public List getListeners() {
+    public List<FrostDownloadItem> getListeners() {
         return listeners;
     }
     private void notifyListeners() {

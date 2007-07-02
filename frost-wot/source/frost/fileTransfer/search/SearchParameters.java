@@ -99,9 +99,9 @@ public class SearchParameters {
             }
             
             StringBuilder sb = new StringBuilder();
-            for( Iterator i = allStrings.iterator(); i.hasNext() && ( !(sb.length() > 30) ); ) {
+            for( Iterator<String> i = allStrings.iterator(); i.hasNext() && ( !(sb.length() > 30) ); ) {
                 // FIXME: don't append only the 'NOT' to end of final string
-                String s = (String) i.next();
+                String s = i.next();
                 sb.append(s).append(" ");
             }
             tabText = sb.toString().trim();

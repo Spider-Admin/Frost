@@ -318,10 +318,10 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
         }
     }
 
-	private class KeyComparator implements Comparator {
-		public int compare(Object o1, Object o2) {
-			String key1 = ((FrostDownloadItem) o1).getKey();
-			String key2 = ((FrostDownloadItem) o2).getKey();
+	private class KeyComparator implements Comparator<FrostDownloadItem> {
+		public int compare(FrostDownloadItem o1, FrostDownloadItem o2) {
+			String key1 = o1.getKey();
+			String key2 = o2.getKey();
 			if (key1 == null) {
 				key1 = "";
 			}
@@ -332,28 +332,24 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 		}
 	}
 	
-	private class TriesComparator implements Comparator {
-		public int compare(Object o1, Object o2) {
-			int retries1 = ((FrostDownloadItem) o1).getRetries();
-			int retries2 = ((FrostDownloadItem) o2).getRetries();
+	private class TriesComparator implements Comparator<FrostDownloadItem> {
+		public int compare(FrostDownloadItem o1, FrostDownloadItem o2) {
+			int retries1 = o1.getRetries();
+			int retries2 = o2.getRetries();
 			return Mixed.compareInt(retries1, retries2);
-//			return new Integer(retries1).compareTo(new Integer(retries2));
 		}
 	}
 
-    private class PriorityComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            int prio1 = ((FrostDownloadItem) o1).getPriority();
-            int prio2 = ((FrostDownloadItem) o2).getPriority();
+    private class PriorityComparator implements Comparator<FrostDownloadItem> {
+        public int compare(FrostDownloadItem o1, FrostDownloadItem o2) {
+            int prio1 = o1.getPriority();
+            int prio2 = o2.getPriority();
             return Mixed.compareInt(prio1, prio2);
-//          return new Integer(retries1).compareTo(new Integer(retries2));
         }
     }
 
-	private class BlocksComparator implements Comparator {
-		public int compare(Object o1, Object o2) {
-			FrostDownloadItem item1 = (FrostDownloadItem) o1;
-			FrostDownloadItem item2 = (FrostDownloadItem) o2;
+	private class BlocksComparator implements Comparator<FrostDownloadItem> {
+		public int compare(FrostDownloadItem item1, FrostDownloadItem item2) {
 //			String blocks1 =
 //				getBlocksAsString(
 //					item1.getTotalBlocks(),
@@ -370,22 +366,17 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 		}
 	}
 	
-	private class StateComparator implements Comparator {
-		public int compare(Object o1, Object o2) {
-			FrostDownloadItem item1 = (FrostDownloadItem) o1;
-			FrostDownloadItem item2 = (FrostDownloadItem) o2;
+	private class StateComparator implements Comparator<FrostDownloadItem> {
+		public int compare(FrostDownloadItem item1, FrostDownloadItem item2) {
 			String state1 =	getStateAsString(item1.getState());
 			String state2 =	getStateAsString(item2.getState());
 			return state1.compareToIgnoreCase(state2);
 		}
 	}
 	
-	private class SizeComparator implements Comparator {
+	private class SizeComparator implements Comparator<FrostDownloadItem> {
         private Long unknownSize = new Long(-1);
-		public int compare(Object o1, Object o2) {
-            FrostDownloadItem dli1 = (FrostDownloadItem) o1;
-            FrostDownloadItem dli2 = (FrostDownloadItem) o2;
-            
+		public int compare(FrostDownloadItem dli1, FrostDownloadItem dli2) {
 			Long size1 = dli1.getFileSize();
 			Long size2 = dli2.getFileSize();
             
@@ -421,66 +412,52 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 		}
 	}
 	
-	private class FileNameComparator implements Comparator {
-		public int compare(Object o1, Object o2) {
-			FrostDownloadItem item1 = (FrostDownloadItem) o1;
-			FrostDownloadItem item2 = (FrostDownloadItem) o2;
+	private class FileNameComparator implements Comparator<FrostDownloadItem> {
+		public int compare(FrostDownloadItem item1, FrostDownloadItem item2) {
 			return item1.getFilename().compareToIgnoreCase(item2.getFilename());
 		}
 	}
 	
-	private class EnabledComparator implements Comparator {
-		public int compare(Object o1, Object o2) {
-			FrostDownloadItem item1 = (FrostDownloadItem) o1;
-			FrostDownloadItem item2 = (FrostDownloadItem) o2;
+	private class EnabledComparator implements Comparator<FrostDownloadItem> {
+		public int compare(FrostDownloadItem item1, FrostDownloadItem item2) {
             Boolean b1 = Boolean.valueOf( item1.isEnabled().booleanValue() );
             Boolean b2 = Boolean.valueOf( item2.isEnabled().booleanValue() );
             return b1.compareTo(b2);
 		}
 	}
 
-    private class IsSharedComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            FrostDownloadItem item1 = (FrostDownloadItem) o1;
-            FrostDownloadItem item2 = (FrostDownloadItem) o2;
+    private class IsSharedComparator implements Comparator<FrostDownloadItem> {
+        public int compare(FrostDownloadItem item1, FrostDownloadItem item2) {
             Boolean b1 = Boolean.valueOf( item1.isSharedFile() );
             Boolean b2 = Boolean.valueOf( item2.isSharedFile() );
             return b1.compareTo(b2);
         }
     }
 
-    private class IsRequestedComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            FrostDownloadItem item1 = (FrostDownloadItem) o1;
-            FrostDownloadItem item2 = (FrostDownloadItem) o2;
+    private class IsRequestedComparator implements Comparator<FrostDownloadItem> {
+        public int compare(FrostDownloadItem item1, FrostDownloadItem item2) {
             Boolean b1 = getIsRequested(item1.getFileListFileObject());
             Boolean b2 = getIsRequested(item2.getFileListFileObject());
             return b1.compareTo(b2);
         }
     }
 
-    private class IsDDAComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            FrostDownloadItem item1 = (FrostDownloadItem) o1;
-            FrostDownloadItem item2 = (FrostDownloadItem) o2;
+    private class IsDDAComparator implements Comparator<FrostDownloadItem> {
+        public int compare(FrostDownloadItem item1, FrostDownloadItem item2) {
             Boolean b1 = Boolean.valueOf(item1.isDirect());
             Boolean b2 = Boolean.valueOf(item2.isDirect());
             return b1.compareTo(b2);
         }
     }
 
-    private class LastReceivedComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            FrostDownloadItem item1 = (FrostDownloadItem) o1;
-            FrostDownloadItem item2 = (FrostDownloadItem) o2;
+    private class LastReceivedComparator implements Comparator<FrostDownloadItem> {
+        public int compare(FrostDownloadItem item1, FrostDownloadItem item2) {
             return Mixed.compareLong(item1.getLastReceived(), item2.getLastReceived());
         }
     }
 
-    private class LastUploadedComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            FrostDownloadItem item1 = (FrostDownloadItem) o1;
-            FrostDownloadItem item2 = (FrostDownloadItem) o2;
+    private class LastUploadedComparator implements Comparator<FrostDownloadItem> {
+        public int compare(FrostDownloadItem item1, FrostDownloadItem item2) {
             return Mixed.compareLong(item1.getLastUploaded(), item2.getLastUploaded());
         }
     }

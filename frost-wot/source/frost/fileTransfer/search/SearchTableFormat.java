@@ -191,12 +191,10 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
         }
     }
 
-    private class StateComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            FrostSearchItem item1 = (FrostSearchItem) o1;
-            FrostSearchItem item2 = (FrostSearchItem) o2;
-            int i1 = item1.getState();
-            int i2 = item2.getState();
+    private class StateComparator implements Comparator<FrostSearchItem> {
+        public int compare(FrostSearchItem o1, FrostSearchItem o2) {
+            int i1 = o1.getState();
+            int i2 = o2.getState();
             if( i1 < i2 ) {
                 return -1;
             }
@@ -207,50 +205,46 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
         }
     }
 
-    private class SizeComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            FrostSearchItem item1 = (FrostSearchItem) o1;
-            FrostSearchItem item2 = (FrostSearchItem) o2;
-            return item1.getSize().compareTo(item2.getSize());
+    private class SizeComparator implements Comparator<FrostSearchItem> {
+        public int compare(FrostSearchItem o1, FrostSearchItem o2) {
+            return o1.getSize().compareTo(o2.getSize());
         }
     }
 
-    private class FileNameComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            FrostSearchItem item1 = (FrostSearchItem) o1;
-            FrostSearchItem item2 = (FrostSearchItem) o2;
-            return item1.getFilename().compareToIgnoreCase(item2.getFilename());
+    private class FileNameComparator implements Comparator<FrostSearchItem> {
+        public int compare(FrostSearchItem o1, FrostSearchItem o2) {
+            return o1.getFilename().compareToIgnoreCase(o2.getFilename());
         }
     }
 
-    private class CommentComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            String comment1 = ((FrostSearchItem) o1).getComment();
-            String comment2 = ((FrostSearchItem) o2).getComment();
+    private class CommentComparator implements Comparator<FrostSearchItem> {
+        public int compare(FrostSearchItem o1, FrostSearchItem o2) {
+            String comment1 = o1.getComment();
+            String comment2 = o2.getComment();
             return comment1.compareToIgnoreCase(comment2);
         }
     }
 
-    private class KeywordsComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            String keywords1 = ((FrostSearchItem) o1).getKeywords();
-            String keywords2 = ((FrostSearchItem) o2).getKeywords();
+    private class KeywordsComparator implements Comparator<FrostSearchItem> {
+        public int compare(FrostSearchItem o1, FrostSearchItem o2) {
+            String keywords1 = o1.getKeywords();
+            String keywords2 = o2.getKeywords();
             return keywords1.compareToIgnoreCase(keywords2);
         }
     }
 
-    private class RatingComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            Integer rating1 = ((FrostSearchItem) o1).getRating();
-            Integer rating2 = ((FrostSearchItem) o2).getRating();
+    private class RatingComparator implements Comparator<FrostSearchItem> {
+        public int compare(FrostSearchItem o1, FrostSearchItem o2) {
+            Integer rating1 = o1.getRating();
+            Integer rating2 = o2.getRating();
             return rating1.compareTo(rating2);
         }
     }
 
-    private class LastReceivedComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            long l1 = ((FrostSearchItem) o1).getFrostFileListFileObject().getLastReceived();
-            long l2 = ((FrostSearchItem) o2).getFrostFileListFileObject().getLastReceived();
+    private class LastReceivedComparator implements Comparator<FrostSearchItem> {
+        public int compare(FrostSearchItem o1, FrostSearchItem o2) {
+            long l1 = o1.getFrostFileListFileObject().getLastReceived();
+            long l2 = o2.getFrostFileListFileObject().getLastReceived();
             if( l1 < l2 ) {
                 return -1;
             }
@@ -261,10 +255,10 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
         }
     }
 
-    private class LastUploadedComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            long l1 = ((FrostSearchItem) o1).getFrostFileListFileObject().getLastUploaded();
-            long l2 = ((FrostSearchItem) o2).getFrostFileListFileObject().getLastUploaded();
+    private class LastUploadedComparator implements Comparator<FrostSearchItem> {
+        public int compare(FrostSearchItem o1, FrostSearchItem o2) {
+            long l1 = o1.getFrostFileListFileObject().getLastUploaded();
+            long l2 = o2.getFrostFileListFileObject().getLastUploaded();
             if( l1 < l2 ) {
                 return -1;
             }
@@ -275,10 +269,10 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
         }
     }
 
-    private class SourcesComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            Integer sources1 = ((FrostSearchItem) o1).getSourceCount();
-            Integer sources2 = ((FrostSearchItem) o2).getSourceCount();
+    private class SourcesComparator implements Comparator<FrostSearchItem> {
+        public int compare(FrostSearchItem o1, FrostSearchItem o2) {
+            Integer sources1 = o1.getSourceCount();
+            Integer sources2 = o2.getSourceCount();
             return sources1.compareTo(sources2);
         }
     }

@@ -65,7 +65,7 @@ public class FileListManager {
         long now = System.currentTimeMillis();
         long minDate = now - maxDiff;
         
-        List localIdentities = Core.getIdentities().getLocalIdentities();
+        List<LocalIdentity> localIdentities = Core.getIdentities().getLocalIdentities();
         int identityCount = localIdentities.size(); 
         while(identityCount > 0) {
             
@@ -73,8 +73,7 @@ public class FileListManager {
             long minUpdateMillis = Long.MAX_VALUE;
             
             // find next identity to update
-            for(Iterator i=localIdentities.iterator(); i.hasNext(); ) {
-                LocalIdentity id = (LocalIdentity)i.next();
+            for(LocalIdentity id : localIdentities ) {
                 long lastShared = id.getLastFilesSharedMillis();
                 if( lastShared < minUpdateMillis ) {
                     minUpdateMillis = lastShared;
@@ -105,11 +104,10 @@ public class FileListManager {
         ArrayList<FrostSharedFileItem> sorted = new ArrayList<FrostSharedFileItem>();
 
         {        
-            List sharedFileItems = FileTransferManager.inst().getSharedFilesManager().getModel().getItems();
+            List<FrostSharedFileItem> sharedFileItems = FileTransferManager.inst().getSharedFilesManager().getModel().getItems();
             
             // first collect all items for this owner and sort them
-            for( Iterator i = sharedFileItems.iterator(); i.hasNext(); ) {
-                FrostSharedFileItem sfo = (FrostSharedFileItem) i.next();
+            for( FrostSharedFileItem sfo : sharedFileItems ) {
                 if( !sfo.isValid() ) {
                     continue;
                 }
@@ -138,8 +136,7 @@ public class FileListManager {
         }
 
         // finally add up to MAX_FILES items from the sorted list
-        for( Iterator i = sorted.iterator(); i.hasNext(); ) {
-            FrostSharedFileItem sfo = (FrostSharedFileItem) i.next();
+        for( FrostSharedFileItem sfo : sorted ) {
             result.add( sfo.getSharedFileXmlFileInstance() );
             if( result.size() >= maxItems ) {
                 return result;
@@ -153,19 +150,15 @@ public class FileListManager {
      * Update sent files.
      * @param files  List of SharedFileXmlFile objects that were successfully sent inside a CHK file
      */
-    public static boolean updateFileListWasSuccessfullySent(List files) {
+    public static boolean updateFileListWasSuccessfullySent(List<SharedFileXmlFile> files) {
         
         long now = System.currentTimeMillis();
 
-        List sharedFileItems = FileTransferManager.inst().getSharedFilesManager().getModel().getItems();
+        List<FrostSharedFileItem> sharedFileItems = FileTransferManager.inst().getSharedFilesManager().getModel().getItems();
 
-        for( Iterator i = files.iterator(); i.hasNext(); ) {
-            SharedFileXmlFile sfx = (SharedFileXmlFile) i.next();
-            
+        for( SharedFileXmlFile sfx : files ) {
             // update FrostSharedUploadFileObject
-            for( Iterator j = sharedFileItems.iterator(); j.hasNext(); ) {
-                FrostSharedFileItem sfo = (FrostSharedFileItem) j.next();
-                
+            for( FrostSharedFileItem sfo : sharedFileItems ) {
                 if( sfo.getSha().equals(sfx.getSha()) ) {
                     sfo.setRefLastSent(now);
                 }
@@ -214,8 +207,7 @@ public class FileListManager {
         try {
             conn.setAutoCommit(false);
         
-            for( Iterator i = content.getFileList().iterator(); i.hasNext(); ) {
-                SharedFileXmlFile sfx = (SharedFileXmlFile) i.next();
+            for( SharedFileXmlFile sfx : content.getFileList() ) {
                 
                 FrostFileListFileObject sfo = new FrostFileListFileObject(sfx, localOwner, content.getTimestamp());
                 
@@ -252,14 +244,12 @@ public class FileListManager {
         }
 
         // after updating the db, check if we have to update download items with the new informations
-        List downloadItems = FileTransferManager.inst().getDownloadManager().getModel().getItems();
+        List<FrostDownloadItem> downloadItems = FileTransferManager.inst().getDownloadManager().getModel().getItems();
 
-        for( Iterator i = content.getFileList().iterator(); i.hasNext(); ) {
-            SharedFileXmlFile sfx = (SharedFileXmlFile) i.next();
+        for( SharedFileXmlFile sfx : content.getFileList() ) {
 
             // if a FrostDownloadItem references this file (by sha), retrieve the updated file from db and set it
-            for( Iterator j = downloadItems.iterator(); j.hasNext(); ) {
-                FrostDownloadItem dlItem = (FrostDownloadItem) j.next();
+            for( FrostDownloadItem dlItem : downloadItems ) {
                 if( !dlItem.isSharedFile() ) {
                     continue;
                 }

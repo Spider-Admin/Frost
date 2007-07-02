@@ -59,8 +59,7 @@ public class NewUploadFilesManager implements Savable {
     }
     
     public void addNewUploadFiles(List<NewUploadFile> newFiles) {
-        for(Iterator i=newFiles.iterator(); i.hasNext(); ) {
-            NewUploadFile nuf = (NewUploadFile)i.next();
+        for( NewUploadFile nuf : newFiles ) {
             newUploadFiles.add(nuf);
             
             // feed thread

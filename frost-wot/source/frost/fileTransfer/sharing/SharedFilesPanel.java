@@ -30,7 +30,6 @@ import javax.swing.*;
 
 import frost.*;
 import frost.fcp.*;
-import frost.fileTransfer.*;
 import frost.storage.perst.*;
 import frost.threads.*;
 import frost.util.*;
@@ -180,7 +179,7 @@ public class SharedFilesPanel extends JPanel {
         List<File> uploadFileItems = new LinkedList<File>();
         for (int i = 0; i < selectedFiles.length; i++) {
             // collect all choosed files + files in all choosed directories
-            ArrayList allFiles = FileAccess.getAllEntries(selectedFiles[i], "");
+            ArrayList<File> allFiles = FileAccess.getAllEntries(selectedFiles[i], "");
             for (int j = 0; j < allFiles.size(); j++) {
                 File newFile = (File) allFiles.get(j);
                 if (newFile.isFile() && newFile.length() > 0) {
@@ -288,8 +287,7 @@ public class SharedFilesPanel extends JPanel {
             return;
         }
         
-        for(Iterator i = items.iterator(); i.hasNext(); ) {
-            FrostSharedFileItem item = (FrostSharedFileItem) i.next();
+        for( FrostSharedFileItem item : items ) {
             // check if item was really changed, calling a setter will mark the item changed
             String oldStr, newStr;
             

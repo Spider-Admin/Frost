@@ -265,18 +265,16 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
     /**
      * This inner class implements the comparator for the column "Name"
      */
-    private class NameComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            FrostUploadItem item1 = (FrostUploadItem) o1;
-            FrostUploadItem item2 = (FrostUploadItem) o2;
+    private class NameComparator implements Comparator<FrostUploadItem> {
+        public int compare(FrostUploadItem item1, FrostUploadItem item2) {
             return item1.getFile().getName().compareToIgnoreCase(item2.getFile().getName());
         }
     }
 
-    private class PriorityComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            int prio1 = ((FrostUploadItem) o1).getPriority();
-            int prio2 = ((FrostUploadItem) o2).getPriority();
+    private class PriorityComparator implements Comparator<FrostUploadItem> {
+        public int compare(FrostUploadItem o1, FrostUploadItem o2) {
+            int prio1 = o1.getPriority();
+            int prio2 = o2.getPriority();
             return Mixed.compareInt(prio1, prio2);
 //          return new Integer(retries1).compareTo(new Integer(retries2));
         }
@@ -285,20 +283,16 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
     /**
      * This inner class implements the comparator for the column "Last Upload"
      */
-    private class StateComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            FrostUploadItem item1 = (FrostUploadItem) o1;
-            FrostUploadItem item2 = (FrostUploadItem) o2;
+    private class StateComparator implements Comparator<FrostUploadItem> {
+        public int compare(FrostUploadItem item1, FrostUploadItem item2) {
             return Mixed.compareInt(item1.getState(), item2.getState());
 //            return getStateAsString(item1, item1.getState()).
 //                        compareToIgnoreCase(getStateAsString(item2, item2.getState()));
         }
     }
 
-    private class BlocksComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            FrostUploadItem item1 = (FrostUploadItem) o1;
-            FrostUploadItem item2 = (FrostUploadItem) o2;
+    private class BlocksComparator implements Comparator<FrostUploadItem> {
+        public int compare(FrostUploadItem item1, FrostUploadItem item2) {
 //          String blocks1 =
 //              getBlocksAsString(
 //                  item1.getTotalBlocks(),
@@ -318,19 +312,17 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
     /**
      * This inner class implements the comparator for the column "Tries"
      */
-    private class TriesComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            int retries1 = ((FrostUploadItem) o1).getRetries();
-            int retries2 = ((FrostUploadItem) o2).getRetries();
+    private class TriesComparator implements Comparator<FrostUploadItem> {
+        public int compare(FrostUploadItem o1, FrostUploadItem o2) {
+            int retries1 = o1.getRetries();
+            int retries2 = o2.getRetries();
             return Mixed.compareInt(retries1, retries2);
 //            return new Integer(retries1).compareTo(new Integer(retries2));
         }
     }
     
-    private class IsSharedComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            FrostUploadItem item1 = (FrostUploadItem) o1;
-            FrostUploadItem item2 = (FrostUploadItem) o2;
+    private class IsSharedComparator implements Comparator<FrostUploadItem> {
+        public int compare(FrostUploadItem item1, FrostUploadItem item2) {
             Boolean b1 = Boolean.valueOf( item1.isSharedFile() );
             Boolean b2 = Boolean.valueOf( item2.isSharedFile() );
             return b1.compareTo(b2);
@@ -340,10 +332,8 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
     /**
      * This inner class implements the comparator for the column "Path"
      */
-    private class PathComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            FrostUploadItem item1 = (FrostUploadItem) o1;
-            FrostUploadItem item2 = (FrostUploadItem) o2;
+    private class PathComparator implements Comparator<FrostUploadItem> {
+        public int compare(FrostUploadItem item1, FrostUploadItem item2) {
             return item1.getFile().getPath().compareToIgnoreCase(item2.getFile().getPath());
         }
     }
@@ -351,10 +341,8 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
     /**
      * This inner class implements the comparator for the column "Enabled"
      */
-    private class EnabledComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            FrostUploadItem item1 = (FrostUploadItem) o1;
-            FrostUploadItem item2 = (FrostUploadItem) o2;
+    private class EnabledComparator implements Comparator<FrostUploadItem> {
+        public int compare(FrostUploadItem item1, FrostUploadItem item2) {
             Boolean b1 = Boolean.valueOf( item1.isEnabled().booleanValue() );
             Boolean b2 = Boolean.valueOf( item2.isEnabled().booleanValue() );
             return b1.compareTo(b2);
@@ -364,10 +352,10 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
     /**
      * This inner class implements the comparator for the column "Key"
      */
-    private class KeyComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            String key1 = ((FrostUploadItem) o1).getKey();
-            String key2 = ((FrostUploadItem) o2).getKey();
+    private class KeyComparator implements Comparator<FrostUploadItem> {
+        public int compare(FrostUploadItem o1, FrostUploadItem o2) {
+            String key1 = o1.getKey();
+            String key2 = o2.getKey();
             if (key1 == null) {
                 key1 = unknown;
             }
@@ -381,10 +369,8 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
     /**
      * This inner class implements the comparator for the column "FileSize"
      */
-    private class FileSizeComparator implements Comparator {
-        public int compare(Object o1, Object o2) {
-            FrostUploadItem item1 = (FrostUploadItem) o1;
-            FrostUploadItem item2 = (FrostUploadItem) o2;
+    private class FileSizeComparator implements Comparator<FrostUploadItem> {
+        public int compare(FrostUploadItem item1, FrostUploadItem item2) {
             return Mixed.compareLong(item1.getFileSize(), item2.getFileSize());
 //            if( item1.getFileSize() > item2.getFileSize() ) {
 //                return 1;

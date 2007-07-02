@@ -129,7 +129,7 @@ public class SharedFilesModel extends SortedModel implements Savable {
      * This method tells all items to start uploading (if their current state allows it)
      */
     public synchronized void requestAllItems() {
-        Iterator iterator = data.iterator();
+        Iterator<ModelItem> iterator = data.iterator();
         while (iterator.hasNext()) {
             FrostSharedFileItem sfItem = (FrostSharedFileItem) iterator.next();
             if( !sfItem.isCurrentlyUploading() ) {
