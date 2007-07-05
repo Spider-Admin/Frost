@@ -210,6 +210,9 @@ public class Core implements FrostEventDispatcher  {
                 language.getString("Core.init.NodeNotRunningBody"),
                 JOptionPane.WARNING_MESSAGE,
                 language.getString("Core.init.NodeNotRunningTitle"));
+        } else {
+            // on 0.7 maybe start a single message connection
+            FcpHandler.inst().goneOnline();
         }
 
         return true;

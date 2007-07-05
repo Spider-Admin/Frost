@@ -25,10 +25,11 @@ import java.util.logging.*;
 
 import javax.swing.*;
 
+
 import frost.*;
 import frost.fcp.*;
 import frost.fcp.fcp07.*;
-import frost.fcp.fcp07.persistence.*;
+import frost.fcp.fcp07.persistentfiles.*;
 import frost.fileTransfer.download.*;
 import frost.fileTransfer.upload.*;
 import frost.util.*;
@@ -55,7 +56,8 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
     private boolean showExternalItemsUpload;
     
     private final FcpPersistentQueue persistentQueue;
-    private final FcpPersistentConnectionTools fcpTools;
+    private final FcpMultiRequestConnection fcpConn;
+    private final FcpMultiRequestConnectionTools fcpTools;
     
     private final Set<String> directGETsInProgress = new HashSet<String>();
     private final Set<String> directPUTsInProgress = new HashSet<String>();
@@ -75,10 +77,9 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         }
     }
 
-    public static boolean isDDA() {
-        if( FcpHandler.isFreenet07()
-                && Core.frostSettings.getBoolValue(SettingsClass.FCP2_USE_DDA) 
-                && FcpPersistentConnection.getInstance().isDDA() ) 
+    public boolean isDDA() {
+        if( Core.frostSettings.getBoolValue(SettingsClass.FCP2_USE_DDA) 
+                && fcpConn.isDDA() ) 
         {
             return true;
         } else {
@@ -89,12 +90,17 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
     /**
      * Must be called after the upload and download model is initialized!
      */
-    public PersistenceManager(UploadModel um, DownloadModel dm) {
+    public PersistenceManager(UploadModel um, DownloadModel dm) throws Throwable {
         
         showExternalItemsDownload = Core.frostSettings.getBoolValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_DOWNLOAD);
         showExternalItemsUpload = Core.frostSettings.getBoolValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_UPLOAD);
         
-        fcpTools = new FcpPersistentConnectionTools();
+        if( FcpHandler.inst().getNodes().isEmpty() ) {
+            throw new Exception("No freenet nodes defined");
+        }
+        NodeAddress na = FcpHandler.inst().getNodes().get(0);
+        fcpConn = FcpMultiRequestConnection.createInstance(na);
+        fcpTools = new FcpMultiRequestConnectionTools(fcpConn);
         
         Core.frostSettings.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
