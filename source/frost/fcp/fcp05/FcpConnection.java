@@ -458,12 +458,13 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
         fileOut.flush();
         fileOut.close();
         File checkSize = new File(filename);
-        
-        // FIXME: debug output, check and remove later
-        System.out.print(
-                "expectedTotalDataLength="+expectedTotalDataLength+
-                "; filesize="+checkSize.length()+
-                "; mdlen="+metadataLength);
+
+        if( Logging.inst().doLogFcp2Messages() ) {
+            System.out.print(
+                    "expectedTotalDataLength="+expectedTotalDataLength+
+                    "; filesize="+checkSize.length()+
+                    "; mdlen="+metadataLength);
+        }
 
         FcpResultGet result = null;
 
