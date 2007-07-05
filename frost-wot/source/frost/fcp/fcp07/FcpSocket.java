@@ -41,6 +41,7 @@ public class FcpSocket {
     private Socket fcpSock;
     private BufferedInputStream fcpIn;
     private PrintStream fcpOut;
+    private BufferedOutputStream fcpRawOut;
     
     private boolean useDDA;
 
@@ -64,7 +65,9 @@ public class FcpSocket {
         fcpSock = new Socket(nodeAddress.host, nodeAddress.port);
         fcpSock.setSoTimeout(TIMEOUT);
         fcpSock.setKeepAlive(true);
+        
         fcpIn = new BufferedInputStream(fcpSock.getInputStream());
+        fcpRawOut = new BufferedOutputStream(fcpSock.getOutputStream());
         fcpOut = new PrintStream(fcpSock.getOutputStream(), false, "UTF-8");
 
         if( na.isDirectDiskAccessTested ) {
@@ -104,7 +107,11 @@ public class FcpSocket {
     public PrintStream getFcpOut() {
         return fcpOut;
     }
-    
+
+    public BufferedOutputStream getFcpRawOut() {
+        return fcpRawOut;
+    }
+
     public Socket getFcpSock() {
         return fcpSock;
     }
