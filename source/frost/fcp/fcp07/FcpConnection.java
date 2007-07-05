@@ -327,9 +327,15 @@ public class FcpConnection {
         fcpSocket.getFcpOut().println("Verbosity=-1"); // receive SimpleProgress        
         fcpSocket.getFcpOut().println("MaxRetries=3");
         fcpSocket.getFcpOut().println("DontCompress=false"); // force compression
-        // Frost always uploads without a filename
+
         if( keyString.equals("CHK@") ) {
-            fcpSocket.getFcpOut().println("TargetFilename=");
+            if( ulItem != null && ulItem.getSharedFileItem() != null ) {
+                // shared file, no filename
+                fcpSocket.getFcpOut().println("TargetFilename="); 
+            } else {
+                // manual upload, set filename
+                fcpSocket.getFcpOut().println("TargetFilename=" + sourceFile.getName()); 
+            }
         }
 		if( getChkOnly ) {
             fcpSocket.getFcpOut().println("GetCHKOnly=true");
@@ -547,7 +553,7 @@ public class FcpConnection {
     }
 
     // replaces all / with | in url
-    private String stripSlashes(String uri){
+    public static String stripSlashes(String uri) {
     	if (uri.startsWith("KSK@")) {
     		String myUri = null;
     		myUri= uri.replace('/','|');

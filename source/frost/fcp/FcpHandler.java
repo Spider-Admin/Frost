@@ -75,6 +75,12 @@ public abstract class FcpHandler {
     public abstract void initialize(List<String> nodes);
     
     public abstract List<NodeAddress> getNodes();
+
+    /**
+     * Invoked when the node is online.
+     */
+    public void goneOnline() {
+    }
     
     /**
      * getFile retrieves a file from Freenet. It does detect if this file is a redirect, a splitfile or
