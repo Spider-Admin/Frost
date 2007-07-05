@@ -73,40 +73,53 @@ public class FileListDownloadThread extends Thread {
                 
                 if( chkKey == null ) {
                     // paranoia
-                    logger.log(Level.WARNING, "FileListDownloadThread: waiting 1 minute, chkKey=null");
+                    if( Logging.inst().doLogFilebaseMessages() ) {
+                        System.out.println("FileListDownloadThread: waiting 1 minute, chkKey=null");
+                    }
                     Mixed.wait(wait1minute);
                     continue;
                 } else if( previousKey != null && previousKey.equals(chkKey) ) {
                     // same key as before, so no more keys else in queue. wait some time longer...
-                    logger.log(Level.WARNING, "FileListDownloadThread: waiting 1 minute, same key as before");
+                    if( Logging.inst().doLogFilebaseMessages() ) {
+                        System.out.println("FileListDownloadThread: waiting 1 minute, same key as before");
+                    }
                     Mixed.wait(wait1minute);
                 } else {
                     // short wait to not to hurt node
                     Mixed.waitRandom(1500);
                     previousKey = chkKey; // different key as before, remember
                 }
-                logger.log(Level.WARNING, "FileListDownloadThread: starting download of key: "+chkKey);
+                if( Logging.inst().doLogFilebaseMessages() ) {
+                    System.out.println("FileListDownloadThread: starting download of key: "+chkKey);
+                }
 
                 GlobalFileDownloaderResult result = GlobalFileDownloader.downloadFile(chkKey, FcpHandler.MAX_FILELIST_SIZE_07);
 
                 if( result == null || result.getResultFile() == null ) {
                     // download failed
                     boolean retryDownload = SharedFilesCHKKeyManager.updateCHKKeyDownloadFailed(chkKey);
-                    logger.log(Level.WARNING, "FileListDownloadThread: download failed, key="+chkKey+"; retry="+retryDownload);
+                    if( Logging.inst().doLogFilebaseMessages() ) {
+                        System.out.println("FileListDownloadThread: download failed, key="+chkKey+"; retry="+retryDownload);
+                    }
                     if( retryDownload ) {
                         keyQueue.appendKeyToQueue(chkKey);
                     }
                     continue;
                 }
 
-                logger.log(Level.WARNING, "FileListDownloadThread: download successful, key="+chkKey);
+                if( Logging.inst().doLogFilebaseMessages() ) {
+                    System.out.println("FileListDownloadThread: download successful, key="+chkKey);
+                }
 
                 // download successful, read file and validate
                 File downloadedFile = result.getResultFile();
                 
                 FileListFileContent content = FileListFile.readFileListFile(downloadedFile);
                 boolean isValid = FileListManager.processReceivedFileList(content);
-                logger.log(Level.WARNING, "FileListDownloadThread: processed results, isValid="+isValid);
+                if( Logging.inst().doLogFilebaseMessages() ) {
+                    System.out.println("FileListDownloadThread: processed results, isValid="+isValid);
+                }
+                
                 downloadedFile.delete();
                 SharedFilesCHKKeyManager.updateCHKKeyDownloadSuccessful(chkKey, isValid);
                 
@@ -138,6 +151,10 @@ public class FileListDownloadThread extends Thread {
         keyQueue.appendKeyToQueue(key);
     }
     
+    public int getCHKKeyQueueSize() {
+        return keyQueue.getQueueSize();
+    }
+    
     private class CHKKeyQueue {
         
         private LinkedList<String> queue = new LinkedList<String>();
@@ -146,20 +163,28 @@ public class FileListDownloadThread extends Thread {
             try {
                 // let dequeueing threads wait for work
                 while( queue.isEmpty() ) {
-                    logger.log(Level.WARNING, "CHKKeyQueue: Waiting for work, queue length="+getQueueSize());
+                    if( Logging.inst().doLogFilebaseMessages() ) {
+                        System.out.println("CHKKeyQueue: Waiting for work, queue length="+getQueueSize());
+                    }
                     wait();
                 }
             } catch (InterruptedException e) {
-                logger.log(Level.WARNING, "CHKKeyQueue: NO key returned(1), queue length="+getQueueSize());
+                if( Logging.inst().doLogFilebaseMessages() ) {
+                    System.out.println("CHKKeyQueue: NO key returned(1), queue length="+getQueueSize());
+                }
                 return null; // waiting abandoned
             }
             
             if( queue.isEmpty() == false ) {
                 String key = queue.removeFirst();
-                logger.log(Level.WARNING, "CHKKeyQueue: Key returned, new queue length="+getQueueSize());
+                if( Logging.inst().doLogFilebaseMessages() ) {
+                    System.out.println("CHKKeyQueue: Key returned, new queue length="+getQueueSize());
+                }
                 return key;
             }
-            logger.log(Level.WARNING, "CHKKeyQueue: NO key returned(2), queue length="+getQueueSize());
+            if( Logging.inst().doLogFilebaseMessages() ) {
+                System.out.println("CHKKeyQueue: NO key returned(2), queue length="+getQueueSize());
+            }
             return null;
         }
 
@@ -170,7 +195,9 @@ public class FileListDownloadThread extends Thread {
 
         public synchronized void appendKeyToQueue(String key) {
             queue.addLast(key);
-            logger.log(Level.WARNING, "CHKKeyQueue: Key appended, new queue length="+getQueueSize());
+            if( Logging.inst().doLogFilebaseMessages() ) {
+                System.out.println("CHKKeyQueue: Key appended, new queue length="+getQueueSize());
+            }
             notifyAll(); // notify all waiters (if any) of new record
         }
         
