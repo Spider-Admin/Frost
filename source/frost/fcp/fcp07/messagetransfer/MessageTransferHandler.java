@@ -24,6 +24,7 @@ import java.util.logging.*;
 
 import frost.fcp.*;
 import frost.fcp.fcp07.*;
+import frost.util.Logging;
 
 public class MessageTransferHandler implements NodeMessageListener {
     
@@ -100,9 +101,11 @@ public class MessageTransferHandler implements NodeMessageListener {
     }
 // FIXME: restart tasks in queue after reconnect! accept new tasks during disconnect (??????)
     public void handleNodeMessage(String id, NodeMessage nm) {
-        System.out.println(">>>RCV>>>>");
-        System.out.println("MSG="+nm);
-        System.out.println("<<<<<<<<<<");
+        if(Logging.inst().doLogFcp2Messages()) { 
+            System.out.println(">>>RCV>>>>");
+            System.out.println("MSG="+nm);
+            System.out.println("<<<<<<<<<<");
+        }
         
         MessageTransferTask task = taskMap.get(id);
         if( task == null ) {
@@ -172,7 +175,9 @@ public class MessageTransferHandler implements NodeMessageListener {
             logger.log(Level.SEVERE, "Catched exception", e);
         }
         
-        System.out.println("*GET** Wrote "+bytesWritten+" of "+dataLength+" bytes to file.");
+        if(Logging.inst().doLogFcp2Messages()) { 
+            System.out.println("*GET** Wrote "+bytesWritten+" of "+dataLength+" bytes to file.");
+        }
         final FcpResultGet result;
         if( bytesWritten == dataLength ) {
             // success

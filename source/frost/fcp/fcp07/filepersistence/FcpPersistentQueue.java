@@ -21,6 +21,7 @@ package frost.fcp.fcp07.filepersistence;
 import java.util.*;
 
 import frost.fcp.fcp07.*;
+import frost.util.*;
 
 public class FcpPersistentQueue implements NodeMessageListener {
 
@@ -80,9 +81,11 @@ public class FcpPersistentQueue implements NodeMessageListener {
     
     public void handleNodeMessage(String id, NodeMessage nm) {
 
-        System.out.println(">>>RCV>>>>");
-        System.out.println("MSG="+nm);
-        System.out.println("<<<<<<<<<<");
+        if(Logging.inst().doLogFcp2Messages()) { 
+            System.out.println(">>>RCV>>>>");
+            System.out.println("MSG="+nm);
+            System.out.println("<<<<<<<<<<");
+        }
         
         if( nm.isMessageName("PersistentGet") ) {
             onPersistentGet(id, nm);

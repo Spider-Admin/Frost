@@ -32,6 +32,7 @@ import frost.fcp.*;
 import frost.fileTransfer.download.*;
 import frost.fileTransfer.upload.*;
 import frost.util.*;
+import frost.util.Logging;
 
 /**
  * This class is a wrapper to simplify access to the FCP library.
@@ -42,8 +43,6 @@ public class FcpConnection {
     
     private FcpSocket fcpSocket;
     
-    // FIXME: no DDA for TYPE_MESSAGE !
-
     /**
      * Create a connection to a host using FCP
      *
@@ -174,9 +173,11 @@ public class FcpConnection {
                 // socket closed
                 break;
             }
-
-            System.out.println("*GET** INFO - NodeMessage:");
-            System.out.println(nodeMsg.toString());
+            
+            if(Logging.inst().doLogFcp2Messages()) { 
+                System.out.println("*GET** INFO - NodeMessage:");
+                System.out.println(nodeMsg.toString());
+            }
 
             String endMarker = nodeMsg.getMessageEnd(); 
             if( endMarker == null ) {
@@ -205,7 +206,9 @@ public class FcpConnection {
                     bytesWritten += count;
                 }
                 fileOut.close();
-                System.out.println("*GET** Wrote "+bytesWritten+" of "+dataLength+" bytes to file.");
+                if(Logging.inst().doLogFcp2Messages()) { 
+                    System.out.println("*GET** Wrote "+bytesWritten+" of "+dataLength+" bytes to file.");
+                }
                 if( bytesWritten == dataLength ) {
                     isSuccess = true;
                     if( dlItem != null && dlItem.getRequiredBlocks() > 0 ) {
@@ -398,8 +401,10 @@ public class FcpConnection {
                 break;
             }
             
-            System.out.println("*PUT** INFO - NodeMessage:");
-            System.out.println(nodeMsg.toString());
+            if(Logging.inst().doLogFcp2Messages()) { 
+                System.out.println("*PUT** INFO - NodeMessage:");
+                System.out.println(nodeMsg.toString());
+            }
             
             if( getChkOnly == true && nodeMsg.isMessageName("URIGenerated") ) {
                 isSuccess = true;
@@ -596,8 +601,10 @@ public class FcpConnection {
             if( nodeMsg == null ) {
                 break;
             }
-            System.out.println("*TESTDDA** INFO - NodeMessage:");
-            System.out.println(nodeMsg.toString());
+            if(Logging.inst().doLogFcp2Messages()) { 
+                System.out.println("*TESTDDA** INFO - NodeMessage:");
+                System.out.println(nodeMsg.toString());
+            }
             
             if( nodeMsg.isMessageName("PutSuccessful") ) {
                 System.out.println("DDA is possible!");

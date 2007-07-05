@@ -70,17 +70,30 @@ public class Logging {
     public static final String DEFAULT = "Options.miscellaneous.logLevel.low";
 
     private static final String LOG_FILE_NAME = "frost%g.log";
+    
+    private static Logging instance;
 
     private final SettingsClass frostSettings;
     private final Listener listener = new Listener();
     private Logger rootLogger = null;
     private FileHandler fileHandler = null;
     private final SimpleFormatter simpleFormatter = new SimpleFormatter();
-
+    
+    private boolean logFcp2Messages = false;
+    
     public Logging(SettingsClass frostSettings) {
         super();
         this.frostSettings = frostSettings;
         initialize();
+        instance = this;
+    }
+    
+    public static Logging inst() {
+        return instance;
+    }
+    
+    public boolean doLogFcp2Messages() {
+        return logFcp2Messages;
     }
 
     private void initialize() {
@@ -101,6 +114,8 @@ public class Logging {
         frostSettings.addPropertyChangeListener(SettingsClass.LOG_TO_FILE, listener);
         frostSettings.addPropertyChangeListener(SettingsClass.LOG_FILE_SIZE_LIMIT, listener);
         frostSettings.addPropertyChangeListener(SettingsClass.LOG_LEVEL, listener);
+
+        logFcp2Messages = frostSettings.getBoolValue(SettingsClass.LOG_FCP2_MESSAGES);
     }
 
     private void logLevelSettingChanged() {
