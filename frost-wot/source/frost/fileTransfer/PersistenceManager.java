@@ -29,7 +29,7 @@ import javax.swing.*;
 import frost.*;
 import frost.fcp.*;
 import frost.fcp.fcp07.*;
-import frost.fcp.fcp07.persistentfiles.*;
+import frost.fcp.fcp07.filepersistence.*;
 import frost.fileTransfer.download.*;
 import frost.fileTransfer.upload.*;
 import frost.util.*;
