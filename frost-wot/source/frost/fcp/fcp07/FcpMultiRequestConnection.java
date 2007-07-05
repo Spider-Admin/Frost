@@ -161,18 +161,26 @@ public class FcpMultiRequestConnection {
 
         writeSocketLock.lock();
         try {
-            System.out.println("### SEND >>>>>>>");
+            if(Logging.inst().doLogFcp2Messages()) { 
+                System.out.println("### SEND >>>>>>>");
+            }
             for(Iterator<String> i=message.iterator(); i.hasNext(); ) {
                 String msgLine = i.next();
                 fcpSocket.getFcpOut().println(msgLine);
-                System.out.println(msgLine);
+                if(Logging.inst().doLogFcp2Messages()) { 
+                    System.out.println(msgLine);
+                }
             }
             if( sendEndMsg ) {
                 fcpSocket.getFcpOut().println("EndMessage");
-                System.out.println("*EndMessage*");
+                if(Logging.inst().doLogFcp2Messages()) { 
+                    System.out.println("*EndMessage*");
+                }
             }
             boolean isError = fcpSocket.getFcpOut().checkError();
-            System.out.println("### SEND <<<<<<< isError="+isError);
+            if(Logging.inst().doLogFcp2Messages()) { 
+                System.out.println("### SEND <<<<<<< isError="+isError);
+            }
             return isError;
         } finally {
             writeSocketLock.unlock();
@@ -182,11 +190,15 @@ public class FcpMultiRequestConnection {
     public boolean sendMessageAndData(List<String> message, boolean sendEndMsg, File sourceFile) {
         writeSocketLock.lock();
         try {
-            System.out.println("### SEND_DATA >>>>>>>");
+            if(Logging.inst().doLogFcp2Messages()) { 
+                System.out.println("### SEND_DATA >>>>>>>");
+            }
             for(Iterator<String> i=message.iterator(); i.hasNext(); ) {
                 String msgLine = i.next();
                 fcpSocket.getFcpOut().println(msgLine);
-                System.out.println(msgLine);
+                if(Logging.inst().doLogFcp2Messages()) { 
+                    System.out.println(msgLine);
+                }
             }
             if( sendEndMsg ) {
                 fcpSocket.getFcpOut().println("Data");
@@ -206,7 +218,9 @@ public class FcpMultiRequestConnection {
             fileInput.close();
             fcpSocket.getFcpRawOut().flush();
             
-            System.out.println("### SEND_DATA <<<<<<<");
+            if(Logging.inst().doLogFcp2Messages()) { 
+                System.out.println("### SEND_DATA <<<<<<<");
+            }
             return false; // no error
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Error sending file to socket", t);
