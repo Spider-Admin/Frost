@@ -21,7 +21,6 @@ package frost.fileTransfer;
 import java.util.*;
 
 import frost.*;
-import frost.fcp.*;
 import frost.fileTransfer.download.*;
 import frost.fileTransfer.search.*;
 import frost.fileTransfer.sharing.*;
@@ -61,12 +60,11 @@ public class FileTransferManager implements Savable {
         getNewUploadFilesManager().initialize();
         
         if( PersistenceManager.isPersistenceEnabled() && Core.isFreenetOnline() ) {
-
-            boolean wasOk = ((FcpHandler07)FcpHandler.inst()).initializePersistence();
-            if( !wasOk ) {
-                System.out.println("FAILED TO ESTABLISH THE PERSISTENT CONNECTION!");
-            } else {
+            try {
                 persistenceManager = new PersistenceManager(getUploadManager().getModel(), getDownloadManager().getModel());
+            } catch(Throwable t) {
+                System.out.println("FAILED TO ESTABLISH THE PERSISTENT CONNECTION!");
+                t.printStackTrace();
             }
         }
         
