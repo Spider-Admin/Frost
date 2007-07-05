@@ -80,6 +80,7 @@ public class Logging {
     private final SimpleFormatter simpleFormatter = new SimpleFormatter();
     
     private boolean logFcp2Messages = false;
+    private boolean logFilebaseMessages = false;
     
     public Logging(SettingsClass frostSettings) {
         super();
@@ -94,6 +95,9 @@ public class Logging {
     
     public boolean doLogFcp2Messages() {
         return logFcp2Messages;
+    }
+    public boolean doLogFilebaseMessages() {
+        return logFilebaseMessages;
     }
 
     private void initialize() {
@@ -116,6 +120,7 @@ public class Logging {
         frostSettings.addPropertyChangeListener(SettingsClass.LOG_LEVEL, listener);
 
         logFcp2Messages = frostSettings.getBoolValue(SettingsClass.LOG_FCP2_MESSAGES);
+        logFilebaseMessages = frostSettings.getBoolValue(SettingsClass.LOG_FILEBASE_MESSAGES);
     }
 
     private void logLevelSettingChanged() {

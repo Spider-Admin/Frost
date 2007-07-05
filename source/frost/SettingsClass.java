@@ -85,7 +85,9 @@ public class SettingsClass implements Savable {
     public static final String LOG_LEVEL = "logLevel";
     public static final String LOG_TO_CONSOLE = "logToConsole"; // not in gui dialog!
     public static final String LOG_TO_FILE = "logToFile";       // not in gui dialog!
+    
     public static final String LOG_FCP2_MESSAGES = "log.logFcp2MessagesToConsole";       // not in gui dialog!
+    public static final String LOG_FILEBASE_MESSAGES = "log.logFilebaseMessagesToConsole";       // not in gui dialog!
     
     public static final String FILE_LIST_FONT_NAME = "fileListFontName";
     public static final String FILE_LIST_FONT_SIZE = "fileListFontSize";
@@ -878,7 +880,9 @@ public class SettingsClass implements Savable {
         defaults.put(LOG_TO_FILE, "true");
         defaults.put(LOG_LEVEL, Logging.DEFAULT);
         defaults.put(LOG_FILE_SIZE_LIMIT, "1000");
+        
         defaults.put(LOG_FCP2_MESSAGES, "false");
+        defaults.put(LOG_FILEBASE_MESSAGES, "false");
 
         defaults.put(SILENTLY_RETRY_MESSAGES, "false");
         defaults.put(SHOW_DELETED_MESSAGES, "false");
