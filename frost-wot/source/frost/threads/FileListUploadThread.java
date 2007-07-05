@@ -25,6 +25,7 @@ import frost.fcp.*;
 import frost.fileTransfer.*;
 import frost.storage.perst.*;
 import frost.util.*;
+import frost.util.Logging;
 
 /**
  * Thread that uploads the CHK file lists.
@@ -99,7 +100,9 @@ public class FileListUploadThread extends Thread {
                         logger.log(Level.SEVERE, "Could'nt write the filelist xml file");
                     } else {
                         // upload file
-System.out.println("FileListUploadThread: starting upload of files: "+fileInfo.getFiles().size());                        
+                        if( Logging.inst().doLogFilebaseMessages() ) {
+                            System.out.println("FileListUploadThread: starting upload of files: "+fileInfo.getFiles().size());
+                        }
                         String chkKey = null;
                         try {
                             FcpResultPut result = FcpHandler.inst().putFile(
@@ -117,7 +120,9 @@ System.out.println("FileListUploadThread: starting upload of files: "+fileInfo.g
                         } catch (Exception ex) {
                             logger.log(Level.WARNING, "Exception catched",ex);
                         }
-System.out.println("FileListUploadThread: upload finished, key: "+chkKey);                        
+                        if( Logging.inst().doLogFilebaseMessages() ) {
+                            System.out.println("FileListUploadThread: upload finished, key: "+chkKey);
+                        }
                         if( chkKey != null ) {
                             // add chk to chklist so the PointerThread can find it
                             SharedFilesCHKKey key = new SharedFilesCHKKey(chkKey);

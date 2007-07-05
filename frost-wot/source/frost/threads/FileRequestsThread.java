@@ -30,6 +30,7 @@ import frost.fileTransfer.*;
 import frost.storage.perst.*;
 import frost.transferlayer.*;
 import frost.util.*;
+import frost.util.Logging;
 
 /**
  * Thread receives and sends file requests periodically.
@@ -67,7 +68,9 @@ public class FileRequestsThread extends Thread {
 
         // get a list of CHK keys to send
         List<String> fileRequests = FileRequestsManager.getRequestsToSend();
-System.out.println("uploadRequestFile: fileRequests to send: "+fileRequests.size());
+        if( Logging.inst().doLogFilebaseMessages() ) {
+            System.out.println("uploadRequestFile: fileRequests to send: "+fileRequests.size());
+        }
         if( fileRequests == null || fileRequests.size() == 0 ) {
             logger.info("No requests to send.");
             return true;
@@ -86,12 +89,16 @@ System.out.println("uploadRequestFile: fileRequests to send: "+fileRequests.size
         Mixed.waitRandom(3000);
 
         logger.info("Starting upload of request file containing "+fileRequests.size()+" SHAs");
-System.out.println("uploadRequestFile: Starting upload of request file containing "+fileRequests.size()+" SHAs");
+        if( Logging.inst().doLogFilebaseMessages() ) {
+            System.out.println("uploadRequestFile: Starting upload of request file containing "+fileRequests.size()+" SHAs");
+        }
         
         String insertKey = keyPrefix + dateStr + "-";
         boolean wasOk = GlobalFileUploader.uploadFile(gis, tmpRequestFile, insertKey, ".xml", true);
         tmpRequestFile.delete();
-System.out.println("uploadRequestFile: upload finished, wasOk="+wasOk);
+        if( Logging.inst().doLogFilebaseMessages() ) {
+            System.out.println("uploadRequestFile: upload finished, wasOk="+wasOk);
+        }
         if( wasOk ) {
             FileRequestsManager.updateRequestsWereSuccessfullySent(fileRequests);
         }
@@ -137,7 +144,9 @@ System.out.println("uploadRequestFile: upload finished, wasOk="+wasOk);
 
             if( result.getErrorCode() == GlobalFileDownloaderResult.ERROR_EMPTY_REDIRECT ) {
                 // try index again later
-                System.out.println("FileRequestsThread.downloadDate: Skipping index "+index+" for now, will try again later.");
+                if( Logging.inst().doLogFilebaseMessages() ) {
+                    System.out.println("FileRequestsThread.downloadDate: Skipping index "+index+" for now, will try again later.");
+                }
                 // next loop we try next index
                 index = gis.findNextDownloadSlot(index);
                 continue;
@@ -149,7 +158,7 @@ System.out.println("uploadRequestFile: upload finished, wasOk="+wasOk);
             index = gis.findNextDownloadSlot(index);
 
             if( result.getErrorCode() == GlobalFileDownloaderResult.ERROR_FILE_TOO_BIG ) {
-                System.out.println("FileRequestsThread.downloadDate: Dropping index "+index+", FILE_TOO_BIG.");
+                logger.severe("FileRequestsThread.downloadDate: Dropping index "+index+", FILE_TOO_BIG.");
                 continue;
             }
 
@@ -197,7 +206,9 @@ System.out.println("uploadRequestFile: upload finished, wasOk="+wasOk);
                     IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(
                             IndexSlotsStorage.REQUESTS, date);
                     
-System.out.println("FileRequestsThread: starting download for "+dateStr);
+                    if( Logging.inst().doLogFilebaseMessages() ) {
+                        System.out.println("FileRequestsThread: starting download for "+dateStr);
+                    }
                     // download file pointer files for this date
                     if( !isInterrupted() ) {
                         downloadDate(dateStr, gis, isForToday);
@@ -206,7 +217,9 @@ System.out.println("FileRequestsThread: starting download for "+dateStr);
                     // for today, maybe upload a file pointer file
                     if( !isInterrupted() && isForToday ) {
                         try {
-System.out.println("FileRequestsThread: starting upload for "+dateStr);
+                            if( Logging.inst().doLogFilebaseMessages() ) {
+                                System.out.println("FileRequestsThread: starting upload for "+dateStr);
+                            }
                             uploadRequestFile(dateStr, gis);
                         } catch(Throwable t) {
                             logger.log(Level.SEVERE, "Exception catched during uploadRequestFile()", t);
@@ -234,7 +247,9 @@ System.out.println("FileRequestsThread: starting upload for "+dateStr);
             
             IndexSlotsStorage.inst().commitStore(); // commit changes for this run
             
-System.out.println("FileRequestsThread: sleeping 10 minutes");            
+            if( Logging.inst().doLogFilebaseMessages() ) {
+                System.out.println("FileRequestsThread: sleeping 10 minutes");
+            }
             Mixed.wait(sleepTime); // sleep 10 minutes
         }
     }

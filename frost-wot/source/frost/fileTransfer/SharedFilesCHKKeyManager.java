@@ -23,6 +23,7 @@ import java.util.logging.*;
 
 import frost.storage.perst.*;
 import frost.threads.*;
+import frost.util.Logging;
 
 public class SharedFilesCHKKeyManager {
 
@@ -83,7 +84,9 @@ public class SharedFilesCHKKeyManager {
         }
         
         try {
-System.out.println("processReceivedCHKKeys: processing "+content.getChkKeyStrings().size()+" keys");
+            if( Logging.inst().doLogFilebaseMessages() ) {
+                System.out.println("processReceivedCHKKeys: processing "+content.getChkKeyStrings().size()+" keys");
+            }
             int newKeys = 0;
             int seenKeys = 0;
             int newOwnKeys = 0;
@@ -132,8 +135,9 @@ System.out.println("processReceivedCHKKeys: processing "+content.getChkKeyString
                     logger.log(Level.SEVERE, "Exception in processReceivedCHKKeys", t);
                 }
             }
-
-System.out.println("processReceivedCHKKeys: finished processing keys, new="+newKeys+", seen="+seenKeys+", newOwn="+newOwnKeys);
+            if( Logging.inst().doLogFilebaseMessages() ) {
+                System.out.println("processReceivedCHKKeys: finished processing keys, new="+newKeys+", seen="+seenKeys+", newOwn="+newOwnKeys);
+            }
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Exception during chk key processing", t);
         }
@@ -145,7 +149,9 @@ System.out.println("processReceivedCHKKeys: finished processing keys, new="+newK
         try {
             // rules what chks are choosed are in the following method
             List<String> chkKeys = SharedFilesCHKKeyStorage.inst().retrieveSharedFilesCHKKeysToDownload(MAX_DOWNLOAD_RETRIES_1);
-System.out.println("getCHKKeyStringsToDownload: returning keys: "+(chkKeys==null?"(none)":Integer.toString(chkKeys.size())));            
+            if( Logging.inst().doLogFilebaseMessages() ) {
+                System.out.println("getCHKKeyStringsToDownload: returning keys: "+(chkKeys==null?"(none)":Integer.toString(chkKeys.size())));
+            }
             return chkKeys;
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Exception in retrieveSharedFilesCHKKeysToDownload", t);
@@ -159,7 +165,9 @@ System.out.println("getCHKKeyStringsToDownload: returning keys: "+(chkKeys==null
     public static boolean updateCHKKeyDownloadSuccessful(String chkKey, boolean isValid) {
         // this chk was successfully downloaded, update database
         try {
-System.out.println("updateCHKKeyDownloadSuccessful: key="+chkKey+", isValid="+isValid);
+            if( Logging.inst().doLogFilebaseMessages() ) {
+                System.out.println("updateCHKKeyDownloadSuccessful: key="+chkKey+", isValid="+isValid);
+            }
             return SharedFilesCHKKeyStorage.inst().updateSharedFilesCHKKeyAfterDownloadSuccessful(chkKey, isValid);
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Exception in updateSharedFilesCHKKeyAfterDownloadSuccessful", t);
@@ -182,7 +190,9 @@ System.out.println("updateCHKKeyDownloadSuccessful: key="+chkKey+", isValid="+is
     
     public static boolean addNewCHKKeyToSend(SharedFilesCHKKey key) {
         try {
-System.out.println("addNewCHKKeyToSend: "+key);
+            if( Logging.inst().doLogFilebaseMessages() ) {
+                System.out.println("addNewCHKKeyToSend: "+key);
+            }
             SharedFilesCHKKeyStorage.inst().storeItem(key);
             return true;
         } catch(Throwable t) {

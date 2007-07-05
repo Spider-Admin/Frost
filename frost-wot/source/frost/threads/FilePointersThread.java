@@ -30,6 +30,7 @@ import frost.fileTransfer.*;
 import frost.storage.perst.*;
 import frost.transferlayer.*;
 import frost.util.*;
+import frost.util.Logging;
 
 /**
  * This thread downloads the KSK pointer files for file sharing from the public indices.
@@ -100,9 +101,13 @@ public class FilePointersThread extends Thread {
         logger.info("FILEDN: Starting upload of pointer file containing "+sharedFileCHKkeys.size()+" CHK keys");
         
         String insertKey = keyPrefix + dateStr + "-";
-System.out.println("uploadIndexFile: Starting upload of pointer file containing "+sharedFileCHKkeys.size()+" CHK keys to "+insertKey+"...");
+        if( Logging.inst().doLogFilebaseMessages() ) {
+            System.out.println("uploadIndexFile: Starting upload of pointer file containing "+sharedFileCHKkeys.size()+" CHK keys to "+insertKey+"...");
+        }
         boolean wasOk = GlobalFileUploader.uploadFile(gis, tmpPointerFile, insertKey, ".xml", true);
-System.out.println("uploadIndexFile: upload finished, wasOk="+wasOk);
+        if( Logging.inst().doLogFilebaseMessages() ) {
+            System.out.println("uploadIndexFile: upload finished, wasOk="+wasOk);
+        }
         tmpPointerFile.delete();
         if( wasOk ) {
             SharedFilesCHKKeyManager.updateCHKKeysWereSuccessfullySent(sharedFileCHKkeys);
@@ -131,12 +136,16 @@ System.out.println("uploadIndexFile: upload finished, wasOk="+wasOk);
             logger.info("FILEDN: Requesting index " + index + " for date " + dateStr);
 
             String downKey = requestKey + index + ".xml";
-System.out.println("FilePointersThread.downloadDate: requesting: "+downKey);       
+            if( Logging.inst().doLogFilebaseMessages() ) {
+                System.out.println("FilePointersThread.downloadDate: requesting: "+downKey);
+            }
 
             GlobalFileDownloaderResult result = GlobalFileDownloader.downloadFile(downKey, FcpHandler.MAX_MESSAGE_SIZE_07);
             
             if(  result == null ) {
-System.out.println("FilePointersThread.downloadDate: failure");
+                if( Logging.inst().doLogFilebaseMessages() ) {
+                    System.out.println("FilePointersThread.downloadDate: failure");
+                }
                 // download failed. 
                 if( gis.isDownloadIndexBehindLastSetIndex(index) ) {
                     // we stop if we tried maxFailures indices behind the last known index
@@ -150,7 +159,9 @@ System.out.println("FilePointersThread.downloadDate: failure");
             failures = 0;
 
             if( result.getErrorCode() == GlobalFileDownloaderResult.ERROR_EMPTY_REDIRECT ) {
-                System.out.println("FilePointersThread.downloadDate: Skipping index "+index+" for now, will try again later.");
+                if( Logging.inst().doLogFilebaseMessages() ) {
+                    System.out.println("FilePointersThread.downloadDate: Skipping index "+index+" for now, will try again later.");
+                }
                 // next loop we try next index
                 index = gis.findNextDownloadSlot(index);
                 continue;
@@ -163,20 +174,27 @@ System.out.println("FilePointersThread.downloadDate: failure");
             index = gis.findNextDownloadSlot(index);
             
             if( result.getErrorCode() == GlobalFileDownloaderResult.ERROR_FILE_TOO_BIG ) {
-                System.out.println("FilePointersThread.downloadDate: Dropping index "+index+", FILE_TOO_BIG.");
+                logger.severe("FilePointersThread.downloadDate: Dropping index "+index+", FILE_TOO_BIG.");
                 continue;
             }
 
-System.out.println("FilePointersThread.downloadDate: success");
+            if( Logging.inst().doLogFilebaseMessages() ) {
+                System.out.println("FilePointersThread.downloadDate: success");
+            }
 
             File downloadedFile = result.getResultFile(); 
             
             FilePointerFileContent content = FilePointerFile.readPointerFile(downloadedFile);
-System.out.println("readPointerFile: result: "+content);
+            
+            if( Logging.inst().doLogFilebaseMessages() ) {
+                System.out.println("readPointerFile: result: "+content);
+            }
             downloadedFile.delete();
             SharedFilesCHKKeyManager.processReceivedCHKKeys(content);
         }
-        System.out.println("FilePointersThread.downloadDate: finished");        
+        if( Logging.inst().doLogFilebaseMessages() ) {
+            System.out.println("FilePointersThread.downloadDate: finished");
+        }
     }
 
     public void run() {
@@ -215,7 +233,9 @@ System.out.println("readPointerFile: result: "+content);
                     IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(
                             IndexSlotsStorage.FILELISTS, date);
                     
-System.out.println("FilePointersThread: download for "+dateStr);                    
+                    if( Logging.inst().doLogFilebaseMessages() ) {
+                        System.out.println("FilePointersThread: download for "+dateStr);
+                    }
                     // download file pointer files for this date
                     if( !isInterrupted() ) {
                         downloadDate(dateStr, gis, isForToday);
@@ -224,7 +244,9 @@ System.out.println("FilePointersThread: download for "+dateStr);
                     // for today, maybe upload a file pointer file
                     if( !isInterrupted() && isForToday ) {
                         try {
-System.out.println("FilePointersThread: upload for "+dateStr);                    
+                            if( Logging.inst().doLogFilebaseMessages() ) {
+                                System.out.println("FilePointersThread: upload for "+dateStr);
+                            }
                             uploadIndexFile(dateStr, gis);
                         } catch(Throwable t) {
                             logger.log(Level.SEVERE, "Exception during uploadIndexFile()", t);
