@@ -44,7 +44,9 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 HINSTANCE hInstance      = NULL;
 HWND   hSystrayWnd       = NULL;
 HANDLE hThread           = NULL; 
-HANDLE hEvent            = NULL; 
+HANDLE hEvent            = NULL;
+
+BOOL maximizeOnNextRestore = FALSE;
 
 typedef struct tag_JSYSTRAYICON
         {
@@ -61,8 +63,9 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL,DWORD fdwReason,LPVOID lpvReserved)
   return(TRUE);
 };
 
-#define SHOW_CMD_HIDE   1   // hide the window
-#define SHOW_CMD_SHOW   2   // show/restore the window
+#define SHOW_CMD_HIDE                 1   // hide the window
+#define SHOW_CMD_SHOW                 2   // show/restore the window
+#define SHOW_CMD_HIDE_WAS_MAXIMIZED   3   // hide the window, maximize on next restore
 
 int JShowWindow(LPSTR szTitle,int iCmd)
 {
@@ -89,13 +92,23 @@ int JShowWindow(LPSTR szTitle,int iCmd)
 
     case SHOW_CMD_SHOW:
       // Show/Restore the window
-      if(WndPlace.showCmd==SW_SHOWMAXIMIZED)
+      if(maximizeOnNextRestore == TRUE) {
+        ShowWindow(hWnd,SW_SHOWMAXIMIZED);
+        maximizeOnNextRestore = FALSE;
+      }
+      else if(WndPlace.showCmd==SW_SHOWMAXIMIZED)
         ShowWindow(hWnd,SW_SHOWMAXIMIZED);
       else if(WndPlace.showCmd==SW_SHOWMINIMIZED)
         ShowWindow(hWnd,SW_RESTORE);
       else
         ShowWindow(hWnd,SW_SHOWNORMAL);
       SetForegroundWindow(hWnd);
+      break;
+
+    case SHOW_CMD_HIDE_WAS_MAXIMIZED:
+      // Hide the window, maximize on next restore
+      maximizeOnNextRestore = TRUE;
+      ShowWindow(hWnd,SW_HIDE);
       break;
 
     default:
@@ -136,8 +149,15 @@ int JSystrayClicked(HWND hWnd,WPARAM wParam)
   {
     if(WndPlace.showCmd==SW_SHOWMAXIMIZED)
       ShowWindow(lpSystray->hWindow,SW_SHOWMAXIMIZED);
-    else
-      ShowWindow(lpSystray->hWindow,SW_SHOWNORMAL);
+    else {
+      if(maximizeOnNextRestore == TRUE) {
+        ShowWindow(lpSystray->hWindow,SW_SHOWMAXIMIZED);
+        maximizeOnNextRestore = FALSE;
+      } else {
+        ShowWindow(lpSystray->hWindow,SW_SHOWNORMAL);
+      }
+    }
+
     SetForegroundWindow(lpSystray->hWindow);
   }
   else
