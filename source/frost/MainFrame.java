@@ -36,6 +36,7 @@ import org.joda.time.*;
 import frost.boards.*;
 import frost.components.translate.*;
 import frost.ext.*;
+import frost.fileTransfer.*;
 import frost.gui.*;
 import frost.gui.help.*;
 import frost.gui.messagetreetable.*;
@@ -102,8 +103,6 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     private JMenu languageMenu = new JMenu();
 
     private Language language = null;
-
-    private WindowClosingListener listener = new WindowClosingListener();
 
     // The main menu
     private JMenuBar menuBar;
@@ -175,7 +174,8 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         // we don't want all of our tooltips to hide after 4 seconds, they should be shown forever
         ToolTipManager.sharedInstance().setDismissDelay(Integer.MAX_VALUE);
 
-        addWindowListener(listener);
+        addWindowListener(new WindowClosingListener()); 
+        addWindowStateListener(new WindowStateListener());
     }
 
     public static MainFrame getInstance() {
@@ -192,16 +192,6 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
 
     public void addPanel(String title, JPanel panel) {
         getTabbedPane().add(title, panel);
-    }
-
-    /**
-     * This method inserts a panel into the extendable part of the status bar
-     * at the given position
-     * @param panel panel to add to the status bar
-     * @param position position to insert the panel at
-     */
-    public void addStatusPanel(JPanel panel, int position) {
-        getExtendableStatusPanel().add(panel, position);
     }
 
     /**
@@ -366,12 +356,12 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
 
             systemTrayButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    try { // Hide the Frost window
+                    try { 
+                        // Hide the Frost window
+                        // JSysTray icon automatically detects if we were maximized or not
                         if (JSysTrayIcon.getInstance() != null) {
                             JSysTrayIcon.getInstance().showWindow(JSysTrayIcon.SHOW_CMD_HIDE);
                         }
-                        //Process process = Runtime.getRuntime().exec("exec" +
-                        // fileSeparator + "SystemTrayHide.exe");
                     } catch (IOException _IoExc) {
                     }
                 }
@@ -624,13 +614,6 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
             statusBar = new MainFrameStatusBar();
         }
         return statusBar;
-    }
-
-    /**
-     * This method returns the extendable part of the status bar.
-     */
-    private JPanel getExtendableStatusPanel() {
-        return getStatusBar().getExtendableStatusPanel();
     }
 
     private JTabbedPane buildMainPanel() {
@@ -1094,7 +1077,8 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         // this method is called by a timer each second, so this counter counts seconds
         counter++;
 
-        RunningMessageThreadsInformation info = tofTree.getRunningBoardUpdateThreads().getRunningMessageThreadsInformation();
+        RunningMessageThreadsInformation msgInfo = tofTree.getRunningBoardUpdateThreads().getRunningMessageThreadsInformation();
+        FileTransferInformation fileInfo = Core.getInstance().getFileTransferManager().getFileTransferInformation();
 
         //////////////////////////////////////////////////
         //   Automatic TOF update
@@ -1102,7 +1086,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         if (Core.isFreenetOnline() &&
             counter % 15 == 0 && // check all 15 seconds if a board update could be started
             isAutomaticBoardUpdateEnabled() &&
-            info.getDownloadingBoardCount() < frostSettings.getIntValue(SettingsClass.BOARD_AUTOUPDATE_CONCURRENT_UPDATES))
+            msgInfo.getDownloadingBoardCount() < frostSettings.getIntValue(SettingsClass.BOARD_AUTOUPDATE_CONCURRENT_UPDATES))
         {
             Board nextBoard = BoardUpdateBoardSelector.selectNextBoard(tofTreeModel);
             if (nextBoard != null) {
@@ -1125,9 +1109,11 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
                 .toString());
 
         /////////////////////////////////////////////////
-        //   Update status bar
+        //   Update status bar and file count in panels 
         /////////////////////////////////////////////////
-        getStatusBar().setStatusBarInformations(info, tofTreeModel.getSelectedNode().getName());
+        getStatusBar().setStatusBarInformations(fileInfo, msgInfo, tofTreeModel.getSelectedNode().getName());
+
+        Core.getInstance().getFileTransferManager().updateWaitingCountInPanels(fileInfo);
     }
     
     private void tofDisplayBoardInfoMenuItem_actionPerformed(ActionEvent e) {
@@ -1345,10 +1331,6 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
 
     private TranslationStartDialog getTranslationDialog () {
         return new TranslationStartDialog(this);
-//        if( translationDialog == null ) {
-//        	translationDialog = new TranslationDialog(this);
-//        }
-//        return translationDialog; 
     }
     
     public void showHtmlHelp(String item) {
@@ -1396,22 +1378,32 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         return getMessagePanel().getMessageTable();
     }
     
-    /**
-     * This listener changes the 'updating' state of a board if a thread starts/finishes.
-     * It also launches popup menus
-     */
     private class WindowClosingListener extends WindowAdapter {
         public void windowClosing(WindowEvent e) {
             fileExitMenuItem_actionPerformed(null);
         }
-        public void windowIconified(WindowEvent e) {
-            try { // Hide the Frost window
+    }
+    
+    private class WindowStateListener extends WindowAdapter {
+        public void windowStateChanged(WindowEvent e) {
+            // maybe minimize to tray
+            if( (e.getNewState() & Frame.ICONIFIED) != 0 ) {
+                // Hide the Frost window
+                // because this WindowEvent arrives when we are already minimized, JSYstray can't know
+                // if we were maimized before or not. Therefore tell JSystrayIcon if we were maximized.
                 if ( Core.frostSettings.getBoolValue(SettingsClass.MINIMIZE_TO_SYSTRAY)
                         && JSysTrayIcon.getInstance() != null) 
                 {
-                    JSysTrayIcon.getInstance().showWindow(JSysTrayIcon.SHOW_CMD_HIDE);
+                    boolean wasMaximized = ((e.getOldState() & Frame.MAXIMIZED_BOTH) != 0);
+                    try { 
+                        if( wasMaximized ) {
+                            JSysTrayIcon.getInstance().showWindow(JSysTrayIcon.SHOW_CMD_HIDE_WAS_MAXIMIZED);
+                        } else {
+                            JSysTrayIcon.getInstance().showWindow(JSysTrayIcon.SHOW_CMD_HIDE);
+                        }
+                    } catch (IOException _IoExc) {
+                    }
                 }
-            } catch (IOException _IoExc) {
             }
         }
     }

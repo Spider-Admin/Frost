@@ -26,7 +26,6 @@ import frost.util.*;
 public class DownloadTicker extends Thread {
 
 	private DownloadPanel panel;
-	private DownloadModel model;
 
 	/**
 	 * The number of allocated threads is used to limit the total of threads
@@ -38,13 +37,9 @@ public class DownloadTicker extends Thread {
 	
 	private Object threadCountLock = new Object();
     
-    DownloadStatusPanel statusPanel;
-	
-	public DownloadTicker(DownloadModel newModel, DownloadPanel newPanel, DownloadStatusPanel newStatusPanel) {
+	public DownloadTicker(DownloadPanel newPanel) {
 		super("Download");
-		model = newModel;
 		panel = newPanel;
-        statusPanel = newStatusPanel;
 	}
 	
 	/**
@@ -95,7 +90,6 @@ public class DownloadTicker extends Thread {
 		while (true) {
 			Mixed.wait(1000);
 			// this method is called by a timer each second
-			updateDownloadCountLabel();
             if( PersistenceManager.isPersistenceEnabled() == false ) {
                 startDownloadThread();
             }
@@ -118,28 +112,6 @@ public class DownloadTicker extends Thread {
 	 */
 	void threadStarted() {
 		runningThreads++;
-	}
-
-	/**
-	 * Updates the download items count label. The label shows all WAITING items in download table.
-	 * Called periodically by timer_actionPerformed().
-	 */
-	public void updateDownloadCountLabel() {
-		int waitingItems = 0;
-        int runningItems = 0;
-		for (int x = 0; x < model.getItemCount(); x++) {
-			FrostDownloadItem dlItem = (FrostDownloadItem) model.getItemAt(x);
-			if (dlItem.getState() != FrostDownloadItem.STATE_DONE 
-                    && dlItem.getState() != FrostDownloadItem.STATE_FAILED) 
-            {
-				waitingItems++;
-			}
-            if (dlItem.getState() == FrostDownloadItem.STATE_PROGRESS) {
-                runningItems++;
-            }
-		}
-		panel.setDownloadItemCount(waitingItems);
-        statusPanel.numberChanged(runningItems);
 	}
 
     /**

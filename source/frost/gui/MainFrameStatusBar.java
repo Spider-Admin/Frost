@@ -25,6 +25,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 import frost.*;
+import frost.fileTransfer.*;
 import frost.threads.*;
 import frost.util.gui.translation.*;
 
@@ -35,12 +36,16 @@ public class MainFrameStatusBar extends JPanel {
     
     private Language language;
 
-    private JPanel extendableStatusPanel;
-
     private JLabel statusLabelTofup = null;
     private JLabel statusLabelTofdn = null;
     private JLabel statusLabelBoard = null;
     private JLabel statusMessageLabel = null;
+
+    private JLabel downloadingFilesLabel = null;
+
+    private JLabel uploadingFilesLabel = null;
+    
+    private JLabel fileListDownloadQueueSizeLabel = null;
 
     private RunningMessageThreadsInformation statusBarInformations = null;
 
@@ -53,6 +58,17 @@ public class MainFrameStatusBar extends JPanel {
     }
     
     private void initialize() {
+        
+        uploadingFilesLabel = new JLabel();
+        downloadingFilesLabel = new JLabel();
+
+        JPanel p0 = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 0));
+        p0.add(uploadingFilesLabel);
+        p0.add(new JLabel(" "));
+        p0.add(downloadingFilesLabel);
+        p0.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+        p0.setAlignmentY(JComponent.CENTER_ALIGNMENT);
+        
         statusLabelTofup = new JLabel() {
             public String getToolTipText(MouseEvent me) {
                 if( statusBarInformations == null ) {
@@ -90,109 +106,165 @@ public class MainFrameStatusBar extends JPanel {
         p2.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
         p2.setAlignmentY(JComponent.CENTER_ALIGNMENT);
 
+        JPanel p3 = null; 
+        // shown only if filesharing is enabled
+        if( Core.isFreenetOnline() && !Core.frostSettings.getBoolValue(SettingsClass.DISABLE_FILESHARING)) {
+            fileListDownloadQueueSizeLabel = new JLabel() {
+                public String getToolTipText(MouseEvent me) {
+                    String txt = language.getString("MainFrame.statusBar.tooltip.fileListDownloadQueueSize"); 
+                    return txt;
+                }
+            };
+            // dynamic tooltip
+            ToolTipManager.sharedInstance().registerComponent(fileListDownloadQueueSizeLabel);
+            
+            p3 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+            p3.add(fileListDownloadQueueSizeLabel);
+            p3.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+            p3.setAlignmentY(JComponent.CENTER_ALIGNMENT);
+        }
+            
         statusLabelBoard = new JLabel();
-        JPanel p3 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        p3.add(statusLabelBoard);
-        p3.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-        p3.setAlignmentY(JComponent.CENTER_ALIGNMENT);
+        JPanel p4 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        p4.add(statusLabelBoard);
+        p4.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+        p4.setAlignmentY(JComponent.CENTER_ALIGNMENT);
 
         statusMessageLabel = new JLabel();
         statusMessageLabel.setBorder(BorderFactory.createEmptyBorder(1,1,1,1));
-        JPanel p4 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        p4.add(statusMessageLabel);
-        p4.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
-        p4.setAlignmentY(JComponent.CENTER_ALIGNMENT);;
+        JPanel p5 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        p5.add(statusMessageLabel);
+        p5.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+        p5.setAlignmentY(JComponent.CENTER_ALIGNMENT);;
 
         newMessage[0] = new ImageIcon(MainFrame.class.getResource("/data/messagebright.gif"));
         newMessage[1] = new ImageIcon(MainFrame.class.getResource("/data/messagedark.gif"));
         statusMessageLabel.setIcon(newMessage[1]);
 
-        getExtendableStatusPanel().setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
+        int currGridX = 0;
+        
+        GridBagConstraints gridBagConstraints0 = new GridBagConstraints();
+        gridBagConstraints0.gridx = currGridX++;
+        gridBagConstraints0.anchor = GridBagConstraints.CENTER;
+        gridBagConstraints0.insets = new Insets(1, 2, 1, 1);
+        gridBagConstraints0.fill = GridBagConstraints.VERTICAL;
+        gridBagConstraints0.gridy = 0;
 
-        GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
-        gridBagConstraints4.gridx = 5;
-        gridBagConstraints4.anchor = GridBagConstraints.CENTER;
-        gridBagConstraints4.insets = new Insets(1, 1, 1, 2);
-        gridBagConstraints4.gridy = 0;
-        GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
-        gridBagConstraints3.gridx = 4;
-        gridBagConstraints3.weightx = 1.0;
-        gridBagConstraints3.gridy = 0;
-        GridBagConstraints gridBagConstraints21 = new GridBagConstraints();
-        gridBagConstraints21.gridx = 3;
-        gridBagConstraints21.anchor = GridBagConstraints.CENTER;
-        gridBagConstraints21.insets = new Insets(1, 1, 1, 1);
-        gridBagConstraints21.fill = GridBagConstraints.VERTICAL;
-        gridBagConstraints21.gridy = 0;
-        GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
-        gridBagConstraints2.gridx = 2;
-        gridBagConstraints2.anchor = GridBagConstraints.CENTER;
-        gridBagConstraints2.insets = new Insets(1, 1, 1, 1);
-        gridBagConstraints2.fill = GridBagConstraints.VERTICAL;
-        gridBagConstraints2.gridy = 0;
         GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
-        gridBagConstraints1.gridx = 1;
+        gridBagConstraints1.gridx = currGridX++;
         gridBagConstraints1.anchor = GridBagConstraints.CENTER;
         gridBagConstraints1.insets = new Insets(1, 1, 1, 1);
         gridBagConstraints1.fill = GridBagConstraints.VERTICAL;
         gridBagConstraints1.gridy = 0;
-        GridBagConstraints gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.anchor = GridBagConstraints.CENTER;
-        gridBagConstraints.insets = new Insets(1, 2, 1, 1);
-        gridBagConstraints.fill = GridBagConstraints.VERTICAL;
-        gridBagConstraints.gridy = 0;
+
+        GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
+        gridBagConstraints2.gridx = currGridX++;
+        gridBagConstraints2.anchor = GridBagConstraints.CENTER;
+        gridBagConstraints2.insets = new Insets(1, 1, 1, 1);
+        gridBagConstraints2.fill = GridBagConstraints.VERTICAL;
+        gridBagConstraints2.gridy = 0;
+
+        GridBagConstraints gridBagConstraints3 = null;
+        if( fileListDownloadQueueSizeLabel != null ) {
+            gridBagConstraints3 = new GridBagConstraints();
+            gridBagConstraints3.gridx = currGridX++;
+            gridBagConstraints3.anchor = GridBagConstraints.CENTER;
+            gridBagConstraints3.insets = new Insets(1, 1, 1, 1);
+            gridBagConstraints3.fill = GridBagConstraints.VERTICAL;
+            gridBagConstraints3.gridy = 0;
+        }
+
+        GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
+        gridBagConstraints4.gridx = currGridX++;
+        gridBagConstraints4.anchor = GridBagConstraints.CENTER;
+        gridBagConstraints4.insets = new Insets(1, 1, 1, 1);
+        gridBagConstraints4.fill = GridBagConstraints.VERTICAL;
+        gridBagConstraints4.gridy = 0;
+
+        GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
+        gridBagConstraints5.gridx = currGridX++;
+        gridBagConstraints5.weightx = 1.0;
+        gridBagConstraints5.gridy = 0;
+        
+        GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
+        gridBagConstraints6.gridx = currGridX++;
+        gridBagConstraints6.anchor = GridBagConstraints.CENTER;
+        gridBagConstraints6.insets = new Insets(1, 1, 1, 2);
+        gridBagConstraints6.gridy = 0;
         
         setLayout(new GridBagLayout());
-        add(getExtendableStatusPanel(), gridBagConstraints);
+        add(p0, gridBagConstraints0);
         add(p1, gridBagConstraints1);
         add(p2, gridBagConstraints2);
-        add(p3, gridBagConstraints21);
-        add(new JLabel(""), gridBagConstraints3); // glue
-        add(p4, gridBagConstraints4);
-    }
-
-    /**
-     * This method returns the extendable part of the status bar.
-     */
-    public JPanel getExtendableStatusPanel() {
-        if (extendableStatusPanel == null) {
-            extendableStatusPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
-            extendableStatusPanel.setAlignmentY(JComponent.CENTER_ALIGNMENT);
+        if( fileListDownloadQueueSizeLabel != null ) {
+            add(p3, gridBagConstraints3);
         }
-        return extendableStatusPanel;
+        add(p4, gridBagConstraints4);
+        add(new JLabel(""), gridBagConstraints5); // glue
+        add(p5, gridBagConstraints6);
     }
 
-    public void setStatusBarInformations(RunningMessageThreadsInformation info, String selectedNode) {
+    public void setStatusBarInformations(FileTransferInformation finfo, RunningMessageThreadsInformation info, String selectedNode) {
 
         this.statusBarInformations = info;
         
-        if( info == null ) {
-            return;
+        String newText;
+        StringBuilder sb;
+
+        if( finfo != null ) {
+            sb = new StringBuilder()
+                .append(language.getString("MainFrame.statusBar.uploading")).append(": ")
+                .append(finfo.getUploadsRunning())
+                .append(" ");
+            if( finfo.getUploadsRunning() == 1 ) {
+                sb.append(language.getString("MainFrame.statusBar.file"));
+            } else {
+                sb.append(language.getString("MainFrame.statusBar.files"));
+            }
+            uploadingFilesLabel.setText(sb.toString());
+            
+            sb = new StringBuilder()
+                .append(language.getString("MainFrame.statusBar.downloading")).append(": ")
+                .append(finfo.getDownloadsRunning())
+                .append(" ");
+            if( finfo.getUploadsRunning() == 1 ) {
+                sb.append(language.getString("MainFrame.statusBar.file"));
+            } else {
+                sb.append(language.getString("MainFrame.statusBar.files"));
+            }
+            downloadingFilesLabel.setText(sb.toString());
+
+            if( fileListDownloadQueueSizeLabel != null ) {
+                sb = new StringBuilder()
+                    .append(language.getString("MainFrame.statusBar.fileListDownloadQueueSize")).append(": ")
+                    .append(finfo.getDownloadsRunning());
+                downloadingFilesLabel.setText(sb.toString());
+            }
         }
         
-        // update labels
-        String newText = new StringBuilder()
-            .append(" ")
-            .append(language.getString("MainFrame.statusBar.TOFUP")).append(": ")
-            .append(info.getUploadingMessagesCount())
-            .append("U / ")
-            .append(info.getUnsentMessageCount())
-            .append("W / ")
-            .append(info.getAttachmentsToUploadRemainingCount())
-            .append("A ")
-            .toString();
-        statusLabelTofup.setText(newText);
-
-        newText = new StringBuilder()
-            .append(" ")
-            .append(language.getString("MainFrame.statusBar.TOFDO")).append(": ")
-            .append(info.getDownloadingBoardCount())
-            .append("B / ")
-            .append(info.getRunningDownloadThreadCount())
-            .append("T ")
-            .toString();
-        statusLabelTofdn.setText(newText);
+        if( info != null ) {
+            newText = new StringBuilder()
+                .append(" ")
+                .append(language.getString("MainFrame.statusBar.TOFUP")).append(": ")
+                .append(info.getUploadingMessagesCount())
+                .append("U / ")
+                .append(info.getUnsentMessageCount())
+                .append("W / ")
+                .append(info.getAttachmentsToUploadRemainingCount())
+                .append("A ")
+                .toString();
+            statusLabelTofup.setText(newText);
+    
+            newText = new StringBuilder()
+                .append(" ")
+                .append(language.getString("MainFrame.statusBar.TOFDO")).append(": ")
+                .append(info.getDownloadingBoardCount())
+                .append("B / ")
+                .append(info.getRunningDownloadThreadCount())
+                .append("T ")
+                .toString();
+            statusLabelTofdn.setText(newText);
+        }
 
         newText = new StringBuilder()
             .append(" ")
