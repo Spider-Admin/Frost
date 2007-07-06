@@ -1321,7 +1321,10 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             if( mo.isNew() ) { 
                 msgList.add(mo);
                 mo.setNew(false);
-                model.nodeChanged(mo);
+                // don't update row when row is not shown, this corrupts treetable layout
+                if( MainFrame.getInstance().getMessagePanel().getMessageTable().getTree().isVisible(new TreePath(mo.getPath())) ) {
+                    model.nodeChanged(mo);
+                }
                 board.decNewMessageCount();
             }
         }
