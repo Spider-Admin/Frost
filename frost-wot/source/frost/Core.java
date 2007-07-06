@@ -375,8 +375,10 @@ public class Core implements FrostEventDispatcher  {
 
         // Display the tray icon (do this before mainframe initializes)
         if (frostSettings.getBoolValue(SettingsClass.SHOW_SYSTRAY_ICON) == true) {
-            if (JSysTrayIcon.createInstance(0, title, title) == false) {
-                logger.severe("Could not create systray icon.");
+            try {
+                JSysTrayIcon.createInstance(0, title, title);
+            } catch(Throwable t) {
+                logger.log(Level.SEVERE, "Could not create systray icon.", t);
             }
         }
 
@@ -470,11 +472,11 @@ public class Core implements FrostEventDispatcher  {
         // start all filetransfer tickers
         getFileTransferManager().startTickers();
         
-        // after 15 seconds, start filesharing threads if enabled
+        // after X seconds, start filesharing threads if enabled
         if( isFreenetOnline() && !frostSettings.getBoolValue(SettingsClass.DISABLE_FILESHARING)) {
             Thread t = new Thread() {
                 public void run() {
-                    Mixed.wait(15000);
+                    Mixed.wait(10000);
                     FileSharingManager.startFileSharing();
                 }
             };

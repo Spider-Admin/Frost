@@ -36,7 +36,6 @@ public class UploadManager {
     private UploadModel model;
     private UploadPanel panel;
     private UploadTicker ticker;
-    private UploadStatusPanel statusPanel;
 
     public UploadManager() {
         super();
@@ -44,7 +43,6 @@ public class UploadManager {
 
     public void initialize(List<FrostSharedFileItem> sharedFiles) throws StorageException {
         getPanel();
-        getStatusPanel();
         getModel().initialize(sharedFiles);
         
         // on 0.5, load progress of all files
@@ -54,6 +52,27 @@ public class UploadManager {
                 frost.fcp.fcp05.FcpInsert.updateProgress(item);
             }
         }
+    }
+    
+    /**
+     * Count running items in model.
+     */
+    public void updateFileTransferInformation(FileTransferInformation infos) {
+        int waitingItems = 0;
+        int runningItems = 0;
+        for (int x = 0; x < model.getItemCount(); x++) {
+            FrostUploadItem ulItem = (FrostUploadItem) model.getItemAt(x);
+            if (ulItem.getState() != FrostUploadItem.STATE_DONE 
+                    && ulItem.getState() != FrostUploadItem.STATE_FAILED) 
+            {
+                waitingItems++;
+            }
+            if (ulItem.getState() == FrostUploadItem.STATE_PROGRESS) {
+                runningItems++;
+            }
+        }
+        infos.setUploadsRunning(runningItems);
+        infos.setUploadsWaiting(waitingItems);
     }
     
     public void startTicker() {
@@ -69,7 +88,6 @@ public class UploadManager {
     
     public void addPanelToMainFrame(MainFrame mainFrame) {
         mainFrame.addPanel("MainFrame.tabbedPane.uploads", getPanel());
-        mainFrame.addStatusPanel(getStatusPanel(), 0);
     }
 
     public UploadPanel getPanel() {
@@ -81,16 +99,9 @@ public class UploadManager {
         return panel;
     }
 
-    private UploadStatusPanel getStatusPanel() {
-        if (statusPanel == null) {
-            statusPanel = new UploadStatusPanel();
-        }
-        return statusPanel;
-    }
-
     private UploadTicker getTicker() {
         if (ticker == null) {
-            ticker = new UploadTicker(getModel(), getPanel(), getStatusPanel());
+            ticker = new UploadTicker(getModel());
         }
         return ticker;
     }

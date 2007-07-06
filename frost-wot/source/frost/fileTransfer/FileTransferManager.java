@@ -101,6 +101,25 @@ public class FileTransferManager implements Savable {
         return downloadManager;
     }
     
+    public FileTransferInformation getFileTransferInformation() {
+        FileTransferInformation infos = new FileTransferInformation();
+        getDownloadManager().updateFileTransferInformation(infos);
+        getUploadManager().updateFileTransferInformation(infos);
+        infos.setFileListDownloadQueueSize(FileSharingManager.getFileListDownloadQueueSize());
+        return infos;
+    }
+    
+    /**
+     * Updates the count of waiting uploads/downloads in the toolbar of upload/download tab. 
+     */
+    public void updateWaitingCountInPanels(FileTransferInformation infos) {
+        if( infos == null ) {
+            return;
+        }
+        getDownloadManager().getPanel().setDownloadItemCount(infos.getDownloadsWaiting());
+        getUploadManager().getPanel().setUploadItemCount(infos.getUploadsWaiting());
+    }
+    
     public int countFilesSharedByLocalIdentity(LocalIdentity li) {
         int count = 0;
         for (int x = 0; x < getSharedFilesManager().getModel().getItemCount(); x++) {

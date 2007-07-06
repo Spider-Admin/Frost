@@ -48,6 +48,13 @@ public class FileSharingManager {
         return true;
     }
     
+    public static int getFileListDownloadQueueSize() {
+        if( fileListDownloadThread == null ) {
+            return 0;
+        }
+        return fileListDownloadThread.getCHKKeyQueueSize();
+    }
+    
     public static boolean stopFileSharing() {
         // TODO: implement cancelThread() for all threads
         if( filePointersThread != null ) {

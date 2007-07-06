@@ -36,7 +36,6 @@ public class DownloadManager {
 	private DownloadModel model;
 	private DownloadPanel panel;
 	private DownloadTicker ticker;
-	private DownloadStatusPanel statusPanel;
 
 	public DownloadManager() {
 		super();
@@ -44,7 +43,6 @@ public class DownloadManager {
 	
 	public void initialize() throws StorageException {
         getPanel();
-        getStatusPanel();
 		getModel().initialize();
         
         // on 0.5, load progress of all files
@@ -80,16 +78,32 @@ public class DownloadManager {
     
     public void addPanelToMainFrame(MainFrame mainFrame) {
         mainFrame.addPanel("MainFrame.tabbedPane.downloads", getPanel());
-        mainFrame.addStatusPanel(getStatusPanel(), 0);
+    }
+    
+    /**
+     * Count running items in model.
+     */
+    public void updateFileTransferInformation(FileTransferInformation infos) {
+        int waitingItems = 0;
+        int runningItems = 0;
+        for (int x = 0; x < model.getItemCount(); x++) {
+            FrostDownloadItem dlItem = (FrostDownloadItem) model.getItemAt(x);
+            if( dlItem == null ) {
+                continue;
+            }
+            if (dlItem.getState() != FrostDownloadItem.STATE_DONE 
+                    && dlItem.getState() != FrostDownloadItem.STATE_FAILED) 
+            {
+                waitingItems++;
+            }
+            if (dlItem.getState() == FrostDownloadItem.STATE_PROGRESS) {
+                runningItems++;
+            }
+        }
+        infos.setDownloadsRunning(runningItems);
+        infos.setDownloadsWaiting(waitingItems);
     }
 	
-	private DownloadStatusPanel getStatusPanel() {
-		if (statusPanel == null) {
-			statusPanel = new DownloadStatusPanel();
-		}
-		return statusPanel;
-	}
-    
     /**
      * Checks if a file with this name is already in model, and returns
      * a new name if needed.
@@ -143,7 +157,7 @@ public class DownloadManager {
 	
 	private DownloadTicker getTicker() {
 		if (ticker == null) {
-			ticker = new DownloadTicker(getModel(), getPanel(), getStatusPanel());
+			ticker = new DownloadTicker(getPanel());
 		}
 		return ticker;
 	}

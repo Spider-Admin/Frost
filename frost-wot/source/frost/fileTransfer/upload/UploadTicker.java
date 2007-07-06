@@ -33,7 +33,6 @@ public class UploadTicker extends Thread {
     private final int MAX_GENERATING_THREADS = 1;
 
     private UploadModel model;
-    private UploadPanel panel;
 
     private int removeNotExistingFilesCounter = 0;
 
@@ -50,13 +49,9 @@ public class UploadTicker extends Thread {
     private Object uploadingCountLock = new Object();
     private Object generatingCountLock = new Object();
     
-    private UploadStatusPanel statusPanel;
-
-    public UploadTicker(UploadModel newModel, UploadPanel newPanel, UploadStatusPanel newStatusPanel) {
+    public UploadTicker(UploadModel newModel) {
         super("Upload");
         model = newModel;
-        panel = newPanel;
-        statusPanel = newStatusPanel;
     }
 
     /**
@@ -162,7 +157,6 @@ public class UploadTicker extends Thread {
         while (true) {
             Mixed.wait(1000);
             // this is executed each second, so this counter counts seconds
-            updateUploadCountLabel();
             removeNotExistingFilesCounter++;
             removeNotExistingFiles();
             generateCHKs();
@@ -261,23 +255,5 @@ public class UploadTicker extends Thread {
      */
     public int getRunningUploadingThreads() {
         return runningUploadingThreads;
-    }
-    
-    public void updateUploadCountLabel() {
-        int waitingItems = 0;
-        int runningItems = 0;
-        for (int x = 0; x < model.getItemCount(); x++) {
-            FrostUploadItem ulItem = (FrostUploadItem) model.getItemAt(x);
-            if (ulItem.getState() != FrostUploadItem.STATE_DONE 
-                    && ulItem.getState() != FrostUploadItem.STATE_FAILED) 
-            {
-                waitingItems++;
-            }
-            if (ulItem.getState() == FrostUploadItem.STATE_PROGRESS) {
-                runningItems++;
-            }
-        }
-        panel.setUploadItemCount(waitingItems);
-        statusPanel.numberChanged(runningItems);
     }
 }

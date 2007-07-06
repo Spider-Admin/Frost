@@ -46,21 +46,21 @@ public class Startup {
 
         try {
             boolean copyResource = false;
-            File tray1file = new File("exec" + fileSeparator + "JSysTray.dll");
-            if( !tray1file.isFile() ) {
+            File systrayDllFile = new File("exec" + fileSeparator + "JSysTray.dll");
+            if( !systrayDllFile.isFile() ) {
                 copyResource = true;
             } else {
                 // check if size of existing dll file is different. If yes extract new version from jar.
                 URL url = MainFrame.class.getResource("/data/JSysTray.dll");
                 URLConnection urlConn = url.openConnection();
                 long len = urlConn.getContentLength();
-                if( len != tray1file.length() ) {
-                    tray1file.delete();
+                if( len != systrayDllFile.length() ) {
+                    systrayDllFile.delete();
                     copyResource = true;
                 }
             }
             if( copyResource ) {
-                FileAccess.copyFromResource("/data/JSysTray.dll", tray1file);
+                FileAccess.copyFromResource("/data/JSysTray.dll", systrayDllFile);
             }
         } catch (Throwable e) {
             e.printStackTrace();

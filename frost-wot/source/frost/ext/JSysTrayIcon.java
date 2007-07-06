@@ -41,7 +41,6 @@ import java.util.*;
  *  - win32 (JSysTray.dll)
  */
 
-
 public class JSysTrayIcon
 {
   private native int nativeShowWindow(String title,int cmd);
@@ -54,13 +53,14 @@ public class JSysTrayIcon
   private static int ERR_WINDOW_NOT_FOUND    = 2;
   private static int ERR_ICON_NOT_FOUND      = 3;
 
-  public static int SHOW_CMD_HIDE            = 1;
-  public static int SHOW_CMD_SHOW            = 2;
+  public static int SHOW_CMD_HIDE               = 1;
+  public static int SHOW_CMD_SHOW               = 2;
+  public static int SHOW_CMD_HIDE_WAS_MAXIMIZED = 3;
 
   private static boolean libLoaded = false;
-  private static Vector  iconList = new Vector();
+  private static Vector<JSysTrayIcon> iconList = new Vector<JSysTrayIcon>(); // list of all created systray icons
 
-  private int     handle = 0;
+  private int     systrayHandle = 0;
   private String  windowTitle = null;
 
   /**
@@ -101,9 +101,9 @@ public class JSysTrayIcon
 
     this.windowTitle = windowTitle;
 
-    this.handle = nativeCreateSystrayIcon(iconIndex,tooltipText,windowTitle);
+    this.systrayHandle = nativeCreateSystrayIcon(iconIndex,tooltipText,windowTitle);
 
-    if(handle==0)
+    if(systrayHandle==0)
       throw(new IOException("Systray icon has not been created."));
 
     iconList.addElement(this);
@@ -120,10 +120,10 @@ public class JSysTrayIcon
   {
     int rc;
 
-    if(handle==0)
+    if(systrayHandle==0)
       throw(new IOException("Systray icon has already been deleted"));
 
-    rc = nativeModifySystrayIcon(this.handle,iconIndex,null,null);
+    rc = nativeModifySystrayIcon(this.systrayHandle,iconIndex,null,null);
 
     if(rc==ERR_ICON_NOT_FOUND)
       throw(new IOException("The specified icon has not been found"));
@@ -142,10 +142,10 @@ public class JSysTrayIcon
   {
     int rc;
 
-    if(handle==0)
+    if(systrayHandle==0)
       throw(new IOException("Systray icon has already been deleted"));
 
-    rc = nativeModifySystrayIcon(this.handle,-1,tooltipText,null);
+    rc = nativeModifySystrayIcon(this.systrayHandle,-1,tooltipText,null);
 
     if(rc==ERR_INVALID_PARAM)
       throw(new IOException("An invalid parameter has been specified"));
@@ -162,11 +162,11 @@ public class JSysTrayIcon
   {
     int rc;
 
-    if(handle==0)
+    if(systrayHandle==0)
       throw(new IOException("Systray icon has already been deleted"));
 
     this.windowTitle = windowTitle;
-    rc = nativeModifySystrayIcon(this.handle,-1,null,this.windowTitle);
+    rc = nativeModifySystrayIcon(this.systrayHandle,-1,null,this.windowTitle);
 
     if(rc==ERR_INVALID_PARAM)
       throw(new IOException("An invalid parameter has been specified"));
@@ -181,17 +181,17 @@ public class JSysTrayIcon
   {
     int rc;
 
-    if(handle==0)
+    if(systrayHandle==0)
       throw(new IOException("Systray icon has already been deleted"));
 
-    rc = nativeDeleteSystrayIcon(this.handle);
+    rc = nativeDeleteSystrayIcon(this.systrayHandle);
 
     if(rc==ERR_INVALID_PARAM)
       throw(new IOException("An invalid parameter has been specified"));
     if(rc!=ERR_NO_ERROR)
       throw(new IOException("Systray icon has not been deleted. rc="+rc));
 
-    handle = 0;
+    systrayHandle = 0;
     windowTitle = null;
 
     iconList.removeElement(this);
@@ -208,7 +208,7 @@ public class JSysTrayIcon
   {
     int rc;
 
-    if(handle==0)
+    if(systrayHandle==0)
       throw(new IOException("Systray icon has already been deleted"));
     
     rc = nativeShowWindow(windowTitle,showCmd);
@@ -259,18 +259,10 @@ public class JSysTrayIcon
    * @param windowTitle - the window title
    * @return true if instance was successfully created, false otherwise
    */
-  public static boolean createInstance(int iconIx,String tooltipTxt,String winTitle)
-  {
-      try {
-          JSysTrayIcon.sysTrayIcon = new JSysTrayIcon(iconIx, tooltipTxt, winTitle);    
-      }
-      catch(Throwable t)
-      {
-          //logger
-          return false;
-      }
-      return true;
+  public static void createInstance(int iconIx,String tooltipTxt,String winTitle) throws Throwable {
+      JSysTrayIcon.sysTrayIcon = new JSysTrayIcon(iconIx, tooltipTxt, winTitle);    
   }
+
   /**
    * Returns the created instance of the systray icon.
    * 
@@ -280,6 +272,4 @@ public class JSysTrayIcon
   {
       return JSysTrayIcon.sysTrayIcon;
   }
-  
-  // TODO: wrap all instance methods to not to need the test if getInstance() is null
 }
