@@ -493,19 +493,25 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
                 FileAccess.writeFile(rawdata, checkSize);
             }
             
-            System.out.println("; finalFileSize="+checkSize.length());
+            if( Logging.inst().doLogFcp2Messages() ) {
+                System.out.println("; finalFileSize="+checkSize.length());
+            }
             
         } else if( metadataLength == 0 && checkSize.length() == 0 ) {
             // failure
             result = new FcpResultGet(false);
             checkSize.delete();
             
-            System.out.println("; deleted!");
+            if( Logging.inst().doLogFcp2Messages() ) {
+                System.out.println("; deleted!");
+            }
         } else {
             // success, no metadata
             result = new FcpResultGet(true);
             
-            System.out.println("; finalFileSize="+checkSize.length());
+            if( Logging.inst().doLogFcp2Messages() ) {
+                System.out.println("; finalFileSize="+checkSize.length());
+            }
         }
         
         return result;
