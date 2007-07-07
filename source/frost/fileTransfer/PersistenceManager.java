@@ -255,6 +255,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
     
     public void connected() {
         MainFrame.getInstance().setConnected();
+        logger.severe("now connected");
     }
     public void disconnected() {
         MainFrame.getInstance().setDisconnected();
@@ -265,6 +266,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                 downloadModel.removeExternalDownloads();
             }
         });
+        logger.severe("disconnected!");
     }
 
     /**

@@ -80,20 +80,23 @@ public class MessageTransferHandler implements NodeMessageListener {
     public synchronized void connected() {
         // allow new tasks
         isConnected = true;
+        logger.severe("now connected");
     }
 
     public synchronized void disconnected() {
 
         isConnected = false;
-        
+        int taskCount = 0;
         synchronized(taskMap) {
             // notify all pending tasks that transfer failed
             for( MessageTransferTask task : taskMap.values() ) {
                 task.setFailed();
                 task.setFinished();
+                taskCount++;
             }
             taskMap.clear();
         }
+        logger.severe("disconnected, set "+taskCount+" tasks failed");
     }
 
     public void handleNodeMessage(NodeMessage nm) {
