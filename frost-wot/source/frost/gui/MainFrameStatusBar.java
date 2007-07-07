@@ -235,10 +235,10 @@ public class MainFrameStatusBar extends JPanel {
             downloadingFilesLabel.setText(sb.toString());
 
             if( fileListDownloadQueueSizeLabel != null ) {
-                sb = new StringBuilder()
+                sb = new StringBuilder().append(" ")
                     .append(language.getString("MainFrame.statusBar.fileListDownloadQueueSize")).append(": ")
-                    .append(finfo.getDownloadsRunning());
-                downloadingFilesLabel.setText(sb.toString());
+                    .append(finfo.getFileListDownloadQueueSize()).append(" ");
+                fileListDownloadQueueSizeLabel.setText(sb.toString());
             }
         }
         
