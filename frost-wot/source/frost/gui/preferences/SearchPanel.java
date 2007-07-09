@@ -48,7 +48,6 @@ class SearchPanel extends JPanel {
     private JLabel videoExtensionLabel = new JLabel();
     private JTextField videoExtensionTextField = new JTextField();
 
-    private JCheckBox hideBadFilesCheckBox = new JCheckBox();
     private JCheckBox disableFilesharingCheckBox = new JCheckBox();
     private JCheckBox rememberSharedFileDownloadedCheckBox = new JCheckBox();
 
@@ -147,11 +146,6 @@ class SearchPanel extends JPanel {
         constraints.gridy++;
         constraints.gridwidth = 2;
         constraints.gridx = 0;
-        add(hideBadFilesCheckBox, constraints);
-        
-        constraints.gridy++;
-        constraints.gridwidth = 2;
-        constraints.gridx = 0;
         add(disableFilesharingCheckBox, constraints);
 
         constraints.gridy++;
@@ -180,7 +174,6 @@ class SearchPanel extends JPanel {
         executableExtensionTextField.setText(settings.getValue(SettingsClass.FILEEXTENSION_EXECUTABLE));
         archiveExtensionTextField.setText(settings.getValue(SettingsClass.FILEEXTENSION_ARCHIVE));
         maxSearchResultsTextField.setText(Integer.toString(settings.getIntValue(SettingsClass.SEARCH_MAX_RESULTS)));
-        hideBadFilesCheckBox.setSelected(settings.getBoolValue(SettingsClass.SEARCH_HIDE_BAD));
         disableFilesharingCheckBox.setSelected(settings.getBoolValue(SettingsClass.DISABLE_FILESHARING));
         rememberSharedFileDownloadedCheckBox.setSelected(settings.getBoolValue(SettingsClass.REMEMBER_SHAREDFILE_DOWNLOADED));
     }
@@ -198,7 +191,6 @@ class SearchPanel extends JPanel {
         executableExtensionLabel.setText(language.getString("Options.search.executableExtension"));
         maxSearchResultsLabel.setText(language.getString("Options.search.maximumSearchResults"));
 
-        hideBadFilesCheckBox.setText(language.getString("Options.search.hideFilesFromPeopleMarkedBad"));
         disableFilesharingCheckBox.setText(language.getString("Options.search.disableFilesharing"));
         rememberSharedFileDownloadedCheckBox.setText(language.getString("Options.search.rememberSharedFileDownloaded"));
     }
@@ -215,7 +207,6 @@ class SearchPanel extends JPanel {
         settings.setValue(SettingsClass.FILEEXTENSION_ARCHIVE, archiveExtensionTextField.getText().toLowerCase());
         settings.setValue(SettingsClass.SEARCH_MAX_RESULTS, maxSearchResultsTextField.getText());
 
-        settings.setValue(SettingsClass.SEARCH_HIDE_BAD, hideBadFilesCheckBox.isSelected());
         settings.setValue(SettingsClass.DISABLE_FILESHARING, disableFilesharingCheckBox.isSelected());
         settings.setValue(SettingsClass.REMEMBER_SHAREDFILE_DOWNLOADED, rememberSharedFileDownloadedCheckBox.isSelected());
     }
