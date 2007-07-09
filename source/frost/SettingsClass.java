@@ -146,7 +146,9 @@ public class SettingsClass implements Savable {
     
     public static final String SEARCH_MAX_RESULTS = "maxSearchResults";
     public static final String SEARCH_HIDE_BAD = "hideBadFiles";
-    public static final String SEARCH_HIDE_ANONYMOUS = "hideAnonFiles";
+    public static final String SEARCH_HIDE_CHECK = "hideCheckFiles";
+    public static final String SEARCH_HIDE_OBSERVE = "hideObserveFiles";
+    public static final String SEARCH_HIDE_FILES_WITHOUT_CHK = "hideFilesWithoutChk";
     
     public static final String BOARDLIST_LAST_SELECTED_BOARD = "tofTreeSelectedRow";
     
@@ -815,7 +817,9 @@ public class SettingsClass implements Savable {
         
         defaults.put(SEARCH_MAX_RESULTS, "10000");
         defaults.put(SEARCH_HIDE_BAD, "true");
-        defaults.put(SEARCH_HIDE_ANONYMOUS, "false");
+        defaults.put(SEARCH_HIDE_CHECK, "false");
+        defaults.put(SEARCH_HIDE_OBSERVE, "false");
+        defaults.put(SEARCH_HIDE_FILES_WITHOUT_CHK, "false");
 
         defaults.put(DOWNLOAD_MAX_SPLITFILE_THREADS, "30");
         defaults.put(UPLOAD_MAX_SPLITFILE_THREADS, "15");

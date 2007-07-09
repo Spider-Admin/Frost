@@ -23,6 +23,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
+import frost.*;
 import frost.util.gui.*;
 import frost.util.gui.search.*;
 import frost.util.gui.translation.*;
@@ -42,7 +43,7 @@ public class SearchPanel extends JPanel implements LanguageListener {
     private boolean isInitialized = false;
     
     private CloseableTabbedPane searchTabs;
-
+    
     private String[] searchComboBoxKeys =
         { "SearchPane.fileTypes.allFiles", 
           "SearchPane.fileTypes.audio", 
@@ -111,6 +112,44 @@ public class SearchPanel extends JPanel implements LanguageListener {
         SearchThread searchThread = new SearchThread(searchParams, modelTable, pp);
         searchThread.start();
     }
+    
+    private JSkinnablePopupMenu buildSearchOptionsMenu() {
+        final JSkinnablePopupMenu searchOptionsMenu = new JSkinnablePopupMenu();
+        final JMenuItem hideBadUserFilesCheckBox = new JCheckBoxMenuItem(language.getString("SearchPane.toolbar.searchOptions.hideFilesFromPeopleMarkedBad"));
+        final JMenuItem hideCheckUserFilesCheckBox = new JCheckBoxMenuItem(language.getString("SearchPane.toolbar.searchOptions.hideFilesFromPeopleMarkedCheck"));
+        final JMenuItem hideObserveUserFilesCheckBox = new JCheckBoxMenuItem(language.getString("SearchPane.toolbar.searchOptions.hideFilesFromPeopleMarkedObserve"));
+        final JMenuItem hideFilesWithoutChkCheckBox = new JCheckBoxMenuItem(language.getString("SearchPane.toolbar.searchOptions.hideFilesWithoutChk"));
+        
+        hideBadUserFilesCheckBox.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SEARCH_HIDE_BAD));
+        hideCheckUserFilesCheckBox.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SEARCH_HIDE_CHECK));
+        hideObserveUserFilesCheckBox.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SEARCH_HIDE_OBSERVE));
+        hideFilesWithoutChkCheckBox.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SEARCH_HIDE_FILES_WITHOUT_CHK));
+
+        hideBadUserFilesCheckBox.addItemListener( new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                Core.frostSettings.setValue(SettingsClass.SEARCH_HIDE_BAD, hideBadUserFilesCheckBox.isSelected());
+            } });
+        hideCheckUserFilesCheckBox.addItemListener( new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                Core.frostSettings.setValue(SettingsClass.SEARCH_HIDE_CHECK, hideCheckUserFilesCheckBox.isSelected());
+            } });
+        hideObserveUserFilesCheckBox.addItemListener( new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                Core.frostSettings.setValue(SettingsClass.SEARCH_HIDE_OBSERVE, hideObserveUserFilesCheckBox.isSelected());
+            } });
+        hideFilesWithoutChkCheckBox.addItemListener( new ItemListener() {
+            public void itemStateChanged(ItemEvent e) {
+                Core.frostSettings.setValue(SettingsClass.SEARCH_HIDE_FILES_WITHOUT_CHK, hideFilesWithoutChkCheckBox.isSelected());
+            } });
+
+        searchOptionsMenu.add(hideBadUserFilesCheckBox);
+        searchOptionsMenu.add(hideCheckUserFilesCheckBox);
+        searchOptionsMenu.add(hideObserveUserFilesCheckBox);
+        searchOptionsMenu.addSeparator();
+        searchOptionsMenu.add(hideFilesWithoutChkCheckBox);
+        
+        return searchOptionsMenu;
+    }
 
     private class SearchSimpleToolBar extends JToolBar implements ActionListener {
 
@@ -118,7 +157,7 @@ public class SearchPanel extends JPanel implements LanguageListener {
         private JButton searchButton = new JButton(searchIcon);
         private JTextField searchTextField = new JTextField(30);
         private JButton toggleModeButtonToAdvanced = new JButton(">>");
-        private JCheckBox withKeyOnlyCheckBox = new JCheckBox();
+        private JButton searchOptionsButton = new JButton();
 
         public SearchSimpleToolBar() {
             super();
@@ -133,8 +172,9 @@ public class SearchPanel extends JPanel implements LanguageListener {
             new TextComponentClipboardMenu(searchTextField, language);
 
             searchComboBox = new JTranslatableComboBox(language, searchComboBoxKeys);
-            withKeyOnlyCheckBox.setOpaque(false);
             toggleModeButtonToAdvanced.setOpaque(false);
+            searchOptionsButton.setOpaque(false);
+            searchOptionsButton.setFocusPainted(false);
 
             MiscToolkit toolkit = MiscToolkit.getInstance();
             toolkit.configureButton(searchButton, "/data/search_rollover.gif");
@@ -153,7 +193,7 @@ public class SearchPanel extends JPanel implements LanguageListener {
             add(Box.createRigidArea(blankSpace));
             add(searchComboBox);
             add(Box.createRigidArea(blankSpace));
-            add(withKeyOnlyCheckBox);
+            add(searchOptionsButton);
             add(Box.createRigidArea(blankSpace));
             add(searchButton);
             add(Box.createHorizontalGlue());
@@ -161,30 +201,34 @@ public class SearchPanel extends JPanel implements LanguageListener {
             searchTextField.addActionListener(this);
             searchButton.addActionListener(this);
             toggleModeButtonToAdvanced.addActionListener(this);
+            searchOptionsButton.addActionListener(this);
         }
         
         public SearchParameters getSearchParameters() {
             SearchParameters sp = new SearchParameters(true);
             sp.setExtensions(searchComboBox.getSelectedKey());
             sp.setSimpleSearchString(searchTextField.getText());
-            sp.setWithKeyOnly(withKeyOnlyCheckBox.isSelected());
+            sp.setHideBadUserFiles(Core.frostSettings.getBoolValue(SettingsClass.SEARCH_HIDE_BAD));
+            sp.setHideCheckUserFiles(Core.frostSettings.getBoolValue(SettingsClass.SEARCH_HIDE_CHECK));
+            sp.setHideObserveUserFiles(Core.frostSettings.getBoolValue(SettingsClass.SEARCH_HIDE_OBSERVE));
+            sp.setHideFilesWithoutChkKey(Core.frostSettings.getBoolValue(SettingsClass.SEARCH_HIDE_FILES_WITHOUT_CHK));
             return sp;
         }
         
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() == searchButton || e.getSource() == searchTextField) {
                 startNewSearch(getSearchParameters());
-            }
-            if (e.getSource() == toggleModeButtonToAdvanced) {
+            } else if (e.getSource() == toggleModeButtonToAdvanced) {
                 toggleMode(false);
+            } else if (e.getSource() == searchOptionsButton) {
+                buildSearchOptionsMenu().show(searchOptionsButton, 5, 5);
             }
         }
 
         public void refreshLanguage() {
             searchButton.setToolTipText(language.getString("SearchPane.toolbar.tooltip.search"));
             toggleModeButtonToAdvanced.setToolTipText(language.getString("SearchPane.toolbar.tooltip.toggleMode"));
-            withKeyOnlyCheckBox.setText(language.getString("SearchPane.toolbar.chkKey"));
-            withKeyOnlyCheckBox.setToolTipText(language.getString("SearchPane.toolbar.tooltip.chkKey"));
+            searchOptionsButton.setText(language.getString("SearchPane.toolbar.searchOptionsButton")+"...");
         }
     }
 
@@ -205,7 +249,7 @@ public class SearchPanel extends JPanel implements LanguageListener {
         private JTextField searchKeywordsTextField = new JTextField(18);
         private JTextField searchOwnerTextField = new JTextField(18);
 
-        private JCheckBox withKeyOnlyCheckBox = new JCheckBox();
+        private JButton searchOptionsButton = new JButton();
 
         public SearchAdvancedToolBar() {
             super();
@@ -223,8 +267,9 @@ public class SearchPanel extends JPanel implements LanguageListener {
             new TextComponentClipboardMenu(searchOwnerTextField, language);
 
             searchComboBox = new JTranslatableComboBox(language, searchComboBoxKeys);
-            withKeyOnlyCheckBox.setOpaque(false);
             toggleModeButtonToSimple.setOpaque(false);
+            searchOptionsButton.setOpaque(false);
+            searchOptionsButton.setFocusPainted(false);
 
             MiscToolkit toolkit = MiscToolkit.getInstance();
             toolkit.configureButton(searchButton, "/data/search_rollover.gif");
@@ -262,7 +307,7 @@ public class SearchPanel extends JPanel implements LanguageListener {
             add(Box.createRigidArea(blankSpace));
             add(searchComboBox);
             add(Box.createRigidArea(blankSpace));
-            add(withKeyOnlyCheckBox);
+            add(searchOptionsButton);
             add(Box.createRigidArea(smallSpace));
             add(clearButton);
             add(Box.createRigidArea(blankSpace));
@@ -276,6 +321,7 @@ public class SearchPanel extends JPanel implements LanguageListener {
             searchButton.addActionListener(this);
             clearButton.addActionListener(this);
             toggleModeButtonToSimple.addActionListener(this);
+            searchOptionsButton.addActionListener(this);
         }
 
         public SearchParameters getSearchParameters() {
@@ -285,7 +331,10 @@ public class SearchPanel extends JPanel implements LanguageListener {
             sp.setCommentString(searchCommentTextField.getText());
             sp.setKeywordString(searchKeywordsTextField.getText());
             sp.setOwnerString(searchOwnerTextField.getText());
-            sp.setWithKeyOnly(withKeyOnlyCheckBox.isSelected());
+            sp.setHideBadUserFiles(Core.frostSettings.getBoolValue(SettingsClass.SEARCH_HIDE_BAD));
+            sp.setHideCheckUserFiles(Core.frostSettings.getBoolValue(SettingsClass.SEARCH_HIDE_CHECK));
+            sp.setHideObserveUserFiles(Core.frostSettings.getBoolValue(SettingsClass.SEARCH_HIDE_OBSERVE));
+            sp.setHideFilesWithoutChkKey(Core.frostSettings.getBoolValue(SettingsClass.SEARCH_HIDE_FILES_WITHOUT_CHK));
             return sp;
         }
 
@@ -301,6 +350,8 @@ public class SearchPanel extends JPanel implements LanguageListener {
                 toggleMode(true);
             } else if (e.getSource() == clearButton) {
                 clearTextfields();
+            } else if (e.getSource() == searchOptionsButton) {
+                buildSearchOptionsMenu().show(searchOptionsButton, 5, 5);
             }
         }
         
@@ -319,8 +370,7 @@ public class SearchPanel extends JPanel implements LanguageListener {
             searchCommentLabel.setText(language.getString("SearchPane.toolbar.comment")+":");
             searchKeywordsLabel.setText(language.getString("SearchPane.toolbar.keywords")+":");
             searchOwnerLabel.setText(language.getString("SearchPane.toolbar.owner")+":");
-            withKeyOnlyCheckBox.setText(language.getString("SearchPane.toolbar.chkKey"));
-            withKeyOnlyCheckBox.setToolTipText(language.getString("SearchPane.toolbar.tooltip.chkKey"));
+            searchOptionsButton.setText(language.getString("SearchPane.toolbar.searchOptionsButton")+"...");
         }
     }
 
@@ -369,34 +419,4 @@ public class SearchPanel extends JPanel implements LanguageListener {
             return model;
         }
     }
-
-//    public class RolloverBorderButton extends JButton {
-//
-//        private boolean isOver = false;
-//
-//        public RolloverBorderButton() {
-//            super();
-//
-//            addMouseListener(new MouseAdapter() {
-//                public void mouseEntered(MouseEvent e) {
-//                    isOver = true;
-//                    repaint();
-//                }
-//                public void mouseExited(MouseEvent e) {
-//                    isOver = false;
-//                    repaint();
-//                }
-//            });
-//        }
-//
-//        public void paint(Graphics g) {
-//            
-//            super.paint(g);
-//
-//            if( isOver ) {
-////                g.setColor(Color.blue);
-//                g.drawRect(getInsets().left, getInsets().top, getWidth(), getHeight());
-//            }
-//        }
-//    }
 }

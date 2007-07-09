@@ -41,8 +41,6 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
     private String[] executableExtension;
     private String[] archiveExtension;
 
-    boolean hideBad;
-
     private int allFileCount;
     private int maxSearchResults;
     
@@ -81,23 +79,32 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
     private boolean searchFile1(FrostFileListFileObject fo) {
 
         // check if file has a key
-        if( searchParams.getWithKeyOnly() ) {
+        if( searchParams.isHideFilesWithoutChkKey() ) {
             if( fo.getKey() == null || fo.getKey().length() == 0 ) {
                 return false;
             }
         }
 
-        // hideBadFiles: show file if no bad owner; or if at least 1 owner is good/observe
-        if( hideBad ) {
+        // hideFiles: show file if no bad/check/observe owner; or if at least 1 owner is good/observe
+        if( searchParams.isHideBadUserFiles() 
+                || searchParams.isHideCheckUserFiles()
+                || searchParams.isHideObserveUserFiles()) 
+        {
             boolean accept = true;
             for( FrostFileListFileObjectOwner ob : fo.getFrostFileListFileObjectOwnerList() ) {
                 if( ob.getOwner() != null ) {
                     Identity id = Core.getIdentities().getIdentity(ob.getOwner());
                     if (id != null ) { 
-                        if( id.isBAD() ) {
+                        
+                        if( id.isBAD() && searchParams.isHideBadUserFiles() ) {
+                            accept = false; // dont break, maybe there is a good
+                        } else if( id.isCHECK() && searchParams.isHideCheckUserFiles() ) {
+                            accept = false; // dont break, maybe there is a good
+                        } else if( id.isOBSERVE() && searchParams.isHideObserveUserFiles() ) {
                             accept = false; // dont break, maybe there is a good
                         }
-                        if( id.isGOOD() || id.isOBSERVE() ) {
+                        
+                        if( id.isGOOD() || (id.isOBSERVE() && !searchParams.isHideObserveUserFiles()) ) {
                             accept = true;
                             break; // break, one GOOD is enough to accept
                         }
@@ -460,6 +467,5 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
         if( maxSearchResults <= 0 ) {
             maxSearchResults = 10000; // default
         }
-        hideBad = Core.frostSettings.getBoolValue(SettingsClass.SEARCH_HIDE_BAD);
     }
 }

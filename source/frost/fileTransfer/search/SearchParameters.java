@@ -45,7 +45,10 @@ public class SearchParameters {
     
     private String tabText = null;
     
-    private boolean withKeyOnly = false;
+    private boolean hideFilesWithoutChkKey = false;
+    private boolean hideBadUserFiles = false;
+    private boolean hideCheckUserFiles = false;
+    private boolean hideObserveUserFiles = false;
     
     // simple search
     private List<String> simpleSearchStrings = null;
@@ -217,13 +220,6 @@ public class SearchParameters {
         return notOwner;
     }
     
-    public boolean getWithKeyOnly() {
-        return withKeyOnly;
-    }
-    public void setWithKeyOnly(boolean withKeyOnly) {
-        this.withKeyOnly = withKeyOnly;
-    }
-
     public boolean isSimpleSearch() {
         return isSimpleSearch;
     }
@@ -234,5 +230,33 @@ public class SearchParameters {
 
     public List<String> getSimpleSearchStrings() {
         return simpleSearchStrings;
+    }
+
+    public boolean isHideFilesWithoutChkKey() {
+        return hideFilesWithoutChkKey;
+    }
+    public void setHideFilesWithoutChkKey(boolean hideFilesWithoutChkKey) {
+        this.hideFilesWithoutChkKey = hideFilesWithoutChkKey;
+    }
+
+    public boolean isHideBadUserFiles() {
+        return hideBadUserFiles;
+    }
+    public void setHideBadUserFiles(boolean hideBadUserFiles) {
+        this.hideBadUserFiles = hideBadUserFiles;
+    }
+
+    public boolean isHideCheckUserFiles() {
+        return hideCheckUserFiles;
+    }
+    public void setHideCheckUserFiles(boolean hideCheckUserFiles) {
+        this.hideCheckUserFiles = hideCheckUserFiles;
+    }
+
+    public boolean isHideObserveUserFiles() {
+        return hideObserveUserFiles;
+    }
+    public void setHideObserveUserFiles(boolean hideObserveUserFiles) {
+        this.hideObserveUserFiles = hideObserveUserFiles;
     }
 }
