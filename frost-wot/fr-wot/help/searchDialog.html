@@ -1,0 +1,28 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+  <HEAD>
+    <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <META http-equiv="Content-Style-Type" content="text/css">
+    <LINK rel="stylesheet" href="style.css" type="text/css">
+    <TITLE>Search Messages Dialog Help</TITLE>
+  </HEAD>
+  <BODY>
+<H2>Search dialog</H2>
+
+<P>This help page describes the not-so-intuitional fields of the search messages dialog.</P>
+
+<P><B>Sender, Subject and Content text field</B></P>
+
+<P>The values in these fields must be separated by blanks. Each phrase that is given must occur in the appropriate field of the message.
+So if you enter '<CODE>emil waltraud</CODE>' in the content field, all messages containing both of these words in its content text are found.</P>
+
+<P>If a text field is left blank, messages are not checked for content of these field. If you want to find <I>all</I> messages, leave all text fields blank. Because if you would enter an asterisk ('*') in the content text field, messages containing this character would be found only.</P>
+
+<P>To specify words that must not occur you can add the word <B>NOT</B> at the end of the search words and specify the not words: '<CODE>discussion gpl NOT porn mp3</CODE>' (remember NOT must be written in uppercase). To search for the word NOT or to specify words containing blanks surround them with double quotes: <CODE>&quot;some text&quot;</CODE>. By default the complete search is done using lowercase text comparision. If you check the box after the text field then the whole search for this field is done case sensitive.</P>
+<P>If you leave a text field empty then all files are displayed. Don't enter an asterisk to search for all files, only if you want to search for an asterisk in the comment or keywords.</P>
+
+
+<P><B>NOTE:</B> If messages flagged as NEW are found and you open them, the NEW state will <B>NOT</B> be resetted.</P>
+
+  </BODY>
+</HTML>
