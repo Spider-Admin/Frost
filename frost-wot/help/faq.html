@@ -1,0 +1,108 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+  <HEAD>
+    <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <META http-equiv="Content-Style-Type" content="text/css">
+    <LINK rel="stylesheet" href="style.css" type="text/css">
+    <TITLE>FROST FAQ</TITLE>
+  </HEAD>
+  <BODY>
+<H2>FROST FAQ</H2>
+<P>This is just a collection of hints, some are useful, others not...</P>
+
+<H3>What do those characters in the status bar mean?</H3>
+<code>TOFUP: 0U / 0W / 0A   TOFDN: 0B / 0T</code>
+<P>TOFUP: Text Over Freenet UPloads. U is the count of running message uploads. W is the count of messages waiting for upload. A is the count of attachments waiting for upload.</P>
+<P>TOFDN: Text Over Freenet DowNloads. B is the count of currently updating boards. T is the count of threads running to update the boards.</P>
+<P>(This is also described in the tooltip of the status bar entries)</P>
+
+<H3>Searching for files:</H3>
+<P>To search for files select the 'Search' tab in the main view. You can choose between 2 search modes, the simple mode and the advanced mode.
+Toggle between the modes by pressing the leftmost button ('&gt;&gt;' or '&lt;&lt;').</P>
+<P><B>Text fields</B><P>
+<P>In any textbox (in simple and advanced mode) you can enter a list of words like '<CODE>discussion gpl</CODE>'. This are the search words. To specify words that must not occur you can add the word <B>NOT</B> at the end of the search words and specify the not words: '<CODE>discussion gpl NOT porn mp3</CODE>' (remember NOT must be written in uppercase). To search for the word NOT or to specify words containing blanks surround them with double quotes: <CODE>&quot;some text&quot;</CODE>. The complete search is done using lowercase text comparision.</P>
+<P>If you leave a text field empty then all files are displayed. Don't enter an asterisk to search for all files, only if you want to search for an asterisk in the comment or keywords.</P>
+<P><B>Simple mode</B></P>
+<P>Enter your search text into the text field and press enter or click the search button to start the search. Select the checkbox (CHK key) to display only files that already have a CHK key. Files without a CHK key are requested by the uploader and could take some more time.</P>
+<P>The search will find a file if each of the words you specified is found in the <I>filename, comment or keyword</I> field. If a NOT word is found in any of those fields the file is not displayed in the search results.</P>
+<P><B>Advanced mode</B></P>
+<P>Quite similar to the simple mode, but allows you to enter search words and NOT words for each of the fields <I>filename, comment, keywords, owner</I> selectively.
+A file is found if any of the search words are found in the appropriate field. If a NOT word is found in a field the file is not shown in the search results.</P>
+
+<H3>Shortkeys:</H3>
+
+<P>In message table:</P>
+<PRE>- 'n' selects next unread message in Board
+- 'g' changes sender of the selected message to state GOOD
+- 'o' changes sender of the selected message to state OBSERVE
+- 'c' changes sender of the selected message to state CHECK
+- 'b' changes sender of the selected message to state BAD
+- DELETE key deletes the selected message
+- ENTER key opens the message in a new message viewer window</PRE>
+
+<P>General:</P>
+<P>CTRL-i activates the case-insensitive incremental search, CTRL-SHIFT-i the case-sensitive incremental search.
+The search works in most tables, trees and text fields.</P>
+<P>While in search mode press the down/up arrow key to jump to the next/previous match.</P>
+
+<H3>Command line options:</H3>
+<PRE>-?   Display all command line options
+-lf  Use specific Java look and feel manager:
+       javax.swing.plaf.metal.MetalLookAndFeel
+       com.sun.java.swing.plaf.windows.WindowsLookAndFeel
+       com.sun.java.swing.plaf.motif.MotifLookAndFeel
+       javax.swing.plaf.mac.MacLookAndFeel
+-offline  Starts Frost in offline mode</PRE>
+<P>for example turning on motif laf: frost -lf com.sun.java.swing.plaf.motif.MotifLookAndFeel</P>
+
+<H3>Some FAQ's... (the old faq.txt file)</H3>
+
+<P><B>Q: How do I add new boards?</B></P>
+<P>A: Select folder that should contain the new board. Right click on the tree structure. Select 'Add new board / folder'. Rename 'New folder' by selecting it and pressing F2 or double klick it. You can also press the 'Add board' icon in the icon bar.</P>
+
+<P><B>Q: Why Frost?</B></P>
+<P>A: Why not?</P>
+
+<P><B>Q: Cut and Paste does not work in Linux.</B></P>
+<P>A: Try using CTRL+C (COpy), CTRL+V (Paste) and CTRL+X (Cut), or use the context menu if available.</P>
+
+<P><B>Q: How can I change the "LookAndFeel" settings.</B></P>
+<P>A: There's a command line setting. See section above or get more info with frost -? (from the command line)</P>
+
+<P><B>Q: Can I shut down Frost after uploading my files?</B></P>
+<P>A: Yes</P>
+
+<P><B>Q: Why is everything so slow?</B></P>
+<P>A: Because Freenet is so slow, and Frost is a Freenet client. Uploads will probably get faster with more Freenet users.</P>
+
+<P><B>Q: I don't like the way replies are handled in Frost. Can you use ">" to indent old text?</B></P>
+<P>A: Hehe, no way.</P>
+
+<P><B>Q: What Datastore size should I use for my Freenet Node?</B></P>
+<P>A: The larger the better. At least the size of the largest file you want to download. For example if you want to download large movies, 10Gb is a good size.</P>
+
+<P><B>Q: My upload was aborted because... (fill in your story here). Do I have to upload everything again?</B></P>
+<P>A: No, if you restart the upload you'll probably see that it progresses much faster. Only parts of the file that have not been uploaded yet will be uploaded. (This is not true for files with a size below 256Kb, because they are not split into smaller parts)</P>
+
+<P><B>Q: My download stopped because of... (yeah, another story...). Do I have to download everything again?</B></P>
+<P>A: No, Frost stores already downloaded chunks.</P>
+
+<P><B>Q: Chunks?</B></P>
+<P>A: Large files are split up into several chunks, each with a size of 256Kb. These 'Splitfiles' can be downloaded from multiple sources at once.</P>
+
+<P><B>Q: I can't get a specific file, but I really need it!</B></P>
+<P>A: First try asking (nicely) on the board the file was uploaded to! Get someone to re-insert the file.</P>
+<P>A2: If no-one responds, and the file has a "From:" put a message up on the board "public" with "(name), re-insert request" as the subject and explain your desire for said file.</P>
+<P>A3: Post on the board 'unsuccessful'. This is the freenet board where people post the keys to files they cannot reach.</P>
+<P>A4: Try increasing your maximum HTL. Note that 25 is the maximum HTL that most nodes will respond to, and most nodes will, on receiving a higher HTL set it to 25.</P>
+<P>A5: Increase the splitfile threads to 5.</P>
+<P>If none of this works, your best bet is to keep asking on different (related) boards.</P>
+
+<P><B>Q: Why can I see not very many messages?</B></P>
+<P>A: Frost by default only downloads messages for 5 days into the past. If you want to see more past messages increase "Number of days to download backwards" in Preferences->News(1) (I suggest increasing it to 15). Make sure that  this is less than "Number of days to display".</P>
+
+<P><B>Q: How do I get access to the &lt;name&gt; board?</B></P>
+<P>A: Just add it as a "New Board". If it is the same name as a public board someone else has created then this will work!</P>
+
+</BODY>
+</HTML>

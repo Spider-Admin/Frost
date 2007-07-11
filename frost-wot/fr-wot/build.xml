@@ -1,0 +1,416 @@
+<?xml version="1.0"?>
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+<!-- Build file for Frost-wot                                          -->
+<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+<project name="frost" default="main" basedir=".">
+
+  <!-- Prefix of the name of the distribution files to create -->
+  <property name="distZipNamePrefix" value="frost-"/>
+  <property name="distJarNamePrefix" value="frost-"/>
+  <property name="distSourceZipNamePrefix" value="frost-source-"/>
+
+  <!-- Give user a chance to override without editing this file
+       (and without typing -D each time it compiles it) -->
+  <property file=".ant.properties" />                 <!-- ignored by atomative -->
+  <property file="${user.home}/.ant.properties" />    <!-- ignored by atomative -->
+
+  <!-- Don't use systems CLASSPATH, use only the CLASSPATH set in this build file -->
+  <property name="build.sysclasspath" value="ignore"/>
+
+  <!--  General project properties -->
+  <property name="Name" value="Frost"/>
+  <property name="jarName" value="frost.jar"/>
+
+  <!--  javac compiler options -->
+  <property name="debug" value="true" />
+  <property name="debuglevel" value="source,lines,vars" />
+  <property name="deprecation" value="true" />
+  <property name="verbose" value="false" />
+  <property name="optimize" value="true" />
+  <property name="source" value="1.5" />         <!-- overwritten by atomative -->
+  <property name="target" value="1.5" />         <!-- overwritten by atomative -->
+
+  <!-- moved to target main, the old one should keep alive. :)  -->
+  <!-- property name="revision" value="${NOW.DATE}"/ --> <!-- overwritten by atomative -->
+
+  <!--  Set the properties related to the source tree -->
+  <property name="src.dir" value="source"/>
+  <property name="bin.dir" value="bin"/>
+  <property name="res.dir" value="res"/>
+  <property name="lib.dir" value="lib"/>
+  <property name="specs.dir" value="specs"/>
+  <property name="src.dir.feclib" value="${lib.dir}/fecImpl"/>
+  <property name="src.dir.genchklib" value="${lib.dir}/genChkImpl"/>
+  <property name="src.dir.skinlfFixLib" value="${lib.dir}/skinlfFix"/>
+  <property name="src.dir.datechooser" value="${lib.dir}/datechooser"/>
+  <property name="src.dir.bayesianfilter" value="${lib.dir}/Classifier4J"/>
+
+  <!--  Set the properties for the build area  -->
+  <property name="build.dir" value="build"/>
+  <property name="build.classes" value="${build.dir}/classes"/>
+  <property name="build.classes.feclib" value="${build.dir}/classes_feclib"/>
+  <property name="build.classes.genchklib" value="${build.dir}/classes_genchklib"/>
+  <property name="build.classes.skinlfFixLib" value="${build.dir}/classes_skinlfFixLib"/>
+  <property name="build.classes.datechooser" value="${build.dir}/classes_datechooser"/>
+  <property name="build.classes.bayesianfilter" value="${build.dir}/classes_bayesianfilter"/>
+
+  <!--  Set up properties for the distribution area -->
+  <property name="dist.dir" value="${build.dir}/dist"/>
+  <property name="release.dir" value="${build.dir}/release"/>
+
+  <!--  Set up properties for the frost help -->
+  <property name="helpsrc.dir" value="help"/>
+  <property name="helpbin.dir" value="${dist.dir}/help"/>
+
+  <!--  Set up properties for the frost javadoc -->
+  <property name="docs"    value="docs/api"/>
+
+  <!--  The CLASSPATH to use for compilation. -->
+  <path id="classpath">
+    <pathelement location="${lib.dir}/xercesImpl.jar"/>
+    <pathelement location="${lib.dir}/xml-apis.jar"/>
+    <pathelement location="${lib.dir}/xmlParserAPIs.jar"/>
+    <pathelement location="${lib.dir}/BCastle.jar"/>
+    <pathelement location="${lib.dir}/mckoidb.jar"/>
+    <pathelement location="${lib.dir}/perst15.jar"/>
+    <pathelement location="${lib.dir}/jnlp.jar"/>
+    <pathelement location="${lib.dir}/joda-time.jar"/>
+    <pathelement location="${build.classes.feclib}"/>
+    <pathelement location="${build.classes.genchklib}"/>
+    <pathelement location="${build.classes.skinlfFixLib}"/>
+    <pathelement location="${build.classes.datechooser}"/>
+    <pathelement location="${build.classes.bayesianfilter}"/>
+    <pathelement location="${lib.dir}/skinlf.jar"/>
+  </path>
+
+  <!--  Specify logfile name -->
+  <property name="logfilename" value="build.log"/>
+
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Output some messages and set DATE,TIME variables                 -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <target name="startmsg"
+          description="--> outputs message">
+
+    <tstamp/>
+    <echo>Starting build of ${Name}
+Date       : ${DSTAMP}
+Time       : ${TSTAMP}
+JVM version: ${java.version} of '${java.vendor}' in '${java.home}'
+Ant project: ${ant.project.name}
+Ant version: ${ant.version}
+Build OS   : ${os.name} ${os.version} (${os.arch})
+Build user : ${user.name}
+Build log  : ${logfilename}</echo>
+
+  </target>
+
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Build the code  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <target name="cleanclass"
+          depends="startmsg"
+          description="--> cleans the directories containing .class files">
+    <mkdir dir="${build.dir}"/>
+
+    <delete quiet="true" dir="${build.classes}"/>
+   	<delete quiet="true" dir="${build.classes.feclib}"/>
+    <delete quiet="true" dir="${build.classes.genchklib}"/>
+    <delete quiet="true" dir="${build.classes.skinlfFixLib}"/>
+    <delete quiet="true" dir="${build.classes.datechooser}"/>
+    <delete quiet="true" dir="${build.classes.bayesianfilter}"/>
+
+  </target>
+
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Build the code  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <target name="build"
+          depends="startmsg"
+          description="--> compiles the source code">
+    <mkdir dir="${build.dir}"/>
+    <mkdir dir="${build.classes}"/>
+    <mkdir dir="${build.classes.feclib}"/>
+    <mkdir dir="${build.classes.genchklib}"/>
+    <mkdir dir="${build.classes.skinlfFixLib}"/>
+    <mkdir dir="${build.classes.datechooser}"/>
+    <mkdir dir="${build.classes.bayesianfilter}"/>
+
+    <javac srcdir="${src.dir.feclib}"
+           destdir="${build.classes.feclib}"
+    	   classpath="${src.dir.feclib}"
+	   	   debug="${debug}"		   debuglevel="${debuglevel}" 		deprecation="${deprecation}"
+    	   verbose="${verbose}"    optimize="${optimize}"
+    	   source="${source}"	   target="${target}">
+    </javac>
+    <copy todir="${build.classes.feclib}">
+        <fileset dir="${lib.dir}/fecImpl">
+            <include name="**/*.class"/>
+            <include name="**/*.properties"/>
+        </fileset>
+    </copy>
+
+    <javac srcdir="${src.dir.genchklib}"
+           destdir="${build.classes.genchklib}"
+ 	   	   debug="${debug}"		   debuglevel="${debuglevel}" 		deprecation="${deprecation}"
+ 	  	   verbose="${verbose}"    optimize="${optimize}"
+ 	  	   source="${source}"	   target="${target}">
+        <classpath>
+            <pathelement location="${build.classes.feclib}"/>
+        </classpath>
+    </javac>
+
+    <javac srcdir="${src.dir.bayesianfilter}"
+           destdir="${build.classes.bayesianfilter}"
+ 	   	   debug="${debug}"		   debuglevel="${debuglevel}" 		deprecation="${deprecation}"
+ 	  	   verbose="${verbose}"    optimize="${optimize}"
+ 	  	   source="${source}"	   target="${target}">
+    </javac>
+
+    <javac srcdir="${src.dir.datechooser}"
+           destdir="${build.classes.datechooser}"
+ 	   	   debug="${debug}"		   debuglevel="${debuglevel}" 		deprecation="${deprecation}"
+ 	  	   verbose="${verbose}"    optimize="${optimize}"
+ 	  	   source="${source}"	   target="${target}">
+    </javac>
+    <copy todir="${build.classes.datechooser}">
+        <fileset dir="${lib.dir}/datechooser">
+            <include name="**/*.properties"/>
+        </fileset>
+    </copy>
+
+    <javac srcdir="${src.dir.skinlfFixLib}"
+           destdir="${build.classes.skinlfFixLib}"
+	   	   debug="${debug}"		   debuglevel="${debuglevel}" 		deprecation="${deprecation}"
+    	   verbose="${verbose}"    optimize="${optimize}"
+    	   source="${source}"	   target="${target}">
+          <classpath>
+              <pathelement location="${build.classes}"/>
+              <pathelement location="${src.dir.skinlfFixLib}"/>
+              <pathelement location="${lib.dir}/skinlf.jar"/>
+          </classpath>
+    </javac>
+
+
+    <javac srcdir="${src.dir}"
+           destdir="${build.classes}"
+    	   encoding="UTF8"
+	   	   debug="${debug}"		   debuglevel="${debuglevel}" 		deprecation="${deprecation}"
+	  	   verbose="${verbose}"    optimize="${optimize}"
+	  	   source="${source}"	   target="${target}">
+      <classpath refid="classpath" />
+    </javac>
+
+  </target>
+
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!--  Create the jar file  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <target name="jar"
+          depends="build"
+          description="--> creates the jar file">
+
+    <delete quiet="true" file="${dist.dir}/${jarName}"/>
+    <mkdir dir="${dist.dir}"/>
+
+	<!--  Modify the version and copy the manifest -->
+  	<filter token="VERSION_FROM_ANT" value="${revision}"/>
+	<!-- filter token="VERSION_FROM_ANT" value="${NOW.DATE} dev"/ -->
+<!--	<filter token="VERSION_FROM_ANT" value="20-Oct-2005 dev"/>-->
+	<copy
+		file="${src.dir}/frost.manifest"
+		todir="${dist.dir}"
+		filtering="true"/>
+
+    <!--  Build the jar file.  -->
+    <jar jarfile="${dist.dir}/${jarName}"
+         manifest="${dist.dir}/frost.manifest">
+      <fileset dir="${build.classes}">
+        <include name="**/*.class"/>
+      </fileset>
+      <fileset dir="${src.dir}">
+        <include name="**/*.properties"/>
+      </fileset>
+      <fileset dir="${res.dir}">
+        <include name="**"/>
+      </fileset>
+    </jar>
+
+    <delete quiet="true" file="${dist.dir}/frost.manifest"/>
+
+    <delete quiet="true" file="${dist.dir}/lib/fecImpl.jar"/>
+    <mkdir dir="${dist.dir}/lib"/>
+    <jar jarfile="${dist.dir}/lib/fecImpl.jar">
+      <fileset dir="${build.classes.feclib}">
+        <include name="**/*.class"/>
+        <include name="**/*.properties"/>
+      </fileset>
+    </jar>
+
+    <delete quiet="true" file="${dist.dir}/lib/genChkImpl.jar"/>
+    <mkdir dir="${dist.dir}/lib"/>
+    <jar jarfile="${dist.dir}/lib/genChkImpl.jar">
+      <fileset dir="${build.classes.genchklib}">
+        <include name="**/*.class"/>
+      </fileset>
+    </jar>
+
+    <delete quiet="true" file="${dist.dir}/lib/Classifier4J.jar"/>
+    <mkdir dir="${dist.dir}/lib"/>
+    <jar jarfile="${dist.dir}/lib/Classifier4J.jar">
+      <fileset dir="${build.classes.bayesianfilter}">
+        <include name="**/*.class"/>
+      </fileset>
+    </jar>
+
+    <delete quiet="true" file="${dist.dir}/lib/skinlfFix.jar"/>
+    <mkdir dir="${dist.dir}/lib"/>
+    <jar jarfile="${dist.dir}/lib/skinlfFix.jar">
+      <fileset dir="${build.classes.skinlfFixLib}">
+        <include name="**/*.class"/>
+      </fileset>
+    </jar>
+
+    <delete quiet="true" file="${dist.dir}/lib/datechooser.jar"/>
+    <mkdir dir="${dist.dir}/lib"/>
+    <jar jarfile="${dist.dir}/lib/datechooser.jar">
+      <fileset dir="${build.classes.datechooser}">
+        <include name="**/*.class"/>
+        <include name="**/*.properties"/>
+      </fileset>
+    </jar>
+
+  </target>
+
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!-- Prepare the distribution (zip, source zip and jar)				 -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <target name="distro"
+          depends="jar"
+          description="--> prepares the distribution.">
+
+	<!-- Prepares the zip -->
+
+    <copy todir="${dist.dir}">
+      <fileset dir="${bin.dir}"/>
+    </copy>
+
+    <copy todir="${dist.dir}/lib">
+        <fileset dir="${lib.dir}">
+            <include name="*.jar"/>
+            <exclude name="jnlp.jar"/>
+        </fileset>
+    </copy>
+
+    <mkdir dir="${dist.dir}/downloads"/>
+    <mkdir dir="${dist.dir}/exec"/>
+
+    <!-- create the help-zip -->
+    <antcall target="helpzip"/>
+
+   </target>
+
+   <target name ="release"
+   	depends = "main"
+	description="--> prepares .jar and source.zip for release">
+
+	<echo>Preparing files for release..
+	</echo>
+
+    <mkdir dir="${release.dir}"/>
+    <delete quiet="true" file="${release.dir}/${distZipNamePrefix}${revision}.zip"/>
+    <zip basedir="${dist.dir}" destfile="${release.dir}/${distZipNamePrefix}${revision}.zip"/>
+<!--
+    <copy todir="${release.dir}">
+      <fileset dir="${dist.dir}">
+      	<filename name="${jarName}"/>
+      </fileset>
+   </copy>
+
+    <delete quiet="true" file="${release.dir}/${distJarNamePrefix}${NOW.DATE}.jar"/>
+    <delete quiet="true" file="${release.dir}/${distJarNamePrefix}latest.jar"/>
+
+    <move file="${release.dir}/${jarName}" tofile="${release.dir}/${distJarNamePrefix}${NOW.DATE}.jar"/>
+
+    <copy todir="${release.dir}">
+          <fileset dir="${dist.dir}">
+	          <filename name="${jarName}"/>
+	</fileset>
+   </copy>
+   <move file="${release.dir}/${jarName}" tofile="${release.dir}/${distJarNamePrefix}latest.jar"/>
+-->
+
+    <!-- Prepares the source zip (exclude the library jars) -->
+
+    <delete quiet="true" file="${release.dir}/${distZipNamePrefix}${revision}-source.zip"/>
+    <zip destfile="${release.dir}/${distZipNamePrefix}${revision}-source.zip" filesonly="true">
+    	<zipfileset dir="."
+    				prefix = "frost-wot"
+    				excludes=".* **/CVS/* ${lib.dir}/**/*.jar"
+    				includes="${src.dir}/**/* ${bin.dir}/**/* ${res.dir}/**/*
+    						  ${lib.dir}/**/* ${specs.dir}/**/* ${helpsrc.dir}/**/*
+                              build.xml"/>
+    </zip>
+
+    <echo>
+	Source, zip and jar ready for release at ${release.dir}</echo>
+  </target>
+
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!-- Clean -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <target name="clean" description="--> clean the build files.">
+    <!-- delete quiet="true" dir="${build.dir}"/ -->
+  	<delete dir="${build.dir}"/>
+  </target>
+
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!-- Building help.zip -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <target name="helpzip" description="--> build the help.zip">
+	<delete quiet="true" file="${helpbin.dir}/help.zip"/>
+    <mkdir dir="${helpbin.dir}"/>
+	<zip destfile="${helpbin.dir}/help.zip">
+		<zipfileset dir="${helpsrc.dir}" excludes="/**/CVS/*"/>
+    	</zip>
+  </target>
+
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!-- Building the frost documentation -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+
+  <target name="javadoc">
+    <!-- javadoc packagenames="fecimpl.*"
+             sourcepath="${src.dir.feclib}"
+             destdir="${docs}"
+             windowtitle="FECLib Documentation"/ -->
+    <javadoc packagenames="frost.*"
+             sourcepath="${src.dir}"
+             destdir="${docs}"
+             windowtitle="Frost Documentation"/>
+  </target>
+
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!-- Main target - runs dist by default -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <target name="main" description="--> creates the distribution in ./dist">
+
+    <record name="${logfilename}" action="start"/>
+
+	<tstamp>
+		<format property="NOW.DATE" pattern="dd-MMM-yyyy" locale="en"/>
+		<format property="NOW.TIME" pattern="HH:mm:ss" locale="en" />
+	</tstamp>
+	<property name="revision" value="${NOW.DATE}"/> <!-- overwritten by atomative -->
+
+    <antcall target="distro"/>
+
+    <echo>Finished build of ${Name}
+			Date : ${NOW.DATE}
+			Time : ${NOW.TIME}</echo>
+
+    <record name="${logfilename}" action="stop"/>
+
+  </target>
+
+</project>
