@@ -716,6 +716,12 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                 } else {
                     setIcon(null);
                 }
+            } else if( column == 2 ) {
+                if( val ) {
+                    setIcon(flaggedIcon);
+                } else {
+                    setIcon(null);
+                }
             }
             
             if (!isSelected) {
@@ -818,7 +824,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             column = getColumnModel().getColumn(column).getModelIndex();
 
             // do nice things for FROM and SIG column
-            if( column == 3 ) {
+            if( column == 4 ) {
                 // FROM
                 // first set font, bold for new msg or normal
                 if (msg.isNew()) {
@@ -835,12 +841,12 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                 if( !msg.isDummy() ) {
                     setToolTipText((String)value);
                 }
-            } else if( column == 4 ) {
+            } else if( column == 5 ) {
                 // index column, right aligned
                 setHorizontalAlignment(SwingConstants.RIGHT);
                 // col is right aligned, give some space to next column
                 setBorder(border);
-            } else if( column == 5 ) {
+            } else if( column == 6 ) {
                 // SIG
                 // state == good/bad/check/observe -> bold and coloured
                 final Font f;
@@ -987,14 +993,19 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         tcm.getColumn(1).setMinWidth(20);
         tcm.getColumn(1).setMaxWidth(20);
         tcm.getColumn(1).setPreferredWidth(20);
+        // hard set sizes of icons column
+        tcm.getColumn(2).setMinWidth(20);
+        tcm.getColumn(2).setMaxWidth(20);
+        tcm.getColumn(2).setPreferredWidth(20);
         
         // set icon table header renderer for icon columns
         tcm.getColumn(0).setHeaderRenderer(new IconTableHeaderRenderer(flaggedIcon));
         tcm.getColumn(1).setHeaderRenderer(new IconTableHeaderRenderer(starredIcon));
+//        tcm.getColumn(2).setHeaderRenderer(new IconTableHeaderRenderer(starredIcon));
         
         if( !loadLayout(frostSettings, tcm) ) {
             // Sets the relative widths of the columns
-            int[] widths = { 20,20, 185, 95, 50, 130 };
+            int[] widths = { 20,20,20, 185, 95, 50, 130 };
             for (int i = 0; i < widths.length; i++) { 
                 tcm.getColumn(i).setPreferredWidth(widths[i]);
             }
@@ -1035,8 +1046,8 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         for(int x=tcms.length-1; x >= 0; x--) {
             tcms[x] = tcm.getColumn(x);
             tcm.removeColumn(tcms[x]);
-            // keep icon columns 0,1 as is
-            if(x != 0 && x != 1) {
+            // keep icon columns 0,1,2 as is
+            if(x != 0 && x != 1 && x != 2) {
                 tcms[x].setPreferredWidth(columnWidths[x]);
             }
         }
