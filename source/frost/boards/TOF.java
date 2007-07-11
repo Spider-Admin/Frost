@@ -34,7 +34,6 @@ import frost.gui.messagetreetable.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;
 import frost.util.*;
-import frost.util.baysian.*;
 import frost.util.gui.translation.*;
 
 /**
@@ -208,29 +207,6 @@ public class TOF {
      */
     public void receivedValidMessage(MessageXmlFile currentMsg, Board board, int index) {
         FrostMessageObject newMsg = new FrostMessageObject(currentMsg, board, index);
-        // maybe check received msg for spam
-        if( Core.frostSettings.getBoolValue(SettingsClass.BAYESIAN_FILTER_ENABLED) ) {
-            boolean isSpam = false;
-            if( newMsg.getIdLinePos() > -1 ) {
-                String msgText = newMsg.getContent();
-                if( msgText.length() > newMsg.getIdLinePos()+newMsg.getIdLineLen() ) {
-                    msgText = msgText.substring(newMsg.getIdLinePos()+newMsg.getIdLineLen());
-                    if( newMsg.getFromIdentity() != null 
-                            && (newMsg.getFromIdentity().isOBSERVE() || newMsg.getFromIdentity().isGOOD()) )
-                    {
-                        FrostBayesianFilter.inst().teachIsNotSpam(msgText);
-                    } else {
-                        isSpam = FrostBayesianFilter.inst().checkIsSpam(msgText);
-                        if( isSpam ) {
-                            FrostBayesianFilter.inst().teachIsSpam(msgText);
-                        } else {
-                            FrostBayesianFilter.inst().teachIsNotSpam(msgText);
-                        }
-                    }
-                }
-            }
-            newMsg.setJunk(isSpam);
-        }
         receivedValidMessage(newMsg, board, index);
     }
     /**

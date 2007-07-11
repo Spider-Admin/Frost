@@ -44,7 +44,6 @@ import frost.storage.perst.*;
 import frost.threads.*;
 import frost.util.*;
 import frost.util.Logging;
-import frost.util.baysian.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.migration.*;
@@ -317,8 +316,6 @@ public class Core implements FrostEventDispatcher  {
         IndexSlotsStorage.inst().initStorage();
         SharedFilesCHKKeyStorage.inst().initStorage();
         FrostFilesStorage.inst().initStorage();
-        BayesianWordsStorage.inst().initStorage();
-        FrostBayesianFilter.inst().initialize(BayesianWordsStorage.inst());
         
         // migrate various tables from McKoi to perst (migrate version 0 -> 1 )
         if( frostSettings.getIntValue(SettingsClass.MIGRATE_VERSION) < 1 ) {
@@ -465,7 +462,6 @@ public class Core implements FrostEventDispatcher  {
         saver.addExitSavable(IndexSlotsStorage.inst());
         saver.addExitSavable(SharedFilesCHKKeyStorage.inst());
         saver.addExitSavable(FrostFilesStorage.inst());
-        saver.addExitSavable(BayesianWordsStorage.inst());
 
         // invoke the mainframe ticker (board updates, clock, ...)
         mainframe.startTickerThread();

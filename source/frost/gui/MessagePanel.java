@@ -30,8 +30,6 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.tree.*;
 
-import com.sun.corba.se.impl.protocol.giopmsgheaders.*;
-
 import frost.*;
 import frost.boards.*;
 import frost.gui.messagetreetable.*;
@@ -39,7 +37,6 @@ import frost.identities.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;
 import frost.util.*;
-import frost.util.baysian.*;
 import frost.util.gui.*;
 import frost.util.gui.search.*;
 import frost.util.gui.translation.*;
@@ -131,8 +128,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
          * its state (starred/flagged).
          */
         protected void editIconColumn(int row, int modelCol) {
-            if( modelCol > 2 ) {
-                return; // icon columns are at 0,1,2
+            if( modelCol > 1 ) {
+                return; // icon columns are at 0,1
             }
             final FrostMessageObject message = (FrostMessageObject)getMessageTableModel().getRow(row);
             if( message == null || message.isDummy() ) {
@@ -144,56 +141,35 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             } else if( modelCol == 1 ) {
                 message.setStarred( !message.isStarred() );
                 getMessageTableModel().fireTableCellUpdated(row, modelCol);
-            } else if( modelCol == 2 ) {
-                message.setJunk( !message.isJunk() );
-                getMessageTableModel().fireTableCellUpdated(row, modelCol);
-                
-                if( message.getIdLinePos() > -1 ) {
-                    String msgText = message.getContent();
-                    if( msgText.length() > message.getIdLinePos()+message.getIdLineLen() ) {
-                        msgText = msgText.substring(message.getIdLinePos()+message.getIdLineLen());
-                        if( message.isJunk() ) {
-                            // teach match
-                            FrostBayesianFilter.inst().teachIsSpam(msgText);
-                        } else {
-                            // teach non-match
-                            FrostBayesianFilter.inst().teachIsNotSpam(msgText);
-                        }
-                    }
-                }
             }
             
-            // if flagged/starred changed, update borders in thread and tofTree
-            if( modelCol == 0 || modelCol == 1 ) {
+            // determine thread root msg of this msg
+            FrostMessageObject threadRootMsg = message.getThreadRootMessage();
             
-                // determine thread root msg of this msg
-                FrostMessageObject threadRootMsg = message.getThreadRootMessage();
-                
-                // update thread root to update the marker border
-                if( threadRootMsg != message && threadRootMsg != null ) {
-                    getMessageTreeModel().nodeChanged(threadRootMsg);
-                }
-                
-                // update flagged/starred indicators in board tree
-                boolean hasStarredWork = false;
-                boolean hasFlaggedWork = false;
-                DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode)message.getRoot(); 
-                for(Enumeration e=rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
-                    FrostMessageObject mo = (FrostMessageObject)e.nextElement();
-                    if( !hasStarredWork && mo.isStarred() ) {
-                        hasStarredWork = true;
-                    }
-                    if( !hasFlaggedWork && mo.isFlagged() ) {
-                        hasFlaggedWork = true;
-                    }
-                    if( hasFlaggedWork && hasStarredWork ) {
-                        break; // finished
-                    }
-                }
-                message.getBoard().hasFlaggedMessages(hasFlaggedWork);
-                message.getBoard().hasStarredMessages(hasStarredWork);
-                MainFrame.getInstance().updateTofTree(message.getBoard());
+            // update thread root to update the marker border
+            if( threadRootMsg != message && threadRootMsg != null ) {
+                getMessageTreeModel().nodeChanged(threadRootMsg);
             }
+            
+            // update flagged/starred indicators in board tree
+            boolean hasStarredWork = false;
+            boolean hasFlaggedWork = false;
+            DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode)message.getRoot(); 
+            for(Enumeration e=rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
+                FrostMessageObject mo = (FrostMessageObject)e.nextElement();
+                if( !hasStarredWork && mo.isStarred() ) {
+                    hasStarredWork = true;
+                }
+                if( !hasFlaggedWork && mo.isFlagged() ) {
+                    hasFlaggedWork = true;
+                }
+                if( hasFlaggedWork && hasStarredWork ) {
+                    break; // finished
+                }
+            }
+            message.getBoard().hasFlaggedMessages(hasFlaggedWork);
+            message.getBoard().hasStarredMessages(hasStarredWork);
+            MainFrame.getInstance().updateTofTree(message.getBoard());
 
             Thread saver = new Thread() {
                 public void run() {

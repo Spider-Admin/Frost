@@ -26,10 +26,10 @@ public class MessageTreeTableSortStateBean {
 
     private static boolean isThreaded;
     
-    private final static int defaultSortedColumn = 7; // default: date
+    private final static int defaultSortedColumn = 6; // default: date
     private final static boolean defaultIsAscending = false; // default: descending
     
-    private static int sortedColumn = 7; // default: date
+    private static int sortedColumn = 6; // default: date
     private static boolean isAscending = false; // default: descending
     
     public static boolean isAscending() {
@@ -70,9 +70,6 @@ public class MessageTreeTableSortStateBean {
     private static StarredComparator starredComparatorAscending = new StarredComparator(true);
     private static StarredComparator starredComparatorDescending = new StarredComparator(false);
 
-    private static IsJunkComparator isJunkComparatorAscending = new IsJunkComparator(true);
-    private static IsJunkComparator isJunkComparatorDescending = new IsJunkComparator(false);
-    
     private static SubjectComparator subjectComparatorAscending = new SubjectComparator(true);
     private static SubjectComparator subjectComparatorDescending = new SubjectComparator(false);
 
@@ -91,7 +88,6 @@ public class MessageTreeTableSortStateBean {
     private static Comparator[] ascendingComparators = new Comparator[] {
         flaggedComparatorAscending,
         starredComparatorAscending,
-        isJunkComparatorAscending,
         subjectComparatorAscending,
         fromComparatorAscending,
         indexComparatorAscending,
@@ -101,7 +97,6 @@ public class MessageTreeTableSortStateBean {
     private static Comparator[] descendingComparators = new Comparator[] {
         flaggedComparatorDescending,
         starredComparatorDescending,
-        isJunkComparatorDescending,
         subjectComparatorDescending,
         fromComparatorDescending,
         indexComparatorDescending,
@@ -308,36 +303,6 @@ public class MessageTreeTableSortStateBean {
             FrostMessageObject t2 = (FrostMessageObject)arg1;
             boolean s1 = t1.isStarred();
             boolean s2 = t2.isStarred();
-            if( s1 == s2 ) {
-                return 0;
-            }
-            if( s1 == true ) {
-                return retvalGreater;
-            } else {
-                return retvalSmaller;
-            }
-        }
-    }
-    
-    private static class IsJunkComparator implements Comparator {
-        private int retvalGreater;
-        private int retvalSmaller;
-        public IsJunkComparator(boolean ascending) {
-            if( ascending ) {
-                // oldest first
-                retvalGreater = +1;
-                retvalSmaller = -1;
-            } else {
-                // newest first
-                retvalGreater = -1;
-                retvalSmaller = +1;
-            }
-        }
-        public int compare(Object arg0, Object arg1) {
-            FrostMessageObject t1 = (FrostMessageObject)arg0; 
-            FrostMessageObject t2 = (FrostMessageObject)arg1;
-            boolean s1 = t1.isJunk();
-            boolean s2 = t2.isJunk();
             if( s1 == s2 ) {
                 return 0;
             }
