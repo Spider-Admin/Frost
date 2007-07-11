@@ -47,11 +47,11 @@ class News2Panel extends JPanel {
     private Language language = null;
 
     private JCheckBox blockBoardCheckBox = new JCheckBox();
-    private JTextField blockBoardTextField = new JTextField();
+    private JTextArea blockBoardTextField = new JTextArea(2,0);
     private JCheckBox blockBodyCheckBox = new JCheckBox();
-    private JTextField blockBodyTextField = new JTextField();
+    private JTextArea blockBodyTextField = new JTextArea(2,0);
     private JCheckBox blockSubjectCheckBox = new JCheckBox();
-    private JTextField blockSubjectTextField = new JTextField();
+    private JTextArea blockSubjectTextField = new JTextArea(2,0);
 
     private JCheckBox hideBadMessagesCheckBox = new JCheckBox();
     private JCheckBox hideCheckMessagesCheckBox = new JCheckBox();
@@ -169,38 +169,53 @@ class News2Panel extends JPanel {
         refreshLanguage();
 
         // We create the components
-        new TextComponentClipboardMenu(blockBoardTextField, language);
         new TextComponentClipboardMenu(blockBodyTextField, language);
+        new TextComponentClipboardMenu(blockBoardTextField, language);
         new TextComponentClipboardMenu(blockSubjectTextField, language);
+        
+        blockBoardTextField.setLineWrap(true);
+        blockBodyTextField.setLineWrap(true);
+        blockSubjectTextField.setLineWrap(true);
 
+        JScrollPane sp;
+        
         // Adds all of the components
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
         Insets insets5555 = new Insets(5, 5, 5, 5);
-        Insets insets5_30_5_5 = new Insets(5, 30, 5, 5);
+        Insets insets0_30_5_5 = new Insets(0, 30, 5, 5);
         constraints.insets = insets5555;
         constraints.gridwidth = 2;
 
         constraints.gridx = 0;
         constraints.gridy = 0;
         add(blockSubjectCheckBox, constraints);
-        constraints.insets = insets5_30_5_5;
+        constraints.insets = insets0_30_5_5;
         constraints.gridy++;
-        add(blockSubjectTextField, constraints);
+        constraints.weighty = 0.9;
+        sp = new JScrollPane(blockSubjectTextField);
+        add(sp, constraints);
+        constraints.weighty = 0;
 
         constraints.insets = insets5555;
         constraints.gridy++;
         add(blockBodyCheckBox, constraints);
-        constraints.insets = insets5_30_5_5;
+        constraints.insets = insets0_30_5_5;
         constraints.gridy++;
-        add(blockBodyTextField, constraints);
+        constraints.weighty = 0.9;
+        sp = new JScrollPane(blockBodyTextField);
+        add(sp, constraints);
+        constraints.weighty = 0;
 
         constraints.insets = insets5555;
         constraints.gridy++;
         add(blockBoardCheckBox, constraints);
-        constraints.insets = insets5_30_5_5;
+        constraints.insets = insets0_30_5_5;
         constraints.gridy++;
-        add(blockBoardTextField, constraints);
+        constraints.weighty = 0.9;
+        sp = new JScrollPane(blockBoardTextField);
+        add(sp, constraints);
+        constraints.weighty = 0;
 
         constraints.insets = insets5555;
         constraints.gridwidth = 2;
