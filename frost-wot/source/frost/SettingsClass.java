@@ -66,6 +66,8 @@ public class SettingsClass implements Savable {
     public static final String LOOK_AND_FEEL = "ChoosenLookAndFeel";
 
     public static final String COMPACT_DBTABLES = "compactDatabaseTables";
+    
+    public static final String BAYESIAN_FILTER_ENABLED = "useBayesianFilter";
 
     public static final String AVAILABLE_NODES = "availableNodes";
     public static final String FCP2_USE_DDA = "fcp2.useDDA";
@@ -904,6 +906,8 @@ public class SettingsClass implements Savable {
         
         defaults.put(LOG_DOWNLOADS_ENABLED, "false");
         defaults.put(LOG_UPLOADS_ENABLED, "false");
+        
+        defaults.put(BAYESIAN_FILTER_ENABLED, "true");
 
         settingsHash.putAll(defaults);
     }

@@ -34,6 +34,7 @@ import frost.gui.messagetreetable.*;
 import frost.messages.*;
 import frost.storage.database.applayer.*;
 import frost.util.*;
+import frost.util.baysian.*;
 import frost.util.gui.translation.*;
 
 /**
@@ -207,6 +208,29 @@ public class TOF {
      */
     public void receivedValidMessage(MessageXmlFile currentMsg, Board board, int index) {
         FrostMessageObject newMsg = new FrostMessageObject(currentMsg, board, index);
+        // maybe check received msg for spam
+        if( Core.frostSettings.getBoolValue(SettingsClass.BAYESIAN_FILTER_ENABLED) ) {
+            boolean isSpam = false;
+            if( newMsg.getIdLinePos() > -1 ) {
+                String msgText = newMsg.getContent();
+                if( msgText.length() > newMsg.getIdLinePos()+newMsg.getIdLineLen() ) {
+                    msgText = msgText.substring(newMsg.getIdLinePos()+newMsg.getIdLineLen());
+                    if( newMsg.getFromIdentity() != null 
+                            && (newMsg.getFromIdentity().isOBSERVE() || newMsg.getFromIdentity().isGOOD()) )
+                    {
+                        FrostBayesianFilter.inst().teachIsNotSpam(msgText);
+                    } else {
+                        isSpam = FrostBayesianFilter.inst().checkIsSpam(msgText);
+                        if( isSpam ) {
+                            FrostBayesianFilter.inst().teachIsSpam(msgText);
+                        } else {
+                            FrostBayesianFilter.inst().teachIsNotSpam(msgText);
+                        }
+                    }
+                }
+            }
+            newMsg.setJunk(isSpam);
+        }
         receivedValidMessage(newMsg, board, index);
     }
     /**
@@ -490,8 +514,8 @@ public class TOF {
                 // HashSet contains a msgid if the msg was loaded OR was not existing
                 HashSet<String> messageIds = new HashSet<String>();
 
-                for(Iterator i=messageList.iterator(); i.hasNext(); ) {
-                    FrostMessageObject mo = (FrostMessageObject)i.next();
+                for(Iterator<FrostMessageObject> i=messageList.iterator(); i.hasNext(); ) {
+                    FrostMessageObject mo = i.next();
                     if( mo.getMessageId() == null ) {
                         i.remove();
                         // old msg, maybe add to root
@@ -507,8 +531,8 @@ public class TOF {
                 // for threads, check msgrefs and load all existing msgs pointed to by refs
                 boolean showDeletedMessages = Core.frostSettings.getBoolValue("showDeletedMessages");
                 LinkedList<FrostMessageObject> newLoadedMsgs = new LinkedList<FrostMessageObject>();
-                for(Iterator i=messageList.iterator(); i.hasNext(); ) {
-                    FrostMessageObject mo = (FrostMessageObject)i.next();
+                for(Iterator<FrostMessageObject> i=messageList.iterator(); i.hasNext(); ) {
+                    FrostMessageObject mo = i.next();
                     List<String> l = mo.getInReplyToList();
                     if( l.size() == 0 ) {
                         continue; // no msg refs
@@ -565,8 +589,8 @@ public class TOF {
                 
                 // first collect msgs with id into a Map for lookups
                 HashMap<String,FrostMessageObject> messagesTableById = new HashMap<String,FrostMessageObject>();
-                for(Iterator i=messageList.iterator(); i.hasNext(); ) {
-                    FrostMessageObject mo = (FrostMessageObject)i.next();
+                for(Iterator<FrostMessageObject> i=messageList.iterator(); i.hasNext(); ) {
+                    FrostMessageObject mo = i.next();
                     messagesTableById.put(mo.getMessageId(), mo);
                 }
 
@@ -575,8 +599,8 @@ public class TOF {
                 messageList = null;
 
                 // build the threads
-                for(Iterator i=messagesTableById.values().iterator(); i.hasNext(); ) {
-                    FrostMessageObject mo = (FrostMessageObject)i.next();
+                for(Iterator<FrostMessageObject> i=messagesTableById.values().iterator(); i.hasNext(); ) {
+                    FrostMessageObject mo = i.next();
                     LinkedList<String> l = mo.getInReplyToList();
                     if( l.size() == 0 ) {
                         // a root message, no replyTo
