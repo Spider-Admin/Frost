@@ -63,7 +63,7 @@ public class MessageTreeTableModel extends DefaultTreeModel implements TreeTable
 
     private Language language = null;
 
-    protected final static String columnNames[] = new String[7];
+    protected final static String columnNames[] = new String[8];
 
     /**
      * Constructor for creating a DynamicTreeTableModel.
@@ -82,11 +82,12 @@ public class MessageTreeTableModel extends DefaultTreeModel implements TreeTable
     private void refreshLanguage() {
         columnNames[0] = "!";
         columnNames[1] = "*";
-        columnNames[2] = language.getString("MessagePane.messageTable.subject");
-        columnNames[3] = language.getString("MessagePane.messageTable.from");
-        columnNames[4] = language.getString("MessagePane.messageTable.index");
-        columnNames[5] = language.getString("MessagePane.messageTable.sig");
-        columnNames[6] = language.getString("MessagePane.messageTable.date");
+        columnNames[2] = "J";
+        columnNames[3] = language.getString("MessagePane.messageTable.subject");
+        columnNames[4] = language.getString("MessagePane.messageTable.from");
+        columnNames[5] = language.getString("MessagePane.messageTable.index");
+        columnNames[6] = language.getString("MessagePane.messageTable.sig");
+        columnNames[7] = language.getString("MessagePane.messageTable.date");
         
         try {
             TableColumnModel tcm = MainFrame.getInstance().getMessagePanel().getMessageTable().getTableHeader().getColumnModel();
@@ -148,10 +149,10 @@ public class MessageTreeTableModel extends DefaultTreeModel implements TreeTable
      * is set in the constructor.
      */
     public Class getColumnClass(int column) {
-        if( column == 2 ) {
+        if( column == 3 ) {
             return TreeTableModel.class;
         }
-        if( column == 0 || column == 1 ) {
+        if( column == 0 || column == 1 || column == 2 ) {
             return Boolean.class;
         }
         return String.class;
@@ -171,23 +172,25 @@ public class MessageTreeTableModel extends DefaultTreeModel implements TreeTable
                 switch(column) {
                     case 0: return Boolean.FALSE;
                     case 1: return Boolean.FALSE;
-                    // 2 is tree+subject column
-                    case 3: return "";
+                    case 2: return Boolean.FALSE;
+                    // 3 is tree+subject column
                     case 4: return "";
                     case 5: return "";
                     case 6: return "";
+                    case 7: return "";
                     default: return "*ERR*";
                 }
             } else {
                 switch(column) {
                 case 0: return Boolean.valueOf(mo.isFlagged());
                 case 1: return Boolean.valueOf(mo.isStarred());
-                // 2 is tree+subject column
-                case 2: return mo.getSubject();
-                case 3: return mo.getFromName();
-                case 4: return Integer.toString(mo.getIndex());
-                case 5: return mo.getMessageStatusString();
-                case 6: return mo.getDateAndTimeString();
+                case 2: return Boolean.valueOf(mo.isJunk());
+                // 3 is tree+subject column
+                case 3: return mo.getSubject();
+                case 4: return mo.getFromName();
+                case 5: return Integer.toString(mo.getIndex());
+                case 6: return mo.getMessageStatusString();
+                case 7: return mo.getDateAndTimeString();
                 default: return "*ERR*";
             }
             }
@@ -204,7 +207,7 @@ public class MessageTreeTableModel extends DefaultTreeModel implements TreeTable
      * For all other columns this returns false.
      */
     public boolean isCellEditable(Object node, int column) {
-        if( column == 2 ) {
+        if( column == 3 ) {
             return true; // tree column
         }
         return false;
