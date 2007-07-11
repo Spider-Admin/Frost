@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="source"/>
+	<classpathentry kind="src" path="lib/Classifier4J"/>
 	<classpathentry kind="src" path="lib/genChkImpl"/>
 	<classpathentry kind="src" path="lib/skinlfFix"/>
 	<classpathentry kind="src" path="lib/datechooser"/>

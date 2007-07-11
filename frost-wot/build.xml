@@ -43,6 +43,7 @@
   <property name="src.dir.genchklib" value="${lib.dir}/genChkImpl"/>
   <property name="src.dir.skinlfFixLib" value="${lib.dir}/skinlfFix"/>
   <property name="src.dir.datechooser" value="${lib.dir}/datechooser"/>
+  <property name="src.dir.bayesianfilter" value="${lib.dir}/Classifier4J"/>
 
   <!--  Set the properties for the build area  -->
   <property name="build.dir" value="build"/>
@@ -51,6 +52,7 @@
   <property name="build.classes.genchklib" value="${build.dir}/classes_genchklib"/>
   <property name="build.classes.skinlfFixLib" value="${build.dir}/classes_skinlfFixLib"/>
   <property name="build.classes.datechooser" value="${build.dir}/classes_datechooser"/>
+  <property name="build.classes.bayesianfilter" value="${build.dir}/classes_bayesianfilter"/>
 
   <!--  Set up properties for the distribution area -->
   <property name="dist.dir" value="${build.dir}/dist"/>
@@ -77,6 +79,7 @@
     <pathelement location="${build.classes.genchklib}"/>
     <pathelement location="${build.classes.skinlfFixLib}"/>
     <pathelement location="${build.classes.datechooser}"/>
+    <pathelement location="${build.classes.bayesianfilter}"/>
     <pathelement location="${lib.dir}/skinlf.jar"/>
   </path>
 
@@ -115,6 +118,7 @@ Build log  : ${logfilename}</echo>
     <delete quiet="true" dir="${build.classes.genchklib}"/>
     <delete quiet="true" dir="${build.classes.skinlfFixLib}"/>
     <delete quiet="true" dir="${build.classes.datechooser}"/>
+    <delete quiet="true" dir="${build.classes.bayesianfilter}"/>
 
   </target>
 
@@ -130,6 +134,7 @@ Build log  : ${logfilename}</echo>
     <mkdir dir="${build.classes.genchklib}"/>
     <mkdir dir="${build.classes.skinlfFixLib}"/>
     <mkdir dir="${build.classes.datechooser}"/>
+    <mkdir dir="${build.classes.bayesianfilter}"/>
 
     <javac srcdir="${src.dir.feclib}"
            destdir="${build.classes.feclib}"
@@ -155,6 +160,13 @@ Build log  : ${logfilename}</echo>
         </classpath>
     </javac>
 
+    <javac srcdir="${src.dir.bayesianfilter}"
+           destdir="${build.classes.bayesianfilter}"
+ 	   	   debug="${debug}"		   debuglevel="${debuglevel}" 		deprecation="${deprecation}"
+ 	  	   verbose="${verbose}"    optimize="${optimize}"
+ 	  	   source="${source}"	   target="${target}">
+    </javac>
+
     <javac srcdir="${src.dir.datechooser}"
            destdir="${build.classes.datechooser}"
  	   	   debug="${debug}"		   debuglevel="${debuglevel}" 		deprecation="${deprecation}"
@@ -166,7 +178,6 @@ Build log  : ${logfilename}</echo>
             <include name="**/*.properties"/>
         </fileset>
     </copy>
-
 
     <javac srcdir="${src.dir.skinlfFixLib}"
            destdir="${build.classes.skinlfFixLib}"
@@ -240,6 +251,14 @@ Build log  : ${logfilename}</echo>
     <mkdir dir="${dist.dir}/lib"/>
     <jar jarfile="${dist.dir}/lib/genChkImpl.jar">
       <fileset dir="${build.classes.genchklib}">
+        <include name="**/*.class"/>
+      </fileset>
+    </jar>
+
+    <delete quiet="true" file="${dist.dir}/lib/Classifier4J.jar"/>
+    <mkdir dir="${dist.dir}/lib"/>
+    <jar jarfile="${dist.dir}/lib/Classifier4J.jar">
+      <fileset dir="${build.classes.bayesianfilter}">
         <include name="**/*.class"/>
       </fileset>
     </jar>
