@@ -98,13 +98,13 @@ public class BayesianClassifier extends AbstractCategorizedTrainableClassifier {
 
     private boolean isCaseSensitive = false;
 
-    /**
-     * Default constructor that uses the SimpleWordsDataSource & a DefaultTokenizer
-     * (set to BREAK_ON_WORD_BREAKS).
-     */
-    public BayesianClassifier() {
-        this(new SimpleWordsDataSource(), new DefaultTokenizer(DefaultTokenizer.BREAK_ON_WORD_BREAKS));
-    }
+//    /**
+//     * Default constructor that uses the SimpleWordsDataSource & a DefaultTokenizer
+//     * (set to BREAK_ON_WORD_BREAKS).
+//     */
+//    public BayesianClassifier() {
+//        this(new SimpleWordsDataSource(), new DefaultTokenizer(DefaultTokenizer.BREAK_ON_WORD_BREAKS));
+//    }
 
     /**
      * Constructor for BayesianClassifier that specifies a datasource. The
@@ -175,6 +175,10 @@ public class BayesianClassifier extends AbstractCategorizedTrainableClassifier {
     }
 
     public void teachMatch(String category, String input) throws WordsDataSourceException {
+        teachMatch(category, input, false);
+    }
+
+    public void teachMatch(String category, String input, boolean unteachNonMatch) throws WordsDataSourceException {
         if (category == null) {
             throw new IllegalArgumentException("category cannot be null");
         }
@@ -185,10 +189,14 @@ public class BayesianClassifier extends AbstractCategorizedTrainableClassifier {
 
         checkCategoriesSupported(category);
 
-        teachMatch(category, tokenizer.tokenize(input));
+        teachMatch(category, tokenizer.tokenize(input), unteachNonMatch);
     }
 
     public void teachNonMatch(String category, String input) throws WordsDataSourceException {
+        teachNonMatch(category, input, false);
+    }
+    
+    public void teachNonMatch(String category, String input, boolean unteachMatch) throws WordsDataSourceException {
         if (category == null) {
             throw new IllegalArgumentException("category cannot be null");
         }
@@ -199,7 +207,7 @@ public class BayesianClassifier extends AbstractCategorizedTrainableClassifier {
 
         checkCategoriesSupported(category);
 
-        teachNonMatch(category, tokenizer.tokenize(input));
+        teachNonMatch(category, tokenizer.tokenize(input), unteachMatch);
     }
 
     protected boolean isMatch(String category, String input[]) throws WordsDataSourceException {
@@ -223,23 +231,24 @@ public class BayesianClassifier extends AbstractCategorizedTrainableClassifier {
         return normaliseSignificance(calculateOverallProbability(wps));
     }
 
-    protected void teachMatch(String category, String words[]) throws WordsDataSourceException {
+    protected void teachMatch(String category, String words[], boolean unteachNonMatch) throws WordsDataSourceException {
         boolean categorise = false;
         if (wordsData instanceof ICategorisedWordsDataSource) {
             categorise = true;
         }
         for (int i = 0; i <= words.length - 1; i++) {
             if (isClassifiableWord(words[i])) {
+                final String transformedWord = transformWord(words[i]);
                 if (categorise) {
-                    ((ICategorisedWordsDataSource) wordsData).addMatch(category, transformWord(words[i]));
+                    ((ICategorisedWordsDataSource) wordsData).addMatch(category, transformedWord);
                 } else {
-                    wordsData.addMatch(transformWord(words[i]));
+                    wordsData.addMatch(transformedWord, unteachNonMatch);
                 }
             }
         }
     }
 
-    protected void teachNonMatch(String category, String words[]) throws WordsDataSourceException {
+    protected void teachNonMatch(String category, String words[], boolean unteachMatch) throws WordsDataSourceException {
         boolean categorise = false;
         if (wordsData instanceof ICategorisedWordsDataSource) {
             categorise = true;
@@ -247,12 +256,12 @@ public class BayesianClassifier extends AbstractCategorizedTrainableClassifier {
 
         for (int i = 0; i <= words.length - 1; i++) {
             if (isClassifiableWord(words[i])) {
+                final String transformedWord = transformWord(words[i]);
                 if (categorise) {
-                    ((ICategorisedWordsDataSource) wordsData).addNonMatch(category, transformWord(words[i]));
+                    ((ICategorisedWordsDataSource) wordsData).addNonMatch(category, transformedWord);
                 } else {
-                    wordsData.addNonMatch(transformWord(words[i]));
+                    wordsData.addNonMatch(transformedWord, unteachMatch);
                 }
-
             }
         }
     }
@@ -333,14 +342,15 @@ public class BayesianClassifier extends AbstractCategorizedTrainableClassifier {
         if (words == null) {
             return new WordProbability[0];
         } else {
-            List wps = new ArrayList();
+            List<WordProbability> wps = new ArrayList<WordProbability>();
             for (int i = 0; i < words.length; i++) {
                 if (isClassifiableWord(words[i])) {
                     WordProbability wp = null;
+                    final String transformedWord = transformWord(words[i]);
                     if (categorise) {
-                        wp = ((ICategorisedWordsDataSource) wordsData).getWordProbability(category, transformWord(words[i]));
+                        wp = ((ICategorisedWordsDataSource) wordsData).getWordProbability(category, transformedWord);
                     } else {
-                        wp = wordsData.getWordProbability(transformWord(words[i]));
+                        wp = wordsData.getWordProbability(transformedWord);
                     }
                     if (wp != null) {
                         wps.add(wp);
@@ -363,7 +373,7 @@ public class BayesianClassifier extends AbstractCategorizedTrainableClassifier {
     }
 
     private boolean isClassifiableWord(String word) {
-        if (word == null || "".equals(word) || stopWordProvider.isStopWord(word)) {
+        if (word == null || word.length() == 0 || stopWordProvider.isStopWord(word)) {
             return false;
         } else {
             return true;

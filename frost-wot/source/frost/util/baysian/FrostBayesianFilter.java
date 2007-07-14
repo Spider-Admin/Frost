@@ -19,7 +19,6 @@
 package frost.util.baysian;
 
 import java.io.*;
-import java.util.*;
 
 import net.sf.classifier4J.*;
 import net.sf.classifier4J.bayesian.*;
@@ -31,19 +30,19 @@ public class FrostBayesianFilter {
     private static FrostBayesianFilter instance = new FrostBayesianFilter();
 
     private BayesianClassifier classifier = null;
-    private SimpleWordsDataSource wds = null;
+    private FrostWordsDataSource wds = null;
+    private BayesianWordsStorage storage = null;
     
     protected FrostBayesianFilter() {}
     
     public static FrostBayesianFilter inst() {
         return instance;
     }
-    
-    public void initialize(BayesianWordsStorage storage) {
+
+    public void initialize(BayesianWordsStorage lStorage) {
+        this.storage = lStorage;
         // training data
-        wds = new SimpleWordsDataSource();
-        
-        storage.loadBayesianWords(wds);
+        wds = new FrostWordsDataSource(lStorage);
         
         // ignored words
         IStopWordProvider stopWordProvider;
@@ -61,24 +60,36 @@ public class FrostBayesianFilter {
         classifier = new BayesianClassifier(wds, tokenizer, stopWordProvider);
     }
     
-    public Collection<WordProbability> getWords() {
-        return wds.getAll();
-    }
-    
-    public void teachIsSpam(String text) {
+    public void teachIsSpam(String msgId, String text) {
         try {
-            classifier.teachMatch(ICategorisedClassifier.DEFAULT_CATEGORY, text);
+            boolean isMsgIdTeached = isMsgIdTeached(msgId);
+            if( !isMsgIdTeached ) {
+                setMsgIdTeached(msgId);
+            }
+            classifier.teachMatch(ICategorisedClassifier.DEFAULT_CATEGORY, text, isMsgIdTeached);
         } catch(Throwable t) {
             t.printStackTrace();
         }
     }
 
-    public void teachIsNotSpam(String text) {
+    public void teachIsNotSpam(String msgId, String text) {
         try {
-            classifier.teachNonMatch(ICategorisedClassifier.DEFAULT_CATEGORY, text);
+            boolean isMsgIdTeached = isMsgIdTeached(msgId);
+            if( !isMsgIdTeached ) {
+                setMsgIdTeached(msgId);
+            }
+            classifier.teachNonMatch(ICategorisedClassifier.DEFAULT_CATEGORY, text, isMsgIdTeached);
         } catch(Throwable t) {
             t.printStackTrace();
         }
+    }
+    
+    protected void setMsgIdTeached(String msgId) {
+        storage.getTeachedMsgIdsSet().add(new PerstBayesianTeachedMsgId(msgId, System.currentTimeMillis()));
+    }
+
+    protected boolean isMsgIdTeached(String msgId) {
+        return storage.getTeachedMsgIdsSet().contains(new PerstBayesianTeachedMsgId(msgId));
     }
     
     public boolean checkIsSpam(String text) {

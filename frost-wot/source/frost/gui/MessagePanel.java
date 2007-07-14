@@ -146,16 +146,16 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 message.setJunk( !message.isJunk() );
                 getMessageTableModel().fireTableCellUpdated(row, modelCol);
                 
-                if( message.getIdLinePos() > -1 ) {
+                if( message.getIdLinePos() > -1 && message.getMessageId() != null ) {
                     String msgText = message.getContent();
                     if( msgText.length() > message.getIdLinePos()+message.getIdLineLen() ) {
                         msgText = msgText.substring(message.getIdLinePos()+message.getIdLineLen());
                         if( message.isJunk() ) {
                             // teach match
-                            FrostBayesianFilter.inst().teachIsSpam(msgText);
+                            FrostBayesianFilter.inst().teachIsSpam(message.getMessageId(), msgText);
                         } else {
                             // teach non-match
-                            FrostBayesianFilter.inst().teachIsNotSpam(msgText);
+                            FrostBayesianFilter.inst().teachIsNotSpam(message.getMessageId(), msgText);
                         }
                     }
                 }

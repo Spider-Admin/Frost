@@ -76,7 +76,7 @@ public interface IWordsDataSource {
          * @throws WordsDataSourceException If there is a fatal problem. For 
          *         example, the database is unavailable
      */
-    public void addMatch(String word) throws WordsDataSourceException;
+    public void addMatch(String word, boolean removeNonMatch) throws WordsDataSourceException;
 
     /**
      * Add a non-matching word to the data source
@@ -86,5 +86,5 @@ public interface IWordsDataSource {
          * @throws WordsDataSourceException If there is a fatal problem. For 
          *         example, the database is unavailable
      */
-    public void addNonMatch(String word) throws WordsDataSourceException;
+    public void addNonMatch(String word, boolean removeMatch) throws WordsDataSourceException;
 }

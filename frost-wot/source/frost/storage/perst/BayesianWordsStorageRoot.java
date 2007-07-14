@@ -18,11 +18,14 @@
 */
 package frost.storage.perst;
 
+import net.sf.classifier4J.bayesian.*;
+
 import org.garret.perst.*;
 
 public class BayesianWordsStorageRoot extends Persistent {
 
     public BayesianWordsStorageRoot() {}
     
-    IPersistentList<PerstBayesianWordProbability> bayesianWords;
+    Index<WordProbability> bayesianWords;
+    IPersistentSet<PerstBayesianTeachedMsgId> teachedMsgIds;
 }

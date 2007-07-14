@@ -129,6 +129,9 @@ public class IndexSlotsStorage implements Savable {
     
     public synchronized void storeSlot(IndexSlot gis) {
 //        logger.warning(gis.toString());
+        if( getStorage() == null ) {
+            return;
+        }
         if( gis.getStorage() == null ) {
             gis.makePersistent(getStorage());
             addToIndices(gis);
@@ -139,6 +142,9 @@ public class IndexSlotsStorage implements Savable {
     
     public synchronized void commitStore() {
 //        logger.info("commitStore!");
+        if( getStorage() == null ) {
+            return;
+        }
         getStorage().commit();
     }
 
@@ -150,19 +156,19 @@ public class IndexSlotsStorage implements Savable {
     }
 
     // tests
-    public static void main(String[] args) {
-        IndexSlotsStorage s = IndexSlotsStorage.inst();
-
-        s.initStorage();
-        
-        IndexSlotsStorageRoot root = (IndexSlotsStorageRoot)s.getStorage().getRoot();
-
-        for( Iterator<IndexSlot> i = root.slotsIndexIL.iterator(); i.hasNext(); ) {
-            IndexSlot gi = i.next();
-            System.out.println("----GI-------");
-            System.out.println(gi);
-        }
-
-        s.getStorage().close();
-    }
+//    public static void main(String[] args) {
+//        IndexSlotsStorage s = IndexSlotsStorage.inst();
+//
+//        s.initStorage();
+//        
+//        IndexSlotsStorageRoot root = (IndexSlotsStorageRoot)s.getStorage().getRoot();
+//
+//        for( Iterator<IndexSlot> i = root.slotsIndexIL.iterator(); i.hasNext(); ) {
+//            IndexSlot gi = i.next();
+//            System.out.println("----GI-------");
+//            System.out.println(gi);
+//        }
+//
+//        s.getStorage().close();
+//    }
 }

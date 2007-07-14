@@ -51,10 +51,10 @@
 
 package net.sf.classifier4J.bayesian;
 
-import java.io.*;
-
 import net.sf.classifier4J.*;
 import net.sf.classifier4J.util.*;
+
+import org.garret.perst.*;
 
 /**
  * Represents the probability of a particular word. The user of this object
@@ -68,9 +68,9 @@ import net.sf.classifier4J.util.*;
  * @author Nick Lothian
  * @author Peter Leschev
  */
-public class WordProbability implements Comparable, Serializable {
+public class WordProbability extends Persistent {
 
-    private static final int UNDEFINED = -1;
+    private transient static final int UNDEFINED = -1;
 
     private String word = "";
     private String category = ICategorisedClassifier.DEFAULT_CATEGORY;
@@ -78,11 +78,9 @@ public class WordProbability implements Comparable, Serializable {
     private long matchingCount = UNDEFINED;
     private long nonMatchingCount = UNDEFINED;
 
-    private double probability = IClassifier.NEUTRAL_PROBABILITY;
+    private transient double probability = IClassifier.NEUTRAL_PROBABILITY;
 
     public WordProbability() {
-        setMatchingCount(0);
-        setNonMatchingCount(0);
     }
 
     public WordProbability(String w) {
@@ -107,6 +105,10 @@ public class WordProbability implements Comparable, Serializable {
         setWord(w);
         setMatchingCount(matchingCount);
         setNonMatchingCount(nonMatchingCount);
+    }
+    
+    public void onLoad() {
+        calculateProbability();
     }
 
     public void setWord(String w) {
@@ -231,13 +233,9 @@ public class WordProbability implements Comparable, Serializable {
         return new EqualsBuilder().append(getWord(), rhs.getWord()).append(getCategory(), rhs.getCategory()).isEquals();
     }
 
-    public int compareTo(java.lang.Object o) {
-        if (!(o instanceof WordProbability)) {
-            throw new ClassCastException(o.getClass() + " is not a " + this.getClass());
-        }
-        WordProbability rhs = (WordProbability) o;
-        return new CompareToBuilder().append(this.getCategory(), rhs.getCategory()).append(this.getWord(), rhs.getWord()).toComparison();
-    }
+//    public int compareTo(WordProbability rhs) {
+//        return new CompareToBuilder().append(this.getCategory(), rhs.getCategory()).append(this.getWord(), rhs.getWord()).toComparison();
+//    }
 
     public String toString() {
         return new ToStringBuilder(this).append("word", word).append("category", category).append("probability", probability).append("matchingCount", matchingCount).append("nonMatchingCount", nonMatchingCount).toString();

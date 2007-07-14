@@ -208,31 +208,39 @@ public class TOF {
      */
     public void receivedValidMessage(MessageXmlFile currentMsg, Board board, int index) {
         FrostMessageObject newMsg = new FrostMessageObject(currentMsg, board, index);
+        receivedValidMessage(newMsg, board, index);
+    }
+
+    // only call for msgs that DON't have a duplicate msgId!
+    private boolean maybeApplyBayesianFilter(FrostMessageObject newMsg) {
         // maybe check received msg for spam
         if( Core.frostSettings.getBoolValue(SettingsClass.BAYESIAN_FILTER_ENABLED) ) {
             boolean isSpam = false;
-            if( newMsg.getIdLinePos() > -1 ) {
+            if( newMsg.getIdLinePos() > -1 && newMsg.getMessageId() != null ) {
                 String msgText = newMsg.getContent();
+                // FIXME: move to message obj?!
                 if( msgText.length() > newMsg.getIdLinePos()+newMsg.getIdLineLen() ) {
                     msgText = msgText.substring(newMsg.getIdLinePos()+newMsg.getIdLineLen());
                     if( newMsg.getFromIdentity() != null 
                             && (newMsg.getFromIdentity().isOBSERVE() || newMsg.getFromIdentity().isGOOD()) )
                     {
-                        FrostBayesianFilter.inst().teachIsNotSpam(msgText);
+                        FrostBayesianFilter.inst().teachIsNotSpam(newMsg.getMessageId(), msgText);
                     } else {
                         isSpam = FrostBayesianFilter.inst().checkIsSpam(msgText);
                         if( isSpam ) {
-                            FrostBayesianFilter.inst().teachIsSpam(msgText);
+                            FrostBayesianFilter.inst().teachIsSpam(newMsg.getMessageId(), msgText);
                         } else {
-                            FrostBayesianFilter.inst().teachIsNotSpam(msgText);
+                            FrostBayesianFilter.inst().teachIsNotSpam(newMsg.getMessageId(), msgText);
                         }
                     }
                 }
             }
             newMsg.setJunk(isSpam);
+            return isSpam;
         }
-        receivedValidMessage(newMsg, board, index);
+        return false;
     }
+    
     /**
      * Add new valid msg to database 
      */
@@ -262,6 +270,16 @@ public class TOF {
         // don't add msg if it was a duplicate or if insert into database failed
         if( messageInsertedRC != MessageDatabaseTable.INSERT_OK ) {
             return; // not inserted into database, do not add to gui
+        }
+        
+        // added to database, its not a duplicate, now maybe apply bayesian filter
+        if( maybeApplyBayesianFilter(newMsg) ) {
+            // save junk state to db
+            try {
+                AppLayerDatabase.getMessageTable().updateMessage(newMsg);
+            } catch (Throwable e) {
+                logger.log(Level.SEVERE, "Error applying junk state to new message in database", e);
+            }
         }
 
         // after add to database

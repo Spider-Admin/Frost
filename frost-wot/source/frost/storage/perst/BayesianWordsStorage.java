@@ -26,9 +26,11 @@ import net.sf.classifier4J.bayesian.*;
 import org.garret.perst.*;
 
 import frost.storage.*;
-import frost.util.baysian.*;
+import frost.util.*;
 
 public class BayesianWordsStorage implements Savable {
+
+    public final static int MAX_TEACHEDMSGIDS_SIZE = 5000;
 
     private static final Logger logger = Logger.getLogger(BayesianWordsStorage.class.getName());
 
@@ -47,12 +49,19 @@ public class BayesianWordsStorage implements Savable {
         return instance;
     }
     
-    private Storage getStorage() {
+    public Storage getStorage() {
         return storage;
     }
     
+    public void commitStore() {
+        if( getStorage() == null ) {
+            return;
+        }
+        getStorage().commit();
+    }
+    
     public boolean initStorage() {
-        String databaseFilePath = "store/bayesianWords.dbs"; // path to the database file
+        String databaseFilePath = "store/bayesianFilter.dbs"; // path to the database file
         int pagePoolSize = PAGE_SIZE*1024*1024; // size of page pool in bytes
 
         storage = StorageFactory.getInstance().createStorage();
@@ -64,7 +73,8 @@ public class BayesianWordsStorage implements Savable {
             // Storage was not initialized yet
             storageRoot = new BayesianWordsStorageRoot();
             
-            storageRoot.bayesianWords = storage.createScalableList();
+            storageRoot.bayesianWords = storage.createIndex(String.class, true);
+            storageRoot.teachedMsgIds = storage.createScalableSet();
 
             storage.setRoot(storageRoot);
             storage.commit(); // commit transaction
@@ -72,69 +82,46 @@ public class BayesianWordsStorage implements Savable {
         return true;
     }
 
-    public synchronized void commitStore() {
-        getStorage().commit();
-    }
-
     public void save() throws StorageException {
-        saveBayesianWords(FrostBayesianFilter.inst().getWords());
+        getStorage().commit();
+        System.out.println("BayesianWordsStorage: bayesianWords in store: "+storageRoot.bayesianWords.size());
+        System.out.println("BayesianWordsStorage: teachedMsgIds in store: "+storageRoot.teachedMsgIds.size());
         storage.close();
         storageRoot = null;
         storage = null;
         System.out.println("INFO: BayesianWordsStorage closed.");
     }
     
-    /**
-     * Removes all items from the given List and deallocates each item from Storage.
-     * @param plst  IPersistentList of persistent items
-     */
-    private void removeAllFromStorage(IPersistentList<? extends Persistent> plst) {
-        for(Iterator<? extends Persistent> i=plst.iterator(); i.hasNext(); ) {
-            Persistent pi = (Persistent)i.next();
-            i.remove(); // remove from List
-            pi.deallocate(); // remove from Storage
-        }
-    }
-
-    public void saveBayesianWords(Collection<WordProbability> bayesianWords) {
-
-        removeAllFromStorage(storageRoot.bayesianWords);
-        int count = 0;
-        for(Iterator<WordProbability> i=bayesianWords.iterator(); i.hasNext(); ) {
-            
-            WordProbability wp = i.next();
-
-            PerstBayesianWordProbability pbwp = new PerstBayesianWordProbability();
-            pbwp.word = wp.getWord();
-            pbwp.matchingCount = wp.getMatchingCount();
-            pbwp.nonMatchingCount = wp.getNonMatchingCount();
-            
-            pbwp.makePersistent(storage);
-            pbwp.modify(); // for already persistent items
-            
-            storageRoot.bayesianWords.add(pbwp);
-            
-            count++;
-        }
-        
-        storageRoot.bayesianWords.modify();
-        
-        storage.commit();
-        
-        System.out.println("Bayesian filter: Saved "+count+" words.");
+    public Index<WordProbability> getBayesianWordsIndex() {
+        return storageRoot.bayesianWords;
     }
     
-    public void loadBayesianWords(SimpleWordsDataSource swds) {
-
-        int count = 0;
-        for(Iterator<PerstBayesianWordProbability> i=storageRoot.bayesianWords.iterator(); i.hasNext(); ) {
-
-            PerstBayesianWordProbability pi = i.next();
+    public IPersistentSet<PerstBayesianTeachedMsgId> getTeachedMsgIdsSet() {
+        return storageRoot.teachedMsgIds;
+    }
+    
+    // FIXME: ensure a maximum of X teached ids in store, remove eldest ids
+    public void cleanupTeachedMsgIds() {
+        int msgIdsToDelete = getTeachedMsgIdsSet().size() - MAX_TEACHEDMSGIDS_SIZE;
+        if( msgIdsToDelete > 0 ) {
             
-            WordProbability wp = new WordProbability(pi.word, pi.matchingCount, pi.nonMatchingCount);
-            swds.setWordProbability(wp);
-            count++;
+            // sort items by teachDate
+            List<PerstBayesianTeachedMsgId> allMsgIds = new ArrayList<PerstBayesianTeachedMsgId>(getTeachedMsgIdsSet());
+            Collections.sort(allMsgIds, new TeachDateComparator()); // ascending, oldest first
+
+            for(int i=0; i < msgIdsToDelete; i++) {
+                PerstBayesianTeachedMsgId mi = allMsgIds.get(i);
+                getTeachedMsgIdsSet().remove(mi);
+                mi.deallocate();
+            }
+            getTeachedMsgIdsSet().modify();
+            commitStore();
         }
-        System.out.println("Bayesian filter: Loaded "+count+" words.");
+    }
+    
+    protected class TeachDateComparator implements Comparator<PerstBayesianTeachedMsgId> {
+        public int compare(PerstBayesianTeachedMsgId o1, PerstBayesianTeachedMsgId o2) {
+            return Mixed.compareLong(o1.firstTeachDate, o2.firstTeachDate);
+        }
     }
 }

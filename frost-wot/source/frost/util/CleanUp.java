@@ -83,6 +83,7 @@ public class CleanUp {
         // when last cleanup was before the chosen interval days then run cleanup and archiving
         if( lastCleanupTime < (now - intervalMillis) ) {
             cleanMcKoiTables(boardList);
+            BayesianWordsStorage.inst().cleanupTeachedMsgIds();
             Core.frostSettings.setValue(SettingsClass.DB_CLEANUP_LASTRUN, now);
         }
     }

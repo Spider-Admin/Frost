@@ -165,6 +165,9 @@ Build log  : ${logfilename}</echo>
  	   	   debug="${debug}"		   debuglevel="${debuglevel}" 		deprecation="${deprecation}"
  	  	   verbose="${verbose}"    optimize="${optimize}"
  	  	   source="${source}"	   target="${target}">
+        <classpath>
+            <pathelement location="${lib.dir}/perst15.jar"/>
+        </classpath>
     </javac>
 
     <javac srcdir="${src.dir.datechooser}"
