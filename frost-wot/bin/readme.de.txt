@@ -53,9 +53,9 @@ und fuer Freenet 0.7 "127.0.0.1:9481".
 Wenn dein Freenet Knoten auf einem anderen Rechner laeuft, oder einen anderen
 FCP-Port konfiguriert ist, schlaegt der erste Start von Frost fehl. In diesem
 Fall musst du die Datei 'frost.ini' im 'config' Ordner per hand aendern. Die
-frost.ini wird beim ersten Start automatisch erstellt. Öffne die frost.ini mit
+frost.ini wird beim ersten Start automatisch erstellt. ï¿½ffne die frost.ini mit
 einem Text Editor und suche die Zeile mit dem Inhalt
-'availableNodes=127.0.0.1:8481'. Ändere nun einfach die Einstellung so, wie du
+'availableNodes=127.0.0.1:8481'. ï¿½ndere nun einfach die Einstellung so, wie du
 sie benoetigst, z.B. 'availableNodes=andererrechner.de:12345'. Dann starte
 Frost, nun sollte die Verbindung zum Freenet Knoten klappen.
 Und immer daran denken: wenn Frost auf einem anderen Rechner laeuft, muss auch
@@ -64,9 +64,9 @@ in der Konfiguration des Freenetknotens erlaubt werden, das sich andere Rechner
 Wenn Frost einmal gestartet ist, kann man die 'availableNodes' Einstellung auch
 im Optionen Dialog von Frost vornehmen.
 
-Wenn (und NUR wenn) du versehentlich beim Update eine flasche Freenet Version gewählt
-hast, musst du die frost.ini Datei per Hand ändern. Finde in der Datei die Zeile
-"freenetVersion=" und ändere sie zu "freenetVersion=05" oder "freenetVersion=07".
+Wenn (und NUR wenn) du versehentlich beim Update eine flasche Freenet Version gewï¿½hlt
+hast, musst du die frost.ini Datei per Hand ï¿½ndern. Finde in der Datei die Zeile
+"freenetVersion=" und ï¿½ndere sie zu "freenetVersion=05" oder "freenetVersion=07".
 
 
 Hinweis fuer U*ix Benutzer:
@@ -74,3 +74,19 @@ Hinweis fuer U*ix Benutzer:
 Nach dem Entpacken der ZIP Datei sind die *.sh Dateien evtl. noch nicht ausfuehrbar.
 Um das 'executable' Bit zu setzen, fuehre folgendes Kommando im Frost Ordner aus:
 "chmod +x *.sh".
+
+Hinweis fuer Beryl Benutzer:
+----------------------------
+Wenn ihr als Fenstermanager Beryl benutzt, mï¿½sst ihr eine Zeile in die Datei frost.sh
+einfï¿½gen. Diese befindet sich in eurem Frost-Verzeichnis (meistens ~/Freenet/frost/).
+ 
+ export AWT_TOOLKIT="MToolkit"
+ 
+ Das sollte dann so aussehen:
+ [...]
+ cd $PROGDIR
+ 
+ export AWT_TOOLKIT="MToolkit"
+ java -jar frost.jar "$@"
+ [...]
+
