@@ -2,38 +2,53 @@
 _-----------------------------_
 
 
-Frost peut fonctionner avec Freenet 0.5 et Freenet 0.7 mais une même installation ne peut pas utiliser les deux réseaux conjointement. Lors du premier lancement, la fenêtre affichée vous permet de choisir à quelle version de Freenet se connecter et, optionnellement, d'importer d'anciennes identités à partir d'un fichier identities.xml existant.
+Frost peut fonctionner avec Freenet 0.5 et Freenet 0.7 mais une mï¿½me installation ne peut pas utiliser les deux rï¿½seaux conjointement. Lors du premier lancement, la fenï¿½tre affichï¿½e vous permet de choisir ï¿½ quelle version de Freenet se connecter et, optionnellement, d'importer d'anciennes identitï¿½s ï¿½ partir d'un fichier identities.xml existant.
 
-ATTENTION: Vous devriez TOUJOURS conserver une copie de sauvegarde de vos identités. Vous pouvez dorénavant les exporter à partir de l'interface.
+ATTENTION: Vous devriez TOUJOURS conserver une copie de sauvegarde de vos identitï¿½s. Vous pouvez dorï¿½navant les exporter ï¿½ partir de l'interface.
 
 
-Mise à jour depuis Frost version 23-Dec-2006 ou plus récent:
+Mise ï¿½ jour depuis Frost version 23-Dec-2006 ou plus rï¿½cent:
 ----------------------------------------------------------
 
-Si Frost est lancé, arrêtez-le puis copiez le contenu du fichier ZIP téléchargé dans le répertoire où il est installé ; en écrasant tous les fichiers existants. Tous vos paramètres seront conservés. Comme toujours, il est recommandé de faire une sauvegarde avant la mise à jour. :)
+Si Frost est lancï¿½, arrï¿½tez-le puis copiez le contenu du fichier ZIP tï¿½lï¿½chargï¿½ dans le rï¿½pertoire oï¿½ il est installï¿½ ; en ï¿½crasant tous les fichiers existants. Tous vos paramï¿½tres seront conservï¿½s. Comme toujours, il est recommandï¿½ de faire une sauvegarde avant la mise ï¿½ jour. :)
 
 
-Mise à jour à partir d'une version plus ancienne que 23-Dec-2006:
+Mise ï¿½ jour ï¿½ partir d'une version plus ancienne que 23-Dec-2006:
 -------------------------------------------------------------------------------
 
-Il n'existe pas de procédure de mise à jour : Installez la version 23-Dec-2006 en suivant sa procédure de mise à jour puis faites la mise à jour vers la nouvelle version.
+Il n'existe pas de procï¿½dure de mise ï¿½ jour : Installez la version 23-Dec-2006 en suivant sa procï¿½dure de mise ï¿½ jour puis faites la mise ï¿½ jour vers la nouvelle version.
 
 
-Vous utilisez déja Frost 0.5 et vous voulez démarrer Frost 0.7 (ou vice versa):
+Vous utilisez dï¿½ja Frost 0.5 et vous voulez dï¿½marrer Frost 0.7 (ou vice versa):
 -------------------------------------------------------------------------------
 
-Copiez le contenu  du fichier ZIP téléchargé dans un NOUVEAU répertoire et lancez Frost. Dans la première fenêtre de démarrage, choisissez la version de Freenet que vous souhaitez utiliser et éventuellement le fichier identities.xml que vous souhaitez importer d'une installation précédente (il est recommandé d'arrêter l'ancien Frost avant l'importation). Ou vous pouvez décider de créer une nouvelle identité.
+Copiez le contenu  du fichier ZIP tï¿½lï¿½chargï¿½ dans un NOUVEAU rï¿½pertoire et lancez Frost. Dans la premiï¿½re fenï¿½tre de dï¿½marrage, choisissez la version de Freenet que vous souhaitez utiliser et ï¿½ventuellement le fichier identities.xml que vous souhaitez importer d'une installation prï¿½cï¿½dente (il est recommandï¿½ d'arrï¿½ter l'ancien Frost avant l'importation). Ou vous pouvez dï¿½cider de crï¿½er une nouvelle identitï¿½.
 
 
-En cas de problème:
+En cas de problï¿½me:
 -------------------
-Frost suppose que votre noeud Freenet tourne sur la même machine, avec le numéro de port FCP par défaut. Pour Freenet 0.5 c'est "127.0.0.1:8481", et pour Freenet 0.7 c'est "127.0.0.1:9481". Si votre noeud Freenet tourne sur une autre machine, ou si vous avez configuré FCP pour un autre numéro de port, le premier démarrage échouera. Dans ce cas, vous devrez éditer le fichier "frost.ini" qui se trouve dans le répertoire "config". Ce fichier est généré automatiquement durant le premier démarrage de Frost. Trouvez la ligne commençant par "availableNodes=" et changez ce paramètre pour qu'il corresponde à votre configuration, puis relancez Frost.
-Frost devrait maintenant être capable de se connecter à votre noeud.
-Faites attention à bien configurer votre noeud Freenet pour qu'il accepte les connexions FCP en provenance d'autres machines que lui-même si nécessaire ! Après le démarrage de Frost, vous pourrez à nouveau changer ce paramètre depuis la fenêtre de configuration.
+Frost suppose que votre noeud Freenet tourne sur la mï¿½me machine, avec le numï¿½ro de port FCP par dï¿½faut. Pour Freenet 0.5 c'est "127.0.0.1:8481", et pour Freenet 0.7 c'est "127.0.0.1:9481". Si votre noeud Freenet tourne sur une autre machine, ou si vous avez configurï¿½ FCP pour un autre numï¿½ro de port, le premier dï¿½marrage ï¿½chouera. Dans ce cas, vous devrez ï¿½diter le fichier "frost.ini" qui se trouve dans le rï¿½pertoire "config". Ce fichier est gï¿½nï¿½rï¿½ automatiquement durant le premier dï¿½marrage de Frost. Trouvez la ligne commenï¿½ant par "availableNodes=" et changez ce paramï¿½tre pour qu'il corresponde ï¿½ votre configuration, puis relancez Frost.
+Frost devrait maintenant ï¿½tre capable de se connecter ï¿½ votre noeud.
+Faites attention ï¿½ bien configurer votre noeud Freenet pour qu'il accepte les connexions FCP en provenance d'autres machines que lui-mï¿½me si nï¿½cessaire ! Aprï¿½s le dï¿½marrage de Frost, vous pourrez ï¿½ nouveau changer ce paramï¿½tre depuis la fenï¿½tre de configuration.
 
-Si (et seulement si) vous avez choisi la mauvaise version de Freenet durant la mise à jour, vous pouvez changer cela en éditant le fichier "frost.ini". Trouvez la ligne "freenetVersion=" et mettez-y "05" ou "07".
+Si (et seulement si) vous avez choisi la mauvaise version de Freenet durant la mise ï¿½ jour, vous pouvez changer cela en ï¿½ditant le fichier "frost.ini". Trouvez la ligne "freenetVersion=" et mettez-y "05" ou "07".
 
 
-Note à l'attention des UNIXiens:
+Note ï¿½ l'attention des UNIXiens:
 --------------------------------
-Après l'extraction de l'archive ZIP, les fichiers "*.sh" peuvent ne pas avoir le bit exécutable positioné. Exécutez la commande "chmod +x *.sh" depuis le répertoire de Frost pour remédier au problème.
+Aprï¿½s l'extraction de l'archive ZIP, les fichiers "*.sh" peuvent ne pas avoir le bit exï¿½cutable positionï¿½. Exï¿½cutez la commande "chmod +x *.sh" depuis le rï¿½pertoire de Frost pour remï¿½dier au problï¿½me.
+
+Note pour des utilisateurs de beryl:
+---------------------
+Si vous employez le beryl, vous devez ajouter une ligne dans votre frost.sh habituellement
+situÃ© dans votre annuaire de gel ~/Freenet/frost
+ 
+  export AWT_TOOLKIT="MToolkit"
+ 
+Il devrait ressembler Ã  ceci:
+  [...]
+  cd $PROGDIR
+  
+  export AWT_TOOLKIT="MToolkit"
+  java -jar frost.jar "$@"
+  [...]

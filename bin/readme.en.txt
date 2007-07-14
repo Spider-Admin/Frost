@@ -74,3 +74,18 @@ Note for u*ix users:
 ---------------------
 After extraction of the ZIP file the *.sh files may not be executable on your system.
 To set the executable bit, run the command "chmod +x *.sh" in the Frost directory.
+
+Note for beryl users:
+---------------------
+If you are using beryl, you have to add one line in your frost.sh usually
+located in your frost directory ~/Freenet/frost
+ 
+  export AWT_TOOLKIT="MToolkit"
+ 
+It should look like this:
+  [...]
+  cd $PROGDIR
+  
+  export AWT_TOOLKIT="MToolkit"
+  java -jar frost.jar "$@"
+  [...]
