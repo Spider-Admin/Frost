@@ -89,6 +89,9 @@ public class FrostFilesStorage implements Savable {
     }
 
     public synchronized void commitStore() {
+        if( getStorage() == null ) {
+            return;
+        }
         getStorage().commit();
     }
 
