@@ -51,6 +51,9 @@ public class SharedFilesCHKKeyStorage implements Savable {
     }
 
     public synchronized void storeItem(SharedFilesCHKKey gis) {
+        if( getStorage() == null ) {
+            return;
+        }
         if( gis.getStorage() == null ) {
             gis.makePersistent(getStorage());
             addToIndices(gis);
@@ -60,6 +63,9 @@ public class SharedFilesCHKKeyStorage implements Savable {
     }
 
     public synchronized void commitStore() {
+        if( getStorage() == null ) {
+            return;
+        }
         getStorage().commit();
     }
 
