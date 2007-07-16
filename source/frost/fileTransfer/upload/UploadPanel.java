@@ -308,6 +308,7 @@ public class UploadPanel extends JPanel {
         private JMenuItem prio4Item = null;
         private JMenuItem prio5Item = null;
         private JMenuItem prio6Item = null;
+        private JMenuItem removeFromGqItem = null;
 
         public PopupMenuUpload() {
             super();
@@ -334,6 +335,8 @@ public class UploadPanel extends JPanel {
                 changePriorityMenu.add(prio5Item);
                 changePriorityMenu.add(prio6Item);
                 
+                removeFromGqItem = new JMenuItem();
+                
                 prio0Item.addActionListener(this);
                 prio1Item.addActionListener(this);
                 prio2Item.addActionListener(this);
@@ -341,6 +344,7 @@ public class UploadPanel extends JPanel {
                 prio4Item.addActionListener(this);
                 prio5Item.addActionListener(this);
                 prio6Item.addActionListener(this);
+                removeFromGqItem.addActionListener(this);
             }
             
             refreshLanguage();
@@ -396,6 +400,7 @@ public class UploadPanel extends JPanel {
                 prio4Item.setText(language.getString("Common.priority.priority4"));
                 prio5Item.setText(language.getString("Common.priority.priority5"));
                 prio6Item.setText(language.getString("Common.priority.priority6"));
+                removeFromGqItem.setText(language.getString("UploadPane.fileTable.popupmenu.removeFromGlobalQueue"));
             }
         }
 
@@ -428,6 +433,8 @@ public class UploadPanel extends JPanel {
                 changePriority(5);
             } else if (e.getSource() == prio6Item) {
                 changePriority(6);
+            } else if (e.getSource() == removeFromGqItem) {
+                removeSelectedUploadsFromGlobalQueue();
             } else if (e.getSource() == enableAllDownloadsItem) {
                 enableAllDownloads();
             } else if (e.getSource() == disableAllDownloadsItem) {
@@ -442,6 +449,31 @@ public class UploadPanel extends JPanel {
                 invertEnabledSelected();
             } else if (e.getSource() == startSelectedUploadsNow ) {
                 startSelectedUploadsNow();
+            }
+        }
+        
+        private void removeSelectedUploadsFromGlobalQueue() {
+            if( FileTransferManager.inst().getPersistenceManager() == null ) {
+                return;
+            }
+            final ModelItem[] selectedItems = modelTable.getSelectedItems();
+            final List<String> requestsToRemove = new ArrayList<String>();
+            final List<FrostUploadItem> itemsToUpdate = new ArrayList<FrostUploadItem>();
+            for(final ModelItem mi : selectedItems) {
+                final FrostUploadItem item = (FrostUploadItem) mi;
+                if( FileTransferManager.inst().getPersistenceManager().isItemInGlobalQueue(item) ) {
+                    requestsToRemove.add( item.getGqIdentifier() );
+                    itemsToUpdate.add(item);
+                    item.setInternalRemoveExpected(true);
+                }
+            }
+            FileTransferManager.inst().getPersistenceManager().removeRequests(requestsToRemove);
+            // after remove, update state of removed items
+            for(final FrostUploadItem item : itemsToUpdate) {
+                item.setState(FrostUploadItem.STATE_WAITING);
+                item.setEnabled(false);
+                item.setPriority(-1);
+                item.fireValueChanged();
             }
         }
         
@@ -476,6 +508,7 @@ public class UploadPanel extends JPanel {
             }
             
             for(FrostUploadItem ulItem : itemsToStart) {
+                ulItem.setEnabled(true);
                 FileTransferManager.inst().getUploadManager().startUpload(ulItem);
             }
         }
@@ -532,7 +565,7 @@ public class UploadPanel extends JPanel {
             add(copyToClipboardMenu);
             addSeparator();
             
-            if( PersistenceManager.isPersistenceEnabled() ) {
+            if( FileTransferManager.inst().getPersistenceManager() != null ) {
                 add(changePriorityMenu);
                 addSeparator();
             }
@@ -553,6 +586,16 @@ public class UploadPanel extends JPanel {
             add(uploadSelectedFilesItem);
             addSeparator();
             add(removeSelectedFilesItem);
+            if(  FileTransferManager.inst().getPersistenceManager() != null && selectedItems != null ) {
+                // add only if there are removable items selected
+                for(ModelItem mi : selectedItems) {
+                    FrostUploadItem item = (FrostUploadItem) mi;
+                    if(  FileTransferManager.inst().getPersistenceManager().isItemInGlobalQueue(item) ) {
+                        add(removeFromGqItem);
+                        break;
+                    }
+                }
+            }
             if( selectedItems.length == 1 ) {
                 FrostUploadItem item = (FrostUploadItem) selectedItems[0];
                 if( item.isSharedFile() ) {
