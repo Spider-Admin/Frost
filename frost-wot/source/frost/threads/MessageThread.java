@@ -340,6 +340,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 } else {
                     // apparently the LocalIdentity used to write the msg was deleted
                     logger.severe("The LocalIdentity used to write this unsent msg was deleted: "+mo.getFromName());
+                    mo.setCurrentUploadThread(null); // must be marked as not uploading before delete!
                     UnsentMessagesManager.deleteMessage(mo);
                     return;
                 }
@@ -354,6 +355,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
             message.setFile(unsentMessageFile);
             if (!message.save()) {
                 logger.severe("This was a HARD error and the file to upload is lost, please report to a dev!");
+                mo.setCurrentUploadThread(null); // must be marked as not uploading before delete!
                 return;
             }
             unsentMessageFile.deleteOnExit();
