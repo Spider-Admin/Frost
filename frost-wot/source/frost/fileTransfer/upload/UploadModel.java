@@ -24,6 +24,7 @@ import java.util.logging.*;
 import javax.swing.*;
 
 import frost.*;
+import frost.fileTransfer.*;
 import frost.fileTransfer.sharing.*;
 import frost.storage.*;
 import frost.storage.perst.*;
@@ -254,9 +255,10 @@ public class UploadModel extends SortedModel implements Savable {
      */
     public synchronized void setAllItemsEnabled(Boolean enabled) {
         for (int x = 0; x < getItemCount(); x++) {
-            FrostUploadItem dlItem = (FrostUploadItem) getItemAt(x);
-            if (dlItem.getState() != FrostUploadItem.STATE_DONE) {
-                dlItem.setEnabled(enabled);
+            FrostUploadItem ulItem = (FrostUploadItem) getItemAt(x);
+            if (ulItem.getState() != FrostUploadItem.STATE_DONE) {
+                ulItem.setEnabled(enabled);
+                FileTransferManager.inst().getUploadManager().notifyUploadItemEnabledStateChanged(ulItem);
             }
         }
     }
@@ -273,6 +275,7 @@ public class UploadModel extends SortedModel implements Savable {
             FrostUploadItem item = (FrostUploadItem) items[i];
             if (item.getState() != FrostUploadItem.STATE_DONE) {
                 item.setEnabled(enabled);
+                FileTransferManager.inst().getUploadManager().notifyUploadItemEnabledStateChanged(item);
             }
         }
     }

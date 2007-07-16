@@ -28,6 +28,7 @@ import frost.fileTransfer.*;
 import frost.storage.*;
 import frost.storage.database.applayer.*;
 import frost.util.*;
+import frost.util.model.*;
 
 public class DownloadManager {
 
@@ -333,6 +334,29 @@ public class DownloadManager {
             Collections.sort(waitingItems, nextItemCmp);
         }
         return (FrostDownloadItem) waitingItems.get(0);
+    }
+    
+    public void notifyDownloadItemEnabledStateChanged(final FrostDownloadItem dlItem) {
+        // for persistent items, set priority to 6 (pause) when disabled; and to configured default if enabled
+        if( FileTransferManager.inst().getPersistenceManager() == null ) {
+            return;
+        }
+        if( dlItem.isExternal() ) {
+            return;
+        }
+        if( dlItem.getState() != FrostDownloadItem.STATE_PROGRESS ) {
+            // not running, not in queue
+            return;
+        }
+        final boolean itemIsEnabled = (dlItem.isEnabled()==null?true:dlItem.isEnabled().booleanValue());
+        if( itemIsEnabled ) {
+            // item is now enabled
+            final int prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE);
+            FileTransferManager.inst().getPersistenceManager().changeItemPriorites(new ModelItem[] {dlItem}, prio);
+        } else {
+            // item is now disabled
+            FileTransferManager.inst().getPersistenceManager().changeItemPriorites(new ModelItem[] {dlItem}, 6);
+        }
     }
     
     /**

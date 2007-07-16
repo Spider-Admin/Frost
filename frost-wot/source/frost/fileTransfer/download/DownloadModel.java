@@ -203,6 +203,7 @@ public class DownloadModel extends SortedModel implements Savable {
 			FrostDownloadItem dlItem = (FrostDownloadItem) getItemAt(x);
 			if (dlItem.getState() != FrostDownloadItem.STATE_DONE) {
 				dlItem.setEnabled(enabled);
+                FileTransferManager.inst().getDownloadManager().notifyDownloadItemEnabledStateChanged(dlItem);
 			}
 		}
 	}
@@ -219,6 +220,7 @@ public class DownloadModel extends SortedModel implements Savable {
 			FrostDownloadItem item = (FrostDownloadItem) items[i];
 			if (item.getState() != FrostDownloadItem.STATE_DONE) {
 				item.setEnabled(enabled);
+                FileTransferManager.inst().getDownloadManager().notifyDownloadItemEnabledStateChanged(item);
 			}
 		}
 	}
