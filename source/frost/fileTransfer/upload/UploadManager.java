@@ -28,6 +28,7 @@ import frost.fileTransfer.*;
 import frost.fileTransfer.sharing.*;
 import frost.storage.*;
 import frost.util.*;
+import frost.util.model.*;
 
 public class UploadManager {
 
@@ -242,6 +243,29 @@ public class UploadManager {
         }
 
         return (FrostUploadItem) waitingItems.get(0);
+    }
+    
+    public void notifyUploadItemEnabledStateChanged(final FrostUploadItem ulItem) {
+        // for persistent items, set priority to 6 (pause) when disabled; and to configured default if enabled
+        if( FileTransferManager.inst().getPersistenceManager() == null ) {
+            return;
+        }
+        if( ulItem.isExternal() ) {
+            return;
+        }
+        if( ulItem.getState() != FrostUploadItem.STATE_PROGRESS ) {
+            // not running, not in queue
+            return;
+        }
+        final boolean itemIsEnabled = (ulItem.isEnabled()==null?true:ulItem.isEnabled().booleanValue());
+        if( itemIsEnabled ) {
+            // item is now enabled
+            final int prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE);
+            FileTransferManager.inst().getPersistenceManager().changeItemPriorites(new ModelItem[] {ulItem}, prio);
+        } else {
+            // item is now disabled
+            FileTransferManager.inst().getPersistenceManager().changeItemPriorites(new ModelItem[] {ulItem}, 6);
+        }
     }
 
     private static final Comparator<FrostUploadItem> nextItemCmp = new Comparator<FrostUploadItem>() {

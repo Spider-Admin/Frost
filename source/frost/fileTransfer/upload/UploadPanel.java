@@ -446,11 +446,10 @@ public class UploadPanel extends JPanel {
         }
         
         private void changePriority(int prio) {
-            if( FileTransferManager.inst().getPersistenceManager() == null ) {
-                return;
+            if( FileTransferManager.inst().getPersistenceManager() != null ) {
+                ModelItem[] selectedItems = modelTable.getSelectedItems();
+                FileTransferManager.inst().getPersistenceManager().changeItemPriorites(selectedItems, prio);
             }
-            ModelItem[] selectedItems = modelTable.getSelectedItems();
-            FileTransferManager.inst().getPersistenceManager().changeItemPriorites(selectedItems, prio);
         }
 
         /**

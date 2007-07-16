@@ -779,12 +779,14 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
             enabledSubMenu.add(invertEnabledAllItem);
             add(enabledSubMenu);
             
-            for(ModelItem mi : selectedItems) {
-                FrostDownloadItem item = (FrostDownloadItem) mi;
-                // we only find external items if persistence is enabled
-                if( item.isExternal() && item.isDirect() && item.getState() == FrostDownloadItem.STATE_DONE ) {
-                    add(retrieveDirectExternalDownloads);
-                    break;
+            // we only find external items if persistence is enabled
+            if( PersistenceManager.isPersistenceEnabled() ) {
+                for(ModelItem mi : selectedItems) {
+                    FrostDownloadItem item = (FrostDownloadItem) mi;
+                    if( item.isExternal() && item.isDirect() && item.getState() == FrostDownloadItem.STATE_DONE ) {
+                        add(retrieveDirectExternalDownloads);
+                        break;
+                    }
                 }
             }
             add(removeSelectedDownloadsItem);
