@@ -225,9 +225,6 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
 	 * @param enabled new enable status of the item. If null, the current status is inverted
 	 */
 	public void setEnabled(Boolean newEnabled) {
-        
-	    final boolean itemWasEnabled = (isEnabled()==null?true:isEnabled().booleanValue());
-        
 		if (newEnabled == null && enabled != null) {
 			//Invert the enable status
 			boolean enable = enabled.booleanValue();
