@@ -117,7 +117,7 @@ public class CleanUp {
 
         processExpiredMessages(boardList, mode);
 
-        doCommit();
+//        doCommit(); done at the end of processExpiredMessages()
 
         splashScreen.setText("Cleaning filelist tables");
         cleanupFileListFileOwners();
@@ -135,7 +135,7 @@ public class CleanUp {
     private static void doCommit() {
         try {
             AppLayerDatabase.getInstance().commit();
-        } catch (SQLException e) {
+        } catch (Throwable e) {
             logger.log(Level.SEVERE, "error on commit", e);
         }
     }
@@ -146,7 +146,7 @@ public class CleanUp {
         if( uncommittedMsgs > 200 ) {
             try {
                 AppLayerDatabase.getInstance().commit();
-            } catch (SQLException e) {
+            } catch (Throwable e) {
                 logger.log(Level.SEVERE, "error on commit", e);
             }
             uncommittedMsgs = 0;
@@ -190,12 +190,18 @@ public class CleanUp {
                 currentDaysOld = Math.max(board.getMaxMessageDownload(), currentDaysOld);
             }
             
+            boolean archiveKeepFlaggedAndStarred = Core.frostSettings.getBoolValue(SettingsClass.ARCHIVE_KEEP_FLAGGED_AND_STARRED);
+            
             if( mode == ARCHIVE_MESSAGES ) {
                 splashScreen.setText("Archiving messages in board: "+board.getName());
 
                 MessageTableCallback mtCallback = new MessageTableCallback();
                 try {
-                    AppLayerDatabase.getMessageTable().retrieveMessagesForArchive(board, currentDaysOld, mtCallback);
+                    AppLayerDatabase.getMessageTable().retrieveMessagesForArchive(
+                            board, 
+                            currentDaysOld, 
+                            archiveKeepFlaggedAndStarred, 
+                            mtCallback);
                 } catch(Throwable t) {
                     logger.log(Level.SEVERE, "Exception during retrieveMessagesForArchive", t);
                     continue;
@@ -209,7 +215,8 @@ public class CleanUp {
             //   delete all msgs for this board from msg table
             int deletedCount = 0;
             try {
-                deletedCount = AppLayerDatabase.getMessageTable().deleteExpiredMessages(board, currentDaysOld);
+                // when archiveFlaggedAndStarred is false, we don't delete old msgs which are flagged or starred
+                deletedCount = AppLayerDatabase.getMessageTable().deleteExpiredMessages(board, currentDaysOld, archiveKeepFlaggedAndStarred);
             } catch(Throwable t) {
                 logger.log(Level.SEVERE, "Exception during deleteExpiredMessages", t);
                 continue;
@@ -217,8 +224,10 @@ public class CleanUp {
             if( deletedCount > 0 ) {
                 logger.warning("INFO: Processed "+deletedCount+" expired messages for board "+board.getName());
             }
-            
-            maybeCommit();
+        }
+
+        if( uncommittedMsgs > 0 ) {
+            doCommit();
         }
         logger.info("Finished to process expired messages.");
     }
@@ -237,6 +246,8 @@ public class CleanUp {
                 int rc = AppLayerDatabase.getMessageArchiveTable().insertMessage(mo);
                 if( rc == MessageArchiveDatabaseTable.INSERT_ERROR ) {
                     errorOccurred = true;
+                } else {
+                    maybeCommit();
                 }
             } catch(Throwable e) {
                 // should not happen, paranoia

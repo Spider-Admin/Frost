@@ -524,6 +524,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
             boolean withAttachments,
             boolean showDeleted,
             boolean showUnreadOnly,
+            boolean showOlderFlaggedAndStarred,
             MessageDatabaseTableCallback mc) 
     throws SQLException 
     {
@@ -533,7 +534,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
             "primkey,messageid,inreplyto,msgdatetime,msgindex,fromname,subject,recipient," +
             "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
             "hasfileattachment,hasboardattachment,idlinepos,idlinelen";
-        sql += " FROM "+getMessageTableName()+" WHERE msgdatetime>=? AND board=? AND isvalid=TRUE";
+        sql += " FROM "+getMessageTableName()+" WHERE board=? AND isvalid=TRUE";
         if( !showDeleted ) {
             // don't select deleted msgs
             sql += " AND isdeleted=FALSE";
@@ -542,12 +543,18 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
             // only new messages
             sql += " AND isnew=TRUE";
         }
+        if( showOlderFlaggedAndStarred ) {
+            // also all older msgs that are flagged or starred
+            sql += " AND (msgdatetime>=? OR isflagged=TRUE OR isstarred=TRUE)";
+        } else {
+            sql += " AND msgdatetime>=?";
+        }
 
         PreparedStatement ps = db.prepareStatement(sql);
 
         LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysBack);
-        ps.setLong(1, localDate.toDateMidnight(DateTimeZone.UTC).getMillis());
-        ps.setInt(2, board.getPrimaryKey().intValue());
+        ps.setInt(1, board.getPrimaryKey().intValue());
+        ps.setLong(2, localDate.toDateMidnight(DateTimeZone.UTC).getMillis());
 
         ResultSet rs = ps.executeQuery();
 
@@ -603,6 +610,7 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
     public void retrieveMessagesForArchive(
             Board board, 
             int maxDaysOld, 
+            boolean archiveKeepFlaggedAndStarred,
             MessageDatabaseTableCallback mc) 
     throws SQLException 
     {
@@ -612,7 +620,11 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
             "primkey,messageid,inreplyto,msgdatetime,msgindex,fromname,subject,recipient," +
             "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
             "hasfileattachment,hasboardattachment,idlinepos,idlinelen";
-            sql += " FROM "+getMessageTableName()+" WHERE msgdatetime<? AND board=? AND isvalid=TRUE";
+        sql += " FROM "+getMessageTableName()+" WHERE msgdatetime<? AND board=? AND isvalid=TRUE";
+        if( archiveKeepFlaggedAndStarred ) {
+            sql += " AND isflagged=FALSE AND isstarred=FALSE";
+        }
+         
         PreparedStatement ps = db.prepareStatement(sql);
         
         LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysOld);
@@ -663,11 +675,16 @@ public class MessageDatabaseTable extends AbstractDatabaseTable {
         return list;
     }
 
-    public int deleteExpiredMessages(Board board, int maxDaysOld) throws SQLException {
+    public int deleteExpiredMessages(Board board, int maxDaysOld, boolean archiveKeepFlaggedAndStarred) throws SQLException {
 
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
-        PreparedStatement ps = db.prepareStatement("DELETE FROM "+getMessageTableName()+" WHERE msgdatetime<? AND board=?");
+        String sql = "DELETE FROM "+getMessageTableName()+" WHERE msgdatetime<? AND board=?";
+        if( !archiveKeepFlaggedAndStarred ) {
+            sql += " AND isflagged=FALSE AND isstarred=FALSE";
+        }
+
+        PreparedStatement ps = db.prepareStatement(sql);
 
         LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysOld);
         ps.setLong(1, localDate.toDateMidnight(DateTimeZone.UTC).getMillis());
