@@ -449,11 +449,6 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                 final int returnCode = putReq.getCode();
                 final boolean isFatal = putReq.isFatal();
                 
-                // when cancelled and we expect this, don't set failed
-                if( returnCode == 25 && ulItem.isInternalRemoveExpected() ) {
-                    return;
-                }
-                
                 final FcpResultPut result;
                 if( returnCode == 9 ) {
                     result = new FcpResultPut(FcpResultPut.KeyCollision, returnCode, desc, isFatal);
