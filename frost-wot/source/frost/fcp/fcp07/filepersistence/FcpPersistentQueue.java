@@ -27,12 +27,12 @@ public class FcpPersistentQueue implements NodeMessageListener {
 
 //    private static final Logger logger = Logger.getLogger(FcpPersistentQueue.class.getName());
 
-    private FcpMultiRequestConnectionTools fcpTools;
-    private IFcpPersistentRequestsHandler persistenceHandler;
+    final private FcpMultiRequestConnectionTools fcpTools;
+    final private IFcpPersistentRequestsHandler persistenceHandler;
 
     // we hold all requests, gui shows only the wanted requests (all or own)
-    private HashMap<String,FcpPersistentPut> uploadRequests = new HashMap<String,FcpPersistentPut>();
-    private HashMap<String,FcpPersistentGet> downloadRequests = new HashMap<String,FcpPersistentGet>();
+    final private HashMap<String,FcpPersistentPut> uploadRequests = new HashMap<String,FcpPersistentPut>();
+    final private HashMap<String,FcpPersistentGet> downloadRequests = new HashMap<String,FcpPersistentGet>();
 
     public FcpPersistentQueue(FcpMultiRequestConnectionTools tools, IFcpPersistentRequestsHandler pman) {
         fcpTools = tools;
@@ -51,6 +51,17 @@ public class FcpPersistentQueue implements NodeMessageListener {
     public Map<String,FcpPersistentGet> getDownloadRequests() {
         return getDownloadRequestsCopy();
     }
+    
+    public boolean isIdInGlobalQueue(final String id) {
+        if( downloadRequests.containsKey(id) ) {
+            return true;
+        }
+        if( uploadRequests.containsKey(id) ) {
+            return true;
+        }
+        return false;
+    }
+
 
     @SuppressWarnings("unchecked")
     public synchronized Map<String,FcpPersistentPut> getUploadRequestsCopy() {
@@ -79,7 +90,7 @@ public class FcpPersistentQueue implements NodeMessageListener {
         // handle a NodeMessage without identifier
     }
     
-    public void handleNodeMessage(String id, NodeMessage nm) {
+    public void handleNodeMessage(final String id, final NodeMessage nm) {
 
         if(Logging.inst().doLogFcp2Messages()) { 
             System.out.println(">>>RCV>>>>");
@@ -115,68 +126,68 @@ public class FcpPersistentQueue implements NodeMessageListener {
         }
     }
     
-    protected void onPersistentGet(String id, NodeMessage nm) {
+    protected void onPersistentGet(final String id, final NodeMessage nm) {
         if( downloadRequests.containsKey(id) ) {
-            FcpPersistentGet pg = downloadRequests.get(id);
+            final FcpPersistentGet pg = downloadRequests.get(id);
             pg.setRequest(nm);
             persistenceHandler.persistentRequestUpdated(pg);
             return;
         } else {
-            FcpPersistentGet fpg = new FcpPersistentGet(nm, id);
+            final FcpPersistentGet fpg = new FcpPersistentGet(nm, id);
             downloadRequests.put(id, fpg);
             persistenceHandler.persistentRequestAdded(fpg);
         }
     }
-    protected void onDataFound(String id, NodeMessage nm) {
+    protected void onDataFound(final String id, final NodeMessage nm) {
         if( !downloadRequests.containsKey(id) ) {
             System.out.println("No item in download queue: "+nm);
         } else {
-            FcpPersistentGet pg = downloadRequests.get(id); 
+            final FcpPersistentGet pg = downloadRequests.get(id); 
             pg.setSuccess(nm);
             persistenceHandler.persistentRequestUpdated(pg);
         }
     }
-    protected void onGetFailed(String id, NodeMessage nm) {
+    protected void onGetFailed(final String id, final NodeMessage nm) {
         if( !downloadRequests.containsKey(id) ) {
             System.out.println("No item in download queue: "+nm);
         } else {
-            FcpPersistentGet pg = downloadRequests.get(id); 
+            final FcpPersistentGet pg = downloadRequests.get(id);
             pg.setFailed(nm);
             persistenceHandler.persistentRequestUpdated(pg);
         }
     }
-    protected void onPersistentPut(String id, NodeMessage nm) {
+    protected void onPersistentPut(final String id, final NodeMessage nm) {
         if( uploadRequests.containsKey(id) ) {
-            FcpPersistentPut pg = uploadRequests.get(id);
+            final FcpPersistentPut pg = uploadRequests.get(id);
             pg.setRequest(nm);
             persistenceHandler.persistentRequestUpdated(pg);
         } else {
-            FcpPersistentPut fpg = new FcpPersistentPut(nm, id);
+            final FcpPersistentPut fpg = new FcpPersistentPut(nm, id);
             uploadRequests.put(id, fpg);
             persistenceHandler.persistentRequestAdded(fpg);
         }
     }
-    protected void onPutSuccessful(String id, NodeMessage nm) {
+    protected void onPutSuccessful(final String id, final NodeMessage nm) {
         if( !uploadRequests.containsKey(id) ) {
             System.out.println("No item in upload queue: "+nm);
             return;
         } else {
-            FcpPersistentPut pg = uploadRequests.get(id); 
+            final FcpPersistentPut pg = uploadRequests.get(id);
             pg.setSuccess(nm);
             persistenceHandler.persistentRequestUpdated(pg);
         }
     }
-    protected void onPutFailed(String id, NodeMessage nm) {
+    protected void onPutFailed(final String id, final NodeMessage nm) {
         if( !uploadRequests.containsKey(id) ) {
             System.out.println("No item in upload queue: "+nm);
             return;
         } else {
-            FcpPersistentPut pp = uploadRequests.get(id); 
+            final FcpPersistentPut pp = uploadRequests.get(id);
             pp.setFailed(nm);
             persistenceHandler.persistentRequestUpdated(pp);
         }
     }
-    protected void onSimpleProgress(String id, NodeMessage nm) {
+    protected void onSimpleProgress(final String id, final NodeMessage nm) {
         if( downloadRequests.containsKey(id) ) {
             FcpPersistentGet pg = downloadRequests.get(id); 
             pg.setProgress(nm);
@@ -190,28 +201,28 @@ public class FcpPersistentQueue implements NodeMessageListener {
             return;
         }
     }
-    protected void onPersistentRequestRemoved(String id, NodeMessage nm) {
+    protected void onPersistentRequestRemoved(final String id, final NodeMessage nm) {
         if( downloadRequests.containsKey(id) ) {
-            FcpPersistentGet pg = downloadRequests.remove(id); 
+            final FcpPersistentGet pg = downloadRequests.remove(id); 
             persistenceHandler.persistentRequestRemoved(pg);
         } else if( uploadRequests.containsKey(id) ) {
-            FcpPersistentPut pg = uploadRequests.remove(id);
+            final FcpPersistentPut pg = uploadRequests.remove(id);
             persistenceHandler.persistentRequestRemoved(pg);
         } else {
             System.out.println("No item in queue: "+nm);
             return;
         }
     }
-    protected void onPersistentRequestModified(String id, NodeMessage nm) {
+    protected void onPersistentRequestModified(final String id, final NodeMessage nm) {
         // check if the priorityClass changed, ignore other changes
         if( nm.isValueSet("PriorityClass") ) {
-            int newPriorityClass = nm.getIntValue("PriorityClass");
+            final int newPriorityClass = nm.getIntValue("PriorityClass");
             if( downloadRequests.containsKey(id) ) {
-                FcpPersistentGet pg = downloadRequests.get(id);
+                final FcpPersistentGet pg = downloadRequests.get(id);
                 pg.setPriority(newPriorityClass);
                 persistenceHandler.persistentRequestModified(pg);
             } else if( uploadRequests.containsKey(id) ) {
-                FcpPersistentPut pg = uploadRequests.get(id); 
+                final FcpPersistentPut pg = uploadRequests.get(id); 
                 pg.setPriority(newPriorityClass);
                 persistenceHandler.persistentRequestModified(pg);
             } else {
@@ -220,13 +231,13 @@ public class FcpPersistentQueue implements NodeMessageListener {
             }
         }
     }
-    protected void onProtocolError(String id, NodeMessage nm) {
+    protected void onProtocolError(final String id, final NodeMessage nm) {
         if( downloadRequests.containsKey(id) ) {
-            FcpPersistentGet pg = downloadRequests.get(id); 
+            final FcpPersistentGet pg = downloadRequests.get(id); 
             pg.setFailed(nm);
             persistenceHandler.persistentRequestUpdated(pg);
         } else if( uploadRequests.containsKey(id) ) {
-            FcpPersistentPut pg = uploadRequests.get(id); 
+            final FcpPersistentPut pg = uploadRequests.get(id); 
             pg.setFailed(nm);
             persistenceHandler.persistentRequestUpdated(pg);
         } else {

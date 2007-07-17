@@ -501,6 +501,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
             case 0 : //Enabled
                 Boolean valueBoolean = (Boolean) value;
                 uploadItem.setEnabled(valueBoolean);
+                FileTransferManager.inst().getUploadManager().notifyUploadItemEnabledStateChanged(uploadItem);
                 break;
 
             default :

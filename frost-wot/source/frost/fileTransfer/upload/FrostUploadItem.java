@@ -64,6 +64,8 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
     
     private boolean isExternal = false;
 
+    private transient boolean internalRemoveExpected = false;
+
     /**
      * Dummy to use for uploads of attachments. Is never saved.
      * Attachment uploads must never be persistent on 0.7.
@@ -303,6 +305,20 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
         super.fireChange();
     }
     
+    /**
+     * @return  true if the remove of this request was expected and item should not be removed from the table
+     */
+    public boolean isInternalRemoveExpected() {
+        return internalRemoveExpected;
+    }
+    /**
+     * onPersistentRequestRemoved method checks this and does not remove the request
+     * from the table if the remove was expected. 
+     */
+    public void setInternalRemoveExpected(boolean internalRemoveExpected) {
+        this.internalRemoveExpected = internalRemoveExpected;
+    }
+
     public String toString() {
         return getFilename();
     }

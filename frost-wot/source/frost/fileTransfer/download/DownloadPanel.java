@@ -355,26 +355,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
         }
     }
     
-    private void startSelectedDownloadsNow() {
-        ModelItem[] selectedItems = modelTable.getSelectedItems();
-        
-        final List<FrostDownloadItem> itemsToStart = new LinkedList<FrostDownloadItem>();
-        for( ModelItem mi : selectedItems ) {
-            FrostDownloadItem i = (FrostDownloadItem)mi;
-            if( i.isExternal() ) {
-                continue;
-            }
-            if( i.getState() != FrostDownloadItem.STATE_WAITING ) {
-                continue;
-            }
-            itemsToStart.add(i);
-        }
-        
-        for(FrostDownloadItem dlItem : itemsToStart) {
-            FileTransferManager.inst().getDownloadManager().startDownload(dlItem);
-        }
-    }
-
 	public boolean isDownloadingActivated() {
 		return downloadingActivated;
 	}
@@ -534,6 +514,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
         private JMenuItem prio4Item = null;
         private JMenuItem prio5Item = null;
         private JMenuItem prio6Item = null;
+        private JMenuItem removeFromGqItem = null;
         
         private JMenuItem retrieveDirectExternalDownloads = null;
     
@@ -555,6 +536,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                 prio4Item = new JMenuItem();
                 prio5Item = new JMenuItem();
                 prio6Item = new JMenuItem();
+                removeFromGqItem = new JMenuItem();
                 
                 changePriorityMenu.add(prio0Item);
                 changePriorityMenu.add(prio1Item);
@@ -571,6 +553,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                 prio4Item.addActionListener(this);
                 prio5Item.addActionListener(this);
                 prio6Item.addActionListener(this);
+                removeFromGqItem.addActionListener(this);
                 
                 retrieveDirectExternalDownloads = new JMenuItem();
                 retrieveDirectExternalDownloads.addActionListener(this);
@@ -627,6 +610,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                 prio4Item.setText(language.getString("Common.priority.priority4"));
                 prio5Item.setText(language.getString("Common.priority.priority5"));
                 prio6Item.setText(language.getString("Common.priority.priority6"));
+                removeFromGqItem.setText(language.getString("DownloadPane.fileTable.popupmenu.removeFromGlobalQueue"));
                 
                 retrieveDirectExternalDownloads.setText(language.getString("DownloadPane.fileTable.popupmenu.retrieveDirectExternalDownloads"));
             }
@@ -671,10 +655,37 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                 changePriority(5);
             } else if (e.getSource() == prio6Item) {
                 changePriority(6);
+            } else if (e.getSource() == removeFromGqItem) {
+                removeSelectedUploadsFromGlobalQueue();
             } else if (e.getSource() == retrieveDirectExternalDownloads) {
                 retrieveDirectExternalDownloads();
             } else if (e.getSource() == startSelectedDownloadsNow ) {
                 startSelectedDownloadsNow();
+            }
+        }
+        
+        private void removeSelectedUploadsFromGlobalQueue() {
+            if( FileTransferManager.inst().getPersistenceManager() == null ) {
+                return;
+            }
+            final ModelItem[] selectedItems = modelTable.getSelectedItems();
+            final List<String> requestsToRemove = new ArrayList<String>();
+            final List<FrostDownloadItem> itemsToUpdate = new ArrayList<FrostDownloadItem>();
+            for(final ModelItem mi : selectedItems) {
+                final FrostDownloadItem item = (FrostDownloadItem) mi;
+                if( FileTransferManager.inst().getPersistenceManager().isItemInGlobalQueue(item) ) {
+                    requestsToRemove.add( item.getGqIdentifier() );
+                    itemsToUpdate.add(item);
+                    item.setInternalRemoveExpected(true);
+                }
+            }
+            FileTransferManager.inst().getPersistenceManager().removeRequests(requestsToRemove);
+            // after remove, update state of removed items
+            for(final FrostDownloadItem item : itemsToUpdate) {
+                item.setState(FrostDownloadItem.STATE_WAITING);
+                item.setEnabled(false);
+                item.setPriority(-1);
+                item.fireValueChanged();
             }
         }
 
@@ -689,6 +700,27 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                     long expectedFileSize = item.getFileSize(); // set from global queue
                     FileTransferManager.inst().getPersistenceManager().maybeEnqueueDirectGet(item, expectedFileSize);
                 }
+            }
+        }
+
+        private void startSelectedDownloadsNow() {
+            ModelItem[] selectedItems = modelTable.getSelectedItems();
+            
+            final List<FrostDownloadItem> itemsToStart = new LinkedList<FrostDownloadItem>();
+            for( ModelItem mi : selectedItems ) {
+                FrostDownloadItem i = (FrostDownloadItem)mi;
+                if( i.isExternal() ) {
+                    continue;
+                }
+                if( i.getState() != FrostDownloadItem.STATE_WAITING ) {
+                    continue;
+                }
+                itemsToStart.add(i);
+            }
+            
+            for(FrostDownloadItem dlItem : itemsToStart) {
+                dlItem.setEnabled(true);
+                FileTransferManager.inst().getDownloadManager().startDownload(dlItem);
             }
         }
 
@@ -779,15 +811,27 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
             enabledSubMenu.add(invertEnabledAllItem);
             add(enabledSubMenu);
             
-            for(ModelItem mi : selectedItems) {
-                FrostDownloadItem item = (FrostDownloadItem) mi;
-                // we only find external items if persistence is enabled
-                if( item.isExternal() && item.isDirect() && item.getState() == FrostDownloadItem.STATE_DONE ) {
-                    add(retrieveDirectExternalDownloads);
-                    break;
+            // we only find external items if persistence is enabled
+            if( PersistenceManager.isPersistenceEnabled() ) {
+                for(ModelItem mi : selectedItems) {
+                    FrostDownloadItem item = (FrostDownloadItem) mi;
+                    if( item.isExternal() && item.isDirect() && item.getState() == FrostDownloadItem.STATE_DONE ) {
+                        add(retrieveDirectExternalDownloads);
+                        break;
+                    }
                 }
             }
             add(removeSelectedDownloadsItem);
+            if(  FileTransferManager.inst().getPersistenceManager() != null && selectedItems != null ) {
+                // add only if there are removable items selected
+                for(ModelItem mi : selectedItems) {
+                    FrostDownloadItem item = (FrostDownloadItem) mi;
+                    if(  FileTransferManager.inst().getPersistenceManager().isItemInGlobalQueue(item) ) {
+                        add(removeFromGqItem);
+                        break;
+                    }
+                }
+            }
             if( selectedItems.length == 1 ) {
                 FrostDownloadItem item = (FrostDownloadItem) selectedItems[0];
                 if( item.isSharedFile() ) {

@@ -56,6 +56,9 @@ public class IndexSlotsStorage implements Savable {
     }
     
     private boolean addToIndices(IndexSlot gis) {
+        if( getStorage() == null ) {
+            return false;
+        }
         boolean wasOk = storageRoot.slotsIndexIL.put(new Key(gis.getIndexName(), gis.getMsgDate()), gis);
         storageRoot.slotsIndexLI.put(new Key(gis.getMsgDate(), gis.getIndexName()), gis);
         return wasOk;
@@ -128,7 +131,6 @@ public class IndexSlotsStorage implements Savable {
     }
     
     public synchronized void storeSlot(IndexSlot gis) {
-//        logger.warning(gis.toString());
         if( getStorage() == null ) {
             return;
         }
@@ -141,7 +143,6 @@ public class IndexSlotsStorage implements Savable {
     }
     
     public synchronized void commitStore() {
-//        logger.info("commitStore!");
         if( getStorage() == null ) {
             return;
         }

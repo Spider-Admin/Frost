@@ -810,8 +810,8 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
         columnModel.getColumn(9).setCellRenderer(rightAlignRenderer); // tries
         columnModel.getColumn(10).setCellRenderer(showContentTooltipRenderer); // key
         if( PersistenceManager.isPersistenceEnabled() ) {
-            columnModel.getColumn(11).setCellRenderer(new IsDDARenderer());
-            columnModel.getColumn(12).setCellRenderer(rightAlignRenderer);
+            columnModel.getColumn(11).setCellRenderer(new IsDDARenderer()); // isDDA
+            columnModel.getColumn(12).setCellRenderer(rightAlignRenderer); // prio
         }
 
         if( !loadTableLayout(columnModel) ) {
@@ -905,6 +905,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 			case 0 : //Enabled
 				Boolean valueBoolean = (Boolean) value;
 				downloadItem.setEnabled(valueBoolean);
+				FileTransferManager.inst().getDownloadManager().notifyDownloadItemEnabledStateChanged(downloadItem);
 				break;
 
 			default :

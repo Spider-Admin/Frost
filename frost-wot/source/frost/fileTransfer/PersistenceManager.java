@@ -90,7 +90,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
     /**
      * Must be called after the upload and download model is initialized!
      */
-    public PersistenceManager(UploadModel um, DownloadModel dm) throws Throwable {
+    public PersistenceManager(final UploadModel um, final DownloadModel dm) throws Throwable {
         
         showExternalItemsDownload = Core.frostSettings.getBoolValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_DOWNLOAD);
         showExternalItemsUpload = Core.frostSettings.getBoolValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_UPLOAD);
@@ -98,7 +98,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         if( FcpHandler.inst().getNodes().isEmpty() ) {
             throw new Exception("No freenet nodes defined");
         }
-        NodeAddress na = FcpHandler.inst().getNodes().get(0);
+        final NodeAddress na = FcpHandler.inst().getNodes().get(0);
         fcpConn = FcpMultiRequestConnection.createInstance(na);
         fcpTools = new FcpMultiRequestConnectionTools(fcpConn);
         
@@ -217,13 +217,13 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         Core.schedule(task, 3000, 3000); 
     }
 
-    public void removeRequests(List<String> requests) {
+    public void removeRequests(final List<String> requests) {
         for( String id : requests ) {
             fcpTools.removeRequest(id);
         }
     }
     
-    public void changeItemPriorites(ModelItem[] items, int newPrio) {
+    public void changeItemPriorites(final ModelItem[] items, final int newPrio) {
         if( items == null || items.length == 0 ) {
             return;
         }
@@ -231,10 +231,10 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             final ModelItem item = items[i];
             String gqid = null;
             if( item instanceof FrostUploadItem ) {
-                FrostUploadItem ui = (FrostUploadItem) item; 
+                final FrostUploadItem ui = (FrostUploadItem) item;
                 gqid = ui.getGqIdentifier();
             } else if( item instanceof FrostDownloadItem ) {
-                FrostDownloadItem di = (FrostDownloadItem) item; 
+                final FrostDownloadItem di = (FrostDownloadItem) item; 
                 gqid = di.getGqIdentifier();
             }
             if( gqid != null ) {
@@ -242,7 +242,22 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             }
         }
     }
-    
+
+    /**
+     * @param dlItem  items whose global identifier is to check
+     * @return  true if this item is currently in the global queue, no matter in what state
+     */
+    public boolean isItemInGlobalQueue(final FrostDownloadItem dlItem) {
+        return persistentQueue.isIdInGlobalQueue(dlItem.getGqIdentifier());
+    }
+    /**
+     * @param ulItem  items whose global identifier is to check
+     * @return  true if this item is currently in the global queue, no matter in what state
+     */
+    public boolean isItemInGlobalQueue(final FrostUploadItem ulItem) {
+        return persistentQueue.isIdInGlobalQueue(ulItem.getGqIdentifier());
+    }
+
     /**
      * Periodically check if we could start a new request.
      * This could be done better if we check if a request finished, but later...
@@ -273,7 +288,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
      * Enqueue a direct GET if not already enqueued, or already downloaded to download dir.
      * @return true if item was enqueued
      */
-    public boolean maybeEnqueueDirectGet(FrostDownloadItem dlItem, long expectedFileSize) {
+    public boolean maybeEnqueueDirectGet(final FrostDownloadItem dlItem, final long expectedFileSize) {
         if( !isDirectTransferInProgress(dlItem) ) {
             final File targetFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + dlItem.getFilename());
             if( !targetFile.isFile() || targetFile.length() != expectedFileSize ) {
@@ -287,7 +302,15 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
     /**
      * Apply the states of FcpRequestGet to the FrostDownloadItem.
      */
-    private void applyState(FrostDownloadItem dlItem, FcpPersistentGet getReq) {
+    private void applyState(final FrostDownloadItem dlItem, final FcpPersistentGet getReq) {
+        // when cancelled and we expect this, don't set failed; don't even set the old priority!
+        if( dlItem.isInternalRemoveExpected() && getReq.isFailed() ) {
+            final int returnCode = getReq.getCode();
+            if( returnCode == 25 ) {
+                return;
+            }
+        }
+
         if( dlItem.getPriority() != getReq.getPriority() ) {
             dlItem.setPriority(getReq.getPriority());
         }
@@ -344,10 +367,11 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                 dlItem.setState(FrostDownloadItem.STATE_FAILED);
                 dlItem.setErrorCodeDescription(desc);
             } else {
-                final int code = getReq.getCode();
+                final int returnCode = getReq.getCode();
                 final boolean isFatal = getReq.isFatal();
+                
                 final String redirectURI = getReq.getRedirectURI();
-                final FcpResultGet result = new FcpResultGet(false, code, desc, isFatal, redirectURI);
+                final FcpResultGet result = new FcpResultGet(false, returnCode, desc, isFatal, redirectURI);
                 final File targetFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + dlItem.getFilename());
                 final boolean retry = FileTransferManager.inst().getDownloadManager().notifyDownloadFinished(dlItem, result, targetFile);
                 if( retry ) {
@@ -361,7 +385,15 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
     /**
      * Apply the states of FcpRequestPut to the FrostUploadItem.
      */
-    private void applyState(FrostUploadItem ulItem, FcpPersistentPut putReq) {
+    private void applyState(final FrostUploadItem ulItem, final FcpPersistentPut putReq) {
+
+        // when cancelled and we expect this, don't set failed; don't even set the old priority!
+        if( ulItem.isInternalRemoveExpected() && putReq.isFailed() ) {
+            final int returnCode = putReq.getCode();
+            if( returnCode == 25 ) {
+                return;
+            }
+        }
 
         if( directPUTsWithoutAnswer.contains(ulItem.getGqIdentifier()) ) {
             // we got an answer
@@ -463,7 +495,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         }
     }
     
-    public boolean startUpload(FrostUploadItem ulItem) {
+    public boolean startUpload(final FrostUploadItem ulItem) {
         if( ulItem == null || ulItem.getState() != FrostUploadItem.STATE_WAITING ) {
             return false;
         }
@@ -529,7 +561,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         }
     }
     
-    public boolean startDownload(FrostDownloadItem dlItem) {
+    public boolean startDownload(final FrostDownloadItem dlItem) {
 
         if( dlItem == null || dlItem.getState() != FrostDownloadItem.STATE_WAITING ) {
             return false;
@@ -568,7 +600,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         }
     }
 
-    private void addExternalItem(FcpPersistentPut uploadRequest) {
+    private void addExternalItem(final FcpPersistentPut uploadRequest) {
         final FrostUploadItem ulItem = new FrostUploadItem();
         ulItem.setGqIdentifier(uploadRequest.getIdentifier());
         ulItem.setExternal(true);
@@ -593,7 +625,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         applyState(ulItem, uploadRequest);
     }
 
-    private void addExternalItem(FcpPersistentGet downloadRequest) {
+    private void addExternalItem(final FcpPersistentGet downloadRequest) {
         // direct downloads maybe have no filename, use identifier
         String fileName = downloadRequest.getFilename();
         if( fileName == null ) {
@@ -619,12 +651,12 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         applyState(dlItem, downloadRequest);
     }
 
-    public boolean isDirectTransferInProgress(FrostDownloadItem dlItem) {
+    public boolean isDirectTransferInProgress(final FrostDownloadItem dlItem) {
         final String id = dlItem.getGqIdentifier();
         return directGETsInProgress.contains(id);
     }
 
-    public boolean isDirectTransferInProgress(FrostUploadItem ulItem) {
+    public boolean isDirectTransferInProgress(final FrostUploadItem ulItem) {
         final String id = ulItem.getGqIdentifier();
         if( directPUTsInProgress.contains(id) ) {
             return true;
@@ -745,7 +777,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             return null;
         }
 
-        public synchronized void appendItemToQueue(FrostDownloadItem item) {
+        public synchronized void appendItemToQueue(final FrostDownloadItem item) {
             final String id = item.getGqIdentifier();
             directGETsInProgress.add(id);
 
@@ -753,7 +785,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             notifyAll(); // notify all waiters (if any) of new record
         }
 
-        public synchronized void appendItemToQueue(FrostUploadItem item) {
+        public synchronized void appendItemToQueue(final FrostUploadItem item) {
             final String id = item.getGqIdentifier();
             directPUTsInProgress.add(id);
             
@@ -767,7 +799,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         }
     }
     
-    public void persistentRequestError(String id, NodeMessage nm) {
+    public void persistentRequestError(final String id, final NodeMessage nm) {
         if( uploadModelItems.containsKey(id) ) {
             final FrostUploadItem item = uploadModelItems.get(id);
             item.setEnabled(Boolean.FALSE);
@@ -783,7 +815,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         }
     }
 
-    public void persistentRequestAdded(FcpPersistentPut uploadRequest) {
+    public void persistentRequestAdded(final FcpPersistentPut uploadRequest) {
         final FrostUploadItem ulItem = uploadModelItems.get(uploadRequest.getIdentifier());
         if( ulItem != null ) {
             // own item added to global queue, or existing external item
@@ -795,7 +827,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         }
     }
 
-    public void persistentRequestAdded(FcpPersistentGet downloadRequest) {
+    public void persistentRequestAdded(final FcpPersistentGet downloadRequest) {
         final FrostDownloadItem dlItem = downloadModelItems.get(downloadRequest.getIdentifier());
         if( dlItem != null ) {
             // own item added to global queue, or existing external item
@@ -807,21 +839,21 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         }
     }
 
-    public void persistentRequestModified(FcpPersistentPut uploadRequest) {
+    public void persistentRequestModified(final FcpPersistentPut uploadRequest) {
         if( uploadModelItems.containsKey(uploadRequest.getIdentifier()) ) {
             final FrostUploadItem ulItem = uploadModelItems.get(uploadRequest.getIdentifier());
             ulItem.setPriority(uploadRequest.getPriority());
         }
     }
 
-    public void persistentRequestModified(FcpPersistentGet downloadRequest) {
+    public void persistentRequestModified(final FcpPersistentGet downloadRequest) {
         if( downloadModelItems.containsKey(downloadRequest.getIdentifier()) ) {
             final FrostDownloadItem dlItem = downloadModelItems.get(downloadRequest.getIdentifier());
             dlItem.setPriority(downloadRequest.getPriority());
         }
     }
 
-    public void persistentRequestRemoved(FcpPersistentPut uploadRequest) {
+    public void persistentRequestRemoved(final FcpPersistentPut uploadRequest) {
         if( uploadModelItems.containsKey(uploadRequest.getIdentifier()) ) {
             final FrostUploadItem ulItem = uploadModelItems.get(uploadRequest.getIdentifier());
             if( ulItem.isExternal() ) {
@@ -831,7 +863,9 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                     }
                 });
             } else {
-                if( ulItem.getState() != FrostUploadItem.STATE_DONE ) {
+                if( ulItem.isInternalRemoveExpected() ) {
+                    ulItem.setInternalRemoveExpected(false); // clear flag
+                } else if( ulItem.getState() != FrostUploadItem.STATE_DONE ) {
                     ulItem.setEnabled(false);
                     ulItem.setState(FrostUploadItem.STATE_FAILED);
                     ulItem.setErrorCodeDescription("Disappeared from global queue");
@@ -840,7 +874,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         }
     }
 
-    public void persistentRequestRemoved(FcpPersistentGet downloadRequest) {
+    public void persistentRequestRemoved(final FcpPersistentGet downloadRequest) {
         if( downloadModelItems.containsKey(downloadRequest.getIdentifier()) ) {
             final FrostDownloadItem dlItem = downloadModelItems.get(downloadRequest.getIdentifier());
             if( dlItem.isExternal() ) {
@@ -861,7 +895,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         }    
     }
     
-    public void persistentRequestUpdated(FcpPersistentPut uploadRequest) {
+    public void persistentRequestUpdated(final FcpPersistentPut uploadRequest) {
         final FrostUploadItem ui = uploadModelItems.get(uploadRequest.getIdentifier());
         if( ui == null ) {
             // not (yet) in our model
@@ -870,7 +904,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         applyState(ui, uploadRequest);
     }
     
-    public void persistentRequestUpdated(FcpPersistentGet downloadRequest) {
+    public void persistentRequestUpdated(final FcpPersistentGet downloadRequest) {
         final FrostDownloadItem dl = downloadModelItems.get( downloadRequest.getIdentifier() );
         if( dl == null ) {
             // not (yet) in our model
