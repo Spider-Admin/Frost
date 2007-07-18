@@ -30,8 +30,8 @@ public class SentMessagesTableModel extends SortedModel {
     }
     
     public void loadTableModel() {
-        List msgs = SentMessagesManager.retrieveSentMessages();
-        for( Iterator i = msgs.iterator(); i.hasNext(); ) {
+        List<FrostMessageObject> msgs = SentMessagesManager.retrieveSentMessages();
+        for( Iterator<FrostMessageObject> i = msgs.iterator(); i.hasNext(); ) {
             FrostMessageObject mo = (FrostMessageObject) i.next();
             SentMessagesTableItem item = new SentMessagesTableItem(mo);
             addSendMessageItem(item);

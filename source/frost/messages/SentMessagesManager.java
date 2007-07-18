@@ -28,14 +28,14 @@ public class SentMessagesManager {
 
     private static final Logger logger = Logger.getLogger(SentMessagesManager.class.getName());
     
-    public static List retrieveSentMessages() {
+    public static List<FrostMessageObject> retrieveSentMessages() {
         try {
             return AppLayerDatabase.getSentMessageTable().retrieveAllMessages();
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Error retrieving sent messages", t);
         }
         
-        return new LinkedList();
+        return new LinkedList<FrostMessageObject>();
     }
     
     public static boolean addSentMessage(FrostMessageObject sentMo) {
@@ -49,7 +49,7 @@ public class SentMessagesManager {
         return true; // if we return false the msg is resent !
     }
     
-    public static int deleteSentMessages(List msgObjects) {
+    public static int deleteSentMessages(List<FrostMessageObject> msgObjects) {
         int deleted = 0;
         try {
             deleted = AppLayerDatabase.getSentMessageTable().deleteMessages(msgObjects);
