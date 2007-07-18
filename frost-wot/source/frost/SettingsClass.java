@@ -199,6 +199,7 @@ public class SettingsClass implements Savable {
     
     public static final String MESSAGE_EXPIRE_DAYS = "messageExpireDays";
     public static final String MESSAGE_EXPIRATION_MODE = "messageExpirationMode";
+    public static final String ARCHIVE_KEEP_FLAGGED_AND_STARRED = "archiveKeepFlaggedOrStarredMessages";
     
     public static final String MIN_DAYS_BEFORE_FILE_RESHARE = "minDaysBeforeFileReshare";
     public static final String MAX_FILELIST_DOWNLOAD_DAYS = "fileListDownloadDays";
@@ -848,6 +849,7 @@ public class SettingsClass implements Savable {
 
         defaults.put(MESSAGE_EXPIRE_DAYS, "90");
         defaults.put(MESSAGE_EXPIRATION_MODE, "KEEP"); // KEEP or ARCHIVE or DELETE, default KEEP
+        defaults.put(ARCHIVE_KEEP_FLAGGED_AND_STARRED, "false");
 
         defaults.put(SKINS_ENABLED, "false");
         defaults.put(SKIN_NAME, "none");

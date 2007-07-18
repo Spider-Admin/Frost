@@ -710,7 +710,7 @@ public class TOF {
             
             boolean showDeletedMessages = Core.frostSettings.getBoolValue("showDeletedMessages");
             boolean showUnreadOnly = Core.frostSettings.getBoolValue(SettingsClass.SHOW_UNREAD_ONLY);
-            
+            boolean showOlderFlaggedAndStarred = Core.frostSettings.getBoolValue(SettingsClass.ARCHIVE_KEEP_FLAGGED_AND_STARRED);
             try {
                 AppLayerDatabase.getMessageTable().retrieveMessagesForShow(
                         board, 
@@ -719,6 +719,7 @@ public class TOF {
                         false, 
                         showDeletedMessages,
                         showUnreadOnly,
+                        showOlderFlaggedAndStarred,
                         callback);
                 
             } catch (SQLException e) {

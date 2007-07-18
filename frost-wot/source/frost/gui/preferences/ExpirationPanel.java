@@ -38,6 +38,8 @@ class ExpirationPanel extends JPanel {
 
     private JLabel LmessageExpireDays = new JLabel();
     private JTextField TfMessageExpireDays = new JTextField(8);
+    
+    private JCheckBox CbKeepFlaggedAndStarred = new JCheckBox();
 
     /**
      * @param settings the SettingsClass instance that will be used to get and store the settings of the panel
@@ -101,6 +103,12 @@ class ExpirationPanel extends JPanel {
         constraints.gridwidth = maxGridWidth;
         add(RbDeleteExpiredMessages, constraints);
         constraints.gridwidth = 1;
+        
+        constraints.gridy++;
+
+        constraints.gridx = 0;
+        constraints.gridwidth = maxGridWidth;
+        add(CbKeepFlaggedAndStarred, constraints);
 
         // glue
         constraints.gridy++;
@@ -134,6 +142,8 @@ class ExpirationPanel extends JPanel {
         } else {
             RbKeepExpiredMessages.doClick(); // // unknown value, use default
         }
+        
+        CbKeepFlaggedAndStarred.setSelected(settings.getBoolValue(SettingsClass.ARCHIVE_KEEP_FLAGGED_AND_STARRED));
     }
 
     /**
@@ -152,6 +162,8 @@ class ExpirationPanel extends JPanel {
         } else {
             settings.setValue(SettingsClass.MESSAGE_EXPIRATION_MODE, "KEEP");
         }
+        
+        settings.setValue(SettingsClass.ARCHIVE_KEEP_FLAGGED_AND_STARRED, CbKeepFlaggedAndStarred.isSelected());
     }
 
     public void ok() {
@@ -164,5 +176,7 @@ class ExpirationPanel extends JPanel {
         RbDeleteExpiredMessages.setText(language.getString("Options.expiration.deleteExpiredMessages"));
 
         LmessageExpireDays.setText(language.getString("Options.expiration.numberOfDaysBeforeMessageExpires") + " (90)");
+        
+        CbKeepFlaggedAndStarred.setText(language.getString("Options.expiration.keepFlaggedAndStarredMessages"));
     }
 }
