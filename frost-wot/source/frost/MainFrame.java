@@ -878,6 +878,13 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         AboutBox dlg = new AboutBox(this);
         dlg.setVisible(true);
     }
+    
+    public void postInitialize() {
+        // select saved board (NOTE: this loads the message list!)
+        if (tofTree.getRowCount() > frostSettings.getIntValue(SettingsClass.BOARDLIST_LAST_SELECTED_BOARD)) {
+            tofTree.setSelectionRow(frostSettings.getIntValue(SettingsClass.BOARDLIST_LAST_SELECTED_BOARD));
+        }
+    }
 
     public void initialize() {
 
@@ -894,10 +901,6 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         TOF.getInstance().searchAllNewMessages(false);
 
         tofAutomaticUpdateMenuItem.setSelected(frostSettings.getBoolValue(SettingsClass.BOARD_AUTOUPDATE_ENABLED));
-
-        if (tofTree.getRowCount() > frostSettings.getIntValue(SettingsClass.BOARDLIST_LAST_SELECTED_BOARD)) {
-            tofTree.setSelectionRow(frostSettings.getIntValue(SettingsClass.BOARDLIST_LAST_SELECTED_BOARD));
-        }
 
         // make sure the font size isn't too small to see
         if (frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE) < 6) {

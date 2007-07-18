@@ -387,6 +387,9 @@ public class Core implements FrostEventDispatcher  {
         // (cleanup gets the expiration mode from settings)
         CleanUp.runExpirationTasks(splashscreen, MainFrame.getInstance().getTofTreeModel().getAllBoards());
 
+        // after expiration, select previously selected board tree row; this loads the message table!!!
+        mainFrame.postInitialize();
+        
         splashscreen.setText(language.getString("Splashscreen.message.5"));
         splashscreen.setProgress(80);
         
