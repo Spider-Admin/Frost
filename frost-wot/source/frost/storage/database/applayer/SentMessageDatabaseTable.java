@@ -86,13 +86,13 @@ public class SentMessageDatabaseTable extends MessageDatabaseTable {
         return "sentmsgcont_index";
     }
 
-    public int deleteMessages(List messages) throws SQLException {
+    public int deleteMessages(List<FrostMessageObject> messages) throws SQLException {
 
         AppLayerDatabase db = AppLayerDatabase.getInstance();
 
         PreparedStatement ps = db.prepareStatement("DELETE FROM "+getMessageTableName()+" WHERE primkey=?");
         int deletedCount = 0;
-        for(Iterator i=messages.iterator(); i.hasNext(); ) {
+        for(Iterator<FrostMessageObject> i=messages.iterator(); i.hasNext(); ) {
             FrostMessageObject mo = (FrostMessageObject) i.next(); 
             ps.setLong(1, mo.getMsgIdentity());
             deletedCount += ps.executeUpdate();
