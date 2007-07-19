@@ -8,7 +8,32 @@
   </HEAD>
   <BODY>
 <H2>Frost History</H2>
-      <PRE>
+<PRE>
+2007.07.19:
+------------
+
+- length of file list download queue is shown in status bar ("FLQ").
+  This is the number of file lists that wait to get downloaded.
+  When all items were downloaded, the file base is most current
+  and the file search finds the latest files.
+- fixed bug 1749043: Table layout corrupted after 'Mark thread read'
+- new options to hide files from users marked CHECK or OBSERVE,
+  the options are now accessible directly in the search files panel
+  ('Options...' button).
+- new option 'Never expire flagged and starred messages', prevents
+  expiration of any flagged/starred messages, and  shows them in the
+  message table even if they are older then the configured days to
+  display
+- Windows: 'Always minimize to systray' now remembers if the window
+           was maximized before user clicked the minimize icon.
+- 0.7: all KSK requests are now handled by one connection to the node
+       ("fcp2.useOneConnectionForMessages" in frost.ini)
+- 0.7: disabling a running upload or download item now changes its
+       priority to 6 (pause), enabling an item changes its priority
+       to the default priority for files
+- 0.7: added menu item 'Remove item from global queue' to uploads
+       and downloads table popup menu
+
 2007.07.02:
 ------------
 
@@ -1081,8 +1106,6 @@ Bugfix: fixed 'Minimize to tray and never come up again' bug on
 - Make download file now works
 - Added Options tab
 - Save keys on exit added
-
-      </PRE>
-
-  </BODY>
+</PRE>
+</BODY>
 </HTML>
