@@ -58,14 +58,14 @@ public class MessageTransferHandler implements NodeMessageListener {
             return;
         }
         
+        taskMap.put(task.getIdentifier(), task);
+        
         // send task to socket
         if( task.isModeDownload() ) {
             fcpTools.startDirectGet(task.getIdentifier(), task.getKey(), task.getPriority(), task.getMaxSize());
         } else {
             fcpTools.startDirectPut(task.getIdentifier(), task.getKey(), task.getPriority(), task.getFile());
         }
-        
-        taskMap.put(task.getIdentifier(), task);
     }
     
     protected synchronized void setTaskFinished(MessageTransferTask task) {
