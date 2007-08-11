@@ -132,7 +132,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 
         // final layouting
         pack();
-        setSize(650,500);
 
         // center dialog on parent
         setLocationRelativeTo(parent);
