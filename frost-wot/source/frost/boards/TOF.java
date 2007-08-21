@@ -476,7 +476,7 @@ public class TOF {
             
             FrostMessageObject rootNode;
             LinkedList<FrostMessageObject> messageList = new LinkedList<FrostMessageObject>();
-            
+
             public ThreadedMessageRetrieval(FrostMessageObject root) {
                 rootNode = root;
             }
@@ -486,7 +486,7 @@ public class TOF {
             }
             public void buildThreads() {
                 // messageList was filled by callback
-                
+
                 // HashSet contains a msgid if the msg was loaded OR was not existing
                 HashSet<String> messageIds = new HashSet<String>();
 
@@ -507,49 +507,17 @@ public class TOF {
                 // for threads, check msgrefs and load all existing msgs pointed to by refs
                 boolean showDeletedMessages = Core.frostSettings.getBoolValue("showDeletedMessages");
                 LinkedList<FrostMessageObject> newLoadedMsgs = new LinkedList<FrostMessageObject>();
-                for(Iterator<FrostMessageObject> i=messageList.iterator(); i.hasNext(); ) {
-                    FrostMessageObject mo = i.next();
-                    List<String> l = mo.getInReplyToList();
-                    if( l.size() == 0 ) {
-                        continue; // no msg refs
-                    }
-                    // try to load each referenced msgid, put tried ids into hashset msgIds
-                    for(int x=l.size()-1; x>=0; x--) {
-                        String anId = (String)l.get(x);
-                        if( anId == null ) {
-                            logger.log(Level.SEVERE, "Should never happen: message id is null!"+mo.getMessageId());
-                            continue;
-                        }
-                        if( messageIds.contains(anId) ) {
-                            continue;
-                        }
-                        FrostMessageObject fmo = null;
-                        try {
-                            fmo = AppLayerDatabase.getMessageTable().retrieveMessageByMessageId(
-                                    board, 
-                                    anId, 
-                                    false, 
-                                    false, 
-                                    showDeletedMessages);
-                        } catch (SQLException e) {
-                            logger.log(Level.SEVERE, "Error retrieving message by id "+anId, e);
-                        }
-                        if( fmo == null ) {
-                            // for each missing msg create a dummy FrostMessageObject and add it to tree.
-                            // if the missing msg arrives later, replace dummy with true msg in tree
-                            LinkedList<String> ll = new LinkedList<String>();
-                            if( x > 0 ) {
-                                for(int y=0; y < x; y++) {
-                                    ll.add(l.get(y));
-                                }
-                            }
-                            fmo = new FrostMessageObject(anId, board, ll);
-                        }
-                        newLoadedMsgs.add(fmo);
-                        messageIds.add(anId);
-                    }
-                }
+                LinkedList<FrostMessageObject> newLoadedMsgs2 = new LinkedList<FrostMessageObject>();
+                
+                loadInReplyToMessages(messageList, messageIds, showDeletedMessages, newLoadedMsgs);
 
+                // load all linked messages, only needed when only new msgs are shown and some msgs have invalid
+                // refs (sometimes sent by other clients)
+                while( loadInReplyToMessages(newLoadedMsgs, messageIds, showDeletedMessages, newLoadedMsgs2) ) {
+                    messageList.addAll(newLoadedMsgs);
+                    newLoadedMsgs = newLoadedMsgs2;
+                    newLoadedMsgs2 = new LinkedList<FrostMessageObject>();
+                }
                 messageList.addAll(newLoadedMsgs);
                 
                 // help the garbage collector
@@ -585,14 +553,14 @@ public class TOF {
                         // add to direct parent
                         String directParentId = (String)l.getLast();
                         if( directParentId == null ) {
-                            logger.log(Level.SEVERE, "Should never happen: directParentId is null!!!"+mo.getMessageId());
+                            logger.log(Level.SEVERE, "Should never happen: directParentId is null; msg="+mo.getMessageId()+"; parentMsg="+directParentId);
                             continue;
                         }
                         FrostMessageObject parentMo = (FrostMessageObject)messagesTableById.get(directParentId);
                         if( parentMo == null ) {
                             // FIXME: happens if someone sends a faked msg with parentids from 2 different threads.
                             //  gives NPE if one of the messages is already in its own thread
-                            logger.log(Level.SEVERE, "Should never happen: parentMo is null!!!"+mo.getMessageId());
+                            logger.log(Level.SEVERE, "Should never happen: parentMo is null; msg="+mo.getMessageId()+"; parentMsg="+directParentId+"; irtl="+mo.getInReplyTo());
                             continue;
                         }
                         parentMo.add(mo);
@@ -658,6 +626,64 @@ public class TOF {
                         }
                     }
                 }
+            }
+            
+            private boolean loadInReplyToMessages(
+                    List<FrostMessageObject> messages,
+                    HashSet<String> messageIds, 
+                    boolean showDeletedMessages,
+                    LinkedList<FrostMessageObject> newLoadedMsgs) 
+            {
+                boolean msgWasMissing = false;
+                for(Iterator<FrostMessageObject> i=messages.iterator(); i.hasNext(); ) {
+                    FrostMessageObject mo = i.next();
+                    List<String> l = mo.getInReplyToList();
+                    if( l.size() == 0 ) {
+                        continue; // no msg refs
+                    }
+
+                    // try to load each referenced msgid, put tried ids into hashset msgIds
+                    for(int x=l.size()-1; x>=0; x--) {
+                        String anId = l.get(x);
+                        if( anId == null ) {
+                            logger.log(Level.SEVERE, "Should never happen: message id is null!"+mo.getMessageId());
+                            continue;
+                        }
+
+                        if( messageIds.contains(anId) ) {
+                            continue;
+                        }
+
+                        FrostMessageObject fmo = null;
+                        try {
+                            fmo = AppLayerDatabase.getMessageTable().retrieveMessageByMessageId(
+                                    board, 
+                                    anId, 
+                                    false, 
+                                    false, 
+                                    showDeletedMessages);
+                        } catch (SQLException e) {
+                            logger.log(Level.SEVERE, "Error retrieving message by id "+anId, e);
+                        }
+                        if( fmo == null ) {
+                            // for each missing msg create a dummy FrostMessageObject and add it to tree.
+                            // if the missing msg arrives later, replace dummy with true msg in tree
+                            LinkedList<String> ll = new LinkedList<String>();
+                            if( x > 0 ) {
+                                for(int y=0; y < x; y++) {
+                                    ll.add(l.get(y));
+                                }
+                            }
+                            fmo = new FrostMessageObject(anId, board, ll);
+                        }
+                        newLoadedMsgs.add(fmo);
+                        messageIds.add(anId);
+                        if( !msgWasMissing ) {
+                            msgWasMissing = true;
+                        }
+                    }
+                }
+                return msgWasMissing;
             }
         }
 
