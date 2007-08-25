@@ -194,6 +194,7 @@ public class SharedFilesCHKKeyManager {
                 System.out.println("addNewCHKKeyToSend: "+key);
             }
             SharedFilesCHKKeyStorage.inst().storeItem(key);
+            SharedFilesCHKKeyStorage.inst().commitStore(); //FIXME: testfix, forgot to commit???
             return true;
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Exception in addNewCHKKeyToSend", t);
