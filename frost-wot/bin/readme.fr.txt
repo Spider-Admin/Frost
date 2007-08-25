@@ -38,7 +38,7 @@ Note � l'attention des UNIXiens:
 --------------------------------
 Apr�s l'extraction de l'archive ZIP, les fichiers "*.sh" peuvent ne pas avoir le bit ex�cutable position�. Ex�cutez la commande "chmod +x *.sh" depuis le r�pertoire de Frost pour rem�dier au probl�me.
 
-Note pour des utilisateurs de beryl:
+Note pour des utilisateurs de beryl (ou, si la fenêtre apparaît entièrement girsée):
 ---------------------
 Si vous employez le beryl, vous devez ajouter une ligne dans votre frost.sh habituellement
 situé dans votre annuaire de gel ~/Freenet/frost

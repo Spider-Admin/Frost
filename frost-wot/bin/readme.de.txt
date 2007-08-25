@@ -75,7 +75,7 @@ Nach dem Entpacken der ZIP Datei sind die *.sh Dateien evtl. noch nicht ausfuehr
 Um das 'executable' Bit zu setzen, fuehre folgendes Kommando im Frost Ordner aus:
 "chmod +x *.sh".
 
-Hinweis fuer Beryl Benutzer:
+Hinweis fuer Beryl Benutzer (oder wenn sich nur ein graues Fenster auftut):
 ----------------------------
 Wenn ihr als Fenstermanager Beryl benutzt, m�sst ihr eine Zeile in die Datei frost.sh
 einf�gen. Diese befindet sich in eurem Frost-Verzeichnis (meistens ~/Freenet/frost/).
