@@ -20,4 +20,7 @@ PROGDIR=`dirname "$PRG"`
 
 cd $PROGDIR
 
+# you may need to uncomment this if you are on beryl  
+#export AWT_TOOLKIT="MToolkit"
+
 java -jar frost.jar "$@"
