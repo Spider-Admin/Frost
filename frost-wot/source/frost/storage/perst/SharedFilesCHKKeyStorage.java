@@ -18,7 +18,6 @@
 */
 package frost.storage.perst;
 
-import java.io.*;
 import java.util.*;
 
 import org.garret.perst.*;
@@ -164,19 +163,9 @@ public class SharedFilesCHKKeyStorage implements Savable {
         // first search for CHK keys that were created by us, but were never send
         {
             Iterator<SharedFilesCHKKey> i = storageRoot.chkKeys.iterator();
-            boolean commitNeeded = false;
             while(i.hasNext()) {
                 SharedFilesCHKKey sfk; 
-                try {
-                    sfk = i.next();
-                } catch(org.garret.perst.StorageError e) {
-                    // remove from index
-                    i.remove();
-                    if( !commitNeeded ) {
-                        commitNeeded = true;
-                    }
-                    continue;
-                }
+                sfk = i.next();
                 if( sfk.getSeenCount() == 0 ) {
                     keysToSend.add(sfk);
                     if( keysToSend.size() >= ownKeysToSend ) {
@@ -184,11 +173,7 @@ public class SharedFilesCHKKeyStorage implements Savable {
                     }
                 }
             }
-            if( commitNeeded ) {
-                commitStore();
-            }
         }
-
 
         maxKeys -= keysToSend.size();
         
@@ -208,19 +193,9 @@ public class SharedFilesCHKKeyStorage implements Savable {
             // first collect ALL other keys to send, then sort them and choose maxKeys items
             List<SharedFilesCHKKey> otherKeysToSend = new ArrayList<SharedFilesCHKKey>();
             Iterator<SharedFilesCHKKey> i = storageRoot.chkKeys.iterator();
-            boolean commitNeeded = false;
             while(i.hasNext()) {
                 SharedFilesCHKKey sfk; 
-                try {
-                    sfk = i.next();
-                } catch(org.garret.perst.StorageError e) {
-                    // remove from index
-                    i.remove();
-                    if( !commitNeeded ) {
-                        commitNeeded = true;
-                    }
-                    continue;
-                }
+                sfk = i.next();
                 if( sfk.isDownloaded()
                         && sfk.isValid()
                         && sfk.getLastSeen() < maxLastSeen
@@ -229,9 +204,6 @@ public class SharedFilesCHKKeyStorage implements Savable {
                 {
                     otherKeysToSend.add(sfk);
                 }
-            }
-            if( commitNeeded ) {
-                commitStore();
             }
 
             Collections.sort(otherKeysToSend, seenCountComparator);
@@ -261,28 +233,14 @@ public class SharedFilesCHKKeyStorage implements Savable {
 
         List<SharedFilesCHKKey> keysToDownload = new ArrayList<SharedFilesCHKKey>();
         
-        boolean commitNeeded = false;
         for(Iterator<SharedFilesCHKKey> i = storageRoot.chkKeys.iterator(); i.hasNext(); ) {
             SharedFilesCHKKey sfk; 
-            try {
-                sfk = i.next();
-            } catch(org.garret.perst.StorageError e) {
-                // remove from index
-                i.remove();
-                if( !commitNeeded ) {
-                    commitNeeded = true;
-                }
-                continue;
-            }
+            sfk = i.next();
             if( !sfk.isDownloaded()
                     && sfk.getDownloadRetries() < maxRetries)
             {
                 keysToDownload.add(sfk);
             }
-        }
-        
-        if( commitNeeded ) {
-            commitStore();
         }
 
         Collections.sort(keysToDownload, lastDownloadTryStopTimeComparator);
@@ -356,21 +314,11 @@ public class SharedFilesCHKKeyStorage implements Savable {
         
         while(i.hasNext()) {
             SharedFilesCHKKey sfk; 
-            try {
-                sfk = i.next();
-            } catch(org.garret.perst.StorageError e) {
-                // remove from index
-                i.remove();
-                continue;
-            }
+            sfk = i.next();
             if( sfk.getLastSeen() > 0 && sfk.getLastSeen() < minVal ) {
                 i.remove(); // remove from iterated index
                 sfk.deallocate(); // remove from Storage
                 deletedCount++;
-            }
-            if( (deletedCount % 300) == 0 ) {
-                // all 300 items do commit
-                commitStore();
             }
         }
         
