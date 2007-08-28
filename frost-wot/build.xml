@@ -33,6 +33,9 @@
   <!-- moved to target main, the old one should keep alive. :)  -->
   <!-- property name="revision" value="${NOW.DATE}"/ --> <!-- overwritten by atomative -->
 
+  <!--  Set the properties related to plugins -->	
+  <property name="plugin.dir" value="plugins"/>	
+	
   <!--  Set the properties related to the source tree -->
   <property name="src.dir" value="source"/>
   <property name="bin.dir" value="bin"/>
@@ -46,6 +49,7 @@
 
   <!--  Set the properties for the build area  -->
   <property name="build.dir" value="build"/>
+  <property name="build.plugin.dir" value="${build.dir}/${plugin.dir}"/>	
   <property name="build.classes" value="${build.dir}/classes"/>
   <property name="build.classes.feclib" value="${build.dir}/classes_feclib"/>
   <property name="build.classes.genchklib" value="${build.dir}/classes_genchklib"/>
@@ -54,6 +58,7 @@
 
   <!--  Set up properties for the distribution area -->
   <property name="dist.dir" value="${build.dir}/dist"/>
+  <property name="dist.plugin.dir" value="${dist.dir}/${plugin.dir}"/>	
   <property name="release.dir" value="${build.dir}/release"/>
 
   <!--  Set up properties for the frost help -->
@@ -125,6 +130,7 @@ Build log  : ${logfilename}</echo>
           depends="startmsg"
           description="--> compiles the source code">
     <mkdir dir="${build.dir}"/>
+  	<mkdir dir="${build.plugin.dir}"/>
     <mkdir dir="${build.classes}"/>
     <mkdir dir="${build.classes.feclib}"/>
     <mkdir dir="${build.classes.genchklib}"/>
@@ -267,7 +273,7 @@ Build log  : ${logfilename}</echo>
   <!-- Prepare the distribution (zip, source zip and jar)				 -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <target name="distro"
-          depends="jar"
+          depends="jar, plugins"
           description="--> prepares the distribution.">
 
 	<!-- Prepares the zip -->
@@ -370,6 +376,69 @@ Build log  : ${logfilename}</echo>
              destdir="${docs}"
              windowtitle="Frost Documentation"/>
   </target>
+	
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!-- build the plugins -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <target name="plugins" description="--> build the plugins.">
+  	<!-- create needed dirs -->
+  	
+  	<mkdir dir="${dist.plugin.dir}"/>
+  	
+  	
+  	<!-- now build the plugins -->
+  	
+    <antcall target="plugin-HelloWorld"/>
+
+  </target>	
+	
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!-- The ultimative HelloWorld plugin-->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <target name="plugin-HelloWorld" description="--> build the plugins.">
+    <!-- create needed dirs -->
+  	<!-- now build the plugin -->
+  	
+  	<mkdir dir="${build.plugin.dir}/HelloWorld"/>
+  	
+    <javac srcdir="${plugin.dir}/HelloWorld"
+             destdir="${build.plugin.dir}/HelloWorld"
+  	   	   debug="${debug}"		   debuglevel="${debuglevel}" 		deprecation="${deprecation}"
+      	   verbose="${verbose}"    optimize="${optimize}"
+      	   source="${source}"	   target="${target}">
+            <classpath>
+                <pathelement location="${build.classes}"/>
+                <pathelement location="${src.dir.skinlfFixLib}"/>
+                <pathelement location="${lib.dir}/skinlf.jar"/>
+            </classpath>
+      </javac>
+  	
+  	
+  	
+  	<delete quiet="true" file="${dist.plugin.dir}/HelloWorld.jar"/>
+  	
+  	
+  	
+	<jar jarfile="${dist.plugin.dir}/HelloWorld.jar" duplicate="fail">
+		<manifest>
+			<attribute name="Frostplugin-Main-Class" value="frostplugins.HelloWorld.HelloWorld"/>
+			<attribute name="FCP1" value="1"/>
+			<attribute name="FCP2" value="1"/>
+			<attribute name="Specification-Version:" value="${revision}"/>
+		</manifest>
+		<fileset dir="${build.plugin.dir}/HelloWorld" casesensitive="no">
+			<include name="**/*.class"/>
+		</fileset>
+		<fileset dir="${plugin.dir}/HelloWorld" casesensitive="no">
+			<include name="*.txt"/>
+	        <include name="**/*.properties"/>
+		</fileset>
+
+		<!-- fileset dir="${build}/"/ -->
+	</jar>
+
+	  	
+  </target>	
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- Main target - runs dist by default -->
