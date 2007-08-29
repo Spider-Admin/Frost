@@ -219,6 +219,10 @@ public class SettingsClass implements Savable {
     
     public static final String LOG_DOWNLOADS_ENABLED = "logDownloads";
     public static final String LOG_UPLOADS_ENABLED = "logUploads";
+    
+    public static final String PLUGIN_ENABLED = "plugins.enabled";  // Enable the plugin system?
+    public static final String PLUGIN_DIRS = "plugins.dirs";       // semicolon separated list of dirs, but only a single dir is supported atm.
+    public static final String PLUGIN_AUTOLOAD = "plugins.autoload";  // plugin names to load at startup
 
     public SettingsClass() {
         settingsHash = new Hashtable<String,Object>();
@@ -906,6 +910,10 @@ public class SettingsClass implements Savable {
         
         defaults.put(LOG_DOWNLOADS_ENABLED, "false");
         defaults.put(LOG_UPLOADS_ENABLED, "false");
+        
+        defaults.put(PLUGIN_ENABLED, "true");
+        defaults.put(PLUGIN_DIRS, "plugins");
+        defaults.put(PLUGIN_AUTOLOAD, "");
 
         settingsHash.putAll(defaults);
     }
