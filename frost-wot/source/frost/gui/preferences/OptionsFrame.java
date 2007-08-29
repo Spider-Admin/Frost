@@ -87,6 +87,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
     private DisplayMessagesPanel displayMessagesPanel = null;
     private SkinPanel skinPanel = null;
     private DownloadPanel downloadPanel = null;
+    private PluginPanel pluginPanel = null;
 
     private boolean exitState;
 
@@ -282,6 +283,13 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         }
         return newsPanel;
     }
+    
+    private PluginPanel getPluginPanel() {
+        if (pluginPanel == null) {
+            pluginPanel = new PluginPanel(this, frostSettings);
+        }
+        return pluginPanel;
+    }
 
     /**
      * Build the panel containing the list of option groups.
@@ -302,6 +310,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
             listData.add( new ListBoxData(" "+language.getString("Options.search")+" ", getSearchPanel()));
             listData.add( new ListBoxData(" "+language.getString("Options.skins")+" ", getSkinPanel()));
             listData.add( new ListBoxData(" "+language.getString("Options.miscellaneous")+" ", getMiscPanel()));
+            listData.add( new ListBoxData(" "+language.getString("Options.plugins")+" ", getPluginPanel()));
             optionsGroupsList = new JList(listData);
             optionsGroupsList.setSelectionMode(DefaultListSelectionModel.SINGLE_INTERVAL_SELECTION);
             optionsGroupsList.addListSelectionListener(this);
