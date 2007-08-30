@@ -30,9 +30,13 @@ import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+
 import frost.SettingsClass;
 import frost.util.gui.translation.Language;
 
@@ -63,9 +67,9 @@ class PluginPanel extends JPanel {
     private JButton browseDirectoryButton = new JButton();
     private JLabel directoryLabel = new JLabel();
     private JTextField directoryTextField = new JTextField(20);
-    
-    private JList pluginList = new JList();
-    private JLabel pluginlistLabel = new JLabel();
+    private JButton refreshButton;
+    private JTable jTable1;
+    private JScrollPane jScrollPane1;
 
     /**
      * @param owner the JDialog that will be used as owner of any dialog that is popped up from this panel
@@ -91,40 +95,36 @@ class PluginPanel extends JPanel {
     private void initialize() {
         setName("PluginPanel");
         setLayout(new GridBagLayout());
+        this.setPreferredSize(new java.awt.Dimension(363, 190));
         refreshLanguage();
 
         //Adds all of the components
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.anchor = GridBagConstraints.NORTHWEST;
-        constraints.fill = GridBagConstraints.BOTH;
-        constraints.weightx = 1;
-        Insets inset5511 = new Insets(5, 5, 1, 1);
-        Insets insets2 = new Insets(15,5,1,1);
-        
-        constraints.insets = inset5511;
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        add(enablePlugins, constraints);
+        this.add(enablePlugins, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0, GridBagConstraints.NORTHWEST, GridBagConstraints.NONE, new Insets(5, 5, 0, 0), 0, 0));
+        enablePlugins.setText(language.getString("Options.plugins.enabletext"));
 
-        constraints.gridy++;
-        
-        constraints.gridx = 0;
-        add(directoryLabel, constraints);
-        constraints.gridx = 1;
-        constraints.weightx = 1;
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        add(directoryTextField, constraints);
-        constraints.fill = GridBagConstraints.NONE;
-        constraints.gridx = 2;
-        constraints.weightx = 0.0;
-        add(browseDirectoryButton, constraints);
+        this.add(directoryLabel, new GridBagConstraints(0, 1, 1, 1, 0.0, 0.0, GridBagConstraints.NORTHWEST, GridBagConstraints.NONE, new Insets(5, 5, 0, 0), 0, 0));
+        directoryLabel.setText(language.getString("Options.plugins.dirtext"));
+        this.add(directoryTextField, new GridBagConstraints(1, 1, 1, 1, 1.0, 0.0, GridBagConstraints.NORTHWEST, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 0, 0), 0, 0));
+        this.add(browseDirectoryButton, new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0, GridBagConstraints.NORTHWEST, GridBagConstraints.NONE, new Insets(5, 5, 0, 5), 0, 0));
    
-        constraints.insets = inset5511;
-
-        constraints.gridy++;
-        constraints.weighty = 1.0;
-        constraints.fill = GridBagConstraints.BOTH;
-        add(new JLabel(""), constraints);
+		//START >>  refreshButton
+		refreshButton = new JButton();
+		this.add(refreshButton, new GridBagConstraints(2, 3, 1, 1, 0.0, 0.0, GridBagConstraints.NORTHWEST, GridBagConstraints.NONE, new Insets(5, 5, 0, 5), 0, 0));
+		refreshButton.setText(language.getString("Options.plugins.refresch"));
+		//END <<  refreshButton
+		//START >>  jScrollPane1
+		jScrollPane1 = new JScrollPane();
+		this.add(jScrollPane1, new GridBagConstraints(1, 3, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 15, 0), 0, 0));
+		//START >>  jTable1
+		TableModel jTable1Model = new DefaultTableModel(new String[][] {
+				{ "One", "Two" }, { "Three", "Four" } }, new String[] {
+				"Path", "Plugin", "loaded", "load on startup" });
+		jTable1 = new JTable();
+		jScrollPane1.setViewportView(jTable1);
+		jTable1.setModel(jTable1Model);
+		jTable1.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		//END <<  jTable1
+		//END <<  jScrollPane1
 
         // add listeners
         browseDirectoryButton.addActionListener(listener);
