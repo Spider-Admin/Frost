@@ -38,6 +38,7 @@ import frost.gui.*;
 import frost.gui.help.*;
 import frost.identities.*;
 import frost.messages.*;
+import frost.pluginmanager.PluginManager;
 import frost.storage.*;
 import frost.storage.database.applayer.*;
 import frost.storage.perst.*;
@@ -76,6 +77,8 @@ public class Core implements FrostEventDispatcher  {
     private MainFrame mainFrame;
     private BoardsManager boardsManager;
     private FileTransferManager fileTransferManager;
+
+	private PluginManager pluginManger;
 
     private static FrostIdentities identities;
     
@@ -363,6 +366,8 @@ public class Core implements FrostEventDispatcher  {
             title += " (offline mode)";
         }
 
+        pluginManger = new PluginManager();
+        
         // Main frame
         mainFrame = new MainFrame(frostSettings, title);
         KnownBoardsManager.initialize();
@@ -376,7 +381,7 @@ public class Core implements FrostEventDispatcher  {
         // Display the tray icon (do this before mainframe initializes)
         if (frostSettings.getBoolValue(SettingsClass.SHOW_SYSTRAY_ICON) == true) {
             try {
-                JSysTrayIcon.createInstance(0, title, title);
+                //JSysTrayIcon.createInstance(0, title, title);
             } catch(Throwable t) {
                 logger.log(Level.SEVERE, "Could not create systray icon.", t);
             }
@@ -392,6 +397,9 @@ public class Core implements FrostEventDispatcher  {
         
         splashscreen.setText(language.getString("Splashscreen.message.5"));
         splashscreen.setProgress(80);
+        
+        
+        
         
         SwingUtilities.invokeAndWait(new Runnable() {
             public void run() {
@@ -589,4 +597,8 @@ public class Core implements FrostEventDispatcher  {
             System.exit(3);
         }
     }
+
+	public PluginManager getPluginManger() {
+		return pluginManger;
+	}
 }

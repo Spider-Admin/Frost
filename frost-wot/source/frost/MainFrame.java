@@ -541,6 +541,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
             // Plugin Menu
 //            pluginMenu.add(pluginBrowserMenuItem);
             pluginMenu.add(pluginTranslateMenuItem);
+            
             // Language Menu
             LanguageGuiSupport.getInstance().buildInitialLanguageMenu(languageMenu);
             // Help Menu
@@ -1054,6 +1055,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
      */
     public void languageChanged(LanguageEvent e) {
         translateMainMenu();
+        makePluginMenu();
         LanguageGuiSupport.getInstance().translateLanguageMenu();
         translateButtons();
     }
@@ -1243,6 +1245,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         optionsManageLocalIdentitiesMenuItem.setText(language.getString("MainFrame.menu.options.manageLocalIdentities"));
         optionsManageIdentitiesMenuItem.setText(language.getString("MainFrame.menu.options.manageIdentities"));
         pluginMenu.setText(language.getString("MainFrame.menu.plugins"));
+        makePluginMenu();
 //        pluginBrowserMenuItem.setText(language.getString("Experimental Freenet Browser"));
         pluginTranslateMenuItem.setText(language.getString("MainFrame.menu.plugins.translateFrost"));
         languageMenu.setText(language.getString("MainFrame.menu.language"));
@@ -1480,5 +1483,46 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         StartupMessage.cleanup();
         queuedStartupMessages.clear();
         queuedStartupMessages = null;
+    }
+    
+    private void switchPM() {
+    	if (Core.getInstance().getPluginManger().isActive()) {
+    		Core.getInstance().getPluginManger().stopPM();
+    	} else {
+    		Core.getInstance().getPluginManger().startPM();
+    	}
+    }
+    
+    private ActionListener pma = new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            switchPM();
+            makePluginMenu();
+        }
+    };
+    
+    private ActionListener pmal = new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            System.err.println("huhu: " + e + " : " + e.getSource());
+        }
+    };
+    
+    private void makePluginMenu() {
+    	pluginMenu.removeAll();
+    	JMenuItem miPluginEnabler = new JCheckBoxMenuItem();
+    	miPluginEnabler.addActionListener(pma);
+    	pluginMenu.add(miPluginEnabler);
+    	if (Core.getInstance().getPluginManger().isActive()) {
+    		miPluginEnabler.setText(language.getString("MainFrame.menu.plugins.disable"));
+    		miPluginEnabler.setSelected(true);
+    	} else {
+    		miPluginEnabler.setText(language.getString("MainFrame.menu.plugins.enable"));
+    		miPluginEnabler.setSelected(false);
+    		return;
+    	}
+
+    	pluginMenu.addSeparator();
+    	JMenuItem mi2 = new JMenuItem("foo");
+    	mi2.addActionListener(pmal);
+    	pluginMenu.add(mi2);
     }
 }
