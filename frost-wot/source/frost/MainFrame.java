@@ -44,6 +44,7 @@ import frost.gui.preferences.*;
 import frost.gui.sentmessages.*;
 import frost.gui.unsentmessages.*;
 import frost.messages.*;
+import frost.pluginmanager.PluginInfo;
 import frost.storage.*;
 import frost.storage.database.applayer.*;
 import frost.threads.*;
@@ -53,7 +54,9 @@ import frost.util.gui.translation.*;
 
 public class MainFrame extends JFrame implements SettingsUpdater, LanguageListener {
     
-    private static final Logger logger = Logger.getLogger(MainFrame.class.getName());
+	private static final long serialVersionUID = 1L;
+
+	private static final Logger logger = Logger.getLogger(MainFrame.class.getName());
 
     private final ImageIcon frameIconDefault = new ImageIcon(MainFrame.class.getResource("/data/jtc.jpg"));
     private final ImageIcon frameIconNewMessage = new ImageIcon(MainFrame.class.getResource("/data/newmessage.gif"));
@@ -1521,8 +1524,21 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     	}
 
     	pluginMenu.addSeparator();
-    	JMenuItem mi2 = new JMenuItem("foo");
-    	mi2.addActionListener(pmal);
-    	pluginMenu.add(mi2);
+    	
+    	PluginInfo[] pil = Core.getInstance().getPluginManger().getAviablePlugins();
+    	
+    	if (pil.length == 0) {
+    		JMenuItem mi = new JMenuItem(language.getString("MainFrame.menu.plugins.noplugins"));
+    		mi.setEnabled(false);
+    		pluginMenu.add(mi);
+    	} else {
+    		for (PluginInfo pi: pil) {
+    			JMenuItem mi2 = new JMenuItem();
+    			mi2.setText(pi.getPluginName());
+    			mi2.addActionListener(pmal);
+    			pluginMenu.add(mi2);
+    		}
+    	}
+    	
     }
 }

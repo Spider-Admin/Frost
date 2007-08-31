@@ -1,5 +1,6 @@
 /*
  FrostPluginManager.java / Frost
+ Copyright (C) 2007  Frost Project <jtcfrost.sourceforge.net>
  
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License as
@@ -21,14 +22,14 @@ import java.util.HashMap;
 import java.util.logging.Logger;
 
 /**
- * 
+ * @author saces
  *  
  */
 public class PluginManager {
 	
 	private static final Logger logger = Logger.getLogger(PluginManager.class.getName());
 	
-	private HashMap aviablePlugins = new HashMap();
+	private HashMap<String, PluginInfo> aviablePlugins = new HashMap<String, PluginInfo>();
 
 	private boolean pmActive = false;
 	
@@ -36,8 +37,9 @@ public class PluginManager {
 		
 	}
 	
-	public HashMap getAviablePlugins() {
-		return aviablePlugins;
+	public PluginInfo[] getAviablePlugins() {
+		if (aviablePlugins.size() == 0) return new PluginInfo[] {};
+		return (PluginInfo[])aviablePlugins.values().toArray();
 	}
 	
 	public void startPM() {
