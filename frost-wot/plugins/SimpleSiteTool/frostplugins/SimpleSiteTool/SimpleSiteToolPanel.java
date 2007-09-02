@@ -17,7 +17,7 @@
  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
  
-package frostplugins.HelloWorld;
+package frostplugins.SimpleSiteTool;
 import java.awt.GridLayout;
 import javax.swing.JLabel;
 
@@ -27,13 +27,13 @@ import javax.swing.JPanel;
  * @author saces
  *
  */
-public class HelloWorldPanel extends JPanel {
+public class SimpleSiteToolPanel extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 	
 	private JLabel jLabel1;
 
-	HelloWorldPanel() {
+	SimpleSiteToolPanel() {
 		super();
 		initGUI();
 	}

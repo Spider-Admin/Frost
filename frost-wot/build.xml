@@ -389,6 +389,8 @@ Build log  : ${logfilename}</echo>
   	<!-- now build the plugins -->
   	
     <antcall target="plugin-HelloWorld"/>
+  	<antcall target="plugin-NodeMonitor"/>
+  	<antcall target="plugin-SimpleSiteTool"/>
 
   </target>	
 	
@@ -439,6 +441,94 @@ Build log  : ${logfilename}</echo>
 
 	  	
   </target>	
+	
+	  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+	  <!-- The ultimative NodeMonitor plugin-->
+	  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+	  <target name="plugin-NodeMonitor" description="--> build the plugins.">
+	    <!-- create needed dirs -->
+	  	<!-- now build the plugin -->
+	  	
+	  	<mkdir dir="${build.plugin.dir}/NodeMonitor"/>
+	  	
+	    <javac srcdir="${plugin.dir}/NodeMonitor"
+	             destdir="${build.plugin.dir}/NodeMonitor"
+	  	   	   debug="${debug}"		   debuglevel="${debuglevel}" 		deprecation="${deprecation}"
+	      	   verbose="${verbose}"    optimize="${optimize}"
+	      	   source="${source}"	   target="${target}">
+	            <classpath>
+	                <pathelement location="${build.classes}"/>
+	            </classpath>
+	      </javac>
+	  	
+	  	
+	  	
+	  	<delete quiet="true" file="${dist.plugin.dir}/NodeMonitor.jar"/>
+	  	
+		<jar jarfile="${dist.plugin.dir}/NodeMonitor.jar" duplicate="fail">
+			<manifest>
+				<attribute name="Frostplugin-Main-Class" value="frostplugins.NodeMonitor.NodeMonitor"/>
+				<attribute name="FCP1" value="0"/>
+				<attribute name="FCP2" value="1"/>
+				<attribute name="Specification-Version:" value="${revision}"/>
+			</manifest>
+			<fileset dir="${build.plugin.dir}/NodeMonitor" casesensitive="no">
+				<include name="**/*.class"/>
+			</fileset>
+			<fileset dir="${plugin.dir}/NodeMonitor" casesensitive="no">
+				<include name="*.txt"/>
+		        <include name="**/*.properties"/>
+			</fileset>
+
+			<!-- fileset dir="${build}/"/ -->
+		</jar>
+
+		  	
+	  </target>	
+	
+	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+		  <!-- The ultimative NodeMonitor plugin-->
+		  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+		  <target name="plugin-SimpleSiteTool" description="--> build the plugins.">
+		    <!-- create needed dirs -->
+		  	<!-- now build the plugin -->
+		  	
+		  	<mkdir dir="${build.plugin.dir}/SimpleSiteTool"/>
+		  	
+		    <javac srcdir="${plugin.dir}/SimpleSiteTool"
+		             destdir="${build.plugin.dir}/SimpleSiteTool"
+		  	   	   debug="${debug}"		   debuglevel="${debuglevel}" 		deprecation="${deprecation}"
+		      	   verbose="${verbose}"    optimize="${optimize}"
+		      	   source="${source}"	   target="${target}">
+		            <classpath>
+		                <pathelement location="${build.classes}"/>
+		            </classpath>
+		      </javac>
+		  	
+		  	
+		  	
+		  	<delete quiet="true" file="${dist.plugin.dir}/SimpleSiteTool.jar"/>
+		  	
+			<jar jarfile="${dist.plugin.dir}/SimpleSiteTool.jar" duplicate="fail">
+				<manifest>
+					<attribute name="Frostplugin-Main-Class" value="frostplugins.SimpleSiteTool.SimpleSiteTool"/>
+					<attribute name="FCP1" value="0"/>
+					<attribute name="FCP2" value="1"/>
+					<attribute name="Specification-Version:" value="${revision}"/>
+				</manifest>
+				<fileset dir="${build.plugin.dir}/SimpleSiteTool" casesensitive="no">
+					<include name="**/*.class"/>
+				</fileset>
+				<fileset dir="${plugin.dir}/SimpleSiteTool" casesensitive="no">
+					<include name="*.txt"/>
+			        <include name="**/*.properties"/>
+				</fileset>
+
+				<!-- fileset dir="${build}/"/ -->
+			</jar>
+
+			  	
+		  </target>	
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- Main target - runs dist by default -->
