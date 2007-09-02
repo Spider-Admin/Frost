@@ -1,7 +1,7 @@
 /*
- HelloWorld.java / Frost
+ PluginNotFoundException.java / Frost
  Copyright (C) 2007  Frost Project <jtcfrost.sourceforge.net>
-
+ 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License as
  published by the Free Software Foundation; either version 2 of
@@ -16,36 +16,45 @@
  along with this program; if not, write to the Free Software
  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-
-package frostplugins.HelloWorld;
-
-import javax.swing.JPanel;
-
-import frost.pluginmanager.PluginRespinator;
-import frost.plugins.FrostPlugin;
+package frost.pluginmanager;
 
 /**
  * @author saces
  *
  */
-public class HelloWorld implements FrostPlugin {
-	
-	private HelloWorldPanel memyself;
+public class PluginNotFoundException extends Exception {
 
-	public boolean canStopPlugin() {
-		return true;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * 
+	 */
+	public PluginNotFoundException() {
 	}
 
-	public JPanel getPluginPanel() {
-		return memyself;
+	/**
+	 * @param message
+	 */
+	public PluginNotFoundException(String message) {
+		super(message);
 	}
 
-	public void startPlugin(PluginRespinator pr) {		
-		memyself = new HelloWorldPanel();
+	/**
+	 * @param cause
+	 */
+	public PluginNotFoundException(Throwable cause) {
+		super(cause);
 	}
 
-	public void stopPlugin() {
-		
+	/**
+	 * @param message
+	 * @param cause
+	 */
+	public PluginNotFoundException(String message, Throwable cause) {
+		super(message, cause);
 	}
 
 }

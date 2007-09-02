@@ -18,14 +18,68 @@
 */
 package frost.pluginmanager;
 
+import java.net.URL;
+
+import javax.swing.JPanel;
+
+import frost.plugins.FrostPlugin;
+
 /**
  * @author saces
  *
  */
 public class PluginInfo {
 
+	private URL url;
+	private String mainClass;
+	private FrostPlugin pluginClass;
+	boolean isRunning = false;
+
 	public String getPluginName() {
-		return "pluginname";
+		return mainClass + '@' + url;  // TODO proper pluginname
+	}
+
+	protected void setURL(URL filename) {
+		url = filename;
+	}
+
+	protected void setMainClass(String mainclass) {
+		mainClass = mainclass;	
+	}
+
+	public URL getUrl() {
+		return url;
+	}
+
+	public String getMainClass() {
+		return mainClass;
+	}
+
+	public boolean isRunning() {
+		return isRunning;
+	}
+
+	protected void setPluginClass(Object o) {
+		if (!(o instanceof FrostPlugin)) {
+			throw new IllegalArgumentException("Not a frost plugin: " + o.getClass().getName());
+		}
+		setPluginClass((FrostPlugin) o);
+	}
+	
+	protected void setPluginClass(FrostPlugin pc) {
+		pluginClass = pc;
+	}
+
+	protected void setIsRunning(boolean b) {
+		isRunning = b;		
+	}
+
+	public JPanel getPluginPanel() {
+		return pluginClass.getPluginPanel();
+	}
+
+	protected FrostPlugin getPlugin() {
+		return pluginClass;
 	}
 
 }

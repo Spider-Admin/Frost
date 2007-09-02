@@ -1,5 +1,5 @@
 /*
- HelloWorld.java / Frost
+ FrostPlugin.java / Frost
  Copyright (C) 2007  Frost Project <jtcfrost.sourceforge.net>
 
  This program is free software; you can redistribute it and/or
@@ -16,36 +16,24 @@
  along with this program; if not, write to the Free Software
  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-
-package frostplugins.HelloWorld;
+package frost.plugins;
 
 import javax.swing.JPanel;
 
 import frost.pluginmanager.PluginRespinator;
-import frost.plugins.FrostPlugin;
 
 /**
  * @author saces
  *
  */
-public class HelloWorld implements FrostPlugin {
+public interface FrostPlugin {
 	
-	private HelloWorldPanel memyself;
+	 void startPlugin(PluginRespinator pr);
+	 
+	 boolean canStopPlugin();   
 
-	public boolean canStopPlugin() {
-		return true;
-	}
-
-	public JPanel getPluginPanel() {
-		return memyself;
-	}
-
-	public void startPlugin(PluginRespinator pr) {		
-		memyself = new HelloWorldPanel();
-	}
-
-	public void stopPlugin() {
-		
-	}
-
+	 void stopPlugin(); 
+	 
+	 JPanel getPluginPanel();
+ 
 }
