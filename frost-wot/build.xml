@@ -395,7 +395,9 @@ Build log  : ${logfilename}</echo>
   </target>	
 	
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-  <!-- The ultimative HelloWorld plugin-->
+  <!-- The ultimative HelloWorld plugin                                  -->
+  <!-- It is a simple plugin template and also doc for plugins.          -->
+  <!-- so its right that the plugin jar contains *.java and *.txt file   -->	
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <target name="plugin-HelloWorld" description="--> build the plugins.">
     <!-- create needed dirs -->
@@ -404,42 +406,33 @@ Build log  : ${logfilename}</echo>
   	<mkdir dir="${build.plugin.dir}/HelloWorld"/>
   	
     <javac srcdir="${plugin.dir}/HelloWorld"
-             destdir="${build.plugin.dir}/HelloWorld"
+           destdir="${build.plugin.dir}/HelloWorld"
   	   	   debug="${debug}"		   debuglevel="${debuglevel}" 		deprecation="${deprecation}"
       	   verbose="${verbose}"    optimize="${optimize}"
       	   source="${source}"	   target="${target}">
-            <classpath>
-                <pathelement location="${build.classes}"/>
-                <pathelement location="${src.dir.skinlfFixLib}"/>
-                <pathelement location="${lib.dir}/skinlf.jar"/>
-            </classpath>
-      </javac>
-  	
-  	
-  	
+           <classpath>
+             <pathelement location="${build.classes}"/>
+           </classpath>
+    </javac>
+
   	<delete quiet="true" file="${dist.plugin.dir}/HelloWorld.jar"/>
-  	
-  	
-  	
+ 	
 	<jar jarfile="${dist.plugin.dir}/HelloWorld.jar" duplicate="fail">
 		<manifest>
 			<attribute name="Frostplugin-Main-Class" value="frostplugins.HelloWorld.HelloWorld"/>
 			<attribute name="FCP1" value="1"/>
 			<attribute name="FCP2" value="1"/>
-			<attribute name="Specification-Version:" value="${revision}"/>
+			<attribute name="Specification-Version" value="${revision}"/>
 		</manifest>
 		<fileset dir="${build.plugin.dir}/HelloWorld" casesensitive="no">
 			<include name="**/*.class"/>
 		</fileset>
 		<fileset dir="${plugin.dir}/HelloWorld" casesensitive="no">
-			<include name="*.txt"/>
-	        <include name="**/*.properties"/>
+			<include name="**/*.txt"/>
+			<include name="**/*.java"/>
+			<include name="**/*.properties"/>
 		</fileset>
-
-		<!-- fileset dir="${build}/"/ -->
 	</jar>
-
-	  	
   </target>	
 	
 	  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -470,7 +463,7 @@ Build log  : ${logfilename}</echo>
 				<attribute name="Frostplugin-Main-Class" value="frostplugins.NodeMonitor.NodeMonitor"/>
 				<attribute name="FCP1" value="0"/>
 				<attribute name="FCP2" value="1"/>
-				<attribute name="Specification-Version:" value="${revision}"/>
+				<attribute name="Specification-Version" value="${revision}"/>
 			</manifest>
 			<fileset dir="${build.plugin.dir}/NodeMonitor" casesensitive="no">
 				<include name="**/*.class"/>
@@ -514,7 +507,7 @@ Build log  : ${logfilename}</echo>
 					<attribute name="Frostplugin-Main-Class" value="frostplugins.SimpleSiteTool.SimpleSiteTool"/>
 					<attribute name="FCP1" value="0"/>
 					<attribute name="FCP2" value="1"/>
-					<attribute name="Specification-Version:" value="${revision}"/>
+					<attribute name="Specification-Version" value="${revision}"/>
 				</manifest>
 				<fileset dir="${build.plugin.dir}/SimpleSiteTool" casesensitive="no">
 					<include name="**/*.class"/>
@@ -551,6 +544,15 @@ Build log  : ${logfilename}</echo>
 
     <record name="${logfilename}" action="stop"/>
 
+  </target>
+	
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!-- Run target - build and run frost                                  -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <target name="run" depends="main" description="--> build and run frost">
+    <java dir="${dist.dir}" jar="${dist.dir}/frost.jar"
+	      fork="true" failonerror="true">
+	</java>
   </target>
 
 </project>
