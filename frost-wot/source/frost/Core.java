@@ -31,7 +31,6 @@ import com.l2fprod.gui.plaf.skin.*;
 import frost.boards.*;
 import frost.crypt.*;
 import frost.events.*;
-import frost.ext.*;
 import frost.fcp.*;
 import frost.fileTransfer.*;
 import frost.gui.*;
@@ -368,6 +367,8 @@ public class Core implements FrostEventDispatcher  {
 
         pluginManger = new PluginManager();
         
+        pluginManger.parseDir(frostSettings.getValue(SettingsClass.PLUGIN_DIRS));
+        
         // Main frame
         mainFrame = new MainFrame(frostSettings, title);
         KnownBoardsManager.initialize();
@@ -388,6 +389,17 @@ public class Core implements FrostEventDispatcher  {
         }
 
         mainFrame.initialize();
+        
+        // TODO autostart plugins from config
+//        if (frostSettings.getBoolValue(SettingsClass.PLUGIN_ENABLED)) {
+//        	pluginManger.startPM();
+//        	if (frostSettings.getBoolValue(SettingsClass.PLUGIN_AUTOLOAD)) {
+//        		pluginManger.startAllPlugins();
+//        	}
+//        }
+        
+        
+        
 
         // (cleanup gets the expiration mode from settings)
         CleanUp.runExpirationTasks(splashscreen, MainFrame.getInstance().getTofTreeModel().getAllBoards());

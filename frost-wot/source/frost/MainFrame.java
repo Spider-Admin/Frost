@@ -45,6 +45,7 @@ import frost.gui.sentmessages.*;
 import frost.gui.unsentmessages.*;
 import frost.messages.*;
 import frost.pluginmanager.PluginInfo;
+import frost.pluginmanager.PluginNotFoundException;
 import frost.storage.*;
 import frost.storage.database.applayer.*;
 import frost.threads.*;
@@ -1505,9 +1506,50 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     
     private ActionListener pmal = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
-            System.err.println("huhu: " + e + " : " + e.getSource());
+            
+            PluginInfo pi = Core.getInstance().getPluginManger().getPluginInfo(((JCheckBoxMenuItem)(e.getSource())).getName());
+            
+            // TODO ask/warn the user: "Are you sure that you are shure?"  
+            if (pi.isRunning()) {
+            	stopPlugin(pi);
+            } else {
+            	startPlugin(pi);
+            }
+            
+            makePluginMenu();
         }
     };
+    
+    private void startPlugin(PluginInfo pi) {
+    	try {
+			Core.getInstance().getPluginManger().loadPlugin(pi);
+		} catch (PluginNotFoundException pnfe) {
+			logger.log(Level.SEVERE, "Cold not load plugin: ", pnfe.getCause());
+			return;
+		}
+
+		Core.getInstance().getPluginManger().startPlugin(pi);
+    	
+    	// add tab
+		
+		JPanel panel = pi.getPluginPanel();
+    	panel.setVisible(true);
+		
+    	addPanel(pi.getUrl().toExternalForm(), panel);
+    	
+    }
+    
+    private void stopPlugin(PluginInfo pi) {
+    	Core.getInstance().getPluginManger().stopPlugin(pi);
+    	
+    	// remove tab
+    	
+    	JPanel panel = pi.getPluginPanel();
+    	   	
+    	getTabbedPane().remove(panel);
+    	//panel.setVisible(false);
+    	
+    }
     
     private void makePluginMenu() {
     	pluginMenu.removeAll();
@@ -1533,8 +1575,11 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     		pluginMenu.add(mi);
     	} else {
     		for (PluginInfo pi: pil) {
-    			JMenuItem mi2 = new JMenuItem();
-    			mi2.setText(pi.getPluginName());
+    			JCheckBoxMenuItem mi2 = new JCheckBoxMenuItem();
+//    			mi2.setText(pi.getUrl().toExternalForm());
+    			mi2.setText(pi.getPluginName(language.getLocaleName()) + " (" + pi.getUrl().toExternalForm() +")");
+    			mi2.setName(pi.getUrl().toExternalForm());
+    			mi2.setSelected(pi.isRunning());
     			mi2.addActionListener(pmal);
     			pluginMenu.add(mi2);
     		}
