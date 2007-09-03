@@ -43,6 +43,8 @@ public class Language {
     private final Object[] objectLen1 = new Object[1];
     private final Object[] objectLen2 = new Object[2];
     private final Object[] objectLen3 = new Object[3];
+    
+    private String m_localeName = null;
 
     /**
      * The unique instance of this class.
@@ -59,6 +61,7 @@ public class Language {
      */
     private Language(String localeName, boolean isExternal) {
         super();
+        m_localeName = localeName.toLowerCase();
         ROOT_RESOURCE_BUNDLE = new FrostResourceBundle();
         RESOURCE_BUNDLE = new FrostResourceBundle(localeName.toLowerCase(), ROOT_RESOURCE_BUNDLE, isExternal);
 //        LINE_BREAKER = BreakIterator.getLineInstance(RESOURCE_BUNDLE.getLocale());
@@ -212,6 +215,7 @@ public class Language {
         if( localeName == null ) {
             localeName = Locale.getDefault().getLanguage();
         }
+        m_localeName = localeName;
         RESOURCE_BUNDLE = new FrostResourceBundle(localeName.toLowerCase(), ROOT_RESOURCE_BUNDLE, isExternal);
 //        LINE_BREAKER = BreakIterator.getLineInstance(RESOURCE_BUNDLE.getLocale());
         
@@ -328,4 +332,8 @@ public class Language {
         objectLen3[2] = obj3;
         return formatMessage(msg, objectLen3);
     }
+
+	public String getLocaleName() {
+		return m_localeName;
+	}
 }

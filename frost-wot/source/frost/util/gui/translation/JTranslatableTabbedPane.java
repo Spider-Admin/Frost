@@ -20,6 +20,11 @@ package frost.util.gui.translation;
 
 import javax.swing.*;
 
+import frost.Core;
+import frost.pluginmanager.PluginInfo;
+import frost.pluginmanager.PluginManager;
+import frost.plugins.FrostPlugin;
+
 
 /**
  * This subclass of JTabbedPane lets the user add tabs and get their index
@@ -54,7 +59,16 @@ public class JTranslatableTabbedPane extends JTabbedPane implements LanguageList
 	 * @see javax.swing.JTabbedPane#getTitleAt(int)
 	 */
 	public String getTitleAt(int index) {
-		String key = super.getTitleAt(index); 
+		String key = super.getTitleAt(index);
+		if (getComponentAt(index) instanceof FrostPlugin) {
+		//	PluginManager pm = Core.getInstance().getPluginManger().getPluginInfo(key).getPluginName(language.getLocaleName());
+		//	System.err.println("Hicks: " + key);
+		//	PluginInfo pi = pm.getPluginInfo(key);
+			return Core.getInstance().getPluginManger().getPluginInfo(key).getPluginName(language.getLocaleName());
+			//pi.getPluginName(language.getLocaleName());
+		}
+		 
+		//System.err.println("Hicks: " + super.getComponentAt(index));
 		return language.getString(key);
 	}
 

@@ -19,6 +19,8 @@
 package frost.pluginmanager;
 
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JPanel;
 
@@ -30,13 +32,22 @@ import frost.plugins.FrostPlugin;
  */
 public class PluginInfo {
 
+	private Map pluginnames;
 	private URL url;
 	private String mainClass;
 	private FrostPlugin pluginClass;
 	boolean isRunning = false;
 
-	public String getPluginName() {
-		return mainClass + '@' + url;  // TODO proper pluginname
+	public String getPluginName(String lang) {
+		String pn = (String)pluginnames.get(lang);
+		if (pn == null) {
+			pn = (String)pluginnames.get("default");
+
+			if (pn == null) {
+				pn = mainClass + '@' + url.toExternalForm();
+			}
+		}
+		return pn;
 	}
 
 	protected void setURL(URL filename) {
@@ -80,6 +91,10 @@ public class PluginInfo {
 
 	protected FrostPlugin getPlugin() {
 		return pluginClass;
+	}
+
+	protected void setPluginNames(HashMap names) {
+		pluginnames = names;		
 	}
 
 }
