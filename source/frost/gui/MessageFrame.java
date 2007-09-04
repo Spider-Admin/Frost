@@ -22,7 +22,6 @@ import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.io.*;
-import java.sql.*;
 import java.util.*;
 import java.util.List;
 import java.util.logging.*;
@@ -39,7 +38,7 @@ import frost.ext.*;
 import frost.gui.model.*;
 import frost.identities.*;
 import frost.messages.*;
-import frost.storage.database.applayer.*;
+import frost.storage.perst.messages.*;
 import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.textpane.*;
@@ -922,11 +921,7 @@ public class MessageFrame extends JFrame {
                 Thread saver = new Thread() {
                     public void run() {
                         // save the changed isreplied state into the database
-                        try {
-                            AppLayerDatabase.getMessageTable().updateMessage(saveMsg);
-                        } catch (SQLException ex) {
-                            logger.log(Level.SEVERE, "Error updating a message object", ex);
-                        }
+                        MessageStorage.inst().updateMessage(saveMsg);
                     }
                 };
                 saver.start();

@@ -52,6 +52,8 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
     private long lastUploadStopTimeMillis = 0; // millis when upload stopped the last time, needed to schedule uploads
     private String gqIdentifier = null;
     
+    private boolean isLoggedToFile = false; 
+
     // non-persistent fields
     private int totalBlocks = -1;
     private int doneBlocks = -1; 
@@ -321,5 +323,13 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
 
     public String toString() {
         return getFilename();
+    }
+
+    public boolean isLoggedToFile() {
+        return isLoggedToFile;
+    }
+
+    public void setLoggedToFile(boolean isLoggedToFile) {
+        this.isLoggedToFile = isLoggedToFile;
     }
 }

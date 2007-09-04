@@ -58,7 +58,7 @@ public class SignMetaData extends MetaData {
      */
     public SignMetaData(byte[] plaintext, LocalIdentity myId) {
         this.person = myId;
-        sig = Core.getCrypto().detachedSign(plaintext, myId.getPrivKey());
+        sig = Core.getCrypto().detachedSign(plaintext, myId.getPrivateKey());
     }
 
     /**

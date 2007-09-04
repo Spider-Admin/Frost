@@ -29,8 +29,12 @@ import frost.util.*;
  */
 public class LocalIdentity extends Identity {
 
-    private String privKey;
+    private String privateKey;
     private String signature;
+
+    private long lastFilesSharedMillis = 0;
+
+    public LocalIdentity() {}
 
     public Element getXMLElement(Document doc) {
         // external element, "Identity"
@@ -50,7 +54,7 @@ public class LocalIdentity extends Identity {
         }
         {
             Element element = doc.createElement("privKey");
-            CDATASection cdata = doc.createCDATASection(getPrivKey());
+            CDATASection cdata = doc.createCDATASection(getPrivateKey());
             element.appendChild( cdata );
             el2.appendChild( element );
         }
@@ -66,18 +70,18 @@ public class LocalIdentity extends Identity {
 
     public void loadXMLElement(Element el) throws SAXException {
         super.loadXMLElement(el);
-        privKey =  XMLTools.getChildElementsCDATAValue(el, "privKey");
+        privateKey =  XMLTools.getChildElementsCDATAValue(el, "privKey");
         signature =  XMLTools.getChildElementsCDATAValue(el, "signature");
     }
 
     public LocalIdentity(String name, String[] keys) {
         super(name,  keys[1]);
-        privKey=keys[0];
+        privateKey=keys[0];
     }
     
     public LocalIdentity(String uname, String pubKey, String prvKey, String sign) {
         super(uname, pubKey);
-        privKey = prvKey;
+        privateKey = prvKey;
         signature = sign;
     }
 
@@ -93,7 +97,7 @@ public class LocalIdentity extends Identity {
         // generateOwnBoard();
         // TODO: generate other than SSK
     }
-
+    
 //    void generateOwnBoard() {
 //        if( board == null ) {
 //            FcpConnection connection = FcpFactory.getFcpConnectionInstance();
@@ -113,8 +117,8 @@ public class LocalIdentity extends Identity {
 //        }
 //    }
 
-    public String getPrivKey() {
-        return privKey;
+    public String getPrivateKey() {
+        return privateKey;
     }
     
     /**
@@ -125,6 +129,7 @@ public class LocalIdentity extends Identity {
     }
     public void setSignature(String s) {
         signature = s;
+        updateIdentitiesStorage();
     }
 
     public boolean isGOOD() {
@@ -140,15 +145,16 @@ public class LocalIdentity extends Identity {
         return false;
     }
     
-    long lastFilesSharedMillisPerBoard = 0;
-    
     public long getLastFilesSharedMillis() {
-        return lastFilesSharedMillisPerBoard;
+        return lastFilesSharedMillis;
     }
     public void updateLastFilesSharedMillis() {
-        lastFilesSharedMillisPerBoard = System.currentTimeMillis();
+        lastFilesSharedMillis = System.currentTimeMillis();
+        updateIdentitiesStorage();
     }
     public void setLastFilesSharedMillis(long l) {
-        lastFilesSharedMillisPerBoard = l;
+        lastFilesSharedMillis = l;
+        modify();
+        updateIdentitiesStorage();
     }
 }

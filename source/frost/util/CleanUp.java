@@ -20,7 +20,6 @@
 package frost.util;
 
 import java.io.*;
-import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
@@ -31,8 +30,11 @@ import frost.fcp.fcp05.*;
 import frost.fileTransfer.upload.*;
 import frost.gui.*;
 import frost.messages.*;
-import frost.storage.database.applayer.*;
+import frost.storage.*;
 import frost.storage.perst.*;
+import frost.storage.perst.filelist.*;
+import frost.storage.perst.messagearchive.*;
+import frost.storage.perst.messages.*;
 
 /**
  * Expire messages and cleans several database tables.
@@ -49,8 +51,6 @@ public class CleanUp {
     // we hold indices, chk keys, ... for at least the following count of days:
     private final static int MINIMUM_DAYS_OLD = 28;
     
-    private static int uncommittedMsgs;
-    
     private static Splashscreen splashScreen;
     
     /**
@@ -61,7 +61,6 @@ public class CleanUp {
     public static void runExpirationTasks(Splashscreen sp, List<Board> boardList) {
 
         splashScreen = sp;
-        uncommittedMsgs = 0;
         
         // each time run cleanup for perst storages
         cleanPerstStorages(boardList);
@@ -82,7 +81,7 @@ public class CleanUp {
 
         // when last cleanup was before the chosen interval days then run cleanup and archiving
         if( lastCleanupTime < (now - intervalMillis) ) {
-            cleanMcKoiTables(boardList);
+            cleanStorages(boardList);
             Core.frostSettings.setValue(SettingsClass.DB_CLEANUP_LASTRUN, now);
         }
     }
@@ -95,7 +94,7 @@ public class CleanUp {
         cleanupSharedCHKKeyStorage();
     }
     
-    private static void cleanMcKoiTables(List<Board> boardList) {
+    private static void cleanStorages(List<Board> boardList) {
         int mode;
         
         String strMode = Core.frostSettings.getValue(SettingsClass.MESSAGE_EXPIRATION_MODE);
@@ -109,50 +108,13 @@ public class CleanUp {
             mode = KEEP_MESSAGES;
         }
         
-        try {
-            AppLayerDatabase.getInstance().setAutoCommitOff();
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "error set autocommit off", e);
-        }
-
         processExpiredMessages(boardList, mode);
-
-//        doCommit(); done at the end of processExpiredMessages()
 
         splashScreen.setText("Cleaning filelist tables");
         cleanupFileListFileOwners();
         cleanupFileListFiles();
-
-        doCommit();
-        
-        try {
-            AppLayerDatabase.getInstance().setAutoCommitOn();
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "error set autocommit on", e);
-        }
     }
     
-    private static void doCommit() {
-        try {
-            AppLayerDatabase.getInstance().commit();
-        } catch (Throwable e) {
-            logger.log(Level.SEVERE, "error on commit", e);
-        }
-    }
-
-    private static void maybeCommit() {
-        // all 200 msgs commit changes to database
-        uncommittedMsgs++;
-        if( uncommittedMsgs > 200 ) {
-            try {
-                AppLayerDatabase.getInstance().commit();
-            } catch (Throwable e) {
-                logger.log(Level.SEVERE, "error on commit", e);
-            }
-            uncommittedMsgs = 0;
-        }
-    }
-
     private static void processExpiredMessages(List<Board> boardList, int mode) {
 
         if( mode == ARCHIVE_MESSAGES ) {
@@ -190,76 +152,62 @@ public class CleanUp {
                 currentDaysOld = Math.max(board.getMaxMessageDownload(), currentDaysOld);
             }
             
+            boolean archiveKeepUnread = Core.frostSettings.getBoolValue(SettingsClass.ARCHIVE_KEEP_UNREAD);
             boolean archiveKeepFlaggedAndStarred = Core.frostSettings.getBoolValue(SettingsClass.ARCHIVE_KEEP_FLAGGED_AND_STARRED);
             
-            if( mode == ARCHIVE_MESSAGES ) {
-                splashScreen.setText("Archiving messages in board: "+board.getName());
+            splashScreen.setText("Archiving messages in board: "+board.getName());
 
-                MessageTableCallback mtCallback = new MessageTableCallback();
+            if( mode != KEEP_MESSAGES ) {
+                MessageTableCallback mtCallback = new MessageTableCallback(mode);
                 try {
-                    AppLayerDatabase.getMessageTable().retrieveMessagesForArchive(
+                    MessageStorage.inst().retrieveMessagesForArchive(
                             board, 
-                            currentDaysOld, 
+                            currentDaysOld,
+                            archiveKeepUnread,
                             archiveKeepFlaggedAndStarred, 
                             mtCallback);
                 } catch(Throwable t) {
                     logger.log(Level.SEVERE, "Exception during retrieveMessagesForArchive", t);
                     continue;
                 }
-                if( mtCallback.errorOccurred() ) {
-                    continue; // don't delete messages
+                if( mtCallback.getCount() > 0 ) {
+                    logger.warning("INFO: Processed "+mtCallback.getCount()+" expired messages for board "+board.getName());
                 }
             }
-            
-            // if insert to archive database table was ok OR if mode is DELETE then
-            //   delete all msgs for this board from msg table
-            int deletedCount = 0;
-            try {
-                // when archiveFlaggedAndStarred is false, we don't delete old msgs which are flagged or starred
-                deletedCount = AppLayerDatabase.getMessageTable().deleteExpiredMessages(board, currentDaysOld, archiveKeepFlaggedAndStarred);
-            } catch(Throwable t) {
-                logger.log(Level.SEVERE, "Exception during deleteExpiredMessages", t);
-                continue;
-            }
-            if( deletedCount > 0 ) {
-                logger.warning("INFO: Processed "+deletedCount+" expired messages for board "+board.getName());
-            }
+            MessageStorage.inst().commitStore();
+            ArchiveMessageStorage.inst().commitStore();
         }
+        MessageStorage.inst().commitStore();
+        ArchiveMessageStorage.inst().commitStore();
 
-        if( uncommittedMsgs > 0 ) {
-            doCommit();
-        }
         logger.info("Finished to process expired messages.");
     }
     
     /**
      * Callback that gets each expired message and tries to insert it into MessageArchive.
      */
-    private static class MessageTableCallback implements MessageDatabaseTableCallback {
-        boolean errorOccurred = false;
-        public boolean messageRetrieved(FrostMessageObject mo) {
-            if( errorOccurred ) {
-                return errorOccurred; // stop
+    private static class MessageTableCallback implements MessageArchivingCallback {
+        int mode;
+        int count = 0;
+        public MessageTableCallback(int m) { mode = m; }
+        public int messageRetrieved(FrostMessageObject mo) {
+            if( count%100 == 0 ) {
+                MessageStorage.inst().commitStore();
+                ArchiveMessageStorage.inst().commitStore();
             }
-            
-            try {
-                int rc = AppLayerDatabase.getMessageArchiveTable().insertMessage(mo);
-                if( rc == MessageArchiveDatabaseTable.INSERT_ERROR ) {
-                    errorOccurred = true;
-                } else {
-                    maybeCommit();
+            if( mode == ARCHIVE_MESSAGES ) {
+                int rc = ArchiveMessageStorage.inst().insertMessage(mo, false);
+                if( rc == ArchiveMessageStorage.INSERT_ERROR ) {
+                    return MessageArchivingCallback.KEEP_MESSAGE;
                 }
-            } catch(Throwable e) {
-                // should not happen, paranoia
-                logger.log(Level.SEVERE, "Exception during insert of archive message", e);
-                errorOccurred = true;
             }
-            
-            return errorOccurred; // maybe stop
+            if( mode != KEEP_MESSAGES ) {
+                count++;
+                return MessageArchivingCallback.DELETE_MESSAGE;
+            }
+            return MessageArchivingCallback.KEEP_MESSAGE;
         }
-        public boolean errorOccurred() {
-            return errorOccurred;
-        }
+        public int getCount() { return count; }
     }
     
     /**
@@ -315,7 +263,7 @@ public class CleanUp {
     private static void cleanupFileListFileOwners() {
         int deletedCount = 0;
         try {
-            deletedCount = AppLayerDatabase.getFileListDatabaseTable().cleanupFileListFileOwners(MINIMUM_DAYS_OLD);
+            deletedCount = FileListStorage.inst().cleanupFileListFileOwners(MINIMUM_DAYS_OLD);
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Exception during cleanup of FileListFileOwners", t);
         }
@@ -330,7 +278,7 @@ public class CleanUp {
     private static void cleanupFileListFiles() {
         int deletedCount = 0;
         try {
-            deletedCount = AppLayerDatabase.getFileListDatabaseTable().cleanupFileListFiles();
+            deletedCount = FileListStorage.inst().cleanupFileListFiles();
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Exception during cleanup of FileListFiles", t);
         }

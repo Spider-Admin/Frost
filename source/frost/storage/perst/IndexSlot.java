@@ -22,10 +22,6 @@ import java.util.*;
 
 import org.garret.perst.*;
 
-import frost.*;
-import frost.boards.*;
-import frost.util.*;
-
 public class IndexSlot extends Persistent {
 
 //    private static final Logger logger = Logger.getLogger(IndexSlot.class.getName());
@@ -53,19 +49,19 @@ public class IndexSlot extends Persistent {
         return msgDate;
     }
     
-    public String toString() {
-        String result = "";
-        result += "indexName     = "+indexName+"\n";
-        Board b = Core.getInstance().getMainFrame().getTofTreeModel().getBoardByPrimaryKey(indexName);
-        if( b != null ) {
-            result += "board         = "+b.getName()+"\n";
-        }
-        result += "msgDate       = "+msgDate+"\n";
-        result += "msgDate (fmt) = "+DateFun.getExtendedDateFromMillis(msgDate)+"\n";
-        result += "wasDownloaded = "+wasDownloaded+"\n";
-        result += "wasUploaded   = "+wasUploaded+"\n";
-        return result;
-    }
+//    public String toString() {
+//        String result = "";
+//        result += "indexName     = "+indexName+"\n";
+//        Board b = Core.getInstance().getMainFrame().getTofTreeModel().getBoardByPrimaryKey(indexName);
+//        if( b != null ) {
+//            result += "board         = "+b.getName()+"\n";
+//        }
+//        result += "msgDate       = "+msgDate+"\n";
+//        result += "msgDate (fmt) = "+DateFun.getExtendedDateFromMillis(msgDate)+"\n";
+//        result += "wasDownloaded = "+wasDownloaded+"\n";
+//        result += "wasUploaded   = "+wasUploaded+"\n";
+//        return result;
+//    }
     
     public void setDownloadSlotUsed(int index) {
         this.wasDownloaded.set(index);

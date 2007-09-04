@@ -94,7 +94,7 @@ public class FcpConnection {
      * Retrieves the specified key and saves it to the file
      * specified.
      *
-     * @param key  the key to be retrieved
+     * @param publicKey  the key to be retrieved
      * @param filename  the filename to which the data should be saved
      * @return the results filled with metadata
      */
@@ -302,7 +302,7 @@ public class FcpConnection {
 	/**
      * Inserts the specified key with the data from the file specified.
      *
-     * @param key   the key to be inserted
+     * @param publicKey   the key to be inserted
      * @param data  the bytearray with the data to be inserted
      * @return the results filled with metadata and the CHK used to insert the data
 	 * @throws IOException 

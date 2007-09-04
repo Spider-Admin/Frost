@@ -19,14 +19,14 @@
 */
 package frost.boards;
 
-import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
 import javax.swing.tree.*;
 
 import frost.gui.*;
-import frost.storage.database.applayer.*;
+import frost.storage.perst.*;
+import frost.storage.perst.messages.*;
 
 /**
  * This class serves as both the data and selection models of the TofTree.
@@ -37,9 +37,6 @@ public class TofTreeModel extends DefaultTreeModel {
 
     private DefaultTreeSelectionModel selectionModel;
     
-    private Hashtable<Integer,String> boardnameByPrimaryKey= new Hashtable<Integer,String>();  
-    private Hashtable<String,Integer> primaryKeyByBoardname = new Hashtable<String,Integer>();
-
     /**
      * This method creates a new TofTreeModel with the given TreeNode
      * as its root.
@@ -48,32 +45,18 @@ public class TofTreeModel extends DefaultTreeModel {
     public TofTreeModel(TreeNode root) {
         super(root);
         selectionModel = new DefaultTreeSelectionModel();
-        
-        // load all board primary keys
-        try {
-            Hashtable<String,Integer> boardPrimaryKeysByName = AppLayerDatabase.getBoardDatabaseTable().loadBoards();
-            primaryKeyByBoardname = boardPrimaryKeysByName;
-            // for reverse lookup
-            for( Iterator iter = primaryKeyByBoardname.keySet().iterator(); iter.hasNext(); ) {
-                String bname = (String) iter.next();
-                Integer bkey = (Integer)primaryKeyByBoardname.get(bname);
-                boardnameByPrimaryKey.put(bkey, bname);
-            }
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Severe error: could not retrieve board primary keys", e);
-        }
     }
     
     /**
      * Fill the boards in tree with its primary keys after the board tree was loaded from xml file.
      */
-    public void initialSetPrimaryKeys() {
+    public void initialAssignPerstFrostBoardObjects() {
         // load boards, create if not existing (should not happen!)
         DefaultMutableTreeNode rootn = (DefaultMutableTreeNode)getRoot(); 
         for(Enumeration e = rootn.depthFirstEnumeration(); e.hasMoreElements(); ) {
             AbstractNode b = (AbstractNode)e.nextElement();
             if( b.isBoard() ) {
-                setBoardsPrimaryKey((Board)b);
+                MessageStorage.inst().assignPerstFrostBoardObject((Board)b);
             }
         }
     }
@@ -108,7 +91,7 @@ public class TofTreeModel extends DefaultTreeModel {
         targetFolder.add(newNode);
         
         if( newNode.isBoard() ) {
-            if( setBoardsPrimaryKey((Board)newNode) == false ) {
+            if( MessageStorage.inst().assignPerstFrostBoardObject((Board)newNode) == false ) {
                 return;
             }
         }
@@ -165,19 +148,9 @@ public class TofTreeModel extends DefaultTreeModel {
             if( !boardsToDelete.isEmpty() ) {
                 Thread worker = new Thread() {
                     public void run() {
-                        for(Iterator it = boardsToDelete.iterator(); it.hasNext(); ) {
-                            Board board = (Board) it.next();
-                            // remove from lookup tables
-                            Integer i = (Integer)primaryKeyByBoardname.remove(board.getNameLowerCase());
-                            if( i != null ) {
-                                boardnameByPrimaryKey.remove(i);
-                            }
-                            try {
-                                // due to cascade delete this deletes all messages of this board too
-                                AppLayerDatabase.getBoardDatabaseTable().removeBoard(board);
-                            } catch (SQLException e) {
-                                logger.log(Level.SEVERE, "Severe error: could not remove a board", e);
-                            }
+                        for( Board board : boardsToDelete ) {
+                            // due to cascade delete this deletes all messages of this board too
+                            MessageStorage.inst().removeBoard(board);
                         }
                     }
                 };
@@ -241,10 +214,6 @@ public class TofTreeModel extends DefaultTreeModel {
         return null; // not found
     }
 
-    public Board getBoardByPrimaryKey(Integer i) {
-        return getBoardByName(boardnameByPrimaryKey.get(i));
-    }
-
     /**
      * This method returns the last node of the first selected path.
      * If no path is selected, the root of the model is selected and
@@ -271,26 +240,5 @@ public class TofTreeModel extends DefaultTreeModel {
      */
     TreeSelectionModel getSelectionModel() {
         return selectionModel;
-    }
-
-    /**
-     * Retrieve the primary key of the board, or insert it into database.
-     */
-    private boolean setBoardsPrimaryKey(Board newNode) {
-        Integer pk = primaryKeyByBoardname.get(newNode.getNameLowerCase());
-        if( pk == null ) {
-            // add board to db
-            try {
-                newNode = AppLayerDatabase.getBoardDatabaseTable().addBoard(newNode);
-                primaryKeyByBoardname.put(newNode.getNameLowerCase(), newNode.getPrimaryKey());
-                boardnameByPrimaryKey.put(newNode.getPrimaryKey(), newNode.getNameLowerCase());
-            } catch (SQLException e) {
-                logger.log(Level.SEVERE, "Severe error: could not add a new board", e);
-                return false;
-            }
-        } else {
-            newNode.setPrimaryKey(pk);
-        }
-        return true;
     }
 }

@@ -18,7 +18,6 @@
 */
 package frost.fileTransfer;
 
-import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
@@ -26,7 +25,8 @@ import frost.*;
 import frost.fileTransfer.download.*;
 import frost.fileTransfer.sharing.*;
 import frost.identities.*;
-import frost.storage.database.applayer.*;
+import frost.storage.perst.*;
+import frost.storage.perst.filelist.*;
 
 public class FileListManager {
 
@@ -200,43 +200,21 @@ public class FileListManager {
         // first, update all filelist files
         
         // get a connection for updates
-        // works well if no duplicate SHA is in the received list, otherwise we have false updates
-        Connection conn = AppLayerDatabase.getInstance().getPooledConnection();
-
         boolean errorOccured = false;
         try {
-            conn.setAutoCommit(false);
-        
             for( SharedFileXmlFile sfx : content.getFileList() ) {
                 
                 FrostFileListFileObject sfo = new FrostFileListFileObject(sfx, localOwner, content.getTimestamp());
                 
                 // update filelist database table
-                boolean wasOk = AppLayerDatabase.getFileListDatabaseTable().insertOrUpdateFrostFileListFileObject(sfo, conn);
+                boolean wasOk = FileListStorage.inst().insertOrUpdateFileListFileObject(sfo);
                 if( wasOk == false ) {
                     errorOccured = true;
                     break;
                 }
             }
-            if( errorOccured == false ) {
-                conn.commit();
-            } else {
-                // if there is one error we skip the whole processing
-                conn.rollback();
-            }
-            conn.setAutoCommit(true);
         } catch(Throwable t) {
-            if( t.getMessage() != null && t.getMessage().indexOf("Select from table that has committed changes") > 0 ) {
-                // only a warning!
-                logger.log(Level.WARNING, "INFO: Select from table that has committed changes");
-                try { conn.commit(); } catch(Throwable t1) { logger.log(Level.SEVERE, "Exception during commit", t1); }
-            } else {
-                logger.log(Level.SEVERE, "Exception during insertOrUpdateFrostSharedFileObject", t);
-                try { conn.rollback(); } catch(Throwable t1) { logger.log(Level.SEVERE, "Exception during rollback", t1); }
-            }
-            try { conn.setAutoCommit(true); } catch(Throwable t1) { }
-        } finally {
-            AppLayerDatabase.getInstance().givePooledConnection(conn);
+            logger.log(Level.SEVERE, "Exception during insertOrUpdateFrostSharedFileObject", t);
         }
         
         if( errorOccured ) {
@@ -258,13 +236,11 @@ public class FileListManager {
                     // this download item references the updated file
                     // update the shared file object from database (owner, sources, ... may have changed)
                     FrostFileListFileObject updatedSfo = null;
-                    try {
-                        updatedSfo = AppLayerDatabase.getFileListDatabaseTable().retrieveFileBySha(sfx.getSha());
-                    } catch (Throwable t) {
-                        logger.log(Level.SEVERE, "Exception in retrieveFileBySha", t);
-                    }
+                    updatedSfo = FileListStorage.inst().getFileBySha(sfx.getSha());
                     if( updatedSfo != null ) {
                         dlItem.setFileListFileObject(updatedSfo);
+                    } else {
+                        System.out.println("no file for sha!");
                     }
                     break; // there is only one file in download table with same SHA
                 }

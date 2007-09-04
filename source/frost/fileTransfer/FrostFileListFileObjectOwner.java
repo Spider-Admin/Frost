@@ -18,9 +18,12 @@
 */
 package frost.fileTransfer;
 
-public class FrostFileListFileObjectOwner {
+import org.garret.perst.*;
 
-    protected long refkey;
+public class FrostFileListFileObjectOwner extends Persistent {
+
+    protected FrostFileListFileObject fileListFileObject;
+    
     protected String name;
     protected String owner;
     
@@ -34,7 +37,6 @@ public class FrostFileListFileObjectOwner {
     protected long lastUploaded = 0;
     
     public FrostFileListFileObjectOwner(
-            long newRefkey,
             String newName,
             String newOwner,
             String newComment,
@@ -44,7 +46,6 @@ public class FrostFileListFileObjectOwner {
             long newLastUploaded,
             String newKey) 
     {
-        refkey = newRefkey;
         name = newName;
         owner = newOwner;
         comment = newComment;
@@ -53,19 +54,6 @@ public class FrostFileListFileObjectOwner {
         lastReceived = newLastReceived;
         lastUploaded = newLastUploaded;
         key = newKey;
-    }
-
-    public FrostFileListFileObjectOwner(
-            String newName,
-            String newOwner,
-            String newComment,
-            String newKeywords,
-            int newRating,
-            long newLastReceived,
-            long newLastUploaded,
-            String newKey) 
-    {
-        this(0, newName, newOwner, newComment, newKeywords, newRating, newLastReceived, newLastUploaded, newKey);
     }
 
     public long getLastReceived() {
@@ -77,16 +65,9 @@ public class FrostFileListFileObjectOwner {
     public String getOwner() {
         return owner;
     }
-    public long getRefkey() {
-        return refkey;
-    }
 
     public long getLastUploaded() {
         return lastUploaded;
-    }
-
-    public void setRefkey(long refkey) {
-        this.refkey = refkey;
     }
 
     public void setLastReceived(long lastReceived) {
@@ -135,5 +116,13 @@ public class FrostFileListFileObjectOwner {
 
     public void setKey(String key) {
         this.key = key;
+    }
+
+    public FrostFileListFileObject getFileListFileObject() {
+        return fileListFileObject;
+    }
+
+    public void setFileListFileObject(FrostFileListFileObject fileListFileObject) {
+        this.fileListFileObject = fileListFileObject;
     }
 }

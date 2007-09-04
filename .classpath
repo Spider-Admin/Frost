@@ -13,7 +13,7 @@
 	<classpathentry kind="lib" path="lib/jnlp.jar"/>
 	<classpathentry kind="lib" path="lib/joda-time.jar"/>
 	<classpathentry kind="lib" path="lib/mckoidb.jar"/>
-	<classpathentry kind="lib" path="lib/perst15.jar"/>
+	<classpathentry kind="lib" path="lib/perst15.jar" sourcepath="C:/Projects/perst/src15"/>
 	<classpathentry kind="lib" path="lib/skinlf.jar"/>
 	<classpathentry kind="lib" path="lib/xercesImpl.jar"/>
 	<classpathentry kind="lib" path="lib/xml-apis.jar"/>

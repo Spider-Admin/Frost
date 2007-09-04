@@ -19,22 +19,17 @@
 package frost.storage.perst;
 
 import java.io.*;
-import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
-import javax.swing.*;
-
 import org.garret.perst.*;
 
-import frost.*;
-import frost.fileTransfer.*;
+import frost.boards.*;
 import frost.fileTransfer.download.*;
 import frost.fileTransfer.sharing.*;
 import frost.fileTransfer.upload.*;
+import frost.gui.*;
 import frost.storage.*;
-import frost.storage.database.applayer.*;
-import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
 /**
@@ -53,8 +48,7 @@ public class FrostFilesStorage implements Savable {
     
     private static FrostFilesStorage instance = new FrostFilesStorage();
 
-    protected FrostFilesStorage() {
-    }
+    protected FrostFilesStorage() {}
     
     public static FrostFilesStorage inst() {
         return instance;
@@ -69,6 +63,7 @@ public class FrostFilesStorage implements Savable {
         int pagePoolSize = PAGE_SIZE*1024*1024; // size of page pool in bytes
 
         storage = StorageFactory.getInstance().createStorage();
+        storage.setProperty("perst.string.encoding", "UTF-8"); // use UTF-8 to store strings
         storage.setProperty("perst.concurrent.iterator", Boolean.TRUE); // remove() during iteration (for cleanup)
         storage.open(databaseFilePath, pagePoolSize);
 
@@ -82,7 +77,16 @@ public class FrostFilesStorage implements Savable {
             storageRoot.sharedFiles = storage.createScalableList();
             storageRoot.newUploadFiles = storage.createScalableList();
 
+            storageRoot.hiddenBoardNames = storage.createScalableList();
+            storageRoot.knownBoards = storage.createIndex(String.class, true);
+
             storage.setRoot(storageRoot);
+            storage.commit(); // commit transaction
+        } else if( storageRoot.hiddenBoardNames == null ) {
+            // add new root items
+            storageRoot.hiddenBoardNames = storage.createScalableList();
+            storageRoot.knownBoards = storage.createIndex(String.class, true);
+            storageRoot.modify();
             storage.commit(); // commit transaction
         }
         return true;
@@ -110,7 +114,7 @@ public class FrostFilesStorage implements Savable {
             storageRoot.downloadFiles.add(pi);
         }
         storageRoot.downloadFiles.modify();
-        storage.commit();
+        commitStore();
     }
 
     /**
@@ -123,238 +127,63 @@ public class FrostFilesStorage implements Savable {
             i.remove(); // remove from List
             pi.deallocate(); // remove from Storage
         }
+        plst.clear(); // paranoia
+        commitStore();
     }
 
     public void saveDownloadFiles(List<FrostDownloadItem> downloadFiles) {
-
-        removeAllFromStorage(storageRoot.downloadFiles);
-        
-        for(Iterator<FrostDownloadItem> i=downloadFiles.iterator(); i.hasNext(); ) {
-            
-            FrostDownloadItem dlItem = i.next();
-            
+        removeAllFromStorage(storageRoot.downloadFiles); // delete all old items
+        for( FrostDownloadItem dlItem : downloadFiles ) {
             if( dlItem.isExternal() ) {
                 continue;
             }
-            
-            PerstFrostDownloadItem pi = new PerstFrostDownloadItem();
-            pi.fileName = dlItem.getFilename();
-            pi.targetPath = dlItem.getTargetPath();
-            pi.fileSize = dlItem.getFileSize();
-            pi.key = dlItem.getKey();
-            pi.enabled = (dlItem.isEnabled()==null?true:dlItem.isEnabled().booleanValue());
-            pi.state = dlItem.getState();
-            pi.downloadAddedTime = dlItem.getDownloadAddedMillis();
-            pi.downloadStartedTime = dlItem.getDownloadStartedMillis();
-            pi.downloadFinishedTime = dlItem.getDownloadFinishedMillis();
-            pi.retries = dlItem.getRetries();
-            pi.lastDownloadStopTime = dlItem.getLastDownloadStopTime();
-            pi.gqIdentifier = dlItem.getGqIdentifier();
-            pi.fileListFileSha = (dlItem.getFileListFileObject()==null?null:dlItem.getFileListFileObject().getSha());
-
-            pi.makePersistent(storage);
-            pi.modify(); // for already persistent items
-            
+            PerstFrostDownloadItem pi = new PerstFrostDownloadItem(dlItem);
             storageRoot.downloadFiles.add(pi);
         }
-        
-        storageRoot.downloadFiles.modify();
-        
-        storage.commit();
+        commitStore();
     }
     
     public List<FrostDownloadItem> loadDownloadFiles() {
-
         LinkedList<FrostDownloadItem> downloadItems = new LinkedList<FrostDownloadItem>();
-
-        for(Iterator<PerstFrostDownloadItem> i=storageRoot.downloadFiles.iterator(); i.hasNext(); ) {
-
-            PerstFrostDownloadItem pi = i.next();
-
-            String filename = pi.fileName;
-            String targetPath = pi.targetPath;
-            long size = pi.fileSize;
-            String key = pi.key;
-            boolean enabledownload = pi.enabled;
-            int state = pi.state;
-            long downloadAddedTime = pi.downloadAddedTime;
-            long downloadStartedTime = pi.downloadStartedTime;
-            long downloadFinishedTime = pi.downloadFinishedTime;
-            int retries = pi.retries;
-            long lastDownloadStopTime = pi.lastDownloadStopTime;
-            String gqId = pi.gqIdentifier;
-            String sharedFileSha = pi.fileListFileSha;
-            
-            FrostFileListFileObject sharedFileObject = null;
-            if( sharedFileSha != null && sharedFileSha.length() > 0 ) {
-                try {
-                    sharedFileObject = AppLayerDatabase.getFileListDatabaseTable().retrieveFileBySha(sharedFileSha);
-                } catch (SQLException e) {
-                    logger.log(Level.SEVERE, "Error retrieving FileListFile from database", e);
-                }
-                if( sharedFileObject == null && key == null ) {
-                    // no fileobject and no key -> we can't continue to download this file
-                    logger.warning("DownloadUpload items file list file object does not exist, and there is no key. " +
-                                   "Removed from upload files: "+filename);
-                }
+        for( PerstFrostDownloadItem pi : storageRoot.downloadFiles ) {
+            FrostDownloadItem dlItem = pi.toFrostDownloadItem(logger);
+            if( dlItem != null ) {
+                downloadItems.add(dlItem);
             }
-
-            FrostDownloadItem dlItem = new FrostDownloadItem(
-                    filename,
-                    targetPath,
-                    (size<=0 ? -1 : size),
-                    key,
-                    Boolean.valueOf(enabledownload),
-                    state,
-                    downloadAddedTime,
-                    downloadStartedTime,
-                    downloadFinishedTime,
-                    retries,
-                    lastDownloadStopTime,
-                    gqId);
-            
-            dlItem.setFileListFileObject(sharedFileObject);
-
-            downloadItems.add(dlItem);
         }
         return downloadItems;
     }
     
     // only used for migration
     public void savePerstFrostUploadFiles(List<PerstFrostUploadItem> uploadFiles) {
-        for(Iterator<PerstFrostUploadItem> i=uploadFiles.iterator(); i.hasNext(); ) {
-            PerstFrostUploadItem pi = i.next();
-            pi.makePersistent(storage);
+        for( PerstFrostUploadItem pi : uploadFiles ) {
             storageRoot.uploadFiles.add(pi);
         }
-        storageRoot.uploadFiles.modify();
-        storage.commit();
+        commitStore();
     }
 
     public void saveUploadFiles(List<FrostUploadItem> uploadFiles) {
-
-        removeAllFromStorage(storageRoot.uploadFiles);
-
-        for(Iterator<FrostUploadItem> i=uploadFiles.iterator(); i.hasNext(); ) {
-
-            FrostUploadItem ulItem = i.next();
-            
+        removeAllFromStorage(storageRoot.uploadFiles); // delete all old items
+        for( FrostUploadItem ulItem : uploadFiles ) {
             if( ulItem.isExternal() ) {
                 continue;
             }
-            
-            PerstFrostUploadItem pi = new PerstFrostUploadItem();
-            pi.filePath = ulItem.getFile().getPath();
-            pi.fileSize = ulItem.getFileSize();
-            pi.chkKey = ulItem.getKey();
-            pi.enabled = (ulItem.isEnabled()==null?true:ulItem.isEnabled().booleanValue());
-            pi.state = ulItem.getState();
-            pi.uploadAddedMillis = ulItem.getUploadAddedMillis();
-            pi.uploadStartedMillis = ulItem.getUploadStartedMillis();
-            pi.uploadFinishedMillis = ulItem.getUploadFinishedMillis();
-            pi.retries = ulItem.getRetries();
-            pi.lastUploadStopTimeMillis = ulItem.getLastUploadStopTimeMillis();
-            pi.gqIdentifier = ulItem.getGqIdentifier();
-            
-            pi.sharedFilesSha = (ulItem.getSharedFileItem()==null?null:ulItem.getSharedFileItem().getSha());
-
-            pi.makePersistent(storage);
-            pi.modify(); // for already persistent items
-            
+            PerstFrostUploadItem pi = new PerstFrostUploadItem(ulItem);
             storageRoot.uploadFiles.add(pi);
         }
-        storageRoot.uploadFiles.modify();
-        
-        storage.commit();
+        commitStore();
     }
     
     public List<FrostUploadItem> loadUploadFiles(List<FrostSharedFileItem> sharedFiles) {
 
         LinkedList<FrostUploadItem> uploadItems = new LinkedList<FrostUploadItem>();
-
         Language language = Language.getInstance();
 
-        for(Iterator<PerstFrostUploadItem> i=storageRoot.uploadFiles.iterator(); i.hasNext(); ) {
-
-            PerstFrostUploadItem pi = i.next();
-
-            String filepath = pi.filePath;
-            long filesize = pi.fileSize;
-            String key = pi.chkKey;
-            boolean isEnabled = pi.enabled;
-            int state = pi.state;
-            long uploadAddedTime = pi.uploadAddedMillis;
-            long uploadStartedTime = pi.uploadStartedMillis;
-            long uploadFinishedTime = pi.uploadFinishedMillis;
-            int retries = pi.retries;
-            long lastUploadStopMillis = pi.lastUploadStopTimeMillis;
-            String gqId = pi.gqIdentifier;
-            
-            String sharedFilesSha = pi.sharedFilesSha;
-            
-            File file = new File(filepath);
-            if( !file.isFile() ) {
-                String title = language.getString("StartupMessage.uploadFile.uploadFileNotFound.title");
-                String text = language.formatMessage("StartupMessage.uploadFile.uploadFileNotFound.text", filepath);
-                StartupMessage sm = new StartupMessage(
-                        StartupMessage.MessageType.UploadFileNotFound,
-                        title,
-                        text,
-                        JOptionPane.ERROR_MESSAGE,
-                        true);
-                MainFrame.enqueueStartupMessage(sm);
-                logger.severe("Upload items file does not exist, removed from upload files: "+filepath);
-                continue;
+        for( PerstFrostUploadItem pi : storageRoot.uploadFiles ) {
+            FrostUploadItem ulItem = pi.toFrostUploadItem(sharedFiles, logger, language);
+            if( ulItem != null ) {
+                uploadItems.add(ulItem);
             }
-            if( file.length() != filesize ) {
-                String title = language.getString("StartupMessage.uploadFile.uploadFileSizeChanged.title");
-                String text = language.formatMessage("StartupMessage.uploadFile.uploadFileSizeChanged.text", filepath);
-                StartupMessage sm = new StartupMessage(
-                        StartupMessage.MessageType.UploadFileSizeChanged,
-                        title,
-                        text,
-                        JOptionPane.ERROR_MESSAGE,
-                        true);
-                MainFrame.enqueueStartupMessage(sm);
-                logger.severe("Upload items file size changed, removed from upload files: "+filepath);
-                continue;
-            }
-            
-            FrostSharedFileItem sharedFileItem = null;
-            if( sharedFilesSha != null && sharedFilesSha.length() > 0 ) {
-                for(Iterator<FrostSharedFileItem> j = sharedFiles.iterator(); j.hasNext(); ) {
-                    FrostSharedFileItem s = j.next();
-                    if( s.getSha().equals(sharedFilesSha) ) {
-                        sharedFileItem = s;
-                        break;
-                    }
-                }
-                if( sharedFileItem == null ) {
-                    logger.severe("Upload items shared file object does not exist, removed from upload files: "+filepath);
-                    continue;
-                }
-                if( !sharedFileItem.isValid() ) {
-                    logger.severe("Upload items shared file is invalid, removed from upload files: "+filepath);
-                    continue;
-                }
-            }
-            
-            FrostUploadItem ulItem = new FrostUploadItem(
-                    file,
-                    filesize,
-                    key,
-                    isEnabled,
-                    state,
-                    uploadAddedTime,
-                    uploadStartedTime,
-                    uploadFinishedTime,
-                    retries,
-                    lastUploadStopMillis,
-                    gqId);
-            
-            ulItem.setSharedFileItem(sharedFileItem);
-
-            uploadItems.add(ulItem);
         }
         return uploadItems;
     }
@@ -367,130 +196,26 @@ public class FrostFilesStorage implements Savable {
             storageRoot.sharedFiles.add(pi);
         }
         storageRoot.sharedFiles.modify();
-        storage.commit();
+        commitStore();
     }
 
     public void saveSharedFiles(List<FrostSharedFileItem> sfFiles) {
-
         removeAllFromStorage(storageRoot.sharedFiles);
-            
-        for(Iterator<FrostSharedFileItem> i=sfFiles.iterator(); i.hasNext(); ) {
-
-            FrostSharedFileItem sfItem = i.next();
-            
-            PerstFrostSharedFileItem pi = new PerstFrostSharedFileItem();
-            pi.filePath = sfItem.getFile().getPath();
-            pi.fileSize = sfItem.getFileSize();
-            pi.key = sfItem.getKey();
-            pi.sha = sfItem.getSha();
-            pi.owner = sfItem.getOwner();
-            pi.comment = sfItem.getComment();
-            pi.rating = sfItem.getRating();
-            pi.keywords = sfItem.getKeywords();
-            pi.lastUploaded = sfItem.getLastUploaded();
-            pi.uploadCount = sfItem.getUploadCount();
-            pi.refLastSent = sfItem.getRefLastSent();
-            pi.requestLastReceived = sfItem.getRequestLastReceived();
-            pi.requestsReceived = sfItem.getRequestsReceived();
-            pi.lastModified = sfItem.getLastModified();
-            
-            pi.makePersistent(storage);
-            pi.modify(); // for already persistent items
-            
+        for(FrostSharedFileItem sfItem : sfFiles ) {
+            PerstFrostSharedFileItem pi = new PerstFrostSharedFileItem(sfItem);
             storageRoot.sharedFiles.add(pi);
         }
-        storageRoot.sharedFiles.modify();
-        
-        storage.commit();
+        commitStore();
     }
 
     public List<FrostSharedFileItem> loadSharedFiles() {
-
         LinkedList<FrostSharedFileItem> sfItems = new LinkedList<FrostSharedFileItem>();
-        
         Language language = Language.getInstance();
-        for(Iterator<PerstFrostSharedFileItem> i=storageRoot.sharedFiles.iterator(); i.hasNext(); ) {
-
-            PerstFrostSharedFileItem pi = i.next();
-            
-            String filepath = pi.filePath;
-            long filesize = pi.fileSize;
-            String key = pi.key;
-            
-            String sha = pi.sha;
-            String owner = pi.owner;
-            String comment = pi.comment;
-            int rating = pi.rating;
-            String keywords = pi.keywords;
-            long lastUploaded = pi.lastUploaded;
-            int uploadCount = pi.uploadCount;
-            long refLastSent = pi.refLastSent;
-            long requestLastReceived = pi.requestLastReceived;
-            int requestsReceivedCount = pi.requestsReceived;
-            long lastModified = pi.lastModified;
-
-            boolean fileIsOk = true;
-            File file = new File(filepath);
-
-            // report modified/missing shared files only if filesharing is enabled
-            if( !Core.frostSettings.getBoolValue(SettingsClass.DISABLE_FILESHARING) ) {
-                if( !file.isFile() ) {
-                    String title = language.getString("StartupMessage.sharedFile.sharedFileNotFound.title");
-                    String text = language.formatMessage("StartupMessage.sharedFile.sharedFileNotFound.text", filepath);
-                    StartupMessage sm = new StartupMessage(
-                            StartupMessage.MessageType.SharedFileNotFound,
-                            title,
-                            text,
-                            JOptionPane.WARNING_MESSAGE,
-                            true);
-                    MainFrame.enqueueStartupMessage(sm);
-                    logger.severe("Shared file does not exist: "+filepath);
-                    fileIsOk = false;
-                } else if( file.length() != filesize ) {
-                    String title = language.getString("StartupMessage.sharedFile.sharedFileSizeChanged.title");
-                    String text = language.formatMessage("StartupMessage.sharedFile.sharedFileSizeChanged.text", filepath);
-                    StartupMessage sm = new StartupMessage(
-                            StartupMessage.MessageType.SharedFileSizeChanged,
-                            title,
-                            text,
-                            JOptionPane.WARNING_MESSAGE,
-                            true);
-                    MainFrame.enqueueStartupMessage(sm);
-                    logger.severe("Size of shared file changed: "+filepath);
-                    fileIsOk = false;
-                } else if( file.lastModified() != lastModified ) {
-                    String title = language.getString("StartupMessage.sharedFile.sharedFileLastModifiedChanged.title");
-                    String text = language.formatMessage("StartupMessage.sharedFile.sharedFileLastModifiedChanged.text", filepath);
-                    StartupMessage sm = new StartupMessage(
-                            StartupMessage.MessageType.SharedFileLastModifiedChanged,
-                            title,
-                            text,
-                            JOptionPane.WARNING_MESSAGE,
-                            true);
-                    MainFrame.enqueueStartupMessage(sm);
-                    logger.severe("Last modified date of shared file changed: "+filepath);
-                    fileIsOk = false;
-                }
+        for( PerstFrostSharedFileItem pi : storageRoot.sharedFiles ) {
+            FrostSharedFileItem sfItem = pi.toFrostSharedFileItem(logger, language);
+            if( sfItem != null ) {
+                sfItems.add(sfItem);
             }
-            
-            FrostSharedFileItem sfItem = new FrostSharedFileItem(
-                    file,
-                    filesize,
-                    key,
-                    sha,
-                    owner,
-                    comment,
-                    rating,
-                    keywords,
-                    lastUploaded,
-                    uploadCount,
-                    refLastSent,
-                    requestLastReceived,
-                    requestsReceivedCount,
-                    lastModified,
-                    fileIsOk);
-
-            sfItems.add(sfItem);
         }
         return sfItems;
     }
@@ -506,17 +231,14 @@ public class FrostFilesStorage implements Savable {
             
             storageRoot.newUploadFiles.add(nuf);
         }
-        storageRoot.newUploadFiles.modify();
-        
-        storage.commit();
+        commitStore();
     }
 
     public LinkedList<NewUploadFile> loadNewUploadFiles() {
 
         LinkedList<NewUploadFile> newUploadFiles = new LinkedList<NewUploadFile>();
 
-        for(Iterator<NewUploadFile> i=storageRoot.newUploadFiles.iterator(); i.hasNext(); ) {
-            NewUploadFile nuf = i.next();
+        for( NewUploadFile nuf : storageRoot.newUploadFiles ) {
             File f = new File(nuf.getFilePath());
             if (!f.isFile()) {
                 logger.warning("File ("+nuf.getFilePath()+") is missing. File removed.");
@@ -525,5 +247,85 @@ public class FrostFilesStorage implements Savable {
             newUploadFiles.add(nuf);
         }
         return newUploadFiles;
+    }
+    
+    /**
+     * Load all hidden board names.
+     */
+    public HashSet<String> loadHiddenBoardNames() {
+        HashSet<String> result = new HashSet<String>();
+        for( PerstHiddenBoardName hbn : storageRoot.hiddenBoardNames ) {
+            result.add(hbn.getHiddenBoardName());
+        }
+        return result;
+    }
+
+    /**
+     * Clear table and save all hidden board names.
+     */
+    public void saveHiddenBoardNames(HashSet<String> names) {
+        removeAllFromStorage(storageRoot.hiddenBoardNames);
+        for( String s : names ) {
+            PerstHiddenBoardName h = new PerstHiddenBoardName(s);
+            storageRoot.hiddenBoardNames.add(h);
+        }
+        commitStore();
+    }
+    
+    private String buildBoardIndex(Board b) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(b.getNameLowerCase());
+        if( b.getPublicKey() != null ) {
+            sb.append(b.getPublicKey());
+        }
+        if( b.getPrivateKey() != null ) {
+            sb.append(b.getPrivateKey());
+        }
+        return sb.toString();
+    }
+    
+    /**
+     * @return  List of KnownBoard
+     */
+    public List<KnownBoard> getKnownBoards() {
+        List<KnownBoard> lst = new ArrayList<KnownBoard>();
+        for(PerstKnownBoard pkb : storageRoot.knownBoards) {
+            KnownBoard kb = new KnownBoard(pkb.getBoardName(), pkb.getPublicKey(), pkb.getPrivateKey(), pkb.getDescription());
+            lst.add(kb);
+        }
+        return lst;
+    }
+    
+    public synchronized boolean deleteKnownBoard(Board b) {
+        String newIx = buildBoardIndex(b);
+        PerstKnownBoard pkb = storageRoot.knownBoards.get(newIx);
+        if( pkb != null ) {
+            storageRoot.knownBoards.remove(newIx, pkb);
+            pkb.deallocate();
+            commitStore();
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Called with a list of Board, should add all boards that are not contained already
+     * @param lst  List of Board
+     * @return  number of added boards
+     */
+    public synchronized int addNewKnownBoards( List<? extends Board> lst ) {
+        if( lst == null || lst.size() == 0 ) {
+            return 0;
+        }
+        int added = 0;
+        for( Board b : lst ) {
+            String newIx = buildBoardIndex(b);
+            PerstKnownBoard pkb = new PerstKnownBoard(b.getName(), b.getPublicKey(), b.getPrivateKey(), b.getDescription());
+            if( storageRoot.knownBoards.put(newIx, pkb) ) {
+                added++;
+            }
+        }
+        commitStore();
+        return added;
     }
 }

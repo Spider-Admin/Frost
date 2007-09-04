@@ -163,6 +163,10 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         return true;
     }
     
+    public FrostMessageObject getRootNode() {
+        return (FrostMessageObject)((DefaultTreeModel)tree.getModel()).getRoot();
+    }
+
     public void setNewRootNode(TreeNode t) {
         ((DefaultTreeModel)tree.getModel()).setRoot(t);
     }

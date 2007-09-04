@@ -20,7 +20,6 @@ package frost.boards;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.sql.*;
 import java.util.*;
 import java.util.List;
 import java.util.logging.*;
@@ -34,7 +33,7 @@ import frost.*;
 import frost.fileTransfer.common.*;
 import frost.gui.*;
 import frost.gui.model.*;
-import frost.storage.database.applayer.*;
+import frost.storage.perst.messages.*;
 import frost.threads.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
@@ -359,16 +358,8 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         int countNewMessages = 0;
         int countAllMessages = 0;
 
-        try {
-            countNewMessages = AppLayerDatabase.getMessageTable().getMessageCount(board, 0);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error retrieving todays message count from db", e);
-        }
-        try {
-            countAllMessages = AppLayerDatabase.getMessageTable().getMessageCount(board, -1);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error retrieving overall message count from db", e);
-        }
+        countNewMessages = MessageStorage.inst().getMessageCount(board, 0);
+        countAllMessages = MessageStorage.inst().getMessageCount(board, -1);
 
         row.setAllMessageCount(countAllMessages);
         row.setNewMessageCount(countNewMessages);

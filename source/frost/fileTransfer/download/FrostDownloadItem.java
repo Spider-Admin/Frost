@@ -17,18 +17,17 @@
 */
 package frost.fileTransfer.download;
 
-import java.util.logging.*;
-
 import frost.*;
 import frost.fcp.*;
 import frost.fileTransfer.*;
-import frost.storage.database.applayer.*;
+import frost.storage.perst.*;
+import frost.storage.perst.filelist.*;
 import frost.util.*;
 import frost.util.model.*;
 
 public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem {
     
-    private transient static final Logger logger = Logger.getLogger(FrostDownloadItem.class.getName());
+//    private transient static final Logger logger = Logger.getLogger(FrostDownloadItem.class.getName());
     
     // the constants representing download states
     public transient final static int STATE_WAITING    = 1; // wait for start
@@ -51,6 +50,8 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
 	private int retries = 0;
     private long lastDownloadStopTime = 0;
     private String gqIdentifier = null;
+    
+    private boolean isLoggedToFile = false; 
     
     // if this downloadfile is a shared file then this object is set
     private transient FrostFileListFileObject fileListFileObject = null;
@@ -103,12 +104,7 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
         FrostFileListFileObject sfo = null;
         
         // update the shared file object from database (key, owner, sources, ... may have changed)
-        FrostFileListFileObject updatedSfo = null;
-        try {
-            updatedSfo = AppLayerDatabase.getFileListDatabaseTable().retrieveFileBySha(newSfo.getSha());
-        } catch (Throwable t) {
-            logger.log(Level.SEVERE, "Exception in retrieveFileBySha", t);
-        }
+        FrostFileListFileObject updatedSfo = FileListStorage.inst().getFileBySha(newSfo.getSha());
         if( updatedSfo != null ) {
             sfo = updatedSfo;
         } else {
@@ -435,5 +431,13 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
     
     public String toString() {
         return getFilename();
+    }
+
+    public boolean isLoggedToFile() {
+        return isLoggedToFile;
+    }
+
+    public void setLoggedToFile(boolean isLoggedToFile) {
+        this.isLoggedToFile = isLoggedToFile;
     }
 }

@@ -24,6 +24,7 @@ import org.garret.perst.*;
 import org.joda.time.*;
 
 import frost.storage.*;
+import frost.storage.perst.*;
 
 /**
  * Storage with an compound index of indexName and msgDate (int/long) 

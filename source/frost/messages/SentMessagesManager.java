@@ -22,7 +22,8 @@ import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
-import frost.storage.database.applayer.*;
+import frost.storage.perst.*;
+import frost.storage.perst.messages.*;
 
 public class SentMessagesManager {
 
@@ -30,7 +31,7 @@ public class SentMessagesManager {
     
     public static List<FrostMessageObject> retrieveSentMessages() {
         try {
-            return AppLayerDatabase.getSentMessageTable().retrieveAllMessages();
+            return MessageStorage.inst().retrieveAllSentMessages(MainFrame.getInstance().getTofTreeModel().getAllBoards());
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Error retrieving sent messages", t);
         }
@@ -40,19 +41,19 @@ public class SentMessagesManager {
     
     public static boolean addSentMessage(FrostMessageObject sentMo) {
         try {
-            AppLayerDatabase.getSentMessageTable().insertMessage(sentMo);
+            MessageStorage.inst().addSentMessage(sentMo);
         } catch (Throwable e) {
             // paranoia
             logger.log(Level.SEVERE, "Error inserting sent message", e);
         }
         MainFrame.getInstance().getSentMessagesPanel().addSentMessage(sentMo);
-        return true; // if we return false the msg is resent !
+        return true; // if we return false the msg is resend !
     }
     
     public static int deleteSentMessages(List<FrostMessageObject> msgObjects) {
         int deleted = 0;
         try {
-            deleted = AppLayerDatabase.getSentMessageTable().deleteMessages(msgObjects);
+            deleted = MessageStorage.inst().deleteSentMessages(msgObjects);
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Error deleting sent messages", t);
         }

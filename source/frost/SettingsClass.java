@@ -65,7 +65,9 @@ public class SettingsClass implements Savable {
     
     public static final String LOOK_AND_FEEL = "ChoosenLookAndFeel";
 
-    public static final String COMPACT_DBTABLES = "compactDatabaseTables";
+    public static final String STORAGE_STORE_INVALID_MESSAGES = "storage.storeInvalidMessages";
+
+//    public static final String COMPACT_DBTABLES = "compactDatabaseTables";
 
     public static final String AVAILABLE_NODES = "availableNodes";
     public static final String FCP2_USE_DDA = "fcp2.useDDA";
@@ -198,6 +200,7 @@ public class SettingsClass implements Savable {
     public static final String MESSAGE_EXPIRE_DAYS = "messageExpireDays";
     public static final String MESSAGE_EXPIRATION_MODE = "messageExpirationMode";
     public static final String ARCHIVE_KEEP_FLAGGED_AND_STARRED = "archiveKeepFlaggedOrStarredMessages";
+    public static final String ARCHIVE_KEEP_UNREAD = "archiveKeepUnreadMessages";
     
     public static final String MIN_DAYS_BEFORE_FILE_RESHARE = "minDaysBeforeFileReshare";
     public static final String MAX_FILELIST_DOWNLOAD_DAYS = "fileListDownloadDays";
@@ -752,6 +755,8 @@ public class SettingsClass implements Savable {
         defaults.put(DISABLE_FILESHARING, "false");
         defaults.put(DISABLE_SPLASHSCREEN, "false");
         
+        defaults.put(STORAGE_STORE_INVALID_MESSAGES, "false");
+        
         defaults.put(ACCEPT_SIGNATURE_FORMAT_V1, "true");
         
         defaults.put(REMEMBER_SHAREDFILE_DOWNLOADED, "true");
@@ -848,6 +853,7 @@ public class SettingsClass implements Savable {
         defaults.put(MESSAGE_EXPIRE_DAYS, "90");
         defaults.put(MESSAGE_EXPIRATION_MODE, "KEEP"); // KEEP or ARCHIVE or DELETE, default KEEP
         defaults.put(ARCHIVE_KEEP_FLAGGED_AND_STARRED, "false");
+        defaults.put(ARCHIVE_KEEP_UNREAD, "false");
 
         defaults.put(SKINS_ENABLED, "false");
         defaults.put(SKIN_NAME, "none");

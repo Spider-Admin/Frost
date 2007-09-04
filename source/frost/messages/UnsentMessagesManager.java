@@ -18,13 +18,13 @@
 */
 package frost.messages;
 
-import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
 import frost.boards.*;
-import frost.storage.database.applayer.*;
+import frost.storage.perst.*;
+import frost.storage.perst.messages.*;
 import frost.threads.*;
 
 /**
@@ -44,12 +44,9 @@ public class UnsentMessagesManager {
      */
     public static void initialize() {
         List<FrostUnsentMessageObject> msgs;
-        try {
-            msgs = AppLayerDatabase.getUnsentMessageTable().retrieveMessages();
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error retrieving unsend messages", e);
-            return;
-        }
+        
+        msgs = MessageStorage.inst().retrieveAllUnsentMessages();
+
         if( msgs == null || msgs.size() == 0 ) {
             return;
         }
@@ -67,7 +64,7 @@ public class UnsentMessagesManager {
         return unsentMessages.size();
     }
 
-    public static List getUnsentMessages() {
+    public static List<FrostUnsentMessageObject> getUnsentMessages() {
         return unsentMessages;
     }
     
@@ -95,12 +92,14 @@ public class UnsentMessagesManager {
             return null;
         }
 
-        for(Iterator i = unsentMessages.iterator(); i.hasNext(); ) {
-            FrostUnsentMessageObject mo = (FrostUnsentMessageObject) i.next();
+        for(Iterator<FrostUnsentMessageObject> i = unsentMessages.iterator(); i.hasNext(); ) {
+            FrostUnsentMessageObject mo = i.next();
             if( mo.getCurrentUploadThread() != null ) {
                 continue; // msg is currently uploading
             }
-            if( mo.getBoard().getPrimaryKey().intValue() == targetBoard.getPrimaryKey().intValue() ) {
+            if( mo.getBoard().getPerstFrostBoardObject().getBoardId() == 
+                    targetBoard.getPerstFrostBoardObject().getBoardId() ) 
+            {
                 if( fromName == null || fromName.equals(mo.getFromName()) ) {
                     if( mo.getUnsentFileAttachments().size() == 0 ) {
                         return mo;
@@ -121,13 +120,13 @@ public class UnsentMessagesManager {
         }
         
         Hashtable<Integer,Board> ht = new Hashtable<Integer,Board>();
-        for(Iterator i = unsentMessages.iterator(); i.hasNext(); ) {
-            FrostUnsentMessageObject mo = (FrostUnsentMessageObject) i.next();
+        for(Iterator<FrostUnsentMessageObject> i = unsentMessages.iterator(); i.hasNext(); ) {
+            FrostUnsentMessageObject mo = i.next();
             if( mo.getCurrentUploadThread() != null ) {
                 continue; // msg is currently uploading
             }
-            if( !ht.containsKey(mo.getBoard().getPrimaryKey()) ) {
-                ht.put(mo.getBoard().getPrimaryKey(), mo.getBoard());
+            if( !ht.containsKey(mo.getBoard().getPerstFrostBoardObject().getBoardId()) ) {
+                ht.put(mo.getBoard().getPerstFrostBoardObject().getBoardId(), mo.getBoard());
             }
         }
         List<Board> result = new ArrayList<Board>(ht.values()); 
@@ -138,11 +137,7 @@ public class UnsentMessagesManager {
         
         mo.setTimeAdded(System.currentTimeMillis());
         
-        try {
-            AppLayerDatabase.getUnsentMessageTable().insertMessage(mo);
-        } catch (SQLException e1) {
-            logger.log(Level.SEVERE, "Error inserting unsent message", e1);
-        }
+        MessageStorage.inst().addUnsentMessage(mo);
 
         unsentMessages.add(mo);
         
@@ -161,11 +156,7 @@ public class UnsentMessagesManager {
             return false; // msg currently uploaded, delete not possible
         }
         
-        try {
-            AppLayerDatabase.getUnsentMessageTable().deleteMessage(unsentMsg.getMessageId());
-        } catch(SQLException ex) {
-            logger.log(Level.SEVERE, "Error during delete of unsend message", ex);
-        }
+        MessageStorage.inst().deleteUnsentMessage(unsentMsg);
         
         for(Iterator i = unsentMessages.iterator(); i.hasNext(); ) {
             FrostUnsentMessageObject mo2 = (FrostUnsentMessageObject) i.next();
@@ -197,12 +188,8 @@ public class UnsentMessagesManager {
         return true;
     }
 
-    public static void updateMessageFileAttachmentKey(FrostMessageObject mo, FileAttachment fa) throws SQLException {
-        try {
-            AppLayerDatabase.getUnsentMessageTable().updateMessageFileAttachmentKey(mo, fa);
-        } catch(SQLException ex) {
-            logger.log(Level.SEVERE, "Error updating table", ex);
-        }
+    public static void updateMessageFileAttachmentKey(FrostUnsentMessageObject mo, FileAttachment fa) {
+        MessageStorage.inst().updateUnsentMessageFileAttachmentKey(mo, fa);
     }
     
     public synchronized static int getRunningMessageUploads() {

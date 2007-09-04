@@ -18,7 +18,6 @@
 package frost.fileTransfer.download;
 
 import java.io.*;
-import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
@@ -26,7 +25,7 @@ import frost.*;
 import frost.fcp.*;
 import frost.fileTransfer.*;
 import frost.storage.*;
-import frost.storage.database.applayer.*;
+import frost.storage.perst.filelist.*;
 import frost.util.*;
 import frost.util.model.*;
 
@@ -257,21 +256,18 @@ public class DownloadManager {
 
             // update lastDownloaded time in filelist
             if( downloadItem.isSharedFile() ) {
-                try {
-                    AppLayerDatabase.getFileListDatabaseTable().updateFrostFileListFileObjectAfterDownload(
-                            downloadItem.getFileListFileObject().getSha(),
-                            System.currentTimeMillis() );
-                } catch (SQLException e) {
-                    logger.log(Level.SEVERE, "Exception in updateFrostFileListFileObjectAfterDownload()", e);
-                }
+                FileListStorage.inst().updateFrostFileListFileObjectAfterDownload(
+                        downloadItem.getFileListFileObject().getSha(),
+                        System.currentTimeMillis() );
             }
 
             // maybe log successful download to file localdata/downloads.txt
-            if( Core.frostSettings.getBoolValue(SettingsClass.LOG_DOWNLOADS_ENABLED) ) {
+            if( Core.frostSettings.getBoolValue(SettingsClass.LOG_DOWNLOADS_ENABLED) && !downloadItem.isLoggedToFile() ) {
                 String line = downloadItem.getKey() + "/" + downloadItem.getFilename();
                 String fileName = Core.frostSettings.getValue(SettingsClass.DIR_LOCALDATA) + "Frost-Downloads.log";
                 File targetLogFile = new File(fileName);
                 FileAccess.appendLineToTextfile(targetLogFile, line);
+                downloadItem.setLoggedToFile(true);
             }
 
             // maybe remove finished download immediately

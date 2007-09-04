@@ -322,8 +322,8 @@ public class MessageUploader {
             
             // we put the signature into the message too, but it is not used for verification currently
             // to keep compatability to previous frosts for 0.5
-            wa.message.signMessageV1(wa.senderId.getPrivKey());
-            wa.message.signMessageV2(wa.senderId.getPrivKey());
+            wa.message.signMessageV1(wa.senderId.getPrivateKey());
+            wa.message.signMessageV2(wa.senderId.getPrivateKey());
             
             if( !wa.message.save() ) {
                 logger.severe("Save of signed msg failed. This was a HARD error, please report to a dev!");
@@ -346,7 +346,7 @@ public class MessageUploader {
                 // encrypt + sign
                 // first encrypt, then sign
 
-                byte[] encData = Core.getCrypto().encrypt(zipped, wa.encryptForRecipient.getKey());
+                byte[] encData = Core.getCrypto().encrypt(zipped, wa.encryptForRecipient.getPublicKey());
                 if( encData == null ) {
                     logger.severe("Error: could not encrypt the message, please report to a dev!");
                     return false;
@@ -393,8 +393,8 @@ public class MessageUploader {
             // for sure, set fromname
             wa.message.setFromName(wa.senderId.getUniqueName());
             // sign msg
-            wa.message.signMessageV1(wa.senderId.getPrivKey());
-            wa.message.signMessageV2(wa.senderId.getPrivKey());
+            wa.message.signMessageV1(wa.senderId.getPrivateKey());
+            wa.message.signMessageV2(wa.senderId.getPrivateKey());
         }
 
         // save msg to uploadFile

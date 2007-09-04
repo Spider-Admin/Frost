@@ -21,17 +21,19 @@ package frost.fileTransfer;
 import java.util.*;
 import java.util.logging.*;
 
+import org.garret.perst.*;
 import org.joda.time.*;
 
+import frost.fcp.*;
 import frost.fileTransfer.download.*;
 import frost.identities.*;
+import frost.storage.perst.filelist.*;
 import frost.util.*;
 
-public class FrostFileListFileObject {
+public class FrostFileListFileObject extends Persistent {
 
     private static final Logger logger = Logger.getLogger(FrostFileListFileObject.class.getName());
 
-    private Long primkey = null;
     private String sha = null;  // SHA of the file
     private long size = 0;      // Filesize
     private String key = null;  // CHK key
@@ -46,23 +48,22 @@ public class FrostFileListFileObject {
     
     private long requestLastSent = 0;      // time when we sent the last request for this file
     private int requestsSentCount = 0;     // sent requests count
-    
-    // non-persistent fields
-    private String displayName = null;
-    private String displayComment = null;
-    private String displayKeywords = null;
-    private int displayRating = -1;
-    private Boolean hasInfosFromMultipleSources = null;
 
-    private List<FrostFileListFileObjectOwner> frostFileListFileObjectOwnerList = new LinkedList<FrostFileListFileObjectOwner>();
-    
-    private List<FrostDownloadItem> listeners = new ArrayList<FrostDownloadItem>();
+    private IPersistentList<FrostFileListFileObjectOwner> frostFileListFileObjectOwnerList;
+
+    // non-persistent fields
+    private transient String displayName = null;
+    private transient String displayComment = null;
+    private transient String displayKeywords = null;
+    private transient int displayRating = -1;
+    private transient Boolean hasInfosFromMultipleSources = null;
+
+    private transient List<FrostDownloadItem> listeners;
     
     /**
      * Used if item is loaded from database.
      */
     public FrostFileListFileObject(
-            long newPrimkey,
             String newSha1, 
             long newSize, 
             String newKey, 
@@ -75,7 +76,6 @@ public class FrostFileListFileObject {
             long newRequestLastSent,
             int newRequestSentCount) 
     {
-        primkey = new Long(newPrimkey);
         sha = newSha1;
         size = newSize;
         key = newKey;
@@ -130,14 +130,18 @@ public class FrostFileListFileObject {
         addFrostFileListFileObjectOwner(ob);
     }
 
-    public List<FrostFileListFileObjectOwner> getFrostFileListFileObjectOwnerList() {
+    public IPersistentList<FrostFileListFileObjectOwner> getFrostFileListFileObjectOwnerList() {
+        if( frostFileListFileObjectOwnerList == null ) {
+            frostFileListFileObjectOwnerList = FileListStorage.inst().createList();
+        }
         return frostFileListFileObjectOwnerList;
     }
     public void addFrostFileListFileObjectOwner(FrostFileListFileObjectOwner v) {
-        frostFileListFileObjectOwnerList.add(v);
+        v.setFileListFileObject(this);
+        getFrostFileListFileObjectOwnerList().add(v);
     }
     public void deleteFrostFileListFileObjectOwner(FrostFileListFileObjectOwner v) {
-        frostFileListFileObjectOwnerList.remove(v);
+        getFrostFileListFileObjectOwnerList().remove(v);
     }
 
     public String getKey() {
@@ -181,13 +185,6 @@ public class FrostFileListFileObject {
 
     public long getSize() {
         return size;
-    }
-
-    public Long getPrimkey() {
-        return primkey;
-    }
-    public void setPrimkey(Long pk) {
-        primkey = pk;
     }
 
     public long getRequestLastReceived() {
@@ -400,22 +397,104 @@ public class FrostFileListFileObject {
     }
     
     public void addListener(FrostDownloadItem d) {
-        if( !listeners.contains(d) ) {
-            listeners.add(d);
+        if( !getListeners().contains(d) ) {
+            getListeners().add(d);
         }
     }
     public void removeListener(FrostDownloadItem d) {
-        if( listeners.contains(d) ) {
-            listeners.remove(d);
+        if( getListeners().contains(d) ) {
+            getListeners().remove(d);
         }
     }
     public List<FrostDownloadItem> getListeners() {
+        if( listeners == null ) {
+            listeners = new ArrayList<FrostDownloadItem>();
+        }
         return listeners;
     }
     private void notifyListeners() {
-        for(Iterator<FrostDownloadItem> i=listeners.iterator(); i.hasNext(); ) {
+        for(Iterator<FrostDownloadItem> i=getListeners().iterator(); i.hasNext(); ) {
             FrostDownloadItem dl = i.next();
             dl.fireValueChanged();
         }
+    }
+    
+    public boolean updateFromOtherFileListFile(FrostFileListFileObject fof) {
+        // file is already in FILELIST table, maybe add new FILEOWNER and update fields
+        // maybe update oldSfo
+        boolean doUpdate = false;
+        if( getKey() == null && fof.getKey() != null ) {
+            setKey(fof.getKey()); doUpdate = true;
+        } else if( getKey() != null && fof.getKey() != null ) {
+            // fix to replace 0.7 keys before 1010 on the fly
+            if( FreenetKeys.isOld07ChkKey(getKey()) && !FreenetKeys.isOld07ChkKey(fof.getKey()) ) {
+                // replace old chk key with new one
+                setKey(fof.getKey()); doUpdate = true;
+            }
+        }
+        if( getFirstReceived() > fof.getFirstReceived() ) {
+            setFirstReceived(fof.getFirstReceived()); doUpdate = true;
+        }
+        if( getLastReceived() < fof.getLastReceived() ) {
+            setLastReceived(fof.getLastReceived()); doUpdate = true;
+        }
+        if( getLastUploaded() < fof.getLastUploaded() ) {
+            setLastUploaded(fof.getLastUploaded()); doUpdate = true;
+        }
+        if( getLastDownloaded() < fof.getLastDownloaded() ) {
+            setLastDownloaded(fof.getLastDownloaded()); doUpdate = true;
+        }
+        if( getRequestLastReceived() < fof.getRequestLastReceived() ) {
+            setRequestLastReceived(fof.getRequestLastReceived()); doUpdate = true;
+        }
+        if( getRequestLastSent() < fof.getRequestLastSent() ) {
+            setRequestLastSent(fof.getRequestLastSent()); doUpdate = true;
+        }
+        if( getRequestsReceivedCount() < fof.getRequestsReceivedCount() ) {
+            setRequestsReceivedCount(fof.getRequestsReceivedCount()); doUpdate = true;
+        }
+        if( getRequestsSentCount() < fof.getRequestsSentCount() ) {
+            setRequestsSentCount(fof.getRequestsSentCount()); doUpdate = true;
+        }
+        
+        for(Iterator<FrostFileListFileObjectOwner> i=fof.getFrostFileListFileObjectOwnerList().iterator(); i.hasNext(); ) {
+            
+            FrostFileListFileObjectOwner obNew = i.next();
+            
+            // check if we have an owner object for this sharer
+            FrostFileListFileObjectOwner obOld = null;
+            for(FrostFileListFileObjectOwner o : getFrostFileListFileObjectOwnerList()) {
+                if( o.getOwner().equals(obNew.getOwner()) ) {
+                    obOld = o;
+                    break;
+                }
+            }
+            
+            if( obOld == null ) {
+                // add new
+                addFrostFileListFileObjectOwner(obNew);
+                doUpdate = true;
+            } else {
+                // update existing
+                if( obOld.getLastReceived() < obNew.getLastReceived() ) {
+
+                    obOld.setLastReceived(obNew.getLastReceived());
+                    obOld.setName(obNew.getName());
+                    obOld.setLastUploaded(obNew.getLastUploaded());
+                    obOld.setComment(obNew.getComment());
+                    obOld.setKeywords(obNew.getKeywords());
+                    obOld.setRating(obNew.getRating());
+                    obOld.setKey(obNew.getKey());
+                    
+                    obOld.modify();
+                }
+            }
+        }
+
+        if( doUpdate ) {
+            modify();
+        }
+        
+        return doUpdate;
     }
 }

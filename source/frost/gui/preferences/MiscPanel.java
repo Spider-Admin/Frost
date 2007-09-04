@@ -69,7 +69,7 @@ class MiscPanel extends JPanel {
     private JCheckBox showSystrayIconCheckBox = new JCheckBox();
     private JCheckBox minimizeToSystrayCheckBox = new JCheckBox();
     private JCheckBox splashScreenCheckBox = new JCheckBox();
-    private JCheckBox compactDatabaseAtNextStartupCheckBox = new JCheckBox();
+//    private JCheckBox compactDatabaseAtNextStartupCheckBox = new JCheckBox();
 
     /**
      * @param settings the SettingsClass instance that will be used to get and store the settings of the panel
@@ -201,8 +201,8 @@ class MiscPanel extends JPanel {
         add(showSystrayIconCheckBox, constraints);
         constraints.gridy++;
         add(minimizeToSystrayCheckBox, constraints);
-        constraints.gridy++;
-        add(compactDatabaseAtNextStartupCheckBox, constraints);
+//        constraints.gridy++;
+//        add(compactDatabaseAtNextStartupCheckBox, constraints);
 
         constraints.gridx = 0;
         constraints.gridy++;
@@ -231,7 +231,7 @@ class MiscPanel extends JPanel {
         altEditTextField.setEnabled(altEditCheckBox.isSelected());
         showSystrayIconCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_SYSTRAY_ICON));
         minimizeToSystrayCheckBox.setSelected(settings.getBoolValue(SettingsClass.MINIMIZE_TO_SYSTRAY));
-        compactDatabaseAtNextStartupCheckBox.setSelected(settings.getBoolValue(SettingsClass.COMPACT_DBTABLES));
+//        compactDatabaseAtNextStartupCheckBox.setSelected(settings.getBoolValue(SettingsClass.COMPACT_DBTABLES));
         availableNodesTextField.setText(settings.getValue(SettingsClass.AVAILABLE_NODES));
         altEditTextField.setText(settings.getValue(SettingsClass.ALTERNATE_EDITOR_COMMAND));
         autoSaveIntervalTextField.setText(Integer.toString(settings.getIntValue(SettingsClass.AUTO_SAVE_INTERVAL)));
@@ -276,7 +276,7 @@ class MiscPanel extends JPanel {
         splashScreenCheckBox.setText(language.getString("Options.miscellaneous.disableSplashscreen"));
         showSystrayIconCheckBox.setText(language.getString("Options.miscellaneous.showSysTrayIcon"));
         minimizeToSystrayCheckBox.setText(language.getString("Options.miscellaneous.minimizeToSystray"));
-        compactDatabaseAtNextStartupCheckBox.setText(language.getString("Options.miscellaneous.compactDatabaseAtNextStartup"));
+//        compactDatabaseAtNextStartupCheckBox.setText(language.getString("Options.miscellaneous.compactDatabaseAtNextStartup"));
         String off = language.getString("Options.common.off");
         altEditCheckBox.setText(language.getString("Options.miscellaneous.useEditorForWritingMessages") + " (" + off + ")");
 
@@ -301,7 +301,7 @@ class MiscPanel extends JPanel {
         settings.setValue(SettingsClass.AVAILABLE_NODES, availableNodesTextField.getText());
         settings.setValue(SettingsClass.SHOW_SYSTRAY_ICON, showSystrayIconCheckBox.isSelected());
         settings.setValue(SettingsClass.MINIMIZE_TO_SYSTRAY, minimizeToSystrayCheckBox.isSelected());
-        settings.setValue(SettingsClass.COMPACT_DBTABLES, compactDatabaseAtNextStartupCheckBox.isSelected());
+//        settings.setValue(SettingsClass.COMPACT_DBTABLES, compactDatabaseAtNextStartupCheckBox.isSelected());
         settings.setValue(SettingsClass.ALTERNATE_EDITOR_ENABLED, altEditCheckBox.isSelected());
         settings.setValue(SettingsClass.ALTERNATE_EDITOR_COMMAND, altEditTextField.getText());
         settings.setValue(SettingsClass.AUTO_SAVE_INTERVAL, autoSaveIntervalTextField.getText());

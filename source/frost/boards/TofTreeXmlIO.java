@@ -102,7 +102,7 @@ public class TofTreeXmlIO
 
         refreshModel( model, treeRootNode );
         
-        model.initialSetPrimaryKeys();
+        model.initialAssignPerstFrostBoardObjects();
 
         tree.updateUI();
 

@@ -22,7 +22,6 @@ package frost;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
-import java.sql.*;
 import java.util.*;
 import java.util.List;
 import java.util.logging.*;
@@ -45,7 +44,11 @@ import frost.gui.sentmessages.*;
 import frost.gui.unsentmessages.*;
 import frost.messages.*;
 import frost.storage.*;
-import frost.storage.database.applayer.*;
+import frost.storage.perst.*;
+import frost.storage.perst.filelist.*;
+import frost.storage.perst.identities.*;
+import frost.storage.perst.messagearchive.*;
+import frost.storage.perst.messages.*;
 import frost.threads.*;
 import frost.util.*;
 import frost.util.gui.*;
@@ -818,41 +821,17 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         
         activateGlassPane(); // lock gui, show progress
         
-        try {
-            msgCount = AppLayerDatabase.getMessageTable().getMessageCount();
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error retrieving msg count from db", e);
-        }
+        msgCount = MessageStorage.inst().getMessageCount();
 
-        try {
-            arcMsgCount = AppLayerDatabase.getMessageArchiveTable().getMessageCount();
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error retrieving arc msg count from db", e);
-        }
+        arcMsgCount = ArchiveMessageStorage.inst().getMessageCount();
 
-        try {
-            idCount = AppLayerDatabase.getIdentitiesDatabaseTable().getIdentityCount();
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error retrieving id count from db", e);
-        }
+        idCount = IdentitiesStorage.inst().getIdentityCount();
         
-        try {
-            fileCount = AppLayerDatabase.getFileListDatabaseTable().getFileCount();
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error retrieving file count from db", e);
-        }
+        fileCount = FileListStorage.inst().getFileCount();
 
-        try {
-            sharerCount = AppLayerDatabase.getFileListDatabaseTable().getSharerCount();
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error retrieving sharer count from db", e);
-        }
+        sharerCount = FileListStorage.inst().getSharerCount();
 
-        try {
-            fileSizes = AppLayerDatabase.getFileListDatabaseTable().getFileSizes();
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error retrieving file sizes from db", e);
-        }
+        fileSizes = FileListStorage.inst().getFileSizes();
 
         deactivateGlassPane();
         
@@ -1000,7 +979,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
                 Thread t = new Thread() {
                     public void run() {
                         try {
-                            AppLayerDatabase.getFileListDatabaseTable().resetLastDownloaded();
+                            FileListStorage.inst().resetLastDownloaded();
                         } catch(Throwable tt) {
                             logger.log(Level.SEVERE, "Exception during resetLastDownloaded", tt);
                         }

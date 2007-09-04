@@ -37,7 +37,7 @@ import frost.fileTransfer.common.*;
 import frost.gui.model.*;
 import frost.identities.*;
 import frost.storage.*;
-import frost.storage.database.applayer.*;
+import frost.storage.perst.identities.*;
 import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
@@ -497,13 +497,12 @@ public class IdentitiesBrowser extends JDialog {
                     }
                     Arrays.sort(selRows); // ensure sorted, we must delete from end to begin 
                     for( int x=selRows.length-1; x>=0; x-- ) {
-                        
                         InnerTableMember m = (InnerTableMember)tableModel.getRow(selRows[x]);
                         Identity id = m.getIdentity();
-                        Core.getIdentities().deleteIdentity(id);
-
+                        Core.getIdentities().deleteIdentity(id, false);
                         tableModel.removeRow(selRows[x]);
                     }
+                    IdentitiesStorage.inst().commitStore();
                     updateTitle();
                 }
             });
@@ -519,10 +518,10 @@ public class IdentitiesBrowser extends JDialog {
         String lastSeenStr;
         String htmlName;
         
-        public InnerTableMember(Identity i, Hashtable<String,IdentitiesDatabaseTable.IdentityMsgAndFileCount> idDatas) {
+        public InnerTableMember(Identity i, Hashtable<String,IdentitiesStorage.IdentityMsgAndFileCount> idDatas) {
             identity = i;
             
-            IdentitiesDatabaseTable.IdentityMsgAndFileCount data = idDatas.get(identity.getUniqueName());
+            IdentitiesStorage.IdentityMsgAndFileCount data = idDatas.get(identity.getUniqueName());
             if( data != null ) {
                 msgCount = new Integer(data.getMessageCount());
                 fileCount = new Integer(data.getFileCount());
@@ -773,12 +772,12 @@ public class IdentitiesBrowser extends JDialog {
                 }
 
                 // query ALL data for all identities, each InnerTableMember gets its values from the complete list
-                Hashtable<String,IdentitiesDatabaseTable.IdentityMsgAndFileCount> idDatas;
+                Hashtable<String,IdentitiesStorage.IdentityMsgAndFileCount> idDatas;
                 try {
-                    idDatas = AppLayerDatabase.getIdentitiesDatabaseTable().retrieveMsgAndFileCountPerIdentity();
+                    idDatas = IdentitiesStorage.inst().retrieveMsgAndFileCountPerIdentity();
                 } catch(SQLException ex) {
                     logger.log(Level.SEVERE, "Error retrieving idDatas", ex);
-                    idDatas = new Hashtable<String,IdentitiesDatabaseTable.IdentityMsgAndFileCount>();
+                    idDatas = new Hashtable<String,IdentitiesStorage.IdentityMsgAndFileCount>();
                 }
 
                 progressMonitor.setProgress(2);
@@ -857,20 +856,14 @@ public class IdentitiesBrowser extends JDialog {
                     }
 
                     // batch delete, turn off autocommit
-                    try {
-                        AppLayerDatabase.getInstance().setAutoCommitOff();
-                        for( Iterator iter = li.iterator(); iter.hasNext(); ) {
-                            Integer element = (Integer) iter.next();
-                            InnerTableMember m = (InnerTableMember)tableModel.getRow(element.intValue());
-                            Identity id = m.getIdentity();
-                            Core.getIdentities().deleteIdentity(id);
-                            tableModel.removeRow(element.intValue());
-                        }
-                        AppLayerDatabase.getInstance().commit();
-                        AppLayerDatabase.getInstance().setAutoCommitOn();
-                    } catch(Throwable t) {
-                        logger.log(Level.SEVERE, "database exception", t);
+                    for( Iterator iter = li.iterator(); iter.hasNext(); ) {
+                        Integer element = (Integer) iter.next();
+                        InnerTableMember m = (InnerTableMember)tableModel.getRow(element.intValue());
+                        Identity id = m.getIdentity();
+                        Core.getIdentities().deleteIdentity(id, false); // don't commit
+                        tableModel.removeRow(element.intValue());
                     }
+                    IdentitiesStorage.inst().commitStore();
                     updateTitle();
                 }
             });
@@ -1066,7 +1059,7 @@ public class IdentitiesBrowser extends JDialog {
                         return;
                     }
                     
-                    List importedIdentities = IdentitiesXmlDAO.loadIdentities(xmlFile);
+                    List<Identity> importedIdentities = IdentitiesXmlDAO.loadIdentities(xmlFile);
                     if( importedIdentities.size() == 0 ) {
                         // nothing loaded
                         JOptionPane.showMessageDialog(
