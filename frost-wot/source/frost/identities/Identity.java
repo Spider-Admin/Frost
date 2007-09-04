@@ -18,40 +18,84 @@
 */
 package frost.identities;
 
-import java.sql.*;
 import java.util.logging.*;
 
+import org.garret.perst.*;
 import org.w3c.dom.*;
 import org.xml.sax.*;
 
 import frost.*;
 import frost.messages.*;
-import frost.storage.database.applayer.*;
+import frost.storage.perst.identities.*;
 import frost.util.*;
 
 /**
  * Represents a user identity, should be immutable.
  */
-public class Identity implements XMLizable {
-
-    private static final int GOOD    = 1;
-    private static final int CHECK   = 2;
-    private static final int OBSERVE = 3;
-    private static final int BAD     = 4;
+public class Identity extends Persistent implements XMLizable {
     
-    private static final String GOOD_STRING    = "GOOD";
-    private static final String CHECK_STRING   = "CHECK";
-    private static final String OBSERVE_STRING = "OBSERVE";
-    private static final String BAD_STRING     = "BAD";
+    private transient String publicKey;
+    
+    private PerstIdentityPublicKey pPublicKey;
+    
+    @Override
+    public boolean recursiveLoading() {
+        return false;
+    }
+    
+    @Override
+    public void deallocate() {
+        if( pPublicKey != null ) {
+            pPublicKey.deallocate();
+            pPublicKey = null;
+        }
+        super.deallocate();
+    }
+
+    class PerstIdentityPublicKey extends Persistent {
+        private String perstPublicKey;
+        public PerstIdentityPublicKey() {}
+        public PerstIdentityPublicKey(String pk) {
+            perstPublicKey = pk;
+        }
+        public String getPublicKey() {
+            return perstPublicKey;
+        }
+        public void onLoad() {
+            System.out.println("load pubkey");
+        }
+        @Override
+        public boolean recursiveLoading() {
+            return false; // load publicKey on demand
+        }
+    }
+    
+    public void onStore() {
+        if( pPublicKey == null && publicKey != null ) {
+            // link public key
+            pPublicKey = new PerstIdentityPublicKey(publicKey);
+        }
+    }
+    
+    private static transient final int GOOD    = 1;
+    private static transient final int CHECK   = 2;
+    private static transient final int OBSERVE = 3;
+    private static transient final int BAD     = 4;
+    
+    private static transient final String GOOD_STRING    = "GOOD";
+    private static transient final String CHECK_STRING   = "CHECK";
+    private static transient final String OBSERVE_STRING = "OBSERVE";
+    private static transient final String BAD_STRING     = "BAD";
 
     private String uniqueName;
-    protected String key;
     private long lastSeenTimestamp = -1;
 
-    int state = 2;
-    String stateString = CHECK_STRING; 
+    private int state = 2;
+    private transient String stateString = CHECK_STRING; 
 
-    private static final Logger logger = Logger.getLogger(Identity.class.getName());
+    private static transient final Logger logger = Logger.getLogger(Identity.class.getName());
+    
+    public Identity() {}
 
     //if this was C++ LocalIdentity wouldn't work
     //fortunately we have virtual construction so loadXMLElement will be called
@@ -74,7 +118,7 @@ public class Identity implements XMLizable {
         el.appendChild( element );
 
         element = doc.createElement("key");
-        cdata = doc.createCDATASection(getKey());
+        cdata = doc.createCDATASection(getPublicKey());
         element.appendChild( cdata );
         el.appendChild( element );
 
@@ -91,7 +135,7 @@ public class Identity implements XMLizable {
         el.appendChild( element );
 
         element = doc.createElement("key");
-        cdata = doc.createCDATASection(getKey());
+        cdata = doc.createCDATASection(getPublicKey());
         element.appendChild( cdata );
         el.appendChild( element );
 
@@ -112,7 +156,7 @@ public class Identity implements XMLizable {
 
     public void loadXMLElement(Element e) throws SAXException {
         uniqueName = XMLTools.getChildElementsCDATAValue(e, "name");
-        key =  XMLTools.getChildElementsCDATAValue(e, "key");
+        publicKey =  XMLTools.getChildElementsCDATAValue(e, "key");
 
         String _lastSeenStr = XMLTools.getChildElementsTextValue(e,"lastSeen");
         if( _lastSeenStr != null && ((_lastSeenStr=_lastSeenStr.trim())).length() > 0 ) {
@@ -129,11 +173,11 @@ public class Identity implements XMLizable {
      * we use this constructor whenever we have all the info
      */
     public Identity(String name, String key) {
-        this.key = key;
+        this.publicKey = key;
         if( name.indexOf("@") != -1 ) {
             this.uniqueName = name;
         } else {
-            this.uniqueName = name + "@" + Core.getCrypto().digest(getKey());
+            this.uniqueName = name + "@" + Core.getCrypto().digest(getPublicKey());
         }
         
         uniqueName = Mixed.makeFilename(uniqueName);
@@ -142,7 +186,7 @@ public class Identity implements XMLizable {
 
     public Identity(String uname, String pubkey, long lseen, int s) {
         uniqueName = uname;
-        key = pubkey;
+        publicKey = pubkey;
         lastSeenTimestamp = lseen;
         state = s;
         updateStateString();
@@ -153,21 +197,25 @@ public class Identity implements XMLizable {
     /**
      * @return  the public key of this Identity
      */
-    public String getKey() {
-        return key;
+    public String getPublicKey() {
+        if( publicKey == null && pPublicKey != null ) {
+            pPublicKey.load();
+            return pPublicKey.getPublicKey();
+        }
+        return publicKey;
     }
 
     public String getUniqueName() {
         return uniqueName;
     }
 
-    // dont't store BoardAttachement with pubKey=SSK@...
+    // dont't store BoardAttachment with pubKey=SSK@...
     public static boolean isForbiddenBoardAttachment(BoardAttachment ba) {
         if( ba != null &&
             ba.getBoardObj().getPublicKey() != null &&
             ba.getBoardObj().getPublicKey().startsWith("SSK@") )
         {
-            return true; // let delete SKK pubKey board
+            return true; // let delete SSK pubKey board
         } else {
             return false;
         }
@@ -179,7 +227,7 @@ public class Identity implements XMLizable {
 
     public void updateLastSeenTimestamp(long v) {
         lastSeenTimestamp = v;
-        updateIdentitiesDatabaseTable();
+        updateIdentitiesStorage();
     }
 
     public int getState() {
@@ -206,22 +254,22 @@ public class Identity implements XMLizable {
     public void setGOOD() {
         state=GOOD;
         updateStateString();
-        updateIdentitiesDatabaseTable();
+        updateIdentitiesStorage();
     }
     public void setCHECK() {
         state=CHECK;
         updateStateString();
-        updateIdentitiesDatabaseTable();
+        updateIdentitiesStorage();
     }
     public void setOBSERVE() {
         state=OBSERVE;
         updateStateString();
-        updateIdentitiesDatabaseTable();
+        updateIdentitiesStorage();
     }
     public void setBAD() {
         state=BAD;
         updateStateString();
-        updateIdentitiesDatabaseTable();
+        updateIdentitiesStorage();
     }
 
     public void setGOODWithoutUpdate() {
@@ -259,19 +307,15 @@ public class Identity implements XMLizable {
         return stateString;
     }
     
-    protected boolean updateIdentitiesDatabaseTable() {
+    protected boolean updateIdentitiesStorage() {
         if( FrostIdentities.isDatabaseUpdatesAllowed() == false ) {
             return false;
         }
-        if( this instanceof LocalIdentity ) {
-            return false; // nothing to save here
+        if( getStorage() == null ) {
+            return false;
         }
-        try {
-            AppLayerDatabase.getIdentitiesDatabaseTable().updateIdentity(this);
-            return true;
-        } catch(SQLException ex) {
-            logger.log(Level.SEVERE, "Error updating an identity", ex);
-        }
-        return false;
+        modify();
+        IdentitiesStorage.inst().commitStore();
+        return true;
     }
 }

@@ -19,7 +19,6 @@
 package frost;
 
 import java.io.*;
-import java.sql.*;
 import java.util.*;
 import java.util.Timer;
 import java.util.logging.*;
@@ -39,8 +38,11 @@ import frost.gui.help.*;
 import frost.identities.*;
 import frost.messages.*;
 import frost.storage.*;
-import frost.storage.database.applayer.*;
 import frost.storage.perst.*;
+import frost.storage.perst.filelist.*;
+import frost.storage.perst.identities.*;
+import frost.storage.perst.messagearchive.*;
+import frost.storage.perst.messages.*;
 import frost.threads.*;
 import frost.util.*;
 import frost.util.Logging;
@@ -256,7 +258,7 @@ public class Core implements FrostEventDispatcher  {
         }
         
         // first startup, no migrate needed
-        frostSettings.setValue(SettingsClass.MIGRATE_VERSION, 1);
+        frostSettings.setValue(SettingsClass.MIGRATE_VERSION, 2);
         
         // set used version
         frostSettings.setValue(SettingsClass.FREENET_VERSION, startdlg.getFreenetVersion()); // 5 or 7
@@ -295,38 +297,35 @@ public class Core implements FrostEventDispatcher  {
             showFirstStartupDialog();
         }
 
-        // open databases
-        boolean compactTables = frostSettings.getBoolValue(SettingsClass.COMPACT_DBTABLES);
-        try {
-            if( compactTables ) {
-                splashscreen.setText("Compacting database tables...");
-            }
-            AppLayerDatabase.initialize(compactTables);
-            if( compactTables ) {
-                splashscreen.setText(language.getString("Splashscreen.message.1"));
-            }
-        } catch(SQLException ex) {
-            logger.log(Level.SEVERE, "Error opening the databases", ex);
-            ex.printStackTrace();
-            throw ex;
+        // migrate various tables from McKoi to perst (migrate version 0 -> 1 )
+        if( frostSettings.getIntValue(SettingsClass.MIGRATE_VERSION) < 1 ) {
+            logger.log(Level.SEVERE, "Error: You must update this Frost version from version 19-Jul-2007 !!!");
+            System.exit(8);
         }
-        frostSettings.setValue(SettingsClass.COMPACT_DBTABLES, false);
+
+        // convert from 1 to 2: convert perst storages to UTF-8 format
+        if( frostSettings.getIntValue(SettingsClass.MIGRATE_VERSION) == 1 ) {
+            boolean wasOk = false;
+            wasOk = ConvertStorageToUtf8.convertStorageToUtf8("sfChkKeys");
+            if( wasOk ) {
+                wasOk = ConvertStorageToUtf8.convertStorageToUtf8("filesStore");
+            }
+            if( !wasOk ) {
+                System.out.println("ERROR during conversion to UTF-8. Restore your Frost backup, provide some more free space on the drive and retry.");
+                System.exit(8);
+            }
+        }
         
         // initialize perst storages
         IndexSlotsStorage.inst().initStorage();
         SharedFilesCHKKeyStorage.inst().initStorage();
         FrostFilesStorage.inst().initStorage();
-        
-        // migrate various tables from McKoi to perst (migrate version 0 -> 1 )
-        if( frostSettings.getIntValue(SettingsClass.MIGRATE_VERSION) < 1 ) {
-            if( new Migrate0to1().run() == false ) {
-                System.out.println("Error during migration!");
-                System.exit(8);
-            }
-            frostSettings.setValue(SettingsClass.MIGRATE_VERSION, 1);
-            frostSettings.save();
-        }
-        
+        MessageStorage.inst().initStorage();
+        MessageContentStorage.inst().initStorage();
+        ArchiveMessageStorage.inst().initStorage();
+        IdentitiesStorage.inst().initStorage();
+        FileListStorage.inst().initStorage();
+
         // CLEANS TEMP DIR! START NO INSERTS BEFORE THIS DID RUN
         Startup.startupCheck(frostSettings);
 
@@ -342,7 +341,17 @@ public class Core implements FrostEventDispatcher  {
 
         splashscreen.setText(language.getString("Splashscreen.message.3"));
         splashscreen.setProgress(60);
-
+        
+        // migrate various tables from McKoi to perst (migrate version 1 -> 2 )
+        Migrate1to2 migrate1to2 = null;
+        if( frostSettings.getIntValue(SettingsClass.MIGRATE_VERSION) == 1 ) {
+            migrate1to2 = new Migrate1to2();
+            if( migrate1to2.runStep1() == false ) {
+                System.out.println("Error during migration step 1!");
+                System.exit(8);
+            }
+        }
+        
         // needs to be done before knownboard import, the keychecker needs to know the freenetversion!
         if (!initializeConnectivity()) {
             System.exit(1);
@@ -367,12 +376,22 @@ public class Core implements FrostEventDispatcher  {
         mainFrame = new MainFrame(frostSettings, title);
         KnownBoardsManager.initialize();
         getBoardsManager().initialize();
+
+        if( migrate1to2 != null ) {
+            if( migrate1to2.runStep2() == false ) {
+                System.out.println("Error during migration step 2!");
+                System.exit(8);
+            }
+            frostSettings.setValue(SettingsClass.MIGRATE_VERSION, 2);
+            frostSettings.save();
+        }
+
         getFileTransferManager().initialize();
         UnsentMessagesManager.initialize();
         
         splashscreen.setText(language.getString("Splashscreen.message.4"));
         splashscreen.setProgress(70);
-
+        
         // Display the tray icon (do this before mainframe initializes)
         if (frostSettings.getBoolValue(SettingsClass.SHOW_SYSTRAY_ICON) == true) {
             try {
@@ -410,7 +429,7 @@ public class Core implements FrostEventDispatcher  {
         // boot up the machinery ;)
         initializeTasks(mainFrame);
     }
-
+    
     public FileTransferManager getFileTransferManager() {
         if (fileTransferManager == null) {
             fileTransferManager = FileTransferManager.inst();
@@ -459,12 +478,15 @@ public class Core implements FrostEventDispatcher  {
         
         saver.addExitSavable(frostSettings);
 
-        // close databases
-        saver.addExitSavable(AppLayerDatabase.getInstance());
         // close perst Storages
         saver.addExitSavable(IndexSlotsStorage.inst());
         saver.addExitSavable(SharedFilesCHKKeyStorage.inst());
         saver.addExitSavable(FrostFilesStorage.inst());
+        saver.addExitSavable(MessageContentStorage.inst());
+        saver.addExitSavable(MessageStorage.inst());
+        saver.addExitSavable(ArchiveMessageStorage.inst());
+        saver.addExitSavable(IdentitiesStorage.inst());
+        saver.addExitSavable(FileListStorage.inst());
 
         // invoke the mainframe ticker (board updates, clock, ...)
         mainframe.startTickerThread();

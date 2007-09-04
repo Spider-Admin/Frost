@@ -86,7 +86,7 @@ public class FileListFile {
                     content.getFileList(), 
                     content.getSendOwner().getUniqueName(),
                     content.getTimestamp());
-            String sig = Core.getCrypto().detachedSign(signContent, content.getSendOwner().getPrivKey());
+            String sig = Core.getCrypto().detachedSign(signContent, content.getSendOwner().getPrivateKey());
             if( sig == null ) {
                 return false;
             }
@@ -217,7 +217,7 @@ public class FileListFile {
         Identity owner = new Identity(identityNode);
         
         String signContent = getSignableContent(files, owner.getUniqueName(), timestamp);
-        boolean sigIsValid = Core.getCrypto().detachedVerify(signContent, owner.getKey(), signature);
+        boolean sigIsValid = Core.getCrypto().detachedVerify(signContent, owner.getPublicKey(), signature);
         if( !sigIsValid ) {
             logger.severe("Error: invalid file signature from owner "+owner.getUniqueName());
             return null;

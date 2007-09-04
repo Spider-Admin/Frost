@@ -28,4 +28,7 @@ public class FrostFilesStorageRoot extends Persistent {
     IPersistentList<PerstFrostUploadItem> uploadFiles;
     IPersistentList<PerstFrostSharedFileItem> sharedFiles;
     IPersistentList<NewUploadFile> newUploadFiles;
+    
+    IPersistentList<PerstHiddenBoardName> hiddenBoardNames;
+    Index<PerstKnownBoard> knownBoards;
 }

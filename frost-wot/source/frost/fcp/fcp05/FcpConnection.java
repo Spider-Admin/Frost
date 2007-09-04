@@ -302,7 +302,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
      * Retrieves the specified key and saves it to the file
      * specified.
      *
-     * @param key  the key to be retrieved
+     * @param publicKey  the key to be retrieved
      * @param filename  the filename to which the data should be saved
      * @param htl the HTL to use in this request
      * @return the results filled with metadata

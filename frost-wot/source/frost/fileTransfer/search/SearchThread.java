@@ -18,17 +18,18 @@
 */
 package frost.fileTransfer.search;
 
-import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
 import frost.fileTransfer.*;
 import frost.identities.*;
-import frost.storage.database.applayer.*;
+import frost.storage.*;
+import frost.storage.perst.*;
+import frost.storage.perst.filelist.*;
 import frost.util.*;
 
-class SearchThread extends Thread implements FileListDatabaseTableCallback {
+class SearchThread extends Thread implements FileListCallback {
 
     private static final Logger logger = Logger.getLogger(SearchThread.class.getName());
     
@@ -418,24 +419,20 @@ class SearchThread extends Thread implements FileListDatabaseTableCallback {
         allFileCount = 0;
 //        long start = System.currentTimeMillis();
 //        System.out.println(">>> Filesearch started...");
-        try {
-            if( searchParams.isSimpleSearch() ) {
-                AppLayerDatabase.getFileListDatabaseTable().retrieveFiles(
-                        this,
-                        searchParams.getSimpleSearchStrings(),
-                        searchParams.getSimpleSearchStrings(),
-                        searchParams.getSimpleSearchStrings(),
-                        null); // no owner search
-            } else {
-                AppLayerDatabase.getFileListDatabaseTable().retrieveFiles(
-                        this,
-                        searchParams.getName(),
-                        searchParams.getComment(),
-                        searchParams.getKeyword(),
-                        searchParams.getOwner());
-            }
-        } catch(SQLException e) {
-            logger.log(Level.SEVERE, "Catched exception", e);
+        if( searchParams.isSimpleSearch() ) {
+            FileListStorage.inst().retrieveFiles(
+                    this,
+                    searchParams.getSimpleSearchStrings(),
+                    searchParams.getSimpleSearchStrings(),
+                    searchParams.getSimpleSearchStrings(),
+                    null); // no owner search
+        } else {
+            FileListStorage.inst().retrieveFiles(
+                    this,
+                    searchParams.getName(),
+                    searchParams.getComment(),
+                    searchParams.getKeyword(),
+                    searchParams.getOwner());
         }
         
 //        long duration = System.currentTimeMillis() - start;

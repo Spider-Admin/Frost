@@ -18,7 +18,6 @@
 */
 package frost.boards;
 import java.awt.*;
-import java.sql.*;
 import java.util.*;
 import java.util.List;
 import java.util.logging.*;
@@ -32,7 +31,8 @@ import frost.*;
 import frost.gui.*;
 import frost.gui.messagetreetable.*;
 import frost.messages.*;
-import frost.storage.database.applayer.*;
+import frost.storage.*;
+import frost.storage.perst.messages.*;
 import frost.util.*;
 import frost.util.gui.translation.*;
 
@@ -144,12 +144,7 @@ public class TOF {
         
         final int oldNewMessageCount = board.getNewMessageCount();
 
-        try {
-            AppLayerDatabase.getMessageTable().setAllMessagesRead(board);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error marking all messages read", e);
-            return;
-        }
+        MessageStorage.inst().setAllMessagesRead(board);
         
         // if this board is currently shown, update messages in table
         final DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) 
@@ -195,7 +190,7 @@ public class TOF {
         FrostMessageObject invalidMsg = new FrostMessageObject(b, date, index, reason);
         invalidMsg.setNew(false);
         try {
-            AppLayerDatabase.getMessageTable().insertMessage(invalidMsg);
+            MessageStorage.inst().insertMessage(invalidMsg, true);
         } catch (Throwable e) {
             // paranoia
             logger.log(Level.SEVERE, "Error inserting invalid message into database", e);
@@ -228,7 +223,7 @@ public class TOF {
 
         int messageInsertedRC;
         try {
-            messageInsertedRC = AppLayerDatabase.getMessageTable().insertMessage(newMsg);
+            messageInsertedRC = MessageStorage.inst().insertMessage(newMsg, true);
         } catch (Throwable e) {
             // paranoia
             logger.log(Level.SEVERE, "Error inserting new message into database", e);
@@ -236,7 +231,7 @@ public class TOF {
         }
 
         // don't add msg if it was a duplicate or if insert into database failed
-        if( messageInsertedRC != MessageDatabaseTable.INSERT_OK ) {
+        if( messageInsertedRC != MessageStorage.INSERT_OK ) {
             return; // not inserted into database, do not add to gui
         }
 
@@ -446,7 +441,7 @@ public class TOF {
         /**
          * Adds new messages flat to the rootnode, blocked msgs are not added.
          */
-        private class FlatMessageRetrieval implements MessageDatabaseTableCallback {
+        private class FlatMessageRetrieval implements MessageCallback {
 
             private final FrostMessageObject rootNode;
             private final boolean blockMsgSubject;
@@ -472,7 +467,7 @@ public class TOF {
         /**
          * Adds new messages threaded to the rootnode, blocked msgs are removed if not needed for thread.
          */
-        private class ThreadedMessageRetrieval implements MessageDatabaseTableCallback {
+        private class ThreadedMessageRetrieval implements MessageCallback {
             
             FrostMessageObject rootNode;
             LinkedList<FrostMessageObject> messageList = new LinkedList<FrostMessageObject>();
@@ -655,16 +650,12 @@ public class TOF {
                         }
 
                         FrostMessageObject fmo = null;
-                        try {
-                            fmo = AppLayerDatabase.getMessageTable().retrieveMessageByMessageId(
-                                    board, 
-                                    anId, 
-                                    false, 
-                                    false, 
-                                    showDeletedMessages);
-                        } catch (SQLException e) {
-                            logger.log(Level.SEVERE, "Error retrieving message by id "+anId, e);
-                        }
+                        fmo = MessageStorage.inst().retrieveMessageByMessageId(
+                                board, 
+                                anId, 
+                                false, 
+                                false, 
+                                showDeletedMessages);
                         if( fmo == null ) {
                             // for each missing msg create a dummy FrostMessageObject and add it to tree.
                             // if the missing msg arrives later, replace dummy with true msg in tree
@@ -690,25 +681,18 @@ public class TOF {
         /**
          * Start to load messages one by one.
          */
-        private void loadMessages(MessageDatabaseTableCallback callback) {
+        private void loadMessages(MessageCallback callback) {
             
             boolean showDeletedMessages = Core.frostSettings.getBoolValue("showDeletedMessages");
             boolean showUnreadOnly = Core.frostSettings.getBoolValue(SettingsClass.SHOW_UNREAD_ONLY);
-            boolean showOlderFlaggedAndStarred = Core.frostSettings.getBoolValue(SettingsClass.ARCHIVE_KEEP_FLAGGED_AND_STARRED);
-            try {
-                AppLayerDatabase.getMessageTable().retrieveMessagesForShow(
-                        board, 
-                        daysToRead, 
-                        false, 
-                        false, 
-                        showDeletedMessages,
-                        showUnreadOnly,
-                        showOlderFlaggedAndStarred,
-                        callback);
-                
-            } catch (SQLException e) {
-                logger.log(Level.SEVERE, "Error retrieving messages for board "+board.getName(), e);
-            }
+            MessageStorage.inst().retrieveMessagesForShow(
+                    board, 
+                    daysToRead, 
+                    false, 
+                    false, 
+                    showDeletedMessages,
+                    showUnreadOnly,
+                    callback);
         }
         
         public void run() {
@@ -798,6 +782,16 @@ public class TOF {
                     tofTreeModel.getSelectedNode().getName().equals( innerTargetBoard.getName() ) ) 
             {
                 MessageTreeTable treeTable = MainFrame.getInstance().getMessageTreeTable();
+                
+                FrostMessageObject oldRootNode =treeTable.getRootNode();
+             // FIXME: perst - alte msgs invalidieren wenn anderes board gewählt wird?
+                for(Enumeration e=oldRootNode.breadthFirstEnumeration(); e.hasMoreElements(); ) {
+                    FrostMessageObject mo = (FrostMessageObject) e.nextElement();
+                    if( mo.getPerstFrostMessageObject() != null ) {
+                        mo.getPerstFrostMessageObject().invalidate();
+                        mo.setPerstFrostMessageObject(null);
+                    }
+                }
                 
                 treeTable.setNewRootNode(rootNode);
                 if( !Core.frostSettings.getBoolValue(SettingsClass.MSGTABLE_SHOW_COLLAPSED_THREADS) ) {
@@ -1007,11 +1001,7 @@ public class TOF {
         int beforeMessages = board.getNewMessageCount(); // remember old val to track if new msg. arrived
         
         int newMessages = 0;
-        try {
-            newMessages = AppLayerDatabase.getMessageTable().getNewMessageCount(board, daysToRead);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error retrieving new message count", e);
-        }
+        newMessages = MessageStorage.inst().getNewMessageCount(board);
 
         // count new messages arrived while processing
         int arrivedMessages = board.getNewMessageCount() - beforeMessages;
@@ -1024,12 +1014,8 @@ public class TOF {
         // check for flagged and starred messages in board
         boolean hasFlagged = false;
         boolean hasStarred = false;
-        try {
-            hasFlagged = AppLayerDatabase.getMessageTable().hasFlaggedMessages(board, daysToRead);
-            hasStarred = AppLayerDatabase.getMessageTable().hasStarredMessages(board, daysToRead);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "Error retrieving flag states", e);
-        }
+        hasFlagged = MessageStorage.inst().hasFlaggedMessages(board);
+        hasStarred = MessageStorage.inst().hasStarredMessages(board);
 
         board.hasFlaggedMessages(hasFlagged);
         board.hasStarredMessages(hasStarred);

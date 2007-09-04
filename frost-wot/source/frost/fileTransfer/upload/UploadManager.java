@@ -139,11 +139,12 @@ public class UploadManager {
                 getModel().notifySharedFileUploadWasSuccessful(uploadItem);
             } else {
                 // maybe log successful manual upload to file localdata/uploads.txt
-                if( Core.frostSettings.getBoolValue(SettingsClass.LOG_UPLOADS_ENABLED) ) {
+                if( Core.frostSettings.getBoolValue(SettingsClass.LOG_UPLOADS_ENABLED) && !uploadItem.isLoggedToFile() ) {
                     String line = uploadItem.getKey() + "/" + uploadItem.getFile().getName();
                     String fileName = Core.frostSettings.getValue(SettingsClass.DIR_LOCALDATA) + "Frost-Uploads.log";
                     File targetFile = new File(fileName);
                     FileAccess.appendLineToTextfile(targetFile, line);
+                    uploadItem.setLoggedToFile(true);
                 }
             }
 

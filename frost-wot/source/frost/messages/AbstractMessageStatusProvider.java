@@ -184,6 +184,17 @@ public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNo
         }
         return false;
     }
+    // utility method
+    public static boolean isSignatureStatusVERIFIED(int sigstat) {
+        if( sigstat == SIGNATURESTATUS_VERIFIED
+                || sigstat == SIGNATURESTATUS_VERIFIED_V1
+                || sigstat == SIGNATURESTATUS_VERIFIED_V2
+          ) 
+        {
+            return true;
+        }
+        return false;
+    }
     public boolean isSignatureStatusVERIFIED_V1() {
         return (getSignatureStatus() == SIGNATURESTATUS_VERIFIED_V1);
     }

@@ -211,7 +211,7 @@ public class MessageDownloader {
     
             // verify signature
             byte[] plaintext = FileAccess.readByteArray(tmpFile);
-            boolean sigIsValid = Core.getCrypto().detachedVerify(plaintext, owner.getKey(), metaData.getSig());
+            boolean sigIsValid = Core.getCrypto().detachedVerify(plaintext, owner.getPublicKey(), metaData.getSig());
     
             // now check if msg is encrypted and for me, if yes decrypt the zipped data
             if (_metaData.getType() == MetaData.ENCRYPT) {
@@ -227,7 +227,7 @@ public class MessageDownloader {
                 // 2. if yes, decrypt the content
                 LocalIdentity receiverId = Core.getIdentities().getLocalIdentity(encMetaData.getRecipient());
                 byte[] cipherText = FileAccess.readByteArray(tmpFile);
-                byte[] zipData = Core.getCrypto().decrypt(cipherText,receiverId.getPrivKey());
+                byte[] zipData = Core.getCrypto().decrypt(cipherText,receiverId.getPrivateKey());
     
                 if( zipData == null ) {
                     logger.severe( "TOFDN: Encrypted message from "+encMetaData.getPerson().getUniqueName()+
@@ -274,7 +274,7 @@ public class MessageDownloader {
             }
 
             // make sure the pubkey and from fields in the xml file are the same as those in the metadata
-            String metaDataHash = Mixed.makeFilename(Core.getCrypto().digest(metaData.getPerson().getKey()));
+            String metaDataHash = Mixed.makeFilename(Core.getCrypto().digest(metaData.getPerson().getPublicKey()));
             String messageHash = Mixed.makeFilename(
                         currentMsg.getFromName().substring(
                         currentMsg.getFromName().indexOf("@") + 1,
@@ -395,10 +395,10 @@ public class MessageDownloader {
             // now verify signed content
             final boolean sigIsValid;
             if( isSignedV2 ) {
-                sigIsValid = currentMsg.verifyMessageSignatureV2(owner.getKey());
+                sigIsValid = currentMsg.verifyMessageSignatureV2(owner.getPublicKey());
                 logger.info("TOFDN: verification of V2 signature: "+sigIsValid+"."+logInfo);
             } else {
-                sigIsValid = currentMsg.verifyMessageSignatureV1(owner.getKey());
+                sigIsValid = currentMsg.verifyMessageSignatureV1(owner.getPublicKey());
                 logger.info("TOFDN: verification of V1 signature: "+sigIsValid+"."+logInfo);
             }
 

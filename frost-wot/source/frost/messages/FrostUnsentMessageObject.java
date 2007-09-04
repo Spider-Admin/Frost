@@ -21,6 +21,8 @@ package frost.messages;
 import java.util.*;
 
 import frost.*;
+import frost.storage.perst.*;
+import frost.storage.perst.messages.*;
 import frost.threads.*;
 import frost.util.*;
 
@@ -28,6 +30,8 @@ import frost.util.*;
  * Same as FrostMessageObject, but adds some stuff needed only for unsend messages.
  */
 public class FrostUnsentMessageObject extends FrostMessageObject {
+    
+    private PerstFrostUnsentMessageObject perstFrostUnsentMessageObject = null; 
 
     private long timeAdded = 0;
     private String timeAddedString = null;
@@ -84,5 +88,13 @@ public class FrostUnsentMessageObject extends FrostMessageObject {
     }
     public void setSendAfter(long sendAfter) {
         this.sendAfter = sendAfter;
+    }
+
+    public PerstFrostUnsentMessageObject getPerstFrostUnsentMessageObject() {
+        return perstFrostUnsentMessageObject;
+    }
+
+    public void setPerstFrostUnsentMessageObject(PerstFrostUnsentMessageObject perstFrostUnsentMessageObject) {
+        this.perstFrostUnsentMessageObject = perstFrostUnsentMessageObject;
     }
 }

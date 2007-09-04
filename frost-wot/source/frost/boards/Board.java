@@ -19,6 +19,8 @@
 package frost.boards;
 
 import frost.*;
+import frost.storage.perst.*;
+import frost.storage.perst.messages.*;
 import frost.util.*;
 import frost.util.gui.translation.*;
 
@@ -29,7 +31,7 @@ public class Board extends AbstractNode {
     
     private static Language language = Language.getInstance();
     
-    private Integer primaryKey = null;
+    private PerstFrostBoardObject perstFrostBoardObject = null;
 
     private boolean autoUpdateEnabled = true; // must apply, no default
     private String boardDescription = null;
@@ -355,13 +357,6 @@ public class Board extends AbstractNode {
         isUpdating = val;
     }
 
-    public Integer getPrimaryKey() {
-        return primaryKey;
-    }
-    public void setPrimaryKey(Integer i) {
-        primaryKey = i;
-    }
-    
     /**
      * Returns true if board is allowed to be updated.
      * If a board is already updating only not running threads will be started.
@@ -407,5 +402,13 @@ public class Board extends AbstractNode {
     }
     public void hasStarredMessages(boolean newHasStarredMessages) {
         this.hasStarredMessages = newHasStarredMessages;
+    }
+
+    public PerstFrostBoardObject getPerstFrostBoardObject() {
+        return perstFrostBoardObject;
+    }
+
+    public void setPerstFrostBoardObject(PerstFrostBoardObject perstFrostBoardObject) {
+        this.perstFrostBoardObject = perstFrostBoardObject;
     }
 }

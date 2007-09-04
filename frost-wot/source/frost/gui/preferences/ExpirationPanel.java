@@ -40,6 +40,7 @@ class ExpirationPanel extends JPanel {
     private JTextField TfMessageExpireDays = new JTextField(8);
     
     private JCheckBox CbKeepFlaggedAndStarred = new JCheckBox();
+    private JCheckBox CbKeepUnread = new JCheckBox();
 
     /**
      * @param settings the SettingsClass instance that will be used to get and store the settings of the panel
@@ -108,6 +109,12 @@ class ExpirationPanel extends JPanel {
 
         constraints.gridx = 0;
         constraints.gridwidth = maxGridWidth;
+        add(CbKeepUnread, constraints);
+
+        constraints.gridy++;
+
+        constraints.gridx = 0;
+        constraints.gridwidth = maxGridWidth;
         add(CbKeepFlaggedAndStarred, constraints);
 
         // glue
@@ -144,6 +151,7 @@ class ExpirationPanel extends JPanel {
         }
         
         CbKeepFlaggedAndStarred.setSelected(settings.getBoolValue(SettingsClass.ARCHIVE_KEEP_FLAGGED_AND_STARRED));
+        CbKeepUnread.setSelected(settings.getBoolValue(SettingsClass.ARCHIVE_KEEP_UNREAD));
     }
 
     /**
@@ -164,6 +172,7 @@ class ExpirationPanel extends JPanel {
         }
         
         settings.setValue(SettingsClass.ARCHIVE_KEEP_FLAGGED_AND_STARRED, CbKeepFlaggedAndStarred.isSelected());
+        settings.setValue(SettingsClass.ARCHIVE_KEEP_UNREAD, CbKeepUnread.isSelected());
     }
 
     public void ok() {
@@ -178,5 +187,6 @@ class ExpirationPanel extends JPanel {
         LmessageExpireDays.setText(language.getString("Options.expiration.numberOfDaysBeforeMessageExpires") + " (90)");
         
         CbKeepFlaggedAndStarred.setText(language.getString("Options.expiration.keepFlaggedAndStarredMessages"));
+        CbKeepUnread.setText(language.getString("Options.expiration.keepUnreadMessages"));
     }
 }

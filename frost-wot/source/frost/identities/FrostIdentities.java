@@ -18,7 +18,6 @@
 */
 package frost.identities;
 
-import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
@@ -26,7 +25,7 @@ import javax.swing.*;
 
 import frost.*;
 import frost.storage.*;
-import frost.storage.database.applayer.*;
+import frost.storage.perst.identities.*;
 import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
@@ -38,8 +37,8 @@ public class FrostIdentities implements Savable {
 
     private static final Logger logger = Logger.getLogger(FrostIdentities.class.getName());
 
-    private Hashtable<String,Identity> identities = new Hashtable<String,Identity>();
-    private Hashtable<String,LocalIdentity> localIdentities = new Hashtable<String,LocalIdentity>();
+    private Hashtable<String,Identity> identities = null;
+    private Hashtable<String,LocalIdentity> localIdentities = null;
     
     Language language = Language.getInstance();
     
@@ -50,50 +49,33 @@ public class FrostIdentities implements Savable {
      */
     public void initialize(boolean freenetIsOnline) throws StorageException {
 
-        try {
-            List localIdentitiesList = AppLayerDatabase.getIdentitiesDatabaseTable().getLocalIdentities();
-            
-            // check if there is at least one identity in database, otherwise create one
-            if ( localIdentitiesList.size() == 0 ) {
-                // first startup, no identity available
-                if (freenetIsOnline == false) {
-                    MiscToolkit.getInstance().showMessage(
-                            language.getString("Core.loadIdentities.ConnectionNotEstablishedBody"),
-                            JOptionPane.ERROR_MESSAGE,
-                            language.getString("Core.loadIdentities.ConnectionNotEstablishedTitle"));
-                    System.exit(2);
-                }
-                
-                LocalIdentity mySelf = createIdentity(true);
-                if(mySelf == null) {
-                    logger.severe("Frost can't run without an identity.");
-                    System.exit(1);
-                }
-                addLocalIdentity(mySelf); // add and save
-            } else {
-                for(Iterator i=localIdentitiesList.iterator(); i.hasNext(); ) {
-                    LocalIdentity li = (LocalIdentity)i.next();
-                    localIdentities.put(li.getUniqueName(), li);
-                }
-            }
-            localIdentitiesList = null;
-            
-            // load all identities
-            List identitiesList = AppLayerDatabase.getIdentitiesDatabaseTable().getIdentities();
-            for(Iterator i=identitiesList.iterator(); i.hasNext(); ) {
-                Identity id = (Identity)i.next();
-                identities.put(id.getUniqueName(), id);
+        localIdentities = IdentitiesStorage.inst().loadLocalIdentities();
+        
+        // check if there is at least one identity in database, otherwise create one
+        if ( localIdentities.size() == 0 ) {
+            // first startup, no identity available
+            if (freenetIsOnline == false) {
+                MiscToolkit.getInstance().showMessage(
+                        language.getString("Core.loadIdentities.ConnectionNotEstablishedBody"),
+                        JOptionPane.ERROR_MESSAGE,
+                        language.getString("Core.loadIdentities.ConnectionNotEstablishedTitle"));
+                System.exit(2);
             }
             
-            // remove all own identities from identities
-            for(Iterator i=localIdentities.values().iterator(); i.hasNext(); ) {
-                LocalIdentity li = (LocalIdentity) i.next();
-                identities.remove(li.getUniqueName());
+            LocalIdentity mySelf = createIdentity(true);
+            if(mySelf == null) {
+                logger.severe("Frost can't run without an identity.");
+                System.exit(1);
             }
-            
-        } catch(SQLException ex) {
-            logger.log(Level.SEVERE, "error loading from database", ex);
-            throw new StorageException("error loading from database");
+            addLocalIdentity(mySelf); // add and save
+        }
+        
+        // load all identities
+        identities = IdentitiesStorage.inst().loadIdentities();
+        
+        // remove all own identities from identities
+        for(LocalIdentity li : localIdentities.values() ) {
+            identities.remove(li.getUniqueName());
         }
     }
     
@@ -201,12 +183,7 @@ public class FrostIdentities implements Savable {
             return false;
         }
         if( isDatabaseUpdatesAllowed() ) {
-            try {
-                AppLayerDatabase.getIdentitiesDatabaseTable().insertIdentity(id);
-            } catch (SQLException e) {
-                logger.log(Level.SEVERE, "error inserting new identity", e);
-                return false;
-            }
+            IdentitiesStorage.inst().insertIdentity(id);
         }
         identities.put(key, id);
         return true;
@@ -217,12 +194,7 @@ public class FrostIdentities implements Savable {
             return false;
         }
         if( isDatabaseUpdatesAllowed() ) {
-            try {
-                AppLayerDatabase.getIdentitiesDatabaseTable().insertLocalIdentity(li);
-            } catch (SQLException e) {
-                logger.log(Level.SEVERE, "error inserting new local identity", e);
-                return false;
-            }
+            IdentitiesStorage.inst().insertLocalIdentity(li);
         }
         localIdentities.put(li.getUniqueName(), li);
         return true;
@@ -235,27 +207,17 @@ public class FrostIdentities implements Savable {
         
         localIdentities.remove(li.getUniqueName());
         
-        try {
-            return AppLayerDatabase.getIdentitiesDatabaseTable().removeLocalIdentity(li);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "error removing local identity", e);
-            return false;
-        }
+        return IdentitiesStorage.inst().removeLocalIdentity(li);
     }
 
-    public boolean deleteIdentity(Identity li) {
+    public boolean deleteIdentity(Identity li, boolean doCommit) {
         if (!identities.containsKey(li.getUniqueName())) {
             return false;
         }
         
         identities.remove(li.getUniqueName());
         
-        try {
-            return AppLayerDatabase.getIdentitiesDatabaseTable().removeIdentity(li);
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "error removing identity", e);
-            return false;
-        }
+        return IdentitiesStorage.inst().removeIdentity(li, doCommit);
     }
 
     public boolean isMySelf(String uniqueName) {
@@ -276,8 +238,7 @@ public class FrostIdentities implements Savable {
 
     public List<Identity> getAllGOODIdentities() {
         List<Identity> list = new ArrayList<Identity>();
-        for( Iterator i = identities.values().iterator(); i.hasNext(); ) {
-            Identity id = (Identity)i.next();
+        for( Identity id : identities.values() ) {
             if( id.isGOOD() ) {
                 list.add(id);
             }
@@ -306,11 +267,6 @@ public class FrostIdentities implements Savable {
      * last files shared per board must be saved during exit.
      */
     public void save() throws StorageException {
-        try {
-            AppLayerDatabase.getIdentitiesDatabaseTable().saveLastFilesSharedPerIdentity(getLocalIdentities());
-        } catch (SQLException e) {
-            logger.log(Level.SEVERE, "error saving last files shared information", e);
-        }
     }
     
     /**
@@ -329,11 +285,10 @@ public class FrostIdentities implements Savable {
     }
     
     // TODO: merge the imported identities with the existing identities (WOT), use a mergeIdentities method
-    public int importIdentities(List importedIdentities) {
+    public int importIdentities(List<Identity> importedIdentities) {
         // for now we import new identities, and take over the trust state if our identity state is CHECK
         int importedCount = 0;
-        for(Iterator i=importedIdentities.iterator(); i.hasNext(); ) {
-            Identity newId = (Identity) i.next();
+        for(Identity newId : importedIdentities ) {
             if( !isNewIdentityValid(newId) ) {
                 // hash of public key does not match the unique name
                 // skip identity
@@ -360,7 +315,7 @@ public class FrostIdentities implements Savable {
     public boolean isIdentityValid(Identity id) {
 
         String uName = id.getUniqueName();
-        String puKey = id.getKey();
+        String puKey = id.getPublicKey();
 
         try {
             // check if the digest matches
@@ -395,7 +350,7 @@ public class FrostIdentities implements Savable {
         // check if the public key is known, maybe someone sends with same pubkey but different names before the @
         for( Iterator<Identity> i=getIdentities().iterator(); i.hasNext(); ) {
             Identity anId = i.next();
-            if( id.getKey().equals(anId.getKey()) ) {
+            if( id.getPublicKey().equals(anId.getPublicKey()) ) {
                 logger.severe("Rejecting new Identity because its public key is already used by another known Identity. "+
                         "newId='"+id.getUniqueName()+"', oldId='"+anId.getUniqueName()+"'");
                 return false;
@@ -405,7 +360,7 @@ public class FrostIdentities implements Savable {
         // for sure, check own identities too
         for( Iterator<LocalIdentity> i=getLocalIdentities().iterator(); i.hasNext(); ) {
             Identity anId = i.next();
-            if( id.getKey().equals(anId.getKey()) ) {
+            if( id.getPublicKey().equals(anId.getPublicKey()) ) {
                 logger.severe("Rejecting new Identity because its public key is already used by an OWN Identity. "+
                         "newId='"+id.getUniqueName()+"', oldId='"+anId.getUniqueName()+"'");
                 return false;

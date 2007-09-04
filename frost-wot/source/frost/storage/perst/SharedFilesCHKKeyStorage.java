@@ -75,12 +75,13 @@ public class SharedFilesCHKKeyStorage implements Savable {
         storage = null;
         System.out.println("INFO: SharedFilesCHKKeyStorage closed.");
     }
-
+    
     public boolean initStorage() {
         String databaseFilePath = "store/sfChkKeys.dbs"; // path to the database file
         int pagePoolSize = PAGE_SIZE*1024*1024; // size of page pool in bytes
 
         storage = StorageFactory.getInstance().createStorage();
+        storage.setProperty("perst.string.encoding", "UTF-8"); // use UTF-8 to store strings
         storage.setProperty("perst.concurrent.iterator", Boolean.TRUE); // remove() during iteration (for cleanup)
         storage.open(databaseFilePath, pagePoolSize);
 
@@ -100,22 +101,6 @@ public class SharedFilesCHKKeyStorage implements Savable {
         
         System.out.println("Repairing sfChkKeys.dbs...");
         
-//        try {
-//            FileWriter w = new FileWriter(new File("exp1.xml"));
-//            storage.exportXML(w);
-//            w.close();
-//        } catch(Throwable t) {
-//            t.printStackTrace();
-//        }
-//
-//        try {
-//            FileOutputStream w = new FileOutputStream(new File("exp1.bak"));
-//            storage.backup(w);
-//            w.close();
-//        } catch(Throwable t) {
-//            t.printStackTrace();
-//        }
-
         int brokenEntries = 0;
         int validEntries = 0;
 

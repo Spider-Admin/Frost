@@ -18,7 +18,6 @@
 */
 package frost.messages;
 
-import java.sql.*;
 import java.util.*;
 
 import javax.swing.tree.*;
@@ -29,7 +28,7 @@ import frost.*;
 import frost.boards.*;
 import frost.gui.messagetreetable.*;
 import frost.gui.model.*;
-import frost.storage.database.applayer.*;
+import frost.storage.perst.messages.*;
 import frost.util.*;
 
 /**
@@ -37,6 +36,8 @@ import frost.util.*;
  * It adds more fields than a MessageObjectFile uses. 
  */
 public class FrostMessageObject extends AbstractMessageObject implements TableMember {
+    
+    transient private PerstFrostMessageObject perstFrostMessageObject = null;
 
     // additional variables for use in GUI
     private boolean isValid = false;
@@ -210,18 +211,39 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
             return ((FrostMessageObject)getParent()).getThreadRootMessage();
         }
     }
-    
+
+    /**
+     * Dynamically loads publicKey.
+     */
+    public String getPublicKey() {
+        if( super.getPublicKey() == null ) {
+            MessageStorage.inst().retrievePublicKey(this);
+        }
+        return super.getPublicKey();
+    }
+
+    /**
+     * Dynamically loads signature.
+     */
+//    public String getSignatureV2() {
+//
+//        if( getSignatureV2() == null ) {
+//            try {
+//                MessagesStorage.inst().retrieveSignature(this);
+//            } catch (SQLException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        return super.getSignatureV2();
+//    }
+
     /**
      * Dynamically loads content.
      */
     public String getContent() {
 
         if( content == null ) {
-            try {
-                AppLayerDatabase.getMessageTable().retrieveMessageContent(this);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            MessageStorage.inst().retrieveMessageContent(this);
             if( content == null ) {
                 content = "";
             }
@@ -242,11 +264,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         }
         
         if (attachments == null) {
-            try {
-                AppLayerDatabase.getMessageTable().retrieveAttachments(this);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            MessageStorage.inst().retrieveAttachments(this);
             if (attachments == null) {
                 attachments = new AttachmentList();
             }
@@ -324,7 +342,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         this.board = board;
     }
 
-    public boolean isHasBoardAttachments() {
+    public boolean hasBoardAttachments() {
         return hasBoardAttachments;
     }
 
@@ -332,7 +350,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         this.hasBoardAttachments = hasBoardAttachments;
     }
 
-    public boolean isHasFileAttachments() {
+    public boolean hasFileAttachments() {
         return hasFileAttachments;
     }
 
@@ -341,7 +359,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     }
     
     public boolean containsAttachments() {
-        if( isHasFileAttachments() || isHasBoardAttachments() ) {
+        if( hasFileAttachments() || hasBoardAttachments() ) {
             return true;
         }
         return false;
@@ -561,5 +579,12 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
 
     public String toString() {
         return getSubject();
+    }
+
+    public PerstFrostMessageObject getPerstFrostMessageObject() {
+        return perstFrostMessageObject;
+    }
+    public void setPerstFrostMessageObject(PerstFrostMessageObject perstFrostMessageObject) {
+        this.perstFrostMessageObject = perstFrostMessageObject;
     }
 }

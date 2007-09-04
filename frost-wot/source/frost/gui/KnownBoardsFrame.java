@@ -286,11 +286,11 @@ public class KnownBoardsFrame extends JDialog {
         TFfilterBoard.setText("");
         TFlookupBoard.setText("");
         // gets all known boards from Core, and shows all not-doubles in table
-        List frostboards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
-        Iterator i = KnownBoardsManager.getKnownBoardsList().iterator();
+        List<Board> frostboards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
+        Iterator<KnownBoard> i = KnownBoardsManager.getKnownBoardsList().iterator();
         // check each board in list if already in boards tree, if not add to table
         while( i.hasNext() ) {
-            KnownBoard b = (KnownBoard) i.next();
+            KnownBoard b = i.next();
 
             // check if board name is hidden
             if( KnownBoardsManager.isNameHidden(b) ) {
@@ -307,9 +307,9 @@ public class KnownBoardsFrame extends JDialog {
             
             // check if this board is already in boards tree (currently)
             boolean addMe = true;
-            Iterator j = frostboards.iterator();
+            Iterator<Board> j = frostboards.iterator();
             while( j.hasNext() ) {
-                Board board = (Board) j.next();
+                Board board = j.next();
                 if( board.getName().equalsIgnoreCase(bname)
                     && ((board.getPrivateKey() == null && bprivkey == null) ||
                         (board.getPrivateKey() != null && board.getPrivateKey().equals(bprivkey)))

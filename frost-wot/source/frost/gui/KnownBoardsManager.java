@@ -18,13 +18,11 @@
 */
 package frost.gui;
 
-import java.sql.*;
 import java.util.*;
-import java.util.logging.*;
 
 import frost.boards.*;
 import frost.storage.*;
-import frost.storage.database.applayer.*;
+import frost.storage.perst.*;
 
 /**
  * Manages the access to KnownBoards and hidden board names.
@@ -34,14 +32,13 @@ import frost.storage.database.applayer.*;
  */
 public class KnownBoardsManager implements Savable {
 
-    private static final Logger logger = Logger.getLogger(KnownBoardsManager.class.getName());
+//    private static final Logger logger = Logger.getLogger(KnownBoardsManager.class.getName());
 
     private static HashSet<String> hiddenNames = null;
     
     private static KnownBoardsManager instance = null;
     
-    private KnownBoardsManager() {
-    }
+    private KnownBoardsManager() {}
 
     // we need the instance only for Exitsavable!
     public static KnownBoardsManager getInstance() {
@@ -75,33 +72,19 @@ public class KnownBoardsManager implements Savable {
 
     public static void initialize() {
         // load hidden names
-        try {
-            hiddenNames = AppLayerDatabase.getKnownBoardsDatabaseTable().loadHiddenNames();
-        } catch(SQLException ex) {
-            logger.log(Level.SEVERE, "Error retrieving the hidden names", ex);
-            hiddenNames = new HashSet<String>();
-        }
+        hiddenNames = FrostFilesStorage.inst().loadHiddenBoardNames();
     }
 
     public void save() throws StorageException {
         // save hidden names
-        try {
-            AppLayerDatabase.getKnownBoardsDatabaseTable().saveHiddenNames(hiddenNames);
-        } catch(SQLException ex) {
-            logger.log(Level.SEVERE, "Error storing the hidden names", ex);
-        }
+        FrostFilesStorage.inst().saveHiddenBoardNames(hiddenNames);
     }
 
     /**
      * @return  List of KnownBoard
      */
     public static List<KnownBoard> getKnownBoardsList() {
-        try {
-            return AppLayerDatabase.getKnownBoardsDatabaseTable().getKnownBoards();
-        } catch(SQLException ex) {
-            logger.log(Level.SEVERE, "Error retrieving the known boards", ex);
-        }
-        return new LinkedList<KnownBoard>();
+        return FrostFilesStorage.inst().getKnownBoards();
     }
     
     /**
@@ -112,15 +95,11 @@ public class KnownBoardsManager implements Savable {
         if( lst == null || lst.size() == 0 ) {
             return 0;
         }
-        int added = AppLayerDatabase.getKnownBoardsDatabaseTable().addNewKnownBoards(lst);
+        int added = FrostFilesStorage.inst().addNewKnownBoards(lst);
         return added;
     }
 
     public static void deleteKnownBoard(Board b) {
-        try {
-            AppLayerDatabase.getKnownBoardsDatabaseTable().deleteKnownBoard(b);
-        } catch (SQLException e1) {
-            logger.log(Level.SEVERE, "Error deleting known board", e1);
-        }
+        FrostFilesStorage.inst().deleteKnownBoard(b);
     }
 }

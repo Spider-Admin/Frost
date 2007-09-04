@@ -23,7 +23,6 @@ import java.awt.*;
 import java.io.*;
 import java.util.*;
 import java.util.List;
-import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
@@ -33,13 +32,12 @@ import org.w3c.dom.*;
 import frost.*;
 import frost.identities.*;
 import frost.storage.*;
-import frost.storage.database.applayer.*;
 import frost.util.*;
 import frost.util.gui.translation.*;
 
 public class ManageLocalIdentitiesDialog extends JDialog {
     
-    private static final Logger logger = Logger.getLogger(ManageLocalIdentitiesDialog.class.getName());
+//    private static final Logger logger = Logger.getLogger(ManageLocalIdentitiesDialog.class.getName());
 
     private Language language = null;
 
@@ -348,7 +346,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                     Core.getInstance().getFileTransferManager().removeFilesSharedByLocalIdentity(li);
                     Core.getIdentities().deleteLocalIdentity(li);
                     // put deleted into GOOD state
-                    Identity myOld = new Identity(li.getUniqueName(), li.getKey());
+                    Identity myOld = new Identity(li.getUniqueName(), li.getPublicKey());
                     myOld.setGOOD();
                     Core.getIdentities().addIdentity( myOld );
                     
@@ -635,11 +633,6 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                             newSig = null;
                         }
                         li.setSignature(newSig);
-                        try {
-                            AppLayerDatabase.getIdentitiesDatabaseTable().updateLocalIdentity(li);
-                        } catch(Throwable ex) {
-                            logger.log(Level.SEVERE, "Error updating signature", ex);
-                        }
                     }
                 }
             });

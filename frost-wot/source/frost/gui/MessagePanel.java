@@ -22,7 +22,6 @@ package frost.gui;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
-import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
@@ -35,7 +34,7 @@ import frost.boards.*;
 import frost.gui.messagetreetable.*;
 import frost.identities.*;
 import frost.messages.*;
-import frost.storage.database.applayer.*;
+import frost.storage.perst.messages.*;
 import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.search.*;
@@ -173,11 +172,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
             Thread saver = new Thread() {
                 public void run() {
-                    try {
-                        AppLayerDatabase.getMessageTable().updateMessage(message);
-                    } catch (SQLException ex) {
-                        logger.log(Level.SEVERE, "Error updating a message object", ex);
-                    }
+                    MessageStorage.inst().updateMessage(message);
                 }
             };
             saver.start();
@@ -863,11 +858,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     Thread saver = new Thread() {
                         public void run() {
                             // save the changed isnew state into the database
-                            try {
-                                AppLayerDatabase.getMessageTable().updateMessage(message);
-                            } catch (SQLException ex) {
-                                logger.log(Level.SEVERE, "Error updating a message object", ex);
-                            }
+                            MessageStorage.inst().updateMessage(message);
                         }
                     };
                     saver.start();
@@ -1285,11 +1276,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 // save message, we must save the changed deleted state
                 for(Iterator i=saveMessages.iterator(); i.hasNext(); ) {
                     final FrostMessageObject targetMessage = (FrostMessageObject)i.next();
-                    try {
-                        AppLayerDatabase.getMessageTable().updateMessage(targetMessage);
-                    } catch (SQLException e) {
-                        logger.log(Level.SEVERE, "Error updating a message object", e);
-                    }
+                    MessageStorage.inst().updateMessage(targetMessage);
                 }
             }
         };
@@ -1337,11 +1324,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 // save message, we must save the changed deleted state into the database
                 for( Iterator i = msgList.iterator(); i.hasNext(); ) {
                     FrostMessageObject mo = (FrostMessageObject) i.next();
-                    try {
-                        AppLayerDatabase.getMessageTable().updateMessage(mo);
-                    } catch (SQLException e) {
-                        logger.log(Level.SEVERE, "Error updating a message object", e);
-                    }
+                    MessageStorage.inst().updateMessage(mo);
                 }
             }
         };
@@ -1386,11 +1369,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 // save message, we must save the changed deleted state
                 for(Iterator i=saveMessages.iterator(); i.hasNext(); ) {
                     FrostMessageObject targetMessage = (FrostMessageObject)i.next();
-                    try {
-                        AppLayerDatabase.getMessageTable().updateMessage(targetMessage);
-                    } catch (SQLException e) {
-                        logger.log(Level.SEVERE, "Error updating a message object", e);
-                    }
+                    MessageStorage.inst().updateMessage(targetMessage);
                 }
             }
         };
@@ -1424,11 +1403,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 // save message, we must save the changed deleted state
                 for(Iterator i=saveMessages.iterator(); i.hasNext(); ) {
                     FrostMessageObject targetMessage = (FrostMessageObject)i.next();
-                    try {
-                        AppLayerDatabase.getMessageTable().updateMessage(targetMessage);
-                    } catch (SQLException e) {
-                        logger.log(Level.SEVERE, "Error updating a message object", e);
-                    }
+                    MessageStorage.inst().updateMessage(targetMessage);
                 }
             }
         };

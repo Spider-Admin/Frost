@@ -27,10 +27,12 @@ import frost.*;
 import frost.boards.*;
 import frost.gui.*;
 import frost.messages.*;
-import frost.storage.database.applayer.*;
+import frost.storage.*;
+import frost.storage.perst.messagearchive.*;
+import frost.storage.perst.messages.*;
 import frost.util.*;
 
-public class SearchMessagesThread extends Thread implements MessageDatabaseTableCallback {
+public class SearchMessagesThread extends Thread implements MessageCallback {
 
     private static final Logger logger = Logger.getLogger(SearchMessagesThread.class.getName());
 
@@ -99,11 +101,11 @@ public class SearchMessagesThread extends Thread implements MessageDatabaseTable
 //System.out.println("endDate="+dr.endDate);
         if( searchConfig.searchInKeypool ) {
             try {
-                AppLayerDatabase.getMessageTable().retrieveMessagesForSearch(
+                MessageStorage.inst().retrieveMessagesForSearch(
                         board, 
                         dr.startDate, 
                         dr.endDate, 
-                        ((searchConfig.content==null)?false:true), // withContent
+                        ((searchConfig.content==null||searchConfig.content.size()==0)?false:true), // withContent
                         false, // withAttachment
                         false, // showDeleted
                         this);
@@ -113,11 +115,10 @@ public class SearchMessagesThread extends Thread implements MessageDatabaseTable
         }
         if( searchConfig.searchInArchive ) {
             try {
-                AppLayerDatabase.getMessageArchiveTable().retrieveMessagesForSearch(
+                ArchiveMessageStorage.inst().retrieveMessagesForSearch(
                         board, 
                         dr.startDate, 
                         dr.endDate, 
-                        false, // showDeleted
                         this);
             } catch(Throwable e) {
                 logger.log(Level.SEVERE, "Catched exception during getMessageArchiveTable().retrieveMessagesForSearch:", e);
@@ -155,10 +156,10 @@ public class SearchMessagesThread extends Thread implements MessageDatabaseTable
         }
         
         // check attachments
-        if( searchConfig.msgMustContainBoards && !mo.isHasBoardAttachments() ) {
+        if( searchConfig.msgMustContainBoards && !mo.hasBoardAttachments() ) {
             return;
         }
-        if( searchConfig.msgMustContainFiles && !mo.isHasFileAttachments() ) {
+        if( searchConfig.msgMustContainFiles && !mo.hasFileAttachments() ) {
             return;
         }
         
@@ -170,8 +171,10 @@ public class SearchMessagesThread extends Thread implements MessageDatabaseTable
             return;
         }
 
-        if( !matchText(mo.getContent(), searchConfig.contentMakeLowercase, searchConfig.content, searchConfig.notContent) ) {
-            return;
+        if( !searchConfig.content.isEmpty() || !searchConfig.notContent.isEmpty() ) {
+            if( !matchText(mo.getContent(), searchConfig.contentMakeLowercase, searchConfig.content, searchConfig.notContent) ) {
+                return;
+            }
         }
 
         // match, add to result table

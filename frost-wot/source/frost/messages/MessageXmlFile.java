@@ -61,7 +61,7 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
         
         Identity id = getFromIdentity();
         if( id != null ) {
-            setPublicKey(id.getKey());
+            setPublicKey(id.getPublicKey());
         }
         setSubject(mo.getSubject()); // subject
         setRecipientName(mo.getRecipientName()); // recipient
@@ -443,7 +443,7 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
 
             // decrypt content
             LocalIdentity receiverId = identities.getLocalIdentity(getRecipientName());
-            byte[] decContent = Core.getCrypto().decrypt(encBytes, receiverId.getPrivKey());
+            byte[] decContent = Core.getCrypto().decrypt(encBytes, receiverId.getPrivateKey());
             if( decContent == null ) {
                 logger.log(Level.SEVERE, "TOFDN: Encrypted message could not be decrypted!");
                 throw new MessageCreationException("Error: Encrypted message could not be decrypted.",
@@ -589,7 +589,7 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
      */
     public static boolean encryptForRecipientAndSaveCopy(File msgFile, Identity recipient, File targetFile) {
         byte[] xmlContent = FileAccess.readByteArray(msgFile);
-        byte[] encContent = Core.getCrypto().encrypt(xmlContent, recipient.getKey());
+        byte[] encContent = Core.getCrypto().encrypt(xmlContent, recipient.getPublicKey());
         String base64enc;
         try {
             base64enc = new String(Base64.encode(encContent), "ISO-8859-1");

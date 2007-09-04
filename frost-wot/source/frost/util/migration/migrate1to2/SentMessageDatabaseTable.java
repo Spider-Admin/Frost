@@ -16,12 +16,8 @@
  along with this program; if not, write to the Free Software
  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.storage.database.applayer;
+package frost.util.migration.migrate1to2;
 
-import java.sql.*;
-import java.util.*;
-
-import frost.messages.*;
 
 /**
  * Uses the functionality of MessageDatabaseTable, but different table names.
@@ -84,22 +80,5 @@ public class SentMessageDatabaseTable extends MessageDatabaseTable {
     }
     protected String getContentIndexName() {
         return "sentmsgcont_index";
-    }
-
-    public int deleteMessages(List<FrostMessageObject> messages) throws SQLException {
-
-        AppLayerDatabase db = AppLayerDatabase.getInstance();
-
-        PreparedStatement ps = db.prepareStatement("DELETE FROM "+getMessageTableName()+" WHERE primkey=?");
-        int deletedCount = 0;
-        for(Iterator<FrostMessageObject> i=messages.iterator(); i.hasNext(); ) {
-            FrostMessageObject mo = (FrostMessageObject) i.next(); 
-            ps.setLong(1, mo.getMsgIdentity());
-            deletedCount += ps.executeUpdate();
-        }
-
-        ps.close();
-        
-        return deletedCount;
     }
 }
