@@ -515,7 +515,10 @@ public class MessageStorage implements Savable {
                 continue;
             }
             FrostMessageObject mo = p.toFrostMessageObject(board, true, withContent, withAttachments);
-            mc.messageRetrieved(mo);
+            boolean shouldStop = mc.messageRetrieved(mo);
+            if( shouldStop ) {
+                break;
+            }
         }
     }
     
@@ -560,7 +563,10 @@ public class MessageStorage implements Savable {
                 continue;
             }
             FrostMessageObject mo = p.toFrostMessageObject(board, true, withContent, withAttachments);
-            mc.messageRetrieved(mo);
+            boolean shouldStop = mc.messageRetrieved(mo);
+            if( shouldStop ) {
+                break;
+            }
         }
     }
     

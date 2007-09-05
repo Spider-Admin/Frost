@@ -41,7 +41,6 @@ public class Migrate1to2 {
     private static final Logger logger = Logger.getLogger(Migrate1to2.class.getName());
     
     private boolean openDatabase() {
-        // open database
         try {
             AppLayerDatabase.initialize();
             return true;
@@ -104,9 +103,6 @@ public class Migrate1to2 {
 
         // create perst boards
         MessageStorage.inst().importBoards(boardPrimaryKeysByName);
-
-// FIXME        return dropTable("NEWUPLOADFILES");
-
         return true;
     }
 
@@ -175,6 +171,9 @@ public class Migrate1to2 {
             closeDatabase();
             return false;
         }
+        
+        dropAllTables();
+        
         closeDatabase();
         return true;
     }
@@ -324,5 +323,40 @@ public class Migrate1to2 {
         }
         return true;
     }
+    
+    private void dropAllTables() {
+        System.out.println("Dropping database tables...");
+        dropTable("UNSENDBOARDATTACHMENTS");
+        dropTable("UNSENDFILEATTACHMENTS");
+        dropTable("UNSENDMESSAGES");
+        
+        dropTable("SENTMESSAGECONTENTS");
+        dropTable("SENTBOARDATTACHMENTS");
+        dropTable("SENTFILEATTACHMENTS");
+        dropTable("SENTMESSAGES");
+        
+        dropTable("MESSAGECONTENTS");
+        dropTable("BOARDATTACHMENTS");
+        dropTable("FILEATTACHMENTS");
+        dropTable("MESSAGES");
+        
+        dropTable("MESSAGEARCHIVEFILEATTACHMENTS");
+        dropTable("MESSAGEARCHIVEBOARDATTACHMENTS");
+        dropTable("MESSAGEARCHIVECONTENTS");
+        dropTable("MESSAGEARCHIVE");
+        
+        dropTable("HIDDENBOARDNAMES");
+        dropTable("KNOWNBOARDS");
+        
+        dropTable("IDENTITIES");
+        dropTable("OWNIDENTITIES");
+        dropTable("OWNIDENTITIESLASTFILESSHARED");
+        
+        dropTable("FILEOWNERLIST");
+        dropTable("FILELIST");
 
+        dropTable("BOARDS");
+        
+        System.out.println("Finished dropping database tables...");
+    }
 }

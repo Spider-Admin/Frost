@@ -177,7 +177,10 @@ public class ArchiveMessageStorage implements Savable {
         while(i.hasNext()) {
             PerstFrostArchiveMessageObject p = i.next();
             FrostMessageObject mo = p.toFrostMessageObject(board);
-            mc.messageRetrieved(mo);
+            boolean shouldStop = mc.messageRetrieved(mo);
+            if( shouldStop ) {
+                break;
+            }
         }
     }
 }

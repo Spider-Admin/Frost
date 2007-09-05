@@ -20,11 +20,10 @@ package frost.util.migration.migrate1to2;
 
 import java.sql.*;
 import java.util.*;
-import java.util.logging.*;
 
 public class BoardDatabaseTable {
 
-    private static final Logger logger = Logger.getLogger(BoardDatabaseTable.class.getName());
+//    private static final Logger logger = Logger.getLogger(BoardDatabaseTable.class.getName());
 
 //    private final static String SQL_BOARDS_DDL =
 //        "CREATE TABLE IF NOT EXISTS BOARDS ("+

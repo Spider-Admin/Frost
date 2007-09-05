@@ -58,8 +58,8 @@ import frost.*;
  */
 public class TreeTableModelAdapter extends AbstractTableModel {
 
-    JTree tree;
-    TreeTableModel treeTableModel;
+    final JTree tree;
+    final TreeTableModel treeTableModel;
     
     private int collapsedToRow = -1;
 
@@ -229,8 +229,8 @@ public class TreeTableModelAdapter extends AbstractTableModel {
         return tree.getRowCount();
     }
 
-    protected Object nodeForRow(int row) {
-        TreePath treePath = tree.getPathForRow(row);
+    protected Object nodeForRow(final int row) {
+        final TreePath treePath = tree.getPathForRow(row);
         if( treePath != null ) {
             return treePath.getLastPathComponent();
         } else {
@@ -238,19 +238,19 @@ public class TreeTableModelAdapter extends AbstractTableModel {
         }
     }
 
-    public Object getValueAt(int row, int column) {
+    public Object getValueAt(final int row, final int column) {
         return treeTableModel.getValueAt(nodeForRow(row), column);
     }
     
-    public Object getRow(int row) {
+    public Object getRow(final int row) {
         return nodeForRow(row);
     }
 
-    public boolean isCellEditable(int row, int column) {
+    public boolean isCellEditable(final int row, final int column) {
         return treeTableModel.isCellEditable(nodeForRow(row), column);
     }
 
-    public void setValueAt(Object value, int row, int column) {
+    public void setValueAt(final Object value, final int row, final int column) {
         treeTableModel.setValueAt(value, nodeForRow(row), column);
     }
 
