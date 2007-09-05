@@ -31,52 +31,67 @@ public class ConvertStorageToUtf8 {
         String databaseFilePath = "store/"+storageName+".dbs"; // path to the database file
         int pagePoolSize = 1*1024*1024; // size of page pool in bytes
 
-        Storage oldStorage = StorageFactory.getInstance().createStorage();
-        oldStorage.open(databaseFilePath, pagePoolSize);
-
-        if (oldStorage.getRoot() == null) { 
-            // Storage was not (!) initialized yet, no need to migrate
-            return true;
+        {
+            Storage oldStorage = StorageFactory.getInstance().createStorage();
+            oldStorage.open(databaseFilePath, pagePoolSize);
+    
+            if (oldStorage.getRoot() == null) { 
+                // Storage was not (!) initialized yet, no need to migrate
+                return true;
+            }
+            // export to XML
+            System.out.println("Exporting storage to XML...");
+            try {
+                FileWriter xw = new FileWriter(new File("store/"+storageName+".xml"));
+                oldStorage.exportXML(xw);
+                xw.close();
+            } catch(IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+            // close storage
+            oldStorage.close();
         }
-        // export to XML
-        System.out.println("Exporting storage to XML...");
-        try {
-            FileWriter xw = new FileWriter(new File("store/"+storageName+".xml"));
-            oldStorage.exportXML(xw);
-            xw.close();
-        } catch(IOException e) {
-            e.printStackTrace();
-            return false;
+        {
+            // delete (rename?) store file
+            System.out.println("Renaming old storage file...");
+            File oldStoreFile = new File("store/"+storageName+".dbs");
+            boolean wasOk = oldStoreFile.renameTo(new File("store/"+storageName+".old"));
+            if( !wasOk ) {
+                System.out.println("Rename failed!");
+                return false;
+            }
         }
-        // close storage
-        oldStorage.close();
-        // delete (rename?) store file
-        System.out.println("Renaming old storage file...");
-        File oldStoreFile = new File("store/"+storageName+".dbs");
-        boolean wasOk = oldStoreFile.renameTo(new File("store/"+storageName+".old"));
-        if( !wasOk ) {
-            System.out.println("Rename failed!");
-            return false;
+        {
+            // define new storage with utf-8 encoding, and open
+            Storage newStorage = StorageFactory.getInstance().createStorage();
+            newStorage.setProperty("perst.string.encoding", "UTF-8"); // now use UTF-8 to store strings
+            newStorage.open(databaseFilePath, pagePoolSize);
+            // import exported xml data
+            System.out.println("Importing XML into new storage...");
+            try {
+                FileReader xw = new FileReader(new File("store/"+storageName+".xml"));
+                newStorage.importXML(xw);
+                xw.close();
+            } catch(Throwable e) {
+                e.printStackTrace();
+                return false;
+            }
+            // close storage
+            newStorage.close();
         }
-        // define new storage with utf-8 encoding, and open
-        Storage newStorage = StorageFactory.getInstance().createStorage();
-        newStorage.setProperty("perst.string.encoding", "UTF-8"); // now use UTF-8 to store strings
-        newStorage.open(databaseFilePath, pagePoolSize);
-        // import exported xml data
-        System.out.println("Importing XML into new storage...");
-        try {
-            FileReader xw = new FileReader(new File("store/"+storageName+".xml"));
-            newStorage.importXML(xw);
-            xw.close();
-        } catch(Throwable e) {
-            e.printStackTrace();
-            return false;
+        {
+            // delete old storage file and xml file
+            System.out.println("Deleting old files...");
+            if( ! new File("store/"+storageName+".old").delete() ) {
+                System.out.println("Delete of file '"+"store/"+storageName+".old"+"' failed!");
+            }
+            if( ! new File("store/"+storageName+".xml").delete() ) {
+                System.out.println("Delete of file '"+"store/"+storageName+".xml"+"' failed!");
+            }
         }
-        // close storage
-        newStorage.close();
 
         System.out.println("Finished to convert "+storageName+" storage into UTF-8 format.");
-        // FIXME: delete old files!!!
         return true;
     }
 }
