@@ -57,7 +57,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     private boolean hasFileAttachments = false;
     private boolean hasBoardAttachments = false;
     
-    private LinkedList<String> inReplyToList = null;
+    private ArrayList<String> inReplyToList = null;
     
     protected String dateAndTimeString = null;
     
@@ -127,7 +127,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     }
     
     // create a dummy msg
-    public FrostMessageObject(String msgId, Board b, LinkedList<String> ll) {
+    public FrostMessageObject(String msgId, Board b, ArrayList<String> ll) {
         setMessageId(msgId);
         setBoard(b);
         setDummyInReplyToList(ll);
@@ -461,18 +461,20 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         return isDummy;
     }
     
-    private void setDummyInReplyToList(LinkedList<String> l) {
+    private void setDummyInReplyToList(ArrayList<String> l) {
         inReplyToList = l;
     }
     
-    public LinkedList<String> getInReplyToList() {
+    public ArrayList<String> getInReplyToList() {
         if( inReplyToList == null ) {
-            inReplyToList = new LinkedList<String>();
-            String s = getInReplyTo(); 
-            if( s != null && s.length() > 0 ) {
-                String[] sl = s.split(",");
-                for(int x=0; x<sl.length; x++) {
-                    String r = sl[x].trim();
+            if( getInReplyTo() == null ) {
+                inReplyToList = new ArrayList<String>(0);
+            } else {
+                inReplyToList = new ArrayList<String>();
+                String s = getInReplyTo();
+                StringTokenizer st = new StringTokenizer(s, ",");
+                while( st.hasMoreTokens() ) {
+                    String r = st.nextToken().trim();
                     if(r.length() > 0) {
                         inReplyToList.add(r);
                     }
@@ -481,7 +483,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         }
         return inReplyToList;
     }
-
+    
 //    private String dbg1(FrostMessageObject mo) {
 //        String s1;
 //        if( mo.isRoot() ) {
