@@ -21,5 +21,10 @@ package frost.storage;
 import frost.messages.*;
 
 public interface MessageCallback {
+    /**
+     * Called with a message. 
+     * @param mo
+     * @return return true to request stop (shouldStop)
+     */
     public boolean messageRetrieved(FrostMessageObject mo);
 }

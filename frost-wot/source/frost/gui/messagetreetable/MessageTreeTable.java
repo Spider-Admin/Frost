@@ -469,13 +469,13 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     						       Object value,
     						       boolean isSelected,
     						       boolean hasFocus,
-    						       int row, int column) {
+    						       int row, int column) 
+    	{
     	    Color background;
     	    Color foreground;
             
-            TreeTableModelAdapter model = (TreeTableModelAdapter)MessageTreeTable.this.getModel();
-            
-            FrostMessageObject msg = (FrostMessageObject)model.getRow(row);
+            final TreeTableModelAdapter model = (TreeTableModelAdapter)MessageTreeTable.this.getModel();
+            final FrostMessageObject msg = (FrostMessageObject)model.getRow(row);
     
             // first set font, bold for new msg or normal
             if (msg.isNew()) {
@@ -506,10 +506,10 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     	    visibleRow = row;
     	    setBackground(background);
     
-    	    TreeCellRenderer tcr = getCellRenderer();
+    	    final TreeCellRenderer tcr = getCellRenderer();
     	    if (tcr instanceof DefaultTreeCellRenderer) {
 
-        		DefaultTreeCellRenderer dtcr = ((DefaultTreeCellRenderer)tcr); 
+        		final DefaultTreeCellRenderer dtcr = ((DefaultTreeCellRenderer)tcr); 
         		if (isSelected) {
         		    dtcr.setTextSelectionColor(foreground);
         		    dtcr.setBackgroundSelectionColor(background);
@@ -538,7 +538,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                     }
                 }
                 
-                ImageIcon icon;
+                final ImageIcon icon;
                 if( msg.isDummy() ) {
                     icon = messageDummyIcon;
 //                    dtcr.setToolTipText(null);
@@ -783,13 +783,13 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         }
 
         public Component getTableCellRendererComponent(
-            JTable table,
-            Object value,
-            boolean isSelected,
-            boolean hasFocus,
-            int row,
-            int column) {
-
+            final JTable table,
+            final Object value,
+            final boolean isSelected,
+            final boolean hasFocus,
+            final int row,
+            int column) 
+        {
             super.getTableCellRendererComponent(table, value, isSelected, /*hasFocus*/ false, row, column);
             
             if (!isSelected) {
@@ -810,13 +810,13 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             setHorizontalAlignment(SwingConstants.LEFT);
 
             TreeTableModelAdapter model = (TreeTableModelAdapter) getModel();
-            
             Object obj = model.getRow(row);
             if( !(obj instanceof FrostMessageObject) ) {
                 return this; // paranoia
             }
             
-            FrostMessageObject msg = (FrostMessageObject) obj;
+            final FrostMessageObject msg = (FrostMessageObject) obj;
+            obj = null;
 
             // get the original model column index (maybe columns were reordered by user)
             column = getColumnModel().getColumn(column).getModelIndex();
