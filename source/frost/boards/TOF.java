@@ -540,13 +540,13 @@ public class TOF {
                 // build the threads
                 for(Iterator<FrostMessageObject> i=messagesTableById.values().iterator(); i.hasNext(); ) {
                     FrostMessageObject mo = i.next();
-                    LinkedList<String> l = mo.getInReplyToList();
+                    ArrayList<String> l = mo.getInReplyToList();
                     if( l.size() == 0 ) {
                         // a root message, no replyTo
                         rootNode.add(mo);
                     } else {
                         // add to direct parent
-                        String directParentId = (String)l.getLast();
+                        String directParentId = (String)l.get(l.size()-1); // getLast
                         if( directParentId == null ) {
                             logger.log(Level.SEVERE, "Should never happen: directParentId is null; msg="+mo.getMessageId()+"; parentMsg="+directParentId);
                             continue;
@@ -659,7 +659,7 @@ public class TOF {
                         if( fmo == null ) {
                             // for each missing msg create a dummy FrostMessageObject and add it to tree.
                             // if the missing msg arrives later, replace dummy with true msg in tree
-                            LinkedList<String> ll = new LinkedList<String>();
+                            ArrayList<String> ll = new ArrayList<String>(x);
                             if( x > 0 ) {
                                 for(int y=0; y < x; y++) {
                                     ll.add(l.get(y));

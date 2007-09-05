@@ -286,54 +286,70 @@ public class FileListStorage implements Savable, PropertyChangeListener {
             List<String> keywords,
             List<String> owners) 
     {
-        for( FrostFileListFileObject fof : storageRoot.getFileListFileObjects() ) {
-            if( (names == null || names.size() == 0) 
-                    && (comments == null || comments.size() == 0 ) 
-                    && (keywords == null || keywords.size() == 0)
-                    && (owners == null || owners.size() == 0) )
-            {
-                // find all
-                if(callback.fileRetrieved(fof)) return;
-                continue;
+        System.out.println("Starting file search...");
+        long t = System.currentTimeMillis();
+        
+        boolean searchForNames = true;
+        boolean searchForComments = true;
+        boolean searchForKeywords = true;
+        boolean searchForOwners = true;
+        boolean findAll = false;
+        
+        if( names == null    || names.size() == 0 )    { searchForNames = false; }
+        if( comments == null || comments.size() == 0 ) { searchForComments = false; }
+        if( keywords == null || keywords.size() == 0 ) { searchForKeywords = false; }
+        if( owners == null   || owners.size() == 0 )   { searchForOwners = false; }
+        if( !searchForNames && !searchForComments && ! searchForKeywords && !searchForOwners ) {
+            findAll = true;
+        }
+        
+        try {
+            OUTER_LOOP:
+            for( FrostFileListFileObject fof : storageRoot.getFileListFileObjects() ) {
+                if( findAll ) {
+                    if(callback.fileRetrieved(fof)) return;
+                    continue;
+                }
+                if( fof.getFrostFileListFileObjectOwnerList() == null ) {
+                    continue;
+                }
+                for( FrostFileListFileObjectOwner o : fof.getFrostFileListFileObjectOwnerList() ) {
+                    if( searchForNames && o.getName() != null ) {
+                        for(String name : names) {
+                            if( o.getName().toLowerCase().indexOf(name) > -1 ) {
+                                if(callback.fileRetrieved(fof)) return;
+                                continue OUTER_LOOP;
+                            }
+                        }
+                    }
+                    if( searchForComments && o.getComment() != null ) {
+                        for(String comment : comments) {
+                            if( o.getComment().toLowerCase().indexOf(comment) > -1 ) {
+                                if(callback.fileRetrieved(fof)) return;
+                                continue OUTER_LOOP;
+                            }
+                        }
+                    }
+                    if( searchForKeywords && o.getKeywords() != null ) {
+                        for(String keyword : keywords) {
+                            if( o.getKeywords().toLowerCase().indexOf(keyword) > -1 ) {
+                                if(callback.fileRetrieved(fof)) return;
+                                continue OUTER_LOOP;
+                            }
+                        }
+                    }
+                    if( searchForOwners && o.getOwner() != null ) {
+                        for(String owner : owners) {
+                            if( o.getOwner().toLowerCase().indexOf(owner) > -1 ) {
+                                if(callback.fileRetrieved(fof)) return;
+                                continue OUTER_LOOP;
+                            }
+                        }
+                    }
+                }
             }
-            if( fof.getFrostFileListFileObjectOwnerList() == null ) {
-                continue;
-            }
-            INNER_LOOP:
-            for( FrostFileListFileObjectOwner o : fof.getFrostFileListFileObjectOwnerList() ) {
-                if( names != null && names.size() > 0 ) {
-                    for(String name : names) {
-                        if( o.getName() != null && o.getName().toLowerCase().indexOf(name) > -1 ) {
-                            if(callback.fileRetrieved(fof)) return;
-                            break INNER_LOOP;
-                        }
-                    }
-                }
-                if( comments != null && comments.size() > 0 ) {
-                    for(String comment : comments) {
-                        if( o.getComment() != null && o.getComment().toLowerCase().indexOf(comment) > -1 ) {
-                            if(callback.fileRetrieved(fof)) return;
-                            break INNER_LOOP;
-                        }
-                    }
-                }
-                if( keywords != null && keywords.size() > 0 ) {
-                    for(String keyword : keywords) {
-                        if( o.getKeywords() != null && o.getKeywords().toLowerCase().indexOf(keyword) > -1 ) {
-                            if(callback.fileRetrieved(fof)) return;
-                            break INNER_LOOP;
-                        }
-                    }
-                }
-                if( owners != null && owners.size() > 0 ) {
-                    for(String owner : owners) {
-                        if( o.getOwner() != null && o.getOwner().toLowerCase().indexOf(owner) > -1 ) {
-                            if(callback.fileRetrieved(fof)) return;
-                            break INNER_LOOP;
-                        }
-                    }
-                }
-            }
+        } finally {
+            System.out.println("Finished file search, duration="+(System.currentTimeMillis() - t));
         }
 /*        
 SQL='SELECT DISTINCT refkey FROM FILEOWNERLIST WHERE LOWER(name) LIKE ? OR LOWER(name) LIKE ? OR LOWER(comment) LIKE ? OR LOWER(comment) LIKE ? OR LOWER(keywords) LIKE ? OR LOWER(keywords) LIKE ?'        
