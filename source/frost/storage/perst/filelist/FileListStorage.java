@@ -32,31 +32,31 @@ public class FileListStorage implements Savable, PropertyChangeListener {
 
     // FIXME: adjust page size
     private static final int PAGE_SIZE = 1; // page size for the storage in MB
-    
+
     private Storage storage = null;
     private FileListStorageRoot storageRoot = null;
-    
+
     private static FileListStorage instance = new FileListStorage();
 
     private boolean rememberSharedFileDownloaded;
 
     protected FileListStorage() {}
-    
+
     public static FileListStorage inst() {
         return instance;
     }
-    
+
     private Storage getStorage() {
         return storage;
     }
-    
+
     public boolean initStorage() {
-        
+
         rememberSharedFileDownloaded = Core.frostSettings.getBoolValue(SettingsClass.REMEMBER_SHAREDFILE_DOWNLOADED);
         Core.frostSettings.addPropertyChangeListener(SettingsClass.REMEMBER_SHAREDFILE_DOWNLOADED, this);
-        
-        String databaseFilePath = "store/filelist.dbs"; // path to the database file
-        int pagePoolSize = PAGE_SIZE*1024*1024; // size of page pool in bytes
+
+        final String databaseFilePath = "store/filelist.dbs"; // path to the database file
+        final int pagePoolSize = PAGE_SIZE*1024*1024; // size of page pool in bytes
 
         storage = StorageFactory.getInstance().createStorage();
         storage.setProperty("perst.concurrent.iterator", Boolean.TRUE); // modify() during iteration
@@ -64,7 +64,7 @@ public class FileListStorage implements Savable, PropertyChangeListener {
         storage.open(databaseFilePath, pagePoolSize);
 
         storageRoot = (FileListStorageRoot)storage.getRoot();
-        if (storageRoot == null) { 
+        if (storageRoot == null) {
             // Storage was not initialized yet
             storageRoot = new FileListStorageRoot(storage);
             storage.setRoot(storageRoot);
@@ -87,24 +87,24 @@ public class FileListStorage implements Savable, PropertyChangeListener {
         storage = null;
         System.out.println("INFO: FileListStorage closed.");
     }
-    
+
     public IPersistentList createList() {
         return storage.createScalableList();
     }
 
-    public synchronized boolean insertOrUpdateFileListFileObject(FrostFileListFileObject flf) {
+    public synchronized boolean insertOrUpdateFileListFileObject(final FrostFileListFileObject flf) {
         return insertOrUpdateFileListFileObject(flf, true);
     }
 
-    public synchronized boolean insertOrUpdateFileListFileObject(FrostFileListFileObject flf, boolean doCommit) {
+    public synchronized boolean insertOrUpdateFileListFileObject(final FrostFileListFileObject flf, final boolean doCommit) {
         // check for dups and update them!
-        FrostFileListFileObject pflf = storageRoot.getFileListFileObjects().get(flf.getSha());
+        final FrostFileListFileObject pflf = storageRoot.getFileListFileObjects().get(flf.getSha());
         if( pflf == null ) {
             // insert new
             storageRoot.getFileListFileObjects().put(flf.getSha(), flf);
 
-            for( Iterator<FrostFileListFileObjectOwner> i = flf.getFrostFileListFileObjectOwnerIterator(); i.hasNext(); ) {
-                FrostFileListFileObjectOwner o = i.next();
+            for( final Iterator<FrostFileListFileObjectOwner> i = flf.getFrostFileListFileObjectOwnerIterator(); i.hasNext(); ) {
+                final FrostFileListFileObjectOwner o = i.next();
                 addFileListFileOwnerToIndices(o);
             }
         } else {
@@ -116,11 +116,11 @@ public class FileListStorage implements Savable, PropertyChangeListener {
         }
         return true;
     }
-    
+
     /**
      * Adds a new FrostFileListFileObjectOwner to the indices.
      */
-    private void addFileListFileOwnerToIndices(FrostFileListFileObjectOwner o) {
+    private void addFileListFileOwnerToIndices(final FrostFileListFileObjectOwner o) {
         // maybe the owner already shares other files
         PerstIdentitiesFiles pif = storageRoot.getIdentitiesFiles().get(o.getOwner());
         if( pif == null ) {
@@ -128,15 +128,15 @@ public class FileListStorage implements Savable, PropertyChangeListener {
             storageRoot.getIdentitiesFiles().put(o.getOwner(), pif);
         }
         pif.addFileToIdentity(o);
-        
+
         // add to indices
         maybeAddFileListFileInfoToIndex(o.getName(), o, storageRoot.getFileNameIndex());
         maybeAddFileListFileInfoToIndex(o.getComment(), o, storageRoot.getFileCommentIndex());
         maybeAddFileListFileInfoToIndex(o.getKeywords(), o, storageRoot.getFileKeywordIndex());
         maybeAddFileListFileInfoToIndex(o.getOwner(), o, storageRoot.getFileOwnerIndex());
     }
-    
-    private void maybeAddFileListFileInfoToIndex(String lName, FrostFileListFileObjectOwner o, Index<PerstFileListIndexEntry> ix) {
+
+    private void maybeAddFileListFileInfoToIndex(String lName, final FrostFileListFileObjectOwner o, final Index<PerstFileListIndexEntry> ix) {
         if( lName == null || lName.length() == 0 ) {
             return;
         }
@@ -148,43 +148,43 @@ public class FileListStorage implements Savable, PropertyChangeListener {
         }
         ie.getFileOwnersWithText().add(o);
     }
-    
-    public FrostFileListFileObject getFileBySha(String sha) {
+
+    public FrostFileListFileObject getFileBySha(final String sha) {
         return storageRoot.getFileListFileObjects().get(sha);
     }
-    
+
     public int getFileCount() {
         return storageRoot.getFileListFileObjects().size();
     }
 
-    public int getFileCount(String idUniqueName) {
-        PerstIdentitiesFiles pif = storageRoot.getIdentitiesFiles().get(idUniqueName);
+    public int getFileCount(final String idUniqueName) {
+        final PerstIdentitiesFiles pif = storageRoot.getIdentitiesFiles().get(idUniqueName);
         if( pif != null ) {
             return pif.getFilesFromIdentity().size();
         } else {
             return 0;
         }
     }
-    
+
     public int getSharerCount() {
         return storageRoot.getIdentitiesFiles().size();
     }
-    
+
     public long getFileSizes() {
         long sizes = 0;
-        for( FrostFileListFileObject fo : storageRoot.getFileListFileObjects() ) {
+        for( final FrostFileListFileObject fo : storageRoot.getFileListFileObjects() ) {
             sizes += fo.getSize();
         }
         return sizes;
     }
-    
+
     private void maybeRemoveFileListFileInfoFromIndex(
-            String lName, 
-            FrostFileListFileObjectOwner o, 
-            Index<PerstFileListIndexEntry> ix) 
+            final String lName,
+            final FrostFileListFileObjectOwner o,
+            final Index<PerstFileListIndexEntry> ix)
     {
         if( lName != null && lName.length() > 0 ) {
-            PerstFileListIndexEntry ie = ix.get(lName.toLowerCase());
+            final PerstFileListIndexEntry ie = ix.get(lName.toLowerCase());
             if( ie != null ) {
 //                System.out.println("ix-remove: "+o.getOid());
                 ie.getFileOwnersWithText().remove(o);
@@ -195,20 +195,20 @@ public class FileListStorage implements Savable, PropertyChangeListener {
     /**
      * Remove owners that were not seen for more than MINIMUM_DAYS_OLD days and have no CHK key set.
      */
-    public int cleanupFileListFileOwners(int maxDaysOld) {
+    public int cleanupFileListFileOwners(final int maxDaysOld) {
 
         int count = 0;
-        long minVal = System.currentTimeMillis() - ((long)maxDaysOld * 24L * 60L * 60L * 1000L);
-        
-        for(PerstIdentitiesFiles pif : storageRoot.getIdentitiesFiles()) {
-            for(Iterator<FrostFileListFileObjectOwner> i = pif.getFilesFromIdentity().iterator(); i.hasNext(); ) {
-                FrostFileListFileObjectOwner o = i.next();
+        final long minVal = System.currentTimeMillis() - (maxDaysOld * 24L * 60L * 60L * 1000L);
+
+        for(final PerstIdentitiesFiles pif : storageRoot.getIdentitiesFiles()) {
+            for(final Iterator<FrostFileListFileObjectOwner> i = pif.getFilesFromIdentity().iterator(); i.hasNext(); ) {
+                final FrostFileListFileObjectOwner o = i.next();
                 if( o.getLastReceived() < minVal && o.getKey() == null ) {
                     // remove this owner file info from file list object
-                    FrostFileListFileObject fof = o.getFileListFileObject();
+                    final FrostFileListFileObject fof = o.getFileListFileObject();
                     o.setFileListFileObject(null);
                     fof.deleteFrostFileListFileObjectOwner(o);
-                    
+
                     // remove from indices
                     maybeRemoveFileListFileInfoFromIndex(o.getName(), o, storageRoot.getFileNameIndex());
                     maybeRemoveFileListFileInfoFromIndex(o.getComment(), o, storageRoot.getFileCommentIndex());
@@ -221,6 +221,7 @@ public class FileListStorage implements Savable, PropertyChangeListener {
                     i.remove();
                     // delete from store
                     o.deallocate();
+
                     count++;
                 }
             }
@@ -235,12 +236,12 @@ public class FileListStorage implements Savable, PropertyChangeListener {
     }
 
     /**
-     * Remove files that have no owner and no CHK key. 
+     * Remove files that have no owner and no CHK key.
      */
     public int cleanupFileListFiles() {
         int count = 0;
-        for(Iterator<FrostFileListFileObject> i=storageRoot.getFileListFileObjects().iterator(); i.hasNext(); ) {
-            FrostFileListFileObject fof = i.next();
+        for(final Iterator<FrostFileListFileObject> i=storageRoot.getFileListFileObjects().iterator(); i.hasNext(); ) {
+            final FrostFileListFileObject fof = i.next();
             if( fof.getFrostFileListFileObjectOwnerListSize() == 0 && fof.getKey() == null ) {
                 i.remove();
                 fof.deallocate();
@@ -255,8 +256,8 @@ public class FileListStorage implements Savable, PropertyChangeListener {
      * Reset the lastdownloaded column for all file entries.
      */
     public synchronized void resetLastDownloaded() {
-        
-        for( FrostFileListFileObject fof : storageRoot.getFileListFileObjects() ) {
+
+        for( final FrostFileListFileObject fof : storageRoot.getFileListFileObjects() ) {
             fof.setLastDownloaded(0);
             fof.modify();
         }
@@ -267,28 +268,28 @@ public class FileListStorage implements Savable, PropertyChangeListener {
      * Update the item with SHA, set requestlastsent and requestssentcount.
      * Does NOT commit!
      */
-    public synchronized boolean updateFrostFileListFileObjectAfterRequestSent(String sha, long requestLastSent) {
+    public synchronized boolean updateFrostFileListFileObjectAfterRequestSent(final String sha, final long requestLastSent) {
 
-        FrostFileListFileObject oldSfo = getFileBySha(sha);
+        final FrostFileListFileObject oldSfo = getFileBySha(sha);
         if( oldSfo == null ) {
             return false;
         }
-        
+
         oldSfo.setRequestLastSent(requestLastSent);
         oldSfo.setRequestsSentCount(oldSfo.getRequestsSentCount() + 1);
-        
+
         oldSfo.modify();
-        
+
         return true;
     }
-    
+
     /**
      * Update the item with SHA, set requestlastsent and requestssentcount
      * Does NOT commit!
      */
-    public synchronized boolean updateFrostFileListFileObjectAfterRequestReceived(String sha, long requestLastReceived) {
+    public synchronized boolean updateFrostFileListFileObjectAfterRequestReceived(final String sha, long requestLastReceived) {
 
-        FrostFileListFileObject oldSfo = getFileBySha(sha);
+        final FrostFileListFileObject oldSfo = getFileBySha(sha);
         if( oldSfo == null ) {
             return false;
         }
@@ -296,38 +297,38 @@ public class FileListStorage implements Savable, PropertyChangeListener {
         if( oldSfo.getRequestLastReceived() > requestLastReceived ) {
             requestLastReceived = oldSfo.getRequestLastReceived();
         }
-        
+
         oldSfo.setRequestLastReceived(requestLastReceived);
         oldSfo.setRequestsReceivedCount(oldSfo.getRequestsReceivedCount() + 1);
-        
+
         oldSfo.modify();
-        
+
         return true;
     }
-    
+
     /**
      * Update the item with SHA, set lastdownloaded
      */
-    public synchronized boolean updateFrostFileListFileObjectAfterDownload(String sha, long lastDownloaded) {
+    public synchronized boolean updateFrostFileListFileObjectAfterDownload(final String sha, final long lastDownloaded) {
 
         if( !rememberSharedFileDownloaded ) {
             return true;
         }
 
-        FrostFileListFileObject oldSfo = getFileBySha(sha);
+        final FrostFileListFileObject oldSfo = getFileBySha(sha);
         if( oldSfo == null ) {
             return false;
         }
-        
+
         oldSfo.setLastDownloaded(lastDownloaded);
-        
+
         oldSfo.modify();
-        
+
         commitStore();
-        
+
         return true;
     }
-    
+
     /**
      * Retrieves a list of FrostSharedFileOjects.
      */
@@ -337,17 +338,17 @@ public class FileListStorage implements Savable, PropertyChangeListener {
             final List<String> comments,
             final List<String> keywords,
             final List<String> owners,
-            String[] extensions) 
+            String[] extensions)
     {
         System.out.println("Starting file search...");
-        long t = System.currentTimeMillis();
-        
+        final long t = System.currentTimeMillis();
+
         boolean searchForNames = true;
         boolean searchForComments = true;
         boolean searchForKeywords = true;
         boolean searchForOwners = true;
         boolean searchForExtensions = true;
-        
+
         if( names == null    || names.size() == 0 )    { searchForNames = false; }
         if( comments == null || comments.size() == 0 ) { searchForComments = false; }
         if( keywords == null || keywords.size() == 0 ) { searchForKeywords = false; }
@@ -355,19 +356,21 @@ public class FileListStorage implements Savable, PropertyChangeListener {
         if( extensions == null   || extensions.length == 0 )   { searchForExtensions = false; }
         if( !searchForNames && !searchForComments && ! searchForKeywords && !searchForOwners && !searchForExtensions) {
             // find ALL files
-            for(FrostFileListFileObject o : storageRoot.getFileListFileObjects()) {
-                if(callback.fileRetrieved(o)) return;
+            for(final FrostFileListFileObject o : storageRoot.getFileListFileObjects()) {
+                if(callback.fileRetrieved(o)) {
+                    return; // stop requested
+                }
             }
             return;
         }
-        
+
         if( !searchForExtensions ) {
             extensions = null;
         }
- 
+
         try {
-            HashSet<Integer> ownerOids = new HashSet<Integer>();
-            
+            final HashSet<Integer> ownerOids = new HashSet<Integer>();
+
             if( searchForNames || searchForExtensions ) {
                 searchForFiles(ownerOids, names, extensions, storageRoot.getFileNameIndex());
             }
@@ -379,58 +382,59 @@ public class FileListStorage implements Savable, PropertyChangeListener {
             if( searchForKeywords ) {
                 searchForFiles(ownerOids, keywords, null, storageRoot.getFileKeywordIndex());
             }
-            
+
             if( searchForOwners ) {
                 searchForFiles(ownerOids, owners, null, storageRoot.getFileOwnerIndex());
             }
-            
-            HashSet<Integer> fileOids = new HashSet<Integer>();
-            for( Integer i : ownerOids ) {
+
+            final HashSet<Integer> fileOids = new HashSet<Integer>();
+            for( final Integer i : ownerOids ) {
 //                System.out.println("search-oid: "+i);
-                FrostFileListFileObjectOwner o = (FrostFileListFileObjectOwner)storage.getObjectByOID(i);
-                int oid = o.getFileListFileObject().getOid();
+                final FrostFileListFileObjectOwner o = (FrostFileListFileObjectOwner)storage.getObjectByOID(i);
+                final int oid = o.getFileListFileObject().getOid();
                 fileOids.add(oid);
             }
 
-            for( Integer i : fileOids ) {
-                FrostFileListFileObject o = (FrostFileListFileObject)storage.getObjectByOID(i);
+            for( final Integer i : fileOids ) {
+                final FrostFileListFileObject o = (FrostFileListFileObject)storage.getObjectByOID(i);
                 if( o != null ) {
-                    if(callback.fileRetrieved(o)) return;
+                    if(callback.fileRetrieved(o)) {
+                        return;
+                    }
                 }
             }
         } finally {
             System.out.println("Finished file search, duration="+(System.currentTimeMillis() - t));
         }
     }
-    
+
     private void searchForFiles(
-            HashSet<Integer> oids, 
-            List<String> searchStrings,
-            String[] extensions, // only used for name search
-            Index<PerstFileListIndexEntry> ix) 
+            final HashSet<Integer> oids,
+            final List<String> searchStrings,
+            final String[] extensions, // only used for name search
+            final Index<PerstFileListIndexEntry> ix)
     {
-        for(Map.Entry<Object,PerstFileListIndexEntry> entry : ix.entryIterator() ) {
-            String key = (String)entry.getKey();
+        for(final Map.Entry<Object,PerstFileListIndexEntry> entry : ix.entryIterator() ) {
+            final String key = (String)entry.getKey();
             if( searchStrings != null ) {
-                for(String searchString : searchStrings) {
+                for(final String searchString : searchStrings) {
                     if( key.indexOf(searchString) > -1 ) {
                         // add all owner oids
-                        Iterator<FrostFileListFileObjectOwner> i = entry.getValue().getFileOwnersWithText().iterator();
+                        final Iterator<FrostFileListFileObjectOwner> i = entry.getValue().getFileOwnersWithText().iterator();
                         while(i.hasNext()) {
-                            int oid = ((PersistentIterator)i).nextOid();
+                            final int oid = ((PersistentIterator)i).nextOid();
                             oids.add(oid);
                         }
                     }
                 }
             }
             if( extensions != null ) {
-                for(int x=0; x < extensions.length; x++) {
-                    String extension = extensions[x];
+                for( final String extension : extensions ) {
                     if( key.endsWith(extension) ) {
                         // add all owner oids
-                        Iterator<FrostFileListFileObjectOwner> i = entry.getValue().getFileOwnersWithText().iterator();
+                        final Iterator<FrostFileListFileObjectOwner> i = entry.getValue().getFileOwnersWithText().iterator();
                         while(i.hasNext()) {
-                            int oid = ((PersistentIterator)i).nextOid();
+                            final int oid = ((PersistentIterator)i).nextOid();
                             oids.add(oid);
                         }
                     }
@@ -439,7 +443,7 @@ public class FileListStorage implements Savable, PropertyChangeListener {
         }
     }
 
-    public synchronized boolean updateFileListFileFromOtherFileListFile(FrostFileListFileObject oldFof, FrostFileListFileObject newFof) {
+    public synchronized boolean updateFileListFileFromOtherFileListFile(final FrostFileListFileObject oldFof, final FrostFileListFileObject newFof) {
         // file is already in FILELIST table, maybe add new FILEOWNER and update fields
         // maybe update oldSfo
         boolean doUpdate = false;
@@ -476,21 +480,21 @@ public class FileListStorage implements Savable, PropertyChangeListener {
         if( oldFof.getRequestsSentCount() < newFof.getRequestsSentCount() ) {
             oldFof.setRequestsSentCount(newFof.getRequestsSentCount()); doUpdate = true;
         }
-        
-        for(Iterator<FrostFileListFileObjectOwner> i=newFof.getFrostFileListFileObjectOwnerIterator(); i.hasNext(); ) {
-            
-            FrostFileListFileObjectOwner obNew = i.next();
-            
+
+        for(final Iterator<FrostFileListFileObjectOwner> i=newFof.getFrostFileListFileObjectOwnerIterator(); i.hasNext(); ) {
+
+            final FrostFileListFileObjectOwner obNew = i.next();
+
             // check if we have an owner object for this sharer
             FrostFileListFileObjectOwner obOld = null;
-            for(Iterator<FrostFileListFileObjectOwner> j=oldFof.getFrostFileListFileObjectOwnerIterator(); j.hasNext(); ) {
-                FrostFileListFileObjectOwner o = j.next();
+            for(final Iterator<FrostFileListFileObjectOwner> j=oldFof.getFrostFileListFileObjectOwnerIterator(); j.hasNext(); ) {
+                final FrostFileListFileObjectOwner o = j.next();
                 if( o.getOwner().equals(obNew.getOwner()) ) {
                     obOld = o;
                     break;
                 }
             }
-            
+
             if( obOld == null ) {
                 // add new
                 oldFof.addFrostFileListFileObjectOwner(obNew);
@@ -502,7 +506,7 @@ public class FileListStorage implements Savable, PropertyChangeListener {
 
                     maybeUpdateFileListInfoInIndex(obOld.getName(), obNew.getName(), obOld, storageRoot.getFileNameIndex());
                     obOld.setName(obNew.getName());
-                    
+
                     maybeUpdateFileListInfoInIndex(obOld.getComment(), obNew.getComment(), obOld, storageRoot.getFileCommentIndex());
                     obOld.setComment(obNew.getComment());
 
@@ -513,7 +517,7 @@ public class FileListStorage implements Savable, PropertyChangeListener {
                     obOld.setLastUploaded(obNew.getLastUploaded());
                     obOld.setRating(obNew.getRating());
                     obOld.setKey(obNew.getKey());
-                    
+
                     doUpdate = true;
                 }
             }
@@ -522,17 +526,17 @@ public class FileListStorage implements Savable, PropertyChangeListener {
         if( doUpdate ) {
             oldFof.modify();
         }
-        
+
         return doUpdate;
     }
-    
+
     private void maybeUpdateFileListInfoInIndex(
-            String oldValue, 
-            String newValue, 
-            FrostFileListFileObjectOwner o, 
-            Index<PerstFileListIndexEntry> ix) 
+            final String oldValue,
+            final String newValue,
+            final FrostFileListFileObjectOwner o,
+            final Index<PerstFileListIndexEntry> ix)
     {
-        // remove current value from index of needed, add new value to index if needed 
+        // remove current value from index of needed, add new value to index if needed
         if( oldValue != null ) {
             if( newValue != null ) {
                 if( oldValue.toLowerCase().equals(newValue.toLowerCase()) ) {
@@ -547,7 +551,7 @@ public class FileListStorage implements Savable, PropertyChangeListener {
         }
     }
 
-    public void propertyChange(PropertyChangeEvent evt) {
+    public void propertyChange(final PropertyChangeEvent evt) {
         rememberSharedFileDownloaded = Core.frostSettings.getBoolValue(SettingsClass.REMEMBER_SHAREDFILE_DOWNLOADED);
     }
 }

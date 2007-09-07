@@ -19,6 +19,7 @@
 package frost.storage.perst.messagearchive;
 
 import java.util.*;
+import java.util.logging.*;
 
 import org.garret.perst.*;
 
@@ -28,38 +29,40 @@ import frost.storage.*;
 
 public class ArchiveMessageStorage implements Savable {
 
+    private static final Logger logger = Logger.getLogger(ArchiveMessageStorage.class.getName());
+
     public static final int INSERT_OK        = 1;
     public static final int INSERT_DUPLICATE = 2;
     public static final int INSERT_ERROR     = 3;
 
     // FIXME: adjust page size
     private static final int PAGE_SIZE = 1; // page size for the storage in MB
-    
+
     private Storage storage = null;
     private ArchiveMessageStorageRoot storageRoot = null;
-    
+
     private static ArchiveMessageStorage instance = new ArchiveMessageStorage();
 
     protected ArchiveMessageStorage() {}
-    
+
     public static ArchiveMessageStorage inst() {
         return instance;
     }
-    
+
     private Storage getStorage() {
         return storage;
     }
-    
+
     public boolean initStorage() {
-        String databaseFilePath = "store/messageArchive.dbs"; // path to the database file
-        int pagePoolSize = PAGE_SIZE*1024*1024; // size of page pool in bytes
+        final String databaseFilePath = "store/messageArchive.dbs"; // path to the database file
+        final int pagePoolSize = PAGE_SIZE*1024*1024; // size of page pool in bytes
 
         storage = StorageFactory.getInstance().createStorage();
         storage.setProperty("perst.string.encoding", "UTF-8");
         storage.open(databaseFilePath, pagePoolSize);
 
         storageRoot = (ArchiveMessageStorageRoot)storage.getRoot();
-        if (storageRoot == null) { 
+        if (storageRoot == null) {
             // Storage was not initialized yet
             storageRoot = new ArchiveMessageStorageRoot(storage);
             storage.setRoot(storageRoot);
@@ -81,10 +84,10 @@ public class ArchiveMessageStorage implements Savable {
         storage = null;
         System.out.println("INFO: MessageArchiveStorage closed.");
     }
-    
+
     public int getMessageCount() {
         int msgCount = 0;
-        for(PerstFrostArchiveBoardObject bo : storageRoot.getBoardsByName()) {
+        for(final PerstFrostArchiveBoardObject bo : storageRoot.getBoardsByName()) {
             if( bo.getMessageIndex() != null ) {
                 msgCount += bo.getMessageIndex().size();
             }
@@ -93,36 +96,36 @@ public class ArchiveMessageStorage implements Savable {
     }
 
     private void addBoard(final String boardName) {
-        
+
         if( boardName == null ) {
             return;
         }
-        
+
         // prevent duplicate board names
         if( storageRoot.getBoardsByName().contains(boardName) ) {
             return; // dup!
         }
 
-        PerstFrostArchiveBoardObject pfbo = new PerstFrostArchiveBoardObject(storage, boardName);
+        final PerstFrostArchiveBoardObject pfbo = new PerstFrostArchiveBoardObject(storage, boardName);
         storageRoot.getBoardsByName().put(boardName, pfbo);
-        
-        System.out.println("Added archive board: "+boardName);
+
+        logger.severe("Added archive board: "+boardName);
 
         storage.commit();
     }
 
-    public synchronized int insertMessage(FrostMessageObject mo, boolean doCommit) {
-        Board targetBoard = mo.getBoard();
+    public synchronized int insertMessage(final FrostMessageObject mo, final boolean doCommit) {
+        final Board targetBoard = mo.getBoard();
         if( targetBoard == null ) {
             // already in store!
-            System.out.println("msgInsertError: no board in msg");
+            logger.severe("msgInsertError: no board in msg");
             return INSERT_ERROR; // skip msg
         }
         return insertMessage(mo, targetBoard.getNameLowerCase(), doCommit);
     }
-    
-    public synchronized int insertMessage(FrostMessageObject mo, String boardName, boolean doCommit) {
-        
+
+    public synchronized int insertMessage(final FrostMessageObject mo, final String boardName, final boolean doCommit) {
+
         if( !mo.isValid() ) {
             return INSERT_OK; // ignore invalid msgs
         }
@@ -131,19 +134,19 @@ public class ArchiveMessageStorage implements Savable {
         }
 
         // add to indices, check for duplicate msgId
-        
+
         PerstFrostArchiveBoardObject bo = storageRoot.getBoardsByName().get(boardName);
         if( bo == null ) {
             // create new board
             addBoard(boardName);
             bo = storageRoot.getBoardsByName().get(boardName);
             if( bo == null ) {
-                System.out.println("Error: still no board???");
+                logger.severe("Error: still no board???");
                 return INSERT_ERROR;
             }
         }
-        
-        PerstFrostArchiveMessageObject pmo = new PerstFrostArchiveMessageObject(mo, storage);
+
+        final PerstFrostArchiveMessageObject pmo = new PerstFrostArchiveMessageObject(mo, storage);
 
         if( mo.getMessageId() != null ) {
             if( !bo.getMessageIdIndex().put(mo.getMessageId(), pmo) ) {
@@ -151,33 +154,33 @@ public class ArchiveMessageStorage implements Savable {
                 return INSERT_DUPLICATE; // skip msg
             }
         }
-        
+
         bo.getMessageIndex().put(mo.getDateAndTime().getMillis(), pmo);
-        
+
         if( doCommit ) {
             commitStore();
         }
 
         return INSERT_OK;
     }
-    
+
     public void retrieveMessagesForSearch(
-            Board board, 
-            long startDate, 
-            long endDate,
-            MessageCallback mc) 
+            final Board board,
+            final long startDate,
+            final long endDate,
+            final MessageCallback mc)
     {
-        PerstFrostArchiveBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
+        final PerstFrostArchiveBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
         if( bo == null ) {
-            System.out.println("error: no perst board for archive search");
+            logger.severe("error: no perst board for archive search");
             return;
         }
         // normal messages in date range
-        Iterator<PerstFrostArchiveMessageObject> i = bo.getMessageIndex().iterator(startDate, endDate, Index.ASCENT_ORDER);
+        final Iterator<PerstFrostArchiveMessageObject> i = bo.getMessageIndex().iterator(startDate, endDate, Index.ASCENT_ORDER);
         while(i.hasNext()) {
-            PerstFrostArchiveMessageObject p = i.next();
-            FrostMessageObject mo = p.toFrostMessageObject(board);
-            boolean shouldStop = mc.messageRetrieved(mo);
+            final PerstFrostArchiveMessageObject p = i.next();
+            final FrostMessageObject mo = p.toFrostMessageObject(board);
+            final boolean shouldStop = mc.messageRetrieved(mo);
             if( shouldStop ) {
                 break;
             }
