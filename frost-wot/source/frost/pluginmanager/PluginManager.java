@@ -32,6 +32,8 @@ import java.util.jar.JarFile;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import frost.MainFrame;
+import frost.SettingsClass;
 import frost.plugins.FrostPlugin;
 
 /**
@@ -47,8 +49,13 @@ public class PluginManager {
 
 	private boolean pmActive = false;
 
-	public PluginManager() {
+	private final MainFrame mainFrame;
 
+	private final SettingsClass frostSettings;
+
+	public PluginManager(SettingsClass frostsettings,	MainFrame mainframe) {
+		frostSettings = frostsettings;
+		mainFrame = mainframe;
 	}
 
 	public PluginInfo[] getAviablePlugins() {
@@ -285,8 +292,9 @@ public class PluginManager {
 	public void startPlugin(PluginInfo pi) {
 		logger.log(Level.SEVERE, "TODO start plugin"
 				+ pi.getUrl().toExternalForm());
+		PluginRespinator pr = new PluginRespinator(frostSettings, mainFrame);
 		FrostPlugin fp = pi.getPlugin();
-		fp.startPlugin(null);
+		fp.startPlugin(pr);
 		pi.setIsRunning(true);
 	}
 

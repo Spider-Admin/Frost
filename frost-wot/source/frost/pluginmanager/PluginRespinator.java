@@ -18,10 +18,48 @@
 */
 package frost.pluginmanager;
 
+import java.io.File;
+
+import org.garret.perst.Storage;
+import org.garret.perst.StorageFactory;
+
+import frost.MainFrame;
+import frost.SettingsClass;
+import frost.gui.MessageFrame;
+
 /**
  * @author saces
  *
  */
 public class PluginRespinator {
-
+	
+	private final SettingsClass frostSettings;
+	private final MainFrame mainFrame;
+	private Storage storage = null;
+	
+	protected PluginRespinator (SettingsClass frostsettings,	MainFrame mainframe) {
+		frostSettings = frostsettings;
+		mainFrame = mainframe;
+	}
+	
+	public void makeNewMessage(String boardname, String subject, String text) {
+		MessageFrame newMessageFrame = new MessageFrame(frostSettings, mainFrame);
+        newMessageFrame.composeNewMessage(mainFrame.getTofTreeModel().getBoardByName(boardname), subject, "");
+        newMessageFrame.addText(text);
+	}
+	
+	public Storage getDataStorage(String storagename) {
+		int pagePoolSize = 1 * 1024 * 1024;
+		File sdir = new File("store/plugins");
+		sdir.mkdirs();
+		
+		String databaseFilePath = sdir.getAbsolutePath() + '/' + storagename + ".dbs";
+		if (storage == null) {
+			storage = StorageFactory.getInstance().createStorage();
+			storage.setProperty("perst.serialize.transient.objects", Boolean.TRUE); // serialize BitSets
+			storage.setProperty("perst.concurrent.iterator", Boolean.TRUE); // remove() during iteration (for cleanup)
+			storage.open(databaseFilePath, pagePoolSize);
+		}
+		return storage;
+	}
 }
