@@ -1004,6 +1004,17 @@ public class MessageFrame extends JFrame {
             buddies.setEnabled(false);
         }
     }
+    
+    public void addText(String text) {
+        if( text == null ) {
+            return;
+        }
+        try {
+            messageTextArea.getDocument().insertString(messageTextArea.getText().length(), text, null);
+        } catch (BadLocationException e1) {
+            logger.log(Level.SEVERE, "Error while insert text: "+text, e1);
+        }
+    }
 
     protected void updateHeaderArea(String sender) {
         if( !headerArea.isEnabled() ) {
