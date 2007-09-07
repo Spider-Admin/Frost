@@ -78,6 +78,7 @@
     <pathelement location="${lib.dir}/perst15.jar"/>
     <pathelement location="${lib.dir}/jnlp.jar"/>
     <pathelement location="${lib.dir}/joda-time.jar"/>
+  	<pathelement location="${lib.dir}/hyperocha.jar"/>
     <pathelement location="${build.classes.feclib}"/>
     <pathelement location="${build.classes.genchklib}"/>
     <pathelement location="${build.classes.skinlfFixLib}"/>
@@ -397,7 +398,7 @@ Build log  : ${logfilename}</echo>
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- The ultimative HelloWorld plugin                                  -->
   <!-- It is a simple plugin template and also doc for plugins.          -->
-  <!-- so its right that the plugin jar contains *.java and *.txt file   -->	
+  <!-- so its right that this plugin jar contains *.java and *.txt files -->	
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <target name="plugin-HelloWorld" description="--> build the plugins.">
     <!-- create needed dirs -->
@@ -480,48 +481,43 @@ Build log  : ${logfilename}</echo>
 	  </target>	
 	
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-		  <!-- The ultimative NodeMonitor plugin-->
-		  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-		  <target name="plugin-SimpleSiteTool" description="--> build the plugins.">
-		    <!-- create needed dirs -->
-		  	<!-- now build the plugin -->
+	<!-- The ultimative SimpleSiteTool plugin-->
+	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+	<target name="plugin-SimpleSiteTool" description="--> build the plugins.">
+		<!-- create needed dirs -->
+		<mkdir dir="${build.plugin.dir}/SimpleSiteTool"/>
 		  	
-		  	<mkdir dir="${build.plugin.dir}/SimpleSiteTool"/>
-		  	
-		    <javac srcdir="${plugin.dir}/SimpleSiteTool"
+	  	<!-- now build the plugin -->
+		<javac srcdir="${plugin.dir}/SimpleSiteTool"
 		             destdir="${build.plugin.dir}/SimpleSiteTool"
 		  	   	   debug="${debug}"		   debuglevel="${debuglevel}" 		deprecation="${deprecation}"
 		      	   verbose="${verbose}"    optimize="${optimize}"
 		      	   source="${source}"	   target="${target}">
-		            <classpath>
-		                <pathelement location="${build.classes}"/>
-		            </classpath>
-		      </javac>
+			<classpath>
+				<pathelement location="${build.classes}"/>
+				<pathelement location="${lib.dir}/hyperocha.jar"/>
+				<pathelement location="${lib.dir}/perst15.jar"/>
+			</classpath>
+		</javac>
 		  	
+		<delete quiet="true" file="${dist.plugin.dir}/SimpleSiteTool.jar"/>
 		  	
-		  	
-		  	<delete quiet="true" file="${dist.plugin.dir}/SimpleSiteTool.jar"/>
-		  	
-			<jar jarfile="${dist.plugin.dir}/SimpleSiteTool.jar" duplicate="fail">
-				<manifest>
-					<attribute name="Frostplugin-Main-Class" value="frostplugins.SimpleSiteTool.SimpleSiteTool"/>
-					<attribute name="FCP1" value="0"/>
-					<attribute name="FCP2" value="1"/>
-					<attribute name="Specification-Version" value="${revision}"/>
-				</manifest>
-				<fileset dir="${build.plugin.dir}/SimpleSiteTool" casesensitive="no">
-					<include name="**/*.class"/>
-				</fileset>
-				<fileset dir="${plugin.dir}/SimpleSiteTool" casesensitive="no">
-					<include name="*.txt"/>
-			        <include name="**/*.properties"/>
-				</fileset>
-
-				<!-- fileset dir="${build}/"/ -->
-			</jar>
-
-			  	
-		  </target>	
+		<jar jarfile="${dist.plugin.dir}/SimpleSiteTool.jar" duplicate="fail">
+			<manifest>
+				<attribute name="Frostplugin-Main-Class" value="frostplugins.SimpleSiteTool.SimpleSiteTool"/>
+				<attribute name="FCP1" value="0"/>
+				<attribute name="FCP2" value="1"/>
+				<attribute name="Specification-Version" value="${revision}"/>
+			</manifest>
+			<fileset dir="${build.plugin.dir}/SimpleSiteTool" casesensitive="no">
+				<include name="**/*.class"/>
+			</fileset>
+			<fileset dir="${plugin.dir}/SimpleSiteTool" casesensitive="no">
+				<include name="*.txt"/>
+			    <include name="**/*.properties"/>
+			</fileset>
+		</jar>
+	</target>	
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- Main target - runs dist by default -->
