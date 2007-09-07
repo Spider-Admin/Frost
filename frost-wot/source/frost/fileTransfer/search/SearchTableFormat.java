@@ -174,6 +174,7 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
         
         RightAlignRenderer rightAlignRenderer = new RightAlignRenderer();
         ShowColoredLinesRenderer showColoredLinesRenderer = new ShowColoredLinesRenderer();
+        ShowContentTooltipRenderer showContentTooltipRenderer = new ShowContentTooltipRenderer();
         
         columnModel.getColumn(0).setCellRenderer(new FileNameRenderer()); // filename
         columnModel.getColumn(1).setCellRenderer(rightAlignRenderer); // size
@@ -181,8 +182,8 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
         columnModel.getColumn(3).setCellRenderer(showColoredLinesRenderer); // last uploaded
         columnModel.getColumn(4).setCellRenderer(showColoredLinesRenderer); // last received
         columnModel.getColumn(5).setCellRenderer(showColoredLinesRenderer); // rating
-        columnModel.getColumn(6).setCellRenderer(new ShowContentTooltipRenderer()); // comment
-        columnModel.getColumn(7).setCellRenderer(showColoredLinesRenderer); // keywords
+        columnModel.getColumn(6).setCellRenderer(showContentTooltipRenderer); // comment
+        columnModel.getColumn(7).setCellRenderer(showContentTooltipRenderer); // keywords
         columnModel.getColumn(8).setCellRenderer(new SourceCountRenderer()); // source count
         
         int[] widths = { 250, 30, 40, 20, 20, 10, 50, 80, 15 };

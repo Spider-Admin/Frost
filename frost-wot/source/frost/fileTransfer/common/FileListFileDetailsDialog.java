@@ -21,7 +21,6 @@ package frost.fileTransfer.common;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
-import java.util.List;
 
 import javax.swing.*;
 
@@ -194,8 +193,7 @@ public class FileListFileDetailsDialog extends JDialog {
     }
     
     public void startDialog(FrostFileListFileObject fileObject) {
-        List<FrostFileListFileObjectOwner> lst = fileObject.getFrostFileListFileObjectOwnerList();
-        for( Iterator<FrostFileListFileObjectOwner> i = lst.iterator(); i.hasNext(); ) {
+        for( Iterator<FrostFileListFileObjectOwner> i = fileObject.getFrostFileListFileObjectOwnerIterator(); i.hasNext(); ) {
             FrostFileListFileObjectOwner o = i.next();
             FileListFileDetailsItem item = new FileListFileDetailsItem(o); 
             model.addPropertiesItem(item);

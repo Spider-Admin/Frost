@@ -155,7 +155,7 @@ public class FrostSearchItem extends ModelItem implements CopyToClipboardItem {
     
     public Integer getSourceCount() {
         if( sourceCount == null ) {
-            sourceCount = new Integer(fo.getFrostFileListFileObjectOwnerList().size());
+            sourceCount = new Integer(fo.getFrostFileListFileObjectOwnerListSize());
         }
         return sourceCount;
     }

@@ -27,12 +27,22 @@ public class FileListStorageRoot extends Persistent {
     private Index<FrostFileListFileObject> fileListFileObjects;
 
     private Index<PerstIdentitiesFiles> identitiesFiles;
+    
+    private Index<PerstFileListIndexEntry> fileNameIndex;
+    private Index<PerstFileListIndexEntry> fileCommentIndex;
+    private Index<PerstFileListIndexEntry> fileKeywordIndex;
+    private Index<PerstFileListIndexEntry> fileOwnerIndex;
 
     public FileListStorageRoot() {}
     
     public FileListStorageRoot(Storage storage) {
         fileListFileObjects = storage.createIndex(String.class, true);
         identitiesFiles = storage.createIndex(String.class, true);
+        
+        fileNameIndex = storage.createIndex(String.class, true);
+        fileCommentIndex = storage.createIndex(String.class, true);
+        fileKeywordIndex = storage.createIndex(String.class, true);
+        fileOwnerIndex = storage.createIndex(String.class, true);
     }
 
     public Index<FrostFileListFileObject> getFileListFileObjects() {
@@ -41,5 +51,21 @@ public class FileListStorageRoot extends Persistent {
 
     public Index<PerstIdentitiesFiles> getIdentitiesFiles() {
         return identitiesFiles;
+    }
+
+    public Index<PerstFileListIndexEntry> getFileNameIndex() {
+        return fileNameIndex;
+    }
+
+    public Index<PerstFileListIndexEntry> getFileCommentIndex() {
+        return fileCommentIndex;
+    }
+
+    public Index<PerstFileListIndexEntry> getFileKeywordIndex() {
+        return fileKeywordIndex;
+    }
+
+    public Index<PerstFileListIndexEntry> getFileOwnerIndex() {
+        return fileOwnerIndex;
     }
 }
