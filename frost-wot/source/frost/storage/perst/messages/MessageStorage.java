@@ -19,6 +19,7 @@
 package frost.storage.perst.messages;
 
 import java.util.*;
+import java.util.logging.*;
 
 import org.garret.perst.*;
 import org.joda.time.*;
@@ -29,36 +30,38 @@ import frost.messages.*;
 import frost.storage.*;
 
 public class MessageStorage implements Savable {
-    
+
+    private static transient final Logger logger = Logger.getLogger(MessageStorage.class.getName());
+
     public static final int INSERT_OK        = 1;
     public static final int INSERT_DUPLICATE = 2;
     public static final int INSERT_ERROR     = 3;
 
     // FIXME: adjust page size
     private static final int PAGE_SIZE = 6; // page size for the storage in MB
-    
+
     private Storage storage = null;
     private MessageStorageRoot storageRoot = null;
-    
+
     private static MessageStorage instance = new MessageStorage();
-    
-    private boolean storeInvalidMessages;
+
+    private final boolean storeInvalidMessages;
 
     protected MessageStorage() {
         storeInvalidMessages = Core.frostSettings.getBoolValue(SettingsClass.STORAGE_STORE_INVALID_MESSAGES);
     }
-    
+
     public static MessageStorage inst() {
         return instance;
     }
-    
+
     private Storage getStorage() {
         return storage;
     }
-    
+
     public boolean initStorage() {
-        String databaseFilePath = "store/messages.dbs"; // path to the database file
-        int pagePoolSize = PAGE_SIZE*1024*1024; // size of page pool in bytes
+        final String databaseFilePath = "store/messages.dbs"; // path to the database file
+        final int pagePoolSize = PAGE_SIZE*1024*1024; // size of page pool in bytes
 
         storage = StorageFactory.getInstance().createStorage();
         storage.setProperty("perst.concurrent.iterator", Boolean.TRUE); // remove() during iteration (for cleanup)
@@ -89,32 +92,32 @@ public class MessageStorage implements Savable {
         storage = null;
         System.out.println("INFO: MessagesStorage closed.");
     }
-    
-    public void importBoards(Hashtable<String, Integer> boardPrimaryKeysByName) {
+
+    public void importBoards(final Hashtable<String, Integer> boardPrimaryKeysByName) {
         int highestBoardId = 0;
-        for( String boardName : boardPrimaryKeysByName.keySet() ) {
-            Integer boardId = (Integer) boardPrimaryKeysByName.get(boardName);
+        for( final String boardName : boardPrimaryKeysByName.keySet() ) {
+            final Integer boardId = boardPrimaryKeysByName.get(boardName);
 
             // prevent duplicate board names
             if( storageRoot.getBoardsByName().contains(boardName) ) {
                 continue; // dup!
             }
-            PerstFrostBoardObject pfbo = new PerstFrostBoardObject(storage, boardName, boardId.intValue());
+            final PerstFrostBoardObject pfbo = new PerstFrostBoardObject(storage, boardName, boardId.intValue());
             storageRoot.getBoardsByName().put(boardName, pfbo);
             storageRoot.getBoardsById().put(boardId, pfbo);
-            
+
             highestBoardId = Math.max(highestBoardId, boardId.intValue());
         }
-        
+
         storageRoot.initUniqueBoardId(highestBoardId+1);
-        
+
         storage.commit();
     }
-    
+
     /**
      * Retrieve the primary key of the board, or insert it into database.
      */
-    public boolean assignPerstFrostBoardObject(Board newNode) {
+    public boolean assignPerstFrostBoardObject(final Board newNode) {
         PerstFrostBoardObject pbo = storageRoot.getBoardsByName().get(newNode.getNameLowerCase());
         if( pbo == null ) {
             // not yet in perst, create new one
@@ -122,22 +125,22 @@ public class MessageStorage implements Savable {
 
             pbo = storageRoot.getBoardsByName().get(newNode.getNameLowerCase());
             if( pbo == null ) {
-                System.out.println("board still not added!");
+                logger.severe("board still not added!");
                 return false;
             }
         }
-        
+
         newNode.setPerstFrostBoardObject(pbo);
         pbo.setRefBoard(newNode);
-        
+
         return true;
     }
-    
+
     /**
      * Adds a new board and returns the Board object with the perst object assigned.
      */
     public synchronized Board addBoard(final Board board) {
-        
+
         if( board == null ) {
             return null;
         }
@@ -149,18 +152,18 @@ public class MessageStorage implements Savable {
             return board; // dup!
         }
 
-        int boardId = storageRoot.getNextUniqueBoardId();
+        final int boardId = storageRoot.getNextUniqueBoardId();
 
         pfbo = new PerstFrostBoardObject(storage, board.getNameLowerCase(), boardId);
         storageRoot.getBoardsByName().put(board.getNameLowerCase(), pfbo);
         storageRoot.getBoardsById().put(boardId, pfbo);
 
         commitStore();
-        
+
         return board;
     }
-    
-    private void removeAll(Iterator<? extends Persistent> i) {
+
+    private void removeAll(final Iterator<? extends Persistent> i) {
         while(i.hasNext()) {
             i.next().deallocate();
         }
@@ -169,17 +172,16 @@ public class MessageStorage implements Savable {
     /**
      * Removes a board from the board list.
      */
-    public synchronized void removeBoard(Board board) {
-        PerstFrostBoardObject boardToRemove = board.getPerstFrostBoardObject();
+    public synchronized void removeBoard(final Board board) {
+        final PerstFrostBoardObject boardToRemove = board.getPerstFrostBoardObject();
         if( boardToRemove == null ) {
             return;
         }
 
         // delete ALL valid messages
-        for(Iterator<PerstFrostMessageObject> i=boardToRemove.getMessageIndex().iterator(); i.hasNext(); ) {
-            PerstFrostMessageObject pmo = i.next();
+        for( final PerstFrostMessageObject pmo : boardToRemove.getMessageIndex() ) {
             if( FrostMessageObject.isSignatureStatusVERIFIED(pmo.signatureStatus) ) {
-                PerstIdentitiesMessages pim = storageRoot.getIdentitiesMessages().get(pmo.fromName);
+                final PerstIdentitiesMessages pim = storageRoot.getIdentitiesMessages().get(pmo.fromName);
                 if( pim != null ) {
                     pim.getMessagesFromIdentity().remove(pmo);
                     if( pim.getMessagesFromIdentity().size() == 0 ) {
@@ -194,16 +196,16 @@ public class MessageStorage implements Savable {
         boardToRemove.getUnreadMessageIndex().clear();
         boardToRemove.getFlaggedMessageIndex().clear();
         boardToRemove.getStarredMessageIndex().clear();
-        
+
         commitStore();
 
-        // delete ALL invalid messages 
+        // delete ALL invalid messages
         removeAll(boardToRemove.getInvalidMessagesIndex().iterator());
         boardToRemove.getInvalidMessagesIndex().clear();
 
         commitStore();
 
-        // delete ALL sent and unsent messages 
+        // delete ALL sent and unsent messages
         removeAll(boardToRemove.getSentMessagesList().iterator());
         boardToRemove.getSentMessagesList().clear();
         removeAll(boardToRemove.getUnsentMessagesList().iterator());
@@ -211,17 +213,17 @@ public class MessageStorage implements Savable {
 
         storageRoot.getBoardsByName().remove( boardToRemove );
         storageRoot.getBoardsById().remove( boardToRemove );
-        
+
         boardToRemove.deallocate();
-        
+
         commitStore();
     }
-    
+
     ///////////////////////////////////////////////////////////////////////////////////////////////
-    
+
     public int getMessageCount() {
         int msgCount = 0;
-        for(PerstFrostBoardObject bo : storageRoot.getBoardsByName()) {
+        for(final PerstFrostBoardObject bo : storageRoot.getBoardsByName()) {
             if( bo.getMessageIndex() != null ) {
                 msgCount += bo.getMessageIndex().size();
             }
@@ -229,8 +231,8 @@ public class MessageStorage implements Savable {
         return msgCount;
     }
 
-    public int getMessageCount(String uniqueIdentityName) {
-        PerstIdentitiesMessages pim = storageRoot.getIdentitiesMessages().get(uniqueIdentityName);
+    public int getMessageCount(final String uniqueIdentityName) {
+        final PerstIdentitiesMessages pim = storageRoot.getIdentitiesMessages().get(uniqueIdentityName);
         if( pim != null ) {
             return pim.getMessagesFromIdentity().size();
         } else {
@@ -242,8 +244,8 @@ public class MessageStorage implements Savable {
      * Returns count of all msgs AND all unread msgs (no matter how old they are).
      * If maxDaysBack is < 0 then ALL msgs for this board are counted.
      */
-    public int getMessageCount(Board board, int maxDaysBack) {
-        PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
+    public int getMessageCount(final Board board, final int maxDaysBack) {
+        final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
         if( bo == null ) {
             return -1;
         }
@@ -251,83 +253,83 @@ public class MessageStorage implements Savable {
             return bo.getMessageIndex().size();
         }
 
-        LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysBack);
-        long minDateTime = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
+        final LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysBack);
+        final long minDateTime = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
         // normal messages in date range
-        Iterator<PerstFrostMessageObject> i1 = bo.getMessageIndex().iterator(minDateTime, Long.MAX_VALUE, Index.ASCENT_ORDER);
+        final Iterator<PerstFrostMessageObject> i1 = bo.getMessageIndex().iterator(minDateTime, Long.MAX_VALUE, Index.ASCENT_ORDER);
         // add ALL unread messages, also those which are not in date range
-        Iterator<PerstFrostMessageObject> i2 = bo.getUnreadMessageIndex().iterator();
+        final Iterator<PerstFrostMessageObject> i2 = bo.getUnreadMessageIndex().iterator();
         // add ALL flagged and starred messages, also those which are not in date range
-        Iterator<PerstFrostMessageObject> i3 = bo.getStarredMessageIndex().iterator();
-        Iterator<PerstFrostMessageObject> i4 = bo.getFlaggedMessageIndex().iterator();
+        final Iterator<PerstFrostMessageObject> i3 = bo.getStarredMessageIndex().iterator();
+        final Iterator<PerstFrostMessageObject> i4 = bo.getFlaggedMessageIndex().iterator();
 
         // join all results
-        Iterator<PerstFrostMessageObject> i = storage.join(new Iterator[] {i1, i2, i3, i4} );
-        
+        final Iterator<PerstFrostMessageObject> i = storage.join(new Iterator[] {i1, i2, i3, i4} );
+
         int count = 0;
-        
+
         while(i.hasNext()) {
             ((PersistentIterator)i).nextOid();
             count++;
         }
         return count;
     }
-    
-    public int getNewMessageCount(Board board) {
-        PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
+
+    public int getNewMessageCount(final Board board) {
+        final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
         if( bo == null ) {
             return -1;
         }
         // ALL new messages
         return bo.getUnreadMessageIndex().size();
     }
-    
-    public boolean hasFlaggedMessages(Board board) {
-        PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
+
+    public boolean hasFlaggedMessages(final Board board) {
+        final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
         if( bo == null ) {
             return false;
         }
         return bo.getFlaggedMessageIndex().size() > 0;
     }
-    
-    public boolean hasStarredMessages(Board board) {
-        PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
+
+    public boolean hasStarredMessages(final Board board) {
+        final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
         if( bo == null ) {
             return false;
         }
         return bo.getStarredMessageIndex().size() > 0;
     }
 
-    public synchronized int insertMessage(FrostMessageObject mo, boolean doCommit) {
+    public synchronized int insertMessage(final FrostMessageObject mo, final boolean doCommit) {
 
         // add to indices, check for duplicate msgId
 
         if( mo.getPerstFrostMessageObject() != null ) {
             // already in store!
-            System.out.println("msgInsertError: perst obj already set");
+            logger.severe("msgInsertError: perst obj already set");
             return INSERT_ERROR; // skip msg
         }
-        
-        Board targetBoard = mo.getBoard();
+
+        final Board targetBoard = mo.getBoard();
         if( targetBoard == null ) {
             // already in store!
-            System.out.println("msgInsertError: no board in msg");
+            logger.severe("msgInsertError: no board in msg");
             return INSERT_ERROR; // skip msg
         }
-        
+
         PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(targetBoard.getNameLowerCase());
         if( bo == null ) {
             // create new board
-            System.out.println("Creating new perst board: "+targetBoard.getName());
+            logger.severe("Creating new perst board: "+targetBoard.getName());
             addBoard(targetBoard);
             bo = storageRoot.getBoardsByName().get(targetBoard.getNameLowerCase());
             if( bo == null ) {
-                System.out.println("Error: duplicate board???");
+                logger.severe("Error: duplicate board???");
                 return INSERT_ERROR;
             }
         }
-        
-        PerstFrostMessageObject pmo = new PerstFrostMessageObject(mo, storage);
+
+        final PerstFrostMessageObject pmo = new PerstFrostMessageObject(mo, storage);
 
         if( !mo.isValid() ) {
             // invalid message
@@ -342,9 +344,9 @@ public class MessageStorage implements Savable {
                     return INSERT_DUPLICATE; // skip msg
                 }
             }
-            
+
             mo.setPerstFrostMessageObject(pmo);
-            
+
             bo.getMessageIndex().put(mo.getDateAndTime().getMillis(), pmo);
             if( pmo.isNew ) {
                 bo.getUnreadMessageIndex().put(mo.getDateAndTime().getMillis(), pmo);
@@ -355,7 +357,7 @@ public class MessageStorage implements Savable {
             if( pmo.isStarred ) {
                 bo.getStarredMessageIndex().put(mo.getDateAndTime().getMillis(), pmo);
             }
-            
+
             // add to id, maybe create id for this msg
             if( FrostMessageObject.isSignatureStatusVERIFIED(pmo.signatureStatus) ) {
                 PerstIdentitiesMessages pim = storageRoot.getIdentitiesMessages().get(pmo.fromName);
@@ -366,88 +368,88 @@ public class MessageStorage implements Savable {
                 pim.getMessagesFromIdentity().add( pmo );
             }
         }
-        
+
         if( doCommit ) {
             commitStore();
         }
 
         return INSERT_OK;
     }
-    
+
     public FrostMessageObject retrieveMessageByMessageId(
-            Board board,
-            String msgId,
-            boolean withContent, 
-            boolean withAttachments, 
-            boolean showDeleted) 
+            final Board board,
+            final String msgId,
+            final boolean withContent,
+            final boolean withAttachments,
+            boolean showDeleted)
     {
-        PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
+        final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
         if( bo == null ) {
             return null;
         }
-        
-        PerstFrostMessageObject p = bo.getMessageIdIndex().get(msgId);
+
+        final PerstFrostMessageObject p = bo.getMessageIdIndex().get(msgId);
         if( p == null ) {
             return null;
         }
         if(!showDeleted && p.isDeleted) {
             return null;
-        }        
-        FrostMessageObject mo = p.toFrostMessageObject(board, true, withContent, withAttachments);
+        }
+        final FrostMessageObject mo = p.toFrostMessageObject(board, true, withContent, withAttachments);
         return mo;
     }
-    
-    public void retrieveMessageContent(FrostMessageObject mo) {
+
+    public void retrieveMessageContent(final FrostMessageObject mo) {
         if( mo.getPerstFrostMessageObject() != null ) {
             mo.getPerstFrostMessageObject().retrieveMessageContent(mo);
         }
     }
 
-    public void retrievePublicKey(FrostMessageObject mo) {
+    public void retrievePublicKey(final FrostMessageObject mo) {
         if( mo.getPerstFrostMessageObject() != null ) {
             mo.getPerstFrostMessageObject().retrievePublicKey(mo);
         }
     }
 
-    public void retrieveSignature(FrostMessageObject mo) {
+    public void retrieveSignature(final FrostMessageObject mo) {
         if( mo.getPerstFrostMessageObject() != null ) {
             mo.getPerstFrostMessageObject().retrieveSignature(mo);
         }
     }
 
-    public void retrieveAttachments(FrostMessageObject mo) {
+    public void retrieveAttachments(final FrostMessageObject mo) {
         if( mo.getPerstFrostMessageObject() != null ) {
             mo.getPerstFrostMessageObject().retrieveAttachments(mo);
         }
     }
 
     public void retrieveMessagesForArchive(
-            Board board, 
-            int maxDaysOld, 
-            boolean archiveKeepUnread,
-            boolean archiveKeepFlaggedAndStarred,
-            MessageArchivingCallback mc) 
+            final Board board,
+            final int maxDaysOld,
+            final boolean archiveKeepUnread,
+            final boolean archiveKeepFlaggedAndStarred,
+            final MessageArchivingCallback mc)
     {
-        LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysOld);
-        long maxDateTime = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
+        final LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysOld);
+        final long maxDateTime = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
 
-        PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
+        final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
         if( bo == null ) {
-            System.out.println("error: no perst board for show");
+            logger.severe("error: no perst board for archive");
             return;
         }
         // normal messages in date range
-        Iterator<PerstFrostMessageObject> i = bo.getMessageIndex().iterator(Long.MIN_VALUE, maxDateTime, Index.ASCENT_ORDER);
+        final Iterator<PerstFrostMessageObject> i = bo.getMessageIndex().iterator(Long.MIN_VALUE, maxDateTime, Index.ASCENT_ORDER);
         while(i.hasNext()) {
-            PerstFrostMessageObject p = i.next();
+            final PerstFrostMessageObject p = i.next();
             if( archiveKeepUnread && p.isNew) {
                 continue;
             }
             if( archiveKeepFlaggedAndStarred && (p.isFlagged||p.isStarred) ) {
                 continue;
             }
-            FrostMessageObject mo = p.toFrostMessageObject(board, true, false, false);
-            int mode = mc.messageRetrieved(mo);
+            final FrostMessageObject mo = p.toFrostMessageObject(board, true, false, false);
+            final int mode = mc.messageRetrieved(mo);
             if( mode == MessageArchivingCallback.STOP_ERROR ) {
                 return;
             } else if( mode == MessageArchivingCallback.DELETE_MESSAGE ) {
@@ -464,9 +466,9 @@ public class MessageStorage implements Savable {
                 if( p.isStarred ) {
                     bo.getStarredMessageIndex().remove(p.dateAndTime, p);
                 }
-                
+
                 if( mo.isSignatureStatusVERIFIED() ) {
-                    PerstIdentitiesMessages pim = storageRoot.getIdentitiesMessages().get(p.fromName);
+                    final PerstIdentitiesMessages pim = storageRoot.getIdentitiesMessages().get(p.fromName);
                     if( pim != null ) {
                         pim.getMessagesFromIdentity().remove(p);
                         if( pim.getMessagesFromIdentity().size() == 0 ) {
@@ -475,128 +477,128 @@ public class MessageStorage implements Savable {
                         }
                     }
                 }
-                
+
                 if( p.messageId != null ) {
                     bo.getMessageIdIndex().remove(p.messageId);
                 }
-                
+
                 p.deallocate();
             }
         }
-        
+
         // delete invalid messages in date range
-        Iterator<PerstFrostMessageObject> ii = bo.getInvalidMessagesIndex().iterator(Long.MIN_VALUE, maxDateTime, Index.ASCENT_ORDER);
+        final Iterator<PerstFrostMessageObject> ii = bo.getInvalidMessagesIndex().iterator(Long.MIN_VALUE, maxDateTime, Index.ASCENT_ORDER);
         while(ii.hasNext()) {
-            PerstFrostMessageObject p = ii.next();
+            final PerstFrostMessageObject p = ii.next();
             ii.remove();
             p.deallocate();
         }
     }
-    
+
     public void retrieveMessagesForSearch(
-            Board board, 
-            long startDate, 
-            long endDate,
-            boolean withContent,
-            boolean withAttachments,
-            boolean showDeleted, 
-            MessageCallback mc) 
+            final Board board,
+            final long startDate,
+            final long endDate,
+            final boolean withContent,
+            final boolean withAttachments,
+            boolean showDeleted,
+            final MessageCallback mc)
     {
-        PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
+        final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
         if( bo == null ) {
-            System.out.println("error: no perst board for search");
+            logger.severe("error: no perst board for search");
             return;
         }
         // normal messages in date range
-        Iterator<PerstFrostMessageObject> i = bo.getMessageIndex().iterator(startDate, endDate, Index.ASCENT_ORDER);
+        final Iterator<PerstFrostMessageObject> i = bo.getMessageIndex().iterator(startDate, endDate, Index.ASCENT_ORDER);
         while(i.hasNext()) {
-            PerstFrostMessageObject p = i.next();
+            final PerstFrostMessageObject p = i.next();
             if(!showDeleted && p.isDeleted) {
                 continue;
             }
-            FrostMessageObject mo = p.toFrostMessageObject(board, true, withContent, withAttachments);
-            boolean shouldStop = mc.messageRetrieved(mo);
+            final FrostMessageObject mo = p.toFrostMessageObject(board, true, withContent, withAttachments);
+            final boolean shouldStop = mc.messageRetrieved(mo);
             if( shouldStop ) {
                 break;
             }
         }
     }
-    
-    public synchronized void retrieveMessagesForShow(
-            Board board,
-            int maxDaysBack, 
-            boolean withContent,
-            boolean withAttachments,
-            boolean showDeleted,
-            boolean showUnreadOnly,
-            MessageCallback mc) 
-    {
-        LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysBack);
-        long minDateTime = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
 
-        PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
+    public synchronized void retrieveMessagesForShow(
+            final Board board,
+            final int maxDaysBack,
+            final boolean withContent,
+            final boolean withAttachments,
+            boolean showDeleted,
+            final boolean showUnreadOnly,
+            final MessageCallback mc)
+    {
+        final LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysBack);
+        final long minDateTime = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
+
+        final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
         if( bo == null ) {
-            System.out.println("error: no perst board for show");
+            logger.severe("error: no perst board for show");
             return;
         }
-        
+
         Iterator<PerstFrostMessageObject> i;
         if( showUnreadOnly ) {
             // ALL new messages
             i = bo.getUnreadMessageIndex().iterator();
         } else {
             // normal messages in date range
-            Iterator<PerstFrostMessageObject> i1 = bo.getMessageIndex().iterator(minDateTime, Long.MAX_VALUE, Index.ASCENT_ORDER);
+            final Iterator<PerstFrostMessageObject> i1 = bo.getMessageIndex().iterator(minDateTime, Long.MAX_VALUE, Index.ASCENT_ORDER);
             // add ALL unread messages, also those which are not in date range
-            Iterator<PerstFrostMessageObject> i2 = bo.getUnreadMessageIndex().iterator();
+            final Iterator<PerstFrostMessageObject> i2 = bo.getUnreadMessageIndex().iterator();
             // add ALL flagged and starred messages, also those which are not in date range
-            Iterator<PerstFrostMessageObject> i3 = bo.getStarredMessageIndex().iterator();
-            Iterator<PerstFrostMessageObject> i4 = bo.getFlaggedMessageIndex().iterator();
+            final Iterator<PerstFrostMessageObject> i3 = bo.getStarredMessageIndex().iterator();
+            final Iterator<PerstFrostMessageObject> i4 = bo.getFlaggedMessageIndex().iterator();
 
             // join all results
             i = storage.join(new Iterator[] {i1, i2, i3, i4} );
         }
 
         while(i.hasNext()) {
-            PerstFrostMessageObject p = i.next();
+            final PerstFrostMessageObject p = i.next();
             if(!showDeleted && p.isDeleted) {
                 continue;
             }
-            FrostMessageObject mo = p.toFrostMessageObject(board, true, withContent, withAttachments);
-            boolean shouldStop = mc.messageRetrieved(mo);
+            final FrostMessageObject mo = p.toFrostMessageObject(board, true, withContent, withAttachments);
+            final boolean shouldStop = mc.messageRetrieved(mo);
             if( shouldStop ) {
                 break;
             }
         }
     }
-    
-    public synchronized void setAllMessagesRead(Board board) {
-        PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
+
+    public synchronized void setAllMessagesRead(final Board board) {
+        final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
         if( bo == null ) {
-            System.out.println("error: no perst board for update");
+            logger.severe("error: no perst board for update");
             return;
         }
-        Iterator<PerstFrostMessageObject> i = bo.getUnreadMessageIndex().iterator();
+        final Iterator<PerstFrostMessageObject> i = bo.getUnreadMessageIndex().iterator();
         while(i.hasNext()) {
-            PerstFrostMessageObject pmo = i.next();
+            final PerstFrostMessageObject pmo = i.next();
             pmo.isNew = false;
             pmo.modify();
         }
         bo.getUnreadMessageIndex().clear();
         commitStore();
     }
-    
-    public synchronized void updateMessage(FrostMessageObject mo) {
+
+    public synchronized void updateMessage(final FrostMessageObject mo) {
         if( mo.getPerstFrostMessageObject() != null ) {
 
-            PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(mo.getBoard().getNameLowerCase());
+            final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(mo.getBoard().getNameLowerCase());
             if( bo == null ) {
-                System.out.println("error: no perst board for update");
+                logger.severe("error: no perst board for update");
                 return;
             }
 
-            PerstFrostMessageObject p = mo.getPerstFrostMessageObject();
-            
+            final PerstFrostMessageObject p = mo.getPerstFrostMessageObject();
+
             if( p.isNew && !mo.isNew() ) {
                 // was unread, is read now -> remove from unreadIndex
                 bo.getUnreadMessageIndex().remove(p.dateAndTime, p);
@@ -633,58 +635,58 @@ public class MessageStorage implements Savable {
             MessageStorage.inst().commitStore();
         }
     }
-    
-    ///////////////////////////////////////////////////////////////////////////////////////////////    
-    
-    public List<FrostMessageObject> retrieveAllSentMessages(List<Board> allBoards) {
-        List<FrostMessageObject> lst = new ArrayList<FrostMessageObject>();
-        
-        
-        for( Board board : allBoards ) {
-            PerstFrostBoardObject bo = board.getPerstFrostBoardObject();
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+
+    public List<FrostMessageObject> retrieveAllSentMessages(final List<Board> allBoards) {
+        final List<FrostMessageObject> lst = new ArrayList<FrostMessageObject>();
+
+
+        for( final Board board : allBoards ) {
+            final PerstFrostBoardObject bo = board.getPerstFrostBoardObject();
             if( bo == null ) {
-                System.out.println("no perst board assigned!");
+                logger.severe("no perst board assigned!");
                 continue;
             }
-            for( PerstFrostMessageObject pmo : bo.getSentMessagesList() ) {
-                FrostMessageObject mo = pmo.toFrostMessageObject(board, true, false, false);
+            for( final PerstFrostMessageObject pmo : bo.getSentMessagesList() ) {
+                final FrostMessageObject mo = pmo.toFrostMessageObject(board, true, false, false);
                 lst.add(mo);
             }
         }
         return lst;
     }
 
-    public boolean addSentMessage(FrostMessageObject sentMo) {
+    public boolean addSentMessage(final FrostMessageObject sentMo) {
         return addSentMessage(sentMo, true);
     }
 
-    public boolean addSentMessage(FrostMessageObject sentMo, boolean doCommit) {
-        PerstFrostBoardObject bo = sentMo.getBoard().getPerstFrostBoardObject();
+    public boolean addSentMessage(final FrostMessageObject sentMo, final boolean doCommit) {
+        final PerstFrostBoardObject bo = sentMo.getBoard().getPerstFrostBoardObject();
         if( bo == null ) {
-            System.out.println("no board for new sent msg!");
+            logger.severe("no board for new sent msg!");
             return false;
         }
 
-        PerstFrostMessageObject pmo = new PerstFrostMessageObject(sentMo, storage);
+        final PerstFrostMessageObject pmo = new PerstFrostMessageObject(sentMo, storage);
         sentMo.setPerstFrostMessageObject(pmo);
-        
+
         bo.getSentMessagesList().add( pmo );
         if( doCommit ) {
             commitStore();
         }
         return true;
     }
-    
-    public int deleteSentMessages(List<FrostMessageObject> msgObjects) {
+
+    public int deleteSentMessages(final List<FrostMessageObject> msgObjects) {
         int count = 0;
-        for( FrostMessageObject mo : msgObjects ) {
+        for( final FrostMessageObject mo : msgObjects ) {
             if( mo.getPerstFrostMessageObject() == null ) {
-                System.out.println("delete not possible");
+                logger.severe("delete not possible");
                 continue;
             }
-            PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(mo.getBoard().getNameLowerCase());
+            final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(mo.getBoard().getNameLowerCase());
             if( bo == null ) {
-                System.out.println("board not found");
+                logger.severe("board not found");
                 continue;
             }
             bo.getSentMessagesList().remove(mo.getPerstFrostMessageObject());
@@ -695,77 +697,77 @@ public class MessageStorage implements Savable {
         commitStore();
         return count;
     }
-    
-    ///////////////////////////////////////////////////////////////////////////////////////////////    
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
 
     public List<FrostUnsentMessageObject> retrieveAllUnsentMessages() {
-        List<FrostUnsentMessageObject> lst = new ArrayList<FrostUnsentMessageObject>();
-        
-        for( PerstFrostBoardObject bo : storageRoot.getBoardsByName() ) {
-            for( PerstFrostUnsentMessageObject pmo : bo.getUnsentMessagesList() ) {
-                FrostUnsentMessageObject mo = pmo.toFrostUnsentMessageObject(bo.getRefBoard());
+        final List<FrostUnsentMessageObject> lst = new ArrayList<FrostUnsentMessageObject>();
+
+        for( final PerstFrostBoardObject bo : storageRoot.getBoardsByName() ) {
+            for( final PerstFrostUnsentMessageObject pmo : bo.getUnsentMessagesList() ) {
+                final FrostUnsentMessageObject mo = pmo.toFrostUnsentMessageObject(bo.getRefBoard());
                 lst.add(mo);
             }
         }
         return lst;
     }
 
-    public boolean addUnsentMessage(FrostUnsentMessageObject mo) {
+    public boolean addUnsentMessage(final FrostUnsentMessageObject mo) {
         return addUnsentMessage(mo, true);
     }
 
-    public boolean addUnsentMessage(FrostUnsentMessageObject mo, boolean doCommit) {
-        PerstFrostBoardObject bo = mo.getBoard().getPerstFrostBoardObject();
+    public boolean addUnsentMessage(final FrostUnsentMessageObject mo, final boolean doCommit) {
+        final PerstFrostBoardObject bo = mo.getBoard().getPerstFrostBoardObject();
         if( bo == null ) {
-            System.out.println("no board for new unsent msg!");
+            logger.severe("no board for new unsent msg!");
             return false;
         }
 
-        PerstFrostUnsentMessageObject pmo = new PerstFrostUnsentMessageObject(storage, mo);
-        
+        final PerstFrostUnsentMessageObject pmo = new PerstFrostUnsentMessageObject(storage, mo);
+
         bo.getUnsentMessagesList().add( pmo );
         if( doCommit ) {
             commitStore();
         }
         return true;
     }
-    
-    public boolean deleteUnsentMessage(FrostUnsentMessageObject mo) {
-        PerstFrostBoardObject bo = mo.getBoard().getPerstFrostBoardObject();
+
+    public boolean deleteUnsentMessage(final FrostUnsentMessageObject mo) {
+        final PerstFrostBoardObject bo = mo.getBoard().getPerstFrostBoardObject();
         if( bo == null ) {
-            System.out.println("no board for new unsent msg!");
+            logger.severe("no board for unsent msg!");
             return false;
         }
 
-        PerstFrostUnsentMessageObject pmo = mo.getPerstFrostUnsentMessageObject();
+        final PerstFrostUnsentMessageObject pmo = mo.getPerstFrostUnsentMessageObject();
         if( pmo == null ) {
-            System.out.println("no perst unsent msg obj!");
+            logger.severe("no perst unsent msg obj!");
             return false;
         }
-        
+
         bo.getUnsentMessagesList().remove( pmo );
         pmo.deallocate();
         commitStore();
         return true;
     }
-    
+
     /**
      * Updates the CHK keys of fileattachments after upload of attachments.
      */
-    public synchronized void updateUnsentMessageFileAttachmentKey(FrostUnsentMessageObject mo, FileAttachment fa) {
-        
-        PerstFrostBoardObject bo = mo.getBoard().getPerstFrostBoardObject();
+    public synchronized void updateUnsentMessageFileAttachmentKey(final FrostUnsentMessageObject mo, final FileAttachment fa) {
+
+        final PerstFrostBoardObject bo = mo.getBoard().getPerstFrostBoardObject();
         if( bo == null ) {
-            System.out.println("no board for new unsent msg update!");
+            logger.severe("no board for new unsent msg update!");
             return;
         }
 
-        PerstFrostUnsentMessageObject pmo = mo.getPerstFrostUnsentMessageObject();
+        final PerstFrostUnsentMessageObject pmo = mo.getPerstFrostUnsentMessageObject();
         if( pmo == null ) {
-            System.out.println("no perst unsent msg obj for update!");
+            logger.severe("no perst unsent msg obj for update!");
             return;
         }
-        
+
         pmo.updateUnsentMessageFileAttachmentKey(fa);
         commitStore();
     }

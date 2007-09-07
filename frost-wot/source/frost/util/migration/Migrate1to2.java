@@ -39,39 +39,39 @@ import frost.util.migration.migrate1to2.*;
 public class Migrate1to2 {
 
     private static final Logger logger = Logger.getLogger(Migrate1to2.class.getName());
-    
+
     private boolean openDatabase() {
         try {
             AppLayerDatabase.initialize();
             return true;
-        } catch(SQLException ex) {
+        } catch(final SQLException ex) {
             logger.log(Level.SEVERE, "Error opening the databases", ex);
             ex.printStackTrace();
             return false;
         }
     }
-    
+
     private boolean closeDatabase() {
         try {
             AppLayerDatabase.getInstance().close();
             AppLayerDatabase.destroy();
             return true;
-        } catch(SQLException ex) {
+        } catch(final SQLException ex) {
             logger.log(Level.SEVERE, "Error closing the databases", ex);
             ex.printStackTrace();
             return false;
         }
     }
-    
+
     /**
      * Must be started before the boards were loaded!
      */
     public boolean runStep1() {
-        
+
         if( !openDatabase() ) {
             return false;
         }
-        
+
         if( !migrateBoards() ) {
             closeDatabase();
             return false;
@@ -88,7 +88,7 @@ public class Migrate1to2 {
     }
 
     /**
-     * convert boards table into perst, TofTreeModel needs this during initialization 
+     * convert boards table into perst, TofTreeModel needs this during initialization
      */
     private boolean migrateBoards() {
         Hashtable<String,Integer> boardPrimaryKeysByName;
@@ -96,7 +96,7 @@ public class Migrate1to2 {
         System.out.println("Converting boards...");
         try {
             boardPrimaryKeysByName = BoardDatabaseTable.loadBoards(AppLayerDatabase.getInstance());
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             logger.log(Level.SEVERE, "Severe error: could not retrieve board primary keys", e);
             return false;
         }
@@ -109,16 +109,16 @@ public class Migrate1to2 {
     private boolean migrateIdentities() {
         System.out.println("Converting identities...");
         try {
-            List<LocalIdentity> li = IdentitiesDatabaseTable.getLocalIdentities(AppLayerDatabase.getInstance());
+            final List<LocalIdentity> li = IdentitiesDatabaseTable.getLocalIdentities(AppLayerDatabase.getInstance());
             IdentitiesStorage.inst().importLocalIdentities(li);
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             logger.log(Level.SEVERE, "Severe error: could not retrieve local identities", e);
             return false;
         }
         try {
-            List<Identity> li = IdentitiesDatabaseTable.getIdentities(AppLayerDatabase.getInstance());
+            final List<Identity> li = IdentitiesDatabaseTable.getIdentities(AppLayerDatabase.getInstance());
             IdentitiesStorage.inst().importIdentities(li);
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             logger.log(Level.SEVERE, "Severe error: could not retrieve identities", e);
             return false;
         }
@@ -128,17 +128,17 @@ public class Migrate1to2 {
     private boolean migrateKnownBoards() {
         System.out.println("Converting known boards...");
         try {
-            HashSet<String> hiddenNames = KnownBoardsDatabaseTable.loadHiddenNames(AppLayerDatabase.getInstance());
+            final HashSet<String> hiddenNames = KnownBoardsDatabaseTable.loadHiddenNames(AppLayerDatabase.getInstance());
             FrostFilesStorage.inst().saveHiddenBoardNames(hiddenNames);
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             logger.log(Level.SEVERE, "Severe error: could not retrieve hidden board names", e);
             return false;
         }
 
         try {
-            List<KnownBoard> knownBoards = KnownBoardsDatabaseTable.getKnownBoards(AppLayerDatabase.getInstance());
+            final List<KnownBoard> knownBoards = KnownBoardsDatabaseTable.getKnownBoards(AppLayerDatabase.getInstance());
             FrostFilesStorage.inst().addNewKnownBoards(knownBoards);
-        } catch (SQLException e) {
+        } catch (final SQLException e) {
             logger.log(Level.SEVERE, "Severe error: could not retrieve known boards", e);
             return false;
         }
@@ -150,7 +150,7 @@ public class Migrate1to2 {
      * Must only be run after TofTreeModel was initialized!
      */
     public boolean runStep2() {
-        List<Board> allBoards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
+        final List<Board> allBoards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
         if( !migrateSentMessages(allBoards) ) {
             closeDatabase();
             return false;
@@ -171,19 +171,19 @@ public class Migrate1to2 {
             closeDatabase();
             return false;
         }
-        
+
         dropAllTables();
-        
+
         closeDatabase();
         return true;
     }
 
-    private boolean migrateSentMessages(List<Board> allBoards) {
+    private boolean migrateSentMessages(final List<Board> allBoards) {
         try {
             System.out.println("Converting sent messages...");
             final MessageStorage ms = MessageStorage.inst();
 
-            MessageCallback mc = new MessageCallback() {
+            final MessageCallback mc = new MessageCallback() {
                 int cnt=0;
                 public boolean messageRetrieved(FrostMessageObject mo) {
                     ms.addSentMessage(mo, false);
@@ -195,24 +195,24 @@ public class Migrate1to2 {
                     return false;
                 }
             };
-            
+
             new SentMessageDatabaseTable().retrieveAllMessages(AppLayerDatabase.getInstance(), mc, allBoards);
             MessageStorage.inst().commitStore();
             return true;
-        } catch(Throwable t) {
+        } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Migration error!", t);
             return false;
         }
     }
-    
-    private boolean migrateUnsentMessages(List<Board> allBoards) {
+
+    private boolean migrateUnsentMessages(final List<Board> allBoards) {
         try {
             System.out.println("Converting unsent messages...");
             final MessageStorage ms = MessageStorage.inst();
 
-            List<FrostUnsentMessageObject> unsentMsgs = UnsentMessageDatabaseTable.retrieveMessages(AppLayerDatabase.getInstance(), allBoards);
+            final List<FrostUnsentMessageObject> unsentMsgs = UnsentMessageDatabaseTable.retrieveMessages(AppLayerDatabase.getInstance(), allBoards);
             int cnt=0;
-            for( FrostUnsentMessageObject umo : unsentMsgs ) {
+            for( final FrostUnsentMessageObject umo : unsentMsgs ) {
                 ms.addUnsentMessage(umo, false);
                 cnt++;
                 if(cnt%100 == 0) {
@@ -220,21 +220,21 @@ public class Migrate1to2 {
                     System.out.println("Committed after "+cnt+" unsent messages");
                 }
             }
-            
+
             MessageStorage.inst().commitStore();
             return true;
-        } catch(Throwable t) {
+        } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Migration error!", t);
             return false;
         }
     }
-    
-    private boolean migrateKeypool(List<Board> allBoards) {
+
+    private boolean migrateKeypool(final List<Board> allBoards) {
         try {
             System.out.println("Converting keypool messages...");
             final MessageStorage ms = MessageStorage.inst();
-            
-            MessageCallback mc = new MessageCallback() {
+
+            final MessageCallback mc = new MessageCallback() {
                 int cnt=0;
                 public boolean messageRetrieved(FrostMessageObject mo) {
                     ms.insertMessage(mo, false);
@@ -246,22 +246,22 @@ public class Migrate1to2 {
                     return false;
                 }
             };
-            
+
             new MessageDatabaseTable().retrieveAllMessages(AppLayerDatabase.getInstance(), mc, allBoards);
             MessageStorage.inst().commitStore();
             return true;
-        } catch(Throwable t) {
+        } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Migration error!", t);
             return false;
         }
     }
-    
+
     private boolean migrateFileList() {
         try {
             System.out.println("Converting file list...");
             final FileListStorage ms = FileListStorage.inst();
-            
-            FileListCallback mc = new FileListCallback() {
+
+            final FileListCallback mc = new FileListCallback() {
                 int cnt=0;
                 public boolean fileRetrieved(FrostFileListFileObject fo) {
                     ms.insertOrUpdateFileListFileObject(fo, false);
@@ -276,18 +276,18 @@ public class Migrate1to2 {
             new FileListDatabaseTable().retrieveFiles(AppLayerDatabase.getInstance(), mc, null, null, null, null);
             ms.commitStore();
             return true;
-        } catch(Throwable t) {
+        } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Migration error!", t);
             return false;
         }
     }
-    
+
     private boolean migrateArchive() {
         try {
             System.out.println("Converting archive messages...");
             final ArchiveMessageStorage ms = ArchiveMessageStorage.inst();
-            
-            MessageCallback mc = new MessageCallback() {
+
+            final MessageCallback mc = new MessageCallback() {
                 int cnt=0;
                 public boolean messageRetrieved(FrostMessageObject mo) {
                     String bname = (String)mo.getUserObject();
@@ -300,63 +300,63 @@ public class Migrate1to2 {
                     return false;
                 }
             };
-            
+
             MessageArchiveDatabaseTable.retrieveAllMessages(AppLayerDatabase.getInstance(), mc);
             ms.commitStore();
             return true;
-        } catch(Throwable t) {
+        } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Migration error!", t);
             return false;
         }
     }
-    
-    
-    private boolean dropTable(String tableName) {
+
+
+    private boolean dropTable(final String tableName) {
         try {
-            Statement stmt = AppLayerDatabase.getInstance().createStatement();
-            String sql = "DROP TABLE "+tableName;
+            final Statement stmt = AppLayerDatabase.getInstance().createStatement();
+            final String sql = "DROP TABLE "+tableName;
             stmt.executeUpdate(sql);
             AppLayerDatabase.getInstance().commit();
-        } catch(SQLException e) {
+        } catch(final SQLException e) {
             logger.log(Level.SEVERE, "Migration error!", e);
             return false;
         }
         return true;
     }
-    
+
     private void dropAllTables() {
         System.out.println("Dropping database tables...");
         dropTable("UNSENDBOARDATTACHMENTS");
         dropTable("UNSENDFILEATTACHMENTS");
         dropTable("UNSENDMESSAGES");
-        
+
         dropTable("SENTMESSAGECONTENTS");
         dropTable("SENTBOARDATTACHMENTS");
         dropTable("SENTFILEATTACHMENTS");
         dropTable("SENTMESSAGES");
-        
+
         dropTable("MESSAGECONTENTS");
         dropTable("BOARDATTACHMENTS");
         dropTable("FILEATTACHMENTS");
         dropTable("MESSAGES");
-        
+
         dropTable("MESSAGEARCHIVEFILEATTACHMENTS");
         dropTable("MESSAGEARCHIVEBOARDATTACHMENTS");
         dropTable("MESSAGEARCHIVECONTENTS");
         dropTable("MESSAGEARCHIVE");
-        
+
         dropTable("HIDDENBOARDNAMES");
         dropTable("KNOWNBOARDS");
-        
+
         dropTable("IDENTITIES");
         dropTable("OWNIDENTITIES");
         dropTable("OWNIDENTITIESLASTFILESSHARED");
-        
+
         dropTable("FILEOWNERLIST");
         dropTable("FILELIST");
 
         dropTable("BOARDS");
-        
+
         System.out.println("Finished dropping database tables...");
     }
 }
