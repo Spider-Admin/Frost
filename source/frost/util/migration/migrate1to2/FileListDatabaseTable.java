@@ -766,7 +766,9 @@ SQL='SELECT DISTINCT refkey FROM FILEOWNERLIST WHERE LOWER(name) LIKE ? OR LOWER
                 continue;
             }
             List<FrostFileListFileObjectOwner> obs = getFrostFileListFileObjectOwnerList(db, refkey);
-            fo.getFrostFileListFileObjectOwnerList().addAll(obs);
+            for( FrostFileListFileObjectOwner ow : obs ) {
+                fo.addFrostFileListFileObjectOwner(ow);
+            }
             
             boolean shouldStop = callback.fileRetrieved(fo); // pass to callback
             if( shouldStop ) {

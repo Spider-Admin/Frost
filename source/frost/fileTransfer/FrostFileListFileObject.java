@@ -130,9 +130,9 @@ public class FrostFileListFileObject extends Persistent {
         addFrostFileListFileObjectOwner(ob);
     }
 
-    public IPersistentList<FrostFileListFileObjectOwner> getFrostFileListFileObjectOwnerList() {
+    private IPersistentList<FrostFileListFileObjectOwner> getFrostFileListFileObjectOwnerList() {
         if( frostFileListFileObjectOwnerList == null ) {
-            frostFileListFileObjectOwnerList = FileListStorage.inst().createList();
+            frostFileListFileObjectOwnerList = FileListStorage.inst().createList(); // FIXME: is used without store also!
         }
         return frostFileListFileObjectOwnerList;
     }
@@ -142,6 +142,12 @@ public class FrostFileListFileObject extends Persistent {
     }
     public void deleteFrostFileListFileObjectOwner(FrostFileListFileObjectOwner v) {
         getFrostFileListFileObjectOwnerList().remove(v);
+    }
+    public Iterator<FrostFileListFileObjectOwner> getFrostFileListFileObjectOwnerIterator() {
+        return getFrostFileListFileObjectOwnerList().iterator();
+    }
+    public int getFrostFileListFileObjectOwnerListSize() {
+        return getFrostFileListFileObjectOwnerList().size();
     }
 
     public String getKey() {
@@ -417,84 +423,5 @@ public class FrostFileListFileObject extends Persistent {
             FrostDownloadItem dl = i.next();
             dl.fireValueChanged();
         }
-    }
-    
-    public boolean updateFromOtherFileListFile(FrostFileListFileObject fof) {
-        // file is already in FILELIST table, maybe add new FILEOWNER and update fields
-        // maybe update oldSfo
-        boolean doUpdate = false;
-        if( getKey() == null && fof.getKey() != null ) {
-            setKey(fof.getKey()); doUpdate = true;
-        } else if( getKey() != null && fof.getKey() != null ) {
-            // fix to replace 0.7 keys before 1010 on the fly
-            if( FreenetKeys.isOld07ChkKey(getKey()) && !FreenetKeys.isOld07ChkKey(fof.getKey()) ) {
-                // replace old chk key with new one
-                setKey(fof.getKey()); doUpdate = true;
-            }
-        }
-        if( getFirstReceived() > fof.getFirstReceived() ) {
-            setFirstReceived(fof.getFirstReceived()); doUpdate = true;
-        }
-        if( getLastReceived() < fof.getLastReceived() ) {
-            setLastReceived(fof.getLastReceived()); doUpdate = true;
-        }
-        if( getLastUploaded() < fof.getLastUploaded() ) {
-            setLastUploaded(fof.getLastUploaded()); doUpdate = true;
-        }
-        if( getLastDownloaded() < fof.getLastDownloaded() ) {
-            setLastDownloaded(fof.getLastDownloaded()); doUpdate = true;
-        }
-        if( getRequestLastReceived() < fof.getRequestLastReceived() ) {
-            setRequestLastReceived(fof.getRequestLastReceived()); doUpdate = true;
-        }
-        if( getRequestLastSent() < fof.getRequestLastSent() ) {
-            setRequestLastSent(fof.getRequestLastSent()); doUpdate = true;
-        }
-        if( getRequestsReceivedCount() < fof.getRequestsReceivedCount() ) {
-            setRequestsReceivedCount(fof.getRequestsReceivedCount()); doUpdate = true;
-        }
-        if( getRequestsSentCount() < fof.getRequestsSentCount() ) {
-            setRequestsSentCount(fof.getRequestsSentCount()); doUpdate = true;
-        }
-        
-        for(Iterator<FrostFileListFileObjectOwner> i=fof.getFrostFileListFileObjectOwnerList().iterator(); i.hasNext(); ) {
-            
-            FrostFileListFileObjectOwner obNew = i.next();
-            
-            // check if we have an owner object for this sharer
-            FrostFileListFileObjectOwner obOld = null;
-            for(FrostFileListFileObjectOwner o : getFrostFileListFileObjectOwnerList()) {
-                if( o.getOwner().equals(obNew.getOwner()) ) {
-                    obOld = o;
-                    break;
-                }
-            }
-            
-            if( obOld == null ) {
-                // add new
-                addFrostFileListFileObjectOwner(obNew);
-                doUpdate = true;
-            } else {
-                // update existing
-                if( obOld.getLastReceived() < obNew.getLastReceived() ) {
-
-                    obOld.setLastReceived(obNew.getLastReceived());
-                    obOld.setName(obNew.getName());
-                    obOld.setLastUploaded(obNew.getLastUploaded());
-                    obOld.setComment(obNew.getComment());
-                    obOld.setKeywords(obNew.getKeywords());
-                    obOld.setRating(obNew.getRating());
-                    obOld.setKey(obNew.getKey());
-                    
-                    obOld.modify();
-                }
-            }
-        }
-
-        if( doUpdate ) {
-            modify();
-        }
-        
-        return doUpdate;
     }
 }

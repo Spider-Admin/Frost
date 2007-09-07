@@ -25,7 +25,6 @@ import frost.*;
 import frost.fileTransfer.*;
 import frost.identities.*;
 import frost.storage.*;
-import frost.storage.perst.*;
 import frost.storage.perst.filelist.*;
 import frost.util.*;
 
@@ -92,7 +91,8 @@ class SearchThread extends Thread implements FileListCallback {
                 || searchParams.isHideObserveUserFiles()) 
         {
             boolean accept = true;
-            for( FrostFileListFileObjectOwner ob : fo.getFrostFileListFileObjectOwnerList() ) {
+            for( Iterator<FrostFileListFileObjectOwner> i = fo.getFrostFileListFileObjectOwnerIterator(); i.hasNext(); ) {
+                FrostFileListFileObjectOwner ob = i.next();
                 if( ob.getOwner() != null ) {
                     Identity id = Core.getIdentities().getIdentity(ob.getOwner());
                     if (id != null ) { 
@@ -116,11 +116,12 @@ class SearchThread extends Thread implements FileListCallback {
                 return false;
             }
         }
-
-        // check file extension. if extension of ONE file is ok the file matches
+        
+                // check file extension. if extension of ONE file is ok the file matches
         if( searchParams.getExtensions() != SearchParameters.EXTENSIONS_ALL ) {
             boolean accept = false;
-            for( FrostFileListFileObjectOwner ob : fo.getFrostFileListFileObjectOwnerList() ) {
+            for( Iterator<FrostFileListFileObjectOwner> i = fo.getFrostFileListFileObjectOwnerIterator(); i.hasNext(); ) {
+                FrostFileListFileObjectOwner ob = i.next();
                 String name = lowerCase(ob.getName());
                 // check for search type
                 if( searchParams.getExtensions() == SearchParameters.EXTENSIONS_AUDIO ) {
@@ -172,7 +173,8 @@ class SearchThread extends Thread implements FileListCallback {
             return true; // no not strings given
         }
 
-        for( FrostFileListFileObjectOwner ob : fo.getFrostFileListFileObjectOwnerList() ) {
+        for( Iterator<FrostFileListFileObjectOwner> i = fo.getFrostFileListFileObjectOwnerIterator(); i.hasNext(); ) {
+            FrostFileListFileObjectOwner ob = i.next();
             
             // check notName
             if( TextSearchFun.containsAnyString(lowerCase(ob.getName()), searchParams.getNotName()) ) {
@@ -203,7 +205,8 @@ class SearchThread extends Thread implements FileListCallback {
             return true;
         }
 
-        for( FrostFileListFileObjectOwner ob : fo.getFrostFileListFileObjectOwnerList() ) {
+        for( Iterator<FrostFileListFileObjectOwner> i = fo.getFrostFileListFileObjectOwnerIterator(); i.hasNext(); ) {
+            FrostFileListFileObjectOwner ob = i.next();
 
             String name = lowerCase(ob.getName());
             String comment = lowerCase(ob.getComment());
@@ -253,7 +256,8 @@ class SearchThread extends Thread implements FileListCallback {
             return true; // find all
         }
         
-        for( FrostFileListFileObjectOwner ob : fo.getFrostFileListFileObjectOwnerList() ) {
+        for( Iterator<FrostFileListFileObjectOwner> i = fo.getFrostFileListFileObjectOwnerIterator(); i.hasNext(); ) {
+            FrostFileListFileObjectOwner ob = i.next();
 
             // then check for strings, if strings are given they must match
 
@@ -313,8 +317,7 @@ class SearchThread extends Thread implements FileListCallback {
         }
 
         // success if all was found
-        for( Iterator<FrostFileListFileObjectOwner> i=fo.getFrostFileListFileObjectOwnerList().iterator(); i.hasNext(); ) {
-            
+        for( Iterator<FrostFileListFileObjectOwner> i=fo.getFrostFileListFileObjectOwnerIterator(); i.hasNext(); ) {
             FrostFileListFileObjectOwner ob = i.next();
 
             String name = lowerCase(ob.getName()); 
@@ -419,20 +422,41 @@ class SearchThread extends Thread implements FileListCallback {
         allFileCount = 0;
 //        long start = System.currentTimeMillis();
 //        System.out.println(">>> Filesearch started...");
+
+        // check file extension. if extension of ONE file is ok the file matches
+        String[] searchForExtensions = null;
+        if( searchParams.getExtensions() != SearchParameters.EXTENSIONS_ALL ) {
+            if( searchParams.getExtensions() == SearchParameters.EXTENSIONS_AUDIO ) {
+                searchForExtensions = audioExtension;
+            } else if( searchParams.getExtensions() == SearchParameters.EXTENSIONS_VIDEO ) {
+                searchForExtensions = videoExtension;
+            } else if( searchParams.getExtensions() == SearchParameters.EXTENSIONS_IMAGES ) {
+                searchForExtensions = imageExtension;
+            } else if( searchParams.getExtensions() == SearchParameters.EXTENSIONS_DOCUMENTS ) {
+                searchForExtensions = documentExtension;
+            } else if( searchParams.getExtensions() == SearchParameters.EXTENSIONS_ARCHIVES ) {
+                searchForExtensions = archiveExtension;
+            } else if( searchParams.getExtensions() == SearchParameters.EXTENSIONS_EXECUTABLES ) {
+                searchForExtensions = executableExtension;
+            }
+        }
+        
         if( searchParams.isSimpleSearch() ) {
             FileListStorage.inst().retrieveFiles(
                     this,
                     searchParams.getSimpleSearchStrings(),
                     searchParams.getSimpleSearchStrings(),
                     searchParams.getSimpleSearchStrings(),
-                    null); // no owner search
+                    null,
+                    searchForExtensions); // no owner search
         } else {
             FileListStorage.inst().retrieveFiles(
                     this,
                     searchParams.getName(),
                     searchParams.getComment(),
                     searchParams.getKeyword(),
-                    searchParams.getOwner());
+                    searchParams.getOwner(),
+                    searchForExtensions);
         }
         
 //        long duration = System.currentTimeMillis() - start;
