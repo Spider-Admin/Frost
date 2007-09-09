@@ -46,7 +46,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
     private static final String FREENET_05_FROST_ANNOUNCE_PUBKEY = "SSK@7i~oLj~57mQVRrKfMxYgLULJ2r0PAgM";
     // new 0.7 key
     private static final String FREENET_07_FROST_ANNOUNCE_PUBKEY = "SSK@l4YxTKAc-sCho~6w-unV6pl-uxIbfuGnGRzo3BJH0ck,4N48yl8E4rh9UPPV26Ev1ZGrRRgeGOTgw1Voka6lk4g,AQACAAE";
-    
+
     private boolean showBoardDescriptionToolTips;
     private boolean showBoardUpdatedCount;
     private boolean showBoardUpdateVisualization;
@@ -56,22 +56,22 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         extends JSkinnablePopupMenu
         implements LanguageListener, ActionListener {
 
-        private JMenuItem addBoardItem = new JMenuItem();
-        private JMenuItem addFolderItem = new JMenuItem();
-        private JMenuItem configureBoardItem = new JMenuItem();
-        private JMenuItem configureFolderItem = new JMenuItem();
-        private JMenuItem cutNodeItem = new JMenuItem();
+        private final JMenuItem addBoardItem = new JMenuItem();
+        private final JMenuItem addFolderItem = new JMenuItem();
+        private final JMenuItem configureBoardItem = new JMenuItem();
+        private final JMenuItem configureFolderItem = new JMenuItem();
+        private final JMenuItem cutNodeItem = new JMenuItem();
 
-        private JMenuItem descriptionItem = new JMenuItem();
-        private JMenuItem pasteNodeItem = new JMenuItem();
-        private JMenuItem refreshItem = new JMenuItem();
-        private JMenuItem removeNodeItem = new JMenuItem();
-        private JMenuItem renameFolderItem = new JMenuItem();
+        private final JMenuItem descriptionItem = new JMenuItem();
+        private final JMenuItem pasteNodeItem = new JMenuItem();
+        private final JMenuItem refreshItem = new JMenuItem();
+        private final JMenuItem removeNodeItem = new JMenuItem();
+        private final JMenuItem renameFolderItem = new JMenuItem();
 
-        private JMenuItem markAllReadItem = new JMenuItem();
+        private final JMenuItem markAllReadItem = new JMenuItem();
 
         private AbstractNode selectedTreeNode = null;
-        private JMenuItem sortFolderItem = new JMenuItem();
+        private final JMenuItem sortFolderItem = new JMenuItem();
 
         public PopupMenuTofTree() {
             super();
@@ -81,11 +81,12 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         /* (non-Javadoc)
          * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
          */
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(final ActionEvent e) {
             final Object source = e.getSource();
 
-            frost.util.gui.FrostSwingWorker worker = new frost.util.gui.FrostSwingWorker(this) {
+            final frost.util.gui.FrostSwingWorker worker = new frost.util.gui.FrostSwingWorker(this) {
 
+                @Override
                 protected void doNonUILogic() throws RuntimeException {
                     if (source == refreshItem) {
                         refreshSelected();
@@ -110,6 +111,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
                     }
                 }
 
+                @Override
                 protected void doUIUpdateLogic() throws RuntimeException {
                     //Nothing here
                 }
@@ -137,7 +139,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         private void initialize() {
             refreshLanguage();
 
-            MiscToolkit miscToolkit = MiscToolkit.getInstance();
+            final MiscToolkit miscToolkit = MiscToolkit.getInstance();
             addBoardItem.setIcon(miscToolkit.getScaledImage("/data/newboard.gif", 16, 16));
             addFolderItem.setIcon(miscToolkit.getScaledImage("/data/newfolder.gif", 16, 16));
             configureBoardItem.setIcon(miscToolkit.getScaledImage("/data/configure.gif", 16, 16));
@@ -168,7 +170,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         /* (non-Javadoc)
          * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
          */
-        public void languageChanged(LanguageEvent event) {
+        public void languageChanged(final LanguageEvent event) {
             refreshLanguage();
         }
 
@@ -203,24 +205,25 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         /* (non-Javadoc)
          * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
          */
-        public void show(Component invoker, int x, int y) {
-            int selRow = getRowForLocation(x, y);
+        @Override
+        public void show(final Component invoker, final int x, final int y) {
+            final int selRow = getRowForLocation(x, y);
 
             if (selRow != -1) { // only if a node is selected
                 removeAll();
 
-                TreePath selPath = getPathForLocation(x, y);
+                final TreePath selPath = getPathForLocation(x, y);
                 selectedTreeNode = (AbstractNode) selPath.getLastPathComponent();
-                
+
                 if( !selectedTreeNode.isFolder() && !selectedTreeNode.isBoard() ) {
                     return; // no menu for sent/unsent
                 }
 
-                String folderOrBoard1 =
+                final String folderOrBoard1 =
                     ((selectedTreeNode.isFolder())
                         ? language.getString("BoardTree.popupmenu.Folder")
                         : language.getString("BoardTree.popupmenu.Board"));
-                String folderOrBoard2 =
+                final String folderOrBoard2 =
                     ((selectedTreeNode.isFolder())
                         ? language.getString("BoardTree.popupmenu.folder")
                         : language.getString("BoardTree.popupmenu.board"));
@@ -255,7 +258,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
                     add(cutNodeItem);
                 }
                 if (clipboard != null && selectedTreeNode.isFolder()) {
-                    String folderOrBoard3 =
+                    final String folderOrBoard3 =
                         ((clipboard.isFolder())
                             ? language.getString("BoardTree.popupmenu.folder")
                             : language.getString("BoardTree.popupmenu.board"));
@@ -283,30 +286,31 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
     }
 
     private class Listener extends MouseAdapter implements LanguageListener, ActionListener,
-                                KeyListener, BoardUpdateThreadListener  
+                                KeyListener, BoardUpdateThreadListener
     {
-        public void languageChanged(LanguageEvent event) {
+        public void languageChanged(final LanguageEvent event) {
             refreshLanguage();
         }
 
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(final ActionEvent e) {
             if (e.getSource() == configBoardMenuItem) {
                 configureBoard(model.getSelectedNode());
             }
         }
 
-        public void keyPressed(KeyEvent e) {
-            char key = e.getKeyChar();
+        public void keyPressed(final KeyEvent e) {
+            final char key = e.getKeyChar();
             pressedKey(key);
         }
 
-        public void keyTyped(KeyEvent e) {
+        public void keyTyped(final KeyEvent e) {
         }
 
-        public void keyReleased(KeyEvent e) {
+        public void keyReleased(final KeyEvent e) {
         }
 
-        public void mousePressed(MouseEvent e) {
+        @Override
+        public void mousePressed(final MouseEvent e) {
             if (e.isPopupTrigger()) {
                 if (e.getSource() == TofTree.this) {
                     showTofTreePopupMenu(e);
@@ -314,7 +318,8 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             }
         }
 
-        public void mouseReleased(MouseEvent e) {
+        @Override
+        public void mouseReleased(final MouseEvent e) {
             if (e.isPopupTrigger()) {
                 if (e.getSource() == TofTree.this) {
                     showTofTreePopupMenu(e);
@@ -323,7 +328,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         }
 
         public void boardUpdateThreadFinished(final BoardUpdateThread thread) {
-            int running =
+            final int running =
                 getRunningBoardUpdateThreads()
                     .getDownloadThreadsForBoard(thread.getTargetBoard())
                     .size();
@@ -351,16 +356,16 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
 
     private class CellRenderer extends DefaultTreeCellRenderer {
 
-        private Border borderFlaggedAndStarredMsgs = BorderFactory.createCompoundBorder(
+        private final Border borderFlaggedAndStarredMsgs = BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 2, 0, 0, Color.red),    // outside
                 BorderFactory.createMatteBorder(0, 2, 0, 0, Color.blue) ); // inside
-        private Border borderStarredMsgs = BorderFactory.createCompoundBorder(
+        private final Border borderStarredMsgs = BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(0, 2, 0, 0),                // outside
                 BorderFactory.createMatteBorder(0, 2, 0, 0, Color.blue) ); // inside
-        private Border borderFlaggedMsgs = BorderFactory.createCompoundBorder(
+        private final Border borderFlaggedMsgs = BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 2, 0, 0, Color.red),    // outside
                 BorderFactory.createEmptyBorder(0, 2, 0, 0) );              // inside
-        private Border borderEmpty = BorderFactory.createEmptyBorder(0, 4, 0, 0);
+        private final Border borderEmpty = BorderFactory.createEmptyBorder(0, 4, 0, 0);
 
         private final ImageIcon writeAccessIcon;
         private final ImageIcon writeAccessNewIcon;
@@ -390,28 +395,29 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             this.setClosedIcon(new ImageIcon(getClass().getResource("/data/closed.gif")));
             this.setOpenIcon(new ImageIcon(getClass().getResource("/data/open.gif")));
 
-            JTable dummyTable = new JTable();
+            final JTable dummyTable = new JTable();
             normalFont = dummyTable.getFont();
             boldFont = normalFont.deriveFont(Font.BOLD);
         }
 
+        @Override
         public Component getTreeCellRendererComponent(
-            JTree tree,
-            Object value,
-            boolean sel,
-            boolean expanded,
-            boolean leaf,
-            int row,
-            boolean localHasFocus) 
+            final JTree tree,
+            final Object value,
+            final boolean sel,
+            final boolean expanded,
+            final boolean leaf,
+            final int row,
+            final boolean localHasFocus)
         {
             super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, localHasFocus);
 
-            AbstractNode node = (AbstractNode)value;
+            final AbstractNode node = (AbstractNode)value;
 
-            boolean containsNewMessage = node.containsNewMessages();
+            final boolean containsNewMessage = node.containsNewMessages();
 
             if (node.isFolder()) {
-                Folder folder = (Folder) node;
+                final Folder folder = (Folder) node;
                 // if this is a folder, check board for new messages
                 setText(folder.getName());
                 if (containsNewMessage) {
@@ -427,31 +433,31 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
 
             } else if(node.isBoard()) {
 
-                Board board = (Board) node;
+                final Board board = (Board) node;
                 // set the special text (board name + if new msg. a ' (2)' is appended and bold)
                 if (containsNewMessage) {
                     setFont(boldFont);
                     if( showBoardUpdatedCount ) {
-                        StringBuilder sb = new StringBuilder();
+                        final StringBuilder sb = new StringBuilder();
                         sb.append(board.getName()).append(" (").append(board.getNewMessageCount()).append(") [");
                         sb.append(board.getTimesUpdatedCount()).append("]");
                         setText(sb.toString());
                     } else {
-                        StringBuilder sb = new StringBuilder();
+                        final StringBuilder sb = new StringBuilder();
                         sb.append(board.getName()).append(" (").append(board.getNewMessageCount()).append(")");
                         setText(sb.toString());
                     }
                 } else {
                     setFont(normalFont);
                     if( showBoardUpdatedCount ) {
-                        StringBuilder sb = new StringBuilder();
+                        final StringBuilder sb = new StringBuilder();
                         sb.append(board.getName()).append(" [").append(board.getTimesUpdatedCount()).append("]");
                         setText(sb.toString());
                     } else {
                         setText(board.getName());
                     }
                 }
-                
+
                 // set the icon
                 if (board.isPublicBoard()) {
                     if (containsNewMessage) {
@@ -497,7 +503,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
                 }
             } else {
                 // sent/unsent folder
-                AbstractNode folder = (AbstractNode) node;
+                final AbstractNode folder = node;
                 setText(folder.getName());
                 setFont(normalFont);
                 if( folder.isSentMessagesFolder() ) {
@@ -537,16 +543,16 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             }
 
             // set board description as tooltip
-            if( showBoardDescriptionToolTips 
+            if( showBoardDescriptionToolTips
                     && node.isBoard()
-                    && ((Board)node).getDescription() != null 
-                    && ((Board)node).getDescription().length() > 0 ) 
+                    && ((Board)node).getDescription() != null
+                    && ((Board)node).getDescription().length() > 0 )
             {
                 setToolTipText(((Board)node).getDescription());
             } else {
                 setToolTipText(null);
             }
-            
+
             return this;
         }
     }
@@ -555,24 +561,24 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
     private SettingsClass settings;
     private MainFrame mainFrame;
 
-    private Listener listener = new Listener();
+    private final Listener listener = new Listener();
 
     private PopupMenuTofTree popupMenuTofTree;
 
     private static final Logger logger = Logger.getLogger(TofTree.class.getName());
 
-    private TofTreeModel model;
+    private final TofTreeModel model;
 
-    private JMenuItem configBoardMenuItem = new JMenuItem();
+    private final JMenuItem configBoardMenuItem = new JMenuItem();
 
     private AbstractNode clipboard = null;
 
     private RunningBoardUpdateThreads runningBoardUpdateThreads = null;
 
-    public TofTree(TofTreeModel model) {
+    public TofTree(final TofTreeModel model) {
         super(model);
         this.model = model;
-        
+
         showBoardDescriptionToolTips = Core.frostSettings.getBoolValue(SettingsClass.SHOW_BOARDDESC_TOOLTIPS);
         showBoardUpdatedCount = Core.frostSettings.getBoolValue(SettingsClass.SHOW_BOARD_UPDATED_COUNT);
         showBoardUpdateVisualization = Core.frostSettings.getBoolValue(SettingsClass.SHOW_BOARD_UPDATE_VISUALIZATION);
@@ -591,15 +597,15 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
 
         language = Language.getInstance();
         language.addLanguageListener(listener);
-        
+
         new TreeFindAction().install(this);
-        
+
         Core.frostSettings.addPropertyChangeListener(SettingsClass.SHOW_BOARDDESC_TOOLTIPS, this);
         Core.frostSettings.addPropertyChangeListener(SettingsClass.SHOW_BOARD_UPDATED_COUNT, this);
         Core.frostSettings.addPropertyChangeListener(SettingsClass.SHOW_BOARD_UPDATE_VISUALIZATION, this);
         Core.frostSettings.addPropertyChangeListener(SettingsClass.SHOW_BOARDTREE_FLAGGEDSTARRED_INDICATOR, this);
 
-        MiscToolkit toolkit = MiscToolkit.getInstance();
+        final MiscToolkit toolkit = MiscToolkit.getInstance();
         configBoardMenuItem.setIcon(toolkit.getScaledImage("/data/configure.gif", 16, 16));
         refreshLanguage();
 
@@ -609,30 +615,30 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         setCellRenderer(new CellRenderer());
         setSelectionModel(model.getSelectionModel());
         getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-        
+
         // Add listeners
         addKeyListener(listener);
         addMouseListener(listener);
         configBoardMenuItem.addActionListener(listener);
-        
+
         // enable tooltips for this tree
         ToolTipManager.sharedInstance().registerComponent(this);
 
         // load nodes from disk
         loadTree();
-        
+
         // only select folder if a board in this folder was selected before
         // (this is a fix for a problem that occurs only on linux: collapse a folder with a selected
         //  board inside and the selection jumps to the root node rather than to the collapsed node)
         addTreeExpansionListener(new TreeExpansionListener() {
-            public void treeCollapsed(TreeExpansionEvent event) {
-                TreePath selectedPath = getSelectionPath();
-                TreePath collapsedPath = event.getPath();
+            public void treeCollapsed(final TreeExpansionEvent event) {
+                final TreePath selectedPath = getSelectionPath();
+                final TreePath collapsedPath = event.getPath();
                 if( collapsedPath.isDescendant(selectedPath) ) {
                     setSelectionPath(event.getPath());
                 }
             }
-            public void treeExpanded(TreeExpansionEvent event) {
+            public void treeExpanded(final TreeExpansionEvent event) {
             }
         });
 
@@ -640,13 +646,13 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         runningBoardUpdateThreads = new RunningBoardUpdateThreads();
     }
 
-    private void cutNode(AbstractNode node) {
+    private void cutNode(final AbstractNode node) {
         if (node != null) {
             clipboard = node;
         }
     }
 
-    private void pasteNode(AbstractNode position) {
+    private void pasteNode(final AbstractNode position) {
         if (clipboard == null) {
             return;
         }
@@ -659,7 +665,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         position.add(clipboard);
         clipboard = null;
 
-        int insertedIndex[] = { position.getChildCount() - 1 }; // last in list is the newly added
+        final int insertedIndex[] = { position.getChildCount() - 1 }; // last in list is the newly added
         model.nodesWereInserted(position, insertedIndex);
     }
 
@@ -670,17 +676,19 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
     /**
      * Get keyTyped for tofTree
      */
-    public void pressedKey(char key) {
+    public void pressedKey(final char key) {
         if (!isEditing()) {
-            if (key == 'x' || key == 'X')
+            if (key == 'x' || key == 'X') {
                 cutNode(model.getSelectedNode());
-            if (key == 'v' || key == 'V')
+            }
+            if (key == 'v' || key == 'V') {
                 pasteNode(model.getSelectedNode());
+            }
         }
     }
 
     @Override
-    protected void processKeyEvent(KeyEvent e) {
+    protected void processKeyEvent(final KeyEvent e) {
         // ugly hack to prevent the standard JTree idiom (selects nodes starting with pressed key)
         if( e.getID()==KeyEvent.KEY_TYPED && (e.getKeyChar() == 'n' || e.getKeyChar() == 'N') ) {
             MainFrame.getInstance().getMessagePanel().selectNextUnreadMessage();
@@ -695,10 +703,10 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
      * Loads a tree description file.
      */
     private boolean loadTree() {
-        TofTreeXmlIO xmlio = new TofTreeXmlIO();
+        final TofTreeXmlIO xmlio = new TofTreeXmlIO();
         String boardIniFilename = settings.getValue(SettingsClass.DIR_CONFIG) + "boards.xml";
         // the call changes the toftree and loads nodes into it
-        File iniFile = new File(boardIniFilename);
+        final File iniFile = new File(boardIniFilename);
         if( iniFile.exists() == false ) {
             logger.warning("boards.xml file not found, reading default file (will be saved to boards.xml on exit).");
             String defaultBoardsFile;
@@ -709,11 +717,11 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             }
             boardIniFilename = settings.getValue(SettingsClass.DIR_CONFIG) + defaultBoardsFile;
         }
-        
-        String unsentName = language.getString("UnsentMessages.folderName");
-        String sentName = language.getString("SentMessages.folderName");
-        UnsentMessagesFolder unsentMsgs = new UnsentMessagesFolder("["+unsentName+"]"); 
-        SentMessagesFolder sentMsgs = new SentMessagesFolder("["+sentName+"]"); 
+
+        final String unsentName = language.getString("UnsentMessages.folderName");
+        final String sentName = language.getString("SentMessages.folderName");
+        final UnsentMessagesFolder unsentMsgs = new UnsentMessagesFolder("["+unsentName+"]");
+        final SentMessagesFolder sentMsgs = new SentMessagesFolder("["+sentName+"]");
 
         boolean loadWasOk = xmlio.loadBoardTree( this, model, boardIniFilename, unsentMsgs, sentMsgs );
         if( !loadWasOk ) {
@@ -728,10 +736,10 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             expectedPubkey = FREENET_07_FROST_ANNOUNCE_PUBKEY;
         }
 
-        List<Board> existingBoards = model.getAllBoards();
+        final List<Board> existingBoards = model.getAllBoards();
         boolean boardFound = false;
-        for(Iterator i=existingBoards.iterator(); i.hasNext(); ) {
-            Board b = (Board)i.next();
+        for( final Object element : existingBoards ) {
+            final Board b = (Board)element;
             if( b.getName().equals(FROST_ANNOUNCE_NAME) ) {
                 boardFound = true;
                 // check if pubkey is correct
@@ -742,9 +750,9 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             }
         }
         if( !boardFound ) {
-            Board newBoard = new Board(FROST_ANNOUNCE_NAME, "Announcement of new Frost versions");
+            final Board newBoard = new Board(FROST_ANNOUNCE_NAME, "Announcement of new Frost versions");
             newBoard.setPublicKey(expectedPubkey);
-            Folder root = (Folder)model.getRoot();
+            final Folder root = (Folder)model.getRoot();
             model.addNodeToTree(newBoard, root);
         }
 
@@ -755,20 +763,44 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
      * Save TOF tree's content to a file
      */
     public void save() throws StorageException {
-        TofTreeXmlIO xmlio = new TofTreeXmlIO();
-        String boardIniFilename = settings.getValue(SettingsClass.DIR_CONFIG) + "boards.xml";
-        File check = new File( boardIniFilename );
-        if( check.exists() ) {
-            // rename old file to .bak, overwrite older .bak
-            String bakBoardIniFilename = settings.getValue(SettingsClass.DIR_CONFIG) + "boards.xml.bak";
-            File bakFile = new File(bakBoardIniFilename);
-            if( bakFile.exists() ) {
-                bakFile.delete();
-            }
-            check.renameTo(bakFile);
+
+        // board list is important, create bak files bak, bak2, bak3, bak4
+        final String configDir = settings.getValue(SettingsClass.DIR_CONFIG);
+        final File xmlFile = new File(configDir + "boards.xml");
+        final File bakFile = new File(configDir + "boards.xml.bak");
+        final File bak2File = new File(configDir + "boards.xml.bak2");
+        final File bak3File = new File(configDir + "boards.xml.bak3");
+        final File bak4File = new File(configDir + "boards.xml.bak4");
+
+        // first check for bak4 and maybe delete
+        if( bak4File.isFile() ) {
+            bak4File.delete();
         }
+
+        // maybe rename bak3 to bak4
+        if( bak3File.isFile() ) {
+            bak3File.renameTo(bak4File);
+        }
+
+        // maybe rename bak2 to bak3
+        if( bak2File.isFile() ) {
+            bak2File.renameTo(bak3File);
+        }
+
+        // maybe rename bak to bak2
+        if( bakFile.isFile() ) {
+            bakFile.renameTo(bak2File);
+        }
+
+        // maybe rename xml to bak
+        if( xmlFile.isFile() ) {
+            xmlFile.renameTo(bakFile);
+        }
+
+        // save to xml file
+        final TofTreeXmlIO xmlio = new TofTreeXmlIO();
         // the method scans the toftree
-        if (!xmlio.saveBoardTree( this, model, boardIniFilename )) {
+        if (!xmlio.saveBoardTree( this, model, xmlFile )) {
             throw new StorageException("Error while saving the TofTree.");
         }
     }
@@ -776,18 +808,18 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
     /**
      * Opens dialog, gets new name for board, checks for double names, adds node to tree
      */
-    public void createNewBoard(Frame parent) {
+    public void createNewBoard(final Frame parent) {
         boolean isDone = false;
 
         while (!isDone) {
-            NewBoardDialog dialog = new NewBoardDialog(parent);
+            final NewBoardDialog dialog = new NewBoardDialog(parent);
             dialog.setVisible(true);
 
             if (dialog.getChoice() == NewBoardDialog.CHOICE_CANCEL) {
                 isDone = true; //cancelled
             } else {
-                String boardName = dialog.getBoardName();
-                String boardDescription = dialog.getBoardDescription();
+                final String boardName = dialog.getBoardName();
+                final String boardDescription = dialog.getBoardDescription();
 
                 if (model.getBoardByName(boardName) != null) {
                     JOptionPane.showMessageDialog(
@@ -796,7 +828,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
                         language.getString("BoardTree.duplicateNewBoardNameError.title"),
                         JOptionPane.ERROR_MESSAGE);
                 } else {
-                    Board newBoard = new Board(boardName, boardDescription);
+                    final Board newBoard = new Board(boardName, boardDescription);
                     model.addNodeToTree(newBoard);
                     // maybe this boardfolder already exists, scan for new messages
                     TOF.getInstance().searchNewMessages(newBoard);
@@ -813,10 +845,10 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
      * @param bprivkey
      * @param description
      */
-    private void addNewBoard(String bname, String bpubkey, String bprivkey, String description) {
-        Board existingBoard = model.getBoardByName(bname); 
+    private void addNewBoard(final String bname, final String bpubkey, final String bprivkey, final String description) {
+        final Board existingBoard = model.getBoardByName(bname);
         if (existingBoard != null) {
-            int answer =
+            final int answer =
                 JOptionPane.showConfirmDialog(
                     getTopLevelAncestor(),
                     language.formatMessage("BoardTree.overWriteBoardConfirmation.body", bname),
@@ -831,7 +863,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
                 model.nodeChanged(existingBoard); // refresh board icon
             }
         } else {
-            Board newBoard = new Board(bname, bpubkey, bprivkey, description);
+            final Board newBoard = new Board(bname, bpubkey, bprivkey, description);
             model.addNodeToTree(newBoard);
             // maybe this boardfolder already exists, scan for new messages
             TOF.getInstance().searchNewMessages(newBoard);
@@ -842,7 +874,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
      * Checks if board is already existent, adds board to board tree.
      * @param fbobj
      */
-    public void addNewBoard(Board fbobj) {
+    public void addNewBoard(final Board fbobj) {
         addNewBoard(
             fbobj.getName(),
             fbobj.getPublicKey(),
@@ -854,10 +886,10 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
      * Opens dialog, gets new name for folder, checks for double names, adds node to tree
      * @param parent
      */
-    public void createNewFolder(Frame parent) {
+    public void createNewFolder(final Frame parent) {
         String nodeName = null;
         do {
-            Object nodeNameOb =
+            final Object nodeNameOb =
                 JOptionPane.showInputDialog(
                     parent,
                     language.getString("BoardTree.newFolderDialog.body") + ":",
@@ -869,8 +901,9 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
 
             nodeName = ((nodeNameOb == null) ? null : nodeNameOb.toString());
 
-            if (nodeName == null)
+            if (nodeName == null) {
                 return; // cancelled
+            }
 
         } while (nodeName.length() == 0);
 
@@ -881,7 +914,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
      * Removes the given tree node, asks before deleting.
      * @param node
      */
-    public void removeNode(AbstractNode node) {
+    public void removeNode(final AbstractNode node) {
         int answer;
         if (node.isFolder()) {
             answer = JOptionPane.showConfirmDialog(
@@ -907,24 +940,25 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         model.removeNode(node, true);
     }
 
-    public void setSettings(SettingsClass settings) {
+    public void setSettings(final SettingsClass settings) {
         this.settings = settings;
     }
 
-    public void setMainFrame(MainFrame mainFrame) {
+    public void setMainFrame(final MainFrame mainFrame) {
         this.mainFrame = mainFrame;
     }
 
-    private void showTofTreePopupMenu(MouseEvent e) {
+    private void showTofTreePopupMenu(final MouseEvent e) {
         getPopupMenuTofTree().show(e.getComponent(), e.getX(), e.getY());
     }
 
     /**
      * starts update for the selected board, or for all childs (and their childs) of a folder
      */
-    private void refreshNode(AbstractNode node) {
-        if (node == null)
+    private void refreshNode(final AbstractNode node) {
+        if (node == null) {
             return;
+        }
 
         if (node.isBoard()) {
             if (((Board)node).isManualUpdateAllowed()) {
@@ -932,7 +966,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             }
         } else if (node.isFolder()) {
             // update all childs recursiv
-            Enumeration leafs = node.children();
+            final Enumeration leafs = node.children();
             while (leafs.hasMoreElements()) {
                 refreshNode((AbstractNode) leafs.nextElement());
             }
@@ -947,11 +981,11 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
      * News | Configure Board action performed
      * @param board
      */
-    public void configureBoard(AbstractNode board) {
+    public void configureBoard(final AbstractNode board) {
         if (board == null ) {
             return;
         }
-        BoardSettingsFrame newFrame = new BoardSettingsFrame(mainFrame, board);
+        final BoardSettingsFrame newFrame = new BoardSettingsFrame(mainFrame, board);
         newFrame.runDialog(); // all needed updates of boards are done by the dialog before it closes
     }
 
@@ -961,14 +995,14 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
      * not-running threads for this board.
      * @param board
      */
-    public void updateBoard(Board board) {
+    public void updateBoard(final Board board) {
         if (board == null || !board.isBoard()) {
             return;
         }
-        
+
         // TODO: the gui buttons for boardupdate should be disabled instead
         if (!Core.isFreenetOnline()) {
-        	return;        	
+        	return;
         }
 
         boolean threadStarted = false;
@@ -983,14 +1017,14 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             threadStarted = true;
         }
 
-        long now = System.currentTimeMillis();
+        final long now = System.currentTimeMillis();
 
         if (getRunningBoardUpdateThreads().isThreadOfTypeRunning(board, BoardUpdateThread.MSG_DNLOAD_BACK) == false) {
-            
+
             // get the older messages, if configured start backload only after 12 hours
-            long before12hours = now - (12L * 60L * 60L * 1000L); // 12 hours
+            final long before12hours = now - (12L * 60L * 60L * 1000L); // 12 hours
             boolean downloadCompleteBackload;
-            if( Core.frostSettings.getBoolValue(SettingsClass.ALWAYS_DOWNLOAD_MESSAGES_BACKLOAD) == false 
+            if( Core.frostSettings.getBoolValue(SettingsClass.ALWAYS_DOWNLOAD_MESSAGES_BACKLOAD) == false
                     && before12hours < board.getLastBackloadUpdateFinishedMillis() )
             {
                 downloadCompleteBackload = false;
@@ -998,7 +1032,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
                 // we start a complete backload
                 downloadCompleteBackload = true;
             }
-            
+
             getRunningBoardUpdateThreads().startMessageDownloadBack(board, settings, listener, downloadCompleteBackload);
             logger.info("Starting update (MSG_BACKLOAD) of " + board.getName());
             threadStarted = true;
@@ -1010,14 +1044,14 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             board.incTimesUpdatedCount();
         }
     }
-    
+
     /**
      * Fires a nodeChanged (redraw) for all boards.
      * ONLY used to redraw tree after run of OptionsFrame.
      */
     public void updateTree() {
         // fire update for node
-        Enumeration e = ((AbstractNode) model.getRoot()).depthFirstEnumeration();
+        final Enumeration e = ((AbstractNode) model.getRoot()).depthFirstEnumeration();
         while (e.hasMoreElements()) {
             model.nodeChanged(((TreeNode) e.nextElement()));
         }
@@ -1026,7 +1060,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         return configBoardMenuItem;
     }
 
-    public void propertyChange(PropertyChangeEvent evt) {
+    public void propertyChange(final PropertyChangeEvent evt) {
         if (evt.getPropertyName().equals(SettingsClass.SHOW_BOARDDESC_TOOLTIPS)) {
             showBoardDescriptionToolTips = Core.frostSettings.getBoolValue(SettingsClass.SHOW_BOARDDESC_TOOLTIPS);
         } else if (evt.getPropertyName().equals(SettingsClass.SHOW_BOARD_UPDATED_COUNT)) {
