@@ -365,12 +365,14 @@ public class Core implements FrostEventDispatcher  {
             title += " (offline mode)";
         }
 
-        pluginManger = new PluginManager();
+     	// Main frame
+        mainFrame = new MainFrame(frostSettings, title);
+        
+        pluginManger = new PluginManager(frostSettings, mainFrame);
         
         pluginManger.parseDir(frostSettings.getValue(SettingsClass.PLUGIN_DIRS));
         
-        // Main frame
-        mainFrame = new MainFrame(frostSettings, title);
+        
         KnownBoardsManager.initialize();
         getBoardsManager().initialize();
         getFileTransferManager().initialize();
