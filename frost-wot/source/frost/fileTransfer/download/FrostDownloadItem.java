@@ -20,15 +20,14 @@ package frost.fileTransfer.download;
 import frost.*;
 import frost.fcp.*;
 import frost.fileTransfer.*;
-import frost.storage.perst.*;
 import frost.storage.perst.filelist.*;
 import frost.util.*;
 import frost.util.model.*;
 
 public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem {
-    
+
 //    private transient static final Logger logger = Logger.getLogger(FrostDownloadItem.class.getName());
-    
+
     // the constants representing download states
     public transient final static int STATE_WAITING    = 1; // wait for start
     public transient final static int STATE_TRYING     = 2; // download running
@@ -39,9 +38,9 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
 
 	private String fileName = null;
     private String targetPath = null;
-	private long fileSize = -1;	
+	private long fileSize = -1;
 	private String key = null;
-    
+
     private Boolean enabled = Boolean.TRUE;
     private int state = STATE_WAITING;
     private long downloadAddedTime = 0;
@@ -50,15 +49,15 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
 	private int retries = 0;
     private long lastDownloadStopTime = 0;
     private String gqIdentifier = null;
-    
-    private boolean isLoggedToFile = false; 
-    
+
+    private boolean isLoggedToFile = false;
+
     // if this downloadfile is a shared file then this object is set
     private transient FrostFileListFileObject fileListFileObject = null;
-    
+
     // non persistent fields
 	private transient int doneBlocks = 0;
-	private transient int requiredBlocks = 0;	
+	private transient int requiredBlocks = 0;
 	private transient int totalBlocks = 0;
     private transient Boolean isFinalized = null;
     private transient String errorCodeDescription = null;
@@ -66,21 +65,21 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
 
     private transient boolean isDirect = false;
     private transient boolean isExternal = false;
-    
+
     private transient boolean internalRemoveExpected = false;
-    
+
     /**
      * Add a file from download text box.
-     */ 
-	public FrostDownloadItem(String fileName, String key) {
-		
+     */
+	public FrostDownloadItem(String fileName, final String key) {
+
         fileName = FileTransferManager.inst().getDownloadManager().ensureUniqueFilename(fileName);
 
         this.fileName = Mixed.makeFilename(fileName);
 		this.key = key;
 
         gqIdentifier = buildGqIdentifier(fileName);
-        
+
         downloadAddedTime = System.currentTimeMillis();
 
 		state = STATE_WAITING;
@@ -88,8 +87,8 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
 
     /**
      * Add a file attachment.
-     */ 
-    public FrostDownloadItem(String fileName, String key, long s) {
+     */
+    public FrostDownloadItem(final String fileName, final String key, final long s) {
         this(fileName, key);
         this.fileSize = s;
     }
@@ -97,21 +96,21 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
     /**
      * Add a shared file from filelist (user searched file and choosed one of the names).
      */
-    public FrostDownloadItem(FrostFileListFileObject newSfo, String newName) {
+    public FrostDownloadItem(final FrostFileListFileObject newSfo, String newName) {
 
         newName = FileTransferManager.inst().getDownloadManager().ensureUniqueFilename(newName);
 
         FrostFileListFileObject sfo = null;
-        
+
         // update the shared file object from database (key, owner, sources, ... may have changed)
-        FrostFileListFileObject updatedSfo = FileListStorage.inst().getFileBySha(newSfo.getSha());
+        final FrostFileListFileObject updatedSfo = FileListStorage.inst().getFileBySha(newSfo.getSha());
         if( updatedSfo != null ) {
             sfo = updatedSfo;
         } else {
             // paranoia fallback
             sfo = newSfo;
         }
-        
+
         fileName = newName;
         fileSize = sfo.getSize();
         key = sfo.getKey();
@@ -124,27 +123,27 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
 
         state = STATE_WAITING;
     }
-    
+
     /**
      * Add a saved file from database.
      */
 	public FrostDownloadItem(
-            String newFilename,
-            String newTargetPath,
-            long newSize,
-            String newKey,
-            Boolean newEnabledownload,
-            int newState,
-            long newDownloadAddedTime,
-            long newDownloadStartedTime,
-            long newDownloadFinishedTime,
-            int newRetries,
-            long newLastDownloadStopTime,
-            String newGqId)
+            final String newFilename,
+            final String newTargetPath,
+            final long newSize,
+            final String newKey,
+            final Boolean newEnabledownload,
+            final int newState,
+            final long newDownloadAddedTime,
+            final long newDownloadStartedTime,
+            final long newDownloadFinishedTime,
+            final int newRetries,
+            final long newLastDownloadStopTime,
+            final String newGqId)
     {
         fileName = newFilename;
         targetPath = newTargetPath;
-        fileSize = newSize;   
+        fileSize = newSize;
         key = newKey;
         enabled = newEnabledownload;
         state = newState;
@@ -164,11 +163,11 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
     public boolean isSharedFile() {
         return getFileListFileObject() != null;
     }
-    
+
     /**
      * Used only to set a new name if an item with same name is already in download table.
      */
-    public void setFileName(String s) {
+    public void setFileName(final String s) {
         fileName = s;
     }
 	public String getFilename() {
@@ -178,7 +177,7 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
     public long getFileSize() {
 		return fileSize;
 	}
-	public void setFileSize(Long newFileSize) {
+	public void setFileSize(final Long newFileSize) {
 		fileSize = newFileSize;
         fireChange();
 	}
@@ -186,7 +185,7 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
 	public String getKey() {
 		return key;
 	}
-	public void setKey(String newKey) {
+	public void setKey(final String newKey) {
 		key = newKey;
         fireChange();
 	}
@@ -194,22 +193,22 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
 	public int getState() {
 		return state;
 	}
-	public void setState(int newState) {
-		state = newState; 
+	public void setState(final int newState) {
+		state = newState;
         fireChange();
 	}
 
 	public long getLastDownloadStopTime() {
 		return lastDownloadStopTime;
 	}
-	public void setLastDownloadStopTime(long val) {
+	public void setLastDownloadStopTime(final long val) {
         lastDownloadStopTime = val;
 	}
 
 	public int getRetries() {
 		return retries;
 	}
-	public void setRetries(int newRetries) {
+	public void setRetries(final int newRetries) {
 		retries = newRetries;
         fireChange();
 	}
@@ -233,28 +232,28 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
 	public int getDoneBlocks() {
 		return doneBlocks;
 	}
-	public void setDoneBlocks(int newDoneBlocks) {
+	public void setDoneBlocks(final int newDoneBlocks) {
 	    doneBlocks = newDoneBlocks;
 	}
-    
+
 	public int getRequiredBlocks() {
 		return requiredBlocks;
 	}
-	public void setRequiredBlocks(int newRequiredBlocks) {
+	public void setRequiredBlocks(final int newRequiredBlocks) {
 	    requiredBlocks = newRequiredBlocks;
 	}
-	
+
 	public int getTotalBlocks() {
 		return totalBlocks;
 	}
-	public void setTotalBlocks(int newTotalBlocks) {
+	public void setTotalBlocks(final int newTotalBlocks) {
 		totalBlocks = newTotalBlocks;
 	}
 
     public Boolean isFinalized() {
         return isFinalized;
     }
-    public void setFinalized(boolean finalized) {
+    public void setFinalized(final boolean finalized) {
         if( finalized ) {
             isFinalized = Boolean.TRUE;
         } else {
@@ -270,7 +269,7 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
         return downloadFinishedTime;
     }
 
-    public void setDownloadFinishedTime(long downloadFinishedTime) {
+    public void setDownloadFinishedTime(final long downloadFinishedTime) {
         this.downloadFinishedTime = downloadFinishedTime;
     }
 
@@ -278,7 +277,7 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
         return downloadStartedTime;
     }
 
-    public void setDownloadStartedTime(long downloadStartedTime) {
+    public void setDownloadStartedTime(final long downloadStartedTime) {
         this.downloadStartedTime = downloadStartedTime;
     }
 
@@ -286,7 +285,7 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
         return gqIdentifier;
     }
 
-    public void setGqIdentifier(String gqId) {
+    public void setGqIdentifier(final String gqId) {
         this.gqIdentifier = gqId;
     }
 
@@ -294,10 +293,10 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
         return targetPath;
     }
 
-    public void setTargetPath(String targetPath) {
+    public void setTargetPath(final String targetPath) {
         this.targetPath = targetPath;
     }
-    
+
     public long getLastReceived() {
         if( getFileListFileObject() == null ) {
             return 0;
@@ -318,13 +317,13 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
         return fileListFileObject;
     }
 
-    public void setFileListFileObject(FrostFileListFileObject sharedFileObject) {
+    public void setFileListFileObject(final FrostFileListFileObject sharedFileObject) {
         if( this.fileListFileObject != null ) {
             this.fileListFileObject.removeListener(this);
         }
-        
+
         int newState = -1;
-        
+
         // if lastUploaded value changed, maybe restart failed download
         if( sharedFileObject != null && this.fileListFileObject != null ) {
 //            if( sharedFileObject.getLastUploaded() > this.fileListFileObject.getLastUploaded() ) {
@@ -333,31 +332,31 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
                 }
 //            }
         }
-        
+
         this.fileListFileObject = sharedFileObject;
-        
+
         if( this.fileListFileObject != null ) {
             this.fileListFileObject.addListener(this);
         }
         // take over key and update gui
         fireValueChanged();
-        
+
         if( newState > -1 ) {
             setState(newState);
         }
     }
-    
+
     /**
      * Called by a FrostFileListFileObject if a value interesting for FrostDownloadItem was set.
      */
     public void fireValueChanged() {
         // maybe take over the key, or set new key
+        // NOTE: once a key is set, the ticker will allow to start this item!
+
         if( this.fileListFileObject != null ) {
-//            if( getKey() == null || getKey().length() == 0 ) {
-                if( this.fileListFileObject.getKey() != null && this.fileListFileObject.getKey().length() > 0 ) {
-                    setKey( this.fileListFileObject.getKey() );
-                }
-//            }
+            if( this.fileListFileObject.getKey() != null && this.fileListFileObject.getKey().length() > 0 ) {
+                setKey( this.fileListFileObject.getKey() );
+            }
         }
         // remaining values are dynamically fetched from FrostFileListFileObject
         super.fireChange();
@@ -367,7 +366,7 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
      * Builds a global queue identifier if running on 0.7.
      * Returns null on 0.5.
      */
-    private String buildGqIdentifier(String filename) {
+    private String buildGqIdentifier(final String filename) {
         if( FcpHandler.isFreenet07() ) {
             return new StringBuilder()
                 .append("Frost-")
@@ -384,24 +383,24 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
     public String getErrorCodeDescription() {
         return errorCodeDescription;
     }
-    public void setErrorCodeDescription(String errorCodeDescription) {
+    public void setErrorCodeDescription(final String errorCodeDescription) {
         this.errorCodeDescription = errorCodeDescription;
     }
-    
+
     /**
      * @return  true if this item is an external global queue item
      */
     public boolean isExternal() {
         return isExternal;
     }
-    public void setExternal(boolean e) {
+    public void setExternal(final boolean e) {
         isExternal = e;
     }
-    
+
     public boolean isDirect() {
         return isDirect;
     }
-    public void setDirect(boolean d) {
+    public void setDirect(final boolean d) {
         isDirect = d;
         super.fireChange();
     }
@@ -409,7 +408,7 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
     public int getPriority() {
         return priority;
     }
-    public void setPriority(int priority) {
+    public void setPriority(final int priority) {
         this.priority = priority;
         super.fireChange();
     }
@@ -421,14 +420,15 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
         return internalRemoveExpected;
     }
     /**
-     * Set to true if we restart a download (code=11 or 27). 
+     * Set to true if we restart a download (code=11 or 27).
      * onPersistentRequestRemoved method checks this and does not remove the request
-     * from the table if the remove was expected. 
+     * from the table if the remove was expected.
      */
-    public void setInternalRemoveExpected(boolean internalRemoveExpected) {
+    public void setInternalRemoveExpected(final boolean internalRemoveExpected) {
         this.internalRemoveExpected = internalRemoveExpected;
     }
-    
+
+    @Override
     public String toString() {
         return getFilename();
     }
@@ -437,7 +437,7 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
         return isLoggedToFile;
     }
 
-    public void setLoggedToFile(boolean isLoggedToFile) {
+    public void setLoggedToFile(final boolean isLoggedToFile) {
         this.isLoggedToFile = isLoggedToFile;
     }
 }

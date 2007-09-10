@@ -25,15 +25,14 @@ import frost.*;
 import frost.fileTransfer.download.*;
 import frost.fileTransfer.sharing.*;
 import frost.identities.*;
-import frost.storage.perst.*;
 import frost.storage.perst.filelist.*;
 
 public class FileListManager {
 
     private static final Logger logger = Logger.getLogger(FileListManager.class.getName());
-    
+
     public static final int MAX_FILES_PER_FILE = 250; // TODO: count utf-8 size of sharedxmlfiles, not more than 512kb!
-    
+
     /**
      * Used to sort FrostSharedFileItems by refLastSent ascending.
      */
@@ -48,7 +47,7 @@ public class FileListManager {
             }
         }
     };
-    
+
     /**
      * @return  an info class that is guaranteed to contain an owner and files
      */
@@ -60,21 +59,21 @@ public class FileListManager {
         // this wrap-arounding ensures that each file will be send over the time
 
         // compute minDate, items last shared before this date must be reshared
-        int maxAge = Core.frostSettings.getIntValue(SettingsClass.MIN_DAYS_BEFORE_FILE_RESHARE);
-        long maxDiff = (long)maxAge * 24L * 60L * 60L * 1000L;
-        long now = System.currentTimeMillis();
-        long minDate = now - maxDiff;
-        
-        List<LocalIdentity> localIdentities = Core.getIdentities().getLocalIdentities();
-        int identityCount = localIdentities.size(); 
+        final int maxAge = Core.frostSettings.getIntValue(SettingsClass.MIN_DAYS_BEFORE_FILE_RESHARE);
+        final long maxDiff = maxAge * 24L * 60L * 60L * 1000L;
+        final long now = System.currentTimeMillis();
+        final long minDate = now - maxDiff;
+
+        final List<LocalIdentity> localIdentities = Core.getIdentities().getLocalIdentities();
+        int identityCount = localIdentities.size();
         while(identityCount > 0) {
-            
+
             LocalIdentity idToUpdate = null;
             long minUpdateMillis = Long.MAX_VALUE;
-            
+
             // find next identity to update
-            for(LocalIdentity id : localIdentities ) {
-                long lastShared = id.getLastFilesSharedMillis();
+            for(final LocalIdentity id : localIdentities ) {
+                final long lastShared = id.getLastFilesSharedMillis();
                 if( lastShared < minUpdateMillis ) {
                     minUpdateMillis = lastShared;
                     idToUpdate = id;
@@ -84,30 +83,30 @@ public class FileListManager {
             // mark that we tried this owner
             idToUpdate.updateLastFilesSharedMillis();
 
-            LinkedList<SharedFileXmlFile> filesToShare = getUploadItemsToShare(idToUpdate.getUniqueName(), MAX_FILES_PER_FILE, minDate);
+            final LinkedList<SharedFileXmlFile> filesToShare = getUploadItemsToShare(idToUpdate.getUniqueName(), MAX_FILES_PER_FILE, minDate);
             if( filesToShare != null && filesToShare.size() > 0 ) {
-                FileListManagerFileInfo fif = new FileListManagerFileInfo(filesToShare, idToUpdate); 
+                final FileListManagerFileInfo fif = new FileListManagerFileInfo(filesToShare, idToUpdate);
                 return fif;
             }
             // else try next owner
             identityCount--;
         }
-        
+
         // nothing to share now
         return null;
     }
 
-    private static LinkedList<SharedFileXmlFile> getUploadItemsToShare(String owner, int maxItems, long minDate) {
+    private static LinkedList<SharedFileXmlFile> getUploadItemsToShare(final String owner, final int maxItems, final long minDate) {
 
-        LinkedList<SharedFileXmlFile> result = new LinkedList<SharedFileXmlFile>();
-        
-        ArrayList<FrostSharedFileItem> sorted = new ArrayList<FrostSharedFileItem>();
+        final LinkedList<SharedFileXmlFile> result = new LinkedList<SharedFileXmlFile>();
 
-        {        
-            List<FrostSharedFileItem> sharedFileItems = FileTransferManager.inst().getSharedFilesManager().getModel().getItems();
-            
+        final ArrayList<FrostSharedFileItem> sorted = new ArrayList<FrostSharedFileItem>();
+
+        {
+            final List<FrostSharedFileItem> sharedFileItems = FileTransferManager.inst().getSharedFilesManager().getModel().getItems();
+
             // first collect all items for this owner and sort them
-            for( FrostSharedFileItem sfo : sharedFileItems ) {
+            for( final FrostSharedFileItem sfo : sharedFileItems ) {
                 if( !sfo.isValid() ) {
                     continue;
                 }
@@ -128,7 +127,7 @@ public class FileListManager {
 
         {
             // check if oldest item must be shared (maybe its new or updated)
-            FrostSharedFileItem sfo = sorted.get(0);
+            final FrostSharedFileItem sfo = sorted.get(0);
             if( sfo.getRefLastSent() > minDate ) {
                 // oldest item is'nt too old, don't share
                 return result;
@@ -136,13 +135,13 @@ public class FileListManager {
         }
 
         // finally add up to MAX_FILES items from the sorted list
-        for( FrostSharedFileItem sfo : sorted ) {
+        for( final FrostSharedFileItem sfo : sorted ) {
             result.add( sfo.getSharedFileXmlFileInstance() );
             if( result.size() >= maxItems ) {
                 return result;
             }
         }
-        
+
         return result;
     }
 
@@ -150,15 +149,15 @@ public class FileListManager {
      * Update sent files.
      * @param files  List of SharedFileXmlFile objects that were successfully sent inside a CHK file
      */
-    public static boolean updateFileListWasSuccessfullySent(List<SharedFileXmlFile> files) {
-        
-        long now = System.currentTimeMillis();
+    public static boolean updateFileListWasSuccessfullySent(final List<SharedFileXmlFile> files) {
 
-        List<FrostSharedFileItem> sharedFileItems = FileTransferManager.inst().getSharedFilesManager().getModel().getItems();
+        final long now = System.currentTimeMillis();
 
-        for( SharedFileXmlFile sfx : files ) {
+        final List<FrostSharedFileItem> sharedFileItems = FileTransferManager.inst().getSharedFilesManager().getModel().getItems();
+
+        for( final SharedFileXmlFile sfx : files ) {
             // update FrostSharedUploadFileObject
-            for( FrostSharedFileItem sfo : sharedFileItems ) {
+            for( final FrostSharedFileItem sfo : sharedFileItems ) {
                 if( sfo.getSha().equals(sfx.getSha()) ) {
                     sfo.setRefLastSent(now);
                 }
@@ -166,20 +165,20 @@ public class FileListManager {
         }
         return true;
     }
-    
+
     /**
      * Add or update received files from owner
      */
-    public static boolean processReceivedFileList(FileListFileContent content) {
-        
-        if( content == null 
-            || content.getReceivedOwner() == null 
-            || content.getFileList() == null 
+    public static boolean processReceivedFileList(final FileListFileContent content) {
+
+        if( content == null
+            || content.getReceivedOwner() == null
+            || content.getFileList() == null
             || content.getFileList().size() == 0 )
         {
             return false;
         }
-        
+
         Identity localOwner = Core.getIdentities().getIdentity(content.getReceivedOwner().getUniqueName());
         if( localOwner == null ) {
             // new identity, maybe add
@@ -191,50 +190,68 @@ public class FileListManager {
             localOwner = content.getReceivedOwner();
         }
         localOwner.updateLastSeenTimestamp(content.getTimestamp());
-        
+
         if (localOwner.isBAD() && Core.frostSettings.getBoolValue(SettingsClass.SEARCH_HIDE_BAD)) {
             logger.info("Skipped index file from BAD user " + localOwner.getUniqueName());
             return true;
         }
 
-        // first, update all filelist files
-        
-        // get a connection for updates
+        final List<FrostDownloadItem> downloadItems = FileTransferManager.inst().getDownloadManager().getModel().getItems();
+
+        // update all filelist files, maybe restart failed downloads
+        final List<FrostDownloadItem> downloadsToRestart = new ArrayList<FrostDownloadItem>();
         boolean errorOccured = false;
         try {
-            for( SharedFileXmlFile sfx : content.getFileList() ) {
-                
-                FrostFileListFileObject sfo = new FrostFileListFileObject(sfx, localOwner, content.getTimestamp());
-                
-                // update filelist database table
-                boolean wasOk = FileListStorage.inst().insertOrUpdateFileListFileObject(sfo);
+            for( final SharedFileXmlFile sfx : content.getFileList() ) {
+
+                final FrostFileListFileObject sfo = new FrostFileListFileObject(sfx, localOwner, content.getTimestamp());
+
+                // before updating the file list object (this overwrites the current lastUploaded time),
+                // check if there is a failed download item for this shared file. If yes, and the lastUpload
+                // time is later than the current one, restart the download automatically.
+                for( final FrostDownloadItem dlItem : downloadItems ) {
+                    if( !dlItem.isSharedFile() || dlItem.getState() != FrostDownloadItem.STATE_FAILED ) {
+                        continue;
+                    }
+                    final FrostFileListFileObject dlSfo = dlItem.getFileListFileObject();
+                    if( dlSfo.getSha().equals( sfx.getSha() ) ) {
+                        if( dlSfo.getLastUploaded() < sfo.getLastUploaded() ) {
+                            // restart failed download, file was uploaded again
+                            downloadsToRestart.add(dlItem); // restart later if no error occured
+                        }
+                    }
+                }
+
+                // update filelist storage
+                final boolean wasOk = FileListStorage.inst().insertOrUpdateFileListFileObject(sfo);
                 if( wasOk == false ) {
                     errorOccured = true;
                     break;
                 }
             }
-        } catch(Throwable t) {
+        } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Exception during insertOrUpdateFrostSharedFileObject", t);
         }
-        
+
         if( errorOccured ) {
             return false;
         }
 
         // after updating the db, check if we have to update download items with the new informations
-        List<FrostDownloadItem> downloadItems = FileTransferManager.inst().getDownloadManager().getModel().getItems();
-
-        for( SharedFileXmlFile sfx : content.getFileList() ) {
+        for( final SharedFileXmlFile sfx : content.getFileList() ) {
 
             // if a FrostDownloadItem references this file (by sha), retrieve the updated file from db and set it
-            for( FrostDownloadItem dlItem : downloadItems ) {
+            for( final FrostDownloadItem dlItem : downloadItems ) {
                 if( !dlItem.isSharedFile() ) {
                     continue;
                 }
-                FrostFileListFileObject dlSfo = dlItem.getFileListFileObject();
+                final FrostFileListFileObject dlSfo = dlItem.getFileListFileObject();
                 if( dlSfo.getSha().equals( sfx.getSha() ) ) {
                     // this download item references the updated file
                     // update the shared file object from database (owner, sources, ... may have changed)
+
+                    // NOTE: if no key was set before, this sets the chkKey and the ticker will start to download this file!
+
                     FrostFileListFileObject updatedSfo = null;
                     updatedSfo = FileListStorage.inst().getFileBySha(sfx.getSha());
                     if( updatedSfo != null ) {
@@ -245,6 +262,14 @@ public class FileListManager {
                     break; // there is only one file in download table with same SHA
                 }
             }
+        }
+
+        // restart failed downloads, as collected above
+        for( final FrostDownloadItem dlItem : downloadsToRestart ) {
+            dlItem.setState(FrostDownloadItem.STATE_WAITING);
+            dlItem.setRetries(0);
+            dlItem.setLastDownloadStopTime(0);
+            dlItem.setEnabled(Boolean.valueOf(true)); // enable download on restart
         }
 
         return true;
