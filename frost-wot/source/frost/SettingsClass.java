@@ -33,9 +33,9 @@ import frost.util.Logging;
  * Read settings from frost.ini and store them.
  */
 public class SettingsClass implements Savable {
-    
-    private File settingsFile;
-    private Hashtable<String,Object> settingsHash;
+
+    private final File settingsFile;
+    private final Hashtable<String,Object> settingsHash;
     private Hashtable<String,Object> defaults = null;
     private final String fs = System.getProperty("file.separator");
     private PropertyChangeSupport changeSupport = null;
@@ -53,16 +53,18 @@ public class SettingsClass implements Savable {
     public static final String DIR_LAST_USED = "lastUsedDirectory";
     public static final String DIR_TEMP = "temp.dir";
     public static final String DIR_LOCALDATA = "localdata.dir";
-    
+
     public static final String FREENET_VERSION = "freenetVersion";
-    
+
     public static final String LANGUAGE_LOCALE = "locale";
-    
+
+    public static final String CONFIRM_MARK_ALL_MSGS_READ = "confirm.markAllMessagesRead";
+
     // only v1: use v1 if old signs are allowed
     // v1+v2  : use v2, ignore v1
     // only v2: use v2
     public static final String ACCEPT_SIGNATURE_FORMAT_V1 = "acceptSignatureFormatV1";
-    
+
     public static final String LOOK_AND_FEEL = "ChoosenLookAndFeel";
 
     public static final String STORAGE_STORE_INVALID_MESSAGES = "storage.storeInvalidMessages";
@@ -82,15 +84,15 @@ public class SettingsClass implements Savable {
     public static final String DISABLE_FILESHARING = "disableFilesharing";
     public static final String REMEMBER_SHAREDFILE_DOWNLOADED = "rememberSharedFileDownloaded";
     public static final String DOWNLOADING_ACTIVATED = "downloadingActivated";
-    
+
     public static final String LOG_FILE_SIZE_LIMIT = "logFileSizeLimit";
     public static final String LOG_LEVEL = "logLevel";
     public static final String LOG_TO_CONSOLE = "logToConsole"; // not in gui dialog!
     public static final String LOG_TO_FILE = "logToFile";       // not in gui dialog!
-    
+
     public static final String LOG_FCP2_MESSAGES = "log.logFcp2MessagesToConsole";       // not in gui dialog!
     public static final String LOG_FILEBASE_MESSAGES = "log.logFilebaseMessagesToConsole";       // not in gui dialog!
-    
+
     public static final String FILE_LIST_FONT_NAME = "fileListFontName";
     public static final String FILE_LIST_FONT_SIZE = "fileListFontSize";
     public static final String FILE_LIST_FONT_STYLE = "fileListFontStyle";
@@ -138,25 +140,25 @@ public class SettingsClass implements Savable {
     public static final String DISABLE_SPLASHSCREEN = "disableSplashScreen";
     public static final String SHOW_SYSTRAY_ICON = "showSystrayIcon";
     public static final String MINIMIZE_TO_SYSTRAY = "minimizeToSystray";
-    
+
     public static final String MAX_MESSAGE_DISPLAY = "maxMessageDisplay";
     public static final String MAX_MESSAGE_DOWNLOAD = "maxMessageDownload";
     public static final String MESSAGE_UPLOAD_DISABLED = "messageUploadDisabled";
-    
+
     public static final String SKINS_ENABLED = "skinsEnabled";
     public static final String SKIN_NAME = "selectedSkin";
-    
+
     public static final String SEARCH_MAX_RESULTS = "maxSearchResults";
     public static final String SEARCH_HIDE_BAD = "hideBadFiles";
     public static final String SEARCH_HIDE_CHECK = "hideCheckFiles";
     public static final String SEARCH_HIDE_OBSERVE = "hideObserveFiles";
     public static final String SEARCH_HIDE_FILES_WITHOUT_CHK = "hideFilesWithoutChk";
-    
+
     public static final String BOARDLIST_LAST_SELECTED_BOARD = "tofTreeSelectedRow";
-    
+
     public static final String MESSAGE_DOWNLOAD_HTL = "tofDownloadHtl";
     public static final String MESSAGE_UPLOAD_HTL = "tofUploadHtl";
-    
+
     public static final String MESSAGE_BLOCK_SUBJECT = "blockMessage";
     public static final String MESSAGE_BLOCK_SUBJECT_ENABLED = "blockMessageChecked";
     public static final String MESSAGE_BLOCK_BODY = "blockMessageBody";
@@ -173,11 +175,11 @@ public class SettingsClass implements Savable {
     public static final String KNOWNBOARDS_BLOCK_FROM_CHECK = "blockBoardsFromCheck";
     public static final String KNOWNBOARDS_BLOCK_FROM_BAD = "blockBoardsFromBad";
     public static final String KNOWNBOARDS_BLOCK_FROM_UNSIGNED = "blockBoardsFromUnsigned";
-    
+
     public static final String BOARD_AUTOUPDATE_ENABLED = "automaticUpdate";
     public static final String BOARD_AUTOUPDATE_CONCURRENT_UPDATES = "automaticUpdate.concurrentBoardUpdates";
     public static final String BOARD_AUTOUPDATE_MIN_INTERVAL = "automaticUpdate.boardsMinimumUpdateInterval";
-    
+
     public static final String BOARD_UPDATE_VISUALIZATION_ENABLED = "boardUpdateVisualization";
     public static final String BOARD_UPDATE_VISUALIZATION_BGCOLOR_SELECTED = "boardUpdatingSelectedBackgroundColor";
     public static final String BOARD_UPDATE_VISUALIZATION_BGCOLOR_NOT_SELECTED = "boardUpdatingNonSelectedBackgroundColor";
@@ -190,36 +192,36 @@ public class SettingsClass implements Savable {
     public static final String SHOW_SMILEYS = "showSmileys";
     public static final String SHOW_KEYS_AS_HYPERLINKS = "showKeysAsHyperlinks";
     public static final String MESSAGE_BODY_ANTIALIAS = "messageBodyAA";
-    
+
     public static final String ALTERNATE_EDITOR_ENABLED = "useAltEdit";
     public static final String ALTERNATE_EDITOR_COMMAND = "altEdit";
-    
+
     public static final String FILE_BASE = "fileBase";
     public static final String MESSAGE_BASE = "messageBase";
-    
+
     public static final String MESSAGE_EXPIRE_DAYS = "messageExpireDays";
     public static final String MESSAGE_EXPIRATION_MODE = "messageExpirationMode";
     public static final String ARCHIVE_KEEP_FLAGGED_AND_STARRED = "archiveKeepFlaggedOrStarredMessages";
     public static final String ARCHIVE_KEEP_UNREAD = "archiveKeepUnreadMessages";
-    
+
     public static final String MIN_DAYS_BEFORE_FILE_RESHARE = "minDaysBeforeFileReshare";
     public static final String MAX_FILELIST_DOWNLOAD_DAYS = "fileListDownloadDays";
-    
+
     public static final String FILEEXTENSION_AUDIO = "audioExtension";
     public static final String FILEEXTENSION_VIDEO = "videoExtension";
     public static final String FILEEXTENSION_DOCUMENT = "documentExtension";
     public static final String FILEEXTENSION_EXECUTABLE = "executableExtension";
     public static final String FILEEXTENSION_ARCHIVE = "archiveExtension";
     public static final String FILEEXTENSION_IMAGE = "imageExtension";
-    
+
     public static final String LAST_USED_FROMNAME = "userName";
-    
+
     public static final String MAINFRAME_LAST_WIDTH = "lastFrameWidth";
     public static final String MAINFRAME_LAST_HEIGHT = "lastFrameHeight";
     public static final String MAINFRAME_LAST_X = "lastFramePosX";
     public static final String MAINFRAME_LAST_Y = "lastFramePosY";
     public static final String MAINFRAME_LAST_MAXIMIZED = "lastFrameMaximized";
-    
+
     public static final String LOG_DOWNLOADS_ENABLED = "logDownloads";
     public static final String LOG_UPLOADS_ENABLED = "logUploads";
 
@@ -227,7 +229,7 @@ public class SettingsClass implements Savable {
         settingsHash = new Hashtable<String,Object>();
         // the FIX config.dir
         settingsHash.put(DIR_CONFIG, "config" + fs);
-        String configFilename = "config" + fs + "frost.ini";
+        final String configFilename = "config" + fs + "frost.ini";
         settingsFile = new File(configFilename);
         loadDefaults();
         if (!readSettingsFile()) {
@@ -243,11 +245,11 @@ public class SettingsClass implements Savable {
      * The configuration is not read immediately, call readSettingsFile.
      * @param baseDirectory  the base directory of the config/frost.ini file
      */
-    public SettingsClass(File baseDirectory) {
+    public SettingsClass(final File baseDirectory) {
         settingsHash = new Hashtable<String,Object>();
         // the FIX config.dir
         settingsHash.put(DIR_CONFIG, baseDirectory.getPath() + fs + "config" + fs);
-        String configFilename = baseDirectory.getPath() + fs + "config" + fs + "frost.ini";
+        final String configFilename = baseDirectory.getPath() + fs + "config" + fs + "frost.ini";
         settingsFile = new File(configFilename);
     }
 
@@ -271,7 +273,7 @@ public class SettingsClass implements Savable {
         return path;
     }
 
-    public String getDefaultValue(String key) {
+    public String getDefaultValue(final String key) {
         String val = (String) defaults.get(key);
         if (val == null) {
             val = "";
@@ -289,7 +291,7 @@ public class SettingsClass implements Savable {
 
         try {
             settingsReader = new LineNumberReader(new FileReader(settingsFile));
-        } catch (Exception e) {
+        } catch (final Exception e) {
             logger.warning(settingsFile.getName() + " does not exist, will create it");
             return false;
         }
@@ -297,7 +299,7 @@ public class SettingsClass implements Savable {
             while ((line = settingsReader.readLine()) != null) {
                 line = line.trim();
                 if (line.length() != 0 && line.startsWith("#") == false) {
-                    StringTokenizer strtok = new StringTokenizer(line, "=");
+                    final StringTokenizer strtok = new StringTokenizer(line, "=");
                     String key = "";
                     String value = "";
                     Object objValue = value;
@@ -310,8 +312,8 @@ public class SettingsClass implements Savable {
                         }
                         if (value.startsWith("type.color(") && value.endsWith(")")) {
                             // this is a color
-                            String rgbPart = value.substring(11, value.length() - 1);
-                            StringTokenizer strtok2 = new StringTokenizer(rgbPart, ",");
+                            final String rgbPart = value.substring(11, value.length() - 1);
+                            final StringTokenizer strtok2 = new StringTokenizer(rgbPart, ",");
 
                             if (strtok2.countTokens() == 3) {
                                 try {
@@ -319,9 +321,9 @@ public class SettingsClass implements Savable {
                                     red = Integer.parseInt(strtok2.nextToken().trim());
                                     green = Integer.parseInt(strtok2.nextToken().trim());
                                     blue = Integer.parseInt(strtok2.nextToken().trim());
-                                    Color c = new Color(red, green, blue);
+                                    final Color c = new Color(red, green, blue);
                                     objValue = c;
-                                } catch (Exception ex) {
+                                } catch (final Exception ex) {
                                     objValue = null;
                                 }
                             } else {
@@ -345,12 +347,12 @@ public class SettingsClass implements Savable {
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             logger.log(Level.SEVERE, "Exception thrown in readSettingsFile()", e);
         }
         try {
             settingsReader.close();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             logger.log(Level.SEVERE, "Exception thrown in readSettingsFile()", e);
         }
 
@@ -374,31 +376,31 @@ public class SettingsClass implements Savable {
         PrintWriter settingsWriter = null;
         try {
             settingsWriter = new PrintWriter(new FileWriter(settingsFile));
-        } catch (IOException exception) {
+        } catch (final IOException exception) {
             try {
                 //Perhaps the problem is that the config dir doesn't exist? In that case, we create it and try again
-                File configDir = new File("config");
+                final File configDir = new File("config");
                 if (!configDir.isDirectory()) {
                     configDir.mkdirs(); // if the config dir doesn't exist, we create it
                 }
                 settingsWriter = new PrintWriter(new FileWriter(settingsFile));
-            } catch (IOException exception2) {
+            } catch (final IOException exception2) {
                 logger.log(Level.SEVERE, "Exception thrown in writeSettingsFile()", exception2);
                 return false;
             }
         }
 
-        TreeMap<String,Object> sortedSettings = new TreeMap<String,Object>(settingsHash); // sort the lines
-        Iterator<String> i = sortedSettings.keySet().iterator();
+        final TreeMap<String,Object> sortedSettings = new TreeMap<String,Object>(settingsHash); // sort the lines
+        final Iterator<String> i = sortedSettings.keySet().iterator();
         while (i.hasNext()) {
-            String key = i.next();
+            final String key = i.next();
             if (key.equals(DIR_CONFIG)) {
                 continue; // do not save the config dir, its unchangeable
             }
 
             String val = null;
             if (sortedSettings.get(key) instanceof Color) {
-                Color c = (Color) sortedSettings.get(key);
+                final Color c = (Color) sortedSettings.get(key);
                 val = new StringBuilder()
                         .append("type.color(")
                         .append(c.getRed()).append(",")
@@ -417,7 +419,7 @@ public class SettingsClass implements Savable {
             settingsWriter.close();
             logger.info("Wrote configuration");
             return true;
-        } catch (Exception e) {
+        } catch (final Exception e) {
             logger.log(Level.SEVERE, "Exception thrown in writeSettingsFile", e);
         }
         return false;
@@ -434,7 +436,7 @@ public class SettingsClass implements Savable {
      * @see #getPropertyChangeListeners
      * @see #addPropertyChangeListener(java.lang.String, java.beans.PropertyChangeListener)
      */
-    public synchronized void addPropertyChangeListener(PropertyChangeListener listener) {
+    public synchronized void addPropertyChangeListener(final PropertyChangeListener listener) {
         if (listener == null) {
             return;
         }
@@ -458,8 +460,8 @@ public class SettingsClass implements Savable {
      * @see #addPropertyChangeListener(java.lang.String, java.beans.PropertyChangeListener)
      */
     public synchronized void addPropertyChangeListener(
-        String propertyName,
-        PropertyChangeListener listener) {
+        final String propertyName,
+        final PropertyChangeListener listener) {
 
         if (listener == null) {
             return;
@@ -479,7 +481,7 @@ public class SettingsClass implements Savable {
      *
      * @see #removeUpdater
      */
-    public synchronized void addUpdater(SettingsUpdater updater) {
+    public synchronized void addUpdater(final SettingsUpdater updater) {
         if (updater == null) {
             return;
         }
@@ -500,7 +502,7 @@ public class SettingsClass implements Savable {
      * @see #getPropertyChangeListeners
      * @see #removePropertyChangeListener(java.lang.String,java.beans.PropertyChangeListener)
      */
-    public synchronized void removePropertyChangeListener(PropertyChangeListener listener) {
+    public synchronized void removePropertyChangeListener(final PropertyChangeListener listener) {
         if (listener == null || changeSupport == null) {
             return;
         }
@@ -521,8 +523,8 @@ public class SettingsClass implements Savable {
      * @see #removePropertyChangeListener(java.beans.PropertyChangeListener)
      */
     public synchronized void removePropertyChangeListener(
-        String propertyName,
-        PropertyChangeListener listener) {
+        final String propertyName,
+        final PropertyChangeListener listener) {
 
         if (listener == null || changeSupport == null) {
             return;
@@ -539,7 +541,7 @@ public class SettingsClass implements Savable {
      *
      * @see #addUpdater
      */
-    public synchronized void removeUpdater(SettingsUpdater updater) {
+    public synchronized void removeUpdater(final SettingsUpdater updater) {
         if (updater == null || updaters == null) {
             return;
         }
@@ -578,7 +580,7 @@ public class SettingsClass implements Savable {
      * @see #removePropertyChangeListener(java.lang.String, java.beans.PropertyChangeListener)
      * @see #getPropertyChangeListeners
      */
-    public synchronized PropertyChangeListener[] getPropertyChangeListeners(String propertyName) {
+    public synchronized PropertyChangeListener[] getPropertyChangeListeners(final String propertyName) {
         if (changeSupport == null) {
             return new PropertyChangeListener[0];
         }
@@ -595,7 +597,7 @@ public class SettingsClass implements Savable {
      * @param oldValue the property's previous value
      * @param newValue the property's new value
      */
-    protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
+    protected void firePropertyChange(final String propertyName, final Object oldValue, final Object newValue) {
         if (changeSupport == null) {
             return;
         }
@@ -607,31 +609,33 @@ public class SettingsClass implements Savable {
      * is found or the settings are wrongly formatted or
      * any other conceivable exception.
      */
-    public String getValue(String key) {
+    public String getValue(final String key) {
         return (String) settingsHash.get(key);
     }
 
-    public Object getObjectValue(String key) {
+    public Object getObjectValue(final String key) {
         return settingsHash.get(key);
     }
 
-    public String[] getArrayValue(String key) {
-        String str = (String) settingsHash.get(key);
-        if (str == null)
+    public String[] getArrayValue(final String key) {
+        final String str = (String) settingsHash.get(key);
+        if (str == null) {
             return new String[0];
-        StringTokenizer strtok = new StringTokenizer(str, ";");
-        String[] returnStrArr = new String[strtok.countTokens()];
+        }
+        final StringTokenizer strtok = new StringTokenizer(str, ";");
+        final String[] returnStrArr = new String[strtok.countTokens()];
 
         for (int i = 0; strtok.hasMoreElements(); i++) {
-            returnStrArr[i] = (String) strtok.nextToken();
+            returnStrArr[i] = strtok.nextToken();
         }
         return returnStrArr;
     }
 
-    public boolean getBoolValue(String key) {
-        String str = (String) settingsHash.get(key);
-        if (str == null)
+    public boolean getBoolValue(final String key) {
+        final String str = (String) settingsHash.get(key);
+        if (str == null) {
             return false;
+        }
         try {
             if (str.toLowerCase().equals("false")) {
                 return false;
@@ -639,91 +643,94 @@ public class SettingsClass implements Savable {
             if (str.toLowerCase().equals("true")) {
                 return true;
             }
-        } catch (NullPointerException e) {
+        } catch (final NullPointerException e) {
             return false;
         }
         return getBoolValue(getDefaultValue(key));
     }
 
-    public int getIntValue(String key) {
-        String str = (String) settingsHash.get(key);
-        if (str == null)
+    public int getIntValue(final String key) {
+        final String str = (String) settingsHash.get(key);
+        if (str == null) {
             return 0;
+        }
         int val = 0;
         try {
             val = Integer.parseInt(str);
-        } catch (NumberFormatException e) {
+        } catch (final NumberFormatException e) {
             return getIntValue(getDefaultValue(key));
-        } catch (Exception e) {
+        } catch (final Exception e) {
             return 0;
         }
         return val;
     }
 
-    public long getLongValue(String key) {
-        String str = (String) settingsHash.get(key);
-        if (str == null)
+    public long getLongValue(final String key) {
+        final String str = (String) settingsHash.get(key);
+        if (str == null) {
             return 0L;
+        }
         long val = 0L;
         try {
             val = Long.parseLong(str);
-        } catch (NumberFormatException e) {
+        } catch (final NumberFormatException e) {
             return getLongValue(getDefaultValue(key));
-        } catch (Exception e) {
+        } catch (final Exception e) {
             return 0L;
         }
         return val;
     }
 
-    public float getFloatValue(String key) {
+    public float getFloatValue(final String key) {
         float val = 0.0f;
-        String str = (String) settingsHash.get(key);
-        if (str == null)
+        final String str = (String) settingsHash.get(key);
+        if (str == null) {
             return val;
+        }
         try {
             val = Float.parseFloat(str);
-        } catch (NumberFormatException e) {
+        } catch (final NumberFormatException e) {
             return getFloatValue(getDefaultValue(key));
-        } catch (Exception e) {
+        } catch (final Exception e) {
             return 0.0f;
         }
         return val;
     }
 
-    public void setValue(String key, String value) {
+    public void setValue(final String key, String value) {
         // for all dirs ensure correct separator chars and a separator checr at end of name
         if( key.endsWith(".dir") ) {
             value = setSystemFileSeparator(value);
         }
-        Object oldValue = settingsHash.get(key);
+        final Object oldValue = settingsHash.get(key);
         settingsHash.put(key, value);
         // Report the change to any registered listeners.
         firePropertyChange(key, oldValue, value);
     }
-    public void setValue(String key, Integer value) {
+    public void setValue(final String key, final Integer value) {
         setValue(key, String.valueOf(value));
     }
-    public void setValue(String key, int value) {
+    public void setValue(final String key, final int value) {
         setValue(key, String.valueOf(value));
     }
-    public void setValue(String key, long value) {
+    public void setValue(final String key, final long value) {
         setValue(key, String.valueOf(value));
     }
-    public void setValue(String key, Float value) {
+    public void setValue(final String key, final Float value) {
         setValue(key, String.valueOf(value));
     }
-    public void setValue(String key, float value) {
+    public void setValue(final String key, final float value) {
         setValue(key, String.valueOf(value));
     }
-    public void setValue(String key, Boolean value) {
+    public void setValue(final String key, final Boolean value) {
         setValue(key, String.valueOf(value));
     }
-    public void setValue(String key, boolean value) {
+    public void setValue(final String key, final boolean value) {
         setValue(key, String.valueOf(value));
     }
 
-    public void setObjectValue(String key, Object value) {
-        Object oldValue = settingsHash.get(key);
+    public void setObjectValue(final String key, final Object value) {
+        final Object oldValue = settingsHash.get(key);
         settingsHash.put(key, value);
         // Report the change to any registered listeners.
         firePropertyChange(key, oldValue, value);
@@ -734,10 +741,10 @@ public class SettingsClass implements Savable {
      */
     public void loadDefaults() {
         defaults = new Hashtable<String,Object>();
-        File fn = File.listRoots()[0];
+        final File fn = File.listRoots()[0];
 
         defaults.put(MIGRATE_VERSION, "0");
-        
+
         defaults.put(DB_CLEANUP_INTERVAL, "5");
         defaults.put(DB_CLEANUP_LASTRUN, "0");
 
@@ -748,19 +755,19 @@ public class SettingsClass implements Savable {
 //        defaults.put("archive.dir", "archive" + fs);
         defaults.put(DIR_TEMP, "localdata" + fs + "temp" + fs);
         defaults.put(DIR_LOCALDATA, "localdata" + fs);
-        
+
         defaults.put(DIR_DOWNLOAD, "downloads" + fs);
         defaults.put(DIR_LAST_USED, "." + fs);
 
         defaults.put(DISABLE_FILESHARING, "false");
         defaults.put(DISABLE_SPLASHSCREEN, "false");
-        
+
         defaults.put(STORAGE_STORE_INVALID_MESSAGES, "false");
-        
+
         defaults.put(ACCEPT_SIGNATURE_FORMAT_V1, "true");
-        
+
         defaults.put(REMEMBER_SHAREDFILE_DOWNLOADED, "true");
-        
+
         defaults.put(FCP2_USE_DDA, "true");
         defaults.put(FCP2_USE_PERSISTENCE, "true");
         defaults.put(FCP2_USE_ONE_CONNECTION_FOR_MESSAGES, "true");
@@ -770,21 +777,21 @@ public class SettingsClass implements Savable {
         defaults.put(FCP2_SET_TARGETFILENAME_FOR_MANUAL_PUT, "true");
 
         defaults.put(ALTERNATE_EDITOR_COMMAND, fn + "path" + fs + "to" + fs + "editor" + " %f");
-        defaults.put(BOARD_AUTOUPDATE_ENABLED, "true"); 
+        defaults.put(BOARD_AUTOUPDATE_ENABLED, "true");
         defaults.put(BOARD_AUTOUPDATE_CONCURRENT_UPDATES, "6"); // no. of concurrent updating boards in auto update
         defaults.put(BOARD_AUTOUPDATE_MIN_INTERVAL, "45"); // time in min to wait between start of updates for 1 board
-        
+
         defaults.put(BOARD_UPDATE_VISUALIZATION_ENABLED, "true");
         defaults.put(BOARD_UPDATE_VISUALIZATION_BGCOLOR_NOT_SELECTED, new Color(233, 233, 233)); // "type.color(233,233,233)"
         defaults.put(BOARD_UPDATE_VISUALIZATION_BGCOLOR_SELECTED, new Color(137, 137, 191)); // "type.color(137,137,191)"
-        
+
         defaults.put(MESSAGE_BLOCK_SUBJECT, "");
         defaults.put(MESSAGE_BLOCK_SUBJECT_ENABLED, "false");
-        defaults.put(MESSAGE_BLOCK_BODY, ""); 
+        defaults.put(MESSAGE_BLOCK_BODY, "");
         defaults.put(MESSAGE_BLOCK_BODY_ENABLED, "false");
         defaults.put(MESSAGE_BLOCK_BOARDNAME, "");
         defaults.put(MESSAGE_BLOCK_BOARDNAME_ENABLED, "false");
-        
+
         defaults.put(MESSAGE_HIDE_UNSIGNED, "false");
         defaults.put(MESSAGE_HIDE_BAD, "false");
         defaults.put(MESSAGE_HIDE_CHECK, "false");
@@ -808,7 +815,7 @@ public class SettingsClass implements Savable {
         defaults.put(MAX_MESSAGE_DISPLAY, "15");
         defaults.put(MAX_MESSAGE_DOWNLOAD, "5");
         defaults.put(ALWAYS_DOWNLOAD_MESSAGES_BACKLOAD, "false");
-        
+
         defaults.put(MIN_DAYS_BEFORE_FILE_RESHARE, "3"); // reshare all 3 days
         defaults.put(MAX_FILELIST_DOWNLOAD_DAYS, "5"); // download backward 5 days
 
@@ -817,10 +824,10 @@ public class SettingsClass implements Savable {
 
         defaults.put(SHOW_SYSTRAY_ICON, "true");
         defaults.put(MINIMIZE_TO_SYSTRAY, "false");
-        
+
         defaults.put(DOWNLOAD_REMOVE_FINISHED, "false");
         defaults.put(UPLOAD_REMOVE_FINISHED, "false");
-        
+
         defaults.put(SEARCH_MAX_RESULTS, "10000");
         defaults.put(SEARCH_HIDE_BAD, "true");
         defaults.put(SEARCH_HIDE_CHECK, "false");
@@ -830,24 +837,24 @@ public class SettingsClass implements Savable {
         defaults.put(DOWNLOAD_MAX_SPLITFILE_THREADS, "30");
         defaults.put(UPLOAD_MAX_SPLITFILE_THREADS, "15");
         defaults.put(UPLOAD_REMOVE_CHUNKS, "true");
-        
+
         defaults.put(GQ_SHOW_EXTERNAL_ITEMS_DOWNLOAD, "false");
         defaults.put(GQ_SHOW_EXTERNAL_ITEMS_UPLOAD, "false");
-        
+
         defaults.put(MESSAGE_DOWNLOAD_HTL, "23");
         defaults.put(BOARDLIST_LAST_SELECTED_BOARD, "0");
         defaults.put(MESSAGE_UPLOAD_HTL, "21"); // HTL_MESSAGE_UPLOAD
         defaults.put(UPLOAD_MAX_THREADS, "3");
         defaults.put(ALTERNATE_EDITOR_ENABLED, "false");
         defaults.put(LAST_USED_FROMNAME, "Anonymous");
-        defaults.put(FILEEXTENSION_AUDIO, ".mp3;.ogg;.wav;.mid;.mod;.flac;.sid"); 
-        defaults.put(FILEEXTENSION_VIDEO, ".mpeg;.mpg;.avi;.divx;.asf;.wmv;.rm;.ogm;.mov"); 
-        defaults.put(FILEEXTENSION_DOCUMENT, ".doc;.txt;.tex;.pdf;.dvi;.ps;.odt;.sxw;.sdw;.rtf;.pdb;.psw"); 
-        defaults.put(FILEEXTENSION_EXECUTABLE, ".exe;.vbs;.jar;.sh;.bat;.bin"); 
-        defaults.put(FILEEXTENSION_ARCHIVE, ".zip;.rar;.jar;.gz;.arj;.ace;.bz;.tar;.tgz;.tbz"); 
-        defaults.put(FILEEXTENSION_IMAGE, ".jpeg;.jpg;.jfif;.gif;.png;.tif;.tiff;.bmp;.xpm"); 
+        defaults.put(FILEEXTENSION_AUDIO, ".mp3;.ogg;.wav;.mid;.mod;.flac;.sid");
+        defaults.put(FILEEXTENSION_VIDEO, ".mpeg;.mpg;.avi;.divx;.asf;.wmv;.rm;.ogm;.mov");
+        defaults.put(FILEEXTENSION_DOCUMENT, ".doc;.txt;.tex;.pdf;.dvi;.ps;.odt;.sxw;.sdw;.rtf;.pdb;.psw");
+        defaults.put(FILEEXTENSION_EXECUTABLE, ".exe;.vbs;.jar;.sh;.bat;.bin");
+        defaults.put(FILEEXTENSION_ARCHIVE, ".zip;.rar;.jar;.gz;.arj;.ace;.bz;.tar;.tgz;.tbz");
+        defaults.put(FILEEXTENSION_IMAGE, ".jpeg;.jpg;.jfif;.gif;.png;.tif;.tiff;.bmp;.xpm");
         defaults.put(AUTO_SAVE_INTERVAL, "60");
-        
+
         defaults.put(MESSAGE_UPLOAD_DISABLED, "false");
 
         defaults.put(MESSAGE_EXPIRE_DAYS, "90");
@@ -865,7 +872,7 @@ public class SettingsClass implements Savable {
         defaults.put(MAINFRAME_LAST_X, "50"); // "lastFramePosX"
         defaults.put(MAINFRAME_LAST_Y, "50"); // "lastFramePosY"
         defaults.put(MAINFRAME_LAST_MAXIMIZED, "false"); // "lastFrameMaximized"
-        
+
         defaults.put(MESSAGE_BODY_FONT_NAME, "Monospaced");
         defaults.put(MESSAGE_BODY_FONT_STYLE, new Integer(Font.PLAIN).toString());
         defaults.put(MESSAGE_BODY_FONT_SIZE, "12");
@@ -880,9 +887,9 @@ public class SettingsClass implements Savable {
         defaults.put(MSGTABLE_MULTILINE_SELECT, "false");
         defaults.put(MSGTABLE_SCROLL_HORIZONTAL, "false");
         defaults.put(MSGTABLE_SHOW_COLLAPSED_THREADS, "false");
-        
+
         defaults.put(SAVE_SORT_STATES, "false");
-        
+
         defaults.put(SHOW_BOARDDESC_TOOLTIPS, "true");
         defaults.put(PREVENT_BOARDTREE_REORDERING, "false");
         defaults.put(SHOW_BOARDTREE_FLAGGEDSTARRED_INDICATOR, "true");
@@ -892,7 +899,7 @@ public class SettingsClass implements Savable {
         defaults.put(LOG_TO_FILE, "true");
         defaults.put(LOG_LEVEL, Logging.DEFAULT);
         defaults.put(LOG_FILE_SIZE_LIMIT, "1000");
-        
+
         defaults.put(LOG_FCP2_MESSAGES, "false");
         defaults.put(LOG_FILEBASE_MESSAGES, "false");
 
@@ -905,13 +912,15 @@ public class SettingsClass implements Savable {
         defaults.put(SHOW_THREADS, "true");
         defaults.put(HANDLE_OWN_MESSAGES_AS_NEW_DISABLED, "false");
         defaults.put(SORT_THREADROOTMSGS_ASCENDING, "false");
-        
+
         defaults.put(SHOW_COLORED_ROWS, "true");
         defaults.put(SHOW_SMILEYS, "true");
         defaults.put(SHOW_KEYS_AS_HYPERLINKS, "true");
-        
+
         defaults.put(LOG_DOWNLOADS_ENABLED, "false");
         defaults.put(LOG_UPLOADS_ENABLED, "false");
+
+        defaults.put(CONFIRM_MARK_ALL_MSGS_READ, "true");
 
         settingsHash.putAll(defaults);
     }
@@ -924,7 +933,7 @@ public class SettingsClass implements Savable {
      */
     public void save() throws StorageException {
         if (updaters != null) {
-            Enumeration<SettingsUpdater> enumeration = updaters.elements();
+            final Enumeration<SettingsUpdater> enumeration = updaters.elements();
             while (enumeration.hasMoreElements()) {
                 enumeration.nextElement().updateSettings();
             }

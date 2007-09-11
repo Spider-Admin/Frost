@@ -34,6 +34,7 @@ import frost.messages.*;
 import frost.storage.*;
 import frost.storage.perst.messages.*;
 import frost.util.*;
+import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
 /**
@@ -102,13 +103,14 @@ public class TOF {
 
         if (node.isBoard()) {
             if( confirm ) {
-                // FIXME: provide checkbox 'Do not show this dialog again'
-                final int answer = JOptionPane.showConfirmDialog(
+                final int answer = MiscToolkit.showSuppressableConfirmDialog(
                         MainFrame.getInstance(),
                         language.formatMessage("TOF.markAllReadConfirmation.board.content", node.getName()),
                         language.getString("TOF.markAllReadConfirmation.board.title"),
                         JOptionPane.YES_NO_OPTION,
-                        JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.WARNING_MESSAGE,
+                        SettingsClass.CONFIRM_MARK_ALL_MSGS_READ,
+                        language.getString("Common.suppressConfirmationCheckbox") );
                 if( answer != JOptionPane.YES_OPTION) {
                     return;
                 }
@@ -116,12 +118,14 @@ public class TOF {
             setAllMessagesRead((Board)node);
         } else if(node.isFolder()) {
             if( confirm ) {
-                final int answer = JOptionPane.showConfirmDialog(
+                final int answer = MiscToolkit.showSuppressableConfirmDialog(
                         MainFrame.getInstance(),
                         language.formatMessage("TOF.markAllReadConfirmation.folder.content", node.getName()),
                         language.getString("TOF.markAllReadConfirmation.folder.title"),
                         JOptionPane.YES_NO_OPTION,
-                        JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.WARNING_MESSAGE,
+                        SettingsClass.CONFIRM_MARK_ALL_MSGS_READ,
+                        language.getString("Common.suppressConfirmationCheckbox") );
                 if( answer != JOptionPane.YES_OPTION) {
                     return;
                 }
