@@ -24,6 +24,7 @@ import java.util.logging.*;
 
 import javax.swing.*;
 
+import frost.*;
 import frost.util.gui.translation.*;
 
 /**
@@ -36,7 +37,7 @@ public class MiscToolkit {
 	private static MiscToolkit instance = new MiscToolkit();
 
 	private static final Logger logger = Logger.getLogger(MiscToolkit.class.getName());
-	
+
 	/**
 	 * Return the unique instance of this class.
 	 * @return the unique instance of this class
@@ -52,12 +53,12 @@ public class MiscToolkit {
 	}
 
 	/**
-	 * Configures a button to be a default icon button, setting its rollover icon 
+	 * Configures a button to be a default icon button, setting its rollover icon
 	 * and some other default properties.
 	 * @param button the button to configure
 	 * @param rolloverIcon displayed icon when mouse arrow is over button
 	 */
-	public void configureButton(JButton button, String rolloverIcon) {
+	public void configureButton(final JButton button, final String rolloverIcon) {
 		button.setRolloverIcon(new ImageIcon(getClass().getResource(rolloverIcon)));
 		button.setMargin(new Insets(0, 0, 0, 0));
         button.setPreferredSize(new Dimension(30,25));
@@ -75,15 +76,15 @@ public class MiscToolkit {
      * @param language language to extract the tooltip text from
      */
 	public void configureButton(
-		JButton button,
-		String toolTipKey,
-		String rolloverIcon,
-		Language language) {
+		final JButton button,
+		final String toolTipKey,
+		final String rolloverIcon,
+		final Language language) {
 
 		String text = null;
 		try {
 			text = language.getString(toolTipKey);
-		} catch (MissingResourceException ex) {
+		} catch (final MissingResourceException ex) {
             ex.printStackTrace();
 			logger.severe("Missing resource in configureButton method: " + toolTipKey);
 			text = toolTipKey; // better than nothing ;)
@@ -92,7 +93,7 @@ public class MiscToolkit {
 
 		configureButton(button, rolloverIcon);
 	}
-	
+
 	/**
 	 * This method loads an image from the given resource path and scales it to
 	 * the dimensions passed as parameters.
@@ -101,7 +102,7 @@ public class MiscToolkit {
 	 * @param height height to scale the image to.
 	 * @return an ImageIcon containing the image.
 	 */
-	public ImageIcon getScaledImage(String imgPath, int width, int height) {
+	public ImageIcon getScaledImage(final String imgPath, final int width, final int height) {
 		ImageIcon icon = new ImageIcon(getClass().getResource(imgPath));
 		icon = new ImageIcon(icon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH));
 		return icon;
@@ -112,12 +113,12 @@ public class MiscToolkit {
 	 * If the container contains other containers, the subcomponents of those
 	 * are enabled/disabled recursively.
 	 * @param container
-	 * @param enabled 
+	 * @param enabled
 	 */
-	public void setContainerEnabled(Container container, boolean enabled) {
-		int componentCount = container.getComponentCount();
+	public void setContainerEnabled(final Container container, final boolean enabled) {
+		final int componentCount = container.getComponentCount();
 		for (int x = 0; x < componentCount; x++) {
-			Component component = container.getComponent(x);
+			final Component component = container.getComponent(x);
 			if (component instanceof Container) {
 				setContainerEnabledInner((Container) component, enabled);
 			} else {
@@ -132,13 +133,13 @@ public class MiscToolkit {
 	 * are enabled/disabled recursively.
 	 * All of the components in the exceptions collection are ignored in this process.
 	 * @param container
-	 * @param enabled 
+	 * @param enabled
 	 * @param exceptions the components to ignore
 	 */
-	public void setContainerEnabled(Container container, boolean enabled, Collection exceptions) {
-		int componentCount = container.getComponentCount();
+	public void setContainerEnabled(final Container container, final boolean enabled, final Collection exceptions) {
+		final int componentCount = container.getComponentCount();
 		for (int x = 0; x < componentCount; x++) {
-			Component component = container.getComponent(x);
+			final Component component = container.getComponent(x);
 			if (!exceptions.contains(component)) {
 				if (component instanceof Container) {
 					setContainerEnabledInner((Container) component, enabled, exceptions);
@@ -153,10 +154,10 @@ public class MiscToolkit {
 	 * @param container
 	 * @param enabled
 	 */
-	private void setContainerEnabledInner(Container container, boolean enabled) {
-		int componentCount = container.getComponentCount();
+	private void setContainerEnabledInner(final Container container, final boolean enabled) {
+		final int componentCount = container.getComponentCount();
 		for (int x = 0; x < componentCount; x++) {
-			Component component = container.getComponent(x);
+			final Component component = container.getComponent(x);
 			if (component instanceof Container) {
 				setContainerEnabledInner((Container) component, enabled);
 			} else {
@@ -172,13 +173,13 @@ public class MiscToolkit {
 	 * @param exceptions
 	 */
 	private void setContainerEnabledInner(
-		Container container,
-		boolean enabled,
-		Collection exceptions) {
-			
-		int componentCount = container.getComponentCount();
+		final Container container,
+		final boolean enabled,
+		final Collection exceptions) {
+
+		final int componentCount = container.getComponentCount();
 		for (int x = 0; x < componentCount; x++) {
-			Component component = container.getComponent(x);
+			final Component component = container.getComponent(x);
 			if (!exceptions.contains(component)) {
 				if (component instanceof Container) {
 					setContainerEnabledInner((Container) component, enabled, exceptions);
@@ -191,16 +192,16 @@ public class MiscToolkit {
 	}
 
 	/**
-	 * This method shows a message in a JDialog. It creates a dummy frame 
+	 * This method shows a message in a JDialog. It creates a dummy frame
 	 * so that when the dialog pops up, something appears on the task bar too.
 	 * @param message the message to show
 	 * @param type the type of JDialog
 	 * @param title the title of the JDialog
 	 */
-	public void showMessage(String message, int type, String title) {
-		JFrame frame = new JFrame();
+	public void showMessage(final String message, final int type, final String title) {
+		final JFrame frame = new JFrame();
 		frame.setTitle("Frost");
-		Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+		final Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
 		frame.setLocation(dimension.width / 2, dimension.height / 2);
 		frame.setUndecorated(true);
 		frame.setVisible(true);
@@ -208,7 +209,7 @@ public class MiscToolkit {
 		JOptionPane.showMessageDialog(frame, message, title, type);
 		frame.dispose();
 	}
-	
+
 	/**
 	 * This method shows a dialog requesting input from the user. It creates
 	 * a dummy frame so that when the dialog pops up, something appears on
@@ -216,25 +217,25 @@ public class MiscToolkit {
 	 * @param message the message to show
 	 * @return the text the user has input
 	 */
-	public String showInputDialog(Object message) {
-		JFrame frame = new JFrame();
+	public String showInputDialog(final Object message) {
+		final JFrame frame = new JFrame();
 		frame.setTitle("Frost");
-		Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+		final Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
 		frame.setLocation(dimension.width / 2, dimension.height / 2);
 		frame.setUndecorated(true);
 		frame.setVisible(true);
 		frame.toFront();
-		String returnValue = JOptionPane.showInputDialog(frame, message);
+		final String returnValue = JOptionPane.showInputDialog(frame, message);
 		frame.dispose();
 		return returnValue;
 	}
-    
-    public int showConfirmDialog(Component parentComponent, Object message, String title, int optionType, int messageType) {
+
+    public int showConfirmDialog(final Component parentComponent, final Object message, final String title, final int optionType, final int messageType) {
         /*
     int answer = JOptionPane.showConfirmDialog(
-            MainFrame.getInstance(), 
-            language.formatMessage("TOF.markAllReadConfirmation.board.content", node.getName()), 
-            language.getString("TOF.markAllReadConfirmation.board.title"), 
+            MainFrame.getInstance(),
+            language.formatMessage("TOF.markAllReadConfirmation.board.content", node.getName()),
+            language.getString("TOF.markAllReadConfirmation.board.title"),
             JOptionPane.YES_NO_OPTION,
             JOptionPane.WARNING_MESSAGE);
         */
@@ -242,5 +243,57 @@ public class MiscToolkit {
         // JOptionPane.YES_NO_CANCEL_OPTION,
 
         return JOptionPane.showConfirmDialog(parentComponent, message, title, optionType, messageType);
+    }
+
+    /**
+     * Shows a confirmation dialog which can be suppressed by the user.
+     * All parameters are like for JOptionPane.showConfirmDialog().
+     *
+     * @param frostSettingName  The name of the boolean setting, like 'confirm.markAllMessagesRead'
+     * @param checkboxText      The text for the checkbox, like 'Show this dialog the next time'
+     * @return
+     */
+    public static int showSuppressableConfirmDialog(
+            final Component parentComponent,
+            final Object message,
+            final String title,
+            final int optionType,
+            final int messageType,
+            final String frostSettingName,
+            final String checkboxText)
+    {
+        final boolean showConfirmDialog = Core.frostSettings.getBoolValue(frostSettingName);
+        if( !showConfirmDialog ) {
+            return JOptionPane.CLOSED_OPTION;
+        }
+
+        final JOptionPane op = new JOptionPane(message, messageType, optionType);
+
+        final JDialog dlg = op.createDialog(parentComponent, title);
+
+        final JCheckBox cb = new JCheckBox(checkboxText);
+        cb.setSelected(true);
+        dlg.getContentPane().add(cb, BorderLayout.SOUTH);
+        dlg.pack();
+
+        dlg.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dlg.setModal(true);
+        dlg.setVisible(true);
+
+        if( !cb.isSelected() ) {
+            // user wants to suppress this dialog in the future
+            Core.frostSettings.setValue(frostSettingName, false);
+        }
+
+        dlg.dispose();
+
+        final Object selectedValue = op.getValue();
+        if( selectedValue == null ) {
+            return JOptionPane.CLOSED_OPTION;
+        }
+        if( selectedValue instanceof Integer ) {
+            return ((Integer) selectedValue).intValue();
+        }
+        return JOptionPane.CLOSED_OPTION;
     }
 }

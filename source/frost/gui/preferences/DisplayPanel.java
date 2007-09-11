@@ -22,11 +22,11 @@ import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
+import javax.swing.border.*;
 
-import frost.SettingsClass;
+import frost.*;
 import frost.util.gui.*;
-import frost.util.gui.translation.Language;
+import frost.util.gui.translation.*;
 
 /**
  * Display Panel. Contains appereance options
@@ -34,7 +34,7 @@ import frost.util.gui.translation.Language;
 class DisplayPanel extends JPanel {
 
     public class Listener implements ActionListener {
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(final ActionEvent e) {
             if (e.getSource() == messageBodyButton) {
                 messageBodyButtonPressed();
             }
@@ -51,24 +51,26 @@ class DisplayPanel extends JPanel {
     private SettingsClass settings = null;
     private Language language = null;
 
-    private Listener listener = new Listener();
+    private final Listener listener = new Listener();
 
-    private JLabel fontsLabel = new JLabel();
+    private final JLabel fontsLabel = new JLabel();
 
-    private JCheckBox saveSortStatesCheckBox = new JCheckBox();
-    private JCheckBox showColoredRowsCheckBox = new JCheckBox();
+    private final JCheckBox saveSortStatesCheckBox = new JCheckBox();
+    private final JCheckBox showColoredRowsCheckBox = new JCheckBox();
 
-    private JLabel messageBodyLabel = new JLabel();
-    private JLabel fileListLabel = new JLabel();
-    private JLabel messageListLabel = new JLabel();
+    private final JCheckBox confirmMarkAllMsgsReadCheckBox = new JCheckBox();
 
-    private JButton fileListButton = new JButton();
-    private JButton messageListButton = new JButton();
-    private JButton messageBodyButton = new JButton();
+    private final JLabel messageBodyLabel = new JLabel();
+    private final JLabel fileListLabel = new JLabel();
+    private final JLabel messageListLabel = new JLabel();
 
-    private JLabel selectedFileListFontLabel = new JLabel();
-    private JLabel selectedMessageBodyFontLabel = new JLabel();
-    private JLabel selectedMessageListFontLabel = new JLabel();
+    private final JButton fileListButton = new JButton();
+    private final JButton messageListButton = new JButton();
+    private final JButton messageBodyButton = new JButton();
+
+    private final JLabel selectedFileListFontLabel = new JLabel();
+    private final JLabel selectedMessageBodyFontLabel = new JLabel();
+    private final JLabel selectedMessageListFontLabel = new JLabel();
 
     private Font selectedBodyFont = null;
     private Font selectedFileListFont = null;
@@ -78,7 +80,7 @@ class DisplayPanel extends JPanel {
      * @param owner the JDialog that will be used as owner of any dialog that is popped up from this panel
      * @param settings the SettingsClass instance that will be used to get and store the settings of the panel
      */
-    protected DisplayPanel(JDialog owner, SettingsClass settings) {
+    protected DisplayPanel(final JDialog owner, final SettingsClass settings) {
         super();
 
         this.owner = owner;
@@ -93,22 +95,22 @@ class DisplayPanel extends JPanel {
     }
 
     private void fileListButtonPressed() {
-        FontChooser fontChooser = new FontChooser(owner, language);
+        final FontChooser fontChooser = new FontChooser(owner, language);
         fontChooser.setModal(true);
         fontChooser.setSelectedFont(selectedFileListFont);
         fontChooser.setVisible(true);
-        Font selectedFontTemp = fontChooser.getSelectedFont();
+        final Font selectedFontTemp = fontChooser.getSelectedFont();
         if (selectedFontTemp != null) {
             selectedFileListFont = selectedFontTemp;
             selectedFileListFontLabel.setText(getFontLabel(selectedFileListFont));
         }
     }
 
-    private String getFontLabel(Font font) {
+    private String getFontLabel(final Font font) {
         if (font == null) {
             return "";
         } else {
-            StringBuilder returnValue = new StringBuilder();
+            final StringBuilder returnValue = new StringBuilder();
             returnValue.append(font.getFamily());
             if (font.isBold()) {
                 returnValue.append(" " + language.getString("Options.display.fontChooser.bold"));
@@ -122,12 +124,12 @@ class DisplayPanel extends JPanel {
     }
 
     private JPanel getFontsPanel() {
-        JPanel fontsPanel = new JPanel(new GridBagLayout());
+        final JPanel fontsPanel = new JPanel(new GridBagLayout());
         fontsPanel.setBorder(new EmptyBorder(5, 20, 5, 5));
-        GridBagConstraints constraints = new GridBagConstraints();
+        final GridBagConstraints constraints = new GridBagConstraints();
         constraints.anchor = GridBagConstraints.NORTHWEST;
-        Insets inset1515 = new Insets(1, 5, 1, 5);
-        Insets inset1519 = new Insets(1, 5, 1, 9);
+        final Insets inset1515 = new Insets(1, 5, 1, 5);
+        final Insets inset1519 = new Insets(1, 5, 1, 9);
 
         constraints.insets = inset1515;
         constraints.gridx = 0;
@@ -182,13 +184,13 @@ class DisplayPanel extends JPanel {
         refreshLanguage();
 
         //Adds all of the components
-        GridBagConstraints constraints = new GridBagConstraints();
+        final GridBagConstraints constraints = new GridBagConstraints();
         constraints.anchor = GridBagConstraints.NORTHWEST;
         constraints.fill = GridBagConstraints.BOTH;
         constraints.weightx = 1;
-        Insets inset5511 = new Insets(5, 5, 1, 1);
-        Insets insets2 = new Insets(15,5,1,1);
-        
+        final Insets inset5511 = new Insets(5, 5, 1, 1);
+        final Insets insets2 = new Insets(15,5,1,1);
+
         constraints.insets = inset5511;
         constraints.gridx = 0;
         constraints.gridy = 0;
@@ -196,9 +198,9 @@ class DisplayPanel extends JPanel {
 
         constraints.gridy++;
         add(getFontsPanel(), constraints);
-        
+
         constraints.insets = insets2;
-        
+
         constraints.gridy++;
         add(showColoredRowsCheckBox, constraints);
 
@@ -206,6 +208,10 @@ class DisplayPanel extends JPanel {
 
         constraints.gridy++;
         add(saveSortStatesCheckBox, constraints);
+
+        constraints.insets = insets2;
+        constraints.gridy++;
+        add(confirmMarkAllMsgsReadCheckBox, constraints);
 
         constraints.gridy++;
         constraints.weighty = 1.0;
@@ -242,14 +248,15 @@ class DisplayPanel extends JPanel {
 
         saveSortStatesCheckBox.setSelected(settings.getBoolValue(SettingsClass.SAVE_SORT_STATES));
         showColoredRowsCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS));
+        confirmMarkAllMsgsReadCheckBox.setSelected(settings.getBoolValue(SettingsClass.CONFIRM_MARK_ALL_MSGS_READ));
     }
 
     private void messageBodyButtonPressed() {
-        FontChooser fontChooser = new FontChooser(owner, language);
+        final FontChooser fontChooser = new FontChooser(owner, language);
         fontChooser.setModal(true);
         fontChooser.setSelectedFont(selectedBodyFont);
         fontChooser.setVisible(true);
-        Font selectedFontTemp = fontChooser.getSelectedFont();
+        final Font selectedFontTemp = fontChooser.getSelectedFont();
         if (selectedFontTemp != null) {
             selectedBodyFont = selectedFontTemp;
             selectedMessageBodyFontLabel.setText(getFontLabel(selectedBodyFont));
@@ -257,11 +264,11 @@ class DisplayPanel extends JPanel {
     }
 
     private void messageListButtonPressed() {
-        FontChooser fontChooser = new FontChooser(owner, language);
+        final FontChooser fontChooser = new FontChooser(owner, language);
         fontChooser.setModal(true);
         fontChooser.setSelectedFont(selectedMessageListFont);
         fontChooser.setVisible(true);
-        Font selectedFontTemp = fontChooser.getSelectedFont();
+        final Font selectedFontTemp = fontChooser.getSelectedFont();
         if (selectedFontTemp != null) {
             selectedMessageListFont = selectedFontTemp;
             selectedMessageListFontLabel.setText(getFontLabel(selectedMessageListFont));
@@ -273,7 +280,7 @@ class DisplayPanel extends JPanel {
     }
 
     private void refreshLanguage() {
-        String choose = language.getString("Options.display.choose");
+        final String choose = language.getString("Options.display.choose");
         fontsLabel.setText(language.getString("Options.display.fonts"));
         messageBodyLabel.setText(language.getString("Options.display.messageBody"));
         messageBodyButton.setText(choose);
@@ -286,6 +293,7 @@ class DisplayPanel extends JPanel {
         selectedFileListFontLabel.setText(getFontLabel(selectedFileListFont));
         saveSortStatesCheckBox.setText(language.getString("Options.display.saveSortStates"));
         showColoredRowsCheckBox.setText(language.getString("Options.display.showColoredRows"));
+        confirmMarkAllMsgsReadCheckBox.setText(language.getString("Options.display.confirmMarkAllMsgsRead"));
     }
 
     /**
@@ -309,5 +317,6 @@ class DisplayPanel extends JPanel {
         }
         settings.setValue(SettingsClass.SAVE_SORT_STATES, saveSortStatesCheckBox.isSelected());
         settings.setValue(SettingsClass.SHOW_COLORED_ROWS, showColoredRowsCheckBox.isSelected());
+        settings.setValue(SettingsClass.CONFIRM_MARK_ALL_MSGS_READ, confirmMarkAllMsgsReadCheckBox.isSelected());
     }
 }
