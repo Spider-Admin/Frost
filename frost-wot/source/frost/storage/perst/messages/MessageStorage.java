@@ -210,6 +210,8 @@ public class MessageStorage implements Savable {
         boardToRemove.getSentMessagesList().clear();
         removeAll(boardToRemove.getUnsentMessagesList().iterator());
         boardToRemove.getUnsentMessagesList().clear();
+        removeAll(boardToRemove.getDraftMessagesList().iterator());
+        boardToRemove.getDraftMessagesList().clear();
 
         storageRoot.getBoardsByName().remove( boardToRemove );
         storageRoot.getBoardsById().remove( boardToRemove );

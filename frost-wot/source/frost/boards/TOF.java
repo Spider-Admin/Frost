@@ -102,6 +102,7 @@ public class TOF {
 
         if (node.isBoard()) {
             if( confirm ) {
+                // FIXME: provide checkbox 'Do not show this dialog again'
                 final int answer = JOptionPane.showConfirmDialog(
                         MainFrame.getInstance(),
                         language.formatMessage("TOF.markAllReadConfirmation.board.content", node.getName()),
@@ -126,9 +127,9 @@ public class TOF {
                 }
             }
             // process all childs recursive
-            final Enumeration leafs = node.children();
+            final Enumeration<AbstractNode> leafs = node.children();
             while (leafs.hasMoreElements()) {
-                markAllMessagesRead((AbstractNode)leafs.nextElement(), false);
+                markAllMessagesRead(leafs.nextElement(), false);
             }
         }
     }

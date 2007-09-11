@@ -28,7 +28,7 @@ import frost.boards.*;
 public class PerstFrostBoardObject extends Persistent {
 
     transient Board refBoard = null;
-    
+
     String boardName;
     int boardId;
 
@@ -36,26 +36,27 @@ public class PerstFrostBoardObject extends Persistent {
     private Index<PerstFrostMessageObject> messageIdIndex; // key is messageId, only valid msgs
 
     // key is msgdatetime; only valid msgs; only unread msgs; msgs are in messageIndex too!
-    private Index<PerstFrostMessageObject> unreadMessageIndex; 
+    private Index<PerstFrostMessageObject> unreadMessageIndex;
     // key is msgdatetime; only valid msgs; only flagged or starred msgs; msgs are in messageIndex too!
-    private Index<PerstFrostMessageObject> flaggedMessageIndex; 
-    private Index<PerstFrostMessageObject> starredMessageIndex; 
+    private Index<PerstFrostMessageObject> flaggedMessageIndex;
+    private Index<PerstFrostMessageObject> starredMessageIndex;
 
     private Index<PerstFrostMessageObject> invalidMessagesIndex; // key is msgdatetime; only invalid msgs if stored
-    
+
     private IPersistentList<PerstFrostMessageObject> sentMessagesList;
     private IPersistentList<PerstFrostUnsentMessageObject> unsentMessagesList;
-    
+    private IPersistentList<PerstFrostUnsentMessageObject> draftMessagesList;
+
     public PerstFrostBoardObject() {}
-    
-    public PerstFrostBoardObject(Storage storage, String name, int id) {
+
+    public PerstFrostBoardObject(final Storage storage, final String name, final int id) {
         boardName = name;
         boardId = id;
 
         // index of msgDateTime
         messageIndex = storage.createIndex(long.class, false);
         invalidMessagesIndex = storage.createIndex(long.class, false);
-        
+
         unreadMessageIndex = storage.createIndex(long.class, false);
         flaggedMessageIndex = storage.createIndex(long.class, false);
         starredMessageIndex = storage.createIndex(long.class, false);
@@ -65,8 +66,9 @@ public class PerstFrostBoardObject extends Persistent {
 
         sentMessagesList = storage.createScalableList();
         unsentMessagesList = storage.createScalableList();
+        draftMessagesList = storage.createScalableList();
     }
-    
+
     @Override
     public void deallocate() {
         if( messageIndex != null ) {
@@ -100,6 +102,10 @@ public class PerstFrostBoardObject extends Persistent {
         if( unsentMessagesList != null ) {
             unsentMessagesList.deallocate();
             unsentMessagesList = null;
+        }
+        if( draftMessagesList != null ) {
+            draftMessagesList.deallocate();
+            draftMessagesList = null;
         }
         super.deallocate();
     }
@@ -145,20 +151,24 @@ public class PerstFrostBoardObject extends Persistent {
     public Index<PerstFrostMessageObject> getMessageIdIndex() {
         return messageIdIndex;
     }
-    
+
     public IPersistentList<PerstFrostMessageObject> getSentMessagesList() {
         return sentMessagesList;
     }
-    
+
     public IPersistentList<PerstFrostUnsentMessageObject> getUnsentMessagesList() {
         return unsentMessagesList;
+    }
+
+    public IPersistentList<PerstFrostUnsentMessageObject> getDraftMessagesList() {
+        return draftMessagesList;
     }
 
     public Board getRefBoard() {
         return refBoard;
     }
 
-    public void setRefBoard(Board refBoard) {
+    public void setRefBoard(final Board refBoard) {
         this.refBoard = refBoard;
     }
 }
