@@ -25,6 +25,8 @@ import org.garret.perst.StorageFactory;
 
 import frost.MainFrame;
 import frost.SettingsClass;
+import frost.fcp.FcpHandler;
+import frost.fcp.NodeAddress;
 import frost.gui.MessageFrame;
 
 /**
@@ -35,11 +37,14 @@ public class PluginRespinator {
 	
 	private final SettingsClass frostSettings;
 	private final MainFrame mainFrame;
+	private final PluginInfo pluginInfo;
+	
 	private Storage storage = null;
 	
-	protected PluginRespinator (SettingsClass frostsettings,	MainFrame mainframe) {
+	protected PluginRespinator (PluginInfo plugininfo, SettingsClass frostsettings,	MainFrame mainframe) {
 		frostSettings = frostsettings;
 		mainFrame = mainframe;
+		pluginInfo = plugininfo;
 	}
 	
 	public void makeNewMessage(String boardname, String subject, String text) {
@@ -54,12 +59,21 @@ public class PluginRespinator {
 		sdir.mkdirs();
 		
 		String databaseFilePath = sdir.getAbsolutePath() + '/' + storagename + ".dbs";
-		if (storage == null) {
-			storage = StorageFactory.getInstance().createStorage();
-			storage.setProperty("perst.serialize.transient.objects", Boolean.TRUE); // serialize BitSets
-			storage.setProperty("perst.concurrent.iterator", Boolean.TRUE); // remove() during iteration (for cleanup)
-			storage.open(databaseFilePath, pagePoolSize);
-		}
+		
+		storage = StorageFactory.getInstance().createStorage();
+		
+		storage.setProperty("perst.serialize.transient.objects", Boolean.TRUE); // serialize BitSets
+		storage.setProperty("perst.concurrent.iterator", Boolean.TRUE); // remove() during iteration (for cleanup)
+		
+		storage.setClassLoader(pluginInfo.getClassLoader());
+		
+		storage.open(databaseFilePath, pagePoolSize);
+		
 		return storage;
+	}
+	
+	public String getFCPAdress() {
+		NodeAddress na = FcpHandler.inst().getNodes().get(0);
+		return na.hostName + ':' + na.port;
 	}
 }

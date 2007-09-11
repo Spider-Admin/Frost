@@ -292,7 +292,7 @@ public class PluginManager {
 	public void startPlugin(PluginInfo pi) {
 		logger.log(Level.SEVERE, "TODO start plugin"
 				+ pi.getUrl().toExternalForm());
-		PluginRespinator pr = new PluginRespinator(frostSettings, mainFrame);
+		PluginRespinator pr = new PluginRespinator(pi, frostSettings, mainFrame);
 		FrostPlugin fp = pi.getPlugin();
 		fp.startPlugin(pr);
 		pi.setIsRunning(true);

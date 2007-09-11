@@ -96,5 +96,9 @@ public class PluginInfo {
 	protected void setPluginNames(HashMap names) {
 		pluginnames = names;		
 	}
+	
+	protected ClassLoader getClassLoader() {
+		return pluginClass.getClass().getClassLoader();
+	}
 
 }
