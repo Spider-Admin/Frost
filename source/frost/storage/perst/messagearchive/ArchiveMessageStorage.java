@@ -53,6 +53,10 @@ public class ArchiveMessageStorage implements Savable {
         return storage;
     }
 
+    public int gc() {
+        return getStorage().gc();
+    }
+
     public boolean initStorage() {
         final String databaseFilePath = "store/messageArchive.dbs"; // path to the database file
         final int pagePoolSize = PAGE_SIZE*1024*1024; // size of page pool in bytes
