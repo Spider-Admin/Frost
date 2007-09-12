@@ -293,8 +293,10 @@ public class Migrate1to2 {
                     String bname = (String)mo.getUserObject();
                     ms.insertMessage(mo, bname, false);
                     cnt++;
-                    if(cnt%100 == 0) {
+                    if(cnt%50 == 0) {
                         ms.commitStore();
+                        ms.gc();
+                        System.gc();
                         System.out.println("Committed after "+cnt+" archive messages");
                     }
                     return false;
