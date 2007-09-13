@@ -33,12 +33,16 @@ public class ProjectItem extends Persistent {
 	protected String announceTo = "test"; // FIXME change default to "sites" befor release
 	protected String announceFrom = "<anonymouse>";
 	
-	protected String keyType = "CHK";
+	protected String keyType = "USK";
 	protected String insertUri = null;
 	protected String sitePath = null;
 	protected int edition = 1;
 	
-	protected String insertCmd = "PDD";
+	protected boolean makePersistent = true;
+	
+	protected int insertCmd = 2;
+	
+	protected String jobIdentifier = null;
 
 	public ProjectItem() {
 	}
