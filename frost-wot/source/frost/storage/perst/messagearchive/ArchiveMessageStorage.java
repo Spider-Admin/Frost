@@ -23,6 +23,7 @@ import java.util.logging.*;
 
 import org.garret.perst.*;
 
+import frost.*;
 import frost.boards.*;
 import frost.messages.*;
 import frost.storage.*;
@@ -35,9 +36,6 @@ public class ArchiveMessageStorage extends AbstractFrostStorage implements Savab
     public static final int INSERT_OK        = 1;
     public static final int INSERT_DUPLICATE = 2;
     public static final int INSERT_ERROR     = 3;
-
-    // FIXME: adjust page size
-    private static final int PAGE_SIZE = 1; // page size for the storage in MB
 
     private ArchiveMessageStorageRoot storageRoot = null;
 
@@ -53,13 +51,8 @@ public class ArchiveMessageStorage extends AbstractFrostStorage implements Savab
 
     @Override
     public boolean initStorage() {
-        final int pagePoolSize = PAGE_SIZE*1024*1024; // size of page pool in bytes
-        return initStorage(pagePoolSize);
-    }
-
-    @Override
-    public boolean initStorage(final int pagePoolSize) {
-        final String databaseFilePath = "store/messageArchive.dbs"; // path to the database file
+        final String databaseFilePath = getStorageFilename("messageArchive.dbs"); // path to the database file
+        final int pagePoolSize = getPagePoolSize(SettingsClass.PERST_PAGEPOOLSIZE_MESSAGEARCHIVE);
 
         open(databaseFilePath, pagePoolSize, true, false, false);
 
@@ -68,7 +61,7 @@ public class ArchiveMessageStorage extends AbstractFrostStorage implements Savab
             // Storage was not initialized yet
             storageRoot = new ArchiveMessageStorageRoot(getStorage());
             getStorage().setRoot(storageRoot);
-            commitStore(); // commit transaction
+            commit(); // commit transaction
         }
         return true;
     }
@@ -110,7 +103,7 @@ public class ArchiveMessageStorage extends AbstractFrostStorage implements Savab
 
         logger.severe("Added archive board: "+boardName);
 
-        commitStore();
+        commit();
     }
 
     public synchronized int insertMessage(final FrostMessageObject mo, final boolean doCommit) {
@@ -156,7 +149,7 @@ public class ArchiveMessageStorage extends AbstractFrostStorage implements Savab
         bo.getMessageIndex().put(mo.getDateAndTime().getMillis(), pmo);
 
         if( doCommit ) {
-            commitStore();
+            commit();
         }
 
         return INSERT_OK;

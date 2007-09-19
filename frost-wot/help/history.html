@@ -9,6 +9,25 @@
   <BODY>
 <H2>Frost History</H2>
 <PRE>
+PENDING:
+------------
+
+- fixed bug that some unread messages were not shown
+  in threaded view when 'Show only unread messages' is enabled
+- hopefully fixed bug that leaded to a perst StorageError, included
+  repair tool for already broken stores
+  Invoke the repair tool:
+  WINDOWS:
+   java -cp frost.jar;lib/perst15.jar frost.storage.perst.RepairPerstStorage
+  LINUX:
+   java -cp frost.jar:lib/perst15.jar frost.storage.perst.RepairPerstStorage
+- all data are now stored in perst storages instead of McKoi sql db
+  - faster display of boards
+  - messages with state NEW, FLAGGED or STARRED are now always shown
+- re-requested downloads start automatically when download is still
+  in FAILED state and the lastUploadedTime changed to a later value
+- confirmation message for 'Mark all messages read' can be suppressed
+
 2007.07.19:
 ------------
 

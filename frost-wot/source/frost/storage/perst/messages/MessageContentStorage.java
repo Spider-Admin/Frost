@@ -18,14 +18,12 @@
 */
 package frost.storage.perst.messages;
 
+import frost.*;
 import frost.messages.*;
 import frost.storage.*;
 import frost.storage.perst.*;
 
 public class MessageContentStorage extends AbstractFrostStorage implements Savable {
-
-    // FIXME: adjust page size
-    private static final int PAGE_SIZE = 1; // page size for the storage in MB
 
     private MessageContentStorageRoot storageRoot = null;
 
@@ -41,13 +39,8 @@ public class MessageContentStorage extends AbstractFrostStorage implements Savab
 
     @Override
     public boolean initStorage() {
-        final int pagePoolSize = PAGE_SIZE*1024*1024; // size of page pool in bytes
-        return initStorage(pagePoolSize);
-    }
-
-    @Override
-    public boolean initStorage(final int pagePoolSize) {
-        final String databaseFilePath = "store/messagesContents.dbs"; // path to the database file
+        final String databaseFilePath = getStorageFilename("messagesContents.dbs"); // path to the database file
+        final int pagePoolSize = getPagePoolSize(SettingsClass.PERST_PAGEPOOLSIZE_MESSAGECONTENTS);
 
         open(databaseFilePath, pagePoolSize, true, false, false);
 
@@ -56,7 +49,7 @@ public class MessageContentStorage extends AbstractFrostStorage implements Savab
             // Storage was not initialized yet
             storageRoot = new MessageContentStorageRoot(getStorage());
             getStorage().setRoot(storageRoot);
-            commitStore(); // commit transaction
+            commit(); // commit transaction
         }
         return true;
     }

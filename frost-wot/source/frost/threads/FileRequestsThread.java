@@ -245,7 +245,7 @@ public class FileRequestsThread extends Thread {
                 break;
             }
             
-            IndexSlotsStorage.inst().commitStore(); // commit changes for this run
+            IndexSlotsStorage.inst().commit(); // commit changes for this run
             
             if( Logging.inst().doLogFilebaseMessages() ) {
                 System.out.println("FileRequestsThread: sleeping 10 minutes");

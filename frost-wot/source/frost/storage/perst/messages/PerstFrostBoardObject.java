@@ -27,10 +27,10 @@ import frost.boards.*;
  */
 public class PerstFrostBoardObject extends Persistent {
 
-    transient Board refBoard = null;
+    private transient Board refBoard = null;
 
-    String boardName;
-    int boardId;
+    private String boardName;
+    private int boardId;
 
     private Index<PerstFrostMessageObject> messageIndex; // key is msgdatetime; only valid msgs
     private Index<PerstFrostMessageObject> messageIdIndex; // key is messageId, only valid msgs

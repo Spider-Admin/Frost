@@ -315,7 +315,7 @@ public class Identity extends Persistent implements XMLizable {
             return false;
         }
         modify();
-        IdentitiesStorage.inst().commitStore();
+        IdentitiesStorage.inst().commit();
         return true;
     }
 }

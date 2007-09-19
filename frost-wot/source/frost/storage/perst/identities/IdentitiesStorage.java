@@ -33,9 +33,6 @@ public class IdentitiesStorage extends AbstractFrostStorage implements Savable {
 
     private static final Logger logger = Logger.getLogger(IdentitiesStorage.class.getName());
 
-    // FIXME: adjust page size
-    private static final int PAGE_SIZE = 1; // page size for the storage in MB
-
     private IdentitiesStorageRoot storageRoot = null;
 
     private static IdentitiesStorage instance = new IdentitiesStorage();
@@ -48,13 +45,10 @@ public class IdentitiesStorage extends AbstractFrostStorage implements Savable {
         return instance;
     }
 
+    @Override
     public boolean initStorage() {
-        final int pagePoolSize = PAGE_SIZE*1024*1024; // size of page pool in bytes
-        return initStorage(pagePoolSize);
-    }
-
-    public boolean initStorage(final int pagePoolSize) {
-        final String databaseFilePath = "store/identities.dbs"; // path to the database file
+        final String databaseFilePath = getStorageFilename("identities.dbs"); // path to the database file
+        final int pagePoolSize = getPagePoolSize(SettingsClass.PERST_PAGEPOOLSIZE_IDENTITIES);
 
         open(databaseFilePath, pagePoolSize, true, false, false);
 
@@ -63,7 +57,7 @@ public class IdentitiesStorage extends AbstractFrostStorage implements Savable {
             // Storage was not initialized yet
             storageRoot = new IdentitiesStorageRoot(getStorage());
             getStorage().setRoot(storageRoot);
-            commitStore(); // commit transaction
+            commit(); // commit transaction
         }
         return true;
     }
@@ -78,7 +72,7 @@ public class IdentitiesStorage extends AbstractFrostStorage implements Savable {
         for(final LocalIdentity li : lids) {
             storageRoot.getLocalIdentities().add( li );
         }
-        commitStore();
+        commit();
     }
 
     public void importIdentities(final List<Identity> ids) {
@@ -88,10 +82,10 @@ public class IdentitiesStorage extends AbstractFrostStorage implements Savable {
             cnt++;
             if( cnt%100 == 0 ) {
                 System.out.println("Committing after "+cnt+" identities");
-                commitStore();
+                commit();
             }
         }
-        commitStore();
+        commit();
     }
 
     public Hashtable<String,Identity> loadIdentities() {
@@ -104,7 +98,7 @@ public class IdentitiesStorage extends AbstractFrostStorage implements Savable {
 
     public void insertIdentity(final Identity id) {
         storageRoot.getIdentities().add( id );
-        commitStore();
+        commit();
     }
 
     public boolean removeIdentity(final Identity id, final boolean doCommit) {
@@ -115,7 +109,7 @@ public class IdentitiesStorage extends AbstractFrostStorage implements Savable {
         final boolean isRemoved = storageRoot.getIdentities().remove(id);
         id.deallocate();
         if( doCommit ) {
-            commitStore();
+            commit();
         }
         return isRemoved;
     }
@@ -134,7 +128,7 @@ public class IdentitiesStorage extends AbstractFrostStorage implements Savable {
 
     public void insertLocalIdentity(final LocalIdentity id) {
         storageRoot.getLocalIdentities().add( id );
-        commitStore();
+        commit();
     }
 
     public boolean removeLocalIdentity(final LocalIdentity lid) {
@@ -144,7 +138,7 @@ public class IdentitiesStorage extends AbstractFrostStorage implements Savable {
         }
         final boolean isRemoved = storageRoot.getLocalIdentities().remove(lid);
         lid.deallocate();
-        commitStore();
+        commit();
         return isRemoved;
     }
 

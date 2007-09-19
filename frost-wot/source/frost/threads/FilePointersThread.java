@@ -272,7 +272,7 @@ public class FilePointersThread extends Thread {
                 break;
             }
             
-            IndexSlotsStorage.inst().commitStore(); // commit changes for this run
+            IndexSlotsStorage.inst().commit(); // commit changes for this run
             
             // random sleeptime to anonymize our uploaded pointer files
             Mixed.waitRandom(baseSleepTime); 

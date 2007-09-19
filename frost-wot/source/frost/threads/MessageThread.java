@@ -77,7 +77,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
             logger.info("TOFDN: " + tofType + " Thread started for board " + board.getName());
 
             if (isInterrupted()) {
-                IndexSlotsStorage.inst().commitStore();
+                IndexSlotsStorage.inst().commit();
                 notifyThreadFinished(this);
                 return;
             }
@@ -115,7 +115,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
         } catch (Throwable t) {
             logger.log(Level.SEVERE, Thread.currentThread().getName() + ": Oo. Exception in MessageDownloadThread:", t);
         }
-        IndexSlotsStorage.inst().commitStore();
+        IndexSlotsStorage.inst().commit();
         notifyThreadFinished(this);
     }
     

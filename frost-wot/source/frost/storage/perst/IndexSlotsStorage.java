@@ -23,6 +23,7 @@ import java.util.*;
 import org.garret.perst.*;
 import org.joda.time.*;
 
+import frost.*;
 import frost.storage.*;
 
 /**
@@ -30,14 +31,9 @@ import frost.storage.*;
  */
 public class IndexSlotsStorage extends AbstractFrostStorage implements Savable {
 
-//    private static final Logger logger = Logger.getLogger(IndexSlotsStorage.class.getName());
-
     // boards have positive indexNames (their primkey)
     public static final int FILELISTS = -1;
     public static final int REQUESTS  = -2;
-
-    // FIXME: adjust page size
-    private static final int PAGE_SIZE = 1; // page size for the storage in MB
 
     private IndexSlotsStorageRoot storageRoot = null;
 
@@ -60,13 +56,10 @@ public class IndexSlotsStorage extends AbstractFrostStorage implements Savable {
         return wasOk;
     }
 
+    @Override
     public boolean initStorage() {
-        final int pagePoolSize = PAGE_SIZE*1024*1024; // size of page pool in bytes
-        return initStorage(pagePoolSize);
-    }
-
-    public boolean initStorage(final int pagePoolSize) {
-        final String databaseFilePath = "store/gixSlots.dbs"; // path to the database file
+        final String databaseFilePath = getStorageFilename("gixSlots.dbs"); // path to the database file
+        final int pagePoolSize = getPagePoolSize(SettingsClass.PERST_PAGEPOOLSIZE_INDEXSLOTS);
 
         open(databaseFilePath, pagePoolSize, false, true, true);
 
@@ -79,7 +72,7 @@ public class IndexSlotsStorage extends AbstractFrostStorage implements Savable {
             // index for cleanup
             storageRoot.slotsIndexLI = getStorage().createIndex(new Class[] { Long.class, Integer.class }, true);
             getStorage().setRoot(storageRoot);
-            commitStore(); // commit transaction
+            commit(); // commit transaction
         }
         return true;
     }
@@ -108,7 +101,7 @@ public class IndexSlotsStorage extends AbstractFrostStorage implements Savable {
             deletedCount++;
         }
 
-        commitStore();
+        commit();
 
         return deletedCount;
     }

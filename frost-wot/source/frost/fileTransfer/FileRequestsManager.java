@@ -135,7 +135,7 @@ public class FileRequestsManager {
         for( String sha : requests ) {
             FileListStorage.inst().updateFrostFileListFileObjectAfterRequestSent(sha, now);
         }
-        FileListStorage.inst().commitStore();
+        FileListStorage.inst().commit();
     }
     
     /**
@@ -214,6 +214,6 @@ public class FileRequestsManager {
         for( String sha : content.getShaStrings() ) {
             FileListStorage.inst().updateFrostFileListFileObjectAfterRequestReceived(sha, content.getTimestamp());
         }
-        FileListStorage.inst().commitStore();
+        FileListStorage.inst().commit();
     }
 }
