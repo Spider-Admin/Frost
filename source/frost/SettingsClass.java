@@ -53,6 +53,7 @@ public class SettingsClass implements Savable {
     public static final String DIR_LAST_USED = "lastUsedDirectory";
     public static final String DIR_TEMP = "temp.dir";
     public static final String DIR_LOCALDATA = "localdata.dir";
+    public static final String DIR_STORE = "localdata.dir";
 
     public static final String FREENET_VERSION = "freenetVersion";
 
@@ -235,7 +236,6 @@ public class SettingsClass implements Savable {
         if (!readSettingsFile()) {
             writeSettingsFile();
         }
-        // FIXME: remove for release
         settingsHash.put(FILE_BASE, "testfiles1");
     }
 
@@ -333,6 +333,7 @@ public class SettingsClass implements Savable {
                         // scan all path config values and set correct system file separator
                         else if (  key.equals(SettingsClass.DIR_TEMP)
                                 || key.equals(DIR_LOCALDATA)
+                                || key.equals(DIR_STORE)
                                 || key.equals(DIR_DOWNLOAD)
                                 || key.equals(DIR_LAST_USED)) {
                             value = setSystemFileSeparator(value);
@@ -749,12 +750,9 @@ public class SettingsClass implements Savable {
         defaults.put(DB_CLEANUP_LASTRUN, "0");
 
         // DIRECTORIES
-//        defaults.put("keypool.dir", "keypool" + fs);
-//        defaults.put("unsent.dir", "localdata" + fs + "unsent" + fs);
-//        defaults.put("sent.dir", "localdata" + fs + "sent" + fs);
-//        defaults.put("archive.dir", "archive" + fs);
         defaults.put(DIR_TEMP, "localdata" + fs + "temp" + fs);
         defaults.put(DIR_LOCALDATA, "localdata" + fs);
+        defaults.put(DIR_STORE, "store" + fs);
 
         defaults.put(DIR_DOWNLOAD, "downloads" + fs);
         defaults.put(DIR_LAST_USED, "." + fs);

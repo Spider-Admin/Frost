@@ -34,26 +34,26 @@ public class Startup {
      * The Main method, check if allowed to run
      * and starts the other startup work.
      */
-    public static void startupCheck(SettingsClass settings) {
+    public static void startupCheck(final SettingsClass settings) {
         checkDirectories(settings);
         copyFiles();
         cleanTempDir(settings);
     }
-    
+
     // Copy some files from the jar file, if they don't exist
     private static void copyFiles() {
-        String fileSeparator = System.getProperty("file.separator");
+        final String fileSeparator = System.getProperty("file.separator");
 
         try {
             boolean copyResource = false;
-            File systrayDllFile = new File("exec" + fileSeparator + "JSysTray.dll");
+            final File systrayDllFile = new File("exec" + fileSeparator + "JSysTray.dll");
             if( !systrayDllFile.isFile() ) {
                 copyResource = true;
             } else {
                 // check if size of existing dll file is different. If yes extract new version from jar.
-                URL url = MainFrame.class.getResource("/data/JSysTray.dll");
-                URLConnection urlConn = url.openConnection();
-                long len = urlConn.getContentLength();
+                final URL url = MainFrame.class.getResource("/data/JSysTray.dll");
+                final URLConnection urlConn = url.openConnection();
+                final long len = urlConn.getContentLength();
                 if( len != systrayDllFile.length() ) {
                     systrayDllFile.delete();
                     copyResource = true;
@@ -62,35 +62,40 @@ public class Startup {
             if( copyResource ) {
                 FileAccess.copyFromResource("/data/JSysTray.dll", systrayDllFile);
             }
-        } catch (Throwable e) {
+        } catch (final Throwable e) {
             e.printStackTrace();
         }
     }
 
-    private static void checkDirectories(SettingsClass settings) {
-        File downloadDirectory = new File(settings.getValue(SettingsClass.DIR_DOWNLOAD));
+    private static void checkDirectories(final SettingsClass settings) {
+        final File downloadDirectory = new File(settings.getValue(SettingsClass.DIR_DOWNLOAD));
         if( !downloadDirectory.isDirectory() ) {
             logger.warning("Creating download directory");
             downloadDirectory.mkdirs();
         }
 
-        File execDirectory = new File("exec");
+        final File execDirectory = new File("exec");
         if( !execDirectory.isDirectory() ) {
             logger.warning("Creating exec directory");
             execDirectory.mkdirs();
         }
 
-        File tempDirectory = new File(settings.getValue(SettingsClass.DIR_TEMP));
+        final File tempDirectory = new File(settings.getValue(SettingsClass.DIR_TEMP));
         if( !tempDirectory.isDirectory() ) {
             logger.warning("Creating temp directory");
             tempDirectory.mkdirs();
         }
+
+        final File storeDirectory = new File(settings.getValue(SettingsClass.DIR_STORE));
+        if( !storeDirectory.isDirectory() ) {
+            logger.warning("Creating store directory");
+            storeDirectory.mkdirs();
+        }
     }
 
-    private static void cleanTempDir(SettingsClass settings) {
-        File[] entries = new File(settings.getValue(SettingsClass.DIR_TEMP)).listFiles();
-        for( int i = 0; i < entries.length; i++ ) {
-            File entry = entries[i];
+    private static void cleanTempDir(final SettingsClass settings) {
+        final File[] entries = new File(settings.getValue(SettingsClass.DIR_TEMP)).listFiles();
+        for( final File entry : entries ) {
             if( entry.isDirectory() == false ) {
                 entry.delete();
             }
