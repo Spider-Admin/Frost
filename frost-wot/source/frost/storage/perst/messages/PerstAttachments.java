@@ -28,16 +28,16 @@ public class PerstAttachments extends Persistent {
 
     private IPersistentList<PerstBoardAttachment> boardAttachments;
     private IPersistentList<PerstFileAttachment> fileAttachments;
-    
+
     public PerstAttachments() {}
-    
-    public PerstAttachments(Storage store, AttachmentList boards, AttachmentList files) {
-        
+
+    public PerstAttachments(final Storage store, final AttachmentList boards, final AttachmentList files) {
+
         if( boards != null && boards.size() > 0 ) {
             boardAttachments = store.createScalableList(boards.size());
-            for( Iterator i=boards.iterator(); i.hasNext(); ) {
-                BoardAttachment ba = (BoardAttachment)i.next();
-                PerstBoardAttachment pba = new PerstBoardAttachment(ba);
+            for( final Iterator i=boards.iterator(); i.hasNext(); ) {
+                final BoardAttachment ba = (BoardAttachment)i.next();
+                final PerstBoardAttachment pba = new PerstBoardAttachment(ba);
                 boardAttachments.add(pba);
             }
         } else {
@@ -46,9 +46,9 @@ public class PerstAttachments extends Persistent {
 
         if( files != null && files.size() > 0 ) {
             fileAttachments = store.createScalableList(files.size());
-            for( Iterator i=files.iterator(); i.hasNext(); ) {
-                FileAttachment ba = (FileAttachment)i.next();
-                PerstFileAttachment pba = new PerstFileAttachment(ba);
+            for( final Iterator i=files.iterator(); i.hasNext(); ) {
+                final FileAttachment ba = (FileAttachment)i.next();
+                final PerstFileAttachment pba = new PerstFileAttachment(ba);
                 fileAttachments.add(pba);
             }
         } else {
@@ -63,18 +63,18 @@ public class PerstAttachments extends Persistent {
     public IPersistentList<PerstFileAttachment> getFileAttachments() {
         return fileAttachments;
     }
-    
+
     @Override
     public void deallocate() {
         if( getBoardAttachments() != null ) {
-            for(PerstBoardAttachment ba : getBoardAttachments()) {
+            for(final PerstBoardAttachment ba : getBoardAttachments()) {
                 ba.deallocate();
             }
             getBoardAttachments().clear();
             getBoardAttachments().deallocate();
         }
         if( getFileAttachments() != null ) {
-            for(PerstFileAttachment fa : getFileAttachments()) {
+            for(final PerstFileAttachment fa : getFileAttachments()) {
                 fa.deallocate();
             }
             getFileAttachments().clear();

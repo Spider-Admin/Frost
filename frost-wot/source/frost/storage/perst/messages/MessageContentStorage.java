@@ -18,114 +18,105 @@
 */
 package frost.storage.perst.messages;
 
-import org.garret.perst.*;
-
 import frost.messages.*;
 import frost.storage.*;
 import frost.storage.perst.*;
 
-public class MessageContentStorage implements Savable {
+public class MessageContentStorage extends AbstractFrostStorage implements Savable {
 
     // FIXME: adjust page size
     private static final int PAGE_SIZE = 1; // page size for the storage in MB
-    
-    private Storage storage = null;
+
     private MessageContentStorageRoot storageRoot = null;
-    
+
     private static MessageContentStorage instance = new MessageContentStorage();
-    
-    protected MessageContentStorage() {}
-    
+
+    protected MessageContentStorage() {
+        super();
+    }
+
     public static MessageContentStorage inst() {
         return instance;
     }
-    
-    private Storage getStorage() {
-        return storage;
-    }
-    
+
+    @Override
     public boolean initStorage() {
-        String databaseFilePath = "store/messagesContents.dbs"; // path to the database file
-        int pagePoolSize = PAGE_SIZE*1024*1024; // size of page pool in bytes
+        final int pagePoolSize = PAGE_SIZE*1024*1024; // size of page pool in bytes
+        return initStorage(pagePoolSize);
+    }
 
-        storage = StorageFactory.getInstance().createStorage();
-        storage.setProperty("perst.string.encoding", "UTF-8");
-        storage.open(databaseFilePath, pagePoolSize);
+    @Override
+    public boolean initStorage(final int pagePoolSize) {
+        final String databaseFilePath = "store/messagesContents.dbs"; // path to the database file
 
-        storageRoot = (MessageContentStorageRoot)storage.getRoot();
+        open(databaseFilePath, pagePoolSize, true, false, false);
+
+        storageRoot = (MessageContentStorageRoot)getStorage().getRoot();
         if (storageRoot == null) {
             // Storage was not initialized yet
-            storageRoot = new MessageContentStorageRoot(storage);
-            storage.setRoot(storageRoot);
-            storage.commit(); // commit transaction
+            storageRoot = new MessageContentStorageRoot(getStorage());
+            getStorage().setRoot(storageRoot);
+            commitStore(); // commit transaction
         }
         return true;
     }
 
-    public synchronized void commitStore() {
-        if( getStorage() == null ) {
-            return;
-        }
-        getStorage().commit();
-    }
-
-    public void save() throws StorageException {
-        storage.close();
+    public void save() {
+        close();
         storageRoot = null;
-        storage = null;
         System.out.println("INFO: MessagesContentStorage closed.");
     }
-    
-    public boolean addContentForOid(int oid, String content) {
-        PerstString ps = new PerstString(content);
+
+    public boolean addContentForOid(final int oid, final String content) {
+        final PerstString ps = new PerstString(content);
         return storageRoot.getContentByMsgOid().put(oid, ps);
     }
 
-    public boolean addPublickeyForOid(int oid, String content) {
-        PerstString ps = new PerstString(content);
+    public boolean addPublickeyForOid(final int oid, final String content) {
+        final PerstString ps = new PerstString(content);
         return storageRoot.getPublickeyByMsgOid().put(oid, ps);
     }
 
-    public boolean addSignatureForOid(int oid, String content) {
-        PerstString ps = new PerstString(content);
+    public boolean addSignatureForOid(final int oid, final String content) {
+        final PerstString ps = new PerstString(content);
         return storageRoot.getSignatureByMsgOid().put(oid, ps);
     }
 
-    public boolean addAttachmentsForOid(int oid, AttachmentList boards, AttachmentList files) {
-        PerstAttachments pa = new PerstAttachments(getStorage(), boards, files);
+    public boolean addAttachmentsForOid(final int oid, final AttachmentList boards, final AttachmentList files) {
+        final PerstAttachments pa = new PerstAttachments(getStorage(), boards, files);
         return storageRoot.getAttachmentsByMsgOid().put(oid, pa);
     }
 
-    public String getContentForOid(int oid) {
-        PerstString ps = storageRoot.getContentByMsgOid().get(oid);
-        if( ps != null ) {
-            return ps.getValue();
-        }
-        return null;
-    }
-    
-    public String getPublickeyForOid(int oid) {
-        PerstString ps = storageRoot.getPublickeyByMsgOid().get(oid);
+    public String getContentForOid(final int oid) {
+        final PerstString ps = storageRoot.getContentByMsgOid().get(oid);
         if( ps != null ) {
             return ps.getValue();
         }
         return null;
     }
 
-    public String getSignatureForOid(int oid) {
-        PerstString ps = storageRoot.getSignatureByMsgOid().get(oid);
+    public String getPublickeyForOid(final int oid) {
+        final PerstString ps = storageRoot.getPublickeyByMsgOid().get(oid);
         if( ps != null ) {
             return ps.getValue();
         }
         return null;
     }
 
-    public PerstAttachments getAttachmentsForOid(int oid) {
-        PerstAttachments pa = storageRoot.getAttachmentsByMsgOid().get(oid);
+    public String getSignatureForOid(final int oid) {
+        final PerstString ps = storageRoot.getSignatureByMsgOid().get(oid);
+        if( ps != null ) {
+            return ps.getValue();
+        }
+        return null;
+    }
+
+    public PerstAttachments getAttachmentsForOid(final int oid) {
+        final PerstAttachments pa = storageRoot.getAttachmentsByMsgOid().get(oid);
         return pa;
     }
 
-    public void deallocateForOid(int oid) {
+    public void deallocateForOid(final int oid) {
         // FIXME: testen ob removeKey auch tut! Nimmt obj statt int...
         PerstString ps = storageRoot.getContentByMsgOid().removeKey(oid);
         if( ps != null ) {
@@ -139,8 +130,8 @@ public class MessageContentStorage implements Savable {
         if( ps != null ) {
             ps.deallocate();
         }
-        
-        PerstAttachments pa = storageRoot.getAttachmentsByMsgOid().removeKey(oid);
+
+        final PerstAttachments pa = storageRoot.getAttachmentsByMsgOid().removeKey(oid);
         if( pa != null ) {
             pa.deallocate();
         }

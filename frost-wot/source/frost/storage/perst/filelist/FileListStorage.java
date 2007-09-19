@@ -27,69 +27,60 @@ import frost.*;
 import frost.fcp.*;
 import frost.fileTransfer.*;
 import frost.storage.*;
+import frost.storage.perst.*;
 
-public class FileListStorage implements Savable, PropertyChangeListener {
+public class FileListStorage extends AbstractFrostStorage implements Savable, PropertyChangeListener {
 
     // FIXME: adjust page size
     private static final int PAGE_SIZE = 1; // page size for the storage in MB
 
-    private Storage storage = null;
     private FileListStorageRoot storageRoot = null;
 
     private static FileListStorage instance = new FileListStorage();
 
     private boolean rememberSharedFileDownloaded;
 
-    protected FileListStorage() {}
+    protected FileListStorage() {
+        super();
+    }
 
     public static FileListStorage inst() {
         return instance;
     }
 
-    private Storage getStorage() {
-        return storage;
+    @Override
+    public boolean initStorage() {
+        final int pagePoolSize = PAGE_SIZE*1024*1024; // size of page pool in bytes
+        return initStorage(pagePoolSize);
     }
 
-    public boolean initStorage() {
-
+    @Override
+    public boolean initStorage(final int pagePoolSize) {
         rememberSharedFileDownloaded = Core.frostSettings.getBoolValue(SettingsClass.REMEMBER_SHAREDFILE_DOWNLOADED);
         Core.frostSettings.addPropertyChangeListener(SettingsClass.REMEMBER_SHAREDFILE_DOWNLOADED, this);
 
         final String databaseFilePath = "store/filelist.dbs"; // path to the database file
-        final int pagePoolSize = PAGE_SIZE*1024*1024; // size of page pool in bytes
 
-        storage = StorageFactory.getInstance().createStorage();
-        storage.setProperty("perst.concurrent.iterator", Boolean.TRUE); // modify() during iteration
-        storage.setProperty("perst.string.encoding", "UTF-8");
-        storage.open(databaseFilePath, pagePoolSize);
+        open(databaseFilePath, pagePoolSize, true, true, false);
 
-        storageRoot = (FileListStorageRoot)storage.getRoot();
+        storageRoot = (FileListStorageRoot)getStorage().getRoot();
         if (storageRoot == null) {
             // Storage was not initialized yet
-            storageRoot = new FileListStorageRoot(storage);
-            storage.setRoot(storageRoot);
-            storage.commit(); // commit transaction
+            storageRoot = new FileListStorageRoot(getStorage());
+            getStorage().setRoot(storageRoot);
+            commitStore(); // commit transaction
         }
         return true;
     }
 
-    public synchronized void commitStore() {
-        if( getStorage() == null ) {
-            return;
-        }
-        getStorage().commit();
-    }
-
-    public void save() throws StorageException {
-
-        storage.close();
+    public void save() {
+        close();
         storageRoot = null;
-        storage = null;
         System.out.println("INFO: FileListStorage closed.");
     }
 
     public IPersistentList createList() {
-        return storage.createScalableList();
+        return getStorage().createScalableList();
     }
 
     public synchronized boolean insertOrUpdateFileListFileObject(final FrostFileListFileObject flf) {
@@ -143,7 +134,7 @@ public class FileListStorage implements Savable, PropertyChangeListener {
         lName = lName.toLowerCase();
         PerstFileListIndexEntry ie = ix.get(lName);
         if( ie == null ) {
-            ie = new PerstFileListIndexEntry(storage);
+            ie = new PerstFileListIndexEntry(getStorage());
             ix.put(lName, ie);
         }
         ie.getFileOwnersWithText().add(o);
@@ -390,13 +381,13 @@ public class FileListStorage implements Savable, PropertyChangeListener {
             final HashSet<Integer> fileOids = new HashSet<Integer>();
             for( final Integer i : ownerOids ) {
 //                System.out.println("search-oid: "+i);
-                final FrostFileListFileObjectOwner o = (FrostFileListFileObjectOwner)storage.getObjectByOID(i);
+                final FrostFileListFileObjectOwner o = (FrostFileListFileObjectOwner)getStorage().getObjectByOID(i);
                 final int oid = o.getFileListFileObject().getOid();
                 fileOids.add(oid);
             }
 
             for( final Integer i : fileOids ) {
-                final FrostFileListFileObject o = (FrostFileListFileObject)storage.getObjectByOID(i);
+                final FrostFileListFileObject o = (FrostFileListFileObject)getStorage().getObjectByOID(i);
                 if( o != null ) {
                     if(callback.fileRetrieved(o)) {
                         return;

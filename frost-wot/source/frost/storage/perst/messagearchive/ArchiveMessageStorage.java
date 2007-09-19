@@ -26,8 +26,9 @@ import org.garret.perst.*;
 import frost.boards.*;
 import frost.messages.*;
 import frost.storage.*;
+import frost.storage.perst.*;
 
-public class ArchiveMessageStorage implements Savable {
+public class ArchiveMessageStorage extends AbstractFrostStorage implements Savable {
 
     private static final Logger logger = Logger.getLogger(ArchiveMessageStorage.class.getName());
 
@@ -38,55 +39,49 @@ public class ArchiveMessageStorage implements Savable {
     // FIXME: adjust page size
     private static final int PAGE_SIZE = 1; // page size for the storage in MB
 
-    private Storage storage = null;
     private ArchiveMessageStorageRoot storageRoot = null;
 
     private static ArchiveMessageStorage instance = new ArchiveMessageStorage();
 
-    protected ArchiveMessageStorage() {}
+    protected ArchiveMessageStorage() {
+        super();
+    }
 
     public static ArchiveMessageStorage inst() {
         return instance;
     }
 
-    private Storage getStorage() {
-        return storage;
-    }
-
-    public int gc() {
-        return getStorage().gc();
-    }
-
+    @Override
     public boolean initStorage() {
-        final String databaseFilePath = "store/messageArchive.dbs"; // path to the database file
         final int pagePoolSize = PAGE_SIZE*1024*1024; // size of page pool in bytes
+        return initStorage(pagePoolSize);
+    }
 
-        storage = StorageFactory.getInstance().createStorage();
-        storage.setProperty("perst.string.encoding", "UTF-8");
-        storage.open(databaseFilePath, pagePoolSize);
+    @Override
+    public boolean initStorage(final int pagePoolSize) {
+        final String databaseFilePath = "store/messageArchive.dbs"; // path to the database file
 
-        storageRoot = (ArchiveMessageStorageRoot)storage.getRoot();
+        open(databaseFilePath, pagePoolSize, true, false, false);
+
+        storageRoot = (ArchiveMessageStorageRoot)getStorage().getRoot();
         if (storageRoot == null) {
             // Storage was not initialized yet
-            storageRoot = new ArchiveMessageStorageRoot(storage);
-            storage.setRoot(storageRoot);
-            storage.commit(); // commit transaction
+            storageRoot = new ArchiveMessageStorageRoot(getStorage());
+            getStorage().setRoot(storageRoot);
+            commitStore(); // commit transaction
         }
         return true;
     }
 
-    public synchronized void commitStore() {
-        if( getStorage() == null ) {
-            return;
-        }
-        getStorage().commit();
+    public void save() {
+        close();
+        storageRoot = null;
+        System.out.println("INFO: MessageArchiveStorage closed.");
     }
 
-    public void save() throws StorageException {
-        storage.close();
+    public void silentClose() {
+        close();
         storageRoot = null;
-        storage = null;
-        System.out.println("INFO: MessageArchiveStorage closed.");
     }
 
     public int getMessageCount() {
@@ -110,18 +105,17 @@ public class ArchiveMessageStorage implements Savable {
             return; // dup!
         }
 
-        final PerstFrostArchiveBoardObject pfbo = new PerstFrostArchiveBoardObject(storage, boardName);
+        final PerstFrostArchiveBoardObject pfbo = new PerstFrostArchiveBoardObject(getStorage(), boardName);
         storageRoot.getBoardsByName().put(boardName, pfbo);
 
         logger.severe("Added archive board: "+boardName);
 
-        storage.commit();
+        commitStore();
     }
 
     public synchronized int insertMessage(final FrostMessageObject mo, final boolean doCommit) {
         final Board targetBoard = mo.getBoard();
         if( targetBoard == null ) {
-            // already in store!
             logger.severe("msgInsertError: no board in msg");
             return INSERT_ERROR; // skip msg
         }
@@ -150,7 +144,7 @@ public class ArchiveMessageStorage implements Savable {
             }
         }
 
-        final PerstFrostArchiveMessageObject pmo = new PerstFrostArchiveMessageObject(mo, storage);
+        final PerstFrostArchiveMessageObject pmo = new PerstFrostArchiveMessageObject(mo, getStorage());
 
         if( mo.getMessageId() != null ) {
             if( !bo.getMessageIdIndex().put(mo.getMessageId(), pmo) ) {

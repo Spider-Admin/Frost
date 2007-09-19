@@ -20,18 +20,16 @@ package frost.storage.perst.messagearchive;
 
 import org.garret.perst.*;
 
-import frost.storage.perst.*;
-
 public class PerstFrostArchiveBoardObject extends Persistent {
 
-    String boardName;
-    
+    private String boardName;
+
     private Index<PerstFrostArchiveMessageObject> messageIndex; // key is msgdatetime; only valid msgs
     private Index<PerstFrostArchiveMessageObject> messageIdIndex; // key is messageId, only valid msgs
 
     public PerstFrostArchiveBoardObject() {}
-    
-    public PerstFrostArchiveBoardObject(Storage storage, String name) {
+
+    public PerstFrostArchiveBoardObject(final Storage storage, final String name) {
         boardName = name;
 
         // index of msgDateTime
@@ -50,7 +48,7 @@ public class PerstFrostArchiveBoardObject extends Persistent {
     public Index<PerstFrostArchiveMessageObject> getMessageIndex() {
         return messageIndex;
     }
-    
+
     public Index<PerstFrostArchiveMessageObject> getMessageIdIndex() {
         return messageIdIndex;
     }

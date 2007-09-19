@@ -151,6 +151,15 @@ public class Migrate1to2 {
      */
     public boolean runStep2() {
         final List<Board> allBoards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
+
+        if( !migrateArchive() ) {
+            closeDatabase();
+            return false;
+        } else {
+            // free page pool
+            ArchiveMessageStorage.inst().save();
+            ArchiveMessageStorage.inst().initStorage();
+        }
         if( !migrateSentMessages(allBoards) ) {
             closeDatabase();
             return false;
@@ -162,14 +171,20 @@ public class Migrate1to2 {
         if( !migrateKeypool(allBoards) ) {
             closeDatabase();
             return false;
+        } else {
+            // free page pool
+            MessageStorage.inst().save();
+            MessageContentStorage.inst().save();
+            MessageStorage.inst().initStorage();
+            MessageContentStorage.inst().initStorage();
         }
         if( !migrateFileList() ) {
             closeDatabase();
             return false;
-        }
-        if( !migrateArchive() ) {
-            closeDatabase();
-            return false;
+        } else {
+            // free page pool
+            FileListStorage.inst().save();
+            FileListStorage.inst().initStorage();
         }
 
         dropAllTables();
@@ -290,13 +305,14 @@ public class Migrate1to2 {
             final MessageCallback mc = new MessageCallback() {
                 int cnt=0;
                 public boolean messageRetrieved(FrostMessageObject mo) {
-                    String bname = (String)mo.getUserObject();
-                    ms.insertMessage(mo, bname, false);
+                    ms.insertMessage(mo, (String)mo.getUserObject(), false);
                     cnt++;
-                    if(cnt%50 == 0) {
+                    if(cnt%100 == 0) {
                         ms.commitStore();
-                        ms.gc();
-                        System.gc();
+                        // close and reopen storage -> solved heap space problem when migrating archive from McKoi
+                        ms.silentClose();
+                        ms.initStorage();
+//                        System.out.println("free="+(Runtime.getRuntime().freeMemory()/1024));
                         System.out.println("Committed after "+cnt+" archive messages");
                     }
                     return false;

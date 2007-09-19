@@ -36,81 +36,70 @@ import frost.util.gui.translation.*;
  * A Storage for FrostDownloadFiles, FrostUploadFiles and SharedFiles.
  * Loaded during startup, and saved during shutdown (or during autosave).
  */
-public class FrostFilesStorage implements Savable {
+public class FrostFilesStorage extends AbstractFrostStorage implements Savable {
 
     private static final Logger logger = Logger.getLogger(FrostFilesStorage.class.getName());
 
     // FIXME: adjust page size
     private static final int PAGE_SIZE = 1; // page size for the storage in MB
-    
-    private Storage storage = null;
+
     private FrostFilesStorageRoot storageRoot = null;
-    
+
     private static FrostFilesStorage instance = new FrostFilesStorage();
 
-    protected FrostFilesStorage() {}
-    
+    protected FrostFilesStorage() {
+        super();
+    }
+
     public static FrostFilesStorage inst() {
         return instance;
     }
-    
-    private Storage getStorage() {
-        return storage;
-    }
-    
+
     public boolean initStorage() {
-        String databaseFilePath = "store/filesStore.dbs"; // path to the database file
-        int pagePoolSize = PAGE_SIZE*1024*1024; // size of page pool in bytes
+        final int pagePoolSize = PAGE_SIZE*1024*1024; // size of page pool in bytes
+        return initStorage(pagePoolSize);
+    }
 
-        storage = StorageFactory.getInstance().createStorage();
-        storage.setProperty("perst.string.encoding", "UTF-8"); // use UTF-8 to store strings
-        storage.setProperty("perst.concurrent.iterator", Boolean.TRUE); // remove() during iteration (for cleanup)
-        storage.open(databaseFilePath, pagePoolSize);
+    public boolean initStorage(final int pagePoolSize) {
+        final String databaseFilePath = "store/filesStore.dbs"; // path to the database file
 
-        storageRoot = (FrostFilesStorageRoot)storage.getRoot();
-        if (storageRoot == null) { 
+        open(databaseFilePath, pagePoolSize, true, true, false);
+
+        storageRoot = (FrostFilesStorageRoot)getStorage().getRoot();
+        if (storageRoot == null) {
             // Storage was not initialized yet
             storageRoot = new FrostFilesStorageRoot();
-            
-            storageRoot.downloadFiles = storage.createScalableList();
-            storageRoot.uploadFiles = storage.createScalableList();
-            storageRoot.sharedFiles = storage.createScalableList();
-            storageRoot.newUploadFiles = storage.createScalableList();
 
-            storageRoot.hiddenBoardNames = storage.createScalableList();
-            storageRoot.knownBoards = storage.createIndex(String.class, true);
+            storageRoot.downloadFiles = getStorage().createScalableList();
+            storageRoot.uploadFiles = getStorage().createScalableList();
+            storageRoot.sharedFiles = getStorage().createScalableList();
+            storageRoot.newUploadFiles = getStorage().createScalableList();
 
-            storage.setRoot(storageRoot);
-            storage.commit(); // commit transaction
+            storageRoot.hiddenBoardNames = getStorage().createScalableList();
+            storageRoot.knownBoards = getStorage().createIndex(String.class, true);
+
+            getStorage().setRoot(storageRoot);
+            commitStore(); // commit transaction
         } else if( storageRoot.hiddenBoardNames == null ) {
             // add new root items
-            storageRoot.hiddenBoardNames = storage.createScalableList();
-            storageRoot.knownBoards = storage.createIndex(String.class, true);
+            storageRoot.hiddenBoardNames = getStorage().createScalableList();
+            storageRoot.knownBoards = getStorage().createIndex(String.class, true);
             storageRoot.modify();
-            storage.commit(); // commit transaction
+            commitStore(); // commit transaction
         }
         return true;
     }
 
-    public synchronized void commitStore() {
-        if( getStorage() == null ) {
-            return;
-        }
-        getStorage().commit();
-    }
-
     public void save() throws StorageException {
-        storage.close();
+        close();
         storageRoot = null;
-        storage = null;
         System.out.println("INFO: FrostFilesStorage closed.");
     }
-    
+
     // only used for migration
-    public void savePerstFrostDownloadFiles(List<PerstFrostDownloadItem> downloadFiles) {
-        for(Iterator<PerstFrostDownloadItem> i=downloadFiles.iterator(); i.hasNext(); ) {
-            PerstFrostDownloadItem pi = i.next();
-            pi.makePersistent(storage);
+    public void savePerstFrostDownloadFiles(final List<PerstFrostDownloadItem> downloadFiles) {
+        for( final PerstFrostDownloadItem pi : downloadFiles ) {
+            pi.makePersistent(getStorage());
             storageRoot.downloadFiles.add(pi);
         }
         storageRoot.downloadFiles.modify();
@@ -121,9 +110,9 @@ public class FrostFilesStorage implements Savable {
      * Removes all items from the given List and deallocates each item from Storage.
      * @param plst  IPersistentList of persistent items
      */
-    private void removeAllFromStorage(IPersistentList<? extends Persistent> plst) {
-        for(Iterator<? extends Persistent> i=plst.iterator(); i.hasNext(); ) {
-            Persistent pi = (Persistent)i.next();
+    private void removeAllFromStorage(final IPersistentList<? extends Persistent> plst) {
+        for(final Iterator<? extends Persistent> i=plst.iterator(); i.hasNext(); ) {
+            final Persistent pi = i.next();
             i.remove(); // remove from List
             pi.deallocate(); // remove from Storage
         }
@@ -131,104 +120,102 @@ public class FrostFilesStorage implements Savable {
         commitStore();
     }
 
-    public void saveDownloadFiles(List<FrostDownloadItem> downloadFiles) {
+    public void saveDownloadFiles(final List<FrostDownloadItem> downloadFiles) {
         removeAllFromStorage(storageRoot.downloadFiles); // delete all old items
-        for( FrostDownloadItem dlItem : downloadFiles ) {
+        for( final FrostDownloadItem dlItem : downloadFiles ) {
             if( dlItem.isExternal() ) {
                 continue;
             }
-            PerstFrostDownloadItem pi = new PerstFrostDownloadItem(dlItem);
+            final PerstFrostDownloadItem pi = new PerstFrostDownloadItem(dlItem);
             storageRoot.downloadFiles.add(pi);
         }
         commitStore();
     }
-    
+
     public List<FrostDownloadItem> loadDownloadFiles() {
-        LinkedList<FrostDownloadItem> downloadItems = new LinkedList<FrostDownloadItem>();
-        for( PerstFrostDownloadItem pi : storageRoot.downloadFiles ) {
-            FrostDownloadItem dlItem = pi.toFrostDownloadItem(logger);
+        final LinkedList<FrostDownloadItem> downloadItems = new LinkedList<FrostDownloadItem>();
+        for( final PerstFrostDownloadItem pi : storageRoot.downloadFiles ) {
+            final FrostDownloadItem dlItem = pi.toFrostDownloadItem(logger);
             if( dlItem != null ) {
                 downloadItems.add(dlItem);
             }
         }
         return downloadItems;
     }
-    
+
     // only used for migration
-    public void savePerstFrostUploadFiles(List<PerstFrostUploadItem> uploadFiles) {
-        for( PerstFrostUploadItem pi : uploadFiles ) {
+    public void savePerstFrostUploadFiles(final List<PerstFrostUploadItem> uploadFiles) {
+        for( final PerstFrostUploadItem pi : uploadFiles ) {
             storageRoot.uploadFiles.add(pi);
         }
         commitStore();
     }
 
-    public void saveUploadFiles(List<FrostUploadItem> uploadFiles) {
+    public void saveUploadFiles(final List<FrostUploadItem> uploadFiles) {
         removeAllFromStorage(storageRoot.uploadFiles); // delete all old items
-        for( FrostUploadItem ulItem : uploadFiles ) {
+        for( final FrostUploadItem ulItem : uploadFiles ) {
             if( ulItem.isExternal() ) {
                 continue;
             }
-            PerstFrostUploadItem pi = new PerstFrostUploadItem(ulItem);
+            final PerstFrostUploadItem pi = new PerstFrostUploadItem(ulItem);
             storageRoot.uploadFiles.add(pi);
         }
         commitStore();
     }
-    
-    public List<FrostUploadItem> loadUploadFiles(List<FrostSharedFileItem> sharedFiles) {
 
-        LinkedList<FrostUploadItem> uploadItems = new LinkedList<FrostUploadItem>();
-        Language language = Language.getInstance();
+    public List<FrostUploadItem> loadUploadFiles(final List<FrostSharedFileItem> sharedFiles) {
 
-        for( PerstFrostUploadItem pi : storageRoot.uploadFiles ) {
-            FrostUploadItem ulItem = pi.toFrostUploadItem(sharedFiles, logger, language);
+        final LinkedList<FrostUploadItem> uploadItems = new LinkedList<FrostUploadItem>();
+        final Language language = Language.getInstance();
+
+        for( final PerstFrostUploadItem pi : storageRoot.uploadFiles ) {
+            final FrostUploadItem ulItem = pi.toFrostUploadItem(sharedFiles, logger, language);
             if( ulItem != null ) {
                 uploadItems.add(ulItem);
             }
         }
         return uploadItems;
     }
-    
+
     // only used for migration
-    public void savePerstFrostSharedFiles(List<PerstFrostSharedFileItem> sfFiles) {
-        for(Iterator<PerstFrostSharedFileItem> i=sfFiles.iterator(); i.hasNext(); ) {
-            PerstFrostSharedFileItem pi = i.next();
-            pi.makePersistent(storage);
+    public void savePerstFrostSharedFiles(final List<PerstFrostSharedFileItem> sfFiles) {
+        for( final PerstFrostSharedFileItem pi : sfFiles ) {
+            pi.makePersistent(getStorage());
             storageRoot.sharedFiles.add(pi);
         }
         storageRoot.sharedFiles.modify();
         commitStore();
     }
 
-    public void saveSharedFiles(List<FrostSharedFileItem> sfFiles) {
+    public void saveSharedFiles(final List<FrostSharedFileItem> sfFiles) {
         removeAllFromStorage(storageRoot.sharedFiles);
-        for(FrostSharedFileItem sfItem : sfFiles ) {
-            PerstFrostSharedFileItem pi = new PerstFrostSharedFileItem(sfItem);
+        for(final FrostSharedFileItem sfItem : sfFiles ) {
+            final PerstFrostSharedFileItem pi = new PerstFrostSharedFileItem(sfItem);
             storageRoot.sharedFiles.add(pi);
         }
         commitStore();
     }
 
     public List<FrostSharedFileItem> loadSharedFiles() {
-        LinkedList<FrostSharedFileItem> sfItems = new LinkedList<FrostSharedFileItem>();
-        Language language = Language.getInstance();
-        for( PerstFrostSharedFileItem pi : storageRoot.sharedFiles ) {
-            FrostSharedFileItem sfItem = pi.toFrostSharedFileItem(logger, language);
+        final LinkedList<FrostSharedFileItem> sfItems = new LinkedList<FrostSharedFileItem>();
+        final Language language = Language.getInstance();
+        for( final PerstFrostSharedFileItem pi : storageRoot.sharedFiles ) {
+            final FrostSharedFileItem sfItem = pi.toFrostSharedFileItem(logger, language);
             if( sfItem != null ) {
                 sfItems.add(sfItem);
             }
         }
         return sfItems;
     }
-    
-    public void saveNewUploadFiles(List<NewUploadFile> newUploadFiles) {
+
+    public void saveNewUploadFiles(final List<NewUploadFile> newUploadFiles) {
 
         removeAllFromStorage(storageRoot.newUploadFiles);
 
-        for(Iterator<NewUploadFile> i=newUploadFiles.iterator(); i.hasNext(); ) {
-            NewUploadFile nuf = i.next();
-            nuf.makePersistent(storage);
+        for( final NewUploadFile nuf : newUploadFiles ) {
+            nuf.makePersistent(getStorage());
             nuf.modify(); // for already persistent items
-            
+
             storageRoot.newUploadFiles.add(nuf);
         }
         commitStore();
@@ -236,10 +223,10 @@ public class FrostFilesStorage implements Savable {
 
     public LinkedList<NewUploadFile> loadNewUploadFiles() {
 
-        LinkedList<NewUploadFile> newUploadFiles = new LinkedList<NewUploadFile>();
+        final LinkedList<NewUploadFile> newUploadFiles = new LinkedList<NewUploadFile>();
 
-        for( NewUploadFile nuf : storageRoot.newUploadFiles ) {
-            File f = new File(nuf.getFilePath());
+        for( final NewUploadFile nuf : storageRoot.newUploadFiles ) {
+            final File f = new File(nuf.getFilePath());
             if (!f.isFile()) {
                 logger.warning("File ("+nuf.getFilePath()+") is missing. File removed.");
                 continue;
@@ -248,13 +235,13 @@ public class FrostFilesStorage implements Savable {
         }
         return newUploadFiles;
     }
-    
+
     /**
      * Load all hidden board names.
      */
     public HashSet<String> loadHiddenBoardNames() {
-        HashSet<String> result = new HashSet<String>();
-        for( PerstHiddenBoardName hbn : storageRoot.hiddenBoardNames ) {
+        final HashSet<String> result = new HashSet<String>();
+        for( final PerstHiddenBoardName hbn : storageRoot.hiddenBoardNames ) {
             result.add(hbn.getHiddenBoardName());
         }
         return result;
@@ -263,17 +250,17 @@ public class FrostFilesStorage implements Savable {
     /**
      * Clear table and save all hidden board names.
      */
-    public void saveHiddenBoardNames(HashSet<String> names) {
+    public void saveHiddenBoardNames(final HashSet<String> names) {
         removeAllFromStorage(storageRoot.hiddenBoardNames);
-        for( String s : names ) {
-            PerstHiddenBoardName h = new PerstHiddenBoardName(s);
+        for( final String s : names ) {
+            final PerstHiddenBoardName h = new PerstHiddenBoardName(s);
             storageRoot.hiddenBoardNames.add(h);
         }
         commitStore();
     }
-    
-    private String buildBoardIndex(Board b) {
-        StringBuilder sb = new StringBuilder();
+
+    private String buildBoardIndex(final Board b) {
+        final StringBuilder sb = new StringBuilder();
         sb.append(b.getNameLowerCase());
         if( b.getPublicKey() != null ) {
             sb.append(b.getPublicKey());
@@ -283,22 +270,22 @@ public class FrostFilesStorage implements Savable {
         }
         return sb.toString();
     }
-    
+
     /**
      * @return  List of KnownBoard
      */
     public List<KnownBoard> getKnownBoards() {
-        List<KnownBoard> lst = new ArrayList<KnownBoard>();
-        for(PerstKnownBoard pkb : storageRoot.knownBoards) {
-            KnownBoard kb = new KnownBoard(pkb.getBoardName(), pkb.getPublicKey(), pkb.getPrivateKey(), pkb.getDescription());
+        final List<KnownBoard> lst = new ArrayList<KnownBoard>();
+        for(final PerstKnownBoard pkb : storageRoot.knownBoards) {
+            final KnownBoard kb = new KnownBoard(pkb.getBoardName(), pkb.getPublicKey(), pkb.getPrivateKey(), pkb.getDescription());
             lst.add(kb);
         }
         return lst;
     }
-    
-    public synchronized boolean deleteKnownBoard(Board b) {
-        String newIx = buildBoardIndex(b);
-        PerstKnownBoard pkb = storageRoot.knownBoards.get(newIx);
+
+    public synchronized boolean deleteKnownBoard(final Board b) {
+        final String newIx = buildBoardIndex(b);
+        final PerstKnownBoard pkb = storageRoot.knownBoards.get(newIx);
         if( pkb != null ) {
             storageRoot.knownBoards.remove(newIx, pkb);
             pkb.deallocate();
@@ -307,20 +294,20 @@ public class FrostFilesStorage implements Savable {
         }
         return false;
     }
-    
+
     /**
      * Called with a list of Board, should add all boards that are not contained already
      * @param lst  List of Board
      * @return  number of added boards
      */
-    public synchronized int addNewKnownBoards( List<? extends Board> lst ) {
+    public synchronized int addNewKnownBoards( final List<? extends Board> lst ) {
         if( lst == null || lst.size() == 0 ) {
             return 0;
         }
         int added = 0;
-        for( Board b : lst ) {
-            String newIx = buildBoardIndex(b);
-            PerstKnownBoard pkb = new PerstKnownBoard(b.getName(), b.getPublicKey(), b.getPrivateKey(), b.getDescription());
+        for( final Board b : lst ) {
+            final String newIx = buildBoardIndex(b);
+            final PerstKnownBoard pkb = new PerstKnownBoard(b.getName(), b.getPublicKey(), b.getPrivateKey(), b.getDescription());
             if( storageRoot.knownBoards.put(newIx, pkb) ) {
                 added++;
             }
