@@ -47,37 +47,37 @@ public class CleanUp {
     public static final int DELETE_MESSAGES  = 1;
     public static final int ARCHIVE_MESSAGES = 2;
     public static final int KEEP_MESSAGES    = 3;
-    
+
     // we hold indices, chk keys, ... for at least the following count of days:
     private final static int MINIMUM_DAYS_OLD = 28;
-    
+
     private static Splashscreen splashScreen;
-    
+
     /**
      * Expire messages during startup of Frost.
      * Clean indexslot tables and file tables.
      * Gets the mode to use from settings.
      */
-    public static void runExpirationTasks(Splashscreen sp, List<Board> boardList) {
+    public static void runExpirationTasks(final Splashscreen sp, final List<Board> boardList) {
 
         splashScreen = sp;
-        
+
         // each time run cleanup for perst storages
         cleanPerstStorages(boardList);
-        
+
         // on 0.5, delete old upload file chunks
-        if( Core.frostSettings.getBoolValue(SettingsClass.UPLOAD_REMOVE_CHUNKS) 
-                && FcpHandler.isFreenet05() ) 
+        if( Core.frostSettings.getBoolValue(SettingsClass.UPLOAD_REMOVE_CHUNKS)
+                && FcpHandler.isFreenet05() )
         {
             splashScreen.setText("Removing old upload chunks");
             cleanup05UploadChunks();
         }
-        
+
         // cleanup/archive McKoi tables all X days
-        int cleanupDatabaseInterval = Core.frostSettings.getIntValue(SettingsClass.DB_CLEANUP_INTERVAL);
-        long lastCleanupTime = Core.frostSettings.getLongValue(SettingsClass.DB_CLEANUP_LASTRUN);
-        long now = System.currentTimeMillis();
-        long intervalMillis = ((long)cleanupDatabaseInterval) * 24L * 60L * 60L * 1000L; // interval days into millis
+        final int cleanupDatabaseInterval = Core.frostSettings.getIntValue(SettingsClass.DB_CLEANUP_INTERVAL);
+        final long lastCleanupTime = Core.frostSettings.getLongValue(SettingsClass.DB_CLEANUP_LASTRUN);
+        final long now = System.currentTimeMillis();
+        final long intervalMillis = (cleanupDatabaseInterval) * 24L * 60L * 60L * 1000L; // interval days into millis
 
         // when last cleanup was before the chosen interval days then run cleanup and archiving
         if( lastCleanupTime < (now - intervalMillis) ) {
@@ -85,19 +85,19 @@ public class CleanUp {
             Core.frostSettings.setValue(SettingsClass.DB_CLEANUP_LASTRUN, now);
         }
     }
-    
-    private static void cleanPerstStorages(List<Board> boardList) {
+
+    private static void cleanPerstStorages(final List<Board> boardList) {
         splashScreen.setText("Cleaning index tables");
         cleanupIndexSlotsStorage(boardList);
-        
+
         splashScreen.setText("Cleaning CHK filelist tables");
         cleanupSharedCHKKeyStorage();
     }
-    
-    private static void cleanStorages(List<Board> boardList) {
+
+    private static void cleanStorages(final List<Board> boardList) {
         int mode;
-        
-        String strMode = Core.frostSettings.getValue(SettingsClass.MESSAGE_EXPIRATION_MODE);
+
+        final String strMode = Core.frostSettings.getValue(SettingsClass.MESSAGE_EXPIRATION_MODE);
         if( strMode.toUpperCase().equals("KEEP") ) {
             mode = KEEP_MESSAGES;
         } else if( strMode.toUpperCase().equals("ARCHIVE") ) {
@@ -107,15 +107,15 @@ public class CleanUp {
         } else {
             mode = KEEP_MESSAGES;
         }
-        
+
         processExpiredMessages(boardList, mode);
 
         splashScreen.setText("Cleaning filelist tables");
         cleanupFileListFileOwners();
         cleanupFileListFiles();
     }
-    
-    private static void processExpiredMessages(List<Board> boardList, int mode) {
+
+    private static void processExpiredMessages(final List<Board> boardList, final int mode) {
 
         if( mode == ARCHIVE_MESSAGES ) {
             logger.info("Expiration mode is ARCHIVE_MESSAGES.");
@@ -143,30 +143,29 @@ public class CleanUp {
             defaultDaysOld = Core.frostSettings.getIntValue(SettingsClass.MAX_MESSAGE_DOWNLOAD) + 1;
         }
 
-        for(Iterator<Board> i=boardList.iterator(); i.hasNext(); ) {
+        for( final Board board : boardList ) {
 
             int currentDaysOld = defaultDaysOld;
-            Board board = i.next();
             if( board.isConfigured() ) {
                 currentDaysOld = Math.max(board.getMaxMessageDisplay(), currentDaysOld);
                 currentDaysOld = Math.max(board.getMaxMessageDownload(), currentDaysOld);
             }
-            
-            boolean archiveKeepUnread = Core.frostSettings.getBoolValue(SettingsClass.ARCHIVE_KEEP_UNREAD);
-            boolean archiveKeepFlaggedAndStarred = Core.frostSettings.getBoolValue(SettingsClass.ARCHIVE_KEEP_FLAGGED_AND_STARRED);
-            
+
+            final boolean archiveKeepUnread = Core.frostSettings.getBoolValue(SettingsClass.ARCHIVE_KEEP_UNREAD);
+            final boolean archiveKeepFlaggedAndStarred = Core.frostSettings.getBoolValue(SettingsClass.ARCHIVE_KEEP_FLAGGED_AND_STARRED);
+
             splashScreen.setText("Archiving messages in board: "+board.getName());
 
             if( mode != KEEP_MESSAGES ) {
-                MessageTableCallback mtCallback = new MessageTableCallback(mode);
+                final MessageTableCallback mtCallback = new MessageTableCallback(mode);
                 try {
                     MessageStorage.inst().retrieveMessagesForArchive(
-                            board, 
+                            board,
                             currentDaysOld,
                             archiveKeepUnread,
-                            archiveKeepFlaggedAndStarred, 
+                            archiveKeepFlaggedAndStarred,
                             mtCallback);
-                } catch(Throwable t) {
+                } catch(final Throwable t) {
                     logger.log(Level.SEVERE, "Exception during retrieveMessagesForArchive", t);
                     continue;
                 }
@@ -182,21 +181,21 @@ public class CleanUp {
 
         logger.info("Finished to process expired messages.");
     }
-    
+
     /**
      * Callback that gets each expired message and tries to insert it into MessageArchive.
      */
     private static class MessageTableCallback implements MessageArchivingCallback {
         int mode;
         int count = 0;
-        public MessageTableCallback(int m) { mode = m; }
-        public int messageRetrieved(FrostMessageObject mo) {
+        public MessageTableCallback(final int m) { mode = m; }
+        public int messageRetrieved(final FrostMessageObject mo) {
             if( count%100 == 0 ) {
                 MessageStorage.inst().commitStore();
                 ArchiveMessageStorage.inst().commitStore();
             }
             if( mode == ARCHIVE_MESSAGES ) {
-                int rc = ArchiveMessageStorage.inst().insertMessage(mo, false);
+                final int rc = ArchiveMessageStorage.inst().insertMessage(mo, false);
                 if( rc == ArchiveMessageStorage.INSERT_ERROR ) {
                     return MessageArchivingCallback.KEEP_MESSAGE;
                 }
@@ -209,18 +208,17 @@ public class CleanUp {
         }
         public int getCount() { return count; }
     }
-    
+
     /**
      * Cleanup old indexslot table entries.
      * Keep indices files for maxMessageDownload*2 days, but at least MINIMUM_DAYS_OLD days.
      */
-    private static void cleanupIndexSlotsStorage(List<Board> boardList) {
+    private static void cleanupIndexSlotsStorage(final List<Board> boardList) {
 
         int maxDaysOld = Core.frostSettings.getIntValue(SettingsClass.MAX_MESSAGE_DOWNLOAD) * 2;
 
         // max from any board
-        for( Iterator<Board> i=boardList.iterator(); i.hasNext(); ) {
-            Board board = i.next();
+        for( final Board board : boardList ) {
             if( board.isConfigured() ) {
                 maxDaysOld = Math.max(board.getMaxMessageDownload(), maxDaysOld);
             }
@@ -228,12 +226,12 @@ public class CleanUp {
         if( maxDaysOld < MINIMUM_DAYS_OLD ) {
             maxDaysOld = MINIMUM_DAYS_OLD;
         }
-        
+
         int deletedCount = 0;
 
         try {
             deletedCount += IndexSlotsStorage.inst().cleanup(maxDaysOld);
-        } catch(Throwable t) {
+        } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Exception during cleanup of IndexSlots", t);
         }
         if( deletedCount > 0 ) {
@@ -249,7 +247,7 @@ public class CleanUp {
         int deletedCount = 0;
         try {
             deletedCount = SharedFilesCHKKeyStorage.inst().cleanupTable(MINIMUM_DAYS_OLD);
-        } catch(Throwable t) {
+        } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Exception during cleanup of SharedFilesCHKKeys", t);
         }
         if( deletedCount > 0 ) {
@@ -264,7 +262,7 @@ public class CleanUp {
         int deletedCount = 0;
         try {
             deletedCount = FileListStorage.inst().cleanupFileListFileOwners(MINIMUM_DAYS_OLD);
-        } catch(Throwable t) {
+        } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Exception during cleanup of FileListFileOwners", t);
         }
         if( deletedCount > 0 ) {
@@ -273,50 +271,48 @@ public class CleanUp {
     }
 
     /**
-     * Remove files that have no owner and no CHK key. 
+     * Remove files that have no owner and no CHK key.
      */
     private static void cleanupFileListFiles() {
         int deletedCount = 0;
         try {
             deletedCount = FileListStorage.inst().cleanupFileListFiles();
-        } catch(Throwable t) {
+        } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Exception during cleanup of FileListFiles", t);
         }
         if( deletedCount > 0 ) {
             logger.warning("INFO: Finished to delete expired FileListFiles, deleted "+deletedCount+" rows.");
         }
     }
-    
+
     /**
      * Scans all 0.5 upload file chunks in LOCALDATA folder (.redirect, .checkblocks).
      * Scans files currently in upload table.
      * Deletes all chunks of files which are not in upload table.
      */
     private static void cleanup05UploadChunks() {
-        
+
         // upload items are already loaded into model
-        List<FrostUploadItem> ulItems = Core.getInstance().getFileTransferManager().getUploadManager().getModel().getItems();
+        final List<FrostUploadItem> ulItems = Core.getInstance().getFileTransferManager().getUploadManager().getModel().getItems();
 
         // prepare a Set of all known valid absolute filenames
-        HashSet<String> ulItemFilePaths = new HashSet<String>();
-        for(Iterator<FrostUploadItem> i=ulItems.iterator(); i.hasNext(); ) {
-            FrostUploadItem ulItem = i.next();
-            
-            File uploadFile = ulItem.getFile();
-            String ulFilename = FecSplitfile.convertUploadFilename(uploadFile);
-            File checkBlocksFile = new File( ulFilename + FecSplitfile.FILE_CHECKBLOCKS_EXTENSION );
-            File redirectFile = new File( ulFilename + FecSplitfile.FILE_REDIRECT_EXTENSION );
-            
+        final HashSet<String> ulItemFilePaths = new HashSet<String>();
+        for( final FrostUploadItem ulItem : ulItems ) {
+            final File uploadFile = ulItem.getFile();
+            final String ulFilename = FecSplitfile.convertUploadFilename(uploadFile);
+            final File checkBlocksFile = new File( ulFilename + FecSplitfile.FILE_CHECKBLOCKS_EXTENSION );
+            final File redirectFile = new File( ulFilename + FecSplitfile.FILE_REDIRECT_EXTENSION );
+
             ulItemFilePaths.add(checkBlocksFile.getAbsolutePath());
             ulItemFilePaths.add(redirectFile.getAbsolutePath());
         }
 
         // get a List of all files in LOCALDATA directory that have extension .redirect or .checkblocks
-        File localdataDir = new File(Core.frostSettings.getValue(SettingsClass.DIR_LOCALDATA));
-        
-        FilenameFilter ffilter = new FilenameFilter() {
+        final File localdataDir = new File(Core.frostSettings.getValue(SettingsClass.DIR_LOCALDATA));
+
+        final FilenameFilter ffilter = new FilenameFilter() {
             public boolean accept(File dir, String name) {
-                if( name.endsWith(FecSplitfile.FILE_CHECKBLOCKS_EXTENSION) 
+                if( name.endsWith(FecSplitfile.FILE_CHECKBLOCKS_EXTENSION)
                         || name.endsWith(FecSplitfile.FILE_REDIRECT_EXTENSION) )
                 {
                     return true;
@@ -327,8 +323,8 @@ public class CleanUp {
 
         int deletedCount = 0;
         long deletedSize = 0L;
-        File[] allUploadChunks = localdataDir.listFiles(ffilter);
-        for( File aFile : allUploadChunks ) {
+        final File[] allUploadChunks = localdataDir.listFiles(ffilter);
+        for( final File aFile : allUploadChunks ) {
             if( aFile.isFile() && !ulItemFilePaths.contains(aFile.getAbsolutePath()) ) {
                 // file is not known, delete
                 deletedSize += aFile.length();
