@@ -117,22 +117,26 @@ public class MessageContentStorage extends AbstractFrostStorage implements Savab
     }
 
     public void deallocateForOid(final int oid) {
-        // FIXME: testen ob removeKey auch tut! Nimmt obj statt int...
-        PerstString ps = storageRoot.getContentByMsgOid().removeKey(oid);
+        PerstString ps;
+        ps = storageRoot.getContentByMsgOid().get(oid);
         if( ps != null ) {
+            storageRoot.getContentByMsgOid().removeKey(oid);
             ps.deallocate();
         }
-        ps = storageRoot.getPublickeyByMsgOid().removeKey(oid);
+        ps = storageRoot.getPublickeyByMsgOid().get(oid);
         if( ps != null ) {
+            storageRoot.getPublickeyByMsgOid().removeKey(oid);
             ps.deallocate();
         }
-        ps = storageRoot.getSignatureByMsgOid().removeKey(oid);
+        ps = storageRoot.getSignatureByMsgOid().get(oid);
         if( ps != null ) {
+            storageRoot.getSignatureByMsgOid().removeKey(oid);
             ps.deallocate();
         }
 
-        final PerstAttachments pa = storageRoot.getAttachmentsByMsgOid().removeKey(oid);
+        final PerstAttachments pa = storageRoot.getAttachmentsByMsgOid().get(oid);
         if( pa != null ) {
+            storageRoot.getAttachmentsByMsgOid().removeKey(oid);
             pa.deallocate();
         }
     }

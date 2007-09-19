@@ -21,23 +21,23 @@ package frost.storage.perst;
 import org.garret.perst.*;
 
 public class PerstString extends Persistent {
-    
+
     private String value;
-    
+
     public PerstString() {}
-    
-    public PerstString(String v) {
+
+    public PerstString(final String v) {
         value = v;
     }
-    
+
     public String getValue() {
         return value;
     }
-    
-    public void onLoad() {
-        System.out.println("loaded!");
-    }
-    
+
+//    public void onLoad() {
+//        System.out.println("loaded!");
+//    }
+
     @Override
     public boolean recursiveLoading() {
         return false;
