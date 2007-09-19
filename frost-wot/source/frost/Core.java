@@ -80,11 +80,11 @@ public class Core implements FrostEventDispatcher  {
     private FileTransferManager fileTransferManager;
 
     private static FrostIdentities identities;
-    
+
     private Core() {
         initializeLanguage();
     }
-    
+
     /**
      * This methods parses the list of available nodes (and converts it if it is in
      * the old format). If there are no available nodes, it shows a Dialog warning the
@@ -92,11 +92,11 @@ public class Core implements FrostEventDispatcher  {
      * @return boolean false if no nodes are available. True otherwise.
      */
     private boolean initializeConnectivity() {
- 
+
         // determine configured freenet version
         int freenetVersion = frostSettings.getIntValue(SettingsClass.FREENET_VERSION); // 5 or 7
         if( freenetVersion <= 0 ) {
-            FreenetVersionDialog dlg = new FreenetVersionDialog();
+            final FreenetVersionDialog dlg = new FreenetVersionDialog();
             dlg.setVisible(true);
             if( dlg.isChoosedExit() ) {
                 return false;
@@ -118,20 +118,20 @@ public class Core implements FrostEventDispatcher  {
                     language.getString("Core.init.UnsupportedFreenetVersionTitle"));
             return false;
         }
-        
+
         // get the list of available nodes
-        String nodesUnparsed = frostSettings.getValue(SettingsClass.AVAILABLE_NODES);
-        
-        List<String> nodes = new ArrayList<String>();
+        final String nodesUnparsed = frostSettings.getValue(SettingsClass.AVAILABLE_NODES);
+
+        final List<String> nodes = new ArrayList<String>();
 
         if (nodesUnparsed == null) { //old format
-            String converted = new String(frostSettings.getValue("nodeAddress")+":"+frostSettings.getValue("nodePort"));
+            final String converted = new String(frostSettings.getValue("nodeAddress")+":"+frostSettings.getValue("nodePort"));
             nodes.add(converted.trim());
             frostSettings.setValue(SettingsClass.AVAILABLE_NODES, converted.trim());
         } else { // new format
-            String[] _nodes = nodesUnparsed.split(",");
-            for (int i = 0; i < _nodes.length; i++) {
-                nodes.add(_nodes[i]);
+            final String[] _nodes = nodesUnparsed.split(",");
+            for( final String element : _nodes ) {
+                nodes.add(element);
             }
         }
 
@@ -158,47 +158,46 @@ public class Core implements FrostEventDispatcher  {
 
         // init the factory with configured nodes
         try {
-            FcpHandler.initializeFcp(nodes, freenetVersion); 
-        } catch(UnsupportedOperationException ex) {
+            FcpHandler.initializeFcp(nodes, freenetVersion);
+        } catch(final UnsupportedOperationException ex) {
             MiscToolkit.getInstance().showMessage(
                     ex.getMessage(),
                     JOptionPane.ERROR_MESSAGE,
                     language.getString("Core.init.UnsupportedFreenetVersionTitle"));
             return false;
         }
-        
+
         // install our security manager that only allows connections to the configured FCP hosts
         System.setSecurityManager(new FrostSecurityManager());
 
         // check if node is online and if we run on 0.7 testnet
         setFreenetOnline(false);
-        
+
         if( Frost.isOfflineMode() ) {
             // keep offline
             return true;
         }
-        
+
         boolean runningOnTestnet = false;
         try {
-            List<String> nodeInfo = FcpHandler.inst().getNodeInfo();
+            final List<String> nodeInfo = FcpHandler.inst().getNodeInfo();
             if( nodeInfo != null ) {
                 // freenet is online
                 setFreenetOnline(true);
-                
+
                 // on 0.7 check for "Testnet=true" and warn user
                 if( FcpHandler.isFreenet07() ) {
-                    for(Iterator<String> i=nodeInfo.iterator(); i.hasNext(); ) {
-                        String val = i.next();
+                    for( final String val : nodeInfo ) {
                         if( val.startsWith("Testnet") && val.indexOf("true") > 0 ) {
                             runningOnTestnet = true;
                         }
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             logger.log(Level.SEVERE, "Exception thrown in initializeConnectivity", e);
         }
-        
+
         if( runningOnTestnet ) {
             MiscToolkit.getInstance().showMessage(
                     language.getString("Core.init.TestnetWarningBody"),
@@ -219,8 +218,8 @@ public class Core implements FrostEventDispatcher  {
 
         return true;
     }
-    
-    public static void setFreenetOnline(boolean v) {
+
+    public static void setFreenetOnline(final boolean v) {
         freenetIsOnline = v;
     }
     public static boolean isFreenetOnline() {
@@ -231,11 +230,11 @@ public class Core implements FrostEventDispatcher  {
         return crypto;
     }
 
-    public static void schedule(TimerTask task, long delay) {
+    public static void schedule(final TimerTask task, final long delay) {
         getInstance().timer.schedule(task, delay);
     }
 
-    public static void schedule(TimerTask task, long delay, long period) {
+    public static void schedule(final TimerTask task, final long delay, final long period) {
         getInstance().timer.schedule(task, delay, period);
     }
 
@@ -248,18 +247,18 @@ public class Core implements FrostEventDispatcher  {
         }
         return instance;
     }
-    
+
     private void showFirstStartupDialog() {
         // clean startup, ask user which freenet version to use, set correct default availableNodes
-        FirstStartupDialog startdlg = new FirstStartupDialog();
-        boolean exitChoosed = startdlg.startDialog();
+        final FirstStartupDialog startdlg = new FirstStartupDialog();
+        final boolean exitChoosed = startdlg.startDialog();
         if( exitChoosed ) {
             System.exit(1);
         }
-        
+
         // first startup, no migrate needed
         frostSettings.setValue(SettingsClass.MIGRATE_VERSION, 2);
-        
+
         // set used version
         frostSettings.setValue(SettingsClass.FREENET_VERSION, startdlg.getFreenetVersion()); // 5 or 7
         // init availableNodes with correct port
@@ -282,7 +281,7 @@ public class Core implements FrostEventDispatcher  {
      * Initialize, show splashscreen.
      */
     public void initialize() throws Exception {
-        Splashscreen splashscreen = new Splashscreen(frostSettings.getBoolValue(SettingsClass.DISABLE_SPLASHSCREEN));
+        final Splashscreen splashscreen = new Splashscreen(frostSettings.getBoolValue(SettingsClass.DISABLE_SPLASHSCREEN));
         splashscreen.setVisible(true);
 
         splashscreen.setText(language.getString("Splashscreen.message.1"));
@@ -291,7 +290,7 @@ public class Core implements FrostEventDispatcher  {
         //Initializes the logging and skins
         new Logging(frostSettings);
         initializeSkins();
-        
+
         // if first startup ask user for freenet version to use
         if( frostSettings.getIntValue(SettingsClass.FREENET_VERSION) == 0 ) {
             showFirstStartupDialog();
@@ -315,7 +314,7 @@ public class Core implements FrostEventDispatcher  {
                 System.exit(8);
             }
         }
-        
+
         // initialize perst storages
         IndexSlotsStorage.inst().initStorage();
         SharedFilesCHKKeyStorage.inst().initStorage();
@@ -339,26 +338,27 @@ public class Core implements FrostEventDispatcher  {
             chi = null;
         }
 
-        splashscreen.setText(language.getString("Splashscreen.message.3"));
-        splashscreen.setProgress(60);
-        
         // migrate various tables from McKoi to perst (migrate version 1 -> 2 )
         Migrate1to2 migrate1to2 = null;
         if( frostSettings.getIntValue(SettingsClass.MIGRATE_VERSION) == 1 ) {
             migrate1to2 = new Migrate1to2();
+            splashscreen.setText(language.getString("Migration - Step 1"));
             if( migrate1to2.runStep1() == false ) {
                 System.out.println("Error during migration step 1!");
                 System.exit(8);
             }
         }
-        
+
+        splashscreen.setText(language.getString("Splashscreen.message.3"));
+        splashscreen.setProgress(60);
+
         // needs to be done before knownboard import, the keychecker needs to know the freenetversion!
         if (!initializeConnectivity()) {
             System.exit(1);
         }
 
         getIdentities().initialize(isFreenetOnline());
-        
+
         String title;
     	if( FcpHandler.isFreenet05() ) {
     		title = "Frost@Freenet 0.5";
@@ -367,7 +367,7 @@ public class Core implements FrostEventDispatcher  {
     	} else {
     		title = "Frost";
     	}
-        
+
         if( !isFreenetOnline() ) {
             title += " (offline mode)";
         }
@@ -378,6 +378,7 @@ public class Core implements FrostEventDispatcher  {
         getBoardsManager().initialize();
 
         if( migrate1to2 != null ) {
+            splashscreen.setText(language.getString("Migration - Step 2"));
             if( migrate1to2.runStep2() == false ) {
                 System.out.println("Error during migration step 2!");
                 System.exit(8);
@@ -388,15 +389,15 @@ public class Core implements FrostEventDispatcher  {
 
         getFileTransferManager().initialize();
         UnsentMessagesManager.initialize();
-        
+
         splashscreen.setText(language.getString("Splashscreen.message.4"));
         splashscreen.setProgress(70);
-        
+
         // Display the tray icon (do this before mainframe initializes)
         if (frostSettings.getBoolValue(SettingsClass.SHOW_SYSTRAY_ICON) == true) {
             try {
                 JSysTrayIcon.createInstance(0, title, title);
-            } catch(Throwable t) {
+            } catch(final Throwable t) {
                 logger.log(Level.SEVERE, "Could not create systray icon.", t);
             }
         }
@@ -408,10 +409,10 @@ public class Core implements FrostEventDispatcher  {
 
         // after expiration, select previously selected board tree row; this loads the message table!!!
         mainFrame.postInitialize();
-        
+
         splashscreen.setText(language.getString("Splashscreen.message.5"));
         splashscreen.setProgress(80);
-        
+
         SwingUtilities.invokeAndWait(new Runnable() {
             public void run() {
                 mainFrame.setVisible(true);
@@ -419,17 +420,17 @@ public class Core implements FrostEventDispatcher  {
         });
 
         splashscreen.closeMe();
-        
+
         SwingUtilities.invokeAndWait(new Runnable() {
             public void run() {
                 mainFrame.showStartupMessages();
             }
         });
-        
+
         // boot up the machinery ;)
         initializeTasks(mainFrame);
     }
-    
+
     public FileTransferManager getFileTransferManager() {
         if (fileTransferManager == null) {
             fileTransferManager = FileTransferManager.inst();
@@ -454,28 +455,29 @@ public class Core implements FrostEventDispatcher  {
      *          dialog that has to be shown in case an error happens
      *          in one of those tasks
      */
-    private void initializeTasks(MainFrame mainframe) {
+    private void initializeTasks(final MainFrame mainframe) {
         // initialize the task that frees memory
         TimerTask cleaner = new TimerTask() {
+            @Override
             public void run() {
                 logger.info("freeing memory");
                 System.gc();
             }
         };
-        long gcMinutes = 10;
+        final long gcMinutes = 10;
         timer.schedule(cleaner, gcMinutes * 60L * 1000L, gcMinutes * 60L * 1000L);
         cleaner = null;
-        
+
         // initialize the task that saves data
-        StorageManager saver = new StorageManager(frostSettings, this);
+        final StorageManager saver = new StorageManager(frostSettings, this);
         saver.addAutoSavable(getBoardsManager().getTofTree());
         saver.addAutoSavable(getFileTransferManager());
-        
+
         saver.addExitSavable(getIdentities());
         saver.addExitSavable(getBoardsManager().getTofTree());
         saver.addExitSavable(getFileTransferManager());
         saver.addExitSavable(KnownBoardsManager.getInstance());
-        
+
         saver.addExitSavable(frostSettings);
 
         // close perst Storages
@@ -490,16 +492,17 @@ public class Core implements FrostEventDispatcher  {
 
         // invoke the mainframe ticker (board updates, clock, ...)
         mainframe.startTickerThread();
-        
+
         // start file attachment uploads
         FileAttachmentUploadThread.getInstance().start();
-        
+
         // start all filetransfer tickers
         getFileTransferManager().startTickers();
-        
+
         // after X seconds, start filesharing threads if enabled
         if( isFreenetOnline() && !frostSettings.getBoolValue(SettingsClass.DISABLE_FILESHARING)) {
-            Thread t = new Thread() {
+            final Thread t = new Thread() {
+                @Override
                 public void run() {
                     Mixed.wait(10000);
                     FileSharingManager.startFileSharing();
@@ -514,19 +517,19 @@ public class Core implements FrostEventDispatcher  {
      * @param frostSettings the SettingsClass that has the preferences to initialize the skins
      */
     private void initializeSkins() {
-        String skinsEnabled = frostSettings.getValue(SettingsClass.SKINS_ENABLED);
+        final String skinsEnabled = frostSettings.getValue(SettingsClass.SKINS_ENABLED);
         if ((skinsEnabled != null) && (skinsEnabled.equals("true"))) {
-            String selectedSkinPath = frostSettings.getValue(SettingsClass.SKIN_NAME);
+            final String selectedSkinPath = frostSettings.getValue(SettingsClass.SKIN_NAME);
             if ((selectedSkinPath != null) && (!selectedSkinPath.equals("none"))) {
                 try {
-                    Skin selectedSkin = SkinLookAndFeel.loadThemePack(selectedSkinPath);
+                    final Skin selectedSkin = SkinLookAndFeel.loadThemePack(selectedSkinPath);
                     SkinLookAndFeel.setSkin(selectedSkin);
                     UIManager.setLookAndFeel(new SkinLookAndFeel());
-                } catch (UnsupportedLookAndFeelException exception) {
+                } catch (final UnsupportedLookAndFeelException exception) {
                     logger.severe("The selected skin is not supported by your system\n" +
                                 "Skins will be disabled until you choose another one");
                     frostSettings.setValue(SettingsClass.SKINS_ENABLED, false);
-                } catch (Exception exception) {
+                } catch (final Exception exception) {
                     logger.severe("There was an error while loading the selected skin\n" +
                                 "Skins will be disabled until you choose another one");
                     frostSettings.setValue(SettingsClass.SKINS_ENABLED, false);
@@ -551,15 +554,15 @@ public class Core implements FrostEventDispatcher  {
     private void initializeLanguage() {
         if( Frost.getCmdLineLocaleFileName() != null ) {
             // external bundle specified on command line (overrides config setting)
-            File f = new File(Frost.getCmdLineLocaleFileName());
+            final File f = new File(Frost.getCmdLineLocaleFileName());
             Language.initializeWithFile(f);
         } else if (Frost.getCmdLineLocaleName() != null) {
             // use locale specified on command line (overrides config setting)
             Language.initializeWithName(Frost.getCmdLineLocaleName());
         } else {
             // use config file parameter (format: de or de;ext
-            String lang = frostSettings.getValue(SettingsClass.LANGUAGE_LOCALE);
-            String langIsExternal = frostSettings.getValue("localeExternal");
+            final String lang = frostSettings.getValue(SettingsClass.LANGUAGE_LOCALE);
+            final String langIsExternal = frostSettings.getValue("localeExternal");
             if( lang == null || lang.length() == 0 || lang.equals("default") ) {
                 // for default or if not set at all
                 frostSettings.setValue(SettingsClass.LANGUAGE_LOCALE, "default");
@@ -580,16 +583,16 @@ public class Core implements FrostEventDispatcher  {
     /* (non-Javadoc)
      * @see frost.events.FrostEventDispatcher#dispatchEvent(frost.events.FrostEvent)
      */
-    public void dispatchEvent(FrostEvent frostEvent) {
+    public void dispatchEvent(final FrostEvent frostEvent) {
         dispatcher.dispatchEvent(frostEvent);
     }
 
     public static boolean isHelpHtmlSecure() {
         return isHelpHtmlSecure;
     }
-    
+
     private class EventDispatcher {
-        public void dispatchEvent(FrostEvent frostEvent) {
+        public void dispatchEvent(final FrostEvent frostEvent) {
             switch(frostEvent.getId()) {
                 case FrostEvent.STORAGE_ERROR_EVENT_ID:
                     dispatchStorageErrorEvent((StorageErrorEvent) frostEvent);
@@ -598,8 +601,8 @@ public class Core implements FrostEventDispatcher  {
                     logger.severe("Unknown FrostEvent received. Id: '" + frostEvent.getId() + "'");
             }
         }
-        public void dispatchStorageErrorEvent(StorageErrorEvent errorEvent) {
-            StringWriter stringWriter = new StringWriter();
+        public void dispatchStorageErrorEvent(final StorageErrorEvent errorEvent) {
+            final StringWriter stringWriter = new StringWriter();
             errorEvent.getException().printStackTrace(new PrintWriter(stringWriter));
 
             if (mainFrame != null) {
