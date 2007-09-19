@@ -33,16 +33,16 @@ import frost.util.*;
  * Represents a user identity, should be immutable.
  */
 public class Identity extends Persistent implements XMLizable {
-    
+
     private transient String publicKey;
-    
+
     private PerstIdentityPublicKey pPublicKey;
-    
+
     @Override
     public boolean recursiveLoading() {
         return false;
     }
-    
+
     @Override
     public void deallocate() {
         if( pPublicKey != null ) {
@@ -55,33 +55,34 @@ public class Identity extends Persistent implements XMLizable {
     class PerstIdentityPublicKey extends Persistent {
         private String perstPublicKey;
         public PerstIdentityPublicKey() {}
-        public PerstIdentityPublicKey(String pk) {
+        public PerstIdentityPublicKey(final String pk) {
             perstPublicKey = pk;
         }
         public String getPublicKey() {
             return perstPublicKey;
         }
-        public void onLoad() {
-            System.out.println("load pubkey");
-        }
+//        public void onLoad() {
+//            System.out.println("load pubkey");
+//        }
         @Override
         public boolean recursiveLoading() {
             return false; // load publicKey on demand
         }
     }
-    
+
+    @Override
     public void onStore() {
         if( pPublicKey == null && publicKey != null ) {
             // link public key
             pPublicKey = new PerstIdentityPublicKey(publicKey);
         }
     }
-    
+
     private static transient final int GOOD    = 1;
     private static transient final int CHECK   = 2;
     private static transient final int OBSERVE = 3;
     private static transient final int BAD     = 4;
-    
+
     private static transient final String GOOD_STRING    = "GOOD";
     private static transient final String CHECK_STRING   = "CHECK";
     private static transient final String OBSERVE_STRING = "OBSERVE";
@@ -91,43 +92,26 @@ public class Identity extends Persistent implements XMLizable {
     private long lastSeenTimestamp = -1;
 
     private int state = 2;
-    private transient String stateString = CHECK_STRING; 
+    private transient String stateString = CHECK_STRING;
 
     private static transient final Logger logger = Logger.getLogger(Identity.class.getName());
-    
+
     public Identity() {}
 
     //if this was C++ LocalIdentity wouldn't work
     //fortunately we have virtual construction so loadXMLElement will be called
     //for the inheriting class ;-)
-    public Identity(Element el) {
+    public Identity(final Element el) {
         try {
             loadXMLElement(el);
-        } catch (SAXException e) {
+        } catch (final SAXException e) {
             logger.log(Level.SEVERE, "Exception thrown in constructor", e);
         }
     }
 
-    public Element getXMLElement(Document doc)  {
+    public Element getXMLElement(final Document doc)  {
 
-        Element el = doc.createElement("Identity");
-
-        Element element = doc.createElement("name");
-        CDATASection cdata = doc.createCDATASection(getUniqueName());
-        element.appendChild( cdata );
-        el.appendChild( element );
-
-        element = doc.createElement("key");
-        cdata = doc.createCDATASection(getPublicKey());
-        element.appendChild( cdata );
-        el.appendChild( element );
-
-        return el;
-    }
-
-    public Element getXMLElement_old(Document doc)  {
-
-        Element el = doc.createElement("MyIdentity");
+        final Element el = doc.createElement("Identity");
 
         Element element = doc.createElement("name");
         CDATASection cdata = doc.createCDATASection(getUniqueName());
@@ -142,19 +126,36 @@ public class Identity extends Persistent implements XMLizable {
         return el;
     }
 
-    public Element getExportXMLElement(Document doc)  {
-        Element el = getXMLElement(doc);
+    public Element getXMLElement_old(final Document doc)  {
+
+        final Element el = doc.createElement("MyIdentity");
+
+        Element element = doc.createElement("name");
+        CDATASection cdata = doc.createCDATASection(getUniqueName());
+        element.appendChild( cdata );
+        el.appendChild( element );
+
+        element = doc.createElement("key");
+        cdata = doc.createCDATASection(getPublicKey());
+        element.appendChild( cdata );
+        el.appendChild( element );
+
+        return el;
+    }
+
+    public Element getExportXMLElement(final Document doc)  {
+        final Element el = getXMLElement(doc);
 
         if( lastSeenTimestamp > -1 ) {
-            Element element = doc.createElement("lastSeen");
-            Text txt = doc.createTextNode(Long.toString(lastSeenTimestamp));
+            final Element element = doc.createElement("lastSeen");
+            final Text txt = doc.createTextNode(Long.toString(lastSeenTimestamp));
             element.appendChild( txt );
             el.appendChild( element );
         }
         return el;
     }
 
-    public void loadXMLElement(Element e) throws SAXException {
+    public void loadXMLElement(final Element e) throws SAXException {
         uniqueName = XMLTools.getChildElementsCDATAValue(e, "name");
         publicKey =  XMLTools.getChildElementsCDATAValue(e, "key");
 
@@ -165,35 +166,35 @@ public class Identity extends Persistent implements XMLizable {
             // not yet set, init with current timestamp
             lastSeenTimestamp = System.currentTimeMillis();
         }
-        
+
         uniqueName = Mixed.makeFilename(uniqueName);
     }
 
     /**
      * we use this constructor whenever we have all the info
      */
-    public Identity(String name, String key) {
+    public Identity(final String name, final String key) {
         this.publicKey = key;
         if( name.indexOf("@") != -1 ) {
             this.uniqueName = name;
         } else {
             this.uniqueName = name + "@" + Core.getCrypto().digest(getPublicKey());
         }
-        
+
         uniqueName = Mixed.makeFilename(uniqueName);
     }
-    
 
-    public Identity(String uname, String pubkey, long lseen, int s) {
+
+    public Identity(final String uname, final String pubkey, final long lseen, final int s) {
         uniqueName = uname;
         publicKey = pubkey;
         lastSeenTimestamp = lseen;
         state = s;
         updateStateString();
-        
+
         uniqueName = Mixed.makeFilename(uniqueName);
     }
-    
+
     /**
      * @return  the public key of this Identity
      */
@@ -210,7 +211,7 @@ public class Identity extends Persistent implements XMLizable {
     }
 
     // dont't store BoardAttachment with pubKey=SSK@...
-    public static boolean isForbiddenBoardAttachment(BoardAttachment ba) {
+    public static boolean isForbiddenBoardAttachment(final BoardAttachment ba) {
         if( ba != null &&
             ba.getBoardObj().getPublicKey() != null &&
             ba.getBoardObj().getPublicKey().startsWith("SSK@") )
@@ -225,7 +226,7 @@ public class Identity extends Persistent implements XMLizable {
         return lastSeenTimestamp;
     }
 
-    public void updateLastSeenTimestamp(long v) {
+    public void updateLastSeenTimestamp(final long v) {
         lastSeenTimestamp = v;
         updateIdentitiesStorage();
     }
@@ -234,10 +235,11 @@ public class Identity extends Persistent implements XMLizable {
         return state;
     }
 
+    @Override
     public String toString() {
         return getUniqueName();
     }
-    
+
     public boolean isGOOD() {
         return state==GOOD;
     }
@@ -250,7 +252,7 @@ public class Identity extends Persistent implements XMLizable {
     public boolean isBAD() {
         return state==BAD;
     }
-    
+
     public void setGOOD() {
         state=GOOD;
         updateStateString();
@@ -302,11 +304,11 @@ public class Identity extends Persistent implements XMLizable {
             stateString = "*ERR*";
         }
     }
-    
+
     public String getStateString() {
         return stateString;
     }
-    
+
     protected boolean updateIdentitiesStorage() {
         if( FrostIdentities.isDatabaseUpdatesAllowed() == false ) {
             return false;
