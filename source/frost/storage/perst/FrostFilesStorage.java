@@ -24,6 +24,7 @@ import java.util.logging.*;
 
 import org.garret.perst.*;
 
+import frost.*;
 import frost.boards.*;
 import frost.fileTransfer.download.*;
 import frost.fileTransfer.sharing.*;
@@ -40,9 +41,6 @@ public class FrostFilesStorage extends AbstractFrostStorage implements Savable {
 
     private static final Logger logger = Logger.getLogger(FrostFilesStorage.class.getName());
 
-    // FIXME: adjust page size
-    private static final int PAGE_SIZE = 1; // page size for the storage in MB
-
     private FrostFilesStorageRoot storageRoot = null;
 
     private static FrostFilesStorage instance = new FrostFilesStorage();
@@ -55,13 +53,10 @@ public class FrostFilesStorage extends AbstractFrostStorage implements Savable {
         return instance;
     }
 
+    @Override
     public boolean initStorage() {
-        final int pagePoolSize = PAGE_SIZE*1024*1024; // size of page pool in bytes
-        return initStorage(pagePoolSize);
-    }
-
-    public boolean initStorage(final int pagePoolSize) {
-        final String databaseFilePath = "store/filesStore.dbs"; // path to the database file
+        final String databaseFilePath = getStorageFilename("filesStore.dbs"); // path to the database file
+        final int pagePoolSize = getPagePoolSize(SettingsClass.PERST_PAGEPOOLSIZE_FILES);
 
         open(databaseFilePath, pagePoolSize, true, true, false);
 
@@ -79,13 +74,13 @@ public class FrostFilesStorage extends AbstractFrostStorage implements Savable {
             storageRoot.knownBoards = getStorage().createIndex(String.class, true);
 
             getStorage().setRoot(storageRoot);
-            commitStore(); // commit transaction
+            commit(); // commit transaction
         } else if( storageRoot.hiddenBoardNames == null ) {
             // add new root items
             storageRoot.hiddenBoardNames = getStorage().createScalableList();
             storageRoot.knownBoards = getStorage().createIndex(String.class, true);
             storageRoot.modify();
-            commitStore(); // commit transaction
+            commit(); // commit transaction
         }
         return true;
     }
@@ -103,7 +98,7 @@ public class FrostFilesStorage extends AbstractFrostStorage implements Savable {
             storageRoot.downloadFiles.add(pi);
         }
         storageRoot.downloadFiles.modify();
-        commitStore();
+        commit();
     }
 
     /**
@@ -117,7 +112,7 @@ public class FrostFilesStorage extends AbstractFrostStorage implements Savable {
             pi.deallocate(); // remove from Storage
         }
         plst.clear(); // paranoia
-        commitStore();
+        commit();
     }
 
     public void saveDownloadFiles(final List<FrostDownloadItem> downloadFiles) {
@@ -129,7 +124,7 @@ public class FrostFilesStorage extends AbstractFrostStorage implements Savable {
             final PerstFrostDownloadItem pi = new PerstFrostDownloadItem(dlItem);
             storageRoot.downloadFiles.add(pi);
         }
-        commitStore();
+        commit();
     }
 
     public List<FrostDownloadItem> loadDownloadFiles() {
@@ -148,7 +143,7 @@ public class FrostFilesStorage extends AbstractFrostStorage implements Savable {
         for( final PerstFrostUploadItem pi : uploadFiles ) {
             storageRoot.uploadFiles.add(pi);
         }
-        commitStore();
+        commit();
     }
 
     public void saveUploadFiles(final List<FrostUploadItem> uploadFiles) {
@@ -160,7 +155,7 @@ public class FrostFilesStorage extends AbstractFrostStorage implements Savable {
             final PerstFrostUploadItem pi = new PerstFrostUploadItem(ulItem);
             storageRoot.uploadFiles.add(pi);
         }
-        commitStore();
+        commit();
     }
 
     public List<FrostUploadItem> loadUploadFiles(final List<FrostSharedFileItem> sharedFiles) {
@@ -184,7 +179,7 @@ public class FrostFilesStorage extends AbstractFrostStorage implements Savable {
             storageRoot.sharedFiles.add(pi);
         }
         storageRoot.sharedFiles.modify();
-        commitStore();
+        commit();
     }
 
     public void saveSharedFiles(final List<FrostSharedFileItem> sfFiles) {
@@ -193,7 +188,7 @@ public class FrostFilesStorage extends AbstractFrostStorage implements Savable {
             final PerstFrostSharedFileItem pi = new PerstFrostSharedFileItem(sfItem);
             storageRoot.sharedFiles.add(pi);
         }
-        commitStore();
+        commit();
     }
 
     public List<FrostSharedFileItem> loadSharedFiles() {
@@ -218,7 +213,7 @@ public class FrostFilesStorage extends AbstractFrostStorage implements Savable {
 
             storageRoot.newUploadFiles.add(nuf);
         }
-        commitStore();
+        commit();
     }
 
     public LinkedList<NewUploadFile> loadNewUploadFiles() {
@@ -256,7 +251,7 @@ public class FrostFilesStorage extends AbstractFrostStorage implements Savable {
             final PerstHiddenBoardName h = new PerstHiddenBoardName(s);
             storageRoot.hiddenBoardNames.add(h);
         }
-        commitStore();
+        commit();
     }
 
     private String buildBoardIndex(final Board b) {
@@ -289,7 +284,7 @@ public class FrostFilesStorage extends AbstractFrostStorage implements Savable {
         if( pkb != null ) {
             storageRoot.knownBoards.remove(newIx, pkb);
             pkb.deallocate();
-            commitStore();
+            commit();
             return true;
         }
         return false;
@@ -312,7 +307,7 @@ public class FrostFilesStorage extends AbstractFrostStorage implements Savable {
                 added++;
             }
         }
-        commitStore();
+        commit();
         return added;
     }
 }

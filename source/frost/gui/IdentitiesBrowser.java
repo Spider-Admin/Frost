@@ -502,7 +502,7 @@ public class IdentitiesBrowser extends JDialog {
                         Core.getIdentities().deleteIdentity(id, false);
                         tableModel.removeRow(selRows[x]);
                     }
-                    IdentitiesStorage.inst().commitStore();
+                    IdentitiesStorage.inst().commit();
                     updateTitle();
                 }
             });
@@ -863,7 +863,7 @@ public class IdentitiesBrowser extends JDialog {
                         Core.getIdentities().deleteIdentity(id, false); // don't commit
                         tableModel.removeRow(element.intValue());
                     }
-                    IdentitiesStorage.inst().commitStore();
+                    IdentitiesStorage.inst().commit();
                     updateTitle();
                 }
             });

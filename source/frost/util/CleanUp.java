@@ -173,11 +173,11 @@ public class CleanUp {
                     logger.warning("INFO: Processed "+mtCallback.getCount()+" expired messages for board "+board.getName());
                 }
             }
-            MessageStorage.inst().commitStore();
-            ArchiveMessageStorage.inst().commitStore();
+            MessageStorage.inst().commit();
+            ArchiveMessageStorage.inst().commit();
         }
-        MessageStorage.inst().commitStore();
-        ArchiveMessageStorage.inst().commitStore();
+        MessageStorage.inst().commit();
+        ArchiveMessageStorage.inst().commit();
 
         logger.info("Finished to process expired messages.");
     }
@@ -191,8 +191,8 @@ public class CleanUp {
         public MessageTableCallback(final int m) { mode = m; }
         public int messageRetrieved(final FrostMessageObject mo) {
             if( count%100 == 0 ) {
-                MessageStorage.inst().commitStore();
-                ArchiveMessageStorage.inst().commitStore();
+                MessageStorage.inst().commit();
+                ArchiveMessageStorage.inst().commit();
             }
             if( mode == ARCHIVE_MESSAGES ) {
                 final int rc = ArchiveMessageStorage.inst().insertMessage(mo, false);

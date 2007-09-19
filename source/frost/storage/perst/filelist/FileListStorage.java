@@ -31,9 +31,6 @@ import frost.storage.perst.*;
 
 public class FileListStorage extends AbstractFrostStorage implements Savable, PropertyChangeListener {
 
-    // FIXME: adjust page size
-    private static final int PAGE_SIZE = 1; // page size for the storage in MB
-
     private FileListStorageRoot storageRoot = null;
 
     private static FileListStorage instance = new FileListStorage();
@@ -50,16 +47,11 @@ public class FileListStorage extends AbstractFrostStorage implements Savable, Pr
 
     @Override
     public boolean initStorage() {
-        final int pagePoolSize = PAGE_SIZE*1024*1024; // size of page pool in bytes
-        return initStorage(pagePoolSize);
-    }
-
-    @Override
-    public boolean initStorage(final int pagePoolSize) {
         rememberSharedFileDownloaded = Core.frostSettings.getBoolValue(SettingsClass.REMEMBER_SHAREDFILE_DOWNLOADED);
         Core.frostSettings.addPropertyChangeListener(SettingsClass.REMEMBER_SHAREDFILE_DOWNLOADED, this);
 
-        final String databaseFilePath = "store/filelist.dbs"; // path to the database file
+        final String databaseFilePath = getStorageFilename("filelist.dbs"); // path to the database file
+        final int pagePoolSize = getPagePoolSize(SettingsClass.PERST_PAGEPOOLSIZE_FILELIST);
 
         open(databaseFilePath, pagePoolSize, true, true, false);
 
@@ -68,7 +60,7 @@ public class FileListStorage extends AbstractFrostStorage implements Savable, Pr
             // Storage was not initialized yet
             storageRoot = new FileListStorageRoot(getStorage());
             getStorage().setRoot(storageRoot);
-            commitStore(); // commit transaction
+            commit(); // commit transaction
         }
         return true;
     }
@@ -103,7 +95,7 @@ public class FileListStorage extends AbstractFrostStorage implements Savable, Pr
             updateFileListFileFromOtherFileListFile(pflf, flf);
         }
         if( doCommit ) {
-            commitStore();
+            commit();
         }
         return true;
     }
@@ -222,7 +214,7 @@ public class FileListStorage extends AbstractFrostStorage implements Savable, Pr
                 pif.deallocate();
             }
         }
-        commitStore();
+        commit();
         return count;
     }
 
@@ -239,7 +231,7 @@ public class FileListStorage extends AbstractFrostStorage implements Savable, Pr
                 count++;
             }
         }
-        commitStore();
+        commit();
         return count;
     }
 
@@ -252,7 +244,7 @@ public class FileListStorage extends AbstractFrostStorage implements Savable, Pr
             fof.setLastDownloaded(0);
             fof.modify();
         }
-        commitStore();
+        commit();
     }
 
     /**
@@ -315,7 +307,7 @@ public class FileListStorage extends AbstractFrostStorage implements Savable, Pr
 
         oldSfo.modify();
 
-        commitStore();
+        commit();
 
         return true;
     }

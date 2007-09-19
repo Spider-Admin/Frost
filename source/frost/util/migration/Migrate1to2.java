@@ -204,7 +204,7 @@ public class Migrate1to2 {
                     ms.addSentMessage(mo, false);
                     cnt++;
                     if(cnt%100 == 0) {
-                        MessageStorage.inst().commitStore();
+                        MessageStorage.inst().commit();
                         System.out.println("Committed after "+cnt+" sent messages");
                     }
                     return false;
@@ -212,7 +212,7 @@ public class Migrate1to2 {
             };
 
             new SentMessageDatabaseTable().retrieveAllMessages(AppLayerDatabase.getInstance(), mc, allBoards);
-            MessageStorage.inst().commitStore();
+            MessageStorage.inst().commit();
             return true;
         } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Migration error!", t);
@@ -231,12 +231,12 @@ public class Migrate1to2 {
                 ms.addUnsentMessage(umo, false);
                 cnt++;
                 if(cnt%100 == 0) {
-                    MessageStorage.inst().commitStore();
+                    MessageStorage.inst().commit();
                     System.out.println("Committed after "+cnt+" unsent messages");
                 }
             }
 
-            MessageStorage.inst().commitStore();
+            MessageStorage.inst().commit();
             return true;
         } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Migration error!", t);
@@ -255,7 +255,7 @@ public class Migrate1to2 {
                     ms.insertMessage(mo, false);
                     cnt++;
                     if(cnt%100 == 0) {
-                        MessageStorage.inst().commitStore();
+                        MessageStorage.inst().commit();
                         System.out.println("Committed after "+cnt+" keypool messages");
                     }
                     return false;
@@ -263,7 +263,7 @@ public class Migrate1to2 {
             };
 
             new MessageDatabaseTable().retrieveAllMessages(AppLayerDatabase.getInstance(), mc, allBoards);
-            MessageStorage.inst().commitStore();
+            MessageStorage.inst().commit();
             return true;
         } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Migration error!", t);
@@ -282,14 +282,14 @@ public class Migrate1to2 {
                     ms.insertOrUpdateFileListFileObject(fo, false);
                     cnt++;
                     if(cnt%100 == 0) {
-                        ms.commitStore();
+                        ms.commit();
                         System.out.println("Committed after "+cnt+" file list files");
                     }
                     return false;
                 }
             };
             new FileListDatabaseTable().retrieveFiles(AppLayerDatabase.getInstance(), mc, null, null, null, null);
-            ms.commitStore();
+            ms.commit();
             return true;
         } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Migration error!", t);
@@ -308,7 +308,7 @@ public class Migrate1to2 {
                     ms.insertMessage(mo, (String)mo.getUserObject(), false);
                     cnt++;
                     if(cnt%100 == 0) {
-                        ms.commitStore();
+                        ms.commit();
                         // close and reopen storage -> solved heap space problem when migrating archive from McKoi
                         ms.silentClose();
                         ms.initStorage();
@@ -320,7 +320,7 @@ public class Migrate1to2 {
             };
 
             MessageArchiveDatabaseTable.retrieveAllMessages(AppLayerDatabase.getInstance(), mc);
-            ms.commitStore();
+            ms.commit();
             return true;
         } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Migration error!", t);

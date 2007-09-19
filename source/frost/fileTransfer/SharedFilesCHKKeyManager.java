@@ -70,7 +70,7 @@ public class SharedFilesCHKKeyManager {
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Exception during database update", t);
         }
-        SharedFilesCHKKeyStorage.inst().commitStore();
+        SharedFilesCHKKeyStorage.inst().commit();
     }
     
     /**
@@ -141,7 +141,7 @@ public class SharedFilesCHKKeyManager {
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Exception during chk key processing", t);
         }
-        SharedFilesCHKKeyStorage.inst().commitStore();
+        SharedFilesCHKKeyStorage.inst().commit();
     }
 
     public static List<String> getCHKKeyStringsToDownload() {
@@ -194,7 +194,7 @@ public class SharedFilesCHKKeyManager {
                 System.out.println("addNewCHKKeyToSend: "+key);
             }
             SharedFilesCHKKeyStorage.inst().storeItem(key);
-            SharedFilesCHKKeyStorage.inst().commitStore(); //FIXME: testfix, forgot to commit???
+            SharedFilesCHKKeyStorage.inst().commit(); //FIXME: testfix, forgot to commit???
             return true;
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Exception in addNewCHKKeyToSend", t);

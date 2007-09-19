@@ -38,9 +38,6 @@ public class MessageStorage extends AbstractFrostStorage implements Savable {
     public static final int INSERT_DUPLICATE = 2;
     public static final int INSERT_ERROR     = 3;
 
-    // FIXME: adjust page size
-    private static final int PAGE_SIZE = 6; // page size for the storage in MB
-
     private MessageStorageRoot storageRoot = null;
 
     private static MessageStorage instance = new MessageStorage();
@@ -58,13 +55,8 @@ public class MessageStorage extends AbstractFrostStorage implements Savable {
 
     @Override
     public boolean initStorage() {
-        final int pagePoolSize = PAGE_SIZE*1024*1024; // size of page pool in bytes
-        return initStorage(pagePoolSize);
-    }
-
-    @Override
-    public boolean initStorage(final int pagePoolSize) {
-        final String databaseFilePath = "store/messages.dbs"; // path to the database file
+        final String databaseFilePath = getStorageFilename("messages.dbs"); // path to the database file
+        final int pagePoolSize = getPagePoolSize(SettingsClass.PERST_PAGEPOOLSIZE_MESSAGES);
 
         open(databaseFilePath, pagePoolSize, true, true, false);
 
@@ -73,15 +65,15 @@ public class MessageStorage extends AbstractFrostStorage implements Savable {
             // Storage was not initialized yet
             storageRoot = new MessageStorageRoot(getStorage());
             getStorage().setRoot(storageRoot);
-            commitStore(); // commit transaction
+            commit(); // commit transaction
         }
         return true;
     }
 
     @Override
-    public synchronized void commitStore() {
-        super.commitStore();
-        MessageContentStorage.inst().commitStore();
+    public synchronized void commit() {
+        super.commit();
+        MessageContentStorage.inst().commit();
     }
 
     public void save() {
@@ -108,7 +100,7 @@ public class MessageStorage extends AbstractFrostStorage implements Savable {
 
         storageRoot.initUniqueBoardId(highestBoardId+1);
 
-        commitStore();
+        commit();
     }
 
     /**
@@ -155,7 +147,7 @@ public class MessageStorage extends AbstractFrostStorage implements Savable {
         storageRoot.getBoardsByName().put(board.getNameLowerCase(), pfbo);
         storageRoot.getBoardsById().put(boardId, pfbo);
 
-        commitStore();
+        commit();
 
         return board;
     }
@@ -194,13 +186,13 @@ public class MessageStorage extends AbstractFrostStorage implements Savable {
         boardToRemove.getFlaggedMessageIndex().clear();
         boardToRemove.getStarredMessageIndex().clear();
 
-        commitStore();
+        commit();
 
         // delete ALL invalid messages
         removeAll(boardToRemove.getInvalidMessagesIndex().iterator());
         boardToRemove.getInvalidMessagesIndex().clear();
 
-        commitStore();
+        commit();
 
         // delete ALL sent and unsent messages
         removeAll(boardToRemove.getSentMessagesList().iterator());
@@ -215,7 +207,7 @@ public class MessageStorage extends AbstractFrostStorage implements Savable {
 
         boardToRemove.deallocate();
 
-        commitStore();
+        commit();
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -369,7 +361,7 @@ public class MessageStorage extends AbstractFrostStorage implements Savable {
         }
 
         if( doCommit ) {
-            commitStore();
+            commit();
         }
 
         return INSERT_OK;
@@ -584,7 +576,7 @@ public class MessageStorage extends AbstractFrostStorage implements Savable {
             pmo.modify();
         }
         bo.getUnreadMessageIndex().clear();
-        commitStore();
+        commit();
     }
 
     public synchronized void updateMessage(final FrostMessageObject mo) {
@@ -631,7 +623,7 @@ public class MessageStorage extends AbstractFrostStorage implements Savable {
 
             p.modify();
 
-            MessageStorage.inst().commitStore();
+            MessageStorage.inst().commit();
         }
     }
 
@@ -671,7 +663,7 @@ public class MessageStorage extends AbstractFrostStorage implements Savable {
 
         bo.getSentMessagesList().add( pmo );
         if( doCommit ) {
-            commitStore();
+            commit();
         }
         return true;
     }
@@ -693,7 +685,7 @@ public class MessageStorage extends AbstractFrostStorage implements Savable {
             mo.setPerstFrostMessageObject(null);
             count++;
         }
-        commitStore();
+        commit();
         return count;
     }
 
@@ -726,7 +718,7 @@ public class MessageStorage extends AbstractFrostStorage implements Savable {
 
         bo.getUnsentMessagesList().add( pmo );
         if( doCommit ) {
-            commitStore();
+            commit();
         }
         return true;
     }
@@ -746,7 +738,7 @@ public class MessageStorage extends AbstractFrostStorage implements Savable {
 
         bo.getUnsentMessagesList().remove( pmo );
         pmo.deallocate();
-        commitStore();
+        commit();
         return true;
     }
 
@@ -768,6 +760,6 @@ public class MessageStorage extends AbstractFrostStorage implements Savable {
         }
 
         pmo.updateUnsentMessageFileAttachmentKey(fa);
-        commitStore();
+        commit();
     }
 }

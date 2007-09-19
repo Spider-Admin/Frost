@@ -20,6 +20,8 @@ package frost.storage.perst;
 
 import org.garret.perst.*;
 
+import frost.*;
+
 public abstract class AbstractFrostStorage {
 
     private Storage storage = null;
@@ -27,7 +29,6 @@ public abstract class AbstractFrostStorage {
     protected AbstractFrostStorage() {}
 
     public abstract boolean initStorage();
-    public abstract boolean initStorage(int pagePoolSize);
 
     protected void open(
             final String databaseFilePath,
@@ -61,7 +62,7 @@ public abstract class AbstractFrostStorage {
         }
     }
 
-    public synchronized void commitStore() {
+    public synchronized void commit() {
         if( storage != null ) {
             storage.commit();
         }
@@ -72,5 +73,26 @@ public abstract class AbstractFrostStorage {
             storage.close();
             storage = null;
         }
+    }
+
+    /**
+     * Retrieves the configured page pool size for the provided key (in KiB),
+     * returns the value in bytes.
+     */
+    protected int getPagePoolSize(final String configKey) {
+        int pagePoolSize = Core.frostSettings.getIntValue(configKey);
+        if( pagePoolSize <= 0 ) {
+            pagePoolSize = 1024;
+        }
+        pagePoolSize *= 1024; // provided pagePoolSize is in kb, we want bytes
+        return pagePoolSize;
+    }
+
+    /**
+     * Gets the provided filename and constructs the final filename (preceedes filename with store directory).
+     */
+    protected String getStorageFilename(final String filename) {
+        final String storeDir = Core.frostSettings.getValue(SettingsClass.DIR_STORE);
+        return storeDir + filename; // path to the database file
     }
 }

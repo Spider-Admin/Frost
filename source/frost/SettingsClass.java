@@ -72,6 +72,16 @@ public class SettingsClass implements Savable {
 
 //    public static final String COMPACT_DBTABLES = "compactDatabaseTables";
 
+    // not yet available in options dialog; all sizes in KiB
+    public static final String PERST_PAGEPOOLSIZE_FILES = "perst.pagepoolsizeKiB.files";
+    public static final String PERST_PAGEPOOLSIZE_INDEXSLOTS = "perst.pagepoolsizeKiB.indexslots";
+    public static final String PERST_PAGEPOOLSIZE_SHAREDFILESCHKKEYS = "perst.pagepoolsizeKiB.sharedfilechkkeys";
+    public static final String PERST_PAGEPOOLSIZE_FILELIST = "perst.pagepoolsizeKiB.filelist";
+    public static final String PERST_PAGEPOOLSIZE_IDENTITIES = "perst.pagepoolsizeKiB.identities";
+    public static final String PERST_PAGEPOOLSIZE_MESSAGEARCHIVE = "perst.pagepoolsizeKiB.messagearchive";
+    public static final String PERST_PAGEPOOLSIZE_MESSAGES = "perst.pagepoolsizeKiB.messages";
+    public static final String PERST_PAGEPOOLSIZE_MESSAGECONTENTS = "perst.pagepoolsizeKiB.messagecontents";
+
     public static final String AVAILABLE_NODES = "availableNodes";
     public static final String FCP2_USE_DDA = "fcp2.useDDA";
     public static final String FCP2_USE_PERSISTENCE = "fcp2.usePersistence";
@@ -919,6 +929,15 @@ public class SettingsClass implements Savable {
         defaults.put(LOG_UPLOADS_ENABLED, "false");
 
         defaults.put(CONFIRM_MARK_ALL_MSGS_READ, "true");
+
+        defaults.put(PERST_PAGEPOOLSIZE_FILES,              "512");
+        defaults.put(PERST_PAGEPOOLSIZE_INDEXSLOTS,         "512");
+        defaults.put(PERST_PAGEPOOLSIZE_SHAREDFILESCHKKEYS, "1024");
+        defaults.put(PERST_PAGEPOOLSIZE_FILELIST,           "1024");
+        defaults.put(PERST_PAGEPOOLSIZE_IDENTITIES,         "1024");
+        defaults.put(PERST_PAGEPOOLSIZE_MESSAGEARCHIVE,     "1024");
+        defaults.put(PERST_PAGEPOOLSIZE_MESSAGES,           "6144");
+        defaults.put(PERST_PAGEPOOLSIZE_MESSAGECONTENTS,    "1024");
 
         settingsHash.putAll(defaults);
     }

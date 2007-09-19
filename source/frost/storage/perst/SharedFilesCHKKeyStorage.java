@@ -22,13 +22,11 @@ import java.util.*;
 
 import org.garret.perst.*;
 
+import frost.*;
 import frost.storage.*;
 import frost.util.*;
 
 public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Savable {
-
-    // FIXME: adjust page size
-    private static final int PAGE_SIZE = 2; // page size for the storage in MB
 
     private SharedFilesCHKKeyStorageRoot storageRoot = null;
 
@@ -64,13 +62,10 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Sa
         System.out.println("INFO: SharedFilesCHKKeyStorage closed.");
     }
 
+    @Override
     public boolean initStorage() {
-        final int pagePoolSize = PAGE_SIZE*1024*1024; // size of page pool in bytes
-        return initStorage(pagePoolSize);
-    }
-
-    public boolean initStorage(final int pagePoolSize) {
-        final String databaseFilePath = "store/sfChkKeys.dbs"; // path to the database file
+        final String databaseFilePath = getStorageFilename("sfChkKeys.dbs"); // path to the database file
+        final int pagePoolSize = getPagePoolSize(SettingsClass.PERST_PAGEPOOLSIZE_SHAREDFILESCHKKEYS);
 
         open(databaseFilePath, pagePoolSize, true, true, false);
 
@@ -81,7 +76,7 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Sa
             // unique index of chkKeys
             storageRoot.chkKeys = getStorage().createIndex(String.class, true);
             getStorage().setRoot(storageRoot);
-            commitStore(); // commit transaction
+            commit(); // commit transaction
         }
         return true;
     }
@@ -112,12 +107,12 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Sa
         }
 
         storageRoot.chkKeys.clear();
-        commitStore();
+        commit();
 
         for( final SharedFilesCHKKey sfk : lst ) {
             storageRoot.chkKeys.put(sfk.getChkKey(), sfk);
         }
-        commitStore();
+        commit();
 
         System.out.println("Repair finished, brokenEntries="+brokenEntries+"; validEntries="+validEntries);
     }
@@ -241,7 +236,7 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Sa
         key.setValid(isValid);
         key.modify();
 
-        commitStore();
+        commit();
         return true;
     }
 
@@ -261,7 +256,7 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Sa
 
         key.modify();
 
-        commitStore();
+        commit();
 
         if( key.getDownloadRetries() < maxRetries ) {
             return true; // retry download
@@ -293,7 +288,7 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Sa
             }
         }
 
-        commitStore();
+        commit();
 
         return deletedCount;
     }
