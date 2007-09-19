@@ -28,7 +28,7 @@ import frost.storage.*;
 /**
  * Storage with an compound index of indexName and msgDate (int/long)
  */
-public class IndexSlotsStorage implements Savable {
+public class IndexSlotsStorage extends AbstractFrostStorage implements Savable {
 
 //    private static final Logger logger = Logger.getLogger(IndexSlotsStorage.class.getName());
 
@@ -39,20 +39,16 @@ public class IndexSlotsStorage implements Savable {
     // FIXME: adjust page size
     private static final int PAGE_SIZE = 1; // page size for the storage in MB
 
-    private Storage storage = null;
     private IndexSlotsStorageRoot storageRoot = null;
 
     private static IndexSlotsStorage instance = new IndexSlotsStorage();
 
     protected IndexSlotsStorage() {
+        super();
     }
 
     public static IndexSlotsStorage inst() {
         return instance;
-    }
-
-    private Storage getStorage() {
-        return storage;
     }
 
     private boolean addToIndices(final IndexSlot gis) {
@@ -65,24 +61,25 @@ public class IndexSlotsStorage implements Savable {
     }
 
     public boolean initStorage() {
-        final String databaseFilePath = "store/gixSlots.dbs"; // path to the database file
         final int pagePoolSize = PAGE_SIZE*1024*1024; // size of page pool in bytes
+        return initStorage(pagePoolSize);
+    }
 
-        storage = StorageFactory.getInstance().createStorage();
-        storage.setProperty("perst.serialize.transient.objects", Boolean.TRUE); // serialize BitSets
-        storage.setProperty("perst.concurrent.iterator", Boolean.TRUE); // remove() during iteration (for cleanup)
-        storage.open(databaseFilePath, pagePoolSize);
+    public boolean initStorage(final int pagePoolSize) {
+        final String databaseFilePath = "store/gixSlots.dbs"; // path to the database file
 
-        storageRoot = (IndexSlotsStorageRoot)storage.getRoot();
+        open(databaseFilePath, pagePoolSize, false, true, true);
+
+        storageRoot = (IndexSlotsStorageRoot)getStorage().getRoot();
         if (storageRoot == null) {
             // Storage was not initialized yet
             storageRoot = new IndexSlotsStorageRoot();
             // unique compound index of indexName and msgDate
-            storageRoot.slotsIndexIL = storage.createIndex(new Class[] { Integer.class, Long.class }, true);
+            storageRoot.slotsIndexIL = getStorage().createIndex(new Class[] { Integer.class, Long.class }, true);
             // index for cleanup
-            storageRoot.slotsIndexLI = storage.createIndex(new Class[] { Long.class, Integer.class }, true);
-            storage.setRoot(storageRoot);
-            storage.commit(); // commit transaction
+            storageRoot.slotsIndexLI = getStorage().createIndex(new Class[] { Long.class, Integer.class }, true);
+            getStorage().setRoot(storageRoot);
+            commitStore(); // commit transaction
         }
         return true;
     }
@@ -142,17 +139,9 @@ public class IndexSlotsStorage implements Savable {
         }
     }
 
-    public synchronized void commitStore() {
-        if( getStorage() == null ) {
-            return;
-        }
-        getStorage().commit();
-    }
-
     public void save() throws StorageException {
-        storage.close();
+        close();
         storageRoot = null;
-        storage = null;
         System.out.println("INFO: GlobalIndexSlotsStorage closed.");
     }
 

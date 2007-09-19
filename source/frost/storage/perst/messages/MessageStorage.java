@@ -28,8 +28,9 @@ import frost.*;
 import frost.boards.*;
 import frost.messages.*;
 import frost.storage.*;
+import frost.storage.perst.*;
 
-public class MessageStorage implements Savable {
+public class MessageStorage extends AbstractFrostStorage implements Savable {
 
     private static transient final Logger logger = Logger.getLogger(MessageStorage.class.getName());
 
@@ -40,7 +41,6 @@ public class MessageStorage implements Savable {
     // FIXME: adjust page size
     private static final int PAGE_SIZE = 6; // page size for the storage in MB
 
-    private Storage storage = null;
     private MessageStorageRoot storageRoot = null;
 
     private static MessageStorage instance = new MessageStorage();
@@ -48,6 +48,7 @@ public class MessageStorage implements Savable {
     private final boolean storeInvalidMessages;
 
     protected MessageStorage() {
+        super();
         storeInvalidMessages = Core.frostSettings.getBoolValue(SettingsClass.STORAGE_STORE_INVALID_MESSAGES);
     }
 
@@ -55,41 +56,37 @@ public class MessageStorage implements Savable {
         return instance;
     }
 
-    private Storage getStorage() {
-        return storage;
+    @Override
+    public boolean initStorage() {
+        final int pagePoolSize = PAGE_SIZE*1024*1024; // size of page pool in bytes
+        return initStorage(pagePoolSize);
     }
 
-    public boolean initStorage() {
+    @Override
+    public boolean initStorage(final int pagePoolSize) {
         final String databaseFilePath = "store/messages.dbs"; // path to the database file
-        final int pagePoolSize = PAGE_SIZE*1024*1024; // size of page pool in bytes
 
-        storage = StorageFactory.getInstance().createStorage();
-        storage.setProperty("perst.concurrent.iterator", Boolean.TRUE); // remove() during iteration (for cleanup)
-        storage.setProperty("perst.string.encoding", "UTF-8");
-        storage.open(databaseFilePath, pagePoolSize);
+        open(databaseFilePath, pagePoolSize, true, true, false);
 
-        storageRoot = (MessageStorageRoot)storage.getRoot();
+        storageRoot = (MessageStorageRoot)getStorage().getRoot();
         if (storageRoot == null) {
             // Storage was not initialized yet
-            storageRoot = new MessageStorageRoot(storage);
-            storage.setRoot(storageRoot);
-            storage.commit(); // commit transaction
+            storageRoot = new MessageStorageRoot(getStorage());
+            getStorage().setRoot(storageRoot);
+            commitStore(); // commit transaction
         }
         return true;
     }
 
+    @Override
     public synchronized void commitStore() {
-        if( getStorage() == null ) {
-            return;
-        }
-        getStorage().commit();
+        super.commitStore();
         MessageContentStorage.inst().commitStore();
     }
 
-    public void save() throws StorageException {
-        storage.close();
+    public void save() {
+        close();
         storageRoot = null;
-        storage = null;
         System.out.println("INFO: MessagesStorage closed.");
     }
 
@@ -102,7 +99,7 @@ public class MessageStorage implements Savable {
             if( storageRoot.getBoardsByName().contains(boardName) ) {
                 continue; // dup!
             }
-            final PerstFrostBoardObject pfbo = new PerstFrostBoardObject(storage, boardName, boardId.intValue());
+            final PerstFrostBoardObject pfbo = new PerstFrostBoardObject(getStorage(), boardName, boardId.intValue());
             storageRoot.getBoardsByName().put(boardName, pfbo);
             storageRoot.getBoardsById().put(boardId, pfbo);
 
@@ -111,7 +108,7 @@ public class MessageStorage implements Savable {
 
         storageRoot.initUniqueBoardId(highestBoardId+1);
 
-        storage.commit();
+        commitStore();
     }
 
     /**
@@ -154,7 +151,7 @@ public class MessageStorage implements Savable {
 
         final int boardId = storageRoot.getNextUniqueBoardId();
 
-        pfbo = new PerstFrostBoardObject(storage, board.getNameLowerCase(), boardId);
+        pfbo = new PerstFrostBoardObject(getStorage(), board.getNameLowerCase(), boardId);
         storageRoot.getBoardsByName().put(board.getNameLowerCase(), pfbo);
         storageRoot.getBoardsById().put(boardId, pfbo);
 
@@ -266,7 +263,7 @@ public class MessageStorage implements Savable {
         final Iterator<PerstFrostMessageObject> i4 = bo.getFlaggedMessageIndex().iterator();
 
         // join all results
-        final Iterator<PerstFrostMessageObject> i = storage.join(new Iterator[] {i1, i2, i3, i4} );
+        final Iterator<PerstFrostMessageObject> i = getStorage().join(new Iterator[] {i1, i2, i3, i4} );
 
         int count = 0;
 
@@ -331,7 +328,7 @@ public class MessageStorage implements Savable {
             }
         }
 
-        final PerstFrostMessageObject pmo = new PerstFrostMessageObject(mo, storage);
+        final PerstFrostMessageObject pmo = new PerstFrostMessageObject(mo, getStorage());
 
         if( !mo.isValid() ) {
             // invalid message
@@ -558,7 +555,7 @@ public class MessageStorage implements Savable {
             final Iterator<PerstFrostMessageObject> i4 = bo.getFlaggedMessageIndex().iterator();
 
             // join all results
-            i = storage.join(new Iterator[] {i1, i2, i3, i4} );
+            i = getStorage().join(new Iterator[] {i1, i2, i3, i4} );
         }
 
         while(i.hasNext()) {
@@ -669,7 +666,7 @@ public class MessageStorage implements Savable {
             return false;
         }
 
-        final PerstFrostMessageObject pmo = new PerstFrostMessageObject(sentMo, storage);
+        final PerstFrostMessageObject pmo = new PerstFrostMessageObject(sentMo, getStorage());
         sentMo.setPerstFrostMessageObject(pmo);
 
         bo.getSentMessagesList().add( pmo );
@@ -725,7 +722,7 @@ public class MessageStorage implements Savable {
             return false;
         }
 
-        final PerstFrostUnsentMessageObject pmo = new PerstFrostUnsentMessageObject(storage, mo);
+        final PerstFrostUnsentMessageObject pmo = new PerstFrostUnsentMessageObject(getStorage(), mo);
 
         bo.getUnsentMessagesList().add( pmo );
         if( doCommit ) {

@@ -36,68 +36,37 @@ public class PerstFrostArchiveMessageObject extends Persistent {
 
     String messageId;
     String inReplyTo;
-    
+
     long dateAndTime;
     int msgIndex;
-    
+
     String fromName;
 
     String subject;
     String recipientName;
     int signatureStatus;
-    
+
     boolean isReplied;
     boolean isJunk;
     boolean isFlagged;
     boolean isStarred;
-    
+
     int idLinePos;
     int idLineLen;
-    
+
     Link<PerstFrostArchiveBoardAttachment> boardAttachments;
     Link<PerstFrostArchiveFileAttachment> fileAttachments;
-    
+
     String content;
     String publicKey;
 //    String signature;
-    
-    class PerstFrostArchiveBoardAttachment extends Persistent {
-    
-        String name;
-        String pubKey;
-        String privKey;
-        String description;
-        
-        public PerstFrostArchiveBoardAttachment() {}
-        
-        public PerstFrostArchiveBoardAttachment(BoardAttachment ba) {
-            name = ba.getBoardObj().getName();
-            pubKey = ba.getBoardObj().getPublicKey();
-            privKey = ba.getBoardObj().getPrivateKey();
-            description = ba.getBoardObj().getDescription();
-        }
-    }
 
-    class PerstFrostArchiveFileAttachment extends Persistent {
-        String name;
-        long size;
-        String chkKey;
-        
-        public PerstFrostArchiveFileAttachment() {}
-        
-        public PerstFrostArchiveFileAttachment(FileAttachment fa) {
-            name = fa.getFilename();
-            size = fa.getFileSize();
-            chkKey = fa.getKey();
-        }
-    }
-    
     public PerstFrostArchiveMessageObject() {}
-    
-    public PerstFrostArchiveMessageObject(FrostMessageObject mo, Storage store) {
+
+    public PerstFrostArchiveMessageObject(final FrostMessageObject mo, final Storage store) {
 
         messageId =  mo.getMessageId();
-        inReplyTo = mo.getInReplyTo(); 
+        inReplyTo = mo.getInReplyTo();
 
         dateAndTime = mo.getDateAndTime().getMillis();
         msgIndex = mo.getIndex();
@@ -122,59 +91,54 @@ public class PerstFrostArchiveMessageObject extends Persistent {
         idLinePos = mo.getIdLinePos();
         idLineLen = mo.getIdLineLen();
 
-        AttachmentList files = mo.getAttachmentsOfType(Attachment.FILE);
-        AttachmentList boards = mo.getAttachmentsOfType(Attachment.BOARD);
-
+        final AttachmentList boards = mo.getAttachmentsOfType(Attachment.BOARD);
         if( boards != null && boards.size() > 0 ) {
-            boardAttachments = store.createLink();
-            for( Iterator i=boards.iterator(); i.hasNext(); ) {
-                BoardAttachment ba = (BoardAttachment)i.next();
-                PerstFrostArchiveBoardAttachment pba = new PerstFrostArchiveBoardAttachment(ba);
-                boardAttachments.add(pba);
+            boardAttachments = store.createLink(boards.size());
+            for( final Iterator i=boards.iterator(); i.hasNext(); ) {
+                final BoardAttachment ba = (BoardAttachment)i.next();
+                boardAttachments.add( new PerstFrostArchiveBoardAttachment(ba) );
             }
         } else {
             boardAttachments = null;
         }
 
+        final AttachmentList files = mo.getAttachmentsOfType(Attachment.FILE);
         if( files != null && files.size() > 0 ) {
-            fileAttachments = store.createLink();
-            for( Iterator i=files.iterator(); i.hasNext(); ) {
-                FileAttachment ba = (FileAttachment)i.next();
-                PerstFrostArchiveFileAttachment pba = new PerstFrostArchiveFileAttachment(ba);
-                fileAttachments.add(pba);
+            fileAttachments = store.createLink(files.size());
+            for( final Iterator i=files.iterator(); i.hasNext(); ) {
+                final FileAttachment ba = (FileAttachment)i.next();
+                fileAttachments.add( new PerstFrostArchiveFileAttachment(ba) );
             }
         } else {
             fileAttachments = null;
         }
-        
+
         content = mo.getContent();
     }
 
-    public void retrieveAttachments(FrostMessageObject mo) {
+    public void retrieveAttachments(final FrostMessageObject mo) {
         if( mo.hasFileAttachments() && fileAttachments != null ) {
-            for( Iterator<PerstFrostArchiveFileAttachment> i = fileAttachments.iterator(); i.hasNext(); ) {
-                PerstFrostArchiveFileAttachment p = i.next();
-                FileAttachment fa = new FileAttachment(p.name, p.chkKey, p.size);
+            for( final PerstFrostArchiveFileAttachment p : fileAttachments ) {
+                final FileAttachment fa = new FileAttachment(p.name, p.chkKey, p.size);
                 mo.addAttachment(fa);
             }
         }
         if( mo.hasBoardAttachments() && boardAttachments != null ) {
-            for( Iterator<PerstFrostArchiveBoardAttachment> i = boardAttachments.iterator(); i.hasNext(); ) {
-                PerstFrostArchiveBoardAttachment p = i.next();
-                Board b = new Board(p.name, p.pubKey, p.privKey, p.description);
-                BoardAttachment ba = new BoardAttachment(b);
+            for( final PerstFrostArchiveBoardAttachment p : boardAttachments ) {
+                final Board b = new Board(p.name, p.pubKey, p.privKey, p.description);
+                final BoardAttachment ba = new BoardAttachment(b);
                 mo.addAttachment(ba);
             }
         }
     }
 
-    public FrostMessageObject toFrostMessageObject(Board board) {
-        FrostMessageObject mo = new FrostMessageObject();
-        
+    public FrostMessageObject toFrostMessageObject(final Board board) {
+        final FrostMessageObject mo = new FrostMessageObject();
+
         mo.setBoard(board);
 
         mo.setValid(true);
-    
+
         mo.setMessageId(messageId);
         mo.setInReplyTo(inReplyTo);
         mo.setDateAndTime(new DateTime(dateAndTime, DateTimeZone.UTC));
@@ -187,22 +151,22 @@ public class PerstFrostArchiveMessageObject extends Persistent {
         mo.setRecipientName(recipientName);
         mo.setSignatureStatus(signatureStatus);
         mo.setDeleted(false);
-    
+
         mo.setNew(false);
         mo.setReplied(isReplied);
         mo.setJunk(isJunk);
         mo.setFlagged(isFlagged);
         mo.setStarred(isStarred);
-        
+
         mo.setContent(content);
         mo.setPublicKey(publicKey);
-        
+
         mo.setHasFileAttachments( fileAttachments != null );
         mo.setHasBoardAttachments( boardAttachments != null );
-    
+
         mo.setIdLinePos(idLinePos); // idlinepos
         mo.setIdLineLen(idLineLen); // idlinelen
-    
+
         retrieveAttachments(mo);
 
         return mo;

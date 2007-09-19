@@ -22,66 +22,55 @@ import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
-import org.garret.perst.*;
-
 import frost.*;
 import frost.identities.*;
 import frost.storage.*;
+import frost.storage.perst.*;
 import frost.storage.perst.filelist.*;
 import frost.storage.perst.messages.*;
 
-public class IdentitiesStorage implements Savable {
+public class IdentitiesStorage extends AbstractFrostStorage implements Savable {
 
     private static final Logger logger = Logger.getLogger(IdentitiesStorage.class.getName());
 
     // FIXME: adjust page size
     private static final int PAGE_SIZE = 1; // page size for the storage in MB
 
-    private Storage storage = null;
     private IdentitiesStorageRoot storageRoot = null;
 
     private static IdentitiesStorage instance = new IdentitiesStorage();
 
-    protected IdentitiesStorage() {}
+    protected IdentitiesStorage() {
+        super();
+    }
 
     public static IdentitiesStorage inst() {
         return instance;
     }
 
-    private Storage getStorage() {
-        return storage;
+    public boolean initStorage() {
+        final int pagePoolSize = PAGE_SIZE*1024*1024; // size of page pool in bytes
+        return initStorage(pagePoolSize);
     }
 
-    public boolean initStorage() {
+    public boolean initStorage(final int pagePoolSize) {
         final String databaseFilePath = "store/identities.dbs"; // path to the database file
-        final int pagePoolSize = PAGE_SIZE*1024*1024; // size of page pool in bytes
 
-        storage = StorageFactory.getInstance().createStorage();
-        storage.setProperty("perst.string.encoding", "UTF-8");
-        storage.open(databaseFilePath, pagePoolSize);
+        open(databaseFilePath, pagePoolSize, true, false, false);
 
-        storageRoot = (IdentitiesStorageRoot)storage.getRoot();
+        storageRoot = (IdentitiesStorageRoot)getStorage().getRoot();
         if (storageRoot == null) {
             // Storage was not initialized yet
-            storageRoot = new IdentitiesStorageRoot(storage);
-            storage.setRoot(storageRoot);
-            storage.commit(); // commit transaction
+            storageRoot = new IdentitiesStorageRoot(getStorage());
+            getStorage().setRoot(storageRoot);
+            commitStore(); // commit transaction
         }
         return true;
     }
 
-    public synchronized void commitStore() {
-        if( getStorage() == null ) {
-            return;
-        }
-        getStorage().commit();
-    }
-
     public void save() throws StorageException {
-
-        storage.close();
+        close();
         storageRoot = null;
-        storage = null;
         System.out.println("INFO: IdentitiesStorage closed.");
     }
 

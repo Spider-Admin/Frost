@@ -33,7 +33,7 @@ import frost.storage.*;
  * Note: boards are stored in lowercase format always!
  */
 public class MessageArchiveDatabaseTable {
-    
+
 //  TODO: implement searching for messages without assigned boards (deleted boards)
 
     private static final Logger logger = Logger.getLogger(MessageArchiveDatabaseTable.class.getName());
@@ -60,9 +60,9 @@ public class MessageArchiveDatabaseTable {
 //        "publickey VARCHAR,"+
 //        "isdeleted BOOLEAN,"+
 //        "isnew BOOLEAN,"+
-//        "isreplied BOOLEAN,"+ 
+//        "isreplied BOOLEAN,"+
 //        "isjunk BOOLEAN,"+
-//        "isflagged BOOLEAN,"+ 
+//        "isflagged BOOLEAN,"+
 //        "isstarred BOOLEAN,"+
 //        "hasfileattachment BOOLEAN,"+
 //        "hasboardattachment BOOLEAN,"+
@@ -71,7 +71,7 @@ public class MessageArchiveDatabaseTable {
 //        "CONSTRAINT msgarc_pk PRIMARY KEY (primkey),"+
 //        "CONSTRAINT msgarc_unique UNIQUE(messageid)"+ // multiple null allowed
 //        ")";
-    
+
 //    private final String SQL_DDL_MESSAGES_INDEX_MSGID =
 //        "CREATE UNIQUE INDEX msgarc_ix1 ON MESSAGEARCHIVE ( messageid )";
 //    private final String SQL_DDL_MESSAGES_INDEX_BOARD =
@@ -125,7 +125,7 @@ public class MessageArchiveDatabaseTable {
 //        lst.add(SQL_DDL_FILEATT_INDEX);
 //        return lst;
 //    }
-//      
+//
 //    public boolean compact(Statement stmt) throws SQLException {
 //        stmt.executeUpdate("COMPACT TABLE MESSAGEARCHIVE");
 //        stmt.executeUpdate("COMPACT TABLE MESSAGEARCHIVEFILEATTACHMENTS");
@@ -161,14 +161,14 @@ public class MessageArchiveDatabaseTable {
 //            }
 //            rs.close();
 //            stmt.close();
-//            
+//
 //            int i=1;
 //            ps.setLong(i++, identity.longValue()); // primkey
 //            ps.setString(i++, mo.getMessageId()); // messageid
 //            ps.setString(i++, mo.getInReplyTo()); // inreplyto
 //            ps.setBoolean(i++, mo.isValid()); // isvalid
 //            ps.setString(i++, mo.getInvalidReason()); // invalidreason
-//            ps.setLong(i++, mo.getDateAndTime().getMillis()); // date  
+//            ps.setLong(i++, mo.getDateAndTime().getMillis()); // date
 //            ps.setInt(i++, mo.getIndex()); // index
 //            ps.setString(i++, mo.getBoard().getNameLowerCase()); // board
 //            ps.setString(i++, mo.getFromName()); // from
@@ -191,7 +191,7 @@ public class MessageArchiveDatabaseTable {
 //            ps.setBoolean(i++, (boards.size() > 0)); // hasboardattachment
 //            ps.setInt(i++, mo.getIdLinePos()); // idlinepos
 //            ps.setInt(i++, mo.getIdLineLen()); // idlinelen
-//    
+//
 //            int insertedCount;
 //            // sync to allow no updates until we got the generated identity
 //            try {
@@ -199,32 +199,32 @@ public class MessageArchiveDatabaseTable {
 //            } finally {
 //                ps.close();
 //            }
-//    
+//
 //            if( insertedCount == 0 ) {
 //                logger.log(Level.SEVERE, "message insert returned 0 !!!");
 //                throw new Exception("message insert returned 0 !!!");
 //            }
-//            
+//
 //            mo.setMsgIdentity(identity.longValue());
-//            
+//
 //            // content
 //            PreparedStatement pc = db.prepareStatement(
 //                    "INSERT INTO MESSAGEARCHIVECONTENTS"+
 //                    " (msgref,msgcontent) VALUES (?,?)");
 //            pc.setLong(1, mo.getMsgIdentity());
 //            pc.setString(2, mo.getContent());
-//            
+//
 //            try {
 //                insertedCount = pc.executeUpdate();
 //            } finally {
 //                pc.close();
 //            }
-//            
+//
 //            if( insertedCount == 0 ) {
 //                logger.log(Level.SEVERE, "message content insert returned 0 !!!");
 //                throw new Exception("message content insert returned 0 !!!");
 //            }
-//    
+//
 //            // attachments
 //            if( files.size() > 0 ) {
 //                PreparedStatement p = db.prepareStatement(
@@ -235,10 +235,10 @@ public class MessageArchiveDatabaseTable {
 //                    for(Iterator it=files.iterator(); it.hasNext(); ) {
 //                        FileAttachment fa = (FileAttachment)it.next();
 //                        int ix=1;
-//                        p.setLong(ix++, mo.getMsgIdentity()); 
-//                        p.setString(ix++, fa.getFilename()); 
-//                        p.setLong(ix++, fa.getFileSize()); 
-//                        p.setString(ix++, fa.getKey()); 
+//                        p.setLong(ix++, mo.getMsgIdentity());
+//                        p.setString(ix++, fa.getFilename());
+//                        p.setLong(ix++, fa.getFileSize());
+//                        p.setString(ix++, fa.getKey());
 //                        insertedCount = p.executeUpdate();
 //                        if( insertedCount == 0 ) {
 //                            logger.log(Level.SEVERE, "fileattachment insert returned 0 !!!");
@@ -259,11 +259,11 @@ public class MessageArchiveDatabaseTable {
 //                        BoardAttachment ba = (BoardAttachment)it.next();
 //                        Board b = ba.getBoardObj();
 //                        int ix=1;
-//                        p.setLong(ix++, mo.getMsgIdentity()); 
-//                        p.setString(ix++, b.getNameLowerCase()); 
-//                        p.setString(ix++, b.getPublicKey()); 
-//                        p.setString(ix++, b.getPrivateKey()); 
-//                        p.setString(ix++, b.getDescription()); 
+//                        p.setLong(ix++, mo.getMsgIdentity());
+//                        p.setString(ix++, b.getNameLowerCase());
+//                        p.setString(ix++, b.getPublicKey());
+//                        p.setString(ix++, b.getPrivateKey());
+//                        p.setString(ix++, b.getDescription());
 //                        insertedCount = p.executeUpdate();
 //                        if( insertedCount == 0 ) {
 //                            logger.log(Level.SEVERE, "boardattachment insert returned 0 !!!");
@@ -301,14 +301,14 @@ public class MessageArchiveDatabaseTable {
 //        }
 //    }
 
-    private static void retrieveAttachments(AppLayerDatabase db, FrostMessageObject mo) throws SQLException {
+    private static void retrieveAttachments(final AppLayerDatabase db, final FrostMessageObject mo) throws SQLException {
         // retrieve attachments
         if( mo.hasFileAttachments() ) {
-            PreparedStatement p2 = db.prepareStatement(
+            final PreparedStatement p2 = db.prepareStatement(
                     "SELECT filename,filesize,filekey FROM MESSAGEARCHIVEFILEATTACHMENTS"+
                     " WHERE msgref=? ORDER BY filename");
             p2.setLong(1, mo.getMsgIdentity());
-            ResultSet rs2 = p2.executeQuery();
+            final ResultSet rs2 = p2.executeQuery();
             while(rs2.next()) {
                 String name, key;
                 long size;
@@ -316,26 +316,26 @@ public class MessageArchiveDatabaseTable {
                 size = rs2.getLong(2);
                 key = rs2.getString(3);
 
-                FileAttachment fa = new FileAttachment(name, key, size);
+                final FileAttachment fa = new FileAttachment(name, key, size);
                 mo.addAttachment(fa);
             }
             rs2.close();
             p2.close();
         }
         if( mo.hasBoardAttachments() ) {
-            PreparedStatement p2 = db.prepareStatement(
+            final PreparedStatement p2 = db.prepareStatement(
                     "SELECT boardname,boardpublickey,boardprivatekey,boarddescription FROM MESSAGEARCHIVEBOARDATTACHMENTS"+
                     " WHERE msgref=? ORDER BY boardname");
             p2.setLong(1, mo.getMsgIdentity());
-            ResultSet rs2 = p2.executeQuery();
+            final ResultSet rs2 = p2.executeQuery();
             while(rs2.next()) {
                 String name, pubkey, privkey, desc;
                 name = rs2.getString(1);
                 pubkey = rs2.getString(2);
                 privkey = rs2.getString(3);
                 desc = rs2.getString(4);
-                Board b = new Board(name, pubkey, privkey, desc);
-                BoardAttachment ba = new BoardAttachment(b);
+                final Board b = new Board(name, pubkey, privkey, desc);
+                final BoardAttachment ba = new BoardAttachment(b);
                 mo.addAttachment(ba);
             }
             rs2.close();
@@ -343,17 +343,17 @@ public class MessageArchiveDatabaseTable {
         }
     }
 
-    private static void retrieveMessageContent(AppLayerDatabase db, FrostMessageObject mo) throws SQLException {
-        
+    private static void retrieveMessageContent(final AppLayerDatabase db, final FrostMessageObject mo) throws SQLException {
+
         // invalid messages have no content (e.g. encrypted for someone else,...)
         if( !mo.isValid() ) {
             mo.setContent("");
             return;
         }
-        
-        PreparedStatement p2 = db.prepareStatement("SELECT msgcontent FROM MESSAGEARCHIVECONTENTS WHERE msgref=?");
+
+        final PreparedStatement p2 = db.prepareStatement("SELECT msgcontent FROM MESSAGEARCHIVECONTENTS WHERE msgref=?");
         p2.setLong(1, mo.getMsgIdentity());
-        ResultSet rs2 = p2.executeQuery();
+        final ResultSet rs2 = p2.executeQuery();
         if(rs2.next()) {
             String content;
             content = rs2.getString(1);
@@ -365,9 +365,9 @@ public class MessageArchiveDatabaseTable {
         rs2.close();
         p2.close();
     }
-    
-    private static FrostMessageObject resultSetToFrostMessageObject(AppLayerDatabase db, ResultSet rs) throws SQLException {
-        FrostMessageObject mo = new FrostMessageObject();
+
+    private static FrostMessageObject resultSetToFrostMessageObject(final AppLayerDatabase db, final ResultSet rs) throws SQLException {
+        final FrostMessageObject mo = new FrostMessageObject();
         mo.setBoard(null);
         // SELECT retrieves only valid messages:
         mo.setValid(true);
@@ -390,30 +390,30 @@ public class MessageArchiveDatabaseTable {
         mo.setJunk(rs.getBoolean(ix++));
         mo.setFlagged(rs.getBoolean(ix++));
         mo.setStarred(rs.getBoolean(ix++));
-        
+
         mo.setHasFileAttachments( rs.getBoolean(ix++) );
         mo.setHasBoardAttachments( rs.getBoolean(ix++) );
-        
+
         mo.setIdLinePos(rs.getInt(ix++)); // idlinepos
         mo.setIdLineLen(rs.getInt(ix++)); // idlinelen
-        
-        String boardName = rs.getString(ix++);
-        
+
+        final String boardName = rs.getString(ix++);
+
         retrieveMessageContent(db, mo);
         retrieveAttachments(db, mo);
-        
+
         mo.setUserObject(boardName);
-        
+
         return mo;
     }
-    
+
 //    public void retrieveMessagesForSearch(
-//            Board board, 
-//            long startDate, 
+//            Board board,
+//            long startDate,
 //            long endDate,
-//            boolean showDeleted, 
-//            MessageDatabaseTableCallback mc) 
-//    throws SQLException 
+//            boolean showDeleted,
+//            MessageDatabaseTableCallback mc)
+//    throws SQLException
 //    {
 //        AppLayerDatabase db = AppLayerDatabase.getInstance();
 //        String sql =
@@ -423,12 +423,12 @@ public class MessageArchiveDatabaseTable {
 //            "hasfileattachment,hasboardattachment,idlinepos,idlinelen";
 //            sql += " FROM MESSAGEARCHIVE WHERE msgdatetime>=? AND msgdatetime<? AND board=? AND isvalid=TRUE AND isdeleted=?";
 //        PreparedStatement ps = db.prepareStatement(sql);
-//        
+//
 //        ps.setLong(1, startDate);
 //        ps.setLong(2, endDate);
 //        ps.setString(3, board.getNameLowerCase());
 //        ps.setBoolean(4, showDeleted);
-//        
+//
 //        ResultSet rs = ps.executeQuery();
 //
 //        while( rs.next() ) {
@@ -447,20 +447,20 @@ public class MessageArchiveDatabaseTable {
      * Retrieves ALL messages for migration. A board is NOT set in the FrostMessageObject.
      * But the original boardname is provided in getUserObject() of FrostMessageObject (hack!).
      */
-    public static void retrieveAllMessages(AppLayerDatabase db, MessageCallback mc) throws SQLException {
+    public static void retrieveAllMessages(final AppLayerDatabase db, final MessageCallback mc) throws SQLException {
         String sql =
             "SELECT "+
             "primkey,messageid,inreplyto,msgdatetime,msgindex,fromname,subject,recipient," +
             "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
             "hasfileattachment,hasboardattachment,idlinepos,idlinelen,board";
             sql += " FROM MESSAGEARCHIVE WHERE isvalid=TRUE AND isdeleted=FALSE ORDER BY board,msgdatetime ASC";
-        PreparedStatement ps = db.prepareStatement(sql);
+        final PreparedStatement ps = db.prepareStatement(sql);
 
-        ResultSet rs = ps.executeQuery();
+        final ResultSet rs = ps.executeQuery();
 
         while( rs.next() ) {
-            FrostMessageObject mo = resultSetToFrostMessageObject(db, rs);
-            boolean shouldStop = mc.messageRetrieved(mo); // pass to callback
+            final FrostMessageObject mo = resultSetToFrostMessageObject(db, rs);
+            final boolean shouldStop = mc.messageRetrieved(mo); // pass to callback
             if( shouldStop ) {
                 break;
             }
@@ -474,10 +474,10 @@ public class MessageArchiveDatabaseTable {
      * Returns overall message count.
      */
 //    public int getMessageCount() throws SQLException {
-//        
+//
 //        AppLayerDatabase db = AppLayerDatabase.getInstance();
 //        PreparedStatement ps = db.prepareStatement("SELECT COUNT(primkey) FROM MESSAGEARCHIVE WHERE isvalid=TRUE");
-//        
+//
 //        int count = 0;
 //        ResultSet rs = ps.executeQuery();
 //        if( rs.next() ) {
@@ -485,7 +485,7 @@ public class MessageArchiveDatabaseTable {
 //        }
 //        rs.close();
 //        ps.close();
-//        
+//
 //        return count;
 //    }
 }
