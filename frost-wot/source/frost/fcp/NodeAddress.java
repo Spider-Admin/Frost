@@ -21,12 +21,46 @@ package frost.fcp;
 import java.net.*;
 
 public class NodeAddress {
-    public InetAddress host = null;
-    public int port = -1;
-    public String hostName = null; // avoid name lookup recursion in security manager
-    public String hostIp = null; // avoid name lookup recursion in security manager
-    
+
+    private InetAddress host = null;
+    private int port = -1;
+    private String hostName = null; // avoid name lookup recursion in security manager
+    private String hostIp = null; // avoid name lookup recursion in security manager
+
     // for 0.7: during first connect test if DDA is possible
-    public boolean isDirectDiskAccessTested = false;
-    public boolean isDirectDiskAccessPossible = false;
+    private boolean isDirectDiskAccessTested = false;
+    private boolean isDirectDiskAccessPossible = false;
+
+    public NodeAddress(final InetAddress host, final int port, final String hostName, final String hostIp) {
+        this.host = host;
+        this.port = port;
+        this.hostName = hostName;
+        this.hostIp = hostIp;
+    }
+
+    public InetAddress getHost() {
+        return host;
+    }
+    public int getPort() {
+        return port;
+    }
+    public String getHostName() {
+        return hostName;
+    }
+    public String getHostIp() {
+        return hostIp;
+    }
+
+    public boolean isDirectDiskAccessTested() {
+        return isDirectDiskAccessTested;
+    }
+    public void setDirectDiskAccessTested(final boolean isDirectDiskAccessTested) {
+        this.isDirectDiskAccessTested = isDirectDiskAccessTested;
+    }
+    public boolean isDirectDiskAccessPossible() {
+        return isDirectDiskAccessPossible;
+    }
+    public void setDirectDiskAccessPossible(final boolean isDirectDiskAccessPossible) {
+        this.isDirectDiskAccessPossible = isDirectDiskAccessPossible;
+    }
 }

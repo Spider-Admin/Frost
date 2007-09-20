@@ -25,7 +25,7 @@ import java.util.logging.*;
 import frost.fcp.*;
 
 public class FcpSocket {
-    
+
     private static final Logger logger = Logger.getLogger(FcpSocket.class.getName());
 
     // This is the timeout set in Socket.setSoTimeout().
@@ -36,19 +36,19 @@ public class FcpSocket {
     // We now use with 60 minutes to be sure. mxbee (fuqid developer) told that he would maybe use 90 minutes!
     private final static int TIMEOUT = 60 * 60 * 1000;
 
-    private NodeAddress nodeAddress;
-    
+    private final NodeAddress nodeAddress;
+
     private Socket fcpSock;
     private BufferedInputStream fcpIn;
     private PrintStream fcpOut;
-    private BufferedOutputStream fcpRawOut;
-    
+    private final BufferedOutputStream fcpRawOut;
+
     private boolean useDDA;
 
     private static long staticFcpConnectionId = 0;
-    
+
     public static synchronized String getNextFcpId() {
-        StringBuilder sb = new StringBuilder().append("fcps-").append(System.currentTimeMillis()).append(staticFcpConnectionId++);
+        final StringBuilder sb = new StringBuilder().append("fcps-").append(System.currentTimeMillis()).append(staticFcpConnectionId++);
         return sb.toString();
     }
 
@@ -60,18 +60,18 @@ public class FcpSocket {
      * @exception UnknownHostException if the FCP host is unknown
      * @exception IOException if there is a problem with the connection to the FCP host.
      */
-    public FcpSocket(NodeAddress na) throws UnknownHostException, IOException {
+    public FcpSocket(final NodeAddress na) throws UnknownHostException, IOException {
         nodeAddress = na;
-        fcpSock = new Socket(nodeAddress.host, nodeAddress.port);
+        fcpSock = new Socket(nodeAddress.getHost(), nodeAddress.getPort());
         fcpSock.setSoTimeout(TIMEOUT);
         fcpSock.setKeepAlive(true);
-        
+
         fcpIn = new BufferedInputStream(fcpSock.getInputStream());
         fcpRawOut = new BufferedOutputStream(fcpSock.getOutputStream());
         fcpOut = new PrintStream(fcpSock.getOutputStream(), false, "UTF-8");
 
-        if( na.isDirectDiskAccessTested ) {
-            useDDA = na.isDirectDiskAccessPossible;
+        if( na.isDirectDiskAccessTested() ) {
+            useDDA = na.isDirectDiskAccessPossible();
         } else {
             useDDA = false;
         }
@@ -82,28 +82,28 @@ public class FcpSocket {
     /**
      * Factory method to get a socket without to catch an Exception.
      */
-    public static FcpSocket create(NodeAddress na) {
+    public static FcpSocket create(final NodeAddress na) {
         try {
-            FcpSocket newSocket = new FcpSocket(na);
+            final FcpSocket newSocket = new FcpSocket(na);
             return newSocket;
-        } catch(Throwable t) {
+        } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Exception catched", t);
             return null;
         }
     }
-    
+
     public NodeAddress getNodeAddress() {
         return nodeAddress;
     }
-    
+
     public boolean isDDA() {
-        return useDDA; 
+        return useDDA;
     }
-    
+
     public BufferedInputStream getFcpIn() {
         return fcpIn;
     }
-    
+
     public PrintStream getFcpOut() {
         return fcpOut;
     }
@@ -115,26 +115,26 @@ public class FcpSocket {
     public Socket getFcpSock() {
         return fcpSock;
     }
-    
+
     public void close() {
         if( fcpIn != null ) {
             try {
                 fcpIn.close();
-            } catch (Throwable e) {
+            } catch (final Throwable e) {
             }
             fcpIn = null;
         }
         if( fcpOut != null ) {
             try {
                 fcpOut.close();
-            } catch (Throwable e) {
+            } catch (final Throwable e) {
             }
             fcpOut = null;
         }
         if( fcpSock != null ) {
             try {
                 fcpSock.close();
-            } catch (Throwable e) {
+            } catch (final Throwable e) {
             }
             fcpSock = null;
         }
@@ -153,7 +153,7 @@ public class FcpSocket {
         // receive and process node messages
         boolean isSuccess = false;
         while(true) {
-            NodeMessage nodeMsg = NodeMessage.readMessage(fcpIn);
+            final NodeMessage nodeMsg = NodeMessage.readMessage(fcpIn);
             if( nodeMsg == null ) {
                 break;
             }
@@ -165,7 +165,7 @@ public class FcpSocket {
             // any other message means error here
             break;
         }
-        
+
         if( !isSuccess ) {
             throw new ConnectException();
         }
