@@ -38,7 +38,7 @@ public class FcpFactory {
      * Returns either the connection, or null on any error.
      */
     public static FcpConnection getFcpConnectionInstance() throws ConnectException {
-        
+
         FcpConnection connection = null;
 
         int maxTries;
@@ -54,19 +54,19 @@ public class FcpFactory {
         while (connection == null && tries < maxTries) {
             try {
                 connection = getConnection();
-            } catch (UnknownHostException e) {
+            } catch (final UnknownHostException e) {
                 logger.severe("FcpConnection.getFcpConnectionInstance: UnknownHostException " + e);
                 break;
-            } catch (java.net.ConnectException e) {
+            } catch (final java.net.ConnectException e) {
                 /*  IOException java.net.ConnectException: Connection refused: connect  */
                 logger.warning(
                     "FcpConnection.getFcpConnectionInstance: java.net.ConnectException "
                         + e + " , this was try " + (tries + 1) + "/" + maxTries);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 logger.warning(
                     "FcpConnection.getFcpConnectionInstance: IOException "
                         + e + " , this was try " + (tries + 1) + "/" + maxTries);
-            } catch (Throwable e) {
+            } catch (final Throwable e) {
                 logger.severe("FcpConnection.getFcpConnectionInstance: Throwable " + e);
                 break;
             }
@@ -92,13 +92,13 @@ public class FcpFactory {
      * @return NodeAddress of selected node.
      */
     protected static NodeAddress selectNode() {
-        int size = nodes.size();
+        final int size = nodes.size();
         if(size == 0) {
             throw new Error("All connections to nodes failed. Check your network settings and restart Frost.");
         } else if( size == 1 ) {
-            return (NodeAddress)nodes.get(0);
+            return nodes.get(0);
         } else {
-            return (NodeAddress)nodes.get(random.nextInt(nodes.size()));
+            return nodes.get(random.nextInt(nodes.size()));
         }
     }
 
@@ -112,42 +112,36 @@ public class FcpFactory {
     /**
      * Process provided List of string (host:port or host) and create InetAddress objects for each.
      */
-    public static void init(List<String> nodeList) {
-        for(Iterator i=nodeList.iterator(); i.hasNext(); ) {
-            String nodeName = (String)i.next();
-            NodeAddress na = new NodeAddress();
+    public static void init(final List<String> nodeList) {
+        for( final Object element : nodeList ) {
+            final String nodeName = (String)element;
+            final NodeAddress na;
             if( nodeName.indexOf(":") < 0 ) {
                 InetAddress ia = null;
                 try {
                     ia = InetAddress.getByName(nodeName);
-                    na.host = ia;
-                    na.port = 8481; // default
-                    na.hostName = ia.getHostName();
-                    na.hostIp = ia.getHostAddress();
-                } catch(Throwable t) {
+                    na = new NodeAddress(ia, 9481, ia.getHostName(), ia.getHostAddress());
+                } catch(final Throwable t) {
                     logger.log(Level.SEVERE, "Unknown FCP host: "+nodeName, t);
                     continue;
                 }
             } else {
-                String[] splitNodeName = nodeName.split(":");
-                InetAddress ia = null;
+                final String[] splitNodeName = nodeName.split(":");
+                final InetAddress ia;
                 try {
                     ia = InetAddress.getByName(splitNodeName[0]);
-                    na.host = ia;
-                    na.hostName = ia.getHostName();
-                    na.hostIp = ia.getHostAddress();
-                } catch(Throwable t) {
+                } catch(final Throwable t) {
                     logger.log(Level.SEVERE, "Unknown FCP host: "+nodeName, t);
                     continue;
                 }
-                int port = -1;
+                final int port;
                 try {
                     port = Integer.parseInt(splitNodeName[1]);
-                    na.port = port;
-                } catch(Throwable t) {
+                } catch(final Throwable t) {
                     logger.log(Level.SEVERE, "Unknown FCP port: "+nodeName, t);
                     continue;
                 }
+                na = new NodeAddress(ia, port, ia.getHostName(), ia.getHostAddress());
             }
             nodes.add(na);
         }
@@ -160,36 +154,36 @@ public class FcpFactory {
         if (getNodes().size()==0) {
             throw new Error("No Freenet nodes available.  You need at least one.");
         }
-        
-        NodeAddress selectedNode = selectNode();
 
-        logger.info("Using node "+selectedNode.host.getHostAddress()+" port "+selectedNode.port);
+        final NodeAddress selectedNode = selectNode();
+
+        logger.info("Using node "+selectedNode.getHost().getHostAddress()+" port "+selectedNode.getPort());
         try {
             con = new FcpConnection(selectedNode);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             // for now, remove on the first failure.
             // TODO: maybe we should give the node few chances?
             // also, should we remove it from the settings (i.e. forever)?
 //            delegateRemove(selectedNode);
             throw e;
         }
-        
+// FIXME: dda!
         // if node is connected the first time, test if dda is available!
         if( Core.frostSettings.getBoolValue(SettingsClass.FCP2_USE_DDA) ) {
-            if( !selectedNode.isDirectDiskAccessTested ) {
-                selectedNode.isDirectDiskAccessTested = true;
-                selectedNode.isDirectDiskAccessPossible = con.testNodeDDA();
+            if( !selectedNode.isDirectDiskAccessTested() ) {
+                selectedNode.setDirectDiskAccessTested(true);
+                selectedNode.setDirectDiskAccessPossible(con.testNodeDDA());
                 // get a new connection
                 try {
                     con = new FcpConnection(selectedNode);
-                } catch (IOException e) {
+                } catch (final IOException e) {
                     throw e;
                 }
             }
         } else {
             // don't use DDA
-            selectedNode.isDirectDiskAccessTested = true;
-            selectedNode.isDirectDiskAccessPossible = false;
+            selectedNode.setDirectDiskAccessTested(true);
+            selectedNode.setDirectDiskAccessPossible(false);
         }
         return con;
     }

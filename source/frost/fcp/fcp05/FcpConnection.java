@@ -42,8 +42,8 @@ public class FcpConnection
     // We now use with 60 minutes to be sure. mxbee (fuqid developer) told that he would maybe use 90 minutes!
     private final static int TIMEOUT = 60 * 60 * 1000;
 
-    private NodeAddress nodeAddress;
-    
+    private final NodeAddress nodeAddress;
+
     private Socket fcpSock;
     private BufferedInputStream fcpIn;
     private PrintStream fcpOut;
@@ -59,28 +59,28 @@ public class FcpConnection
      * @exception IOException if there is a problem with the connection
      * to the FCP host.
      */
-    public FcpConnection(NodeAddress na) throws UnknownHostException, IOException {
+    public FcpConnection(final NodeAddress na) throws UnknownHostException, IOException {
         nodeAddress = na;
 
         doHandshake();
     }
-    
+
     public void abortConnection() {
         if( fcpSock != null ) {
             try {
                 fcpSock.close();
-            } catch (IOException e) {
+            } catch (final IOException e) {
             }
         }
     }
 
     public List<String> getNodeInfo() throws IOException {
-        ArrayList<String> result = new ArrayList<String>();
+        final ArrayList<String> result = new ArrayList<String>();
 
-        fcpSock = new Socket(nodeAddress.host, nodeAddress.port);
+        fcpSock = new Socket(nodeAddress.getHost(), nodeAddress.getPort());
         fcpSock.setSoTimeout(TIMEOUT);
         fcpOut = new PrintStream(fcpSock.getOutputStream());
-        BufferedReader in = new BufferedReader(new InputStreamReader(fcpSock.getInputStream()));
+        final BufferedReader in = new BufferedReader(new InputStreamReader(fcpSock.getInputStream()));
         fcpOut.write(header, 0, header.length);
         fcpOut.println("ClientInfo");
         fcpOut.println("EndMessage");
@@ -116,11 +116,11 @@ public class FcpConnection
      * @throws FcpToolsException
      * @throws InterruptedIOException
      */
-    public boolean getKeyToBucket(String keyString,
-                                  Bucket bucket,
-                                  int htl) throws IOException, FcpToolsException, InterruptedIOException {
+    public boolean getKeyToBucket(final String keyString,
+                                  final Bucket bucket,
+                                  final int htl) throws IOException, FcpToolsException, InterruptedIOException {
 
-        FreenetKey key = new FreenetKey(keyString);
+        final FreenetKey key = new FreenetKey(keyString);
         logger.fine("KeyString = " + keyString + "\n" +
                     "Key =       " + key + "\n" +
                     "KeyType =   " + key.getKeyType() + "\n" +
@@ -128,7 +128,7 @@ public class FcpConnection
 
         OutputStream fileOut = bucket.getOutputStream();
 
-        fcpSock = new Socket(nodeAddress.host, nodeAddress.port);
+        fcpSock = new Socket(nodeAddress.getHost(), nodeAddress.getPort());
         fcpSock.setSoTimeout(TIMEOUT);
         fcpIn = new BufferedInputStream(fcpSock.getInputStream());
         fcpOut = new PrintStream(fcpSock.getOutputStream());
@@ -234,7 +234,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
                 logger.fine("Expecting " + dataChunkLength +
                               " bytes, " + totalDataLength +
                               " total.");
-                byte [] b = new byte[dataChunkLength];
+                final byte [] b = new byte[dataChunkLength];
                 int bytesRead = 0, count;
                 while( bytesRead < dataChunkLength ) {
                     count = fcpIn.read(b, bytesRead, dataChunkLength - bytesRead);
@@ -283,14 +283,14 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
      * @return true if the data is valid. False otherwise.
      * @throws IOException if there was an error while checking the integrity.
      */
-    private boolean checkIntegrity(Bucket bucket, int bucketSize, String chkKey) throws IOException {
-        InputStream fileIn = bucket.getInputStream();
-        byte[] dataBuffer = new byte[bucketSize];
+    private boolean checkIntegrity(final Bucket bucket, final int bucketSize, final String chkKey) throws IOException {
+        final InputStream fileIn = bucket.getInputStream();
+        final byte[] dataBuffer = new byte[bucketSize];
         int length, offset = 0;
         while ((length = fileIn.read(dataBuffer, offset, 256 * 1024)) > -1) {
             offset += length;
         }
-        String generatedCHK = FecTools.generateCHK(dataBuffer);
+        final String generatedCHK = FecTools.generateCHK(dataBuffer);
         if (chkKey.equalsIgnoreCase(generatedCHK)) {
             return true;
         } else {
@@ -307,12 +307,12 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
      * @param htl the HTL to use in this request
      * @return the results filled with metadata
      */
-    public FcpResultGet getKeyToFile(String keyString,
-                                   String filename,
-                                   int htl,
-                                   boolean fastDownload) throws IOException, FcpToolsException, InterruptedIOException {
+    public FcpResultGet getKeyToFile(final String keyString,
+                                   final String filename,
+                                   final int htl,
+                                   final boolean fastDownload) throws IOException, FcpToolsException, InterruptedIOException {
 
-        FreenetKey key = new FreenetKey(keyString);
+        final FreenetKey key = new FreenetKey(keyString);
         logger.fine("KeyString = " + keyString + "\n" +
                     "Key =       " + key + "\n" +
                     "KeyType =   " + key.getKeyType() + "\n" +
@@ -320,7 +320,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 
         FileOutputStream fileOut = new FileOutputStream(filename);
 
-        fcpSock = new Socket(nodeAddress.host, nodeAddress.port);
+        fcpSock = new Socket(nodeAddress.getHost(), nodeAddress.getPort());
         fcpSock.setSoTimeout(TIMEOUT);
         fcpIn = new BufferedInputStream(fcpSock.getInputStream());
         fcpOut = new PrintStream(fcpSock.getOutputStream());
@@ -379,14 +379,14 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
                     break;
                 case FcpKeyword.Restarted:
 /*
-   At any time when the full payload of data has not been sent 
-   (even before the DataFound message), a Restarted message may be sent. 
-   This means that the data failed to verify and the transfer will be restarted. 
-   The client should disregard all data it has recieved since it made its initial 
-   request and return to waiting for a DataFound message to begin the data transfer again. 
-   Otherwise, when the final DataChunk is received, the transaction is complete and 
+   At any time when the full payload of data has not been sent
+   (even before the DataFound message), a Restarted message may be sent.
+   This means that the data failed to verify and the transfer will be restarted.
+   The client should disregard all data it has recieved since it made its initial
+   request and return to waiting for a DataFound message to begin the data transfer again.
+   Otherwise, when the final DataChunk is received, the transaction is complete and
    the connection dies.
-   
+
    bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 */
                     flagRestarted = true;
@@ -397,9 +397,10 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
                     fcpOut.close();
                     fcpSock.close();
                     fileOut.close();
-                    File checkSize = new File(filename);
-                    if( checkSize.length() == 0 )
+                    final File checkSize = new File(filename);
+                    if( checkSize.length() == 0 ) {
                         checkSize.delete();
+                    }
                     throw new DataNotFoundException();
                 case FcpKeyword.RouteNotFound:
                     receivedFinalByte = true;
@@ -428,12 +429,14 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 // would be , but after 25 minutes my 5 boards did not finish to update, 4 days backload
 // thats really too slow ...
 // now the fast mode is only used by MessageDownloadThread ...
-                    if( fastDownload )  receivedFinalByte = true;
+                    if( fastDownload ) {
+                        receivedFinalByte = true;
+                    }
                     break;
                 }
             } else { // handle data bytes
                 logger.fine("Expecting " + dataChunkLength + " bytes, " + totalDataLength + " total.");
-                byte[] b = new byte[dataChunkLength];
+                final byte[] b = new byte[dataChunkLength];
                 int bytesRead = 0, count;
                 while( bytesRead < dataChunkLength ) {
                     count = fcpIn.read(b, bytesRead, dataChunkLength - bytesRead);
@@ -457,7 +460,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
         fcpSock.close();
         fileOut.flush();
         fileOut.close();
-        File checkSize = new File(filename);
+        final File checkSize = new File(filename);
 
         if( Logging.inst().doLogFcp2Messages() ) {
             System.out.print(
@@ -474,46 +477,46 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 
             if( metadataLength == checkSize.length() ) {
                 // all data are metadata ...
-                byte[] content = FileAccess.readByteArray(checkSize);
+                final byte[] content = FileAccess.readByteArray(checkSize);
                 result.setRawMetadata(content);
                 // create empty data file
                 checkSize.delete();
                 FileAccess.writeFile(new byte[0], checkSize);
             } else {
                 // remove metadata from file and put metadata into result
-                byte[] content = FileAccess.readByteArray(checkSize);
-                byte[] metadata = new byte[(int) metadataLength];
+                final byte[] content = FileAccess.readByteArray(checkSize);
+                final byte[] metadata = new byte[(int) metadataLength];
                 System.arraycopy(content, 0, metadata, 0, (int) metadataLength);
 
                 result.setRawMetadata(metadata);
                 // there is data behind metadata, write only this raw data to file
-                int datalen = (int) (checkSize.length() - metadataLength);
-                byte[] rawdata = new byte[datalen];
+                final int datalen = (int) (checkSize.length() - metadataLength);
+                final byte[] rawdata = new byte[datalen];
                 System.arraycopy(content, (int) metadataLength, rawdata, 0, datalen);
                 FileAccess.writeFile(rawdata, checkSize);
             }
-            
+
             if( Logging.inst().doLogFcp2Messages() ) {
                 System.out.println("; finalFileSize="+checkSize.length());
             }
-            
+
         } else if( metadataLength == 0 && checkSize.length() == 0 ) {
             // failure
             result = new FcpResultGet(false);
             checkSize.delete();
-            
+
             if( Logging.inst().doLogFcp2Messages() ) {
                 System.out.println("; deleted!");
             }
         } else {
             // success, no metadata
             result = new FcpResultGet(true);
-            
+
             if( Logging.inst().doLogFcp2Messages() ) {
                 System.out.println("; finalFileSize="+checkSize.length());
             }
         }
-        
+
         return result;
     }
 
@@ -528,13 +531,13 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
      *            the HTL to use for this insert
      * @return the results filled with metadata and the CHK used to insert the data
      */
-    public String putKeyFromArray(String key, byte[] data, byte[] metadata, int htl, boolean removeLocalKey)
+    public String putKeyFromArray(final String key, final byte[] data, final byte[] metadata, final int htl, final boolean removeLocalKey)
         throws IOException {
 
-        fcpSock = new Socket(nodeAddress.host, nodeAddress.port);
+        fcpSock = new Socket(nodeAddress.getHost(), nodeAddress.getPort());
         fcpSock.setSoTimeout(TIMEOUT);
         fcpOut = new PrintStream(fcpSock.getOutputStream());
-        DataOutputStream dOut = new DataOutputStream(fcpSock.getOutputStream());
+        final DataOutputStream dOut = new DataOutputStream(fcpSock.getOutputStream());
         fcpIn = new BufferedInputStream(fcpSock.getInputStream());
 
         fcpOut.write(header, 0, header.length);
@@ -599,9 +602,8 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
     /**
      * Performs a handshake using this FcpConnection
      */
-    public void doHandshake() throws IOException, ConnectException
-    {
-        fcpSock = new Socket(nodeAddress.host, nodeAddress.port);
+    public void doHandshake() throws IOException, ConnectException {
+        fcpSock = new Socket(nodeAddress.getHost(), nodeAddress.getPort());
         fcpIn = new BufferedInputStream(fcpSock.getInputStream());
         fcpOut = new PrintStream(fcpSock.getOutputStream());
         fcpSock.setSoTimeout(TIMEOUT);
@@ -619,7 +621,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
             logger.fine(response.getFullString());
             try {
                 Thread.sleep(100);
-            } catch(InterruptedException e) {}
+            } catch(final InterruptedException e) {}
             timeout++;
         } while (response.getId() != FcpKeyword.EndMessage && timeout < 32);
 
@@ -635,7 +637,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
      */
     public String[] getKeyPair() throws IOException {
 
-        fcpSock = new Socket(nodeAddress.host, nodeAddress.port);
+        fcpSock = new Socket(nodeAddress.getHost(), nodeAddress.getPort());
         fcpSock.setSoTimeout(TIMEOUT);
         fcpOut = new PrintStream(fcpSock.getOutputStream());
         fcpIn = new BufferedInputStream(fcpSock.getInputStream());
@@ -645,7 +647,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
         fcpOut.println("EndMessage");
 
         int c;
-        StringBuilder output = new StringBuilder();
+        final StringBuilder output = new StringBuilder();
 
         while ((c = fcpIn.read()) != -1) {
             output.append((char)c);
@@ -665,16 +667,16 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
         fcpIn.close();
         fcpSock.close();
 
-        String[] result = {"SSK@", "SSK@"};
-        String outString = output.toString();
+        final String[] result = {"SSK@", "SSK@"};
+        final String outString = output.toString();
         int privateKeyPos = outString.indexOf("PrivateKey=");
         int publicKeyPos = outString.indexOf("PublicKey=");
 
         if (privateKeyPos != -1 && publicKeyPos != -1) {
             privateKeyPos += 11;
             publicKeyPos += 10;
-            int privateKeyEnd = outString.indexOf('\n', privateKeyPos);
-            int publicKeyEnd = outString.indexOf('\n', publicKeyPos);
+            final int privateKeyEnd = outString.indexOf('\n', privateKeyPos);
+            final int publicKeyEnd = outString.indexOf('\n', publicKeyPos);
 
             if (privateKeyEnd != -1 && publicKeyEnd != -1) {
                 result[0] += (outString.substring(privateKeyPos, privateKeyEnd));
