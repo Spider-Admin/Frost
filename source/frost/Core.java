@@ -291,6 +291,9 @@ public class Core implements FrostEventDispatcher  {
         new Logging(frostSettings);
         initializeSkins();
 
+        // CLEANS TEMP DIR! START NO INSERTS BEFORE THIS DID RUN
+        Startup.startupCheck(frostSettings);
+
         // if first startup ask user for freenet version to use
         if( frostSettings.getIntValue(SettingsClass.FREENET_VERSION) == 0 ) {
             showFirstStartupDialog();
@@ -324,9 +327,6 @@ public class Core implements FrostEventDispatcher  {
         ArchiveMessageStorage.inst().initStorage();
         IdentitiesStorage.inst().initStorage();
         FileListStorage.inst().initStorage();
-
-        // CLEANS TEMP DIR! START NO INSERTS BEFORE THIS DID RUN
-        Startup.startupCheck(frostSettings);
 
         splashscreen.setText(language.getString("Splashscreen.message.2"));
         splashscreen.setProgress(40);
