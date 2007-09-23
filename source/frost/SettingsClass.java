@@ -53,7 +53,7 @@ public class SettingsClass implements Savable {
     public static final String DIR_LAST_USED = "lastUsedDirectory";
     public static final String DIR_TEMP = "temp.dir";
     public static final String DIR_LOCALDATA = "localdata.dir";
-    public static final String DIR_STORE = "localdata.dir";
+    public static final String DIR_STORE = "store.dir";
 
     public static final String FREENET_VERSION = "freenetVersion";
 
