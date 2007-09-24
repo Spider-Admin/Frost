@@ -18,8 +18,6 @@
 */
 package frost.storage.perst.messages;
 
-import java.util.*;
-
 import org.garret.perst.*;
 import org.joda.time.*;
 
@@ -33,7 +31,7 @@ import frost.messages.*;
 public class PerstFrostMessageObject extends Persistent {
 
     String messageId;
-    String inReplyTo; // FIXME: list!
+    String inReplyTo;
 
     long dateAndTime;
     int msgIndex;
@@ -52,7 +50,7 @@ public class PerstFrostMessageObject extends Persistent {
     boolean isJunk;
     boolean isFlagged;
     boolean isStarred;
-    
+
     boolean hasBoardAttachments;
     boolean hasFileAttachments;
 
@@ -64,7 +62,7 @@ public class PerstFrostMessageObject extends Persistent {
         MessageContentStorage.inst().deallocateForOid(getOid());
         super.deallocate();
     }
-    
+
     @Override
     public boolean recursiveLoading() {
         return false;
@@ -72,8 +70,8 @@ public class PerstFrostMessageObject extends Persistent {
 
     public PerstFrostMessageObject() {}
 
-    public PerstFrostMessageObject(FrostMessageObject mo, Storage store) {
-        
+    public PerstFrostMessageObject(final FrostMessageObject mo, final Storage store) {
+
         makePersistent(store); // assign oid
 
         messageId =  mo.getMessageId();
@@ -106,8 +104,8 @@ public class PerstFrostMessageObject extends Persistent {
         idLinePos = mo.getIdLinePos();
         idLineLen = mo.getIdLineLen();
 
-        AttachmentList files = mo.getAttachmentsOfType(Attachment.FILE);
-        AttachmentList boards = mo.getAttachmentsOfType(Attachment.BOARD);
+        final AttachmentList files = mo.getAttachmentsOfType(Attachment.FILE);
+        final AttachmentList boards = mo.getAttachmentsOfType(Attachment.BOARD);
 
         MessageContentStorage.inst().addAttachmentsForOid(getOid(), boards, files);
 
@@ -124,37 +122,35 @@ public class PerstFrostMessageObject extends Persistent {
         }
 
         MessageContentStorage.inst().addContentForOid(getOid(), mo.getContent());
-        
+
         modify();
     }
 
-    public void retrieveMessageContent(FrostMessageObject mo) {
+    public void retrieveMessageContent(final FrostMessageObject mo) {
         mo.setContent(MessageContentStorage.inst().getContentForOid(getOid()));
     }
 
-    public void retrievePublicKey(FrostMessageObject mo) {
+    public void retrievePublicKey(final FrostMessageObject mo) {
         mo.setPublicKey(MessageContentStorage.inst().getPublickeyForOid(getOid()));
     }
 
-    public void retrieveSignature(FrostMessageObject mo) {
+    public void retrieveSignature(final FrostMessageObject mo) {
         mo.setSignatureV2(MessageContentStorage.inst().getSignatureForOid(getOid()));
     }
 
-    public void retrieveAttachments(FrostMessageObject mo) {
-        PerstAttachments pa = MessageContentStorage.inst().getAttachmentsForOid(getOid());
+    public void retrieveAttachments(final FrostMessageObject mo) {
+        final PerstAttachments pa = MessageContentStorage.inst().getAttachmentsForOid(getOid());
         if( pa != null ) {
             if( pa.getBoardAttachments() != null ) {
-                for( Iterator<PerstBoardAttachment> i = pa.getBoardAttachments().iterator(); i.hasNext(); ) {
-                    PerstBoardAttachment p = i.next();
-                    Board b = new Board(p.name, p.pubKey, p.privKey, p.description);
-                    BoardAttachment ba = new BoardAttachment(b);
+                for( final PerstBoardAttachment p : pa.getBoardAttachments() ) {
+                    final Board b = new Board(p.name, p.pubKey, p.privKey, p.description);
+                    final BoardAttachment ba = new BoardAttachment(b);
                     mo.addAttachment(ba);
                 }
             }
             if( pa.getFileAttachments() != null ) {
-                for( Iterator<PerstFileAttachment> i = pa.getFileAttachments().iterator(); i.hasNext(); ) {
-                    PerstFileAttachment p = i.next();
-                    FileAttachment fa = new FileAttachment(p.name, p.chkKey, p.size);
+                for( final PerstFileAttachment p : pa.getFileAttachments() ) {
+                    final FileAttachment fa = new FileAttachment(p.name, p.chkKey, p.size);
                     mo.addAttachment(fa);
                 }
             }
@@ -162,12 +158,12 @@ public class PerstFrostMessageObject extends Persistent {
     }
 
     public FrostMessageObject toFrostMessageObject(
-            Board board, 
-            boolean isValidMessage, 
-            boolean withContent, 
-            boolean withAttachments) 
+            final Board board,
+            final boolean isValidMessage,
+            final boolean withContent,
+            final boolean withAttachments)
     {
-        FrostMessageObject mo = new FrostMessageObject();
+        final FrostMessageObject mo = new FrostMessageObject();
 
         // add reference to this perst obj for later updates
         mo.setPerstFrostMessageObject(this);

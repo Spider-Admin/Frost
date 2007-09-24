@@ -28,35 +28,35 @@ public class CopyToClipboard {
     private static Clipboard clipboard = null;
 
     private static class DummyClipboardOwner implements ClipboardOwner {
-        public void lostOwnership(Clipboard tclipboard, Transferable contents) { }
+        public void lostOwnership(final Clipboard tclipboard, final Transferable contents) { }
     }
-    
-    private static DummyClipboardOwner dummyClipboardOwner = new DummyClipboardOwner(); 
-    
+
+    private static DummyClipboardOwner dummyClipboardOwner = new DummyClipboardOwner();
+
     private static Clipboard getClipboard() {
         if (clipboard == null) {
             clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         }
         return clipboard;
     }
-    
-    public static void copyText(String text) {
-        StringSelection selection = new StringSelection(text);
-        getClipboard().setContents(selection, dummyClipboardOwner);    
+
+    public static void copyText(final String text) {
+        final StringSelection selection = new StringSelection(text);
+        getClipboard().setContents(selection, dummyClipboardOwner);
     }
 
     /**
      * This method copies the CHK keys and file names of the selected items (if any) to the clipboard.
      * Each ModelItem must implement interface ICopyToClipboardItem.
      */
-    public static void copyKeysAndFilenames(Object[] items) {
+    public static void copyKeysAndFilenames(final Object[] items) {
         if (items == null && items.length == 0) {
             return;
         }
-        String keyNotAvailableMessage = Language.getInstance().getString("Common.copyToClipBoard.extendedInfo.keyNotAvailableYet");
-        StringBuilder textToCopy = new StringBuilder();
+        final String keyNotAvailableMessage = Language.getInstance().getString("Common.copyToClipBoard.extendedInfo.keyNotAvailableYet");
+        final StringBuilder textToCopy = new StringBuilder();
         CopyToClipboardItem item;
-        for (Object ditem : items) {
+        for (final Object ditem : items) {
             if( !(ditem instanceof CopyToClipboardItem) ) {
                 continue;
             }
@@ -66,28 +66,27 @@ public class CopyToClipboard {
             if( items.length > 1 ) {
                 textToCopy.append("\n");
             }
-        }               
-        StringSelection selection = new StringSelection(textToCopy.toString());
-        getClipboard().setContents(selection, dummyClipboardOwner);    
+        }
+        copyText(textToCopy.toString());
     }
-    
+
     /**
      * This method copies extended information about the selected items (if any) to
      * the clipboard. That information is composed of the filename, the key and
      * the size in bytes.
      * Each ModelItem must implement interface ICopyToClipboardItem.
      */
-    public static void copyExtendedInfo(Object[] items) {
+    public static void copyExtendedInfo(final Object[] items) {
         if (items == null && items.length == 0) {
             return;
         }
-        String keyNotAvailableMessage = Language.getInstance().getString("Common.copyToClipBoard.extendedInfo.keyNotAvailableYet");
-        String fileMessage = Language.getInstance().getString("Common.copyToClipBoard.extendedInfo.file")+" ";
-        String keyMessage = Language.getInstance().getString("Common.copyToClipBoard.extendedInfo.key")+" ";
-        String bytesMessage = Language.getInstance().getString("Common.copyToClipBoard.extendedInfo.bytes")+" ";
-        StringBuilder textToCopy = new StringBuilder();
+        final String keyNotAvailableMessage = Language.getInstance().getString("Common.copyToClipBoard.extendedInfo.keyNotAvailableYet");
+        final String fileMessage = Language.getInstance().getString("Common.copyToClipBoard.extendedInfo.file")+" ";
+        final String keyMessage = Language.getInstance().getString("Common.copyToClipBoard.extendedInfo.key")+" ";
+        final String bytesMessage = Language.getInstance().getString("Common.copyToClipBoard.extendedInfo.bytes")+" ";
+        final StringBuilder textToCopy = new StringBuilder();
         CopyToClipboardItem item;
-        for (Object ditem : items) {
+        for (final Object ditem : items) {
             if( !(ditem instanceof CopyToClipboardItem) ) {
                 continue;
             }
@@ -111,12 +110,11 @@ public class CopyToClipboard {
             textToCopy.append(key).append("\n");
             textToCopy.append(bytesMessage);
             textToCopy.append(fs).append("\n\n");
-        }               
+        }
         // We remove the additional \n at the end
         textToCopy.deleteCharAt(textToCopy.length() - 1);
-        
-        StringSelection selection = new StringSelection(textToCopy.toString());
-        getClipboard().setContents(selection, dummyClipboardOwner);    
+
+        copyText(textToCopy.toString());
     }
 
     /**
@@ -124,14 +122,14 @@ public class CopyToClipboard {
      * Used only for 0.5 items.
      * Each ModelItem must implement interface ICopyToClipboardItem.
      */
-    public static void copyKeys(Object[] items) {
+    public static void copyKeys(final Object[] items) {
         if (items == null && items.length == 0) {
             return;
         }
-        String keyNotAvailableMessage = Language.getInstance().getString("Common.copyToClipBoard.extendedInfo.keyNotAvailableYet");
-        StringBuilder textToCopy = new StringBuilder();
+        final String keyNotAvailableMessage = Language.getInstance().getString("Common.copyToClipBoard.extendedInfo.keyNotAvailableYet");
+        final StringBuilder textToCopy = new StringBuilder();
         CopyToClipboardItem item;
-        for (Object ditem : items) {
+        for (final Object ditem : items) {
             if( !(ditem instanceof CopyToClipboardItem) ) {
                 continue;
             }
@@ -144,9 +142,8 @@ public class CopyToClipboard {
             if( items.length > 1 ) {
                 textToCopy.append("\n");
             }
-        }               
-        StringSelection selection = new StringSelection(textToCopy.toString());
-        getClipboard().setContents(selection, dummyClipboardOwner);    
+        }
+        copyText(textToCopy.toString());
     }
 
     /**
@@ -154,10 +151,10 @@ public class CopyToClipboard {
      * Does not append filename if there is already a filename.
      * Only appends filename for CHK keys.
      */
-    private static void appendKeyAndFilename(StringBuilder textToCopy, String key, String filename, String keyNotAvailableMessage) {
+    private static void appendKeyAndFilename(final StringBuilder textToCopy, String key, final String filename, final String keyNotAvailableMessage) {
         if (key == null) {
             key = keyNotAvailableMessage;
-        } 
+        }
         textToCopy.append(key);
         if( key.startsWith("CHK@") ) {
             // CHK, append filename if there is not already a filename

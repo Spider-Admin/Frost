@@ -36,7 +36,7 @@ import frost.util.model.*;
 public class FileListFileDetailsDialog extends JDialog {
 
     Language language = Language.getInstance();
-    
+
     private JPanel jContentPane = null;
     private JPanel buttonPanel = null;
     private JPanel mainPanel = null;
@@ -45,18 +45,18 @@ public class FileListFileDetailsDialog extends JDialog {
     private SortedModelTable modelTable = null;
     private FileListFileDetailsTableModel model = null;
     private FileListFileDetailsTableFormat tableFormat = null;
-    
+
     private PopupMenu popupMenu = null;
-    private Listener listener = new Listener();
-    
+    private final Listener listener = new Listener();
+
     private boolean isOwnerSearchAllowed = false;
 
-    public FileListFileDetailsDialog(Frame owner) {
+    public FileListFileDetailsDialog(final Frame owner) {
         super(owner);
         initialize(owner);
     }
 
-    public FileListFileDetailsDialog(Frame owner, boolean allowOwnerSearch) {
+    public FileListFileDetailsDialog(final Frame owner, final boolean allowOwnerSearch) {
         super(owner);
         initialize(owner);
         isOwnerSearchAllowed = allowOwnerSearch;
@@ -65,24 +65,24 @@ public class FileListFileDetailsDialog extends JDialog {
     /**
      * This method initializes this
      */
-    private void initialize(Frame owner) {
+    private void initialize(final Frame owner) {
         this.setContentPane(getJContentPane());
         this.setTitle(language.getString("FileListFileDetailsDialog.title"));
         loadLayout();
         setLocationRelativeTo(owner);
     }
-    
+
     private PopupMenu getPopupMenu() {
         if (popupMenu == null) {
             popupMenu = new PopupMenu();
         }
         return popupMenu;
     }
-    
-    private void showUploadTablePopupMenu(MouseEvent e) {
-        // select row where rightclick occurred if row under mouse is NOT selected 
-        Point p = e.getPoint();
-        int y = modelTable.getTable().rowAtPoint(p);
+
+    private void showUploadTablePopupMenu(final MouseEvent e) {
+        // select row where rightclick occurred if row under mouse is NOT selected
+        final Point p = e.getPoint();
+        final int y = modelTable.getTable().rowAtPoint(p);
         if( y < 0 ) {
             return;
         }
@@ -93,11 +93,11 @@ public class FileListFileDetailsDialog extends JDialog {
     }
 
     private void loadLayout() {
-        
+
         int lastHeight = Core.frostSettings.getIntValue("FileListFileDetailsDialog.height");
         int lastWidth = Core.frostSettings.getIntValue("FileListFileDetailsDialog.width");
-        
-        Dimension scrSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+        final Dimension scrSize = Toolkit.getDefaultToolkit().getScreenSize();
 
         if (lastWidth < 100) {
             lastWidth = 600;
@@ -117,13 +117,13 @@ public class FileListFileDetailsDialog extends JDialog {
 
     private void saveLayout() {
         // dialog size
-        Rectangle bounds = getBounds();
+        final Rectangle bounds = getBounds();
         Core.frostSettings.setValue("FileListFileDetailsDialog.height", bounds.height);
         Core.frostSettings.setValue("FileListFileDetailsDialog.width", bounds.width);
-        
+
         tableFormat.saveTableLayout(getModelTable());
     }
-    
+
     /**
      * This method initializes jContentPane
      */
@@ -138,11 +138,11 @@ public class FileListFileDetailsDialog extends JDialog {
     }
 
     /**
-     * This method initializes buttonPanel	
+     * This method initializes buttonPanel
      */
     private JPanel getButtonPanel() {
         if( buttonPanel == null ) {
-            FlowLayout flowLayout = new FlowLayout();
+            final FlowLayout flowLayout = new FlowLayout();
             flowLayout.setAlignment(FlowLayout.RIGHT);
             buttonPanel = new JPanel();
             buttonPanel.setLayout(flowLayout);
@@ -152,7 +152,7 @@ public class FileListFileDetailsDialog extends JDialog {
     }
 
     /**
-     * This method initializes mainPanel	
+     * This method initializes mainPanel
      */
     private JPanel getMainPanel() {
         if( mainPanel == null ) {
@@ -162,28 +162,28 @@ public class FileListFileDetailsDialog extends JDialog {
         }
         return mainPanel;
     }
-    
+
     private SortedModelTable getModelTable() {
         if( modelTable == null ) {
             tableFormat = new FileListFileDetailsTableFormat();
             model = new FileListFileDetailsTableModel(tableFormat);
             modelTable = new SortedModelTable(model);
-            
+
             modelTable.getScrollPane().addMouseListener(listener);
             modelTable.getTable().addMouseListener(listener);
         }
         return modelTable;
     }
-    
+
     /**
-     * This method initializes Bok	
+     * This method initializes Bok
      */
     private JButton getBclose() {
         if( Bclose == null ) {
             Bclose = new JButton();
             Bclose.setText(language.getString("FileListFileDetailsDialog.button.close"));
             Bclose.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent e) {
+                public void actionPerformed(final java.awt.event.ActionEvent e) {
                     saveLayout();
                     setVisible(false);
                 }
@@ -191,24 +191,24 @@ public class FileListFileDetailsDialog extends JDialog {
         }
         return Bclose;
     }
-    
-    public void startDialog(FrostFileListFileObject fileObject) {
-        for( Iterator<FrostFileListFileObjectOwner> i = fileObject.getFrostFileListFileObjectOwnerIterator(); i.hasNext(); ) {
-            FrostFileListFileObjectOwner o = i.next();
-            FileListFileDetailsItem item = new FileListFileDetailsItem(o); 
+
+    public void startDialog(final FrostFileListFileObject fileObject) {
+        for( final Iterator<FrostFileListFileObjectOwner> i = fileObject.getFrostFileListFileObjectOwnerIterator(); i.hasNext(); ) {
+            final FrostFileListFileObjectOwner o = i.next();
+            final FileListFileDetailsItem item = new FileListFileDetailsItem(o);
             model.addPropertiesItem(item);
         }
         setVisible(true);
     }
-    
+
     private class PopupMenu extends JSkinnablePopupMenu implements ActionListener, LanguageListener {
 
-        private JMenuItem copyKeysAndNamesItem = new JMenuItem();
-        private JMenuItem copyKeysItem = new JMenuItem();
+        private final JMenuItem copyKeysAndNamesItem = new JMenuItem();
+        private final JMenuItem copyKeysItem = new JMenuItem();
 
-        private JMenu copyToClipboardMenu = new JMenu();
+        private final JMenu copyToClipboardMenu = new JMenu();
 
-        private JMenuItem showOwnerFilesItem = new JMenuItem();
+        private final JMenuItem showOwnerFilesItem = new JMenuItem();
 
         public PopupMenu() {
             super();
@@ -233,11 +233,11 @@ public class FileListFileDetailsDialog extends JDialog {
             copyKeysAndNamesItem.setText(language.getString("Common.copyToClipBoard.copyKeysWithFilenames"));
 
             copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
-            
-            showOwnerFilesItem.setText(language.getString("Search files of owner"));
+
+            showOwnerFilesItem.setText(language.getString("FileListFileDetailsDialog.popupmenu.searchFilesOfOwner"));
         }
 
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(final ActionEvent e) {
             if (e.getSource() == copyKeysItem) {
                 CopyToClipboard.copyKeys(modelTable.getSelectedItems());
             } else if (e.getSource() == copyKeysAndNamesItem) {
@@ -246,32 +246,33 @@ public class FileListFileDetailsDialog extends JDialog {
                 searchFilesOfOwner();
             }
         }
-        
+
         private void searchFilesOfOwner() {
-            ModelItem[] selectedItems = modelTable.getSelectedItems();
+            final ModelItem[] selectedItems = modelTable.getSelectedItems();
             if (selectedItems.length == 1) {
-                FileListFileDetailsItem item = (FileListFileDetailsItem) selectedItems[0];
-                String owner = item.getOwnerIdentity().getUniqueName();
-                
-                SearchParameters sp = new SearchParameters(false);
+                final FileListFileDetailsItem item = (FileListFileDetailsItem) selectedItems[0];
+                final String owner = item.getOwnerIdentity().getUniqueName();
+
+                final SearchParameters sp = new SearchParameters(false);
                 sp.setOwnerString(owner);
                 FileTransferManager.inst().getSearchManager().getPanel().startNewSearch(sp);
             }
         }
 
-        public void languageChanged(LanguageEvent event) {
+        public void languageChanged(final LanguageEvent event) {
             refreshLanguage();
         }
 
-        public void show(Component invoker, int x, int y) {
+        @Override
+        public void show(final Component invoker, final int x, final int y) {
             removeAll();
 
-            ModelItem[] selectedItems = modelTable.getSelectedItems();
-            
+            final ModelItem[] selectedItems = modelTable.getSelectedItems();
+
             if( selectedItems.length == 0 ) {
                 return;
             }
-            
+
             // if at least 1 item is selected
             add(copyToClipboardMenu);
             if( isOwnerSearchAllowed && selectedItems.length == 1 ) {
@@ -282,19 +283,22 @@ public class FileListFileDetailsDialog extends JDialog {
             super.show(invoker, x, y);
         }
     }
-    
+
     private class Listener extends MouseAdapter implements MouseListener {
         public Listener() {
             super();
         }
-        public void mousePressed(MouseEvent e) {
-            if (e.isPopupTrigger())
+        @Override
+        public void mousePressed(final MouseEvent e) {
+            if (e.isPopupTrigger()) {
                 if ((e.getSource() == modelTable.getTable())
                     || (e.getSource() == modelTable.getScrollPane())) {
                     showUploadTablePopupMenu(e);
                 }
+            }
         }
-        public void mouseReleased(MouseEvent e) {
+        @Override
+        public void mouseReleased(final MouseEvent e) {
             if ((e.getClickCount() == 1) && (e.isPopupTrigger())) {
                 if ((e.getSource() == modelTable.getTable())
                     || (e.getSource() == modelTable.getScrollPane())) {
