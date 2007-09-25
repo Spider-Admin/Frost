@@ -251,7 +251,7 @@ public class MiscToolkit {
      *
      * @param frostSettingName  The name of the boolean setting, like 'confirm.markAllMessagesRead'
      * @param checkboxText      The text for the checkbox, like 'Show this dialog the next time'
-     * @return
+     * @return  JOptionPane.YES_OPTION if dialog is suppressed or user answered with YES. else !=YES_OPTION
      */
     public static int showSuppressableConfirmDialog(
             final Component parentComponent,
@@ -264,7 +264,8 @@ public class MiscToolkit {
     {
         final boolean showConfirmDialog = Core.frostSettings.getBoolValue(frostSettingName);
         if( !showConfirmDialog ) {
-            return JOptionPane.CLOSED_OPTION;
+            // no confirmation, always YES
+            return JOptionPane.YES_OPTION;
         }
 
         final JOptionPane op = new JOptionPane(message, messageType, optionType);
