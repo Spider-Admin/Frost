@@ -21,15 +21,17 @@ package frost.fcp;
 public class FreenetKeys {
 
     private static String[] freenetKeyTypes = null;
-    
+
     protected final static int KEYTYPE_CHK = 0;
     protected final static int KEYTYPE_KSK = 1;
     protected final static int KEYTYPE_SSK = 2;
     protected final static int KEYTYPE_USK = 3;
-    
+
     protected final static int KEYLEN_05_CHK = 58;
-    protected final static int KEYLEN_05_SSK_PUB = 35;
-    protected final static int KEYLEN_05_SSK_PRIV = 31;
+    protected final static int KEYLEN_05_SSK_PUB = 35; // without an entropy in key
+    protected final static int KEYLEN_05_SSK_PRIV = 31; // without an entropy in key ; can by 1 char more!
+    protected final static int KEYLEN_05_SSK_PUB_LONG = 55; // with an entropy in key
+    protected final static int KEYLEN_05_SSK_PRIV_LONG = 51; // with an entropy in key ; can by 1 char more!
 
     protected final static int KEYLEN_07_CHK = 99;
     protected final static int KEYLEN_07_SSK_PUB = 99;
@@ -56,21 +58,21 @@ public class FreenetKeys {
     public static String[] getFreenetKeyTypes() {
         return freenetKeyTypes;
     }
-    
+
     /**
      * Checks if provided String is valid. Valid means the String must
      * start with a supported keytype (CHK,...) and must have the
      * correct length for this freenet version.
-     * 
+     *
      * CHK keylength on 0.5 is 58 (including the CHK@).
      * CHK keylength on 0.7 is 99 (including the CHK@).
-     * 
+     *
      * SSK keylength on 0.5 is: pubkey:35  privkey:31
      * SSK/USK keylength on 0.7 is: pubkey:99  privkey:91
-     * 
+     *
      * KSK at least KSK@x : 5
      */
-    public static boolean isValidKey(String key) {
+    public static boolean isValidKey(final String key) {
 
         if( key == null || key.length() < 5 ) { // at least KSK@x
             return false;
@@ -95,11 +97,11 @@ public class FreenetKeys {
 
         // get real keylength
         int length = key.length();
-        int pos = key.indexOf("/");
+        final int pos = key.indexOf("/");
         if( pos > 0 ) {
             length -= (length-pos);
         }
-        
+
         // check length
         boolean isKeyLenOk = false;
         if( FcpHandler.isFreenet05() ) {
@@ -108,7 +110,15 @@ public class FreenetKeys {
                     isKeyLenOk = true;
                 }
             } else if( keytype == KEYTYPE_SSK ) {
-                if( length == KEYLEN_05_SSK_PRIV || length == KEYLEN_05_SSK_PUB ) {
+                if( length == KEYLEN_05_SSK_PRIV
+                        || length == KEYLEN_05_SSK_PUB
+                        || length == KEYLEN_05_SSK_PRIV_LONG
+                        || length == KEYLEN_05_SSK_PUB_LONG
+                        || length == KEYLEN_05_SSK_PRIV + 1
+                        || length == KEYLEN_05_SSK_PRIV_LONG + 1
+                        || length == KEYLEN_05_SSK_PUB + 1
+                        || length == KEYLEN_05_SSK_PUB_LONG + 1
+                   ) {
                     isKeyLenOk = true;
                 }
             }
@@ -132,7 +142,7 @@ public class FreenetKeys {
      * @param key  key to check (CHK)
      * @return  true if the key is an old key
      */
-    public static boolean isOld07ChkKey(String key) {
+    public static boolean isOld07ChkKey(final String key) {
         if( key == null || key.length() < 4 ) {
             return false; // invalid key
         }
@@ -149,7 +159,7 @@ public class FreenetKeys {
                 int pos = key.indexOf(',');
                 pos = key.indexOf(',', pos+1);
                 pos++;
-                String s = key.substring(pos, pos+7);
+                final String s = key.substring(pos, pos+7);
                 if( s.startsWith("AAE") ) {
                     return true; // old
                 } else if( s.startsWith("AAI") ) {
@@ -160,7 +170,7 @@ public class FreenetKeys {
             } else {
                 return false; // invalid key type
             }
-        } catch(Throwable t) {
+        } catch(final Throwable t) {
             return false;
         }
     }
