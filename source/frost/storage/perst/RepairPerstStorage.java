@@ -20,9 +20,7 @@ package frost.storage.perst;
 
 public class RepairPerstStorage {
 
-    public static void main(String[] args) throws Throwable {
-        SharedFilesCHKKeyStorage.inst().initStorage();
+    public static void main(final String[] args) throws Throwable {
         SharedFilesCHKKeyStorage.inst().repairStorage();
-        SharedFilesCHKKeyStorage.inst().save();
     }
 }

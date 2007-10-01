@@ -85,6 +85,18 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Sa
 
         System.out.println("Repairing sfChkKeys.dbs...");
 
+        final String databaseFilePath = getStorageFilename("sfChkKeys.dbs"); // path to the database file
+        final int pagePoolSize = 2*1024*1024;
+
+        open(databaseFilePath, pagePoolSize, false, true, false);
+
+        storageRoot = (SharedFilesCHKKeyStorageRoot)getStorage().getRoot();
+        if (storageRoot == null) {
+            // Storage was not initialized yet
+            System.out.println("No sfChkKeys.dbs found");
+            return;
+        }
+
         int brokenEntries = 0;
         int validEntries = 0;
 
@@ -114,6 +126,9 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Sa
         }
         commit();
 
+        close();
+        storageRoot = null;
+
         System.out.println("Repair finished, brokenEntries="+brokenEntries+"; validEntries="+validEntries);
     }
 
@@ -131,10 +146,7 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Sa
 
         // first search for CHK keys that were created by us, but were never send
         {
-            final Iterator<SharedFilesCHKKey> i = storageRoot.chkKeys.iterator();
-            while(i.hasNext()) {
-                SharedFilesCHKKey sfk;
-                sfk = i.next();
+            for( final SharedFilesCHKKey sfk : storageRoot.chkKeys ) {
                 if( sfk.getSeenCount() == 0 ) {
                     keysToSend.add(sfk);
                     if( keysToSend.size() >= ownKeysToSend ) {
@@ -161,10 +173,7 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Sa
 
             // first collect ALL other keys to send, then sort them and choose maxKeys items
             final List<SharedFilesCHKKey> otherKeysToSend = new ArrayList<SharedFilesCHKKey>();
-            final Iterator<SharedFilesCHKKey> i = storageRoot.chkKeys.iterator();
-            while(i.hasNext()) {
-                SharedFilesCHKKey sfk;
-                sfk = i.next();
+            for( final SharedFilesCHKKey sfk : storageRoot.chkKeys ) {
                 if( sfk.isDownloaded()
                         && sfk.isValid()
                         && sfk.getLastSeen() < maxLastSeen
@@ -277,10 +286,8 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Sa
         int deletedCount = 0;
 
         final Iterator<SharedFilesCHKKey> i = storageRoot.chkKeys.iterator();
-
         while(i.hasNext()) {
-            SharedFilesCHKKey sfk;
-            sfk = i.next();
+            final SharedFilesCHKKey sfk = i.next();
             if( sfk.getLastSeen() > 0 && sfk.getLastSeen() < minVal ) {
                 i.remove(); // remove from iterated index
                 sfk.deallocate(); // remove from Storage
