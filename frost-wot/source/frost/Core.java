@@ -307,6 +307,15 @@ public class Core implements FrostEventDispatcher  {
 
         // convert from 1 to 2: convert perst storages to UTF-8 format
         if( frostSettings.getIntValue(SettingsClass.MIGRATE_VERSION) == 1 ) {
+            System.out.println("Starting preventive repair of sfChkKeys.dbs");
+            try {
+                SharedFilesCHKKeyStorage.inst().repairStorage();
+            } catch(final Throwable t) {
+                t.printStackTrace();
+                System.out.println("-->> store/sfChkKeys.dbs is broken, please delete and retry! <<--");
+                System.exit(8);
+            }
+
             boolean wasOk = false;
             wasOk = ConvertStorageToUtf8.convertStorageToUtf8("sfChkKeys");
             if( wasOk ) {
