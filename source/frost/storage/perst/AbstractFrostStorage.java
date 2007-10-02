@@ -37,6 +37,10 @@ public abstract class AbstractFrostStorage {
             final boolean concurrentIterator,
             final boolean serializeTransientObjects)
     {
+        if( storage != null ) {
+            System.out.println("Storage is already opened!");
+            return;
+        }
         storage = StorageFactory.getInstance().createStorage();
         if( utf8Encoding ) {
             storage.setProperty("perst.string.encoding", "UTF-8");
@@ -72,6 +76,8 @@ public abstract class AbstractFrostStorage {
         if( storage != null ) {
             storage.close();
             storage = null;
+        } else {
+            System.out.println("Storage is already closed!");
         }
     }
 

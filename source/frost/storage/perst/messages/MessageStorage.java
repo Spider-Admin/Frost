@@ -623,7 +623,7 @@ public class MessageStorage extends AbstractFrostStorage implements Savable {
 
             p.modify();
 
-            MessageStorage.inst().commit();
+            commit();
         }
     }
 
@@ -631,7 +631,6 @@ public class MessageStorage extends AbstractFrostStorage implements Savable {
 
     public List<FrostMessageObject> retrieveAllSentMessages(final List<Board> allBoards) {
         final List<FrostMessageObject> lst = new ArrayList<FrostMessageObject>();
-
 
         for( final Board board : allBoards ) {
             final PerstFrostBoardObject bo = board.getPerstFrostBoardObject();
