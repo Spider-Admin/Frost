@@ -171,13 +171,8 @@ public class Migrate1to2 {
         if( !migrateKeypool(allBoards) ) {
             closeDatabase();
             return false;
-        } else {
-            // free page pool
-            MessageStorage.inst().save();
-            MessageContentStorage.inst().save();
-            MessageStorage.inst().initStorage();
-            MessageContentStorage.inst().initStorage();
         }
+
         if( !migrateFileList() ) {
             closeDatabase();
             return false;
