@@ -31,7 +31,7 @@ public class SentMessagesPanel extends JPanel implements LanguageListener {
 
     private JLabel sentMsgsLabel;
     private SentMessagesTable sentMessagesTable;
-    
+
     private boolean isShown = false;
 
     public SentMessagesPanel() {
@@ -45,26 +45,34 @@ public class SentMessagesPanel extends JPanel implements LanguageListener {
         loadTableModel();
         isShown = true;
     }
-    
+
     public boolean isShown() {
         return isShown;
     }
-    
+
     public synchronized void cleanupAfterLeave() {
         clearTableModel();
         isShown = false;
     }
 
-    public synchronized void addSentMessage(FrostMessageObject i) {
+    /**
+     * Adds a new sent message to the sent messages table, but only when this table is currently shown.
+     * @param i   msg to add
+     * @return    true if msg was added (sent msgs table was currently shown)
+     */
+    public synchronized boolean addSentMessage(final FrostMessageObject i) {
         if( isShown ) {
             sentMessagesTable.addSentMessage(i);
+            return true;
+        } else {
+            return false;
         }
     }
 
     public void updateSentMessagesCount() {
         refreshLanguage();
     }
-    
+
     public void clearTableModel() {
         sentMessagesTable.clearTableModel();
     }
@@ -77,26 +85,26 @@ public class SentMessagesPanel extends JPanel implements LanguageListener {
     public void saveTableFormat() {
         sentMessagesTable.saveTableFormat();
     }
-    
+
     public void refreshLanguage() {
         sentMsgsLabel.setText( language.getString("SentMessages.label") + " ("+sentMessagesTable.getRowCount()+")");
     }
 
-    public void languageChanged(LanguageEvent event) {
+    public void languageChanged(final LanguageEvent event) {
         refreshLanguage();
     }
 
     private void initialize() {
-        
+
         this.setLayout(new BorderLayout());
         sentMsgsLabel = new JLabel();
         sentMsgsLabel.setBorder(BorderFactory.createEmptyBorder(2,4,2,2));
         this.add(sentMsgsLabel, BorderLayout.NORTH);
-        
+
         sentMessagesTable = new SentMessagesTable();
         sentMessagesTable.getScrollPane().setWheelScrollingEnabled(true);
         this.add(sentMessagesTable.getScrollPane(), BorderLayout.CENTER);
-        
+
         Font font = sentMsgsLabel.getFont();
         font = font.deriveFont(Font.BOLD);
         sentMsgsLabel.setFont(font);

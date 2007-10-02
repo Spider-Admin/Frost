@@ -22,39 +22,43 @@ import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
-import frost.storage.perst.*;
 import frost.storage.perst.messages.*;
 
 public class SentMessagesManager {
 
     private static final Logger logger = Logger.getLogger(SentMessagesManager.class.getName());
-    
+
     public static List<FrostMessageObject> retrieveSentMessages() {
         try {
             return MessageStorage.inst().retrieveAllSentMessages(MainFrame.getInstance().getTofTreeModel().getAllBoards());
-        } catch(Throwable t) {
+        } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Error retrieving sent messages", t);
         }
-        
+
         return new LinkedList<FrostMessageObject>();
     }
-    
-    public static boolean addSentMessage(FrostMessageObject sentMo) {
+
+    /**
+     * Adds a new sent message to the storage AND to the sent messages table,
+     * but only when this table is currently shown.
+     * @param sentMo  msg to add
+     * @return        true if msg was added to gui table (sent msgs table was currently shown)
+     */
+    public static boolean addSentMessage(final FrostMessageObject sentMo) {
         try {
             MessageStorage.inst().addSentMessage(sentMo);
-        } catch (Throwable e) {
+        } catch (final Throwable e) {
             // paranoia
             logger.log(Level.SEVERE, "Error inserting sent message", e);
         }
-        MainFrame.getInstance().getSentMessagesPanel().addSentMessage(sentMo);
-        return true; // if we return false the msg is resend !
+        return MainFrame.getInstance().getSentMessagesPanel().addSentMessage(sentMo);
     }
-    
-    public static int deleteSentMessages(List<FrostMessageObject> msgObjects) {
+
+    public static int deleteSentMessages(final List<FrostMessageObject> msgObjects) {
         int deleted = 0;
         try {
             deleted = MessageStorage.inst().deleteSentMessages(msgObjects);
-        } catch(Throwable t) {
+        } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Error deleting sent messages", t);
         }
         return deleted;

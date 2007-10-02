@@ -38,13 +38,13 @@ import frost.util.*;
  */
 public class MessageThread extends BoardUpdateThreadObject implements BoardUpdateThread, MessageUploaderCallback {
 
-    private Board board;
-    private int maxMessageDownload;
+    private final Board board;
+    private final int maxMessageDownload;
     private boolean downloadToday;
-    
+
     private static final Logger logger = Logger.getLogger(MessageThread.class.getName());
 
-    public MessageThread(boolean downloadToday, Board boa, int maxmsgdays) {
+    public MessageThread(final boolean downloadToday, final Board boa, final int maxmsgdays) {
         super(boa);
         this.downloadToday = downloadToday;
         this.board = boa;
@@ -59,6 +59,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
         }
     }
 
+    @Override
     public void run() {
 
         notifyThreadStarted(this);
@@ -84,10 +85,10 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
 
             LocalDate localDate = new LocalDate(DateTimeZone.UTC);
             long date = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
- 
+
             if (this.downloadToday) {
                 // get IndexSlot for today
-                IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(board.getPerstFrostBoardObject().getBoardId(), date);
+                final IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(board.getPerstFrostBoardObject().getBoardId(), date);
                 // download only current date
                 downloadDate(localDate, gis);
                 // after update check if there are messages for upload and upload them
@@ -101,25 +102,25 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                     daysBack++;
                     localDate = localDate.minusDays(1);
                     date = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
-                    IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(board.getPerstFrostBoardObject().getBoardId(), date);
+                    final IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(board.getPerstFrostBoardObject().getBoardId(), date);
                     downloadDate(localDate, gis);
                     IndexSlotsStorage.inst().storeSlot(gis);
                 }
-                // after a complete backload run, remember finish time. 
-                // this ensures we ever update the complete backload days. 
+                // after a complete backload run, remember finish time.
+                // this ensures we ever update the complete backload days.
                 if( !isInterrupted() ) {
                     board.setLastBackloadUpdateFinishedMillis(System.currentTimeMillis());
                 }
             }
             logger.info("TOFDN: " + tofType + " Thread stopped for board " + board.getName());
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             logger.log(Level.SEVERE, Thread.currentThread().getName() + ": Oo. Exception in MessageDownloadThread:", t);
         }
         IndexSlotsStorage.inst().commit();
         notifyThreadFinished(this);
     }
-    
-    protected String composeDownKey(int index, String dirdate) {
+
+    protected String composeDownKey(final int index, final String dirdate) {
         String downKey = null;
         // switch public / secure board
         if (board.isPublicBoard() == false) {
@@ -149,13 +150,13 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
         return downKey;
     }
 
-    protected void downloadDate(LocalDate localDate, IndexSlot gis) throws SQLException {
+    protected void downloadDate(final LocalDate localDate, final IndexSlot gis) throws SQLException {
 
         final String dirdate = DateFun.FORMAT_DATE.print(localDate);
 
         int index = -1;
         int failures = 0;
-        int maxFailures = 2; // skip a maximum of 2 empty slots at the end of known indices
+        final int maxFailures = 2; // skip a maximum of 2 empty slots at the end of known indices
 
         while (failures < maxFailures) {
 
@@ -168,20 +169,20 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
             } else {
                 index = gis.findNextDownloadSlot(index);
             }
-            
+
             String logInfo = null;
 
             try { // we don't want to die for any reason
 
                 Mixed.waitRandom(3000); // don't hurt node
 
-                String downKey = composeDownKey(index, dirdate);
+                final String downKey = composeDownKey(index, dirdate);
                 logInfo = " board="+board.getName()+", key="+downKey;
-                
-                // for backload use fast download, deep for today
-                boolean fastDownload = !downloadToday;
 
-                MessageDownloaderResult mdResult = MessageDownloader.downloadMessage(downKey, index, fastDownload, logInfo);
+                // for backload use fast download, deep for today
+                final boolean fastDownload = !downloadToday;
+
+                final MessageDownloaderResult mdResult = MessageDownloader.downloadMessage(downKey, index, fastDownload, logInfo);
                 if( mdResult == null ) {
                     // file not found
                     if( gis.isDownloadIndexBehindLastSetIndex(index) ) {
@@ -194,7 +195,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 failures = 0;
 
                 if( mdResult.isFailure()
-                        && mdResult.getErrorMessage() != null 
+                        && mdResult.getErrorMessage() != null
                         && mdResult.getErrorMessage().equals(MessageDownloaderResult.ALLDATANOTFOUND) )
                 {
                     // don't set slot used, try to retrieve the file again
@@ -218,34 +219,34 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                         logger.warning("TOFDN: Message was dropped, format validation failed: "+logInfo);
                     }
                 }
-            } catch(Throwable t) {
+            } catch(final Throwable t) {
                 logger.log(Level.SEVERE, "TOFDN: Exception thrown in downloadDate: "+logInfo, t);
                 // download failed, try next file
             }
         } // end-of: while
     }
-    
-    private void receivedInvalidMessage(Board b, LocalDate calDL, int index, String reason) {
+
+    private void receivedInvalidMessage(final Board b, final LocalDate calDL, final int index, final String reason) {
         TOF.getInstance().receivedInvalidMessage(b, calDL.toDateTimeAtMidnight(), index, reason);
     }
-    
-    private void receivedValidMessage(MessageXmlFile mo, Board b, int index) {
+
+    private void receivedValidMessage(final MessageXmlFile mo, final Board b, final int index) {
         TOF.getInstance().receivedValidMessage(mo, b, index);
     }
-    
+
     //////////////////////////////////////////////////
-    ///  validation after receive 
+    ///  validation after receive
     //////////////////////////////////////////////////
-    
+
     /**
      * First time verify.
      */
-    public boolean isValidFormat(MessageXmlFile mo, LocalDate dirDate, Board b) {
+    public boolean isValidFormat(final MessageXmlFile mo, final LocalDate dirDate, final Board b) {
         try {
             final DateTime dateTime;
             try {
                 dateTime = mo.getDateAndTime();
-            } catch(Throwable ex) {
+            } catch(final Throwable ex) {
                 logger.log(Level.SEVERE, "Exception in isValidFormat() - skipping message.", ex);
                 return false;
             }
@@ -257,14 +258,14 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
             }
 
             // ensure that time/date of msg is max. 1 day before/after dirDate
-            DateMidnight dm = dateTime.toDateMidnight();
+            final DateMidnight dm = dateTime.toDateMidnight();
             if( dm.isAfter(dirDate.plusDays(1).toDateMidnight(DateTimeZone.UTC))
                     || dm.isBefore(dirDate.minusDays(1).toDateMidnight(DateTimeZone.UTC)) )
             {
                 logger.log(Level.SEVERE, "Invalid date - skipping Message: "+dirDate+";"+dateTime);
                 return false;
             }
-            
+
             // ensure that board inside xml message is the board we currently download
             if( mo.getBoardName() == null ) {
                 logger.log(Level.SEVERE, "No or invalid boardname in message - skipping message: (null)");
@@ -276,8 +277,8 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 logger.log(Level.SEVERE, "Different boardnames - skipping message: "+mo.getBoardName().toLowerCase()+";"+b.getName().toLowerCase());
                 return false;
             }
-            
-        } catch (Throwable t) {
+
+        } catch (final Throwable t) {
             logger.log(Level.SEVERE, "Exception in isValidFormat() - skipping message.", t);
             return false;
         }
@@ -287,19 +288,19 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
     /**
      * Upload pending messages for this board.
      */
-    protected void uploadMessages(IndexSlot gis) {
+    protected void uploadMessages(final IndexSlot gis) {
 
         FrostUnsentMessageObject unsendMsg = UnsentMessagesManager.getUnsentMessage(board);
         if( unsendMsg == null ) {
             // currently no msg to send for this board
             return;
         }
-        
-        String fromName = unsendMsg.getFromName();
+
+        final String fromName = unsendMsg.getFromName();
         while( unsendMsg != null ) {
-            
+
             // create a MessageXmlFile, sign, and send
-            
+
             Identity recipient = null;
             if( unsendMsg.getRecipientName() != null && unsendMsg.getRecipientName().length() > 0) {
                 recipient = Core.getIdentities().getIdentity(unsendMsg.getRecipientName());
@@ -311,27 +312,27 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
             }
 
             UnsentMessagesManager.incRunningMessageUploads();
-            
+
             uploadMessage(unsendMsg, recipient, gis);
-            
+
             UnsentMessagesManager.decRunningMessageUploads();
-            
+
             Mixed.waitRandom(6000); // wait some time
-            
+
             // get next message to upload
             unsendMsg = UnsentMessagesManager.getUnsentMessage(board, fromName);
         }
     }
 
-    private void uploadMessage(FrostUnsentMessageObject mo, Identity recipient, IndexSlot gis) {
-        
+    private void uploadMessage(final FrostUnsentMessageObject mo, final Identity recipient, final IndexSlot gis) {
+
         logger.info("Preparing upload of message to board '" + board.getName() + "'");
-        
+
         mo.setCurrentUploadThread(this);
 
         try {
             // prepare upload
-            
+
             LocalIdentity senderId = null;
             if( mo.getFromName().indexOf("@") > 0 ) {
                 // not anonymous
@@ -346,12 +347,12 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 }
             }
 
-            MessageXmlFile message = new MessageXmlFile(mo); 
+            final MessageXmlFile message = new MessageXmlFile(mo);
 
-            DateTime now = new DateTime(DateTimeZone.UTC);
+            final DateTime now = new DateTime(DateTimeZone.UTC);
             message.setDateAndTime(now);
-            
-            File unsentMessageFile = FileAccess.createTempFile("unsendMsg", ".xml");
+
+            final File unsentMessageFile = FileAccess.createTempFile("unsendMsg", ".xml");
             message.setFile(unsentMessageFile);
             if (!message.save()) {
                 logger.severe("This was a HARD error and the file to upload is lost, please report to a dev!");
@@ -359,16 +360,16 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 return;
             }
             unsentMessageFile.deleteOnExit();
-            
+
             // start upload, this signs and encrypts if needed
 
-            MessageUploaderResult result = MessageUploader.uploadMessage(
-                    message, 
+            final MessageUploaderResult result = MessageUploader.uploadMessage(
+                    message,
                     recipient,
                     senderId,
                     this,
                     gis,
-                    MainFrame.getInstance(), 
+                    MainFrame.getInstance(),
                     board.getName());
 
             // file is not any longer needed
@@ -387,38 +388,50 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 return;
             }
 
-            int index = result.getUploadIndex();
-            
-            // upload was successful, store message in sentmessages database
-            FrostMessageObject sentMo = new FrostMessageObject(message, board, index);
+            final int index = result.getUploadIndex();
 
-            SentMessagesManager.addSentMessage(sentMo);
-            
+            // upload was successful, store message in sentmessages database
+            final FrostMessageObject sentMo = new FrostMessageObject(message, board, index);
+
+            if( !SentMessagesManager.addSentMessage(sentMo) ) {
+                // not added to gui, perst obj is not needed
+                sentMo.setPerstFrostMessageObject(null);
+            }
+
             // save own private messages into the message table
             if( sentMo.getRecipientName() != null && sentMo.getRecipientName().length() > 0 ) {
-                sentMo.setSignatureStatusVERIFIED_V2();
-                TOF.getInstance().receivedValidMessage(sentMo, board, index);
+                // maybe sentMo has a perst obj set
+                final FrostMessageObject moForMsgTable;
+                if( sentMo.getPerstFrostMessageObject() != null ) {
+                    // create a new FrostMessageObject
+                    moForMsgTable = new FrostMessageObject(message, board, index);;
+                } else {
+                    // reuseable
+                    moForMsgTable = sentMo;
+                }
+                moForMsgTable.setSignatureStatusVERIFIED_V2();
+                TOF.getInstance().receivedValidMessage(moForMsgTable, board, index);
             }
 
             // finally delete the message in unsend messages db table
             mo.setCurrentUploadThread(null); // must be marked as not uploading before delete!
             UnsentMessagesManager.deleteMessage(mo);
 
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             logger.log(Level.SEVERE, "Catched exception", t);
         }
         mo.setCurrentUploadThread(null); // paranoia
-        
+
         logger.info("Message upload finished");
     }
-    
+
     /**
      * This method composes the downloading key for the message, given a
      * certain index number
      * @param index index number to use to compose the key
      * @return they composed key
      */
-    public String composeDownloadKey(MessageXmlFile message, int index) {
+    public String composeDownloadKey(final MessageXmlFile message, final int index) {
         String key;
         if (board.isWriteAccessBoard()) {
             key = new StringBuilder()
@@ -453,7 +466,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
      * @param index index number to use to compose the key
      * @return they composed key
      */
-    public String composeUploadKey(MessageXmlFile message, int index) {
+    public String composeUploadKey(final MessageXmlFile message, final int index) {
         String key;
         if (board.isWriteAccessBoard()) {
             key = new StringBuilder()
