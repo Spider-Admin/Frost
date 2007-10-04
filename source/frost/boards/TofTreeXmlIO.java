@@ -29,8 +29,8 @@ import org.w3c.dom.*;
 
 import frost.util.*;
 
-public class TofTreeXmlIO
-{
+public class TofTreeXmlIO {
+
     private static final Logger logger = Logger.getLogger(TofTreeXmlIO.class.getName());
 
     /**************************************************
@@ -66,14 +66,14 @@ public class TofTreeXmlIO
             return false;
         }
         // check if rootnode contains only a single boardEntry wich must be a folder (root folder)
-        final List nodelist = XMLTools.getChildElementsByTagName(rootNode, "FrostBoardTreeEntry");
+        final List<Element> nodelist = XMLTools.getChildElementsByTagName(rootNode, "FrostBoardTreeEntry");
 
         if( nodelist.size() != 1 ) {
             logger.severe("Error - boards.xml invalid: first element must be the one and only root folder ("+
                                 nodelist.size()+")");
             return false;
         }
-        final Element boardRootNode = (Element)nodelist.get(0);
+        final Element boardRootNode = nodelist.get(0);
         final String tagName = boardRootNode.getTagName();
         if( tagName == null || tagName.equals("FrostBoardTreeEntry") == false )
         {
@@ -97,12 +97,12 @@ public class TofTreeXmlIO
         treeRootNode.add(unsentMsgs);
         treeRootNode.add(sentMsgs);
 
-        // now process all childs of this node recursively
-        // and add all boards/folder to root node
+        // now process all childs of this node recursively and add all boards/folder to root node
         loadProcessFolder( boardRootNode, treeRootNode, tree, model );
 
         refreshModel( model, treeRootNode );
 
+        // assign perst boards from storage to gui boards
         model.initialAssignPerstFrostBoardObjects();
 
         tree.updateUI();
@@ -119,22 +119,19 @@ public class TofTreeXmlIO
         final Element boardFolder,
         final Folder treeFolder,
         final JTree tree,
-        final DefaultTreeModel model) {
+        final DefaultTreeModel model)
+    {
         // process all childs of type "FrostBoardTreeEntry" , dive into folder and process them
-        final List list =
-            XMLTools.getChildElementsByTagName(boardFolder, "FrostBoardTreeEntry");
-        for (int x = 0; x < list.size(); x++) {
-            String nodename = null;
-            boolean isFolder = false;
+        final List<Element> list = XMLTools.getChildElementsByTagName(boardFolder, "FrostBoardTreeEntry");
+        for( final Element child : list ) {
 
-            final Element child = (Element) list.get(x);
-            // get name
-            nodename = getName(child);
+            final String nodename = getName(child);
             if (nodename == null) {
                 continue;
             }
-            // get isFolder
-            isFolder = isFolder(child);
+
+            final boolean isFolder = isFolder(child);
+
             // add the child
             if (isFolder == false) {
                 final String publicKey = getPublicKey(child);
@@ -146,7 +143,7 @@ public class TofTreeXmlIO
                 // look for <config/> element and maybe configure board
                 getBoardConfiguration(child, fbobj);
                 // maybe restore lastUpdateStartedMillis ( = board update progress)
-                List ltmp = XMLTools.getChildElementsByTagName(child, "lastUpdateStartedMillis");
+                List<Element> ltmp = XMLTools.getChildElementsByTagName(child, "lastUpdateStartedMillis");
                 if (ltmp.size() > 0) {
                     final Text txtname = (Text) ((Node) ltmp.get(0)).getFirstChild();
                     if (txtname != null) {
@@ -202,14 +199,14 @@ public class TofTreeXmlIO
     }
 
     private void getBoardConfiguration( Element element, final Board board ) {
-        final List list = XMLTools.getChildElementsByTagName(element, "config");
+        final List<Element> list = XMLTools.getChildElementsByTagName(element, "config");
         if( list.size() == 0 ) {
             board.setConfigured( false );
             return;
         }
 
         board.setConfigured( true );
-        element = (Element)list.get(0);
+        element = list.get(0);
 
         String val = element.getAttribute("autoUpdate");
         board.setAutoUpdateEnabled( Boolean.valueOf(val).booleanValue() );
@@ -260,7 +257,7 @@ public class TofTreeXmlIO
     private void refreshModel(final DefaultTreeModel model, final Folder node) {
         // all childs are new, send a nodesWhereInserted to model
         final int childIndicies[] = new int[node.getChildCount()];
-        for(int x=0; x< node.getChildCount(); x++) {
+        for(int x=0; x < node.getChildCount(); x++) {
             childIndicies[x] = x;
         }
         model.nodesWereInserted(node, childIndicies);
@@ -274,21 +271,17 @@ public class TofTreeXmlIO
         return true;
     }
 
-    private boolean isExpanded(final Element treeEntry)
-    {
+    private boolean isExpanded(final Element treeEntry) {
         final String isExpanded = treeEntry.getAttribute("isexpanded");
-        if( isExpanded == null || isExpanded.toLowerCase().equals("true") == false )
-        {
+        if( isExpanded == null || isExpanded.toLowerCase().equals("true") == false ) {
             return false; // default is false
         }
         return true;
     }
 
-    private String getName(final Element treeEntry)
-    {
-        final List list = XMLTools.getChildElementsByTagName(treeEntry, "name");
-        if( list.size() != 1 )
-        {
+    private String getName(final Element treeEntry) {
+        final List<Element> list = XMLTools.getChildElementsByTagName(treeEntry, "name");
+        if( list.size() != 1 ) {
             logger.severe("Error - boards.xml invalid: there must be 1 <name> tag for each entry");
             return null;
         }
@@ -299,16 +292,13 @@ public class TofTreeXmlIO
         return txtname.getData().trim();
     }
 
-    private String getPublicKey(final Element treeEntry)
-    {
-        final List list = XMLTools.getChildElementsByTagName(treeEntry, "publicKey");
-        if( list.size() > 1 )
-        {
+    private String getPublicKey(final Element treeEntry) {
+        final List<Element> list = XMLTools.getChildElementsByTagName(treeEntry, "publicKey");
+        if( list.size() > 1 ) {
             logger.severe("Error - boards.xml invalid: there should be a maximum of 1 <publicKey> tag for each entry");
             return null;
         }
-        if( list.size() == 0 )
-        {
+        if( list.size() == 0 ) {
             return null;
         }
         final Text txtname = (Text) ((Node)list.get(0)).getFirstChild();
@@ -323,10 +313,9 @@ public class TofTreeXmlIO
      * @return
      */
     private String getDescription(final Element treeEntry) {
-        final List list = XMLTools.getChildElementsByTagName(treeEntry, "description");
+        final List<Element> list = XMLTools.getChildElementsByTagName(treeEntry, "description");
         if (list.size() > 1) {
-            logger.severe(
-                "Error - boards.xml invalid: there should be a maximum of 1 <description> tag for each entry");
+            logger.severe("Error - boards.xml invalid: there should be a maximum of 1 <description> tag for each entry");
             return null;
         }
         if (list.size() == 0) {
@@ -339,16 +328,13 @@ public class TofTreeXmlIO
         return txtname.getData().trim();
     }
 
-    private String getPrivateKey(final Element treeEntry)
-    {
-        final List list = XMLTools.getChildElementsByTagName(treeEntry, "privateKey");
-        if( list.size() > 1 )
-        {
+    private String getPrivateKey(final Element treeEntry) {
+        final List<Element> list = XMLTools.getChildElementsByTagName(treeEntry, "privateKey");
+        if( list.size() > 1 ) {
             logger.severe("Error - boards.xml invalid: there should be a maximum of 1 <privateKey> tag for each entry");
             return null;
         }
-        if( list.size() == 0 )
-        {
+        if( list.size() == 0 ) {
             return null;
         }
         final Text txtname = (Text) ((Node)list.get(0)).getFirstChild();
@@ -399,8 +385,12 @@ public class TofTreeXmlIO
         return writeOK;
     }
 
-    private void saveProcessFolder(final Element parentElement, final Folder treeNode, final Document doc,
-                                     final DefaultTreeModel model, final JTree tree)
+    private void saveProcessFolder(
+            final Element parentElement,
+            final Folder treeNode,
+            final Document doc,
+            final DefaultTreeModel model,
+            final JTree tree)
     {
         // parentElement = element to append to
         for(int x=0; x < treeNode.getChildCount(); x++) {
@@ -419,7 +409,6 @@ public class TofTreeXmlIO
     private void appendBoard(final Element parent, final Board board, final Document doc) {
         final Element rootBoardElement = doc.createElement("FrostBoardTreeEntry");
         Element element;
-
         CDATASection cdata;
 
         // <name>
@@ -493,8 +482,12 @@ public class TofTreeXmlIO
         parent.appendChild( rootBoardElement );
     }
 
-    private Element appendFolder(final Element parent, final Folder board, final Document doc,
-                                            final DefaultTreeModel model, final JTree tree)
+    private Element appendFolder(
+            final Element parent,
+            final Folder board,
+            final Document doc,
+            final DefaultTreeModel model,
+            final JTree tree)
     {
         final Element rootBoardElement = doc.createElement("FrostBoardTreeEntry");
         rootBoardElement.setAttribute("isfolder", "true");

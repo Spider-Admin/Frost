@@ -157,7 +157,7 @@ public class Migrate1to2 {
             return false;
         } else {
             // free page pool
-            ArchiveMessageStorage.inst().save();
+            ArchiveMessageStorage.inst().silentClose();
             ArchiveMessageStorage.inst().initStorage();
         }
         if( !migrateSentMessages(allBoards) ) {
@@ -171,6 +171,11 @@ public class Migrate1to2 {
         if( !migrateKeypool(allBoards) ) {
             closeDatabase();
             return false;
+        } else {
+            MessageStorage.inst().silentClose();
+            MessageStorage.inst().initStorage();
+            // re-assign perst boards with boards
+            MainFrame.getInstance().getTofTreeModel().initialAssignPerstFrostBoardObjects();
         }
 
         if( !migrateFileList() ) {
@@ -250,7 +255,11 @@ public class Migrate1to2 {
                     ms.insertMessage(mo, false);
                     cnt++;
                     if(cnt%100 == 0) {
-                        MessageStorage.inst().commit();
+                        // close and reopen storage -> solved heap space problem when migrating archive from McKoi
+                        ms.silentClose();
+                        ms.initStorage();
+                        // re-assign perst boards with boards
+                        MainFrame.getInstance().getTofTreeModel().initialAssignPerstFrostBoardObjects();
                         System.out.println("Committed after "+cnt+" keypool messages");
                     }
                     return false;
@@ -258,7 +267,7 @@ public class Migrate1to2 {
             };
 
             new MessageDatabaseTable().retrieveAllMessages(AppLayerDatabase.getInstance(), mc, allBoards);
-            MessageStorage.inst().commit();
+            ms.commit();
             return true;
         } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Migration error!", t);
@@ -307,7 +316,6 @@ public class Migrate1to2 {
                         // close and reopen storage -> solved heap space problem when migrating archive from McKoi
                         ms.silentClose();
                         ms.initStorage();
-//                        System.out.println("free="+(Runtime.getRuntime().freeMemory()/1024));
                         System.out.println("Committed after "+cnt+" archive messages");
                     }
                     return false;
