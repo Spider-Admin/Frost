@@ -30,7 +30,7 @@ public class SentMessagesManager {
 
     public static List<FrostMessageObject> retrieveSentMessages() {
         try {
-            return MessageStorage.inst().retrieveAllSentMessages(MainFrame.getInstance().getTofTreeModel().getAllBoards());
+            return MessageStorage.inst().retrieveAllSentMessages();
         } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Error retrieving sent messages", t);
         }
