@@ -104,7 +104,7 @@ public class MessageStorage extends AbstractFrostStorage implements Savable {
     }
 
     /**
-     * Retrieve the primary key of the board, or insert it into database.
+     * Retrieve the primary key of the board, or insert it into storage.
      */
     public boolean assignPerstFrostBoardObject(final Board newNode) {
         PerstFrostBoardObject pbo = storageRoot.getBoardsByName().get(newNode.getNameLowerCase());
@@ -629,20 +629,16 @@ public class MessageStorage extends AbstractFrostStorage implements Savable {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
-    public List<FrostMessageObject> retrieveAllSentMessages(final List<Board> allBoards) {
+    public List<FrostMessageObject> retrieveAllSentMessages() {
         final List<FrostMessageObject> lst = new ArrayList<FrostMessageObject>();
 
-        for( final Board board : allBoards ) {
-            final PerstFrostBoardObject bo = board.getPerstFrostBoardObject();
-            if( bo == null ) {
-                logger.severe("no perst board assigned!");
-                continue;
-            }
+        for( final PerstFrostBoardObject bo : storageRoot.getBoardsByName() ) {
             for( final PerstFrostMessageObject pmo : bo.getSentMessagesList() ) {
-                final FrostMessageObject mo = pmo.toFrostMessageObject(board, true, false, false);
+                final FrostMessageObject mo = pmo.toFrostMessageObject(bo.getRefBoard(), true, false, false);
                 lst.add(mo);
             }
         }
+
         return lst;
     }
 
