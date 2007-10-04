@@ -82,6 +82,11 @@ public class MessageStorage extends AbstractFrostStorage implements Savable {
         System.out.println("INFO: MessagesStorage closed.");
     }
 
+    public void silentClose() {
+        close();
+        storageRoot = null;
+    }
+
     public void importBoards(final Hashtable<String, Integer> boardPrimaryKeysByName) {
         int highestBoardId = 0;
         for( final String boardName : boardPrimaryKeysByName.keySet() ) {

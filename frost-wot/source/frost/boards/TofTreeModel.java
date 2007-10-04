@@ -20,12 +20,10 @@
 package frost.boards;
 
 import java.util.*;
-import java.util.logging.*;
 
 import javax.swing.tree.*;
 
 import frost.gui.*;
-import frost.storage.perst.*;
 import frost.storage.perst.messages.*;
 
 /**
@@ -33,31 +31,28 @@ import frost.storage.perst.messages.*;
  */
 public class TofTreeModel extends DefaultTreeModel {
 
-    private static final Logger logger = Logger.getLogger(TofTreeModel.class.getName());
+//    private static final Logger logger = Logger.getLogger(TofTreeModel.class.getName());
 
-    private DefaultTreeSelectionModel selectionModel;
-    
+    private final DefaultTreeSelectionModel selectionModel;
+
     /**
      * This method creates a new TofTreeModel with the given TreeNode
      * as its root.
      * @param root TreeNode that will be the root of the new TofTreeModel.
      */
-    public TofTreeModel(TreeNode root) {
+    public TofTreeModel(final TreeNode root) {
         super(root);
         selectionModel = new DefaultTreeSelectionModel();
     }
-    
+
     /**
      * Fill the boards in tree with its primary keys after the board tree was loaded from xml file.
      */
     public void initialAssignPerstFrostBoardObjects() {
-        // load boards, create if not existing (should not happen!)
-        DefaultMutableTreeNode rootn = (DefaultMutableTreeNode)getRoot(); 
-        for(Enumeration e = rootn.depthFirstEnumeration(); e.hasMoreElements(); ) {
-            AbstractNode b = (AbstractNode)e.nextElement();
-            if( b.isBoard() ) {
-                MessageStorage.inst().assignPerstFrostBoardObject((Board)b);
-            }
+        // assign boards from storage, create if not existing (can happen if user changed board.xml file)
+        final List<Board> boardList = getAllBoards();
+        for( final Board b : boardList ) {
+            MessageStorage.inst().assignPerstFrostBoardObject(b);
         }
     }
 
@@ -72,8 +67,8 @@ public class TofTreeModel extends DefaultTreeModel {
      *
      * @param newNode Board to be added to the model.
      */
-    public void addNodeToTree(AbstractNode newNode) {
-        AbstractNode selectedNode = (AbstractNode) getSelectedNode();
+    public void addNodeToTree(final AbstractNode newNode) {
+        final AbstractNode selectedNode = getSelectedNode();
         final Folder targetFolder;
         if (selectedNode.isFolder() != true) {
             // add to parent of selected node
@@ -87,17 +82,17 @@ public class TofTreeModel extends DefaultTreeModel {
     /**
      * Adds a new boards to the specified target folder.
      */
-    public void addNodeToTree(AbstractNode newNode, Folder targetFolder) {
+    public void addNodeToTree(final AbstractNode newNode, final Folder targetFolder) {
         targetFolder.add(newNode);
-        
+
         if( newNode.isBoard() ) {
             if( MessageStorage.inst().assignPerstFrostBoardObject((Board)newNode) == false ) {
                 return;
             }
         }
-        
+
         // last in list is the newly added
-        int insertedIndex[] = { targetFolder.getChildCount() - 1 };
+        final int insertedIndex[] = { targetFolder.getChildCount() - 1 };
         nodesWereInserted(targetFolder, insertedIndex);
     }
 
@@ -105,14 +100,14 @@ public class TofTreeModel extends DefaultTreeModel {
      * Removes the node from the board tree.
      * If node is a folder ALL subfolders and boards and messages are deleted too.
      */
-    public void removeNode(AbstractNode node, boolean removeFromDatabase) {
-        DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
+    public void removeNode(final AbstractNode node, final boolean removeFromDatabase) {
+        final DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
         if (node != null && parent != null) {
             final List<Board> boardsToDelete = new LinkedList<Board>();
             if( removeFromDatabase ) {
                 if( node.isFolder() ) {
-                    for(Enumeration e = node.breadthFirstEnumeration(); e.hasMoreElements(); ) {
-                        AbstractNode b = (AbstractNode) e.nextElement();
+                    for(final Enumeration e = node.breadthFirstEnumeration(); e.hasMoreElements(); ) {
+                        final AbstractNode b = (AbstractNode) e.nextElement();
                         if( !b.isFolder() ) {
                             boardsToDelete.add((Board)b);
                         }
@@ -124,7 +119,7 @@ public class TofTreeModel extends DefaultTreeModel {
 
             // add to known boards
             KnownBoardsManager.addNewKnownBoards(boardsToDelete);
-            
+
             // find item to select after delete (the item before or after the deleted node)
             TreeNode nextSelectedNode = node.getPreviousSibling();
             if( nextSelectedNode == null ) {
@@ -133,20 +128,21 @@ public class TofTreeModel extends DefaultTreeModel {
                     nextSelectedNode = parent;
                 }
             }
-            TreePath nextSelectionPath = new TreePath(getPathToRoot(nextSelectedNode));
+            final TreePath nextSelectionPath = new TreePath(getPathToRoot(nextSelectedNode));
 
             // remove from tree
-            int[] childIndices = { parent.getIndex(node) };
-            Object[] removedChilds = { node };
+            final int[] childIndices = { parent.getIndex(node) };
+            final Object[] removedChilds = { node };
 
             node.removeFromParent();
             nodesWereRemoved(parent, childIndices, removedChilds);
 
             selectionModel.setSelectionPath(nextSelectionPath);
-            
+
             // maybe delete all boards
             if( !boardsToDelete.isEmpty() ) {
-                Thread worker = new Thread() {
+                final Thread worker = new Thread() {
+                    @Override
                     public void run() {
                         for( Board board : boardsToDelete ) {
                             // due to cascade delete this deletes all messages of this board too
@@ -164,27 +160,30 @@ public class TofTreeModel extends DefaultTreeModel {
      * @return Vector containing all the Boards of the model.
      */
     public LinkedList<Board> getAllBoards() {
-        AbstractNode node = (AbstractNode) getRoot();
-        LinkedList<Board> boards = new LinkedList<Board>();
-        Enumeration e = node.depthFirstEnumeration();
+        final LinkedList<Board> boards = new LinkedList<Board>();
+        final Enumeration e = getRoot().depthFirstEnumeration();
         while (e.hasMoreElements()) {
-            AbstractNode child = (AbstractNode) e.nextElement();
+            final AbstractNode child = (AbstractNode) e.nextElement();
             if (child.isBoard()) {
                 boards.add((Board)child);
             }
         }
         return boards;
     }
-    
+
+    @Override
+    public AbstractNode getRoot() {
+        return getRoot();
+    }
+
     /**
      * Called if user changed the days to download backward in options.
      * Resets LastBackloadUpdateFinishedMillis for all boards.
      */
     public void resetLastBackloadUpdateFinishedMillis() {
-        AbstractNode node = (AbstractNode) getRoot();
-        Enumeration e = node.breadthFirstEnumeration();
+        final Enumeration e = getRoot().breadthFirstEnumeration();
         while (e.hasMoreElements()) {
-            AbstractNode child = (AbstractNode) e.nextElement();
+            final AbstractNode child = (AbstractNode) e.nextElement();
             if (child.isBoard()) {
                 ((Board)child).setLastBackloadUpdateFinishedMillis(0);
             }
@@ -197,16 +196,15 @@ public class TofTreeModel extends DefaultTreeModel {
      * @param boardName the name of the board to look for
      * @return the FrostBoardObject if there was a board with that name. Null otherwise.
      */
-    public Board getBoardByName(String boardName) {
+    public Board getBoardByName(final String boardName) {
         if( boardName == null ) {
             return null;
         }
-        AbstractNode node = (AbstractNode) getRoot();
-        Enumeration e = node.depthFirstEnumeration();
+        final Enumeration e = getRoot().depthFirstEnumeration();
         while (e.hasMoreElements()) {
-            AbstractNode child = (AbstractNode) e.nextElement();
-            if (child.isBoard() 
-                    && child.getName().compareToIgnoreCase(boardName) == 0) 
+            final AbstractNode child = (AbstractNode) e.nextElement();
+            if (child.isBoard()
+                    && child.getName().compareToIgnoreCase(boardName) == 0)
             {
                 return (Board)child;
             }
@@ -222,13 +220,13 @@ public class TofTreeModel extends DefaultTreeModel {
      *          nothing was selected.
      */
     public AbstractNode getSelectedNode() {
-        TreePath selectedPath = selectionModel.getSelectionPath();
+        final TreePath selectedPath = selectionModel.getSelectionPath();
         AbstractNode node;
         if (selectedPath != null) {
             node = (AbstractNode) selectedPath.getLastPathComponent();
         } else {
             // nothing selected? unbelievable! so select the root ...
-            node = (AbstractNode) getRoot();
+            node = getRoot();
             selectionModel.setSelectionPath(new TreePath(node));
         }
         return node;
