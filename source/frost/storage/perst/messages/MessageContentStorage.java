@@ -23,7 +23,7 @@ import frost.messages.*;
 import frost.storage.*;
 import frost.storage.perst.*;
 
-public class MessageContentStorage extends AbstractFrostStorage implements Savable {
+public class MessageContentStorage extends AbstractFrostStorage implements ExitSavable {
 
     private MessageContentStorageRoot storageRoot = null;
 
@@ -54,7 +54,7 @@ public class MessageContentStorage extends AbstractFrostStorage implements Savab
         return true;
     }
 
-    public void save() {
+    public void exitSave() {
         close();
         storageRoot = null;
         System.out.println("INFO: MessagesContentStorage closed.");

@@ -29,7 +29,7 @@ import frost.storage.perst.*;
 import frost.storage.perst.filelist.*;
 import frost.storage.perst.messages.*;
 
-public class IdentitiesStorage extends AbstractFrostStorage implements Savable {
+public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavable {
 
     private static final Logger logger = Logger.getLogger(IdentitiesStorage.class.getName());
 
@@ -62,7 +62,7 @@ public class IdentitiesStorage extends AbstractFrostStorage implements Savable {
         return true;
     }
 
-    public void save() throws StorageException {
+    public void exitSave() throws StorageException {
         close();
         storageRoot = null;
         System.out.println("INFO: IdentitiesStorage closed.");

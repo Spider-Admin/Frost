@@ -23,7 +23,7 @@ import java.beans.*;
 import frost.*;
 import frost.storage.*;
 
-public class SharedFilesManager implements PropertyChangeListener {
+public class SharedFilesManager implements PropertyChangeListener, ExitSavable {
 
     private SharedFilesModel model;
     private SharedFilesPanel panel;
@@ -36,18 +36,18 @@ public class SharedFilesManager implements PropertyChangeListener {
         getPanel();
         getModel().initialize();
     }
-    
-    public void save() throws StorageException {
+
+    public void exitSave() throws StorageException {
         getPanel().getTableFormat().saveTableLayout();
-        getModel().save();
+        getModel().exitSave();
     }
 
-    public void addPanelToMainFrame(MainFrame mainFrame) {
+    public void addPanelToMainFrame(final MainFrame mainFrame) {
         mainFrame.addPanel("MainFrame.tabbedPane.sharing", getPanel());
         Core.frostSettings.addPropertyChangeListener(SettingsClass.DISABLE_FILESHARING, this);
         updateFileSharingStatus();
     }
-    
+
     public void selectTab() {
         MainFrame.getInstance().selectTabbedPaneTab("MainFrame.tabbedPane.sharing");
     }
@@ -60,16 +60,16 @@ public class SharedFilesManager implements PropertyChangeListener {
         }
         return panel;
     }
-    
-    public void selectModelItem(FrostSharedFileItem sfItem) {
-        int row = model.indexOf(sfItem);
+
+    public void selectModelItem(final FrostSharedFileItem sfItem) {
+        final int row = model.indexOf(sfItem);
         if( row > -1 ) {
             panel.getModelTable().getTable().getSelectionModel().setSelectionInterval(row, row);
             panel.getModelTable().getTable().scrollRectToVisible(panel.getModelTable().getTable().getCellRect(row, 0, true));
         }
     }
 
-    public void propertyChange(PropertyChangeEvent evt) {
+    public void propertyChange(final PropertyChangeEvent evt) {
         if (evt.getPropertyName().equals(SettingsClass.DISABLE_FILESHARING)) {
             updateFileSharingStatus();
         }

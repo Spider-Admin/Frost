@@ -26,7 +26,7 @@ import frost.*;
 import frost.storage.*;
 import frost.util.*;
 
-public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Savable {
+public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements ExitSavable {
 
     private SharedFilesCHKKeyStorageRoot storageRoot = null;
 
@@ -56,7 +56,7 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Sa
         }
     }
 
-    public void save() throws StorageException {
+    public void exitSave() throws StorageException {
         close();
         storageRoot = null;
         System.out.println("INFO: SharedFilesCHKKeyStorage closed.");

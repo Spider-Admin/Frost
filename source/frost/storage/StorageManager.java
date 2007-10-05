@@ -31,20 +31,30 @@ import frost.util.gui.translation.*;
  */
 public class StorageManager extends Timer {
 
+    private static final Logger logger = Logger.getLogger(StorageManager.class.getName());
+
+    private final Language language;
+    private final FrostEventDispatcher listener;
+
+    private final ShutdownThread shutdownThread = new ShutdownThread();
+    private final AutoTask autoTask = new AutoTask();
+
+    private Vector<AutoSavable> autoSavables;
+    private Vector<ExitSavable> exitSavables;
+
 	private class AutoTask extends TimerTask {
 		public AutoTask() {
 			super();
 		}
-		public void run() {
+		@Override
+        public void run() {
 			if (autoSavables != null) {
-				Enumeration enumeration = autoSavables.elements();
-				while (enumeration.hasMoreElements()) {
-					Savable savable = (Savable) enumeration.nextElement();
+			    for( final AutoSavable savable : autoSavables ) {
 					try {
-						savable.save();
-					} catch (StorageException se) {
+						savable.autoSave();
+					} catch (final StorageException se) {
 						logger.log(Level.SEVERE, "Error while saving a resource inside the timer.", se);
-						StorageErrorEvent errorEvent = new StorageErrorEvent(language.getString("Saver.AutoTask.message"));
+						final StorageErrorEvent errorEvent = new StorageErrorEvent(language.getString("Saver.AutoTask.message"));
 						errorEvent.setException(se);
 						listener.dispatchEvent(errorEvent);
 					}
@@ -63,73 +73,60 @@ public class StorageManager extends Timer {
 		/**
 		 * Called by shutdown hook.
 		 */
-		public void run() {
+		@Override
+        public void run() {
 			logger.info("Saving settings ...");
-            
+
 			if (exitSavables != null) {
-				Iterator it = exitSavables.iterator();
-				while (it.hasNext()) {
-					Savable savable = (Savable) it.next();
+                for( final ExitSavable savable : exitSavables ) {
 					try {
-						savable.save();
-					} catch (StorageException se) {
+						savable.exitSave();
+					} catch (final StorageException se) {
 						logger.log(Level.SEVERE, "Error while saving a resource inside the shutdown hook.", se);
 					}
 				}
 			}
-//			FileAccess.cleanKeypool(MainFrame.keypool);
             Frost.releaseLockFile();
 			logger.info("Bye!");
 		}
 	}
-	
-	private static final Logger logger = Logger.getLogger(StorageManager.class.getName());
 
-	private Language language;
-	private FrostEventDispatcher listener;
-	
-	private ShutdownThread shutdownThread = new ShutdownThread();
-	private AutoTask autoTask = new AutoTask();
-	
-	private Vector<Savable> autoSavables;
-	private Vector<Savable> exitSavables;
-    
 	/**
 	 * @param frostSettings
 	 * @param parentFrame
 	 */
-	public StorageManager(SettingsClass frostSettings, FrostEventDispatcher listener) {
+	public StorageManager(final SettingsClass frostSettings, final FrostEventDispatcher listener) {
 		this.language = Language.getInstance();
 		this.listener = listener;
 		Runtime.getRuntime().addShutdownHook(shutdownThread);
-		int autoSaveIntervalMinutes = frostSettings.getIntValue(SettingsClass.AUTO_SAVE_INTERVAL);
+		final int autoSaveIntervalMinutes = frostSettings.getIntValue(SettingsClass.AUTO_SAVE_INTERVAL);
 		schedule(
 			autoTask,
-			(long)autoSaveIntervalMinutes * 60L * 1000L,
-			(long)autoSaveIntervalMinutes * 60L * 1000L);
+			autoSaveIntervalMinutes * 60L * 1000L,
+			autoSaveIntervalMinutes * 60L * 1000L);
 	}
 
 	/**
-	 * Adds a Savable to the autoSavables list. 
+	 * Adds a Savable to the autoSavables list.
 	 * <p>
 	 * If autoSavable is null, no exception is thrown and no action is performed.
 	 *
 	 * @param    autoSavable  the Savable to be added
 	 *
-	 * @see #removeAutoSavable 
+	 * @see #removeAutoSavable
 	 */
-	public synchronized void addAutoSavable(Savable autoSavable) {
+	public synchronized void addAutoSavable(final AutoSavable autoSavable) {
 		if (autoSavable == null) {
 			return;
 		}
 		if (autoSavables == null) {
-			autoSavables = new Vector<Savable>();
+			autoSavables = new Vector<AutoSavable>();
 		}
 		autoSavables.addElement(autoSavable);
 	}
 
 	/**
-	 * Adds a Savable to the exitSavables list. 
+	 * Adds a Savable to the exitSavables list.
 	 * <p>
 	 * If exitSavable is null, no exception is thrown and no action is performed.
 	 *
@@ -137,12 +134,12 @@ public class StorageManager extends Timer {
 	 *
 	 * @see #removeExitSavable
 	 */
-	public synchronized void addExitSavable(Savable exitSavable) {
+	public synchronized void addExitSavable(final ExitSavable exitSavable) {
 		if (exitSavable == null) {
 			return;
 		}
 		if (exitSavables == null) {
-			exitSavables = new Vector<Savable>();
+			exitSavables = new Vector<ExitSavable>();
 		}
 		exitSavables.addElement(exitSavable);
 	}

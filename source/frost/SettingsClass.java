@@ -32,7 +32,7 @@ import frost.util.Logging;
 /**
  * Read settings from frost.ini and store them.
  */
-public class SettingsClass implements Savable {
+public class SettingsClass implements ExitSavable {
 
     private final File settingsFile;
     private final Hashtable<String,Object> settingsHash;
@@ -948,7 +948,7 @@ public class SettingsClass implements Savable {
      *
      * (Not thread-safe with addUpdater/removeUpdater)
      */
-    public void save() throws StorageException {
+    public void exitSave() throws StorageException {
         if (updaters != null) {
             final Enumeration<SettingsUpdater> enumeration = updaters.elements();
             while (enumeration.hasMoreElements()) {

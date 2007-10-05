@@ -29,7 +29,7 @@ import frost.fileTransfer.*;
 import frost.storage.*;
 import frost.storage.perst.*;
 
-public class FileListStorage extends AbstractFrostStorage implements Savable, PropertyChangeListener {
+public class FileListStorage extends AbstractFrostStorage implements ExitSavable, PropertyChangeListener {
 
     private FileListStorageRoot storageRoot = null;
 
@@ -65,7 +65,12 @@ public class FileListStorage extends AbstractFrostStorage implements Savable, Pr
         return true;
     }
 
-    public void save() {
+    public void silentClose() {
+        close();
+        storageRoot = null;
+    }
+
+    public void exitSave() {
         close();
         storageRoot = null;
         System.out.println("INFO: FileListStorage closed.");

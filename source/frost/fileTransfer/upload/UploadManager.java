@@ -30,7 +30,7 @@ import frost.storage.*;
 import frost.util.*;
 import frost.util.model.*;
 
-public class UploadManager {
+public class UploadManager implements ExitSavable {
 
     private static final Logger logger = Logger.getLogger(UploadManager.class.getName());
 
@@ -42,29 +42,29 @@ public class UploadManager {
         super();
     }
 
-    public void initialize(List<FrostSharedFileItem> sharedFiles) throws StorageException {
+    public void initialize(final List<FrostSharedFileItem> sharedFiles) throws StorageException {
         getPanel();
         getModel().initialize(sharedFiles);
-        
+
         // on 0.5, load progress of all files
         if( FcpHandler.isFreenet05() ) {
             for(int x=0; x < getModel().getItemCount(); x++) {
-                FrostUploadItem item = (FrostUploadItem) getModel().getItemAt(x);
+                final FrostUploadItem item = (FrostUploadItem) getModel().getItemAt(x);
                 frost.fcp.fcp05.FcpInsert.updateProgress(item);
             }
         }
     }
-    
+
     /**
      * Count running items in model.
      */
-    public void updateFileTransferInformation(FileTransferInformation infos) {
+    public void updateFileTransferInformation(final FileTransferInformation infos) {
         int waitingItems = 0;
         int runningItems = 0;
         for (int x = 0; x < model.getItemCount(); x++) {
-            FrostUploadItem ulItem = (FrostUploadItem) model.getItemAt(x);
-            if (ulItem.getState() != FrostUploadItem.STATE_DONE 
-                    && ulItem.getState() != FrostUploadItem.STATE_FAILED) 
+            final FrostUploadItem ulItem = (FrostUploadItem) model.getItemAt(x);
+            if (ulItem.getState() != FrostUploadItem.STATE_DONE
+                    && ulItem.getState() != FrostUploadItem.STATE_FAILED)
             {
                 waitingItems++;
             }
@@ -75,19 +75,19 @@ public class UploadManager {
         infos.setUploadsRunning(runningItems);
         infos.setUploadsWaiting(waitingItems);
     }
-    
+
     public void startTicker() {
         if (Core.isFreenetOnline()) {
             getTicker().start();
         }
     }
-    
-    public void save() throws StorageException {
+
+    public void exitSave() throws StorageException {
         getPanel().getTableFormat().saveTableLayout();
-        getModel().save();
+        getModel().exitSave();
     }
-    
-    public void addPanelToMainFrame(MainFrame mainFrame) {
+
+    public void addPanelToMainFrame(final MainFrame mainFrame) {
         mainFrame.addPanel("MainFrame.tabbedPane.uploads", getPanel());
     }
 
@@ -117,10 +117,10 @@ public class UploadManager {
     /**
      * Handle a finished file upload, either successful or failed.
      */
-    public void notifyUploadFinished(FrostUploadItem uploadItem, FcpResultPut result) {
+    public void notifyUploadFinished(final FrostUploadItem uploadItem, final FcpResultPut result) {
 
         if (result != null && (result.isSuccess() || result.isKeyCollision()) ) {
-            
+
             logger.info("Upload of " + uploadItem.getFile().getName() + " was successful.");
 
             // upload successful
@@ -131,7 +131,7 @@ public class UploadManager {
 
             uploadItem.setEnabled(Boolean.FALSE);
             uploadItem.setState(FrostUploadItem.STATE_DONE);
-            
+
             uploadItem.setUploadFinishedMillis(System.currentTimeMillis());
 
             // notify model that shared upload file can be removed
@@ -140,9 +140,9 @@ public class UploadManager {
             } else {
                 // maybe log successful manual upload to file localdata/uploads.txt
                 if( Core.frostSettings.getBoolValue(SettingsClass.LOG_UPLOADS_ENABLED) && !uploadItem.isLoggedToFile() ) {
-                    String line = uploadItem.getKey() + "/" + uploadItem.getFile().getName();
-                    String fileName = Core.frostSettings.getValue(SettingsClass.DIR_LOCALDATA) + "Frost-Uploads.log";
-                    File targetFile = new File(fileName);
+                    final String line = uploadItem.getKey() + "/" + uploadItem.getFile().getName();
+                    final String fileName = Core.frostSettings.getValue(SettingsClass.DIR_LOCALDATA) + "Frost-Uploads.log";
+                    final File targetFile = new File(fileName);
                     FileAccess.appendLineToTextfile(targetFile, line);
                     uploadItem.setLoggedToFile(true);
                 }
@@ -162,7 +162,7 @@ public class UploadManager {
                 uploadItem.setState(FrostUploadItem.STATE_FAILED);
             } else {
                 uploadItem.setRetries(uploadItem.getRetries() + 1);
-                
+
                 if (uploadItem.getRetries() > Core.frostSettings.getIntValue(SettingsClass.UPLOAD_MAX_RETRIES)) {
                     uploadItem.setEnabled(Boolean.FALSE);
                     uploadItem.setState(FrostUploadItem.STATE_FAILED);
@@ -177,30 +177,30 @@ public class UploadManager {
         }
         uploadItem.setLastUploadStopTimeMillis(System.currentTimeMillis());
     }
-    
+
     /**
      * Start upload now (manually).
      */
-    public boolean startUpload(FrostUploadItem ulItem) {
+    public boolean startUpload(final FrostUploadItem ulItem) {
         if( FileTransferManager.inst().getPersistenceManager() != null ) {
             return FileTransferManager.inst().getPersistenceManager().startUpload(ulItem);
         } else {
             return ticker.startUpload(ulItem);
         }
     }
-    
+
     /**
      * Chooses next upload item to start from upload table.
      * @return the next upload item to start uploading or null if a suitable one was not found.
      */
     public FrostUploadItem selectNextUploadItem() {
 
-        ArrayList<FrostUploadItem> waitingItems = new ArrayList<FrostUploadItem>();
-        
+        final ArrayList<FrostUploadItem> waitingItems = new ArrayList<FrostUploadItem>();
+
         final long currentTime = System.currentTimeMillis();
 
         for (int i = 0; i < model.getItemCount(); i++) {
-            FrostUploadItem ulItem = (FrostUploadItem) model.getItemAt(i);
+            final FrostUploadItem ulItem = (FrostUploadItem) model.getItemAt(i);
 
             // don't start disabled items
             boolean itemIsEnabled = (ulItem.isEnabled()==null?true:ulItem.isEnabled().booleanValue());
@@ -226,7 +226,7 @@ public class UploadManager {
                 continue;
             }
             // check if items waittime between tries is expired so we could restart it
-            long waittimeMillis = (long)Core.frostSettings.getIntValue(SettingsClass.UPLOAD_WAITTIME) * 60L * 1000L;
+            final long waittimeMillis = Core.frostSettings.getIntValue(SettingsClass.UPLOAD_WAITTIME) * 60L * 1000L;
             if ((currentTime - ulItem.getLastUploadStopTimeMillis()) < waittimeMillis) {
                 continue;
             }
@@ -243,9 +243,9 @@ public class UploadManager {
             Collections.sort(waitingItems, nextItemCmp);
         }
 
-        return (FrostUploadItem) waitingItems.get(0);
+        return waitingItems.get(0);
     }
-    
+
     public void notifyUploadItemEnabledStateChanged(final FrostUploadItem ulItem) {
         // for persistent items, set priority to 6 (pause) when disabled; and to configured default if enabled
         if( FileTransferManager.inst().getPersistenceManager() == null ) {
@@ -284,25 +284,25 @@ public class UploadManager {
 
             // compute remaining blocks
             if( value1.getTotalBlocks() > 0 && value1.getDoneBlocks() > 0 ) {
-                blocksTodo1 = value1.getTotalBlocks() - value1.getDoneBlocks(); 
+                blocksTodo1 = value1.getTotalBlocks() - value1.getDoneBlocks();
             } else if( FcpHandler.isFreenet05() && value1.getFileSize() <= frost.fcp.fcp05.FcpInsert.smallestChunk ) {
                 blocksTodo1 = 1; // 0.5, one block file
             } else {
                 blocksTodo1 = Integer.MAX_VALUE; // never started
             }
             if( value2.getTotalBlocks() > 0 && value2.getDoneBlocks() > 0 ) {
-                blocksTodo2 = value2.getTotalBlocks() - value2.getDoneBlocks(); 
+                blocksTodo2 = value2.getTotalBlocks() - value2.getDoneBlocks();
             } else if( FcpHandler.isFreenet05() && value2.getFileSize() <= frost.fcp.fcp05.FcpInsert.smallestChunk ) {
                 blocksTodo2 = 1; // 0.5, one block file
             } else {
                 blocksTodo2 = Integer.MAX_VALUE; // never started
             }
-            
+
             int cmp2 = Mixed.compareInt(blocksTodo1, blocksTodo2);
             if( cmp2 != 0 ) {
                 return cmp2;
             }
-            
+
             // equal remainingBlocks, choose smaller file
             return Mixed.compareLong(value1.getFileSize(), value2.getFileSize());
         }

@@ -393,7 +393,7 @@ public class Core implements FrostEventDispatcher  {
                 System.exit(8);
             }
             frostSettings.setValue(SettingsClass.MIGRATE_VERSION, 2);
-            frostSettings.save();
+            frostSettings.exitSave();
         }
 
         getFileTransferManager().initialize();
@@ -479,10 +479,12 @@ public class Core implements FrostEventDispatcher  {
 
         // initialize the task that saves data
         final StorageManager saver = new StorageManager(frostSettings, this);
+
+        // auto savables
         saver.addAutoSavable(getBoardsManager().getTofTree());
         saver.addAutoSavable(getFileTransferManager());
 
-        saver.addExitSavable(getIdentities());
+        // exit savables, must run before the perst storages are closed
         saver.addExitSavable(getBoardsManager().getTofTree());
         saver.addExitSavable(getFileTransferManager());
         saver.addExitSavable(KnownBoardsManager.getInstance());
@@ -493,8 +495,8 @@ public class Core implements FrostEventDispatcher  {
         saver.addExitSavable(IndexSlotsStorage.inst());
         saver.addExitSavable(SharedFilesCHKKeyStorage.inst());
         saver.addExitSavable(FrostFilesStorage.inst());
-        saver.addExitSavable(MessageContentStorage.inst());
         saver.addExitSavable(MessageStorage.inst());
+        saver.addExitSavable(MessageContentStorage.inst());
         saver.addExitSavable(ArchiveMessageStorage.inst());
         saver.addExitSavable(IdentitiesStorage.inst());
         saver.addExitSavable(FileListStorage.inst());

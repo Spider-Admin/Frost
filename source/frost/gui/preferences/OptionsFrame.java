@@ -47,13 +47,14 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
     class ListBoxData {
         String name;
         JPanel panel;
-        public ListBoxData(String n, JPanel p) {
+        public ListBoxData(final String n, final JPanel p) {
             panel = p;
             name = n;
         }
         public JPanel getPanel() {
             return panel;
         }
+        @Override
         public String toString() {
             return name;
         }
@@ -61,8 +62,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 
     private static final Logger logger = Logger.getLogger(OptionsFrame.class.getName());
 
-    private SettingsClass frostSettings;
-    private Language language;
+    private final SettingsClass frostSettings;
+    private final Language language;
 
     private JPanel buttonPanel = null; // OK / Cancel
     private boolean checkBlock;
@@ -98,13 +99,13 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
     private JList optionsGroupsList = null;
     private JPanel optionsGroupsPanel = null;
     private SearchPanel searchPanel = null;
-    
+
     private boolean shouldReloadMessages = false;
     private boolean shouldResetLastBackloadUpdateFinishedMillis = false;
     private boolean shouldResetSharedFilesLastDownloaded = false;
 
     private UploadPanel uploadPanel = null;
-    
+
     private static int lastSelectedPanelIndex = 0;
 
     /**
@@ -112,7 +113,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
      * @param parent
      * @param settings
      */
-    public OptionsFrame(Frame parent, SettingsClass settings) {
+    public OptionsFrame(final Frame parent, final SettingsClass settings) {
         super(parent);
         setModal(true);
 
@@ -124,7 +125,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         try {
             Init();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             logger.log(Level.SEVERE, "Exception thrown in constructor", e);
         }
         // set initial selection (also sets panel)
@@ -155,7 +156,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
      * cancelButton Action Listener (Cancel)
      * @param e
      */
-    private void cancelButton_actionPerformed(ActionEvent e) {
+    private void cancelButton_actionPerformed(final ActionEvent e) {
         cancel();
     }
 
@@ -166,24 +167,25 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
      * @param m
      * @return
      */
-    protected Dimension computeMaxSize(ListModel m) {
-        if (m == null || m.getSize() == 0)
+    protected Dimension computeMaxSize(final ListModel m) {
+        if (m == null || m.getSize() == 0) {
             return null;
+        }
         int maxX = -1;
         int maxY = -1;
         // misuse a JDialog to determine the panel size before showing
         JDialog dlgdummy = new JDialog();
         for (int x = 0; x < m.getSize(); x++) {
-            ListBoxData lbdata = (ListBoxData) m.getElementAt(x);
-            JPanel aPanel = lbdata.getPanel();
+            final ListBoxData lbdata = (ListBoxData) m.getElementAt(x);
+            final JPanel aPanel = lbdata.getPanel();
 
             contentAreaPanel.removeAll();
             contentAreaPanel.add(aPanel, BorderLayout.CENTER);
             dlgdummy.setContentPane(contentAreaPanel);
             dlgdummy.pack();
             // get size (including bordersize from contentAreaPane)
-            int tmpX = contentAreaPanel.getWidth();
-            int tmpY = contentAreaPanel.getHeight();
+            final int tmpX = contentAreaPanel.getWidth();
+            final int tmpY = contentAreaPanel.getHeight();
             maxX = Math.max(maxX, tmpX);
             maxY = Math.max(maxY, tmpY);
         }
@@ -200,17 +202,17 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         if (buttonPanel == null) {
             buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
             // OK / Cancel
-            JButton okButton = new JButton(language.getString("Common.ok"));
-            JButton cancelButton = new JButton(language.getString("Common.cancel"));
+            final JButton okButton = new JButton(language.getString("Common.ok"));
+            final JButton cancelButton = new JButton(language.getString("Common.cancel"));
 
             okButton.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(ActionEvent e) {
+                public void actionPerformed(final ActionEvent e) {
                     okButton_actionPerformed(e);
                 }
             });
             cancelButton
                 .addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(ActionEvent e) {
+                public void actionPerformed(final ActionEvent e) {
                     cancelButton_actionPerformed(e);
                 }
             });
@@ -290,7 +292,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
     protected JPanel getOptionsGroupsPanel() {
         if (optionsGroupsPanel == null) {
             // init the list
-            Vector<ListBoxData> listData = new Vector<ListBoxData>();
+            final Vector<ListBoxData> listData = new Vector<ListBoxData>();
             listData.add( new ListBoxData(" "+language.getString("Options.downloads")+" ", getDownloadPanel()));
             listData.add( new ListBoxData(" "+language.getString("Options.uploads")+" ", getUploadPanel()));
             listData.add( new ListBoxData(" "+language.getString("Options.news")+" (1) ", getNewsPanel()));
@@ -307,7 +309,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
             optionsGroupsList.addListSelectionListener(this);
 
             optionsGroupsPanel = new JPanel(new GridBagLayout());
-            GridBagConstraints constr = new GridBagConstraints();
+            final GridBagConstraints constr = new GridBagConstraints();
             constr.anchor = GridBagConstraints.NORTHWEST;
             constr.fill = GridBagConstraints.BOTH;
             constr.weightx = 0.7;
@@ -367,7 +369,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         mainPanel.add(getOptionsGroupsPanel(), BorderLayout.WEST);
 
         // compute and set size of contentAreaPanel
-        Dimension neededSize = computeMaxSize(optionsGroupsList.getModel());
+        final Dimension neededSize = computeMaxSize(optionsGroupsList.getModel());
         contentAreaPanel.setMinimumSize(neededSize);
         contentAreaPanel.setPreferredSize(neededSize);
 
@@ -422,7 +424,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
     /**
      * okButton Action Listener (OK)
      */
-    private void okButton_actionPerformed(ActionEvent e) {
+    private void okButton_actionPerformed(final ActionEvent e) {
         ok();
     }
 
@@ -430,7 +432,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
      * When window is about to close, do same as if CANCEL was pressed.
      * @see java.awt.Window#processWindowEvent(java.awt.event.WindowEvent)
      */
-    protected void processWindowEvent(WindowEvent e) {
+    @Override
+    protected void processWindowEvent(final WindowEvent e) {
         if (e.getID() == WindowEvent.WINDOW_CLOSING) {
             cancel();
         }
@@ -452,8 +455,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
      */
     private void saveSettings() {
         try {
-            frostSettings.save();
-        } catch (StorageException se) {
+            frostSettings.exitSave();
+        } catch (final StorageException se) {
             logger.log(Level.SEVERE, "Error while saving the settings.", se);
         }
 
@@ -472,13 +475,13 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
             // at least one setting changed, reload messages
             shouldReloadMessages = true;
         }
-        
+
         if( !checkMaxMessageDownload.equals(frostSettings.getValue(SettingsClass.MAX_MESSAGE_DOWNLOAD)) ) {
             shouldResetLastBackloadUpdateFinishedMillis = true;
         }
-        
+
         // if settings was true before and now its disabled
-        if( checkRememberSharedFileDownloaded == true 
+        if( checkRememberSharedFileDownloaded == true
                 && frostSettings.getBoolValue(SettingsClass.REMEMBER_SHAREDFILE_DOWNLOADED) == false )
         {
             shouldResetSharedFilesLastDownloaded = true;
@@ -501,9 +504,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         checkBlock = frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_SUBJECT_ENABLED);
         checkBlockBody = frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BODY_ENABLED);
         checkShowDeletedMessages = frostSettings.getBoolValue("showDeletedMessages");
-        
+
         checkRememberSharedFileDownloaded = frostSettings.getBoolValue(SettingsClass.REMEMBER_SHAREDFILE_DOWNLOADED);
-        
+
         showColoredRows = frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
     }
 
@@ -525,7 +528,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
     public boolean shouldResetLastBackloadUpdateFinishedMillis() {
         return shouldResetLastBackloadUpdateFinishedMillis;
     }
-    
+
     public boolean shouldResetSharedFilesLastDownloaded() {
         return shouldResetSharedFilesLastDownloaded;
     }
@@ -536,21 +539,21 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
      * panel.
      * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
      */
-    public void valueChanged(ListSelectionEvent e) {
+    public void valueChanged(final ListSelectionEvent e) {
         if (e.getValueIsAdjusting()) {
             return;
         }
 
-        JList theList = (JList) e.getSource();
-        Object Olbdata = theList.getSelectedValue();
-        
+        final JList theList = (JList) e.getSource();
+        final Object Olbdata = theList.getSelectedValue();
+
         lastSelectedPanelIndex = theList.getSelectedIndex();
 
         contentAreaPanel.removeAll();
 
         if (Olbdata instanceof ListBoxData) {
-            ListBoxData lbdata = (ListBoxData) Olbdata;
-            JPanel newPanel = lbdata.getPanel();
+            final ListBoxData lbdata = (ListBoxData) Olbdata;
+            final JPanel newPanel = lbdata.getPanel();
             contentAreaPanel.add(newPanel, BorderLayout.CENTER);
             newPanel.revalidate();
             newPanel.repaint();

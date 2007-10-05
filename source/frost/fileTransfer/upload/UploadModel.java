@@ -38,21 +38,21 @@ import frost.util.model.*;
  * protected attribute data when necessary). It is also assumed that the load
  * and save methods will not be used while other threads are under way.
  */
-public class UploadModel extends SortedModel implements Savable {
-    
+public class UploadModel extends SortedModel implements ExitSavable {
+
     private static final Logger logger = Logger.getLogger(UploadModel.class.getName());
 
-    public UploadModel(SortedTableFormat f) {
+    public UploadModel(final SortedTableFormat f) {
         super(f);
     }
-    
-    public boolean addNewUploadItemFromSharedFile(FrostSharedFileItem sfi) {
-        FrostUploadItem newUlItem = new FrostUploadItem(sfi.getFile());
+
+    public boolean addNewUploadItemFromSharedFile(final FrostSharedFileItem sfi) {
+        final FrostUploadItem newUlItem = new FrostUploadItem(sfi.getFile());
         newUlItem.setSharedFileItem(sfi);
         return addNewUploadItem(newUlItem);
     }
-    
-    public void addExternalItem(FrostUploadItem i) {
+
+    public void addExternalItem(final FrostUploadItem i) {
         addItem(i);
     }
 
@@ -60,12 +60,12 @@ public class UploadModel extends SortedModel implements Savable {
      * Will add this item to the model if not already in the model.
      * The new item must only have 1 FrostUploadItemOwnerBoard in its list.
      */
-    public synchronized boolean addNewUploadItem(FrostUploadItem itemToAdd) {
-        
-        String pathToAdd = itemToAdd.getFile().getPath();
-        
+    public synchronized boolean addNewUploadItem(final FrostUploadItem itemToAdd) {
+
+        final String pathToAdd = itemToAdd.getFile().getPath();
+
         for (int x = 0; x < getItemCount(); x++) {
-            FrostUploadItem item = (FrostUploadItem) getItemAt(x);
+            final FrostUploadItem item = (FrostUploadItem) getItemAt(x);
             // add if file is not already in list (path)
             // if we add a shared file and the same file is already in list (manually added), we connect them
             if( pathToAdd.equals(item.getFile().getPath()) ) {
@@ -87,16 +87,16 @@ public class UploadModel extends SortedModel implements Savable {
     /**
      * Will add this item to the model, no check for dups.
      */
-    private synchronized void addConsistentUploadItem(FrostUploadItem itemToAdd) {
+    private synchronized void addConsistentUploadItem(final FrostUploadItem itemToAdd) {
         addItem(itemToAdd);
     }
 
     /**
-     * if upload was successful, remove item from uploadtable 
+     * if upload was successful, remove item from uploadtable
      */
-    public void notifySharedFileUploadWasSuccessful(FrostUploadItem ulItemToRemove) {
+    public void notifySharedFileUploadWasSuccessful(final FrostUploadItem ulItemToRemove) {
         for (int i = getItemCount() - 1; i >= 0; i--) {
-            FrostUploadItem ulItem = (FrostUploadItem) getItemAt(i);
+            final FrostUploadItem ulItem = (FrostUploadItem) getItemAt(i);
             if( ulItem == ulItemToRemove ) {
                 // remove this item
                 removeItems(new FrostUploadItem[] { ulItemToRemove } );
@@ -111,9 +111,9 @@ public class UploadModel extends SortedModel implements Savable {
      * if the model has a lot of items.
      */
     public synchronized void removeNotExistingFiles() {
-        ArrayList<FrostUploadItem> items = new ArrayList<FrostUploadItem>();
+        final ArrayList<FrostUploadItem> items = new ArrayList<FrostUploadItem>();
         for (int i = getItemCount() - 1; i >= 0; i--) {
-            FrostUploadItem ulItem = (FrostUploadItem) getItemAt(i);
+            final FrostUploadItem ulItem = (FrostUploadItem) getItemAt(i);
             if( ulItem.isExternal() ) {
                 continue;
             }
@@ -126,16 +126,16 @@ public class UploadModel extends SortedModel implements Savable {
             }
         }
         if (items.size() > 0) {
-            FrostUploadItem[] itemsArray = new FrostUploadItem[items.size()];
+            final FrostUploadItem[] itemsArray = new FrostUploadItem[items.size()];
             for (int i = 0; i < itemsArray.length; i++) {
-                itemsArray[i] = (FrostUploadItem) items.get(i);
+                itemsArray[i] = items.get(i);
             }
             removeItems(itemsArray);
-            
+
             // notify user that files were removed
-            Language language = Language.getInstance();
-            String title = language.getString("UploadPane.invalidUploadFilesRemoved.title");
-            String text = language.getString("UploadPane.invalidUploadFilesRemoved.text");
+            final Language language = Language.getInstance();
+            final String title = language.getString("UploadPane.invalidUploadFilesRemoved.title");
+            final String text = language.getString("UploadPane.invalidUploadFilesRemoved.text");
             JOptionPane.showMessageDialog(
                     MainFrame.getInstance(),
                     text,
@@ -148,9 +148,9 @@ public class UploadModel extends SortedModel implements Savable {
      * This method tells items passed as a parameter to start uploading
      * (if their current state allows it)
      */
-    public void uploadItems(ModelItem[] items) {
-        for (int i = 0; i < items.length; i++) {
-            FrostUploadItem ulItem = (FrostUploadItem) items[i];
+    public void uploadItems(final ModelItem[] items) {
+        for( final ModelItem element : items ) {
+            final FrostUploadItem ulItem = (FrostUploadItem) element;
             if (ulItem.getState() == FrostUploadItem.STATE_FAILED
                 || ulItem.getState() == FrostUploadItem.STATE_DONE)
             {
@@ -166,15 +166,15 @@ public class UploadModel extends SortedModel implements Savable {
      * This method tells items passed as a parameter to generate their chks
      * (if their current state allows it)
      */
-    public void generateChkItems(ModelItem[] items) {
-        for (int i = 0; i < items.length; i++) {
-            FrostUploadItem ulItem = (FrostUploadItem) items[i];
+    public void generateChkItems(final ModelItem[] items) {
+        for( final ModelItem element : items ) {
+            final FrostUploadItem ulItem = (FrostUploadItem) element;
             // Since it is difficult to identify the states where we are allowed to
             // start an upload we decide based on the states in which we are not allowed
             // start gen chk only if IDLE
-            if ( (ulItem.getState() == FrostUploadItem.STATE_WAITING 
+            if ( (ulItem.getState() == FrostUploadItem.STATE_WAITING
                     || ulItem.getState() == FrostUploadItem.STATE_FAILED)
-                 && ulItem.getKey() == null) 
+                 && ulItem.getKey() == null)
             {
                 ulItem.setState(FrostUploadItem.STATE_ENCODING_REQUESTED);
             }
@@ -220,59 +220,58 @@ public class UploadModel extends SortedModel implements Savable {
     /**
      * Initializes and loads the model
      */
-    public void initialize(List<FrostSharedFileItem> sharedFiles) throws StorageException {
+    public void initialize(final List<FrostSharedFileItem> sharedFiles) throws StorageException {
         final List<FrostUploadItem> uploadItems;
         try {
             uploadItems = FrostFilesStorage.inst().loadUploadFiles(sharedFiles);
-        } catch (Throwable e) {
+        } catch (final Throwable e) {
             logger.log(Level.SEVERE, "Error loading upload items", e);
             throw new StorageException("Error loading upload items");
         }
-        for(Iterator<FrostUploadItem> i=uploadItems.iterator(); i.hasNext(); ) {
-            FrostUploadItem di = i.next();
+        for( final FrostUploadItem di : uploadItems ) {
             addConsistentUploadItem(di); // no check for dups
         }
     }
-    
+
     /**
      * Saves the upload model to database.
      */
-    public void save() throws StorageException {
-        List<FrostUploadItem> itemList = (List<FrostUploadItem>)getItems();
+    public void exitSave() throws StorageException {
+        final List<FrostUploadItem> itemList = getItems();
         try {
             FrostFilesStorage.inst().saveUploadFiles(itemList);
-        } catch (Throwable e) {
+        } catch (final Throwable e) {
             logger.log(Level.SEVERE, "Error saving upload items", e);
             throw new StorageException("Error saving upload items");
         }
     }
-    
+
     /**
      * This method enables / disables download items in the model. If the
      * enabled parameter is null, the current state of the item is inverted.
-     * @param enabled new state of the items. If null, the current state 
+     * @param enabled new state of the items. If null, the current state
      *        is inverted
      */
-    public synchronized void setAllItemsEnabled(Boolean enabled) {
+    public synchronized void setAllItemsEnabled(final Boolean enabled) {
         for (int x = 0; x < getItemCount(); x++) {
-            FrostUploadItem ulItem = (FrostUploadItem) getItemAt(x);
+            final FrostUploadItem ulItem = (FrostUploadItem) getItemAt(x);
             if (ulItem.getState() != FrostUploadItem.STATE_DONE) {
                 ulItem.setEnabled(enabled);
                 FileTransferManager.inst().getUploadManager().notifyUploadItemEnabledStateChanged(ulItem);
             }
         }
     }
-    
+
     /**
      * This method enables / disables download items in the model. If the
      * enabled parameter is null, the current state of the item is inverted.
-     * @param enabled new state of the items. If null, the current state 
+     * @param enabled new state of the items. If null, the current state
      *        is inverted
      * @param items items to modify
      */
-    public void setItemsEnabled(Boolean enabled, ModelItem[] items) {
-        for (int i = 0; i < items.length; i++) { 
-            FrostUploadItem item = (FrostUploadItem) items[i];
+    public void setItemsEnabled(final Boolean enabled, final ModelItem[] items) {
+        for( final ModelItem element : items ) {
+            final FrostUploadItem item = (FrostUploadItem) element;
             if (item.getState() != FrostUploadItem.STATE_DONE) {
                 item.setEnabled(enabled);
                 FileTransferManager.inst().getUploadManager().notifyUploadItemEnabledStateChanged(item);

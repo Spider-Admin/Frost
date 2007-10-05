@@ -958,7 +958,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
      */
     private void optionsPreferencesMenuItem_actionPerformed(final ActionEvent e) {
         try {
-            frostSettings.save();
+            frostSettings.exitSave();
         } catch (final StorageException se) {
             logger.log(Level.SEVERE, "Error while saving the settings.", se);
         }

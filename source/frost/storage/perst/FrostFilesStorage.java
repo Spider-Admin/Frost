@@ -37,7 +37,7 @@ import frost.util.gui.translation.*;
  * A Storage for FrostDownloadFiles, FrostUploadFiles and SharedFiles.
  * Loaded during startup, and saved during shutdown (or during autosave).
  */
-public class FrostFilesStorage extends AbstractFrostStorage implements Savable {
+public class FrostFilesStorage extends AbstractFrostStorage implements ExitSavable {
 
     private static final Logger logger = Logger.getLogger(FrostFilesStorage.class.getName());
 
@@ -85,7 +85,7 @@ public class FrostFilesStorage extends AbstractFrostStorage implements Savable {
         return true;
     }
 
-    public void save() throws StorageException {
+    public void exitSave() throws StorageException {
         close();
         storageRoot = null;
         System.out.println("INFO: FrostFilesStorage closed.");
