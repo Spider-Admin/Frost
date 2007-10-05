@@ -39,8 +39,8 @@ public class StorageManager extends Timer {
     private final ShutdownThread shutdownThread = new ShutdownThread();
     private final AutoTask autoTask = new AutoTask();
 
-    private Vector<AutoSavable> autoSavables;
-    private Vector<ExitSavable> exitSavables;
+    private final Vector<AutoSavable> autoSavables = new Vector<AutoSavable>();
+    private final Vector<ExitSavable> exitSavables = new Vector<ExitSavable>();
 
 	private class AutoTask extends TimerTask {
 		public AutoTask() {
@@ -69,19 +69,17 @@ public class StorageManager extends Timer {
 		public ShutdownThread() {
             super();
 		}
-
 		/**
 		 * Called by shutdown hook.
 		 */
 		@Override
         public void run() {
 			logger.info("Saving settings ...");
-
 			if (exitSavables != null) {
                 for( final ExitSavable savable : exitSavables ) {
 					try {
 						savable.exitSave();
-					} catch (final StorageException se) {
+					} catch (final Throwable se) {
 						logger.log(Level.SEVERE, "Error while saving a resource inside the shutdown hook.", se);
 					}
 				}
@@ -108,7 +106,6 @@ public class StorageManager extends Timer {
 
 	/**
 	 * Adds a Savable to the autoSavables list.
-	 * <p>
 	 * If autoSavable is null, no exception is thrown and no action is performed.
 	 *
 	 * @param    autoSavable  the Savable to be added
@@ -119,15 +116,11 @@ public class StorageManager extends Timer {
 		if (autoSavable == null) {
 			return;
 		}
-		if (autoSavables == null) {
-			autoSavables = new Vector<AutoSavable>();
-		}
 		autoSavables.addElement(autoSavable);
 	}
 
 	/**
 	 * Adds a Savable to the exitSavables list.
-	 * <p>
 	 * If exitSavable is null, no exception is thrown and no action is performed.
 	 *
 	 * @param    exitSavable  the Savable to be added
@@ -137,9 +130,6 @@ public class StorageManager extends Timer {
 	public synchronized void addExitSavable(final ExitSavable exitSavable) {
 		if (exitSavable == null) {
 			return;
-		}
-		if (exitSavables == null) {
-			exitSavables = new Vector<ExitSavable>();
 		}
 		exitSavables.addElement(exitSavable);
 	}
