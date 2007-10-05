@@ -383,7 +383,6 @@ public class Core implements FrostEventDispatcher  {
 
         // Main frame
         mainFrame = new MainFrame(frostSettings, title);
-        KnownBoardsManager.initialize();
         getBoardsManager().initialize();
 
         if( migrate1to2 != null ) {
@@ -487,7 +486,6 @@ public class Core implements FrostEventDispatcher  {
         // exit savables, must run before the perst storages are closed
         saver.addExitSavable(getBoardsManager().getTofTree());
         saver.addExitSavable(getFileTransferManager());
-        saver.addExitSavable(KnownBoardsManager.getInstance());
 
         saver.addExitSavable(frostSettings);
 
