@@ -21,7 +21,6 @@ package frost.gui;
 import java.util.*;
 
 import frost.boards.*;
-import frost.storage.*;
 import frost.storage.perst.*;
 
 /**
@@ -30,11 +29,7 @@ import frost.storage.perst.*;
  * be able to implement the Savable interface for saving of
  * the hidden board names during shutdown of Frost.
  */
-public class KnownBoardsManager implements ExitSavable {
-
-//    private static final Logger logger = Logger.getLogger(KnownBoardsManager.class.getName());
-
-    private static HashSet<String> hiddenNames = null;
+public class KnownBoardsManager {
 
     private static KnownBoardsManager instance = null;
 
@@ -48,38 +43,6 @@ public class KnownBoardsManager implements ExitSavable {
         return instance;
     }
 
-    public static boolean isNameHidden(final Board b) {
-        final String boardName = b.getName();
-        return isNameHidden(boardName);
-    }
-    public static boolean isNameHidden(final String n) {
-        if( hiddenNames.contains(n.toLowerCase()) ) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public static void addHiddenName(final String n) {
-        hiddenNames.add(n.toLowerCase());
-    }
-    public static void removeHiddenName(final String n) {
-        hiddenNames.remove(n.toLowerCase());
-    }
-    public static List<String> getHiddenNamesList() {
-        return new ArrayList<String>(hiddenNames);
-    }
-
-    public static void initialize() {
-        // load hidden names
-        hiddenNames = FrostFilesStorage.inst().loadHiddenBoardNames();
-    }
-
-    public void exitSave() throws StorageException {
-        // save hidden names
-        FrostFilesStorage.inst().saveHiddenBoardNames(hiddenNames);
-    }
-
     /**
      * @return  List of KnownBoard
      */
@@ -88,7 +51,7 @@ public class KnownBoardsManager implements ExitSavable {
     }
 
     /**
-     * Called with a list of Board, should add all boards that are not contained already
+     * Called with a list of Board, adds all boards which are not already in storage
      * @param lst  List of Board
      */
     public static int addNewKnownBoards( final List<Board> lst ) {
@@ -99,7 +62,25 @@ public class KnownBoardsManager implements ExitSavable {
         return added;
     }
 
+    /**
+     * Deletes the known board from storage
+     * @param b  board to delete from known boards list
+     */
     public static void deleteKnownBoard(final Board b) {
         FrostFilesStorage.inst().deleteKnownBoard(b);
+    }
+
+    /**
+     * Load all hidden board names.
+     */
+    public HashSet<String> loadHiddenBoardNames() {
+        return FrostFilesStorage.inst().loadHiddenBoardNames();
+    }
+
+    /**
+     * Save all hidden board names.
+     */
+    public void saveHiddenBoardNames(final HashSet<String> names) {
+        FrostFilesStorage.inst().saveHiddenBoardNames(names);
     }
 }

@@ -173,7 +173,7 @@ public class TofTreeModel extends DefaultTreeModel {
 
     @Override
     public AbstractNode getRoot() {
-        return getRoot();
+        return (AbstractNode)super.getRoot();
     }
 
     /**
