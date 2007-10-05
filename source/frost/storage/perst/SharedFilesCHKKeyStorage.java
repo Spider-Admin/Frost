@@ -83,7 +83,7 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Sa
 
     public void repairStorage() {
 
-        System.out.println("Repairing sfChkKeys.dbs...");
+        System.out.println("Repairing sfChkKeys.dbs (may take some time!)...");
 
         final String databaseFilePath = getStorageFilename("sfChkKeys.dbs"); // path to the database file
         final int pagePoolSize = 2*1024*1024;
@@ -102,7 +102,14 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Sa
 
         final List<SharedFilesCHKKey> lst = new ArrayList<SharedFilesCHKKey>();
 
+        final int progressSteps = storageRoot.chkKeys.size() / 75; // all 'progressSteps' entries print one dot
+        int progress = progressSteps;
+
         for( int x=0; x < storageRoot.chkKeys.size(); x++ ) {
+            if( x > progress ) {
+                System.out.print('.');
+                progress += progressSteps;
+            }
             SharedFilesCHKKey sfk;
             try {
                 sfk = storageRoot.chkKeys.getAt(x);
@@ -129,6 +136,7 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Sa
         close();
         storageRoot = null;
 
+        System.out.println();
         System.out.println("Repair finished, brokenEntries="+brokenEntries+"; validEntries="+validEntries);
     }
 
