@@ -30,7 +30,7 @@ import frost.messages.*;
 import frost.storage.*;
 import frost.storage.perst.*;
 
-public class MessageStorage extends AbstractFrostStorage implements Savable {
+public class MessageStorage extends AbstractFrostStorage implements ExitSavable {
 
     private static transient final Logger logger = Logger.getLogger(MessageStorage.class.getName());
 
@@ -76,7 +76,7 @@ public class MessageStorage extends AbstractFrostStorage implements Savable {
         MessageContentStorage.inst().commit();
     }
 
-    public void save() {
+    public void exitSave() {
         close();
         storageRoot = null;
         System.out.println("INFO: MessagesStorage closed.");

@@ -40,7 +40,7 @@ import frost.util.gui.*;
 import frost.util.gui.search.*;
 import frost.util.gui.translation.*;
 
-public class TofTree extends JDragTree implements Savable, PropertyChangeListener {
+public class TofTree extends JDragTree implements AutoSavable, ExitSavable, PropertyChangeListener {
 
     private static final String FROST_ANNOUNCE_NAME = "frost-announce";
     private static final String FREENET_05_FROST_ANNOUNCE_PUBKEY = "SSK@7i~oLj~57mQVRrKfMxYgLULJ2r0PAgM";
@@ -759,6 +759,13 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         return loadWasOk;
     }
 
+    public void autoSave() throws StorageException {
+        save();
+    }
+    public void exitSave() throws StorageException {
+        save();
+    }
+
     /**
      * Save TOF tree's content to a file
      */
@@ -1051,7 +1058,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
      */
     public void updateTree() {
         // fire update for node
-        final Enumeration e = ((AbstractNode) model.getRoot()).depthFirstEnumeration();
+        final Enumeration e = (model.getRoot()).depthFirstEnumeration();
         while (e.hasMoreElements()) {
             model.nodeChanged(((TreeNode) e.nextElement()));
         }

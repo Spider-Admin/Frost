@@ -183,7 +183,7 @@ public class Migrate1to2 {
             return false;
         } else {
             // free page pool
-            FileListStorage.inst().save();
+            FileListStorage.inst().silentClose();
             FileListStorage.inst().initStorage();
         }
 

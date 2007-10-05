@@ -33,24 +33,24 @@ import frost.util.gui.translation.*;
 /**
  * A class that maintains identity stuff.
  */
-public class FrostIdentities implements Savable {
+public class FrostIdentities {
 
     private static final Logger logger = Logger.getLogger(FrostIdentities.class.getName());
 
     private Hashtable<String,Identity> identities = null;
     private Hashtable<String,LocalIdentity> localIdentities = null;
-    
+
     Language language = Language.getInstance();
-    
+
     private static boolean databaseUpdatesAllowed = true; // forbidden during first import
 
     /**
      * @param freenetIsOnline
      */
-    public void initialize(boolean freenetIsOnline) throws StorageException {
+    public void initialize(final boolean freenetIsOnline) throws StorageException {
 
         localIdentities = IdentitiesStorage.inst().loadLocalIdentities();
-        
+
         // check if there is at least one identity in database, otherwise create one
         if ( localIdentities.size() == 0 ) {
             // first startup, no identity available
@@ -61,29 +61,29 @@ public class FrostIdentities implements Savable {
                         language.getString("Core.loadIdentities.ConnectionNotEstablishedTitle"));
                 System.exit(2);
             }
-            
-            LocalIdentity mySelf = createIdentity(true);
+
+            final LocalIdentity mySelf = createIdentity(true);
             if(mySelf == null) {
                 logger.severe("Frost can't run without an identity.");
                 System.exit(1);
             }
             addLocalIdentity(mySelf); // add and save
         }
-        
+
         // load all identities
         identities = IdentitiesStorage.inst().loadIdentities();
-        
+
         // remove all own identities from identities
-        for(LocalIdentity li : localIdentities.values() ) {
+        for(final LocalIdentity li : localIdentities.values() ) {
             identities.remove(li.getUniqueName());
         }
     }
-    
+
     /**
      * Creates new local identity, and adds it to database.
      */
     public LocalIdentity createIdentity() {
-        LocalIdentity li = createIdentity(false);
+        final LocalIdentity li = createIdentity(false);
         if( li != null ) {
             if( addLocalIdentity(li) == false ) {
                 // double
@@ -92,29 +92,29 @@ public class FrostIdentities implements Savable {
         }
         return li;
     }
-    
+
     /**
      * Creates new local identity, and adds it to database.
      */
-    private LocalIdentity createIdentity(boolean firstIdentity) {
+    private LocalIdentity createIdentity(final boolean firstIdentity) {
 
         LocalIdentity newIdentity = null;
-        
+
         // create new identitiy, get a valid username
         try {
             String nick = null;
             boolean isNickOk;
             do {
-                nick = JOptionPane.showInputDialog(language.getString("Core.loadIdentities.ChooseName")); 
-                
+                nick = JOptionPane.showInputDialog(language.getString("Core.loadIdentities.ChooseName"));
+
                 if( nick == null ) {
                     break; // user cancelled
                 }
-                
-                nick = nick.trim(); // not only blanks, no trailing/leading blanks 
-                
+
+                nick = nick.trim(); // not only blanks, no trailing/leading blanks
+
                 isNickOk = true;
-                
+
                 // check for invalid values
                 if(nick.length() < 2 || nick.length() > 32 ) {
                     isNickOk = false; // not only 1 character or more than 32 characters
@@ -138,7 +138,7 @@ public class FrostIdentities implements Savable {
                         }
                     }
                 }
-                
+
                 if( !isNickOk ) {
                     MiscToolkit.getInstance().showMessage(
                             language.getString("Core.loadIdentities.InvalidNameBody"),
@@ -146,39 +146,39 @@ public class FrostIdentities implements Savable {
                             language.getString("Core.loadIdentities.InvalidNameTitle"));
                 }
             } while(!isNickOk);
-            
+
             if (nick == null) {
                 return null; // user cancelled
             }
-            
+
             do { //make sure there's no '//' in the generated sha checksum
                 newIdentity = new LocalIdentity(nick);
             } while (newIdentity.getUniqueName().indexOf("//") != -1);
 
-        } catch (Exception e) {
+        } catch (final Exception e) {
             logger.severe("couldn't create new identitiy" + e.toString());
         }
         if( newIdentity != null && firstIdentity ) {
             Core.frostSettings.setValue(SettingsClass.LAST_USED_FROMNAME, newIdentity.getUniqueName());
         }
-        
+
         return newIdentity;
     }
 
-    public Identity getIdentity(String uniqueName) {
+    public Identity getIdentity(final String uniqueName) {
         if( uniqueName == null ) {
             return null;
         }
         Identity identity = null;
         identity = getLocalIdentity(uniqueName);
         if( identity == null ) {
-            identity = (Identity)identities.get(uniqueName);
+            identity = identities.get(uniqueName);
         }
         return identity;
     }
 
-    public boolean addIdentity(Identity id) {
-        String key = id.getUniqueName();
+    public boolean addIdentity(final Identity id) {
+        final String key = id.getUniqueName();
         if (identities.containsKey(key)) {
             return false;
         }
@@ -188,8 +188,8 @@ public class FrostIdentities implements Savable {
         identities.put(key, id);
         return true;
     }
-    
-    public boolean addLocalIdentity(LocalIdentity li) {
+
+    public boolean addLocalIdentity(final LocalIdentity li) {
         if (localIdentities.containsKey(li.getUniqueName())) {
             return false;
         }
@@ -199,37 +199,37 @@ public class FrostIdentities implements Savable {
         localIdentities.put(li.getUniqueName(), li);
         return true;
     }
-    
-    public boolean deleteLocalIdentity(LocalIdentity li) {
+
+    public boolean deleteLocalIdentity(final LocalIdentity li) {
         if (!localIdentities.containsKey(li.getUniqueName())) {
             return false;
         }
-        
+
         localIdentities.remove(li.getUniqueName());
-        
+
         return IdentitiesStorage.inst().removeLocalIdentity(li);
     }
 
-    public boolean deleteIdentity(Identity li, boolean doCommit) {
+    public boolean deleteIdentity(final Identity li, final boolean doCommit) {
         if (!identities.containsKey(li.getUniqueName())) {
             return false;
         }
-        
+
         identities.remove(li.getUniqueName());
-        
+
         return IdentitiesStorage.inst().removeIdentity(li, doCommit);
     }
 
-    public boolean isMySelf(String uniqueName) {
+    public boolean isMySelf(final String uniqueName) {
         if( getLocalIdentity(uniqueName) != null ) {
             return true;
         }
         return false;
     }
-    
-    public LocalIdentity getLocalIdentity(String uniqueName) {
+
+    public LocalIdentity getLocalIdentity(final String uniqueName) {
         LocalIdentity li = null;
-        li = (LocalIdentity) localIdentities.get(uniqueName);
+        li = localIdentities.get(uniqueName);
 //        if( li == null ) {
 //            li = (LocalIdentity) localIdentities.get(Mixed.makeFilename(uniqueName));
 //        }
@@ -237,8 +237,8 @@ public class FrostIdentities implements Savable {
     }
 
     public List<Identity> getAllGOODIdentities() {
-        List<Identity> list = new ArrayList<Identity>();
-        for( Identity id : identities.values() ) {
+        final List<Identity> list = new ArrayList<Identity>();
+        for( final Identity id : identities.values() ) {
             if( id.isGOOD() ) {
                 list.add(id);
             }
@@ -258,21 +258,14 @@ public class FrostIdentities implements Savable {
         return databaseUpdatesAllowed;
     }
 
-    public static void setDatabaseUpdatesAllowed(boolean dbUpdatesAllowed) {
+    public static void setDatabaseUpdatesAllowed(final boolean dbUpdatesAllowed) {
         databaseUpdatesAllowed = dbUpdatesAllowed;
     }
-    
-    /**
-     * Identities are saved on demand, but the information about the 
-     * last files shared per board must be saved during exit.
-     */
-    public void save() throws StorageException {
-    }
-    
+
     /**
      * Applies trust state of source identity to target identity.
      */
-    public static void takeoverTrustState(Identity source, Identity target) {
+    public static void takeoverTrustState(final Identity source, final Identity target) {
         if( source.isGOOD() ) {
             target.setGOOD();
         } else if( source.isOBSERVE() ) {
@@ -283,18 +276,18 @@ public class FrostIdentities implements Savable {
             target.setCHECK();
         }
     }
-    
+
     // TODO: merge the imported identities with the existing identities (WOT), use a mergeIdentities method
-    public int importIdentities(List<Identity> importedIdentities) {
+    public int importIdentities(final List<Identity> importedIdentities) {
         // for now we import new identities, and take over the trust state if our identity state is CHECK
         int importedCount = 0;
-        for(Identity newId : importedIdentities ) {
+        for(final Identity newId : importedIdentities ) {
             if( !isNewIdentityValid(newId) ) {
                 // hash of public key does not match the unique name
                 // skip identity
                 continue;
             }
-            Identity oldId = getIdentity(newId.getUniqueName());
+            final Identity oldId = getIdentity(newId.getUniqueName());
             if( oldId == null ) {
                 // add new id
                 addIdentity(newId);
@@ -307,66 +300,65 @@ public class FrostIdentities implements Savable {
         }
         return importedCount;
     }
-    
+
     /**
      * This method checks an Identity for validity.
      * Checks if the digest of this Identity matches the pubkey (digest is the part after the @ in the username)
      */
-    public boolean isIdentityValid(Identity id) {
+    public boolean isIdentityValid(final Identity id) {
 
-        String uName = id.getUniqueName();
-        String puKey = id.getPublicKey();
+        final String uName = id.getUniqueName();
+        final String puKey = id.getPublicKey();
 
         try {
             // check if the digest matches
-            String given_digest = uName.substring(uName.indexOf("@") + 1, uName.length()).trim();
+            final String given_digest = uName.substring(uName.indexOf("@") + 1, uName.length()).trim();
             String calculatedDigest = Core.getCrypto().digest(puKey.trim()).trim();
             calculatedDigest = Mixed.makeFilename(calculatedDigest).trim();
             if( !Mixed.makeFilename(given_digest).equals(calculatedDigest) ) {
-                logger.severe("Warning: public key of sharer didn't match its digest:\n" + 
-                              "given digest :'" + given_digest + "'\n" + 
-                              "pubkey       :'" + puKey.trim() + "'\n" + 
+                logger.severe("Warning: public key of sharer didn't match its digest:\n" +
+                              "given digest :'" + given_digest + "'\n" +
+                              "pubkey       :'" + puKey.trim() + "'\n" +
                               "calc. digest :'" + calculatedDigest + "'");
                 return false;
             }
-        } catch (Throwable e) {
+        } catch (final Throwable e) {
             logger.log(Level.SEVERE, "Exception during key validation", e);
             return false;
-        }        
+        }
         return true;
     }
-    
+
     /**
      * Checks if we can accept this new identity.
      * If the public key of this identity is already assigned to another identity, then it is not valid.
      */
-    public boolean isNewIdentityValid(Identity id) {
-        
+    public boolean isNewIdentityValid(final Identity id) {
+
         // check if hash matches the public key
         if( !isIdentityValid(id) ) {
             return false;
         }
-        
+
         // check if the public key is known, maybe someone sends with same pubkey but different names before the @
-        for( Iterator<Identity> i=getIdentities().iterator(); i.hasNext(); ) {
-            Identity anId = i.next();
+        for( final Identity anId : getIdentities() ) {
             if( id.getPublicKey().equals(anId.getPublicKey()) ) {
                 logger.severe("Rejecting new Identity because its public key is already used by another known Identity. "+
                         "newId='"+id.getUniqueName()+"', oldId='"+anId.getUniqueName()+"'");
                 return false;
             }
         }
-        
+
         // for sure, check own identities too
-        for( Iterator<LocalIdentity> i=getLocalIdentities().iterator(); i.hasNext(); ) {
-            Identity anId = i.next();
+        for( final Iterator<LocalIdentity> i=getLocalIdentities().iterator(); i.hasNext(); ) {
+            final Identity anId = i.next();
             if( id.getPublicKey().equals(anId.getPublicKey()) ) {
                 logger.severe("Rejecting new Identity because its public key is already used by an OWN Identity. "+
                         "newId='"+id.getUniqueName()+"', oldId='"+anId.getUniqueName()+"'");
                 return false;
             }
         }
-        
+
         return true;
     }
 }

@@ -25,23 +25,23 @@ import frost.fileTransfer.upload.*;
 import frost.storage.*;
 import frost.storage.perst.*;
 
-public class NewUploadFilesManager implements Savable {
-    
+public class NewUploadFilesManager implements ExitSavable {
+
     private static final Logger logger = Logger.getLogger(NewUploadFilesManager.class.getName());
 
     LinkedList<NewUploadFile> newUploadFiles;
     GenerateShaThread generateShaThread;
-    
+
     public void initialize() throws StorageException {
         try {
             newUploadFiles = FrostFilesStorage.inst().loadNewUploadFiles();
-        } catch (Throwable e) {
+        } catch (final Throwable e) {
             logger.log(Level.SEVERE, "Error loading new upload files", e);
             throw new StorageException("Error loading new upload files");
         }
         generateShaThread = new GenerateShaThread();
     }
-    
+
     /**
      * Start the generate SHA thread.
      */
@@ -49,25 +49,25 @@ public class NewUploadFilesManager implements Savable {
         generateShaThread.start();
     }
 
-    public void save() throws StorageException {
+    public void exitSave() throws StorageException {
         try {
             FrostFilesStorage.inst().saveNewUploadFiles(newUploadFiles);
-        } catch (Throwable e) {
+        } catch (final Throwable e) {
             logger.log(Level.SEVERE, "Error saving new upload files", e);
             throw new StorageException("Error saving new upload files");
         }
     }
-    
-    public void addNewUploadFiles(List<NewUploadFile> newFiles) {
-        for( NewUploadFile nuf : newFiles ) {
+
+    public void addNewUploadFiles(final List<NewUploadFile> newFiles) {
+        for( final NewUploadFile nuf : newFiles ) {
             newUploadFiles.add(nuf);
-            
+
             // feed thread
             generateShaThread.addToFileQueue(nuf);
         }
     }
-    
-    public void deleteNewUploadFile(NewUploadFile nuf) {
+
+    public void deleteNewUploadFile(final NewUploadFile nuf) {
         newUploadFiles.remove(nuf);
     }
 }

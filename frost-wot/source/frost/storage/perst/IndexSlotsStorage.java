@@ -29,7 +29,7 @@ import frost.storage.*;
 /**
  * Storage with an compound index of indexName and msgDate (int/long)
  */
-public class IndexSlotsStorage extends AbstractFrostStorage implements Savable {
+public class IndexSlotsStorage extends AbstractFrostStorage implements ExitSavable {
 
     // boards have positive indexNames (their primkey)
     public static final int FILELISTS = -1;
@@ -132,7 +132,7 @@ public class IndexSlotsStorage extends AbstractFrostStorage implements Savable {
         }
     }
 
-    public void save() throws StorageException {
+    public void exitSave() throws StorageException {
         close();
         storageRoot = null;
         System.out.println("INFO: GlobalIndexSlotsStorage closed.");

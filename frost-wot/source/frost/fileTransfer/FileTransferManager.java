@@ -18,8 +18,6 @@
 */
 package frost.fileTransfer;
 
-import java.util.*;
-
 import frost.*;
 import frost.fileTransfer.download.*;
 import frost.fileTransfer.search.*;
@@ -29,7 +27,7 @@ import frost.identities.*;
 import frost.storage.*;
 import frost.util.model.*;
 
-public class FileTransferManager implements Savable {
+public class FileTransferManager implements ExitSavable, AutoSavable {
 
     private DownloadManager downloadManager;
     private SearchManager searchManager;
@@ -38,13 +36,13 @@ public class FileTransferManager implements Savable {
     private NewUploadFilesManager newUploadFilesManager;
 
     private PersistenceManager persistenceManager = null;
-    
+
     private static FileTransferManager instance = null;
-    
+
     private FileTransferManager() {
         super();
     }
-    
+
     public static FileTransferManager inst() {
         if( instance == null ) {
             instance = new FileTransferManager();
@@ -56,20 +54,20 @@ public class FileTransferManager implements Savable {
         getDownloadManager().initialize();
         getSearchManager().initialize();
         getSharedFilesManager().initialize();
-        getUploadManager().initialize( (List<FrostSharedFileItem>)getSharedFilesManager().getModel().getItems() );
+        getUploadManager().initialize( getSharedFilesManager().getModel().getItems() );
         getNewUploadFilesManager().initialize();
-        
+
         if( PersistenceManager.isPersistenceEnabled() && Core.isFreenetOnline() ) {
             try {
                 persistenceManager = new PersistenceManager(getUploadManager().getModel(), getDownloadManager().getModel());
-            } catch(Throwable t) {
+            } catch(final Throwable t) {
                 System.out.println("FAILED TO ESTABLISH THE PERSISTENT CONNECTION!");
                 t.printStackTrace();
             }
         }
-        
+
         // call order is order of panels in gui
-        MainFrame mainFrame = MainFrame.getInstance();
+        final MainFrame mainFrame = MainFrame.getInstance();
         getDownloadManager().addPanelToMainFrame(mainFrame);
         getUploadManager().addPanelToMainFrame(mainFrame);
         getSearchManager().addPanelToMainFrame(mainFrame);
@@ -82,12 +80,12 @@ public class FileTransferManager implements Savable {
     public PersistenceManager getPersistenceManager() {
         return persistenceManager;
     }
-    
+
     public void startTickers() {
         getDownloadManager().startTicker();
         getUploadManager().startTicker();
         getNewUploadFilesManager().start();
-        
+
         // maybe start persistence threads
         if( getPersistenceManager() != null ) {
             getPersistenceManager().startThreads();
@@ -100,30 +98,30 @@ public class FileTransferManager implements Savable {
         }
         return downloadManager;
     }
-    
+
     public FileTransferInformation getFileTransferInformation() {
-        FileTransferInformation infos = new FileTransferInformation();
+        final FileTransferInformation infos = new FileTransferInformation();
         getDownloadManager().updateFileTransferInformation(infos);
         getUploadManager().updateFileTransferInformation(infos);
         infos.setFileListDownloadQueueSize(FileSharingManager.getFileListDownloadQueueSize());
         return infos;
     }
-    
+
     /**
-     * Updates the count of waiting uploads/downloads in the toolbar of upload/download tab. 
+     * Updates the count of waiting uploads/downloads in the toolbar of upload/download tab.
      */
-    public void updateWaitingCountInPanels(FileTransferInformation infos) {
+    public void updateWaitingCountInPanels(final FileTransferInformation infos) {
         if( infos == null ) {
             return;
         }
         getDownloadManager().getPanel().setDownloadItemCount(infos.getDownloadsWaiting());
         getUploadManager().getPanel().setUploadItemCount(infos.getUploadsWaiting());
     }
-    
-    public int countFilesSharedByLocalIdentity(LocalIdentity li) {
+
+    public int countFilesSharedByLocalIdentity(final LocalIdentity li) {
         int count = 0;
         for (int x = 0; x < getSharedFilesManager().getModel().getItemCount(); x++) {
-            FrostSharedFileItem item = (FrostSharedFileItem) getSharedFilesManager().getModel().getItemAt(x);
+            final FrostSharedFileItem item = (FrostSharedFileItem) getSharedFilesManager().getModel().getItemAt(x);
             if( item.getOwner().equals( li.getUniqueName()) ) {
                 count++;
             }
@@ -131,23 +129,23 @@ public class FileTransferManager implements Savable {
         return count;
     }
 
-    public void removeFilesSharedByLocalIdentity(LocalIdentity li) {
-        
+    public void removeFilesSharedByLocalIdentity(final LocalIdentity li) {
+
         // remove from uploadtable
         for (int x = getUploadManager().getModel().getItemCount()-1; x >= 0; x--) {
-            Object obj = (FrostUploadItem) getUploadManager().getModel().getItemAt(x);
+            final Object obj = getUploadManager().getModel().getItemAt(x);
             if( !(obj instanceof FrostSharedFileItem) ) {
                 continue;
             }
-            FrostSharedFileItem suf = (FrostSharedFileItem)obj;
+            final FrostSharedFileItem suf = (FrostSharedFileItem)obj;
             if( suf.getOwner().equals(li.getUniqueName()) ) {
                 getUploadManager().getModel().removeItems(new ModelItem[] { suf });
             }
         }
-        
+
         // remove from sharedfiles table
         for (int x = 0; x < getSharedFilesManager().getModel().getItemCount(); x++) {
-            FrostSharedFileItem item = (FrostSharedFileItem) getSharedFilesManager().getModel().getItemAt(x);
+            final FrostSharedFileItem item = (FrostSharedFileItem) getSharedFilesManager().getModel().getItemAt(x);
             if( item.getOwner().equals( li.getUniqueName()) ) {
                 getSharedFilesManager().getModel().removeItems(new ModelItem[] { item });
             }
@@ -182,10 +180,17 @@ public class FileTransferManager implements Savable {
         return newUploadFilesManager;
     }
 
+    public void exitSave() throws StorageException {
+        save();
+    }
+    public void autoSave() throws StorageException {
+        save();
+    }
+
     public void save() throws StorageException {
-        getDownloadManager().save();
-        getUploadManager().save();
-        getSharedFilesManager().save();
-        getNewUploadFilesManager().save();
+        getDownloadManager().exitSave();
+        getUploadManager().exitSave();
+        getSharedFilesManager().exitSave();
+        getNewUploadFilesManager().exitSave();
     }
 }

@@ -30,14 +30,14 @@ import frost.storage.perst.*;
  * be able to implement the Savable interface for saving of
  * the hidden board names during shutdown of Frost.
  */
-public class KnownBoardsManager implements Savable {
+public class KnownBoardsManager implements ExitSavable {
 
 //    private static final Logger logger = Logger.getLogger(KnownBoardsManager.class.getName());
 
     private static HashSet<String> hiddenNames = null;
-    
+
     private static KnownBoardsManager instance = null;
-    
+
     private KnownBoardsManager() {}
 
     // we need the instance only for Exitsavable!
@@ -47,12 +47,12 @@ public class KnownBoardsManager implements Savable {
         }
         return instance;
     }
-    
-    public static boolean isNameHidden(Board b) {
-        String boardName = b.getName();
+
+    public static boolean isNameHidden(final Board b) {
+        final String boardName = b.getName();
         return isNameHidden(boardName);
     }
-    public static boolean isNameHidden(String n) {
+    public static boolean isNameHidden(final String n) {
         if( hiddenNames.contains(n.toLowerCase()) ) {
             return true;
         } else {
@@ -60,10 +60,10 @@ public class KnownBoardsManager implements Savable {
         }
     }
 
-    public static void addHiddenName(String n) {
+    public static void addHiddenName(final String n) {
         hiddenNames.add(n.toLowerCase());
     }
-    public static void removeHiddenName(String n) {
+    public static void removeHiddenName(final String n) {
         hiddenNames.remove(n.toLowerCase());
     }
     public static List<String> getHiddenNamesList() {
@@ -75,7 +75,7 @@ public class KnownBoardsManager implements Savable {
         hiddenNames = FrostFilesStorage.inst().loadHiddenBoardNames();
     }
 
-    public void save() throws StorageException {
+    public void exitSave() throws StorageException {
         // save hidden names
         FrostFilesStorage.inst().saveHiddenBoardNames(hiddenNames);
     }
@@ -86,20 +86,20 @@ public class KnownBoardsManager implements Savable {
     public static List<KnownBoard> getKnownBoardsList() {
         return FrostFilesStorage.inst().getKnownBoards();
     }
-    
+
     /**
      * Called with a list of Board, should add all boards that are not contained already
      * @param lst  List of Board
      */
-    public static int addNewKnownBoards( List<Board> lst ) {
+    public static int addNewKnownBoards( final List<Board> lst ) {
         if( lst == null || lst.size() == 0 ) {
             return 0;
         }
-        int added = FrostFilesStorage.inst().addNewKnownBoards(lst);
+        final int added = FrostFilesStorage.inst().addNewKnownBoards(lst);
         return added;
     }
 
-    public static void deleteKnownBoard(Board b) {
+    public static void deleteKnownBoard(final Board b) {
         FrostFilesStorage.inst().deleteKnownBoard(b);
     }
 }
