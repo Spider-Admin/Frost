@@ -348,7 +348,7 @@ public class FcpRequest {
                     try {
                         splitfile.decode(segmentNo);
                     } catch (final Throwable e1) {
-                        logger.log(Level.SEVERE, "Exception thrown in getFECSplitFile(File, File, int, FrostDownloadItem)", e1);
+                        logger.log(Level.SEVERE, "segment decode failed", e1);
                         wasSegmentSuccessful[segmentNo] = false;
                         break;
                     }
@@ -387,12 +387,13 @@ public class FcpRequest {
             if( dlItem != null ) {
                 dlItem.setState(FrostDownloadItem.STATE_DECODING);
             }
+
             // decode after all segments have downloaded successfully
             for( int segmentNo=0; segmentNo < splitfile.getSegmentCount(); segmentNo++ ) {
                 try {
                     splitfile.decode(segmentNo);
                 } catch (final Throwable e1) {
-                    logger.log(Level.SEVERE, "Exception thrown in getFECSplitFile(File, File, int, FrostDownloadItem)", e1);
+                    logger.log(Level.SEVERE, "splitfile decode failed", e1);
                     success = false;
                     wasSegmentSuccessful[segmentNo] = false;
                     break;
