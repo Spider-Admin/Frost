@@ -18,6 +18,7 @@
 */
 package frost.util.migration;
 
+import java.io.*;
 import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
@@ -34,6 +35,7 @@ import frost.storage.perst.filelist.*;
 import frost.storage.perst.identities.*;
 import frost.storage.perst.messagearchive.*;
 import frost.storage.perst.messages.*;
+import frost.util.*;
 import frost.util.migration.migrate1to2.*;
 
 public class Migrate1to2 {
@@ -190,6 +192,9 @@ public class Migrate1to2 {
         dropAllTables();
 
         closeDatabase();
+
+        deleteMcKoiFiles();
+
         return true;
     }
 
@@ -379,5 +384,20 @@ public class Migrate1to2 {
         dropTable("BOARDS");
 
         System.out.println("Finished dropping database tables...");
+    }
+
+    private void deleteMcKoiFiles() {
+        // delete:
+        //  store/applayerdb.conf
+        //  store/log/*
+        //  store/data/*
+        try {
+            System.out.println("Deleting old McKoi files...");
+            FileAccess.deleteDir(new File("store/log"));
+            FileAccess.deleteDir(new File("store/data"));
+            new File("store/applayerdb.conf").delete();
+        } catch(final Throwable t) {
+            t.printStackTrace();
+        }
     }
 }
