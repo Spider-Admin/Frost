@@ -19,7 +19,7 @@
 package frost.fcp.fcp05;
 
 import java.io.*;
-import java.util.Arrays;
+import java.util.*;
 import java.util.logging.*;
 
 import freenet.support.*;
@@ -51,10 +51,10 @@ public class FecBlock
     protected int indexInFile; // index of this block in the file (data file _or_ check blocks file)
 
     protected long fileOffset; // exact offset in file (data or checkblocks) where this block starts
-    
+
     protected RandomAccessFileBucket rafBucket = null;
 
-    public FecBlock(int btype, File f, int segno, int ixInSeg, int ixInFile, int bsize, long foffs )
+    public FecBlock(final int btype, final File f, final int segno, final int ixInSeg, final int ixInFile, final int bsize, final long foffs )
     {
         this.blockType = btype;
         this.blockFile = f;
@@ -66,14 +66,15 @@ public class FecBlock
 
         this.currentState = STATE_TRANSFER_WAITING;
     }
-    
+
     public void close() {
         if( rafBucket != null ) {
             rafBucket.release();
+            rafBucket = null;
         }
     }
 
-    public RandomAccessFileBucket getRandomAccessFileBucket(boolean readOnly)
+    public RandomAccessFileBucket getRandomAccessFileBucket(final boolean readOnly)
     {
         if( rafBucket != null ) {
             return rafBucket;
@@ -84,7 +85,7 @@ public class FecBlock
                                            this.getBlockSize(),
                                            readOnly);
         }
-        catch (IOException e) {
+        catch (final IOException e) {
             logger.log(Level.SEVERE, "Exception thrown in getRandomAccessFileBucket(boolean readOnly)", e);
             return null;
         }
@@ -98,7 +99,7 @@ public class FecBlock
      */
     public Bucket getPaddedMemoryBucket()
     {
-        byte[] data = getPaddedMemoryArray();
+        final byte[] data = getPaddedMemoryArray();
         if( data != null )
         {
             return new ArrayBucket( data );
@@ -116,7 +117,7 @@ public class FecBlock
         byte[] data = null;
         try {
             data = new byte[ getBlockSize() ];
-            long filelen = this.blockFile.length();
+            final long filelen = this.blockFile.length();
             if( this.fileOffset > filelen )
             {
                 // block is behind end of file -> fill with 0
@@ -126,18 +127,20 @@ public class FecBlock
             {
                 // either file ends before block ends -> pad block to blockSize
                 // or block is completely contained in file, read
-                RandomAccessFile f = new RandomAccessFile( this.blockFile, "r" );
+                final RandomAccessFile f = new RandomAccessFile( this.blockFile, "r" );
                 f.seek( this.fileOffset );
                 int read = f.read( data );
                 f.close();
-                if( read < 0 )
+                if( read < 0 ) {
                     read = 0;
-                if( read < blockSize )
+                }
+                if( read < blockSize ) {
                     Arrays.fill( data, read, blockSize, (byte)0 );
+                }
             }
             return data;
         }
-        catch(Exception ex)
+        catch(final Exception ex)
         {
             logger.log(Level.SEVERE, "Error in FecBlock.getPaddedMemoryArray()", ex);
         }
@@ -159,7 +162,7 @@ public class FecBlock
         return chkKey;
     }
 
-    public void setChkKey(String key)
+    public void setChkKey(final String key)
     {
         this.chkKey = key;
     }
@@ -212,7 +215,7 @@ public class FecBlock
     /**
      * @param i
      */
-    public void setCurrentState(int i)
+    public void setCurrentState(final int i)
     {
         currentState = i;
     }
