@@ -36,7 +36,7 @@ public class PerstFrostMessageObject extends Persistent {
     long dateAndTime;
     int msgIndex;
 
-    String invalidReason;
+    String invalidReason; // if set, the message is invalid
 
     String fromName;
 
@@ -159,7 +159,6 @@ public class PerstFrostMessageObject extends Persistent {
 
     public FrostMessageObject toFrostMessageObject(
             final Board board,
-            final boolean isValidMessage,
             final boolean withContent,
             final boolean withAttachments)
     {
@@ -169,9 +168,11 @@ public class PerstFrostMessageObject extends Persistent {
         mo.setPerstFrostMessageObject(this);
 
         mo.setBoard(board);
-        // SELECT retrieves only valid messages:
-        mo.setValid(isValidMessage);
-        mo.setInvalidReason(invalidReason);
+
+        if( invalidReason != null && invalidReason.length() > 0 ) {
+            mo.setValid(false);
+            mo.setInvalidReason(invalidReason);
+        }
 
         mo.setMessageId(messageId);
         mo.setInReplyTo(inReplyTo);

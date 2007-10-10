@@ -217,6 +217,16 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
+    public int getInvalidMessageCount() {
+        int invalidMsgCount = 0;
+        for(final PerstFrostBoardObject bo : storageRoot.getBoardsByName()) {
+            if( bo.getInvalidMessagesIndex() != null ) {
+                invalidMsgCount += bo.getInvalidMessagesIndex().size();
+            }
+        }
+        return invalidMsgCount;
+    }
+
     public int getMessageCount() {
         int msgCount = 0;
         for(final PerstFrostBoardObject bo : storageRoot.getBoardsByName()) {
@@ -301,21 +311,24 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         // add to indices, check for duplicate msgId
 
         if( mo.getPerstFrostMessageObject() != null ) {
-            // already in store!
             logger.severe("msgInsertError: perst obj already set");
             return INSERT_ERROR; // skip msg
         }
 
         final Board targetBoard = mo.getBoard();
         if( targetBoard == null ) {
-            // already in store!
             logger.severe("msgInsertError: no board in msg");
             return INSERT_ERROR; // skip msg
         }
 
+        if( !storeInvalidMessages && !mo.isValid() ) {
+            // don't store invalid messages, they are usually not needed
+            return INSERT_OK;
+        }
+
         PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(targetBoard.getNameLowerCase());
         if( bo == null ) {
-            // create new board
+            // create new perst board
             logger.severe("Creating new perst board: "+targetBoard.getName());
             addBoard(targetBoard);
             bo = storageRoot.getBoardsByName().get(targetBoard.getNameLowerCase());
@@ -329,10 +342,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
 
         if( !mo.isValid() ) {
             // invalid message
-            if( storeInvalidMessages ) {
-                // we store it as requested by option. invalid messages are usually not needed.
-                bo.getInvalidMessagesIndex().put(mo.getDateAndTime().getMillis(), pmo);
-            }
+            bo.getInvalidMessagesIndex().put(mo.getDateAndTime().getMillis(), pmo);
         } else {
             if( mo.getMessageId() != null ) {
                 if( !bo.getMessageIdIndex().put(mo.getMessageId(), pmo) ) {
@@ -391,7 +401,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         if(!showDeleted && p.isDeleted) {
             return null;
         }
-        final FrostMessageObject mo = p.toFrostMessageObject(board, true, withContent, withAttachments);
+        final FrostMessageObject mo = p.toFrostMessageObject(board, withContent, withAttachments);
         return mo;
     }
 
@@ -444,7 +454,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
             if( archiveKeepFlaggedAndStarred && (p.isFlagged||p.isStarred) ) {
                 continue;
             }
-            final FrostMessageObject mo = p.toFrostMessageObject(board, true, false, false);
+            final FrostMessageObject mo = p.toFrostMessageObject(board, false, false);
             final int mode = mc.messageRetrieved(mo);
             if( mode == MessageArchivingCallback.STOP_ERROR ) {
                 return;
@@ -512,7 +522,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
             if(!showDeleted && p.isDeleted) {
                 continue;
             }
-            final FrostMessageObject mo = p.toFrostMessageObject(board, true, withContent, withAttachments);
+            final FrostMessageObject mo = p.toFrostMessageObject(board, withContent, withAttachments);
             final boolean shouldStop = mc.messageRetrieved(mo);
             if( shouldStop ) {
                 break;
@@ -560,7 +570,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
             if(!showDeleted && p.isDeleted) {
                 continue;
             }
-            final FrostMessageObject mo = p.toFrostMessageObject(board, true, withContent, withAttachments);
+            final FrostMessageObject mo = p.toFrostMessageObject(board, withContent, withAttachments);
             final boolean shouldStop = mc.messageRetrieved(mo);
             if( shouldStop ) {
                 break;
@@ -639,7 +649,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
 
         for( final PerstFrostBoardObject bo : storageRoot.getBoardsByName() ) {
             for( final PerstFrostMessageObject pmo : bo.getSentMessagesList() ) {
-                final FrostMessageObject mo = pmo.toFrostMessageObject(bo.getRefBoard(), true, false, false);
+                final FrostMessageObject mo = pmo.toFrostMessageObject(bo.getRefBoard(), false, false);
                 lst.add(mo);
             }
         }

@@ -229,13 +229,18 @@ public class UnsentMessageDatabaseTable {
 //        ps.close();
 //    }
 
-    private static void retrieveAttachments(final AppLayerDatabase db,final FrostMessageObject mo) throws SQLException {
+    private static void retrieveAttachments(
+            final AppLayerDatabase db,
+            final FrostMessageObject mo,
+            final long msgIdentity)
+    throws SQLException
+    {
         // retrieve attachments
         if( mo.hasFileAttachments() ) {
             final PreparedStatement p2 = db.prepareStatement(
                     "SELECT filename,filesize,filekey FROM UNSENDFILEATTACHMENTS"+
                     " WHERE msgref=? ORDER BY filename");
-            p2.setLong(1, mo.getMsgIdentity());
+            p2.setLong(1, msgIdentity);
             final ResultSet rs2 = p2.executeQuery();
             while(rs2.next()) {
                 String name, key;
@@ -254,7 +259,7 @@ public class UnsentMessageDatabaseTable {
             final PreparedStatement p2 = db.prepareStatement(
                     "SELECT boardname,boardpublickey,boardprivatekey,boarddescription FROM UNSENDBOARDATTACHMENTS"+
                     " WHERE msgref=? ORDER BY boardname");
-            p2.setLong(1, mo.getMsgIdentity());
+            p2.setLong(1, msgIdentity);
             final ResultSet rs2 = p2.executeQuery();
             while(rs2.next()) {
                 String name, pubkey, privkey, desc;
@@ -289,7 +294,7 @@ public class UnsentMessageDatabaseTable {
             final FrostUnsentMessageObject mo = new FrostUnsentMessageObject();
 
             int ix=1;
-            mo.setMsgIdentity(rs.getLong(ix++));
+            final long msgIdentity = rs.getLong(ix++);
             mo.setMessageId(rs.getString(ix++));
             mo.setInReplyTo(rs.getString(ix++));
             final int boardPrimkey = rs.getInt(ix++);
@@ -320,7 +325,7 @@ public class UnsentMessageDatabaseTable {
 
             mo.setBoard(board);
 
-            retrieveAttachments(db,mo);
+            retrieveAttachments(db,mo,msgIdentity);
 
             unsendMessages.add(mo);
         }

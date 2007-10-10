@@ -33,38 +33,36 @@ import frost.util.*;
 
 /**
  * This class holds all informations that are shown in the GUI and stored to the database.
- * It adds more fields than a MessageObjectFile uses. 
+ * It adds more fields than a MessageObjectFile uses.
  */
 public class FrostMessageObject extends AbstractMessageObject implements TableMember {
-    
+
     transient private PerstFrostMessageObject perstFrostMessageObject = null;
 
     // additional variables for use in GUI
     private boolean isValid = false;
     private String invalidReason = null;
-    
+
     private int index = -1;
     Board board = null;
     DateTime dateAndTime = null;
-    
+
     private boolean isDeleted = false;
     private boolean isNew = false;
     private boolean isReplied = false;
     private boolean isJunk = false;
     private boolean isFlagged = false; // !
     private boolean isStarred = false; // *
-    
+
     private boolean hasFileAttachments = false;
     private boolean hasBoardAttachments = false;
-    
+
     private ArrayList<String> inReplyToList = null;
-    
+
     protected String dateAndTimeString = null;
-    
-    protected long msgIdentity;
-    
+
     protected boolean isDummy = false;
-    
+
     public static boolean sortThreadRootMsgsAscending;
 
     /**
@@ -72,8 +70,8 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
      */
     public FrostMessageObject() {
     }
-    
-    public FrostMessageObject(boolean isRootnode) {
+
+    public FrostMessageObject(final boolean isRootnode) {
         setDummy(true);
         setDateAndTime(new DateTime(0, DateTimeZone.UTC));
         setSubject("(root)");
@@ -84,14 +82,14 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     /**
      * Construct a new FrostMessageObject with the data from a MessageXmlFile.
      */
-    public FrostMessageObject(MessageXmlFile mof, Board b, int msgIndex) {
+    public FrostMessageObject(final MessageXmlFile mof, final Board b, final int msgIndex) {
         setValid(true);
         setBoard(b);
         setIndex(msgIndex);
 
         try {
             setDateAndTime(mof.getDateAndTime());
-        } catch(Throwable t) {
+        } catch(final Throwable t) {
             // never happens, we already called this method
             setDateAndTime(new DateTime(0, DateTimeZone.UTC));
         }
@@ -110,7 +108,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         setSubject(mof.getSubject());
         setIdLinePos(mof.getIdLinePos());
         setIdLineLen(mof.getIdLineLen());
-        
+
         setHasBoardAttachments(mof.getAttachmentsOfType(Attachment.BOARD).size() > 0);
         setHasFileAttachments(mof.getAttachmentsOfType(Attachment.FILE).size() > 0);
     }
@@ -118,16 +116,16 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     /**
      * Construct a new FrostMessageObject for an invalid message (broken, encrypted for someone else, ...).
      */
-    public FrostMessageObject(Board b, DateTime dt, int msgIndex, String reason) {
+    public FrostMessageObject(final Board b, final DateTime dt, final int msgIndex, final String reason) {
         setValid( false );
         setInvalidReason(reason);
         setBoard(b);
         setDateAndTime( dt );
         setIndex( msgIndex );
     }
-    
+
     // create a dummy msg
-    public FrostMessageObject(String msgId, Board b, ArrayList<String> ll) {
+    public FrostMessageObject(final String msgId, final Board b, final ArrayList<String> ll) {
         setMessageId(msgId);
         setBoard(b);
         setDummyInReplyToList(ll);
@@ -139,15 +137,15 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         setFromName("");
     }
 
-    public void fillFromOtherMessage(FrostMessageObject mof) {
+    public void fillFromOtherMessage(final FrostMessageObject mof) {
 
         setDummy(false);
-        
+
         setNew(mof.isNew());
         setValid(mof.isValid());
         setBoard(mof.getBoard());
         setIndex(mof.getIndex());
-        
+
         setDateAndTime( mof.getDateAndTime() );
 
         setAttachmentList(mof.getAttachmentList());
@@ -163,29 +161,29 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         setSubject(mof.getSubject());
         setIdLinePos(mof.getIdLinePos());
         setIdLineLen(mof.getIdLineLen());
-        
+
         setHasBoardAttachments(mof.getAttachmentsOfType(Attachment.BOARD).size() > 0);
         setHasFileAttachments(mof.getAttachmentsOfType(Attachment.FILE).size() > 0);
     }
-    
+
     /**
      * This is called from within a cell renderer and should finish as fast as
      * possible. So we check for UNREAD and MARKED here, and return an array with
-     * the results. 
+     * the results.
      * This way we evaluate the childs only one time.
      * @return  boolean[2] where boolean[0] = hasUnread and boolean[1] = hasMarked
      */
     public boolean[] hasUnreadOrMarkedChilds() {
-        boolean[] result = new boolean[2];
+        final boolean[] result = new boolean[2];
         result[0] = result[1] = false;
-        
+
         if( getChildCount() == 0 ) {
             return result;
         }
-        
-        Enumeration e = breadthFirstEnumeration();
+
+        final Enumeration e = breadthFirstEnumeration();
         while(e.hasMoreElements()) {
-            FrostMessageObject m = (FrostMessageObject)e.nextElement();
+            final FrostMessageObject m = (FrostMessageObject)e.nextElement();
             if( m.isNew() ) {
                 result[0] = true;
                 // both true? finished.
@@ -215,6 +213,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     /**
      * Dynamically loads publicKey.
      */
+    @Override
     public String getPublicKey() {
         if( super.getPublicKey() == null ) {
             MessageStorage.inst().retrievePublicKey(this);
@@ -240,6 +239,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     /**
      * Dynamically loads content.
      */
+    @Override
     public String getContent() {
 
         if( content == null ) {
@@ -254,15 +254,16 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     /**
      * Dynamically loads attachments.
      */
-    public AttachmentList getAttachmentsOfType(int type) {
-        
+    @Override
+    public AttachmentList getAttachmentsOfType(final int type) {
+
         if( !containsAttachments() ) {
             if (attachments == null) {
                 attachments = new AttachmentList();
             }
             return attachments.getAllOfType(type);
         }
-        
+
         if (attachments == null) {
             MessageStorage.inst().retrieveAttachments(this);
             if (attachments == null) {
@@ -275,7 +276,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     /*
      * @see frost.gui.model.TableMember#compareTo(frost.gui.model.TableMember, int)
      */
-    public int compareTo(TableMember another, int tableColumnIndex) {
+    public int compareTo(final TableMember another, final int tableColumnIndex) {
         String c1 = (String) getValueAt(tableColumnIndex);
         String c2 = (String) another.getValueAt(tableColumnIndex);
         if (tableColumnIndex == 4) {
@@ -291,10 +292,10 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
                     c2 = c2.substring(4);
                 }
             }
-            int result = c1.compareToIgnoreCase(c2);
+            final int result = c1.compareToIgnoreCase(c2);
             if (result == 0) { // Items are the same. Date and time decides
-                String d1 = (String) getValueAt(4);
-                String d2 = (String) another.getValueAt(4);
+                final String d1 = (String) getValueAt(4);
+                final String d2 = (String) another.getValueAt(4);
                 return d1.compareTo(d2);
             } else {
                 return result;
@@ -305,7 +306,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     /*
      * @see frost.gui.model.TableMember#getValueAt(int)
      */
-    public Object getValueAt(int column) {
+    public Object getValueAt(final int column) {
         switch(column) {
             case 0: return Integer.toString(getIndex());
             case 1: return getFromName();
@@ -319,26 +320,26 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     public String getDateAndTimeString() {
         if( dateAndTimeString == null ) {
             // Build a String of format yyyy.mm.dd hh:mm:ssGMT
-            DateTime dateTime = new DateTime(getDateAndTime(), DateTimeZone.UTC);
-            DateMidnight date = dateTime.toDateMidnight();
-            TimeOfDay time = dateTime.toTimeOfDay();
+            final DateTime dateTime = new DateTime(getDateAndTime(), DateTimeZone.UTC);
+            final DateMidnight date = dateTime.toDateMidnight();
+            final TimeOfDay time = dateTime.toTimeOfDay();
 
-            String dateStr = DateFun.FORMAT_DATE_EXT.print(date);
-            String timeStr = DateFun.FORMAT_TIME_EXT.print(time);
+            final String dateStr = DateFun.FORMAT_DATE_EXT.print(date);
+            final String timeStr = DateFun.FORMAT_TIME_EXT.print(time);
 
-            StringBuilder sb = new StringBuilder(29);
+            final StringBuilder sb = new StringBuilder(29);
             sb.append(dateStr).append(" ").append(timeStr);
 
             this.dateAndTimeString = sb.toString();
         }
         return this.dateAndTimeString;
     }
-    
+
     public Board getBoard() {
         return board;
     }
 
-    public void setBoard(Board board) {
+    public void setBoard(final Board board) {
         this.board = board;
     }
 
@@ -346,7 +347,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         return hasBoardAttachments;
     }
 
-    public void setHasBoardAttachments(boolean hasBoardAttachments) {
+    public void setHasBoardAttachments(final boolean hasBoardAttachments) {
         this.hasBoardAttachments = hasBoardAttachments;
     }
 
@@ -354,10 +355,11 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         return hasFileAttachments;
     }
 
-    public void setHasFileAttachments(boolean hasFileAttachments) {
+    public void setHasFileAttachments(final boolean hasFileAttachments) {
         this.hasFileAttachments = hasFileAttachments;
     }
-    
+
+    @Override
     public boolean containsAttachments() {
         if( hasFileAttachments() || hasBoardAttachments() ) {
             return true;
@@ -369,7 +371,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         return index;
     }
 
-    public void setIndex(int index) {
+    public void setIndex(final int index) {
         this.index = index;
     }
 
@@ -377,7 +379,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         return invalidReason;
     }
 
-    public void setInvalidReason(String invalidReason) {
+    public void setInvalidReason(final String invalidReason) {
         this.invalidReason = invalidReason;
     }
 
@@ -385,7 +387,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         return isReplied;
     }
 
-    public void setReplied(boolean isReplied) {
+    public void setReplied(final boolean isReplied) {
         this.isReplied = isReplied;
     }
 
@@ -393,7 +395,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         return isDeleted;
     }
 
-    public void setDeleted(boolean isDeleted) {
+    public void setDeleted(final boolean isDeleted) {
         this.isDeleted = isDeleted;
     }
 
@@ -401,7 +403,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         return isJunk;
     }
 
-    public void setJunk(boolean isJunk) {
+    public void setJunk(final boolean isJunk) {
         this.isJunk = isJunk;
     }
 
@@ -409,7 +411,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         return isFlagged;
     }
 
-    public void setFlagged(boolean isFlagged) {
+    public void setFlagged(final boolean isFlagged) {
         this.isFlagged = isFlagged;
     }
 
@@ -417,7 +419,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         return isNew;
     }
 
-    public void setNew(boolean isNew) {
+    public void setNew(final boolean isNew) {
         this.isNew = isNew;
     }
 
@@ -425,7 +427,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         return isStarred;
     }
 
-    public void setStarred(boolean isStarred) {
+    public void setStarred(final boolean isStarred) {
         this.isStarred = isStarred;
     }
 
@@ -433,11 +435,11 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         return isValid;
     }
 
-    public void setValid(boolean isValid) {
+    public void setValid(final boolean isValid) {
         this.isValid = isValid;
     }
 
-    public void setDateAndTime(DateTime dt) {
+    public void setDateAndTime(final DateTime dt) {
         dateAndTime = dt;
     }
 
@@ -445,36 +447,28 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         return dateAndTime;
     }
 
-    public long getMsgIdentity() {
-        return msgIdentity;
-    }
-
-    public void setMsgIdentity(long msgIdentity) {
-        this.msgIdentity = msgIdentity;
-    }
-    
-    public void setDummy(boolean v) {
+    public void setDummy(final boolean v) {
         isDummy = v;
     }
-    
+
     public boolean isDummy() {
         return isDummy;
     }
-    
-    private void setDummyInReplyToList(ArrayList<String> l) {
+
+    private void setDummyInReplyToList(final ArrayList<String> l) {
         inReplyToList = l;
     }
-    
+
     public ArrayList<String> getInReplyToList() {
         if( inReplyToList == null ) {
             if( getInReplyTo() == null ) {
                 inReplyToList = new ArrayList<String>(0);
             } else {
                 inReplyToList = new ArrayList<String>();
-                String s = getInReplyTo();
-                StringTokenizer st = new StringTokenizer(s, ",");
+                final String s = getInReplyTo();
+                final StringTokenizer st = new StringTokenizer(s, ",");
                 while( st.hasMoreTokens() ) {
-                    String r = st.nextToken().trim();
+                    final String r = st.nextToken().trim();
                     if(r.length() > 0) {
                         inReplyToList.add(r);
                     }
@@ -483,7 +477,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         }
         return inReplyToList;
     }
-    
+
 //    private String dbg1(FrostMessageObject mo) {
 //        String s1;
 //        if( mo.isRoot() ) {
@@ -495,30 +489,31 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
 //        }
 //        return s1;
 //    }
-    
+
     public void resortChildren() {
         if( children == null || children.size() <= 1 ) {
             return;
         }
         // choose a comparator based on settings in SortStateBean
-        Comparator comparator = MessageTreeTableSortStateBean.getComparator(MessageTreeTableSortStateBean.getSortedColumn(), MessageTreeTableSortStateBean.isAscending());
+        final Comparator comparator = MessageTreeTableSortStateBean.getComparator(MessageTreeTableSortStateBean.getSortedColumn(), MessageTreeTableSortStateBean.isAscending());
         if( comparator != null ) {
             Collections.sort(children, comparator);
         }
     }
 
-    public void add(MutableTreeNode n) {
+    @Override
+    public void add(final MutableTreeNode n) {
         add(n, true);
     }
-    
+
     /**
      * Overwritten add to add new nodes sorted to a parent node
      */
-    public void add(MutableTreeNode nn, boolean silent) {
+    public void add(final MutableTreeNode nn, boolean silent) {
         // add sorted
-        DefaultMutableTreeNode n = (DefaultMutableTreeNode)nn; 
+        final DefaultMutableTreeNode n = (DefaultMutableTreeNode)nn;
         int[] ixs;
-        
+
         if( children == null ) {
             super.add(n);
             ixs = new int[] { 0 };
@@ -542,14 +537,14 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
                     insertPoint = Collections.binarySearch(children, n, MessageTreeTableSortStateBean.dateComparatorAscending);
                 }
             } else {
-                Comparator comparator = MessageTreeTableSortStateBean.getComparator(MessageTreeTableSortStateBean.getSortedColumn(), MessageTreeTableSortStateBean.isAscending());
+                final Comparator comparator = MessageTreeTableSortStateBean.getComparator(MessageTreeTableSortStateBean.getSortedColumn(), MessageTreeTableSortStateBean.isAscending());
                 if( comparator != null ) {
                     insertPoint = Collections.binarySearch(children, n, comparator);
                 } else {
                     insertPoint = 0;
                 }
             }
-            
+
             if( insertPoint < 0 ) {
                 insertPoint++;
                 insertPoint *= -1;
@@ -579,6 +574,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
 //        System.out.println("ADDED: "+dbg1(mo)+", TO: "+dbg1(this)+", IX="+ixs[0]+", silent="+silent);
     }
 
+    @Override
     public String toString() {
         return getSubject();
     }
@@ -586,7 +582,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     public PerstFrostMessageObject getPerstFrostMessageObject() {
         return perstFrostMessageObject;
     }
-    public void setPerstFrostMessageObject(PerstFrostMessageObject perstFrostMessageObject) {
+    public void setPerstFrostMessageObject(final PerstFrostMessageObject perstFrostMessageObject) {
         this.perstFrostMessageObject = perstFrostMessageObject;
     }
 }
