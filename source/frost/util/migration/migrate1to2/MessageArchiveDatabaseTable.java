@@ -301,13 +301,18 @@ public class MessageArchiveDatabaseTable {
 //        }
 //    }
 
-    private static void retrieveAttachments(final AppLayerDatabase db, final FrostMessageObject mo) throws SQLException {
+    private static void retrieveAttachments(
+            final AppLayerDatabase db,
+            final FrostMessageObject mo,
+            final long msgIdentity)
+    throws SQLException
+   {
         // retrieve attachments
         if( mo.hasFileAttachments() ) {
             final PreparedStatement p2 = db.prepareStatement(
                     "SELECT filename,filesize,filekey FROM MESSAGEARCHIVEFILEATTACHMENTS"+
                     " WHERE msgref=? ORDER BY filename");
-            p2.setLong(1, mo.getMsgIdentity());
+            p2.setLong(1, msgIdentity);
             final ResultSet rs2 = p2.executeQuery();
             while(rs2.next()) {
                 String name, key;
@@ -326,7 +331,7 @@ public class MessageArchiveDatabaseTable {
             final PreparedStatement p2 = db.prepareStatement(
                     "SELECT boardname,boardpublickey,boardprivatekey,boarddescription FROM MESSAGEARCHIVEBOARDATTACHMENTS"+
                     " WHERE msgref=? ORDER BY boardname");
-            p2.setLong(1, mo.getMsgIdentity());
+            p2.setLong(1, msgIdentity);
             final ResultSet rs2 = p2.executeQuery();
             while(rs2.next()) {
                 String name, pubkey, privkey, desc;
@@ -343,8 +348,12 @@ public class MessageArchiveDatabaseTable {
         }
     }
 
-    private static void retrieveMessageContent(final AppLayerDatabase db, final FrostMessageObject mo) throws SQLException {
-
+    private static void retrieveMessageContent(
+            final AppLayerDatabase db,
+            final FrostMessageObject mo,
+            final long msgIdentity)
+    throws SQLException
+    {
         // invalid messages have no content (e.g. encrypted for someone else,...)
         if( !mo.isValid() ) {
             mo.setContent("");
@@ -352,14 +361,14 @@ public class MessageArchiveDatabaseTable {
         }
 
         final PreparedStatement p2 = db.prepareStatement("SELECT msgcontent FROM MESSAGEARCHIVECONTENTS WHERE msgref=?");
-        p2.setLong(1, mo.getMsgIdentity());
+        p2.setLong(1, msgIdentity);
         final ResultSet rs2 = p2.executeQuery();
         if(rs2.next()) {
             String content;
             content = rs2.getString(1);
             mo.setContent(content);
         } else {
-            logger.severe("Error: No content for msgref="+mo.getMsgIdentity()+", msgid="+mo.getMessageId());
+            logger.severe("Error: No content for msgref="+msgIdentity+", msgid="+mo.getMessageId());
             mo.setContent("");
         }
         rs2.close();
@@ -373,7 +382,7 @@ public class MessageArchiveDatabaseTable {
         mo.setValid(true);
 
         int ix=1;
-        mo.setMsgIdentity(rs.getLong(ix++));
+        final long msgIdentity = rs.getLong(ix++);
         mo.setMessageId(rs.getString(ix++));
         mo.setInReplyTo(rs.getString(ix++));
         mo.setDateAndTime(new DateTime(rs.getLong(ix++), DateTimeZone.UTC));
@@ -399,8 +408,8 @@ public class MessageArchiveDatabaseTable {
 
         final String boardName = rs.getString(ix++);
 
-        retrieveMessageContent(db, mo);
-        retrieveAttachments(db, mo);
+        retrieveMessageContent(db, mo, msgIdentity);
+        retrieveAttachments(db, mo, msgIdentity);
 
         mo.setUserObject(boardName);
 

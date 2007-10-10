@@ -31,7 +31,7 @@ import frost.storage.*;
 public class MessageDatabaseTable {
 
     private final Logger logger = Logger.getLogger(MessageDatabaseTable.class.getName());
-    
+
 //    public final int INSERT_OK        = 1;
 //    public final int INSERT_DUPLICATE = 2;
 //    public final int INSERT_ERROR     = 3;
@@ -103,9 +103,9 @@ public class MessageDatabaseTable {
 //        "publickey VARCHAR,"+
 //        "isdeleted BOOLEAN,"+
 //        "isnew BOOLEAN,"+
-//        "isreplied BOOLEAN,"+ 
+//        "isreplied BOOLEAN,"+
 //        "isjunk BOOLEAN,"+
-//        "isflagged BOOLEAN,"+ 
+//        "isflagged BOOLEAN,"+
 //        "isstarred BOOLEAN,"+
 //        "hasfileattachment BOOLEAN,"+
 //        "hasboardattachment BOOLEAN,"+
@@ -116,7 +116,7 @@ public class MessageDatabaseTable {
 //        getBoardConstraint()+       // only for messages , not for sent messages
 //        getUniqueMsgConstraint()+   // only for messages and sent messages
 //        ")";
-//    
+//
 //    // this index is really important because we select messageids
 //    private final String SQL_DDL_MESSAGES_INDEX_MSGID =
 //        "CREATE UNIQUE INDEX "+getMsgIdIndexName()+" ON "+getMessageTableName()+" ( messageid )";
@@ -178,18 +178,18 @@ public class MessageDatabaseTable {
 //
 //        AttachmentList files = mo.getAttachmentsOfType(Attachment.FILE);
 //        AttachmentList boards = mo.getAttachmentsOfType(Attachment.BOARD);
-//        
+//
 //        // insert msg and all attachments
 //        Connection conn = AppLayerDatabase.getInstance().getPooledConnection();
 //        try {
 //            conn.setAutoCommit(false);
-//        
+//
 //            PreparedStatement ps = conn.prepareStatement(
 //                "INSERT INTO "+getMessageTableName()+" ("+
 //                "primkey,messageid,inreplyto,isvalid,invalidreason,msgdatetime,msgindex,board,fromname,subject,recipient,signature," +
 //                "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,hasfileattachment,hasboardattachment,idlinepos,idlinelen"+
 //                ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
-//            
+//
 //            Long identity = null;
 //            Statement stmt = AppLayerDatabase.getInstance().createStatement();
 //            ResultSet rs = stmt.executeQuery("select UNIQUEKEY('"+getMessageTableName()+"')");
@@ -200,14 +200,14 @@ public class MessageDatabaseTable {
 //            }
 //            rs.close();
 //            stmt.close();
-//            
+//
 //            int i=1;
 //            ps.setLong(i++, identity.longValue()); // primkey
 //            ps.setString(i++, mo.getMessageId()); // messageid
 //            ps.setString(i++, mo.getInReplyTo()); // inreplyto
 //            ps.setBoolean(i++, mo.isValid()); // isvalid
 //            ps.setString(i++, mo.getInvalidReason()); // invalidreason
-//            ps.setLong(i++, mo.getDateAndTime().getMillis()); // date+time  
+//            ps.setLong(i++, mo.getDateAndTime().getMillis()); // date+time
 //            ps.setInt(i++, mo.getIndex()); // index
 //            ps.setInt(i++, mo.getBoard().getPrimaryKey().intValue()); // board
 //            ps.setString(i++, mo.getFromName()); // from
@@ -230,7 +230,7 @@ public class MessageDatabaseTable {
 //            ps.setBoolean(i++, (boards.size() > 0)); // hasboardattachment
 //            ps.setInt(i++, mo.getIdLinePos()); // idlinepos
 //            ps.setInt(i++, mo.getIdLineLen()); // idlinelen
-//            
+//
 //            int inserted;
 //
 //            try {
@@ -238,14 +238,14 @@ public class MessageDatabaseTable {
 //            } finally {
 //                ps.close();
 //            }
-//    
+//
 //            if( inserted == 0 ) {
 //                logger.log(Level.SEVERE, "message insert returned 0 !!!");
 //                throw new Exception("message insert returned 0 !!!");
 //            }
-//            
+//
 //            mo.setMsgIdentity(identity.longValue());
-//            
+//
 //            // content
 //            PreparedStatement pc = conn.prepareStatement(
 //                    "INSERT INTO "+getContentTableName()+
@@ -262,7 +262,7 @@ public class MessageDatabaseTable {
 //                logger.log(Level.SEVERE, "message content insert returned 0 !!!");
 //                throw new Exception("message content insert returned 0 !!!");
 //            }
-//    
+//
 //            // attachments
 //            if( files.size() > 0 ) {
 //                PreparedStatement p = conn.prepareStatement(
@@ -273,10 +273,10 @@ public class MessageDatabaseTable {
 //                    for(Iterator it=files.iterator(); it.hasNext(); ) {
 //                        FileAttachment fa = (FileAttachment)it.next();
 //                        int ix=1;
-//                        p.setLong(ix++, mo.getMsgIdentity()); 
-//                        p.setString(ix++, fa.getFilename()); 
-//                        p.setLong(ix++, fa.getFileSize()); 
-//                        p.setString(ix++, fa.getKey()); 
+//                        p.setLong(ix++, mo.getMsgIdentity());
+//                        p.setString(ix++, fa.getFilename());
+//                        p.setLong(ix++, fa.getFileSize());
+//                        p.setString(ix++, fa.getKey());
 //                        int ins = p.executeUpdate();
 //                        if( ins == 0 ) {
 //                            logger.log(Level.SEVERE, "fileattachment insert returned 0 !!!");
@@ -297,11 +297,11 @@ public class MessageDatabaseTable {
 //                        BoardAttachment ba = (BoardAttachment)it.next();
 //                        Board b = ba.getBoardObj();
 //                        int ix=1;
-//                        p.setLong(ix++, mo.getMsgIdentity()); 
-//                        p.setString(ix++, b.getNameLowerCase()); 
-//                        p.setString(ix++, b.getPublicKey()); 
-//                        p.setString(ix++, b.getPrivateKey()); 
-//                        p.setString(ix++, b.getDescription()); 
+//                        p.setLong(ix++, mo.getMsgIdentity());
+//                        p.setString(ix++, b.getNameLowerCase());
+//                        p.setString(ix++, b.getPublicKey());
+//                        p.setString(ix++, b.getPrivateKey());
+//                        p.setString(ix++, b.getDescription());
 //                        int ins = p.executeUpdate();
 //                        if( ins == 0 ) {
 //                            logger.log(Level.SEVERE, "boardattachment insert returned 0 !!!");
@@ -334,9 +334,9 @@ public class MessageDatabaseTable {
 //                    "', board="+mo.getBoard().getName()+", date='"+mo.getDateAndTimeString()+"', index="+mo.getIndex(), t);
 //                try { conn.rollback(); } catch(Throwable t1) { logger.log(Level.SEVERE, "Exception during rollback", t1); }
 //            }
-//            
+//
 //            try { conn.setAutoCommit(true); } catch(Throwable t1) { }
-//            
+//
 //            if( isDuplicate ) {
 //                return INSERT_DUPLICATE; // skip msg
 //            } else {
@@ -365,7 +365,7 @@ public class MessageDatabaseTable {
 //        ps.setLong(ix++, mo.getDateAndTime().getMillis()); // date
 //        ps.setInt(ix++, mo.getIndex()); // index
 //        ps.setInt(ix++, mo.getBoard().getPrimaryKey().intValue()); // board
-//        
+//
 //        int updated = ps.executeUpdate();
 //        if( updated == 0 ) {
 //            System.out.println("UPDATED is 0!!!!");
@@ -373,15 +373,20 @@ public class MessageDatabaseTable {
 //
 //        ps.close();
 //    }
-    
-    protected void retrieveAttachments(AppLayerDatabase db, FrostMessageObject mo) throws SQLException {
+
+    protected void retrieveAttachments(
+            final AppLayerDatabase db,
+            final FrostMessageObject mo,
+            final long msgIdentity)
+    throws SQLException
+    {
         // retrieve attachments
         if( mo.hasFileAttachments() ) {
-            PreparedStatement p2 = db.prepareStatement(
+            final PreparedStatement p2 = db.prepareStatement(
                     "SELECT filename,filesize,filekey FROM "+getFileAttachmentsTableName()+
                     " WHERE msgref=? ORDER BY filename");
-            p2.setLong(1, mo.getMsgIdentity());
-            ResultSet rs2 = p2.executeQuery();
+            p2.setLong(1, msgIdentity);
+            final ResultSet rs2 = p2.executeQuery();
             while(rs2.next()) {
                 String name, key;
                 long size;
@@ -389,26 +394,26 @@ public class MessageDatabaseTable {
                 size = rs2.getLong(2);
                 key = rs2.getString(3);
 
-                FileAttachment fa = new FileAttachment(name, key, size);
+                final FileAttachment fa = new FileAttachment(name, key, size);
                 mo.addAttachment(fa);
             }
             rs2.close();
             p2.close();
         }
         if( mo.hasBoardAttachments() ) {
-            PreparedStatement p2 = db.prepareStatement(
+            final PreparedStatement p2 = db.prepareStatement(
                     "SELECT boardname,boardpublickey,boardprivatekey,boarddescription FROM "+getBoardAttachmentsTableName()+
                     " WHERE msgref=? ORDER BY boardname");
-            p2.setLong(1, mo.getMsgIdentity());
-            ResultSet rs2 = p2.executeQuery();
+            p2.setLong(1, msgIdentity);
+            final ResultSet rs2 = p2.executeQuery();
             while(rs2.next()) {
                 String name, pubkey, privkey, desc;
                 name = rs2.getString(1);
                 pubkey = rs2.getString(2);
                 privkey = rs2.getString(3);
                 desc = rs2.getString(4);
-                Board b = new Board(name, pubkey, privkey, desc);
-                BoardAttachment ba = new BoardAttachment(b);
+                final Board b = new Board(name, pubkey, privkey, desc);
+                final BoardAttachment ba = new BoardAttachment(b);
                 mo.addAttachment(ba);
             }
             rs2.close();
@@ -416,41 +421,46 @@ public class MessageDatabaseTable {
         }
     }
 
-    protected void retrieveMessageContent(AppLayerDatabase db, FrostMessageObject mo) throws SQLException {
-        
+    protected void retrieveMessageContent(
+            final AppLayerDatabase db,
+            final FrostMessageObject mo,
+            final long msgIdentity)
+    throws SQLException
+    {
         // invalid messages have no content (e.g. encrypted for someone else,...)
         if( !mo.isValid() ) {
             mo.setContent("");
             return;
         }
 
-        PreparedStatement p2 = db.prepareStatement(
+        final PreparedStatement p2 = db.prepareStatement(
                 "SELECT msgcontent FROM "+getContentTableName()+" WHERE msgref=?");
-        p2.setLong(1, mo.getMsgIdentity());
-        ResultSet rs2 = p2.executeQuery();
+        p2.setLong(1, msgIdentity);
+        final ResultSet rs2 = p2.executeQuery();
         if(rs2.next()) {
             String content;
             content = rs2.getString(1);
             mo.setContent(content);
         } else {
-            logger.severe("Error: No content for msgref="+mo.getMsgIdentity()+", msgid="+mo.getMessageId());
+            logger.severe("Error: No content for msgref="+msgIdentity+", msgid="+mo.getMessageId());
             mo.setContent("");
         }
         rs2.close();
         p2.close();
     }
-    
-    private FrostMessageObject resultSetToFrostMessageObject(AppLayerDatabase db,
-            ResultSet rs, Board board, boolean withContent, boolean withAttachments) 
-    throws SQLException 
+
+    private FrostMessageObject resultSetToFrostMessageObject(
+            final AppLayerDatabase db,
+            final ResultSet rs,
+            final Board board,
+            final boolean retrieveInvalidMessages)
+    throws SQLException
     {
-        FrostMessageObject mo = new FrostMessageObject();
+        final FrostMessageObject mo = new FrostMessageObject();
         mo.setBoard(board);
-        // SELECT retrieves only valid messages:
-        mo.setValid(true);
 
         int ix=1;
-        mo.setMsgIdentity(rs.getLong(ix++));
+        final long msgIdentity = rs.getLong(ix++);
         mo.setMessageId(rs.getString(ix++));
         mo.setInReplyTo(rs.getString(ix++));
         mo.setDateAndTime(new DateTime(rs.getLong(ix++), DateTimeZone.UTC));
@@ -471,198 +481,61 @@ public class MessageDatabaseTable {
         mo.setJunk(rs.getBoolean(ix++));
         mo.setFlagged(rs.getBoolean(ix++));
         mo.setStarred(rs.getBoolean(ix++));
-        
+
         mo.setHasFileAttachments( rs.getBoolean(ix++) );
         mo.setHasBoardAttachments( rs.getBoolean(ix++) );
 
         mo.setIdLinePos(rs.getInt(ix++)); // idlinepos
         mo.setIdLineLen(rs.getInt(ix++)); // idlinelen
-        
-        if( withContent ) {
-            retrieveMessageContent(db,mo);
+
+        mo.setSignatureV2(rs.getString(ix++));
+
+        mo.setValid(rs.getBoolean(ix++));
+        if( retrieveInvalidMessages && !mo.isValid() ) {
+            mo.setInvalidReason(rs.getString(ix++));
         }
 
-        if( withAttachments ) {
-            retrieveAttachments(db,mo);
-        }
-        
+        retrieveMessageContent(db,mo,msgIdentity);
+        retrieveAttachments(db,mo,msgIdentity);
+
         return mo;
     }
-    
-//    public synchronized void retrieveMessagesForShow(
-//            Board board,
-//            int maxDaysBack, 
-//            boolean withContent,
-//            boolean withAttachments,
-//            boolean showDeleted,
-//            boolean showUnreadOnly,
-//            boolean showOlderFlaggedAndStarred,
-//            MessageDatabaseTableCallback mc) 
-//    throws SQLException 
-//    {
-//        AppLayerDatabase db = AppLayerDatabase.getInstance();
-//        String sql =
-//            "SELECT "+
-//            "primkey,messageid,inreplyto,msgdatetime,msgindex,fromname,subject,recipient," +
-//            "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
-//            "hasfileattachment,hasboardattachment,idlinepos,idlinelen";
-//        sql += " FROM "+getMessageTableName()+" WHERE board=? AND isvalid=TRUE";
-//        if( !showDeleted ) {
-//            // don't select deleted msgs
-//            sql += " AND isdeleted=FALSE";
-//        }
-//        if( showUnreadOnly ) {
-//            // only new messages
-//            sql += " AND isnew=TRUE";
-//        }
-//        if( showOlderFlaggedAndStarred ) {
-//            // also all older msgs that are flagged or starred
-//            sql += " AND (msgdatetime>=? OR isflagged=TRUE OR isstarred=TRUE)";
-//        } else {
-//            sql += " AND msgdatetime>=?";
-//        }
-//
-//        PreparedStatement ps = db.prepareStatement(sql);
-//
-//        LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysBack);
-//        ps.setInt(1, board.getPrimaryKey().intValue());
-//        ps.setLong(2, localDate.toDateMidnight(DateTimeZone.UTC).getMillis());
-//
-//        ResultSet rs = ps.executeQuery();
-//
-//        while( rs.next() ) {
-//            FrostMessageObject mo = resultSetToFrostMessageObject(rs, board, withContent, withAttachments);
-//            boolean shouldStop = mc.messageRetrieved(mo); // pass to callback
-//            if( shouldStop ) {
-//                break;
-//            }
-//        }
-//
-//        rs.close();
-//        ps.close();
-//    }
 
-//    public void retrieveMessagesForSearch(
-//            Board board, 
-//            long startDate, 
-//            long endDate,
-//            boolean withContent,
-//            boolean withAttachments,
-//            boolean showDeleted, 
-//            MessageDatabaseTableCallback mc) 
-//    throws SQLException 
-//    {
-//        AppLayerDatabase db = AppLayerDatabase.getInstance();
-//        String sql =
-//            "SELECT "+
-//            "primkey,messageid,inreplyto,msgdatetime,msgindex,fromname,subject,recipient," +
-//            "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
-//            "hasfileattachment,hasboardattachment,idlinepos,idlinelen";
-//            sql += " FROM "+getMessageTableName()+" WHERE msgdatetime>=? AND msgdatetime<? AND board=? AND isvalid=TRUE AND isdeleted=?";
-//        PreparedStatement ps = db.prepareStatement(sql);
-//        
-//        ps.setLong(1, startDate);
-//        ps.setLong(2, endDate);
-//        ps.setInt(3, board.getPrimaryKey().intValue());
-//        ps.setBoolean(4, showDeleted);
-//        
-//        ResultSet rs = ps.executeQuery();
-//
-//        while( rs.next() ) {
-//            FrostMessageObject mo = resultSetToFrostMessageObject(rs, board, withContent, withAttachments);
-//            boolean shouldStop = mc.messageRetrieved(mo); // pass to callback
-//            if( shouldStop ) {
-//                break;
-//            }
-//        }
-//        rs.close();
-//        ps.close();
-//    }
+    public void retrieveAllMessages(
+            final AppLayerDatabase db,
+            final MessageCallback mc,
+            final List<Board> allBoards,
+            final boolean retrieveInvalidMessages)
+    throws SQLException
+    {
+        final String sql;
+        if( !retrieveInvalidMessages ) {
+            // get only valid messages, don't select invalidreason
+            sql =
+                "SELECT "+
+                "primkey,messageid,inreplyto,msgdatetime,msgindex,fromname,subject,recipient," +
+                "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
+                "hasfileattachment,hasboardattachment,idlinepos,idlinelen,signature,isvalid,board" +
+                " FROM "+getMessageTableName()+" WHERE isvalid=TRUE ORDER BY board,msgdatetime ASC";
+        } else {
+            // get all messages, also select invalidreason
+            sql =
+                "SELECT "+
+                "primkey,messageid,inreplyto,msgdatetime,msgindex,fromname,subject,recipient," +
+                "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
+                "hasfileattachment,hasboardattachment,idlinepos,idlinelen,signature,isvalid,invalidreason,board" +
+                " FROM "+getMessageTableName()+" ORDER BY board,msgdatetime ASC";
+        }
 
-//    public void retrieveMessagesForArchive(
-//            Board board, 
-//            int maxDaysOld, 
-//            boolean archiveKeepFlaggedAndStarred,
-//            MessageDatabaseTableCallback mc) 
-//    throws SQLException 
-//    {
-//        AppLayerDatabase db = AppLayerDatabase.getInstance();
-//        String sql =
-//            "SELECT "+
-//            "primkey,messageid,inreplyto,msgdatetime,msgindex,fromname,subject,recipient," +
-//            "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
-//            "hasfileattachment,hasboardattachment,idlinepos,idlinelen";
-//        sql += " FROM "+getMessageTableName()+" WHERE msgdatetime<? AND board=? AND isvalid=TRUE";
-//        if( archiveKeepFlaggedAndStarred ) {
-//            sql += " AND isflagged=FALSE AND isstarred=FALSE";
-//        }
-//         
-//        PreparedStatement ps = db.prepareStatement(sql);
-//        
-//        LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysOld);
-//        ps.setLong(1, localDate.toDateMidnight(DateTimeZone.UTC).getMillis());
-//        ps.setInt(2, board.getPrimaryKey().intValue());
-//        
-//        ResultSet rs = ps.executeQuery();
-//
-//        while( rs.next() ) {
-//            FrostMessageObject mo = resultSetToFrostMessageObject(rs, board, true, true);
-//            boolean shouldStop = mc.messageRetrieved(mo); // pass to callback
-//            if( shouldStop ) {
-//                break;
-//            }
-//        }
-//        rs.close();
-//        ps.close();
-//    }
-    
-//    public List<FrostMessageObject> retrieveAllMessages() throws SQLException {
-//        LinkedList<FrostMessageObject> list = new LinkedList<FrostMessageObject>();
-//        
-//        AppLayerDatabase db = AppLayerDatabase.getInstance();
-//        String sql =
-//            "SELECT "+
-//            "primkey,messageid,inreplyto,msgdatetime,msgindex,fromname,subject,recipient," +
-//            "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
-//            "hasfileattachment,hasboardattachment,idlinepos,idlinelen,board";
-//            sql += " FROM "+getMessageTableName();
-//        PreparedStatement ps = db.prepareStatement(sql);
-//        
-//        ResultSet rs = ps.executeQuery();
-//
-//        while( rs.next() ) {
-//            
-//            int boardIx = rs.getInt("board");
-//            Board board = MainFrame.getInstance().getTofTreeModel().getBoardByPrimaryKey(new Integer(boardIx));
-//            if( board == null ) {
-//                continue;
-//            }
-//            
-//            FrostMessageObject mo = resultSetToFrostMessageObject(rs, board, true, true);
-//            list.add( mo );
-//        }
-//        rs.close();
-//        ps.close();
-//        
-//        return list;
-//    }
+        final PreparedStatement ps = db.prepareStatement(sql);
 
-    public void retrieveAllMessages(AppLayerDatabase db, MessageCallback mc, List<Board> allBoards) throws SQLException {
-        String sql =
-            "SELECT "+
-            "primkey,messageid,inreplyto,msgdatetime,msgindex,fromname,subject,recipient," +
-            "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
-            "hasfileattachment,hasboardattachment,idlinepos,idlinelen,board,isvalid,signature";
-            sql += " FROM "+getMessageTableName()+" WHERE isvalid=TRUE ORDER BY board,msgdatetime ASC";
-        PreparedStatement ps = db.prepareStatement(sql);
-        
-        ResultSet rs = ps.executeQuery();
+        final ResultSet rs = ps.executeQuery();
 
         while( rs.next() ) {
-            
-            int boardIx = rs.getInt("board");
-            Board board = null; 
-            for(Board b : allBoards) {
+
+            final int boardIx = rs.getInt("board");
+            Board board = null;
+            for(final Board b : allBoards) {
                 if( b.getPerstFrostBoardObject().getBoardId() == boardIx) {
                     board = b;
                     break;
@@ -671,19 +544,172 @@ public class MessageDatabaseTable {
             if( board == null ) {
                 continue;
             }
-            
-            FrostMessageObject mo = resultSetToFrostMessageObject(db,rs, board, true, true);
-            
-            String signature = rs.getString("signature");
 
-            mo.setValid(true);
-            mo.setSignatureV2(signature);
+            final FrostMessageObject mo = resultSetToFrostMessageObject(db,rs, board, retrieveInvalidMessages);
 
             mc.messageRetrieved(mo);
         }
         rs.close();
         ps.close();
     }
+
+//  public synchronized void retrieveMessagesForShow(
+//          Board board,
+//          int maxDaysBack,
+//          boolean withContent,
+//          boolean withAttachments,
+//          boolean showDeleted,
+//          boolean showUnreadOnly,
+//          boolean showOlderFlaggedAndStarred,
+//          MessageDatabaseTableCallback mc)
+//  throws SQLException
+//  {
+//      AppLayerDatabase db = AppLayerDatabase.getInstance();
+//      String sql =
+//          "SELECT "+
+//          "primkey,messageid,inreplyto,msgdatetime,msgindex,fromname,subject,recipient," +
+//          "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
+//          "hasfileattachment,hasboardattachment,idlinepos,idlinelen";
+//      sql += " FROM "+getMessageTableName()+" WHERE board=? AND isvalid=TRUE";
+//      if( !showDeleted ) {
+//          // don't select deleted msgs
+//          sql += " AND isdeleted=FALSE";
+//      }
+//      if( showUnreadOnly ) {
+//          // only new messages
+//          sql += " AND isnew=TRUE";
+//      }
+//      if( showOlderFlaggedAndStarred ) {
+//          // also all older msgs that are flagged or starred
+//          sql += " AND (msgdatetime>=? OR isflagged=TRUE OR isstarred=TRUE)";
+//      } else {
+//          sql += " AND msgdatetime>=?";
+//      }
+//
+//      PreparedStatement ps = db.prepareStatement(sql);
+//
+//      LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysBack);
+//      ps.setInt(1, board.getPrimaryKey().intValue());
+//      ps.setLong(2, localDate.toDateMidnight(DateTimeZone.UTC).getMillis());
+//
+//      ResultSet rs = ps.executeQuery();
+//
+//      while( rs.next() ) {
+//          FrostMessageObject mo = resultSetToFrostMessageObject(rs, board, withContent, withAttachments);
+//          boolean shouldStop = mc.messageRetrieved(mo); // pass to callback
+//          if( shouldStop ) {
+//              break;
+//          }
+//      }
+//
+//      rs.close();
+//      ps.close();
+//  }
+
+//  public void retrieveMessagesForSearch(
+//          Board board,
+//          long startDate,
+//          long endDate,
+//          boolean withContent,
+//          boolean withAttachments,
+//          boolean showDeleted,
+//          MessageDatabaseTableCallback mc)
+//  throws SQLException
+//  {
+//      AppLayerDatabase db = AppLayerDatabase.getInstance();
+//      String sql =
+//          "SELECT "+
+//          "primkey,messageid,inreplyto,msgdatetime,msgindex,fromname,subject,recipient," +
+//          "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
+//          "hasfileattachment,hasboardattachment,idlinepos,idlinelen";
+//          sql += " FROM "+getMessageTableName()+" WHERE msgdatetime>=? AND msgdatetime<? AND board=? AND isvalid=TRUE AND isdeleted=?";
+//      PreparedStatement ps = db.prepareStatement(sql);
+//
+//      ps.setLong(1, startDate);
+//      ps.setLong(2, endDate);
+//      ps.setInt(3, board.getPrimaryKey().intValue());
+//      ps.setBoolean(4, showDeleted);
+//
+//      ResultSet rs = ps.executeQuery();
+//
+//      while( rs.next() ) {
+//          FrostMessageObject mo = resultSetToFrostMessageObject(rs, board, withContent, withAttachments);
+//          boolean shouldStop = mc.messageRetrieved(mo); // pass to callback
+//          if( shouldStop ) {
+//              break;
+//          }
+//      }
+//      rs.close();
+//      ps.close();
+//  }
+
+//  public void retrieveMessagesForArchive(
+//          Board board,
+//          int maxDaysOld,
+//          boolean archiveKeepFlaggedAndStarred,
+//          MessageDatabaseTableCallback mc)
+//  throws SQLException
+//  {
+//      AppLayerDatabase db = AppLayerDatabase.getInstance();
+//      String sql =
+//          "SELECT "+
+//          "primkey,messageid,inreplyto,msgdatetime,msgindex,fromname,subject,recipient," +
+//          "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
+//          "hasfileattachment,hasboardattachment,idlinepos,idlinelen";
+//      sql += " FROM "+getMessageTableName()+" WHERE msgdatetime<? AND board=? AND isvalid=TRUE";
+//      if( archiveKeepFlaggedAndStarred ) {
+//          sql += " AND isflagged=FALSE AND isstarred=FALSE";
+//      }
+//
+//      PreparedStatement ps = db.prepareStatement(sql);
+//
+//      LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysOld);
+//      ps.setLong(1, localDate.toDateMidnight(DateTimeZone.UTC).getMillis());
+//      ps.setInt(2, board.getPrimaryKey().intValue());
+//
+//      ResultSet rs = ps.executeQuery();
+//
+//      while( rs.next() ) {
+//          FrostMessageObject mo = resultSetToFrostMessageObject(rs, board, true, true);
+//          boolean shouldStop = mc.messageRetrieved(mo); // pass to callback
+//          if( shouldStop ) {
+//              break;
+//          }
+//      }
+//      rs.close();
+//      ps.close();
+//  }
+
+//  public List<FrostMessageObject> retrieveAllMessages() throws SQLException {
+//      LinkedList<FrostMessageObject> list = new LinkedList<FrostMessageObject>();
+//
+//      AppLayerDatabase db = AppLayerDatabase.getInstance();
+//      String sql =
+//          "SELECT "+
+//          "primkey,messageid,inreplyto,msgdatetime,msgindex,fromname,subject,recipient," +
+//          "signaturestatus,publickey,isdeleted,isnew,isreplied,isjunk,isflagged,isstarred,"+
+//          "hasfileattachment,hasboardattachment,idlinepos,idlinelen,board";
+//          sql += " FROM "+getMessageTableName();
+//      PreparedStatement ps = db.prepareStatement(sql);
+//
+//      ResultSet rs = ps.executeQuery();
+//
+//      while( rs.next() ) {
+//
+//          int boardIx = rs.getInt("board");
+//          Board board = MainFrame.getInstance().getTofTreeModel().getBoardByPrimaryKey(new Integer(boardIx));
+//          if( board == null ) {
+//              continue;
+//          }
+//
+//          FrostMessageObject mo = resultSetToFrostMessageObject(rs, board, true, true);
+//          list.add( mo );
+//      }
+//      rs.close();
+//      ps.close();
+//
+//      return list;
+//  }
 
 //    public int deleteExpiredMessages(Board board, int maxDaysOld, boolean archiveKeepFlaggedAndStarred) throws SQLException {
 //
@@ -699,21 +725,21 @@ public class MessageDatabaseTable {
 //        LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysOld);
 //        ps.setLong(1, localDate.toDateMidnight(DateTimeZone.UTC).getMillis());
 //        ps.setInt(2, board.getPrimaryKey().intValue());
-//        
+//
 //        int deletedCount = ps.executeUpdate();
 //
 //        ps.close();
-//        
+//
 //        return deletedCount;
 //    }
 
 //    public FrostMessageObject retrieveMessageByMessageId(
 //            Board board,
 //            String msgId,
-//            boolean withContent, 
-//            boolean withAttachments, 
-//            boolean showDeleted) 
-//    throws SQLException 
+//            boolean withContent,
+//            boolean withAttachments,
+//            boolean showDeleted)
+//    throws SQLException
 //    {
 //        AppLayerDatabase db = AppLayerDatabase.getInstance();
 //        String sql =
@@ -723,10 +749,10 @@ public class MessageDatabaseTable {
 //            "hasfileattachment,hasboardattachment,idlinepos,idlinelen";
 //            sql += " FROM "+getMessageTableName()+" WHERE board=? AND messageid=?";
 //        PreparedStatement ps = db.prepareStatement(sql);
-//        
+//
 //        ps.setInt(1, board.getPrimaryKey().intValue());
 //        ps.setString(2, msgId);
-//        
+//
 //        ResultSet rs = ps.executeQuery();
 //
 //        FrostMessageObject mo = null;
@@ -735,7 +761,7 @@ public class MessageDatabaseTable {
 //        }
 //        rs.close();
 //        ps.close();
-//        
+//
 //        return mo;
 //    }
 //
@@ -764,7 +790,7 @@ public class MessageDatabaseTable {
 //            ps.setLong(1, localDate.toDateMidnight(DateTimeZone.UTC).getMillis());
 //            ps.setInt(2, board.getPrimaryKey().intValue());
 //        }
-//        
+//
 //        int count = 0;
 //        ResultSet rs = ps.executeQuery();
 //        if( rs.next() ) {
@@ -793,9 +819,9 @@ public class MessageDatabaseTable {
 //            ps.setLong(1, localDate.toDateMidnight(DateTimeZone.UTC).getMillis());
 //            ps.setInt(2, board.getPrimaryKey().intValue());
 //        }
-//        
+//
 //        ps.setMaxRows(1);
-//        
+//
 //        boolean hasFlagged = false;
 //        ResultSet rs = ps.executeQuery();
 //        if( rs.next() ) {
@@ -824,9 +850,9 @@ public class MessageDatabaseTable {
 //            ps.setLong(1, localDate.toDateMidnight(DateTimeZone.UTC).getMillis());
 //            ps.setInt(2, board.getPrimaryKey().intValue());
 //        }
-//        
+//
 //        ps.setMaxRows(1);
-//        
+//
 //        boolean hasStarred = false;
 //        ResultSet rs = ps.executeQuery();
 //        if( rs.next() ) {
@@ -842,7 +868,7 @@ public class MessageDatabaseTable {
 //     * Returns message count by board. If maxDaysBack is <0 all messages are counted.
 //     */
 //    public int getMessageCount(Board board, int maxDaysBack) throws SQLException {
-//        
+//
 //        AppLayerDatabase db = AppLayerDatabase.getInstance();
 //        PreparedStatement ps;
 //        if( maxDaysBack < 0 ) {
@@ -855,7 +881,7 @@ public class MessageDatabaseTable {
 //            ps.setLong(1, localDate.toDateMidnight(DateTimeZone.UTC).getMillis());
 //            ps.setInt(2, board.getPrimaryKey().intValue());
 //        }
-//        
+//
 //        int count = 0;
 //        ResultSet rs = ps.executeQuery();
 //        if( rs.next() ) {
@@ -863,18 +889,18 @@ public class MessageDatabaseTable {
 //        }
 //        rs.close();
 //        ps.close();
-//        
+//
 //        return count;
 //    }
-//    
+//
 //    /**
 //     * Returns overall message count.
 //     */
 //    public int getMessageCount() throws SQLException {
-//        
+//
 //        AppLayerDatabase db = AppLayerDatabase.getInstance();
 //        PreparedStatement ps = db.prepareStatement("SELECT COUNT(primkey) FROM "+getMessageTableName()+" WHERE isvalid=TRUE");
-//        
+//
 //        int count = 0;
 //        ResultSet rs = ps.executeQuery();
 //        if( rs.next() ) {
@@ -882,7 +908,7 @@ public class MessageDatabaseTable {
 //        }
 //        rs.close();
 //        ps.close();
-//        
+//
 //        return count;
 //    }
 }

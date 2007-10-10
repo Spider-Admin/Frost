@@ -216,7 +216,7 @@ public class Migrate1to2 {
                 }
             };
 
-            new SentMessageDatabaseTable().retrieveAllMessages(AppLayerDatabase.getInstance(), mc, allBoards);
+            new SentMessageDatabaseTable().retrieveAllMessages(AppLayerDatabase.getInstance(), mc, allBoards, false);
             MessageStorage.inst().commit();
             return true;
         } catch(final Throwable t) {
@@ -271,8 +271,16 @@ public class Migrate1to2 {
                 }
             };
 
-            new MessageDatabaseTable().retrieveAllMessages(AppLayerDatabase.getInstance(), mc, allBoards);
+            // by default we don't migrate invalid messages
+            final boolean migrateInvalidMessages = Core.frostSettings.getBoolValue(SettingsClass.STORAGE_STORE_INVALID_MESSAGES);
+
+            new MessageDatabaseTable().retrieveAllMessages(AppLayerDatabase.getInstance(), mc, allBoards, migrateInvalidMessages);
             ms.commit();
+            if( migrateInvalidMessages ) {
+                System.out.println("INFO: Valid messages = "+ms.getMessageCount()+"; Invalid messages = "+ms.getInvalidMessageCount());
+            } else {
+                System.out.println("INFO: Valid messages = "+ms.getMessageCount());
+            }
             return true;
         } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Migration error!", t);
