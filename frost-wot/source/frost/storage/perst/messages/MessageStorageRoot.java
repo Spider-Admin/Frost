@@ -24,30 +24,30 @@ public class MessageStorageRoot extends Persistent {
 
     private Index<PerstFrostBoardObject> boardsByName;
     private Index<PerstFrostBoardObject> boardsById;
-    
+
     private Index<PerstIdentitiesMessages> identitiesMessages;
-    
+
     private int nextUniqueBoardId;
-    
+
     public MessageStorageRoot() {}
-    
-    public MessageStorageRoot(Storage storage) {
+
+    public MessageStorageRoot(final Storage storage) {
         nextUniqueBoardId = 1;
-    
+
         boardsByName = storage.createIndex(String.class, true);
         boardsById = storage.createIndex(int.class, true);
-        
+
         identitiesMessages = storage.createIndex(String.class, true);
     }
 
     public synchronized int getNextUniqueBoardId() {
-        int retval = nextUniqueBoardId;
+        final int retval = nextUniqueBoardId;
         nextUniqueBoardId++;
         modify();
         return retval;
     }
-    
-    public void initUniqueBoardId(int id) {
+
+    public void initUniqueBoardId(final int id) {
         nextUniqueBoardId = id;
         modify();
     }
