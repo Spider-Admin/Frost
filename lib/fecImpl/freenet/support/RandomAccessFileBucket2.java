@@ -2,17 +2,16 @@
 package freenet.support;
 
 import java.io.*;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * Bucket implementation that can efficiently access any arbitrary byte-range
  * of a file.
- *
  **/
 public class RandomAccessFileBucket2 implements Bucket {
     RandomAccessFile raf = null;
-    
-    public RandomAccessFileBucket2(File file, long offset, long len, boolean readOnly, RandomAccessFile r)
+
+    public RandomAccessFileBucket2(final File file, final long offset, final long len, boolean readOnly, final RandomAccessFile r)
         throws IOException {
         if (!(file.exists() && file.canRead())) {
             throw new IOException("Can't read file: " + file.getAbsolutePath());
@@ -28,7 +27,7 @@ public class RandomAccessFileBucket2 implements Bucket {
         setRange(offset, len);
     }
 
-    public synchronized void setRange(long offset, long len) throws IOException {
+    public synchronized void setRange(final long offset, long len) throws IOException {
         if (isReleased()) {
             throw new IOException("Attempt to use a released RandomAccessFileBucket: " + getName() );
         }
@@ -49,7 +48,7 @@ public class RandomAccessFileBucket2 implements Bucket {
     }
 
     public static class Range {
-        Range(long offset, long len) {
+        Range(final long offset, final long len) {
             this.offset = offset;
             this.len = len;
         }
@@ -75,7 +74,7 @@ public class RandomAccessFileBucket2 implements Bucket {
             throw new IOException("Attempt to use a released RandomAccessFileBucket: " + getName() );
         }
 
-        InputStream newIn = new RAInputStream(this, file.getAbsolutePath());
+        final InputStream newIn = new RAInputStream(this, file.getAbsolutePath());
         streams.addElement(newIn);
         return newIn;
     }
@@ -89,7 +88,7 @@ public class RandomAccessFileBucket2 implements Bucket {
             throw new IOException("Tried to write a read-only Bucket.");
         }
 
-        OutputStream newOut = new RAOutputStream(this, file.getAbsolutePath());
+        final OutputStream newOut = new RAOutputStream(this, file.getAbsolutePath());
         streams.addElement(newOut);
         return newOut;
     }
@@ -124,17 +123,14 @@ public class RandomAccessFileBucket2 implements Bucket {
             try {
                 if (streams.elementAt(i) instanceof InputStream) {
                     ((InputStream)streams.elementAt(i)).close();
-
-                }
-                else if (streams.elementAt(i) instanceof OutputStream) {
+                } else if (streams.elementAt(i) instanceof OutputStream) {
                     ((OutputStream)streams.elementAt(i)).close();
                 }
-            }
-            catch (IOException ioe) {
+            } catch (final IOException ioe) {
             }
         }
         streams.removeAllElements();
-	streams.trimToSize();
+        streams.trimToSize();
         // We don't delete anything because we don't own anything.
         released = true;
         return true;
@@ -142,6 +138,7 @@ public class RandomAccessFileBucket2 implements Bucket {
 
     public synchronized final boolean isReleased() { return released; }
 
+    @Override
     public void finalize() throws Throwable {
         if (!released) {
             release();
@@ -151,10 +148,15 @@ public class RandomAccessFileBucket2 implements Bucket {
     // REDFLAG: RETEST
     // set blocks = -1 for until end.
     // last block may have length < blockSize
-    public static Bucket[] segment(File file, int blockSize,
-                                   long offset, int blocks,  boolean readOnly, RandomAccessFile r)
-        throws IOException {
-
+    public static Bucket[] segment(
+            final File file,
+            final int blockSize,
+            final long offset,
+            int blocks,
+            boolean readOnly,
+            final RandomAccessFile r)
+    throws IOException
+    {
         if (!(file.exists() && file.canRead())) {
             throw new IOException("Can't read file: " + file.getAbsolutePath());
         }
@@ -167,7 +169,7 @@ public class RandomAccessFileBucket2 implements Bucket {
             throw new IllegalArgumentException("offset: " + offset);
         }
 
-        long length = file.length() - offset;
+        final long length = file.length() - offset;
         int nBlocks = (int) (length / blockSize);
         if ((length % blockSize) != 0) {
             nBlocks++;
@@ -177,10 +179,11 @@ public class RandomAccessFileBucket2 implements Bucket {
             blocks = nBlocks;
         }
         else if ((blocks > nBlocks) || (blocks < 1)) {
-            throw new IllegalArgumentException("blocks: " + blocks);
+            throw new IllegalArgumentException("blocks: " + blocks+"; nBlocks: "+nBlocks+"; blockSize: "+blockSize+
+                    "; offset: "+offset+"; fileLen: "+file.length()+"; length: "+length);
         }
 
-        Bucket[] ret = new Bucket[blocks];
+        final Bucket[] ret = new Bucket[blocks];
 
         for (int i = 0; i < blocks; i++) {
             final long localOffset = i * blockSize + offset;
@@ -200,7 +203,7 @@ public class RandomAccessFileBucket2 implements Bucket {
 //    private final static boolean vociferous = false;
 
     class RAInputStream extends InputStream  {
-        public RAInputStream(RandomAccessFileBucket2 rafb, String prefix) throws IOException {
+        public RAInputStream(final RandomAccessFileBucket2 rafb, final String prefix) throws IOException {
             this.rafb = rafb;
 //            raf = new RandomAccessFile(rafb.file, "r");
 //System.out.println("rafin, seek="+offset+"  len="+raf.length());
@@ -217,6 +220,7 @@ public class RandomAccessFileBucket2 implements Bucket {
             return (int)(rafb.offset + rafb.len - raf.getFilePointer());
         }
 
+        @Override
         public int read() throws java.io.IOException {
             synchronized (rafb) {
 //                println(".read()");
@@ -228,7 +232,8 @@ public class RandomAccessFileBucket2 implements Bucket {
             }
         }
 
-        public int read(byte[] bytes) throws java.io.IOException {
+        @Override
+        public int read(final byte[] bytes) throws java.io.IOException {
             synchronized (rafb) {
 //                println(".read(byte[])");
 //                checkValid();
@@ -243,7 +248,8 @@ public class RandomAccessFileBucket2 implements Bucket {
             }
         }
 
-        public int read(byte[] bytes, int a, int b) throws java.io.IOException {
+        @Override
+        public int read(final byte[] bytes, final int a, final int b) throws java.io.IOException {
             synchronized (rafb) {
 //                println(".read(byte[], int, int)");
 //                checkValid();
@@ -258,7 +264,8 @@ public class RandomAccessFileBucket2 implements Bucket {
             }
         }
 
-        public long skip(long a) throws java.io.IOException {
+        @Override
+        public long skip(final long a) throws java.io.IOException {
             synchronized (rafb) {
 //                println(".skip(long)");
 //                checkValid();
@@ -274,6 +281,7 @@ public class RandomAccessFileBucket2 implements Bucket {
             }
         }
 
+        @Override
         public int available() throws java.io.IOException {
             synchronized (rafb) {
 //                println(".available()");
@@ -282,6 +290,7 @@ public class RandomAccessFileBucket2 implements Bucket {
             }
         }
 
+        @Override
         public void close() throws java.io.IOException {
             synchronized (rafb) {
 //                println(".close()");
@@ -295,14 +304,17 @@ public class RandomAccessFileBucket2 implements Bucket {
         }
 
         // LATER: support if really needed.
-        public  void mark(int a) {
+        @Override
+        public  void mark(final int a) {
             // NOP
         }
 
+        @Override
         public void reset() throws java.io.IOException {
             // NOP
         }
 
+        @Override
         public boolean markSupported() {
             return false;
         }
@@ -320,7 +332,7 @@ public class RandomAccessFileBucket2 implements Bucket {
     }
 
     private class RAOutputStream extends OutputStream {
-        public RAOutputStream(RandomAccessFileBucket2 rafb, String pref) throws IOException {
+        public RAOutputStream(final RandomAccessFileBucket2 rafb, final String pref) throws IOException {
             this.rafb = rafb;
 //            raf = new RandomAccessFile(rafb.file, "rw");
 //System.out.println("rafout="+raf.toString()+"  seek="+(rafb.offset + rafb.localOffset));
@@ -331,11 +343,12 @@ public class RandomAccessFileBucket2 implements Bucket {
 
         ////////////////////////////////////////////////////////////
         // OutputStream implementation
-        public void write(int b) throws IOException {
+        @Override
+        public void write(final int b) throws IOException {
             synchronized (rafb) {
 //                println(".write(b)");
                 checkValid();
-                int nAvailable = bytesLeft();
+                final int nAvailable = bytesLeft();
                 if (nAvailable < 1) {
                     throw new IOException("Attempt to write past end of Bucket.");
                 }
@@ -343,11 +356,12 @@ public class RandomAccessFileBucket2 implements Bucket {
             }
         }
 
-        public void write(byte[] buf) throws IOException {
+        @Override
+        public void write(final byte[] buf) throws IOException {
             synchronized (rafb) {
 //                println(".write(buf)");
                 checkValid();
-                int nAvailable = bytesLeft();
+                final int nAvailable = bytesLeft();
                 if (nAvailable < buf.length) {
                     throw new IOException("Attempt to write past end of Bucket.");
                 }
@@ -355,11 +369,12 @@ public class RandomAccessFileBucket2 implements Bucket {
             }
         }
 
-        public void write(byte[] buf, int off, int tlen) throws IOException {
+        @Override
+        public void write(final byte[] buf, final int off, final int tlen) throws IOException {
             synchronized (rafb) {
 //                println(".write(buf,off,len)");
                 checkValid();
-                int nAvailable = bytesLeft();
+                final int nAvailable = bytesLeft();
                 if (nAvailable < tlen) {
                     throw new IOException("Attempt to write past end of Bucket.");
                 }
@@ -367,6 +382,7 @@ public class RandomAccessFileBucket2 implements Bucket {
             }
         }
 
+        @Override
         public void flush() throws IOException {
             synchronized (rafb) {
 //                println(".flush()");
@@ -376,6 +392,7 @@ public class RandomAccessFileBucket2 implements Bucket {
             }
         }
 
+        @Override
         public void close() throws IOException {
             synchronized (rafb) {
 //                println(".close()");
@@ -383,8 +400,8 @@ public class RandomAccessFileBucket2 implements Bucket {
                 if (rafb.streams.contains(RAOutputStream.this)) {
                     rafb.streams.removeElement(RAOutputStream.this);
                 }
-		rafb.streams.trimToSize();
-                long added = raf.getFilePointer() - rafb.offset;
+                rafb.streams.trimToSize();
+                final long added = raf.getFilePointer() - rafb.offset;
                 if (added > 0) {
                     // To get proper append behavior.
                     rafb.localOffset = added;
@@ -406,7 +423,7 @@ public class RandomAccessFileBucket2 implements Bucket {
 
         private RandomAccessFileBucket2 rafb = null;
 //        private RandomAccessFile raf = null;
-        private String prefix = "";
+        private final String prefix = "";
 
     }
     ////////////////////////////////////////////////////////////
@@ -417,5 +434,5 @@ public class RandomAccessFileBucket2 implements Bucket {
     private long len = -1;
     private boolean readOnly = false;
     private boolean released = false;
-    private Vector streams = new Vector();
+    private final Vector streams = new Vector();
 }
