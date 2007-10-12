@@ -404,6 +404,9 @@ public class Migrate1to2 {
             FileAccess.deleteDir(new File("store/log"));
             FileAccess.deleteDir(new File("store/data"));
             new File("store/applayerdb.conf").delete();
+            new File("repair_db.bat").delete();
+            new File("repair_db.sh").delete();
+            new File("exec.bat").delete();
         } catch(final Throwable t) {
             t.printStackTrace();
         }
