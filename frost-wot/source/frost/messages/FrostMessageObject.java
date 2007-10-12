@@ -39,13 +39,15 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
 
     transient private PerstFrostMessageObject perstFrostMessageObject = null;
 
+    transient private final static ArrayList<String> EMPTY_STRINGLIST = new ArrayList<String>(0);
+
     // additional variables for use in GUI
     private boolean isValid = false;
     private String invalidReason = null;
 
     private int index = -1;
-    Board board = null;
-    DateTime dateAndTime = null;
+    private Board board = null;
+    private DateTime dateAndTime = null;
 
     private boolean isDeleted = false;
     private boolean isNew = false;
@@ -59,9 +61,9 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
 
     private ArrayList<String> inReplyToList = null;
 
-    protected String dateAndTimeString = null;
+    private String dateAndTimeString = null;
 
-    protected boolean isDummy = false;
+    private boolean isDummy = false;
 
     public static boolean sortThreadRootMsgsAscending;
 
@@ -462,7 +464,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     public ArrayList<String> getInReplyToList() {
         if( inReplyToList == null ) {
             if( getInReplyTo() == null ) {
-                inReplyToList = new ArrayList<String>(0);
+                inReplyToList = EMPTY_STRINGLIST;
             } else {
                 inReplyToList = new ArrayList<String>();
                 final String s = getInReplyTo();
