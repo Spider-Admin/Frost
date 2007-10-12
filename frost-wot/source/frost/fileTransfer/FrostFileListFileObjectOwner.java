@@ -23,28 +23,28 @@ import org.garret.perst.*;
 public class FrostFileListFileObjectOwner extends Persistent {
 
     protected FrostFileListFileObject fileListFileObject;
-    
+
     protected String name;
     protected String owner;
-    
+
     protected String comment;
     protected String keywords;
     protected int rating;
-    
+
     protected String key;
-    
+
     protected long lastReceived = 0;
     protected long lastUploaded = 0;
-    
+
     public FrostFileListFileObjectOwner(
-            String newName,
-            String newOwner,
-            String newComment,
-            String newKeywords,
-            int newRating,
-            long newLastReceived,
-            long newLastUploaded,
-            String newKey) 
+            final String newName,
+            final String newOwner,
+            final String newComment,
+            final String newKeywords,
+            final int newRating,
+            final long newLastReceived,
+            final long newLastUploaded,
+            final String newKey)
     {
         name = newName;
         owner = newOwner;
@@ -70,19 +70,19 @@ public class FrostFileListFileObjectOwner extends Persistent {
         return lastUploaded;
     }
 
-    public void setLastReceived(long lastReceived) {
+    public void setLastReceived(final long lastReceived) {
         this.lastReceived = lastReceived;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
-    public void setLastUploaded(long newLastUploaded) {
+    public void setLastUploaded(final long newLastUploaded) {
         this.lastUploaded = newLastUploaded;
     }
 
-    public void setOwner(String owner) {
+    public void setOwner(final String owner) {
         this.owner = owner;
     }
 
@@ -90,7 +90,7 @@ public class FrostFileListFileObjectOwner extends Persistent {
         return comment;
     }
 
-    public void setComment(String comment) {
+    public void setComment(final String comment) {
         this.comment = comment;
     }
 
@@ -98,7 +98,7 @@ public class FrostFileListFileObjectOwner extends Persistent {
         return keywords;
     }
 
-    public void setKeywords(String keywords) {
+    public void setKeywords(final String keywords) {
         this.keywords = keywords;
     }
 
@@ -106,7 +106,7 @@ public class FrostFileListFileObjectOwner extends Persistent {
         return rating;
     }
 
-    public void setRating(int rating) {
+    public void setRating(final int rating) {
         this.rating = rating;
     }
 
@@ -114,7 +114,7 @@ public class FrostFileListFileObjectOwner extends Persistent {
         return key;
     }
 
-    public void setKey(String key) {
+    public void setKey(final String key) {
         this.key = key;
     }
 
@@ -122,7 +122,7 @@ public class FrostFileListFileObjectOwner extends Persistent {
         return fileListFileObject;
     }
 
-    public void setFileListFileObject(FrostFileListFileObject fileListFileObject) {
+    public void setFileListFileObject(final FrostFileListFileObject fileListFileObject) {
         this.fileListFileObject = fileListFileObject;
     }
 }

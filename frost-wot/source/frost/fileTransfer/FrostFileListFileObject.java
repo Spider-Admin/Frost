@@ -24,7 +24,6 @@ import java.util.logging.*;
 import org.garret.perst.*;
 import org.joda.time.*;
 
-import frost.fcp.*;
 import frost.fileTransfer.download.*;
 import frost.identities.*;
 import frost.storage.perst.filelist.*;
@@ -37,7 +36,7 @@ public class FrostFileListFileObject extends Persistent {
     private String sha = null;  // SHA of the file
     private long size = 0;      // Filesize
     private String key = null;  // CHK key
-    
+
     private long lastDownloaded = 0;
     private long lastUploaded = 0;
     private long firstReceived = 0;
@@ -45,7 +44,7 @@ public class FrostFileListFileObject extends Persistent {
 
     private long requestLastReceived = 0;  // time when we received the last request for this sha
     private int requestsReceivedCount = 0; // received requests count
-    
+
     private long requestLastSent = 0;      // time when we sent the last request for this file
     private int requestsSentCount = 0;     // sent requests count
 
@@ -59,22 +58,22 @@ public class FrostFileListFileObject extends Persistent {
     private transient Boolean hasInfosFromMultipleSources = null;
 
     private transient List<FrostDownloadItem> listeners;
-    
+
     /**
      * Used if item is loaded from database.
      */
     public FrostFileListFileObject(
-            String newSha1, 
-            long newSize, 
-            String newKey, 
-            long newLastDownloaded, 
-            long newLastUploaded, 
-            long newFirstReceived,
-            long newLastReceived,
-            long newRequestLastReceived,
-            int newRequestsReceivedCount,
-            long newRequestLastSent,
-            int newRequestSentCount) 
+            final String newSha1,
+            final long newSize,
+            final String newKey,
+            final long newLastDownloaded,
+            final long newLastUploaded,
+            final long newFirstReceived,
+            final long newLastReceived,
+            final long newRequestLastReceived,
+            final int newRequestsReceivedCount,
+            final long newRequestLastSent,
+            final int newRequestSentCount)
     {
         sha = newSha1;
         size = newSize;
@@ -95,8 +94,8 @@ public class FrostFileListFileObject extends Persistent {
      * this merges the data from this item in case this files is
      * already in the filelist (adds new owner/board).
      */
-    public FrostFileListFileObject(SharedFileXmlFile sfo, Identity owner, long timestamp) {
-        
+    public FrostFileListFileObject(final SharedFileXmlFile sfo, final Identity owner, final long timestamp) {
+
         sha = sfo.getSha();
         size = sfo.getSize().longValue();
         key = sfo.getKey();
@@ -108,16 +107,16 @@ public class FrostFileListFileObject extends Persistent {
         if( sfo.getKey() != null ) {
             if( sfo.getLastUploaded() != null ) {
                 try {
-                    DateTime dt = DateFun.FORMAT_DATE.parseDateTime(sfo.getLastUploaded());
+                    final DateTime dt = DateFun.FORMAT_DATE.parseDateTime(sfo.getLastUploaded());
                     lastUploadDate = dt.getMillis();
-                } catch(Throwable t) {
+                } catch(final Throwable t) {
                     logger.log(Level.SEVERE, " error parsing file last uploaded date", t);
                 }
             }
         }
         lastUploaded = lastUploadDate;
-        
-        FrostFileListFileObjectOwner ob = new FrostFileListFileObjectOwner(
+
+        final FrostFileListFileObjectOwner ob = new FrostFileListFileObjectOwner(
                 sfo.getFilename(),
                 owner.getUniqueName(),
                 sfo.getComment(),
@@ -132,15 +131,15 @@ public class FrostFileListFileObject extends Persistent {
 
     private IPersistentList<FrostFileListFileObjectOwner> getFrostFileListFileObjectOwnerList() {
         if( frostFileListFileObjectOwnerList == null ) {
-            frostFileListFileObjectOwnerList = FileListStorage.inst().createList(); // FIXME: is used without store also!
+            frostFileListFileObjectOwnerList = FileListStorage.inst().createList(); // ATTN: is used without store also!
         }
         return frostFileListFileObjectOwnerList;
     }
-    public void addFrostFileListFileObjectOwner(FrostFileListFileObjectOwner v) {
+    public void addFrostFileListFileObjectOwner(final FrostFileListFileObjectOwner v) {
         v.setFileListFileObject(this);
         getFrostFileListFileObjectOwnerList().add(v);
     }
-    public void deleteFrostFileListFileObjectOwner(FrostFileListFileObjectOwner v) {
+    public void deleteFrostFileListFileObjectOwner(final FrostFileListFileObjectOwner v) {
         getFrostFileListFileObjectOwnerList().remove(v);
     }
     public Iterator<FrostFileListFileObjectOwner> getFrostFileListFileObjectOwnerIterator() {
@@ -154,7 +153,7 @@ public class FrostFileListFileObject extends Persistent {
         return key;
     }
 
-    public void setKey(String key) {
+    public void setKey(final String key) {
         this.key = key;
         notifyListeners();
     }
@@ -163,7 +162,7 @@ public class FrostFileListFileObject extends Persistent {
         return lastDownloaded;
     }
 
-    public void setLastDownloaded(long lastDownloaded) {
+    public void setLastDownloaded(final long lastDownloaded) {
         this.lastDownloaded = lastDownloaded;
     }
 
@@ -171,7 +170,7 @@ public class FrostFileListFileObject extends Persistent {
         return lastUploaded;
     }
 
-    public void setLastUploaded(long lastUploaded) {
+    public void setLastUploaded(final long lastUploaded) {
         this.lastUploaded = lastUploaded;
         notifyListeners();
     }
@@ -180,7 +179,7 @@ public class FrostFileListFileObject extends Persistent {
         return lastReceived;
     }
 
-    public void setLastReceived(long lastReceived) {
+    public void setLastReceived(final long lastReceived) {
         this.lastReceived = lastReceived;
         notifyListeners();
     }
@@ -197,7 +196,7 @@ public class FrostFileListFileObject extends Persistent {
         return requestLastReceived;
     }
 
-    public void setRequestLastReceived(long requestLastReceived) {
+    public void setRequestLastReceived(final long requestLastReceived) {
         this.requestLastReceived = requestLastReceived;
         notifyListeners();
     }
@@ -206,7 +205,7 @@ public class FrostFileListFileObject extends Persistent {
         return requestLastSent;
     }
 
-    public void setRequestLastSent(long requestLastSent) {
+    public void setRequestLastSent(final long requestLastSent) {
         this.requestLastSent = requestLastSent;
         notifyListeners();
     }
@@ -215,7 +214,7 @@ public class FrostFileListFileObject extends Persistent {
         return requestsReceivedCount;
     }
 
-    public void setRequestsReceivedCount(int requestsReceivedCount) {
+    public void setRequestsReceivedCount(final int requestsReceivedCount) {
         this.requestsReceivedCount = requestsReceivedCount;
     }
 
@@ -223,35 +222,35 @@ public class FrostFileListFileObject extends Persistent {
         return requestsSentCount;
     }
 
-    public void setRequestsSentCount(int requestsSentCount) {
+    public void setRequestsSentCount(final int requestsSentCount) {
         this.requestsSentCount = requestsSentCount;
     }
-    
+
     public long getFirstReceived() {
         return firstReceived;
     }
-    public void setFirstReceived(long v) {
+    public void setFirstReceived(final long v) {
         firstReceived = v;
     }
-    
+
     static class MutableInt {
         public int i = 0;
         public String name = "";
         public int rating = 0;
     }
-    
+
     private static MutableInt defaultMutableInt = new MutableInt();
 
     public String getDisplayName() {
         if( displayName == null ) {
-            List<FrostFileListFileObjectOwner> lst = getFrostFileListFileObjectOwnerList();
+            final List<FrostFileListFileObjectOwner> lst = getFrostFileListFileObjectOwnerList();
             if( lst == null || lst.size() == 0 ) {
                 displayName = "(no sources)";
             } else {
                 // choose most often used name
-                Hashtable<String,MutableInt> ht = new Hashtable<String,MutableInt>();
-                for( FrostFileListFileObjectOwner e : lst ) {
-                    MutableInt mi = (MutableInt)ht.get( e.getName() );
+                final Hashtable<String,MutableInt> ht = new Hashtable<String,MutableInt>();
+                for( final FrostFileListFileObjectOwner e : lst ) {
+                    MutableInt mi = ht.get( e.getName() );
                     if( mi == null ) {
                         mi = new MutableInt();
                         mi.name = e.getName();
@@ -262,7 +261,7 @@ public class FrostFileListFileObject extends Persistent {
                     }
                 }
                 MutableInt bestMi = defaultMutableInt;
-                for( MutableInt mi : ht.values() ) {
+                for( final MutableInt mi : ht.values() ) {
                     if( mi.i > bestMi.i ) {
                         bestMi = mi;
                     }
@@ -280,7 +279,7 @@ public class FrostFileListFileObject extends Persistent {
         if( hasInfosFromMultipleSources == null ) {
             if( getFrostFileListFileObjectOwnerList().size() > 1 ) {
                 int valuesCount = 0;
-                for( FrostFileListFileObjectOwner o : getFrostFileListFileObjectOwnerList() ) {
+                for( final FrostFileListFileObjectOwner o : getFrostFileListFileObjectOwnerList() ) {
                     // valuesCount is increased by 1 per FrostFileListFileObjectOwner
                     if( o.getComment() != null && o.getComment().length() > 0 ) {
                         valuesCount++;
@@ -307,18 +306,18 @@ public class FrostFileListFileObject extends Persistent {
 
     public String getDisplayComment() {
         if( displayComment == null ) {
-            List<FrostFileListFileObjectOwner> lst = getFrostFileListFileObjectOwnerList();
+            final List<FrostFileListFileObjectOwner> lst = getFrostFileListFileObjectOwnerList();
             if( lst == null || lst.size() == 0 ) {
                 displayComment = "(no sources)";
             } else {
                 // choose most often used name
-                Hashtable<String,MutableInt> ht = new Hashtable<String,MutableInt>();
-                for( FrostFileListFileObjectOwner e : lst ) {
-                    String c = e.getComment();
+                final Hashtable<String,MutableInt> ht = new Hashtable<String,MutableInt>();
+                for( final FrostFileListFileObjectOwner e : lst ) {
+                    final String c = e.getComment();
                     if( c == null || c.length() == 0 ) {
                         continue;
                     }
-                    MutableInt mi = (MutableInt)ht.get( c );
+                    MutableInt mi = ht.get( c );
                     if( mi == null ) {
                         mi = new MutableInt();
                         mi.name = c;
@@ -329,7 +328,7 @@ public class FrostFileListFileObject extends Persistent {
                     }
                 }
                 MutableInt bestMi = defaultMutableInt;
-                for( MutableInt mi : ht.values() ) {
+                for( final MutableInt mi : ht.values() ) {
                     if( mi.i > bestMi.i ) {
                         bestMi = mi;
                     }
@@ -339,21 +338,21 @@ public class FrostFileListFileObject extends Persistent {
         }
         return displayComment;
     }
-    
+
     public String getDisplayKeywords() {
         if( displayKeywords == null ) {
-            List<FrostFileListFileObjectOwner> lst = getFrostFileListFileObjectOwnerList();
+            final List<FrostFileListFileObjectOwner> lst = getFrostFileListFileObjectOwnerList();
             if( lst == null || lst.size() == 0 ) {
                 displayKeywords = "(no sources)";
             } else {
                 // choose most often used name
-                Hashtable<String,MutableInt> ht = new Hashtable<String,MutableInt>();
-                for( FrostFileListFileObjectOwner e : lst ) {
-                    String c = e.getKeywords();
+                final Hashtable<String,MutableInt> ht = new Hashtable<String,MutableInt>();
+                for( final FrostFileListFileObjectOwner e : lst ) {
+                    final String c = e.getKeywords();
                     if( c == null || c.length() == 0 ) {
                         continue;
                     }
-                    MutableInt mi = (MutableInt)ht.get( c );
+                    MutableInt mi = ht.get( c );
                     if( mi == null ) {
                         mi = new MutableInt();
                         mi.name = c;
@@ -364,7 +363,7 @@ public class FrostFileListFileObject extends Persistent {
                     }
                 }
                 MutableInt bestMi = defaultMutableInt;
-                for( MutableInt mi : ht.values() ) {
+                for( final MutableInt mi : ht.values() ) {
                     if( mi.i > bestMi.i ) {
                         bestMi = mi;
                     }
@@ -377,15 +376,15 @@ public class FrostFileListFileObject extends Persistent {
 
     public int getDisplayRating() {
         if( displayRating < 0 ) {
-            List<FrostFileListFileObjectOwner> lst = getFrostFileListFileObjectOwnerList();
+            final List<FrostFileListFileObjectOwner> lst = getFrostFileListFileObjectOwnerList();
             if( lst == null || lst.size() == 0 ) {
                 return 0;
             }
             // choose most often used rating
             // choose most often used name
-            int ratings[] = new int[6];
-            for( FrostFileListFileObjectOwner e : lst ) {
-                int r = e.getRating();
+            final int ratings[] = new int[6];
+            for( final FrostFileListFileObjectOwner e : lst ) {
+                final int r = e.getRating();
                 if( r < 1 || r > 5 ) {
                     continue;
                 }
@@ -401,13 +400,13 @@ public class FrostFileListFileObject extends Persistent {
         }
         return displayRating;
     }
-    
-    public void addListener(FrostDownloadItem d) {
+
+    public void addListener(final FrostDownloadItem d) {
         if( !getListeners().contains(d) ) {
             getListeners().add(d);
         }
     }
-    public void removeListener(FrostDownloadItem d) {
+    public void removeListener(final FrostDownloadItem d) {
         if( getListeners().contains(d) ) {
             getListeners().remove(d);
         }
@@ -419,8 +418,7 @@ public class FrostFileListFileObject extends Persistent {
         return listeners;
     }
     private void notifyListeners() {
-        for(Iterator<FrostDownloadItem> i=getListeners().iterator(); i.hasNext(); ) {
-            FrostDownloadItem dl = i.next();
+        for( final FrostDownloadItem dl : getListeners() ) {
             dl.fireValueChanged();
         }
     }
