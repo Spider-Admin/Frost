@@ -461,10 +461,10 @@ public class TOF {
                 blockMsgBoardname = Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BOARDNAME_ENABLED);
             }
             public boolean messageRetrieved(final FrostMessageObject mo) {
-                if( isBlocked(mo, board, blockMsgSubject, blockMsgBody, blockMsgBoardname) == false ) {
+                if( !isBlocked(mo, board, blockMsgSubject, blockMsgBody, blockMsgBoardname) ) {
                     rootNode.add(mo);
                 } else {
-                    System.out.println("block!");
+                    System.out.println("blocked message");
                 }
                 return isCancel();
             }
@@ -475,7 +475,7 @@ public class TOF {
          */
         private class ThreadedMessageRetrieval implements MessageCallback {
 
-            FrostMessageObject rootNode;
+            final FrostMessageObject rootNode;
             LinkedList<FrostMessageObject> messageList = new LinkedList<FrostMessageObject>();
 
             public ThreadedMessageRetrieval(final FrostMessageObject root) {
@@ -522,9 +522,7 @@ public class TOF {
                 messageList.addAll(newLoadedMsgs);
 
                 // help the garbage collector
-                newLoadedMsgs.clear();
                 newLoadedMsgs = null;
-                messageIds.clear();
                 messageIds = null;
 
                 // all msgs are loaded and dummies for missing msgs were created, now build the threads
@@ -539,7 +537,6 @@ public class TOF {
                 }
 
                 // help the garbage collector
-//                messageList.clear();
                 messageList = null;
 
                 // build the threads
@@ -643,7 +640,7 @@ public class TOF {
                     for(int x=l.size()-1; x>=0; x--) {
                         final String anId = l.get(x);
                         if( anId == null ) {
-                            logger.log(Level.SEVERE, "Should never happen: message id is null!"+mo.getMessageId());
+                            logger.log(Level.SEVERE, "Should never happen: message id is null! msgId="+mo.getMessageId());
                             continue;
                         }
 
@@ -651,8 +648,7 @@ public class TOF {
                             continue;
                         }
 
-                        FrostMessageObject fmo = null;
-                        fmo = MessageStorage.inst().retrieveMessageByMessageId(
+                        FrostMessageObject fmo = MessageStorage.inst().retrieveMessageByMessageId(
                                 board,
                                 anId,
                                 false,
@@ -729,7 +725,7 @@ public class TOF {
                     final long l2 = System.currentTimeMillis();
                     tmr.buildThreads();
                     final long l3 = System.currentTimeMillis();
-                    // FIXME: debug output only!
+                    // TODO: debug output only!
                     System.out.println("loading board "+board.getName()+": load="+(l2-l1)+", build+subretrieve="+(l3-l2));
                 } else {
                     // load flat
@@ -785,8 +781,6 @@ public class TOF {
                     tofTreeModel.getSelectedNode().getName().equals( innerTargetBoard.getName() ) )
             {
                 final MessageTreeTable treeTable = MainFrame.getInstance().getMessageTreeTable();
-
-                final FrostMessageObject oldRootNode = treeTable.getRootNode();
 
                 treeTable.setNewRootNode(rootNode);
                 if( !Core.frostSettings.getBoolValue(SettingsClass.MSGTABLE_SHOW_COLLAPSED_THREADS) ) {
@@ -872,16 +866,13 @@ public class TOF {
         // Block by subject (and rest of the header)
         if ( blockMsgSubject ) {
             final String header = message.getSubject().toLowerCase();
-            final StringTokenizer blockWords = new StringTokenizer(Core.frostSettings.getValue(SettingsClass.MESSAGE_BLOCK_SUBJECT), ";");
-            boolean found = false;
-            while (blockWords.hasMoreTokens() && !found) {
+            final StringTokenizer blockWords =
+                new StringTokenizer(Core.frostSettings.getValue(SettingsClass.MESSAGE_BLOCK_SUBJECT), ";");
+            while (blockWords.hasMoreTokens()) {
                 final String blockWord = blockWords.nextToken().trim();
-                if ((blockWord.length() > 0) && (header.indexOf(blockWord) != -1)) {
-                    found = true;
+                if ((blockWord.length() > 0) && (header.indexOf(blockWord) >= 0)) {
+                    return true;
                 }
-            }
-            if (found) {
-                return true;
             }
         }
         // Block by body
@@ -889,33 +880,26 @@ public class TOF {
             final String content = message.getContent().toLowerCase();
             final StringTokenizer blockWords =
                 new StringTokenizer(Core.frostSettings.getValue(SettingsClass.MESSAGE_BLOCK_BODY), ";");
-            boolean found = false;
-            while (blockWords.hasMoreTokens() && !found) {
+            while (blockWords.hasMoreTokens()) {
                 final String blockWord = blockWords.nextToken().trim();
-                if ((blockWord.length() > 0) && (content.indexOf(blockWord) != -1)) {
-                    found = true;
+                if ((blockWord.length() > 0) && (content.indexOf(blockWord) >= 0)) {
+                    return true;
                 }
-            }
-            if (found) {
-                return true;
             }
         }
         // Block by attached boards
         if ( blockMsgBoardname ) {
             final List<BoardAttachment> boards = message.getAttachmentsOfType(Attachment.BOARD);
-            final StringTokenizer blockWords = new StringTokenizer(Core.frostSettings.getValue(SettingsClass.MESSAGE_BLOCK_BOARDNAME), ";");
-            boolean found = false;
-            while (blockWords.hasMoreTokens() && !found) {
+            final StringTokenizer blockWords =
+                new StringTokenizer(Core.frostSettings.getValue(SettingsClass.MESSAGE_BLOCK_BOARDNAME), ";");
+            while (blockWords.hasMoreTokens()) {
                 final String blockWord = blockWords.nextToken().trim();
                 for( final BoardAttachment boardAttachment : boards ) {
                     final Board boardObject = boardAttachment.getBoardObj();
                     if ((blockWord.length() > 0) && (boardObject.getName().equalsIgnoreCase(blockWord))) {
-                        found = true;
+                        return true;
                     }
                 }
-            }
-            if (found) {
-                return true;
             }
         }
         return false;
