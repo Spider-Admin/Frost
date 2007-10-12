@@ -18,17 +18,19 @@
 */
 package frost.boards;
 
+import java.util.*;
+
 import javax.swing.tree.*;
 
 /**
  * The base for board, folder, ...
  */
-public abstract class AbstractNode extends DefaultMutableTreeNode implements Comparable {
-    
+public abstract class AbstractNode extends DefaultMutableTreeNode implements Comparable<AbstractNode> {
+
     protected String name = null;
     protected String nameLowerCase = null; // often used
-    
-    protected AbstractNode(String newName) {
+
+    protected AbstractNode(final String newName) {
         super();
         name = newName;
     }
@@ -48,26 +50,38 @@ public abstract class AbstractNode extends DefaultMutableTreeNode implements Com
         return nameLowerCase;
     }
 
+    @Override
+    public Enumeration<AbstractNode> depthFirstEnumeration() {
+        return super.depthFirstEnumeration();
+    }
+
+    @Override
+    public Enumeration<AbstractNode> breadthFirstEnumeration() {
+        return super.breadthFirstEnumeration();
+    }
+
+    @Override
+    public Enumeration<AbstractNode> children() {
+        return super.children();
+    }
+
     /* (non-Javadoc)
      * @see java.lang.Comparable#compareTo(java.lang.Object)
      */
-    public int compareTo(Object o) {
-        if (o instanceof AbstractNode) {
-            AbstractNode board = (AbstractNode) o;
-            // If both objects are of the same kind, sort by name
-            if (board.isFolder() == isFolder()
-                || board.isBoard() == isBoard() ) {
-                //If both objects are of the same kind, sort by name
-                return getNameLowerCase().compareTo(board.getNameLowerCase());
-            } else {
-                //If they are of a different kind, the folder is first.
-                return isFolder() ? -1 : 1;
-            }
+    public int compareTo(final AbstractNode o) {
+        final AbstractNode board = o;
+        // If both objects are of the same kind, sort by name
+        if (board.isFolder() == isFolder()
+            || board.isBoard() == isBoard() ) {
+            //If both objects are of the same kind, sort by name
+            return getNameLowerCase().compareTo(board.getNameLowerCase());
         } else {
-            return 0;
+            //If they are of a different kind, the folder is first.
+            return isFolder() ? -1 : 1;
         }
     }
 
+    @Override
     public boolean isLeaf() {
         return true; // all return true except Folder
     }
@@ -84,7 +98,8 @@ public abstract class AbstractNode extends DefaultMutableTreeNode implements Com
     public boolean isSentMessagesFolder() {
         return false;
     }
-    
+
+    @Override
     public String toString() {
         return getName();
     }
