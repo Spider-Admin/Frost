@@ -973,9 +973,9 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
             }
         } else if (node.isFolder()) {
             // update all childs recursiv
-            final Enumeration leafs = node.children();
+            final Enumeration<AbstractNode> leafs = node.children();
             while (leafs.hasMoreElements()) {
-                refreshNode((AbstractNode) leafs.nextElement());
+                refreshNode(leafs.nextElement());
             }
         }
     }
@@ -1058,9 +1058,9 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
      */
     public void updateTree() {
         // fire update for node
-        final Enumeration e = (model.getRoot()).depthFirstEnumeration();
+        final Enumeration<AbstractNode> e = (model.getRoot()).depthFirstEnumeration();
         while (e.hasMoreElements()) {
-            model.nodeChanged(((TreeNode) e.nextElement()));
+            model.nodeChanged(e.nextElement());
         }
     }
     protected JMenuItem getConfigBoardMenuItem() {

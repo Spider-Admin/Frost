@@ -106,8 +106,8 @@ public class TofTreeModel extends DefaultTreeModel {
             final List<Board> boardsToDelete = new LinkedList<Board>();
             if( removeFromDatabase ) {
                 if( node.isFolder() ) {
-                    for(final Enumeration e = node.breadthFirstEnumeration(); e.hasMoreElements(); ) {
-                        final AbstractNode b = (AbstractNode) e.nextElement();
+                    for(final Enumeration<AbstractNode> e = node.breadthFirstEnumeration(); e.hasMoreElements(); ) {
+                        final AbstractNode b = e.nextElement();
                         if( !b.isFolder() ) {
                             boardsToDelete.add((Board)b);
                         }
@@ -161,9 +161,9 @@ public class TofTreeModel extends DefaultTreeModel {
      */
     public LinkedList<Board> getAllBoards() {
         final LinkedList<Board> boards = new LinkedList<Board>();
-        final Enumeration e = getRoot().depthFirstEnumeration();
+        final Enumeration<AbstractNode> e = getRoot().depthFirstEnumeration();
         while (e.hasMoreElements()) {
-            final AbstractNode child = (AbstractNode) e.nextElement();
+            final AbstractNode child = e.nextElement();
             if (child.isBoard()) {
                 boards.add((Board)child);
             }
@@ -181,9 +181,9 @@ public class TofTreeModel extends DefaultTreeModel {
      * Resets LastBackloadUpdateFinishedMillis for all boards.
      */
     public void resetLastBackloadUpdateFinishedMillis() {
-        final Enumeration e = getRoot().breadthFirstEnumeration();
+        final Enumeration<AbstractNode> e = getRoot().breadthFirstEnumeration();
         while (e.hasMoreElements()) {
-            final AbstractNode child = (AbstractNode) e.nextElement();
+            final AbstractNode child = e.nextElement();
             if (child.isBoard()) {
                 ((Board)child).setLastBackloadUpdateFinishedMillis(0);
             }
@@ -200,9 +200,9 @@ public class TofTreeModel extends DefaultTreeModel {
         if( boardName == null ) {
             return null;
         }
-        final Enumeration e = getRoot().depthFirstEnumeration();
+        final Enumeration<AbstractNode> e = getRoot().depthFirstEnumeration();
         while (e.hasMoreElements()) {
-            final AbstractNode child = (AbstractNode) e.nextElement();
+            final AbstractNode child = e.nextElement();
             if (child.isBoard()
                     && child.getName().compareToIgnoreCase(boardName) == 0)
             {

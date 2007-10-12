@@ -19,7 +19,6 @@
 package frost.boards;
 
 import frost.*;
-import frost.storage.perst.*;
 import frost.storage.perst.messages.*;
 import frost.util.*;
 import frost.util.gui.translation.*;
@@ -28,9 +27,9 @@ import frost.util.gui.translation.*;
  * Represents a board in the board tree.
  */
 public class Board extends AbstractNode {
-    
+
     private static Language language = Language.getInstance();
-    
+
     private PerstFrostBoardObject perstFrostBoardObject = null;
 
     private boolean autoUpdateEnabled = true; // must apply, no default
@@ -58,16 +57,16 @@ public class Board extends AbstractNode {
     private Boolean showSignedOnly = null;
 
     private boolean spammed = false;
-    
+
     private int timesUpdatedCount = 0;
-    
+
     private boolean hasFlaggedMessages = false;
     private boolean hasStarredMessages = false;
 
     /**
      * Constructs a new Board
      */
-    public Board(String name, String description) {
+    public Board(final String name, final String description) {
         this(name, null, null, description);
     }
 
@@ -78,7 +77,7 @@ public class Board extends AbstractNode {
      * @param privKey
      * @param description the description of the board, or null if none.
      */
-    public Board(String name, String pubKey, String privKey, String description) {
+    public Board(final String name, final String pubKey, final String privKey, final String description) {
         super(name);
         boardDescription = description;
         boardFileName = Mixed.makeFilename(getNameLowerCase());
@@ -93,6 +92,7 @@ public class Board extends AbstractNode {
      * otherwise.
      * @return true if there are new messages. False otherwise.
      */
+    @Override
     public boolean containsNewMessages() {
         if (getNewMessageCount() > 0) {
             return true;
@@ -104,14 +104,15 @@ public class Board extends AbstractNode {
     public void decNewMessageCount() {
         newMessageCount--;
     }
-    
+
     public void incTimesUpdatedCount() {
         timesUpdatedCount++;
     }
 
     public boolean getAutoUpdateEnabled() {
-        if (!isConfigured())
+        if (!isConfigured()) {
             return true;
+        }
         return autoUpdateEnabled;
     }
 
@@ -127,7 +128,7 @@ public class Board extends AbstractNode {
         return boardDescription;
     }
 
-    public void setDescription(String desc) {
+    public void setDescription(final String desc) {
         boardDescription = desc;
     }
 
@@ -199,7 +200,7 @@ public class Board extends AbstractNode {
     public int getNewMessageCount() {
         return newMessageCount;
     }
-    
+
     public int getTimesUpdatedCount() {
         return timesUpdatedCount;
     }
@@ -249,14 +250,16 @@ public class Board extends AbstractNode {
     public boolean isConfigured() {
         return isConfigured;
     }
-    
+
+    @Override
     public boolean isBoard() {
         return true;
     }
 
     public boolean isPublicBoard() {
-        if (publicKey == null && privateKey == null)
+        if (publicKey == null && privateKey == null) {
             return true;
+        }
         return false;
     }
 
@@ -286,42 +289,42 @@ public class Board extends AbstractNode {
         numberBlocked = 0;
     }
 
-    public void setAutoUpdateEnabled(boolean val) {
+    public void setAutoUpdateEnabled(final boolean val) {
         autoUpdateEnabled = val;
     }
 
-    public void setConfigured(boolean val) {
+    public void setConfigured(final boolean val) {
         isConfigured = val;
     }
 
-    public void setHideBad(Boolean val) {
+    public void setHideBad(final Boolean val) {
         hideBad = val;
     }
 
-    public void setHideCheck(Boolean val) {
+    public void setHideCheck(final Boolean val) {
         hideCheck = val;
     }
 
-    public void setHideObserve(Boolean val) {
+    public void setHideObserve(final Boolean val) {
         hideObserve = val;
     }
 
-    public void setLastUpdateStartMillis(long millis) {
+    public void setLastUpdateStartMillis(final long millis) {
         lastUpdateStartMillis = millis;
     }
-    public void setLastBackloadUpdateFinishedMillis(long millis) {
+    public void setLastBackloadUpdateFinishedMillis(final long millis) {
         lastBackloadUpdateFinishedMillis = millis;
     }
 
-    public void setMaxMessageDays(Integer val) {
+    public void setMaxMessageDays(final Integer val) {
         maxMessageDisplay = val;
     }
 
-    public void setMaxMessageDownload(Integer val) {
+    public void setMaxMessageDownload(final Integer val) {
         maxMessageDownload = val;
     }
 
-    public void setNewMessageCount(int val) {
+    public void setNewMessageCount(final int val) {
         newMessageCount = val;
     }
 
@@ -345,15 +348,15 @@ public class Board extends AbstractNode {
         publicKey = val;
     }
 
-    public void setShowSignedOnly(Boolean val) {
+    public void setShowSignedOnly(final Boolean val) {
         showSignedOnly = val;
     }
 
-    public void setSpammed(boolean val) {
+    public void setSpammed(final boolean val) {
         spammed = val;
     }
 
-    public void setUpdating(boolean val) {
+    public void setUpdating(final boolean val) {
         isUpdating = val;
     }
 
@@ -385,7 +388,7 @@ public class Board extends AbstractNode {
      * Tells the board that a new message was received right now.
      * Needed for selective board update.
      * We can't use newMessageCount for this because this field is updated
-     * also if a message is mark unread. 
+     * also if a message is mark unread.
      */
     public void newMessageReceived() {
     }
@@ -393,14 +396,14 @@ public class Board extends AbstractNode {
     public boolean hasFlaggedMessages() {
         return hasFlaggedMessages;
     }
-    public void hasFlaggedMessages(boolean newHasFlaggedMessages) {
+    public void hasFlaggedMessages(final boolean newHasFlaggedMessages) {
         this.hasFlaggedMessages = newHasFlaggedMessages;
     }
 
     public boolean hasStarredMessages() {
         return hasStarredMessages;
     }
-    public void hasStarredMessages(boolean newHasStarredMessages) {
+    public void hasStarredMessages(final boolean newHasStarredMessages) {
         this.hasStarredMessages = newHasStarredMessages;
     }
 
@@ -408,7 +411,7 @@ public class Board extends AbstractNode {
         return perstFrostBoardObject;
     }
 
-    public void setPerstFrostBoardObject(PerstFrostBoardObject perstFrostBoardObject) {
+    public void setPerstFrostBoardObject(final PerstFrostBoardObject perstFrostBoardObject) {
         this.perstFrostBoardObject = perstFrostBoardObject;
     }
 }

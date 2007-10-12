@@ -32,9 +32,9 @@ public class BoardUpdateBoardSelector {
     // TODO: update boards with most msgs in last X hours more often
     //  -> TOF calls Board.newMessageReceived. somehow count how many message were received during last X updates (?)
     //  -> OR check db table how many messages we received in last 24h?
-    
+
     // -> HOLD item for later release, maybe its not longer critical because we do not request the full backload each time now
-    
+
     private static Board lastSelectedBoard = null;
 
     /**
@@ -59,21 +59,14 @@ public class BoardUpdateBoardSelector {
      * Used only for automatic updating.
      * Returns NULL if no board to update is found.
      */
-    public static Board selectNextBoard(TofTreeModel tofTreeModel) {
-        
-        List<Board> allBoards = tofTreeModel.getAllBoards();
-        if (allBoards.size() == 0) {
-            lastSelectedBoard = null;
-            return null;
-        }
+    public static Board selectNextBoard(final TofTreeModel tofTreeModel) {
 
         // prefer boards that have waiting sendable messages
-        List<Board> boardsWithSendableMsgs = UnsentMessagesManager.getBoardsWithSendableMessages();
+        final List<Board> boardsWithSendableMsgs = UnsentMessagesManager.getBoardsWithSendableMessages();
         if( !boardsWithSendableMsgs.isEmpty() ) {
             Collections.sort(boardsWithSendableMsgs, lastUpdateStartMillisCmp);
-            for(Iterator i=boardsWithSendableMsgs.iterator(); i.hasNext(); ) {
+            for( final Board board : boardsWithSendableMsgs ) {
                 // choose first board that is not the last updated board
-                Board board = (Board) i.next();
                 // we compare pointers here
                 if( board != lastSelectedBoard ) {
                     lastSelectedBoard = board;
@@ -81,34 +74,40 @@ public class BoardUpdateBoardSelector {
                 }
             }
         }
-        
+
+        final List<Board> allBoards = tofTreeModel.getAllBoards();
+        if (allBoards.size() == 0) {
+            lastSelectedBoard = null;
+            return null;
+        }
+
         Collections.sort(allBoards, lastUpdateStartMillisCmp);
         // now first board in list should be the one with latest update of all
-        
+
         Board board;
         Board nextBoard = null;
 
-        long curTime = System.currentTimeMillis();
+        final long curTime = System.currentTimeMillis();
         // get in minutes
-        int minUpdateInterval = Core.frostSettings.getIntValue(SettingsClass.BOARD_AUTOUPDATE_MIN_INTERVAL);
+        final int minUpdateInterval = Core.frostSettings.getIntValue(SettingsClass.BOARD_AUTOUPDATE_MIN_INTERVAL);
         // min -> ms
-        long minUpdateIntervalMillis = (long)minUpdateInterval * 60L * 1000L;
+        final long minUpdateIntervalMillis = minUpdateInterval * 60L * 1000L;
 
-        for (Iterator i=allBoards.iterator(); i.hasNext(); ) {
-            board = (Board)i.next();
+        for( final Object element : allBoards ) {
+            board = (Board)element;
             if (nextBoard == null
                 && board.isAutomaticUpdateAllowed()
                 && (curTime - minUpdateIntervalMillis) > board.getLastUpdateStartMillis() // minInterval
                 && ( (board.isConfigured() && board.getAutoUpdateEnabled())
-                      || !board.isConfigured()) ) 
+                      || !board.isConfigured()) )
             {
                 nextBoard = board;
                 break;
             }
         }
-        
+
         lastSelectedBoard = nextBoard;
-        
+
         return nextBoard;
     }
 }

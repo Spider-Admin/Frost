@@ -902,14 +902,12 @@ public class TOF {
         }
         // Block by attached boards
         if ( blockMsgBoardname ) {
-            final List boards = message.getAttachmentsOfType(Attachment.BOARD);
+            final List<BoardAttachment> boards = message.getAttachmentsOfType(Attachment.BOARD);
             final StringTokenizer blockWords = new StringTokenizer(Core.frostSettings.getValue(SettingsClass.MESSAGE_BLOCK_BOARDNAME), ";");
             boolean found = false;
             while (blockWords.hasMoreTokens() && !found) {
                 final String blockWord = blockWords.nextToken().trim();
-                final Iterator boardsIterator = boards.iterator();
-                while (boardsIterator.hasNext()) {
-                    final BoardAttachment boardAttachment = (BoardAttachment) boardsIterator.next();
+                for( final BoardAttachment boardAttachment : boards ) {
                     final Board boardObject = boardAttachment.getBoardObj();
                     if ((blockWord.length() > 0) && (boardObject.getName().equalsIgnoreCase(blockWord))) {
                         found = true;
@@ -979,9 +977,9 @@ public class TOF {
     }
 
     private void searchAllNewMessages() {
-        final Enumeration e = ((DefaultMutableTreeNode) tofTreeModel.getRoot()).depthFirstEnumeration();
+        final Enumeration<AbstractNode> e = tofTreeModel.getRoot().depthFirstEnumeration();
         while( e.hasMoreElements() ) {
-            final AbstractNode node = (AbstractNode) e.nextElement();
+            final AbstractNode node = e.nextElement();
             if( node.isBoard() ) {
                 searchNewMessagesInBoard((Board)node);
             }
@@ -992,8 +990,6 @@ public class TOF {
         if( !board.isBoard() ) {
             return;
         }
-
-        final int daysToRead = board.getMaxMessageDisplay();
 
         final int beforeMessages = board.getNewMessageCount(); // remember old val to track if new msg. arrived
 
@@ -1017,11 +1013,11 @@ public class TOF {
         board.hasFlaggedMessages(hasFlagged);
         board.hasStarredMessages(hasStarred);
 
-        // now a board is finished, update the tree
+        // update the tree
         SwingUtilities.invokeLater( new Runnable() {
-               public void run() {
-                   MainFrame.getInstance().updateTofTree(board);
-               }
-           });
+            public void run() {
+                MainFrame.getInstance().updateTofTree(board);
+            }
+        });
     }
 }
