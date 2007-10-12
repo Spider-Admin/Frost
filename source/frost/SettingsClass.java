@@ -295,8 +295,16 @@ public class SettingsClass implements ExitSavable {
         LineNumberReader settingsReader = null;
         String line;
 
-        if (settingsFile.isFile() == false) {
-            return false;
+        // maybe restore a .bak of the .ini file
+        if (settingsFile.isFile() == false || settingsFile.length() == 0 ) {
+            // try to restore .bak file
+            final String configDirStr = getValue(SettingsClass.DIR_CONFIG);
+            final File bakFile = new File(configDirStr + "frost.ini.bak");
+            if( bakFile.isFile() && bakFile.length() > 0 ) {
+                bakFile.renameTo(settingsFile);
+            } else {
+                return false;
+            }
         }
 
         try {
@@ -380,25 +388,29 @@ public class SettingsClass implements ExitSavable {
         return true;
     }
 
-    /**
-     * @return
-     */
     private boolean writeSettingsFile() {
-        PrintWriter settingsWriter = null;
+        // ensure the config directory exists
+        final File configDir = new File("config");
+        if (!configDir.isDirectory()) {
+            configDir.mkdirs(); // if the config dir doesn't exist, we create it
+        }
+
+        // backup existing ini file
+        if( settingsFile.isFile() && settingsFile.length() > 0 ) {
+            final String configDirStr = getValue(SettingsClass.DIR_CONFIG);
+            final File bakFile = new File(configDirStr + "frost.ini.bak");
+            if( bakFile.isFile() ) {
+                bakFile.delete();
+            }
+            settingsFile.renameTo(bakFile); // settingsFile keeps old name!
+        }
+
+        final PrintWriter settingsWriter;
         try {
             settingsWriter = new PrintWriter(new FileWriter(settingsFile));
         } catch (final IOException exception) {
-            try {
-                //Perhaps the problem is that the config dir doesn't exist? In that case, we create it and try again
-                final File configDir = new File("config");
-                if (!configDir.isDirectory()) {
-                    configDir.mkdirs(); // if the config dir doesn't exist, we create it
-                }
-                settingsWriter = new PrintWriter(new FileWriter(settingsFile));
-            } catch (final IOException exception2) {
-                logger.log(Level.SEVERE, "Exception thrown in writeSettingsFile()", exception2);
-                return false;
-            }
+            logger.log(Level.SEVERE, "Exception thrown in writeSettingsFile()", exception);
+            return false;
         }
 
         final TreeMap<String,Object> sortedSettings = new TreeMap<String,Object>(settingsHash); // sort the lines
