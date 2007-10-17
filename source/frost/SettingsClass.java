@@ -199,6 +199,8 @@ public class SettingsClass implements ExitSavable {
 
     public static final String SHOW_UNREAD_ONLY = "MessagePanel.showUnreadOnly";
 
+    public static final String MSGTABLE_MSGTEXT_DIVIDER_LOCATION = "MessagePanel.msgTableAndMsgTextSplitpaneDividerLocation";
+
     public static final String SHOW_COLORED_ROWS = "showColoredRows";
     public static final String SHOW_SMILEYS = "showSmileys";
     public static final String SHOW_KEYS_AS_HYPERLINKS = "showKeysAsHyperlinks";
