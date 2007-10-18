@@ -82,6 +82,21 @@
 
   <!--  Specify logfile name -->
   <property name="logfilename" value="build.log"/>
+	
+	<!-- ANT SVN environment -->
+	<path id= "svnant.classpath"  >
+	     <fileset dir= "buildsupport/antsvn" >
+	         <include name= "*.jar" />
+	     </fileset>
+	</path>
+	<typedef resource="org/tigris/subversion/svnant/svnantlib.xml" classpathref="svnant.classpath" />
+
+  <path id= "frostant.classpath"  >
+     <fileset dir= "buildsupport" >
+         <include name= "*.jar" />
+     </fileset>
+  </path>
+  <taskdef name="FrostRevision" classname="frost.buildsupport.FrostRevision" classpathref="frostant.classpath"/>
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!--  Output some messages and set DATE,TIME variables                 -->
@@ -203,7 +218,7 @@ Build log  : ${logfilename}</echo>
     <mkdir dir="${dist.dir}"/>
 
 	<!--  Modify the version and copy the manifest -->
-  	<filter token="VERSION_FROM_ANT" value="${revision}"/>
+  	<filter token="VERSION_FROM_ANT" value="${displayRevision}"/>
 	<!-- filter token="VERSION_FROM_ANT" value="${NOW.DATE} dev"/ -->
 <!--	<filter token="VERSION_FROM_ANT" value="20-Oct-2005 dev"/>-->
 	<copy
@@ -270,7 +285,7 @@ Build log  : ${logfilename}</echo>
           depends="jar"
           description="--> prepares the distribution.">
 
-	<!-- Prepares the zip -->
+    <!-- Prepares the zip -->
 
     <copy todir="${dist.dir}">
       <fileset dir="${bin.dir}"/>
@@ -291,16 +306,19 @@ Build log  : ${logfilename}</echo>
 
    </target>
 
-   <target name ="release"
-   	depends = "main"
-	description="--> prepares .jar and source.zip for release">
+   <target name = "release"
+	  description="--> prepares .jar and source.zip for release">
 
-	<echo>Preparing files for release..
-	</echo>
+    <echo>Preparing files for release..</echo>
+	
+    <property name="isRelease" value="true"/>
+   	
+   	<antcall target="main" />
 
     <mkdir dir="${release.dir}"/>
     <delete quiet="true" file="${release.dir}/${distZipNamePrefix}${revision}.zip"/>
     <zip basedir="${dist.dir}" destfile="${release.dir}/${distZipNamePrefix}${revision}.zip"/>
+
 <!--
     <copy todir="${release.dir}">
       <fileset dir="${dist.dir}">
@@ -370,7 +388,7 @@ Build log  : ${logfilename}</echo>
              destdir="${docs}"
              windowtitle="Frost Documentation"/>
   </target>
-
+	
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- Main target - runs dist by default -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -378,11 +396,21 @@ Build log  : ${logfilename}</echo>
 
     <record name="${logfilename}" action="start"/>
 
-	<tstamp>
-		<format property="NOW.DATE" pattern="dd-MMM-yyyy" locale="en"/>
-		<format property="NOW.TIME" pattern="HH:mm:ss" locale="en" />
-	</tstamp>
-	<property name="revision" value="${NOW.DATE}"/> <!-- overwritten by atomative -->
+  	<tstamp>
+	  	<format property="NOW.DATE" pattern="dd-MMM-yyyy" locale="en"/>
+		  <format property="NOW.TIME" pattern="HH:mm:ss" locale="en" />
+	  </tstamp>
+  	
+  	<!-- Retrieve SVN properties (revision, isModified, ...) -->
+    <svn>
+       <wcVersion path= "." />
+    </svn>
+
+    <!-- "revision" is used as part of the release file names -->
+	  <property name="revision" value="${NOW.DATE}"/> <!-- overwritten by atomative -->
+
+    <!-- Task sets the displayRevision property, shown in about dialog -->
+	  <FrostRevision />
 
     <antcall target="distro"/>
 
