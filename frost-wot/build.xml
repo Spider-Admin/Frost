@@ -91,6 +91,7 @@
 	</path>
 	<typedef resource="org/tigris/subversion/svnant/svnantlib.xml" classpathref="svnant.classpath" />
 
+	<!-- FrostRelease ANT task environment -->
   <path id= "frostant.classpath"  >
      <fileset dir= "buildsupport" >
          <include name= "*.jar" />
@@ -306,14 +307,21 @@ Build log  : ${logfilename}</echo>
 
    </target>
 
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!-- Set the isRelease property                                   		 -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+   <target name = "setrelease">
+     <property name="isRelease" value="true"/>
+   </target>
+
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!-- Create the release zip files                              				 -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
    <target name = "release"
+          depends="setrelease,main"
 	  description="--> prepares .jar and source.zip for release">
 
     <echo>Preparing files for release..</echo>
-	
-    <property name="isRelease" value="true"/>
-   	
-   	<antcall target="main" />
 
     <mkdir dir="${release.dir}"/>
     <delete quiet="true" file="${release.dir}/${distZipNamePrefix}${revision}.zip"/>
@@ -340,15 +348,14 @@ Build log  : ${logfilename}</echo>
 -->
 
     <!-- Prepares the source zip (exclude the library jars) -->
-
     <delete quiet="true" file="${release.dir}/${distZipNamePrefix}${revision}-source.zip"/>
     <zip destfile="${release.dir}/${distZipNamePrefix}${revision}-source.zip" filesonly="true">
     	<zipfileset dir="."
     				prefix = "frost-wot"
-    				excludes=".* **/CVS/* ${lib.dir}/**/*.jar"
+    				excludes=".* **/CVS/* **/.svn/* ${lib.dir}/**/*.jar"
     				includes="${src.dir}/**/* ${bin.dir}/**/* ${res.dir}/**/*
     						  ${lib.dir}/**/* ${specs.dir}/**/* ${helpsrc.dir}/**/*
-                              build.xml"/>
+                              build.xml buildsupport/**/*.jar"/>
     </zip>
 
     <echo>
@@ -401,7 +408,7 @@ Build log  : ${logfilename}</echo>
 		  <format property="NOW.TIME" pattern="HH:mm:ss" locale="en" />
 	  </tstamp>
   	
-  	<!-- Retrieve SVN properties (revision, isModified, ...) -->
+  	<!-- Retrieve SVN properties (we use: revision.max, modified) -->
     <svn>
        <wcVersion path= "." />
     </svn>
