@@ -1,0 +1,27 @@
+  -------------------------
+---  HOWTO - Build Frost  ---
+  -------------------------
+
+Prereqs:
+---------
+
+Apache ANT must be installed. Get it from http://ant.apache.org
+
+
+Build the source retrieved from SVN:
+-------------------------------------
+
+If you got the Frost source code from the SVN repository, go to the
+Frost source directory and run the command 'ant'. This starts the Frost
+build. After the build finished, Frost is ready to run in the directory
+build/dist.
+
+
+Build the source retrieved from a Frost source.zip file:
+---------------------------------------------------------
+
+If you got the Frost source code from the frost-source.zip file, you need
+to copy the complete lib/ directory from the binary Frost distribution zip
+file into the Frost source directory. Then go to the Frost source directory
+and run the command 'ant'. This starts the Frost build. After the build
+finished, Frost is ready to run in the directory build/dist.
