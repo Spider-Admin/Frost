@@ -33,17 +33,17 @@ public class Frost {
 
     private static final Logger logger = Logger.getLogger(Frost.class.getName());
     private static String lookAndFeel = null;
-    
+
     private static String cmdLineLocaleName = null;
     private static String cmdLineLocaleFileName = null;
-    
+
     private static boolean offlineMode = false;
 
     /**
      * Main method
      * @param args command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         System.out.println();
         System.out.println("Frost, Copyright (C) 2007 Frost Project");
         System.out.println("Frost comes with ABSOLUTELY NO WARRANTY!");
@@ -71,42 +71,42 @@ public class Frost {
             if (lookAndFeel != null) {
                 try {
                     laf = (LookAndFeel) Class.forName(lookAndFeel).newInstance();
-                } catch(Throwable t) {t.printStackTrace();}
+                } catch(final Throwable t) {t.printStackTrace();}
                 if (laf == null || !laf.isSupportedLookAndFeel()) {
                     laf = null;
                 }
             }
-            
+
             // still not set? use config file setting
             if( laf == null ) {
-                String landf = Core.frostSettings.getValue(SettingsClass.LOOK_AND_FEEL);
+                final String landf = Core.frostSettings.getValue(SettingsClass.LOOK_AND_FEEL);
                 if( landf != null && landf.length() > 0 ) {
                     try {
                         laf = (LookAndFeel) Class.forName(landf).newInstance();
-                    } catch(Throwable t) {t.printStackTrace();}
+                    } catch(final Throwable t) {t.printStackTrace();}
                     if (laf == null || !laf.isSupportedLookAndFeel()) {
                         laf = null;
                     }
                 }
             }
-            
+
             // still not set? use system default
             if( laf == null ) {
-                String landf = UIManager.getSystemLookAndFeelClassName();
+                final String landf = UIManager.getSystemLookAndFeelClassName();
                 if( landf != null && landf.length() > 0 ) {
                     try {
                         laf = (LookAndFeel) Class.forName(landf).newInstance();
-                    } catch(Throwable t) {}
+                    } catch(final Throwable t) {}
                     if (laf == null || !laf.isSupportedLookAndFeel()) {
                         laf = null;
                     }
                 }
-            }            
-            
+            }
+
             if (laf != null) {
                 UIManager.setLookAndFeel(laf);
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             System.out.println(e.getMessage());
             System.out.println("Using the default");
         }
@@ -116,8 +116,8 @@ public class Frost {
      * This method parses the command line arguments
      * @param args the arguments
      */
-    private static void parseCommandLine(String[] args) {
-        
+    private static void parseCommandLine(final String[] args) {
+
         int count = 0;
         try {
             while (args.length > count) {
@@ -135,7 +135,7 @@ public class Frost {
                     cmdLineLocaleName = args[count + 1]; //This settings overrides the one in the ini file
                     count = count + 2;
                 } else if (args[count].equals("-localefile")) {
-                    cmdLineLocaleFileName = args[count + 1]; 
+                    cmdLineLocaleFileName = args[count + 1];
                     count = count + 2;
                 } else if (args[count].equals("-offline")) {
                     offlineMode = true;
@@ -144,7 +144,7 @@ public class Frost {
                     showHelp();
                 }
             }
-        } catch (ArrayIndexOutOfBoundsException exception) {
+        } catch (final ArrayIndexOutOfBoundsException exception) {
             showHelp();
         }
     }
@@ -159,9 +159,9 @@ public class Frost {
         System.out.println("        (overriden by the skins preferences)\n");
         System.out.println("        These ones are currently available:");
 //        String lookAndFeel = UIManager.getSystemLookAndFeelClassName();
-        LookAndFeelInfo[] feels = UIManager.getInstalledLookAndFeels();
-        for (int i = 0; i < feels.length; i++) {
-            System.out.println("           " + feels[i].getClassName());
+        final LookAndFeelInfo[] feels = UIManager.getInstalledLookAndFeels();
+        for( final LookAndFeelInfo element : feels ) {
+            System.out.println("           " + element.getClassName());
         }
         System.out.println("\n         And this one is used by default:");
         System.out.println("           " + lookAndFeel + "\n");
@@ -193,7 +193,7 @@ public class Frost {
      * Constructor
      */
     public Frost() {
-        Core core = Core.getInstance();
+        final Core core = Core.getInstance();
 
         initializeLookAndFeel();
 
@@ -207,7 +207,7 @@ public class Frost {
 
         try {
             core.initialize();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             logger.log(Level.SEVERE, "There was a problem while initializing Frost.", e);
             System.exit(3);
         }
@@ -246,9 +246,6 @@ public class Frost {
             // check for datechooser.jar
             jarFileName = "datechooser.jar";
             Class.forName("mseries.ui.MDateEntryField");
-            // check for mckoidb.jar
-            jarFileName = "mckoidb.jar";
-            Class.forName("com.mckoi.JDBCDriver");
             // check for joda-time.jar
             jarFileName = "joda-time.jar";
             Class.forName("org.joda.time.DateTime");
@@ -256,7 +253,7 @@ public class Frost {
             jarFileName = "perst15.jar";
             Class.forName("org.garret.perst.Persistent");
 
-        } catch (ClassNotFoundException e1) {
+        } catch (final ClassNotFoundException e1) {
             MiscToolkit.getInstance().showMessage(
                 "Please start Frost using the provided start "
                     + "scripts (frost.bat for Windows, frost.sh for Unix).\n"
@@ -268,7 +265,7 @@ public class Frost {
         }
         return true;
     }
-    
+
     private static File runLockFile = new File("frost.lock");
     private static FileChannel lockChannel;
     private static FileLock fileLock;
@@ -280,10 +277,10 @@ public class Frost {
      * @param language the language to use in case an error message has to be displayed.
      * @return boolean false if there was a problem while initializing the lockfile. True otherwise.
      */
-    private boolean initializeLockFile(Language language) {
+    private boolean initializeLockFile(final Language language) {
         // write minimal content into file
         FileAccess.writeFile("frost-lock", runLockFile);
-        
+
         // try to aquire exclusive lock
         try {
             // Get a file channel for the file
@@ -294,10 +291,10 @@ public class Frost {
             // null or throws an exception if the file is already locked.
             try {
                 fileLock = lockChannel.tryLock();
-            } catch (OverlappingFileLockException e) {
+            } catch (final OverlappingFileLockException e) {
                 // File is already locked in this thread or virtual machine
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
         }
 
         if (fileLock == null) {
@@ -310,18 +307,18 @@ public class Frost {
         }
         return true;
     }
-    
+
     public static void releaseLockFile() {
         if( fileLock != null ) {
             try {
                 fileLock.release();
-            } catch (IOException e) {
+            } catch (final IOException e) {
             }
         }
         if( lockChannel != null ) {
             try {
                 lockChannel.close();
-            } catch (IOException e) {
+            } catch (final IOException e) {
             }
         }
         runLockFile.delete();
@@ -334,7 +331,7 @@ public class Frost {
     public static String getCmdLineLocaleName() {
         return cmdLineLocaleName;
     }
-    
+
     public static boolean isOfflineMode() {
         return offlineMode;
     }
