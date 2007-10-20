@@ -103,7 +103,7 @@ public class FileListManager {
         final ArrayList<FrostSharedFileItem> sorted = new ArrayList<FrostSharedFileItem>();
 
         {
-            final List<FrostSharedFileItem> sharedFileItems = FileTransferManager.inst().getSharedFilesManager().getModel().getItems();
+            final List<FrostSharedFileItem> sharedFileItems = FileTransferManager.inst().getSharedFilesManager().getSharedFileItemList();
 
             // first collect all items for this owner and sort them
             for( final FrostSharedFileItem sfo : sharedFileItems ) {
@@ -153,7 +153,7 @@ public class FileListManager {
 
         final long now = System.currentTimeMillis();
 
-        final List<FrostSharedFileItem> sharedFileItems = FileTransferManager.inst().getSharedFilesManager().getModel().getItems();
+        final List<FrostSharedFileItem> sharedFileItems = FileTransferManager.inst().getSharedFilesManager().getSharedFileItemList();
 
         for( final SharedFileXmlFile sfx : files ) {
             // update FrostSharedUploadFileObject
@@ -196,7 +196,7 @@ public class FileListManager {
             return true;
         }
 
-        final List<FrostDownloadItem> downloadItems = FileTransferManager.inst().getDownloadManager().getModel().getItems();
+        final List<FrostDownloadItem> downloadItems = FileTransferManager.inst().getDownloadManager().getDownloadItemList();
 
         // update all filelist files, maybe restart failed downloads
         final List<FrostDownloadItem> downloadsToRestart = new ArrayList<FrostDownloadItem>();

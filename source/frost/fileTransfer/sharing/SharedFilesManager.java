@@ -19,6 +19,7 @@
 package frost.fileTransfer.sharing;
 
 import java.beans.*;
+import java.util.*;
 
 import frost.*;
 import frost.storage.*;
@@ -78,6 +79,11 @@ public class SharedFilesManager implements PropertyChangeListener, ExitSavable {
     private void updateFileSharingStatus() {
         boolean disableFileSharing = Core.frostSettings.getBoolValue(SettingsClass.DISABLE_FILESHARING);
         MainFrame.getInstance().setPanelEnabled("MainFrame.tabbedPane.sharing", !disableFileSharing);
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<FrostSharedFileItem> getSharedFileItemList() {
+        return getModel().getItems();
     }
 
     public SharedFilesModel getModel() {

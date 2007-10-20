@@ -54,7 +54,7 @@ public class FileTransferManager implements ExitSavable, AutoSavable {
         getDownloadManager().initialize();
         getSearchManager().initialize();
         getSharedFilesManager().initialize();
-        getUploadManager().initialize( getSharedFilesManager().getModel().getItems() );
+        getUploadManager().initialize( getSharedFilesManager().getSharedFileItemList() );
         getNewUploadFilesManager().initialize();
 
         if( PersistenceManager.isPersistenceEnabled() && Core.isFreenetOnline() ) {

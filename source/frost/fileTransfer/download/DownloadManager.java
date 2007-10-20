@@ -228,7 +228,7 @@ public class DownloadManager implements ExitSavable {
 
             } else if( result != null && result.isFatal() ) {
                 // fatal, don't retry
-                downloadItem.setEnabled(Boolean.valueOf(false));
+//                downloadItem.setEnabled(Boolean.FALSE);  // keep enabled to allow sending of requests for shared files
                 downloadItem.setState(FrostDownloadItem.STATE_FAILED);
                 logger.warning("FILEDN: Download of " + filename + " failed FATALLY.");
             } else {
@@ -237,7 +237,7 @@ public class DownloadManager implements ExitSavable {
                 logger.warning("FILEDN: Download of " + filename + " failed.");
                 // set new state -> failed or waiting for another try
                 if (downloadItem.getRetries() > Core.frostSettings.getIntValue(SettingsClass.DOWNLOAD_MAX_RETRIES)) {
-                    downloadItem.setEnabled(Boolean.valueOf(false));
+//                    downloadItem.setEnabled(Boolean.valueOf(false)); // keep enabled to allow sending of requests for shared files
                     downloadItem.setState(FrostDownloadItem.STATE_FAILED);
                 } else {
                     downloadItem.setState(FrostDownloadItem.STATE_WAITING);
@@ -283,6 +283,11 @@ public class DownloadManager implements ExitSavable {
         }
 
         return retryImmediately;
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<FrostDownloadItem> getDownloadItemList() {
+        return getModel().getItems();
     }
 
     /**
