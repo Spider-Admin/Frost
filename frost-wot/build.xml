@@ -329,11 +329,11 @@ Build log  : ${logfilename}</echo>
     				excludes=".* **/CVS/* ${lib.dir}/**/*.jar"
     				includes="${src.dir}/**/* ${bin.dir}/**/* ${res.dir}/**/*
     						  ${lib.dir}/**/* ${specs.dir}/**/* ${helpsrc.dir}/**/*
-                              build.xml"/>
+                              build.xml HOWTO-BUILD.txt"/>
     </zip>
 
     <echo>
-	Source, zip and jar ready for release at ${release.dir}</echo>
+>>> Source zip and binary zip ready for release at ${release.dir}</echo>
   </target>
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
