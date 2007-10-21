@@ -154,8 +154,8 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
         lastDownloadStopTime = newLastDownloadStopTime;
         gqIdentifier = newGqId;
 
-        // set correct state
-        if (this.state != FrostDownloadItem.STATE_DONE) {
+        // set correct state, keep DONE and FAILED
+        if (this.state != FrostDownloadItem.STATE_DONE && this.state != FrostDownloadItem.STATE_FAILED) {
             this.state = FrostDownloadItem.STATE_WAITING;
         }
 	}
