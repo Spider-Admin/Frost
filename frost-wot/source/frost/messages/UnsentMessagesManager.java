@@ -19,11 +19,9 @@
 package frost.messages;
 
 import java.util.*;
-import java.util.logging.*;
 
 import frost.*;
 import frost.boards.*;
-import frost.storage.perst.*;
 import frost.storage.perst.messages.*;
 import frost.threads.*;
 
@@ -32,34 +30,30 @@ import frost.threads.*;
  */
 public class UnsentMessagesManager {
 
-    private static final Logger logger = Logger.getLogger(UnsentMessagesManager.class.getName());
-    
-    private static LinkedList<FrostUnsentMessageObject> unsentMessages = new LinkedList<FrostUnsentMessageObject>();
+    private static final LinkedList<FrostUnsentMessageObject> unsentMessages = new LinkedList<FrostUnsentMessageObject>();
     private static int runningMessageUploads = 0;
-    
-    private static List<Board> EMPTY_BOARD_LIST = new LinkedList<Board>();
 
     /**
      * Retrieves all unsend messages from database table.
      */
     public static void initialize() {
         List<FrostUnsentMessageObject> msgs;
-        
+
         msgs = MessageStorage.inst().retrieveAllUnsentMessages();
 
         if( msgs == null || msgs.size() == 0 ) {
             return;
         }
-        
+
         unsentMessages.addAll(msgs);
-        
+
         // initialize the file attachments to upload
-        for(Iterator i = unsentMessages.iterator(); i.hasNext(); ) {
-            FrostUnsentMessageObject msg = (FrostUnsentMessageObject) i.next();
+        for( final Object element : unsentMessages ) {
+            final FrostUnsentMessageObject msg = (FrostUnsentMessageObject) element;
             FileAttachmentUploadThread.getInstance().checkAndEnqueueNewMessage(msg);
         }
     }
-    
+
     public static int getUnsentMessageCount() {
         return unsentMessages.size();
     }
@@ -67,38 +61,37 @@ public class UnsentMessagesManager {
     public static List<FrostUnsentMessageObject> getUnsentMessages() {
         return unsentMessages;
     }
-    
+
     /**
      * Returns a message to upload. The message must have no unsend file attachments.
      * When a message is returned it is dequeued.
      * @param targetBoard  target board for the message
      * @return  a message, or null
      */
-    public static FrostUnsentMessageObject getUnsentMessage(Board targetBoard) {
+    public static FrostUnsentMessageObject getUnsentMessage(final Board targetBoard) {
         return getUnsentMessage(targetBoard, null);
     }
 
     /**
      * Returns a message to upload. The message must have no unsend file attachments.
-     * Takes care that the returned message is from the same userName as specified, 
-     * because we don't want to send messages from different userNames together, 
-     * this compromises anonymity! 
+     * Takes care that the returned message is from the same userName as specified,
+     * because we don't want to send messages from different userNames together,
+     * this compromises anonymity!
      * @param targetBoard  target board for the message
      * @return  a message, or null
      */
-    public static FrostUnsentMessageObject getUnsentMessage(Board targetBoard, String fromName) {
-        
+    public static FrostUnsentMessageObject getUnsentMessage(final Board targetBoard, final String fromName) {
+
         if( Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_UPLOAD_DISABLED) ) {
             return null;
         }
 
-        for(Iterator<FrostUnsentMessageObject> i = unsentMessages.iterator(); i.hasNext(); ) {
-            FrostUnsentMessageObject mo = i.next();
+        for( final FrostUnsentMessageObject mo : unsentMessages ) {
             if( mo.getCurrentUploadThread() != null ) {
                 continue; // msg is currently uploading
             }
-            if( mo.getBoard().getPerstFrostBoardObject().getBoardId() == 
-                    targetBoard.getPerstFrostBoardObject().getBoardId() ) 
+            if( mo.getBoard().getPerstFrostBoardObject().getBoardId() ==
+                    targetBoard.getPerstFrostBoardObject().getBoardId() )
             {
                 if( fromName == null || fromName.equals(mo.getFromName()) ) {
                     if( mo.getUnsentFileAttachments().size() == 0 ) {
@@ -109,19 +102,18 @@ public class UnsentMessagesManager {
         }
         return null;
     }
-    
+
     /**
      * Returns a List of all Boards that currently have sendable messages.
      */
     public static List<Board> getBoardsWithSendableMessages() {
-        
+
         if( Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_UPLOAD_DISABLED) ) {
-            return EMPTY_BOARD_LIST;
+            return Collections.emptyList();
         }
-        
-        Hashtable<Integer,Board> ht = new Hashtable<Integer,Board>();
-        for(Iterator<FrostUnsentMessageObject> i = unsentMessages.iterator(); i.hasNext(); ) {
-            FrostUnsentMessageObject mo = i.next();
+
+        final Hashtable<Integer,Board> ht = new Hashtable<Integer,Board>();
+        for( final FrostUnsentMessageObject mo : unsentMessages ) {
             if( mo.getCurrentUploadThread() != null ) {
                 continue; // msg is currently uploading
             }
@@ -129,69 +121,69 @@ public class UnsentMessagesManager {
                 ht.put(mo.getBoard().getPerstFrostBoardObject().getBoardId(), mo.getBoard());
             }
         }
-        List<Board> result = new ArrayList<Board>(ht.values()); 
+        final List<Board> result = new ArrayList<Board>(ht.values());
         return result;
     }
 
-    public static void addNewUnsentMessage(FrostUnsentMessageObject mo) {
-        
+    public static void addNewUnsentMessage(final FrostUnsentMessageObject mo) {
+
         mo.setTimeAdded(System.currentTimeMillis());
-        
+
         MessageStorage.inst().addUnsentMessage(mo);
 
         unsentMessages.add(mo);
-        
+
         // enqueue in file attachment upload thread if needed
         FileAttachmentUploadThread.getInstance().checkAndEnqueueNewMessage(mo);
-        
+
         MainFrame.getInstance().getUnsentMessagesPanel().addUnsentMessage(mo);
     }
 
     /**
      * @return  false if message is currently uploading and delete is not possible
      */
-    public static boolean deleteMessage(FrostUnsentMessageObject unsentMsg) {
-        
+    public static boolean deleteMessage(final FrostUnsentMessageObject unsentMsg) {
+
         if( unsentMsg.getCurrentUploadThread() != null ) {
             return false; // msg currently uploaded, delete not possible
         }
-        
+
         MessageStorage.inst().deleteUnsentMessage(unsentMsg);
-        
-        for(Iterator i = unsentMessages.iterator(); i.hasNext(); ) {
-            FrostUnsentMessageObject mo2 = (FrostUnsentMessageObject) i.next();
-            if( unsentMsg.getMessageId().equals(mo2.getMessageId()) ) {
+
+        for(final Iterator<FrostUnsentMessageObject> i = unsentMessages.iterator(); i.hasNext(); ) {
+            final FrostUnsentMessageObject mo = i.next();
+            if( unsentMsg.getMessageId().equals(mo.getMessageId()) ) {
                 i.remove();
                 break;
             }
         }
-        
+
         FileAttachmentUploadThread.getInstance().messageWasDeleted(unsentMsg.getMessageId());
-        
+
         MainFrame.getInstance().getUnsentMessagesPanel().removeUnsentMessage(unsentMsg);
-        
+
         return true;
     }
 
-    public static boolean dequeueMessage(FrostUnsentMessageObject unsentMsg) {
-        
-        for(Iterator i = unsentMessages.iterator(); i.hasNext(); ) {
-            FrostUnsentMessageObject mo2 = (FrostUnsentMessageObject) i.next();
-            if( unsentMsg.getMessageId().equals(mo2.getMessageId()) ) {
+    public static boolean dequeueMessage(final FrostUnsentMessageObject unsentMsg) {
+
+        for(final Iterator<FrostUnsentMessageObject> i = unsentMessages.iterator(); i.hasNext(); ) {
+            final FrostUnsentMessageObject mo = i.next();
+            if( unsentMsg.getMessageId().equals(mo.getMessageId()) ) {
                 i.remove();
                 break;
             }
         }
-        
+
         MainFrame.getInstance().getUnsentMessagesPanel().removeUnsentMessage(unsentMsg);
-        
+
         return true;
     }
 
-    public static void updateMessageFileAttachmentKey(FrostUnsentMessageObject mo, FileAttachment fa) {
+    public static void updateMessageFileAttachmentKey(final FrostUnsentMessageObject mo, final FileAttachment fa) {
         MessageStorage.inst().updateUnsentMessageFileAttachmentKey(mo, fa);
     }
-    
+
     public synchronized static int getRunningMessageUploads() {
         return runningMessageUploads;
     }

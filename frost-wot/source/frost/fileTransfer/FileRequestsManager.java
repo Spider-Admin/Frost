@@ -54,7 +54,15 @@ public class FileRequestsManager {
 
         // FIXME: maybe only request FAILED if failed reason was Data_Not_Found!
         //        But this requires that the dlitem remembers the failed reason!
-        // FIXME: maybe only send requests when CHK queue is empty
+        // FIXME: only request when progress did not change for X days or FAILED. Works for 0.5 and 0.7.
+
+        // We don't send requests if we have more than 3 file list files that wait for downloading,
+        // because maybe those files contain the file key that we just want to request.
+        // But we allow 3 files to be in the queue to prevent that requests are permanently not send
+        // because a new file list file just arrived in the queue.
+        if( FileSharingManager.getFileListDownloadQueueSize() > 3 ) {
+            return Collections.emptyList();
+        }
 
         final long now = System.currentTimeMillis();
         final long before23hours = now -  1L * 23L * 60L * 60L * 1000L;
