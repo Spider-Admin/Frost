@@ -154,15 +154,18 @@ public class CopyToClipboard {
     private static void appendKeyAndFilename(final StringBuilder textToCopy, String key, final String filename, final String keyNotAvailableMessage) {
         if (key == null) {
             key = keyNotAvailableMessage;
-        }
-        textToCopy.append(key);
-        if( key.startsWith("CHK@") ) {
-            // CHK, append filename if there is not already a filename
+            // no key, its a shared file
+            textToCopy.append(filename);
+        } else if( key.startsWith("CHK@") ) {
+            textToCopy.append(key);
+            // CHK, append filename if there is not already a filename in the key
             if( key.indexOf('/') < 0 ) {
                 textToCopy.append("/");
                 textToCopy.append(filename);
             }
+        } else {
+            // else for KSK,SSK,USK: don't append filename, key contains all needed information
+            textToCopy.append(key);
         }
-        // else for KSK,SSK,USK: don't append filename, key is enough
     }
 }
