@@ -39,18 +39,18 @@ import frost.util.Logging;
 public class FileRequestsThread extends Thread {
 
     private static final Logger logger = Logger.getLogger(FilePointersThread.class.getName());
-    
+
     // sleeptime between request loops
     private static final int sleepTime = 10 * 60 * 1000;
 
-    private String keyPrefix;
-    
+    private final String keyPrefix;
+
     // one and only instance
     private static FileRequestsThread instance = new FileRequestsThread();
-    
+
     private FileRequestsThread() {
-        String fileBase = Core.frostSettings.getValue(SettingsClass.FILE_BASE);
-        keyPrefix = "KSK@frost/filerequests/" + fileBase + "-"; 
+        final String fileBase = Core.frostSettings.getValue(SettingsClass.FILE_BASE);
+        keyPrefix = "KSK@frost/filerequests/" + fileBase + "-";
     }
 
     public static FileRequestsThread getInstance() {
@@ -60,26 +60,26 @@ public class FileRequestsThread extends Thread {
     public boolean cancelThread() {
         return false;
     }
-    
+
     /**
      * Returns true if no error occured.
      */
-    private boolean uploadRequestFile(String dateStr, IndexSlot gis) throws Throwable {
+    private boolean uploadRequestFile(final String dateStr, final IndexSlot gis) throws Throwable {
 
         // get a list of CHK keys to send
-        List<String> fileRequests = FileRequestsManager.getRequestsToSend();
-        if( Logging.inst().doLogFilebaseMessages() ) {
-            System.out.println("uploadRequestFile: fileRequests to send: "+fileRequests.size());
-        }
+        final List<String> fileRequests = FileRequestsManager.getRequestsToSend();
         if( fileRequests == null || fileRequests.size() == 0 ) {
             logger.info("No requests to send.");
             return true;
         }
-        
-        FileRequestFileContent content = new FileRequestFileContent(System.currentTimeMillis(), fileRequests); 
+        if( Logging.inst().doLogFilebaseMessages() ) {
+            System.out.println("uploadRequestFile: fileRequests to send: "+fileRequests.size());
+        }
+
+        final FileRequestFileContent content = new FileRequestFileContent(System.currentTimeMillis(), fileRequests);
 
         // write a file with requests to a tempfile
-        File tmpRequestFile = FileAccess.createTempFile("filereq_", ".xml");
+        final File tmpRequestFile = FileAccess.createTempFile("filereq_", ".xml");
         if( !FileRequestFile.writeRequestFile(content, tmpRequestFile) ) {
             logger.severe("Error writing the file requests file.");
             return false;
@@ -92,9 +92,9 @@ public class FileRequestsThread extends Thread {
         if( Logging.inst().doLogFilebaseMessages() ) {
             System.out.println("uploadRequestFile: Starting upload of request file containing "+fileRequests.size()+" SHAs");
         }
-        
-        String insertKey = keyPrefix + dateStr + "-";
-        boolean wasOk = GlobalFileUploader.uploadFile(gis, tmpRequestFile, insertKey, ".xml", true);
+
+        final String insertKey = keyPrefix + dateStr + "-";
+        final boolean wasOk = GlobalFileUploader.uploadFile(gis, tmpRequestFile, insertKey, ".xml", true);
         tmpRequestFile.delete();
         if( Logging.inst().doLogFilebaseMessages() ) {
             System.out.println("uploadRequestFile: upload finished, wasOk="+wasOk);
@@ -104,11 +104,11 @@ public class FileRequestsThread extends Thread {
         }
         return wasOk;
     }
-    
-    private void downloadDate(String dateStr, IndexSlot gis, boolean isForToday) throws Throwable {
-        
+
+    private void downloadDate(final String dateStr, final IndexSlot gis, final boolean isForToday) throws Throwable {
+
         // "KSK@frost/filerequests/2006.11.1-<index>.xml"
-        String requestKey = keyPrefix + dateStr + "-"; 
+        final String requestKey = keyPrefix + dateStr + "-";
 
         int maxFailures;
         if (isForToday) {
@@ -123,14 +123,14 @@ public class FileRequestsThread extends Thread {
 
             // Wait some random time to not to flood the node
             Mixed.waitRandom(3000);
-            
+
             logger.info("Requesting index " + index + " for date " + dateStr);
 
-            String downKey = requestKey + index + ".xml";
-            GlobalFileDownloaderResult result = GlobalFileDownloader.downloadFile(downKey, FcpHandler.MAX_MESSAGE_SIZE_07);
+            final String downKey = requestKey + index + ".xml";
+            final GlobalFileDownloaderResult result = GlobalFileDownloader.downloadFile(downKey, FcpHandler.MAX_MESSAGE_SIZE_07);
 
             if( result == null ) {
-                // download failed. 
+                // download failed.
                 if( gis.isDownloadIndexBehindLastSetIndex(index) ) {
                     // we stop if we tried maxFailures indices behind the last known index
                     failures++;
@@ -139,7 +139,7 @@ public class FileRequestsThread extends Thread {
                 index = gis.findNextDownloadSlot(index);
                 continue;
             }
-            
+
             failures = 0;
 
             if( result.getErrorCode() == GlobalFileDownloaderResult.ERROR_EMPTY_REDIRECT ) {
@@ -162,24 +162,25 @@ public class FileRequestsThread extends Thread {
                 continue;
             }
 
-            File downloadedFile = result.getResultFile(); 
+            final File downloadedFile = result.getResultFile();
 
-            FileRequestFileContent content = FileRequestFile.readRequestFile(downloadedFile);
+            final FileRequestFileContent content = FileRequestFile.readRequestFile(downloadedFile);
             downloadedFile.delete();
             FileRequestsManager.processReceivedRequests(content);
         }
     }
 
+    @Override
     public void run() {
 
         final int maxAllowedExceptions = 5;
         int occuredExceptions = 0;
 
         // 2 times after startup we download full backload, then only 1 day backward
-        int downloadFullBackloadCount = 2; 
+        int downloadFullBackloadCount = 2;
 
         while( true ) {
-            
+
             // +1 for today
             int downloadBack;
             if( downloadFullBackloadCount > 0 ) {
@@ -190,7 +191,7 @@ public class FileRequestsThread extends Thread {
             }
 
             try {
-                LocalDate nowDate = new LocalDate(DateTimeZone.UTC);
+                final LocalDate nowDate = new LocalDate(DateTimeZone.UTC);
                 for (int i=0; i < downloadBack; i++) {
                     boolean isForToday;
                     if( i == 0 ) {
@@ -198,14 +199,14 @@ public class FileRequestsThread extends Thread {
                     } else {
                         isForToday = false;
                     }
-                    
-                    LocalDate localDate = nowDate.minusDays(i);
-                    String dateStr = DateFun.FORMAT_DATE.print(localDate);
-                    long date = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
-                    
-                    IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(
+
+                    final LocalDate localDate = nowDate.minusDays(i);
+                    final String dateStr = DateFun.FORMAT_DATE.print(localDate);
+                    final long date = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
+
+                    final IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(
                             IndexSlotsStorage.REQUESTS, date);
-                    
+
                     if( Logging.inst().doLogFilebaseMessages() ) {
                         System.out.println("FileRequestsThread: starting download for "+dateStr);
                     }
@@ -213,7 +214,7 @@ public class FileRequestsThread extends Thread {
                     if( !isInterrupted() ) {
                         downloadDate(dateStr, gis, isForToday);
                     }
-                    
+
                     // for today, maybe upload a file pointer file
                     if( !isInterrupted() && isForToday ) {
                         try {
@@ -221,22 +222,22 @@ public class FileRequestsThread extends Thread {
                                 System.out.println("FileRequestsThread: starting upload for "+dateStr);
                             }
                             uploadRequestFile(dateStr, gis);
-                        } catch(Throwable t) {
+                        } catch(final Throwable t) {
                             logger.log(Level.SEVERE, "Exception catched during uploadRequestFile()", t);
                         }
                     }
-            
+
                     IndexSlotsStorage.inst().storeSlot(gis);
 
                     if( isInterrupted() ) {
                         break;
                     }
                 }
-            } catch (Throwable e) {
+            } catch (final Throwable e) {
                 logger.log(Level.SEVERE, "Exception catched", e);
                 occuredExceptions++;
             }
-            
+
             if( occuredExceptions > maxAllowedExceptions ) {
                 logger.log(Level.SEVERE, "Stopping FileRequestsThread because of too much exceptions");
                 break;
@@ -244,9 +245,9 @@ public class FileRequestsThread extends Thread {
             if( isInterrupted() ) {
                 break;
             }
-            
+
             IndexSlotsStorage.inst().commit(); // commit changes for this run
-            
+
             if( Logging.inst().doLogFilebaseMessages() ) {
                 System.out.println("FileRequestsThread: sleeping 10 minutes");
             }
