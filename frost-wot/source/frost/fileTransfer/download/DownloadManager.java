@@ -162,6 +162,17 @@ public class DownloadManager implements ExitSavable {
 		return ticker;
 	}
 
+	/**
+	 * Add a new download item to the download table model.
+	 * @param key        complete key of download item
+	 * @param fileName   file name
+	 */
+	public void addNewDownload(final String key, final String fileName) {
+	    // TODO: enhancement: search for key in shared files, maybe add as shared file
+        final FrostDownloadItem dlItem = new FrostDownloadItem(fileName, key);
+        model.addDownloadItem(dlItem); // false if file is already in table
+	}
+
     /**
      * @return  true if request should be retried
      */

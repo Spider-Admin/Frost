@@ -301,8 +301,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                 }
 
                 // add valid key to download table
-                final FrostDownloadItem dlItem = new FrostDownloadItem(fileName, key);
-                model.addDownloadItem(dlItem); // false if file is already in table
+                FileTransferManager.inst().getDownloadManager().addNewDownload(key, fileName);
             }
         } catch(final Throwable ex) {
             logger.log(Level.SEVERE, "Unexpected exception", ex);
