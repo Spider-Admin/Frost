@@ -25,44 +25,44 @@ import frost.messages.*;
 public class MessageTreeTableSortStateBean {
 
     private static boolean isThreaded;
-    
+
     private final static int defaultSortedColumn = 6; // default: date
     private final static boolean defaultIsAscending = false; // default: descending
-    
+
     private static int sortedColumn = 6; // default: date
     private static boolean isAscending = false; // default: descending
-    
+
     public static boolean isAscending() {
         return isAscending;
     }
-    public static void setAscending(boolean isAscending) {
+    public static void setAscending(final boolean isAscending) {
         MessageTreeTableSortStateBean.isAscending = isAscending;
     }
     public static boolean isThreaded() {
         return isThreaded;
     }
-    public static void setThreaded(boolean isThreaded) {
+    public static void setThreaded(final boolean isThreaded) {
         MessageTreeTableSortStateBean.isThreaded = isThreaded;
     }
     public static int getSortedColumn() {
         return sortedColumn;
     }
-    public static void setSortedColumn(int sortedColumn) {
+    public static void setSortedColumn(final int sortedColumn) {
         MessageTreeTableSortStateBean.sortedColumn = sortedColumn;
     }
     public static void setDefaults() {
         setSortedColumn(defaultSortedColumn);
         setAscending(defaultIsAscending);
     }
-    
-    public static Comparator getComparator(int column, boolean ascending) {
+
+    public static Comparator<FrostMessageObject> getComparator(final int column, final boolean ascending) {
         if( ascending ) {
             return ascendingComparators[column];
         } else {
             return descendingComparators[column];
         }
     }
-    
+
     // sorting for flat view
     private static FlaggedComparator flaggedComparatorAscending = new FlaggedComparator(true);
     private static FlaggedComparator flaggedComparatorDescending = new FlaggedComparator(false);
@@ -85,7 +85,8 @@ public class MessageTreeTableSortStateBean {
     public static IndexComparator indexComparatorAscending = new IndexComparator(true);
     public static IndexComparator indexComparatorDescending = new IndexComparator(false);
 
-    private static Comparator[] ascendingComparators = new Comparator[] {
+    @SuppressWarnings("unchecked")
+    private static Comparator<FrostMessageObject>[] ascendingComparators = new Comparator[] {
         flaggedComparatorAscending,
         starredComparatorAscending,
         subjectComparatorAscending,
@@ -94,7 +95,8 @@ public class MessageTreeTableSortStateBean {
         trustStateComparatorAscending,
         dateComparatorAscending
     };
-    private static Comparator[] descendingComparators = new Comparator[] {
+    @SuppressWarnings("unchecked")
+    private static Comparator<FrostMessageObject>[] descendingComparators = new Comparator[] {
         flaggedComparatorDescending,
         starredComparatorDescending,
         subjectComparatorDescending,
@@ -103,11 +105,11 @@ public class MessageTreeTableSortStateBean {
         trustStateComparatorDescending,
         dateComparatorDescending
     };
-    
-    private static class DateComparator implements Comparator {
+
+    private static class DateComparator implements Comparator<FrostMessageObject> {
         private int retvalGreater;
         private int retvalSmaller;
-        public DateComparator(boolean ascending) {
+        public DateComparator(final boolean ascending) {
             if( ascending ) {
                 // oldest first
                 retvalGreater = +1;
@@ -118,12 +120,9 @@ public class MessageTreeTableSortStateBean {
                 retvalSmaller = +1;
             }
         }
-        public int compare(Object o1, Object o2) {
-            FrostMessageObject t1 = (FrostMessageObject)o1; 
-            FrostMessageObject t2 = (FrostMessageObject)o2;
-            
-            long l1 = t1.getDateAndTime().getMillis();
-            long l2 = t2.getDateAndTime().getMillis();
+        public int compare(final FrostMessageObject t1, final FrostMessageObject t2) {
+            final long l1 = t1.getDateAndTime().getMillis();
+            final long l2 = t2.getDateAndTime().getMillis();
             if( l1 > l2 ) {
                 return retvalGreater;
             }
@@ -133,11 +132,11 @@ public class MessageTreeTableSortStateBean {
             return 0;
         }
     }
-    
-    private static class SubjectComparator implements Comparator {
+
+    private static class SubjectComparator implements Comparator<FrostMessageObject> {
         private int retvalGreater;
         private int retvalSmaller;
-        public SubjectComparator(boolean ascending) {
+        public SubjectComparator(final boolean ascending) {
             if( ascending ) {
                 // oldest first
                 retvalGreater = +1;
@@ -148,11 +147,9 @@ public class MessageTreeTableSortStateBean {
                 retvalSmaller = +1;
             }
         }
-        public int compare(Object arg0, Object arg1) {
-            FrostMessageObject t1 = (FrostMessageObject)arg0; 
-            FrostMessageObject t2 = (FrostMessageObject)arg1;
-            String s1 = t1.getSubject();
-            String s2 = t2.getSubject();
+        public int compare(final FrostMessageObject t1, final FrostMessageObject t2) {
+            final String s1 = t1.getSubject();
+            final String s2 = t2.getSubject();
             if( s1 == null && s2 == null ) {
                 return 0;
             }
@@ -162,7 +159,7 @@ public class MessageTreeTableSortStateBean {
             if( s1 != null && s2 == null ) {
                 return 1;
             }
-            int r = s1.toLowerCase().compareTo(s2.toLowerCase());
+            final int r = s1.toLowerCase().compareTo(s2.toLowerCase());
             if( r == 0 ) {
                 return r;
             }
@@ -174,10 +171,10 @@ public class MessageTreeTableSortStateBean {
         }
     }
 
-    private static class FromComparator implements Comparator {
+    private static class FromComparator implements Comparator<FrostMessageObject> {
         private int retvalGreater;
         private int retvalSmaller;
-        public FromComparator(boolean ascending) {
+        public FromComparator(final boolean ascending) {
             if( ascending ) {
                 // oldest first
                 retvalGreater = +1;
@@ -188,11 +185,9 @@ public class MessageTreeTableSortStateBean {
                 retvalSmaller = +1;
             }
         }
-        public int compare(Object arg0, Object arg1) {
-            FrostMessageObject t1 = (FrostMessageObject)arg0; 
-            FrostMessageObject t2 = (FrostMessageObject)arg1;
-            String s1 = t1.getFromName();
-            String s2 = t2.getFromName();
+        public int compare(final FrostMessageObject t1, final FrostMessageObject t2) {
+            final String s1 = t1.getFromName();
+            final String s2 = t2.getFromName();
             if( s1 == null && s2 == null ) {
                 return 0;
             }
@@ -202,7 +197,7 @@ public class MessageTreeTableSortStateBean {
             if( s1 != null && s2 == null ) {
                 return 1;
             }
-            int r = s1.compareTo(s2);
+            final int r = s1.compareTo(s2);
             if( r == 0 ) {
                 return r;
             }
@@ -214,10 +209,10 @@ public class MessageTreeTableSortStateBean {
         }
     }
 
-    private static class TrustStateComparator implements Comparator {
+    private static class TrustStateComparator implements Comparator<FrostMessageObject> {
         private int retvalGreater;
         private int retvalSmaller;
-        public TrustStateComparator(boolean ascending) {
+        public TrustStateComparator(final boolean ascending) {
             if( ascending ) {
                 // oldest first
                 retvalGreater = +1;
@@ -228,11 +223,9 @@ public class MessageTreeTableSortStateBean {
                 retvalSmaller = +1;
             }
         }
-        public int compare(Object arg0, Object arg1) {
-            FrostMessageObject t1 = (FrostMessageObject)arg0; 
-            FrostMessageObject t2 = (FrostMessageObject)arg1;
-            String s1 = t1.getMessageStatusString();
-            String s2 = t2.getMessageStatusString();
+        public int compare(final FrostMessageObject t1, final FrostMessageObject t2) {
+            final String s1 = t1.getMessageStatusString();
+            final String s2 = t2.getMessageStatusString();
             if( s1 == null && s2 == null ) {
                 return 0;
             }
@@ -242,7 +235,7 @@ public class MessageTreeTableSortStateBean {
             if( s1 != null && s2 == null ) {
                 return 1;
             }
-            int r = s1.compareTo(s2);
+            final int r = s1.compareTo(s2);
             if( r == 0 ) {
                 return r;
             }
@@ -254,10 +247,10 @@ public class MessageTreeTableSortStateBean {
         }
     }
 
-    private static class FlaggedComparator implements Comparator {
+    private static class FlaggedComparator implements Comparator<FrostMessageObject> {
         private int retvalGreater;
         private int retvalSmaller;
-        public FlaggedComparator(boolean ascending) {
+        public FlaggedComparator(final boolean ascending) {
             if( ascending ) {
                 // oldest first
                 retvalGreater = +1;
@@ -268,11 +261,9 @@ public class MessageTreeTableSortStateBean {
                 retvalSmaller = +1;
             }
         }
-        public int compare(Object arg0, Object arg1) {
-            FrostMessageObject t1 = (FrostMessageObject)arg0; 
-            FrostMessageObject t2 = (FrostMessageObject)arg1;
-            boolean s1 = t1.isFlagged();
-            boolean s2 = t2.isFlagged();
+        public int compare(final FrostMessageObject t1, final FrostMessageObject t2) {
+            final boolean s1 = t1.isFlagged();
+            final boolean s2 = t2.isFlagged();
             if( s1 == s2 ) {
                 return 0;
             }
@@ -283,11 +274,11 @@ public class MessageTreeTableSortStateBean {
             }
         }
     }
-    
-    private static class StarredComparator implements Comparator {
+
+    private static class StarredComparator implements Comparator<FrostMessageObject> {
         private int retvalGreater;
         private int retvalSmaller;
-        public StarredComparator(boolean ascending) {
+        public StarredComparator(final boolean ascending) {
             if( ascending ) {
                 // oldest first
                 retvalGreater = +1;
@@ -298,11 +289,9 @@ public class MessageTreeTableSortStateBean {
                 retvalSmaller = +1;
             }
         }
-        public int compare(Object arg0, Object arg1) {
-            FrostMessageObject t1 = (FrostMessageObject)arg0; 
-            FrostMessageObject t2 = (FrostMessageObject)arg1;
-            boolean s1 = t1.isStarred();
-            boolean s2 = t2.isStarred();
+        public int compare(final FrostMessageObject t1, final FrostMessageObject t2) {
+            final boolean s1 = t1.isStarred();
+            final boolean s2 = t2.isStarred();
             if( s1 == s2 ) {
                 return 0;
             }
@@ -313,11 +302,11 @@ public class MessageTreeTableSortStateBean {
             }
         }
     }
-    
-    private static class IndexComparator implements Comparator {
+
+    private static class IndexComparator implements Comparator<FrostMessageObject> {
         private int retvalGreater;
         private int retvalSmaller;
-        public IndexComparator(boolean ascending) {
+        public IndexComparator(final boolean ascending) {
             if( ascending ) {
                 // oldest first
                 retvalGreater = +1;
@@ -328,11 +317,9 @@ public class MessageTreeTableSortStateBean {
                 retvalSmaller = +1;
             }
         }
-        public int compare(Object arg0, Object arg1) {
-            FrostMessageObject t1 = (FrostMessageObject)arg0; 
-            FrostMessageObject t2 = (FrostMessageObject)arg1;
-            int s1 = t1.getIndex();
-            int s2 = t2.getIndex();
+        public int compare(final FrostMessageObject t1, final FrostMessageObject t2) {
+            final int s1 = t1.getIndex();
+            final int s2 = t2.getIndex();
             if( s1 == s2 ) {
                 return 0;
             } else if( s1 > s2 ) {

@@ -29,57 +29,57 @@ import javax.swing.table.*;
 import frost.util.model.*;
 
 public class MessageTreeTableHeader extends JTableHeader {
-    
-    private MessageTreeTable messageTreeTable;
+
+    private final MessageTreeTable messageTreeTable;
 
     private static Icon ascendingIcon;
     private static Icon descendingIcon;
-    
-    private ArrowRenderer arrowRenderer = new ArrowRenderer();
 
-    public MessageTreeTableHeader(MessageTreeTable t) {
+    private final ArrowRenderer arrowRenderer = new ArrowRenderer();
+
+    public MessageTreeTableHeader(final MessageTreeTable t) {
         super(t.getColumnModel());
-        
+
         messageTreeTable = t;
-        
+
         addMouseListener(new Listener());
-        
+
         // The defaultRenderer of the JTableHeader is not touched because that is what
         // the skins system will change (if is is enabled).
-        Enumeration enumeration = messageTreeTable.getColumnModel().getColumns();
+        final Enumeration<TableColumn> enumeration = messageTreeTable.getColumnModel().getColumns();
         while (enumeration.hasMoreElements()) {
-            TableColumn column = (TableColumn) enumeration.nextElement();
+            final TableColumn column = enumeration.nextElement();
             column.setHeaderRenderer(arrowRenderer);
         }
     }
-    
-    protected void headerClicked(MouseEvent e) {
+
+    protected void headerClicked(final MouseEvent e) {
 
         if (e.getButton() == MouseEvent.BUTTON1) {
-            
+
             if( MessageTreeTableSortStateBean.isThreaded() ) {
                 // ignore clicks if threads are shown, no sorting allowed
                 return;
             }
-            
-            TableColumnModel lColumnModel = getTable().getColumnModel();
-            int columnNumber = lColumnModel.getColumnIndexAtX(e.getX());
+
+            final TableColumnModel lColumnModel = getTable().getColumnModel();
+            final int columnNumber = lColumnModel.getColumnIndexAtX(e.getX());
             if (columnNumber != -1) {
                 //This translation is done so the real column number is used when the user moves columns around.
-                int modelIndex = lColumnModel.getColumn(columnNumber).getModelIndex();
-                
+                final int modelIndex = lColumnModel.getColumn(columnNumber).getModelIndex();
+
                 if( MessageTreeTableSortStateBean.getSortedColumn() == modelIndex ) {
                     // toggle ascending
                     MessageTreeTableSortStateBean.setAscending( !MessageTreeTableSortStateBean.isAscending() );
                 } else {
                     MessageTreeTableSortStateBean.setSortedColumn(modelIndex);
                 }
-                
+
                 messageTreeTable.resortTable();
             }
         }
     }
-    
+
     /**
      * This inner class listens for mouse clicks on the header and
      * for selections in the popup menu
@@ -88,69 +88,71 @@ public class MessageTreeTableHeader extends JTableHeader {
         public Listener() {
             super();
         }
-        public void mouseClicked(MouseEvent e) {
+        @Override
+        public void mouseClicked(final MouseEvent e) {
             headerClicked(e);
         }
-        public void mouseReleased(MouseEvent e) {
+        @Override
+        public void mouseReleased(final MouseEvent e) {
         }
     }
-    
+
     /**
      * This inner class paints an arrow on the header of the column the model
-     * table is sorted by. The arrow will point upwards or downwards depending 
+     * table is sorted by. The arrow will point upwards or downwards depending
      * if the sorting is ascending or descending.
      */
     private class ArrowRenderer implements TableCellRenderer {
-                    
+
         /**
          * This constructor creates a new instance of ArrowRenderer
          */
         public ArrowRenderer() {
             super();
         }
-    
-        /** 
-         * This method assumes that this is the renderer of the header of a column. 
-         * If the defaultRenderer of the JTableHeader is an instance of JLabel 
-         * (like DefaultTableCellRenderer), it paints an arrow if necessary. Then, 
-         * it calls the defaultRenderer so that it finishes the job. 
+
+        /**
+         * This method assumes that this is the renderer of the header of a column.
+         * If the defaultRenderer of the JTableHeader is an instance of JLabel
+         * (like DefaultTableCellRenderer), it paints an arrow if necessary. Then,
+         * it calls the defaultRenderer so that it finishes the job.
          * @see javax.swing.table.TableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
          */
-        public Component getTableCellRendererComponent(JTable lTable, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            TableCellRenderer defaultRenderer = lTable.getTableHeader().getDefaultRenderer();
+        public Component getTableCellRendererComponent(final JTable lTable, final Object value, final boolean isSelected, final boolean hasFocus, final int row, final int column) {
+            final TableCellRenderer defaultRenderer = lTable.getTableHeader().getDefaultRenderer();
             if (defaultRenderer instanceof JLabel) {
-                JLabel labelRenderer = (JLabel)defaultRenderer;
+                final JLabel labelRenderer = (JLabel)defaultRenderer;
                 // This translation is done so the real column number is used when the user moves columns around.
-                int modelIndex = lTable.getColumnModel().getColumn(column).getModelIndex();
+                final int modelIndex = lTable.getColumnModel().getColumn(column).getModelIndex();
                 if( MessageTreeTableSortStateBean.isThreaded() ) {
-                    labelRenderer.setIcon(null);    
+                    labelRenderer.setIcon(null);
                 } else if (MessageTreeTableSortStateBean.getSortedColumn() == modelIndex) {
                     if (MessageTreeTableSortStateBean.isAscending()) {
-                        labelRenderer.setIcon(ascendingIcon);   
+                        labelRenderer.setIcon(ascendingIcon);
                     } else {
-                        labelRenderer.setIcon(descendingIcon);          
+                        labelRenderer.setIcon(descendingIcon);
                     }
                     labelRenderer.setHorizontalTextPosition(JLabel.LEADING);
                 } else {
-                    labelRenderer.setIcon(null);    
+                    labelRenderer.setIcon(null);
                 }
                 labelRenderer.setToolTipText(value.toString());
             }
             return defaultRenderer.getTableCellRendererComponent(lTable, value, isSelected, hasFocus, row, column);
         }
     }
-    
+
     /**
      * This static initializer loads the images of the arrows (both ascending and descending)
      */
     static {
-        URL ascencingURL = SortedModelTable.class.getResource("/data/SortedTable_ascending.png");
+        final URL ascencingURL = SortedModelTable.class.getResource("/data/SortedTable_ascending.png");
         if (ascencingURL != null) {
             ascendingIcon = new ImageIcon(ascencingURL);
-        } 
-        URL descendingURL = SortedModelTable.class.getResource("/data/SortedTable_descending.png");
+        }
+        final URL descendingURL = SortedModelTable.class.getResource("/data/SortedTable_descending.png");
         if (descendingURL != null) {
             descendingIcon = new ImageIcon(descendingURL);
-        } 
+        }
     }
 }
