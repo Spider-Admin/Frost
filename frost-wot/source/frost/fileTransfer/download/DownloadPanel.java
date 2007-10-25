@@ -717,6 +717,9 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                 if( i.getState() != FrostDownloadItem.STATE_WAITING ) {
                     continue;
                 }
+                if( i.getKey() == null ) {
+                    continue;
+                }
                 itemsToStart.add(i);
             }
 
