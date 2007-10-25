@@ -538,6 +538,16 @@ public class IdentitiesBrowser extends JDialog {
             }
             return false;
         }
+        public boolean isCleanupable() {
+            if( !isDeleteable() ) {
+                return false;
+            }
+            // always keep GOOD and BAD
+            if( identity.isGOOD() || identity.isBAD() ) {
+                return false;
+            }
+            return true;
+        }
         private String buildHtmlName(final String n) {
             // TODO: html mode wraps words with blanks, maybe replace blanks by &nbsp;
 //            String a = n.substring(0, n.indexOf("@"));
@@ -837,7 +847,7 @@ public class IdentitiesBrowser extends JDialog {
                     final LinkedList<Integer> li = new LinkedList<Integer>();
                     for( int i=tableModel.getRowCount()-1; i >= 0; i-- ) {
                         final InnerTableMember m = (InnerTableMember)tableModel.getRow(i);
-                        if( m.isDeleteable() ) {
+                        if( m.isCleanupable() ) {
                             li.add(new Integer(i));
                         }
                     }
