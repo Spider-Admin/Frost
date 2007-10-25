@@ -68,16 +68,24 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
         System.out.println("INFO: IdentitiesStorage closed.");
     }
 
-    public void importLocalIdentities(final List<LocalIdentity> lids) {
+    public void importLocalIdentities(final List<LocalIdentity> lids, final Hashtable<String,Integer> msgCounts) {
         for(final LocalIdentity li : lids) {
+            final Integer i = msgCounts.get( li.getUniqueName() );
+            if( i != null ) {
+                li.setReceivedMessageCount(i.intValue());
+            }
             storageRoot.getLocalIdentities().add( li );
         }
         commit();
     }
 
-    public void importIdentities(final List<Identity> ids) {
+    public void importIdentities(final List<Identity> ids, final Hashtable<String,Integer> msgCounts) {
         int cnt = 0;
         for(final Identity li : ids) {
+            final Integer i = msgCounts.get( li.getUniqueName() );
+            if( i != null ) {
+                li.setReceivedMessageCount(i.intValue());
+            }
             storageRoot.getIdentities().add( li );
             cnt++;
             if( cnt%100 == 0 ) {

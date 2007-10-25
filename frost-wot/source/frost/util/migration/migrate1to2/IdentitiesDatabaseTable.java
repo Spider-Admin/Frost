@@ -24,7 +24,7 @@ import java.util.*;
 import frost.identities.*;
 
 public class IdentitiesDatabaseTable {
-    
+
 //    private final static String SQL_IDENTITIES_DDL =
 //        "CREATE TABLE IF NOT EXISTS IDENTITIES ("+
 //        "primkey BIGINT DEFAULT UNIQUEKEY('IDENTITIES') NOT NULL,"+
@@ -46,7 +46,7 @@ public class IdentitiesDatabaseTable {
 //        "sendmsgdelayrandom INT,"+ // prepared, not used; +/- delay in hours
 //        "CONSTRAINT oids_pk PRIMARY KEY (primkey),"+
 //        "CONSTRAINT OWNIDENTITIES_1 UNIQUE (uniquename) )";
-//    
+//
 //    private final static String SQL_OWN_IDENTITIES_LASTFILESSHARED_DDL =
 //        "CREATE TABLE IF NOT EXISTS OWNIDENTITIESLASTFILESSHARED ("+
 //        "uniquename VARCHAR NOT NULL,"+
@@ -59,25 +59,25 @@ public class IdentitiesDatabaseTable {
 //        lst.add(SQL_OWN_IDENTITIES_LASTFILESSHARED_DDL);
 //        return lst;
 //    }
-//    
+//
 //    public boolean compact(Statement stmt) throws SQLException {
 //        stmt.executeUpdate("COMPACT TABLE IDENTITIES");
 //        stmt.executeUpdate("COMPACT TABLE OWNIDENTITIES");
 //        stmt.executeUpdate("COMPACT TABLE OWNIDENTITIESLASTFILESSHARED");
 //        return true;
 //    }
-    
+
 //    public boolean insertIdentity(Identity identity) throws SQLException {
 //        AppLayerDatabase db = AppLayerDatabase.getInstance();
-//        
+//
 //        PreparedStatement ps = db.prepareStatement("INSERT INTO IDENTITIES (uniquename,publickey,lastseen,state) VALUES (?,?,?,?)");
-//        
+//
 //        ps.setString(1, identity.getUniqueName());
 //        ps.setString(2, identity.getPublicKey());
 //        ps.setTimestamp(3, new Timestamp(identity.getLastSeenTimestamp()));
 //        ps.setInt(4, identity.getState());
-//        
-//        boolean insertWasOk = false; 
+//
+//        boolean insertWasOk = false;
 //        try {
 //            insertWasOk = (ps.executeUpdate() == 1);
 //        } finally {
@@ -88,17 +88,17 @@ public class IdentitiesDatabaseTable {
 //
 //    public boolean insertLocalIdentity(LocalIdentity localIdentity) throws SQLException {
 //        AppLayerDatabase db = AppLayerDatabase.getInstance();
-//        
+//
 //        PreparedStatement ps = db.prepareStatement(
 //                "INSERT INTO OWNIDENTITIES (uniquename,publickey,privatekey,signature,sendmsgdelay,sendmsgdelayrandom) VALUES (?,?,?,?,?,?)");
-//        
+//
 //        ps.setString(1, localIdentity.getUniqueName());
 //        ps.setString(2, localIdentity.getPublicKey());
 //        ps.setString(3, localIdentity.getPrivateKey());
 //        ps.setString(4, localIdentity.getSignature());
 //        ps.setInt(5, 0);
 //        ps.setInt(6, 0);
-//        
+//
 //        boolean insertWasOk = false;
 //        try {
 //            insertWasOk = (ps.executeUpdate() == 1);
@@ -110,11 +110,11 @@ public class IdentitiesDatabaseTable {
 //
 //    public boolean removeLocalIdentity(LocalIdentity localIdentity) throws SQLException {
 //        AppLayerDatabase db = AppLayerDatabase.getInstance();
-//        
+//
 //        PreparedStatement ps = db.prepareStatement("DELETE FROM OWNIDENTITIES WHERE uniquename=?");
-//        
+//
 //        ps.setString(1, localIdentity.getUniqueName());
-//        
+//
 //        boolean deleteWasOk = (ps.executeUpdate() == 1);
 //        ps.close();
 //        return deleteWasOk;
@@ -122,50 +122,48 @@ public class IdentitiesDatabaseTable {
 //
 //    public boolean removeIdentity(Identity identity) throws SQLException {
 //        AppLayerDatabase db = AppLayerDatabase.getInstance();
-//        
+//
 //        PreparedStatement ps = db.prepareStatement("DELETE FROM IDENTITIES WHERE uniquename=?");
-//        
+//
 //        ps.setString(1, identity.getUniqueName());
-//        
+//
 //        boolean deleteWasOk = (ps.executeUpdate() == 1);
 //        ps.close();
 //        return deleteWasOk;
 //    }
 
-    public static List<Identity> getIdentities(AppLayerDatabase db) throws SQLException {
-        ArrayList<Identity> identities = new ArrayList<Identity>();
-        
-        PreparedStatement ps = db.prepareStatement("SELECT uniquename,publickey,lastseen,state FROM IDENTITIES");
-        
-        ResultSet rs = ps.executeQuery();
+    public static List<Identity> getIdentities(final AppLayerDatabase db) throws SQLException {
+        final ArrayList<Identity> identities = new ArrayList<Identity>();
+
+        final PreparedStatement ps = db.prepareStatement("SELECT uniquename,publickey,lastseen,state FROM IDENTITIES");
+
+        final ResultSet rs = ps.executeQuery();
         while(rs.next()) {
-            String uniqueName = rs.getString(1);
-            String pubKey = rs.getString(2);
-            long lastSeen = rs.getTimestamp(3).getTime();
-            int state = rs.getInt(4);
-            Identity id = new Identity(uniqueName, pubKey, lastSeen, state);
+            final String uniqueName = rs.getString(1);
+            final String pubKey = rs.getString(2);
+            final long lastSeen = rs.getTimestamp(3).getTime();
+            final int state = rs.getInt(4);
+            final Identity id = new Identity(uniqueName, pubKey, lastSeen, state);
             identities.add(id);
         }
         rs.close();
         ps.close();
-        
+
         return identities;
     }
 
-    public static List<LocalIdentity> getLocalIdentities(AppLayerDatabase db) throws SQLException {
-        ArrayList<LocalIdentity> localIdentities = new ArrayList<LocalIdentity>();
-        
-        PreparedStatement ps = db.prepareStatement("SELECT uniquename,publickey,privatekey,signature,sendmsgdelay,sendmsgdelayrandom FROM OWNIDENTITIES");
-        
-        ResultSet rs = ps.executeQuery();
+    public static List<LocalIdentity> getLocalIdentities(final AppLayerDatabase db) throws SQLException {
+        final ArrayList<LocalIdentity> localIdentities = new ArrayList<LocalIdentity>();
+
+        final PreparedStatement ps = db.prepareStatement("SELECT uniquename,publickey,privatekey,signature FROM OWNIDENTITIES");
+
+        final ResultSet rs = ps.executeQuery();
         while(rs.next()) {
-            String uniqueName = rs.getString(1);
-            String pubKey = rs.getString(2);
-            String prvKey = rs.getString(3);
-            String signature = rs.getString(4);
-            int sendmsgdelay = rs.getInt(5);
-            int sendmsgdelayrandom = rs.getInt(6);
-            LocalIdentity id = new LocalIdentity(uniqueName, pubKey, prvKey, signature);
+            final String uniqueName = rs.getString(1);
+            final String pubKey = rs.getString(2);
+            final String prvKey = rs.getString(3);
+            final String signature = rs.getString(4);
+            final LocalIdentity id = new LocalIdentity(uniqueName, pubKey, prvKey, signature);
             localIdentities.add(id);
         }
         rs.close();
@@ -179,14 +177,14 @@ public class IdentitiesDatabaseTable {
 
 //    public boolean updateLocalIdentity(LocalIdentity identity) throws SQLException {
 //        AppLayerDatabase db = AppLayerDatabase.getInstance();
-//        
+//
 //        PreparedStatement ps = db.prepareStatement("UPDATE OWNIDENTITIES SET signature=?,sendmsgdelay=?,sendmsgdelayrandom=? WHERE uniquename=?");
-//        
+//
 //        ps.setString(1, identity.getSignature());
 //        ps.setInt(2, 0);
 //        ps.setInt(3, 0);
 //        ps.setString(4, identity.getUniqueName());
-//        
+//
 //        boolean updateWasOk = (ps.executeUpdate() == 1);
 //        ps.close();
 //        return updateWasOk;
@@ -194,26 +192,26 @@ public class IdentitiesDatabaseTable {
 //
 //    public boolean updateIdentity(Identity identity) throws SQLException {
 //        AppLayerDatabase db = AppLayerDatabase.getInstance();
-//        
+//
 //        PreparedStatement ps = db.prepareStatement("UPDATE IDENTITIES SET lastseen=?,state=? WHERE uniquename=?");
-//        
+//
 //        ps.setTimestamp(1, new Timestamp(identity.getLastSeenTimestamp()));
 //        ps.setInt(2, identity.getState());
 //        ps.setString(3, identity.getUniqueName());
-//        
+//
 //        boolean updateWasOk = (ps.executeUpdate() == 1);
 //        ps.close();
 //        return updateWasOk;
 //    }
-//    
+//
 //    /**
 //     * Returns overall message count.
 //     */
 //    public int getIdentityCount() throws SQLException {
-//        
+//
 //        AppLayerDatabase db = AppLayerDatabase.getInstance();
 //        PreparedStatement ps = db.prepareStatement("SELECT COUNT(primkey) FROM IDENTITIES");
-//        
+//
 //        int count = 0;
 //        ResultSet rs = ps.executeQuery();
 //        if( rs.next() ) {
@@ -221,22 +219,22 @@ public class IdentitiesDatabaseTable {
 //        }
 //        rs.close();
 //        ps.close();
-//        
+//
 //        return count;
 //    }
 
-    private static void loadLastFilesSharedPerIdentity(AppLayerDatabase db, List localIdentities) throws SQLException {
-        
-        PreparedStatement ps = db.prepareStatement("SELECT lastshared FROM OWNIDENTITIESLASTFILESSHARED WHERE uniquename=?");
-        
-        for(Iterator i=localIdentities.iterator(); i.hasNext(); ) {
-            LocalIdentity li = (LocalIdentity)i.next();
-            
+    private static void loadLastFilesSharedPerIdentity(final AppLayerDatabase db, final List<LocalIdentity> localIdentities) throws SQLException {
+
+        final PreparedStatement ps = db.prepareStatement("SELECT lastshared FROM OWNIDENTITIESLASTFILESSHARED WHERE uniquename=?");
+
+        for( final LocalIdentity localIdentity : localIdentities ) {
+            final LocalIdentity li = localIdentity;
+
             ps.setString(1, li.getUniqueName());
-        
-            ResultSet rs = ps.executeQuery();
+
+            final ResultSet rs = ps.executeQuery();
             if(rs.next()) {
-                long l = rs.getLong(1);
+                final long l = rs.getLong(1);
                 li.setLastFilesSharedMillis(l);
             }
             rs.close();
@@ -246,27 +244,27 @@ public class IdentitiesDatabaseTable {
 
 //    public void saveLastFilesSharedPerIdentity(List<LocalIdentity> localIdentities) throws SQLException {
 //        AppLayerDatabase db = AppLayerDatabase.getInstance();
-//        
+//
 //        Statement s = db.createStatement();
 //        s.executeUpdate("DELETE FROM OWNIDENTITIESLASTFILESSHARED"); // clear table
 //        s.close();
 //        s = null;
-//        
+//
 //        PreparedStatement ps = db.prepareStatement("INSERT INTO OWNIDENTITIESLASTFILESSHARED (uniquename,lastshared) VALUES (?,?)");
-//        
+//
 //        for(Iterator<LocalIdentity> i=localIdentities.iterator(); i.hasNext(); ) {
 //            LocalIdentity li = i.next();
 //            long l = li.getLastFilesSharedMillis();
 //            if( l > 0 ) {
 //                ps.setString(1, li.getUniqueName());
 //                ps.setLong(2, l);
-//                
+//
 //                ps.executeUpdate();
 //            }
 //        }
 //        ps.close();
 //    }
-//    
+//
 //    public static class IdentityMsgAndFileCount {
 //        final int fileCount;
 //        final int messageCount;
@@ -281,29 +279,29 @@ public class IdentitiesDatabaseTable {
 //            return messageCount;
 //        }
 //    }
-//    
+//
 //    /**
 //     * Retrieve msgCount and fileCount for each identity.
 //     */
 //    public Hashtable<String,IdentityMsgAndFileCount> retrieveMsgAndFileCountPerIdentity() throws SQLException {
 //        AppLayerDatabase db = AppLayerDatabase.getInstance();
 //        // query powered by database-man
-//        String query = 
+//        String query =
 //        "SELECT "+
 //        "i.uniquename, "+
 //        "COALESCE(m.msg_count, 0) messages, "+
 //        "COALESCE(f.file_count, 0) files "+
 //        "FROM IDENTITIES i "+
-//        "LEFT JOIN (SELECT fromname, COUNT(*) msg_count "+ 
+//        "LEFT JOIN (SELECT fromname, COUNT(*) msg_count "+
 //        "           FROM MESSAGES WHERE isvalid=TRUE "+
 //        "           GROUP BY fromname) m "+
 //        "    ON m.fromname = i.uniquename "+
-//        "LEFT JOIN (SELECT owner, COUNT(*) file_count "+ 
+//        "LEFT JOIN (SELECT owner, COUNT(*) file_count "+
 //        "           FROM FILEOWNERLIST "+
 //        "           GROUP BY owner) f "+
 //        "    ON f.owner = i.uniquename "+
 //        "ORDER BY i.uniquename";
-//        
+//
 //        Statement stmt = db.createStatement();
 //        ResultSet rs = stmt.executeQuery(query);
 //        Hashtable<String,IdentityMsgAndFileCount> data = new Hashtable<String,IdentityMsgAndFileCount>();
@@ -315,19 +313,19 @@ public class IdentitiesDatabaseTable {
 //            data.put(uniqueName, s);
 //        }
 //        rs.close();
-//        
+//
 //        // same for ownidentities
-//        query = 
+//        query =
 //            "SELECT "+
 //            "i.uniquename, "+
 //            "COALESCE(m.msg_count, 0) messages, "+
 //            "COALESCE(f.file_count, 0) files "+
 //            "FROM OWNIDENTITIES i "+
-//            "LEFT JOIN (SELECT fromname, COUNT(*) msg_count "+ 
+//            "LEFT JOIN (SELECT fromname, COUNT(*) msg_count "+
 //            "           FROM MESSAGES WHERE isvalid=TRUE "+
 //            "           GROUP BY fromname) m "+
 //            "    ON m.fromname = i.uniquename "+
-//            "LEFT JOIN (SELECT owner, COUNT(*) file_count "+ 
+//            "LEFT JOIN (SELECT owner, COUNT(*) file_count "+
 //            "           FROM FILEOWNERLIST "+
 //            "           GROUP BY owner) f "+
 //            "    ON f.owner = i.uniquename "+
@@ -343,7 +341,69 @@ public class IdentitiesDatabaseTable {
 //        rs.close();
 //
 //        stmt.close();
-//        
+//
 //        return data;
 //    }
+//  /**
+//  * Retrieve msgCount and fileCount for each identity.
+//  */
+    public static Hashtable<String,Integer> retrieveMsgCountPerIdentity() throws SQLException {
+        final AppLayerDatabase db = AppLayerDatabase.getInstance();
+        // query powered by database-man
+        String query =
+            "SELECT "+
+            "i.uniquename, "+
+            "COALESCE(m.msg_count, 0) messages, "+
+            "COALESCE(a.msg_count2, 0) messages2 "+
+            "FROM IDENTITIES i "+
+            "LEFT JOIN (SELECT fromname, COUNT(*) msg_count "+
+            "           FROM MESSAGES WHERE isvalid=TRUE "+
+            "           GROUP BY fromname) m "+
+            "    ON m.fromname = i.uniquename "+
+            "LEFT JOIN (SELECT fromname, COUNT(*) msg_count2 "+
+            "           FROM MESSAGEARCHIVE "+
+            "           GROUP BY fromname) a "+
+            "    ON a.fromname = i.uniquename "+
+            "ORDER BY i.uniquename";
+
+        final Statement stmt = db.createStatement();
+        ResultSet rs = stmt.executeQuery(query);
+        final Hashtable<String,Integer> data = new Hashtable<String,Integer>();
+        while(rs.next()) {
+            final String uniqueName = rs.getString(1);
+            final int messageCount = rs.getInt(2);
+            final int messageCount2 = rs.getInt(3);
+            data.put(uniqueName, new Integer(messageCount+messageCount2));
+        }
+        rs.close();
+
+        // same for ownidentities
+        query =
+            "SELECT "+
+            "i.uniquename, "+
+            "COALESCE(m.msg_count, 0) messages, "+
+            "COALESCE(a.msg_count2, 0) messages2 "+
+            "FROM OWNIDENTITIES i "+
+            "LEFT JOIN (SELECT fromname, COUNT(*) msg_count "+
+            "           FROM MESSAGES WHERE isvalid=TRUE "+
+            "           GROUP BY fromname) m "+
+            "    ON m.fromname = i.uniquename "+
+            "LEFT JOIN (SELECT fromname, COUNT(*) msg_count2 "+
+            "           FROM MESSAGEARCHIVE "+
+            "           GROUP BY fromname) a "+
+            "    ON a.fromname = i.uniquename "+
+            "ORDER BY i.uniquename";
+        rs = stmt.executeQuery(query);
+        while(rs.next()) {
+            final String uniqueName = rs.getString(1);
+            final int messageCount = rs.getInt(2);
+            final int messageCount2 = rs.getInt(3);
+            data.put(uniqueName, new Integer(messageCount+messageCount2));
+        }
+        rs.close();
+
+        stmt.close();
+
+        return data;
+    }
 }

@@ -21,7 +21,6 @@ package frost.gui;
 
 import java.awt.*;
 import java.io.*;
-import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
@@ -36,7 +35,7 @@ import frost.util.*;
 import frost.util.gui.translation.*;
 
 public class ManageLocalIdentitiesDialog extends JDialog {
-    
+
 //    private static final Logger logger = Logger.getLogger(ManageLocalIdentitiesDialog.class.getName());
 
     private Language language = null;
@@ -59,7 +58,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
     private JButton BexportXml = null;
 
     private JButton BsetSignature = null;
-    
+
     private boolean identitiesImported = false;
 
     /**
@@ -75,14 +74,14 @@ public class ManageLocalIdentitiesDialog extends JDialog {
 
     /**
      * This method initializes this
-     * 
+     *
      * @return void
      */
     private void initialize() {
         this.setSize(488, 311);
         this.setTitle(language.getString("ManageLocalIdentities.title"));
         this.setContentPane(getJContentPane());
-        
+
         jLabel.setText(language.getString("ManageLocalidentities.listLabel")+":");
         BimportIdentityXml.setText(language.getString("ManageLocalIdentities.button.importIdentity"));
         BdeleteIdentity.setText(language.getString("ManageLocalIdentities.button.deleteIdentity"));
@@ -92,10 +91,10 @@ public class ManageLocalIdentitiesDialog extends JDialog {
         Bclose.setText(language.getString("ManageLocalIdentities.button.close"));
         BsetSignature.setText(language.getString("ManageLocalIdentities.button.editSignature"));
     }
-    
+
     /**
      * This method initializes jContentPane
-     * 
+     *
      * @return javax.swing.JPanel
      */
     private JPanel getJContentPane() {
@@ -109,13 +108,13 @@ public class ManageLocalIdentitiesDialog extends JDialog {
     }
 
     /**
-     * This method initializes buttonPanel	
-     * 	
-     * @return javax.swing.JPanel	
+     * This method initializes buttonPanel
+     *
+     * @return javax.swing.JPanel
      */
     private JPanel getButtonPanel() {
         if( buttonPanel == null ) {
-            FlowLayout flowLayout = new FlowLayout();
+            final FlowLayout flowLayout = new FlowLayout();
             flowLayout.setAlignment(java.awt.FlowLayout.RIGHT);
             buttonPanel = new JPanel();
             buttonPanel.setLayout(flowLayout);
@@ -125,13 +124,13 @@ public class ManageLocalIdentitiesDialog extends JDialog {
     }
 
     /**
-     * This method initializes mainPanel	
-     * 	
-     * @return javax.swing.JPanel	
+     * This method initializes mainPanel
+     *
+     * @return javax.swing.JPanel
      */
     private JPanel getMainPanel() {
         if( mainPanel == null ) {
-            GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
             gridBagConstraints2.gridx = 1;
             gridBagConstraints2.gridheight = 1;
             gridBagConstraints2.weightx = 0.0;
@@ -139,7 +138,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
             gridBagConstraints2.weighty = 1.0;
             gridBagConstraints2.insets = new java.awt.Insets(3,0,0,0);
             gridBagConstraints2.gridy = 1;
-            GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
             gridBagConstraints1.fill = java.awt.GridBagConstraints.BOTH;
             gridBagConstraints1.gridy = 1;
             gridBagConstraints1.weightx = 0.3;
@@ -147,7 +146,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
             gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints1.insets = new java.awt.Insets(3,5,3,5);
             gridBagConstraints1.gridx = 0;
-            GridBagConstraints gridBagConstraints = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints = new GridBagConstraints();
             gridBagConstraints.gridx = 0;
             gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints.insets = new java.awt.Insets(5,5,0,5);
@@ -164,16 +163,16 @@ public class ManageLocalIdentitiesDialog extends JDialog {
     }
 
     /**
-     * This method initializes Bclose	
-     * 	
-     * @return javax.swing.JButton	
+     * This method initializes Bclose
+     *
+     * @return javax.swing.JButton
      */
     private JButton getBclose() {
         if( Bclose == null ) {
             Bclose = new JButton();
             Bclose.setText("ManageLocalIdentities.button.close");
             Bclose.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent e) {
+                public void actionPerformed(final java.awt.event.ActionEvent e) {
                     setVisible(false);
                 }
             });
@@ -182,9 +181,9 @@ public class ManageLocalIdentitiesDialog extends JDialog {
     }
 
     /**
-     * This method initializes SPlist	
-     * 	
-     * @return javax.swing.JScrollPane	
+     * This method initializes SPlist
+     *
+     * @return javax.swing.JScrollPane
      */
     private JScrollPane getSPlist() {
         if( SPlist == null ) {
@@ -195,46 +194,46 @@ public class ManageLocalIdentitiesDialog extends JDialog {
     }
 
     /**
-     * This method initializes jPanel	
-     * 	
-     * @return javax.swing.JPanel	
+     * This method initializes jPanel
+     *
+     * @return javax.swing.JPanel
      */
     private JPanel getJPanel() {
         if( jPanel == null ) {
-            GridBagConstraints gridBagConstraints9 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints9 = new GridBagConstraints();
             gridBagConstraints9.gridx = 0;
             gridBagConstraints9.insets = new Insets(15, 3, 0, 5);
             gridBagConstraints9.fill = GridBagConstraints.HORIZONTAL;
             gridBagConstraints9.gridy = 2;
-            GridBagConstraints gridBagConstraints8 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints8 = new GridBagConstraints();
             gridBagConstraints8.gridx = 0;
             gridBagConstraints8.fill = java.awt.GridBagConstraints.HORIZONTAL;
             gridBagConstraints8.insets = new java.awt.Insets(5,3,0,5);
             gridBagConstraints8.gridy = 5;
-            GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
             gridBagConstraints7.gridx = 0;
             gridBagConstraints7.fill = java.awt.GridBagConstraints.HORIZONTAL;
             gridBagConstraints7.insets = new java.awt.Insets(15,3,0,5);
             gridBagConstraints7.gridy = 4;
-            GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
             gridBagConstraints6.gridx = 0;
             gridBagConstraints6.fill = java.awt.GridBagConstraints.VERTICAL;
             gridBagConstraints6.weighty = 1.0;
             gridBagConstraints6.gridy = 6;
             Ldummy = new JLabel();
             Ldummy.setText("");
-            GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
             gridBagConstraints5.gridx = 0;
             gridBagConstraints5.insets = new java.awt.Insets(15,3,0,5);
             gridBagConstraints5.fill = java.awt.GridBagConstraints.HORIZONTAL;
             gridBagConstraints5.gridy = 3;
-            GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
             gridBagConstraints4.gridx = 0;
             gridBagConstraints4.insets = new java.awt.Insets(5,3,0,5);
             gridBagConstraints4.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints4.fill = java.awt.GridBagConstraints.HORIZONTAL;
             gridBagConstraints4.gridy = 1;
-            GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
             gridBagConstraints3.gridx = 0;
             gridBagConstraints3.insets = new Insets(0, 3, 0, 5);
             gridBagConstraints3.anchor = java.awt.GridBagConstraints.NORTHWEST;
@@ -254,35 +253,35 @@ public class ManageLocalIdentitiesDialog extends JDialog {
     }
 
     /**
-     * This method initializes identitiesList	
-     * 	
-     * @return javax.swing.JList	
+     * This method initializes identitiesList
+     *
+     * @return javax.swing.JList
      */
     private JList getIdentitiesList() {
         if( identitiesList == null ) {
             identitiesList = new JList();
             identitiesList.setModel(new DefaultListModel());
-            for(Iterator i=Core.getIdentities().getLocalIdentities().iterator(); i.hasNext(); ) {
-                ((DefaultListModel)identitiesList.getModel()).addElement(i.next());
+            for( final Object element : Core.getIdentities().getLocalIdentities() ) {
+                ((DefaultListModel)identitiesList.getModel()).addElement(element);
             }
         }
         return identitiesList;
     }
 
     /**
-     * This method initializes BaddNewIdentity	
-     * 	
-     * @return javax.swing.JButton	
+     * This method initializes BaddNewIdentity
+     *
+     * @return javax.swing.JButton
      */
     private JButton getBaddNewIdentity() {
         if( BaddNewIdentity == null ) {
             BaddNewIdentity = new JButton();
             BaddNewIdentity.setText("ManageLocalIdentities.button.createNewIdentity");
             BaddNewIdentity.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent e) {
-                    LocalIdentity newIdentity = Core.getIdentities().createIdentity();
+                public void actionPerformed(final java.awt.event.ActionEvent e) {
+                    final LocalIdentity newIdentity = Core.getIdentities().createIdentity();
                     if( newIdentity != null ) {
-                        DefaultListModel m = (DefaultListModel)getIdentitiesList().getModel();
+                        final DefaultListModel m = (DefaultListModel)getIdentitiesList().getModel();
                         m.addElement(newIdentity);
                     }
                 }
@@ -292,25 +291,25 @@ public class ManageLocalIdentitiesDialog extends JDialog {
     }
 
     /**
-     * This method initializes BdeleteIdentity	
-     * 	
-     * @return javax.swing.JButton	
+     * This method initializes BdeleteIdentity
+     *
+     * @return javax.swing.JButton
      */
     private JButton getBdeleteIdentity() {
         if( BdeleteIdentity == null ) {
             BdeleteIdentity = new JButton();
             BdeleteIdentity.setText("ManageLocalIdentities.button.deleteIdentity");
             BdeleteIdentity.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent e) {
+                public void actionPerformed(final java.awt.event.ActionEvent e) {
 
-                    LocalIdentity li = (LocalIdentity)getIdentitiesList().getSelectedValue();
+                    final LocalIdentity li = (LocalIdentity)getIdentitiesList().getSelectedValue();
                     if( li == null ) {
                         return;
                     }
 
                     if( Core.getIdentities().getLocalIdentities().size() <= 1 ) {
                         JOptionPane.showMessageDialog(
-                                ManageLocalIdentitiesDialog.this, 
+                                ManageLocalIdentitiesDialog.this,
                                 language.getString("ManageLocalIdentities.cannotDeleteLastIdentity.body"),
                                 language.getString("ManageLocalIdentities.cannotDeleteLastIdentity.title"),
                                 JOptionPane.INFORMATION_MESSAGE);
@@ -327,13 +326,13 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                     }
 
                     // check if files are shared with this identity
-                    int count = Core.getInstance().getFileTransferManager().countFilesSharedByLocalIdentity(li);
+                    final int count = Core.getInstance().getFileTransferManager().countFilesSharedByLocalIdentity(li);
                     if( count > 0 ) {
                         answer =
                             JOptionPane.showConfirmDialog(
                                 ManageLocalIdentitiesDialog.this,
-                                language.formatMessage("ManageLocalIdentities.deleteIdentitiesSharedFilesConfirmation.body", 
-                                        li.getUniqueName(), 
+                                language.formatMessage("ManageLocalIdentities.deleteIdentitiesSharedFilesConfirmation.body",
+                                        li.getUniqueName(),
                                         Integer.toString(count)),
                                 language.getString("ManageLocalIdentities.deleteIdentitiesSharedFilesConfirmation.title"),
                                 JOptionPane.YES_NO_OPTION,
@@ -346,22 +345,22 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                     Core.getInstance().getFileTransferManager().removeFilesSharedByLocalIdentity(li);
                     Core.getIdentities().deleteLocalIdentity(li);
                     // put deleted into GOOD state
-                    Identity myOld = new Identity(li.getUniqueName(), li.getPublicKey());
+                    final Identity myOld = new Identity(li);
                     myOld.setGOOD();
                     Core.getIdentities().addIdentity( myOld );
-                    
+
                     ((DefaultListModel)getIdentitiesList().getModel()).removeElement(li);
                 }
             });
         }
         return BdeleteIdentity;
     }
-    
-    protected LocalIdentity importLocalIdentityFromIdentityXml(File identitiesXmlFile) {
-        Document d = XMLTools.parseXmlFile(identitiesXmlFile, false);
-        Element rootEl = d.getDocumentElement();
 
-        Element myself = (Element) XMLTools.getChildElementsByTagName(rootEl, "MyIdentity").get(0);
+    protected LocalIdentity importLocalIdentityFromIdentityXml(final File identitiesXmlFile) {
+        final Document d = XMLTools.parseXmlFile(identitiesXmlFile, false);
+        final Element rootEl = d.getDocumentElement();
+
+        final Element myself = XMLTools.getChildElementsByTagName(rootEl, "MyIdentity").get(0);
         LocalIdentity myId = null;
         if( myself != null ) {
             myId = new LocalIdentity(myself);
@@ -370,25 +369,25 @@ public class ManageLocalIdentitiesDialog extends JDialog {
     }
 
     /**
-     * This method initializes BimportIdentityXml	
-     * 	
-     * @return javax.swing.JButton	
+     * This method initializes BimportIdentityXml
+     *
+     * @return javax.swing.JButton
      */
     private JButton getBimportIdentityXml() {
         if( BimportIdentityXml == null ) {
             BimportIdentityXml = new JButton();
             BimportIdentityXml.setText("ManageLocalIdentities.button.importIdentity");
             BimportIdentityXml.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent e) {
-                    File xmlFile = chooseIdentitiesFile();
+                public void actionPerformed(final java.awt.event.ActionEvent e) {
+                    final File xmlFile = chooseIdentitiesFile();
                     if( xmlFile == null ) {
                         return;
                     }
-                    LocalIdentity importedIdentity = importLocalIdentityFromIdentityXml(xmlFile);
+                    final LocalIdentity importedIdentity = importLocalIdentityFromIdentityXml(xmlFile);
                     if( importedIdentity == null ) {
                         // load failed
                         JOptionPane.showMessageDialog(
-                                ManageLocalIdentitiesDialog.this, 
+                                ManageLocalIdentitiesDialog.this,
                                 language.getString("ManageLocalIdentities.noIdentityToImport.body"),
                                 language.getString("ManageLocalIdentities.noIdentityToImport.title"),
                                 JOptionPane.WARNING_MESSAGE);
@@ -397,14 +396,14 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                     if( !Core.getIdentities().addLocalIdentity(importedIdentity) ) {
                         // duplicate identity
                         JOptionPane.showMessageDialog(
-                                ManageLocalIdentitiesDialog.this, 
+                                ManageLocalIdentitiesDialog.this,
                                 language.formatMessage("ManageLocalIdentities.duplicateIdentity.body", importedIdentity.getUniqueName()),
                                 language.getString("ManageLocalIdentities.duplicateIdentity.title"),
                                 JOptionPane.WARNING_MESSAGE);
                         return;
                     }
                     JOptionPane.showMessageDialog(
-                            ManageLocalIdentitiesDialog.this, 
+                            ManageLocalIdentitiesDialog.this,
                             language.formatMessage("ManageLocalIdentities.identityImported.body",importedIdentity.getUniqueName()),
                             language.getString("ManageLocalIdentities.identityImported.title"),
                             JOptionPane.INFORMATION_MESSAGE);
@@ -416,10 +415,11 @@ public class ManageLocalIdentitiesDialog extends JDialog {
         }
         return BimportIdentityXml;
     }
-    
+
     private File chooseIdentitiesFile() {
-        
-        FileFilter myFilter = new FileFilter() {
+
+        final FileFilter myFilter = new FileFilter() {
+            @Override
             public boolean accept(File file) {
                 if( file.isDirectory() ) {
                     return true;
@@ -429,14 +429,15 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                 }
                 return false;
             }
+            @Override
             public String getDescription() {
                 return "identities.xml";
             }
         };
-        
-        JFileChooser chooser = new JFileChooser();
+
+        final JFileChooser chooser = new JFileChooser();
         chooser.setFileFilter(myFilter);
-        int returnVal = chooser.showOpenDialog(this);
+        final int returnVal = chooser.showOpenDialog(this);
         if(returnVal == JFileChooser.APPROVE_OPTION) {
             return chooser.getSelectedFile();
         }
@@ -444,8 +445,9 @@ public class ManageLocalIdentitiesDialog extends JDialog {
     }
 
     private File chooseXmlImportFile() {
-        
-        FileFilter myFilter = new FileFilter() {
+
+        final FileFilter myFilter = new FileFilter() {
+            @Override
             public boolean accept(File file) {
                 if( file.isDirectory() ) {
                     return true;
@@ -455,14 +457,15 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                 }
                 return false;
             }
+            @Override
             public String getDescription() {
                 return "localidentities.xml";
             }
         };
-        
-        JFileChooser chooser = new JFileChooser();
+
+        final JFileChooser chooser = new JFileChooser();
         chooser.setFileFilter(myFilter);
-        int returnVal = chooser.showOpenDialog(this);
+        final int returnVal = chooser.showOpenDialog(this);
         if(returnVal == JFileChooser.APPROVE_OPTION) {
             return chooser.getSelectedFile();
         }
@@ -470,8 +473,9 @@ public class ManageLocalIdentitiesDialog extends JDialog {
     }
 
     private File chooseXmlExportFile() {
-        
-        FileFilter myFilter = new FileFilter() {
+
+        final FileFilter myFilter = new FileFilter() {
+            @Override
             public boolean accept(File file) {
                 if( file.isDirectory() ) {
                     return true;
@@ -481,25 +485,26 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                 }
                 return false;
             }
+            @Override
             public String getDescription() {
                 return "localidentities.xml";
             }
         };
-        
-        JFileChooser chooser = new JFileChooser();
+
+        final JFileChooser chooser = new JFileChooser();
         chooser.setFileFilter(myFilter);
-        int returnVal = chooser.showSaveDialog(this);
+        final int returnVal = chooser.showSaveDialog(this);
         if(returnVal == JFileChooser.APPROVE_OPTION) {
             File f = chooser.getSelectedFile();
             if( !f.getName().endsWith(".xml") ) {
                 f = new File(f.getPath() + ".xml");
             }
             if( f.exists() ) {
-                int answer = JOptionPane.showConfirmDialog(
+                final int answer = JOptionPane.showConfirmDialog(
                         this,
                         language.formatMessage("ManageLocalIdentities.exportIdentitiesConfirmXmlFileOverwrite.body", f.getName()),
-                        language.getString("ManageLocalIdentities.exportIdentitiesConfirmXmlFileOverwrite.title"), 
-                        JOptionPane.YES_NO_OPTION, 
+                        language.getString("ManageLocalIdentities.exportIdentitiesConfirmXmlFileOverwrite.title"),
+                        JOptionPane.YES_NO_OPTION,
                         JOptionPane.WARNING_MESSAGE);
                 if( answer == JOptionPane.NO_OPTION ) {
                     return null;
@@ -511,39 +516,39 @@ public class ManageLocalIdentitiesDialog extends JDialog {
     }
 
     /**
-     * This method initializes BimportXml	
-     * 	
-     * @return javax.swing.JButton	
+     * This method initializes BimportXml
+     *
+     * @return javax.swing.JButton
      */
     private JButton getBimportXml() {
         if( BimportXml == null ) {
             BimportXml = new JButton();
             BimportXml.setText("ManageLocalIdentities.button.importXml");
             BimportXml.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent e) {
-                    File xmlFile = chooseXmlImportFile();
+                public void actionPerformed(final java.awt.event.ActionEvent e) {
+                    final File xmlFile = chooseXmlImportFile();
                     if( xmlFile == null ) {
                         return;
                     }
-                    List localIdentities = LocalIdentitiesXmlDAO.loadLocalidentities(xmlFile);
+                    final List<LocalIdentity> localIdentities = LocalIdentitiesXmlDAO.loadLocalidentities(xmlFile);
                     if( localIdentities.size() == 0 ) {
                         // nothing loaded
                         JOptionPane.showMessageDialog(
-                                ManageLocalIdentitiesDialog.this, 
+                                ManageLocalIdentitiesDialog.this,
                                 language.getString("ManageLocalIdentities.noLocalIdentityToImport.body"),
-                                language.getString("ManageLocalIdentities.noLocalIdentityToImport.title"), 
+                                language.getString("ManageLocalIdentities.noLocalIdentityToImport.title"),
                                 JOptionPane.WARNING_MESSAGE);
                         return;
                     }
                     int count = 0;
-                    for( Iterator i = localIdentities.iterator(); i.hasNext(); ) {
-                        LocalIdentity lId = (LocalIdentity) i.next();
+                    for( final LocalIdentity localIdentity : localIdentities ) {
+                        final LocalIdentity lId = localIdentity;
                         if( !Core.getIdentities().addLocalIdentity(lId) ) {
                             // duplicate identity
                             JOptionPane.showMessageDialog(
-                                    ManageLocalIdentitiesDialog.this, 
+                                    ManageLocalIdentitiesDialog.this,
                                     language.formatMessage("ManageLocalIdentities.duplicateLocalIdentity.body", lId.getUniqueName()),
-                                    language.getString("ManageLocalIdentities.duplicateLocalIdentity.title"), 
+                                    language.getString("ManageLocalIdentities.duplicateLocalIdentity.title"),
                                     JOptionPane.WARNING_MESSAGE);
                         } else {
                             count++;
@@ -551,9 +556,9 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                         }
                     }
                     JOptionPane.showMessageDialog(
-                            ManageLocalIdentitiesDialog.this, 
+                            ManageLocalIdentitiesDialog.this,
                             language.formatMessage("ManageLocalIdentities.localIdentitiesImported.body", Integer.toString(count)),
-                            language.getString("ManageLocalIdentities.localIdentitiesImported.title"), 
+                            language.getString("ManageLocalIdentities.localIdentitiesImported.title"),
                             JOptionPane.WARNING_MESSAGE);
                     if( count > 0 ) {
                         identitiesImported = true;
@@ -566,40 +571,40 @@ public class ManageLocalIdentitiesDialog extends JDialog {
     }
 
     /**
-     * This method initializes BexportXml	
-     * 	
-     * @return javax.swing.JButton	
+     * This method initializes BexportXml
+     *
+     * @return javax.swing.JButton
      */
     private JButton getBexportXml() {
         if( BexportXml == null ) {
             BexportXml = new JButton();
             BexportXml.setText("ManageLocalIdentities.button.exportXml");
             BexportXml.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent e) {
-                    
+                public void actionPerformed(final java.awt.event.ActionEvent e) {
+
                     JOptionPane.showMessageDialog(
-                            ManageLocalIdentitiesDialog.this, 
+                            ManageLocalIdentitiesDialog.this,
                             language.getString("ManageLocalIdentities.privateKeyExportWarning.body"),
                             language.getString("ManageLocalIdentities.privateKeyExportWarning.title"),
                             JOptionPane.WARNING_MESSAGE);
-                    
-                    File xmlFile = chooseXmlExportFile();
+
+                    final File xmlFile = chooseXmlExportFile();
                     if( xmlFile == null ) {
                         return;
                     }
-                    List<LocalIdentity> lIds = Core.getIdentities().getLocalIdentities();
-                    boolean wasOk = LocalIdentitiesXmlDAO.saveLocalIdentities(xmlFile, lIds);
+                    final List<LocalIdentity> lIds = Core.getIdentities().getLocalIdentities();
+                    final boolean wasOk = LocalIdentitiesXmlDAO.saveLocalIdentities(xmlFile, lIds);
                     if( wasOk ) {
                         JOptionPane.showMessageDialog(
-                                ManageLocalIdentitiesDialog.this, 
-                                language.formatMessage("ManageLocalIdentities.identitiesExported.body", Integer.toString(lIds.size())), 
-                                language.getString("ManageLocalIdentities.identitiesExported.title"), 
+                                ManageLocalIdentitiesDialog.this,
+                                language.formatMessage("ManageLocalIdentities.identitiesExported.body", Integer.toString(lIds.size())),
+                                language.getString("ManageLocalIdentities.identitiesExported.title"),
                                 JOptionPane.INFORMATION_MESSAGE);
                     } else {
                         JOptionPane.showMessageDialog(
-                                ManageLocalIdentitiesDialog.this, 
-                                language.getString("ManageLocalIdentities.identitiesExportFailed.body"), 
-                                language.getString("ManageLocalIdentities.identitiesExportFailed.title"), 
+                                ManageLocalIdentitiesDialog.this,
+                                language.getString("ManageLocalIdentities.identitiesExportFailed.body"),
+                                language.getString("ManageLocalIdentities.identitiesExportFailed.title"),
                                 JOptionPane.ERROR_MESSAGE);
                     }
                 }
@@ -609,23 +614,23 @@ public class ManageLocalIdentitiesDialog extends JDialog {
     }
 
     /**
-     * This method initializes BsetSignature	
-     * 	
-     * @return javax.swing.JButton	
+     * This method initializes BsetSignature
+     *
+     * @return javax.swing.JButton
      */
     private JButton getBsetSignature() {
         if( BsetSignature == null ) {
             BsetSignature = new JButton();
             BsetSignature.setText("ManageLocalIdentities.button.editSignature");
             BsetSignature.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent e) {
-                    LocalIdentity li = (LocalIdentity)getIdentitiesList().getSelectedValue();
+                public void actionPerformed(final java.awt.event.ActionEvent e) {
+                    final LocalIdentity li = (LocalIdentity)getIdentitiesList().getSelectedValue();
                     if( li == null ) {
                         return;
                     }
-                    String idString = li.getUniqueName();
-                    String signature = li.getSignature();
-                    ManageLocalIdentitiesSignatureDialog dlg = new ManageLocalIdentitiesSignatureDialog(ManageLocalIdentitiesDialog.this);
+                    final String idString = li.getUniqueName();
+                    final String signature = li.getSignature();
+                    final ManageLocalIdentitiesSignatureDialog dlg = new ManageLocalIdentitiesSignatureDialog(ManageLocalIdentitiesDialog.this);
                     String newSig = dlg.startDialog(idString, signature);
                     if( newSig != null ) {
                         newSig = newSig.trim();

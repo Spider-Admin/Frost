@@ -42,8 +42,6 @@ public class FrostIdentities {
 
     Language language = Language.getInstance();
 
-    private static boolean databaseUpdatesAllowed = true; // forbidden during first import
-
     /**
      * @param freenetIsOnline
      */
@@ -182,9 +180,7 @@ public class FrostIdentities {
         if (identities.containsKey(key)) {
             return false;
         }
-        if( isDatabaseUpdatesAllowed() ) {
-            IdentitiesStorage.inst().insertIdentity(id);
-        }
+        IdentitiesStorage.inst().insertIdentity(id);
         identities.put(key, id);
         return true;
     }
@@ -193,9 +189,7 @@ public class FrostIdentities {
         if (localIdentities.containsKey(li.getUniqueName())) {
             return false;
         }
-        if( isDatabaseUpdatesAllowed() ) {
-            IdentitiesStorage.inst().insertLocalIdentity(li);
-        }
+        IdentitiesStorage.inst().insertLocalIdentity(li);
         localIdentities.put(li.getUniqueName(), li);
         return true;
     }
@@ -252,14 +246,6 @@ public class FrostIdentities {
 
     public List<Identity> getIdentities() {
         return new ArrayList<Identity>(identities.values());
-    }
-
-    public static boolean isDatabaseUpdatesAllowed() {
-        return databaseUpdatesAllowed;
-    }
-
-    public static void setDatabaseUpdatesAllowed(final boolean dbUpdatesAllowed) {
-        databaseUpdatesAllowed = dbUpdatesAllowed;
     }
 
     /**

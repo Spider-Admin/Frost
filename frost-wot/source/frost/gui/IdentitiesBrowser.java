@@ -92,7 +92,7 @@ public class IdentitiesBrowser extends JDialog {
      */
     private void initialize() {
         this.setTitle("IdentitiesBrowser.title");
-        this.setBounds(new java.awt.Rectangle(0,0,600,420));
+        this.setBounds(new java.awt.Rectangle(0,0,630,420));
         this.setContentPane(getJContentPane());
 
         getBmarkGOOD().setText("");
@@ -167,7 +167,7 @@ public class IdentitiesBrowser extends JDialog {
             tableModel = new InnerTableModel();
             identitiesTable = new SortedTable(tableModel);
             // set column sizes
-            final int[] widths = { 130, 30, 70, 20, 20 };
+            final int[] widths = { 130, 30, 30, 70, 20, 20 };
             for (int i = 0; i < widths.length; i++) {
                 identitiesTable.getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
             }
@@ -178,6 +178,7 @@ public class IdentitiesBrowser extends JDialog {
             identitiesTable.getColumnModel().getColumn(2).setCellRenderer(showColoredLinesRenderer);
             identitiesTable.getColumnModel().getColumn(3).setCellRenderer(showColoredLinesRenderer);
             identitiesTable.getColumnModel().getColumn(4).setCellRenderer(showColoredLinesRenderer);
+            identitiesTable.getColumnModel().getColumn(5).setCellRenderer(showColoredLinesRenderer);
 
             jScrollPane.addMouseListener(listener);
             identitiesTable.addMouseListener(listener);
@@ -513,6 +514,7 @@ public class IdentitiesBrowser extends JDialog {
         Integer fileCount;
         String lastSeenStr;
         String htmlName;
+        Integer receivedMsgs;
 
         public InnerTableMember(final Identity i, final Hashtable<String,IdentitiesStorage.IdentityMsgAndFileCount> idDatas) {
             identity = i;
@@ -527,6 +529,7 @@ public class IdentitiesBrowser extends JDialog {
                 fileCount = new Integer(-1);
             }
             lastSeenStr = buildLastSeenString(identity.getLastSeenTimestamp());
+            receivedMsgs = new Integer(identity.getReceivedMessageCount());
             htmlName = buildHtmlName(i.getUniqueName());
         }
         public Identity getIdentity() {
@@ -574,9 +577,10 @@ public class IdentitiesBrowser extends JDialog {
             switch(column) {
                 case 0: return htmlName;
                 case 1: return getIdentity().getStateString();
-                case 2: return lastSeenStr;
-                case 3: return msgCount;
-                case 4: return fileCount;
+                case 2: return receivedMsgs;
+                case 3: return lastSeenStr;
+                case 4: return msgCount;
+                case 5: return fileCount;
             }
             return "*ERR*";
         }
@@ -588,27 +592,14 @@ public class IdentitiesBrowser extends JDialog {
                 return s1.compareToIgnoreCase(s2);
             }
             if( tableColumnIndex == 2 ) {
-                final long l1 = getIdentity().getLastSeenTimestamp();
-                final long l2 = ((InnerTableMember)anOther).getIdentity().getLastSeenTimestamp();
-                if( l1 > l2 ) {
-                    return 1;
-                }
-                if( l1 < l2 ) {
-                    return -1;
-                }
-                return 0;
+                final int l1 = getIdentity().getReceivedMessageCount();
+                final int l2 = ((InnerTableMember)anOther).getIdentity().getReceivedMessageCount();
+                return Mixed.compareLong(l1, l2);
             }
             if( tableColumnIndex == 3 ) {
-                Integer i1 = (Integer)getValueAt(tableColumnIndex);
-                Integer i2 = (Integer)anOther.getValueAt(tableColumnIndex);
-                final int res = i1.compareTo(i2);
-                if( res == 0) {
-                    // same msgcount, compare filecount
-                    i1 = (Integer)getValueAt(4);
-                    i2 = (Integer)anOther.getValueAt(4);
-                    return i1.compareTo(i2);
-                }
-                return res;
+                final long l1 = getIdentity().getLastSeenTimestamp();
+                final long l2 = ((InnerTableMember)anOther).getIdentity().getLastSeenTimestamp();
+                return Mixed.compareLong(l1, l2);
             }
             if( tableColumnIndex == 4 ) {
                 Integer i1 = (Integer)getValueAt(tableColumnIndex);
@@ -616,8 +607,20 @@ public class IdentitiesBrowser extends JDialog {
                 final int res = i1.compareTo(i2);
                 if( res == 0) {
                     // same msgcount, compare filecount
-                    i1 = (Integer)getValueAt(3);
-                    i2 = (Integer)anOther.getValueAt(3);
+                    i1 = (Integer)getValueAt(5);
+                    i2 = (Integer)anOther.getValueAt(5);
+                    return i1.compareTo(i2);
+                }
+                return res;
+            }
+            if( tableColumnIndex == 5 ) {
+                Integer i1 = (Integer)getValueAt(tableColumnIndex);
+                Integer i2 = (Integer)anOther.getValueAt(tableColumnIndex);
+                final int res = i1.compareTo(i2);
+                if( res == 0) {
+                    // same filecount, compare msgcount
+                    i1 = (Integer)getValueAt(4);
+                    i2 = (Integer)anOther.getValueAt(4);
                     return i1.compareTo(i2);
                 }
                 return res;
@@ -628,11 +631,12 @@ public class IdentitiesBrowser extends JDialog {
 
     public class InnerTableModel extends SortedTableModel {
 
-        protected final String columnNames[] = new String[5];
+        protected final String columnNames[] = new String[6];
 
         protected final Class columnClasses[] = {
             String.class, // name
             String.class, // state
+            Integer.class, // received msgs
             String.class, // lastSeen,
             Integer.class, // msgs
             Integer.class  // files
@@ -672,9 +676,10 @@ public class IdentitiesBrowser extends JDialog {
         private void setLanguage() {
             columnNames[0] = language.getString("IdentitiesBrowser.identitiesTable.name");
             columnNames[1] = language.getString("IdentitiesBrowser.identitiesTable.state");
-            columnNames[2] = language.getString("IdentitiesBrowser.identitiesTable.lastSeen");
-            columnNames[3] = language.getString("IdentitiesBrowser.identitiesTable.messages");
-            columnNames[4] = language.getString("IdentitiesBrowser.identitiesTable.files");
+            columnNames[2] = language.getString("IdentitiesBrowser.identitiesTable.receivedMessages");
+            columnNames[3] = language.getString("IdentitiesBrowser.identitiesTable.lastSeen");
+            columnNames[4] = language.getString("IdentitiesBrowser.identitiesTable.messages");
+            columnNames[5] = language.getString("IdentitiesBrowser.identitiesTable.files");
         }
     }
 
