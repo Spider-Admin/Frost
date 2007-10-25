@@ -110,16 +110,23 @@ public class Migrate1to2 {
 
     private boolean migrateIdentities() {
         System.out.println("Converting identities...");
+        final Hashtable<String,Integer> messageCounts;
+        try {
+            messageCounts = IdentitiesDatabaseTable.retrieveMsgCountPerIdentity();
+        } catch (final SQLException e) {
+            logger.log(Level.SEVERE, "Severe error: could not retrieve identities message count", e);
+            return false;
+        }
         try {
             final List<LocalIdentity> li = IdentitiesDatabaseTable.getLocalIdentities(AppLayerDatabase.getInstance());
-            IdentitiesStorage.inst().importLocalIdentities(li);
+            IdentitiesStorage.inst().importLocalIdentities(li, messageCounts);
         } catch (final SQLException e) {
             logger.log(Level.SEVERE, "Severe error: could not retrieve local identities", e);
             return false;
         }
         try {
             final List<Identity> li = IdentitiesDatabaseTable.getIdentities(AppLayerDatabase.getInstance());
-            IdentitiesStorage.inst().importIdentities(li);
+            IdentitiesStorage.inst().importIdentities(li, messageCounts);
         } catch (final SQLException e) {
             logger.log(Level.SEVERE, "Severe error: could not retrieve identities", e);
             return false;

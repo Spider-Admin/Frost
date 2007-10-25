@@ -240,6 +240,11 @@ public class TOF {
             return; // not inserted into database, do not add to gui
         }
 
+        if( newMsg.isSignatureStatusVERIFIED() && newMsg.getFromIdentity() != null ) {
+            // we received a new unique message, count it
+            newMsg.getFromIdentity().incReceivedMessageCount();
+        }
+
         // after add to database
         processNewMessage(newMsg, board, isBlocked);
     }

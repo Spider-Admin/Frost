@@ -34,9 +34,79 @@ import frost.util.*;
  */
 public class Identity extends Persistent implements XMLizable {
 
+    private static transient final Logger logger = Logger.getLogger(Identity.class.getName());
+
+    private static transient final int GOOD    = 1;
+    private static transient final int CHECK   = 2;
+    private static transient final int OBSERVE = 3;
+    private static transient final int BAD     = 4;
+
+    private static transient final String GOOD_STRING    = "GOOD";
+    private static transient final String CHECK_STRING   = "CHECK";
+    private static transient final String OBSERVE_STRING = "OBSERVE";
+    private static transient final String BAD_STRING     = "BAD";
+
+    private String uniqueName;
+    private long lastSeenTimestamp = -1;
+    private int receivedMessageCount = 0;
+
+    private int state = 2;
+    private transient String stateString = CHECK_STRING;
+
     private transient String publicKey;
 
     private PerstIdentityPublicKey pPublicKey;
+
+    public Identity() {}
+
+    //if this was C++ LocalIdentity wouldn't work
+    //fortunately we have virtual construction so loadXMLElement will be called
+    //for the inheriting class ;-)
+    public Identity(final Element el) {
+        try {
+            loadXMLElement(el);
+        } catch (final SAXException e) {
+            logger.log(Level.SEVERE, "Exception thrown in constructor", e);
+        }
+    }
+
+    /**
+     * we use this constructor whenever we have all the info
+     */
+    public Identity(final String name, final String key) {
+        this.publicKey = key;
+        if( name.indexOf("@") != -1 ) {
+            this.uniqueName = name;
+        } else {
+            this.uniqueName = name + "@" + Core.getCrypto().digest(getPublicKey());
+        }
+
+        uniqueName = Mixed.makeFilename(uniqueName);
+    }
+
+    /**
+     * Only used for migration.
+     */
+    public Identity(final String uname, final String pubkey, final long lseen, final int s) {
+        uniqueName = uname;
+        publicKey = pubkey;
+        lastSeenTimestamp = lseen;
+        state = s;
+        updateStateString();
+
+        uniqueName = Mixed.makeFilename(uniqueName);
+    }
+
+    /**
+     * If a LocalIdentity is deleted, we ceate a GOOD Identity for the deleted LocalIdentity
+     */
+    public Identity(final LocalIdentity li) {
+        uniqueName = li.getUniqueName();
+        publicKey = li.getPublicKey();
+        lastSeenTimestamp = li.getLastSeenTimestamp();
+        receivedMessageCount = li.getReceivedMessageCount();
+        updateStateString();
+    }
 
     @Override
     public boolean recursiveLoading() {
@@ -78,35 +148,9 @@ public class Identity extends Persistent implements XMLizable {
         }
     }
 
-    private static transient final int GOOD    = 1;
-    private static transient final int CHECK   = 2;
-    private static transient final int OBSERVE = 3;
-    private static transient final int BAD     = 4;
-
-    private static transient final String GOOD_STRING    = "GOOD";
-    private static transient final String CHECK_STRING   = "CHECK";
-    private static transient final String OBSERVE_STRING = "OBSERVE";
-    private static transient final String BAD_STRING     = "BAD";
-
-    private String uniqueName;
-    private long lastSeenTimestamp = -1;
-
-    private int state = 2;
-    private transient String stateString = CHECK_STRING;
-
-    private static transient final Logger logger = Logger.getLogger(Identity.class.getName());
-
-    public Identity() {}
-
-    //if this was C++ LocalIdentity wouldn't work
-    //fortunately we have virtual construction so loadXMLElement will be called
-    //for the inheriting class ;-)
-    public Identity(final Element el) {
-        try {
-            loadXMLElement(el);
-        } catch (final SAXException e) {
-            logger.log(Level.SEVERE, "Exception thrown in constructor", e);
-        }
+    @Override
+    public void onLoad() {
+        updateStateString();
     }
 
     public Element getXMLElement(final Document doc)  {
@@ -146,9 +190,15 @@ public class Identity extends Persistent implements XMLizable {
     public Element getExportXMLElement(final Document doc)  {
         final Element el = getXMLElement(doc);
 
-        if( lastSeenTimestamp > -1 ) {
+        if( getLastSeenTimestamp() > -1 ) {
             final Element element = doc.createElement("lastSeen");
-            final Text txt = doc.createTextNode(Long.toString(lastSeenTimestamp));
+            final Text txt = doc.createTextNode(Long.toString(getLastSeenTimestamp()));
+            element.appendChild( txt );
+            el.appendChild( element );
+        }
+        if( getReceivedMessageCount() > -1 ) {
+            final Element element = doc.createElement("messageCount");
+            final Text txt = doc.createTextNode(Long.toString(getReceivedMessageCount()));
             element.appendChild( txt );
             el.appendChild( element );
         }
@@ -159,38 +209,20 @@ public class Identity extends Persistent implements XMLizable {
         uniqueName = XMLTools.getChildElementsCDATAValue(e, "name");
         publicKey =  XMLTools.getChildElementsCDATAValue(e, "key");
 
-        String _lastSeenStr = XMLTools.getChildElementsTextValue(e,"lastSeen");
-        if( _lastSeenStr != null && ((_lastSeenStr=_lastSeenStr.trim())).length() > 0 ) {
-            lastSeenTimestamp = Long.parseLong(_lastSeenStr);
+        String lastSeenStr = XMLTools.getChildElementsTextValue(e,"lastSeen");
+        if( lastSeenStr != null && ((lastSeenStr=lastSeenStr.trim())).length() > 0 ) {
+            lastSeenTimestamp = Long.parseLong(lastSeenStr);
         } else {
             // not yet set, init with current timestamp
             lastSeenTimestamp = System.currentTimeMillis();
         }
 
-        uniqueName = Mixed.makeFilename(uniqueName);
-    }
-
-    /**
-     * we use this constructor whenever we have all the info
-     */
-    public Identity(final String name, final String key) {
-        this.publicKey = key;
-        if( name.indexOf("@") != -1 ) {
-            this.uniqueName = name;
+        String msgCount = XMLTools.getChildElementsTextValue(e,"messageCount");
+        if( msgCount != null && ((msgCount=msgCount.trim())).length() > 0 ) {
+            receivedMessageCount = Integer.parseInt(msgCount);
         } else {
-            this.uniqueName = name + "@" + Core.getCrypto().digest(getPublicKey());
+            receivedMessageCount = 0;
         }
-
-        uniqueName = Mixed.makeFilename(uniqueName);
-    }
-
-
-    public Identity(final String uname, final String pubkey, final long lseen, final int s) {
-        uniqueName = uname;
-        publicKey = pubkey;
-        lastSeenTimestamp = lseen;
-        state = s;
-        updateStateString();
 
         uniqueName = Mixed.makeFilename(uniqueName);
     }
@@ -310,14 +342,24 @@ public class Identity extends Persistent implements XMLizable {
     }
 
     protected boolean updateIdentitiesStorage() {
-        if( FrostIdentities.isDatabaseUpdatesAllowed() == false ) {
-            return false;
-        }
         if( getStorage() == null ) {
             return false;
         }
         modify();
         IdentitiesStorage.inst().commit();
         return true;
+    }
+
+    public int getReceivedMessageCount() {
+        return receivedMessageCount;
+    }
+
+    public void setReceivedMessageCount(final int i) {
+        receivedMessageCount = i;
+    }
+
+    public void incReceivedMessageCount() {
+        this.receivedMessageCount++;
+        updateIdentitiesStorage();
     }
 }
