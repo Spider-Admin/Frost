@@ -1,22 +1,22 @@
 /*
  * Copyright 1997-2000 Sun Microsystems, Inc. All Rights Reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or
  * without modification, are permitted provided that the following
  * conditions are met:
- * 
+ *
  * - Redistributions of source code must retain the above copyright
- *   notice, this list of conditions and the following disclaimer. 
- *   
+ *   notice, this list of conditions and the following disclaimer.
+ *
  * - Redistribution in binary form must reproduce the above
  *   copyright notice, this list of conditions and the following
  *   disclaimer in the documentation and/or other materials
- *   provided with the distribution. 
- *   
+ *   provided with the distribution.
+ *
  * Neither the name of Sun Microsystems, Inc. or the names of
  * contributors may be used to endorse or promote products derived
- * from this software without specific prior written permission.  
- * 
+ * from this software without specific prior written permission.
+ *
  * This software is provided "AS IS," without a warranty of any
  * kind. ALL EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND
  * WARRANTIES, INCLUDING ANY IMPLIED WARRANTY OF MERCHANTABILITY,
@@ -24,13 +24,13 @@
  * EXCLUDED. SUN AND ITS LICENSORS SHALL NOT BE LIABLE FOR ANY
  * DAMAGES OR LIABILITIES SUFFERED BY LICENSEE AS A RESULT OF OR
  * RELATING TO USE, MODIFICATION OR DISTRIBUTION OF THIS SOFTWARE OR
- * ITS DERIVATIVES. IN NO EVENT WILL SUN OR ITS LICENSORS BE LIABLE 
- * FOR ANY LOST REVENUE, PROFIT OR DATA, OR FOR DIRECT, INDIRECT,   
- * SPECIAL, CONSEQUENTIAL, INCIDENTAL OR PUNITIVE DAMAGES, HOWEVER  
- * CAUSED AND REGARDLESS OF THE THEORY OF LIABILITY, ARISING OUT OF 
- * THE USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF SUN HAS 
+ * ITS DERIVATIVES. IN NO EVENT WILL SUN OR ITS LICENSORS BE LIABLE
+ * FOR ANY LOST REVENUE, PROFIT OR DATA, OR FOR DIRECT, INDIRECT,
+ * SPECIAL, CONSEQUENTIAL, INCIDENTAL OR PUNITIVE DAMAGES, HOWEVER
+ * CAUSED AND REGARDLESS OF THE THEORY OF LIABILITY, ARISING OUT OF
+ * THE USE OF OR INABILITY TO USE THIS SOFTWARE, EVEN IF SUN HAS
  * BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
- * 
+ *
  * You acknowledge that this software is not designed, licensed or
  * intended for use in the design, construction, operation or
  * maintenance of any nuclear facility.
@@ -53,13 +53,15 @@ import javax.swing.tree.*;
 import frost.*;
 import frost.fcp.*;
 import frost.fileTransfer.common.*;
+import frost.identities.*;
 import frost.messages.*;
+import frost.util.*;
 import frost.util.gui.*;
 
 /**
- * This example shows how to create a simple JTreeTable component, 
- * by using a JTree as a renderer (and editor) for the cells in a 
- * particular column in the JTable.  
+ * This example shows how to create a simple JTreeTable component,
+ * by using a JTree as a renderer (and editor) for the cells in a
+ * particular column in the JTable.
  *
  * @version 1.2 10/27/98
  *
@@ -82,62 +84,62 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             BorderFactory.createEmptyBorder(0, 2, 0, 0) );              // inside
     protected Border borderEmpty = BorderFactory.createEmptyBorder(0, 4, 0, 0);
 
-    private StringCellRenderer stringCellRenderer = new StringCellRenderer();
-    private BooleanCellRenderer booleanCellRenderer = new BooleanCellRenderer();
-    
-    private ImageIcon flaggedIcon = new ImageIcon(getClass().getResource("/data/flagged.gif"));
-    private ImageIcon starredIcon = new ImageIcon(getClass().getResource("/data/starred.gif"));
+    private final StringCellRenderer stringCellRenderer = new StringCellRenderer();
+    private final BooleanCellRenderer booleanCellRenderer = new BooleanCellRenderer();
 
-    private ImageIcon messageDummyIcon = new ImageIcon(getClass().getResource("/data/messagedummyicon.gif"));
-    private ImageIcon messageNewIcon = new ImageIcon(getClass().getResource("/data/messagenewicon.gif"));
-    private ImageIcon messageReadIcon = new ImageIcon(getClass().getResource("/data/messagereadicon.gif"));
-    private ImageIcon messageNewRepliedIcon = new ImageIcon(getClass().getResource("/data/messagenewrepliedicon.gif"));
-    private ImageIcon messageReadRepliedIcon = new ImageIcon(getClass().getResource("/data/messagereadrepliedicon.gif"));
+    private final ImageIcon flaggedIcon = new ImageIcon(getClass().getResource("/data/flagged.gif"));
+    private final ImageIcon starredIcon = new ImageIcon(getClass().getResource("/data/starred.gif"));
+
+    private final ImageIcon messageDummyIcon = new ImageIcon(getClass().getResource("/data/messagedummyicon.gif"));
+    private final ImageIcon messageNewIcon = new ImageIcon(getClass().getResource("/data/messagenewicon.gif"));
+    private final ImageIcon messageReadIcon = new ImageIcon(getClass().getResource("/data/messagereadicon.gif"));
+    private final ImageIcon messageNewRepliedIcon = new ImageIcon(getClass().getResource("/data/messagenewrepliedicon.gif"));
+    private final ImageIcon messageReadRepliedIcon = new ImageIcon(getClass().getResource("/data/messagereadrepliedicon.gif"));
 
     private boolean showColoredLines;
-    
-    public MessageTreeTable(TreeTableModel treeTableModel) {
+
+    public MessageTreeTable(final TreeTableModel treeTableModel) {
     	super();
-        
+
         showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
-        
+
         Core.frostSettings.addPropertyChangeListener(SettingsClass.SHOW_COLORED_ROWS, this);
         Core.frostSettings.addPropertyChangeListener(SettingsClass.MESSAGE_LIST_FONT_NAME, this);
         Core.frostSettings.addPropertyChangeListener(SettingsClass.MESSAGE_LIST_FONT_SIZE, this);
         Core.frostSettings.addPropertyChangeListener(SettingsClass.MESSAGE_LIST_FONT_STYLE, this);
 
-    	// Creates the tree. It will be used as a renderer and editor. 
+    	// Creates the tree. It will be used as a renderer and editor.
     	tree = new TreeTableCellRenderer(treeTableModel);
-    
-    	// Installs a tableModel representing the visible rows in the tree. 
+
+    	// Installs a tableModel representing the visible rows in the tree.
     	super.setModel(new TreeTableModelAdapter(treeTableModel, tree));
 
-    	// Forces the JTable and JTree to share their row selection models. 
-    	ListToTreeSelectionModelWrapper selectionWrapper = new ListToTreeSelectionModelWrapper();
+    	// Forces the JTable and JTree to share their row selection models.
+    	final ListToTreeSelectionModelWrapper selectionWrapper = new ListToTreeSelectionModelWrapper();
     	tree.setSelectionModel(selectionWrapper);
     	setSelectionModel(selectionWrapper.getListSelectionModel());
-        
+
         tree.setRootVisible(false);
         tree.setShowsRootHandles(true);
-    
-    	// Installs the tree editor renderer and editor. 
-    	setDefaultRenderer(TreeTableModel.class, tree); 
+
+    	// Installs the tree editor renderer and editor.
+    	setDefaultRenderer(TreeTableModel.class, tree);
     	setDefaultEditor(TreeTableModel.class, new TreeTableCellEditor());
-        
+
         // install cell renderer
         setDefaultRenderer(String.class, stringCellRenderer);
         setDefaultRenderer(Boolean.class, booleanCellRenderer);
-        
+
         // install table header renderer
-        MessageTreeTableHeader hdr = new MessageTreeTableHeader(this);
+        final MessageTreeTableHeader hdr = new MessageTreeTableHeader(this);
         setTableHeader(hdr);
 
     	// No grid.
     	setShowGrid(false);
-    
+
     	// No intercell spacing
-    	setIntercellSpacing(new Dimension(0, 0));	
-    
+    	setIntercellSpacing(new Dimension(0, 0));
+
     	// And update the height of the trees row to match that of the table.
     	if (tree.getRowHeight() < 1) {
     	    // Metal looks better like this.
@@ -148,7 +150,8 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     /**
      * Overwritten to forward LEFT and RIGHT cursor to the tree to allow JTree-like expand/collapse of nodes.
      */
-    protected boolean processKeyBinding(KeyStroke ks, KeyEvent e, int condition, boolean pressed) {
+    @Override
+    protected boolean processKeyBinding(final KeyStroke ks, final KeyEvent e, final int condition, boolean pressed) {
         if( !pressed ) {
             return super.processKeyBinding(ks, e, condition, pressed);
         }
@@ -162,15 +165,15 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         }
         return true;
     }
-    
+
     public FrostMessageObject getRootNode() {
         return (FrostMessageObject)((DefaultTreeModel)tree.getModel()).getRoot();
     }
 
-    public void setNewRootNode(TreeNode t) {
+    public void setNewRootNode(final TreeNode t) {
         ((DefaultTreeModel)tree.getModel()).setRoot(t);
     }
-    
+
     // If expand is true, expands all nodes in the tree.
     // Otherwise, collapses all nodes in the tree.
     public void expandAll(final boolean expand) {
@@ -187,8 +190,8 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             });
         }
     }
-    
-    public void expandThread(final boolean expand, FrostMessageObject msg) {
+
+    public void expandThread(final boolean expand, final FrostMessageObject msg) {
         if( msg == null ) {
             return;
         }
@@ -208,23 +211,23 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         }
     }
 
-    private void expandAll(TreePath parent, boolean expand) {
+    private void expandAll(final TreePath parent, boolean expand) {
         // Traverse children
-        TreeNode node = (TreeNode)parent.getLastPathComponent();
+        final TreeNode node = (TreeNode)parent.getLastPathComponent();
         if (node.getChildCount() >= 0) {
-            for (Enumeration e=node.children(); e.hasMoreElements(); ) {
-                TreeNode n = (TreeNode)e.nextElement();
-                TreePath path = parent.pathByAddingChild(n);
+            for (final Enumeration e=node.children(); e.hasMoreElements(); ) {
+                final TreeNode n = (TreeNode)e.nextElement();
+                final TreePath path = parent.pathByAddingChild(n);
                 expandAll(path, expand);
             }
         }
-    
+
         // Expansion or collapse must be done bottom-up
         // never collapse the invisible rootnode!
         if( node.getParent() == null ) {
             expand = true;
         }
-        
+
         if (expand) {
             if( !tree.isExpanded(parent) ) {
                 tree.expandPath(parent);
@@ -235,7 +238,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             }
         }
     }
-    
+
     public void expandNode(final DefaultMutableTreeNode n) {
         if( SwingUtilities.isEventDispatchThread() ) {
             expandAll(new TreePath(n.getPath()), true);
@@ -253,6 +256,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
      * Since the tree is not actually in the component hierarchy it will
      * never receive this unless we forward it in this manner.
      */
+    @Override
     public void updateUI() {
     	super.updateUI();
     	if(tree != null) {
@@ -261,20 +265,21 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     	    // from the tree. The renderer can potentially change each time laf changes.
     	    // setDefaultEditor(TreeTableModel.class, new TreeTableCellEditor());
     	}
-	    // Use the tree's default foreground and background colors in the table. 
+	    // Use the tree's default foreground and background colors in the table.
         LookAndFeel.installColorsAndFont(this, "Tree.background", "Tree.foreground", "Tree.font");
     }
 
     /**
-     * Workaround for BasicTableUI anomaly. Make sure the UI never tries to 
-     * resize the editor. The UI currently uses different techniques to 
-     * paint the renderers and editors; overriding setBounds() below 
-     * is not the right thing to do for an editor. Returning -1 for the 
-     * editing row in this case, ensures the editor is never painted. 
+     * Workaround for BasicTableUI anomaly. Make sure the UI never tries to
+     * resize the editor. The UI currently uses different techniques to
+     * paint the renderers and editors; overriding setBounds() below
+     * is not the right thing to do for an editor. Returning -1 for the
+     * editing row in this case, ensures the editor is never painted.
      */
+    @Override
     public int getEditingRow() {
         return (getColumnClass(editingColumn) == TreeTableModel.class) ? -1 :
-	        editingRow;  
+	        editingRow;
     }
 
     /**
@@ -292,12 +297,13 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
      * think the table is being edited, as <code>getEditingRow</code> returns
      * -1, and therefore doesn't automatically resize the editor for us.
      */
-    public void sizeColumnsToFit(int resizingColumn) { 
+    @Override
+    public void sizeColumnsToFit(final int resizingColumn) {
         super.sizeColumnsToFit(resizingColumn);
     	if (getEditingColumn() != -1 && getColumnClass(editingColumn) ==
     	    TreeTableModel.class) {
-    	    Rectangle cellRect = getCellRect(realEditingRow(), getEditingColumn(), false);
-            Component component = getEditorComponent();
+    	    final Rectangle cellRect = getCellRect(realEditingRow(), getEditingColumn(), false);
+            final Component component = getEditorComponent();
             component.setBounds(cellRect);
             component.validate();
     	}
@@ -306,10 +312,11 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     /**
      * Overridden to pass the new rowHeight to the tree.
      */
-    public void setRowHeight(int rowHeight) { 
-        super.setRowHeight(rowHeight); 
+    @Override
+    public void setRowHeight(final int rowHeight) {
+        super.setRowHeight(rowHeight);
         if (tree != null && tree.getRowHeight() != rowHeight) {
-            tree.setRowHeight(getRowHeight()); 
+            tree.setRowHeight(getRowHeight());
         }
     }
 
@@ -319,12 +326,12 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     public TreeTableCellRenderer getTree() {
         return tree;
     }
-    
-    public int getRowForNode(DefaultMutableTreeNode n) {
+
+    public int getRowForNode(final DefaultMutableTreeNode n) {
         if(n.isRoot()) {
             return 0;
         }
-        TreePath tp = new TreePath(n.getPath());
+        final TreePath tp = new TreePath(n.getPath());
         return tree.getRowForPath(tp);
     }
 
@@ -334,8 +341,9 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
      * not fill the bounds of the cell, we need the renderer to paint
      * the tree in the background, and then draw the editor over it.
      */
-    public boolean editCellAt(int row, int column, EventObject e){
-    	boolean retValue = super.editCellAt(row, column, e);
+    @Override
+    public boolean editCellAt(final int row, final int column, final EventObject e){
+    	final boolean retValue = super.editCellAt(row, column, e);
     	if (retValue && getColumnClass(column) == TreeTableModel.class) {
     	    repaint(getCellRect(row, column, false));
     	}
@@ -352,74 +360,78 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         private Font boldFont = null;
         private Font normalFont = null;
         private boolean isDeleted = false;
-        
+
         private String toolTipText = null;
-    
-    	public TreeTableCellRenderer(TreeModel model) {
+
+    	public TreeTableCellRenderer(final TreeModel model) {
     	    super(model);
-            Font baseFont = MessageTreeTable.this.getFont();
+            final Font baseFont = MessageTreeTable.this.getFont();
             normalFont = baseFont.deriveFont(Font.PLAIN);
             boldFont = baseFont.deriveFont(Font.BOLD);
-            
+
             setCellRenderer(new OwnTreeCellRenderer());
-            
+
             if( getUI() instanceof BasicTreeUI ) {
-                BasicTreeUI treeUI = (BasicTreeUI)getUI();
+                final BasicTreeUI treeUI = (BasicTreeUI)getUI();
 //                System.out.println("1:"+treeUI.getLeftChildIndent()); // default 7
 //                System.out.println("2:"+treeUI.getRightChildIndent());// default 13
                 treeUI.setLeftChildIndent(6);
                 treeUI.setRightChildIndent(10);
             }
     	}
-        
-        public void fontChanged(Font font) {
+
+        public void fontChanged(final Font font) {
             normalFont = font.deriveFont(Font.PLAIN);
             boldFont = font.deriveFont(Font.BOLD);
         }
-        
-        public void processKeyEvent(KeyEvent e) {
+
+        @Override
+        public void processKeyEvent(final KeyEvent e) {
             super.processKeyEvent(e);
         }
-        
+
         class OwnTreeCellRenderer extends DefaultTreeCellRenderer {
             int treeWidth;
             public OwnTreeCellRenderer() {
                 super();
                 setVerticalAlignment(CENTER);
             }
+            @Override
             public Component getTreeCellRendererComponent(
-                    JTree lTree, 
-                    Object value, 
-                    boolean sel, 
-                    boolean expanded,
-                    boolean leaf, 
-                    int row, 
-                    boolean lHasFocus) 
+                    final JTree lTree,
+                    final Object value,
+                    final boolean sel,
+                    final boolean expanded,
+                    final boolean leaf,
+                    final int row,
+                    final boolean lHasFocus)
             {
                 treeWidth = lTree.getWidth();
                 return super.getTreeCellRendererComponent(lTree, value, sel, expanded, leaf, row, lHasFocus);
             }
-            public void paint(Graphics g) {
+            @Override
+            public void paint(final Graphics g) {
                 setSize(new Dimension(treeWidth - this.getBounds().x, this.getSize().height));
                 super.paint(g);
                 if(isDeleted) {
-                    Dimension size = getSize();
+                    final Dimension size = getSize();
                     g.drawLine(0, size.height / 2, size.width, size.height / 2);
                 }
             }
         }
-    
+
     	/**
     	 * updateUI is overridden to set the colors of the Tree's renderer
     	 * to match that of the table.
     	 */
-    	public void updateUI() {
+    	@Override
+        public void updateUI() {
     	    super.updateUI();
     	    // Make the tree's cell renderer use the table's cell selection
-    	    // colors. 
-    	    TreeCellRenderer tcr = getCellRenderer();
+    	    // colors.
+    	    final TreeCellRenderer tcr = getCellRenderer();
     	    if (tcr instanceof DefaultTreeCellRenderer) {
-        		DefaultTreeCellRenderer dtcr = ((DefaultTreeCellRenderer)tcr); 
+        		final DefaultTreeCellRenderer dtcr = ((DefaultTreeCellRenderer)tcr);
         		// For 1.1 uncomment this, 1.2 has a bug that will cause an
         		// exception to be thrown if the border selection color is null.
         		// dtcr.setBorderSelectionColor(null);
@@ -427,37 +439,40 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         		dtcr.setBackgroundSelectionColor(UIManager.getColor("Table.selectionBackground"));
     	    }
     	}
-        
-        public void setDeleted(boolean value) {
+
+        public void setDeleted(final boolean value) {
             isDeleted = value;
         }
-    
+
     	/**
     	 * Sets the row height of the tree, and forwards the row height to
     	 * the table.
     	 */
-    	public void setRowHeight(int rowHeight) { 
+    	@Override
+        public void setRowHeight(final int rowHeight) {
     	    if (rowHeight > 0) {
-        		super.setRowHeight(rowHeight); 
+        		super.setRowHeight(rowHeight);
         		if (MessageTreeTable.this != null &&
         		    MessageTreeTable.this.getRowHeight() != rowHeight) {
-        		    MessageTreeTable.this.setRowHeight(getRowHeight()); 
+        		    MessageTreeTable.this.setRowHeight(getRowHeight());
         		}
     	    }
     	}
-        
+
     	/**
     	 * This is overridden to set the height to match that of the JTable.
     	 */
-    	public void setBounds(int x, int y, int w, int h) {
+    	@Override
+        public void setBounds(final int x, final int y, final int w, final int h) {
     	    super.setBounds(x, 0, w, MessageTreeTable.this.getHeight());
     	}
-    
+
     	/**
     	 * Sublcassed to translate the graphics such that the last visible
     	 * row will be drawn at 0,0.
     	 */
-    	public void paint(Graphics g) {
+    	@Override
+        public void paint(final Graphics g) {
     	    g.translate(0, -visibleRow * getRowHeight());
     	    super.paint(g);
     	}
@@ -465,25 +480,25 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     	/**
     	 * TreeCellRenderer method. Overridden to update the visible row.
     	 */
-    	public Component getTableCellRendererComponent(JTable table,
-    						       Object value,
+    	public Component getTableCellRendererComponent(final JTable table,
+    						       final Object value,
     						       boolean isSelected,
-    						       boolean hasFocus,
-    						       int row, int column) 
+    						       final boolean hasFocus,
+    						       final int row, final int column)
     	{
     	    Color background;
     	    Color foreground;
-            
+
             final TreeTableModelAdapter model = (TreeTableModelAdapter)MessageTreeTable.this.getModel();
             final FrostMessageObject msg = (FrostMessageObject)model.getRow(row);
-    
+
             // first set font, bold for new msg or normal
             if (msg.isNew()) {
                 setFont(boldFont);
             } else {
                 setFont(normalFont);
             }
-            
+
             // now set foreground color
             if( msg.getRecipientName() != null && msg.getRecipientName().length() > 0) {
                 foreground = Color.RED;
@@ -494,7 +509,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             }
 
             if (!isSelected) {
-                Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
+                final Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
                 background = newBackground;
             } else {
                 background = table.getSelectionBackground();
@@ -502,14 +517,14 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             }
 
             setDeleted(msg.isDeleted());
-    
+
     	    visibleRow = row;
     	    setBackground(background);
-    
+
     	    final TreeCellRenderer tcr = getCellRenderer();
     	    if (tcr instanceof DefaultTreeCellRenderer) {
 
-        		final DefaultTreeCellRenderer dtcr = ((DefaultTreeCellRenderer)tcr); 
+        		final DefaultTreeCellRenderer dtcr = ((DefaultTreeCellRenderer)tcr);
         		if (isSelected) {
         		    dtcr.setTextSelectionColor(foreground);
         		    dtcr.setBackgroundSelectionColor(background);
@@ -520,7 +535,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
 
                 dtcr.setBorder(null);
                 if( ((FrostMessageObject)msg.getParent()).isRoot() ) {
-                    boolean[] hasUnreadOrMarked = msg.hasUnreadOrMarkedChilds();
+                    final boolean[] hasUnreadOrMarked = msg.hasUnreadOrMarkedChilds();
                     boolean hasUnread = hasUnreadOrMarked[0];
                     boolean hasMarked = hasUnreadOrMarked[1];
                     if( hasUnread && !hasMarked ) {
@@ -537,7 +552,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                         dtcr.setBorder(borderUnreadAndMarkedMsgsInThread);
                     }
                 }
-                
+
                 final ImageIcon icon;
                 if( msg.isDummy() ) {
                     icon = messageDummyIcon;
@@ -570,50 +585,53 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                 dtcr.setOpenIcon(icon);
                 dtcr.setClosedIcon(icon);
     	    }
-            
+
     	    return this;
     	}
-        public void setToolTipText(String t) {
+        @Override
+        public void setToolTipText(final String t) {
             toolTipText = t;
         }
         /**
          * Override to always return a tooltext for the table column.
          */
-        public String getToolTipText(MouseEvent event) {
+        @Override
+        public String getToolTipText(final MouseEvent event) {
             return toolTipText;
         }
         }
-    
+
         /**
          * ListToTreeSelectionModelWrapper extends DefaultTreeSelectionModel
          * to listen for changes in the ListSelectionModel it maintains. Once
          * a change in the ListSelectionModel happens, the paths are updated
          * in the DefaultTreeSelectionModel.
          */
-        class ListToTreeSelectionModelWrapper extends DefaultTreeSelectionModel { 
+        class ListToTreeSelectionModelWrapper extends DefaultTreeSelectionModel {
     	/** Set to true when we are updating the ListSelectionModel. */
     	protected boolean         updatingListSelectionModel;
-    
+
     	public ListToTreeSelectionModelWrapper() {
     	    super();
     	    getListSelectionModel().addListSelectionListener(createListSelectionListener());
     	}
-        
+
     	/**
     	 * Returns the list selection model. ListToTreeSelectionModelWrapper
     	 * listens for changes to this model and updates the selected paths
     	 * accordingly.
     	 */
     	ListSelectionModel getListSelectionModel() {
-    	    return listSelectionModel; 
+    	    return listSelectionModel;
     	}
-    
+
     	/**
     	 * This is overridden to set <code>updatingListSelectionModel</code>
     	 * and message super. This is the only place DefaultTreeSelectionModel
     	 * alters the ListSelectionModel.
     	 */
-    	public void resetRowSelection() {
+    	@Override
+        public void resetRowSelection() {
     	    if(!updatingListSelectionModel) {
         		updatingListSelectionModel = true;
         		try {
@@ -629,14 +647,14 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     	    // ListSelectionModel has already been updated and the
     	    // paths are the only thing that needs to be updated.
     	}
-    
+
     	/**
     	 * Creates and returns an instance of ListSelectionHandler.
     	 */
     	protected ListSelectionListener createListSelectionListener() {
     	    return new ListSelectionHandler();
     	}
-    
+
     	/**
     	 * If <code>updatingListSelectionModel</code> is false, this will
     	 * reset the selected paths from the selected rows in the list
@@ -647,14 +665,14 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         		updatingListSelectionModel = true;
         		try {
         		    // This is way expensive, ListSelectionModel needs an enumerator for iterating
-        		    int min = listSelectionModel.getMinSelectionIndex();
-        		    int max = listSelectionModel.getMaxSelectionIndex();
-        
+        		    final int min = listSelectionModel.getMinSelectionIndex();
+        		    final int max = listSelectionModel.getMaxSelectionIndex();
+
         		    clearSelection();
         		    if(min != -1 && max != -1) {
             			for(int counter = min; counter <= max; counter++) {
             			    if(listSelectionModel.isSelectedIndex(counter)) {
-                				TreePath selPath = tree.getPathForRow(counter);
+                				final TreePath selPath = tree.getPathForRow(counter);
                 				if(selPath != null) {
                 				    addSelectionPath(selPath);
                 				}
@@ -667,47 +685,48 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         		}
     	    }
     	}
-    
+
     	/**
     	 * Class responsible for calling updateSelectedPathsFromSelectedRows
     	 * when the selection of the list changse.
     	 */
     	class ListSelectionHandler implements ListSelectionListener {
-    	    public void valueChanged(ListSelectionEvent e) {
+    	    public void valueChanged(final ListSelectionEvent e) {
     	        updateSelectedPathsFromSelectedRows();
     	    }
     	}
     }
-    
+
     private class BooleanCellRenderer extends JLabel implements TableCellRenderer {
-        
+
         public BooleanCellRenderer() {
             super();
             setHorizontalAlignment(CENTER);
             setVerticalAlignment(CENTER);
         }
-        
-        public void paintComponent (Graphics g) {
-            Dimension size = getSize();
+
+        @Override
+        public void paintComponent (final Graphics g) {
+            final Dimension size = getSize();
             g.setColor(getBackground());
             g.fillRect(0, 0, size.width, size.height);
             super.paintComponent(g);
         }
 
         public Component getTableCellRendererComponent(
-                JTable table,
-                Object value,
+                final JTable table,
+                final Object value,
                 boolean isSelected,
-                boolean hasFocus,
-                int row,
-                int column) 
+                final boolean hasFocus,
+                final int row,
+                int column)
         {
-            boolean val = ((Boolean)value).booleanValue();
-            
+            final boolean val = ((Boolean)value).booleanValue();
+
             // get the original model column index (maybe columns were reordered by user)
-            TableColumn tableColumn = getColumnModel().getColumn(column);
+            final TableColumn tableColumn = getColumnModel().getColumn(column);
             column = tableColumn.getModelIndex();
-            
+
             if( column == 0 ) {
                 if( val ) {
                     setIcon(flaggedIcon);
@@ -721,19 +740,20 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                     setIcon(null);
                 }
             }
-            
+
             if (!isSelected) {
-                Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
+                final Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
                 setBackground(newBackground);
             } else {
                 setBackground(table.getSelectionBackground());
             }
 
             return this;
-        }        
+        }
     }
-    
-    public void setFont(Font font) {
+
+    @Override
+    public void setFont(final Font font) {
         super.setFont(font);
 
         if( stringCellRenderer != null ) {
@@ -744,7 +764,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         }
         repaint();
     }
-    
+
     /**
      * This renderer renders rows in different colors.
      * New messages gets a bold look, messages with attachments a blue color.
@@ -764,36 +784,38 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
 
         public StringCellRenderer() {
             setVerticalAlignment(CENTER);
-            Font baseFont = MessageTreeTable.this.getFont();
+            final Font baseFont = MessageTreeTable.this.getFont();
             fontChanged( baseFont );
         }
 
-        public void paintComponent (Graphics g) {
+        @Override
+        public void paintComponent (final Graphics g) {
             super.paintComponent(g);
             if(isDeleted) {
-                Dimension size = getSize();
+                final Dimension size = getSize();
                 g.drawLine(0, size.height / 2, size.width, size.height / 2);
             }
         }
-        
-        public void fontChanged(Font font) {
+
+        public void fontChanged(final Font font) {
             normalFont = font.deriveFont(Font.PLAIN);
             boldFont = font.deriveFont(Font.BOLD);
             boldItalicFont = font.deriveFont(Font.BOLD|Font.ITALIC);
         }
 
+        @Override
         public Component getTableCellRendererComponent(
             final JTable table,
             final Object value,
             final boolean isSelected,
             final boolean hasFocus,
             final int row,
-            int column) 
+            int column)
         {
             super.getTableCellRendererComponent(table, value, isSelected, /*hasFocus*/ false, row, column);
-            
+
             if (!isSelected) {
-                Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
+                final Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
                 setBackground(newBackground);
             } else {
                 setBackground(table.getSelectionBackground());
@@ -809,12 +831,12 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             setBorder(null);
             setHorizontalAlignment(SwingConstants.LEFT);
 
-            TreeTableModelAdapter model = (TreeTableModelAdapter) getModel();
+            final TreeTableModelAdapter model = (TreeTableModelAdapter) getModel();
             Object obj = model.getRow(row);
             if( !(obj instanceof FrostMessageObject) ) {
                 return this; // paranoia
             }
-            
+
             final FrostMessageObject msg = (FrostMessageObject) obj;
             obj = null;
 
@@ -837,7 +859,21 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                     }
                 }
                 if( !msg.isDummy() ) {
-                    setToolTipText((String)value);
+                    if( msg.isSignatureStatusVERIFIED() ) {
+                        final Identity id = msg.getFromIdentity();
+                        final StringBuilder sb = new StringBuilder();
+                        sb.append("<html>");
+                        sb.append((String)value);
+                        sb.append("<br>Last seen: ");
+                        sb.append(DateFun.FORMAT_DATE_VISIBLE.print(id.getLastSeenTimestamp()));
+                        sb.append("  ");
+                        sb.append(DateFun.FORMAT_TIME_VISIBLE.print(id.getLastSeenTimestamp()));
+                        sb.append("<br>Received messages: ").append(id.getReceivedMessageCount());
+                        sb.append("</html>");
+                        setToolTipText(sb.toString());
+                    } else {
+                        setToolTipText((String)value);
+                    }
                 }
             } else if( column == 4 ) {
                 // index column, right aligned
@@ -884,11 +920,11 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
 //            boldFont = font.deriveFont(Font.BOLD);
 //        }
 
-        public void setDeleted(boolean value) {
+        public void setDeleted(final boolean value) {
             isDeleted = value;
         }
     }
-    
+
     public class TreeTableCellEditor extends DefaultCellEditor {
         public TreeTableCellEditor() {
             super(new JCheckBox());
@@ -902,27 +938,29 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
          * <p>The offset is then set on the TreeTableTextField component
          * created in the constructor, and returned.
          */
+        @Override
         public Component getTableCellEditorComponent(
-                JTable table,
-                Object value,
-                boolean isSelected,
-                int r, int c) {
-            Component component = super.getTableCellEditorComponent(table, value, isSelected, r, c);
-            JTree t = getTree();
-            boolean rv = t.isRootVisible();
-            int offsetRow = rv ? r : r - 1;
-            Rectangle bounds = t.getRowBounds(offsetRow);
+                final JTable table,
+                final Object value,
+                final boolean isSelected,
+                final int r, final int c) {
+            final Component component = super.getTableCellEditorComponent(table, value, isSelected, r, c);
+            final JTree t = getTree();
+            final boolean rv = t.isRootVisible();
+            final int offsetRow = rv ? r : r - 1;
+            final Rectangle bounds = t.getRowBounds(offsetRow);
             int offset = bounds.x;
-            TreeCellRenderer tcr = t.getCellRenderer();
+            final TreeCellRenderer tcr = t.getCellRenderer();
             if (tcr instanceof DefaultTreeCellRenderer) {
-            Object node = t.getPathForRow(offsetRow).getLastPathComponent();
+            final Object node = t.getPathForRow(offsetRow).getLastPathComponent();
             Icon icon;
-            if (t.getModel().isLeaf(node))
+            if (t.getModel().isLeaf(node)) {
                 icon = ((DefaultTreeCellRenderer)tcr).getLeafIcon();
-            else if (tree.isExpanded(offsetRow))
+            } else if (tree.isExpanded(offsetRow)) {
                 icon = ((DefaultTreeCellRenderer)tcr).getOpenIcon();
-            else
+            } else {
                 icon = ((DefaultTreeCellRenderer)tcr).getClosedIcon();
+            }
             if (icon != null) {
                 offset += ((DefaultTreeCellRenderer)tcr).getIconTextGap() +
                       icon.getIconWidth();
@@ -936,19 +974,20 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
          * This is overridden to forward the event to the tree. This will
          * return true if the click count >= 3, or the event is null.
          */
-        public boolean isCellEditable(EventObject e) {
+        @Override
+        public boolean isCellEditable(final EventObject e) {
             if (e instanceof MouseEvent) {
-                MouseEvent me = (MouseEvent)e;
+                final MouseEvent me = (MouseEvent)e;
                 if (me.getModifiers() == 0 || me.getModifiers() == InputEvent.BUTTON1_MASK) {
                     for (int counter = getColumnCount() - 1; counter >= 0; counter--) {
                         if (getColumnClass(counter) == TreeTableModel.class) {
-                            MouseEvent newME = new MouseEvent(
-                                    MessageTreeTable.this.tree, 
+                            final MouseEvent newME = new MouseEvent(
+                                    MessageTreeTable.this.tree,
                                     me.getID(),
-                                    me.getWhen(), 
+                                    me.getWhen(),
                                     me.getModifiers(),
                                     me.getX() - getCellRect(0, counter, true).x,
-                                    me.getY(), 
+                                    me.getY(),
                                     me.getClickCount(),
                                     me.isPopupTrigger());
                             MessageTreeTable.this.tree.dispatchEvent(newME);
@@ -964,15 +1003,15 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     /**
      * Save the current column positions and column sizes for restore on next startup.
      */
-    public void saveLayout(SettingsClass frostSettings) {
-        TableColumnModel tcm = getColumnModel();
+    public void saveLayout(final SettingsClass frostSettings) {
+        final TableColumnModel tcm = getColumnModel();
         for(int columnIndexInTable=0; columnIndexInTable < tcm.getColumnCount(); columnIndexInTable++) {
-            TableColumn tc = tcm.getColumn(columnIndexInTable);
-            int columnIndexInModel = tc.getModelIndex();
+            final TableColumn tc = tcm.getColumn(columnIndexInTable);
+            final int columnIndexInModel = tc.getModelIndex();
             // save the current index in table for column with the fix index in model
             frostSettings.setValue("MessageTreeTable.tableindex.modelcolumn."+columnIndexInModel, columnIndexInTable);
             // save the current width of the column
-            int columnWidth = tc.getWidth();
+            final int columnWidth = tc.getWidth();
             frostSettings.setValue("MessageTreeTable.columnwidth.modelcolumn."+columnIndexInModel, columnWidth);
         }
     }
@@ -980,9 +1019,9 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     /**
      * Load the saved column positions and column sizes.
      */
-    public void loadLayout(SettingsClass frostSettings) {
-        TableColumnModel tcm = getColumnModel();
-        
+    public void loadLayout(final SettingsClass frostSettings) {
+        final TableColumnModel tcm = getColumnModel();
+
         // hard set sizes of icons column
         tcm.getColumn(0).setMinWidth(20);
         tcm.getColumn(0).setMaxWidth(20);
@@ -991,43 +1030,43 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         tcm.getColumn(1).setMinWidth(20);
         tcm.getColumn(1).setMaxWidth(20);
         tcm.getColumn(1).setPreferredWidth(20);
-        
+
         // set icon table header renderer for icon columns
         tcm.getColumn(0).setHeaderRenderer(new IconTableHeaderRenderer(flaggedIcon));
         tcm.getColumn(1).setHeaderRenderer(new IconTableHeaderRenderer(starredIcon));
-        
+
         if( !loadLayout(frostSettings, tcm) ) {
             // Sets the relative widths of the columns
-            int[] widths = { 20,20, 185, 95, 50, 130 };
-            for (int i = 0; i < widths.length; i++) { 
+            final int[] widths = { 20,20, 185, 95, 50, 130 };
+            for (int i = 0; i < widths.length; i++) {
                 tcm.getColumn(i).setPreferredWidth(widths[i]);
             }
         }
     }
-    
-    private boolean loadLayout(SettingsClass frostSettings, TableColumnModel tcm) {
+
+    private boolean loadLayout(final SettingsClass frostSettings, final TableColumnModel tcm) {
         // load the saved tableindex for each column in model, and its saved width
-        int[] tableToModelIndex = new int[tcm.getColumnCount()];
-        int[] columnWidths = new int[tcm.getColumnCount()];
+        final int[] tableToModelIndex = new int[tcm.getColumnCount()];
+        final int[] columnWidths = new int[tcm.getColumnCount()];
 
         for(int x=0; x < tableToModelIndex.length; x++) {
-            String indexKey = "MessageTreeTable.tableindex.modelcolumn."+x;
+            final String indexKey = "MessageTreeTable.tableindex.modelcolumn."+x;
             if( frostSettings.getObjectValue(indexKey) == null ) {
                 return false; // column not found, abort
             }
             // build array of table to model associations
-            int tableIndex = frostSettings.getIntValue(indexKey);
+            final int tableIndex = frostSettings.getIntValue(indexKey);
             if( tableIndex < 0 || tableIndex >= tableToModelIndex.length ) {
                 return false; // invalid table index value
             }
             tableToModelIndex[tableIndex] = x;
 
-            String widthKey = "MessageTreeTable.columnwidth.modelcolumn."+x;
+            final String widthKey = "MessageTreeTable.columnwidth.modelcolumn."+x;
             if( frostSettings.getObjectValue(widthKey) == null ) {
                 return false; // column not found, abort
             }
             // build array of table to model associations
-            int columnWidth = frostSettings.getIntValue(widthKey);
+            final int columnWidth = frostSettings.getIntValue(widthKey);
             if( columnWidth <= 0 ) {
                 return false; // invalid column width
             }
@@ -1035,7 +1074,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         }
         // columns are currently added in model order, remove them all and save in an array
         // while on it, set the loaded width of each column
-        TableColumn[] tcms = new TableColumn[tcm.getColumnCount()];
+        final TableColumn[] tcms = new TableColumn[tcm.getColumnCount()];
         for(int x=tcms.length-1; x >= 0; x--) {
             tcms[x] = tcm.getColumn(x);
             tcm.removeColumn(tcms[x]);
@@ -1045,12 +1084,12 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             }
         }
         // add the columns in order loaded from settings
-        for(int x=0; x < tableToModelIndex.length; x++) {
-            tcm.addColumn(tcms[tableToModelIndex[x]]);
+        for( final int element : tableToModelIndex ) {
+            tcm.addColumn(tcms[element]);
         }
         return true;
     }
-    
+
     /**
      * Resort table based on settings in SortStateBean
      */
@@ -1058,15 +1097,15 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         if( MessageTreeTableSortStateBean.isThreaded() ) {
             return;
         }
-        FrostMessageObject root = (FrostMessageObject) getTree().getModel().getRoot();
+        final FrostMessageObject root = (FrostMessageObject) getTree().getModel().getRoot();
         root.resortChildren();
         ((DefaultTreeModel)getTree().getModel()).reload();
     }
 
     private void fontChanged() {
-        String fontName = Core.frostSettings.getValue(SettingsClass.MESSAGE_LIST_FONT_NAME);
-        int fontStyle = Core.frostSettings.getIntValue(SettingsClass.MESSAGE_LIST_FONT_STYLE);
-        int fontSize = Core.frostSettings.getIntValue(SettingsClass.MESSAGE_LIST_FONT_SIZE);
+        final String fontName = Core.frostSettings.getValue(SettingsClass.MESSAGE_LIST_FONT_NAME);
+        final int fontStyle = Core.frostSettings.getIntValue(SettingsClass.MESSAGE_LIST_FONT_STYLE);
+        final int fontSize = Core.frostSettings.getIntValue(SettingsClass.MESSAGE_LIST_FONT_SIZE);
         Font font = new Font(fontName, fontStyle, fontSize);
         if (!font.getFamily().equals(fontName)) {
 //            logger.severe(
@@ -1078,7 +1117,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         setFont(font);
     }
 
-    public void propertyChange(PropertyChangeEvent evt) {
+    public void propertyChange(final PropertyChangeEvent evt) {
         if (evt.getPropertyName().equals(SettingsClass.SHOW_COLORED_ROWS)) {
             showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
         } else if (evt.getPropertyName().equals(SettingsClass.MESSAGE_LIST_FONT_NAME)) {
