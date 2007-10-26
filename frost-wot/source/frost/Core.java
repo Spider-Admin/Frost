@@ -289,6 +289,9 @@ public class Core implements FrostEventDispatcher  {
 
         //Initializes the logging and skins
         new Logging(frostSettings);
+
+        logger.severe("***** Starting Frost "+getClass().getPackage().getSpecificationVersion()+" *****");
+
         initializeSkins();
 
         // CLEANS TEMP DIR! START NO INSERTS BEFORE THIS DID RUN
