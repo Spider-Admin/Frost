@@ -50,7 +50,7 @@ public class FileRequestsManager {
         //   -> maybe file was already uploaded!
         // - must be not requested since 23h ( by us or others )
         // - we DON'T have the chk OR
-        // - we HAVE the chk, but download FAILED, and last try was not longer then 3 days before (maybe successful now)
+        // - we HAVE the chk, but download FAILED
 
         // FIXME: maybe only request FAILED if failed reason was Data_Not_Found!
         //        But this requires that the dlitem remembers the failed reason!
@@ -94,10 +94,8 @@ public class FileRequestsManager {
             }
 
             if( dlItem.getKey() != null && dlItem.getKey().length() > 0 ) {
-                // FIXME: test fix
-                // || dlItem.getLastDownloadStopTime() < before3days
+                // download must be in FAILED state
                 if( dlItem.getState() != FrostDownloadItem.STATE_FAILED  ) {
-                    // download failed OR last download try was not in last 2 days (retry!)
                     continue;
                 }
             }
