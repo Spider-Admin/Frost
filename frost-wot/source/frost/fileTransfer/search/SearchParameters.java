@@ -23,16 +23,16 @@ import java.util.*;
 import frost.util.*;
 
 public class SearchParameters {
-    
+
 //    public static void main(String[] args) {
 //        SearchParameters s = new SearchParameters();
 //        s.setNameString("hello not world \"und so weiter\" aber NOT dieses hier \"und so\"");
 //        System.out.println(s.getName());
 //        System.out.println(s.getNotName());
 //    }
-    
-    private boolean isSimpleSearch;
-    
+
+    private final boolean isSimpleSearch;
+
     public static final int EXTENSIONS_ALL         = 1;
     public static final int EXTENSIONS_AUDIO       = 2;
     public static final int EXTENSIONS_VIDEO       = 3;
@@ -40,20 +40,20 @@ public class SearchParameters {
     public static final int EXTENSIONS_DOCUMENTS   = 5;
     public static final int EXTENSIONS_ARCHIVES    = 6;
     public static final int EXTENSIONS_EXECUTABLES = 7;
-    
+
     private int extensions = EXTENSIONS_ALL;
-    
+
     private String tabText = null;
-    
+
     private boolean hideFilesWithoutChkKey = false;
     private boolean hideBadUserFiles = false;
     private boolean hideCheckUserFiles = false;
     private boolean hideObserveUserFiles = false;
-    
+
     // simple search
     private List<String> simpleSearchStrings = null;
     private List<String> simpleSearchNotStrings = null;
-    
+
     // advanced search
     private List<String> name = null;
     private List<String> comment = null;
@@ -66,8 +66,8 @@ public class SearchParameters {
     private List<String> notOwner = null;
 
     private static List<String> emptyList = new LinkedList<String>();
-    
-    public SearchParameters(boolean simpleSearch) {
+
+    public SearchParameters(final boolean simpleSearch) {
         isSimpleSearch = simpleSearch;
     }
 
@@ -76,7 +76,7 @@ public class SearchParameters {
      */
     public String getTabText() {
         if( tabText == null ) {
-            List<String> allStrings = new LinkedList<String>();
+            final List<String> allStrings = new ArrayList<String>();
             if( isSimpleSearch() ) {
                 allStrings.addAll(getSimpleSearchStrings());
                 if( getSimpleSearchNotStrings().size() > 0 ) {
@@ -88,10 +88,10 @@ public class SearchParameters {
                 allStrings.addAll(getComment());
                 allStrings.addAll(getKeyword());
                 allStrings.addAll(getOwner());
-                if( getNotName().size() > 0 
-                        || getNotComment().size() > 0 
-                        || getNotKeyword().size() > 0 
-                        || getNotOwner().size() > 0 ) 
+                if( getNotName().size() > 0
+                        || getNotComment().size() > 0
+                        || getNotKeyword().size() > 0
+                        || getNotOwner().size() > 0 )
                 {
                     allStrings.add("NOT");
                     allStrings.addAll(getNotName());
@@ -100,12 +100,18 @@ public class SearchParameters {
                     allStrings.addAll(getNotOwner());
                 }
             }
-            
-            StringBuilder sb = new StringBuilder();
-            for( Iterator<String> i = allStrings.iterator(); i.hasNext() && ( !(sb.length() > 30) ); ) {
+
+            final int maxTextLength = 30;
+            final StringBuilder sb = new StringBuilder();
+            for( final Iterator<String> i = allStrings.iterator(); i.hasNext() && ( !(sb.length() > maxTextLength) ); ) {
                 // FIXME: don't append only the 'NOT' to end of final string
-                String s = i.next();
+                final String s = i.next();
                 sb.append(s).append(" ");
+            }
+            // cut length to maximum size
+            if( sb.length() > maxTextLength ) {
+                sb.setLength(maxTextLength);
+                sb.append("...");
             }
             tabText = sb.toString().trim();
 
@@ -115,10 +121,10 @@ public class SearchParameters {
         }
         return tabText;
     }
-    
-    public void setExtensions(String searchType) {
+
+    public void setExtensions(final String searchType) {
         extensions = EXTENSIONS_ALL; // default
-        
+
         if( searchType.equals("SearchPane.fileTypes.audio") ) {
             extensions = EXTENSIONS_AUDIO;
         } else if( searchType.equals("SearchPane.fileTypes.video") ) {
@@ -137,33 +143,33 @@ public class SearchParameters {
         return extensions;
     }
 
-    public void setSimpleSearchString(String simpleSearchStr) {
-        List<String>[] res = TextSearchFun.splitStrings(simpleSearchStr, true);
+    public void setSimpleSearchString(final String simpleSearchStr) {
+        final List<String>[] res = TextSearchFun.splitStrings(simpleSearchStr, true);
         simpleSearchStrings = res[0];
         simpleSearchNotStrings = res[1];
     }
-    
-    public void setCommentString(String commentStr) {
-        List<String>[] res = TextSearchFun.splitStrings(commentStr, true);
+
+    public void setCommentString(final String commentStr) {
+        final List<String>[] res = TextSearchFun.splitStrings(commentStr, true);
         comment = res[0];
         notComment = res[1];
     }
-    public void setKeywordString(String keywordStr) {
-        List<String>[] res = TextSearchFun.splitStrings(keywordStr, true);
+    public void setKeywordString(final String keywordStr) {
+        final List<String>[] res = TextSearchFun.splitStrings(keywordStr, true);
         keyword = res[0];
         notKeyword = res[1];
     }
-    public void setNameString(String nameStr) {
-        List<String>[] res = TextSearchFun.splitStrings(nameStr, true);
+    public void setNameString(final String nameStr) {
+        final List<String>[] res = TextSearchFun.splitStrings(nameStr, true);
         name = res[0];
         notName = res[1];
     }
-    public void setOwnerString(String ownerStr) {
-        List<String>[] res = TextSearchFun.splitStrings(ownerStr, true);
+    public void setOwnerString(final String ownerStr) {
+        final List<String>[] res = TextSearchFun.splitStrings(ownerStr, true);
         owner = res[0];
         notOwner = res[1];
     }
-    
+
     public List<String> getComment() {
         if( comment == null ) {
             return emptyList;
@@ -191,7 +197,7 @@ public class SearchParameters {
         }
         return owner;
     }
-    
+
     public List<String> getNotComment() {
         if( notComment == null ) {
             return emptyList;
@@ -219,7 +225,7 @@ public class SearchParameters {
         }
         return notOwner;
     }
-    
+
     public boolean isSimpleSearch() {
         return isSimpleSearch;
     }
@@ -235,28 +241,28 @@ public class SearchParameters {
     public boolean isHideFilesWithoutChkKey() {
         return hideFilesWithoutChkKey;
     }
-    public void setHideFilesWithoutChkKey(boolean hideFilesWithoutChkKey) {
+    public void setHideFilesWithoutChkKey(final boolean hideFilesWithoutChkKey) {
         this.hideFilesWithoutChkKey = hideFilesWithoutChkKey;
     }
 
     public boolean isHideBadUserFiles() {
         return hideBadUserFiles;
     }
-    public void setHideBadUserFiles(boolean hideBadUserFiles) {
+    public void setHideBadUserFiles(final boolean hideBadUserFiles) {
         this.hideBadUserFiles = hideBadUserFiles;
     }
 
     public boolean isHideCheckUserFiles() {
         return hideCheckUserFiles;
     }
-    public void setHideCheckUserFiles(boolean hideCheckUserFiles) {
+    public void setHideCheckUserFiles(final boolean hideCheckUserFiles) {
         this.hideCheckUserFiles = hideCheckUserFiles;
     }
 
     public boolean isHideObserveUserFiles() {
         return hideObserveUserFiles;
     }
-    public void setHideObserveUserFiles(boolean hideObserveUserFiles) {
+    public void setHideObserveUserFiles(final boolean hideObserveUserFiles) {
         this.hideObserveUserFiles = hideObserveUserFiles;
     }
 }
