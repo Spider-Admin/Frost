@@ -193,6 +193,9 @@ public class Frost {
      * Constructor
      */
     public Frost() {
+        System.out.println("Starting Frost "+getClass().getPackage().getSpecificationVersion());
+        System.out.println();
+
         final Core core = Core.getInstance();
 
         initializeLookAndFeel();
