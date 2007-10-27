@@ -42,6 +42,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
 import java.util.*;
+import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -69,6 +70,9 @@ import frost.util.gui.*;
  * @author Scott Violet
  */
 public class MessageTreeTable extends JTable implements PropertyChangeListener {
+
+    private static final Logger logger = Logger.getLogger(MessageTreeTable.class.getName());
+
 
     /** A subclass of JTree. */
     protected TreeTableCellRenderer tree;
@@ -861,16 +865,21 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                 if( !msg.isDummy() ) {
                     if( msg.isSignatureStatusVERIFIED() ) {
                         final Identity id = msg.getFromIdentity();
-                        final StringBuilder sb = new StringBuilder();
-                        sb.append("<html>");
-                        sb.append((String)value);
-                        sb.append("<br>Last seen: ");
-                        sb.append(DateFun.FORMAT_DATE_VISIBLE.print(id.getLastSeenTimestamp()));
-                        sb.append("  ");
-                        sb.append(DateFun.FORMAT_TIME_VISIBLE.print(id.getLastSeenTimestamp()));
-                        sb.append("<br>Received messages: ").append(id.getReceivedMessageCount());
-                        sb.append("</html>");
-                        setToolTipText(sb.toString());
+                        if( id == null ) {
+                            logger.severe("getFromidentity() is null for fromName: '"+msg.getFromIdentity()+"'");
+                            setToolTipText((String)value);
+                        } else {
+                            final StringBuilder sb = new StringBuilder();
+                            sb.append("<html>");
+                            sb.append((String)value);
+                            sb.append("<br>Last seen: ");
+                            sb.append(DateFun.FORMAT_DATE_VISIBLE.print(id.getLastSeenTimestamp()));
+                            sb.append("  ");
+                            sb.append(DateFun.FORMAT_TIME_VISIBLE.print(id.getLastSeenTimestamp()));
+                            sb.append("<br>Received messages: ").append(id.getReceivedMessageCount());
+                            sb.append("</html>");
+                            setToolTipText(sb.toString());
+                        }
                     } else {
                         setToolTipText((String)value);
                     }
