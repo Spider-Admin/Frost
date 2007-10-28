@@ -497,7 +497,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
             return;
         }
         // choose a comparator based on settings in SortStateBean
-        final Comparator comparator = MessageTreeTableSortStateBean.getComparator(MessageTreeTableSortStateBean.getSortedColumn(), MessageTreeTableSortStateBean.isAscending());
+        final Comparator<FrostMessageObject> comparator = MessageTreeTableSortStateBean.getComparator(MessageTreeTableSortStateBean.getSortedColumn(), MessageTreeTableSortStateBean.isAscending());
         if( comparator != null ) {
             Collections.sort(children, comparator);
         }
@@ -513,7 +513,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
      */
     public void add(final MutableTreeNode nn, boolean silent) {
         // add sorted
-        final DefaultMutableTreeNode n = (DefaultMutableTreeNode)nn;
+        final FrostMessageObject n = (FrostMessageObject)nn;
         int[] ixs;
 
         if( children == null ) {
