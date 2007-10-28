@@ -293,15 +293,23 @@ public class FrostIdentities {
      */
     public boolean isIdentityValid(final Identity id) {
 
+        if( id == null ) {
+            return false;
+        }
+
         final String uName = id.getUniqueName();
         final String puKey = id.getPublicKey();
 
         try {
             // check if the digest matches
             final String given_digest = uName.substring(uName.indexOf("@") + 1, uName.length()).trim();
+
             String calculatedDigest = Core.getCrypto().digest(puKey.trim()).trim();
             calculatedDigest = Mixed.makeFilename(calculatedDigest).trim();
-            if( !Mixed.makeFilename(given_digest).equals(calculatedDigest) ) {
+
+            // FIX: given_digest must already not contain invalid characters
+//            if( !Mixed.makeFilename(given_digest).equals(calculatedDigest) ) {
+            if( !given_digest.equals(calculatedDigest) ) {
                 logger.severe("Warning: public key of sharer didn't match its digest:\n" +
                               "given digest :'" + given_digest + "'\n" +
                               "pubkey       :'" + puKey.trim() + "'\n" +
