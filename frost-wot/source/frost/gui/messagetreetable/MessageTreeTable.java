@@ -866,7 +866,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                     if( msg.isSignatureStatusVERIFIED() ) {
                         final Identity id = msg.getFromIdentity();
                         if( id == null ) {
-                            logger.severe("getFromidentity() is null for fromName: '"+msg.getFromIdentity()+"'");
+                            logger.severe("getFromidentity() is null for fromName: '"+msg.getFromName()+"'");
                             setToolTipText((String)value);
                         } else {
                             final StringBuilder sb = new StringBuilder();
