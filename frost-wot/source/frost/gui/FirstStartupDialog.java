@@ -29,7 +29,7 @@ import frost.util.gui.translation.*;
 public class FirstStartupDialog extends JDialog {
 
     private static Language language = Language.getInstance();
-    
+
     private JPanel jContentPane = null;
     private JLabel jLabel = null;
     private JRadioButton RBfreenet05 = null;
@@ -41,10 +41,7 @@ public class FirstStartupDialog extends JDialog {
 
     private boolean exitChoosed;
     private int freenetVersion = 0;
-    private boolean isTestnet = false;
     private String ownHostAndPort = null;
-
-    private JRadioButton RBfreenet07testnet = null;
 
     private JCheckBox CBoverrideHostAndPort = null;
 
@@ -57,8 +54,8 @@ public class FirstStartupDialog extends JDialog {
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         pack();
         // center on screen
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        Dimension splashscreenSize = getSize();
+        final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        final Dimension splashscreenSize = getSize();
         if (splashscreenSize.height > screenSize.height) {
             splashscreenSize.height = screenSize.height;
         }
@@ -69,7 +66,7 @@ public class FirstStartupDialog extends JDialog {
             (screenSize.width - splashscreenSize.width) / 2,
             (screenSize.height - splashscreenSize.height) / 2);
     }
-    
+
     public boolean startDialog() {
         setVisible(true);
         return exitChoosed;
@@ -79,7 +76,7 @@ public class FirstStartupDialog extends JDialog {
         this.setSize(424, 304);
         this.setTitle(language.getString("FirstStartupDialog.title"));
         this.setContentPane(getJContentPane());
-        
+
         getBGfreenetVersion();
 
         getBok().setEnabled(false);
@@ -87,12 +84,12 @@ public class FirstStartupDialog extends JDialog {
 
     /**
      * This method initializes jContentPane
-     * 
+     *
      * @return javax.swing.JPanel
      */
     private JPanel getJContentPane() {
         if( jContentPane == null ) {
-            GridBagConstraints gridBagConstraints31 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints31 = new GridBagConstraints();
             gridBagConstraints31.fill = java.awt.GridBagConstraints.NONE;
             gridBagConstraints31.gridy = 10;
             gridBagConstraints31.weightx = 0.0;
@@ -100,33 +97,33 @@ public class FirstStartupDialog extends JDialog {
             gridBagConstraints31.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints31.insets = new java.awt.Insets(5,15,5,0);
             gridBagConstraints31.gridx = 0;
-            GridBagConstraints gridBagConstraints22 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints22 = new GridBagConstraints();
             gridBagConstraints22.gridx = 0;
             gridBagConstraints22.insets = new java.awt.Insets(15,5,0,0);
             gridBagConstraints22.gridwidth = 2;
             gridBagConstraints22.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints22.gridy = 9;
-            GridBagConstraints gridBagConstraints21 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints21 = new GridBagConstraints();
             gridBagConstraints21.gridx = 0;
             gridBagConstraints21.insets = new java.awt.Insets(0,10,0,0);
             gridBagConstraints21.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints21.gridy = 3;
-            GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
             gridBagConstraints7.gridx = 0;
             gridBagConstraints7.gridwidth = 2;
             gridBagConstraints7.fill = java.awt.GridBagConstraints.HORIZONTAL;
             gridBagConstraints7.gridy = 11;
-            GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
             gridBagConstraints2.gridx = 0;
             gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints2.insets = new java.awt.Insets(0,10,0,0);
             gridBagConstraints2.gridy = 2;
-            GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
             gridBagConstraints1.gridx = 0;
             gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints1.insets = new java.awt.Insets(0,10,0,0);
             gridBagConstraints1.gridy = 1;
-            GridBagConstraints gridBagConstraints = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints = new GridBagConstraints();
             gridBagConstraints.gridx = 0;
             gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints.insets = new java.awt.Insets(3,3,0,3);
@@ -134,7 +131,7 @@ public class FirstStartupDialog extends JDialog {
             gridBagConstraints.weightx = 1.0;
             gridBagConstraints.gridwidth = 1;
             gridBagConstraints.gridy = 0;
-            
+
             jLabel = new JLabel();
             jLabel.setText(language.getString("FirstStartupDialog.freenetVersion.label")+":");
             jContentPane = new JPanel();
@@ -142,9 +139,8 @@ public class FirstStartupDialog extends JDialog {
             jContentPane.add(jLabel, gridBagConstraints);
             jContentPane.add(getRBfreenet05(), gridBagConstraints1);
             jContentPane.add(getRBfreenet07(), gridBagConstraints2);
-            
+
             jContentPane.add(getPbuttons(), gridBagConstraints7);
-            jContentPane.add(getRBfreenet07testnet(), gridBagConstraints21);
             jContentPane.add(getCBoverrideHostAndPort(), gridBagConstraints22);
             jContentPane.add(getTFhostAndPort(), gridBagConstraints31);
         }
@@ -152,16 +148,16 @@ public class FirstStartupDialog extends JDialog {
     }
 
     /**
-     * This method initializes RBfreenet05	
-     * 	
-     * @return javax.swing.JRadioButton	
+     * This method initializes RBfreenet05
+     *
+     * @return javax.swing.JRadioButton
      */
     private JRadioButton getRBfreenet05() {
         if( RBfreenet05 == null ) {
             RBfreenet05 = new JRadioButton();
             RBfreenet05.setText("Freenet 0.5");
             RBfreenet05.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent e) {
+                public void actionPerformed(final java.awt.event.ActionEvent e) {
                     getBok().setEnabled(true);
                 }
             });
@@ -170,16 +166,16 @@ public class FirstStartupDialog extends JDialog {
     }
 
     /**
-     * This method initializes RBfreenet07	
-     * 	
-     * @return javax.swing.JRadioButton	
+     * This method initializes RBfreenet07
+     *
+     * @return javax.swing.JRadioButton
      */
     private JRadioButton getRBfreenet07() {
         if( RBfreenet07 == null ) {
             RBfreenet07 = new JRadioButton();
             RBfreenet07.setText("Freenet 0.7 (darknet)");
             RBfreenet07.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent e) {
+                public void actionPerformed(final java.awt.event.ActionEvent e) {
                     getBok().setEnabled(true);
                 }
             });
@@ -188,13 +184,13 @@ public class FirstStartupDialog extends JDialog {
     }
 
     /**
-     * This method initializes Pbuttons	
-     * 	
-     * @return javax.swing.JPanel	
+     * This method initializes Pbuttons
+     *
+     * @return javax.swing.JPanel
      */
     private JPanel getPbuttons() {
         if( Pbuttons == null ) {
-            FlowLayout flowLayout = new FlowLayout();
+            final FlowLayout flowLayout = new FlowLayout();
             flowLayout.setAlignment(java.awt.FlowLayout.RIGHT);
             Pbuttons = new JPanel();
             Pbuttons.setLayout(flowLayout);
@@ -205,16 +201,16 @@ public class FirstStartupDialog extends JDialog {
     }
 
     /**
-     * This method initializes Bexit	
-     * 	
-     * @return javax.swing.JButton	
+     * This method initializes Bexit
+     *
+     * @return javax.swing.JButton
      */
     private JButton getBexit() {
         if( Bexit == null ) {
             Bexit = new JButton();
             Bexit.setText(language.getString("Common.exit"));
             Bexit.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent e) {
+                public void actionPerformed(final java.awt.event.ActionEvent e) {
                     exitChoosed = true;
                     setVisible(false);
                     dispose();
@@ -225,25 +221,21 @@ public class FirstStartupDialog extends JDialog {
     }
 
     /**
-     * This method initializes Bok	
-     * 	
-     * @return javax.swing.JButton	
+     * This method initializes Bok
+     *
+     * @return javax.swing.JButton
      */
     private JButton getBok() {
         if( Bok == null ) {
             Bok = new JButton();
             Bok.setText(language.getString("Common.ok"));
             Bok.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent e) {
+                public void actionPerformed(final java.awt.event.ActionEvent e) {
                     exitChoosed = false;
                     if( getRBfreenet05().isSelected() ) {
                         freenetVersion = FcpHandler.FREENET_05;
                     } else if( getRBfreenet07().isSelected() ) {
                         freenetVersion = FcpHandler.FREENET_07;
-                        isTestnet = false;
-                    } else if( getRBfreenet07testnet().isSelected() ) {
-                        freenetVersion = FcpHandler.FREENET_07;
-                        isTestnet = true;
                     }
                     if( getCBoverrideHostAndPort().isSelected() ) {
                         ownHostAndPort = getTFhostAndPort().getText();
@@ -259,16 +251,15 @@ public class FirstStartupDialog extends JDialog {
     }
 
     /**
-     * This method initializes BGfreenetVersion	
-     * 	
-     * @return javax.swing.ButtonGroup	
+     * This method initializes BGfreenetVersion
+     *
+     * @return javax.swing.ButtonGroup
      */
     private ButtonGroup getBGfreenetVersion() {
         if( BGfreenetVersion == null ) {
             BGfreenetVersion = new ButtonGroup();
             BGfreenetVersion.add(getRBfreenet05());
             BGfreenetVersion.add(getRBfreenet07());
-            BGfreenetVersion.add(getRBfreenet07testnet());
         }
         return BGfreenetVersion;
     }
@@ -280,43 +271,21 @@ public class FirstStartupDialog extends JDialog {
         return freenetVersion;
     }
 
-    /**
-     * This method initializes RBfreenet07testnet	
-     * 	
-     * @return javax.swing.JRadioButton	
-     */
-    private JRadioButton getRBfreenet07testnet() {
-        if( RBfreenet07testnet == null ) {
-            RBfreenet07testnet = new JRadioButton();
-            RBfreenet07testnet.setText("Freenet 0.7 (testnet)");
-            RBfreenet07testnet.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent e) {
-                    getBok().setEnabled(true);
-                }
-            });
-        }
-        return RBfreenet07testnet;
-    }
-
-    public boolean isTestnet() {
-        return isTestnet;
-    }
-    
     public String getOwnHostAndPort() {
         return ownHostAndPort;
     }
 
     /**
-     * This method initializes CBoverrideHostAndPort	
-     * 	
-     * @return javax.swing.JCheckBox	
+     * This method initializes CBoverrideHostAndPort
+     *
+     * @return javax.swing.JCheckBox
      */
     private JCheckBox getCBoverrideHostAndPort() {
         if( CBoverrideHostAndPort == null ) {
             CBoverrideHostAndPort = new JCheckBox();
             CBoverrideHostAndPort.setText(language.getString("FirstStartupDialog.overrideFcpHost.label"));
             CBoverrideHostAndPort.addItemListener(new java.awt.event.ItemListener() {
-                public void itemStateChanged(java.awt.event.ItemEvent e) {
+                public void itemStateChanged(final java.awt.event.ItemEvent e) {
                     getTFhostAndPort().setEnabled(getCBoverrideHostAndPort().isSelected());
                 }
             });
@@ -325,9 +294,9 @@ public class FirstStartupDialog extends JDialog {
     }
 
     /**
-     * This method initializes TFhostAndPort	
-     * 	
-     * @return javax.swing.JTextField	
+     * This method initializes TFhostAndPort
+     *
+     * @return javax.swing.JTextField
      */
     private JTextField getTFhostAndPort() {
         if( TFhostAndPort == null ) {
