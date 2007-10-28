@@ -269,11 +269,7 @@ public class Core implements FrostEventDispatcher  {
             frostSettings.setValue(SettingsClass.AVAILABLE_NODES, "127.0.0.1:8481");
         } else {
             // 0.7
-            if( startdlg.isTestnet() == false ) {
-                frostSettings.setValue(SettingsClass.AVAILABLE_NODES, "127.0.0.1:9481");
-            } else {
-                frostSettings.setValue(SettingsClass.AVAILABLE_NODES, "127.0.0.1:9482");
-            }
+            frostSettings.setValue(SettingsClass.AVAILABLE_NODES, "127.0.0.1:9481");
         }
     }
 
