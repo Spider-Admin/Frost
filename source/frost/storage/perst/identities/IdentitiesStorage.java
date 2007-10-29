@@ -74,6 +74,7 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
             if( i != null ) {
                 li.setReceivedMessageCount(i.intValue());
             }
+            li.correctUniqueName();
             storageRoot.getLocalIdentities().add( li );
         }
         commit();
@@ -86,6 +87,7 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
             if( i != null ) {
                 li.setReceivedMessageCount(i.intValue());
             }
+            li.correctUniqueName();
             storageRoot.getIdentities().add( li );
             cnt++;
             if( cnt%100 == 0 ) {

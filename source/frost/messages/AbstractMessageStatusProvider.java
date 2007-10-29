@@ -32,7 +32,7 @@ public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNo
     private static final int xOBSERVE  = 4;
     private static final int xTAMPERED = 5;
     private static final int xOLD      = 6;
-    
+
     private static String[] messageStateStrings = {
         "*err*",
         "GOOD",
@@ -53,10 +53,10 @@ public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNo
     private static final String SIGNATURESTATUS_TAMPERED_STR = "TAMPERED"; // wrong signature
     private static final String SIGNATURESTATUS_OLD_STR      = "OLD";      // no signature
     private static final String SIGNATURESTATUS_VERIFIED_STR = "VERIFIED"; // signature was OK
-    
+
     private boolean isFromIdentityInitialized = false;
     private Identity fromIdentity = null;
-    
+
     private String fromName = "";
     private String publicKey  = "";
 
@@ -66,10 +66,10 @@ public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNo
         if( isFromIdentityInitialized == false ) {
             // set Identity for FROM, or null
             fromIdentity = Core.getIdentities().getIdentity(getFromName());
-            // if identity was NOT found, add it. maybe it was deleted by the user, 
+            // if identity was NOT found, add it. maybe it was deleted by the user,
             // but we still have a msg from this identity
             if( fromIdentity == null && getPublicKey() != null && getPublicKey().length() > 0 ) {
-                fromIdentity = new Identity(getFromName(), getPublicKey());
+                fromIdentity = Identity.createIdentityFromExactStrings(getFromName(), getPublicKey());
                 fromIdentity.setCHECK();
                 Core.getIdentities().addIdentity(fromIdentity);
             }
@@ -81,16 +81,16 @@ public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNo
     public String getFromName() {
         return fromName;
     }
-    public void setFromName(String from) {
+    public void setFromName(final String from) {
         this.fromName = from;
     }
-    
+
     /**
      * Converts the signature status string contained in local XML message file
      * into the internal constant.
      * Only used for imports!
      */
-    public boolean setSignatureStatusFromString(String sigStatusStr) {
+    public boolean setSignatureStatusFromString(final String sigStatusStr) {
         if( sigStatusStr.equalsIgnoreCase(SIGNATURESTATUS_VERIFIED_STR) ) {
             setSignatureStatusVERIFIED_V1();
             return true;
@@ -103,13 +103,14 @@ public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNo
         }
         return false;
     }
-    
-    private int getMessageStatus(Identity fromIdent) {
+
+    private int getMessageStatus(final Identity fromIdent) {
         if( isSignatureStatusVERIFIED() ) {
             // get state of user
             if( fromIdent == null ) {
                 return xOLD;
             }
+
             if( fromIdent.isCHECK() ) {
                 return xCHECK;
             }
@@ -138,23 +139,23 @@ public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNo
     }
 
     public String getMessageStatusString() {
-    	Identity i = getFromIdentity();
+    	final Identity i = getFromIdentity();
     	if (i instanceof LocalIdentity) {
 			return "ME";
         } else {
             return messageStateStrings[getMessageStatus(i)];
         }
     }
-    
+
     public boolean isMessageFromME() {
-        Identity i = getFromIdentity();
+        final Identity i = getFromIdentity();
         if (i instanceof LocalIdentity) {
             return true;
         } else {
             return false;
         }
     }
-    
+
     public boolean isMessageStatusGOOD() {
         return (getMessageStatus() == xGOOD );
     }
@@ -173,23 +174,23 @@ public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNo
     public boolean isMessageStatusOLD() {
         return (getMessageStatus() == xOLD );
     }
-    
+
     public boolean isSignatureStatusVERIFIED() {
         if( getSignatureStatus() == SIGNATURESTATUS_VERIFIED
                 || getSignatureStatus() == SIGNATURESTATUS_VERIFIED_V1
                 || getSignatureStatus() == SIGNATURESTATUS_VERIFIED_V2
-          ) 
+          )
         {
             return true;
         }
         return false;
     }
     // utility method
-    public static boolean isSignatureStatusVERIFIED(int sigstat) {
+    public static boolean isSignatureStatusVERIFIED(final int sigstat) {
         if( sigstat == SIGNATURESTATUS_VERIFIED
                 || sigstat == SIGNATURESTATUS_VERIFIED_V1
                 || sigstat == SIGNATURESTATUS_VERIFIED_V2
-          ) 
+          )
         {
             return true;
         }
@@ -207,7 +208,7 @@ public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNo
     public boolean isSignatureStatusTAMPERED() {
         return (getSignatureStatus() == SIGNATURESTATUS_TAMPERED);
     }
-    
+
     public void setSignatureStatusVERIFIED_V1() {
         signatureStatus = SIGNATURESTATUS_VERIFIED_V1;
     }
@@ -220,18 +221,18 @@ public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNo
     public void setSignatureStatusTAMPERED() {
         signatureStatus = SIGNATURESTATUS_TAMPERED;
     }
-    
+
     public int getSignatureStatus() {
         return signatureStatus;
     }
-    public void setSignatureStatus(int s) {
+    public void setSignatureStatus(final int s) {
         signatureStatus = s;
     }
-    
+
     public String getPublicKey() {
         return publicKey;
     }
-    public void setPublicKey(String pk) {
+    public void setPublicKey(final String pk) {
         publicKey = pk;
     }
 }

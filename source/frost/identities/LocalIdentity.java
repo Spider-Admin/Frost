@@ -36,7 +36,8 @@ public class LocalIdentity extends Identity {
 
     public LocalIdentity() {}
 
-    public Element getXMLElement(Document doc) {
+    @Override
+    public Element getXMLElement(final Document doc) {
         // external element, "Identity"
         return super.getXMLElement(doc);
     }
@@ -44,60 +45,88 @@ public class LocalIdentity extends Identity {
     /**
      * Appends the private key!
      */
-    public Element getExportXMLElement(Document doc) {
+    @Override
+    public Element getExportXMLElement(final Document doc) {
         // have to copy all children, no Element.rename()unfortunately
-        Element el = super.getXMLElement(doc);
-        Element el2 = doc.createElement("MyIdentity");
-        NodeList list = el.getChildNodes();
+        final Element el = super.getXMLElement(doc);
+        final Element el2 = doc.createElement("MyIdentity");
+        final NodeList list = el.getChildNodes();
         while(list.getLength() > 0) {
             el2.appendChild(list.item(0)); // removes Node from el
         }
         {
-            Element element = doc.createElement("privKey");
-            CDATASection cdata = doc.createCDATASection(getPrivateKey());
+            final Element element = doc.createElement("privKey");
+            final CDATASection cdata = doc.createCDATASection(getPrivateKey());
             element.appendChild( cdata );
             el2.appendChild( element );
         }
         if( getSignature() != null ) {
-            Element element = doc.createElement("signature");
-            CDATASection cdata = doc.createCDATASection(getSignature());
+            final Element element = doc.createElement("signature");
+            final CDATASection cdata = doc.createCDATASection(getSignature());
             element.appendChild( cdata );
             el2.appendChild( element );
         }
-        
+
         return el2;
     }
 
-    public void loadXMLElement(Element el) throws SAXException {
+    @Override
+    public void loadXMLElement(final Element el) throws SAXException {
         super.loadXMLElement(el);
         privateKey =  XMLTools.getChildElementsCDATAValue(el, "privKey");
         signature =  XMLTools.getChildElementsCDATAValue(el, "signature");
     }
 
-    public LocalIdentity(String name, String[] keys) {
-        super(name,  keys[1]);
-        privateKey=keys[0];
+    /**
+     * Creates a new Identity, adds digest to name.
+     */
+    protected LocalIdentity(final String name, final String key) {
+        super(name, key, true);
     }
-    
-    public LocalIdentity(String uname, String pubKey, String prvKey, String sign) {
-        super(uname, pubKey);
+
+    protected LocalIdentity(final String name, final String[] keys) {
+        this(name,  keys[1]);
+        this.privateKey = keys[0];
+    }
+
+    /**
+     * Only used for migration.
+     */
+    public LocalIdentity(final String uname, final String pubKey, final String prvKey, final String sign) {
+        this(uname, pubKey);
         privateKey = prvKey;
         signature = sign;
     }
 
-    public LocalIdentity(Element el) {
+    protected LocalIdentity(final Element el) throws Exception {
         // finally calls loadXMLElement of this class!
         super(el);
     }
+
+    /**
+     * Create a new Identity, read from the specified XML element.
+     * Calls Mixed.makeFilename() on read uniqueName.
+     *
+     * @param el  the XML element containing the Identity information
+     * @return    the new Identity, or null if Identity cannot be created (invalid input)
+     */
+    public static LocalIdentity createLocalIdentityFromXmlElement(final Element el) {
+        try {
+            return new LocalIdentity(el);
+        } catch (final Exception e) {
+            return null;
+        }
+    }
+
     /**
      * constructor that creates an RSA Keypair
      */
-    public LocalIdentity(String name) {
+    public LocalIdentity(final String name) {
         this(name, Core.getCrypto().generateKeys());
         // generateOwnBoard();
         // TODO: generate other than SSK
     }
-    
+
 //    void generateOwnBoard() {
 //        if( board == null ) {
 //            FcpConnection connection = FcpFactory.getFcpConnectionInstance();
@@ -120,31 +149,35 @@ public class LocalIdentity extends Identity {
     public String getPrivateKey() {
         return privateKey;
     }
-    
+
     /**
      * @return  the signature the user entered for this identity.
      */
     public String getSignature() {
         return signature;
     }
-    public void setSignature(String s) {
+    public void setSignature(final String s) {
         signature = s;
         updateIdentitiesStorage();
     }
 
+    @Override
     public boolean isGOOD() {
         return true;
     }
+    @Override
     public boolean isCHECK() {
         return false;
     }
+    @Override
     public boolean isOBSERVE() {
         return false;
     }
+    @Override
     public boolean isBAD() {
         return false;
     }
-    
+
     public long getLastFilesSharedMillis() {
         return lastFilesSharedMillis;
     }
@@ -152,7 +185,7 @@ public class LocalIdentity extends Identity {
         lastFilesSharedMillis = System.currentTimeMillis();
         updateIdentitiesStorage();
     }
-    public void setLastFilesSharedMillis(long l) {
+    public void setLastFilesSharedMillis(final long l) {
         lastFilesSharedMillis = l;
         modify();
         updateIdentitiesStorage();

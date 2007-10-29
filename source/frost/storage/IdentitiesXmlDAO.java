@@ -35,69 +35,69 @@ public class IdentitiesXmlDAO {
     /**
      * Loads good, observe and bad identities from xml file.
      */
-    public static List<Identity> loadIdentities(File file) {
-        
-        LinkedList<Identity> identities = new LinkedList<Identity>();
+    public static List<Identity> loadIdentities(final File file) {
 
-        Document d = XMLTools.parseXmlFile(file, false);
-        Element rootEl = d.getDocumentElement();
+        final LinkedList<Identity> identities = new LinkedList<Identity>();
 
-        List lists = XMLTools.getChildElementsByTagName(rootEl, "BuddyList");
-        Iterator it = lists.iterator();
+        final Document d = XMLTools.parseXmlFile(file, false);
+        final Element rootEl = d.getDocumentElement();
+
+        final List<Element> lists = XMLTools.getChildElementsByTagName(rootEl, "BuddyList");
+        final Iterator<Element> it = lists.iterator();
 
         while (it.hasNext()) {
-            Element current = (Element) it.next();
+            final Element current = it.next();
             if (current.getAttribute("type").equals("friends")) {
-                BuddyList buddyList = new BuddyList();
+                final BuddyList buddyList = new BuddyList();
                 try {
                     buddyList.loadXMLElement(current);
-                } catch (SAXException e) {
+                } catch (final SAXException e) {
                     logger.log(Level.SEVERE, "Error loading good identities", e);
                 }
-                for(Iterator i = buddyList.getAllValues().iterator(); i.hasNext(); ) {
-                    Identity id = (Identity)i.next();
+                for( final Object element : buddyList.getAllValues() ) {
+                    final Identity id = (Identity)element;
                     id.setGOODWithoutUpdate();
                     identities.add(id);
                 }
             } else if (current.getAttribute("type").equals("enemies")) {
-                BuddyList buddyList = new BuddyList();
+                final BuddyList buddyList = new BuddyList();
                 try {
                     buddyList.loadXMLElement(current);
-                } catch (SAXException e) {
+                } catch (final SAXException e) {
                     logger.log(Level.SEVERE, "Error loading bad identities", e);
                 }
-                for(Iterator i = buddyList.getAllValues().iterator(); i.hasNext(); ) {
-                    Identity id = (Identity)i.next();
+                for( final Object element : buddyList.getAllValues() ) {
+                    final Identity id = (Identity)element;
                     id.setBADWithoutUpdate();
                     identities.add(id);
                 }
             } else if (current.getAttribute("type").equals("neutral")) {
-                BuddyList buddyList = new BuddyList();
+                final BuddyList buddyList = new BuddyList();
                 try {
                     buddyList.loadXMLElement(current);
-                } catch (SAXException e) {
+                } catch (final SAXException e) {
                     logger.log(Level.SEVERE, "Error loading check identities", e);
                 }
-                for(Iterator i = buddyList.getAllValues().iterator(); i.hasNext(); ) {
-                    Identity id = (Identity)i.next();
+                for( final Object element : buddyList.getAllValues() ) {
+                    final Identity id = (Identity)element;
                     id.setCHECKWithoutUpdate();
                     identities.add(id);
                 }
             } else if (current.getAttribute("type").equals("observed")) {
-                BuddyList buddyList = new BuddyList();
+                final BuddyList buddyList = new BuddyList();
                 try {
                     buddyList.loadXMLElement(current);
-                } catch (SAXException e) {
+                } catch (final SAXException e) {
                     logger.log(Level.SEVERE, "Error loading observe identities", e);
                 }
-                for(Iterator i = buddyList.getAllValues().iterator(); i.hasNext(); ) {
-                    Identity id = (Identity)i.next();
+                for( final Object element : buddyList.getAllValues() ) {
+                    final Identity id = (Identity)element;
                     id.setOBSERVEWithoutUpdate();
                     identities.add(id);
                 }
             }
         }
-        
+
         return identities;
     }
 
@@ -105,16 +105,16 @@ public class IdentitiesXmlDAO {
      * Returns -1 on error, 0 if no identity is to export and no file was created,
      * or >0 for exported identity count.
      */
-    public static int saveIdentities(File file, List<Identity> identities) {
-        
-        BuddyList friends = new BuddyList();
-        BuddyList observed = new BuddyList();
-        BuddyList enemies = new BuddyList();
-        
+    public static int saveIdentities(final File file, final List<Identity> identities) {
+
+        final BuddyList friends = new BuddyList();
+        final BuddyList observed = new BuddyList();
+        final BuddyList enemies = new BuddyList();
+
         int count = 0;
-        
-        for( Iterator i = identities.iterator(); i.hasNext(); ) {
-            Identity id = (Identity) i.next();
+
+        for( final Object element : identities ) {
+            final Identity id = (Identity) element;
             if( id.isGOOD() ) {
                 friends.add(id);
                 count++;
@@ -127,25 +127,25 @@ public class IdentitiesXmlDAO {
             }
             // we ignore CHECK ids here! this is the default
         }
-        
+
         if( count == 0 ) {
             // dont create an empty file
             return count;
         }
-        
-        Document d = XMLTools.createDomDocument();
-        Element rootElement = d.createElement("FrostIdentities");
+
+        final Document d = XMLTools.createDomDocument();
+        final Element rootElement = d.createElement("FrostIdentities");
 
         // then friends
-        Element friendsElement = friends.getXMLElement(d);
+        final Element friendsElement = friends.getXMLElement(d);
         friendsElement.setAttribute("type", "friends");
         rootElement.appendChild(friendsElement);
         // then enemies
-        Element enemiesElement = enemies.getXMLElement(d);
+        final Element enemiesElement = enemies.getXMLElement(d);
         enemiesElement.setAttribute("type", "enemies");
         rootElement.appendChild(enemiesElement);
         // then observed
-        Element observedElement = observed.getXMLElement(d);
+        final Element observedElement = observed.getXMLElement(d);
         observedElement.setAttribute("type", "observed");
         rootElement.appendChild(observedElement);
 
@@ -175,8 +175,8 @@ public class IdentitiesXmlDAO {
          * adds a user to the list
          * returns false if the user exists
          */
-        public synchronized boolean add(Identity user) {
-            String str = user.getUniqueName();
+        public synchronized boolean add(final Identity user) {
+            final String str = user.getUniqueName();
             if (containsKey(str)) {
                 return false;
             }
@@ -185,38 +185,39 @@ public class IdentitiesXmlDAO {
             return true;
         }
 
-        public boolean containsKey(String key) {
-            return hashMap.containsKey(Mixed.makeFilename((String) key));
+        public boolean containsKey(final String key) {
+            return hashMap.containsKey(Mixed.makeFilename(key));
         }
 
-        public synchronized Element getXMLElement(Document doc) {
-            Element main = doc.createElement("BuddyList");
-            Iterator it = hashMap.values().iterator();
+        public synchronized Element getXMLElement(final Document doc) {
+            final Element main = doc.createElement("BuddyList");
+            final Iterator<Identity> it = hashMap.values().iterator();
             while (it.hasNext()) {
-                Identity id = (Identity) it.next();
-                Element el = id.getExportXMLElement(doc);
+                final Identity id = it.next();
+                final Element el = id.getExportXMLElement(doc);
                 main.appendChild(el);
             }
             return main;
         }
 
-        public void loadXMLElement(Element el) throws SAXException {
+        public void loadXMLElement(final Element el) throws SAXException {
             if (el == null) {
                 return;
             }
-            List l = XMLTools.getChildElementsByTagName(el, "Identity");
-            Iterator it = l.iterator();
-            while (it.hasNext()) {
-                add(new Identity((Element) it.next()));
+            for (final Element idEl : XMLTools.getChildElementsByTagName(el, "Identity") ) {
+                final Identity id = Identity.createIdentityFromXmlElement( idEl );
+                if( id != null ) {
+                    add(id);
+                }
             }
         }
-        protected Object remove(String key) {
+        protected Object remove(final String key) {
             return hashMap.remove(Mixed.makeFilename(key));
         }
         public int size() {
             return hashMap.size();
         }
-        public Collection getAllValues() {
+        public Collection<Identity> getAllValues() {
             return hashMap.values();
         }
     }

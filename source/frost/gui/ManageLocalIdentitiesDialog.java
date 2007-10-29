@@ -363,7 +363,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
         final Element myself = XMLTools.getChildElementsByTagName(rootEl, "MyIdentity").get(0);
         LocalIdentity myId = null;
         if( myself != null ) {
-            myId = new LocalIdentity(myself);
+            myId = LocalIdentity.createLocalIdentityFromXmlElement(myself);
         }
         return myId;
     }
