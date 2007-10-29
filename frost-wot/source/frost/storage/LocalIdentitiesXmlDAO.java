@@ -31,28 +31,29 @@ public class LocalIdentitiesXmlDAO {
 
     private static final Logger logger = Logger.getLogger(KnownBoardsXmlDAO.class.getName());
 
-    public static List<LocalIdentity> loadLocalidentities(File file) {
+    public static List<LocalIdentity> loadLocalidentities(final File file) {
 
-        LinkedList<LocalIdentity> localIdentities = new LinkedList<LocalIdentity>();
+        final LinkedList<LocalIdentity> localIdentities = new LinkedList<LocalIdentity>();
         if( file.exists() ) {
             Document doc = null;
             try {
                 doc = XMLTools.parseXmlFile(file, false);
-            } catch (Exception ex) {
+            } catch (final Exception ex) {
                 logger.log(Level.SEVERE, "Error reading localidentities xml", ex);
                 return localIdentities;
             }
-            Element rootNode = doc.getDocumentElement();
+            final Element rootNode = doc.getDocumentElement();
             if( rootNode.getTagName().equals("FrostLocalIdentities") == false ) {
                 logger.severe("Error - invalid localidentities xml: does not contain the root tag 'FrostLocalIdentities'");
                 return null;
             }
-            
-            List localIdentitiesElements = XMLTools.getChildElementsByTagName(rootNode, "MyIdentity");
-            for( Iterator i = localIdentitiesElements.iterator(); i.hasNext(); ) {
-                Element lidElement = (Element) i.next();
-                LocalIdentity myId = new LocalIdentity(lidElement);
-                localIdentities.add(myId);
+
+            final List<Element> localIdentitiesElements = XMLTools.getChildElementsByTagName(rootNode, "MyIdentity");
+            for( final Element element : localIdentitiesElements ) {
+                final LocalIdentity myId = LocalIdentity.createLocalIdentityFromXmlElement(element);
+                if( myId != null ) {
+                    localIdentities.add(myId);
+                }
             }
         }
         return localIdentities;
@@ -61,27 +62,27 @@ public class LocalIdentitiesXmlDAO {
     /**
      * ATTN: appends private key!
      */
-    public static boolean saveLocalIdentities(File file, List<LocalIdentity> localIdentities) {
-        Document doc = XMLTools.createDomDocument();
+    public static boolean saveLocalIdentities(final File file, final List<LocalIdentity> localIdentities) {
+        final Document doc = XMLTools.createDomDocument();
         if (doc == null) {
             logger.severe("Error - saveLocalIdentities: factory couldn't create XML Document.");
             return false;
         }
 
-        Element rootElement = doc.createElement("FrostLocalIdentities");
+        final Element rootElement = doc.createElement("FrostLocalIdentities");
         doc.appendChild(rootElement);
 
-        Iterator i = localIdentities.iterator();
+        final Iterator<LocalIdentity> i = localIdentities.iterator();
         while (i.hasNext()) {
-            LocalIdentity b = (LocalIdentity)i.next();
-            Element anAttachment = b.getExportXMLElement(doc);
+            final LocalIdentity b = i.next();
+            final Element anAttachment = b.getExportXMLElement(doc);
             rootElement.appendChild(anAttachment);
         }
 
         boolean writeOK = false;
         try {
             writeOK = XMLTools.writeXmlFile(doc, file.getPath());
-        } catch (Throwable ex) {
+        } catch (final Throwable ex) {
             logger.log(Level.SEVERE, "Exception while writing localidentities xml:", ex);
         }
         if (!writeOK) {

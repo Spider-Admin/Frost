@@ -264,6 +264,15 @@ public class Migrate1to2 {
             final MessageCallback mc = new MessageCallback() {
                 int cnt=0;
                 public boolean messageRetrieved(FrostMessageObject mo) {
+                    if( FrostMessageObject.isSignatureStatusVERIFIED(mo.getSignatureStatus()) ) {
+                        mo.setFromName(Mixed.makeFilename(mo.getFromName()));
+                    } else {
+                        // message is not verified, fromName must not contain an '@'
+                        // (fix for bug in older frosts)
+                        if( mo.getFromName().indexOf('@')> -1 ) {
+                            mo.setFromName(mo.getFromName().replace('@','_'));
+                        }
+                    }
                     ms.insertMessage(mo, false);
                     cnt++;
                     if(cnt%100 == 0) {
@@ -303,6 +312,11 @@ public class Migrate1to2 {
             final FileListCallback mc = new FileListCallback() {
                 int cnt=0;
                 public boolean fileRetrieved(FrostFileListFileObject fo) {
+                    Iterator<FrostFileListFileObjectOwner> i = fo.getFrostFileListFileObjectOwnerIterator();
+                    for( ; i.hasNext(); ) {
+                        FrostFileListFileObjectOwner ow = i.next();
+                        ow.setOwner( Mixed.makeFilename(ow.getOwner()) );
+                    }
                     ms.insertOrUpdateFileListFileObject(fo, false);
                     cnt++;
                     if(cnt%100 == 0) {
@@ -329,6 +343,15 @@ public class Migrate1to2 {
             final MessageCallback mc = new MessageCallback() {
                 int cnt=0;
                 public boolean messageRetrieved(FrostMessageObject mo) {
+                    if( FrostMessageObject.isSignatureStatusVERIFIED(mo.getSignatureStatus()) ) {
+                        mo.setFromName(Mixed.makeFilename(mo.getFromName()));
+                    } else {
+                        // message is not verified, fromName must not contain an '@'
+                        // (fix for bug in older frosts)
+                        if( mo.getFromName().indexOf('@')> -1 ) {
+                            mo.setFromName(mo.getFromName().replace('@','_'));
+                        }
+                    }
                     ms.insertMessage(mo, (String)mo.getUserObject(), false);
                     cnt++;
                     if(cnt%100 == 0) {

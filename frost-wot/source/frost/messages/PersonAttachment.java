@@ -18,9 +18,9 @@
 */
 package frost.messages;
 import org.w3c.dom.*;
-import org.xml.sax.SAXException;
+import org.xml.sax.*;
 
-import frost.identities.Identity;
+import frost.identities.*;
 import frost.util.*;
 
 public class PersonAttachment extends Attachment {
@@ -31,23 +31,23 @@ public class PersonAttachment extends Attachment {
 	 * @param e
 	 * @throws SAXException
 	 */
-	public PersonAttachment(Element e) throws SAXException {
+	public PersonAttachment(final Element e) throws SAXException {
 		loadXMLElement(e);
 	}
 
 	/**
 	 * @param newIdentity
 	 */
-	public PersonAttachment(Identity newIdentity) {
+	public PersonAttachment(final Identity newIdentity) {
 		identity = newIdentity;
 	}
 
-	/* 
+	/*
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
-	public int compareTo(Object o) {
-		String myKey = identity.getPublicKey();
-		String otherKey = ((PersonAttachment) o).getIdentity().getPublicKey();
+	public int compareTo(final Object o) {
+		final String myKey = identity.getPublicKey();
+		final String otherKey = ((PersonAttachment) o).getIdentity().getPublicKey();
 		return myKey.compareTo(otherKey);
 	}
 
@@ -57,19 +57,20 @@ public class PersonAttachment extends Attachment {
 	public Identity getIdentity() {
 		return identity;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see frost.messages.Attachment#getType()
 	 */
-	public int getType() {
+	@Override
+    public int getType() {
 		return Attachment.PERSON;
 	}
 
 	/* (non-Javadoc)
 	 * @see frost.XMLizable#getXMLElement(org.w3c.dom.Document)
 	 */
-	public Element getXMLElement(Document container) {
-		Element el = container.createElement("Attachment");
+	public Element getXMLElement(final Document container) {
+		final Element el = container.createElement("Attachment");
 		el.setAttribute("type", "person");
 		el.appendChild(identity.getXMLElement(container));
 		return el;
@@ -78,9 +79,9 @@ public class PersonAttachment extends Attachment {
 	/* (non-Javadoc)
 	 * @see frost.XMLizable#loadXMLElement(org.w3c.dom.Element)
 	 */
-	public void loadXMLElement(Element e) throws SAXException {
-		Element _person =
-			(Element) XMLTools.getChildElementsByTagName(e, "Identity").iterator().next();
-		identity = new Identity(_person);
+	public void loadXMLElement(final Element e) throws SAXException {
+		final Element _person =
+			XMLTools.getChildElementsByTagName(e, "Identity").iterator().next();
+		identity = Identity.createIdentityFromXmlElement(_person);
 	}
 }

@@ -56,7 +56,7 @@ public class SignMetaData extends MetaData {
      * Represents a metadata of something about to be sent.
      * Computes signature of plaintext.
      */
-    public SignMetaData(byte[] plaintext, LocalIdentity myId) {
+    public SignMetaData(final byte[] plaintext, final LocalIdentity myId) {
         this.person = myId;
         sig = Core.getCrypto().detachedSign(plaintext, myId.getPrivateKey());
     }
@@ -64,16 +64,16 @@ public class SignMetaData extends MetaData {
     /**
      * Metadata of something that was received.
      */
-    public SignMetaData(byte [] metadata) throws Throwable {
+    public SignMetaData(final byte [] metadata) throws Throwable {
 
-        Document d = XMLTools.parseXmlContent(metadata, false);
-        Element el = d.getDocumentElement();
+        final Document d = XMLTools.parseXmlContent(metadata, false);
+        final Element el = d.getDocumentElement();
         if( el.getTagName().equals("FrostMetaData") == false ) {
             throw new Exception("This is not FrostMetaData XML file.");
         }
         try {
             loadXMLElement(el);
-        } catch (SAXException e) {
+        } catch (final SAXException e) {
             logger.log(Level.SEVERE, "Exception thrown in constructor", e);
             throw e;
         }
@@ -85,10 +85,10 @@ public class SignMetaData extends MetaData {
      * @param plaintext the plaintext to be verified
      * @param el the xml element to populate from
      */
-    public SignMetaData(Element el) throws SAXException {
+    public SignMetaData(final Element el) throws SAXException {
         try {
             loadXMLElement(el);
-        } catch (SAXException e) {
+        } catch (final SAXException e) {
             logger.log(Level.SEVERE, "Exception thrown in constructor", e);
             throw e;
         }
@@ -97,12 +97,13 @@ public class SignMetaData extends MetaData {
     /* (non-Javadoc)
      * @see frost.XMLizable#getXMLElement(org.w3c.dom.Document)
      */
-    public Element getXMLElement(Document container) {
+    @Override
+    public Element getXMLElement(final Document container) {
 
-        Element el = super.getXMLElement(container);
-        
-        Element _sig = container.createElement("sig");
-        CDATASection cdata = container.createCDATASection(sig);
+        final Element el = super.getXMLElement(container);
+
+        final Element _sig = container.createElement("sig");
+        final CDATASection cdata = container.createCDATASection(sig);
         _sig.appendChild(cdata);
 
         el.appendChild(_sig);
@@ -112,17 +113,17 @@ public class SignMetaData extends MetaData {
     /* (non-Javadoc)
      * @see frost.XMLizable#loadXMLElement(org.w3c.dom.Element)
      */
-    public void loadXMLElement(Element e) throws SAXException {
+    public void loadXMLElement(final Element e) throws SAXException {
 
         // New Frosts send "Identity" and "MyIdentity", old Frosts only "MyIdentity"
-        List tags = XMLTools.getChildElementsByTagName(e, "Identity");
+        List<Element> tags = XMLTools.getChildElementsByTagName(e, "Identity");
         if( tags.size() == 0 ) {
             // fallback to old format
             tags = XMLTools.getChildElementsByTagName(e, "MyIdentity");
         }
-        
-        Element _person = (Element) tags.iterator().next();
-        person = new Identity(_person);
+
+        final Element _person = tags.iterator().next();
+        person = Identity.createIdentityFromXmlElement(_person);
         sig = XMLTools.getChildElementsCDATAValue(e, "sig");
 
         assert person!=null && sig!=null;
@@ -138,6 +139,7 @@ public class SignMetaData extends MetaData {
     /* (non-Javadoc)
      * @see frost.crypt.MetaData#getType()
      */
+    @Override
     public int getType() {
         return MetaData.SIGN;
     }

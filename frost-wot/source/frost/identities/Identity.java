@@ -62,7 +62,7 @@ public class Identity extends Persistent implements XMLizable {
     //if this was C++ LocalIdentity wouldn't work
     //fortunately we have virtual construction so loadXMLElement will be called
     //for the inheriting class ;-)
-    public Identity(final Element el) {
+    protected Identity(final Element el) throws Exception {
         try {
             loadXMLElement(el);
         } catch (final SAXException e) {
@@ -73,15 +73,9 @@ public class Identity extends Persistent implements XMLizable {
     /**
      * we use this constructor whenever we have all the info
      */
-    public Identity(final String name, final String key) {
+    protected Identity(final String name, final String key) {
         this.publicKey = key;
-        if( name.indexOf("@") != -1 ) {
-            this.uniqueName = name;
-        } else {
-            this.uniqueName = name + "@" + Core.getCrypto().digest(getPublicKey());
-        }
-
-        uniqueName = Mixed.makeFilename(uniqueName);
+        this.uniqueName = name;
     }
 
     /**
@@ -107,6 +101,54 @@ public class Identity extends Persistent implements XMLizable {
         receivedMessageCount = li.getReceivedMessageCount();
         updateStateString();
     }
+
+    /**
+     * Create a new Identity from the specified uniqueName and publicKey.
+     * If uniqueName does not contain an '@', this method creates a new digest
+     * for the publicKey and appens it to the uniqueName.
+     * Finally Mixed.makeFilename() is called for the uniqueName.
+     */
+    protected Identity(String name, final String key, final boolean createNew) {
+        if( name.indexOf("@") < 0 ) {
+            name = name + "@" + Core.getCrypto().digest(key);
+        }
+        name = Mixed.makeFilename(name);
+
+        this.publicKey = key;
+        this.uniqueName = name;
+    }
+
+    ////////////////////////////////////////////////////////////////////
+    // FACTORY METHODS /////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////
+
+    /**
+     * Create a new Identity from the specified uniqueName and publicKey.
+     * Does not convert the specified uniqueName using Mixed.makeFilename() !
+     *
+     * @return null if the Identity cannot be created
+     */
+    public static Identity createIdentityFromExactStrings(final String name, final String key) {
+        return new Identity(name, key);
+    }
+
+    /**
+     * Create a new Identity, read from the specified XML element.
+     * Calls Mixed.makeFilename() on read uniqueName.
+     *
+     * @param el  the XML element containing the Identity information
+     * @return    the new Identity, or null if Identity cannot be created (invalid input)
+     */
+    public static Identity createIdentityFromXmlElement(final Element el) {
+        try {
+            return new Identity(el);
+        } catch (final Exception e) {
+            return null;
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////
 
     @Override
     public boolean recursiveLoading() {
@@ -240,6 +282,10 @@ public class Identity extends Persistent implements XMLizable {
 
     public String getUniqueName() {
         return uniqueName;
+    }
+
+    public void correctUniqueName() {
+        uniqueName = Mixed.makeFilename(uniqueName);
     }
 
     // dont't store BoardAttachment with pubKey=SSK@...
