@@ -843,7 +843,6 @@ public class TOF {
             final boolean blockMsgBody,
             final boolean blockMsgBoardname)
     {
-
         if (board.getShowSignedOnly()
             && (message.isMessageStatusOLD() || message.isMessageStatusTAMPERED()) )
         {
@@ -858,16 +857,6 @@ public class TOF {
         if (board.getHideObserve() && message.isMessageStatusOBSERVE()) {
             return true;
         }
-
-        // Now fixed during migration from McKoi
-//        //If the message is not signed and contains a @ character in the from field, we block it.
-//        if (message.isMessageStatusOLD() && message.getFromName().indexOf('@') > -1) {
-//            // FIXME: here we fix a problem with older frosts: a message is sent anonymously,
-//            //        but the sender is a unique name. We remove the '@' to avoid confusion
-//            // -> this solves the problem that a new msg is indicated, but not shown
-//            message.setFromName(message.getFromName().replace('@','_'));
-//            // return false; // we would block this message
-//        }
 
         // Block by subject (and rest of the header)
         if ( blockMsgSubject ) {

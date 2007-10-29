@@ -148,6 +148,16 @@ public class MessageDownloader {
                 FileAccess.writeFile(unzippedXml, tmpFile);
                 try {
                     final MessageXmlFile currentMsg = new MessageXmlFile(tmpFile);
+
+                    // fromName must not contain an '@'
+                    if( currentMsg.getFromName().indexOf('@') > -1) {
+                        // invalid, drop message
+                        logger.severe("TOFDN: unsigned message has an invalid fromName (contains an @: '"+
+                                currentMsg.getFromName()+"'), message dropped."+logInfo);
+                        tmpFile.delete();
+                        return new MessageDownloaderResult(MessageDownloaderResult.INVALID_MSG);
+                    }
+
                     currentMsg.setSignatureStatusOLD();
                     return new MessageDownloaderResult(currentMsg);
                 } catch (final Exception ex) {
@@ -362,6 +372,16 @@ public class MessageDownloader {
 
             if( !isSignedV1 && !isSignedV2 ) {
                 // unsigned msg
+
+                // fromName must not contain an '@'
+                if( currentMsg.getFromName().indexOf('@') > -1) {
+                    // invalid, drop message
+                    logger.severe("TOFDN: unsigned message has an invalid fromName (contains an @: '"+
+                            currentMsg.getFromName()+"'), message dropped."+logInfo);
+                    tmpFile.delete();
+                    return new MessageDownloaderResult(MessageDownloaderResult.INVALID_MSG);
+                }
+
                 // check and maybe add msg to gui, set to unsigned
                 currentMsg.setSignatureStatusOLD();
                 return new MessageDownloaderResult(currentMsg);
