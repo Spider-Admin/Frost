@@ -110,7 +110,7 @@ public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNo
             if( fromIdent == null ) {
                 return xOLD;
             }
-
+// FIXME: fuer mo.getstatusstring() reicht es Identity.getstatusstring aufzurufen, hier einbauen und eine menge IFs sparen!
             if( fromIdent.isCHECK() ) {
                 return xCHECK;
             }
