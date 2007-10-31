@@ -23,44 +23,44 @@ import java.util.*;
 /**
  * This class is a Model that stores ModelItems in a certain order. That does not
  * mean that it is sorted.
- * 
+ *
  * Its implementation is thread-safe
  */
 public class SortedModel {
 
 	protected List<ModelItem> data;
-	
+
 	private SortedModelListenerSupport listenerSupport;
-    
+
     private boolean ascending;
 
     private int columnNumber = -1;
 
-    private SortedTableFormat tableFormat;
+    private final SortedTableFormat tableFormat;
     private SortedModelTable table = null;
 
-	public SortedModel(SortedTableFormat newFormat) {
+	public SortedModel(final SortedTableFormat newFormat) {
 		super();
 		data = new ArrayList<ModelItem>();
         tableFormat = newFormat;
 	}
-    
-    public void setTable(SortedModelTable t) {
+
+    public void setTable(final SortedModelTable t) {
         table = t;
     }
     public SortedModelTable getTable() {
         return table;
     }
-    
+
     public SortedTableFormat getTableFormat() {
         return tableFormat;
     }
-	
+
 	/* (non-Javadoc)
 	 * @see frost.util.Model#addItem(frost.util.ModelItem)
 	 */
-	protected void addItem(ModelItem item) {
-        
+	protected void addItem(final ModelItem item) {
+
         if (columnNumber == -1) {
             synchronized(data) {
                 data.add(item);
@@ -71,23 +71,23 @@ public class SortedModel {
             addItem(item, getInsertionPoint(item));
         }
 	}
-	
-	protected void addItem(ModelItem item, int position) {
+
+	protected void addItem(final ModelItem item, final int position) {
 		synchronized(data) {
 			data.add(position, item);
 			fireItemAdded(item);
 		}
 		item.setModel(this);
 	}
-	
+
 	/**
-	 * Adds an OrderedModelListener to the listener list. 
+	 * Adds an OrderedModelListener to the listener list.
 	 * <p>
 	 * If listener is null, no exception is thrown and no action is performed.
 	 *
 	 * @param    listener  the OrderedModelListener to be added
 	 */
-	public synchronized void addOrderedModelListener(SortedModelListener listener) {
+	public synchronized void addOrderedModelListener(final SortedModelListener listener) {
 		if (listener == null) {
 			return;
 		}
@@ -99,14 +99,14 @@ public class SortedModel {
 
 	public synchronized void clear() {
 		synchronized (data) {
-			Iterator iterator = data.iterator();
+			final Iterator iterator = data.iterator();
 			while (iterator.hasNext()) {
-				ModelItem item = (ModelItem) iterator.next();
+				final ModelItem item = (ModelItem) iterator.next();
 				item.setModel(null);
 			}
 			data.clear();
 
-            getTable().fireTableDataChanged();         
+            getTable().fireTableDataChanged();
 
             if (listenerSupport == null) {
                 return;
@@ -114,51 +114,51 @@ public class SortedModel {
             listenerSupport.fireModelCleared();
 		}
 	}
-	
-	protected void fireItemAdded(ModelItem item) {
-        
-        int position = data.indexOf(item);
-        getTable().fireTableRowsInserted(position, position);          
-        
+
+	protected void fireItemAdded(final ModelItem item) {
+
+        final int position = data.indexOf(item);
+        getTable().fireTableRowsInserted(position, position);
+
 		if (listenerSupport == null) {
 			return;
 		}
 		listenerSupport.fireItemAdded(item, position);
 	}
-	
-	protected void fireItemChanged(ModelItem item) {
-        
+
+	protected void fireItemChanged(final ModelItem item) {
+
         if (columnNumber == -1) {
             fireItemChanged(item);
         } else {
             // maybe reinsert, first check if position would change
             boolean reinsert = true;
             if( data.size() > 1 ) {
-                int p = data.indexOf(item);
-                Comparator cmp = getComparator();
+                final int p = data.indexOf(item);
+                final Comparator cmp = getComparator();
                 if( p == 0 ) {
                     // first item, compare with second item
-                    ModelItem compItem = data.get(1);
+                    final ModelItem compItem = data.get(1);
                     if( cmp.compare(item, compItem) <= 0 ) {
                         // no need to resort
                         reinsert = false;
                     }
                 } else if( p == data.size()-1 ){
                     // last item, compare with preceeding item
-                    ModelItem compItem = data.get(p-1);
+                    final ModelItem compItem = data.get(p-1);
                     if( cmp.compare(item, compItem) >= 0 ) {
                         // no need to resort
                         reinsert = false;
                     }
                 } else {
                     // middle item, compare with preceeding and following item
-                    ModelItem compItem1 = data.get(p-1);
-                    ModelItem compItem2 = data.get(p+1);
+                    final ModelItem compItem1 = data.get(p-1);
+                    final ModelItem compItem2 = data.get(p+1);
                     if( cmp.compare(item, compItem1) >= 0 ) {
                         if( cmp.compare(item, compItem2) <= 0 ) {
                             // no need to resort
                             reinsert = false;
-                        }                            
+                        }
                     }
                 }
             } else {
@@ -171,80 +171,80 @@ public class SortedModel {
                 data.add(getInsertionPoint(item), item);
                 table.fireTableDataChanged();
             }
-        }   
+        }
 
-        int position = data.indexOf(item);
-        getTable().fireTableRowsUpdated(position, position);           
-        
+        final int position = data.indexOf(item);
+        getTable().fireTableRowsUpdated(position, position);
+
 		if (listenerSupport == null) {
 			return;
 		}
 		listenerSupport.fireItemChanged(item, position);
 	}
-	
-    void itemChanged(ModelItem item) {
+
+    void itemChanged(final ModelItem item) {
         fireItemChanged(item);
     }
 
-	private void fireItemsRemoved(int[] positions, ModelItem[] items) {
-        
-        getTable().fireTableRowsDeleted(positions);            
-        
+	private void fireItemsRemoved(final int[] positions, final ModelItem[] items) {
+
+        getTable().fireTableRowsDeleted(positions);
+
 		if (listenerSupport == null) {
 			return;
 		}
-		listenerSupport.fireItemsRemoved(positions, items);		
+		listenerSupport.fireItemsRemoved(positions, items);
 	}
 
-	public ModelItem getItemAt(int position) {
+	public ModelItem getItemAt(final int position) {
         if( position >= data.size() ) {
             System.out.println("SortedModel.getItemAt: position="+position+", but size="+data.size());
             return null;
         }
-		return (ModelItem) data.get(position);
+		return data.get(position);
 	}
 
 	public int getItemCount() {
 		return data.size();
 	}
-    
+
     /**
      * @return  a new List containing all items of this model, in unspecific order
      */
     public List getItems() {
         return new ArrayList<ModelItem>(data);
     }
-	
+
 	/**
 	 * Returns the index in this model of the first occurrence of the specified
      * item, or -1 if this model does not contain this element.
-     * 
+     *
      * @param item item to search for.
 	 * @return the index in this model of the first occurrence of the specified
      * 	       item, or -1 if this model does not contain this element.
 	 */
-	public int indexOf(ModelItem item) {
+	public int indexOf(final ModelItem item) {
 		return data.indexOf(item);
 	}
 
 	/* (non-Javadoc)
 	 * @see frost.util.Model#removeItems(frost.util.ModelItem)
 	 */
-	public boolean removeItems(ModelItem[] items) {
+	public boolean removeItems(final ModelItem[] items) {
 		//We clear the link to the model of each item
-		for (int i = 0; i < items.length; i++) {
-			items[i].setModel(null);
+		for( final ModelItem element : items ) {
+			element.setModel(null);
 		}
 		//We remove the first occurrence of each item from the model
-		int[] removedPositions = new int[items.length];
-		ModelItem[] removedItems = new ModelItem[items.length];
+		final int[] removedPositions = new int[items.length];
+		final ModelItem[] removedItems = new ModelItem[items.length];
 		int count = 0;
 		synchronized (data) {
-			for (int i = 0; i < items.length; i++) {
-				int position = data.indexOf(items[i]);
+			for( final ModelItem element : items ) {
+				final int position = data.indexOf(element);
 				if (position != -1) {
 					data.remove(position);
-					removedItems[count] = items[i];
+					removedItems[count] = element;
 					removedPositions[count] = position;
 					count++;
 				}
@@ -253,32 +253,32 @@ public class SortedModel {
 		//We send an items removed event. Only those items that actually
 		//were in the model and thus were removed are included in the event.
 		if (count != 0) {
-			int[] croppedPositions = new int[count];
-			ModelItem[] croppedItems = new ModelItem[count];
+			final int[] croppedPositions = new int[count];
+			final ModelItem[] croppedItems = new ModelItem[count];
 			System.arraycopy(removedPositions, 0, croppedPositions, 0, count);
 			System.arraycopy(removedItems, 0, croppedItems, 0, count);
 			fireItemsRemoved(croppedPositions, croppedItems);
 			return true;
 		} else {
-			return false;	
+			return false;
 		}
 	}
-    
-    protected void sort(int newColumnNumber, boolean newAscending) {
+
+    protected void sort(final int newColumnNumber, final boolean newAscending) {
         columnNumber = newColumnNumber;
         ascending = newAscending;
-        Collections.sort(data, getComparator());        
+        Collections.sort(data, getComparator());
     }
-    
+
     private Comparator getComparator() {
-        if (ascending) { 
+        if (ascending) {
             return tableFormat.getComparator(columnNumber);
         } else {
             return tableFormat.getReverseComparator(columnNumber);
         }
     }
 
-    private int getInsertionPoint(ModelItem item) {
+    private int getInsertionPoint(final ModelItem item) {
         int position = Collections.binarySearch(data, item, getComparator());
         if (position < 0) {
             // No similar item was in the list
@@ -290,5 +290,5 @@ public class SortedModel {
             position++;
         }
         return position;
-    }   
+    }
 }

@@ -244,8 +244,8 @@ public class Frost {
             jarFileName = "skinlf.jar";
             Class.forName("com.l2fprod.gui.SkinApplet");
             // check for skinlfFix.jar
-            jarFileName = "skinlfFix.jar";
-            Class.forName("com.l2fprod.gui.plaf.skin.SkinlfFixMarkerClass");
+//            jarFileName = "skinlfFix.jar";
+//            Class.forName("com.l2fprod.gui.plaf.skin.SkinlfFixMarkerClass");
             // check for datechooser.jar
             jarFileName = "datechooser.jar";
             Class.forName("mseries.ui.MDateEntryField");
