@@ -20,6 +20,7 @@ package frost;
 
 import java.io.*;
 import java.nio.channels.*;
+import java.util.*;
 import java.util.logging.*;
 
 import javax.swing.*;
@@ -195,8 +196,44 @@ public class Frost {
     public Frost() {
         System.out.println("Starting Frost "+getClass().getPackage().getSpecificationVersion());
         System.out.println();
+        for( final String s : getEnvironmentInformation() ) {
+            System.out.println(s);
+        }
+        System.out.println();
 
         final Core core = Core.getInstance();
+
+        final String jvmVendor = System.getProperty("java.vm.vendor");
+        final String jvmVersion = System.getProperty("java.vm.version");
+        if( jvmVendor != null && jvmVersion != null ) {
+            if( jvmVendor.indexOf("Sun ") < 0 ) {
+                // show dialog only if vendor or version changed
+                boolean skipInfoDialog = false;
+                final String lastUsedVendor = Core.frostSettings.getValue("lastUsedJvm.vendor");
+                final String lastUsedVersion = Core.frostSettings.getValue("lastUsedJvm.version");
+                if( lastUsedVendor != null
+                        && lastUsedVendor.length() > 0
+                        && lastUsedVersion != null
+                        && lastUsedVersion.length() > 0)
+                {
+                    if( lastUsedVendor.equals(jvmVendor) && lastUsedVersion.equals(jvmVersion) ) {
+                        skipInfoDialog = true;
+                    }
+                }
+                if( !skipInfoDialog ) {
+                    MiscToolkit.getInstance().showMessage(
+                            "Frost was tested with Java from Sun. Your JVM vendor is "+jvmVendor+".\n"
+                                + "If Frost does not work as expected, get Suns Java from http://java.sun.com\n\n"
+                                + "(This information dialog will not be shown again until your JVM version changed.)",
+                            JOptionPane.WARNING_MESSAGE,
+                            "Untested Java version detected");
+                }
+            }
+            Core.frostSettings.setValue("lastUsedJvm.vendor", jvmVendor);
+            Core.frostSettings.setValue("lastUsedJvm.version", jvmVersion);
+        } else {
+            System.out.println("Error: JVM vendor or version property is not set!");
+        }
 
         initializeLookAndFeel();
 
@@ -214,6 +251,23 @@ public class Frost {
             logger.log(Level.SEVERE, "There was a problem while initializing Frost.", e);
             System.exit(3);
         }
+    }
+
+    /**
+     * @return  environment information, jvm vendor, version, memory, ...
+     */
+    public static List<String> getEnvironmentInformation() {
+        final List<String> envInfo = new ArrayList<String>();
+        envInfo.add("JVM      : "+System.getProperty("java.vm.vendor")
+                + "; "+System.getProperty("java.vm.version")
+                + "; "+System.getProperty("java.vm.name"));
+        envInfo.add("Runtime  : "+System.getProperty("java.vendor")
+                + "; "+System.getProperty("java.version"));
+        envInfo.add("OS       : "+System.getProperty("os.name")
+                + "; "+System.getProperty("os.version")
+                + "; "+System.getProperty("os.arch"));
+        envInfo.add("MaxMemory: "+Runtime.getRuntime().maxMemory());
+        return envInfo;
     }
 
     /**

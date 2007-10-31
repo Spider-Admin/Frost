@@ -25,7 +25,7 @@ import frost.util.*;
 
 public class DownloadTicker extends Thread {
 
-	private DownloadPanel panel;
+	private final DownloadPanel panel;
 
 	/**
 	 * The number of allocated threads is used to limit the total of threads
@@ -34,16 +34,18 @@ public class DownloadTicker extends Thread {
 	 */
 	private int allocatedThreads = 0;
 	private int runningThreads = 0;
-	
-	private Object threadCountLock = new Object();
-    
-	public DownloadTicker(DownloadPanel newPanel) {
+
+	private int seconds = 0;
+
+	private final Object threadCountLock = new Object();
+
+	public DownloadTicker(final DownloadPanel newPanel) {
 		super("Download");
 		panel = newPanel;
 	}
-	
+
 	/**
-	 * This method is called to find out if a new thread can start. It temporarily 
+	 * This method is called to find out if a new thread can start. It temporarily
 	 * allocates it and it will have to be relased when it is no longer
 	 * needed (no matter whether the thread was actually used or not).
 	 * @return true if a new thread can start. False otherwise.
@@ -58,9 +60,9 @@ public class DownloadTicker extends Thread {
          synchronized (threadCountLock) {
              if (allocatedThreads < Core.frostSettings.getIntValue(SettingsClass.DOWNLOAD_MAX_THREADS)) {
                  return true;
-             } 
+             }
          }
-         return false;   
+         return false;
     }
 
 	/**
@@ -70,7 +72,7 @@ public class DownloadTicker extends Thread {
 		synchronized (threadCountLock) {
 			if (allocatedThreads > 0) {
 				allocatedThreads--;
-			} 
+			}
 		}
 	}
 
@@ -85,17 +87,45 @@ public class DownloadTicker extends Thread {
 	/* (non-Javadoc)
 	 * @see java.lang.Runnable#run()
 	 */
-	public void run() {
+	@Override
+    public void run() {
 		super.run();
 		while (true) {
 			Mixed.wait(1000);
-			// this method is called by a timer each second
+			// called each second
             if( PersistenceManager.isPersistenceEnabled() == false ) {
                 startDownloadThread();
             }
+
+            seconds++;
+            if( seconds > 60 ) {
+                seconds = 0;
+                increaseDownloadItemRuntime(60);
+            }
 		}
 	}
-	
+
+	/**
+	 * Increase the runtime of shared, running download items.
+	 * Called each X seconds, adds the specified amount of seconds to the runtime.
+	 */
+	private void increaseDownloadItemRuntime(final int incSecs) {
+	    final DownloadModel model = FileTransferManager.inst().getDownloadManager().getModel();
+	    for(int x=0; x < model.getItemCount(); x++ ) {
+	        final FrostDownloadItem item = (FrostDownloadItem)model.getItemAt(x);
+	        if( item == null ) {
+	            continue;
+	        }
+	        if( !item.isSharedFile() ) {
+	            continue;
+	        }
+	        if( item.getState() != FrostDownloadItem.STATE_PROGRESS ) {
+	            continue;
+	        }
+	        item.addToRuntimeSecondsWithoutProgress(incSecs);
+	    }
+	}
+
 	/**
 	 * This method is usually called from a thread to notify the ticker that
 	 * the thread has finished (so that it can notify its listeners of the fact). It also
@@ -105,7 +135,7 @@ public class DownloadTicker extends Thread {
 		runningThreads--;
 		releaseThread();
 	}
-	
+
 	/**
 	 * This method is called from a thread to notify the ticker that
 	 * the thread has started (so that it can notify its listeners of the fact)
@@ -119,12 +149,12 @@ public class DownloadTicker extends Thread {
      */
 	private void startDownloadThread() {
         if( Core.isFreenetOnline() && panel.isDownloadingActivated() && canAllocateDownloadThread() ) {
-            FrostDownloadItem dlItem = FileTransferManager.inst().getDownloadManager().selectNextDownloadItem();
+            final FrostDownloadItem dlItem = FileTransferManager.inst().getDownloadManager().selectNextDownloadItem();
             startDownload(dlItem);
         }
     }
-	
-	public boolean startDownload(FrostDownloadItem dlItem) {
+
+	public boolean startDownload(final FrostDownloadItem dlItem) {
 
 	    if (!Core.isFreenetOnline() ) {
             return false;
@@ -132,7 +162,7 @@ public class DownloadTicker extends Thread {
         if( dlItem == null || dlItem.getState() != FrostDownloadItem.STATE_WAITING ) {
             return false;
         }
-        
+
         dlItem.setDownloadStartedTime(System.currentTimeMillis());
 
         // increase allocated threads
@@ -140,8 +170,8 @@ public class DownloadTicker extends Thread {
 
         dlItem.setState(FrostDownloadItem.STATE_TRYING);
 
-        File targetFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + dlItem.getFilename());
-        DownloadThread newRequest = new DownloadThread(this, dlItem, targetFile);
+        final File targetFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + dlItem.getFilename());
+        final DownloadThread newRequest = new DownloadThread(this, dlItem, targetFile);
         newRequest.start();
         return true;
 	}
