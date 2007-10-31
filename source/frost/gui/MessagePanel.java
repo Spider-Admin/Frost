@@ -1014,16 +1014,15 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         // any id changed, gui update needed?
         if( idChanged ) {
             updateTableAfterChangeOfIdentityState();
-        }
-
-        if( rows.length == 1 ) {
-            // keep msg selected, change toolbar buttons
-            setGoodButton.setEnabled( !(idState == IdentityState.GOOD) );
-            setCheckButton.setEnabled( !(idState == IdentityState.CHECK) );
-            setBadButton.setEnabled( !(idState == IdentityState.BAD) );
-            setObserveButton.setEnabled( !(idState == IdentityState.OBSERVE) );
-        } else {
-            messageTable.removeRowSelectionInterval(0, messageTable.getRowCount() - 1);
+            if( rows.length == 1 ) {
+                // keep msg selected, change toolbar buttons
+                setGoodButton.setEnabled( !(idState == IdentityState.GOOD) );
+                setCheckButton.setEnabled( !(idState == IdentityState.CHECK) );
+                setBadButton.setEnabled( !(idState == IdentityState.BAD) );
+                setObserveButton.setEnabled( !(idState == IdentityState.OBSERVE) );
+            } else {
+                messageTable.removeRowSelectionInterval(0, messageTable.getRowCount() - 1);
+            }
         }
     }
 
