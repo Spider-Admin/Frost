@@ -41,7 +41,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
     public final static int STATE_FAILED     = 8;
 
     private File file = null;
-    private long fileSize = 0;   
+    private long fileSize = 0;
     private String chkKey = null;
     private Boolean enabled = Boolean.TRUE;
     private int state;
@@ -51,19 +51,19 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
     private int retries = 0;
     private long lastUploadStopTimeMillis = 0; // millis when upload stopped the last time, needed to schedule uploads
     private String gqIdentifier = null;
-    
-    private boolean isLoggedToFile = false; 
+
+    private boolean isLoggedToFile = false;
 
     // non-persistent fields
     private int totalBlocks = -1;
-    private int doneBlocks = -1; 
+    private int doneBlocks = -1;
     private Boolean isFinalized = null;
     private String errorCodeDescription = null;
     private int priority = -1;
 
     // is only set if this uploaditem is a shared file
     private FrostSharedFileItem sharedFileItem = null;
-    
+
     private boolean isExternal = false;
 
     private transient boolean internalRemoveExpected = false;
@@ -81,15 +81,15 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
      * Used to add a new file to upload.
      * Either manually added or a shared file.
      */
-    public FrostUploadItem(File newFile) {
+    public FrostUploadItem(final File newFile) {
 
         file = newFile;
         fileSize = file.length();
-        
+
         gqIdentifier = buildGqIdentifier(file.getName());
-        
+
         uploadAddedMillis = System.currentTimeMillis();
-        
+
         state = STATE_WAITING;
     }
 
@@ -97,17 +97,18 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
      * Constructor used by loadUploadTable.
      */
     public FrostUploadItem(
-            File newFile,
-            long newFilesize,
-            String newKey,
-            boolean newIsEnabled,
-            int newState,
-            long newUploadAdded,
-            long newUploadStarted,
-            long newUploadFinished,
-            int newRetries,
-            long newLastUploadStopTimeMillis,
-            String newGqIdentifier)
+            final File newFile,
+            final long newFilesize,
+            final String newKey,
+            final boolean newIsEnabled,
+            final int newState,
+            final long newUploadAdded,
+            final long newUploadStarted,
+            final long newUploadFinished,
+            final int newRetries,
+            final long newLastUploadStopTimeMillis,
+            final String newGqIdentifier,
+            final boolean newIsLoggedToFile)
     {
         file = newFile;
         fileSize = newFilesize;
@@ -120,6 +121,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
         retries = newRetries;
         lastUploadStopTimeMillis = newLastUploadStopTimeMillis;
         gqIdentifier = newGqIdentifier;
+        isLoggedToFile= newIsLoggedToFile;
 
         // set correct state
         if ((state == FrostUploadItem.STATE_PROGRESS) /*|| (state == FrostUploadItem.STATE_UPLOADING)*/ ) {
@@ -128,7 +130,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
             state = FrostUploadItem.STATE_WAITING;
         }
     }
-    
+
     public boolean isSharedFile() {
         return getSharedFileItem() != null;
     }
@@ -136,7 +138,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
     public long getFileSize() {
         return fileSize;
     }
-    public void setFileSize(Long newFileSize) {
+    public void setFileSize(final Long newFileSize) {
         fileSize = newFileSize.longValue();
         fireChange();
     }
@@ -144,7 +146,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
     public String getKey() {
         return chkKey;
     }
-    public void setKey(String newKey) {
+    public void setKey(final String newKey) {
         chkKey = newKey;
         fireChange();
     }
@@ -152,22 +154,22 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
     public int getState() {
         return state;
     }
-    public void setState(int newState) {
+    public void setState(final int newState) {
         state = newState;
         fireChange();
     }
-    
+
     public int getTotalBlocks() {
         return totalBlocks;
     }
-    public void setTotalBlocks(int newTotalBlocks) {
+    public void setTotalBlocks(final int newTotalBlocks) {
         totalBlocks = newTotalBlocks;
     }
 
     public int getRetries() {
         return retries;
     }
-    public void setRetries(int newRetries) {
+    public void setRetries(final int newRetries) {
         retries = newRetries;
         fireChange();
     }
@@ -175,7 +177,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
     public int getDoneBlocks() {
         return doneBlocks;
     }
-    public void setDoneBlocks(int newDoneBlocks) {
+    public void setDoneBlocks(final int newDoneBlocks) {
         doneBlocks = newDoneBlocks;
     }
 
@@ -199,17 +201,17 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
     public long getLastUploadStopTimeMillis() {
         return lastUploadStopTimeMillis;
     }
-    public void setLastUploadStopTimeMillis(long lastUploadStopTimeMillis) {
+    public void setLastUploadStopTimeMillis(final long lastUploadStopTimeMillis) {
         this.lastUploadStopTimeMillis = lastUploadStopTimeMillis;
     }
-    
+
     public long getUploadAddedMillis() {
         return uploadAddedMillis;
     }
     public long getUploadStartedMillis() {
         return uploadStartedMillis;
     }
-    public void setUploadStartedMillis(long v) {
+    public void setUploadStartedMillis(final long v) {
         uploadStartedMillis = v;
         fireChange();
     }
@@ -217,7 +219,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
     public long getUploadFinishedMillis() {
         return uploadFinishedMillis;
     }
-    public void setUploadFinishedMillis(long v) {
+    public void setUploadFinishedMillis(final long v) {
         uploadFinishedMillis = v;
         fireChange();
     }
@@ -225,7 +227,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
     public String getGqIdentifier() {
         return gqIdentifier;
     }
-    public void setGqIdentifier(String i) {
+    public void setGqIdentifier(final String i) {
         gqIdentifier = i;
     }
 
@@ -233,10 +235,10 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
         return sharedFileItem;
     }
 
-    public void setSharedFileItem(FrostSharedFileItem sharedFileItem) {
+    public void setSharedFileItem(final FrostSharedFileItem sharedFileItem) {
         this.sharedFileItem = sharedFileItem;
     }
-    
+
     public String getFilename() {
         return file.getName();
     }
@@ -244,30 +246,30 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
     public File getFile() {
         return file;
     }
-    public void setFile(File f) {
+    public void setFile(final File f) {
         file = f;
     }
-    
+
     public Boolean isFinalized() {
         return isFinalized;
     }
-    public void setFinalized(boolean finalized) {
+    public void setFinalized(final boolean finalized) {
         if( finalized ) {
             isFinalized = Boolean.TRUE;
         } else {
             isFinalized = Boolean.FALSE;
         }
     }
-    
+
     public void fireValueChanged() {
         super.fireChange();
     }
-    
+
     /**
      * Builds a global queue identifier if running on 0.7.
      * Returns null on 0.5.
      */
-    private String buildGqIdentifier(String filename) {
+    private String buildGqIdentifier(final String filename) {
         if( FcpHandler.isFreenet07() ) {
             return new StringBuilder()
                 .append("Frost-")
@@ -280,21 +282,21 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
             return null;
         }
     }
-    
+
     public String getErrorCodeDescription() {
         return errorCodeDescription;
     }
-    public void setErrorCodeDescription(String errorCodeDescription) {
+    public void setErrorCodeDescription(final String errorCodeDescription) {
         this.errorCodeDescription = errorCodeDescription;
     }
-    
+
     /**
      * @return  true if this item is an external global queue item
      */
     public boolean isExternal() {
         return isExternal;
     }
-    public void setExternal(boolean e) {
+    public void setExternal(final boolean e) {
         isExternal = e;
     }
 
@@ -302,11 +304,11 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
         return priority;
     }
 
-    public void setPriority(int priority) {
+    public void setPriority(final int priority) {
         this.priority = priority;
         super.fireChange();
     }
-    
+
     /**
      * @return  true if the remove of this request was expected and item should not be removed from the table
      */
@@ -315,12 +317,13 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
     }
     /**
      * onPersistentRequestRemoved method checks this and does not remove the request
-     * from the table if the remove was expected. 
+     * from the table if the remove was expected.
      */
-    public void setInternalRemoveExpected(boolean internalRemoveExpected) {
+    public void setInternalRemoveExpected(final boolean internalRemoveExpected) {
         this.internalRemoveExpected = internalRemoveExpected;
     }
 
+    @Override
     public String toString() {
         return getFilename();
     }
@@ -329,7 +332,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
         return isLoggedToFile;
     }
 
-    public void setLoggedToFile(boolean isLoggedToFile) {
+    public void setLoggedToFile(final boolean isLoggedToFile) {
         this.isLoggedToFile = isLoggedToFile;
     }
 }

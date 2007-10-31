@@ -33,9 +33,9 @@ import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
 public class PerstFrostUploadItem extends Persistent {
-    
+
     public String filePath;
-    public long fileSize;   
+    public long fileSize;
     public String chkKey;
     public boolean enabled;
     public int state;
@@ -46,12 +46,12 @@ public class PerstFrostUploadItem extends Persistent {
     public long lastUploadStopTimeMillis;
     public String gqIdentifier;
     public String sharedFilesSha;
-    
+
     public boolean isLoggedToFile;
-    
+
     public PerstFrostUploadItem() {}
 
-    public PerstFrostUploadItem(FrostUploadItem ulItem) {
+    public PerstFrostUploadItem(final FrostUploadItem ulItem) {
         filePath = ulItem.getFile().getPath();
         fileSize = ulItem.getFileSize();
         chkKey = ulItem.getKey();
@@ -67,13 +67,13 @@ public class PerstFrostUploadItem extends Persistent {
         sharedFilesSha = (ulItem.getSharedFileItem()==null?null:ulItem.getSharedFileItem().getSha());
     }
 
-    public FrostUploadItem toFrostUploadItem(List<FrostSharedFileItem> sharedFiles, Logger logger, Language language) {
-        
-        File file = new File(filePath);
+    public FrostUploadItem toFrostUploadItem(final List<FrostSharedFileItem> sharedFiles, final Logger logger, final Language language) {
+
+        final File file = new File(filePath);
         if( !file.isFile() ) {
-            String title = language.getString("StartupMessage.uploadFile.uploadFileNotFound.title");
-            String text = language.formatMessage("StartupMessage.uploadFile.uploadFileNotFound.text", filePath);
-            StartupMessage sm = new StartupMessage(
+            final String title = language.getString("StartupMessage.uploadFile.uploadFileNotFound.title");
+            final String text = language.formatMessage("StartupMessage.uploadFile.uploadFileNotFound.text", filePath);
+            final StartupMessage sm = new StartupMessage(
                     StartupMessage.MessageType.UploadFileNotFound,
                     title,
                     text,
@@ -84,9 +84,9 @@ public class PerstFrostUploadItem extends Persistent {
             return null;
         }
         if( file.length() != fileSize ) {
-            String title = language.getString("StartupMessage.uploadFile.uploadFileSizeChanged.title");
-            String text = language.formatMessage("StartupMessage.uploadFile.uploadFileSizeChanged.text", filePath);
-            StartupMessage sm = new StartupMessage(
+            final String title = language.getString("StartupMessage.uploadFile.uploadFileSizeChanged.title");
+            final String text = language.formatMessage("StartupMessage.uploadFile.uploadFileSizeChanged.text", filePath);
+            final StartupMessage sm = new StartupMessage(
                     StartupMessage.MessageType.UploadFileSizeChanged,
                     title,
                     text,
@@ -96,11 +96,10 @@ public class PerstFrostUploadItem extends Persistent {
             logger.severe("Upload items file size changed, removed from upload files: "+filePath);
             return null;
         }
-        
+
         FrostSharedFileItem sharedFileItem = null;
         if( sharedFilesSha != null && sharedFilesSha.length() > 0 ) {
-            for(Iterator<FrostSharedFileItem> j = sharedFiles.iterator(); j.hasNext(); ) {
-                FrostSharedFileItem s = j.next();
+            for( final FrostSharedFileItem s : sharedFiles ) {
                 if( s.getSha().equals(sharedFilesSha) ) {
                     sharedFileItem = s;
                     break;
@@ -115,8 +114,8 @@ public class PerstFrostUploadItem extends Persistent {
                 return null;
             }
         }
-        
-        FrostUploadItem ulItem = new FrostUploadItem(
+
+        final FrostUploadItem ulItem = new FrostUploadItem(
                 file,
                 fileSize,
                 chkKey,
@@ -127,9 +126,9 @@ public class PerstFrostUploadItem extends Persistent {
                 uploadFinishedMillis,
                 retries,
                 lastUploadStopTimeMillis,
-                gqIdentifier);
+                gqIdentifier,
+                isLoggedToFile);
 
-        ulItem.setLoggedToFile(isLoggedToFile);
         ulItem.setSharedFileItem(sharedFileItem);
 
         return ulItem;

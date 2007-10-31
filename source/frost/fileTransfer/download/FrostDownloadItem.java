@@ -52,6 +52,8 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
 
     private boolean isLoggedToFile = false;
 
+    private int runtimeSecondsWithoutProgress = 0;
+
     // if this downloadfile is a shared file then this object is set
     private transient FrostFileListFileObject fileListFileObject = null;
 
@@ -139,7 +141,9 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
             final long newDownloadFinishedTime,
             final int newRetries,
             final long newLastDownloadStopTime,
-            final String newGqId)
+            final String newGqId,
+            final boolean newIsLoggedToFile,
+            final int newRuntimeSecondsWithoutProgress)
     {
         fileName = newFilename;
         targetPath = newTargetPath;
@@ -153,6 +157,8 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
         retries = newRetries;
         lastDownloadStopTime = newLastDownloadStopTime;
         gqIdentifier = newGqId;
+        isLoggedToFile= newIsLoggedToFile;
+        runtimeSecondsWithoutProgress = newRuntimeSecondsWithoutProgress;
 
         // set correct state, keep DONE and FAILED
         if (this.state != FrostDownloadItem.STATE_DONE && this.state != FrostDownloadItem.STATE_FAILED) {
@@ -358,6 +364,12 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
                 setKey( this.fileListFileObject.getKey() );
             }
         }
+
+        // if progress increased, reset runtimeSecondsWithoutProgress
+        if( isSharedFile() && getState() == STATE_PROGRESS ) {
+
+        }
+
         // remaining values are dynamically fetched from FrostFileListFileObject
         super.fireChange();
     }
@@ -439,5 +451,26 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
 
     public void setLoggedToFile(final boolean isLoggedToFile) {
         this.isLoggedToFile = isLoggedToFile;
+    }
+
+    /**
+     * @return  the runtime of this download item in seconds
+     */
+    public synchronized int getRuntimeSecondsWithoutProgress() {
+        return runtimeSecondsWithoutProgress;
+    }
+
+    /**
+     * Sets runtimeSeconds to 0.
+     */
+    public synchronized void resetRuntimeSecondsWithoutProgress() {
+        runtimeSecondsWithoutProgress = 0;
+    }
+
+    /**
+     * Adds the specified amount of seconds to the value
+     */
+    public synchronized void addToRuntimeSecondsWithoutProgress(final int s) {
+        runtimeSecondsWithoutProgress += s;
     }
 }

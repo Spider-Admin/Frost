@@ -286,7 +286,15 @@ public class Core implements FrostEventDispatcher  {
         //Initializes the logging and skins
         new Logging(frostSettings);
 
-        logger.severe("***** Starting Frost "+getClass().getPackage().getSpecificationVersion()+" *****");
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.append("***** Starting Frost "+getClass().getPackage().getSpecificationVersion()+" *****\n");
+            for( final String s : Frost.getEnvironmentInformation() ) {
+                sb.append(s).append("\n");
+            }
+            logger.severe(sb.toString());
+            sb = null;
+        }
 
         initializeSkins();
 

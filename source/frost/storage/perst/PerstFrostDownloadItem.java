@@ -27,16 +27,16 @@ import frost.fileTransfer.download.*;
 import frost.storage.perst.filelist.*;
 
 /**
- * Class to make FrostDownloadItem persistent. 
- * FrostDownloadItem itself extends ModelItem and cannot extend Persistent. 
+ * Class to make FrostDownloadItem persistent.
+ * FrostDownloadItem itself extends ModelItem and cannot extend Persistent.
  */
 public class PerstFrostDownloadItem extends Persistent {
 
     public String fileName;
     public String targetPath;
-    public long fileSize; 
+    public long fileSize;
     public String key;
-    
+
     public boolean enabled;
     public int state;
     public long downloadAddedTime;
@@ -45,14 +45,16 @@ public class PerstFrostDownloadItem extends Persistent {
     public int retries;
     public long lastDownloadStopTime;
     public String gqIdentifier;
-    
+
     public String fileListFileSha;
-    
+
     public boolean isLoggedToFile;
+
+    public int runtimeSecondsWithoutProgress;
 
     public PerstFrostDownloadItem() {}
 
-    public PerstFrostDownloadItem(FrostDownloadItem dlItem) {
+    public PerstFrostDownloadItem(final FrostDownloadItem dlItem) {
         fileName = dlItem.getFilename();
         targetPath = dlItem.getTargetPath();
         fileSize = dlItem.getFileSize();
@@ -67,9 +69,10 @@ public class PerstFrostDownloadItem extends Persistent {
         gqIdentifier = dlItem.getGqIdentifier();
         fileListFileSha = (dlItem.getFileListFileObject()==null?null:dlItem.getFileListFileObject().getSha());
         isLoggedToFile = dlItem.isLoggedToFile();
+        runtimeSecondsWithoutProgress = dlItem.getRuntimeSecondsWithoutProgress();
     }
 
-    public FrostDownloadItem toFrostDownloadItem(Logger logger) {
+    public FrostDownloadItem toFrostDownloadItem(final Logger logger) {
 
         FrostFileListFileObject sharedFileObject = null;
         if( fileListFileSha != null && fileListFileSha.length() > 0 ) {
@@ -82,7 +85,7 @@ public class PerstFrostDownloadItem extends Persistent {
             }
         }
 
-        FrostDownloadItem dlItem = new FrostDownloadItem(
+        final FrostDownloadItem dlItem = new FrostDownloadItem(
                 fileName,
                 targetPath,
                 (fileSize<=0 ? -1 : fileSize),
@@ -94,11 +97,12 @@ public class PerstFrostDownloadItem extends Persistent {
                 downloadFinishedTime,
                 retries,
                 lastDownloadStopTime,
-                gqIdentifier);
-        
-        dlItem.setLoggedToFile(isLoggedToFile);
+                gqIdentifier,
+                isLoggedToFile,
+                runtimeSecondsWithoutProgress);
+
         dlItem.setFileListFileObject(sharedFileObject);
-        
+
         return dlItem;
     }
 }
