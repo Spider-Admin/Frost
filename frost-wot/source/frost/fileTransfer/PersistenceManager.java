@@ -25,7 +25,6 @@ import java.util.logging.*;
 
 import javax.swing.*;
 
-
 import frost.*;
 import frost.fcp.*;
 import frost.fcp.fcp07.*;
@@ -43,33 +42,33 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
     private static final Logger logger = Logger.getLogger(PersistenceManager.class.getName());
 
     // this would belong to the models, but not needed for 0.5 or without persistence, hence we maintain it here
-    private final Hashtable<String,FrostUploadItem> uploadModelItems = new Hashtable<String,FrostUploadItem>(); 
+    private final Hashtable<String,FrostUploadItem> uploadModelItems = new Hashtable<String,FrostUploadItem>();
     private final Hashtable<String,FrostDownloadItem> downloadModelItems = new Hashtable<String,FrostDownloadItem>();
-    
+
     private final UploadModel uploadModel;
     private final DownloadModel downloadModel;
-    
+
     private final DirectTransferQueue directTransferQueue;
     private final DirectTransferThread directTransferThread;
-    
+
     private boolean showExternalItemsDownload;
     private boolean showExternalItemsUpload;
-    
+
     private final FcpPersistentQueue persistentQueue;
     private final FcpMultiRequestConnection fcpConn;
     private final FcpMultiRequestConnectionTools fcpTools;
-    
+
     private final Set<String> directGETsInProgress = new HashSet<String>();
     private final Set<String> directPUTsInProgress = new HashSet<String>();
-    
+
     private final Set<String> directPUTsWithoutAnswer = new HashSet<String>();
-    
+
     /**
      * @return  true if Frost is configured to use persistent uploads and downloads, false if not
      */
     public static boolean isPersistenceEnabled() {
         if( FcpHandler.isFreenet07()
-                && Core.frostSettings.getBoolValue(SettingsClass.FCP2_USE_PERSISTENCE) ) 
+                && Core.frostSettings.getBoolValue(SettingsClass.FCP2_USE_PERSISTENCE) )
         {
             return true;
         } else {
@@ -78,8 +77,8 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
     }
 
     public boolean isDDA() {
-        if( Core.frostSettings.getBoolValue(SettingsClass.FCP2_USE_DDA) 
-                && fcpConn.isDDA() ) 
+        if( Core.frostSettings.getBoolValue(SettingsClass.FCP2_USE_DDA)
+                && fcpConn.isDDA() )
         {
             return true;
         } else {
@@ -91,19 +90,19 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
      * Must be called after the upload and download model is initialized!
      */
     public PersistenceManager(final UploadModel um, final DownloadModel dm) throws Throwable {
-        
+
         showExternalItemsDownload = Core.frostSettings.getBoolValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_DOWNLOAD);
         showExternalItemsUpload = Core.frostSettings.getBoolValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_UPLOAD);
-        
+
         if( FcpHandler.inst().getNodes().isEmpty() ) {
             throw new Exception("No freenet nodes defined");
         }
         final NodeAddress na = FcpHandler.inst().getNodes().get(0);
         fcpConn = FcpMultiRequestConnection.createInstance(na);
         fcpTools = new FcpMultiRequestConnectionTools(fcpConn);
-        
+
         Core.frostSettings.addPropertyChangeListener(new PropertyChangeListener() {
-            public void propertyChange(PropertyChangeEvent evt) {
+            public void propertyChange(final PropertyChangeEvent evt) {
                 if( evt.getPropertyName().equals(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_DOWNLOAD) ) {
                     showExternalItemsDownload = Core.frostSettings.getBoolValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_DOWNLOAD);
                     if( showExternalItemsDownload ) {
@@ -119,10 +118,10 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                 }
             }
         });
-        
+
         uploadModel = um;
         downloadModel = dm;
-        
+
         // initially get all items from model
         for(int x=0; x < uploadModel.getItemCount(); x++) {
             final FrostUploadItem ul = (FrostUploadItem) uploadModel.getItemAt(x);
@@ -136,19 +135,19 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                 downloadModelItems.put(ul.getGqIdentifier(), ul);
             }
         }
-        
+
         // enqueue listeners to keep updated about the model items
         uploadModel.addOrderedModelListener(
                 new SortedModelListener() {
                     public void modelCleared() {
-                        for( FrostUploadItem ul : uploadModelItems.values() ) {
+                        for( final FrostUploadItem ul : uploadModelItems.values() ) {
                             if( ul.isExternal() == false ) {
                                 fcpTools.removeRequest(ul.getGqIdentifier());
                             }
                         }
                         uploadModelItems.clear();
                     }
-                    public void itemAdded(int position, ModelItem item) {
+                    public void itemAdded(final int position, final ModelItem item) {
                         final FrostUploadItem ul = (FrostUploadItem) item;
                         uploadModelItems.put(ul.getGqIdentifier(), ul);
                         if( !ul.isExternal() ) {
@@ -156,10 +155,10 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                             startNewUploads();
                         }
                     }
-                    public void itemChanged(int position, ModelItem item) {
+                    public void itemChanged(final int position, final ModelItem item) {
                     }
-                    public void itemsRemoved(int[] positions, ModelItem[] items) {
-                        for(ModelItem item : items) {
+                    public void itemsRemoved(final int[] positions, final ModelItem[] items) {
+                        for(final ModelItem item : items) {
                             final FrostUploadItem ul = (FrostUploadItem) item;
                             uploadModelItems.remove(ul.getGqIdentifier());
                             if( ul.isExternal() == false ) {
@@ -172,14 +171,14 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         downloadModel.addOrderedModelListener(
                 new SortedModelListener() {
                     public void modelCleared() {
-                        for( FrostDownloadItem ul : downloadModelItems.values() ) {
+                        for( final FrostDownloadItem ul : downloadModelItems.values() ) {
                             if( ul.isExternal() == false ) {
                                 fcpTools.removeRequest(ul.getGqIdentifier());
                             }
                         }
                         downloadModelItems.clear();
                     }
-                    public void itemAdded(int position, ModelItem item) {
+                    public void itemAdded(final int position, final ModelItem item) {
                         final FrostDownloadItem ul = (FrostDownloadItem) item;
                         downloadModelItems.put(ul.getGqIdentifier(), ul);
                         if( !ul.isExternal() ) {
@@ -187,10 +186,10 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                             startNewDownloads();
                         }
                     }
-                    public void itemChanged(int position, ModelItem item) {
+                    public void itemChanged(final int position, final ModelItem item) {
                     }
-                    public void itemsRemoved(int[] positions, ModelItem[] items) {
-                        for(ModelItem item : items) {
+                    public void itemsRemoved(final int[] positions, final ModelItem[] items) {
+                        for(final ModelItem item : items) {
                             final FrostDownloadItem ul = (FrostDownloadItem) item;
                             downloadModelItems.remove(ul.getGqIdentifier());
                             if( ul.isExternal() == false ) {
@@ -199,42 +198,42 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                         }
                     }
                 });
-        
+
         directTransferQueue = new DirectTransferQueue();
         directTransferThread = new DirectTransferThread();
-        
+
         persistentQueue = new FcpPersistentQueue(fcpTools, this);
     }
-    
+
     public void startThreads() {
         directTransferThread.start();
         persistentQueue.startThreads();
         final TimerTask task = new TimerTask() {
+            @Override
             public void run() {
                 maybeStartRequests();
             }
         };
-        Core.schedule(task, 3000, 3000); 
+        Core.schedule(task, 3000, 3000);
     }
 
     public void removeRequests(final List<String> requests) {
-        for( String id : requests ) {
+        for( final String id : requests ) {
             fcpTools.removeRequest(id);
         }
     }
-    
+
     public void changeItemPriorites(final ModelItem[] items, final int newPrio) {
         if( items == null || items.length == 0 ) {
             return;
         }
-        for( int i = 0; i < items.length; i++ ) {
-            final ModelItem item = items[i];
+        for( final ModelItem item : items ) {
             String gqid = null;
             if( item instanceof FrostUploadItem ) {
                 final FrostUploadItem ui = (FrostUploadItem) item;
                 gqid = ui.getGqIdentifier();
             } else if( item instanceof FrostDownloadItem ) {
-                final FrostDownloadItem di = (FrostDownloadItem) item; 
+                final FrostDownloadItem di = (FrostDownloadItem) item;
                 gqid = di.getGqIdentifier();
             }
             if( gqid != null ) {
@@ -267,7 +266,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         startNewUploads();
         startNewDownloads();
     }
-    
+
     public void connected() {
         MainFrame.getInstance().setConnected();
         logger.severe("now connected");
@@ -314,7 +313,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         if( dlItem.getPriority() != getReq.getPriority() ) {
             dlItem.setPriority(getReq.getPriority());
         }
-        
+
         if( dlItem.isDirect() != getReq.isDirect() ) {
             dlItem.setDirect(getReq.isDirect());
         }
@@ -347,10 +346,11 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             dlItem.setFinalized(true);
             if( dlItem.getTotalBlocks() > 0 && dlItem.getDoneBlocks() < dlItem.getRequiredBlocks() ) {
                 dlItem.setDoneBlocks(dlItem.getRequiredBlocks());
+                dlItem.fireValueChanged();
             }
             if( dlItem.isExternal() ) {
-                dlItem.setState(FrostDownloadItem.STATE_DONE);
                 dlItem.setFileSize(getReq.getFilesize());
+                dlItem.setState(FrostDownloadItem.STATE_DONE);
             } else {
                 if( dlItem.isDirect() ) {
                     maybeEnqueueDirectGet(dlItem, getReq.getFilesize());
@@ -369,7 +369,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             } else {
                 final int returnCode = getReq.getCode();
                 final boolean isFatal = getReq.isFatal();
-                
+
                 final String redirectURI = getReq.getRedirectURI();
                 final FcpResultGet result = new FcpResultGet(false, returnCode, desc, isFatal, redirectURI);
                 final File targetFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + dlItem.getFilename());
@@ -448,7 +448,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             } else {
                 final int returnCode = putReq.getCode();
                 final boolean isFatal = putReq.isFatal();
-                
+
                 final FcpResultPut result;
                 if( returnCode == 9 ) {
                     result = new FcpResultPut(FcpResultPut.KeyCollision, returnCode, desc, isFatal);
@@ -471,7 +471,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                 isLimited = false;
             } else {
                 int runningUploads = 0;
-                for(FrostUploadItem ulItem : uploadModelItems.values() ) {
+                for(final FrostUploadItem ulItem : uploadModelItems.values() ) {
                     if( !ulItem.isExternal() && ulItem.getState() == FrostUploadItem.STATE_PROGRESS) {
                         runningUploads++;
                     }
@@ -494,16 +494,16 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             }
         }
     }
-    
+
     public boolean startUpload(final FrostUploadItem ulItem) {
         if( ulItem == null || ulItem.getState() != FrostUploadItem.STATE_WAITING ) {
             return false;
         }
-        
+
         ulItem.setUploadStartedMillis(System.currentTimeMillis());
 
         ulItem.setState(FrostUploadItem.STATE_PROGRESS);
-        
+
         // start the upload
         if( isDDA() ) {
             final boolean doMime;
@@ -526,7 +526,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         }
         return true;
     }
-    
+
     private void startNewDownloads() {
         boolean isLimited = true;
         int currentAllowedDownloadCount = 0;
@@ -536,7 +536,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                 isLimited = false;
             } else {
                 int runningDownloads = 0;
-                for(FrostDownloadItem dlItem : downloadModelItems.values() ) {
+                for(final FrostDownloadItem dlItem : downloadModelItems.values() ) {
                     if( !dlItem.isExternal() && dlItem.getState() == FrostDownloadItem.STATE_PROGRESS) {
                         runningDownloads++;
                     }
@@ -560,13 +560,13 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             }
         }
     }
-    
+
     public boolean startDownload(final FrostDownloadItem dlItem) {
 
         if( dlItem == null || dlItem.getState() != FrostDownloadItem.STATE_WAITING ) {
             return false;
         }
-        
+
         dlItem.setDownloadStartedTime(System.currentTimeMillis());
 
         dlItem.setState(FrostDownloadItem.STATE_PROGRESS);
@@ -581,10 +581,10 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
 
         return true;
     }
-    
+
     private void showExternalUploadItems() {
         final Map<String,FcpPersistentPut> items = persistentQueue.getUploadRequests();
-        for(FcpPersistentPut uploadRequest : items.values() ) {
+        for(final FcpPersistentPut uploadRequest : items.values() ) {
             if( !uploadModelItems.containsKey(uploadRequest.getIdentifier()) ) {
                 addExternalItem(uploadRequest);
             }
@@ -593,7 +593,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
 
     private void showExternalDownloadItems() {
         final Map<String,FcpPersistentGet> items = persistentQueue.getDownloadRequests();
-        for(FcpPersistentGet downloadRequest : items.values() ) {
+        for(final FcpPersistentGet downloadRequest : items.values() ) {
             if( !downloadModelItems.containsKey(downloadRequest.getIdentifier()) ) {
                 addExternalItem(downloadRequest);
             }
@@ -610,7 +610,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             fileName = uploadRequest.getIdentifier();
         } else if( fileName.indexOf('/') > -1 || fileName.indexOf('\\') > -1 ) {
             // filename contains directories, use only filename
-            String stmp = new File(fileName).getName();
+            final String stmp = new File(fileName).getName();
             if( stmp.length() > 0 ) {
                 fileName = stmp; // use plain filename
             }
@@ -632,13 +632,13 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             fileName = downloadRequest.getIdentifier();
         } else if( fileName.indexOf('/') > -1 || fileName.indexOf('\\') > -1 ) {
             // filename contains directories, use only filename
-            String stmp = new File(fileName).getName();
+            final String stmp = new File(fileName).getName();
             if( stmp.length() > 0 ) {
                 fileName = stmp; // use plain filename
             }
         }
         final FrostDownloadItem dlItem = new FrostDownloadItem(
-                fileName, 
+                fileName,
                 downloadRequest.getUri());
         dlItem.setExternal(true);
         dlItem.setGqIdentifier(downloadRequest.getIdentifier());
@@ -666,11 +666,12 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         }
         return false;
     }
-    
+
     private class DirectTransferThread extends Thread {
-        
+
+        @Override
         public void run() {
-            
+
             final int maxAllowedExceptions = 5;
             int catchedExceptions = 0;
 
@@ -678,7 +679,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                 try {
                     // if there is no work in queue this call waits for a new queue item
                     final ModelItem item = directTransferQueue.getItemFromQueue();
-                    
+
                     if( item == null ) {
                         // paranoia, should never happen
                         Mixed.wait(5*1000);
@@ -732,19 +733,19 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                             final FcpResultGet result = new FcpResultGet(false);
                             retryNow = FileTransferManager.inst().getDownloadManager().notifyDownloadFinished(dlItem, result, targetFile);
                         }
-                        
+
                         directGETsInProgress.remove(gqid);
-                        
+
                         if( retryNow ) {
                             startDownload(dlItem);
                         }
                     }
-                    
-                } catch(Throwable t) {
+
+                } catch(final Throwable t) {
                     logger.log(Level.SEVERE, "Exception catched",t);
                     catchedExceptions++;
                 }
-                
+
                 if( catchedExceptions > maxAllowedExceptions ) {
                     logger.log(Level.SEVERE, "Stopping DirectTransferThread because of too much exceptions");
                     break;
@@ -752,24 +753,24 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             }
         }
     }
-    
+
     /**
      * A queue class that queues items waiting for its direct transfer (put to node or get from node).
      */
     private class DirectTransferQueue {
-        
+
         private final LinkedList<ModelItem> queue = new LinkedList<ModelItem>();
-        
+
         public synchronized ModelItem getItemFromQueue() {
             try {
                 // let dequeueing threads wait for work
                 while( queue.isEmpty() ) {
                     wait();
                 }
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException e) {
                 return null; // waiting abandoned
             }
-            
+
             if( queue.isEmpty() == false ) {
                 final ModelItem item = queue.removeFirst();
                 return item;
@@ -788,17 +789,17 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         public synchronized void appendItemToQueue(final FrostUploadItem item) {
             final String id = item.getGqIdentifier();
             directPUTsInProgress.add(id);
-            
+
             queue.addLast(item);
             notifyAll(); // notify all waiters (if any) of new record
         }
 
-        
+
         public synchronized int getQueueSize() {
             return queue.size();
         }
     }
-    
+
     public void persistentRequestError(final String id, final NodeMessage nm) {
         if( uploadModelItems.containsKey(id) ) {
             final FrostUploadItem item = uploadModelItems.get(id);
@@ -892,9 +893,9 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
                     dlItem.setErrorCodeDescription("Disappeared from global queue");
                 }
             }
-        }    
+        }
     }
-    
+
     public void persistentRequestUpdated(final FcpPersistentPut uploadRequest) {
         final FrostUploadItem ui = uploadModelItems.get(uploadRequest.getIdentifier());
         if( ui == null ) {
@@ -903,7 +904,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         }
         applyState(ui, uploadRequest);
     }
-    
+
     public void persistentRequestUpdated(final FcpPersistentGet downloadRequest) {
         final FrostDownloadItem dl = downloadModelItems.get( downloadRequest.getIdentifier() );
         if( dl == null ) {
