@@ -198,7 +198,8 @@ public class FcpRequest {
             dlItem.setDoneBlocks(displayedFinishedBlocks);
             dlItem.setRequiredBlocks(displayedRequiredBlocks);
             dlItem.setTotalBlocks(displayedAvailableBlocks);
-            dlItem.setState( FrostDownloadItem.STATE_PROGRESS ); // fires change
+            dlItem.fireValueChanged();
+            dlItem.setState( FrostDownloadItem.STATE_PROGRESS );
         }
 
         final boolean[] wasSegmentSuccessful = new boolean[splitfile.getSegmentCount()];
