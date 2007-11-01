@@ -50,7 +50,7 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
         final String databaseFilePath = getStorageFilename("identities.dbs"); // path to the database file
         final int pagePoolSize = getPagePoolSize(SettingsClass.PERST_PAGEPOOLSIZE_IDENTITIES);
 
-        open(databaseFilePath, pagePoolSize, true, false, false);
+        open(databaseFilePath, pagePoolSize, true, true, false);
 
         storageRoot = (IdentitiesStorageRoot)getStorage().getRoot();
         if (storageRoot == null) {
@@ -100,13 +100,23 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
 
     public Hashtable<String,Identity> loadIdentities() {
         final Hashtable<String,Identity> result = new Hashtable<String,Identity>();
-        for(final Identity id : storageRoot.getIdentities()) {
-            result.put(id.getUniqueName(), id);
+        for(final Iterator<Identity> i = storageRoot.getIdentities().iterator(); i.hasNext(); ) {
+            final Identity id = i.next();
+            if( id == null ) {
+                logger.severe("Retrieved a null id !!!");
+                i.remove();
+            } else {
+                result.put(id.getUniqueName(), id);
+            }
         }
         return result;
     }
 
     public void insertIdentity(final Identity id) {
+        if( id == null ) {
+            logger.severe("Rejecting to insert a null id!");
+            return;
+        }
         storageRoot.getIdentities().add( id );
         commit();
     }
@@ -130,13 +140,23 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
 
     public Hashtable<String,LocalIdentity> loadLocalIdentities() {
         final Hashtable<String,LocalIdentity> result = new Hashtable<String,LocalIdentity>();
-        for(final LocalIdentity id : storageRoot.getLocalIdentities()) {
-            result.put(id.getUniqueName(), id);
+        for(final Iterator<LocalIdentity> i = storageRoot.getLocalIdentities().iterator(); i.hasNext(); ) {
+            final LocalIdentity id = i.next();
+            if( id == null ) {
+                logger.severe("Retrieved a null id !!!");
+                i.remove();
+            } else {
+                result.put(id.getUniqueName(), id);
+            }
         }
         return result;
     }
 
     public void insertLocalIdentity(final LocalIdentity id) {
+        if( id == null ) {
+            logger.severe("Rejecting to insert a null id!");
+            return;
+        }
         storageRoot.getLocalIdentities().add( id );
         commit();
     }
