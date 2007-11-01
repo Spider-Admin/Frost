@@ -692,6 +692,14 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
         // ugly hack to prevent the standard JTree idiom (selects nodes starting with pressed key)
         if( e.getID()==KeyEvent.KEY_TYPED && (e.getKeyChar() == 'n' || e.getKeyChar() == 'N') ) {
             MainFrame.getInstance().getMessagePanel().selectNextUnreadMessage();
+        } else if( e.getID()==KeyEvent.KEY_TYPED && (e.getKeyChar() == 'b' || e.getKeyChar() == 'B') ) {
+            MainFrame.getInstance().getMessagePanel().setTrustState_actionPerformed(MessagePanel.IdentityState.BAD);
+        } else if( e.getID()==KeyEvent.KEY_TYPED && (e.getKeyChar() == 'c' || e.getKeyChar() == 'C') ) {
+            MainFrame.getInstance().getMessagePanel().setTrustState_actionPerformed(MessagePanel.IdentityState.CHECK);
+        } else if( e.getID()==KeyEvent.KEY_TYPED && (e.getKeyChar() == 'o' || e.getKeyChar() == 'O') ) {
+            MainFrame.getInstance().getMessagePanel().setTrustState_actionPerformed(MessagePanel.IdentityState.OBSERVE);
+        } else if( e.getID()==KeyEvent.KEY_TYPED && (e.getKeyChar() == 'g' || e.getKeyChar() == 'G') ) {
+            MainFrame.getInstance().getMessagePanel().setTrustState_actionPerformed(MessagePanel.IdentityState.GOOD);
         } else if( Character.isLetter(e.getKeyChar()) || Character.isDigit(e.getKeyChar()) ) {
             // ignore
         } else {

@@ -51,7 +51,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
     MainFrame mainFrame;
 
-    private enum IdentityState { GOOD, CHECK, OBSERVE, BAD };
+    public static enum IdentityState { GOOD, CHECK, OBSERVE, BAD };
 
     private class Listener
     extends MouseAdapter
@@ -734,7 +734,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     }
 
     private void assignHotkeys() {
-        // assign DELETE key - delete message
+    // assign DELETE key - delete message
         final Action deleteMessageAction = new AbstractAction() {
             public void actionPerformed(ActionEvent event) {
                 deleteSelectedMessage();
@@ -742,9 +742,9 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         };
         MainFrame.getInstance().setKeyActionForNewsTab(deleteMessageAction, "DEL_MSG", KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
 
-        // remove ENTER assignment from table
+    // remove ENTER assignment from table
         messageTable.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).getParent().remove(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,0));
-        // assign ENTER key - open message viewer
+    // assign ENTER key - open message viewer
         final Action openMessageAction = new AbstractAction() {
             public void actionPerformed(ActionEvent event) {
                 showCurrentMessagePopupWindow();
@@ -752,7 +752,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         };
         MainFrame.getInstance().setKeyActionForNewsTab(openMessageAction, "OPEN_MSG", KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0));
 
-        // assign N key - next unread (to whole new panel, including tree)
+    // assign N key - next unread (to whole news panel, including tree)
         final Action nextUnreadAction = new AbstractAction() {
             public void actionPerformed(ActionEvent event) {
                 selectNextUnreadMessage();
@@ -760,7 +760,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         };
         MainFrame.getInstance().setKeyActionForNewsTab(nextUnreadAction, "NEXT_MSG", KeyStroke.getKeyStroke(KeyEvent.VK_N, 0));
 
-        // assign B key - set BAD
+    // assign B key - set BAD
         this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_B, 0), "SET_BAD");
         this.getActionMap().put("SET_BAD", new AbstractAction() {
             public void actionPerformed(final ActionEvent event) {
@@ -768,7 +768,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             }
         });
 
-        // assign G key - set GOOD
+    // assign G key - set GOOD
         this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_G, 0), "SET_GOOD");
         this.getActionMap().put("SET_GOOD", new AbstractAction() {
             public void actionPerformed(final ActionEvent event) {
@@ -776,7 +776,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             }
         });
 
-        // assign C key - set CHECK
+    // assign C key - set CHECK
         this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_C, 0), "SET_CHECK");
         this.getActionMap().put("SET_CHECK", new AbstractAction() {
             public void actionPerformed(final ActionEvent event) {
@@ -784,7 +784,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             }
         });
 
-        // assign O key - set OBSERVE
+    // assign O key - set OBSERVE
         this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_O, 0), "SET_OBSERVE");
         this.getActionMap().put("SET_OBSERVE", new AbstractAction() {
             public void actionPerformed(final ActionEvent event) {
@@ -982,7 +982,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         tofNewMessageButton_actionPerformed(e);
     }
 
-    private void setTrustState_actionPerformed(final IdentityState idState) {
+    public void setTrustState_actionPerformed(final IdentityState idState) {
 
         if( messageTable.getSelectedRowCount() <= 1 && !isCorrectlySelectedMessage() ) {
             return;
