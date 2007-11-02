@@ -172,10 +172,18 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
             final Index<PerstFileListIndexEntry> ix)
     {
         if( lName != null && lName.length() > 0 ) {
-            final PerstFileListIndexEntry ie = ix.get(lName.toLowerCase());
+            final String lowerCaseName = lName.toLowerCase();
+            final PerstFileListIndexEntry ie = ix.get(lowerCaseName);
             if( ie != null ) {
 //                System.out.println("ix-remove: "+o.getOid());
                 ie.getFileOwnersWithText().remove(o);
+
+                if( ie.getFileOwnersWithText().size() == 0 ) {
+                    // no more owners for this text, remove from index
+                    if( ix.remove(lowerCaseName) != null ) {
+                        ie.deallocate();
+                    }
+                }
             }
         }
     }
@@ -215,8 +223,9 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
             }
             if( pif.getFilesFromIdentity().size() == 0 ) {
                 // no more files for this identity, remove
-                storageRoot.getIdentitiesFiles().remove(pif.getUniqueName());
-                pif.deallocate();
+                if( storageRoot.getIdentitiesFiles().remove(pif.getUniqueName()) != null ) {
+                    pif.deallocate();
+                }
             }
         }
         commit();
@@ -431,7 +440,7 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
         }
     }
 
-    public synchronized boolean updateFileListFileFromOtherFileListFile(final FrostFileListFileObject oldFof, final FrostFileListFileObject newFof) {
+    private synchronized boolean updateFileListFileFromOtherFileListFile(final FrostFileListFileObject oldFof, final FrostFileListFileObject newFof) {
         // file is already in FILELIST table, maybe add new FILEOWNER and update fields
         // maybe update oldSfo
         boolean doUpdate = false;
@@ -505,6 +514,8 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
                     obOld.setLastUploaded(obNew.getLastUploaded());
                     obOld.setRating(obNew.getRating());
                     obOld.setKey(obNew.getKey());
+
+                    obOld.modify();
 
                     doUpdate = true;
                 }
