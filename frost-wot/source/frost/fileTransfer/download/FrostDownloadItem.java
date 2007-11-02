@@ -53,6 +53,7 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
     private boolean isLoggedToFile = false;
 
     private int runtimeSecondsWithoutProgress = 0;
+    private int oldDoneBlocks = 0;
 
     // if this downloadfile is a shared file then this object is set
     private transient FrostFileListFileObject fileListFileObject = null;
@@ -143,7 +144,8 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
             final long newLastDownloadStopTime,
             final String newGqId,
             final boolean newIsLoggedToFile,
-            final int newRuntimeSecondsWithoutProgress)
+            final int newRuntimeSecondsWithoutProgress,
+            final int newOldDoneBlocks)
     {
         fileName = newFilename;
         targetPath = newTargetPath;
@@ -159,6 +161,7 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
         gqIdentifier = newGqId;
         isLoggedToFile= newIsLoggedToFile;
         runtimeSecondsWithoutProgress = newRuntimeSecondsWithoutProgress;
+        oldDoneBlocks = newOldDoneBlocks;
 
         // set correct state, keep DONE and FAILED
         if (this.state != FrostDownloadItem.STATE_DONE && this.state != FrostDownloadItem.STATE_FAILED) {
@@ -367,7 +370,12 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
 
         // if progress increased, reset runtimeSecondsWithoutProgress
         if( isSharedFile() && getState() == STATE_PROGRESS ) {
-
+            // check if progress changed, maybe reset
+            if( oldDoneBlocks != getDoneBlocks() ) {
+                // progress changed
+                oldDoneBlocks = getDoneBlocks();
+                resetRuntimeSecondsWithoutProgress();
+            }
         }
 
         // remaining values are dynamically fetched from FrostFileListFileObject
@@ -438,6 +446,9 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
      */
     public void setInternalRemoveExpected(final boolean internalRemoveExpected) {
         this.internalRemoveExpected = internalRemoveExpected;
+        if( isSharedFile() && internalRemoveExpected ) {
+            resetRuntimeSecondsWithoutProgress();
+        }
     }
 
     @Override
@@ -472,5 +483,9 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
      */
     public synchronized void addToRuntimeSecondsWithoutProgress(final int s) {
         runtimeSecondsWithoutProgress += s;
+    }
+
+    public int getOldDoneBlocks() {
+        return oldDoneBlocks;
     }
 }

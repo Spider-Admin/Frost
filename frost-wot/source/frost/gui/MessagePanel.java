@@ -1538,10 +1538,10 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
             final FrostMessageObject initial = getSelectedMessage();
 
-            if (initial != null) { // none selcted
+            if (initial != null) {
 
             	final TreeNode[] path = initial.getPath();
-            	final java.util.List path_list = java.util.Arrays.asList(path);
+            	final java.util.List<TreeNode> path_list = java.util.Arrays.asList(path);
 
             	for( int idx = initial.getLevel(); idx > 0 && nextMessage == null; idx-- ) {
             		final FrostMessageObject parent = (FrostMessageObject) path[idx];
