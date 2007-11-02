@@ -51,6 +51,7 @@ public class PerstFrostDownloadItem extends Persistent {
     public boolean isLoggedToFile;
 
     public int runtimeSecondsWithoutProgress;
+    public int oldDoneBlocks;
 
     public PerstFrostDownloadItem() {}
 
@@ -70,6 +71,7 @@ public class PerstFrostDownloadItem extends Persistent {
         fileListFileSha = (dlItem.getFileListFileObject()==null?null:dlItem.getFileListFileObject().getSha());
         isLoggedToFile = dlItem.isLoggedToFile();
         runtimeSecondsWithoutProgress = dlItem.getRuntimeSecondsWithoutProgress();
+        oldDoneBlocks = dlItem.getOldDoneBlocks();
     }
 
     public FrostDownloadItem toFrostDownloadItem(final Logger logger) {
@@ -99,7 +101,8 @@ public class PerstFrostDownloadItem extends Persistent {
                 lastDownloadStopTime,
                 gqIdentifier,
                 isLoggedToFile,
-                runtimeSecondsWithoutProgress);
+                runtimeSecondsWithoutProgress,
+                oldDoneBlocks);
 
         dlItem.setFileListFileObject(sharedFileObject);
 

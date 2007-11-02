@@ -67,6 +67,7 @@ public class FileRequestsManager {
         final long now = System.currentTimeMillis();
         final long before23hours = now -  1L * 23L * 60L * 60L * 1000L;
         final long before3days =   now -  3L * 24L * 60L * 60L * 1000L;
+        final long time12hoursInSeconds = 12 * 60 * 60;
 
         final List<String> mustSendRequests = new LinkedList<String>();
 
@@ -94,8 +95,11 @@ public class FileRequestsManager {
             }
 
             if( dlItem.getKey() != null && dlItem.getKey().length() > 0 ) {
-                // download must be in FAILED state
-                if( dlItem.getState() != FrostDownloadItem.STATE_FAILED  ) {
+                // send request after 12 hours runtime without any progress
+                // send request when download is in FAILED state
+                if( dlItem.getState() != FrostDownloadItem.STATE_FAILED
+                        && dlItem.getRuntimeSecondsWithoutProgress() < time12hoursInSeconds )
+                {
                     continue;
                 }
             }
