@@ -223,7 +223,7 @@ public class FileListManager {
                 }
 
                 // update filelist storage
-                final boolean wasOk = FileListStorage.inst().insertOrUpdateFileListFileObject(sfo);
+                final boolean wasOk = FileListStorage.inst().insertOrUpdateFileListFileObject(sfo, false);
                 if( wasOk == false ) {
                     errorOccured = true;
                     break;
@@ -231,6 +231,8 @@ public class FileListManager {
             }
         } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Exception during insertOrUpdateFrostSharedFileObject", t);
+        } finally {
+            FileListStorage.inst().commit();
         }
 
         if( errorOccured ) {
