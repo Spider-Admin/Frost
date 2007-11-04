@@ -239,4 +239,63 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
         }
         return data;
     }
+
+    public void repairStorage() {
+
+        System.out.println("Repairing identities.dbs (may take some time!)...");
+
+        final String databaseFilePath = getStorageFilename("identities.dbs"); // path to the database file
+        final int pagePoolSize = 2*1024*1024;
+
+        open(databaseFilePath, pagePoolSize, true, true, false);
+
+        storageRoot = (IdentitiesStorageRoot)getStorage().getRoot();
+        if (storageRoot == null) {
+            // Storage was not initialized yet
+            System.out.println("No identities.dbs found");
+            return;
+        }
+
+        int brokenEntries = 0;
+        int validEntries = 0;
+
+        final List<Identity> lst = new ArrayList<Identity>();
+
+        final int progressSteps = storageRoot.getIdentities().size() / 75; // all 'progressSteps' entries print one dot
+        int progress = progressSteps;
+
+        for( int x=0; x < storageRoot.getIdentities().size(); x++ ) {
+            if( x > progress ) {
+                System.out.print('.');
+                progress += progressSteps;
+            }
+            Identity sfk;
+            try {
+                sfk = storageRoot.getIdentities().get(x);
+            } catch(final Throwable t) {
+                brokenEntries++;
+                continue;
+            }
+            if( sfk == null ) {
+                brokenEntries++;
+                continue;
+            }
+            validEntries++;
+            lst.add(sfk);
+        }
+
+        storageRoot.getIdentities().clear();
+        commit();
+
+        for( final Identity sfk : lst ) {
+            storageRoot.getIdentities().add(sfk);
+        }
+        commit();
+
+        close();
+        storageRoot = null;
+
+        System.out.println();
+        System.out.println("Repair finished, brokenEntries="+brokenEntries+"; validEntries="+validEntries);
+    }
 }

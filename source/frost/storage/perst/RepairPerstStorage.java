@@ -18,9 +18,11 @@
 */
 package frost.storage.perst;
 
+import frost.storage.perst.identities.*;
+
 public class RepairPerstStorage {
 
     public static void main(final String[] args) throws Throwable {
-        SharedFilesCHKKeyStorage.inst().repairStorage();
+        IdentitiesStorage.inst().repairStorage();
     }
 }

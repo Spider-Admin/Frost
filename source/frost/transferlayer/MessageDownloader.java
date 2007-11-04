@@ -306,9 +306,11 @@ public class MessageDownloader {
             // update lastSeen for this Identity
             try {
                 final long lastSeenMillis = currentMsg.getDateAndTime().getMillis();
-                owner.updateLastSeenTimestamp(lastSeenMillis);
+                if( owner.getLastSeenTimestamp() < lastSeenMillis ) {
+                    owner.updateLastSeenTimestamp(lastSeenMillis);
+                }
             } catch(final Throwable t) {
-                // ignore
+                logger.log(Level.SEVERE, "TOFDN: Unexpected exception catched."+logInfo, t);
             }
 
             currentMsg.setSignatureStatusVERIFIED_V2();
@@ -437,9 +439,11 @@ public class MessageDownloader {
             // update lastSeen for this Identity
             try {
                 final long lastSeenMillis = currentMsg.getDateAndTime().getMillis();
-                owner.updateLastSeenTimestamp(lastSeenMillis);
+                if( owner.getLastSeenTimestamp() < lastSeenMillis ) {
+                    owner.updateLastSeenTimestamp(lastSeenMillis);
+                }
             } catch(final Throwable t) {
-                // ignore
+                logger.log(Level.SEVERE, "TOFDN: Unexpected exception catched."+logInfo, t);
             }
 
             if( isSignedV2 ) {

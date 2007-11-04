@@ -189,7 +189,9 @@ public class FileListManager {
             Core.getIdentities().addIdentity(content.getReceivedOwner());
             localOwner = content.getReceivedOwner();
         }
-        localOwner.updateLastSeenTimestamp(content.getTimestamp());
+        if( localOwner.getLastSeenTimestamp() < content.getTimestamp() ) {
+            localOwner.updateLastSeenTimestamp(content.getTimestamp());
+        }
 
         if (localOwner.isBAD() && Core.frostSettings.getBoolValue(SettingsClass.SEARCH_HIDE_BAD)) {
             logger.info("Skipped index file from BAD user " + localOwner.getUniqueName());
