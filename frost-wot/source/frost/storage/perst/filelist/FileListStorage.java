@@ -80,10 +80,6 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
         return getStorage().createScalableList();
     }
 
-    public synchronized boolean insertOrUpdateFileListFileObject(final FrostFileListFileObject flf) {
-        return insertOrUpdateFileListFileObject(flf, true);
-    }
-
     public synchronized boolean insertOrUpdateFileListFileObject(final FrostFileListFileObject flf, final boolean doCommit) {
         // check for dups and update them!
         final FrostFileListFileObject pflf = storageRoot.getFileListFileObjects().get(flf.getSha());
