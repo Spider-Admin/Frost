@@ -218,6 +218,8 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
                     // delete from store
                     o.deallocate();
 
+                    fof.modify();
+
                     count++;
                 }
             }
@@ -516,8 +518,6 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
                     obOld.setKey(obNew.getKey());
 
                     obOld.modify();
-
-                    oldFof.modify(); // testfix
 
                     doUpdate = true;
                 }
