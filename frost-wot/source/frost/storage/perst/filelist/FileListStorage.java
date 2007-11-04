@@ -517,6 +517,8 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
 
                     obOld.modify();
 
+                    oldFof.modify(); // testfix
+
                     doUpdate = true;
                 }
             }
