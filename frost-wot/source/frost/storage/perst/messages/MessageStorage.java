@@ -87,7 +87,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         storageRoot = null;
     }
 
-    public void importBoards(final Hashtable<String, Integer> boardPrimaryKeysByName) {
+    public synchronized void importBoards(final Hashtable<String, Integer> boardPrimaryKeysByName) {
         int highestBoardId = 0;
         for( final String boardName : boardPrimaryKeysByName.keySet() ) {
             final Integer boardId = boardPrimaryKeysByName.get(boardName);
@@ -661,7 +661,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         return addSentMessage(sentMo, true);
     }
 
-    public boolean addSentMessage(final FrostMessageObject sentMo, final boolean doCommit) {
+    public synchronized boolean addSentMessage(final FrostMessageObject sentMo, final boolean doCommit) {
         final PerstFrostBoardObject bo = sentMo.getBoard().getPerstFrostBoardObject();
         if( bo == null ) {
             logger.severe("no board for new sent msg!");
@@ -678,7 +678,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         return true;
     }
 
-    public int deleteSentMessages(final List<FrostMessageObject> msgObjects) {
+    public synchronized int deleteSentMessages(final List<FrostMessageObject> msgObjects) {
         int count = 0;
         for( final FrostMessageObject mo : msgObjects ) {
             if( mo.getPerstFrostMessageObject() == null ) {
@@ -717,7 +717,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         return addUnsentMessage(mo, true);
     }
 
-    public boolean addUnsentMessage(final FrostUnsentMessageObject mo, final boolean doCommit) {
+    public synchronized boolean addUnsentMessage(final FrostUnsentMessageObject mo, final boolean doCommit) {
         final PerstFrostBoardObject bo = mo.getBoard().getPerstFrostBoardObject();
         if( bo == null ) {
             logger.severe("no board for new unsent msg!");
@@ -733,7 +733,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         return true;
     }
 
-    public boolean deleteUnsentMessage(final FrostUnsentMessageObject mo) {
+    public synchronized boolean deleteUnsentMessage(final FrostUnsentMessageObject mo) {
         final PerstFrostBoardObject bo = mo.getBoard().getPerstFrostBoardObject();
         if( bo == null ) {
             logger.severe("no board for unsent msg!");
