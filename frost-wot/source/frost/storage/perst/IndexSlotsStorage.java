@@ -88,6 +88,8 @@ public class IndexSlotsStorage extends AbstractFrostStorage implements ExitSavab
         // delete all items with msgDate < maxDaysOld
         int deletedCount = 0;
 
+        beginExclusiveThreadTransaction();
+
         final Iterator<IndexSlot> i = storageRoot.slotsIndexLI.iterator(
                 new Key(Long.MIN_VALUE, Integer.MIN_VALUE, true),
                 new Key(date, Integer.MAX_VALUE, true),
@@ -101,13 +103,14 @@ public class IndexSlotsStorage extends AbstractFrostStorage implements ExitSavab
             deletedCount++;
         }
 
-        commit();
+        endThreadTransaction();
 
         return deletedCount;
     }
 
     public synchronized IndexSlot getSlotForDate(final int indexName, final long date) {
         final Key dateKey = new Key(indexName, date);
+        beginCooperativeThreadTransaction();
         IndexSlot gis = storageRoot.slotsIndexIL.get(dateKey);
 //        String s = "";
 //        s += "getSlotForDate: indexName="+indexName+", date="+date+"\n";
@@ -117,11 +120,12 @@ public class IndexSlotsStorage extends AbstractFrostStorage implements ExitSavab
 //            s += "getSlotForDate: NEW SLOT CREATED!\n";
         }
 //        logger.warning(s);
+        endThreadTransaction();
         return gis;
     }
 
     public synchronized void storeSlot(final IndexSlot gis) {
-        if( getStorage() == null ) {
+        if( !beginExclusiveThreadTransaction() ) {
             return;
         }
         if( gis.getStorage() == null ) {
@@ -130,6 +134,7 @@ public class IndexSlotsStorage extends AbstractFrostStorage implements ExitSavab
         } else {
             gis.modify();
         }
+        endThreadTransaction();
     }
 
     public void exitSave() throws StorageException {
