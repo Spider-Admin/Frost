@@ -58,6 +58,38 @@ public abstract class AbstractFrostStorage {
         return storage;
     }
 
+    public boolean beginCooperativeThreadTransaction() {
+        if( getStorage() != null ) {
+            getStorage().beginThreadTransaction(Storage.COOPERATIVE_TRANSACTION);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean beginExclusiveThreadTransaction() {
+        if( getStorage() != null ) {
+            getStorage().beginThreadTransaction(Storage.EXCLUSIVE_TRANSACTION);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean endThreadTransaction() {
+        if( getStorage() != null ) {
+            getStorage().endThreadTransaction();
+            return true;
+        }
+        return false;
+    }
+
+    public boolean rollbackTransaction() {
+        if( getStorage() != null ) {
+            getStorage().rollbackThreadTransaction();
+            return true;
+        }
+        return false;
+    }
+
     public int gc() {
         if( storage == null ) {
             return 0;
@@ -74,6 +106,7 @@ public abstract class AbstractFrostStorage {
 
     public void close() {
         if( storage != null ) {
+            beginExclusiveThreadTransaction();
             storage.close();
             storage = null;
         } else {

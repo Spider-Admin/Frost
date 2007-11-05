@@ -203,6 +203,12 @@ public class FileListManager {
         // update all filelist files, maybe restart failed downloads
         final List<FrostDownloadItem> downloadsToRestart = new ArrayList<FrostDownloadItem>();
         boolean errorOccured = false;
+
+        if( !FileListStorage.inst().beginExclusiveThreadTransaction() ) {
+            logger.severe("Failed to begin an EXCLUSIVE thread transaction, aborting.");
+            return false;
+        }
+
         try {
             for( final SharedFileXmlFile sfx : content.getFileList() ) {
 
@@ -225,7 +231,7 @@ public class FileListManager {
                 }
 
                 // update filelist storage
-                final boolean wasOk = FileListStorage.inst().insertOrUpdateFileListFileObject(sfo, false);
+                final boolean wasOk = FileListStorage.inst().insertOrUpdateFileListFileObject(sfo);
                 if( wasOk == false ) {
                     errorOccured = true;
                     break;
@@ -233,12 +239,13 @@ public class FileListManager {
             }
         } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Exception during insertOrUpdateFrostSharedFileObject", t);
-        } finally {
-            FileListStorage.inst().commit();
         }
 
         if( errorOccured ) {
+            FileListStorage.inst().rollbackTransaction();
             return false;
+        } else {
+            FileListStorage.inst().endThreadTransaction();
         }
 
         // after updating the db, check if we have to update download items with the new informations
@@ -257,7 +264,12 @@ public class FileListManager {
                     // NOTE: if no key was set before, this sets the chkKey and the ticker will start to download this file!
 
                     FrostFileListFileObject updatedSfo = null;
-                    updatedSfo = FileListStorage.inst().getFileBySha(sfx.getSha());
+                    if( !FileListStorage.inst().beginCooperativeThreadTransaction() ) {
+                        logger.severe("Failed to begin an COOPERATIVE thread transaction.");
+                    } else {
+                        updatedSfo = FileListStorage.inst().getFileBySha(sfx.getSha());
+                        FileListStorage.inst().endThreadTransaction();
+                    }
                     if( updatedSfo != null ) {
                         dlItem.setFileListFileObject(updatedSfo);
                     } else {
