@@ -141,10 +141,15 @@ public class FileRequestsManager {
         }
 
         // then update same filelistfiles in database
+        if( !FileListStorage.inst().beginExclusiveThreadTransaction() ) {
+            logger.severe("Failed to begin an EXCLUSIVE thread transaction, aborting.");
+            return;
+        }
+
         for( final String sha : requests ) {
             FileListStorage.inst().updateFrostFileListFileObjectAfterRequestSent(sha, now);
         }
-        FileListStorage.inst().commit();
+        FileListStorage.inst().endThreadTransaction();
     }
 
     /**
@@ -218,9 +223,13 @@ public class FileRequestsManager {
         }
 
         // now update the filelistfiles in database
+        if( !FileListStorage.inst().beginExclusiveThreadTransaction() ) {
+            logger.severe("Failed to begin an EXCLUSIVE thread transaction, aborting.");
+            return;
+        }
         for( final String sha : content.getShaStrings() ) {
             FileListStorage.inst().updateFrostFileListFileObjectAfterRequestReceived(sha, content.getTimestamp());
         }
-        FileListStorage.inst().commit();
+        FileListStorage.inst().endThreadTransaction();
     }
 }

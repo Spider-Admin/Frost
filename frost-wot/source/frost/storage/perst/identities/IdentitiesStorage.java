@@ -100,19 +100,12 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
 
     public Hashtable<String,Identity> loadIdentities() {
         final Hashtable<String,Identity> result = new Hashtable<String,Identity>();
-        boolean doCommit = false;
-        for(final Iterator<Identity> i = storageRoot.getIdentities().iterator(); i.hasNext(); ) {
-            final Identity id = i.next();
+        for( final Identity id : storageRoot.getIdentities() ) {
             if( id == null ) {
-                logger.severe("Retrieved a null id !!!");
-                i.remove();
-                doCommit = true;
+                logger.severe("Retrieved a null id !!! Please repair identities.dbs.");
             } else {
                 result.put(id.getUniqueName(), id);
             }
-        }
-        if( doCommit ) {
-            commit();
         }
         return result;
     }
@@ -147,19 +140,12 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
 
     public Hashtable<String,LocalIdentity> loadLocalIdentities() {
         final Hashtable<String,LocalIdentity> result = new Hashtable<String,LocalIdentity>();
-        boolean doCommit = false;
-        for(final Iterator<LocalIdentity> i = storageRoot.getLocalIdentities().iterator(); i.hasNext(); ) {
-            final LocalIdentity id = i.next();
+        for( final LocalIdentity id : storageRoot.getLocalIdentities() ) {
             if( id == null ) {
-                logger.severe("Retrieved a null id !!!");
-                i.remove();
-                doCommit = true;
+                logger.severe("Retrieved a null id !!! Please repair identities.dbs.");
             } else {
                 result.put(id.getUniqueName(), id);
             }
-        }
-        if( doCommit ) {
-            commit();
         }
         return result;
     }

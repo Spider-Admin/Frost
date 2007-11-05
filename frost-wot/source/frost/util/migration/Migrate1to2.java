@@ -317,7 +317,7 @@ public class Migrate1to2 {
                         FrostFileListFileObjectOwner ow = i.next();
                         ow.setOwner( Mixed.makeFilename(ow.getOwner()) );
                     }
-                    ms.insertOrUpdateFileListFileObject(fo, false);
+                    ms.insertOrUpdateFileListFileObject(fo);
                     cnt++;
                     if(cnt%100 == 0) {
                         ms.commit();

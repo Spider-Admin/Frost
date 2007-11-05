@@ -80,7 +80,7 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
         return getStorage().createScalableList();
     }
 
-    public synchronized boolean insertOrUpdateFileListFileObject(final FrostFileListFileObject flf, final boolean doCommit) {
+    public synchronized boolean insertOrUpdateFileListFileObject(final FrostFileListFileObject flf) {
         // check for dups and update them!
         final FrostFileListFileObject pflf = storageRoot.getFileListFileObjects().get(flf.getSha());
         if( pflf == null ) {
@@ -94,9 +94,6 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
         } else {
             // update existing
             updateFileListFileFromOtherFileListFile(pflf, flf);
-        }
-        if( doCommit ) {
-            commit();
         }
         return true;
     }
@@ -134,31 +131,56 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
     }
 
     public FrostFileListFileObject getFileBySha(final String sha) {
-        return storageRoot.getFileListFileObjects().get(sha);
+        if( !beginCooperativeThreadTransaction() ) {
+            return null;
+        }
+        final FrostFileListFileObject o = storageRoot.getFileListFileObjects().get(sha);
+        endThreadTransaction();
+        return o;
     }
 
     public int getFileCount() {
-        return storageRoot.getFileListFileObjects().size();
+        if( !beginCooperativeThreadTransaction() ) {
+            return 0;
+        }
+        final int count = storageRoot.getFileListFileObjects().size();
+        endThreadTransaction();
+        return count;
     }
 
     public int getFileCount(final String idUniqueName) {
-        final PerstIdentitiesFiles pif = storageRoot.getIdentitiesFiles().get(idUniqueName);
-        if( pif != null ) {
-            return pif.getFilesFromIdentity().size();
-        } else {
+        if( !beginCooperativeThreadTransaction() ) {
             return 0;
         }
+        final PerstIdentitiesFiles pif = storageRoot.getIdentitiesFiles().get(idUniqueName);
+        final int count;
+        if( pif != null ) {
+            count = pif.getFilesFromIdentity().size();
+        } else {
+            count = 0;
+        }
+        endThreadTransaction();
+        return count;
     }
 
     public int getSharerCount() {
-        return storageRoot.getIdentitiesFiles().size();
+        if( !beginCooperativeThreadTransaction() ) {
+            return 0;
+        }
+        final int count = storageRoot.getIdentitiesFiles().size();
+        endThreadTransaction();
+        return count;
     }
 
     public long getFileSizes() {
+        if( !beginCooperativeThreadTransaction() ) {
+            return 0L;
+        }
         long sizes = 0;
         for( final FrostFileListFileObject fo : storageRoot.getFileListFileObjects() ) {
             sizes += fo.getSize();
         }
+        endThreadTransaction();
         return sizes;
     }
 
@@ -188,6 +210,10 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
      * Remove owners that were not seen for more than MINIMUM_DAYS_OLD days and have no CHK key set.
      */
     public int cleanupFileListFileOwners(final int maxDaysOld) {
+
+        if( !beginExclusiveThreadTransaction() ) {
+            return 0;
+        }
 
         int count = 0;
         final long minVal = System.currentTimeMillis() - (maxDaysOld * 24L * 60L * 60L * 1000L);
@@ -226,7 +252,7 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
                 }
             }
         }
-        commit();
+        endThreadTransaction();
         return count;
     }
 
@@ -234,6 +260,9 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
      * Remove files that have no owner and no CHK key.
      */
     public int cleanupFileListFiles() {
+        if( !beginExclusiveThreadTransaction() ) {
+            return 0;
+        }
         int count = 0;
         for(final Iterator<FrostFileListFileObject> i=storageRoot.getFileListFileObjects().iterator(); i.hasNext(); ) {
             final FrostFileListFileObject fof = i.next();
@@ -243,20 +272,25 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
                 count++;
             }
         }
-        commit();
+        endThreadTransaction();
         return count;
     }
 
     /**
      * Reset the lastdownloaded column for all file entries.
      */
-    public synchronized void resetLastDownloaded() {
+    public void resetLastDownloaded() {
+
+        if( !beginExclusiveThreadTransaction() ) {
+            return;
+        }
 
         for( final FrostFileListFileObject fof : storageRoot.getFileListFileObjects() ) {
             fof.setLastDownloaded(0);
             fof.modify();
         }
-        commit();
+
+        endThreadTransaction();
     }
 
     /**
@@ -310,8 +344,13 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
             return true;
         }
 
+        if( !beginExclusiveThreadTransaction() ) {
+            return false;
+        }
+
         final FrostFileListFileObject oldSfo = getFileBySha(sha);
         if( oldSfo == null ) {
+            endThreadTransaction();
             return false;
         }
 
@@ -319,7 +358,7 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
 
         oldSfo.modify();
 
-        commit();
+        endThreadTransaction();
 
         return true;
     }
@@ -335,6 +374,10 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
             final List<String> owners,
             String[] extensions)
     {
+        if( !beginCooperativeThreadTransaction() ) {
+            return;
+        }
+
         System.out.println("Starting file search...");
         final long t = System.currentTimeMillis();
 
@@ -348,22 +391,23 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
         if( comments == null || comments.size() == 0 ) { searchForComments = false; }
         if( keywords == null || keywords.size() == 0 ) { searchForKeywords = false; }
         if( owners == null   || owners.size() == 0 )   { searchForOwners = false; }
-        if( extensions == null   || extensions.length == 0 )   { searchForExtensions = false; }
-        if( !searchForNames && !searchForComments && ! searchForKeywords && !searchForOwners && !searchForExtensions) {
-            // find ALL files
-            for(final FrostFileListFileObject o : storageRoot.getFileListFileObjects()) {
-                if(callback.fileRetrieved(o)) {
-                    return; // stop requested
-                }
-            }
-            return;
-        }
-
-        if( !searchForExtensions ) {
-            extensions = null;
-        }
+        if( extensions == null || extensions.length == 0 )   { searchForExtensions = false; }
 
         try {
+            if( !searchForNames && !searchForComments && ! searchForKeywords && !searchForOwners && !searchForExtensions) {
+                // find ALL files
+                for(final FrostFileListFileObject o : storageRoot.getFileListFileObjects()) {
+                    if(callback.fileRetrieved(o)) {
+                        return; // stop requested
+                    }
+                }
+                return;
+            }
+
+            if( !searchForExtensions ) {
+                extensions = null;
+            }
+
             final HashSet<Integer> ownerOids = new HashSet<Integer>();
 
             if( searchForNames || searchForExtensions ) {
@@ -400,6 +444,7 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
             }
         } finally {
             System.out.println("Finished file search, duration="+(System.currentTimeMillis() - t));
+            endThreadTransaction();
         }
     }
 
