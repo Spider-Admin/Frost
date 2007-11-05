@@ -44,7 +44,7 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
         return storageRoot.chkKeys.put(gis.getChkKey(), gis);
     }
 
-    public synchronized void storeItem(final SharedFilesCHKKey gis) {
+    public void storeItem(final SharedFilesCHKKey gis) {
         if( getStorage() == null ) {
             return;
         }
