@@ -391,8 +391,11 @@ public class Identity extends Persistent implements XMLizable {
         if( getStorage() == null ) {
             return false;
         }
+        if( !IdentitiesStorage.inst().beginExclusiveThreadTransaction() ) {
+            return false;
+        }
         modify();
-        IdentitiesStorage.inst().commit();
+        IdentitiesStorage.inst().endThreadTransaction();
         return true;
     }
 

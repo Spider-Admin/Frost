@@ -180,7 +180,11 @@ public class FrostIdentities {
         if (identities.containsKey(key)) {
             return false;
         }
+        if( !IdentitiesStorage.inst().beginExclusiveThreadTransaction() ) {
+            return false;
+        }
         IdentitiesStorage.inst().insertIdentity(id);
+        IdentitiesStorage.inst().endThreadTransaction();
         identities.put(key, id);
         return true;
     }
@@ -189,29 +193,44 @@ public class FrostIdentities {
         if (localIdentities.containsKey(li.getUniqueName())) {
             return false;
         }
+        if( !IdentitiesStorage.inst().beginExclusiveThreadTransaction() ) {
+            return false;
+        }
         IdentitiesStorage.inst().insertLocalIdentity(li);
+        IdentitiesStorage.inst().endThreadTransaction();
         localIdentities.put(li.getUniqueName(), li);
         return true;
     }
 
     public boolean deleteLocalIdentity(final LocalIdentity li) {
+        if( !IdentitiesStorage.inst().beginExclusiveThreadTransaction() ) {
+            return false;
+        }
+
         if (!localIdentities.containsKey(li.getUniqueName())) {
             return false;
         }
 
         localIdentities.remove(li.getUniqueName());
 
-        return IdentitiesStorage.inst().removeLocalIdentity(li);
+        final boolean removed = IdentitiesStorage.inst().removeLocalIdentity(li);
+        IdentitiesStorage.inst().endThreadTransaction();
+        return removed;
     }
 
-    public boolean deleteIdentity(final Identity li, final boolean doCommit) {
+    public boolean deleteIdentity(final Identity li) {
         if (!identities.containsKey(li.getUniqueName())) {
+            return false;
+        }
+        if( !IdentitiesStorage.inst().beginExclusiveThreadTransaction() ) {
             return false;
         }
 
         identities.remove(li.getUniqueName());
+        final boolean removed = IdentitiesStorage.inst().removeIdentity(li);
 
-        return IdentitiesStorage.inst().removeIdentity(li, doCommit);
+        IdentitiesStorage.inst().endThreadTransaction();
+        return removed;
     }
 
     public boolean isMySelf(final String uniqueName) {
