@@ -69,6 +69,9 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
     }
 
     public void importLocalIdentities(final List<LocalIdentity> lids, final Hashtable<String,Integer> msgCounts) {
+        if( !beginExclusiveThreadTransaction() ) {
+            return;
+        }
         for(final LocalIdentity li : lids) {
             final Integer i = msgCounts.get( li.getUniqueName() );
             if( i != null ) {
@@ -77,10 +80,13 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
             li.correctUniqueName();
             storageRoot.getLocalIdentities().add( li );
         }
-        commit();
+        endThreadTransaction();
     }
 
     public void importIdentities(final List<Identity> ids, final Hashtable<String,Integer> msgCounts) {
+        if( !beginExclusiveThreadTransaction() ) {
+            return;
+        }
         int cnt = 0;
         for(final Identity li : ids) {
             final Integer i = msgCounts.get( li.getUniqueName() );
@@ -92,10 +98,11 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
             cnt++;
             if( cnt%100 == 0 ) {
                 System.out.println("Committing after "+cnt+" identities");
-                commit();
+                endThreadTransaction();
+                beginExclusiveThreadTransaction();
             }
         }
-        commit();
+        endThreadTransaction();
     }
 
     public Hashtable<String,Identity> loadIdentities() {
@@ -116,10 +123,9 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
             return;
         }
         storageRoot.getIdentities().add( id );
-        commit();
     }
 
-    public boolean removeIdentity(final Identity id, final boolean doCommit) {
+    public boolean removeIdentity(final Identity id) {
         if( id.getStorage() == null ) {
             logger.severe("id not in store");
             return false;
@@ -127,9 +133,6 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
         final boolean isRemoved = storageRoot.getIdentities().remove(id);
         if( isRemoved ) {
             id.deallocate();
-        }
-        if( doCommit ) {
-            commit();
         }
         return isRemoved;
     }
@@ -156,7 +159,6 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
             return;
         }
         storageRoot.getLocalIdentities().add( id );
-        commit();
     }
 
     public boolean removeLocalIdentity(final LocalIdentity lid) {
@@ -168,7 +170,6 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
         if( isRemoved ) {
             lid.deallocate();
         }
-        commit();
         return isRemoved;
     }
 
@@ -194,12 +195,10 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
 
         final Hashtable<String,IdentityMsgAndFileCount> data = new Hashtable<String,IdentityMsgAndFileCount>();
 
-        boolean doCommit = false;
         for(final Iterator<Identity> i = storageRoot.getIdentities().iterator(); i.hasNext(); ) {
             final Identity id = i.next();
             if( id == null ) {
                 i.remove();
-                doCommit = true;
                 continue;
             }
             final int messageCount = MessageStorage.inst().getMessageCount(id.getUniqueName());
@@ -212,16 +211,12 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
             final LocalIdentity id = i.next();
             if( id == null ) {
                 i.remove();
-                doCommit = true;
                 continue;
             }
             final int messageCount = MessageStorage.inst().getMessageCount(id.getUniqueName());
             final int fileCount = FileListStorage.inst().getFileCount(id.getUniqueName());
             final IdentityMsgAndFileCount s = new IdentityMsgAndFileCount(messageCount, fileCount);
             data.put(id.getUniqueName(), s);
-        }
-        if( doCommit ) {
-            commit();
         }
         return data;
     }

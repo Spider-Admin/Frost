@@ -152,6 +152,10 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
 
         final List<SharedFilesCHKKey> keysToSend = new LinkedList<SharedFilesCHKKey>();
 
+        if( !beginCooperativeThreadTransaction() ) {
+            return keysToSend;
+        }
+
         // first search for CHK keys that were created by us, but were never send
         {
             for( final SharedFilesCHKKey sfk : storageRoot.chkKeys ) {
@@ -200,6 +204,9 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
 
             otherKeysToSend.clear();
         }
+
+        endThreadTransaction();
+
         return keysToSend;
     }
 
@@ -207,7 +214,12 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
      * Returns SharedFilesCHKKey for this chkKey or null if not in Storage.
      */
     public SharedFilesCHKKey retrieveSharedFilesCHKKey(final String chkKey) {
-        return storageRoot.chkKeys.get(new Key(chkKey));
+        if( !beginCooperativeThreadTransaction() ) {
+            return null;
+        }
+        final SharedFilesCHKKey key = storageRoot.chkKeys.get(new Key(chkKey));
+        endThreadTransaction();
+        return key;
     }
 
     /**
@@ -219,6 +231,10 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
 
         final List<SharedFilesCHKKey> keysToDownload = new ArrayList<SharedFilesCHKKey>();
 
+        if( !beginCooperativeThreadTransaction() ) {
+            return Collections.emptyList();
+        }
+
         for( final SharedFilesCHKKey sfk : storageRoot.chkKeys ) {
             if( !sfk.isDownloaded()
                     && sfk.getDownloadRetries() < maxRetries)
@@ -226,6 +242,8 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
                 keysToDownload.add(sfk);
             }
         }
+
+        endThreadTransaction();
 
         Collections.sort(keysToDownload, lastDownloadTryStopTimeComparator);
 
@@ -244,6 +262,10 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
      */
     public boolean updateSharedFilesCHKKeyAfterDownloadSuccessful(final String chkKey, final boolean isValid) {
 
+        if( !beginExclusiveThreadTransaction() ) {
+            return false;
+        }
+
         final SharedFilesCHKKey key = storageRoot.chkKeys.get(new Key(chkKey) );
         if( key == null ) {
             return false;
@@ -253,7 +275,8 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
         key.setValid(isValid);
         key.modify();
 
-        commit();
+        endThreadTransaction();
+
         return true;
     }
 
@@ -263,8 +286,13 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
      */
     public boolean updateSharedFilesCHKKeyAfterDownloadFailed(final String chkKey, final int maxRetries) {
 
+        if( !beginExclusiveThreadTransaction() ) {
+            return false;
+        }
+
         final SharedFilesCHKKey key = storageRoot.chkKeys.get(new Key(chkKey) );
         if( key == null ) {
+            endThreadTransaction();
             return false;
         }
 
@@ -273,7 +301,7 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
 
         key.modify();
 
-        commit();
+        endThreadTransaction();
 
         if( key.getDownloadRetries() < maxRetries ) {
             return true; // retry download
@@ -293,6 +321,8 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
         // delete all items with lastSeen < minVal, but lastSeen > 0
         int deletedCount = 0;
 
+        beginExclusiveThreadTransaction();
+
         final Iterator<SharedFilesCHKKey> i = storageRoot.chkKeys.iterator();
         while(i.hasNext()) {
             final SharedFilesCHKKey sfk = i.next();
@@ -303,7 +333,7 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
             }
         }
 
-        commit();
+        endThreadTransaction();
 
         return deletedCount;
     }

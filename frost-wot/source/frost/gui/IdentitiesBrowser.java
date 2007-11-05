@@ -493,13 +493,16 @@ public class IdentitiesBrowser extends JDialog {
                         return;
                     }
                     Arrays.sort(selRows); // ensure sorted, we must delete from end to begin
+                    if( !IdentitiesStorage.inst().beginExclusiveThreadTransaction() ) {
+                        return;
+                    }
                     for( int x=selRows.length-1; x>=0; x-- ) {
                         final InnerTableMember m = (InnerTableMember)tableModel.getRow(selRows[x]);
                         final Identity id = m.getIdentity();
-                        Core.getIdentities().deleteIdentity(id, false);
+                        Core.getIdentities().deleteIdentity(id);
                         tableModel.removeRow(selRows[x]);
                     }
-                    IdentitiesStorage.inst().commit();
+                    IdentitiesStorage.inst().endThreadTransaction();
                     updateTitle();
                 }
             });
@@ -792,12 +795,16 @@ public class IdentitiesBrowser extends JDialog {
 
                 // query ALL data for all identities, each InnerTableMember gets its values from the complete list
                 Hashtable<String,IdentitiesStorage.IdentityMsgAndFileCount> idDatas;
+                if( !IdentitiesStorage.inst().beginExclusiveThreadTransaction() ) {
+                    return;
+                }
                 try {
                     idDatas = IdentitiesStorage.inst().retrieveMsgAndFileCountPerIdentity();
                 } catch(SQLException ex) {
                     logger.log(Level.SEVERE, "Error retrieving idDatas", ex);
                     idDatas = new Hashtable<String,IdentitiesStorage.IdentityMsgAndFileCount>();
                 }
+                IdentitiesStorage.inst().endThreadTransaction();
 
                 progressMonitor.setProgress(2);
                 if( progressMonitor.isCanceled() ) {
@@ -875,14 +882,17 @@ public class IdentitiesBrowser extends JDialog {
                     }
 
                     // batch delete, turn off autocommit
-                    for( final Object element2 : li ) {
-                        final Integer element = (Integer) element2;
+                    if( !IdentitiesStorage.inst().beginExclusiveThreadTransaction() ) {
+                        return;
+                    }
+                    for( final Integer element : li ) {
                         final InnerTableMember m = (InnerTableMember)tableModel.getRow(element.intValue());
                         final Identity id = m.getIdentity();
-                        Core.getIdentities().deleteIdentity(id, false); // don't commit
+                        Core.getIdentities().deleteIdentity(id);
                         tableModel.removeRow(element.intValue());
                     }
-                    IdentitiesStorage.inst().commit();
+                    IdentitiesStorage.inst().endThreadTransaction();
+
                     updateTitle();
                 }
             });
