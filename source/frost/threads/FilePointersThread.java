@@ -41,25 +41,25 @@ import frost.util.Logging;
  * Finally the thread sleeps for some time and restarts to retrieve the pointer files.
  */
 public class FilePointersThread extends Thread {
-    
+
     private static final Logger logger = Logger.getLogger(FilePointersThread.class.getName());
-    
+
     private static final int baseSleepTime = 15 * 60 * 1000;
 
-    private String keyPrefix;
+    private final String keyPrefix;
 
     // one and only instance
     private static FilePointersThread instance = new FilePointersThread();
-    
+
     private FilePointersThread() {
-        String fileBase = Core.frostSettings.getValue(SettingsClass.FILE_BASE);
+        final String fileBase = Core.frostSettings.getValue(SettingsClass.FILE_BASE);
         keyPrefix = "KSK@frost/filepointers/" + fileBase + "-";
     }
 
     public static FilePointersThread getInstance() {
         return instance;
     }
-    
+
     public boolean cancelThread() {
         return false;
     }
@@ -67,10 +67,10 @@ public class FilePointersThread extends Thread {
     /**
      * Returns true if no error occured.
      */
-    private boolean uploadIndexFile(String dateStr, IndexSlot gis) throws Throwable {
+    private boolean uploadIndexFile(final String dateStr, final IndexSlot gis) throws Throwable {
 
         // get a list of CHK keys to send
-        List<SharedFilesCHKKey> sharedFileCHKkeys = SharedFilesCHKKeyManager.getCHKKeysToSend();
+        final List<SharedFilesCHKKey> sharedFileCHKkeys = SharedFilesCHKKeyManager.getCHKKeysToSend();
         if( sharedFileCHKkeys == null || sharedFileCHKkeys.size() == 0 ) {
             logger.info("FILEDN: No CHK keys to send.");
             return true;
@@ -78,14 +78,14 @@ public class FilePointersThread extends Thread {
 
         // write a pointerfile to a tempfile
         List<String> tmpChkStringKeys = new ArrayList<String>(sharedFileCHKkeys.size());
-        for( Iterator i = sharedFileCHKkeys.iterator(); i.hasNext(); ) {
-            SharedFilesCHKKey ck = (SharedFilesCHKKey) i.next();
+        for( final Object element : sharedFileCHKkeys ) {
+            final SharedFilesCHKKey ck = (SharedFilesCHKKey) element;
             tmpChkStringKeys.add( ck.getChkKey() );
         }
-        
-        FilePointerFileContent content = new FilePointerFileContent(System.currentTimeMillis(), tmpChkStringKeys);
 
-        File tmpPointerFile = FileAccess.createTempFile("kskptr_", ".xml");
+        final FilePointerFileContent content = new FilePointerFileContent(System.currentTimeMillis(), tmpChkStringKeys);
+
+        final File tmpPointerFile = FileAccess.createTempFile("kskptr_", ".xml");
         tmpPointerFile.deleteOnExit();
         if( !FilePointerFile.writePointerFile(content, tmpPointerFile) ) {
             logger.severe("FILEDN: Error writing the KSK pointer file.");
@@ -99,12 +99,12 @@ public class FilePointersThread extends Thread {
         Mixed.waitRandom(3000);
 
         logger.info("FILEDN: Starting upload of pointer file containing "+sharedFileCHKkeys.size()+" CHK keys");
-        
-        String insertKey = keyPrefix + dateStr + "-";
+
+        final String insertKey = keyPrefix + dateStr + "-";
         if( Logging.inst().doLogFilebaseMessages() ) {
             System.out.println("uploadIndexFile: Starting upload of pointer file containing "+sharedFileCHKkeys.size()+" CHK keys to "+insertKey+"...");
         }
-        boolean wasOk = GlobalFileUploader.uploadFile(gis, tmpPointerFile, insertKey, ".xml", true);
+        final boolean wasOk = GlobalFileUploader.uploadFile(gis, tmpPointerFile, insertKey, ".xml", true);
         if( Logging.inst().doLogFilebaseMessages() ) {
             System.out.println("uploadIndexFile: upload finished, wasOk="+wasOk);
         }
@@ -114,11 +114,11 @@ public class FilePointersThread extends Thread {
         }
         return wasOk;
     }
-    
-    private void downloadDate(String dateStr, IndexSlot gis, boolean isForToday) throws Throwable {
-        
+
+    private void downloadDate(final String dateStr, final IndexSlot gis, final boolean isForToday) throws Throwable {
+
         // "KSK@frost/filelistpointer/2006.11.1-<index>.xml"
-        String requestKey = keyPrefix + dateStr + "-"; 
+        final String requestKey = keyPrefix + dateStr + "-";
 
         int maxFailures;
         if (isForToday) {
@@ -135,18 +135,18 @@ public class FilePointersThread extends Thread {
 
             logger.info("FILEDN: Requesting index " + index + " for date " + dateStr);
 
-            String downKey = requestKey + index + ".xml";
+            final String downKey = requestKey + index + ".xml";
             if( Logging.inst().doLogFilebaseMessages() ) {
                 System.out.println("FilePointersThread.downloadDate: requesting: "+downKey);
             }
 
-            GlobalFileDownloaderResult result = GlobalFileDownloader.downloadFile(downKey, FcpHandler.MAX_MESSAGE_SIZE_07);
-            
+            final GlobalFileDownloaderResult result = GlobalFileDownloader.downloadFile(downKey, FcpHandler.MAX_MESSAGE_SIZE_07);
+
             if(  result == null ) {
                 if( Logging.inst().doLogFilebaseMessages() ) {
                     System.out.println("FilePointersThread.downloadDate: failure");
                 }
-                // download failed. 
+                // download failed.
                 if( gis.isDownloadIndexBehindLastSetIndex(index) ) {
                     // we stop if we tried maxFailures indices behind the last known index
                     failures++;
@@ -154,7 +154,7 @@ public class FilePointersThread extends Thread {
                 // next loop we try next index
                 index = gis.findNextDownloadSlot(index);
                 continue;
-            } 
+            }
 
             failures = 0;
 
@@ -172,7 +172,7 @@ public class FilePointersThread extends Thread {
             gis.modify();
             // next loop we try next index
             index = gis.findNextDownloadSlot(index);
-            
+
             if( result.getErrorCode() == GlobalFileDownloaderResult.ERROR_FILE_TOO_BIG ) {
                 logger.severe("FilePointersThread.downloadDate: Dropping index "+index+", FILE_TOO_BIG.");
                 continue;
@@ -182,10 +182,10 @@ public class FilePointersThread extends Thread {
                 System.out.println("FilePointersThread.downloadDate: success");
             }
 
-            File downloadedFile = result.getResultFile(); 
-            
-            FilePointerFileContent content = FilePointerFile.readPointerFile(downloadedFile);
-            
+            final File downloadedFile = result.getResultFile();
+
+            final FilePointerFileContent content = FilePointerFile.readPointerFile(downloadedFile);
+
             if( Logging.inst().doLogFilebaseMessages() ) {
                 System.out.println("readPointerFile: result: "+content);
             }
@@ -197,16 +197,17 @@ public class FilePointersThread extends Thread {
         }
     }
 
+    @Override
     public void run() {
 
         final int maxAllowedExceptions = 5;
         int occuredExceptions = 0;
-        
+
         // 2 times after startup we download full backload, then only 1 day backward
         int downloadFullBackloadCount = 2;
 
         while( true ) {
-            
+
             // +1 for today
             int downloadBack;
             if( downloadFullBackloadCount > 0 ) {
@@ -217,7 +218,7 @@ public class FilePointersThread extends Thread {
             }
 
             try {
-                LocalDate nowDate = new LocalDate(DateTimeZone.UTC);
+                final LocalDate nowDate = new LocalDate(DateTimeZone.UTC);
                 for (int i=0; i < downloadBack; i++) {
                     boolean isForToday;
                     if( i == 0 ) {
@@ -225,14 +226,14 @@ public class FilePointersThread extends Thread {
                     } else {
                         isForToday = false;
                     }
-                    
-                    LocalDate localDate = nowDate.minusDays(i);
-                    String dateStr = DateFun.FORMAT_DATE.print(localDate);
-                    long date = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
-                    
-                    IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(
+
+                    final LocalDate localDate = nowDate.minusDays(i);
+                    final String dateStr = DateFun.FORMAT_DATE.print(localDate);
+                    final long date = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
+
+                    final IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(
                             IndexSlotsStorage.FILELISTS, date);
-                    
+
                     if( Logging.inst().doLogFilebaseMessages() ) {
                         System.out.println("FilePointersThread: download for "+dateStr);
                     }
@@ -240,7 +241,7 @@ public class FilePointersThread extends Thread {
                     if( !isInterrupted() ) {
                         downloadDate(dateStr, gis, isForToday);
                     }
-                    
+
                     // for today, maybe upload a file pointer file
                     if( !isInterrupted() && isForToday ) {
                         try {
@@ -248,22 +249,22 @@ public class FilePointersThread extends Thread {
                                 System.out.println("FilePointersThread: upload for "+dateStr);
                             }
                             uploadIndexFile(dateStr, gis);
-                        } catch(Throwable t) {
+                        } catch(final Throwable t) {
                             logger.log(Level.SEVERE, "Exception during uploadIndexFile()", t);
                         }
                     }
-                    
+
                     IndexSlotsStorage.inst().storeSlot(gis);
-                    
+
                     if( isInterrupted() ) {
                         break;
                     }
                 }
-            } catch (Throwable e) {
+            } catch (final Throwable e) {
                 logger.log(Level.SEVERE, "Exception catched", e);
                 occuredExceptions++;
             }
-            
+
             if( occuredExceptions > maxAllowedExceptions ) {
                 logger.log(Level.SEVERE, "Stopping FilePointersThread because of too much exceptions");
                 break;
@@ -271,11 +272,9 @@ public class FilePointersThread extends Thread {
             if( isInterrupted() ) {
                 break;
             }
-            
-            IndexSlotsStorage.inst().commit(); // commit changes for this run
-            
+
             // random sleeptime to anonymize our uploaded pointer files
-            Mixed.waitRandom(baseSleepTime); 
+            Mixed.waitRandom(baseSleepTime);
         }
     }
 }

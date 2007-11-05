@@ -78,17 +78,17 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
             logger.info("TOFDN: " + tofType + " Thread started for board " + board.getName());
 
             if (isInterrupted()) {
-                IndexSlotsStorage.inst().commit();
                 notifyThreadFinished(this);
                 return;
             }
 
             LocalDate localDate = new LocalDate(DateTimeZone.UTC);
             long date = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
+            final int boardId = board.getPerstFrostBoardObject().getBoardId();
 
             if (this.downloadToday) {
                 // get IndexSlot for today
-                final IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(board.getPerstFrostBoardObject().getBoardId(), date);
+                final IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(boardId, date);
                 // download only current date
                 downloadDate(localDate, gis);
                 // after update check if there are messages for upload and upload them
@@ -102,7 +102,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                     daysBack++;
                     localDate = localDate.minusDays(1);
                     date = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
-                    final IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(board.getPerstFrostBoardObject().getBoardId(), date);
+                    final IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(boardId, date);
                     downloadDate(localDate, gis);
                     IndexSlotsStorage.inst().storeSlot(gis);
                 }
@@ -116,7 +116,6 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
         } catch (final Throwable t) {
             logger.log(Level.SEVERE, Thread.currentThread().getName() + ": Oo. Exception in MessageDownloadThread:", t);
         }
-        IndexSlotsStorage.inst().commit();
         notifyThreadFinished(this);
     }
 
