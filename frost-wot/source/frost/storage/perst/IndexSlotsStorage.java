@@ -108,7 +108,7 @@ public class IndexSlotsStorage extends AbstractFrostStorage implements ExitSavab
         return deletedCount;
     }
 
-    public synchronized IndexSlot getSlotForDate(final int indexName, final long date) {
+    public IndexSlot getSlotForDate(final int indexName, final long date) {
         final Key dateKey = new Key(indexName, date);
         beginCooperativeThreadTransaction();
         IndexSlot gis = storageRoot.slotsIndexIL.get(dateKey);
@@ -124,7 +124,7 @@ public class IndexSlotsStorage extends AbstractFrostStorage implements ExitSavab
         return gis;
     }
 
-    public synchronized void storeSlot(final IndexSlot gis) {
+    public void storeSlot(final IndexSlot gis) {
         if( !beginExclusiveThreadTransaction() ) {
             return;
         }

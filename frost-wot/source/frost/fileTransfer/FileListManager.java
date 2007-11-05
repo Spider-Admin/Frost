@@ -239,6 +239,7 @@ public class FileListManager {
             }
         } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Exception during insertOrUpdateFrostSharedFileObject", t);
+            errorOccured = true;
         }
 
         if( errorOccured ) {

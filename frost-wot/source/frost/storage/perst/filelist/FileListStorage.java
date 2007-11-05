@@ -80,7 +80,7 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
         return getStorage().createScalableList();
     }
 
-    public synchronized boolean insertOrUpdateFileListFileObject(final FrostFileListFileObject flf) {
+    public boolean insertOrUpdateFileListFileObject(final FrostFileListFileObject flf) {
         // check for dups and update them!
         final FrostFileListFileObject pflf = storageRoot.getFileListFileObjects().get(flf.getSha());
         if( pflf == null ) {
@@ -297,7 +297,7 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
      * Update the item with SHA, set requestlastsent and requestssentcount.
      * Does NOT commit!
      */
-    public synchronized boolean updateFrostFileListFileObjectAfterRequestSent(final String sha, final long requestLastSent) {
+    public boolean updateFrostFileListFileObjectAfterRequestSent(final String sha, final long requestLastSent) {
 
         final FrostFileListFileObject oldSfo = getFileBySha(sha);
         if( oldSfo == null ) {
@@ -316,7 +316,7 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
      * Update the item with SHA, set requestlastsent and requestssentcount
      * Does NOT commit!
      */
-    public synchronized boolean updateFrostFileListFileObjectAfterRequestReceived(final String sha, long requestLastReceived) {
+    public boolean updateFrostFileListFileObjectAfterRequestReceived(final String sha, long requestLastReceived) {
 
         final FrostFileListFileObject oldSfo = getFileBySha(sha);
         if( oldSfo == null ) {
@@ -338,7 +338,7 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
     /**
      * Update the item with SHA, set lastdownloaded
      */
-    public synchronized boolean updateFrostFileListFileObjectAfterDownload(final String sha, final long lastDownloaded) {
+    public boolean updateFrostFileListFileObjectAfterDownload(final String sha, final long lastDownloaded) {
 
         if( !rememberSharedFileDownloaded ) {
             return true;
@@ -366,7 +366,7 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
     /**
      * Retrieves a list of FrostSharedFileOjects.
      */
-    public synchronized void retrieveFiles(
+    public void retrieveFiles(
             final FileListCallback callback,
             final List<String> names,
             final List<String> comments,
@@ -483,7 +483,7 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
         }
     }
 
-    private synchronized boolean updateFileListFileFromOtherFileListFile(final FrostFileListFileObject oldFof, final FrostFileListFileObject newFof) {
+    private boolean updateFileListFileFromOtherFileListFile(final FrostFileListFileObject oldFof, final FrostFileListFileObject newFof) {
         // file is already in FILELIST table, maybe add new FILEOWNER and update fields
         // maybe update oldSfo
         boolean doUpdate = false;
