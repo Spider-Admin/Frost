@@ -28,28 +28,11 @@ public class Logging {
 
     private static final Logger logger = Logger.getLogger(Logging.class.getName());
 
-    private class ShutdownHook extends Thread {
-
-        public ShutdownHook() {
-            super();
-        }
-        public void run() {
-            frostSettings.removePropertyChangeListener(SettingsClass.LOG_TO_FILE, listener);
-            frostSettings.removePropertyChangeListener(SettingsClass.LOG_FILE_SIZE_LIMIT, listener);
-            frostSettings.removePropertyChangeListener(SettingsClass.LOG_LEVEL, listener);
-
-            if (fileHandler != null) {
-                rootLogger.removeHandler(fileHandler);
-                fileHandler.close();
-            }
-        }
-    }
-
     private class Listener implements PropertyChangeListener {
         public Listener() {
             super();
         }
-        public void propertyChange(PropertyChangeEvent evt) {
+        public void propertyChange(final PropertyChangeEvent evt) {
             if (evt.getPropertyName().equals(SettingsClass.LOG_TO_FILE)) {
                 logToFileSettingChanged();
             }
@@ -70,7 +53,7 @@ public class Logging {
     public static final String DEFAULT = "Options.miscellaneous.logLevel.low";
 
     private static final String LOG_FILE_NAME = "frost%g.log";
-    
+
     private static Logging instance;
 
     private final SettingsClass frostSettings;
@@ -78,21 +61,21 @@ public class Logging {
     private Logger rootLogger = null;
     private FileHandler fileHandler = null;
     private final SimpleFormatter simpleFormatter = new SimpleFormatter();
-    
+
     private boolean logFcp2Messages = false;
     private boolean logFilebaseMessages = false;
-    
-    public Logging(SettingsClass frostSettings) {
+
+    public Logging(final SettingsClass frostSettings) {
         super();
         this.frostSettings = frostSettings;
         initialize();
         instance = this;
     }
-    
+
     public static Logging inst() {
         return instance;
     }
-    
+
     public boolean doLogFcp2Messages() {
         return logFcp2Messages;
     }
@@ -101,17 +84,15 @@ public class Logging {
     }
 
     private void initialize() {
-        LogManager logManager = LogManager.getLogManager();
+        final LogManager logManager = LogManager.getLogManager();
         rootLogger = logManager.getLogger("");
         //We remove the console handler that is used by default
         if (!frostSettings.getBoolValue(SettingsClass.LOG_TO_CONSOLE)) {
-        	Handler[] handlers = rootLogger.getHandlers();
-        	for (int i = 0; i < handlers.length; i++) {
-        		rootLogger.removeHandler(handlers[i]);
+        	final Handler[] handlers = rootLogger.getHandlers();
+        	for( final Handler element : handlers ) {
+        		rootLogger.removeHandler(element);
         	}
         }
-
-        Runtime.getRuntime().addShutdownHook(new ShutdownHook());
 
         logToFileSettingChanged();
 
@@ -131,7 +112,7 @@ public class Logging {
         }
     }
 
-    private boolean setLevel(String level) {
+    private boolean setLevel(final String level) {
         if (level.equals(VERY_LOW)) {
             rootLogger.setLevel(Level.SEVERE);
             return true;
@@ -159,7 +140,7 @@ public class Logging {
         // We only change the file size if logging is not disabled
         if (!Level.OFF.equals(rootLogger.getLevel())) {
             try {
-                int fileSize = frostSettings.getIntValue(SettingsClass.LOG_FILE_SIZE_LIMIT);
+                final int fileSize = frostSettings.getIntValue(SettingsClass.LOG_FILE_SIZE_LIMIT);
                 if (fileHandler != null) {
                     rootLogger.removeHandler(fileHandler);
                     fileHandler.close();
@@ -169,7 +150,7 @@ public class Logging {
                 fileHandler.setEncoding("UTF-8");
                 fileHandler.setFormatter(simpleFormatter);
                 rootLogger.addHandler(fileHandler);
-            } catch (IOException exception) {
+            } catch (final IOException exception) {
                 logger.log(Level.SEVERE, "There was an error while initializing the logging system.", exception);
             }
         }
@@ -185,6 +166,17 @@ public class Logging {
             } else {
                 rootLogger.setLevel(Level.OFF);
             }
+        }
+    }
+
+    public void shutdownLogging() {
+        frostSettings.removePropertyChangeListener(SettingsClass.LOG_TO_FILE, listener);
+        frostSettings.removePropertyChangeListener(SettingsClass.LOG_FILE_SIZE_LIMIT, listener);
+        frostSettings.removePropertyChangeListener(SettingsClass.LOG_LEVEL, listener);
+
+        if (fileHandler != null) {
+            rootLogger.removeHandler(fileHandler);
+            fileHandler.close();
         }
     }
 }

@@ -23,6 +23,7 @@ import java.util.logging.*;
 
 import frost.*;
 import frost.events.*;
+import frost.util.Logging;
 import frost.util.gui.translation.*;
 
 /**
@@ -84,10 +85,13 @@ public class StorageManager extends Timer {
 					}
 				}
 			}
-            Frost.releaseLockFile();
+
             final String goodbyeMsg = "Frost shutdown completed.";
 			logger.severe(goodbyeMsg);
 			System.out.println(goodbyeMsg);
+
+			Logging.inst().shutdownLogging();
+            Frost.releaseLockFile();
 		}
 	}
 
