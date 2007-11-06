@@ -195,7 +195,7 @@ public class TOF {
         final FrostMessageObject invalidMsg = new FrostMessageObject(b, date, index, reason);
         invalidMsg.setNew(false);
         try {
-            MessageStorage.inst().insertMessage(invalidMsg, true);
+            MessageStorage.inst().insertMessage(invalidMsg);
         } catch (final Throwable e) {
             // paranoia
             logger.log(Level.SEVERE, "Error inserting invalid message into database", e);
@@ -228,7 +228,7 @@ public class TOF {
 
         int messageInsertedRC;
         try {
-            messageInsertedRC = MessageStorage.inst().insertMessage(newMsg, true);
+            messageInsertedRC = MessageStorage.inst().insertMessage(newMsg);
         } catch (final Throwable e) {
             // paranoia
             logger.log(Level.SEVERE, "Error inserting new message into database", e);

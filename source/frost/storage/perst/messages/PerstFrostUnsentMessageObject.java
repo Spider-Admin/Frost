@@ -166,7 +166,7 @@ public class PerstFrostUnsentMessageObject extends Persistent {
         return mo;
     }
 
-    public void updateUnsentMessageFileAttachmentKey(final FileAttachment fa) {
+    protected void updateUnsentMessageFileAttachmentKey(final FileAttachment fa) {
         if( fileAttachments == null ) {
             return;
         }

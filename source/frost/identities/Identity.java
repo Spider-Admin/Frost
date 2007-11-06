@@ -388,9 +388,6 @@ public class Identity extends Persistent implements XMLizable {
     }
 
     protected boolean updateIdentitiesStorage() {
-        if( getStorage() == null ) {
-            return false;
-        }
         if( !IdentitiesStorage.inst().beginExclusiveThreadTransaction() ) {
             return false;
         }

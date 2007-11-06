@@ -72,10 +72,12 @@ public class PerstFrostMessageObject extends Persistent {
 
     public PerstFrostMessageObject(final FrostMessageObject mo, final Storage store) {
 
+        MessageContentStorage.inst().beginExclusiveThreadTransaction();
+
         makePersistent(store); // assign oid
 
         messageId =  mo.getMessageId();
-        // FIXME: inReplyTo vs. inReplyToList: beide speichern?
+        // FIXME: inReplyTo vs. inReplyToList: save both?
         inReplyTo = mo.getInReplyTo();
 
         invalidReason = mo.getInvalidReason();
@@ -123,37 +125,67 @@ public class PerstFrostMessageObject extends Persistent {
 
         MessageContentStorage.inst().addContentForOid(getOid(), mo.getContent());
 
+        MessageContentStorage.inst().endThreadTransaction();
+
         modify();
     }
 
     public void retrieveMessageContent(final FrostMessageObject mo) {
-        mo.setContent(MessageContentStorage.inst().getContentForOid(getOid()));
+        if( !MessageContentStorage.inst().beginCooperativeThreadTransaction() ) {
+            return;
+        }
+        try {
+            mo.setContent(MessageContentStorage.inst().getContentForOid(getOid()));
+        } finally {
+            MessageContentStorage.inst().endThreadTransaction();
+        }
     }
 
     public void retrievePublicKey(final FrostMessageObject mo) {
-        mo.setPublicKey(MessageContentStorage.inst().getPublickeyForOid(getOid()));
+        if( !MessageContentStorage.inst().beginCooperativeThreadTransaction() ) {
+            return;
+        }
+        try {
+            mo.setPublicKey(MessageContentStorage.inst().getPublickeyForOid(getOid()));
+        } finally {
+            MessageContentStorage.inst().endThreadTransaction();
+        }
     }
 
     public void retrieveSignature(final FrostMessageObject mo) {
-        mo.setSignatureV2(MessageContentStorage.inst().getSignatureForOid(getOid()));
+        if( !MessageContentStorage.inst().beginCooperativeThreadTransaction() ) {
+            return;
+        }
+        try {
+            mo.setSignatureV2(MessageContentStorage.inst().getSignatureForOid(getOid()));
+        } finally {
+            MessageContentStorage.inst().endThreadTransaction();
+        }
     }
 
     public void retrieveAttachments(final FrostMessageObject mo) {
-        final PerstAttachments pa = MessageContentStorage.inst().getAttachmentsForOid(getOid());
-        if( pa != null ) {
-            if( pa.getBoardAttachments() != null ) {
-                for( final PerstBoardAttachment p : pa.getBoardAttachments() ) {
-                    final Board b = new Board(p.name, p.pubKey, p.privKey, p.description);
-                    final BoardAttachment ba = new BoardAttachment(b);
-                    mo.addAttachment(ba);
+        if( !MessageContentStorage.inst().beginCooperativeThreadTransaction() ) {
+            return;
+        }
+        try {
+            final PerstAttachments pa = MessageContentStorage.inst().getAttachmentsForOid(getOid());
+            if( pa != null ) {
+                if( pa.getBoardAttachments() != null ) {
+                    for( final PerstBoardAttachment p : pa.getBoardAttachments() ) {
+                        final Board b = new Board(p.name, p.pubKey, p.privKey, p.description);
+                        final BoardAttachment ba = new BoardAttachment(b);
+                        mo.addAttachment(ba);
+                    }
+                }
+                if( pa.getFileAttachments() != null ) {
+                    for( final PerstFileAttachment p : pa.getFileAttachments() ) {
+                        final FileAttachment fa = new FileAttachment(p.name, p.chkKey, p.size);
+                        mo.addAttachment(fa);
+                    }
                 }
             }
-            if( pa.getFileAttachments() != null ) {
-                for( final PerstFileAttachment p : pa.getFileAttachments() ) {
-                    final FileAttachment fa = new FileAttachment(p.name, p.chkKey, p.size);
-                    mo.addAttachment(fa);
-                }
-            }
+        } finally {
+            MessageContentStorage.inst().endThreadTransaction();
         }
     }
 
