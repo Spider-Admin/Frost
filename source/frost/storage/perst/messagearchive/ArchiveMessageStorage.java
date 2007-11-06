@@ -163,7 +163,7 @@ public class ArchiveMessageStorage extends AbstractFrostStorage implements ExitS
     {
         final PerstFrostArchiveBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
         if( bo == null ) {
-            logger.severe("error: no perst board for archive search");
+            // this board does not exist in the archive
             return;
         }
         // normal messages in date range
