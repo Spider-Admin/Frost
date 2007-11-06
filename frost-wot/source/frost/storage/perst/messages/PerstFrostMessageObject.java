@@ -82,7 +82,16 @@ public class PerstFrostMessageObject extends Persistent {
         // FIXME: inReplyTo vs. inReplyToList: save both?
         inReplyTo = mo.getInReplyTo();
 
-        invalidReason = mo.getInvalidReason();
+        // in toFrostMessageObject() we use only invalidReason as indicator for valid or invalid,
+        // so we ensure that invalidReason is correctly set
+        if( mo.isValid() == false ) {
+            invalidReason = mo.getInvalidReason();
+            if( invalidReason == null || invalidReason.length() == 0 ) {
+                invalidReason = "AutoSet";
+            }
+        } else {
+            invalidReason = null;
+        }
         dateAndTime = mo.getDateAndTime().getMillis();
         msgIndex = mo.getIndex();
         fromName = mo.getFromName();
