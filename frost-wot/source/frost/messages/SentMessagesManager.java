@@ -46,7 +46,7 @@ public class SentMessagesManager {
      */
     public static boolean addSentMessage(final FrostMessageObject sentMo) {
         try {
-            MessageStorage.inst().addSentMessage(sentMo);
+            MessageStorage.inst().insertSentMessage(sentMo);
         } catch (final Throwable e) {
             // paranoia
             logger.log(Level.SEVERE, "Error inserting sent message", e);

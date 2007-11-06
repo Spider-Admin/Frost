@@ -106,16 +106,22 @@ public class ArchiveMessageStorage extends AbstractFrostStorage implements ExitS
         commit();
     }
 
-    public synchronized int insertMessage(final FrostMessageObject mo, final boolean doCommit) {
+    /**
+     * Called by cleanup during startup, no transaction locking needed.
+     */
+    public synchronized int insertMessage(final FrostMessageObject mo) {
         final Board targetBoard = mo.getBoard();
         if( targetBoard == null ) {
             logger.severe("msgInsertError: no board in msg");
             return INSERT_ERROR; // skip msg
         }
-        return insertMessage(mo, targetBoard.getNameLowerCase(), doCommit);
+        return insertMessage(mo, targetBoard.getNameLowerCase());
     }
 
-    public synchronized int insertMessage(final FrostMessageObject mo, final String boardName, final boolean doCommit) {
+    /**
+     * Called by cleanup during startup and during migration, no transaction locking needed.
+     */
+    public synchronized int insertMessage(final FrostMessageObject mo, final String boardName) {
 
         if( !mo.isValid() ) {
             return INSERT_OK; // ignore invalid msgs
@@ -147,10 +153,6 @@ public class ArchiveMessageStorage extends AbstractFrostStorage implements ExitS
         }
 
         bo.getMessageIndex().put(mo.getDateAndTime().getMillis(), pmo);
-
-        if( doCommit ) {
-            commit();
-        }
 
         return INSERT_OK;
     }

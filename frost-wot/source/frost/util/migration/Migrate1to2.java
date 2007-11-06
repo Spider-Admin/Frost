@@ -213,10 +213,10 @@ public class Migrate1to2 {
             final MessageCallback mc = new MessageCallback() {
                 int cnt=0;
                 public boolean messageRetrieved(FrostMessageObject mo) {
-                    ms.addSentMessage(mo, false);
+                    ms.insertSentMessageDirect(mo, false);
                     cnt++;
                     if(cnt%100 == 0) {
-                        MessageStorage.inst().commit();
+                        ms.commit();
                         System.out.println("Committed after "+cnt+" sent messages");
                     }
                     return false;
@@ -224,7 +224,7 @@ public class Migrate1to2 {
             };
 
             new SentMessageDatabaseTable().retrieveAllMessages(AppLayerDatabase.getInstance(), mc, allBoards, false);
-            MessageStorage.inst().commit();
+            ms.commit();
             return true;
         } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Migration error!", t);
@@ -240,15 +240,15 @@ public class Migrate1to2 {
             final List<FrostUnsentMessageObject> unsentMsgs = UnsentMessageDatabaseTable.retrieveMessages(AppLayerDatabase.getInstance(), allBoards);
             int cnt=0;
             for( final FrostUnsentMessageObject umo : unsentMsgs ) {
-                ms.addUnsentMessage(umo, false);
+                ms.insertUnsentMessageDirect(umo);
                 cnt++;
                 if(cnt%100 == 0) {
-                    MessageStorage.inst().commit();
+                    ms.commit();
                     System.out.println("Committed after "+cnt+" unsent messages");
                 }
             }
 
-            MessageStorage.inst().commit();
+            ms.commit();
             return true;
         } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Migration error!", t);
@@ -273,9 +273,10 @@ public class Migrate1to2 {
                             mo.setFromName(mo.getFromName().replace('@','_'));
                         }
                     }
-                    ms.insertMessage(mo, false);
+                    ms.insertMessageDirect(mo, false);
                     cnt++;
                     if(cnt%100 == 0) {
+                        ms.commit();
                         // close and reopen storage -> solved heap space problem when migrating archive from McKoi
                         ms.silentClose();
                         ms.initStorage();
@@ -352,7 +353,7 @@ public class Migrate1to2 {
                             mo.setFromName(mo.getFromName().replace('@','_'));
                         }
                     }
-                    ms.insertMessage(mo, (String)mo.getUserObject(), false);
+                    ms.insertMessage(mo, (String)mo.getUserObject());
                     cnt++;
                     if(cnt%100 == 0) {
                         ms.commit();

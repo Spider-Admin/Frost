@@ -60,27 +60,27 @@ public class MessageContentStorage extends AbstractFrostStorage implements ExitS
         System.out.println("INFO: MessagesContentStorage closed.");
     }
 
-    protected boolean addContentForOid(final int oid, final String content) {
+    protected synchronized boolean addContentForOid(final int oid, final String content) {
         final PerstString ps = new PerstString(content);
         return storageRoot.getContentByMsgOid().put(oid, ps);
     }
 
-    protected boolean addPublickeyForOid(final int oid, final String content) {
+    protected synchronized boolean addPublickeyForOid(final int oid, final String content) {
         final PerstString ps = new PerstString(content);
         return storageRoot.getPublickeyByMsgOid().put(oid, ps);
     }
 
-    protected boolean addSignatureForOid(final int oid, final String content) {
+    protected synchronized boolean addSignatureForOid(final int oid, final String content) {
         final PerstString ps = new PerstString(content);
         return storageRoot.getSignatureByMsgOid().put(oid, ps);
     }
 
-    protected boolean addAttachmentsForOid(final int oid, final AttachmentList boards, final AttachmentList files) {
+    protected synchronized boolean addAttachmentsForOid(final int oid, final AttachmentList boards, final AttachmentList files) {
         final PerstAttachments pa = new PerstAttachments(getStorage(), boards, files);
         return storageRoot.getAttachmentsByMsgOid().put(oid, pa);
     }
 
-    protected String getContentForOid(final int oid) {
+    protected synchronized String getContentForOid(final int oid) {
         final PerstString ps = storageRoot.getContentByMsgOid().get(oid);
         if( ps != null ) {
             return ps.getValue();
@@ -88,7 +88,7 @@ public class MessageContentStorage extends AbstractFrostStorage implements ExitS
         return null;
     }
 
-    protected String getPublickeyForOid(final int oid) {
+    protected synchronized String getPublickeyForOid(final int oid) {
         final PerstString ps = storageRoot.getPublickeyByMsgOid().get(oid);
         if( ps != null ) {
             return ps.getValue();
@@ -96,7 +96,7 @@ public class MessageContentStorage extends AbstractFrostStorage implements ExitS
         return null;
     }
 
-    protected String getSignatureForOid(final int oid) {
+    protected synchronized String getSignatureForOid(final int oid) {
         final PerstString ps = storageRoot.getSignatureByMsgOid().get(oid);
         if( ps != null ) {
             return ps.getValue();
@@ -104,12 +104,12 @@ public class MessageContentStorage extends AbstractFrostStorage implements ExitS
         return null;
     }
 
-    protected PerstAttachments getAttachmentsForOid(final int oid) {
+    protected synchronized PerstAttachments getAttachmentsForOid(final int oid) {
         final PerstAttachments pa = storageRoot.getAttachmentsByMsgOid().get(oid);
         return pa;
     }
 
-    protected void deallocateForOid(final int oid) {
+    protected synchronized void deallocateForOid(final int oid) {
         PerstString ps;
         ps = storageRoot.getContentByMsgOid().get(oid);
         if( ps != null ) {

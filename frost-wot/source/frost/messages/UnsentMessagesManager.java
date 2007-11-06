@@ -129,7 +129,7 @@ public class UnsentMessagesManager {
 
         mo.setTimeAdded(System.currentTimeMillis());
 
-        MessageStorage.inst().addUnsentMessage(mo);
+        MessageStorage.inst().insertUnsentMessage(mo);
 
         unsentMessages.add(mo);
 
