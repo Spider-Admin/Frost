@@ -72,8 +72,16 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
 
     @Override
     public synchronized void commit() {
-        super.commit();
+        // also commit the MessageContentStorage
         MessageContentStorage.inst().commit();
+        super.commit();
+    }
+
+    @Override
+    public boolean endThreadTransaction() {
+        // also commit the MessageContentStorage, its part of the transaction
+        MessageContentStorage.inst().commit();
+        return super.endThreadTransaction();
     }
 
     public void exitSave() {
@@ -87,74 +95,92 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         storageRoot = null;
     }
 
-    public synchronized void importBoards(final Hashtable<String, Integer> boardPrimaryKeysByName) {
-        int highestBoardId = 0;
-        for( final String boardName : boardPrimaryKeysByName.keySet() ) {
-            final Integer boardId = boardPrimaryKeysByName.get(boardName);
-
-            // prevent duplicate board names
-            if( storageRoot.getBoardsByName().contains(boardName) ) {
-                continue; // dup!
-            }
-            final PerstFrostBoardObject pfbo = new PerstFrostBoardObject(getStorage(), boardName, boardId.intValue());
-            storageRoot.getBoardsByName().put(boardName, pfbo);
-            storageRoot.getBoardsById().put(boardId, pfbo);
-
-            highestBoardId = Math.max(highestBoardId, boardId.intValue());
+    public boolean importBoards(final Hashtable<String, Integer> boardPrimaryKeysByName) {
+        if( !beginExclusiveThreadTransaction() ) {
+            return false;
         }
+        try {
+            int highestBoardId = 0;
+            for( final String boardName : boardPrimaryKeysByName.keySet() ) {
+                final Integer boardId = boardPrimaryKeysByName.get(boardName);
 
-        storageRoot.initUniqueBoardId(highestBoardId+1);
+                // prevent duplicate board names
+                if( storageRoot.getBoardsByName().contains(boardName) ) {
+                    continue; // dup!
+                }
+                final PerstFrostBoardObject pfbo = new PerstFrostBoardObject(getStorage(), boardName, boardId.intValue());
+                storageRoot.getBoardsByName().put(boardName, pfbo);
+                storageRoot.getBoardsById().put(boardId, pfbo);
 
-        commit();
+                highestBoardId = Math.max(highestBoardId, boardId.intValue());
+            }
+
+            storageRoot.initUniqueBoardId(highestBoardId+1);
+            return true;
+        } finally {
+            endThreadTransaction();
+        }
     }
 
     /**
      * Retrieve the primary key of the board, or insert it into storage.
      */
     public boolean assignPerstFrostBoardObject(final Board newNode) {
-        PerstFrostBoardObject pbo = storageRoot.getBoardsByName().get(newNode.getNameLowerCase());
-        if( pbo == null ) {
-            // not yet in perst, create new one
-            addBoard(newNode);
-
-            pbo = storageRoot.getBoardsByName().get(newNode.getNameLowerCase());
-            if( pbo == null ) {
-                logger.severe("board still not added!");
-                return false;
-            }
+        if( !beginExclusiveThreadTransaction() ) {
+            return false;
         }
+        try {
+            PerstFrostBoardObject pbo = storageRoot.getBoardsByName().get(newNode.getNameLowerCase());
+            if( pbo == null ) {
+                // not yet in perst, create new one
+                addBoard(newNode);
 
-        newNode.setPerstFrostBoardObject(pbo);
-        pbo.setRefBoard(newNode);
+                pbo = storageRoot.getBoardsByName().get(newNode.getNameLowerCase());
+                if( pbo == null ) {
+                    logger.severe("board still not added!");
+                    return false;
+                }
+            }
 
-        return true;
+            newNode.setPerstFrostBoardObject(pbo);
+            pbo.setRefBoard(newNode);
+
+            return true;
+        } finally {
+            endThreadTransaction();
+        }
     }
 
     /**
      * Adds a new board and returns the Board object with the perst object assigned.
      */
-    public synchronized Board addBoard(final Board board) {
+    public Board addBoard(final Board board) {
 
         if( board == null ) {
             return null;
         }
 
-        // prevent duplicate board names
-        PerstFrostBoardObject pfbo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
-        if( pfbo != null ) {
-            board.setPerstFrostBoardObject(pfbo);
-            return board; // dup!
+        if( !beginExclusiveThreadTransaction() ) {
+            return null;
         }
+        try {
+            // prevent duplicate board names
+            PerstFrostBoardObject pfbo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
+            if( pfbo != null ) {
+                board.setPerstFrostBoardObject(pfbo);
+                return board; // dup!
+            }
 
-        final int boardId = storageRoot.getNextUniqueBoardId();
+            final int boardId = storageRoot.getNextUniqueBoardId();
 
-        pfbo = new PerstFrostBoardObject(getStorage(), board.getNameLowerCase(), boardId);
-        storageRoot.getBoardsByName().put(board.getNameLowerCase(), pfbo);
-        storageRoot.getBoardsById().put(boardId, pfbo);
+            pfbo = new PerstFrostBoardObject(getStorage(), board.getNameLowerCase(), boardId);
+            storageRoot.getBoardsByName().put(board.getNameLowerCase(), pfbo);
+            storageRoot.getBoardsById().put(boardId, pfbo);
 
-        commit();
-
-        return board;
+            return board;
+        } finally {
+            endThreadTransaction();
+        }
     }
 
     private void removeAll(final Iterator<? extends Persistent> i) {
@@ -166,83 +192,104 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
     /**
      * Removes a board from the board list.
      */
-    public synchronized void removeBoard(final Board board) {
+    public void removeBoard(final Board board) {
         final PerstFrostBoardObject boardToRemove = board.getPerstFrostBoardObject();
         if( boardToRemove == null ) {
             return;
         }
 
-        // delete ALL valid messages
-        for( final PerstFrostMessageObject pmo : boardToRemove.getMessageIndex() ) {
-            if( FrostMessageObject.isSignatureStatusVERIFIED(pmo.signatureStatus) ) {
-                final PerstIdentitiesMessages pim = storageRoot.getIdentitiesMessages().get(pmo.fromName);
-                if( pim != null ) {
-                    pim.getMessagesFromIdentity().remove(pmo);
-                    if( pim.getMessagesFromIdentity().size() == 0 ) {
-                        storageRoot.getIdentitiesMessages().remove(pmo.fromName);
-                        pim.deallocate();
+        if( !beginExclusiveThreadTransaction() ) {
+            return;
+        }
+        try {
+            // delete ALL valid messages
+            for( final PerstFrostMessageObject pmo : boardToRemove.getMessageIndex() ) {
+                if( FrostMessageObject.isSignatureStatusVERIFIED(pmo.signatureStatus) ) {
+                    final PerstIdentitiesMessages pim = storageRoot.getIdentitiesMessages().get(pmo.fromName);
+                    if( pim != null ) {
+                        pim.getMessagesFromIdentity().remove(pmo);
+                        if( pim.getMessagesFromIdentity().size() == 0 ) {
+                            storageRoot.getIdentitiesMessages().remove(pmo.fromName);
+                            pim.deallocate();
+                        }
                     }
                 }
+                pmo.deallocate();
             }
-            pmo.deallocate();
+
+            boardToRemove.getMessageIndex().clear();
+            boardToRemove.getUnreadMessageIndex().clear();
+            boardToRemove.getFlaggedMessageIndex().clear();
+            boardToRemove.getStarredMessageIndex().clear();
+
+            // delete ALL invalid messages
+            removeAll(boardToRemove.getInvalidMessagesIndex().iterator());
+            boardToRemove.getInvalidMessagesIndex().clear();
+
+            // delete ALL sent and unsent messages
+            removeAll(boardToRemove.getSentMessagesList().iterator());
+            boardToRemove.getSentMessagesList().clear();
+            removeAll(boardToRemove.getUnsentMessagesList().iterator());
+            boardToRemove.getUnsentMessagesList().clear();
+            removeAll(boardToRemove.getDraftMessagesList().iterator());
+            boardToRemove.getDraftMessagesList().clear();
+            storageRoot.getBoardsByName().remove(boardToRemove);
+            storageRoot.getBoardsById().remove(boardToRemove);
+            boardToRemove.deallocate();
+        } finally {
+            endThreadTransaction();
         }
-        boardToRemove.getMessageIndex().clear();
-        boardToRemove.getUnreadMessageIndex().clear();
-        boardToRemove.getFlaggedMessageIndex().clear();
-        boardToRemove.getStarredMessageIndex().clear();
-
-        commit();
-
-        // delete ALL invalid messages
-        removeAll(boardToRemove.getInvalidMessagesIndex().iterator());
-        boardToRemove.getInvalidMessagesIndex().clear();
-
-        commit();
-
-        // delete ALL sent and unsent messages
-        removeAll(boardToRemove.getSentMessagesList().iterator());
-        boardToRemove.getSentMessagesList().clear();
-        removeAll(boardToRemove.getUnsentMessagesList().iterator());
-        boardToRemove.getUnsentMessagesList().clear();
-        removeAll(boardToRemove.getDraftMessagesList().iterator());
-        boardToRemove.getDraftMessagesList().clear();
-
-        storageRoot.getBoardsByName().remove( boardToRemove );
-        storageRoot.getBoardsById().remove( boardToRemove );
-
-        boardToRemove.deallocate();
-
-        commit();
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     public int getInvalidMessageCount() {
-        int invalidMsgCount = 0;
-        for(final PerstFrostBoardObject bo : storageRoot.getBoardsByName()) {
-            if( bo.getInvalidMessagesIndex() != null ) {
-                invalidMsgCount += bo.getInvalidMessagesIndex().size();
-            }
+        if( !beginCooperativeThreadTransaction() ) {
+            return -1;
         }
-        return invalidMsgCount;
+        try {
+            int invalidMsgCount = 0;
+            for( final PerstFrostBoardObject bo : storageRoot.getBoardsByName() ) {
+                if( bo.getInvalidMessagesIndex() != null ) {
+                    invalidMsgCount += bo.getInvalidMessagesIndex().size();
+                }
+            }
+            return invalidMsgCount;
+        } finally {
+            endThreadTransaction();
+        }
     }
 
     public int getMessageCount() {
-        int msgCount = 0;
-        for(final PerstFrostBoardObject bo : storageRoot.getBoardsByName()) {
-            if( bo.getMessageIndex() != null ) {
-                msgCount += bo.getMessageIndex().size();
-            }
+        if( !beginCooperativeThreadTransaction() ) {
+            return -1;
         }
-        return msgCount;
+        try {
+            int msgCount = 0;
+            for(final PerstFrostBoardObject bo : storageRoot.getBoardsByName()) {
+                if( bo.getMessageIndex() != null ) {
+                    msgCount += bo.getMessageIndex().size();
+                }
+            }
+            return msgCount;
+        } finally {
+            endThreadTransaction();
+        }
     }
 
     public int getMessageCount(final String uniqueIdentityName) {
-        final PerstIdentitiesMessages pim = storageRoot.getIdentitiesMessages().get(uniqueIdentityName);
-        if( pim != null ) {
-            return pim.getMessagesFromIdentity().size();
-        } else {
-            return 0;
+        if( !beginCooperativeThreadTransaction() ) {
+            return -1;
+        }
+        try {
+            final PerstIdentitiesMessages pim = storageRoot.getIdentitiesMessages().get(uniqueIdentityName);
+            if( pim != null ) {
+                return pim.getMessagesFromIdentity().size();
+            } else {
+                return 0;
+            }
+        } finally {
+            endThreadTransaction();
         }
     }
 
@@ -251,63 +298,104 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
      * If maxDaysBack is < 0 then ALL msgs for this board are counted.
      */
     public int getMessageCount(final Board board, final int maxDaysBack) {
-        final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
-        if( bo == null ) {
+        if( !beginCooperativeThreadTransaction() ) {
             return -1;
         }
-        if( maxDaysBack < 0 ) {
-            return bo.getMessageIndex().size();
+        try {
+            final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
+            if( bo == null ) {
+                return -1;
+            }
+            if( maxDaysBack < 0 ) {
+                return bo.getMessageIndex().size();
+            }
+
+            final LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysBack);
+            final long minDateTime = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
+            // normal messages in date range
+            final Iterator<PerstFrostMessageObject> i1 = bo.getMessageIndex().iterator(minDateTime, Long.MAX_VALUE, Index.ASCENT_ORDER);
+            // add ALL unread messages, also those which are not in date range
+            final Iterator<PerstFrostMessageObject> i2 = bo.getUnreadMessageIndex().iterator();
+            // add ALL flagged and starred messages, also those which are not in date range
+            final Iterator<PerstFrostMessageObject> i3 = bo.getStarredMessageIndex().iterator();
+            final Iterator<PerstFrostMessageObject> i4 = bo.getFlaggedMessageIndex().iterator();
+
+            // join all results
+            final Iterator<PerstFrostMessageObject> i = getStorage().join(new Iterator[] {i1, i2, i3, i4} );
+
+            int count = 0;
+
+            while(i.hasNext()) {
+                ((PersistentIterator)i).nextOid();
+                count++;
+            }
+            return count;
+        } finally {
+            endThreadTransaction();
         }
-
-        final LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysBack);
-        final long minDateTime = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
-        // normal messages in date range
-        final Iterator<PerstFrostMessageObject> i1 = bo.getMessageIndex().iterator(minDateTime, Long.MAX_VALUE, Index.ASCENT_ORDER);
-        // add ALL unread messages, also those which are not in date range
-        final Iterator<PerstFrostMessageObject> i2 = bo.getUnreadMessageIndex().iterator();
-        // add ALL flagged and starred messages, also those which are not in date range
-        final Iterator<PerstFrostMessageObject> i3 = bo.getStarredMessageIndex().iterator();
-        final Iterator<PerstFrostMessageObject> i4 = bo.getFlaggedMessageIndex().iterator();
-
-        // join all results
-        final Iterator<PerstFrostMessageObject> i = getStorage().join(new Iterator[] {i1, i2, i3, i4} );
-
-        int count = 0;
-
-        while(i.hasNext()) {
-            ((PersistentIterator)i).nextOid();
-            count++;
-        }
-        return count;
     }
 
     public int getNewMessageCount(final Board board) {
-        final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
-        if( bo == null ) {
+        if( !beginCooperativeThreadTransaction() ) {
             return -1;
         }
-        // ALL new messages
-        return bo.getUnreadMessageIndex().size();
+        try {
+            final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
+            if( bo == null ) {
+                return -1;
+            } else {
+                // ALL new messages
+                return bo.getUnreadMessageIndex().size();
+            }
+        } finally {
+            endThreadTransaction();
+        }
     }
 
     public boolean hasFlaggedMessages(final Board board) {
-        final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
-        if( bo == null ) {
+        if( !beginCooperativeThreadTransaction() ) {
             return false;
         }
-        return bo.getFlaggedMessageIndex().size() > 0;
+        try {
+            final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
+            if( bo == null ) {
+                return false;
+            } else {
+                return (bo.getFlaggedMessageIndex().size() > 0);
+            }
+        } finally {
+            endThreadTransaction();
+        }
     }
 
     public boolean hasStarredMessages(final Board board) {
-        final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
-        if( bo == null ) {
+        if( !beginCooperativeThreadTransaction() ) {
             return false;
         }
-        return bo.getStarredMessageIndex().size() > 0;
+        try {
+            final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
+            if( bo == null ) {
+                return false;
+            } else {
+                return (bo.getStarredMessageIndex().size() > 0);
+            }
+        } finally {
+            endThreadTransaction();
+        }
     }
 
-    public synchronized int insertMessage(final FrostMessageObject mo, final boolean doCommit) {
+    public int insertMessage(final FrostMessageObject mo) {
+        if( !beginExclusiveThreadTransaction() ) {
+            return INSERT_ERROR;
+        }
+        try {
+            return insertMessage(mo, false);
+        } finally {
+            endThreadTransaction();
+        }
+    }
 
+    public int insertMessage(final FrostMessageObject mo, final boolean doCommit) {
         // add to indices, check for duplicate msgId
 
         if( mo.getPerstFrostMessageObject() != null ) {
@@ -389,20 +477,27 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
             final boolean withAttachments,
             boolean showDeleted)
     {
-        final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
-        if( bo == null ) {
+        if( !beginCooperativeThreadTransaction() ) {
             return null;
         }
+        try {
+            final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
+            if( bo == null ) {
+                return null;
+            }
 
-        final PerstFrostMessageObject p = bo.getMessageIdIndex().get(msgId);
-        if( p == null ) {
-            return null;
+            final PerstFrostMessageObject p = bo.getMessageIdIndex().get(msgId);
+            if( p == null ) {
+                return null;
+            }
+            if(!showDeleted && p.isDeleted) {
+                return null;
+            }
+            final FrostMessageObject mo = p.toFrostMessageObject(board, withContent, withAttachments);
+            return mo;
+        } finally {
+            endThreadTransaction();
         }
-        if(!showDeleted && p.isDeleted) {
-            return null;
-        }
-        final FrostMessageObject mo = p.toFrostMessageObject(board, withContent, withAttachments);
-        return mo;
     }
 
     public void retrieveMessageContent(final FrostMessageObject mo) {
@@ -439,65 +534,72 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         final LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysOld);
         final long maxDateTime = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
 
-        final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
-        if( bo == null ) {
-            logger.severe("error: no perst board for archive");
+        if( !beginExclusiveThreadTransaction() ) {
             return;
         }
-        // normal messages in date range
-        final Iterator<PerstFrostMessageObject> i = bo.getMessageIndex().iterator(Long.MIN_VALUE, maxDateTime, Index.ASCENT_ORDER);
-        while(i.hasNext()) {
-            final PerstFrostMessageObject p = i.next();
-            if( archiveKeepUnread && p.isNew) {
-                continue;
-            }
-            if( archiveKeepFlaggedAndStarred && (p.isFlagged||p.isStarred) ) {
-                continue;
-            }
-            final FrostMessageObject mo = p.toFrostMessageObject(board, false, false);
-            final int mode = mc.messageRetrieved(mo);
-            if( mode == MessageArchivingCallback.STOP_ERROR ) {
+        try {
+            final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
+            if( bo == null ) {
+                logger.severe("error: no perst board for archive");
                 return;
-            } else if( mode == MessageArchivingCallback.DELETE_MESSAGE ) {
-                // delete msg and internal perst objs, also remove from indices and maybe remove empty identitiesMessages
-
-                i.remove();
-
-                if( p.isNew) {
-                    bo.getUnreadMessageIndex().remove(p.dateAndTime, p);
+            }
+            // normal messages in date range
+            final Iterator<PerstFrostMessageObject> i = bo.getMessageIndex().iterator(Long.MIN_VALUE, maxDateTime, Index.ASCENT_ORDER);
+            while(i.hasNext()) {
+                final PerstFrostMessageObject p = i.next();
+                if( archiveKeepUnread && p.isNew) {
+                    continue;
                 }
-                if( p.isFlagged ) {
-                    bo.getFlaggedMessageIndex().remove(p.dateAndTime, p);
+                if( archiveKeepFlaggedAndStarred && (p.isFlagged||p.isStarred) ) {
+                    continue;
                 }
-                if( p.isStarred ) {
-                    bo.getStarredMessageIndex().remove(p.dateAndTime, p);
-                }
+                final FrostMessageObject mo = p.toFrostMessageObject(board, false, false);
+                final int mode = mc.messageRetrieved(mo);
+                if( mode == MessageArchivingCallback.STOP_ERROR ) {
+                    return;
+                } else if( mode == MessageArchivingCallback.DELETE_MESSAGE ) {
+                    // delete msg and internal perst objs, also remove from indices and maybe remove empty identitiesMessages
 
-                if( mo.isSignatureStatusVERIFIED() ) {
-                    final PerstIdentitiesMessages pim = storageRoot.getIdentitiesMessages().get(p.fromName);
-                    if( pim != null ) {
-                        pim.getMessagesFromIdentity().remove(p);
-                        if( pim.getMessagesFromIdentity().size() == 0 ) {
-                            storageRoot.getIdentitiesMessages().remove(p.fromName);
-                            pim.deallocate();
+                    i.remove();
+
+                    if( p.isNew) {
+                        bo.getUnreadMessageIndex().remove(p.dateAndTime, p);
+                    }
+                    if( p.isFlagged ) {
+                        bo.getFlaggedMessageIndex().remove(p.dateAndTime, p);
+                    }
+                    if( p.isStarred ) {
+                        bo.getStarredMessageIndex().remove(p.dateAndTime, p);
+                    }
+
+                    if( mo.isSignatureStatusVERIFIED() ) {
+                        final PerstIdentitiesMessages pim = storageRoot.getIdentitiesMessages().get(p.fromName);
+                        if( pim != null ) {
+                            pim.getMessagesFromIdentity().remove(p);
+                            if( pim.getMessagesFromIdentity().size() == 0 ) {
+                                storageRoot.getIdentitiesMessages().remove(p.fromName);
+                                pim.deallocate();
+                            }
                         }
                     }
-                }
 
-                if( p.messageId != null ) {
-                    bo.getMessageIdIndex().remove(p.messageId);
-                }
+                    if( p.messageId != null ) {
+                        bo.getMessageIdIndex().remove(p.messageId);
+                    }
 
+                    p.deallocate();
+                }
+            }
+
+            // delete invalid messages in date range
+            final Iterator<PerstFrostMessageObject> ii = bo.getInvalidMessagesIndex().iterator(Long.MIN_VALUE, maxDateTime, Index.ASCENT_ORDER);
+            while(ii.hasNext()) {
+                final PerstFrostMessageObject p = ii.next();
+                ii.remove();
                 p.deallocate();
             }
-        }
-
-        // delete invalid messages in date range
-        final Iterator<PerstFrostMessageObject> ii = bo.getInvalidMessagesIndex().iterator(Long.MIN_VALUE, maxDateTime, Index.ASCENT_ORDER);
-        while(ii.hasNext()) {
-            final PerstFrostMessageObject p = ii.next();
-            ii.remove();
-            p.deallocate();
+        } finally {
+            endThreadTransaction();
         }
     }
 
@@ -510,27 +612,34 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
             boolean showDeleted,
             final MessageCallback mc)
     {
-        final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
-        if( bo == null ) {
-            logger.severe("error: no perst board for search");
+        if( !beginCooperativeThreadTransaction() ) {
             return;
         }
-        // normal messages in date range
-        final Iterator<PerstFrostMessageObject> i = bo.getMessageIndex().iterator(startDate, endDate, Index.ASCENT_ORDER);
-        while(i.hasNext()) {
-            final PerstFrostMessageObject p = i.next();
-            if(!showDeleted && p.isDeleted) {
-                continue;
+        try {
+            final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
+            if( bo == null ) {
+                logger.severe("error: no perst board for search");
+                return;
             }
-            final FrostMessageObject mo = p.toFrostMessageObject(board, withContent, withAttachments);
-            final boolean shouldStop = mc.messageRetrieved(mo);
-            if( shouldStop ) {
-                break;
+            // normal messages in date range
+            final Iterator<PerstFrostMessageObject> i = bo.getMessageIndex().iterator(startDate, endDate, Index.ASCENT_ORDER);
+            while(i.hasNext()) {
+                final PerstFrostMessageObject p = i.next();
+                if(!showDeleted && p.isDeleted) {
+                    continue;
+                }
+                final FrostMessageObject mo = p.toFrostMessageObject(board, withContent, withAttachments);
+                final boolean shouldStop = mc.messageRetrieved(mo);
+                if( shouldStop ) {
+                    break;
+                }
             }
+        } finally {
+            endThreadTransaction();
         }
     }
 
-    public synchronized void retrieveMessagesForShow(
+    public void retrieveMessagesForShow(
             final Board board,
             final int maxDaysBack,
             final boolean withContent,
@@ -542,61 +651,79 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         final LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysBack);
         final long minDateTime = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
 
-        final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
-        if( bo == null ) {
-            logger.severe("error: no perst board for show");
+        if( !beginCooperativeThreadTransaction() ) {
             return;
         }
-
-        Iterator<PerstFrostMessageObject> i;
-        if( showUnreadOnly ) {
-            // ALL new messages
-            i = bo.getUnreadMessageIndex().iterator();
-        } else {
-            // normal messages in date range
-            final Iterator<PerstFrostMessageObject> i1 = bo.getMessageIndex().iterator(minDateTime, Long.MAX_VALUE, Index.ASCENT_ORDER);
-            // add ALL unread messages, also those which are not in date range
-            final Iterator<PerstFrostMessageObject> i2 = bo.getUnreadMessageIndex().iterator();
-            // add ALL flagged and starred messages, also those which are not in date range
-            final Iterator<PerstFrostMessageObject> i3 = bo.getStarredMessageIndex().iterator();
-            final Iterator<PerstFrostMessageObject> i4 = bo.getFlaggedMessageIndex().iterator();
-
-            // join all results
-            i = getStorage().join(new Iterator[] {i1, i2, i3, i4} );
-        }
-
-        while(i.hasNext()) {
-            final PerstFrostMessageObject p = i.next();
-            if(!showDeleted && p.isDeleted) {
-                continue;
+        try {
+            final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
+            if( bo == null ) {
+                logger.severe("error: no perst board for show");
+                return;
             }
-            final FrostMessageObject mo = p.toFrostMessageObject(board, withContent, withAttachments);
-            final boolean shouldStop = mc.messageRetrieved(mo);
-            if( shouldStop ) {
-                break;
+
+            Iterator<PerstFrostMessageObject> i;
+            if( showUnreadOnly ) {
+                // ALL new messages
+                i = bo.getUnreadMessageIndex().iterator();
+            } else {
+                // normal messages in date range
+                final Iterator<PerstFrostMessageObject> i1 = bo.getMessageIndex().iterator(minDateTime, Long.MAX_VALUE, Index.ASCENT_ORDER);
+                // add ALL unread messages, also those which are not in date range
+                final Iterator<PerstFrostMessageObject> i2 = bo.getUnreadMessageIndex().iterator();
+                // add ALL flagged and starred messages, also those which are not in date range
+                final Iterator<PerstFrostMessageObject> i3 = bo.getStarredMessageIndex().iterator();
+                final Iterator<PerstFrostMessageObject> i4 = bo.getFlaggedMessageIndex().iterator();
+
+                // join all results
+                i = getStorage().join(new Iterator[] {i1, i2, i3, i4} );
             }
+
+            while(i.hasNext()) {
+                final PerstFrostMessageObject p = i.next();
+                if(!showDeleted && p.isDeleted) {
+                    continue;
+                }
+                final FrostMessageObject mo = p.toFrostMessageObject(board, withContent, withAttachments);
+                final boolean shouldStop = mc.messageRetrieved(mo);
+                if( shouldStop ) {
+                    break;
+                }
+            }
+        } finally {
+            endThreadTransaction();
         }
     }
 
-    public synchronized void setAllMessagesRead(final Board board) {
-        final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
-        if( bo == null ) {
-            logger.severe("error: no perst board for update");
+    public void setAllMessagesRead(final Board board) {
+        if( !beginExclusiveThreadTransaction() ) {
             return;
         }
-        final Iterator<PerstFrostMessageObject> i = bo.getUnreadMessageIndex().iterator();
-        while(i.hasNext()) {
-            final PerstFrostMessageObject pmo = i.next();
-            pmo.isNew = false;
-            pmo.modify();
+        try {
+            final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
+            if( bo == null ) {
+                logger.severe("error: no perst board for update");
+                return;
+            }
+            final Iterator<PerstFrostMessageObject> i = bo.getUnreadMessageIndex().iterator();
+            while(i.hasNext()) {
+                final PerstFrostMessageObject pmo = i.next();
+                pmo.isNew = false;
+                pmo.modify();
+            }
+            bo.getUnreadMessageIndex().clear();
+        } finally {
+            endThreadTransaction();
         }
-        bo.getUnreadMessageIndex().clear();
-        commit();
     }
 
-    public synchronized void updateMessage(final FrostMessageObject mo) {
-        if( mo.getPerstFrostMessageObject() != null ) {
-
+    public void updateMessage(final FrostMessageObject mo) {
+        if( mo.getPerstFrostMessageObject() == null ) {
+            return;
+        }
+        if( !beginExclusiveThreadTransaction() ) {
+            return;
+        }
+        try {
             final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(mo.getBoard().getNameLowerCase());
             if( bo == null ) {
                 logger.severe("error: no perst board for update");
@@ -637,8 +764,8 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
             p.isStarred = mo.isStarred();
 
             p.modify();
-
-            commit();
+        } finally {
+            endThreadTransaction();
         }
     }
 
@@ -646,28 +773,39 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
 
     public List<FrostMessageObject> retrieveAllSentMessages() {
         final List<FrostMessageObject> lst = new ArrayList<FrostMessageObject>();
-
-        for( final PerstFrostBoardObject bo : storageRoot.getBoardsByName() ) {
-            for( final PerstFrostMessageObject pmo : bo.getSentMessagesList() ) {
-                final FrostMessageObject mo = pmo.toFrostMessageObject(bo.getRefBoard(), false, false);
-                lst.add(mo);
-            }
+        if( !beginCooperativeThreadTransaction() ) {
+            return lst;
         }
-
-        return lst;
+        try {
+            for( final PerstFrostBoardObject bo : storageRoot.getBoardsByName() ) {
+                for( final PerstFrostMessageObject pmo : bo.getSentMessagesList() ) {
+                    final FrostMessageObject mo = pmo.toFrostMessageObject(bo.getRefBoard(), false, false);
+                    lst.add(mo);
+                }
+            }
+            return lst;
+        } finally {
+            endThreadTransaction();
+        }
     }
 
     public boolean addSentMessage(final FrostMessageObject sentMo) {
-        return addSentMessage(sentMo, true);
+        if( !beginExclusiveThreadTransaction() ) {
+            return false;
+        }
+        try {
+            return addSentMessage(sentMo, false);
+        } finally {
+            endThreadTransaction();
+        }
     }
 
-    public synchronized boolean addSentMessage(final FrostMessageObject sentMo, final boolean doCommit) {
+    public boolean addSentMessage(final FrostMessageObject sentMo, final boolean doCommit) {
         final PerstFrostBoardObject bo = sentMo.getBoard().getPerstFrostBoardObject();
         if( bo == null ) {
             logger.severe("no board for new sent msg!");
             return false;
         }
-
         final PerstFrostMessageObject pmo = new PerstFrostMessageObject(sentMo, getStorage());
         sentMo.setPerstFrostMessageObject(pmo);
 
@@ -678,46 +816,65 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         return true;
     }
 
-    public synchronized int deleteSentMessages(final List<FrostMessageObject> msgObjects) {
+    public int deleteSentMessages(final List<FrostMessageObject> msgObjects) {
         int count = 0;
-        for( final FrostMessageObject mo : msgObjects ) {
-            if( mo.getPerstFrostMessageObject() == null ) {
-                logger.severe("delete not possible");
-                continue;
-            }
-            final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(mo.getBoard().getNameLowerCase());
-            if( bo == null ) {
-                logger.severe("board not found");
-                continue;
-            }
-            bo.getSentMessagesList().remove(mo.getPerstFrostMessageObject());
-            mo.getPerstFrostMessageObject().deallocate();
-            mo.setPerstFrostMessageObject(null);
-            count++;
+        if( !beginExclusiveThreadTransaction() ) {
+            return 0;
         }
-        commit();
-        return count;
+        try {
+            for( final FrostMessageObject mo : msgObjects ) {
+                if( mo.getPerstFrostMessageObject() == null ) {
+                    logger.severe("delete not possible");
+                    continue;
+                }
+                final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(mo.getBoard().getNameLowerCase());
+                if( bo == null ) {
+                    logger.severe("board not found");
+                    continue;
+                }
+                bo.getSentMessagesList().remove(mo.getPerstFrostMessageObject());
+                mo.getPerstFrostMessageObject().deallocate();
+                mo.setPerstFrostMessageObject(null);
+                count++;
+            }
+            return count;
+        } finally {
+            endThreadTransaction();
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
 
     public List<FrostUnsentMessageObject> retrieveAllUnsentMessages() {
         final List<FrostUnsentMessageObject> lst = new ArrayList<FrostUnsentMessageObject>();
-
-        for( final PerstFrostBoardObject bo : storageRoot.getBoardsByName() ) {
-            for( final PerstFrostUnsentMessageObject pmo : bo.getUnsentMessagesList() ) {
-                final FrostUnsentMessageObject mo = pmo.toFrostUnsentMessageObject(bo.getRefBoard());
-                lst.add(mo);
-            }
+        if( !beginCooperativeThreadTransaction() ) {
+            return lst;
         }
-        return lst;
+        try {
+            for( final PerstFrostBoardObject bo : storageRoot.getBoardsByName() ) {
+                for( final PerstFrostUnsentMessageObject pmo : bo.getUnsentMessagesList() ) {
+                    final FrostUnsentMessageObject mo = pmo.toFrostUnsentMessageObject(bo.getRefBoard());
+                    lst.add(mo);
+                }
+            }
+            return lst;
+        } finally {
+            endThreadTransaction();
+        }
     }
 
     public boolean addUnsentMessage(final FrostUnsentMessageObject mo) {
-        return addUnsentMessage(mo, true);
+        if( !beginExclusiveThreadTransaction() ) {
+            return false;
+        }
+        try {
+            return addUnsentMessage(mo, false);
+        } finally {
+            endThreadTransaction();
+        }
     }
 
-    public synchronized boolean addUnsentMessage(final FrostUnsentMessageObject mo, final boolean doCommit) {
+    public boolean addUnsentMessage(final FrostUnsentMessageObject mo, final boolean doCommit) {
         final PerstFrostBoardObject bo = mo.getBoard().getPerstFrostBoardObject();
         if( bo == null ) {
             logger.severe("no board for new unsent msg!");
@@ -733,43 +890,51 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         return true;
     }
 
-    public synchronized boolean deleteUnsentMessage(final FrostUnsentMessageObject mo) {
+    public boolean deleteUnsentMessage(final FrostUnsentMessageObject mo) {
         final PerstFrostBoardObject bo = mo.getBoard().getPerstFrostBoardObject();
         if( bo == null ) {
             logger.severe("no board for unsent msg!");
             return false;
         }
-
         final PerstFrostUnsentMessageObject pmo = mo.getPerstFrostUnsentMessageObject();
         if( pmo == null ) {
             logger.severe("no perst unsent msg obj!");
             return false;
         }
-
-        bo.getUnsentMessagesList().remove( pmo );
-        pmo.deallocate();
-        commit();
-        return true;
+        if( !beginExclusiveThreadTransaction() ) {
+            return false;
+        }
+        try {
+            bo.getUnsentMessagesList().remove( pmo );
+            pmo.deallocate();
+            return true;
+        } finally {
+            endThreadTransaction();
+        }
     }
 
     /**
      * Updates the CHK keys of fileattachments after upload of attachments.
      */
-    public synchronized void updateUnsentMessageFileAttachmentKey(final FrostUnsentMessageObject mo, final FileAttachment fa) {
+    public void updateUnsentMessageFileAttachmentKey(final FrostUnsentMessageObject mo, final FileAttachment fa) {
 
         final PerstFrostBoardObject bo = mo.getBoard().getPerstFrostBoardObject();
         if( bo == null ) {
             logger.severe("no board for new unsent msg update!");
             return;
         }
-
         final PerstFrostUnsentMessageObject pmo = mo.getPerstFrostUnsentMessageObject();
         if( pmo == null ) {
             logger.severe("no perst unsent msg obj for update!");
             return;
         }
-
-        pmo.updateUnsentMessageFileAttachmentKey(fa);
-        commit();
+        if( !beginExclusiveThreadTransaction() ) {
+            return;
+        }
+        try {
+            pmo.updateUnsentMessageFileAttachmentKey(fa);
+        } finally {
+            endThreadTransaction();
+        }
     }
 }
