@@ -156,23 +156,22 @@ public class CleanUp {
 
             splashScreen.setText("Archiving messages in board: "+board.getName());
 
-            if( mode != KEEP_MESSAGES ) {
-                final MessageTableCallback mtCallback = new MessageTableCallback(mode);
-                try {
-                    MessageStorage.inst().retrieveMessagesForArchive(
-                            board,
-                            currentDaysOld,
-                            archiveKeepUnread,
-                            archiveKeepFlaggedAndStarred,
-                            mtCallback);
-                } catch(final Throwable t) {
-                    logger.log(Level.SEVERE, "Exception during retrieveMessagesForArchive", t);
-                    continue;
-                }
-                if( mtCallback.getCount() > 0 ) {
-                    logger.warning("INFO: Processed "+mtCallback.getCount()+" expired messages for board "+board.getName());
-                }
+            final MessageTableCallback mtCallback = new MessageTableCallback(mode);
+            try {
+                MessageStorage.inst().retrieveMessagesForArchive(
+                        board,
+                        currentDaysOld,
+                        archiveKeepUnread,
+                        archiveKeepFlaggedAndStarred,
+                        mtCallback);
+            } catch(final Throwable t) {
+                logger.log(Level.SEVERE, "Exception during retrieveMessagesForArchive", t);
+                continue;
             }
+            if( mtCallback.getCount() > 0 ) {
+                logger.warning("INFO: Processed "+mtCallback.getCount()+" expired messages for board "+board.getName());
+            }
+
             MessageStorage.inst().commit();
             ArchiveMessageStorage.inst().commit();
         }
@@ -190,21 +189,21 @@ public class CleanUp {
         int count = 0;
         public MessageTableCallback(final int m) { mode = m; }
         public int messageRetrieved(final FrostMessageObject mo) {
+            // mode is either ARCHIVE or DELETE
             if( count%100 == 0 ) {
                 MessageStorage.inst().commit();
                 ArchiveMessageStorage.inst().commit();
             }
             if( mode == ARCHIVE_MESSAGES ) {
-                final int rc = ArchiveMessageStorage.inst().insertMessage(mo, false);
+                // maybe insert into archive
+                final int rc = ArchiveMessageStorage.inst().insertMessage(mo);
                 if( rc == ArchiveMessageStorage.INSERT_ERROR ) {
                     return MessageArchivingCallback.KEEP_MESSAGE;
                 }
             }
-            if( mode != KEEP_MESSAGES ) {
-                count++;
-                return MessageArchivingCallback.DELETE_MESSAGE;
-            }
-            return MessageArchivingCallback.KEEP_MESSAGE;
+            // for ARCHIVE or DELETE delete the message from keypool
+            count++;
+            return MessageArchivingCallback.DELETE_MESSAGE;
         }
         public int getCount() { return count; }
     }

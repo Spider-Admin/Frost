@@ -74,7 +74,7 @@ public class StorageManager extends Timer {
 		 */
 		@Override
         public void run() {
-			logger.info("Saving settings ...");
+			logger.info("Saving ...");
 			if (exitSavables != null) {
                 for( final ExitSavable savable : exitSavables ) {
 					try {
@@ -85,7 +85,9 @@ public class StorageManager extends Timer {
 				}
 			}
             Frost.releaseLockFile();
-			logger.info("Bye!");
+            final String goodbyeMsg = "Frost shutdown completed.";
+			logger.severe(goodbyeMsg);
+			System.out.println(goodbyeMsg);
 		}
 	}
 

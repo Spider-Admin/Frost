@@ -70,9 +70,11 @@ public class PerstFrostMessageObject extends Persistent {
 
     public PerstFrostMessageObject() {}
 
-    public PerstFrostMessageObject(final FrostMessageObject mo, final Storage store) {
+    public PerstFrostMessageObject(final FrostMessageObject mo, final Storage store, final boolean useTransaction) {
 
-        MessageContentStorage.inst().beginExclusiveThreadTransaction();
+        if( useTransaction ) {
+            MessageContentStorage.inst().beginExclusiveThreadTransaction();
+        }
 
         makePersistent(store); // assign oid
 
@@ -125,67 +127,41 @@ public class PerstFrostMessageObject extends Persistent {
 
         MessageContentStorage.inst().addContentForOid(getOid(), mo.getContent());
 
-        MessageContentStorage.inst().endThreadTransaction();
+        if( useTransaction ) {
+            MessageContentStorage.inst().endThreadTransaction();
+        }
 
         modify();
     }
 
     public void retrieveMessageContent(final FrostMessageObject mo) {
-        if( !MessageContentStorage.inst().beginCooperativeThreadTransaction() ) {
-            return;
-        }
-        try {
-            mo.setContent(MessageContentStorage.inst().getContentForOid(getOid()));
-        } finally {
-            MessageContentStorage.inst().endThreadTransaction();
-        }
+        mo.setContent(MessageContentStorage.inst().getContentForOid(getOid()));
     }
 
     public void retrievePublicKey(final FrostMessageObject mo) {
-        if( !MessageContentStorage.inst().beginCooperativeThreadTransaction() ) {
-            return;
-        }
-        try {
-            mo.setPublicKey(MessageContentStorage.inst().getPublickeyForOid(getOid()));
-        } finally {
-            MessageContentStorage.inst().endThreadTransaction();
-        }
+        mo.setPublicKey(MessageContentStorage.inst().getPublickeyForOid(getOid()));
     }
 
     public void retrieveSignature(final FrostMessageObject mo) {
-        if( !MessageContentStorage.inst().beginCooperativeThreadTransaction() ) {
-            return;
-        }
-        try {
-            mo.setSignatureV2(MessageContentStorage.inst().getSignatureForOid(getOid()));
-        } finally {
-            MessageContentStorage.inst().endThreadTransaction();
-        }
+        mo.setSignatureV2(MessageContentStorage.inst().getSignatureForOid(getOid()));
     }
 
     public void retrieveAttachments(final FrostMessageObject mo) {
-        if( !MessageContentStorage.inst().beginCooperativeThreadTransaction() ) {
-            return;
-        }
-        try {
-            final PerstAttachments pa = MessageContentStorage.inst().getAttachmentsForOid(getOid());
-            if( pa != null ) {
-                if( pa.getBoardAttachments() != null ) {
-                    for( final PerstBoardAttachment p : pa.getBoardAttachments() ) {
-                        final Board b = new Board(p.name, p.pubKey, p.privKey, p.description);
-                        final BoardAttachment ba = new BoardAttachment(b);
-                        mo.addAttachment(ba);
-                    }
-                }
-                if( pa.getFileAttachments() != null ) {
-                    for( final PerstFileAttachment p : pa.getFileAttachments() ) {
-                        final FileAttachment fa = new FileAttachment(p.name, p.chkKey, p.size);
-                        mo.addAttachment(fa);
-                    }
+        final PerstAttachments pa = MessageContentStorage.inst().getAttachmentsForOid(getOid());
+        if( pa != null ) {
+            if( pa.getBoardAttachments() != null ) {
+                for( final PerstBoardAttachment p : pa.getBoardAttachments() ) {
+                    final Board b = new Board(p.name, p.pubKey, p.privKey, p.description);
+                    final BoardAttachment ba = new BoardAttachment(b);
+                    mo.addAttachment(ba);
                 }
             }
-        } finally {
-            MessageContentStorage.inst().endThreadTransaction();
+            if( pa.getFileAttachments() != null ) {
+                for( final PerstFileAttachment p : pa.getFileAttachments() ) {
+                    final FileAttachment fa = new FileAttachment(p.name, p.chkKey, p.size);
+                    mo.addAttachment(fa);
+                }
+            }
         }
     }
 
@@ -204,6 +180,8 @@ public class PerstFrostMessageObject extends Persistent {
         if( invalidReason != null && invalidReason.length() > 0 ) {
             mo.setValid(false);
             mo.setInvalidReason(invalidReason);
+        } else {
+            mo.setValid(true);
         }
 
         mo.setMessageId(messageId);

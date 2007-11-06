@@ -384,18 +384,25 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         }
     }
 
+    /**
+     * Insert the message with an enclosing EXCLUSIVE transaction.
+     */
     public int insertMessage(final FrostMessageObject mo) {
         if( !beginExclusiveThreadTransaction() ) {
             return INSERT_ERROR;
         }
         try {
-            return insertMessage(mo, false);
+            return insertMessageDirect(mo, true);
         } finally {
             endThreadTransaction();
         }
     }
 
-    public int insertMessage(final FrostMessageObject mo, final boolean doCommit) {
+    /**
+     * Insert the message directly, without an enclosing transaction.
+     * @param useTransaction TODO
+     */
+    public int insertMessageDirect(final FrostMessageObject mo, final boolean useTransaction) {
         // add to indices, check for duplicate msgId
 
         if( mo.getPerstFrostMessageObject() != null ) {
@@ -426,7 +433,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
             }
         }
 
-        final PerstFrostMessageObject pmo = new PerstFrostMessageObject(mo, getStorage());
+        final PerstFrostMessageObject pmo = new PerstFrostMessageObject(mo, getStorage(), useTransaction);
 
         if( !mo.isValid() ) {
             // invalid message
@@ -461,10 +468,6 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
                 }
                 pim.getMessagesFromIdentity().add( pmo );
             }
-        }
-
-        if( doCommit ) {
-            commit();
         }
 
         return INSERT_OK;
@@ -524,6 +527,9 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         }
     }
 
+    /**
+     * Runs during startup only, does not need transaction locking.
+     */
     public void retrieveMessagesForArchive(
             final Board board,
             final int maxDaysOld,
@@ -534,72 +540,65 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         final LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysOld);
         final long maxDateTime = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
 
-        if( !beginExclusiveThreadTransaction() ) {
+        final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
+        if( bo == null ) {
+            logger.severe("error: no perst board for archive");
             return;
         }
-        try {
-            final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
-            if( bo == null ) {
-                logger.severe("error: no perst board for archive");
-                return;
+        // normal messages in date range
+        final Iterator<PerstFrostMessageObject> i = bo.getMessageIndex().iterator(Long.MIN_VALUE, maxDateTime, Index.ASCENT_ORDER);
+        while(i.hasNext()) {
+            final PerstFrostMessageObject p = i.next();
+            if( archiveKeepUnread && p.isNew) {
+                continue;
             }
-            // normal messages in date range
-            final Iterator<PerstFrostMessageObject> i = bo.getMessageIndex().iterator(Long.MIN_VALUE, maxDateTime, Index.ASCENT_ORDER);
-            while(i.hasNext()) {
-                final PerstFrostMessageObject p = i.next();
-                if( archiveKeepUnread && p.isNew) {
-                    continue;
+            if( archiveKeepFlaggedAndStarred && (p.isFlagged || p.isStarred) ) {
+                continue;
+            }
+            final FrostMessageObject mo = p.toFrostMessageObject(board, false, false);
+            final int mode = mc.messageRetrieved(mo);
+            if( mode == MessageArchivingCallback.STOP_ERROR ) {
+                return;
+            } else if( mode == MessageArchivingCallback.DELETE_MESSAGE ) {
+                // delete msg and internal perst objs, also remove from indices and maybe remove empty identitiesMessages
+
+                i.remove();
+
+                if( p.isNew) {
+                    bo.getUnreadMessageIndex().remove(p.dateAndTime, p);
                 }
-                if( archiveKeepFlaggedAndStarred && (p.isFlagged||p.isStarred) ) {
-                    continue;
+                if( p.isFlagged ) {
+                    bo.getFlaggedMessageIndex().remove(p.dateAndTime, p);
                 }
-                final FrostMessageObject mo = p.toFrostMessageObject(board, false, false);
-                final int mode = mc.messageRetrieved(mo);
-                if( mode == MessageArchivingCallback.STOP_ERROR ) {
-                    return;
-                } else if( mode == MessageArchivingCallback.DELETE_MESSAGE ) {
-                    // delete msg and internal perst objs, also remove from indices and maybe remove empty identitiesMessages
+                if( p.isStarred ) {
+                    bo.getStarredMessageIndex().remove(p.dateAndTime, p);
+                }
 
-                    i.remove();
-
-                    if( p.isNew) {
-                        bo.getUnreadMessageIndex().remove(p.dateAndTime, p);
-                    }
-                    if( p.isFlagged ) {
-                        bo.getFlaggedMessageIndex().remove(p.dateAndTime, p);
-                    }
-                    if( p.isStarred ) {
-                        bo.getStarredMessageIndex().remove(p.dateAndTime, p);
-                    }
-
-                    if( mo.isSignatureStatusVERIFIED() ) {
-                        final PerstIdentitiesMessages pim = storageRoot.getIdentitiesMessages().get(p.fromName);
-                        if( pim != null ) {
-                            pim.getMessagesFromIdentity().remove(p);
-                            if( pim.getMessagesFromIdentity().size() == 0 ) {
-                                storageRoot.getIdentitiesMessages().remove(p.fromName);
-                                pim.deallocate();
-                            }
+                if( mo.isSignatureStatusVERIFIED() ) {
+                    final PerstIdentitiesMessages pim = storageRoot.getIdentitiesMessages().get(p.fromName);
+                    if( pim != null ) {
+                        pim.getMessagesFromIdentity().remove(p);
+                        if( pim.getMessagesFromIdentity().size() == 0 ) {
+                            storageRoot.getIdentitiesMessages().remove(p.fromName);
+                            pim.deallocate();
                         }
                     }
-
-                    if( p.messageId != null ) {
-                        bo.getMessageIdIndex().remove(p.messageId);
-                    }
-
-                    p.deallocate();
                 }
-            }
 
-            // delete invalid messages in date range
-            final Iterator<PerstFrostMessageObject> ii = bo.getInvalidMessagesIndex().iterator(Long.MIN_VALUE, maxDateTime, Index.ASCENT_ORDER);
-            while(ii.hasNext()) {
-                final PerstFrostMessageObject p = ii.next();
-                ii.remove();
+                if( p.messageId != null ) {
+                    bo.getMessageIdIndex().remove(p.messageId);
+                }
+
                 p.deallocate();
             }
-        } finally {
-            endThreadTransaction();
+        }
+
+        // delete invalid messages in date range
+        final Iterator<PerstFrostMessageObject> ii = bo.getInvalidMessagesIndex().iterator(Long.MIN_VALUE, maxDateTime, Index.ASCENT_ORDER);
+        while(ii.hasNext()) {
+            final PerstFrostMessageObject p = ii.next();
+            ii.remove();
+            p.deallocate();
         }
     }
 
@@ -789,30 +788,34 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         }
     }
 
-    public boolean addSentMessage(final FrostMessageObject sentMo) {
+    /**
+     * Insert the sent message with an enclosing EXCLUSIVE transaction.
+     */
+    public boolean insertSentMessage(final FrostMessageObject sentMo) {
         if( !beginExclusiveThreadTransaction() ) {
             return false;
         }
         try {
-            return addSentMessage(sentMo, false);
+            return insertSentMessageDirect(sentMo, true);
         } finally {
             endThreadTransaction();
         }
     }
 
-    public boolean addSentMessage(final FrostMessageObject sentMo, final boolean doCommit) {
+    /**
+     * Insert the message directly, without an enclosing transaction.
+     * @param useTransaction TODO
+     */
+    public boolean insertSentMessageDirect(final FrostMessageObject sentMo, final boolean useTransaction) {
         final PerstFrostBoardObject bo = sentMo.getBoard().getPerstFrostBoardObject();
         if( bo == null ) {
             logger.severe("no board for new sent msg!");
             return false;
         }
-        final PerstFrostMessageObject pmo = new PerstFrostMessageObject(sentMo, getStorage());
+        final PerstFrostMessageObject pmo = new PerstFrostMessageObject(sentMo, getStorage(), useTransaction);
         sentMo.setPerstFrostMessageObject(pmo);
 
         bo.getSentMessagesList().add( pmo );
-        if( doCommit ) {
-            commit();
-        }
         return true;
     }
 
@@ -863,18 +866,24 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         }
     }
 
-    public boolean addUnsentMessage(final FrostUnsentMessageObject mo) {
+    /**
+     * Insert the message with an enclosing EXCLUSIVE transaction.
+     */
+    public boolean insertUnsentMessage(final FrostUnsentMessageObject mo) {
         if( !beginExclusiveThreadTransaction() ) {
             return false;
         }
         try {
-            return addUnsentMessage(mo, false);
+            return insertUnsentMessageDirect(mo);
         } finally {
             endThreadTransaction();
         }
     }
 
-    public boolean addUnsentMessage(final FrostUnsentMessageObject mo, final boolean doCommit) {
+    /**
+     * Insert the unsent message directly, without an enclosing transaction.
+     */
+    public boolean insertUnsentMessageDirect(final FrostUnsentMessageObject mo) {
         final PerstFrostBoardObject bo = mo.getBoard().getPerstFrostBoardObject();
         if( bo == null ) {
             logger.severe("no board for new unsent msg!");
@@ -884,9 +893,6 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         final PerstFrostUnsentMessageObject pmo = new PerstFrostUnsentMessageObject(getStorage(), mo);
 
         bo.getUnsentMessagesList().add( pmo );
-        if( doCommit ) {
-            commit();
-        }
         return true;
     }
 
