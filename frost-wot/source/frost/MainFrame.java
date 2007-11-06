@@ -814,31 +814,37 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
      * File | Statistics action performed
      */
     private void fileStatisticsMenuItem_actionPerformed(final ActionEvent evt) {
-        int msgCount = -1;
-        int arcMsgCount = -1;
-        int idCount = -1;
-        int sharerCount = -1;
-        int fileCount = -1;
-        long fileSizes = -1;
 
-        activateGlassPane(); // lock gui, show progress
+        activateGlassPane(); // lock gui
 
-        msgCount = MessageStorage.inst().getMessageCount();
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    final int msgCount = MessageStorage.inst().getMessageCount();
+                    final int arcMsgCount = ArchiveMessageStorage.inst().getMessageCount();
+                    final int idCount = IdentitiesStorage.inst().getIdentityCount();
+                    final int fileCount = FileListStorage.inst().getFileCount();
+                    final int sharerCount = FileListStorage.inst().getSharerCount();
+                    final long fileSizes = FileListStorage.inst().getFileSizes();
 
-        arcMsgCount = ArchiveMessageStorage.inst().getMessageCount();
-
-        idCount = IdentitiesStorage.inst().getIdentityCount();
-
-        fileCount = FileListStorage.inst().getFileCount();
-
-        sharerCount = FileListStorage.inst().getSharerCount();
-
-        fileSizes = FileListStorage.inst().getFileSizes();
-
-        deactivateGlassPane();
-
-        final StatisticsDialog dlg = new StatisticsDialog(this);
-        dlg.startDialog(msgCount, arcMsgCount, idCount, sharerCount, fileCount, fileSizes);
+                    SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            deactivateGlassPane();
+                            final StatisticsDialog dlg = new StatisticsDialog(MainFrame.this);
+                            dlg.startDialog(msgCount, arcMsgCount, idCount, sharerCount, fileCount, fileSizes);
+                        }
+                    });
+                } catch(final Throwable t) {
+                    // paranoia, don't left gui locked
+                    SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            deactivateGlassPane();
+                        }
+                    });
+                }
+            }
+        }.start();
     }
 
     public MessagePanel getMessagePanel() {
