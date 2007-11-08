@@ -39,13 +39,27 @@ import frost.util.gui.translation.*;
 
 public class SearchMessagesDialog extends JFrame implements LanguageListener {
 
-    private Language language = Language.getInstance();
-    
+    private final Language language = Language.getInstance();
+
     private SearchMessagesConfig searchMessagesConfig = null;
 
     private String resultCountPrefix = null;
     private String startSearchStr = null;
     private String stopSearchStr = null;
+
+    List<Board> chosedBoardsList = new ArrayList<Board>();
+    SearchMessagesThread runningSearchThread = null;
+    int resultCount;
+
+    private JLabel LresultCount = null;
+    private JRadioButton date_RBall = null;
+    private JPanel PbuttonsRight = null;
+    private JPanel PbuttonsLeft = null;
+    private JButton BopenMsg = null;
+    private JPanel Pattachments = null;
+    private JCheckBox attachment_CBmustContainBoards = null;
+    private JCheckBox attachment_CBmustContainFiles = null;
+    private JButton Bhelp = null;
 
     private JPanel jContentPane = null;
     private JPanel contentPanel = null;
@@ -103,9 +117,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     private JLabel Lsubject = null;
     private JTextField search_TFsubject = null;
 
-    private JCheckBox senderCaseCheckBox = new JCheckBox("");
-    private JCheckBox subjectCaseCheckBox = new JCheckBox("");
-    private JCheckBox contentCaseCheckBox = new JCheckBox("");
+    private final JCheckBox senderCaseCheckBox = new JCheckBox("");
+    private final JCheckBox subjectCaseCheckBox = new JCheckBox("");
+    private final JCheckBox contentCaseCheckBox = new JCheckBox("");
 
     /**
      * This is the default constructor
@@ -119,6 +133,24 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         initializeWithDefaults();
 
         language.addLanguageListener(this);
+    }
+
+    /**
+     * Start the search dialog, all boards in board tree are selected.
+     */
+    public void startDialog() {
+        getBoards_RBdisplayed().doClick();
+        updateBoardTextField(null);
+        setVisible(true);
+    }
+
+    /**
+     * Start the search dialog with only the specified boards preselected as boards to search into.
+     */
+    public void startDialog(final List<Board> l) {
+        getBoards_RBchosed().doClick();
+        updateBoardTextField(l);
+        setVisible(true);
     }
 
     /**
@@ -205,7 +237,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             Bsearch = new JButton();
             // enter key anywhere in dialog (except in table where it opens a msg) starts or stops searching
             Bsearch.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ENTER"), "startStopSearch");
-            Action action = new AbstractAction() {
+            final Action action = new AbstractAction() {
                 public void actionPerformed(ActionEvent arg0) {
                     if( getBsearch().isEnabled() ) {
                         startOrStopSearching();
@@ -227,7 +259,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         if( Bcancel == null ) {
             Bcancel = new JButton();
             Bcancel.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent e) {
+                public void actionPerformed(final java.awt.event.ActionEvent e) {
                     closePressed();
                 }
             });
@@ -260,21 +292,21 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
      */
     private JPanel getPsearch() {
         if( Psearch == null ) {
-            GridBagConstraints gridBagConstraints29 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints29 = new GridBagConstraints();
             gridBagConstraints29.fill = java.awt.GridBagConstraints.HORIZONTAL;
             gridBagConstraints29.gridy = 1;
             gridBagConstraints29.weightx = 1.0;
             gridBagConstraints29.insets = new java.awt.Insets(1,5,1,5);
             gridBagConstraints29.gridx = 1;
             gridBagConstraints29.gridwidth = 4;
-            GridBagConstraints gridBagConstraints110 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints110 = new GridBagConstraints();
             gridBagConstraints110.gridx = 0;
             gridBagConstraints110.insets = new java.awt.Insets(1,5,1,0);
             gridBagConstraints110.anchor = java.awt.GridBagConstraints.WEST;
             gridBagConstraints110.gridy = 1;
             Lsubject = new JLabel();
-            
-            GridBagConstraints gridBagConstraints101 = new GridBagConstraints();
+
+            final GridBagConstraints gridBagConstraints101 = new GridBagConstraints();
             gridBagConstraints101.gridx = 1;
             gridBagConstraints101.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints101.insets = new java.awt.Insets(1,1,1,5);
@@ -282,7 +314,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             gridBagConstraints101.weighty = 1.0;
             gridBagConstraints101.gridy = 3;
 
-            GridBagConstraints gridBagConstraints102 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints102 = new GridBagConstraints();
             gridBagConstraints102.gridx = 2;
             gridBagConstraints102.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints102.insets = new java.awt.Insets(1,1,1,5);
@@ -290,7 +322,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             gridBagConstraints102.weighty = 1.0;
             gridBagConstraints102.gridy = 3;
 
-            GridBagConstraints gridBagConstraints103 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints103 = new GridBagConstraints();
             gridBagConstraints103.gridx = 3;
             gridBagConstraints103.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints103.insets = new java.awt.Insets(1,1,1,5);
@@ -298,7 +330,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             gridBagConstraints103.weighty = 1.0;
             gridBagConstraints103.gridy = 3;
 
-            GridBagConstraints gridBagConstraints104 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints104 = new GridBagConstraints();
             gridBagConstraints104.gridx = 4;
             gridBagConstraints104.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints104.insets = new java.awt.Insets(1,1,1,5);
@@ -306,10 +338,10 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             gridBagConstraints104.weighty = 1.0;
             gridBagConstraints104.gridy = 3;
 
-            GridBagConstraints gridBagConstraints91 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints91 = new GridBagConstraints();
             gridBagConstraints91.gridx = -1;
             gridBagConstraints91.gridy = -1;
-            GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
             gridBagConstraints2.fill = java.awt.GridBagConstraints.HORIZONTAL;
             gridBagConstraints2.gridy = 2;
             gridBagConstraints2.weightx = 1.0;
@@ -317,7 +349,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             gridBagConstraints2.insets = new java.awt.Insets(1,5,1,5);
             gridBagConstraints2.gridx = 1;
             gridBagConstraints2.gridwidth = 4;
-            GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
             gridBagConstraints11.fill = java.awt.GridBagConstraints.HORIZONTAL;
             gridBagConstraints11.gridy = 0;
             gridBagConstraints11.weightx = 1.0;
@@ -325,13 +357,13 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             gridBagConstraints11.insets = new java.awt.Insets(1,5,1,5);
             gridBagConstraints11.gridx = 1;
             gridBagConstraints11.gridwidth = 4;
-            GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
             gridBagConstraints1.gridx = 0;
             gridBagConstraints1.insets = new java.awt.Insets(1,5,1,0);
             gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
             gridBagConstraints1.gridy = 2;
             Lcontent = new JLabel();
-            GridBagConstraints gridBagConstraints = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints = new GridBagConstraints();
             gridBagConstraints.gridx = 0;
             gridBagConstraints.insets = new java.awt.Insets(1,5,1,0);
             gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
@@ -349,7 +381,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             Psearch.add(Lsubject, gridBagConstraints110);
 
             JPanel dummyPanel;
-            
+
             dummyPanel = new JPanel();
             dummyPanel.setLayout(new BoxLayout(dummyPanel, BoxLayout.X_AXIS));
             dummyPanel.add(getSearch_TFsender());
@@ -378,13 +410,13 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
      */
     private JPanel getPsearchResult() {
         if( PsearchResult == null ) {
-            GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
             gridBagConstraints6.gridx = 1;
             gridBagConstraints6.anchor = java.awt.GridBagConstraints.EAST;
             gridBagConstraints6.insets = new java.awt.Insets(1,5,1,5);
             gridBagConstraints6.gridy = 0;
             LresultCount = new JLabel("");
-            GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
             gridBagConstraints4.fill = java.awt.GridBagConstraints.BOTH;
             gridBagConstraints4.gridy = 1;
             gridBagConstraints4.ipadx = 239;
@@ -394,7 +426,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             gridBagConstraints4.insets = new java.awt.Insets(1,5,1,5);
             gridBagConstraints4.gridwidth = 2;
             gridBagConstraints4.gridx = 0;
-            GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
             gridBagConstraints3.gridx = 0;
             gridBagConstraints3.ipadx = 0;
             gridBagConstraints3.insets = new java.awt.Insets(1,5,1,5);
@@ -442,12 +474,12 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
      */
     private JPanel getPdate() {
         if( Pdate == null ) {
-            GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
             gridBagConstraints7.gridx = 0;
             gridBagConstraints7.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints7.insets = new java.awt.Insets(1,5,0,5);
             gridBagConstraints7.gridy = 1;
-            GridBagConstraints gridBagConstraints15 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints15 = new GridBagConstraints();
             gridBagConstraints15.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints15.insets = new java.awt.Insets(1,5,1,5);
             gridBagConstraints15.gridwidth = 3;
@@ -455,38 +487,38 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             gridBagConstraints15.gridy = 3;
             gridBagConstraints15.weightx = 1.0;
             gridBagConstraints15.fill = java.awt.GridBagConstraints.NONE;
-            GridBagConstraints gridBagConstraints14 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints14 = new GridBagConstraints();
             gridBagConstraints14.insets = new java.awt.Insets(1,5,1,5);
             gridBagConstraints14.gridy = 3;
             gridBagConstraints14.weighty = 1.0;
             gridBagConstraints14.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints14.gridx = 0;
-            GridBagConstraints gridBagConstraints13 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints13 = new GridBagConstraints();
             gridBagConstraints13.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints13.insets = new java.awt.Insets(1,5,0,5);
             gridBagConstraints13.gridx = 3;
             gridBagConstraints13.gridy = 2;
             gridBagConstraints13.weightx = 0.0;
             gridBagConstraints13.fill = java.awt.GridBagConstraints.NONE;
-            GridBagConstraints gridBagConstraints12 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints12 = new GridBagConstraints();
             gridBagConstraints12.anchor = java.awt.GridBagConstraints.WEST;
             gridBagConstraints12.gridx = 2;
             gridBagConstraints12.gridy = 2;
             gridBagConstraints12.insets = new java.awt.Insets(1,2,0,2);
             date_Lto = new JLabel();
-            GridBagConstraints gridBagConstraints10 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints10 = new GridBagConstraints();
             gridBagConstraints10.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints10.insets = new java.awt.Insets(1,5,0,5);
             gridBagConstraints10.gridx = 1;
             gridBagConstraints10.gridy = 2;
             gridBagConstraints10.weightx = 0.0;
             gridBagConstraints10.fill = java.awt.GridBagConstraints.NONE;
-            GridBagConstraints gridBagConstraints9 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints9 = new GridBagConstraints();
             gridBagConstraints9.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints9.gridx = 0;
             gridBagConstraints9.gridy = 2;
             gridBagConstraints9.insets = new java.awt.Insets(1,5,0,5);
-            GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
             gridBagConstraints5.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints5.gridwidth = 4;
             gridBagConstraints5.gridx = 0;
@@ -516,7 +548,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         if( date_RBdisplayed == null ) {
             date_RBdisplayed = new JRadioButton();
             date_RBdisplayed.addItemListener(new java.awt.event.ItemListener() {
-                public void itemStateChanged(java.awt.event.ItemEvent e) {
+                public void itemStateChanged(final java.awt.event.ItemEvent e) {
                     date_RBitemStateChanged();
                 }
             });
@@ -533,7 +565,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         if( date_RBbetweenDates == null ) {
             date_RBbetweenDates = new JRadioButton();
             date_RBbetweenDates.addItemListener(new java.awt.event.ItemListener() {
-                public void itemStateChanged(java.awt.event.ItemEvent e) {
+                public void itemStateChanged(final java.awt.event.ItemEvent e) {
                     date_RBitemStateChanged();
                 }
             });
@@ -549,7 +581,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     private MDateEntryField getDate_TFstartDate() {
         if( date_TFstartDate == null ) {
             date_TFstartDate = new MDateEntryField();
-            MDefaultPullDownConstraints c = new MDefaultPullDownConstraints();
+            final MDefaultPullDownConstraints c = new MDefaultPullDownConstraints();
             c.firstDay = Calendar.MONDAY;
             c.changerStyle=MDateChanger.SPINNER;
             date_TFstartDate.setConstraints(c);
@@ -565,7 +597,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     private MDateEntryField getDate_TFendDate() {
         if( date_TFendDate == null ) {
             date_TFendDate = new MDateEntryField();
-            MDefaultPullDownConstraints c = new MDefaultPullDownConstraints();
+            final MDefaultPullDownConstraints c = new MDefaultPullDownConstraints();
             c.firstDay = Calendar.MONDAY;
             c.changerStyle=MDateChanger.SPINNER;
             date_TFendDate.setConstraints(c);
@@ -582,7 +614,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         if( date_RBdaysBackward == null ) {
             date_RBdaysBackward = new JRadioButton();
             date_RBdaysBackward.addItemListener(new java.awt.event.ItemListener() {
-                public void itemStateChanged(java.awt.event.ItemEvent e) {
+                public void itemStateChanged(final java.awt.event.ItemEvent e) {
                     date_RBitemStateChanged();
                 }
             });
@@ -627,7 +659,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
      */
     private JPanel getPtrustState() {
         if( PtrustState == null ) {
-            GridBagConstraints gridBagConstraints25 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints25 = new GridBagConstraints();
             gridBagConstraints25.anchor = java.awt.GridBagConstraints.WEST;
             gridBagConstraints25.insets = new java.awt.Insets(0,25,0,0);
             gridBagConstraints25.gridwidth = 3;
@@ -636,17 +668,17 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             gridBagConstraints25.weightx = 1.0;
             gridBagConstraints25.weighty = 1.0;
             gridBagConstraints25.fill = java.awt.GridBagConstraints.NONE;
-            GridBagConstraints gridBagConstraints18 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints18 = new GridBagConstraints();
             gridBagConstraints18.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints18.gridx = 0;
             gridBagConstraints18.gridy = 2;
             gridBagConstraints18.insets = new java.awt.Insets(1,5,0,5);
-            GridBagConstraints gridBagConstraints17 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints17 = new GridBagConstraints();
             gridBagConstraints17.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints17.gridx = 0;
             gridBagConstraints17.gridy = 1;
             gridBagConstraints17.insets = new java.awt.Insets(1,5,0,5);
-            GridBagConstraints gridBagConstraints16 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints16 = new GridBagConstraints();
             gridBagConstraints16.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints16.insets = new java.awt.Insets(1,5,0,5);
             gridBagConstraints16.gridx = 0;
@@ -672,7 +704,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         if( truststate_RBdisplayed == null ) {
             truststate_RBdisplayed = new JRadioButton();
             truststate_RBdisplayed.addItemListener(new java.awt.event.ItemListener() {
-                public void itemStateChanged(java.awt.event.ItemEvent e) {
+                public void itemStateChanged(final java.awt.event.ItemEvent e) {
                     trustState_RBitemStateChanged();
                 }
             });
@@ -687,9 +719,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         } else {
             enableTtrustStatesPanel = false;
         }
-        Component[] comps = getTruststate_PtrustStates().getComponents();
-        for(int x=0; x < comps.length; x++) {
-            comps[x].setEnabled(enableTtrustStatesPanel);
+        final Component[] comps = getTruststate_PtrustStates().getComponents();
+        for( final Component element : comps ) {
+            element.setEnabled(enableTtrustStatesPanel);
         }
     }
 
@@ -702,7 +734,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         if( truststate_RBall == null ) {
             truststate_RBall = new JRadioButton();
             truststate_RBall.addItemListener(new java.awt.event.ItemListener() {
-                public void itemStateChanged(java.awt.event.ItemEvent e) {
+                public void itemStateChanged(final java.awt.event.ItemEvent e) {
                     trustState_RBitemStateChanged();
                 }
             });
@@ -719,7 +751,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         if( truststate_RBchosed == null ) {
             truststate_RBchosed = new JRadioButton();
             truststate_RBchosed.addItemListener(new java.awt.event.ItemListener() {
-                public void itemStateChanged(java.awt.event.ItemEvent e) {
+                public void itemStateChanged(final java.awt.event.ItemEvent e) {
                     trustState_RBitemStateChanged();
                 }
             });
@@ -734,29 +766,29 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
      */
     private JPanel getTruststate_PtrustStates() {
         if( truststate_PtrustStates == null ) {
-            GridBagConstraints gridBagConstraints24 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints24 = new GridBagConstraints();
             gridBagConstraints24.fill = java.awt.GridBagConstraints.NONE;
             gridBagConstraints24.gridx = 5;
             gridBagConstraints24.gridy = 0;
             gridBagConstraints24.weightx = 0.0;
             gridBagConstraints24.insets = new java.awt.Insets(1,5,1,5);
-            GridBagConstraints gridBagConstraints23 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints23 = new GridBagConstraints();
             gridBagConstraints23.insets = new java.awt.Insets(1,5,1,5);
             gridBagConstraints23.gridy = 0;
             gridBagConstraints23.gridx = 4;
-            GridBagConstraints gridBagConstraints22 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints22 = new GridBagConstraints();
             gridBagConstraints22.insets = new java.awt.Insets(1,5,1,5);
             gridBagConstraints22.gridy = 0;
             gridBagConstraints22.gridx = 3;
-            GridBagConstraints gridBagConstraints21 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints21 = new GridBagConstraints();
             gridBagConstraints21.insets = new java.awt.Insets(1,5,1,5);
             gridBagConstraints21.gridy = 0;
             gridBagConstraints21.gridx = 2;
-            GridBagConstraints gridBagConstraints20 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints20 = new GridBagConstraints();
             gridBagConstraints20.insets = new java.awt.Insets(1,5,1,5);
             gridBagConstraints20.gridy = 0;
             gridBagConstraints20.gridx = 1;
-            GridBagConstraints gridBagConstraints19 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints19 = new GridBagConstraints();
             gridBagConstraints19.anchor = java.awt.GridBagConstraints.CENTER;
             gridBagConstraints19.gridx = 0;
             gridBagConstraints19.gridy = 0;
@@ -852,21 +884,21 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
      */
     private JPanel getParchive() {
         if( Parchive == null ) {
-            GridBagConstraints gridBagConstraints28 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints28 = new GridBagConstraints();
             gridBagConstraints28.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints28.gridx = 0;
             gridBagConstraints28.gridy = 2;
             gridBagConstraints28.fill = java.awt.GridBagConstraints.NONE;
             gridBagConstraints28.weighty = 1.0;
             gridBagConstraints28.insets = new java.awt.Insets(3,5,1,5);
-            GridBagConstraints gridBagConstraints27 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints27 = new GridBagConstraints();
             gridBagConstraints27.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints27.gridx = 0;
             gridBagConstraints27.gridy = 1;
             gridBagConstraints27.fill = java.awt.GridBagConstraints.NONE;
             gridBagConstraints27.weightx = 1.0;
             gridBagConstraints27.insets = new java.awt.Insets(3,5,1,5);
-            GridBagConstraints gridBagConstraints26 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints26 = new GridBagConstraints();
             gridBagConstraints26.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints26.insets = new java.awt.Insets(3,5,1,5);
             gridBagConstraints26.gridx = 0;
@@ -930,7 +962,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
      */
     private JPanel getPboards() {
         if( Pboards == null ) {
-            GridBagConstraints gridBagConstraints35 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints35 = new GridBagConstraints();
             gridBagConstraints35.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints35.insets = new java.awt.Insets(1,25,1,5);
             gridBagConstraints35.gridwidth = 2;
@@ -939,23 +971,23 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             gridBagConstraints35.weightx = 1.0;
             gridBagConstraints35.weighty = 1.0;
             gridBagConstraints35.fill = java.awt.GridBagConstraints.HORIZONTAL;
-            GridBagConstraints gridBagConstraints34 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints34 = new GridBagConstraints();
             gridBagConstraints34.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints34.gridx = 1;
             gridBagConstraints34.gridy = 2;
             gridBagConstraints34.insets = new java.awt.Insets(1,5,0,5);
-            GridBagConstraints gridBagConstraints33 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints33 = new GridBagConstraints();
             gridBagConstraints33.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints33.gridx = 0;
             gridBagConstraints33.gridy = 2;
             gridBagConstraints33.insets = new java.awt.Insets(1,5,0,5);
-            GridBagConstraints gridBagConstraints32 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints32 = new GridBagConstraints();
             gridBagConstraints32.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints32.gridwidth = 2;
             gridBagConstraints32.gridx = 0;
             gridBagConstraints32.gridy = 1;
             gridBagConstraints32.insets = new java.awt.Insets(1,5,0,5);
-            GridBagConstraints gridBagConstraints31 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints31 = new GridBagConstraints();
             gridBagConstraints31.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints31.gridwidth = 2;
             gridBagConstraints31.gridx = 0;
@@ -982,7 +1014,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         if( boards_RBdisplayed == null ) {
             boards_RBdisplayed = new JRadioButton();
             boards_RBdisplayed.addItemListener(new java.awt.event.ItemListener() {
-                public void itemStateChanged(java.awt.event.ItemEvent e) {
+                public void itemStateChanged(final java.awt.event.ItemEvent e) {
                     boards_RBitemStateChanged();
                 }
             });
@@ -1017,7 +1049,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         if( boards_RBchosed == null ) {
             boards_RBchosed = new JRadioButton();
             boards_RBchosed.addItemListener(new java.awt.event.ItemListener() {
-                public void itemStateChanged(java.awt.event.ItemEvent e) {
+                public void itemStateChanged(final java.awt.event.ItemEvent e) {
                     boards_RBitemStateChanged();
                 }
             });
@@ -1045,7 +1077,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         if( boards_Bchoose == null ) {
             boards_Bchoose = new JButton();
             boards_Bchoose.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent e) {
+                public void actionPerformed(final java.awt.event.ActionEvent e) {
                     chooseBoards();
                 }
             });
@@ -1127,16 +1159,17 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             searchResultTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
             searchResultTable.addMouseListener(new MouseAdapter() {
-                public void mousePressed(MouseEvent e) {
+                @Override
+                public void mousePressed(final MouseEvent e) {
                     if(SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
                         openSelectedMessage();
                     }
                 }
             });
-            
+
             // enter should not jump to next message, but open the selected msg (if any)
             searchResultTable.getInputMap(JComponent.WHEN_FOCUSED).put(KeyStroke.getKeyStroke("ENTER"), "openMessage");
-            Action action = new AbstractAction() {
+            final Action action = new AbstractAction() {
                 public void actionPerformed(ActionEvent arg0) {
                     if( getBopenMsg().isEnabled() ) {
                         openSelectedMessage();
@@ -1224,7 +1257,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     private void chooseBoards() {
 
         // get and sort all boards
-        List allBoards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
+        final List<Board> allBoards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
         if (allBoards.size() == 0) {
             JOptionPane.showMessageDialog(this,
                     language.getString("SearchMessages.errorDialogs.noBoardsToChoose"),
@@ -1234,20 +1267,27 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         }
         Collections.sort(allBoards);
 
-        BoardsChooser bc = new BoardsChooser(this, allBoards, chosedBoardsList);
-        List resultBoards = bc.runDialog();
+        final BoardsChooser bc = new BoardsChooser(this, allBoards, chosedBoardsList);
+
+        final List<Board> resultBoards = bc.runDialog();
         if( resultBoards != null ) {
             chosedBoardsList = resultBoards;
-            StringBuilder txt = new StringBuilder();
-            for(Iterator i=chosedBoardsList.iterator(); i.hasNext(); ) {
-                Board b = (Board)i.next();
+            updateBoardTextField(chosedBoardsList);
+        }
+    }
+
+    private void updateBoardTextField(final List<Board> boards) {
+        final StringBuilder txt = new StringBuilder();
+        if( boards != null ) {
+            for(final Iterator<Board> i=boards.iterator(); i.hasNext(); ) {
+                final Board b = i.next();
                 txt.append(b.getName());
                 if( i.hasNext() ) {
                     txt.append("; ");
                 }
             }
-            getBoards_TFchosedBoards().setText(txt.toString());
         }
+        getBoards_TFchosedBoards().setText(txt.toString());
     }
 
     private void initializeWithDefaults() {
@@ -1262,8 +1302,8 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
 
     private SearchMessagesConfig getSearchConfig() {
 
-        SearchMessagesConfig scfg = new SearchMessagesConfig();
-        
+        final SearchMessagesConfig scfg = new SearchMessagesConfig();
+
         scfg.setSenderString(getSearch_TFsender().getText().trim(), !senderCaseCheckBox.isSelected());
         scfg.setSubjectString(getSearch_TFsubject().getText().trim(), !subjectCaseCheckBox.isSelected());
         scfg.setContentString(getSearch_TFcontent().getText().trim(), !contentCaseCheckBox.isSelected());
@@ -1307,7 +1347,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
                             JOptionPane.ERROR_MESSAGE);
                     return null;
                 }
-            } catch(ParseException ex) {
+            } catch(final ParseException ex) {
                 JOptionPane.showMessageDialog(this,
                         language.getString("SearchMessages.errorDialogs.invalidStartOrEndDate"),
                         language.getString("SearchMessages.errorDialogs.title"),
@@ -1318,7 +1358,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             scfg.searchDates = SearchMessagesConfig.DATE_DAYS_BACKWARD;
             try {
                 scfg.daysBackward = Integer.parseInt(getDate_TFdaysBackward().getText());
-            } catch(NumberFormatException ex) { } // never happens, we allow only digits in textfield!
+            } catch(final NumberFormatException ex) { } // never happens, we allow only digits in textfield!
         }
 
         if( getTruststate_RBdisplayed().isSelected() ) {
@@ -1355,7 +1395,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             scfg.searchInKeypool = true;
             scfg.searchInArchive = true;
         }
-        
+
         scfg.msgMustContainBoards = getAttachment_CBmustContainBoards().isSelected();
         scfg.msgMustContainFiles = getAttachment_CBmustContainFiles().isSelected();
 
@@ -1366,7 +1406,8 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
      * When window is about to close, do same as if CANCEL was pressed.
      * @see java.awt.Window#processWindowEvent(java.awt.event.WindowEvent)
      */
-    protected void processWindowEvent(WindowEvent e) {
+    @Override
+    protected void processWindowEvent(final WindowEvent e) {
         if (e.getID() == WindowEvent.WINDOW_CLOSING) {
             closePressed();
         } else {
@@ -1378,7 +1419,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         return runningSearchThread;
     }
 
-    private void setRunningSearchThread(SearchMessagesThread t) {
+    private void setRunningSearchThread(final SearchMessagesThread t) {
         runningSearchThread = t;
     }
 
@@ -1392,19 +1433,19 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     private void disableInputPanels() {
         previouslyEnabledComponents.clear();
         for(int x=0; x < getJTabbedPane().getTabCount(); x++ ) {
-            JPanel c = (JPanel)getJTabbedPane().getComponentAt(x);
+            final JPanel c = (JPanel)getJTabbedPane().getComponentAt(x);
             disableInputPanels(c);
-        }        
+        }
     }
-    private void disableInputPanels(Container c) {
-        Component[] cs = c.getComponents();
-        for( int y=0; y < cs.length; y++ ) {
-            if( cs[y] instanceof Container ) {
-                disableInputPanels((Container)cs[y]);
-            } 
-            if( cs[y].isEnabled() ) {
-                previouslyEnabledComponents.add(cs[y]);
-                cs[y].setEnabled(false);
+    private void disableInputPanels(final Container c) {
+        final Component[] cs = c.getComponents();
+        for( final Component element : cs ) {
+            if( element instanceof Container ) {
+                disableInputPanels((Container)element);
+            }
+            if( element.isEnabled() ) {
+                previouslyEnabledComponents.add(element);
+                element.setEnabled(false);
             }
         }
     }
@@ -1414,29 +1455,29 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
      */
     private void enableInputPanels() {
         for(int x=0; x < getJTabbedPane().getTabCount(); x++ ) {
-            JPanel c = (JPanel)getJTabbedPane().getComponentAt(x);
+            final JPanel c = (JPanel)getJTabbedPane().getComponentAt(x);
             enableInputPanels(c);
-        }        
+        }
         previouslyEnabledComponents.clear();
     }
 
-    private void enableInputPanels(Container c) {
-        Component[] cs = c.getComponents();
-        for( int y=0; y < cs.length; y++ ) {
-            if( cs[y] instanceof Container ) {
-                enableInputPanels((Container)cs[y]);
-            } 
-            if( previouslyEnabledComponents.contains(cs[y]) ) {
-                cs[y].setEnabled(true);
+    private void enableInputPanels(final Container c) {
+        final Component[] cs = c.getComponents();
+        for( final Component element : cs ) {
+            if( element instanceof Container ) {
+                enableInputPanels((Container)element);
+            }
+            if( previouslyEnabledComponents.contains(element) ) {
+                element.setEnabled(true);
             }
         }
     }
-    
+
     public void notifySearchThreadFinished() {
         setRunningSearchThread(null);
 
         enableInputPanels();
-        
+
         // reset buttons
         getBcancel().setEnabled(true);
         getBsearch().setText(startSearchStr);
@@ -1457,7 +1498,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         ((JTranslatableTabbedPane)getJTabbedPane()).close();
         setVisible(false);
     }
-    
+
     private void startOrStopSearching() {
 
         if( getRunningSearchThread() != null ) {
@@ -1491,7 +1532,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         getRunningSearchThread().start();
     }
 
-    private void updateResultCountLabel(int rs) {
+    private void updateResultCountLabel(final int rs) {
         LresultCount.setText(resultCountPrefix + rs);
     }
 
@@ -1514,16 +1555,16 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 // TODO: add 'jump to msg in board'. not for archived msgs
     private void openSelectedMessage() {
-        int row = getSearchResultTable().getSelectedRow();
+        final int row = getSearchResultTable().getSelectedRow();
         if (row < 0) {
             return;
         }
-        FrostSearchResultMessageObject msg = (FrostSearchResultMessageObject)getSearchMessagesTableModel().getRow(row);
+        final FrostSearchResultMessageObject msg = (FrostSearchResultMessageObject)getSearchMessagesTableModel().getRow(row);
         if( msg == null ) {
             return;
         }
-        FrostMessageObject mo = msg.getMessageObject();
-        MessageWindow messageWindow = new MessageWindow( this, mo, this.getSize(), searchMessagesConfig );
+        final FrostMessageObject mo = msg.getMessageObject();
+        final MessageWindow messageWindow = new MessageWindow( this, mo, this.getSize(), searchMessagesConfig );
         messageWindow.setVisible(true);
     }
 
@@ -1531,9 +1572,10 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
      * This Document ensures that only digits can be entered into a text field.
      */
     protected class WholeNumberDocument extends PlainDocument {
-        public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
-            char[] source = str.toCharArray();
-            char[] result = new char[source.length];
+        @Override
+        public void insertString(final int offs, final String str, final AttributeSet a) throws BadLocationException {
+            final char[] source = str.toCharArray();
+            final char[] result = new char[source.length];
             int j = 0;
 
             for( int i = 0; i < result.length; i++ ) {
@@ -1544,28 +1586,6 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             super.insertString(offs, new String(result, 0, j), a);
         }
     }
-
-    List chosedBoardsList = new ArrayList();
-    SearchMessagesThread runningSearchThread = null;
-    int resultCount;
-
-    private JLabel LresultCount = null;
-
-    private JRadioButton date_RBall = null;
-
-    private JPanel PbuttonsRight = null;
-
-    private JPanel PbuttonsLeft = null;
-
-    private JButton BopenMsg = null;
-
-    private JPanel Pattachments = null;
-
-    private JCheckBox attachment_CBmustContainBoards = null;
-
-    private JCheckBox attachment_CBmustContainFiles = null;
-
-    private JButton Bhelp = null;
 
     /**
      * This method initializes date_RBall
@@ -1580,7 +1600,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     private void saveWindowState() {
-        Rectangle bounds = getBounds();
+        final Rectangle bounds = getBounds();
         boolean isMaximized = ((getExtendedState() & Frame.MAXIMIZED_BOTH) != 0);
 
         Core.frostSettings.setValue("searchMessagesDialog.lastFrameMaximized", isMaximized);
@@ -1597,9 +1617,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         // load size, location and state of window
         int lastHeight = Core.frostSettings.getIntValue("searchMessagesDialog.lastFrameHeight");
         int lastWidth = Core.frostSettings.getIntValue("searchMessagesDialog.lastFrameWidth");
-        int lastPosX = Core.frostSettings.getIntValue("searchMessagesDialog.lastFramePosX");
-        int lastPosY = Core.frostSettings.getIntValue("searchMessagesDialog.lastFramePosY");
-        boolean lastMaximized = Core.frostSettings.getBoolValue("searchMessagesDialog.lastFrameMaximized");
+        final int lastPosX = Core.frostSettings.getIntValue("searchMessagesDialog.lastFramePosX");
+        final int lastPosY = Core.frostSettings.getIntValue("searchMessagesDialog.lastFramePosY");
+        final boolean lastMaximized = Core.frostSettings.getBoolValue("searchMessagesDialog.lastFrameMaximized");
 
         if( lastHeight <= 0 || lastWidth <= 0 ) {
             // first call
@@ -1608,7 +1628,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             return;
         }
 
-        Dimension scrSize = Toolkit.getDefaultToolkit().getScreenSize();
+        final Dimension scrSize = Toolkit.getDefaultToolkit().getScreenSize();
 
         if (lastWidth < 100) {
             lastWidth = 700;
@@ -1673,7 +1693,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         if( BopenMsg == null ) {
             BopenMsg = new JButton();
             BopenMsg.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent e) {
+                public void actionPerformed(final java.awt.event.ActionEvent e) {
                     openSelectedMessage();
                 }
             });
@@ -1682,7 +1702,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         return BopenMsg;
     }
 
-    public void languageChanged(LanguageEvent e) {
+    public void languageChanged(final LanguageEvent e) {
 
         resultCountPrefix = language.getString("SearchMessages.label.results") + ": ";
         startSearchStr = language.getString("SearchMessages.button.search");
@@ -1737,26 +1757,26 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         getSearch_CBstarredMsgsOnly().setText(language.getString("SearchMessages.search.searchStarredMessagesOnly"));
         getSearch_CBrepliedMsgsOnly().setText(language.getString("SearchMessages.search.searchRepliedMessagesOnly"));
         getBoards_Bchoose().setText(language.getString("SearchMessages.boards.chooseBoards")+"...");
-        
+
         getAttachment_CBmustContainBoards().setText(language.getString("SearchMessages.attachments.messageMustContainBoardAttachments"));
         getAttachment_CBmustContainFiles().setText(language.getString("SearchMessages.attachments.messageMustContainFileAttachments"));
     }
 
     /**
-     * This method initializes Pattachments	
-     * 	
-     * @return javax.swing.JPanel	
+     * This method initializes Pattachments
+     *
+     * @return javax.swing.JPanel
      */
     private JPanel getPattachments() {
         if( Pattachments == null ) {
-            GridBagConstraints gridBagConstraints30 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints30 = new GridBagConstraints();
             gridBagConstraints30.gridx = 0;
             gridBagConstraints30.insets = new java.awt.Insets(3,5,1,5);
             gridBagConstraints30.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints30.weighty = 1.0;
             gridBagConstraints30.weightx = 1.0;
             gridBagConstraints30.gridy = 1;
-            GridBagConstraints gridBagConstraints8 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints8 = new GridBagConstraints();
             gridBagConstraints8.gridx = 0;
             gridBagConstraints8.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints8.insets = new java.awt.Insets(3,5,1,5);
@@ -1770,9 +1790,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes attachment_CBmustContainBoards	
-     * 	
-     * @return javax.swing.JCheckBox	
+     * This method initializes attachment_CBmustContainBoards
+     *
+     * @return javax.swing.JCheckBox
      */
     private JCheckBox getAttachment_CBmustContainBoards() {
         if( attachment_CBmustContainBoards == null ) {
@@ -1782,9 +1802,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes attachment_CBmustContainFiles	
-     * 	
-     * @return javax.swing.JCheckBox	
+     * This method initializes attachment_CBmustContainFiles
+     *
+     * @return javax.swing.JCheckBox
      */
     private JCheckBox getAttachment_CBmustContainFiles() {
         if( attachment_CBmustContainFiles == null ) {
@@ -1794,9 +1814,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes Bhelp	
-     * 	
-     * @return javax.swing.JButton	
+     * This method initializes Bhelp
+     *
+     * @return javax.swing.JButton
      */
     private JButton getBhelp() {
         if( Bhelp == null ) {
@@ -1805,7 +1825,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
                 Bhelp.setEnabled(false);
             } else {
                 Bhelp.addActionListener(new java.awt.event.ActionListener() {
-                    public void actionPerformed(java.awt.event.ActionEvent e) {
+                    public void actionPerformed(final java.awt.event.ActionEvent e) {
                         MainFrame.getInstance().showHtmlHelp("searchDialog.html");
                     }
                 });
