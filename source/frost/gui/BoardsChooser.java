@@ -33,35 +33,33 @@ import frost.util.gui.translation.*;
 
 public class BoardsChooser extends JDialog {
 
-    private Language language = Language.getInstance();
+    private final Language language = Language.getInstance();
 
     protected static Border noFocusBorder = new EmptyBorder(1, 1, 1, 1);
-    
+
     JTable boardsTable;
     BoardsTableModel boardsTableModel;
-    
+
     JButton Bcancel;
     List<BoardTableEntry> boardList;
     JButton Bok;
     boolean okPressed = false;
 
-    public BoardsChooser(Frame parent, List boards, List preselectedBoards) {
+    public BoardsChooser(final Frame parent, final List<Board> boards, final List<Board> preselectedBoards) {
         super(parent);
         setModal(true);
         setTitle(language.getString("BoardsChooser.title"));
-        
+
         // fill given board into our list as BoardListEntries
         boardList = new ArrayList<BoardTableEntry>();
-        for(Iterator i=boards.iterator(); i.hasNext(); ) {
-            Board b = (Board)i.next();
-            BoardTableEntry e = new BoardTableEntry();
+        for( final Board b : boards ) {
+            final BoardTableEntry e = new BoardTableEntry();
             e.board = b;
             e.isSelected = Boolean.FALSE;
 
             if( preselectedBoards != null ) {
                 // check if this board should be selected
-                for(Iterator j=preselectedBoards.iterator(); j.hasNext(); ) {
-                    Board sb = (Board)j.next();
+                for( final Board sb : preselectedBoards ) {
                     if( b.getName().equals(sb.getName()) ) {
                         e.isSelected = Boolean.TRUE;
                     }
@@ -75,24 +73,24 @@ public class BoardsChooser extends JDialog {
         setLocationRelativeTo(parent);
     }
 
-    public BoardsChooser(Frame parent, List boards) {
+    public BoardsChooser(final Frame parent, final List<Board> boards) {
         this(parent, boards, null);
     }
 
     private void initGui() {
         Bok = new JButton(language.getString("Common.ok"));
         Bok.addActionListener( new ActionListener() {
-               public void actionPerformed(ActionEvent e) {
+               public void actionPerformed(final ActionEvent e) {
                     okPressed = true;
                     setVisible(false);
                } });
         Bcancel = new JButton(language.getString("Common.cancel"));
         Bcancel.addActionListener( new ActionListener() {
-               public void actionPerformed(ActionEvent e) {
+               public void actionPerformed(final ActionEvent e) {
                     okPressed = false;
                     setVisible(false);
                } });
-        JPanel buttonsPanel = new JPanel( new FlowLayout(FlowLayout.RIGHT, 8, 8) );
+        final JPanel buttonsPanel = new JPanel( new FlowLayout(FlowLayout.RIGHT, 8, 8) );
         buttonsPanel.add( Bok );
         buttonsPanel.add( Bcancel );
 
@@ -103,16 +101,17 @@ public class BoardsChooser extends JDialog {
 
         boardsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         boardsTable.setRowSelectionAllowed(true);
-        
+
         boardsTable.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-                // on double click toggle the board selection state (checkbox) 
+            @Override
+            public void mouseClicked(final MouseEvent e) {
+                // on double click toggle the board selection state (checkbox)
                 if(SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
-                    int row = boardsTable.getSelectedRow();
+                    final int row = boardsTable.getSelectedRow();
                     if (row < 0) {
                         return;
                     }
-                    BoardTableEntry en = (BoardTableEntry)boardList.get(row);
+                    final BoardTableEntry en = boardList.get(row);
                     if( en == null ) {
                         return;
                     }
@@ -121,12 +120,12 @@ public class BoardsChooser extends JDialog {
                 }
             }
         });
-        
-        TableColumn column = boardsTable.getColumnModel().getColumn(0);
+
+        final TableColumn column = boardsTable.getColumnModel().getColumn(0);
         column.setPreferredWidth(30);
         column.setMaxWidth(30);
-        
-        JScrollPane listScroller = new JScrollPane();
+
+        final JScrollPane listScroller = new JScrollPane();
         listScroller.setBorder( new CompoundBorder( new EmptyBorder(5,5,5,5),
                                                     new CompoundBorder( new EtchedBorder(),
                                                                         new EmptyBorder(5,5,5,5) )
@@ -140,67 +139,70 @@ public class BoardsChooser extends JDialog {
         setSize(300, 400);
     }
 
-    public List runDialog()
+    public List<Board> runDialog()
     {
         setVisible(true);
         if( okPressed == false ) {
             return null;
         }
 
-        ArrayList<Board> chosed = new ArrayList<Board>();
-        for(Iterator i=boardList.iterator(); i.hasNext(); ) {
-            BoardTableEntry e = (BoardTableEntry)i.next();
-            if( e.isSelected.booleanValue() ) {
-                chosed.add(e.board);
+        final ArrayList<Board> chosed = new ArrayList<Board>();
+        for( final BoardTableEntry boardTableEntry : boardList ) {
+            if( boardTableEntry.isSelected.booleanValue() ) {
+                chosed.add(boardTableEntry.board);
             }
         }
         return chosed;
     }
-    
+
     class BoardTableEntry {
         public Boolean isSelected;
         public Board board;
     }
-    
+
     class BoardsTableModel extends AbstractTableModel {
-        
-        List boardsList = new ArrayList();
-        
-        public BoardsTableModel(List l) {
+
+        List<BoardTableEntry> boardsList = new ArrayList<BoardTableEntry>();
+
+        public BoardsTableModel(final List<BoardTableEntry> l) {
             super();
             boardsList = l;
         }
-        public String getColumnName(int col) {
+        @Override
+        public String getColumnName(final int col) {
             return "";
         }
-        public Class<?> getColumnClass(int c) {
+        @Override
+        public Class<?> getColumnClass(final int c) {
             return getValueAt(0, c).getClass();
         }
         public int getRowCount() {
             if( boardsList == null ) {
                 return 0;
             }
-            return boardsList.size(); 
+            return boardsList.size();
         }
-        public int getColumnCount() { 
-            return 2; 
+        public int getColumnCount() {
+            return 2;
         }
-        public Object getValueAt(int row, int col) {
-            BoardTableEntry e = (BoardTableEntry)boardsList.get(row);
+        public Object getValueAt(final int row, final int col) {
+            final BoardTableEntry e = boardsList.get(row);
             if( col==0 ) {
                 return e.isSelected;
             } else {
                 return e.board.getName();
             }
         }
-        public boolean isCellEditable(int row, int col) { 
+        @Override
+        public boolean isCellEditable(final int row, final int col) {
             if( col == 0 ) {
                 return true;
             }
-            return false; 
+            return false;
         }
-        public void setValueAt(Object value, int row, int col) {
-            BoardTableEntry e = (BoardTableEntry)boardsList.get(row);
+        @Override
+        public void setValueAt(final Object value, final int row, final int col) {
+            final BoardTableEntry e = boardsList.get(row);
             e.isSelected = (Boolean)value;
             fireTableCellUpdated(row, col);
         }

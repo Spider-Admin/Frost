@@ -67,6 +67,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
         private final JMenuItem refreshItem = new JMenuItem();
         private final JMenuItem removeNodeItem = new JMenuItem();
         private final JMenuItem renameFolderItem = new JMenuItem();
+        private final JMenuItem searchMessagesItem = new JMenuItem();
 
         private final JMenuItem markAllReadItem = new JMenuItem();
 
@@ -108,6 +109,8 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
                         markAllReadSelected();
                     } else if( source == renameFolderItem ) {
                         renameFolderSelected();
+                    } else if( source == searchMessagesItem ) {
+                        searchMessagesSelected();
                     }
                 }
 
@@ -150,6 +153,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
             removeNodeItem.setIcon(miscToolkit.getScaledImage("/data/remove.gif", 16, 16));
             sortFolderItem.setIcon(miscToolkit.getScaledImage("/data/sort.gif", 16, 16));
             renameFolderItem.setIcon(miscToolkit.getScaledImage("/data/rename.gif", 16, 16));
+            searchMessagesItem.setIcon(miscToolkit.getScaledImage("/data/searchmessages.gif", 16, 16));
 
             descriptionItem.setEnabled(false);
 
@@ -165,6 +169,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
             sortFolderItem.addActionListener(this);
             markAllReadItem.addActionListener(this);
             renameFolderItem.addActionListener(this);
+            searchMessagesItem.addActionListener(this);
         }
 
         /* (non-Javadoc)
@@ -188,6 +193,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
             sortFolderItem.setText(language.getString("BoardTree.popupmenu.sortFolder"));
             markAllReadItem.setText(language.getString("BoardTree.popupmenu.markAllMessagesRead"));
             renameFolderItem.setText(language.getString("BoardTree.popupmenu.renameFolder"));
+            searchMessagesItem.setText(language.getString("BoardTree.popupmenu.searchMessages")+"...");
         }
 
         private void refreshSelected() {
@@ -200,6 +206,25 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
 
         private void removeNodeSelected() {
             removeNode(selectedTreeNode);
+        }
+
+        private void searchMessagesSelected() {
+            final List<Board> boardsToSearch = new ArrayList<Board>();
+            if( selectedTreeNode.isBoard() ) {
+                boardsToSearch.add((Board)selectedTreeNode);
+            } else {
+                // folder, add all child boards
+                final Enumeration<AbstractNode> e = selectedTreeNode.breadthFirstEnumeration();
+                while(e.hasMoreElements() ) {
+                    final AbstractNode n = e.nextElement();
+                    if( n.isBoard() ) {
+                        boardsToSearch.add((Board)n);
+                    }
+                }
+            }
+            if( !boardsToSearch.isEmpty() ) {
+                MainFrame.getInstance().startSearchMessagesDialog(boardsToSearch);
+            }
         }
 
         /* (non-Javadoc)
@@ -237,6 +262,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
                 add(descriptionItem);
                 addSeparator();
                 add(refreshItem);
+                add(searchMessagesItem);
                 addSeparator();
                 add(markAllReadItem);
                 addSeparator();

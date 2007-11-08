@@ -1337,18 +1337,26 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         helpBrowser.showHelpPage(item);
     }
 
+    /**
+     * Start the search dialog, all boards in board tree are selected.
+     */
     public void startSearchMessagesDialog() {
-        if( getSearchMessagesDialog() == null ) {
-            setSearchMessagesDialog(new SearchMessagesDialog());
-        }
         // show first time or bring to front
-        getSearchMessagesDialog().setVisible(true);
+        getSearchMessagesDialog().startDialog();
     }
 
-    public void setSearchMessagesDialog(final SearchMessagesDialog d) {
-        searchMessagesDialog = d;
+    /**
+     * Start the search dialog with only the specified boards preselected as boards to search into.
+     */
+    public void startSearchMessagesDialog(final List<Board> l) {
+        // show first time or bring to front
+        getSearchMessagesDialog().startDialog(l);
     }
+
     public SearchMessagesDialog getSearchMessagesDialog() {
+        if( searchMessagesDialog == null ) {
+            searchMessagesDialog = new SearchMessagesDialog();
+        }
         return searchMessagesDialog;
     }
 
