@@ -102,10 +102,10 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     private JRadioButton boards_RBchosed = null;
     private JButton boards_Bchoose = null;
     private JTextField boards_TFchosedBoards = null;
-    private TristateCheckBox search_CBprivateMsgsOnly = null;
-    private TristateCheckBox search_CBflaggedMsgsOnly = null;
-    private TristateCheckBox search_CBstarredMsgsOnly = null;
-    private TristateCheckBox search_CBrepliedMsgsOnly = null;
+    private TriStateCheckBox2 search_CBprivateMsgsOnly = null;
+    private TriStateCheckBox2 search_CBflaggedMsgsOnly = null;
+    private TriStateCheckBox2 search_CBstarredMsgsOnly = null;
+    private TriStateCheckBox2 search_CBrepliedMsgsOnly = null;
     private JLabel LsearchResult = null;
     private JScrollPane jScrollPane = null;
     private SearchMessagesResultTable searchResultTable = null;
@@ -150,6 +150,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     public void startDialog(final List<Board> l) {
         getBoards_RBchosed().doClick();
         updateBoardTextField(l);
+        clearSearchResultTable();
         setVisible(true);
     }
 
@@ -1104,30 +1105,30 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
      *
      * @return javax.swing.JCheckBox
      */
-    private TristateCheckBox getSearch_CBprivateMsgsOnly() {
+    private TriStateCheckBox2 getSearch_CBprivateMsgsOnly() {
         if( search_CBprivateMsgsOnly == null ) {
-            search_CBprivateMsgsOnly = new TristateCheckBox();
+            search_CBprivateMsgsOnly = new TriStateCheckBox2();
         }
         return search_CBprivateMsgsOnly;
     }
 
-    private TristateCheckBox getSearch_CBflaggedMsgsOnly() {
+    private TriStateCheckBox2 getSearch_CBflaggedMsgsOnly() {
         if( search_CBflaggedMsgsOnly == null ) {
-            search_CBflaggedMsgsOnly = new TristateCheckBox();
+            search_CBflaggedMsgsOnly = new TriStateCheckBox2();
         }
         return search_CBflaggedMsgsOnly;
     }
 
-    private TristateCheckBox getSearch_CBstarredMsgsOnly() {
+    private TriStateCheckBox2 getSearch_CBstarredMsgsOnly() {
         if( search_CBstarredMsgsOnly == null ) {
-            search_CBstarredMsgsOnly = new TristateCheckBox();
+            search_CBstarredMsgsOnly = new TriStateCheckBox2();
         }
         return search_CBstarredMsgsOnly;
     }
 
-    private TristateCheckBox getSearch_CBrepliedMsgsOnly() {
+    private TriStateCheckBox2 getSearch_CBrepliedMsgsOnly() {
         if( search_CBrepliedMsgsOnly == null ) {
-            search_CBrepliedMsgsOnly = new TristateCheckBox();
+            search_CBrepliedMsgsOnly = new TriStateCheckBox2();
         }
         return search_CBrepliedMsgsOnly;
     }
@@ -1286,6 +1287,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
                     txt.append("; ");
                 }
             }
+            chosedBoardsList = boards;
+        } else {
+            chosedBoardsList = Collections.emptyList();
         }
         getBoards_TFchosedBoards().setText(txt.toString());
     }
@@ -1513,10 +1517,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             return;
         }
 
-        // clear search result table
-        getSearchMessagesTableModel().clearDataModel();
-        resultCount = 0;
-        updateResultCountLabel(resultCount);
+        clearSearchResultTable();
 
         // disable all input panels
         disableInputPanels();
@@ -1530,6 +1531,12 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         setRunningSearchThread(new SearchMessagesThread(this, searchMessagesConfig));
         getRunningSearchThread().setPriority(Thread.MIN_PRIORITY); // low prio
         getRunningSearchThread().start();
+    }
+
+    private void clearSearchResultTable() {
+        getSearchMessagesTableModel().clearDataModel();
+        resultCount = 0;
+        updateResultCountLabel(resultCount);
     }
 
     private void updateResultCountLabel(final int rs) {

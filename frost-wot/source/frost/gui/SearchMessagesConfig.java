@@ -20,6 +20,7 @@ package frost.gui;
 
 import java.util.*;
 
+import frost.boards.*;
 import frost.util.*;
 
 /**
@@ -27,19 +28,19 @@ import frost.util.*;
  */
 public class SearchMessagesConfig {
 
-    private static List emptyList = new LinkedList();
-    
+    private static final List<String> emptyList = Collections.emptyList();
+
     public boolean senderMakeLowercase = true;
     public boolean subjectMakeLowercase = true;
     public boolean contentMakeLowercase = true;
 
-    public List sender = emptyList; // List of String
-    public List subject = emptyList; // List of String
-    public List content = emptyList; // List of String
+    public List<String> sender = emptyList; // List of String
+    public List<String> subject = emptyList; // List of String
+    public List<String> content = emptyList; // List of String
 
-    public List notSender = emptyList; // List of String
-    public List notSubject = emptyList; // List of String
-    public List notContent = emptyList; // List of String
+    public List<String> notSender = emptyList; // List of String
+    public List<String> notSubject = emptyList; // List of String
+    public List<String> notContent = emptyList; // List of String
 
     public Boolean searchPrivateMsgsOnly = null;
     public Boolean searchFlaggedMsgsOnly = null;
@@ -50,7 +51,7 @@ public class SearchMessagesConfig {
 //    public static final int BOARDS_EXISTING_DIRS = 2;
     public static final int BOARDS_CHOSED = 3;
     public int searchBoards = 0;
-    public List chosedBoards = null; // list of Board objects
+    public List<Board> chosedBoards = null; // list of Board objects
 
     public static final int DATE_DISPLAYED = 1;
     public static final int DATE_ALL = 2;
@@ -73,25 +74,25 @@ public class SearchMessagesConfig {
 
     public boolean searchInKeypool = false;
     public boolean searchInArchive = false;
-    
+
     public boolean msgMustContainBoards = false;
     public boolean msgMustContainFiles = false;
-    
-    public void setSenderString(String s, boolean makeLowerCase) {
+
+    public void setSenderString(final String s, final boolean makeLowerCase) {
         senderMakeLowercase = makeLowerCase;
-        List[] res = TextSearchFun.splitStrings(s, makeLowerCase);
+        final List<String>[] res = TextSearchFun.splitStrings(s, makeLowerCase);
         sender = res[0];
         notSender = res[1];
     }
-    public void setSubjectString(String s, boolean makeLowerCase) {
+    public void setSubjectString(final String s, final boolean makeLowerCase) {
         subjectMakeLowercase = makeLowerCase;
-        List[] res = TextSearchFun.splitStrings(s, makeLowerCase);
+        final List<String>[] res = TextSearchFun.splitStrings(s, makeLowerCase);
         subject = res[0];
         notSubject = res[1];
     }
-    public void setContentString(String s, boolean makeLowerCase) {
+    public void setContentString(final String s, final boolean makeLowerCase) {
         contentMakeLowercase = makeLowerCase;
-        List[] res = TextSearchFun.splitStrings(s, makeLowerCase);
+        final List<String>[] res = TextSearchFun.splitStrings(s, makeLowerCase);
         content = res[0];
         notContent = res[1];
     }

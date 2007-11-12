@@ -606,9 +606,10 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
             final Board board,
             final long startDate,
             final long endDate,
+            final boolean searchInDisplayedMessages,
             final boolean withContent,
             final boolean withAttachments,
-            boolean showDeleted,
+            final boolean showDeleted,
             final MessageCallback mc)
     {
         if( !beginCooperativeThreadTransaction() ) {
@@ -620,8 +621,25 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
                 logger.severe("error: no perst board for search");
                 return;
             }
+
+            final Iterator<PerstFrostMessageObject> i;
+
             // normal messages in date range
-            final Iterator<PerstFrostMessageObject> i = bo.getMessageIndex().iterator(startDate, endDate, Index.ASCENT_ORDER);
+            final Iterator<PerstFrostMessageObject> i1 = bo.getMessageIndex().iterator(startDate, endDate, Index.ASCENT_ORDER);
+
+            if( searchInDisplayedMessages ) {
+                // add ALL unread messages, also those which are not in date range
+                final Iterator<PerstFrostMessageObject> i2 = bo.getUnreadMessageIndex().iterator();
+                // add ALL flagged and starred messages, also those which are not in date range
+                final Iterator<PerstFrostMessageObject> i3 = bo.getStarredMessageIndex().iterator();
+                final Iterator<PerstFrostMessageObject> i4 = bo.getFlaggedMessageIndex().iterator();
+
+                // join all results
+                i = getStorage().join(new Iterator[] {i1, i2, i3, i4} );
+            } else {
+                i = i1;
+            }
+
             while(i.hasNext()) {
                 final PerstFrostMessageObject p = i.next();
                 if(!showDeleted && p.isDeleted) {

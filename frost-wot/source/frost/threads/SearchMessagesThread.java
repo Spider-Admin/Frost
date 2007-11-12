@@ -39,56 +39,55 @@ public class SearchMessagesThread extends Thread implements MessageCallback {
     SearchMessagesDialog searchDialog; // used to add found messages
     SearchMessagesConfig searchConfig;
 
-    private TrustStates trustStates = new TrustStates();
+    private final TrustStates trustStates = new TrustStates();
 
     private boolean stopRequested = false;
 
-    public SearchMessagesThread(SearchMessagesDialog searchDlg, SearchMessagesConfig searchCfg) {
+    public SearchMessagesThread(final SearchMessagesDialog searchDlg, final SearchMessagesConfig searchCfg) {
         searchDialog = searchDlg;
         searchConfig = searchCfg;
     }
 
+    @Override
     public void run() {
 
         try {
             // select board dirs
-            List boardsToSearch;
+            List<Board> boardsToSearch;
             if( searchConfig.searchBoards == SearchMessagesConfig.BOARDS_DISPLAYED ) {
                 boardsToSearch = MainFrame.getInstance().getTofTreeModel().getAllBoards();
             } else if( searchConfig.searchBoards == SearchMessagesConfig.BOARDS_CHOSED ) {
                 boardsToSearch = searchConfig.chosedBoards;
             } else {
-                boardsToSearch = new ArrayList(); // paranoia
+                boardsToSearch = Collections.emptyList(); // paranoia
             }
 
-            DateRange dateRange = new DateRange();
+            final DateRange dateRange = new DateRange();
 
-            for(Iterator i=boardsToSearch.iterator(); i.hasNext(); ) {
+            for( final Board board : boardsToSearch ) {
 
                 if( isStopRequested() ) {
                     break;
                 }
 
-                Board board = (Board)i.next();
-
                 // build date and trust state info for this board
                 updateDateRangeForBoard(board, dateRange);
                 updateTrustStatesForBoard(board, trustStates);
-                
+
                 searchBoard(board, dateRange);
 
                 if( isStopRequested() ) {
                     break;
                 }
             }
-        } catch(Throwable t) {
+        } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Catched exception:", t);
         }
         searchDialog.notifySearchThreadFinished();
     }
-    
-    
-    public boolean messageRetrieved(FrostMessageObject mo) {
+
+
+    public boolean messageRetrieved(final FrostMessageObject mo) {
         // search this xml file
         searchMessage(mo);
 
@@ -96,37 +95,40 @@ public class SearchMessagesThread extends Thread implements MessageCallback {
     }
 
     // Format: boards\2006.3.1\2006.3.1-boards-0.xml
-    private void searchBoard(Board board, DateRange dr) {
+    private void searchBoard(final Board board, final DateRange dr) {
 //System.out.println("startDate="+dr.startDate);
 //System.out.println("endDate="+dr.endDate);
         if( searchConfig.searchInKeypool ) {
             try {
+                // if we search displayed messages, we must search all new and flagged/starred too
+                final boolean retrieveDisplayedMessages = (searchConfig.searchDates == SearchMessagesConfig.DATE_DISPLAYED);
                 MessageStorage.inst().retrieveMessagesForSearch(
-                        board, 
-                        dr.startDate, 
-                        dr.endDate, 
+                        board,
+                        dr.startDate,
+                        dr.endDate,
+                        retrieveDisplayedMessages,
                         ((searchConfig.content==null||searchConfig.content.size()==0)?false:true), // withContent
                         false, // withAttachment
                         false, // showDeleted
                         this);
-            } catch(Throwable e) {
+            } catch(final Throwable e) {
                 logger.log(Level.SEVERE, "Catched exception during getMessageTable().retrieveMessagesForSearch:", e);
             }
         }
         if( searchConfig.searchInArchive ) {
             try {
                 ArchiveMessageStorage.inst().retrieveMessagesForSearch(
-                        board, 
-                        dr.startDate, 
-                        dr.endDate, 
+                        board,
+                        dr.startDate,
+                        dr.endDate,
                         this);
-            } catch(Throwable e) {
+            } catch(final Throwable e) {
                 logger.log(Level.SEVERE, "Catched exception during getMessageArchiveTable().retrieveMessagesForSearch:", e);
             }
         }
     }
 
-    private void searchMessage(FrostMessageObject mo) {
+    private void searchMessage(final FrostMessageObject mo) {
 
         // check private, flagged, starred, replied only
         if( searchConfig.searchPrivateMsgsOnly != null ) {
@@ -154,7 +156,7 @@ public class SearchMessagesThread extends Thread implements MessageCallback {
         if( matchesTrustStates(mo, trustStates) == false ) {
             return;
         }
-        
+
         // check attachments
         if( searchConfig.msgMustContainBoards && !mo.hasBoardAttachments() ) {
             return;
@@ -162,7 +164,7 @@ public class SearchMessagesThread extends Thread implements MessageCallback {
         if( searchConfig.msgMustContainFiles && !mo.hasFileAttachments() ) {
             return;
         }
-        
+
         if( !matchText(mo.getFromName(), searchConfig.senderMakeLowercase, searchConfig.sender, searchConfig.notSender) ) {
             return;
         }
@@ -184,8 +186,13 @@ public class SearchMessagesThread extends Thread implements MessageCallback {
     /**
      * @return  true if text was accepted, false if not
      */
-    private boolean matchText(String origText, boolean makeLowerCase, List strings, List notStrings) {
-        
+    private boolean matchText(
+            final String origText,
+            final boolean makeLowerCase,
+            final List<String> strings,
+            final List<String> notStrings)
+    {
+
         if( !notStrings.isEmpty() || !strings.isEmpty() ) {
             String text;
             if( makeLowerCase ) {
@@ -193,7 +200,7 @@ public class SearchMessagesThread extends Thread implements MessageCallback {
             } else {
                 text = origText;
             }
-            
+
             // check NOT strings
             if( !notStrings.isEmpty() ) {
                 if( TextSearchFun.containsAnyString(text, notStrings) ) {
@@ -210,7 +217,7 @@ public class SearchMessagesThread extends Thread implements MessageCallback {
         return true; // ok!
     }
 
-    private boolean matchesTrustStates(FrostMessageObject msg, TrustStates ts) {
+    private boolean matchesTrustStates(final FrostMessageObject msg, final TrustStates ts) {
 
         if( msg.isMessageStatusGOOD() && ts.trust_good == false ) {
             return false;
@@ -234,7 +241,7 @@ public class SearchMessagesThread extends Thread implements MessageCallback {
         return true;
     }
 
-    private void updateTrustStatesForBoard(Board b, TrustStates ts) {
+    private void updateTrustStatesForBoard(final Board b, final TrustStates ts) {
         if( searchConfig.searchTruststates == SearchMessagesConfig.TRUST_ALL ) {
             // use all trust states
             ts.trust_good = true;
@@ -262,9 +269,9 @@ public class SearchMessagesThread extends Thread implements MessageCallback {
         }
     }
 
-    private void updateDateRangeForBoard(Board b, DateRange dr) {
-        LocalDate nowLocalDate = new LocalDate(DateTimeZone.UTC);
-        long todayMillis = nowLocalDate.plusDays(1).toDateMidnight(DateTimeZone.UTC).getMillis();
+    private void updateDateRangeForBoard(final Board b, final DateRange dr) {
+        final LocalDate nowLocalDate = new LocalDate(DateTimeZone.UTC);
+        final long todayMillis = nowLocalDate.plusDays(1).toDateMidnight(DateTimeZone.UTC).getMillis();
         if( searchConfig.searchDates == SearchMessagesConfig.DATE_DISPLAYED ) {
             dr.startDate = nowLocalDate.minusDays(b.getMaxMessageDisplay()).toDateMidnight(DateTimeZone.UTC).getMillis();
             dr.endDate = todayMillis;
