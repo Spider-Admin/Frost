@@ -34,8 +34,8 @@ import frost.boards.*;
 import frost.gui.model.*;
 import frost.messages.*;
 import frost.threads.*;
-import frost.util.gui.*;
 import frost.util.gui.translation.*;
+import frost.util.gui.tristatecheckbox.*;
 
 public class SearchMessagesDialog extends JFrame implements LanguageListener {
 
@@ -102,10 +102,10 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     private JRadioButton boards_RBchosed = null;
     private JButton boards_Bchoose = null;
     private JTextField boards_TFchosedBoards = null;
-    private TriStateCheckBox2 search_CBprivateMsgsOnly = null;
-    private TriStateCheckBox2 search_CBflaggedMsgsOnly = null;
-    private TriStateCheckBox2 search_CBstarredMsgsOnly = null;
-    private TriStateCheckBox2 search_CBrepliedMsgsOnly = null;
+    private TristateCheckBox search_CBprivateMsgsOnly = null;
+    private TristateCheckBox search_CBflaggedMsgsOnly = null;
+    private TristateCheckBox search_CBstarredMsgsOnly = null;
+    private TristateCheckBox search_CBrepliedMsgsOnly = null;
     private JLabel LsearchResult = null;
     private JScrollPane jScrollPane = null;
     private SearchMessagesResultTable searchResultTable = null;
@@ -1105,30 +1105,30 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
      *
      * @return javax.swing.JCheckBox
      */
-    private TriStateCheckBox2 getSearch_CBprivateMsgsOnly() {
+    private TristateCheckBox getSearch_CBprivateMsgsOnly() {
         if( search_CBprivateMsgsOnly == null ) {
-            search_CBprivateMsgsOnly = new TriStateCheckBox2();
+            search_CBprivateMsgsOnly = new TristateCheckBox();
         }
         return search_CBprivateMsgsOnly;
     }
 
-    private TriStateCheckBox2 getSearch_CBflaggedMsgsOnly() {
+    private TristateCheckBox getSearch_CBflaggedMsgsOnly() {
         if( search_CBflaggedMsgsOnly == null ) {
-            search_CBflaggedMsgsOnly = new TriStateCheckBox2();
+            search_CBflaggedMsgsOnly = new TristateCheckBox();
         }
         return search_CBflaggedMsgsOnly;
     }
 
-    private TriStateCheckBox2 getSearch_CBstarredMsgsOnly() {
+    private TristateCheckBox getSearch_CBstarredMsgsOnly() {
         if( search_CBstarredMsgsOnly == null ) {
-            search_CBstarredMsgsOnly = new TriStateCheckBox2();
+            search_CBstarredMsgsOnly = new TristateCheckBox();
         }
         return search_CBstarredMsgsOnly;
     }
 
-    private TriStateCheckBox2 getSearch_CBrepliedMsgsOnly() {
+    private TristateCheckBox getSearch_CBrepliedMsgsOnly() {
         if( search_CBrepliedMsgsOnly == null ) {
-            search_CBrepliedMsgsOnly = new TriStateCheckBox2();
+            search_CBrepliedMsgsOnly = new TristateCheckBox();
         }
         return search_CBrepliedMsgsOnly;
     }
