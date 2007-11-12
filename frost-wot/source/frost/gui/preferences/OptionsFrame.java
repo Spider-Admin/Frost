@@ -86,7 +86,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
     private DisplayPanel displayPanel = null;
     private DisplayBoardTreePanel displayBoardTreePanel = null;
     private DisplayMessagesPanel displayMessagesPanel = null;
-    private SkinPanel skinPanel = null;
     private DownloadPanel downloadPanel = null;
 
     private boolean exitState;
@@ -143,12 +142,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
      */
     private void cancel() {
         exitState = false;
-
-        if (skinPanel != null) {
-            //If the skin panel has been used, undo any possible skin preview
-            skinPanel.cancel();
-        }
-
         dispose();
     }
 
@@ -243,13 +236,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         return displayMessagesPanel;
     }
 
-    private SkinPanel getSkinPanel() {
-        if( skinPanel == null ) {
-            skinPanel = new SkinPanel(this, frostSettings);
-        }
-        return skinPanel;
-    }
-
     private DownloadPanel getDownloadPanel() {
         if (downloadPanel == null) {
             downloadPanel = new DownloadPanel(this, frostSettings);
@@ -302,7 +288,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
             listData.add( new ListBoxData("    "+"Messages"+" ", getDisplayMessagesPanel()));
             listData.add( new ListBoxData(" "+language.getString("Options.expiration")+" ", getExpirationPanel()));
             listData.add( new ListBoxData(" "+language.getString("Options.search")+" ", getSearchPanel()));
-            listData.add( new ListBoxData(" "+language.getString("Options.skins")+" ", getSkinPanel()));
             listData.add( new ListBoxData(" "+language.getString("Options.miscellaneous")+" ", getMiscPanel()));
             optionsGroupsList = new JList(listData);
             optionsGroupsList.setSelectionMode(DefaultListSelectionModel.SINGLE_INTERVAL_SELECTION);
@@ -390,9 +375,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         }
         if (displayMessagesPanel != null) {
             displayMessagesPanel.ok();
-        }
-        if( skinPanel != null ) {
-            skinPanel.ok();
         }
         if (downloadPanel != null) {
             downloadPanel.ok();

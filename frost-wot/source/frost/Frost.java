@@ -294,12 +294,6 @@ public class Frost {
             // check for fecImpl.jar
             jarFileName = "fecImpl.jar";
             Class.forName("fecimpl.FECUtils");
-            // check for skinlf.jar
-            jarFileName = "skinlf.jar";
-            Class.forName("com.l2fprod.gui.SkinApplet");
-            // check for skinlfFix.jar
-//            jarFileName = "skinlfFix.jar";
-//            Class.forName("com.l2fprod.gui.plaf.skin.SkinlfFixMarkerClass");
             // check for datechooser.jar
             jarFileName = "datechooser.jar";
             Class.forName("mseries.ui.MDateEntryField");
