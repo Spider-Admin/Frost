@@ -1,0 +1,1130 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+  <HEAD>
+    <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <META http-equiv="Content-Style-Type" content="text/css">
+    <LINK rel="stylesheet" href="style.css" type="text/css">
+    <TITLE>Frost History</TITLE>
+  </HEAD>
+  <BODY>
+<H2>Frost History</H2>
+<PRE>
+PENDING:
+------------
+
+- fixed bug that some unread messages were not shown
+  in threaded view when 'Show only unread messages' is enabled
+- hopefully fixed bug that leaded to a perst StorageError, included
+  repair tool for already broken stores
+  Invoke the repair tool:
+  WINDOWS:
+   java -cp frost.jar;lib/perst15.jar frost.storage.perst.RepairPerstStorage
+  LINUX:
+   java -cp frost.jar:lib/perst15.jar frost.storage.perst.RepairPerstStorage
+- all data are now stored in perst storages instead of McKoi sql db
+  - faster display of boards
+  - messages with state NEW, FLAGGED or STARRED are now always shown
+- re-requested downloads start automatically when download is still
+  in FAILED state and the lastUploadedTime changed to a later value
+- confirmation message for 'Mark all messages read' can be suppressed
+
+2007.07.19:
+------------
+
+- length of file list download queue is shown in status bar ("FLQ").
+  This is the number of file lists that wait to get downloaded.
+  When all items were downloaded, the file base is most current
+  and the file search finds the latest files.
+- fixed bug 1749043: Table layout corrupted after 'Mark thread read'
+- new options to hide files from users marked CHECK or OBSERVE,
+  the options are now accessible directly in the search files panel
+  ('Options...' button).
+- new option 'Never expire flagged and starred messages', prevents
+  expiration of any flagged/starred messages, and  shows them in the
+  message table even if they are older then the configured days to
+  display
+- Windows: 'Always minimize to systray' now remembers if the window
+           was maximized before user clicked the minimize icon.
+- 0.7: all KSK requests are now handled by one connection to the node
+       ("fcp2.useOneConnectionForMessages" in frost.ini)
+- 0.7: disabling a running upload or download item now changes its
+       priority to 6 (pause), enabling an item changes its priority
+       to the default priority for files
+- 0.7: added menu item 'Remove item from global queue' to uploads
+       and downloads table popup menu
+
+2007.07.02:
+------------
+
+- 'minimize to systray' button fixed
+- new option to automatically minimize Frost to tray when the
+  window is minimized (systray icon must be enabled)
+- respect archive interval days (don't run archiving each startup)
+- downloads/uploads are now started in the same order as
+  they were added
+- fixed ugly bug: backward messages were downloaded again and again
+- new popup menu entry for uploads and downloads table:
+  'Start selected Uploads/downloads immediately'. Overrules the 
+  configured maximum count of running uploads/downloads.
+- the filename tooltip in upload table or download table shows
+  the time when the item was added/started/finished
+  (only shown when informations are set)
+- 0.5: during startup old upload file chunks are removed from
+       localdata directory (.checkblocks/.redirect files).
+       ("removeOldUploadFileChunks" in frost.ini)
+- 0.7: fixed problem that Frost was not able to download
+       keys with a filename that ends to .zip. The node
+       tries to do fancy things in this case and the download
+       fails even if the file is there. Frost now recognizes
+       this case and restarts the download using a key without
+       any path level.
+- 0.7: the target filename of a PUT is now set when you
+       add a file manually to the uploads. This prevents
+       problems when downloading the file with applications
+       that have no special circumvention handling like Frost.
+       ("fcp2.setTargetfilenameForManualPut" in frost.ini)
+
+2007.06.28:
+------------
+
+- greatly enhanced startup speed for 'Manage identities' dialog,
+  thanks to database-man
+- removed import from old Frost versions (previous version must
+  be at least 23-Dec-2006)
+- migrated various internal tables from McKoi SQL database to
+  perst object database, much faster, lesser usage of disk space
+  and memory (messages are still in in McKoi database)
+- archiving and cleanup of McKoi tables now only all 5 days
+- fixed message download bug, it happened that Frost stopped to
+  download message indices of a board too early
+- fixed another message download bug, not all days backwards
+  were correctly downloaded
+- Frost now receives only messages from Frost version 20-Jun-2006
+  or later (the message must have a valid unique message id!)
+      
+2007.04.19:
+------------
+
+FIXED BUGS:
+
+- 0.7: one file sharing download had no MaxSize set
+- 0.7: fixed latest cross-board message re-posting attack, now more
+  fields are contained in the digital signature. This is backward
+  compatible, old Frosts can read messages from new Frosts, and new Frosts
+  show messages from old Frosts with an italic "Sig" string. You can disable
+  to receive messages with the old signature in the options.
+
+2007.04.13:
+------------
+
+FIXED BUGS:
+
+- close of a searchtab cancels a running search
+- modal dialogs will not be hidden in the background
+- redesigned several database transactions to avoid database
+  corruption in case of a crash
+- after drag'n drop or delete of a board the root node is not any
+  longer selected each time
+- message subject tooltip bug fixed
+- message viewer scrolls not to idline bug fixed
+- delete key deletes message, also when selection is in preview pane
+- Windows platform: restore from systray shows Frost window topmost
+- fixed 'n' key bug
+- fixed 'threads shown during message load' bug
+- GUI fixes (button layout in metal look and feel)
+- finally fixed bug that showed new messages for a board,
+  but when you clicked on the board there was no new message
+- fixed a 'hang' when more than the maximum allowed files
+  were found in the file search
+- fixed archiving of messages with duplicate ids
+- fixed NPE in table formats (happened very seldom)
+- added 'Mark selected messages read' for multiple selected
+  messages
+- added set of trust states for multiple selected messages
+- balanced the file sharing/file requesting logic
+
+NEW FEATURES:
+
+- implemented sent/unsent folders in board tree
+- if node is down during startup, automatic board update is not
+  disabled (not really a new feature but a change), but the title
+  bar displays "(offline mode)"
+- redesigned options dialog (splitted the display panel)
+- new option to prevent reordering of boards in board tree
+- new option: board in board tree show indicators if board
+  contains flagged or starred messages
+- new option to show message threads collapsed (default is expanded)
+- if the root message of a thread is missing, it shows the subject
+  of a child message
+- during startup of Frost, if multiple shared files are missing,
+  Frost showed one dialog for each missing file. Now you can choose
+  to skip further dialogs of same type
+- sent private messages are now shown in the message list (I hope
+  there are no bad side effects caused by this enhancement)
+- added a button to show only unread messages (flat view) or only
+  the threads with unread messages (threaded view)
+- file search performance was improved when searching for any words
+  (its currently faster to search for 'mp3' than to select 'Audio files')
+- restructured and cleanup up the options dialog
+- added 'look and feel' menu to options menu
+- added swedish translation
+- added subject text to message preview pane, popup menu
+  allows to copy subject text
+- added incremental search feature to message preview and viewer.
+  click in the text area and press ctrl-i to start case-insensitive
+  search or ctrl-shift-i for case-sensitive search. While searching
+  press up/down key to select next/previous match in text. Press ESC
+  to end the search.
+- incremental search also works in download table, upload table,
+  shared files table, search table and in message tree/list.
+  The selected column is searched.
+- incremental search also works in board tree
+- Look and feel is correctly saved
+- Look and feel is applied to all panels
+- Look and feel does not reset when closing the options dialog
+- Copy extented info to clipboard copies correct key/filename
+- 'Copy keys only' for attached files works now on 0.5;
+  and is not longer shown on 0.7
+- 'Copy keys ...' for attached files does not longer attach a
+  newline when only 1 key is copied
+- added menu items to enable/disable upload items to popup menu
+- added esperanto translation
+- download/upload starts smallest items first and continues
+  started items correctly on 0.5
+
+- Windows platform: the systray icon indicates new messages
+
+- 0.7: Frost now uses the global queue for file uploads and downloads
+- 0.7: no DDA for message transfers (as recommended by toad)
+- 0.7: more robust code to handle disappeared nodes, Frost shows
+       when node is disconnected and reconnects automatically
+- 0.7: added config file options to set default priority for files and
+       messages, useful when using the HARD scheduler.
+       "fcp2.defaultPriorityMessage" and "fcp2.defaultP
+
+2007.01.07:
+------------
+
+FIXED BUGS:
+
+- font is correctly applied in message list, and its applied after it was changed in
+  the option dialog
+- fixed sorting of 'Enabled' columns in upload and download table
+- fixed several problems in translation plugin
+- restructured database access code, greatly reduces load and memory footprint.
+  also fixes the lost shared files issue.
+- fixed problem with new identity handling, new identities with same pubkey
+  as already known identities are now dropped (together with the message).
+  (the FAKE message state is not any longer used for new messages, all invalid
+   messages are dropped and a log entry is written)
+- 0.5: fixed a memory leak in splitfile insertion
+
+NEW FEATURES:
+
+- message state FAKE is now drawn in red color
+- added a button to advanced search panel to clear all text fields
+- added polish translation
+- 0.7: now showing appr. filesize for downloads, computed from the total finalized blocks
+- 0.7: MIME type is now set for manual uploads and attachment uploads
+- 0.7: MaxSize is used for message and filelist downloads
+
+2006.12.23:
+------------
+
+There are too much changes in Frost to mention them all. Check out the various menus
+and popup menus for table items. Many table cells (e.g. with icons) have self-describing
+tooltips.
+
+Some of the new features:
+- multiple identities
+- last used sender is remembered for each board separately
+- completely new filesharing; now global (search based on keywords), not board based
+- message threads
+- a database is used for all data
+- select the root node in board tree to see sent and unsent messages
+
+2006.06.20:
+------------
+
+Added: Download panel input field now accepts keys separated by semicolon OR
+       one key per line (this is new).
+Added: Sum of remaining file attachments to upload for all uploading messages is now
+       shown in status bar (the A value in TOFUP).
+Added: Initial work for threaded messages, messages not get a unqiue anonymous ID and
+       maintain a InReplyTo list. Thjis will allow to implement a thread view later,
+       because the existing messages already have the needed informations.
+
+Changed: After alot of work the translateable strings in Frost have been structured and
+         were moved into a properties file. This file must be in UTF-8 encoding.
+         A translation dialog is available in Plugins menu. The translations are saved
+         in folder localdata/i18n/ and are available as external languages in
+         the language menu.
+
+Bugfix: The first startup dialog now allows to enter an IP address and port for the
+        freenet node.
+Bugfix: If signing of uploaded files is disabled, the owner of any file in the shared
+        files of a board got lost.
+
+2006.04.21:
+------------
+
+Added: Column position and column width of message table is now saved during shutdown.
+Added: Added a graphical memory monitor ('Help' menu).
+Added: Alternate editor support now works again. You can write a message with any
+       program you want. Please take care that the external program must save the
+       file in UTF-8 format to preserve your character encoding.
+Added: Russian translation, thanks to VolodyA.
+Added: Search dialog to search for messages in keypool and archive ('News' menu).
+       This was a hard piece of work, but finally its there.
+Added: 'Copy keys' in popup menu of file attachments table. Table now also shows the key.
+Added: 'Add to known boards' in popup menu of board attachment table.
+Added: Options to block boards from unsigned, bad, check or observe users.
+       If blocked the boards in a message are not added to the known boards list.
+Added: Mouse wheel support for scrollable components.
+Added: Board tree now shows board description as tooltip (configureable in options).
+Added: Multiline selections in message table. If more than one message is selected,
+       you can (only) delete/undelete the selected messages. Configureable in options.
+Added: HTML help browser to show the help pages in the /frost/help/help.zip file.
+       You can search in HTML pages and there is a context menu to copy selected text
+       to the clipboard. Check it out!
+Added: Own Java security manager. Frosts security manager only allows Frost to open
+       TCP/IP connections to the configured FCP hosts. All other connections attempts
+       will not be allowed. This makes external links within the HTML help pages
+       impossible, providing you maximum anonymity. Additionally the HTML pages in
+       help.zip are scanned for external URLs during startup, if any external link
+       is found the whole help will be disabled (help menu items are not chooseable).
+Added: External conversion tool to convert all XML files in keypool and archive from
+       encoding UTF-16 into encoding UTF-8. Frost must not run if the tool is started.
+       Use the convertXML.bat or convertXML.sh startup script to invoke the tool.
+       Please note that you must not run the tool to continue to use Frost, but it may
+       help to save you some space on your hard drive. After the conversion its job is
+       done, all files created by Frost are now in UTF-8 encoding by default.
+Added: Implemented Freenet 0.7 support into official Frost. Frost can now run with
+       Freenet 0.5 and 0.7, but not at the same time because the key formats are
+       different. You need to run one Frost instance for each Freenet network.
+
+Changed: Nicer board attachment chooser, contains checkboxes now.
+Changed: All XML files are now saved in UTF-8 encoding, saves space.
+Changed: Message window enhanced, shows attachments and more informations, allows reply.
+Changed: Duplicate message prevention reenabled, and created an option for it.
+Changed: Improved log file outputs, e.g. the for message upload log entries the freenet
+         key is now shown.
+
+Bugfix: Fixes in checkbox handling of MessageFrame.
+Bugfix: Fixes in message download handling.
+Bugfix: Splitfile download sometimes hung with state 100% for a long time.
+Bugfix: After download the target file was sometimes not renamed to the correct filename.
+Bugfix: File extension search is now case insensitiv (*.txt finds *.TXT now).
+
+******************************************************************************************
+
+2006.02.16:
+------------
+
+Added: Added an early version of a 'sent' folder. It is NOT visible in the
+       GUI right now (needs bigger changes in folder management), but all
+       sent messages (encrypted messages too) are now stored into a folder
+       in the Frost directory (localdata/sent/) after a successful upload.
+       You can open the sent messages in this folder using e.g. your internet
+       browser. The 'sent' folder is included in the archiving process.
+Added: added browse button for archive folder in expiration options
+
+Changed: Disabled the duplicate message prevention mechanism (hashes.xml).
+         Maybe it is not any longer needed, if users report many duplicate
+         message I will enable it again.
+Changed: Disabled translation feature, I wanted to fix it and recognized that
+         it did never work correctly. If you want to translate Frost contact me.
+
+Bugfix: Added fixes to (hopefully) prevent lost messages now. After ages of
+        analysing I think the problem is the (now working) probabilistic caching
+        in freenet node that does not always add the inserted message to your
+        own store. This leads to situations where another message is inserted
+        to the same message index by Frost and no key collision occured.
+        Frost now retrieves the successfully uploaded file immediately after
+        the upload to ensure it is in your store. If this fails the upload
+        is retried.
+Bugfix: Fixed some problems that happened if the count of days to download
+        backwards was set to zero (e.g. no file index download started).
+Bugfix: Fixed problem that currently shown message scrolled to bottom when a
+        new message in same board arrives. New message indication
+        (yellow icon) was also reset in this case, fixed too.
+Bugfix: Fixed problem that occured if an unsent message is resend on Frost
+        startup that contains file attachments and the files where deleted you
+        got an annoying dialog telling you that the resend failed. Now the
+        message is deleted (because its not valid without the attachment files).
+Bugfix: It happened that new messages were indicated for a FOLDER, fixed (thanks mildew).
+
+******************************************************************************************
+
+2005.10.20:
+------------
+
+Added: message archiving feature (move expired msgs from keypool to archive folder)
+
+Changed: made uploads more reliable (increased socket timeout)
+Changed: improved keypool cleanup
+
+Bugfix: fixed the splitfile upload at last, it was broken and works now
+
+******************************************************************************************
+
+2005.10.11:
+------------
+(important bugfix release, fixes many internal issues)
+
+Changed: 'Next unread' button (or key 'n') now jumps to next unread message BY DATE
+Changed: Frost now uses lesser threads and lesser memory (reduces system load)
+
+Bugfix: restricted size of keyfile to upload (prevents 'KSK key too large' messages)
+Bugfix: reworked MessageHashes to prevent init errors, restricted list size
+Bugfix: several bugfixes in UpdateId area
+Bugfix: problems with minimize to system tray solved, Frost now shows the current
+        identity in title
+
+******************************************************************************************
+
+2005.09.18:
+------------
+
+Added: timestamp to hashes.xml; and implemented automatic cleanup of old entries
+Added: Reworked the feature to send encrypted messages. The encrypted message must be
+       signed, anonymous encrypted messages are not possible.
+       If an encrypted message for you arrives, it appears in the board it was sent to
+       and the FROM text is drawn in RED. The sender will not see its own sent message
+       (because he is not able to decrypt it).
+       If you want to write an encrypted message to someone you must have marked him GOOD.
+       Then start to write a new message in a board, select 'Sign' and 'Encrypt' in
+       the message dialog and choose the correct receiver from the drop down list.
+       Then send the message as usual...
+       (If you press REPLY to a selected encrypted message, the message dialog will
+        automatically select 'Encrypt' and add the correct recipient.)
+       The reworked encryption now uses AES to encrypt the data and RSA to encrypt the
+       AES session key.
+
+    NOTE TO ENCRYPTED MESSAGES:
+       Currently the encrypted messages are send to a board, the recipient must be
+       subscribed to this board. The message is encrypted with the public key of the
+       recipient, only he is able to decrypt the message. Additionally the encrypted
+       message is signed by the sender.
+       The sending to a board WILL be changed in the future! Later Frost versions will be
+       able to receive both types of private messages (to common boards and to a private
+       board).
+       I think the easiest way to implement private boards is as follows:
+       Currently every identity has a unique name, which is NAME@DIGEST-OF-KEY.
+       For private boards of a user we could use following KSK key:
+       KSK@DIGEST-OF-KEY/NAME/file
+       This way we don't have to create new keys. But you can't send a private message to
+       a user if you have only his unique name, because Frost additionally needs the
+       complete public key of the user to encrypt the message for him.
+       Later we could implement to allow to send/receive messages like pm4pigs to
+       maybe make Frost compatible to pm4pigs...
+
+Added: generating and spreading of private board SSK key
+Added: 'Mark ALL messages read' to boards and folders in boards tree
+Added: 'Add board to folder ...' added to popup menu of board attachments and in known
+       boards dialog
+Added: signature is not appended for anonymous  (unsigned) messages
+Added: Board settings can be changed for ALL boards in a folder
+       (including in all sub folders).
+       Right click onto a folder and choose 'Change settings', then select all that you
+       want to change for all boards. Unselected settings are unchanged in each board.
+Added: Option to enable/disable the automatic board updates is now available in
+       Preferences dialog - News(3) too.
+       Previously this setting was only changeable in menu News.
+Added: Copy to clipboard functionality is now available in search table too.
+Added: You can paste multiple keys into the download text box, separated by a ';'
+Added: New user trust state OBSERVE, which is between CHECK and GOOD.
+       For users that you trust not fully. The old N/A state was obsolete and was removed.
+Added: lastSeenTimestamp for each Identity.
+       Needed later to cleanup old Identities by user request.
+Added: Shortkeys in message table:
+       - press 'n' to jump to next UNREAD message in current board
+       - press 'g' to mark sender of selected message GOOD
+       - press 'o' to mark sender of selected message OBSERVE
+       - press 'c' to mark sender of selected message CHECK
+       - press 'b' to mark sender of selected message BAD
+       (thanks to mentalsurge for this code!)
+Added: Button to jump to next unread message.
+Added: Possibility to filter by board name in known boards dialog.
+
+Changed: Removed support for loading the very old format of 'hashes' and 'identities'
+         because all Frost versions should support the XML format now.
+         Up to the version 30-Aug-2005 the old format was silently converted by Frost
+         to the new XML format.
+Changed: removed need for .sig files, changing trust state is now very fast,
+         there is a one-time convert needed for this (done on startup of frost)
+Changed: Updated history.txt file, so the Help dialog will show correct history again.
+Changed: upgraded from Apache Xerces XML parser version 2.4.0 to latest version 2.7.1
+Changed: upgraded the BouncyCastle encryption libraries to latest version 1.29
+Changed: the Java Object Cache is currently not used. It was responsible for serious
+         problems if messages are marked read, and I was not able to realize what its
+         benefits for Frost are. We even could use Hashtables for this.
+Changed: reworked message table internals, the table now updates much faster.
+Changed: Changing trust state does not reload the table.
+Changed: Option "Cleanup keypool" (News(3)) removed, added 2 new options in News(1):
+         "Delete expired messages" and "Number of days before a message expires".
+         If "Delete expired messages" is selected, Frost will check all files in
+         keypool (messages) on each startup for modification date and will delete files
+         older than "Number of days before a message expires".
+         Then all empty date directories in a board directory are deleted.
+         The deletion of expired files is also done all 6 hours after Frost startup,
+         directories are not deleted during runtime of Frost.
+Changed: Size of messages to upload is now proved, you get an error dialog if the zipped
+         message is too large and you have to shorten the message text.
+         The data + metadata of a KSK key must be smaller than 32K, therefore a zipped
+         XML message must be smaller or equal than 30000 bytes. The remaining bytes are
+         needed for the metadata Frost adds to the message.
+Changed: Files that switch to 'offline' state keep their CHK key. This means that if
+         this offline file is downloaded, the download is tried and only if the
+         download failed the file is requested (when requesting is enabled).
+
+Bugfix: fixes in MessageDownloadThread:
+        - validates format of all messages again
+        - writes indicator files for received invalid/double/broken messages
+        - under some circumstandes it was possible that message download stopped
+          before all indicies were tried to download
+Bugfix: Date of a message is set to current date when message is uploaded.
+        Needed because we check on message arrival if message date is (quite) the same as
+        date in the url that was used to retrieve the message.
+        Prevents Frost from receiving a new message with a date in the future/past.
+Bugfix: own identity state cannot be changed from GOOD any longer
+Bugfix: identites file was not valid because of bugs in Truster and BuddyList,
+        fixed all these bugs
+Bugfix: because of the bugs the identities file is maybe not completely valid,
+        added one-time repair for this, its silently done during Frost startup.
+Bugfix: fixed some issues with new messages (new message indicator not removed
+        after message was deleted,...)
+... and many other minor fixes ...
+
+******************************************************************************************
+
+2005.08.30
+-----------
+Bugfix: problem computing the first empty index for message uploads was fixed (IMPORTANT)
+Bugfix: some GUI fixes
+
+******************************************************************************************
+
+2005.03.02
+-----------
+Added: if we have an old identities file, it is deleted after being converted to the new
+       xml format.
+Added: saving of both the uploads and downloads models is much more robust now.
+Added: some internationalization improvements.
+Added: the messages about downloading and uploading files at the status bar are clearer
+Added: more details to the About dialog.
+Added: option to see again those messages that have been deleted (they appear crossed)
+Added: messagepopup menu option to undelete deleted messages
+Added: del key deletes selected message
+Added: new message window by double click on a message, ESC closes it
+Added: details to the dialog that pops up when there is an error while automatically
+       saving a resource.
+Added: popup menus to some other text fields (to perform the usual clipboard operations).
+Added: now you can enable/disable upload items.
+Added: uploads retry when failed.
+
+Changed: messages are signed by default.
+Changed: now the sizes of the new message window, the known boards window and the boards
+         info window are relative to the size of the main window.
+Changed: copy to clipboard submenus on both the uploads and downloads tables improved.
+         Now they support multiple selections and have an additional option
+         (copy extended info).
+Changed: now the message hashes are stored in XML format (instead of serialized).
+         This will prevent problems when migrating to a new version of Java.
+
+Bugfix: obsolete strings in the language resources were causing an exception when trying
+        to open the translation frame.
+Bugfix: message hashes are now thread safe, thus preventing a possible
+        ConcurrentModificationException while saving them.
+Bugfix: validation of received buckets added. This should solve the problem of corrupted
+        downloads.
+
+******************************************************************************************
+
+2004.12.02
+-----------
+Added:  messages can be deleted now.
+Added:  now the dialogs that may pop up when Frost is started create a dummy frame so that
+        the user can see on the task bar that there is activity going on.
+Added:  in case Frost finds an error while auto saving a resource, a popup is shown to
+        warn the user about the situation and the application closes itself.
+Added:  popup menu to the message body of the new message frame (cut, copy and paste).
+Added:  popup menus to all the JTextFields in the preferences (to perform the usual
+        clipboard operations).
+
+Changed: when an unsigned message is received with the @ character in the from field,
+         it is automatically blocked.
+Changed: skinlf updated to 1.2.10
+
+Bugfix: some information was being saved duplicated on the identities.xml file.
+Bugfix: with Java 1.5 Frost was failing to start from time to time (deadlock when showing
+        the main frame).
+Bugfix: Images that were created with Toolkit.getDefaultToolkit().createImage and were
+        not being checked with a MediaTracker could cause problems. Now replaced by
+        ImageIcon.
+
+******************************************************************************************
+
+2005.09.22
+-----------
+Added:  a title to the "Enabled" column of the downloads table.
+Added:  country flags to the language menu.
+Added:  now the user can choose which columns the search, download and upload tables
+        should show. That selection is made via a contextual menu that pops up when
+        right clicking on the table header.
+Added:  French translation vastly updated (thanks to RapHHfr).
+Added:  Message upload failed dialog internationalized.
+Added:  Option added to the preferences to disable the message upload failed dialog.
+        If disabled, Frost will retry to send it without asking the user.
+Added:  attachment split panes of the main frame internationalized.
+Added:  several French forums to the hierarchy that comes by default.
+Added:  option to the popup menu of the message body to copy the selected text to the
+        clipboard.
+
+Changed: splash screen logo replaced by a new one (thanks to Frédéric Scheer).
+Changed: when you are sending an anonymous message, the @ character is no longer allowed
+         as part of the from field.
+
+Bugfix: when the text in the "Name" column of the uploads table is written in bold and it
+        doesn't fit in the cell it isn't cropped correctly. Fixed now (it no longer uses
+        HTML internally to display it in bold).
+Bugfix: The message upload failed dialog works now. Some strings were missing from the
+        language resource (thanks to SSY).
+Bugfix: From Freenet 5099 on, keywords may be longer than 64 characters.
+        Thanks to mxbee for reporting it.
+Bugfix: The HopsToLive parameter must be in hexadecimal. Thanks to mxbee.
+Bugfix: With Java 1.5, the attachment split panes of both the main and the message frames
+        were not working well.
+
+******************************************************************************************
+
+2003.09.??
+-----------
+
+Added: added new systray support that could also be used on different platforms, currently
+       win32 supported; there is now a new icon for frost (icon by jantho)  --bback
+Added:   rewritten FEC insert and request code:  --bback
+  Added: uses java classes directly, not freenet node
+  Added: native encoding plugins supported (same as for freenet) -
+         but not really needed, Java IS fast
+  Added: stores temp files in data, checkblocks and redirect file,
+         not longer 1 file for each block
+  Changed: reliable handling of uploads and downloads
+  Changed: decode after each segment or all on end of download
+  Added: download all segments, even if one fails
+Added:   made the FileAccess methods explicitly define the encoding and use nio --zab
+Added: check for JAR files on startup of frost  --bback
+Added: 'pause' statement to frost.bat, should make life for many windows users easier
+       if errors occur  --bback
+Added: 'Mark ALL messages read' to popup menu of message table  --bback
+Added: support for detached signatures  in the crypto --zab
+Added: most of the infrastructure for multiple nodes support --zab
+Added: 'Copy CHK key to clipboard' to popup menu of upload table  --bback
+Added: added saving of board update progress  --bback
+Added: helping the requests of people marked GOOD --zab
+Added: 'Known boards' GUI dialog  --bback
+Changed: file transfer methods to 'bleeding edge' :   --zab
+	Changed:  Reworked the indexing scheme, serialized in object format in "indices-date"
+              format
+	Changed:  There is only one request thread, each batch of files has its own request
+              channel
+	Added:    Files shared more than N days ago are re-shared
+	Added:    Frost looks for indices up to N days ago
+Changed: added some short comments explaining what the different options do in the gui
+Changed: to insert a file directly, add it to upload table, right click it and choose
+         'Reload' you can also encode a newly added file on demand (see popup menu) to
+         prepare it for upload, but file will also be encoded if you choose to reload
+         (upload) it or if file is requested  --bback
+Changed: started moving towards more unified logging, will finish later --zab
+Bugfix: fixed bug within reloading of saved upload items  --bback
+Bugfix: a bug with trusted people's shared files --zab
+Bugfix: an infinite requests bug --zab
+Bugfix: bug of names containing //, try to workaround it --zab
+Bugfix: fixed 'Minimize to tray and never come up again' bug on
+        Windows systems --bback
+
+******************************************************************************************
+
+2003.05.12
+- many gui fixes, new table sorters (sorted insertion)
+- redesign of source code started
+
+2002.11.10
+- Added upload by request (file still can be uploaded, but you need the *force*)
+
+2002.11.01
+- Changed the board update algorithm. It should now update all boards, not only the most
+  active ones.
+- SearchTextField is disabled if request is processed
+- Add search results to downloadTable with doubleclick
+
+2002.10.26
+- Searchicon diabled if search is running
+
+2002.10.25
+- Start corresponding uplication if file is doubleclicked in up/downloadtable
+- Fixed nullPointerException in FileAccess.getAllEntries
+
+2002.10.23
+- Added workaround for unfinished downloads bug
+- If no attachment is selected, all attachments get into the download table
+
+2002.10.22
+- Changed Attachment display
+
+2002.06.26
+- Max. board name that gets displayed in the boardInfoFrame is 64 characters long.
+
+2002.06.20
+- Help frame now can display several documents (choose one with the combo box)
+- Help frame now scrolls to the top of the text when displaying a document.
+- Failed message uploads are retried on next startup
+- Small bugfixes in MessageUploadThread
+
+2002.06.16
+- Added file type selector to search tab
+- Added help frame, hope I can collect some hints for that
+
+2002.06.10
+- Continued development of Frost. Started with some smaller bugfixes.
+- Buttons get updated if board config gets changed
+- Improved Board update. More used boards get updated more often.
+- BoardInfoFrame now displays more known boards
+
+2001.12.17
+- Upload table is checked on startup, non existent files are no longer added to upload table
+
+2001.12.16
+- Fixed PGP signature failure
+- Fixed several NumberFormatExceptions
+
+2001.12.15
+- Message updated button always enabled
+- Fixed 'missing boards' bug
+- Added notStings to the search textfield.
+
+2001.12.11
+- Added metadata support (splitfiles are now compatible to fproxy)
+
+2001.12.08
+- update of all available boards
+
+2001.12.07
+- Using jar file now
+
+2001.12.03
+- Fixed bug in insertThread
+
+2001.12.02
+- Fixed severy bug causing Frost to use 100% CPU on FormatError
+
+2001.12.01
+- Imroved key update mechanism.
+- fixed bug causing restarts of unfinished uploads
+
+2001.11.29
+- Added *age filter to search requests
+- Selected messages are printed to terminal
+- Added tof popup with Save Message entry.
+- Added secure updates board
+
+2001.11.28
+- Secure messages sorted right now
+- Fixed board selection bug shitfuck
+- Fixed damned shitfuck bug with uploading large files
+- Where have I learned these words?
+
+2001.11.27
+- Reset lastSuccess in UpdateIdThread.java after midnight GMT
+
+2001.11.24
+- Fixed bug causing too many tofDownload threads on secure boards
+- Boards are sorted alphabetically now
+- Added warning message if message got no subject
+
+2001.11.23
+- Added secure boards
+- Fixed severe security bug
+
+2001.11.16
+- Added retry/cancel window if message upload fails
+- Removed Array out of bounds exception in tofDownload.java
+
+2001.11.15
+- Keep actual index files
+
+2001.11.14
+- Keep downloaded chunks until file is downloaded or removed from download table
+
+2001.11.13
+- fixed bug that prevented the key exchange system to run after 0:00 GMT
+  (without restarting)
+
+2001.11.12
+- no redirect on messages
+
+2001.11.11
+- released
+
+.
+. (damned, was too lazy to write everything down)
+.
+
+2001.11.04
+- Attachments are uploaded with "upload htl" and not "tof upload htl"
+- ID files are updated correct now
+- Upload Threads are started max. every 10 seconds
+  (less IOExceptions and connection failures)
+- Added sorting for "sharedTable"
+- sorting by alphabet is no more case sensitive
+- sorting by htl works now
+- splitfile upload returns "Error" if one chunk failed.
+- removed NullPointerException from UploadIdThread.java
+- removed NullpointerException from tofUpload.java
+- reduced Memory usage for uploads Threads to some few bytes
+- "Requested" files are no longer reset to "Never" after restarting Frost
+
+2001.11.03
+- Added 60 seconds Thread.sleep to tofDownload and tofDownloadBack
+
+2001.11.01
+- Fixed Timestamp bug
+- TOF Messages are now sorted my index if date (day) is equal
+
+2001.10.30
+- Added CofE's random splitfile download idea
+- Fixed a bug in SearchThread (did not display frame1.chk map's keys)
+
+2001.10.28
+- Back on main CVS branch
+- Lowered default upload htl's (all of them) to 5
+- Removed bug in SearchThread (display of chk.txt's keys was wrong)
+- Added "Upload selected files" popup entry to upload popup
+- Improved several things in UploadIdThread.java
+
+2001.10.27
+- Removed reply bug
+- Removed multiple message bug
+- Added search for "*" (are you happy now spaetz?)
+- damned, I forgot the rest...
+
+2001.10.26
+- Added search for multiple words
+- Successful downloads are now added to chk database
+- Boards are no longer case sensitive
+  (Case is shown, but internally all boards are handled lower case)
+- fixed NullPointerException with empty board selector
+- fixed second NullPointerException with empty board selector
+- Only exchange keyfiles if all upload/download threads have finished
+- Limited max search results to 5000
+- Removed naming bug in file exchange
+- fixed bug in SearchThread
+- Added chk.txt search results
+- Equal search results only show up once in the search results
+
+08.09.2001
+- Remember lastUsedDirectory in OptionsFrame
+- removed bug: remove done uploads works now.
+
+31.08.2001
+- Added SPlitPane to Search Tab
+
+30.08.2001
+- downloadAttachmentsButton disabled if no attachments in message
+- Default Icons in data directory are now used if no skin is selected
+- Remeber last used directory in "Add Attachments Dialog"
+
+29.08.2001
+- Fixed null pointer exception in files.java
+
+28.08.2001
+- Added "Important" state to uploads
+- Added upload popup menu
+
+04.08.2001
+- Added "Use Skins" option to the options frame
+
+03.08.2001
+- Added attachments to TOF
+- Shutdown process can now be interrupted without loss of data
+- Added: Remove finished downloads after 5 minutes
+- Added: Remove finished uploads after 5 minutes
+
+31.07.2001
+- Added date and time to title bar
+
+06.07.2001
+- Added several options to the OptionsFrame
+
+04.07.2001
+- Fixed "automaticUpdate" bug in OptionsFrame.java
+
+
+03.07.2001
+- Fixed some serious bugs in KeyExchangeThread
+- Fixed bug in keys.java (addKeys(Map newKeys) did not update key info properly)
+- KeyExchangeThread now uses GMT time
+- Added menu entry: Download yesterdays keys
+
+01.07.2001
+- Moved options to options frame.
+- improved frame1 code and reduced it's size from 118kb to 96kb!
+
+29.06.2001
+- Added Popup Menues to Search and Download Table.
+  Popup Menues can be created and extended easy.
+- Removed some (useless) code from frame1.java.
+
+28.06.2001
+- Uploads resulted in "Error" will be reset to "Waiting" on next startup.
+
+27.06.2001
+- Fixed sorting by size in search table
+
+24.06.2001
+- Fixed some bugs in requestThread.java
+
+23.06.2001
+- fixed bug in requestThread making an ArrayOutOfBounds Exception if an actually
+  downloaded file is removed from the download table
+
+22.06.2001
+- Added shared folders
+- Added "New board" action listener (press return to add board)
+- Added "Shared folders" jList1 action listener (Press DELETE to remove selected fodler)
+- Added Uploads/Update List menu entrie (rereads the shared folders and adds entries to
+  the upload list)
+- Uploading is now default active
+- New preferences frame (will move the options tab to this frame soon)
+
+16.06.2001
+- Don't remember all changes...
+- Keyfile handling completely rewritten (no more 900Kb keyfiles)
+- Several new options in the keys tab
+- Word wrapping for TOF messages
+- Automatic download of old messages (option in TOF tab)
+
+10.06.2001
+- Checked in some changes from Driftbrain concerning Linux.
+
+08.06.2001
+- The "Markers" did not scale good enough for lots of messages. Now trying the date thing.
+
+07.06.2001
+- Using "Markers" to determine actual message index. Old Messages can be downloaded via
+  TOF / Download old messages.
+- Search for multiple words divided by spaces. For example "venom resurrection mp3" or
+  ".zip mame"
+- No more Tool menu
+- TOFUP display bug fixed
+- No more defaultkeys. They died on freenet because nobody needed it
+  (Because YOU use Frost, THX)
+
+06.06.2001
+- VERY NICE small message icon if a new message arrives!!!
+- Long filenames setting from downlaod tab is saved to frost.ini.
+- TOF is updated automatically
+- Added Warning message to renaming tool
+- Automatic update setting is saved to frost.ini
+- hopefully fixed bug with insertThread
+
+05.06.2001
+- Username is saved to ini file.
+- KeyExchange and TofUpdate don't start at the same time (3 seconds difference).
+- Empty TOF files do not show up in the TOF table
+- Empty TOF files are removed and downloaded again.
+- Last used board is saved to ini file and automatically updated on startup.
+- Keyfiles are added immediately to the database.
+- Added Time to TOF Messages
+- Number of upload- and downloadThreads is managed separately.
+
+04.06.2001
+- Completely rewrote the sortfunctions for the tables. It now WORKES!
+- Changed behaviour if new keys are added from freenet.
+- Added a Save Search Results entry into the file menu.
+- Removed two 'Delete' Buttons (Downloads / Uploads). Use the Del button on the keyboard
+  instead.
+- Many small things I don't even want to remember.
+
+03.06.2001
+- TOF table display speed improved. New sortroutine for entries.
+- New files.readFile(). Now uses Stringbuffers and is really fast.
+- Cleaned up code a bit
+- Turned on sortfunction for tables again. Fixed some things,
+  but am not sure if all works.
+
+02.06.2001
+- Improved tofUpload class
+- Improved tof Table display
+- tof messages are now sorted by index
+- Added tof/key up/download htl to options tab
+
+01.06.2001
+- Long filenames in download tab. Keyinfo is stored in filename (Very useful for mp3).
+- new download thread. If a filename already exists, but the files are different, files
+  are indexed. If the files are equal, only one is kept.
+
+31.05.2001
+- Completely rewrote the tofUpload class. Should be faster now and supports upload of
+  multiple Messages at the same time.
+- TOF Table is now updated correctly (I hope so...).
+- TOF Table can now be sorted (You damned little Mouselistener).
+- TOF preview and Message Frame now have Line Wrapping enabled.
+- Added Reply button to TOF
+
+29.05.2001
+- removed unused label from TOF page
+- removed unused labels from Status line
+- Added Up/Down Buttons to upload/downloadlist. Selected up/downloads are moved to the
+  beginning/end of the list and are down/uploaded earlier/later.
+
+28.05.2001
+- TOF messages are now organized in a table
+- completely rewriten Threadmanagement.
+- Unknown values NEVER replace known Data in Database.
+
+24.05.2001
+- Uploads are now added to database (with stat/size blabla)
+- Added "Hide bad keys" to search tab
+- Search results can be sorted (change order by pressing Shift)
+- Download list can be sorted
+- Upload list can be sorted
+- You can now delete keys in the search tab (only table view) by selecting keys and
+  pressing "del".
+
+23.05.2001
+- Added Date to keyObject
+
+09.05.2001
+- Status of up/downloads is now reset to done/failed/waiting on startup
+
+08.05.2001
+- Fixed Bug in Upload list (Failed uploads added to download list???)
+- Added Table view for search results.
+
+07.05.2001
+- Uploadtab now uses a JTable
+- Quickload now uses the new requestThread class
+
+21.04.2001
+- removed updaters
+- removed "make download list"
+- removed "make upload list"
+
+20.04.2001
+- GUI changed. I hope it is more usable now.
+- Smaller bugfixes
+
+13.04.2001
+- TOF sometimes did not find a correct empty slot. I hope that bug is gone now...
+- Messages are sent, even if "automatic TOF update" is disabled.
+- Added a warning message on startup if some options are not correct.
+- Automatic keydownload and tof update are disabled on startup if keypool directory
+  is not found.
+- Smaller changes...
+
+09.04.2001
+- Added "Disable automatic TOF update" button
+
+08.04.2001
+- Fixed bug in tof (renaming upload files)
+
+06.04.2001
+- TOF messages are sent with no need to "start transfer".
+- Keys are uploaded with no need to "start transfer".
+- Increased TOF download htl to 40
+- Keys are automatically downloaded on startup
+
+05.04.2001
+- Keys are sorted on startup
+- Key handling uses less ram and is much faster
+- Updaters added to Upload tab. Updaters are files which are uploaded every day.
+	The date in yyyyMMdd format is added to the filename.
+- Added TOF (Text over Frost) support.
+
+29.03.2001
+- Added icons to tree structure.
+- Added "Add files to upload list" button to uploads tab
+- Fixed "Make download file" bug.
+- "\" is now allowed in keys but not recognized as path separator.
+	Please don�t use it, use "/" instead.
+- Added Uploads / Clear filelist
+- Added Uploads / Clear keylist
+- Added Uploads / Save uploadlist
+- Added uploads / Load Uploadlist
+
+28.03.2001
+- fixed small bug in "shared folder" and removed textField
+- Keyfiles are inserted at the top of the upload list, not at the bottom.
+- If Frost ist started for the first time, the directories "downloads" and "keypool"
+  will be created in the Frost directory, and will be used as default.
+  You can change these directories in the options tab.
+- Added a README.txt file
+- Added a frost.bat file. You can start it from the windows explorer or make a
+  shortcut to it.
+
+27.03.2001
+- Multiple directories can now be added at "shared folders" at once.
+- Several improvements to the "shared folders". Nodes are now editable.
+- fixed bug in "insertUpload"
+- It should now be possible to completely design a upload structure within
+  "shared folders".
+
+26.03.2001
+- fixed small bug in options pane.
+- Added "Save Up/Downloadlist on exit" to options tab. Up/Downloadlist will be
+  automatically saved on exit and reloaded on startup.
+- fixed bug(feature?) in "shared folders". You now can upload more than one
+  directory at a time.
+
+23.03.2001
+- Options/Set insert/request executable added
+- fixed "Open downloadlist"
+- Automatic inserting collided uploads to keyindex (options/record uploads)
+
+
+22.03.2001
+- Improved Upload / Download handling (hope I did not break it...)
+- Added Max Threads and Thread interval to options tab
+- Automatic thread increase added. (options tab)
+- Automatic inserting successful uploads to keyindex (options/record uploads)
+
+21.03.2001
+- Keyindex | Remove faulty keys now removes indentical keys too.
+- Added Quickload Button to Downloads tab
+- Added Upload HTL to Options tab
+- Console is no more editable
+- Added automatic restart of failed uploads to options menu
+
+20.03.2001
+- Save Keys as... added to File menu
+- Clear Downloads added to Downloads menu
+- Save Downloadlist as... added to Downloads menu
+- Rename filenames/directories with spaces (replace space with _) added to Tools menu
+- Selected Node is added to Shared folders textfield
+- Added ActionListened to Search Textfield (Search by hitting return)
+- Automatic search for empty slot if keyfile should be uploaded
+- Quickload bar in the downloads tab added (enter freenet key and press return to
+  immediately download)
+
+15.03.2001
+- Console output added
+- Console | Clear Console added
+- Console | Save Console as... added
+- Console | Add successfull uploaded keys to keyindex added
+- Slightly improved "addStringToData(String)"
+
+14.03.2001
+- Download should work now.
+- Upload will be possible soon (this afternoon)
+- Upload should work now
+- Fixed these damned threads, Yeah Baby (Yeah).
+
+13.03.2001
+- lastUsedDirectory is now remembered
+- Make download file now works
+- Added Options tab
+- Save keys on exit added
+</PRE>
+</BODY>
+</HTML>
