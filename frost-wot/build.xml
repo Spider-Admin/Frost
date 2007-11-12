@@ -73,7 +73,6 @@
     <pathelement location="${build.classes.feclib}"/>
     <pathelement location="${build.classes.genchklib}"/>
     <pathelement location="${build.classes.datechooser}"/>
-    <pathelement location="${lib.dir}/skinlf.jar"/>
   </path>
 
   <!--  Specify logfile name -->
