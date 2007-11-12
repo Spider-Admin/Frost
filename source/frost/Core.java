@@ -25,8 +25,6 @@ import java.util.logging.*;
 
 import javax.swing.*;
 
-import com.l2fprod.gui.plaf.skin.*;
-
 import frost.boards.*;
 import frost.crypt.*;
 import frost.events.*;
@@ -296,8 +294,6 @@ public class Core implements FrostEventDispatcher  {
             sb = null;
         }
 
-        initializeSkins();
-
         // CLEANS TEMP DIR! START NO INSERTS BEFORE THIS DID RUN
         Startup.startupCheck(frostSettings);
 
@@ -525,32 +521,6 @@ public class Core implements FrostEventDispatcher  {
                 }
             };
             t.start();
-        }
-    }
-
-    /**
-     * Initializes the skins system
-     * @param frostSettings the SettingsClass that has the preferences to initialize the skins
-     */
-    private void initializeSkins() {
-        final String skinsEnabled = frostSettings.getValue(SettingsClass.SKINS_ENABLED);
-        if ((skinsEnabled != null) && (skinsEnabled.equals("true"))) {
-            final String selectedSkinPath = frostSettings.getValue(SettingsClass.SKIN_NAME);
-            if ((selectedSkinPath != null) && (!selectedSkinPath.equals("none"))) {
-                try {
-                    final Skin selectedSkin = SkinLookAndFeel.loadThemePack(selectedSkinPath);
-                    SkinLookAndFeel.setSkin(selectedSkin);
-                    UIManager.setLookAndFeel(new SkinLookAndFeel());
-                } catch (final UnsupportedLookAndFeelException exception) {
-                    logger.severe("The selected skin is not supported by your system\n" +
-                                "Skins will be disabled until you choose another one");
-                    frostSettings.setValue(SettingsClass.SKINS_ENABLED, false);
-                } catch (final Exception exception) {
-                    logger.severe("There was an error while loading the selected skin\n" +
-                                "Skins will be disabled until you choose another one");
-                    frostSettings.setValue(SettingsClass.SKINS_ENABLED, false);
-                }
-            }
         }
     }
 

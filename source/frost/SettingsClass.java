@@ -156,9 +156,6 @@ public class SettingsClass implements ExitSavable {
     public static final String MAX_MESSAGE_DOWNLOAD = "maxMessageDownload";
     public static final String MESSAGE_UPLOAD_DISABLED = "messageUploadDisabled";
 
-    public static final String SKINS_ENABLED = "skinsEnabled";
-    public static final String SKIN_NAME = "selectedSkin";
-
     public static final String SEARCH_MAX_RESULTS = "maxSearchResults";
     public static final String SEARCH_HIDE_BAD = "hideBadFiles";
     public static final String SEARCH_HIDE_CHECK = "hideCheckFiles";
@@ -883,9 +880,6 @@ public class SettingsClass implements ExitSavable {
         defaults.put(MESSAGE_EXPIRATION_MODE, "KEEP"); // KEEP or ARCHIVE or DELETE, default KEEP
         defaults.put(ARCHIVE_KEEP_FLAGGED_AND_STARRED, "false");
         defaults.put(ARCHIVE_KEEP_UNREAD, "false");
-
-        defaults.put(SKINS_ENABLED, "false");
-        defaults.put(SKIN_NAME, "none");
 
         defaults.put(LANGUAGE_LOCALE, "default");
 
