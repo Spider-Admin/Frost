@@ -18,14 +18,11 @@
 */
 package frost.util.gui;
 
-import java.lang.ref.WeakReference;
-import java.util.Vector;
+import java.lang.ref.*;
+import java.util.*;
 
-import javax.swing.JPopupMenu;
+import javax.swing.*;
 
-/**
- * 
- */
 public class JSkinnablePopupMenu extends JPopupMenu {
 
 	/*
@@ -33,22 +30,16 @@ public class JSkinnablePopupMenu extends JPopupMenu {
 	 * instead of 'this' so that garbage collection can still take
 	 * place correctly.
 	 */
-	transient private WeakReference weakThis;
+	transient private final WeakReference<JSkinnablePopupMenu> weakThis;
 
-	private static Vector popupList = new Vector();
+	private static Vector<WeakReference<JSkinnablePopupMenu>> popupList = new Vector<WeakReference<JSkinnablePopupMenu>>();
 
-	/**
-	 * 
-	 */
 	public JSkinnablePopupMenu() {
 		super();
-		weakThis = new WeakReference(this);
+		weakThis = new WeakReference<JSkinnablePopupMenu>(this);
 		addToPopupList();
 	}
 
-	/**
-	 * 
-	 */
 	private void addToPopupList() {
 		synchronized (JSkinnablePopupMenu.class) {
 			popupList.addElement(weakThis);
@@ -56,7 +47,7 @@ public class JSkinnablePopupMenu extends JPopupMenu {
 	}
 
 	/**
-	 * Returns an array containing all JSkinnablePopupMenus created by 
+	 * Returns an array containing all JSkinnablePopupMenus created by
 	 * the application.
 	 */
 	public static JSkinnablePopupMenu[] getSkinnablePopupMenus() {
@@ -64,16 +55,15 @@ public class JSkinnablePopupMenu extends JPopupMenu {
 			JSkinnablePopupMenu realCopy[];
 			// Recall that popupList is actually a Vector of WeakReferences
 			// and calling get() on one of these references may return
-			// null. Make two arrays-- one the size of the Vector 
+			// null. Make two arrays-- one the size of the Vector
 			// (fullCopy with size fullSize), and one the size of all
 			// non-null get()s (realCopy with size realSize).
-			int fullSize = popupList.size();
+			final int fullSize = popupList.size();
 			int realSize = 0;
-			JSkinnablePopupMenu fullCopy[] = new JSkinnablePopupMenu[fullSize];
+			final JSkinnablePopupMenu fullCopy[] = new JSkinnablePopupMenu[fullSize];
 
 			for (int i = 0; i < fullSize; i++) {
-				fullCopy[realSize] =
-					(JSkinnablePopupMenu) (((WeakReference) (popupList.elementAt(i))).get());
+				fullCopy[realSize] = popupList.elementAt(i).get();
 
 				if (fullCopy[realSize] != null) {
 					realSize++;
@@ -90,30 +80,24 @@ public class JSkinnablePopupMenu extends JPopupMenu {
 		}
 	}
 
-	/**
-	 * @param label
-	 */
-	public JSkinnablePopupMenu(String label) {
+	public JSkinnablePopupMenu(final String label) {
 		super(label);
-		weakThis = new WeakReference(this);
+		weakThis = new WeakReference<JSkinnablePopupMenu>(this);
 		addToPopupList();
 	}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#finalize()
 	 */
-	protected void finalize() throws Throwable {
+	@Override
+    protected void finalize() throws Throwable {
 		removeFromPopupList();
 		super.finalize();
 	}
 
-	/**
-	 * 
-	 */
 	private void removeFromPopupList() {
 		synchronized (JSkinnablePopupMenu.class) {
 			popupList.removeElement(weakThis);
 		}
 	}
-
 }

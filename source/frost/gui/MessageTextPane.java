@@ -351,7 +351,7 @@ public class MessageTextPane extends JPanel {
                 final MouseHyperlinkEvent e = (MouseHyperlinkEvent) evt;
                 if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
                     // user clicked on 'clickedKey', List 'allKeys' contains all keys
-                    final List allKeys = ((MessageDecoder)messageTextArea.getDecoder()).getHyperlinkedKeys();
+                    final List<String> allKeys = ((MessageDecoder)messageTextArea.getDecoder()).getHyperlinkedKeys();
                     final String clickedKey = e.getDescription();
                     // show menu to download this/all keys and copy this/all to clipboard
                     showHyperLinkPopupMenu(
@@ -579,7 +579,7 @@ public class MessageTextPane extends JPanel {
         popupMenuAttachmentTable.show(e.getComponent(), e.getX(), e.getY());
     }
 
-    private void showHyperLinkPopupMenu(final HyperlinkEvent e, final String clickedKey, final List allKeys, final int x, final int y) {
+    private void showHyperLinkPopupMenu(final HyperlinkEvent e, final String clickedKey, final List<String> allKeys, final int x, final int y) {
         if (popupMenuHyperLink == null) {
             popupMenuHyperLink = new PopupMenuHyperLink();
             language.addLanguageListener(popupMenuHyperLink);
@@ -735,9 +735,9 @@ public class MessageTextPane extends JPanel {
          * Adds either the selected or all files from the attachmentTable to downloads table.
          */
         private void downloadAttachments() {
-            final Iterator it = getItems().iterator();
+            final Iterator<FileAttachment> it = getItems().iterator();
             while (it.hasNext()) {
-                final FileAttachment fa = (FileAttachment) it.next();
+                final FileAttachment fa = it.next();
                 final FrostDownloadItem dlItem = new FrostDownloadItem(
                         fa.getFilename(),
                         fa.getKey(),
@@ -784,7 +784,7 @@ public class MessageTextPane extends JPanel {
         private final JMenuItem downloadAllFiles = new JMenuItem();
 
         private String clickedKey = null;
-        private List allKeys = null;
+        private List<String> allKeys = null;
 
         public PopupMenuHyperLink() throws HeadlessException {
             super();
@@ -794,7 +794,7 @@ public class MessageTextPane extends JPanel {
         public void setClickedKey(final String s) {
             clickedKey = s;
         }
-        public void setAllKeys(final List l) {
+        public void setAllKeys(final List<String> l) {
             allKeys = l;
         }
 
@@ -876,14 +876,12 @@ public class MessageTextPane extends JPanel {
          */
         private void downloadItems(final boolean getAll) {
 
-            final List items = getItems(getAll);
+            final List<String> items = getItems(getAll);
             if( items == null ) {
                 return;
             }
 
-            final Iterator it = items.iterator();
-            while (it.hasNext()) {
-                final String item = (String)it.next();
+            for( final String item : items ) {
                 String key;
                 // 0.5: remove filename from key; 0.7: use key/filename
                 if( FcpHandler.isFreenet05() ) {
@@ -897,8 +895,8 @@ public class MessageTextPane extends JPanel {
             }
         }
 
-        private List getItems(final boolean getAll) {
-            List items;
+        private List<String> getItems(final boolean getAll) {
+            List<String> items;
             if( getAll ) {
                 items = allKeys;
             } else {
@@ -915,7 +913,7 @@ public class MessageTextPane extends JPanel {
          */
         private void copyToClipboard(final boolean getAll) {
 
-            final List items = getItems(getAll);
+            final List<String> items = getItems(getAll);
             if( items == null ) {
                 return;
             }
@@ -923,14 +921,13 @@ public class MessageTextPane extends JPanel {
             String text;
             if( items.size() > 1 ) {
                 final StringBuilder textToCopy = new StringBuilder();
-            	for(final Iterator i = items.iterator(); i.hasNext(); ) {
-            		final String key = (String)i.next();
+            	for( final String key : items ) {
             		textToCopy.append(key).append("\n");
             	}
             	text = textToCopy.toString();
             } else {
             	// don't include a trailing \n if we only have one item
-            	text = (String)items.get(0);
+            	text = items.get(0);
             }
             CopyToClipboard.copyText(text);
         }

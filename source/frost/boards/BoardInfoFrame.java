@@ -20,7 +20,6 @@ package frost.boards;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
 import java.util.List;
 import java.util.logging.*;
 
@@ -40,42 +39,42 @@ import frost.util.gui.translation.*;
 
 public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener {
 
-    private boolean showColoredLines;
+    private final boolean showColoredLines;
 
     private class Listener implements MouseListener, LanguageListener {
         public Listener() {
             super();
         }
 
-        public void mouseClicked(MouseEvent e) {
+        public void mouseClicked(final MouseEvent e) {
             if (e.getClickCount() == 2) {
                 updateSelectedBoardButton_actionPerformed(null);
             }
         }
 
-        public void mouseEntered(MouseEvent e) {
+        public void mouseEntered(final MouseEvent e) {
             //Nothing here
         }
 
-        public void mouseExited(MouseEvent e) {
+        public void mouseExited(final MouseEvent e) {
             //Nothing here
         }
 
-        public void mousePressed(MouseEvent e) {
+        public void mousePressed(final MouseEvent e) {
             maybeShowPopup(e);
         }
 
-        public void mouseReleased(MouseEvent e) {
+        public void mouseReleased(final MouseEvent e) {
             maybeShowPopup(e);
         }
 
-        private void maybeShowPopup(MouseEvent e) {
+        private void maybeShowPopup(final MouseEvent e) {
             if( e.isPopupTrigger() ) {
                 popupMenu.show(boardTable, e.getX(), e.getY());
             }
         }
 
-        public void languageChanged(LanguageEvent event) {
+        public void languageChanged(final LanguageEvent event) {
             refreshLanguage();
         }
     }
@@ -83,24 +82,24 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
     private TofTree tofTree = null;
     private static boolean isShowing = false; // flag, is true if frame is showing, used by frame1
     private Language language = null;
-    private Listener listener = new Listener();
+    private final Listener listener = new Listener();
 
     private static final Logger logger = Logger.getLogger(BoardInfoFrame.class.getName());
 
-    private JPanel mainPanel = new JPanel(new BorderLayout());
-    private JPanel boardTablePanel = new JPanel(new BorderLayout());
+    private final JPanel mainPanel = new JPanel(new BorderLayout());
+    private final JPanel boardTablePanel = new JPanel(new BorderLayout());
 
-    private JLabel summaryLabel = new JLabel();
+    private final JLabel summaryLabel = new JLabel();
 
-    private JButton updateButton = new JButton();
-    private JButton updateSelectedBoardButton = new JButton();
-    private JButton updateAllBoardsButton = new JButton();
-    private JButton Bclose = new JButton();
+    private final JButton updateButton = new JButton();
+    private final JButton updateSelectedBoardButton = new JButton();
+    private final JButton updateAllBoardsButton = new JButton();
+    private final JButton Bclose = new JButton();
 
-    private JSkinnablePopupMenu popupMenu = new JSkinnablePopupMenu();
-    private JMenuItem MIupdate = new JMenuItem();
-    private JMenuItem MIupdateSelectedBoard = new JMenuItem();
-    private JMenuItem MIupdateAllBoards = new JMenuItem();
+    private final JSkinnablePopupMenu popupMenu = new JSkinnablePopupMenu();
+    private final JMenuItem MIupdate = new JMenuItem();
+    private final JMenuItem MIupdateSelectedBoard = new JMenuItem();
+    private final JMenuItem MIupdateAllBoards = new JMenuItem();
 
     private BoardInfoTableModel boardTableModel = null;
     private SortedTable boardTable = null;
@@ -118,7 +117,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         MIupdateAllBoards.setText(language.getString("BoardInfoFrame.button.updateAllBoards"));
     }
 
-    public BoardInfoFrame(JFrame parentFrame, TofTree tofTree) {
+    public BoardInfoFrame(final JFrame parentFrame, final TofTree tofTree) {
         super();
         language = Language.getInstance();
         refreshLanguage();
@@ -127,13 +126,13 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         try {
             Init();
         }
-        catch( Exception e ) {
+        catch( final Exception e ) {
             logger.log(Level.SEVERE, "Exception thrown in constructor", e);
         }
         setSize((int) (parentFrame.getWidth() * 0.75),
                 (int) (parentFrame.getHeight() * 0.75));
         setLocationRelativeTo(parentFrame);
-        
+
         showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
     }
 
@@ -149,7 +148,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         // Configure objects
         //------------------------------------------------------------------------
 
-        ImageIcon frameIcon = new ImageIcon(getClass().getResource("/data/jtc.jpg"));
+        final ImageIcon frameIcon = new ImageIcon(getClass().getResource("/data/jtc.jpg"));
         setIconImage(frameIcon.getImage());
         setSize(new Dimension(300, 200));
         setResizable(true);
@@ -157,7 +156,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         boardTable.setRowSelectionAllowed(true);
         boardTable.setSelectionMode( ListSelectionModel.MULTIPLE_INTERVAL_SELECTION );
 
-        BoardInfoTableCellRenderer cellRenderer = new BoardInfoTableCellRenderer();
+        final BoardInfoTableCellRenderer cellRenderer = new BoardInfoTableCellRenderer();
         boardTable.setDefaultRenderer( Object.class, cellRenderer );
         boardTable.setDefaultRenderer( Number.class, cellRenderer );
 
@@ -167,7 +166,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         // Actionlistener
         //------------------------------------------------------------------------
         boardTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-                     public void valueChanged(ListSelectionEvent e) {
+                     public void valueChanged(final ListSelectionEvent e) {
                          boardTableListModel_valueChanged(e);
                      } });
 
@@ -181,7 +180,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
 
         // updateSelectedBoardButton
         al = new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 updateSelectedBoardButton_actionPerformed(e);
             } };
         updateSelectedBoardButton.addActionListener(al);
@@ -189,7 +188,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
 
         // updateAllBoardsButton
         al = new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 updateAllBoardsButton_actionPerformed(e);
             } };
         updateAllBoardsButton.addActionListener(al);
@@ -197,7 +196,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
 
         // Bclose
         al = new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 closeDialog();
             } };
         Bclose.addActionListener(al);
@@ -210,7 +209,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         mainPanel.add(boardTablePanel, BorderLayout.CENTER);
         boardTablePanel.add(updateSelectedBoardButton, BorderLayout.NORTH);
         boardTablePanel.add(new JScrollPane(boardTable), BorderLayout.CENTER);
-        JPanel summaryPanel = new JPanel();
+        final JPanel summaryPanel = new JPanel();
         summaryPanel.setLayout(new BoxLayout(summaryPanel, BoxLayout.X_AXIS));
         summaryPanel.setBorder(new EmptyBorder(5,0,0,0));
         summaryPanel.add(summaryLabel);
@@ -228,7 +227,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
                                                      boardTablePanel.getBorder()
                                                      ));
 
-        JPanel buttonsPanel = new JPanel();
+        final JPanel buttonsPanel = new JPanel();
         buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.X_AXIS));
         buttonsPanel.setBorder(BorderFactory.createEmptyBorder(5,7,7,7));
         buttonsPanel.add(updateSelectedBoardButton);
@@ -249,7 +248,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         updateButton_actionPerformed(null);
     }
 
-    private void boardTableListModel_valueChanged(ListSelectionEvent e) {
+    private void boardTableListModel_valueChanged(final ListSelectionEvent e) {
         if( boardTable.getSelectedRowCount() > 0 ) {
             updateSelectedBoardButton.setEnabled(true);
             MIupdateSelectedBoard.setEnabled(true);
@@ -261,7 +260,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
 
     private static UpdateBoardInfoTableThread updateBoardInfoTableThread = null;
 
-    private void updateButton_actionPerformed(ActionEvent e) {
+    private void updateButton_actionPerformed(final ActionEvent e) {
         if( updateBoardInfoTableThread != null ) {
             return;
         }
@@ -277,17 +276,15 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
 
     private class UpdateBoardInfoTableThread extends Thread
     {
+        @Override
         public void run()
         {
             int messageCount = 0;
             int boardCount = 0;
-            List boards = ((TofTreeModel) tofTree.getModel()).getAllBoards();
+            final List<Board> boards = ((TofTreeModel) tofTree.getModel()).getAllBoards();
 
-            for( Iterator i=boards.iterator(); i.hasNext();  )
-            {
-                Board board = (Board)i.next();
-
-                BoardInfoTableMember newRow = new BoardInfoTableMember(board);
+            for( final Board board : boards ) {
+                final BoardInfoTableMember newRow = new BoardInfoTableMember(board);
                 fillInBoardCounts(board, newRow);
 
                 // count statistics
@@ -315,10 +312,9 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
      * Gets list of board from tofTree, because the board table could be
      * not yet finished to load.
      */
-    private void updateAllBoardsButton_actionPerformed(ActionEvent e) {
-        List boards = ((TofTreeModel) tofTree.getModel()).getAllBoards();
-        for( Iterator i=boards.iterator(); i.hasNext();  ) {
-            Board board = (Board)i.next();
+    private void updateAllBoardsButton_actionPerformed(final ActionEvent e) {
+        final List<Board> boards = ((TofTreeModel) tofTree.getModel()).getAllBoards();
+        for( final Board board : boards ) {
             if( board.isManualUpdateAllowed() ) {
                 tofTree.updateBoard(board);
             }
@@ -326,17 +322,16 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         }
     }
 
-    private void updateSelectedBoardButton_actionPerformed(ActionEvent e) {
-        int[] selectedRows = boardTable.getSelectedRows();
+    private void updateSelectedBoardButton_actionPerformed(final ActionEvent e) {
+        final int[] selectedRows = boardTable.getSelectedRows();
 
         if( selectedRows.length > 0 ) {
-            for( int z = 0; z < selectedRows.length; z++ ) {
-                int rowIx = selectedRows[z];
-
-                if( rowIx >= boardTableModel.getRowCount() )
+            for( final int rowIx : selectedRows ) {
+                if( rowIx >= boardTableModel.getRowCount() ) {
                     continue; // paranoia
+                }
 
-                BoardInfoTableMember row = (BoardInfoTableMember) ((BoardInfoTableModel) boardTableModel).getRow(rowIx);
+                final BoardInfoTableMember row = (BoardInfoTableMember) (boardTableModel).getRow(rowIx);
 
                 if( row.getBoard().isManualUpdateAllowed() ) {
                     tofTree.updateBoard(row.getBoard());
@@ -349,11 +344,11 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
 
     /**
      * Gets number of new+all messages and files of a board
-     * 
+     *
      * @param board name of the board
      * @return Integer value
      */
-    public BoardInfoTableMember fillInBoardCounts(Board board, BoardInfoTableMember row)
+    public BoardInfoTableMember fillInBoardCounts(final Board board, final BoardInfoTableMember row)
     {
         int countNewMessages = 0;
         int countAllMessages = 0;
@@ -383,7 +378,8 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         dispose();
     }
 
-    protected void processWindowEvent(WindowEvent e) {
+    @Override
+    protected void processWindowEvent(final WindowEvent e) {
         if( e.getID() == WindowEvent.WINDOW_CLOSING ) {
             // setDialogShowing( false ); // also done in closeDialog()
             closeDialog();
@@ -399,13 +395,13 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         Integer allmsg;
         Integer newmsg;
 
-        public BoardInfoTableMember(Board board) {
+        public BoardInfoTableMember(final Board board) {
             this.board = board;
             this.allmsg = null;
             this.newmsg = null;
         }
 
-        public Object getValueAt(int column) {
+        public Object getValueAt(final int column) {
             switch( column ) {
             case 0:
                 return board.getName();
@@ -419,9 +415,9 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
             return "*ERR*";
         }
 
-        public int compareTo(TableMember anOther, int tableColumIndex) {
-            Comparable c1 = (Comparable) getValueAt(tableColumIndex);
-            Comparable c2 = (Comparable) anOther.getValueAt(tableColumIndex);
+        public int compareTo(final TableMember anOther, final int tableColumIndex) {
+            final Comparable c1 = (Comparable) getValueAt(tableColumIndex);
+            final Comparable c2 = (Comparable) anOther.getValueAt(tableColumIndex);
             return c1.compareTo(c2);
         }
 
@@ -433,11 +429,11 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
             return allmsg;
         }
 
-        public void setAllMessageCount(int i) {
+        public void setAllMessageCount(final int i) {
             allmsg = new Integer(i);
         }
 
-        public void setNewMessageCount(int i) {
+        public void setNewMessageCount(final int i) {
             newmsg = new Integer(i);
         }
     }
@@ -452,11 +448,12 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
             boldFont = origFont.deriveFont(Font.BOLD);
         }
 
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-                boolean hasFocus, int row, int column) {
+        @Override
+        public Component getTableCellRendererComponent(final JTable table, final Object value, boolean isSelected,
+                final boolean hasFocus, final int row, final int column) {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-            BoardInfoTableMember tblrow = (BoardInfoTableMember) boardTableModel.getRow(row);
+            final BoardInfoTableMember tblrow = (BoardInfoTableMember) boardTableModel.getRow(row);
 
             if( tblrow.getBoard().isUpdating() ) {
                 setFont(boldFont);
@@ -466,7 +463,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
 
 
             if (!isSelected) {
-                Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
+                final Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
                 setBackground(newBackground);
             }
             return this;
@@ -478,16 +475,16 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
      /**
          * Is called if a Thread is finished.
          */
-     public void boardUpdateThreadFinished(BoardUpdateThread thread) {
+     public void boardUpdateThreadFinished(final BoardUpdateThread thread) {
         boardTableModel.tableEntriesChanged();
     }
 
     /**
      * Is called if a Thread is started.
-     * 
+     *
      * @see frost.threads.BoardUpdateThreadListener#boardUpdateThreadStarted(frost.threads.BoardUpdateThread)
      */
-    public void boardUpdateThreadStarted(BoardUpdateThread thread) {
+    public void boardUpdateThreadStarted(final BoardUpdateThread thread) {
         boardTableModel.tableEntriesChanged();
     }
 
@@ -495,7 +492,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         return isShowing;
     }
 
-    public static void setDialogShowing(boolean val) {
+    public static void setDialogShowing(final boolean val) {
         isShowing = val;
     }
 }

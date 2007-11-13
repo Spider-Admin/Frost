@@ -29,7 +29,7 @@ import javax.swing.event.*;
  * @pattern Singleton
  */
 public class Language {
-    
+
     private static final Logger logger = Logger.getLogger(Language.class.getName());
 
     private FrostResourceBundle RESOURCE_BUNDLE = null;
@@ -37,9 +37,9 @@ public class Language {
 //    private BreakIterator LINE_BREAKER = null;
 
     private static boolean initialized = false;
-    
+
     private final MessageFormat formatter = new MessageFormat("");
-    
+
     private final Object[] objectLen1 = new Object[1];
     private final Object[] objectLen2 = new Object[2];
     private final Object[] objectLen3 = new Object[3];
@@ -57,14 +57,14 @@ public class Language {
     /**
      * Prevent instances of this class from being created.
      */
-    private Language(String localeName, boolean isExternal) {
+    private Language(final String localeName, final boolean isExternal) {
         super();
         ROOT_RESOURCE_BUNDLE = new FrostResourceBundle();
         RESOURCE_BUNDLE = new FrostResourceBundle(localeName.toLowerCase(), ROOT_RESOURCE_BUNDLE, isExternal);
 //        LINE_BREAKER = BreakIterator.getLineInstance(RESOURCE_BUNDLE.getLocale());
     }
 
-    private Language(File bundleFile) {
+    private Language(final File bundleFile) {
         ROOT_RESOURCE_BUNDLE = new FrostResourceBundle(bundleFile);
         RESOURCE_BUNDLE = ROOT_RESOURCE_BUNDLE;
     }
@@ -81,7 +81,7 @@ public class Language {
      * One time init.
      * Takes an initial locale name and if it is a build-in or extern bundle.
      */
-    public static void initializeWithName(String localeName, boolean isExternal) {
+    public static void initializeWithName(String localeName, final boolean isExternal) {
         if( !initialized ) {
             initialized = true;
 
@@ -101,14 +101,14 @@ public class Language {
             initialized = true;
 
             Locale locale;
-            
+
             if( localeName == null ) {
                 locale = Locale.getDefault();
                 localeName = Locale.getDefault().getCountry();
             } else {
                 locale = new Locale(localeName);
             }
-            
+
             boolean isExternal;
             if( getExternalLocales().contains(locale) ) {
                 isExternal = true;
@@ -119,18 +119,18 @@ public class Language {
         }
     }
 
-    public static void initializeWithFile(File bundleFile) {
+    public static void initializeWithFile(final File bundleFile) {
         if( !initialized ) {
             initialized = true;
             instance = new Language(bundleFile);
         }
     }
-    
+
     /**
      * Adds an <code>LanguageListener</code> to the Language.
      * @param listener the <code>LanguageListener</code> to be added
      */
-    public void addLanguageListener(LanguageListener listener) {
+    public void addLanguageListener(final LanguageListener listener) {
         listenerList.add(LanguageListener.class, listener);
     }
 
@@ -142,14 +142,14 @@ public class Language {
      *         array if no listeners have been added
      */
     public LanguageListener[] getLanguageListeners() {
-        return (LanguageListener[]) (listenerList.getListeners(LanguageListener.class));
+        return (listenerList.getListeners(LanguageListener.class));
     }
 
     /**
      * Removes an <code>LanguageListener</code> from the Language.
      * @param listener the <code>LanguageListener</code> to be removed
      */
-    public void removeLanguageListener(LanguageListener listener) {
+    public void removeLanguageListener(final LanguageListener listener) {
         listenerList.remove(LanguageListener.class, listener);
     }
 
@@ -162,9 +162,9 @@ public class Language {
      * @param event  the <code>LanguageEvent</code> object
      * @see EventListenerList
      */
-    protected void fireLanguageChanged(LanguageEvent event) {
+    protected void fireLanguageChanged(final LanguageEvent event) {
         // Guaranteed to return a non-null array
-        Object[] listeners = listenerList.getListenerList();
+        final Object[] listeners = listenerList.getListenerList();
         LanguageEvent e = null;
         // Process the listeners last to first, notifying
         // those that are interested in this event
@@ -178,25 +178,24 @@ public class Language {
             }
         }
     }
-    
+
     /**
      * Scans for existing properties files in localdata/i18n each time.
-     */ 
-    public static List getExternalLocales() {
-        ArrayList lst = new ArrayList();
-        File i18nDir = new File("localdata/i18n");
+     */
+    public static List<Locale> getExternalLocales() {
+        final ArrayList<Locale> lst = new ArrayList<Locale>();
+        final File i18nDir = new File("localdata/i18n");
         if( i18nDir.isDirectory() == false ) {
             return lst;
         }
-        File[] files = new File("localdata/i18n").listFiles();
+        final File[] files = new File("localdata/i18n").listFiles();
         if( files == null ) {
             return lst;
         }
-        for( int i=0; i < files.length; i++ ) {
-            File f = files[i];
-            String fname = f.getName();
+        for( final File f : files ) {
+            final String fname = f.getName();
             if( fname.startsWith("langres_") && fname.endsWith(".properties") ) {
-                String ln = fname.substring("langres_".length(), fname.length() - ".properties".length());
+                final String ln = fname.substring("langres_".length(), fname.length() - ".properties".length());
                 if( ln.length() == 2 ) {
                     lst.add(new Locale(ln));
                 }
@@ -208,13 +207,13 @@ public class Language {
     /**
      * @param resourceBundle
      */
-    public synchronized void changeLanguage(String localeName, boolean isExternal) {
+    public synchronized void changeLanguage(String localeName, final boolean isExternal) {
         if( localeName == null ) {
             localeName = Locale.getDefault().getLanguage();
         }
         RESOURCE_BUNDLE = new FrostResourceBundle(localeName.toLowerCase(), ROOT_RESOURCE_BUNDLE, isExternal);
 //        LINE_BREAKER = BreakIterator.getLineInstance(RESOURCE_BUNDLE.getLocale());
-        
+
         fireLanguageChanged(new LanguageEvent(this));
     }
 
@@ -222,13 +221,13 @@ public class Language {
      * @param key
      * @return
      */
-    public String getString(String origKey) {
+    public String getString(final String origKey) {
         String s;
         try {
             s = RESOURCE_BUNDLE.getString(origKey);
-        } catch(MissingResourceException t) {
+        } catch(final MissingResourceException t) {
             s = null;
-        } catch(Throwable t) {
+        } catch(final Throwable t) {
             s = null;
             logger.log(Level.SEVERE, "Exception catched", t);
         }
@@ -243,7 +242,7 @@ public class Language {
 /////////////////////////////////////////////////////////////////////////////////////7
 //    /**
 //     * Builds a String containing the source String broken into lines
-//     * of maxLength length, using \n as line breaker. 
+//     * of maxLength length, using \n as line breaker.
 //     */
 //    public synchronized String breakLinesText(String source, int maxLength) {
 //
@@ -251,7 +250,7 @@ public class Language {
 //        int start = LINE_BREAKER.first();
 //        int end = LINE_BREAKER.next();
 //        int lineLength = 0;
-//        
+//
 //        StringBuilder result = new StringBuilder();
 //
 //        while (end != BreakIterator.DONE) {
@@ -275,7 +274,7 @@ public class Language {
 //
 //    /**
 //     * Builds a HTML String containing the source String broken into lines
-//     * of maxLength length, using 'br' as line breaker. 
+//     * of maxLength length, using 'br' as line breaker.
 //     */
 //    public synchronized String breakLinesHtml(String source, int maxLength) {
 //
@@ -283,7 +282,7 @@ public class Language {
 //        int start = LINE_BREAKER.first();
 //        int end = LINE_BREAKER.next();
 //        int lineLength = 0;
-//        
+//
 //        StringBuilder result = new StringBuilder();
 //        result.append("<html>");
 //
@@ -302,27 +301,27 @@ public class Language {
 //        return result.toString();
 //    }
 
-    public synchronized String formatMessage(String msg, Object[] objs) {
+    public synchronized String formatMessage(final String msg, final Object[] objs) {
         try {
-            String pattern = getString(msg);
+            final String pattern = getString(msg);
             formatter.applyPattern(pattern);
-            String output = formatter.format(objs);
+            final String output = formatter.format(objs);
             return output;
-        } catch(IllegalArgumentException ex) {
+        } catch(final IllegalArgumentException ex) {
             return '!' + msg + '!';
         }
     }
 
-    public synchronized String formatMessage(String msg, Object obj1) {
+    public synchronized String formatMessage(final String msg, final Object obj1) {
         objectLen1[0] = obj1;
         return formatMessage(msg, objectLen1);
     }
-    public synchronized String formatMessage(String msg, Object obj1, Object obj2) {
+    public synchronized String formatMessage(final String msg, final Object obj1, final Object obj2) {
         objectLen2[0] = obj1;
         objectLen2[1] = obj2;
         return formatMessage(msg, objectLen2);
     }
-    public synchronized String formatMessage(String msg, Object obj1, Object obj2, Object obj3) {
+    public synchronized String formatMessage(final String msg, final Object obj1, final Object obj2, final Object obj3) {
         objectLen3[0] = obj1;
         objectLen3[1] = obj2;
         objectLen3[2] = obj3;

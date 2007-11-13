@@ -28,44 +28,44 @@ import javax.swing.*;
 import frost.*;
 
 /**
- * Provides a <code>JTabbedPane</code> with close icons in the tab titles. 
+ * Provides a <code>JTabbedPane</code> with close icons in the tab titles.
  * If an icon is clicked the tab is removed from the pane.
  */
 public class CloseableTabbedPane extends JTabbedPane
 {
-    
+
     //--- Data field(s) ---
 
-    private Icon closeIcon;
-    
+    private final Icon closeIcon;
+
     //--- Constructor(s) ---
-    
+
     /**
      * Constructs a pane.
      *
      * @param closeIcon the icon to use in the tab titles
      */
-    public CloseableTabbedPane(Icon closeIcon) 
+    public CloseableTabbedPane(final Icon closeIcon)
     {
 		this.closeIcon = closeIcon;
 
 		addMouseListener(new ClosingListener());
     }
-    
+
 	/**
      * Constructs a pane with the default icon.
      *
      * @see #CloseableTabbedPane(Icon)
      */
-    public CloseableTabbedPane() 
+    public CloseableTabbedPane()
     {
 		this(new ImageIcon(MainFrame.class.getResource("/data/closeTab.gif")));
     }
 
     //--- Method(s) ---
 
-	public void addTab(String title, Component component, Icon icon, 
-					   boolean closeable) 
+	public void addTab(final String title, final Component component, final Icon icon,
+					   final boolean closeable)
     {
 		if (closeable) {
 			super.addTab(null, new WrapperIcon(title, icon), component);
@@ -76,19 +76,21 @@ public class CloseableTabbedPane extends JTabbedPane
 		setSelectedComponent(component);
     }
 
-	public void addTab(String title, Component component, Icon icon)
+	public void addTab(final String title, final Component component, final Icon icon)
 	{
 		addTab(title, component, icon, true);
 	}
 
-    public void addTab(String title, Component component) 
+    @Override
+    public void addTab(final String title, final Component component)
     {
 		addTab(title, component, null, true);
     }
 
-	public void setTitleAt(int index, String newTitle)
+	@Override
+    public void setTitleAt(final int index, final String newTitle)
 	{
-		WrapperIcon icon = (WrapperIcon)getIconAt(index);
+		final WrapperIcon icon = (WrapperIcon)getIconAt(index);
 		if (icon != null) {
 			icon.setTitle(newTitle);
 			revalidate();
@@ -101,59 +103,60 @@ public class CloseableTabbedPane extends JTabbedPane
 
 
     //--- Inner Class(es) ---
-    
+
     protected class ClosingListener extends MouseAdapter
     {
-		public void mouseReleased(MouseEvent e)
+		@Override
+        public void mouseReleased(final MouseEvent e)
 		{
-			int i = getSelectedIndex();
-	    
+			final int i = getSelectedIndex();
+
 			// nothing selected
 			if (i == -1) {
 				return;
 			}
 
-			WrapperIcon icon = (WrapperIcon)getIconAt(i);
-	    
+			final WrapperIcon icon = (WrapperIcon)getIconAt(i);
+
 			// close tab, if icon was clicked
 			if (icon != null && icon.contains(e.getX(), e.getY())) {
-                Component c = getComponentAt(i);
+                final Component c = getComponentAt(i);
 				removeTabAt(i);
                 tabWasClosed(c);
 			}
 		}
     }
-    
-    protected void tabWasClosed(Component c) {
+
+    protected void tabWasClosed(final Component c) {
     }
 
     /**
-     * Acts as a proxy class for the closing icon. 
+     * Acts as a proxy class for the closing icon.
      */
     protected class WrapperIcon implements Icon
     {
 
 		//--- Data field(s) ---
 
-		private Icon leftIcon;
-		private EventIcon rightIcon;
+		private final Icon leftIcon;
+		private final EventIcon rightIcon;
 		private String title;
-		private int x = 0;
-		private int y = 0;
+//		private int x = 0;
+//		private int y = 0;
 		private int height = 10;
-		private int width = 10;
+//		private int width = 10;
 
 		//--- Constructor(s) ---
-	
+
 		/**
-		 * 
+		 *
 		 */
-		public WrapperIcon(String title)
+		public WrapperIcon(final String title)
 		{
 			this(title, null);
 		}
 
-		public WrapperIcon(String title, Icon leftIcon)
+		public WrapperIcon(final String title, final Icon leftIcon)
 		{
 			this.title = title;
 			this.leftIcon = leftIcon;
@@ -161,12 +164,12 @@ public class CloseableTabbedPane extends JTabbedPane
 			rightIcon = new EventIcon(closeIcon);
 
 			height = rightIcon.getIconHeight();
-			width = rightIcon.getIconWidth();
+//			width = rightIcon.getIconWidth();
 		}
-	
+
 		//--- Method(s) ---
 
-		public void setTitle(String newTitle)
+		public void setTitle(final String newTitle)
 		{
 			title = newTitle;
 		}
@@ -179,13 +182,10 @@ public class CloseableTabbedPane extends JTabbedPane
 			return height;
 		}
 
-		/**
-		 * 
-		 */
 		public int getIconWidth()
 		{
-			int textWidth= SwingUtilities.computeStringWidth
-				(CloseableTabbedPane.this.getFontMetrics(CloseableTabbedPane.this.getFont()), 
+			final int textWidth= SwingUtilities.computeStringWidth
+				(CloseableTabbedPane.this.getFontMetrics(CloseableTabbedPane.this.getFont()),
 				 title);
 			if (leftIcon != null) {
 				return leftIcon.getIconWidth() + rightIcon.getIconWidth()
@@ -199,16 +199,15 @@ public class CloseableTabbedPane extends JTabbedPane
 		/**
 		 * Overwrites paintIcon to get hold of the coordinates of the icon.
 		 */
-		public void paintIcon(Component c, Graphics g, int x, int y)
+		public void paintIcon(final Component c, final Graphics g, final int x, final int y)
 		{
-			this.x = x + getIconWidth() - rightIcon.getIconWidth();
-			this.y = y;
+//			this.x = x + getIconWidth() - rightIcon.getIconWidth();
+//			this.y = y;
 
 			// compute the correct y coordinate where to put the text
-			Rectangle rect = new Rectangle(x, y, getIconWidth(), 
-										   getIconHeight());
-			Rectangle iconRect = new Rectangle();
-			Rectangle textRect = new Rectangle();
+			final Rectangle rect = new Rectangle(x, y, getIconWidth(), getIconHeight());
+			final Rectangle iconRect = new Rectangle();
+			final Rectangle textRect = new Rectangle();
 			SwingUtilities.layoutCompoundLabel
 				(CloseableTabbedPane.this, g.getFontMetrics(),
 				 title, rightIcon, SwingUtilities.CENTER,
@@ -234,19 +233,19 @@ public class CloseableTabbedPane extends JTabbedPane
 					(c, g, x + getIconWidth() - rightIcon.getIconWidth(),
 					 y + 1);
 			}
-		}    
-	
+		}
+
 		/**
 		 * Verifies if x and y are within the icon's borders.
 		 */
-		public boolean contains(int xEvent, int yEvent)
+		public boolean contains(final int xEvent, final int yEvent)
 		{
 			return rightIcon.contains(xEvent, yEvent);
 		}
 	}
 
     /**
-     * Acts as a proxy class for the closing icon. 
+     * Acts as a proxy class for the closing icon.
      *
      * <p>The idea for this class stems from limewire's CancelSearchIconProxy
      * class, thanks for going open source guys.
@@ -256,15 +255,15 @@ public class CloseableTabbedPane extends JTabbedPane
 
 		//--- Data field(s) ---
 
-		private Icon icon;    
+		private final Icon icon;
 		private int x = 0;
 		private int y = 0;
 		private int height = 10;
 		private int width = 10;
 
 		//--- Constructor(s) ---
-	
-		public EventIcon(Icon icon)
+
+		public EventIcon(final Icon icon)
 		{
 			this.icon = icon;
 
@@ -273,7 +272,7 @@ public class CloseableTabbedPane extends JTabbedPane
 				width = icon.getIconWidth();
 			}
 		}
-	
+
 		//--- Method(s) ---
 
 		/**
@@ -285,7 +284,7 @@ public class CloseableTabbedPane extends JTabbedPane
 		}
 
 		/**
-		 * 
+		 *
 		 */
 		public int getIconWidth()
 		{
@@ -297,27 +296,27 @@ public class CloseableTabbedPane extends JTabbedPane
 		 * this is a rather rude approach just to find out if the icon
 		 * was pressed.
 		 */
-		public void paintIcon(Component c, Graphics g, int x, int y)
+		public void paintIcon(final Component c, final Graphics g, final int x2, final int y2)
 		{
-			this.x = x;
-			this.y = y;
-	    
+			this.x = x2;
+			this.y = y2;
+
 			if (icon != null) {
-				icon.paintIcon(c, g, x, y);
+				icon.paintIcon(c, g, x2, y2);
 			}
 			else {
 				// top left -> bottom right
-				g.drawLine(x, y, x + width, y + height);
+				g.drawLine(x2, y2, x2 + width, y2 + height);
 
 				// bottom left -> top right
-				g.drawLine(x, y + height, x + width, y);
+				g.drawLine(x2, y2 + height, x2 + width, y2);
 			}
-		}    
-	
+		}
+
 		/**
 		 * Verifies if x and y are within the icon's borders.
 		 */
-		public boolean contains(int xEvent, int yEvent)
+		public boolean contains(final int xEvent, final int yEvent)
 		{
 			if (!(xEvent >= x) || !(xEvent <= x + width)) {
 				return false;
@@ -329,5 +328,4 @@ public class CloseableTabbedPane extends JTabbedPane
 			return true;
 		}
     }
-
 }

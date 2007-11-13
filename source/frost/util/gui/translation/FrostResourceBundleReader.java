@@ -27,8 +27,8 @@ import frost.*;
 /**
  * Methods to read in a langres.properties file with UTF-8 encoding.
  * Aims to provide same load functionality as the Java Properties class.
- * 
- * Lines can be continuated using a backslash at the very end of line. 
+ *
+ * Lines can be continuated using a backslash at the very end of line.
  */
 public class FrostResourceBundleReader {
 
@@ -36,39 +36,39 @@ public class FrostResourceBundleReader {
 
     /**
      * Loads the properties from a jarResource. Provide resource as '/i18n/langres.properties'.
-     * This class is guaranteed to never return null. 
+     * This class is guaranteed to never return null.
      */
-    public static Map loadBundle(String jarResource) {
-        InputStream input = MainFrame.class.getResourceAsStream(jarResource);
+    public static Map<String,String> loadBundle(final String jarResource) {
+        final InputStream input = MainFrame.class.getResourceAsStream(jarResource);
         if( input == null ) {
             // file not found in jar
             logger.severe("Resource not found in jar file: "+jarResource);
-            return new HashMap();
+            return new HashMap<String,String>();
         }
         return loadBundle(input, jarResource);
     }
-    
+
     /**
      * Loads the properties from a file.
-     * This class is guaranteed to never return null. 
+     * This class is guaranteed to never return null.
      */
-    public static Map loadBundle(File fileResource) {
+    public static Map<String,String> loadBundle(final File fileResource) {
         InputStream input;
         try {
             input = new FileInputStream(fileResource);
-        } catch (FileNotFoundException e) {
+        } catch (final FileNotFoundException e) {
             logger.log(Level.SEVERE, "Could not open properties file: "+fileResource, e);
-            return new HashMap();
+            return new HashMap<String,String>();
         }
         return loadBundle(input, fileResource.getPath());
     }
 
-    private static Map loadBundle(InputStream inStream, String resourceName) {
-        
-        Map bundle = new HashMap();
-        
+    private static Map<String,String> loadBundle(final InputStream inStream, final String resourceName) {
+
+        final Map<String,String> bundle = new HashMap<String,String>();
+
         try {
-            BufferedReader rdr = new BufferedReader(new InputStreamReader(inStream, "UTF-8"));
+            final BufferedReader rdr = new BufferedReader(new InputStreamReader(inStream, "UTF-8"));
             String wholeLine = null;
             while(true) {
                 String line = rdr.readLine();
@@ -78,11 +78,11 @@ public class FrostResourceBundleReader {
                 if( line.startsWith("#") ) {
                     continue; // comment
                 }
-                
+
                 if( isContinueLine(line) ) {
-                    line = line.substring(0, line.length()-1); // remove trailing '\' 
+                    line = line.substring(0, line.length()-1); // remove trailing '\'
                     if( wholeLine == null ) {
-                        wholeLine = line; 
+                        wholeLine = line;
                     } else {
                         wholeLine += removeLeadingWhitespaces(line);
                     }
@@ -93,7 +93,7 @@ public class FrostResourceBundleReader {
                 } else {
                     wholeLine = line;
                 }
-                
+
                 line = wholeLine;
                 wholeLine = null;
 
@@ -101,7 +101,7 @@ public class FrostResourceBundleReader {
                     continue; // empty line
                 }
 
-                int pos = line.indexOf('=');
+                final int pos = line.indexOf('=');
                 if( pos < 1 ) {
                     logger.severe("Invalid line in "+resourceName+": "+line);
                     continue;
@@ -116,7 +116,7 @@ public class FrostResourceBundleReader {
                 value = loadConvert(value);
                 bundle.put(key, value);
             }
-        } catch(Throwable t) {
+        } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Error reading resource: "+resourceName, t);
             return bundle;
         }
@@ -126,7 +126,7 @@ public class FrostResourceBundleReader {
     /**
      * Remove all leading whitespaces from a continued line.
      */
-    private static String removeLeadingWhitespaces(String str) {
+    private static String removeLeadingWhitespaces(final String str) {
         int x;
         for(x=0; x<str.length()-1; x++) {
             if( Character.isWhitespace(str.charAt(x)) ) {
@@ -141,7 +141,7 @@ public class FrostResourceBundleReader {
     /**
      * Returns true if this line is continued on next line (trailing backslash).
      */
-    private static boolean isContinueLine(String line) {
+    private static boolean isContinueLine(final String line) {
         int backslashCount = 0;
         int index = line.length() - 1;
         while ((index >= 0) && (line.charAt(index--) == '\\')) {
@@ -153,10 +153,10 @@ public class FrostResourceBundleReader {
     /**
      * Converts the strings \n, \r, \t and \f in the string into chars.
      */
-    private static String loadConvert(String str) {
+    private static String loadConvert(final String str) {
         char aChar;
-        int len = str.length();
-        StringBuilder result = new StringBuilder(len);
+        final int len = str.length();
+        final StringBuilder result = new StringBuilder(len);
         // note that uneven backslashes were removed from end of line (continuation),
         // hence the double ++ should work ;)
         for (int x=0; x<len; ) {

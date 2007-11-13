@@ -40,28 +40,28 @@ public class AltEdit extends Thread {
 
     private static final Logger logger = Logger.getLogger(AltEdit.class.getName());
 
-    private Language language = Language.getInstance();
+    private final Language language = Language.getInstance();
 
-    private Frame parentFrame;
-    private String linesep = System.getProperty("line.separator");
+    private final Frame parentFrame;
+    private final String linesep = System.getProperty("line.separator");
 
-    private String oldSubject;
-    private String oldText;
+    private final String oldSubject;
+    private final String oldText;
 
     private final String SUBJECT_MARKER = language.getString("AltEdit.markerLine.subject");
     private final String TEXT_MARKER = language.getString("AltEdit.markerLine.text");
 
-    private Object transferObject;
-    private MessageFrame callbackTarget;
+    private final Object transferObject;
+    private final MessageFrame callbackTarget;
 
-    public AltEdit(String subject, String text, Frame parentFrame, Object transferObject, MessageFrame callbackTarget) {
+    public AltEdit(final String subject, final String text, final Frame parentFrame, final Object transferObject, final MessageFrame callbackTarget) {
         this.parentFrame = parentFrame;
         this.oldSubject = subject;
         this.oldText = text;
         this.transferObject = transferObject;
         this.callbackTarget = callbackTarget;
     }
-    
+
     private void callbackMessageFrame(final String newSubject, final String newText) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
@@ -70,6 +70,7 @@ public class AltEdit extends Thread {
         });
     }
 
+    @Override
     public void run() {
 
         // paranoia
@@ -78,8 +79,8 @@ public class AltEdit extends Thread {
             return;
         }
 
-        String editor = Core.frostSettings.getValue(SettingsClass.ALTERNATE_EDITOR_COMMAND);
-        
+        final String editor = Core.frostSettings.getValue(SettingsClass.ALTERNATE_EDITOR_COMMAND);
+
         if( editor == null || editor.length() == 0 ) {
             JOptionPane.showMessageDialog(parentFrame,
                     language.getString("AltEdit.errorDialog.noAlternateEditorConfigured"),
@@ -99,10 +100,10 @@ public class AltEdit extends Thread {
         }
 
         // part before and after %f
-        String editor_pre_file = editor.substring(0, editor.indexOf("%f"));
-        String editor_post_file = editor.substring(editor.indexOf("%f") + 2, editor.length());
+        final String editor_pre_file = editor.substring(0, editor.indexOf("%f"));
+        final String editor_post_file = editor.substring(editor.indexOf("%f") + 2, editor.length());
 
-        File editFile = FileAccess.createTempFile("frostmsg", ".txt");
+        final File editFile = FileAccess.createTempFile("frostmsg", ".txt");
         editFile.deleteOnExit();
 
         StringBuilder sb = new StringBuilder();
@@ -124,10 +125,10 @@ public class AltEdit extends Thread {
         }
         sb = null;
 
-        String editorCmdLine = editor_pre_file + editFile.getPath() + editor_post_file;
+        final String editorCmdLine = editor_pre_file + editFile.getPath() + editor_post_file;
         try {
           run_wait(editorCmdLine);
-        } catch(Throwable t) {
+        } catch(final Throwable t) {
             JOptionPane.showMessageDialog(parentFrame,
                     language.getString("AltEdit.errorDialog.couldNotStartEditorUsingCommand")+": "+editorCmdLine+"\n"+t.toString(),
                     language.getString("AltEdit.errorDialogs.title"),
@@ -137,10 +138,10 @@ public class AltEdit extends Thread {
             return;
         }
 
-        List lines = FileAccess.readLines(editFile, "UTF-8");
+        final List<String> lines = FileAccess.readLines(editFile, "UTF-8");
         // adding the exec stdout/stderr output
         //lines.addAll(exec_output);
-                
+
         if( lines.size() < 4 ) { // subject marker,subject,from line, text marker
             JOptionPane.showMessageDialog(parentFrame,
                     language.getString("AltEdit.errorDialog.invalidReturnedMessageFile"),
@@ -152,11 +153,11 @@ public class AltEdit extends Thread {
         }
 
         String newSubject = null;
-        StringBuilder newTextSb = new StringBuilder();
+        final StringBuilder newTextSb = new StringBuilder();
 
         boolean inNewText = false;
-        for( Iterator it=lines.iterator(); it.hasNext(); ) {
-            String line = (String)it.next();
+        for( final Iterator<String> it=lines.iterator(); it.hasNext(); ) {
+            String line = it.next();
 
             if( inNewText ) {
                 newTextSb.append(line).append(linesep);
@@ -174,7 +175,7 @@ public class AltEdit extends Thread {
                     callbackMessageFrame(null, null);
                     return;
                 }
-                line = (String)it.next();
+                line = it.next();
                 if( line.equals(TEXT_MARKER) ) {
                     JOptionPane.showMessageDialog(parentFrame,
                             language.getString("AltEdit.errorDialog.invalidReturnedMessageFile"),
@@ -207,26 +208,26 @@ public class AltEdit extends Thread {
         // finished, we have a newSubject and a newText now
         callbackMessageFrame(newSubject, newTextSb.toString());
     }
-    
+
     /**
      * start an external program, and return their output
      * @param order the command to execute
      * @return the output generated by the program. Standard ouput and Error output are captured.
      */
-    public static List run_wait(String order) throws Throwable {
+    public static List<String> run_wait(final String order) throws Throwable {
         logger.info("-------------------------------------------------------------------\n" +
                     "Execute: " + order + "\n" +
                     "-------------------------------------------------------------------");
-        
-        ArrayList<String> result = new ArrayList<String>();
-      
-        Process p = Runtime.getRuntime().exec(order);  // java 1.4 String Order
-        //ProcessBuilder pb = new ProcessBuilder(order);   // java 1.5 List<String> order 
+
+        final ArrayList<String> result = new ArrayList<String>();
+
+        final Process p = Runtime.getRuntime().exec(order);  // java 1.4 String Order
+        //ProcessBuilder pb = new ProcessBuilder(order);   // java 1.5 List<String> order
         //Process p = pb.start();
-        
-        InputStream stdOut = p.getInputStream();
-        InputStream stdErr = p.getErrorStream();
-  
+
+        final InputStream stdOut = p.getInputStream();
+        final InputStream stdErr = p.getErrorStream();
+
         List<String> tmpList;
         tmpList = FileAccess.readLines(stdOut, "UTF-8");
         if( tmpList != null ) {
