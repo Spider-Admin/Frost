@@ -58,6 +58,8 @@ class DisplayPanel extends JPanel {
     private final JCheckBox saveSortStatesCheckBox = new JCheckBox();
     private final JCheckBox showColoredRowsCheckBox = new JCheckBox();
 
+    private final JCheckBox macosShowScreenMenuBar = new JCheckBox();
+
     private final JCheckBox confirmMarkAllMsgsReadCheckBox = new JCheckBox();
 
     private final JLabel messageBodyLabel = new JLabel();
@@ -209,6 +211,9 @@ class DisplayPanel extends JPanel {
         constraints.gridy++;
         add(saveSortStatesCheckBox, constraints);
 
+        constraints.gridy++;
+        add(macosShowScreenMenuBar, constraints);
+
         constraints.insets = insets2;
         constraints.gridy++;
         add(confirmMarkAllMsgsReadCheckBox, constraints);
@@ -248,6 +253,7 @@ class DisplayPanel extends JPanel {
 
         saveSortStatesCheckBox.setSelected(settings.getBoolValue(SettingsClass.SAVE_SORT_STATES));
         showColoredRowsCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS));
+        macosShowScreenMenuBar.setSelected(settings.getBoolValue(SettingsClass.MACOS_USE_SCREEN_MENUBAR));
         confirmMarkAllMsgsReadCheckBox.setSelected(settings.getBoolValue(SettingsClass.CONFIRM_MARK_ALL_MSGS_READ));
     }
 
@@ -293,6 +299,7 @@ class DisplayPanel extends JPanel {
         selectedFileListFontLabel.setText(getFontLabel(selectedFileListFont));
         saveSortStatesCheckBox.setText(language.getString("Options.display.saveSortStates"));
         showColoredRowsCheckBox.setText(language.getString("Options.display.showColoredRows"));
+        macosShowScreenMenuBar.setText(language.getString("Options.display.showScreenMenuBarOnMacOs"));
         confirmMarkAllMsgsReadCheckBox.setText(language.getString("Options.display.confirmMarkAllMsgsRead"));
     }
 
@@ -317,6 +324,7 @@ class DisplayPanel extends JPanel {
         }
         settings.setValue(SettingsClass.SAVE_SORT_STATES, saveSortStatesCheckBox.isSelected());
         settings.setValue(SettingsClass.SHOW_COLORED_ROWS, showColoredRowsCheckBox.isSelected());
+        settings.setValue(SettingsClass.MACOS_USE_SCREEN_MENUBAR, macosShowScreenMenuBar.isSelected());
         settings.setValue(SettingsClass.CONFIRM_MARK_ALL_MSGS_READ, confirmMarkAllMsgsReadCheckBox.isSelected());
     }
 }
