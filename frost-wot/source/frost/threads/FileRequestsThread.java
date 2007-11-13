@@ -122,7 +122,7 @@ public class FileRequestsThread extends Thread {
         while (failures < maxFailures && index >= 0 ) {
 
             // Wait some random time to not to flood the node
-            Mixed.waitRandom(3000);
+            Mixed.waitRandom(5000);
 
             logger.info("Requesting index " + index + " for date " + dateStr);
 
