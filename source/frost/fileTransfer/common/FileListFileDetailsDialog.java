@@ -28,6 +28,8 @@ import frost.*;
 import frost.fcp.*;
 import frost.fileTransfer.*;
 import frost.fileTransfer.search.*;
+import frost.gui.MessagePanel.*;
+import frost.identities.*;
 import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
@@ -49,11 +51,10 @@ public class FileListFileDetailsDialog extends JDialog {
     private PopupMenu popupMenu = null;
     private final Listener listener = new Listener();
 
-    private boolean isOwnerSearchAllowed = false;
+    private final boolean isOwnerSearchAllowed;
 
     public FileListFileDetailsDialog(final Frame owner) {
-        super(owner);
-        initialize(owner);
+        this(owner, false);
     }
 
     public FileListFileDetailsDialog(final Frame owner, final boolean allowOwnerSearch) {
@@ -210,6 +211,11 @@ public class FileListFileDetailsDialog extends JDialog {
 
         private final JMenuItem showOwnerFilesItem = new JMenuItem();
 
+        private final JMenuItem setBadItem = new JMenuItem();
+        private final JMenuItem setCheckItem = new JMenuItem();
+        private final JMenuItem setGoodItem = new JMenuItem();
+        private final JMenuItem setObserveItem = new JMenuItem();
+
         public PopupMenu() {
             super();
             initialize();
@@ -226,6 +232,10 @@ public class FileListFileDetailsDialog extends JDialog {
             copyKeysAndNamesItem.addActionListener(this);
             copyKeysItem.addActionListener(this);
             showOwnerFilesItem.addActionListener(this);
+            setGoodItem.addActionListener(this);
+            setBadItem.addActionListener(this);
+            setCheckItem.addActionListener(this);
+            setObserveItem.addActionListener(this);
         }
 
         private void refreshLanguage() {
@@ -235,6 +245,10 @@ public class FileListFileDetailsDialog extends JDialog {
             copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
 
             showOwnerFilesItem.setText(language.getString("FileListFileDetailsDialog.popupmenu.searchFilesOfOwner"));
+            setGoodItem.setText(language.getString("MessagePane.messageTable.popupmenu.setToGood"));
+            setBadItem.setText(language.getString("MessagePane.messageTable.popupmenu.setToBad"));
+            setCheckItem.setText(language.getString("MessagePane.messageTable.popupmenu.setToCheck"));
+            setObserveItem.setText(language.getString("MessagePane.messageTable.popupmenu.setToObserve"));
         }
 
         public void actionPerformed(final ActionEvent e) {
@@ -244,6 +258,33 @@ public class FileListFileDetailsDialog extends JDialog {
                 CopyToClipboard.copyKeysAndFilenames(modelTable.getSelectedItems());
             } else if (e.getSource() == showOwnerFilesItem) {
                 searchFilesOfOwner();
+            } else if (e.getSource() == setGoodItem) {
+                changeTrustState(IdentityState.GOOD);
+            } else if (e.getSource() == setBadItem) {
+                changeTrustState(IdentityState.BAD);
+            } else if (e.getSource() == setCheckItem) {
+                changeTrustState(IdentityState.CHECK);
+            } else if (e.getSource() == setObserveItem) {
+                changeTrustState(IdentityState.OBSERVE);
+            }
+        }
+
+        private void changeTrustState(final IdentityState is) {
+            final ModelItem[] selectedItems = modelTable.getSelectedItems();
+            if (selectedItems.length == 1) {
+                final FileListFileDetailsItem item = (FileListFileDetailsItem) selectedItems[0];
+                if( is == IdentityState.GOOD ) {
+                    item.getOwnerIdentity().setGOOD();
+                } else if( is == IdentityState.CHECK ) {
+                    item.getOwnerIdentity().setCHECK();
+                } else if( is == IdentityState.OBSERVE ) {
+                    item.getOwnerIdentity().setOBSERVE();
+                } else if( is == IdentityState.BAD ) {
+                    item.getOwnerIdentity().setBAD();
+                }
+                modelTable.fireTableRowsUpdated(0, modelTable.getRowCount()-1);
+                // also update message panel to reflect the identity change
+                MainFrame.getInstance().getMessagePanel().updateTableAfterChangeOfIdentityState();
             }
         }
 
@@ -275,6 +316,46 @@ public class FileListFileDetailsDialog extends JDialog {
 
             // if at least 1 item is selected
             add(copyToClipboardMenu);
+
+            if (selectedItems.length == 1) {
+
+                addSeparator();
+
+                add(setGoodItem);
+                add(setObserveItem);
+                add(setCheckItem);
+                add(setBadItem);
+                setGoodItem.setEnabled(false);
+                setObserveItem.setEnabled(false);
+                setCheckItem.setEnabled(false);
+                setBadItem.setEnabled(false);
+
+                final FileListFileDetailsItem item = (FileListFileDetailsItem) selectedItems[0];
+                final Identity ownerId = item.getOwnerIdentity();
+
+                if( ownerId instanceof LocalIdentity ) {
+                    // keep all off
+                } else if (ownerId.isGOOD()) {
+                    setObserveItem.setEnabled(true);
+                    setCheckItem.setEnabled(true);
+                    setBadItem.setEnabled(true);
+                } else if (ownerId.isCHECK()) {
+                    setObserveItem.setEnabled(true);
+                    setGoodItem.setEnabled(true);
+                    setBadItem.setEnabled(true);
+                } else if (ownerId.isBAD()) {
+                    setObserveItem.setEnabled(true);
+                    setGoodItem.setEnabled(true);
+                    setCheckItem.setEnabled(true);
+                } else if (ownerId.isOBSERVE()) {
+                    setGoodItem.setEnabled(true);
+                    setCheckItem.setEnabled(true);
+                    setBadItem.setEnabled(true);
+                } else {
+                    // keep all off
+                }
+            }
+
             if( isOwnerSearchAllowed && selectedItems.length == 1 ) {
                 addSeparator();
                 add(showOwnerFilesItem);
