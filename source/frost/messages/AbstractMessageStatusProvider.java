@@ -139,7 +139,7 @@ public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNo
 
     public String getMessageStatusString() {
     	final Identity i = getFromIdentity();
-    	if (i instanceof LocalIdentity) {
+    	if (i instanceof LocalIdentity && !Core.frostSettings.getBoolValue(SettingsClass.SHOW_OWN_MESSAGES_AS_ME_DISABLED)) {
 			return "ME";
         } else {
             return messageStateStrings[getMessageStatus(i)];

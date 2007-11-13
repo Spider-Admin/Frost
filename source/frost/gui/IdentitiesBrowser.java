@@ -736,7 +736,9 @@ public class IdentitiesBrowser extends JDialog {
                 // STATE
                 // state == good/bad/check/observe -> bold and coloured
                 if (Core.getIdentities().isMySelf(id.getUniqueName())) {
-                    setText("ME");
+                    if( !Core.frostSettings.getBoolValue(SettingsClass.SHOW_OWN_MESSAGES_AS_ME_DISABLED) ) {
+                        setText("ME");
+                    }
                     setFont(boldFont);
                     setForeground(col_good);
                 } else if( id.isGOOD() ) {
