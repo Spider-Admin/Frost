@@ -82,6 +82,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
     private boolean checkShowDeletedMessages;
     private boolean showColoredRows;
 
+    private boolean checkShowOwnMessagesAsMeDisabled;
+
     private JPanel contentAreaPanel = null;
     private DisplayPanel displayPanel = null;
     private DisplayBoardTreePanel displayBoardTreePanel = null;
@@ -450,8 +452,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
             || checkHideObserveMessages != frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_OBSERVE)
             || checkBlock != frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_SUBJECT_ENABLED)
             || checkBlockBody != frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BODY_ENABLED)
-            || checkShowDeletedMessages != frostSettings.getBoolValue("showDeletedMessages")
+            || checkShowDeletedMessages != frostSettings.getBoolValue(SettingsClass.SHOW_DELETED_MESSAGES)
             || showColoredRows != frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS)
+            || checkShowOwnMessagesAsMeDisabled != frostSettings.getBoolValue(SettingsClass.SHOW_OWN_MESSAGES_AS_ME_DISABLED)
           )
         {
             // at least one setting changed, reload messages
@@ -485,7 +488,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         checkHideObserveMessages = frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_OBSERVE);
         checkBlock = frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_SUBJECT_ENABLED);
         checkBlockBody = frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BODY_ENABLED);
-        checkShowDeletedMessages = frostSettings.getBoolValue("showDeletedMessages");
+        checkShowDeletedMessages = frostSettings.getBoolValue(SettingsClass.SHOW_DELETED_MESSAGES);
+        checkShowOwnMessagesAsMeDisabled = frostSettings.getBoolValue(SettingsClass.SHOW_OWN_MESSAGES_AS_ME_DISABLED);
 
         checkRememberSharedFileDownloaded = frostSettings.getBoolValue(SettingsClass.REMEMBER_SHAREDFILE_DOWNLOADED);
 

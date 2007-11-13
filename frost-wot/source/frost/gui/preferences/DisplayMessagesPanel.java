@@ -30,19 +30,20 @@ public class DisplayMessagesPanel extends JPanel {
     private SettingsClass settings = null;
     private Language language = null;
 
-    private JCheckBox messageBodyAACheckBox = new JCheckBox();
-    private JCheckBox msgTableMultilineSelectCheckBox = new JCheckBox();
-    private JCheckBox msgTableScrollHorizontalCheckBox = new JCheckBox();
-    private JCheckBox sortThreadRootMsgsAscendingCheckBox = new JCheckBox();
-    private JCheckBox showCollapsedThreadsCheckBox = new JCheckBox();
-    private JCheckBox showDeletedMessagesCheckBox = new JCheckBox();
-    private JCheckBox dontShowOwnMessagesAsNewCheckBox = new JCheckBox();
+    private final JCheckBox messageBodyAACheckBox = new JCheckBox();
+    private final JCheckBox msgTableMultilineSelectCheckBox = new JCheckBox();
+    private final JCheckBox msgTableScrollHorizontalCheckBox = new JCheckBox();
+    private final JCheckBox sortThreadRootMsgsAscendingCheckBox = new JCheckBox();
+    private final JCheckBox showCollapsedThreadsCheckBox = new JCheckBox();
+    private final JCheckBox showDeletedMessagesCheckBox = new JCheckBox();
+    private final JCheckBox dontShowOwnMessagesAsNewCheckBox = new JCheckBox();
+    private final JCheckBox dontShowOwnMessagesAsMECheckBox = new JCheckBox();
 
     /**
      * @param owner the JDialog that will be used as owner of any dialog that is popped up from this panel
      * @param settings the SettingsClass instance that will be used to get and store the settings of the panel
      */
-    protected DisplayMessagesPanel(JDialog owner, SettingsClass settings) {
+    protected DisplayMessagesPanel(final JDialog owner, final SettingsClass settings) {
         super();
 
         this.language = Language.getInstance();
@@ -63,12 +64,12 @@ public class DisplayMessagesPanel extends JPanel {
         setLayout(new GridBagLayout());
         refreshLanguage();
 
-        GridBagConstraints constraints = new GridBagConstraints();
+        final GridBagConstraints constraints = new GridBagConstraints();
         constraints.anchor = GridBagConstraints.NORTHWEST;
         constraints.fill = GridBagConstraints.BOTH;
         constraints.weightx = 1;
-        Insets inset5511 = new Insets(5, 5, 1, 1);
-        
+        final Insets inset5511 = new Insets(5, 5, 1, 1);
+
         constraints.insets = inset5511;
         constraints.gridx = 0;
         constraints.gridy = 0;
@@ -77,10 +78,10 @@ public class DisplayMessagesPanel extends JPanel {
         constraints.insets = inset5511;
         constraints.gridy++;
         add(msgTableMultilineSelectCheckBox, constraints);
-        
+
         constraints.gridy++;
         add(msgTableScrollHorizontalCheckBox, constraints);
-        
+
         constraints.gridy++;
         add(sortThreadRootMsgsAscendingCheckBox, constraints);
 
@@ -92,6 +93,9 @@ public class DisplayMessagesPanel extends JPanel {
 
         constraints.gridy++;
         add(dontShowOwnMessagesAsNewCheckBox, constraints);
+
+        constraints.gridy++;
+        add(dontShowOwnMessagesAsMECheckBox, constraints);
 
         constraints.gridy++;
         constraints.weighty = 1.0;
@@ -110,6 +114,7 @@ public class DisplayMessagesPanel extends JPanel {
         showCollapsedThreadsCheckBox.setSelected(settings.getBoolValue(SettingsClass.MSGTABLE_SHOW_COLLAPSED_THREADS));
         showDeletedMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_DELETED_MESSAGES));
         dontShowOwnMessagesAsNewCheckBox.setSelected(settings.getBoolValue(SettingsClass.HANDLE_OWN_MESSAGES_AS_NEW_DISABLED));
+        dontShowOwnMessagesAsMECheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_OWN_MESSAGES_AS_ME_DISABLED));
     }
 
     public void ok() {
@@ -124,6 +129,7 @@ public class DisplayMessagesPanel extends JPanel {
         showCollapsedThreadsCheckBox.setText(language.getString("Options.display.showCollapsedThreads"));
         showDeletedMessagesCheckBox.setText(language.getString("Options.news.3.showDeletedMessages"));
         dontShowOwnMessagesAsNewCheckBox.setText(language.getString("Options.news.3.dontHandleOwnMessagesAsNew"));
+        dontShowOwnMessagesAsMECheckBox.setText(language.getString("Options.news.3.dontShowOwnMessagesAsMe"));
     }
 
     /**
@@ -137,5 +143,6 @@ public class DisplayMessagesPanel extends JPanel {
         settings.setValue(SettingsClass.MSGTABLE_SHOW_COLLAPSED_THREADS, showCollapsedThreadsCheckBox.isSelected());
         settings.setValue(SettingsClass.SHOW_DELETED_MESSAGES, showDeletedMessagesCheckBox.isSelected());
         settings.setValue(SettingsClass.HANDLE_OWN_MESSAGES_AS_NEW_DISABLED, dontShowOwnMessagesAsNewCheckBox.isSelected());
+        settings.setValue(SettingsClass.SHOW_OWN_MESSAGES_AS_ME_DISABLED, dontShowOwnMessagesAsMECheckBox.isSelected());
     }
 }
