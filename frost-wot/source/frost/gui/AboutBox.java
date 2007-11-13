@@ -21,9 +21,9 @@ package frost.gui;
 import java.awt.*;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
+import javax.swing.border.*;
 
-import frost.util.gui.JDialogWithDetails;
+import frost.util.gui.*;
 
 /**
  * @author $Author$
@@ -39,22 +39,22 @@ public class AboutBox extends JDialogWithDetails {
     private final static String copyright = "Copyright (c) 2007 Frost Project";
     private final static String comments2 = "http://jtcfrost.sourceforge.net/";
 
-    private JPanel imagePanel = new JPanel();
-    private JPanel messagesPanel = new JPanel();
+    private final JPanel imagePanel = new JPanel();
+    private final JPanel messagesPanel = new JPanel();
 
-    private JLabel imageLabel = new JLabel();
-    private JLabel productLabel = new JLabel();
-    private JLabel versionLabel = new JLabel();
-    private JLabel copyrightLabel = new JLabel();
-    private JLabel licenseLabel = new JLabel();
-    private JLabel websiteLabel = new JLabel();
+    private final JLabel imageLabel = new JLabel();
+    private final JLabel productLabel = new JLabel();
+    private final JLabel versionLabel = new JLabel();
+    private final JLabel copyrightLabel = new JLabel();
+    private final JLabel licenseLabel = new JLabel();
+    private final JLabel websiteLabel = new JLabel();
 
     private static final ImageIcon frostImage = new ImageIcon(AboutBox.class.getResource("/data/jtc.jpg"));
 
     /**
      * @param parent
      */
-    public AboutBox(Frame parent) {
+    public AboutBox(final Frame parent) {
         super(parent);
         initialize();
     }
@@ -72,7 +72,7 @@ public class AboutBox extends JDialogWithDetails {
         imagePanel.add(imageLabel);
 
         // Messages panel
-        GridLayout gridLayout = new GridLayout(5, 1);
+        final GridLayout gridLayout = new GridLayout(5, 1);
         messagesPanel.setLayout(gridLayout);
         messagesPanel.setBorder(new EmptyBorder(10, 50, 10, 10));
         productLabel.setText(product);
@@ -95,16 +95,16 @@ public class AboutBox extends JDialogWithDetails {
     }
 
     private void fillDetailsArea() {
-        StringBuilder details = new StringBuilder();
+        final StringBuilder details = new StringBuilder();
         details.append(language.getString("AboutBox.text.development") + "\n");
         details.append("   Karsten Graul\n");
-        details.append("   S. Amoako\n");
+        details.append("   S. Amoako (lazy)\n");
         details.append("   Roman Glebov (inactive)\n");
-        details.append("   Jan-Thomas Czornack (left)\n");
-        details.append("   Thomas Mueller (left)\n");
-        details.append("   Jim Hunziker (left)\n");
-        details.append("   Stefan Majewski (left)\n");
-        details.append("   José Manuel Arnesto (left)\n\n");
+        details.append("   Jan-Thomas Czornack (quit)\n");
+        details.append("   Thomas Mueller (quit)\n");
+        details.append("   Jim Hunziker (quit)\n");
+        details.append("   Stefan Majewski (quit)\n");
+        details.append("   José Manuel Arnesto (quit)\n\n");
         details.append(language.getString("AboutBox.text.windowsInstaller") + "\n");
         details.append("   Benoit Laniel\n\n");
         details.append(language.getString("AboutBox.text.systemTrayExecutables") + "\n");
