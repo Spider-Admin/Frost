@@ -23,7 +23,7 @@ import java.awt.event.*;
 import java.util.*;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
+import javax.swing.border.*;
 import javax.swing.event.*;
 
 import frost.util.gui.translation.*;
@@ -39,7 +39,7 @@ public class FontChooser extends JDialog {
 			super();
 		}
 
-		public void actionPerformed(ActionEvent e) {
+		public void actionPerformed(final ActionEvent e) {
 			if (e.getSource() == okButton) {
 				okButtonPressed();
 			}
@@ -47,11 +47,11 @@ public class FontChooser extends JDialog {
 				cancelButtonPressed();
 			}
 			if (e.getSource() == selectedSizeTextField) {
-				sizeTyped();	
+				sizeTyped();
 			}
 		}
 
-		public void valueChanged(ListSelectionEvent e) {
+		public void valueChanged(final ListSelectionEvent e) {
 			if (!e.getValueIsAdjusting()) { // We ignore adjusting events
 				if (e.getSource() == fontNamesList) {
 					fontNameValueChanged();
@@ -65,48 +65,48 @@ public class FontChooser extends JDialog {
 			}
 		}
 
-		public void languageChanged(LanguageEvent event) {
-			refreshLanguage();			
+		public void languageChanged(final LanguageEvent event) {
+			refreshLanguage();
 		}
 	}
-	
-	private Listener listener = new Listener();
-	
+
+	private final Listener listener = new Listener();
+
 	private Language language = null;
-	
-	private DefaultListModel fontNamesModel = new DefaultListModel();
-	private JList fontNamesList = new JList(fontNamesModel);
-	private JTextField selectedNameTextField = new JTextField();
-	
+
+	private final DefaultListModel fontNamesModel = new DefaultListModel();
+	private final JList fontNamesList = new JList(fontNamesModel);
+	private final JTextField selectedNameTextField = new JTextField();
+
 	private TranslatableListModel fontStylesModel = null;
-	private JList fontStylesList = new JList();
-	private JTextField selectedStyleTextField = new JTextField();
-	
-	private DefaultListModel fontSizesModel = new DefaultListModel();
-	private JList fontSizesList = new JList(fontSizesModel);
-	private JTextField selectedSizeTextField = new JTextField();
-	
-	private JLabel sampleLabel = new JLabel();
-	private JTextField sampleTextField = new JTextField();
-	
-	private JButton cancelButton = new JButton();
-	private JButton okButton = new JButton();
-	
+	private final JList fontStylesList = new JList();
+	private final JTextField selectedStyleTextField = new JTextField();
+
+	private final DefaultListModel fontSizesModel = new DefaultListModel();
+	private final JList fontSizesList = new JList(fontSizesModel);
+	private final JTextField selectedSizeTextField = new JTextField();
+
+	private final JLabel sampleLabel = new JLabel();
+	private final JTextField sampleTextField = new JTextField();
+
+	private final JButton cancelButton = new JButton();
+	private final JButton okButton = new JButton();
+
 	private Font selectedFont = null;
 	private String selectedName = null;
 	private Integer selectedSize = null;
-	private Integer selectedStyle = null; 
-	
-	private HashMap styles = new HashMap();
-	
-	public FontChooser(Frame owner, Language language) {
+	private Integer selectedStyle = null;
+
+	private final HashMap<String,Integer> styles = new HashMap<String,Integer>();
+
+	public FontChooser(final Frame owner, final Language language) {
 		super(owner);
 		this.language = language;
 		language.addLanguageListener(listener);
 		initialize();
 	}
-	
-	public FontChooser(Dialog owner, Language language) {
+
+	public FontChooser(final Dialog owner, final Language language) {
 		super(owner);
 		this.language = language;
 		language.addLanguageListener(listener);
@@ -117,19 +117,19 @@ public class FontChooser extends JDialog {
 		refreshLanguage();
 		setSize(400, 350);
 		setLocationRelativeTo(getOwner());
-		
+
 		new TextComponentClipboardMenu(selectedNameTextField, language);
 		new TextComponentClipboardMenu(selectedStyleTextField, language);
 		new TextComponentClipboardMenu(selectedSizeTextField, language);
 		new TextComponentClipboardMenu(sampleTextField, language);
 
-		JPanel contentPane = new JPanel();
+		final JPanel contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(10, 10, 10, 10));
 		contentPane.setLayout(new GridBagLayout());
 		setContentPane(contentPane);
 
-		GridBagConstraints constraints = new GridBagConstraints();
-		Insets insets4444 = new Insets(4, 4, 4, 4);
+		final GridBagConstraints constraints = new GridBagConstraints();
+		final Insets insets4444 = new Insets(4, 4, 4, 4);
 		constraints.insets = insets4444;
 		constraints.fill = GridBagConstraints.BOTH;
 		constraints.weightx = 1;
@@ -170,7 +170,7 @@ public class FontChooser extends JDialog {
 		constraints.gridx = 0;
 		constraints.gridy = 3;
 		contentPane.add(sampleLabel, constraints);
-		
+
 		constraints.gridx = 0;
 		constraints.gridy = 4;
 		constraints.gridwidth = 3;
@@ -179,8 +179,8 @@ public class FontChooser extends JDialog {
 		contentPane.add(sampleTextField, constraints);
 
 		//Buttons panel - BEGIN
-		JPanel buttonsPanel = new JPanel(new GridBagLayout());
-		GridBagConstraints panelConstraints = new GridBagConstraints();
+		final JPanel buttonsPanel = new JPanel(new GridBagLayout());
+		final GridBagConstraints panelConstraints = new GridBagConstraints();
 		panelConstraints.insets = insets4444;
 		panelConstraints.weighty = 1;
 		panelConstraints.anchor = GridBagConstraints.EAST;
@@ -210,36 +210,36 @@ public class FontChooser extends JDialog {
 		selectedSizeTextField.addActionListener(listener);
 
 		//Fills the JLists
-		GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
-		String[] names = environment.getAvailableFontFamilyNames();
-		String[] sizes = { "8", "9", "10", "11", "12", "14", "16", "18", "22", "26", "30", "36", "48", "64" };
+		final GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		final String[] names = environment.getAvailableFontFamilyNames();
+		final String[] sizes = { "8", "9", "10", "11", "12", "14", "16", "18", "22", "26", "30", "36", "48", "64" };
 		styles.put(language.getString("Options.display.fontChooser.plain"), new Integer(Font.PLAIN));
 		styles.put(language.getString("Options.display.fontChooser.italic"), new Integer(Font.ITALIC));
 		styles.put(language.getString("Options.display.fontChooser.bold"), new Integer(Font.BOLD));
 		styles.put(language.getString("Options.display.fontChooser.boldItalic"), new Integer(Font.ITALIC | Font.BOLD));
 
-		for (int i = 0; i < names.length; i++) {
-			fontNamesModel.addElement(names[i]);
+		for( final String element : names ) {
+			fontNamesModel.addElement(element);
 		}
 
-		for (int i = 0; i < sizes.length; i++) {
-			fontSizesModel.addElement(sizes[i]);
+		for( final String element : sizes ) {
+			fontSizesModel.addElement(element);
 		}
 
 		fontStylesModel = new TranslatableListModel(language);
 		fontStylesList.setModel(fontStylesModel);
-		ArrayList styleKeysList = new ArrayList(styles.keySet());
+		final ArrayList<String> styleKeysList = new ArrayList<String>(styles.keySet());
 		Collections.reverse(styleKeysList);	//Because I want "Plain" to be first
-		Iterator styleKeys = styleKeysList.iterator();
+		final Iterator<String> styleKeys = styleKeysList.iterator();
 		while (styleKeys.hasNext()) {
-			fontStylesModel.addElement(styleKeys.next());	
+			fontStylesModel.addElement(styleKeys.next());
 		}
 
 		fontNamesList.setSelectedIndex(0);
 		fontSizesList.setSelectedIndex(0);
 		fontStylesList.setSelectedIndex(0);
 	}
-	
+
 	private void cancelButtonPressed() {
 		selectedFont = null;
 		dispose();
@@ -247,7 +247,7 @@ public class FontChooser extends JDialog {
 	private void okButtonPressed() {
 		dispose();
 	}
-	
+
 	private void fontNameValueChanged() {
 		if (fontNamesList.getSelectedIndex() != -1) {
 			selectedName = fontNamesList.getSelectedValue().toString();
@@ -255,7 +255,7 @@ public class FontChooser extends JDialog {
 			refreshFont();
 		}
 	}
-	
+
 	private void refreshFont() {
 		if ((selectedName != null) && (selectedSize != null) && (selectedStyle != null)) {
 			selectedFont =
@@ -265,17 +265,17 @@ public class FontChooser extends JDialog {
 	}
 
 	private void fontStyleValueChanged() {
-		int selectedIndex = fontStylesList.getSelectedIndex();
+		final int selectedIndex = fontStylesList.getSelectedIndex();
 		if (selectedIndex != -1) {
-			String styleString = fontStylesModel.getElementAt(selectedIndex).toString();
-			String styleKey = fontStylesModel.getKeyAt(selectedIndex);
-			
+			final String styleString = fontStylesModel.getElementAt(selectedIndex).toString();
+			final String styleKey = fontStylesModel.getKeyAt(selectedIndex);
+
 			selectedStyleTextField.setText(styleString);
-			selectedStyle = (Integer) styles.get(styleKey);
+			selectedStyle = styles.get(styleKey);
 			refreshFont();
 		}
 	}
-	
+
 	private void fontSizeValueChanged() {
 		if (fontSizesList.getSelectedIndex() != -1) {
 			selectedSize = new Integer(fontSizesList.getSelectedValue().toString());
@@ -288,10 +288,10 @@ public class FontChooser extends JDialog {
 		return selectedFont;
 	}
 
-	public void setSelectedFont(Font font) {
+	public void setSelectedFont(final Font font) {
 		selectedFont = font;
 		//Name
-		String familyName = font.getFamily();
+		final String familyName = font.getFamily();
 		if (fontNamesModel.contains(familyName)) {
 			fontNamesList.setSelectedValue(familyName, true);
 		}
@@ -306,32 +306,32 @@ public class FontChooser extends JDialog {
 		}
 		//Style
 		int stylePos = -1;
-		Integer style = new Integer(font.getStyle());
-		Iterator styleEntries = styles.entrySet().iterator();
+		final Integer style = new Integer(font.getStyle());
+		final Iterator<Map.Entry<String,Integer>> styleEntries = styles.entrySet().iterator();
 		while (styleEntries.hasNext() && stylePos == -1) {
-			Map.Entry entry = (Map.Entry) styleEntries.next();	
+			final Map.Entry<String,Integer> entry = styleEntries.next();
 			if (entry.getValue().equals(style)) {
-				stylePos = fontStylesModel.indexOfKey(entry.getKey());	
+				stylePos = fontStylesModel.indexOfKey(entry.getKey());
 			}
 		}
 		fontStylesList.setSelectedIndex(stylePos);
 	}
-	
+
 	private void sizeTyped() {
-		String size = selectedSizeTextField.getText();
+		final String size = selectedSizeTextField.getText();
 		try {
 			selectedSize = new Integer(size);
 			if (fontSizesModel.contains(size)) {
 				fontSizesList.setSelectedValue(size, true);
 			} else {
-				fontSizesList.clearSelection();	
+				fontSizesList.clearSelection();
 			}
-			refreshFont();			
-		} catch (NumberFormatException exception) {
+			refreshFont();
+		} catch (final NumberFormatException exception) {
 			//Nothing, just ignore the typed value
 		}
 	}
-		
+
 	private void refreshLanguage() {
 		setTitle(language.getString("Options.display.fontChooser.title"));
 		sampleLabel.setText(language.getString("Options.display.fontChooser.sample"));

@@ -22,14 +22,14 @@ package frost.util.gui.textpane;
  * Message element use by {@link MessageDecoder}.
  * @author ET
  */
-public class MessageElement implements Comparable {
+public class MessageElement implements Comparable<MessageElement> {
 
-	private int messageLength;
-	private Integer messagePosition;
-	private int messageType;
-	private int messageTypeIndex;
-	
-	protected MessageElement(Integer position, int type, int typeIndex, int length) {
+	private final int messageLength;
+	private final Integer messagePosition;
+	private final int messageType;
+	private final int messageTypeIndex;
+
+	protected MessageElement(final Integer position, final int type, final int typeIndex, final int length) {
 		this.messageLength = length;
 		this.messagePosition = position;
 		this.messageType = type;
@@ -43,7 +43,7 @@ public class MessageElement implements Comparable {
 	protected Integer getPosition() {
 		return messagePosition;
 	}
-	
+
 	protected int getType() {
 		return messageType;
 	}
@@ -51,8 +51,8 @@ public class MessageElement implements Comparable {
 	protected int getTypeIndex() {
 		return messageTypeIndex;
 	}
-	
-	public int compareTo(Object me) {
-		return messagePosition.compareTo(((MessageElement)me).getPosition());
+
+	public int compareTo(final MessageElement me) {
+		return messagePosition.compareTo(me.getPosition());
 	}
 }

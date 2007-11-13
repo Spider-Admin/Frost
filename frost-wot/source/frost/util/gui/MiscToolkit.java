@@ -136,7 +136,11 @@ public class MiscToolkit {
 	 * @param enabled
 	 * @param exceptions the components to ignore
 	 */
-	public void setContainerEnabled(final Container container, final boolean enabled, final Collection exceptions) {
+	public void setContainerEnabled(
+	        final Container container,
+	        final boolean enabled,
+	        final Collection<Component> exceptions)
+	{
 		final int componentCount = container.getComponentCount();
 		for (int x = 0; x < componentCount; x++) {
 			final Component component = container.getComponent(x);
@@ -175,8 +179,8 @@ public class MiscToolkit {
 	private void setContainerEnabledInner(
 		final Container container,
 		final boolean enabled,
-		final Collection exceptions) {
-
+		final Collection<Component> exceptions)
+	{
 		final int componentCount = container.getComponentCount();
 		for (int x = 0; x < componentCount; x++) {
 			final Component component = container.getComponent(x);

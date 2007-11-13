@@ -56,14 +56,14 @@ public class FrostUnsentMessageObject extends FrostMessageObject {
         return timeAddedString;
     }
 
-    public LinkedList getUnsentFileAttachments() {
-        final LinkedList result = new LinkedList();
-        final List fileAttachments = getAttachmentsOfType(Attachment.FILE);
+    @SuppressWarnings("unchecked")
+    public LinkedList<FileAttachment> getUnsentFileAttachments() {
+        final LinkedList<FileAttachment> result = new LinkedList<FileAttachment>();
+        final List<FileAttachment> fileAttachments = getAttachmentsOfType(Attachment.FILE);
         if( fileAttachments == null || fileAttachments.size() == 0 ) {
             return result;
         }
-        for(final Iterator j = fileAttachments.iterator(); j.hasNext(); ) {
-            final FileAttachment fa = (FileAttachment) j.next();
+        for( final FileAttachment fa : fileAttachments ) {
             if( fa.getKey() == null || fa.getKey().length() == 0 ) {
                 result.add(fa);
             }

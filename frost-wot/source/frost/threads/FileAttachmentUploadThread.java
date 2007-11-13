@@ -36,27 +36,28 @@ import frost.util.gui.translation.*;
 public class FileAttachmentUploadThread extends Thread {
 
     private static final Logger logger = Logger.getLogger(FileAttachmentUploadThread.class.getName());
-    
+
     private static final int wait1minute = 1 * 60 * 1000;
-    
-    private MessageQueue msgQueue = new MessageQueue();
+
+    private final MessageQueue msgQueue = new MessageQueue();
 
     // one and only instance
     private static FileAttachmentUploadThread instance = new FileAttachmentUploadThread();
-    
+
     private FileAttachmentUploadThread() {
     }
-    
+
     public static FileAttachmentUploadThread getInstance() {
         return instance;
     }
-    
+
     public boolean cancelThread() {
         return false;
     }
 
+    @Override
     public void run() {
-        
+
         // monitor and process file attachment uploads
         // we expect an appr. chk file size of 512kb, max. 768kb (because of 0.5, we want no splitfile there)
 
@@ -66,10 +67,10 @@ public class FileAttachmentUploadThread extends Thread {
         while(true) {
             try {
                 while( Core.isFreenetOnline() == false ) {
-                    Mixed.wait(1*60*1000); // wait 1 minute 
+                    Mixed.wait(1*60*1000); // wait 1 minute
                 }
                 // if there is no work in queue this call waits for a new queue item
-                MessageFileAttachment msgFileAttachment = msgQueue.getMessageFromQueue();
+                final MessageFileAttachment msgFileAttachment = msgQueue.getMessageFromQueue();
 
                 if( msgFileAttachment == null ) {
                     // paranoia
@@ -80,15 +81,15 @@ public class FileAttachmentUploadThread extends Thread {
                     Mixed.waitRandom(3000);
                 }
 
-                FileAttachment fa = msgFileAttachment.getFileAttachment();
-                
+                final FileAttachment fa = msgFileAttachment.getFileAttachment();
+
                 if( fa.getInternalFile()== null ||
                     fa.getInternalFile().isFile() == false ||
                     fa.getInternalFile().length() == 0 )
                 {
-                    Language language = Language.getInstance();
-                    String title = language.getString("FileAttachmentUploadThread.fileNotFoundError.title");
-                    String txt = language.formatMessage("FileAttachmentUploadThread.fileNotFoundError.text", fa.getFilename());
+                    final Language language = Language.getInstance();
+                    final String title = language.getString("FileAttachmentUploadThread.fileNotFoundError.title");
+                    final String txt = language.formatMessage("FileAttachmentUploadThread.fileNotFoundError.text", fa.getFilename());
                     JOptionPane.showMessageDialog(
                             MainFrame.getInstance(),
                             txt,
@@ -96,19 +97,19 @@ public class FileAttachmentUploadThread extends Thread {
                             JOptionPane.ERROR_MESSAGE);
 
                     UnsentMessagesManager.deleteMessage(msgFileAttachment.getMessageObject());
-                    
+
                     continue;
                 }
-                
+
                 if( msgFileAttachment.isDeleted() ) {
                     continue; // drop
                 }
-                
-System.out.println("FileAttachmentUploadManager: starting upload of file: "+fa.getInternalFile().getPath());
+
+                logger.severe("Starting upload of file: "+fa.getInternalFile().getPath());
 
                 String chkKey = null;
                 try {
-                    FcpResultPut result = FcpHandler.inst().putFile(
+                    final FcpResultPut result = FcpHandler.inst().putFile(
                             FcpHandler.TYPE_FILE,
                             "CHK@",
                             fa.getInternalFile(),
@@ -121,11 +122,11 @@ System.out.println("FileAttachmentUploadManager: starting upload of file: "+fa.g
                     if (result.isSuccess() || result.isKeyCollision()) {
                         chkKey = result.getChkKey();
                     }
-                } catch (Exception ex) {
+                } catch (final Exception ex) {
                     logger.log(Level.WARNING, "Exception catched",ex);
                 }
-                
-System.out.println("FileAttachmentUploadManager: upload finished, key: "+chkKey);
+
+                logger.severe("Finished upload of "+fa.getInternalFile().getPath()+", key: "+chkKey);
 
                 // if the assiciated msg was deleted by user, forget all updates
                 if( !msgFileAttachment.isDeleted() ) {
@@ -133,97 +134,96 @@ System.out.println("FileAttachmentUploadManager: upload finished, key: "+chkKey)
                         // upload successful, update message
                         fa.setKey(chkKey);
                         UnsentMessagesManager.updateMessageFileAttachmentKey(
-                                msgFileAttachment.getMessageObject(), 
+                                msgFileAttachment.getMessageObject(),
                                 msgFileAttachment.getFileAttachment());
                     } else {
                         // upload failed, retry
                         msgQueue.appendToQueue(msgFileAttachment);
                     }
                 }
-                
-            } catch(Throwable t) {
+
+            } catch(final Throwable t) {
                 logger.log(Level.SEVERE, "Exception catched",t);
                 occuredExceptions++;
             }
-            
+
             if( occuredExceptions > maxAllowedExceptions ) {
-                logger.log(Level.SEVERE, "Stopping FileAttachmentUploadManager because of too much exceptions");
+                logger.log(Level.SEVERE, "Stopping because of too much exceptions");
                 break;
             }
         }
     }
-    
-    public void messageWasDeleted(String messageId) {
+
+    public void messageWasDeleted(final String messageId) {
         // message was deleted, remove all items of this message
         msgQueue.deleteAllItemsOfMessage(messageId);
     }
-    
-    public void checkAndEnqueueNewMessage(FrostUnsentMessageObject msg) {
-        LinkedList unsend = msg.getUnsentFileAttachments();
+
+    public void checkAndEnqueueNewMessage(final FrostUnsentMessageObject msg) {
+        final LinkedList<FileAttachment> unsend = msg.getUnsentFileAttachments();
         if( unsend != null && unsend.size() > 0 ) {
-            for(Iterator i=unsend.iterator(); i.hasNext(); ) {
-                FileAttachment fa = (FileAttachment) i.next();
-                MessageFileAttachment mfa = new MessageFileAttachment(msg, fa);
+            for( final FileAttachment fa : unsend ) {
+                final MessageFileAttachment mfa = new MessageFileAttachment(msg, fa);
                 msgQueue.appendToQueue(mfa);
             }
         }
     }
-    
+
     public int getQueueSize() {
         return msgQueue.getQueueSize();
     }
-    
+
     private class MessageQueue {
-        
-        private LinkedList<MessageFileAttachment> queue = new LinkedList<MessageFileAttachment>();
-        
+
+        private final LinkedList<MessageFileAttachment> queue = new LinkedList<MessageFileAttachment>();
+
         public synchronized MessageFileAttachment getMessageFromQueue() {
             try {
                 // let dequeueing threads wait for work
                 while( queue.isEmpty() ) {
                     wait();
                 }
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException e) {
                 return null; // waiting abandoned
             }
-            
+
             if( queue.isEmpty() == false ) {
-                MessageFileAttachment msg = queue.removeFirst();
+                final MessageFileAttachment msg = queue.removeFirst();
                 return msg;
             }
             return null;
         }
 
-        public synchronized void appendToQueue(MessageFileAttachment msg) {
+        public synchronized void appendToQueue(final MessageFileAttachment msg) {
             queue.addLast(msg);
             notifyAll(); // notify all waiters (if any) of new record
         }
         /**
          * Delete all items that reference message mo.
          */
-        public synchronized void deleteAllItemsOfMessage(String messageId) {
-            for( Iterator<MessageFileAttachment> i=queue.iterator(); i.hasNext(); ) {
-                MessageFileAttachment mfa = i.next();
+        public synchronized void deleteAllItemsOfMessage(final String messageId) {
+            for( final Iterator<MessageFileAttachment> i=queue.iterator(); i.hasNext(); ) {
+                final MessageFileAttachment mfa = i.next();
                 if( mfa.getMessageObject().getMessageId().equals(messageId) ) {
                     mfa.setDeleted(true);
                     i.remove();
                 }
             }
         }
-        
+
         public synchronized int getQueueSize() {
             return queue.size();
         }
     }
-    
+
     private class MessageFileAttachment {
-        
-        private FrostUnsentMessageObject messageObject;
-        private FileAttachment fileAttachment;
-        
+
+        private final FrostUnsentMessageObject messageObject;
+        private final FileAttachment fileAttachment;
+
         private boolean isDeleted = false;
-        
-        public MessageFileAttachment(FrostUnsentMessageObject mo, FileAttachment fa) {
+
+        public MessageFileAttachment(final FrostUnsentMessageObject mo, final FileAttachment fa) {
             messageObject = mo;
             fileAttachment = fa;
         }
@@ -240,7 +240,7 @@ System.out.println("FileAttachmentUploadManager: upload finished, key: "+chkKey)
             return isDeleted;
         }
 
-        public void setDeleted(boolean isDeleted) {
+        public void setDeleted(final boolean isDeleted) {
             this.isDeleted = isDeleted;
         }
     }

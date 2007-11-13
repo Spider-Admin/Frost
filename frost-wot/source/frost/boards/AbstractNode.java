@@ -51,16 +51,19 @@ public abstract class AbstractNode extends DefaultMutableTreeNode implements Com
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Enumeration<AbstractNode> depthFirstEnumeration() {
         return super.depthFirstEnumeration();
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Enumeration<AbstractNode> breadthFirstEnumeration() {
         return super.breadthFirstEnumeration();
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Enumeration<AbstractNode> children() {
         return super.children();
     }

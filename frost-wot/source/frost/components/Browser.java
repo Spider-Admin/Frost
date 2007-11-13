@@ -20,9 +20,9 @@
 package frost.components;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
+import java.awt.event.*;
 import java.io.*;
-import java.util.Vector;
+import java.util.*;
 import java.util.logging.*;
 
 import javax.swing.*;
@@ -62,7 +62,7 @@ public class Browser extends JPanel {
 
         // Browser Link Listener
     editorPane.addHyperlinkListener(new HyperlinkListener() {
-        public void hyperlinkUpdate(HyperlinkEvent e) {
+        public void hyperlinkUpdate(final HyperlinkEvent e) {
             parent.setTitle(e.getURL().toString());
             hyperlink_actionPerformed(e);
         }
@@ -70,7 +70,7 @@ public class Browser extends JPanel {
 
     // backButton Action Listener
     backButton.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(final ActionEvent e) {
             int i = urlComboBox.getSelectedIndex();
             if (i > 0) {
             i--;
@@ -81,7 +81,7 @@ public class Browser extends JPanel {
 
     // forwardButton Action Listener
     forwardButton.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(final ActionEvent e) {
             int i = urlComboBox.getSelectedIndex();
             if (i < urlComboBox.getItemCount() - 1) {
             i++;
@@ -92,16 +92,16 @@ public class Browser extends JPanel {
 
     // homeButton Action Listener
     homeButton.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(final ActionEvent e) {
             editorPane.setText(makeStartPage());
         }
         });
 
     // addPageButton Action Listener
     addPageButton.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(final ActionEvent e) {
             // Add url to favComboBox
-            String url = editorPane.getPage().toString();
+            final String url = editorPane.getPage().toString();
             boolean exists = false;
             for (int i = 0; i < favComboBox.getItemCount(); i++) {
             if (((String)favComboBox.getItemAt(i)).equals(url)) {
@@ -119,7 +119,7 @@ public class Browser extends JPanel {
 
     // removePageButton Action Listener
     removePageButton.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(final ActionEvent e) {
             favComboBox.removeItem(editorPane.getPage().toString());
             writeSettings(new File("browser.ini"));
         }
@@ -127,14 +127,14 @@ public class Browser extends JPanel {
 
     // urlComboBox Action Listener
     urlComboBox.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(final ActionEvent e) {
             setPage((String)urlComboBox.getSelectedItem());
         }
         });
 
     // favComboBox Action Listener
     favComboBox.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(final ActionEvent e) {
             setPage((String)favComboBox.getSelectedItem());
         }
         });
@@ -173,8 +173,9 @@ public class Browser extends JPanel {
     void setPage(String url) {
     if (url != null) {
         // Check URL
-        if (!url.startsWith("http://"))
-        url = "http://" + url;
+        if (!url.startsWith("http://")) {
+            url = "http://" + url;
+        }
 
         // Add url to urlComboBox
         boolean exists = false;
@@ -187,46 +188,49 @@ public class Browser extends JPanel {
 
         if (!exists) {
         int i = urlComboBox.getSelectedIndex();
-        if (i == -1 || urlComboBox.getItemCount() == 0)
+        if (i == -1 || urlComboBox.getItemCount() == 0) {
             i = 0;
-        else
+        } else {
             i++;
+        }
         urlComboBox.insertItemAt(url, i);
         urlComboBox.setSelectedItem(url);
         }
 
         // Generate image wrapper
         boolean image = false;
-        for (int i = 0; i < imageExtensions.length; i++)
-        if (url.endsWith(imageExtensions[i]))
-            image = true;
+        for( final String element : imageExtensions ) {
+            if (url.endsWith(element)) {
+                image = true;
+            }
+        }
 
         try {
         if (image) {
-            String html ="<html><img src=\"" + url + "\"></html>";
+            final String html ="<html><img src=\"" + url + "\"></html>";
             editorPane.setText(html);
         }
         else {
             editorPane.setPage(url);
         }
-        } catch(Throwable exception) {}
+        } catch(final Throwable exception) {}
     }
     }
 
-    void hyperlink_actionPerformed(HyperlinkEvent e) {
+    void hyperlink_actionPerformed(final HyperlinkEvent e) {
     if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
         setPage(e.getURL().toString());
     }
     }
 
-    void readSettings(File file) {
-    Vector favs = readLines(file);
+    void readSettings(final File file) {
+    final Vector<String> favs = readLines(file);
     for (int i = 0; i < favs.size(); i++) {
-        favComboBox.addItem((String)favs.elementAt(i));
+        favComboBox.addItem(favs.elementAt(i));
     }
     }
 
-    void writeSettings(File file) {
+    void writeSettings(final File file) {
     String output = new String();
     for (int i = 0; i < favComboBox.getItemCount(); i++) {
         output = output + (String)favComboBox.getItemAt(i) + "\r\n";
@@ -237,14 +241,14 @@ public class Browser extends JPanel {
     /**
      * Reads file and returns a Vector of lines
      */
-    Vector<String> readLines(File file) {
+    Vector<String> readLines(final File file) {
         return readLines(file.getPath());
     }
-    Vector<String> readLines(String path) {
+    Vector<String> readLines(final String path) {
     BufferedReader f;
     String line;
     line = "";
-    Vector<String> data = new Vector<String>();
+    final Vector<String> data = new Vector<String>();
 
     try {
         f = new BufferedReader(new FileReader(path));
@@ -253,7 +257,7 @@ public class Browser extends JPanel {
         }
         f.close();
     }
-    catch (IOException e){
+    catch (final IOException e){
         logger.log(Level.SEVERE, "Read Error: "+ path, e);
     }
     return data;
@@ -262,22 +266,22 @@ public class Browser extends JPanel {
     /**
      * Writes a file "file" to "path"
      */
-    void writeFile(String content, File file) {
+    void writeFile(final String content, final File file) {
     writeFile(content, file.getPath());
     }
-    void writeFile(String content, String filename) {
+    void writeFile(final String content, final String filename) {
     FileWriter f1;
     try {
         f1 = new FileWriter(filename);
         f1.write(content);
         f1.close();
-    } catch (IOException e) {
+    } catch (final IOException e) {
         logger.log(Level.SEVERE, "Write Error: "+ filename, e);
     }
     }
 
     /**Constructor*/
-    public Browser(JFrame parent) {
+    public Browser(final JFrame parent) {
     this.parent = parent;
     init();
     }

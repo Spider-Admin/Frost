@@ -31,38 +31,38 @@ public class TranslateableFrostResourceBundle extends FrostResourceBundle {
      * Start with empty bundle.
      */
     public TranslateableFrostResourceBundle() {
-        bundle = new HashMap();
+        bundle = new HashMap<String,String>();
     }
 
     /**
      * Load build-in bundle for localeName (de,en,...), and use parent bundle as fallback.
      */
-    public TranslateableFrostResourceBundle(String localeName, FrostResourceBundle parent, boolean isExternal) {
+    public TranslateableFrostResourceBundle(final String localeName, final FrostResourceBundle parent, final boolean isExternal) {
         super(localeName, parent, isExternal);
     }
-    
+
     /**
      * Load bundle for File, without fallback. For tests of new properties files.
      */
-    public TranslateableFrostResourceBundle(File bundleFile) {
+    public TranslateableFrostResourceBundle(final File bundleFile) {
         super(bundleFile);
     }
 
     /**
      * Removes the key from bundle, returns old value if there was one.
      */
-    public String removeKey(String key) {
-        return (String)bundle.remove(key);
+    public String removeKey(final String key) {
+        return bundle.remove(key);
     }
-    
+
     /**
      * Sets key to value, returns old value if there was one.
      */
-    public String setKey(String key, String value) {
-        return (String)bundle.put(key, value);
+    public String setKey(final String key, final String value) {
+        return bundle.put(key, value);
     }
-    
-    public boolean containsKey(String key) {
+
+    public boolean containsKey(final String key) {
         return bundle.containsKey(key);
     }
 
@@ -70,26 +70,26 @@ public class TranslateableFrostResourceBundle extends FrostResourceBundle {
      * Save the bundle to a file.
      * Returns false if save was not successful.
      */
-    public boolean saveBundleToFile(String localeName) {
+    public boolean saveBundleToFile(final String localeName) {
         try {
-            File externalBundleDir = new File(EXTERNAL_BUNDLE_DIR);
+            final File externalBundleDir = new File(EXTERNAL_BUNDLE_DIR);
             if( !externalBundleDir.isDirectory() ) {
                 externalBundleDir.mkdirs();
             }
-            String filename = EXTERNAL_BUNDLE_DIR + "langres_"+localeName+".properties";
-            PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename), "UTF-8")));
-            
-            TreeMap sorter = new TreeMap(bundle);
-            
-            for( Iterator i = sorter.keySet().iterator(); i.hasNext(); ) {
-                String key = (String)i.next();
+            final String filename = EXTERNAL_BUNDLE_DIR + "langres_"+localeName+".properties";
+            final PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename), "UTF-8")));
+
+            final TreeMap<String,String> sorter = new TreeMap<String,String>(bundle);
+
+            for( final String string : sorter.keySet() ) {
+                String key = string;
                 String val = getString(key);
                 key = key.trim();
                 val = val.trim();
                 // change newlines in val into \n
-                StringBuilder sbTmp = new StringBuilder();
+                final StringBuilder sbTmp = new StringBuilder();
                 for(int x=0; x < val.length(); x++) {
-                    char c = val.charAt(x);
+                    final char c = val.charAt(x);
                     if( c == '\n' ) {
                         sbTmp.append("\\n");
                     } else {
@@ -100,10 +100,10 @@ public class TranslateableFrostResourceBundle extends FrostResourceBundle {
 
                 out.println(key + "=" + val);
             }
-            
+
             out.close();
             return true;
-        } catch(Throwable t) {
+        } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Error saving bundle.", t);
             return false;
         }

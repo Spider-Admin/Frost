@@ -29,18 +29,18 @@ import frost.boards.*;
  */
 public class BoardUpdateThreadObject extends Thread {
 
-    Board targetBoard = null;
+    private final Board targetBoard;
+    private final Vector<BoardUpdateThreadListener> registeredListeners;
+
     long startTimeMillis = -1;
     boolean isFinished = false;
-    Vector<BoardUpdateThreadListener> registeredListeners = null;
-    
-    public BoardUpdateThreadObject(Board board) {
+
+    public BoardUpdateThreadObject(final Board board) {
         super(board.getName());
         this.targetBoard = board;
         this.registeredListeners = new Vector<BoardUpdateThreadListener>();
     }
-    
-    // FrostBoard getTargetBoard()
+
     public Board getTargetBoard() {
         return targetBoard;
     }
@@ -64,35 +64,37 @@ public class BoardUpdateThreadObject extends Thread {
     /**
      * Called from Thread to notify all listeners that thread is started now
      */
-    protected void notifyThreadStarted(BoardUpdateThread thread) {
+    protected void notifyThreadStarted(final BoardUpdateThread thread) {
         this.startTimeMillis = System.currentTimeMillis();
         // notify listeners
-        Iterator i = registeredListeners.iterator();
+        final Iterator<BoardUpdateThreadListener> i = registeredListeners.iterator();
         while( i.hasNext() ) {
-            ((BoardUpdateThreadListener)i.next()).boardUpdateThreadStarted(thread);
+            i.next().boardUpdateThreadStarted(thread);
         }
     }
     /**
      * Called from Thread to notify all listeners that thread is started now
      */
-    protected void notifyThreadFinished(BoardUpdateThread thread) {
+    protected void notifyThreadFinished(final BoardUpdateThread thread) {
         threadFinished();
         // notify listeners
-        Iterator i = registeredListeners.iterator();
+        final Iterator<BoardUpdateThreadListener> i = registeredListeners.iterator();
         while( i.hasNext() ) {
-            ((BoardUpdateThreadListener)i.next()).boardUpdateThreadFinished(thread);
+            i.next().boardUpdateThreadFinished(thread);
         }
     }
 
-    // allow to register listener, should only be used by RunningBoardUpdateThreads class
-    // other classes should register to the RunningBoardUpdateThreads class
-    // the difference is: if the thread class the listener directly, the ArrayList = null
-    // the underlying Thread class should fire the finished event with parameters:
-    //  boardUpdateThreadFinished(null, this)
-    public void addBoardUpdateThreadListener(BoardUpdateThreadListener listener) {
+    /**
+     * allow to register listener, should only be used by RunningBoardUpdateThreads class
+     * other classes should register to the RunningBoardUpdateThreads class
+     * the difference is: if the thread class the listener directly, the ArrayList = null
+     * the underlying Thread class should fire the finished event with parameters:
+     *   boardUpdateThreadFinished(null, this)
+     */
+    public void addBoardUpdateThreadListener(final BoardUpdateThreadListener listener) {
         registeredListeners.add( listener );
     }
-    public void removeBoardUpdateThreadListener(BoardUpdateThreadListener listener) {
+    public void removeBoardUpdateThreadListener(final BoardUpdateThreadListener listener) {
         registeredListeners.remove( listener );
     }
 }

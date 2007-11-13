@@ -35,25 +35,26 @@ import frost.fcp.*;
  */
 public class MessageDecoder extends Decoder implements Smileys, MessageTypes {
 
-    private Logger logger = Logger.getLogger(MessageDecoder.class.getName());
+    private final Logger logger = Logger.getLogger(MessageDecoder.class.getName());
 
 	private boolean smileys = true;
 	private boolean freenetKeys = true;
-    
-    private List hyperlinkedKeys = new LinkedList();
-    private TreeSet elements = new TreeSet();
-    
+
+    private final List<String> hyperlinkedKeys = new LinkedList<String>();
+    private final TreeSet<MessageElement> elements = new TreeSet<MessageElement>();
+
     public MessageDecoder() {
     }
 
 	/**
 	 * {@inheritDoc}
 	 */
-	public void decode(String message, JEditorPane parent) {
+	@Override
+    public void decode(final String message, final JEditorPane parent) {
 
 		elements.clear();
         hyperlinkedKeys.clear();
-		
+
 		if (smileys) {
 			// Verify EditorKit for correct render set EditorKit if not good
 			if (!(parent.getEditorKit() instanceof StyledEditorKit)) {
@@ -69,15 +70,15 @@ public class MessageDecoder extends Decoder implements Smileys, MessageTypes {
 			}
 			processFreenetKeys(message, elements);
 		}
-        
-        Document doc = new DefaultStyledDocument();
+
+        final Document doc = new DefaultStyledDocument();
         int begin = 0;
 		try {
-            Iterator it = elements.iterator();
+            final Iterator<MessageElement> it = elements.iterator();
 			while(it.hasNext()) {
-				MessageElement me = (MessageElement)it.next();
-				String s = message.substring(me.getPosition().intValue(), me.getPosition().intValue() + me.getLength());
-				SimpleAttributeSet at = new SimpleAttributeSet();
+				final MessageElement me = it.next();
+				final String s = message.substring(me.getPosition().intValue(), me.getPosition().intValue() + me.getLength());
+				final SimpleAttributeSet at = new SimpleAttributeSet();
 
 				if (me.getPosition().intValue() > begin) { // if smileys are confused with freenetkeys not display
 					// insert text before element
@@ -89,7 +90,7 @@ public class MessageDecoder extends Decoder implements Smileys, MessageTypes {
 				        at.addAttribute(StyleConstants.Underline, Boolean.TRUE);
 				        at.addAttribute(StyleConstants.Foreground, Color.BLUE);
 					}
-	
+
 					// insert element
 			        doc.insertString(doc.getLength(), s, at);
 					begin = me.getPosition().intValue() + me.getLength();
@@ -98,7 +99,7 @@ public class MessageDecoder extends Decoder implements Smileys, MessageTypes {
 
 			// insert text after last element
 			doc.insertString(doc.getLength(),message.substring(begin), new SimpleAttributeSet());
-		} catch (BadLocationException e) {
+		} catch (final BadLocationException e) {
             logger.log(Level.SEVERE, "Excpetion during construction of message", e);
 		}
 
@@ -110,7 +111,7 @@ public class MessageDecoder extends Decoder implements Smileys, MessageTypes {
 	 * Set freenet's keys decoder acitve or not
 	 * @param value
 	 */
-	public void setFreenetKeysDecode(boolean value) {
+	public void setFreenetKeysDecode(final boolean value) {
 		freenetKeys = value;
 	}
 
@@ -126,10 +127,10 @@ public class MessageDecoder extends Decoder implements Smileys, MessageTypes {
 	 * Set smileys decoder acitve or not
 	 * @param value
 	 */
-	public void setSmileyDecode(boolean value) {
+	public void setSmileyDecode(final boolean value) {
 		smileys = value;
 	}
-	
+
 	/**
 	 * Get status of smileys decoder
 	 * @return true if active or false is not active
@@ -138,15 +139,15 @@ public class MessageDecoder extends Decoder implements Smileys, MessageTypes {
 		return smileys;
 	}
 
-    private void processFreenetKeys(String message, TreeSet targetElements) {
-        String[] FREENETKEYS = FreenetKeys.getFreenetKeyTypes();
-        
+    private void processFreenetKeys(final String message, final TreeSet<MessageElement> targetElements) {
+        final String[] FREENETKEYS = FreenetKeys.getFreenetKeyTypes();
+
 		try { // don't die here for any reason
             for (int i = 0; i < FREENETKEYS.length; i++) {
             	int offset = 0;
             	String testMessage = new String(message);
             	while(true) {
-            		int pos = testMessage.indexOf(FREENETKEYS[i]);
+            		final int pos = testMessage.indexOf(FREENETKEYS[i]);
             		if(pos > -1) {
                         int length = testMessage.indexOf("\n", pos);
                         if( length < 0 ) {
@@ -156,12 +157,12 @@ public class MessageDecoder extends Decoder implements Smileys, MessageTypes {
                             length -= pos;
                         }
 
-                        String aFileLink = testMessage.substring(pos, pos+length);
+                        final String aFileLink = testMessage.substring(pos, pos+length);
                         if( FreenetKeys.isValidKey(aFileLink) ) {
                             // we add all file links (last char of link must not be a '/' or similar) to list of links;
                             // file links and freesite links will be hyperlinked
                             targetElements.add(new MessageElement(new Integer(pos + offset),FREENETKEY, i, length));
-                            
+
                             if( Character.isLetterOrDigit(testMessage.charAt(pos+length-1)) ) {
                                 // file link must contain at least one '/'
                                 if( aFileLink.indexOf("/") > 0 ) {
@@ -176,24 +177,24 @@ public class MessageDecoder extends Decoder implements Smileys, MessageTypes {
             		}
             	}
             }
-        } catch (Throwable e) {
+        } catch (final Throwable e) {
             e.printStackTrace();
             logger.log(Level.SEVERE, "Excption in processFreenetKeys", e);
         }
 	}
 
-	private void processSmileys(String message, TreeSet targetElements) {
+	private void processSmileys(final String message, final TreeSet<MessageElement> targetElements) {
 		// Find all smileys in message
 		for (int i = 0; i < SMILEYS.length; i++) {
 			for (int j = 0; j < SMILEYS[i].length; j++) {
 				int offset = 0;
 				String testMessage = new String(message);
 				while(true) {
-					int pos = testMessage.indexOf(SMILEYS[i][j]);
+					final int pos = testMessage.indexOf(SMILEYS[i][j]);
 					if(pos > -1) {
                         if (isSmiley(pos, testMessage, SMILEYS[i][j])) {
                             targetElements.add(new MessageElement(new Integer(pos + offset),SMILEY, i, SMILEYS[i][j].length()));
-                        }   
+                        }
                         offset += pos + SMILEYS[i][j].length();
                         testMessage = testMessage.substring(pos + SMILEYS[i][j].length());
 					} else {
@@ -207,8 +208,8 @@ public class MessageDecoder extends Decoder implements Smileys, MessageTypes {
     /**
      * A smiley is only recognized if there is a whitespace before and after it (or begin/end of line)
      */
-    private boolean isSmiley(int pos, String message, String smiley) {
-        boolean bol = (pos == 0); 
+    private boolean isSmiley(final int pos, final String message, final String smiley) {
+        boolean bol = (pos == 0);
         boolean eol = (message.length() == (smiley.length() + pos));
         char c;
         if (!bol) {
@@ -222,23 +223,23 @@ public class MessageDecoder extends Decoder implements Smileys, MessageTypes {
         return (bol && eol);
     }
 
-	private Icon getSmiley(int i) {
+	private Icon getSmiley(final int i) {
         return getCachedSmiley(i, getClass().getClassLoader());
 	}
 
     protected static Hashtable<String,ImageIcon> smileyCache = new Hashtable<String,ImageIcon>();
-    
-    protected static synchronized ImageIcon getCachedSmiley(int i, ClassLoader cl) {
-        String si = Integer.toString(i);
-        ImageIcon ii = (ImageIcon)smileyCache.get(si);
+
+    protected static synchronized ImageIcon getCachedSmiley(final int i, final ClassLoader cl) {
+        final String si = Integer.toString(i);
+        ImageIcon ii = smileyCache.get(si);
         if( ii == null ) {
             ii = new ImageIcon(cl.getResource("data/smileys/"+i+".gif"));
             smileyCache.put(si, ii);
         }
         return ii;
     }
-    
-    public List getHyperlinkedKeys() {
+
+    public List<String> getHyperlinkedKeys() {
         return hyperlinkedKeys;
     }
 }

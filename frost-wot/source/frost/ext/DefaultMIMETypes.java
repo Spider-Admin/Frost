@@ -1,33 +1,30 @@
 package frost.ext;
 
-/* taken from freenet (http://www.freenetproject.org/) */ 
+/* taken from freenet (http://www.freenetproject.org/) */
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 
 /**
  * Holds the default MIME types.
  */
 public class DefaultMIMETypes {
-        
+
         /** Default MIME type - what to set it to if we don't know any better */
         public static final String DEFAULT_MIME_TYPE = "application/octet-stream";
-        
+
         /** MIME types: number -> name */
-        private static List mimeTypesByNumber = new Vector();
-        
+        private static List<String> mimeTypesByNumber = new Vector<String>();
+
         /** MIME types: name -> number */
-        private static Map mimeTypesByName = new HashMap();
-        
+        private static Map<String,Short> mimeTypesByName = new HashMap<String,Short>();
+
         /** MIME types by extension. One extension maps to one MIME type, but not necessarily
          * the other way around. */
-        private static Map mimeTypesByExtension = new HashMap();
-        
+        private static Map<String,Short> mimeTypesByExtension = new HashMap<String,Short>();
+
         /** Primary extension by MIME type number. */
-        private static Map primaryExtensionByMimeNumber = new HashMap();
-        
+        private static Map<Short,String> primaryExtensionByMimeNumber = new HashMap<Short,String>();
+
         /**
          * Add a MIME type, without any extensions.
          * @param number The number of the MIME type for compression. This *must not change*
@@ -35,10 +32,12 @@ public class DefaultMIMETypes {
          * @param type The actual MIME type string. Do not include ;charset= etc; these are
          * parameters and there is a separate mechanism for them.
          */
-        protected static synchronized void addMIMEType(short number, String type) {
+        protected static synchronized void addMIMEType(final short number, final String type) {
                 if(mimeTypesByNumber.size() > number) {
-                        String s = (String)(mimeTypesByNumber.get(number));
-                        if(s != null) throw new IllegalArgumentException("Already used: "+number);
+                        final String s = (mimeTypesByNumber.get(number));
+                        if(s != null) {
+                            throw new IllegalArgumentException("Already used: "+number);
+                        }
                 } else {
                         mimeTypesByNumber.add(number, null);
                 }
@@ -50,39 +49,41 @@ public class DefaultMIMETypes {
          * Add a MIME type.
          * @param number The number of the MIME type for compression. This *must not change*
          * for a given type, or the metadata format will be affected.
-         * judl-interna will be affected too.     
+         * judl-interna will be affected too.
          * @param type The actual MIME type string. Do not include ;charset= etc; these are
          * parameters and there is a separate mechanism for them.
          * @param extensions An array of common extensions for files of this type. Must be
          * unique for the type.
          */
-        protected static synchronized void addMIMEType(short number, String type, String[] extensions, String outExtension) {
+        protected static synchronized void addMIMEType(final short number, final String type, final String[] extensions, final String outExtension) {
                 addMIMEType(number, type);
-                Short t = new Short(number);
+                final Short t = new Short(number);
                 if(extensions != null) {
-                        for(int i=0;i<extensions.length;i++) {
-                                String ext = extensions[i].toLowerCase();
+                        for( final String element : extensions ) {
+                                final String ext = element.toLowerCase();
                                 if(mimeTypesByExtension.containsKey(ext)) {
                                         // No big deal
                                         //Short s = mimeTypesByExtension.get(ext);
                                 } else {
                                         // If only one, make it primary
-                                        if(outExtension == null && extensions.length == 1)
-                                                primaryExtensionByMimeNumber.put(t, ext);
+                                        if(outExtension == null && extensions.length == 1) {
+                                            primaryExtensionByMimeNumber.put(t, ext);
+                                        }
                                         mimeTypesByExtension.put(ext, t);
                                 }
                         }
                 }
-                if(outExtension != null)
-                        primaryExtensionByMimeNumber.put(t, outExtension);
-                                
+                if(outExtension != null) {
+                    primaryExtensionByMimeNumber.put(t, outExtension);
+                }
+
         }
 
         /**
          * Add a MIME type, with extensions separated by spaces. This is more or less
          * the format in /etc/mime-types.
          */
-        protected static synchronized void addMIMEType(short number, String type, String extensions) {
+        protected static synchronized void addMIMEType(final short number, final String type, final String extensions) {
                 addMIMEType(number, type, extensions.split(" "), null);
         }
 
@@ -90,35 +91,38 @@ public class DefaultMIMETypes {
          * Add a MIME type, with extensions separated by spaces. This is more or less
          * the format in /etc/mime-types.
          */
-        protected static synchronized void addMIMEType(short number, String type, String extensions, String outExtension) {
+        protected static synchronized void addMIMEType(final short number, final String type, final String extensions, final String outExtension) {
                 addMIMEType(number, type, extensions.split(" "), outExtension);
         }
-        
+
         /**
          * Get a known MIME type by number.
          */
-        public static String byNumber(short x) {
-                if(x > mimeTypesByNumber.size() || x < 0)
-                        return null;
-                return (String)(mimeTypesByNumber.get(x));
+        public static String byNumber(final short x) {
+                if(x > mimeTypesByNumber.size() || x < 0) {
+                    return null;
+                }
+                return (mimeTypesByNumber.get(x));
         }
-        
+
         /**
          * Get the number of a MIME type, or -1 if it is not in the table of known MIME
          * types, in which case it will have to be sent uncompressed.
          */
-        public static short byName(String s) {
-                Short x = (Short)(mimeTypesByName.get(s));
-                if(x != null) return x.shortValue();
+        public static short byName(final String s) {
+                final Short x = (mimeTypesByName.get(s));
+                if(x != null) {
+                    return x.shortValue();
+                }
                 return -1;
         }
-        
+
         /* From toad's /etc/mime.types
-         * cat /etc/mime.types | sed "/^$/d;/#/d" | tr --squeeze '\t' ' ' | 
-         * (y=0; while read x; do echo "$x" | 
+         * cat /etc/mime.types | sed "/^$/d;/#/d" | tr --squeeze '\t' ' ' |
+         * (y=0; while read x; do echo "$x" |
          * sed -n "s/^\([^ ]*\)$/addMIMEType\($y, \"\1\"\);/p;s/^\([^ (),]\+\) \(.*\)$/addMIMEType\($y, \"\1\", \"\2\"\);/p;"; y=$((y+1)); done)
          */
-        
+
         static {
                 addMIMEType((short) 0, "application/activemessage");
                 addMIMEType((short) 1, "application/andrew-inset", "ez");
@@ -809,27 +813,30 @@ public class DefaultMIMETypes {
                 addMIMEType((short) 686, "x-conference/x-cooltalk", "ice");
                 addMIMEType((short) 687, "x-world/x-vrml", "vrm vrml wrl");
         }
-        
+
         /** Guess a MIME type from a filename */
-        public static String guessMIMEType(String arg) {
-                int x = arg.lastIndexOf('.');
-                if(x == -1 || x == arg.length()-1)
-                        return DEFAULT_MIME_TYPE;
-                String ext = arg.substring(x+1).toLowerCase();
-                Short mimeIndexOb = (Short)(mimeTypesByExtension.get(ext));
+        public static String guessMIMEType(final String arg) {
+                final int x = arg.lastIndexOf('.');
+                if(x == -1 || x == arg.length()-1) {
+                    return DEFAULT_MIME_TYPE;
+                }
+                final String ext = arg.substring(x+1).toLowerCase();
+                final Short mimeIndexOb = (mimeTypesByExtension.get(ext));
                 if(mimeIndexOb != null) {
-                        return (String)(mimeTypesByNumber.get(mimeIndexOb.intValue()));
+                        return (mimeTypesByNumber.get(mimeIndexOb.intValue()));
                 }
                 return DEFAULT_MIME_TYPE;
         }
 
-        public static String getExtension(String type) {
-                short typeNumber = byName(type);
-                if(typeNumber < 0) return null;
-                return (String)(primaryExtensionByMimeNumber.get(new Short(typeNumber)));
+        public static String getExtension(final String type) {
+                final short typeNumber = byName(type);
+                if(typeNumber < 0) {
+                    return null;
+                }
+                return (primaryExtensionByMimeNumber.get(new Short(typeNumber)));
         }
-        
+
         public static String[] getAllMIMETypes() {
-                return (String[])(mimeTypesByNumber.toArray(new String[mimeTypesByNumber.size()]));
+                return (mimeTypesByNumber.toArray(new String[mimeTypesByNumber.size()]));
         }
 }
