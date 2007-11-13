@@ -26,39 +26,41 @@ import frost.fcp.*;
 import frost.fileTransfer.*;
 import frost.transferlayer.*;
 import frost.util.*;
+import frost.util.Logging;
 
 /**
  * Thread that downloads the CHK file lists.
  * The Thread monitors a queue with CHKs to download and downloads them.
- * 
+ *
  * @pattern: Singleton
  */
 public class FileListDownloadThread extends Thread {
-    
+
     private static final Logger logger = Logger.getLogger(FileListDownloadThread.class.getName());
-    
+
     private static final int wait1minute = 1 * 60 * 1000;
-    
-    private CHKKeyQueue keyQueue = new CHKKeyQueue();
+
+    private final CHKKeyQueue keyQueue = new CHKKeyQueue();
 
     // one and only instance
     private static FileListDownloadThread instance = new FileListDownloadThread();
-    
+
     private FileListDownloadThread() {
     }
-    
+
     public static FileListDownloadThread getInstance() {
         return instance;
     }
-    
+
     public boolean cancelThread() {
         return false;
     }
 
+    @Override
     public void run() {
-        
+
         initializeQueue();
-        
+
         // monitor and process downloads
         // we expect an appr. chk file size of 512kb, max. 768kb (because of 0.5, we want no splitfile there)
 
@@ -69,8 +71,8 @@ public class FileListDownloadThread extends Thread {
         while(true) {
             try {
                 // if there is no work in queue this call waits for a new queue item
-                String chkKey = keyQueue.getKeyFromQueue();
-                
+                final String chkKey = keyQueue.getKeyFromQueue();
+
                 if( chkKey == null ) {
                     // paranoia
                     if( Logging.inst().doLogFilebaseMessages() ) {
@@ -86,18 +88,18 @@ public class FileListDownloadThread extends Thread {
                     Mixed.wait(wait1minute);
                 } else {
                     // short wait to not to hurt node
-                    Mixed.waitRandom(1500);
+                    Mixed.waitRandom(2500);
                     previousKey = chkKey; // different key as before, remember
                 }
                 if( Logging.inst().doLogFilebaseMessages() ) {
                     System.out.println("FileListDownloadThread: starting download of key: "+chkKey);
                 }
 
-                GlobalFileDownloaderResult result = GlobalFileDownloader.downloadFile(chkKey, FcpHandler.MAX_FILELIST_SIZE_07);
+                final GlobalFileDownloaderResult result = GlobalFileDownloader.downloadFile(chkKey, FcpHandler.MAX_FILELIST_SIZE_07);
 
                 if( result == null || result.getResultFile() == null ) {
                     // download failed
-                    boolean retryDownload = SharedFilesCHKKeyManager.updateCHKKeyDownloadFailed(chkKey);
+                    final boolean retryDownload = SharedFilesCHKKeyManager.updateCHKKeyDownloadFailed(chkKey);
                     if( Logging.inst().doLogFilebaseMessages() ) {
                         System.out.println("FileListDownloadThread: download failed, key="+chkKey+"; retry="+retryDownload);
                     }
@@ -112,52 +114,52 @@ public class FileListDownloadThread extends Thread {
                 }
 
                 // download successful, read file and validate
-                File downloadedFile = result.getResultFile();
-                
-                FileListFileContent content = FileListFile.readFileListFile(downloadedFile);
-                boolean isValid = FileListManager.processReceivedFileList(content);
+                final File downloadedFile = result.getResultFile();
+
+                final FileListFileContent content = FileListFile.readFileListFile(downloadedFile);
+                final boolean isValid = FileListManager.processReceivedFileList(content);
                 if( Logging.inst().doLogFilebaseMessages() ) {
                     System.out.println("FileListDownloadThread: processed results, isValid="+isValid);
                 }
-                
+
                 downloadedFile.delete();
                 SharedFilesCHKKeyManager.updateCHKKeyDownloadSuccessful(chkKey, isValid);
-                
-            } catch(Throwable t) {
+
+            } catch(final Throwable t) {
                 logger.log(Level.SEVERE, "Exception catched",t);
                 occuredExceptions++;
             }
-            
+
             if( occuredExceptions > maxAllowedExceptions ) {
                 logger.log(Level.SEVERE, "Stopping FileListUploadThread because of too much exceptions");
                 break;
             }
         }
     }
-    
+
     private void initializeQueue() {
         // get all waiting keys from database
-        List<String> keys = SharedFilesCHKKeyManager.getCHKKeyStringsToDownload();
+        final List<String> keys = SharedFilesCHKKeyManager.getCHKKeyStringsToDownload();
         if( keys == null ) {
             return;
         }
-        for(String chk : keys ) {
+        for(final String chk : keys ) {
             keyQueue.initialAppendKeyToQueue(chk);
         }
     }
-    
-    public void enqueueNewKey(String key) {
+
+    public void enqueueNewKey(final String key) {
         // key was already added to database!
         keyQueue.appendKeyToQueue(key);
     }
-    
+
     public int getCHKKeyQueueSize() {
         return keyQueue.getQueueSize();
     }
-    
+
     private class CHKKeyQueue {
-        
-        private LinkedList<String> queue = new LinkedList<String>();
+
+        private final LinkedList<String> queue = new LinkedList<String>();
         // FIXME: first return all keys not older than 3 days, then all older keys ???
         public synchronized String getKeyFromQueue() {
             try {
@@ -168,15 +170,15 @@ public class FileListDownloadThread extends Thread {
                     }
                     wait();
                 }
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException e) {
                 if( Logging.inst().doLogFilebaseMessages() ) {
                     System.out.println("CHKKeyQueue: NO key returned(1), queue length="+getQueueSize());
                 }
                 return null; // waiting abandoned
             }
-            
+
             if( queue.isEmpty() == false ) {
-                String key = queue.removeFirst();
+                final String key = queue.removeFirst();
                 if( Logging.inst().doLogFilebaseMessages() ) {
                     System.out.println("CHKKeyQueue: Key returned, new queue length="+getQueueSize());
                 }
@@ -188,19 +190,19 @@ public class FileListDownloadThread extends Thread {
             return null;
         }
 
-        public synchronized void initialAppendKeyToQueue(String key) {
+        public synchronized void initialAppendKeyToQueue(final String key) {
             queue.addLast(key);
             notifyAll(); // notify all waiters (if any) of new record
         }
 
-        public synchronized void appendKeyToQueue(String key) {
+        public synchronized void appendKeyToQueue(final String key) {
             queue.addLast(key);
             if( Logging.inst().doLogFilebaseMessages() ) {
                 System.out.println("CHKKeyQueue: Key appended, new queue length="+getQueueSize());
             }
             notifyAll(); // notify all waiters (if any) of new record
         }
-        
+
         public synchronized int getQueueSize() {
             return queue.size();
         }
