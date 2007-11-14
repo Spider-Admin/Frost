@@ -54,6 +54,8 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
     private boolean showExternalItemsDownload;
     private boolean showExternalItemsUpload;
 
+    private boolean isConnected = true; // we start in connected state
+
     private final FcpPersistentQueue persistentQueue;
     private final FcpMultiRequestConnection fcpConn;
     private final FcpMultiRequestConnectionTools fcpTools;
@@ -268,10 +270,13 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
     }
 
     public void connected() {
+        isConnected = true;
         MainFrame.getInstance().setConnected();
         logger.severe("now connected");
     }
     public void disconnected() {
+        isConnected = false;
+
         MainFrame.getInstance().setDisconnected();
 
         SwingUtilities.invokeLater(new Runnable() {
@@ -281,6 +286,10 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             }
         });
         logger.severe("disconnected!");
+    }
+
+    public boolean isConnected() {
+        return isConnected;
     }
 
     /**

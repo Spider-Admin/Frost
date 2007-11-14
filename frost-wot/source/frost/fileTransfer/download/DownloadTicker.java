@@ -110,6 +110,14 @@ public class DownloadTicker extends Thread {
 	 * Called each X seconds, adds the specified amount of seconds to the runtime.
 	 */
 	private void increaseDownloadItemRuntime(final int incSecs) {
+	    // if we use persistence, check if we are currently connected
+	    if( FileTransferManager.inst().getPersistenceManager() != null ) {
+	        if( !FileTransferManager.inst().getPersistenceManager().isConnected() ) {
+	            // we are not connected, don't count runtime
+	            return;
+	        }
+	    }
+
 	    final DownloadModel model = FileTransferManager.inst().getDownloadManager().getModel();
 	    for(int x=0; x < model.getItemCount(); x++ ) {
 	        final FrostDownloadItem item = (FrostDownloadItem)model.getItemAt(x);
