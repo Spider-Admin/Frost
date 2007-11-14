@@ -18,12 +18,16 @@
 */
 package frost.messages;
 
+import java.util.logging.*;
+
 import javax.swing.tree.*;
 
 import frost.*;
 import frost.identities.*;
 
 public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNode {
+
+    private static final Logger logger = Logger.getLogger(AbstractMessageStatusProvider.class.getName());
 
     // the message states
     private static final int xGOOD     = 1;
@@ -72,6 +76,7 @@ public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNo
                 fromIdentity = Identity.createIdentityFromExactStrings(getFromName(), getPublicKey());
                 fromIdentity.setCHECK();
                 Core.getIdentities().addIdentity(fromIdentity);
+                logger.severe("Added new identity for '"+getFromName()+"'");
             }
             isFromIdentityInitialized = true;
         }
