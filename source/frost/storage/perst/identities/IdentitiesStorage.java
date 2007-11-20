@@ -72,37 +72,43 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
         if( !beginExclusiveThreadTransaction() ) {
             return;
         }
-        for(final LocalIdentity li : lids) {
-            final Integer i = msgCounts.get( li.getUniqueName() );
-            if( i != null ) {
-                li.setReceivedMessageCount(i.intValue());
+        try {
+            for( final LocalIdentity li : lids ) {
+                final Integer i = msgCounts.get(li.getUniqueName());
+                if( i != null ) {
+                    li.setReceivedMessageCount(i.intValue());
+                }
+                li.correctUniqueName();
+                storageRoot.getLocalIdentities().add(li);
             }
-            li.correctUniqueName();
-            storageRoot.getLocalIdentities().add( li );
+        } finally {
+            endThreadTransaction();
         }
-        endThreadTransaction();
     }
 
     public void importIdentities(final List<Identity> ids, final Hashtable<String,Integer> msgCounts) {
         if( !beginExclusiveThreadTransaction() ) {
             return;
         }
-        int cnt = 0;
-        for(final Identity li : ids) {
-            final Integer i = msgCounts.get( li.getUniqueName() );
-            if( i != null ) {
-                li.setReceivedMessageCount(i.intValue());
+        try {
+            int cnt = 0;
+            for( final Identity li : ids ) {
+                final Integer i = msgCounts.get(li.getUniqueName());
+                if( i != null ) {
+                    li.setReceivedMessageCount(i.intValue());
+                }
+                li.correctUniqueName();
+                storageRoot.getIdentities().add(li);
+                cnt++;
+                if( cnt % 100 == 0 ) {
+                    System.out.println("Committing after " + cnt + " identities");
+                    endThreadTransaction();
+                    beginExclusiveThreadTransaction();
+                }
             }
-            li.correctUniqueName();
-            storageRoot.getIdentities().add( li );
-            cnt++;
-            if( cnt%100 == 0 ) {
-                System.out.println("Committing after "+cnt+" identities");
-                endThreadTransaction();
-                beginExclusiveThreadTransaction();
-            }
+        } finally {
+            endThreadTransaction();
         }
-        endThreadTransaction();
     }
 
     public Hashtable<String,Identity> loadIdentities() {

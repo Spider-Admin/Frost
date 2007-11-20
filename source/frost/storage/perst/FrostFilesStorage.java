@@ -94,12 +94,15 @@ public class FrostFilesStorage extends AbstractFrostStorage implements ExitSavab
     // only used for migration
     public void savePerstFrostDownloadFiles(final List<PerstFrostDownloadItem> downloadFiles) {
         beginExclusiveThreadTransaction();
-        for( final PerstFrostDownloadItem pi : downloadFiles ) {
-            pi.makePersistent(getStorage());
-            storageRoot.downloadFiles.add(pi);
+        try {
+            for( final PerstFrostDownloadItem pi : downloadFiles ) {
+                pi.makePersistent(getStorage());
+                storageRoot.downloadFiles.add(pi);
+            }
+            storageRoot.downloadFiles.modify();
+        } finally {
+            endThreadTransaction();
         }
-        storageRoot.downloadFiles.modify();
-        endThreadTransaction();
     }
 
     /**
@@ -117,126 +120,156 @@ public class FrostFilesStorage extends AbstractFrostStorage implements ExitSavab
 
     public void saveDownloadFiles(final List<FrostDownloadItem> downloadFiles) {
         beginExclusiveThreadTransaction();
-        removeAllFromStorage(storageRoot.downloadFiles); // delete all old items
-        for( final FrostDownloadItem dlItem : downloadFiles ) {
-            if( dlItem.isExternal() ) {
-                continue;
+        try {
+            removeAllFromStorage(storageRoot.downloadFiles); // delete all old items
+            for( final FrostDownloadItem dlItem : downloadFiles ) {
+                if( dlItem.isExternal() ) {
+                    continue;
+                }
+                final PerstFrostDownloadItem pi = new PerstFrostDownloadItem(dlItem);
+                storageRoot.downloadFiles.add(pi);
             }
-            final PerstFrostDownloadItem pi = new PerstFrostDownloadItem(dlItem);
-            storageRoot.downloadFiles.add(pi);
+        } finally {
+            endThreadTransaction();
         }
-        endThreadTransaction();
     }
 
     public List<FrostDownloadItem> loadDownloadFiles() {
         final LinkedList<FrostDownloadItem> downloadItems = new LinkedList<FrostDownloadItem>();
         beginCooperativeThreadTransaction();
-        for( final PerstFrostDownloadItem pi : storageRoot.downloadFiles ) {
-            final FrostDownloadItem dlItem = pi.toFrostDownloadItem(logger);
-            if( dlItem != null ) {
-                downloadItems.add(dlItem);
+        try {
+            for( final PerstFrostDownloadItem pi : storageRoot.downloadFiles ) {
+                final FrostDownloadItem dlItem = pi.toFrostDownloadItem(logger);
+                if( dlItem != null ) {
+                    downloadItems.add(dlItem);
+                }
             }
+        } finally {
+            endThreadTransaction();
         }
-        endThreadTransaction();
         return downloadItems;
     }
 
     // only used for migration
     public void savePerstFrostUploadFiles(final List<PerstFrostUploadItem> uploadFiles) {
         beginExclusiveThreadTransaction();
-        for( final PerstFrostUploadItem pi : uploadFiles ) {
-            storageRoot.uploadFiles.add(pi);
+        try {
+            for( final PerstFrostUploadItem pi : uploadFiles ) {
+                storageRoot.uploadFiles.add(pi);
+            }
+        } finally {
+            endThreadTransaction();
         }
-        endThreadTransaction();
     }
 
     public void saveUploadFiles(final List<FrostUploadItem> uploadFiles) {
         beginExclusiveThreadTransaction();
-        removeAllFromStorage(storageRoot.uploadFiles); // delete all old items
-        for( final FrostUploadItem ulItem : uploadFiles ) {
-            if( ulItem.isExternal() ) {
-                continue;
+        try {
+            removeAllFromStorage(storageRoot.uploadFiles); // delete all old items
+            for( final FrostUploadItem ulItem : uploadFiles ) {
+                if( ulItem.isExternal() ) {
+                    continue;
+                }
+                final PerstFrostUploadItem pi = new PerstFrostUploadItem(ulItem);
+                storageRoot.uploadFiles.add(pi);
             }
-            final PerstFrostUploadItem pi = new PerstFrostUploadItem(ulItem);
-            storageRoot.uploadFiles.add(pi);
+        } finally {
+            endThreadTransaction();
         }
-        endThreadTransaction();
     }
 
     public List<FrostUploadItem> loadUploadFiles(final List<FrostSharedFileItem> sharedFiles) {
         final LinkedList<FrostUploadItem> uploadItems = new LinkedList<FrostUploadItem>();
         final Language language = Language.getInstance();
         beginCooperativeThreadTransaction();
-        for( final PerstFrostUploadItem pi : storageRoot.uploadFiles ) {
-            final FrostUploadItem ulItem = pi.toFrostUploadItem(sharedFiles, logger, language);
-            if( ulItem != null ) {
-                uploadItems.add(ulItem);
+        try {
+            for( final PerstFrostUploadItem pi : storageRoot.uploadFiles ) {
+                final FrostUploadItem ulItem = pi.toFrostUploadItem(sharedFiles, logger, language);
+                if( ulItem != null ) {
+                    uploadItems.add(ulItem);
+                }
             }
+        } finally {
+            endThreadTransaction();
         }
-        endThreadTransaction();
         return uploadItems;
     }
 
     // only used for migration
     public void savePerstFrostSharedFiles(final List<PerstFrostSharedFileItem> sfFiles) {
         beginExclusiveThreadTransaction();
-        for( final PerstFrostSharedFileItem pi : sfFiles ) {
-            pi.makePersistent(getStorage());
-            storageRoot.sharedFiles.add(pi);
+        try {
+            for( final PerstFrostSharedFileItem pi : sfFiles ) {
+                pi.makePersistent(getStorage());
+                storageRoot.sharedFiles.add(pi);
+            }
+            storageRoot.sharedFiles.modify();
+        } finally {
+            endThreadTransaction();
         }
-        storageRoot.sharedFiles.modify();
-        endThreadTransaction();
     }
 
     public void saveSharedFiles(final List<FrostSharedFileItem> sfFiles) {
         beginExclusiveThreadTransaction();
-        removeAllFromStorage(storageRoot.sharedFiles);
-        for(final FrostSharedFileItem sfItem : sfFiles ) {
-            final PerstFrostSharedFileItem pi = new PerstFrostSharedFileItem(sfItem);
-            storageRoot.sharedFiles.add(pi);
+        try {
+            removeAllFromStorage(storageRoot.sharedFiles);
+            for( final FrostSharedFileItem sfItem : sfFiles ) {
+                final PerstFrostSharedFileItem pi = new PerstFrostSharedFileItem(sfItem);
+                storageRoot.sharedFiles.add(pi);
+            }
+        } finally {
+            endThreadTransaction();
         }
-        endThreadTransaction();
     }
 
     public List<FrostSharedFileItem> loadSharedFiles() {
         final LinkedList<FrostSharedFileItem> sfItems = new LinkedList<FrostSharedFileItem>();
         final Language language = Language.getInstance();
         beginCooperativeThreadTransaction();
-        for( final PerstFrostSharedFileItem pi : storageRoot.sharedFiles ) {
-            final FrostSharedFileItem sfItem = pi.toFrostSharedFileItem(logger, language);
-            if( sfItem != null ) {
-                sfItems.add(sfItem);
+        try {
+            for( final PerstFrostSharedFileItem pi : storageRoot.sharedFiles ) {
+                final FrostSharedFileItem sfItem = pi.toFrostSharedFileItem(logger, language);
+                if( sfItem != null ) {
+                    sfItems.add(sfItem);
+                }
             }
+        } finally {
+            endThreadTransaction();
         }
-        endThreadTransaction();
         return sfItems;
     }
 
     public void saveNewUploadFiles(final List<NewUploadFile> newUploadFiles) {
         beginExclusiveThreadTransaction();
-        removeAllFromStorage(storageRoot.newUploadFiles);
-        for( final NewUploadFile nuf : newUploadFiles ) {
-            nuf.makePersistent(getStorage());
-            nuf.modify(); // for already persistent items
+        try {
+            removeAllFromStorage(storageRoot.newUploadFiles);
+            for( final NewUploadFile nuf : newUploadFiles ) {
+                nuf.makePersistent(getStorage());
+                nuf.modify(); // for already persistent items
 
-            storageRoot.newUploadFiles.add(nuf);
+                storageRoot.newUploadFiles.add(nuf);
+            }
+        } finally {
+            endThreadTransaction();
         }
-        endThreadTransaction();
     }
 
     public LinkedList<NewUploadFile> loadNewUploadFiles() {
 
         final LinkedList<NewUploadFile> newUploadFiles = new LinkedList<NewUploadFile>();
         beginCooperativeThreadTransaction();
-        for( final NewUploadFile nuf : storageRoot.newUploadFiles ) {
-            final File f = new File(nuf.getFilePath());
-            if (!f.isFile()) {
-                logger.warning("File ("+nuf.getFilePath()+") is missing. File removed.");
-                continue;
+        try {
+            for( final NewUploadFile nuf : storageRoot.newUploadFiles ) {
+                final File f = new File(nuf.getFilePath());
+                if( !f.isFile() ) {
+                    logger.warning("File (" + nuf.getFilePath() + ") is missing. File removed.");
+                    continue;
+                }
+                newUploadFiles.add(nuf);
             }
-            newUploadFiles.add(nuf);
+        } finally {
+            endThreadTransaction();
         }
-        endThreadTransaction();
         return newUploadFiles;
     }
 
@@ -246,10 +279,13 @@ public class FrostFilesStorage extends AbstractFrostStorage implements ExitSavab
     public HashSet<String> loadHiddenBoardNames() {
         final HashSet<String> result = new HashSet<String>();
         beginCooperativeThreadTransaction();
-        for( final PerstHiddenBoardName hbn : storageRoot.hiddenBoardNames ) {
-            result.add(hbn.getHiddenBoardName());
+        try {
+            for( final PerstHiddenBoardName hbn : storageRoot.hiddenBoardNames ) {
+                result.add(hbn.getHiddenBoardName());
+            }
+        } finally {
+            endThreadTransaction();
         }
-        endThreadTransaction();
         return result;
     }
 
@@ -258,12 +294,15 @@ public class FrostFilesStorage extends AbstractFrostStorage implements ExitSavab
      */
     public void saveHiddenBoardNames(final HashSet<String> names) {
         beginExclusiveThreadTransaction();
-        removeAllFromStorage(storageRoot.hiddenBoardNames);
-        for( final String s : names ) {
-            final PerstHiddenBoardName h = new PerstHiddenBoardName(s);
-            storageRoot.hiddenBoardNames.add(h);
+        try {
+            removeAllFromStorage(storageRoot.hiddenBoardNames);
+            for( final String s : names ) {
+                final PerstHiddenBoardName h = new PerstHiddenBoardName(s);
+                storageRoot.hiddenBoardNames.add(h);
+            }
+        } finally {
+            endThreadTransaction();
         }
-        endThreadTransaction();
     }
 
     private String buildBoardIndex(final Board b) {
@@ -283,12 +322,17 @@ public class FrostFilesStorage extends AbstractFrostStorage implements ExitSavab
      */
     public List<KnownBoard> getKnownBoards() {
         beginCooperativeThreadTransaction();
-        final List<KnownBoard> lst = new ArrayList<KnownBoard>();
-        for(final PerstKnownBoard pkb : storageRoot.knownBoards) {
-            final KnownBoard kb = new KnownBoard(pkb.getBoardName(), pkb.getPublicKey(), pkb.getPrivateKey(), pkb.getDescription());
-            lst.add(kb);
+        final List<KnownBoard> lst;
+        try {
+            lst = new ArrayList<KnownBoard>();
+            for( final PerstKnownBoard pkb : storageRoot.knownBoards ) {
+                final KnownBoard kb = new KnownBoard(pkb.getBoardName(), pkb.getPublicKey(), pkb.getPrivateKey(), pkb
+                        .getDescription());
+                lst.add(kb);
+            }
+        } finally {
+            endThreadTransaction();
         }
-        endThreadTransaction();
         return lst;
     }
 
@@ -296,15 +340,18 @@ public class FrostFilesStorage extends AbstractFrostStorage implements ExitSavab
         final String newIx = buildBoardIndex(b);
         beginExclusiveThreadTransaction();
         final boolean retval;
-        final PerstKnownBoard pkb = storageRoot.knownBoards.get(newIx);
-        if( pkb != null ) {
-            storageRoot.knownBoards.remove(newIx, pkb);
-            pkb.deallocate();
-            retval = true;
-        } else {
-            retval = false;
+        try {
+            final PerstKnownBoard pkb = storageRoot.knownBoards.get(newIx);
+            if( pkb != null ) {
+                storageRoot.knownBoards.remove(newIx, pkb);
+                pkb.deallocate();
+                retval = true;
+            } else {
+                retval = false;
+            }
+        } finally {
+            endThreadTransaction();
         }
-        endThreadTransaction();
         return retval;
     }
 
@@ -319,14 +366,18 @@ public class FrostFilesStorage extends AbstractFrostStorage implements ExitSavab
         }
         beginExclusiveThreadTransaction();
         int added = 0;
-        for( final Board b : lst ) {
-            final String newIx = buildBoardIndex(b);
-            final PerstKnownBoard pkb = new PerstKnownBoard(b.getName(), b.getPublicKey(), b.getPrivateKey(), b.getDescription());
-            if( storageRoot.knownBoards.put(newIx, pkb) ) {
-                added++;
+        try {
+            for( final Board b : lst ) {
+                final String newIx = buildBoardIndex(b);
+                final PerstKnownBoard pkb = new PerstKnownBoard(b.getName(), b.getPublicKey(), b.getPrivateKey(), b
+                        .getDescription());
+                if( storageRoot.knownBoards.put(newIx, pkb) ) {
+                    added++;
+                }
             }
+        } finally {
+            endThreadTransaction();
         }
-        endThreadTransaction();
         return added;
     }
 }

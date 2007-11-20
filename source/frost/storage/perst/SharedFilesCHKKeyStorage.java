@@ -155,57 +155,52 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
         if( !beginCooperativeThreadTransaction() ) {
             return keysToSend;
         }
-
-        // first search for CHK keys that were created by us, but were never send
-        {
-            for( final SharedFilesCHKKey sfk : storageRoot.chkKeys ) {
-                if( sfk.getSeenCount() == 0 ) {
-                    keysToSend.add(sfk);
-                    if( keysToSend.size() >= ownKeysToSend ) {
-                        break;
+        try {
+            // first search for CHK keys that were created by us, but were never send
+            {
+                for( final SharedFilesCHKKey sfk : storageRoot.chkKeys ) {
+                    if( sfk.getSeenCount() == 0 ) {
+                        keysToSend.add(sfk);
+                        if( keysToSend.size() >= ownKeysToSend ) {
+                            break;
+                        }
                     }
                 }
             }
-        }
+            maxKeys -= keysToSend.size();
+            // then search for other files to send, but don't include other new files from us
+            // - the CHK key must be downloaded already (our new files are not yet downloaded)
+            // - key must be valid
+            // - keys firstseen must be not earlier than 14 days (don't send old stuff around)
+            // - keys lastseen must be more than 24h before (don't send keys we just received)
+            // - keys lastsent must be more than 24h before (don't send keys we just sent)
+            // - order by seencount asc -> collect keys that are not seen often
+            // - collect a maximum of 300 keys
+            {
+                final long now = System.currentTimeMillis();
+                final long minFirstSeen = now - (14L * 24L * 60L * 60L * 1000L); // now - 14 days
+                final long maxLastSeen = now - (1L * 24L * 60L * 60L * 1000L); // now - 1 day
 
-        maxKeys -= keysToSend.size();
-
-        // then search for other files to send, but don't include other new files from us
-        // - the CHK key must be downloaded already (our new files are not yet downloaded)
-        // - key must be valid
-        // - keys firstseen must be not earlier than 14 days (don't send old stuff around)
-        // - keys lastseen must be more than 24h before (don't send keys we just received)
-        // - keys lastsent must be more than 24h before (don't send keys we just sent)
-        // - order by seencount asc -> collect keys that are not seen often
-        // - collect a maximum of 300 keys
-        {
-            final long now = System.currentTimeMillis();
-            final long minFirstSeen = now - (14L * 24L * 60L * 60L * 1000L); // now - 14 days
-            final long maxLastSeen = now - (1L * 24L * 60L * 60L * 1000L); // now - 1 day
-
-            // first collect ALL other keys to send, then sort them and choose maxKeys items
-            final List<SharedFilesCHKKey> otherKeysToSend = new ArrayList<SharedFilesCHKKey>();
-            for( final SharedFilesCHKKey sfk : storageRoot.chkKeys ) {
-                if( sfk.isDownloaded()
-                        && sfk.isValid()
-                        && sfk.getLastSeen() < maxLastSeen
-                        && sfk.getLastSent() < maxLastSeen
-                        && sfk.getFirstSeen() > minFirstSeen )
-                {
-                    otherKeysToSend.add(sfk);
+                // first collect ALL other keys to send, then sort them and choose maxKeys items
+                final List<SharedFilesCHKKey> otherKeysToSend = new ArrayList<SharedFilesCHKKey>();
+                for( final SharedFilesCHKKey sfk : storageRoot.chkKeys ) {
+                    if( sfk.isDownloaded() && sfk.isValid() && sfk.getLastSeen() < maxLastSeen
+                            && sfk.getLastSent() < maxLastSeen && sfk.getFirstSeen() > minFirstSeen ) {
+                        otherKeysToSend.add(sfk);
+                    }
                 }
+
+                Collections.sort(otherKeysToSend, seenCountComparator);
+
+                if( otherKeysToSend.size() > 0 ) {
+                    keysToSend.addAll(otherKeysToSend.subList(0, Math.min(maxKeys, otherKeysToSend.size())));
+                }
+
+                otherKeysToSend.clear();
             }
-
-            Collections.sort(otherKeysToSend, seenCountComparator);
-
-            if( otherKeysToSend.size() > 0 ) {
-                keysToSend.addAll( otherKeysToSend.subList(0, Math.min(maxKeys, otherKeysToSend.size())) );
-            }
-
-            otherKeysToSend.clear();
+        } finally {
+            endThreadTransaction();
         }
-
-        endThreadTransaction();
 
         return keysToSend;
     }
@@ -217,8 +212,12 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
         if( !beginCooperativeThreadTransaction() ) {
             return null;
         }
-        final SharedFilesCHKKey key = storageRoot.chkKeys.get(new Key(chkKey));
-        endThreadTransaction();
+        final SharedFilesCHKKey key;
+        try {
+            key = storageRoot.chkKeys.get(new Key(chkKey));
+        } finally {
+            endThreadTransaction();
+        }
         return key;
     }
 
@@ -234,16 +233,15 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
         if( !beginCooperativeThreadTransaction() ) {
             return Collections.emptyList();
         }
-
-        for( final SharedFilesCHKKey sfk : storageRoot.chkKeys ) {
-            if( !sfk.isDownloaded()
-                    && sfk.getDownloadRetries() < maxRetries)
-            {
-                keysToDownload.add(sfk);
+        try {
+            for( final SharedFilesCHKKey sfk : storageRoot.chkKeys ) {
+                if( !sfk.isDownloaded() && sfk.getDownloadRetries() < maxRetries ) {
+                    keysToDownload.add(sfk);
+                }
             }
+        } finally {
+            endThreadTransaction();
         }
-
-        endThreadTransaction();
 
         Collections.sort(keysToDownload, lastDownloadTryStopTimeComparator);
 
@@ -265,17 +263,17 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
         if( !beginExclusiveThreadTransaction() ) {
             return false;
         }
-
-        final SharedFilesCHKKey key = storageRoot.chkKeys.get(new Key(chkKey) );
-        if( key == null ) {
-            return false;
+        try {
+            final SharedFilesCHKKey key = storageRoot.chkKeys.get(new Key(chkKey));
+            if( key == null ) {
+                return false;
+            }
+            key.setDownloaded(true);
+            key.setValid(isValid);
+            key.modify();
+        } finally {
+            endThreadTransaction();
         }
-
-        key.setDownloaded(true);
-        key.setValid(isValid);
-        key.modify();
-
-        endThreadTransaction();
 
         return true;
     }
@@ -289,24 +287,25 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
         if( !beginExclusiveThreadTransaction() ) {
             return false;
         }
+        try {
+            final SharedFilesCHKKey key = storageRoot.chkKeys.get(new Key(chkKey) );
+            if( key == null ) {
+                endThreadTransaction();
+                return false;
+            }
 
-        final SharedFilesCHKKey key = storageRoot.chkKeys.get(new Key(chkKey) );
-        if( key == null ) {
+            key.incDownloadRetries();
+            key.setLastDownloadTryStopTime(System.currentTimeMillis());
+
+            key.modify();
+
+            if( key.getDownloadRetries() < maxRetries ) {
+                return true; // retry download
+            } else {
+                return false;
+            }
+        } finally {
             endThreadTransaction();
-            return false;
-        }
-
-        key.incDownloadRetries();
-        key.setLastDownloadTryStopTime(System.currentTimeMillis());
-
-        key.modify();
-
-        endThreadTransaction();
-
-        if( key.getDownloadRetries() < maxRetries ) {
-            return true; // retry download
-        } else {
-            return false;
         }
     }
 
@@ -322,18 +321,19 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
         int deletedCount = 0;
 
         beginExclusiveThreadTransaction();
-
-        final Iterator<SharedFilesCHKKey> i = storageRoot.chkKeys.iterator();
-        while(i.hasNext()) {
-            final SharedFilesCHKKey sfk = i.next();
-            if( sfk.getLastSeen() > 0 && sfk.getLastSeen() < minVal ) {
-                i.remove(); // remove from iterated index
-                sfk.deallocate(); // remove from Storage
-                deletedCount++;
+        try {
+            final Iterator<SharedFilesCHKKey> i = storageRoot.chkKeys.iterator();
+            while(i.hasNext()) {
+                final SharedFilesCHKKey sfk = i.next();
+                if( sfk.getLastSeen() > 0 && sfk.getLastSeen() < minVal ) {
+                    i.remove(); // remove from iterated index
+                    sfk.deallocate(); // remove from Storage
+                    deletedCount++;
+                }
             }
+        } finally {
+            endThreadTransaction();
         }
-
-        endThreadTransaction();
 
         return deletedCount;
     }
