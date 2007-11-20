@@ -422,6 +422,14 @@ public class Core implements FrostEventDispatcher  {
         // (cleanup gets the expiration mode from settings)
         CleanUp.runExpirationTasks(splashscreen, MainFrame.getInstance().getTofTreeModel().getAllBoards());
 
+        // show enqueued startup messages before bring-up of mainframe
+        // otherwise the glasspane used during load of board messages could corrupt the model message dialog!
+        SwingUtilities.invokeAndWait(new Runnable() {
+            public void run() {
+                mainFrame.showStartupMessages();
+            }
+        });
+
         // after expiration, select previously selected board tree row; this loads the message table!!!
         mainFrame.postInitialize();
 
@@ -435,12 +443,6 @@ public class Core implements FrostEventDispatcher  {
         });
 
         splashscreen.closeMe();
-
-        SwingUtilities.invokeAndWait(new Runnable() {
-            public void run() {
-                mainFrame.showStartupMessages();
-            }
-        });
 
         // boot up the machinery ;)
         initializeTasks(mainFrame);
