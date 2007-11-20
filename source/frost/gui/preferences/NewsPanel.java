@@ -23,6 +23,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.event.*;
 
 import frost.*;
 import frost.fcp.*;
@@ -31,10 +32,15 @@ import frost.util.gui.translation.*;
 
 class NewsPanel extends JPanel {
 
-    private class Listener implements ActionListener {
-        public void actionPerformed(ActionEvent e) {
+    private class Listener implements ActionListener, ChangeListener {
+        public void actionPerformed(final ActionEvent e) {
             if (e.getSource() == automaticBoardUpdateCheckBox) {
                 refreshUpdateState();
+            }
+        }
+        public void stateChanged(final ChangeEvent e) {
+            if (e.getSource() == altEditCheckBox) {
+                altEditChanged();
             }
         }
     }
@@ -42,36 +48,39 @@ class NewsPanel extends JPanel {
     private SettingsClass settings = null;
     private Language language = null;
 
-    private JLabel uploadHtlLabel = new JLabel();
-    private JLabel downloadHtlLabel = new JLabel();
-    private JLabel displayDaysLabel = new JLabel();
-    private JLabel downloadDaysLabel = new JLabel();
-    private JLabel messageBaseLabel = new JLabel();
+    private final JLabel uploadHtlLabel = new JLabel();
+    private final JLabel downloadHtlLabel = new JLabel();
+    private final JLabel displayDaysLabel = new JLabel();
+    private final JLabel downloadDaysLabel = new JLabel();
+    private final JLabel messageBaseLabel = new JLabel();
 
-    private JTextField uploadHtlTextField = new JTextField(8);
-    private JTextField downloadHtlTextField = new JTextField(8);
-    private JTextField displayDaysTextField = new JTextField(8);
-    private JTextField downloadDaysTextField = new JTextField(8);
-    private JTextField messageBaseTextField = new JTextField(16);
-    
-    private JCheckBox alwaysDownloadBackloadCheckBox = new JCheckBox();
+    private final JTextField uploadHtlTextField = new JTextField(8);
+    private final JTextField downloadHtlTextField = new JTextField(8);
+    private final JTextField displayDaysTextField = new JTextField(8);
+    private final JTextField downloadDaysTextField = new JTextField(8);
+    private final JTextField messageBaseTextField = new JTextField(16);
 
-    private JCheckBox automaticBoardUpdateCheckBox = new JCheckBox();
+    private final JCheckBox alwaysDownloadBackloadCheckBox = new JCheckBox();
+
+    private final JCheckBox automaticBoardUpdateCheckBox = new JCheckBox();
     private JPanel updatePanel = null;
-    private JLabel minimumIntervalLabel = new JLabel();
-    private JTextField minimumIntervalTextField = new JTextField(8);
-    private JLabel concurrentUpdatesLabel = new JLabel();
-    private JTextField concurrentUpdatesTextField = new JTextField(8);
-    
-    private JCheckBox silentlyRetryCheckBox = new JCheckBox();
-    private JCheckBox acceptSignatureFormatV1CheckBox = new JCheckBox();
+    private final JLabel minimumIntervalLabel = new JLabel();
+    private final JTextField minimumIntervalTextField = new JTextField(8);
+    private final JLabel concurrentUpdatesLabel = new JLabel();
+    private final JTextField concurrentUpdatesTextField = new JTextField(8);
 
-    private Listener listener = new Listener();
+    private final JCheckBox silentlyRetryCheckBox = new JCheckBox();
+    private final JCheckBox acceptSignatureFormatV1CheckBox = new JCheckBox();
+
+    private final JCheckBox altEditCheckBox = new JCheckBox();
+    private final JTextField altEditTextField = new JTextField();
+
+    private final Listener listener = new Listener();
 
     /**
      * @param settings the SettingsClass instance that will be used to get and store the settings of the panel
      */
-    protected NewsPanel(SettingsClass settings) {
+    protected NewsPanel(final SettingsClass settings) {
         super();
 
         this.language = Language.getInstance();
@@ -79,7 +88,7 @@ class NewsPanel extends JPanel {
 
         initialize();
         loadSettings();
-        
+
         if( FcpHandler.isFreenet07() ) {
             // disable 0.5-only items
             uploadHtlLabel.setEnabled(false);
@@ -93,13 +102,13 @@ class NewsPanel extends JPanel {
         if( updatePanel == null ) {
             updatePanel = new JPanel(new GridBagLayout());
             updatePanel.setBorder(new EmptyBorder(5, 30, 5, 5));
-            GridBagConstraints constraints = new GridBagConstraints();
+            final GridBagConstraints constraints = new GridBagConstraints();
             constraints.insets = new Insets(0, 5, 5, 5);
             constraints.weighty = 0;
             constraints.weightx = 0;
             constraints.anchor = GridBagConstraints.NORTHWEST;
             constraints.gridy = 0;
-    
+
             constraints.fill = GridBagConstraints.HORIZONTAL;
             constraints.gridx = 0;
             constraints.weightx = 0.5;
@@ -108,7 +117,7 @@ class NewsPanel extends JPanel {
             constraints.gridx = 1;
             constraints.weightx = 1;
             updatePanel.add(minimumIntervalTextField, constraints);
-    
+
             constraints.fill = GridBagConstraints.HORIZONTAL;
             constraints.gridx = 0;
             constraints.gridy++;
@@ -135,9 +144,10 @@ class NewsPanel extends JPanel {
         new TextComponentClipboardMenu(messageBaseTextField, language);
         new TextComponentClipboardMenu(minimumIntervalTextField, language);
         new TextComponentClipboardMenu(concurrentUpdatesTextField, language);
+        new TextComponentClipboardMenu(altEditTextField, language);
 
         // Adds all of the components
-        GridBagConstraints constraints = new GridBagConstraints();
+        final GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.NONE;
         constraints.anchor = GridBagConstraints.WEST;
         constraints.weighty = 0.0;
@@ -145,7 +155,7 @@ class NewsPanel extends JPanel {
 
         constraints.insets = new Insets(0, 5, 5, 5);
         constraints.gridy = 0;
-        
+
         constraints.gridx = 0;
         add(displayDaysLabel, constraints);
         constraints.gridx = 1;
@@ -156,7 +166,7 @@ class NewsPanel extends JPanel {
         add(downloadDaysLabel, constraints);
         constraints.gridx = 1;
         add(downloadDaysTextField, constraints);
-        
+
         constraints.gridx = 0;
         constraints.gridy++;
         constraints.gridwidth=2;
@@ -182,6 +192,8 @@ class NewsPanel extends JPanel {
         add(downloadHtlTextField, constraints);
         constraints.gridx = 0;
 
+        constraints.gridwidth=2;
+
         constraints.gridy++;
         add(automaticBoardUpdateCheckBox, constraints);
 
@@ -193,7 +205,19 @@ class NewsPanel extends JPanel {
 
         constraints.gridy++;
         add(acceptSignatureFormatV1CheckBox, constraints);
-        
+
+        constraints.gridwidth = 1;
+
+        constraints.gridy++;
+        constraints.gridx = 0;
+        add(altEditCheckBox, constraints);
+        constraints.gridx = 1;
+        constraints.weightx = 1;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        add(altEditTextField, constraints);
+        constraints.weightx = 0;
+        constraints.fill = GridBagConstraints.NONE;
+
         // glue
         constraints.gridy++;
         constraints.gridx = 0;
@@ -202,9 +226,10 @@ class NewsPanel extends JPanel {
         constraints.weightx = 1;
         constraints.weighty = 1;
         add(new JLabel(""), constraints);
-        
+
         // Add listeners
         automaticBoardUpdateCheckBox.addActionListener(listener);
+        altEditCheckBox.addChangeListener(listener);
     }
 
     /**
@@ -217,7 +242,7 @@ class NewsPanel extends JPanel {
         downloadDaysTextField.setText(settings.getValue(SettingsClass.MAX_MESSAGE_DOWNLOAD));
         messageBaseTextField.setText(settings.getValue(SettingsClass.MESSAGE_BASE));
         alwaysDownloadBackloadCheckBox.setSelected(settings.getBoolValue(SettingsClass.ALWAYS_DOWNLOAD_MESSAGES_BACKLOAD));
-        
+
         minimumIntervalTextField.setText(settings.getValue(SettingsClass.BOARD_AUTOUPDATE_MIN_INTERVAL));
         concurrentUpdatesTextField.setText(settings.getValue(SettingsClass.BOARD_AUTOUPDATE_CONCURRENT_UPDATES));
 
@@ -227,6 +252,10 @@ class NewsPanel extends JPanel {
 
         silentlyRetryCheckBox.setSelected(settings.getBoolValue(SettingsClass.SILENTLY_RETRY_MESSAGES));
         acceptSignatureFormatV1CheckBox.setSelected(settings.getBoolValue(SettingsClass.ACCEPT_SIGNATURE_FORMAT_V1));
+
+        altEditCheckBox.setSelected(settings.getBoolValue(SettingsClass.ALTERNATE_EDITOR_ENABLED));
+        altEditTextField.setEnabled(altEditCheckBox.isSelected());
+        altEditTextField.setText(settings.getValue(SettingsClass.ALTERNATE_EDITOR_COMMAND));
     }
 
     public void ok() {
@@ -241,8 +270,8 @@ class NewsPanel extends JPanel {
         messageBaseLabel.setText(language.getString("Options.news.1.messageBase") + " (news)");
         alwaysDownloadBackloadCheckBox.setText(language.getString("Options.news.1.alwaysDownloadBackload"));
         alwaysDownloadBackloadCheckBox.setToolTipText(language.getString("Options.news.1.alwaysDownloadBackload.tooltip"));
-        
-        String minutes = language.getString("Options.common.minutes");
+
+        final String minutes = language.getString("Options.common.minutes");
 
         minimumIntervalLabel.setText(language.getString("Options.news.3.minimumUpdateInterval") + " (" + minutes + ") (45)");
         concurrentUpdatesLabel.setText(language.getString("Options.news.3.numberOfConcurrentlyUpdatingBoards") + " (6)");
@@ -251,6 +280,9 @@ class NewsPanel extends JPanel {
 
         silentlyRetryCheckBox.setText(language.getString("Options.news.3.silentlyRetryFailedMessages"));
         acceptSignatureFormatV1CheckBox.setText(language.getString("Options.news.3.acceptSignatureFormatV1"));
+
+        final String off = language.getString("Options.common.off");
+        altEditCheckBox.setText(language.getString("Options.miscellaneous.useEditorForWritingMessages") + " (" + off + ")");
     }
 
     /**
@@ -263,7 +295,7 @@ class NewsPanel extends JPanel {
         settings.setValue(SettingsClass.MAX_MESSAGE_DOWNLOAD, downloadDaysTextField.getText());
         settings.setValue(SettingsClass.MESSAGE_BASE, messageBaseTextField.getText().trim().toLowerCase());
         settings.setValue(SettingsClass.ALWAYS_DOWNLOAD_MESSAGES_BACKLOAD, alwaysDownloadBackloadCheckBox.isSelected());
-        
+
         settings.setValue(SettingsClass.BOARD_AUTOUPDATE_CONCURRENT_UPDATES, concurrentUpdatesTextField.getText());
         settings.setValue(SettingsClass.BOARD_AUTOUPDATE_MIN_INTERVAL, minimumIntervalTextField.getText());
 
@@ -273,9 +305,16 @@ class NewsPanel extends JPanel {
 
         settings.setValue(SettingsClass.SILENTLY_RETRY_MESSAGES, silentlyRetryCheckBox.isSelected());
         settings.setValue(SettingsClass.ACCEPT_SIGNATURE_FORMAT_V1, acceptSignatureFormatV1CheckBox.isSelected());
+
+        settings.setValue(SettingsClass.ALTERNATE_EDITOR_ENABLED, altEditCheckBox.isSelected());
+        settings.setValue(SettingsClass.ALTERNATE_EDITOR_COMMAND, altEditTextField.getText());
     }
-    
+
     private void refreshUpdateState() {
         MiscToolkit.getInstance().setContainerEnabled(getUpdatePanel(), automaticBoardUpdateCheckBox.isSelected());
+    }
+
+    private void altEditChanged() {
+        altEditTextField.setEnabled(altEditCheckBox.isSelected());
     }
 }

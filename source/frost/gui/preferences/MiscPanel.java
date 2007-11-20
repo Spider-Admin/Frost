@@ -22,7 +22,6 @@ import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
-import javax.swing.event.*;
 
 import frost.*;
 import frost.fcp.*;
@@ -32,16 +31,10 @@ import frost.util.gui.translation.*;
 
 class MiscPanel extends JPanel {
 
-    private class Listener implements ChangeListener, ActionListener {
-
-        public void actionPerformed(ActionEvent e) {
+    private class Listener implements ActionListener {
+        public void actionPerformed(final ActionEvent e) {
             if (e.getSource() == enableLoggingCheckBox) {
                 refreshLoggingState();
-            }
-        }
-        public void stateChanged(ChangeEvent e) {
-            if (e.getSource() == altEditCheckBox) {
-                altEditChanged();
             }
         }
     }
@@ -49,32 +42,30 @@ class MiscPanel extends JPanel {
     private SettingsClass settings = null;
     private Language language = null;
 
-    private JCheckBox altEditCheckBox = new JCheckBox();
-    private JTextField altEditTextField = new JTextField();
-    private JLabel autoSaveIntervalLabel = new JLabel();
-    private JTextField autoSaveIntervalTextField = new JTextField(8);
-    private JLabel availableNodesLabel1 = new JLabel();
-    private JTextField availableNodesTextField = new JTextField();
-    
-    private JCheckBox useDDACheckBox = new JCheckBox();
-    private JCheckBox usePersistenceCheckBox = new JCheckBox();
-    private JCheckBox enableLoggingCheckBox = new JCheckBox();
-    
-    private Listener listener = new Listener();
-    private JLabel logFileSizeLabel = new JLabel();
-    private JTextField logFileSizeTextField = new JTextField(8);
+    private final JLabel autoSaveIntervalLabel = new JLabel();
+    private final JTextField autoSaveIntervalTextField = new JTextField(8);
+    private final JLabel availableNodesLabel1 = new JLabel();
+    private final JTextField availableNodesTextField = new JTextField();
+
+    private final JCheckBox useDDACheckBox = new JCheckBox();
+    private final JCheckBox usePersistenceCheckBox = new JCheckBox();
+    private final JCheckBox enableLoggingCheckBox = new JCheckBox();
+
+    private final Listener listener = new Listener();
+    private final JLabel logFileSizeLabel = new JLabel();
+    private final JTextField logFileSizeTextField = new JTextField(8);
 
     private JTranslatableComboBox logLevelComboBox = null;
-    private JLabel logLevelLabel = new JLabel();
-    private JCheckBox showSystrayIconCheckBox = new JCheckBox();
-    private JCheckBox minimizeToSystrayCheckBox = new JCheckBox();
-    private JCheckBox splashScreenCheckBox = new JCheckBox();
+    private final JLabel logLevelLabel = new JLabel();
+    private final JCheckBox showSystrayIconCheckBox = new JCheckBox();
+    private final JCheckBox minimizeToSystrayCheckBox = new JCheckBox();
+    private final JCheckBox splashScreenCheckBox = new JCheckBox();
 //    private JCheckBox compactDatabaseAtNextStartupCheckBox = new JCheckBox();
 
     /**
      * @param settings the SettingsClass instance that will be used to get and store the settings of the panel
      */
-    protected MiscPanel(SettingsClass settings) {
+    protected MiscPanel(final SettingsClass settings) {
         super();
 
         this.language = Language.getInstance();
@@ -82,7 +73,7 @@ class MiscPanel extends JPanel {
 
         initialize();
         loadSettings();
-        
+
         if( FcpHandler.isFreenet05() ) {
             // disable 0.7-only items
             useDDACheckBox.setEnabled(false);
@@ -90,42 +81,41 @@ class MiscPanel extends JPanel {
         }
     }
 
-    private void altEditChanged() {
-        altEditTextField.setEnabled(altEditCheckBox.isSelected());
-    }
-
     private JPanel getLoggingPanel() {
-        JPanel subPanel = new JPanel(new GridBagLayout());
+        final JPanel subPanel = new JPanel(new GridBagLayout());
 
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.anchor = GridBagConstraints.NORTHWEST;
+        final GridBagConstraints constraints = new GridBagConstraints();
+        constraints.anchor = GridBagConstraints.WEST;
         constraints.fill = GridBagConstraints.HORIZONTAL;
-        Insets insets5055 = new Insets(5, 0, 5, 5);
-        Insets insets5_30_5_0 = new Insets(5, 30, 5, 0);
-        Insets insets5_30_5_5 = new Insets(5, 30, 5, 5);
-        constraints.insets = insets5055;
+        final Insets insets5035 = new Insets(5, 0, 5, 5);
+        final Insets insets0_30_5_5 = new Insets(0, 30, 5, 5);
+        final Insets insets0_5_5_5 = new Insets(0, 5, 5, 5);
+        final Insets insets0_5_5_0 = new Insets(0, 5, 3, 0);
+        constraints.insets = insets5035;
         constraints.weightx = 1;
         constraints.weighty = 1;
 
         constraints.gridx = 0;
         constraints.gridy = 0;
-        constraints.gridwidth = 2;
-        
+        constraints.gridwidth = 4;
+
         subPanel.add(enableLoggingCheckBox, constraints);
 
-        constraints.insets = insets5_30_5_5;
+        constraints.insets = insets0_30_5_5;
         constraints.gridwidth = 1;
         constraints.gridy++;
         subPanel.add(logLevelLabel, constraints);
         constraints.gridx = 1;
-        String[] searchComboBoxKeys =
+        final String[] searchComboBoxKeys =
             { Logging.VERY_LOW, Logging.LOW, Logging.MEDIUM, Logging.HIGH, Logging.VERY_HIGH };
         logLevelComboBox = new JTranslatableComboBox(language, searchComboBoxKeys);
+        constraints.insets = insets0_5_5_5;
         subPanel.add(logLevelComboBox, constraints);
 
         constraints.gridx = 2;
+        constraints.insets = insets0_30_5_5;
         subPanel.add(logFileSizeLabel, constraints);
-        constraints.insets = insets5_30_5_0;
+        constraints.insets = insets0_5_5_0;
         constraints.gridx = 3;
         constraints.weightx = 0;
         subPanel.add(logFileSizeTextField, constraints);
@@ -139,16 +129,15 @@ class MiscPanel extends JPanel {
         refreshLanguage();
 
         // We create the components
-        new TextComponentClipboardMenu(altEditTextField, language);
         new TextComponentClipboardMenu(autoSaveIntervalTextField, language);
         new TextComponentClipboardMenu(availableNodesTextField, language);
         new TextComponentClipboardMenu(logFileSizeTextField, language);
 
         // Adds all of the components
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.anchor = GridBagConstraints.NORTHWEST;
+        final GridBagConstraints constraints = new GridBagConstraints();
+        constraints.anchor = GridBagConstraints.WEST;
         constraints.fill = GridBagConstraints.HORIZONTAL;
-        Insets insets5555 = new Insets(5, 5, 5, 5);
+        final Insets insets5555 = new Insets(5, 5, 5, 5);
 
         constraints.weightx = 0;
         constraints.insets = insets5555;
@@ -171,17 +160,6 @@ class MiscPanel extends JPanel {
         constraints.gridx = 0;
         constraints.gridy++;
         add(usePersistenceCheckBox, constraints);
-
-        constraints.weightx = 0;
-        constraints.gridwidth = 1;
-
-        constraints.gridx = 0;
-        constraints.gridy++;
-        add(altEditCheckBox, constraints);
-        constraints.gridx = 1;
-        constraints.gridwidth = 2;
-        constraints.weightx = 1;
-        add(altEditTextField, constraints);
 
         constraints.weightx = 0;
         constraints.gridwidth = 1;
@@ -208,7 +186,7 @@ class MiscPanel extends JPanel {
         constraints.gridy++;
         constraints.gridwidth = 3;
         add(getLoggingPanel(), constraints);
-        
+
         // glue
         constraints.gridy++;
         constraints.gridx = 0;
@@ -220,20 +198,16 @@ class MiscPanel extends JPanel {
 
         // Add listeners
         enableLoggingCheckBox.addActionListener(listener);
-        altEditCheckBox.addChangeListener(listener);
     }
 
     /**
      * Load the settings of this panel
      */
     private void loadSettings() {
-        altEditCheckBox.setSelected(settings.getBoolValue(SettingsClass.ALTERNATE_EDITOR_ENABLED));
-        altEditTextField.setEnabled(altEditCheckBox.isSelected());
         showSystrayIconCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_SYSTRAY_ICON));
         minimizeToSystrayCheckBox.setSelected(settings.getBoolValue(SettingsClass.MINIMIZE_TO_SYSTRAY));
 //        compactDatabaseAtNextStartupCheckBox.setSelected(settings.getBoolValue(SettingsClass.COMPACT_DBTABLES));
         availableNodesTextField.setText(settings.getValue(SettingsClass.AVAILABLE_NODES));
-        altEditTextField.setText(settings.getValue(SettingsClass.ALTERNATE_EDITOR_COMMAND));
         autoSaveIntervalTextField.setText(Integer.toString(settings.getIntValue(SettingsClass.AUTO_SAVE_INTERVAL)));
         enableLoggingCheckBox.setSelected(settings.getBoolValue(SettingsClass.LOG_TO_FILE));
         logFileSizeTextField.setText(Integer.toString(settings.getIntValue(SettingsClass.LOG_FILE_SIZE_LIMIT)));
@@ -249,8 +223,8 @@ class MiscPanel extends JPanel {
     }
 
     public void ok() {
-        
-        String nodes = availableNodesTextField.getText();
+
+        final String nodes = availableNodesTextField.getText();
         if( nodes.indexOf(",") > -1 ) {
             if( usePersistenceCheckBox.isSelected() ) {
                 MiscToolkit.getInstance().showMessage(
@@ -260,7 +234,7 @@ class MiscPanel extends JPanel {
                 usePersistenceCheckBox.setSelected(false);
             }
         }
-        
+
         saveSettings();
     }
 
@@ -268,18 +242,15 @@ class MiscPanel extends JPanel {
         availableNodesLabel1.setText(language.getString("Options.miscellaneous.listOfFcpNodes")+" "+language.getString("Options.miscellaneous.listOfFcpNodesExplanation"));
         useDDACheckBox.setText(language.getString("Options.miscellaneous.useDDA"));
         useDDACheckBox.setToolTipText(language.getString("Options.miscellaneous.useDDA.tooltip"));
-        
+
         usePersistenceCheckBox.setText(language.getString("Options.miscellaneous.usePersistence"));
-        
-        autoSaveIntervalLabel.setText(language.getString("Options.miscellaneous.automaticSavingInterval") + 
+
+        autoSaveIntervalLabel.setText(language.getString("Options.miscellaneous.automaticSavingInterval") +
                 " (60 "+language.getString("Options.common.minutes")+")");
         splashScreenCheckBox.setText(language.getString("Options.miscellaneous.disableSplashscreen"));
         showSystrayIconCheckBox.setText(language.getString("Options.miscellaneous.showSysTrayIcon"));
         minimizeToSystrayCheckBox.setText(language.getString("Options.miscellaneous.minimizeToSystray"));
 //        compactDatabaseAtNextStartupCheckBox.setText(language.getString("Options.miscellaneous.compactDatabaseAtNextStartup"));
-        String off = language.getString("Options.common.off");
-        altEditCheckBox.setText(language.getString("Options.miscellaneous.useEditorForWritingMessages") + " (" + off + ")");
-
         enableLoggingCheckBox.setText(language.getString("Options.miscellaneous.enableLogging"));
         logLevelLabel.setText(language.getString("Options.miscellaneous.loggingLevel") +
                     " (" + language.getString("Options.miscellaneous.logLevel.low") + ") ");
@@ -287,7 +258,7 @@ class MiscPanel extends JPanel {
     }
 
     private void refreshLoggingState() {
-        boolean enableLogging = enableLoggingCheckBox.isSelected();
+        final boolean enableLogging = enableLoggingCheckBox.isSelected();
         logLevelLabel.setEnabled(enableLogging);
         logLevelComboBox.setEnabled(enableLogging);
         logFileSizeLabel.setEnabled(enableLogging);
@@ -302,8 +273,6 @@ class MiscPanel extends JPanel {
         settings.setValue(SettingsClass.SHOW_SYSTRAY_ICON, showSystrayIconCheckBox.isSelected());
         settings.setValue(SettingsClass.MINIMIZE_TO_SYSTRAY, minimizeToSystrayCheckBox.isSelected());
 //        settings.setValue(SettingsClass.COMPACT_DBTABLES, compactDatabaseAtNextStartupCheckBox.isSelected());
-        settings.setValue(SettingsClass.ALTERNATE_EDITOR_ENABLED, altEditCheckBox.isSelected());
-        settings.setValue(SettingsClass.ALTERNATE_EDITOR_COMMAND, altEditTextField.getText());
         settings.setValue(SettingsClass.AUTO_SAVE_INTERVAL, autoSaveIntervalTextField.getText());
         settings.setValue(SettingsClass.LOG_TO_FILE, enableLoggingCheckBox.isSelected());
         settings.setValue(SettingsClass.LOG_FILE_SIZE_LIMIT, logFileSizeTextField.getText());
