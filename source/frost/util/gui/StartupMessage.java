@@ -25,29 +25,30 @@ import javax.swing.*;
 import frost.util.gui.translation.*;
 
 public class StartupMessage {
-    
+
     public enum MessageType {
         SharedFileNotFound,
         SharedFileSizeChanged,
         SharedFileLastModifiedChanged,
         UploadFileNotFound,
-        UploadFileSizeChanged
+        UploadFileSizeChanged,
+        BoardsWithObsoleteKeysFound
     }
 
     protected MessageType messageType;
-    
+
     protected String title;
     protected String text;
     protected int dialogType;
-    
+
     protected boolean allowIgnore; // if true allow to ignore msgs with same messageType
-    
+
     public StartupMessage(
-            MessageType newMessageType, 
-            String newTitle, 
-            String newText, 
-            int newDialogType, 
-            boolean newAllowIgnore) 
+            final MessageType newMessageType,
+            final String newTitle,
+            final String newText,
+            final int newDialogType,
+            final boolean newAllowIgnore)
     {
         messageType = newMessageType;
         title = newTitle;
@@ -55,32 +56,32 @@ public class StartupMessage {
         dialogType = newDialogType;
         allowIgnore = newAllowIgnore;
     }
-    
+
     /**
      * Override this method if you want to do special things.
      */
-    public void display(JFrame parent) {
-        
+    public void display(final JFrame parent) {
+
         if( isMessageTypeIgnored(getMessageType()) ) {
             return;
         }
-        
+
         if( isAllowIgnore() ) {
             // user can choose to not show any more msgs of this type
-            Language language = Language.getInstance();
-            String okStr = language.getString("Common.ok");
-            String ignoreStr = language.getString("Common.ignoreMessagesOfThisType");
-            Object[] options = { okStr, ignoreStr };
-            int answer = JOptionPane.showOptionDialog(
-                    parent, 
-                    getText(), 
-                    getTitle(), 
-                    JOptionPane.DEFAULT_OPTION, 
+            final Language language = Language.getInstance();
+            final String okStr = language.getString("Common.ok");
+            final String ignoreStr = language.getString("Common.ignoreMessagesOfThisType");
+            final Object[] options = { okStr, ignoreStr };
+            final int answer = JOptionPane.showOptionDialog(
+                    parent,
+                    getText(),
+                    getTitle(),
+                    JOptionPane.DEFAULT_OPTION,
                     getDialogType(),
-                    null, 
-                    options, 
+                    null,
+                    options,
                     options[0]);
-            
+
             if( answer == 1 ) {
                 StartupMessage.setMessageTypeIgnored(getMessageType());
             }
@@ -105,21 +106,21 @@ public class StartupMessage {
     public String getTitle() {
         return title;
     }
-    
+
     ////////////////////////////////////////////////////////////////////////////
     // STATIC //////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////
 
     private static HashSet<MessageType> ignoredMessageTypes = new HashSet<MessageType>();
 
-    public static boolean isMessageTypeIgnored(MessageType msgType) {
+    public static boolean isMessageTypeIgnored(final MessageType msgType) {
         return ignoredMessageTypes.contains(msgType);
     }
-    
-    public static void setMessageTypeIgnored(MessageType msgType) {
+
+    public static void setMessageTypeIgnored(final MessageType msgType) {
         ignoredMessageTypes.add(msgType);
     }
-    
+
     /**
      * Cleanup, makes this class unusable.
      */
