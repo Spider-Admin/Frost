@@ -210,8 +210,8 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 } else if( mdResult.getMessage() != null ) {
                     // message is loaded, delete underlying received file
                     mdResult.getMessage().getFile().delete();
-                    // basic validation
-                    if (mdResult.getMessage().isValid() && isValidFormat(mdResult.getMessage(), localDate, board)) {
+                    // basic validation, isValid() of FrostMessageObject was already called during instanciation of MessageXmlFile
+                    if (isValidFormat(mdResult.getMessage(), localDate, board)) {
                         receivedValidMessage(mdResult.getMessage(), board, index);
                     } else {
                         receivedInvalidMessage(board, localDate, index, MessageDownloaderResult.INVALID_MSG);

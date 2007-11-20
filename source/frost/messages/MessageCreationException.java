@@ -25,17 +25,18 @@ package frost.messages;
 public class MessageCreationException extends Exception {
 
 	private boolean empty = false;
-	
+
     public final static int MSG_NOT_FOR_ME = 1;
     public final static int DECRYPT_FAILED = 2;
-    
+    public final static int INVALID_FORMAT = 3;
+
     int msgNo;
 
 	/**
 	 * @param message
 	 * @param cause
 	 */
-	public MessageCreationException(String message, Throwable cause) {
+	public MessageCreationException(final String message, final Throwable cause) {
 		super(message, cause);
 	}
 	/**
@@ -43,10 +44,10 @@ public class MessageCreationException extends Exception {
 	 * message.
 	 * @param message a string describing the exception
 	 */
-	public MessageCreationException(String message) {
+	public MessageCreationException(final String message) {
 		super(message);
 	}
-	
+
 	/**
 	 * This method creates a new MessageCreationException with the given
 	 * message and empty property.
@@ -54,18 +55,18 @@ public class MessageCreationException extends Exception {
 	 * @param empty true if message creation failed because the file only contained
 	 * 		  the word "Empty". False if the reason was different.
 	 */
-	public MessageCreationException(String message, boolean empty) {
+	public MessageCreationException(final String message, final boolean empty) {
 		super(message);
 		this.empty = empty;
 	}
 
-    public MessageCreationException(String message, int msgno) {
+    public MessageCreationException(final String message, final int msgno) {
         super(message);
         this.msgNo = msgno;
     }
 
 	/**
-	 * This method returns true if message creation failed because the file 
+	 * This method returns true if message creation failed because the file
 	 * only contained the word "Empty"
 	 * @return true if message creation failed because the file only contained
 	 * 				the word "Empty". False if the reason was different.
@@ -73,7 +74,7 @@ public class MessageCreationException extends Exception {
 	public boolean isEmpty() {
 		return empty;
 	}
-	
+
 	/**
 	 * This method sets the empty property of the exception, used to distinguish
 	 * between the file only containing the word "Empty" and other reasons for
@@ -81,7 +82,7 @@ public class MessageCreationException extends Exception {
 	 * @param empty true if message creation failed because the file only contained
 	 * 				the word "Empty". False if the reason was different.
 	 */
-	public void setEmpty(boolean empty) {
+	public void setEmpty(final boolean empty) {
 		this.empty = empty;
 	}
 

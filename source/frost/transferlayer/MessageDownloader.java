@@ -337,25 +337,33 @@ public class MessageDownloader {
 
             // a file was downloaded
 
-            MessageXmlFile currentMsg = null;
+            final MessageXmlFile currentMsg;
 
             try {
                 currentMsg = new MessageXmlFile(tmpFile);
+
             } catch (final MessageCreationException ex) {
-                String errorMessage;
+                final String errorMessage;
                 if( ex.getMessageNo() == MessageCreationException.MSG_NOT_FOR_ME ) {
                     logger.warning("Info: Encrypted message is not for me. "+logInfo);
                     errorMessage = MessageDownloaderResult.MSG_NOT_FOR_ME;
+
                 } else if( ex.getMessageNo() == MessageCreationException.DECRYPT_FAILED ) {
                     logger.log(Level.WARNING, "TOFDN: Exception catched."+logInfo, ex);
                     errorMessage = MessageDownloaderResult.DECRYPT_FAILED;
+
+                } else if( ex.getMessageNo() == MessageCreationException.INVALID_FORMAT ) {
+                    logger.warning("Error: Message validation failed. "+logInfo);
+                    errorMessage = MessageDownloaderResult.INVALID_MSG;
+
                 } else {
                     logger.log(Level.WARNING, "TOFDN: Exception catched."+logInfo, ex);
                     errorMessage = MessageDownloaderResult.BROKEN_MSG;
                 }
                 tmpFile.delete();
                 return new MessageDownloaderResult(errorMessage);
-            } catch (final Exception ex) {
+
+            } catch (final Throwable ex) {
                 logger.log(Level.SEVERE, "TOFDN: Exception catched."+logInfo, ex);
                 // file could not be read, mark it invalid not to confuse gui
                 tmpFile.delete();
