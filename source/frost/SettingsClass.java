@@ -397,19 +397,12 @@ public class SettingsClass implements ExitSavable {
             configDir.mkdirs(); // if the config dir doesn't exist, we create it
         }
 
-        // backup existing ini file
-        if( settingsFile.isFile() && settingsFile.length() > 0 ) {
-            final String configDirStr = getValue(SettingsClass.DIR_CONFIG);
-            final File bakFile = new File(configDirStr + "frost.ini.bak");
-            if( bakFile.isFile() ) {
-                bakFile.delete();
-            }
-            settingsFile.renameTo(bakFile); // settingsFile keeps old name!
-        }
+        // write to new file
+        final File newFile = new File("frost.ini.new");
 
         final PrintWriter settingsWriter;
         try {
-            settingsWriter = new PrintWriter(new FileWriter(settingsFile));
+            settingsWriter = new PrintWriter(new FileWriter(newFile));
         } catch (final IOException exception) {
             logger.log(Level.SEVERE, "Exception thrown in writeSettingsFile()", exception);
             return false;
@@ -442,12 +435,25 @@ public class SettingsClass implements ExitSavable {
 
         try {
             settingsWriter.close();
-            logger.info("Wrote configuration");
-            return true;
         } catch (final Exception e) {
             logger.log(Level.SEVERE, "Exception thrown in writeSettingsFile", e);
+            return false;
         }
-        return false;
+
+        // backup existing ini file
+        if( settingsFile.isFile() && settingsFile.length() > 0 ) {
+            final String configDirStr = getValue(SettingsClass.DIR_CONFIG);
+            final File bakFile = new File(configDirStr + "frost.ini.bak");
+            if( bakFile.isFile() ) {
+                bakFile.delete();
+            }
+            settingsFile.renameTo(bakFile); // settingsFile keeps old name!
+        }
+
+        newFile.renameTo(settingsFile);
+
+        logger.info("Wrote configuration");
+        return true;
     }
 
     /**
