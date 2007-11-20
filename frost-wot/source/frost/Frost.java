@@ -52,8 +52,8 @@ public class Frost {
         System.out.println("redistribute it under the GPL conditions.");
         System.out.println("Frost uses code from apache.org (Apache license),");
         System.out.println("bouncycastle.org (BSD license), Onion Networks (BSD license),");
-        System.out.println("L2FProd.com (Apache license), Martin Newstead (LGPL license),");
-        System.out.println("Volker H. Simonis (GPL v2 license) and McObject LLC (GPL v2 license).");
+        System.out.println("Martin Newstead (LGPL license), Volker H. Simonis (GPL v2 license) and");
+        System.out.println("McObject LLC (GPL v2 license).");
         System.out.println();
 
         parseCommandLine(args);
