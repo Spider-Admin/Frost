@@ -175,8 +175,14 @@ public class FrostIdentities {
         return identity;
     }
 
-    // FIXME: we sync each insert, makes importIdentities slow. Maybe just provide a List of ids to add.
+    /**
+     * Adds an Identity, locks the storage.
+     */
     public boolean addIdentity(final Identity id) {
+        return addIdentity(id, true);
+    }
+
+    public boolean addIdentity(final Identity id, final boolean useLock) {
         if( id == null ) {
             return false;
         }
@@ -184,8 +190,10 @@ public class FrostIdentities {
         if (identities.containsKey(key)) {
             return false;
         }
-        if( !IdentitiesStorage.inst().beginExclusiveThreadTransaction() ) {
-            return false;
+        if( useLock ) {
+            if( !IdentitiesStorage.inst().beginExclusiveThreadTransaction() ) {
+                return false;
+            }
         }
         try {
             if( !IdentitiesStorage.inst().insertIdentity(id) ) {
@@ -193,7 +201,9 @@ public class FrostIdentities {
             }
             identities.put(key, id);
         } finally {
-            IdentitiesStorage.inst().endThreadTransaction();
+            if( useLock ) {
+                IdentitiesStorage.inst().endThreadTransaction();
+            }
         }
         return true;
     }
@@ -297,38 +307,50 @@ public class FrostIdentities {
     /**
      * Applies trust state of source identity to target identity.
      */
-    public static void takeoverTrustState(final Identity source, final Identity target) {
+    private void takeoverTrustState(final Identity source, final Identity target) {
         if( source.isGOOD() ) {
-            target.setGOOD();
+            target.setGOODWithoutUpdate();
+            target.modify();
         } else if( source.isOBSERVE() ) {
-            target.setOBSERVE();
+            target.setOBSERVEWithoutUpdate();
+            target.modify();
         } else if( source.isBAD() ) {
-            target.setBAD();
+            target.setBADWithoutUpdate();
+            target.modify();
         } else if( source.isCHECK() ) {
-            target.setCHECK();
+            target.setCHECKWithoutUpdate();
+            target.modify();
         }
     }
 
     // TODO: merge the imported identities with the existing identities (WOT), use a mergeIdentities method
     public int importIdentities(final List<Identity> importedIdentities) {
         // for now we import new identities, and take over the trust state if our identity state is CHECK
+        if( !IdentitiesStorage.inst().beginExclusiveThreadTransaction() ) {
+            return 0;
+        }
         int importedCount = 0;
-        for(final Identity newId : importedIdentities ) {
-            if( !isNewIdentityValid(newId) ) {
-                // hash of public key does not match the unique name
-                // skip identity
-                continue;
+        try {
+            for( final Identity newId : importedIdentities ) {
+                if( !isNewIdentityValid(newId) ) {
+                    // hash of public key does not match the unique name
+                    // skip identity
+                    continue;
+                }
+                final Identity oldId = getIdentity(newId.getUniqueName());
+                if( oldId == null ) {
+                    // add new id
+                    if( addIdentity(newId, false) ) {
+                        importedCount++;
+                    }
+                } else if( oldId.isCHECK() && !newId.isCHECK() ) {
+                    // take over trust state
+                    takeoverTrustState(newId, oldId);
+                    importedCount++;
+                }
             }
-            final Identity oldId = getIdentity(newId.getUniqueName());
-            if( oldId == null ) {
-                // add new id
-                addIdentity(newId);
-                importedCount++;
-            } else if( oldId.isCHECK() && !newId.isCHECK() ) {
-                // take over trust state
-                takeoverTrustState(newId, oldId);
-                importedCount++;
-            }
+        } finally {
+            IdentitiesStorage.inst().endThreadTransaction();
         }
         return importedCount;
     }
