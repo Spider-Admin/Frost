@@ -87,12 +87,13 @@ public class FileListManager {
             if( filesToShare != null && filesToShare.size() > 0 ) {
                 final FileListManagerFileInfo fif = new FileListManagerFileInfo(filesToShare, idToUpdate);
                 return fif;
+            } else {
+                // else try next owner
+                identityCount--;
             }
-            // else try next owner
-            identityCount--;
         }
 
-        // nothing to share now
+        // currently there is nothing to share
         return null;
     }
 

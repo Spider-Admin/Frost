@@ -134,8 +134,12 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
         if( !beginCooperativeThreadTransaction() ) {
             return null;
         }
-        final FrostFileListFileObject o = storageRoot.getFileListFileObjects().get(sha);
-        endThreadTransaction();
+        final FrostFileListFileObject o;
+        try {
+            o = storageRoot.getFileListFileObjects().get(sha);
+        } finally {
+            endThreadTransaction();
+        }
         return o;
     }
 
@@ -143,8 +147,12 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
         if( !beginCooperativeThreadTransaction() ) {
             return 0;
         }
-        final int count = storageRoot.getFileListFileObjects().size();
-        endThreadTransaction();
+        final int count;
+        try {
+            count = storageRoot.getFileListFileObjects().size();
+        } finally {
+            endThreadTransaction();
+        }
         return count;
     }
 
@@ -152,14 +160,17 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
         if( !beginCooperativeThreadTransaction() ) {
             return 0;
         }
-        final PerstIdentitiesFiles pif = storageRoot.getIdentitiesFiles().get(idUniqueName);
         final int count;
-        if( pif != null ) {
-            count = pif.getFilesFromIdentity().size();
-        } else {
-            count = 0;
+        try {
+            final PerstIdentitiesFiles pif = storageRoot.getIdentitiesFiles().get(idUniqueName);
+            if( pif != null ) {
+                count = pif.getFilesFromIdentity().size();
+            } else {
+                count = 0;
+            }
+        } finally {
+            endThreadTransaction();
         }
-        endThreadTransaction();
         return count;
     }
 
@@ -167,8 +178,12 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
         if( !beginCooperativeThreadTransaction() ) {
             return 0;
         }
-        final int count = storageRoot.getIdentitiesFiles().size();
-        endThreadTransaction();
+        final int count;
+        try {
+            count = storageRoot.getIdentitiesFiles().size();
+        } finally {
+            endThreadTransaction();
+        }
         return count;
     }
 
@@ -177,10 +192,13 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
             return 0L;
         }
         long sizes = 0;
-        for( final FrostFileListFileObject fo : storageRoot.getFileListFileObjects() ) {
-            sizes += fo.getSize();
+        try {
+            for( final FrostFileListFileObject fo : storageRoot.getFileListFileObjects() ) {
+                sizes += fo.getSize();
+            }
+        } finally {
+            endThreadTransaction();
         }
-        endThreadTransaction();
         return sizes;
     }
 
@@ -216,43 +234,46 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
         }
 
         int count = 0;
-        final long minVal = System.currentTimeMillis() - (maxDaysOld * 24L * 60L * 60L * 1000L);
+        try {
+            final long minVal = System.currentTimeMillis() - (maxDaysOld * 24L * 60L * 60L * 1000L);
+            for( final PerstIdentitiesFiles pif : storageRoot.getIdentitiesFiles() ) {
+                for( final Iterator<FrostFileListFileObjectOwner> i = pif.getFilesFromIdentity().iterator(); i
+                        .hasNext(); ) {
+                    final FrostFileListFileObjectOwner o = i.next();
+                    if( o.getLastReceived() < minVal && o.getKey() == null ) {
+                        // remove this owner file info from file list object
+                        final FrostFileListFileObject fof = o.getFileListFileObject();
+                        o.setFileListFileObject(null);
+                        fof.deleteFrostFileListFileObjectOwner(o);
 
-        for(final PerstIdentitiesFiles pif : storageRoot.getIdentitiesFiles()) {
-            for(final Iterator<FrostFileListFileObjectOwner> i = pif.getFilesFromIdentity().iterator(); i.hasNext(); ) {
-                final FrostFileListFileObjectOwner o = i.next();
-                if( o.getLastReceived() < minVal && o.getKey() == null ) {
-                    // remove this owner file info from file list object
-                    final FrostFileListFileObject fof = o.getFileListFileObject();
-                    o.setFileListFileObject(null);
-                    fof.deleteFrostFileListFileObjectOwner(o);
+                        // remove from indices
+                        maybeRemoveFileListFileInfoFromIndex(o.getName(), o, storageRoot.getFileNameIndex());
+                        maybeRemoveFileListFileInfoFromIndex(o.getComment(), o, storageRoot.getFileCommentIndex());
+                        maybeRemoveFileListFileInfoFromIndex(o.getKeywords(), o, storageRoot.getFileKeywordIndex());
+                        maybeRemoveFileListFileInfoFromIndex(o.getOwner(), o, storageRoot.getFileOwnerIndex());
 
-                    // remove from indices
-                    maybeRemoveFileListFileInfoFromIndex(o.getName(), o, storageRoot.getFileNameIndex());
-                    maybeRemoveFileListFileInfoFromIndex(o.getComment(), o, storageRoot.getFileCommentIndex());
-                    maybeRemoveFileListFileInfoFromIndex(o.getKeywords(), o, storageRoot.getFileKeywordIndex());
-                    maybeRemoveFileListFileInfoFromIndex(o.getOwner(), o, storageRoot.getFileOwnerIndex());
+                        //                    System.out.println("dealloc: "+o.getOid());
 
-//                    System.out.println("dealloc: "+o.getOid());
+                        // remove this owner file info from identities files
+                        i.remove();
+                        // delete from store
+                        o.deallocate();
 
-                    // remove this owner file info from identities files
-                    i.remove();
-                    // delete from store
-                    o.deallocate();
+                        fof.modify();
 
-                    fof.modify();
-
-                    count++;
+                        count++;
+                    }
+                }
+                if( pif.getFilesFromIdentity().size() == 0 ) {
+                    // no more files for this identity, remove
+                    if( storageRoot.getIdentitiesFiles().remove(pif.getUniqueName()) != null ) {
+                        pif.deallocate();
+                    }
                 }
             }
-            if( pif.getFilesFromIdentity().size() == 0 ) {
-                // no more files for this identity, remove
-                if( storageRoot.getIdentitiesFiles().remove(pif.getUniqueName()) != null ) {
-                    pif.deallocate();
-                }
-            }
+        } finally {
+            endThreadTransaction();
         }
-        endThreadTransaction();
         return count;
     }
 
@@ -264,15 +285,19 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
             return 0;
         }
         int count = 0;
-        for(final Iterator<FrostFileListFileObject> i=storageRoot.getFileListFileObjects().iterator(); i.hasNext(); ) {
-            final FrostFileListFileObject fof = i.next();
-            if( fof.getFrostFileListFileObjectOwnerListSize() == 0 && fof.getKey() == null ) {
-                i.remove();
-                fof.deallocate();
-                count++;
+        try {
+            for( final Iterator<FrostFileListFileObject> i = storageRoot.getFileListFileObjects().iterator(); i
+                    .hasNext(); ) {
+                final FrostFileListFileObject fof = i.next();
+                if( fof.getFrostFileListFileObjectOwnerListSize() == 0 && fof.getKey() == null ) {
+                    i.remove();
+                    fof.deallocate();
+                    count++;
+                }
             }
+        } finally {
+            endThreadTransaction();
         }
-        endThreadTransaction();
         return count;
     }
 
@@ -284,13 +309,14 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
         if( !beginExclusiveThreadTransaction() ) {
             return;
         }
-
-        for( final FrostFileListFileObject fof : storageRoot.getFileListFileObjects() ) {
-            fof.setLastDownloaded(0);
-            fof.modify();
+        try {
+            for( final FrostFileListFileObject fof : storageRoot.getFileListFileObjects() ) {
+                fof.setLastDownloaded(0);
+                fof.modify();
+            }
+        } finally {
+            endThreadTransaction();
         }
-
-        endThreadTransaction();
     }
 
     /**
@@ -348,17 +374,17 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
             return false;
         }
 
-        final FrostFileListFileObject oldSfo = getFileBySha(sha);
-        if( oldSfo == null ) {
+        try {
+            final FrostFileListFileObject oldSfo = getFileBySha(sha);
+            if( oldSfo == null ) {
+                endThreadTransaction();
+                return false;
+            }
+            oldSfo.setLastDownloaded(lastDownloaded);
+            oldSfo.modify();
+        } finally {
             endThreadTransaction();
-            return false;
         }
-
-        oldSfo.setLastDownloaded(lastDownloaded);
-
-        oldSfo.modify();
-
-        endThreadTransaction();
 
         return true;
     }

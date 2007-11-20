@@ -89,21 +89,19 @@ public class IndexSlotsStorage extends AbstractFrostStorage implements ExitSavab
         int deletedCount = 0;
 
         beginExclusiveThreadTransaction();
-
-        final Iterator<IndexSlot> i = storageRoot.slotsIndexLI.iterator(
-                new Key(Long.MIN_VALUE, Integer.MIN_VALUE, true),
-                new Key(date, Integer.MAX_VALUE, true),
-                Index.ASCENT_ORDER);
-
-        while(i.hasNext()) {
-            final IndexSlot gis = i.next();
-            storageRoot.slotsIndexIL.remove(gis); // also remove from IL index
-            i.remove(); // remove from iterated LI index
-            gis.deallocate(); // remove from Storage
-            deletedCount++;
+        try {
+            final Iterator<IndexSlot> i = storageRoot.slotsIndexLI.iterator(new Key(Long.MIN_VALUE, Integer.MIN_VALUE,
+                    true), new Key(date, Integer.MAX_VALUE, true), Index.ASCENT_ORDER);
+            while( i.hasNext() ) {
+                final IndexSlot gis = i.next();
+                storageRoot.slotsIndexIL.remove(gis); // also remove from IL index
+                i.remove(); // remove from iterated LI index
+                gis.deallocate(); // remove from Storage
+                deletedCount++;
+            }
+        } finally {
+            endThreadTransaction();
         }
-
-        endThreadTransaction();
 
         return deletedCount;
     }
@@ -111,16 +109,18 @@ public class IndexSlotsStorage extends AbstractFrostStorage implements ExitSavab
     public IndexSlot getSlotForDate(final int indexName, final long date) {
         final Key dateKey = new Key(indexName, date);
         beginCooperativeThreadTransaction();
-        IndexSlot gis = storageRoot.slotsIndexIL.get(dateKey);
+        IndexSlot gis;
+        try {
+            gis = storageRoot.slotsIndexIL.get(dateKey);
 //        String s = "";
 //        s += "getSlotForDate: indexName="+indexName+", date="+date+"\n";
-        if( gis == null ) {
-            // not yet in storage
-            gis = new IndexSlot(indexName, date);
-//            s += "getSlotForDate: NEW SLOT CREATED!\n";
+            if( gis == null ) {
+                // not yet in storage
+                gis = new IndexSlot(indexName, date);
+            }
+        } finally {
+            endThreadTransaction();
         }
-//        logger.warning(s);
-        endThreadTransaction();
         return gis;
     }
 
@@ -128,13 +128,16 @@ public class IndexSlotsStorage extends AbstractFrostStorage implements ExitSavab
         if( !beginExclusiveThreadTransaction() ) {
             return;
         }
-        if( gis.getStorage() == null ) {
-            gis.makePersistent(getStorage());
-            addToIndices(gis);
-        } else {
-            gis.modify();
+        try {
+            if( gis.getStorage() == null ) {
+                gis.makePersistent(getStorage());
+                addToIndices(gis);
+            } else {
+                gis.modify();
+            }
+        } finally {
+            endThreadTransaction();
         }
-        endThreadTransaction();
     }
 
     public void exitSave() throws StorageException {
