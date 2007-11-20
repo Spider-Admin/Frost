@@ -35,31 +35,31 @@ import frost.util.*;
 public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
 
     private static final Logger logger = Logger.getLogger(MessageXmlFile.class.getName());
-    
+
 //    private static final char[] evilChars = {'/', '\\', '*', '=', '|', '&', '#', '\"', '<', '>'}; // will be converted to _
 
     private String boardName = "";
     private String dateStr = "";
     private String timeStr = "";
-    
+
     private DateTime dateAndTime = null;
 
     protected File file;
-    
+
     /**
      * Constructor.
      * Used to construct an instance for a new message.
      */
-    public MessageXmlFile(FrostMessageObject mo) {
-        
+    public MessageXmlFile(final FrostMessageObject mo) {
+
         // dateAndTime is set by the uploadthread
-        
+
         setMessageId(mo.getMessageId()); // messageid
         setInReplyTo(mo.getInReplyTo()); // inreplyto
         setBoardName(mo.getBoard().getName()); // board
         setFromName(mo.getFromName()); // from
-        
-        Identity id = getFromIdentity();
+
+        final Identity id = getFromIdentity();
         if( id != null ) {
             setPublicKey(id.getPublicKey());
         }
@@ -68,7 +68,7 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
         setContent(mo.getContent()); // msgcontent
         setIdLinePos(mo.getIdLinePos());
         setIdLineLen(mo.getIdLineLen());
-        
+
         setAttachmentList(mo.getAttachmentList());
     }
 
@@ -78,7 +78,7 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
      * @param file
      * @throws MessageCreationException
      */
-    public MessageXmlFile(File file) throws MessageCreationException {
+    public MessageXmlFile(final File file) throws MessageCreationException, Throwable {
 
         if (file == null) {
         	throw new MessageCreationException("Invalid input file for MessageObject. File is null.");
@@ -92,28 +92,11 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
                             "Info only: Empty input file '" + file.getName() + "' for MessageObject (size < 20).", true);
         }
         this.file = file;
-        try {
-            loadFile();
-            // ensure basic contents and formats
-            analyzeFile();
-        } catch (MessageCreationException exception) {
-            throw exception;
-        } catch (Exception exception) {
-            throw new MessageCreationException(
-                            "Invalid input file '" + file.getName() + "' for MessageObject (load/analyze failed).", exception);
-        }
-    }
 
-    /**
-     * Set all values after load
-     */
-    public void analyzeFile() throws Exception {
-        // ensure all needed fields are properly filled
-        if( getFromName() == null || getDateStr() == null || getTimeStr() == null || getContent() == null ||
-            getBoardName() == null || !isValid() )
-        {
-            logger.severe("Analyze file failed.");
-            throw new Exception("Message have invalid or missing fields.");
+        loadFile();
+        // ensure basic contents and formats
+        if( !isValid() ) {
+            throw new MessageCreationException("Message has invalid or missing fields.", MessageCreationException.INVALID_FORMAT);
         }
     }
 
@@ -125,8 +108,8 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
      * Signs message and sets signature.
      * @param privateKey
      */
-    public void signMessageV1(String privateKey) {
-        String sig = Core.getCrypto().detachedSign(getSignableContentV1(), privateKey);
+    public void signMessageV1(final String privateKey) {
+        final String sig = Core.getCrypto().detachedSign(getSignableContentV1(), privateKey);
         setSignatureV1(sig);
     }
 
@@ -134,8 +117,8 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
      * Signs message and sets signature.
      * @param privateKey
      */
-    public void signMessageV2(String privateKey) {
-        String sig = Core.getCrypto().detachedSign(getSignableContentV2(), privateKey);
+    public void signMessageV2(final String privateKey) {
+        final String sig = Core.getCrypto().detachedSign(getSignableContentV2(), privateKey);
         setSignatureV2(sig);
     }
 
@@ -144,8 +127,8 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
      * @param pubKey
      * @return
      */
-    public boolean verifyMessageSignatureV1(String pubKey) {
-        boolean sigIsValid = Core.getCrypto().detachedVerify(getSignableContentV1(), pubKey, getSignatureV1());
+    public boolean verifyMessageSignatureV1(final String pubKey) {
+        final boolean sigIsValid = Core.getCrypto().detachedVerify(getSignableContentV1(), pubKey, getSignatureV1());
         return sigIsValid;
     }
 
@@ -154,24 +137,24 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
      * @param pubKey
      * @return
      */
-    public boolean verifyMessageSignatureV2(String pubKey) {
-        boolean sigIsValid = Core.getCrypto().detachedVerify(getSignableContentV2(), pubKey, getSignatureV2());
+    public boolean verifyMessageSignatureV2(final String pubKey) {
+        final boolean sigIsValid = Core.getCrypto().detachedVerify(getSignableContentV2(), pubKey, getSignatureV2());
         return sigIsValid;
     }
 
     /**
-     * Returns a String containing all content that is used to sign/verify the message. 
+     * Returns a String containing all content that is used to sign/verify the message.
      * @return
      */
     private String getSignableContentV1() {
-        
+
         final StringBuilder allContent = new StringBuilder();
         allContent.append(getDateStr());
         allContent.append(getTimeStr());
         allContent.append(getSubject());
         allContent.append(getContent());
         // attachments
-        for(Iterator it = getAttachmentList().iterator(); it.hasNext(); ) {
+        for(final Iterator it = getAttachmentList().iterator(); it.hasNext(); ) {
             final Attachment a = (Attachment)it.next();
             if( a.getType() == Attachment.BOARD ) {
                 final BoardAttachment ba = (BoardAttachment)a;
@@ -192,7 +175,7 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
     }
 
     /**
-     * Returns a String containing all content that is used to sign/verify the message. 
+     * Returns a String containing all content that is used to sign/verify the message.
      * @return
      */
     private String getSignableContentV2() {
@@ -220,7 +203,7 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
         allContent.append(getSubject()).append(escapeChar);
         allContent.append(getContent()).append(escapeChar);
         // attachments
-        for(Iterator it = getAttachmentList().iterator(); it.hasNext(); ) {
+        for(final Iterator it = getAttachmentList().iterator(); it.hasNext(); ) {
             final Attachment a = (Attachment)it.next();
             if( a.getType() == Attachment.BOARD ) {
                 final BoardAttachment ba = (BoardAttachment)a;
@@ -243,8 +226,8 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
     /**
      * @see frost.util.XMLizable#getXMLElement(org.w3c.dom.Document)
      */
-    public Element getXMLElement(Document d) {
-        Element el = d.createElement("FrostMessage");
+    public Element getXMLElement(final Document d) {
+        final Element el = d.createElement("FrostMessage");
 
         CDATASection cdata;
         Element current;
@@ -262,7 +245,7 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
             current.appendChild(cdata);
             el.appendChild(current);
         }
-        
+
         if( getIdLinePos() > -1 && getIdLineLen() > -1 ) {
             Text txt;
             current = d.createElement("IdLinePos");
@@ -368,31 +351,53 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
     /**
      * @return true if the message is basically valid
      */
-    public boolean isValid() {
+    private boolean isValid() {
 
         if (getDateStr() == null || getDateStr().length() == 0 || getDateStr().length() > 22 ) {
+            logger.severe("Date validation failed.");
             return false;
         }
         if (getTimeStr() == null || getTimeStr().length() == 0) {
+            logger.severe("Time validation failed.");
             return false;
         }
         if (getBoardName() == null || getBoardName().length() == 0 || getBoardName().length() > 256 ) {
+            logger.severe("Board name validation failed.");
             return false;
         }
         if (getFromName() == null || getFromName().length() == 0 || getFromName().length() > 256 ) {
+            logger.severe("From name validation failed.");
             return false;
         }
 
         if (getSubject() == null) {
             setSubject(""); // we accept empty subjects
         } else if ( getSubject().length() > 256 ) {
+            logger.severe("Subject validation failed.");
             return false;
         }
 
         if (getContent() == null) {
-            setContent("");
-        } else if (getContent().length() > (64 * 1024)) { // 64k or whatever fits in zipped data
+            logger.severe("Content validation failed, no content.");
             return false;
+        }
+        if (getContent().length() > (64 * 1024)) { // 64k or whatever fits in zipped data
+            logger.severe("Content validation failed, overlength content.");
+            return false;
+        }
+        // don't accept messages with only an id header line, or empty messages
+        final String trimmedContent = getContent().trim();
+        if( trimmedContent.length() == 0 ) {
+            logger.severe("Content validation failed, empty.");
+            return false;
+        }
+        if( trimmedContent.indexOf("\n") < 0 ) {
+            // only one line
+            if( trimmedContent.startsWith("-----") && trimmedContent.endsWith("-----") ) {
+                // only id header line
+                logger.severe("Content validation failed, only id header line.");
+                return false;
+            }
         }
 
         return true;
@@ -405,8 +410,8 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
         Document doc = null;
         try {
             doc = XMLTools.parseXmlFile(this.file, false);
-        } catch(Exception ex) {  // xml format error
-            File badMessage = new File("badmessage.xml");
+        } catch(final Exception ex) {  // xml format error
+            final File badMessage = new File("badmessage.xml");
             if (file.renameTo(badMessage)) {
                 logger.log(Level.SEVERE, "Error - send the file badmessage.xml to a dev for analysis, more details below:", ex);
             }
@@ -427,23 +432,23 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
                 // no recipient
                 throw new Exception("Error - encrypted message contains no 'recipient' section.");
             }
-            FrostIdentities identities = Core.getIdentities();
+            final FrostIdentities identities = Core.getIdentities();
             if( !identities.isMySelf(getRecipientName()) ) {
                 // not for me
                 throw new MessageCreationException("Info: Encrypted message is not for me.",
                         MessageCreationException.MSG_NOT_FOR_ME);
             }
-            String base64enc = XMLTools.getChildElementsCDATAValue(rootNode, "content");
+            final String base64enc = XMLTools.getChildElementsCDATAValue(rootNode, "content");
             if( base64enc == null ) {
                 // no content
                 throw new Exception("Error - encrypted message contains no 'content' section.");
             }
-            byte[] base64bytes = base64enc.getBytes("ISO-8859-1");
-            byte[] encBytes = Base64.decode(base64bytes);
+            final byte[] base64bytes = base64enc.getBytes("ISO-8859-1");
+            final byte[] encBytes = Base64.decode(base64bytes);
 
             // decrypt content
-            LocalIdentity receiverId = identities.getLocalIdentity(getRecipientName());
-            byte[] decContent = Core.getCrypto().decrypt(encBytes, receiverId.getPrivateKey());
+            final LocalIdentity receiverId = identities.getLocalIdentity(getRecipientName());
+            final byte[] decContent = Core.getCrypto().decrypt(encBytes, receiverId.getPrivateKey());
             if( decContent == null ) {
                 logger.log(Level.SEVERE, "TOFDN: Encrypted message could not be decrypted!");
                 throw new MessageCreationException("Error: Encrypted message could not be decrypted.",
@@ -454,8 +459,8 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
             // try to load again
             try {
                 doc = XMLTools.parseXmlFile(this.file, false);
-            } catch(Exception ex) {  // xml format error
-                File badMessage = new File("badmessage.xml");
+            } catch(final Exception ex) {  // xml format error
+                final File badMessage = new File("badmessage.xml");
                 if (file.renameTo(badMessage)) {
                     logger.log(Level.SEVERE, "Error - send the file badmessage.xml to a dev for analysis, more details below:", ex);
                 }
@@ -468,7 +473,7 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
             rootNode = doc.getDocumentElement();
         }
         if( rootNode.getTagName().equals("FrostMessage") == false ) {
-            File badMessage = new File("badmessage.xml");
+            final File badMessage = new File("badmessage.xml");
             if (file.renameTo(badMessage)) {
                 logger.severe("Error - send the file badmessage.xml to a dev for analysis.");
             }
@@ -477,11 +482,11 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
         // load the message itself
         loadXMLElement(rootNode);
     }
-    
+
     /**
      * @see frost.util.XMLizable#loadXMLElement(org.w3c.dom.Element)
      */
-    public void loadXMLElement(Element e) throws SAXException {
+    public void loadXMLElement(final Element e) throws SAXException {
         setMessageId(XMLTools.getChildElementsCDATAValue(e, "MessageId"));
         setInReplyTo(XMLTools.getChildElementsCDATAValue(e, "InReplyTo"));
         setFromName(XMLTools.getChildElementsCDATAValue(e, "From"));
@@ -495,9 +500,9 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
 
         setSignatureV1(XMLTools.getChildElementsCDATAValue(e, "Signature"));
         setSignatureV2(XMLTools.getChildElementsCDATAValue(e, "SignatureV2"));
-        
-        String idLinePosStr = XMLTools.getChildElementsTextValue(e, "IdLinePos");
-        String idLineLenStr = XMLTools.getChildElementsTextValue(e, "IdLineLen");
+
+        final String idLinePosStr = XMLTools.getChildElementsTextValue(e, "IdLinePos");
+        final String idLineLenStr = XMLTools.getChildElementsTextValue(e, "IdLineLen");
         setIdLinePosLen(idLinePosStr, idLineLenStr, ((getContent() != null )?getContent().length():0));
 
         // this parameter is contained in local XML messages only
@@ -506,14 +511,14 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
             setSignatureStatusFromString(sigstat);
         }
 
-        List l = XMLTools.getChildElementsByTagName(e, "AttachmentList");
+        final List<Element> l = XMLTools.getChildElementsByTagName(e, "AttachmentList");
         if (l.size() > 0) {
-            Element attachmentsElement = (Element) l.get(0);
+            final Element attachmentsElement = l.get(0);
             getAttachmentList().loadXMLElement(attachmentsElement);
         }
     }
-    
-    private void setIdLinePosLen(String pos, String len, int contentLen) {
+
+    private void setIdLinePosLen(final String pos, final String len, final int contentLen) {
         if( pos == null || len == null || pos.length() == 0 || len.length() == 0 ) {
             return;
         }
@@ -521,7 +526,7 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
         try {
             p = Integer.parseInt(pos);
             l = Integer.parseInt(len);
-        } catch(Throwable t) {
+        } catch(final Throwable t) {
             return;
         }
         if( p < 0 || l < 0 ) {
@@ -534,10 +539,10 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
         setIdLineLen(l);
     }
 
-    public void setFile(File f) {
+    public void setFile(final File f) {
         file = f;
     }
-    
+
     /**
      * Save the message.
      */
@@ -553,14 +558,14 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
      * Save the message to the specified file.
      * Does not change the internal File pointer.
      */
-    public boolean saveToFile(File f) {
-        File tmpFile = new File(f.getPath() + "sav.tmp");
+    public boolean saveToFile(final File f) {
+        final File tmpFile = new File(f.getPath() + "sav.tmp");
         boolean success = false;
         try {
-            Document doc = XMLTools.createDomDocument();
+            final Document doc = XMLTools.createDomDocument();
             doc.appendChild(getXMLElement(doc));
             success = XMLTools.writeXmlFile(doc, tmpFile.getPath());
-        } catch (Exception e) {
+        } catch (final Exception e) {
             logger.log(Level.SEVERE, "Error while saving message.", e);
         }
         if (success && tmpFile.length() > 0) {
@@ -576,30 +581,30 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
         }
         return success;
     }
-    
+
     /**
      * Encrypt the complete XML message file with public key of recipient and
      * create an EncryptedFrostMessage XML file that contains the encryted content
      * in base64 format. Saves the resulting XML file into targetFile.
-     * 
+     *
      * @param msgFile  the message xml file that is the input for encryption
      * @param recipientPublicKey  recipients public key
      * @param targetFile  the target xml file for the encrypted message
      * @return
      */
-    public static boolean encryptForRecipientAndSaveCopy(File msgFile, Identity recipient, File targetFile) {
-        byte[] xmlContent = FileAccess.readByteArray(msgFile);
-        byte[] encContent = Core.getCrypto().encrypt(xmlContent, recipient.getPublicKey());
+    public static boolean encryptForRecipientAndSaveCopy(final File msgFile, final Identity recipient, final File targetFile) {
+        final byte[] xmlContent = FileAccess.readByteArray(msgFile);
+        final byte[] encContent = Core.getCrypto().encrypt(xmlContent, recipient.getPublicKey());
         String base64enc;
         try {
             base64enc = new String(Base64.encode(encContent), "ISO-8859-1");
-        } catch (UnsupportedEncodingException ex) {
+        } catch (final UnsupportedEncodingException ex) {
             logger.log(Level.SEVERE, "ISO-8859-1 encoding is not supported.", ex);
             return false;
         }
-        
-        Document doc = XMLTools.createDomDocument();
-        Element el = doc.createElement("EncryptedFrostMessage");
+
+        final Document doc = XMLTools.createDomDocument();
+        final Element el = doc.createElement("EncryptedFrostMessage");
 
         CDATASection cdata;
         Element current;
@@ -619,26 +624,26 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
         doc.appendChild(el);
         return XMLTools.writeXmlFile(doc, targetFile.getPath());
     }
-    
+
     /**
      * Compares the given message in otherMsgFile with this message.
      * Compares content (body), subject, from and attachments.
      */
-    public boolean compareTo(File otherMsgFile) {
+    public boolean compareTo(final File otherMsgFile) {
         try {
-            MessageXmlFile otherMessage = new MessageXmlFile(otherMsgFile);
+            final MessageXmlFile otherMessage = new MessageXmlFile(otherMsgFile);
             return compareTo(otherMessage);
-        } catch(Throwable t) {
+        } catch(final Throwable t) {
             logger.log(Level.WARNING, "Handled Exception in compareTo(File otherMsgFile)", t);
             return false; // We assume that the other message is different (it may be corrupted)
         }
     }
-    
+
     /**
      * Compares the given otherMsg with this message.
      * Compares content (body), subject, from and attachments.
      */
-    public boolean compareTo(MessageXmlFile otherMsg) {
+    public boolean compareTo(final MessageXmlFile otherMsg) {
         try {
             // We compare the messages by content (body), subject, from and attachments
             if (!getContent().equals(otherMsg.getContent())) {
@@ -650,27 +655,27 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
             if (!getFromName().equals(otherMsg.getFromName())) {
                 return false;
             }
-            AttachmentList attachments1 = otherMsg.getAttachmentList();
-            AttachmentList attachments2 = getAttachmentList();
+            final AttachmentList attachments1 = otherMsg.getAttachmentList();
+            final AttachmentList attachments2 = getAttachmentList();
             if (attachments1.size() != attachments2.size()) {
                 return false;
             }
-            Iterator iterator1 = attachments1.iterator();
-            Iterator iterator2 = attachments2.iterator();
+            final Iterator iterator1 = attachments1.iterator();
+            final Iterator iterator2 = attachments2.iterator();
             while (iterator1.hasNext()) {
-                Attachment attachment1 = (Attachment) iterator1.next();
-                Attachment attachment2 = (Attachment) iterator2.next();
+                final Attachment attachment1 = (Attachment) iterator1.next();
+                final Attachment attachment2 = (Attachment) iterator2.next();
                 if (attachment1.compareTo(attachment2) != 0) {
                     return false;
                 }
             }
             return true;
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             logger.log(Level.WARNING, "Handled Exception in compareTo(MessageObject otherMsg)", t);
             return false; // We assume that the local message is different (it may be corrupted)
         }
     }
-    
+
     public String getBoardName() {
         return boardName;
     }
@@ -681,29 +686,29 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
         return timeStr;
     }
 
-    public void setBoardName(String board) {
+    public void setBoardName(final String board) {
         this.boardName = board;
     }
-    
+
     public boolean isMessageNew() {
-        File newMessage = new File(getFile().getPath() + ".lck");
+        final File newMessage = new File(getFile().getPath() + ".lck");
         if( newMessage.isFile() ) {
             return true;
         } else {
             return false;
         }
     }
-    
+
     public DateTime getDateAndTime() throws Throwable {
         if( dateAndTime == null ) {
-            long millis = DateFun.FORMAT_DATE.parseDateTime(getDateStr()).getMillis()
+            final long millis = DateFun.FORMAT_DATE.parseDateTime(getDateStr()).getMillis()
                           + DateFun.FORMAT_TIME.parseDateTime(getTimeStr()).getMillis();
             dateAndTime = new DateTime(millis, DateTimeZone.UTC);
         }
         return dateAndTime;
     }
 
-    public void setDateAndTime(DateTime dt) {
+    public void setDateAndTime(final DateTime dt) {
         dateAndTime = dt;
         dateStr = DateFun.FORMAT_DATE.print(dt);
         timeStr = DateFun.FORMAT_TIME_EXT.print(dt);
