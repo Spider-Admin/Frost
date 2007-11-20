@@ -812,8 +812,16 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
         final File bak2File = new File(configDir + "boards.xml.bak2");
         final File bak3File = new File(configDir + "boards.xml.bak3");
         final File bak4File = new File(configDir + "boards.xml.bak4");
+        final File newFile = new File(configDir + "boards.new");
 
-        // first check for bak4 and maybe delete
+        // save to new xml file
+        final TofTreeXmlIO xmlio = new TofTreeXmlIO();
+        // the method scans the toftree
+        if (!xmlio.saveBoardTree( this, model, newFile )) {
+            throw new StorageException("Error while saving the TofTree.");
+        }
+
+        // check for bak4 and maybe delete
         if( bak4File.isFile() ) {
             bak4File.delete();
         }
@@ -838,12 +846,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
             xmlFile.renameTo(bakFile);
         }
 
-        // save to xml file
-        final TofTreeXmlIO xmlio = new TofTreeXmlIO();
-        // the method scans the toftree
-        if (!xmlio.saveBoardTree( this, model, xmlFile )) {
-            throw new StorageException("Error while saving the TofTree.");
-        }
+        newFile.renameTo(xmlFile);
     }
 
     /**
