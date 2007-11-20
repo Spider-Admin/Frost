@@ -489,8 +489,10 @@ public class Core implements FrostEventDispatcher  {
         // auto savables
         saver.addAutoSavable(getBoardsManager().getTofTree());
         saver.addAutoSavable(getFileTransferManager());
+        saver.addAutoSavable(new IdentityAutoBackupTask());
 
         // exit savables, must run before the perst storages are closed
+        saver.addExitSavable(new IdentityAutoBackupTask());
         saver.addExitSavable(getBoardsManager().getTofTree());
         saver.addExitSavable(getFileTransferManager());
 

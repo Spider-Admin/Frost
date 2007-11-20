@@ -44,6 +44,7 @@ class MiscPanel extends JPanel {
 
     private final JLabel autoSaveIntervalLabel = new JLabel();
     private final JTextField autoSaveIntervalTextField = new JTextField(8);
+    private final JCheckBox autoSaveLocalIdentitiesCheckBox = new JCheckBox();
     private final JLabel availableNodesLabel1 = new JLabel();
     private final JTextField availableNodesTextField = new JTextField();
 
@@ -173,6 +174,10 @@ class MiscPanel extends JPanel {
         constraints.weightx = 0;
         constraints.gridwidth = 2;
         constraints.gridx = 0;
+
+        constraints.gridy++;
+        add(autoSaveLocalIdentitiesCheckBox, constraints);
+
         constraints.gridy++;
         add(splashScreenCheckBox, constraints);
         constraints.gridy++;
@@ -209,6 +214,7 @@ class MiscPanel extends JPanel {
 //        compactDatabaseAtNextStartupCheckBox.setSelected(settings.getBoolValue(SettingsClass.COMPACT_DBTABLES));
         availableNodesTextField.setText(settings.getValue(SettingsClass.AVAILABLE_NODES));
         autoSaveIntervalTextField.setText(Integer.toString(settings.getIntValue(SettingsClass.AUTO_SAVE_INTERVAL)));
+        autoSaveLocalIdentitiesCheckBox.setSelected(settings.getBoolValue(SettingsClass.AUTO_SAVE_LOCAL_IDENTITIES));
         enableLoggingCheckBox.setSelected(settings.getBoolValue(SettingsClass.LOG_TO_FILE));
         logFileSizeTextField.setText(Integer.toString(settings.getIntValue(SettingsClass.LOG_FILE_SIZE_LIMIT)));
 
@@ -247,6 +253,7 @@ class MiscPanel extends JPanel {
 
         autoSaveIntervalLabel.setText(language.getString("Options.miscellaneous.automaticSavingInterval") +
                 " (60 "+language.getString("Options.common.minutes")+")");
+        autoSaveLocalIdentitiesCheckBox.setText(language.getString("Options.miscellaneous.autoSaveLocalIdentities"));
         splashScreenCheckBox.setText(language.getString("Options.miscellaneous.disableSplashscreen"));
         showSystrayIconCheckBox.setText(language.getString("Options.miscellaneous.showSysTrayIcon"));
         minimizeToSystrayCheckBox.setText(language.getString("Options.miscellaneous.minimizeToSystray"));
@@ -274,6 +281,7 @@ class MiscPanel extends JPanel {
         settings.setValue(SettingsClass.MINIMIZE_TO_SYSTRAY, minimizeToSystrayCheckBox.isSelected());
 //        settings.setValue(SettingsClass.COMPACT_DBTABLES, compactDatabaseAtNextStartupCheckBox.isSelected());
         settings.setValue(SettingsClass.AUTO_SAVE_INTERVAL, autoSaveIntervalTextField.getText());
+        settings.setValue(SettingsClass.AUTO_SAVE_LOCAL_IDENTITIES, autoSaveLocalIdentitiesCheckBox.isSelected());
         settings.setValue(SettingsClass.LOG_TO_FILE, enableLoggingCheckBox.isSelected());
         settings.setValue(SettingsClass.LOG_FILE_SIZE_LIMIT, logFileSizeTextField.getText());
         settings.setValue(SettingsClass.LOG_LEVEL, logLevelComboBox.getSelectedKey());

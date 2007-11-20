@@ -94,6 +94,7 @@ public class SettingsClass implements ExitSavable {
     public static final String FCP2_SET_TARGETFILENAME_FOR_MANUAL_PUT = "fcp2.setTargetfilenameForManualPut"; // not in gui dialog!
 
     public static final String AUTO_SAVE_INTERVAL = "autoSaveInterval";
+    public static final String AUTO_SAVE_LOCAL_IDENTITIES = "autoSaveLocalIdentities";
     public static final String DISABLE_FILESHARING = "disableFilesharing";
     public static final String REMEMBER_SHAREDFILE_DOWNLOADED = "rememberSharedFileDownloaded";
     public static final String DOWNLOADING_ACTIVATED = "downloadingActivated";
@@ -398,7 +399,10 @@ public class SettingsClass implements ExitSavable {
         }
 
         // write to new file
-        final File newFile = new File("frost.ini.new");
+        final String configDirStr = getValue(SettingsClass.DIR_CONFIG);
+        final File newFile = new File(configDirStr + "frost.ini.new");
+        final File oldFile = new File(configDirStr + "frost.ini.old");
+        final File bakFile = new File(configDirStr + "frost.ini.bak");
 
         final PrintWriter settingsWriter;
         try {
@@ -440,17 +444,19 @@ public class SettingsClass implements ExitSavable {
             return false;
         }
 
-        // backup existing ini file
+        oldFile.delete();
+
+        if( bakFile.isFile() ) {
+            bakFile.renameTo(oldFile);
+        }
+
         if( settingsFile.isFile() && settingsFile.length() > 0 ) {
-            final String configDirStr = getValue(SettingsClass.DIR_CONFIG);
-            final File bakFile = new File(configDirStr + "frost.ini.bak");
-            if( bakFile.isFile() ) {
-                bakFile.delete();
-            }
             settingsFile.renameTo(bakFile); // settingsFile keeps old name!
         }
 
         newFile.renameTo(settingsFile);
+
+        oldFile.delete();
 
         logger.info("Wrote configuration");
         return true;
@@ -882,6 +888,7 @@ public class SettingsClass implements ExitSavable {
         defaults.put(FILEEXTENSION_ARCHIVE, ".zip;.rar;.jar;.gz;.arj;.ace;.bz;.tar;.tgz;.tbz");
         defaults.put(FILEEXTENSION_IMAGE, ".jpeg;.jpg;.jfif;.gif;.png;.tif;.tiff;.bmp;.xpm");
         defaults.put(AUTO_SAVE_INTERVAL, "60");
+        defaults.put(AUTO_SAVE_LOCAL_IDENTITIES, "true");
 
         defaults.put(MESSAGE_UPLOAD_DISABLED, "false");
 
