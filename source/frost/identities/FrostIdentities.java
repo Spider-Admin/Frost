@@ -175,7 +175,11 @@ public class FrostIdentities {
         return identity;
     }
 
+    // FIXME: we sync each insert, makes importIdentities slow. Maybe just provide a List of ids to add.
     public boolean addIdentity(final Identity id) {
+        if( id == null ) {
+            return false;
+        }
         final String key = id.getUniqueName();
         if (identities.containsKey(key)) {
             return false;
@@ -183,53 +187,76 @@ public class FrostIdentities {
         if( !IdentitiesStorage.inst().beginExclusiveThreadTransaction() ) {
             return false;
         }
-        IdentitiesStorage.inst().insertIdentity(id);
-        IdentitiesStorage.inst().endThreadTransaction();
-        identities.put(key, id);
+        try {
+            if( !IdentitiesStorage.inst().insertIdentity(id) ) {
+                return false;
+            }
+            identities.put(key, id);
+        } finally {
+            IdentitiesStorage.inst().endThreadTransaction();
+        }
         return true;
     }
 
     public boolean addLocalIdentity(final LocalIdentity li) {
+        if( li == null ) {
+            return false;
+        }
         if (localIdentities.containsKey(li.getUniqueName())) {
             return false;
         }
         if( !IdentitiesStorage.inst().beginExclusiveThreadTransaction() ) {
             return false;
         }
-        IdentitiesStorage.inst().insertLocalIdentity(li);
-        IdentitiesStorage.inst().endThreadTransaction();
-        localIdentities.put(li.getUniqueName(), li);
+        try {
+            if( !IdentitiesStorage.inst().insertLocalIdentity(li) ) {
+                return false;
+            }
+            localIdentities.put(li.getUniqueName(), li);
+        } finally {
+            IdentitiesStorage.inst().endThreadTransaction();
+        }
         return true;
     }
 
     public boolean deleteLocalIdentity(final LocalIdentity li) {
+        if( li == null ) {
+            return false;
+        }
         if( !IdentitiesStorage.inst().beginExclusiveThreadTransaction() ) {
             return false;
         }
-
-        if (!localIdentities.containsKey(li.getUniqueName())) {
-            return false;
+        final boolean removed;
+        try {
+            if( !localIdentities.containsKey(li.getUniqueName()) ) {
+                return false;
+            }
+            localIdentities.remove(li.getUniqueName());
+            removed = IdentitiesStorage.inst().removeLocalIdentity(li);
+        } finally {
+            IdentitiesStorage.inst().endThreadTransaction();
         }
-
-        localIdentities.remove(li.getUniqueName());
-
-        final boolean removed = IdentitiesStorage.inst().removeLocalIdentity(li);
-        IdentitiesStorage.inst().endThreadTransaction();
         return removed;
     }
 
     public boolean deleteIdentity(final Identity li) {
+        if( li == null ) {
+            return false;
+        }
         if (!identities.containsKey(li.getUniqueName())) {
             return false;
         }
         if( !IdentitiesStorage.inst().beginExclusiveThreadTransaction() ) {
             return false;
         }
+        final boolean removed;
+        try {
+            identities.remove(li.getUniqueName());
+            removed = IdentitiesStorage.inst().removeIdentity(li);
+        } finally {
+            IdentitiesStorage.inst().endThreadTransaction();
+        }
 
-        identities.remove(li.getUniqueName());
-        final boolean removed = IdentitiesStorage.inst().removeIdentity(li);
-
-        IdentitiesStorage.inst().endThreadTransaction();
         return removed;
     }
 

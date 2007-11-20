@@ -113,22 +113,28 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
 
     public Hashtable<String,Identity> loadIdentities() {
         final Hashtable<String,Identity> result = new Hashtable<String,Identity>();
-        for( final Identity id : storageRoot.getIdentities() ) {
-            if( id == null ) {
-                logger.severe("Retrieved a null id !!! Please repair identities.dbs.");
-            } else {
-                result.put(id.getUniqueName(), id);
+        beginCooperativeThreadTransaction();
+        try {
+            for( final Identity id : storageRoot.getIdentities() ) {
+                if( id == null ) {
+                    logger.severe("Retrieved a null id !!! Please repair identities.dbs.");
+                } else {
+                    result.put(id.getUniqueName(), id);
+                }
             }
+        } finally {
+            endThreadTransaction();
         }
         return result;
     }
 
-    public void insertIdentity(final Identity id) {
+    public boolean insertIdentity(final Identity id) {
         if( id == null ) {
             logger.severe("Rejecting to insert a null id!");
-            return;
+            return false;
         }
         storageRoot.getIdentities().add( id );
+        return true;
     }
 
     public boolean removeIdentity(final Identity id) {
@@ -149,22 +155,28 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
 
     public Hashtable<String,LocalIdentity> loadLocalIdentities() {
         final Hashtable<String,LocalIdentity> result = new Hashtable<String,LocalIdentity>();
-        for( final LocalIdentity id : storageRoot.getLocalIdentities() ) {
-            if( id == null ) {
-                logger.severe("Retrieved a null id !!! Please repair identities.dbs.");
-            } else {
-                result.put(id.getUniqueName(), id);
+        beginCooperativeThreadTransaction();
+        try {
+            for( final LocalIdentity id : storageRoot.getLocalIdentities() ) {
+                if( id == null ) {
+                    logger.severe("Retrieved a null id !!! Please repair identities.dbs.");
+                } else {
+                    result.put(id.getUniqueName(), id);
+                }
             }
+        } finally {
+            endThreadTransaction();
         }
         return result;
     }
 
-    public void insertLocalIdentity(final LocalIdentity id) {
+    public boolean insertLocalIdentity(final LocalIdentity id) {
         if( id == null ) {
             logger.severe("Rejecting to insert a null id!");
-            return;
+            return false;
         }
-        storageRoot.getLocalIdentities().add( id );
+        storageRoot.getLocalIdentities().add(id);
+        return true;
     }
 
     public boolean removeLocalIdentity(final LocalIdentity lid) {
