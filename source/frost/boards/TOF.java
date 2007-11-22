@@ -30,6 +30,7 @@ import org.joda.time.*;
 import frost.*;
 import frost.gui.*;
 import frost.gui.messagetreetable.*;
+import frost.identities.*;
 import frost.messages.*;
 import frost.storage.*;
 import frost.storage.perst.messages.*;
@@ -203,10 +204,36 @@ public class TOF {
     }
 
     /**
-     * Add new valid msg to database
+     * Add new received valid msg to database and maybe to gui.
      */
-    public void receivedValidMessage(final MessageXmlFile currentMsg, final Board board, final int index) {
-        final FrostMessageObject newMsg = new FrostMessageObject(currentMsg, board, index);
+    public void receivedValidMessage(
+            final MessageXmlFile currentMsg,
+            final Identity owner,
+            final boolean ownerIsNew,
+            final Board board,
+            final int index)
+    {
+        if( owner != null ) {
+            // owner is set, message was signed, owner is validated
+            if( ownerIsNew ) {
+                // if owner is new, add owner to identities list
+                if( !Core.getIdentities().addIdentity(owner) ) {
+                    logger.severe("Core.getIdentities().addIdentity(owner) returned false!");
+                }
+            }
+
+            try {
+                // update lastSeen for this Identity
+                final long lastSeenMillis = currentMsg.getDateAndTime().getMillis();
+                if( owner.getLastSeenTimestamp() < lastSeenMillis ) {
+                    owner.updateLastSeenTimestamp(lastSeenMillis);
+                }
+            } catch(final Throwable t) {
+                logger.log(Level.SEVERE, "Error updating Identities lastSeenTime", t);
+            }
+        }
+
+        final FrostMessageObject newMsg = new FrostMessageObject(currentMsg, owner, board, index);
         receivedValidMessage(newMsg, board, index);
     }
     /**

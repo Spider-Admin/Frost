@@ -56,7 +56,7 @@ public class FileListManager {
         // get files to share from UPLOADFILES
         // - max. 250 keys per fileindex
         // - get keys of only 1 owner/anonymous, next time get keys from different owner
-        // this wrap-arounding ensures that each file will be send over the time
+        //   (this wrap-around ensures that each file will be send over the time)
 
         // compute minDate, items last shared before this date must be reshared
         final int maxAge = Core.frostSettings.getIntValue(SettingsClass.MIN_DAYS_BEFORE_FILE_RESHARE);
@@ -81,9 +81,10 @@ public class FileListManager {
             }
 
             // mark that we tried this owner
-            idToUpdate.updateLastFilesSharedMillis();
+            idToUpdate.setLastFilesSharedMillis(now); // FIXME: maybe do this in a transaction? We modify() multiple ids
 
-            final LinkedList<SharedFileXmlFile> filesToShare = getUploadItemsToShare(idToUpdate.getUniqueName(), MAX_FILES_PER_FILE, minDate);
+            final LinkedList<SharedFileXmlFile> filesToShare =
+                getUploadItemsToShare(idToUpdate.getUniqueName(), MAX_FILES_PER_FILE, minDate);
             if( filesToShare != null && filesToShare.size() > 0 ) {
                 final FileListManagerFileInfo fif = new FileListManagerFileInfo(filesToShare, idToUpdate);
                 return fif;
@@ -97,7 +98,11 @@ public class FileListManager {
         return null;
     }
 
-    private static LinkedList<SharedFileXmlFile> getUploadItemsToShare(final String owner, final int maxItems, final long minDate) {
+    private static LinkedList<SharedFileXmlFile> getUploadItemsToShare(
+            final String owner,
+            final int maxItems,
+            final long minDate)
+    {
 
         final LinkedList<SharedFileXmlFile> result = new LinkedList<SharedFileXmlFile>();
 
@@ -182,12 +187,10 @@ public class FileListManager {
 
         Identity localOwner = Core.getIdentities().getIdentity(content.getReceivedOwner().getUniqueName());
         if( localOwner == null ) {
-            // new identity, maybe add
-            if( !Core.getIdentities().isNewIdentityValid(content.getReceivedOwner()) ) {
-                // hash of public key does not match the unique name
-                return false;
+            // new identity, add. Validated inside FileListFile.readFileListFile()
+            if( !Core.getIdentities().addIdentity(content.getReceivedOwner()) ) {
+                logger.severe("Core.getIdentities().addIdentity() returned false!");
             }
-            Core.getIdentities().addIdentity(content.getReceivedOwner());
             localOwner = content.getReceivedOwner();
         }
         if( localOwner.getLastSeenTimestamp() < content.getTimestamp() ) {

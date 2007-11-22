@@ -50,7 +50,7 @@ public class Identity extends Persistent implements XMLizable {
     private long lastSeenTimestamp = -1;
     private int receivedMessageCount = 0;
 
-    private int state = 2;
+    private int state = CHECK;
     private transient String stateString = CHECK_STRING;
 
     private transient String publicKey;
@@ -265,8 +265,7 @@ public class Identity extends Persistent implements XMLizable {
         } else {
             receivedMessageCount = 0;
         }
-
-        uniqueName = Mixed.makeFilename(uniqueName);
+//        uniqueName = Mixed.makeFilename(uniqueName);
     }
 
     /**

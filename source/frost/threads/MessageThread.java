@@ -212,7 +212,12 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                     mdResult.getMessage().getFile().delete();
                     // basic validation, isValid() of FrostMessageObject was already called during instanciation of MessageXmlFile
                     if (isValidFormat(mdResult.getMessage(), localDate, board)) {
-                        receivedValidMessage(mdResult.getMessage(), board, index);
+                        receivedValidMessage(
+                                mdResult.getMessage(),
+                                mdResult.getOwner(),
+                                mdResult.isOwnerIsNew(),
+                                board,
+                                index);
                     } else {
                         receivedInvalidMessage(board, localDate, index, MessageDownloaderResult.INVALID_MSG);
                         logger.warning("TOFDN: Message was dropped, format validation failed: "+logInfo);
@@ -229,8 +234,14 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
         TOF.getInstance().receivedInvalidMessage(b, calDL.toDateTimeAtMidnight(), index, reason);
     }
 
-    private void receivedValidMessage(final MessageXmlFile mo, final Board b, final int index) {
-        TOF.getInstance().receivedValidMessage(mo, b, index);
+    private void receivedValidMessage(
+            final MessageXmlFile mo,
+            final Identity owner, // maybe null if unsigned
+            final boolean ownerIsNew,
+            final Board b,
+            final int index)
+    {
+        TOF.getInstance().receivedValidMessage(mo, owner, ownerIsNew, b, index);
     }
 
     //////////////////////////////////////////////////
@@ -267,7 +278,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
 
             // ensure that board inside xml message is the board we currently download
             if( mo.getBoardName() == null ) {
-                logger.log(Level.SEVERE, "No or invalid boardname in message - skipping message: (null)");
+                logger.log(Level.SEVERE, "No boardname in message - skipping message: (null)");
                 return false;
             }
             final String boardNameInMsg = mo.getBoardName().toLowerCase();
@@ -390,7 +401,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
             final int index = result.getUploadIndex();
 
             // upload was successful, store message in sentmessages database
-            final FrostMessageObject sentMo = new FrostMessageObject(message, board, index);
+            final FrostMessageObject sentMo = new FrostMessageObject(message, senderId, board, index);
 
             if( !SentMessagesManager.addSentMessage(sentMo) ) {
                 // not added to gui, perst obj is not needed
@@ -403,7 +414,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 final FrostMessageObject moForMsgTable;
                 if( sentMo.getPerstFrostMessageObject() != null ) {
                     // create a new FrostMessageObject
-                    moForMsgTable = new FrostMessageObject(message, board, index);;
+                    moForMsgTable = new FrostMessageObject(message, senderId, board, index);
                 } else {
                     // reuseable
                     moForMsgTable = sentMo;

@@ -28,6 +28,7 @@ import frost.*;
 import frost.boards.*;
 import frost.gui.messagetreetable.*;
 import frost.gui.model.*;
+import frost.identities.*;
 import frost.storage.perst.messages.*;
 import frost.util.*;
 
@@ -84,8 +85,9 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
     /**
      * Construct a new FrostMessageObject with the data from a MessageXmlFile.
      */
-    public FrostMessageObject(final MessageXmlFile mof, final Board b, final int msgIndex) {
+    public FrostMessageObject(final MessageXmlFile mof, final Identity sender, final Board b, final int msgIndex) {
         setValid(true);
+        setFromName(mof.getFromName());
         setBoard(b);
         setIndex(msgIndex);
 
@@ -99,7 +101,6 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         // copy values from mof
         setAttachmentList(mof.getAttachmentList());
         setContent(mof.getContent());
-        setFromName(mof.getFromName());
         setInReplyTo(mof.getInReplyTo());
         setMessageId(mof.getMessageId());
         setPublicKey(mof.getPublicKey());
@@ -110,6 +111,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         setSubject(mof.getSubject());
         setIdLinePos(mof.getIdLinePos());
         setIdLineLen(mof.getIdLineLen());
+        setFromidentity(sender);
 
         setHasBoardAttachments(mof.getAttachmentsOfType(Attachment.BOARD).size() > 0);
         setHasFileAttachments(mof.getAttachmentsOfType(Attachment.FILE).size() > 0);

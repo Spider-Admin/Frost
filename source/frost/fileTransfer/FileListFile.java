@@ -220,6 +220,12 @@ public class FileListFile {
             return null;
         }
 
+        if( !Core.getIdentities().isNewIdentityValid(owner) ) {
+            // hash of public key does not match the unique name
+            logger.severe("Error: identity failed verification, file list from owner: "+owner.getUniqueName());
+            return null;
+        }
+
         final String signContent = getSignableContent(files, owner.getUniqueName(), timestamp);
         boolean sigIsValid = Core.getCrypto().detachedVerify(signContent, owner.getPublicKey(), signature);
         if( !sigIsValid ) {
