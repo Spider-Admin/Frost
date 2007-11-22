@@ -56,6 +56,8 @@ public class TOF {
 
     private final TofTreeModel tofTreeModel;
 
+    private final Object addIdentityLock = new Object();
+
     private static boolean initialized = false;
 
     /**
@@ -208,28 +210,36 @@ public class TOF {
      */
     public void receivedValidMessage(
             final MessageXmlFile currentMsg,
-            final Identity owner,
+            Identity owner,
             final boolean ownerIsNew,
             final Board board,
             final int index)
     {
         if( owner != null ) {
             // owner is set, message was signed, owner is validated
-            if( ownerIsNew ) {
-                // if owner is new, add owner to identities list
-                if( !Core.getIdentities().addIdentity(owner) ) {
-                    logger.severe("Core.getIdentities().addIdentity(owner) returned false!");
+            synchronized(addIdentityLock) {
+                if( ownerIsNew ) {
+                    // check again if owner is really new or if it was added from another thread in the meantime
+                    final Identity checkOwner = Core.getIdentities().getIdentity(owner.getUniqueName());
+                    // if owner is new, add owner to identities list
+                    if( checkOwner == null ) {
+                        if( !Core.getIdentities().addIdentity(owner) ) {
+                            logger.severe("Core.getIdentities().addIdentity(owner) returned false!");
+                        }
+                    } else {
+                        // use Identity that was added in the meantime
+                        owner = checkOwner;
+                    }
                 }
-            }
-
-            try {
-                // update lastSeen for this Identity
-                final long lastSeenMillis = currentMsg.getDateAndTime().getMillis();
-                if( owner.getLastSeenTimestamp() < lastSeenMillis ) {
-                    owner.updateLastSeenTimestamp(lastSeenMillis);
+                try {
+                    // update lastSeen for this Identity
+                    final long lastSeenMillis = currentMsg.getDateAndTime().getMillis();
+                    if( owner.getLastSeenTimestamp() < lastSeenMillis ) {
+                        owner.updateLastSeenTimestamp(lastSeenMillis);
+                    }
+                } catch(final Throwable t) {
+                    logger.log(Level.SEVERE, "Error updating Identities lastSeenTime", t);
                 }
-            } catch(final Throwable t) {
-                logger.log(Level.SEVERE, "Error updating Identities lastSeenTime", t);
             }
         }
 
