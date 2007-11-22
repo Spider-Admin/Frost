@@ -184,8 +184,12 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
                 // first collect ALL other keys to send, then sort them and choose maxKeys items
                 final List<SharedFilesCHKKey> otherKeysToSend = new ArrayList<SharedFilesCHKKey>();
                 for( final SharedFilesCHKKey sfk : storageRoot.chkKeys ) {
-                    if( sfk.isDownloaded() && sfk.isValid() && sfk.getLastSeen() < maxLastSeen
-                            && sfk.getLastSent() < maxLastSeen && sfk.getFirstSeen() > minFirstSeen ) {
+                    if( sfk.isDownloaded()
+                            && sfk.isValid()
+                            && sfk.getLastSeen() < maxLastSeen
+                            && sfk.getLastSent() < maxLastSeen
+                            && sfk.getFirstSeen() > minFirstSeen )
+                    {
                         otherKeysToSend.add(sfk);
                     }
                 }

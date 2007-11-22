@@ -91,7 +91,7 @@ public class MessageDownloader {
         if( results == null || results.isSuccess() == false ) {
         	tmpFile.delete();
         	if(results != null && results.getReturnCode() == 28) {
-     	    	logger.severe("TOFDN: All data not found."+logInfo);
+     	    	logger.warning("TOFDN: All data not found."+logInfo);
      	    	System.out.println("TOFDN: Contents of message key partially missing.");
      	    	return new MessageDownloaderResult(MessageDownloaderResult.ALLDATANOTFOUND);
             } else if(results != null && results.getReturnCode() == 21) {
@@ -215,7 +215,6 @@ public class MessageDownloader {
                     tmpFile.delete();
                     return new MessageDownloaderResult(MessageDownloaderResult.INVALID_MSG);
                 }
-                owner.setCHECK();
                 ownerIsNew = true;
             }
 
@@ -298,23 +297,8 @@ public class MessageDownloader {
                 return new MessageDownloaderResult(MessageDownloaderResult.INVALID_MSG);
             }
 
-            // if sig was valid and owner is new, add owner to identities list
-            if( ownerIsNew ) {
-                Core.getIdentities().addIdentity(owner);
-            }
-
-            // update lastSeen for this Identity
-            try {
-                final long lastSeenMillis = currentMsg.getDateAndTime().getMillis();
-                if( owner.getLastSeenTimestamp() < lastSeenMillis ) {
-                    owner.updateLastSeenTimestamp(lastSeenMillis);
-                }
-            } catch(final Throwable t) {
-                logger.log(Level.SEVERE, "TOFDN: Unexpected exception catched."+logInfo, t);
-            }
-
             currentMsg.setSignatureStatusVERIFIED_V2();
-            return new MessageDownloaderResult(currentMsg);
+            return new MessageDownloaderResult(currentMsg, owner, ownerIsNew);
 
         } catch (final Throwable t) {
             logger.log(Level.SEVERE, "TOFDN: Exception thrown in downloadDate part 2."+logInfo, t);
@@ -418,7 +402,6 @@ public class MessageDownloader {
                     tmpFile.delete();
                     return new MessageDownloaderResult(MessageDownloaderResult.INVALID_MSG);
                 }
-                owner.setCHECK();
                 ownerIsNew = true;
             }
 
@@ -439,28 +422,13 @@ public class MessageDownloader {
                 return new MessageDownloaderResult(MessageDownloaderResult.INVALID_MSG);
             }
 
-            // if sig was valid and owner is new, add owner to identities list
-            if( ownerIsNew ) {
-                Core.getIdentities().addIdentity(owner);
-            }
-
-            // update lastSeen for this Identity
-            try {
-                final long lastSeenMillis = currentMsg.getDateAndTime().getMillis();
-                if( owner.getLastSeenTimestamp() < lastSeenMillis ) {
-                    owner.updateLastSeenTimestamp(lastSeenMillis);
-                }
-            } catch(final Throwable t) {
-                logger.log(Level.SEVERE, "TOFDN: Unexpected exception catched."+logInfo, t);
-            }
-
             if( isSignedV2 ) {
                 currentMsg.setSignatureStatusVERIFIED_V2();
             } else {
                 currentMsg.setSignatureStatusVERIFIED_V1();
             }
 
-            return new MessageDownloaderResult(currentMsg);
+            return new MessageDownloaderResult(currentMsg, owner, ownerIsNew);
 
         } catch (final Throwable t) {
             logger.log(Level.SEVERE, "TOFDN: Exception catched."+logInfo, t);

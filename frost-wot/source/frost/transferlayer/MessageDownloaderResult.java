@@ -18,6 +18,7 @@
 */
 package frost.transferlayer;
 
+import frost.identities.*;
 import frost.messages.*;
 
 /**
@@ -34,21 +35,38 @@ public class MessageDownloaderResult {
     public static final String MSG_NOT_FOR_ME  = "NotForMe";        // encrypted for someone other
     public static final String DECRYPT_FAILED  = "DecryptFailed";   // encrypted for me, but decrypt failed
     public static final String INVALID_MSG     = "InvalidMsg";	    // message format validation failed
-    public static final String ALLDATANOTFOUND = "AllDataNotFound"; // Not enough data found; some data was fetched but redirect may point to nowhere 
-    public static final String MSG_TOO_BIG     = "MsgTooBig";       // msg size exceeded maximum allowed KSK size 
+    public static final String ALLDATANOTFOUND = "AllDataNotFound"; // Not enough data found; some data was fetched but redirect may point to nowhere
+    public static final String MSG_TOO_BIG     = "MsgTooBig";       // msg size exceeded maximum allowed KSK size
 
     private MessageXmlFile message = null;
-    
+    private Identity owner = null;
+    private boolean ownerIsNew = false;
+
     private String errorMessage = null;
-    
-    public MessageDownloaderResult(String errorMsg) {
+
+    /**
+     * Called if an error occured.
+     */
+    public MessageDownloaderResult(final String errorMsg) {
         errorMessage = errorMsg;
     }
-    
-    public MessageDownloaderResult(MessageXmlFile msg) {
+
+    /**
+     * Called for a new unsigned message.
+     */
+    public MessageDownloaderResult(final MessageXmlFile msg) {
         message = msg;
     }
-    
+
+    /**
+     * Called for a new signed message.
+     */
+    public MessageDownloaderResult(final MessageXmlFile msg, final Identity owner, final boolean ownerIsNew) {
+        message = msg;
+        this.owner = owner;
+        this.ownerIsNew = ownerIsNew;
+    }
+
     public boolean isSuccess() {
         return (errorMessage == null);
     }
@@ -56,12 +74,20 @@ public class MessageDownloaderResult {
     public boolean isFailure() {
         return (errorMessage != null);
     }
-    
+
     public String getErrorMessage() {
         return errorMessage;
     }
-    
+
     public MessageXmlFile getMessage() {
         return message;
+    }
+
+    public Identity getOwner() {
+        return owner;
+    }
+
+    public boolean isOwnerIsNew() {
+        return ownerIsNew;
     }
 }

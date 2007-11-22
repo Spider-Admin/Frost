@@ -68,19 +68,32 @@ public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNo
 
     public Identity getFromIdentity() {
         if( isFromIdentityInitialized == false ) {
-            // set Identity for FROM, or null
-            fromIdentity = Core.getIdentities().getIdentity(getFromName());
-            // if identity was NOT found, add it. maybe it was deleted by the user,
-            // but we still have a msg from this identity
-            if( fromIdentity == null && getPublicKey() != null && getPublicKey().length() > 0 ) {
-                fromIdentity = Identity.createIdentityFromExactStrings(getFromName(), getPublicKey());
-                fromIdentity.setCHECK();
-                Core.getIdentities().addIdentity(fromIdentity);
-                logger.severe("Added new identity for '"+getFromName()+"'");
+            if( getFromName() == null || getFromName().length() == 0 ) {
+                // unsigned message
+                fromIdentity = null;
+            } else {
+                // set Identity for FROM, or null
+                fromIdentity = Core.getIdentities().getIdentity(getFromName());
+                // if identity was NOT found, add it. maybe it was deleted by the user,
+                // but we still have a msg from this identity
+                if( fromIdentity == null && getPublicKey() != null && getPublicKey().length() > 0 ) {
+                    fromIdentity = Identity.createIdentityFromExactStrings(getFromName(), getPublicKey());
+                    fromIdentity.setCHECK();
+                    Core.getIdentities().addIdentity(fromIdentity);
+                }
             }
             isFromIdentityInitialized = true;
         }
         return fromIdentity;
+    }
+
+    public void setFromidentity(final Identity id) {
+        if( isFromIdentityInitialized ) {
+            logger.severe("Already initialized, old="+fromIdentity+"; new="+id);
+        } else {
+            fromIdentity = id;
+            isFromIdentityInitialized = true;
+        }
     }
 
     public String getFromName() {

@@ -71,8 +71,9 @@ public class SharedFilesCHKKeyManager {
             }
         } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Exception during database update", t);
+        } finally {
+            SharedFilesCHKKeyStorage.inst().endThreadTransaction();
         }
-        SharedFilesCHKKeyStorage.inst().endThreadTransaction();
     }
 
     /**
@@ -88,7 +89,6 @@ public class SharedFilesCHKKeyManager {
         if( !SharedFilesCHKKeyStorage.inst().beginExclusiveThreadTransaction() ) {
             return;
         }
-
         try {
             if( Logging.inst().doLogFilebaseMessages() ) {
                 System.out.println("processReceivedCHKKeys: processing "+content.getChkKeyStrings().size()+" keys");
@@ -145,8 +145,9 @@ public class SharedFilesCHKKeyManager {
             }
         } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Exception during chk key processing", t);
+        } finally {
+            SharedFilesCHKKeyStorage.inst().endThreadTransaction();
         }
-        SharedFilesCHKKeyStorage.inst().endThreadTransaction();
     }
 
     public static List<String> getCHKKeyStringsToDownload() {
@@ -201,8 +202,11 @@ public class SharedFilesCHKKeyManager {
             if( !SharedFilesCHKKeyStorage.inst().beginExclusiveThreadTransaction() ) {
                 return false;
             }
-            SharedFilesCHKKeyStorage.inst().storeItem(key);
-            SharedFilesCHKKeyStorage.inst().endThreadTransaction();
+            try {
+                SharedFilesCHKKeyStorage.inst().storeItem(key);
+            } finally {
+                SharedFilesCHKKeyStorage.inst().endThreadTransaction();
+            }
             return true;
         } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Exception in addNewCHKKeyToSend", t);
