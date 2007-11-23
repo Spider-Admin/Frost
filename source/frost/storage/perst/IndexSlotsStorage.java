@@ -19,6 +19,7 @@
 package frost.storage.perst;
 
 import java.util.*;
+import java.util.logging.*;
 
 import org.garret.perst.*;
 import org.joda.time.*;
@@ -30,6 +31,8 @@ import frost.storage.*;
  * Storage with an compound index of indexName and msgDate (int/long)
  */
 public class IndexSlotsStorage extends AbstractFrostStorage implements ExitSavable {
+
+    private static final Logger logger = Logger.getLogger(IndexSlotsStorage.class.getName());
 
     // boards have positive indexNames (their primkey)
     public static final int FILELISTS = -1;
@@ -108,7 +111,10 @@ public class IndexSlotsStorage extends AbstractFrostStorage implements ExitSavab
 
     public IndexSlot getSlotForDate(final int indexName, final long date) {
         final Key dateKey = new Key(indexName, date);
-        beginCooperativeThreadTransaction();
+        if( !beginCooperativeThreadTransaction() ) {
+            logger.severe("Failed to gather cooperative storage lock, returning new indexslot!");
+            return new IndexSlot(indexName, date);
+        }
         IndexSlot gis;
         try {
             gis = storageRoot.slotsIndexIL.get(dateKey);
@@ -126,6 +132,7 @@ public class IndexSlotsStorage extends AbstractFrostStorage implements ExitSavab
 
     public void storeSlot(final IndexSlot gis) {
         if( !beginExclusiveThreadTransaction() ) {
+            logger.severe("Failed to gather exclusive storage lock, don't stored the indexslot!");
             return;
         }
         try {

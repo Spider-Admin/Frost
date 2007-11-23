@@ -40,7 +40,6 @@ public class MessageDownloaderResult {
 
     private MessageXmlFile message = null;
     private Identity owner = null;
-    private boolean ownerIsNew = false;
 
     private String errorMessage = null;
 
@@ -61,10 +60,9 @@ public class MessageDownloaderResult {
     /**
      * Called for a new signed message.
      */
-    public MessageDownloaderResult(final MessageXmlFile msg, final Identity owner, final boolean ownerIsNew) {
+    public MessageDownloaderResult(final MessageXmlFile msg, final Identity owner) {
         message = msg;
         this.owner = owner;
-        this.ownerIsNew = ownerIsNew;
     }
 
     public boolean isSuccess() {
@@ -85,9 +83,5 @@ public class MessageDownloaderResult {
 
     public Identity getOwner() {
         return owner;
-    }
-
-    public boolean isOwnerIsNew() {
-        return ownerIsNew;
     }
 }

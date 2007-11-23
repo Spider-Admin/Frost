@@ -118,6 +118,7 @@ public class FileListDownloadThread extends Thread {
 
                 final FileListFileContent content = FileListFile.readFileListFile(downloadedFile);
                 final boolean isValid = FileListManager.processReceivedFileList(content);
+
                 if( Logging.inst().doLogFilebaseMessages() ) {
                     System.out.println("FileListDownloadThread: processed results, isValid="+isValid);
                 }

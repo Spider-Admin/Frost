@@ -32,23 +32,23 @@ public class IndexSlot extends Persistent {
     // holds 1 bit for each msgIndex
     private BitSet wasDownloaded;
     private BitSet wasUploaded;
-    
+
     public IndexSlot() {}
 
-    public IndexSlot(int newIndexName, long newMsgDate) {
+    public IndexSlot(final int newIndexName, final long newMsgDate) {
         indexName = newIndexName;
         msgDate = newMsgDate;
         wasDownloaded = new BitSet();
         wasUploaded = new BitSet();
     }
-    
+
     public int getIndexName() {
         return indexName;
     }
     public long getMsgDate() {
         return msgDate;
     }
-    
+
 //    public String toString() {
 //        String result = "";
 //        result += "indexName     = "+indexName+"\n";
@@ -62,25 +62,25 @@ public class IndexSlot extends Persistent {
 //        result += "wasUploaded   = "+wasUploaded+"\n";
 //        return result;
 //    }
-    
-    public void setDownloadSlotUsed(int index) {
+
+    public void setDownloadSlotUsed(final int index) {
         this.wasDownloaded.set(index);
     }
-    public void setUploadSlotUsed(int index) {
+    public void setUploadSlotUsed(final int index) {
         this.wasUploaded.set(index);
     }
-    
+
     // find first not downloaded
     public int findFirstDownloadSlot() {
         return wasDownloaded.nextClearBit(0);
     }
     // find next not downloaded
-    public int findNextDownloadSlot(int beforeIndex) {
+    public int findNextDownloadSlot(final int beforeIndex) {
         return wasDownloaded.nextClearBit(beforeIndex+1);
     }
     // check if this index is behind all known indices
-    public boolean isDownloadIndexBehindLastSetIndex(int index) {
-        int indexBehindLastIndex = Math.max(wasDownloaded.length(), wasUploaded.length());
+    public boolean isDownloadIndexBehindLastSetIndex(final int index) {
+        final int indexBehindLastIndex = Math.max(wasDownloaded.length(), wasUploaded.length());
         if( index >= indexBehindLastIndex ) {
             return true;
         } else {
@@ -91,21 +91,21 @@ public class IndexSlot extends Persistent {
     // find first unused
     public int findFirstUploadSlot() {
         // find last set index in ul and dl list
-        // length() -> Returns the "logical size" of this BitSet: 
-        // the index of the highest set bit in the BitSet plus one. Returns zero if the BitSet contains no set bits. 
-        int index = Math.max(wasDownloaded.length(), wasUploaded.length());
+        // length() -> Returns the "logical size" of this BitSet:
+        // the index of the highest set bit in the BitSet plus one. Returns zero if the BitSet contains no set bits.
+        final int index = Math.max(wasDownloaded.length(), wasUploaded.length());
         return index;
     }
     // find next unused
-    public int findNextUploadSlot(int beforeIndex) {
-        int index = Math.max(wasDownloaded.length(), wasUploaded.length());
+    public int findNextUploadSlot(final int beforeIndex) {
+        final int index = Math.max(wasDownloaded.length(), wasUploaded.length());
         if( index > beforeIndex ) {
             return index;
         } else {
             return beforeIndex + 1;
         }
     }
-    
+
 //    public void onStore() {
 //        if( indexName < 0 ) return;
 //        String s = "";
@@ -137,7 +137,7 @@ public class IndexSlot extends Persistent {
 //        System.out.println("findNextDownloadSlot(0): "+gis.findNextDownloadSlot(0));
 //        System.out.println("findFirstUploadSlot: "+gis.findFirstUploadSlot());
 //        System.out.println("findNextUploadSlot: "+gis.findNextUploadSlot(5));
-//        
+//
 //        System.out.println("isDownloadIndexBehindLastSetIndex(3): "+gis.isDownloadIndexBehindLastSetIndex(3));
 //        System.out.println("isDownloadIndexBehindLastSetIndex(5): "+gis.isDownloadIndexBehindLastSetIndex(5));
 //    }

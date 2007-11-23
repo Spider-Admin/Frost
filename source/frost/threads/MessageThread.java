@@ -93,8 +93,6 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 downloadDate(localDate, gis);
                 // after update check if there are messages for upload and upload them
                 uploadMessages(gis); // doesn't get a message when message upload is disabled
-                // store index slot
-                IndexSlotsStorage.inst().storeSlot(gis);
             } else {
                 // download up to maxMessages days to the past
                 int daysBack = 0;
@@ -104,7 +102,6 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                     date = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
                     final IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(boardId, date);
                     downloadDate(localDate, gis);
-                    IndexSlotsStorage.inst().storeSlot(gis);
                 }
                 // after a complete backload run, remember finish time.
                 // this ensures we ever update the complete backload days.
@@ -215,7 +212,6 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                         receivedValidMessage(
                                 mdResult.getMessage(),
                                 mdResult.getOwner(),
-                                mdResult.isOwnerIsNew(),
                                 board,
                                 index);
                     } else {
@@ -223,6 +219,9 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                         logger.warning("TOFDN: Message was dropped, format validation failed: "+logInfo);
                     }
                 }
+
+                IndexSlotsStorage.inst().storeSlot(gis); // remember each progress
+
             } catch(final Throwable t) {
                 logger.log(Level.SEVERE, "TOFDN: Exception thrown in downloadDate: "+logInfo, t);
                 // download failed, try next file
@@ -237,11 +236,10 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
     private void receivedValidMessage(
             final MessageXmlFile mo,
             final Identity owner, // maybe null if unsigned
-            final boolean ownerIsNew,
             final Board b,
             final int index)
     {
-        TOF.getInstance().receivedValidMessage(mo, owner, ownerIsNew, b, index);
+        TOF.getInstance().receivedValidMessage(mo, owner, b, index);
     }
 
     //////////////////////////////////////////////////
@@ -397,6 +395,9 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 }
                 return;
             }
+
+            // success, store used slot
+            IndexSlotsStorage.inst().storeSlot(gis);
 
             final int index = result.getUploadIndex();
 

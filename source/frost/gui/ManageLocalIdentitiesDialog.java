@@ -346,7 +346,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                     Core.getIdentities().deleteLocalIdentity(li);
                     // put deleted into GOOD state
                     final Identity myOld = new Identity(li);
-                    myOld.setGOOD();
+                    myOld.setGOODWithoutUpdate();
                     Core.getIdentities().addIdentity( myOld );
 
                     ((DefaultListModel)getIdentitiesList().getModel()).removeElement(li);

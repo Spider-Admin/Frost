@@ -202,20 +202,12 @@ public class MessageDownloader {
 
             final SignMetaData metaData = (SignMetaData)_metaData;
 
-            //check if we have the owner already on the lists
-            final String _owner = metaData.getPerson().getUniqueName();
-            Identity owner = Core.getIdentities().getIdentity(_owner);
-            boolean ownerIsNew = false;
-            // if not on any list, use the parsed id and add to our identities list
-            if (owner == null) {
-                owner = metaData.getPerson();
-                if( !Core.getIdentities().isNewIdentityValid(owner) ) {
-                    // hash of public key does not match the unique name
-                    logger.severe("TOFDN: identity failed verification, message dropped."+logInfo);
-                    tmpFile.delete();
-                    return new MessageDownloaderResult(MessageDownloaderResult.INVALID_MSG);
-                }
-                ownerIsNew = true;
+            final Identity owner = metaData.getPerson();
+            if( !Core.getIdentities().isNewIdentityValid(owner) ) {
+                // hash of public key does not match the unique name
+                logger.severe("TOFDN: identity failed verification, message dropped." + logInfo);
+                tmpFile.delete();
+                return new MessageDownloaderResult(MessageDownloaderResult.INVALID_MSG);
             }
 
             // verify signature
@@ -298,7 +290,7 @@ public class MessageDownloader {
             }
 
             currentMsg.setSignatureStatusVERIFIED_V2();
-            return new MessageDownloaderResult(currentMsg, owner, ownerIsNew);
+            return new MessageDownloaderResult(currentMsg, owner);
 
         } catch (final Throwable t) {
             logger.log(Level.SEVERE, "TOFDN: Exception thrown in downloadDate part 2."+logInfo, t);
@@ -389,20 +381,12 @@ public class MessageDownloader {
                 }
             }
 
-            // check if we have the owner (sender) already on the lists
-            final String _owner = currentMsg.getFromName();
-            Identity owner = Core.getIdentities().getIdentity(_owner);
-            boolean ownerIsNew = false;
-            // if not on any list, use the parsed id and check it
-            if (owner == null) {
-                owner = Identity.createIdentityFromExactStrings(currentMsg.getFromName(), currentMsg.getPublicKey());
-                if( !Core.getIdentities().isNewIdentityValid(owner) ) {
-                    // hash of public key does not match the unique name
-                    logger.severe("TOFDN: identity failed verification, message dropped."+logInfo);
-                    tmpFile.delete();
-                    return new MessageDownloaderResult(MessageDownloaderResult.INVALID_MSG);
-                }
-                ownerIsNew = true;
+            final Identity owner = Identity.createIdentityFromExactStrings(currentMsg.getFromName(), currentMsg.getPublicKey());
+            if( !Core.getIdentities().isNewIdentityValid(owner) ) {
+                // hash of public key does not match the unique name
+                logger.severe("TOFDN: identity failed verification, message dropped." + logInfo);
+                tmpFile.delete();
+                return new MessageDownloaderResult(MessageDownloaderResult.INVALID_MSG);
             }
 
             // now verify signed content
@@ -428,7 +412,7 @@ public class MessageDownloader {
                 currentMsg.setSignatureStatusVERIFIED_V1();
             }
 
-            return new MessageDownloaderResult(currentMsg, owner, ownerIsNew);
+            return new MessageDownloaderResult(currentMsg, owner);
 
         } catch (final Throwable t) {
             logger.log(Level.SEVERE, "TOFDN: Exception catched."+logInfo, t);

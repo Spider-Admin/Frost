@@ -185,16 +185,21 @@ public class FileListManager {
             return false;
         }
 
-        Identity localOwner = Core.getIdentities().getIdentity(content.getReceivedOwner().getUniqueName());
-        if( localOwner == null ) {
-            // new identity, add. Validated inside FileListFile.readFileListFile()
-            if( !Core.getIdentities().addIdentity(content.getReceivedOwner()) ) {
-                logger.severe("Core.getIdentities().addIdentity() returned false!");
+        Identity localOwner;
+        synchronized( Core.getIdentities().getLockObject() ) {
+            localOwner = Core.getIdentities().getIdentity(content.getReceivedOwner().getUniqueName());
+            if( localOwner == null ) {
+                // new identity, add. Validated inside FileListFile.readFileListFile()
+                localOwner = content.getReceivedOwner();
+                localOwner.setLastSeenTimestampWithoutUpdate(content.getTimestamp());
+                if( !Core.getIdentities().addIdentity(content.getReceivedOwner()) ) {
+                    logger.severe("Core.getIdentities().addIdentity() returned false!");
+                }
+            } else {
+                if( localOwner.getLastSeenTimestamp() < content.getTimestamp() ) {
+                    localOwner.setLastSeenTimestamp(content.getTimestamp());
+                }
             }
-            localOwner = content.getReceivedOwner();
-        }
-        if( localOwner.getLastSeenTimestamp() < content.getTimestamp() ) {
-            localOwner.updateLastSeenTimestamp(content.getTimestamp());
         }
 
         if (localOwner.isBAD() && Core.frostSettings.getBoolValue(SettingsClass.SEARCH_HIDE_BAD)) {

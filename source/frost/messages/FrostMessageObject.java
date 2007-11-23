@@ -111,7 +111,7 @@ public class FrostMessageObject extends AbstractMessageObject implements TableMe
         setSubject(mof.getSubject());
         setIdLinePos(mof.getIdLinePos());
         setIdLineLen(mof.getIdLineLen());
-        setFromidentity(sender);
+        setFromIdentity(sender);
 
         setHasBoardAttachments(mof.getAttachmentsOfType(Attachment.BOARD).size() > 0);
         setHasFileAttachments(mof.getAttachmentsOfType(Attachment.FILE).size() > 0);

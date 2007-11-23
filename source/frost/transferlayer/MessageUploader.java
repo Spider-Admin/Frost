@@ -40,14 +40,14 @@ import frost.util.gui.translation.*;
  * implemented by MessageUploader05 and MessageUploader07.
  */
 public class MessageUploader {
-    
+
     private static final Logger logger = Logger.getLogger(MessageUploader.class.getName());
 
     /**
      * The work area for MessageUploader.
      */
     static class MessageUploaderWorkArea {
-        
+
         MessageXmlFile message;
         File uploadFile;
         File unsentMessageFile;
@@ -56,19 +56,19 @@ public class MessageUploader {
         Identity encryptForRecipient;
         LocalIdentity senderId;
         JFrame parentFrame;
-        
+
         IndexSlot indexSlot;
-        
+
         String logBoardName;
     }
-    
+
     /**
-     * Create a file to upload from the message. 
+     * Create a file to upload from the message.
      * Sets the MessageUploaderWorkArea.uploadFile value.
-     * @return  true if successful, false otherwise 
+     * @return  true if successful, false otherwise
      */
-    protected static boolean prepareMessage(MessageUploaderWorkArea wa) {
-        
+    protected static boolean prepareMessage(final MessageUploaderWorkArea wa) {
+
         if( FcpHandler.isFreenet05() ) {
             return prepareMessage05(wa);
         } else if( FcpHandler.isFreenet07() ) {
@@ -82,23 +82,23 @@ public class MessageUploader {
     /**
      * Prepares and uploads the message.
      * Returns -1 if upload failed (unsentMessageFile should stay in unsent msgs folder in this case)
-     * or returns a value >= 0 containing the final index where the message was uploaded to. 
-     * 
+     * or returns a value >= 0 containing the final index where the message was uploaded to.
+     *
      * If senderId is provided, the message is signed with this ID.
      * If senderId is null the message is sent anonymously.
-     * 
+     *
      */
     public static MessageUploaderResult uploadMessage(
-            MessageXmlFile message, 
-            Identity encryptForRecipient,
-            LocalIdentity senderId,
-            MessageUploaderCallback callback,
-            IndexSlot indexSlot,
-            JFrame parentFrame,
-            String logBoardName) {
-        
-        MessageUploaderWorkArea wa = new MessageUploaderWorkArea();
-        
+            final MessageXmlFile message,
+            final Identity encryptForRecipient,
+            final LocalIdentity senderId,
+            final MessageUploaderCallback callback,
+            final IndexSlot indexSlot,
+            final JFrame parentFrame,
+            final String logBoardName) {
+
+        final MessageUploaderWorkArea wa = new MessageUploaderWorkArea();
+
         wa.message = message;
         wa.unsentMessageFile = message.getFile();
         wa.parentFrame = parentFrame;
@@ -107,7 +107,7 @@ public class MessageUploader {
         wa.encryptForRecipient = encryptForRecipient;
         wa.senderId = senderId; // maybe null for anonymous
         wa.logBoardName = logBoardName;
-        
+
         wa.uploadFile = new File(wa.unsentMessageFile.getPath() + ".upltmp");
         wa.uploadFile.delete(); // just in case it already exists
         wa.uploadFile.deleteOnExit(); // so that it is deleted when Frost exits
@@ -115,21 +115,21 @@ public class MessageUploader {
         if( prepareMessage(wa) == false ) {
             return new MessageUploaderResult(true); // keep msg
         }
-        
+
         try {
             return uploadMessage(wa);
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             logger.log(Level.SEVERE,"ERROR: Unexpected IOException, upload stopped.",ex);
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             logger.log(Level.SEVERE, "Oo. EXCEPTION in MessageUploadThread", t);
         }
         return new MessageUploaderResult(true); // keep msg
     }
-    
+
     /**
      * Upload the message file.
      */
-    protected static MessageUploaderResult uploadMessage(MessageUploaderWorkArea wa) throws IOException {
+    protected static MessageUploaderResult uploadMessage(final MessageUploaderWorkArea wa) throws IOException {
 
         logger.info("TOFUP: Uploading message to board '" + wa.logBoardName + "' with HTL " + Core.frostSettings.getIntValue(SettingsClass.MESSAGE_UPLOAD_HTL));
 
@@ -138,13 +138,13 @@ public class MessageUploader {
             boolean success = false;
             int index = -1;
             int tries = 0;
-            int maxTries = 10;
+            final int maxTries = 10;
             boolean error = false;
-    
+
             boolean retrySameIndex = false;
-            
+
             String logInfo = null;
-    
+
             while ( success == false && error == false ) {
 
                 if( retrySameIndex == false ) {
@@ -159,12 +159,12 @@ public class MessageUploader {
                     // reset flag
                     retrySameIndex = false;
                 }
-    
+
                 // try to insert message
                 FcpResultPut result = null;
-    
+
                 try {
-                    String upKey = wa.callback.composeUploadKey(wa.message, index);
+                    final String upKey = wa.callback.composeUploadKey(wa.message, index);
                     logInfo = " board="+wa.logBoardName+", key="+upKey;
                     // signMetadata is null for unsigned upload. Do not do redirect.
                     result = FcpHandler.inst().putFile(
@@ -175,10 +175,10 @@ public class MessageUploader {
                             false,  // doRedirect
                             false,  // removeLocalKey, we want a KeyCollision if key does already exist in local store!
                             true);  // doMime
-                } catch (Throwable t) {
+                } catch (final Throwable t) {
                     logger.log(Level.SEVERE, "TOFUP: Error in FcpInsert.putFile."+logInfo, t);
                 }
-    
+
                 final int waitTime = 15000;
 
                 if (result.isRetry()) {
@@ -187,11 +187,11 @@ public class MessageUploader {
                     tries++;
                     retrySameIndex = true;
                     Mixed.wait(waitTime);
-                    
+
                 } else if (result.isSuccess()) {
                     // msg is probabilistic cached in freenet node, retrieve it to ensure it is in our store
-                    File tmpFile = new File(wa.unsentMessageFile.getPath() + ".down");
-    
+                    final File tmpFile = new File(wa.unsentMessageFile.getPath() + ".down");
+
                     int dlTries = 0;
                     // we use same maxTries as for upload
                     while(dlTries < maxTries) {
@@ -205,7 +205,7 @@ public class MessageUploader {
                             dlTries++;
                         }
                     }
-    
+
                     if( tmpFile.length() > 0 ) {
                         logger.warning("TOFUP: Uploaded message was successfully retrieved."+logInfo);
                         success = true;
@@ -221,7 +221,7 @@ public class MessageUploader {
                     logger.warning("TOFUP: Upload collided, trying next free index."+logInfo);
                     Mixed.wait(waitTime);
                 } else if (result.isNoConnection()) {
-                    // no connection to node, try after next update 
+                    // no connection to node, try after next update
                     logger.severe("TOFUP: Upload failed, no node connection."+logInfo);
                     error = true;
                 } else {
@@ -237,28 +237,26 @@ public class MessageUploader {
                     }
                 }
             }
-    
+
             if (success) {
                 // mark slot used
                 wa.indexSlot.setUploadSlotUsed(index);
-                
-                logger.info("*********************************************************************\n"
-                        + "Message successfully uploaded."+logInfo+"\n"
-                        + "*********************************************************************");
-    
+
+                logger.info("Message successfully uploaded."+logInfo+"\n");
+
                 wa.uploadFile.delete();
-                
+
                 return new MessageUploaderResult(index); // success
-    
+
             } else { // error == true
                 logger.warning("TOFUP: Error while uploading message.");
-    
+
                 boolean retrySilently = Core.frostSettings.getBoolValue(SettingsClass.SILENTLY_RETRY_MESSAGES);
                 if (!retrySilently) {
                     // Uploading of that message failed. Ask the user if Frost
                     // should try to upload the message another time.
-                    MessageUploadFailedDialog faildialog = new MessageUploadFailedDialog(wa.parentFrame, wa.message, null);
-                    int answer = faildialog.startDialog();
+                    final MessageUploadFailedDialog faildialog = new MessageUploadFailedDialog(wa.parentFrame, wa.message, null);
+                    final int answer = faildialog.startDialog();
                     if (answer == MessageUploadFailedDialog.RETRY_VALUE) {
                         logger.info("TOFUP: Will try to upload again immediately.");
                         tryAgain = true;
@@ -283,28 +281,28 @@ public class MessageUploader {
                 }
             }
         } while(tryAgain);
-        
+
         return new MessageUploaderResult(true); // upload failed, keep msg
     }
 
     /**
      * Download the specified index, used to check if file was correctly uploaded.
      */
-    private static boolean downloadMessage(int index, File targetFile, MessageUploaderWorkArea wa) {
+    private static boolean downloadMessage(final int index, final File targetFile, final MessageUploaderWorkArea wa) {
         try {
-            String downKey = wa.callback.composeDownloadKey(wa.message, index);
-            FcpResultGet res = FcpHandler.inst().getFile(
+            final String downKey = wa.callback.composeDownloadKey(wa.message, index);
+            final FcpResultGet res = FcpHandler.inst().getFile(
                     FcpHandler.TYPE_MESSAGE,
-                    downKey, 
-                    null, 
-                    targetFile, 
-                    false, 
+                    downKey,
+                    null,
+                    targetFile,
+                    false,
                     false,
                     FcpHandler.MAX_MESSAGE_SIZE_07);
             if( res != null && res.isSuccess() && targetFile.length() > 0 ) {
                 return true;
             }
-        } catch(Throwable t) {
+        } catch(final Throwable t) {
             logger.log(Level.WARNING, "Handled exception in downloadMessage", t);
         }
         return false;
@@ -313,24 +311,24 @@ public class MessageUploader {
     /**
      * Encrypt, sign and zip the message into a file that is uploaded afterwards.
      */
-    protected static boolean prepareMessage05(MessageUploaderWorkArea wa) {
+    protected static boolean prepareMessage05(final MessageUploaderWorkArea wa) {
 
         if( wa.senderId != null ) {
-            
+
             // for sure, set fromname
             wa.message.setFromName(wa.senderId.getUniqueName());
-            
+
             // we put the signature into the message too, but it is not used for verification currently
             // to keep compatability to previous frosts for 0.5
             wa.message.signMessageV1(wa.senderId.getPrivateKey());
             wa.message.signMessageV2(wa.senderId.getPrivateKey());
-            
+
             if( !wa.message.save() ) {
                 logger.severe("Save of signed msg failed. This was a HARD error, please report to a dev!");
                 return false;
             }
         }
-        
+
         FileAccess.writeZipFile(FileAccess.readByteArray(wa.unsentMessageFile), "entry", wa.uploadFile);
 
         if( !wa.uploadFile.isFile() || wa.uploadFile.length() == 0 ) {
@@ -340,13 +338,13 @@ public class MessageUploader {
 
         // encrypt and sign or just sign the zipped file if necessary
         if( wa.senderId != null ) {
-            byte[] zipped = FileAccess.readByteArray(wa.uploadFile);
-            
+            final byte[] zipped = FileAccess.readByteArray(wa.uploadFile);
+
             if( wa.encryptForRecipient != null ) {
                 // encrypt + sign
                 // first encrypt, then sign
 
-                byte[] encData = Core.getCrypto().encrypt(zipped, wa.encryptForRecipient.getPublicKey());
+                final byte[] encData = Core.getCrypto().encrypt(zipped, wa.encryptForRecipient.getPublicKey());
                 if( encData == null ) {
                     logger.severe("Error: could not encrypt the message, please report to a dev!");
                     return false;
@@ -354,12 +352,12 @@ public class MessageUploader {
                 wa.uploadFile.delete();
                 FileAccess.writeFile(encData, wa.uploadFile); // write encrypted zip file
 
-                EncryptMetaData ed = new EncryptMetaData(encData, wa.senderId, wa.encryptForRecipient.getUniqueName());
+                final EncryptMetaData ed = new EncryptMetaData(encData, wa.senderId, wa.encryptForRecipient.getUniqueName());
                 wa.signMetadata = XMLTools.getRawXMLDocument(ed);
 
             } else {
                 // sign only
-                SignMetaData md = new SignMetaData(zipped, wa.senderId);
+                final SignMetaData md = new SignMetaData(zipped, wa.senderId);
                 wa.signMetadata = XMLTools.getRawXMLDocument(md);
             }
         } else if( wa.encryptForRecipient != null ) {
@@ -372,10 +370,10 @@ public class MessageUploader {
             allLength += wa.signMetadata.length;
         }
         if( allLength > 32767 ) { // limit in FcpInsert.putFile()
-            Language language = Language.getInstance();
-            String title = language.getString("MessageUploader.messageToLargeError.title");
-            String txt = language.formatMessage("MessageUploader.messageToLargeError.text", 
-                    Long.toString(allLength), 
+            final Language language = Language.getInstance();
+            final String title = language.getString("MessageUploader.messageToLargeError.title");
+            final String txt = language.formatMessage("MessageUploader.messageToLargeError.text",
+                    Long.toString(allLength),
                     Integer.toString(32767));
             JOptionPane.showMessageDialog(wa.parentFrame, txt, title, JOptionPane.ERROR_MESSAGE);
             return false;
@@ -386,8 +384,8 @@ public class MessageUploader {
     /**
      * Encrypt and sign the message into a file that is uploaded afterwards.
      */
-    protected static boolean prepareMessage07(MessageUploaderWorkArea wa) {
-        
+    protected static boolean prepareMessage07(final MessageUploaderWorkArea wa) {
+
         // sign the message content if necessary
         if( wa.senderId != null ) {
             // for sure, set fromname
@@ -403,7 +401,7 @@ public class MessageUploader {
             return false;
         }
 
-        if( wa.message.getSignatureV2() != null && 
+        if( wa.message.getSignatureV2() != null &&
             wa.message.getSignatureV2().length() > 0 && // we signed, so encrypt is possible
             wa.encryptForRecipient != null )
         {
@@ -412,13 +410,13 @@ public class MessageUploader {
                 logger.severe("This was a HARD error, file was NOT uploaded, please report to a dev!");
                 return false;
             }
-            
+
         } else if( wa.encryptForRecipient != null ) {
             logger.log(Level.SEVERE, "TOFUP: ALERT - can't encrypt message if sender is Anonymous! Will not send message!");
             return false; // unable to encrypt
         }
         // else leave msg as is
-        
+
         return true;
     }
 }
