@@ -273,7 +273,7 @@ public class Migrate1to2 {
                             mo.setFromName(mo.getFromName().replace('@','_'));
                         }
                     }
-                    ms.insertMessageDirect(mo, false);
+                    ms.insertMessage(mo, false);
                     cnt++;
                     if(cnt%100 == 0) {
                         ms.commit();

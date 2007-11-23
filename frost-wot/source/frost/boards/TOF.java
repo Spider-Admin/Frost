@@ -260,7 +260,7 @@ public class TOF {
             newMsg.setNew(false);
         }
 
-        int messageInsertedRC;
+        final int messageInsertedRC;
         try {
             messageInsertedRC = MessageStorage.inst().insertMessage(newMsg);
         } catch (final Throwable e) {
@@ -269,7 +269,13 @@ public class TOF {
             return;
         }
 
-        // don't add msg if it was a duplicate or if insert into database failed
+        // don't add msg if it was a duplicate
+        if( messageInsertedRC == MessageStorage.INSERT_DUPLICATE ) {
+            logger.severe("Duplicate message, not added to storage: "+newMsg.getMessageId());
+            return; // not inserted into database, do not add to gui
+        }
+
+        // don't add msg if insert into database failed
         if( messageInsertedRC != MessageStorage.INSERT_OK ) {
             return; // not inserted into database, do not add to gui
         }

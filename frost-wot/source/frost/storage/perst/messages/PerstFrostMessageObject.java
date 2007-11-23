@@ -75,72 +75,73 @@ public class PerstFrostMessageObject extends Persistent {
         if( useTransaction ) {
             MessageContentStorage.inst().beginExclusiveThreadTransaction();
         }
+        try {
+            makePersistent(store); // assign oid
 
-        makePersistent(store); // assign oid
+            messageId =  mo.getMessageId();
+            // FIXME: inReplyTo vs. inReplyToList: save both?
+            inReplyTo = mo.getInReplyTo();
 
-        messageId =  mo.getMessageId();
-        // FIXME: inReplyTo vs. inReplyToList: save both?
-        inReplyTo = mo.getInReplyTo();
-
-        // in toFrostMessageObject() we use only invalidReason as indicator for valid or invalid,
-        // so we ensure that invalidReason is correctly set
-        if( mo.isValid() == false ) {
-            invalidReason = mo.getInvalidReason();
-            if( invalidReason == null || invalidReason.length() == 0 ) {
-                invalidReason = "AutoSet";
+            // in toFrostMessageObject() we use only invalidReason as indicator for valid or invalid,
+            // so we ensure that invalidReason is correctly set
+            if( mo.isValid() == false ) {
+                invalidReason = mo.getInvalidReason();
+                if( invalidReason == null || invalidReason.length() == 0 ) {
+                    invalidReason = "AutoSet";
+                }
+            } else {
+                invalidReason = null;
             }
-        } else {
-            invalidReason = null;
-        }
-        dateAndTime = mo.getDateAndTime().getMillis();
-        msgIndex = mo.getIndex();
-        fromName = mo.getFromName();
-        subject = mo.getSubject();
-        recipientName = (mo.getRecipientName()!=null&&mo.getRecipientName().length()==0)?null:mo.getRecipientName();
-        if( mo.getSignatureV2() == null || mo.getSignatureV2().length() == 0 ) {
-            if( mo.getSignatureV1() != null && mo.getSignatureV1().length() > 0 ) {
-                MessageContentStorage.inst().addSignatureForOid(getOid(), mo.getSignatureV1());
+            dateAndTime = mo.getDateAndTime().getMillis();
+            msgIndex = mo.getIndex();
+            fromName = mo.getFromName();
+            subject = mo.getSubject();
+            recipientName = (mo.getRecipientName()!=null&&mo.getRecipientName().length()==0)?null:mo.getRecipientName();
+            if( mo.getSignatureV2() == null || mo.getSignatureV2().length() == 0 ) {
+                if( mo.getSignatureV1() != null && mo.getSignatureV1().length() > 0 ) {
+                    MessageContentStorage.inst().addSignatureForOid(getOid(), mo.getSignatureV1());
+                }
+            } else if( mo.getSignatureV2().length() > 0 ) {
+                MessageContentStorage.inst().addSignatureForOid(getOid(), mo.getSignatureV2());
             }
-        } else if( mo.getSignatureV2().length() > 0 ) {
-            MessageContentStorage.inst().addSignatureForOid(getOid(), mo.getSignatureV2());
+            signatureStatus = mo.getSignatureStatus();
+            if( mo.getPublicKey() != null && mo.getPublicKey().length() > 0 ) {
+                MessageContentStorage.inst().addPublickeyForOid(getOid(), mo.getPublicKey());
+            }
+            isDeleted = mo.isDeleted();
+            isNew = mo.isNew();
+            isReplied = mo.isReplied();
+            isJunk = mo.isJunk();
+            isFlagged = mo.isFlagged();
+            isStarred = mo.isStarred();
+            idLinePos = mo.getIdLinePos();
+            idLineLen = mo.getIdLineLen();
+
+            final AttachmentList files = mo.getAttachmentsOfType(Attachment.FILE);
+            final AttachmentList boards = mo.getAttachmentsOfType(Attachment.BOARD);
+
+            MessageContentStorage.inst().addAttachmentsForOid(getOid(), boards, files);
+
+            if( boards != null && boards.size() > 0 ) {
+                hasBoardAttachments = true;
+            } else {
+                hasBoardAttachments = false;
+            }
+
+            if( files != null && files.size() > 0 ) {
+                hasFileAttachments = true;
+            } else {
+                hasFileAttachments = false;
+            }
+
+            MessageContentStorage.inst().addContentForOid(getOid(), mo.getContent());
+
+            modify();
+        } finally {
+            if( useTransaction ) {
+                MessageContentStorage.inst().endThreadTransaction();
+            }
         }
-        signatureStatus = mo.getSignatureStatus();
-        if( mo.getPublicKey() != null && mo.getPublicKey().length() > 0 ) {
-            MessageContentStorage.inst().addPublickeyForOid(getOid(), mo.getPublicKey());
-        }
-        isDeleted = mo.isDeleted();
-        isNew = mo.isNew();
-        isReplied = mo.isReplied();
-        isJunk = mo.isJunk();
-        isFlagged = mo.isFlagged();
-        isStarred = mo.isStarred();
-        idLinePos = mo.getIdLinePos();
-        idLineLen = mo.getIdLineLen();
-
-        final AttachmentList files = mo.getAttachmentsOfType(Attachment.FILE);
-        final AttachmentList boards = mo.getAttachmentsOfType(Attachment.BOARD);
-
-        MessageContentStorage.inst().addAttachmentsForOid(getOid(), boards, files);
-
-        if( boards != null && boards.size() > 0 ) {
-            hasBoardAttachments = true;
-        } else {
-            hasBoardAttachments = false;
-        }
-
-        if( files != null && files.size() > 0 ) {
-            hasFileAttachments = true;
-        } else {
-            hasFileAttachments = false;
-        }
-
-        MessageContentStorage.inst().addContentForOid(getOid(), mo.getContent());
-
-        if( useTransaction ) {
-            MessageContentStorage.inst().endThreadTransaction();
-        }
-
-        modify();
     }
 
     public void retrieveMessageContent(final FrostMessageObject mo) {

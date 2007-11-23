@@ -388,89 +388,86 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
      * Insert the message with an enclosing EXCLUSIVE transaction.
      */
     public int insertMessage(final FrostMessageObject mo) {
-        if( !beginExclusiveThreadTransaction() ) {
-            return INSERT_ERROR;
-        }
-        try {
-            return insertMessageDirect(mo, true);
-        } finally {
-            endThreadTransaction();
-        }
+        return insertMessage(mo, true);
     }
 
     /**
      * Insert the message directly, without an enclosing transaction.
      * @param useTransaction TODO
      */
-    public int insertMessageDirect(final FrostMessageObject mo, final boolean useTransaction) {
-        // add to indices, check for duplicate msgId
-
-        if( mo.getPerstFrostMessageObject() != null ) {
-            logger.severe("msgInsertError: perst obj already set");
-            return INSERT_ERROR; // skip msg
-        }
-
-        final Board targetBoard = mo.getBoard();
-        if( targetBoard == null ) {
-            logger.severe("msgInsertError: no board in msg");
-            return INSERT_ERROR; // skip msg
-        }
-
-        if( !storeInvalidMessages && !mo.isValid() ) {
-            // don't store invalid messages, they are usually not needed
-            return INSERT_OK;
-        }
-
-        PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(targetBoard.getNameLowerCase());
-        if( bo == null ) {
-            // create new perst board
-            logger.severe("Creating new perst board: "+targetBoard.getName());
-            addBoard(targetBoard);
-            bo = storageRoot.getBoardsByName().get(targetBoard.getNameLowerCase());
-            if( bo == null ) {
-                logger.severe("Error: duplicate board???");
+    public int insertMessage(final FrostMessageObject mo, final boolean useTransaction) {
+        if( useTransaction ) {
+            if( !beginExclusiveThreadTransaction() ) {
                 return INSERT_ERROR;
             }
         }
-
-        final PerstFrostMessageObject pmo = new PerstFrostMessageObject(mo, getStorage(), useTransaction);
-
-        if( !mo.isValid() ) {
-            // invalid message
-            bo.getInvalidMessagesIndex().put(mo.getDateAndTime().getMillis(), pmo);
-        } else {
-            if( mo.getMessageId() != null ) {
-                if( !bo.getMessageIdIndex().put(mo.getMessageId(), pmo) ) {
-                    // duplicate messageId!
-                    return INSERT_DUPLICATE; // skip msg
+        // add to indices, check for duplicate msgId
+        try {
+            if( mo.getPerstFrostMessageObject() != null ) {
+                logger.severe("msgInsertError: perst obj already set");
+                return INSERT_ERROR; // skip msg
+            }
+            final Board targetBoard = mo.getBoard();
+            if( targetBoard == null ) {
+                logger.severe("msgInsertError: no board in msg");
+                return INSERT_ERROR; // skip msg
+            }
+            if( !storeInvalidMessages && !mo.isValid() ) {
+                // don't store invalid messages, they are usually not needed
+                return INSERT_OK;
+            }
+            PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(targetBoard.getNameLowerCase());
+            if( bo == null ) {
+                // create new perst board
+                logger.severe("Creating new perst board: " + targetBoard.getName());
+                addBoard(targetBoard);
+                bo = storageRoot.getBoardsByName().get(targetBoard.getNameLowerCase());
+                if( bo == null ) {
+                    logger.severe("Error: duplicate board???");
+                    return INSERT_ERROR;
                 }
             }
-
-            mo.setPerstFrostMessageObject(pmo);
-
-            bo.getMessageIndex().put(mo.getDateAndTime().getMillis(), pmo);
-            if( pmo.isNew ) {
-                bo.getUnreadMessageIndex().put(mo.getDateAndTime().getMillis(), pmo);
-            }
-            if( pmo.isFlagged ) {
-                bo.getFlaggedMessageIndex().put(mo.getDateAndTime().getMillis(), pmo);
-            }
-            if( pmo.isStarred ) {
-                bo.getStarredMessageIndex().put(mo.getDateAndTime().getMillis(), pmo);
-            }
-
-            // add to id, maybe create id for this msg
-            if( FrostMessageObject.isSignatureStatusVERIFIED(pmo.signatureStatus) ) {
-                PerstIdentitiesMessages pim = storageRoot.getIdentitiesMessages().get(pmo.fromName);
-                if( pim == null ) {
-                    pim = new PerstIdentitiesMessages(pmo.fromName, getStorage());
-                    storageRoot.getIdentitiesMessages().put(pmo.fromName, pim);
+            final PerstFrostMessageObject pmo = new PerstFrostMessageObject(mo, getStorage(), useTransaction);
+            if( !mo.isValid() ) {
+                // invalid message
+                bo.getInvalidMessagesIndex().put(mo.getDateAndTime().getMillis(), pmo);
+            } else {
+                if( mo.getMessageId() != null ) {
+                    if( !bo.getMessageIdIndex().put(mo.getMessageId(), pmo) ) {
+                        // duplicate messageId!
+                        return INSERT_DUPLICATE; // skip msg
+                    }
                 }
-                pim.getMessagesFromIdentity().add( pmo );
+
+                mo.setPerstFrostMessageObject(pmo);
+
+                bo.getMessageIndex().put(mo.getDateAndTime().getMillis(), pmo);
+                if( pmo.isNew ) {
+                    bo.getUnreadMessageIndex().put(mo.getDateAndTime().getMillis(), pmo);
+                }
+                if( pmo.isFlagged ) {
+                    bo.getFlaggedMessageIndex().put(mo.getDateAndTime().getMillis(), pmo);
+                }
+                if( pmo.isStarred ) {
+                    bo.getStarredMessageIndex().put(mo.getDateAndTime().getMillis(), pmo);
+                }
+
+                // add to id, maybe create id for this msg
+                if( FrostMessageObject.isSignatureStatusVERIFIED(pmo.signatureStatus) ) {
+                    PerstIdentitiesMessages pim = storageRoot.getIdentitiesMessages().get(pmo.fromName);
+                    if( pim == null ) {
+                        pim = new PerstIdentitiesMessages(pmo.fromName, getStorage());
+                        storageRoot.getIdentitiesMessages().put(pmo.fromName, pim);
+                    }
+                    pim.getMessagesFromIdentity().add(pmo);
+                }
+            }
+            return INSERT_OK;
+        } finally {
+            if( useTransaction ) {
+                endThreadTransaction();
             }
         }
-
-        return INSERT_OK;
     }
 
     public FrostMessageObject retrieveMessageByMessageId(
