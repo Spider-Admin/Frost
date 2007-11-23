@@ -73,13 +73,14 @@ public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNo
                 fromIdentity = null;
             } else {
                 // set Identity for FROM, or null
-                fromIdentity = Core.getIdentities().getIdentity(getFromName());
-                // if identity was NOT found, add it. maybe it was deleted by the user,
-                // but we still have a msg from this identity
-                if( fromIdentity == null && getPublicKey() != null && getPublicKey().length() > 0 ) {
-                    fromIdentity = Identity.createIdentityFromExactStrings(getFromName(), getPublicKey());
-                    fromIdentity.setCHECK();
-                    Core.getIdentities().addIdentity(fromIdentity);
+                synchronized( Core.getIdentities().getLockObject() ) {
+                    fromIdentity = Core.getIdentities().getIdentity(getFromName());
+                    // if identity was NOT found, add it. maybe it was deleted by the user,
+                    // but we still have a msg from this identity
+                    if( fromIdentity == null && getPublicKey() != null && getPublicKey().length() > 0 ) {
+                        fromIdentity = Identity.createIdentityFromExactStrings(getFromName(), getPublicKey());
+                        Core.getIdentities().addIdentity(fromIdentity);
+                    }
                 }
             }
             isFromIdentityInitialized = true;
@@ -87,7 +88,7 @@ public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNo
         return fromIdentity;
     }
 
-    public void setFromidentity(final Identity id) {
+    public void setFromIdentity(final Identity id) {
         if( isFromIdentityInitialized ) {
             logger.severe("Already initialized, old="+fromIdentity+"; new="+id);
         } else {

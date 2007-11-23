@@ -40,6 +40,8 @@ public class FrostIdentities {
     private Hashtable<String,Identity> identities = null;
     private Hashtable<String,LocalIdentity> localIdentities = null;
 
+    private final Object lockObject = new Object();
+
     Language language = Language.getInstance();
 
     /**
@@ -404,7 +406,9 @@ public class FrostIdentities {
 
         // check if the public key is known, maybe someone sends with same pubkey but different names before the @
         for( final Identity anId : getIdentities() ) {
-            if( id.getPublicKey().equals(anId.getPublicKey()) ) {
+            if( id.getPublicKey().equals(anId.getPublicKey())
+                    && !id.getUniqueName().equals(anId.getUniqueName()) )
+            {
                 logger.severe("Rejecting new Identity because its public key is already used by another known Identity. "+
                         "newId='"+id.getUniqueName()+"', oldId='"+anId.getUniqueName()+"'");
                 return false;
@@ -414,13 +418,18 @@ public class FrostIdentities {
         // for sure, check own identities too
         for( final Iterator<LocalIdentity> i=getLocalIdentities().iterator(); i.hasNext(); ) {
             final Identity anId = i.next();
-            if( id.getPublicKey().equals(anId.getPublicKey()) ) {
+            if( id.getPublicKey().equals(anId.getPublicKey())
+                    && !id.getUniqueName().equals(anId.getUniqueName()) )
+            {
                 logger.severe("Rejecting new Identity because its public key is already used by an OWN Identity. "+
                         "newId='"+id.getUniqueName()+"', oldId='"+anId.getUniqueName()+"'");
                 return false;
             }
         }
-
         return true;
+    }
+
+    public Object getLockObject() {
+        return lockObject;
     }
 }

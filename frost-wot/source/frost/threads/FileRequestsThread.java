@@ -102,6 +102,9 @@ public class FileRequestsThread extends Thread {
         if( wasOk ) {
             FileRequestsManager.updateRequestsWereSuccessfullySent(fileRequests);
         }
+
+        IndexSlotsStorage.inst().storeSlot(gis);
+
         return wasOk;
     }
 
@@ -159,14 +162,17 @@ public class FileRequestsThread extends Thread {
 
             if( result.getErrorCode() == GlobalFileDownloaderResult.ERROR_FILE_TOO_BIG ) {
                 logger.severe("FileRequestsThread.downloadDate: Dropping index "+index+", FILE_TOO_BIG.");
-                continue;
+            } else {
+                // process results
+                final File downloadedFile = result.getResultFile();
+
+                final FileRequestFileContent content = FileRequestFile.readRequestFile(downloadedFile);
+                downloadedFile.delete();
+                FileRequestsManager.processReceivedRequests(content);
             }
 
-            final File downloadedFile = result.getResultFile();
-
-            final FileRequestFileContent content = FileRequestFile.readRequestFile(downloadedFile);
-            downloadedFile.delete();
-            FileRequestsManager.processReceivedRequests(content);
+            // downloaded file was processed, store slot
+            IndexSlotsStorage.inst().storeSlot(gis);
         }
     }
 
@@ -226,8 +232,6 @@ public class FileRequestsThread extends Thread {
                             logger.log(Level.SEVERE, "Exception catched during uploadRequestFile()", t);
                         }
                     }
-
-                    IndexSlotsStorage.inst().storeSlot(gis);
 
                     if( isInterrupted() ) {
                         break;

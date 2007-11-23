@@ -112,6 +112,9 @@ public class FilePointersThread extends Thread {
         if( wasOk ) {
             SharedFilesCHKKeyManager.updateCHKKeysWereSuccessfullySent(sharedFileCHKkeys);
         }
+
+        IndexSlotsStorage.inst().storeSlot(gis);
+
         return wasOk;
     }
 
@@ -169,28 +172,29 @@ public class FilePointersThread extends Thread {
 
             // downloaded something, mark it
             gis.setDownloadSlotUsed(index);
-            gis.modify();
             // next loop we try next index
             index = gis.findNextDownloadSlot(index);
 
             if( result.getErrorCode() == GlobalFileDownloaderResult.ERROR_FILE_TOO_BIG ) {
                 logger.severe("FilePointersThread.downloadDate: Dropping index "+index+", FILE_TOO_BIG.");
-                continue;
+            } else {
+                // process received data
+                if( Logging.inst().doLogFilebaseMessages() ) {
+                    System.out.println("FilePointersThread.downloadDate: success");
+                }
+
+                final File downloadedFile = result.getResultFile();
+
+                final FilePointerFileContent content = FilePointerFile.readPointerFile(downloadedFile);
+
+                if( Logging.inst().doLogFilebaseMessages() ) {
+                    System.out.println("readPointerFile: result: "+content);
+                }
+                downloadedFile.delete();
+                SharedFilesCHKKeyManager.processReceivedCHKKeys(content);
             }
 
-            if( Logging.inst().doLogFilebaseMessages() ) {
-                System.out.println("FilePointersThread.downloadDate: success");
-            }
-
-            final File downloadedFile = result.getResultFile();
-
-            final FilePointerFileContent content = FilePointerFile.readPointerFile(downloadedFile);
-
-            if( Logging.inst().doLogFilebaseMessages() ) {
-                System.out.println("readPointerFile: result: "+content);
-            }
-            downloadedFile.delete();
-            SharedFilesCHKKeyManager.processReceivedCHKKeys(content);
+            IndexSlotsStorage.inst().storeSlot(gis); // remember each progress
         }
         if( Logging.inst().doLogFilebaseMessages() ) {
             System.out.println("FilePointersThread.downloadDate: finished");
@@ -253,8 +257,6 @@ public class FilePointersThread extends Thread {
                             logger.log(Level.SEVERE, "Exception during uploadIndexFile()", t);
                         }
                     }
-
-                    IndexSlotsStorage.inst().storeSlot(gis);
 
                     if( isInterrupted() ) {
                         break;

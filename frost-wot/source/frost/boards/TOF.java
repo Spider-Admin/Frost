@@ -56,8 +56,6 @@ public class TOF {
 
     private final TofTreeModel tofTreeModel;
 
-    private final Object addIdentityLock = new Object();
-
     private static boolean initialized = false;
 
     /**
@@ -211,34 +209,33 @@ public class TOF {
     public void receivedValidMessage(
             final MessageXmlFile currentMsg,
             Identity owner,
-            final boolean ownerIsNew,
             final Board board,
             final int index)
     {
         if( owner != null ) {
             // owner is set, message was signed, owner is validated
-            synchronized(addIdentityLock) {
-                if( ownerIsNew ) {
-                    // check again if owner is really new or if it was added from another thread in the meantime
-                    final Identity checkOwner = Core.getIdentities().getIdentity(owner.getUniqueName());
-                    // if owner is new, add owner to identities list
-                    if( checkOwner == null ) {
-                        if( !Core.getIdentities().addIdentity(owner) ) {
-                            logger.severe("Core.getIdentities().addIdentity(owner) returned false!");
-                        }
-                    } else {
-                        // use Identity that was added in the meantime
-                        owner = checkOwner;
-                    }
-                }
+            synchronized(Core.getIdentities().getLockObject()) {
+                // check if owner is new
+                final Identity checkOwner = Core.getIdentities().getIdentity(owner.getUniqueName());
+                // if owner is new, add owner to identities list
+                long lastSeenMillis = 0;
                 try {
-                    // update lastSeen for this Identity
-                    final long lastSeenMillis = currentMsg.getDateAndTime().getMillis();
-                    if( owner.getLastSeenTimestamp() < lastSeenMillis ) {
-                        owner.updateLastSeenTimestamp(lastSeenMillis);
-                    }
+                    lastSeenMillis = currentMsg.getDateAndTime().getMillis();
                 } catch(final Throwable t) {
                     logger.log(Level.SEVERE, "Error updating Identities lastSeenTime", t);
+                }
+                if( checkOwner == null ) {
+                    owner.setLastSeenTimestampWithoutUpdate(lastSeenMillis);
+                    if( !Core.getIdentities().addIdentity(owner) ) {
+                        logger.severe("Core.getIdentities().addIdentity(owner) returned false!");
+                    }
+                } else {
+                    // use existing Identity
+                    owner = checkOwner;
+                    // update lastSeen for this Identity
+                    if( owner.getLastSeenTimestamp() < lastSeenMillis ) {
+                        owner.setLastSeenTimestamp(lastSeenMillis);
+                    }
                 }
             }
         }

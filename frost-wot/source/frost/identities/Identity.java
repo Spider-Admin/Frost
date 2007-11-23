@@ -303,9 +303,13 @@ public class Identity extends Persistent implements XMLizable {
         return lastSeenTimestamp;
     }
 
-    public void updateLastSeenTimestamp(final long v) {
+    public void setLastSeenTimestamp(final long v) {
         lastSeenTimestamp = v;
         updateIdentitiesStorage();
+    }
+
+    public void setLastSeenTimestampWithoutUpdate(final long v) {
+        lastSeenTimestamp = v;
     }
 
     public int getState() {
