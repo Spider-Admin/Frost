@@ -382,6 +382,11 @@ public class SettingsClass implements ExitSavable {
             this.setValue(SettingsClass.MESSAGE_BASE, "news");
         }
 
+        // adjust reshare interval, old default was 3
+        if( this.getIntValue(MIN_DAYS_BEFORE_FILE_RESHARE) == 3 ) {
+            this.setValue(MIN_DAYS_BEFORE_FILE_RESHARE, 5);
+        }
+
         // maybe enable for a later release
 //        if (this.getValue(FILE_BASE).length() == 0) {
 //            this.setValue(FILE_BASE, "files");
@@ -850,7 +855,7 @@ public class SettingsClass implements ExitSavable {
         defaults.put(MAX_MESSAGE_DOWNLOAD, "5");
         defaults.put(ALWAYS_DOWNLOAD_MESSAGES_BACKLOAD, "false");
 
-        defaults.put(MIN_DAYS_BEFORE_FILE_RESHARE, "3"); // reshare all 3 days
+        defaults.put(MIN_DAYS_BEFORE_FILE_RESHARE, "5"); // reshare all 5 days
         defaults.put(MAX_FILELIST_DOWNLOAD_DAYS, "5"); // download backward 5 days
 
         defaults.put(MESSAGE_BASE, "news");

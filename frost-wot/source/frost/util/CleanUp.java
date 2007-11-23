@@ -50,6 +50,7 @@ public class CleanUp {
 
     // we hold indices, chk keys, ... for at least the following count of days:
     private final static int MINIMUM_DAYS_OLD = 28;
+    private final static int SFCHKKEYS_MINIMUM_DAYS_OLD = 16;
 
     private static Splashscreen splashScreen;
 
@@ -240,12 +241,12 @@ public class CleanUp {
 
     /**
      * Cleanup old CHK keys from pointer files.
-     * All keys we did'nt see for MINIMUM_DAYS_OLD days will be deleted.
+     * All keys we did'nt see for SFCHKKEYS_MINIMUM_DAYS_OLD days will be deleted.
      */
     private static void cleanupSharedCHKKeyStorage() {
         int deletedCount = 0;
         try {
-            deletedCount = SharedFilesCHKKeyStorage.inst().cleanupTable(MINIMUM_DAYS_OLD);
+            deletedCount = SharedFilesCHKKeyStorage.inst().cleanupTable(SFCHKKEYS_MINIMUM_DAYS_OLD);
         } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Exception during cleanup of SharedFilesCHKKeys", t);
         }

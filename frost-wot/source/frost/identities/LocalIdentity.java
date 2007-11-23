@@ -183,6 +183,6 @@ public class LocalIdentity extends Identity {
     }
     public void setLastFilesSharedMillis(final long l) {
         lastFilesSharedMillis = l;
-        updateIdentitiesStorage();
+        modify();
     }
 }
