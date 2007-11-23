@@ -144,11 +144,11 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
 
     public List<SharedFilesCHKKey> getSharedFilesCHKKeysToSend(int maxKeys) {
         // get a number of CHK keys from database that must be send
-        // include (3 to 8) of our new CHK keys into this list, don't send CHK keys of different identities
+        // include (5 to 10) of our new CHK keys into this list, don't send CHK keys of different identities
         // (sending only 1 of our in one list is not needed, because others might pick up more of
         //  our keys also)
 
-        final int ownKeysToSend = 3 + (int) (Math.random() * 6);
+        final int ownKeysToSend = 5 + (int) (Math.random() * 5);
 
         final List<SharedFilesCHKKey> keysToSend = new LinkedList<SharedFilesCHKKey>();
 
@@ -171,14 +171,14 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
             // then search for other files to send, but don't include other new files from us
             // - the CHK key must be downloaded already (our new files are not yet downloaded)
             // - key must be valid
-            // - keys firstseen must be not earlier than 14 days (don't send old stuff around)
+            // - keys firstseen must be not earlier than 7 days (don't send old stuff around)
             // - keys lastseen must be more than 24h before (don't send keys we just received)
             // - keys lastsent must be more than 24h before (don't send keys we just sent)
             // - order by seencount asc -> collect keys that are not seen often
             // - collect a maximum of 300 keys
             {
                 final long now = System.currentTimeMillis();
-                final long minFirstSeen = now - (14L * 24L * 60L * 60L * 1000L); // now - 14 days
+                final long minFirstSeen = now - (7L * 24L * 60L * 60L * 1000L); // now - 7 days
                 final long maxLastSeen = now - (1L * 24L * 60L * 60L * 1000L); // now - 1 day
 
                 // first collect ALL other keys to send, then sort them and choose maxKeys items

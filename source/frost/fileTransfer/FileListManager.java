@@ -26,6 +26,7 @@ import frost.fileTransfer.download.*;
 import frost.fileTransfer.sharing.*;
 import frost.identities.*;
 import frost.storage.perst.filelist.*;
+import frost.storage.perst.identities.*;
 
 public class FileListManager {
 
@@ -66,36 +67,46 @@ public class FileListManager {
 
         final List<LocalIdentity> localIdentities = Core.getIdentities().getLocalIdentities();
         int identityCount = localIdentities.size();
-        while(identityCount > 0) {
 
-            LocalIdentity idToUpdate = null;
-            long minUpdateMillis = Long.MAX_VALUE;
+        // we modify several own identities (id.setLastFilesSharedMillis())
+        if( !IdentitiesStorage.inst().beginExclusiveThreadTransaction() ) {
+            return null;
+        }
+        try {
+            while(identityCount > 0) {
 
-            // find next identity to update
-            for(final LocalIdentity id : localIdentities ) {
-                final long lastShared = id.getLastFilesSharedMillis();
-                if( lastShared < minUpdateMillis ) {
-                    minUpdateMillis = lastShared;
-                    idToUpdate = id;
+                LocalIdentity idToUpdate = null;
+                long minUpdateMillis = Long.MAX_VALUE;
+
+                // find next identity to update
+                for(final LocalIdentity id : localIdentities ) {
+                    final long lastShared = id.getLastFilesSharedMillis();
+                    if( lastShared < minUpdateMillis ) {
+                        minUpdateMillis = lastShared;
+                        idToUpdate = id;
+                    }
+                }
+
+                // mark that we tried this owner
+                idToUpdate.setLastFilesSharedMillis(now);
+
+                final LinkedList<SharedFileXmlFile> filesToShare =
+                    getUploadItemsToShare(idToUpdate.getUniqueName(), MAX_FILES_PER_FILE, minDate);
+                if( filesToShare != null && filesToShare.size() > 0 ) {
+                    final FileListManagerFileInfo fif = new FileListManagerFileInfo(filesToShare, idToUpdate);
+                    return fif;
+                } else {
+                    // else try next owner
+                    identityCount--;
                 }
             }
 
-            // mark that we tried this owner
-            idToUpdate.setLastFilesSharedMillis(now); // FIXME: maybe do this in a transaction? We modify() multiple ids
+            // currently there is nothing to share
+            return null;
 
-            final LinkedList<SharedFileXmlFile> filesToShare =
-                getUploadItemsToShare(idToUpdate.getUniqueName(), MAX_FILES_PER_FILE, minDate);
-            if( filesToShare != null && filesToShare.size() > 0 ) {
-                final FileListManagerFileInfo fif = new FileListManagerFileInfo(filesToShare, idToUpdate);
-                return fif;
-            } else {
-                // else try next owner
-                identityCount--;
-            }
+        } finally {
+            IdentitiesStorage.inst().endThreadTransaction();
         }
-
-        // currently there is nothing to share
-        return null;
     }
 
     private static LinkedList<SharedFileXmlFile> getUploadItemsToShare(
