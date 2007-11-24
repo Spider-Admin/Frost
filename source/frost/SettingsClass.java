@@ -71,6 +71,7 @@ public class SettingsClass implements ExitSavable {
     public static final String LOOK_AND_FEEL = "ChoosenLookAndFeel";
 
     public static final String STORAGE_STORE_INVALID_MESSAGES = "storage.storeInvalidMessages";
+    public static final String STORAGE_STORE_SENT_MESSAGES = "storage.storeSentMessages";
 
 //    public static final String COMPACT_DBTABLES = "compactDatabaseTables";
 
@@ -802,6 +803,7 @@ public class SettingsClass implements ExitSavable {
         defaults.put(DISABLE_SPLASHSCREEN, "false");
 
         defaults.put(STORAGE_STORE_INVALID_MESSAGES, "false");
+        defaults.put(STORAGE_STORE_SENT_MESSAGES, "true");
 
         defaults.put(ACCEPT_SIGNATURE_FORMAT_V1, "true");
 

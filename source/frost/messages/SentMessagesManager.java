@@ -22,6 +22,7 @@ import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
+import frost.boards.*;
 import frost.storage.perst.messages.*;
 
 public class SentMessagesManager {
@@ -45,12 +46,19 @@ public class SentMessagesManager {
      * @return        true if msg was added to gui table (sent msgs table was currently shown)
      */
     public static boolean addSentMessage(final FrostMessageObject sentMo) {
+        final Board b = sentMo.getBoard();
+        if( !b.getStoreSentMessages() ) {
+            // storing of sent messages disabled by user
+            return false;
+        }
+
         try {
             MessageStorage.inst().insertSentMessage(sentMo);
         } catch (final Throwable e) {
             // paranoia
             logger.log(Level.SEVERE, "Error inserting sent message", e);
         }
+
         return MainFrame.getInstance().getSentMessagesPanel().addSentMessage(sentMo);
     }
 
