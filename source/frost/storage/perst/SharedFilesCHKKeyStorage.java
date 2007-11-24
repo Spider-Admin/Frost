@@ -262,8 +262,11 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
     /**
      * Updates newkey in database.
      */
-    public boolean updateSharedFilesCHKKeyAfterDownloadSuccessful(final String chkKey, final boolean isValid) {
-
+    public boolean updateSharedFilesCHKKeyAfterDownloadSuccessful(
+            final String chkKey,
+            final long timestamp,
+            final boolean isValid)
+    {
         if( !beginExclusiveThreadTransaction() ) {
             return false;
         }
@@ -273,6 +276,11 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
                 return false;
             }
             key.setDownloaded(true);
+            // we set the firstSeen of this CHK to the timestamp from inside the content,
+            // this should be the earliest firstSeen time
+            if( key.getFirstSeen() > timestamp ) {
+                key.setFirstSeen(timestamp);
+            }
             key.setValid(isValid);
             key.modify();
         } finally {
