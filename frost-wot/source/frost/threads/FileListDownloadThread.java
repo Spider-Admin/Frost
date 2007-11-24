@@ -124,7 +124,7 @@ public class FileListDownloadThread extends Thread {
                 }
 
                 downloadedFile.delete();
-                SharedFilesCHKKeyManager.updateCHKKeyDownloadSuccessful(chkKey, isValid);
+                SharedFilesCHKKeyManager.updateCHKKeyDownloadSuccessful(chkKey, content.getTimestamp(), isValid);
 
             } catch(final Throwable t) {
                 logger.log(Level.SEVERE, "Exception catched",t);

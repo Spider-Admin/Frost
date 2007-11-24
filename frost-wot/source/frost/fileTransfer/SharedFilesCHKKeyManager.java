@@ -168,13 +168,13 @@ public class SharedFilesCHKKeyManager {
     /**
      * @return  true if update was successful
      */
-    public static boolean updateCHKKeyDownloadSuccessful(final String chkKey, final boolean isValid) {
+    public static boolean updateCHKKeyDownloadSuccessful(final String chkKey, final long timestamp, final boolean isValid) {
         // this chk was successfully downloaded, update database
         try {
             if( Logging.inst().doLogFilebaseMessages() ) {
                 System.out.println("updateCHKKeyDownloadSuccessful: key="+chkKey+", isValid="+isValid);
             }
-            return SharedFilesCHKKeyStorage.inst().updateSharedFilesCHKKeyAfterDownloadSuccessful(chkKey, isValid);
+            return SharedFilesCHKKeyStorage.inst().updateSharedFilesCHKKeyAfterDownloadSuccessful(chkKey, timestamp, isValid);
         } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Exception in updateSharedFilesCHKKeyAfterDownloadSuccessful", t);
         }
