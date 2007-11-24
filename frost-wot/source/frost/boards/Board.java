@@ -39,6 +39,8 @@ public class Board extends AbstractNode {
     private Boolean hideCheck = null;
     private Boolean hideObserve = null;
 
+    private Boolean storeSentMessages = null;
+
     // if isConfigured=true then below options may apply
     private boolean isConfigured = false;
 
@@ -130,6 +132,18 @@ public class Board extends AbstractNode {
 
     public void setDescription(final String desc) {
         boardDescription = desc;
+    }
+
+    public boolean getStoreSentMessages() {
+        if (!isConfigured() || storeSentMessages == null) {
+            // return default
+            return Core.frostSettings.getBoolValue(SettingsClass.STORAGE_STORE_SENT_MESSAGES);
+        }
+        return storeSentMessages.booleanValue();
+    }
+
+    public Boolean getStoreSentMessagesObj() {
+        return storeSentMessages;
     }
 
     public boolean getHideBad() {
@@ -295,6 +309,10 @@ public class Board extends AbstractNode {
 
     public void setConfigured(final boolean val) {
         isConfigured = val;
+    }
+
+    public void setStoreSentMessages(final Boolean val) {
+        storeSentMessages = val;
     }
 
     public void setHideBad(final Boolean val) {

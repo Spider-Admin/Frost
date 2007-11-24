@@ -213,7 +213,7 @@ public class Migrate1to2 {
             final MessageCallback mc = new MessageCallback() {
                 int cnt=0;
                 public boolean messageRetrieved(FrostMessageObject mo) {
-                    ms.insertSentMessageDirect(mo, false);
+                    ms.insertSentMessage(mo, false);
                     cnt++;
                     if(cnt%100 == 0) {
                         ms.commit();
@@ -240,7 +240,7 @@ public class Migrate1to2 {
             final List<FrostUnsentMessageObject> unsentMsgs = UnsentMessageDatabaseTable.retrieveMessages(AppLayerDatabase.getInstance(), allBoards);
             int cnt=0;
             for( final FrostUnsentMessageObject umo : unsentMsgs ) {
-                ms.insertUnsentMessageDirect(umo);
+                ms.insertUnsentMessage(umo, false);
                 cnt++;
                 if(cnt%100 == 0) {
                     ms.commit();

@@ -232,6 +232,13 @@ public class TofTreeXmlIO {
             board.setShowSignedOnly( Boolean.valueOf(val) );
         }
 
+        val = element.getAttribute("storeSentMessages");
+        if( val.length() == 0 ) {
+            board.setStoreSentMessages( null );
+        } else {
+            board.setStoreSentMessages( Boolean.valueOf(val) );
+        }
+
         val = element.getAttribute("hideBadMessages");
         if( val.length() == 0 ) {
             board.setHideBad( null );
@@ -450,6 +457,9 @@ public class TofTreeXmlIO {
             }
             if( board.getShowSignedOnlyObj() != null ) {
                 element.setAttribute("showSignedOnly", "" + board.getShowSignedOnly());
+            }
+            if( board.getStoreSentMessagesObj() != null ) {
+                element.setAttribute("storeSentMessages", "" + board.getStoreSentMessages());
             }
             if( board.getHideBadObj() != null ) {
                 element.setAttribute("hideBadMessages", "" + board.getHideBad());

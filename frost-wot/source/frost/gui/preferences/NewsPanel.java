@@ -69,6 +69,7 @@ class NewsPanel extends JPanel {
     private final JLabel concurrentUpdatesLabel = new JLabel();
     private final JTextField concurrentUpdatesTextField = new JTextField(8);
 
+    private final JCheckBox storeSentMessagesCheckBox = new JCheckBox();
     private final JCheckBox silentlyRetryCheckBox = new JCheckBox();
     private final JCheckBox acceptSignatureFormatV1CheckBox = new JCheckBox();
 
@@ -201,6 +202,9 @@ class NewsPanel extends JPanel {
         add(getUpdatePanel(), constraints);
 
         constraints.gridy++;
+        add(storeSentMessagesCheckBox, constraints);
+
+        constraints.gridy++;
         add(silentlyRetryCheckBox, constraints);
 
         constraints.gridy++;
@@ -250,6 +254,7 @@ class NewsPanel extends JPanel {
         automaticBoardUpdateCheckBox.setSelected(MainFrame.getInstance().isAutomaticBoardUpdateEnabled());
         refreshUpdateState();
 
+        storeSentMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.STORAGE_STORE_SENT_MESSAGES));
         silentlyRetryCheckBox.setSelected(settings.getBoolValue(SettingsClass.SILENTLY_RETRY_MESSAGES));
         acceptSignatureFormatV1CheckBox.setSelected(settings.getBoolValue(SettingsClass.ACCEPT_SIGNATURE_FORMAT_V1));
 
@@ -278,6 +283,7 @@ class NewsPanel extends JPanel {
 
         automaticBoardUpdateCheckBox.setText(language.getString("Options.news.3.automaticBoardUpdate"));
 
+        storeSentMessagesCheckBox.setText(language.getString("Options.news.1.storeSentMessages"));
         silentlyRetryCheckBox.setText(language.getString("Options.news.3.silentlyRetryFailedMessages"));
         acceptSignatureFormatV1CheckBox.setText(language.getString("Options.news.3.acceptSignatureFormatV1"));
 
@@ -303,6 +309,7 @@ class NewsPanel extends JPanel {
         // we change setting in MainFrame, this is auto-saved during frostSettings.save()
         MainFrame.getInstance().setAutomaticBoardUpdateEnabled(automaticBoardUpdateCheckBox.isSelected());
 
+        settings.setValue(SettingsClass.STORAGE_STORE_SENT_MESSAGES, storeSentMessagesCheckBox.isSelected());
         settings.setValue(SettingsClass.SILENTLY_RETRY_MESSAGES, silentlyRetryCheckBox.isSelected());
         settings.setValue(SettingsClass.ACCEPT_SIGNATURE_FORMAT_V1, acceptSignatureFormatV1CheckBox.isSelected());
 

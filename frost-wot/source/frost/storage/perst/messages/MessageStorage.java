@@ -807,31 +807,35 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
      * Insert the sent message with an enclosing EXCLUSIVE transaction.
      */
     public boolean insertSentMessage(final FrostMessageObject sentMo) {
-        if( !beginExclusiveThreadTransaction() ) {
-            return false;
-        }
-        try {
-            return insertSentMessageDirect(sentMo, true);
-        } finally {
-            endThreadTransaction();
-        }
+        return insertSentMessage(sentMo, true);
     }
 
     /**
      * Insert the message directly, without an enclosing transaction.
      * @param useTransaction TODO
      */
-    public boolean insertSentMessageDirect(final FrostMessageObject sentMo, final boolean useTransaction) {
-        final PerstFrostBoardObject bo = sentMo.getBoard().getPerstFrostBoardObject();
-        if( bo == null ) {
-            logger.severe("no board for new sent msg!");
-            return false;
+    public boolean insertSentMessage(final FrostMessageObject sentMo, final boolean useTransaction) {
+        if( useTransaction ) {
+            if( !beginExclusiveThreadTransaction() ) {
+                return false;
+            }
         }
-        final PerstFrostMessageObject pmo = new PerstFrostMessageObject(sentMo, getStorage(), useTransaction);
-        sentMo.setPerstFrostMessageObject(pmo);
+        try {
+            final PerstFrostBoardObject bo = sentMo.getBoard().getPerstFrostBoardObject();
+            if( bo == null ) {
+                logger.severe("no board for new sent msg!");
+                return false;
+            }
+            final PerstFrostMessageObject pmo = new PerstFrostMessageObject(sentMo, getStorage(), useTransaction);
+            sentMo.setPerstFrostMessageObject(pmo);
 
-        bo.getSentMessagesList().add( pmo );
-        return true;
+            bo.getSentMessagesList().add( pmo );
+            return true;
+        } finally {
+            if( useTransaction ) {
+                endThreadTransaction();
+            }
+        }
     }
 
     public int deleteSentMessages(final List<FrostMessageObject> msgObjects) {
@@ -885,30 +889,32 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
      * Insert the message with an enclosing EXCLUSIVE transaction.
      */
     public boolean insertUnsentMessage(final FrostUnsentMessageObject mo) {
-        if( !beginExclusiveThreadTransaction() ) {
-            return false;
-        }
-        try {
-            return insertUnsentMessageDirect(mo);
-        } finally {
-            endThreadTransaction();
-        }
+        return insertUnsentMessage(mo, true);
     }
 
     /**
      * Insert the unsent message directly, without an enclosing transaction.
      */
-    public boolean insertUnsentMessageDirect(final FrostUnsentMessageObject mo) {
-        final PerstFrostBoardObject bo = mo.getBoard().getPerstFrostBoardObject();
-        if( bo == null ) {
-            logger.severe("no board for new unsent msg!");
-            return false;
+    public boolean insertUnsentMessage(final FrostUnsentMessageObject mo, final boolean useTransaction) {
+        if( useTransaction ) {
+            if( !beginExclusiveThreadTransaction() ) {
+                return false;
+            }
         }
-
-        final PerstFrostUnsentMessageObject pmo = new PerstFrostUnsentMessageObject(getStorage(), mo);
-
-        bo.getUnsentMessagesList().add( pmo );
-        return true;
+        try {
+            final PerstFrostBoardObject bo = mo.getBoard().getPerstFrostBoardObject();
+            if( bo == null ) {
+                logger.severe("no board for new unsent msg!");
+                return false;
+            }
+            final PerstFrostUnsentMessageObject pmo = new PerstFrostUnsentMessageObject(getStorage(), mo);
+            bo.getUnsentMessagesList().add(pmo);
+            return true;
+        } finally {
+            if( useTransaction ) {
+                endThreadTransaction();
+            }
+        }
     }
 
     public boolean deleteUnsentMessage(final FrostUnsentMessageObject mo) {
