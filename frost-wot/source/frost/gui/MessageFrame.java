@@ -45,20 +45,20 @@ import frost.util.gui.textpane.*;
 import frost.util.gui.translation.*;
 
 public class MessageFrame extends JFrame {
-    
+
     private static final Logger logger = Logger.getLogger(MessageFrame.class.getName());
 
-    private Language language;
+    private final Language language;
 
-    private Listener listener = new Listener();
+    private final Listener listener = new Listener();
 
     private boolean initialized = false;
 
-    private Window parentWindow;
+    private final Window parentWindow;
 
     private Board board;
     private String repliedMsgId;
-    private SettingsClass frostSettings;
+    private final SettingsClass frostSettings;
 
     private MFAttachedBoardsTable boardsTable;
     private MFAttachedFilesTable filesTable;
@@ -73,23 +73,23 @@ public class MessageFrame extends JFrame {
     private JSkinnablePopupMenu attFilesPopupMenu;
     private JSkinnablePopupMenu attBoardsPopupMenu;
     private MessageBodyPopupMenu messageBodyPopupMenu;
-    
-    private JButton Bsend = new JButton(new ImageIcon(this.getClass().getResource("/data/send.gif")));
-    private JButton Bcancel = new JButton(new ImageIcon(this.getClass().getResource("/data/remove.gif")));
-    private JButton BattachFile = new JButton(new ImageIcon(this.getClass().getResource("/data/attachment.gif")));
-    private JButton BattachBoard= new JButton(new ImageIcon(MainFrame.class.getResource("/data/attachmentBoard.gif")));
 
-    private JCheckBox sign = new JCheckBox();
-    private JCheckBox encrypt = new JCheckBox();
+    private final JButton Bsend = new JButton(new ImageIcon(this.getClass().getResource("/data/send.gif")));
+    private final JButton Bcancel = new JButton(new ImageIcon(this.getClass().getResource("/data/remove.gif")));
+    private final JButton BattachFile = new JButton(new ImageIcon(this.getClass().getResource("/data/attachment.gif")));
+    private final JButton BattachBoard= new JButton(new ImageIcon(MainFrame.class.getResource("/data/attachmentBoard.gif")));
+
+    private final JCheckBox sign = new JCheckBox();
+    private final JCheckBox encrypt = new JCheckBox();
     private JComboBox buddies;
 
-    private JLabel Lboard = new JLabel();
-    private JLabel Lfrom = new JLabel();
-    private JLabel Lsubject = new JLabel();
-    private JTextField TFboard = new JTextField(); // Board (To)
-    private JTextField subjectTextField = new JTextField(); // Subject
+    private final JLabel Lboard = new JLabel();
+    private final JLabel Lfrom = new JLabel();
+    private final JLabel Lsubject = new JLabel();
+    private final JTextField TFboard = new JTextField(); // Board (To)
+    private final JTextField subjectTextField = new JTextField(); // Subject
 
-    private AntialiasedTextArea messageTextArea = new AntialiasedTextArea(); // Text
+    private final AntialiasedTextArea messageTextArea = new AntialiasedTextArea(); // Text
     private ImmutableArea headerArea = null;
 //    private TextHighlighter textHighlighter = null;
     private String oldSender = null;
@@ -98,20 +98,20 @@ public class MessageFrame extends JFrame {
     private FrostMessageObject repliedMessage = null;
 
     private JComboBox ownIdentitiesComboBox = null;
-    
+
     private static int openInstanceCount = 0;
 
-    public MessageFrame(SettingsClass newSettings, Window tparentWindow) {
+    public MessageFrame(final SettingsClass newSettings, final Window tparentWindow) {
         super();
         parentWindow = tparentWindow;
         this.language = Language.getInstance();
         frostSettings = newSettings;
-        
+
         incOpenInstanceCount();
 
-        String fontName = frostSettings.getValue(SettingsClass.MESSAGE_BODY_FONT_NAME);
-        int fontStyle = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_STYLE);
-        int fontSize = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
+        final String fontName = frostSettings.getValue(SettingsClass.MESSAGE_BODY_FONT_NAME);
+        final int fontStyle = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_STYLE);
+        final int fontSize = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
         Font tofFont = new Font(fontName, fontStyle, fontSize);
         if (!tofFont.getFamily().equals(fontName)) {
             logger.severe("The selected font was not found in your system\n"
@@ -121,29 +121,31 @@ public class MessageFrame extends JFrame {
         }
         messageTextArea.setFont(tofFont);
         messageTextArea.setAntiAliasEnabled(frostSettings.getBoolValue(SettingsClass.MESSAGE_BODY_ANTIALIAS));
-        ImmutableAreasDocument messageDocument = new ImmutableAreasDocument();
+        final ImmutableAreasDocument messageDocument = new ImmutableAreasDocument();
         headerArea = new ImmutableArea(messageDocument);
         messageDocument.addImmutableArea(headerArea); // user must not change the header of the message
         messageTextArea.setDocument(messageDocument);
 //        textHighlighter = new TextHighlighter(Color.LIGHT_GRAY);
         addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent e) {
+            @Override
+            public void windowClosing(final WindowEvent e) {
                 windowIsClosing(e);
             }
-            public void windowClosed(WindowEvent e) {
+            @Override
+            public void windowClosed(final WindowEvent e) {
                 windowWasClosed(e);
             }
         });
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
     }
-    
-    private void windowIsClosing(WindowEvent e) {
-        String title = language.getString("MessageFrame.discardMessage.title");
-        String text = language.getString("MessageFrame.discardMessage.text");
-        int answer = JOptionPane.showConfirmDialog(
-                this, 
-                text, 
-                title, 
+
+    private void windowIsClosing(final WindowEvent e) {
+        final String title = language.getString("MessageFrame.discardMessage.title");
+        final String text = language.getString("MessageFrame.discardMessage.text");
+        final int answer = JOptionPane.showConfirmDialog(
+                this,
+                text,
+                title,
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.WARNING_MESSAGE);
         if( answer == JOptionPane.YES_OPTION ) {
@@ -151,35 +153,35 @@ public class MessageFrame extends JFrame {
         }
     }
 
-    private void windowWasClosed(WindowEvent e) {
+    private void windowWasClosed(final WindowEvent e) {
         decOpenInstanceCount();
     }
 
-    private void attachBoards_actionPerformed(ActionEvent e) {
+    private void attachBoards_actionPerformed(final ActionEvent e) {
 
         // get and sort all boards
-        List allBoards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
+        final List allBoards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
         if (allBoards.size() == 0) {
             return;
         }
         Collections.sort(allBoards);
 
-        BoardsChooser chooser = new BoardsChooser(this, allBoards);
+        final BoardsChooser chooser = new BoardsChooser(this, allBoards);
         chooser.setLocationRelativeTo(this);
-        List chosenBoards = chooser.runDialog();
+        final List chosenBoards = chooser.runDialog();
         if (chosenBoards == null || chosenBoards.size() == 0) { // nothing chosed or cancelled
             return;
         }
 
         for (int i = 0; i < chosenBoards.size(); i++) {
-            Board chosedBoard = (Board) chosenBoards.get(i);
+            final Board chosedBoard = (Board) chosenBoards.get(i);
 
             String privKey = chosedBoard.getPrivateKey();
 
             if (privKey != null) {
-                int answer =
+                final int answer =
                     JOptionPane.showConfirmDialog(this,
-                        language.formatMessage("MessageFrame.attachBoard.sendPrivateKeyConfirmationDialog.body", chosedBoard.getName()),    
+                        language.formatMessage("MessageFrame.attachBoard.sendPrivateKeyConfirmationDialog.body", chosedBoard.getName()),
                         language.getString("MessageFrame.attachBoard.sendPrivateKeyConfirmationDialog.title"),
                         JOptionPane.YES_NO_OPTION);
                 if (answer == JOptionPane.NO_OPTION) {
@@ -187,35 +189,35 @@ public class MessageFrame extends JFrame {
                 }
             }
             // build a new board because maybe privKey shouldn't be uploaded
-            Board aNewBoard =
+            final Board aNewBoard =
                 new Board(chosedBoard.getName(), chosedBoard.getPublicKey(), privKey, chosedBoard.getDescription());
-            MFAttachedBoard ab = new MFAttachedBoard(aNewBoard);
+            final MFAttachedBoard ab = new MFAttachedBoard(aNewBoard);
             boardsTableModel.addRow(ab);
         }
         positionDividers();
     }
 
-    private void attachFile_actionPerformed(ActionEvent e) {
-        String lastUsedDirectory = frostSettings.getValue(SettingsClass.DIR_LAST_USED);
+    private void attachFile_actionPerformed(final ActionEvent e) {
+        final String lastUsedDirectory = frostSettings.getValue(SettingsClass.DIR_LAST_USED);
         final JFileChooser fc = new JFileChooser(lastUsedDirectory);
         fc.setDialogTitle(language.getString("MessageFrame.fileChooser.title"));
         fc.setFileHidingEnabled(false);
         fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         fc.setMultiSelectionEnabled(true);
 
-        int returnVal = fc.showOpenDialog(MessageFrame.this);
+        final int returnVal = fc.showOpenDialog(MessageFrame.this);
         if( returnVal == JFileChooser.APPROVE_OPTION ) {
-            File[] selectedFiles = fc.getSelectedFiles();
-            for( int i = 0; i < selectedFiles.length; i++ ) {
+            final File[] selectedFiles = fc.getSelectedFiles();
+            for( final File element : selectedFiles ) {
                 // for convinience remember last used directory
-                frostSettings.setValue(SettingsClass.DIR_LAST_USED, selectedFiles[i].getPath());
+                frostSettings.setValue(SettingsClass.DIR_LAST_USED, element.getPath());
 
                 // collect all choosed files + files in all choosed directories
-                ArrayList allFiles = FileAccess.getAllEntries(selectedFiles[i], "");
+                final ArrayList allFiles = FileAccess.getAllEntries(element, "");
                 for (int j = 0; j < allFiles.size(); j++) {
-                    File aFile = (File)allFiles.get(j);
+                    final File aFile = (File)allFiles.get(j);
                     if (aFile.isFile() && aFile.length() > 0) {
-                        MFAttachedFile af = new MFAttachedFile( aFile );
+                        final MFAttachedFile af = new MFAttachedFile( aFile );
                         filesTableModel.addRow( af );
                     }
                 }
@@ -224,32 +226,32 @@ public class MessageFrame extends JFrame {
         positionDividers();
     }
 
-    private void cancel_actionPerformed(ActionEvent e) {
+    private void cancel_actionPerformed(final ActionEvent e) {
         dispose();
     }
-    
+
     /**
      * Finally called to start composing a message. Uses alternate editor if configured.
      */
     private void composeMessage(
-            Board newBoard,
-            String newSubject,
-            String inReplyTo,
+            final Board newBoard,
+            final String newSubject,
+            final String inReplyTo,
             String newText,
-            boolean isReply,
-            Identity recipient,
-            LocalIdentity senderId,   // if given compose encrypted reply
-            FrostMessageObject msg) { 
-        
+            final boolean isReply,
+            final Identity recipient,
+            final LocalIdentity senderId,   // if given compose encrypted reply
+            final FrostMessageObject msg) {
+
         repliedMessage = msg;
-        
+
         if (isReply) {
             newText += "\n\n";
         }
 
         if (frostSettings.getBoolValue("useAltEdit")) {
             // build our transfer object that the parser will provide us in its callback
-            TransferObject to = new TransferObject();
+            final TransferObject to = new TransferObject();
             to.newBoard = newBoard;
             to.newSubject = newSubject;
             to.inReplyTo = inReplyTo;
@@ -259,33 +261,33 @@ public class MessageFrame extends JFrame {
             to.senderId = senderId;
             // create a temporary editText that is show in alternate editor
             // the editor will return only new text to us
-            DateTime now = new DateTime(DateTimeZone.UTC);
-            String date = DateFun.FORMAT_DATE_EXT.print(now)
-            + " - " 
+            final DateTime now = new DateTime(DateTimeZone.UTC);
+            final String date = DateFun.FORMAT_DATE_EXT.print(now)
+            + " - "
             + DateFun.FORMAT_TIME_EXT.print(now);
-            String fromLine = "----- (sender) ----- " + date + " -----";
-            String editText = newText + fromLine + "\n\n";
-            
-            AltEdit ae = new AltEdit(newSubject, editText, MainFrame.getInstance(), to, this);
+            final String fromLine = "----- (sender) ----- " + date + " -----";
+            final String editText = newText + fromLine + "\n\n";
+
+            final AltEdit ae = new AltEdit(newSubject, editText, MainFrame.getInstance(), to, this);
             ae.start();
         } else {
             // invoke frame directly, no alternate editor
             composeMessageContinued(newBoard, newSubject, inReplyTo, newText, null, isReply, recipient, senderId);
         }
     }
-    
-    public void altEditCallback(Object toObj, String newAltSubject, String newAltText) {
-        TransferObject to = (TransferObject)toObj;
+
+    public void altEditCallback(final Object toObj, String newAltSubject, final String newAltText) {
+        final TransferObject to = (TransferObject)toObj;
         if( newAltSubject == null ) {
             newAltSubject = to.newSubject; // use original subject
         }
         composeMessageContinued(
-                to.newBoard, 
-                newAltSubject, 
-                to.inReplyTo, 
-                to.newText, 
-                newAltText, 
-                to.isReply, 
+                to.newBoard,
+                newAltSubject,
+                to.inReplyTo,
+                to.newText,
+                newAltText,
+                to.isReply,
                 to.recipient,
                 to.senderId);
     }
@@ -294,14 +296,14 @@ public class MessageFrame extends JFrame {
      * This method is either invoked by ComposeMessage OR by the callback of the AltEdit class.
      */
     private void composeMessageContinued(
-        Board newBoard,
-        String newSubject,
-        String inReplyTo,
+        final Board newBoard,
+        final String newSubject,
+        final String inReplyTo,
         String newText,
-        String altEditText,
-        boolean isReply,
-        Identity recipient,       // if given compose encrypted reply
-        LocalIdentity senderId)   // if given compose encrypted reply
+        final String altEditText,
+        final boolean isReply,
+        final Identity recipient,       // if given compose encrypted reply
+        final LocalIdentity senderId)   // if given compose encrypted reply
     {
         headerArea.setEnabled(false);
         board = newBoard;
@@ -333,36 +335,36 @@ public class MessageFrame extends JFrame {
             }
         }
         oldSender = from;
-        
+
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         try {
             initialize(newBoard, newSubject);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             logger.log(Level.SEVERE, "Exception thrown in composeMessage(...)", e);
         }
-        
+
         sign.setEnabled(false);
-        
-        ImageIcon signedIcon = new ImageIcon(this.getClass().getResource("/data/signed.gif"));
-        ImageIcon unsignedIcon = new ImageIcon(this.getClass().getResource("/data/unsigned.gif"));
+
+        final ImageIcon signedIcon = new ImageIcon(this.getClass().getResource("/data/signed.gif"));
+        final ImageIcon unsignedIcon = new ImageIcon(this.getClass().getResource("/data/unsigned.gif"));
         sign.setDisabledSelectedIcon(signedIcon);
         sign.setDisabledIcon(unsignedIcon);
         sign.setSelectedIcon(signedIcon);
         sign.setIcon(unsignedIcon);
-        
+
         sign.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
+            public void itemStateChanged(final ItemEvent e) {
                 updateSignToolTip();
             }
         });
-        
+
         // maybe prepare to reply to an encrypted message
         if( recipient != null ) {
             // set correct sender identity
             for(int x=0; x < getOwnIdentitiesComboBox().getItemCount(); x++) {
-                Object obj = getOwnIdentitiesComboBox().getItemAt(x);
+                final Object obj = getOwnIdentitiesComboBox().getItemAt(x);
                 if( obj instanceof LocalIdentity ) {
-                    LocalIdentity li = (LocalIdentity)obj;
+                    final LocalIdentity li = (LocalIdentity)obj;
                     if( senderId.getUniqueName().equals(li.getUniqueName()) ) {
                         getOwnIdentitiesComboBox().setSelectedIndex(x);
                         break;
@@ -383,9 +385,9 @@ public class MessageFrame extends JFrame {
             if( isInitializedSigned ) {
                 // set saved sender identity
                 for(int x=0; x < getOwnIdentitiesComboBox().getItemCount(); x++) {
-                    Object obj = getOwnIdentitiesComboBox().getItemAt(x);
+                    final Object obj = getOwnIdentitiesComboBox().getItemAt(x);
                     if( obj instanceof LocalIdentity ) {
-                        LocalIdentity li = (LocalIdentity)obj;
+                        final LocalIdentity li = (LocalIdentity)obj;
                         if( from.equals(li.getUniqueName()) ) {
                             getOwnIdentitiesComboBox().setSelectedIndex(x);
                             sign.setSelected(true);
@@ -412,30 +414,30 @@ public class MessageFrame extends JFrame {
         }
 
         updateSignToolTip();
-        
-        // prepare message text
-        DateTime now = new DateTime(DateTimeZone.UTC);
-        String date = DateFun.FORMAT_DATE_EXT.print(now)
-                        + " - " 
-                        + DateFun.FORMAT_TIME_EXT.print(now);
-        String fromLine = "----- " + from + " ----- " + date + " -----";
 
-        int headerAreaStart = newText.length();// begin of non-modifiable area
+        // prepare message text
+        final DateTime now = new DateTime(DateTimeZone.UTC);
+        final String date = DateFun.FORMAT_DATE_EXT.print(now)
+                        + " - "
+                        + DateFun.FORMAT_TIME_EXT.print(now);
+        final String fromLine = "----- " + from + " ----- " + date + " -----";
+
+        final int headerAreaStart = newText.length();// begin of non-modifiable area
         newText += fromLine + "\n\n";
-        int headerAreaEnd = newText.length() - 2; // end of non-modifiable area
+        final int headerAreaEnd = newText.length() - 2; // end of non-modifiable area
 
         if( altEditText != null ) {
             newText += altEditText; // maybe append text entered in alternate editor
         }
 
         // later set cursor to this position in text
-        int caretPos = newText.length();
+        final int caretPos = newText.length();
 
         // set sig if msg is marked as signed
         currentSignature = null;
         if( sign.isSelected()  ) {
             // maybe append a signature
-            LocalIdentity li = (LocalIdentity)getOwnIdentitiesComboBox().getSelectedItem();
+            final LocalIdentity li = (LocalIdentity)getOwnIdentitiesComboBox().getSelectedItem();
             if( li.getSignature() != null ) {
                 currentSignature = "\n-- \n" + li.getSignature();
                 newText += currentSignature;
@@ -446,7 +448,7 @@ public class MessageFrame extends JFrame {
         headerArea.setStartPos(headerAreaStart);
         headerArea.setEndPos(headerAreaEnd);
         headerArea.setEnabled(true);
-        
+
 //        textHighlighter.highlight(messageTextArea, headerAreaStart, headerAreaEnd-headerAreaStart, true);
 
         setVisible(true);
@@ -460,30 +462,31 @@ public class MessageFrame extends JFrame {
         messageTextArea.getCaret().setVisible(true);
     }
 
-    public void composeNewMessage(Board newBoard, String newSubject, String newText) {
+    public void composeNewMessage(final Board newBoard, final String newSubject, final String newText) {
         composeMessage(newBoard, newSubject, null, newText, false, null, null, null);
     }
 
     public void composeReply(
-            Board newBoard, 
-            String newSubject,
-            String inReplyTo,
-            String newText,
-            FrostMessageObject msg) {
+            final Board newBoard,
+            final String newSubject,
+            final String inReplyTo,
+            final String newText,
+            final FrostMessageObject msg) {
         composeMessage(newBoard, newSubject, inReplyTo, newText, true, null, null, msg);
     }
 
     public void composeEncryptedReply(
-            Board newBoard, 
-            String newSubject, 
-            String inReplyTo,
-            String newText,
-            Identity recipient,
-            LocalIdentity senderId,
-            FrostMessageObject msg) {
+            final Board newBoard,
+            final String newSubject,
+            final String inReplyTo,
+            final String newText,
+            final Identity recipient,
+            final LocalIdentity senderId,
+            final FrostMessageObject msg) {
         composeMessage(newBoard, newSubject, inReplyTo, newText, true, recipient, senderId, msg);
     }
 
+    @Override
     public void dispose() {
         if (initialized) {
             language.removeLanguageListener(listener);
@@ -499,12 +502,12 @@ public class MessageFrame extends JFrame {
         return messageBodyPopupMenu;
     }
 
-    private void initialize(Board targetBoard, String subject) throws Exception {
+    private void initialize(final Board targetBoard, final String subject) throws Exception {
         if (!initialized) {
             refreshLanguage();
             language.addLanguageListener(listener);
 
-            ImageIcon frameIcon = new ImageIcon(getClass().getResource("/data/newmessage.gif"));
+            final ImageIcon frameIcon = new ImageIcon(getClass().getResource("/data/newmessage.gif"));
             setIconImage(frameIcon.getImage());
             setResizable(true);
 
@@ -521,14 +524,14 @@ public class MessageFrame extends JFrame {
             filesTable.addMouseListener(listener);
 
 // FIXME: option to show own identities in list, or to hide them
-            List<Identity> budList = Core.getIdentities().getAllGOODIdentities();
+            final List<Identity> budList = Core.getIdentities().getAllGOODIdentities();
             Identity id = null;
             if( repliedMessage != null ) {
                 id = repliedMessage.getFromIdentity();
             }
             if( budList.size() > 0 || id != null ) {
                 Collections.sort( budList, new BuddyComparator() );
-                if( id != null ) { 
+                if( id != null ) {
                     if( id.isGOOD() == true ) {
                         budList.remove(id); // remove before put to top of list
                     }
@@ -542,7 +545,7 @@ public class MessageFrame extends JFrame {
             }
             buddies.setMaximumSize(new Dimension(300, 25)); // dirty fix for overlength combobox on linux
 
-            MiscToolkit toolkit = MiscToolkit.getInstance();
+            final MiscToolkit toolkit = MiscToolkit.getInstance();
             toolkit.configureButton(Bsend, "MessageFrame.toolbar.tooltip.sendMessage", "/data/send_rollover.gif", language);
             toolkit.configureButton(Bcancel, "Common.cancel", "/data/remove_rollover.gif", language);
             toolkit.configureButton(
@@ -558,7 +561,7 @@ public class MessageFrame extends JFrame {
 
             TFboard.setEditable(false);
             TFboard.setText(targetBoard.getName());
-            
+
             new TextComponentClipboardMenu(TFboard, language);
             new TextComponentClipboardMenu((TextComboBoxEditor)getOwnIdentitiesComboBox().getEditor(), language);
             new TextComponentClipboardMenu(subjectTextField, language);
@@ -566,7 +569,7 @@ public class MessageFrame extends JFrame {
             messageTextArea.setLineWrap(true);
             messageTextArea.setWrapStyleWord(true);
             messageTextArea.addMouseListener(listener);
-            
+
             sign.setOpaque(false);
             encrypt.setOpaque(false);
 
@@ -574,27 +577,27 @@ public class MessageFrame extends JFrame {
             // Actionlistener
             //------------------------------------------------------------------------
             Bsend.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(ActionEvent e) {
+                public void actionPerformed(final ActionEvent e) {
                     send_actionPerformed(e);
                 }
             });
             Bcancel.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(ActionEvent e) {
+                public void actionPerformed(final ActionEvent e) {
                     cancel_actionPerformed(e);
                 }
             });
             BattachFile.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(ActionEvent e) {
+                public void actionPerformed(final ActionEvent e) {
                     attachFile_actionPerformed(e);
                 }
             });
             BattachBoard.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(ActionEvent e) {
+                public void actionPerformed(final ActionEvent e) {
                     attachBoards_actionPerformed(e);
                 }
             });
             encrypt.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(ActionEvent e) {
+                public void actionPerformed(final ActionEvent e) {
                     encrypt_ActionPerformed(e);
                 }
             });
@@ -602,45 +605,95 @@ public class MessageFrame extends JFrame {
             //------------------------------------------------------------------------
             // Append objects
             //------------------------------------------------------------------------
-            JPanel panelMain = new JPanel(new BorderLayout()); // Main Panel
-            JPanel panelTextfields = new JPanel(new BorderLayout()); // Textfields
-            JPanel panelToolbar = new JPanel(new BorderLayout()); // Toolbar / Textfields
-            JPanel panelLabels = new JPanel(new BorderLayout()); // Labels
-            
-            JToolBar panelButtons = new JToolBar(); // toolbar
-            panelButtons.setRollover(true);
-            panelButtons.setFloatable(false);
+            final JPanel panelMain = new JPanel(new BorderLayout()); // Main Panel
 
-            JScrollPane bodyScrollPane = new JScrollPane(messageTextArea); // Textscrollpane
+            final JPanel panelHeader = new JPanel(new BorderLayout()); // header (toolbar and textfields)
+            final JPanel panelTextfields = new JPanel(new GridBagLayout());
+
+            final JToolBar panelToolbar = new JToolBar(); // toolbar
+            panelToolbar.setRollover(true);
+            panelToolbar.setFloatable(false);
+
+            final JScrollPane bodyScrollPane = new JScrollPane(messageTextArea); // Textscrollpane
             bodyScrollPane.setWheelScrollingEnabled(true);
             bodyScrollPane.setMinimumSize(new Dimension(100, 50));
 
-            panelLabels.add(Lboard, BorderLayout.NORTH);
-            panelLabels.add(Lfrom, BorderLayout.CENTER);
-            panelLabels.add(Lsubject, BorderLayout.SOUTH);
+            // FIXME: add a smiley chooser right beside the subject textfield!
 
-            panelTextfields.add(TFboard, BorderLayout.NORTH);
-            panelTextfields.add(getOwnIdentitiesComboBox(), BorderLayout.CENTER);
-            panelTextfields.add(subjectTextField, BorderLayout.SOUTH);
+            // text fields
+            final GridBagConstraints constraints = new GridBagConstraints();
+            final Insets insets = new Insets(0, 3, 0, 3);
+            final Insets insets0 = new Insets(0, 0, 0, 0);
+            constraints.fill = GridBagConstraints.NONE;
+            constraints.anchor = GridBagConstraints.WEST;
+            constraints.weighty = 0.0;
+            constraints.weightx = 0.0;
 
-            panelButtons.add(Bsend);
-            panelButtons.add(Bcancel);
-            panelButtons.add(BattachFile);
-            panelButtons.add(BattachBoard);
-            panelButtons.add(sign);
-            panelButtons.add(encrypt);
-            panelButtons.add(buddies);
+            constraints.insets = insets;
+
+            constraints.gridx = 0;
+            constraints.gridy = 0;
+
+            constraints.fill = GridBagConstraints.NONE;
+            constraints.insets = insets;
+            constraints.weightx = 0.0;
+            panelTextfields.add(Lboard, constraints);
+
+            constraints.gridx = 1;
+
+            constraints.fill = GridBagConstraints.HORIZONTAL;
+            constraints.insets = insets0;
+            constraints.weightx = 1.0;
+            panelTextfields.add(TFboard, constraints);
+
+            constraints.gridx = 0;
+            constraints.gridy++;
+
+            constraints.fill = GridBagConstraints.NONE;
+            constraints.insets = insets;
+            constraints.weightx = 0.0;
+            panelTextfields.add(Lfrom, constraints);
+
+            constraints.gridx = 1;
+
+            constraints.fill = GridBagConstraints.HORIZONTAL;
+            constraints.insets = insets0;
+            constraints.weightx = 1.0;
+            panelTextfields.add(getOwnIdentitiesComboBox(), constraints);
+
+            constraints.gridx = 0;
+            constraints.gridy++;
+
+            constraints.fill = GridBagConstraints.NONE;
+            constraints.insets = insets;
+            constraints.weightx = 0.0;
+            panelTextfields.add(Lsubject, constraints);
+
+            constraints.gridx = 1;
+
+            constraints.fill = GridBagConstraints.HORIZONTAL;
+            constraints.insets = insets0;
+            constraints.weightx = 1.0;
+            panelTextfields.add(subjectTextField, constraints);
+
+            // toolbar
+            panelToolbar.add(Bsend);
+            panelToolbar.add(Bcancel);
+            panelToolbar.addSeparator();
+            panelToolbar.add(BattachFile);
+            panelToolbar.add(BattachBoard);
+            panelToolbar.addSeparator();
+            panelToolbar.add(sign);
+            panelToolbar.addSeparator();
+            panelToolbar.add(encrypt);
+            panelToolbar.add(buddies);
 //            panelButtons.add(addAttachedFilesToUploadTable);
 
-            ScrollableBar panelButtonsScrollable = new ScrollableBar(panelButtons);
+            final ScrollableBar panelButtonsScrollable = new ScrollableBar(panelToolbar);
 
-            JPanel dummyPanel = new JPanel(new BorderLayout());
-            dummyPanel.add(panelLabels, BorderLayout.WEST);
-            dummyPanel.add(panelTextfields, BorderLayout.CENTER);
-
-            panelToolbar.add(panelButtonsScrollable, BorderLayout.PAGE_START);
+            panelHeader.add(panelButtonsScrollable, BorderLayout.PAGE_START);
 //            panelToolbar.add(panelButtons, BorderLayout.PAGE_START);
-            panelToolbar.add(dummyPanel, BorderLayout.CENTER);
+            panelHeader.add(panelTextfields, BorderLayout.CENTER);
 
             //Put everything together
             attachmentsSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, filesTableScrollPane,
@@ -655,7 +708,7 @@ public class MessageFrame extends JFrame {
             messageSplitPane.setDividerLocation(1.0);
             messageSplitPane.setResizeWeight(1.0);
 
-            panelMain.add(panelToolbar, BorderLayout.NORTH);
+            panelMain.add(panelHeader, BorderLayout.NORTH);
             panelMain.add(messageSplitPane, BorderLayout.CENTER);
 
             getContentPane().setLayout(new BorderLayout());
@@ -684,16 +737,16 @@ public class MessageFrame extends JFrame {
         attFilesPopupMenu = new JSkinnablePopupMenu();
         attBoardsPopupMenu = new JSkinnablePopupMenu();
 
-        JMenuItem removeFiles = new JMenuItem(language.getString("MessageFrame.attachmentTables.popupmenu.remove"));
-        JMenuItem removeBoards = new JMenuItem(language.getString("MessageFrame.attachmentTables.popupmenu.remove"));
+        final JMenuItem removeFiles = new JMenuItem(language.getString("MessageFrame.attachmentTables.popupmenu.remove"));
+        final JMenuItem removeBoards = new JMenuItem(language.getString("MessageFrame.attachmentTables.popupmenu.remove"));
 
         removeFiles.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 removeSelectedItemsFromTable(filesTable);
             }
         });
         removeBoards.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 removeSelectedItemsFromTable(boardsTable);
             }
         });
@@ -703,8 +756,8 @@ public class MessageFrame extends JFrame {
     }
 
     private void positionDividers() {
-        int attachedFiles = filesTableModel.getRowCount();
-        int attachedBoards = boardsTableModel.getRowCount();
+        final int attachedFiles = filesTableModel.getRowCount();
+        final int attachedBoards = boardsTableModel.getRowCount();
         if (attachedFiles == 0 && attachedBoards == 0) {
             // Neither files nor boards
             messageSplitPane.setBottomComponent(null);
@@ -744,12 +797,12 @@ public class MessageFrame extends JFrame {
         Lboard.setText(language.getString("MessageFrame.board") + ": ");
         Lfrom.setText(language.getString("MessageFrame.from") + ": ");
         Lsubject.setText(language.getString("MessageFrame.subject") + ": ");
-        
+
         updateSignToolTip();
     }
-    
+
     private void updateSignToolTip() {
-        boolean isSelected = sign.isSelected();
+        final boolean isSelected = sign.isSelected();
         if( isSelected ) {
             sign.setToolTipText(language.getString("MessagePane.toolbar.tooltip.isSigned"));
         } else {
@@ -757,9 +810,9 @@ public class MessageFrame extends JFrame {
         }
     }
 
-    protected void removeSelectedItemsFromTable( JTable tbl ) {
-        SortedTableModel m = (SortedTableModel)tbl.getModel();
-        int[] sel = tbl.getSelectedRows();
+    protected void removeSelectedItemsFromTable( final JTable tbl ) {
+        final SortedTableModel m = (SortedTableModel)tbl.getModel();
+        final int[] sel = tbl.getSelectedRows();
         for(int x=sel.length-1; x>=0; x--)
         {
             m.removeRow(sel[x]);
@@ -767,8 +820,8 @@ public class MessageFrame extends JFrame {
         positionDividers();
     }
 
-    private void send_actionPerformed(ActionEvent e) {
-        
+    private void send_actionPerformed(final ActionEvent e) {
+
         LocalIdentity senderId = null;
         String from;
         if( getOwnIdentitiesComboBox().getSelectedItem() instanceof LocalIdentity ) {
@@ -777,13 +830,13 @@ public class MessageFrame extends JFrame {
         } else {
             from = getOwnIdentitiesComboBox().getEditor().getItem().toString();
         }
-        
-        String subject = subjectTextField.getText().trim();
+
+        final String subject = subjectTextField.getText().trim();
         subjectTextField.setText(subject); // if a pbl occurs show the subject we checked
-        String text = messageTextArea.getText().trim();
+        final String text = messageTextArea.getText().trim();
 
         if( subject.equals("No subject") ) {
-            int n = JOptionPane.showConfirmDialog( this,
+            final int n = JOptionPane.showConfirmDialog( this,
                                 language.getString("MessageFrame.defaultSubjectWarning.text"),
                                 language.getString("MessageFrame.defaultSubjectWarning.title"),
                                 JOptionPane.YES_NO_OPTION,
@@ -807,19 +860,19 @@ public class MessageFrame extends JFrame {
                                 JOptionPane.ERROR);
             return;
         }
-        int maxTextLength = (60*1024);
-        int msgSize = text.length() + subject.length() + from.length() + ((repliedMsgId!=null)?repliedMsgId.length():0); 
+        final int maxTextLength = (60*1024);
+        final int msgSize = text.length() + subject.length() + from.length() + ((repliedMsgId!=null)?repliedMsgId.length():0);
         if( msgSize > maxTextLength ) {
             JOptionPane.showMessageDialog( this,
-                    language.formatMessage("MessageFrame.textTooLargeError.text", 
-                            Integer.toString(text.length()), 
+                    language.formatMessage("MessageFrame.textTooLargeError.text",
+                            Integer.toString(text.length()),
                             Integer.toString(maxTextLength)),
                     language.getString("MessageFrame.textTooLargeError.title"),
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
-        int idLinePos = headerArea.getStartPos();
-        int idLineLen = headerArea.getEndPos() - headerArea.getStartPos();
+        final int idLinePos = headerArea.getStartPos();
+        final int idLineLen = headerArea.getEndPos() - headerArea.getStartPos();
         if( text.length() == headerArea.getEndPos() ) {
             JOptionPane.showMessageDialog( this,
                     language.getString("MessageFrame.noContentError.text"),
@@ -834,8 +887,8 @@ public class MessageFrame extends JFrame {
             frostSettings.setValue(SettingsClass.LAST_USED_FROMNAME, from);
         }
         frostSettings.setValue("userName."+board.getBoardFilename(), from);
-        
-        FrostUnsentMessageObject newMessage = new FrostUnsentMessageObject();
+
+        final FrostUnsentMessageObject newMessage = new FrostUnsentMessageObject();
         newMessage.setMessageId(Mixed.createUniqueId()); // new message, create a new unique msg id
         newMessage.setInReplyTo(repliedMsgId);
         newMessage.setBoard(board);
@@ -850,18 +903,18 @@ public class MessageFrame extends JFrame {
         // attach all files and boards the user chosed
         if( filesTableModel.getRowCount() > 0 ) {
             for(int x=0; x < filesTableModel.getRowCount(); x++) {
-                MFAttachedFile af = (MFAttachedFile)filesTableModel.getRow(x);
-                File aChosedFile = af.getFile();
-                FileAttachment fa = new FileAttachment(aChosedFile);
+                final MFAttachedFile af = (MFAttachedFile)filesTableModel.getRow(x);
+                final File aChosedFile = af.getFile();
+                final FileAttachment fa = new FileAttachment(aChosedFile);
                 newMessage.addAttachment(fa);
             }
             newMessage.setHasFileAttachments(true);
         }
         if( boardsTableModel.getRowCount() > 0 ) {
             for(int x=0; x < boardsTableModel.getRowCount(); x++) {
-                MFAttachedBoard ab = (MFAttachedBoard)boardsTableModel.getRow(x);
-                Board aChosedBoard = ab.getBoardObject();
-                BoardAttachment ba = new BoardAttachment(aChosedBoard);
+                final MFAttachedBoard ab = (MFAttachedBoard)boardsTableModel.getRow(x);
+                final Board aChosedBoard = ab.getBoardObject();
+                final BoardAttachment ba = new BoardAttachment(aChosedBoard);
                 newMessage.addAttachment(ba);
             }
             newMessage.setHasBoardAttachments(true);
@@ -912,13 +965,14 @@ public class MessageFrame extends JFrame {
         //  We would have to set the replied state after the msg was successfully sent, because
         //  we can't remove the state later, maybe the msg was replied twice and we would remove
         //  the replied state from first reply...
-        
+
         // set isReplied to replied message
         if( repliedMessage != null ) {
             if( repliedMessage.isReplied() == false ) {
                 repliedMessage.setReplied(true);
                 final FrostMessageObject saveMsg = repliedMessage;
-                Thread saver = new Thread() {
+                final Thread saver = new Thread() {
+                    @Override
                     public void run() {
                         // save the changed isreplied state into the database
                         MessageStorage.inst().updateMessage(saveMsg);
@@ -932,17 +986,17 @@ public class MessageFrame extends JFrame {
         dispose();
     }
 
-    private void senderChanged(LocalIdentity selectedId) {
-        
+    private void senderChanged(final LocalIdentity selectedId) {
+
         boolean isSigned;
         if( selectedId == null ) {
             isSigned = false;
         } else {
             isSigned = true;
         }
-        
+
         sign.setSelected(isSigned);
-        
+
         if (isSigned) {
             if( buddies.getItemCount() > 0 ) {
                 encrypt.setEnabled(true);
@@ -952,7 +1006,7 @@ public class MessageFrame extends JFrame {
                     buddies.setEnabled(false);
                 }
             }
-            
+
             removeSignatureFromText(currentSignature); // remove signature if existing
             currentSignature = addSignatureToText(selectedId.getSignature()); // add new signature if not existing
         } else {
@@ -963,36 +1017,36 @@ public class MessageFrame extends JFrame {
             currentSignature = null;
         }
     }
-    
-    private String addSignatureToText(String sig) {
+
+    private String addSignatureToText(final String sig) {
         if( sig == null ) {
             return null;
         }
-        String newSig = "\n-- \n" + sig;
+        final String newSig = "\n-- \n" + sig;
         if (!messageTextArea.getText().endsWith(newSig)) {
             try {
                 messageTextArea.getDocument().insertString(messageTextArea.getText().length(), newSig, null);
-            } catch (BadLocationException e1) {
+            } catch (final BadLocationException e1) {
                 logger.log(Level.SEVERE, "Error while updating the signature ", e1);
             }
         }
         return newSig;
     }
-    
-    private void removeSignatureFromText(String sig) {
+
+    private void removeSignatureFromText(final String sig) {
         if( sig == null ) {
             return;
         }
         if (messageTextArea.getText().endsWith(sig)) {
             try {
                 messageTextArea.getDocument().remove(messageTextArea.getText().length()-sig.length(), sig.length());
-            } catch (BadLocationException e1) {
+            } catch (final BadLocationException e1) {
                 logger.log(Level.SEVERE, "Error while updating the signature ", e1);
             }
         }
     }
 
-    private void encrypt_ActionPerformed(ActionEvent e) {
+    private void encrypt_ActionPerformed(final ActionEvent e) {
         if( encrypt.isSelected() ) {
             buddies.setEnabled(true);
         } else {
@@ -1000,7 +1054,7 @@ public class MessageFrame extends JFrame {
         }
     }
 
-    protected void updateHeaderArea(String sender) {
+    protected void updateHeaderArea(final String sender) {
         if( !headerArea.isEnabled() ) {
             return; // ignore updates
         }
@@ -1015,14 +1069,14 @@ public class MessageFrame extends JFrame {
             oldSender = sender;
             headerArea.setEnabled(true);
 //            textHighlighter.highlight(messageTextArea, headerArea.getStartPos(), headerArea.getEndPos()-headerArea.getStartPos(), true);
-        } catch (BadLocationException exception) {
+        } catch (final BadLocationException exception) {
             logger.log(Level.SEVERE, "Error while updating the message header", exception);
         }
 //        String s= messageTextArea.getText().substring(headerArea.getStartPos(), headerArea.getEndPos());
 //        System.out.println("DBG: "+headerArea.getStartPos()+" ; "+headerArea.getEndPos()+": '"+s+"'");
-     
+
 // DBG: 0 ; 77: '----- blubb2@xpDZ5ZfXK9wYiHB_hkVGRCwJl54 ----- 2006.10.13 - 18:20:12GMT -----'
-// DBG: 39 ; 119: '----- wegdami t@plewLcBTHKmPwpWakJNpUdvWSR8 ----- 2006.10.13 - 18:20:12GMT -----'        
+// DBG: 39 ; 119: '----- wegdami t@plewLcBTHKmPwpWakJNpUdvWSR8 ----- 2006.10.13 - 18:20:12GMT -----'
     }
 
     class TextComboBoxEditor extends JTextField implements ComboBoxEditor {
@@ -1033,7 +1087,7 @@ public class MessageFrame extends JFrame {
         public Component getEditorComponent() {
             return this;
         }
-        public void setItem(Object arg0) {
+        public void setItem(final Object arg0) {
             if( arg0 instanceof LocalIdentity ) {
                 isSigned = true;
             } else {
@@ -1054,45 +1108,47 @@ public class MessageFrame extends JFrame {
             ownIdentitiesComboBox = new JComboBox();
             ownIdentitiesComboBox.addItem("Anonymous");
             // sort own unique names
-            TreeMap<String,LocalIdentity> sortedIds = new TreeMap<String,LocalIdentity>();
-            for(Iterator i=Core.getIdentities().getLocalIdentities().iterator(); i.hasNext(); ) {
-                LocalIdentity li = (LocalIdentity)i.next();
+            final TreeMap<String,LocalIdentity> sortedIds = new TreeMap<String,LocalIdentity>();
+            for( final Object element : Core.getIdentities().getLocalIdentities() ) {
+                final LocalIdentity li = (LocalIdentity)element;
                 sortedIds.put(li.getUniqueName(), li);
             }
-            for(Iterator i=sortedIds.values().iterator(); i.hasNext(); ) {
-                ownIdentitiesComboBox.addItem(i.next());
+            for( final Object element : sortedIds.values() ) {
+                ownIdentitiesComboBox.addItem(element);
             }
-            
+
             final TextComboBoxEditor editor = new TextComboBoxEditor();
-            
+
             editor.getDocument().addDocumentListener(new DocumentListener() {
-                public void changedUpdate(DocumentEvent e) {
+                public void changedUpdate(final DocumentEvent e) {
                     updateHeaderArea2();
                 }
-                public void insertUpdate(DocumentEvent e) {
+                public void insertUpdate(final DocumentEvent e) {
                     updateHeaderArea2();
                 }
-                public void removeUpdate(DocumentEvent e) {
+                public void removeUpdate(final DocumentEvent e) {
                     updateHeaderArea2();
                 }
                 private void updateHeaderArea2() {
-                    String sender = (String)getOwnIdentitiesComboBox().getEditor().getItem().toString();
+                    final String sender = getOwnIdentitiesComboBox().getEditor().getItem().toString();
                     updateHeaderArea(sender);
                 }
             });
 
-            AbstractDocument doc = (AbstractDocument) editor.getDocument();
+            final AbstractDocument doc = (AbstractDocument) editor.getDocument();
             doc.setDocumentFilter(new DocumentFilter() {
-                public void insertString(DocumentFilter.FilterBypass fb, int offset, String string,
-                        AttributeSet attr) throws BadLocationException 
+                @Override
+                public void insertString(final DocumentFilter.FilterBypass fb, final int offset, String string,
+                        final AttributeSet attr) throws BadLocationException
                 {
                     if (((TextComboBoxEditor)getOwnIdentitiesComboBox().getEditor()).isSigned() == false ) {
                         string = string.replaceAll("@","");
                     }
                     super.insertString(fb, offset, string, attr);
                 }
-                public void replace(DocumentFilter.FilterBypass fb, int offset, int length, String string,
-                        AttributeSet attrs) throws BadLocationException 
+                @Override
+                public void replace(final DocumentFilter.FilterBypass fb, final int offset, final int length, String string,
+                        final AttributeSet attrs) throws BadLocationException
                 {
                     if (((TextComboBoxEditor)getOwnIdentitiesComboBox().getEditor()).isSigned() == false ) {
                         string = string.replaceAll("@","");
@@ -1100,14 +1156,14 @@ public class MessageFrame extends JFrame {
                     super.replace(fb, offset, length, string, attrs);
                 }
             });
-            
+
             ownIdentitiesComboBox.setEditor(editor);
-            
+
             ownIdentitiesComboBox.setEditable(true);
 
 //            ownIdentitiesComboBox.getEditor().selectAll();
             ownIdentitiesComboBox.addItemListener(new java.awt.event.ItemListener() {
-                public void itemStateChanged(java.awt.event.ItemEvent e) {
+                public void itemStateChanged(final java.awt.event.ItemEvent e) {
                     if( e.getStateChange() == ItemEvent.DESELECTED ) {
                         return;
                     }
@@ -1122,7 +1178,7 @@ public class MessageFrame extends JFrame {
                         ownIdentitiesComboBox.setEditable(false);
                         selectedId = (LocalIdentity) ownIdentitiesComboBox.getSelectedItem();
                     }
-                    String sender = (String)getOwnIdentitiesComboBox().getSelectedItem().toString();
+                    final String sender = getOwnIdentitiesComboBox().getSelectedItem().toString();
                     updateHeaderArea(sender);
                     senderChanged(selectedId);
                 }
@@ -1130,17 +1186,17 @@ public class MessageFrame extends JFrame {
         }
         return ownIdentitiesComboBox;
     }
-    
+
     class BuddyComparator implements Comparator<Identity> {
-        public int compare(Identity id1, Identity id2) {
-            String s1 = id1.getUniqueName();
-            String s2 = id2.getUniqueName();
+        public int compare(final Identity id1, final Identity id2) {
+            final String s1 = id1.getUniqueName();
+            final String s2 = id2.getUniqueName();
             return s1.toLowerCase().compareTo( s2.toLowerCase() );
         }
     }
-    
+
     private class Listener implements MouseListener, LanguageListener {
-        protected void maybeShowPopup(MouseEvent e) {
+        protected void maybeShowPopup(final MouseEvent e) {
             if (e.isPopupTrigger()) {
                 if (e.getSource() == boardsTable) {
                     attBoardsPopupMenu.show(boardsTable, e.getX(), e.getY());
@@ -1153,16 +1209,16 @@ public class MessageFrame extends JFrame {
                 }
             }
         }
-        public void mouseClicked(MouseEvent event) {}
-        public void mouseEntered(MouseEvent event) {}
-        public void mouseExited(MouseEvent event) {}
-        public void mousePressed(MouseEvent event) {
+        public void mouseClicked(final MouseEvent event) {}
+        public void mouseEntered(final MouseEvent event) {}
+        public void mouseExited(final MouseEvent event) {}
+        public void mousePressed(final MouseEvent event) {
             maybeShowPopup(event);
         }
-        public void mouseReleased(MouseEvent event) {
+        public void mouseReleased(final MouseEvent event) {
             maybeShowPopup(event);
         }
-        public void languageChanged(LanguageEvent event) {
+        public void languageChanged(final LanguageEvent event) {
             refreshLanguage();
         }
     }
@@ -1173,20 +1229,20 @@ public class MessageFrame extends JFrame {
 
         private Clipboard clipboard;
 
-        private JTextComponent sourceTextComponent;
+        private final JTextComponent sourceTextComponent;
 
-        private JMenuItem cutItem = new JMenuItem();
-        private JMenuItem copyItem = new JMenuItem();
-        private JMenuItem pasteItem = new JMenuItem();
-        private JMenuItem cancelItem = new JMenuItem();
+        private final JMenuItem cutItem = new JMenuItem();
+        private final JMenuItem copyItem = new JMenuItem();
+        private final JMenuItem pasteItem = new JMenuItem();
+        private final JMenuItem cancelItem = new JMenuItem();
 
-        public MessageBodyPopupMenu(JTextComponent sourceTextComponent) {
+        public MessageBodyPopupMenu(final JTextComponent sourceTextComponent) {
             super();
             this.sourceTextComponent = sourceTextComponent;
             initialize();
         }
 
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(final ActionEvent e) {
             if (e.getSource() == cutItem) {
                 cutSelectedText();
             }
@@ -1199,33 +1255,33 @@ public class MessageFrame extends JFrame {
         }
 
         private void copySelectedText() {
-            StringSelection selection = new StringSelection(sourceTextComponent.getSelectedText());
+            final StringSelection selection = new StringSelection(sourceTextComponent.getSelectedText());
             clipboard.setContents(selection, this);
         }
 
         private void cutSelectedText() {
-            StringSelection selection = new StringSelection(sourceTextComponent.getSelectedText());
+            final StringSelection selection = new StringSelection(sourceTextComponent.getSelectedText());
             clipboard.setContents(selection, this);
 
-            int start = sourceTextComponent.getSelectionStart();
-            int end = sourceTextComponent.getSelectionEnd();
+            final int start = sourceTextComponent.getSelectionStart();
+            final int end = sourceTextComponent.getSelectionEnd();
             try {
                 sourceTextComponent.getDocument().remove(start, end - start);
-            } catch (BadLocationException ble) {
+            } catch (final BadLocationException ble) {
                 logger.log(Level.SEVERE, "Problem while cutting text.", ble);
             }
         }
 
         private void pasteText() {
-            Transferable clipboardContent = clipboard.getContents(this);
+            final Transferable clipboardContent = clipboard.getContents(this);
             try {
-                String text = (String) clipboardContent.getTransferData(DataFlavor.stringFlavor);
+                final String text = (String) clipboardContent.getTransferData(DataFlavor.stringFlavor);
 
-                Caret caret = sourceTextComponent.getCaret();
-                int p0 = Math.min(caret.getDot(), caret.getMark());
-                int p1 = Math.max(caret.getDot(), caret.getMark());
+                final Caret caret = sourceTextComponent.getCaret();
+                final int p0 = Math.min(caret.getDot(), caret.getMark());
+                final int p1 = Math.max(caret.getDot(), caret.getMark());
 
-                Document document = sourceTextComponent.getDocument();
+                final Document document = sourceTextComponent.getDocument();
 
                 if (document instanceof PlainDocument) {
                     ((PlainDocument) document).replace(p0, p1 - p0, text, null);
@@ -1235,11 +1291,11 @@ public class MessageFrame extends JFrame {
                     }
                     document.insertString(p0, text, null);
                 }
-            } catch (IOException ioe) {
+            } catch (final IOException ioe) {
                 logger.log(Level.SEVERE, "Problem while pasting text.", ioe);
-            } catch (UnsupportedFlavorException ufe) {
+            } catch (final UnsupportedFlavorException ufe) {
                 logger.log(Level.SEVERE, "Problem while pasting text.", ufe);
-            } catch (BadLocationException ble) {
+            } catch (final BadLocationException ble) {
                 logger.log(Level.SEVERE, "Problem while pasting text.", ble);
             }
         }
@@ -1247,7 +1303,7 @@ public class MessageFrame extends JFrame {
         private void initialize() {
             refreshLanguage();
 
-            Toolkit toolkit = Toolkit.getDefaultToolkit();
+            final Toolkit toolkit = Toolkit.getDefaultToolkit();
             clipboard = toolkit.getSystemClipboard();
 
             cutItem.addActionListener(this);
@@ -1268,9 +1324,10 @@ public class MessageFrame extends JFrame {
             cancelItem.setText(language.getString("Common.cancel"));
         }
 
-        public void lostOwnership(Clipboard nclipboard, Transferable contents) {}
+        public void lostOwnership(final Clipboard nclipboard, final Transferable contents) {}
 
-        public void show(Component invoker, int x, int y) {
+        @Override
+        public void show(final Component invoker, final int x, final int y) {
             if (sourceTextComponent.getSelectedText() != null) {
                 cutItem.setEnabled(true);
                 copyItem.setEnabled(true);
@@ -1278,7 +1335,7 @@ public class MessageFrame extends JFrame {
                 cutItem.setEnabled(false);
                 copyItem.setEnabled(false);
             }
-            Transferable clipboardContent = clipboard.getContents(this);
+            final Transferable clipboardContent = clipboard.getContents(this);
             if ((clipboardContent != null) &&
                     (clipboardContent.isDataFlavorSupported(DataFlavor.stringFlavor))) {
                 pasteItem.setEnabled(true);
@@ -1292,13 +1349,13 @@ public class MessageFrame extends JFrame {
     private class MFAttachedBoard implements TableMember {
         Board aBoard;
 
-        public MFAttachedBoard(Board ab) {
+        public MFAttachedBoard(final Board ab) {
             aBoard = ab;
         }
 
-        public int compareTo( TableMember anOther, int tableColumIndex ) {
-            Comparable c1 = (Comparable)getValueAt(tableColumIndex);
-            Comparable c2 = (Comparable)anOther.getValueAt(tableColumIndex);
+        public int compareTo( final TableMember anOther, final int tableColumIndex ) {
+            final Comparable c1 = (Comparable)getValueAt(tableColumIndex);
+            final Comparable c2 = (Comparable)anOther.getValueAt(tableColumIndex);
             return c1.compareTo( c2 );
         }
 
@@ -1306,7 +1363,7 @@ public class MessageFrame extends JFrame {
             return aBoard;
         }
 
-        public Object getValueAt(int column) {
+        public Object getValueAt(final int column) {
             switch (column) {
                 case 0 : return aBoard.getName();
                 case 1 : return (aBoard.getPublicKey() == null) ? "N/A" : aBoard.getPublicKey();
@@ -1318,10 +1375,10 @@ public class MessageFrame extends JFrame {
     }
 
     private class MFAttachedBoardsTable extends SortedTable {
-        public MFAttachedBoardsTable(MFAttachedBoardsTableModel m) {
+        public MFAttachedBoardsTable(final MFAttachedBoardsTableModel m) {
             super(m);
             // set column sizes
-            int[] widths = {250, 80, 80};
+            final int[] widths = {250, 80, 80};
             for (int i = 0; i < widths.length; i++) {
                 getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
             }
@@ -1349,39 +1406,46 @@ public class MessageFrame extends JFrame {
         public MFAttachedBoardsTableModel() {
             super();
         }
-        public Class getColumnClass(int column) {
-            if( column >= 0 && column < columnClasses.length )
+        @Override
+        public Class getColumnClass(final int column) {
+            if( column >= 0 && column < columnClasses.length ) {
                 return columnClasses[column];
+            }
             return null;
         }
+        @Override
         public int getColumnCount() {
             return columnNames.length;
         }
-        public String getColumnName(int column) {
-            if( column >= 0 && column < columnNames.length )
+        @Override
+        public String getColumnName(final int column) {
+            if( column >= 0 && column < columnNames.length ) {
                 return columnNames[column];
+            }
             return null;
         }
-        public boolean isCellEditable(int row, int col) {
+        @Override
+        public boolean isCellEditable(final int row, final int col) {
             return false;
         }
-        public void setValueAt(Object aValue, int row, int column) {}
+        @Override
+        public void setValueAt(final Object aValue, final int row, final int column) {}
     }
 
     private class MFAttachedFile implements TableMember {
         File aFile;
-        public MFAttachedFile(File af) {
+        public MFAttachedFile(final File af) {
             aFile = af;
         }
-        public int compareTo( TableMember anOther, int tableColumIndex ) {
-            Comparable c1 = (Comparable)getValueAt(tableColumIndex);
-            Comparable c2 = (Comparable)anOther.getValueAt(tableColumIndex);
+        public int compareTo( final TableMember anOther, final int tableColumIndex ) {
+            final Comparable c1 = (Comparable)getValueAt(tableColumIndex);
+            final Comparable c2 = (Comparable)anOther.getValueAt(tableColumIndex);
             return c1.compareTo( c2 );
         }
         public File getFile() {
             return aFile;
         }
-        public Object getValueAt(int column)  {
+        public Object getValueAt(final int column)  {
             switch(column) {
                 case 0: return aFile.getName();
                 case 1: return Long.toString(aFile.length());
@@ -1391,10 +1455,10 @@ public class MessageFrame extends JFrame {
     }
 
     private class MFAttachedFilesTable extends SortedTable {
-        public MFAttachedFilesTable(MFAttachedFilesTableModel m) {
+        public MFAttachedFilesTable(final MFAttachedFilesTableModel m) {
             super(m);
             // set column sizes
-            int[] widths = {250, 80};
+            final int[] widths = {250, 80};
             for (int i = 0; i < widths.length; i++) {
                 getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
             }
@@ -1417,25 +1481,32 @@ public class MessageFrame extends JFrame {
         public MFAttachedFilesTableModel() {
             super();
         }
-        public Class getColumnClass(int column) {
-            if( column >= 0 && column < columnClasses.length )
+        @Override
+        public Class getColumnClass(final int column) {
+            if( column >= 0 && column < columnClasses.length ) {
                 return columnClasses[column];
+            }
             return null;
         }
+        @Override
         public int getColumnCount() {
             return columnNames.length;
         }
-        public String getColumnName(int column) {
-            if( column >= 0 && column < columnNames.length )
+        @Override
+        public String getColumnName(final int column) {
+            if( column >= 0 && column < columnNames.length ) {
                 return columnNames[column];
+            }
             return null;
         }
-        public boolean isCellEditable(int row, int col) {
+        @Override
+        public boolean isCellEditable(final int row, final int col) {
             return false;
         }
-        public void setValueAt(Object aValue, int row, int column) {}
+        @Override
+        public void setValueAt(final Object aValue, final int row, final int column) {}
     }
-    
+
     private class TransferObject {
         public Board newBoard;
         public String newSubject;
@@ -1445,7 +1516,7 @@ public class MessageFrame extends JFrame {
         public Identity recipient = null;;
         public LocalIdentity senderId = null;
     }
-    
+
     public static synchronized int getOpenInstanceCount() {
         return openInstanceCount;
     }
