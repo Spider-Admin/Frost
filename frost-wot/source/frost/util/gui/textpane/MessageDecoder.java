@@ -27,6 +27,7 @@ import javax.swing.*;
 import javax.swing.text.*;
 
 import frost.fcp.*;
+import frost.util.gui.*;
 
 /**
  * Message decoder for search freenet keys and smileys,
@@ -224,20 +225,8 @@ public class MessageDecoder extends Decoder implements Smileys, MessageTypes {
     }
 
 	private Icon getSmiley(final int i) {
-        return getCachedSmiley(i, getClass().getClassLoader());
+        return SmileyCache.getCachedSmiley(i, getClass().getClassLoader());
 	}
-
-    protected static Hashtable<String,ImageIcon> smileyCache = new Hashtable<String,ImageIcon>();
-
-    protected static synchronized ImageIcon getCachedSmiley(final int i, final ClassLoader cl) {
-        final String si = Integer.toString(i);
-        ImageIcon ii = smileyCache.get(si);
-        if( ii == null ) {
-            ii = new ImageIcon(cl.getResource("data/smileys/"+i+".gif"));
-            smileyCache.put(si, ii);
-        }
-        return ii;
-    }
 
     public List<String> getHyperlinkedKeys() {
         return hyperlinkedKeys;

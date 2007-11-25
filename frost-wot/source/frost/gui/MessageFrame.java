@@ -77,7 +77,7 @@ public class MessageFrame extends JFrame {
     private final JButton Bsend = new JButton(new ImageIcon(this.getClass().getResource("/data/send.gif")));
     private final JButton Bcancel = new JButton(new ImageIcon(this.getClass().getResource("/data/remove.gif")));
     private final JButton BattachFile = new JButton(new ImageIcon(this.getClass().getResource("/data/attachment.gif")));
-    private final JButton BattachBoard= new JButton(new ImageIcon(MainFrame.class.getResource("/data/attachmentBoard.gif")));
+    private final JButton BattachBoard = new JButton(new ImageIcon(MainFrame.class.getResource("/data/attachmentBoard.gif")));
 
     private final JCheckBox sign = new JCheckBox();
     private final JCheckBox encrypt = new JCheckBox();
@@ -88,6 +88,7 @@ public class MessageFrame extends JFrame {
     private final JLabel Lsubject = new JLabel();
     private final JTextField TFboard = new JTextField(); // Board (To)
     private final JTextField subjectTextField = new JTextField(); // Subject
+    private final JButton BchooseSmiley = new JButton(new ImageIcon(MainFrame.class.getResource("/data/togglesmileys.gif")));
 
     private final AntialiasedTextArea messageTextArea = new AntialiasedTextArea(); // Text
     private ImmutableArea headerArea = null;
@@ -546,8 +547,16 @@ public class MessageFrame extends JFrame {
             buddies.setMaximumSize(new Dimension(300, 25)); // dirty fix for overlength combobox on linux
 
             final MiscToolkit toolkit = MiscToolkit.getInstance();
-            toolkit.configureButton(Bsend, "MessageFrame.toolbar.tooltip.sendMessage", "/data/send_rollover.gif", language);
-            toolkit.configureButton(Bcancel, "Common.cancel", "/data/remove_rollover.gif", language);
+            toolkit.configureButton(
+                    Bsend,
+                    "MessageFrame.toolbar.tooltip.sendMessage",
+                    "/data/send_rollover.gif",
+                    language);
+            toolkit.configureButton(
+                    Bcancel,
+                    "Common.cancel",
+                    "/data/remove_rollover.gif",
+                    language);
             toolkit.configureButton(
                 BattachFile,
                 "MessageFrame.toolbar.tooltip.addFileAttachments",
@@ -558,6 +567,12 @@ public class MessageFrame extends JFrame {
                 "MessageFrame.toolbar.tooltip.addBoardAttachments",
                 "/data/attachmentBoard_rollover.gif",
                 language);
+
+            toolkit.configureButton(
+                    BchooseSmiley,
+                    "MessageFrame.toolbar.tooltip.chooseSmiley",
+                    "/data/togglesmileys.gif",
+                    language);
 
             TFboard.setEditable(false);
             TFboard.setText(targetBoard.getName());
@@ -598,7 +613,12 @@ public class MessageFrame extends JFrame {
             });
             encrypt.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
-                    encrypt_ActionPerformed(e);
+                    encrypt_actionPerformed(e);
+                }
+            });
+            BchooseSmiley.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
+                    chooseSmiley_actionPerformed(e);
                 }
             });
 
@@ -635,6 +655,7 @@ public class MessageFrame extends JFrame {
             constraints.gridy = 0;
 
             constraints.fill = GridBagConstraints.NONE;
+            constraints.gridwidth = 1;
             constraints.insets = insets;
             constraints.weightx = 0.0;
             panelTextfields.add(Lboard, constraints);
@@ -642,6 +663,7 @@ public class MessageFrame extends JFrame {
             constraints.gridx = 1;
 
             constraints.fill = GridBagConstraints.HORIZONTAL;
+            constraints.gridwidth = 2;
             constraints.insets = insets0;
             constraints.weightx = 1.0;
             panelTextfields.add(TFboard, constraints);
@@ -650,6 +672,7 @@ public class MessageFrame extends JFrame {
             constraints.gridy++;
 
             constraints.fill = GridBagConstraints.NONE;
+            constraints.gridwidth = 1;
             constraints.insets = insets;
             constraints.weightx = 0.0;
             panelTextfields.add(Lfrom, constraints);
@@ -657,6 +680,7 @@ public class MessageFrame extends JFrame {
             constraints.gridx = 1;
 
             constraints.fill = GridBagConstraints.HORIZONTAL;
+            constraints.gridwidth = 2;
             constraints.insets = insets0;
             constraints.weightx = 1.0;
             panelTextfields.add(getOwnIdentitiesComboBox(), constraints);
@@ -665,6 +689,7 @@ public class MessageFrame extends JFrame {
             constraints.gridy++;
 
             constraints.fill = GridBagConstraints.NONE;
+            constraints.gridwidth = 1;
             constraints.insets = insets;
             constraints.weightx = 0.0;
             panelTextfields.add(Lsubject, constraints);
@@ -672,9 +697,18 @@ public class MessageFrame extends JFrame {
             constraints.gridx = 1;
 
             constraints.fill = GridBagConstraints.HORIZONTAL;
+            constraints.gridwidth = 1;
             constraints.insets = insets0;
             constraints.weightx = 1.0;
             panelTextfields.add(subjectTextField, constraints);
+
+            constraints.gridx = 2;
+
+            constraints.fill = GridBagConstraints.NONE;
+            constraints.gridwidth = 1;
+            constraints.insets = insets;
+            constraints.weightx = 0.0;
+            panelTextfields.add(BchooseSmiley, constraints);
 
             // toolbar
             panelToolbar.add(Bsend);
@@ -818,6 +852,38 @@ public class MessageFrame extends JFrame {
             m.removeRow(sel[x]);
         }
         positionDividers();
+    }
+
+    private void chooseSmiley_actionPerformed(final ActionEvent e) {
+        final SmileyChooserDialog dlg = new SmileyChooserDialog(this);
+        final int x = this.getX() + BchooseSmiley.getX();
+        final int y = this.getY() + BchooseSmiley.getY();
+        String choosedSmileyText = dlg.startDialog(x, y);
+        if( choosedSmileyText == null || choosedSmileyText.length() == 0 ) {
+            return;
+        }
+        choosedSmileyText += " ";
+        // paste into document
+        try {
+            final Caret caret = messageTextArea.getCaret();
+            final int p0 = Math.min(caret.getDot(), caret.getMark());
+            final int p1 = Math.max(caret.getDot(), caret.getMark());
+
+            final Document document = messageTextArea.getDocument();
+
+            if (document instanceof PlainDocument) {
+                ((PlainDocument) document).replace(p0, p1 - p0, choosedSmileyText, null);
+            } else {
+                if (p0 != p1) {
+                    document.remove(p0, p1 - p0);
+                }
+                document.insertString(p0, choosedSmileyText, null);
+            }
+
+            messageTextArea.requestFocusInWindow();
+        } catch (final Throwable ble) {
+            logger.log(Level.SEVERE, "Problem while pasting text.", ble);
+        }
     }
 
     private void send_actionPerformed(final ActionEvent e) {
@@ -1046,7 +1112,7 @@ public class MessageFrame extends JFrame {
         }
     }
 
-    private void encrypt_ActionPerformed(final ActionEvent e) {
+    private void encrypt_actionPerformed(final ActionEvent e) {
         if( encrypt.isSelected() ) {
             buddies.setEnabled(true);
         } else {
