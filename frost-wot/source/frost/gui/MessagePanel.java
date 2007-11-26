@@ -70,7 +70,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             if (e.getSource() == updateButton) {
                 updateButton_actionPerformed(e);
             } else if (e.getSource() == newMessageButton) {
-                newMessageButton_actionPerformed(e);
+                newMessageButton_actionPerformed();
             } else if (e.getSource() == replyButton) {
                 replyButton_actionPerformed(e);
             } else if (e.getSource() == saveMessageButton) {
@@ -978,8 +978,21 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         }
     }
 
-    private void newMessageButton_actionPerformed(final ActionEvent e) {
-        tofNewMessageButton_actionPerformed(e);
+    private void newMessageButton_actionPerformed() {
+        final AbstractNode node = mainFrame.getTofTreeModel().getSelectedNode();
+        if( node == null || !node.isBoard() ) {
+            return;
+        }
+        final Board board = (Board) node;
+        composeNewMessage(board);
+    }
+
+    public void composeNewMessage(final Board targetBoard) {
+        if( targetBoard == null || targetBoard.isReadAccessBoard() ) {
+            return;
+        }
+        final MessageFrame newMessageFrame = new MessageFrame(settings, mainFrame);
+        newMessageFrame.composeNewMessage(targetBoard, "No subject", "");
     }
 
     public void setTrustState_actionPerformed(final IdentityState idState) {
@@ -1508,20 +1521,6 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             }
         }
         MainFrame.getInstance().updateMessageCountLabels(board);
-    }
-
-    /**
-     * tofNewMessageButton Action Listener (tof/ New Message)
-     */
-    private void tofNewMessageButton_actionPerformed(final ActionEvent e) {
-        final AbstractNode node = mainFrame.getTofTreeModel().getSelectedNode();
-        if( node == null || !node.isBoard() ) {
-            return;
-        }
-        final Board board = (Board) node;
-
-        final MessageFrame newMessageFrame = new MessageFrame(settings, mainFrame);
-        newMessageFrame.composeNewMessage(board, "No subject", "");
     }
 
     /**
