@@ -21,11 +21,22 @@ package frost.gui.preferences;
 import java.awt.*;
 
 import javax.swing.*;
+import javax.swing.border.*;
+import javax.swing.event.*;
 
 import frost.*;
+import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
 public class DisplayMessagesPanel extends JPanel {
+
+    private class Listener implements ChangeListener {
+        public void stateChanged(final ChangeEvent e) {
+            if (e.getSource() == indicateLowReceivedMessagesCheckBox) {
+                indicateLowReceivedMessagesChanged();
+            }
+        }
+    }
 
     private SettingsClass settings = null;
     private Language language = null;
@@ -38,6 +49,15 @@ public class DisplayMessagesPanel extends JPanel {
     private final JCheckBox showDeletedMessagesCheckBox = new JCheckBox();
     private final JCheckBox dontShowOwnMessagesAsNewCheckBox = new JCheckBox();
     private final JCheckBox dontShowOwnMessagesAsMECheckBox = new JCheckBox();
+
+    private JPanel indicateLowReceivedMessagesPanel = null;
+    private final JCheckBox indicateLowReceivedMessagesCheckBox = new JCheckBox();
+    private final JLabel LindicateLowReceivedMessagesCountRed = new JLabel();
+    private final JLabel LindicateLowReceivedMessagesCountLightRed = new JLabel();
+    private final JTextField TFindicateLowReceivedMessagesCountRed = new JTextField(8);
+    private final JTextField TFindicateLowReceivedMessagesCountLightRed = new JTextField(8);
+
+    private final Listener listener = new Listener();
 
     /**
      * @param owner the JDialog that will be used as owner of any dialog that is popped up from this panel
@@ -54,6 +74,39 @@ public class DisplayMessagesPanel extends JPanel {
     }
 
     public void cancel() {
+    }
+
+    private JPanel getIndicateLowReceivedMessagesPanel() {
+        if( indicateLowReceivedMessagesPanel == null ) {
+            indicateLowReceivedMessagesPanel = new JPanel(new GridBagLayout());
+            indicateLowReceivedMessagesPanel.setBorder(new EmptyBorder(5, 30, 5, 5));
+            final GridBagConstraints constraints = new GridBagConstraints();
+            constraints.insets = new Insets(0, 5, 5, 5);
+            constraints.weighty = 0;
+            constraints.weightx = 0;
+            constraints.anchor = GridBagConstraints.NORTHWEST;
+            constraints.gridy = 0;
+
+            constraints.fill = GridBagConstraints.HORIZONTAL;
+            constraints.gridx = 0;
+            constraints.weightx = 0.5;
+            indicateLowReceivedMessagesPanel.add(LindicateLowReceivedMessagesCountRed, constraints);
+            constraints.fill = GridBagConstraints.NONE;
+            constraints.gridx = 1;
+            constraints.weightx = 1;
+            indicateLowReceivedMessagesPanel.add(TFindicateLowReceivedMessagesCountRed, constraints);
+
+            constraints.fill = GridBagConstraints.HORIZONTAL;
+            constraints.gridx = 0;
+            constraints.gridy++;
+            constraints.weightx = 0.5;
+            indicateLowReceivedMessagesPanel.add(LindicateLowReceivedMessagesCountLightRed, constraints);
+            constraints.fill = GridBagConstraints.NONE;
+            constraints.gridx = 1;
+            constraints.weightx = 1;
+            indicateLowReceivedMessagesPanel.add(TFindicateLowReceivedMessagesCountLightRed, constraints);
+        }
+        return indicateLowReceivedMessagesPanel;
     }
 
     /**
@@ -98,9 +151,18 @@ public class DisplayMessagesPanel extends JPanel {
         add(dontShowOwnMessagesAsMECheckBox, constraints);
 
         constraints.gridy++;
+        add(indicateLowReceivedMessagesCheckBox, constraints);
+
+        constraints.gridy++;
+        add(getIndicateLowReceivedMessagesPanel(), constraints);
+
+        constraints.gridy++;
         constraints.weighty = 1.0;
         constraints.fill = GridBagConstraints.BOTH;
         add(new JLabel(""), constraints);
+
+        // add listener
+        indicateLowReceivedMessagesCheckBox.addChangeListener(listener);
     }
 
     /**
@@ -115,6 +177,12 @@ public class DisplayMessagesPanel extends JPanel {
         showDeletedMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_DELETED_MESSAGES));
         dontShowOwnMessagesAsNewCheckBox.setSelected(settings.getBoolValue(SettingsClass.HANDLE_OWN_MESSAGES_AS_NEW_DISABLED));
         dontShowOwnMessagesAsMECheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_OWN_MESSAGES_AS_ME_DISABLED));
+
+        TFindicateLowReceivedMessagesCountRed.setText(settings.getValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES_COUNT_RED));
+        TFindicateLowReceivedMessagesCountLightRed.setText(settings.getValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES_COUNT_LIGHTRED));
+
+        indicateLowReceivedMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES));
+        indicateLowReceivedMessagesChanged();
     }
 
     public void ok() {
@@ -130,6 +198,10 @@ public class DisplayMessagesPanel extends JPanel {
         showDeletedMessagesCheckBox.setText(language.getString("Options.news.3.showDeletedMessages"));
         dontShowOwnMessagesAsNewCheckBox.setText(language.getString("Options.news.3.dontHandleOwnMessagesAsNew"));
         dontShowOwnMessagesAsMECheckBox.setText(language.getString("Options.news.3.dontShowOwnMessagesAsMe"));
+
+        indicateLowReceivedMessagesCheckBox.setText(language.getString("Options.display.indicateLowReceivedMessages"));
+        LindicateLowReceivedMessagesCountRed.setText(language.getString("Options.display.indicateLowReceivedMessagesCountRed"));
+        LindicateLowReceivedMessagesCountLightRed.setText(language.getString("Options.display.indicateLowReceivedMessagesCountLightRed"));
     }
 
     /**
@@ -144,5 +216,13 @@ public class DisplayMessagesPanel extends JPanel {
         settings.setValue(SettingsClass.SHOW_DELETED_MESSAGES, showDeletedMessagesCheckBox.isSelected());
         settings.setValue(SettingsClass.HANDLE_OWN_MESSAGES_AS_NEW_DISABLED, dontShowOwnMessagesAsNewCheckBox.isSelected());
         settings.setValue(SettingsClass.SHOW_OWN_MESSAGES_AS_ME_DISABLED, dontShowOwnMessagesAsMECheckBox.isSelected());
+
+        settings.setValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES_COUNT_RED, TFindicateLowReceivedMessagesCountRed.getText());
+        settings.setValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES_COUNT_LIGHTRED, TFindicateLowReceivedMessagesCountLightRed.getText());
+        settings.setValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES, indicateLowReceivedMessagesCheckBox.isSelected());
+    }
+
+    private void indicateLowReceivedMessagesChanged() {
+        MiscToolkit.getInstance().setContainerEnabled(getIndicateLowReceivedMessagesPanel(), indicateLowReceivedMessagesCheckBox.isSelected());
     }
 }

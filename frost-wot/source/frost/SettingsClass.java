@@ -199,6 +199,10 @@ public class SettingsClass implements ExitSavable {
 
     public static final String SHOW_THREADS = "MessagePanel.showThreads";
 
+    public static final String INDICATE_LOW_RECEIVED_MESSAGES = "MessagePanel.indicateLowReceivedMessages";
+    public static final String INDICATE_LOW_RECEIVED_MESSAGES_COUNT_RED = "MessagePanel.indicateLowReceivedMessages.redCount";
+    public static final String INDICATE_LOW_RECEIVED_MESSAGES_COUNT_LIGHTRED = "MessagePanel.indicateLowReceivedMessages.lightRedCount";
+
     public static final String SHOW_UNREAD_ONLY = "MessagePanel.showUnreadOnly";
 
     public static final String MSGTABLE_MSGTEXT_DIVIDER_LOCATION = "MessagePanel.msgTableAndMsgTextSplitpaneDividerLocation";
@@ -952,6 +956,10 @@ public class SettingsClass implements ExitSavable {
         defaults.put(HANDLE_OWN_MESSAGES_AS_NEW_DISABLED, "false");
         defaults.put(SHOW_OWN_MESSAGES_AS_ME_DISABLED, "false");
         defaults.put(SORT_THREADROOTMSGS_ASCENDING, "false");
+
+        defaults.put(INDICATE_LOW_RECEIVED_MESSAGES, "true");
+        defaults.put(INDICATE_LOW_RECEIVED_MESSAGES_COUNT_RED, "1");
+        defaults.put(INDICATE_LOW_RECEIVED_MESSAGES_COUNT_LIGHTRED, "5");
 
         defaults.put(SHOW_COLORED_ROWS, "true");
         defaults.put(SHOW_SMILEYS, "true");
