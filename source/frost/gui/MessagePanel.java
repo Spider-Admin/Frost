@@ -49,6 +49,10 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     private final JLabel subjectLabel = new JLabel();
     private final JLabel subjectTextLabel = new JLabel();
 
+    private boolean indicateLowReceivedMessages;
+    private int indicateLowReceivedMessagesCountRed;
+    private int indicateLowReceivedMessagesCountLightRed;
+
     MainFrame mainFrame;
 
     public static enum IdentityState { GOOD, CHECK, OBSERVE, BAD };
@@ -670,9 +674,16 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
             FrostMessageObject.sortThreadRootMsgsAscending = settings.getBoolValue(SettingsClass.SORT_THREADROOTMSGS_ASCENDING);
 
+            indicateLowReceivedMessages = Core.frostSettings.getBoolValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES);
+            indicateLowReceivedMessagesCountRed = Core.frostSettings.getIntValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES_COUNT_RED);
+            indicateLowReceivedMessagesCountLightRed = Core.frostSettings.getIntValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES_COUNT_LIGHTRED);
+
             Core.frostSettings.addPropertyChangeListener(SettingsClass.SORT_THREADROOTMSGS_ASCENDING, this);
             Core.frostSettings.addPropertyChangeListener(SettingsClass.MSGTABLE_MULTILINE_SELECT, this);
             Core.frostSettings.addPropertyChangeListener(SettingsClass.MSGTABLE_SCROLL_HORIZONTAL, this);
+            Core.frostSettings.addPropertyChangeListener(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES, this);
+            Core.frostSettings.addPropertyChangeListener(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES_COUNT_RED, this);
+            Core.frostSettings.addPropertyChangeListener(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES_COUNT_LIGHTRED, this);
 
             // build messages list scroll pane
             final MessageTreeTableModel messageTableModel = new MessageTreeTableModel(new DefaultMutableTreeNode());
@@ -905,7 +916,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
             if( selectedMessage.isDummy() ) {
                 getMessageTextPane().update_boardSelected();
-                subjectTextLabel.setText("");
+                clearSubjectTextLabel();
                 setGoodButton.setEnabled(false);
                 setCheckButton.setEnabled(false);
                 setBadButton.setEnabled(false);
@@ -956,7 +967,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             }
 
             getMessageTextPane().update_messageSelected(selectedMessage);
-            subjectTextLabel.setText(selectedMessage.getSubject());
+            updateSubjectTextLabel(selectedMessage.getSubject(), selectedMessage.getFromIdentity());
 
             if (selectedMessage.getContent().length() > 0) {
                 saveMessageButton.setEnabled(true);
@@ -967,7 +978,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         } else {
             // no msg selected
             getMessageTextPane().update_boardSelected();
-            subjectTextLabel.setText("");
+            clearSubjectTextLabel();
             replyButton.setEnabled(false);
             saveMessageButton.setEnabled(false);
 
@@ -1200,7 +1211,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         if (((TreeNode) mainFrame.getTofTreeModel().getRoot()).getChildCount() == 0) {
             // There are no boards
             getMessageTextPane().update_noBoardsFound();
-            subjectTextLabel.setText("");
+            clearSubjectTextLabel();
         } else {
             // There are boards
             final AbstractNode node = (AbstractNode)mainFrame.getTofTree().getLastSelectedPathComponent();
@@ -1209,7 +1220,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     // node is a board
                     // FIXME: reset message history!
                     getMessageTextPane().update_boardSelected();
-                    subjectTextLabel.setText("");
+                    clearSubjectTextLabel();
                     updateButton.setEnabled(true);
                     saveMessageButton.setEnabled(false);
                     replyButton.setEnabled(false);
@@ -1224,7 +1235,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     saveMessageButton.setEnabled(false);
                     updateButton.setEnabled(false);
                     getMessageTextPane().update_folderSelected();
-                    subjectTextLabel.setText("");
+                    clearSubjectTextLabel();
                 }
             }
         }
@@ -1594,6 +1605,32 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         }
     }
 
+    private void updateSubjectTextLabel(final String newText, final Identity fromId) {
+        if( newText == null ) {
+            // clear
+            subjectTextLabel.setText("");
+        } else {
+            subjectTextLabel.setText(newText);
+        }
+        ImageIcon iconToSet = null;
+        if( fromId != null ) {
+            if( indicateLowReceivedMessages ) {
+                final int receivedMsgCount = fromId.getReceivedMessageCount();
+                if( receivedMsgCount <= indicateLowReceivedMessagesCountRed ) {
+                    iconToSet = MainFrame.getInstance().getMessageTreeTable().receivedOneMessage;
+                } else if( receivedMsgCount <= indicateLowReceivedMessagesCountLightRed ) {
+                    iconToSet = MainFrame.getInstance().getMessageTreeTable().receivedFiveMessages;
+                }
+            }
+        }
+        subjectLabel.setIcon(iconToSet);
+    }
+
+    private void clearSubjectTextLabel() {
+        subjectTextLabel.setText("");
+        subjectLabel.setIcon(null);
+    }
+
     public TreeTableModelAdapter getMessageTableModel() {
         return (TreeTableModelAdapter)getMessageTable().getModel();
     }
@@ -1632,6 +1669,12 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             updateMsgTableResizeMode();
         } else if (evt.getPropertyName().equals(SettingsClass.SORT_THREADROOTMSGS_ASCENDING)) {
             FrostMessageObject.sortThreadRootMsgsAscending = settings.getBoolValue(SettingsClass.SORT_THREADROOTMSGS_ASCENDING);
+        } else if (evt.getPropertyName().equals(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES)) {
+            indicateLowReceivedMessages = Core.frostSettings.getBoolValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES);
+        } else if (evt.getPropertyName().equals(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES_COUNT_RED)) {
+            indicateLowReceivedMessagesCountRed = Core.frostSettings.getIntValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES_COUNT_RED);
+        } else if (evt.getPropertyName().equals(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES_COUNT_LIGHTRED)) {
+            indicateLowReceivedMessagesCountLightRed = Core.frostSettings.getIntValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES_COUNT_LIGHTRED);
         }
     }
 }

@@ -508,8 +508,6 @@ public class TOF {
             public boolean messageRetrieved(final FrostMessageObject mo) {
                 if( !isBlocked(mo, board, blockMsgSubject, blockMsgBody, blockMsgBoardname) ) {
                     rootNode.add(mo);
-                } else {
-                    System.out.println("blocked message");
                 }
                 return isCancel();
             }
