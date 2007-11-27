@@ -63,7 +63,17 @@ public class MessageTreeTableModel extends DefaultTreeModel implements TreeTable
 
     private Language language = null;
 
-    protected final static String columnNames[] = new String[7];
+    public final static int COLUMN_INDEX_FLAGGED = 0;
+    public final static int COLUMN_INDEX_STARRED = 1;
+    public final static int COLUMN_INDEX_SUBJECT = 2;
+    public final static int COLUMN_INDEX_FROM    = 3;
+    public final static int COLUMN_INDEX_INDEX   = 4;
+    public final static int COLUMN_INDEX_SIG     = 5;
+    public final static int COLUMN_INDEX_DATE    = 6;
+
+    public final static int MAX_COLUMN_INDEX     = 6;
+
+    protected final static String columnNames[] = new String[MAX_COLUMN_INDEX + 1];
 
     /**
      * Constructor for creating a DynamicTreeTableModel.
@@ -80,13 +90,14 @@ public class MessageTreeTableModel extends DefaultTreeModel implements TreeTable
     }
 
     private void refreshLanguage() {
-        columnNames[0] = "!";
-        columnNames[1] = "*";
-        columnNames[2] = language.getString("MessagePane.messageTable.subject");
-        columnNames[3] = language.getString("MessagePane.messageTable.from");
-        columnNames[4] = language.getString("MessagePane.messageTable.index");
-        columnNames[5] = language.getString("MessagePane.messageTable.sig");
-        columnNames[6] = language.getString("MessagePane.messageTable.date");
+
+        columnNames[COLUMN_INDEX_FLAGGED] = "!";
+        columnNames[COLUMN_INDEX_STARRED] = "*";
+        columnNames[COLUMN_INDEX_SUBJECT] = language.getString("MessagePane.messageTable.subject");
+        columnNames[COLUMN_INDEX_FROM]    = language.getString("MessagePane.messageTable.from");
+        columnNames[COLUMN_INDEX_INDEX]   = language.getString("MessagePane.messageTable.index");
+        columnNames[COLUMN_INDEX_SIG]     = language.getString("MessagePane.messageTable.sig");
+        columnNames[COLUMN_INDEX_DATE]    = language.getString("MessagePane.messageTable.date");
 
         try {
             final TableColumnModel tcm = MainFrame.getInstance().getMessagePanel().getMessageTable().getTableHeader().getColumnModel();
@@ -150,10 +161,10 @@ public class MessageTreeTableModel extends DefaultTreeModel implements TreeTable
      * is set in the constructor.
      */
     public Class getColumnClass(final int column) {
-        if( column == 2 ) {
+        if( column == COLUMN_INDEX_SUBJECT ) {
             return TreeTableModel.class;
         }
-        if( column == 0 || column == 1 ) {
+        if( column == COLUMN_INDEX_FLAGGED || column == COLUMN_INDEX_STARRED ) {
             return Boolean.class;
         }
         return String.class;
@@ -171,25 +182,24 @@ public class MessageTreeTableModel extends DefaultTreeModel implements TreeTable
             if( mo.isDummy() ) {
                 // show no text for dummy msgs
                 switch(column) {
-                    case 0: return Boolean.FALSE;
-                    case 1: return Boolean.FALSE;
+                    case COLUMN_INDEX_FLAGGED: return Boolean.FALSE;
+                    case COLUMN_INDEX_STARRED: return Boolean.FALSE;
                     // 2 is tree+subject column
-                    case 3: return "";
-                    case 4: return "";
-                    case 5: return "";
-                    case 6: return "";
+                    case COLUMN_INDEX_FROM: return "";
+                    case COLUMN_INDEX_INDEX: return "";
+                    case COLUMN_INDEX_SIG: return "";
+                    case COLUMN_INDEX_DATE: return "";
                     default: return "*ERR*";
                 }
             } else {
                 switch(column) {
-                    case 0: return Boolean.valueOf(mo.isFlagged());
-                    case 1: return Boolean.valueOf(mo.isStarred());
+                    case COLUMN_INDEX_FLAGGED: return Boolean.valueOf(mo.isFlagged());
+                    case COLUMN_INDEX_STARRED: return Boolean.valueOf(mo.isStarred());
                     // 2 is tree+subject column
-                    case 2: return mo.getSubject();
-                    case 3: return mo.getFromName();
-                    case 4: return Integer.toString(mo.getIndex());
-                    case 5: return mo.getMessageStatusString();
-                    case 6: return mo.getDateAndTimeString();
+                    case COLUMN_INDEX_FROM: return mo.getFromName();
+                    case COLUMN_INDEX_INDEX: return Integer.toString(mo.getIndex());
+                    case COLUMN_INDEX_SIG: return mo.getMessageStatusString();
+                    case COLUMN_INDEX_DATE: return mo.getDateAndTimeString();
                     default: return "*ERR*";
                 }
             }
@@ -206,34 +216,12 @@ public class MessageTreeTableModel extends DefaultTreeModel implements TreeTable
      * For all other columns this returns false.
      */
     public boolean isCellEditable(final Object node, final int column) {
-        if( column == 2 ) {
+        if( column == COLUMN_INDEX_SUBJECT ) {
             return true; // tree column
         }
         return false;
     }
 
     public void setValueAt(final Object aValue, final Object node, final int column) {
-//        final FrostMessageObject message = (FrostMessageObject)node;
-//        boolean newValue = ((Boolean)aValue).booleanValue();
-//        boolean save = false;
-//        if( column == 0 && message.isFlagged() != newValue ) {
-//            message.setFlagged(newValue);
-//            save = true;
-//        } else if( column == 1 && message.isStarred() != newValue ) {
-//            message.setStarred(newValue);
-//            save = true;
-//        }
-//        if( save ) {
-//            Thread saver = new Thread() {
-//                public void run() {
-//                    try {
-//                        AppLayerDatabase.getMessageTable().updateMessage(message);
-//                    } catch (SQLException ex) {
-//                        logger.log(Level.SEVERE, "Error updating a message object", ex);
-//                    }
-//                }
-//            };
-//            saver.start();
-//        }
     }
 }

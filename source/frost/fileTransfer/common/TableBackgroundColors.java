@@ -26,14 +26,14 @@ public class TableBackgroundColors {
 
     private static Color firstBackgroundColor = Color.white;
     private static Color secondBackgroundColor = new java.awt.Color(0xEE,0xEE,0xEE);
-    
+
     private static Color greenColor = new java.awt.Color(0x99,0xFF,0x99);
     private static Color lightGreenColor = new java.awt.Color(0xCC,0xFF,0xCC);
-    
+
     private static Color redColor = new java.awt.Color(0xFF,0x99,0x99);
     private static Color lightRedColor = new java.awt.Color(0xFF,0xCC,0xCC);
 
-    public static Color getBackgroundColor(JTable table, int row, boolean showColoredLines) {
+    public static Color getBackgroundColor(final JTable table, final int row, final boolean showColoredLines) {
         if( showColoredLines ) {
             if ((row & 0x0001) == 0) {
                 return firstBackgroundColor;
@@ -44,8 +44,8 @@ public class TableBackgroundColors {
             return table.getBackground();
         }
     }
-    
-    public static Color getBackgroundColorDone(JTable table, int row, boolean showColoredLines) {
+
+    public static Color getBackgroundColorDone(final JTable table, final int row, final boolean showColoredLines) {
         if( showColoredLines ) {
             if ((row & 0x0001) == 0) {
                 return lightGreenColor;
@@ -56,8 +56,8 @@ public class TableBackgroundColors {
             return greenColor;
         }
     }
-    
-    public static Color getBackgroundColorFailed(JTable table, int row, boolean showColoredLines) {
+
+    public static Color getBackgroundColorFailed(final JTable table, final int row, final boolean showColoredLines) {
         if( showColoredLines ) {
             if ((row & 0x0001) == 0) {
                 return lightRedColor;

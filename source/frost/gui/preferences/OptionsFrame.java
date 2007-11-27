@@ -84,6 +84,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 
     private boolean checkShowOwnMessagesAsMeDisabled;
 
+    private boolean checkIndicateLowReceivedMessages;
+
     private JPanel contentAreaPanel = null;
     private DisplayPanel displayPanel = null;
     private DisplayBoardTreePanel displayBoardTreePanel = null;
@@ -455,6 +457,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
             || checkShowDeletedMessages != frostSettings.getBoolValue(SettingsClass.SHOW_DELETED_MESSAGES)
             || showColoredRows != frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS)
             || checkShowOwnMessagesAsMeDisabled != frostSettings.getBoolValue(SettingsClass.SHOW_OWN_MESSAGES_AS_ME_DISABLED)
+            || checkIndicateLowReceivedMessages != frostSettings.getBoolValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES)
           )
         {
             // at least one setting changed, reload messages
@@ -490,6 +493,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         checkBlockBody = frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BODY_ENABLED);
         checkShowDeletedMessages = frostSettings.getBoolValue(SettingsClass.SHOW_DELETED_MESSAGES);
         checkShowOwnMessagesAsMeDisabled = frostSettings.getBoolValue(SettingsClass.SHOW_OWN_MESSAGES_AS_ME_DISABLED);
+
+        checkIndicateLowReceivedMessages = frostSettings.getBoolValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES);
 
         checkRememberSharedFileDownloaded = frostSettings.getBoolValue(SettingsClass.REMEMBER_SHAREDFILE_DOWNLOADED);
 

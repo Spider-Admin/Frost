@@ -73,7 +73,6 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
 
     private static final Logger logger = Logger.getLogger(MessageTreeTable.class.getName());
 
-
     /** A subclass of JTree. */
     protected TreeTableCellRenderer tree;
 
@@ -100,17 +99,29 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     private final ImageIcon messageNewRepliedIcon = new ImageIcon(getClass().getResource("/data/messagenewrepliedicon.gif"));
     private final ImageIcon messageReadRepliedIcon = new ImageIcon(getClass().getResource("/data/messagereadrepliedicon.gif"));
 
+    private final ImageIcon receivedOneMessage = new ImageIcon(getClass().getResource("/data/ReceivedOneMessage.gif"));
+    private final ImageIcon receivedFiveMessages = new ImageIcon(getClass().getResource("/data/ReceivedFiveMessages.gif"));
+
     private boolean showColoredLines;
+    private boolean indicateLowReceivedMessages;
+    private int indicateLowReceivedMessagesCountRed;
+    private int indicateLowReceivedMessagesCountLightRed;
 
     public MessageTreeTable(final TreeTableModel treeTableModel) {
     	super();
 
         showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
+        indicateLowReceivedMessages = Core.frostSettings.getBoolValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES);
+        indicateLowReceivedMessagesCountRed = Core.frostSettings.getIntValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES_COUNT_RED);
+        indicateLowReceivedMessagesCountLightRed = Core.frostSettings.getIntValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES_COUNT_LIGHTRED);
 
         Core.frostSettings.addPropertyChangeListener(SettingsClass.SHOW_COLORED_ROWS, this);
         Core.frostSettings.addPropertyChangeListener(SettingsClass.MESSAGE_LIST_FONT_NAME, this);
         Core.frostSettings.addPropertyChangeListener(SettingsClass.MESSAGE_LIST_FONT_SIZE, this);
         Core.frostSettings.addPropertyChangeListener(SettingsClass.MESSAGE_LIST_FONT_STYLE, this);
+        Core.frostSettings.addPropertyChangeListener(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES, this);
+        Core.frostSettings.addPropertyChangeListener(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES_COUNT_RED, this);
+        Core.frostSettings.addPropertyChangeListener(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES_COUNT_LIGHTRED, this);
 
     	// Creates the tree. It will be used as a renderer and editor.
     	tree = new TreeTableCellRenderer(treeTableModel);
@@ -304,8 +315,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     @Override
     public void sizeColumnsToFit(final int resizingColumn) {
         super.sizeColumnsToFit(resizingColumn);
-    	if (getEditingColumn() != -1 && getColumnClass(editingColumn) ==
-    	    TreeTableModel.class) {
+    	if (getEditingColumn() != -1 && getColumnClass(editingColumn) == TreeTableModel.class) {
     	    final Rectangle cellRect = getCellRect(realEditingRow(), getEditingColumn(), false);
             final Component component = getEditorComponent();
             component.setBounds(cellRect);
@@ -731,13 +741,13 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             final TableColumn tableColumn = getColumnModel().getColumn(column);
             column = tableColumn.getModelIndex();
 
-            if( column == 0 ) {
+            if( column == MessageTreeTableModel.COLUMN_INDEX_FLAGGED ) {
                 if( val ) {
                     setIcon(flaggedIcon);
                 } else {
                     setIcon(null);
                 }
-            } else if( column == 1 ) {
+            } else if( column == MessageTreeTableModel.COLUMN_INDEX_STARRED ) {
                 if( val ) {
                     setIcon(starredIcon);
                 } else {
@@ -834,6 +844,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             setToolTipText(null);
             setBorder(null);
             setHorizontalAlignment(SwingConstants.LEFT);
+            setIcon(null);
 
             final TreeTableModelAdapter model = (TreeTableModelAdapter) getModel();
             Object obj = model.getRow(row);
@@ -848,7 +859,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             column = getColumnModel().getColumn(column).getModelIndex();
 
             // do nice things for FROM and SIG column
-            if( column == 3 ) {
+            if( column == MessageTreeTableModel.COLUMN_INDEX_FROM ) {
                 // FROM
                 // first set font, bold for new msg or normal
                 if (msg.isNew()) {
@@ -871,6 +882,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                                     ", index="+msg.getIndex());
                             setToolTipText((String)value);
                         } else {
+                            // build informative tooltip
                             final StringBuilder sb = new StringBuilder();
                             sb.append("<html>");
                             sb.append((String)value);
@@ -881,17 +893,27 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                             sb.append("<br>Received messages: ").append(id.getReceivedMessageCount());
                             sb.append("</html>");
                             setToolTipText(sb.toString());
+
+                            // provide colored icons
+                            if( indicateLowReceivedMessages ) {
+                                final int receivedMsgCount = id.getReceivedMessageCount();
+                                if( receivedMsgCount <= indicateLowReceivedMessagesCountRed ) {
+                                    setIcon(receivedOneMessage);
+                                } else if( receivedMsgCount <= indicateLowReceivedMessagesCountLightRed ) {
+                                    setIcon(receivedFiveMessages);
+                                }
+                            }
                         }
                     } else {
                         setToolTipText((String)value);
                     }
                 }
-            } else if( column == 4 ) {
+            } else if( column == MessageTreeTableModel.COLUMN_INDEX_INDEX ) {
                 // index column, right aligned
                 setHorizontalAlignment(SwingConstants.RIGHT);
                 // col is right aligned, give some space to next column
                 setBorder(border);
-            } else if( column == 5 ) {
+            } else if( column == MessageTreeTableModel.COLUMN_INDEX_SIG ) {
                 // SIG
                 // state == good/bad/check/observe -> bold and coloured
                 final Font f;
@@ -1034,17 +1056,17 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         final TableColumnModel tcm = getColumnModel();
 
         // hard set sizes of icons column
-        tcm.getColumn(0).setMinWidth(20);
-        tcm.getColumn(0).setMaxWidth(20);
-        tcm.getColumn(0).setPreferredWidth(20);
+        tcm.getColumn(MessageTreeTableModel.COLUMN_INDEX_FLAGGED).setMinWidth(20);
+        tcm.getColumn(MessageTreeTableModel.COLUMN_INDEX_FLAGGED).setMaxWidth(20);
+        tcm.getColumn(MessageTreeTableModel.COLUMN_INDEX_FLAGGED).setPreferredWidth(20);
         // hard set sizes of icons column
-        tcm.getColumn(1).setMinWidth(20);
-        tcm.getColumn(1).setMaxWidth(20);
-        tcm.getColumn(1).setPreferredWidth(20);
+        tcm.getColumn(MessageTreeTableModel.COLUMN_INDEX_STARRED).setMinWidth(20);
+        tcm.getColumn(MessageTreeTableModel.COLUMN_INDEX_STARRED).setMaxWidth(20);
+        tcm.getColumn(MessageTreeTableModel.COLUMN_INDEX_STARRED).setPreferredWidth(20);
 
         // set icon table header renderer for icon columns
-        tcm.getColumn(0).setHeaderRenderer(new IconTableHeaderRenderer(flaggedIcon));
-        tcm.getColumn(1).setHeaderRenderer(new IconTableHeaderRenderer(starredIcon));
+        tcm.getColumn(MessageTreeTableModel.COLUMN_INDEX_FLAGGED).setHeaderRenderer(new IconTableHeaderRenderer(flaggedIcon));
+        tcm.getColumn(MessageTreeTableModel.COLUMN_INDEX_STARRED).setHeaderRenderer(new IconTableHeaderRenderer(starredIcon));
 
         if( !loadLayout(frostSettings, tcm) ) {
             // Sets the relative widths of the columns
@@ -1090,7 +1112,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             tcms[x] = tcm.getColumn(x);
             tcm.removeColumn(tcms[x]);
             // keep icon columns 0,1 as is
-            if(x != 0 && x != 1) {
+            if(x != MessageTreeTableModel.COLUMN_INDEX_FLAGGED && x != MessageTreeTableModel.COLUMN_INDEX_STARRED) {
                 tcms[x].setPreferredWidth(columnWidths[x]);
             }
         }
@@ -1137,6 +1159,12 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             fontChanged();
         } else if (evt.getPropertyName().equals(SettingsClass.MESSAGE_LIST_FONT_STYLE)) {
             fontChanged();
+        } else if (evt.getPropertyName().equals(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES)) {
+            indicateLowReceivedMessages = Core.frostSettings.getBoolValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES);
+        } else if (evt.getPropertyName().equals(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES_COUNT_RED)) {
+            indicateLowReceivedMessagesCountRed = Core.frostSettings.getIntValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES_COUNT_RED);
+        } else if (evt.getPropertyName().equals(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES_COUNT_LIGHTRED)) {
+            indicateLowReceivedMessagesCountLightRed = Core.frostSettings.getIntValue(SettingsClass.INDICATE_LOW_RECEIVED_MESSAGES_COUNT_LIGHTRED);
         }
     }
 }
