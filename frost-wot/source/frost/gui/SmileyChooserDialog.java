@@ -24,8 +24,11 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import frost.util.gui.*;
+import frost.util.gui.translation.*;
 
 public class SmileyChooserDialog extends JDialog {
+
+    Language language = Language.getInstance();
 
     String returnValue = null;
 
@@ -72,7 +75,8 @@ public class SmileyChooserDialog extends JDialog {
 
     public void initialize() {
 
-        setUndecorated(true);
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        setTitle(language.getString("SmileyChooserDialog.title"));
 
         final JPanel p = new JPanel();
 
@@ -80,7 +84,7 @@ public class SmileyChooserDialog extends JDialog {
         final int maxCols = 5;
         final int numRows = (count / 5) +1; // use +1 to give extra row for the remainder
 
-        p.setLayout(new GridLayout(numRows, maxCols, 5, 5));
+        p.setLayout(new GridLayout(numRows, maxCols, 6, 6));
 
         final Listener l = new Listener();
 
