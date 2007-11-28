@@ -859,31 +859,30 @@ public class MessageFrame extends JFrame {
         final int x = this.getX() + BchooseSmiley.getX();
         final int y = this.getY() + BchooseSmiley.getY();
         String choosedSmileyText = dlg.startDialog(x, y);
-        if( choosedSmileyText == null || choosedSmileyText.length() == 0 ) {
-            return;
-        }
-        choosedSmileyText += " ";
-        // paste into document
-        try {
-            final Caret caret = messageTextArea.getCaret();
-            final int p0 = Math.min(caret.getDot(), caret.getMark());
-            final int p1 = Math.max(caret.getDot(), caret.getMark());
+        if( choosedSmileyText != null && choosedSmileyText.length() > 0 ) {
+            choosedSmileyText += " ";
+            // paste into document
+            try {
+                final Caret caret = messageTextArea.getCaret();
+                final int p0 = Math.min(caret.getDot(), caret.getMark());
+                final int p1 = Math.max(caret.getDot(), caret.getMark());
 
-            final Document document = messageTextArea.getDocument();
+                final Document document = messageTextArea.getDocument();
 
-            if (document instanceof PlainDocument) {
-                ((PlainDocument) document).replace(p0, p1 - p0, choosedSmileyText, null);
-            } else {
-                if (p0 != p1) {
-                    document.remove(p0, p1 - p0);
+                if (document instanceof PlainDocument) {
+                    ((PlainDocument) document).replace(p0, p1 - p0, choosedSmileyText, null);
+                } else {
+                    if (p0 != p1) {
+                        document.remove(p0, p1 - p0);
+                    }
+                    document.insertString(p0, choosedSmileyText, null);
                 }
-                document.insertString(p0, choosedSmileyText, null);
+            } catch (final Throwable ble) {
+                logger.log(Level.SEVERE, "Problem while pasting text.", ble);
             }
-
-            messageTextArea.requestFocusInWindow();
-        } catch (final Throwable ble) {
-            logger.log(Level.SEVERE, "Problem while pasting text.", ble);
         }
+        // finally set focus back to message window
+        messageTextArea.requestFocusInWindow();
     }
 
     private void send_actionPerformed(final ActionEvent e) {
