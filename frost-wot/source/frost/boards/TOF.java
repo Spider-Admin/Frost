@@ -470,6 +470,8 @@ public class TOF {
         String fileSeparator = System.getProperty("file.separator");
         FrostMessageObject previousSelectedMsg;
 
+        List<FrostMessageObject> markAsReadMsgs = new ArrayList<FrostMessageObject>();
+
         public UpdateTofFilesThread(final Board board, final int daysToRead, final FrostMessageObject prevSelectedMsg) {
             this.board = board;
             this.daysToRead = daysToRead;
@@ -508,6 +510,11 @@ public class TOF {
             public boolean messageRetrieved(final FrostMessageObject mo) {
                 if( !isBlocked(mo, board, blockMsgSubject, blockMsgBody, blockMsgBoardname) ) {
                     rootNode.add(mo);
+                } else {
+                    // message is blocked. check if message is still new, and maybe mark as read
+                    if( mo.isNew() ) {
+                        markAsReadMsgs.add(mo);
+                    }
                 }
                 return isCancel();
             }
@@ -531,6 +538,10 @@ public class TOF {
             public void buildThreads() {
                 // messageList was filled by callback
 
+                final boolean blockMsgSubject = Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_SUBJECT_ENABLED);
+                final boolean blockMsgBody = Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BODY_ENABLED);
+                final boolean blockMsgBoardname = Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BOARDNAME_ENABLED);
+
                 // HashSet contains a msgid if the msg was loaded OR was not existing
                 HashSet<String> messageIds = new HashSet<String>();
 
@@ -539,8 +550,13 @@ public class TOF {
                     if( mo.getMessageId() == null ) {
                         i.remove();
                         // old msg, maybe add to root
-                        if( !isBlocked(mo, mo.getBoard()) ) {
+                        if( !isBlocked(mo, mo.getBoard(), blockMsgSubject, blockMsgBody, blockMsgBoardname) ) {
                             rootNode.add(mo);
+                        } else {
+                            // message is blocked. check if message is still new, and maybe mark as read
+                            if( mo.isNew() ) {
+                                markAsReadMsgs.add(mo);
+                            }
                         }
                     } else {
                         // collect for threading
@@ -607,9 +623,6 @@ public class TOF {
                 }
 
                 // remove blocked msgs from the leafs
-                final boolean blockMsgSubject = Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_SUBJECT_ENABLED);
-                final boolean blockMsgBody = Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BODY_ENABLED);
-                final boolean blockMsgBoardname = Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BOARDNAME_ENABLED);
                 final List<FrostMessageObject> itemsToRemove = new ArrayList<FrostMessageObject>();
                 final Set<String> checkedMessageIds = new HashSet<String>();
                 while(true) {
@@ -618,19 +631,27 @@ public class TOF {
                         if( mo.isLeaf() && mo != rootNode ) {
                             if( mo.isDummy() ) {
                                 itemsToRemove.add(mo);
-                            } else if( mo.getMessageId() != null) {
+                            } else if( mo.getMessageId() == null ) {
                                 if( isBlocked(mo, mo.getBoard(), blockMsgSubject, blockMsgBody, blockMsgBoardname) ) {
                                     itemsToRemove.add(mo);
+                                    // message is blocked. check if message is still new, and maybe mark as read
+                                    if( mo.isNew() ) {
+                                        markAsReadMsgs.add(mo);
+                                    }
                                 }
                             } else {
                                 if( checkedMessageIds.contains(mo.getMessageId()) ) {
                                     continue; // already checked
                                 }
+                                // mark as checked
+                                checkedMessageIds.add(mo.getMessageId());
+                                // check if blocked
                                 if( isBlocked(mo, mo.getBoard(), blockMsgSubject, blockMsgBody, blockMsgBoardname) ) {
                                     itemsToRemove.add(mo);
-                                } else {
-                                    // checked and not blocked
-                                    checkedMessageIds.add(mo.getMessageId());
+                                    // message is blocked. check if message is still new, and maybe mark as read
+                                    if( mo.isNew() ) {
+                                        markAsReadMsgs.add(mo);
+                                    }
                                 }
                             }
                         }
@@ -775,6 +796,10 @@ public class TOF {
                     final FlatMessageRetrieval ffr = new FlatMessageRetrieval(rootNode);
                     loadMessages(ffr);
                 }
+
+                // finally mark 'new', but blocked messages as unread
+                MessageStorage.inst().setMessagesRead(board, markAsReadMsgs);
+
             } catch (final Throwable t) {
                 logger.log(Level.SEVERE, "Excpetion during thread load/build", t);
             }
@@ -869,7 +894,9 @@ public class TOF {
                 Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BODY_ENABLED),
                 Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BOARDNAME_ENABLED));
     }
-
+//FIXME:!!!!
+//wenn blocked, mark as unread. but not immediately, we are inside a coop tx!
+//-> mark unread, but commit after load finished
     /**
      * Returns true if the message should not be displayed
      * @return true if message is blocked, else false

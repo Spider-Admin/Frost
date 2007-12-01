@@ -858,9 +858,9 @@ public class MessageFrame extends JFrame {
         final SmileyChooserDialog dlg = new SmileyChooserDialog(this);
         final int x = this.getX() + BchooseSmiley.getX();
         final int y = this.getY() + BchooseSmiley.getY();
-        String choosedSmileyText = dlg.startDialog(x, y);
-        if( choosedSmileyText != null && choosedSmileyText.length() > 0 ) {
-            choosedSmileyText += " ";
+        String chosedSmileyText = dlg.startDialog(x, y);
+        if( chosedSmileyText != null && chosedSmileyText.length() > 0 ) {
+            chosedSmileyText += " ";
             // paste into document
             try {
                 final Caret caret = messageTextArea.getCaret();
@@ -868,14 +868,14 @@ public class MessageFrame extends JFrame {
                 final int p1 = Math.max(caret.getDot(), caret.getMark());
 
                 final Document document = messageTextArea.getDocument();
-
+// FIXME: maybe check for a blank before insert of smiley text???
                 if (document instanceof PlainDocument) {
-                    ((PlainDocument) document).replace(p0, p1 - p0, choosedSmileyText, null);
+                    ((PlainDocument) document).replace(p0, p1 - p0, chosedSmileyText, null);
                 } else {
                     if (p0 != p1) {
                         document.remove(p0, p1 - p0);
                     }
-                    document.insertString(p0, choosedSmileyText, null);
+                    document.insertString(p0, chosedSmileyText, null);
                 }
             } catch (final Throwable ble) {
                 logger.log(Level.SEVERE, "Problem while pasting text.", ble);

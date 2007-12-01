@@ -730,12 +730,51 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         }
     }
 
-    public void updateMessage(final FrostMessageObject mo) {
-        if( mo.getPerstFrostMessageObject() == null ) {
+    public void setMessagesRead(final Board board, final List<FrostMessageObject> msgs) {
+        if( msgs == null || msgs.size() == 0 ) {
             return;
         }
         if( !beginExclusiveThreadTransaction() ) {
             return;
+        }
+        try {
+            final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
+            if( bo == null ) {
+                logger.severe("error: no perst board for update");
+                return;
+            }
+
+            for( final FrostMessageObject mo : msgs ) {
+                final PerstFrostMessageObject pmo = mo.getPerstFrostMessageObject();
+                if( pmo == null ) {
+                    logger.severe("error: no perst obj in msg");
+                    continue;
+                }
+                if( pmo.isNew ) {
+                    // was unread, is read now -> remove from unreadIndex
+                    mo.setNew(false);
+                    pmo.isNew = false;
+                    bo.getUnreadMessageIndex().remove(pmo.dateAndTime, pmo);
+                    pmo.modify();
+                }
+            }
+        } finally {
+            endThreadTransaction();
+        }
+    }
+
+    public void updateMessage(final FrostMessageObject mo) {
+        updateMessage(mo, true);
+    }
+
+    public void updateMessage(final FrostMessageObject mo, final boolean useTransaction) {
+        if( mo.getPerstFrostMessageObject() == null ) {
+            return;
+        }
+        if( useTransaction ) {
+            if( !beginExclusiveThreadTransaction() ) {
+                return;
+            }
         }
         try {
             final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(mo.getBoard().getNameLowerCase());
@@ -755,18 +794,18 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
             }
 
             if( p.isFlagged && !mo.isFlagged() ) {
-                // was unread, is read now -> remove from unreadIndex
+                // was flagged, is not flagged now -> remove from flaggedIndex
                 bo.getFlaggedMessageIndex().remove(p.dateAndTime, p);
             } else if( !p.isFlagged && mo.isFlagged() ) {
-                // was read, is unread now -> add to unreadIndex
+                // was not flagged, is flagged now -> add to flaggedIndex
                 bo.getFlaggedMessageIndex().put(p.dateAndTime, p);
             }
 
             if( p.isStarred && !mo.isStarred() ) {
-                // was unread, is read now -> remove from unreadIndex
+                // was starred, is not starred now -> remove from starredIndex
                 bo.getStarredMessageIndex().remove(p.dateAndTime, p);
             } else if( !p.isStarred && mo.isStarred() ) {
-                // was read, is unread now -> add to unreadIndex
+                // was not starred, is starred now -> add to starredIndex
                 bo.getStarredMessageIndex().put(p.dateAndTime, p);
             }
 
@@ -779,7 +818,9 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
 
             p.modify();
         } finally {
-            endThreadTransaction();
+            if( useTransaction ) {
+                endThreadTransaction();
+            }
         }
     }
 
