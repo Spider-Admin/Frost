@@ -624,7 +624,7 @@ public class TOF {
 
                 // remove blocked msgs from the leafs
                 final List<FrostMessageObject> itemsToRemove = new ArrayList<FrostMessageObject>();
-                final Set<String> checkedMessageIds = new HashSet<String>();
+                final Set<String> notBlockedMessageIds = new HashSet<String>();
                 while(true) {
                     for(final Enumeration e=rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
                         final FrostMessageObject mo = (FrostMessageObject)e.nextElement();
@@ -640,11 +640,9 @@ public class TOF {
                                     }
                                 }
                             } else {
-                                if( checkedMessageIds.contains(mo.getMessageId()) ) {
-                                    continue; // already checked
+                                if( notBlockedMessageIds.contains(mo.getMessageId()) ) {
+                                    continue; // already checked, not blocked
                                 }
-                                // mark as checked
-                                checkedMessageIds.add(mo.getMessageId());
                                 // check if blocked
                                 if( isBlocked(mo, mo.getBoard(), blockMsgSubject, blockMsgBody, blockMsgBoardname) ) {
                                     itemsToRemove.add(mo);
@@ -652,6 +650,9 @@ public class TOF {
                                     if( mo.isNew() ) {
                                         markAsReadMsgs.add(mo);
                                     }
+                                } else {
+                                    // not blocked, mark as checked to avoid the block test in next iterations
+                                    notBlockedMessageIds.add(mo.getMessageId());
                                 }
                             }
                         }
@@ -667,7 +668,7 @@ public class TOF {
                     }
                 }
                 // clean up
-                checkedMessageIds.clear();
+                notBlockedMessageIds.clear();
 
                 // apply the subject of first child message to dummy ROOT messages
                 for(final Enumeration e=rootNode.children(); e.hasMoreElements(); ) {
