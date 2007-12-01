@@ -123,8 +123,16 @@ public class FileListDownloadThread extends Thread {
                     System.out.println("FileListDownloadThread: processed results, isValid="+isValid);
                 }
 
+                final long timestamp;
+                if( content == null ) {
+                    // invalid content, use current timestamp, chk will never be spreaded
+                    timestamp = System.currentTimeMillis();
+                } else {
+                    timestamp = content.getTimestamp();
+                }
+
                 downloadedFile.delete();
-                SharedFilesCHKKeyManager.updateCHKKeyDownloadSuccessful(chkKey, content.getTimestamp(), isValid);
+                SharedFilesCHKKeyManager.updateCHKKeyDownloadSuccessful(chkKey, timestamp, isValid);
 
             } catch(final Throwable t) {
                 logger.log(Level.SEVERE, "Exception catched",t);
@@ -132,7 +140,7 @@ public class FileListDownloadThread extends Thread {
             }
 
             if( occuredExceptions > maxAllowedExceptions ) {
-                logger.log(Level.SEVERE, "Stopping FileListUploadThread because of too much exceptions");
+                logger.log(Level.SEVERE, "Stopping FileListDownloadThread because of too much exceptions");
                 break;
             }
         }
