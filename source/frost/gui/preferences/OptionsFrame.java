@@ -74,6 +74,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
     private boolean checkHideBadMessages;
     private boolean checkHideCheckMessages;
     private boolean checkHideObserveMessages;
+    private boolean checkHideJunkMessages;
     private String checkMaxMessageDisplay;
     private String checkMaxMessageDownload;
     private boolean checkSignedOnly;
@@ -452,6 +453,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
             || checkHideBadMessages != frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_BAD)
             || checkHideCheckMessages != frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_CHECK)
             || checkHideObserveMessages != frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_OBSERVE)
+            || checkHideJunkMessages != frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_JUNK)
             || checkBlock != frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_SUBJECT_ENABLED)
             || checkBlockBody != frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BODY_ENABLED)
             || checkShowDeletedMessages != frostSettings.getBoolValue(SettingsClass.SHOW_DELETED_MESSAGES)
@@ -489,6 +491,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         checkHideBadMessages = frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_BAD);
         checkHideCheckMessages = frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_CHECK);
         checkHideObserveMessages = frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_OBSERVE);
+        checkHideJunkMessages = frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_JUNK);
         checkBlock = frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_SUBJECT_ENABLED);
         checkBlockBody = frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BODY_ENABLED);
         checkShowDeletedMessages = frostSettings.getBoolValue(SettingsClass.SHOW_DELETED_MESSAGES);
