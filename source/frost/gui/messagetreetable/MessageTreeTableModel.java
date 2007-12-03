@@ -68,10 +68,11 @@ public class MessageTreeTableModel extends DefaultTreeModel implements TreeTable
     public final static int COLUMN_INDEX_SUBJECT = 2;
     public final static int COLUMN_INDEX_FROM    = 3;
     public final static int COLUMN_INDEX_INDEX   = 4;
-    public final static int COLUMN_INDEX_SIG     = 5;
-    public final static int COLUMN_INDEX_DATE    = 6;
+    public final static int COLUMN_INDEX_JUNK    = 5;
+    public final static int COLUMN_INDEX_SIG     = 6;
+    public final static int COLUMN_INDEX_DATE    = 7;
 
-    public final static int MAX_COLUMN_INDEX     = 6;
+    public final static int MAX_COLUMN_INDEX     = 7;
 
     protected final static String columnNames[] = new String[MAX_COLUMN_INDEX + 1];
 
@@ -96,6 +97,7 @@ public class MessageTreeTableModel extends DefaultTreeModel implements TreeTable
         columnNames[COLUMN_INDEX_SUBJECT] = language.getString("MessagePane.messageTable.subject");
         columnNames[COLUMN_INDEX_FROM]    = language.getString("MessagePane.messageTable.from");
         columnNames[COLUMN_INDEX_INDEX]   = language.getString("MessagePane.messageTable.index");
+        columnNames[COLUMN_INDEX_JUNK]    = "J";
         columnNames[COLUMN_INDEX_SIG]     = language.getString("MessagePane.messageTable.sig");
         columnNames[COLUMN_INDEX_DATE]    = language.getString("MessagePane.messageTable.date");
 
@@ -164,7 +166,7 @@ public class MessageTreeTableModel extends DefaultTreeModel implements TreeTable
         if( column == COLUMN_INDEX_SUBJECT ) {
             return TreeTableModel.class;
         }
-        if( column == COLUMN_INDEX_FLAGGED || column == COLUMN_INDEX_STARRED ) {
+        if( column == COLUMN_INDEX_FLAGGED || column == COLUMN_INDEX_STARRED || column == COLUMN_INDEX_JUNK ) {
             return Boolean.class;
         }
         return String.class;
@@ -187,6 +189,7 @@ public class MessageTreeTableModel extends DefaultTreeModel implements TreeTable
                     // 2 is tree+subject column
                     case COLUMN_INDEX_FROM: return "";
                     case COLUMN_INDEX_INDEX: return "";
+                    case COLUMN_INDEX_JUNK: return Boolean.FALSE;
                     case COLUMN_INDEX_SIG: return "";
                     case COLUMN_INDEX_DATE: return "";
                     default: return "*ERR*";
@@ -198,6 +201,7 @@ public class MessageTreeTableModel extends DefaultTreeModel implements TreeTable
                     // 2 is tree+subject column
                     case COLUMN_INDEX_FROM: return mo.getFromName();
                     case COLUMN_INDEX_INDEX: return Integer.toString(mo.getIndex());
+                    case COLUMN_INDEX_JUNK: return Boolean.valueOf(mo.isJunk());
                     case COLUMN_INDEX_SIG: return mo.getMessageStatusString();
                     case COLUMN_INDEX_DATE: return mo.getDateAndTimeString();
                     default: return "*ERR*";

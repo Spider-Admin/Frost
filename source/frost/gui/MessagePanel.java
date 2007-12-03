@@ -23,6 +23,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
 import java.util.*;
+import java.util.List;
 import java.util.logging.*;
 
 import javax.swing.*;
@@ -56,6 +57,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     MainFrame mainFrame;
 
     public static enum IdentityState { GOOD, CHECK, OBSERVE, BAD };
+    public static enum BooleanState { FLAGGED, STARRED, JUNK };
 
     private class Listener
     extends MouseAdapter
@@ -131,56 +133,20 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
          * its state (starred/flagged).
          */
         protected void editIconColumn(final int row, final int modelCol) {
-            if( modelCol > 1 ) {
-                return; // icon columns are at 0,1
+            final BooleanState state;
+            switch(modelCol) {
+                case MessageTreeTableModel.COLUMN_INDEX_FLAGGED: state = BooleanState.FLAGGED; break;
+                case MessageTreeTableModel.COLUMN_INDEX_STARRED: state = BooleanState.STARRED; break;
+                case MessageTreeTableModel.COLUMN_INDEX_JUNK: state = BooleanState.JUNK; break;
+                default: return;
             }
+
             final FrostMessageObject message = (FrostMessageObject)getMessageTableModel().getRow(row);
             if( message == null || message.isDummy() ) {
                 return;
             }
-            if( modelCol == 0 ) {
-                message.setFlagged( !message.isFlagged() );
-                getMessageTableModel().fireTableCellUpdated(row, modelCol);
-            } else if( modelCol == 1 ) {
-                message.setStarred( !message.isStarred() );
-                getMessageTableModel().fireTableCellUpdated(row, modelCol);
-            }
 
-            // determine thread root msg of this msg
-            final FrostMessageObject threadRootMsg = message.getThreadRootMessage();
-
-            // update thread root to update the marker border
-            if( threadRootMsg != message && threadRootMsg != null ) {
-                getMessageTreeModel().nodeChanged(threadRootMsg);
-            }
-
-            // update flagged/starred indicators in board tree
-            boolean hasStarredWork = false;
-            boolean hasFlaggedWork = false;
-            final DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode)message.getRoot();
-            for(final Enumeration e=rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
-                final FrostMessageObject mo = (FrostMessageObject)e.nextElement();
-                if( !hasStarredWork && mo.isStarred() ) {
-                    hasStarredWork = true;
-                }
-                if( !hasFlaggedWork && mo.isFlagged() ) {
-                    hasFlaggedWork = true;
-                }
-                if( hasFlaggedWork && hasStarredWork ) {
-                    break; // finished
-                }
-            }
-            message.getBoard().hasFlaggedMessages(hasFlaggedWork);
-            message.getBoard().hasStarredMessages(hasStarredWork);
-            MainFrame.getInstance().updateTofTree(message.getBoard());
-
-            final Thread saver = new Thread() {
-                @Override
-                public void run() {
-                    MessageStorage.inst().updateMessage(message);
-                }
-            };
-            saver.start();
+            updateBooleanState(state, Collections.singletonList(message));
         }
 
         @Override
@@ -802,6 +768,30 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 setTrustState_actionPerformed(IdentityState.OBSERVE);
             }
         });
+
+    // assign F key - toggle FLAGGED
+        this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_F, 0), "TOGGLE_FLAGGED");
+        this.getActionMap().put("TOGGLE_FLAGGED", new AbstractAction() {
+            public void actionPerformed(final ActionEvent event) {
+                updateBooleanState(BooleanState.FLAGGED);
+            }
+        });
+
+    // assign S key - toggle STARRED
+        this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0), "TOGGLE_STARRED");
+        this.getActionMap().put("TOGGLE_STARRED", new AbstractAction() {
+            public void actionPerformed(final ActionEvent event) {
+                updateBooleanState(BooleanState.STARRED);
+            }
+        });
+
+    // assign J key - toggle JUNK
+        this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_J, 0), "TOGGLE_JUNK");
+        this.getActionMap().put("TOGGLE_JUNK", new AbstractAction() {
+            public void actionPerformed(final ActionEvent event) {
+                updateBooleanState(BooleanState.JUNK);
+            }
+        });
     }
 
     public void saveLayout(final SettingsClass frostSettings) {
@@ -1008,15 +998,15 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
     public void setTrustState_actionPerformed(final IdentityState idState) {
 
-        if( messageTable.getSelectedRowCount() <= 1 && !isCorrectlySelectedMessage() ) {
+        final List<FrostMessageObject> selectedMessages = getSelectedMessages();
+        if( selectedMessages.size() == 0 ) {
             return;
         }
 
         // set all selected messages unread
         final int[] rows = messageTable.getSelectedRows();
         boolean idChanged = false;
-        for(int x=rows.length-1; x >= 0; x--) {
-            final FrostMessageObject targetMessage = (FrostMessageObject)getMessageTableModel().getRow(rows[x]);
+        for(final FrostMessageObject targetMessage  : selectedMessages ) {
             final Identity id = getSelectedMessageFromIdentity(targetMessage);
             if( id == null ) {
                 continue;
@@ -1265,16 +1255,15 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         }
         final Board board = (Board) node;
 
-        if( messageTable.getSelectedRowCount() <= 1 && !isCorrectlySelectedMessage() ) {
+        final List<FrostMessageObject> selectedMessages = getSelectedMessages();
+        if( selectedMessages.size() == 0 ) {
             return;
         }
 
         // set all selected messages unread
-        final int[] rows = messageTable.getSelectedRows();
         final ArrayList<FrostMessageObject> saveMessages = new ArrayList<FrostMessageObject>();
         final DefaultTreeModel model = (DefaultTreeModel)MainFrame.getInstance().getMessagePanel().getMessageTable().getTree().getModel();
-        for(int x=rows.length-1; x >= 0; x--) {
-            final FrostMessageObject targetMessage = (FrostMessageObject)getMessageTableModel().getRow(rows[x]);
+        for(final FrostMessageObject targetMessage : selectedMessages ) {
             if( markRead ) {
                 // mark read
                 if( targetMessage.isNew() ) {
@@ -1370,16 +1359,15 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         }
         final Board board = (Board) node;
 
-        if( messageTable.getSelectedRowCount() <= 1 && !isCorrectlySelectedMessage() ) {
+        final List<FrostMessageObject> selectedMessages = getSelectedMessages();
+        if( selectedMessages.size() == 0 ) {
             return;
         }
 
         // set all selected messages deleted
-        final int[] rows = messageTable.getSelectedRows();
         final ArrayList<FrostMessageObject> saveMessages = new ArrayList<FrostMessageObject>();
         final DefaultTreeModel model = (DefaultTreeModel)MainFrame.getInstance().getMessagePanel().getMessageTable().getTree().getModel();
-        for(int x=rows.length-1; x >= 0; x--) {
-            final FrostMessageObject targetMessage = (FrostMessageObject)getMessageTableModel().getRow(rows[x]);
+        for( final FrostMessageObject targetMessage : selectedMessages ) {
             targetMessage.setDeleted(true);
             if( targetMessage.isNew() ) {
                 targetMessage.setNew(false);
@@ -1408,17 +1396,16 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         saver.start();
     }
 
-    private void undeleteSelectedMessage(){
-        if( messageTable.getSelectedRowCount() <= 1 && !isCorrectlySelectedMessage() ) {
+    private void undeleteSelectedMessage() {
+        final List<FrostMessageObject> selectedMessages = getSelectedMessages();
+        if( selectedMessages.size() == 0 ) {
             return;
         }
 
         // set all selected messages deleted
-        final int[] rows = messageTable.getSelectedRows();
         final ArrayList<FrostMessageObject> saveMessages = new ArrayList<FrostMessageObject>();
         final DefaultTreeModel model = (DefaultTreeModel)MainFrame.getInstance().getMessagePanel().getMessageTable().getTree().getModel();
-        for( final int element : rows ) {
-            final FrostMessageObject targetMessage = (FrostMessageObject)getMessageTableModel().getRow(element);
+        for( final FrostMessageObject targetMessage : selectedMessages ) {
             if( !targetMessage.isDeleted() ) {
                 continue;
             }
@@ -1441,6 +1428,30 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             }
         };
         saver.start();
+    }
+
+    /**
+     * @return a list of all selected, non dummy messages; or an empty list
+     */
+    private java.util.List<FrostMessageObject> getSelectedMessages() {
+        if( messageTable.getSelectedRowCount() <= 1 && !isCorrectlySelectedMessage() ) {
+            return Collections.emptyList();
+        }
+
+        final int[] rows = messageTable.getSelectedRows();
+
+        if( rows == null || rows.length == 0 ) {
+            return Collections.emptyList();
+        }
+
+        final java.util.List<FrostMessageObject> msgs = new ArrayList<FrostMessageObject>(rows.length);
+        for( final int ix : rows ) {
+            final FrostMessageObject targetMessage = (FrostMessageObject)getMessageTableModel().getRow(ix);
+            if( targetMessage != null && !targetMessage.isDummy() ) {
+                msgs.add(targetMessage);
+            }
+        }
+        return msgs;
     }
 
     public void setIdentities(final FrostIdentities identities) {
@@ -1603,6 +1614,99 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                         (row == 0 ? row : row - 1) * messageTable.getRowHeight());
             }
         }
+    }
+
+    /**
+     * Update one of flagged, starred, junk in all currently selected messages.
+     */
+    public void updateBooleanState(final BooleanState state) {
+        updateBooleanState(state, getSelectedMessages());
+    }
+
+    /**
+     * Update one of flagged, starred, junk in all messages in msgs.
+     * The current state of the first message in list is toggled.
+     */
+    private void updateBooleanState(final BooleanState state, final List<FrostMessageObject> msgs) {
+        if( msgs.isEmpty() ) {
+            return;
+        }
+
+        final boolean doEnable;
+        final FrostMessageObject firstMessage = msgs.get(0);
+        switch(state) {
+            case FLAGGED: doEnable = !firstMessage.isFlagged(); break;
+            case STARRED: doEnable = !firstMessage.isStarred(); break;
+            case JUNK:    doEnable = !firstMessage.isJunk(); break;
+            default: return;
+        }
+
+        for( final FrostMessageObject message : msgs ) {
+            switch(state) {
+                case FLAGGED: message.setFlagged(doEnable); break;
+                case STARRED: message.setStarred(doEnable); break;
+                case JUNK:    message.setJunk(doEnable); break;
+            }
+
+            final int row = MainFrame.getInstance().getMessageTreeTable().getRowForNode(message);
+            if( row >= 0 ) {
+                getMessageTableModel().fireTableRowsUpdated(row, row);
+            }
+
+            // for flagged/starred, update marker on thread root message
+            if( state != BooleanState.JUNK ) {
+                // determine thread root msg of this msg
+                final FrostMessageObject threadRootMsg = message.getThreadRootMessage();
+
+                // update thread root to update the marker border
+                if( threadRootMsg != message && threadRootMsg != null ) {
+                    getMessageTreeModel().nodeChanged(threadRootMsg);
+                }
+            }
+        }
+
+        // if flagged or starred, update board markers in board tree
+        if( state != BooleanState.JUNK ) {
+            // update flagged/starred indicators in board tree
+            boolean hasStarredWork = false;
+            boolean hasFlaggedWork = false;
+            final DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode)firstMessage.getRoot();
+            for(final Enumeration e=rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
+                final FrostMessageObject mo = (FrostMessageObject)e.nextElement();
+                if( !hasStarredWork && mo.isStarred() ) {
+                    hasStarredWork = true;
+                }
+                if( !hasFlaggedWork && mo.isFlagged() ) {
+                    hasFlaggedWork = true;
+                }
+                if( hasFlaggedWork && hasStarredWork ) {
+                    break; // finished
+                }
+            }
+            final Board board = firstMessage.getBoard();
+            board.hasFlaggedMessages(hasFlaggedWork);
+            board.hasStarredMessages(hasStarredWork);
+            MainFrame.getInstance().updateTofTree(board);
+        }
+
+        // save all changed messages
+        final Thread saver = new Thread() {
+            @Override
+            public void run() {
+                if( !MessageStorage.inst().beginExclusiveThreadTransaction() ) {
+                    logger.severe("Failed to start EXCLUSIVE transaction in MessageStore!");
+                    return;
+                }
+                try {
+                    for( final FrostMessageObject message : msgs ) {
+                        MessageStorage.inst().updateMessage(message, false);
+                    }
+                } finally {
+                    MessageStorage.inst().endThreadTransaction();
+                }
+            }
+        };
+        saver.start();
     }
 
     private void updateSubjectTextLabel(final String newText, final Identity fromId) {
