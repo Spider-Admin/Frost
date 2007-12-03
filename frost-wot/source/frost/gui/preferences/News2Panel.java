@@ -30,7 +30,7 @@ import frost.util.gui.translation.*;
 class News2Panel extends JPanel {
 
     private class Listener implements ActionListener {
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(final ActionEvent e) {
             if (e.getSource() == blockSubjectCheckBox) {
                 blockSubjectPressed();
             }
@@ -46,32 +46,34 @@ class News2Panel extends JPanel {
     private SettingsClass settings = null;
     private Language language = null;
 
-    private JCheckBox blockBoardCheckBox = new JCheckBox();
-    private JTextArea blockBoardTextField = new JTextArea(2,0);
-    private JCheckBox blockBodyCheckBox = new JCheckBox();
-    private JTextArea blockBodyTextField = new JTextArea(2,0);
-    private JCheckBox blockSubjectCheckBox = new JCheckBox();
-    private JTextArea blockSubjectTextField = new JTextArea(2,0);
+    private final JCheckBox blockBoardCheckBox = new JCheckBox();
+    private final JTextArea blockBoardTextField = new JTextArea(2,0);
+    private final JCheckBox blockBodyCheckBox = new JCheckBox();
+    private final JTextArea blockBodyTextField = new JTextArea(2,0);
+    private final JCheckBox blockSubjectCheckBox = new JCheckBox();
+    private final JTextArea blockSubjectTextField = new JTextArea(2,0);
 
-    private JCheckBox hideBadMessagesCheckBox = new JCheckBox();
-    private JCheckBox hideCheckMessagesCheckBox = new JCheckBox();
-    private JCheckBox hideObserveMessagesCheckBox = new JCheckBox();
-    private JCheckBox hideUnsignedMessagesCheckBox = new JCheckBox();
+    private final JCheckBox hideBadMessagesCheckBox = new JCheckBox();
+    private final JCheckBox hideCheckMessagesCheckBox = new JCheckBox();
+    private final JCheckBox hideObserveMessagesCheckBox = new JCheckBox();
+    private final JCheckBox hideUnsignedMessagesCheckBox = new JCheckBox();
 
-    private JCheckBox blockBoardsFromBadCheckBox = new JCheckBox();
-    private JCheckBox blockBoardsFromCheckCheckBox = new JCheckBox();
-    private JCheckBox blockBoardsFromObserveCheckBox = new JCheckBox();
-    private JCheckBox blockBoardsFromUnsignedCheckBox = new JCheckBox();
+    private final JCheckBox blockBoardsFromBadCheckBox = new JCheckBox();
+    private final JCheckBox blockBoardsFromCheckCheckBox = new JCheckBox();
+    private final JCheckBox blockBoardsFromObserveCheckBox = new JCheckBox();
+    private final JCheckBox blockBoardsFromUnsignedCheckBox = new JCheckBox();
 
-    private JLabel hideMessagesLabel = new JLabel();
-    private JLabel blockBoardsLabel = new JLabel();
+    private final JCheckBox hideJunkMessagesCheckBox = new JCheckBox();
 
-    private Listener listener = new Listener();
+    private final JLabel hideMessagesLabel = new JLabel();
+    private final JLabel blockBoardsLabel = new JLabel();
+
+    private final Listener listener = new Listener();
 
     /**
      * @param settings the SettingsClass instance that will be used to get and store the settings of the panel
      */
-    protected News2Panel(SettingsClass settings) {
+    protected News2Panel(final SettingsClass settings) {
         super();
 
         this.language = Language.getInstance();
@@ -94,8 +96,8 @@ class News2Panel extends JPanel {
     }
 
     private JPanel getHideMessagesPanel() {
-        JPanel hidePanel = new JPanel(new GridBagLayout());
-        GridBagConstraints constraints = new GridBagConstraints();
+        final JPanel hidePanel = new JPanel(new GridBagLayout());
+        final GridBagConstraints constraints = new GridBagConstraints();
 
         constraints.anchor = GridBagConstraints.NORTHWEST;
 
@@ -129,8 +131,8 @@ class News2Panel extends JPanel {
     }
 
     private JPanel getBlockBoardsPanel() {
-        JPanel blockBoardsPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints constraints = new GridBagConstraints();
+        final JPanel blockBoardsPanel = new JPanel(new GridBagLayout());
+        final GridBagConstraints constraints = new GridBagConstraints();
 
         constraints.anchor = GridBagConstraints.NORTHWEST;
 
@@ -172,18 +174,18 @@ class News2Panel extends JPanel {
         new TextComponentClipboardMenu(blockBodyTextField, language);
         new TextComponentClipboardMenu(blockBoardTextField, language);
         new TextComponentClipboardMenu(blockSubjectTextField, language);
-        
+
         blockBoardTextField.setLineWrap(true);
         blockBodyTextField.setLineWrap(true);
         blockSubjectTextField.setLineWrap(true);
 
         JScrollPane sp;
-        
+
         // Adds all of the components
-        GridBagConstraints constraints = new GridBagConstraints();
+        final GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
-        Insets insets5555 = new Insets(5, 5, 5, 5);
-        Insets insets0_30_5_5 = new Insets(0, 30, 5, 5);
+        final Insets insets5555 = new Insets(5, 5, 5, 5);
+        final Insets insets0_30_5_5 = new Insets(0, 30, 5, 5);
         constraints.insets = insets5555;
         constraints.gridwidth = 2;
 
@@ -229,6 +231,12 @@ class News2Panel extends JPanel {
         constraints.gridy++;
         add(getBlockBoardsPanel(), constraints);
 
+        constraints.insets = insets5555;
+        constraints.gridwidth = 2;
+        constraints.gridx = 0;
+        constraints.gridy++;
+        add(hideJunkMessagesCheckBox, constraints);
+
         // glue
         constraints.gridy++;
         constraints.gridx = 0;
@@ -237,7 +245,6 @@ class News2Panel extends JPanel {
         constraints.weightx = 1;
         constraints.weighty = 1;
         add(new JLabel(""), constraints);
-
 
         // Add listeners
         blockSubjectCheckBox.addActionListener(listener);
@@ -253,6 +260,8 @@ class News2Panel extends JPanel {
         hideBadMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.MESSAGE_HIDE_BAD));
         hideCheckMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.MESSAGE_HIDE_CHECK));
         hideObserveMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.MESSAGE_HIDE_OBSERVE));
+
+        hideJunkMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.MESSAGE_HIDE_JUNK));
 
         blockBoardsFromUnsignedCheckBox.setSelected(settings.getBoolValue(SettingsClass.KNOWNBOARDS_BLOCK_FROM_UNSIGNED));
         blockBoardsFromBadCheckBox.setSelected(settings.getBoolValue(SettingsClass.KNOWNBOARDS_BLOCK_FROM_BAD));
@@ -281,6 +290,8 @@ class News2Panel extends JPanel {
         hideCheckMessagesCheckBox.setText(language.getString("Options.news.2.trustState.check"));
         hideObserveMessagesCheckBox.setText(language.getString("Options.news.2.trustState.observe"));
 
+        hideJunkMessagesCheckBox.setText(language.getString("Options.news.2.hideJunkMessages"));
+
         blockBoardsLabel.setText(language.getString("Options.news.2.dontAddBoardsFromTrustStates")+":");
         blockBoardsFromUnsignedCheckBox.setText(language.getString("Options.news.2.trustState.none"));
         blockBoardsFromBadCheckBox.setText(language.getString("Options.news.2.trustState.bad"));
@@ -307,6 +318,8 @@ class News2Panel extends JPanel {
         settings.setValue(SettingsClass.MESSAGE_HIDE_BAD, hideBadMessagesCheckBox.isSelected());
         settings.setValue(SettingsClass.MESSAGE_HIDE_CHECK, hideCheckMessagesCheckBox.isSelected());
         settings.setValue(SettingsClass.MESSAGE_HIDE_OBSERVE, hideObserveMessagesCheckBox.isSelected());
+
+        settings.setValue(SettingsClass.MESSAGE_HIDE_JUNK, hideJunkMessagesCheckBox.isSelected());
 
         settings.setValue(SettingsClass.KNOWNBOARDS_BLOCK_FROM_UNSIGNED, blockBoardsFromUnsignedCheckBox.isSelected());
         settings.setValue(SettingsClass.KNOWNBOARDS_BLOCK_FROM_BAD, blockBoardsFromBadCheckBox.isSelected());

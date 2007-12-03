@@ -18,6 +18,7 @@
 */
 package frost.boards;
 import java.awt.*;
+import java.beans.*;
 import java.util.*;
 import java.util.List;
 import java.util.logging.*;
@@ -41,7 +42,7 @@ import frost.util.gui.translation.*;
 /**
  * @pattern Singleton
  */
-public class TOF {
+public class TOF implements PropertyChangeListener {
 
     // ATTN: if a new message arrives during update of a board, the msg cannot be inserted into db because
     //       the methods are synchronized. So the add of msg occurs after the load of the board.
@@ -57,6 +58,8 @@ public class TOF {
     private final TofTreeModel tofTreeModel;
 
     private static boolean initialized = false;
+
+    private boolean hideJunkMessages;
 
     /**
      * The unique instance of this class.
@@ -79,6 +82,8 @@ public class TOF {
     private TOF(final TofTreeModel tofTreeModel) {
         super();
         this.tofTreeModel = tofTreeModel;
+        hideJunkMessages = Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_JUNK);
+        Core.frostSettings.addPropertyChangeListener(SettingsClass.MESSAGE_HIDE_JUNK, this);
     }
 
     /**
@@ -895,9 +900,7 @@ public class TOF {
                 Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BODY_ENABLED),
                 Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BOARDNAME_ENABLED));
     }
-//FIXME:!!!!
-//wenn blocked, mark as unread. but not immediately, we are inside a coop tx!
-//-> mark unread, but commit after load finished
+
     /**
      * Returns true if the message should not be displayed
      * @return true if message is blocked, else false
@@ -909,6 +912,9 @@ public class TOF {
             final boolean blockMsgBody,
             final boolean blockMsgBoardname)
     {
+        if( hideJunkMessages && message.isJunk() ) {
+            return true;
+        }
         if (board.getShowSignedOnly()
             && (message.isMessageStatusOLD() || message.isMessageStatusTAMPERED()) )
         {
@@ -1064,5 +1070,11 @@ public class TOF {
                 MainFrame.getInstance().updateTofTree(board);
             }
         });
+    }
+
+    public void propertyChange(final PropertyChangeEvent evt) {
+        if (evt.getPropertyName().equals(SettingsClass.MESSAGE_HIDE_JUNK)) {
+            hideJunkMessages = Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_JUNK);
+        }
     }
 }
