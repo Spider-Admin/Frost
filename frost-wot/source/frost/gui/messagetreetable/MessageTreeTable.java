@@ -92,6 +92,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
 
     private final ImageIcon flaggedIcon = new ImageIcon(getClass().getResource("/data/flagged.gif"));
     private final ImageIcon starredIcon = new ImageIcon(getClass().getResource("/data/starred.gif"));
+    private final ImageIcon junkIcon    = new ImageIcon(getClass().getResource("/data/junk.gif"));
 
     private final ImageIcon messageDummyIcon = new ImageIcon(getClass().getResource("/data/messagedummyicon.gif"));
     private final ImageIcon messageNewIcon = new ImageIcon(getClass().getResource("/data/messagenewicon.gif"));
@@ -741,19 +742,19 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             final TableColumn tableColumn = getColumnModel().getColumn(column);
             column = tableColumn.getModelIndex();
 
-            if( column == MessageTreeTableModel.COLUMN_INDEX_FLAGGED ) {
-                if( val ) {
-                    setIcon(flaggedIcon);
-                } else {
-                    setIcon(null);
-                }
-            } else if( column == MessageTreeTableModel.COLUMN_INDEX_STARRED ) {
-                if( val ) {
-                    setIcon(starredIcon);
-                } else {
-                    setIcon(null);
+            ImageIcon iconToSet = null;
+
+            if( val == true ) {
+                if( column == MessageTreeTableModel.COLUMN_INDEX_FLAGGED ) {
+                    iconToSet = flaggedIcon;
+                } else if( column == MessageTreeTableModel.COLUMN_INDEX_STARRED ) {
+                    iconToSet = starredIcon;
+                } else if( column == MessageTreeTableModel.COLUMN_INDEX_JUNK ) {
+                    iconToSet =  junkIcon;
                 }
             }
+
+            setIcon(iconToSet);
 
             if (!isSelected) {
                 final Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
@@ -1063,14 +1064,19 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         tcm.getColumn(MessageTreeTableModel.COLUMN_INDEX_STARRED).setMinWidth(20);
         tcm.getColumn(MessageTreeTableModel.COLUMN_INDEX_STARRED).setMaxWidth(20);
         tcm.getColumn(MessageTreeTableModel.COLUMN_INDEX_STARRED).setPreferredWidth(20);
+        // hard set sizes of icons column
+        tcm.getColumn(MessageTreeTableModel.COLUMN_INDEX_JUNK).setMinWidth(20);
+        tcm.getColumn(MessageTreeTableModel.COLUMN_INDEX_JUNK).setMaxWidth(20);
+        tcm.getColumn(MessageTreeTableModel.COLUMN_INDEX_JUNK).setPreferredWidth(20);
 
         // set icon table header renderer for icon columns
         tcm.getColumn(MessageTreeTableModel.COLUMN_INDEX_FLAGGED).setHeaderRenderer(new IconTableHeaderRenderer(flaggedIcon));
         tcm.getColumn(MessageTreeTableModel.COLUMN_INDEX_STARRED).setHeaderRenderer(new IconTableHeaderRenderer(starredIcon));
+        tcm.getColumn(MessageTreeTableModel.COLUMN_INDEX_JUNK).setHeaderRenderer(new IconTableHeaderRenderer(junkIcon));
 
         if( !loadLayout(frostSettings, tcm) ) {
             // Sets the relative widths of the columns
-            final int[] widths = { 20,20, 185, 95, 50, 130 };
+            final int[] widths = { 20,20, 185, 95, 40, 20, 130 };
             for (int i = 0; i < widths.length; i++) {
                 tcm.getColumn(i).setPreferredWidth(widths[i]);
             }
@@ -1112,7 +1118,10 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             tcms[x] = tcm.getColumn(x);
             tcm.removeColumn(tcms[x]);
             // keep icon columns 0,1 as is
-            if(x != MessageTreeTableModel.COLUMN_INDEX_FLAGGED && x != MessageTreeTableModel.COLUMN_INDEX_STARRED) {
+            if(x != MessageTreeTableModel.COLUMN_INDEX_FLAGGED
+                    && x != MessageTreeTableModel.COLUMN_INDEX_STARRED
+                    && x != MessageTreeTableModel.COLUMN_INDEX_JUNK)
+            {
                 tcms[x].setPreferredWidth(columnWidths[x]);
             }
         }

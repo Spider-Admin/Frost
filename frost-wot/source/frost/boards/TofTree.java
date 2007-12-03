@@ -743,6 +743,12 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
             MainFrame.getInstance().getMessagePanel().setTrustState_actionPerformed(MessagePanel.IdentityState.OBSERVE);
         } else if( e.getID()==KeyEvent.KEY_TYPED && (e.getKeyChar() == 'g' || e.getKeyChar() == 'G') ) {
             MainFrame.getInstance().getMessagePanel().setTrustState_actionPerformed(MessagePanel.IdentityState.GOOD);
+        } else if( e.getID()==KeyEvent.KEY_TYPED && (e.getKeyChar() == 'f' || e.getKeyChar() == 'F') ) {
+            MainFrame.getInstance().getMessagePanel().updateBooleanState(MessagePanel.BooleanState.FLAGGED);
+        } else if( e.getID()==KeyEvent.KEY_TYPED && (e.getKeyChar() == 's' || e.getKeyChar() == 'S') ) {
+            MainFrame.getInstance().getMessagePanel().updateBooleanState(MessagePanel.BooleanState.STARRED);
+        } else if( e.getID()==KeyEvent.KEY_TYPED && (e.getKeyChar() == 'j' || e.getKeyChar() == 'J') ) {
+            MainFrame.getInstance().getMessagePanel().updateBooleanState(MessagePanel.BooleanState.JUNK);
         } else if( Character.isLetter(e.getKeyChar()) || Character.isDigit(e.getKeyChar()) ) {
             // ignore
         } else {
