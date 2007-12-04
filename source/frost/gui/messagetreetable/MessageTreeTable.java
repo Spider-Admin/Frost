@@ -128,7 +128,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     	tree = new TreeTableCellRenderer(treeTableModel);
 
     	// Installs a tableModel representing the visible rows in the tree.
-    	super.setModel(new TreeTableModelAdapter(treeTableModel, tree));
+    	super.setModel(new TreeTableModelAdapter(treeTableModel, tree, this));
 
     	// Forces the JTable and JTree to share their row selection models.
     	final ListToTreeSelectionModelWrapper selectionWrapper = new ListToTreeSelectionModelWrapper();

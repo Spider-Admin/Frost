@@ -45,8 +45,6 @@ import javax.swing.event.*;
 import javax.swing.table.*;
 import javax.swing.tree.*;
 
-import frost.*;
-
 /**
  * This wrapper class takes a TreeTableModel and implements the table model interface. The implementation is trivial,
  * with all of the event dispatching support provided by the superclass: the AbstractTableModel.
@@ -59,12 +57,14 @@ import frost.*;
 public class TreeTableModelAdapter extends AbstractTableModel {
 
     final JTree tree;
+    final MessageTreeTable treeTable;
     final TreeTableModel treeTableModel;
 
     private int collapsedToRow = -1;
 
-    public TreeTableModelAdapter(final TreeTableModel treeTableModel, final JTree tree) {
+    public TreeTableModelAdapter(final TreeTableModel treeTableModel, final JTree tree, final MessageTreeTable tt) {
         this.tree = tree;
+        this.treeTable = tt;
         this.treeTableModel = treeTableModel;
 
         tree.addTreeWillExpandListener(new TreeWillExpandListener() {
@@ -76,14 +76,14 @@ public class TreeTableModelAdapter extends AbstractTableModel {
             public void treeWillCollapse(final TreeExpansionEvent event) throws ExpandVetoException {
                 final DefaultMutableTreeNode collapsedNode = (DefaultMutableTreeNode) event.getPath().getLastPathComponent();
                 // X new rows are below the expanded node
-                final int nodeRow = MainFrame.getInstance().getMessageTreeTable().getRowForNode(collapsedNode);
+                final int nodeRow = treeTable.getRowForNode(collapsedNode);
                 final int fromRow = nodeRow + 1;
                 int toRow = nodeRow;
                 if( collapsedNode.getChildCount() > 0 ) {
                     toRow += collapsedNode.getChildCount();
                 }
 
-                final Enumeration<TreePath> e = MainFrame.getInstance().getMessageTreeTable().getTree().getExpandedDescendants(event.getPath());
+                final Enumeration<TreePath> e = treeTable.getTree().getExpandedDescendants(event.getPath());
                 // count childs of this tree, and childs of all expanded subchilds
                 while( e.hasMoreElements() ) {
                     final DefaultMutableTreeNode n = (DefaultMutableTreeNode)e.nextElement().getLastPathComponent();
@@ -101,14 +101,14 @@ public class TreeTableModelAdapter extends AbstractTableModel {
             public void treeExpanded(final TreeExpansionEvent event) {
                 final DefaultMutableTreeNode expandedNode = (DefaultMutableTreeNode)event.getPath().getLastPathComponent();
                 // X new rows are below the expanded node
-                final int nodeRow = MainFrame.getInstance().getMessageTreeTable().getRowForNode(expandedNode);
+                final int nodeRow = treeTable.getRowForNode(expandedNode);
                 final int fromRow = nodeRow + 1;
                 int toRow = nodeRow;
                 if( expandedNode.getChildCount() > 0 ) {
                     toRow += expandedNode.getChildCount();
                 }
                 // check if new childs are expanded too
-                final Enumeration<TreePath> e = MainFrame.getInstance().getMessageTreeTable().getTree().getExpandedDescendants(event.getPath());
+                final Enumeration<TreePath> e = treeTable.getTree().getExpandedDescendants(event.getPath());
                 // count childs of this tree, and childs of all expanded subchilds
                 while(e.hasMoreElements()) {
                     final DefaultMutableTreeNode n = (DefaultMutableTreeNode)(e.nextElement()).getLastPathComponent();
@@ -125,7 +125,7 @@ public class TreeTableModelAdapter extends AbstractTableModel {
             public void treeCollapsed(final TreeExpansionEvent event) {
 //                System.out.println("treeCollapsed");
                 final DefaultMutableTreeNode collapsedNode = (DefaultMutableTreeNode)event.getPath().getLastPathComponent();
-                final int nodeRow = MainFrame.getInstance().getMessageTreeTable().getRowForNode(collapsedNode);
+                final int nodeRow = treeTable.getRowForNode(collapsedNode);
                 final int fromRow = nodeRow + 1;
                 final int toRow = collapsedToRow;
                 fireTableRowsDeleted(fromRow, toRow);
@@ -147,7 +147,7 @@ public class TreeTableModelAdapter extends AbstractTableModel {
                 }
                 // update the row for this node
                 final DefaultMutableTreeNode childNode = (DefaultMutableTreeNode)node.getChildAt(childIndices[0]);
-                final int row = MainFrame.getInstance().getMessageTreeTable().getRowForNode(childNode);
+                final int row = treeTable.getRowForNode(childNode);
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
 //                        System.out.println("treeNodesChanged: "+row);
@@ -175,7 +175,7 @@ public class TreeTableModelAdapter extends AbstractTableModel {
 //                } else {
 //                    offset = 1;
 //                }
-                final int row = MainFrame.getInstance().getMessageTreeTable().getRowForNode(node) + offset + childIndices[0];
+                final int row = treeTable.getRowForNode(node) + offset + childIndices[0];
 //                final int row = MainFrame.getInstance().getMessageTreeTable().getRowForNode(node) + 1 + childIndices[0];
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
@@ -196,7 +196,7 @@ public class TreeTableModelAdapter extends AbstractTableModel {
                 // ATTN: will getRowForNode work if node was already removed from tree?
                 //  -> we currently don't remove nodes from tree anywhere in Frost
                 final DefaultMutableTreeNode childNode = (DefaultMutableTreeNode)node.getChildAt(childIndices[0]);
-                final int row = MainFrame.getInstance().getMessageTreeTable().getRowForNode(childNode);
+                final int row = treeTable.getRowForNode(childNode);
                 SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
                         fireTableRowsDeleted(row, row);
