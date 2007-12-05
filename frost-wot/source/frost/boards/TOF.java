@@ -82,8 +82,8 @@ public class TOF implements PropertyChangeListener {
     private TOF(final TofTreeModel tofTreeModel) {
         super();
         this.tofTreeModel = tofTreeModel;
-        hideJunkMessages = Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_JUNK);
-        Core.frostSettings.addPropertyChangeListener(SettingsClass.MESSAGE_HIDE_JUNK, this);
+        hideJunkMessages = Core.frostSettings.getBoolValue(SettingsClass.JUNK_HIDE_JUNK_MESSAGES);
+        Core.frostSettings.addPropertyChangeListener(SettingsClass.JUNK_HIDE_JUNK_MESSAGES, this);
     }
 
     /**
@@ -1073,8 +1073,8 @@ public class TOF implements PropertyChangeListener {
     }
 
     public void propertyChange(final PropertyChangeEvent evt) {
-        if (evt.getPropertyName().equals(SettingsClass.MESSAGE_HIDE_JUNK)) {
-            hideJunkMessages = Core.frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_JUNK);
+        if (evt.getPropertyName().equals(SettingsClass.JUNK_HIDE_JUNK_MESSAGES)) {
+            hideJunkMessages = Core.frostSettings.getBoolValue(SettingsClass.JUNK_HIDE_JUNK_MESSAGES);
         }
     }
 }

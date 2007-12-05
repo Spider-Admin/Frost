@@ -179,7 +179,8 @@ public class SettingsClass implements ExitSavable {
     public static final String MESSAGE_BLOCK_BOARDNAME = "blockMessageBoard";
     public static final String MESSAGE_BLOCK_BOARDNAME_ENABLED = "blockMessageBoardChecked";
 
-    public static final String MESSAGE_HIDE_JUNK = "hideJunkMessages";
+    public static final String JUNK_HIDE_JUNK_MESSAGES = "junk.hideJunkMessages";
+    public static final String JUNK_MARK_JUNK_IDENTITY_BAD = "junk.markJunkIdentityBad";
 
     public static final String MESSAGE_HIDE_OBSERVE = "hideObserveMessages";
     public static final String MESSAGE_HIDE_CHECK = "hideCheckMessages";
@@ -844,7 +845,7 @@ public class SettingsClass implements ExitSavable {
         defaults.put(MESSAGE_HIDE_CHECK, "false");
         defaults.put(MESSAGE_HIDE_OBSERVE, "false");
 
-        defaults.put(MESSAGE_HIDE_JUNK, "false");
+        defaults.put(JUNK_HIDE_JUNK_MESSAGES, "false");
 
         defaults.put(KNOWNBOARDS_BLOCK_FROM_UNSIGNED, "false");
         defaults.put(KNOWNBOARDS_BLOCK_FROM_BAD, "true");

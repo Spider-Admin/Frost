@@ -63,8 +63,6 @@ class News2Panel extends JPanel {
     private final JCheckBox blockBoardsFromObserveCheckBox = new JCheckBox();
     private final JCheckBox blockBoardsFromUnsignedCheckBox = new JCheckBox();
 
-    private final JCheckBox hideJunkMessagesCheckBox = new JCheckBox();
-
     private final JLabel hideMessagesLabel = new JLabel();
     private final JLabel blockBoardsLabel = new JLabel();
 
@@ -231,12 +229,6 @@ class News2Panel extends JPanel {
         constraints.gridy++;
         add(getBlockBoardsPanel(), constraints);
 
-        constraints.insets = insets5555;
-        constraints.gridwidth = 2;
-        constraints.gridx = 0;
-        constraints.gridy++;
-        add(hideJunkMessagesCheckBox, constraints);
-
         // glue
         constraints.gridy++;
         constraints.gridx = 0;
@@ -260,8 +252,6 @@ class News2Panel extends JPanel {
         hideBadMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.MESSAGE_HIDE_BAD));
         hideCheckMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.MESSAGE_HIDE_CHECK));
         hideObserveMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.MESSAGE_HIDE_OBSERVE));
-
-        hideJunkMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.MESSAGE_HIDE_JUNK));
 
         blockBoardsFromUnsignedCheckBox.setSelected(settings.getBoolValue(SettingsClass.KNOWNBOARDS_BLOCK_FROM_UNSIGNED));
         blockBoardsFromBadCheckBox.setSelected(settings.getBoolValue(SettingsClass.KNOWNBOARDS_BLOCK_FROM_BAD));
@@ -290,8 +280,6 @@ class News2Panel extends JPanel {
         hideCheckMessagesCheckBox.setText(language.getString("Options.news.2.trustState.check"));
         hideObserveMessagesCheckBox.setText(language.getString("Options.news.2.trustState.observe"));
 
-        hideJunkMessagesCheckBox.setText(language.getString("Options.news.2.hideJunkMessages"));
-
         blockBoardsLabel.setText(language.getString("Options.news.2.dontAddBoardsFromTrustStates")+":");
         blockBoardsFromUnsignedCheckBox.setText(language.getString("Options.news.2.trustState.none"));
         blockBoardsFromBadCheckBox.setText(language.getString("Options.news.2.trustState.bad"));
@@ -318,8 +306,6 @@ class News2Panel extends JPanel {
         settings.setValue(SettingsClass.MESSAGE_HIDE_BAD, hideBadMessagesCheckBox.isSelected());
         settings.setValue(SettingsClass.MESSAGE_HIDE_CHECK, hideCheckMessagesCheckBox.isSelected());
         settings.setValue(SettingsClass.MESSAGE_HIDE_OBSERVE, hideObserveMessagesCheckBox.isSelected());
-
-        settings.setValue(SettingsClass.MESSAGE_HIDE_JUNK, hideJunkMessagesCheckBox.isSelected());
 
         settings.setValue(SettingsClass.KNOWNBOARDS_BLOCK_FROM_UNSIGNED, blockBoardsFromUnsignedCheckBox.isSelected());
         settings.setValue(SettingsClass.KNOWNBOARDS_BLOCK_FROM_BAD, blockBoardsFromBadCheckBox.isSelected());
