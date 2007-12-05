@@ -47,7 +47,6 @@ public class PerstFrostArchiveMessageObject extends Persistent {
     int signatureStatus;
 
     boolean isReplied;
-    boolean isJunk;
     boolean isFlagged;
     boolean isStarred;
 
@@ -85,7 +84,6 @@ public class PerstFrostArchiveMessageObject extends Persistent {
             publicKey = mo.getPublicKey();
         }
         isReplied = mo.isReplied();
-        isJunk = mo.isJunk();
         isFlagged = mo.isFlagged();
         isStarred = mo.isStarred();
         idLinePos = mo.getIdLinePos();
@@ -139,6 +137,10 @@ public class PerstFrostArchiveMessageObject extends Persistent {
 
         mo.setValid(true);
 
+        mo.setNew(false);
+        mo.setJunk(false);
+        mo.setDeleted(false);
+
         mo.setMessageId(messageId);
         mo.setInReplyTo(inReplyTo);
         mo.setDateAndTime(new DateTime(dateAndTime, DateTimeZone.UTC));
@@ -150,11 +152,8 @@ public class PerstFrostArchiveMessageObject extends Persistent {
         }
         mo.setRecipientName(recipientName);
         mo.setSignatureStatus(signatureStatus);
-        mo.setDeleted(false);
 
-        mo.setNew(false);
         mo.setReplied(isReplied);
-        mo.setJunk(isJunk);
         mo.setFlagged(isFlagged);
         mo.setStarred(isStarred);
 

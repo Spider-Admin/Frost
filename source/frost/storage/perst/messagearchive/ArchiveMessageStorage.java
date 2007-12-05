@@ -129,6 +129,14 @@ public class ArchiveMessageStorage extends AbstractFrostStorage implements ExitS
         if( mo.isDeleted() ) {
             return INSERT_OK; // ignore deleted msgs
         }
+        if( mo.isJunk() ) {
+            return INSERT_OK; // ignore junk msgs
+        }
+        if( mo.getFromIdentity() != null
+                && mo.getFromIdentity().isBAD() )
+        {
+            return INSERT_OK; // ignore BAD msgs
+        }
 
         // add to indices, check for duplicate msgId
 
