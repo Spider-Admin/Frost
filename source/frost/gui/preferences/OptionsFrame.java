@@ -99,6 +99,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
     private MiscPanel miscPanel = null;
     private NewsPanel newsPanel = null;
     private News2Panel news2Panel = null;
+    private JunkPanel junkPanel = null;
     private ExpirationPanel expirationPanel = null;
     private JList optionsGroupsList = null;
     private JPanel optionsGroupsPanel = null;
@@ -262,6 +263,13 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         return news2Panel;
     }
 
+    private JunkPanel getJunkPanel() {
+        if (junkPanel == null) {
+            junkPanel = new JunkPanel(frostSettings);
+        }
+        return junkPanel;
+    }
+
     private ExpirationPanel getExpirationPanel() {
         if (expirationPanel == null) {
             expirationPanel = new ExpirationPanel(this, frostSettings);
@@ -288,6 +296,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
             listData.add( new ListBoxData(" "+language.getString("Options.uploads")+" ", getUploadPanel()));
             listData.add( new ListBoxData(" "+language.getString("Options.news")+" (1) ", getNewsPanel()));
             listData.add( new ListBoxData(" "+language.getString("Options.news")+" (2) ", getNews2Panel()));
+            listData.add( new ListBoxData(" "+language.getString("Options.junk")+" ", getJunkPanel()));
             listData.add( new ListBoxData(" "+language.getString("Options.display")+" ", getDisplayPanel()));
             listData.add( new ListBoxData("    "+"Board tree"+" ", getDisplayBoardTreePanel()));
             listData.add( new ListBoxData("    "+"Messages"+" ", getDisplayMessagesPanel()));
@@ -399,6 +408,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         if (news2Panel != null) {
             news2Panel.ok();
         }
+        if (junkPanel != null) {
+            junkPanel.ok();
+        }
         if (expirationPanel != null) {
             expirationPanel.ok();
         }
@@ -453,7 +465,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
             || checkHideBadMessages != frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_BAD)
             || checkHideCheckMessages != frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_CHECK)
             || checkHideObserveMessages != frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_OBSERVE)
-            || checkHideJunkMessages != frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_JUNK)
+            || checkHideJunkMessages != frostSettings.getBoolValue(SettingsClass.JUNK_HIDE_JUNK_MESSAGES)
             || checkBlock != frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_SUBJECT_ENABLED)
             || checkBlockBody != frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BODY_ENABLED)
             || checkShowDeletedMessages != frostSettings.getBoolValue(SettingsClass.SHOW_DELETED_MESSAGES)
@@ -491,7 +503,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         checkHideBadMessages = frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_BAD);
         checkHideCheckMessages = frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_CHECK);
         checkHideObserveMessages = frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_OBSERVE);
-        checkHideJunkMessages = frostSettings.getBoolValue(SettingsClass.MESSAGE_HIDE_JUNK);
+        checkHideJunkMessages = frostSettings.getBoolValue(SettingsClass.JUNK_HIDE_JUNK_MESSAGES);
         checkBlock = frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_SUBJECT_ENABLED);
         checkBlockBody = frostSettings.getBoolValue(SettingsClass.MESSAGE_BLOCK_BODY_ENABLED);
         checkShowDeletedMessages = frostSettings.getBoolValue(SettingsClass.SHOW_DELETED_MESSAGES);

@@ -1034,9 +1034,10 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 setCheckButton.setEnabled( !(idState == IdentityState.CHECK) );
                 setBadButton.setEnabled( !(idState == IdentityState.BAD) );
                 setObserveButton.setEnabled( !(idState == IdentityState.OBSERVE) );
-            } else {
-                messageTable.removeRowSelectionInterval(0, messageTable.getRowCount() - 1);
             }
+//            else {
+//                messageTable.removeRowSelectionInterval(0, messageTable.getRowCount() - 1);
+//            }
         }
     }
 
@@ -1641,6 +1642,17 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             default: return;
         }
 
+        final List<Identity> identitiesToMarkBad;
+        if( state == BooleanState.JUNK
+                && Core.frostSettings.getBoolValue(SettingsClass.JUNK_MARK_JUNK_IDENTITY_BAD)
+                && doEnable )
+        {
+            // we set junk to true and we want to set all junk senders to bad
+            identitiesToMarkBad = new ArrayList<Identity>();
+        } else {
+            identitiesToMarkBad = null;
+        }
+
         for( final FrostMessageObject message : msgs ) {
             switch(state) {
                 case FLAGGED: message.setFlagged(doEnable); break;
@@ -1651,6 +1663,15 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             final int row = MainFrame.getInstance().getMessageTreeTable().getRowForNode(message);
             if( row >= 0 ) {
                 getMessageTableModel().fireTableRowsUpdated(row, row);
+            }
+
+            if( identitiesToMarkBad != null ) {
+                final Identity id = message.getFromIdentity();
+                if( id != null
+                        && id.isCHECK() )
+                {
+                    identitiesToMarkBad.add(id);
+                }
             }
 
             // for flagged/starred, update marker on thread root message
@@ -1687,6 +1708,27 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             board.hasFlaggedMessages(hasFlaggedWork);
             board.hasStarredMessages(hasStarredWork);
             MainFrame.getInstance().updateTofTree(board);
+        }
+
+        // maybe set identities to bad
+        if( identitiesToMarkBad != null
+                && !identitiesToMarkBad.isEmpty() )
+        {
+            for( final Identity id : identitiesToMarkBad ) {
+                id.setBAD();
+            }
+
+            updateTableAfterChangeOfIdentityState();
+            if( msgs.size() == 1 ) {
+                // keep msg selected, change toolbar buttons
+                setGoodButton.setEnabled( true );
+                setCheckButton.setEnabled( true );
+                setBadButton.setEnabled( false );
+                setObserveButton.setEnabled( true );
+            }
+//            else {
+//                messageTable.removeRowSelectionInterval(0, messageTable.getRowCount() - 1);
+//            }
         }
 
         // save all changed messages
