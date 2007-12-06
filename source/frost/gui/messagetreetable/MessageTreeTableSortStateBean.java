@@ -26,10 +26,10 @@ public class MessageTreeTableSortStateBean {
 
     private static boolean isThreaded;
 
-    private final static int defaultSortedColumn = 6; // default: date
+    private final static int defaultSortedColumn = MessageTreeTableModel.COLUMN_INDEX_DATE; // default: date
     private final static boolean defaultIsAscending = false; // default: descending
 
-    private static int sortedColumn = 6; // default: date
+    private static int sortedColumn = MessageTreeTableModel.COLUMN_INDEX_DATE; // default: date
     private static boolean isAscending = false; // default: descending
 
     public static boolean isAscending() {
@@ -70,6 +70,9 @@ public class MessageTreeTableSortStateBean {
     private static StarredComparator starredComparatorAscending = new StarredComparator(true);
     private static StarredComparator starredComparatorDescending = new StarredComparator(false);
 
+    private static JunkComparator junkComparatorAscending = new JunkComparator(true);
+    private static JunkComparator junkComparatorDescending = new JunkComparator(false);
+
     private static SubjectComparator subjectComparatorAscending = new SubjectComparator(true);
     private static SubjectComparator subjectComparatorDescending = new SubjectComparator(false);
 
@@ -92,6 +95,7 @@ public class MessageTreeTableSortStateBean {
         subjectComparatorAscending,
         fromComparatorAscending,
         indexComparatorAscending,
+        junkComparatorAscending,
         trustStateComparatorAscending,
         dateComparatorAscending
     };
@@ -102,6 +106,7 @@ public class MessageTreeTableSortStateBean {
         subjectComparatorDescending,
         fromComparatorDescending,
         indexComparatorDescending,
+        junkComparatorDescending,
         trustStateComparatorDescending,
         dateComparatorDescending
     };
@@ -323,6 +328,34 @@ public class MessageTreeTableSortStateBean {
             if( s1 == s2 ) {
                 return 0;
             } else if( s1 > s2 ) {
+                return retvalGreater;
+            } else {
+                return retvalSmaller;
+            }
+        }
+    }
+
+    private static class JunkComparator implements Comparator<FrostMessageObject> {
+        private int retvalGreater;
+        private int retvalSmaller;
+        public JunkComparator(final boolean ascending) {
+            if( ascending ) {
+                // oldest first
+                retvalGreater = +1;
+                retvalSmaller = -1;
+            } else {
+                // newest first
+                retvalGreater = -1;
+                retvalSmaller = +1;
+            }
+        }
+        public int compare(final FrostMessageObject t1, final FrostMessageObject t2) {
+            final boolean s1 = t1.isJunk();
+            final boolean s2 = t2.isJunk();
+            if( s1 == s2 ) {
+                return 0;
+            }
+            if( s1 == true ) {
                 return retvalGreater;
             } else {
                 return retvalSmaller;
