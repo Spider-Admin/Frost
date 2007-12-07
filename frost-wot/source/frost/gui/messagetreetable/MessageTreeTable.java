@@ -1070,9 +1070,12 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         tcm.getColumn(MessageTreeTableModel.COLUMN_INDEX_JUNK).setPreferredWidth(20);
 
         // set icon table header renderer for icon columns
-        tcm.getColumn(MessageTreeTableModel.COLUMN_INDEX_FLAGGED).setHeaderRenderer(new IconTableHeaderRenderer(flaggedIcon));
-        tcm.getColumn(MessageTreeTableModel.COLUMN_INDEX_STARRED).setHeaderRenderer(new IconTableHeaderRenderer(starredIcon));
-        tcm.getColumn(MessageTreeTableModel.COLUMN_INDEX_JUNK).setHeaderRenderer(new IconTableHeaderRenderer(junkIcon));
+        tcm.getColumn(MessageTreeTableModel.COLUMN_INDEX_FLAGGED).setHeaderRenderer(
+                new IconTableHeaderRenderer(flaggedIcon, "Flagged"));
+        tcm.getColumn(MessageTreeTableModel.COLUMN_INDEX_STARRED).setHeaderRenderer(
+                new IconTableHeaderRenderer(starredIcon, "Starred"));
+        tcm.getColumn(MessageTreeTableModel.COLUMN_INDEX_JUNK).setHeaderRenderer(
+                new IconTableHeaderRenderer(junkIcon, "Junk"));
 
         if( !loadLayout(frostSettings, tcm) ) {
             // Sets the relative widths of the columns

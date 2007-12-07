@@ -28,18 +28,31 @@ import javax.swing.table.*;
  */
 public class IconTableHeaderRenderer extends JLabel implements TableCellRenderer {
 
-    public IconTableHeaderRenderer(ImageIcon i) {
+    public IconTableHeaderRenderer(final ImageIcon i) {
         setIcon(i);
         setText("");
         setHorizontalAlignment(JLabel.CENTER);
     }
 
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-            boolean hasFocus, int row, int column) {
+    public IconTableHeaderRenderer(final ImageIcon i, final String tooltipText) {
+        setIcon(i);
+        setText("");
+        setToolTipText(tooltipText);
+        setHorizontalAlignment(JLabel.CENTER);
+    }
+
+    public Component getTableCellRendererComponent(
+            final JTable table,
+            final Object value,
+            final boolean isSelected,
+            final boolean hasFocus,
+            final int row,
+            final int column)
+    {
         // Extract the original header renderer for this column.
-        TableCellRenderer tcr = table.getTableHeader().getDefaultRenderer();
+        final TableCellRenderer tcr = table.getTableHeader().getDefaultRenderer();
         // Extract the component used to render the column header.
-        Component c = tcr.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+        final Component c = tcr.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
         // Establish the font, foreground color, and border for the
         // JLabel so that the rendered header will look the same as the
