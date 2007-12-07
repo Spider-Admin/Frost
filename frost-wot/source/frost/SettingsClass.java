@@ -400,6 +400,13 @@ public class SettingsClass implements ExitSavable {
 //            this.setValue(FILE_BASE, "files");
 //        }
 
+        // dynamically add archiveExtension .7z
+        final String tmp = this.getValue(SettingsClass.FILEEXTENSION_ARCHIVE);
+        if( tmp != null && tmp.indexOf(".7z") < 0 ) {
+            // add .7z
+            this.setValue(SettingsClass.FILEEXTENSION_ARCHIVE, tmp + ";.7z");
+        }
+
         logger.info("Read user configuration");
         return true;
     }
