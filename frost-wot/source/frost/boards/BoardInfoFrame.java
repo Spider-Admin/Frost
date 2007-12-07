@@ -34,6 +34,7 @@ import frost.gui.*;
 import frost.gui.model.*;
 import frost.storage.perst.messages.*;
 import frost.threads.*;
+import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
@@ -70,7 +71,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
 
         private void maybeShowPopup(final MouseEvent e) {
             if( e.isPopupTrigger() ) {
-                popupMenu.show(boardTable, e.getX(), e.getY());
+                getPopupMenu().show(boardTable, e.getX(), e.getY());
             }
         }
 
@@ -96,10 +97,11 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
     private final JButton updateAllBoardsButton = new JButton();
     private final JButton Bclose = new JButton();
 
-    private final JSkinnablePopupMenu popupMenu = new JSkinnablePopupMenu();
+    private JSkinnablePopupMenu popupMenu = null;
     private final JMenuItem MIupdate = new JMenuItem();
     private final JMenuItem MIupdateSelectedBoard = new JMenuItem();
     private final JMenuItem MIupdateAllBoards = new JMenuItem();
+    private final JMenuItem MIcopyInfoToClipboard = new JMenuItem();
 
     private BoardInfoTableModel boardTableModel = null;
     private SortedTable boardTable = null;
@@ -115,6 +117,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         MIupdate.setText(language.getString("BoardInfoFrame.button.update"));
         MIupdateSelectedBoard.setText(language.getString("BoardInfoFrame.button.updateSelectedBoard"));
         MIupdateAllBoards.setText(language.getString("BoardInfoFrame.button.updateAllBoards"));
+        MIcopyInfoToClipboard.setText(language.getString("BoardInfoFrame.popupMenu.copyInfoToClipboard"));
     }
 
     public BoardInfoFrame(final JFrame parentFrame, final TofTree tofTree) {
@@ -194,6 +197,12 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         updateAllBoardsButton.addActionListener(al);
         MIupdateAllBoards.addActionListener(al);
 
+        MIcopyInfoToClipboard.addActionListener( new ActionListener() {
+            public void actionPerformed(final ActionEvent e) {
+                copyInfoToClipboard_actionPerformed(e);
+            }
+        });
+
         // Bclose
         al = new java.awt.event.ActionListener() {
             public void actionPerformed(final ActionEvent e) {
@@ -240,12 +249,21 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
 
         boardTable.addMouseListener(listener);
 
-        popupMenu.add(MIupdateSelectedBoard);
-        popupMenu.add(MIupdateAllBoards);
-        popupMenu.addSeparator();
-        popupMenu.add(MIupdate);
-
         updateButton_actionPerformed(null);
+    }
+
+    private JSkinnablePopupMenu getPopupMenu() {
+        if( popupMenu == null ) {
+            popupMenu = new JSkinnablePopupMenu();
+
+            popupMenu.add(MIcopyInfoToClipboard);
+            popupMenu.addSeparator();
+            popupMenu.add(MIupdateSelectedBoard);
+            popupMenu.add(MIupdateAllBoards);
+            popupMenu.addSeparator();
+            popupMenu.add(MIupdate);
+        }
+        return popupMenu;
     }
 
     private void boardTableListModel_valueChanged(final ListSelectionEvent e) {
@@ -339,6 +357,28 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
                 boardTableModel.fireTableCellUpdated(rowIx, 0);
             }
             boardTable.clearSelection();
+        }
+    }
+
+    private void copyInfoToClipboard_actionPerformed(final ActionEvent e) {
+        final int[] selectedRows = boardTable.getSelectedRows();
+
+        if( selectedRows.length > 0 ) {
+            final StringBuilder sb = new StringBuilder();
+            for( final int rowIx : selectedRows ) {
+                if( rowIx >= boardTableModel.getRowCount() ) {
+                    continue; // paranoia
+                }
+
+                final BoardInfoTableMember row = (BoardInfoTableMember) (boardTableModel).getRow(rowIx);
+
+                final String boardName = row.getBoard().getName();
+                final String state = row.getBoard().getStateString();
+                final String allMsgs = row.getAllMessageCount().toString();
+
+                sb.append(boardName).append("  (").append(state).append(")  ").append(allMsgs).append("\n");
+            }
+            CopyToClipboard.copyText(sb.toString());
         }
     }
 
