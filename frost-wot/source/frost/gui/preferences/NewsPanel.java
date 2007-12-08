@@ -79,10 +79,14 @@ class NewsPanel extends JPanel {
     private final JCheckBox silentlyRetryCheckBox = new JCheckBox();
     private final JCheckBox acceptSignatureFormatV1CheckBox = new JCheckBox();
 
+
     private final JCheckBox altEditCheckBox = new JCheckBox();
     private final JTextField altEditTextField = new JTextField();
 
     private final Listener listener = new Listener();
+
+    // 0.7 only
+    private final JCheckBox useOneConnectionForMessagesCheckBox = new JCheckBox();
 
     /**
      * @param settings the SettingsClass instance that will be used to get and store the settings of the panel
@@ -100,7 +104,7 @@ class NewsPanel extends JPanel {
     private JPanel getUpdatePanel() {
         if( updatePanel == null ) {
             updatePanel = new JPanel(new GridBagLayout());
-            updatePanel.setBorder(new EmptyBorder(5, 30, 5, 5));
+            updatePanel.setBorder(new EmptyBorder(0, 30, 0, 5));
             final GridBagConstraints constraints = new GridBagConstraints();
             constraints.insets = new Insets(0, 5, 5, 5);
             constraints.weighty = 0;
@@ -117,6 +121,7 @@ class NewsPanel extends JPanel {
             constraints.weightx = 1;
             updatePanel.add(minimumIntervalTextField, constraints);
 
+            constraints.insets = new Insets(0, 5, 0, 5); // we have a bottom inset in the containing layout!
             constraints.fill = GridBagConstraints.HORIZONTAL;
             constraints.gridx = 0;
             constraints.gridy++;
@@ -191,13 +196,18 @@ class NewsPanel extends JPanel {
         add(downloadHtlOrPrioTextField, constraints);
         constraints.gridx = 0;
 
-        constraints.gridwidth=2;
+        constraints.gridwidth = 2;
 
         constraints.gridy++;
         add(automaticBoardUpdateCheckBox, constraints);
 
         constraints.gridy++;
         add(getUpdatePanel(), constraints);
+
+        if( FcpHandler.isFreenet07() ) {
+            constraints.gridy++;
+            add(useOneConnectionForMessagesCheckBox, constraints);
+        }
 
         constraints.gridy++;
         add(storeSentMessagesCheckBox, constraints);
@@ -209,6 +219,8 @@ class NewsPanel extends JPanel {
         add(acceptSignatureFormatV1CheckBox, constraints);
 
         constraints.gridwidth = 1;
+
+        constraints.insets = new Insets(0, 5, 0, 5);
 
         constraints.gridy++;
         constraints.gridx = 0;
@@ -241,6 +253,7 @@ class NewsPanel extends JPanel {
         if( FcpHandler.isFreenet07() ) {
             uploadHtlOrPrioTextField.setText(settings.getValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE_UPLOAD));
             downloadHtlOrPrioTextField.setText(settings.getValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE_DOWNLOAD));
+            useOneConnectionForMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.FCP2_USE_ONE_CONNECTION_FOR_MESSAGES));
         } else {
             uploadHtlOrPrioTextField.setText(settings.getValue(SettingsClass.MESSAGE_UPLOAD_HTL));
             downloadHtlOrPrioTextField.setText(settings.getValue(SettingsClass.MESSAGE_DOWNLOAD_HTL));
@@ -275,6 +288,7 @@ class NewsPanel extends JPanel {
         if( FcpHandler.isFreenet07() ) {
             uploadHtlOrPrioLabel.setText(language.getString("Options.news.1.messageUploadPriority") + " (2)");
             downloadHtlOrPrioLabel.setText(language.getString("Options.news.1.messageDownloadPriority") + " (2)");
+            useOneConnectionForMessagesCheckBox.setText(language.getString("Options.news.1.useOneConnectionForMessages"));
         } else {
             uploadHtlOrPrioLabel.setText(language.getString("Options.news.1.messageUploadHtl") + " (21)");
             downloadHtlOrPrioLabel.setText(language.getString("Options.news.1.messageDownloadHtl") + " (23)");
@@ -307,6 +321,7 @@ class NewsPanel extends JPanel {
         if( FcpHandler.isFreenet07() ) {
             settings.setValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE_UPLOAD, uploadHtlOrPrioTextField.getText());
             settings.setValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE_DOWNLOAD, downloadHtlOrPrioTextField.getText());
+            settings.setValue(SettingsClass.FCP2_USE_ONE_CONNECTION_FOR_MESSAGES, useOneConnectionForMessagesCheckBox.isSelected());
         } else {
             settings.setValue(SettingsClass.MESSAGE_UPLOAD_HTL, uploadHtlOrPrioTextField.getText());
             settings.setValue(SettingsClass.MESSAGE_DOWNLOAD_HTL, downloadHtlOrPrioTextField.getText());
