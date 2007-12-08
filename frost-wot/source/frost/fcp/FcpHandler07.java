@@ -30,64 +30,68 @@ import frost.fileTransfer.download.*;
 import frost.fileTransfer.upload.*;
 
 public class FcpHandler07 extends FcpHandler {
-    
+
     private static final Logger logger = Logger.getLogger(FcpHandler07.class.getName());
 
     private MessageTransferHandler msgTransferConnection = null;
 
-    public void initialize(List<String> nodes) {
+    @Override
+    public void initialize(final List<String> nodes) {
         FcpFactory.init(nodes); // init the factory with configured nodes
     }
-    
+
     /**
      * Invoked when the node is online.
      */
+    @Override
     public void goneOnline() {
         if( Core.frostSettings.getBoolValue(SettingsClass.FCP2_USE_ONE_CONNECTION_FOR_MESSAGES) ) {
             try {
                 msgTransferConnection = new MessageTransferHandler();
                 msgTransferConnection.start();
-            } catch (Throwable e) {
+            } catch (final Throwable e) {
                 logger.log(Level.SEVERE, "Initialization of MessageTransferConnection failed", e);
             }
         }
     }
 
+    @Override
     public List<NodeAddress> getNodes() {
         return FcpFactory.getNodes();
     }
-    
+
+    @Override
     public FcpResultGet getFile(
-            int type,
+            final int type,
             String key,
-            Long size,
-            File targetFile,
-            boolean doRedirect,
-            boolean fastDownload,
-            int maxSize,
-            boolean createTempFile,
-            FrostDownloadItem dlItem)
+            final Long size,
+            final File targetFile,
+            final boolean doRedirect,
+            final boolean fastDownload,
+            final int maxSize,
+            final boolean createTempFile,
+            final FrostDownloadItem dlItem)
     {
         // unused by 07: htl, doRedirect, fastDownload,
 //        return FcpRequest.getFile(type, key, size, target, createTempFile, dlItem);
         key = FcpConnection.stripSlashes(key);
-        int cnt = count++;
-        long l = System.currentTimeMillis();
+        final int cnt = count++;
+        final long l = System.currentTimeMillis();
         final FcpResultGet result;
         if( type == FcpHandler.TYPE_MESSAGE && msgTransferConnection != null ) {
             // use the shared socket
             System.out.println("GET_START(S)("+cnt+"):"+key);
-            String id = "get-" + FcpSocket.getNextFcpId();
-            int prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE);
-            MessageTransferTask task = new MessageTransferTask(id, key, targetFile, prio, maxSize);
-            
+            final String id = "get-" + FcpSocket.getNextFcpId();
+            final int prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE_DOWNLOAD);
+            final MessageTransferTask task = new MessageTransferTask(id, key, targetFile, prio, maxSize);
+
             // enqueue task
             msgTransferConnection.enqueueTask(task);
             // wait for task to finish
             task.waitForFinished();
-            
+
             result = task.getFcpResultGet();
-            
+
             System.out.println("GET_END(S)("+cnt+"):"+key+", duration="+(System.currentTimeMillis()-l));
         } else {
             // use a new socket
@@ -100,81 +104,85 @@ public class FcpHandler07 extends FcpHandler {
 
     int count = 0;
 
+    @Override
     public FcpResultPut putFile(
-            int type,
+            final int type,
             String key,
-            File sourceFile,
-            byte[] metadata,
-            boolean doRedirect,
-            boolean removeLocalKey,
-            boolean doMime,
-            FrostUploadItem ulItem)
+            final File sourceFile,
+            final byte[] metadata,
+            final boolean doRedirect,
+            final boolean removeLocalKey,
+            final boolean doMime,
+            final FrostUploadItem ulItem)
     {
         // unused by 07:  metadata, htl, doRedirect, removeLocalKey,
         key = FcpConnection.stripSlashes(key);
-        int cnt = count++;
-        long l = System.currentTimeMillis();
+        final int cnt = count++;
+        final long l = System.currentTimeMillis();
         final FcpResultPut result;
-        if( type == FcpHandler.TYPE_MESSAGE && msgTransferConnection != null ) { 
+        if( type == FcpHandler.TYPE_MESSAGE && msgTransferConnection != null ) {
             // use the shared socket
             System.out.println("PUT_START(S)("+cnt+"):"+key);
-            String id = "get-" + FcpSocket.getNextFcpId();
-            int prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE);
-            MessageTransferTask task = new MessageTransferTask(id, key, sourceFile, prio);
-            
+            final String id = "get-" + FcpSocket.getNextFcpId();
+            final int prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE_UPLOAD);
+            final MessageTransferTask task = new MessageTransferTask(id, key, sourceFile, prio);
+
             // enqueue task
             msgTransferConnection.enqueueTask(task);
             // wait for task to finish
             task.waitForFinished();
-            
+
             result = task.getFcpResultPut();
-            
+
             System.out.println("PUT_END(S)("+cnt+"):"+key+", duration="+(System.currentTimeMillis()-l));
         } else {
             System.out.println("PUT_START(N)("+cnt+"):"+key);
             result = FcpInsert.putFile(type, key, sourceFile, doMime, ulItem);
             System.out.println("PUT_END(N)("+cnt+"):"+key+", duration="+(System.currentTimeMillis()-l));
         }
-        
+
         if( result == null ) {
             return FcpResultPut.ERROR_RESULT;
         } else {
             return result;
         }
     }
-    
-    public String generateCHK(File file) throws IOException, ConnectException {
 
-        FcpConnection connection = FcpFactory.getFcpConnectionInstance();
+    @Override
+    public String generateCHK(final File file) throws IOException, ConnectException {
+
+        final FcpConnection connection = FcpFactory.getFcpConnectionInstance();
         if (connection == null) {
             return null;
         }
-        String chkkey = connection.generateCHK(file);
+        final String chkkey = connection.generateCHK(file);
         return chkkey;
     }
 
+    @Override
     public List<String> getNodeInfo() throws IOException, ConnectException {
 
-        FcpConnection connection = FcpFactory.getFcpConnectionInstance();
+        final FcpConnection connection = FcpFactory.getFcpConnectionInstance();
         if (connection == null) {
             return null;
         }
         return connection.getNodeInfo();
     }
-    
+
+    @Override
     public BoardKeyPair generateBoardKeyPair() throws IOException, ConnectException {
-        
-        FcpConnection connection = FcpFactory.getFcpConnectionInstance();
+
+        final FcpConnection connection = FcpFactory.getFcpConnectionInstance();
         if (connection == null) {
             return null;
         }
 
-        String[] keyPair = connection.getKeyPair();
+        final String[] keyPair = connection.getKeyPair();
         if( keyPair == null ) {
             return null;
         }
-        String privKey = keyPair[0];
-        String pubKey = keyPair[1];
+        final String privKey = keyPair[0];
+        final String pubKey = keyPair[1];
         return new BoardKeyPair(pubKey, privKey);
     }
 }

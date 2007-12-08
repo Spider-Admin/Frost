@@ -28,17 +28,17 @@ import frost.ext.*;
 public class FcpMultiRequestConnectionTools {
 
     private static final Logger logger = Logger.getLogger(FcpMultiRequestConnectionTools.class.getName());
-    
+
     private final FcpMultiRequestConnection fcpPersistentConnection;
 
-    public FcpMultiRequestConnectionTools(FcpMultiRequestConnection fcpPersistentConnection) {
+    public FcpMultiRequestConnectionTools(final FcpMultiRequestConnection fcpPersistentConnection) {
         this.fcpPersistentConnection = fcpPersistentConnection;
     }
-    
+
     public FcpMultiRequestConnection getFcpPersistentConnection() {
         return fcpPersistentConnection;
     }
-    
+
     /**
      * No answer from node is expected.
      */
@@ -61,7 +61,7 @@ public class FcpMultiRequestConnectionTools {
         msg.add("Identifier="+id);
         fcpPersistentConnection.sendMessage(msg, true);
     }
-    
+
     /**
      * No answer from node is expected.
      */
@@ -77,19 +77,19 @@ public class FcpMultiRequestConnectionTools {
      * Starts a persistent put.
      */
     public void startPersistentPut(
-            final String id, 
-            final File sourceFile, 
+            final String id,
+            final File sourceFile,
             final boolean doMime,
-            final boolean setTargetFileName) 
+            final boolean setTargetFileName)
     {
         // else start a new request with DDA
         final List<String> msg = getDefaultPutMessage(id, sourceFile, doMime, setTargetFileName);
         msg.add("UploadFrom=disk");
         msg.add("Filename=" + sourceFile.getAbsolutePath());
-        
+
         fcpPersistentConnection.sendMessage(msg, true);
     }
-    
+
     public boolean isDDA() {
         return fcpPersistentConnection.isDDA();
     }
@@ -111,9 +111,9 @@ public class FcpMultiRequestConnectionTools {
         msg.add("Verbosity=-1");
         msg.add("Persistence=forever");
         msg.add("Global=true");
-        final int prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE);
+        final int prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_DOWNLOAD);
         msg.add("PriorityClass="+Integer.toString(prio));
-        
+
         if (isDDA()) {
             msg.add("ReturnType=disk");
             msg.add("Filename=" + targetFile.getAbsolutePath());
@@ -140,16 +140,16 @@ public class FcpMultiRequestConnectionTools {
      * Returns the common part of a put request, used for a put with type DIRECT and DISK together.
      */
     private List<String> getDefaultPutMessage(
-            final String id, 
-            final File sourceFile, 
+            final String id,
+            final File sourceFile,
             final boolean doMime,
-            final boolean setTargetFileName) 
+            final boolean setTargetFileName)
     {
         final LinkedList<String> lst = new LinkedList<String>();
         lst.add("ClientPut");
         lst.add("URI=CHK@");
         lst.add("Identifier=" + id);
-        lst.add("Verbosity=-1");        
+        lst.add("Verbosity=-1");
         lst.add("MaxRetries=-1");
         lst.add("DontCompress=false"); // force compression
         if( setTargetFileName ) {
@@ -162,24 +162,24 @@ public class FcpMultiRequestConnectionTools {
         } else {
             lst.add("Metadata.ContentType=application/octet-stream"); // force this to prevent the node from filename guessing due dda!
         }
-        final int prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE);
+        final int prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_UPLOAD);
         lst.add("PriorityClass="+Integer.toString(prio));
         lst.add("Persistence=forever");
         lst.add("Global=true");
         return lst;
     }
-    
+
     /**
      * Adds a file to the global queue DIRECT, means the file is transferred into the node completely.
      * Returns the first NodeMessage sent by the node after the transfer (PersistentPut or any error message).
      * After this method was called this connection is unuseable.
      */
     public NodeMessage startDirectPersistentPut(
-            final String id, 
-            final File sourceFile, 
+            final String id,
+            final File sourceFile,
             final boolean doMime,
-            final boolean setTargetFileName) 
-    throws IOException 
+            final boolean setTargetFileName)
+    throws IOException
     {
         final FcpSocket newSocket = FcpSocket.create(fcpPersistentConnection.getNodeAddress());
         if( newSocket == null ) {
@@ -187,14 +187,13 @@ public class FcpMultiRequestConnectionTools {
         }
 
         final BufferedOutputStream dataOutput = new BufferedOutputStream(newSocket.getFcpSock().getOutputStream());
-        
+
         final List<String> msg = getDefaultPutMessage(id, sourceFile, doMime, setTargetFileName);
         msg.add("UploadFrom=direct");
         msg.add("DataLength=" + Long.toString(sourceFile.length()));
         msg.add("Data");
-        
-        for(Iterator<String> i=msg.iterator(); i.hasNext(); ) {
-            final String line = i.next();
+
+        for( final String line : msg ) {
             newSocket.getFcpOut().println(line);
         }
         newSocket.getFcpOut().flush();
@@ -218,11 +217,11 @@ public class FcpMultiRequestConnectionTools {
 
         System.out.println("*PPUT** INFO - NodeMessage:");
         System.out.println((nodeMsg==null)?"(null)":nodeMsg.toString());
-        
+
         dataOutput.close();
 
         newSocket.close();
-        
+
         return nodeMsg;
     }
 
@@ -253,7 +252,7 @@ public class FcpMultiRequestConnectionTools {
         System.out.println("*PGET** INFO - NodeMessage:");
         System.out.println(nodeMsg.toString());
 
-        final String endMarker = nodeMsg.getMessageEnd(); 
+        final String endMarker = nodeMsg.getMessageEnd();
         if( endMarker == null ) {
             // should never happen
             logger.severe("*PGET** ENDMARKER is NULL! "+nodeMsg.toString());
@@ -294,12 +293,12 @@ public class FcpMultiRequestConnectionTools {
             return null;
         }
     }
-    
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Methods to get/put messages ////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public void startDirectGet(String id, String key, int priority, int maxSize) {
+    public void startDirectGet(final String id, final String key, final int priority, final int maxSize) {
         final List<String> msg = new LinkedList<String>();
         msg.add("ClientGet");
         msg.add("IgnoreDS=false");
@@ -317,15 +316,15 @@ public class FcpMultiRequestConnectionTools {
         fcpPersistentConnection.sendMessage(msg, true);
     }
 
-    public void startDirectPut(String id, String key, int priority, File sourceFile) {
+    public void startDirectPut(final String id, final String key, final int priority, final File sourceFile) {
         final List<String> msg = new LinkedList<String>();
         msg.add("ClientPut");
         msg.add("URI=" + key);
         msg.add("Identifier=" + id );
-        msg.add("Verbosity=0");        
+        msg.add("Verbosity=0");
         msg.add("MaxRetries=1");
         msg.add("DontCompress=false"); // force compression
-        msg.add("PriorityClass="+Integer.toString(priority));  
+        msg.add("PriorityClass="+Integer.toString(priority));
         msg.add("Persistence=connection");
         msg.add("UploadFrom=direct");
         msg.add("DataLength=" + Long.toString(sourceFile.length()));

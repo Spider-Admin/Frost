@@ -91,8 +91,7 @@ public class FcpConnection {
     }
 
     /**
-     * Retrieves the specified key and saves it to the file
-     * specified.
+     * Retrieves the specified key and saves it to the file specified.
      *
      * @param publicKey  the key to be retrieved
      * @param filename  the filename to which the data should be saved
@@ -146,9 +145,9 @@ public class FcpConnection {
 
         final int prio;
         if( type == FcpHandler.TYPE_FILE ) {
-            prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE);
+            prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_DOWNLOAD);
         } else if( type == FcpHandler.TYPE_MESSAGE ) {
-            prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE);
+            prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE_DOWNLOAD);
         } else {
             prio = 3; // fallback
         }
@@ -353,9 +352,9 @@ public class FcpConnection {
             	} else {
             		fcpSocket.getFcpOut().println("Metadata.ContentType=application/octet-stream"); // force this to prevent the node from filename guessing due dda!
             	}
-                prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE);
+                prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_UPLOAD);
             } else if( type == FcpHandler.TYPE_MESSAGE ) {
-                prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE);
+                prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE_UPLOAD);
             } else {
                 prio = 3; // fallback
             }
