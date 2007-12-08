@@ -33,12 +33,6 @@ import frost.util.Logging;
  * Read settings from frost.ini and store them.
  */
 public class SettingsClass implements ExitSavable {
-/*
-FIXME: Remove obsolete keys:
-----------------------
-fcp2.defaultPriorityFile=3
-fcp2.defaultPriorityMessage=2
-*/
 
     private final File settingsFile;
     private final Hashtable<String,Object> settingsHash;
@@ -394,6 +388,17 @@ fcp2.defaultPriorityMessage=2
             logger.log(Level.SEVERE, "Exception thrown in readSettingsFile()", e);
         }
 
+        doCleanup();
+        doChanges();
+
+        logger.info("Read user configuration");
+        return true;
+    }
+
+    /**
+     * Adjust values as needed.
+     */
+    private void doChanges() {
         if (this.getValue(SettingsClass.MESSAGE_BASE).length() == 0) {
             this.setValue(SettingsClass.MESSAGE_BASE, "news");
         }
@@ -414,9 +419,19 @@ fcp2.defaultPriorityMessage=2
             // add .7z
             this.setValue(SettingsClass.FILEEXTENSION_ARCHIVE, tmp + ";.7z");
         }
+    }
 
-        logger.info("Read user configuration");
-        return true;
+    /**
+     * Remove obsolete keys.
+     */
+    private void doCleanup() {
+        settingsHash.remove("fcp2.defaultPriorityFile");
+        settingsHash.remove("fcp2.defaultPriorityMessage");
+        settingsHash.remove("spamTreshold");
+        settingsHash.remove("skinsEnabled");
+        settingsHash.remove("selectedSkin");
+        settingsHash.remove("doBoardBackoff");
+        settingsHash.remove("compactDatabaseTables");
     }
 
     private boolean writeSettingsFile() {

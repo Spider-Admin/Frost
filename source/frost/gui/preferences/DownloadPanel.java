@@ -32,7 +32,7 @@ import frost.util.gui.translation.*;
 class DownloadPanel extends JPanel {
 
     public class Listener implements ActionListener {
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(final ActionEvent e) {
             if (e.getSource() == browseDirectoryButton) {
                 browseDirectoryPressed();
             }
@@ -43,31 +43,38 @@ class DownloadPanel extends JPanel {
     private SettingsClass settings = null;
     private Language language = null;
 
-    private JButton browseDirectoryButton = new JButton();
-    private JCheckBox decodeAfterEachSegmentCheckBox = new JCheckBox();
-    private JLabel directoryLabel = new JLabel();
+    // 0.5 only
+    private final JLabel splitfileThreadsLabel = new JLabel();
+    private final JTextField splitfileThreadsTextField = new JTextField(6);
+    private final JCheckBox decodeAfterEachSegmentCheckBox = new JCheckBox();
+    private final JCheckBox tryAllSegmentsCheckBox = new JCheckBox();
 
-    private JTextField directoryTextField = new JTextField(20);
+    // 0.7 only
+    private final JLabel priorityLabel = new JLabel();
+    private final JTextField priorityTextField = new JTextField(6);
 
-    private Listener listener = new Listener();
-    private JLabel maxRetriesLabel = new JLabel();
-    private JTextField maxRetriesTextField = new JTextField(6);
-    private JLabel splitfileThreadsLabel = new JLabel();
-    private JTextField splitfileThreadsTextField = new JTextField(6);
-    private JTextField threadsTextField = new JTextField(6);
-    private JLabel threadsTextLabel = new JLabel();
-    private JCheckBox tryAllSegmentsCheckBox = new JCheckBox();
-    
-    private JCheckBox logDownloadsCheckBox = new JCheckBox();
+    // common
+    private final JButton browseDirectoryButton = new JButton();
+    private final JLabel directoryLabel = new JLabel();
 
-    private JLabel waitTimeLabel = new JLabel();
-    private JTextField waitTimeTextField = new JTextField(6);
+    private final JTextField directoryTextField = new JTextField(20);
+
+    private final Listener listener = new Listener();
+    private final JLabel maxRetriesLabel = new JLabel();
+    private final JTextField maxRetriesTextField = new JTextField(6);
+    private final JTextField threadsTextField = new JTextField(6);
+    private final JLabel threadsTextLabel = new JLabel();
+
+    private final JCheckBox logDownloadsCheckBox = new JCheckBox();
+
+    private final JLabel waitTimeLabel = new JLabel();
+    private final JTextField waitTimeTextField = new JTextField(6);
 
     /**
      * @param owner the JDialog that will be used as owner of any dialog that is popped up from this panel
      * @param settings the SettingsClass instance that will be used to get and store the settings of the panel
      */
-    protected DownloadPanel(JDialog owner, SettingsClass settings) {
+    protected DownloadPanel(final JDialog owner, final SettingsClass settings) {
         super();
 
         this.owner = owner;
@@ -76,7 +83,7 @@ class DownloadPanel extends JPanel {
 
         initialize();
         loadSettings();
-        
+
         if( FcpHandler.isFreenet07() ) {
             // disable 0.5-only items
             splitfileThreadsLabel.setEnabled(false);
@@ -96,10 +103,10 @@ class DownloadPanel extends JPanel {
         fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         fc.setMultiSelectionEnabled(false);
 
-        int returnVal = fc.showOpenDialog(owner);
+        final int returnVal = fc.showOpenDialog(owner);
         if (returnVal == JFileChooser.APPROVE_OPTION) {
-            String fileSeparator = System.getProperty("file.separator");
-            File file = fc.getSelectedFile();
+            final String fileSeparator = System.getProperty("file.separator");
+            final File file = fc.getSelectedFile();
             settings.setValue(SettingsClass.DIR_LAST_USED, file.getParent());
             directoryTextField.setText(file.getPath() + fileSeparator);
         }
@@ -118,14 +125,14 @@ class DownloadPanel extends JPanel {
         new TextComponentClipboardMenu(waitTimeTextField, language);
 
         // Adds all of the components
-        GridBagConstraints constraints = new GridBagConstraints();
-        Insets insets0555 = new Insets(0, 5, 5, 5);
+        final GridBagConstraints constraints = new GridBagConstraints();
+        final Insets insets0555 = new Insets(0, 5, 5, 5);
 
         constraints.gridy = 0;
         constraints.gridwidth = 1;
         constraints.insets = insets0555;
         constraints.anchor = GridBagConstraints.WEST;
-        
+
         constraints.gridx = 0;
         add(directoryLabel, constraints);
         constraints.gridx = 1;
@@ -148,32 +155,43 @@ class DownloadPanel extends JPanel {
         add(waitTimeLabel, constraints);
         constraints.gridx = 1;
         add(waitTimeTextField, constraints);
-        
+
         constraints.gridy++;
         constraints.gridx = 0;
         add(threadsTextLabel, constraints);
         constraints.gridx = 1;
         add(threadsTextField, constraints);
 
+        if( FcpHandler.isFreenet07() ) {
+            constraints.gridy++;
+            constraints.gridx = 0;
+            add(priorityLabel, constraints);
+            constraints.gridx = 1;
+            add(priorityTextField, constraints);
+        } else {
+            constraints.gridy++;
+            constraints.gridx = 0;
+            add(splitfileThreadsLabel, constraints);
+            constraints.gridx = 1;
+            add(splitfileThreadsTextField, constraints);
+
+            constraints.gridwidth = 3;
+
+            constraints.insets = new Insets(5,5,5,5);
+            constraints.gridy++;
+            constraints.gridx = 0;
+            add(tryAllSegmentsCheckBox, constraints);
+
+            constraints.insets = insets0555;
+
+            constraints.gridy++;
+            add(decodeAfterEachSegmentCheckBox, constraints);
+        }
+
         constraints.gridy++;
         constraints.gridx = 0;
-        add(splitfileThreadsLabel, constraints);
-        constraints.gridx = 1;
-        add(splitfileThreadsTextField, constraints);
-
         constraints.gridwidth = 3;
-
-        constraints.insets = new Insets(5,5,5,5);
-        constraints.gridy++;
-        constraints.gridx = 0;
-        add(tryAllSegmentsCheckBox, constraints);
-
         constraints.insets = insets0555;
-
-        constraints.gridy++;
-        add(decodeAfterEachSegmentCheckBox, constraints);
-        
-        constraints.gridy++;
         constraints.weighty = 1.0; // glue
         constraints.anchor = GridBagConstraints.NORTHWEST;
         add(logDownloadsCheckBox, constraints);
@@ -188,13 +206,16 @@ class DownloadPanel extends JPanel {
     private void loadSettings() {
         directoryTextField.setText(settings.getValue(SettingsClass.DIR_DOWNLOAD));
         threadsTextField.setText(settings.getValue(SettingsClass.DOWNLOAD_MAX_THREADS));
-        splitfileThreadsTextField.setText(settings.getValue(SettingsClass.DOWNLOAD_MAX_SPLITFILE_THREADS));
         maxRetriesTextField.setText("" + settings.getIntValue(SettingsClass.DOWNLOAD_MAX_RETRIES));
         waitTimeTextField.setText("" + settings.getIntValue(SettingsClass.DOWNLOAD_WAITTIME));
-        tryAllSegmentsCheckBox.setSelected(settings.getBoolValue(SettingsClass.DOWNLOAD_TRY_ALL_SEGMENTS));
         logDownloadsCheckBox.setSelected(settings.getBoolValue(SettingsClass.LOG_DOWNLOADS_ENABLED));
-        
-        decodeAfterEachSegmentCheckBox.setSelected(settings.getBoolValue(SettingsClass.DOWNLOAD_DECODE_AFTER_EACH_SEGMENT));
+        if( FcpHandler.isFreenet07() ) {
+            priorityTextField.setText(settings.getValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_DOWNLOAD));
+        } else {
+            splitfileThreadsTextField.setText(settings.getValue(SettingsClass.DOWNLOAD_MAX_SPLITFILE_THREADS));
+            tryAllSegmentsCheckBox.setSelected(settings.getBoolValue(SettingsClass.DOWNLOAD_TRY_ALL_SEGMENTS));
+            decodeAfterEachSegmentCheckBox.setSelected(settings.getBoolValue(SettingsClass.DOWNLOAD_DECODE_AFTER_EACH_SEGMENT));
+        }
     }
 
     public void ok() {
@@ -202,29 +223,32 @@ class DownloadPanel extends JPanel {
     }
 
     private void refreshLanguage() {
-        String on = language.getString("Options.common.on");
-        String minutes = language.getString("Options.common.minutes");
-        
-        waitTimeLabel.setText(language.getString("Options.downloads.waittimeAfterEachTry") + " (" + minutes + "): ");
-        maxRetriesLabel.setText(language.getString("Options.downloads.maximumNumberOfRetries") + ": ");
-        tryAllSegmentsCheckBox.setText(language.getString("Options.downloads.tryToDownloadAllSegments") + " (" + on + ")");
-        
-        logDownloadsCheckBox.setText(language.getString("Options.downloads.logDownloads"));
-        
-        decodeAfterEachSegmentCheckBox.setText(language.getString("Options.downloads.decodeEachSegmentImmediately"));
+        final String on = language.getString("Options.common.on");
+        final String minutes = language.getString("Options.common.minutes");
 
-        directoryLabel.setText(language.getString("Options.downloads.downloadDirectory") + ": ");
+        waitTimeLabel.setText(language.getString("Options.downloads.waittimeAfterEachTry") + " (" + minutes + ")");
+        maxRetriesLabel.setText(language.getString("Options.downloads.maximumNumberOfRetries"));
+
+        logDownloadsCheckBox.setText(language.getString("Options.downloads.logDownloads"));
+
+        directoryLabel.setText(language.getString("Options.downloads.downloadDirectory"));
         browseDirectoryButton.setText(language.getString("Common.browse") + "...");
         threadsTextLabel.setText(language.getString("Options.downloads.numberOfSimultaneousDownloads") + " (3)");
-        splitfileThreadsLabel.setText(language.getString("Options.downloads.numberOfSplitfileThreads") + " (30)");
+        if( FcpHandler.isFreenet07() ) {
+            priorityLabel.setText(language.getString("Options.downloads.downloadPriority") + " (3)");
+        } else {
+            splitfileThreadsLabel.setText(language.getString("Options.downloads.numberOfSplitfileThreads") + " (30)");
+            tryAllSegmentsCheckBox.setText(language.getString("Options.downloads.tryToDownloadAllSegments") + " (" + on + ")");
+            decodeAfterEachSegmentCheckBox.setText(language.getString("Options.downloads.decodeEachSegmentImmediately"));
+        }
     }
 
     /**
      * Save the settings of this panel
      */
     private void saveSettings() {
-        String downlDirTxt = directoryTextField.getText();
-        String filesep = System.getProperty("file.separator");
+        final String downlDirTxt = directoryTextField.getText();
+        final String filesep = System.getProperty("file.separator");
         // always append a fileseparator to the end of string
         if ((!(downlDirTxt.lastIndexOf(filesep) == (downlDirTxt.length() - 1)))
             || downlDirTxt.lastIndexOf(filesep) < 0) {
@@ -234,12 +258,16 @@ class DownloadPanel extends JPanel {
         }
         settings.setValue(SettingsClass.DOWNLOAD_MAX_THREADS, threadsTextField.getText());
 
-        settings.setValue(SettingsClass.DOWNLOAD_MAX_SPLITFILE_THREADS, splitfileThreadsTextField.getText());
         settings.setValue(SettingsClass.DOWNLOAD_MAX_RETRIES, maxRetriesTextField.getText());
         settings.setValue(SettingsClass.DOWNLOAD_WAITTIME, waitTimeTextField.getText());
-        settings.setValue(SettingsClass.DOWNLOAD_TRY_ALL_SEGMENTS, tryAllSegmentsCheckBox.isSelected());
-        settings.setValue(SettingsClass.DOWNLOAD_DECODE_AFTER_EACH_SEGMENT, decodeAfterEachSegmentCheckBox.isSelected());
-        
+
         settings.setValue(SettingsClass.LOG_DOWNLOADS_ENABLED, logDownloadsCheckBox.isSelected());
+        if( FcpHandler.isFreenet07() ) {
+            settings.setValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_DOWNLOAD, priorityTextField.getText());
+        } else {
+            settings.setValue(SettingsClass.DOWNLOAD_MAX_SPLITFILE_THREADS, splitfileThreadsTextField.getText());
+            settings.setValue(SettingsClass.DOWNLOAD_TRY_ALL_SEGMENTS, tryAllSegmentsCheckBox.isSelected());
+            settings.setValue(SettingsClass.DOWNLOAD_DECODE_AFTER_EACH_SEGMENT, decodeAfterEachSegmentCheckBox.isSelected());
+        }
     }
 }
