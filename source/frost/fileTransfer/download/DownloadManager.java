@@ -363,7 +363,7 @@ public class DownloadManager implements ExitSavable {
         final boolean itemIsEnabled = (dlItem.isEnabled()==null?true:dlItem.isEnabled().booleanValue());
         if( itemIsEnabled ) {
             // item is now enabled
-            final int prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE);
+            final int prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_DOWNLOAD);
             FileTransferManager.inst().getPersistenceManager().changeItemPriorites(new ModelItem[] {dlItem}, prio);
         } else {
             // item is now disabled

@@ -33,6 +33,12 @@ import frost.util.Logging;
  * Read settings from frost.ini and store them.
  */
 public class SettingsClass implements ExitSavable {
+/*
+FIXME: Remove obsolete keys:
+----------------------
+fcp2.defaultPriorityFile=3
+fcp2.defaultPriorityMessage=2
+*/
 
     private final File settingsFile;
     private final Hashtable<String,Object> settingsHash;
@@ -90,8 +96,10 @@ public class SettingsClass implements ExitSavable {
     public static final String FCP2_USE_PERSISTENCE = "fcp2.usePersistence";
     public static final String FCP2_USE_ONE_CONNECTION_FOR_MESSAGES = "fcp2.useOneConnectionForMessages";
 
-    public static final String FCP2_DEFAULT_PRIO_MESSAGE = "fcp2.defaultPriorityMessage"; // not in gui dialog!
-    public static final String FCP2_DEFAULT_PRIO_FILE = "fcp2.defaultPriorityFile";       // not in gui dialog!
+    public static final String FCP2_DEFAULT_PRIO_MESSAGE_UPLOAD = "fcp2.defaultPriorityMessageUpload";
+    public static final String FCP2_DEFAULT_PRIO_MESSAGE_DOWNLOAD = "fcp2.defaultPriorityMessageDownload";
+    public static final String FCP2_DEFAULT_PRIO_FILE_UPLOAD = "fcp2.defaultPriorityFileUpload";
+    public static final String FCP2_DEFAULT_PRIO_FILE_DOWNLOAD = "fcp2.defaultPriorityFileDownload";
     public static final String FCP2_SET_TARGETFILENAME_FOR_MANUAL_PUT = "fcp2.setTargetfilenameForManualPut"; // not in gui dialog!
 
     public static final String AUTO_SAVE_INTERVAL = "autoSaveInterval";
@@ -827,8 +835,10 @@ public class SettingsClass implements ExitSavable {
         defaults.put(FCP2_USE_PERSISTENCE, "true");
         defaults.put(FCP2_USE_ONE_CONNECTION_FOR_MESSAGES, "true");
 
-        defaults.put(FCP2_DEFAULT_PRIO_MESSAGE, "2");
-        defaults.put(FCP2_DEFAULT_PRIO_FILE, "3");
+        defaults.put(FCP2_DEFAULT_PRIO_MESSAGE_UPLOAD, "2");
+        defaults.put(FCP2_DEFAULT_PRIO_MESSAGE_DOWNLOAD, "2");
+        defaults.put(FCP2_DEFAULT_PRIO_FILE_UPLOAD, "3");
+        defaults.put(FCP2_DEFAULT_PRIO_FILE_DOWNLOAD, "3");
         defaults.put(FCP2_SET_TARGETFILENAME_FOR_MANUAL_PUT, "true");
 
         defaults.put(ALTERNATE_EDITOR_COMMAND, fn + "path" + fs + "to" + fs + "editor" + " %f");

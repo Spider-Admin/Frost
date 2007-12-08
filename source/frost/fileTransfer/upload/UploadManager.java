@@ -261,7 +261,7 @@ public class UploadManager implements ExitSavable {
         final boolean itemIsEnabled = (ulItem.isEnabled()==null?true:ulItem.isEnabled().booleanValue());
         if( itemIsEnabled ) {
             // item is now enabled
-            final int prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE);
+            final int prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_UPLOAD);
             FileTransferManager.inst().getPersistenceManager().changeItemPriorites(new ModelItem[] {ulItem}, prio);
         } else {
             // item is now disabled
