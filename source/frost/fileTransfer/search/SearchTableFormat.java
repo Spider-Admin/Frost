@@ -22,6 +22,7 @@ import java.awt.*;
 import java.beans.*;
 
 import javax.swing.*;
+import javax.swing.event.*;
 import javax.swing.table.*;
 
 import frost.*;
@@ -33,7 +34,12 @@ import frost.util.model.*;
 
 public class SearchTableFormat extends SortedTableFormat implements LanguageListener, PropertyChangeListener {
 
-    private static ImageIcon hasMoreInfoIcon = new ImageIcon((MainFrame.class.getResource("/data/info.png")));
+    private static final String CFGKEY_SORTSTATE_SORTEDCOLUMN = "SearchFilesTable.sortState.sortedColumn";
+    private static final String CFGKEY_SORTSTATE_SORTEDASCENDING = "SearchFilesTable.sortState.sortedAscending";
+    private static final String CFGKEY_COLUMN_TABLEINDEX = "SearchFilesTable.tableindex.modelcolumn.";
+    private static final String CFGKEY_COLUMN_WIDTH = "SearchFilesTable.columnwidth.modelcolumn.";
+
+    private static final ImageIcon hasMoreInfoIcon = new ImageIcon((MainFrame.class.getResource("/data/info.png")));
 
     private final Language language;
 
@@ -186,10 +192,91 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
         columnModel.getColumn(7).setCellRenderer(showContentTooltipRenderer); // keywords
         columnModel.getColumn(8).setCellRenderer(new SourceCountRenderer()); // source count
 
-        final int[] widths = { 250, 30, 40, 20, 20, 10, 50, 80, 15 };
-        for (int i = 0; i < widths.length; i++) {
-            columnModel.getColumn(i).setPreferredWidth(widths[i]);
+        if( !loadTableLayout(columnModel) ) {
+            final int[] widths = { 250, 30, 40, 20, 20, 10, 50, 80, 15 };
+            for (int i = 0; i < widths.length; i++) {
+                columnModel.getColumn(i).setPreferredWidth(widths[i]);
+            }
         }
+
+        // add change listeners for column resizes and column moves
+        columnModel.addColumnModelListener(new TableColumnModelListener() {
+            public void columnMarginChanged(final ChangeEvent e) {
+                saveTableLayout();
+            }
+            public void columnMoved(final TableColumnModelEvent e) {
+                if( e.getFromIndex() != e.getToIndex() ) {
+                    saveTableLayout();
+                }
+            }
+            public void columnAdded(final TableColumnModelEvent e) {}
+            public void columnRemoved(final TableColumnModelEvent e) {}
+            public void columnSelectionChanged(final ListSelectionEvent e) {}
+        });
+    }
+
+    private void saveTableLayout() {
+        final TableColumnModel tcm = modelTable.getTable().getColumnModel();
+        for(int columnIndexInTable=0; columnIndexInTable < tcm.getColumnCount(); columnIndexInTable++) {
+            final TableColumn tc = tcm.getColumn(columnIndexInTable);
+            final int columnIndexInModel = tc.getModelIndex();
+            // save the current index in table for column with the fix index in model
+            Core.frostSettings.setValue(CFGKEY_COLUMN_TABLEINDEX + columnIndexInModel, columnIndexInTable);
+            // save the current width of the column
+            final int columnWidth = tc.getWidth();
+            Core.frostSettings.setValue(CFGKEY_COLUMN_WIDTH + columnIndexInModel, columnWidth);
+        }
+
+        if( Core.frostSettings.getBoolValue(SettingsClass.SAVE_SORT_STATES) && modelTable.getSortedColumn() > -1 ) {
+            final int sortedColumn = modelTable.getSortedColumn();
+            final boolean isSortedAsc = modelTable.isSortedAscending();
+            Core.frostSettings.setValue(CFGKEY_SORTSTATE_SORTEDCOLUMN, sortedColumn);
+            Core.frostSettings.setValue(CFGKEY_SORTSTATE_SORTEDASCENDING, isSortedAsc);
+        }
+    }
+
+    private boolean loadTableLayout(final TableColumnModel tcm) {
+
+        // load the saved tableindex for each column in model, and its saved width
+        final int[] tableToModelIndex = new int[tcm.getColumnCount()];
+        final int[] columnWidths = new int[tcm.getColumnCount()];
+
+        for(int x=0; x < tableToModelIndex.length; x++) {
+            final String indexKey = CFGKEY_COLUMN_TABLEINDEX + x;
+            if( Core.frostSettings.getObjectValue(indexKey) == null ) {
+                return false; // column not found, abort
+            }
+            // build array of table to model associations
+            final int tableIndex = Core.frostSettings.getIntValue(indexKey);
+            if( tableIndex < 0 || tableIndex >= tableToModelIndex.length ) {
+                return false; // invalid table index value
+            }
+            tableToModelIndex[tableIndex] = x;
+
+            final String widthKey = CFGKEY_COLUMN_WIDTH + x;
+            if( Core.frostSettings.getObjectValue(widthKey) == null ) {
+                return false; // column not found, abort
+            }
+            // build array of table to model associations
+            final int columnWidth = Core.frostSettings.getIntValue(widthKey);
+            if( columnWidth <= 0 ) {
+                return false; // invalid column width
+            }
+            columnWidths[x] = columnWidth;
+        }
+        // columns are currently added in model order, remove them all and save in an array
+        // while on it, set the loaded width of each column
+        final TableColumn[] tcms = new TableColumn[tcm.getColumnCount()];
+        for(int x=tcms.length-1; x >= 0; x--) {
+            tcms[x] = tcm.getColumn(x);
+            tcm.removeColumn(tcms[x]);
+            tcms[x].setPreferredWidth(columnWidths[x]);
+        }
+        // add the columns in order loaded from settings
+        for( final int element : tableToModelIndex ) {
+            tcm.addColumn(tcms[element]);
+        }
+        return true;
     }
 
     private class ShowContentTooltipRenderer extends ShowColoredLinesRenderer {
