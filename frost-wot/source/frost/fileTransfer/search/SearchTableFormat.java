@@ -20,7 +20,6 @@ package frost.fileTransfer.search;
 
 import java.awt.*;
 import java.beans.*;
-import java.util.*;
 
 import javax.swing.*;
 import javax.swing.table.*;
@@ -36,7 +35,7 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
 
     private static ImageIcon hasMoreInfoIcon = new ImageIcon((MainFrame.class.getResource("/data/info.png")));
 
-    private Language language;
+    private final Language language;
 
     private final static int COLUMN_COUNT = 9;
 
@@ -44,9 +43,9 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
     private String sharing;
     private String downloading;
     private String downloaded;
-    
+
     private String sourceCountTooltip;
-    
+
     private SortedModelTable modelTable;
 
     private boolean showColoredLines;
@@ -58,21 +57,21 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
         language.addLanguageListener(this);
         refreshLanguage();
 
-        setComparator(new FileNameComparator(), 0);
-        setComparator(new SizeComparator(), 1);
-        setComparator(new StateComparator(), 2);
-        setComparator(new LastUploadedComparator(), 3);
-        setComparator(new LastReceivedComparator(), 4);
-        setComparator(new RatingComparator(), 5);
-        setComparator(new CommentComparator(), 6);
-        setComparator(new KeywordsComparator(), 7);
-        setComparator(new SourcesComparator(), 8);
-        
+        setComparator(SearchTableComparators.getFileNameComparator(), 0);
+        setComparator(SearchTableComparators.getSizeComparator(), 1);
+        setComparator(SearchTableComparators.getStateComparator(), 2);
+        setComparator(SearchTableComparators.getLastUploadedComparator(), 3);
+        setComparator(SearchTableComparators.getLastReceivedComparator(), 4);
+        setComparator(SearchTableComparators.getRatingComparator(), 5);
+        setComparator(SearchTableComparators.getCommentComparator(), 6);
+        setComparator(SearchTableComparators.getKeywordsComparator(), 7);
+        setComparator(SearchTableComparators.getSourcesComparator(), 8);
+
         showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
         Core.frostSettings.addPropertyChangeListener(this);
     }
 
-    public void languageChanged(LanguageEvent event) {
+    public void languageChanged(final LanguageEvent event) {
         refreshLanguage();
     }
 
@@ -91,17 +90,17 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
         sharing =     language.getString("SearchPane.resultTable.states.sharing");
         downloading = language.getString("SearchPane.resultTable.states.downloading");
         downloaded =  language.getString("SearchPane.resultTable.states.downloaded");
-        
+
         sourceCountTooltip = language.getString("SearchPane.resultTable.sources.tooltip");
 
         refreshColumnNames();
     }
 
-    public Object getCellValue(ModelItem item, int columnIndex) {
+    public Object getCellValue(final ModelItem item, final int columnIndex) {
         if( item == null ) {
             return "*null*";
         }
-        FrostSearchItem searchItem = (FrostSearchItem) item;
+        final FrostSearchItem searchItem = (FrostSearchItem) item;
         switch (columnIndex) {
             case 0 :    //Filename
                 return searchItem.getFilename();
@@ -135,7 +134,7 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
         }
     }
 
-    private String getStateStr(int state) {
+    private String getStateStr(final int state) {
         String stateString = "";
         switch (state) {
             case FrostSearchItem.STATE_OFFLINE :
@@ -157,25 +156,26 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
         return stateString;
     }
 
-    public int[] getColumnNumbers(int fieldID) {
+    public int[] getColumnNumbers(final int fieldID) {
         return new int[] {};
     }
 
-    public void customizeTable(ModelTable lModelTable) {
+    @Override
+    public void customizeTable(final ModelTable lModelTable) {
         super.customizeTable(lModelTable);
-        
+
         modelTable = (SortedModelTable) lModelTable;
-        
+
         modelTable.getTable().setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
-        
+
         modelTable.setSortedColumn(0, true);
 
-        TableColumnModel columnModel = modelTable.getTable().getColumnModel();
-        
-        RightAlignRenderer rightAlignRenderer = new RightAlignRenderer();
-        ShowColoredLinesRenderer showColoredLinesRenderer = new ShowColoredLinesRenderer();
-        ShowContentTooltipRenderer showContentTooltipRenderer = new ShowContentTooltipRenderer();
-        
+        final TableColumnModel columnModel = modelTable.getTable().getColumnModel();
+
+        final RightAlignRenderer rightAlignRenderer = new RightAlignRenderer();
+        final ShowColoredLinesRenderer showColoredLinesRenderer = new ShowColoredLinesRenderer();
+        final ShowContentTooltipRenderer showContentTooltipRenderer = new ShowContentTooltipRenderer();
+
         columnModel.getColumn(0).setCellRenderer(new FileNameRenderer()); // filename
         columnModel.getColumn(1).setCellRenderer(rightAlignRenderer); // size
         columnModel.getColumn(2).setCellRenderer(showColoredLinesRenderer); // age
@@ -185,96 +185,10 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
         columnModel.getColumn(6).setCellRenderer(showContentTooltipRenderer); // comment
         columnModel.getColumn(7).setCellRenderer(showContentTooltipRenderer); // keywords
         columnModel.getColumn(8).setCellRenderer(new SourceCountRenderer()); // source count
-        
-        int[] widths = { 250, 30, 40, 20, 20, 10, 50, 80, 15 };
+
+        final int[] widths = { 250, 30, 40, 20, 20, 10, 50, 80, 15 };
         for (int i = 0; i < widths.length; i++) {
             columnModel.getColumn(i).setPreferredWidth(widths[i]);
-        }
-    }
-
-    private class StateComparator implements Comparator<FrostSearchItem> {
-        public int compare(FrostSearchItem o1, FrostSearchItem o2) {
-            int i1 = o1.getState();
-            int i2 = o2.getState();
-            if( i1 < i2 ) {
-                return -1;
-            }
-            if( i1 > i2 ) {
-                return 1;
-            }
-            return 0;
-        }
-    }
-
-    private class SizeComparator implements Comparator<FrostSearchItem> {
-        public int compare(FrostSearchItem o1, FrostSearchItem o2) {
-            return o1.getSize().compareTo(o2.getSize());
-        }
-    }
-
-    private class FileNameComparator implements Comparator<FrostSearchItem> {
-        public int compare(FrostSearchItem o1, FrostSearchItem o2) {
-            return o1.getFilename().compareToIgnoreCase(o2.getFilename());
-        }
-    }
-
-    private class CommentComparator implements Comparator<FrostSearchItem> {
-        public int compare(FrostSearchItem o1, FrostSearchItem o2) {
-            String comment1 = o1.getComment();
-            String comment2 = o2.getComment();
-            return comment1.compareToIgnoreCase(comment2);
-        }
-    }
-
-    private class KeywordsComparator implements Comparator<FrostSearchItem> {
-        public int compare(FrostSearchItem o1, FrostSearchItem o2) {
-            String keywords1 = o1.getKeywords();
-            String keywords2 = o2.getKeywords();
-            return keywords1.compareToIgnoreCase(keywords2);
-        }
-    }
-
-    private class RatingComparator implements Comparator<FrostSearchItem> {
-        public int compare(FrostSearchItem o1, FrostSearchItem o2) {
-            Integer rating1 = o1.getRating();
-            Integer rating2 = o2.getRating();
-            return rating1.compareTo(rating2);
-        }
-    }
-
-    private class LastReceivedComparator implements Comparator<FrostSearchItem> {
-        public int compare(FrostSearchItem o1, FrostSearchItem o2) {
-            long l1 = o1.getFrostFileListFileObject().getLastReceived();
-            long l2 = o2.getFrostFileListFileObject().getLastReceived();
-            if( l1 < l2 ) {
-                return -1;
-            }
-            if( l1 > l2 ) {
-                return 1;
-            }
-            return 0;
-        }
-    }
-
-    private class LastUploadedComparator implements Comparator<FrostSearchItem> {
-        public int compare(FrostSearchItem o1, FrostSearchItem o2) {
-            long l1 = o1.getFrostFileListFileObject().getLastUploaded();
-            long l2 = o2.getFrostFileListFileObject().getLastUploaded();
-            if( l1 < l2 ) {
-                return -1;
-            }
-            if( l1 > l2 ) {
-                return 1;
-            }
-            return 0;
-        }
-    }
-
-    private class SourcesComparator implements Comparator<FrostSearchItem> {
-        public int compare(FrostSearchItem o1, FrostSearchItem o2) {
-            Integer sources1 = o1.getSourceCount();
-            Integer sources2 = o2.getSourceCount();
-            return sources1.compareTo(sources2);
         }
     }
 
@@ -282,13 +196,14 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
         public ShowContentTooltipRenderer() {
             super();
         }
+        @Override
         public Component getTableCellRendererComponent(
-            JTable table,
-            Object value,
-            boolean isSelected,
-            boolean hasFocus,
-            int row,
-            int column) 
+            final JTable table,
+            final Object value,
+            final boolean isSelected,
+            final boolean hasFocus,
+            final int row,
+            final int column)
         {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             String tooltip = null;
@@ -308,13 +223,14 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
         public RightAlignRenderer() {
             super();
         }
+        @Override
         public Component getTableCellRendererComponent(
-            JTable table,
-            Object value,
-            boolean isSelected,
-            boolean hasFocus,
-            int row,
-            int column) {
+            final JTable table,
+            final Object value,
+            final boolean isSelected,
+            final boolean hasFocus,
+            final int row,
+            final int column) {
 
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             setHorizontalAlignment(SwingConstants.RIGHT);
@@ -334,20 +250,21 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
         public FileNameRenderer() {
             super();
         }
+        @Override
         public Component getTableCellRendererComponent(
-            JTable table,
-            Object value,
+            final JTable table,
+            final Object value,
             boolean isSelected,
-            boolean hasFocus,
-            int row,
-            int column) {
+            final boolean hasFocus,
+            final int row,
+            final int column) {
 
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
             if (!isSelected) {
-                ModelItem item = modelTable.getItemAt(row); //It may be null
+                final ModelItem item = modelTable.getItemAt(row); //It may be null
                 if (item != null) {
-                    FrostSearchItem searchItem = (FrostSearchItem) item;
+                    final FrostSearchItem searchItem = (FrostSearchItem) item;
 
                     if (searchItem.getState() == FrostSearchItem.STATE_DOWNLOADED) {
                         setForeground(Color.LIGHT_GRAY);
@@ -368,21 +285,22 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
             return this;
         }
     }
-    
+
     private class SourceCountRenderer extends ShowColoredLinesRenderer {
 
         final javax.swing.border.EmptyBorder border = new javax.swing.border.EmptyBorder(0, 0, 0, 3);
-        
+
         public SourceCountRenderer() {
             super();
         }
+        @Override
         public Component getTableCellRendererComponent(
-            JTable table,
-            Object value,
-            boolean isSelected,
-            boolean hasFocus,
-            int row,
-            int column) {
+            final JTable table,
+            final Object value,
+            final boolean isSelected,
+            final boolean hasFocus,
+            final int row,
+            final int column) {
 
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
@@ -390,9 +308,9 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
             // col is right aligned, give some space to next column
             setBorder(border);
 
-            ModelItem item = modelTable.getItemAt(row); //It may be null
+            final ModelItem item = modelTable.getItemAt(row); //It may be null
             if (item != null) {
-                FrostSearchItem searchItem = (FrostSearchItem) item;
+                final FrostSearchItem searchItem = (FrostSearchItem) item;
                 if( searchItem.hasInfosFromMultipleSources().booleanValue() ) {
                     setIcon(hasMoreInfoIcon);
                 } else {
@@ -405,23 +323,24 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
             return this;
         }
     }
-    
+
     private class ShowColoredLinesRenderer extends DefaultTableCellRenderer {
         public ShowColoredLinesRenderer() {
             super();
         }
+        @Override
         public Component getTableCellRendererComponent(
-            JTable table,
-            Object value,
+            final JTable table,
+            final Object value,
             boolean isSelected,
-            boolean hasFocus,
-            int row,
-            int column) 
+            final boolean hasFocus,
+            final int row,
+            final int column)
         {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
             if (!isSelected) {
-                Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
+                final Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
                 setBackground(newBackground);
             } else {
                 setBackground(table.getSelectionBackground());
@@ -430,7 +349,7 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
         }
     }
 
-    public void propertyChange(PropertyChangeEvent evt) {
+    public void propertyChange(final PropertyChangeEvent evt) {
         if (evt.getPropertyName().equals(SettingsClass.SHOW_COLORED_ROWS)) {
             showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
             modelTable.fireTableDataChanged();
