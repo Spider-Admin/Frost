@@ -48,17 +48,22 @@ class NewsPanel extends JPanel {
     private SettingsClass settings = null;
     private Language language = null;
 
-    private final JLabel uploadHtlLabel = new JLabel();
-    private final JLabel downloadHtlLabel = new JLabel();
-    private final JLabel displayDaysLabel = new JLabel();
-    private final JLabel downloadDaysLabel = new JLabel();
-    private final JLabel messageBaseLabel = new JLabel();
+    // 0.5 or 0.7, on 0.5 its htl, 0.7 its prio
+    private final JLabel uploadHtlOrPrioLabel = new JLabel();
+    private final JTextField uploadHtlOrPrioTextField = new JTextField(8);
+    private final JLabel downloadHtlOrPrioLabel = new JLabel();
+    private final JTextField downloadHtlOrPrioTextField = new JTextField(8);
 
-    private final JTextField uploadHtlTextField = new JTextField(8);
-    private final JTextField downloadHtlTextField = new JTextField(8);
+
+    private final JLabel displayDaysLabel = new JLabel();
     private final JTextField displayDaysTextField = new JTextField(8);
+
+    private final JLabel downloadDaysLabel = new JLabel();
     private final JTextField downloadDaysTextField = new JTextField(8);
+
+    private final JLabel messageBaseLabel = new JLabel();
     private final JTextField messageBaseTextField = new JTextField(16);
+
 
     private final JCheckBox alwaysDownloadBackloadCheckBox = new JCheckBox();
 
@@ -66,6 +71,7 @@ class NewsPanel extends JPanel {
     private JPanel updatePanel = null;
     private final JLabel minimumIntervalLabel = new JLabel();
     private final JTextField minimumIntervalTextField = new JTextField(8);
+
     private final JLabel concurrentUpdatesLabel = new JLabel();
     private final JTextField concurrentUpdatesTextField = new JTextField(8);
 
@@ -89,14 +95,6 @@ class NewsPanel extends JPanel {
 
         initialize();
         loadSettings();
-
-        if( FcpHandler.isFreenet07() ) {
-            // disable 0.5-only items
-            uploadHtlLabel.setEnabled(false);
-            uploadHtlTextField.setEnabled(false);
-            downloadHtlLabel.setEnabled(false);
-            downloadHtlTextField.setEnabled(false);
-        }
     }
 
     private JPanel getUpdatePanel() {
@@ -138,8 +136,8 @@ class NewsPanel extends JPanel {
         refreshLanguage();
 
         // We create the components
-        new TextComponentClipboardMenu(uploadHtlTextField, language);
-        new TextComponentClipboardMenu(downloadHtlTextField, language);
+        new TextComponentClipboardMenu(uploadHtlOrPrioTextField, language);
+        new TextComponentClipboardMenu(downloadHtlOrPrioTextField, language);
         new TextComponentClipboardMenu(displayDaysTextField, language);
         new TextComponentClipboardMenu(downloadDaysTextField, language);
         new TextComponentClipboardMenu(messageBaseTextField, language);
@@ -182,15 +180,15 @@ class NewsPanel extends JPanel {
 
         constraints.gridy++;
         constraints.gridx = 0;
-        add(uploadHtlLabel, constraints);
+        add(uploadHtlOrPrioLabel, constraints);
         constraints.gridx = 1;
-        add(uploadHtlTextField, constraints);
+        add(uploadHtlOrPrioTextField, constraints);
 
         constraints.gridy++;
         constraints.gridx = 0;
-        add(downloadHtlLabel, constraints);
+        add(downloadHtlOrPrioLabel, constraints);
         constraints.gridx = 1;
-        add(downloadHtlTextField, constraints);
+        add(downloadHtlOrPrioTextField, constraints);
         constraints.gridx = 0;
 
         constraints.gridwidth=2;
@@ -240,8 +238,14 @@ class NewsPanel extends JPanel {
      * Load the settings of this panel
      */
     private void loadSettings() {
-        uploadHtlTextField.setText(settings.getValue(SettingsClass.MESSAGE_UPLOAD_HTL));
-        downloadHtlTextField.setText(settings.getValue(SettingsClass.MESSAGE_DOWNLOAD_HTL));
+        if( FcpHandler.isFreenet07() ) {
+            uploadHtlOrPrioTextField.setText(settings.getValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE_UPLOAD));
+            downloadHtlOrPrioTextField.setText(settings.getValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE_DOWNLOAD));
+        } else {
+            uploadHtlOrPrioTextField.setText(settings.getValue(SettingsClass.MESSAGE_UPLOAD_HTL));
+            downloadHtlOrPrioTextField.setText(settings.getValue(SettingsClass.MESSAGE_DOWNLOAD_HTL));
+        }
+
         displayDaysTextField.setText(settings.getValue(SettingsClass.MAX_MESSAGE_DISPLAY));
         downloadDaysTextField.setText(settings.getValue(SettingsClass.MAX_MESSAGE_DOWNLOAD));
         messageBaseTextField.setText(settings.getValue(SettingsClass.MESSAGE_BASE));
@@ -268,8 +272,13 @@ class NewsPanel extends JPanel {
     }
 
     private void refreshLanguage() {
-        uploadHtlLabel.setText(language.getString("Options.news.1.messageUploadHtl") + " (21)");
-        downloadHtlLabel.setText(language.getString("Options.news.1.messageDownloadHtl") + " (23)");
+        if( FcpHandler.isFreenet07() ) {
+            uploadHtlOrPrioLabel.setText(language.getString("Options.news.1.messageUploadPriority") + " (2)");
+            downloadHtlOrPrioLabel.setText(language.getString("Options.news.1.messageDownloadPriority") + " (2)");
+        } else {
+            uploadHtlOrPrioLabel.setText(language.getString("Options.news.1.messageUploadHtl") + " (21)");
+            downloadHtlOrPrioLabel.setText(language.getString("Options.news.1.messageDownloadHtl") + " (23)");
+        }
         displayDaysLabel.setText(language.getString("Options.news.1.numberOfDaysToDisplay") + " (15)");
         downloadDaysLabel.setText(language.getString("Options.news.1.numberOfDaysToDownloadBackwards") + " (5)");
         messageBaseLabel.setText(language.getString("Options.news.1.messageBase") + " (news)");
@@ -295,8 +304,14 @@ class NewsPanel extends JPanel {
      * Save the settings of this panel
      */
     private void saveSettings() {
-        settings.setValue(SettingsClass.MESSAGE_UPLOAD_HTL, uploadHtlTextField.getText());
-        settings.setValue(SettingsClass.MESSAGE_DOWNLOAD_HTL, downloadHtlTextField.getText());
+        if( FcpHandler.isFreenet07() ) {
+            settings.setValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE_UPLOAD, uploadHtlOrPrioTextField.getText());
+            settings.setValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE_DOWNLOAD, downloadHtlOrPrioTextField.getText());
+        } else {
+            settings.setValue(SettingsClass.MESSAGE_UPLOAD_HTL, uploadHtlOrPrioTextField.getText());
+            settings.setValue(SettingsClass.MESSAGE_DOWNLOAD_HTL, downloadHtlOrPrioTextField.getText());
+        }
+
         settings.setValue(SettingsClass.MAX_MESSAGE_DISPLAY, displayDaysTextField.getText());
         settings.setValue(SettingsClass.MAX_MESSAGE_DOWNLOAD, downloadDaysTextField.getText());
         settings.setValue(SettingsClass.MESSAGE_BASE, messageBaseTextField.getText().trim().toLowerCase());

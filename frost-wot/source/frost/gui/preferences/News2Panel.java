@@ -274,21 +274,21 @@ class News2Panel extends JPanel {
     }
 
     private void refreshLanguage() {
-        hideMessagesLabel.setText(language.getString("Options.news.2.hideMessagesWithTrustStates")+":");
+        hideMessagesLabel.setText(language.getString("Options.news.2.hideMessagesWithTrustStates"));
         hideUnsignedMessagesCheckBox.setText(language.getString("Options.news.2.trustState.none"));
         hideBadMessagesCheckBox.setText(language.getString("Options.news.2.trustState.bad"));
         hideCheckMessagesCheckBox.setText(language.getString("Options.news.2.trustState.check"));
         hideObserveMessagesCheckBox.setText(language.getString("Options.news.2.trustState.observe"));
 
-        blockBoardsLabel.setText(language.getString("Options.news.2.dontAddBoardsFromTrustStates")+":");
+        blockBoardsLabel.setText(language.getString("Options.news.2.dontAddBoardsFromTrustStates"));
         blockBoardsFromUnsignedCheckBox.setText(language.getString("Options.news.2.trustState.none"));
         blockBoardsFromBadCheckBox.setText(language.getString("Options.news.2.trustState.bad"));
         blockBoardsFromCheckCheckBox.setText(language.getString("Options.news.2.trustState.check"));
         blockBoardsFromObserveCheckBox.setText(language.getString("Options.news.2.trustState.observe"));
 
-        blockSubjectCheckBox.setText(language.getString("Options.news.2.blockMessagesWithSubject")+ ": ");
-        blockBodyCheckBox.setText(language.getString("Options.news.2.blockMessagesWithBody")+ ": ");
-        blockBoardCheckBox.setText(language.getString("Options.news.2.blockMessagesWithTheseBoards")+ ": ");
+        blockSubjectCheckBox.setText(language.getString("Options.news.2.blockMessagesWithSubject"));
+        blockBodyCheckBox.setText(language.getString("Options.news.2.blockMessagesWithBody"));
+        blockBoardCheckBox.setText(language.getString("Options.news.2.blockMessagesWithTheseBoards"));
     }
 
     /**
