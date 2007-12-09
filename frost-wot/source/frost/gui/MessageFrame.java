@@ -573,6 +573,7 @@ public class MessageFrame extends JFrame {
                     "MessageFrame.toolbar.tooltip.chooseSmiley",
                     "/data/togglesmileys.gif",
                     language);
+            BchooseSmiley.setFocusable(false);
 
             TFboard.setEditable(false);
             TFboard.setText(targetBoard.getName());
