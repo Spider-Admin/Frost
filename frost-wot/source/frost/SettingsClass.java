@@ -942,7 +942,7 @@ public class SettingsClass implements ExitSavable {
 
         defaults.put(MESSAGE_EXPIRE_DAYS, "90");
         defaults.put(MESSAGE_EXPIRATION_MODE, "KEEP"); // KEEP or ARCHIVE or DELETE, default KEEP
-        defaults.put(ARCHIVE_KEEP_FLAGGED_AND_STARRED, "false");
+        defaults.put(ARCHIVE_KEEP_FLAGGED_AND_STARRED, "true");
         defaults.put(ARCHIVE_KEEP_UNREAD, "false");
 
         defaults.put(LANGUAGE_LOCALE, "default");

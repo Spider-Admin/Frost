@@ -116,7 +116,7 @@ class News2Panel extends JPanel {
         hidePanel.add(hideObserveMessagesCheckBox, constraints);
 
         constraints.gridx = 1;
-        constraints.insets = new Insets(5, 5, 5, 5);
+        constraints.insets = new Insets(5, 5, 0, 5);
         hidePanel.add(hideCheckMessagesCheckBox, constraints);
 
         constraints.gridx = 2;
@@ -151,7 +151,7 @@ class News2Panel extends JPanel {
         blockBoardsPanel.add(blockBoardsFromObserveCheckBox, constraints);
 
         constraints.gridx = 1;
-        constraints.insets = new Insets(5, 5, 5, 5);
+        constraints.insets = new Insets(5, 5, 0, 5);
         blockBoardsPanel.add(blockBoardsFromCheckCheckBox, constraints);
 
         constraints.gridx = 2;
@@ -223,19 +223,20 @@ class News2Panel extends JPanel {
         constraints.gridy++;
         add(getHideMessagesPanel(), constraints);
 
-        constraints.insets = insets5555;
+        constraints.insets = new Insets(0,5,0,5);
         constraints.gridwidth = 2;
         constraints.gridx = 0;
         constraints.gridy++;
         add(getBlockBoardsPanel(), constraints);
 
         // glue
+        constraints.insets = new Insets(0,0,0,0);
         constraints.gridy++;
         constraints.gridx = 0;
         constraints.gridwidth = 2;
         constraints.fill = GridBagConstraints.BOTH;
         constraints.weightx = 1;
-        constraints.weighty = 1;
+        constraints.weighty = 0;
         add(new JLabel(""), constraints);
 
         // Add listeners

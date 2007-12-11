@@ -9,24 +9,62 @@
   <BODY>
 <H2>Frost History</H2>
 <PRE>
-PENDING:
+2007.12.11:
 ------------
 
 - fixed bug that some unread messages were not shown
   in threaded view when 'Show only unread messages' is enabled
-- hopefully fixed bug that leaded to a perst StorageError, included
-  repair tool for already broken stores
-  Invoke the repair tool:
-  WINDOWS:
-   java -cp frost.jar;lib/perst15.jar frost.storage.perst.RepairPerstStorage
-  LINUX:
-   java -cp frost.jar:lib/perst15.jar frost.storage.perst.RepairPerstStorage
 - all data are now stored in perst storages instead of McKoi sql db
   - faster display of boards
   - messages with state NEW, FLAGGED or STARRED are now always shown
 - re-requested downloads start automatically when download is still
   in FAILED state and the lastUploadedTime changed to a later value
 - confirmation message for 'Mark all messages read' can be suppressed
+- enhanced identities browser:
+  - popup menu to copy the identity to the clipboard
+  - popup menu to copy the identity and its public key to the clipboard
+  - popup menu to export only selected identities to xml file
+- received message count per identity is now maintained. Initial values are set during
+  migration from McKoi from the current amount of messages in keypool and in archive.
+- received message count is shown in 'Manage identities' dialog and in the new
+  tooltip for the 'From' column in the message table
+- request shared files when its runtime without progress exceeds 12 hours
+- archiving works again (was broken in earlier alpha version)
+- added 'Search' option to popup menu in board tree (boards or folders)
+- removed skin support (caused several problems in GUI)
+- added setting 'Don't show own messages as ME' (Options->Display->Messages)
+- added setting to show the menu bar on the screen when running on MacOs
+- trust state for sharer identities can be changed in shared file details dialog
+- added automatic backup of local identities (can be disabled in options 'Miscellaneous')
+- moved option for external message editor to 'News (1)' tab
+- improved validation of incoming messages, shorter log output
+- option to disable saving of sent messages (overrideable per board)
+- added a smiley chooser
+- added 'Send message' to board tree popup menu, allows to send a message
+  without to select the board
+- added indication for identities with low received message count
+  (configurable in options, Display->Messages)
+  (if you don't like the indicator icons, please send me some nicer ones!)
+- adjusted file sharing parameters
+- messages can be set as JUNK now (new column in message list)
+- multiple selected messages can be set to flagged/starred/junk
+- new keyboard shortcuts: "s" = toggle starred, "f" = toggle flagged, "j" = toggle JUNK
+- the identity of the message marked as JUNK can be set to BAD (option)
+- JUNK and BAD messages are not archived but discarded
+- added '.7z' as file extension for archives
+- infos from board information dialog can be copied to clipboard
+- layout of search files table is saved
+- 0.5: downloading did not work with non-splitfile files whose expected filesize was unknown
+- 0.5: fixed "java.io.IOException: Attempt to use a released RandomAccessFileBucket".
+       Due to this exception the decode after download failed, but worked after
+       next Frost startup.
+- 0.5: fix for file requests, FAILED downloads are not disabled and requests
+  should be send now for those files. The FAILED state is retained after a Frost
+  restart.
+- 0.7: added checking for boards that use an obsolete encryption key
+- 0.7: default priorities for upload/download of messages/files can be set
+       in the options
+- 0.7: 'Use single connection for message transfers' option in options dialog
 
 2007.07.19:
 ------------
