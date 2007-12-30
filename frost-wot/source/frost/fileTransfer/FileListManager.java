@@ -22,6 +22,7 @@ import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
+import frost.fcp.*;
 import frost.fileTransfer.download.*;
 import frost.fileTransfer.sharing.*;
 import frost.identities.*;
@@ -229,10 +230,17 @@ public class FileListManager {
             return false;
         }
 
+        final boolean isFreenet07 = FcpHandler.isFreenet07();
+
         try {
             for( final SharedFileXmlFile sfx : content.getFileList() ) {
 
                 final FrostFileListFileObject sfo = new FrostFileListFileObject(sfx, localOwner, content.getTimestamp());
+
+                if( isFreenet07 && FreenetKeys.isOld07ChkKey( sfo.getKey() )) {
+                    // ignore old chk keys
+                    continue;
+                }
 
                 // before updating the file list object (this overwrites the current lastUploaded time),
                 // check if there is a failed download item for this shared file. If yes, and the lastUpload
