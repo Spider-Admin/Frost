@@ -172,49 +172,66 @@ public class SharedFilesPanel extends JPanel {
             return;
         }
         final File[] selectedFiles = fc.getSelectedFiles();
-        if( selectedFiles == null ) {
+        if( selectedFiles == null || selectedFiles.length == 0 ) {
             return;
         }
 
-        // FIXME: dauert lange (file.length()) -> erst nach owner fragen, dann in extra thread alles lesen und
-        // zu newuploadfiles dazuadden
-
-        String parentDir = null;
-        final List<File> uploadFileItems = new LinkedList<File>();
-        for( final File element : selectedFiles ) {
-            // collect all choosed files + files in all choosed directories
-            final ArrayList<File> allFiles = FileAccess.getAllEntries(element, "");
-            for (int j = 0; j < allFiles.size(); j++) {
-                final File newFile = allFiles.get(j);
-                if (newFile.isFile() && newFile.length() > 0) {
-                    uploadFileItems.add(newFile);
-                    if( parentDir == null ) {
-                        parentDir = newFile.getParent(); // remember last upload dir
-                    }
-                }
-            }
-        }
-        if( parentDir != null ) {
-            Core.frostSettings.setValue(SettingsClass.DIR_LAST_USED, parentDir);
-        }
         // ask for owner to use
         final SharedFilesOwnerDialog dlg =
-            new SharedFilesOwnerDialog(MainFrame.getInstance(), "Choose an owner for the upload files");
+            new SharedFilesOwnerDialog(MainFrame.getInstance(), language.getString("SharedFilesOwnerDialog.title"));
         if( dlg.showDialog() == SharedFilesOwnerDialog.CANCEL ) {
             return;
         }
         final String owner = dlg.getChoosedIdentityName();
 
-        final List<NewUploadFile> uploadItems = new LinkedList<NewUploadFile>();
-        for( final File file : uploadFileItems ) {
-            final NewUploadFile nuf = new NewUploadFile(file, owner);
-            uploadItems.add(nuf);
+        // start external thread to check the filelength and add NewUploadFile objects
+        new AddNewSharedFilesThread(selectedFiles, owner).start();
+    }
+
+    /**
+     * Thread reads a list of new shared files, creates NewUploadFile objects and adds them to the NewUploadFilesManager.
+     */
+    private class AddNewSharedFilesThread extends Thread {
+        private final File[] selectedFiles;
+        private final String owner;
+        public AddNewSharedFilesThread(final File[] selectedFiles, final String owner) {
+            super();
+            this.selectedFiles = selectedFiles;
+            this.owner = owner;
         }
+        @Override
+        public void run() {
+            String parentDir = null;
+            final List<File> uploadFileItems = new LinkedList<File>();
+            for( final File element : selectedFiles ) {
+                // collect all choosed files + files in all choosed directories
+                final ArrayList<File> allFiles = FileAccess.getAllEntries(element, "");
+                for (int j = 0; j < allFiles.size(); j++) {
+                    final File newFile = allFiles.get(j);
+                    if (newFile.isFile() && newFile.length() > 0) {
+                        uploadFileItems.add(newFile);
+                        if( parentDir == null ) {
+                            parentDir = newFile.getParent(); // remember last upload dir
+                        }
+                    }
+                }
+            }
+            if( parentDir != null ) {
+                Core.frostSettings.setValue(SettingsClass.DIR_LAST_USED, parentDir);
+            }
 
-        // notify list upload thread that user changed something
-        FileListUploadThread.getInstance().userActionOccured();
+            // create list of NewUploadFile objects
+            final List<NewUploadFile> uploadItems = new LinkedList<NewUploadFile>();
+            for( final File file : uploadFileItems ) {
+                final NewUploadFile nuf = new NewUploadFile(file, owner);
+                uploadItems.add(nuf);
+            }
 
-        Core.getInstance().getFileTransferManager().getNewUploadFilesManager().addNewUploadFiles(uploadItems);
+            // notify list upload thread about a change in the filelist
+            FileListUploadThread.getInstance().userActionOccured();
+
+            Core.getInstance().getFileTransferManager().getNewUploadFilesManager().addNewUploadFiles(uploadItems);
+        }
     }
 
     private void showUploadTablePopupMenu(final MouseEvent e) {

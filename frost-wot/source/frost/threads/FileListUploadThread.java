@@ -36,16 +36,16 @@ public class FileListUploadThread extends Thread {
     private static final Logger logger = Logger.getLogger(FileListUploadThread.class.getName());
 
     private final int minutes6 = 6 * 60 * 1000;
-    
+
     private long nextStartTime = 0;
-    
+
     // one and only instance
     private static FileListUploadThread instance = new FileListUploadThread();
-    
+
     private FileListUploadThread() {
-        nextStartTime = System.currentTimeMillis() + (5L * 60L * 1000L); // wait 5 minutes before first start
+        nextStartTime = System.currentTimeMillis() + (5L * 60L * 1000L); // wait 5 minutes until first start
     }
-    
+
     public static FileListUploadThread getInstance() {
         return instance;
     }
@@ -59,15 +59,18 @@ public class FileListUploadThread extends Thread {
      * maybe he does more changes.
      */
     public void userActionOccured() {
-        nextStartTime = System.currentTimeMillis() + getRandomWaittime();
+        synchronized(instance) {
+            nextStartTime = System.currentTimeMillis() + getRandomWaittime();
+        }
     }
-    
+
     private int getRandomWaittime() {
         // at least 6 minutes, or max. 12 minutes
-        int sleepTime = minutes6 + (int)((double)minutes6 * Math.random());
+        final int sleepTime = minutes6 + (int)(minutes6 * Math.random());
         return sleepTime;
     }
-    
+
+    @Override
     public void run() {
 
         final int maxAllowedExceptions = 5;
@@ -77,25 +80,25 @@ public class FileListUploadThread extends Thread {
             try {
                 while(true) {
                     // wait until we really reached nextStartTime, nextStartTime may be changed during our wait
-                    int waitTimeDelta = (int)(nextStartTime - System.currentTimeMillis());
+                    final int waitTimeDelta = (int)(nextStartTime - System.currentTimeMillis());
                     if( waitTimeDelta > 1000 ) {
                         Mixed.wait( waitTimeDelta );
                     } else {
                         break;
                     }
                 }
-                
+
                 // check for sharedfiles to upload for one identity
-                FileListManagerFileInfo fileInfo = FileListManager.getFilesToSend();
+                final FileListManagerFileInfo fileInfo = FileListManager.getFilesToSend();
                 if( fileInfo != null ) {
-                    File targetFile = FileAccess.createTempFile("flFile_", ".xml.tmp");
+                    final File targetFile = FileAccess.createTempFile("flFile_", ".xml.tmp");
                     targetFile.deleteOnExit();
-                    
-                    FileListFileContent content = new FileListFileContent(
+
+                    final FileListFileContent content = new FileListFileContent(
                             System.currentTimeMillis(),
                             fileInfo.getOwner(),
                             fileInfo.getFiles());
-                    
+
                     if( !FileListFile.writeFileListFile(content, targetFile) ) {
                         logger.log(Level.SEVERE, "Could'nt write the filelist xml file");
                     } else {
@@ -105,7 +108,7 @@ public class FileListUploadThread extends Thread {
                         }
                         String chkKey = null;
                         try {
-                            FcpResultPut result = FcpHandler.inst().putFile(
+                            final FcpResultPut result = FcpHandler.inst().putFile(
                                     FcpHandler.TYPE_FILE,
                                     "CHK@",
                                     targetFile,
@@ -117,7 +120,7 @@ public class FileListUploadThread extends Thread {
                             if (result.isSuccess() || result.isKeyCollision()) {
                                 chkKey = result.getChkKey();
                             }
-                        } catch (Exception ex) {
+                        } catch (final Exception ex) {
                             logger.log(Level.WARNING, "Exception catched",ex);
                         }
                         if( Logging.inst().doLogFilebaseMessages() ) {
@@ -125,23 +128,23 @@ public class FileListUploadThread extends Thread {
                         }
                         if( chkKey != null ) {
                             // add chk to chklist so the PointerThread can find it
-                            SharedFilesCHKKey key = new SharedFilesCHKKey(chkKey);
+                            final SharedFilesCHKKey key = new SharedFilesCHKKey(chkKey);
                             SharedFilesCHKKeyManager.addNewCHKKeyToSend(key);
-                            
+
                             // mark uploaded files in sharedfiles
                             FileListManager.updateFileListWasSuccessfullySent(fileInfo.getFiles());
                         }
                     }
-                    
+
                     // delete tmp file
                     targetFile.delete();
                 }
-                
+
                 // randomize, a fix waittime between uploaded CHK timestamps could de-anonymize us!
-                int sleepTime = getRandomWaittime();
+                final int sleepTime = getRandomWaittime();
                 nextStartTime = System.currentTimeMillis() + sleepTime;
-                
-            } catch(Throwable t) {
+
+            } catch(final Throwable t) {
                 logger.log(Level.SEVERE, "Exception catched",t);
                 occuredExceptions++;
             }

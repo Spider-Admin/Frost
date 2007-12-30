@@ -29,8 +29,8 @@ public class NewUploadFilesManager implements ExitSavable {
 
     private static final Logger logger = Logger.getLogger(NewUploadFilesManager.class.getName());
 
-    LinkedList<NewUploadFile> newUploadFiles;
-    GenerateShaThread generateShaThread;
+    private LinkedList<NewUploadFile> newUploadFiles;
+    private GenerateShaThread generateShaThread;
 
     public void initialize() throws StorageException {
         try {
@@ -50,24 +50,30 @@ public class NewUploadFilesManager implements ExitSavable {
     }
 
     public void exitSave() throws StorageException {
-        try {
-            FrostFilesStorage.inst().saveNewUploadFiles(newUploadFiles);
-        } catch (final Throwable e) {
-            logger.log(Level.SEVERE, "Error saving new upload files", e);
-            throw new StorageException("Error saving new upload files");
+        synchronized(newUploadFiles) {
+            try {
+                FrostFilesStorage.inst().saveNewUploadFiles(newUploadFiles);
+            } catch (final Throwable e) {
+                logger.log(Level.SEVERE, "Error saving new upload files", e);
+                throw new StorageException("Error saving new upload files");
+            }
         }
     }
 
     public void addNewUploadFiles(final List<NewUploadFile> newFiles) {
-        for( final NewUploadFile nuf : newFiles ) {
-            newUploadFiles.add(nuf);
+        synchronized(newUploadFiles) {
+            for( final NewUploadFile nuf : newFiles ) {
+                newUploadFiles.add(nuf);
 
-            // feed thread
-            generateShaThread.addToFileQueue(nuf);
+                // feed thread
+                generateShaThread.addToFileQueue(nuf);
+            }
         }
     }
 
     public void deleteNewUploadFile(final NewUploadFile nuf) {
-        newUploadFiles.remove(nuf);
+        synchronized(newUploadFiles) {
+            newUploadFiles.remove(nuf);
+        }
     }
 }
