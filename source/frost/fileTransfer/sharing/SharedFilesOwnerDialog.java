@@ -19,20 +19,20 @@
 package frost.fileTransfer.sharing;
 
 import java.awt.*;
-import java.util.*;
 
 import javax.swing.*;
 
 import frost.*;
 import frost.identities.*;
+import frost.util.gui.translation.*;
 
 public class SharedFilesOwnerDialog extends JDialog {
-    
+
     public static int OK = 1;
     public static int CANCEL = 2;
 
-    private String title;
-    
+    private final String title;
+
     private int returnCode = CANCEL;
     private String choosedIdentity = null;
 
@@ -43,25 +43,27 @@ public class SharedFilesOwnerDialog extends JDialog {
     private JButton Bok = null;
     private JLabel jLabel = null;
     private JComboBox CBidentities = null;
-    
-    private Frame parent;
+
+    private final Frame parent;
+
+    private final Language language = Language.getInstance();
 
     /**
      * This is the default constructor
      */
-    public SharedFilesOwnerDialog(Frame newParent, String newTitle) {
+    public SharedFilesOwnerDialog(final Frame newParent, final String newTitle) {
         super(newParent);
         title = newTitle;
         parent = newParent;
         setModal(true);
-        
+
         initialize();
         pack();
     }
 
     /**
      * This method initializes this
-     * 
+     *
      * @return void
      */
     private void initialize() {
@@ -72,7 +74,7 @@ public class SharedFilesOwnerDialog extends JDialog {
 
     /**
      * This method initializes jContentPane
-     * 
+     *
      * @return javax.swing.JPanel
      */
     private JPanel getJContentPane() {
@@ -86,13 +88,13 @@ public class SharedFilesOwnerDialog extends JDialog {
     }
 
     /**
-     * This method initializes buttonPanel	
-     * 	
-     * @return javax.swing.JPanel	
+     * This method initializes buttonPanel
+     *
+     * @return javax.swing.JPanel
      */
     private JPanel getButtonPanel() {
         if( buttonPanel == null ) {
-            FlowLayout flowLayout = new FlowLayout();
+            final FlowLayout flowLayout = new FlowLayout();
             flowLayout.setAlignment(java.awt.FlowLayout.RIGHT);
             buttonPanel = new JPanel();
             buttonPanel.setLayout(flowLayout);
@@ -103,27 +105,27 @@ public class SharedFilesOwnerDialog extends JDialog {
     }
 
     /**
-     * This method initializes mainPanel	
-     * 	
-     * @return javax.swing.JPanel	
+     * This method initializes mainPanel
+     *
+     * @return javax.swing.JPanel
      */
     private JPanel getMainPanel() {
         if( mainPanel == null ) {
-            GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
             gridBagConstraints11.fill = java.awt.GridBagConstraints.NONE;
             gridBagConstraints11.gridy = 3;
             gridBagConstraints11.weightx = 1.0;
             gridBagConstraints11.insets = new java.awt.Insets(2,20,0,5);
             gridBagConstraints11.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints11.gridx = 0;
-            GridBagConstraints gridBagConstraints = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints = new GridBagConstraints();
             gridBagConstraints.gridx = 0;
             gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints.insets = new java.awt.Insets(5,5,0,5);
             gridBagConstraints.fill = java.awt.GridBagConstraints.NONE;
             gridBagConstraints.gridy = 0;
             jLabel = new JLabel();
-            jLabel.setText("Choose the owner identity for the new shared files:");
+            jLabel.setText(language.getString("SharedFilesOwnerDialog.label") + ":");
             mainPanel = new JPanel();
             mainPanel.setLayout(new GridBagLayout());
             mainPanel.add(jLabel, gridBagConstraints);
@@ -133,15 +135,15 @@ public class SharedFilesOwnerDialog extends JDialog {
     }
 
     /**
-     * This method initializes Bok	
-     * 	
-     * @return javax.swing.JButton	
+     * This method initializes Bok
+     *
+     * @return javax.swing.JButton
      */
     private JButton getBcancel() {
         if( Bcancel == null ) {
-            Bcancel = new JButton("Cancel");
+            Bcancel = new JButton(language.getString("Common.cancel"));
             Bcancel.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent e) {
+                public void actionPerformed(final java.awt.event.ActionEvent e) {
                     returnCode = CANCEL;
                     setVisible(false);
                 }
@@ -149,17 +151,17 @@ public class SharedFilesOwnerDialog extends JDialog {
         }
         return Bcancel;
     }
-    
+
     /**
-     * This method initializes jButton	
-     * 	
-     * @return javax.swing.JButton	
+     * This method initializes jButton
+     *
+     * @return javax.swing.JButton
      */
     private JButton getBok() {
         if( Bok == null ) {
-            Bok = new JButton("Ok");
+            Bok = new JButton(language.getString("Common.ok"));
             Bok.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent e) {
+                public void actionPerformed(final java.awt.event.ActionEvent e) {
                     returnCode = OK;
                     choosedIdentity = (String)getCBidentities().getSelectedItem();
                     setVisible(false);
@@ -170,21 +172,21 @@ public class SharedFilesOwnerDialog extends JDialog {
     }
 
     /**
-     * This method initializes CBidentities	
-     * 	
-     * @return javax.swing.JComboBox	
+     * This method initializes CBidentities
+     *
+     * @return javax.swing.JComboBox
      */
     private JComboBox getCBidentities() {
         if( CBidentities == null ) {
             CBidentities = new JComboBox();
-            for(Iterator i=Core.getIdentities().getLocalIdentities().iterator(); i.hasNext(); ) {
-                LocalIdentity id = (LocalIdentity)i.next();
+            for( final LocalIdentity localIdentity : Core.getIdentities().getLocalIdentities() ) {
+                final LocalIdentity id = localIdentity;
                 CBidentities.addItem(id.getUniqueName());
             }
         }
         return CBidentities;
     }
-    
+
     public String getChoosedIdentityName() {
         return choosedIdentity;
     }
