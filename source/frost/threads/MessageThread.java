@@ -170,7 +170,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
 
             try { // we don't want to die for any reason
 
-                Mixed.waitRandom(3000); // don't hurt node
+                Mixed.waitRandom(2000); // don't hurt node
 
                 final String downKey = composeDownKey(index, dirdate);
                 logInfo = " board="+board.getName()+", key="+downKey;
@@ -325,7 +325,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
 
             UnsentMessagesManager.decRunningMessageUploads();
 
-            Mixed.waitRandom(6000); // wait some time
+            Mixed.waitRandom(5000); // wait some time
 
             // get next message to upload
             unsendMsg = UnsentMessagesManager.getUnsentMessage(board, fromName);
