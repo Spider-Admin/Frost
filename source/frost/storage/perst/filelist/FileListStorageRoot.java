@@ -23,22 +23,27 @@ import org.garret.perst.*;
 import frost.fileTransfer.*;
 
 public class FileListStorageRoot extends Persistent {
-    
+
+    // bit constants for storageStatus
+    public static transient final int OLD_07_CHK_KEYS_REMOVED = 1;
+
+    private int storageStatus;
+
     private Index<FrostFileListFileObject> fileListFileObjects;
 
     private Index<PerstIdentitiesFiles> identitiesFiles;
-    
+
     private Index<PerstFileListIndexEntry> fileNameIndex;
     private Index<PerstFileListIndexEntry> fileCommentIndex;
     private Index<PerstFileListIndexEntry> fileKeywordIndex;
     private Index<PerstFileListIndexEntry> fileOwnerIndex;
 
     public FileListStorageRoot() {}
-    
-    public FileListStorageRoot(Storage storage) {
+
+    public FileListStorageRoot(final Storage storage) {
         fileListFileObjects = storage.createIndex(String.class, true);
         identitiesFiles = storage.createIndex(String.class, true);
-        
+
         fileNameIndex = storage.createIndex(String.class, true);
         fileCommentIndex = storage.createIndex(String.class, true);
         fileKeywordIndex = storage.createIndex(String.class, true);
@@ -67,5 +72,13 @@ public class FileListStorageRoot extends Persistent {
 
     public Index<PerstFileListIndexEntry> getFileOwnerIndex() {
         return fileOwnerIndex;
+    }
+
+    public int getStorageStatus() {
+        return storageStatus;
+    }
+
+    public void setStorageStatus(final int storageStatus) {
+        this.storageStatus = storageStatus;
     }
 }

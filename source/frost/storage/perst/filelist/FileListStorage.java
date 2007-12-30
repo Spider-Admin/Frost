@@ -233,8 +233,16 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
             return 0;
         }
 
+        final boolean removeOld07ChkKeys;
+        if( FcpHandler.isFreenet07()
+                && (storageRoot.getStorageStatus() & FileListStorageRoot.OLD_07_CHK_KEYS_REMOVED) == 0 )
+        {
+            removeOld07ChkKeys = true;
+        } else {
+            removeOld07ChkKeys = false;
+        }
+
         int count = 0;
-        final boolean isFreenet07 = FcpHandler.isFreenet07();
         try {
             final long minVal = System.currentTimeMillis() - (maxDaysOld * 24L * 60L * 60L * 1000L);
             for( final PerstIdentitiesFiles pif : storageRoot.getIdentitiesFiles() ) {
@@ -245,7 +253,8 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
                     if( o.getLastReceived() < minVal && o.getKey() == null ) {
                         // outdated and no key
                         remove = true;
-                    } else if( isFreenet07 && FreenetKeys.isOld07ChkKey(o.getKey()) ) {
+
+                    } else if( removeOld07ChkKeys && FreenetKeys.isOld07ChkKey(o.getKey()) ) {
                         // we have a key (outdated or not)
                         // check if the key is an old 0.7 CHK key
                         remove = true;
@@ -281,6 +290,13 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
                         pif.deallocate();
                     }
                 }
+            }
+
+            if( removeOld07ChkKeys ) {
+                // we removed the keys, update flag
+                final int newStorageStatus = storageRoot.getStorageStatus() | FileListStorageRoot.OLD_07_CHK_KEYS_REMOVED;
+                storageRoot.setStorageStatus( newStorageStatus );
+                storageRoot.modify();
             }
         } finally {
             endThreadTransaction();
@@ -530,7 +546,7 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
             oldFof.setKey(newFof.getKey()); doUpdate = true;
         } else if( oldFof.getKey() != null && newFof.getKey() != null ) {
             // fix to replace 0.7 keys before 1010 on the fly
-            if( FreenetKeys.isOld07ChkKey(oldFof.getKey()) && !FreenetKeys.isOld07ChkKey(newFof.getKey()) ) {
+            if( FreenetKeys.isOld07ChkKey(oldFof.getKey()) ) {
                 // replace old chk key with new one
                 oldFof.setKey(newFof.getKey()); doUpdate = true;
             }
