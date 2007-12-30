@@ -86,7 +86,7 @@ public class FileRequestsThread extends Thread {
         }
 
         // Wait some random time to not to flood the node
-        Mixed.waitRandom(3000);
+        Mixed.waitRandom(2000);
 
         logger.info("Starting upload of request file containing "+fileRequests.size()+" SHAs");
         if( Logging.inst().doLogFilebaseMessages() ) {
@@ -125,7 +125,7 @@ public class FileRequestsThread extends Thread {
         while (failures < maxFailures && index >= 0 ) {
 
             // Wait some random time to not to flood the node
-            Mixed.waitRandom(5000);
+            Mixed.waitRandom(2500);
 
             logger.info("Requesting index " + index + " for date " + dateStr);
 

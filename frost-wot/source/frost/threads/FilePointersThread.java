@@ -96,7 +96,7 @@ public class FilePointersThread extends Thread {
         tmpChkStringKeys = null;
 
         // Wait some random time to not to flood the node
-        Mixed.waitRandom(3000);
+        Mixed.waitRandom(2000);
 
         logger.info("FILEDN: Starting upload of pointer file containing "+sharedFileCHKkeys.size()+" CHK keys");
 
@@ -134,7 +134,7 @@ public class FilePointersThread extends Thread {
         while (failures < maxFailures && index >= 0 ) {
 
             // Wait some random time to not to flood the node
-            Mixed.waitRandom(5000);
+            Mixed.waitRandom(3000);
 
             logger.info("FILEDN: Requesting index " + index + " for date " + dateStr);
 
