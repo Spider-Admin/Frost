@@ -26,36 +26,37 @@ import javax.swing.*;
 import org.garret.perst.*;
 
 import frost.*;
+import frost.fcp.*;
 import frost.fileTransfer.sharing.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
 public class PerstFrostSharedFileItem extends Persistent {
-    
+
     public String sha;
 
     public String filePath;
     public long fileSize;
     public String key;
-    
+
     public String owner;
     public String comment;
     public int rating;
     public String keywords;
-    
-    public long lastUploaded;  
+
+    public long lastUploaded;
     public int uploadCount;
 
     public long refLastSent;
-    
+
     public long requestLastReceived;
     public int requestsReceived;
-    
+
     public long lastModified;
-    
+
     public PerstFrostSharedFileItem() {}
 
-    public PerstFrostSharedFileItem(FrostSharedFileItem sfItem) {
+    public PerstFrostSharedFileItem(final FrostSharedFileItem sfItem) {
         filePath = sfItem.getFile().getPath();
         fileSize = sfItem.getFileSize();
         key = sfItem.getKey();
@@ -72,16 +73,16 @@ public class PerstFrostSharedFileItem extends Persistent {
         lastModified = sfItem.getLastModified();
     }
 
-    public FrostSharedFileItem toFrostSharedFileItem(Logger logger, Language language) {
+    public FrostSharedFileItem toFrostSharedFileItem(final Logger logger, final Language language) {
         boolean fileIsOk = true;
-        File file = new File(filePath);
+        final File file = new File(filePath);
 
         // report modified/missing shared files only if filesharing is enabled
         if( !Core.frostSettings.getBoolValue(SettingsClass.DISABLE_FILESHARING) ) {
             if( !file.isFile() ) {
-                String title = language.getString("StartupMessage.sharedFile.sharedFileNotFound.title");
-                String text = language.formatMessage("StartupMessage.sharedFile.sharedFileNotFound.text", filePath);
-                StartupMessage sm = new StartupMessage(
+                final String title = language.getString("StartupMessage.sharedFile.sharedFileNotFound.title");
+                final String text = language.formatMessage("StartupMessage.sharedFile.sharedFileNotFound.text", filePath);
+                final StartupMessage sm = new StartupMessage(
                         StartupMessage.MessageType.SharedFileNotFound,
                         title,
                         text,
@@ -91,9 +92,9 @@ public class PerstFrostSharedFileItem extends Persistent {
                 logger.severe("Shared file does not exist: "+filePath);
                 fileIsOk = false;
             } else if( file.length() != fileSize ) {
-                String title = language.getString("StartupMessage.sharedFile.sharedFileSizeChanged.title");
-                String text = language.formatMessage("StartupMessage.sharedFile.sharedFileSizeChanged.text", filePath);
-                StartupMessage sm = new StartupMessage(
+                final String title = language.getString("StartupMessage.sharedFile.sharedFileSizeChanged.title");
+                final String text = language.formatMessage("StartupMessage.sharedFile.sharedFileSizeChanged.text", filePath);
+                final StartupMessage sm = new StartupMessage(
                         StartupMessage.MessageType.SharedFileSizeChanged,
                         title,
                         text,
@@ -103,9 +104,9 @@ public class PerstFrostSharedFileItem extends Persistent {
                 logger.severe("Size of shared file changed: "+filePath);
                 fileIsOk = false;
             } else if( file.lastModified() != lastModified ) {
-                String title = language.getString("StartupMessage.sharedFile.sharedFileLastModifiedChanged.title");
-                String text = language.formatMessage("StartupMessage.sharedFile.sharedFileLastModifiedChanged.text", filePath);
-                StartupMessage sm = new StartupMessage(
+                final String title = language.getString("StartupMessage.sharedFile.sharedFileLastModifiedChanged.title");
+                final String text = language.formatMessage("StartupMessage.sharedFile.sharedFileLastModifiedChanged.text", filePath);
+                final StartupMessage sm = new StartupMessage(
                         StartupMessage.MessageType.SharedFileLastModifiedChanged,
                         title,
                         text,
@@ -116,8 +117,16 @@ public class PerstFrostSharedFileItem extends Persistent {
                 fileIsOk = false;
             }
         }
-        
-        FrostSharedFileItem sfItem = new FrostSharedFileItem(
+
+        // check if we share a file with an old CHK key, if yes, remove the key and reset lastUploaded date
+        if( FcpHandler.isFreenet07() && FreenetKeys.isOld07ChkKey(key) ) {
+            // reset key, the change is saved to perst during shutdown
+            key = null;
+            lastUploaded = 0;
+            uploadCount = 0;
+        }
+
+        final FrostSharedFileItem sfItem = new FrostSharedFileItem(
                 file,
                 fileSize,
                 key,

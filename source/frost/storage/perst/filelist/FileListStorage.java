@@ -234,13 +234,24 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
         }
 
         int count = 0;
+        final boolean isFreenet07 = FcpHandler.isFreenet07();
         try {
             final long minVal = System.currentTimeMillis() - (maxDaysOld * 24L * 60L * 60L * 1000L);
             for( final PerstIdentitiesFiles pif : storageRoot.getIdentitiesFiles() ) {
-                for( final Iterator<FrostFileListFileObjectOwner> i = pif.getFilesFromIdentity().iterator(); i
-                        .hasNext(); ) {
+                for( final Iterator<FrostFileListFileObjectOwner> i = pif.getFilesFromIdentity().iterator(); i.hasNext(); ) {
                     final FrostFileListFileObjectOwner o = i.next();
+                    boolean remove = false;
+
                     if( o.getLastReceived() < minVal && o.getKey() == null ) {
+                        // outdated and no key
+                        remove = true;
+                    } else if( isFreenet07 && FreenetKeys.isOld07ChkKey(o.getKey()) ) {
+                        // we have a key (outdated or not)
+                        // check if the key is an old 0.7 CHK key
+                        remove = true;
+                    }
+
+                    if( remove ) {
                         // remove this owner file info from file list object
                         final FrostFileListFileObject fof = o.getFileListFileObject();
                         o.setFileListFileObject(null);
@@ -286,15 +297,17 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
         }
         int count = 0;
         try {
-            for( final Iterator<FrostFileListFileObject> i = storageRoot.getFileListFileObjects().iterator(); i
-                    .hasNext(); ) {
+            for( final Iterator<FrostFileListFileObject> i = storageRoot.getFileListFileObjects().iterator(); i.hasNext(); ) {
                 final FrostFileListFileObject fof = i.next();
-                if( fof.getFrostFileListFileObjectOwnerListSize() == 0 && fof.getKey() == null ) {
+                // no need to check for old aaec keys, their owners have been removed in a previous cleanup step,
+                // and if we still have owners, then we have a new key
+                if( fof.getFrostFileListFileObjectOwnerListSize() == 0
+                        && fof.getKey() == null )
+                {
                     i.remove();
                     fof.deallocate();
                     count++;
-                }
-            }
+                }            }
         } finally {
             endThreadTransaction();
         }
