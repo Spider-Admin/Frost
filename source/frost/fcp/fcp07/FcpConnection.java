@@ -493,7 +493,8 @@ public class FcpConnection {
      * Generates a CHK key for the given File (no upload).
      */
     public String generateCHK(final File file) throws IOException {
-        final FcpResultPut result = putKeyFromFile(FcpHandler.TYPE_FILE, "CHK@", file, true, false, null);
+        // generate chk, use mime type
+        final FcpResultPut result = putKeyFromFile(FcpHandler.TYPE_FILE, "CHK@", file, true, true, null);
         if( result == null || result.isSuccess() == false ) {
             return null;
         } else {

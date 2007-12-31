@@ -164,7 +164,8 @@ public class UploadModel extends SortedModel implements ExitSavable {
 
     /**
      * This method tells items passed as a parameter to generate their chks
-     * (if their current state allows it)
+     * (if their current state allows it).
+     * For shared files no CHK will be generated until we uploaded the file.
      */
     public void generateChkItems(final ModelItem[] items) {
         for( final ModelItem element : items ) {
@@ -174,7 +175,8 @@ public class UploadModel extends SortedModel implements ExitSavable {
             // start gen chk only if IDLE
             if ( (ulItem.getState() == FrostUploadItem.STATE_WAITING
                     || ulItem.getState() == FrostUploadItem.STATE_FAILED)
-                 && ulItem.getKey() == null)
+                 && ulItem.getKey() == null
+                 && !ulItem.isSharedFile() )
             {
                 ulItem.setState(FrostUploadItem.STATE_ENCODING_REQUESTED);
             }
