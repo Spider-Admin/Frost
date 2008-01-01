@@ -46,7 +46,6 @@ import frost.util.*;
 import frost.util.Logging;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
-import frost.util.migration.*;
 
 /**
  * Class hold the more non-gui parts of Frost.
@@ -275,6 +274,7 @@ public class Core implements FrostEventDispatcher  {
      * Initialize, show splashscreen.
      */
     public void initialize() throws Exception {
+
         final Splashscreen splashscreen = new Splashscreen(frostSettings.getBoolValue(SettingsClass.DISABLE_SPLASHSCREEN));
         splashscreen.setVisible(true);
 
@@ -306,33 +306,37 @@ public class Core implements FrostEventDispatcher  {
             showFirstStartupDialog();
         }
 
-        // migrate various tables from McKoi to perst (migrate version 0 -> 1 )
-        if( frostSettings.getIntValue(SettingsClass.MIGRATE_VERSION) < 1 ) {
-            logger.log(Level.SEVERE, "Error: You must update this Frost version from version 19-Jul-2007 !!!");
+        // we must be at migration level 2 (no mckoi)!!!
+        if( frostSettings.getIntValue(SettingsClass.MIGRATE_VERSION) < 2 ) {
+            final String errText = "Error: You must update this Frost version from version 11-Dec-2007 !!!";
+            logger.log(Level.SEVERE, errText);
+            System.out.println(errText);
             System.exit(8);
         }
 
-        // convert from 1 to 2: convert perst storages to UTF-8 format
-        if( frostSettings.getIntValue(SettingsClass.MIGRATE_VERSION) == 1 ) {
-            System.out.println("Starting preventive repair of sfChkKeys.dbs");
-            try {
-                SharedFilesCHKKeyStorage.inst().repairStorage();
-            } catch(final Throwable t) {
-                t.printStackTrace();
-                System.out.println("-->> store/sfChkKeys.dbs is broken, please delete and retry! <<--");
-                System.exit(8);
-            }
+        // FIXME: compact after cleanup?
+        // before opening the storages, maybe compact them
+        final boolean compactTables = frostSettings.getBoolValue(SettingsClass.PERST_COMPACT_STORAGES);
+        try {
+// -> size before / after (per store/overall)
+            if( compactTables ) {
+                splashscreen.setText("Compacting database tables...");
 
-            boolean wasOk = false;
-            wasOk = ConvertStorageToUtf8.convertStorageToUtf8("sfChkKeys");
-            if( wasOk ) {
-                wasOk = ConvertStorageToUtf8.convertStorageToUtf8("filesStore");
+                IndexSlotsStorage.inst().compactStorage();
+                SharedFilesCHKKeyStorage.inst().compactStorage();
+                FrostFilesStorage.inst().compactStorage();
+                MessageStorage.inst().compactStorage();
+                MessageContentStorage.inst().compactStorage();
+//                ArchiveMessageStorage.inst().compactStorage();
+                IdentitiesStorage.inst().compactStorage();
+                FileListStorage.inst().compactStorage();
             }
-            if( !wasOk ) {
-                System.out.println("ERROR during conversion to UTF-8. Restore your Frost backup, provide some more free space on the drive and retry.");
-                System.exit(8);
-            }
+        } catch(final Exception ex) {
+            logger.log(Level.SEVERE, "Error compacting perst storages", ex);
+            ex.printStackTrace();
+            throw ex;
         }
+        frostSettings.setValue(SettingsClass.PERST_COMPACT_STORAGES, false);
 
         // initialize perst storages
         IndexSlotsStorage.inst().initStorage();
@@ -352,17 +356,6 @@ public class Core implements FrostEventDispatcher  {
             CheckHtmlIntegrity chi = new CheckHtmlIntegrity();
             isHelpHtmlSecure = chi.scanZipFile("help/help.zip");
             chi = null;
-        }
-
-        // migrate various tables from McKoi to perst (migrate version 1 -> 2 )
-        Migrate1to2 migrate1to2 = null;
-        if( frostSettings.getIntValue(SettingsClass.MIGRATE_VERSION) == 1 ) {
-            migrate1to2 = new Migrate1to2();
-            splashscreen.setText(language.getString("Migration - Step 1"));
-            if( migrate1to2.runStep1() == false ) {
-                System.out.println("Error during migration step 1!");
-                System.exit(8);
-            }
         }
 
         splashscreen.setText(language.getString("Splashscreen.message.3"));
@@ -391,16 +384,6 @@ public class Core implements FrostEventDispatcher  {
         // Main frame
         mainFrame = new MainFrame(frostSettings, title);
         getBoardsManager().initialize();
-
-        if( migrate1to2 != null ) {
-            splashscreen.setText(language.getString("Migration - Step 2"));
-            if( migrate1to2.runStep2() == false ) {
-                System.out.println("Error during migration step 2!");
-                System.exit(8);
-            }
-            frostSettings.setValue(SettingsClass.MIGRATE_VERSION, 2);
-            frostSettings.exitSave();
-        }
 
         getFileTransferManager().initialize();
         UnsentMessagesManager.initialize();

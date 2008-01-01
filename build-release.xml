@@ -67,7 +67,6 @@
     <pathelement location="${lib.dir}/xml-apis.jar"/>
     <pathelement location="${lib.dir}/xmlParserAPIs.jar"/>
     <pathelement location="${lib.dir}/BCastle.jar"/>
-    <pathelement location="${lib.dir}/mckoidb.jar"/>
     <pathelement location="${lib.dir}/perst15.jar"/>
     <pathelement location="${lib.dir}/joda-time.jar"/>
     <pathelement location="${build.classes.feclib}"/>
@@ -78,7 +77,7 @@
 
   <!--  Specify logfile name -->
   <property name="logfilename" value="build.log"/>
-	
+
 	<!-- ANT SVN environment -->
 	<path id= "svnant.classpath"  >
 	     <fileset dir= "buildsupport/antsvn" >
@@ -268,7 +267,6 @@ Build log  : ${logfilename}</echo>
     <copy todir="${dist.dir}/lib">
         <fileset dir="${lib.dir}">
             <include name="*.jar"/>
-            <exclude name="mckoidb.jar"/>
         </fileset>
     </copy>
 
@@ -368,7 +366,7 @@ Build log  : ${logfilename}</echo>
              destdir="${docs}"
              windowtitle="Frost Documentation"/>
   </target>
-	
+
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- Main target - runs dist by default -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -380,7 +378,7 @@ Build log  : ${logfilename}</echo>
 	  	<format property="NOW.DATE" pattern="dd-MMM-yyyy" locale="en"/>
 		  <format property="NOW.TIME" pattern="HH:mm:ss" locale="en" />
 	  </tstamp>
-  	
+
   	<!-- Retrieve SVN properties (we use: revision.max, modified) -->
     <svn>
        <wcVersion path= "." />

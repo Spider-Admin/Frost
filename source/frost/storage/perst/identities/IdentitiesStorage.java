@@ -33,6 +33,8 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
 
     private static final Logger logger = Logger.getLogger(IdentitiesStorage.class.getName());
 
+    private static final String STORAGE_FILENAME = "identities.dbs";
+
     private IdentitiesStorageRoot storageRoot = null;
 
     private static IdentitiesStorage instance = new IdentitiesStorage();
@@ -46,8 +48,13 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
     }
 
     @Override
+    protected String getStorageFilename() {
+        return STORAGE_FILENAME;
+    }
+
+    @Override
     public boolean initStorage() {
-        final String databaseFilePath = getStorageFilename("identities.dbs"); // path to the database file
+        final String databaseFilePath = buildStoragePath(getStorageFilename()); // path to the database file
         final int pagePoolSize = getPagePoolSize(SettingsClass.PERST_PAGEPOOLSIZE_IDENTITIES);
 
         open(databaseFilePath, pagePoolSize, true, true, false);
@@ -243,7 +250,7 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
 
         System.out.println("Repairing identities.dbs (may take some time!)...");
 
-        final String databaseFilePath = getStorageFilename("identities.dbs"); // path to the database file
+        final String databaseFilePath = buildStoragePath("identities.dbs"); // path to the database file
         final int pagePoolSize = 2*1024*1024;
 
         open(databaseFilePath, pagePoolSize, true, true, false);

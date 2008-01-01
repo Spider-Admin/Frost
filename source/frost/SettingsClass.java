@@ -48,6 +48,8 @@ public class SettingsClass implements ExitSavable {
     public static final String DB_CLEANUP_INTERVAL = "database.cleanup.interval";
     public static final String DB_CLEANUP_LASTRUN = "database.cleanup.lastRun";
 
+    public static final String PERST_COMPACT_STORAGES = "perst.compactStorages";
+
     public static final String MACOS_USE_SCREEN_MENUBAR = "apple.laf.useScreenMenuBar";
 
     public static final String DIR_CONFIG = "config.dir";
@@ -1017,6 +1019,8 @@ public class SettingsClass implements ExitSavable {
         defaults.put(PERST_PAGEPOOLSIZE_MESSAGEARCHIVE,     "1024");
         defaults.put(PERST_PAGEPOOLSIZE_MESSAGES,           "6144");
         defaults.put(PERST_PAGEPOOLSIZE_MESSAGECONTENTS,    "1024");
+
+        defaults.put(PERST_COMPACT_STORAGES,    "false");
 
         settingsHash.putAll(defaults);
     }

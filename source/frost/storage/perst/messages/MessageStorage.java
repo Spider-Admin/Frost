@@ -34,6 +34,8 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
 
     private static transient final Logger logger = Logger.getLogger(MessageStorage.class.getName());
 
+    private static final String STORAGE_FILENAME = "messages.dbs";
+
     public static final int INSERT_OK        = 1;
     public static final int INSERT_DUPLICATE = 2;
     public static final int INSERT_ERROR     = 3;
@@ -54,8 +56,13 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
     }
 
     @Override
+    protected String getStorageFilename() {
+        return STORAGE_FILENAME;
+    }
+
+    @Override
     public boolean initStorage() {
-        final String databaseFilePath = getStorageFilename("messages.dbs"); // path to the database file
+        final String databaseFilePath = buildStoragePath(getStorageFilename()); // path to the database file
         final int pagePoolSize = getPagePoolSize(SettingsClass.PERST_PAGEPOOLSIZE_MESSAGES);
 
         open(databaseFilePath, pagePoolSize, true, true, false);

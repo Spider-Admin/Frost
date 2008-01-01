@@ -67,7 +67,6 @@
     <pathelement location="${lib.dir}/xml-apis.jar"/>
     <pathelement location="${lib.dir}/xmlParserAPIs.jar"/>
     <pathelement location="${lib.dir}/BCastle.jar"/>
-    <pathelement location="${lib.dir}/mckoidb.jar"/>
     <pathelement location="${lib.dir}/perst15.jar"/>
     <pathelement location="${lib.dir}/joda-time.jar"/>
     <pathelement location="${build.classes.feclib}"/>
@@ -250,7 +249,6 @@ Build log  : ${logfilename}</echo>
     <copy todir="${dist.dir}/lib">
         <fileset dir="${lib.dir}">
             <include name="*.jar"/>
-            <exclude name="mckoidb.jar"/>
         </fileset>
     </copy>
 

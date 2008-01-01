@@ -34,6 +34,8 @@ public class IndexSlotsStorage extends AbstractFrostStorage implements ExitSavab
 
     private static final Logger logger = Logger.getLogger(IndexSlotsStorage.class.getName());
 
+    private static final String STORAGE_FILENAME = "gixSlots.dbs";
+
     // boards have positive indexNames (their primkey)
     public static final int FILELISTS = -1;
     public static final int REQUESTS  = -2;
@@ -60,8 +62,13 @@ public class IndexSlotsStorage extends AbstractFrostStorage implements ExitSavab
     }
 
     @Override
+    protected String getStorageFilename() {
+        return STORAGE_FILENAME;
+    }
+
+    @Override
     public boolean initStorage() {
-        final String databaseFilePath = getStorageFilename("gixSlots.dbs"); // path to the database file
+        final String databaseFilePath = buildStoragePath(getStorageFilename()); // path to the database file
         final int pagePoolSize = getPagePoolSize(SettingsClass.PERST_PAGEPOOLSIZE_INDEXSLOTS);
 
         open(databaseFilePath, pagePoolSize, false, true, true);

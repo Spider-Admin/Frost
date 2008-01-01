@@ -33,6 +33,8 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
 
     private FileListStorageRoot storageRoot = null;
 
+    private static final String STORAGE_FILENAME = "filelist.dbs";
+
     private static FileListStorage instance = new FileListStorage();
 
     private boolean rememberSharedFileDownloaded;
@@ -46,11 +48,16 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
     }
 
     @Override
+    protected String getStorageFilename() {
+        return STORAGE_FILENAME;
+    }
+
+    @Override
     public boolean initStorage() {
         rememberSharedFileDownloaded = Core.frostSettings.getBoolValue(SettingsClass.REMEMBER_SHAREDFILE_DOWNLOADED);
         Core.frostSettings.addPropertyChangeListener(SettingsClass.REMEMBER_SHAREDFILE_DOWNLOADED, this);
 
-        final String databaseFilePath = getStorageFilename("filelist.dbs"); // path to the database file
+        final String databaseFilePath = buildStoragePath(getStorageFilename()); // path to the database file
         final int pagePoolSize = getPagePoolSize(SettingsClass.PERST_PAGEPOOLSIZE_FILELIST);
 
         open(databaseFilePath, pagePoolSize, true, true, false);
