@@ -61,7 +61,7 @@ class MiscPanel extends JPanel {
     private final JCheckBox showSystrayIconCheckBox = new JCheckBox();
     private final JCheckBox minimizeToSystrayCheckBox = new JCheckBox();
     private final JCheckBox splashScreenCheckBox = new JCheckBox();
-//    private JCheckBox compactDatabaseAtNextStartupCheckBox = new JCheckBox();
+    private final JCheckBox compactDatabaseAtNextStartupCheckBox = new JCheckBox();
 
     /**
      * @param settings the SettingsClass instance that will be used to get and store the settings of the panel
@@ -139,6 +139,7 @@ class MiscPanel extends JPanel {
         constraints.anchor = GridBagConstraints.WEST;
         constraints.fill = GridBagConstraints.HORIZONTAL;
         final Insets insets5555 = new Insets(5, 5, 5, 5);
+        final Insets insets0555 = new Insets(0, 5, 5, 5);
 
         constraints.weightx = 0;
         constraints.insets = insets5555;
@@ -150,17 +151,18 @@ class MiscPanel extends JPanel {
         constraints.weightx = 1;
         add(availableNodesTextField, constraints);
 
+        constraints.insets = insets0555;
+
         constraints.weightx = 0;
         constraints.gridwidth = 2;
         constraints.gridx = 0;
         constraints.gridy++;
         add(useDDACheckBox, constraints);
 
-        constraints.weightx = 0;
-        constraints.gridwidth = 2;
-        constraints.gridx = 0;
         constraints.gridy++;
         add(usePersistenceCheckBox, constraints);
+
+        constraints.insets = insets5555;
 
         constraints.weightx = 0;
         constraints.gridwidth = 1;
@@ -178,15 +180,18 @@ class MiscPanel extends JPanel {
         constraints.gridy++;
         add(autoSaveLocalIdentitiesCheckBox, constraints);
 
+        constraints.insets = insets0555;
+
         constraints.gridy++;
         add(splashScreenCheckBox, constraints);
         constraints.gridy++;
         add(showSystrayIconCheckBox, constraints);
         constraints.gridy++;
         add(minimizeToSystrayCheckBox, constraints);
-//        constraints.gridy++;
-//        add(compactDatabaseAtNextStartupCheckBox, constraints);
+        constraints.gridy++;
+        add(compactDatabaseAtNextStartupCheckBox, constraints);
 
+        constraints.insets = new Insets(0,5,0,5);
         constraints.gridx = 0;
         constraints.gridy++;
         constraints.gridwidth = 3;
@@ -211,7 +216,7 @@ class MiscPanel extends JPanel {
     private void loadSettings() {
         showSystrayIconCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_SYSTRAY_ICON));
         minimizeToSystrayCheckBox.setSelected(settings.getBoolValue(SettingsClass.MINIMIZE_TO_SYSTRAY));
-//        compactDatabaseAtNextStartupCheckBox.setSelected(settings.getBoolValue(SettingsClass.COMPACT_DBTABLES));
+        compactDatabaseAtNextStartupCheckBox.setSelected(settings.getBoolValue(SettingsClass.PERST_COMPACT_STORAGES));
         availableNodesTextField.setText(settings.getValue(SettingsClass.AVAILABLE_NODES));
         autoSaveIntervalTextField.setText(Integer.toString(settings.getIntValue(SettingsClass.AUTO_SAVE_INTERVAL)));
         autoSaveLocalIdentitiesCheckBox.setSelected(settings.getBoolValue(SettingsClass.AUTO_SAVE_LOCAL_IDENTITIES));
@@ -257,7 +262,7 @@ class MiscPanel extends JPanel {
         splashScreenCheckBox.setText(language.getString("Options.miscellaneous.disableSplashscreen"));
         showSystrayIconCheckBox.setText(language.getString("Options.miscellaneous.showSysTrayIcon"));
         minimizeToSystrayCheckBox.setText(language.getString("Options.miscellaneous.minimizeToSystray"));
-//        compactDatabaseAtNextStartupCheckBox.setText(language.getString("Options.miscellaneous.compactDatabaseAtNextStartup"));
+        compactDatabaseAtNextStartupCheckBox.setText(language.getString("Options.miscellaneous.compactStoragesDuringNextStartup"));
         enableLoggingCheckBox.setText(language.getString("Options.miscellaneous.enableLogging"));
         logLevelLabel.setText(language.getString("Options.miscellaneous.loggingLevel") +
                     " (" + language.getString("Options.miscellaneous.logLevel.low") + ") ");
@@ -279,7 +284,7 @@ class MiscPanel extends JPanel {
         settings.setValue(SettingsClass.AVAILABLE_NODES, availableNodesTextField.getText());
         settings.setValue(SettingsClass.SHOW_SYSTRAY_ICON, showSystrayIconCheckBox.isSelected());
         settings.setValue(SettingsClass.MINIMIZE_TO_SYSTRAY, minimizeToSystrayCheckBox.isSelected());
-//        settings.setValue(SettingsClass.COMPACT_DBTABLES, compactDatabaseAtNextStartupCheckBox.isSelected());
+        settings.setValue(SettingsClass.PERST_COMPACT_STORAGES, compactDatabaseAtNextStartupCheckBox.isSelected());
         settings.setValue(SettingsClass.AUTO_SAVE_INTERVAL, autoSaveIntervalTextField.getText());
         settings.setValue(SettingsClass.AUTO_SAVE_LOCAL_IDENTITIES, autoSaveLocalIdentitiesCheckBox.isSelected());
         settings.setValue(SettingsClass.LOG_TO_FILE, enableLoggingCheckBox.isSelected());
