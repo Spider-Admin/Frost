@@ -48,7 +48,7 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
     }
 
     @Override
-    protected String getStorageFilename() {
+    public String getStorageFilename() {
         return STORAGE_FILENAME;
     }
 

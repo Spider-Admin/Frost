@@ -19,6 +19,7 @@
 package frost;
 
 import java.io.*;
+import java.text.*;
 import java.util.*;
 import java.util.Timer;
 import java.util.logging.*;
@@ -270,6 +271,11 @@ public class Core implements FrostEventDispatcher  {
         }
     }
 
+    private long compactStorage(final Splashscreen splashscreen, final AbstractFrostStorage storage) throws Exception {
+        splashscreen.setText("Compacting storage file '"+storage.getStorageFilename()+"'...");
+        return storage.compactStorage();
+    }
+
     /**
      * Initialize, show splashscreen.
      */
@@ -318,18 +324,19 @@ public class Core implements FrostEventDispatcher  {
         // before opening the storages, maybe compact them
         final boolean compactTables = frostSettings.getBoolValue(SettingsClass.PERST_COMPACT_STORAGES);
         try {
-// -> size before / after (per store/overall)
             if( compactTables ) {
-                splashscreen.setText("Compacting database tables...");
+                long savedBytes = 0;
+                savedBytes += compactStorage(splashscreen, IndexSlotsStorage.inst());
+                savedBytes += compactStorage(splashscreen, FrostFilesStorage.inst());
+                savedBytes += compactStorage(splashscreen, IdentitiesStorage.inst());
+                savedBytes += compactStorage(splashscreen, SharedFilesCHKKeyStorage.inst());
+                savedBytes += compactStorage(splashscreen, MessageStorage.inst());
+                savedBytes += compactStorage(splashscreen, MessageContentStorage.inst());
+                savedBytes += compactStorage(splashscreen, FileListStorage.inst());
+                savedBytes += compactStorage(splashscreen, ArchiveMessageStorage.inst());
 
-                IndexSlotsStorage.inst().compactStorage();
-                SharedFilesCHKKeyStorage.inst().compactStorage();
-                FrostFilesStorage.inst().compactStorage();
-                MessageStorage.inst().compactStorage();
-                MessageContentStorage.inst().compactStorage();
-//                ArchiveMessageStorage.inst().compactStorage();
-                IdentitiesStorage.inst().compactStorage();
-                FileListStorage.inst().compactStorage();
+                final NumberFormat nf = NumberFormat.getInstance();
+                logger.warning("Finished compact of storages, released "+nf.format(savedBytes)+" bytes.");
             }
         } catch(final Exception ex) {
             logger.log(Level.SEVERE, "Error compacting perst storages", ex);

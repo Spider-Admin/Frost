@@ -56,7 +56,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
     }
 
     @Override
-    protected String getStorageFilename() {
+    public String getStorageFilename() {
         return STORAGE_FILENAME;
     }
 

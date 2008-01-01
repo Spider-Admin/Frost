@@ -19,6 +19,8 @@
 package frost.storage.perst;
 
 import java.io.*;
+import java.text.*;
+import java.util.logging.*;
 
 import org.garret.perst.*;
 
@@ -26,11 +28,13 @@ import frost.*;
 
 public abstract class AbstractFrostStorage {
 
+    private static final Logger logger = Logger.getLogger(AbstractFrostStorage.class.getName());
+
     private Storage storage = null;
 
     protected AbstractFrostStorage() {}
 
-    protected abstract String getStorageFilename();
+    public abstract String getStorageFilename();
 
     public abstract boolean initStorage();
 
@@ -58,23 +62,60 @@ public abstract class AbstractFrostStorage {
         storage.open(databaseFilePath, pagePoolSize);
     }
 
-    public void compactStorage() throws Exception {
-        // FIXME: infos?
-        // FIXME: handle errors
+    public long compactStorage() throws Exception {
         final File storageFile = new File( buildStoragePath(getStorageFilename()) );
         final File bakFile = new File( buildStoragePath(getStorageFilename()+".bak") );
         final File oldFile = new File( buildStoragePath(getStorageFilename()+".old") );
 
+        logger.warning("Compacting storage file '"+getStorageFilename()+"'...");
+
+        final long beforeStorageSize = storageFile.length();
+
+        // open storage
         initStorage();
 
-        final BufferedOutputStream bakStream = new BufferedOutputStream(new FileOutputStream(bakFile));
-        getStorage().backup(bakStream);
-        bakStream.close();
+        // backup storage contents (=compact)
+        BufferedOutputStream bakStream = null;
+        try {
+            bakStream = new BufferedOutputStream(new FileOutputStream(bakFile));
+            getStorage().backup(bakStream);
+            bakStream.close();
+        } catch(final Exception t) {
+            // error occured, delete bakFile
+            if( bakStream != null ) {
+                try { bakStream.close(); } catch(final Exception t2) {}
+            }
+            bakFile.delete();
+            throw t;
+        }
 
+        // close storage
         close();
 
-        storageFile.renameTo(oldFile);
-        bakFile.renameTo(storageFile);
+        // make backup version to current version, delete old storage
+        if( !storageFile.renameTo(oldFile) ) {
+            throw new Exception("Failed to rename '"+storageFile.getPath()+"' into '"+oldFile.getPath()+"'!");
+        }
+        if( !bakFile.renameTo(storageFile) ) {
+            // try to rename original storage back
+            if( !oldFile.renameTo(storageFile) ) {
+                throw new Exception("URGENT: Failed to rename '"+oldFile.getPath()+"' back into '"+storageFile.getPath()+"'!");
+            } else {
+                throw new Exception("Failed to rename '"+bakFile.getPath()+"' into '"+storageFile.getPath()+"'!");
+            }
+        }
+
+        final long afterStorageSize = storageFile.length();
+
+        // all went well, delete old file
+        oldFile.delete();
+
+        final long savedBytes = beforeStorageSize - afterStorageSize;
+
+        final NumberFormat nf = NumberFormat.getInstance();
+        logger.warning("Finished compacting storage file "+getStorageFilename()+", released "+nf.format(savedBytes)+" bytes.");
+
+        return savedBytes;
     }
 
     protected Storage getStorage() {
