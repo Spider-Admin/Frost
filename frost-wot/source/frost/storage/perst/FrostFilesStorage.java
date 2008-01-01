@@ -41,6 +41,8 @@ public class FrostFilesStorage extends AbstractFrostStorage implements ExitSavab
 
     private static final Logger logger = Logger.getLogger(FrostFilesStorage.class.getName());
 
+    private static final String STORAGE_FILENAME = "filesStore.dbs";
+
     private FrostFilesStorageRoot storageRoot = null;
 
     private static FrostFilesStorage instance = new FrostFilesStorage();
@@ -54,8 +56,13 @@ public class FrostFilesStorage extends AbstractFrostStorage implements ExitSavab
     }
 
     @Override
+    protected String getStorageFilename() {
+        return STORAGE_FILENAME;
+    }
+
+    @Override
     public boolean initStorage() {
-        final String databaseFilePath = getStorageFilename("filesStore.dbs"); // path to the database file
+        final String databaseFilePath = buildStoragePath(getStorageFilename()); // path to the database file
         final int pagePoolSize = getPagePoolSize(SettingsClass.PERST_PAGEPOOLSIZE_FILES);
 
         open(databaseFilePath, pagePoolSize, true, true, false);

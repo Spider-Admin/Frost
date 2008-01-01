@@ -27,6 +27,8 @@ public class MessageContentStorage extends AbstractFrostStorage implements ExitS
 
     private MessageContentStorageRoot storageRoot = null;
 
+    private static final String STORAGE_FILENAME = "messagesContents.dbs";
+
     private static MessageContentStorage instance = new MessageContentStorage();
 
     protected MessageContentStorage() {
@@ -38,8 +40,13 @@ public class MessageContentStorage extends AbstractFrostStorage implements ExitS
     }
 
     @Override
+    protected String getStorageFilename() {
+        return STORAGE_FILENAME;
+    }
+
+    @Override
     public boolean initStorage() {
-        final String databaseFilePath = getStorageFilename("messagesContents.dbs"); // path to the database file
+        final String databaseFilePath = buildStoragePath(getStorageFilename()); // path to the database file
         final int pagePoolSize = getPagePoolSize(SettingsClass.PERST_PAGEPOOLSIZE_MESSAGECONTENTS);
 
         open(databaseFilePath, pagePoolSize, true, false, false);

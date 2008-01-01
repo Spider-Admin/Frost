@@ -30,6 +30,8 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
 
     private SharedFilesCHKKeyStorageRoot storageRoot = null;
 
+    private static final String STORAGE_FILENAME = "sfChkKeys.dbs";
+
     private static SharedFilesCHKKeyStorage instance = new SharedFilesCHKKeyStorage();
 
     protected SharedFilesCHKKeyStorage() {
@@ -63,8 +65,13 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
     }
 
     @Override
+    protected String getStorageFilename() {
+        return STORAGE_FILENAME;
+    }
+
+    @Override
     public boolean initStorage() {
-        final String databaseFilePath = getStorageFilename("sfChkKeys.dbs"); // path to the database file
+        final String databaseFilePath = buildStoragePath(getStorageFilename()); // path to the database file
         final int pagePoolSize = getPagePoolSize(SettingsClass.PERST_PAGEPOOLSIZE_SHAREDFILESCHKKEYS);
 
         open(databaseFilePath, pagePoolSize, true, true, false);
@@ -79,65 +86,6 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
             commit(); // commit transaction
         }
         return true;
-    }
-
-    public void repairStorage() {
-
-        System.out.println("Repairing sfChkKeys.dbs (may take some time!)...");
-
-        final String databaseFilePath = getStorageFilename("sfChkKeys.dbs"); // path to the database file
-        final int pagePoolSize = 2*1024*1024;
-
-        open(databaseFilePath, pagePoolSize, false, true, false);
-
-        storageRoot = (SharedFilesCHKKeyStorageRoot)getStorage().getRoot();
-        if (storageRoot == null) {
-            // Storage was not initialized yet
-            System.out.println("No sfChkKeys.dbs found");
-            return;
-        }
-
-        int brokenEntries = 0;
-        int validEntries = 0;
-
-        final List<SharedFilesCHKKey> lst = new ArrayList<SharedFilesCHKKey>();
-
-        final int progressSteps = storageRoot.chkKeys.size() / 75; // all 'progressSteps' entries print one dot
-        int progress = progressSteps;
-
-        for( int x=0; x < storageRoot.chkKeys.size(); x++ ) {
-            if( x > progress ) {
-                System.out.print('.');
-                progress += progressSteps;
-            }
-            SharedFilesCHKKey sfk;
-            try {
-                sfk = storageRoot.chkKeys.getAt(x);
-            } catch(final Throwable t) {
-                brokenEntries++;
-                continue;
-            }
-            if( sfk == null ) {
-                brokenEntries++;
-                continue;
-            }
-            validEntries++;
-            lst.add(sfk);
-        }
-
-        storageRoot.chkKeys.clear();
-        commit();
-
-        for( final SharedFilesCHKKey sfk : lst ) {
-            storageRoot.chkKeys.put(sfk.getChkKey(), sfk);
-        }
-        commit();
-
-        close();
-        storageRoot = null;
-
-        System.out.println();
-        System.out.println("Repair finished, brokenEntries="+brokenEntries+"; validEntries="+validEntries);
     }
 
     ////////////////////////////////////////////////////////////

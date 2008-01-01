@@ -18,6 +18,8 @@
 */
 package frost.storage.perst;
 
+import java.io.*;
+
 import org.garret.perst.*;
 
 import frost.*;
@@ -27,6 +29,8 @@ public abstract class AbstractFrostStorage {
     private Storage storage = null;
 
     protected AbstractFrostStorage() {}
+
+    protected abstract String getStorageFilename();
 
     public abstract boolean initStorage();
 
@@ -52,6 +56,25 @@ public abstract class AbstractFrostStorage {
             storage.setProperty("perst.serialize.transient.objects", Boolean.TRUE);
         }
         storage.open(databaseFilePath, pagePoolSize);
+    }
+
+    public void compactStorage() throws Exception {
+        // FIXME: infos?
+        // FIXME: handle errors
+        final File storageFile = new File( buildStoragePath(getStorageFilename()) );
+        final File bakFile = new File( buildStoragePath(getStorageFilename()+".bak") );
+        final File oldFile = new File( buildStoragePath(getStorageFilename()+".old") );
+
+        initStorage();
+
+        final BufferedOutputStream bakStream = new BufferedOutputStream(new FileOutputStream(bakFile));
+        getStorage().backup(bakStream);
+        bakStream.close();
+
+        close();
+
+        storageFile.renameTo(oldFile);
+        bakFile.renameTo(storageFile);
     }
 
     protected Storage getStorage() {
@@ -130,7 +153,7 @@ public abstract class AbstractFrostStorage {
     /**
      * Gets the provided filename and constructs the final filename (preceedes filename with store directory).
      */
-    protected String getStorageFilename(final String filename) {
+    protected String buildStoragePath(final String filename) {
         final String storeDir = Core.frostSettings.getValue(SettingsClass.DIR_STORE);
         return storeDir + filename; // path to the database file
     }

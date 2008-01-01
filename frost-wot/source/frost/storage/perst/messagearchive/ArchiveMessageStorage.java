@@ -33,6 +33,8 @@ public class ArchiveMessageStorage extends AbstractFrostStorage implements ExitS
 
     private static final Logger logger = Logger.getLogger(ArchiveMessageStorage.class.getName());
 
+    private static final String STORAGE_FILENAME = "messageArchive.dbs";
+
     public static final int INSERT_OK        = 1;
     public static final int INSERT_DUPLICATE = 2;
     public static final int INSERT_ERROR     = 3;
@@ -50,8 +52,13 @@ public class ArchiveMessageStorage extends AbstractFrostStorage implements ExitS
     }
 
     @Override
+    protected String getStorageFilename() {
+        return STORAGE_FILENAME;
+    }
+
+    @Override
     public boolean initStorage() {
-        final String databaseFilePath = getStorageFilename("messageArchive.dbs"); // path to the database file
+        final String databaseFilePath = buildStoragePath(getStorageFilename()); // path to the database file
         final int pagePoolSize = getPagePoolSize(SettingsClass.PERST_PAGEPOOLSIZE_MESSAGEARCHIVE);
 
         open(databaseFilePath, pagePoolSize, true, false, false);
