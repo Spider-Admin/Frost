@@ -52,7 +52,7 @@ public class ArchiveMessageStorage extends AbstractFrostStorage implements ExitS
     }
 
     @Override
-    protected String getStorageFilename() {
+    public String getStorageFilename() {
         return STORAGE_FILENAME;
     }
 

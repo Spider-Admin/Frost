@@ -40,7 +40,7 @@ public class MessageContentStorage extends AbstractFrostStorage implements ExitS
     }
 
     @Override
-    protected String getStorageFilename() {
+    public String getStorageFilename() {
         return STORAGE_FILENAME;
     }
 

@@ -1,3 +1,3 @@
-Class-Path: lib/fecImpl.jar lib/genChkImpl.jar lib/xercesImpl.jar lib/xml-apis.jar lib/BCastle.jar lib/fec-native.jar lib/datechooser.jar lib/mckoidb.jar lib/perst15.jar lib/gnu-regexp-1.1.4.jar lib/joda-time.jar . frost.jar
+Class-Path: lib/fecImpl.jar lib/genChkImpl.jar lib/xercesImpl.jar lib/xml-apis.jar lib/BCastle.jar lib/fec-native.jar lib/datechooser.jar lib/perst15.jar lib/gnu-regexp-1.1.4.jar lib/joda-time.jar . frost.jar
 Main-Class: frost.Frost
 Specification-Version: @VERSION_FROM_ANT@

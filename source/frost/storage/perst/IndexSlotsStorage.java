@@ -62,7 +62,7 @@ public class IndexSlotsStorage extends AbstractFrostStorage implements ExitSavab
     }
 
     @Override
-    protected String getStorageFilename() {
+    public String getStorageFilename() {
         return STORAGE_FILENAME;
     }
 

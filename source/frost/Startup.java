@@ -38,6 +38,12 @@ public class Startup {
         checkDirectories(settings);
         copyFiles();
         cleanTempDir(settings);
+
+        // remove mckoidb.jar
+        final File oldJarFile = new File("lib/mckoidb.jar");
+        if( oldJarFile.isFile() ) {
+            oldJarFile.delete();
+        }
     }
 
     // Copy some files from the jar file, if they don't exist

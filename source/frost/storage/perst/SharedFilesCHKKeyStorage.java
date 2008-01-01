@@ -65,7 +65,7 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
     }
 
     @Override
-    protected String getStorageFilename() {
+    public String getStorageFilename() {
         return STORAGE_FILENAME;
     }
 
