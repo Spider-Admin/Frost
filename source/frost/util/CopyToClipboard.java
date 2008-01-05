@@ -21,6 +21,7 @@ package frost.util;
 import java.awt.*;
 import java.awt.datatransfer.*;
 
+import frost.fcp.*;
 import frost.util.gui.translation.*;
 
 public class CopyToClipboard {
@@ -96,7 +97,15 @@ public class CopyToClipboard {
                 key = keyNotAvailableMessage;
             } else {
                 // always use key+filename, also on 0.5. wait for user feedback :)
-                key = new StringBuffer().append(key).append("/").append(item.getFilename()).toString();
+                if( FcpHandler.isFreenet05() ) {
+                    key = new StringBuffer().append(key).append("/").append(item.getFilename()).toString();
+                } else {
+                    // 0.7: append filename if key doesn't contain a / ; otherwise keep key as is
+                    if( key.indexOf("/") < 0 ) {
+                        // append filename
+                        key = new StringBuffer().append(key).append("/").append(item.getFilename()).toString();
+                    }
+                }
             }
             String fs;
             if( item.getFileSize() < 0 ) {
