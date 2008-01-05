@@ -77,10 +77,7 @@ public class SharedFilesModel extends SortedModel implements ExitSavable {
                     final File file = itemToAdd.getFile();
                     item.setLastModified(file.lastModified());
                     item.setFile(file);
-
-                    // notify list upload thread that user changed something (file name may have changed)
-                    FileListUploadThread.getInstance().userActionOccured();
-
+                    item.setValid(true);
                     return true;
                 }
             }

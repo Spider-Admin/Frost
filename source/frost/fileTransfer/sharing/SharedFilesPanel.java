@@ -369,8 +369,6 @@ public class SharedFilesPanel extends JPanel {
         private final JMenuItem removeSelectedFilesItem = new JMenuItem();
         private final JMenuItem propertiesItem = new JMenuItem();
 
-        private final JMenuItem setPathItem = new JMenuItem();
-
         private final JMenu copyToClipboardMenu = new JMenu();
 
         public PopupMenu() {
@@ -393,7 +391,6 @@ public class SharedFilesPanel extends JPanel {
             removeSelectedFilesItem.addActionListener(this);
             uploadSelectedFilesItem.addActionListener(this);
             propertiesItem.addActionListener(this);
-            setPathItem.addActionListener(this);
         }
 
         private void refreshLanguage() {
@@ -403,7 +400,6 @@ public class SharedFilesPanel extends JPanel {
             copyExtendedInfoItem.setText(language.getString("Common.copyToClipBoard.copyExtendedInfo"));
             uploadSelectedFilesItem.setText(language.getString("SharedFilesPane.fileTable.popupmenu.uploadSelectedFiles"));
             removeSelectedFilesItem.setText(language.getString("SharedFilesPane.fileTable.popupmenu.removeSelectedFiles"));
-            setPathItem.setText(language.getString("SharedFilesPane.fileTable.popupmenu.setPath"));
 
             copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
         }
@@ -427,64 +423,6 @@ public class SharedFilesPanel extends JPanel {
             if( e.getSource() == propertiesItem ) {
                 showProperties();
             }
-            if( e.getSource() == setPathItem ) {
-                setPath();
-            }
-        }
-
-        private void setPath() {
-
-            final ModelItem[] selectedItems = modelTable.getSelectedItems();
-            if( selectedItems.length != 1 ) {
-                return;
-            }
-
-            final FrostSharedFileItem sfItem = (FrostSharedFileItem) selectedItems[0];
-
-            final JFileChooser fc = new JFileChooser(Core.frostSettings.getValue(SettingsClass.DIR_LAST_USED));
-            fc.setDialogTitle(language.getString("SharedFilesPane.filechooser.title"));
-            fc.setFileHidingEnabled(true);
-            fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-            fc.setMultiSelectionEnabled(false);
-            fc.setPreferredSize(new Dimension(600, 400));
-            fc.setAcceptAllFileFilterUsed(false);
-            final javax.swing.filechooser.FileFilter ff = new javax.swing.filechooser.FileFilter() {
-                @Override
-                public boolean accept(File f) {
-                    if( f.isDirectory() || f.getName().equals(sfItem.getFile().getName()) ) {
-                        return true;
-                    } else {
-                        return false;
-                    }
-                }
-                @Override
-                public String getDescription() {
-                    return sfItem.getFile().getName();
-                }
-            };
-            fc.addChoosableFileFilter(ff);
-
-            if (fc.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
-                return;
-            }
-            final File selectedFile = fc.getSelectedFile();
-            if( selectedFile == null ) {
-                return;
-            }
-
-            // check if size matches
-            if( sfItem.getFileSize() != selectedFile.length() ) {
-                JOptionPane.showMessageDialog(
-                        MainFrame.getInstance(),
-                        language.getString("SharedFilesPane.sizeChangedErrorDialog.text"),
-                        language.getString("SharedFilesPane.sizeChangedErrorDialog.title"),
-                        JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            sfItem.setLastModified(selectedFile.lastModified());
-            sfItem.setFile(selectedFile);
-            sfItem.setValid(true);
         }
 
         /**
@@ -506,17 +444,6 @@ public class SharedFilesPanel extends JPanel {
             final ModelItem[] selectedItems = modelTable.getSelectedItems();
 
             if( selectedItems.length == 0 ) {
-                return;
-            }
-
-            // check if the one invalid selected item is selected, allow removal and set path
-            if( selectedItems.length == 1
-                    && ! ((FrostSharedFileItem) selectedItems[0]).isValid() )
-            {
-                add(setPathItem);
-                addSeparator();
-                add(removeSelectedFilesItem);
-                super.show(invoker, x, y);
                 return;
             }
 
