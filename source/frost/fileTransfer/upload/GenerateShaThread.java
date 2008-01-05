@@ -37,20 +37,21 @@ public class GenerateShaThread extends Thread {
 
     private static final int wait1minute = 1 * 60 * 1000;
     FileQueue fileQueue;
-    
+
     public GenerateShaThread() {
         fileQueue = new FileQueue();
     }
-    
-    public void addToFileQueue(NewUploadFile f) {
+
+    public void addToFileQueue(final NewUploadFile f) {
         // awakes thread
         fileQueue.appendFileToQueue(f);
     }
-    
+
     public int getQueueSize() {
         return fileQueue.getQueueSize();
     }
-    
+
+    @Override
     public void run() {
 
         final int maxAllowedExceptions = 5;
@@ -59,71 +60,71 @@ public class GenerateShaThread extends Thread {
         while(true) {
             try {
                 // if now work is in queue this call waits for a new queueitem
-                NewUploadFile newUploadFile = fileQueue.getFileFromQueue();
-                
+                final NewUploadFile newUploadFile = fileQueue.getFileFromQueue();
+
                 if( newUploadFile == null ) {
                     // paranoia
                     Mixed.wait(wait1minute);
                     continue;
                 }
-                
-                File newFile = new File(newUploadFile.getFilePath());
-                
-                String sha = Core.getCrypto().computeChecksumSHA256(newFile);
-                
+
+                final File newFile = new File(newUploadFile.getFilePath());
+
+                final String sha = Core.getCrypto().computeChecksumSHA256(newFile);
+
                 if( sha != null ) {
-                    
+
                     // create new item
-                    FrostSharedFileItem sfi = new FrostSharedFileItem(
+                    final FrostSharedFileItem sfi = new FrostSharedFileItem(
                             newFile,
                             newUploadFile.getFrom(),
                             sha);
-                    
+
                     // add to shared files
-                    FileTransferManager.inst().getSharedFilesManager().getModel().addNewSharedFile(sfi);
-                    
+                    FileTransferManager.inst().getSharedFilesManager().getModel().addNewSharedFile(sfi, newUploadFile.isReplacePathIfFileExists());
+
                     // delete from newuploadfiles database
                     Core.getInstance().getFileTransferManager().getNewUploadFilesManager().deleteNewUploadFile(newUploadFile);
                 }
-                
-            } catch(Throwable t) {
+
+            } catch(final Throwable t) {
                 logger.log(Level.SEVERE, "Exception catched",t);
                 occuredExceptions++;
             }
-            
+
             if( occuredExceptions > maxAllowedExceptions ) {
                 logger.log(Level.SEVERE, "Stopping GenerateShaThread because of too much exceptions");
                 break;
             }
         }
     }
-    
+
     private class FileQueue {
-        
-        private LinkedList<NewUploadFile> queue = new LinkedList<NewUploadFile>();
-        
+
+        private final LinkedList<NewUploadFile> queue = new LinkedList<NewUploadFile>();
+
         public synchronized NewUploadFile getFileFromQueue() {
             try {
                 // let dequeueing threads wait for work
                 while( queue.isEmpty() ) {
                     wait();
                 }
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException e) {
                 return null; // waiting abandoned
             }
-            
+
             if( queue.isEmpty() == false ) {
-                NewUploadFile key = queue.removeFirst();
+                final NewUploadFile key = queue.removeFirst();
                 return key;
             }
             return null;
         }
 
-        public synchronized void appendFileToQueue(NewUploadFile f) {
+        public synchronized void appendFileToQueue(final NewUploadFile f) {
             queue.addLast(f);
             notifyAll(); // notify all waiters (if any) of new record
         }
-        
+
         public synchronized int getQueueSize() {
             return queue.size();
         }

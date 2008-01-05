@@ -29,7 +29,7 @@ import frost.messages.*;
  * Listeners for thread started and thread finished are provided.
  */
 public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
-    
+
     // listeners are notified of each finished thread
     Hashtable<String,Vector> threadListenersForBoard = null; // contains all listeners registered for 1 board
     Vector<BoardUpdateThreadListener> threadListenersForAllBoards = null; // contains all listeners for all boards
@@ -50,11 +50,11 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
      * before starting a thread you should check if it is'nt updating already.
      */
     public boolean startMessageDownloadToday(
-        Board board,
-        SettingsClass config,
-        BoardUpdateThreadListener listener) {
+        final Board board,
+        final SettingsClass config,
+        final BoardUpdateThreadListener listener) {
 
-        MessageThread tofd = new MessageThread(
+        final MessageThread tofd = new MessageThread(
                 true,
                 board,
                 board.getMaxMessageDownload());
@@ -77,10 +77,10 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
      * before starting a thread you should check if it is'nt updating already.
      */
     public boolean startMessageDownloadBack(
-        Board board,
-        SettingsClass config,
-        BoardUpdateThreadListener listener,
-        boolean downloadCompleteBackload) 
+        final Board board,
+        final SettingsClass config,
+        final BoardUpdateThreadListener listener,
+        final boolean downloadCompleteBackload)
     {
         int daysBackward;
         if( downloadCompleteBackload ) {
@@ -88,8 +88,8 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
         } else {
             daysBackward = 1;
         }
-        
-        MessageThread backload = new MessageThread(
+
+        final MessageThread backload = new MessageThread(
                 false,
                 board,
                 daysBackward);
@@ -112,10 +112,10 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
      * Gets an Vector from a Hashtable with given key. If key is not contained
      * in Hashtable, an empty Vector will be created and put in the Hashtable.
      */
-    private Vector getVectorFromHashtable(Hashtable<String,Vector> t, Board key) {
+    private Vector getVectorFromHashtable(final Hashtable<String,Vector> t, final Board key) {
         Vector retval = null;
         synchronized( t ) {
-            retval = (Vector) t.get(key.getName());
+            retval = t.get(key.getName());
             if( retval == null ) {
                 retval = new Vector();
                 t.put(key.getName(), retval);
@@ -127,7 +127,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
     /**
      * Returns the list of current download threads for a given board. Returns an empty list of no thread is running.
      */
-    public Vector getDownloadThreadsForBoard(Board board) {
+    public Vector getDownloadThreadsForBoard(final Board board) {
         return getVectorFromHashtable( runningDownloadThreads, board );
     }
 
@@ -135,7 +135,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
      * Adds a listener that gets notified if any thread for a given board did update its state.
      * For supported states see BoardUpdateThreadListener methods.
      */
-    public void addBoardUpdateThreadListener(Board board, BoardUpdateThreadListener listener) {
+    public void addBoardUpdateThreadListener(final Board board, final BoardUpdateThreadListener listener) {
         getVectorFromHashtable(threadListenersForBoard, board).remove(listener); // no doubles allowed
         getVectorFromHashtable(threadListenersForBoard, board).add(listener);
     }
@@ -144,7 +144,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
      * Adds a listener that gets notified if any thread for any board did update its state.
      * For supported states see BoardUpdateThreadListener methods.
      */
-    public void addBoardUpdateThreadListener(BoardUpdateThreadListener listener) {
+    public void addBoardUpdateThreadListener(final BoardUpdateThreadListener listener) {
         threadListenersForAllBoards.remove( listener ); // no doubles allowed
         threadListenersForAllBoards.add( listener );
     }
@@ -153,7 +153,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
      * For supported states see BoardUpdateThreadListener methods.
      * Method will do nothing if listener is null or not contained in the list of listeners.
      */
-    public void removeBoardUpdateThreadListener(Board board, BoardUpdateThreadListener listener) {
+    public void removeBoardUpdateThreadListener(final Board board, final BoardUpdateThreadListener listener) {
         getVectorFromHashtable(threadListenersForBoard, board).remove(listener);
     }
 
@@ -162,7 +162,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
      * For supported states see BoardUpdateThreadListener methods.
      * Method will do nothing if listener is null or not contained in the list of listeners.
      */
-    public void removeBoardUpdateThreadListener(BoardUpdateThreadListener listener) {
+    public void removeBoardUpdateThreadListener(final BoardUpdateThreadListener listener) {
         threadListenersForAllBoards.remove( listener );
     }
 
@@ -171,7 +171,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
      * Notifies all interested listeners for change of the thread state.
      * @see frost.threads.BoardUpdateThreadListener#boardUpdateThreadFinished(frost.threads.BoardUpdateThread)
      */
-    public void boardUpdateThreadFinished(BoardUpdateThread thread) {
+    public void boardUpdateThreadFinished(final BoardUpdateThread thread) {
         // remove from thread list
         Vector threads;
         threads = getVectorFromHashtable(runningDownloadThreads, thread.getTargetBoard());
@@ -197,15 +197,15 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
      * Implementing the listener for thread started. Notifies all interested listeners for change of the thread state.
      * @see frost.threads.BoardUpdateThreadListener#boardUpdateThreadStarted(frost.threads.BoardUpdateThread)
      */
-    public void boardUpdateThreadStarted(BoardUpdateThread thread) {
+    public void boardUpdateThreadStarted(final BoardUpdateThread thread) {
         synchronized( threadListenersForAllBoards ) {
-            Iterator i = threadListenersForAllBoards.iterator();
+            Iterator<BoardUpdateThreadListener> i = threadListenersForAllBoards.iterator();
             while( i.hasNext() ) {
-                ((BoardUpdateThreadListener) i.next()).boardUpdateThreadStarted(thread);
+                (i.next()).boardUpdateThreadStarted(thread);
             }
             i = getVectorFromHashtable(threadListenersForBoard, thread.getTargetBoard()).iterator();
             while( i.hasNext() ) {
-                ((BoardUpdateThreadListener) i.next()).boardUpdateThreadStarted(thread);
+                (i.next()).boardUpdateThreadStarted(thread);
             }
         }
     }
@@ -217,11 +217,11 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
         int downloadingThreads = 0;
 
         synchronized( runningDownloadThreads ) {
-            Iterator i = runningDownloadThreads.values().iterator();
+            final Iterator i = runningDownloadThreads.values().iterator();
             while( i.hasNext() ) {
-                Object o = i.next();
+                final Object o = i.next();
                 if( o instanceof Vector ) {
-                    Vector v = (Vector) o;
+                    final Vector v = (Vector) o;
                     if( v.size() > 0 ) {
                         downloadingThreads += v.size();
                     }
@@ -238,11 +238,11 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
         int downloadingBoards = 0;
 
         synchronized( runningDownloadThreads ) {
-            Iterator i = runningDownloadThreads.values().iterator();
+            final Iterator i = runningDownloadThreads.values().iterator();
             while( i.hasNext() ) {
-                Object o = i.next();
+                final Object o = i.next();
                 if( o instanceof Vector ) {
-                    Vector v = (Vector) o;
+                    final Vector v = (Vector) o;
                     if( v.size() > 0 ) {
                         downloadingBoards++;
                     }
@@ -251,32 +251,32 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
         }
         return downloadingBoards;
     }
-    
+
     /**
      * Returns all information together, faster than calling all single methods.
-     * 
+     *
      * @return a new information class containing status informations
      * @see RunningMessageThreadsInformation
      */
     public RunningMessageThreadsInformation getRunningMessageThreadsInformation() {
-        
-        RunningMessageThreadsInformation info = new RunningMessageThreadsInformation();
 
-        int uploadingMessages = UnsentMessagesManager.getRunningMessageUploads();
+        final RunningMessageThreadsInformation info = new RunningMessageThreadsInformation();
+
+        final int uploadingMessages = UnsentMessagesManager.getRunningMessageUploads();
         info.setUploadingMessageCount(uploadingMessages);
         // the manager count uploading messages as unsent, we show Uploading/Waiting in statusbar,
         // hence we decrease the unsent by uploading messages
         info.setUnsentMessageCount(UnsentMessagesManager.getUnsentMessageCount() - uploadingMessages);
-        
+
         info.addToAttachmentsToUploadRemainingCount(FileAttachmentUploadThread.getInstance().getQueueSize());
 
         synchronized( runningDownloadThreads ) {
-            Iterator i = runningDownloadThreads.values().iterator();
+            final Iterator i = runningDownloadThreads.values().iterator();
             while( i.hasNext() ) {
-                Object o = i.next();
+                final Object o = i.next();
                 if( o instanceof Vector ) {
-                    Vector v = (Vector) o;
-                    int vsize = v.size();
+                    final Vector v = (Vector) o;
+                    final int vsize = v.size();
                     if( vsize > 0 ) {
                         info.addToDownloadingBoardCount(1);
                         info.addToRunningDownloadThreadCount(vsize);
@@ -290,20 +290,21 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
     /**
      * Returns true if the given board have running download threads.
      */
-    public boolean isUpdating(Board board) {
+    public boolean isUpdating(final Board board) {
         if( getVectorFromHashtable(runningDownloadThreads, board).size() > 0 ) {
             return true;
         } else {
             return false;
         }
     }
-    
-    public boolean isThreadOfTypeRunning(Board board, int type) {
-        Vector threads = getDownloadThreadsForBoard(board);
+
+    public boolean isThreadOfTypeRunning(final Board board, final int type) {
+        final Vector threads = getDownloadThreadsForBoard(board);
         for( int x = 0; x < threads.size(); x++ ) {
-            BoardUpdateThread thread = (BoardUpdateThread) threads.get(x);
-            if( thread.getThreadType() == type )
+            final BoardUpdateThread thread = (BoardUpdateThread) threads.get(x);
+            if( thread.getThreadType() == type ) {
                 return true;
+            }
         }
         return false;
     }

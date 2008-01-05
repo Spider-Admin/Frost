@@ -32,34 +32,34 @@ import frost.util.model.*;
  * table of current uploads.
  */
 public class FrostSharedFileItem extends ModelItem implements CopyToClipboardItem {
-    
+
     String sha = null;
-    
+
     File file = null;
     long fileSize = 0;
     String key = null;
-    
+
     String owner = null;
     String comment = null;
     int rating = 0;
     String keywords = null;
-    
-    long lastUploaded = 0;  
+
+    long lastUploaded = 0;
     int uploadCount = 0;
 
     long refLastSent = 0;              // last time we sent this file inside a CHK file; set to 0 if item was changed
-    
+
     long requestLastReceived = 0;      // time when we received the last request for this sha
     int requestsReceived = 0;          // received requests count
-    
+
     long lastModified = 0;
-    
+
     boolean isValid = true;
 
     /**
      * Used to add a new file. SHA1 must be created and must not be already in table!
      */
-    public FrostSharedFileItem(File newFile, String newOwner, String newSha) {
+    public FrostSharedFileItem(final File newFile, final String newOwner, final String newSha) {
         file = newFile;
         fileSize = file.length();
         lastModified = newFile.lastModified();
@@ -71,21 +71,21 @@ public class FrostSharedFileItem extends ModelItem implements CopyToClipboardIte
      * Complete constructor used when loading from database table.
      */
     public FrostSharedFileItem(
-            File newFile,
-            long newFilesize,
-            String newKey,
-            String newSha,
-            String newOwner,
-            String newComment,
-            int newRating,
-            String newKeywords,
-            long newLastUploaded,
-            int newUploadCount,
-            long newRefLastSent,
-            long newRequestLastReceived,
-            int newRequestsReceived,
-            long newLastModified,
-            boolean newIsValid)
+            final File newFile,
+            final long newFilesize,
+            final String newKey,
+            final String newSha,
+            final String newOwner,
+            final String newComment,
+            final int newRating,
+            final String newKeywords,
+            final long newLastUploaded,
+            final int newUploadCount,
+            final long newRefLastSent,
+            final long newRequestLastReceived,
+            final int newRequestsReceived,
+            final long newLastModified,
+            final boolean newIsValid)
     {
         sha = newSha;
         file = newFile;
@@ -109,7 +109,7 @@ public class FrostSharedFileItem extends ModelItem implements CopyToClipboardIte
      * Used to send file references in index file.
      */
     public SharedFileXmlFile getSharedFileXmlFileInstance() {
-        SharedFileXmlFile sfxf = new SharedFileXmlFile();
+        final SharedFileXmlFile sfxf = new SharedFileXmlFile();
 
         sfxf.setSha(getSha());
         sfxf.setSize(getFileSize());
@@ -123,16 +123,16 @@ public class FrostSharedFileItem extends ModelItem implements CopyToClipboardIte
         sfxf.setComment(getComment());
         sfxf.setRating(getRating());
         sfxf.setKeywords(getKeywords());
-        
+
         sfxf.ensureValidity();
-        
+
         return sfxf;
     }
 
     public String getComment() {
         return comment;
     }
-    public void setComment(String comment) {
+    public void setComment(final String comment) {
         this.comment = comment;
         fireChange();
         itemWasChanged();
@@ -142,7 +142,7 @@ public class FrostSharedFileItem extends ModelItem implements CopyToClipboardIte
     public String getKeywords() {
         return keywords;
     }
-    public void setKeywords(String keywords) {
+    public void setKeywords(final String keywords) {
         this.keywords = keywords;
         fireChange();
         itemWasChanged();
@@ -152,14 +152,14 @@ public class FrostSharedFileItem extends ModelItem implements CopyToClipboardIte
     public long getRefLastSent() {
         return refLastSent;
     }
-    public void setRefLastSent(long refLastSent) {
+    public void setRefLastSent(final long refLastSent) {
         this.refLastSent = refLastSent;
     }
 
     public long getLastUploaded() {
         return lastUploaded;
     }
-    public void setLastUploaded(long lastUploaded) {
+    public void setLastUploaded(final long lastUploaded) {
         this.lastUploaded = lastUploaded;
         fireChange();
     }
@@ -167,7 +167,7 @@ public class FrostSharedFileItem extends ModelItem implements CopyToClipboardIte
     public String getOwner() {
         return owner;
     }
-    public void setOwner(String owner) {
+    public void setOwner(final String owner) {
         this.owner = owner;
         fireChange();
         itemWasChanged();
@@ -177,7 +177,7 @@ public class FrostSharedFileItem extends ModelItem implements CopyToClipboardIte
     public int getRating() {
         return rating;
     }
-    public void setRating(int rating) {
+    public void setRating(final int rating) {
         this.rating = rating;
         fireChange();
         itemWasChanged();
@@ -187,7 +187,7 @@ public class FrostSharedFileItem extends ModelItem implements CopyToClipboardIte
     public long getRequestLastReceived() {
         return requestLastReceived;
     }
-    public void setRequestLastReceived(long requestLastReceived) {
+    public void setRequestLastReceived(final long requestLastReceived) {
         this.requestLastReceived = requestLastReceived;
         fireChange();
     }
@@ -195,7 +195,7 @@ public class FrostSharedFileItem extends ModelItem implements CopyToClipboardIte
     public int getRequestsReceived() {
         return requestsReceived;
     }
-    public void setRequestsReceived(int requestsReceived) {
+    public void setRequestsReceived(final int requestsReceived) {
         this.requestsReceived = requestsReceived;
         fireChange();
     }
@@ -203,7 +203,7 @@ public class FrostSharedFileItem extends ModelItem implements CopyToClipboardIte
     public int getUploadCount() {
         return uploadCount;
     }
-    public void setUploadCount(int uploadCount) {
+    public void setUploadCount(final int uploadCount) {
         this.uploadCount = uploadCount;
         fireChange();
     }
@@ -211,12 +211,12 @@ public class FrostSharedFileItem extends ModelItem implements CopyToClipboardIte
     public String getSha() {
         return sha;
     }
-    
+
     public void itemWasChanged() {
         // force a send in CHK next time
-        this.refLastSent = 0; 
+        this.refLastSent = 0;
     }
-    
+
     public void userActionOccured() {
         // notify list upload thread that user changed something
         FileListUploadThread.getInstance().userActionOccured();
@@ -226,7 +226,7 @@ public class FrostSharedFileItem extends ModelItem implements CopyToClipboardIte
         return key;
     }
 
-    public void setKey(String chkKey) {
+    public void setKey(final String chkKey) {
         this.key = chkKey;
         itemWasChanged();
     }
@@ -234,11 +234,12 @@ public class FrostSharedFileItem extends ModelItem implements CopyToClipboardIte
     public File getFile() {
         return file;
     }
-    public void setFile(File f) {
+    public void setFile(final File f) {
         // caller ensured that size is the same
         file = f;
+        fireChange();
     }
-    
+
     public String getFilename() {
         return file.getName();
     }
@@ -246,20 +247,20 @@ public class FrostSharedFileItem extends ModelItem implements CopyToClipboardIte
     public long getFileSize() {
         return fileSize;
     }
-    
-    public void notifySuccessfulUpload(String newKey) {
+
+    public void notifySuccessfulUpload(final String newKey) {
         // an upload of this file was successful
         setKey(newKey);
         setLastUploaded(System.currentTimeMillis());
         setUploadCount(getUploadCount() + 1);
-        
+
         itemWasChanged();
     }
-    
+
     public boolean isCurrentlyUploading() {
-        List<FrostUploadItem> uploadItems = FileTransferManager.inst().getUploadManager().getModel().getItems();
-        for( FrostUploadItem ulItem : uploadItems ) {
-            FrostSharedFileItem sfi = ulItem.getSharedFileItem();
+        final List<FrostUploadItem> uploadItems = FileTransferManager.inst().getUploadManager().getModel().getItems();
+        for( final FrostUploadItem ulItem : uploadItems ) {
+            final FrostSharedFileItem sfi = ulItem.getSharedFileItem();
             if( sfi == this ) {
                 // this upload item is for this shared file
                 // the file is only in upload table if it really uploads currently
@@ -273,7 +274,7 @@ public class FrostSharedFileItem extends ModelItem implements CopyToClipboardIte
         return lastModified;
     }
 
-    public void setLastModified(long lastModified) {
+    public void setLastModified(final long lastModified) {
         this.lastModified = lastModified;
     }
 
@@ -281,7 +282,7 @@ public class FrostSharedFileItem extends ModelItem implements CopyToClipboardIte
         return isValid;
     }
 
-    public void setValid(boolean isValid) {
+    public void setValid(final boolean isValid) {
         this.isValid = isValid;
         if( isValid ) {
             fireChange();
@@ -290,7 +291,8 @@ public class FrostSharedFileItem extends ModelItem implements CopyToClipboardIte
             fireChange();
         }
     }
-    
+
+    @Override
     public String toString() {
         return getFilename();
     }

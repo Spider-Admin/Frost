@@ -592,7 +592,6 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                         }
                     }
 //                    dtcr.setToolTipText(msg.getSubject());
-                    setToolTipText(null);
                     setToolTipText(msg.getSubject());
                 }
                 dtcr.setIcon(icon);

@@ -23,26 +23,32 @@ import java.io.*;
 import org.garret.perst.*;
 
 /**
- * Holds the data for a new upload file before SHA is calculated.
+ * Holds the data for a new upload file until SHA is calculated.
  */
 public class NewUploadFile extends Persistent {
-    
+
     protected String filePath;
     protected String from;
+    protected boolean replacePathIfFileExists;
 
     public NewUploadFile() {
     }
 
-    public NewUploadFile(File f, String fromName) {
+    public NewUploadFile(final File f, final String fromName, final boolean replacePath) {
         filePath = f.getPath();
         from = fromName;
+        replacePathIfFileExists = replacePath;
     }
-    
+
     public String getFilePath() {
         return filePath;
     }
-    
+
     public String getFrom() {
         return from;
+    }
+
+    public boolean isReplacePathIfFileExists() {
+        return replacePathIfFileExists;
     }
 }

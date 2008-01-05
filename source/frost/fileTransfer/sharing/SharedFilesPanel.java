@@ -183,9 +183,10 @@ public class SharedFilesPanel extends JPanel {
             return;
         }
         final String owner = dlg.getChoosedIdentityName();
+        final boolean replacePathIfFileExists = dlg.isReplacePathIfFileExists();
 
         // start external thread to check the filelength and add NewUploadFile objects
-        new AddNewSharedFilesThread(selectedFiles, owner).start();
+        new AddNewSharedFilesThread(selectedFiles, owner, replacePathIfFileExists).start();
     }
 
     /**
@@ -194,10 +195,12 @@ public class SharedFilesPanel extends JPanel {
     private class AddNewSharedFilesThread extends Thread {
         private final File[] selectedFiles;
         private final String owner;
-        public AddNewSharedFilesThread(final File[] selectedFiles, final String owner) {
+        private final boolean replacePathIfFileExists;
+        public AddNewSharedFilesThread(final File[] selectedFiles, final String owner, final boolean replacePath) {
             super();
             this.selectedFiles = selectedFiles;
             this.owner = owner;
+            this.replacePathIfFileExists = replacePath;
         }
         @Override
         public void run() {
@@ -223,7 +226,7 @@ public class SharedFilesPanel extends JPanel {
             // create list of NewUploadFile objects
             final List<NewUploadFile> uploadItems = new LinkedList<NewUploadFile>();
             for( final File file : uploadFileItems ) {
-                final NewUploadFile nuf = new NewUploadFile(file, owner);
+                final NewUploadFile nuf = new NewUploadFile(file, owner, replacePathIfFileExists);
                 uploadItems.add(nuf);
             }
 

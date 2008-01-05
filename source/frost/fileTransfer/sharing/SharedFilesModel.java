@@ -18,6 +18,7 @@
 */
 package frost.fileTransfer.sharing;
 
+import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
@@ -62,13 +63,22 @@ public class SharedFilesModel extends SortedModel implements ExitSavable {
      * Will add this item to the model if not already in the model.
      * The new item must only have 1 FrostUploadItemOwnerBoard in its list.
      */
-    public synchronized boolean addNewSharedFile(final FrostSharedFileItem itemToAdd) {
+    public synchronized boolean addNewSharedFile(final FrostSharedFileItem itemToAdd, final boolean replacePathIfFileExists) {
         for (int x = 0; x < getItemCount(); x++) {
             final FrostSharedFileItem item = (FrostSharedFileItem) getItemAt(x);
             // add if file is not shared already
             if( itemToAdd.getSha().equals(item.getSha()) ) {
                 // is already in list
-                return false;
+                if( replacePathIfFileExists == false ) {
+                    // ignore new file
+                    return false;
+                } else {
+                    // renew file path
+                    final File file = itemToAdd.getFile();
+                    item.setLastModified(file.lastModified());
+                    item.setFile(file);
+                    return true;
+                }
             }
         }
         // not in model, add

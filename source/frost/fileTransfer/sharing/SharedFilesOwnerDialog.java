@@ -41,10 +41,17 @@ public class SharedFilesOwnerDialog extends JDialog {
     private JPanel mainPanel = null;
     private JButton Bcancel = null;
     private JButton Bok = null;
-    private JLabel jLabel = null;
+
+    private JLabel LaskForIdentity = null;
     private JComboBox CBidentities = null;
 
+    private JLabel LaskIfToReplace = null;
+    private JRadioButton RBignoreExistingFile = null;
+    private JRadioButton RBreplaceExistingFilePath = null;
+    private ButtonGroup BGaskIfToReplace = null;
+
     private final Frame parent;
+    private boolean replacePathIfFileExists = false;
 
     private final Language language = Language.getInstance();
 
@@ -111,25 +118,64 @@ public class SharedFilesOwnerDialog extends JDialog {
      */
     private JPanel getMainPanel() {
         if( mainPanel == null ) {
-            final GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
-            gridBagConstraints11.fill = java.awt.GridBagConstraints.NONE;
-            gridBagConstraints11.gridy = 3;
-            gridBagConstraints11.weightx = 1.0;
-            gridBagConstraints11.insets = new java.awt.Insets(2,20,0,5);
-            gridBagConstraints11.anchor = java.awt.GridBagConstraints.NORTHWEST;
-            gridBagConstraints11.gridx = 0;
-            final GridBagConstraints gridBagConstraints = new GridBagConstraints();
-            gridBagConstraints.gridx = 0;
-            gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-            gridBagConstraints.insets = new java.awt.Insets(5,5,0,5);
-            gridBagConstraints.fill = java.awt.GridBagConstraints.NONE;
-            gridBagConstraints.gridy = 0;
-            jLabel = new JLabel();
-            jLabel.setText(language.getString("SharedFilesOwnerDialog.label") + ":");
+
+            LaskForIdentity = new JLabel(language.getString("SharedFilesOwnerDialog.askForIdentity") + ":");
+            LaskIfToReplace = new JLabel(language.getString("SharedFilesOwnerDialog.askIfToReplace") + ":");
+            RBignoreExistingFile = new JRadioButton(language.getString("SharedFilesOwnerDialog.ignoreNewFile"));
+            RBreplaceExistingFilePath = new JRadioButton(language.getString("SharedFilesOwnerDialog.replaceExistingFilePath"));
+
             mainPanel = new JPanel();
             mainPanel.setLayout(new GridBagLayout());
-            mainPanel.add(jLabel, gridBagConstraints);
-            mainPanel.add(getCBidentities(), gridBagConstraints11);
+            {
+                final GridBagConstraints gridBagConstraints = new GridBagConstraints();
+                gridBagConstraints.gridy = 0;
+                gridBagConstraints.gridx = 0;
+                gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+                gridBagConstraints.insets = new java.awt.Insets(5,5,5,5);
+                gridBagConstraints.fill = java.awt.GridBagConstraints.NONE;
+
+                mainPanel.add(LaskForIdentity, gridBagConstraints);
+            }
+            {
+                final GridBagConstraints gridBagConstraints = new GridBagConstraints();
+                gridBagConstraints.gridx = 0;
+                gridBagConstraints.gridy = 1;
+                gridBagConstraints.weightx = 1.0;
+                gridBagConstraints.insets = new java.awt.Insets(2,20,10,5);
+                gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+                gridBagConstraints.fill = java.awt.GridBagConstraints.NONE;
+
+                mainPanel.add(getCBidentities(), gridBagConstraints);
+            }
+            {
+                final GridBagConstraints gridBagConstraints = new GridBagConstraints();
+                gridBagConstraints.gridx = 0;
+                gridBagConstraints.gridy = 2;
+                gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+                gridBagConstraints.insets = new java.awt.Insets(5,5,5,5);
+                gridBagConstraints.fill = java.awt.GridBagConstraints.NONE;
+
+                mainPanel.add(LaskIfToReplace, gridBagConstraints);
+            }
+            {
+                final GridBagConstraints gridBagConstraints = new GridBagConstraints();
+                gridBagConstraints.gridx = 0;
+                gridBagConstraints.gridy = 3;
+                gridBagConstraints.weightx = 1.0;
+                gridBagConstraints.insets = new java.awt.Insets(2,20,0,5);
+                gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+                gridBagConstraints.fill = java.awt.GridBagConstraints.NONE;
+
+                mainPanel.add(RBignoreExistingFile, gridBagConstraints);
+                gridBagConstraints.gridy = 4;
+                gridBagConstraints.insets = new java.awt.Insets(2,20,10,5);
+                mainPanel.add(RBreplaceExistingFilePath, gridBagConstraints);
+            }
+            BGaskIfToReplace = new ButtonGroup();
+            BGaskIfToReplace.add(RBignoreExistingFile);
+            BGaskIfToReplace.add(RBreplaceExistingFilePath);
+
+            RBignoreExistingFile.setSelected(true);
         }
         return mainPanel;
     }
@@ -164,6 +210,7 @@ public class SharedFilesOwnerDialog extends JDialog {
                 public void actionPerformed(final java.awt.event.ActionEvent e) {
                     returnCode = OK;
                     choosedIdentity = (String)getCBidentities().getSelectedItem();
+                    replacePathIfFileExists = RBreplaceExistingFilePath.isSelected();
                     setVisible(false);
                 }
             });
@@ -198,4 +245,7 @@ public class SharedFilesOwnerDialog extends JDialog {
         return returnCode;
     }
 
+    public boolean isReplacePathIfFileExists() {
+        return replacePathIfFileExists;
+    }
 }  //  @jve:decl-index=0:visual-constraint="19,14"
