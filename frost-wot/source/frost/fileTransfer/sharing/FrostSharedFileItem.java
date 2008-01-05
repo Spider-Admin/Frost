@@ -238,6 +238,8 @@ public class FrostSharedFileItem extends ModelItem implements CopyToClipboardIte
         // caller ensured that size is the same
         file = f;
         fireChange();
+        itemWasChanged();
+        userActionOccured();
     }
 
     public String getFilename() {
