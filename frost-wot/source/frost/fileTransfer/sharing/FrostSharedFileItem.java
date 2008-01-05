@@ -237,9 +237,6 @@ public class FrostSharedFileItem extends ModelItem implements CopyToClipboardIte
     public void setFile(final File f) {
         // caller ensured that size is the same
         file = f;
-        fireChange();
-        itemWasChanged();
-        userActionOccured();
     }
 
     public String getFilename() {
@@ -288,6 +285,7 @@ public class FrostSharedFileItem extends ModelItem implements CopyToClipboardIte
         this.isValid = isValid;
         if( isValid ) {
             fireChange();
+            itemWasChanged();
             userActionOccured();
         } else {
             fireChange();
