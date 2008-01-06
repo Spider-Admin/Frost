@@ -26,7 +26,7 @@ import frost.util.model.*;
 
 public class FrostSearchItem extends ModelItem implements CopyToClipboardItem {
 
-    private FrostFileListFileObject fo;
+    private final FrostFileListFileObject fo;
     private int state;
 
     private Long sizeLong = null;
@@ -38,37 +38,38 @@ public class FrostSearchItem extends ModelItem implements CopyToClipboardItem {
     public static final int STATE_NONE        = 1; // set if a search table item is only in search table
     public static final int STATE_DOWNLOADED  = 2; // set if the item is already downloaded and is found in download folder
     public static final int STATE_DOWNLOADING = 3; // set if file is not already downloaded, but in download table
-    public static final int STATE_UPLOADING   = 4; // set if file is in upload table
+    public static final int STATE_SHARING     = 4; // set if file is shared by us
     public static final int STATE_OFFLINE     = 5; // set if file is offline
 
-    public FrostSearchItem(FrostFileListFileObject newKey) {
+    public FrostSearchItem(final FrostFileListFileObject newKey) {
         fo = newKey;
         updateState();
     }
-    
+
     public void updateState() {
 
         // Already downloaded files get a nice color outfit (see renderer in SearchTable)
 
-        DownloadModel downloadModel = FileTransferManager.inst().getDownloadManager().getModel();
-        SharedFilesModel sharedFilesModel = FileTransferManager.inst().getSharedFilesManager().getModel();
+        final DownloadModel downloadModel = FileTransferManager.inst().getDownloadManager().getModel();
+        final SharedFilesModel sharedFilesModel = FileTransferManager.inst().getSharedFilesManager().getModel();
 
-        int searchItemState = FrostSearchItem.STATE_NONE;
+        final String SHA1 = fo.getSha();
+        final int searchItemState;
 
-        String SHA1 = fo.getSha();
-
-        if (downloadModel.containsItemWithSha(SHA1)) {
-            // this file is in download table -> blue
+        if (sharedFilesModel.containsItemWithSha(SHA1)) {
+            // we share this file
+            searchItemState = FrostSearchItem.STATE_SHARING;
+        } else if (downloadModel.containsItemWithSha(SHA1)) {
+            // we download this file
             searchItemState = FrostSearchItem.STATE_DOWNLOADING;
         } else if ( fo.getLastDownloaded() > 0 ) {
-            // file was downloaded before -> light_gray
+            // we downloaded this file previously
             searchItemState = FrostSearchItem.STATE_DOWNLOADED;
-        } else if (sharedFilesModel.containsItemWithSha(SHA1)) {
-            // this file is in upload table -> green
-            searchItemState = FrostSearchItem.STATE_UPLOADING;
         } else if (fo.getKey() == null) {
-            // this file is offline -> gray
+            // this file is offline
             searchItemState = FrostSearchItem.STATE_OFFLINE;
+        } else {
+            searchItemState = FrostSearchItem.STATE_NONE;
         }
 
         state = searchItemState;
@@ -116,7 +117,7 @@ public class FrostSearchItem extends ModelItem implements CopyToClipboardItem {
 
     public String getLastUploadedStr() {
         if( lastUploadedStr == null ) {
-            long lastUploaded = fo.getLastUploaded();
+            final long lastUploaded = fo.getLastUploaded();
             if( lastUploaded > 0 ) {
                 lastUploadedStr = DateFun.getExtendedDateFromMillis(lastUploaded);
             } else {
@@ -148,18 +149,19 @@ public class FrostSearchItem extends ModelItem implements CopyToClipboardItem {
     public String getSha() {
         return fo.getSha();
     }
-    
+
     public FrostFileListFileObject getFrostFileListFileObject() {
         return fo;
     }
-    
+
     public Integer getSourceCount() {
         if( sourceCount == null ) {
             sourceCount = new Integer(fo.getFrostFileListFileObjectOwnerListSize());
         }
         return sourceCount;
     }
-    
+
+    @Override
     public String toString() {
         return getFilename();
     }
