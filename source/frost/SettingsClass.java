@@ -48,6 +48,9 @@ public class SettingsClass implements ExitSavable {
     public static final String DB_CLEANUP_INTERVAL = "database.cleanup.interval";
     public static final String DB_CLEANUP_LASTRUN = "database.cleanup.lastRun";
 
+    public static final String DB_CLEANUP_REMOVEOFFLINEFILEWITHKEY = "database.cleanup.removeOfflineFilesWithKey";
+    public static final String DB_CLEANUP_OFFLINEFILESMAXDAYSOLD = "database.cleanup.offlineFilesMaxDaysOld";
+
     public static final String PERST_COMPACT_STORAGES = "perst.compactStorages";
 
     public static final String MACOS_USE_SCREEN_MENUBAR = "apple.laf.useScreenMenuBar";
@@ -829,6 +832,9 @@ public class SettingsClass implements ExitSavable {
 
         defaults.put(DB_CLEANUP_INTERVAL, "5");
         defaults.put(DB_CLEANUP_LASTRUN, "0");
+
+        defaults.put(DB_CLEANUP_REMOVEOFFLINEFILEWITHKEY, "false");
+        defaults.put(DB_CLEANUP_OFFLINEFILESMAXDAYSOLD, "365");
 
         // DIRECTORIES
         defaults.put(DIR_TEMP, "localdata" + fs + "temp" + fs);
