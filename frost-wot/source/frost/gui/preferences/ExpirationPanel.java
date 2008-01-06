@@ -19,6 +19,7 @@
 package frost.gui.preferences;
 
 import java.awt.*;
+import java.awt.event.*;
 
 import javax.swing.*;
 
@@ -31,21 +32,25 @@ class ExpirationPanel extends JPanel {
     private SettingsClass settings = null;
     private Language language = null;
 
-    private JRadioButton RbKeepExpiredMessages = new JRadioButton();
-    private JRadioButton RbArchiveExpiredMessages = new JRadioButton();
-    private JRadioButton RbDeleteExpiredMessages = new JRadioButton();
-    private ButtonGroup BgExpiredMessages = new ButtonGroup();
+    private final JRadioButton RbKeepExpiredMessages = new JRadioButton();
+    private final JRadioButton RbArchiveExpiredMessages = new JRadioButton();
+    private final JRadioButton RbDeleteExpiredMessages = new JRadioButton();
+    private final ButtonGroup BgExpiredMessages = new ButtonGroup();
 
-    private JLabel LmessageExpireDays = new JLabel();
-    private JTextField TfMessageExpireDays = new JTextField(8);
-    
-    private JCheckBox CbKeepFlaggedAndStarred = new JCheckBox();
-    private JCheckBox CbKeepUnread = new JCheckBox();
+    private final JLabel LmessageExpireDays = new JLabel();
+    private final JTextField TfMessageExpireDays = new JTextField(8);
+
+    private final JCheckBox CbKeepFlaggedAndStarred = new JCheckBox();
+    private final JCheckBox CbKeepUnread = new JCheckBox();
+
+    private final JCheckBox CbRemoveOfflineFilesWithKey = new JCheckBox();
+    private final JLabel LofflineFilesMaxDaysOld = new JLabel();
+    private final JTextField TfOfflineFilesMaxDaysOld = new JTextField(8);
 
     /**
      * @param settings the SettingsClass instance that will be used to get and store the settings of the panel
      */
-    protected ExpirationPanel(JDialog owner, SettingsClass settings) {
+    protected ExpirationPanel(final JDialog owner, final SettingsClass settings) {
         super();
         this.language = Language.getInstance();
         this.settings = settings;
@@ -63,26 +68,26 @@ class ExpirationPanel extends JPanel {
         new TextComponentClipboardMenu(TfMessageExpireDays, language);
 
         // Adds all of the components
-        GridBagConstraints constraints = new GridBagConstraints();
+        final GridBagConstraints constraints = new GridBagConstraints();
         constraints.anchor = GridBagConstraints.WEST;
-        Insets insets0555 = new Insets(0, 5, 5, 5);
+        final Insets insets0555 = new Insets(0, 5, 5, 5);
 
-        int maxGridWidth = 2;
+        final int maxGridWidth = 2;
 
         constraints.insets = insets0555;
         constraints.gridy = 0;
 
-        constraints.gridx = 0;
-        JPanel subPanel = new JPanel();
-        subPanel.setLayout(new GridBagLayout());
-        subPanel.add(LmessageExpireDays, constraints);
-        constraints.gridx = 1;
-        subPanel.add(TfMessageExpireDays, constraints);
+        {
+            final JPanel subPanel = new JPanel(new GridBagLayout());
+            final GridBagConstraints subConstraints = new GridBagConstraints();
+            subConstraints.insets = new Insets(0,0,0,10);
+            subConstraints.gridx = 0;
+            subPanel.add(LmessageExpireDays, subConstraints);
+            subConstraints.gridx = 1;
+            subPanel.add(TfMessageExpireDays, subConstraints);
 
-        constraints.gridx = 0;
-        constraints.gridwidth = maxGridWidth;
-        add(subPanel, constraints);
-        constraints.gridwidth = 1;
+            add(subPanel, constraints);
+        }
 
         constraints.gridy++;
 
@@ -104,7 +109,7 @@ class ExpirationPanel extends JPanel {
         constraints.gridwidth = maxGridWidth;
         add(RbDeleteExpiredMessages, constraints);
         constraints.gridwidth = 1;
-        
+
         constraints.gridy++;
 
         constraints.gridx = 0;
@@ -116,6 +121,35 @@ class ExpirationPanel extends JPanel {
         constraints.gridx = 0;
         constraints.gridwidth = maxGridWidth;
         add(CbKeepFlaggedAndStarred, constraints);
+
+        constraints.gridy++;
+
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.weightx = 1.0;
+
+        final JSeparator separator = new JSeparator(JSeparator.HORIZONTAL);
+        add(separator, constraints);
+
+        constraints.gridy++;
+
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.weightx = 0.0;
+
+        add(CbRemoveOfflineFilesWithKey, constraints);
+
+        constraints.gridy++;
+
+        {
+            final JPanel subPanel = new JPanel(new GridBagLayout());
+            final GridBagConstraints subConstraints = new GridBagConstraints();
+            subConstraints.insets = new Insets(0,0,0,10);
+            subConstraints.gridx = 0;
+            subPanel.add(LofflineFilesMaxDaysOld, subConstraints);
+            subConstraints.gridx = 1;
+            subPanel.add(TfOfflineFilesMaxDaysOld, subConstraints);
+
+            add(subPanel, constraints);
+        }
 
         // glue
         constraints.gridy++;
@@ -130,6 +164,18 @@ class ExpirationPanel extends JPanel {
         BgExpiredMessages.add( RbKeepExpiredMessages );
         BgExpiredMessages.add( RbArchiveExpiredMessages );
         BgExpiredMessages.add( RbDeleteExpiredMessages );
+
+        // listeners
+        CbRemoveOfflineFilesWithKey.addItemListener(new ItemListener() {
+            public void itemStateChanged(final ItemEvent e) {
+                refreshState();
+            }
+        });
+    }
+
+    private void refreshState() {
+        LofflineFilesMaxDaysOld.setEnabled(CbRemoveOfflineFilesWithKey.isSelected());
+        TfOfflineFilesMaxDaysOld.setEnabled(CbRemoveOfflineFilesWithKey.isSelected());
     }
 
     /**
@@ -139,7 +185,7 @@ class ExpirationPanel extends JPanel {
 
         TfMessageExpireDays.setText(settings.getValue(SettingsClass.MESSAGE_EXPIRE_DAYS));
 
-        String mode = settings.getValue(SettingsClass.MESSAGE_EXPIRATION_MODE);
+        final String mode = settings.getValue(SettingsClass.MESSAGE_EXPIRATION_MODE);
         if( mode.toUpperCase().equals("KEEP") ) {
             RbKeepExpiredMessages.doClick();
         } else if( mode.toUpperCase().equals("ARCHIVE") ) {
@@ -149,9 +195,14 @@ class ExpirationPanel extends JPanel {
         } else {
             RbKeepExpiredMessages.doClick(); // // unknown value, use default
         }
-        
+
         CbKeepFlaggedAndStarred.setSelected(settings.getBoolValue(SettingsClass.ARCHIVE_KEEP_FLAGGED_AND_STARRED));
         CbKeepUnread.setSelected(settings.getBoolValue(SettingsClass.ARCHIVE_KEEP_UNREAD));
+
+        CbRemoveOfflineFilesWithKey.setSelected(settings.getBoolValue(SettingsClass.DB_CLEANUP_REMOVEOFFLINEFILEWITHKEY));
+        TfOfflineFilesMaxDaysOld.setText(settings.getValue(SettingsClass.DB_CLEANUP_OFFLINEFILESMAXDAYSOLD));
+
+        refreshState();
     }
 
     /**
@@ -170,9 +221,12 @@ class ExpirationPanel extends JPanel {
         } else {
             settings.setValue(SettingsClass.MESSAGE_EXPIRATION_MODE, "KEEP");
         }
-        
+
         settings.setValue(SettingsClass.ARCHIVE_KEEP_FLAGGED_AND_STARRED, CbKeepFlaggedAndStarred.isSelected());
         settings.setValue(SettingsClass.ARCHIVE_KEEP_UNREAD, CbKeepUnread.isSelected());
+
+        settings.setValue(SettingsClass.DB_CLEANUP_REMOVEOFFLINEFILEWITHKEY, CbRemoveOfflineFilesWithKey.isSelected());
+        settings.setValue(SettingsClass.DB_CLEANUP_OFFLINEFILESMAXDAYSOLD, TfOfflineFilesMaxDaysOld.getText());
     }
 
     public void ok() {
@@ -185,8 +239,11 @@ class ExpirationPanel extends JPanel {
         RbDeleteExpiredMessages.setText(language.getString("Options.expiration.deleteExpiredMessages"));
 
         LmessageExpireDays.setText(language.getString("Options.expiration.numberOfDaysBeforeMessageExpires") + " (90)");
-        
+
         CbKeepFlaggedAndStarred.setText(language.getString("Options.expiration.keepFlaggedAndStarredMessages"));
         CbKeepUnread.setText(language.getString("Options.expiration.keepUnreadMessages"));
+
+        CbRemoveOfflineFilesWithKey.setText(language.getString("Options.expiration.removeOfflineFilesWithKey"));
+        LofflineFilesMaxDaysOld.setText(language.getString("Options.expiration.offlineFilesMaxDaysOld")+" (365)");
     }
 }

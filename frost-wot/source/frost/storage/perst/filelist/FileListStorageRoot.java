@@ -25,7 +25,7 @@ import frost.fileTransfer.*;
 public class FileListStorageRoot extends Persistent {
 
     // bit constants for storageStatus
-    public static transient final int OLD_07_CHK_KEYS_REMOVED = 1;
+    public static transient final int OLD_07_CHK_KEYS_REMOVED = 2;
 
     private int storageStatus;
 

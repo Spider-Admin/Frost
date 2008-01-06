@@ -298,13 +298,6 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
                     }
                 }
             }
-
-            if( removeOld07ChkKeys ) {
-                // we removed the keys, update flag
-                final int newStorageStatus = storageRoot.getStorageStatus() | FileListStorageRoot.OLD_07_CHK_KEYS_REMOVED;
-                storageRoot.setStorageStatus( newStorageStatus );
-                storageRoot.modify();
-            }
         } finally {
             endThreadTransaction();
         }
@@ -314,26 +307,60 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
     /**
      * Remove files that have no owner and no CHK key.
      */
-    public int cleanupFileListFiles() {
+    public int cleanupFileListFiles(final boolean removeOfflineFilesWithKey, final int offlineFilesMaxDaysOld) {
         if( !beginExclusiveThreadTransaction() ) {
             return 0;
         }
+
+        final boolean removeOld07ChkKeys;
+        if( FcpHandler.isFreenet07()
+                && (storageRoot.getStorageStatus() & FileListStorageRoot.OLD_07_CHK_KEYS_REMOVED) == 0 )
+        {
+            removeOld07ChkKeys = true;
+        } else {
+            removeOld07ChkKeys = false;
+        }
+
+        final long minVal;
+        if( removeOfflineFilesWithKey ) {
+            minVal = System.currentTimeMillis() - (offlineFilesMaxDaysOld * 24L * 60L * 60L * 1000L);
+        } else {
+            minVal = 0;
+        }
+
         int count = 0;
         try {
             for( final Iterator<FrostFileListFileObject> i = storageRoot.getFileListFileObjects().iterator(); i.hasNext(); ) {
                 final FrostFileListFileObject fof = i.next();
-                // no need to check for old aaec keys, their owners have been removed in a previous cleanup step,
-                // and if we still have owners, then we have a new key
-                if( fof.getFrostFileListFileObjectOwnerListSize() == 0
-                        && fof.getKey() == null )
-                {
-                    i.remove();
-                    fof.deallocate();
-                    count++;
-                }            }
+                if( fof.getFrostFileListFileObjectOwnerListSize() == 0 ) {
+                    boolean remove = false;
+
+                    if( fof.getKey() == null ) {
+                        remove = true;
+                    } else if( removeOfflineFilesWithKey && fof.getLastReceived() < minVal) {
+                        remove = true;
+                    } else if( removeOld07ChkKeys && FreenetKeys.isOld07ChkKey(fof.getKey()) ) {
+                        remove = true;
+                    }
+
+                    if( remove ) {
+                        i.remove();
+                        fof.deallocate();
+                        count++;
+                    }
+                }
+            }
         } finally {
             endThreadTransaction();
         }
+
+        if( removeOld07ChkKeys ) {
+            // we removed the keys, update flag
+            final int newStorageStatus = storageRoot.getStorageStatus() | FileListStorageRoot.OLD_07_CHK_KEYS_REMOVED;
+            storageRoot.setStorageStatus( newStorageStatus );
+            storageRoot.modify();
+        }
+
         return count;
     }
 

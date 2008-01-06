@@ -274,9 +274,13 @@ public class CleanUp {
      * Remove files that have no owner and no CHK key.
      */
     private static void cleanupFileListFiles() {
+
+        final boolean removeOfflineFilesWithKey = Core.frostSettings.getBoolValue(SettingsClass.DB_CLEANUP_REMOVEOFFLINEFILEWITHKEY);
+        final int offlineFilesMaxDaysOld = Core.frostSettings.getIntValue(SettingsClass.DB_CLEANUP_OFFLINEFILESMAXDAYSOLD);
+
         int deletedCount = 0;
         try {
-            deletedCount = FileListStorage.inst().cleanupFileListFiles();
+            deletedCount = FileListStorage.inst().cleanupFileListFiles(removeOfflineFilesWithKey, offlineFilesMaxDaysOld);
         } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Exception during cleanup of FileListFiles", t);
         }
