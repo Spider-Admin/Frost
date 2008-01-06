@@ -147,7 +147,7 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
                 stateString = offline;
                 break;
 
-            case FrostSearchItem.STATE_UPLOADING :
+            case FrostSearchItem.STATE_SHARING :
                 stateString = sharing;
                 break;
 
@@ -357,7 +357,7 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
                         setForeground(Color.LIGHT_GRAY);
                     } else if (searchItem.getState() == FrostSearchItem.STATE_DOWNLOADING) {
                         setForeground(Color.BLUE);
-                    } else if (searchItem.getState() == FrostSearchItem.STATE_UPLOADING) {
+                    } else if (searchItem.getState() == FrostSearchItem.STATE_SHARING) {
                         setForeground(Color.MAGENTA);
                     } else if (searchItem.getState() == FrostSearchItem.STATE_OFFLINE) {
                         setForeground(Color.DARK_GRAY);
