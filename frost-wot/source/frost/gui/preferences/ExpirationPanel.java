@@ -32,6 +32,10 @@ class ExpirationPanel extends JPanel {
     private SettingsClass settings = null;
     private Language language = null;
 
+    private final JLabel LcleanupIntervalDays = new JLabel();
+    private final JTextField TfCleanupIntervalDays = new JTextField(8);
+    private final JCheckBox CbCleanupNextStartup = new JCheckBox();
+
     private final JRadioButton RbKeepExpiredMessages = new JRadioButton();
     private final JRadioButton RbArchiveExpiredMessages = new JRadioButton();
     private final JRadioButton RbDeleteExpiredMessages = new JRadioButton();
@@ -72,10 +76,40 @@ class ExpirationPanel extends JPanel {
         constraints.anchor = GridBagConstraints.WEST;
         final Insets insets0555 = new Insets(0, 5, 5, 5);
 
-        final int maxGridWidth = 2;
-
         constraints.insets = insets0555;
         constraints.gridy = 0;
+
+        {
+            final JPanel subPanel = new JPanel(new GridBagLayout());
+            final GridBagConstraints subConstraints = new GridBagConstraints();
+            subConstraints.insets = new Insets(0,0,0,10);
+            subConstraints.gridx = 0;
+            subPanel.add(LcleanupIntervalDays, subConstraints);
+            subConstraints.gridx = 1;
+            subPanel.add(TfCleanupIntervalDays, subConstraints);
+
+            add(subPanel, constraints);
+        }
+
+        constraints.gridy++;
+
+        constraints.gridx = 0;
+        add(CbCleanupNextStartup, constraints);
+
+        constraints.gridy++;
+
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.weightx = 1.0;
+
+        {
+            final JSeparator separator = new JSeparator(JSeparator.HORIZONTAL);
+            add(separator, constraints);
+        }
+
+        constraints.gridy++;
+
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.weightx = 0.0;
 
         {
             final JPanel subPanel = new JPanel(new GridBagLayout());
@@ -92,34 +126,26 @@ class ExpirationPanel extends JPanel {
         constraints.gridy++;
 
         constraints.gridx = 0;
-        constraints.gridwidth = maxGridWidth;
         add(RbKeepExpiredMessages, constraints);
-        constraints.gridwidth = 1;
 
         constraints.gridy++;
 
         constraints.gridx = 0;
-        constraints.gridwidth = maxGridWidth;
         add(RbArchiveExpiredMessages, constraints);
-        constraints.gridwidth = 1;
 
         constraints.gridy++;
 
         constraints.gridx = 0;
-        constraints.gridwidth = maxGridWidth;
         add(RbDeleteExpiredMessages, constraints);
-        constraints.gridwidth = 1;
 
         constraints.gridy++;
 
         constraints.gridx = 0;
-        constraints.gridwidth = maxGridWidth;
         add(CbKeepUnread, constraints);
 
         constraints.gridy++;
 
         constraints.gridx = 0;
-        constraints.gridwidth = maxGridWidth;
         add(CbKeepFlaggedAndStarred, constraints);
 
         constraints.gridy++;
@@ -127,8 +153,10 @@ class ExpirationPanel extends JPanel {
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.weightx = 1.0;
 
-        final JSeparator separator = new JSeparator(JSeparator.HORIZONTAL);
-        add(separator, constraints);
+        {
+            final JSeparator separator = new JSeparator(JSeparator.HORIZONTAL);
+            add(separator, constraints);
+        }
 
         constraints.gridy++;
 
@@ -154,7 +182,6 @@ class ExpirationPanel extends JPanel {
         // glue
         constraints.gridy++;
         constraints.gridx = 0;
-        constraints.gridwidth = maxGridWidth;
         constraints.fill = GridBagConstraints.BOTH;
         constraints.weightx = 1;
         constraints.weighty = 1;
@@ -202,6 +229,13 @@ class ExpirationPanel extends JPanel {
         CbRemoveOfflineFilesWithKey.setSelected(settings.getBoolValue(SettingsClass.DB_CLEANUP_REMOVEOFFLINEFILEWITHKEY));
         TfOfflineFilesMaxDaysOld.setText(settings.getValue(SettingsClass.DB_CLEANUP_OFFLINEFILESMAXDAYSOLD));
 
+        TfCleanupIntervalDays.setText(settings.getValue(SettingsClass.DB_CLEANUP_INTERVAL));
+        if( settings.getLongValue(SettingsClass.DB_CLEANUP_LASTRUN) == 0 ) {
+            CbCleanupNextStartup.setSelected(true);
+        } else {
+            CbCleanupNextStartup.setSelected(false);
+        }
+
         refreshState();
     }
 
@@ -227,6 +261,11 @@ class ExpirationPanel extends JPanel {
 
         settings.setValue(SettingsClass.DB_CLEANUP_REMOVEOFFLINEFILEWITHKEY, CbRemoveOfflineFilesWithKey.isSelected());
         settings.setValue(SettingsClass.DB_CLEANUP_OFFLINEFILESMAXDAYSOLD, TfOfflineFilesMaxDaysOld.getText());
+
+        settings.setValue(SettingsClass.DB_CLEANUP_INTERVAL, TfCleanupIntervalDays.getText());
+        if( CbCleanupNextStartup.isSelected() ) {
+            settings.setValue(SettingsClass.DB_CLEANUP_LASTRUN, 0L);
+        }
     }
 
     public void ok() {
@@ -245,5 +284,9 @@ class ExpirationPanel extends JPanel {
 
         CbRemoveOfflineFilesWithKey.setText(language.getString("Options.expiration.removeOfflineFilesWithKey"));
         LofflineFilesMaxDaysOld.setText(language.getString("Options.expiration.offlineFilesMaxDaysOld")+" (365)");
+
+        LcleanupIntervalDays.setText(language.getString("Options.expiration.cleanupIntervalDays") +
+                " (5 "+language.getString("Options.common.days")+")");
+        CbCleanupNextStartup.setText(language.getString("Options.expiration.cleanupNextStartup"));
     }
 }

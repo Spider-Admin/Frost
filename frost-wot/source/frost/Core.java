@@ -341,6 +341,10 @@ public class Core implements FrostEventDispatcher  {
         } catch(final Exception ex) {
             logger.log(Level.SEVERE, "Error compacting perst storages", ex);
             ex.printStackTrace();
+            MiscToolkit.getInstance().showMessage(
+                    "Error compacting perst storages, compact did not complete: "+ex.getMessage(),
+                    JOptionPane.ERROR_MESSAGE,
+                    "Error compacting perst storages");
             throw ex;
         }
         frostSettings.setValue(SettingsClass.PERST_COMPACT_STORAGES, false);

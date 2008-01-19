@@ -126,7 +126,7 @@ public class SharedFilesPanel extends JPanel {
         addSharedFilesButton.setToolTipText(language.getString("SharedFilesPane.toolbar.tooltip.browse") + "...");
 
         final String waiting = language.getString("SharedFilesPane.toolbar.files");
-        final Dimension labelSize = calculateLabelSize(waiting + ": 00000");
+        final Dimension labelSize = calculateLabelSize(waiting + ": 00000  (9876MB)");
         sharedFilesCountLabel.setPreferredSize(labelSize);
         sharedFilesCountLabel.setMinimumSize(labelSize);
         sharedFilesCountLabel.setText(waiting + ": " + sharedFilesCount);
@@ -334,11 +334,20 @@ public class SharedFilesPanel extends JPanel {
 
     private void updateSharedFilesItemCount() {
         sharedFilesCount = model.getItemCount();
+        long sharedFilesSize = 0;
+        for( final Object it : model.getItems() ) {
+            final FrostSharedFileItem sfi = (FrostSharedFileItem) it;
+            sharedFilesSize += sfi.getFileSize();
+        }
+
         final String s =
             new StringBuilder()
                 .append(language.getString("SharedFilesPane.toolbar.files"))
                 .append(": ")
                 .append(sharedFilesCount)
+                .append("  (")
+                .append(SizeFormatter.formatSize(sharedFilesSize))
+                .append(")")
                 .toString();
         sharedFilesCountLabel.setText(s);
     }
