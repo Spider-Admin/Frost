@@ -99,9 +99,9 @@ public class SortedModel {
 
 	public synchronized void clear() {
 		synchronized (data) {
-			final Iterator iterator = data.iterator();
+			final Iterator<ModelItem> iterator = data.iterator();
 			while (iterator.hasNext()) {
-				final ModelItem item = (ModelItem) iterator.next();
+				final ModelItem item = iterator.next();
 				item.setModel(null);
 			}
 			data.clear();

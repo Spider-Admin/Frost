@@ -74,7 +74,7 @@ public class CleanUp {
             cleanup05UploadChunks();
         }
 
-        // cleanup/archive McKoi tables all X days
+        // cleanup and archive all X days
         final int cleanupDatabaseInterval = Core.frostSettings.getIntValue(SettingsClass.DB_CLEANUP_INTERVAL);
         final long lastCleanupTime = Core.frostSettings.getLongValue(SettingsClass.DB_CLEANUP_LASTRUN);
         final long now = System.currentTimeMillis();
@@ -111,8 +111,9 @@ public class CleanUp {
 
         processExpiredMessages(boardList, mode);
 
-        splashScreen.setText("Cleaning filelist tables");
+        splashScreen.setText("Cleaning file list owners");
         cleanupFileListFileOwners();
+        splashScreen.setText("Cleaning file list files");
         cleanupFileListFiles();
     }
 
