@@ -84,7 +84,7 @@ public class TreeTableModelAdapter extends AbstractTableModel {
                 }
 
                 final Enumeration<TreePath> e = treeTable.getTree().getExpandedDescendants(event.getPath());
-                // count childs of this tree, and childs of all expanded subchilds
+                // count children of this tree, and children of all expanded sub-children
                 while( e.hasMoreElements() ) {
                     final DefaultMutableTreeNode n = (DefaultMutableTreeNode)e.nextElement().getLastPathComponent();
                     toRow += n.getChildCount();
@@ -107,9 +107,9 @@ public class TreeTableModelAdapter extends AbstractTableModel {
                 if( expandedNode.getChildCount() > 0 ) {
                     toRow += expandedNode.getChildCount();
                 }
-                // check if new childs are expanded too
+                // check if new children are expanded too
                 final Enumeration<TreePath> e = treeTable.getTree().getExpandedDescendants(event.getPath());
-                // count childs of this tree, and childs of all expanded subchilds
+                // count children of this tree, and children of all expanded sub-children
                 while(e.hasMoreElements()) {
                     final DefaultMutableTreeNode n = (DefaultMutableTreeNode)(e.nextElement()).getLastPathComponent();
                     toRow += n.getChildCount();
