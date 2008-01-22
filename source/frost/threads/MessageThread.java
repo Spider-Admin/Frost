@@ -187,9 +187,12 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 boardUpdateInformation.setCurrentIndex(index);
                 notifyBoardUpdateInformationChanged(this, boardUpdateInformation);
 
+                final long millisBefore = System.currentTimeMillis();
+
                 final MessageDownloaderResult mdResult = MessageDownloader.downloadMessage(downKey, index, fastDownload, logInfo);
 
                 boardUpdateInformation.incCountTriedIndices();
+                boardUpdateInformation.addNodeTime(System.currentTimeMillis() - millisBefore);
 
                 if( mdResult == null ) {
                     // file not found

@@ -23,6 +23,8 @@ import frost.threads.*;
 */
 public class BoardUpdateInformationFrame extends javax.swing.JFrame implements BoardUpdateThreadListener {
 
+    // FIXME: show tabbed pane, summary tab shows accumulated values for each day (all boards) and all days
+
     private JComboBox cbBoards;
     private JLabel lBoards;
     private JTextArea taContent;
@@ -85,7 +87,7 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
                 getContentPane().add(taContent, new GridBagConstraints(0, 1, 4, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 5, 5, 5), 0, 0));
             }
             pack();
-            setSize(400, 320);
+            setSize(400, 400);
         } catch (final Exception e) {
             e.printStackTrace();
         }
