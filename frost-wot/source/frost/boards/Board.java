@@ -465,6 +465,10 @@ public class Board extends AbstractNode {
         return buiList;
     }
 
+    public boolean hasBoardUpdateInformations() {
+        return boardUpdateInformations.size() > 0;
+    }
+
     /**
      * Sort BoardUpdateInformation descending by dateMillis.
      */

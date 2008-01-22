@@ -210,6 +210,9 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                     // don't set slot used, try to retrieve the file again
                     System.out.println("TOFDN: Skipping index "+index+" for now, will try again later.");
                     boardUpdateInformation.incCountADNF(); notifyBoardUpdateInformationChanged(this, boardUpdateInformation);
+
+                    // FIXME: try once a day when in backload (?)
+
                     continue;
                 }
 
