@@ -48,10 +48,9 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
             final GridBagLayout thisLayout = new GridBagLayout();
             getContentPane().setLayout(thisLayout);
             {
-                final Vector<Board> items = new Vector<Board>(tofTreeModel.getAllBoards());
-                final ComboBoxModel cbBoardsModel = new DefaultComboBoxModel(items);
+                final ComboBoxModel cbBoardsModel = new DefaultComboBoxModel();
                 cbBoards = new JComboBox();
-                getContentPane().add(cbBoards, new GridBagConstraints(1, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+                getContentPane().add(cbBoards, new GridBagConstraints(1, 0, 1, 1, 0.4, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 0), 0, 0));
                 cbBoards.setModel(cbBoardsModel);
                 cbBoards.addActionListener(new ActionListener() {
                     public void actionPerformed(final ActionEvent evt) {
@@ -62,7 +61,7 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
             {
                 final ComboBoxModel cbDatesModel = new DefaultComboBoxModel();
                 cbDates = new JComboBox();
-                getContentPane().add(cbDates, new GridBagConstraints(3, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+                getContentPane().add(cbDates, new GridBagConstraints(3, 0, 1, 1, 0.4, 0.0, GridBagConstraints.CENTER, GridBagConstraints.HORIZONTAL, new Insets(5, 5, 5, 5), 0, 0));
                 cbDates.setModel(cbDatesModel);
                 cbDates.addActionListener(new ActionListener() {
                     public void actionPerformed(final ActionEvent evt) {
@@ -72,20 +71,19 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
             }
             {
                 lBoards = new JLabel();
-                getContentPane().add(lBoards, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+                getContentPane().add(lBoards, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 5, 0), 0, 0));
                 lBoards.setText("Board");
             }
             {
                 lDates = new JLabel();
-                getContentPane().add(lDates, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+                getContentPane().add(lDates, new GridBagConstraints(2, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(5, 5, 5, 0), 0, 0));
                 lDates.setText("Date");
             }
             {
                 taContent = new JTextArea();
                 taContent.setEditable(false);
-                getContentPane().add(taContent, new GridBagConstraints(0, 1, 4, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+                getContentPane().add(taContent, new GridBagConstraints(0, 1, 4, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 5, 5, 5), 0, 0));
             }
-            cbBoards.setSelectedIndex(0);
             pack();
             setSize(400, 320);
         } catch (final Exception e) {
@@ -129,9 +127,30 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
         taContent.setText( selectedItem.getInfoString() );
     }
 
+    /**
+     * Reload dialog after restart.
+     */
+    private void loadGuiData() {
+        // only add boards that have update information
+        final Vector<Board> items = new Vector<Board>();
+        for( final Board b : tofTreeModel.getAllBoards() ) {
+            if( b.hasBoardUpdateInformations() ) {
+                items.add(b);
+            }
+        }
+        final ComboBoxModel cbBoardsModel = new DefaultComboBoxModel(items);
+        cbBoards.setModel(cbBoardsModel);
+
+        if( cbBoards.getItemCount() > 0 ) {
+            // FIXME: by default select board that is current board in board tree!!!
+            cbBoards.setSelectedIndex(0);
+        }
+    }
+
     public void startDialog() {
         tofTree.getRunningBoardUpdateThreads().addBoardUpdateThreadListener(this);
         setDialogShowing(true);
+        loadGuiData();
         setVisible(true);
     }
 
@@ -175,7 +194,24 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
    }
 
    public void boardUpdateInformationChanged(final BoardUpdateThread thread, final BoardUpdateInformation bui) {
+
        final Board selectedBoard = (Board)cbBoards.getSelectedItem();
+
+       // maybe add new board
+       {
+           boolean contained = false;
+           for(int x=0; x < cbBoards.getItemCount(); x++) {
+               if( cbBoards.getItemAt(x) == thread.getTargetBoard() ) {
+                   contained = true;
+                   break;
+               }
+           }
+           if( !contained ) {
+               cbBoards.addItem(thread.getTargetBoard());
+               return;
+           }
+       }
+
        if( selectedBoard == null ) {
            return;
        }
@@ -183,16 +219,19 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
            return;
        }
 
-       boolean contained = false;
-       for(int x=0; x < cbDates.getItemCount(); x++) {
-           if( cbDates.getItemAt(x) == bui ) {
-               contained = true;
-               break;
+       // maybe add new date
+       {
+           boolean contained = false;
+           for(int x=0; x < cbDates.getItemCount(); x++) {
+               if( cbDates.getItemAt(x) == bui ) {
+                   contained = true;
+                   break;
+               }
            }
-       }
-       if( !contained ) {
-           cbDates.addItem(bui);
-           return;
+           if( !contained ) {
+               cbDates.addItem(bui);
+               return;
+           }
        }
 
        final BoardUpdateInformation selectedBui = (BoardUpdateInformation)cbDates.getSelectedItem();
