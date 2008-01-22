@@ -22,14 +22,17 @@ package frost.threads;
  * Contains all information about running message uploads and downloads.
  */
 public class RunningMessageThreadsInformation {
-    
+
     private int uploadingMessages = 0;
     private int unsendMessages = 0;
     private int attachmentsToUploadRemainingCount = 0;
-    
+
     private int downloadingBoardCount = 0;
     private int runningDownloadThreadCount = 0;
-    
+
+    public RunningMessageThreadsInformation() {
+    }
+
     /**
      * Returns the count of all file attachments of all uploading messages
      * that still wait to be uploaded.
@@ -61,20 +64,20 @@ public class RunningMessageThreadsInformation {
     public int getUnsentMessageCount() {
         return unsendMessages;
     }
-    
-    public void addToAttachmentsToUploadRemainingCount(int valueToAdd) {
+
+    public void addToAttachmentsToUploadRemainingCount(final int valueToAdd) {
         this.attachmentsToUploadRemainingCount += valueToAdd;
     }
-    public void addToRunningDownloadThreadCount(int valueToAdd) {
+    public void addToRunningDownloadThreadCount(final int valueToAdd) {
         this.runningDownloadThreadCount += valueToAdd;
     }
-    public void addToDownloadingBoardCount(int valueToAdd) {
+    public void addToDownloadingBoardCount(final int valueToAdd) {
         this.downloadingBoardCount += valueToAdd;
     }
-    public void setUnsentMessageCount(int unsendMessages) {
+    public void setUnsentMessageCount(final int unsendMessages) {
         this.unsendMessages = unsendMessages;
     }
-    public void setUploadingMessageCount(int uploadingMessages) {
+    public void setUploadingMessageCount(final int uploadingMessages) {
         this.uploadingMessages = uploadingMessages;
     }
 }
