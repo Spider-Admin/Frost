@@ -24,17 +24,18 @@ import org.joda.time.format.*;
 public class DateFun {
 
 //    private static final Logger logger = Logger.getLogger(DateFun.class.getName());
-    
+
 //    private static long GMTOffset = -1;
-    
+
     public static final DateTimeFormatter FORMAT_DATE = DateTimeFormat.forPattern("yyyy.M.d").withZone(DateTimeZone.UTC);
     public static final DateTimeFormatter FORMAT_DATE_EXT = DateTimeFormat.forPattern("yyyy.MM.dd").withZone(DateTimeZone.UTC);
     public static final DateTimeFormatter FORMAT_DATE_VISIBLE = DateTimeFormat.forPattern("dd.MM.yyyy").withZone(DateTimeZone.UTC);
-    
+
+    public static final DateTimeFormatter FORMAT_TIME_PLAIN = DateTimeFormat.forPattern("HH:mm:ss").withZone(DateTimeZone.UTC);
     public static final DateTimeFormatter FORMAT_TIME = DateTimeFormat.forPattern("H:m:s'GMT'").withZone(DateTimeZone.UTC);
     public static final DateTimeFormatter FORMAT_TIME_EXT = DateTimeFormat.forPattern("HH:mm:ss'GMT'").withZone(DateTimeZone.UTC);
     public static final DateTimeFormatter FORMAT_TIME_VISIBLE = DateTimeFormat.forPattern("HH:mm:ss' GMT'").withZone(DateTimeZone.UTC);
-    
+
 //    private static long getGMTOffset() {
 //        if( GMTOffset < 0 ) {
 //            Calendar cal = Calendar.getInstance();
@@ -71,7 +72,7 @@ public class DateFun {
 //        cal.set(Calendar.DATE, 1);
 //        return new java.sql.Time( cal.getTimeInMillis() - getGMTOffset() );
 //    }
-    
+
     /**
      * Returns the SQL date from Calendar
      */
@@ -84,41 +85,41 @@ public class DateFun {
 //        c.set(year, month, day, 0, 0, 0);
 //        return new java.sql.Date( c.getTime().getTime() );
 //    }
-    
+
 //    public static void main(String[] args) {
-//        
+//
 //        String date = "2006.10.14";
 //        String time = "12:13:14GMT";
-//        
+//
 //        DateTimeFormatter fmtd = DateTimeFormat.forPattern("yyyy.MM.dd");
 //        DateTimeFormatter fmtt = DateTimeFormat.forPattern("HH:mm:ss'GMT'");
-//        
+//
 //        DateTime dtd = fmtd.withZone(DateTimeZone.UTC).parseDateTime(date);
 //        DateTime dtt = fmtt.withZone(DateTimeZone.UTC).parseDateTime(time);
-//        
+//
 //        System.out.println("dtd="+dtd+", millis="+dtd.getMillis());
 //        System.out.println("dtt="+dtt+", millis="+dtt.getMillis());
-//        
+//
 //        long allMillis = dtd.getMillis() + dtt.getMillis();
 //        DateTime adt = new DateTime(allMillis).withZone(DateTimeZone.UTC);
 //        System.out.println("ADT="+adt);
-//        
+//
 //        DateTime nd = new DateTime(new Long(dtd.getMillis())).withZone(DateTimeZone.UTC);
 //        System.out.println("nd="+nd);
 //        DateTime nt = new DateTime(new Long(dtt.getMillis())).withZone(DateTimeZone.UTC);
 //        System.out.println("nt="+nt);
-//        
+//
 //        System.out.println("txt="+fmtd.print(nd));
 //        System.out.println("txt="+fmtt.print(nt));
 //
 //        DateTime n1 = new DateTime(DateTimeZone.UTC).minusDays(3);
 //        System.out.println("n1="+n1);
-//        
+//
 //        LocalDate ld = new LocalDate();
 //        System.out.println("ld="+ld);
 //        DateTime x = ld.toDateTimeAtMidnight(DateTimeZone.UTC);
 //        System.out.println("  ="+x+" ; "+x.getMillis());
-//        
+//
 //        DateTime now = new DateTime(DateTimeZone.UTC);
 //        System.out.println("now="+now);
 //        DateMidnight nowDate = now.toDateMidnight();
@@ -127,11 +128,11 @@ public class DateFun {
 //        System.out.println("nowTime="+nowTime);
 //        System.out.println("nowTime="+fmtt.print(nowTime));
 //        System.out.println("nowTime="+fmtt.print(now));
-//        
+//
 //        LocalDate localDate = new LocalDate(2006, 8, 1).minusDays(0);
 //        String s2 = DateFun.FORMAT_DATE.print(localDate);
 //        System.out.println("s2="+s2);
-//        
+//
 //        System.out.println("s1="+new LocalDate());
 //        System.out.println("s2="+new LocalDate(DateTimeZone.UTC).toDateMidnight());
 //        System.out.println("s3="+new LocalDate().toDateMidnight(DateTimeZone.UTC));
@@ -168,7 +169,7 @@ public class DateFun {
 //        cal.set(1970, 0, 1, ihours, iminutes, iseconds);
 //        return new java.sql.Time(cal.getTime().getTime());
 //    }
-    
+
 //    public static String getExtendedTimeFromSqlTime(java.sql.Time time) {
 //        Calendar cal = Calendar.getInstance();
 //        cal.setTimeInMillis(time.getTime());
@@ -207,7 +208,7 @@ public class DateFun {
 //        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
 //        return getDateOfCalendar(cal);
 //    }
-    
+
     /**
      * Returns date with leading zeroes
      * @return Date as String yyyy.MM.dd in GMT with leading zeros
@@ -222,7 +223,7 @@ public class DateFun {
      * Returns date with leading zeroes
      * @return Date as String yyyy.MM.dd in GMT with leading zeros
      */
-    public static String getExtendedDateFromMillis(long millis) {
+    public static String getExtendedDateFromMillis(final long millis) {
         return FORMAT_DATE_EXT.print(millis);
 //        GregorianCalendar cal = new GregorianCalendar();
 //        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
