@@ -395,6 +395,9 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
                 }
             });
         }
+
+        public void boardUpdateInformationChanged(final BoardUpdateThread thread, final BoardUpdateInformation bui) {
+        }
     }
 
     private class CellRenderer extends DefaultTreeCellRenderer {

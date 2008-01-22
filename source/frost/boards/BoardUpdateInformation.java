@@ -26,12 +26,13 @@ public class BoardUpdateInformation {
 
     // - maybe compute : indices per X minutes
 
+    private final Board board;
     private final String dateString;
     private final long dateMillis;
 
-    private long updateInformationLastUpdated = -1;
+//    private long updateInformationLastUpdated = -1;
 
-    private int triedIndices = 0;
+    private int countTriedIndices = 0;
     private int currentIndex = -1;
     private int maxIndex = -1;
     private int maxSuccessfulIndex = -1;
@@ -41,69 +42,76 @@ public class BoardUpdateInformation {
     private int countInvalid = 0; // invalid msgs
     private int countValid = 0;   // valid messages
 
-    public BoardUpdateInformation(final String newDateString, final long newDateMillis) {
+    public BoardUpdateInformation(final Board newBoard, final String newDateString, final long newDateMillis) {
+        board = newBoard;
         dateString = newDateString;
         dateMillis = newDateMillis;
     }
 
-    public long getUpdateInformationLastUpdated() {
-        return updateInformationLastUpdated;
+//    public long getUpdateInformationLastUpdated() {
+//        return updateInformationLastUpdated;
+//    }
+//    public void setUpdateInformationLastUpdated(final long updateInformationLastUpdated) {
+//        this.updateInformationLastUpdated = updateInformationLastUpdated;
+//    }
+
+    public int getCountTriedIndices() {
+        return countTriedIndices;
     }
-    public void setUpdateInformationLastUpdated(final long updateInformationLastUpdated) {
-        this.updateInformationLastUpdated = updateInformationLastUpdated;
-    }
-    public int getTriedIndices() {
-        return triedIndices;
-    }
-    public void setTriedIndices(final int triedIndices) {
-        this.triedIndices = triedIndices;
+    public void incCountTriedIndices() {
+        this.countTriedIndices++;
     }
     public int getCurrentIndex() {
         return currentIndex;
     }
     public void setCurrentIndex(final int currentIndex) {
         this.currentIndex = currentIndex;
+        if( maxIndex < currentIndex ) {
+            maxIndex = currentIndex;
+        }
     }
     public int getMaxIndex() {
         return maxIndex;
     }
-    public void setMaxIndex(final int maxIndex) {
-        this.maxIndex = maxIndex;
-    }
     public int getMaxSuccessfulIndex() {
         return maxSuccessfulIndex;
     }
-    public void setMaxSuccessfulIndex(final int maxSuccessfulIndex) {
-        this.maxSuccessfulIndex = maxSuccessfulIndex;
+    public void updateMaxSuccessfulIndex(final int lMaxSuccessfulIndex) {
+        if( this.maxSuccessfulIndex < lMaxSuccessfulIndex ) {
+            this.maxSuccessfulIndex = lMaxSuccessfulIndex;
+        }
     }
     public int getCountADNF() {
         return countADNF;
     }
-    public void setCountADNF(final int countADNF) {
-        this.countADNF = countADNF;
+    public void incCountADNF() {
+        this.countADNF++;
     }
     public int getCountDNF() {
         return countDNF;
     }
-    public void setCountDNF(final int countDNF) {
-        this.countDNF = countDNF;
+    public void incCountDNF() {
+        this.countDNF++;
     }
     public int getCountInvalid() {
         return countInvalid;
     }
-    public void setCountInvalid(final int countInvalid) {
-        this.countInvalid = countInvalid;
+    public void incCountInvalid() {
+        this.countInvalid++;
     }
     public int getCountValid() {
         return countValid;
     }
-    public void setCountValid(final int countValid) {
-        this.countValid = countValid;
+    public void incCountValid() {
+        this.countValid++;
     }
     public String getDateString() {
         return dateString;
     }
     public long getDateMillis() {
         return dateMillis;
+    }
+    public Board getBoard() {
+        return board;
     }
 }

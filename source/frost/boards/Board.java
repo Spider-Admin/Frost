@@ -449,7 +449,7 @@ public class Board extends AbstractNode {
     public BoardUpdateInformation getOrCreateBoardUpdateInformationForDay(final String dateString, final long dateMillis) {
         BoardUpdateInformation bui = getBoardUpdateInformationForDay(dateString);
         if( bui == null ) {
-            bui = new BoardUpdateInformation(dateString, dateMillis);
+            bui = new BoardUpdateInformation(this, dateString, dateMillis);
             boardUpdateInformations.put(dateString, bui);
         }
         return bui;

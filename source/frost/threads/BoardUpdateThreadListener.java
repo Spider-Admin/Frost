@@ -19,6 +19,8 @@
 
 package frost.threads;
 
+import frost.boards.*;
+
 public interface BoardUpdateThreadListener {
     /**
      * Is called if a Thread is finished.
@@ -29,4 +31,9 @@ public interface BoardUpdateThreadListener {
      * Is called if a Thread is started.
      */
     public void boardUpdateThreadStarted(BoardUpdateThread thread);
+
+    /**
+     * Is called if the BoardUpdateInformation changed.
+     */
+    public void boardUpdateInformationChanged(BoardUpdateThread thread, BoardUpdateInformation bui);
 }

@@ -72,6 +72,7 @@ public class BoardUpdateThreadObject extends Thread {
             i.next().boardUpdateThreadStarted(thread);
         }
     }
+
     /**
      * Called from Thread to notify all listeners that thread is started now
      */
@@ -81,6 +82,17 @@ public class BoardUpdateThreadObject extends Thread {
         final Iterator<BoardUpdateThreadListener> i = registeredListeners.iterator();
         while( i.hasNext() ) {
             i.next().boardUpdateThreadFinished(thread);
+        }
+    }
+
+    /**
+     * Called from Thread to notify all listeners that the BoardUpdateInformation changed.
+     */
+    protected void notifyBoardUpdateInformationChanged(final BoardUpdateThread thread, final BoardUpdateInformation bui) {
+        // notify listeners
+        final Iterator<BoardUpdateThreadListener> i = registeredListeners.iterator();
+        while( i.hasNext() ) {
+            i.next().boardUpdateInformationChanged(thread, bui);
         }
     }
 
