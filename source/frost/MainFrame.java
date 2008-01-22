@@ -142,6 +142,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     private final JCheckBoxMenuItem tofAutomaticUpdateMenuItem = new JCheckBoxMenuItem();
 
     private final JMenuItem tofDisplayBoardInfoMenuItem = new JMenuItem();
+    private final JMenuItem tofDisplayBoardUpdateInformationMenuItem = new JMenuItem();
     private final JMenuItem tofDisplayKnownBoards = new JMenuItem();
     private final JMenuItem tofSearchMessages = new JMenuItem();
 
@@ -475,6 +476,11 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
                     tofDisplayBoardInfoMenuItem_actionPerformed(e);
                 }
             });
+            tofDisplayBoardUpdateInformationMenuItem.addActionListener(new ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
+                    tofDisplayBoardUpdateInformationMenuItem_actionPerformed(e);
+                }
+            });
             tofDisplayKnownBoards.addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
                     tofDisplayKnownBoardsMenuItem_actionPerformed(e);
@@ -532,6 +538,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
             tofMenu.add(tofAutomaticUpdateMenuItem);
             tofMenu.addSeparator();
             tofMenu.add(tofDisplayBoardInfoMenuItem);
+            tofMenu.add(tofDisplayBoardUpdateInformationMenuItem);
             tofMenu.add(tofDisplayKnownBoards);
             tofMenu.add(tofSearchMessages);
             // Options Menu
@@ -1115,6 +1122,13 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         }
     }
 
+    private void tofDisplayBoardUpdateInformationMenuItem_actionPerformed(final ActionEvent e) {
+        if (BoardUpdateInformationFrame.isDialogShowing() == false) {
+            final BoardUpdateInformationFrame boardInfo = new BoardUpdateInformationFrame(this, tofTree);
+            boardInfo.startDialog();
+        }
+    }
+
     private void tofDisplayKnownBoardsMenuItem_actionPerformed(final ActionEvent e) {
         final KnownBoardsFrame knownBoards = new KnownBoardsFrame(this, tofTree);
         knownBoards.startDialog();
@@ -1224,6 +1238,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         fileStatisticsMenuItem.setText(language.getString("MainFrame.menu.file.statistics"));
         tofMenu.setText(language.getString("MainFrame.menu.news"));
         tofDisplayBoardInfoMenuItem.setText(language.getString("MainFrame.menu.news.displayBoardInformationWindow"));
+        tofDisplayBoardUpdateInformationMenuItem.setText(language.getString("MainFrame.menu.news.displayBoardUpdateInformationMenuItem"));
         tofAutomaticUpdateMenuItem.setText(language.getString("MainFrame.menu.news.automaticBoardUpdate"));
         tofDisplayKnownBoards.setText(language.getString("MainFrame.menu.news.displayKnownBoards"));
         tofSearchMessages.setText(language.getString("MainFrame.menu.news.searchMessages"));
