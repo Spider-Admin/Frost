@@ -125,6 +125,8 @@ public class BoardUpdateInformation {
         sb.append("Board: ").append(getBoard().getName()).append("\n");
         sb.append("Date : ").append(getDateString()).append("\n");
         sb.append("\n");
+        sb.append("Informations for current session:").append("\n");
+        sb.append("\n");
         sb.append("countTriedIndices : ").append(getCountTriedIndices()).append("\n");
         sb.append("currentIndex      : ").append(getCurrentIndex()).append("\n");
         sb.append("maxIndex          : ").append(getMaxIndex()).append("\n");
