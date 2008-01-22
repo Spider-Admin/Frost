@@ -470,7 +470,7 @@ public class Board extends AbstractNode {
      */
     private static class BoardUpdateInformationComparator implements Comparator<BoardUpdateInformation> {
         public int compare(final BoardUpdateInformation o1, final BoardUpdateInformation o2) {
-            return Mixed.compareLong(o1.getDateMillis(), o2.getDateMillis());
+            return Mixed.compareLong(o2.getDateMillis(), o1.getDateMillis());
         }
     }
 }

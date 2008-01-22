@@ -46,10 +46,6 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
     private void initGUI() {
         try {
             final GridBagLayout thisLayout = new GridBagLayout();
-            thisLayout.rowWeights = new double[] {0.1, 0.1};
-            thisLayout.rowHeights = new int[] {7, 7};
-            thisLayout.columnWeights = new double[] {0.1, 0.1, 0.1, 0.1};
-            thisLayout.columnWidths = new int[] {7, 20, 20, 7};
             getContentPane().setLayout(thisLayout);
             {
                 final Vector<Board> items = new Vector<Board>(tofTreeModel.getAllBoards());
@@ -91,17 +87,21 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
             }
             cbBoards.setSelectedIndex(0);
             pack();
-            setSize(400, 300);
+            setSize(400, 320);
         } catch (final Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void clearTaContent() {
+        taContent.setText("No informations available");
     }
 
     private void cbBoardsActionPerformed(final ActionEvent evt) {
         final JComboBox cb = (JComboBox)evt.getSource();
         final Board selectedBoard = (Board)cb.getSelectedItem();
         if( selectedBoard == null ) {
-            taContent.setText( "" );
+            clearTaContent();
             return;
         }
 
@@ -114,7 +114,7 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
         if( cbDates.getModel().getSize() > 0 ) {
             cbDates.setSelectedIndex(0);
         } else {
-            taContent.setText( "" );
+            clearTaContent();
         }
     }
 
@@ -122,7 +122,7 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
         final JComboBox cb = (JComboBox)evt.getSource();
         final BoardUpdateInformation selectedItem = (BoardUpdateInformation)cb.getSelectedItem();
         if( selectedItem == null ) {
-            taContent.setText( "" );
+            clearTaContent();
             return;
         }
 
