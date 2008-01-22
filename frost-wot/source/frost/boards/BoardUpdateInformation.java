@@ -114,4 +114,26 @@ public class BoardUpdateInformation {
     public Board getBoard() {
         return board;
     }
+
+    @Override
+    public String toString() {
+        return dateString;
+    }
+
+    public String getInfoString() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("Board: ").append(getBoard().getName()).append("\n");
+        sb.append("Date : ").append(getDateString()).append("\n");
+        sb.append("\n");
+        sb.append("countTriedIndices : ").append(getCountTriedIndices()).append("\n");
+        sb.append("currentIndex      : ").append(getCurrentIndex()).append("\n");
+        sb.append("maxIndex          : ").append(getMaxIndex()).append("\n");
+        sb.append("maxSuccessfulIndex: ").append(getMaxSuccessfulIndex()).append("\n");
+        sb.append("\n");
+        sb.append("countADNF   : ").append(getCountADNF()).append("\n");
+        sb.append("countDNF    : ").append(getCountDNF()).append("\n");
+        sb.append("countInvalid: ").append(getCountInvalid()).append("\n");
+        sb.append("countValid  : ").append(getCountValid()).append("\n");
+        return sb.toString();
+    }
 }

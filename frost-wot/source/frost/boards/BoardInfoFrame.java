@@ -513,8 +513,8 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
     // Implementing the BoardUpdateThreadListener ...
 
      /**
-         * Is called if a Thread is finished.
-         */
+      * Is called if a Thread is finished.
+      */
      public void boardUpdateThreadFinished(final BoardUpdateThread thread) {
         boardTableModel.tableEntriesChanged();
     }
@@ -538,5 +538,4 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
     public static void setDialogShowing(final boolean val) {
         isShowing = val;
     }
-
 }
