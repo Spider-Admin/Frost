@@ -39,7 +39,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
 
     private final Board board;
     private final int maxMessageDownload;
-    private boolean downloadToday;
+    private final boolean downloadToday;
 
     private static final Logger logger = Logger.getLogger(MessageThread.class.getName());
 
@@ -149,6 +149,8 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
 
         final String dirDateString = DateFun.FORMAT_DATE.print(localDate);
 
+        final BoardUpdateInformation boardUpdateInformation = board.getOrCreateBoardUpdateInformationForDay(dirDateString, dateMillis);
+
         int index = -1;
         int failures = 0;
         final int maxFailures = 2; // skip a maximum of 2 empty slots at the end of known indices
@@ -172,18 +174,30 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 Mixed.waitRandom(2000); // don't hurt node
 
                 final String downKey = composeDownKey(index, dirDateString);
-                logInfo = " board="+board.getName()+", key="+downKey;
+                logInfo = new StringBuilder()
+                            .append(" board=")
+                            .append(board.getName())
+                            .append(", key=")
+                            .append(downKey)
+                            .toString();
 
                 // for backload use fast download, deep for today
                 final boolean fastDownload = !downloadToday;
 
+                boardUpdateInformation.setCurrentIndex(index);
+                notifyBoardUpdateInformationChanged(this, boardUpdateInformation);
+
                 final MessageDownloaderResult mdResult = MessageDownloader.downloadMessage(downKey, index, fastDownload, logInfo);
+
+                boardUpdateInformation.incCountTriedIndices();
+
                 if( mdResult == null ) {
                     // file not found
                     if( gis.isDownloadIndexBehindLastSetIndex(index) ) {
                         // we stop if we tried maxFailures indices behind the last known index
                         failures++;
                     }
+                    boardUpdateInformation.incCountDNF(); notifyBoardUpdateInformationChanged(this, boardUpdateInformation);
                     continue;
                 }
 
@@ -195,6 +209,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 {
                     // don't set slot used, try to retrieve the file again
                     System.out.println("TOFDN: Skipping index "+index+" for now, will try again later.");
+                    boardUpdateInformation.incCountADNF(); notifyBoardUpdateInformationChanged(this, boardUpdateInformation);
                     continue;
                 }
 
@@ -203,6 +218,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 if( mdResult.isFailure() ) {
                     // some error occured, don't try this file again
                     receivedInvalidMessage(board, localDate, index, mdResult.getErrorMessage());
+                    boardUpdateInformation.incCountInvalid(); notifyBoardUpdateInformationChanged(this, boardUpdateInformation);
                 } else if( mdResult.getMessage() != null ) {
                     // message is loaded, delete underlying received file
                     mdResult.getMessage().getFile().delete();
@@ -213,9 +229,14 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                                 mdResult.getOwner(),
                                 board,
                                 index);
+
+                        boardUpdateInformation.incCountValid();
+                        boardUpdateInformation.updateMaxSuccessfulIndex(index);
+                        notifyBoardUpdateInformationChanged(this, boardUpdateInformation);
                     } else {
                         receivedInvalidMessage(board, localDate, index, MessageDownloaderResult.INVALID_MSG);
                         logger.warning("TOFDN: Message was dropped, format validation failed: "+logInfo);
+                        boardUpdateInformation.incCountInvalid(); notifyBoardUpdateInformationChanged(this, boardUpdateInformation);
                     }
                 }
 
@@ -226,6 +247,9 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 // download failed, try next file
             }
         } // end-of: while
+
+        boardUpdateInformation.setCurrentIndex(-1);
+        notifyBoardUpdateInformationChanged(this, boardUpdateInformation);
     }
 
     private void receivedInvalidMessage(final Board b, final LocalDate calDL, final int index, final String reason) {

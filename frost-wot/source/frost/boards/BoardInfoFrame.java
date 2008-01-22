@@ -528,6 +528,9 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         boardTableModel.tableEntriesChanged();
     }
 
+    public void boardUpdateInformationChanged(final BoardUpdateThread thread, final BoardUpdateInformation bui) {
+    }
+
     public static boolean isDialogShowing() {
         return isShowing;
     }
@@ -535,4 +538,5 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
     public static void setDialogShowing(final boolean val) {
         isShowing = val;
     }
+
 }

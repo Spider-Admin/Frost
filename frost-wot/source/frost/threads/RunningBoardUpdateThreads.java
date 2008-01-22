@@ -182,13 +182,13 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
 
         synchronized( threadListenersForAllBoards ) {
             // notify listeners
-            Iterator i = threadListenersForAllBoards.iterator();
+            Iterator<BoardUpdateThreadListener> i = threadListenersForAllBoards.iterator();
             while( i.hasNext() ) {
-                ((BoardUpdateThreadListener) i.next()).boardUpdateThreadFinished(thread);
+                i.next().boardUpdateThreadFinished(thread);
             }
             i = getVectorFromHashtable(threadListenersForBoard, thread.getTargetBoard()).iterator();
             while( i.hasNext() ) {
-                ((BoardUpdateThreadListener) i.next()).boardUpdateThreadFinished(thread);
+                i.next().boardUpdateThreadFinished(thread);
             }
         }
     }
@@ -205,7 +205,20 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
             }
             i = getVectorFromHashtable(threadListenersForBoard, thread.getTargetBoard()).iterator();
             while( i.hasNext() ) {
-                (i.next()).boardUpdateThreadStarted(thread);
+                i.next().boardUpdateThreadStarted(thread);
+            }
+        }
+    }
+
+    public void boardUpdateInformationChanged(final BoardUpdateThread thread, final BoardUpdateInformation bui) {
+        synchronized( threadListenersForAllBoards ) {
+            Iterator<BoardUpdateThreadListener> i = threadListenersForAllBoards.iterator();
+            while( i.hasNext() ) {
+                i.next().boardUpdateInformationChanged(thread, bui);
+            }
+            i = getVectorFromHashtable(threadListenersForBoard, thread.getTargetBoard()).iterator();
+            while( i.hasNext() ) {
+                i.next().boardUpdateInformationChanged(thread, bui);
             }
         }
     }
