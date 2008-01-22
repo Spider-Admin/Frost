@@ -18,6 +18,8 @@
 */
 package frost.boards;
 
+import java.util.*;
+
 import frost.*;
 import frost.storage.perst.messages.*;
 import frost.util.*;
@@ -64,6 +66,11 @@ public class Board extends AbstractNode {
 
     private boolean hasFlaggedMessages = false;
     private boolean hasStarredMessages = false;
+
+    // String is the dirdate used in MessageThread, a unique String per day
+    private final Hashtable<String,BoardUpdateInformation> boardUpdateInformations = new Hashtable<String,BoardUpdateInformation>();
+
+    private static final BoardUpdateInformationComparator boardUpdateInformationComparator = new BoardUpdateInformationComparator();
 
     /**
      * Constructs a new Board
@@ -431,5 +438,39 @@ public class Board extends AbstractNode {
 
     public void setPerstFrostBoardObject(final PerstFrostBoardObject perstFrostBoardObject) {
         this.perstFrostBoardObject = perstFrostBoardObject;
+    }
+
+    /////// BoardUpdateInformation methods //////
+
+    public BoardUpdateInformation getBoardUpdateInformationForDay(final String dirDate) {
+        return boardUpdateInformations.get(dirDate);
+    }
+
+    public BoardUpdateInformation getOrCreateBoardUpdateInformationForDay(final String dateString, final long dateMillis) {
+        BoardUpdateInformation bui = getBoardUpdateInformationForDay(dateString);
+        if( bui == null ) {
+            bui = new BoardUpdateInformation(dateString, dateMillis);
+            boardUpdateInformations.put(dateString, bui);
+        }
+        return bui;
+    }
+
+    /**
+     * @return  a List of all available BoardUpdateInformation object, sorted by day (latest first)
+     */
+    public List<BoardUpdateInformation> getBoardUpdateInformationList() {
+        final List<BoardUpdateInformation> buiList = new ArrayList<BoardUpdateInformation>(boardUpdateInformations.size());
+        buiList.addAll( boardUpdateInformations.values() );
+        Collections.sort(buiList, boardUpdateInformationComparator);
+        return buiList;
+    }
+
+    /**
+     * Sort BoardUpdateInformation descending by dateMillis.
+     */
+    private static class BoardUpdateInformationComparator implements Comparator<BoardUpdateInformation> {
+        public int compare(final BoardUpdateInformation o1, final BoardUpdateInformation o2) {
+            return Mixed.compareLong(o1.getDateMillis(), o2.getDateMillis());
+        }
     }
 }

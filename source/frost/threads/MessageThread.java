@@ -20,7 +20,6 @@
 package frost.threads;
 
 import java.io.*;
-import java.sql.*;
 import java.util.logging.*;
 
 import org.joda.time.*;
@@ -83,14 +82,14 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
             }
 
             LocalDate localDate = new LocalDate(DateTimeZone.UTC);
-            long date = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
+            long dateMillis = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
             final int boardId = board.getPerstFrostBoardObject().getBoardId();
 
             if (this.downloadToday) {
                 // get IndexSlot for today
-                final IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(boardId, date);
+                final IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(boardId, dateMillis);
                 // download only current date
-                downloadDate(localDate, gis);
+                downloadDate(localDate, gis, dateMillis);
                 // after update check if there are messages for upload and upload them
                 uploadMessages(gis); // doesn't get a message when message upload is disabled
             } else {
@@ -99,9 +98,9 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 while (!isInterrupted() && daysBack < maxMessageDownload) {
                     daysBack++;
                     localDate = localDate.minusDays(1);
-                    date = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
-                    final IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(boardId, date);
-                    downloadDate(localDate, gis);
+                    dateMillis = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
+                    final IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(boardId, dateMillis);
+                    downloadDate(localDate, gis, dateMillis);
                 }
                 // after a complete backload run, remember finish time.
                 // this ensures we ever update the complete backload days.
@@ -146,9 +145,9 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
         return downKey;
     }
 
-    protected void downloadDate(final LocalDate localDate, final IndexSlot gis) throws SQLException {
+    protected void downloadDate(final LocalDate localDate, final IndexSlot gis, final long dateMillis) {
 
-        final String dirdate = DateFun.FORMAT_DATE.print(localDate);
+        final String dirDateString = DateFun.FORMAT_DATE.print(localDate);
 
         int index = -1;
         int failures = 0;
@@ -172,7 +171,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
 
                 Mixed.waitRandom(2000); // don't hurt node
 
-                final String downKey = composeDownKey(index, dirdate);
+                final String downKey = composeDownKey(index, dirDateString);
                 logInfo = " board="+board.getName()+", key="+downKey;
 
                 // for backload use fast download, deep for today
