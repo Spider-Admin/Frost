@@ -184,12 +184,23 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 // for backload use fast download, deep for today
                 final boolean fastDownload = !downloadToday;
 
+                final boolean quicklyFailOnAdnf;
+                final int maxRetries;
+                if( Core.frostSettings.getBoolValue(SettingsClass.FCP2_QUICKLY_FAIL_ON_ADNF) ) {
+                    quicklyFailOnAdnf = true;
+                    maxRetries = 2;
+                } else {
+                    // default
+                    quicklyFailOnAdnf = false;
+                    maxRetries = -1;
+                }
+
                 boardUpdateInformation.setCurrentIndex(index);
                 notifyBoardUpdateInformationChanged(this, boardUpdateInformation);
 
                 final long millisBefore = System.currentTimeMillis();
 
-                final MessageDownloaderResult mdResult = MessageDownloader.downloadMessage(downKey, index, fastDownload, logInfo);
+                final MessageDownloaderResult mdResult = MessageDownloader.downloadMessage(downKey, index, maxRetries, fastDownload, logInfo);
 
                 boardUpdateInformation.incCountTriedIndices();
                 boardUpdateInformation.addNodeTime(System.currentTimeMillis() - millisBefore);
@@ -210,12 +221,15 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                         && mdResult.getErrorMessage() != null
                         && mdResult.getErrorMessage().equals(MessageDownloaderResult.ALLDATANOTFOUND) )
                 {
-                    // don't set slot used, try to retrieve the file again
-                    System.out.println("TOFDN: Skipping index "+index+" for now, will try again later.");
                     boardUpdateInformation.incCountADNF(); notifyBoardUpdateInformationChanged(this, boardUpdateInformation);
-
-                    // FIXME: try once a day when in backload (?)
-
+                    if( quicklyFailOnAdnf ) {
+                        System.out.println("TOFDN: Index "+index+" got ADNF, will never try this index again.");
+                        gis.setDownloadSlotUsed(index);
+                        IndexSlotsStorage.inst().storeSlot(gis); // remember each progress
+                    } else {
+                        // don't set slot used, try to retrieve the file again
+                        System.out.println("TOFDN: Skipping index "+index+" for now, will try again later.");
+                    }
                     continue;
                 }
 

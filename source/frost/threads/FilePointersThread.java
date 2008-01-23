@@ -143,7 +143,18 @@ public class FilePointersThread extends Thread {
                 System.out.println("FilePointersThread.downloadDate: requesting: "+downKey);
             }
 
-            final GlobalFileDownloaderResult result = GlobalFileDownloader.downloadFile(downKey, FcpHandler.MAX_MESSAGE_SIZE_07);
+            final boolean quicklyFailOnAdnf;
+            final int maxRetries;
+            if( Core.frostSettings.getBoolValue(SettingsClass.FCP2_QUICKLY_FAIL_ON_ADNF) ) {
+                quicklyFailOnAdnf = true;
+                maxRetries = 2;
+            } else {
+                // default
+                quicklyFailOnAdnf = false;
+                maxRetries = -1;
+            }
+
+            final GlobalFileDownloaderResult result = GlobalFileDownloader.downloadFile(downKey, FcpHandler.MAX_MESSAGE_SIZE_07, maxRetries);
 
             if(  result == null ) {
                 if( Logging.inst().doLogFilebaseMessages() ) {
@@ -163,7 +174,16 @@ public class FilePointersThread extends Thread {
 
             if( result.getErrorCode() == GlobalFileDownloaderResult.ERROR_EMPTY_REDIRECT ) {
                 if( Logging.inst().doLogFilebaseMessages() ) {
-                    System.out.println("FilePointersThread.downloadDate: Skipping index "+index+" for now, will try again later.");
+                    if( quicklyFailOnAdnf ) {
+                        System.out.println("FilePointersThread.downloadDate: Index "+index+" got ADNF, will never try index again.");
+                    } else {
+                        System.out.println("FilePointersThread.downloadDate: Skipping index "+index+" for now, will try again later.");
+                    }
+                }
+                if( quicklyFailOnAdnf ) {
+                    // don't try again
+                    gis.setDownloadSlotUsed(index);
+                    IndexSlotsStorage.inst().storeSlot(gis); // remember each progress
                 }
                 // next loop we try next index
                 index = gis.findNextDownloadSlot(index);

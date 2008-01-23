@@ -29,30 +29,33 @@ import frost.fileTransfer.upload.*;
 
 public class FcpHandler05 extends FcpHandler {
 
-    public void initialize(List<String> nodes) {
+    @Override
+    public void initialize(final List<String> nodes) {
         FcpFactory.init(nodes); // init the factory with configured nodes
     }
 
+    @Override
     public List<NodeAddress> getNodes() {
         return FcpFactory.getNodes();
     }
- 
+
     public FcpResultGet getFile(
-            int type,
-            String key,
-            Long size,
-            File target,
-            boolean doRedirect,
-            boolean fastDownload,
-            int maxSize,    // not used by 0.5
-            boolean createTempFile,
-            FrostDownloadItem dlItem)
+            final int type,
+            final String key,
+            final Long size,
+            final File target,
+            final boolean doRedirect,
+            final boolean fastDownload,
+            final int maxSize,    // not used by 0.5
+            final int maxRetries, // not used by 0.5
+            final boolean createTempFile,
+            final FrostDownloadItem dlItem)
     {
-        int htl = getDownloadHtlForType(type);
+        final int htl = getDownloadHtlForType(type);
         return FcpRequest.getFile(key, size, target, htl, doRedirect, fastDownload, createTempFile, dlItem);
     }
-    
-    private int getDownloadHtlForType(int type) {
+
+    private int getDownloadHtlForType(final int type) {
         if( type == FcpHandler.TYPE_MESSAGE ) {
             return Core.frostSettings.getIntValue(SettingsClass.MESSAGE_DOWNLOAD_HTL);
         } else if( type == FcpHandler.TYPE_FILE ) {
@@ -62,7 +65,7 @@ public class FcpHandler05 extends FcpHandler {
         }
     }
 
-    private int getUploadHtlForType(int type) {
+    private int getUploadHtlForType(final int type) {
         if( type == FcpHandler.TYPE_MESSAGE ) {
             return Core.frostSettings.getIntValue(SettingsClass.MESSAGE_UPLOAD_HTL);
         } else if( type == FcpHandler.TYPE_FILE ) {
@@ -72,34 +75,36 @@ public class FcpHandler05 extends FcpHandler {
         }
     }
 
+    @Override
     public FcpResultPut putFile(
-            int type,
-            String uri,
-            File file,
-            byte[] metadata,
-            boolean doRedirect,
-            boolean removeLocalKey,
-            boolean doMime,
-            FrostUploadItem ulItem)
+            final int type,
+            final String uri,
+            final File file,
+            final byte[] metadata,
+            final boolean doRedirect,
+            final boolean removeLocalKey,
+            final boolean doMime,
+            final FrostUploadItem ulItem)
     {
         // doMime is ignored on 0.5
-        int htl = getUploadHtlForType(type);
-        FcpResultPut result = FcpInsert.putFile(uri, file, metadata, htl, doRedirect, removeLocalKey, ulItem); 
+        final int htl = getUploadHtlForType(type);
+        final FcpResultPut result = FcpInsert.putFile(uri, file, metadata, htl, doRedirect, removeLocalKey, ulItem);
         if( result == null ) {
             return FcpResultPut.ERROR_RESULT;
         } else {
             return result;
         }
     }
-    
-    public String generateCHK(File file) throws Throwable {
+
+    @Override
+    public String generateCHK(final File file) throws Throwable {
 
         String chkkey;
         if (file.length() <= FcpInsert.smallestChunk) {
             // generate only CHK
             chkkey = FecTools.generateCHK(file);
         } else {
-            FecSplitfile splitfile = new FecSplitfile(file);
+            final FecSplitfile splitfile = new FecSplitfile(file);
             boolean alreadyEncoded = splitfile.uploadInit();
             if (!alreadyEncoded) {
                 splitfile.encode();
@@ -116,25 +121,27 @@ public class FcpHandler05 extends FcpHandler {
         return chkkey;
     }
 
+    @Override
     public List<String> getNodeInfo() throws IOException, ConnectException {
 
-        FcpConnection connection = FcpFactory.getFcpConnectionInstance();
+        final FcpConnection connection = FcpFactory.getFcpConnectionInstance();
         if (connection == null) {
             return null;
         }
         return connection.getNodeInfo();
     }
-    
+
+    @Override
     public BoardKeyPair generateBoardKeyPair() throws IOException, ConnectException {
-        
-        FcpConnection connection = FcpFactory.getFcpConnectionInstance();
+
+        final FcpConnection connection = FcpFactory.getFcpConnectionInstance();
         if (connection == null) {
             return null;
         }
 
-        String[] keyPair = connection.getKeyPair();
-        String privKey = keyPair[0];
-        String pubKey = keyPair[1];
+        final String[] keyPair = connection.getKeyPair();
+        final String privKey = keyPair[0];
+        final String pubKey = keyPair[1];
         return new BoardKeyPair(pubKey, privKey);
     }
 }

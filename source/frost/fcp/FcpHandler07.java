@@ -69,6 +69,7 @@ public class FcpHandler07 extends FcpHandler {
             final boolean doRedirect,
             final boolean fastDownload,
             final int maxSize,
+            final int maxRetries,
             final boolean createTempFile,
             final FrostDownloadItem dlItem)
     {
@@ -83,7 +84,7 @@ public class FcpHandler07 extends FcpHandler {
             System.out.println("GET_START(S)("+cnt+"):"+key);
             final String id = "get-" + FcpSocket.getNextFcpId();
             final int prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE_DOWNLOAD);
-            final MessageTransferTask task = new MessageTransferTask(id, key, targetFile, prio, maxSize);
+            final MessageTransferTask task = new MessageTransferTask(id, key, targetFile, prio, maxSize, maxRetries);
 
             // enqueue task
             msgTransferConnection.enqueueTask(task);
@@ -96,7 +97,7 @@ public class FcpHandler07 extends FcpHandler {
         } else {
             // use a new socket
             System.out.println("GET_START(N)("+cnt+"):"+key);
-            result = FcpRequest.getFile(type, key, size, targetFile, maxSize, createTempFile, dlItem);
+            result = FcpRequest.getFile(type, key, size, targetFile, maxSize, maxRetries, createTempFile, dlItem);
             System.out.println("GET_END(N)("+cnt+"):"+key+", duration="+(System.currentTimeMillis()-l));
         }
         return result;

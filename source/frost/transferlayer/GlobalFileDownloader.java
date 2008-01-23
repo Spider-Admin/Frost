@@ -30,7 +30,7 @@ public class GlobalFileDownloader {
 
 //    /**
 //     * Returns null if file not found.
-//     * Returns a GlobalFileDownloaderResult if File was downloaded, or if key was invalid. 
+//     * Returns a GlobalFileDownloaderResult if File was downloaded, or if key was invalid.
 //     */
 //    public static GlobalFileDownloaderResult downloadFile(String downKey) {
 //        return downloadFile(downKey, -1);
@@ -38,34 +38,35 @@ public class GlobalFileDownloader {
 
     /**
      * Returns null if file not found.
-     * Returns a GlobalFileDownloaderResult if File was downloaded, or if key was invalid. 
+     * Returns a GlobalFileDownloaderResult if File was downloaded, or if key was invalid.
      */
-    public static GlobalFileDownloaderResult downloadFile(String downKey, int maxSize) {
-        
+    public static GlobalFileDownloaderResult downloadFile(final String downKey, final int maxSize, final int maxRetries) {
+
         try {
-            File tmpFile = FileAccess.createTempFile("frost_",".tmp");
+            final File tmpFile = FileAccess.createTempFile("frost_",".tmp");
             tmpFile.deleteOnExit();
 
-            FcpResultGet fcpresults = FcpHandler.inst().getFile(
+            final FcpResultGet fcpresults = FcpHandler.inst().getFile(
                     FcpHandler.TYPE_MESSAGE,
                     downKey,
                     null,
                     tmpFile,
                     false,    // doRedirect, like in uploadIndexFile()
                     false,    // fastDownload (0.5)
-                    maxSize); 
-    
+                    maxSize,
+                    maxRetries);
+
             if( fcpresults == null || !fcpresults.isSuccess() ) {
                 // download failed
                 tmpFile.delete();
-                if( fcpresults != null 
-                        && fcpresults.getReturnCode() == 28 
-                        && downKey.startsWith("KSK@") ) 
+                if( fcpresults != null
+                        && fcpresults.getReturnCode() == 28
+                        && downKey.startsWith("KSK@") )
                 {
                     return new GlobalFileDownloaderResult(GlobalFileDownloaderResult.ERROR_EMPTY_REDIRECT); // invalid KSK key
                 }
-                else if( fcpresults != null 
-                        && fcpresults.getReturnCode() == 21 ) 
+                else if( fcpresults != null
+                        && fcpresults.getReturnCode() == 21 )
                 {
                     return new GlobalFileDownloaderResult(GlobalFileDownloaderResult.ERROR_FILE_TOO_BIG);
                 } else {
@@ -73,8 +74,8 @@ public class GlobalFileDownloader {
                 }
             }
             return new GlobalFileDownloaderResult(tmpFile);
-            
-        } catch (Throwable t) {
+
+        } catch (final Throwable t) {
             logger.log(Level.SEVERE, "Error in downloadFile", t);
         }
         return null;

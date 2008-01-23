@@ -31,11 +31,11 @@ import frost.util.*;
  */
 // while requesting / inserting, show chunks left to try (incl. trying chunks) -> Warte (9) / 18% (9)
 public class FcpRequest {
-    
+
 	final static boolean DEBUG = true;
 
 	private static final Logger logger = Logger.getLogger(FcpRequest.class.getName());
-    
+
     /**
      * getFile retrieves a file from Freenet. It does detect if this file is a redirect, a splitfile or
      * just a simple file. It checks the size for the file and returns false if sizes do not match.
@@ -49,13 +49,14 @@ public class FcpRequest {
      * @return True if download was successful, else false.
      */
     public static FcpResultGet getFile(
-            int type,
-            String key,
-            Long size,
-            File target,
-            int maxSize,
-            boolean createTempFile,
-            FrostDownloadItem dlItem)
+            final int type,
+            final String key,
+            final Long size,
+            final File target,
+            final int maxSize,
+            final int maxRetries,
+            final boolean createTempFile,
+            final FrostDownloadItem dlItem)
     {
         File tempFile = null;
         if( createTempFile ) {
@@ -65,7 +66,7 @@ public class FcpRequest {
         }
 
         // First we just download the file, not knowing what lies ahead
-        FcpResultGet results = getKey(type, key, tempFile, maxSize, dlItem);
+        final FcpResultGet results = getKey(type, key, tempFile, maxSize, maxRetries, dlItem);
 
         if( results.isSuccess() ) {
 
@@ -74,7 +75,7 @@ public class FcpRequest {
                 target.delete();
             }
 
-            boolean wasOK = tempFile.renameTo(target);
+            final boolean wasOK = tempFile.renameTo(target);
             if( wasOK == false ) {
                logger.severe("ERROR: Could not move file '" + tempFile.getPath() + "' to '" + target.getPath() + "'.\n" +
                 			  "Maybe the locations are on different filesystems where a move is not allowed.\n" +
@@ -90,8 +91,14 @@ public class FcpRequest {
     }
 
     // used by getFile
-    private static FcpResultGet getKey(int type, String key, File target, int maxSize, FrostDownloadItem dlItem) {
-
+    private static FcpResultGet getKey(
+            final int type,
+            final String key,
+            final File target,
+            final int maxSize,
+            final int maxRetries,
+            final FrostDownloadItem dlItem)
+    {
         if( key == null || key.length() == 0 || key.startsWith("null") ) {
             System.out.println("getKey: KEY IS NULL!");
             return FcpResultGet.RESULT_FAILED;
@@ -100,30 +107,30 @@ public class FcpRequest {
         FcpConnection connection;
         try {
             connection = FcpFactory.getFcpConnectionInstance();
-        } catch (ConnectException e1) {
+        } catch (final ConnectException e1) {
             connection = null;
         }
-        
+
         FcpResultGet results = null;
 
         if( connection != null ) {
             int tries = 0;
-            int maxtries = 3;
+            final int maxtries = 3;
             while( tries < maxtries ) {
                 try {
-                    results = connection.getKeyToFile(type, key, target, maxSize, dlItem);
+                    results = connection.getKeyToFile(type, key, target, maxSize, maxRetries, dlItem);
                     break;
-                } catch( java.net.ConnectException e ) {
+                } catch( final java.net.ConnectException e ) {
                     tries++;
                     continue;
-                } catch( DataNotFoundException ex ) { // frost.FcpTools.DataNotFoundException
+                } catch( final DataNotFoundException ex ) { // frost.FcpTools.DataNotFoundException
                     // do nothing, data not found is usual ...
 					logger.log(Level.INFO, "FcpRequest.getKey(1): DataNotFoundException (usual if not found)", ex);
                     break;
-                } catch( FcpToolsException e ) {
+                } catch( final FcpToolsException e ) {
 					logger.log(Level.SEVERE, "FcpRequest.getKey(1): FcpToolsException", e);
                     break;
-                } catch( IOException e ) {
+                } catch( final IOException e ) {
 					logger.log(Level.SEVERE, "FcpRequest.getKey(1): IOException", e);
                     break;
                 }
@@ -133,16 +140,20 @@ public class FcpRequest {
         String printableKey = null;
         if( DEBUG ) {
             String keyPrefix = "";
-            if( key.indexOf("@") > -1 )  keyPrefix = key.substring(0, key.indexOf("@")+1);
+            if( key.indexOf("@") > -1 ) {
+                keyPrefix = key.substring(0, key.indexOf("@")+1);
+            }
             String keyUrl = "";
-            if( key.indexOf("/") > -1 )  keyUrl = key.substring(key.indexOf("/"));
+            if( key.indexOf("/") > -1 ) {
+                keyUrl = key.substring(key.indexOf("/"));
+            }
             printableKey = new StringBuilder().append(keyPrefix)
                                              .append("...")
                                              .append(keyUrl).toString();
         }
-        
+
         System.out.println("getKey: file='"+target.getPath()+"' ; len="+target.length());
-        
+
         if( results == null ) {
             // paranoia
             results = FcpResultGet.RESULT_FAILED;

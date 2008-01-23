@@ -27,54 +27,63 @@ import frost.fcp.fcp07.*;
 import frost.util.Logging;
 
 public class MessageTransferHandler implements NodeMessageListener {
-    
+
     private static final Logger logger = Logger.getLogger(MessageTransferHandler.class.getName());
 
     private final FcpMultiRequestConnectionTools fcpTools;
-    
-    private final HashMap<String,MessageTransferTask> taskMap = new HashMap<String,MessageTransferTask>(); 
-    
+
+    private final HashMap<String,MessageTransferTask> taskMap = new HashMap<String,MessageTransferTask>();
+
     private boolean isConnected = true; // guaranteed to connect during construction
-    
+
     public MessageTransferHandler() throws Throwable {
-        
+
         if( FcpHandler.inst().getNodes().isEmpty() ) {
             throw new Exception("No freenet nodes defined");
         }
-        NodeAddress na = FcpHandler.inst().getNodes().get(0);
+        final NodeAddress na = FcpHandler.inst().getNodes().get(0);
         this.fcpTools = new FcpMultiRequestConnectionTools(FcpMultiRequestConnection.createInstance(na));
     }
-    
+
     public void start() {
         fcpTools.getFcpPersistentConnection().addNodeMessageListener(this);
     }
     // key umwandeln in | !!!
-    public synchronized void enqueueTask(MessageTransferTask task) {
-        
+    public synchronized void enqueueTask(final MessageTransferTask task) {
+
         if( !isConnected ) {
             logger.severe("Rejecting new task, not connected!");
             task.setFailed();
             task.setFinished();
             return;
         }
-        
+
         taskMap.put(task.getIdentifier(), task);
-        
+
         // send task to socket
         if( task.isModeDownload() ) {
-            fcpTools.startDirectGet(task.getIdentifier(), task.getKey(), task.getPriority(), task.getMaxSize());
+            fcpTools.startDirectGet(
+                    task.getIdentifier(),
+                    task.getKey(),
+                    task.getPriority(),
+                    task.getMaxSize(),
+                    task.getMaxRetries());
         } else {
-            fcpTools.startDirectPut(task.getIdentifier(), task.getKey(), task.getPriority(), task.getFile());
+            fcpTools.startDirectPut(
+                    task.getIdentifier(),
+                    task.getKey(),
+                    task.getPriority(),
+                    task.getFile());
         }
     }
-    
-    protected synchronized void setTaskFinished(MessageTransferTask task) {
+
+    protected synchronized void setTaskFinished(final MessageTransferTask task) {
         taskMap.remove(task.getIdentifier());
         task.setFinished();
     }
 
-////////////////////////////////////////////////////////////////////////////////////////////////    
-//  NodeMessageListener interface //////////////////////////////////////////////////////////////    
+////////////////////////////////////////////////////////////////////////////////////////////////
+//  NodeMessageListener interface //////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
     public synchronized void connected() {
@@ -89,7 +98,7 @@ public class MessageTransferHandler implements NodeMessageListener {
         int taskCount = 0;
         synchronized(taskMap) {
             // notify all pending tasks that transfer failed
-            for( MessageTransferTask task : taskMap.values() ) {
+            for( final MessageTransferTask task : taskMap.values() ) {
                 task.setFailed();
                 task.setFinished();
                 taskCount++;
@@ -99,23 +108,23 @@ public class MessageTransferHandler implements NodeMessageListener {
         logger.severe("disconnected, set "+taskCount+" tasks failed");
     }
 
-    public void handleNodeMessage(NodeMessage nm) {
+    public void handleNodeMessage(final NodeMessage nm) {
         // handle a NodeMessage without identifier
     }
 // FIXME: restart tasks in queue after reconnect! accept new tasks during disconnect (??????)
-    public void handleNodeMessage(String id, NodeMessage nm) {
-        if(Logging.inst().doLogFcp2Messages()) { 
+    public void handleNodeMessage(final String id, final NodeMessage nm) {
+        if(Logging.inst().doLogFcp2Messages()) {
             System.out.println(">>>RCV>>>>");
             System.out.println("MSG="+nm);
             System.out.println("<<<<<<<<<<");
         }
-        
-        MessageTransferTask task = taskMap.get(id);
+
+        final MessageTransferTask task = taskMap.get(id);
         if( task == null ) {
             logger.severe("No task in list for identifier: "+id);
             return;
         }
-        
+
         if( nm.isMessageName("AllData") ) {
             onAllData(task, nm); // get successful
         } else if( nm.isMessageName("GetFailed") ) {
@@ -145,24 +154,24 @@ public class MessageTransferHandler implements NodeMessageListener {
     }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
-//  handleNodeMessage methods //////////////////////////////////////////////////////////////////    
+//  handleNodeMessage methods //////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-    protected void onAllData(MessageTransferTask task, NodeMessage nm) {
+    protected void onAllData(final MessageTransferTask task, final NodeMessage nm) {
         if( nm.getMessageEnd() == null || !nm.getMessageEnd().equals("Data") ) {
             logger.severe("NodeMessage has invalid end marker: "+nm.getMessageEnd());
             return;
         }
         // data follow, first get datalength
-        long dataLength = nm.getLongValue("DataLength");
+        final long dataLength = nm.getLongValue("DataLength");
         long bytesWritten = 0;
 
         try {
-            BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(task.getFile()));
-            byte[] b = new byte[4096];
+            final BufferedOutputStream fileOut = new BufferedOutputStream(new FileOutputStream(task.getFile()));
+            final byte[] b = new byte[4096];
             long bytesLeft = dataLength;
             int count;
-            BufferedInputStream fcpIn = fcpTools.getFcpPersistentConnection().getFcpSocket().getFcpIn(); 
+            final BufferedInputStream fcpIn = fcpTools.getFcpPersistentConnection().getFcpSocket().getFcpIn();
             while( bytesLeft > 0 ) {
                 count = fcpIn.read(b, 0, ((bytesLeft > b.length)?b.length:(int)bytesLeft));
                 if( count < 0 ) {
@@ -174,11 +183,11 @@ public class MessageTransferHandler implements NodeMessageListener {
                 bytesWritten += count;
             }
             fileOut.close();
-        } catch (Throwable e) {
+        } catch (final Throwable e) {
             logger.log(Level.SEVERE, "Catched exception", e);
         }
-        
-        if(Logging.inst().doLogFcp2Messages()) { 
+
+        if(Logging.inst().doLogFcp2Messages()) {
             System.out.println("*GET** Wrote "+bytesWritten+" of "+dataLength+" bytes to file.");
         }
         final FcpResultGet result;
@@ -191,7 +200,7 @@ public class MessageTransferHandler implements NodeMessageListener {
         task.setFcpResultGet(result);
         setTaskFinished(task);
     }
-    protected void onGetFailed(MessageTransferTask task, NodeMessage nm) {
+    protected void onGetFailed(final MessageTransferTask task, final NodeMessage nm) {
         final int returnCode = nm.getIntValue("Code");
         final String codeDescription = nm.getStringValue("CodeDescription");
         final boolean isFatal = nm.getBoolValue("Fatal");
@@ -200,19 +209,19 @@ public class MessageTransferHandler implements NodeMessageListener {
         task.setFcpResultGet(result);
         setTaskFinished(task);
     }
-    
-    protected void onPutSuccessful(MessageTransferTask task, NodeMessage nm) {
-        
+
+    protected void onPutSuccessful(final MessageTransferTask task, final NodeMessage nm) {
+
         String chkKey = nm.getStringValue("URI");
         // check if the returned text contains the computed CHK key
-        int pos = chkKey.indexOf("CHK@"); 
+        final int pos = chkKey.indexOf("CHK@");
         if( pos > -1 ) {
             chkKey = chkKey.substring(pos).trim();
         }
         task.setFcpResultPut(new FcpResultPut(FcpResultPut.Success, chkKey));
         setTaskFinished(task);
     }
-    protected void onPutFailed(MessageTransferTask task, NodeMessage nm) {
+    protected void onPutFailed(final MessageTransferTask task, final NodeMessage nm) {
         final int returnCode = nm.getIntValue("Code");
         final String codeDescription = nm.getStringValue("CodeDescription");
         final boolean isFatal = nm.getBoolValue("Fatal");
@@ -227,8 +236,8 @@ public class MessageTransferHandler implements NodeMessageListener {
         task.setFcpResultPut(result);
         setTaskFinished(task);
     }
-    
-    protected void handleError(MessageTransferTask task, NodeMessage nm) {
+
+    protected void handleError(final MessageTransferTask task, final NodeMessage nm) {
 
         final int returnCode = nm.getIntValue("Code");
         final String codeDescription = nm.getStringValue("CodeDescription");

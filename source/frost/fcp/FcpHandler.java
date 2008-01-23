@@ -29,24 +29,24 @@ import frost.fileTransfer.upload.*;
 public abstract class FcpHandler {
 
     private static final Logger logger = Logger.getLogger(FcpHandler.class.getName());
-    
+
     public static final int TYPE_MESSAGE = 1;
     public static final int TYPE_FILE    = 2;
-    
+
     public static final int MAX_MESSAGE_SIZE_07 = (64 * 1024) + (16 * 1024); // 64kb + 16kb
     public static final int MAX_FILELIST_SIZE_07 = (512 * 1024) + (16 * 1024); // 512kb + 16kb
-    
+
     private static FcpHandler instance = null;
-    
+
     public static final int FREENET_05 = 5;
     public static final int FREENET_07 = 7;
-    
+
     private static int initializedVersion = -1;
-    
+
     public static FcpHandler inst() {
         return instance;
     }
-    
+
     public static boolean isFreenet05() {
         return initializedVersion == FREENET_05;
     }
@@ -55,7 +55,7 @@ public abstract class FcpHandler {
         return initializedVersion == FREENET_07;
     }
 
-    public static void initializeFcp(List<String> nodes, int freenetVersion) throws UnsupportedOperationException {
+    public static void initializeFcp(final List<String> nodes, final int freenetVersion) throws UnsupportedOperationException {
         if( freenetVersion == FREENET_05 ) {
             instance = new FcpHandler05();
             instance.initialize(nodes);
@@ -71,9 +71,9 @@ public abstract class FcpHandler {
             throw new UnsupportedOperationException("This Freenet version is not supported, must be 5 or 7: "+freenetVersion);
         }
     }
-    
+
     public abstract void initialize(List<String> nodes);
-    
+
     public abstract List<NodeAddress> getNodes();
 
     /**
@@ -81,7 +81,7 @@ public abstract class FcpHandler {
      */
     public void goneOnline() {
     }
-    
+
     /**
      * getFile retrieves a file from Freenet. It does detect if this file is a redirect, a splitfile or
      * just a simple file. It checks the size for the file and returns false if sizes do not match.
@@ -95,14 +95,14 @@ public abstract class FcpHandler {
      * @return null on error, or FcpResults
      */
     public FcpResultGet getFile(
-            int type,
-            String key,
-            Long size,
-            File target,
-            boolean doRedirect)
+            final int type,
+            final String key,
+            final Long size,
+            final File target,
+            final boolean doRedirect)
     {
         // use temp file by default, only filedownload needs the target file to monitor download progress
-        return getFile(type,key,size,target,doRedirect, false, -1, true, null);
+        return getFile(type,key,size,target,doRedirect, false, -1, -1, true, null);
     }
 
     /**
@@ -119,16 +119,17 @@ public abstract class FcpHandler {
      * @return null on error, or FcpResults
      */
     public FcpResultGet getFile(
-            int type,
-            String key,
-            Long size,
-            File target,
-            boolean doRedirect,
-            boolean fastDownload,
-            int maxSize)
+            final int type,
+            final String key,
+            final Long size,
+            final File target,
+            final boolean doRedirect,
+            final boolean fastDownload,
+            final int maxSize,
+            final int maxRetries)
     {
         // use temp file by default, only filedownload needs the target file to monitor download progress
-        return getFile(type, key,size,target,doRedirect, fastDownload, maxSize, true, null);
+        return getFile(type, key,size,target,doRedirect, fastDownload, maxSize, maxRetries, true, null);
     }
 
     /**
@@ -142,7 +143,7 @@ public abstract class FcpHandler {
      * @param htl request htl
      * @param doRedirect If true, getFile redirects if possible and downloads the file it was redirected to.
      * @param fastDownload  If true request stop if node reports a timeout. If false try until node indicates end.
-     * @param createTempFile  true to download to a temp file and rename to target file after success.  
+     * @param createTempFile  true to download to a temp file and rename to target file after success.
      * @param dlItem   The DownloadItem for this download for progress updates, or null if there is none.
      * @return null on error, or FcpResults
      */
@@ -154,9 +155,10 @@ public abstract class FcpHandler {
             boolean doRedirect,
             boolean fastDownload,
             int maxSize,
+            int maxRetries,
             boolean createTempFile,
             FrostDownloadItem dlItem);
-    
+
     /**
      * Inserts a file into freenet.
      * The boardfilename is needed for FEC splitfile puts,
@@ -164,13 +166,13 @@ public abstract class FcpHandler {
      * This method wraps the calls without the uploadItem.
      */
     public FcpResultPut putFile(
-            int type,
-            String uri,
-            File file,
-            byte[] metadata,
-            boolean doRedirect,
-            boolean removeLocalKey,
-            boolean doMime)
+            final int type,
+            final String uri,
+            final File file,
+            final byte[] metadata,
+            final boolean doRedirect,
+            final boolean removeLocalKey,
+            final boolean doMime)
     {
         return putFile(type, uri, file, metadata, doRedirect, removeLocalKey, doMime, null);
     }
@@ -191,10 +193,10 @@ public abstract class FcpHandler {
             boolean removeLocalKey,
             boolean doMime,
             FrostUploadItem ulItem);
-    
+
     public abstract String generateCHK(File file) throws Throwable;
-    
+
     public abstract List<String> getNodeInfo() throws IOException, ConnectException;
-    
+
     public abstract BoardKeyPair generateBoardKeyPair() throws IOException, ConnectException;
 }

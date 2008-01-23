@@ -101,6 +101,10 @@ public class SettingsClass implements ExitSavable {
     public static final String FCP2_DEFAULT_PRIO_FILE_DOWNLOAD = "fcp2.defaultPriorityFileDownload";
     public static final String FCP2_SET_TARGETFILENAME_FOR_MANUAL_PUT = "fcp2.setTargetfilenameForManualPut"; // not in gui dialog!
 
+    // If true, we start the requests with a FCP2:MaxRetries of 2 and never try them again. (use during DoS attacks)
+    // If false, we start the requests with a FCP2:MaxRetries of 1 and try them again during each board update. (default)
+    public static final String FCP2_QUICKLY_FAIL_ON_ADNF = "fcp2.quicklyFailOnAdnf"; // not in gui dialog!
+
     public static final String AUTO_SAVE_INTERVAL = "autoSaveInterval";
     public static final String AUTO_SAVE_LOCAL_IDENTITIES = "autoSaveLocalIdentities";
     public static final String DISABLE_FILESHARING = "disableFilesharing";
@@ -862,7 +866,9 @@ public class SettingsClass implements ExitSavable {
         defaults.put(FCP2_DEFAULT_PRIO_MESSAGE_DOWNLOAD, "2");
         defaults.put(FCP2_DEFAULT_PRIO_FILE_UPLOAD, "3");
         defaults.put(FCP2_DEFAULT_PRIO_FILE_DOWNLOAD, "3");
+
         defaults.put(FCP2_SET_TARGETFILENAME_FOR_MANUAL_PUT, "true");
+        defaults.put(FCP2_QUICKLY_FAIL_ON_ADNF, "false");
 
         defaults.put(ALTERNATE_EDITOR_COMMAND, fn + "path" + fs + "to" + fs + "editor" + " %f");
         defaults.put(BOARD_AUTOUPDATE_ENABLED, "true");
