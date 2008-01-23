@@ -5,6 +5,7 @@ import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
+import javax.swing.border.*;
 
 import frost.threads.*;
 
@@ -33,6 +34,8 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
 
     private static boolean isShowing = false; // flag, is true if frame is shown
     private final TofTree tofTree;
+    private JPanel buttonPanel;
+    private JButton Bclose;
     private final TofTreeModel tofTreeModel;
 
     public BoardUpdateInformationFrame(final JFrame parentFrame, final TofTree tofTree) {
@@ -83,8 +86,25 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
             }
             {
                 taContent = new JTextArea();
-                taContent.setEditable(false);
                 getContentPane().add(taContent, new GridBagConstraints(0, 1, 4, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 5, 5, 5), 0, 0));
+                taContent.setBorder(BorderFactory.createEtchedBorder(BevelBorder.LOWERED));
+            }
+            {
+                buttonPanel = new JPanel();
+                final FlowLayout buttonPanelLayout = new FlowLayout();
+                buttonPanelLayout.setAlignment(FlowLayout.RIGHT);
+                getContentPane().add(buttonPanel, new GridBagConstraints(0, 2, 4, 1, 1.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0), 0, 0));
+                buttonPanel.setLayout(buttonPanelLayout);
+                {
+                    Bclose = new JButton();
+                    buttonPanel.add(Bclose);
+                    Bclose.setText("Close");
+                    Bclose.addActionListener(new ActionListener() {
+                        public void actionPerformed(final ActionEvent evt) {
+                            BcloseActionPerformed(evt);
+                        }
+                    });
+                }
             }
             pack();
             setSize(400, 400);
@@ -244,5 +264,9 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
            return;
        }
        taContent.setText( bui.getInfoString() );
+   }
+
+   private void BcloseActionPerformed(final ActionEvent evt) {
+       closeDialog();
    }
 }
