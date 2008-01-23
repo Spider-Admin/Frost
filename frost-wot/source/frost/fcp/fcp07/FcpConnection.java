@@ -97,7 +97,13 @@ public class FcpConnection {
      * @param filename  the filename to which the data should be saved
      * @return the results filled with metadata
      */
-    public FcpResultGet getKeyToFile(final int type, String keyString, final File targetFile, final int maxSize, final FrostDownloadItem dlItem)
+    public FcpResultGet getKeyToFile(
+            final int type,
+            String keyString,
+            final File targetFile,
+            final int maxSize,
+            int maxRetries,
+            final FrostDownloadItem dlItem)
     throws IOException, FcpToolsException, InterruptedIOException {
 
         File ddaTempFile = null;
@@ -109,7 +115,7 @@ public class FcpConnection {
 					"Key =       " + key + "\n" +
 					"KeyType =   " + key.getKeyType());
 
-        boolean useDDA;
+        final boolean useDDA;
         if( type == FcpHandler.TYPE_MESSAGE ) {
             useDDA = false;
         } else {
@@ -126,7 +132,10 @@ public class FcpConnection {
         fcpSocket.getFcpOut().println("DSOnly=false");
         fcpSocket.getFcpOut().println("URI=" + key);
         fcpSocket.getFcpOut().println("Identifier=get-" + FcpSocket.getNextFcpId() );
-        fcpSocket.getFcpOut().println("MaxRetries=1");
+        if( maxRetries <= 0 ) {
+            maxRetries = 1;
+        }
+        fcpSocket.getFcpOut().println("MaxRetries=" + maxRetries);
         fcpSocket.getFcpOut().println("Verbosity=-1");
 
         if (useDDA) {

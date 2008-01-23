@@ -298,14 +298,17 @@ public class FcpMultiRequestConnectionTools {
 // Methods to get/put messages ////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public void startDirectGet(final String id, final String key, final int priority, final int maxSize) {
+    public void startDirectGet(final String id, final String key, final int priority, final int maxSize, int maxRetries) {
         final List<String> msg = new LinkedList<String>();
         msg.add("ClientGet");
         msg.add("IgnoreDS=false");
         msg.add("DSOnly=false");
         msg.add("URI=" + key);
         msg.add("Identifier=" + id );
-        msg.add("MaxRetries=1");
+        if( maxRetries <= 0 ) {
+            maxRetries = 1;
+        }
+        msg.add("MaxRetries=" + maxRetries);
         msg.add("Verbosity=0");
         msg.add("ReturnType=direct");
         msg.add("Persistence=connection");

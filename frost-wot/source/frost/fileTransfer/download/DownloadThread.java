@@ -28,15 +28,15 @@ public class DownloadThread extends Thread {
 
     private static final Logger logger = Logger.getLogger(DownloadThread.class.getName());
 
-    private DownloadTicker ticker;
-    private String filename;
-    private Long size;
-    private String key;
-    private File targetFile;
+    private final DownloadTicker ticker;
+    private final String filename;
+    private final Long size;
+    private final String key;
+    private final File targetFile;
 
-    private FrostDownloadItem downloadItem;
-    
-    public DownloadThread(DownloadTicker newTicker, FrostDownloadItem item, File target) {
+    private final FrostDownloadItem downloadItem;
+
+    public DownloadThread(final DownloadTicker newTicker, final FrostDownloadItem item, final File target) {
         filename = item.getFilename();
         size = item.getFileSize();
         key = item.getKey();
@@ -45,6 +45,7 @@ public class DownloadThread extends Thread {
         targetFile = target;
     }
 
+    @Override
     public void run() {
         ticker.threadStarted();
 
@@ -53,7 +54,7 @@ public class DownloadThread extends Thread {
             ticker.threadFinished();
             return;
         }
-        
+
         try {
             // otherwise, proceed as usual
             logger.info("FILEDN: Download of '" + filename + "' started.");
@@ -70,20 +71,21 @@ public class DownloadThread extends Thread {
                             true,  // doRedirect
                             false, // fastDownload
                             -1,    // maxSize
+                            -1,    // maxRetries, use default
                             false, // createTempFile
                             downloadItem);
-            } catch (Throwable t) {
+            } catch (final Throwable t) {
                 logger.log(Level.SEVERE, "Exception thrown in getFile()", t);
             }
-            
-            boolean retryNow = 
+
+            final boolean retryNow =
                 FileTransferManager.inst().getDownloadManager().notifyDownloadFinished(downloadItem, result, targetFile);
-            
+
             if( retryNow ) {
                 FileTransferManager.inst().getDownloadManager().startDownload(downloadItem);
             }
 
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             logger.log(Level.SEVERE, "Oo. EXCEPTION in requestThread.run", t);
         }
 

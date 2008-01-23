@@ -95,7 +95,7 @@ public class FileListDownloadThread extends Thread {
                     System.out.println("FileListDownloadThread: starting download of key: "+chkKey);
                 }
 
-                final GlobalFileDownloaderResult result = GlobalFileDownloader.downloadFile(chkKey, FcpHandler.MAX_FILELIST_SIZE_07);
+                final GlobalFileDownloaderResult result = GlobalFileDownloader.downloadFile(chkKey, FcpHandler.MAX_FILELIST_SIZE_07, -1);
 
                 if( result == null || result.getResultFile() == null ) {
                     // download failed

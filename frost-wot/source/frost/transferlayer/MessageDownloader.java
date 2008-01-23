@@ -66,6 +66,7 @@ public class MessageDownloader {
     public static MessageDownloaderResult downloadMessage(
             final String downKey,
             final int targetIndex,
+            final int maxRetries,
             final boolean fastDownload,
             final String logInfo) {
 
@@ -80,7 +81,8 @@ public class MessageDownloader {
                     tmpFile,
                     false,
                     fastDownload,
-                    FcpHandler.MAX_MESSAGE_SIZE_07);
+                    FcpHandler.MAX_MESSAGE_SIZE_07,
+                    maxRetries);
         } catch(final Throwable t) {
             logger.log(Level.SEVERE, "TOFDN: Exception thrown in downloadDate part 1."+logInfo, t);
             // download failed

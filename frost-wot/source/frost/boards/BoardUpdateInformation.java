@@ -24,10 +24,6 @@ import frost.util.*;
 
 public class BoardUpdateInformation {
 
-    // -> show non-modal dialog, change displayed board when board tree selection changes
-    //      ComboBox for Boardname (extra, Text = "boardname (updcount)")
-    //      ComboBox for dateString
-
     // - maybe compute : indices per X minutes
 
     private final Board board;
