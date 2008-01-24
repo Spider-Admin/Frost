@@ -47,7 +47,7 @@ public class FcpMultiRequestConnectionTools {
         msg.add("ModifyPersistentRequest");
         msg.add("Global=true");
         msg.add("Identifier="+id);
-        msg.add("PriorityClass="+Integer.toString(newPrio));
+        msg.add("PriorityClass=" + Integer.toString(newPrio));
         fcpPersistentConnection.sendMessage(msg, true);
     }
 
@@ -308,7 +308,7 @@ public class FcpMultiRequestConnectionTools {
         if( maxRetries <= 0 ) {
             maxRetries = 1;
         }
-        msg.add("MaxRetries=" + maxRetries);
+        msg.add("MaxRetries=" + Integer.toString(maxRetries));
         msg.add("Verbosity=0");
         msg.add("ReturnType=direct");
         msg.add("Persistence=connection");

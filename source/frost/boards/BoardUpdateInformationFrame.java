@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.event.*;
 
 import frost.threads.*;
 
@@ -23,8 +24,6 @@ import frost.threads.*;
 * LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
 */
 public class BoardUpdateInformationFrame extends javax.swing.JFrame implements BoardUpdateThreadListener {
-
-    // FIXME: show tabbed pane, summary tab shows accumulated values for each day (all boards) and all days
 
     private JComboBox cbBoards;
     private JLabel lBoards;
@@ -99,10 +98,6 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
             final GridBagLayout summaryPanelLayout = new GridBagLayout();
             final JPanel summaryPanel = new JPanel(summaryPanelLayout);
             final GridBagLayout summaryPanelLayout1 = new GridBagLayout();
-            summaryPanelLayout1.rowWeights = new double[] {0.1};
-            summaryPanelLayout1.rowHeights = new int[] {7};
-            summaryPanelLayout1.columnWeights = new double[] {0.1};
-            summaryPanelLayout1.columnWidths = new int[] {7};
             summaryPanel.setLayout(summaryPanelLayout1);
             {
 
@@ -113,13 +108,18 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
                 tabbedPane.addTab("Summary", summaryPanel);
                 {
                     taSummary = new JTextArea();
-                    summaryPanel.add(taSummary, new GridBagConstraints(0, 0, 1, 1, 0.0, 0.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
+                    summaryPanel.add(taSummary, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
                     taSummary.setText("jTextArea1");
                     taSummary.setBorder(BorderFactory.createCompoundBorder(
                             BorderFactory.createBevelBorder(BevelBorder.LOWERED, null, null, null, null),
                             BorderFactory.createEmptyBorder(5, 5, 5, 5)));
                     taSummary.setEditable(false);
                 }
+                tabbedPane.addChangeListener(new ChangeListener() {
+                    public void stateChanged(final ChangeEvent e) {
+                        tabbedPaneStateChanged(e);
+                    }
+                });
                 getContentPane().add(tabbedPane, BorderLayout.CENTER);
             }
             {
@@ -215,6 +215,10 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
         dispose();
     }
 
+    private void BcloseActionPerformed(final ActionEvent evt) {
+        closeDialog();
+    }
+
     @Override
     protected void processWindowEvent(final WindowEvent e) {
         if( e.getID() == WindowEvent.WINDOW_CLOSING ) {
@@ -299,7 +303,12 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
        taContent.setText( bui.getInfoString() );
    }
 
-   private void BcloseActionPerformed(final ActionEvent evt) {
-       closeDialog();
+   private void tabbedPaneStateChanged(final ChangeEvent e) {
+       if( tabbedPane.getSelectedIndex() == 1 ) {
+           // summary selected
+           //FIXME: build and show summary of all boards!
+
+           taSummary.setText(taSummary.getText() + "\njhdfkjdshkjsdhvkjsdhds");
+       }
    }
 }
