@@ -346,7 +346,7 @@ public class SharedFilesPanel extends JPanel {
                 .append(": ")
                 .append(sharedFilesCount)
                 .append("  (")
-                .append(SizeFormatter.formatSize(sharedFilesSize))
+                .append(FormatterUtils.formatSize(sharedFilesSize))
                 .append(")")
                 .toString();
         sharedFilesCountLabel.setText(s);

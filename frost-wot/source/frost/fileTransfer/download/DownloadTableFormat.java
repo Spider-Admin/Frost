@@ -611,7 +611,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 			case 4 : // Size
                 if( downloadItem.getFileSize() >= 0 ) {
                     // size is set
-                    return SizeFormatter.formatSize(downloadItem.getFileSize());
+                    return FormatterUtils.formatSize(downloadItem.getFileSize());
 
                 } else if( FcpHandler.isFreenet07() 
                            && downloadItem.getRequiredBlocks() > 0 
@@ -620,7 +620,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
                 {
                     // on 0.7, compute appr. size out of finalized block count
                     long apprSize = downloadItem.getRequiredBlocks() * CONST_32k;
-                    return "~" + SizeFormatter.formatSize(apprSize);
+                    return "~" + FormatterUtils.formatSize(apprSize);
                 } else {
 					return unknown;
 				}

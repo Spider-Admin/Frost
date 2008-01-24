@@ -526,7 +526,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
                 return uploadItem.getFile().getName();
 
             case 3 :    //Size
-                return SizeFormatter.formatSize(uploadItem.getFileSize());
+                return FormatterUtils.formatSize(uploadItem.getFileSize());
 
             case 4 :    // state
                 return getStateAsString(uploadItem, uploadItem.getState());

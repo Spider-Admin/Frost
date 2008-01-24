@@ -18,8 +18,6 @@
 */
 package frost.boards;
 
-import java.text.*;
-
 import frost.util.*;
 
 public class BoardUpdateInformation {
@@ -43,12 +41,6 @@ public class BoardUpdateInformation {
     private int countValid = 0;   // valid messages
 
     private long nodeTime = 0;
-
-    private final static NumberFormat numberFormat;
-    static {
-        numberFormat = NumberFormat.getInstance();
-        numberFormat.setMaximumFractionDigits(2);
-    }
 
     public BoardUpdateInformation(final Board newBoard, final String newDateString, final long newDateMillis) {
         board = newBoard;
@@ -136,22 +128,6 @@ public class BoardUpdateInformation {
         this.nodeTime += addNodeTime;
     }
 
-    private String formatPercent(final int value, int maxValue) {
-        if( maxValue == 0 ) {
-            maxValue = 1;
-        }
-        final double d = ((double) value * (double) 100) / (maxValue);
-        return numberFormat.format(d);
-    }
-
-    private String formatFraction(final long value, long maxValue) {
-        if( maxValue == 0 ) {
-            maxValue = 1;
-        }
-        final double d = (double) value / (double) maxValue;
-        return numberFormat.format(d);
-    }
-
     public String getInfoString() {
         final StringBuilder sb = new StringBuilder();
         sb.append("Board: ").append(getBoard().getName()).append("\n");
@@ -159,17 +135,17 @@ public class BoardUpdateInformation {
         sb.append("\n");
         sb.append("Informations for current session:").append("\n");
         sb.append("\n");
-        sb.append("nodeTime: ").append(DateFun.FORMAT_TIME_PLAIN.print(nodeTime)).append("  (").append(formatFraction((nodeTime/1000L), getCountTriedIndices())).append(" s/req)\n");
+        sb.append("nodeTime: ").append(DateFun.FORMAT_TIME_PLAIN.print(nodeTime)).append("  (").append(FormatterUtils.formatFraction((nodeTime/1000L), getCountTriedIndices())).append(" s/req)\n");
         sb.append("\n");
         sb.append("countTriedIndices : ").append(getCountTriedIndices()).append("\n");
         sb.append("currentIndex      : ").append(getCurrentIndex()).append("\n");
         sb.append("maxIndex          : ").append(getMaxIndex()).append("\n");
         sb.append("maxSuccessfulIndex: ").append(getMaxSuccessfulIndex()).append("\n");
         sb.append("\n");
-        sb.append("countADNF   : ").append(getCountADNF()).append("  (").append(formatPercent(getCountADNF(),getCountTriedIndices())).append("%)\n");
-        sb.append("countDNF    : ").append(getCountDNF()).append("  (").append(formatPercent(getCountDNF(),getCountTriedIndices())).append("%)\n");
-        sb.append("countInvalid: ").append(getCountInvalid()).append("  (").append(formatPercent(getCountInvalid(),getCountTriedIndices())).append("%)\n");
-        sb.append("countValid  : ").append(getCountValid()).append("  (").append(formatPercent(getCountValid(),getCountTriedIndices())).append("%)\n");
+        sb.append("countADNF   : ").append(getCountADNF()).append("  (").append(FormatterUtils.formatPercent(getCountADNF(),getCountTriedIndices())).append("%)\n");
+        sb.append("countDNF    : ").append(getCountDNF()).append("  (").append(FormatterUtils.formatPercent(getCountDNF(),getCountTriedIndices())).append("%)\n");
+        sb.append("countInvalid: ").append(getCountInvalid()).append("  (").append(FormatterUtils.formatPercent(getCountInvalid(),getCountTriedIndices())).append("%)\n");
+        sb.append("countValid  : ").append(getCountValid()).append("  (").append(FormatterUtils.formatPercent(getCountValid(),getCountTriedIndices())).append("%)\n");
         return sb.toString();
     }
 }

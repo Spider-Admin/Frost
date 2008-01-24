@@ -107,7 +107,7 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
             case 0 : // name
                 return sfItem.getFile().getName();
             case 1 : // size
-                return SizeFormatter.formatSize(sfItem.getFileSize());
+                return FormatterUtils.formatSize(sfItem.getFileSize());
             case 2 : // owner
                 return sfItem.getOwner();
             case 3 : // uploadCount
