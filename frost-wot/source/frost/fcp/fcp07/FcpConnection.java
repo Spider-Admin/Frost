@@ -135,7 +135,7 @@ public class FcpConnection {
         if( maxRetries <= 0 ) {
             maxRetries = 1;
         }
-        fcpSocket.getFcpOut().println("MaxRetries=" + maxRetries);
+        fcpSocket.getFcpOut().println("MaxRetries=" + Integer.toString(maxRetries));
         fcpSocket.getFcpOut().println("Verbosity=-1");
 
         if (useDDA) {
@@ -163,7 +163,7 @@ public class FcpConnection {
         fcpSocket.getFcpOut().println("PriorityClass="+Integer.toString(prio));
 
         if( maxSize > 0 ) {
-            fcpSocket.getFcpOut().println("MaxSize="+maxSize);
+            fcpSocket.getFcpOut().println("MaxSize=" + Integer.toString(maxSize));
         }
 
         fcpSocket.getFcpOut().println("EndMessage");
