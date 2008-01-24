@@ -112,7 +112,7 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
                 return searchItem.getFilename();
 
             case 1 :    //Size
-                return SizeFormatter.formatSize(searchItem.getSize().longValue());
+                return FormatterUtils.formatSize(searchItem.getSize().longValue());
 
             case 2 :    //State
                 return getStateStr(searchItem.getState());
