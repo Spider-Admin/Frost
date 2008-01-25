@@ -22,13 +22,9 @@ import frost.util.*;
 
 public class BoardUpdateInformation {
 
-    // - maybe compute : indices per X minutes
-
     private final Board board;
     private final String dateString;
     private final long dateMillis;
-
-//    private long updateInformationLastUpdated = -1;
 
     private int countTriedIndices = 0;
     private int currentIndex = -1;
@@ -47,13 +43,6 @@ public class BoardUpdateInformation {
         dateString = newDateString;
         dateMillis = newDateMillis;
     }
-
-//    public long getUpdateInformationLastUpdated() {
-//        return updateInformationLastUpdated;
-//    }
-//    public void setUpdateInformationLastUpdated(final long updateInformationLastUpdated) {
-//        this.updateInformationLastUpdated = updateInformationLastUpdated;
-//    }
 
     public int getCountTriedIndices() {
         return countTriedIndices;
