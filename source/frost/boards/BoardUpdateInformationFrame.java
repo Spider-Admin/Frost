@@ -1,3 +1,21 @@
+/*
+  BoardUpdateInformationFrame.java / Frost
+  Copyright (C) 2008  Frost Project <jtcfrost.sourceforge.net>
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License as
+  published by the Free Software Foundation; either version 2 of
+  the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+*/
 package frost.boards;
 import java.awt.*;
 import java.awt.event.*;
@@ -7,9 +25,11 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.event.*;
+import javax.swing.tree.*;
 
 import org.joda.time.*;
 
+import frost.*;
 import frost.threads.*;
 import frost.util.*;
 
@@ -26,7 +46,7 @@ import frost.util.*;
 * THIS MACHINE, SO JIGLOO OR THIS CODE CANNOT BE USED
 * LEGALLY FOR ANY CORPORATE OR COMMERCIAL PURPOSE.
 */
-public class BoardUpdateInformationFrame extends javax.swing.JFrame implements BoardUpdateThreadListener {
+public class BoardUpdateInformationFrame extends javax.swing.JFrame implements BoardUpdateThreadListener, TreeSelectionListener {
 
     private JComboBox cbBoards;
     private JLabel lBoards;
@@ -36,6 +56,7 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
 
     private static boolean isShowing = false; // flag, is true if frame is shown
     private final TofTree tofTree;
+    private JCheckBox cbSyncWithBoardTree;
     private JTextArea taSummary;
     private JPanel buttonPanel;
     private JButton Bclose;
@@ -49,7 +70,7 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
         this.tofTreeModel = (TofTreeModel) tofTree.getModel();
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         initGUI();
-        setTitle("Board update informations (alpha)");
+        setTitle("Board update informations");
         setLocationRelativeTo(parentFrame);
     }
 
@@ -103,16 +124,13 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
             final GridBagLayout summaryPanelLayout1 = new GridBagLayout();
             summaryPanel.setLayout(summaryPanelLayout1);
             {
-
-            }
-            {
                 tabbedPane = new JTabbedPane();
                 tabbedPane.addTab("By board", boardUpdateInfoPanel);
                 tabbedPane.addTab("Summary", summaryPanel);
                 {
                     taSummary = new JTextArea();
                     summaryPanel.add(taSummary, new GridBagConstraints(0, 0, 1, 1, 1.0, 1.0, GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 5, 5, 5), 0, 0));
-                    taSummary.setText("jTextArea1");
+                    taSummary.setText(" ");
                     taSummary.setBorder(BorderFactory.createCompoundBorder(
                             BorderFactory.createBevelBorder(BevelBorder.LOWERED, null, null, null, null),
                             BorderFactory.createEmptyBorder(5, 5, 5, 5)));
@@ -120,24 +138,34 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
                 }
                 tabbedPane.addChangeListener(new ChangeListener() {
                     public void stateChanged(final ChangeEvent e) {
-                        tabbedPaneStateChanged(e);
+                        maybeUpdateSummaryTextArea();
                     }
                 });
                 getContentPane().add(tabbedPane, BorderLayout.CENTER);
             }
             {
                 buttonPanel = new JPanel();
-                final FlowLayout buttonPanelLayout = new FlowLayout();
-                buttonPanelLayout.setAlignment(FlowLayout.RIGHT);
+                final BorderLayout buttonPanelLayout = new BorderLayout();
                 getContentPane().add(buttonPanel, BorderLayout.SOUTH);
                 buttonPanel.setLayout(buttonPanelLayout);
+                buttonPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
                 {
                     Bclose = new JButton();
-                    buttonPanel.add(Bclose);
+                    buttonPanel.add(Bclose, BorderLayout.EAST);
                     Bclose.setText("Close");
                     Bclose.addActionListener(new ActionListener() {
                         public void actionPerformed(final ActionEvent evt) {
                             BcloseActionPerformed(evt);
+                        }
+                    });
+                }
+                {
+                    cbSyncWithBoardTree = new JCheckBox();
+                    buttonPanel.add(cbSyncWithBoardTree, BorderLayout.WEST);
+                    cbSyncWithBoardTree.setText("Sync with board tree");
+                    cbSyncWithBoardTree.addItemListener(new ItemListener() {
+                        public void itemStateChanged(final ItemEvent e) {
+                            maybeSyncBoards();
                         }
                     });
                 }
@@ -200,19 +228,20 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
         cbBoards.setModel(cbBoardsModel);
 
         if( cbBoards.getItemCount() > 0 ) {
-            // FIXME: by default select board that is current board in board tree!!!
             cbBoards.setSelectedIndex(0);
         }
     }
 
     public void startDialog() {
         tofTree.getRunningBoardUpdateThreads().addBoardUpdateThreadListener(this);
+        MainFrame.getInstance().getTofTree().addTreeSelectionListener(this);
         setDialogShowing(true);
         loadGuiData();
         setVisible(true);
     }
 
     private void closeDialog() {
+        MainFrame.getInstance().getTofTree().removeTreeSelectionListener(this);
         tofTree.getRunningBoardUpdateThreads().removeBoardUpdateThreadListener(this);
         setDialogShowing(false);
         dispose();
@@ -257,6 +286,14 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
 
    public void boardUpdateInformationChanged(final BoardUpdateThread thread, final BoardUpdateInformation bui) {
 
+       SwingUtilities.invokeLater(new Runnable() {
+           public void run() {
+               updateGui(thread, bui);
+           }
+       });
+   }
+
+   private void updateGui(final BoardUpdateThread thread, final BoardUpdateInformation bui) {
        maybeUpdateSummaryTextArea();
 
        final Board selectedBoard = (Board)cbBoards.getSelectedItem();
@@ -378,7 +415,42 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
        taSummary.setText(infoString);
    }
 
-   private void tabbedPaneStateChanged(final ChangeEvent e) {
-       maybeUpdateSummaryTextArea();
+   /**
+    * Implement TreeSelectionListener.
+    */
+   public void valueChanged(final TreeSelectionEvent e) {
+       maybeSyncBoards();
+   }
+
+   /**
+    * Maybe change board selection if board tree changes.
+    */
+   private void maybeSyncBoards() {
+       if( cbSyncWithBoardTree.isSelected() ) {
+           // set current board to selected board in board tree
+           final Board selectedBoard = getSelectedBoardFromBoardTree();
+           if( selectedBoard == null ) {
+               return;
+           }
+
+           if( selectedBoard == cbBoards.getSelectedItem() ) {
+               // already selected
+               return;
+           }
+           cbBoards.setSelectedItem(selectedBoard);
+       }
+   }
+
+   private Board getSelectedBoardFromBoardTree() {
+       final TreePath treePath = tofTree.getSelectionPath();
+       if( treePath == null ) {
+           return null;
+       }
+       final AbstractNode selectedNode = (AbstractNode)treePath.getLastPathComponent();
+       if( !selectedNode.isBoard() ) {
+           return null;
+       }
+       final Board selectedBoard = (Board)selectedNode;
+       return selectedBoard;
    }
 }
