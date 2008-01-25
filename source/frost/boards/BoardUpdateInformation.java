@@ -18,6 +18,10 @@
 */
 package frost.boards;
 
+import java.util.*;
+
+import org.joda.time.*;
+
 import frost.util.*;
 
 public class BoardUpdateInformation {
@@ -118,13 +122,14 @@ public class BoardUpdateInformation {
     }
 
     public String getInfoString() {
+        final int dayCount = (int)(getNodeTime() / (1000L*60L*60L*24L));
         final StringBuilder sb = new StringBuilder();
         sb.append("Board: ").append(getBoard().getName()).append("\n");
         sb.append("Date : ").append(getDateString()).append("\n");
         sb.append("\n");
         sb.append("Informations for current session:").append("\n");
         sb.append("\n");
-        sb.append("nodeTime: ").append(DateFun.FORMAT_TIME_PLAIN.print(nodeTime)).append("  (").append(FormatterUtils.formatFraction((nodeTime/1000L), getCountTriedIndices())).append(" s/req)\n");
+        sb.append("nodeTime: ").append(dayCount).append("d ").append(DateFun.FORMAT_TIME_PLAIN.print(nodeTime)).append("  (").append(FormatterUtils.formatFraction((nodeTime/1000L), getCountTriedIndices())).append(" s/req)\n");
         sb.append("\n");
         sb.append("countTriedIndices : ").append(getCountTriedIndices()).append("\n");
         sb.append("currentIndex      : ").append(getCurrentIndex()).append("\n");
@@ -137,4 +142,72 @@ public class BoardUpdateInformation {
         sb.append("countValid  : ").append(getCountValid()).append("  (").append(FormatterUtils.formatPercent(getCountValid(),getCountTriedIndices())).append("%)\n");
         return sb.toString();
     }
+
+    public static String getSummaryInfoString(final List<Board> boardList) {
+        final LocalDate localDate = new LocalDate(DateTimeZone.UTC);
+        final long dateMillis = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
+        final String dirDateString = DateFun.FORMAT_DATE.print(localDate);
+
+        long sumNodeTimeToday = 0;
+        int sumCountTriedIndicesToday = 0;
+        int sumCountADNFToday = 0;    // ALL_DATA_NOT_FOUND
+        int sumCountDNFToday = 0;     // DATA_NOT_FOUND
+        int sumCountInvalidToday = 0; // invalid msgs
+        int sumCountValidToday = 0;   // valid messages
+
+        long sumNodeTimeOverall = 0;
+        int sumCountTriedIndicesOverall = 0;
+        int sumCountADNFOverall = 0;    // ALL_DATA_NOT_FOUND
+        int sumCountDNFOverall = 0;     // DATA_NOT_FOUND
+        int sumCountInvalidOverall = 0; // invalid msgs
+        int sumCountValidOverall = 0;   // valid messages
+
+        for( final Board b : boardList ) {
+            if( b.hasBoardUpdateInformations() ) {
+                final List<BoardUpdateInformation> l = b.getBoardUpdateInformationList();
+                for( final BoardUpdateInformation bui : l ) {
+                    if( bui.getDateMillis() == dateMillis ) {
+                        sumNodeTimeToday += bui.getNodeTime();
+                        sumCountTriedIndicesToday += bui.getCountTriedIndices();
+                        sumCountADNFToday += bui.getCountADNF();
+                        sumCountDNFToday += bui.getCountDNF();
+                        sumCountInvalidToday += bui.getCountInvalid();
+                        sumCountValidToday += bui.getCountValid();
+                    }
+                    sumNodeTimeOverall += bui.getNodeTime();
+                    sumCountTriedIndicesOverall += bui.getCountTriedIndices();
+                    sumCountADNFOverall += bui.getCountADNF();
+                    sumCountDNFOverall += bui.getCountDNF();
+                    sumCountInvalidOverall += bui.getCountInvalid();
+                    sumCountValidOverall += bui.getCountValid();
+                }
+            }
+        }
+        final int dayCountToday = (int)(sumNodeTimeToday / (1000L*60L*60L*24L));
+        final int dayCountOverall = (int)(sumNodeTimeOverall / (1000L*60L*60L*24L));
+        final String infoString = new StringBuilder()
+            .append("Summary for current session:").append("\n")
+            .append("\n")
+            .append("*** Today (").append(dirDateString).append(") ***\n")
+            .append("\n")
+            .append("nodeTime: ").append(dayCountToday).append("d ").append(DateFun.FORMAT_TIME_PLAIN.print(sumNodeTimeToday)).append("  (").append(FormatterUtils.formatFraction((sumNodeTimeToday/1000L), sumCountTriedIndicesToday)).append(" s/req)\n")
+            .append("countTriedIndices : ").append(sumCountTriedIndicesToday).append("\n")
+            .append("countADNF   : ").append(sumCountADNFToday).append("  (").append(FormatterUtils.formatPercent(sumCountADNFToday,sumCountTriedIndicesToday)).append("%)\n")
+            .append("countDNF    : ").append(sumCountDNFToday).append("  (").append(FormatterUtils.formatPercent(sumCountDNFToday,sumCountTriedIndicesToday)).append("%)\n")
+            .append("countInvalid: ").append(sumCountInvalidToday).append("  (").append(FormatterUtils.formatPercent(sumCountInvalidToday,sumCountTriedIndicesToday)).append("%)\n")
+            .append("countValid  : ").append(sumCountValidToday).append("  (").append(FormatterUtils.formatPercent(sumCountValidToday,sumCountTriedIndicesToday)).append("%)\n")
+            .append("\n")
+            .append("*** Overall ***\n")
+            .append("\n")
+            .append("nodeTime: ").append(dayCountOverall).append("d ").append(DateFun.FORMAT_TIME_PLAIN.print(sumNodeTimeOverall)).append("  (").append(FormatterUtils.formatFraction((sumNodeTimeOverall/1000L), sumCountTriedIndicesOverall)).append(" s/req)\n")
+            .append("countTriedIndices : ").append(sumCountTriedIndicesOverall).append("\n")
+            .append("countADNF   : ").append(sumCountADNFOverall).append("  (").append(FormatterUtils.formatPercent(sumCountADNFOverall,sumCountTriedIndicesOverall)).append("%)\n")
+            .append("countDNF    : ").append(sumCountDNFOverall).append("  (").append(FormatterUtils.formatPercent(sumCountDNFOverall,sumCountTriedIndicesOverall)).append("%)\n")
+            .append("countInvalid: ").append(sumCountInvalidOverall).append("  (").append(FormatterUtils.formatPercent(sumCountInvalidOverall,sumCountTriedIndicesOverall)).append("%)\n")
+            .append("countValid  : ").append(sumCountValidOverall).append("  (").append(FormatterUtils.formatPercent(sumCountValidOverall,sumCountTriedIndicesOverall)).append("%)\n")
+            .toString();
+
+        return infoString;
+    }
+
 }
