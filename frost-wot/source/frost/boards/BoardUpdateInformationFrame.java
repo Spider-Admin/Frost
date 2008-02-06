@@ -65,6 +65,7 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
         super();
         this.tofTree = tofTree;
         this.tofTreeModel = (TofTreeModel) tofTree.getModel();
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         initGUI();
         setTitle("Board update informations");

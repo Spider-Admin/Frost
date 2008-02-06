@@ -65,6 +65,8 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     private SearchMessagesDialog searchMessagesDialog = null;
     private MemoryMonitor memoryMonitor = null;
 
+    private long todaysDateMillis = 0;
+
     private MessagePanel messagePanel = null;
 
     private SentMessagesPanel sentMessagesPanel = null;
@@ -1100,6 +1102,15 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         //   Display time in button bar
         //////////////////////////////////////////////////
         final DateTime now = new DateTime(DateTimeZone.UTC);
+
+        // check all 60 seconds if the day changed
+        if( getTodaysDateMillis() == 0 || (counter % 60) == 0 ) {
+            final long millis = now.toDateMidnight().getMillis();
+            if( getTodaysDateMillis() != millis ) {
+                setTodaysDateMillis(millis);
+            }
+        }
+
         timeLabel.setText(
             new StringBuilder()
                 .append(DateFun.FORMAT_DATE_VISIBLE.print(now))
@@ -1113,6 +1124,14 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         getStatusBar().setStatusBarInformations(fileInfo, msgInfo, tofTreeModel.getSelectedNode().getName());
 
         Core.getInstance().getFileTransferManager().updateWaitingCountInPanels(fileInfo);
+    }
+
+    public long getTodaysDateMillis() {
+        return todaysDateMillis;
+    }
+
+    private void setTodaysDateMillis(final long v) {
+        todaysDateMillis = v;
     }
 
     private void tofDisplayBoardInfoMenuItem_actionPerformed(final ActionEvent e) {

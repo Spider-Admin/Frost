@@ -19,6 +19,7 @@
 package frost.components.translate;
 
 import java.awt.*;
+import java.awt.event.*;
 import java.util.*;
 import java.util.List;
 
@@ -74,6 +75,7 @@ public class TranslationDialog extends JFrame {
 
         setLocationRelativeTo(MainFrame.getInstance());
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 
         // prepare renderer icons
         final MiscToolkit miscToolkit = MiscToolkit.getInstance();
@@ -168,6 +170,14 @@ public class TranslationDialog extends JFrame {
             jContentPane.add(getJScrollPane2(), gridBagConstraints5);
         }
         return jContentPane;
+    }
+
+    @Override
+    protected void processWindowEvent(final WindowEvent e) {
+        if( e.getID() == WindowEvent.WINDOW_CLOSING ) {
+            closeDialog();
+        }
+        super.processWindowEvent(e);
     }
 
     /**
@@ -466,28 +476,32 @@ public class TranslationDialog extends JFrame {
             Bclose.setMnemonic(java.awt.event.KeyEvent.VK_C);
             Bclose.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(final java.awt.event.ActionEvent e) {
-                    final int answer = JOptionPane.showConfirmDialog(
-                            TranslationDialog.this,
-                            "Do you want to save before closing the dialog?",
-                            "Save before close",
-                            JOptionPane.YES_NO_CANCEL_OPTION,
-                            JOptionPane.QUESTION_MESSAGE);
-                    if( answer == JOptionPane.CANCEL_OPTION ) {
-                        return;
-                    } else if( answer == JOptionPane.YES_OPTION ) {
-                        if( saveBundle(true) == false ) {
-                            return; // don't close, error during save
-                        }
-                    }
-                    // update language menu
-                    LanguageGuiSupport.getInstance().updateLanguageMenu();
-                    // close dialog
-                    setVisible(false);
-                    dispose();
+                    closeDialog();
                 }
             });
         }
         return Bclose;
+    }
+
+    private void closeDialog() {
+        final int answer = JOptionPane.showConfirmDialog(
+                this,
+                "Do you want to save before closing the dialog?",
+                "Save before close",
+                JOptionPane.YES_NO_CANCEL_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
+        if( answer == JOptionPane.CANCEL_OPTION ) {
+            return;
+        } else if( answer == JOptionPane.YES_OPTION ) {
+            if( saveBundle(true) == false ) {
+                return; // don't close, error during save
+            }
+        }
+        // update language menu
+        LanguageGuiSupport.getInstance().updateLanguageMenu();
+        // close dialog
+        setVisible(false);
+        dispose();
     }
 
     public void startDialog(

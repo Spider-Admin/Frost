@@ -43,6 +43,9 @@ public class SettingsClass implements ExitSavable {
 
     private static final Logger logger = Logger.getLogger(SettingsClass.class.getName());
 
+    public static final String DOS_STOP_BOARD_UPDATES_WHEN_DOSED = "dos.stopBoardUpdatesWhenDosed";
+    public static final String DOS_INVALID_SUBSEQUENT_MSGS_THRESHOLD = "dos.invalidSubsequentMessagesThreshold";
+
     public static final String MIGRATE_VERSION = "migrate.version";
 
     public static final String DB_CLEANUP_INTERVAL = "database.cleanup.interval";
@@ -833,6 +836,9 @@ public class SettingsClass implements ExitSavable {
         final File fn = File.listRoots()[0];
 
         defaults.put(MIGRATE_VERSION, "0");
+
+        defaults.put(DOS_STOP_BOARD_UPDATES_WHEN_DOSED, "true");
+        defaults.put(DOS_INVALID_SUBSEQUENT_MSGS_THRESHOLD, "30");
 
         defaults.put(DB_CLEANUP_INTERVAL, "5");
         defaults.put(DB_CLEANUP_LASTRUN, "0");

@@ -19,6 +19,7 @@
 package frost.gui.preferences;
 
 import java.awt.*;
+import java.awt.event.*;
 
 import javax.swing.*;
 
@@ -32,6 +33,20 @@ public class JunkPanel extends JPanel {
 
     private final JCheckBox hideJunkMessagesCheckBox = new JCheckBox();
     private final JCheckBox markJunkIdentityBadCheckBox = new JCheckBox();
+
+    private final JCheckBox stopBoardUpdatesWhenDosedCheckBox = new JCheckBox();
+    private final JLabel LinvalidSubsequentMessagesThreshold = new JLabel();
+    private final JTextField TfInvalidSubsequentMessagesThreshold = new JTextField(8);
+
+    private final Listener listener = new Listener();
+
+    private class Listener implements ActionListener {
+        public void actionPerformed(final ActionEvent e) {
+            if (e.getSource() == stopBoardUpdatesWhenDosedCheckBox) {
+                refreshStopOnDosState();
+            }
+        }
+    }
 
     /**
      * @param settings the SettingsClass instance that will be used to get and store the settings of the panel
@@ -53,9 +68,10 @@ public class JunkPanel extends JPanel {
 
         // Adds all of the components
         final GridBagConstraints constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.anchor = GridBagConstraints.WEST;
         final Insets insets5555 = new Insets(5, 5, 5, 5);
         constraints.insets = insets5555;
+        constraints.weightx = 1.0;
         constraints.gridwidth = 1;
         constraints.gridy=0;
 
@@ -68,6 +84,32 @@ public class JunkPanel extends JPanel {
 
         add(markJunkIdentityBadCheckBox, constraints);
 
+        constraints.gridy++;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        {
+            final JSeparator separator = new JSeparator(JSeparator.HORIZONTAL);
+            add(separator, constraints);
+        }
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.gridy++;
+
+        add(stopBoardUpdatesWhenDosedCheckBox, constraints);
+
+        constraints.gridy++;
+
+        {
+            final JPanel subPanel = new JPanel(new GridBagLayout());
+            final GridBagConstraints subConstraints = new GridBagConstraints();
+            subConstraints.insets = new Insets(0,10,0,10);
+            subConstraints.anchor = GridBagConstraints.WEST;
+            subConstraints.gridx = 0;
+            subPanel.add(LinvalidSubsequentMessagesThreshold, subConstraints);
+            subConstraints.gridx = 1;
+            subPanel.add(TfInvalidSubsequentMessagesThreshold, subConstraints);
+
+            add(subPanel, constraints);
+        }
+
         // glue
         constraints.gridy++;
         constraints.gridx = 0;
@@ -75,6 +117,15 @@ public class JunkPanel extends JPanel {
         constraints.weightx = 1;
         constraints.weighty = 1;
         add(new JLabel(""), constraints);
+
+        // Add listeners
+        stopBoardUpdatesWhenDosedCheckBox.addActionListener(listener);
+    }
+
+    private void refreshStopOnDosState() {
+        final boolean stopOnDos = stopBoardUpdatesWhenDosedCheckBox.isSelected();
+        LinvalidSubsequentMessagesThreshold.setEnabled(stopOnDos);
+        TfInvalidSubsequentMessagesThreshold.setEnabled(stopOnDos);
     }
 
     /**
@@ -83,6 +134,8 @@ public class JunkPanel extends JPanel {
     private void loadSettings() {
         hideJunkMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.JUNK_HIDE_JUNK_MESSAGES));
         markJunkIdentityBadCheckBox.setSelected(settings.getBoolValue(SettingsClass.JUNK_MARK_JUNK_IDENTITY_BAD));
+        stopBoardUpdatesWhenDosedCheckBox.setSelected(settings.getBoolValue(SettingsClass.DOS_STOP_BOARD_UPDATES_WHEN_DOSED));
+        TfInvalidSubsequentMessagesThreshold.setText(""+settings.getIntValue(SettingsClass.DOS_INVALID_SUBSEQUENT_MSGS_THRESHOLD));
     }
 
     public void ok() {
@@ -92,6 +145,9 @@ public class JunkPanel extends JPanel {
     private void refreshLanguage() {
         hideJunkMessagesCheckBox.setText(language.getString("Options.junk.hideJunkMessages"));
         markJunkIdentityBadCheckBox.setText(language.getString("Options.junk.markJunkIdentityBad"));
+
+        stopBoardUpdatesWhenDosedCheckBox.setText(language.getString("Options.junk.stopBoardUpdatesWhenDosed"));
+        LinvalidSubsequentMessagesThreshold.setText(language.getString("Options.junk.invalidSubsequentMessagesThreshold"));
     }
 
     /**
@@ -100,5 +156,7 @@ public class JunkPanel extends JPanel {
     private void saveSettings() {
         settings.setValue(SettingsClass.JUNK_HIDE_JUNK_MESSAGES, hideJunkMessagesCheckBox.isSelected());
         settings.setValue(SettingsClass.JUNK_MARK_JUNK_IDENTITY_BAD, markJunkIdentityBadCheckBox.isSelected());
+        settings.setValue(SettingsClass.DOS_STOP_BOARD_UPDATES_WHEN_DOSED, stopBoardUpdatesWhenDosedCheckBox.isSelected());
+        settings.setValue(SettingsClass.DOS_INVALID_SUBSEQUENT_MSGS_THRESHOLD, TfInvalidSubsequentMessagesThreshold.getText());
     }
 }
