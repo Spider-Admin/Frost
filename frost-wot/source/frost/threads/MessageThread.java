@@ -61,8 +61,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
     @Override
     public void run() {
 
-//        notifyThreadStarted(this);
-        boolean isNotifyThreadStarted = false;
+        notifyThreadStarted(this);
 
         try {
             String tofType;
@@ -78,9 +77,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
             logger.info("TOFDN: " + tofType + " Thread started for board " + board.getName());
 
             if (isInterrupted()) {
-                if( isNotifyThreadStarted ) {
-                    notifyThreadFinished(this);
-                }
+                notifyThreadFinished(this);
                 return;
             }
 
@@ -89,20 +86,12 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
             // start a thread if allowed,
             if (this.downloadToday) {
                 final long dateMillis = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
-                final BoardUpdateInformation boardUpdateInformation = board.getBoardUpdateInformationForDay(dateMillis);
-                if( boardUpdateInformation == null || boardUpdateInformation.isBoardUpdateAllowed() ) {
-                    // we start a thread
-                    if( !isNotifyThreadStarted ) {
-                        notifyThreadStarted(this);
-                        isNotifyThreadStarted = true;
-                    }
-                    // get IndexSlot for today
-                    final IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(boardId, dateMillis);
-                    // download only current date
-                    downloadDate(localDate, gis, dateMillis);
-                    // after update check if there are messages for upload and upload them
-                    uploadMessages(gis); // doesn't get a message when message upload is disabled
-                }
+                // get IndexSlot for today
+                final IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(boardId, dateMillis);
+                // download only current date
+                downloadDate(localDate, gis, dateMillis);
+                // after update check if there are messages for upload and upload them
+                uploadMessages(gis); // doesn't get a message when message upload is disabled
             } else {
                 // download up to maxMessages days to the past
                 int daysBack = 0;
@@ -110,16 +99,8 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                     daysBack++;
                     localDate = localDate.minusDays(1);
                     final long dateMillis = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
-                    final BoardUpdateInformation boardUpdateInformation = board.getBoardUpdateInformationForDay(dateMillis);
-                    if( boardUpdateInformation == null || boardUpdateInformation.isBoardUpdateAllowed() ) {
-                        // we start a thread
-                        if( !isNotifyThreadStarted ) {
-                            notifyThreadStarted(this);
-                            isNotifyThreadStarted = true;
-                        }
-                        final IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(boardId, dateMillis);
-                        downloadDate(localDate, gis, dateMillis);
-                    }
+                    final IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(boardId, dateMillis);
+                    downloadDate(localDate, gis, dateMillis);
                     // Only after a complete backload run, remember finish time.
                     // this ensures we always update the complete backload days.
                     if( !isInterrupted() ) {
@@ -170,6 +151,9 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
 
         final BoardUpdateInformation boardUpdateInformation = board.getOrCreateBoardUpdateInformationForDay(dirDateString, dateMillis);
 
+        // new run, reset subsequentFailures
+        boardUpdateInformation.resetSubsequentInvalidMsgs();
+
         int index = -1;
         int failures = 0;
         final int maxFailures = 2; // skip a maximum of 2 empty slots at the end of known indices
@@ -180,8 +164,8 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 break;
             }
 
-            // maybe the allowed state changed due to notifyBoardUpdateInformationChanged() -> updateBoardUpdateAllowedState()
-            if( !boardUpdateInformation.isBoardUpdateAllowed() ) {
+            // check if allowed state changed
+            if( !boardUpdateInformation.checkBoardUpdateAllowedState() ) {
                 break;
             }
 
@@ -294,6 +278,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
         } // end-of: while
 
         boardUpdateInformation.setCurrentIndex(-1);
+        boardUpdateInformation.updateBoardUpdateAllowedState();
         notifyBoardUpdateInformationChanged(this, boardUpdateInformation);
     }
 

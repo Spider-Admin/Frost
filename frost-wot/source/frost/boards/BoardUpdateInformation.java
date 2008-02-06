@@ -220,18 +220,28 @@ public class BoardUpdateInformation {
         return infoString;
     }
 
+    /**
+     * Check allowed state, and apply and promote it to gui.
+     */
     public synchronized boolean updateBoardUpdateAllowedState() {
+        this.isBoardUpdateAllowed = Boolean.valueOf( checkBoardUpdateAllowedState() );
+        return this.isBoardUpdateAllowed.booleanValue();
+    }
+
+    /**
+     * Check allowed state, but don't apply and promote it to gui.
+     */
+    public synchronized boolean checkBoardUpdateAllowedState() {
         if( MainFrame.getInstance().getTofTree().isStopBoardUpdatesWhenDOSed() == false ) {
-            this.isBoardUpdateAllowed = Boolean.TRUE;
+            return true;
         } else {
             final int maxSubsequentFailuresAllowed = MainFrame.getInstance().getTofTree().getMaxInvalidMessagesPerDayThreshold();
             if( getSubsequentInvalidMsgs() > maxSubsequentFailuresAllowed ) {
-                this.isBoardUpdateAllowed = Boolean.FALSE;
+                return false;
             } else {
-                this.isBoardUpdateAllowed = Boolean.TRUE;
+                return true;
             }
         }
-        return this.isBoardUpdateAllowed.booleanValue();
     }
 
     public synchronized boolean isBoardUpdateAllowed() {
@@ -244,7 +254,7 @@ public class BoardUpdateInformation {
     private int getSubsequentInvalidMsgs() {
         return subsequentInvalidMsgs;
     }
-    private void resetSubsequentInvalidMsgs() {
+    public void resetSubsequentInvalidMsgs() {
         subsequentInvalidMsgs = 0;
     }
     private void incSubsequentInvalidMsgs() {
