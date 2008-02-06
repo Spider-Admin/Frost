@@ -89,9 +89,6 @@ public class BoardUpdateThreadObject extends Thread {
      * Called from Thread to notify all listeners that the BoardUpdateInformation changed.
      */
     protected void notifyBoardUpdateInformationChanged(final BoardUpdateThread thread, final BoardUpdateInformation bui) {
-        // update bui
-        bui.updateBoardUpdateAllowedState();
-
         // notify listeners
         final Iterator<BoardUpdateThreadListener> i = registeredListeners.iterator();
         while( i.hasNext() ) {

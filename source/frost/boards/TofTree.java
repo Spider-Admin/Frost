@@ -473,13 +473,13 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
         public Component getTreeCellRendererComponent(
             final JTree tree,
             final Object value,
-            final boolean sel,
+            final boolean isSelected,
             final boolean expanded,
             final boolean leaf,
             final int row,
             final boolean localHasFocus)
         {
-            super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, localHasFocus);
+            super.getTreeCellRendererComponent(tree, value, isSelected, expanded, leaf, row, localHasFocus);
 
             final AbstractNode node = (AbstractNode)value;
 
@@ -596,11 +596,8 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
                 c = (Color) settings.getObjectValue(SettingsClass.BOARD_UPDATE_VISUALIZATION_BGCOLOR_NOT_SELECTED);
                 setBackgroundNonSelectionColor(c);
 
-                setTextNonSelectionColor(Color.red);
-
                 c = (Color) settings.getObjectValue(SettingsClass.BOARD_UPDATE_VISUALIZATION_BGCOLOR_SELECTED);
                 setBackgroundSelectionColor(c);
-
 
             } else {
                 // refresh colours from the L&F
@@ -609,22 +606,22 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
             }
 
             // visualize DoS attacks
+            final boolean isDosed;
             if( board != null && board.isDosForToday() ) {
+                isDosed = true;
+            } else {
+                isDosed = false;
+            }
+
+            if( isDosed ) {
                 setForeground(Color.red);
-                // using the next 2 lines does not work, bug in jre?
-//                setTextSelectionColor(Color.gray);
-//                setTextNonSelectionColor(Color.red);
-//            } else if( node.isBoard() && ((Board)node).isDosForBackloadDays() ) {
-//            } else if( node.isBoard() && ((Board)node).isDosForAllDays() ) {
             } else {
                 // refresh colours from the L&F
-                if( sel ) {
+                if( isSelected ) {
                     setForeground(UIManager.getColor("Tree.selectionForeground"));
                 } else {
                     setForeground(UIManager.getColor("Tree.textForeground"));
                 }
-//                setTextSelectionColor(UIManager.getColor("Tree.selectionForeground"));
-//                setTextNonSelectionColor(UIManager.getColor("Tree.textForeground"));
             }
 
             // set board description as tooltip
@@ -633,9 +630,30 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
                     && board.getDescription() != null
                     && board.getDescription().length() > 0 )
             {
-                setToolTipText(board.getDescription());
+                final String newToolTipText;
+                if( isDosed ) {
+                    newToolTipText = new StringBuilder()
+                        .append("<html>")
+                        .append(board.getDescription())
+                        .append("<br>")
+                        .append("<br>")
+                        .append("This board is currently the target of a DoS attack.<br>")
+                        .append("Most likely you can't post messages to this board today.")
+                        .append("</html>")
+                        .toString();
+                } else {
+                    newToolTipText = board.getDescription();
+                }
+                setToolTipText(newToolTipText);
             } else {
-                setToolTipText(null);
+                final String newToolTipText;
+                if( isDosed ) {
+                    newToolTipText = "<html>This board is currently the target of a DoS attack.<br>"+
+                        "Most likely you can't post messages to this board today.</html>";
+                } else {
+                    newToolTipText = null;
+                }
+                setToolTipText(newToolTipText);
             }
 
             return this;
