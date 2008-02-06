@@ -67,10 +67,14 @@ public class Board extends AbstractNode {
     private boolean hasFlaggedMessages = false;
     private boolean hasStarredMessages = false;
 
-    // String is the dirdate used in MessageThread, a unique String per day
-    private final Hashtable<String,BoardUpdateInformation> boardUpdateInformations = new Hashtable<String,BoardUpdateInformation>();
+    // Long is the dateMillis used in MessageThread, a unique String per day
+    private final Hashtable<Long,BoardUpdateInformation> boardUpdateInformations = new Hashtable<Long,BoardUpdateInformation>();
 
     private static final BoardUpdateInformationComparator boardUpdateInformationComparator = new BoardUpdateInformationComparator();
+
+    private boolean dosForToday = false;
+    private boolean dosForBackloadDays = false;
+    private boolean dosForAllDays = false;
 
     /**
      * Constructs a new Board
@@ -442,15 +446,15 @@ public class Board extends AbstractNode {
 
     /////// BoardUpdateInformation methods //////
 
-    public BoardUpdateInformation getBoardUpdateInformationForDay(final String dirDate) {
-        return boardUpdateInformations.get(dirDate);
+    public BoardUpdateInformation getBoardUpdateInformationForDay(final long dateMillis) {
+        return boardUpdateInformations.get(dateMillis);
     }
 
     public BoardUpdateInformation getOrCreateBoardUpdateInformationForDay(final String dateString, final long dateMillis) {
-        BoardUpdateInformation bui = getBoardUpdateInformationForDay(dateString);
+        BoardUpdateInformation bui = getBoardUpdateInformationForDay(dateMillis);
         if( bui == null ) {
             bui = new BoardUpdateInformation(this, dateString, dateMillis);
-            boardUpdateInformations.put(dateString, bui);
+            boardUpdateInformations.put(dateMillis, bui);
         }
         return bui;
     }
@@ -475,6 +479,75 @@ public class Board extends AbstractNode {
     private static class BoardUpdateInformationComparator implements Comparator<BoardUpdateInformation> {
         public int compare(final BoardUpdateInformation o1, final BoardUpdateInformation o2) {
             return Mixed.compareLong(o2.getDateMillis(), o1.getDateMillis());
+        }
+    }
+
+    public boolean isDosForToday() {
+        return dosForToday;
+    }
+
+    public void setDosForToday(final boolean dosForToday) {
+        this.dosForToday = dosForToday;
+    }
+
+    public boolean isDosForBackloadDays() {
+        return dosForBackloadDays;
+    }
+
+    public void setDosForBackloadDays(final boolean dosForBackloadDays) {
+        this.dosForBackloadDays = dosForBackloadDays;
+    }
+
+    public boolean isDosForAllDays() {
+        return dosForAllDays;
+    }
+
+    public void setDosForAllDays(final boolean dosForAllDays) {
+        this.dosForAllDays = dosForAllDays;
+    }
+
+    public void updateDosStatus(boolean stopBoardUpdatesWhenDOSed, final long minDateTime, final long todayDateTime) {
+        if( !stopBoardUpdatesWhenDOSed ) {
+            setDosForToday(false);
+            setDosForBackloadDays(false);
+            setDosForAllDays(false);
+            return;
+        }
+        // scan bui for this board, update board status for: dos today / dos for backload, but not all backload days / dos for all (today and all backload)
+        final List<BoardUpdateInformation> buiList = getBoardUpdateInformationList();
+        // only respect days that would be updated
+        boolean newDosForToday = false;
+        boolean newDosForBackloadDays = false;
+        boolean newDosForAllDays = false;
+        int dosBackloadDayCount = 0;
+        for(final BoardUpdateInformation bui : buiList ) {
+            final long buiDateMillis = bui.getDateMillis();
+            if( buiDateMillis < minDateTime ) {
+                // too old, not updated in backload
+                continue;
+            }
+            // count stopped for today and backload (good/stopped)
+            if( buiDateMillis == todayDateTime ) {
+                // today
+                if( !bui.isBoardUpdateAllowed() ) {
+                    newDosForToday = true;
+                }
+            } else {
+                // any backload day
+                if( !bui.isBoardUpdateAllowed() ) {
+                    dosBackloadDayCount++;
+                }
+            }
+
+            if( dosBackloadDayCount == buiList.size()-1 ) {
+                newDosForAllDays = true;
+            } else {
+                newDosForBackloadDays = true;
+            }
+
+            setDosForToday(newDosForToday);
+            setDosForBackloadDays(newDosForBackloadDays);
+            setDosForAllDays(newDosForAllDays);
         }
     }
 }

@@ -61,7 +61,8 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
     @Override
     public void run() {
 
-        notifyThreadStarted(this);
+//        notifyThreadStarted(this);
+        boolean isNotifyThreadStarted = false;
 
         try {
             String tofType;
@@ -77,35 +78,53 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
             logger.info("TOFDN: " + tofType + " Thread started for board " + board.getName());
 
             if (isInterrupted()) {
-                notifyThreadFinished(this);
+                if( isNotifyThreadStarted ) {
+                    notifyThreadFinished(this);
+                }
                 return;
             }
 
             LocalDate localDate = new LocalDate(DateTimeZone.UTC);
-            long dateMillis = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
             final int boardId = board.getPerstFrostBoardObject().getBoardId();
-
+            // start a thread if allowed,
             if (this.downloadToday) {
-                // get IndexSlot for today
-                final IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(boardId, dateMillis);
-                // download only current date
-                downloadDate(localDate, gis, dateMillis);
-                // after update check if there are messages for upload and upload them
-                uploadMessages(gis); // doesn't get a message when message upload is disabled
+                final long dateMillis = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
+                final BoardUpdateInformation boardUpdateInformation = board.getBoardUpdateInformationForDay(dateMillis);
+                if( boardUpdateInformation == null || boardUpdateInformation.isBoardUpdateAllowed() ) {
+                    // we start a thread
+                    if( !isNotifyThreadStarted ) {
+                        notifyThreadStarted(this);
+                        isNotifyThreadStarted = true;
+                    }
+                    // get IndexSlot for today
+                    final IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(boardId, dateMillis);
+                    // download only current date
+                    downloadDate(localDate, gis, dateMillis);
+                    // after update check if there are messages for upload and upload them
+                    uploadMessages(gis); // doesn't get a message when message upload is disabled
+                }
             } else {
                 // download up to maxMessages days to the past
                 int daysBack = 0;
                 while (!isInterrupted() && daysBack < maxMessageDownload) {
                     daysBack++;
                     localDate = localDate.minusDays(1);
-                    dateMillis = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
-                    final IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(boardId, dateMillis);
-                    downloadDate(localDate, gis, dateMillis);
-                }
-                // after a complete backload run, remember finish time.
-                // this ensures we ever update the complete backload days.
-                if( !isInterrupted() ) {
-                    board.setLastBackloadUpdateFinishedMillis(System.currentTimeMillis());
+                    final long dateMillis = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
+                    final BoardUpdateInformation boardUpdateInformation = board.getBoardUpdateInformationForDay(dateMillis);
+                    if( boardUpdateInformation == null || boardUpdateInformation.isBoardUpdateAllowed() ) {
+                        // we start a thread
+                        if( !isNotifyThreadStarted ) {
+                            notifyThreadStarted(this);
+                            isNotifyThreadStarted = true;
+                        }
+                        final IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(boardId, dateMillis);
+                        downloadDate(localDate, gis, dateMillis);
+                    }
+                    // Only after a complete backload run, remember finish time.
+                    // this ensures we always update the complete backload days.
+                    if( !isInterrupted() ) {
+                        board.setLastBackloadUpdateFinishedMillis(System.currentTimeMillis());
+                    }
                 }
             }
             logger.info("TOFDN: " + tofType + " Thread stopped for board " + board.getName());
@@ -158,7 +177,12 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
         while (failures < maxFailures) {
 
             if (isInterrupted()) {
-                return;
+                break;
+            }
+
+            // maybe the allowed state changed due to notifyBoardUpdateInformationChanged() -> updateBoardUpdateAllowedState()
+            if( !boardUpdateInformation.isBoardUpdateAllowed() ) {
+                break;
             }
 
             if( index < 0 ) {
@@ -252,6 +276,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
 
                         boardUpdateInformation.incCountValid();
                         boardUpdateInformation.updateMaxSuccessfulIndex(index);
+
                         notifyBoardUpdateInformationChanged(this, boardUpdateInformation);
                     } else {
                         receivedInvalidMessage(board, localDate, index, MessageDownloaderResult.INVALID_MSG);

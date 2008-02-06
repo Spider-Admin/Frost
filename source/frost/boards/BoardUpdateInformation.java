@@ -22,6 +22,7 @@ import java.util.*;
 
 import org.joda.time.*;
 
+import frost.*;
 import frost.util.*;
 
 public class BoardUpdateInformation {
@@ -41,6 +42,11 @@ public class BoardUpdateInformation {
     private int countValid = 0;   // valid messages
 
     private long nodeTime = 0;
+
+    private int subsequentInvalidMsgs = 0; // subsequent countADNF + countInvalid
+
+    // if false this board is not updated for this day. used in DoS detection
+    private Boolean isBoardUpdateAllowed = null;
 
     public BoardUpdateInformation(final Board newBoard, final String newDateString, final long newDateMillis) {
         board = newBoard;
@@ -79,6 +85,7 @@ public class BoardUpdateInformation {
     }
     public void incCountADNF() {
         this.countADNF++;
+        incSubsequentInvalidMsgs();
     }
     public int getCountDNF() {
         return countDNF;
@@ -91,12 +98,14 @@ public class BoardUpdateInformation {
     }
     public void incCountInvalid() {
         this.countInvalid++;
+        incSubsequentInvalidMsgs();
     }
     public int getCountValid() {
         return countValid;
     }
     public void incCountValid() {
         this.countValid++;
+        resetSubsequentInvalidMsgs();
     }
     public String getDateString() {
         return dateString;
@@ -140,6 +149,7 @@ public class BoardUpdateInformation {
         sb.append("countDNF    : ").append(getCountDNF()).append("  (").append(FormatterUtils.formatPercent(getCountDNF(),getCountTriedIndices())).append("%)\n");
         sb.append("countInvalid: ").append(getCountInvalid()).append("  (").append(FormatterUtils.formatPercent(getCountInvalid(),getCountTriedIndices())).append("%)\n");
         sb.append("countValid  : ").append(getCountValid()).append("  (").append(FormatterUtils.formatPercent(getCountValid(),getCountTriedIndices())).append("%)\n");
+        sb.append("subsequentFailures: ").append(getSubsequentInvalidMsgs()).append("\n");
         return sb.toString();
     }
 
@@ -200,14 +210,44 @@ public class BoardUpdateInformation {
             .append("*** Overall ***\n")
             .append("\n")
             .append("nodeTime: ").append(dayCountOverall).append("d ").append(DateFun.FORMAT_TIME_PLAIN.print(sumNodeTimeOverall)).append("  (").append(FormatterUtils.formatFraction((sumNodeTimeOverall/1000L), sumCountTriedIndicesOverall)).append(" s/req)\n")
-            .append("countTriedIndices : ").append(sumCountTriedIndicesOverall).append("\n")
+            .append("countTriedIndices: ").append(sumCountTriedIndicesOverall).append("\n")
+            .append("countValid  : ").append(sumCountValidOverall).append("  (").append(FormatterUtils.formatPercent(sumCountValidOverall,sumCountTriedIndicesOverall)).append("%)\n")
+            .append("countInvalid: ").append(sumCountInvalidOverall).append("  (").append(FormatterUtils.formatPercent(sumCountInvalidOverall,sumCountTriedIndicesOverall)).append("%)\n")
             .append("countADNF   : ").append(sumCountADNFOverall).append("  (").append(FormatterUtils.formatPercent(sumCountADNFOverall,sumCountTriedIndicesOverall)).append("%)\n")
             .append("countDNF    : ").append(sumCountDNFOverall).append("  (").append(FormatterUtils.formatPercent(sumCountDNFOverall,sumCountTriedIndicesOverall)).append("%)\n")
-            .append("countInvalid: ").append(sumCountInvalidOverall).append("  (").append(FormatterUtils.formatPercent(sumCountInvalidOverall,sumCountTriedIndicesOverall)).append("%)\n")
-            .append("countValid  : ").append(sumCountValidOverall).append("  (").append(FormatterUtils.formatPercent(sumCountValidOverall,sumCountTriedIndicesOverall)).append("%)\n")
             .toString();
 
         return infoString;
     }
 
+    public synchronized boolean updateBoardUpdateAllowedState() {
+        if( MainFrame.getInstance().getTofTree().isStopBoardUpdatesWhenDOSed() == false ) {
+            this.isBoardUpdateAllowed = Boolean.TRUE;
+        } else {
+            final int maxSubsequentFailuresAllowed = MainFrame.getInstance().getTofTree().getMaxInvalidMessagesPerDayThreshold();
+            if( getSubsequentInvalidMsgs() > maxSubsequentFailuresAllowed ) {
+                this.isBoardUpdateAllowed = Boolean.FALSE;
+            } else {
+                this.isBoardUpdateAllowed = Boolean.TRUE;
+            }
+        }
+        return this.isBoardUpdateAllowed.booleanValue();
+    }
+
+    public synchronized boolean isBoardUpdateAllowed() {
+        if( isBoardUpdateAllowed == null ) {
+            updateBoardUpdateAllowedState();
+        }
+        return isBoardUpdateAllowed.booleanValue();
+    }
+
+    private int getSubsequentInvalidMsgs() {
+        return subsequentInvalidMsgs;
+    }
+    private void resetSubsequentInvalidMsgs() {
+        subsequentInvalidMsgs = 0;
+    }
+    private void incSubsequentInvalidMsgs() {
+        subsequentInvalidMsgs++;
+    }
 }

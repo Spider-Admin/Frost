@@ -31,6 +31,8 @@ import javax.swing.border.*;
 import javax.swing.event.*;
 import javax.swing.tree.*;
 
+import org.joda.time.*;
+
 import frost.*;
 import frost.fcp.*;
 import frost.gui.*;
@@ -51,6 +53,8 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
     private boolean showBoardUpdatedCount;
     private boolean showBoardUpdateVisualization;
     private boolean showFlaggedStarredIndicators;
+    private boolean stopBoardUpdatesWhenDOSed;
+    private int maxInvalidMessagesPerDayThreshold;
 
     private class PopupMenuTofTree
         extends JSkinnablePopupMenu
@@ -397,6 +401,25 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
         }
 
         public void boardUpdateInformationChanged(final BoardUpdateThread thread, final BoardUpdateInformation bui) {
+            final Board board = thread.getTargetBoard();
+            // get from static property
+            if( stopBoardUpdatesWhenDOSed == false ) {
+                return;
+            }
+
+            // scan bui for this board, update board status for: dos today / dos for backload, but not all backload days / dos for all (today and all backload)
+            // only respect days that would be updated
+            final int maxDaysBack = board.getMaxMessageDownload();
+            final LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysBack);
+            final long minDateTime = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
+            final long todayDateTime = MainFrame.getInstance().getTodaysDateMillis();
+            board.updateDosStatus(stopBoardUpdatesWhenDOSed, minDateTime, todayDateTime);
+
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    mainFrame.updateTofTree(board);
+                }
+            });
         }
     }
 
@@ -462,6 +485,8 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
 
             final boolean containsNewMessage = node.containsNewMessages();
 
+            Board board = null;
+
             if (node.isFolder()) {
                 final Folder folder = (Folder) node;
                 // if this is a folder, check board for new messages
@@ -479,7 +504,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
 
             } else if(node.isBoard()) {
 
-                final Board board = (Board) node;
+                board = (Board) node;
                 // set the special text (board name + if new msg. a ' (2)' is appended and bold)
                 if (containsNewMessage) {
                     setFont(boldFont);
@@ -565,36 +590,50 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
             }
 
             // maybe update visualization
-            final boolean isUpdating;
-            if( node.isBoard() && ((Board)node).isUpdating() ) {
-                isUpdating = true;
-            } else {
-                isUpdating = false;
-            }
-            if (showBoardUpdateVisualization && isUpdating) {
+            if (showBoardUpdateVisualization && board != null && board.isUpdating()) {
                 // set special updating colors
                 Color c;
                 c = (Color) settings.getObjectValue(SettingsClass.BOARD_UPDATE_VISUALIZATION_BGCOLOR_NOT_SELECTED);
                 setBackgroundNonSelectionColor(c);
 
+                setTextNonSelectionColor(Color.red);
+
                 c = (Color) settings.getObjectValue(SettingsClass.BOARD_UPDATE_VISUALIZATION_BGCOLOR_SELECTED);
                 setBackgroundSelectionColor(c);
 
+
             } else {
                 // refresh colours from the L&F
-                setTextSelectionColor(UIManager.getColor("Tree.selectionForeground"));
-                setTextNonSelectionColor(UIManager.getColor("Tree.textForeground"));
                 setBackgroundNonSelectionColor(UIManager.getColor("Tree.textBackground"));
                 setBackgroundSelectionColor(UIManager.getColor("Tree.selectionBackground"));
             }
 
+            // visualize DoS attacks
+            if( board != null && board.isDosForToday() ) {
+                setForeground(Color.red);
+                // using the next 2 lines does not work, bug in jre?
+//                setTextSelectionColor(Color.gray);
+//                setTextNonSelectionColor(Color.red);
+//            } else if( node.isBoard() && ((Board)node).isDosForBackloadDays() ) {
+//            } else if( node.isBoard() && ((Board)node).isDosForAllDays() ) {
+            } else {
+                // refresh colours from the L&F
+                if( sel ) {
+                    setForeground(UIManager.getColor("Tree.selectionForeground"));
+                } else {
+                    setForeground(UIManager.getColor("Tree.textForeground"));
+                }
+//                setTextSelectionColor(UIManager.getColor("Tree.selectionForeground"));
+//                setTextNonSelectionColor(UIManager.getColor("Tree.textForeground"));
+            }
+
             // set board description as tooltip
             if( showBoardDescriptionToolTips
-                    && node.isBoard()
-                    && ((Board)node).getDescription() != null
-                    && ((Board)node).getDescription().length() > 0 )
+                    && board != null
+                    && board.getDescription() != null
+                    && board.getDescription().length() > 0 )
             {
-                setToolTipText(((Board)node).getDescription());
+                setToolTipText(board.getDescription());
             } else {
                 setToolTipText(null);
             }
@@ -629,6 +668,8 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
         showBoardUpdatedCount = Core.frostSettings.getBoolValue(SettingsClass.SHOW_BOARD_UPDATED_COUNT);
         showBoardUpdateVisualization = Core.frostSettings.getBoolValue(SettingsClass.SHOW_BOARD_UPDATE_VISUALIZATION);
         showFlaggedStarredIndicators = Core.frostSettings.getBoolValue(SettingsClass.SHOW_BOARDTREE_FLAGGEDSTARRED_INDICATOR);
+        stopBoardUpdatesWhenDOSed = Core.frostSettings.getBoolValue(SettingsClass.DOS_STOP_BOARD_UPDATES_WHEN_DOSED);
+        maxInvalidMessagesPerDayThreshold = Core.frostSettings.getIntValue(SettingsClass.DOS_INVALID_SUBSEQUENT_MSGS_THRESHOLD);
     }
 
     private PopupMenuTofTree getPopupMenuTofTree() {
@@ -1170,6 +1211,30 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
         } else if (evt.getPropertyName().equals(SettingsClass.SHOW_BOARD_UPDATE_VISUALIZATION)) {
             showBoardUpdateVisualization = Core.frostSettings.getBoolValue(SettingsClass.SHOW_BOARD_UPDATE_VISUALIZATION);
             updateTree(); // redraw tree nodes
+        } else if (evt.getPropertyName().equals(SettingsClass.DOS_STOP_BOARD_UPDATES_WHEN_DOSED)) {
+            stopBoardUpdatesWhenDOSed = Core.frostSettings.getBoolValue(SettingsClass.DOS_STOP_BOARD_UPDATES_WHEN_DOSED);
+            updateAllBoardDosStatus();
+            updateTree(); // redraw tree nodes
+        } else if (evt.getPropertyName().equals(SettingsClass.DOS_INVALID_SUBSEQUENT_MSGS_THRESHOLD)) {
+            maxInvalidMessagesPerDayThreshold = Core.frostSettings.getIntValue(SettingsClass.DOS_INVALID_SUBSEQUENT_MSGS_THRESHOLD);
+        }
+    }
+
+    public boolean isStopBoardUpdatesWhenDOSed() {
+        return stopBoardUpdatesWhenDOSed;
+    }
+
+    public int getMaxInvalidMessagesPerDayThreshold() {
+        return maxInvalidMessagesPerDayThreshold;
+    }
+
+    private void updateAllBoardDosStatus() {
+        final long todayDateTime = MainFrame.getInstance().getTodaysDateMillis();
+        for( final Board board : model.getAllBoards() ) {
+            final int maxDaysBack = board.getMaxMessageDownload();
+            final LocalDate localDate = new LocalDate(DateTimeZone.UTC).minusDays(maxDaysBack);
+            final long minDateTime = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
+            board.updateDosStatus(stopBoardUpdatesWhenDOSed, minDateTime, todayDateTime);
         }
     }
 }

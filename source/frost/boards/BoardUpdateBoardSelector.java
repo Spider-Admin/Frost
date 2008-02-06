@@ -84,8 +84,6 @@ public class BoardUpdateBoardSelector {
         Collections.sort(allBoards, lastUpdateStartMillisCmp);
         // now first board in list should be the one with latest update of all
 
-        Board board;
-        Board nextBoard = null;
 
         final long curTime = System.currentTimeMillis();
         // get in minutes
@@ -93,15 +91,15 @@ public class BoardUpdateBoardSelector {
         // min -> ms
         final long minUpdateIntervalMillis = minUpdateInterval * 60L * 1000L;
 
-        for( final Object element : allBoards ) {
-            board = (Board)element;
+        Board nextBoard = null;
+        for( final Board lBoard : allBoards ) {
             if (nextBoard == null
-                && board.isAutomaticUpdateAllowed()
-                && (curTime - minUpdateIntervalMillis) > board.getLastUpdateStartMillis() // minInterval
-                && ( (board.isConfigured() && board.getAutoUpdateEnabled())
-                      || !board.isConfigured()) )
+                && lBoard.isAutomaticUpdateAllowed()
+                && (curTime - minUpdateIntervalMillis) > lBoard.getLastUpdateStartMillis() // minInterval
+                && ( (lBoard.isConfigured() && lBoard.getAutoUpdateEnabled())
+                      || !lBoard.isConfigured()) )
             {
-                nextBoard = board;
+                nextBoard = lBoard;
                 break;
             }
         }
