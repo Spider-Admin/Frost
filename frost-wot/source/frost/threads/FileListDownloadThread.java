@@ -116,7 +116,13 @@ public class FileListDownloadThread extends Thread {
                 // download successful, read file and validate
                 final File downloadedFile = result.getResultFile();
 
-                final FileListFileContent content = FileListFile.readFileListFile(downloadedFile);
+                FileListFileContent content = null;
+                try {
+                    content = FileListFile.readFileListFile(downloadedFile);
+                } catch (final Exception e) {
+                    logger.log(Level.WARNING, "Invalid XML content: "+e.getMessage());
+                }
+                // content==null -> isValid=false
                 final boolean isValid = FileListManager.processReceivedFileList(content);
 
                 if( Logging.inst().doLogFilebaseMessages() ) {
