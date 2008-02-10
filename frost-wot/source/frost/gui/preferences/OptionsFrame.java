@@ -298,8 +298,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
             listData.add( new ListBoxData(" "+language.getString("Options.news")+" (2) ", getNews2Panel()));
             listData.add( new ListBoxData(" "+language.getString("Options.junk")+" ", getJunkPanel()));
             listData.add( new ListBoxData(" "+language.getString("Options.display")+" ", getDisplayPanel()));
-            listData.add( new ListBoxData("    "+"Board tree"+" ", getDisplayBoardTreePanel()));
-            listData.add( new ListBoxData("    "+"Messages"+" ", getDisplayMessagesPanel()));
+
+            listData.add( new ListBoxData("    "+language.getString("Options.boardTree")+" ", getDisplayBoardTreePanel()));
+            listData.add( new ListBoxData("    "+language.getString("Options.messages")+" ", getDisplayMessagesPanel()));
             listData.add( new ListBoxData(" "+language.getString("Options.expiration")+" ", getExpirationPanel()));
             listData.add( new ListBoxData(" "+language.getString("Options.search")+" ", getSearchPanel()));
             listData.add( new ListBoxData(" "+language.getString("Options.miscellaneous")+" ", getMiscPanel()));
