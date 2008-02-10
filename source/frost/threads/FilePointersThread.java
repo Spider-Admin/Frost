@@ -205,7 +205,12 @@ public class FilePointersThread extends Thread {
 
                 final File downloadedFile = result.getResultFile();
 
-                final FilePointerFileContent content = FilePointerFile.readPointerFile(downloadedFile);
+                FilePointerFileContent content = null;
+                try {
+                    content = FilePointerFile.readPointerFile(downloadedFile);
+                } catch (final Exception e) {
+                    logger.log(Level.WARNING, "Invalid XML content: "+e.getMessage());
+                }
 
                 if( Logging.inst().doLogFilebaseMessages() ) {
                     System.out.println("readPointerFile: result: "+content);

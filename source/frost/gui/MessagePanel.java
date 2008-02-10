@@ -73,7 +73,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         }
 
         public void actionPerformed(final ActionEvent e) {
-            if (e.getSource() == updateButton) {
+            if (e.getSource() == updateBoardButton) {
                 updateButton_actionPerformed(e);
             } else if (e.getSource() == newMessageButton) {
                 newMessageButton_actionPerformed();
@@ -457,7 +457,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         new JButton(new ImageIcon(getClass().getResource("/data/save.gif")));
     protected JButton nextUnreadMessageButton =
         new JButton(new ImageIcon(getClass().getResource("/data/nextunreadmessage.gif")));
-    private final JButton updateButton =
+    private final JButton updateBoardButton =
         new JButton(new ImageIcon(getClass().getResource("/data/update.gif")));
 
     private final JButton setGoodButton =
@@ -491,7 +491,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         // configure buttons
         final MiscToolkit toolkit = MiscToolkit.getInstance();
         toolkit.configureButton(newMessageButton, "MessagePane.toolbar.tooltip.newMessage", "/data/newmessage_rollover.gif", language);
-        toolkit.configureButton(updateButton, "MessagePane.toolbar.tooltip.update", "/data/update_rollover.gif", language);
+        toolkit.configureButton(updateBoardButton, "MessagePane.toolbar.tooltip.update", "/data/update_rollover.gif", language);
         toolkit.configureButton(replyButton, "MessagePane.toolbar.tooltip.reply", "/data/reply_rollover.gif", language);
         toolkit.configureButton(saveMessageButton, "MessagePane.toolbar.tooltip.saveMessage", "/data/save_rollover.gif", language);
         toolkit.configureButton(nextUnreadMessageButton, "MessagePane.toolbar.tooltip.nextUnreadMessage", "/data/nextunreadmessage_rollover.gif", language);
@@ -557,7 +557,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         buttonsToolbar.add(Box.createRigidArea(blankSpace));
         buttonsToolbar.addSeparator();
         buttonsToolbar.add(Box.createRigidArea(blankSpace));
-        buttonsToolbar.add(updateButton);
+        buttonsToolbar.add(updateBoardButton);
         buttonsToolbar.add(Box.createRigidArea(blankSpace));
         buttonsToolbar.addSeparator();
     //  buttonsToolbar.add(Box.createRigidArea(blankSpace));
@@ -599,7 +599,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
         // listeners
         newMessageButton.addActionListener(listener);
-        updateButton.addActionListener(listener);
+        updateBoardButton.addActionListener(listener);
         replyButton.addActionListener(listener);
     //  downloadAttachmentsButton.addActionListener(listener);
     //  downloadBoardsButton.addActionListener(listener);
@@ -1080,7 +1080,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         setBadButton.setToolTipText(language.getString("MessagePane.toolbar.tooltip.setToBad"));
         setCheckButton.setToolTipText(language.getString("MessagePane.toolbar.tooltip.setToCheck"));
         setObserveButton.setToolTipText(language.getString("MessagePane.toolbar.tooltip.setToObserve"));
-        updateButton.setToolTipText(language.getString("MessagePane.toolbar.tooltip.update"));
+        updateBoardButton.setToolTipText(language.getString("MessagePane.toolbar.tooltip.update"));
         toggleShowUnreadOnly.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowUnreadOnly"));
         toggleShowThreads.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowThreads"));
         toggleShowSmileys.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowSmileys"));
@@ -1212,7 +1212,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     // FIXME: reset message history!
                     getMessageTextPane().update_boardSelected();
                     clearSubjectTextLabel();
-                    updateButton.setEnabled(true);
+                    updateBoardButton.setEnabled(true);
                     saveMessageButton.setEnabled(false);
                     replyButton.setEnabled(false);
                     if (((Board)node).isReadAccessBoard()) {
@@ -1224,7 +1224,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     // node is a folder
                     newMessageButton.setEnabled(false);
                     saveMessageButton.setEnabled(false);
-                    updateButton.setEnabled(false);
+                    updateBoardButton.setEnabled(false);
                     getMessageTextPane().update_folderSelected();
                     clearSubjectTextLabel();
                 }

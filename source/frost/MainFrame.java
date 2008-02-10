@@ -844,7 +844,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
                             dlg.startDialog(msgCount, arcMsgCount, idCount, sharerCount, fileCount, fileSizes);
                         }
                     });
-                } catch(final Throwable t) {
+                } finally {
                     // paranoia, don't left gui locked
                     SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
