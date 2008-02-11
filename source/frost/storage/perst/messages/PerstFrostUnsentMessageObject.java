@@ -183,7 +183,7 @@ public class PerstFrostUnsentMessageObject extends Persistent {
     private void retrieveAttachments(final FrostUnsentMessageObject mo) {
         if( mo.hasFileAttachments() && fileAttachments != null ) {
             for( final PerstFrostUnsentFileAttachment p : fileAttachments ) {
-                final FileAttachment fa = new FileAttachment(p.name, p.chkKey, p.size);
+                final FileAttachment fa = new FileAttachment(p.name, p.chkKey, p.size, true);
                 mo.addAttachment(fa);
             }
         }
