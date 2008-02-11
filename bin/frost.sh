@@ -23,4 +23,10 @@ cd $PROGDIR
 # you may need to uncomment this if you are on beryl
 #export AWT_TOOLKIT="MToolkit"
 
-java -Xmx96M -jar frost.jar "$@"
+if [ "`uname`" = "Darwin" ]; then
+    ADDFLAGS='-Dapple.laf.useScreenMenuBar=true'
+else
+    ADDFLAGS=''
+fi
+
+java -Xmx96M $ADDFLAGS -jar frost.jar "$@"
