@@ -26,7 +26,7 @@ import org.xml.sax.*;
 import frost.util.*;
 
 public class FileAttachment extends Attachment implements CopyToClipboardItem {
-    
+
     private File file = null;
 
     private String key = null; // Name of this key
@@ -36,19 +36,20 @@ public class FileAttachment extends Attachment implements CopyToClipboardItem {
 	/* (non-Javadoc)
 	 * @see frost.messages.Attachment#getType()
 	 */
-	public int getType() {
+	@Override
+    public int getType() {
 		return Attachment.FILE;
 	}
 
 	/* (non-Javadoc)
 	 * @see frost.XMLizable#getXMLElement(org.w3c.dom.Document)
 	 */
-	public Element getXMLElement(Document doc) {
-        
-        Element fileelement = doc.createElement("File");
+	public Element getXMLElement(final Document doc) {
+
+        final Element fileelement = doc.createElement("File");
 
         Element element = doc.createElement("name");
-        CDATASection cdata = doc.createCDATASection(getFilename());
+        final CDATASection cdata = doc.createCDATASection(getFilename());
         element.appendChild(cdata);
         fileelement.appendChild(element);
 
@@ -72,9 +73,9 @@ public class FileAttachment extends Attachment implements CopyToClipboardItem {
 	/* (non-Javadoc)
 	 * @see frost.XMLizable#loadXMLElement(org.w3c.dom.Element)
 	 */
-	public void loadXMLElement(Element e) throws SAXException {
-		Element _file = (Element) XMLTools.getChildElementsByTagName(e, "File").iterator().next();
-        
+	public void loadXMLElement(final Element e) throws SAXException {
+		final Element _file = XMLTools.getChildElementsByTagName(e, "File").iterator().next();
+
         filename = XMLTools.getChildElementsCDATAValue(_file, "name");
         key = XMLTools.getChildElementsTextValue(_file, "key");
         size = new Long(XMLTools.getChildElementsTextValue(_file, "size")).longValue();
@@ -84,35 +85,38 @@ public class FileAttachment extends Attachment implements CopyToClipboardItem {
 	 * @param e
 	 * @throws SAXException
 	 */
-	public FileAttachment(Element e) throws SAXException {
+	public FileAttachment(final Element e) throws SAXException {
 		loadXMLElement(e);
 	}
 
-	public FileAttachment(String fname, String k, long s) {
+	public FileAttachment(final String fname, final String k, final long s) {
         filename = fname;
         size = s;
         key = k;
 	}
 
-    public FileAttachment(String fpath, String k, long s, boolean unsend) {
+	/**
+	 * Called for an unsend message, initializes internal file object.
+	 */
+    public FileAttachment(final String fpath, final String k, final long s, final boolean unsend) {
         file = new File(fpath);
         filename = file.getName();
         size = s;
         key = k;
     }
 
-    public FileAttachment(File f) {
+    public FileAttachment(final File f) {
         file = f;
         filename = file.getName();
         size = file.length();
     }
 
-    /* 
+    /*
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
-	public int compareTo(Object o) {
-		String myName = getFilename();
-		String otherName = ((FileAttachment) o).getFilename();
+	public int compareTo(final Object o) {
+		final String myName = getFilename();
+		final String otherName = ((FileAttachment) o).getFilename();
 		return myName.compareTo(otherName);
 	}
 
@@ -122,7 +126,7 @@ public class FileAttachment extends Attachment implements CopyToClipboardItem {
     public String getKey() {
         return key;
     }
-    public void setKey(String k) {
+    public void setKey(final String k) {
         key = k;
     }
     public long getFileSize() {
