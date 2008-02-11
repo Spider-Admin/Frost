@@ -89,9 +89,13 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                 // get IndexSlot for today
                 final IndexSlot gis = IndexSlotsStorage.inst().getSlotForDate(boardId, dateMillis);
                 // download only current date
-                downloadDate(localDate, gis, dateMillis);
-                // after update check if there are messages for upload and upload them
-                uploadMessages(gis); // doesn't get a message when message upload is disabled
+                final BoardUpdateInformation todayBui = downloadDate(localDate, gis, dateMillis);
+
+                // after update, check if there are messages for upload and upload them
+                // ... but only when we didn't stop because of too much invalid messages
+                if( todayBui.isBoardUpdateAllowed() ) {
+                    uploadMessages(gis); // doesn't get a message when message upload is disabled
+                }
             } else {
                 // download up to maxMessages days to the past
                 int daysBack = 0;
@@ -145,7 +149,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
         return downKey;
     }
 
-    protected void downloadDate(final LocalDate localDate, final IndexSlot gis, final long dateMillis) {
+    protected BoardUpdateInformation downloadDate(final LocalDate localDate, final IndexSlot gis, final long dateMillis) {
 
         final String dirDateString = DateFun.FORMAT_DATE.print(localDate);
 
@@ -280,6 +284,8 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
         boardUpdateInformation.setCurrentIndex(-1);
         boardUpdateInformation.updateBoardUpdateAllowedState();
         notifyBoardUpdateInformationChanged(this, boardUpdateInformation);
+
+        return boardUpdateInformation;
     }
 
     private void receivedInvalidMessage(final Board b, final LocalDate calDL, final int index, final String reason) {
