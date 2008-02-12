@@ -117,6 +117,10 @@ public class UnsentMessagesManager {
             if( mo.getCurrentUploadThread() != null ) {
                 continue; // msg is currently uploading
             }
+            // skip boards that are currently DoSed, we try them during the board update loop
+            if( mo.getBoard().isDosForToday() ) {
+                continue;
+            }
             if( !ht.containsKey(mo.getBoard().getPerstFrostBoardObject().getBoardId()) ) {
                 ht.put(mo.getBoard().getPerstFrostBoardObject().getBoardId(), mo.getBoard());
             }
