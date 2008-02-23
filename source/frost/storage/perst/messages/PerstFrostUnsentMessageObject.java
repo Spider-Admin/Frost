@@ -18,6 +18,7 @@
 */
 package frost.storage.perst.messages;
 
+import java.io.*;
 import java.util.*;
 
 import org.garret.perst.*;
@@ -91,7 +92,7 @@ public class PerstFrostUnsentMessageObject extends Persistent {
         public PerstFrostUnsentFileAttachment() {}
 
         public PerstFrostUnsentFileAttachment(final FileAttachment fa) {
-            name = fa.getFilename();
+            name = fa.getInternalFile().getPath();
             size = fa.getFileSize();
             chkKey = fa.getKey();
         }
@@ -129,8 +130,10 @@ public class PerstFrostUnsentMessageObject extends Persistent {
             fileAttachments = store.createLink();
             for( final Iterator i=files.iterator(); i.hasNext(); ) {
                 final FileAttachment ba = (FileAttachment)i.next();
-                final PerstFrostUnsentFileAttachment pba = new PerstFrostUnsentFileAttachment(ba);
-                fileAttachments.add(pba);
+                if( ba.getInternalFile() != null ) {
+                    final PerstFrostUnsentFileAttachment pba = new PerstFrostUnsentFileAttachment(ba);
+                    fileAttachments.add(pba);
+                }
             }
         } else {
             fileAttachments = null;
@@ -183,7 +186,7 @@ public class PerstFrostUnsentMessageObject extends Persistent {
     private void retrieveAttachments(final FrostUnsentMessageObject mo) {
         if( mo.hasFileAttachments() && fileAttachments != null ) {
             for( final PerstFrostUnsentFileAttachment p : fileAttachments ) {
-                final FileAttachment fa = new FileAttachment(p.name, p.chkKey, p.size, true);
+                final FileAttachment fa = new FileAttachment(new File(p.name), p.chkKey, p.size);
                 mo.addAttachment(fa);
             }
         }

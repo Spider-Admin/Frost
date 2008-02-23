@@ -96,6 +96,8 @@ public class FileAttachmentUploadThread extends Thread {
                             title,
                             JOptionPane.ERROR_MESSAGE);
 
+                    logger.warning("FileAttachmentUploadThread: unsent file attachment disappeared: "+fa.getInternalFile()+"; "+fa.getFilename());
+
                     UnsentMessagesManager.deleteMessage(msgFileAttachment.getMessageObject());
 
                     continue;
