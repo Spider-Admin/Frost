@@ -48,8 +48,7 @@ public class UnsentMessagesManager {
         unsentMessages.addAll(msgs);
 
         // initialize the file attachments to upload
-        for( final Object element : unsentMessages ) {
-            final FrostUnsentMessageObject msg = (FrostUnsentMessageObject) element;
+        for( final FrostUnsentMessageObject msg : unsentMessages ) {
             FileAttachmentUploadThread.getInstance().checkAndEnqueueNewMessage(msg);
         }
     }

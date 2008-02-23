@@ -98,9 +98,9 @@ public class FileAttachment extends Attachment implements CopyToClipboardItem {
 	/**
 	 * Called for an unsend message, initializes internal file object.
 	 */
-    public FileAttachment(final String fpath, final String k, final long s, final boolean unsend) {
-        file = new File(fpath);
-        filename = file.getName();
+    public FileAttachment(final File newFile, final String k, final long s) {
+        file = newFile;
+        filename = file.getPath();
         size = s;
         key = k;
     }
