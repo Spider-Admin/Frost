@@ -22,7 +22,6 @@ import java.util.*;
 
 import javax.swing.*;
 
-import frost.util.*;
 import frost.util.gui.textpane.*;
 
 public class SmileyCache implements Smileys {
@@ -33,7 +32,7 @@ public class SmileyCache implements Smileys {
         final String si = Integer.toString(i);
         ImageIcon ii = smileyCache.get(si);
         if( ii == null ) {
-            ii = MiscToolkit.loadImageIcon("data/smileys/"+i+".gif");
+            ii = MiscToolkit.loadImageIcon("/data/smileys/"+i+".gif");
             smileyCache.put(si, ii);
         }
         return ii;
