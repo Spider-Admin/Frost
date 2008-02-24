@@ -77,7 +77,7 @@ public class HelpBrowserFrame extends JFrame {
 
         this.browser = new HelpBrowser(this, langlocale, zipfile, startpage);
 
-        setIconImage(MiscToolkit.loadImageIcon("/data/help.png").getImage());
+        setIconImage(MiscToolkit.loadImageIcon("/data/toolbar/help-browser.png").getImage());
 
     	enableEvents(AWTEvent.WINDOW_EVENT_MASK);
     	try {

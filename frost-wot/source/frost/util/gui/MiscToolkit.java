@@ -57,10 +57,11 @@ public class MiscToolkit {
 	 * Configures a button to be a default icon button, setting its rollover icon
 	 * and some other default properties.
 	 * @param button the button to configure
-	 * @param rolloverIcon displayed icon when mouse arrow is over button
 	 */
-	public void configureButton(final JButton button, final String rolloverIcon) {
-		button.setRolloverIcon(MiscToolkit.loadImageIcon(rolloverIcon));
+	public void configureButton(final JButton button) {
+	    if( button.getIcon() instanceof ImageIcon ) {
+            button.setRolloverIcon(createRolloverIcon((ImageIcon)button.getIcon()));
+        }
 		button.setMargin(new Insets(0, 0, 0, 0));
         button.setPreferredSize(new Dimension(30,25));
 		button.setBorderPainted(false);
@@ -73,26 +74,20 @@ public class MiscToolkit {
      * default properties.
      * @param button the button to configure
      * @param toolTipKey language resource key to extract its tooltip text with
-     * @param rolloverIcon displayed icon when mouse arrow is over button
      * @param language language to extract the tooltip text from
      */
 	public void configureButton(
 		final JButton button,
 		final String toolTipKey,
-		final String rolloverIcon,
-		final Language language) {
+		final Language language)
+	{
+		button.setToolTipText(language.getString(toolTipKey));
+		configureButton(button);
+	}
 
-		String text = null;
-		try {
-			text = language.getString(toolTipKey);
-		} catch (final MissingResourceException ex) {
-            ex.printStackTrace();
-			logger.severe("Missing resource in configureButton method: " + toolTipKey);
-			text = toolTipKey; // better than nothing ;)
-		}
-		button.setToolTipText(text);
-
-		configureButton(button, rolloverIcon);
+	public static ImageIcon createRolloverIcon(final ImageIcon source) {
+	    // FIXME: implement
+	    return source;
 	}
 
 	/**

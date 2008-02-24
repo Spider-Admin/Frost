@@ -36,8 +36,8 @@ public class SearchPanel extends JPanel implements LanguageListener {
     private SearchSimpleToolBar searchSimpleToolBar;
     private SearchAdvancedToolBar searchAdvancedToolBar;
 
-    private final ImageIcon searchIcon = MiscToolkit.loadImageIcon("/data/search.gif");
-    private final ImageIcon clearIcon = MiscToolkit.loadImageIcon("/data/remove.gif");
+    private final ImageIcon searchIcon = MiscToolkit.loadImageIcon("/data/toolbar/system-search.png");
+    private final ImageIcon clearIcon = MiscToolkit.loadImageIcon("/data/toolbar/user-trash.png");
 
     TableFindAction tableFindAction = new TableFindAction();
 
@@ -178,7 +178,7 @@ public class SearchPanel extends JPanel implements LanguageListener {
             searchOptionsButton.setFocusPainted(false);
 
             final MiscToolkit toolkit = MiscToolkit.getInstance();
-            toolkit.configureButton(searchButton, "/data/search_rollover.gif");
+            toolkit.configureButton(searchButton);
             searchComboBox.setMaximumSize(searchComboBox.getPreferredSize());
             searchTextField.setMaximumSize(searchTextField.getPreferredSize());
 
@@ -273,8 +273,8 @@ public class SearchPanel extends JPanel implements LanguageListener {
             searchOptionsButton.setFocusPainted(false);
 
             final MiscToolkit toolkit = MiscToolkit.getInstance();
-            toolkit.configureButton(searchButton, "/data/search_rollover.gif");
-            toolkit.configureButton(clearButton, "/data/remove_rollover.gif");
+            toolkit.configureButton(searchButton);
+            toolkit.configureButton(clearButton);
             searchComboBox.setMaximumSize(searchComboBox.getPreferredSize());
             searchNameTextField.setMaximumSize(searchNameTextField.getPreferredSize());
             searchCommentTextField.setMaximumSize(searchCommentTextField.getPreferredSize());

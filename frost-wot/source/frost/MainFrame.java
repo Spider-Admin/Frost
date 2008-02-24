@@ -294,15 +294,15 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
             buttonToolBar = new JToolBar();
 
             // configure buttons
-            knownBoardsButton = new JButton(MiscToolkit.loadImageIcon("/data/knownboards.gif"));
-            searchMessagesButton = new JButton(MiscToolkit.loadImageIcon("/data/searchmessages.gif"));
-            newBoardButton = new JButton(MiscToolkit.loadImageIcon("/data/newboard.gif"));
-            newFolderButton = new JButton(MiscToolkit.loadImageIcon("/data/newfolder.gif"));
-            removeBoardButton = new JButton(MiscToolkit.loadImageIcon("/data/remove.gif"));
-            renameFolderButton = new JButton(MiscToolkit.loadImageIcon("/data/rename.gif"));
-            configBoardButton = new JButton(MiscToolkit.loadImageIcon("/data/configure.gif"));
+            newBoardButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/internet-group-chat.png"));
+            newFolderButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/folder-new.png"));
+            configBoardButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/document-properties.png"));
+            renameFolderButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/edit-select-all.png"));
+            removeBoardButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/user-trash.png"));
+            boardInfoButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/information.png"));
+            knownBoardsButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/internet-web-browser.png"));
+            searchMessagesButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/edit-find.png"));
 
-            boardInfoButton = new JButton(MiscToolkit.loadImageIcon("/data/info.gif"));
             systemTrayButton = new JButton(MiscToolkit.loadImageIcon("/data/tray.gif"));
 
             progressIconRunning = MiscToolkit.loadImageIcon("/data/progress_running.gif");
@@ -311,16 +311,16 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
             disconnectedLabel = new JLabel("");
 
             final MiscToolkit toolkit = MiscToolkit.getInstance();
-            toolkit.configureButton(newBoardButton, "MainFrame.toolbar.tooltip.newBoard", "/data/newboard_rollover.gif", language);
-            toolkit.configureButton(newFolderButton, "MainFrame.toolbar.tooltip.newFolder", "/data/newfolder_rollover.gif", language);
-            toolkit.configureButton(removeBoardButton, "MainFrame.toolbar.tooltip.removeBoard", "/data/remove_rollover.gif", language);
-            toolkit.configureButton(renameFolderButton, "MainFrame.toolbar.tooltip.renameFolder", "/data/rename_rollover.gif", language);
-            toolkit.configureButton(boardInfoButton, "MainFrame.toolbar.tooltip.boardInformationWindow", "/data/info_rollover.gif", language);
-            toolkit.configureButton(systemTrayButton, "MainFrame.toolbar.tooltip.minimizeToSystemTray", "/data/tray_rollover.gif", language);
-            toolkit.configureButton(knownBoardsButton, "MainFrame.toolbar.tooltip.displayListOfKnownBoards", "/data/knownboards_rollover.gif", language);
-            toolkit.configureButton(searchMessagesButton, "MainFrame.toolbar.tooltip.searchMessages", "/data/searchmessages_rollover.gif", language);
+            toolkit.configureButton(newBoardButton, "MainFrame.toolbar.tooltip.newBoard", language);
+            toolkit.configureButton(newFolderButton, "MainFrame.toolbar.tooltip.newFolder", language);
+            toolkit.configureButton(removeBoardButton, "MainFrame.toolbar.tooltip.removeBoard", language);
+            toolkit.configureButton(renameFolderButton, "MainFrame.toolbar.tooltip.renameFolder", language);
+            toolkit.configureButton(boardInfoButton, "MainFrame.toolbar.tooltip.boardInformationWindow", language);
+            toolkit.configureButton(systemTrayButton, "MainFrame.toolbar.tooltip.minimizeToSystemTray", language);
+            toolkit.configureButton(knownBoardsButton, "MainFrame.toolbar.tooltip.displayListOfKnownBoards", language);
+            toolkit.configureButton(searchMessagesButton, "MainFrame.toolbar.tooltip.searchMessages", language);
 
-            toolkit.configureButton(configBoardButton, "MainFrame.toolbar.tooltip.configureBoard", "/data/configure_rollover.gif", language);
+            toolkit.configureButton(configBoardButton, "MainFrame.toolbar.tooltip.configureBoard", language);
 
             // add action listener
             knownBoardsButton.addActionListener(new java.awt.event.ActionListener() {
@@ -441,10 +441,21 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     private JMenuBar getMainMenuBar() {
         if (menuBar == null) {
             menuBar = new JMenuBar();
-            tofDisplayBoardInfoMenuItem.setIcon(MiscToolkit.getScaledImage("/data/info.gif", 16, 16));
-            tofAutomaticUpdateMenuItem.setSelected(true);
-            tofDisplayKnownBoards.setIcon(MiscToolkit.getScaledImage("/data/knownboards.gif", 16, 16));
-            tofSearchMessages.setIcon(MiscToolkit.getScaledImage("/data/searchmessages.gif", 16, 16));
+
+            final JMenu lookAndFeelMenu = getLookAndFeelMenu();
+
+            tofDisplayBoardInfoMenuItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/information.png", 16, 16));
+            tofAutomaticUpdateMenuItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/mail-send-receive.png", 16, 16));
+            tofDisplayKnownBoards.setIcon(MiscToolkit.getScaledImage("/data/toolbar/internet-web-browser.png", 16, 16));
+            tofSearchMessages.setIcon(MiscToolkit.getScaledImage("/data/toolbar/edit-find.png", 16, 16));
+            fileExitMenuItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/system-log-out.png", 16, 16));
+            fileStatisticsMenuItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/x-office-spreadsheet.png", 16, 16));
+            lookAndFeelMenu.setIcon(MiscToolkit.getScaledImage("/data/toolbar/preferences-desktop-theme.png", 16, 16));
+            optionsManageIdentitiesMenuItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/group.png", 16, 16));
+            optionsManageLocalIdentitiesMenuItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/user.png", 16, 16));
+            optionsPreferencesMenuItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/preferences-system.png", 16, 16));
+            helpAboutMenuItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/award_star_silver_3.png", 16, 16));
+            pluginTranslateMenuItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/arrow_switch.png", 16, 16));
 
             // add action listener
             fileExitMenuItem.addActionListener(new ActionListener() {
@@ -503,7 +514,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
                 	getTranslationDialog().setVisible(true);
                 }
             });
-            helpHelpMenuItem.setIcon(MiscToolkit.getScaledImage("/data/help.png", 16, 16));
+            helpHelpMenuItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/help-browser.png", 16, 16));
             helpHelpMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
                     showHtmlHelp("index.html");
@@ -522,7 +533,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
                 }
             });
 
-            helpMemMonMenuItem.setIcon(MiscToolkit.getScaledImage("/data/memmon.png", 16, 16));
+            helpMemMonMenuItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/utilities-system-monitor.png", 16, 16));
             helpMemMonMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
                     getMemoryMonitor().showDialog();
@@ -546,7 +557,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
             optionsMenu.add(optionsManageLocalIdentitiesMenuItem);
             optionsMenu.add(optionsManageIdentitiesMenuItem);
             optionsMenu.addSeparator();
-            optionsMenu.add( getLookAndFeelMenu() );
+            optionsMenu.add( lookAndFeelMenu );
             optionsMenu.addSeparator();
             optionsMenu.add(optionsPreferencesMenuItem);
             // Plugin Menu

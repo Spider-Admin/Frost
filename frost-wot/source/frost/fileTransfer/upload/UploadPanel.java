@@ -51,7 +51,7 @@ public class UploadPanel extends JPanel {
     private Language language = null;
 
     private final JToolBar uploadToolBar = new JToolBar();
-    private final JButton uploadAddFilesButton = new JButton(MiscToolkit.loadImageIcon("/data/browse.gif"));
+    private final JButton uploadAddFilesButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/folder-open.png"));
     private final JCheckBox removeFinishedUploadsCheckBox = new JCheckBox();
     private final JCheckBox showExternalGlobalQueueItems = new JCheckBox();
 
@@ -85,7 +85,7 @@ public class UploadPanel extends JPanel {
 
             // create the top panel
             final MiscToolkit toolkit = MiscToolkit.getInstance();
-            toolkit.configureButton(uploadAddFilesButton, "/data/browse_rollover.gif");
+            toolkit.configureButton(uploadAddFilesButton);
             uploadToolBar.add(uploadAddFilesButton);
             uploadToolBar.add(Box.createRigidArea(new Dimension(8, 0)));
             uploadToolBar.add(removeFinishedUploadsCheckBox);

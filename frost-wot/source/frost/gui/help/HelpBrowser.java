@@ -120,7 +120,7 @@ public class HelpBrowser extends JPanel {
         final JScrollPane scrollPane = new JScrollPane(editorPane);
         scrollPane.setWheelScrollingEnabled(true);
 
-        backButton = new JButton(MiscToolkit.loadImageIcon("/data/back.png"));
+        backButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/go-previous.png"));
         backButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 if( browserHistory.isBackwardPossible() ) {
@@ -129,7 +129,7 @@ public class HelpBrowser extends JPanel {
             }
         });
 
-        forwardButton = new JButton(MiscToolkit.loadImageIcon("/data/forward.png"));
+        forwardButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/go-next.png"));
         forwardButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 if( browserHistory.isForwardPossible() ) {
@@ -138,7 +138,7 @@ public class HelpBrowser extends JPanel {
             }
         });
 
-        homeButton = new JButton(MiscToolkit.loadImageIcon("/data/gohome.png"));
+        homeButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/go-home.png"));
         homeButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 browserHistory.resetToHomepage(homePage);
@@ -146,10 +146,10 @@ public class HelpBrowser extends JPanel {
             }
         });
 
-        final JLabel Lsearch = new JLabel(MiscToolkit.loadImageIcon("/data/search.gif"));
+        final JLabel Lsearch = new JLabel(MiscToolkit.loadImageIcon("/data/toolbar/system-search.png"));
         TFsearchTxt = new JTextField(15);
 
-        BfindNext = new JButton(MiscToolkit.loadImageIcon("/data/searchNext.png"));
+        BfindNext = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/go-down.png"));
         BfindNext.setDefaultCapable(true);
         BfindNext.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(final ActionEvent e) {
@@ -157,7 +157,7 @@ public class HelpBrowser extends JPanel {
             }
         });
 
-        BfindPrev = new JButton(MiscToolkit.loadImageIcon("/data/searchPrev.png"));
+        BfindPrev = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/go-up.png"));
         BfindPrev.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(final ActionEvent e) {
                 searchText(false); // search backward

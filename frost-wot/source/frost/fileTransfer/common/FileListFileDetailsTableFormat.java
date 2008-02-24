@@ -75,10 +75,10 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
     private void loadIcons() {
         if( ICON_GOOD == null ) {
             // load all icons
-            ICON_GOOD = MiscToolkit.getScaledImage("/data/trust.gif", 12, 12);
-            ICON_OBSERVE = MiscToolkit.getScaledImage("/data/observe.gif", 12, 12);
-            ICON_CHECK = MiscToolkit.getScaledImage("/data/check.gif", 12, 12);
-            ICON_BAD = MiscToolkit.getScaledImage("/data/nottrust.gif", 12, 12);
+            ICON_GOOD = MiscToolkit.getScaledImage("/data/toolbar/weather-clear.png", 12, 12);
+            ICON_OBSERVE = MiscToolkit.getScaledImage("/data/toolbar/weather-few-clouds.png", 12, 12);
+            ICON_CHECK = MiscToolkit.getScaledImage("/data/toolbar/weather-overcast.png", 12, 12);
+            ICON_BAD = MiscToolkit.getScaledImage("/data/toolbar/weather-storm.png", 12, 12);
         }
     }
 

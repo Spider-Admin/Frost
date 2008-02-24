@@ -149,18 +149,18 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
         private void initialize() {
             refreshLanguage();
 
-            addBoardItem.setIcon(MiscToolkit.getScaledImage("/data/newboard.gif", 16, 16));
-            addFolderItem.setIcon(MiscToolkit.getScaledImage("/data/newfolder.gif", 16, 16));
-            configureBoardItem.setIcon(MiscToolkit.getScaledImage("/data/configure.gif", 16, 16));
-            configureFolderItem.setIcon(MiscToolkit.getScaledImage("/data/configure.gif", 16, 16));
-            cutNodeItem.setIcon(MiscToolkit.getScaledImage("/data/cut.gif", 16, 16));
-            pasteNodeItem.setIcon(MiscToolkit.getScaledImage("/data/paste.gif", 16, 16));
-            refreshItem.setIcon(MiscToolkit.getScaledImage("/data/update.gif", 16, 16));
-            removeNodeItem.setIcon(MiscToolkit.getScaledImage("/data/remove.gif", 16, 16));
+            addBoardItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/internet-group-chat.png", 16, 16));
+            addFolderItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/folder-new.png", 16, 16));
+            configureBoardItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/document-properties.png", 16, 16));
+            configureFolderItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/document-properties.png", 16, 16));
+            cutNodeItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/edit-cut.png", 16, 16));
+            pasteNodeItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/edit-paste.png", 16, 16));
+            refreshItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/view-refresh.png", 16, 16));
+            removeNodeItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/user-trash.png", 16, 16));
             sortFolderItem.setIcon(MiscToolkit.getScaledImage("/data/sort.gif", 16, 16));
-            renameFolderItem.setIcon(MiscToolkit.getScaledImage("/data/rename.gif", 16, 16));
-            searchMessagesItem.setIcon(MiscToolkit.getScaledImage("/data/searchmessages.gif", 16, 16));
-            sendMessageItem.setIcon(MiscToolkit.getScaledImage("/data/newmessage.gif", 16, 16));
+            renameFolderItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/edit-select-all.png", 16, 16));
+            searchMessagesItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/edit-find.png", 16, 16));
+            sendMessageItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/mail-message-new.png", 16, 16));
 
             descriptionItem.setEnabled(false);
 
@@ -679,7 +679,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
         Core.frostSettings.addPropertyChangeListener(SettingsClass.SHOW_BOARDTREE_FLAGGEDSTARRED_INDICATOR, this);
 
         final MiscToolkit toolkit = MiscToolkit.getInstance();
-        configBoardMenuItem.setIcon(toolkit.getScaledImage("/data/configure.gif", 16, 16));
+        configBoardMenuItem.setIcon(toolkit.getScaledImage("/data/toolbar/document-properties.png", 16, 16));
         refreshLanguage();
 
         putClientProperty("JTree.lineStyle", "Angled"); // I like this look

@@ -100,8 +100,8 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     private final ImageIcon messageNewRepliedIcon = MiscToolkit.loadImageIcon("/data/messagenewrepliedicon.gif");
     private final ImageIcon messageReadRepliedIcon = MiscToolkit.loadImageIcon("/data/messagereadrepliedicon.gif");
 
-    public final ImageIcon receivedOneMessage = MiscToolkit.loadImageIcon("/data/ReceivedOneMessage.gif");
-    public final ImageIcon receivedFiveMessages = MiscToolkit.loadImageIcon("/data/ReceivedFiveMessages.gif");
+    public final ImageIcon receivedOneMessage = MiscToolkit.loadImageIcon("/data/bullet_red.png");
+    public final ImageIcon receivedFiveMessages = MiscToolkit.loadImageIcon("/data/bullet_blue.png");
 
     private boolean showColoredLines;
     private boolean indicateLowReceivedMessages;

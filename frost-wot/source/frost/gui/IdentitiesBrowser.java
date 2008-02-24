@@ -99,16 +99,16 @@ public class IdentitiesBrowser extends JDialog {
         getBmarkCHECK().setText("");
         getBmarkOBSERVE().setText("");
 
-        getBmarkGOOD().setIcon(MiscToolkit.loadImageIcon("/data/trust.gif"));
-        getBmarkBAD().setIcon(MiscToolkit.loadImageIcon("/data/nottrust.gif"));
-        getBmarkCHECK().setIcon(MiscToolkit.loadImageIcon("/data/check.gif"));
-        getBmarkOBSERVE().setIcon(MiscToolkit.loadImageIcon("/data/observe.gif"));
+        getBmarkGOOD().setIcon(MiscToolkit.loadImageIcon("/data/toolbar/weather-clear.png"));
+        getBmarkOBSERVE().setIcon(MiscToolkit.loadImageIcon("/data/toolbar/weather-few-clouds.png"));
+        getBmarkCHECK().setIcon(MiscToolkit.loadImageIcon("/data/toolbar/weather-overcast.png"));
+        getBmarkBAD().setIcon(MiscToolkit.loadImageIcon("/data/toolbar/weather-storm.png"));
 
         final MiscToolkit toolkit = MiscToolkit.getInstance();
-        toolkit.configureButton(getBmarkGOOD(), "MessagePane.toolbar.tooltip.setToGood", "/data/trust_rollover.gif", language);
-        toolkit.configureButton(getBmarkBAD(), "MessagePane.toolbar.tooltip.setToBad", "/data/nottrust_rollover.gif", language);
-        toolkit.configureButton(getBmarkCHECK(), "MessagePane.toolbar.tooltip.setToCheck", "/data/check_rollover.gif", language);
-        toolkit.configureButton(getBmarkOBSERVE(), "MessagePane.toolbar.tooltip.setToObserve", "/data/observe_rollover.gif", language);
+        toolkit.configureButton(getBmarkGOOD(), "MessagePane.toolbar.tooltip.setToGood", language);
+        toolkit.configureButton(getBmarkBAD(), "MessagePane.toolbar.tooltip.setToBad", language);
+        toolkit.configureButton(getBmarkCHECK(), "MessagePane.toolbar.tooltip.setToCheck", language);
+        toolkit.configureButton(getBmarkOBSERVE(), "MessagePane.toolbar.tooltip.setToObserve", language);
 
         setTitle(language.getString("IdentitiesBrowser.title"));
         getBdelete().setText(language.getString("IdentitiesBrowser.button.delete"));

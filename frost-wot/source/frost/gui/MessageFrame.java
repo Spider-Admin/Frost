@@ -74,10 +74,10 @@ public class MessageFrame extends JFrame {
     private JSkinnablePopupMenu attBoardsPopupMenu;
     private MessageBodyPopupMenu messageBodyPopupMenu;
 
-    private final JButton Bsend = new JButton(MiscToolkit.loadImageIcon("/data/send.gif"));
-    private final JButton Bcancel = new JButton(MiscToolkit.loadImageIcon("/data/remove.gif"));
-    private final JButton BattachFile = new JButton(MiscToolkit.loadImageIcon("/data/attachment.gif"));
-    private final JButton BattachBoard = new JButton(MiscToolkit.loadImageIcon("/data/attachmentBoard.gif"));
+    private final JButton Bsend = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/mail-forward.png"));
+    private final JButton Bcancel = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/user-trash.png"));
+    private final JButton BattachFile = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/mail-attachment.png"));
+    private final JButton BattachBoard = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/internet-group-chat.png"));
 
     private final JCheckBox sign = new JCheckBox();
     private final JCheckBox encrypt = new JCheckBox();
@@ -88,7 +88,7 @@ public class MessageFrame extends JFrame {
     private final JLabel Lsubject = new JLabel();
     private final JTextField TFboard = new JTextField(); // Board (To)
     private final JTextField subjectTextField = new JTextField(); // Subject
-    private final JButton BchooseSmiley = new JButton(MiscToolkit.loadImageIcon("/data/togglesmileys.gif"));
+    private final JButton BchooseSmiley = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/face-smile.png"));
 
     private final AntialiasedTextArea messageTextArea = new AntialiasedTextArea(); // Text
     private ImmutableArea headerArea = null;
@@ -508,7 +508,7 @@ public class MessageFrame extends JFrame {
             refreshLanguage();
             language.addLanguageListener(listener);
 
-            final ImageIcon frameIcon = MiscToolkit.loadImageIcon("/data/newmessage.gif");
+            final ImageIcon frameIcon = MiscToolkit.loadImageIcon("/data/toolbar/mail-message-new.png");
             setIconImage(frameIcon.getImage());
             setResizable(true);
 
@@ -550,28 +550,23 @@ public class MessageFrame extends JFrame {
             toolkit.configureButton(
                     Bsend,
                     "MessageFrame.toolbar.tooltip.sendMessage",
-                    "/data/send_rollover.gif",
                     language);
             toolkit.configureButton(
                     Bcancel,
                     "Common.cancel",
-                    "/data/remove_rollover.gif",
                     language);
             toolkit.configureButton(
                 BattachFile,
                 "MessageFrame.toolbar.tooltip.addFileAttachments",
-                "/data/attachment_rollover.gif",
                 language);
             toolkit.configureButton(
                 BattachBoard,
                 "MessageFrame.toolbar.tooltip.addBoardAttachments",
-                "/data/attachmentBoard_rollover.gif",
                 language);
 
             toolkit.configureButton(
                     BchooseSmiley,
                     "MessageFrame.toolbar.tooltip.chooseSmiley",
-                    "/data/togglesmileys.gif",
                     language);
             BchooseSmiley.setFocusable(false);
 

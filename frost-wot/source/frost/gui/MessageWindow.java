@@ -354,14 +354,14 @@ public class MessageWindow extends JFrame {
         private JButton getBreply() {
             if( Breply == null ) {
                 Breply = new JButton();
-                Breply.setIcon(MiscToolkit.loadImageIcon("/data/reply.gif"));
+                Breply.setIcon(MiscToolkit.loadImageIcon("/data/toolbar/mail-reply-sender.png"));
                 Breply.addActionListener(new ActionListener() {
                     public void actionPerformed(final ActionEvent arg0) {
                         replyButtonPressed();
                     }
                 });
                 final MiscToolkit toolkit = MiscToolkit.getInstance();
-                toolkit.configureButton(Breply, "MessageWindow.tooltip.reply", "/data/reply_rollover.gif", language);
+                toolkit.configureButton(Breply, "MessageWindow.tooltip.reply", language);
             }
             return Breply;
         }
