@@ -219,24 +219,26 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
 
         final Hashtable<String,IdentityMsgAndFileCount> data = new Hashtable<String,IdentityMsgAndFileCount>();
 
-        for(final Iterator<Identity> i = storageRoot.getIdentities().iterator(); i.hasNext(); ) {
-            final Identity id = i.next();
-            if( id == null ) {
-                i.remove();
-                continue;
-            }
+//        for(final Iterator<Identity> i = storageRoot.getIdentities().iterator(); i.hasNext(); ) {
+//            final Identity id = i.next();
+//            if( id == null ) {
+//                i.remove();
+//                continue;
+//            }
+        for( final Identity id : Core.getIdentities().getIdentities() ) {
             final int messageCount = MessageStorage.inst().getMessageCount(id.getUniqueName());
             final int fileCount = FileListStorage.inst().getFileCount(id.getUniqueName());
             final IdentityMsgAndFileCount s = new IdentityMsgAndFileCount(messageCount, fileCount);
             data.put(id.getUniqueName(), s);
         }
 
-        for(final Iterator<LocalIdentity> i = storageRoot.getLocalIdentities().iterator(); i.hasNext(); ) {
-            final LocalIdentity id = i.next();
-            if( id == null ) {
-                i.remove();
-                continue;
-            }
+//        for(final Iterator<LocalIdentity> i = storageRoot.getLocalIdentities().iterator(); i.hasNext(); ) {
+//            final LocalIdentity id = i.next();
+//            if( id == null ) {
+//                i.remove();
+//                continue;
+//            }
+        for( final LocalIdentity id : Core.getIdentities().getLocalIdentities() ) {
             final int messageCount = MessageStorage.inst().getMessageCount(id.getUniqueName());
             final int fileCount = FileListStorage.inst().getFileCount(id.getUniqueName());
             final IdentityMsgAndFileCount s = new IdentityMsgAndFileCount(messageCount, fileCount);

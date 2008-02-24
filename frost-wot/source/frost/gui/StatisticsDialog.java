@@ -24,9 +24,6 @@ import java.text.*;
 import javax.swing.*;
 
 import frost.util.gui.translation.*;
-import javax.swing.JLabel;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
 
 public class StatisticsDialog extends JDialog {
 
@@ -45,13 +42,13 @@ public class StatisticsDialog extends JDialog {
     private JLabel LfileSize = null;
     private JLabel LsharerCountLabel = null;
     private JLabel LsharerCount = null;
-    
+
     Frame owner;
 
     /**
      * @param owner
      */
-    public StatisticsDialog(Frame owner) {
+    public StatisticsDialog(final Frame owner) {
         super(owner);
         this.owner = owner;
         initialize();
@@ -59,7 +56,7 @@ public class StatisticsDialog extends JDialog {
 
     /**
      * This method initializes this
-     * 
+     *
      * @return void
      */
     private void initialize() {
@@ -70,40 +67,40 @@ public class StatisticsDialog extends JDialog {
 
     /**
      * This method initializes jContentPane
-     * 
+     *
      * @return javax.swing.JPanel
      */
     private JPanel getJContentPane() {
         if( jContentPane == null ) {
-            GridBagConstraints gridBagConstraints10 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints10 = new GridBagConstraints();
             gridBagConstraints10.gridx = 1;
             gridBagConstraints10.insets = new Insets(8, 5, 0, 10);
             gridBagConstraints10.anchor = GridBagConstraints.EAST;
             gridBagConstraints10.gridy = 3;
             LsharerCount = new JLabel();
             LsharerCount.setText("JLabel");
-            GridBagConstraints gridBagConstraints9 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints9 = new GridBagConstraints();
             gridBagConstraints9.gridx = 0;
             gridBagConstraints9.insets = new Insets(8, 10, 0, 5);
             gridBagConstraints9.anchor = GridBagConstraints.WEST;
             gridBagConstraints9.gridy = 3;
             LsharerCountLabel = new JLabel();
             LsharerCountLabel.setText("Sharers");
-            GridBagConstraints gridBagConstraints8 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints8 = new GridBagConstraints();
             gridBagConstraints8.gridx = 1;
             gridBagConstraints8.anchor = GridBagConstraints.EAST;
             gridBagConstraints8.insets = new Insets(3, 5, 0, 10);
             gridBagConstraints8.gridy = 5;
             LfileSize = new JLabel();
             LfileSize.setText("JLabel");
-            GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
             gridBagConstraints7.gridx = 0;
             gridBagConstraints7.anchor = GridBagConstraints.WEST;
             gridBagConstraints7.insets = new Insets(3, 10, 0, 5);
             gridBagConstraints7.gridy = 5;
             LfileSizeLabel = new JLabel();
             LfileSizeLabel.setText("File sizes");
-            GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
             gridBagConstraints6.gridx = 0;
             gridBagConstraints6.weighty = 1.0;
             gridBagConstraints6.weightx = 1.0;
@@ -111,62 +108,62 @@ public class StatisticsDialog extends JDialog {
             gridBagConstraints6.gridy = 7;
             glueLabel = new JLabel();
             glueLabel.setText("");
-            GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
             gridBagConstraints5.gridx = 0;
             gridBagConstraints5.gridwidth = 2;
             gridBagConstraints5.anchor = GridBagConstraints.CENTER;
             gridBagConstraints5.insets = new Insets(10, 5, 10, 5);
             gridBagConstraints5.gridy = 6;
-            GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
             gridBagConstraints4.gridx = 1;
             gridBagConstraints4.anchor = GridBagConstraints.EAST;
             gridBagConstraints4.insets = new Insets(3, 5, 0, 10);
             gridBagConstraints4.gridy = 4;
             LfileCount = new JLabel();
             LfileCount.setText("JLabel");
-            GridBagConstraints gridBagConstraints31 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints31 = new GridBagConstraints();
             gridBagConstraints31.gridx = 0;
             gridBagConstraints31.anchor = GridBagConstraints.WEST;
             gridBagConstraints31.insets = new Insets(3, 10, 0, 5);
             gridBagConstraints31.gridy = 4;
             LfileCountLabel = new JLabel();
             LfileCountLabel.setText("Files");
-            GridBagConstraints gridBagConstraints21 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints21 = new GridBagConstraints();
             gridBagConstraints21.gridx = 1;
             gridBagConstraints21.anchor = GridBagConstraints.EAST;
             gridBagConstraints21.insets = new Insets(8, 5, 0, 10);
             gridBagConstraints21.gridy = 2;
             LidCount = new JLabel();
             LidCount.setText("JLabel");
-            GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
             gridBagConstraints11.gridx = 0;
             gridBagConstraints11.anchor = GridBagConstraints.WEST;
             gridBagConstraints11.insets = new Insets(8, 10, 0, 5);
             gridBagConstraints11.gridy = 2;
             LidCountLabel = new JLabel();
             LidCountLabel.setText("Identities");
-            GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
             gridBagConstraints3.gridx = 1;
             gridBagConstraints3.anchor = GridBagConstraints.EAST;
             gridBagConstraints3.insets = new Insets(3, 5, 0, 10);
             gridBagConstraints3.gridy = 1;
             LarcMsgCount = new JLabel();
             LarcMsgCount.setText("JLabel");
-            GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
             gridBagConstraints2.gridx = 0;
             gridBagConstraints2.anchor = GridBagConstraints.WEST;
             gridBagConstraints2.insets = new Insets(3, 10, 0, 5);
             gridBagConstraints2.gridy = 1;
             LarcMsgCountLabel = new JLabel();
             LarcMsgCountLabel.setText("Archived messages");
-            GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
             gridBagConstraints1.gridx = 1;
             gridBagConstraints1.anchor = GridBagConstraints.EAST;
             gridBagConstraints1.insets = new Insets(10, 5, 0, 10);
             gridBagConstraints1.gridy = 0;
             LmsgCount = new JLabel();
             LmsgCount.setText("JLabel");
-            GridBagConstraints gridBagConstraints = new GridBagConstraints();
+            final GridBagConstraints gridBagConstraints = new GridBagConstraints();
             gridBagConstraints.gridx = 0;
             gridBagConstraints.anchor = GridBagConstraints.WEST;
             gridBagConstraints.insets = new Insets(10, 10, 0, 5);
@@ -185,8 +182,8 @@ public class StatisticsDialog extends JDialog {
             jContentPane.add(LfileCount, gridBagConstraints4);
             jContentPane.add(getBclose(), gridBagConstraints5);
             jContentPane.add(glueLabel, gridBagConstraints6);
-            jContentPane.add(LfileSizeLabel, gridBagConstraints7);
-            jContentPane.add(LfileSize, gridBagConstraints8);
+//            jContentPane.add(LfileSizeLabel, gridBagConstraints7);
+//            jContentPane.add(LfileSize, gridBagConstraints8);
             jContentPane.add(LsharerCountLabel, gridBagConstraints9);
             jContentPane.add(LsharerCount, gridBagConstraints10);
         }
@@ -194,29 +191,29 @@ public class StatisticsDialog extends JDialog {
     }
 
     /**
-     * This method initializes Bclose	
-     * 	
-     * @return javax.swing.JButton	
+     * This method initializes Bclose
+     *
+     * @return javax.swing.JButton
      */
     private JButton getBclose() {
         if( Bclose == null ) {
             Bclose = new JButton();
             Bclose.setText("Close");
             Bclose.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent e) {
+                public void actionPerformed(final java.awt.event.ActionEvent e) {
                     setVisible(false);
                 }
             });
         }
         return Bclose;
     }
-    
+
     private void refreshLanguage() {
-        Language language = Language.getInstance();
-        
+        final Language language = Language.getInstance();
+
         setTitle(language.getString("StatisticsDialog.title"));
         Bclose.setText(language.getString("StatisticsDialog.button.close"));
-        
+
         LmsgCountLabel.setText(language.getString("StatisticsDialog.label.messages")+":");
         LarcMsgCountLabel.setText(language.getString("StatisticsDialog.label.archivedMessages")+":");
         LidCountLabel.setText(language.getString("StatisticsDialog.label.identities")+":");
@@ -224,12 +221,12 @@ public class StatisticsDialog extends JDialog {
         LfileCountLabel.setText(language.getString("StatisticsDialog.label.files")+":");
         LfileSizeLabel.setText(language.getString("StatisticsDialog.label.fileSizes")+":");
     }
-    
-    public void startDialog(int msgCount, int arcMsgCount, int idCount, int sharerCount, int fileCount, long fileSize) {
+
+    public void startDialog(final int msgCount, final int arcMsgCount, final int idCount, final int sharerCount, final int fileCount, final long fileSize) {
         setModal(true);
         refreshLanguage();
-        
-        NumberFormat nf = NumberFormat.getInstance();
+
+        final NumberFormat nf = NumberFormat.getInstance();
 
         LmsgCount.setText(nf.format(msgCount));
         LarcMsgCount.setText(nf.format(arcMsgCount));
@@ -237,7 +234,7 @@ public class StatisticsDialog extends JDialog {
         LsharerCount.setText(nf.format(sharerCount));
         LfileCount.setText(nf.format(fileCount));
         LfileSize.setText(nf.format(fileSize));
-        
+
         pack();
         setLocationRelativeTo(owner);
         setVisible(true);

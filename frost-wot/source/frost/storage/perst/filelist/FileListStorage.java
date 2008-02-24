@@ -194,6 +194,7 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
         return count;
     }
 
+    // FIXME: implement this faster, e.g. maintain the sum in storageRoot, update on each insert/remove
     public long getFileSizes() {
         if( !beginCooperativeThreadTransaction() ) {
             return 0L;
