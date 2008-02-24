@@ -175,7 +175,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
      */
     private void initialize() {
         this.setTitle(language.getString("SearchMessages.title"));
-        this.setIconImage(MiscToolkit.loadImageIcon("/data/search.gif").getImage());
+        this.setIconImage(MiscToolkit.loadImageIcon("/data/toolbar/edit-find.png").getImage());
         this.setSize(new java.awt.Dimension(700,550));
         this.setContentPane(getJContentPane());
         // create button groups

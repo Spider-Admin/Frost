@@ -449,16 +449,16 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     //  new JButton(Mixed.loadImageIcon("/data/attachment.gif"));
     //private JButton downloadBoardsButton =
     //  new JButton(Mixed.loadImageIcon("/data/attachmentBoard.gif"));
-    private final JButton newMessageButton = new JButton(MiscToolkit.loadImageIcon("/data/newmessage.gif"));
-    private final JButton replyButton = new JButton(MiscToolkit.loadImageIcon("/data/reply.gif"));
-    private final JButton saveMessageButton = new JButton(MiscToolkit.loadImageIcon("/data/save.gif"));
-    protected JButton nextUnreadMessageButton = new JButton(MiscToolkit.loadImageIcon("/data/nextunreadmessage.gif"));
-    private final JButton updateBoardButton = new JButton(MiscToolkit.loadImageIcon("/data/update.gif"));
+    private final JButton newMessageButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/mail-message-new.png"));
+    private final JButton replyButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/mail-reply-sender.png"));
+    private final JButton saveMessageButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/document-save-as.png"));
+    protected JButton nextUnreadMessageButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/go-next.png"));
+    private final JButton updateBoardButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/view-refresh.png"));
 
-    private final JButton setGoodButton = new JButton(MiscToolkit.loadImageIcon("/data/trust.gif"));
-    private final JButton setObserveButton = new JButton(MiscToolkit.loadImageIcon("/data/observe.gif"));
-    private final JButton setCheckButton = new JButton(MiscToolkit.loadImageIcon("/data/check.gif"));
-    private final JButton setBadButton = new JButton(MiscToolkit.loadImageIcon("/data/nottrust.gif"));
+    private final JButton setGoodButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/weather-clear.png"));
+    private final JButton setObserveButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/weather-few-clouds.png"));
+    private final JButton setCheckButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/weather-overcast.png"));
+    private final JButton setBadButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/weather-storm.png"));
 
     private final JToggleButton toggleShowUnreadOnly = new JToggleButton("");
 
@@ -481,15 +481,15 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     private JToolBar getButtonsToolbar() {
         // configure buttons
         final MiscToolkit toolkit = MiscToolkit.getInstance();
-        toolkit.configureButton(newMessageButton, "MessagePane.toolbar.tooltip.newMessage", "/data/newmessage_rollover.gif", language);
-        toolkit.configureButton(updateBoardButton, "MessagePane.toolbar.tooltip.update", "/data/update_rollover.gif", language);
-        toolkit.configureButton(replyButton, "MessagePane.toolbar.tooltip.reply", "/data/reply_rollover.gif", language);
-        toolkit.configureButton(saveMessageButton, "MessagePane.toolbar.tooltip.saveMessage", "/data/save_rollover.gif", language);
-        toolkit.configureButton(nextUnreadMessageButton, "MessagePane.toolbar.tooltip.nextUnreadMessage", "/data/nextunreadmessage_rollover.gif", language);
-        toolkit.configureButton(setGoodButton, "MessagePane.toolbar.tooltip.setToGood", "/data/trust_rollover.gif", language);
-        toolkit.configureButton(setBadButton, "MessagePane.toolbar.tooltip.setToBad", "/data/nottrust_rollover.gif", language);
-        toolkit.configureButton(setCheckButton, "MessagePane.toolbar.tooltip.setToCheck", "/data/check_rollover.gif", language);
-        toolkit.configureButton(setObserveButton, "MessagePane.toolbar.tooltip.setToObserve", "/data/observe_rollover.gif", language);
+        toolkit.configureButton(newMessageButton, "MessagePane.toolbar.tooltip.newMessage", language);
+        toolkit.configureButton(updateBoardButton, "MessagePane.toolbar.tooltip.update", language);
+        toolkit.configureButton(replyButton, "MessagePane.toolbar.tooltip.reply", language);
+        toolkit.configureButton(saveMessageButton, "MessagePane.toolbar.tooltip.saveMessage", language);
+        toolkit.configureButton(nextUnreadMessageButton, "MessagePane.toolbar.tooltip.nextUnreadMessage", language);
+        toolkit.configureButton(setGoodButton, "MessagePane.toolbar.tooltip.setToGood", language);
+        toolkit.configureButton(setBadButton, "MessagePane.toolbar.tooltip.setToBad", language);
+        toolkit.configureButton(setCheckButton, "MessagePane.toolbar.tooltip.setToCheck", language);
+        toolkit.configureButton(setObserveButton, "MessagePane.toolbar.tooltip.setToObserve", language);
         // toolkit.configureButton(downloadAttachmentsButton,"Download attachment(s)","/data/attachment_rollover.gif",language);
         // toolkit.configureButton(downloadBoardsButton,"Add Board(s)","/data/attachmentBoard_rollover.gif",language);
 
@@ -501,7 +501,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         setObserveButton.setEnabled(false);
 
         toggleShowUnreadOnly.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SHOW_UNREAD_ONLY));
-        toggleShowUnreadOnly.setIcon(MiscToolkit.loadImageIcon("/data/showunreadonly.gif"));
+        toggleShowUnreadOnly.setIcon(MiscToolkit.loadImageIcon("/data/toolbar/software-update-available.png"));
         toggleShowUnreadOnly.setMargin(new Insets(0, 0, 0, 0));
         toggleShowUnreadOnly.setPreferredSize(new Dimension(24,24));
         toggleShowUnreadOnly.setFocusPainted(false);
@@ -515,7 +515,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         toggleShowThreads.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowThreads"));
 
         toggleShowSmileys.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SHOW_SMILEYS));
-        toggleShowSmileys.setIcon(MiscToolkit.loadImageIcon("/data/togglesmileys.gif"));
+        toggleShowSmileys.setIcon(MiscToolkit.loadImageIcon("/data/toolbar/face-smile.png"));
         toggleShowSmileys.setMargin(new Insets(0, 0, 0, 0));
         toggleShowSmileys.setPreferredSize(new Dimension(24,24));
         toggleShowSmileys.setFocusPainted(false);

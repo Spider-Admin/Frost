@@ -53,8 +53,8 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	private Language language = null;
 
 	private final JToolBar downloadToolBar = new JToolBar();
-	private final JButton downloadActivateButton = new JButton(MiscToolkit.loadImageIcon("/data/down_selected.gif"));
-    private final JButton downloadPauseButton = new JButton(MiscToolkit.loadImageIcon("/data/down.gif"));
+	private final JButton downloadActivateButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/media-playback-start.png"));
+    private final JButton downloadPauseButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/media-playback-pause.png"));
 	private final JTextField downloadTextField = new JTextField(25);
 	private final JLabel downloadItemCountLabel = new JLabel();
     private final JCheckBox removeFinishedDownloadsCheckBox = new JCheckBox();
@@ -98,8 +98,8 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
 			//create the top panel
 			final MiscToolkit toolkit = MiscToolkit.getInstance();
-			toolkit.configureButton(downloadActivateButton, "/data/down_selected_rollover.gif"); // play_rollover
-			toolkit.configureButton(downloadPauseButton, "/data/down_rollover.gif"); // pause_rollover
+			toolkit.configureButton(downloadActivateButton); // play_rollover
+			toolkit.configureButton(downloadPauseButton); // pause_rollover
 
 			new TextComponentClipboardMenu(downloadTextField, language);
 

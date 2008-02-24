@@ -51,7 +51,7 @@ public class SharedFilesPanel extends JPanel {
     private Language language = null;
 
     private final JToolBar sharedFilesToolBar = new JToolBar();
-    private final JButton addSharedFilesButton = new JButton(MiscToolkit.loadImageIcon("/data/browse.gif"));
+    private final JButton addSharedFilesButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/folder-open.png"));
 
     private int sharedFilesCount = 0;
     private final JLabel sharedFilesCountLabel = new JLabel();
@@ -73,7 +73,7 @@ public class SharedFilesPanel extends JPanel {
 
             // create the top panel
             final MiscToolkit toolkit = MiscToolkit.getInstance();
-            toolkit.configureButton(addSharedFilesButton, "/data/browse_rollover.gif");
+            toolkit.configureButton(addSharedFilesButton);
 
             sharedFilesToolBar.setRollover(true);
             sharedFilesToolBar.setFloatable(false);
