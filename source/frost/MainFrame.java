@@ -834,13 +834,14 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
                     final int idCount = IdentitiesStorage.inst().getIdentityCount();
                     final int fileCount = FileListStorage.inst().getFileCount();
                     final int sharerCount = FileListStorage.inst().getSharerCount();
-                    final long fileSizes = FileListStorage.inst().getFileSizes();
-
+//                    final long fileSizes = FileListStorage.inst().getFileSizes();
+// NOTE: file size computation scans all file list files, takes a long time, disabled for now.
                     SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
                             deactivateGlassPane();
                             final StatisticsDialog dlg = new StatisticsDialog(MainFrame.this);
-                            dlg.startDialog(msgCount, arcMsgCount, idCount, sharerCount, fileCount, fileSizes);
+//                            dlg.startDialog(msgCount, arcMsgCount, idCount, sharerCount, fileCount, fileSizes);
+                            dlg.startDialog(msgCount, arcMsgCount, idCount, sharerCount, fileCount, 0L);
                         }
                     });
                 } finally {
