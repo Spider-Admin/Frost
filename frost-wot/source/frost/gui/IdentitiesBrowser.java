@@ -21,7 +21,6 @@ package frost.gui;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
-import java.sql.*;
 import java.util.*;
 import java.util.List;
 import java.util.logging.*;
@@ -800,12 +799,9 @@ public class IdentitiesBrowser extends JDialog {
                 if( !IdentitiesStorage.inst().beginExclusiveThreadTransaction() ) {
                     return;
                 }
-                try {
-                    idDatas = IdentitiesStorage.inst().retrieveMsgAndFileCountPerIdentity();
-                } catch(SQLException ex) {
-                    logger.log(Level.SEVERE, "Error retrieving idDatas", ex);
-                    idDatas = new Hashtable<String,IdentitiesStorage.IdentityMsgAndFileCount>();
-                }
+
+                idDatas = IdentitiesStorage.inst().retrieveMsgAndFileCountPerIdentity();
+
                 IdentitiesStorage.inst().endThreadTransaction();
 
                 progressMonitor.setProgress(2);

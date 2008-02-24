@@ -158,6 +158,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
 
         boardTable.setRowSelectionAllowed(true);
         boardTable.setSelectionMode( ListSelectionModel.MULTIPLE_INTERVAL_SELECTION );
+        boardTable.setRowHeight(18); // we use 16x16 icons, keep a gap
 
         final BoardInfoTableCellRenderer cellRenderer = new BoardInfoTableCellRenderer();
         boardTable.setDefaultRenderer( Object.class, cellRenderer );
@@ -486,6 +487,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
             super();
             origFont = boardTable.getFont();
             boldFont = origFont.deriveFont(Font.BOLD);
+            setVerticalAlignment(SwingConstants.CENTER);
         }
 
         @Override
