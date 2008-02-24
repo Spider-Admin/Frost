@@ -25,6 +25,8 @@ import javax.swing.*;
 import javax.swing.tree.*;
 
 import frost.boards.*;
+import frost.util.*;
+import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
 /**
@@ -38,19 +40,19 @@ public class TargetFolderChooser extends JDialog {
     private JButton okButton = null;
     private JButton cancelButton = null;
 
-    private DefaultTreeModel treeModel;
+    private final DefaultTreeModel treeModel;
 
     private Folder choosedFolder = null;
     private JScrollPane jScrollPane = null;
 
-    private Language language;
+    private final Language language;
 
     /**
      * This is the default constructor
      */
-    public TargetFolderChooser(TofTreeModel origModel) {
+    public TargetFolderChooser(final TofTreeModel origModel) {
         super();
-        MyTreeNode rootNode = buildTree(origModel);
+        final MyTreeNode rootNode = buildTree(origModel);
         treeModel = new DefaultTreeModel(rootNode);
         language = Language.getInstance();
         initialize();
@@ -59,20 +61,20 @@ public class TargetFolderChooser extends JDialog {
     /**
      * Build a new tree which contains all folders of the TofTree.
      */
-    private MyTreeNode buildTree(TofTreeModel origModel) {
-        MyTreeNode rootNode = new MyTreeNode((Folder)origModel.getRoot());
+    private MyTreeNode buildTree(final TofTreeModel origModel) {
+        final MyTreeNode rootNode = new MyTreeNode((Folder)origModel.getRoot());
 
-        addNodesRecursiv(rootNode, (DefaultMutableTreeNode)origModel.getRoot());
+        addNodesRecursiv(rootNode, origModel.getRoot());
 
         return rootNode;
     }
 
-    private void addNodesRecursiv(MyTreeNode addNode, DefaultMutableTreeNode origNode) {
+    private void addNodesRecursiv(final MyTreeNode addNode, final DefaultMutableTreeNode origNode) {
 
         for(int x=0; x < origNode.getChildCount(); x++) {
-            AbstractNode b = (AbstractNode)origNode.getChildAt(x);
+            final AbstractNode b = (AbstractNode)origNode.getChildAt(x);
             if( b.isFolder() ) {
-                MyTreeNode newNode = new MyTreeNode((Folder)b);
+                final MyTreeNode newNode = new MyTreeNode((Folder)b);
                 addNode.add(newNode);
                 addNodesRecursiv(newNode, b);
             }
@@ -85,11 +87,11 @@ public class TargetFolderChooser extends JDialog {
      * @return void
      */
     private void initialize() {
-        int dlgSizeX = 350;
-        int dlgSizeY = 400;
-        Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
-        int x = (screen.width-dlgSizeX)/2;
-        int y = (screen.height-dlgSizeY)/2;
+        final int dlgSizeX = 350;
+        final int dlgSizeY = 400;
+        final Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+        final int x = (screen.width-dlgSizeX)/2;
+        final int y = (screen.height-dlgSizeY)/2;
         setBounds(x,y,dlgSizeX,dlgSizeY);
 
         this.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -97,7 +99,8 @@ public class TargetFolderChooser extends JDialog {
         this.setTitle(language.getString("TargetFolderChooser.title"));
         this.setContentPane(getJContentPane());
         this.addWindowListener(new java.awt.event.WindowAdapter() {
-            public void windowClosing(java.awt.event.WindowEvent e) {
+            @Override
+            public void windowClosing(final java.awt.event.WindowEvent e) {
                 cancelButtonPressed();
             }
         });
@@ -125,7 +128,7 @@ public class TargetFolderChooser extends JDialog {
      */
     private JPanel getButtonsPanel() {
         if( buttonsPanel == null ) {
-            FlowLayout flowLayout = new FlowLayout();
+            final FlowLayout flowLayout = new FlowLayout();
             flowLayout.setAlignment(java.awt.FlowLayout.RIGHT);
             buttonsPanel = new JPanel();
             buttonsPanel.setLayout(flowLayout);
@@ -160,7 +163,7 @@ public class TargetFolderChooser extends JDialog {
             okButton.setText(language.getString("Common.ok"));
             okButton.setSelected(false);
             okButton.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent e) {
+                public void actionPerformed(final java.awt.event.ActionEvent e) {
                     okButtonPressed();
                 }
             });
@@ -178,7 +181,7 @@ public class TargetFolderChooser extends JDialog {
             cancelButton = new JButton();
             cancelButton.setText(language.getString("Common.cancel"));
             cancelButton.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent e) {
+                public void actionPerformed(final java.awt.event.ActionEvent e) {
                     cancelButtonPressed();
                 }
             });
@@ -227,17 +230,18 @@ public class TargetFolderChooser extends JDialog {
         ImageIcon boardIcon;
 
         public CellRenderer() {
-            boardIcon = new ImageIcon(getClass().getResource("/data/open.gif"));
+            boardIcon = MiscToolkit.loadImageIcon("/data/folder-open.png");
         }
 
+        @Override
         public Component getTreeCellRendererComponent(
-            JTree tree,
-            Object value,
-            boolean sel,
-            boolean expanded,
-            boolean leaf,
-            int row,
-            boolean lHasFocus) {
+            final JTree tree,
+            final Object value,
+            final boolean sel,
+            final boolean expanded,
+            final boolean leaf,
+            final int row,
+            final boolean lHasFocus) {
             super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, lHasFocus);
             setIcon(boardIcon);
             return this;
@@ -249,10 +253,11 @@ public class TargetFolderChooser extends JDialog {
      */
     private class MyTreeNode extends DefaultMutableTreeNode {
         Folder folder;
-        public MyTreeNode(Folder usrObj) {
+        public MyTreeNode(final Folder usrObj) {
             super(usrObj);
             folder = usrObj;
         }
+        @Override
         public String toString() {
             return folder.getName();
         }

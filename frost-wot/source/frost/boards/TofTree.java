@@ -149,19 +149,18 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
         private void initialize() {
             refreshLanguage();
 
-            final MiscToolkit miscToolkit = MiscToolkit.getInstance();
-            addBoardItem.setIcon(miscToolkit.getScaledImage("/data/newboard.gif", 16, 16));
-            addFolderItem.setIcon(miscToolkit.getScaledImage("/data/newfolder.gif", 16, 16));
-            configureBoardItem.setIcon(miscToolkit.getScaledImage("/data/configure.gif", 16, 16));
-            configureFolderItem.setIcon(miscToolkit.getScaledImage("/data/configure.gif", 16, 16));
-            cutNodeItem.setIcon(miscToolkit.getScaledImage("/data/cut.gif", 16, 16));
-            pasteNodeItem.setIcon(miscToolkit.getScaledImage("/data/paste.gif", 16, 16));
-            refreshItem.setIcon(miscToolkit.getScaledImage("/data/update.gif", 16, 16));
-            removeNodeItem.setIcon(miscToolkit.getScaledImage("/data/remove.gif", 16, 16));
-            sortFolderItem.setIcon(miscToolkit.getScaledImage("/data/sort.gif", 16, 16));
-            renameFolderItem.setIcon(miscToolkit.getScaledImage("/data/rename.gif", 16, 16));
-            searchMessagesItem.setIcon(miscToolkit.getScaledImage("/data/searchmessages.gif", 16, 16));
-            sendMessageItem.setIcon(miscToolkit.getScaledImage("/data/newmessage.gif", 16, 16));
+            addBoardItem.setIcon(MiscToolkit.getScaledImage("/data/newboard.gif", 16, 16));
+            addFolderItem.setIcon(MiscToolkit.getScaledImage("/data/newfolder.gif", 16, 16));
+            configureBoardItem.setIcon(MiscToolkit.getScaledImage("/data/configure.gif", 16, 16));
+            configureFolderItem.setIcon(MiscToolkit.getScaledImage("/data/configure.gif", 16, 16));
+            cutNodeItem.setIcon(MiscToolkit.getScaledImage("/data/cut.gif", 16, 16));
+            pasteNodeItem.setIcon(MiscToolkit.getScaledImage("/data/paste.gif", 16, 16));
+            refreshItem.setIcon(MiscToolkit.getScaledImage("/data/update.gif", 16, 16));
+            removeNodeItem.setIcon(MiscToolkit.getScaledImage("/data/remove.gif", 16, 16));
+            sortFolderItem.setIcon(MiscToolkit.getScaledImage("/data/sort.gif", 16, 16));
+            renameFolderItem.setIcon(MiscToolkit.getScaledImage("/data/rename.gif", 16, 16));
+            searchMessagesItem.setIcon(MiscToolkit.getScaledImage("/data/searchmessages.gif", 16, 16));
+            sendMessageItem.setIcon(MiscToolkit.getScaledImage("/data/newmessage.gif", 16, 16));
 
             descriptionItem.setEnabled(false);
 
@@ -429,20 +428,12 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
                 BorderFactory.createMatteBorder(0, 2, 0, 0, Color.red),    // outside
                 BorderFactory.createMatteBorder(0, 2, 0, 0, Color.blue) ); // inside
         private final Border borderStarredMsgs = BorderFactory.createCompoundBorder(
-                BorderFactory.createEmptyBorder(0, 2, 0, 0),                // outside
+                BorderFactory.createEmptyBorder(0, 2, 0, 0),               // outside
                 BorderFactory.createMatteBorder(0, 2, 0, 0, Color.blue) ); // inside
         private final Border borderFlaggedMsgs = BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 2, 0, 0, Color.red),    // outside
-                BorderFactory.createEmptyBorder(0, 2, 0, 0) );              // inside
+                BorderFactory.createEmptyBorder(0, 2, 0, 0) );             // inside
         private final Border borderEmpty = BorderFactory.createEmptyBorder(0, 4, 0, 0);
-
-        private final ImageIcon writeAccessIcon;
-        private final ImageIcon writeAccessNewIcon;
-        private final ImageIcon readAccessIcon;
-        private final ImageIcon readAccessNewIcon;
-        private final ImageIcon boardIcon;
-        private final ImageIcon boardNewIcon;
-        private final ImageIcon boardSpammedIcon;
 
         private final ImageIcon sentMessagesFolderIcon;
         private final ImageIcon unsentMessagesFolderIcon;
@@ -451,18 +442,13 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
         private Font normalFont = null;
 
         public CellRenderer() {
-            boardIcon = new ImageIcon(getClass().getResource("/data/board.gif"));
-            boardNewIcon = new ImageIcon(getClass().getResource("/data/boardnew.gif"));
-            boardSpammedIcon = new ImageIcon(getClass().getResource("/data/boardspam.gif"));
-            writeAccessIcon = new ImageIcon(getClass().getResource("/data/waboard.jpg"));
-            writeAccessNewIcon = new ImageIcon(getClass().getResource("/data/waboardnew.jpg"));
-            readAccessIcon = new ImageIcon(getClass().getResource("/data/raboard.jpg"));
-            readAccessNewIcon = new ImageIcon(getClass().getResource("/data/raboardnew.jpg"));
-            sentMessagesFolderIcon = new ImageIcon(getClass().getResource("/data/messagedark.gif"));
-            unsentMessagesFolderIcon = new ImageIcon(getClass().getResource("/data/messagebright.gif"));
-            this.setLeafIcon(new ImageIcon(getClass().getResource("/data/board.gif")));
-            this.setClosedIcon(new ImageIcon(getClass().getResource("/data/closed.gif")));
-            this.setOpenIcon(new ImageIcon(getClass().getResource("/data/open.gif")));
+
+            sentMessagesFolderIcon = MiscToolkit.loadImageIcon("/data/book_open.png");
+            unsentMessagesFolderIcon = MiscToolkit.loadImageIcon("/data/book_next.png");
+
+            this.setLeafIcon(MiscToolkit.loadImageIcon("/data/comments.png"));
+            this.setClosedIcon(MiscToolkit.loadImageIcon("/data/folder.png"));
+            this.setOpenIcon(MiscToolkit.loadImageIcon("/data/folder-open.png"));
 
             final JTable dummyTable = new JTable();
             normalFont = dummyTable.getFont();
@@ -530,27 +516,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
                 }
 
                 // set the icon
-                if (board.isPublicBoard()) {
-                    if (containsNewMessage) {
-                        setIcon(boardNewIcon);
-                    } else {
-                        setIcon(boardIcon);
-                    }
-                } else if (board.isSpammed()) {
-                    setIcon(boardSpammedIcon);
-                } else if (board.isWriteAccessBoard()) {
-                    if (containsNewMessage) {
-                        setIcon(writeAccessNewIcon);
-                    } else {
-                        setIcon(writeAccessIcon);
-                    }
-                } else if (board.isReadAccessBoard()) {
-                    if (containsNewMessage) {
-                        setIcon(readAccessNewIcon);
-                    } else {
-                        setIcon(readAccessIcon);
-                    }
-                }
+                setIcon( board.getStateIcon());
 
                 // for a board we set indicators if board contains flagged or starred messages
                 if( showFlaggedStarredIndicators ) {
@@ -688,6 +654,8 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
         showFlaggedStarredIndicators = Core.frostSettings.getBoolValue(SettingsClass.SHOW_BOARDTREE_FLAGGEDSTARRED_INDICATOR);
         stopBoardUpdatesWhenDOSed = Core.frostSettings.getBoolValue(SettingsClass.DOS_STOP_BOARD_UPDATES_WHEN_DOSED);
         maxInvalidMessagesPerDayThreshold = Core.frostSettings.getIntValue(SettingsClass.DOS_INVALID_SUBSEQUENT_MSGS_THRESHOLD);
+
+        setRowHeight(18); // we use 16x16 icons, keep a gap
     }
 
     private PopupMenuTofTree getPopupMenuTofTree() {

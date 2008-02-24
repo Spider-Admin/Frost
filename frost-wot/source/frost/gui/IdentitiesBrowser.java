@@ -100,10 +100,10 @@ public class IdentitiesBrowser extends JDialog {
         getBmarkCHECK().setText("");
         getBmarkOBSERVE().setText("");
 
-        getBmarkGOOD().setIcon(new ImageIcon(getClass().getResource("/data/trust.gif")));
-        getBmarkBAD().setIcon(new ImageIcon(getClass().getResource("/data/nottrust.gif")));
-        getBmarkCHECK().setIcon(new ImageIcon(getClass().getResource("/data/check.gif")));
-        getBmarkOBSERVE().setIcon(new ImageIcon(getClass().getResource("/data/observe.gif")));
+        getBmarkGOOD().setIcon(MiscToolkit.loadImageIcon("/data/trust.gif"));
+        getBmarkBAD().setIcon(MiscToolkit.loadImageIcon("/data/nottrust.gif"));
+        getBmarkCHECK().setIcon(MiscToolkit.loadImageIcon("/data/check.gif"));
+        getBmarkOBSERVE().setIcon(MiscToolkit.loadImageIcon("/data/observe.gif"));
 
         final MiscToolkit toolkit = MiscToolkit.getInstance();
         toolkit.configureButton(getBmarkGOOD(), "MessagePane.toolbar.tooltip.setToGood", "/data/trust_rollover.gif", language);

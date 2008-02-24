@@ -20,6 +20,8 @@ package frost.util;
 
 import java.util.logging.*;
 
+import javax.swing.*;
+
 import org.joda.time.*;
 
 import frost.*;
@@ -30,22 +32,22 @@ public final class Mixed {
 
     private static final char[] invalidChars = { '/', '\\', '?', '*', '<', '>', '\"', ':', '|', '#', '&' };
 
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
         System.out.println(createUniqueId());
     }
-    
+
     /**
      * Creates a new unique ID.
      */
     public static String createUniqueId() {
-        
+
         final StringBuilder idStrSb = new StringBuilder();
         idStrSb.append(Long.toString(System.currentTimeMillis())); // millis
         idStrSb.append(DateFun.FORMAT_DATE_EXT.print(new DateTime()));
         idStrSb.append(Long.toString(Runtime.getRuntime().freeMemory())); // free java mem
         idStrSb.append(DateFun.FORMAT_TIME_EXT.print(new DateTime()));
         final byte[] idStrPart = idStrSb.toString().getBytes();
-        
+
         // finally add some random bytes
         final byte[] idRandomPart = new byte[64];
         Core.getCrypto().getSecureRandom().nextBytes(idRandomPart);
@@ -54,12 +56,12 @@ public final class Mixed {
         final byte[] idBytes = new byte[idStrPart.length + idRandomPart.length];
         System.arraycopy(idStrPart, 0, idBytes, 0, idStrPart.length);
         System.arraycopy(idRandomPart, 0, idBytes, idStrPart.length-1, idRandomPart.length);
-        
+
         final String uniqueId = Core.getCrypto().computeChecksumSHA256(idBytes);
-        
+
         return uniqueId;
     }
-    
+
     /**
      * Returns same as Integer.compareTo(), but without to create Integer objects.
      */
@@ -93,7 +95,7 @@ public final class Mixed {
     public static void wait(final int time) {
         try {
             Thread.sleep(time);
-        } catch (InterruptedException e) {
+        } catch (final InterruptedException e) {
         }
     }
 
@@ -123,11 +125,13 @@ public final class Mixed {
 
         final StringBuilder newText = new StringBuilder();
 
-        if (text.startsWith("."))
+        if (text.startsWith(".")) {
             newText.append("_"); // dont allow a boardfilename like "."
+        }
 
-        for (int i = 0; i < invalidChars.length; i++)
-            text = text.replace(invalidChars[i], '_');
+        for( final char element : invalidChars ) {
+            text = text.replace(element, '_');
+        }
 
         newText.append(text);
 
@@ -142,38 +146,28 @@ public final class Mixed {
     public static String makeASCIIFilename(final String text){
 
         final StringBuilder newText = new StringBuilder();
-        String allowedCharacters = "()-!.";
+        final String allowedCharacters = "()-!.";
         for (int i = 0; i < text.length(); i++)
               {
-                   int value = Character.getNumericValue(text.charAt(i));
-                   char character = text.charAt(i);
+                   final int value = Character.getNumericValue(text.charAt(i));
+                   final char character = text.charAt(i);
                    if ((value >= 0 && value < 36)
-                       || allowedCharacters.indexOf(character) != -1)
-                       newText.append(character);
-                   else
-                       newText.append("_");
+                       || allowedCharacters.indexOf(character) != -1) {
+                    newText.append(character);
+                } else {
+                    newText.append("_");
+                }
              }
         return makeFilename(newText.toString());  //run through the other filter just in case
     }
 
-    /**
-     * checks if the string contains non-english characters
-     * @param text the string
-     * @return whether it contains foreign chars
-     */
-//    public static boolean containsForeign(String text){
-        //REDFLAG: implement?
-//        char[] chars = text.toCharArray();
-//        Character c = new Character(chars[0]);
-//        return false;
-//    }
     public static boolean binaryCompare(final byte[] src, final int offs, final String searchTxt)
     {
         final int searchLen = searchTxt.length();
         for(int x=0; x < searchLen; x++)
         {
-            byte a = (byte)searchTxt.charAt(x);
-            byte b = src[offs+x];
+            final byte a = (byte)searchTxt.charAt(x);
+            final byte b = src[offs+x];
             if( a != b )
             {
                 return false;

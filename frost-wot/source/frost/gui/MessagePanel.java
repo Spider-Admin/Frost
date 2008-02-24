@@ -446,28 +446,19 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     private PopupMenuSubjectText popupMenuSubjectText = null;
 
     //private JButton downloadAttachmentsButton =
-    //  new JButton(new ImageIcon(getClass().getResource("/data/attachment.gif")));
+    //  new JButton(Mixed.loadImageIcon("/data/attachment.gif"));
     //private JButton downloadBoardsButton =
-    //  new JButton(new ImageIcon(getClass().getResource("/data/attachmentBoard.gif")));
-    private final JButton newMessageButton =
-        new JButton(new ImageIcon(getClass().getResource("/data/newmessage.gif")));
-    private final JButton replyButton =
-        new JButton(new ImageIcon(getClass().getResource("/data/reply.gif")));
-    private final JButton saveMessageButton =
-        new JButton(new ImageIcon(getClass().getResource("/data/save.gif")));
-    protected JButton nextUnreadMessageButton =
-        new JButton(new ImageIcon(getClass().getResource("/data/nextunreadmessage.gif")));
-    private final JButton updateBoardButton =
-        new JButton(new ImageIcon(getClass().getResource("/data/update.gif")));
+    //  new JButton(Mixed.loadImageIcon("/data/attachmentBoard.gif"));
+    private final JButton newMessageButton = new JButton(MiscToolkit.loadImageIcon("/data/newmessage.gif"));
+    private final JButton replyButton = new JButton(MiscToolkit.loadImageIcon("/data/reply.gif"));
+    private final JButton saveMessageButton = new JButton(MiscToolkit.loadImageIcon("/data/save.gif"));
+    protected JButton nextUnreadMessageButton = new JButton(MiscToolkit.loadImageIcon("/data/nextunreadmessage.gif"));
+    private final JButton updateBoardButton = new JButton(MiscToolkit.loadImageIcon("/data/update.gif"));
 
-    private final JButton setGoodButton =
-        new JButton(new ImageIcon(getClass().getResource("/data/trust.gif")));
-    private final JButton setObserveButton =
-        new JButton(new ImageIcon(getClass().getResource("/data/observe.gif")));
-    private final JButton setCheckButton =
-        new JButton(new ImageIcon(getClass().getResource("/data/check.gif")));
-    private final JButton setBadButton =
-        new JButton(new ImageIcon(getClass().getResource("/data/nottrust.gif")));
+    private final JButton setGoodButton = new JButton(MiscToolkit.loadImageIcon("/data/trust.gif"));
+    private final JButton setObserveButton = new JButton(MiscToolkit.loadImageIcon("/data/observe.gif"));
+    private final JButton setCheckButton = new JButton(MiscToolkit.loadImageIcon("/data/check.gif"));
+    private final JButton setBadButton = new JButton(MiscToolkit.loadImageIcon("/data/nottrust.gif"));
 
     private final JToggleButton toggleShowUnreadOnly = new JToggleButton("");
 
@@ -510,28 +501,28 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         setObserveButton.setEnabled(false);
 
         toggleShowUnreadOnly.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SHOW_UNREAD_ONLY));
-        toggleShowUnreadOnly.setIcon(new ImageIcon(getClass().getResource("/data/showunreadonly.gif")));
+        toggleShowUnreadOnly.setIcon(MiscToolkit.loadImageIcon("/data/showunreadonly.gif"));
         toggleShowUnreadOnly.setMargin(new Insets(0, 0, 0, 0));
         toggleShowUnreadOnly.setPreferredSize(new Dimension(24,24));
         toggleShowUnreadOnly.setFocusPainted(false);
         toggleShowUnreadOnly.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowUnreadOnly"));
 
         toggleShowThreads.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS));
-        toggleShowThreads.setIcon(new ImageIcon(getClass().getResource("/data/togglethreads.gif")));
+        toggleShowThreads.setIcon(MiscToolkit.loadImageIcon("/data/togglethreads.gif"));
         toggleShowThreads.setMargin(new Insets(0, 0, 0, 0));
         toggleShowThreads.setPreferredSize(new Dimension(24,24));
         toggleShowThreads.setFocusPainted(false);
         toggleShowThreads.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowThreads"));
 
         toggleShowSmileys.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SHOW_SMILEYS));
-        toggleShowSmileys.setIcon(new ImageIcon(getClass().getResource("/data/togglesmileys.gif")));
+        toggleShowSmileys.setIcon(MiscToolkit.loadImageIcon("/data/togglesmileys.gif"));
         toggleShowSmileys.setMargin(new Insets(0, 0, 0, 0));
         toggleShowSmileys.setPreferredSize(new Dimension(24,24));
         toggleShowSmileys.setFocusPainted(false);
         toggleShowSmileys.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowSmileys"));
 
         toggleShowHyperlinks.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SHOW_KEYS_AS_HYPERLINKS));
-        toggleShowHyperlinks.setIcon(new ImageIcon(getClass().getResource("/data/togglehyperlinks.gif")));
+        toggleShowHyperlinks.setIcon(MiscToolkit.loadImageIcon("/data/togglehyperlinks.gif"));
         toggleShowHyperlinks.setMargin(new Insets(0, 0, 0, 0));
         toggleShowHyperlinks.setPreferredSize(new Dimension(24,24));
         toggleShowHyperlinks.setFocusPainted(false);

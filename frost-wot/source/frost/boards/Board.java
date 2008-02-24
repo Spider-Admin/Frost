@@ -20,9 +20,12 @@ package frost.boards;
 
 import java.util.*;
 
+import javax.swing.*;
+
 import frost.*;
 import frost.storage.perst.messages.*;
 import frost.util.*;
+import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
 /**
@@ -75,6 +78,16 @@ public class Board extends AbstractNode {
     private boolean dosForToday = false;
     private boolean dosForBackloadDays = false;
     private boolean dosForAllDays = false;
+
+    private static final ImageIcon writeAccessIcon = MiscToolkit.loadImageIcon("/data/key.png");
+    private static final ImageIcon writeAccessNewIcon = MiscToolkit.loadImageIcon("/data/key_add.png");
+    private static final ImageIcon writeAccessSpammedIcon = MiscToolkit.loadImageIcon("/data/key_delete.png");
+    private static final ImageIcon readAccessIcon = MiscToolkit.loadImageIcon("/data/lock.png");
+    private static final ImageIcon readAccessNewIcon = MiscToolkit.loadImageIcon("/data/lock_add.png");
+    private static final ImageIcon readAccessSpammedIcon = MiscToolkit.loadImageIcon("/data/lock_delete.png");
+    private static final ImageIcon boardIcon = MiscToolkit.loadImageIcon("/data/comments.png");
+    private static final ImageIcon boardNewIcon = MiscToolkit.loadImageIcon("/data/comments_add.png");
+    private static final ImageIcon boardSpammedIcon = MiscToolkit.loadImageIcon("/data/comments_delete.png");
 
     /**
      * Constructs a new Board
@@ -259,6 +272,36 @@ public class Board extends AbstractNode {
             return language.getString("Board.boardState.publicBoard");
         }
         return language.getString("Board.boardState.invalid");
+    }
+
+    public ImageIcon getStateIcon() {
+        if (isReadAccessBoard()) {
+            if( isSpammed() || isDosForToday() ) {
+                return readAccessSpammedIcon;
+            } else if( containsNewMessages() ) {
+                return readAccessNewIcon;
+            } else {
+                return readAccessIcon;
+            }
+        } else if (isWriteAccessBoard()) {
+            if( isSpammed() || isDosForToday() ) {
+                return writeAccessSpammedIcon;
+            } else if( containsNewMessages() ) {
+                return writeAccessNewIcon;
+            } else {
+                return writeAccessIcon;
+            }
+        } else if (isPublicBoard()) {
+            if( isSpammed() || isDosForToday() ) {
+                return boardSpammedIcon;
+            } else if( containsNewMessages() ) {
+                return boardNewIcon;
+            } else {
+                return boardIcon;
+            }
+        }
+        // fallback
+        return boardIcon;
     }
 
     //////////////////////////////////////////////

@@ -25,7 +25,7 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import frost.*;
+import frost.util.*;
 
 /**
  * Provides a <code>JTabbedPane</code> with close icons in the tab titles.
@@ -59,7 +59,7 @@ public class CloseableTabbedPane extends JTabbedPane
      */
     public CloseableTabbedPane()
     {
-		this(new ImageIcon(MainFrame.class.getResource("/data/closeTab.gif")));
+		this(MiscToolkit.loadImageIcon("/data/closeTab.gif"));
     }
 
     //--- Method(s) ---

@@ -58,8 +58,8 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
 
     private static final Logger logger = Logger.getLogger(MainFrame.class.getName());
 
-    private final ImageIcon frameIconDefault = new ImageIcon(MainFrame.class.getResource("/data/jtc.jpg"));
-    private final ImageIcon frameIconNewMessage = new ImageIcon(MainFrame.class.getResource("/data/newmessage.gif"));
+    private final ImageIcon frameIconDefault = MiscToolkit.loadImageIcon("/data/jtc.jpg");
+    private final ImageIcon frameIconNewMessage = MiscToolkit.loadImageIcon("/data/newmessage.gif");
 
     private HelpBrowserFrame helpBrowser = null;
     private SearchMessagesDialog searchMessagesDialog = null;
@@ -294,19 +294,19 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
             buttonToolBar = new JToolBar();
 
             // configure buttons
-            knownBoardsButton = new JButton(new ImageIcon(getClass().getResource("/data/knownboards.gif")));
-            searchMessagesButton = new JButton(new ImageIcon(getClass().getResource("/data/searchmessages.gif")));
-            newBoardButton = new JButton(new ImageIcon(getClass().getResource("/data/newboard.gif")));
-            newFolderButton = new JButton(new ImageIcon(getClass().getResource("/data/newfolder.gif")));
-            removeBoardButton = new JButton(new ImageIcon(getClass().getResource("/data/remove.gif")));
-            renameFolderButton = new JButton(new ImageIcon(getClass().getResource("/data/rename.gif")));
-            configBoardButton = new JButton(new ImageIcon(getClass().getResource("/data/configure.gif")));
+            knownBoardsButton = new JButton(MiscToolkit.loadImageIcon("/data/knownboards.gif"));
+            searchMessagesButton = new JButton(MiscToolkit.loadImageIcon("/data/searchmessages.gif"));
+            newBoardButton = new JButton(MiscToolkit.loadImageIcon("/data/newboard.gif"));
+            newFolderButton = new JButton(MiscToolkit.loadImageIcon("/data/newfolder.gif"));
+            removeBoardButton = new JButton(MiscToolkit.loadImageIcon("/data/remove.gif"));
+            renameFolderButton = new JButton(MiscToolkit.loadImageIcon("/data/rename.gif"));
+            configBoardButton = new JButton(MiscToolkit.loadImageIcon("/data/configure.gif"));
 
-            boardInfoButton = new JButton(new ImageIcon(getClass().getResource("/data/info.gif")));
-            systemTrayButton = new JButton(new ImageIcon(getClass().getResource("/data/tray.gif")));
+            boardInfoButton = new JButton(MiscToolkit.loadImageIcon("/data/info.gif"));
+            systemTrayButton = new JButton(MiscToolkit.loadImageIcon("/data/tray.gif"));
 
-            progressIconRunning = new ImageIcon(getClass().getResource("/data/progress_running.gif"));
-            progressIconIdle = new ImageIcon(getClass().getResource("/data/progress_idle.gif"));
+            progressIconRunning = MiscToolkit.loadImageIcon("/data/progress_running.gif");
+            progressIconIdle = MiscToolkit.loadImageIcon("/data/progress_idle.gif");
             progressIconLabel = new JLabel(progressIconIdle);
             disconnectedLabel = new JLabel("");
 
@@ -441,11 +441,10 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     private JMenuBar getMainMenuBar() {
         if (menuBar == null) {
             menuBar = new JMenuBar();
-            final MiscToolkit miscToolkit = MiscToolkit.getInstance();
-            tofDisplayBoardInfoMenuItem.setIcon(miscToolkit.getScaledImage("/data/info.gif", 16, 16));
+            tofDisplayBoardInfoMenuItem.setIcon(MiscToolkit.getScaledImage("/data/info.gif", 16, 16));
             tofAutomaticUpdateMenuItem.setSelected(true);
-            tofDisplayKnownBoards.setIcon(miscToolkit.getScaledImage("/data/knownboards.gif", 16, 16));
-            tofSearchMessages.setIcon(miscToolkit.getScaledImage("/data/searchmessages.gif", 16, 16));
+            tofDisplayKnownBoards.setIcon(MiscToolkit.getScaledImage("/data/knownboards.gif", 16, 16));
+            tofSearchMessages.setIcon(MiscToolkit.getScaledImage("/data/searchmessages.gif", 16, 16));
 
             // add action listener
             fileExitMenuItem.addActionListener(new ActionListener() {
@@ -504,7 +503,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
                 	getTranslationDialog().setVisible(true);
                 }
             });
-            helpHelpMenuItem.setIcon(miscToolkit.getScaledImage("/data/help.png", 16, 16));
+            helpHelpMenuItem.setIcon(MiscToolkit.getScaledImage("/data/help.png", 16, 16));
             helpHelpMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
                     showHtmlHelp("index.html");
@@ -523,7 +522,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
                 }
             });
 
-            helpMemMonMenuItem.setIcon(miscToolkit.getScaledImage("/data/memmon.png", 16, 16));
+            helpMemMonMenuItem.setIcon(MiscToolkit.getScaledImage("/data/memmon.png", 16, 16));
             helpMemMonMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
                     getMemoryMonitor().showDialog();

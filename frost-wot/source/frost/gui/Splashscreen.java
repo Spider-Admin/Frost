@@ -22,9 +22,10 @@ import java.awt.*;
 
 import javax.swing.*;
 
+import frost.util.*;
+import frost.util.gui.*;
+
 /**
- * @author Administrator
- *
  * Problem with JProgressBar: a user reported having problems when starting Frost. He was getting this stack trace:
  * Exception in thread "main" java.lang.NullPointerException
  *       at java.awt.Dimension.<init>(Unknown Source)
@@ -45,12 +46,10 @@ import javax.swing.*;
  */
 public class Splashscreen extends JDialog {
 
-//  private static final Logger logger = Logger.getLogger(Splashscreen.class.getName());
-
     private static String SPLASH_LOGO_FILENAME = "/data/splash.png";
 
     //Splashscreen size depends on this image.
-    private ImageIcon frostLogo = new ImageIcon(Splashscreen.class.getResource(SPLASH_LOGO_FILENAME));
+    private final ImageIcon frostLogo = MiscToolkit.loadImageIcon(SPLASH_LOGO_FILENAME);
 
     //GUI Objects
     JPanel mainPanel = new JPanel(new BorderLayout());
@@ -59,7 +58,7 @@ public class Splashscreen extends JDialog {
 
     private boolean noSplash;
 
-    public Splashscreen(boolean hideSplashScreen) {
+    public Splashscreen(final boolean hideSplashScreen) {
         noSplash = hideSplashScreen;
         init();
     }
@@ -90,8 +89,8 @@ public class Splashscreen extends JDialog {
 
         pack();
 
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        Dimension splashscreenSize = getSize();
+        final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        final Dimension splashscreenSize = getSize();
         if (splashscreenSize.height > screenSize.height) {
             splashscreenSize.height = screenSize.height;
         }
@@ -107,14 +106,14 @@ public class Splashscreen extends JDialog {
      * Set progress for the progressBar.
      * Default range is from 0 to 100.
      * */
-    public void setProgress(int progress) {
+    public void setProgress(final int progress) {
         if (!noSplash) {
             progressBar.setValue(progress);
         }
     }
 
     /**Set the text for the progressBar*/
-    public void setText(String text) {
+    public void setText(final String text) {
         if (!noSplash) {
             progressBar.setString(text);
         }
@@ -123,7 +122,8 @@ public class Splashscreen extends JDialog {
     /* (non-Javadoc)
      * @see java.awt.Component#setVisible(boolean)
      */
-    public void setVisible(boolean b) {
+    @Override
+    public void setVisible(final boolean b) {
         if (!noSplash) {
             super.setVisible(b);
         }

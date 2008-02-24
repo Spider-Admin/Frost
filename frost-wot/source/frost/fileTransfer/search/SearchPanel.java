@@ -24,33 +24,34 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import frost.*;
+import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.search.*;
 import frost.util.gui.translation.*;
 
 public class SearchPanel extends JPanel implements LanguageListener {
-    
-    private Language language = Language.getInstance();
+
+    private final Language language = Language.getInstance();
 
     private SearchSimpleToolBar searchSimpleToolBar;
     private SearchAdvancedToolBar searchAdvancedToolBar;
-    
-    private ImageIcon searchIcon = new ImageIcon(getClass().getResource("/data/search.gif"));
-    private ImageIcon clearIcon = new ImageIcon(getClass().getResource("/data/remove.gif"));
-    
+
+    private final ImageIcon searchIcon = MiscToolkit.loadImageIcon("/data/search.gif");
+    private final ImageIcon clearIcon = MiscToolkit.loadImageIcon("/data/remove.gif");
+
     TableFindAction tableFindAction = new TableFindAction();
-    
+
     private boolean isInitialized = false;
-    
+
     private CloseableTabbedPane searchTabs;
-    
-    private String[] searchComboBoxKeys =
-        { "SearchPane.fileTypes.allFiles", 
-          "SearchPane.fileTypes.audio", 
-          "SearchPane.fileTypes.video", 
-          "SearchPane.fileTypes.images", 
-          "SearchPane.fileTypes.documents", 
-          "SearchPane.fileTypes.executables", 
+
+    private final String[] searchComboBoxKeys =
+        { "SearchPane.fileTypes.allFiles",
+          "SearchPane.fileTypes.audio",
+          "SearchPane.fileTypes.video",
+          "SearchPane.fileTypes.images",
+          "SearchPane.fileTypes.documents",
+          "SearchPane.fileTypes.executables",
           "SearchPane.fileTypes.archives" };
 
     public SearchPanel() {
@@ -61,25 +62,25 @@ public class SearchPanel extends JPanel implements LanguageListener {
 
     public void initialize() {
         if (!isInitialized) {
-            
+
             searchSimpleToolBar = new SearchSimpleToolBar();
             searchAdvancedToolBar = new SearchAdvancedToolBar();
 
             languageChanged(null);
 
             setLayout(new BorderLayout());
-            
+
             searchTabs = new SearchCloseableTabbedPane();
             add(searchTabs, BorderLayout.CENTER);
 
             // adds simple top panel
             toggleMode(true); // start in simple mode
-            
+
             isInitialized = true;
         }
     }
-    
-    private void toggleMode(boolean toSimpleMode) {
+
+    private void toggleMode(final boolean toSimpleMode) {
         if( toSimpleMode ) {
             // switch to simple
             remove(searchAdvancedToolBar);
@@ -91,54 +92,54 @@ public class SearchPanel extends JPanel implements LanguageListener {
         }
         updateUI();
     }
-    
-    public void languageChanged(LanguageEvent event) {
+
+    public void languageChanged(final LanguageEvent event) {
         searchSimpleToolBar.refreshLanguage();
         searchAdvancedToolBar.refreshLanguage();
     }
-    
-    public void startNewSearch(SearchParameters searchParams) {
-        
-        String tabText = searchParams.getTabText();
 
-        SearchModel model = new SearchModel(new SearchTableFormat());
-        SearchTable modelTable = new SearchTable(model, searchTabs, tabText);
+    public void startNewSearch(final SearchParameters searchParams) {
+
+        final String tabText = searchParams.getTabText();
+
+        final SearchModel model = new SearchModel(new SearchTableFormat());
+        final SearchTable modelTable = new SearchTable(model, searchTabs, tabText);
         tableFindAction.install( modelTable.getTable() );
 
-        ProxyPanel pp = new ProxyPanel(modelTable.getScrollPane(), model, modelTable.getTable());
-        
+        final ProxyPanel pp = new ProxyPanel(modelTable.getScrollPane(), model, modelTable.getTable());
+
         searchTabs.addTab(tabText + " (...)", pp);
-        
-        SearchThread searchThread = new SearchThread(searchParams, modelTable, pp);
+
+        final SearchThread searchThread = new SearchThread(searchParams, modelTable, pp);
         searchThread.start();
     }
-    
+
     private JSkinnablePopupMenu buildSearchOptionsMenu() {
         final JSkinnablePopupMenu searchOptionsMenu = new JSkinnablePopupMenu();
         final JMenuItem hideBadUserFilesCheckBox = new JCheckBoxMenuItem(language.getString("SearchPane.toolbar.searchOptions.hideFilesFromPeopleMarkedBad"));
         final JMenuItem hideCheckUserFilesCheckBox = new JCheckBoxMenuItem(language.getString("SearchPane.toolbar.searchOptions.hideFilesFromPeopleMarkedCheck"));
         final JMenuItem hideObserveUserFilesCheckBox = new JCheckBoxMenuItem(language.getString("SearchPane.toolbar.searchOptions.hideFilesFromPeopleMarkedObserve"));
         final JMenuItem hideFilesWithoutChkCheckBox = new JCheckBoxMenuItem(language.getString("SearchPane.toolbar.searchOptions.hideFilesWithoutChk"));
-        
+
         hideBadUserFilesCheckBox.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SEARCH_HIDE_BAD));
         hideCheckUserFilesCheckBox.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SEARCH_HIDE_CHECK));
         hideObserveUserFilesCheckBox.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SEARCH_HIDE_OBSERVE));
         hideFilesWithoutChkCheckBox.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SEARCH_HIDE_FILES_WITHOUT_CHK));
 
         hideBadUserFilesCheckBox.addItemListener( new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
+            public void itemStateChanged(final ItemEvent e) {
                 Core.frostSettings.setValue(SettingsClass.SEARCH_HIDE_BAD, hideBadUserFilesCheckBox.isSelected());
             } });
         hideCheckUserFilesCheckBox.addItemListener( new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
+            public void itemStateChanged(final ItemEvent e) {
                 Core.frostSettings.setValue(SettingsClass.SEARCH_HIDE_CHECK, hideCheckUserFilesCheckBox.isSelected());
             } });
         hideObserveUserFilesCheckBox.addItemListener( new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
+            public void itemStateChanged(final ItemEvent e) {
                 Core.frostSettings.setValue(SettingsClass.SEARCH_HIDE_OBSERVE, hideObserveUserFilesCheckBox.isSelected());
             } });
         hideFilesWithoutChkCheckBox.addItemListener( new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
+            public void itemStateChanged(final ItemEvent e) {
                 Core.frostSettings.setValue(SettingsClass.SEARCH_HIDE_FILES_WITHOUT_CHK, hideFilesWithoutChkCheckBox.isSelected());
             } });
 
@@ -147,25 +148,25 @@ public class SearchPanel extends JPanel implements LanguageListener {
         searchOptionsMenu.add(hideObserveUserFilesCheckBox);
         searchOptionsMenu.addSeparator();
         searchOptionsMenu.add(hideFilesWithoutChkCheckBox);
-        
+
         return searchOptionsMenu;
     }
 
     private class SearchSimpleToolBar extends JToolBar implements ActionListener {
 
         private JTranslatableComboBox searchComboBox = null;
-        private JButton searchButton = new JButton(searchIcon);
-        private JTextField searchTextField = new JTextField(30);
-        private JButton toggleModeButtonToAdvanced = new JButton(">>");
-        private JButton searchOptionsButton = new JButton();
+        private final JButton searchButton = new JButton(searchIcon);
+        private final JTextField searchTextField = new JTextField(30);
+        private final JButton toggleModeButtonToAdvanced = new JButton(">>");
+        private final JButton searchOptionsButton = new JButton();
 
         public SearchSimpleToolBar() {
             super();
             initialize();
         }
-        
+
         private void initialize() {
-            
+
             setRollover(true);
             setFloatable(false);
 
@@ -176,17 +177,17 @@ public class SearchPanel extends JPanel implements LanguageListener {
             searchOptionsButton.setOpaque(false);
             searchOptionsButton.setFocusPainted(false);
 
-            MiscToolkit toolkit = MiscToolkit.getInstance();
+            final MiscToolkit toolkit = MiscToolkit.getInstance();
             toolkit.configureButton(searchButton, "/data/search_rollover.gif");
             searchComboBox.setMaximumSize(searchComboBox.getPreferredSize());
             searchTextField.setMaximumSize(searchTextField.getPreferredSize());
-            
+
             toggleModeButtonToAdvanced.setMargin(new Insets(0, 0, 0, 0));
             toggleModeButtonToAdvanced.setBorderPainted(false);
             toggleModeButtonToAdvanced.setFocusPainted(false);
             toggleModeButtonToAdvanced.setRolloverEnabled(true);
 
-            Dimension blankSpace = new Dimension(8, 0);
+            final Dimension blankSpace = new Dimension(8, 0);
             add(toggleModeButtonToAdvanced);
             add(Box.createRigidArea(blankSpace));
             add(searchTextField);
@@ -197,15 +198,15 @@ public class SearchPanel extends JPanel implements LanguageListener {
             add(Box.createRigidArea(blankSpace));
             add(searchButton);
             add(Box.createHorizontalGlue());
-            
+
             searchTextField.addActionListener(this);
             searchButton.addActionListener(this);
             toggleModeButtonToAdvanced.addActionListener(this);
             searchOptionsButton.addActionListener(this);
         }
-        
+
         public SearchParameters getSearchParameters() {
-            SearchParameters sp = new SearchParameters(true);
+            final SearchParameters sp = new SearchParameters(true);
             sp.setExtensions(searchComboBox.getSelectedKey());
             sp.setSimpleSearchString(searchTextField.getText());
             sp.setHideBadUserFiles(Core.frostSettings.getBoolValue(SettingsClass.SEARCH_HIDE_BAD));
@@ -214,8 +215,8 @@ public class SearchPanel extends JPanel implements LanguageListener {
             sp.setHideFilesWithoutChkKey(Core.frostSettings.getBoolValue(SettingsClass.SEARCH_HIDE_FILES_WITHOUT_CHK));
             return sp;
         }
-        
-        public void actionPerformed(ActionEvent e) {
+
+        public void actionPerformed(final ActionEvent e) {
             if (e.getSource() == searchButton || e.getSource() == searchTextField) {
                 startNewSearch(getSearchParameters());
             } else if (e.getSource() == toggleModeButtonToAdvanced) {
@@ -235,27 +236,27 @@ public class SearchPanel extends JPanel implements LanguageListener {
     private class SearchAdvancedToolBar extends JToolBar implements ActionListener {
 
         private JTranslatableComboBox searchComboBox = null;
-        private JButton searchButton = new JButton(searchIcon);
-        private JButton clearButton = new JButton(clearIcon);
-        private JButton toggleModeButtonToSimple = new JButton("<<");
+        private final JButton searchButton = new JButton(searchIcon);
+        private final JButton clearButton = new JButton(clearIcon);
+        private final JButton toggleModeButtonToSimple = new JButton("<<");
 
-        private JLabel searchNameLabel = new JLabel();
-        private JLabel searchCommentLabel = new JLabel();
-        private JLabel searchKeywordsLabel = new JLabel();
-        private JLabel searchOwnerLabel = new JLabel();
-        
-        private JTextField searchNameTextField = new JTextField(18);
-        private JTextField searchCommentTextField = new JTextField(18);
-        private JTextField searchKeywordsTextField = new JTextField(18);
-        private JTextField searchOwnerTextField = new JTextField(18);
+        private final JLabel searchNameLabel = new JLabel();
+        private final JLabel searchCommentLabel = new JLabel();
+        private final JLabel searchKeywordsLabel = new JLabel();
+        private final JLabel searchOwnerLabel = new JLabel();
 
-        private JButton searchOptionsButton = new JButton();
+        private final JTextField searchNameTextField = new JTextField(18);
+        private final JTextField searchCommentTextField = new JTextField(18);
+        private final JTextField searchKeywordsTextField = new JTextField(18);
+        private final JTextField searchOwnerTextField = new JTextField(18);
+
+        private final JButton searchOptionsButton = new JButton();
 
         public SearchAdvancedToolBar() {
             super();
             initialize();
         }
-        
+
         private void initialize() {
 
             setRollover(true);
@@ -271,7 +272,7 @@ public class SearchPanel extends JPanel implements LanguageListener {
             searchOptionsButton.setOpaque(false);
             searchOptionsButton.setFocusPainted(false);
 
-            MiscToolkit toolkit = MiscToolkit.getInstance();
+            final MiscToolkit toolkit = MiscToolkit.getInstance();
             toolkit.configureButton(searchButton, "/data/search_rollover.gif");
             toolkit.configureButton(clearButton, "/data/remove_rollover.gif");
             searchComboBox.setMaximumSize(searchComboBox.getPreferredSize());
@@ -279,14 +280,14 @@ public class SearchPanel extends JPanel implements LanguageListener {
             searchCommentTextField.setMaximumSize(searchCommentTextField.getPreferredSize());
             searchKeywordsTextField.setMaximumSize(searchKeywordsTextField.getPreferredSize());
             searchOwnerTextField.setMaximumSize(searchOwnerTextField.getPreferredSize());
-            
+
             toggleModeButtonToSimple.setMargin(new Insets(0, 0, 0, 0));
             toggleModeButtonToSimple.setBorderPainted(false);
             toggleModeButtonToSimple.setFocusPainted(false);
             toggleModeButtonToSimple.setRolloverEnabled(true);
 
-            Dimension blankSpace = new Dimension(8, 0);
-            Dimension smallSpace = new Dimension(3, 0);
+            final Dimension blankSpace = new Dimension(8, 0);
+            final Dimension smallSpace = new Dimension(3, 0);
             add(toggleModeButtonToSimple);
             add(Box.createRigidArea(blankSpace));
             add(searchNameLabel);
@@ -313,7 +314,7 @@ public class SearchPanel extends JPanel implements LanguageListener {
             add(Box.createRigidArea(blankSpace));
             add(searchButton);
             add(Box.createHorizontalGlue());
-            
+
             searchNameTextField.addActionListener(this);
             searchCommentTextField.addActionListener(this);
             searchKeywordsTextField.addActionListener(this);
@@ -325,7 +326,7 @@ public class SearchPanel extends JPanel implements LanguageListener {
         }
 
         public SearchParameters getSearchParameters() {
-            SearchParameters sp = new SearchParameters(false);
+            final SearchParameters sp = new SearchParameters(false);
             sp.setExtensions(searchComboBox.getSelectedKey());
             sp.setNameString(searchNameTextField.getText());
             sp.setCommentString(searchCommentTextField.getText());
@@ -338,8 +339,8 @@ public class SearchPanel extends JPanel implements LanguageListener {
             return sp;
         }
 
-        public void actionPerformed(ActionEvent e) {
-            if (e.getSource() == searchButton 
+        public void actionPerformed(final ActionEvent e) {
+            if (e.getSource() == searchButton
                     || e.getSource() == searchNameTextField
                     || e.getSource() == searchCommentTextField
                     || e.getSource() == searchKeywordsTextField
@@ -354,7 +355,7 @@ public class SearchPanel extends JPanel implements LanguageListener {
                 buildSearchOptionsMenu().show(searchOptionsButton, 5, 5);
             }
         }
-        
+
         private void clearTextfields() {
             searchNameTextField.setText("");
             searchCommentTextField.setText("");
@@ -382,16 +383,17 @@ public class SearchPanel extends JPanel implements LanguageListener {
         public SearchCloseableTabbedPane() {
             super();
         }
-        protected void tabWasClosed(Component c) {
+        @Override
+        protected void tabWasClosed(final Component c) {
             if( c instanceof ProxyPanel ) {
                 // explicitely clear the model after tab was closed to make life easier for the gc
-                ProxyPanel pp = (ProxyPanel)c;
+                final ProxyPanel pp = (ProxyPanel)c;
                 pp.tabWasClosed(); // stop search thread
                 pp.getModel().clear();
             }
         }
     }
-    
+
     /**
      * Panel component that holds a SearchModel.
      * Is added to a tabbed pane.
@@ -400,13 +402,13 @@ public class SearchPanel extends JPanel implements LanguageListener {
         SearchModel model;
         SearchThread thread = null;
         JTable table;
-        public ProxyPanel(Component c, SearchModel m, JTable table) {
+        public ProxyPanel(final Component c, final SearchModel m, final JTable table) {
             model = m;
             this.table = table;
             setLayout(new BorderLayout());
             add(c, BorderLayout.CENTER);
         }
-        public void setSearchThread(SearchThread t) {
+        public void setSearchThread(final SearchThread t) {
             thread = t;
         }
         public void tabWasClosed() {

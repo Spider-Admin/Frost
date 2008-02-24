@@ -29,6 +29,7 @@ import frost.*;
 import frost.fileTransfer.common.*;
 import frost.gui.*;
 import frost.util.*;
+import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
 
@@ -39,7 +40,7 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
     private static final String CFGKEY_COLUMN_TABLEINDEX = "SearchFilesTable.tableindex.modelcolumn.";
     private static final String CFGKEY_COLUMN_WIDTH = "SearchFilesTable.columnwidth.modelcolumn.";
 
-    private static final ImageIcon hasMoreInfoIcon = new ImageIcon((MainFrame.class.getResource("/data/info.png")));
+    private static final ImageIcon hasMoreInfoIcon = MiscToolkit.loadImageIcon("/data/info.png");
 
     private final Language language;
 

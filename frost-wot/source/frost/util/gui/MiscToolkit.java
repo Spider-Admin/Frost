@@ -25,6 +25,7 @@ import java.util.logging.*;
 import javax.swing.*;
 
 import frost.*;
+import frost.util.*;
 import frost.util.gui.translation.*;
 
 /**
@@ -59,7 +60,7 @@ public class MiscToolkit {
 	 * @param rolloverIcon displayed icon when mouse arrow is over button
 	 */
 	public void configureButton(final JButton button, final String rolloverIcon) {
-		button.setRolloverIcon(new ImageIcon(getClass().getResource(rolloverIcon)));
+		button.setRolloverIcon(MiscToolkit.loadImageIcon(rolloverIcon));
 		button.setMargin(new Insets(0, 0, 0, 0));
         button.setPreferredSize(new Dimension(30,25));
 		button.setBorderPainted(false);
@@ -102,8 +103,8 @@ public class MiscToolkit {
 	 * @param height height to scale the image to.
 	 * @return an ImageIcon containing the image.
 	 */
-	public ImageIcon getScaledImage(final String imgPath, final int width, final int height) {
-		ImageIcon icon = new ImageIcon(getClass().getResource(imgPath));
+	public static ImageIcon getScaledImage(final String imgPath, final int width, final int height) {
+		ImageIcon icon = MiscToolkit.loadImageIcon(imgPath);
 		icon = new ImageIcon(icon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH));
 		return icon;
 	}
@@ -247,6 +248,10 @@ public class MiscToolkit {
         // JOptionPane.YES_NO_CANCEL_OPTION,
 
         return JOptionPane.showConfirmDialog(parentComponent, message, title, optionType, messageType);
+    }
+
+    public static ImageIcon loadImageIcon(final String resourcePath) {
+        return new ImageIcon(Mixed.class.getResource(resourcePath));
     }
 
     /**

@@ -34,6 +34,8 @@ import frost.boards.*;
 import frost.gui.model.*;
 import frost.messages.*;
 import frost.threads.*;
+import frost.util.*;
+import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.gui.tristatecheckbox.*;
 
@@ -173,7 +175,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
      */
     private void initialize() {
         this.setTitle(language.getString("SearchMessages.title"));
-        this.setIconImage(new ImageIcon(getClass().getResource("/data/search.gif")).getImage());
+        this.setIconImage(MiscToolkit.loadImageIcon("/data/search.gif").getImage());
         this.setSize(new java.awt.Dimension(700,550));
         this.setContentPane(getJContentPane());
         // create button groups

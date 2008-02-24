@@ -53,8 +53,8 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	private Language language = null;
 
 	private final JToolBar downloadToolBar = new JToolBar();
-	private final JButton downloadActivateButton = new JButton(new ImageIcon(getClass().getResource("/data/down_selected.gif")));
-    private final JButton downloadPauseButton = new JButton(new ImageIcon(getClass().getResource("/data/down.gif")));
+	private final JButton downloadActivateButton = new JButton(MiscToolkit.loadImageIcon("/data/down_selected.gif"));
+    private final JButton downloadPauseButton = new JButton(MiscToolkit.loadImageIcon("/data/down.gif"));
 	private final JTextField downloadTextField = new JTextField(25);
 	private final JLabel downloadItemCountLabel = new JLabel();
     private final JCheckBox removeFinishedDownloadsCheckBox = new JCheckBox();
@@ -181,31 +181,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	public void setModel(final DownloadModel model) {
 		this.model = model;
 	}
-
-	/**
-	 * Configures a CheckBox to be a default icon CheckBox.
-     *
-     * Was used when we used a single icon for download start/pause!!!
-     * This is here to keep this code for future use.
-     *
-	 * @param checkBox The new icon CheckBox
-	 * @param rolloverIcon Displayed when mouse is over the CheckBox
-	 * @param selectedIcon Displayed when CheckBox is checked
-	 * @param rolloverSelectedIcon Displayed when mouse is over the selected CheckBox
-	 */
-//	private void configureCheckBox(
-//		JCheckBox checkBox,
-//		String rolloverIcon,
-//		String selectedIcon,
-//		String rolloverSelectedIcon) {
-//
-//		checkBox.setRolloverIcon(new ImageIcon(getClass().getResource(rolloverIcon)));
-//		checkBox.setSelectedIcon(new ImageIcon(getClass().getResource(selectedIcon)));
-//		checkBox.setRolloverSelectedIcon(
-//			new ImageIcon(getClass().getResource(rolloverSelectedIcon)));
-//		checkBox.setMargin(new Insets(0, 0, 0, 0));
-//		checkBox.setFocusPainted(false);
-//	}
 
 	/**
 	 * downloadTextField Action Listener (Download/Quickload)
