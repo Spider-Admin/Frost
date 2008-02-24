@@ -20,20 +20,20 @@ package frost.gui.messagetreetable;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.net.*;
 import java.util.*;
 
 import javax.swing.*;
 import javax.swing.table.*;
 
-import frost.util.model.*;
+import frost.util.*;
+import frost.util.gui.*;
 
 public class MessageTreeTableHeader extends JTableHeader {
 
     private final MessageTreeTable messageTreeTable;
 
-    private static Icon ascendingIcon;
-    private static Icon descendingIcon;
+    private static Icon ascendingIcon = MiscToolkit.loadImageIcon("/data/SortedTable_ascending.png");
+    private static Icon descendingIcon = MiscToolkit.loadImageIcon("/data/SortedTable_descending.png");
 
     private final ArrowRenderer arrowRenderer = new ArrowRenderer();
 
@@ -139,20 +139,6 @@ public class MessageTreeTableHeader extends JTableHeader {
                 labelRenderer.setToolTipText(value.toString());
             }
             return defaultRenderer.getTableCellRendererComponent(lTable, value, isSelected, hasFocus, row, column);
-        }
-    }
-
-    /**
-     * This static initializer loads the images of the arrows (both ascending and descending)
-     */
-    static {
-        final URL ascencingURL = SortedModelTable.class.getResource("/data/SortedTable_ascending.png");
-        if (ascencingURL != null) {
-            ascendingIcon = new ImageIcon(ascencingURL);
-        }
-        final URL descendingURL = SortedModelTable.class.getResource("/data/SortedTable_descending.png");
-        if (descendingURL != null) {
-            descendingIcon = new ImageIcon(descendingURL);
         }
     }
 }

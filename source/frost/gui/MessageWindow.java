@@ -25,45 +25,46 @@ import javax.swing.*;
 
 import frost.*;
 import frost.messages.*;
+import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
 public class MessageWindow extends JFrame {
 
     private final FrostMessageObject message;
-    private Window parentWindow;
+    private final Window parentWindow;
 
     private MessageTextPane messageTextPane;
     private MessageWindowTopPanel topPanel;
 
     private Listener listener;
 
-    private Language language = Language.getInstance();
-    
-    private SearchMessagesConfig searchMessagesConfig = null;
-    
-    private boolean showReplyButton;
-    
-    private static final ImageIcon frameIcon = new ImageIcon(MessageWindow.class.getResource("/data/messagebright.gif"));
+    private final Language language = Language.getInstance();
 
-    public MessageWindow(Window parentWindow, FrostMessageObject message, Dimension size) {
+    private SearchMessagesConfig searchMessagesConfig = null;
+
+    private final boolean showReplyButton;
+
+    private static final ImageIcon frameIcon = MiscToolkit.loadImageIcon("/data/messagebright.gif");
+
+    public MessageWindow(final Window parentWindow, final FrostMessageObject message, final Dimension size) {
         this(parentWindow, message, size, null, true);
     }
 
-    public MessageWindow(Window parentWindow, FrostMessageObject message, Dimension size, boolean showReplyButton) {
+    public MessageWindow(final Window parentWindow, final FrostMessageObject message, final Dimension size, final boolean showReplyButton) {
         this(parentWindow, message, size, null, showReplyButton);
     }
 
-    public MessageWindow(Window parentWindow, FrostMessageObject message, Dimension size, SearchMessagesConfig smc) {
+    public MessageWindow(final Window parentWindow, final FrostMessageObject message, final Dimension size, final SearchMessagesConfig smc) {
         this(parentWindow, message, size, smc, true);
     }
 
     public MessageWindow(
-            Window parentWindow, 
-            FrostMessageObject message, 
-            Dimension size, 
-            SearchMessagesConfig smc, 
-            boolean showReplyButton) 
+            final Window parentWindow,
+            final FrostMessageObject message,
+            final Dimension size,
+            final SearchMessagesConfig smc,
+            final boolean showReplyButton)
     {
         super();
         this.message = message;
@@ -115,17 +116,18 @@ public class MessageWindow extends JFrame {
     }
 
     private class Listener extends WindowAdapter implements KeyListener, WindowListener {
-        public void keyPressed(KeyEvent e) {
+        public void keyPressed(final KeyEvent e) {
             maybeDoSomething(e);
         }
-        public void keyReleased(KeyEvent e) {
+        public void keyReleased(final KeyEvent e) {
         }
-        public void keyTyped(KeyEvent e) {
+        public void keyTyped(final KeyEvent e) {
         }
-        public void windowClosing(WindowEvent e) {
+        @Override
+        public void windowClosing(final WindowEvent e) {
             close();
         }
-        public void maybeDoSomething(KeyEvent e){
+        public void maybeDoSomething(final KeyEvent e){
             if( e.getKeyChar() == KeyEvent.VK_ESCAPE ) {
                 close();
             }
@@ -145,10 +147,10 @@ public class MessageWindow extends JFrame {
         private JLabel Lboard = null;
         private JTextField TFboard = null;
 
-        private FrostMessageObject innerMessage;
+        private final FrostMessageObject innerMessage;
         private JButton Breply = null;
 
-        public MessageWindowTopPanel(FrostMessageObject msg) {
+        public MessageWindowTopPanel(final FrostMessageObject msg) {
             super();
             innerMessage = msg;
 
@@ -157,19 +159,21 @@ public class MessageWindow extends JFrame {
             language.addLanguageListener(this);
         }
 
-        public void addKeyListener(KeyListener l) {
+        @Override
+        public void addKeyListener(final KeyListener l) {
             super.addKeyListener(l);
-            Component[] c = getComponents();
-            for(int x=0; x < c.length; x++) {
-                c[x].addKeyListener(l);
+            final Component[] c = getComponents();
+            for( final Component element : c ) {
+                element.addKeyListener(l);
             }
         }
 
-        public void removeKeyListener(KeyListener l) {
+        @Override
+        public void removeKeyListener(final KeyListener l) {
             super.removeKeyListener(l);
-            Component[] c = getComponents();
-            for(int x=0; x < c.length; x++) {
-                c[x].removeKeyListener(l);
+            final Component[] c = getComponents();
+            for( final Component element : c ) {
+                element.removeKeyListener(l);
             }
         }
 
@@ -190,20 +194,20 @@ public class MessageWindow extends JFrame {
             Lto = new JLabel();
             Lto.setFont(new java.awt.Font("Dialog", java.awt.Font.BOLD, 12));
 
-            GridBagConstraints BreplyConstraints = new GridBagConstraints(); // Breply
+            final GridBagConstraints BreplyConstraints = new GridBagConstraints(); // Breply
             BreplyConstraints.gridx = 5;
             BreplyConstraints.anchor = java.awt.GridBagConstraints.NORTHEAST;
             BreplyConstraints.gridheight = 3;
             BreplyConstraints.insets = new java.awt.Insets(5,5,5,5);
             BreplyConstraints.gridy = 1;
 
-            GridBagConstraints LsubjectConstraints = new GridBagConstraints();  // Lsubject
+            final GridBagConstraints LsubjectConstraints = new GridBagConstraints();  // Lsubject
             LsubjectConstraints.gridx = 0;
             LsubjectConstraints.insets = new java.awt.Insets(1,5,1,2);
             LsubjectConstraints.anchor = java.awt.GridBagConstraints.WEST;
             LsubjectConstraints.gridy = 1;
 
-            GridBagConstraints TFsubjectConstraints = new GridBagConstraints(); // TFsubject
+            final GridBagConstraints TFsubjectConstraints = new GridBagConstraints(); // TFsubject
             TFsubjectConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
             TFsubjectConstraints.gridy = 1;
             TFsubjectConstraints.weightx = 1.0;
@@ -212,13 +216,13 @@ public class MessageWindow extends JFrame {
             TFsubjectConstraints.anchor = java.awt.GridBagConstraints.WEST;
             TFsubjectConstraints.gridx = 1;
 
-            GridBagConstraints LfromConstraints = new GridBagConstraints(); // Lfrom
+            final GridBagConstraints LfromConstraints = new GridBagConstraints(); // Lfrom
             LfromConstraints.gridx = 0;
             LfromConstraints.insets = new java.awt.Insets(1,5,1,2);
             LfromConstraints.anchor = java.awt.GridBagConstraints.WEST;
             LfromConstraints.gridy = 2;
 
-            GridBagConstraints TFfromConstraints = new GridBagConstraints(); // TFfrom
+            final GridBagConstraints TFfromConstraints = new GridBagConstraints(); // TFfrom
             TFfromConstraints.fill = java.awt.GridBagConstraints.NONE;
             TFfromConstraints.gridy = 2;
             TFfromConstraints.weightx = 1.0;
@@ -227,13 +231,13 @@ public class MessageWindow extends JFrame {
             TFfromConstraints.anchor = java.awt.GridBagConstraints.WEST;
             TFfromConstraints.gridx = 1;
 
-            GridBagConstraints LtoConstraints = new GridBagConstraints(); // Lto
+            final GridBagConstraints LtoConstraints = new GridBagConstraints(); // Lto
             LtoConstraints.gridx = 0;
             LtoConstraints.insets = new java.awt.Insets(1,5,1,2);
             LtoConstraints.anchor = java.awt.GridBagConstraints.WEST;
             LtoConstraints.gridy = 3;
 
-            GridBagConstraints TFtoConstraints = new GridBagConstraints(); // TFto
+            final GridBagConstraints TFtoConstraints = new GridBagConstraints(); // TFto
             TFtoConstraints.fill = java.awt.GridBagConstraints.NONE;
             TFtoConstraints.gridy = 3;
             TFtoConstraints.weightx = 1.0;
@@ -242,34 +246,34 @@ public class MessageWindow extends JFrame {
             TFtoConstraints.anchor = java.awt.GridBagConstraints.WEST;
             TFtoConstraints.gridx = 1;
 
-            GridBagConstraints LdateConstraints = new GridBagConstraints(); // Ldate
+            final GridBagConstraints LdateConstraints = new GridBagConstraints(); // Ldate
             LdateConstraints.gridx = 0;
             LdateConstraints.insets = new java.awt.Insets(1,5,1,2);
             LdateConstraints.anchor = java.awt.GridBagConstraints.WEST;
             LdateConstraints.gridy = 4;
 
-            GridBagConstraints TFdateConstraints = new GridBagConstraints(); // TFdate
+            final GridBagConstraints TFdateConstraints = new GridBagConstraints(); // TFdate
             TFdateConstraints.fill = java.awt.GridBagConstraints.NONE;
             TFdateConstraints.gridy = 4;
             TFdateConstraints.weightx = 0.0;
             TFdateConstraints.insets = new java.awt.Insets(1,1,1,5);
             TFdateConstraints.anchor = java.awt.GridBagConstraints.WEST;
             TFdateConstraints.gridx = 1;
-            
-            GridBagConstraints LboardConstraints = new GridBagConstraints(); // Lboard
+
+            final GridBagConstraints LboardConstraints = new GridBagConstraints(); // Lboard
             LboardConstraints.gridx = 2;
             LboardConstraints.insets = new java.awt.Insets(1,8,1,2);
             LboardConstraints.anchor = java.awt.GridBagConstraints.WEST;
             LboardConstraints.gridy = 4;
 
-            GridBagConstraints TFboardConstraints = new GridBagConstraints(); // TFboard
+            final GridBagConstraints TFboardConstraints = new GridBagConstraints(); // TFboard
             TFboardConstraints.fill = java.awt.GridBagConstraints.NONE;
             TFboardConstraints.gridy = 4;
             TFboardConstraints.weightx = 0.0;
             TFboardConstraints.anchor = java.awt.GridBagConstraints.WEST;
             TFboardConstraints.insets = new java.awt.Insets(1,1,1,5);
             TFboardConstraints.gridx = 4;
-            
+
             this.setLayout(new GridBagLayout());
             this.setSize(new java.awt.Dimension(496,254));
             this.add(Lsubject, LsubjectConstraints);
@@ -289,7 +293,7 @@ public class MessageWindow extends JFrame {
             }
         }
 
-        public void languageChanged(LanguageEvent event) {
+        public void languageChanged(final LanguageEvent event) {
             Lsubject.setText(language.getString("MessageWindow.subject")+":");
             Lfrom.setText(language.getString("MessageWindow.from")+":");
             Lto.setText(language.getString("MessageWindow.to")+":");
@@ -350,13 +354,13 @@ public class MessageWindow extends JFrame {
         private JButton getBreply() {
             if( Breply == null ) {
                 Breply = new JButton();
-                Breply.setIcon(new ImageIcon(getClass().getResource("/data/reply.gif")));
+                Breply.setIcon(MiscToolkit.loadImageIcon("/data/reply.gif"));
                 Breply.addActionListener(new ActionListener() {
-                    public void actionPerformed(ActionEvent arg0) {
+                    public void actionPerformed(final ActionEvent arg0) {
                         replyButtonPressed();
                     }
                 });
-                MiscToolkit toolkit = MiscToolkit.getInstance();
+                final MiscToolkit toolkit = MiscToolkit.getInstance();
                 toolkit.configureButton(Breply, "MessageWindow.tooltip.reply", "/data/reply_rollover.gif", language);
             }
             return Breply;

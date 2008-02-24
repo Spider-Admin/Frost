@@ -27,11 +27,12 @@ import javax.swing.table.*;
 import frost.*;
 import frost.gui.*;
 import frost.identities.*;
+import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
 
 public class FileListFileDetailsTableFormat extends SortedTableFormat implements LanguageListener {
-    
+
     private static final String CFGKEY_SORTSTATE_SORTEDCOLUMN = "FileListFileDetailsDialog.sortState.sortedColumn";
     private static final String CFGKEY_SORTSTATE_SORTEDASCENDING = "FileListFileDetailsDialog.sortState.sortedAscending";
     private static final String CFGKEY_COLUMN_TABLEINDEX = "FileListFileDetailsDialog.tableindex.modelcolumn.";
@@ -40,17 +41,17 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
     private String stateNever;
     private String unknown;
 
-    private Language language = Language.getInstance();;
-    
+    private final Language language = Language.getInstance();;
+
     private static ImageIcon ICON_GOOD = null;
     private static ImageIcon ICON_OBSERVE = null;
     private static ImageIcon ICON_CHECK = null;
     private static ImageIcon ICON_BAD = null;
 
     private final static int COLUMN_COUNT = 9;
-    
-    private boolean showColoredLines;
-    
+
+    private final boolean showColoredLines;
+
     public FileListFileDetailsTableFormat() {
         super(COLUMN_COUNT);
 
@@ -65,27 +66,23 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
         setComparator(new LastUploadedComparator(), 6);
         setComparator(new LastReceivedComparator(), 7);
         setComparator(new KeyComparator(), 8);
-        
+
         loadIcons();
-        
+
         showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
     }
-    
+
     private void loadIcons() {
         if( ICON_GOOD == null ) {
             // load all icons
-            ICON_GOOD = new ImageIcon(getClass().getResource("/data/trust.gif"));
-            ICON_GOOD = new ImageIcon(ICON_GOOD.getImage().getScaledInstance(12, 12, Image.SCALE_SMOOTH));
-            ICON_OBSERVE = new ImageIcon(getClass().getResource("/data/observe.gif"));
-            ICON_OBSERVE = new ImageIcon(ICON_OBSERVE.getImage().getScaledInstance(12, 12, Image.SCALE_SMOOTH));
-            ICON_CHECK = new ImageIcon(getClass().getResource("/data/check.gif"));
-            ICON_CHECK = new ImageIcon(ICON_CHECK.getImage().getScaledInstance(12, 12, Image.SCALE_SMOOTH));
-            ICON_BAD = new ImageIcon(getClass().getResource("/data/nottrust.gif"));
-            ICON_BAD = new ImageIcon(ICON_BAD.getImage().getScaledInstance(12, 12, Image.SCALE_SMOOTH));
+            ICON_GOOD = MiscToolkit.getScaledImage("/data/trust.gif", 12, 12);
+            ICON_OBSERVE = MiscToolkit.getScaledImage("/data/observe.gif", 12, 12);
+            ICON_CHECK = MiscToolkit.getScaledImage("/data/check.gif", 12, 12);
+            ICON_BAD = MiscToolkit.getScaledImage("/data/nottrust.gif", 12, 12);
         }
     }
 
-    public void languageChanged(LanguageEvent event) {
+    public void languageChanged(final LanguageEvent event) {
         refreshLanguage();
     }
 
@@ -106,11 +103,11 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
         refreshColumnNames();
     }
 
-    public Object getCellValue(ModelItem item, int columnIndex) {
+    public Object getCellValue(final ModelItem item, final int columnIndex) {
         if( item == null ) {
             return "*null*";
         }
-        FileListFileDetailsItem detailsItem = (FileListFileDetailsItem) item;
+        final FileListFileDetailsItem detailsItem = (FileListFileDetailsItem) item;
         switch (columnIndex) {
             case 0 :    // filename
                 return detailsItem.getFileOwner().getName();
@@ -143,7 +140,7 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
                 } else {
                     return detailsItem.getDisplayLastReceived();
                 }
-                
+
             case 8 :    // key
                 if( detailsItem.getKey() == null ) {
                     return unknown;
@@ -156,35 +153,36 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
         }
     }
 
-    public int[] getColumnNumbers(int fieldID) {
+    public int[] getColumnNumbers(final int fieldID) {
         return new int[] {};
     }
 
-    public void customizeTable(ModelTable table) {
+    @Override
+    public void customizeTable(final ModelTable table) {
         super.customizeTable(table);
-        
-        SortedModelTable modelTable = (SortedModelTable)table;
-        
+
+        final SortedModelTable modelTable = (SortedModelTable)table;
+
         modelTable.getTable().setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
-        
+
         if( Core.frostSettings.getBoolValue(SettingsClass.SAVE_SORT_STATES)
                 && Core.frostSettings.getObjectValue(CFGKEY_SORTSTATE_SORTEDCOLUMN) != null
                 && Core.frostSettings.getObjectValue(CFGKEY_SORTSTATE_SORTEDASCENDING) != null )
         {
-            int sortedColumn = Core.frostSettings.getIntValue(CFGKEY_SORTSTATE_SORTEDCOLUMN);
-            boolean isSortedAsc = Core.frostSettings.getBoolValue(CFGKEY_SORTSTATE_SORTEDASCENDING);
+            final int sortedColumn = Core.frostSettings.getIntValue(CFGKEY_SORTSTATE_SORTEDCOLUMN);
+            final boolean isSortedAsc = Core.frostSettings.getBoolValue(CFGKEY_SORTSTATE_SORTEDASCENDING);
             if( sortedColumn > -1 ) {
                 modelTable.setSortedColumn(sortedColumn, isSortedAsc);
             }
         } else {
             modelTable.setSortedColumn(7, false);
         }
-        
-        TableColumnModel columnModel = modelTable.getTable().getColumnModel();
 
-        ShowContentTooltipRenderer showContentTooltipRenderer = new ShowContentTooltipRenderer();
-        ShowColoredLinesRenderer showColoredLinesRenderer = new ShowColoredLinesRenderer();
-        
+        final TableColumnModel columnModel = modelTable.getTable().getColumnModel();
+
+        final ShowContentTooltipRenderer showContentTooltipRenderer = new ShowContentTooltipRenderer();
+        final ShowColoredLinesRenderer showColoredLinesRenderer = new ShowColoredLinesRenderer();
+
         columnModel.getColumn(0).setCellRenderer(showContentTooltipRenderer); // filename
         columnModel.getColumn(1).setCellRenderer(showContentTooltipRenderer); // owner
         columnModel.getColumn(2).setCellRenderer(new IdentityStateRenderer()); // id state
@@ -197,60 +195,60 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
 
         if( !loadTableLayout(columnModel) ) {
             // Sets the relative widths of the columns
-            int[] widths = { 150, 80, 20, 20, 80, 80, 55, 55, 55 };
+            final int[] widths = { 150, 80, 20, 20, 80, 80, 55, 55, 55 };
             for (int i = 0; i < widths.length; i++) {
                 columnModel.getColumn(i).setPreferredWidth(widths[i]);
             }
         }
     }
 
-    public void saveTableLayout(ModelTable table) {
-        
-        SortedModelTable modelTable = (SortedModelTable)table;
+    public void saveTableLayout(final ModelTable table) {
 
-        TableColumnModel tcm = modelTable.getTable().getColumnModel();
+        final SortedModelTable modelTable = (SortedModelTable)table;
+
+        final TableColumnModel tcm = modelTable.getTable().getColumnModel();
         for(int columnIndexInTable=0; columnIndexInTable < tcm.getColumnCount(); columnIndexInTable++) {
-            TableColumn tc = tcm.getColumn(columnIndexInTable);
-            int columnIndexInModel = tc.getModelIndex();
+            final TableColumn tc = tcm.getColumn(columnIndexInTable);
+            final int columnIndexInModel = tc.getModelIndex();
             // save the current index in table for column with the fix index in model
             Core.frostSettings.setValue(CFGKEY_COLUMN_TABLEINDEX + columnIndexInModel, columnIndexInTable);
             // save the current width of the column
-            int columnWidth = tc.getWidth();
+            final int columnWidth = tc.getWidth();
             Core.frostSettings.setValue(CFGKEY_COLUMN_WIDTH + columnIndexInModel, columnWidth);
         }
 
         if( Core.frostSettings.getBoolValue(SettingsClass.SAVE_SORT_STATES) && modelTable.getSortedColumn() > -1 ) {
-            int sortedColumn = modelTable.getSortedColumn();
-            boolean isSortedAsc = modelTable.isSortedAscending();
+            final int sortedColumn = modelTable.getSortedColumn();
+            final boolean isSortedAsc = modelTable.isSortedAscending();
             Core.frostSettings.setValue(CFGKEY_SORTSTATE_SORTEDCOLUMN, sortedColumn);
             Core.frostSettings.setValue(CFGKEY_SORTSTATE_SORTEDASCENDING, isSortedAsc);
         }
     }
-    
-    private boolean loadTableLayout(TableColumnModel tcm) {
-        
+
+    private boolean loadTableLayout(final TableColumnModel tcm) {
+
         // load the saved tableindex for each column in model, and its saved width
-        int[] tableToModelIndex = new int[tcm.getColumnCount()];
-        int[] columnWidths = new int[tcm.getColumnCount()];
+        final int[] tableToModelIndex = new int[tcm.getColumnCount()];
+        final int[] columnWidths = new int[tcm.getColumnCount()];
 
         for(int x=0; x < tableToModelIndex.length; x++) {
-            String indexKey = CFGKEY_COLUMN_TABLEINDEX + x;
+            final String indexKey = CFGKEY_COLUMN_TABLEINDEX + x;
             if( Core.frostSettings.getObjectValue(indexKey) == null ) {
                 return false; // column not found, abort
             }
             // build array of table to model associations
-            int tableIndex = Core.frostSettings.getIntValue(indexKey);
+            final int tableIndex = Core.frostSettings.getIntValue(indexKey);
             if( tableIndex < 0 || tableIndex >= tableToModelIndex.length ) {
                 return false; // invalid table index value
             }
             tableToModelIndex[tableIndex] = x;
 
-            String widthKey = CFGKEY_COLUMN_WIDTH + x;
+            final String widthKey = CFGKEY_COLUMN_WIDTH + x;
             if( Core.frostSettings.getObjectValue(widthKey) == null ) {
                 return false; // column not found, abort
             }
             // build array of table to model associations
-            int columnWidth = Core.frostSettings.getIntValue(widthKey);
+            final int columnWidth = Core.frostSettings.getIntValue(widthKey);
             if( columnWidth <= 0 ) {
                 return false; // invalid column width
             }
@@ -258,76 +256,76 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
         }
         // columns are currently added in model order, remove them all and save in an array
         // while on it, set the loaded width of each column
-        TableColumn[] tcms = new TableColumn[tcm.getColumnCount()];
+        final TableColumn[] tcms = new TableColumn[tcm.getColumnCount()];
         for(int x=tcms.length-1; x >= 0; x--) {
             tcms[x] = tcm.getColumn(x);
             tcm.removeColumn(tcms[x]);
             tcms[x].setPreferredWidth(columnWidths[x]);
         }
         // add the columns in order loaded from settings
-        for(int x=0; x < tableToModelIndex.length; x++) {
-            tcm.addColumn(tcms[tableToModelIndex[x]]);
+        for( final int element : tableToModelIndex ) {
+            tcm.addColumn(tcms[element]);
         }
         return true;
     }
 
     private class FileNameComparator implements Comparator<FileListFileDetailsItem> {
-        public int compare(FileListFileDetailsItem item1, FileListFileDetailsItem item2) {
+        public int compare(final FileListFileDetailsItem item1, final FileListFileDetailsItem item2) {
             return item1.getFileOwner().getName().compareToIgnoreCase(item2.getFileOwner().getName());
         }
     }
 
     private class OwnerComparator implements Comparator<FileListFileDetailsItem> {
-        public int compare(FileListFileDetailsItem item1, FileListFileDetailsItem item2) {
+        public int compare(final FileListFileDetailsItem item1, final FileListFileDetailsItem item2) {
             return item1.getFileOwner().getOwner().compareToIgnoreCase(item2.getFileOwner().getOwner());
         }
     }
 
     private class IdentityStateComparator implements Comparator<FileListFileDetailsItem> {
-        public int compare(FileListFileDetailsItem item1, FileListFileDetailsItem item2) {
-            Integer i1 = new Integer(item1.getOwnerIdentity().getState());
-            Integer i2 = new Integer(item2.getOwnerIdentity().getState());
+        public int compare(final FileListFileDetailsItem item1, final FileListFileDetailsItem item2) {
+            final Integer i1 = new Integer(item1.getOwnerIdentity().getState());
+            final Integer i2 = new Integer(item2.getOwnerIdentity().getState());
             return i1.compareTo(i2);
         }
     }
 
     private class RatingComparator implements Comparator<FileListFileDetailsItem> {
-        public int compare(FileListFileDetailsItem o1, FileListFileDetailsItem o2) {
-            int val1 = o1.getFileOwner().getRating();
-            int val2 = o2.getFileOwner().getRating();
+        public int compare(final FileListFileDetailsItem o1, final FileListFileDetailsItem o2) {
+            final int val1 = o1.getFileOwner().getRating();
+            final int val2 = o2.getFileOwner().getRating();
             return new Long(val1).compareTo(new Long(val2));
         }
     }
 
     private class CommentComparator implements Comparator<FileListFileDetailsItem> {
-        public int compare(FileListFileDetailsItem item1, FileListFileDetailsItem item2) {
+        public int compare(final FileListFileDetailsItem item1, final FileListFileDetailsItem item2) {
             return item1.getDisplayComment().compareToIgnoreCase(item2.getDisplayComment());
         }
     }
 
     private class KeywordsComparator implements Comparator<FileListFileDetailsItem> {
-        public int compare(FileListFileDetailsItem item1, FileListFileDetailsItem item2) {
+        public int compare(final FileListFileDetailsItem item1, final FileListFileDetailsItem item2) {
             return item1.getDisplayKeywords().compareToIgnoreCase(item2.getDisplayKeywords());
         }
     }
 
     private class LastUploadedComparator implements Comparator<FileListFileDetailsItem> {
-        public int compare(FileListFileDetailsItem o1, FileListFileDetailsItem o2) {
-            long val1 = o1.getFileOwner().getLastUploaded();
-            long val2 = o2.getFileOwner().getLastUploaded();
+        public int compare(final FileListFileDetailsItem o1, final FileListFileDetailsItem o2) {
+            final long val1 = o1.getFileOwner().getLastUploaded();
+            final long val2 = o2.getFileOwner().getLastUploaded();
             return new Long(val1).compareTo(new Long(val2));
         }
     }
 
     private class LastReceivedComparator implements Comparator<FileListFileDetailsItem> {
-        public int compare(FileListFileDetailsItem o1, FileListFileDetailsItem o2) {
-            long val1 = o1.getFileOwner().getLastReceived();
-            long val2 = o2.getFileOwner().getLastReceived();
+        public int compare(final FileListFileDetailsItem o1, final FileListFileDetailsItem o2) {
+            final long val1 = o1.getFileOwner().getLastReceived();
+            final long val2 = o2.getFileOwner().getLastReceived();
             return new Long(val1).compareTo(new Long(val2));
         }
     }
     private class KeyComparator implements Comparator<FileListFileDetailsItem> {
-        public int compare(FileListFileDetailsItem o1, FileListFileDetailsItem o2) {
+        public int compare(final FileListFileDetailsItem o1, final FileListFileDetailsItem o2) {
             String key1 = o1.getKey();
             String key2 = o2.getKey();
             if (key1 == null) {
@@ -339,18 +337,19 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
             return key1.compareToIgnoreCase(key2);
         }
     }
-    
+
     private class ShowContentTooltipRenderer extends ShowColoredLinesRenderer {
         public ShowContentTooltipRenderer() {
             super();
         }
+        @Override
         public Component getTableCellRendererComponent(
-            JTable table,
-            Object value,
-            boolean isSelected,
-            boolean hasFocus,
-            int row,
-            int column) 
+            final JTable table,
+            final Object value,
+            final boolean isSelected,
+            final boolean hasFocus,
+            final int row,
+            final int column)
         {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             String tooltip = null;
@@ -364,22 +363,23 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
             return this;
         }
     }
-    
+
     private class IdentityStateRenderer extends ShowColoredLinesRenderer {
         public IdentityStateRenderer() {
             super();
         }
+        @Override
         public Component getTableCellRendererComponent(
-            JTable table,
-            Object value,
-            boolean isSelected,
-            boolean hasFocus,
-            int row,
-            int column) 
+            final JTable table,
+            final Object value,
+            final boolean isSelected,
+            final boolean hasFocus,
+            final int row,
+            final int column)
         {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            
-            Identity id = (Identity) value;
+
+            final Identity id = (Identity) value;
             if( id == null ) {
                 setIcon(null);
             } else if( id.isGOOD() ) {
@@ -397,23 +397,24 @@ public class FileListFileDetailsTableFormat extends SortedTableFormat implements
             return this;
         }
     }
-    
+
     private class ShowColoredLinesRenderer extends DefaultTableCellRenderer {
         public ShowColoredLinesRenderer() {
             super();
         }
+        @Override
         public Component getTableCellRendererComponent(
-            JTable table,
-            Object value,
+            final JTable table,
+            final Object value,
             boolean isSelected,
-            boolean hasFocus,
-            int row,
-            int column) 
+            final boolean hasFocus,
+            final int row,
+            final int column)
         {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            
+
             if (!isSelected) {
-                Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
+                final Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
                 setBackground(newBackground);
             } else {
                 setBackground(table.getSelectionBackground());

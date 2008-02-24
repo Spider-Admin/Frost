@@ -225,7 +225,7 @@ public class MessageDecoder extends Decoder implements Smileys, MessageTypes {
     }
 
 	private Icon getSmiley(final int i) {
-        return SmileyCache.getCachedSmiley(i, getClass().getClassLoader());
+        return SmileyCache.getCachedSmiley(i);
 	}
 
     public List<String> getHyperlinkedKeys() {

@@ -78,9 +78,8 @@ public class TranslationDialog extends JFrame {
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 
         // prepare renderer icons
-        final MiscToolkit miscToolkit = MiscToolkit.getInstance();
-        missingIcon = miscToolkit.getScaledImage("/data/help.png", 10, 10);
-        existingIcon = miscToolkit.getScaledImage("/data/trust.gif", 10, 10);
+        missingIcon = MiscToolkit.getScaledImage("/data/help.png", 10, 10);
+        existingIcon = MiscToolkit.getScaledImage("/data/trust.gif", 10, 10);
     }
 
     /**

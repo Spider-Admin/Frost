@@ -27,14 +27,16 @@ import javax.swing.border.*;
 import frost.*;
 import frost.fileTransfer.*;
 import frost.threads.*;
+import frost.util.*;
+import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
 /**
  * Represents the mainframe status bar.
  */
 public class MainFrameStatusBar extends JPanel {
-    
-    private Language language;
+
+    private final Language language;
 
     private JLabel statusLabelTofup = null;
     private JLabel statusLabelTofdn = null;
@@ -44,7 +46,7 @@ public class MainFrameStatusBar extends JPanel {
     private JLabel downloadingFilesLabel = null;
 
     private JLabel uploadingFilesLabel = null;
-    
+
     private JLabel fileListDownloadQueueSizeLabel = null;
 
     private RunningMessageThreadsInformation statusBarInformations = null;
@@ -56,25 +58,26 @@ public class MainFrameStatusBar extends JPanel {
         language = Language.getInstance();
         initialize();
     }
-    
+
     private void initialize() {
-        
+
         uploadingFilesLabel = new JLabel();
         downloadingFilesLabel = new JLabel();
 
-        JPanel p0 = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 0));
+        final JPanel p0 = new JPanel(new FlowLayout(FlowLayout.LEFT, 2, 0));
         p0.add(uploadingFilesLabel);
         p0.add(new JLabel(" "));
         p0.add(downloadingFilesLabel);
         p0.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
         p0.setAlignmentY(JComponent.CENTER_ALIGNMENT);
-        
+
         statusLabelTofup = new JLabel() {
-            public String getToolTipText(MouseEvent me) {
+            @Override
+            public String getToolTipText(final MouseEvent me) {
                 if( statusBarInformations == null ) {
                     return null;
                 }
-                String txt = language.formatMessage("MainFrameStatusBar.tooltip.tofup", 
+                final String txt = language.formatMessage("MainFrameStatusBar.tooltip.tofup",
                         Integer.toString(statusBarInformations.getUploadingMessagesCount()),
                         Integer.toString(statusBarInformations.getUnsentMessageCount()),
                         Integer.toString(statusBarInformations.getAttachmentsToUploadRemainingCount()));
@@ -83,17 +86,18 @@ public class MainFrameStatusBar extends JPanel {
         };
         // dynamic tooltip
         ToolTipManager.sharedInstance().registerComponent(statusLabelTofup);
-        JPanel p1 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        final JPanel p1 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         p1.add(statusLabelTofup);
         p1.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
         p1.setAlignmentY(JComponent.CENTER_ALIGNMENT);
 
         statusLabelTofdn = new JLabel() {
-            public String getToolTipText(MouseEvent me) {
+            @Override
+            public String getToolTipText(final MouseEvent me) {
                 if( statusBarInformations == null ) {
                     return null;
                 }
-                String txt = language.formatMessage("MainFrameStatusBar.tooltip.tofdn", 
+                final String txt = language.formatMessage("MainFrameStatusBar.tooltip.tofdn",
                         Integer.toString(statusBarInformations.getDownloadingBoardCount()),
                         Integer.toString(statusBarInformations.getRunningDownloadThreadCount()));
                 return txt;
@@ -101,63 +105,64 @@ public class MainFrameStatusBar extends JPanel {
         };
         // dynamic tooltip
         ToolTipManager.sharedInstance().registerComponent(statusLabelTofdn);
-        JPanel p2 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        final JPanel p2 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         p2.add(statusLabelTofdn);
         p2.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
         p2.setAlignmentY(JComponent.CENTER_ALIGNMENT);
 
-        JPanel p3 = null; 
+        JPanel p3 = null;
         // shown only if filesharing is enabled
         if( Core.isFreenetOnline() && !Core.frostSettings.getBoolValue(SettingsClass.DISABLE_FILESHARING)) {
             fileListDownloadQueueSizeLabel = new JLabel() {
-                public String getToolTipText(MouseEvent me) {
-                    String txt = language.getString("MainFrame.statusBar.tooltip.fileListDownloadQueueSize"); 
+                @Override
+                public String getToolTipText(final MouseEvent me) {
+                    final String txt = language.getString("MainFrame.statusBar.tooltip.fileListDownloadQueueSize");
                     return txt;
                 }
             };
             // dynamic tooltip
             ToolTipManager.sharedInstance().registerComponent(fileListDownloadQueueSizeLabel);
-            
+
             p3 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
             p3.add(fileListDownloadQueueSizeLabel);
             p3.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
             p3.setAlignmentY(JComponent.CENTER_ALIGNMENT);
         }
-            
+
         statusLabelBoard = new JLabel();
-        JPanel p4 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        final JPanel p4 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         p4.add(statusLabelBoard);
         p4.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
         p4.setAlignmentY(JComponent.CENTER_ALIGNMENT);
 
         statusMessageLabel = new JLabel();
         statusMessageLabel.setBorder(BorderFactory.createEmptyBorder(1,1,1,1));
-        JPanel p5 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        final JPanel p5 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         p5.add(statusMessageLabel);
         p5.setBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED));
         p5.setAlignmentY(JComponent.CENTER_ALIGNMENT);;
 
-        newMessage[0] = new ImageIcon(MainFrame.class.getResource("/data/messagebright.gif"));
-        newMessage[1] = new ImageIcon(MainFrame.class.getResource("/data/messagedark.gif"));
+        newMessage[0] = MiscToolkit.loadImageIcon("/data/messagebright.gif");
+        newMessage[1] = MiscToolkit.loadImageIcon("/data/messagedark.gif");
         statusMessageLabel.setIcon(newMessage[1]);
 
         int currGridX = 0;
-        
-        GridBagConstraints gridBagConstraints0 = new GridBagConstraints();
+
+        final GridBagConstraints gridBagConstraints0 = new GridBagConstraints();
         gridBagConstraints0.gridx = currGridX++;
         gridBagConstraints0.anchor = GridBagConstraints.CENTER;
         gridBagConstraints0.insets = new Insets(1, 2, 1, 1);
         gridBagConstraints0.fill = GridBagConstraints.VERTICAL;
         gridBagConstraints0.gridy = 0;
 
-        GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
+        final GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
         gridBagConstraints1.gridx = currGridX++;
         gridBagConstraints1.anchor = GridBagConstraints.CENTER;
         gridBagConstraints1.insets = new Insets(1, 1, 1, 1);
         gridBagConstraints1.fill = GridBagConstraints.VERTICAL;
         gridBagConstraints1.gridy = 0;
 
-        GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
+        final GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
         gridBagConstraints2.gridx = currGridX++;
         gridBagConstraints2.anchor = GridBagConstraints.CENTER;
         gridBagConstraints2.insets = new Insets(1, 1, 1, 1);
@@ -174,24 +179,24 @@ public class MainFrameStatusBar extends JPanel {
             gridBagConstraints3.gridy = 0;
         }
 
-        GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
+        final GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
         gridBagConstraints4.gridx = currGridX++;
         gridBagConstraints4.anchor = GridBagConstraints.CENTER;
         gridBagConstraints4.insets = new Insets(1, 1, 1, 1);
         gridBagConstraints4.fill = GridBagConstraints.VERTICAL;
         gridBagConstraints4.gridy = 0;
 
-        GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
+        final GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
         gridBagConstraints5.gridx = currGridX++;
         gridBagConstraints5.weightx = 1.0;
         gridBagConstraints5.gridy = 0;
-        
-        GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
+
+        final GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
         gridBagConstraints6.gridx = currGridX++;
         gridBagConstraints6.anchor = GridBagConstraints.CENTER;
         gridBagConstraints6.insets = new Insets(1, 1, 1, 2);
         gridBagConstraints6.gridy = 0;
-        
+
         setLayout(new GridBagLayout());
         add(p0, gridBagConstraints0);
         add(p1, gridBagConstraints1);
@@ -204,10 +209,10 @@ public class MainFrameStatusBar extends JPanel {
         add(p5, gridBagConstraints6);
     }
 
-    public void setStatusBarInformations(FileTransferInformation finfo, RunningMessageThreadsInformation info, String selectedNode) {
+    public void setStatusBarInformations(final FileTransferInformation finfo, final RunningMessageThreadsInformation info, final String selectedNode) {
 
         this.statusBarInformations = info;
-        
+
         String newText;
         StringBuilder sb;
 
@@ -222,7 +227,7 @@ public class MainFrameStatusBar extends JPanel {
                 sb.append(language.getString("MainFrame.statusBar.files"));
             }
             uploadingFilesLabel.setText(sb.toString());
-            
+
             sb = new StringBuilder()
                 .append(language.getString("MainFrame.statusBar.downloading")).append(": ")
                 .append(finfo.getDownloadsRunning())
@@ -241,7 +246,7 @@ public class MainFrameStatusBar extends JPanel {
                 fileListDownloadQueueSizeLabel.setText(sb.toString());
             }
         }
-        
+
         if( info != null ) {
             newText = new StringBuilder()
                 .append(" ")
@@ -254,7 +259,7 @@ public class MainFrameStatusBar extends JPanel {
                 .append("A ")
                 .toString();
             statusLabelTofup.setText(newText);
-    
+
             newText = new StringBuilder()
                 .append(" ")
                 .append(language.getString("MainFrame.statusBar.TOFDO")).append(": ")
@@ -274,8 +279,8 @@ public class MainFrameStatusBar extends JPanel {
             .toString();
         statusLabelBoard.setText(newText);
     }
-    
-    public void showNewMessageIcon(boolean show) {
+
+    public void showNewMessageIcon(final boolean show) {
         if (show) {
             statusMessageLabel.setIcon(newMessage[0]);
         } else {

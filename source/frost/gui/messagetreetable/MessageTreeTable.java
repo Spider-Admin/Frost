@@ -90,18 +90,18 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     private final StringCellRenderer stringCellRenderer = new StringCellRenderer();
     private final BooleanCellRenderer booleanCellRenderer = new BooleanCellRenderer();
 
-    private final ImageIcon flaggedIcon = new ImageIcon(getClass().getResource("/data/flagged.gif"));
-    private final ImageIcon starredIcon = new ImageIcon(getClass().getResource("/data/starred.gif"));
-    private final ImageIcon junkIcon    = new ImageIcon(getClass().getResource("/data/junk.gif"));
+    private final ImageIcon flaggedIcon = MiscToolkit.loadImageIcon("/data/flagged.gif");
+    private final ImageIcon starredIcon = MiscToolkit.loadImageIcon("/data/starred.gif");
+    private final ImageIcon junkIcon    = MiscToolkit.loadImageIcon("/data/junk.gif");
 
-    private final ImageIcon messageDummyIcon = new ImageIcon(getClass().getResource("/data/messagedummyicon.gif"));
-    private final ImageIcon messageNewIcon = new ImageIcon(getClass().getResource("/data/messagenewicon.gif"));
-    private final ImageIcon messageReadIcon = new ImageIcon(getClass().getResource("/data/messagereadicon.gif"));
-    private final ImageIcon messageNewRepliedIcon = new ImageIcon(getClass().getResource("/data/messagenewrepliedicon.gif"));
-    private final ImageIcon messageReadRepliedIcon = new ImageIcon(getClass().getResource("/data/messagereadrepliedicon.gif"));
+    private final ImageIcon messageDummyIcon = MiscToolkit.loadImageIcon("/data/messagedummyicon.gif");
+    private final ImageIcon messageNewIcon = MiscToolkit.loadImageIcon("/data/messagenewicon.gif");
+    private final ImageIcon messageReadIcon = MiscToolkit.loadImageIcon("/data/messagereadicon.gif");
+    private final ImageIcon messageNewRepliedIcon = MiscToolkit.loadImageIcon("/data/messagenewrepliedicon.gif");
+    private final ImageIcon messageReadRepliedIcon = MiscToolkit.loadImageIcon("/data/messagereadrepliedicon.gif");
 
-    public final ImageIcon receivedOneMessage = new ImageIcon(getClass().getResource("/data/ReceivedOneMessage.gif"));
-    public final ImageIcon receivedFiveMessages = new ImageIcon(getClass().getResource("/data/ReceivedFiveMessages.gif"));
+    public final ImageIcon receivedOneMessage = MiscToolkit.loadImageIcon("/data/ReceivedOneMessage.gif");
+    public final ImageIcon receivedFiveMessages = MiscToolkit.loadImageIcon("/data/ReceivedFiveMessages.gif");
 
     private boolean showColoredLines;
     private boolean indicateLowReceivedMessages;

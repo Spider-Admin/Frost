@@ -42,7 +42,7 @@ public class UploadPanel extends JPanel {
 
     private PopupMenuUpload popupMenuUpload = null;
 
-    private Listener listener = new Listener();
+    private final Listener listener = new Listener();
 
     private static final Logger logger = Logger.getLogger(UploadPanel.class.getName());
 
@@ -50,14 +50,14 @@ public class UploadPanel extends JPanel {
 
     private Language language = null;
 
-    private JToolBar uploadToolBar = new JToolBar();
-    private JButton uploadAddFilesButton = new JButton(new ImageIcon(getClass().getResource("/data/browse.gif")));
-    private JCheckBox removeFinishedUploadsCheckBox = new JCheckBox();
-    private JCheckBox showExternalGlobalQueueItems = new JCheckBox();
+    private final JToolBar uploadToolBar = new JToolBar();
+    private final JButton uploadAddFilesButton = new JButton(MiscToolkit.loadImageIcon("/data/browse.gif"));
+    private final JCheckBox removeFinishedUploadsCheckBox = new JCheckBox();
+    private final JCheckBox showExternalGlobalQueueItems = new JCheckBox();
 
     private SortedModelTable modelTable;
-    
-    private JLabel uploadItemCountLabel = new JLabel();
+
+    private final JLabel uploadItemCountLabel = new JLabel();
     private int uploadItemCount = 0;
 
     private boolean initialized = false;
@@ -76,15 +76,15 @@ public class UploadPanel extends JPanel {
     public void initialize() {
         if (!initialized) {
             refreshLanguage();
-            
+
             uploadToolBar.setRollover(true);
             uploadToolBar.setFloatable(false);
-            
+
             removeFinishedUploadsCheckBox.setOpaque(false);
             showExternalGlobalQueueItems.setOpaque(false);
 
             // create the top panel
-            MiscToolkit toolkit = MiscToolkit.getInstance();
+            final MiscToolkit toolkit = MiscToolkit.getInstance();
             toolkit.configureButton(uploadAddFilesButton, "/data/browse_rollover.gif");
             uploadToolBar.add(uploadAddFilesButton);
             uploadToolBar.add(Box.createRigidArea(new Dimension(8, 0)));
@@ -95,7 +95,7 @@ public class UploadPanel extends JPanel {
             uploadToolBar.add(Box.createRigidArea(new Dimension(80, 0)));
             uploadToolBar.add(Box.createHorizontalGlue());
             uploadToolBar.add(uploadItemCountLabel);
-            
+
             // create the main upload panel
             modelTable = new SortedModelTable(model);
             new TableFindAction().install(modelTable.getTable());
@@ -114,7 +114,7 @@ public class UploadPanel extends JPanel {
             Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_NAME, listener);
             Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_SIZE, listener);
             Core.frostSettings.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_STYLE, listener);
-            
+
             removeFinishedUploadsCheckBox.setSelected(Core.frostSettings.getBoolValue(SettingsClass.UPLOAD_REMOVE_FINISHED));
             showExternalGlobalQueueItems.setSelected(Core.frostSettings.getBoolValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_UPLOAD));
 
@@ -122,17 +122,17 @@ public class UploadPanel extends JPanel {
         }
     }
 
-    private Dimension calculateLabelSize(String text) {
-        JLabel dummyLabel = new JLabel(text);
+    private Dimension calculateLabelSize(final String text) {
+        final JLabel dummyLabel = new JLabel(text);
         dummyLabel.doLayout();
         return dummyLabel.getPreferredSize();
     }
 
     private void refreshLanguage() {
         uploadAddFilesButton.setToolTipText(language.getString("UploadPane.toolbar.tooltip.browse") + "...");
-        
-        String waiting = language.getString("UploadPane.toolbar.waiting");
-        Dimension labelSize = calculateLabelSize(waiting + ": 00000");
+
+        final String waiting = language.getString("UploadPane.toolbar.waiting");
+        final Dimension labelSize = calculateLabelSize(waiting + ": 00000");
         uploadItemCountLabel.setPreferredSize(labelSize);
         uploadItemCountLabel.setMinimumSize(labelSize);
         uploadItemCountLabel.setText(waiting + ": " + uploadItemCount);
@@ -148,7 +148,7 @@ public class UploadPanel extends JPanel {
         return popupMenuUpload;
     }
 
-    private void uploadTable_keyPressed(KeyEvent e) {
+    private void uploadTable_keyPressed(final KeyEvent e) {
         if (e.getKeyChar() == KeyEvent.VK_DELETE && !modelTable.getTable().isEditing()) {
             removeSelectedFiles();
         }
@@ -158,25 +158,26 @@ public class UploadPanel extends JPanel {
      * Remove selected files
      */
     private void removeSelectedFiles() {
-        ModelItem[] selectedItems = modelTable.getSelectedItems();
-        
+        final ModelItem[] selectedItems = modelTable.getSelectedItems();
+
         final List<String> externalRequestsToRemove = new LinkedList<String>();
         final List<ModelItem> requestsToRemove = new LinkedList<ModelItem>();
-        for( ModelItem mi : selectedItems ) {
-            FrostUploadItem i = (FrostUploadItem)mi;
+        for( final ModelItem mi : selectedItems ) {
+            final FrostUploadItem i = (FrostUploadItem)mi;
             requestsToRemove.add(mi);
             if( i.isExternal() ) {
                 externalRequestsToRemove.add(i.getGqIdentifier());
             }
         }
 
-        ModelItem[] ri = (ModelItem[]) requestsToRemove.toArray(new ModelItem[requestsToRemove.size()]);
+        final ModelItem[] ri = requestsToRemove.toArray(new ModelItem[requestsToRemove.size()]);
         model.removeItems(ri);
 
         modelTable.getTable().clearSelection();
 
         if( FileTransferManager.inst().getPersistenceManager() != null && externalRequestsToRemove.size() > 0 ) {
             new Thread() {
+                @Override
                 public void run() {
                     FileTransferManager.inst().getPersistenceManager().removeRequests(externalRequestsToRemove);
                 }
@@ -184,7 +185,7 @@ public class UploadPanel extends JPanel {
         }
     }
 
-    public void uploadAddFilesButton_actionPerformed(ActionEvent e) {
+    public void uploadAddFilesButton_actionPerformed(final ActionEvent e) {
 
         final JFileChooser fc = new JFileChooser(Core.frostSettings.getValue(SettingsClass.DIR_LAST_USED));
         fc.setDialogTitle(language.getString("UploadPane.filechooser.title"));
@@ -196,16 +197,16 @@ public class UploadPanel extends JPanel {
         if (fc.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
             return;
         }
-        File[] selectedFiles = fc.getSelectedFiles();
+        final File[] selectedFiles = fc.getSelectedFiles();
         if( selectedFiles == null ) {
             return;
         }
         String parentDir = null;
-        List<File> uploadFileItems = new LinkedList<File>();
-        for (int i = 0; i < selectedFiles.length; i++) {
+        final List<File> uploadFileItems = new LinkedList<File>();
+        for( final File element : selectedFiles ) {
             // collect all choosed files + files in all choosed directories
-            ArrayList<File> allFiles = FileAccess.getAllEntries(selectedFiles[i], "");
-            for (File newFile : allFiles) {
+            final ArrayList<File> allFiles = FileAccess.getAllEntries(element, "");
+            for (final File newFile : allFiles) {
                 if (newFile.isFile() && newFile.length() > 0) {
                     uploadFileItems.add(newFile);
                     if( parentDir == null ) {
@@ -218,16 +219,16 @@ public class UploadPanel extends JPanel {
             Core.frostSettings.setValue(SettingsClass.DIR_LAST_USED, parentDir);
         }
 
-        for(File file : uploadFileItems ) {
-            FrostUploadItem ulItem = new FrostUploadItem(file);
+        for(final File file : uploadFileItems ) {
+            final FrostUploadItem ulItem = new FrostUploadItem(file);
             model.addNewUploadItem(ulItem);
         }
     }
 
-    private void showUploadTablePopupMenu(MouseEvent e) {
-        // select row where rightclick occurred if row under mouse is NOT selected 
-        Point p = e.getPoint();
-        int y = modelTable.getTable().rowAtPoint(p);
+    private void showUploadTablePopupMenu(final MouseEvent e) {
+        // select row where rightclick occurred if row under mouse is NOT selected
+        final Point p = e.getPoint();
+        final int y = modelTable.getTable().rowAtPoint(p);
         if( y < 0 ) {
             return;
         }
@@ -237,24 +238,24 @@ public class UploadPanel extends JPanel {
         getPopupMenuUpload().show(e.getComponent(), e.getX(), e.getY());
     }
 
-    private void uploadTableDoubleClick(MouseEvent e) {
-        ModelItem[] selectedItems = modelTable.getSelectedItems();
+    private void uploadTableDoubleClick(final MouseEvent e) {
+        final ModelItem[] selectedItems = modelTable.getSelectedItems();
         if (selectedItems.length != 0) {
-            FrostUploadItem ulItem = (FrostUploadItem) selectedItems[0];
+            final FrostUploadItem ulItem = (FrostUploadItem) selectedItems[0];
             if( !ulItem.isSharedFile() ) {
                 return;
             }
             // jump to associated shared file in shared files table
-            FrostSharedFileItem sfi = ulItem.getSharedFileItem();
+            final FrostSharedFileItem sfi = ulItem.getSharedFileItem();
             FileTransferManager.inst().getSharedFilesManager().selectTab();
             FileTransferManager.inst().getSharedFilesManager().selectModelItem(sfi);
         }
     }
 
     private void fontChanged() {
-        String fontName = Core.frostSettings.getValue(SettingsClass.FILE_LIST_FONT_NAME);
-        int fontStyle = Core.frostSettings.getIntValue(SettingsClass.FILE_LIST_FONT_STYLE);
-        int fontSize = Core.frostSettings.getIntValue(SettingsClass.FILE_LIST_FONT_SIZE);
+        final String fontName = Core.frostSettings.getValue(SettingsClass.FILE_LIST_FONT_NAME);
+        final int fontStyle = Core.frostSettings.getIntValue(SettingsClass.FILE_LIST_FONT_STYLE);
+        final int fontSize = Core.frostSettings.getIntValue(SettingsClass.FILE_LIST_FONT_SIZE);
         Font font = new Font(fontName, fontStyle, fontSize);
         if (!font.getFamily().equals(fontName)) {
             logger.severe("The selected font was not found in your system\n" +
@@ -265,14 +266,14 @@ public class UploadPanel extends JPanel {
         modelTable.setFont(font);
     }
 
-    public void setModel(UploadModel model) {
+    public void setModel(final UploadModel model) {
         this.model = model;
     }
-    
-    public void setUploadItemCount(int newUploadItemCount) {
+
+    public void setUploadItemCount(final int newUploadItemCount) {
         uploadItemCount = newUploadItemCount;
 
-        String s =
+        final String s =
             new StringBuilder()
                 .append(language.getString("UploadPane.toolbar.waiting"))
                 .append(": ")
@@ -280,25 +281,25 @@ public class UploadPanel extends JPanel {
                 .toString();
         uploadItemCountLabel.setText(s);
     }
-    
+
     private class PopupMenuUpload extends JSkinnablePopupMenu implements ActionListener, LanguageListener {
 
-        private JMenuItem copyKeysAndNamesItem = new JMenuItem();
-        private JMenuItem copyKeysItem = new JMenuItem();
-        private JMenuItem copyExtendedInfoItem = new JMenuItem();
-        private JMenuItem generateChkForSelectedFilesItem = new JMenuItem();
-        private JMenuItem uploadSelectedFilesItem = new JMenuItem();
-        private JMenuItem removeSelectedFilesItem = new JMenuItem();
-        private JMenuItem showSharedFileItem = new JMenuItem();
-        private JMenuItem startSelectedUploadsNow = new JMenuItem();
-        private JMenu copyToClipboardMenu = new JMenu();
-        
-        private JMenuItem disableAllDownloadsItem = new JMenuItem();
-        private JMenuItem disableSelectedDownloadsItem = new JMenuItem();
-        private JMenuItem enableAllDownloadsItem = new JMenuItem();
-        private JMenuItem enableSelectedDownloadsItem = new JMenuItem();
-        private JMenuItem invertEnabledAllItem = new JMenuItem();
-        private JMenuItem invertEnabledSelectedItem = new JMenuItem();
+        private final JMenuItem copyKeysAndNamesItem = new JMenuItem();
+        private final JMenuItem copyKeysItem = new JMenuItem();
+        private final JMenuItem copyExtendedInfoItem = new JMenuItem();
+        private final JMenuItem generateChkForSelectedFilesItem = new JMenuItem();
+        private final JMenuItem uploadSelectedFilesItem = new JMenuItem();
+        private final JMenuItem removeSelectedFilesItem = new JMenuItem();
+        private final JMenuItem showSharedFileItem = new JMenuItem();
+        private final JMenuItem startSelectedUploadsNow = new JMenuItem();
+        private final JMenu copyToClipboardMenu = new JMenu();
+
+        private final JMenuItem disableAllDownloadsItem = new JMenuItem();
+        private final JMenuItem disableSelectedDownloadsItem = new JMenuItem();
+        private final JMenuItem enableAllDownloadsItem = new JMenuItem();
+        private final JMenuItem enableSelectedDownloadsItem = new JMenuItem();
+        private final JMenuItem invertEnabledAllItem = new JMenuItem();
+        private final JMenuItem invertEnabledSelectedItem = new JMenuItem();
 
         private JMenu changePriorityMenu = null;
         private JMenuItem prio0Item = null;
@@ -316,7 +317,7 @@ public class UploadPanel extends JPanel {
         }
 
         private void initialize() {
-            
+
             if( PersistenceManager.isPersistenceEnabled() ) {
                 changePriorityMenu = new JMenu();
                 prio0Item = new JMenuItem();
@@ -326,7 +327,7 @@ public class UploadPanel extends JPanel {
                 prio4Item = new JMenuItem();
                 prio5Item = new JMenuItem();
                 prio6Item = new JMenuItem();
-                
+
                 changePriorityMenu.add(prio0Item);
                 changePriorityMenu.add(prio1Item);
                 changePriorityMenu.add(prio2Item);
@@ -334,9 +335,9 @@ public class UploadPanel extends JPanel {
                 changePriorityMenu.add(prio4Item);
                 changePriorityMenu.add(prio5Item);
                 changePriorityMenu.add(prio6Item);
-                
+
                 removeFromGqItem = new JMenuItem();
-                
+
                 prio0Item.addActionListener(this);
                 prio1Item.addActionListener(this);
                 prio2Item.addActionListener(this);
@@ -346,7 +347,7 @@ public class UploadPanel extends JPanel {
                 prio6Item.addActionListener(this);
                 removeFromGqItem.addActionListener(this);
             }
-            
+
             refreshLanguage();
 
             copyToClipboardMenu.add(copyKeysAndNamesItem);
@@ -363,7 +364,7 @@ public class UploadPanel extends JPanel {
             startSelectedUploadsNow.addActionListener(this);
             generateChkForSelectedFilesItem.addActionListener(this);
             showSharedFileItem.addActionListener(this);
-            
+
             enableAllDownloadsItem.addActionListener(this);
             disableAllDownloadsItem.addActionListener(this);
             enableSelectedDownloadsItem.addActionListener(this);
@@ -381,7 +382,7 @@ public class UploadPanel extends JPanel {
             startSelectedUploadsNow.setText(language.getString("UploadPane.fileTable.popupmenu.startSelectedUploadsNow"));
             removeSelectedFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.remove.removeSelectedFiles"));
             showSharedFileItem.setText(language.getString("UploadPane.fileTable.popupmenu.showSharedFile"));
-            
+
             copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
 
             enableAllDownloadsItem.setText(language.getString("UploadPane.fileTable.popupmenu.enableUploads.enableAllUploads"));
@@ -404,7 +405,7 @@ public class UploadPanel extends JPanel {
             }
         }
 
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(final ActionEvent e) {
             if (e.getSource() == copyKeysItem) {
                 CopyToClipboard.copyKeys(modelTable.getSelectedItems());
             } else if (e.getSource() == copyKeysAndNamesItem) {
@@ -451,7 +452,7 @@ public class UploadPanel extends JPanel {
                 startSelectedUploadsNow();
             }
         }
-        
+
         private void removeSelectedUploadsFromGlobalQueue() {
             if( FileTransferManager.inst().getPersistenceManager() == null ) {
                 return;
@@ -476,10 +477,10 @@ public class UploadPanel extends JPanel {
                 item.fireValueChanged();
             }
         }
-        
-        private void changePriority(int prio) {
+
+        private void changePriority(final int prio) {
             if( FileTransferManager.inst().getPersistenceManager() != null ) {
-                ModelItem[] selectedItems = modelTable.getSelectedItems();
+                final ModelItem[] selectedItems = modelTable.getSelectedItems();
                 FileTransferManager.inst().getPersistenceManager().changeItemPriorites(selectedItems, prio);
             }
         }
@@ -488,16 +489,16 @@ public class UploadPanel extends JPanel {
          * Generate CHK for selected files
          */
         private void generateChkForSelectedFiles() {
-            ModelItem[] selectedItems = modelTable.getSelectedItems();
+            final ModelItem[] selectedItems = modelTable.getSelectedItems();
             model.generateChkItems(selectedItems);
         }
 
         private void startSelectedUploadsNow() {
-            ModelItem[] selectedItems = modelTable.getSelectedItems();
-            
+            final ModelItem[] selectedItems = modelTable.getSelectedItems();
+
             final List<FrostUploadItem> itemsToStart = new LinkedList<FrostUploadItem>();
-            for( ModelItem mi : selectedItems ) {
-                FrostUploadItem i = (FrostUploadItem)mi;
+            for( final ModelItem mi : selectedItems ) {
+                final FrostUploadItem i = (FrostUploadItem)mi;
                 if( i.isExternal() ) {
                     continue;
                 }
@@ -506,8 +507,8 @@ public class UploadPanel extends JPanel {
                 }
                 itemsToStart.add(i);
             }
-            
-            for(FrostUploadItem ulItem : itemsToStart) {
+
+            for(final FrostUploadItem ulItem : itemsToStart) {
                 ulItem.setEnabled(true);
                 FileTransferManager.inst().getUploadManager().startUpload(ulItem);
             }
@@ -517,46 +518,47 @@ public class UploadPanel extends JPanel {
          * Reload selected files
          */
         private void uploadSelectedFiles() {
-            ModelItem[] selectedItems = modelTable.getSelectedItems();
+            final ModelItem[] selectedItems = modelTable.getSelectedItems();
             model.uploadItems(selectedItems);
         }
 
-        public void languageChanged(LanguageEvent event) {
+        public void languageChanged(final LanguageEvent event) {
             refreshLanguage();
         }
 
         private void invertEnabledSelected() {
-            ModelItem[] selectedItems = modelTable.getSelectedItems();
+            final ModelItem[] selectedItems = modelTable.getSelectedItems();
             model.setItemsEnabled(null, selectedItems);
         }
-    
+
         private void invertEnabledAll() {
             model.setAllItemsEnabled(null);
         }
-    
+
         private void disableSelectedDownloads() {
-            ModelItem[] selectedItems = modelTable.getSelectedItems();
+            final ModelItem[] selectedItems = modelTable.getSelectedItems();
             model.setItemsEnabled(Boolean.FALSE, selectedItems);
         }
-    
+
         private void enableSelectedDownloads() {
-            ModelItem[] selectedItems = modelTable.getSelectedItems();
+            final ModelItem[] selectedItems = modelTable.getSelectedItems();
             model.setItemsEnabled(Boolean.TRUE, selectedItems);
         }
-    
+
         private void disableAllDownloads() {
             model.setAllItemsEnabled(Boolean.FALSE);
         }
-    
+
         private void enableAllDownloads() {
             model.setAllItemsEnabled(Boolean.TRUE);
         }
 
-        public void show(Component invoker, int x, int y) {
+        @Override
+        public void show(final Component invoker, final int x, final int y) {
             removeAll();
 
-            ModelItem[] selectedItems = modelTable.getSelectedItems();
-            
+            final ModelItem[] selectedItems = modelTable.getSelectedItems();
+
             if( selectedItems.length == 0 ) {
                 return;
             }
@@ -564,13 +566,13 @@ public class UploadPanel extends JPanel {
             // if at least 1 item is selected
             add(copyToClipboardMenu);
             addSeparator();
-            
+
             if( FileTransferManager.inst().getPersistenceManager() != null ) {
                 add(changePriorityMenu);
                 addSeparator();
             }
 
-            JMenu enabledSubMenu = new JMenu(language.getString("UploadPane.fileTable.popupmenu.enableUploads") + "...");
+            final JMenu enabledSubMenu = new JMenu(language.getString("UploadPane.fileTable.popupmenu.enableUploads") + "...");
             enabledSubMenu.add(enableSelectedDownloadsItem);
             enabledSubMenu.add(disableSelectedDownloadsItem);
             enabledSubMenu.add(invertEnabledSelectedItem);
@@ -580,7 +582,7 @@ public class UploadPanel extends JPanel {
             enabledSubMenu.add(disableAllDownloadsItem);
             enabledSubMenu.add(invertEnabledAllItem);
             add(enabledSubMenu);
-            
+
             add(startSelectedUploadsNow);
             add(generateChkForSelectedFilesItem);
             add(uploadSelectedFilesItem);
@@ -588,8 +590,8 @@ public class UploadPanel extends JPanel {
             add(removeSelectedFilesItem);
             if(  FileTransferManager.inst().getPersistenceManager() != null && selectedItems != null ) {
                 // add only if there are removable items selected
-                for(ModelItem mi : selectedItems) {
-                    FrostUploadItem item = (FrostUploadItem) mi;
+                for(final ModelItem mi : selectedItems) {
+                    final FrostUploadItem item = (FrostUploadItem) mi;
                     if(  FileTransferManager.inst().getPersistenceManager().isItemInGlobalQueue(item) ) {
                         add(removeFromGqItem);
                         break;
@@ -597,7 +599,7 @@ public class UploadPanel extends JPanel {
                 }
             }
             if( selectedItems.length == 1 ) {
-                FrostUploadItem item = (FrostUploadItem) selectedItems[0];
+                final FrostUploadItem item = (FrostUploadItem) selectedItems[0];
                 if( item.isSharedFile() ) {
                     addSeparator();
                     add(showSharedFileItem);
@@ -613,38 +615,41 @@ public class UploadPanel extends JPanel {
         public Listener() {
             super();
         }
-        public void languageChanged(LanguageEvent event) {
+        public void languageChanged(final LanguageEvent event) {
             refreshLanguage();
         }
-        public void keyPressed(KeyEvent e) {
+        public void keyPressed(final KeyEvent e) {
             if (e.getSource() == modelTable.getTable()) {
                 uploadTable_keyPressed(e);
             }
         }
-        public void keyReleased(KeyEvent e) {
+        public void keyReleased(final KeyEvent e) {
             // Nothing here
         }
-        public void keyTyped(KeyEvent e) {
+        public void keyTyped(final KeyEvent e) {
             // Nothing here
         }
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(final ActionEvent e) {
             if (e.getSource() == uploadAddFilesButton) {
                 uploadAddFilesButton_actionPerformed(e);
             }
         }
-        public void mousePressed(MouseEvent e) {
+        @Override
+        public void mousePressed(final MouseEvent e) {
             if (e.getClickCount() == 2) {
                 if (e.getSource() == modelTable.getTable()) {
                     // Start file from download table. Is this a good idea?
                     uploadTableDoubleClick(e);
                 }
-            } else if (e.isPopupTrigger())
+            } else if (e.isPopupTrigger()) {
                 if ((e.getSource() == modelTable.getTable())
                     || (e.getSource() == modelTable.getScrollPane())) {
                     showUploadTablePopupMenu(e);
                 }
+            }
         }
-        public void mouseReleased(MouseEvent e) {
+        @Override
+        public void mouseReleased(final MouseEvent e) {
             if ((e.getClickCount() == 1) && (e.isPopupTrigger())) {
 
                 if ((e.getSource() == modelTable.getTable())
@@ -654,7 +659,7 @@ public class UploadPanel extends JPanel {
 
             }
         }
-        public void propertyChange(PropertyChangeEvent evt) {
+        public void propertyChange(final PropertyChangeEvent evt) {
             if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_NAME)) {
                 fontChanged();
             }
@@ -665,7 +670,7 @@ public class UploadPanel extends JPanel {
                 fontChanged();
             }
         }
-        public void itemStateChanged(ItemEvent e) {
+        public void itemStateChanged(final ItemEvent e) {
             if( removeFinishedUploadsCheckBox.isSelected() ) {
                 Core.frostSettings.setValue(SettingsClass.UPLOAD_REMOVE_FINISHED, true);
                 model.removeFinishedUploads();

@@ -77,20 +77,19 @@ public class LanguageGuiSupport {
 
         languageMenuButtonGroup = new ButtonGroup();
 
-        final MiscToolkit miscToolkit = MiscToolkit.getInstance();
-        languageBulgarianMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_bg.png", 16, 16));
-        languageGermanMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_de.png", 16, 16));
-        languageEnglishMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_en.png", 16, 16));
-        languageSpanishMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_es.png", 16, 16));
-        languageFrenchMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_fr.png", 16, 16));
-        languageItalianMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_it.png", 16, 16));
-        languageJapaneseMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_ja.png", 16, 16));
-        languageDanishMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_da.png", 16, 16));
-        languageDutchMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_nl.png", 16, 16));
-        languageRussianMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_ru.png", 16, 16));
-        languagePolishMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_pl.png", 16, 16));
-        languageSwedishMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_sv.png", 16, 16));
-        languageEsperantoMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_eo.png", 16, 16));
+        languageBulgarianMenuItem.setIcon(MiscToolkit.getScaledImage("/data/flag_bg.png", 16, 16));
+        languageGermanMenuItem.setIcon(MiscToolkit.getScaledImage("/data/flag_de.png", 16, 16));
+        languageEnglishMenuItem.setIcon(MiscToolkit.getScaledImage("/data/flag_en.png", 16, 16));
+        languageSpanishMenuItem.setIcon(MiscToolkit.getScaledImage("/data/flag_es.png", 16, 16));
+        languageFrenchMenuItem.setIcon(MiscToolkit.getScaledImage("/data/flag_fr.png", 16, 16));
+        languageItalianMenuItem.setIcon(MiscToolkit.getScaledImage("/data/flag_it.png", 16, 16));
+        languageJapaneseMenuItem.setIcon(MiscToolkit.getScaledImage("/data/flag_ja.png", 16, 16));
+        languageDanishMenuItem.setIcon(MiscToolkit.getScaledImage("/data/flag_da.png", 16, 16));
+        languageDutchMenuItem.setIcon(MiscToolkit.getScaledImage("/data/flag_nl.png", 16, 16));
+        languageRussianMenuItem.setIcon(MiscToolkit.getScaledImage("/data/flag_ru.png", 16, 16));
+        languagePolishMenuItem.setIcon(MiscToolkit.getScaledImage("/data/flag_pl.png", 16, 16));
+        languageSwedishMenuItem.setIcon(MiscToolkit.getScaledImage("/data/flag_sv.png", 16, 16));
+        languageEsperantoMenuItem.setIcon(MiscToolkit.getScaledImage("/data/flag_eo.png", 16, 16));
 
         // default action listeners
         languageDefaultMenuItem.addActionListener(   new LanguageAction(null, false));

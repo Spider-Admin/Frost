@@ -6,12 +6,12 @@
  modify it under the terms of the GNU General Public License as
  published by the Free Software Foundation; either version 2 of
  the License, or (at your option) any later version.
- 
+
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
@@ -25,27 +25,30 @@ import java.util.logging.*;
 import javax.swing.*;
 
 import frost.*;
+import frost.util.*;
+import frost.util.gui.*;
 
 public class HelpBrowserFrame extends JFrame {
-    
+
   private static final Logger logger = Logger.getLogger(HelpBrowserFrame.class.getName());
 
-  boolean plugin;    
+  boolean plugin;
   HelpBrowser browser;
-    
+
   private void Init() throws Exception {
     	//------------------------------------------------------------------------
     	// Configure objects
     	//------------------------------------------------------------------------
-    	this.setTitle("Frost - Help Browser"); 
-    	this.setResizable(true); 
-    
+    	this.setTitle("Frost - Help Browser");
+    	this.setResizable(true);
+
     	browser.setPreferredSize(new Dimension(780, 550));
-    
+
     	this.getContentPane().add(browser);
     }
 
-    protected void processWindowEvent(WindowEvent e) {
+    @Override
+    protected void processWindowEvent(final WindowEvent e) {
         if( e.getID() == WindowEvent.WINDOW_CLOSING ) {
             if( !plugin ) {
                 dispose();
@@ -58,23 +61,23 @@ public class HelpBrowserFrame extends JFrame {
             super.processWindowEvent(e);
         }
     }
-    
+
      /**
       * Shorthand for ziphelp usage
       */
-    public HelpBrowserFrame(String langlocale, String zipfile) {
+    public HelpBrowserFrame(final String langlocale, final String zipfile) {
         this(langlocale, "jar:file:" + zipfile + "!/", "index.html", true);
     }
 
     /**
      * Complete for browser usage
      */
-    public HelpBrowserFrame(String langlocale, String zipfile, String startpage, boolean plugin) {
+    public HelpBrowserFrame(final String langlocale, final String zipfile, final String startpage, boolean plugin) {
         this.plugin = plugin;
 
         this.browser = new HelpBrowser(this, langlocale, zipfile, startpage);
-       
-        setIconImage(new ImageIcon(getClass().getResource("/data/help.png")).getImage());
+
+        setIconImage(MiscToolkit.loadImageIcon("/data/help.png").getImage());
 
     	enableEvents(AWTEvent.WINDOW_EVENT_MASK);
     	try {
@@ -85,25 +88,25 @@ public class HelpBrowserFrame extends JFrame {
             } else {
                 loadWindowState();
             }
-    	} catch(Throwable e) {
+    	} catch(final Throwable e) {
     		logger.log(Level.SEVERE, "Exception thrown in constructor", e);
     	}
     }
-    
-    public void showHelpPage(String page) {
+
+    public void showHelpPage(final String page) {
         browser.setHelpPage(page);
     }
-   
-    public void showHelpPage_htmlLink(String page) {
+
+    public void showHelpPage_htmlLink(final String page) {
         browser.setHelpPage(page);
     }
-    
-    public void showHelpPage_alias(String page) {
+
+    public void showHelpPage_alias(final String page) {
         browser.setHelpPage(page);
     }
-    
+
     private void saveWindowState() {
-        Rectangle bounds = getBounds();
+        final Rectangle bounds = getBounds();
         boolean isMaximized = ((getExtendedState() & Frame.MAXIMIZED_BOTH) != 0);
 
         Core.frostSettings.setValue("helpBrowser.lastFrameMaximized", isMaximized);
@@ -120,9 +123,9 @@ public class HelpBrowserFrame extends JFrame {
         // load size, location and state of window
         int lastHeight = Core.frostSettings.getIntValue("helpBrowser.lastFrameHeight");
         int lastWidth = Core.frostSettings.getIntValue("helpBrowser.lastFrameWidth");
-        int lastPosX = Core.frostSettings.getIntValue("helpBrowser.lastFramePosX");
-        int lastPosY = Core.frostSettings.getIntValue("helpBrowser.lastFramePosY");
-        boolean lastMaximized = Core.frostSettings.getBoolValue("helpBrowser.lastFrameMaximized");
+        final int lastPosX = Core.frostSettings.getIntValue("helpBrowser.lastFramePosX");
+        final int lastPosY = Core.frostSettings.getIntValue("helpBrowser.lastFramePosY");
+        final boolean lastMaximized = Core.frostSettings.getBoolValue("helpBrowser.lastFrameMaximized");
 
         if( lastHeight <= 0 || lastWidth <= 0 ) {
             // first call
@@ -131,7 +134,7 @@ public class HelpBrowserFrame extends JFrame {
             return;
         }
 
-        Dimension scrSize = Toolkit.getDefaultToolkit().getScreenSize();
+        final Dimension scrSize = Toolkit.getDefaultToolkit().getScreenSize();
 
         if (lastWidth < 100) {
             lastWidth = 780;

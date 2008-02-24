@@ -51,7 +51,7 @@ public class SharedFilesPanel extends JPanel {
     private Language language = null;
 
     private final JToolBar sharedFilesToolBar = new JToolBar();
-    private final JButton addSharedFilesButton = new JButton(new ImageIcon(getClass().getResource("/data/browse.gif")));
+    private final JButton addSharedFilesButton = new JButton(MiscToolkit.loadImageIcon("/data/browse.gif"));
 
     private int sharedFilesCount = 0;
     private final JLabel sharedFilesCountLabel = new JLabel();

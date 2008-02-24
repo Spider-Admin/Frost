@@ -35,6 +35,7 @@ import frost.boards.*;
 import frost.fileTransfer.common.*;
 import frost.gui.model.*;
 import frost.storage.*;
+import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
@@ -48,9 +49,9 @@ public class KnownBoardsFrame extends JDialog {
 
     private final HashSet<String> hiddenNames;
 
-    private static final ImageIcon boardIcon = new ImageIcon(KnownBoardsFrame.class.getResource("/data/board.gif"));
-    private static final ImageIcon writeAccessIcon = new ImageIcon(KnownBoardsFrame.class.getResource("/data/waboard.jpg"));
-    private static final ImageIcon readAccessIcon = new ImageIcon(KnownBoardsFrame.class.getResource("/data/raboard.jpg"));
+    private static final ImageIcon boardIcon = MiscToolkit.loadImageIcon("/data/comments.png");
+    private static final ImageIcon writeAccessIcon = MiscToolkit.loadImageIcon("/data/key.png");
+    private static final ImageIcon readAccessIcon = MiscToolkit.loadImageIcon("/data/lock.png");
 
     private JButton Bclose;
     private JButton BboardActions;

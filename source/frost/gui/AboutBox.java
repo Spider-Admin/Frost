@@ -23,6 +23,7 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
+import frost.util.*;
 import frost.util.gui.*;
 
 /**
@@ -49,7 +50,7 @@ public class AboutBox extends JDialogWithDetails {
     private final JLabel licenseLabel = new JLabel();
     private final JLabel websiteLabel = new JLabel();
 
-    private static final ImageIcon frostImage = new ImageIcon(AboutBox.class.getResource("/data/jtc.jpg"));
+    private static final ImageIcon frostImage = MiscToolkit.loadImageIcon("/data/jtc.jpg");
 
     /**
      * @param parent

@@ -3,13 +3,13 @@ package frost.util.gui;
  * @(#)MemoryMonitor.java	1.26 99/04/23
  *
  * Copyright (c) 1998, 1999 by Sun Microsystems, Inc. All Rights Reserved.
- * 
+ *
  * Sun grants you ("Licensee") a non-exclusive, royalty free, license to use,
  * modify and redistribute this software in source and binary code form,
  * provided that i) this copyright notice and license appear on all copies of
  * the software; and ii) Licensee does not utilize the software in a manner
  * which is disparaging to Sun.
- * 
+ *
  * This software is provided "AS IS," without a warranty of any kind. ALL
  * EXPRESS OR IMPLIED CONDITIONS, REPRESENTATIONS AND WARRANTIES, INCLUDING ANY
  * IMPLIED WARRANTY OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE OR
@@ -21,7 +21,7 @@ package frost.util.gui;
  * CAUSED AND REGARDLESS OF THE THEORY OF LIABILITY, ARISING OUT OF THE USE OF
  * OR INABILITY TO USE SOFTWARE, EVEN IF SUN HAS BEEN ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGES.
- * 
+ *
  * This software is not designed or intended for use in on-line control of
  * aircraft, air traffic, aircraft navigation or aircraft communications; or in
  * the design, construction, operation or maintenance of any nuclear
@@ -40,6 +40,8 @@ import java.awt.image.*;
 
 import javax.swing.*;
 
+import frost.util.*;
+
 /**
  * Tracks Memory allocated & used, displayed in graph form.
  */
@@ -50,15 +52,15 @@ public class MemoryMonitor extends JPanel {
 //    boolean doControls;
 //    JTextField tf;
 //    JCheckBox box;
-    
+
     JFrame dialog = null;
     boolean isShown = false;
-    
+
 //    public static void main(String[] args) {
 //        MemoryMonitor mem = new MemoryMonitor();
 //        mem.showDialog();
 //    }
-    
+
     private JFrame getDialog() {
         if( dialog == null ) {
             dialog = new JFrame();
@@ -67,18 +69,19 @@ public class MemoryMonitor extends JPanel {
             dialog.getContentPane().add(this);
             dialog.setSize(225,130);
             dialog.setTitle("Frost Memory Monitor");
-            ImageIcon frameIcon = new ImageIcon(getClass().getResource("/data/memmon.png"));
+            final ImageIcon frameIcon = MiscToolkit.loadImageIcon("/data/memmon.png");
             dialog.setIconImage(frameIcon.getImage());
             dialog.addWindowListener(new WindowAdapter() {
-                public void windowClosing(WindowEvent e) {
+                @Override
+                public void windowClosing(final WindowEvent e) {
                     surf.stop();
                     isShown = false;
                     dialog.setVisible(false);
                 }
             });
             // center on screen
-            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-            Dimension splashscreenSize = dialog.getSize();
+            final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            final Dimension splashscreenSize = dialog.getSize();
             if (splashscreenSize.height > screenSize.height) {
                 splashscreenSize.height = screenSize.height;
             }
@@ -101,7 +104,7 @@ public class MemoryMonitor extends JPanel {
         isShown = true;
         getDialog().setVisible(true);
     }
-    
+
     public MemoryMonitor() {
         setLayout(new BorderLayout());
 //        setBorder(new TitledBorder(new EtchedBorder(), "Memory Monitor"));
@@ -136,7 +139,7 @@ public class MemoryMonitor extends JPanel {
 //				}
 //				else
 //				{
-//                   try { 
+//                   try {
 //					long val = Long.parseLong(tf.getText().trim());
 //
 //					if (val >= 50)
@@ -160,19 +163,19 @@ public class MemoryMonitor extends JPanel {
         private int w, h;
         private BufferedImage bimg;
         private Graphics2D big;
-        private Font font = new Font("Times New Roman", Font.PLAIN, 11);
-        private Runtime r = Runtime.getRuntime();
+        private final Font font = new Font("Times New Roman", Font.PLAIN, 11);
+        private final Runtime r = Runtime.getRuntime();
         private int columnInc;
         private int pts[];
         private int ptNum;
         private int ascent, descent;
 //        private float freeMemory, totalMemory;
-        private Rectangle graphOutlineRect = new Rectangle();
-        private Rectangle2D mfRect = new Rectangle2D.Float();
-        private Rectangle2D muRect = new Rectangle2D.Float();
-        private Line2D graphLine = new Line2D.Float();
-        private Color graphColor = new Color(46, 139, 87);
-        private Color mfColor = new Color(0, 100, 0);
+        private final Rectangle graphOutlineRect = new Rectangle();
+        private final Rectangle2D mfRect = new Rectangle2D.Float();
+        private final Rectangle2D muRect = new Rectangle2D.Float();
+        private final Line2D graphLine = new Line2D.Float();
+        private final Color graphColor = new Color(46, 139, 87);
+        private final Color mfColor = new Color(0, 100, 0);
         private String usedStr;
 
 		private int gc_counter = 0;
@@ -186,19 +189,23 @@ public class MemoryMonitor extends JPanel {
 //            });
         }
 
+        @Override
         public Dimension getMinimumSize() {
             return getPreferredSize();
         }
 
+        @Override
         public Dimension getMaximumSize() {
             return getPreferredSize();
         }
 
+        @Override
         public Dimension getPreferredSize() {
             return new Dimension(200, 100);
         }
-            
-        public void paint(Graphics g) {
+
+        @Override
+        public void paint(final Graphics g) {
 
             if (big == null) {
                 return;
@@ -207,63 +214,63 @@ public class MemoryMonitor extends JPanel {
             big.setBackground(getBackground());
             big.clearRect(0,0,w,h);
 
-            float freeMemory = (float) r.freeMemory();
-            float totalMemory = (float) r.totalMemory();
-            float maxMemory = (float) r.maxMemory();
+            final float freeMemory = r.freeMemory();
+            final float totalMemory = r.totalMemory();
+            final float maxMemory = r.maxMemory();
 
             // .. Draw allocated and used strings ..
             big.setColor(Color.green);
-            big.drawString(String.valueOf((int) totalMemory/1024) + "K allocated",  4.0f, (float) ascent+0.5f);
-            big.drawString(String.valueOf((int) maxMemory/1024) + "K max",  110, (float) ascent+0.5f);
-            
+            big.drawString(String.valueOf((int) totalMemory/1024) + "K allocated",  4.0f, ascent+0.5f);
+            big.drawString(String.valueOf((int) maxMemory/1024) + "K max",  110, ascent+0.5f);
+
             usedStr = String.valueOf(((int) (totalMemory - freeMemory))/1024) + "K used";
             big.drawString(usedStr, 4, h-descent);
             big.drawString(Thread.activeCount() + " threads", 110, h-descent);
 
             // Calculate remaining size
-            float ssH = ascent + descent;
-            float remainingHeight = (float) (h - (ssH*2) - 0.5f);
-            float blockHeight = remainingHeight/10;
-            float blockWidth = 20.0f;
+            final float ssH = ascent + descent;
+            final float remainingHeight = (h - (ssH*2) - 0.5f);
+            final float blockHeight = remainingHeight/10;
+            final float blockWidth = 20.0f;
 //            float remainingWidth = (float) (w - blockWidth - 10);
 
             // .. Memory Free ..
             big.setColor(mfColor);
-            int MemUsage = (int) ((freeMemory / totalMemory) * 10);
+            final int MemUsage = (int) ((freeMemory / totalMemory) * 10);
             int i = 0;
-            for ( ; i < MemUsage ; i++) { 
-                mfRect.setRect(5,(float) ssH+i*blockHeight,
-                                blockWidth,(float) blockHeight-1);
+            for ( ; i < MemUsage ; i++) {
+                mfRect.setRect(5,ssH+i*blockHeight,
+                                blockWidth,blockHeight-1);
                 big.fill(mfRect);
             }
 
             // .. Memory Used ..
             big.setColor(Color.green);
             for ( ; i < 10; i++)  {
-                muRect.setRect(5,(float) ssH+i*blockHeight,
-                                blockWidth,(float) blockHeight-1);
+                muRect.setRect(5,ssH+i*blockHeight,
+                                blockWidth,blockHeight-1);
                 big.fill(muRect);
             }
 
             // .. Draw History Graph ..
             big.setColor(graphColor);
-            int graphX = 30;
-            int graphY = (int) ssH;
-            int graphW = w - graphX - 5;
-            int graphH = (int) remainingHeight;
+            final int graphX = 30;
+            final int graphY = (int) ssH;
+            final int graphW = w - graphX - 5;
+            final int graphH = (int) remainingHeight;
             graphOutlineRect.setRect(graphX, graphY, graphW, graphH);
             big.draw(graphOutlineRect);
 
-            int graphRow = graphH/10;
+            final int graphRow = graphH/10;
 
             // .. Draw row ..
             for (int j = graphY; j <= graphH+graphY; j += graphRow) {
                 graphLine.setLine(graphX,j,graphX+graphW,j);
                 big.draw(graphLine);
             }
-        
+
             // .. Draw animated column movement ..
-            int graphColumn = graphW/15;
+            final int graphColumn = graphW/15;
 
             if (columnInc == 0) {
                 columnInc = graphColumn;
@@ -281,10 +288,10 @@ public class MemoryMonitor extends JPanel {
                 ptNum = 0;
             } else if (pts.length != graphW) {
                 int tmp[] = null;
-                if (ptNum < graphW) {     
+                if (ptNum < graphW) {
                     tmp = new int[ptNum];
                     System.arraycopy(pts, 0, tmp, 0, tmp.length);
-                } else {        
+                } else {
                     tmp = new int[graphW];
                     System.arraycopy(pts, pts.length-tmp.length, tmp, 0, tmp.length);
                     ptNum = tmp.length - 2;
@@ -346,34 +353,34 @@ public class MemoryMonitor extends JPanel {
 
         public void run() {
 
-            Thread me = Thread.currentThread();
+            final Thread me = Thread.currentThread();
 
 //            while (thread == me && !isShowing() || getSize().width == 0) {
 //                try {
 //                    thread.sleep(500);
 //                } catch (InterruptedException e) { return; }
 //            }
-    
+
             while (thread == me /*&& isShowing()*/) {
-                Dimension d = getSize();
+                final Dimension d = getSize();
                 if (d.width != w || d.height != h) {
                     w = d.width;
                     h = d.height;
                     bimg = (BufferedImage) createImage(w, h);
                     big = bimg.createGraphics();
                     big.setFont(font);
-                    FontMetrics fm = big.getFontMetrics(font);
-                    ascent = (int) fm.getAscent();
-                    descent = (int) fm.getDescent();
+                    final FontMetrics fm = big.getFontMetrics(font);
+                    ascent = fm.getAscent();
+                    descent = fm.getDescent();
                 }
-                
+
                 paint(getGraphics()); // draw also when hidden
 
 //                repaint(); // draw only when shown
 
                 try {
                     Thread.sleep(sleepAmount);
-                } catch (InterruptedException e) { break; }
+                } catch (final InterruptedException e) { break; }
             }
             thread = null;
         }

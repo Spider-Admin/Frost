@@ -22,17 +22,18 @@ import java.util.*;
 
 import javax.swing.*;
 
+import frost.util.*;
 import frost.util.gui.textpane.*;
 
 public class SmileyCache implements Smileys {
 
     protected static Hashtable<String,ImageIcon> smileyCache = new Hashtable<String,ImageIcon>();
 
-    public static synchronized ImageIcon getCachedSmiley(final int i, final ClassLoader cl) {
+    public static synchronized ImageIcon getCachedSmiley(final int i) {
         final String si = Integer.toString(i);
         ImageIcon ii = smileyCache.get(si);
         if( ii == null ) {
-            ii = new ImageIcon(cl.getResource("data/smileys/"+i+".gif"));
+            ii = MiscToolkit.loadImageIcon("data/smileys/"+i+".gif");
             smileyCache.put(si, ii);
         }
         return ii;

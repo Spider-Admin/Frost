@@ -151,7 +151,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         // Configure objects
         //------------------------------------------------------------------------
 
-        final ImageIcon frameIcon = new ImageIcon(getClass().getResource("/data/jtc.jpg"));
+        final ImageIcon frameIcon = MiscToolkit.loadImageIcon("/data/jtc.jpg");
         setIconImage(frameIcon.getImage());
         setSize(new Dimension(300, 200));
         setResizable(true);
@@ -501,6 +501,15 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
                 setFont(origFont);
             }
 
+            // get the original model column index (maybe columns were reordered by user)
+            final TableColumn tableColumn = table.getColumnModel().getColumn(column);
+            final int modelColumn = tableColumn.getModelIndex();
+
+            if( modelColumn == 0 ) {
+                setIcon(tblrow.getBoard().getStateIcon());
+            } else {
+                setIcon(null);
+            }
 
             if (!isSelected) {
                 final Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);

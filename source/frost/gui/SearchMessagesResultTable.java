@@ -27,25 +27,26 @@ import frost.*;
 import frost.fileTransfer.common.*;
 import frost.gui.model.*;
 import frost.messages.*;
+import frost.util.*;
 import frost.util.gui.*;
 
 public class SearchMessagesResultTable extends SortedTable {
 
-    private CellRenderer cellRenderer = new CellRenderer();
-    private BooleanCellRenderer booleanCellRenderer = new BooleanCellRenderer();
-    
-    private ImageIcon flaggedIcon = new ImageIcon(getClass().getResource("/data/flagged.gif"));
-    private ImageIcon starredIcon = new ImageIcon(getClass().getResource("/data/starred.gif"));
+    private final CellRenderer cellRenderer = new CellRenderer();
+    private final BooleanCellRenderer booleanCellRenderer = new BooleanCellRenderer();
 
-    private ImageIcon messageDummyIcon = new ImageIcon(getClass().getResource("/data/messagedummyicon.gif"));
-    private ImageIcon messageNewIcon = new ImageIcon(getClass().getResource("/data/messagenewicon.gif"));
-    private ImageIcon messageReadIcon = new ImageIcon(getClass().getResource("/data/messagereadicon.gif"));
-    private ImageIcon messageNewRepliedIcon = new ImageIcon(getClass().getResource("/data/messagenewrepliedicon.gif"));
-    private ImageIcon messageReadRepliedIcon = new ImageIcon(getClass().getResource("/data/messagereadrepliedicon.gif"));
+    private final ImageIcon flaggedIcon = MiscToolkit.loadImageIcon("/data/flagged.gif");
+    private final ImageIcon starredIcon = MiscToolkit.loadImageIcon("/data/starred.gif");
 
-    private boolean showColoredLines;
+    private final ImageIcon messageDummyIcon = MiscToolkit.loadImageIcon("/data/messagedummyicon.gif");
+    private final ImageIcon messageNewIcon = MiscToolkit.loadImageIcon("/data/messagenewicon.gif");
+    private final ImageIcon messageReadIcon = MiscToolkit.loadImageIcon("/data/messagereadicon.gif");
+    private final ImageIcon messageNewRepliedIcon = MiscToolkit.loadImageIcon("/data/messagenewrepliedicon.gif");
+    private final ImageIcon messageReadRepliedIcon = MiscToolkit.loadImageIcon("/data/messagereadrepliedicon.gif");
 
-    public SearchMessagesResultTable(SearchMessagesTableModel m) {
+    private final boolean showColoredLines;
+
+    public SearchMessagesResultTable(final SearchMessagesTableModel m) {
         super(m);
 
         setDefaultRenderer(String.class, cellRenderer);
@@ -55,15 +56,15 @@ public class SearchMessagesResultTable extends SortedTable {
         sortedColumnIndex = 5;
         sortedColumnAscending = false;
         resortTable();
-        
+
         initLayout();
-        
+
         showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
     }
-    
+
     private void initLayout() {
-        TableColumnModel tcm = getColumnModel();
-        
+        final TableColumnModel tcm = getColumnModel();
+
         // hard set sizes of icons column
         tcm.getColumn(0).setMinWidth(20);
         tcm.getColumn(0).setMaxWidth(20);
@@ -72,7 +73,7 @@ public class SearchMessagesResultTable extends SortedTable {
         tcm.getColumn(1).setMinWidth(20);
         tcm.getColumn(1).setMaxWidth(20);
         tcm.getColumn(1).setPreferredWidth(20);
-        
+
         // set icon table header renderer for icon columns
         tcm.getColumn(0).setHeaderRenderer(new IconTableHeaderRenderer(flaggedIcon));
         tcm.getColumn(1).setHeaderRenderer(new IconTableHeaderRenderer(starredIcon));
@@ -152,7 +153,7 @@ public class SearchMessagesResultTable extends SortedTable {
      * Encrypted messages get a red color, no matter if they have attachments.
      */
     private class CellRenderer extends DefaultTableCellRenderer {
-        
+
         private Font boldFont = null;
         private Font normalFont = null;
         private boolean isDeleted = false;
@@ -162,41 +163,43 @@ public class SearchMessagesResultTable extends SortedTable {
         private final Color col_bad     = new Color(0xFF, 0x00, 0x00);
 
         public CellRenderer() {
-            Font baseFont = SearchMessagesResultTable.this.getFont();
+            final Font baseFont = SearchMessagesResultTable.this.getFont();
             normalFont = baseFont.deriveFont(Font.PLAIN);
             boldFont = baseFont.deriveFont(Font.BOLD);
         }
 
-        public void paintComponent (Graphics g) {
+        @Override
+        public void paintComponent (final Graphics g) {
             super.paintComponent(g);
             if(isDeleted) {
-                Dimension size = getSize();
+                final Dimension size = getSize();
                 g.drawLine(0, size.height / 2, size.width, size.height / 2);
             }
         }
 
+        @Override
         public Component getTableCellRendererComponent(
-            JTable table,
-            Object value,
+            final JTable table,
+            final Object value,
             boolean isSelected,
-            boolean hasFocus,
-            int row,
+            final boolean hasFocus,
+            final int row,
             int column) {
 
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-            SearchMessagesTableModel model = (SearchMessagesTableModel) getModel();
-            FrostSearchResultMessageObject msg = (FrostSearchResultMessageObject) model.getRow(row);
+            final SearchMessagesTableModel model = (SearchMessagesTableModel) getModel();
+            final FrostSearchResultMessageObject msg = (FrostSearchResultMessageObject) model.getRow(row);
 
             // get the original model column index (maybe columns were reordered by user)
-            TableColumn tableColumn = getColumnModel().getColumn(column);
+            final TableColumn tableColumn = getColumnModel().getColumn(column);
             column = tableColumn.getModelIndex();
-            
+
             setIcon(null);
             setToolTipText(null);
-            
+
             if (!isSelected) {
-                Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
+                final Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
                 setBackground(newBackground);
             }
 
@@ -280,7 +283,7 @@ public class SearchMessagesResultTable extends SortedTable {
                     setForeground(Color.BLACK);
                 }
             }
-            
+
             setDeleted(msg.getMessageObject().isDeleted());
 
             return this;
@@ -289,46 +292,48 @@ public class SearchMessagesResultTable extends SortedTable {
         /* (non-Javadoc)
          * @see java.awt.Component#setFont(java.awt.Font)
          */
-        public void setFont(Font font) {
+        @Override
+        public void setFont(final Font font) {
             super.setFont(font);
             normalFont = font.deriveFont(Font.PLAIN);
             boldFont = font.deriveFont(Font.BOLD);
         }
 
-        public void setDeleted(boolean value) {
+        public void setDeleted(final boolean value) {
             isDeleted = value;
         }
     }
-    
+
     private class BooleanCellRenderer extends JLabel implements TableCellRenderer {
-        
+
         public BooleanCellRenderer() {
             super();
             setHorizontalAlignment(CENTER);
             setVerticalAlignment(CENTER);
         }
-        
-        public void paintComponent (Graphics g) {
-            Dimension size = getSize();
+
+        @Override
+        public void paintComponent (final Graphics g) {
+            final Dimension size = getSize();
             g.setColor(getBackground());
             g.fillRect(0, 0, size.width, size.height);
             super.paintComponent(g);
         }
 
         public Component getTableCellRendererComponent(
-                JTable table,
-                Object value,
+                final JTable table,
+                final Object value,
                 boolean isSelected,
-                boolean hasFocus,
-                int row,
-                int column) 
+                final boolean hasFocus,
+                final int row,
+                int column)
         {
-            boolean val = ((Boolean)value).booleanValue();
-            
+            final boolean val = ((Boolean)value).booleanValue();
+
             // get the original model column index (maybe columns were reordered by user)
-            TableColumn tableColumn = getColumnModel().getColumn(column);
+            final TableColumn tableColumn = getColumnModel().getColumn(column);
             column = tableColumn.getModelIndex();
-            
+
             if( column == 0 ) {
                 if( val ) {
                     setIcon(flaggedIcon);
@@ -342,28 +347,30 @@ public class SearchMessagesResultTable extends SortedTable {
                     setIcon(null);
                 }
             }
-            
+
             if (!isSelected) {
-                Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
+                final Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
                 setBackground(newBackground);
             } else {
                 setBackground(table.getSelectionBackground());
             }
             return this;
-        }        
+        }
     }
 
+    @Override
     public void createDefaultColumnsFromModel() {
         super.createDefaultColumnsFromModel();
 
         // set column sizes
-        int[] widths = { 20, 20, 30, 125, 80, 250, 75, 150 };
+        final int[] widths = { 20, 20, 30, 125, 80, 250, 75, 150 };
         for (int i = 0; i < widths.length; i++) {
             getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
         }
     }
 
-    public void setFont(Font font) {
+    @Override
+    public void setFont(final Font font) {
         super.setFont(font);
         if (cellRenderer != null) {
             cellRenderer.setFont(font);

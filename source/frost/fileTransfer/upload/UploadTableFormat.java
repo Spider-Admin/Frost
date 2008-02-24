@@ -40,12 +40,12 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
     private static final String CFGKEY_COLUMN_TABLEINDEX = "UploadTable.tableindex.modelcolumn.";
     private static final String CFGKEY_COLUMN_WIDTH = "UploadTable.columnwidth.modelcolumn.";
 
-    private static ImageIcon isSharedIcon = new ImageIcon((MainFrame.class.getResource("/data/shared.png")));
+    private static ImageIcon isSharedIcon = MiscToolkit.loadImageIcon("/data/shared.png");
 
     private SortedModelTable modelTable = null;
-    
+
     private boolean showColoredLines;
-    
+
     /**
      * Renders DONE with green background and FAILED with red background.
      */
@@ -53,23 +53,24 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         public BaseRenderer() {
             super();
         }
+        @Override
         public Component getTableCellRendererComponent(
-            JTable table,
-            Object value,
+            final JTable table,
+            final Object value,
             boolean isSelected,
-            boolean hasFocus,
-            int row,
-            int column) {
+            final boolean hasFocus,
+            final int row,
+            final int column) {
 
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
             if( !isSelected ) {
                 Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
-                
-                ModelItem item = modelTable.getItemAt(row);
+
+                final ModelItem item = modelTable.getItemAt(row);
                 if (item != null) {
-                    FrostUploadItem uploadItem = (FrostUploadItem) item;
-                    int itemState = uploadItem.getState();
+                    final FrostUploadItem uploadItem = (FrostUploadItem) item;
+                    final int itemState = uploadItem.getState();
                     if( itemState == FrostUploadItem.STATE_DONE) {
                         newBackground = TableBackgroundColors.getBackgroundColorDone(table, row, showColoredLines);
                     } else if( itemState == FrostUploadItem.STATE_FAILED) {
@@ -92,31 +93,31 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
             setBorderPainted(false);
         }
         public Component getTableCellRendererComponent(
-            JTable table,
-            Object value,
-            boolean isSelected,
-            boolean hasFocus,
-            int row,
-            int column) {
+            final JTable table,
+            final Object value,
+            final boolean isSelected,
+            final boolean hasFocus,
+            final int row,
+            final int column) {
 
-            Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
+            final Color newBackground = TableBackgroundColors.getBackgroundColor(table, row, showColoredLines);
             setBackground(newBackground);
 
             setValue(0);
 
-            ModelItem item = modelTable.getItemAt(row);
+            final ModelItem item = modelTable.getItemAt(row);
             if (item != null) {
-                FrostUploadItem uploadItem = (FrostUploadItem) item;
-                
-                int totalBlocks = uploadItem.getTotalBlocks();
-                int doneBlocks = uploadItem.getDoneBlocks();
-                
+                final FrostUploadItem uploadItem = (FrostUploadItem) item;
+
+                final int totalBlocks = uploadItem.getTotalBlocks();
+                final int doneBlocks = uploadItem.getDoneBlocks();
+
                 if( totalBlocks > 0 ) {
                     // format: ~0% 0/60 [60]
-                    
+
                     int percentDone = 0;
 
-                    percentDone = (int) ((doneBlocks * 100) / totalBlocks);
+                    percentDone = ((doneBlocks * 100) / totalBlocks);
                     if( percentDone > 100 ) {
                         percentDone = 100;
                     }
@@ -133,13 +134,14 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         public ShowContentTooltipRenderer() {
             super();
         }
+        @Override
         public Component getTableCellRendererComponent(
-            JTable table,
-            Object value,
-            boolean isSelected,
-            boolean hasFocus,
-            int row,
-            int column) {
+            final JTable table,
+            final Object value,
+            final boolean isSelected,
+            final boolean hasFocus,
+            final int row,
+            final int column) {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             String tooltip = null;
             if( value != null ) {
@@ -152,41 +154,42 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
             return this;
         }
     }
-    
+
     private class ShowNameTooltipRenderer extends BaseRenderer {
         public ShowNameTooltipRenderer() {
             super();
         }
+        @Override
         public Component getTableCellRendererComponent(
-            JTable table,
-            Object value,
-            boolean isSelected,
-            boolean hasFocus,
-            int row,
-            int column) {
+            final JTable table,
+            final Object value,
+            final boolean isSelected,
+            final boolean hasFocus,
+            final int row,
+            final int column) {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
             String tooltip = null;
-            ModelItem item = modelTable.getItemAt(row); //It may be null
+            final ModelItem item = modelTable.getItemAt(row); //It may be null
             if (item != null) {
-                FrostUploadItem uploadItem = (FrostUploadItem) item;
-                StringBuilder sb = new StringBuilder();
+                final FrostUploadItem uploadItem = (FrostUploadItem) item;
+                final StringBuilder sb = new StringBuilder();
                 sb.append("<html>").append(uploadItem.getFilename());
                 if( uploadItem.getUploadAddedMillis() > 0 ) {
-                    sb.append("<br>Added: "); 
-                    sb.append(DateFun.FORMAT_DATE_VISIBLE.print(uploadItem.getUploadAddedMillis())); 
+                    sb.append("<br>Added: ");
+                    sb.append(DateFun.FORMAT_DATE_VISIBLE.print(uploadItem.getUploadAddedMillis()));
                     sb.append("  ");
                     sb.append(DateFun.FORMAT_TIME_VISIBLE.print(uploadItem.getUploadAddedMillis()));
                 }
                 if( uploadItem.getUploadStartedMillis() > 0 ) {
-                    sb.append("<br>Started: "); 
-                    sb.append(DateFun.FORMAT_DATE_VISIBLE.print(uploadItem.getUploadStartedMillis())); 
+                    sb.append("<br>Started: ");
+                    sb.append(DateFun.FORMAT_DATE_VISIBLE.print(uploadItem.getUploadStartedMillis()));
                     sb.append("  ");
                     sb.append(DateFun.FORMAT_TIME_VISIBLE.print(uploadItem.getUploadStartedMillis()));
                 }
                 if( uploadItem.getUploadFinishedMillis() > 0 ) {
-                    sb.append("<br>Finished: "); 
-                    sb.append(DateFun.FORMAT_DATE_VISIBLE.print(uploadItem.getUploadFinishedMillis())); 
+                    sb.append("<br>Finished: ");
+                    sb.append(DateFun.FORMAT_DATE_VISIBLE.print(uploadItem.getUploadFinishedMillis()));
                     sb.append("  ");
                     sb.append(DateFun.FORMAT_TIME_VISIBLE.print(uploadItem.getUploadFinishedMillis()));
                 }
@@ -202,19 +205,20 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         public ShowStateContentTooltipRenderer() {
             super();
         }
+        @Override
         public Component getTableCellRendererComponent(
-            JTable table,
-            Object value,
-            boolean isSelected,
-            boolean hasFocus,
-            int row,
-            int column) {
+            final JTable table,
+            final Object value,
+            final boolean isSelected,
+            final boolean hasFocus,
+            final int row,
+            final int column) {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             String tooltip = null;
-            ModelItem item = modelTable.getItemAt(row); //It may be null
+            final ModelItem item = modelTable.getItemAt(row); //It may be null
             if (item != null) {
-                FrostUploadItem uploadItem = (FrostUploadItem) item;
-                String errorCodeDescription = uploadItem.getErrorCodeDescription();
+                final FrostUploadItem uploadItem = (FrostUploadItem) item;
+                final String errorCodeDescription = uploadItem.getErrorCodeDescription();
                 if( errorCodeDescription != null && errorCodeDescription.length() > 0 ) {
                     tooltip = "Last error: "+errorCodeDescription;
                 }
@@ -223,18 +227,18 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
             return this;
         }
     }
-    
+
     private class IsEnabledRenderer extends JCheckBox implements TableCellRenderer {
         public IsEnabledRenderer() {
             super();
         }
         public Component getTableCellRendererComponent(
-            JTable table,
-            Object value,
-            boolean isSelected,
-            boolean hasFocus,
-            int row,
-            int column) 
+            final JTable table,
+            final Object value,
+            final boolean isSelected,
+            final boolean hasFocus,
+            final int row,
+            final int column)
         {
             if (isSelected) {
                 setForeground(table.getSelectionForeground());
@@ -244,9 +248,9 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
                 setBackground(table.getBackground());
             }
 
-            ModelItem item = modelTable.getItemAt(row); //It may be null
+            final ModelItem item = modelTable.getItemAt(row); //It may be null
             if (item != null) {
-                FrostUploadItem uploadItem = (FrostUploadItem) item;
+                final FrostUploadItem uploadItem = (FrostUploadItem) item;
                 if( uploadItem.isExternal() ) {
                     setEnabled(false);
                     setSelected(true); // external items are always enabled
@@ -254,7 +258,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
                     setEnabled(true);
                     setSelected((value != null && ((Boolean) value).booleanValue()));
                 }
-            }            
+            }
             return this;
         }
     }
@@ -263,15 +267,16 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         public IsSharedRenderer() {
             super();
         }
+        @Override
         public Component getTableCellRendererComponent(
-            JTable table,
-            Object value,
-            boolean isSelected,
-            boolean hasFocus,
-            int row,
-            int column) {
+            final JTable table,
+            final Object value,
+            final boolean isSelected,
+            final boolean hasFocus,
+            final int row,
+            final int column) {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            Boolean b = (Boolean)value;
+            final Boolean b = (Boolean)value;
             setText("");
             if( b.booleanValue() ) {
                 // show shared icon
@@ -292,13 +297,14 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         public RightAlignRenderer() {
             super();
         }
+        @Override
         public Component getTableCellRendererComponent(
-            JTable table,
-            Object value,
-            boolean isSelected,
-            boolean hasFocus,
-            int row,
-            int column) {
+            final JTable table,
+            final Object value,
+            final boolean isSelected,
+            final boolean hasFocus,
+            final int row,
+            final int column) {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             setHorizontalAlignment(SwingConstants.RIGHT);
             // col is right aligned, give some space to next column
@@ -311,15 +317,15 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
      * This inner class implements the comparator for the column "Name"
      */
     private class NameComparator implements Comparator<FrostUploadItem> {
-        public int compare(FrostUploadItem item1, FrostUploadItem item2) {
+        public int compare(final FrostUploadItem item1, final FrostUploadItem item2) {
             return item1.getFile().getName().compareToIgnoreCase(item2.getFile().getName());
         }
     }
 
     private class PriorityComparator implements Comparator<FrostUploadItem> {
-        public int compare(FrostUploadItem o1, FrostUploadItem o2) {
-            int prio1 = o1.getPriority();
-            int prio2 = o2.getPriority();
+        public int compare(final FrostUploadItem o1, final FrostUploadItem o2) {
+            final int prio1 = o1.getPriority();
+            final int prio2 = o2.getPriority();
             return Mixed.compareInt(prio1, prio2);
 //          return new Integer(retries1).compareTo(new Integer(retries2));
         }
@@ -329,7 +335,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
      * This inner class implements the comparator for the column "Last Upload"
      */
     private class StateComparator implements Comparator<FrostUploadItem> {
-        public int compare(FrostUploadItem item1, FrostUploadItem item2) {
+        public int compare(final FrostUploadItem item1, final FrostUploadItem item2) {
             return Mixed.compareInt(item1.getState(), item2.getState());
 //            return getStateAsString(item1, item1.getState()).
 //                        compareToIgnoreCase(getStateAsString(item2, item2.getState()));
@@ -337,7 +343,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
     }
 
     private class BlocksComparator implements Comparator<FrostUploadItem> {
-        public int compare(FrostUploadItem item1, FrostUploadItem item2) {
+        public int compare(final FrostUploadItem item1, final FrostUploadItem item2) {
 //          String blocks1 =
 //              getBlocksAsString(
 //                  item1.getTotalBlocks(),
@@ -348,7 +354,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
 //                  item2.getTotalBlocks(),
 //                  item2.getDoneBlocks(),
 //                  item2.getRequiredBlocks());
-//          return blocks1.compareToIgnoreCase(blocks2); 
+//          return blocks1.compareToIgnoreCase(blocks2);
 //            return new Integer(item1.getDoneBlocks()).compareTo(new Integer(item2.getDoneBlocks()));
             return Mixed.compareInt(item1.getDoneBlocks(), item2.getDoneBlocks());
         }
@@ -358,18 +364,18 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
      * This inner class implements the comparator for the column "Tries"
      */
     private class TriesComparator implements Comparator<FrostUploadItem> {
-        public int compare(FrostUploadItem o1, FrostUploadItem o2) {
-            int retries1 = o1.getRetries();
-            int retries2 = o2.getRetries();
+        public int compare(final FrostUploadItem o1, final FrostUploadItem o2) {
+            final int retries1 = o1.getRetries();
+            final int retries2 = o2.getRetries();
             return Mixed.compareInt(retries1, retries2);
 //            return new Integer(retries1).compareTo(new Integer(retries2));
         }
     }
-    
+
     private class IsSharedComparator implements Comparator<FrostUploadItem> {
-        public int compare(FrostUploadItem item1, FrostUploadItem item2) {
-            Boolean b1 = Boolean.valueOf( item1.isSharedFile() );
-            Boolean b2 = Boolean.valueOf( item2.isSharedFile() );
+        public int compare(final FrostUploadItem item1, final FrostUploadItem item2) {
+            final Boolean b1 = Boolean.valueOf( item1.isSharedFile() );
+            final Boolean b2 = Boolean.valueOf( item2.isSharedFile() );
             return b1.compareTo(b2);
         }
     }
@@ -378,7 +384,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
      * This inner class implements the comparator for the column "Path"
      */
     private class PathComparator implements Comparator<FrostUploadItem> {
-        public int compare(FrostUploadItem item1, FrostUploadItem item2) {
+        public int compare(final FrostUploadItem item1, final FrostUploadItem item2) {
             return item1.getFile().getPath().compareToIgnoreCase(item2.getFile().getPath());
         }
     }
@@ -387,9 +393,9 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
      * This inner class implements the comparator for the column "Enabled"
      */
     private class EnabledComparator implements Comparator<FrostUploadItem> {
-        public int compare(FrostUploadItem item1, FrostUploadItem item2) {
-            Boolean b1 = Boolean.valueOf( item1.isEnabled().booleanValue() );
-            Boolean b2 = Boolean.valueOf( item2.isEnabled().booleanValue() );
+        public int compare(final FrostUploadItem item1, final FrostUploadItem item2) {
+            final Boolean b1 = Boolean.valueOf( item1.isEnabled().booleanValue() );
+            final Boolean b2 = Boolean.valueOf( item2.isEnabled().booleanValue() );
             return b1.compareTo(b2);
         }
     }
@@ -398,7 +404,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
      * This inner class implements the comparator for the column "Key"
      */
     private class KeyComparator implements Comparator<FrostUploadItem> {
-        public int compare(FrostUploadItem o1, FrostUploadItem o2) {
+        public int compare(final FrostUploadItem o1, final FrostUploadItem o2) {
             String key1 = o1.getKey();
             String key2 = o2.getKey();
             if (key1 == null) {
@@ -415,7 +421,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
      * This inner class implements the comparator for the column "FileSize"
      */
     private class FileSizeComparator implements Comparator<FrostUploadItem> {
-        public int compare(FrostUploadItem item1, FrostUploadItem item2) {
+        public int compare(final FrostUploadItem item1, final FrostUploadItem item2) {
             return Mixed.compareLong(item1.getFileSize(), item2.getFileSize());
 //            if( item1.getFileSize() > item2.getFileSize() ) {
 //                return 1;
@@ -427,7 +433,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         }
     }
 
-    private Language language;
+    private final Language language;
 
     // with persistence we have 1 additional column: priority
     private final static int COLUMN_COUNT = ( PersistenceManager.isPersistenceEnabled() ? 10 : 9 );
@@ -440,7 +446,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
     private String stateWaiting;
 
     private String unknown;
-    
+
     private String isSharedTooltip;
 
     public UploadTableFormat() {
@@ -462,7 +468,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         if( PersistenceManager.isPersistenceEnabled() ) {
             setComparator(new PriorityComparator(), 9);
         }
-        
+
         showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
         Core.frostSettings.addPropertyChangeListener(this);
     }
@@ -488,18 +494,19 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         stateEncoding =           language.getString("UploadPane.fileTable.state.encodingFile") + "...";
         stateWaiting =            language.getString("UploadPane.fileTable.state.waiting");
         unknown =                 language.getString("UploadPane.fileTable.state.unknown");
-        
+
         isSharedTooltip = language.getString("UploadPane.fileTable.shared.tooltip");
 
         refreshColumnNames();
     }
 
-    public void setCellValue(Object value, ModelItem item, int columnIndex) {
-        FrostUploadItem uploadItem = (FrostUploadItem) item;
+    @Override
+    public void setCellValue(final Object value, final ModelItem item, final int columnIndex) {
+        final FrostUploadItem uploadItem = (FrostUploadItem) item;
         switch (columnIndex) {
 
             case 0 : //Enabled
-                Boolean valueBoolean = (Boolean) value;
+                final Boolean valueBoolean = (Boolean) value;
                 uploadItem.setEnabled(valueBoolean);
                 FileTransferManager.inst().getUploadManager().notifyUploadItemEnabledStateChanged(uploadItem);
                 break;
@@ -509,11 +516,11 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         }
     }
 
-    public Object getCellValue(ModelItem item, int columnIndex) {
+    public Object getCellValue(final ModelItem item, final int columnIndex) {
         if( item == null ) {
             return "*null*";
         }
-        FrostUploadItem uploadItem = (FrostUploadItem) item;
+        final FrostUploadItem uploadItem = (FrostUploadItem) item;
         switch (columnIndex) {
 
             case 0 : //Enabled
@@ -546,21 +553,21 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
                 } else {
                     return uploadItem.getKey();
                 }
-                
+
             case 9: // Priority
-                int value = uploadItem.getPriority();
+                final int value = uploadItem.getPriority();
                 if( value < 0 ) {
                     return "-";
                 } else {
                     return new Integer(value);
                 }
-                
+
             default:
                 return "**ERROR**";
         }
     }
 
-    private String getStateAsString(FrostUploadItem item, int state) {
+    private String getStateAsString(final FrostUploadItem item, final int state) {
         switch (state) {
 
             case FrostUploadItem.STATE_PROGRESS :
@@ -586,49 +593,50 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         }
     }
 
-    private String getUploadProgress(FrostUploadItem uploadItem) {
-        
-        int totalBlocks = uploadItem.getTotalBlocks(); 
-        int doneBlocks = uploadItem.getDoneBlocks();
-        Boolean isFinalized = uploadItem.isFinalized();
-        
+    private String getUploadProgress(final FrostUploadItem uploadItem) {
+
+        final int totalBlocks = uploadItem.getTotalBlocks();
+        final int doneBlocks = uploadItem.getDoneBlocks();
+        final Boolean isFinalized = uploadItem.isFinalized();
+
         // format: ~0% 0/60 [60]
-        
+
         if( totalBlocks <= 0 ) {
             return "";
         }
-        
+
         int percentDone = 0;
         if (totalBlocks > 0) {
-            percentDone = (int) ((doneBlocks * 100) / totalBlocks);
+            percentDone = ((doneBlocks * 100) / totalBlocks);
         }
         if( percentDone > 100 ) {
             percentDone = 100;
         }
-        
-        StringBuilder sb = new StringBuilder();
-        
+
+        final StringBuilder sb = new StringBuilder();
+
         if( isFinalized != null && !isFinalized.booleanValue() ) {
             sb.append("~");
         }
-        
+
         sb.append(percentDone).append("% ");
         sb.append(doneBlocks).append("/").append(totalBlocks).append(" [").append(totalBlocks).append("]");
-        
+
         return sb.toString();
     }
 
-    public void customizeTable(ModelTable lModelTable) {
+    @Override
+    public void customizeTable(final ModelTable lModelTable) {
         super.customizeTable(lModelTable);
 
         modelTable = (SortedModelTable) lModelTable;
-        
+
         if( Core.frostSettings.getBoolValue(SettingsClass.SAVE_SORT_STATES)
                 && Core.frostSettings.getObjectValue(CFGKEY_SORTSTATE_SORTEDCOLUMN) != null
                 && Core.frostSettings.getObjectValue(CFGKEY_SORTSTATE_SORTEDASCENDING) != null )
         {
-            int sortedColumn = Core.frostSettings.getIntValue(CFGKEY_SORTSTATE_SORTEDCOLUMN);
-            boolean isSortedAsc = Core.frostSettings.getBoolValue(CFGKEY_SORTSTATE_SORTEDASCENDING);
+            final int sortedColumn = Core.frostSettings.getIntValue(CFGKEY_SORTSTATE_SORTEDCOLUMN);
+            final boolean isSortedAsc = Core.frostSettings.getBoolValue(CFGKEY_SORTSTATE_SORTEDASCENDING);
             if( sortedColumn > -1 ) {
                 modelTable.setSortedColumn(sortedColumn, isSortedAsc);
             }
@@ -638,7 +646,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
 
         lModelTable.getTable().setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN);
 
-        TableColumnModel columnModel = lModelTable.getTable().getColumnModel();
+        final TableColumnModel columnModel = lModelTable.getTable().getColumnModel();
 
         // Column "Enabled"
         columnModel.getColumn(0).setCellRenderer(BooleanCell.RENDERER);
@@ -661,9 +669,9 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
             columnModel.getColumn(9).setPreferredWidth(20);
         }
 
-        RightAlignRenderer numberRightRenderer = new RightAlignRenderer();
-        ShowContentTooltipRenderer showContentTooltipRenderer = new ShowContentTooltipRenderer();
-        
+        final RightAlignRenderer numberRightRenderer = new RightAlignRenderer();
+        final ShowContentTooltipRenderer showContentTooltipRenderer = new ShowContentTooltipRenderer();
+
         columnModel.getColumn(2).setCellRenderer(new ShowNameTooltipRenderer()); // filename
         columnModel.getColumn(3).setCellRenderer(numberRightRenderer); // filesize
         columnModel.getColumn(4).setCellRenderer(new ShowStateContentTooltipRenderer()); // state
@@ -679,10 +687,10 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
             // Sets the relative widths of the columns
             int[] widths;
             if( PersistenceManager.isPersistenceEnabled() ) {
-                int[] newWidths = { 20, 20, 200, 65, 30, 60, 50, 15, 70, 20 };
+                final int[] newWidths = { 20, 20, 200, 65, 30, 60, 50, 15, 70, 20 };
                 widths = newWidths;
             } else {
-                int[] newWidths = { 20, 20, 200, 65, 30, 60, 50, 15, 70 };
+                final int[] newWidths = { 20, 20, 200, 65, 30, 60, 50, 15, 70 };
                 widths = newWidths;
             }
 
@@ -691,51 +699,51 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
             }
         }
     }
-    
+
     public void saveTableLayout() {
-        TableColumnModel tcm = modelTable.getTable().getColumnModel();
+        final TableColumnModel tcm = modelTable.getTable().getColumnModel();
         for(int columnIndexInTable=0; columnIndexInTable < tcm.getColumnCount(); columnIndexInTable++) {
-            TableColumn tc = tcm.getColumn(columnIndexInTable);
-            int columnIndexInModel = tc.getModelIndex();
+            final TableColumn tc = tcm.getColumn(columnIndexInTable);
+            final int columnIndexInModel = tc.getModelIndex();
             // save the current index in table for column with the fix index in model
             Core.frostSettings.setValue(CFGKEY_COLUMN_TABLEINDEX + columnIndexInModel, columnIndexInTable);
             // save the current width of the column
-            int columnWidth = tc.getWidth();
+            final int columnWidth = tc.getWidth();
             Core.frostSettings.setValue(CFGKEY_COLUMN_WIDTH + columnIndexInModel, columnWidth);
         }
-        
+
         if( Core.frostSettings.getBoolValue(SettingsClass.SAVE_SORT_STATES) && modelTable.getSortedColumn() > -1 ) {
-            int sortedColumn = modelTable.getSortedColumn();
-            boolean isSortedAsc = modelTable.isSortedAscending();
+            final int sortedColumn = modelTable.getSortedColumn();
+            final boolean isSortedAsc = modelTable.isSortedAscending();
             Core.frostSettings.setValue(CFGKEY_SORTSTATE_SORTEDCOLUMN, sortedColumn);
             Core.frostSettings.setValue(CFGKEY_SORTSTATE_SORTEDASCENDING, isSortedAsc);
         }
     }
-    
-    private boolean loadTableLayout(TableColumnModel tcm) {
-        
+
+    private boolean loadTableLayout(final TableColumnModel tcm) {
+
         // load the saved tableindex for each column in model, and its saved width
-        int[] tableToModelIndex = new int[tcm.getColumnCount()];
-        int[] columnWidths = new int[tcm.getColumnCount()];
+        final int[] tableToModelIndex = new int[tcm.getColumnCount()];
+        final int[] columnWidths = new int[tcm.getColumnCount()];
 
         for(int x=0; x < tableToModelIndex.length; x++) {
-            String indexKey = CFGKEY_COLUMN_TABLEINDEX + x;
+            final String indexKey = CFGKEY_COLUMN_TABLEINDEX + x;
             if( Core.frostSettings.getObjectValue(indexKey) == null ) {
                 return false; // column not found, abort
             }
             // build array of table to model associations
-            int tableIndex = Core.frostSettings.getIntValue(indexKey);
+            final int tableIndex = Core.frostSettings.getIntValue(indexKey);
             if( tableIndex < 0 || tableIndex >= tableToModelIndex.length ) {
                 return false; // invalid table index value
             }
             tableToModelIndex[tableIndex] = x;
 
-            String widthKey = CFGKEY_COLUMN_WIDTH + x;
+            final String widthKey = CFGKEY_COLUMN_WIDTH + x;
             if( Core.frostSettings.getObjectValue(widthKey) == null ) {
                 return false; // column not found, abort
             }
             // build array of table to model associations
-            int columnWidth = Core.frostSettings.getIntValue(widthKey);
+            final int columnWidth = Core.frostSettings.getIntValue(widthKey);
             if( columnWidth <= 0 ) {
                 return false; // invalid column width
             }
@@ -743,7 +751,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
         }
         // columns are currently added in model order, remove them all and save in an array
         // while on it, set the loaded width of each column
-        TableColumn[] tcms = new TableColumn[tcm.getColumnCount()];
+        final TableColumn[] tcms = new TableColumn[tcm.getColumnCount()];
         for(int x=tcms.length-1; x >= 0; x--) {
             tcms[x] = tcm.getColumn(x);
             tcm.removeColumn(tcms[x]);
@@ -753,22 +761,22 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
             }
         }
         // add the columns in order loaded from settings
-        for(int x=0; x < tableToModelIndex.length; x++) {
-            tcm.addColumn(tcms[tableToModelIndex[x]]);
+        for( final int element : tableToModelIndex ) {
+            tcm.addColumn(tcms[element]);
         }
         return true;
     }
 
 
-    public int[] getColumnNumbers(int fieldID) {
+    public int[] getColumnNumbers(final int fieldID) {
         return new int[] {};
     }
 
-    public void languageChanged(LanguageEvent event) {
+    public void languageChanged(final LanguageEvent event) {
         refreshLanguage();
     }
-    
-    public void propertyChange(PropertyChangeEvent evt) {
+
+    public void propertyChange(final PropertyChangeEvent evt) {
         if (evt.getPropertyName().equals(SettingsClass.SHOW_COLORED_ROWS)) {
             showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
             modelTable.fireTableDataChanged();

@@ -74,10 +74,10 @@ public class MessageFrame extends JFrame {
     private JSkinnablePopupMenu attBoardsPopupMenu;
     private MessageBodyPopupMenu messageBodyPopupMenu;
 
-    private final JButton Bsend = new JButton(new ImageIcon(this.getClass().getResource("/data/send.gif")));
-    private final JButton Bcancel = new JButton(new ImageIcon(this.getClass().getResource("/data/remove.gif")));
-    private final JButton BattachFile = new JButton(new ImageIcon(this.getClass().getResource("/data/attachment.gif")));
-    private final JButton BattachBoard = new JButton(new ImageIcon(MainFrame.class.getResource("/data/attachmentBoard.gif")));
+    private final JButton Bsend = new JButton(MiscToolkit.loadImageIcon("/data/send.gif"));
+    private final JButton Bcancel = new JButton(MiscToolkit.loadImageIcon("/data/remove.gif"));
+    private final JButton BattachFile = new JButton(MiscToolkit.loadImageIcon("/data/attachment.gif"));
+    private final JButton BattachBoard = new JButton(MiscToolkit.loadImageIcon("/data/attachmentBoard.gif"));
 
     private final JCheckBox sign = new JCheckBox();
     private final JCheckBox encrypt = new JCheckBox();
@@ -88,7 +88,7 @@ public class MessageFrame extends JFrame {
     private final JLabel Lsubject = new JLabel();
     private final JTextField TFboard = new JTextField(); // Board (To)
     private final JTextField subjectTextField = new JTextField(); // Subject
-    private final JButton BchooseSmiley = new JButton(new ImageIcon(MainFrame.class.getResource("/data/togglesmileys.gif")));
+    private final JButton BchooseSmiley = new JButton(MiscToolkit.loadImageIcon("/data/togglesmileys.gif"));
 
     private final AntialiasedTextArea messageTextArea = new AntialiasedTextArea(); // Text
     private ImmutableArea headerArea = null;
@@ -346,8 +346,8 @@ public class MessageFrame extends JFrame {
 
         sign.setEnabled(false);
 
-        final ImageIcon signedIcon = new ImageIcon(this.getClass().getResource("/data/signed.gif"));
-        final ImageIcon unsignedIcon = new ImageIcon(this.getClass().getResource("/data/unsigned.gif"));
+        final ImageIcon signedIcon = MiscToolkit.loadImageIcon("/data/signed.gif");
+        final ImageIcon unsignedIcon = MiscToolkit.loadImageIcon("/data/unsigned.gif");
         sign.setDisabledSelectedIcon(signedIcon);
         sign.setDisabledIcon(unsignedIcon);
         sign.setSelectedIcon(signedIcon);
@@ -508,7 +508,7 @@ public class MessageFrame extends JFrame {
             refreshLanguage();
             language.addLanguageListener(listener);
 
-            final ImageIcon frameIcon = new ImageIcon(getClass().getResource("/data/newmessage.gif"));
+            final ImageIcon frameIcon = MiscToolkit.loadImageIcon("/data/newmessage.gif");
             setIconImage(frameIcon.getImage());
             setResizable(true);
 

@@ -6,12 +6,12 @@
  modify it under the terms of the GNU General Public License as
  published by the Free Software Foundation; either version 2 of
  the License, or (at your option) any later version.
- 
+
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
@@ -29,6 +29,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
 
+import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
@@ -40,52 +41,52 @@ import frost.util.gui.translation.*;
 public class HelpBrowser extends JPanel {
 
     private static final Logger logger = Logger.getLogger(HelpBrowser.class.getName());
-    
+
     private static Language language = Language.getInstance();
-    
-    private String url_prefix;
+
+    private final String url_prefix;
 //    private String url_locale;
-    private String homePage;
-    
+    private final String homePage;
+
     private BrowserHistory browserHistory = null;
-    
+
     // Global Variables
     JFrame parent;
     // GUI Objects
     JButton backButton;
     JButton homeButton;
     JButton forwardButton;
-    
+
     JTextField TFsearchTxt;
     JButton BfindNext;
     JButton BfindPrev;
 
     JEditorPane editorPane;
-    
+
     HelpHTMLEditorKit helpHTMLEditorKit;
-    
+
     int lastSearchPosStart = 0;
     int lastSearchPosEnd = 0;
     String lastSearchText = null;
 
-    public HelpBrowser(JFrame parent, String locale, String zipfile, String homePage) {
+    public HelpBrowser(final JFrame parent, final String locale, final String zipfile, final String homePage) {
         this.parent = parent;
         this.url_prefix = zipfile;
         this.homePage = homePage;
         setHelpLocale(locale);
         init();
     }
-    
+
     private void init() {
-      
+
         // history init
         browserHistory = new BrowserHistory();
         browserHistory.resetToHomepage(homePage);
-        
+
         editorPane = new JEditorPane();
         editorPane.setCaret(new SelectionPreservingCaret());
         editorPane.addHyperlinkListener(new HyperlinkListener() {
-            public void hyperlinkUpdate(HyperlinkEvent e) {
+            public void hyperlinkUpdate(final HyperlinkEvent e) {
                 if( e.getEventType() == HyperlinkEvent.EventType.ENTERED ) {
                     ((JEditorPane) e.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                     return;
@@ -102,100 +103,102 @@ public class HelpBrowser extends JPanel {
             }
         });
         editorPane.addMouseListener(new MouseAdapter() {
-            public void mousePressed(MouseEvent e) {
+            @Override
+            public void mousePressed(final MouseEvent e) {
                 if (e.isPopupTrigger()) {
                     showEditorPanePopupMenu(e);
                 }
             }
-            public void mouseReleased(MouseEvent e) {
+            @Override
+            public void mouseReleased(final MouseEvent e) {
                 if (e.isPopupTrigger()) {
                     showEditorPanePopupMenu(e);
                 }
             }
         });
 
-        JScrollPane scrollPane = new JScrollPane(editorPane);
+        final JScrollPane scrollPane = new JScrollPane(editorPane);
         scrollPane.setWheelScrollingEnabled(true);
 
-        backButton = new JButton(new ImageIcon(this.getClass().getResource("/data/back.png")));
+        backButton = new JButton(MiscToolkit.loadImageIcon("/data/back.png"));
         backButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 if( browserHistory.isBackwardPossible() ) {
                     setHelpPage(browserHistory.backwardPage());
                 }
             }
         });
 
-        forwardButton = new JButton(new ImageIcon(this.getClass().getResource("/data/forward.png")));
+        forwardButton = new JButton(MiscToolkit.loadImageIcon("/data/forward.png"));
         forwardButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 if( browserHistory.isForwardPossible() ) {
                     setHelpPage(browserHistory.forwardPage());
                 }
             }
         });
 
-        homeButton = new JButton(new ImageIcon(this.getClass().getResource("/data/gohome.png")));
+        homeButton = new JButton(MiscToolkit.loadImageIcon("/data/gohome.png"));
         homeButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 browserHistory.resetToHomepage(homePage);
                 setHelpPage(homePage);
             }
         });
-        
-        JLabel Lsearch = new JLabel(new ImageIcon(getClass().getResource("/data/search.gif")));
+
+        final JLabel Lsearch = new JLabel(MiscToolkit.loadImageIcon("/data/search.gif"));
         TFsearchTxt = new JTextField(15);
-        
-        BfindNext = new JButton(new ImageIcon(getClass().getResource("/data/searchNext.png")));
+
+        BfindNext = new JButton(MiscToolkit.loadImageIcon("/data/searchNext.png"));
         BfindNext.setDefaultCapable(true);
         BfindNext.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 searchText(true); // search forward
             }
         });
 
-        BfindPrev = new JButton(new ImageIcon(getClass().getResource("/data/searchPrev.png")));
+        BfindPrev = new JButton(MiscToolkit.loadImageIcon("/data/searchPrev.png"));
         BfindPrev.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(final ActionEvent e) {
                 searchText(false); // search backward
             }
         });
 
-        JPanel contentPanel = this;
+        final JPanel contentPanel = this;
         contentPanel.setLayout(new BorderLayout());
 
-        JPanel buttonPanelLeft = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        final JPanel buttonPanelLeft = new JPanel(new FlowLayout(FlowLayout.LEFT));
         buttonPanelLeft.add(backButton);
         buttonPanelLeft.add(homeButton);
         buttonPanelLeft.add(forwardButton);
 
-        JPanel buttonPanelRight = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        final JPanel buttonPanelRight = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonPanelRight.add(Lsearch);
         buttonPanelRight.add(TFsearchTxt);
         buttonPanelRight.add(BfindNext);
         buttonPanelRight.add(BfindPrev);
 
-        JPanel buttonPanel = new JPanel(new BorderLayout());
+        final JPanel buttonPanel = new JPanel(new BorderLayout());
         buttonPanel.add(buttonPanelLeft, BorderLayout.WEST);
         buttonPanel.add(buttonPanelRight, BorderLayout.EAST);
 
         editorPane.setEditable(false);
         contentPanel.add(scrollPane, BorderLayout.CENTER);
         contentPanel.add(buttonPanel, BorderLayout.NORTH);
-   
+
         helpHTMLEditorKit = new HelpHTMLEditorKit(url_prefix);
         editorPane.setEditorKit(helpHTMLEditorKit);
-        
+
         setHelpPage(homePage);
     }
-    
-    private void showEditorPanePopupMenu(MouseEvent e) {
-        JPopupMenu p = new PopupMenuTofText(editorPane);
+
+    private void showEditorPanePopupMenu(final MouseEvent e) {
+        final JPopupMenu p = new PopupMenuTofText(editorPane);
         p.show(e.getComponent(), e.getX(), e.getY());
     }
-    
-    private void searchText(boolean forward) {
-        
+
+    private void searchText(final boolean forward) {
+
         String searchTxt = TFsearchTxt.getText();
         if( searchTxt == null ) {
             return;
@@ -204,9 +207,9 @@ public class HelpBrowser extends JPanel {
         if( searchTxt.length() == 0 ) {
             return;
         }
-        
+
         searchTxt = searchTxt.toLowerCase();
-        
+
         if( lastSearchText == null ) {
             lastSearchText = searchTxt;
         } else if( lastSearchText != null && searchTxt.equals(lastSearchText) == false ) {
@@ -215,12 +218,12 @@ public class HelpBrowser extends JPanel {
             lastSearchPosEnd=0;
             lastSearchText=searchTxt;
         }
-        
+
         String docTxt = null;
         try {
             docTxt = helpHTMLEditorKit.getHelpHTMLDocument().getText(0, helpHTMLEditorKit.getHelpHTMLDocument().getLength());
             docTxt = docTxt.toLowerCase();
-        } catch (BadLocationException e1) {
+        } catch (final BadLocationException e1) {
             logger.log(Level.SEVERE, "Could not get text from document.", e1);
             return;
         }
@@ -231,7 +234,7 @@ public class HelpBrowser extends JPanel {
         } else {
             // search before last found startPos
             if( lastSearchPosStart > 0 ) {
-                String tmpStr = docTxt.substring(0, lastSearchPosStart);
+                final String tmpStr = docTxt.substring(0, lastSearchPosStart);
                 pos = tmpStr.lastIndexOf(searchTxt);
             } else {
                 // we are already at the begin
@@ -240,10 +243,10 @@ public class HelpBrowser extends JPanel {
         }
         if( pos > -1 ) {
             // scroll to text and select
-            int endPos = pos + searchTxt.length();
+            final int endPos = pos + searchTxt.length();
             editorPane.setCaretPosition(pos);
             editorPane.moveCaretPosition(endPos);
-            
+
             lastSearchPosStart = pos;
             lastSearchPosEnd = endPos;
         } else {
@@ -258,7 +261,7 @@ public class HelpBrowser extends JPanel {
         if( url == null ) {
             url = homePage;
         }
-        
+
         if( url.startsWith(url_prefix) ) {
             url = url.substring(url_prefix.length());
         }
@@ -269,33 +272,33 @@ public class HelpBrowser extends JPanel {
             lastSearchPosStart = 0; // reset pos
             lastSearchPosEnd = 0; // reset pos
             lastSearchText = null;
-            
+
             editorPane.requestFocus();
 
-        } catch (IOException e1) {
+        } catch (final IOException e1) {
             logger.log(Level.INFO, "HELP: Missing file: '" + url + "'");
         }
-        
+
         updateBrowserButtons();
     }
 
     private void updateBrowserButtons() {
-        forwardButton.setEnabled( browserHistory.isForwardPossible() ); 
-        backButton.setEnabled( browserHistory.isBackwardPossible() ); 
+        forwardButton.setEnabled( browserHistory.isForwardPossible() );
+        backButton.setEnabled( browserHistory.isBackwardPossible() );
     }
 
-    void setHelpLocale(String newLocale) {
-        // Hier ist ne schoene stelle zum pruefen.        
+    void setHelpLocale(final String newLocale) {
+        // Hier ist ne schoene stelle zum pruefen.
 //        if( newLocale.equals("default") ) {
 //            url_locale = "";
 //        } else {
 //            url_locale = newLocale;
 //        }
     }
-    
+
     private class BrowserHistory {
 
-        private ArrayList<String> history = new ArrayList<String>();
+        private final ArrayList<String> history = new ArrayList<String>();
         private int historypos = -1; // this means history ist invalid
 
         public boolean isForwardPossible() {
@@ -309,7 +312,7 @@ public class HelpBrowser extends JPanel {
                 return null;
             }
             historypos++;
-            return (String)history.get(historypos);
+            return history.get(historypos);
         }
         public boolean isBackwardPossible() {
             if( historypos > 0 ) {
@@ -322,9 +325,9 @@ public class HelpBrowser extends JPanel {
                 return null;
             }
             historypos--;
-            return (String)history.get(historypos);
+            return history.get(historypos);
         }
-        public void setCurrentPage(String page) {
+        public void setCurrentPage(final String page) {
             // a link was clicked, add this new page after current historypos and clear alll forward pages
             // this is the behaviour of Mozilla too
             if( historypos < history.size()-1 ) {
@@ -333,13 +336,13 @@ public class HelpBrowser extends JPanel {
             history.add(page);
             historypos++;
         }
-        public void resetToHomepage(String homepage) {
+        public void resetToHomepage(final String homepage) {
             history.clear();
             history.add(homepage);
             historypos = 0; // current page is page at index 0
         }
     }
-    
+
     /**
      * Caret implementation that doesn't blow away the selection when
      * we lose focus.
@@ -365,16 +368,16 @@ public class HelpBrowser extends JPanel {
             // using a look and feel for which this is not the case, you may
             // need to set the blink rate after creating the Caret.
             int blinkRate = 500;
-            Object o = UIManager.get("TextArea.caretBlinkRate");
+            final Object o = UIManager.get("TextArea.caretBlinkRate");
             if ((o != null) && (o instanceof Integer)) {
-                Integer rate = (Integer) o;
+                final Integer rate = (Integer) o;
                 blinkRate = rate.intValue();
             }
             setBlinkRate(blinkRate);
         }
 
         /**
-         * Called when the component containing the caret gains focus. 
+         * Called when the component containing the caret gains focus.
          * DefaultCaret does most of the work, while the subclass checks
          * to see if another instance of SelectionPreservingCaret previously
          * had focus.
@@ -382,7 +385,8 @@ public class HelpBrowser extends JPanel {
          * @param e the focus event
          * @see java.awt.event.FocusListener#focusGained
          */
-        public void focusGained(FocusEvent evt) {
+        @Override
+        public void focusGained(final FocusEvent evt) {
             super.focusGained(evt);
 
             // If another instance of SelectionPreservingCaret had focus and
@@ -394,7 +398,7 @@ public class HelpBrowser extends JPanel {
 
         /**
          * Called when the component containing the caret loses focus. Instead
-         * of hiding both the caret and the selection, the subclass only 
+         * of hiding both the caret and the selection, the subclass only
          * hides the caret and saves a (static) reference to the event and this
          * specific caret instance so that the event can be delivered later
          * if appropriate.
@@ -402,7 +406,8 @@ public class HelpBrowser extends JPanel {
          * @param e the focus event
          * @see java.awt.event.FocusListener#focusLost
          */
-        public void focusLost(FocusEvent evt) {
+        @Override
+        public void focusLost(final FocusEvent evt) {
             setVisible(false);
             last = this;
             lastFocusEvent = evt;
@@ -419,28 +424,28 @@ public class HelpBrowser extends JPanel {
             }
         }
     }
-    
+
     private class PopupMenuTofText
     extends JSkinnablePopupMenu
     implements ActionListener, LanguageListener, ClipboardOwner {
 
         private Clipboard clipboard;
 
-        private JTextComponent sourceTextComponent;
+        private final JTextComponent sourceTextComponent;
 
-        private JMenuItem copyItem = new JMenuItem();
-        private JMenuItem cancelItem = new JMenuItem();
+        private final JMenuItem copyItem = new JMenuItem();
+        private final JMenuItem cancelItem = new JMenuItem();
 
-        public PopupMenuTofText(JTextComponent sourceTextComponent) {
+        public PopupMenuTofText(final JTextComponent sourceTextComponent) {
             super();
             this.sourceTextComponent = sourceTextComponent;
             initialize();
         }
 
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(final ActionEvent e) {
             if (e.getSource() == copyItem) {
                 // copy selected text
-                StringSelection selection = new StringSelection(sourceTextComponent.getSelectedText());
+                final StringSelection selection = new StringSelection(sourceTextComponent.getSelectedText());
                 clipboard.setContents(selection, this);
             }
         }
@@ -448,7 +453,7 @@ public class HelpBrowser extends JPanel {
         private void initialize() {
             languageChanged(null);
 
-            Toolkit toolkit = Toolkit.getDefaultToolkit();
+            final Toolkit toolkit = Toolkit.getDefaultToolkit();
             clipboard = toolkit.getSystemClipboard();
 
             copyItem.addActionListener(this);
@@ -458,12 +463,13 @@ public class HelpBrowser extends JPanel {
             add(cancelItem);
         }
 
-        public void languageChanged(LanguageEvent event) {
+        public void languageChanged(final LanguageEvent event) {
             copyItem.setText(language.getString("Common.copy"));
             cancelItem.setText(language.getString("Common.cancel"));
         }
 
-        public void show(Component invoker, int x, int y) {
+        @Override
+        public void show(final Component invoker, final int x, final int y) {
             if (sourceTextComponent.getSelectedText() != null) {
                 copyItem.setEnabled(true);
             } else {
@@ -472,7 +478,7 @@ public class HelpBrowser extends JPanel {
             super.show(invoker, x, y);
         }
 
-        public void lostOwnership(Clipboard tclipboard, Transferable contents) {
+        public void lostOwnership(final Clipboard tclipboard, final Transferable contents) {
             // Nothing here
         }
     }

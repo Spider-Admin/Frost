@@ -90,7 +90,7 @@ public class SmileyChooserDialog extends JDialog {
 
         for(int i = 1; i < count; i++){
             final SmileyImage si = new SmileyImage(
-                    SmileyCache.getCachedSmiley(i, getClass().getClassLoader()),
+                    SmileyCache.getCachedSmiley(i),
                     SmileyCache.getSmileyText(i));
             si.addMouseListener(l);
             p.add(si);
