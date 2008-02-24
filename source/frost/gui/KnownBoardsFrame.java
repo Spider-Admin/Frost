@@ -35,7 +35,6 @@ import frost.boards.*;
 import frost.fileTransfer.common.*;
 import frost.gui.model.*;
 import frost.storage.*;
-import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
@@ -48,10 +47,6 @@ public class KnownBoardsFrame extends JDialog {
     private final TofTree tofTree;
 
     private final HashSet<String> hiddenNames;
-
-    private static final ImageIcon boardIcon = MiscToolkit.loadImageIcon("/data/comments.png");
-    private static final ImageIcon writeAccessIcon = MiscToolkit.loadImageIcon("/data/key.png");
-    private static final ImageIcon readAccessIcon = MiscToolkit.loadImageIcon("/data/lock.png");
 
     private JButton Bclose;
     private JButton BboardActions;
@@ -140,6 +135,7 @@ public class KnownBoardsFrame extends JDialog {
             }};
         boardsTable.setRowSelectionAllowed(true);
         boardsTable.setSelectionMode( ListSelectionModel.MULTIPLE_INTERVAL_SELECTION );
+        boardsTable.setRowHeight(18);
 
         Bclose = new JButton(language.getString("KnownBoardsFrame.button.close"));
         BboardActions = new JButton(language.getString("KnownBoardsFrame.button.actions")+" ...");
@@ -715,23 +711,7 @@ public class KnownBoardsFrame extends JDialog {
                 column);
 
             final KnownBoardsTableMember memb = (KnownBoardsTableMember)tableModel.getRow(row);
-            if( memb.getBoard().getPublicKey() == null &&
-                memb.getBoard().getPrivateKey() == null )
-            {
-                // public board
-                setIcon(boardIcon);
-            }
-            else if( memb.getBoard().getPublicKey() != null &&
-                     memb.getBoard().getPrivateKey() == null )
-            {
-                // read access board
-                setIcon(readAccessIcon);
-            }
-            else if( memb.getBoard().getPrivateKey() != null )
-            {
-                // write access board (or write-only)
-                setIcon(writeAccessIcon);
-            }
+            setIcon(memb.getBoard().getStateIcon());
             return this;
         }
     }

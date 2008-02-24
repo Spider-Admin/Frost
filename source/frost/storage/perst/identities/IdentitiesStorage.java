@@ -18,7 +18,6 @@
 */
 package frost.storage.perst.identities;
 
-import java.sql.*;
 import java.util.*;
 import java.util.logging.*;
 
@@ -216,7 +215,7 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
     /**
      * Retrieve msgCount and fileCount for each identity.
      */
-    public Hashtable<String,IdentityMsgAndFileCount> retrieveMsgAndFileCountPerIdentity() throws SQLException {
+    public Hashtable<String,IdentityMsgAndFileCount> retrieveMsgAndFileCountPerIdentity() {
 
         final Hashtable<String,IdentityMsgAndFileCount> data = new Hashtable<String,IdentityMsgAndFileCount>();
 
