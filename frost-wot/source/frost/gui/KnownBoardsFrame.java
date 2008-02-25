@@ -491,13 +491,13 @@ public class KnownBoardsFrame extends JDialog {
         }
         final List<Board> imports = KnownBoardsXmlDAO.loadKnownBoards(xmlFile);
         if( imports.size() == 0 ) {
-            MiscToolkit.getInstance().showMessage(
+            MiscToolkit.showMessage(
                     language.getString("KnownBoardsFrame.noBoardsImported.body"),
                     JOptionPane.WARNING_MESSAGE,
                     language.getString("KnownBoardsFrame.noBoardsImported.title"));
         } else {
             final int added = KnownBoardsManager.addNewKnownBoards(imports);
-            MiscToolkit.getInstance().showMessage(
+            MiscToolkit.showMessage(
                     language.formatMessage("KnownBoardsFrame.boardsImported.body",
                             Integer.toString(imports.size()),
                             xmlFile.getName(),
@@ -524,12 +524,12 @@ public class KnownBoardsFrame extends JDialog {
         }
 
         if( KnownBoardsXmlDAO.saveKnownBoards(xmlFile, frostboards) ) {
-            MiscToolkit.getInstance().showMessage(
+            MiscToolkit.showMessage(
                     language.formatMessage("KnownBoardsFrame.boardsExported.body", Integer.toString(frostboards.size()), xmlFile.getName()),
                     JOptionPane.INFORMATION_MESSAGE,
                     language.getString("KnownBoardsFrame.boardsExported.title"));
         } else {
-            MiscToolkit.getInstance().showMessage(
+            MiscToolkit.showMessage(
                     language.getString("KnownBoardsFrame.exportFailed.body"),
                     JOptionPane.ERROR_MESSAGE,
                     language.getString("KnownBoardsFrame.exportFailed.title"));

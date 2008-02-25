@@ -480,18 +480,17 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
     private JToolBar getButtonsToolbar() {
         // configure buttons
-        final MiscToolkit toolkit = MiscToolkit.getInstance();
-        toolkit.configureButton(newMessageButton, "MessagePane.toolbar.tooltip.newMessage", language);
-        toolkit.configureButton(updateBoardButton, "MessagePane.toolbar.tooltip.update", language);
-        toolkit.configureButton(replyButton, "MessagePane.toolbar.tooltip.reply", language);
-        toolkit.configureButton(saveMessageButton, "MessagePane.toolbar.tooltip.saveMessage", language);
-        toolkit.configureButton(nextUnreadMessageButton, "MessagePane.toolbar.tooltip.nextUnreadMessage", language);
-        toolkit.configureButton(setGoodButton, "MessagePane.toolbar.tooltip.setToGood", language);
-        toolkit.configureButton(setBadButton, "MessagePane.toolbar.tooltip.setToBad", language);
-        toolkit.configureButton(setCheckButton, "MessagePane.toolbar.tooltip.setToCheck", language);
-        toolkit.configureButton(setObserveButton, "MessagePane.toolbar.tooltip.setToObserve", language);
-        // toolkit.configureButton(downloadAttachmentsButton,"Download attachment(s)","/data/attachment_rollover.gif",language);
-        // toolkit.configureButton(downloadBoardsButton,"Add Board(s)","/data/attachmentBoard_rollover.gif",language);
+        MiscToolkit.configureButton(newMessageButton, "MessagePane.toolbar.tooltip.newMessage", language);
+        MiscToolkit.configureButton(updateBoardButton, "MessagePane.toolbar.tooltip.update", language);
+        MiscToolkit.configureButton(replyButton, "MessagePane.toolbar.tooltip.reply", language);
+        MiscToolkit.configureButton(saveMessageButton, "MessagePane.toolbar.tooltip.saveMessage", language);
+        MiscToolkit.configureButton(nextUnreadMessageButton, "MessagePane.toolbar.tooltip.nextUnreadMessage", language);
+        MiscToolkit.configureButton(setGoodButton, "MessagePane.toolbar.tooltip.setToGood", language);
+        MiscToolkit.configureButton(setBadButton, "MessagePane.toolbar.tooltip.setToBad", language);
+        MiscToolkit.configureButton(setCheckButton, "MessagePane.toolbar.tooltip.setToCheck", language);
+        MiscToolkit.configureButton(setObserveButton, "MessagePane.toolbar.tooltip.setToObserve", language);
+        // MiscToolkit.configureButton(downloadAttachmentsButton,"Download attachment(s)","/data/attachment_rollover.gif",language);
+        // MiscToolkit.configureButton(downloadBoardsButton,"Add Board(s)","/data/attachmentBoard_rollover.gif",language);
 
         replyButton.setEnabled(false);
         saveMessageButton.setEnabled(false);

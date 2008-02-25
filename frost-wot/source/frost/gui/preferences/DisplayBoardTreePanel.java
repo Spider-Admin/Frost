@@ -31,7 +31,7 @@ import frost.util.gui.translation.*;
 public class DisplayBoardTreePanel extends JPanel {
 
     private class Listener implements ActionListener {
-        public void actionPerformed(ActionEvent e) {
+        public void actionPerformed(final ActionEvent e) {
             if (e.getSource() == selectedColorButton) {
                 selectedColorPressed();
             } else if (e.getSource() == notSelectedColorButton) {
@@ -45,29 +45,29 @@ public class DisplayBoardTreePanel extends JPanel {
     private SettingsClass settings = null;
     private Language language = null;
 
-    private JCheckBox showBoardDescTooltipsCheckBox = new JCheckBox();
-    private JCheckBox showBoardUpdateCountCheckBox = new JCheckBox();
-    private JCheckBox preventBoardtreeReordering = new JCheckBox();
-    private JCheckBox showFlaggedStarredIndicators = new JCheckBox();
+    private final JCheckBox showBoardDescTooltipsCheckBox = new JCheckBox();
+    private final JCheckBox showBoardUpdateCountCheckBox = new JCheckBox();
+    private final JCheckBox preventBoardtreeReordering = new JCheckBox();
+    private final JCheckBox showFlaggedStarredIndicators = new JCheckBox();
 
-    private JCheckBox showBoardUpdateVisualizationCheckBox = new JCheckBox();
+    private final JCheckBox showBoardUpdateVisualizationCheckBox = new JCheckBox();
     private JPanel colorPanel = null;
-    private JButton selectedColorButton = new JButton();
-    private JLabel selectedColorTextLabel = new JLabel();
-    private JLabel selectedColorLabel = new JLabel();
-    private JButton notSelectedColorButton = new JButton();
-    private JLabel notSelectedColorTextLabel = new JLabel();
-    private JLabel notSelectedColorLabel = new JLabel();
+    private final JButton selectedColorButton = new JButton();
+    private final JLabel selectedColorTextLabel = new JLabel();
+    private final JLabel selectedColorLabel = new JLabel();
+    private final JButton notSelectedColorButton = new JButton();
+    private final JLabel notSelectedColorTextLabel = new JLabel();
+    private final JLabel notSelectedColorLabel = new JLabel();
     private Color selectedColor = null;
     private Color notSelectedColor = null;
 
-    private Listener listener = new Listener();
+    private final Listener listener = new Listener();
 
     /**
      * @param owner the JDialog that will be used as owner of any dialog that is popped up from this panel
      * @param settings the SettingsClass instance that will be used to get and store the settings of the panel
      */
-    protected DisplayBoardTreePanel(JDialog owner, SettingsClass settings) {
+    protected DisplayBoardTreePanel(final JDialog owner, final SettingsClass settings) {
         super();
 
         this.language = Language.getInstance();
@@ -85,7 +85,7 @@ public class DisplayBoardTreePanel extends JPanel {
 
             colorPanel = new JPanel(new GridBagLayout());
             colorPanel.setBorder(new EmptyBorder(5, 30, 5, 5));
-            GridBagConstraints constraints = new GridBagConstraints();
+            final GridBagConstraints constraints = new GridBagConstraints();
             constraints.insets = new Insets(0, 5, 5, 5);
             constraints.weighty = 1;
             constraints.weightx = 1;
@@ -137,21 +137,21 @@ public class DisplayBoardTreePanel extends JPanel {
         setLayout(new GridBagLayout());
         refreshLanguage();
 
-        GridBagConstraints constraints = new GridBagConstraints();
+        final GridBagConstraints constraints = new GridBagConstraints();
         constraints.anchor = GridBagConstraints.NORTHWEST;
         constraints.fill = GridBagConstraints.BOTH;
         constraints.weightx = 1;
-        Insets inset5511 = new Insets(5, 5, 1, 1);
-        
+        final Insets inset5511 = new Insets(5, 5, 1, 1);
+
         constraints.insets = inset5511;
         constraints.gridx = 0;
         constraints.gridy = 0;
-        
+
         add(showBoardUpdateVisualizationCheckBox, constraints);
 
         constraints.gridy++;
         add(getColorPanel(), constraints);
-        
+
         constraints.gridy++;
         add(showBoardUpdateCountCheckBox, constraints);
 
@@ -160,7 +160,7 @@ public class DisplayBoardTreePanel extends JPanel {
 
         constraints.gridy++;
         add(preventBoardtreeReordering, constraints);
-        
+
         constraints.gridy++;
         add(showFlaggedStarredIndicators, constraints);
 
@@ -168,7 +168,7 @@ public class DisplayBoardTreePanel extends JPanel {
         constraints.weighty = 1.0;
         constraints.fill = GridBagConstraints.BOTH;
         add(new JLabel(""), constraints);
-        
+
         // Add listeners
         selectedColorButton.addActionListener(listener);
         notSelectedColorButton.addActionListener(listener);
@@ -203,9 +203,9 @@ public class DisplayBoardTreePanel extends JPanel {
         preventBoardtreeReordering.setText(language.getString("Options.display.preventBoardtreeReordering"));
         showFlaggedStarredIndicators.setText(language.getString("Options.display.showBoardtreeFlaggedStarredIndicators"));
 
-        String on = language.getString("Options.common.on");
-        String color = language.getString("Options.news.3.color");
-        String choose = language.getString("Options.news.3.choose");
+        final String on = language.getString("Options.common.on");
+        final String color = language.getString("Options.news.3.color");
+        final String choose = language.getString("Options.news.3.choose");
         showBoardUpdateVisualizationCheckBox.setText(language.getString("Options.news.3.showBoardUpdateVisualization") + " (" + on + ")");
         selectedColorTextLabel.setText(language.getString("Options.news.3.backgroundColorIfUpdatingBoardIsSelected"));
         selectedColorLabel.setText("    " + color + "    ");
@@ -223,14 +223,14 @@ public class DisplayBoardTreePanel extends JPanel {
         settings.setValue(SettingsClass.SHOW_BOARDDESC_TOOLTIPS, showBoardDescTooltipsCheckBox.isSelected());
         settings.setValue(SettingsClass.PREVENT_BOARDTREE_REORDERING, preventBoardtreeReordering.isSelected());
         settings.setValue(SettingsClass.SHOW_BOARDTREE_FLAGGEDSTARRED_INDICATOR, showFlaggedStarredIndicators.isSelected());
-        
+
         settings.setValue(SettingsClass.BOARD_UPDATE_VISUALIZATION_ENABLED, showBoardUpdateVisualizationCheckBox.isSelected());
         settings.setObjectValue(SettingsClass.BOARD_UPDATE_VISUALIZATION_BGCOLOR_SELECTED, selectedColor);
         settings.setObjectValue(SettingsClass.BOARD_UPDATE_VISUALIZATION_BGCOLOR_NOT_SELECTED, notSelectedColor);
     }
-    
+
     private void selectedColorPressed() {
-        Color newCol =
+        final Color newCol =
             JColorChooser.showDialog(
                 getTopLevelAncestor(),
                 language.getString("Options.news.3.colorChooserDialog.title.chooseUpdatingColorOfSelectedBoards"),
@@ -240,9 +240,9 @@ public class DisplayBoardTreePanel extends JPanel {
             selectedColorLabel.setBackground(selectedColor);
         }
     }
-    
+
     private void notSelectedColorPressed() {
-        Color newCol =
+        final Color newCol =
             JColorChooser.showDialog(
                 getTopLevelAncestor(),
                 language.getString("Options.news.3.colorChooserDialog.title.chooseUpdatingColorOfUnselectedBoards"),
@@ -252,8 +252,8 @@ public class DisplayBoardTreePanel extends JPanel {
             notSelectedColorLabel.setBackground(notSelectedColor);
         }
     }
-    
+
     private void refreshUpdateState() {
-        MiscToolkit.getInstance().setContainerEnabled(getColorPanel(), showBoardUpdateVisualizationCheckBox.isSelected());
+        MiscToolkit.setContainerEnabled(getColorPanel(), showBoardUpdateVisualizationCheckBox.isSelected());
     }
 }

@@ -110,7 +110,7 @@ public class Core implements FrostEventDispatcher  {
         }
 
         if( freenetVersion != FcpHandler.FREENET_05 && freenetVersion != FcpHandler.FREENET_07 ) {
-            MiscToolkit.getInstance().showMessage(
+            MiscToolkit.showMessage(
                     language.getString("Core.init.UnsupportedFreenetVersionBody")+": "+freenetVersion,
                     JOptionPane.ERROR_MESSAGE,
                     language.getString("Core.init.UnsupportedFreenetVersionTitle"));
@@ -134,7 +134,7 @@ public class Core implements FrostEventDispatcher  {
         }
 
         if (nodes.size() == 0) {
-            MiscToolkit.getInstance().showMessage(
+            MiscToolkit.showMessage(
                 "Not a single Freenet node configured. You need at least one.",
                 JOptionPane.ERROR_MESSAGE,
                 "ERROR: No Freenet nodes are configured.");
@@ -145,7 +145,7 @@ public class Core implements FrostEventDispatcher  {
             if (nodes.size() > 1) {
                 if( frostSettings.getBoolValue(SettingsClass.FCP2_USE_PERSISTENCE) ) {
                     // persistence is not possible with more than 1 node
-                    MiscToolkit.getInstance().showMessage(
+                    MiscToolkit.showMessage(
                             "Persistence is not possible with more than 1 node. Persistence disabled.",
                             JOptionPane.ERROR_MESSAGE,
                             "Warning: Persistence is not possible");
@@ -158,7 +158,7 @@ public class Core implements FrostEventDispatcher  {
         try {
             FcpHandler.initializeFcp(nodes, freenetVersion);
         } catch(final UnsupportedOperationException ex) {
-            MiscToolkit.getInstance().showMessage(
+            MiscToolkit.showMessage(
                     ex.getMessage(),
                     JOptionPane.ERROR_MESSAGE,
                     language.getString("Core.init.UnsupportedFreenetVersionTitle"));
@@ -197,7 +197,7 @@ public class Core implements FrostEventDispatcher  {
         }
 
         if( runningOnTestnet ) {
-            MiscToolkit.getInstance().showMessage(
+            MiscToolkit.showMessage(
                     language.getString("Core.init.TestnetWarningBody"),
                     JOptionPane.WARNING_MESSAGE,
                     language.getString("Core.init.TestnetWarningTitle"));
@@ -205,7 +205,7 @@ public class Core implements FrostEventDispatcher  {
 
         // We warn the user if there aren't any running nodes
         if (!isFreenetOnline()) {
-            MiscToolkit.getInstance().showMessage(
+            MiscToolkit.showMessage(
                 language.getString("Core.init.NodeNotRunningBody"),
                 JOptionPane.WARNING_MESSAGE,
                 language.getString("Core.init.NodeNotRunningTitle"));
@@ -341,7 +341,7 @@ public class Core implements FrostEventDispatcher  {
         } catch(final Exception ex) {
             logger.log(Level.SEVERE, "Error compacting perst storages", ex);
             ex.printStackTrace();
-            MiscToolkit.getInstance().showMessage(
+            MiscToolkit.showMessage(
                     "Error compacting perst storages, compact did not complete: "+ex.getMessage(),
                     JOptionPane.ERROR_MESSAGE,
                     "Error compacting perst storages");

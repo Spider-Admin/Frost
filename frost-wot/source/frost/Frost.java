@@ -221,7 +221,7 @@ public class Frost {
                     }
                 }
                 if( !skipInfoDialog ) {
-                    MiscToolkit.getInstance().showMessage(
+                    MiscToolkit.showMessage(
                             "Frost was tested with Java from Sun. Your JVM vendor is "+jvmVendor+".\n"
                                 + "If Frost does not work as expected, get Suns Java from http://java.sun.com\n\n"
                                 + "(This information dialog will not be shown again until your JVM version changed.)",
@@ -305,8 +305,8 @@ public class Frost {
             Class.forName("org.garret.perst.Persistent");
 
         } catch (final ClassNotFoundException e1) {
-            MiscToolkit.getInstance().showMessage(
-                "Please start Frost using the provided start "
+            MiscToolkit.showMessage(
+                "Please start Frost using its start "
                     + "scripts (frost.bat for Windows, frost.sh for Unix).\n"
                     + "If Frost was working and you updated just frost.jar, try updating with frost.zip\n"
                     + "ERROR: The jar file " + jarFileName + " is missing.",
@@ -349,7 +349,7 @@ public class Frost {
         }
 
         if (fileLock == null) {
-            MiscToolkit.getInstance().showMessage(
+            MiscToolkit.showMessage(
                 language.getString("Frost.lockFileFound") + "'" +
                     runLockFile.getAbsolutePath() + "'",
                 JOptionPane.ERROR_MESSAGE,

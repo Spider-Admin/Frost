@@ -96,10 +96,9 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		if (!initialized) {
 			refreshLanguage();
 
-			//create the top panel
-			final MiscToolkit toolkit = MiscToolkit.getInstance();
-			toolkit.configureButton(downloadActivateButton); // play_rollover
-			toolkit.configureButton(downloadPauseButton); // pause_rollover
+			// create the top panel
+			MiscToolkit.configureButton(downloadActivateButton); // play_rollover
+			MiscToolkit.configureButton(downloadPauseButton); // pause_rollover
 
 			new TextComponentClipboardMenu(downloadTextField, language);
 

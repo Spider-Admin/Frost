@@ -678,8 +678,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
         Core.frostSettings.addPropertyChangeListener(SettingsClass.SHOW_BOARD_UPDATE_VISUALIZATION, this);
         Core.frostSettings.addPropertyChangeListener(SettingsClass.SHOW_BOARDTREE_FLAGGEDSTARRED_INDICATOR, this);
 
-        final MiscToolkit toolkit = MiscToolkit.getInstance();
-        configBoardMenuItem.setIcon(toolkit.getScaledImage("/data/toolbar/document-properties.png", 16, 16));
+        configBoardMenuItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/document-properties.png", 16, 16));
         refreshLanguage();
 
         putClientProperty("JTree.lineStyle", "Angled"); // I like this look

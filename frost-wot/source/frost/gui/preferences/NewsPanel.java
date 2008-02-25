@@ -348,7 +348,7 @@ class NewsPanel extends JPanel {
     }
 
     private void refreshUpdateState() {
-        MiscToolkit.getInstance().setContainerEnabled(getUpdatePanel(), automaticBoardUpdateCheckBox.isSelected());
+        MiscToolkit.setContainerEnabled(getUpdatePanel(), automaticBoardUpdateCheckBox.isSelected());
     }
 
     private void altEditChanged() {
