@@ -39,6 +39,9 @@ import frost.util.model.*;
  */
 public class PersistenceManager implements IFcpPersistentRequestsHandler {
 
+//    Maintain a flag if request is currently running. when we restart and it should be running, but isn't, set FAILED
+//    Maintain always (manual remove, ...)
+
     private static final Logger logger = Logger.getLogger(PersistenceManager.class.getName());
 
     // this would belong to the models, but not needed for 0.5 or without persistence, hence we maintain it here
@@ -883,7 +886,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             }
         }
     }
-
+// todo: abstractes item (upload+download) mit shared states, functions usw. diese beiden methods sind fast diesselben!
     public void persistentRequestRemoved(final FcpPersistentGet downloadRequest) {
         if( downloadModelItems.containsKey(downloadRequest.getIdentifier()) ) {
             final FrostDownloadItem dlItem = downloadModelItems.get(downloadRequest.getIdentifier());
