@@ -516,7 +516,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
                 }
 
                 // set the icon
-                setIcon( board.getStateIcon());
+                setIcon( board.getStateIcon() );
 
                 // for a board we set indicators if board contains flagged or starred messages
                 if( showFlaggedStarredIndicators ) {
