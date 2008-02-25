@@ -529,7 +529,7 @@ public class Board extends AbstractNode {
         return dosForToday;
     }
 
-    public void setDosForToday(final boolean dosForToday) {
+    private void setDosForToday(final boolean dosForToday) {
         this.dosForToday = dosForToday;
     }
 
@@ -537,7 +537,7 @@ public class Board extends AbstractNode {
         return dosForBackloadDays;
     }
 
-    public void setDosForBackloadDays(final boolean dosForBackloadDays) {
+    private void setDosForBackloadDays(final boolean dosForBackloadDays) {
         this.dosForBackloadDays = dosForBackloadDays;
     }
 
@@ -545,7 +545,7 @@ public class Board extends AbstractNode {
         return dosForAllDays;
     }
 
-    public void setDosForAllDays(final boolean dosForAllDays) {
+    private void setDosForAllDays(final boolean dosForAllDays) {
         this.dosForAllDays = dosForAllDays;
     }
 
