@@ -56,8 +56,6 @@ public class SettingsClass implements ExitSavable {
 
     public static final String PERST_COMPACT_STORAGES = "perst.compactStorages";
 
-    public static final String MACOS_USE_SCREEN_MENUBAR = "apple.laf.useScreenMenuBar";
-
     public static final String DIR_CONFIG = "config.dir";
     public static final String DIR_DOWNLOAD = "downloadDirectory";
     public static final String DIR_LAST_USED = "lastUsedDirectory";
@@ -1026,8 +1024,6 @@ public class SettingsClass implements ExitSavable {
         defaults.put(LOG_UPLOADS_ENABLED, "false");
 
         defaults.put(CONFIRM_MARK_ALL_MSGS_READ, "true");
-
-        defaults.put(MACOS_USE_SCREEN_MENUBAR, "true");
 
         defaults.put(PERST_PAGEPOOLSIZE_FILES,              "512");
         defaults.put(PERST_PAGEPOOLSIZE_INDEXSLOTS,         "512");
