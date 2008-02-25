@@ -161,7 +161,7 @@ public class MessageFrame extends JFrame {
     private void attachBoards_actionPerformed(final ActionEvent e) {
 
         // get and sort all boards
-        final List allBoards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
+        final List<Board> allBoards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
         if (allBoards.size() == 0) {
             return;
         }
@@ -169,13 +169,13 @@ public class MessageFrame extends JFrame {
 
         final BoardsChooser chooser = new BoardsChooser(this, allBoards);
         chooser.setLocationRelativeTo(this);
-        final List chosenBoards = chooser.runDialog();
+        final List<Board> chosenBoards = chooser.runDialog();
         if (chosenBoards == null || chosenBoards.size() == 0) { // nothing chosed or cancelled
             return;
         }
 
         for (int i = 0; i < chosenBoards.size(); i++) {
-            final Board chosedBoard = (Board) chosenBoards.get(i);
+            final Board chosedBoard = chosenBoards.get(i);
 
             String privKey = chosedBoard.getPrivateKey();
 
@@ -214,9 +214,9 @@ public class MessageFrame extends JFrame {
                 frostSettings.setValue(SettingsClass.DIR_LAST_USED, element.getPath());
 
                 // collect all choosed files + files in all choosed directories
-                final ArrayList allFiles = FileAccess.getAllEntries(element, "");
+                final ArrayList<File> allFiles = FileAccess.getAllEntries(element, "");
                 for (int j = 0; j < allFiles.size(); j++) {
-                    final File aFile = (File)allFiles.get(j);
+                    final File aFile = allFiles.get(j);
                     if (aFile.isFile() && aFile.length() > 0) {
                         final MFAttachedFile af = new MFAttachedFile( aFile );
                         filesTableModel.addRow( af );
@@ -546,28 +546,11 @@ public class MessageFrame extends JFrame {
             }
             buddies.setMaximumSize(new Dimension(300, 25)); // dirty fix for overlength combobox on linux
 
-            final MiscToolkit toolkit = MiscToolkit.getInstance();
-            toolkit.configureButton(
-                    Bsend,
-                    "MessageFrame.toolbar.tooltip.sendMessage",
-                    language);
-            toolkit.configureButton(
-                    Bcancel,
-                    "Common.cancel",
-                    language);
-            toolkit.configureButton(
-                BattachFile,
-                "MessageFrame.toolbar.tooltip.addFileAttachments",
-                language);
-            toolkit.configureButton(
-                BattachBoard,
-                "MessageFrame.toolbar.tooltip.addBoardAttachments",
-                language);
-
-            toolkit.configureButton(
-                    BchooseSmiley,
-                    "MessageFrame.toolbar.tooltip.chooseSmiley",
-                    language);
+            MiscToolkit.configureButton(Bsend, "MessageFrame.toolbar.tooltip.sendMessage", language);
+            MiscToolkit.configureButton(Bcancel, "Common.cancel", language);
+            MiscToolkit.configureButton(BattachFile, "MessageFrame.toolbar.tooltip.addFileAttachments", language);
+            MiscToolkit.configureButton(BattachBoard, "MessageFrame.toolbar.tooltip.addBoardAttachments", language);
+            MiscToolkit.configureButton(BchooseSmiley, "MessageFrame.toolbar.tooltip.chooseSmiley", language);
             BchooseSmiley.setFocusable(false);
 
             TFboard.setEditable(false);

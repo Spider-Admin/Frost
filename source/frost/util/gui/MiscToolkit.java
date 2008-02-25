@@ -20,7 +20,6 @@ package frost.util.gui;
 
 import java.awt.*;
 import java.util.*;
-import java.util.logging.*;
 
 import javax.swing.*;
 
@@ -35,38 +34,12 @@ import frost.util.gui.translation.*;
  */
 public class MiscToolkit {
 
-	private static MiscToolkit instance = new MiscToolkit();
-
-	private static final Logger logger = Logger.getLogger(MiscToolkit.class.getName());
-
-	/**
-	 * Return the unique instance of this class.
-	 * @return the unique instance of this class
-	 */
-	public static MiscToolkit getInstance() {
-		return instance;
-	}
+//	private static final Logger logger = Logger.getLogger(MiscToolkit.class.getName());
 
 	/**
 	 * Prevent instances of this class from being created.
 	 */
 	private MiscToolkit() {
-	}
-
-	/**
-	 * Configures a button to be a default icon button, setting its rollover icon
-	 * and some other default properties.
-	 * @param button the button to configure
-	 */
-	public void configureButton(final JButton button) {
-	    if( button.getIcon() instanceof ImageIcon ) {
-            button.setRolloverIcon(createRolloverIcon((ImageIcon)button.getIcon()));
-        }
-		button.setMargin(new Insets(0, 0, 0, 0));
-        button.setPreferredSize(new Dimension(30,25));
-		button.setBorderPainted(false);
-		button.setFocusPainted(false);
-        button.setOpaque(false);
 	}
 
     /**
@@ -76,7 +49,7 @@ public class MiscToolkit {
      * @param toolTipKey language resource key to extract its tooltip text with
      * @param language language to extract the tooltip text from
      */
-	public void configureButton(
+	public static void configureButton(
 		final JButton button,
 		final String toolTipKey,
 		final Language language)
@@ -85,7 +58,23 @@ public class MiscToolkit {
 		configureButton(button);
 	}
 
-	public static ImageIcon createRolloverIcon(final ImageIcon source) {
+	/**
+	 * Configures a button to be a default icon button, setting its rollover icon
+	 * and some other default properties.
+	 * @param button the button to configure
+	 */
+	public static void configureButton(final JButton button) {
+	    if( button.getIcon() instanceof ImageIcon ) {
+	        button.setRolloverIcon(createRolloverIcon((ImageIcon)button.getIcon()));
+	    }
+	    button.setMargin(new Insets(0, 0, 0, 0));
+	    button.setPreferredSize(new Dimension(30,25));
+	    button.setBorderPainted(false);
+	    button.setFocusPainted(false);
+	    button.setOpaque(false);
+	}
+
+	private static ImageIcon createRolloverIcon(final ImageIcon source) {
 	    // FIXME: implement
 	    return source;
 	}
@@ -111,7 +100,7 @@ public class MiscToolkit {
 	 * @param container
 	 * @param enabled
 	 */
-	public void setContainerEnabled(final Container container, final boolean enabled) {
+	public static void setContainerEnabled(final Container container, final boolean enabled) {
 		final int componentCount = container.getComponentCount();
 		for (int x = 0; x < componentCount; x++) {
 			final Component component = container.getComponent(x);
@@ -132,7 +121,7 @@ public class MiscToolkit {
 	 * @param enabled
 	 * @param exceptions the components to ignore
 	 */
-	public void setContainerEnabled(
+	public static void setContainerEnabled(
 	        final Container container,
 	        final boolean enabled,
 	        final Collection<Component> exceptions)
@@ -154,7 +143,7 @@ public class MiscToolkit {
 	 * @param container
 	 * @param enabled
 	 */
-	private void setContainerEnabledInner(final Container container, final boolean enabled) {
+	private static void setContainerEnabledInner(final Container container, final boolean enabled) {
 		final int componentCount = container.getComponentCount();
 		for (int x = 0; x < componentCount; x++) {
 			final Component component = container.getComponent(x);
@@ -172,7 +161,7 @@ public class MiscToolkit {
 	 * @param enabled
 	 * @param exceptions
 	 */
-	private void setContainerEnabledInner(
+	private static void setContainerEnabledInner(
 		final Container container,
 		final boolean enabled,
 		final Collection<Component> exceptions)
@@ -198,7 +187,7 @@ public class MiscToolkit {
 	 * @param type the type of JDialog
 	 * @param title the title of the JDialog
 	 */
-	public void showMessage(final String message, final int type, final String title) {
+	public static void showMessage(final String message, final int type, final String title) {
 		final JFrame frame = new JFrame();
 		frame.setTitle("Frost");
 		final Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
@@ -217,7 +206,7 @@ public class MiscToolkit {
 	 * @param message the message to show
 	 * @return the text the user has input
 	 */
-	public String showInputDialog(final Object message) {
+	public static String showInputDialog(final Object message) {
 		final JFrame frame = new JFrame();
 		frame.setTitle("Frost");
 		final Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
@@ -230,7 +219,7 @@ public class MiscToolkit {
 		return returnValue;
 	}
 
-    public int showConfirmDialog(final Component parentComponent, final Object message, final String title, final int optionType, final int messageType) {
+    public static int showConfirmDialog(final Component parentComponent, final Object message, final String title, final int optionType, final int messageType) {
         /*
     int answer = JOptionPane.showConfirmDialog(
             MainFrame.getInstance(),

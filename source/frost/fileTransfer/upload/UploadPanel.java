@@ -84,8 +84,7 @@ public class UploadPanel extends JPanel {
             showExternalGlobalQueueItems.setOpaque(false);
 
             // create the top panel
-            final MiscToolkit toolkit = MiscToolkit.getInstance();
-            toolkit.configureButton(uploadAddFilesButton);
+            MiscToolkit.configureButton(uploadAddFilesButton);
             uploadToolBar.add(uploadAddFilesButton);
             uploadToolBar.add(Box.createRigidArea(new Dimension(8, 0)));
             uploadToolBar.add(removeFinishedUploadsCheckBox);

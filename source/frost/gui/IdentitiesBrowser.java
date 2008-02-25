@@ -23,7 +23,6 @@ import java.awt.event.*;
 import java.io.*;
 import java.util.*;
 import java.util.List;
-import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -44,7 +43,7 @@ import frost.util.gui.translation.*;
 
 public class IdentitiesBrowser extends JDialog {
 
-    private static final Logger logger = Logger.getLogger(MessageFrame.class.getName());
+//    private static final Logger logger = Logger.getLogger(MessageFrame.class.getName());
 
     private Language language = null;
 
@@ -104,11 +103,10 @@ public class IdentitiesBrowser extends JDialog {
         getBmarkCHECK().setIcon(MiscToolkit.loadImageIcon("/data/toolbar/weather-overcast.png"));
         getBmarkBAD().setIcon(MiscToolkit.loadImageIcon("/data/toolbar/weather-storm.png"));
 
-        final MiscToolkit toolkit = MiscToolkit.getInstance();
-        toolkit.configureButton(getBmarkGOOD(), "MessagePane.toolbar.tooltip.setToGood", language);
-        toolkit.configureButton(getBmarkBAD(), "MessagePane.toolbar.tooltip.setToBad", language);
-        toolkit.configureButton(getBmarkCHECK(), "MessagePane.toolbar.tooltip.setToCheck", language);
-        toolkit.configureButton(getBmarkOBSERVE(), "MessagePane.toolbar.tooltip.setToObserve", language);
+        MiscToolkit.configureButton(getBmarkGOOD(), "MessagePane.toolbar.tooltip.setToGood", language);
+        MiscToolkit.configureButton(getBmarkBAD(), "MessagePane.toolbar.tooltip.setToBad", language);
+        MiscToolkit.configureButton(getBmarkCHECK(), "MessagePane.toolbar.tooltip.setToCheck", language);
+        MiscToolkit.configureButton(getBmarkOBSERVE(), "MessagePane.toolbar.tooltip.setToObserve", language);
 
         setTitle(language.getString("IdentitiesBrowser.title"));
         getBdelete().setText(language.getString("IdentitiesBrowser.button.delete"));

@@ -238,7 +238,7 @@ class MiscPanel extends JPanel {
         final String nodes = availableNodesTextField.getText();
         if( nodes.indexOf(",") > -1 ) {
             if( usePersistenceCheckBox.isSelected() ) {
-                MiscToolkit.getInstance().showMessage(
+                MiscToolkit.showMessage(
                         "Persistence is not possible with more than 1 node. Persistence disabled.",
                         JOptionPane.ERROR_MESSAGE,
                         "Warning: Persistence is not possible");

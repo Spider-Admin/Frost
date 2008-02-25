@@ -310,17 +310,15 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
             progressIconLabel = new JLabel(progressIconIdle);
             disconnectedLabel = new JLabel("");
 
-            final MiscToolkit toolkit = MiscToolkit.getInstance();
-            toolkit.configureButton(newBoardButton, "MainFrame.toolbar.tooltip.newBoard", language);
-            toolkit.configureButton(newFolderButton, "MainFrame.toolbar.tooltip.newFolder", language);
-            toolkit.configureButton(removeBoardButton, "MainFrame.toolbar.tooltip.removeBoard", language);
-            toolkit.configureButton(renameFolderButton, "MainFrame.toolbar.tooltip.renameFolder", language);
-            toolkit.configureButton(boardInfoButton, "MainFrame.toolbar.tooltip.boardInformationWindow", language);
-            toolkit.configureButton(systemTrayButton, "MainFrame.toolbar.tooltip.minimizeToSystemTray", language);
-            toolkit.configureButton(knownBoardsButton, "MainFrame.toolbar.tooltip.displayListOfKnownBoards", language);
-            toolkit.configureButton(searchMessagesButton, "MainFrame.toolbar.tooltip.searchMessages", language);
-
-            toolkit.configureButton(configBoardButton, "MainFrame.toolbar.tooltip.configureBoard", language);
+            MiscToolkit.configureButton(newBoardButton, "MainFrame.toolbar.tooltip.newBoard", language);
+            MiscToolkit.configureButton(newFolderButton, "MainFrame.toolbar.tooltip.newFolder", language);
+            MiscToolkit.configureButton(removeBoardButton, "MainFrame.toolbar.tooltip.removeBoard", language);
+            MiscToolkit.configureButton(renameFolderButton, "MainFrame.toolbar.tooltip.renameFolder", language);
+            MiscToolkit.configureButton(boardInfoButton, "MainFrame.toolbar.tooltip.boardInformationWindow", language);
+            MiscToolkit.configureButton(systemTrayButton, "MainFrame.toolbar.tooltip.minimizeToSystemTray", language);
+            MiscToolkit.configureButton(knownBoardsButton, "MainFrame.toolbar.tooltip.displayListOfKnownBoards", language);
+            MiscToolkit.configureButton(searchMessagesButton, "MainFrame.toolbar.tooltip.searchMessages", language);
+            MiscToolkit.configureButton(configBoardButton, "MainFrame.toolbar.tooltip.configureBoard", language);
 
             // add action listener
             knownBoardsButton.addActionListener(new java.awt.event.ActionListener() {

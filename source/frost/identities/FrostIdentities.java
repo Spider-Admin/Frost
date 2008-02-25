@@ -55,7 +55,7 @@ public class FrostIdentities {
         if ( localIdentities.size() == 0 ) {
             // first startup, no identity available
             if (freenetIsOnline == false) {
-                MiscToolkit.getInstance().showMessage(
+                MiscToolkit.showMessage(
                         language.getString("Core.loadIdentities.ConnectionNotEstablishedBody"),
                         JOptionPane.ERROR_MESSAGE,
                         language.getString("Core.loadIdentities.ConnectionNotEstablishedTitle"));
@@ -140,7 +140,7 @@ public class FrostIdentities {
                 }
 
                 if( !isNickOk ) {
-                    MiscToolkit.getInstance().showMessage(
+                    MiscToolkit.showMessage(
                             language.getString("Core.loadIdentities.InvalidNameBody"),
                             JOptionPane.ERROR_MESSAGE,
                             language.getString("Core.loadIdentities.InvalidNameTitle"));

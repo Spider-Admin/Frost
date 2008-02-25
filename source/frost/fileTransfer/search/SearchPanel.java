@@ -24,7 +24,6 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import frost.*;
-import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.search.*;
 import frost.util.gui.translation.*;
@@ -177,8 +176,7 @@ public class SearchPanel extends JPanel implements LanguageListener {
             searchOptionsButton.setOpaque(false);
             searchOptionsButton.setFocusPainted(false);
 
-            final MiscToolkit toolkit = MiscToolkit.getInstance();
-            toolkit.configureButton(searchButton);
+            MiscToolkit.configureButton(searchButton);
             searchComboBox.setMaximumSize(searchComboBox.getPreferredSize());
             searchTextField.setMaximumSize(searchTextField.getPreferredSize());
 
@@ -272,9 +270,8 @@ public class SearchPanel extends JPanel implements LanguageListener {
             searchOptionsButton.setOpaque(false);
             searchOptionsButton.setFocusPainted(false);
 
-            final MiscToolkit toolkit = MiscToolkit.getInstance();
-            toolkit.configureButton(searchButton);
-            toolkit.configureButton(clearButton);
+            MiscToolkit.configureButton(searchButton);
+            MiscToolkit.configureButton(clearButton);
             searchComboBox.setMaximumSize(searchComboBox.getPreferredSize());
             searchNameTextField.setMaximumSize(searchNameTextField.getPreferredSize());
             searchCommentTextField.setMaximumSize(searchCommentTextField.getPreferredSize());

@@ -25,7 +25,6 @@ import javax.swing.*;
 
 import frost.*;
 import frost.messages.*;
-import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
@@ -360,8 +359,7 @@ public class MessageWindow extends JFrame {
                         replyButtonPressed();
                     }
                 });
-                final MiscToolkit toolkit = MiscToolkit.getInstance();
-                toolkit.configureButton(Breply, "MessageWindow.tooltip.reply", language);
+                MiscToolkit.configureButton(Breply, "MessageWindow.tooltip.reply", language);
             }
             return Breply;
         }

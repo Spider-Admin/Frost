@@ -223,6 +223,6 @@ public class DisplayMessagesPanel extends JPanel {
     }
 
     private void indicateLowReceivedMessagesChanged() {
-        MiscToolkit.getInstance().setContainerEnabled(getIndicateLowReceivedMessagesPanel(), indicateLowReceivedMessagesCheckBox.isSelected());
+        MiscToolkit.setContainerEnabled(getIndicateLowReceivedMessagesPanel(), indicateLowReceivedMessagesCheckBox.isSelected());
     }
 }

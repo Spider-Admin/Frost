@@ -72,8 +72,7 @@ public class SharedFilesPanel extends JPanel {
             refreshLanguage();
 
             // create the top panel
-            final MiscToolkit toolkit = MiscToolkit.getInstance();
-            toolkit.configureButton(addSharedFilesButton);
+            MiscToolkit.configureButton(addSharedFilesButton);
 
             sharedFilesToolBar.setRollover(true);
             sharedFilesToolBar.setFloatable(false);
