@@ -466,11 +466,11 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     private final JToggleButton toggleShowSmileys = new JToggleButton("");
     private final JToggleButton toggleShowHyperlinks = new JToggleButton("");
 
-    private final String allMessagesCountPrefix = "Msg: "; // TODO: translate
-    private final JLabel allMessagesCountLabel = new JLabel(allMessagesCountPrefix + "0");
+    private String allMessagesCountPrefix = "";
+    private final JLabel allMessagesCountLabel = new JLabel("");
 
-    private final String newMessagesCountPrefix = "New: "; // TODO: translate
-    private final JLabel newMessagesCountLabel = new JLabel(newMessagesCountPrefix + "0");
+    private String newMessagesCountPrefix = "";
+    private final JLabel newMessagesCountLabel = new JLabel("");
 
     public MessagePanel(final SettingsClass settings, final MainFrame mf) {
         super();
@@ -575,13 +575,6 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
         buttonsToolbar.add(Box.createRigidArea(new Dimension(8, 0)));
         buttonsToolbar.add(Box.createHorizontalGlue());
-        final JLabel dummyLabel = new JLabel(allMessagesCountPrefix + "00000");
-        dummyLabel.doLayout();
-        final Dimension labelSize = dummyLabel.getPreferredSize();
-        allMessagesCountLabel.setPreferredSize(labelSize);
-        allMessagesCountLabel.setMinimumSize(labelSize);
-        newMessagesCountLabel.setPreferredSize(labelSize);
-        newMessagesCountLabel.setMinimumSize(labelSize);
         buttonsToolbar.add(allMessagesCountLabel);
         buttonsToolbar.add(Box.createRigidArea(new Dimension(8, 0)));
         buttonsToolbar.add(newMessagesCountLabel);
@@ -605,6 +598,15 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         toggleShowHyperlinks.addActionListener(listener);
 
         return buttonsToolbar;
+    }
+
+    private void updateLabelSize(final JLabel label) {
+        final String labelText = label.getText();
+        final JLabel dummyLabel = new JLabel(labelText + "00000");
+        dummyLabel.doLayout();
+        final Dimension labelSize = dummyLabel.getPreferredSize();
+        label.setPreferredSize(labelSize);
+        label.setMinimumSize(labelSize);
     }
 
     private PopupMenuMessageTable getPopupMenuMessageTable() {
@@ -1075,8 +1077,15 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         toggleShowThreads.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowThreads"));
         toggleShowSmileys.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowSmileys"));
         toggleShowHyperlinks.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowHyperlinks"));
-
         subjectLabel.setText(language.getString("MessageWindow.subject")+": ");
+
+        allMessagesCountPrefix = language.getString("MessagePane.toolbar.labelAllMessageCount")+": ";
+        allMessagesCountLabel.setText(allMessagesCountPrefix);
+        newMessagesCountPrefix = language.getString("MessagePane.toolbar.labelNewMessageCount")+": ";
+        newMessagesCountLabel.setText(newMessagesCountPrefix);
+
+        updateLabelSize(allMessagesCountLabel);
+        updateLabelSize(newMessagesCountLabel);
     }
 
     private void replyButton_actionPerformed(final ActionEvent e) {
