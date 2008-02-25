@@ -303,10 +303,6 @@ public class Core implements FrostEventDispatcher  {
         // CLEANS TEMP DIR! START NO INSERTS BEFORE THIS DID RUN
         Startup.startupCheck(frostSettings);
 
-        if( frostSettings.getBoolValue(SettingsClass.MACOS_USE_SCREEN_MENUBAR) ) {
-            System.setProperty("apple.laf.useScreenMenuBar", "true");
-        }
-
         // if first startup ask user for freenet version to use
         if( frostSettings.getIntValue(SettingsClass.FREENET_VERSION) == 0 ) {
             showFirstStartupDialog();
