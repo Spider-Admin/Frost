@@ -19,9 +19,7 @@
 package frost.util.gui;
 
 import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.awt.image.Raster;
-import java.awt.image.WritableRaster;
+import java.awt.image.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -102,20 +100,16 @@ public class MiscToolkit {
 					// increase red and green to achieve more yellow
 					srcPixels[0] = srcPixels[0] + RED_INCREASE;
 					// prevent color crash
-					if (srcPixels[0] > 255){
-						srcPixels[0] = 255;
-					}
+					srcPixels[0] = Math.min(srcPixels[0], 255);
+
 					srcPixels[1] = srcPixels[1] + GREEN_INCREASE; 
 					// prevent color crash
-					if (srcPixels[1] > 255){
-						srcPixels[1] = 255;
-					}
+					srcPixels[1] = Math.min(srcPixels[1], 255);
+					
 					// prepared code for change of look & feel
 //					srcPixels[2] = srcPixels[2] +  BLUE_INCREASE; 
 //					// prevent color crash
-//					if (srcPixels[2] > 255){
-//						srcPixels[2] = 255;
-//					}
+//					srcPixels[2] = Math.min(srcPixels[2], 255);
 					rasterDest.setPixel(x,y,srcPixels);
 				}
 			}
