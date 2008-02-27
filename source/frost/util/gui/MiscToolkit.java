@@ -19,6 +19,9 @@
 package frost.util.gui;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.Raster;
+import java.awt.image.WritableRaster;
 import java.util.*;
 
 import javax.swing.*;
@@ -74,9 +77,50 @@ public class MiscToolkit {
 	    button.setOpaque(false);
 	}
 
-	private static ImageIcon createRolloverIcon(final ImageIcon source) {
-	    // FIXME: implement
-	    return source;
+	private static ImageIcon createRolloverIcon(final ImageIcon icon) {
+		// color increase values
+		final int RED_INCREASE = 50;
+		final int GREEN_INCREASE = 40;
+//		final int BLUE_INCREASE = 50;
+		
+		int width = icon.getIconWidth();
+		int height = icon.getIconHeight();
+		
+		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		image.createGraphics().drawImage(icon.getImage(), 0, 0, new JPanel());
+		Raster rasterSource = image.getRaster();
+		WritableRaster rasterDest = image.getRaster();
+		
+		// iterate over all pixels in the picture
+		for ( int x = 0; x < width; x++) {
+			for ( int y = 0; y < height; y++) {
+				// Get the source pixels 
+				int[] srcPixels = new int[4]; 
+				rasterSource.getPixel(x,y,srcPixels); 
+				// Ignore transparent pixels 
+				if (srcPixels[3] != 0){ 
+					// increase red and green to achieve more yellow
+					srcPixels[0] = srcPixels[0] + RED_INCREASE;
+					// prevent color crash
+					if (srcPixels[0] > 255){
+						srcPixels[0] = 255;
+					}
+					srcPixels[1] = srcPixels[1] + GREEN_INCREASE; 
+					// prevent color crash
+					if (srcPixels[1] > 255){
+						srcPixels[1] = 255;
+					}
+					// prepared code for change of look & feel
+//					srcPixels[2] = srcPixels[2] +  BLUE_INCREASE; 
+//					// prevent color crash
+//					if (srcPixels[2] > 255){
+//						srcPixels[2] = 255;
+//					}
+					rasterDest.setPixel(x,y,srcPixels);
+				}
+			}
+		}
+		return new ImageIcon(image);
 	}
 
 	/**
