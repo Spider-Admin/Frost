@@ -75,39 +75,46 @@ public class MiscToolkit {
 	    button.setOpaque(false);
 	}
 
+	/**
+	 * Create a rollover icon for the source icon. Currently, this method gives
+	 * the source icon a yellow touch. Maybe this needs to be changed when a
+	 * yellow look&feel is used ;)
+	 * @param icon  source icon
+	 * @return  an icon that can be used as rollover icon for source icon
+	 */
 	private static ImageIcon createRolloverIcon(final ImageIcon icon) {
 		// color increase values
 		final int RED_INCREASE = 50;
 		final int GREEN_INCREASE = 40;
 //		final int BLUE_INCREASE = 50;
-		
-		int width = icon.getIconWidth();
-		int height = icon.getIconHeight();
-		
-		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+		final int width = icon.getIconWidth();
+		final int height = icon.getIconHeight();
+
+		final BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
 		image.createGraphics().drawImage(icon.getImage(), 0, 0, new JPanel());
-		Raster rasterSource = image.getRaster();
-		WritableRaster rasterDest = image.getRaster();
-		
+		final Raster rasterSource = image.getRaster();
+		final WritableRaster rasterDest = image.getRaster();
+
 		// iterate over all pixels in the picture
 		for ( int x = 0; x < width; x++) {
 			for ( int y = 0; y < height; y++) {
-				// Get the source pixels 
-				int[] srcPixels = new int[4]; 
-				rasterSource.getPixel(x,y,srcPixels); 
-				// Ignore transparent pixels 
-				if (srcPixels[3] != 0){ 
+				// Get the source pixels
+				final int[] srcPixels = new int[4];
+				rasterSource.getPixel(x,y,srcPixels);
+				// Ignore transparent pixels
+				if (srcPixels[3] != 0){
 					// increase red and green to achieve more yellow
 					srcPixels[0] = srcPixels[0] + RED_INCREASE;
 					// prevent color crash
 					srcPixels[0] = Math.min(srcPixels[0], 255);
 
-					srcPixels[1] = srcPixels[1] + GREEN_INCREASE; 
+					srcPixels[1] = srcPixels[1] + GREEN_INCREASE;
 					// prevent color crash
 					srcPixels[1] = Math.min(srcPixels[1], 255);
-					
+
 					// prepared code for change of look & feel
-//					srcPixels[2] = srcPixels[2] +  BLUE_INCREASE; 
+//					srcPixels[2] = srcPixels[2] +  BLUE_INCREASE;
 //					// prevent color crash
 //					srcPixels[2] = Math.min(srcPixels[2], 255);
 					rasterDest.setPixel(x,y,srcPixels);
