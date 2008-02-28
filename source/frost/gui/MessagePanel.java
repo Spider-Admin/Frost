@@ -512,7 +512,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         toggleShowUnreadOnly.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowUnreadOnly"));
 
         toggleShowThreads.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS));
-        icon = MiscToolkit.loadImageIcon("/data/toolbar/toggletreeview.png");
+        icon = MiscToolkit.loadImageIcon("/data/toolbar/toggle-treeview.png");
         toggleShowThreads.setIcon(icon);
         toggleShowThreads.setRolloverEnabled(true);
         toggleShowThreads.setRolloverIcon(MiscToolkit.createRolloverIcon(icon));
