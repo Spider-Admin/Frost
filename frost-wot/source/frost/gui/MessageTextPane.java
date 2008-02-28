@@ -120,6 +120,8 @@ public class MessageTextPane extends JPanel {
 
     private void setMessageText(final String txt) {
         idLineTextHighlighter.removeHighlights(messageTextArea);
+        SmileyCache.clearCachedSmileys();
+        System.out.println("cleared!");
         messageTextArea.setText(txt);
     }
 

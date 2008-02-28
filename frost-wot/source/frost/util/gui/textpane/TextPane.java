@@ -18,41 +18,44 @@
 */
 package frost.util.gui.textpane;
 
-import javax.swing.JTextPane;
+import java.awt.image.*;
 
-public class TextPane extends JTextPane {
-	
-	private Decoder decoder; 
+import javax.swing.*;
+
+public class TextPane extends JTextPane implements ImageObserver {
+
+	private Decoder decoder;
 
 	public TextPane() {
 		super();
 		setEditable(false);
 	}
-    
-	public TextPane(Decoder decoder) {
+
+	public TextPane(final Decoder decoder) {
 		this();
 		this.decoder = decoder;
 	}
 
-	public TextPane(String message, Decoder decoder) {
+	public TextPane(final String message, final Decoder decoder) {
 		this(decoder);
 		setText(message);
 	}
-	
-	public TextPane(String message) {
+
+	public TextPane(final String message) {
 		this();
 		setText(message);
 	}
-	
+
 	public Decoder getDecoder() {
 		return decoder;
 	}
 
-	public void setDecoder(Decoder decoder) {
+	public void setDecoder(final Decoder decoder) {
 		this.decoder = decoder;
 	}
-	
-	public void setText(String message) {
+
+	@Override
+    public void setText(final String message) {
 		if (decoder != null) {
 			decoder.decode(message, this);
 		} else {

@@ -82,7 +82,7 @@ public class MiscToolkit {
 	 * @param icon  source icon
 	 * @return  an icon that can be used as rollover icon for source icon
 	 */
-	private static ImageIcon createRolloverIcon(final ImageIcon icon) {
+	public static ImageIcon createRolloverIcon(final ImageIcon icon) {
 		// color increase values
 		final int RED_INCREASE = 50;
 		final int GREEN_INCREASE = 40;
