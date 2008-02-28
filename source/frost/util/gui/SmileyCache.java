@@ -38,6 +38,13 @@ public class SmileyCache implements Smileys {
         return ii;
     }
 
+    public static synchronized void clearCachedSmileys() {
+        for(final ImageIcon i : smileyCache.values()) {
+            i.getImage().flush();
+        }
+        smileyCache.clear();
+    }
+
     public static int getSmileyCount() {
         return SMILEYS.length;
     }

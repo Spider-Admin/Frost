@@ -499,29 +499,43 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         setBadButton.setEnabled(false);
         setObserveButton.setEnabled(false);
 
+        ImageIcon icon;
+
         toggleShowUnreadOnly.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SHOW_UNREAD_ONLY));
-        toggleShowUnreadOnly.setIcon(MiscToolkit.loadImageIcon("/data/toolbar/software-update-available.png"));
+        icon = MiscToolkit.loadImageIcon("/data/toolbar/software-update-available.png");
+        toggleShowUnreadOnly.setIcon(icon);
+        toggleShowUnreadOnly.setRolloverEnabled(true);
+        toggleShowUnreadOnly.setRolloverIcon(MiscToolkit.createRolloverIcon(icon));
         toggleShowUnreadOnly.setMargin(new Insets(0, 0, 0, 0));
         toggleShowUnreadOnly.setPreferredSize(new Dimension(24,24));
         toggleShowUnreadOnly.setFocusPainted(false);
         toggleShowUnreadOnly.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowUnreadOnly"));
 
         toggleShowThreads.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS));
-        toggleShowThreads.setIcon(MiscToolkit.loadImageIcon("/data/togglethreads.gif"));
+        icon = MiscToolkit.loadImageIcon("/data/togglethreads.gif");
+        toggleShowThreads.setIcon(icon);
+        toggleShowThreads.setRolloverEnabled(true);
+        toggleShowThreads.setRolloverIcon(MiscToolkit.createRolloverIcon(icon));
         toggleShowThreads.setMargin(new Insets(0, 0, 0, 0));
         toggleShowThreads.setPreferredSize(new Dimension(24,24));
         toggleShowThreads.setFocusPainted(false);
         toggleShowThreads.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowThreads"));
 
         toggleShowSmileys.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SHOW_SMILEYS));
-        toggleShowSmileys.setIcon(MiscToolkit.loadImageIcon("/data/toolbar/face-smile.png"));
+        icon = MiscToolkit.loadImageIcon("/data/toolbar/face-smile.png");
+        toggleShowSmileys.setIcon(icon);
+        toggleShowSmileys.setRolloverEnabled(true);
+        toggleShowSmileys.setRolloverIcon(MiscToolkit.createRolloverIcon(icon));
         toggleShowSmileys.setMargin(new Insets(0, 0, 0, 0));
         toggleShowSmileys.setPreferredSize(new Dimension(24,24));
         toggleShowSmileys.setFocusPainted(false);
         toggleShowSmileys.setToolTipText(language.getString("MessagePane.toolbar.tooltip.toggleShowSmileys"));
 
         toggleShowHyperlinks.setSelected(Core.frostSettings.getBoolValue(SettingsClass.SHOW_KEYS_AS_HYPERLINKS));
-        toggleShowHyperlinks.setIcon(MiscToolkit.loadImageIcon("/data/togglehyperlinks.gif"));
+        icon = MiscToolkit.loadImageIcon("/data/togglehyperlinks.gif");
+        toggleShowHyperlinks.setIcon(icon);
+        toggleShowHyperlinks.setRolloverEnabled(true);
+        toggleShowHyperlinks.setRolloverIcon(MiscToolkit.createRolloverIcon(icon));
         toggleShowHyperlinks.setMargin(new Insets(0, 0, 0, 0));
         toggleShowHyperlinks.setPreferredSize(new Dimension(24,24));
         toggleShowHyperlinks.setFocusPainted(false);

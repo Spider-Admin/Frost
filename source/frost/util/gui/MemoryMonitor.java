@@ -40,8 +40,6 @@ import java.awt.image.*;
 
 import javax.swing.*;
 
-import frost.util.*;
-
 /**
  * Tracks Memory allocated & used, displayed in graph form.
  */
@@ -69,7 +67,7 @@ public class MemoryMonitor extends JPanel {
             dialog.getContentPane().add(this);
             dialog.setSize(225,130);
             dialog.setTitle("Frost Memory Monitor");
-            final ImageIcon frameIcon = MiscToolkit.loadImageIcon("/data/memmon.png");
+            final ImageIcon frameIcon = MiscToolkit.loadImageIcon("/data/toolbar/utilities-system-monitor.png");
             dialog.setIconImage(frameIcon.getImage());
             dialog.addWindowListener(new WindowAdapter() {
                 @Override
