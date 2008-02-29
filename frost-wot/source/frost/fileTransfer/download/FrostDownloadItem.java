@@ -70,6 +70,7 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
     private transient boolean isExternal = false;
 
     private transient boolean internalRemoveExpected = false;
+    private transient boolean stateShouldBeProgress = false;
 
     /**
      * Add a file from download text box.
@@ -163,7 +164,11 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
         runtimeSecondsWithoutProgress = newRuntimeSecondsWithoutProgress;
         oldDoneBlocks = newOldDoneBlocks;
 
-        // set correct state, keep DONE and FAILED
+        if( this.state == FrostDownloadItem.STATE_PROGRESS ) {
+            // download was running at end of last shutdown
+            stateShouldBeProgress = true;
+        }
+
         if (this.state != FrostDownloadItem.STATE_DONE && this.state != FrostDownloadItem.STATE_FAILED) {
             this.state = FrostDownloadItem.STATE_WAITING;
         }
@@ -487,5 +492,9 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
 
     public int getOldDoneBlocks() {
         return oldDoneBlocks;
+    }
+
+    public boolean isStateShouldBeProgress() {
+        return stateShouldBeProgress;
     }
 }

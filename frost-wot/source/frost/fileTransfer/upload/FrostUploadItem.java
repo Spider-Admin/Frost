@@ -67,6 +67,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
     private boolean isExternal = false;
 
     private transient boolean internalRemoveExpected = false;
+    private transient boolean stateShouldBeProgress = false;
 
     /**
      * Dummy to use for uploads of attachments. Is never saved.
@@ -121,10 +122,14 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
         retries = newRetries;
         lastUploadStopTimeMillis = newLastUploadStopTimeMillis;
         gqIdentifier = newGqIdentifier;
-        isLoggedToFile= newIsLoggedToFile;
+        isLoggedToFile = newIsLoggedToFile;
 
         // set correct state
-        if ((state == FrostUploadItem.STATE_PROGRESS) /*|| (state == FrostUploadItem.STATE_UPLOADING)*/ ) {
+        if( state == FrostUploadItem.STATE_PROGRESS ) {
+            // upload was running at end of last shutdown
+            if( !isSharedFile() ) {
+                stateShouldBeProgress = true;
+            }
             state = FrostUploadItem.STATE_WAITING;
         } else if ((state == FrostUploadItem.STATE_ENCODING) || (state == FrostUploadItem.STATE_ENCODING_REQUESTED)) {
             state = FrostUploadItem.STATE_WAITING;
@@ -334,5 +339,9 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
 
     public void setLoggedToFile(final boolean isLoggedToFile) {
         this.isLoggedToFile = isLoggedToFile;
+    }
+
+    public boolean isStateShouldBeProgress() {
+        return stateShouldBeProgress;
     }
 }
