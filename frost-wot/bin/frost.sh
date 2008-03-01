@@ -24,7 +24,7 @@ cd $PROGDIR
 #export AWT_TOOLKIT="MToolkit"
 
 if [ "`uname`" = "Darwin" ]; then
-    ADDFLAGS='-Dapple.laf.useScreenMenuBar=true'
+    ADDFLAGS='-Dapple.laf.useScreenMenuBar=true -Xdock:name=Frost'
 else
     ADDFLAGS=''
 fi
