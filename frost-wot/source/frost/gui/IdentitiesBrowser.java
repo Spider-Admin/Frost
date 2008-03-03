@@ -32,6 +32,7 @@ import javax.swing.table.*;
 import org.joda.time.*;
 
 import frost.*;
+import frost.boards.*;
 import frost.fileTransfer.common.*;
 import frost.gui.model.*;
 import frost.identities.*;
@@ -42,8 +43,6 @@ import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
 public class IdentitiesBrowser extends JDialog {
-
-//    private static final Logger logger = Logger.getLogger(MessageFrame.class.getName());
 
     private Language language = null;
 
@@ -71,6 +70,8 @@ public class IdentitiesBrowser extends JDialog {
     private PopupMenu popupMenu = null;
     private final Listener listener = new Listener();
 
+    private final long minCleanupTime;
+
     /**
      * This is the default constructor
      */
@@ -81,6 +82,8 @@ public class IdentitiesBrowser extends JDialog {
         setModal(true);
         showColoredLines = Core.frostSettings.getBoolValue(SettingsClass.SHOW_COLORED_ROWS);
         initialize();
+
+        minCleanupTime = getMinCleanupTime();
 
         setLocationRelativeTo(parent);
     }
@@ -152,6 +155,35 @@ public class IdentitiesBrowser extends JDialog {
             jScrollPane.setWheelScrollingEnabled(true);
         }
         return jScrollPane;
+    }
+
+    /**
+     * Compute expire earliest time of any board.
+     * Cleanup could remove BAD identities when they are not seen since than the returned value.
+     *
+     * @return  maximum backload days of any board
+     */
+    private long getMinCleanupTime() {
+        // take maximum
+        int minDaysOld = Core.frostSettings.getIntValue(SettingsClass.MESSAGE_EXPIRE_DAYS) + 1;
+
+        if( minDaysOld < Core.frostSettings.getIntValue(SettingsClass.MAX_MESSAGE_DISPLAY) ) {
+            minDaysOld = Core.frostSettings.getIntValue(SettingsClass.MAX_MESSAGE_DISPLAY) + 1;
+        }
+        if( minDaysOld < Core.frostSettings.getIntValue(SettingsClass.MAX_MESSAGE_DOWNLOAD) ) {
+            minDaysOld = Core.frostSettings.getIntValue(SettingsClass.MAX_MESSAGE_DOWNLOAD) + 1;
+        }
+
+        for( final Board board : MainFrame.getInstance().getTofTreeModel().getAllBoards() ) {
+
+            if( board.isConfigured() ) {
+                minDaysOld = Math.max(board.getMaxMessageDisplay(), minDaysOld);
+                minDaysOld = Math.max(board.getMaxMessageDownload(), minDaysOld);
+            }
+        }
+
+        final long time = System.currentTimeMillis() - (minDaysOld * 24L * 60L * 60L * 1000L);
+        return time;
     }
 
     /**
@@ -545,10 +577,15 @@ public class IdentitiesBrowser extends JDialog {
             if( !isDeleteable() ) {
                 return false;
             }
-            // always keep GOOD and BAD
-            if( identity.isGOOD() || identity.isBAD() ) {
+            // always keep identities marked GOOD and OBSERVE
+            if( identity.isGOOD() || identity.isOBSERVE()) {
                 return false;
             }
+            // keep identities marked BAD, if not expired
+            if( identity.isBAD() && identity.getLastSeenTimestamp() > minCleanupTime ) {
+                return false;
+            }
+
             return true;
         }
         private String buildHtmlName(final String n) {
