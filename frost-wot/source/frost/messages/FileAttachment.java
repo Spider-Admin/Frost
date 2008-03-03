@@ -100,7 +100,7 @@ public class FileAttachment extends Attachment implements CopyToClipboardItem {
 	 */
     public FileAttachment(final File newFile, final String k, final long s) {
         file = newFile;
-        filename = file.getPath();
+        filename = file.getName();
         size = s;
         key = k;
     }
