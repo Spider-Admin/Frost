@@ -481,6 +481,7 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
      */
     public synchronized void resetRuntimeSecondsWithoutProgress() {
         runtimeSecondsWithoutProgress = 0;
+        // FIXME: called when download made progress, maybe remember last progress time
     }
 
     /**
