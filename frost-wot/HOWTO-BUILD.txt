@@ -21,10 +21,12 @@ Build the source retrieved from a Frost source.zip file:
 ---------------------------------------------------------
 
 If you got the Frost source code from the frost-source.zip file, you need
-to copy the complete lib/ directory from the binary Frost distribution zip
-file into the Frost source directory. Then go to the Frost source directory
+to copy the contents of the 'lib/' directory from the binary Frost distribution zip
+file into the 'frost-wot/lib/' directory. Then go to the 'frost-wot' directory
 and run the command 'ant'. This starts the Frost build. After the build
 finished, Frost is ready to run in the directory build/dist.
+
+Note: ant uses the environment variable JAVA_HOME to find the JDK.
 
 
 Using ebuilds on gentoo linux:
