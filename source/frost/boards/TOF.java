@@ -232,7 +232,10 @@ public class TOF implements PropertyChangeListener {
                 if( checkOwner == null ) {
                     owner.setLastSeenTimestampWithoutUpdate(lastSeenMillis);
                     if( !Core.getIdentities().addIdentity(owner) ) {
-                        logger.severe("Core.getIdentities().addIdentity(owner) returned false!");
+                        logger.severe("Core.getIdentities().addIdentity(owner) returned false for identy: "+owner.getUniqueName());
+                        currentMsg.setPublicKey(null);
+                        currentMsg.setSignatureStatusOLD();
+                        owner = null;
                     }
                 } else {
                     // use existing Identity

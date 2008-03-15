@@ -24,12 +24,16 @@ import frost.identities.*;
 
 public class IdentitiesStorageRoot extends Persistent {
 
+    public static final transient int MIGRATION_LEVEL_1 = 1;
+
     private IPersistentList<Identity> identities;
     private IPersistentList<LocalIdentity> localIdentities;
-    
+
+    private int migrationLevel;
+
     public IdentitiesStorageRoot() {}
 
-    public IdentitiesStorageRoot(Storage store) {
+    public IdentitiesStorageRoot(final Storage store) {
         identities  = store.createScalableList();
         localIdentities = store.createScalableList();
     }
@@ -40,5 +44,13 @@ public class IdentitiesStorageRoot extends Persistent {
 
     public IPersistentList<LocalIdentity> getLocalIdentities() {
         return localIdentities;
+    }
+
+    public int getMigrationLevel() {
+        return migrationLevel;
+    }
+
+    public void setMigrationLevel(final int migrationLevel) {
+        this.migrationLevel = migrationLevel;
     }
 }
