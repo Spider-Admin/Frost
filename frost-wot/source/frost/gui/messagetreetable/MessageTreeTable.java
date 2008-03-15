@@ -108,6 +108,9 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     private int indicateLowReceivedMessagesCountRed;
     private int indicateLowReceivedMessagesCountLightRed;
 
+    private final int MINIMUM_ROW_HEIGHT = 20;
+    private final int ROW_HEIGHT_MARGIN = 4;
+
     public MessageTreeTable(final TreeTableModel treeTableModel) {
     	super();
 
@@ -156,11 +159,10 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     	// No intercell spacing
     	setIntercellSpacing(new Dimension(0, 0));
 
-    	// And update the height of the trees row to match that of the table.
-    	if (tree.getRowHeight() < 1) {
-    	    // Metal looks better like this.
-    	    setRowHeight(20);
-    	}
+    	// And update the height of the tree's rows to match that of the font.
+    	final int fontSize = Core.frostSettings.getIntValue(SettingsClass.MESSAGE_LIST_FONT_SIZE);
+    	System.out.println(fontSize);
+    	setRowHeight(Math.max(fontSize + ROW_HEIGHT_MARGIN, MINIMUM_ROW_HEIGHT));
     }
 
     /**
@@ -1158,6 +1160,9 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
             Core.frostSettings.setValue(SettingsClass.MESSAGE_LIST_FONT_NAME, "Monospaced");
             font = new Font("Monospaced", fontStyle, fontSize);
         }
+        // adjust row height to font size, add a margin
+        setRowHeight(Math.max(fontSize + ROW_HEIGHT_MARGIN, MINIMUM_ROW_HEIGHT));
+
         setFont(font);
     }
 
