@@ -161,7 +161,6 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
 
     	// And update the height of the tree's rows to match that of the font.
     	final int fontSize = Core.frostSettings.getIntValue(SettingsClass.MESSAGE_LIST_FONT_SIZE);
-    	System.out.println(fontSize);
     	setRowHeight(Math.max(fontSize + ROW_HEIGHT_MARGIN, MINIMUM_ROW_HEIGHT));
     }
 
