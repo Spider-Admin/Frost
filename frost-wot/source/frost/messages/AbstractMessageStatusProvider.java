@@ -78,8 +78,13 @@ public abstract class AbstractMessageStatusProvider extends DefaultMutableTreeNo
                     // if identity was NOT found, add it. maybe it was deleted by the user,
                     // but we still have a msg from this identity
                     if( fromIdentity == null && getPublicKey() != null && getPublicKey().length() > 0 ) {
-                        fromIdentity = Identity.createIdentityFromExactStrings(getFromName(), getPublicKey());
-                        Core.getIdentities().addIdentity(fromIdentity);
+                        final Identity newFromIdentity = Identity.createIdentityFromExactStrings(getFromName(), getPublicKey());
+                        if( !Core.getIdentities().addIdentity(newFromIdentity) ) {
+                            logger.severe("Core.getIdentities().addIdentity(owner) returned false for identy: "+newFromIdentity.getUniqueName());
+                            setSignatureStatusOLD();
+                        } else {
+                            fromIdentity = newFromIdentity;
+                        }
                     }
                 }
             }

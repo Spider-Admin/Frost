@@ -192,6 +192,11 @@ public class FrostIdentities {
         if (identities.containsKey(key)) {
             return false;
         }
+
+        if( !isNewIdentityValid(id) ) {
+            return false;
+        }
+
         if( useLock ) {
             if( !IdentitiesStorage.inst().beginExclusiveThreadTransaction() ) {
                 return false;

@@ -205,7 +205,8 @@ public class FileListManager {
                 localOwner = content.getReceivedOwner();
                 localOwner.setLastSeenTimestampWithoutUpdate(content.getTimestamp());
                 if( !Core.getIdentities().addIdentity(content.getReceivedOwner()) ) {
-                    logger.severe("Core.getIdentities().addIdentity() returned false!");
+                    logger.severe("Core.getIdentities().addIdentity() returned false for identity: "+content.getReceivedOwner());
+                    return false;
                 }
             } else {
                 if( localOwner.getLastSeenTimestamp() < content.getTimestamp() ) {
