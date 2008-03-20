@@ -119,25 +119,37 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
 
     public Hashtable<String,Identity> loadIdentities() {
         final Hashtable<String,Identity> result = new Hashtable<String,Identity>();
-        beginCooperativeThreadTransaction();
+
+        final boolean migrateIdStorage;
+        if( storageRoot.getMigrationLevel() < IdentitiesStorageRoot.MIGRATION_LEVEL_1 ) {
+            migrateIdStorage = true;
+            // read and maybe remove ids
+            beginExclusiveThreadTransaction();
+        } else {
+            migrateIdStorage = false;
+            // only read ids
+            beginCooperativeThreadTransaction();
+        }
+
         try {
             for( final Identity id : storageRoot.getIdentities() ) {
                 if( id == null ) {
                     logger.severe("Retrieved a null id !!! Please repair identities.dbs.");
                 } else {
-                    if( storageRoot.getMigrationLevel() < IdentitiesStorageRoot.MIGRATION_LEVEL_1 ) {
-                        // one-time migration, remove all ids that have a '_' instead of an '@'
-                        if( !Core.getIdentities().isIdentityValid(id) ) {
-                            removeIdentity(id);
-                            logger.severe("Dropped an invalid identity: "+id.getUniqueName());
-                            continue;
-                        }
+                    // one-time migration, remove all ids that have a '_' instead of an '@'
+                    if( migrateIdStorage && !Core.getIdentities().isIdentityValid(id) ) {
+                        removeIdentity(id);
+                        logger.severe("Dropped an invalid identity: "+id.getUniqueName());
+                    } else {
+                        result.put(id.getUniqueName(), id);
                     }
-                    result.put(id.getUniqueName(), id);
                 }
             }
         } finally {
-            storageRoot.setMigrationLevel(IdentitiesStorageRoot.MIGRATION_LEVEL_1);
+            if( migrateIdStorage ) {
+                // migration finished
+                storageRoot.setMigrationLevel(IdentitiesStorageRoot.MIGRATION_LEVEL_1);
+            }
             endThreadTransaction();
         }
         return result;
