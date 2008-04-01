@@ -32,16 +32,19 @@ public class DisplayBoardTreePanel extends JPanel {
 
     private class Listener implements ActionListener {
         public void actionPerformed(final ActionEvent e) {
-            if (e.getSource() == selectedColorButton) {
+            if( e.getSource() == selectedColorButton ) {
                 selectedColorPressed();
-            } else if (e.getSource() == notSelectedColorButton) {
+            } else if( e.getSource() == notSelectedColorButton ) {
                 notSelectedColorPressed();
-            } else if (e.getSource() == showBoardUpdateVisualizationCheckBox) {
+            } else if( e.getSource() == showBoardUpdateVisualizationCheckBox ) {
                 refreshUpdateState();
+            } else if( e.getSource() == boardTreeButton ) {
+                boardTreeButtonPressed();
             }
         }
     }
 
+    private JDialog owner = null;
     private SettingsClass settings = null;
     private Language language = null;
 
@@ -63,6 +66,13 @@ public class DisplayBoardTreePanel extends JPanel {
 
     private final Listener listener = new Listener();
 
+    // fields for font panel
+    private final JLabel boardTreeLabel = new JLabel();
+    private final JButton boardTreeButton = new JButton();
+    private final JLabel selectedBoardTreeFontLabel = new JLabel();
+    private final JLabel fontsLabel = new JLabel();
+    private Font selectedBodyFont = null;
+
     /**
      * @param owner the JDialog that will be used as owner of any dialog that is popped up from this panel
      * @param settings the SettingsClass instance that will be used to get and store the settings of the panel
@@ -70,6 +80,7 @@ public class DisplayBoardTreePanel extends JPanel {
     protected DisplayBoardTreePanel(final JDialog owner, final SettingsClass settings) {
         super();
 
+        this.owner = owner;
         this.language = Language.getInstance();
         this.settings = settings;
 
@@ -147,6 +158,14 @@ public class DisplayBoardTreePanel extends JPanel {
         constraints.gridx = 0;
         constraints.gridy = 0;
 
+        add(fontsLabel,constraints);
+
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.gridy++;
+        add(getFontsPanel(),constraints);
+
+        constraints.fill = GridBagConstraints.BOTH;
+        constraints.gridy++;
         add(showBoardUpdateVisualizationCheckBox, constraints);
 
         constraints.gridy++;
@@ -173,12 +192,19 @@ public class DisplayBoardTreePanel extends JPanel {
         selectedColorButton.addActionListener(listener);
         notSelectedColorButton.addActionListener(listener);
         showBoardUpdateVisualizationCheckBox.addActionListener(listener);
+        boardTreeButton.addActionListener(listener);
     }
 
     /**
      * Load the settings of this panel
      */
     private void loadSettings() {
+    	String fontName = settings.getValue(SettingsClass.BOARD_TREE_FONT_NAME);
+        int fontSize = settings.getIntValue(SettingsClass.BOARD_TREE_FONT_SIZE);
+        int fontStyle = settings.getIntValue(SettingsClass.BOARD_TREE_FONT_STYLE);
+        selectedBodyFont = new Font(fontName, fontStyle, fontSize);
+        selectedBoardTreeFontLabel.setText(getFontLabel(selectedBodyFont));
+
         showBoardUpdateCountCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_BOARD_UPDATED_COUNT));
         showBoardDescTooltipsCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_BOARDDESC_TOOLTIPS));
         preventBoardtreeReordering.setSelected(settings.getBoolValue(SettingsClass.PREVENT_BOARDTREE_REORDERING));
@@ -198,6 +224,11 @@ public class DisplayBoardTreePanel extends JPanel {
     }
 
     private void refreshLanguage() {
+    	fontsLabel.setText(language.getString("Options.display.fonts"));
+    	boardTreeLabel.setText(language.getString("Options.display.boardTree"));
+        boardTreeButton.setText(language.getString("Options.display.choose"));
+        selectedBoardTreeFontLabel.setText(getFontLabel(selectedBodyFont));
+
         showBoardUpdateCountCheckBox.setText(language.getString("Options.display.showBoardUpdateCount"));
         showBoardDescTooltipsCheckBox.setText(language.getString("Options.display.showTooltipWithBoardDescriptionInBoardTree"));
         preventBoardtreeReordering.setText(language.getString("Options.display.preventBoardtreeReordering"));
@@ -219,6 +250,12 @@ public class DisplayBoardTreePanel extends JPanel {
      * Save the settings of this panel
      */
     private void saveSettings() {
+        if( selectedBodyFont != null ) {
+            settings.setValue(SettingsClass.BOARD_TREE_FONT_NAME, selectedBodyFont.getFamily());
+            settings.setValue(SettingsClass.BOARD_TREE_FONT_STYLE, selectedBodyFont.getStyle());
+            settings.setValue(SettingsClass.BOARD_TREE_FONT_SIZE, selectedBodyFont.getSize());
+        }
+
         settings.setValue(SettingsClass.SHOW_BOARD_UPDATED_COUNT, showBoardUpdateCountCheckBox.isSelected());
         settings.setValue(SettingsClass.SHOW_BOARDDESC_TOOLTIPS, showBoardDescTooltipsCheckBox.isSelected());
         settings.setValue(SettingsClass.PREVENT_BOARDTREE_REORDERING, preventBoardtreeReordering.isSelected());
@@ -255,5 +292,58 @@ public class DisplayBoardTreePanel extends JPanel {
 
     private void refreshUpdateState() {
         MiscToolkit.setContainerEnabled(getColorPanel(), showBoardUpdateVisualizationCheckBox.isSelected());
+    }
+
+    private JPanel getFontsPanel() {
+        final JPanel fontsPanel = new JPanel(new GridBagLayout());
+        fontsPanel.setBorder(new EmptyBorder(5, 20, 5, 5));
+        final GridBagConstraints constraints = new GridBagConstraints();
+        constraints.anchor = GridBagConstraints.NORTHWEST;
+        final Insets inset1515 = new Insets(1, 5, 1, 5);
+        final Insets inset1519 = new Insets(1, 5, 1, 9);
+
+        constraints.insets = inset1515;
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        fontsPanel.add(boardTreeLabel, constraints);
+        constraints.insets = inset1519;
+        constraints.gridx = 1;
+        constraints.gridy = 0;
+        fontsPanel.add(boardTreeButton, constraints);
+        constraints.insets = inset1515;
+        constraints.gridx = 2;
+        constraints.gridy = 0;
+        fontsPanel.add(selectedBoardTreeFontLabel, constraints);
+
+        return fontsPanel;
+    }
+
+    private String getFontLabel(final Font font) {
+        if (font == null) {
+            return "";
+        } else {
+            final StringBuilder returnValue = new StringBuilder();
+            returnValue.append(font.getFamily());
+            if (font.isBold()) {
+                returnValue.append(" " + language.getString("Options.display.fontChooser.bold"));
+            }
+            if (font.isItalic()) {
+                returnValue.append(" " + language.getString("Options.display.fontChooser.italic"));
+            }
+            returnValue.append(", " + font.getSize());
+            return returnValue.toString();
+        }
+    }
+
+    private void boardTreeButtonPressed() {
+        final FontChooser fontChooser = new FontChooser(owner, language);
+        fontChooser.setModal(true);
+        fontChooser.setSelectedFont(selectedBodyFont);
+        fontChooser.setVisible(true);
+        final Font selectedFontTemp = fontChooser.getSelectedFont();
+        if (selectedFontTemp != null) {
+            selectedBodyFont = selectedFontTemp;
+            selectedBoardTreeFontLabel.setText(getFontLabel(selectedBodyFont));
+        }
     }
 }

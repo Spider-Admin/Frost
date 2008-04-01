@@ -120,6 +120,9 @@ public class SettingsClass implements ExitSavable {
     public static final String LOG_FCP2_MESSAGES = "log.logFcp2MessagesToConsole";       // not in gui dialog!
     public static final String LOG_FILEBASE_MESSAGES = "log.logFilebaseMessagesToConsole";       // not in gui dialog!
 
+    public static final String BOARD_TREE_FONT_NAME = "boardTreeFontName";
+    public static final String BOARD_TREE_FONT_SIZE = "boardTreeFontSize";
+    public static final String BOARD_TREE_FONT_STYLE = "boardTreeFontStyle";
     public static final String FILE_LIST_FONT_NAME = "fileListFontName";
     public static final String FILE_LIST_FONT_SIZE = "fileListFontSize";
     public static final String FILE_LIST_FONT_STYLE = "fileListFontStyle";
@@ -971,6 +974,9 @@ public class SettingsClass implements ExitSavable {
         defaults.put(MAINFRAME_LAST_Y, "50"); // "lastFramePosY"
         defaults.put(MAINFRAME_LAST_MAXIMIZED, "false"); // "lastFrameMaximized"
 
+        defaults.put(BOARD_TREE_FONT_NAME, "Tahoma");
+        defaults.put(BOARD_TREE_FONT_STYLE, new Integer(Font.PLAIN).toString());
+        defaults.put(BOARD_TREE_FONT_SIZE, "11");
         defaults.put(MESSAGE_BODY_FONT_NAME, "Monospaced");
         defaults.put(MESSAGE_BODY_FONT_STYLE, new Integer(Font.PLAIN).toString());
         defaults.put(MESSAGE_BODY_FONT_SIZE, "12");
