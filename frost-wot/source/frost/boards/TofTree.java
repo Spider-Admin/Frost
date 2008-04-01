@@ -56,6 +56,9 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
     private boolean stopBoardUpdatesWhenDOSed;
     private int maxInvalidMessagesPerDayThreshold;
 
+    private final int MINIMUM_ROW_HEIGHT = 20;
+    private final int ROW_HEIGHT_MARGIN = 4;
+
     private class PopupMenuTofTree
         extends JSkinnablePopupMenu
         implements LanguageListener, ActionListener {
@@ -450,9 +453,17 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
             this.setClosedIcon(MiscToolkit.loadImageIcon("/data/folder.png"));
             this.setOpenIcon(MiscToolkit.loadImageIcon("/data/folder-open.png"));
 
-            final JTable dummyTable = new JTable();
-            normalFont = dummyTable.getFont();
+            // provide startup font: paranoia - should be provided by initialize() of tree
+            final String fontName = Core.frostSettings.getValue(SettingsClass.BOARD_TREE_FONT_NAME);
+            final int fontStyle = Core.frostSettings.getIntValue(SettingsClass.BOARD_TREE_FONT_STYLE);
+            final int fontSize = Core.frostSettings.getIntValue(SettingsClass.BOARD_TREE_FONT_SIZE);
+            normalFont = new Font(fontName, fontStyle, fontSize);
             boldFont = normalFont.deriveFont(Font.BOLD);
+        }
+
+        public void fontChanged(final Font font) {
+            normalFont = font.deriveFont(Font.PLAIN);
+            boldFont = font.deriveFont(Font.BOLD);
         }
 
         @Override
@@ -634,6 +645,8 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
 
     private PopupMenuTofTree popupMenuTofTree;
 
+    private final CellRenderer cellRenderer = new CellRenderer();
+
     private static final Logger logger = Logger.getLogger(TofTree.class.getName());
 
     private final TofTreeModel model;
@@ -678,13 +691,17 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
         Core.frostSettings.addPropertyChangeListener(SettingsClass.SHOW_BOARD_UPDATE_VISUALIZATION, this);
         Core.frostSettings.addPropertyChangeListener(SettingsClass.SHOW_BOARDTREE_FLAGGEDSTARRED_INDICATOR, this);
 
+        Core.frostSettings.addPropertyChangeListener(SettingsClass.BOARD_TREE_FONT_NAME, this);
+        Core.frostSettings.addPropertyChangeListener(SettingsClass.BOARD_TREE_FONT_SIZE, this);
+        Core.frostSettings.addPropertyChangeListener(SettingsClass.BOARD_TREE_FONT_STYLE, this);
+
         configBoardMenuItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/document-properties.png", 16, 16));
         refreshLanguage();
 
         putClientProperty("JTree.lineStyle", "Angled"); // I like this look
 
         setRootVisible(true);
-        setCellRenderer(new CellRenderer());
+        setCellRenderer(cellRenderer);
         setSelectionModel(model.getSelectionModel());
         getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 
@@ -716,6 +733,13 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
 
         // enable the machine ;)
         runningBoardUpdateThreads = new RunningBoardUpdateThreads();
+
+        // provide startup font
+        final String fontName = Core.frostSettings.getValue(SettingsClass.BOARD_TREE_FONT_NAME);
+        final int fontStyle = Core.frostSettings.getIntValue(SettingsClass.BOARD_TREE_FONT_STYLE);
+        final int fontSize = Core.frostSettings.getIntValue(SettingsClass.BOARD_TREE_FONT_SIZE);
+        Font normalFont = new Font(fontName, fontStyle, fontSize);
+        setFont(normalFont);
     }
 
     private void cutNode(final AbstractNode node) {
@@ -1185,23 +1209,29 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
     }
 
     public void propertyChange(final PropertyChangeEvent evt) {
-        if (evt.getPropertyName().equals(SettingsClass.SHOW_BOARDDESC_TOOLTIPS)) {
+        if( evt.getPropertyName().equals(SettingsClass.SHOW_BOARDDESC_TOOLTIPS) ) {
             showBoardDescriptionToolTips = Core.frostSettings.getBoolValue(SettingsClass.SHOW_BOARDDESC_TOOLTIPS);
-        } else if (evt.getPropertyName().equals(SettingsClass.SHOW_BOARD_UPDATED_COUNT)) {
+        } else if( evt.getPropertyName().equals(SettingsClass.SHOW_BOARD_UPDATED_COUNT ) ) {
             showBoardUpdatedCount = Core.frostSettings.getBoolValue(SettingsClass.SHOW_BOARD_UPDATED_COUNT);
             updateTree(); // redraw tree nodes
-        } else if (evt.getPropertyName().equals(SettingsClass.SHOW_BOARDTREE_FLAGGEDSTARRED_INDICATOR)) {
+        } else if( evt.getPropertyName().equals(SettingsClass.SHOW_BOARDTREE_FLAGGEDSTARRED_INDICATOR) ) {
             showFlaggedStarredIndicators = Core.frostSettings.getBoolValue(SettingsClass.SHOW_BOARDTREE_FLAGGEDSTARRED_INDICATOR);
             updateTree(); // redraw tree nodes
-        } else if (evt.getPropertyName().equals(SettingsClass.SHOW_BOARD_UPDATE_VISUALIZATION)) {
+        } else if( evt.getPropertyName().equals(SettingsClass.SHOW_BOARD_UPDATE_VISUALIZATION) ) {
             showBoardUpdateVisualization = Core.frostSettings.getBoolValue(SettingsClass.SHOW_BOARD_UPDATE_VISUALIZATION);
             updateTree(); // redraw tree nodes
-        } else if (evt.getPropertyName().equals(SettingsClass.DOS_STOP_BOARD_UPDATES_WHEN_DOSED)) {
+        } else if( evt.getPropertyName().equals(SettingsClass.DOS_STOP_BOARD_UPDATES_WHEN_DOSED) ) {
             stopBoardUpdatesWhenDOSed = Core.frostSettings.getBoolValue(SettingsClass.DOS_STOP_BOARD_UPDATES_WHEN_DOSED);
             updateAllBoardDosStatus();
             updateTree(); // redraw tree nodes
-        } else if (evt.getPropertyName().equals(SettingsClass.DOS_INVALID_SUBSEQUENT_MSGS_THRESHOLD)) {
+        } else if( evt.getPropertyName().equals(SettingsClass.DOS_INVALID_SUBSEQUENT_MSGS_THRESHOLD) ) {
             maxInvalidMessagesPerDayThreshold = Core.frostSettings.getIntValue(SettingsClass.DOS_INVALID_SUBSEQUENT_MSGS_THRESHOLD);
+        } else if( evt.getPropertyName().equals(SettingsClass.BOARD_TREE_FONT_NAME) ) {
+            fontChanged();
+        } else if( evt.getPropertyName().equals(SettingsClass.BOARD_TREE_FONT_SIZE) ) {
+            fontChanged();
+        } else if( evt.getPropertyName().equals(SettingsClass.BOARD_TREE_FONT_STYLE) ) {
+            fontChanged();
         }
     }
 
@@ -1222,4 +1252,34 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
             board.updateDosStatus(stopBoardUpdatesWhenDOSed, minDateTime, todayDateTime);
         }
     }
+
+    private void fontChanged() {
+        final String fontName = Core.frostSettings.getValue(SettingsClass.BOARD_TREE_FONT_NAME);
+        final int fontStyle = Core.frostSettings.getIntValue(SettingsClass.BOARD_TREE_FONT_STYLE);
+        final int fontSize = Core.frostSettings.getIntValue(SettingsClass.BOARD_TREE_FONT_SIZE);
+        Font font = new Font(fontName, fontStyle, fontSize);
+        if (!font.getFamily().equals(fontName)) {
+//            logger.severe(
+//                "The selected font was not found in your system\n"
+//                    + "That selection will be changed to \"Monospaced\".");
+            Core.frostSettings.setValue(SettingsClass.BOARD_TREE_FONT_NAME, "Tahoma");
+            font = new Font("Tahoma", fontStyle, fontSize);
+        }
+        // adjust row height to font size, add a margin
+        setRowHeight(Math.max(fontSize + ROW_HEIGHT_MARGIN, MINIMUM_ROW_HEIGHT));
+
+        setFont(font);
+    }
+
+    @Override
+    public void setFont(final Font font) {
+        super.setFont(font);
+
+        if( cellRenderer != null ) {
+            cellRenderer.fontChanged(font);
+        }
+        repaint();
+    }
+
+
 }

@@ -29,7 +29,7 @@ import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
 /**
- * Display Panel. Contains appereance options
+ * Display Panel. Contains appearance options
  */
 class DisplayPanel extends JPanel {
 
@@ -300,17 +300,17 @@ class DisplayPanel extends JPanel {
      * Save the settings of this panel
      */
     private void saveSettings() {
-        if (selectedBodyFont != null) {
+        if( selectedBodyFont != null ) {
             settings.setValue(SettingsClass.MESSAGE_BODY_FONT_NAME, selectedBodyFont.getFamily());
             settings.setValue(SettingsClass.MESSAGE_BODY_FONT_STYLE, selectedBodyFont.getStyle());
             settings.setValue(SettingsClass.MESSAGE_BODY_FONT_SIZE, selectedBodyFont.getSize());
         }
-        if (selectedMessageListFont != null) {
+        if( selectedMessageListFont != null ) {
             settings.setValue(SettingsClass.MESSAGE_LIST_FONT_NAME, selectedMessageListFont.getFamily());
             settings.setValue(SettingsClass.MESSAGE_LIST_FONT_STYLE, selectedMessageListFont.getStyle());
             settings.setValue(SettingsClass.MESSAGE_LIST_FONT_SIZE, selectedMessageListFont.getSize());
         }
-        if (selectedFileListFont != null) {
+        if( selectedFileListFont != null ) {
             settings.setValue(SettingsClass.FILE_LIST_FONT_NAME, selectedFileListFont.getFamily());
             settings.setValue(SettingsClass.FILE_LIST_FONT_STYLE, selectedFileListFont.getStyle());
             settings.setValue(SettingsClass.FILE_LIST_FONT_SIZE, selectedFileListFont.getSize());
