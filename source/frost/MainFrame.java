@@ -1339,6 +1339,9 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
      * Fires a nodeChanged (redraw) for this board and updates buttons.
      */
     public void updateTofTree(final AbstractNode board) {
+        if( board == null ) {
+            return;
+        }
         // fire update for node
         tofTreeModel.nodeChanged(board);
         // also update all parents

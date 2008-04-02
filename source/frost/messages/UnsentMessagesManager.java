@@ -140,6 +140,7 @@ public class UnsentMessagesManager {
         FileAttachmentUploadThread.getInstance().checkAndEnqueueNewMessage(mo);
 
         MainFrame.getInstance().getUnsentMessagesPanel().addUnsentMessage(mo);
+        MainFrame.getInstance().updateTofTree( MainFrame.getInstance().getTofTree().getUnsentMessagesFolder() );
     }
 
     /**
@@ -161,9 +162,11 @@ public class UnsentMessagesManager {
             }
         }
 
+
         FileAttachmentUploadThread.getInstance().messageWasDeleted(unsentMsg.getMessageId());
 
         MainFrame.getInstance().getUnsentMessagesPanel().removeUnsentMessage(unsentMsg);
+        MainFrame.getInstance().updateTofTree( MainFrame.getInstance().getTofTree().getUnsentMessagesFolder() );
 
         return true;
     }
@@ -179,6 +182,7 @@ public class UnsentMessagesManager {
         }
 
         MainFrame.getInstance().getUnsentMessagesPanel().removeUnsentMessage(unsentMsg);
+        MainFrame.getInstance().updateTofTree( MainFrame.getInstance().getTofTree().getUnsentMessagesFolder() );
 
         return true;
     }

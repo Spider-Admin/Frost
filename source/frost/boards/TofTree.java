@@ -36,6 +36,7 @@ import org.joda.time.*;
 import frost.*;
 import frost.fcp.*;
 import frost.gui.*;
+import frost.messages.*;
 import frost.storage.*;
 import frost.threads.*;
 import frost.util.gui.*;
@@ -58,6 +59,9 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
 
     private final int MINIMUM_ROW_HEIGHT = 20;
     private final int ROW_HEIGHT_MARGIN = 4;
+
+    private UnsentMessagesFolder unsentMessagesFolder = null;
+    private SentMessagesFolder sentMessagesFolder = null;
 
     private class PopupMenuTofTree
         extends JSkinnablePopupMenu
@@ -552,12 +556,22 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
             } else {
                 // sent/unsent folder
                 final AbstractNode folder = node;
+
                 setText(folder.getName());
+
                 setFont(normalFont);
                 if( folder.isSentMessagesFolder() ) {
                     setIcon(sentMessagesFolderIcon);
                 } else if( folder.isUnsentMessagesFolder() ) {
                     setIcon(unsentMessagesFolderIcon);
+
+                    // show unsent message count
+                    final int cnt = UnsentMessagesManager.getUnsentMessageCount();
+                    if( cnt > 0 ) {
+                        final StringBuilder sb = new StringBuilder();
+                        sb.append(folder.getName()).append(" (").append(cnt).append(")");
+                        setText(sb.toString());
+                    }
                 }
                 if( showFlaggedStarredIndicators ) {
                     setBorder(borderEmpty);
@@ -738,7 +752,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
         final String fontName = Core.frostSettings.getValue(SettingsClass.BOARD_TREE_FONT_NAME);
         final int fontStyle = Core.frostSettings.getIntValue(SettingsClass.BOARD_TREE_FONT_STYLE);
         final int fontSize = Core.frostSettings.getIntValue(SettingsClass.BOARD_TREE_FONT_SIZE);
-        Font normalFont = new Font(fontName, fontStyle, fontSize);
+        final Font normalFont = new Font(fontName, fontStyle, fontSize);
         setFont(normalFont);
     }
 
@@ -830,10 +844,10 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
 
         final String unsentName = language.getString("UnsentMessages.folderName");
         final String sentName = language.getString("SentMessages.folderName");
-        final UnsentMessagesFolder unsentMsgs = new UnsentMessagesFolder("["+unsentName+"]");
-        final SentMessagesFolder sentMsgs = new SentMessagesFolder("["+sentName+"]");
+        unsentMessagesFolder = new UnsentMessagesFolder("["+unsentName+"]");
+        sentMessagesFolder = new SentMessagesFolder("["+sentName+"]");
 
-        boolean loadWasOk = xmlio.loadBoardTree( this, model, boardIniFilename, unsentMsgs, sentMsgs );
+        boolean loadWasOk = xmlio.loadBoardTree( this, model, boardIniFilename, unsentMessagesFolder, sentMessagesFolder );
         if( !loadWasOk ) {
             return loadWasOk;
         }
@@ -1279,6 +1293,14 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
             cellRenderer.fontChanged(font);
         }
         repaint();
+    }
+
+    public UnsentMessagesFolder getUnsentMessagesFolder() {
+        return unsentMessagesFolder;
+    }
+
+    public SentMessagesFolder getSentMessagesFolder() {
+        return sentMessagesFolder;
     }
 
 
