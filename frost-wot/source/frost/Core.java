@@ -83,6 +83,29 @@ public class Core implements FrostEventDispatcher  {
         initializeLanguage();
     }
 
+    private boolean checkIfRunningOn07Testnet() {
+        boolean runningOnTestnet = false;
+        try {
+            final List<String> nodeInfo = FcpHandler.inst().getNodeInfo();
+            if( nodeInfo != null ) {
+                // freenet is online
+                setFreenetOnline(true);
+
+                // on 0.7 check for "Testnet=true" and warn user
+                if( FcpHandler.isFreenet07() ) {
+                    for( final String val : nodeInfo ) {
+                        if( val.startsWith("Testnet") && val.indexOf("true") > 0 ) {
+                            runningOnTestnet = true;
+                        }
+                    }
+                }
+            }
+        } catch (final Exception e) {
+            logger.log(Level.SEVERE, "Exception thrown in initializeConnectivity", e);
+        }
+        return runningOnTestnet;
+    }
+
     /**
      * This methods parses the list of available nodes (and converts it if it is in
      * the old format). If there are no available nodes, it shows a Dialog warning the
@@ -122,11 +145,7 @@ public class Core implements FrostEventDispatcher  {
 
         final List<String> nodes = new ArrayList<String>();
 
-        if (nodesUnparsed == null) { //old format
-            final String converted = new String(frostSettings.getValue("nodeAddress")+":"+frostSettings.getValue("nodePort"));
-            nodes.add(converted.trim());
-            frostSettings.setValue(SettingsClass.AVAILABLE_NODES, converted.trim());
-        } else { // new format
+        if( nodesUnparsed != null ) {
             final String[] _nodes = nodesUnparsed.split(",");
             for( final String element : _nodes ) {
                 nodes.add(element);
@@ -176,27 +195,8 @@ public class Core implements FrostEventDispatcher  {
             return true;
         }
 
-        boolean runningOnTestnet = false;
-        try {
-            final List<String> nodeInfo = FcpHandler.inst().getNodeInfo();
-            if( nodeInfo != null ) {
-                // freenet is online
-                setFreenetOnline(true);
-
-                // on 0.7 check for "Testnet=true" and warn user
-                if( FcpHandler.isFreenet07() ) {
-                    for( final String val : nodeInfo ) {
-                        if( val.startsWith("Testnet") && val.indexOf("true") > 0 ) {
-                            runningOnTestnet = true;
-                        }
-                    }
-                }
-            }
-        } catch (final Exception e) {
-            logger.log(Level.SEVERE, "Exception thrown in initializeConnectivity", e);
-        }
-
-        if( runningOnTestnet ) {
+        // We warn the user when he connects to a 0.7 testnet node
+        if( checkIfRunningOn07Testnet() ) {
             MiscToolkit.showMessage(
                     language.getString("Core.init.TestnetWarningBody"),
                     JOptionPane.WARNING_MESSAGE,
@@ -360,15 +360,14 @@ public class Core implements FrostEventDispatcher  {
 
         // check if help.zip contains only secure files (no http or ftp links at all)
         {
-            CheckHtmlIntegrity chi = new CheckHtmlIntegrity();
+            final CheckHtmlIntegrity chi = new CheckHtmlIntegrity();
             isHelpHtmlSecure = chi.scanZipFile("help/help.zip");
-            chi = null;
         }
 
         splashscreen.setText(language.getString("Splashscreen.message.3"));
         splashscreen.setProgress(60);
 
-        // needs to be done before knownboard import, the keychecker needs to know the freenetversion!
+        // sets the freenet version
         if (!initializeConnectivity()) {
             System.exit(1);
         }
@@ -409,18 +408,19 @@ public class Core implements FrostEventDispatcher  {
 
         mainFrame.initialize();
 
-        // (cleanup gets the expiration mode from settings)
+        // cleanup gets the expiration mode from settings
         CleanUp.runExpirationTasks(splashscreen, MainFrame.getInstance().getTofTreeModel().getAllBoards());
 
-        // show enqueued startup messages before bring-up of mainframe
-        // otherwise the glasspane used during load of board messages could corrupt the model message dialog!
+        // Show enqueued startup messages before showing the mainframe,
+        // otherwise the glasspane used during load of board messages could corrupt the modal message dialog!
         SwingUtilities.invokeAndWait(new Runnable() {
             public void run() {
                 mainFrame.showStartupMessages();
             }
         });
 
-        // after expiration, select previously selected board tree row; this loads the message table!!!
+        // After expiration, select previously selected board tree row.
+        // NOTE: This loads the message table!!!
         mainFrame.postInitialize();
 
         splashscreen.setText(language.getString("Splashscreen.message.5"));
