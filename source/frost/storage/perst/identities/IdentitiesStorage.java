@@ -132,7 +132,8 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
         }
 
         try {
-            for( final Identity id : storageRoot.getIdentities() ) {
+            for( Iterator<Identity> i = storageRoot.getIdentities().iterator(); i.hasNext();  ) {
+                final Identity id = i.next();
                 if( id == null ) {
                     logger.severe("Retrieved a null id !!! Please repair identities.dbs.");
                 } else {
