@@ -132,14 +132,14 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
         }
 
         try {
-            for( Iterator<Identity> i = storageRoot.getIdentities().iterator(); i.hasNext();  ) {
+            for( final Iterator<Identity> i = storageRoot.getIdentities().iterator(); i.hasNext();  ) {
                 final Identity id = i.next();
                 if( id == null ) {
                     logger.severe("Retrieved a null id !!! Please repair identities.dbs.");
                 } else {
                     // one-time migration, remove all ids that have a '_' instead of an '@'
                     if( migrateIdStorage && !Core.getIdentities().isIdentityValid(id) ) {
-                        removeIdentity(id);
+                        i.remove();
                         logger.severe("Dropped an invalid identity: "+id.getUniqueName());
                     } else {
                         result.put(id.getUniqueName(), id);
