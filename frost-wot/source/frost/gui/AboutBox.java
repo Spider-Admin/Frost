@@ -23,7 +23,6 @@ import java.awt.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-import frost.util.*;
 import frost.util.gui.*;
 
 /**
@@ -105,6 +104,7 @@ public class AboutBox extends JDialogWithDetails {
         details.append("   Thomas Mueller (quit)\n");
         details.append("   Jim Hunziker (quit)\n");
         details.append("   Stefan Majewski (quit)\n");
+        details.append("   Edward Louis Severson IV\n");
         details.append("   José Manuel Arnesto (quit)\n\n");
         details.append(language.getString("AboutBox.text.windowsInstaller") + "\n");
         details.append("   Benoit Laniel\n\n");
