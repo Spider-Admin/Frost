@@ -1719,8 +1719,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 }
             }
             final Board board = firstMessage.getBoard();
-            board.hasFlaggedMessages(hasFlaggedWork);
-            board.hasStarredMessages(hasStarredWork);
+            board.setFlaggedMessages(hasFlaggedWork);
+            board.setStarredMessages(hasStarredWork);
             MainFrame.getInstance().updateTofTree(board);
         }
 

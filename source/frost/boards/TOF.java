@@ -839,8 +839,8 @@ public class TOF implements PropertyChangeListener {
                 SwingUtilities.invokeLater( new Runnable() {
                     public void run() {
                         innerTargetBoard.setNewMessageCount(newMessageCount);
-                        innerTargetBoard.hasFlaggedMessages(newHasFlagged);
-                        innerTargetBoard.hasStarredMessages(newHasStarred);
+                        innerTargetBoard.setFlaggedMessages(newHasFlagged);
+                        innerTargetBoard.setStarredMessages(newHasStarred);
                         setNewRootNode(innerTargetBoard, rootNode, previousSelectedMsg);
                     }
                 });
@@ -1064,8 +1064,8 @@ public class TOF implements PropertyChangeListener {
         hasFlagged = MessageStorage.inst().hasFlaggedMessages(board);
         hasStarred = MessageStorage.inst().hasStarredMessages(board);
 
-        board.hasFlaggedMessages(hasFlagged);
-        board.hasStarredMessages(hasStarred);
+        board.setFlaggedMessages(hasFlagged);
+        board.setStarredMessages(hasStarred);
 
         // update the tree
         SwingUtilities.invokeLater( new Runnable() {

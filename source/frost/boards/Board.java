@@ -468,15 +468,15 @@ public class Board extends AbstractNode {
     public boolean hasFlaggedMessages() {
         return hasFlaggedMessages;
     }
-    public void hasFlaggedMessages(final boolean newHasFlaggedMessages) {
-        this.hasFlaggedMessages = newHasFlaggedMessages;
+    public void setFlaggedMessages(final boolean newFlaggedMessages) {
+        this.hasFlaggedMessages = newFlaggedMessages;
     }
 
     public boolean hasStarredMessages() {
         return hasStarredMessages;
     }
-    public void hasStarredMessages(final boolean newHasStarredMessages) {
-        this.hasStarredMessages = newHasStarredMessages;
+    public void setStarredMessages(final boolean newStarredMessages) {
+        this.hasStarredMessages = newStarredMessages;
     }
 
     public PerstFrostBoardObject getPerstFrostBoardObject() {
