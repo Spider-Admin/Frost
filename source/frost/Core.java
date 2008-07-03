@@ -271,9 +271,56 @@ public class Core implements FrostEventDispatcher  {
         }
     }
 
+    private void compactPerstStorages(final Splashscreen splashscreen) throws Exception {
+        try {
+            long savedBytes = 0;
+            savedBytes += compactStorage(splashscreen, IndexSlotsStorage.inst());
+            savedBytes += compactStorage(splashscreen, FrostFilesStorage.inst());
+            savedBytes += compactStorage(splashscreen, IdentitiesStorage.inst());
+            savedBytes += compactStorage(splashscreen, SharedFilesCHKKeyStorage.inst());
+            savedBytes += compactStorage(splashscreen, MessageStorage.inst());
+            savedBytes += compactStorage(splashscreen, MessageContentStorage.inst());
+            savedBytes += compactStorage(splashscreen, FileListStorage.inst());
+            savedBytes += compactStorage(splashscreen, ArchiveMessageStorage.inst());
+
+            final NumberFormat nf = NumberFormat.getInstance();
+            logger.warning("Finished compact of storages, released "+nf.format(savedBytes)+" bytes.");
+        } catch(final Exception ex) {
+            logger.log(Level.SEVERE, "Error compacting perst storages", ex);
+            ex.printStackTrace();
+            MiscToolkit.showMessage(
+                    "Error compacting perst storages, compact did not complete: "+ex.getMessage(),
+                    JOptionPane.ERROR_MESSAGE,
+                    "Error compacting perst storages");
+            throw ex;
+        }
+    }
+
     private long compactStorage(final Splashscreen splashscreen, final AbstractFrostStorage storage) throws Exception {
         splashscreen.setText("Compacting storage file '"+storage.getStorageFilename()+"'...");
         return storage.compactStorage();
+    }
+
+    private void exportStoragesToXml(final Splashscreen splashscreen) throws Exception {
+        try {
+            exportStorage(splashscreen, IndexSlotsStorage.inst());
+            exportStorage(splashscreen, FrostFilesStorage.inst());
+            exportStorage(splashscreen, IdentitiesStorage.inst());
+            exportStorage(splashscreen, SharedFilesCHKKeyStorage.inst());
+            exportStorage(splashscreen, MessageStorage.inst());
+            exportStorage(splashscreen, MessageContentStorage.inst());
+            exportStorage(splashscreen, FileListStorage.inst());
+            exportStorage(splashscreen, ArchiveMessageStorage.inst());
+            logger.warning("Finished export to XML");
+        } catch(final Exception ex) {
+            logger.log(Level.SEVERE, "Error exporting perst storages", ex);
+            ex.printStackTrace();
+            MiscToolkit.showMessage(
+                    "Error exporting perst storages, export did not complete: "+ex.getMessage(),
+                    JOptionPane.ERROR_MESSAGE,
+            "Error exporting perst storages");
+            throw ex;
+        }
     }
 
     private void exportStorage(final Splashscreen splashscreen, final AbstractFrostStorage storage) throws Exception {
@@ -323,58 +370,16 @@ public class Core implements FrostEventDispatcher  {
 
         // FIXME: compact after cleanup?
         // before opening the storages, maybe compact them
-        final boolean compactTables = frostSettings.getBoolValue(SettingsClass.PERST_COMPACT_STORAGES);
-        try {
-            if( compactTables ) {
-                long savedBytes = 0;
-                savedBytes += compactStorage(splashscreen, IndexSlotsStorage.inst());
-                savedBytes += compactStorage(splashscreen, FrostFilesStorage.inst());
-                savedBytes += compactStorage(splashscreen, IdentitiesStorage.inst());
-                savedBytes += compactStorage(splashscreen, SharedFilesCHKKeyStorage.inst());
-                savedBytes += compactStorage(splashscreen, MessageStorage.inst());
-                savedBytes += compactStorage(splashscreen, MessageContentStorage.inst());
-                savedBytes += compactStorage(splashscreen, FileListStorage.inst());
-                savedBytes += compactStorage(splashscreen, ArchiveMessageStorage.inst());
-
-                final NumberFormat nf = NumberFormat.getInstance();
-                logger.warning("Finished compact of storages, released "+nf.format(savedBytes)+" bytes.");
-            }
-        } catch(final Exception ex) {
-            logger.log(Level.SEVERE, "Error compacting perst storages", ex);
-            ex.printStackTrace();
-            MiscToolkit.showMessage(
-                    "Error compacting perst storages, compact did not complete: "+ex.getMessage(),
-                    JOptionPane.ERROR_MESSAGE,
-                    "Error compacting perst storages");
-            throw ex;
+        if( frostSettings.getBoolValue(SettingsClass.PERST_COMPACT_STORAGES) ) {
+            compactPerstStorages(splashscreen);
+            frostSettings.setValue(SettingsClass.PERST_COMPACT_STORAGES, false);
         }
-        frostSettings.setValue(SettingsClass.PERST_COMPACT_STORAGES, false);
 
-
-        final boolean exportToXML = frostSettings.getBoolValue(SettingsClass.PERST_EXPORT_STORAGES);
-        try {
-            if( exportToXML ) {
-                exportStorage(splashscreen, IndexSlotsStorage.inst());
-                exportStorage(splashscreen, FrostFilesStorage.inst());
-                exportStorage(splashscreen, IdentitiesStorage.inst());
-                exportStorage(splashscreen, SharedFilesCHKKeyStorage.inst());
-                exportStorage(splashscreen, MessageStorage.inst());
-                exportStorage(splashscreen, MessageContentStorage.inst());
-                exportStorage(splashscreen, FileListStorage.inst());
-                exportStorage(splashscreen, ArchiveMessageStorage.inst());
-                logger.warning("Finished export to XML");
-            }
-        } catch(final Exception ex) {
-            logger.log(Level.SEVERE, "Error exporting perst storages", ex);
-            ex.printStackTrace();
-            MiscToolkit.showMessage(
-                    "Error exporting perst storages, export did not complete: "+ex.getMessage(),
-                    JOptionPane.ERROR_MESSAGE,
-            "Error exporting perst storages");
-            throw ex;
+        // maybe export perst storages to XML
+        if( frostSettings.getBoolValue(SettingsClass.PERST_EXPORT_STORAGES) ) {
+            exportStoragesToXml(splashscreen);
+            frostSettings.setValue(SettingsClass.PERST_EXPORT_STORAGES, false);
         }
-        frostSettings.setValue(SettingsClass.PERST_EXPORT_STORAGES, false);
-
 
         // initialize perst storages
         IndexSlotsStorage.inst().initStorage();
