@@ -55,6 +55,7 @@ public class SettingsClass implements ExitSavable {
     public static final String DB_CLEANUP_OFFLINEFILESMAXDAYSOLD = "database.cleanup.offlineFilesMaxDaysOld";
 
     public static final String PERST_COMPACT_STORAGES = "perst.compactStorages";
+    public static final String PERST_EXPORT_STORAGES = "perst.exportStorages";
 
     public static final String DIR_CONFIG = "config.dir";
     public static final String DIR_DOWNLOAD = "downloadDirectory";
