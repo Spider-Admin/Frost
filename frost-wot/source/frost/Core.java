@@ -276,6 +276,11 @@ public class Core implements FrostEventDispatcher  {
         return storage.compactStorage();
     }
 
+    private void exportStorage(final Splashscreen splashscreen, final AbstractFrostStorage storage) throws Exception {
+        splashscreen.setText("Exporting storage file '"+storage.getStorageFilename()+"'...");
+        storage.exportToXml();
+    }
+
     /**
      * Initialize, show splashscreen.
      */
@@ -344,6 +349,32 @@ public class Core implements FrostEventDispatcher  {
             throw ex;
         }
         frostSettings.setValue(SettingsClass.PERST_COMPACT_STORAGES, false);
+
+
+        final boolean exportToXML = frostSettings.getBoolValue(SettingsClass.PERST_EXPORT_STORAGES);
+        try {
+            if( exportToXML ) {
+                exportStorage(splashscreen, IndexSlotsStorage.inst());
+                exportStorage(splashscreen, FrostFilesStorage.inst());
+                exportStorage(splashscreen, IdentitiesStorage.inst());
+                exportStorage(splashscreen, SharedFilesCHKKeyStorage.inst());
+                exportStorage(splashscreen, MessageStorage.inst());
+                exportStorage(splashscreen, MessageContentStorage.inst());
+                exportStorage(splashscreen, FileListStorage.inst());
+                exportStorage(splashscreen, ArchiveMessageStorage.inst());
+                logger.warning("Finished export to XML");
+            }
+        } catch(final Exception ex) {
+            logger.log(Level.SEVERE, "Error exporting perst storages", ex);
+            ex.printStackTrace();
+            MiscToolkit.showMessage(
+                    "Error exporting perst storages, export did not complete: "+ex.getMessage(),
+                    JOptionPane.ERROR_MESSAGE,
+            "Error exporting perst storages");
+            throw ex;
+        }
+        frostSettings.setValue(SettingsClass.PERST_EXPORT_STORAGES, false);
+
 
         // initialize perst storages
         IndexSlotsStorage.inst().initStorage();

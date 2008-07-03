@@ -62,6 +62,35 @@ public abstract class AbstractFrostStorage {
         storage.open(databaseFilePath, pagePoolSize);
     }
 
+    public void exportToXml() throws Exception {
+        final File xmlFile = new File( buildStoragePath(getStorageFilename()+".xml") );
+
+        logger.warning("Exporting storage file '"+getStorageFilename()+"' to XML...");
+
+        // open storage
+        initStorage();
+
+        // backup storage contents (=compact)
+        FileWriter writer = null;
+        try {
+            writer = new FileWriter(xmlFile);
+            getStorage().exportXML(writer);
+            writer.close();
+        } catch(final Exception t) {
+            // error occured, delete bakFile
+            if( writer != null ) {
+                try { writer.close(); } catch(final Exception t2) {}
+            }
+            xmlFile.delete();
+            throw t;
+        }
+
+        // close storage
+        close();
+
+        logger.warning("Finished XML export of storage file "+getStorageFilename()+" into "+xmlFile.getPath());
+    }
+
     public long compactStorage() throws Exception {
         final File storageFile = new File( buildStoragePath(getStorageFilename()) );
         final File bakFile = new File( buildStoragePath(getStorageFilename()+".bak") );
