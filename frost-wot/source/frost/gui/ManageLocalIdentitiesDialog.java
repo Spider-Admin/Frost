@@ -531,7 +531,7 @@ public class ManageLocalIdentitiesDialog extends JDialog {
                         return;
                     }
                     final List<LocalIdentity> localIdentities = LocalIdentitiesXmlDAO.loadLocalidentities(xmlFile);
-                    if( localIdentities.size() == 0 ) {
+                    if( null == localIdentities || localIdentities.size() == 0 ) {
                         // nothing loaded
                         JOptionPane.showMessageDialog(
                                 ManageLocalIdentitiesDialog.this,
