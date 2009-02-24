@@ -87,6 +87,11 @@ public class IndexSlotsStorage extends AbstractFrostStorage implements ExitSavab
         return true;
     }
 
+
+    private static final Long minLongObj = new Long(Long.MIN_VALUE);
+    private static final Integer minIntObj = new Integer(Integer.MIN_VALUE);
+    private static final Integer maxIntObj = new Integer(Integer.MAX_VALUE);
+
     /**
      * Deletes any items with a date < maxDaysOld
      */
@@ -94,14 +99,24 @@ public class IndexSlotsStorage extends AbstractFrostStorage implements ExitSavab
 
         // millis before maxDaysOld days
         final long date = new LocalDate().minusDays(maxDaysOld + 1).toDateTimeAtMidnight(DateTimeZone.UTC).getMillis();
+        final Long dateObj = new Long(date);
 
         // delete all items with msgDate < maxDaysOld
         int deletedCount = 0;
 
         beginExclusiveThreadTransaction();
         try {
-            final Iterator<IndexSlot> i = storageRoot.slotsIndexLI.iterator(new Key(Long.MIN_VALUE, Integer.MIN_VALUE,
-                    true), new Key(date, Integer.MAX_VALUE, true), Index.ASCENT_ORDER);
+            final Iterator<IndexSlot> i =
+                storageRoot.slotsIndexLI.iterator(
+                        new Key(
+                                minLongObj,
+                                minIntObj,
+                                true),
+                        new Key(
+                                dateObj,
+                                maxIntObj,
+                                true),
+                        Index.ASCENT_ORDER);
             while( i.hasNext() ) {
                 final IndexSlot gis = i.next();
                 storageRoot.slotsIndexIL.remove(gis); // also remove from IL index
