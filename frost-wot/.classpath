@@ -10,7 +10,7 @@
 	<classpathentry kind="lib" path="lib/fec-native.jar"/>
 	<classpathentry kind="lib" path="lib/gnu-regexp-1.1.4.jar"/>
 	<classpathentry kind="lib" path="lib/joda-time.jar"/>
-	<classpathentry kind="lib" path="lib/perst15.jar" sourcepath="C:/Projects/perst/src15"/>
+	<classpathentry kind="lib" path="lib/perst15.jar" sourcepath="C:/Projects/perst15/source"/>
 	<classpathentry kind="lib" path="lib/xercesImpl.jar"/>
 	<classpathentry kind="lib" path="lib/xml-apis.jar"/>
 	<classpathentry kind="output" path="_out_"/>
