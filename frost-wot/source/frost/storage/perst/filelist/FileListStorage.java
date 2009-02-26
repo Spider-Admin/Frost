@@ -258,8 +258,8 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
                     final FrostFileListFileObjectOwner o = i.next();
                     boolean remove = false;
 
-                    if( o.getLastReceived() < minVal && o.getKey() == null ) {
-                        // outdated and no key
+                    if( o.getLastReceived() < minVal ) {
+                        // outdated owner
                         remove = true;
 
                     } else if( removeOld07ChkKeys && FreenetKeys.isOld07ChkKey(o.getKey()) ) {
@@ -573,11 +573,15 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
         }
     }
 
+boolean alwaysUseLatestChkKey = true; // FIXME: add an option!
+
     private boolean updateFileListFileFromOtherFileListFile(final FrostFileListFileObject oldFof, final FrostFileListFileObject newFof) {
         // file is already in FILELIST table, maybe add new FILEOWNER and update fields
         // maybe update oldSfo
         boolean doUpdate = false;
         if( oldFof.getKey() == null && newFof.getKey() != null ) {
+            oldFof.setKey(newFof.getKey()); doUpdate = true;
+        } else if( alwaysUseLatestChkKey && oldFof.getKey() != null && newFof.getKey() != null ) {
             oldFof.setKey(newFof.getKey()); doUpdate = true;
         } else if( oldFof.getKey() != null && newFof.getKey() != null ) {
             // fix to replace 0.7 keys before 1010 on the fly
