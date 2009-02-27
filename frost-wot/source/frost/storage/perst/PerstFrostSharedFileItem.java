@@ -26,7 +26,6 @@ import javax.swing.*;
 import org.garret.perst.*;
 
 import frost.*;
-import frost.fcp.*;
 import frost.fileTransfer.sharing.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
@@ -118,13 +117,13 @@ public class PerstFrostSharedFileItem extends Persistent {
             }
         }
 
-        // check if we share a file with an old CHK key, if yes, remove the key and reset lastUploaded date
-        if( FcpHandler.isFreenet07() && FreenetKeys.isOld07ChkKey(key) ) {
-            // reset key, the change is saved to perst during shutdown
-            key = null;
-            lastUploaded = 0;
-            uploadCount = 0;
-        }
+//        // check if we share a file with an old CHK key, if yes, remove the key and reset lastUploaded date
+//        if( FcpHandler.isFreenet07() && FreenetKeys.isOld07ChkKey(key) ) {
+//            // reset key, the change is saved to perst during shutdown
+//            key = null;
+//            lastUploaded = 0;
+//            uploadCount = 0;
+//        }
 
         final FrostSharedFileItem sfItem = new FrostSharedFileItem(
                 file,
