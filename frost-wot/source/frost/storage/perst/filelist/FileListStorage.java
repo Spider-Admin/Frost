@@ -235,7 +235,7 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
     /**
      * Remove owners that were not seen for more than MINIMUM_DAYS_OLD days and have no CHK key set.
      */
-    public int cleanupFileListFileOwners(final int maxDaysOld) {
+    public int cleanupFileListFileOwners(final boolean removeOfflineFilesWithKey, final int offlineFilesMaxDaysOld) {
 
         if( !beginExclusiveThreadTransaction() ) {
             return 0;
@@ -252,7 +252,7 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
 
         int count = 0;
         try {
-            final long minVal = System.currentTimeMillis() - (maxDaysOld * 24L * 60L * 60L * 1000L);
+            final long minVal = System.currentTimeMillis() - (offlineFilesMaxDaysOld * 24L * 60L * 60L * 1000L);
             for( final PerstIdentitiesFiles pif : storageRoot.getIdentitiesFiles() ) {
                 for( final Iterator<FrostFileListFileObjectOwner> i = pif.getFilesFromIdentity().iterator(); i.hasNext(); ) {
                     final FrostFileListFileObjectOwner o = i.next();
@@ -260,7 +260,15 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
 
                     if( o.getLastReceived() < minVal ) {
                         // outdated owner
-                        remove = true;
+                        if( o.getKey() != null && o.getKey().length() > 0 ) {
+                            // has a key
+                            if( removeOfflineFilesWithKey ) {
+                                remove = true;
+                            }
+                        } else {
+                            // has no key
+                            remove = true;
+                        }
 
                     } else if( removeOld07ChkKeys && FreenetKeys.isOld07ChkKey(o.getKey()) ) {
                         // we have a key (outdated or not)
@@ -306,9 +314,9 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
     }
 
     /**
-     * Remove files that have no owner and no CHK key.
+     * Remove files that have no owner.
      */
-    public int cleanupFileListFiles(final boolean removeOfflineFilesWithKey, final int offlineFilesMaxDaysOld) {
+    public int cleanupFileListFiles() {
         if( !beginExclusiveThreadTransaction() ) {
             return 0;
         }
@@ -322,33 +330,15 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
             removeOld07ChkKeys = false;
         }
 
-        final long minVal;
-        if( removeOfflineFilesWithKey ) {
-            minVal = System.currentTimeMillis() - (offlineFilesMaxDaysOld * 24L * 60L * 60L * 1000L);
-        } else {
-            minVal = 0;
-        }
-
         int count = 0;
         try {
             for( final Iterator<FrostFileListFileObject> i = storageRoot.getFileListFileObjects().iterator(); i.hasNext(); ) {
                 final FrostFileListFileObject fof = i.next();
                 if( fof.getFrostFileListFileObjectOwnerListSize() == 0 ) {
-                    boolean remove = false;
-
-                    if( fof.getKey() == null ) {
-                        remove = true;
-                    } else if( removeOfflineFilesWithKey && fof.getLastReceived() < minVal) {
-                        remove = true;
-                    } else if( removeOld07ChkKeys && FreenetKeys.isOld07ChkKey(fof.getKey()) ) {
-                        remove = true;
-                    }
-
-                    if( remove ) {
-                        i.remove();
-                        fof.deallocate();
-                        count++;
-                    }
+                    // no more owners, we also have no name, remove
+                    i.remove();
+                    fof.deallocate();
+                    count++;
                 }
             }
         } finally {
