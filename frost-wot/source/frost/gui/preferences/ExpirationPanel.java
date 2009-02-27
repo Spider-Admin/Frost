@@ -19,7 +19,6 @@
 package frost.gui.preferences;
 
 import java.awt.*;
-import java.awt.event.*;
 
 import javax.swing.*;
 
@@ -163,10 +162,6 @@ class ExpirationPanel extends JPanel {
         constraints.fill = GridBagConstraints.NONE;
         constraints.weightx = 0.0;
 
-        add(CbRemoveOfflineFilesWithKey, constraints);
-
-        constraints.gridy++;
-
         {
             final JPanel subPanel = new JPanel(new GridBagLayout());
             final GridBagConstraints subConstraints = new GridBagConstraints();
@@ -178,6 +173,10 @@ class ExpirationPanel extends JPanel {
 
             add(subPanel, constraints);
         }
+
+        constraints.gridy++;
+
+        add(CbRemoveOfflineFilesWithKey, constraints);
 
         // glue
         constraints.gridy++;
@@ -191,18 +190,6 @@ class ExpirationPanel extends JPanel {
         BgExpiredMessages.add( RbKeepExpiredMessages );
         BgExpiredMessages.add( RbArchiveExpiredMessages );
         BgExpiredMessages.add( RbDeleteExpiredMessages );
-
-        // listeners
-        CbRemoveOfflineFilesWithKey.addItemListener(new ItemListener() {
-            public void itemStateChanged(final ItemEvent e) {
-                refreshState();
-            }
-        });
-    }
-
-    private void refreshState() {
-        LofflineFilesMaxDaysOld.setEnabled(CbRemoveOfflineFilesWithKey.isSelected());
-        TfOfflineFilesMaxDaysOld.setEnabled(CbRemoveOfflineFilesWithKey.isSelected());
     }
 
     /**
@@ -235,8 +222,6 @@ class ExpirationPanel extends JPanel {
         } else {
             CbCleanupNextStartup.setSelected(false);
         }
-
-        refreshState();
     }
 
     /**
