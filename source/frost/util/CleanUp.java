@@ -260,9 +260,12 @@ public class CleanUp {
      * Remove owners that were not seen for more than MINIMUM_DAYS_OLD days and have no CHK key set.
      */
     private static void cleanupFileListFileOwners() {
+        final boolean removeOfflineFilesWithKey = Core.frostSettings.getBoolValue(SettingsClass.DB_CLEANUP_REMOVEOFFLINEFILEWITHKEY);
+        final int offlineFilesMaxDaysOld = Core.frostSettings.getIntValue(SettingsClass.DB_CLEANUP_OFFLINEFILESMAXDAYSOLD);
+
         int deletedCount = 0;
         try {
-            deletedCount = FileListStorage.inst().cleanupFileListFileOwners(MINIMUM_DAYS_OLD);
+            deletedCount = FileListStorage.inst().cleanupFileListFileOwners(removeOfflineFilesWithKey, offlineFilesMaxDaysOld);
         } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Exception during cleanup of FileListFileOwners", t);
         }
@@ -276,12 +279,9 @@ public class CleanUp {
      */
     private static void cleanupFileListFiles() {
 
-        final boolean removeOfflineFilesWithKey = Core.frostSettings.getBoolValue(SettingsClass.DB_CLEANUP_REMOVEOFFLINEFILEWITHKEY);
-        final int offlineFilesMaxDaysOld = Core.frostSettings.getIntValue(SettingsClass.DB_CLEANUP_OFFLINEFILESMAXDAYSOLD);
-
         int deletedCount = 0;
         try {
-            deletedCount = FileListStorage.inst().cleanupFileListFiles(removeOfflineFilesWithKey, offlineFilesMaxDaysOld);
+            deletedCount = FileListStorage.inst().cleanupFileListFiles();
         } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Exception during cleanup of FileListFiles", t);
         }
@@ -316,7 +316,7 @@ public class CleanUp {
         final File localdataDir = new File(Core.frostSettings.getValue(SettingsClass.DIR_LOCALDATA));
 
         final FilenameFilter ffilter = new FilenameFilter() {
-            public boolean accept(File dir, String name) {
+            public boolean accept(final File dir, final String name) {
                 if( name.endsWith(FecSplitfile.FILE_CHECKBLOCKS_EXTENSION)
                         || name.endsWith(FecSplitfile.FILE_REDIRECT_EXTENSION) )
                 {

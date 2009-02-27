@@ -39,7 +39,7 @@ public class FileListManager {
      * Used to sort FrostSharedFileItems by refLastSent ascending.
      */
     private static final Comparator<FrostSharedFileItem> refLastSentComparator = new Comparator<FrostSharedFileItem>() {
-        public int compare(FrostSharedFileItem value1, FrostSharedFileItem value2) {
+        public int compare(final FrostSharedFileItem value1, final FrostSharedFileItem value2) {
             if (value1.getRefLastSent() > value2.getRefLastSent()) {
                 return 1;
             } else if (value1.getRefLastSent() < value2.getRefLastSent()) {
@@ -277,7 +277,7 @@ public class FileListManager {
         } else {
             FileListStorage.inst().endThreadTransaction();
         }
-
+// FIXME: change key for running, stalled downloads
         // after updating the db, check if we have to update download items with the new informations
         for( final SharedFileXmlFile sfx : content.getFileList() ) {
 
