@@ -24,7 +24,6 @@ import java.util.*;
 import org.garret.perst.*;
 
 import frost.*;
-import frost.fcp.*;
 import frost.fileTransfer.*;
 import frost.storage.*;
 import frost.storage.perst.*;
@@ -241,14 +240,14 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
             return 0;
         }
 
-        final boolean removeOld07ChkKeys;
-        if( FcpHandler.isFreenet07()
-                && (storageRoot.getStorageStatus() & FileListStorageRoot.OLD_07_CHK_KEYS_REMOVED) == 0 )
-        {
-            removeOld07ChkKeys = true;
-        } else {
-            removeOld07ChkKeys = false;
-        }
+//        final boolean removeOld07ChkKeys;
+//        if( FcpHandler.isFreenet07()
+//                && (storageRoot.getStorageStatus() & FileListStorageRoot.OLD_07_CHK_KEYS_REMOVED) == 0 )
+//        {
+//            removeOld07ChkKeys = true;
+//        } else {
+//            removeOld07ChkKeys = false;
+//        }
 
         int count = 0;
         try {
@@ -270,10 +269,10 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
                             remove = true;
                         }
 
-                    } else if( removeOld07ChkKeys && FreenetKeys.isOld07ChkKey(o.getKey()) ) {
-                        // we have a key (outdated or not)
-                        // check if the key is an old 0.7 CHK key
-                        remove = true;
+//                    } else if( removeOld07ChkKeys && FreenetKeys.isOld07ChkKey(o.getKey()) ) {
+//                        // we have a key (outdated or not)
+//                        // check if the key is an old 0.7 CHK key
+//                        remove = true;
                     }
 
                     if( remove ) {
@@ -321,14 +320,14 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
             return 0;
         }
 
-        final boolean removeOld07ChkKeys;
-        if( FcpHandler.isFreenet07()
-                && (storageRoot.getStorageStatus() & FileListStorageRoot.OLD_07_CHK_KEYS_REMOVED) == 0 )
-        {
-            removeOld07ChkKeys = true;
-        } else {
-            removeOld07ChkKeys = false;
-        }
+//        final boolean removeOld07ChkKeys;
+//        if( FcpHandler.isFreenet07()
+//                && (storageRoot.getStorageStatus() & FileListStorageRoot.OLD_07_CHK_KEYS_REMOVED) == 0 )
+//        {
+//            removeOld07ChkKeys = true;
+//        } else {
+//            removeOld07ChkKeys = false;
+//        }
 
         int count = 0;
         try {
@@ -345,12 +344,12 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
             endThreadTransaction();
         }
 
-        if( removeOld07ChkKeys ) {
-            // we removed the keys, update flag
-            final int newStorageStatus = storageRoot.getStorageStatus() | FileListStorageRoot.OLD_07_CHK_KEYS_REMOVED;
-            storageRoot.setStorageStatus( newStorageStatus );
-            storageRoot.modify();
-        }
+//        if( removeOld07ChkKeys ) {
+//            // we removed the keys, update flag
+//            final int newStorageStatus = storageRoot.getStorageStatus() | FileListStorageRoot.OLD_07_CHK_KEYS_REMOVED;
+//            storageRoot.setStorageStatus( newStorageStatus );
+//            storageRoot.modify();
+//        }
 
         return count;
     }
@@ -563,7 +562,7 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
         }
     }
 
-boolean alwaysUseLatestChkKey = true; // FIXME: add an option!
+boolean alwaysUseLatestChkKey = true; // FIXME: must be true as long as the key changes now and then. False prevents fake files.
 
     private boolean updateFileListFileFromOtherFileListFile(final FrostFileListFileObject oldFof, final FrostFileListFileObject newFof) {
         // file is already in FILELIST table, maybe add new FILEOWNER and update fields
@@ -573,12 +572,12 @@ boolean alwaysUseLatestChkKey = true; // FIXME: add an option!
             oldFof.setKey(newFof.getKey()); doUpdate = true;
         } else if( alwaysUseLatestChkKey && oldFof.getKey() != null && newFof.getKey() != null ) {
             oldFof.setKey(newFof.getKey()); doUpdate = true;
-        } else if( oldFof.getKey() != null && newFof.getKey() != null ) {
-            // fix to replace 0.7 keys before 1010 on the fly
-            if( FreenetKeys.isOld07ChkKey(oldFof.getKey()) ) {
-                // replace old chk key with new one
-                oldFof.setKey(newFof.getKey()); doUpdate = true;
-            }
+//        } else if( oldFof.getKey() != null && newFof.getKey() != null ) {
+//            // fix to replace 0.7 keys before 1010 on the fly
+//            if( FreenetKeys.isOld07ChkKey(oldFof.getKey()) ) {
+//                // replace old chk key with new one
+//                oldFof.setKey(newFof.getKey()); doUpdate = true;
+//            }
         }
         if( oldFof.getFirstReceived() > newFof.getFirstReceived() ) {
             oldFof.setFirstReceived(newFof.getFirstReceived()); doUpdate = true;

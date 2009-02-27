@@ -238,10 +238,10 @@ public class FileListManager {
 
                 final FrostFileListFileObject sfo = new FrostFileListFileObject(sfx, localOwner, content.getTimestamp());
 
-                if( isFreenet07 && FreenetKeys.isOld07ChkKey( sfo.getKey() )) {
-                    // ignore old chk keys
-                    continue;
-                }
+//                if( isFreenet07 && FreenetKeys.isOld07ChkKey( sfo.getKey() )) {
+//                    // ignore old chk keys
+//                    continue;
+//                }
 
                 // before updating the file list object (this overwrites the current lastUploaded time),
                 // check if there is a failed download item for this shared file. If yes, and the lastUpload

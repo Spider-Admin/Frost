@@ -136,42 +136,42 @@ public class FreenetKeys {
         return isKeyLenOk;
     }
 
-    /**
-     * Checks if the provided key is an old 0.7 key (before 1010).
-     * The old keys were only half encrypted!
-     * @param key  key to check (CHK)
-     * @return  true if the key is an old key
-     */
-    public static boolean isOld07ChkKey(final String key) {
-        if( key == null || key.length() < 4 ) {
-            return false; // invalid key
-        }
-        try {
-            if( key.startsWith("CHK@") ) {
-
-                // "CHK@GveS~6H2DnxWpcQL17CljJvmH6d7YicFHzoLvtUKzbk,6sxNSl6r1cl0LuLIsFA7C3oVJIEu4YuoWUJTa4bd7bY,AAIC--8/frost.jar"
-                // always ends with "," and 7 chars
-                // look at the first 3 of the 7 chars:
-                //  "AAE" = old key
-                //  "AAI" = new key
-
-                // find 2nd "," in string
-                int pos = key.indexOf(',');
-                pos = key.indexOf(',', pos+1);
-                pos++;
-                final String s = key.substring(pos, pos+7);
-                if( s.startsWith("AAE") ) {
-                    return true; // old
-                } else if( s.startsWith("AAI") ) {
-                    return false; // new
-                } else {
-                    return false; // invalid
-                }
-            } else {
-                return false; // invalid key type
-            }
-        } catch(final Throwable t) {
-            return false;
-        }
-    }
+//    /**
+//     * Checks if the provided key is an old 0.7 key (before 1010).
+//     * The old keys were only half encrypted!
+//     * @param key  key to check (CHK)
+//     * @return  true if the key is an old key
+//     */
+//    public static boolean isOld07ChkKey(final String key) {
+//        if( key == null || key.length() < 4 ) {
+//            return false; // invalid key
+//        }
+//        try {
+//            if( key.startsWith("CHK@") ) {
+//
+//                // "CHK@GveS~6H2DnxWpcQL17CljJvmH6d7YicFHzoLvtUKzbk,6sxNSl6r1cl0LuLIsFA7C3oVJIEu4YuoWUJTa4bd7bY,AAIC--8/frost.jar"
+//                // always ends with "," and 7 chars
+//                // look at the first 3 of the 7 chars:
+//                //  "AAE" = old key
+//                //  "AAI" = new key
+//
+//                // find 2nd "," in string
+//                int pos = key.indexOf(',');
+//                pos = key.indexOf(',', pos+1);
+//                pos++;
+//                final String s = key.substring(pos, pos+7);
+//                if( s.startsWith("AAE") ) {
+//                    return true; // old
+//                } else if( s.startsWith("AAI") ) {
+//                    return false; // new
+//                } else {
+//                    return false; // invalid
+//                }
+//            } else {
+//                return false; // invalid key type
+//            }
+//        } catch(final Throwable t) {
+//            return false;
+//        }
+//    }
 }
