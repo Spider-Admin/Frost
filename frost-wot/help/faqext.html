@@ -168,6 +168,16 @@ won't find it all empty. If you have chosen to make a keyed board, make sure you
 give away the private key. That would defeat the purpose of having keys on a board.</LI>
 </OL>
 
+<P><B>Q: Can't Frost post successful downloads automatically to the 'successful' board?</B></P>
+<P>A: This was already discussed multiple times before. The conclusion was always that it is a bad idea to automatically post each download to Frost. You may forget about this and download something 'different' one time and this is posted using your identity. No.
+Instead use the localdata/Frost-Downloads.log file and get the keys from there. Check them, post them, and clean the file for the next downloads.</P>
+
+<P><B>Q: I deleted my shared files, but they still are found by the file search!</B></P>
+<P>A: This is how it works. Freenet is asynchronously. All 3 days your Frost sends a list with shared files. Other Frosts collect this list. When you stop sending a list because you deleted the shared files, other Frosts remember the list for some time. Useful when you are out for vacation for 2 weeks. In this case others find your files and can wait until you come back. When you never come back, the others will give up at some time and hate you ;)</P>
+
+<P><B>Q: Why is the search tab greyed out for me in Frost?</B></P>
+<P>A: Options->Preferences->Search: Untick "Disable filesharing"</P>
+
 <P><B>Q: Anything else?</B></P>
 <P>A: Yes. Visit www.freenethelp.org, and jtcfrost.sourceforge.net/support.html</P>
   </BODY>
