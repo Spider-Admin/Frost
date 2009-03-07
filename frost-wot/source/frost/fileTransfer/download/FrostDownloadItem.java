@@ -200,8 +200,13 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
 		return key;
 	}
 	public void setKey(final String newKey) {
-		key = newKey;
-        fireChange();
+	    setKey(newKey, true);
+	}
+	public void setKey(final String newKey, final boolean fireChange) {
+	    key = newKey;
+	    if (fireChange) {
+	        fireChange();
+	    }
 	}
 
 	public int getState() {
@@ -236,7 +241,7 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
 	public void setEnabled(Boolean newEnabled) {
 		if (newEnabled == null && enabled != null) {
 			//Invert the enable status
-			boolean enable = enabled.booleanValue();
+			final boolean enable = enabled.booleanValue();
 			newEnabled = new Boolean(!enable);
 		}
 		enabled = newEnabled;
@@ -369,7 +374,7 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
 
         if( this.fileListFileObject != null ) {
             if( this.fileListFileObject.getKey() != null && this.fileListFileObject.getKey().length() > 0 ) {
-                setKey( this.fileListFileObject.getKey() );
+                setKey( this.fileListFileObject.getKey(), false );
             }
         }
 

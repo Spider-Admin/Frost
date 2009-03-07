@@ -65,7 +65,7 @@ public class DownloadManager implements ExitSavable {
 	    }
 	}
 
-    public void startTicker() {
+	public void startTicker() {
         if (Core.isFreenetOnline()) {
             getTicker().start();
         }
@@ -197,7 +197,7 @@ public class DownloadManager implements ExitSavable {
                     && key.indexOf("/") > 0 )
             {
                 // 5 - Archive failure
-                // node tries to access the .zip file, try download again without any path
+                // node tries to access the file as a .zip file, try download again without any path
                 final String newKey = key.substring(0, key.indexOf("/"));
                 downloadItem.setKey(newKey);
                 downloadItem.setState(FrostDownloadItem.STATE_WAITING);
@@ -312,7 +312,7 @@ public class DownloadManager implements ExitSavable {
         final ArrayList<FrostDownloadItem> waitingItems = new ArrayList<FrostDownloadItem>();
         for (int i = 0; i < model.getItemCount(); i++) {
             final FrostDownloadItem dlItem = (FrostDownloadItem) model.getItemAt(i);
-            boolean itemIsEnabled = (dlItem.isEnabled()==null?true:dlItem.isEnabled().booleanValue());
+            final boolean itemIsEnabled = (dlItem.isEnabled()==null?true:dlItem.isEnabled().booleanValue());
             if( !itemIsEnabled ) {
                 continue;
             }
@@ -375,10 +375,10 @@ public class DownloadManager implements ExitSavable {
      * Used to sort FrostDownloadItems by lastUpdateStartTimeMillis ascending.
      */
     private static final Comparator<FrostDownloadItem> nextItemCmp = new Comparator<FrostDownloadItem>() {
-        public int compare(FrostDownloadItem value1, FrostDownloadItem value2) {
+        public int compare(final FrostDownloadItem value1, final FrostDownloadItem value2) {
 
             // choose item that with lowest addedTime
-            int cmp1 = Mixed.compareLong(value1.getDownloadAddedMillis(), value2.getDownloadAddedMillis());
+            final int cmp1 = Mixed.compareLong(value1.getDownloadAddedMillis(), value2.getDownloadAddedMillis());
             if( cmp1 != 0 ) {
                 return cmp1;
             }
@@ -399,7 +399,7 @@ public class DownloadManager implements ExitSavable {
                 blocksTodo2 = Integer.MAX_VALUE; // never started
             }
 
-            int cmp2 = Mixed.compareInt(blocksTodo1, blocksTodo2);
+            final int cmp2 = Mixed.compareInt(blocksTodo1, blocksTodo2);
             if( cmp2 != 0 ) {
                 return cmp2;
             }

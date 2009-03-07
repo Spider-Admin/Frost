@@ -22,7 +22,6 @@ import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
-import frost.fcp.*;
 import frost.fileTransfer.download.*;
 import frost.fileTransfer.sharing.*;
 import frost.identities.*;
@@ -223,7 +222,8 @@ public class FileListManager {
         final List<FrostDownloadItem> downloadItems = FileTransferManager.inst().getDownloadManager().getDownloadItemList();
 
         // update all filelist files, maybe restart failed downloads
-        final List<FrostDownloadItem> downloadsToRestart = new ArrayList<FrostDownloadItem>();
+        final List<FrostDownloadItem> failedDownloadsToRestart = new ArrayList<FrostDownloadItem>();
+        final List<FrostDownloadItem> runningDownloadsToRestart = new ArrayList<FrostDownloadItem>();
         boolean errorOccured = false;
 
         if( !FileListStorage.inst().beginExclusiveThreadTransaction() ) {
@@ -231,7 +231,7 @@ public class FileListManager {
             return false;
         }
 
-        final boolean isFreenet07 = FcpHandler.isFreenet07();
+//        final boolean isFreenet07 = FcpHandler.isFreenet07();
 
         try {
             for( final SharedFileXmlFile sfx : content.getFileList() ) {
@@ -247,19 +247,35 @@ public class FileListManager {
                 // check if there is a failed download item for this shared file. If yes, and the lastUpload
                 // time is later than the current one, restart the download automatically.
                 for( final FrostDownloadItem dlItem : downloadItems ) {
-                    if( !dlItem.isSharedFile() || dlItem.getState() != FrostDownloadItem.STATE_FAILED ) {
+
+                    if( !dlItem.isSharedFile() ) {
                         continue;
                     }
-                    final FrostFileListFileObject dlSfo = dlItem.getFileListFileObject();
-                    if( dlSfo.getSha().equals( sfx.getSha() ) ) {
-                        if( dlSfo.getLastUploaded() < sfo.getLastUploaded() ) {
-                            // restart failed download, file was uploaded again
-                            downloadsToRestart.add(dlItem); // restart later if no error occured
+
+                    if( dlItem.getState() == FrostDownloadItem.STATE_FAILED ) {
+                        final FrostFileListFileObject dlSfo = dlItem.getFileListFileObject();
+                        if( dlSfo.getSha().equals( sfx.getSha() ) ) {
+                            if( dlSfo.getLastUploaded() < sfo.getLastUploaded() ) {
+                                // restart failed download, file was uploaded again
+                                failedDownloadsToRestart.add(dlItem); // restart later if no error occured
+                            }
+                        }
+                    } else if( dlItem.getState() == FrostDownloadItem.STATE_PROGRESS ) {
+                        final FrostFileListFileObject dlSfo = dlItem.getFileListFileObject();
+                        if( dlSfo.getSha().equals( sfx.getSha() )
+                                && dlItem.isEnabled() != null && dlItem.isEnabled().booleanValue() == true
+                                && dlSfo.getLastUploaded() < sfo.getLastUploaded()
+                                && dlSfo.getKey() != null
+                                && sfx.getKey() != null
+                                && !dlSfo.getKey().equals( sfx.getKey() ) )
+                        {
+                            // restart running download, file got new key from a newer upload
+                            runningDownloadsToRestart.add(dlItem); // restart later if no error occured
                         }
                     }
                 }
 
-                // update filelist storage
+                // update filelist storage (applies new key)
                 final boolean wasOk = FileListStorage.inst().insertOrUpdateFileListFileObject(sfo);
                 if( wasOk == false ) {
                     errorOccured = true;
@@ -277,15 +293,17 @@ public class FileListManager {
         } else {
             FileListStorage.inst().endThreadTransaction();
         }
-// FIXME: change key for running, stalled downloads
+
         // after updating the db, check if we have to update download items with the new informations
         for( final SharedFileXmlFile sfx : content.getFileList() ) {
 
             // if a FrostDownloadItem references this file (by sha), retrieve the updated file from db and set it
             for( final FrostDownloadItem dlItem : downloadItems ) {
+
                 if( !dlItem.isSharedFile() ) {
                     continue;
                 }
+
                 final FrostFileListFileObject dlSfo = dlItem.getFileListFileObject();
                 if( dlSfo.getSha().equals( sfx.getSha() ) ) {
                     // this download item references the updated file
@@ -295,7 +313,7 @@ public class FileListManager {
 
                     FrostFileListFileObject updatedSfo = null;
                     if( !FileListStorage.inst().beginCooperativeThreadTransaction() ) {
-                        logger.severe("Failed to begin an COOPERATIVE thread transaction.");
+                        logger.severe("Failed to begin a COOPERATIVE thread transaction.");
                     } else {
                         updatedSfo = FileListStorage.inst().getFileBySha(sfx.getSha());
                         FileListStorage.inst().endThreadTransaction();
@@ -311,12 +329,15 @@ public class FileListManager {
         }
 
         // restart failed downloads, as collected above
-        for( final FrostDownloadItem dlItem : downloadsToRestart ) {
+        for( final FrostDownloadItem dlItem : failedDownloadsToRestart ) {
             dlItem.setState(FrostDownloadItem.STATE_WAITING);
             dlItem.setRetries(0);
             dlItem.setLastDownloadStopTime(0);
             dlItem.setEnabled(Boolean.valueOf(true)); // enable download on restart
         }
+
+        // restart running downloads, as collected above. New key is already applied.
+        FileTransferManager.inst().getDownloadManager().getModel().restartRunningDownloads(runningDownloadsToRestart);
 
         return true;
     }

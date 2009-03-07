@@ -176,8 +176,6 @@ public class DownloadModel extends SortedModel implements ExitSavable {
 	 * Called to restart the item.
 	 */
 	public void restartItems(final ModelItem[] items) {
-		// TODO: stop thread
-
 		for (int x = items.length - 1; x >= 0; x--) {
 			final FrostDownloadItem dlItem = (FrostDownloadItem) items[x];
 			// reset only waiting+failed items
@@ -274,6 +272,35 @@ public class DownloadModel extends SortedModel implements ExitSavable {
             addDownloadItem(di);
         }
 	}
+
+    public boolean restartRunningDownloads(final List<FrostDownloadItem> dlItems) {
+
+        final FrostDownloadItem[] itemsArray = new FrostDownloadItem[dlItems.size()];
+
+        // don't flag as failed later when item is removed from gq
+        for( final FrostDownloadItem dlItem : dlItems ) {
+            dlItem.setInternalRemoveExpected(true);
+        }
+
+        dlItems.toArray(itemsArray);
+
+        removeItems(itemsArray);
+
+        new Thread() {
+            @Override
+            public void run() {
+                // TODO: (ugly) wait until item is removed from global queue before starting download with same gq identifier
+                try { Thread.sleep(1500); } catch (final InterruptedException e) {}
+                for( final FrostDownloadItem dlItem : dlItems ) {
+                    dlItem.setState(FrostDownloadItem.STATE_WAITING);
+                    dlItem.setRetries(0);
+                    dlItem.setLastDownloadStopTime(0);
+                    addDownloadItem(dlItem);
+                }
+            }
+        }.start();
+        return true;
+    }
 
     private class RemoveChunksThread extends Thread {
 
