@@ -28,6 +28,7 @@ import frost.fcp.fcp07.*;
 import frost.fcp.fcp07.messagetransfer.*;
 import frost.fileTransfer.download.*;
 import frost.fileTransfer.upload.*;
+import frost.util.Logging;
 
 public class FcpHandler07 extends FcpHandler {
 
@@ -81,7 +82,9 @@ public class FcpHandler07 extends FcpHandler {
         final FcpResultGet result;
         if( type == FcpHandler.TYPE_MESSAGE && msgTransferConnection != null ) {
             // use the shared socket
-            System.out.println("GET_START(S)("+cnt+"):"+key);
+            if (Logging.inst().doLogFcp2Messages()) {
+                System.out.println("GET_START(S)("+cnt+"):"+key);
+            }
             final String id = "get-" + FcpSocket.getNextFcpId();
             final int prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE_DOWNLOAD);
             final MessageTransferTask task = new MessageTransferTask(id, key, targetFile, prio, maxSize, maxRetries);
@@ -93,12 +96,18 @@ public class FcpHandler07 extends FcpHandler {
 
             result = task.getFcpResultGet();
 
-            System.out.println("GET_END(S)("+cnt+"):"+key+", duration="+(System.currentTimeMillis()-l));
+            if (Logging.inst().doLogFcp2Messages()) {
+                System.out.println("GET_END(S)("+cnt+"):"+key+", duration="+(System.currentTimeMillis()-l));
+            }
         } else {
             // use a new socket
-            System.out.println("GET_START(N)("+cnt+"):"+key);
+            if (Logging.inst().doLogFcp2Messages()) {
+                System.out.println("GET_START(N)("+cnt+"):"+key);
+            }
             result = FcpRequest.getFile(type, key, size, targetFile, maxSize, maxRetries, createTempFile, dlItem);
-            System.out.println("GET_END(N)("+cnt+"):"+key+", duration="+(System.currentTimeMillis()-l));
+            if (Logging.inst().doLogFcp2Messages()) {
+                System.out.println("GET_END(N)("+cnt+"):"+key+", duration="+(System.currentTimeMillis()-l));
+            }
         }
         return result;
     }
@@ -123,7 +132,9 @@ public class FcpHandler07 extends FcpHandler {
         final FcpResultPut result;
         if( type == FcpHandler.TYPE_MESSAGE && msgTransferConnection != null ) {
             // use the shared socket
-            System.out.println("PUT_START(S)("+cnt+"):"+key);
+            if (Logging.inst().doLogFcp2Messages()) {
+                System.out.println("PUT_START(S)("+cnt+"):"+key);
+            }
             final String id = "get-" + FcpSocket.getNextFcpId();
             final int prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_MESSAGE_UPLOAD);
             final MessageTransferTask task = new MessageTransferTask(id, key, sourceFile, prio);
@@ -135,11 +146,17 @@ public class FcpHandler07 extends FcpHandler {
 
             result = task.getFcpResultPut();
 
-            System.out.println("PUT_END(S)("+cnt+"):"+key+", duration="+(System.currentTimeMillis()-l));
+            if (Logging.inst().doLogFcp2Messages()) {
+                System.out.println("PUT_END(S)("+cnt+"):"+key+", duration="+(System.currentTimeMillis()-l));
+            }
         } else {
-            System.out.println("PUT_START(N)("+cnt+"):"+key);
+            if (Logging.inst().doLogFcp2Messages()) {
+                System.out.println("PUT_START(N)("+cnt+"):"+key);
+            }
             result = FcpInsert.putFile(type, key, sourceFile, doMime, ulItem);
-            System.out.println("PUT_END(N)("+cnt+"):"+key+", duration="+(System.currentTimeMillis()-l));
+            if (Logging.inst().doLogFcp2Messages()) {
+                System.out.println("PUT_END(N)("+cnt+"):"+key+", duration="+(System.currentTimeMillis()-l));
+            }
         }
 
         if( result == null ) {

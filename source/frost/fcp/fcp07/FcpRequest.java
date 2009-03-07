@@ -25,6 +25,7 @@ import java.util.logging.*;
 import frost.fcp.*;
 import frost.fileTransfer.download.*;
 import frost.util.*;
+import frost.util.Logging;
 
 /**
  * Requests a key from freenet
@@ -100,7 +101,7 @@ public class FcpRequest {
             final FrostDownloadItem dlItem)
     {
         if( key == null || key.length() == 0 || key.startsWith("null") ) {
-            System.out.println("getKey: KEY IS NULL!");
+            System.out.println("FcpRequest(07).getKey(): KEY IS NULL!");
             return FcpResultGet.RESULT_FAILED;
         }
 
@@ -152,19 +153,27 @@ public class FcpRequest {
                                              .append(keyUrl).toString();
         }
 
-        System.out.println("getKey: file='"+target.getPath()+"' ; len="+target.length());
+        if (Logging.inst().doLogFcp2Messages()) {
+            System.out.println("getKey: file='"+target.getPath()+"' ; len="+target.length());
+        }
 
         if( results == null ) {
             // paranoia
             results = FcpResultGet.RESULT_FAILED;
-            System.out.println("getKey - Failed, result=null");
+            if (Logging.inst().doLogFcp2Messages()) {
+                System.out.println("getKey - Failed, result=null");
+            }
         } else if( results.isSuccess() && target.length() > 0 ) {
             logger.info("getKey - Success: " + printableKey );
-            System.out.println("getKey - Success: " + printableKey);
+            if (Logging.inst().doLogFcp2Messages()) {
+                System.out.println("getKey - Success: " + printableKey);
+            }
         } else {
             target.delete();
             logger.info("getKey - Failed: " + printableKey + "; rc="+results.getReturnCode()+"; isFatal="+results.isFatal() );
-            System.out.println("getKey - Failed: " + printableKey + "; rc="+results.getReturnCode()+"; isFatal="+results.isFatal());
+            if (Logging.inst().doLogFcp2Messages()) {
+                System.out.println("getKey - Failed: " + printableKey + "; rc="+results.getReturnCode()+"; isFatal="+results.isFatal());
+            }
         }
         return results;
     }
