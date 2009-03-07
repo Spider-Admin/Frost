@@ -58,7 +58,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
         public Component getTableCellRendererComponent(
             final JTable table,
             final Object value,
-            boolean isSelected,
+            final boolean isSelected,
             final boolean hasFocus,
             final int row,
             final int column) {
@@ -283,7 +283,10 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
                     setSelected(true); // external items are always enabled
                 } else {
                     setEnabled(true);
-                    setSelected((value != null && ((Boolean) value).booleanValue()));
+                    setSelected((
+                            value != null
+                            && value instanceof Boolean
+                            && ((Boolean) value).booleanValue()));
                 }
             }
             return this;
@@ -304,15 +307,17 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
             final int column)
         {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            final Boolean b = (Boolean)value;
             setText("");
-            if( b.booleanValue() ) {
-                // show shared icon
-                setIcon(isSharedIcon);
-            } else {
-                setIcon(null);
-            }
             setToolTipText(isSharedTooltip);
+            if (value instanceof Boolean) {
+                final Boolean b = (Boolean)value;
+                if( b.booleanValue() ) {
+                    // show shared icon
+                    setIcon(isSharedIcon);
+                } else {
+                    setIcon(null);
+                }
+            }
             return this;
         }
     }
@@ -331,15 +336,17 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
             final int column)
         {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            final Boolean b = (Boolean)value;
             setText("");
-            if( b.booleanValue() ) {
-                // show icon
-                setIcon(isRequestedIcon);
-            } else {
-                setIcon(null);
-            }
             setToolTipText(isRequestedTooltip);
+            if (value instanceof Boolean) {
+                final Boolean b = (Boolean)value;
+                if( b.booleanValue() ) {
+                    // show icon
+                    setIcon(isRequestedIcon);
+                } else {
+                    setIcon(null);
+                }
+            }
             return this;
         }
     }
@@ -358,15 +365,17 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
             final int column)
         {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            final Boolean b = (Boolean)value;
             setText("");
-            if( b.booleanValue() ) {
-                // show icon
-                setIcon(isDDAIcon);
-            } else {
-                setIcon(null);
-            }
             setToolTipText(isDDATooltip);
+            if (value instanceof Boolean) {
+                final Boolean b = (Boolean)value;
+                if( b.booleanValue() ) {
+                    // show icon
+                    setIcon(isDDAIcon);
+                } else {
+                    setIcon(null);
+                }
+            }
             return this;
         }
     }

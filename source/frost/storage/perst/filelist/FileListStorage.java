@@ -570,8 +570,14 @@ boolean alwaysUseLatestChkKey = true; // FIXME: must be true as long as the key 
         boolean doUpdate = false;
         if( oldFof.getKey() == null && newFof.getKey() != null ) {
             oldFof.setKey(newFof.getKey()); doUpdate = true;
-        } else if( alwaysUseLatestChkKey && oldFof.getKey() != null && newFof.getKey() != null ) {
+        } else if( alwaysUseLatestChkKey
+                && oldFof.getLastUploaded() < newFof.getLastUploaded()
+                && oldFof.getKey() != null
+                && newFof.getKey() != null
+                && !oldFof.getKey().equals(newFof.getKey()) )
+        {
             oldFof.setKey(newFof.getKey()); doUpdate = true;
+
 //        } else if( oldFof.getKey() != null && newFof.getKey() != null ) {
 //            // fix to replace 0.7 keys before 1010 on the fly
 //            if( FreenetKeys.isOld07ChkKey(oldFof.getKey()) ) {

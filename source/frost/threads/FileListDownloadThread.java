@@ -88,7 +88,7 @@ public class FileListDownloadThread extends Thread {
                     Mixed.wait(wait1minute);
                 } else {
                     // short wait to not to hurt node
-                    Mixed.waitRandom(2000);
+                    Mixed.waitRandom(1000);
                     previousKey = chkKey; // different key as before, remember
                 }
                 if( Logging.inst().doLogFilebaseMessages() ) {
