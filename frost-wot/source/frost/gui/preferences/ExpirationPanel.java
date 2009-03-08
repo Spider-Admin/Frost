@@ -268,7 +268,7 @@ class ExpirationPanel extends JPanel {
         CbKeepUnread.setText(language.getString("Options.expiration.keepUnreadMessages"));
 
         CbRemoveOfflineFilesWithKey.setText(language.getString("Options.expiration.removeOfflineFilesWithKey"));
-        LofflineFilesMaxDaysOld.setText(language.getString("Options.expiration.offlineFilesMaxDaysOld")+" (90)");
+        LofflineFilesMaxDaysOld.setText(language.getString("Options.expiration.offlineFilesMaxDaysOld")+" (30)");
 
         LcleanupIntervalDays.setText(language.getString("Options.expiration.cleanupIntervalDays") +
                 " (5 "+language.getString("Options.common.days")+")");
