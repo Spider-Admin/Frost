@@ -255,7 +255,7 @@ public class Core implements FrostEventDispatcher  {
         }
 
         // first startup, no migrate needed
-        frostSettings.setValue(SettingsClass.MIGRATE_VERSION, 2);
+        frostSettings.setValue(SettingsClass.MIGRATE_VERSION, 3);
 
         // set used version
         frostSettings.setValue(SettingsClass.FREENET_VERSION, startdlg.getFreenetVersion()); // 5 or 7
@@ -368,11 +368,25 @@ public class Core implements FrostEventDispatcher  {
             System.exit(8);
         }
 
-        // FIXME: compact after cleanup?
         // before opening the storages, maybe compact them
         if( frostSettings.getBoolValue(SettingsClass.PERST_COMPACT_STORAGES) ) {
             compactPerstStorages(splashscreen);
             frostSettings.setValue(SettingsClass.PERST_COMPACT_STORAGES, false);
+        }
+
+        // one time: change cleanup settings to new default, they were way to high
+        if( frostSettings.getIntValue(SettingsClass.MIGRATE_VERSION) < 3 ) {
+            frostSettings.setValue(SettingsClass.DB_CLEANUP_REMOVEOFFLINEFILEWITHKEY, true);
+            if (frostSettings.getIntValue(SettingsClass.DB_CLEANUP_OFFLINEFILESMAXDAYSOLD) > 30) {
+                frostSettings.setValue(SettingsClass.DB_CLEANUP_OFFLINEFILESMAXDAYSOLD, 30);
+            }
+
+            // run cleanup now
+            frostSettings.setValue(SettingsClass.DB_CLEANUP_LASTRUN, 0L);
+            // run compact during next startup (after the cleanup)
+            frostSettings.setValue(SettingsClass.PERST_COMPACT_STORAGES, true);
+            // migration is done
+            frostSettings.setValue(SettingsClass.MIGRATE_VERSION, 3);
         }
 
         // maybe export perst storages to XML
