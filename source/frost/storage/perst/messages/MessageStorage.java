@@ -321,14 +321,10 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
             final long minDateTime = localDate.toDateMidnight(DateTimeZone.UTC).getMillis();
             // normal messages in date range
             final Iterator<PerstFrostMessageObject> i1 = bo.getMessageIndex().iterator(minDateTime, Long.MAX_VALUE, Index.ASCENT_ORDER);
-            // add ALL unread messages, also those which are not in date range
-            final Iterator<PerstFrostMessageObject> i2 = bo.getUnreadMessageIndex().iterator();
-            // add ALL flagged and starred messages, also those which are not in date range
-            final Iterator<PerstFrostMessageObject> i3 = bo.getStarredMessageIndex().iterator();
-            final Iterator<PerstFrostMessageObject> i4 = bo.getFlaggedMessageIndex().iterator();
-
+            // unread messages in range
+            final Iterator<PerstFrostMessageObject> i2 = bo.getUnreadMessageIndex().iterator(minDateTime, Long.MAX_VALUE, Index.ASCENT_ORDER);
             // join all results
-            final Iterator<PerstFrostMessageObject> i = getStorage().join(new Iterator[] {i1, i2, i3, i4} );
+            final Iterator<PerstFrostMessageObject> i = getStorage().join(new Iterator[] {i1, i2} );
 
             int count = 0;
 
@@ -482,7 +478,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
             final String msgId,
             final boolean withContent,
             final boolean withAttachments,
-            boolean showDeleted)
+            final boolean showDeleted)
     {
         if( !beginCooperativeThreadTransaction() ) {
             return null;
@@ -665,7 +661,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
             final int maxDaysBack,
             final boolean withContent,
             final boolean withAttachments,
-            boolean showDeleted,
+            final boolean showDeleted,
             final boolean showUnreadOnly,
             final MessageCallback mc)
     {
