@@ -846,7 +846,7 @@ public class SettingsClass implements ExitSavable {
         defaults.put(DB_CLEANUP_LASTRUN, "0");
 
         defaults.put(DB_CLEANUP_REMOVEOFFLINEFILEWITHKEY, "true");
-        defaults.put(DB_CLEANUP_OFFLINEFILESMAXDAYSOLD, "90");
+        defaults.put(DB_CLEANUP_OFFLINEFILESMAXDAYSOLD, "30");
 
         // DIRECTORIES
         defaults.put(DIR_TEMP, "localdata" + fs + "temp" + fs);
