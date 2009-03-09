@@ -51,6 +51,8 @@ public class UnsentMessagesManager {
         for( final FrostUnsentMessageObject msg : unsentMessages ) {
             FileAttachmentUploadThread.getInstance().checkAndEnqueueNewMessage(msg);
         }
+
+        MainFrame.getInstance().updateTofTree( MainFrame.getInstance().getTofTree().getUnsentMessagesFolder() );
     }
 
     public static int getUnsentMessageCount() {
