@@ -103,6 +103,10 @@ public class SettingsClass implements ExitSavable {
     public static final String FCP2_DEFAULT_PRIO_FILE_DOWNLOAD = "fcp2.defaultPriorityFileDownload";
     public static final String FCP2_SET_TARGETFILENAME_FOR_MANUAL_PUT = "fcp2.setTargetfilenameForManualPut"; // not in gui dialog!
 
+    // if true, Frost enforces its priority setting, external changes are reversed
+    public static final String FCP2_ENFORCE_FROST_PRIO_FILE_UPLOAD = "fcp2.enforceFrostPriorityFileUpload";
+    public static final String FCP2_ENFORCE_FROST_PRIO_FILE_DOWNLOAD = "fcp2.enforceFrostPriorityFileDownload";
+
     // If true, we start the requests with a FCP2:MaxRetries of 2 and never try them again. (use during DoS attacks)
     // If false, we start the requests with a FCP2:MaxRetries of 1 and try them again during each board update. (default)
     public static final String FCP2_QUICKLY_FAIL_ON_ADNF = "fcp2.quicklyFailOnAdnf"; // not in gui dialog!
@@ -874,6 +878,9 @@ public class SettingsClass implements ExitSavable {
         defaults.put(FCP2_DEFAULT_PRIO_MESSAGE_DOWNLOAD, "2");
         defaults.put(FCP2_DEFAULT_PRIO_FILE_UPLOAD, "3");
         defaults.put(FCP2_DEFAULT_PRIO_FILE_DOWNLOAD, "3");
+
+        defaults.put(FCP2_ENFORCE_FROST_PRIO_FILE_DOWNLOAD, "false");
+        defaults.put(FCP2_ENFORCE_FROST_PRIO_FILE_UPLOAD, "false");
 
         defaults.put(FCP2_SET_TARGETFILENAME_FOR_MANUAL_PUT, "true");
         defaults.put(FCP2_QUICKLY_FAIL_ON_ADNF, "false");

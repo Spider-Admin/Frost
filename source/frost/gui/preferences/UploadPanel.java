@@ -44,6 +44,7 @@ class UploadPanel extends JPanel {
     // 0.7 only
     private final JLabel priorityLabel = new JLabel();
     private final JTextField priorityTextField = new JTextField(6);
+    private final JCheckBox enforceFrostPriorityFileUpload = new JCheckBox();
 
     // common
     private final JLabel maxRetriesLabel = new JLabel();
@@ -139,6 +140,13 @@ class UploadPanel extends JPanel {
         constraints.gridwidth = 3;
         add(logUploadsCheckBox, constraints);
 
+        if( FcpHandler.isFreenet07() ) {
+            constraints.gridy++;
+            constraints.gridx = 0;
+            constraints.gridwidth = 3;
+            add(enforceFrostPriorityFileUpload, constraints);
+        }
+
         // glue
         constraints.gridy++;
         constraints.fill = GridBagConstraints.BOTH;
@@ -153,6 +161,7 @@ class UploadPanel extends JPanel {
     private void loadSettings() {
         if( FcpHandler.isFreenet07() ) {
             priorityTextField.setText(settings.getValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_UPLOAD));
+            enforceFrostPriorityFileUpload.setSelected(settings.getBoolValue(SettingsClass.FCP2_ENFORCE_FROST_PRIO_FILE_UPLOAD));
         } else {
             htlTextField.setText(settings.getValue(SettingsClass.UPLOAD_FILE_HTL));
             splitfileThreadsTextField.setText(settings.getValue(SettingsClass.UPLOAD_MAX_SPLITFILE_THREADS));
@@ -176,6 +185,7 @@ class UploadPanel extends JPanel {
         logUploadsCheckBox.setText(language.getString("Options.uploads.logUploads"));
         if( FcpHandler.isFreenet07() ) {
             priorityLabel.setText(language.getString("Options.uploads.uploadPriority") + " (3)");
+            enforceFrostPriorityFileUpload.setText(language.getString("Options.uploads.enforceFrostPriorityFileUpload"));
         } else {
             htlLabel.setText(language.getString("Options.uploads.uploadHtl") + " (21)");
             htlExplanationLabel.setText(language.getString("Options.uploads.uploadHtlExplanation"));
@@ -190,6 +200,7 @@ class UploadPanel extends JPanel {
     private void saveSettings() {
         if( FcpHandler.isFreenet07() ) {
             settings.setValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_UPLOAD, priorityTextField.getText());
+            settings.setValue(SettingsClass.FCP2_ENFORCE_FROST_PRIO_FILE_UPLOAD, enforceFrostPriorityFileUpload.isSelected());
         } else {
             settings.setValue(SettingsClass.UPLOAD_FILE_HTL, htlTextField.getText());
             settings.setValue(SettingsClass.UPLOAD_MAX_SPLITFILE_THREADS, splitfileThreadsTextField.getText());

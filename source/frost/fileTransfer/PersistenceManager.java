@@ -321,8 +321,15 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             }
         }
 
+        // apply externally changed priority
         if( dlItem.getPriority() != getReq.getPriority() ) {
-            dlItem.setPriority(getReq.getPriority());
+            if (Core.frostSettings.getBoolValue(SettingsClass.FCP2_ENFORCE_FROST_PRIO_FILE_DOWNLOAD)) {
+                // reset priority with our current value
+                fcpTools.changeRequestPriority(getReq.getIdentifier(), dlItem.getPriority());
+            } else {
+                // apply to downloaditem
+                dlItem.setPriority(getReq.getPriority());
+            }
         }
 
         if( dlItem.isDirect() != getReq.isDirect() ) {
@@ -411,8 +418,15 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             directPUTsWithoutAnswer.remove(ulItem.getGqIdentifier());
         }
 
+        // apply externally changed priority
         if( ulItem.getPriority() != putReq.getPriority() ) {
-            ulItem.setPriority(putReq.getPriority());
+            if (Core.frostSettings.getBoolValue(SettingsClass.FCP2_ENFORCE_FROST_PRIO_FILE_UPLOAD)) {
+                // reset priority with our current value
+                fcpTools.changeRequestPriority(putReq.getIdentifier(), ulItem.getPriority());
+            } else {
+                // apply to uploaditem
+                ulItem.setPriority(putReq.getPriority());
+            }
         }
 
         if( !putReq.isProgressSet() && !putReq.isSuccess() && !putReq.isFailed() ) {
