@@ -505,19 +505,19 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
                 searchForFiles(ownerOids, owners, null, storageRoot.getFileOwnerIndex());
             }
 
-            final HashSet<Integer> fileOids = new HashSet<Integer>();
-            for( final Integer i : ownerOids ) {
-//                System.out.println("search-oid: "+i);
-                final FrostFileListFileObjectOwner o = (FrostFileListFileObjectOwner)getStorage().getObjectByOID(i);
-                final int oid = o.getFileListFileObject().getOid();
-                fileOids.add(oid);
-            }
+            // collect oids to prevent duplicate FileListFileObjects
+            final HashSet<Integer> foundFileObjectOids = new HashSet<Integer>();
 
-            for( final Integer i : fileOids ) {
-                final FrostFileListFileObject o = (FrostFileListFileObject)getStorage().getObjectByOID(i);
-                if( o != null ) {
-                    if(callback.fileRetrieved(o)) {
-                        return;
+            for( final Integer i : ownerOids ) {
+                final FrostFileListFileObjectOwner owner = (FrostFileListFileObjectOwner) getStorage().getObjectByOID(i);
+                final FrostFileListFileObject fileObject = owner.getFileListFileObject();
+                if (fileObject != null) {
+                    final int oid = fileObject.getOid();
+                    if (!foundFileObjectOids.contains(oid)) {
+                        foundFileObjectOids.add(oid);
+                        if (callback.fileRetrieved(fileObject)) {
+                            return;
+                        }
                     }
                 }
             }
