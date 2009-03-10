@@ -38,6 +38,8 @@ public class FileListStorageRoot extends Persistent {
     private Index<PerstFileListIndexEntry> fileKeywordIndex;
     private Index<PerstFileListIndexEntry> fileOwnerIndex;
 
+    private IPersistentSet<PerstHiddenFileOid> hiddenFileOids;
+
     public FileListStorageRoot() {}
 
     public FileListStorageRoot(final Storage storage) {
@@ -48,6 +50,22 @@ public class FileListStorageRoot extends Persistent {
         fileCommentIndex = storage.createIndex(String.class, true);
         fileKeywordIndex = storage.createIndex(String.class, true);
         fileOwnerIndex = storage.createIndex(String.class, true);
+
+        // new Set to hold the oid of currently hidden file list files
+        hiddenFileOids = storage.createSet();
+    }
+
+    /**
+     * Ensure that the new fields are already created.
+     */
+    public void createNewFields(final Storage storage) {
+        if (hiddenFileOids == null) {
+            hiddenFileOids = storage.createSet();
+        }
+    }
+
+    public IPersistentSet<PerstHiddenFileOid> getHiddenFileOids() {
+        return hiddenFileOids;
     }
 
     public Index<FrostFileListFileObject> getFileListFileObjects() {

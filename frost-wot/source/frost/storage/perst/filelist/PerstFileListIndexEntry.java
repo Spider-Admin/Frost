@@ -31,30 +31,21 @@ public class PerstFileListIndexEntry extends Persistent {
         fileOwnersWithText = storage.createScalableList();
     }
     public IPersistentList<FrostFileListFileObjectOwner> getFileOwnersWithText() {
-//        fileOwnersWithText.load();
         return fileOwnersWithText;
     }
     public void addFileOwnerWithText(final FrostFileListFileObjectOwner pmo) {
-//        fileOwnersWithText.load();
         fileOwnersWithText.add(pmo);
     }
     public void removeFileOwnerWithText(final FrostFileListFileObjectOwner pmo) {
-//        fileOwnersWithText.load();
         fileOwnersWithText.remove(pmo);
     }
 
     @Override
     public void deallocate() {
-//        fileOwnersWithText.load();
         if( fileOwnersWithText != null ) {
             fileOwnersWithText.deallocate();
             fileOwnersWithText = null;
         }
         super.deallocate();
     }
-
-//    @Override
-//    public boolean recursiveLoading() {
-//        return false;
-//    }
 }

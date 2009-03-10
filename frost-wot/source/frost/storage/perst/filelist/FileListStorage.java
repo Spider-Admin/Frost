@@ -68,6 +68,7 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
             getStorage().setRoot(storageRoot);
             commit(); // commit transaction
         }
+        storageRoot.createNewFields(getStorage());
         return true;
     }
 
@@ -209,23 +210,38 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
         return sizes;
     }
 
+    /**
+     * Must be called within a perst thread transaction!
+     */
+    public void markFileListFileHidden(final FrostFileListFileObject fof) {
+        if (!fof.isHidden()) {
+            fof.setHidden(true);
+            fof.modify();
+            storageRoot.getHiddenFileOids().add(new PerstHiddenFileOid(fof.getOid()));
+        }
+    }
+
     public void resetHiddenFiles() {
-        // FIXME: slow!!??
         if( beginExclusiveThreadTransaction() ) {
             try {
-                System.out.println("Starting to reset hidden file states");
-                final long startTime = System.currentTimeMillis();
-                for( final FrostFileListFileObject fof : storageRoot.getFileListFileObjects() ) {
-                    if (fof.isHidden()) {
+                for (final Iterator<PerstHiddenFileOid> it = storageRoot.getHiddenFileOids().iterator(); it.hasNext(); ) {
+                    final PerstHiddenFileOid hf = it.next();
+                    final FrostFileListFileObject fof = (FrostFileListFileObject) getStorage().getObjectByOID(hf.getHiddenFileOid());
+                    if (fof != null && fof.isHidden()) {
                         fof.setHidden(false);
                         fof.modify();
                     }
+                    it.remove();
+                    hf.deallocate();
                 }
-                System.out.println("Finished reset hidden files, duration="+(System.currentTimeMillis()-startTime));
             } finally {
                 endThreadTransaction();
             }
         }
+    }
+
+    public int getHiddenFilesCount() {
+        return storageRoot.getHiddenFileOids().size();
     }
 
     private void maybeRemoveFileListFileInfoFromIndex(
@@ -237,7 +253,6 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
             final String lowerCaseName = lName.toLowerCase();
             final PerstFileListIndexEntry ie = ix.get(lowerCaseName);
             if( ie != null ) {
-//                System.out.println("ix-remove: "+o.getOid());
                 ie.getFileOwnersWithText().remove(o);
 
                 if( ie.getFileOwnersWithText().size() == 0 ) {
@@ -305,8 +320,6 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
                         maybeRemoveFileListFileInfoFromIndex(o.getComment(), o, storageRoot.getFileCommentIndex());
                         maybeRemoveFileListFileInfoFromIndex(o.getKeywords(), o, storageRoot.getFileKeywordIndex());
                         maybeRemoveFileListFileInfoFromIndex(o.getOwner(), o, storageRoot.getFileOwnerIndex());
-
-                        //                    System.out.println("dealloc: "+o.getOid());
 
                         // remove this owner file info from identities files
                         i.remove();

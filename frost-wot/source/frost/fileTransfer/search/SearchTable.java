@@ -281,7 +281,7 @@ public class SearchTable extends SortedModelTable {
                 return;
             }
 
-            // update the filelistfiles in database, but not in Swing thread
+            // update the filelistfiles in database (but not in Swing thread)
             new Thread() {
                 @Override
                 public void run() {
@@ -289,12 +289,8 @@ public class SearchTable extends SortedModelTable {
                         try {
                             for (int x=selectedItems.length -1; x >= 0; x--) {
                                 final FrostSearchItem si = (FrostSearchItem) selectedItems[x];
-                                if (si.getFrostFileListFileObject() == null) {
-                                    continue;
-                                }
-                                if (!si.getFrostFileListFileObject().isHidden()) {
-                                    si.getFrostFileListFileObject().setHidden(true);
-                                    si.getFrostFileListFileObject().modify();
+                                if (si.getFrostFileListFileObject() != null) {
+                                    FileListStorage.inst().markFileListFileHidden(si.getFrostFileListFileObject());
                                 }
                             }
                         } finally {
