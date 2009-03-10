@@ -19,42 +19,45 @@
 package frost.gui.preferences;
 
 import java.awt.*;
+import java.awt.event.*;
 
 import javax.swing.*;
 
-import frost.SettingsClass;
-import frost.util.gui.TextComponentClipboardMenu;
-import frost.util.gui.translation.Language;
+import frost.*;
+import frost.storage.perst.filelist.*;
+import frost.util.gui.*;
+import frost.util.gui.translation.*;
 
 class SearchPanel extends JPanel {
 
     private SettingsClass settings = null;
     private Language language = null;
 
-    private JLabel archiveExtensionLabel = new JLabel();
+    private final JLabel archiveExtensionLabel = new JLabel();
 
-    private JTextField archiveExtensionTextField = new JTextField();
-    private JLabel audioExtensionLabel = new JLabel();
-    private JTextField audioExtensionTextField = new JTextField();
-    private JLabel documentExtensionLabel = new JLabel();
-    private JTextField documentExtensionTextField = new JTextField();
-    private JLabel executableExtensionLabel = new JLabel();
-    private JTextField executableExtensionTextField = new JTextField();
+    private final JTextField archiveExtensionTextField = new JTextField();
+    private final JLabel audioExtensionLabel = new JLabel();
+    private final JTextField audioExtensionTextField = new JTextField();
+    private final JLabel documentExtensionLabel = new JLabel();
+    private final JTextField documentExtensionTextField = new JTextField();
+    private final JLabel executableExtensionLabel = new JLabel();
+    private final JTextField executableExtensionTextField = new JTextField();
 
-    private JLabel imageExtensionLabel = new JLabel();
-    private JTextField imageExtensionTextField = new JTextField();
-    private JLabel maxSearchResultsLabel = new JLabel();
-    private JTextField maxSearchResultsTextField = new JTextField(8);
-    private JLabel videoExtensionLabel = new JLabel();
-    private JTextField videoExtensionTextField = new JTextField();
+    private final JLabel imageExtensionLabel = new JLabel();
+    private final JTextField imageExtensionTextField = new JTextField();
+    private final JLabel maxSearchResultsLabel = new JLabel();
+    private final JTextField maxSearchResultsTextField = new JTextField(8);
+    private final JLabel videoExtensionLabel = new JLabel();
+    private final JTextField videoExtensionTextField = new JTextField();
 
-    private JCheckBox disableFilesharingCheckBox = new JCheckBox();
-    private JCheckBox rememberSharedFileDownloadedCheckBox = new JCheckBox();
+    private final JCheckBox disableFilesharingCheckBox = new JCheckBox();
+    private final JCheckBox rememberSharedFileDownloadedCheckBox = new JCheckBox();
+    private final JButton resetHiddenFilesButton = new JButton();
 
     /**
      * @param settings the SettingsClass instance that will be used to get and store the settings of the panel
      */
-    protected SearchPanel(SettingsClass settings) {
+    protected SearchPanel(final SettingsClass settings) {
         super();
 
         this.language = Language.getInstance();
@@ -80,7 +83,7 @@ class SearchPanel extends JPanel {
         new TextComponentClipboardMenu(videoExtensionTextField, language);
 
         // Adds all of the components
-        GridBagConstraints constraints = new GridBagConstraints();
+        final GridBagConstraints constraints = new GridBagConstraints();
         constraints.anchor = GridBagConstraints.WEST;
         constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.insets = new Insets(0, 5, 5, 5);
@@ -153,6 +156,11 @@ class SearchPanel extends JPanel {
         constraints.gridx = 0;
         add(rememberSharedFileDownloadedCheckBox, constraints);
 
+        constraints.gridy++;
+        constraints.gridwidth = 2;
+        constraints.gridx = 0;
+        add(resetHiddenFilesButton, constraints);
+
         // glue
         constraints.gridy++;
         constraints.gridx = 0;
@@ -161,6 +169,36 @@ class SearchPanel extends JPanel {
         constraints.weightx = 1;
         constraints.weighty = 1;
         add(new JLabel(""), constraints);
+
+        resetHiddenFilesButton.addActionListener(new ActionListener() {
+            public void actionPerformed(final ActionEvent e) {
+                resetHiddenFiles();
+            }
+        });
+    }
+
+    private void resetHiddenFiles() {
+        final int answer = JOptionPane.showConfirmDialog(
+                Core.getInstance().getMainFrame(),
+                language.getString("Options.search.confirmResetHiddenFiles.body"),
+                language.getString("Options.search.confirmResetHiddenFiles.title"),
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
+
+        if (answer ==JOptionPane.NO_OPTION) {
+            return;
+        }
+
+        // update the filelistfiles in database, but not in Swing thread
+        new Thread() {
+            @Override
+            public void run() {
+                FileListStorage.inst().resetHiddenFiles();
+            }
+        }.start();
+
+        // disable button
+        resetHiddenFilesButton.setEnabled(false);
     }
 
     /**
@@ -193,6 +231,8 @@ class SearchPanel extends JPanel {
 
         disableFilesharingCheckBox.setText(language.getString("Options.search.disableFilesharing"));
         rememberSharedFileDownloadedCheckBox.setText(language.getString("Options.search.rememberSharedFileDownloaded"));
+
+        resetHiddenFilesButton.setText(language.getString("Options.search.resetHiddenFiles"));
     }
 
     /**
