@@ -232,7 +232,7 @@ class SearchPanel extends JPanel {
         disableFilesharingCheckBox.setText(language.getString("Options.search.disableFilesharing"));
         rememberSharedFileDownloadedCheckBox.setText(language.getString("Options.search.rememberSharedFileDownloaded"));
 
-        resetHiddenFilesButton.setText(language.getString("Options.search.resetHiddenFiles"));
+        resetHiddenFilesButton.setText(language.getString("Options.search.resetHiddenFiles") + " (" + FileListStorage.inst().getHiddenFilesCount()+")");
     }
 
     /**
