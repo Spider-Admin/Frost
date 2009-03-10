@@ -38,4 +38,12 @@ public class PerstHiddenFileOid extends Persistent {
     public void setHiddenFileOid(final int hiddenFileOid) {
         this.hiddenFileOid = hiddenFileOid;
     }
+
+    @Override
+    public boolean equals(final Object another) {
+        if (another instanceof PerstHiddenFileOid) {
+            return getHiddenFileOid() == ((PerstHiddenFileOid)another).getHiddenFileOid();
+        }
+        return false;
+    }
 }
