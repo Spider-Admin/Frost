@@ -131,16 +131,9 @@ public class FrostFileListFileObject extends Persistent {
         addFrostFileListFileObjectOwner(ob);
     }
 
-    @Override
-    public boolean recursiveLoading() {
-        return false;
-    }
-
     private IPersistentList<FrostFileListFileObjectOwner> getFrostFileListFileObjectOwnerList() {
         if( frostFileListFileObjectOwnerList == null ) {
             frostFileListFileObjectOwnerList = FileListStorage.inst().createList(); // ATTN: is used without store also!
-        } else {
-            frostFileListFileObjectOwnerList.load();
         }
         return frostFileListFileObjectOwnerList;
     }
