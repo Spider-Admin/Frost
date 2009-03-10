@@ -26,9 +26,9 @@ public class PerstIdentitiesFiles extends Persistent {
 
     private String uniqueName;
     private IPersistentList<FrostFileListFileObjectOwner> filesFromIdentity;
-    
+
     public PerstIdentitiesFiles() {}
-    public PerstIdentitiesFiles(String un, Storage storage) {
+    public PerstIdentitiesFiles(final String un, final Storage storage) {
         uniqueName = un;
         filesFromIdentity = storage.createScalableList();
     }
@@ -38,13 +38,14 @@ public class PerstIdentitiesFiles extends Persistent {
     public IPersistentList<FrostFileListFileObjectOwner> getFilesFromIdentity() {
         return filesFromIdentity;
     }
-    public void addFileToIdentity(FrostFileListFileObjectOwner pmo) {
+    public void addFileToIdentity(final FrostFileListFileObjectOwner pmo) {
         filesFromIdentity.add(pmo);
     }
-    public void removeFileFromIdentity(FrostFileListFileObjectOwner pmo) {
+    public void removeFileFromIdentity(final FrostFileListFileObjectOwner pmo) {
         filesFromIdentity.remove(pmo);
     }
-    
+
+    @Override
     public void deallocate() {
         if( filesFromIdentity != null ) {
             filesFromIdentity.deallocate();

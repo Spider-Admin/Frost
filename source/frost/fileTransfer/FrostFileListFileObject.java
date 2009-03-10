@@ -48,6 +48,8 @@ public class FrostFileListFileObject extends Persistent {
     private long requestLastSent = 0;      // time when we sent the last request for this file
     private int requestsSentCount = 0;     // sent requests count
 
+    private boolean isHidden = false;      // user can hide files in search panel
+
     private IPersistentList<FrostFileListFileObjectOwner> frostFileListFileObjectOwnerList;
 
     // non-persistent fields
@@ -129,9 +131,16 @@ public class FrostFileListFileObject extends Persistent {
         addFrostFileListFileObjectOwner(ob);
     }
 
+    @Override
+    public boolean recursiveLoading() {
+        return false;
+    }
+
     private IPersistentList<FrostFileListFileObjectOwner> getFrostFileListFileObjectOwnerList() {
         if( frostFileListFileObjectOwnerList == null ) {
             frostFileListFileObjectOwnerList = FileListStorage.inst().createList(); // ATTN: is used without store also!
+        } else {
+            frostFileListFileObjectOwnerList.load();
         }
         return frostFileListFileObjectOwnerList;
     }
@@ -231,6 +240,13 @@ public class FrostFileListFileObject extends Persistent {
     }
     public void setFirstReceived(final long v) {
         firstReceived = v;
+    }
+
+    public boolean isHidden() {
+        return isHidden;
+    }
+    public void setHidden(final boolean isHidden) {
+        this.isHidden = isHidden;
     }
 
     static class MutableInt {

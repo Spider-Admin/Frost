@@ -209,6 +209,25 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
         return sizes;
     }
 
+    public void resetHiddenFiles() {
+        // FIXME: slow!!??
+        if( beginExclusiveThreadTransaction() ) {
+            try {
+                System.out.println("Starting to reset hidden file states");
+                final long startTime = System.currentTimeMillis();
+                for( final FrostFileListFileObject fof : storageRoot.getFileListFileObjects() ) {
+                    if (fof.isHidden()) {
+                        fof.setHidden(false);
+                        fof.modify();
+                    }
+                }
+                System.out.println("Finished reset hidden files, duration="+(System.currentTimeMillis()-startTime));
+            } finally {
+                endThreadTransaction();
+            }
+        }
+    }
+
     private void maybeRemoveFileListFileInfoFromIndex(
             final String lName,
             final FrostFileListFileObjectOwner o,
@@ -512,6 +531,10 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
                 final FrostFileListFileObjectOwner owner = (FrostFileListFileObjectOwner) getStorage().getObjectByOID(i);
                 final FrostFileListFileObject fileObject = owner.getFileListFileObject();
                 if (fileObject != null) {
+                    if (fileObject.isHidden()) {
+                        // ignore hidden file
+                        continue;
+                    }
                     final int oid = fileObject.getOid();
                     if (!foundFileObjectOids.contains(oid)) {
                         foundFileObjectOids.add(oid);
