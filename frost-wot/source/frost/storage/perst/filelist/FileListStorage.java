@@ -363,13 +363,23 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
 
         int count = 0;
         try {
+            final HashSet<Integer> oidsToRemove = new HashSet<Integer>();
             for( final Iterator<FrostFileListFileObject> i = storageRoot.getFileListFileObjects().iterator(); i.hasNext(); ) {
                 final FrostFileListFileObject fof = i.next();
                 if( fof.getFrostFileListFileObjectOwnerListSize() == 0 ) {
                     // no more owners, we also have no name, remove
+                    oidsToRemove.add( new Integer(fof.getOid()) );
                     i.remove();
                     fof.deallocate();
                     count++;
+                }
+            }
+            // remove deleted files from hiddenFilesOid list
+            for (final Iterator<PerstHiddenFileOid> it = storageRoot.getHiddenFileOids().iterator(); it.hasNext(); ) {
+                final PerstHiddenFileOid hf = it.next();
+                if (oidsToRemove.contains(new Integer(hf.getHiddenFileOid()))) {
+                    it.remove();
+                    hf.deallocate();
                 }
             }
         } finally {
