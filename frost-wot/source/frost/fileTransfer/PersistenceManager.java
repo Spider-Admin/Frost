@@ -235,10 +235,12 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             String gqid = null;
             if( item instanceof FrostUploadItem ) {
                 final FrostUploadItem ui = (FrostUploadItem) item;
+                ui.setPriority(newPrio);
                 gqid = ui.getGqIdentifier();
             } else if( item instanceof FrostDownloadItem ) {
                 final FrostDownloadItem di = (FrostDownloadItem) item;
                 gqid = di.getGqIdentifier();
+                di.setPriority(newPrio);
             }
             if( gqid != null ) {
                 fcpTools.changeRequestPriority(gqid, newPrio);
