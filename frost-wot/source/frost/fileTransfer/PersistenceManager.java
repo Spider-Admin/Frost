@@ -309,6 +309,21 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         return false;
     }
 
+    private void applyPriority(final FrostDownloadItem dlItem, final FcpPersistentGet getReq) {
+        // apply externally changed priority
+        if( dlItem.getPriority() != getReq.getPriority() ) {
+            if (Core.frostSettings.getBoolValue(SettingsClass.FCP2_ENFORCE_FROST_PRIO_FILE_DOWNLOAD)
+                    && dlItem.getPriority() > 0)
+            {
+                // reset priority with our current value
+                fcpTools.changeRequestPriority(getReq.getIdentifier(), dlItem.getPriority());
+            } else {
+                // apply to downloaditem
+                dlItem.setPriority(getReq.getPriority());
+            }
+        }
+    }
+
     /**
      * Apply the states of FcpRequestGet to the FrostDownloadItem.
      */
@@ -321,16 +336,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             }
         }
 
-        // apply externally changed priority
-        if( dlItem.getPriority() != getReq.getPriority() ) {
-            if (Core.frostSettings.getBoolValue(SettingsClass.FCP2_ENFORCE_FROST_PRIO_FILE_DOWNLOAD)) {
-                // reset priority with our current value
-                fcpTools.changeRequestPriority(getReq.getIdentifier(), dlItem.getPriority());
-            } else {
-                // apply to downloaditem
-                dlItem.setPriority(getReq.getPriority());
-            }
-        }
+        applyPriority(dlItem, getReq);
 
         if( dlItem.isDirect() != getReq.isDirect() ) {
             dlItem.setDirect(getReq.isDirect());
@@ -875,7 +881,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
     public void persistentRequestModified(final FcpPersistentGet downloadRequest) {
         if( downloadModelItems.containsKey(downloadRequest.getIdentifier()) ) {
             final FrostDownloadItem dlItem = downloadModelItems.get(downloadRequest.getIdentifier());
-            dlItem.setPriority(downloadRequest.getPriority());
+            applyPriority(dlItem, downloadRequest);
         }
     }
 
@@ -899,7 +905,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             }
         }
     }
-// TODO: abstractes item (upload+download) mit shared states, functions usw. diese beiden methods sind fast diesselben!
+
     public void persistentRequestRemoved(final FcpPersistentGet downloadRequest) {
         if( downloadModelItems.containsKey(downloadRequest.getIdentifier()) ) {
             final FrostDownloadItem dlItem = downloadModelItems.get(downloadRequest.getIdentifier());
