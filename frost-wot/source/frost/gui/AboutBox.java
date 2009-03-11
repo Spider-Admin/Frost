@@ -36,7 +36,7 @@ public class AboutBox extends JDialogWithDetails {
     // because a growing amount of users use CVS version:
     private String version = null;
 
-    private final static String copyright = "Copyright (c) 2007 Frost Project";
+    private final static String copyright = "Copyright 2009 Frost Project";
     private final static String comments2 = "http://jtcfrost.sourceforge.net/";
 
     private final JPanel imagePanel = new JPanel();
@@ -51,9 +51,6 @@ public class AboutBox extends JDialogWithDetails {
 
     private static final ImageIcon frostImage = MiscToolkit.loadImageIcon("/data/jtc.jpg");
 
-    /**
-     * @param parent
-     */
     public AboutBox(final Frame parent) {
         super(parent);
         initialize();
@@ -98,31 +95,28 @@ public class AboutBox extends JDialogWithDetails {
         final StringBuilder details = new StringBuilder();
         details.append(language.getString("AboutBox.text.development") + "\n");
         details.append("   Karsten Graul\n");
-        details.append("   S. Amoako (lazy)\n");
-        details.append("   Roman Glebov (inactive)\n");
+        details.append("   S. Amoako (quit)\n");
+        details.append("   Roman Glebov (quit)\n");
         details.append("   Jan-Thomas Czornack (quit)\n");
         details.append("   Thomas Mueller (quit)\n");
         details.append("   Jim Hunziker (quit)\n");
         details.append("   Stefan Majewski (quit)\n");
-        details.append("   Edward Louis Severson IV\n");
+        details.append("   Edward Louis Severson IV (lazy)\n");
         details.append("   José Manuel Arnesto (quit)\n\n");
-        details.append(language.getString("AboutBox.text.windowsInstaller") + "\n");
-        details.append("   Benoit Laniel\n\n");
+//        details.append(language.getString("AboutBox.text.windowsInstaller") + "\n");
+//        details.append("   Benoit Laniel\n\n");
         details.append(language.getString("AboutBox.text.systemTrayExecutables") + "\n");
         details.append("   Ingo Franzki\n\n");
-        details.append(language.getString("AboutBox.text.translationSupport") + "\n");
-        details.append("   Rudolf Krist\n");
-        details.append("   RapHHfr\n\n");
+//        details.append(language.getString("AboutBox.text.translationSupport") + "\n");
+//        details.append("   Rudolf Krist\n");
+//        details.append("   RapHHfr\n\n");
         details.append(language.getString("AboutBox.text.splashScreenLogo") + "\n");
         details.append("   Frédéric Scheer\n\n");
-        details.append(language.getString("AboutBox.text.miscCodeContributions") + "\n");
-        details.append("   SuperSlut Yoda");
+//        details.append(language.getString("AboutBox.text.miscCodeContributions") + "\n");
+//        details.append("   SuperSlut Yoda");
         setDetailsText(details.toString());
     }
 
-    /**
-     * @return
-     */
     private String getVersion() {
         if (version == null) {
             version =
