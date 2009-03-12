@@ -20,6 +20,7 @@ package frost.boards;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 import java.util.List;
 import java.util.logging.*;
 
@@ -27,6 +28,8 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
+
+import org.joda.time.*;
 
 import frost.*;
 import frost.fileTransfer.common.*;
@@ -95,6 +98,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
     private final JButton updateButton = new JButton();
     private final JButton updateSelectedBoardButton = new JButton();
     private final JButton updateAllBoardsButton = new JButton();
+    private final JButton removeSelectedBoardsButton = new JButton();
     private final JButton Bclose = new JButton();
 
     private JSkinnablePopupMenu popupMenu = null;
@@ -102,6 +106,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
     private final JMenuItem MIupdateSelectedBoard = new JMenuItem();
     private final JMenuItem MIupdateAllBoards = new JMenuItem();
     private final JMenuItem MIcopyInfoToClipboard = new JMenuItem();
+    private final JMenuItem MIremoveSelectedBoards = new JMenuItem();
 
     private BoardInfoTableModel boardTableModel = null;
     private SortedTable boardTable = null;
@@ -112,12 +117,14 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         updateButton.setText(language.getString("BoardInfoFrame.button.update"));
         updateSelectedBoardButton.setText(language.getString("BoardInfoFrame.button.updateSelectedBoard"));
         updateAllBoardsButton.setText(language.getString("BoardInfoFrame.button.updateAllBoards"));
+        removeSelectedBoardsButton.setText(language.getString("BoardInfoFrame.button.removeSelectedBoards"));
         Bclose.setText(language.getString("BoardInfoFrame.button.close"));
 
         MIupdate.setText(language.getString("BoardInfoFrame.button.update"));
         MIupdateSelectedBoard.setText(language.getString("BoardInfoFrame.button.updateSelectedBoard"));
         MIupdateAllBoards.setText(language.getString("BoardInfoFrame.button.updateAllBoards"));
         MIcopyInfoToClipboard.setText(language.getString("BoardInfoFrame.popupMenu.copyInfoToClipboard"));
+        MIremoveSelectedBoards.setText(language.getString("BoardInfoFrame.button.removeSelectedBoards"));
     }
 
     public BoardInfoFrame(final JFrame parentFrame, final TofTree tofTree) {
@@ -153,16 +160,15 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
 
         final ImageIcon frameIcon = MiscToolkit.loadImageIcon("/data/jtc.jpg");
         setIconImage(frameIcon.getImage());
-        setSize(new Dimension(300, 200));
+        setSize(new Dimension(350, 200));
         setResizable(true);
 
         boardTable.setRowSelectionAllowed(true);
         boardTable.setSelectionMode( ListSelectionModel.MULTIPLE_INTERVAL_SELECTION );
         boardTable.setRowHeight(18); // we use 16x16 icons, keep a gap
 
-        final BoardInfoTableCellRenderer cellRenderer = new BoardInfoTableCellRenderer();
-        boardTable.setDefaultRenderer( Object.class, cellRenderer );
-        boardTable.setDefaultRenderer( Number.class, cellRenderer );
+        boardTable.setDefaultRenderer( Object.class, new BoardInfoTableCellRenderer(SwingConstants.LEFT) );
+        boardTable.setDefaultRenderer( Number.class, new BoardInfoTableCellRenderer(SwingConstants.RIGHT) );
 
         updateSelectedBoardButton.setEnabled(false);
 
@@ -176,8 +182,8 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
 
         // updateButton
         ActionListener al = new java.awt.event.ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        updateButton_actionPerformed(e);
+                    public void actionPerformed(final ActionEvent e) {
+                        updateButton_actionPerformed();
                     } };
         updateButton.addActionListener(al);
         MIupdate.addActionListener(al);
@@ -197,6 +203,13 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
             } };
         updateAllBoardsButton.addActionListener(al);
         MIupdateAllBoards.addActionListener(al);
+
+        al = new java.awt.event.ActionListener() {
+            public void actionPerformed(final ActionEvent e) {
+                removeSelectedBoards_actionPerformed(e);
+            } };
+        removeSelectedBoardsButton.addActionListener(al);
+        MIremoveSelectedBoards.addActionListener(al);
 
         MIcopyInfoToClipboard.addActionListener( new ActionListener() {
             public void actionPerformed(final ActionEvent e) {
@@ -244,13 +257,22 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         buttonsPanel.add(Box.createRigidArea(new Dimension(15,3)));
         buttonsPanel.add(updateAllBoardsButton);
         buttonsPanel.add(Box.createRigidArea(new Dimension(15,3))); // ensure minimum glue size
+        buttonsPanel.add(removeSelectedBoardsButton);
+        buttonsPanel.add(Box.createRigidArea(new Dimension(15,3))); // ensure minimum glue size
         buttonsPanel.add(Box.createHorizontalGlue());
         buttonsPanel.add(Bclose);
         mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
 
         boardTable.addMouseListener(listener);
 
-        updateButton_actionPerformed(null);
+        updateButton_actionPerformed();
+
+        // set table column sizes
+        final int[] newWidths = { 150,30,20,20,20,20,20,40 };
+
+        for (int i = 0; i < newWidths.length; i++) {
+            boardTable.getColumnModel().getColumn(i).setPreferredWidth(newWidths[i]);
+        }
     }
 
     private JSkinnablePopupMenu getPopupMenu() {
@@ -262,6 +284,8 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
             popupMenu.add(MIupdateSelectedBoard);
             popupMenu.add(MIupdateAllBoards);
             popupMenu.addSeparator();
+            popupMenu.add(MIremoveSelectedBoards);
+            popupMenu.addSeparator();
             popupMenu.add(MIupdate);
         }
         return popupMenu;
@@ -269,17 +293,23 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
 
     private void boardTableListModel_valueChanged(final ListSelectionEvent e) {
         if( boardTable.getSelectedRowCount() > 0 ) {
-            updateSelectedBoardButton.setEnabled(true);
-            MIupdateSelectedBoard.setEnabled(true);
+            setEnabledStateOfDynamicComponents(true);
         } else {
-            updateSelectedBoardButton.setEnabled(false);
-            MIupdateSelectedBoard.setEnabled(false);
+            setEnabledStateOfDynamicComponents(false);
         }
+    }
+
+    private void setEnabledStateOfDynamicComponents(final boolean state) {
+        updateSelectedBoardButton.setEnabled(state);
+        MIupdateSelectedBoard.setEnabled(state);
+        removeSelectedBoardsButton.setEnabled(state);
+        MIremoveSelectedBoards.setEnabled(state);
+        MIcopyInfoToClipboard.setEnabled(state);
     }
 
     private static UpdateBoardInfoTableThread updateBoardInfoTableThread = null;
 
-    private void updateButton_actionPerformed(final ActionEvent e) {
+    private void updateButton_actionPerformed() {
         if( updateBoardInfoTableThread != null ) {
             return;
         }
@@ -289,8 +319,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         updateBoardInfoTableThread = new UpdateBoardInfoTableThread();
         updateBoardInfoTableThread.start();
 
-        updateSelectedBoardButton.setEnabled(false);
-        MIupdateSelectedBoard.setEnabled(false);
+        setEnabledStateOfDynamicComponents(false);
     }
 
     private class UpdateBoardInfoTableThread extends Thread
@@ -323,6 +352,24 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
                         }});
             }
             updateBoardInfoTableThread = null;
+        }
+    }
+
+    private void removeSelectedBoards_actionPerformed(final ActionEvent e) {
+        final int[] selectedRows = boardTable.getSelectedRows();
+
+        final ArrayList<Board> boardsToDelete = new ArrayList<Board>();
+        for( final int rowIx : selectedRows ) {
+            if( rowIx >= boardTableModel.getRowCount() ) {
+                continue; // paranoia
+            }
+            final BoardInfoTableMember row = (BoardInfoTableMember) boardTableModel.getRow(rowIx);
+            boardsToDelete.add(row.getBoard());
+        }
+
+        for( final Board board : boardsToDelete ) {
+            Core.getInstance().getMainFrame().getTofTree().removeNode(this, board);
+            updateButton_actionPerformed();
         }
     }
 
@@ -374,8 +421,8 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
                 final BoardInfoTableMember row = (BoardInfoTableMember) (boardTableModel).getRow(rowIx);
 
                 final String boardName = row.getBoard().getName();
-                final String state = row.getBoard().getStateString();
-                final String allMsgs = row.getAllMessageCount().toString();
+                final String state     = row.getBoard().getStateString();
+                final String allMsgs   = row.getAllMessageCount().toString();
 
                 sb.append(boardName).append("  (").append(state).append(")  ").append(allMsgs).append("\n");
             }
@@ -389,16 +436,28 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
      * @param board name of the board
      * @return Integer value
      */
-    public BoardInfoTableMember fillInBoardCounts(final Board board, final BoardInfoTableMember row)
-    {
-        int countNewMessages = 0;
-        int countAllMessages = 0;
+    public BoardInfoTableMember fillInBoardCounts(final Board board, final BoardInfoTableMember row) {
 
-        countNewMessages = MessageStorage.inst().getMessageCount(board, 0);
-        countAllMessages = MessageStorage.inst().getMessageCount(board, -1);
+        final int countTodaysMessages  = MessageStorage.inst().getMessageCount(board, 0);
+        final int countAllMessages     = MessageStorage.inst().getMessageCount(board, -1);
+        final int countFlaggedMessages = MessageStorage.inst().getFlaggedMessageCount(board);
+        final int countStarredMessages = MessageStorage.inst().getStarredMessageCount(board);
+        final int countUnreadMessages  = MessageStorage.inst().getUnreadMessageCount(board);
+        final DateTime dateTime = MessageStorage.inst().getDateTimeOfLatestMessage(board);
+        final String dateStr;
+        if (dateTime != null) {
+            final DateMidnight date = dateTime.toDateMidnight();
+            dateStr = DateFun.FORMAT_DATE_EXT.print(date);
+        } else {
+            dateStr = "---";
+        }
 
         row.setAllMessageCount(countAllMessages);
-        row.setNewMessageCount(countNewMessages);
+        row.setTodaysMessageCount(countTodaysMessages);
+        row.setFlaggedMessageCount(countFlaggedMessages);
+        row.setStarredMessageCount(countStarredMessages);
+        row.setUnreadMessageCount(countUnreadMessages);
+        row.setDateOfLastMsg(dateStr);
 
         return row;
     }
@@ -433,13 +492,21 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
      */
     class BoardInfoTableMember implements TableMember {
         Board board;
-        Integer allmsg;
-        Integer newmsg;
+        Integer allMsgCount;
+        Integer todaysMsgCount;
+        Integer flaggedMsgCount;
+        Integer starredMsgCount;
+        Integer unreadMsgCount;
+        String dateOfLastMsg;
 
         public BoardInfoTableMember(final Board board) {
             this.board = board;
-            this.allmsg = null;
-            this.newmsg = null;
+            this.allMsgCount = null;
+            this.todaysMsgCount = null;
+            this.flaggedMsgCount = null;
+            this.starredMsgCount = null;
+            this.unreadMsgCount = null;
+            this.dateOfLastMsg = null;
         }
 
         public Object getValueAt(final int column) {
@@ -449,9 +516,17 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
             case 1:
                 return board.getStateString();
             case 2:
-                return allmsg;
+                return allMsgCount;
             case 3:
-                return newmsg;
+                return todaysMsgCount;
+            case 4: // flagged
+                return flaggedMsgCount;
+            case 5: // starred
+                return starredMsgCount;
+            case 6: // unread
+                return unreadMsgCount;
+            case 7: // date of last msg
+                return dateOfLastMsg;
             }
             return "*ERR*";
         }
@@ -467,31 +542,46 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         }
 
         public Integer getAllMessageCount() {
-            return allmsg;
+            return allMsgCount;
         }
 
         public void setAllMessageCount(final int i) {
-            allmsg = new Integer(i);
+            allMsgCount = new Integer(i);
         }
 
-        public void setNewMessageCount(final int i) {
-            newmsg = new Integer(i);
+        public void setTodaysMessageCount(final int i) {
+            todaysMsgCount = new Integer(i);
+        }
+        public void setFlaggedMessageCount(final int i) {
+            flaggedMsgCount = new Integer(i);
+        }
+        public void setStarredMessageCount(final int i) {
+            starredMsgCount = new Integer(i);
+        }
+        public void setUnreadMessageCount(final int i) {
+            unreadMsgCount = new Integer(i);
+        }
+        public void setDateOfLastMsg(final String s) {
+            dateOfLastMsg = s;
         }
     }
 
     private class BoardInfoTableCellRenderer extends DefaultTableCellRenderer {
-        Font boldFont;
-        Font origFont;
+        final Font boldFont;
+        final Font origFont;
+        final Border border;
 
-        public BoardInfoTableCellRenderer() {
+        public BoardInfoTableCellRenderer(final int horizontalAlignment) {
             super();
             origFont = boardTable.getFont();
             boldFont = origFont.deriveFont(Font.BOLD);
+            border = BorderFactory.createEmptyBorder(0, 3, 0, 3);
             setVerticalAlignment(SwingConstants.CENTER);
+            setHorizontalAlignment(horizontalAlignment);
         }
 
         @Override
-        public Component getTableCellRendererComponent(final JTable table, final Object value, boolean isSelected,
+        public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected,
                 final boolean hasFocus, final int row, final int column) {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
@@ -502,6 +592,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
             } else {
                 setFont(origFont);
             }
+            setBorder(border);
 
             // get the original model column index (maybe columns were reordered by user)
             final TableColumn tableColumn = table.getColumnModel().getColumn(column);

@@ -175,6 +175,10 @@ public class PerstFrostMessageObject extends Persistent {
         }
     }
 
+    public DateTime getDateTime() {
+        return new DateTime(dateAndTime, DateTimeZone.UTC);
+    }
+
     public FrostMessageObject toFrostMessageObject(
             final Board board,
             final boolean withContent,
@@ -196,7 +200,7 @@ public class PerstFrostMessageObject extends Persistent {
 
         mo.setMessageId(messageId);
         mo.setInReplyTo(inReplyTo);
-        mo.setDateAndTime(new DateTime(dateAndTime, DateTimeZone.UTC));
+        mo.setDateAndTime(getDateTime());
         mo.setIndex(msgIndex);
         mo.setFromName(fromName);
         mo.setSubject(subject);

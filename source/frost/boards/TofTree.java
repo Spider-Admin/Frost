@@ -535,8 +535,8 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
 
                 // for a board we set indicators if board contains flagged or starred messages
                 if( showFlaggedStarredIndicators ) {
-                    boolean hasStarred = board.hasStarredMessages();
-                    boolean hasFlagged = board.hasFlaggedMessages();
+                    final boolean hasStarred = board.hasStarredMessages();
+                    final boolean hasFlagged = board.hasFlaggedMessages();
                     if( hasStarred && !hasFlagged ) {
                         // unread and no marked
                         setBorder(borderStarredMsgs);
@@ -847,7 +847,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
         unsentMessagesFolder = new UnsentMessagesFolder("["+unsentName+"]");
         sentMessagesFolder = new SentMessagesFolder("["+sentName+"]");
 
-        boolean loadWasOk = xmlio.loadBoardTree( this, model, boardIniFilename, unsentMessagesFolder, sentMessagesFolder );
+        final boolean loadWasOk = xmlio.loadBoardTree( this, model, boardIniFilename, unsentMessagesFolder, sentMessagesFolder );
         if( !loadWasOk ) {
             return loadWasOk;
         }
@@ -1074,32 +1074,42 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
 
     /**
      * Removes the given tree node, asks before deleting.
-     * @param node
+     * @return  true when node is removed
      */
-    public void removeNode(final AbstractNode node) {
+    public boolean removeNode(final AbstractNode node) {
+        return removeNode(this, node);
+    }
+
+    /**
+     * Removes the given tree node, asks before deleting.
+     * @return  true when node is removed
+     */
+    public boolean removeNode(final Component parent, final AbstractNode node) {
         int answer;
         if (node.isFolder()) {
             answer = JOptionPane.showConfirmDialog(
-                    this,
+                    parent,
                     language.formatMessage("BoardTree.removeFolderConfirmation.body", node.getName()),
                     language.formatMessage("BoardTree.removeFolderConfirmation.title", node.getName()),
                     JOptionPane.YES_NO_OPTION);
         } else if(node.isBoard()) {
             answer = JOptionPane.showConfirmDialog(
-                    this,
+                    parent,
                     language.formatMessage("BoardTree.removeBoardConfirmation.body", node.getName()),
                     language.formatMessage("BoardTree.removeBoardConfirmation.title", node.getName()),
                     JOptionPane.YES_NO_OPTION);
         } else {
-            return;
+            return false;
         }
 
         if (answer == JOptionPane.NO_OPTION) {
-            return;
+            return false;
         }
 
         // delete node from tree
         model.removeNode(node, true);
+
+        return true;
     }
 
     public void setSettings(final SettingsClass settings) {

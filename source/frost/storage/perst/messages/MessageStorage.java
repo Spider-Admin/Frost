@@ -338,7 +338,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         }
     }
 
-    public int getNewMessageCount(final Board board) {
+    public int getUnreadMessageCount(final Board board) {
         if( !beginCooperativeThreadTransaction() ) {
             return -1;
         }
@@ -355,16 +355,36 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         }
     }
 
-    public boolean hasFlaggedMessages(final Board board) {
+    public int getFlaggedMessageCount(final Board board) {
         if( !beginCooperativeThreadTransaction() ) {
-            return false;
+            return -1;
         }
         try {
             final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
             if( bo == null ) {
-                return false;
+                return 0;
             } else {
-                return (bo.getFlaggedMessageIndex().size() > 0);
+                return bo.getFlaggedMessageIndex().size();
+            }
+        } finally {
+            endThreadTransaction();
+        }
+    }
+
+    public boolean hasFlaggedMessages(final Board board) {
+        return (getFlaggedMessageCount(board) > 0);
+    }
+
+    public int getStarredMessageCount(final Board board) {
+        if( !beginCooperativeThreadTransaction() ) {
+            return -1;
+        }
+        try {
+            final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
+            if( bo == null ) {
+                return 0;
+            } else {
+                return bo.getStarredMessageIndex().size();
             }
         } finally {
             endThreadTransaction();
@@ -372,19 +392,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
     }
 
     public boolean hasStarredMessages(final Board board) {
-        if( !beginCooperativeThreadTransaction() ) {
-            return false;
-        }
-        try {
-            final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
-            if( bo == null ) {
-                return false;
-            } else {
-                return (bo.getStarredMessageIndex().size() > 0);
-            }
-        } finally {
-            endThreadTransaction();
-        }
+        return (getStarredMessageCount(board) > 0);
     }
 
     /**
@@ -654,6 +662,29 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         } finally {
             endThreadTransaction();
         }
+    }
+
+    public DateTime getDateTimeOfLatestMessage(final Board board) {
+        if( !beginCooperativeThreadTransaction() ) {
+            return null;
+        }
+        try {
+            final PerstFrostBoardObject bo = storageRoot.getBoardsByName().get(board.getNameLowerCase());
+            if( bo == null ) {
+                logger.severe("error: no perst board for show");
+                return null;
+            }
+
+            final Iterator<PerstFrostMessageObject> i = bo.getMessageIndex().iterator(null, Long.MAX_VALUE, Index.DESCENT_ORDER);
+
+            if (i.hasNext()) {
+                final PerstFrostMessageObject p = i.next();
+                return p.getDateTime();
+            }
+        } finally {
+            endThreadTransaction();
+        }
+        return null;
     }
 
     public void retrieveMessagesForShow(
