@@ -1048,7 +1048,7 @@ public class TOF implements PropertyChangeListener {
         final int beforeMessages = board.getNewMessageCount(); // remember old val to track if new msg. arrived
 
         int newMessages = 0;
-        newMessages = MessageStorage.inst().getNewMessageCount(board);
+        newMessages = MessageStorage.inst().getUnreadMessageCount(board);
 
         // count new messages arrived while processing
         final int arrivedMessages = board.getNewMessageCount() - beforeMessages;

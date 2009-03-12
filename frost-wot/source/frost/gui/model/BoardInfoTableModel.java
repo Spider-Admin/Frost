@@ -25,13 +25,17 @@ public class BoardInfoTableModel extends SortedTableModel implements LanguageLis
 {
     private Language language = null;
 
-    protected final static String columnNames[] = new String[4];
+    protected final static String columnNames[] = new String[8];
 
     protected final static Class columnClasses[] =  {
-        String.class, //LangRes.getString("Board"),
-        String.class, //LangRes.getString("State"),
-        Integer.class, //LangRes.getString("Messages"),
-        Integer.class, //LangRes.getString("New messages"),
+        String.class,   // board name
+        String.class,   // board state
+        Integer.class,  // message count
+        Integer.class,  // today
+        Integer.class,  // flagged
+        Integer.class,  // starred
+        Integer.class,  // unread
+        String.class,   // date of last valid msg
     };
 
     public BoardInfoTableModel() {
@@ -45,6 +49,10 @@ public class BoardInfoTableModel extends SortedTableModel implements LanguageLis
         columnNames[1] = language.getString("BoardInfoFrame.table.state");
         columnNames[2] = language.getString("BoardInfoFrame.table.messages");
         columnNames[3] = language.getString("BoardInfoFrame.table.messagesToday");
+        columnNames[4] = language.getString("BoardInfoFrame.table.messagesFlagged");
+        columnNames[5] = language.getString("BoardInfoFrame.table.messagesStarred");
+        columnNames[6] = language.getString("BoardInfoFrame.table.messagesUnread");
+        columnNames[7] = language.getString("BoardInfoFrame.table.lastMsgDate");
 
         fireTableStructureChanged();
     }
@@ -52,43 +60,45 @@ public class BoardInfoTableModel extends SortedTableModel implements LanguageLis
     /* (non-Javadoc)
      * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
      */
-    public void languageChanged(LanguageEvent event) {
+    public void languageChanged(final LanguageEvent event) {
         refreshLanguage();
     }
 
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#isCellEditable(int, int)
      */
-    public boolean isCellEditable(int row, int col)
-    {
+    @Override
+    public boolean isCellEditable(final int row, final int col) {
         return false;
     }
 
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getColumnName(int)
      */
-    public String getColumnName(int column)
-    {
-        if( column >= 0 && column < columnNames.length )
+    @Override
+    public String getColumnName(final int column) {
+        if( column >= 0 && column < columnNames.length ) {
             return columnNames[column];
+        }
         return null;
     }
 
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getColumnCount()
      */
-    public int getColumnCount()
-    {
+    @Override
+    public int getColumnCount() {
         return columnNames.length;
     }
 
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getColumnClass(int)
      */
-    public Class getColumnClass(int column)
-    {
-        if( column >= 0 && column < columnClasses.length )
+    @Override
+    public Class getColumnClass(final int column) {
+        if( column >= 0 && column < columnClasses.length ) {
             return columnClasses[column];
+        }
         return null;
     }
 }
