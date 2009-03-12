@@ -119,6 +119,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
             downloadToolBar.add(Box.createRigidArea(new Dimension(8, 0)));
             downloadToolBar.add(removeFinishedDownloadsCheckBox);
             if( PersistenceManager.isPersistenceEnabled() ) {
+                downloadToolBar.add(Box.createRigidArea(new Dimension(8, 0)));
                 downloadToolBar.add(showExternalGlobalQueueItems);
             }
 			downloadToolBar.add(Box.createRigidArea(new Dimension(80, 0)));

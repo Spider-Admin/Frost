@@ -89,6 +89,7 @@ public class UploadPanel extends JPanel {
             uploadToolBar.add(Box.createRigidArea(new Dimension(8, 0)));
             uploadToolBar.add(removeFinishedUploadsCheckBox);
             if( PersistenceManager.isPersistenceEnabled() ) {
+                uploadToolBar.add(Box.createRigidArea(new Dimension(8, 0)));
                 uploadToolBar.add(showExternalGlobalQueueItems);
             }
             uploadToolBar.add(Box.createRigidArea(new Dimension(80, 0)));
