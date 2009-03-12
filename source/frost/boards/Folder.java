@@ -38,10 +38,10 @@ public class Folder extends AbstractNode {
         Collections.sort(children);
     }
 
-    public boolean containsNewMessages() {
+    public boolean containsUnreadMessages() {
         for (int i = 0; i < getChildCount(); i++) {
             AbstractNode an = (AbstractNode) getChildAt(i);
-            if (an.containsNewMessages()) {
+            if (an.containsUnreadMessages()) {
                 return true;
             }
         }

@@ -56,7 +56,7 @@ public class Board extends AbstractNode {
     private Integer maxMessageDisplay = null;
     private Integer maxMessageDownload = null;
 
-    private int newMessageCount = 0;
+    private int unreadMessageCount = 0;
     private int numberBlocked = 0; // number of blocked messages for this board
     private String privateKey = null;
 
@@ -119,16 +119,16 @@ public class Board extends AbstractNode {
      * @return true if there are new messages. False otherwise.
      */
     @Override
-    public boolean containsNewMessages() {
-        if (getNewMessageCount() > 0) {
+    public boolean containsUnreadMessages() {
+        if (getUnreadMessageCount() > 0) {
             return true;
         } else {
             return false;
         }
     }
 
-    public void decNewMessageCount() {
-        newMessageCount--;
+    public void decUnreadMessageCount() {
+        unreadMessageCount--;
     }
 
     public void incTimesUpdatedCount() {
@@ -235,8 +235,8 @@ public class Board extends AbstractNode {
         return maxMessageDownload;
     }
 
-    public int getNewMessageCount() {
-        return newMessageCount;
+    public int getUnreadMessageCount() {
+        return unreadMessageCount;
     }
 
     public int getTimesUpdatedCount() {
@@ -278,7 +278,7 @@ public class Board extends AbstractNode {
         if (isReadAccessBoard()) {
             if( isSpammed() || isDosForToday() ) {
                 return readAccessSpammedIcon;
-            } else if( containsNewMessages() ) {
+            } else if( containsUnreadMessages() ) {
                 return readAccessNewIcon;
             } else {
                 return readAccessIcon;
@@ -286,7 +286,7 @@ public class Board extends AbstractNode {
         } else if (isWriteAccessBoard()) {
             if( isSpammed() || isDosForToday() ) {
                 return writeAccessSpammedIcon;
-            } else if( containsNewMessages() ) {
+            } else if( containsUnreadMessages() ) {
                 return writeAccessNewIcon;
             } else {
                 return writeAccessIcon;
@@ -294,7 +294,7 @@ public class Board extends AbstractNode {
         } else if (isPublicBoard()) {
             if( isSpammed() || isDosForToday() ) {
                 return boardSpammedIcon;
-            } else if( containsNewMessages() ) {
+            } else if( containsUnreadMessages() ) {
                 return boardNewIcon;
             } else {
                 return boardIcon;
@@ -311,8 +311,8 @@ public class Board extends AbstractNode {
         numberBlocked++;
     }
 
-    public void incNewMessageCount() {
-        newMessageCount++;
+    public void incUnreadMessageCount() {
+        unreadMessageCount++;
     }
 
     public boolean isConfigured() {
@@ -396,8 +396,8 @@ public class Board extends AbstractNode {
         maxMessageDownload = val;
     }
 
-    public void setNewMessageCount(final int val) {
-        newMessageCount = val;
+    public void setUnreadMessageCount(final int val) {
+        unreadMessageCount = val;
     }
 
     public void setPrivateKey(String val) {
@@ -459,7 +459,7 @@ public class Board extends AbstractNode {
     /**
      * Tells the board that a new message was received right now.
      * Needed for selective board update.
-     * We can't use newMessageCount for this because this field is updated
+     * We can't use unreadMessageCount for this because this field is updated
      * also if a message is mark unread.
      */
     public void newMessageReceived() {
@@ -549,7 +549,7 @@ public class Board extends AbstractNode {
         this.dosForAllDays = dosForAllDays;
     }
 
-    public void updateDosStatus(boolean stopBoardUpdatesWhenDOSed, final long minDateTime, final long todayDateTime) {
+    public void updateDosStatus(final boolean stopBoardUpdatesWhenDOSed, final long minDateTime, final long todayDateTime) {
         if( !stopBoardUpdatesWhenDOSed ) {
             setDosForToday(false);
             setDosForBackloadDays(false);

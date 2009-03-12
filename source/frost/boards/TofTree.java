@@ -484,7 +484,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
 
             final AbstractNode node = (AbstractNode)value;
 
-            final boolean containsNewMessage = node.containsNewMessages();
+            final boolean containsUnreadMessage = node.containsUnreadMessages();
 
             Board board = null;
 
@@ -492,7 +492,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
                 final Folder folder = (Folder) node;
                 // if this is a folder, check board for new messages
                 setText(folder.getName());
-                if (containsNewMessage) {
+                if (containsUnreadMessage) {
                     setFont(boldFont);
                 } else {
                     setFont(normalFont);
@@ -507,16 +507,16 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
 
                 board = (Board) node;
                 // set the special text (board name + if new msg. a ' (2)' is appended and bold)
-                if (containsNewMessage) {
+                if (containsUnreadMessage) {
                     setFont(boldFont);
                     if( showBoardUpdatedCount ) {
                         final StringBuilder sb = new StringBuilder();
-                        sb.append(board.getName()).append(" (").append(board.getNewMessageCount()).append(") [");
+                        sb.append(board.getName()).append(" (").append(board.getUnreadMessageCount()).append(") [");
                         sb.append(board.getTimesUpdatedCount()).append("]");
                         setText(sb.toString());
                     } else {
                         final StringBuilder sb = new StringBuilder();
-                        sb.append(board.getName()).append(" (").append(board.getNewMessageCount()).append(")");
+                        sb.append(board.getName()).append(" (").append(board.getUnreadMessageCount()).append(")");
                         setText(sb.toString());
                     }
                 } else {
@@ -993,7 +993,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
                     final Board newBoard = new Board(boardName, boardDescription);
                     model.addNodeToTree(newBoard);
                     // maybe this boardfolder already exists, scan for new messages
-                    TOF.getInstance().searchNewMessages(newBoard);
+                    TOF.getInstance().searchUnreadMessages(newBoard);
                     isDone = true; //added
                 }
             }
@@ -1028,7 +1028,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
             final Board newBoard = new Board(bname, bpubkey, bprivkey, description);
             model.addNodeToTree(newBoard);
             // maybe this boardfolder already exists, scan for new messages
-            TOF.getInstance().searchNewMessages(newBoard);
+            TOF.getInstance().searchUnreadMessages(newBoard);
         }
     }
 
