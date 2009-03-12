@@ -9,6 +9,41 @@
   <BODY>
 <H2>Frost History</H2>
 <PRE>
+2009.03.xx:
+------------
+
+
+2008.03.04:
+------------
+
+- more MacOS usability enhancements (e.g. backspace now deletes messages on all OS)
+- security fix: sometimes the local path of a file attachment was exposed
+
+2008.02.29:
+------------
+
+- when adding new shared files you can now choose how to handle files that are
+  already shared (ignore new files or take over new file path)
+- option to compact storages during startup (Options->misc.).
+  Releases unused disk space and increases storage access performance
+- option to delete file list files which have a CHK key, but no more owners
+- updated HOWTO-BUILD.txt with gentoo Linux ebuild informations from Tommy[D]
+- added updated russian translation (thanks to Alexey)
+- new board update information dialog, shows statistics about the node requests
+- new anti DoS feature: if enabled and the threshold of subsequent invalid
+  messages is reached, the board update stops so the next board can be updated.
+  When a DoS for today is detected, the board is shown in RED in the board tree
+  and the board tooltip informs you about that.
+- fix to prevent a current DoS attack to the shared file system
+- fixed bug "When sending a message with file attachements and restarting Frost
+  while the files is still uploading  I get an error when Frost is started up again."
+- updated most icons (thanks to Alexey and also Kay)
+- workaround for 'high cpu load when showing alot of animated smileys' problem,
+  now smiley animations stop immediately when they are not longer shown
+- 0.7: cleanup removes all obsolete AAEC encrypted files from the list
+- 0.7: own shared files with an obsolete AAEC key are resetted
+- 0.7: fixed bug, during "copy extented info" the filename was appended twice
+
 2007.12.11:
 ------------
 
