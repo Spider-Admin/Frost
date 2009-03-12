@@ -35,7 +35,7 @@ public abstract class AbstractNode extends DefaultMutableTreeNode implements Com
         name = newName;
     }
 
-    public boolean containsNewMessages() {
+    public boolean containsUnreadMessages() {
         return false;
     }
 

@@ -153,7 +153,7 @@ public class TOF implements PropertyChangeListener {
     private void setAllMessagesRead(final Board board) {
         // now takes care if board is changed during mark read of many boards! reloads current table if needed
 
-        final int oldNewMessageCount = board.getNewMessageCount();
+        final int oldUnreadMessageCount = board.getUnreadMessageCount();
 
         MessageStorage.inst().setAllMessagesRead(board);
 
@@ -184,8 +184,8 @@ public class TOF implements PropertyChangeListener {
                 // we cleared '' new messages, but don't get to negativ (maybe user selected another message during operation!)
                 // but maybe a new message arrived!
                 // ATTN: maybe problem if user sets another msg unread, and a new msg arrives, during time before invokeLater.
-                final int diffNewMsgCount = board.getNewMessageCount() - oldNewMessageCount;
-                board.setNewMessageCount( (diffNewMsgCount<0 ? 0 : diffNewMsgCount) );
+                final int diffNewMsgCount = board.getUnreadMessageCount() - oldUnreadMessageCount;
+                board.setUnreadMessageCount( (diffNewMsgCount<0 ? 0 : diffNewMsgCount) );
 
                 MainFrame.getInstance().updateMessageCountLabels(board);
                 MainFrame.getInstance().updateTofTree(board);
@@ -349,7 +349,7 @@ public class TOF implements PropertyChangeListener {
             public void run() {
                 if( message.isNew() ) {
                     board.newMessageReceived(); // notify receive of new msg (for board update)
-                    board.incNewMessageCount(); // increment new message count
+                    board.incUnreadMessageCount(); // increment new message count
                     MainFrame.getInstance().updateTofTree(board);
                     MainFrame.getInstance().displayNewMessageIcon(true);
                 }
@@ -838,7 +838,7 @@ public class TOF implements PropertyChangeListener {
                 final boolean newHasStarred = hasStarredWork;
                 SwingUtilities.invokeLater( new Runnable() {
                     public void run() {
-                        innerTargetBoard.setNewMessageCount(newMessageCount);
+                        innerTargetBoard.setUnreadMessageCount(newMessageCount);
                         innerTargetBoard.setFlaggedMessages(newHasFlagged);
                         innerTargetBoard.setStarredMessages(newHasStarred);
                         setNewRootNode(innerTargetBoard, rootNode, previousSelectedMsg);
@@ -1008,55 +1008,55 @@ public class TOF implements PropertyChangeListener {
         }
     }
 
-    public void searchAllNewMessages(final boolean runWithinThread) {
+    public void searchAllUnreadMessages(final boolean runWithinThread) {
         if( runWithinThread ) {
             new Thread() {
                 @Override
                 public void run() {
-                    searchAllNewMessages();
+                    searchAllUnreadMessages();
                 }
             }.start();
         } else {
-            searchAllNewMessages();
+            searchAllUnreadMessages();
         }
     }
 
-    public void searchNewMessages(final Board board) {
+    public void searchUnreadMessages(final Board board) {
         new Thread() {
             @Override
             public void run() {
-                searchNewMessagesInBoard(board);
+                searchUnreadMessagesInBoard(board);
             }
         }.start();
     }
 
-    private void searchAllNewMessages() {
+    private void searchAllUnreadMessages() {
         final Enumeration<AbstractNode> e = tofTreeModel.getRoot().depthFirstEnumeration();
         while( e.hasMoreElements() ) {
             final AbstractNode node = e.nextElement();
             if( node.isBoard() ) {
-                searchNewMessagesInBoard((Board)node);
+                searchUnreadMessagesInBoard((Board)node);
             }
         }
     }
 
-    private void searchNewMessagesInBoard(final Board board) {
+    private void searchUnreadMessagesInBoard(final Board board) {
         if( !board.isBoard() ) {
             return;
         }
 
-        final int beforeMessages = board.getNewMessageCount(); // remember old val to track if new msg. arrived
+        final int beforeMessages = board.getUnreadMessageCount(); // remember old val to track if new msg. arrived
 
         int newMessages = 0;
         newMessages = MessageStorage.inst().getUnreadMessageCount(board);
 
         // count new messages arrived while processing
-        final int arrivedMessages = board.getNewMessageCount() - beforeMessages;
+        final int arrivedMessages = board.getUnreadMessageCount() - beforeMessages;
         if( arrivedMessages > 0 ) {
             newMessages += arrivedMessages;
         }
 
-        board.setNewMessageCount(newMessages);
+        board.setUnreadMessageCount(newMessages);
 
         // check for flagged and starred messages in board
         boolean hasFlagged = false;

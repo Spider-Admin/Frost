@@ -797,7 +797,7 @@ public class BoardSettingsFrame extends JDialog {
         if( b.isBoard() ) {
             MainFrame.getInstance().updateTofTree(b);
             // update the new msg. count for board
-            TOF.getInstance().searchNewMessages((Board)b);
+            TOF.getInstance().searchUnreadMessages((Board)b);
 
             if (b == MainFrame.getInstance().getTofTreeModel().getSelectedNode()) {
                 // reload all messages if board is shown

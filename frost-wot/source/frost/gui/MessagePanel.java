@@ -366,7 +366,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     add(markMessageUnreadItem);
                     itemAdded = true;
                 }
-                if( selectedMessage != null && selectedMessage.getBoard().getNewMessageCount() > 0 ) {
+                if( selectedMessage != null && selectedMessage.getBoard().getUnreadMessageCount() > 0 ) {
                     add(markAllMessagesReadItem);
                     add(markThreadReadItem);
                     itemAdded = true;
@@ -469,8 +469,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     private String allMessagesCountPrefix = "";
     private final JLabel allMessagesCountLabel = new JLabel("");
 
-    private String newMessagesCountPrefix = "";
-    private final JLabel newMessagesCountLabel = new JLabel("");
+    private String unreadMessagesCountPrefix = "";
+    private final JLabel unreadMessagesCountLabel = new JLabel("");
 
     public MessagePanel(final SettingsClass settings, final MainFrame mf) {
         super();
@@ -591,7 +591,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         buttonsToolbar.add(Box.createHorizontalGlue());
         buttonsToolbar.add(allMessagesCountLabel);
         buttonsToolbar.add(Box.createRigidArea(new Dimension(8, 0)));
-        buttonsToolbar.add(newMessagesCountLabel);
+        buttonsToolbar.add(unreadMessagesCountLabel);
         buttonsToolbar.add(Box.createRigidArea(blankSpace));
 
         // listeners
@@ -863,7 +863,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                         getMessageTreeModel().nodeChanged(threadRootMsg);
                     }
 
-                    board.decNewMessageCount();
+                    board.decUnreadMessageCount();
 
                     MainFrame.getInstance().updateMessageCountLabels(board);
                     MainFrame.getInstance().updateTofTree(board);
@@ -1096,11 +1096,11 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
         allMessagesCountPrefix = language.getString("MessagePane.toolbar.labelAllMessageCount")+": ";
         allMessagesCountLabel.setText(allMessagesCountPrefix);
-        newMessagesCountPrefix = language.getString("MessagePane.toolbar.labelNewMessageCount")+": ";
-        newMessagesCountLabel.setText(newMessagesCountPrefix);
+        unreadMessagesCountPrefix = language.getString("MessagePane.toolbar.labelNewMessageCount")+": ";
+        unreadMessagesCountLabel.setText(unreadMessagesCountPrefix);
 
         updateLabelSize(allMessagesCountLabel);
-        updateLabelSize(newMessagesCountLabel);
+        updateLabelSize(unreadMessagesCountLabel);
     }
 
     private void replyButton_actionPerformed(final ActionEvent e) {
@@ -1283,13 +1283,13 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 // mark read
                 if( targetMessage.isNew() ) {
                     targetMessage.setNew(false);
-                    board.decNewMessageCount();
+                    board.decUnreadMessageCount();
                 }
             } else {
                 // mark unread
                 if( !targetMessage.isNew() ) {
                     targetMessage.setNew(true);
-                    board.incNewMessageCount();
+                    board.incUnreadMessageCount();
                 }
             }
             model.nodeChanged(targetMessage);
@@ -1346,7 +1346,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 if( MainFrame.getInstance().getMessagePanel().getMessageTable().getTree().isVisible(new TreePath(mo.getPath())) ) {
                     model.nodeChanged(mo);
                 }
-                board.decNewMessageCount();
+                board.decUnreadMessageCount();
             }
         }
 
@@ -1386,7 +1386,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             targetMessage.setDeleted(true);
             if( targetMessage.isNew() ) {
                 targetMessage.setNew(false);
-                board.decNewMessageCount();
+                board.decUnreadMessageCount();
             }
             // we don't remove the message immediately, they are not loaded during next change to this board
             // needs repaint or the line which crosses the message isn't completely seen
@@ -1485,7 +1485,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     public void updateMessageCountLabels(final AbstractNode node) {
         if (node.isFolder()) {
             allMessagesCountLabel.setText("");
-            newMessagesCountLabel.setText("");
+            unreadMessagesCountLabel.setText("");
             nextUnreadMessageButton.setEnabled(false);
         } else if (node.isBoard()) {
             int allMessages = 0;
@@ -1498,9 +1498,9 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             }
             allMessagesCountLabel.setText(allMessagesCountPrefix + allMessages);
 
-            final int newMessages = ((Board)node).getNewMessageCount();
-            newMessagesCountLabel.setText(newMessagesCountPrefix + newMessages);
-            if( newMessages > 0 ) {
+            final int unreadMessages = ((Board)node).getUnreadMessageCount();
+            unreadMessagesCountLabel.setText(unreadMessagesCountPrefix + unreadMessages);
+            if( unreadMessages > 0 ) {
                 nextUnreadMessageButton.setEnabled(true);
             } else {
                 nextUnreadMessageButton.setEnabled(false);

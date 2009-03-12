@@ -903,7 +903,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         setJMenuBar(getMainMenuBar());
 
         // step through all messages on disk up to maxMessageDisplay and check if there are new messages
-        TOF.getInstance().searchAllNewMessages(false);
+        TOF.getInstance().searchAllUnreadMessages(false);
 
         tofAutomaticUpdateMenuItem.setSelected(frostSettings.getBoolValue(SettingsClass.BOARD_AUTOUPDATE_ENABLED));
 
@@ -993,7 +993,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
             // check if signed only+hideCheck+hideBad or blocking words settings changed
             if (optionsDlg.shouldReloadMessages()) {
                 // update the new msg. count for all boards
-                TOF.getInstance().searchAllNewMessages(true);
+                TOF.getInstance().searchAllUnreadMessages(true);
                 // reload all messages
                 tofTree_actionPerformed(null);
             }
