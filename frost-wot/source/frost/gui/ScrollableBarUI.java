@@ -5,35 +5,18 @@
  */
 package frost.gui;
 
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.LayoutManager;
-import java.awt.Point;
+import java.awt.*;
+import java.awt.event.*;
+import java.beans.*;
 
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.plaf.*;
 
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JViewport;
-import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-import javax.swing.ViewportLayout;
-
-import javax.swing.plaf.ComponentUI;
-
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
-public class ScrollableBarUI extends ComponentUI 
-                             implements SwingConstants, 
+public class ScrollableBarUI extends ComponentUI
+                             implements SwingConstants,
                                         MouseListener,
-                                        ChangeListener, 
+                                        ChangeListener,
                                         PropertyChangeListener {
 
   private ScrollableBar sb;
@@ -42,19 +25,26 @@ public class ScrollableBarUI extends ComponentUI
   private boolean pressed = false;
   private int inc;
 
-  public static ComponentUI createUI(JComponent c) {
+  public static ComponentUI createUI(final JComponent c) {
     return new ScrollableBarUI();
   }
 
-public void installUI(JComponent c) {
+@Override
+public void installUI(final JComponent c) {
 
     sb = (ScrollableBar)c;
-    
+
     inc = sb.getIncrement();
-    boolean small = sb.isSmallArrows();
+    final boolean small = sb.isSmallArrows();
 
     // Create the Buttons
-    int sbSize = ((Integer)(UIManager.get( "ScrollBar.width" ))).intValue();
+    final Object o = UIManager.get( "ScrollBar.width" );
+    final int sbSize;
+    if (o != null && o instanceof Number) {
+        sbSize = ((Number)o).intValue();
+    } else {
+        sbSize = 24;
+    }
     scrollB = createButton(sb.isHorizontal()?WEST:NORTH, sbSize, small);
     scrollB.setVisible(false);
     scrollB.addMouseListener(this);
@@ -62,34 +52,36 @@ public void installUI(JComponent c) {
     scrollF = createButton(sb.isHorizontal()?EAST:SOUTH, sbSize, small);
     scrollF.setVisible(false);
     scrollF.addMouseListener(this);
-    
-    int axis = sb.isHorizontal()?BoxLayout.X_AXIS:BoxLayout.Y_AXIS;
+
+    final int axis = sb.isHorizontal()?BoxLayout.X_AXIS:BoxLayout.Y_AXIS;
     sb.setLayout(new BoxLayout(sb, axis));
 
     scroll = new JViewport() {
         // Create a customized layout manager
+        @Override
         protected LayoutManager createLayoutManager() {
           return new ViewportLayout() {
-              public Dimension minimumLayoutSize(Container parent) {
-                Component view = ((JViewport)parent).getView();
+              @Override
+            public Dimension minimumLayoutSize(final Container parent) {
+                final Component view = ((JViewport)parent).getView();
                 if (view == null) {
                   return new Dimension(4, 4);
                 }
                 else {
-                  Dimension d = view.getPreferredSize();
+                  final Dimension d = view.getPreferredSize();
                   if (sb.isHorizontal()) {
                     return new Dimension(4, (int)d.getHeight());
                   }
                   else {
                     return new Dimension((int)d.getWidth(), 4);
                   }
-                }  
+                }
               }
             };
         }
       };
-    
-    Component box = sb.getComponent();
+
+    final Component box = sb.getComponent();
     scroll.setView(box);
 
     sb.add(scrollB);
@@ -101,14 +93,15 @@ public void installUI(JComponent c) {
     sb.addPropertyChangeListener(this);
   }
 
-  public void uninstallUI(JComponent c) {
+  @Override
+public void uninstallUI(final JComponent c) {
     // Remove the change listeners
     scroll.removeChangeListener(this);
     sb.removePropertyChangeListener(this);
   }
 
-  protected JButton createButton(int direction, int width, boolean small) {
-    JButton button = new ScrollButton(direction, width, small);
+  protected JButton createButton(final int direction, final int width, final boolean small) {
+    final JButton button = new ScrollButton(direction, width, small);
     button.setAlignmentX(0.5f);
     button.setAlignmentY(0.5f);
     return button;
@@ -116,12 +109,12 @@ public void installUI(JComponent c) {
 
   // PropertyChangeListner methods.
 
-  public void propertyChange(PropertyChangeEvent evt) {
+  public void propertyChange(final PropertyChangeEvent evt) {
     if ("increment".equals(evt.getPropertyName())) {
       inc = ((Integer)evt.getNewValue()).intValue();
     }
     else if ("smallArrows".equals(evt.getPropertyName())) {
-      boolean small = ((Boolean)evt.getNewValue()).booleanValue();
+      final boolean small = ((Boolean)evt.getNewValue()).booleanValue();
       ((ScrollButton)scrollB).setSmallArrows(small);
       ((ScrollButton)scrollF).setSmallArrows(small);
     }
@@ -132,8 +125,8 @@ public void installUI(JComponent c) {
 
   // ChangeListner methods.
 
-  public void stateChanged(ChangeEvent e) {
-    boolean cond = sb.isHorizontal() ?
+  public void stateChanged(final ChangeEvent e) {
+    final boolean cond = sb.isHorizontal() ?
       sb.getWidth() < scroll.getViewSize().width:
       sb.getHeight() < scroll.getViewSize().height;
     if (cond) {
@@ -149,28 +142,28 @@ public void installUI(JComponent c) {
 
   // MouseListener methods.
 
-  public void mouseClicked(MouseEvent e) {
+  public void mouseClicked(final MouseEvent e) {
   }
-  
-  public void mouseEntered(MouseEvent e) {
+
+  public void mouseEntered(final MouseEvent e) {
   }
-  
-  public void mouseExited(MouseEvent e) {
-    pressed = false;
-  }
-  
-  public void mouseReleased(MouseEvent e) {
+
+  public void mouseExited(final MouseEvent e) {
     pressed = false;
   }
 
-  public void mousePressed(MouseEvent e) {
+  public void mouseReleased(final MouseEvent e) {
+    pressed = false;
+  }
+
+  public void mousePressed(final MouseEvent e) {
     pressed = true;
     final Object o = e.getSource();
-    Thread scroller = new Thread(new Runnable() {
+    final Thread scroller = new Thread(new Runnable() {
       public void run() {
         int accl = 500;
         while (pressed) {
-          Point p = scroll.getViewPosition();
+          final Point p = scroll.getViewPosition();
           // ... "Compute new view position"
           if (sb.isHorizontal()) {
             if (o == scrollB) {
@@ -182,12 +175,12 @@ public void installUI(JComponent c) {
               }
             }
             else {
-              if (scroll.getViewSize().width - p.x - 
+              if (scroll.getViewSize().width - p.x -
                   scroll.getExtentSize().width > inc) {
                 p.x += inc;
               }
               else {
-                p.x = scroll.getViewSize().width - 
+                p.x = scroll.getViewSize().width -
                   scroll.getExtentSize().width;
                 scroll.setViewPosition(p);
                 return;
@@ -204,12 +197,12 @@ public void installUI(JComponent c) {
               }
             }
             else {
-              if (scroll.getViewSize().height - p.y - 
+              if (scroll.getViewSize().height - p.y -
                   scroll.getExtentSize().height > inc) {
                 p.y += inc;
               }
               else {
-                p.y = scroll.getViewSize().height - 
+                p.y = scroll.getViewSize().height -
                   scroll.getExtentSize().height;
                 scroll.setViewPosition(p);
                 return;
@@ -220,13 +213,16 @@ public void installUI(JComponent c) {
           scroll.setViewPosition(p);
           try {
             Thread.sleep(accl);
-            if (accl <= 10) accl = 10;
-            else accl /= 2;
-          } catch (InterruptedException ie) {}
+            if (accl <= 10) {
+                accl = 10;
+            } else {
+                accl /= 2;
+            }
+          } catch (final InterruptedException ie) {}
         }
       }
     });
     scroller.start();
   }
-  
+
 }
