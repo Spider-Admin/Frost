@@ -24,6 +24,7 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import frost.*;
+import frost.gui.*;
 import frost.util.gui.*;
 import frost.util.gui.search.*;
 import frost.util.gui.translation.*;
@@ -34,6 +35,8 @@ public class SearchPanel extends JPanel implements LanguageListener {
 
     private SearchSimpleToolBar searchSimpleToolBar;
     private SearchAdvancedToolBar searchAdvancedToolBar;
+
+    private ScrollableBar scrollableToolBar;
 
     private final ImageIcon searchIcon = MiscToolkit.loadImageIcon("/data/toolbar/system-search.png");
     private final ImageIcon clearIcon = MiscToolkit.loadImageIcon("/data/toolbar/user-trash.png");
@@ -55,7 +58,6 @@ public class SearchPanel extends JPanel implements LanguageListener {
 
     public SearchPanel() {
         super();
-
         language.addLanguageListener(this);
     }
 
@@ -65,6 +67,9 @@ public class SearchPanel extends JPanel implements LanguageListener {
             searchSimpleToolBar = new SearchSimpleToolBar();
             searchAdvancedToolBar = new SearchAdvancedToolBar();
 
+            // start in simple mode
+            scrollableToolBar = new ScrollableBar(searchSimpleToolBar);
+
             languageChanged(null);
 
             setLayout(new BorderLayout());
@@ -72,8 +77,7 @@ public class SearchPanel extends JPanel implements LanguageListener {
             searchTabs = new SearchCloseableTabbedPane();
             add(searchTabs, BorderLayout.CENTER);
 
-            // adds simple top panel
-            toggleMode(true); // start in simple mode
+            add(scrollableToolBar, BorderLayout.NORTH);
 
             isInitialized = true;
         }
@@ -82,14 +86,25 @@ public class SearchPanel extends JPanel implements LanguageListener {
     private void toggleMode(final boolean toSimpleMode) {
         if( toSimpleMode ) {
             // switch to simple
-            remove(searchAdvancedToolBar);
-            add(searchSimpleToolBar, BorderLayout.NORTH);
+            scrollableToolBar.setComponent(searchSimpleToolBar);
         } else {
             // switch to extented
-            remove(searchSimpleToolBar);
-            add(searchAdvancedToolBar, BorderLayout.NORTH);
+            scrollableToolBar.setComponent(searchAdvancedToolBar);
         }
         updateUI();
+    }
+
+    @Override
+    public void updateUI() {
+        super.updateUI();
+        // promote change of look&feel to both toolbars,
+        // one of them is currently not displayed
+        if (searchSimpleToolBar != null) {
+            searchSimpleToolBar.updateUI();
+        }
+        if (searchAdvancedToolBar != null) {
+            searchAdvancedToolBar.updateUI();
+        }
     }
 
     public void languageChanged(final LanguageEvent event) {
