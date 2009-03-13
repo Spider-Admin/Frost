@@ -45,6 +45,7 @@ public void installUI(final JComponent c) {
     } else {
         sbSize = 24;
     }
+
     scrollB = createButton(sb.isHorizontal()?WEST:NORTH, sbSize, small);
     scrollB.setVisible(false);
     scrollB.addMouseListener(this);
@@ -95,6 +96,10 @@ public void installUI(final JComponent c) {
 
   @Override
 public void uninstallUI(final JComponent c) {
+    sb.remove(scrollB);
+    sb.remove(scroll);
+    sb.remove(scrollF);
+    scroll.setViewPosition(new Point(0,0));
     // Remove the change listeners
     scroll.removeChangeListener(this);
     sb.removePropertyChangeListener(this);
@@ -224,5 +229,4 @@ public void uninstallUI(final JComponent c) {
     });
     scroller.start();
   }
-
 }
