@@ -18,21 +18,25 @@
 */
 package frost.fileTransfer.search;
 
+import java.util.logging.*;
+
 import frost.fileTransfer.*;
 import frost.fileTransfer.download.*;
 import frost.util.model.*;
 
 public class SearchModel extends SortedModel {
 
-    public SearchModel(SortedTableFormat f) {
+    final static Logger logger = Logger.getLogger(SearchModel.class.getName());
+
+    public SearchModel(final SortedTableFormat f) {
         super(f);
     }
 
-    public void addSearchItem(FrostSearchItem searchItem) {
+    public void addSearchItem(final FrostSearchItem searchItem) {
         addItem(searchItem);
     }
 
-    public void addItemsToDownloadTable(ModelItem[] selectedItems) {
+    public void addItemsToDownloadTable(final ModelItem[] selectedItems) {
 
         if( selectedItems == null ) {
             return;
@@ -41,10 +45,18 @@ public class SearchModel extends SortedModel {
         final DownloadModel downloadModel = FileTransferManager.inst().getDownloadManager().getModel();
 
         for (int i = selectedItems.length - 1; i >= 0; i--) {
-            FrostSearchItem searchItem = (FrostSearchItem) selectedItems[i];
-            FrostFileListFileObject flf = searchItem.getFrostFileListFileObject();
-            
-            FrostDownloadItem dlItem = new FrostDownloadItem(flf, flf.getDisplayName());
+            final FrostSearchItem searchItem = (FrostSearchItem) selectedItems[i];
+            final FrostFileListFileObject flf = searchItem.getFrostFileListFileObject();
+            String filename = flf.getDisplayName();
+            // maybe convert html codes (e.g. %2c -> , )
+            if( filename.indexOf("%") > 0 ) {
+                try {
+                    filename = java.net.URLDecoder.decode(filename, "UTF-8");
+                } catch (final java.io.UnsupportedEncodingException ex) {
+                    logger.log(Level.SEVERE, "Decode of HTML code failed", ex);
+                }
+            }
+            final FrostDownloadItem dlItem = new FrostDownloadItem(flf, filename);
             downloadModel.addDownloadItem(dlItem);
             searchItem.updateState();
         }

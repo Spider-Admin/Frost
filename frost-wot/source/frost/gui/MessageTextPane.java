@@ -739,8 +739,17 @@ public class MessageTextPane extends JPanel {
             final Iterator<FileAttachment> it = getItems().iterator();
             while (it.hasNext()) {
                 final FileAttachment fa = it.next();
+                String filename = fa.getFilename();
+                // maybe convert html codes (e.g. %2c -> , )
+                if( filename.indexOf("%") > 0 ) {
+                    try {
+                        filename = java.net.URLDecoder.decode(filename, "UTF-8");
+                    } catch (final java.io.UnsupportedEncodingException ex) {
+                        logger.log(Level.SEVERE, "Decode of HTML code failed", ex);
+                    }
+                }
                 final FrostDownloadItem dlItem = new FrostDownloadItem(
-                        fa.getFilename(),
+                        filename,
                         fa.getKey(),
                         fa.getFileSize());
                 getDownloadModel().addDownloadItem(dlItem);
@@ -890,7 +899,15 @@ public class MessageTextPane extends JPanel {
                 } else {
                     key = item;
                 }
-                final String name = item.substring(item.lastIndexOf("/")+1);
+                String name = item.substring(item.lastIndexOf("/")+1);
+                // maybe convert html codes (e.g. %2c -> , )
+                if( name.indexOf("%") > 0 ) {
+                    try {
+                        name = java.net.URLDecoder.decode(name, "UTF-8");
+                    } catch (final java.io.UnsupportedEncodingException ex) {
+                        logger.log(Level.SEVERE, "Decode of HTML code failed", ex);
+                    }
+                }
                 final FrostDownloadItem dlItem = new FrostDownloadItem(name, key);
                 getDownloadModel().addDownloadItem(dlItem);
             }
