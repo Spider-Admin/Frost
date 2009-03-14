@@ -20,11 +20,12 @@ package frost.fileTransfer.search;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 
 import javax.swing.*;
+import javax.swing.Box.*;
 
 import frost.*;
-import frost.gui.*;
 import frost.util.gui.*;
 import frost.util.gui.search.*;
 import frost.util.gui.translation.*;
@@ -35,8 +36,6 @@ public class SearchPanel extends JPanel implements LanguageListener {
 
     private SearchSimpleToolBar searchSimpleToolBar;
     private SearchAdvancedToolBar searchAdvancedToolBar;
-
-    private ScrollableBar scrollableToolBar;
 
     private final ImageIcon searchIcon = MiscToolkit.loadImageIcon("/data/toolbar/system-search.png");
     private final ImageIcon clearIcon = MiscToolkit.loadImageIcon("/data/toolbar/user-trash.png");
@@ -67,9 +66,6 @@ public class SearchPanel extends JPanel implements LanguageListener {
             searchSimpleToolBar = new SearchSimpleToolBar();
             searchAdvancedToolBar = new SearchAdvancedToolBar();
 
-            // start in simple mode
-            scrollableToolBar = new ScrollableBar(searchSimpleToolBar);
-
             languageChanged(null);
 
             setLayout(new BorderLayout());
@@ -77,7 +73,8 @@ public class SearchPanel extends JPanel implements LanguageListener {
             searchTabs = new SearchCloseableTabbedPane();
             add(searchTabs, BorderLayout.CENTER);
 
-            add(scrollableToolBar, BorderLayout.NORTH);
+            // adds simple top panel
+            toggleMode(true); // start in simple mode
 
             isInitialized = true;
         }
@@ -86,10 +83,12 @@ public class SearchPanel extends JPanel implements LanguageListener {
     private void toggleMode(final boolean toSimpleMode) {
         if( toSimpleMode ) {
             // switch to simple
-            scrollableToolBar.setComponent(searchSimpleToolBar);
+            remove(searchAdvancedToolBar);
+            add(searchSimpleToolBar, BorderLayout.NORTH);
         } else {
             // switch to extented
-            scrollableToolBar.setComponent(searchAdvancedToolBar);
+            remove(searchSimpleToolBar);
+            add(searchAdvancedToolBar, BorderLayout.NORTH);
         }
         updateUI();
     }
@@ -248,6 +247,51 @@ public class SearchPanel extends JPanel implements LanguageListener {
 
     private class SearchAdvancedToolBar extends JToolBar implements ActionListener {
 
+        // own JTextField, needed to do the first layout when components are not yet shown
+        class ChangedJtextfield extends JTextField {
+            int ownPreferredWidth = -1;
+            public ChangedJtextfield(final int i) {
+                super(i);
+            }
+            /**
+             * JTextField ignores
+             */
+            @Override
+            public Dimension getPreferredSize() {
+                if (ownPreferredWidth > -1) {
+                    final Dimension dim = super.getPreferredSize();
+                    dim.setSize(ownPreferredWidth, dim.getHeight());
+                    return dim;
+                } else {
+                    return super.getPreferredSize();
+                }
+            }
+            @Override
+            public Dimension getMaximumSize() {
+                if (ownPreferredWidth > -1) {
+                    final Dimension dim = super.getMaximumSize();
+                    dim.setSize(ownPreferredWidth, dim.getHeight());
+                    return dim;
+                } else {
+                    return super.getMaximumSize();
+                }
+            }
+            @Override
+            public Dimension getMinimumSize() {
+                if (ownPreferredWidth > -1) {
+                    final Dimension dim = super.getMinimumSize();
+                    dim.setSize(ownPreferredWidth, dim.getHeight());
+                    return dim;
+                } else {
+                    return super.getMinimumSize();
+                }
+            }
+            @Override
+            public void setPreferredSize(final Dimension dim) {
+                ownPreferredWidth = (int) dim.getWidth();
+            }
+        }
+
         private JTranslatableComboBox searchComboBox = null;
         private final JButton searchButton = new JButton(searchIcon);
         private final JButton clearButton = new JButton(clearIcon);
@@ -258,16 +302,69 @@ public class SearchPanel extends JPanel implements LanguageListener {
         private final JLabel searchKeywordsLabel = new JLabel();
         private final JLabel searchOwnerLabel = new JLabel();
 
-        private final JTextField searchNameTextField = new JTextField(18);
-        private final JTextField searchCommentTextField = new JTextField(18);
-        private final JTextField searchKeywordsTextField = new JTextField(18);
-        private final JTextField searchOwnerTextField = new JTextField(18);
+        private final ChangedJtextfield searchNameTextField = new ChangedJtextfield(18);
+        private final ChangedJtextfield searchCommentTextField = new ChangedJtextfield(18);
+        private final ChangedJtextfield searchKeywordsTextField = new ChangedJtextfield(18);
+        private final ChangedJtextfield searchOwnerTextField = new ChangedJtextfield(18);
 
         private final JButton searchOptionsButton = new JButton();
+
+        private final int JTEXTFIELD_MINIMUM_SIZE = 75;
+        private final int JTEXTFIELD_MAXIMUM_SIZE = 175;
 
         public SearchAdvancedToolBar() {
             super();
             initialize();
+        }
+
+        /**
+         * Overwritten to set the JTextField maxWidth to a value that fits for the
+         * current container size. All JTextFields are set to the same size.
+         */
+        @Override
+        public void doLayout() {
+            // Note: BoxLayout uses the maximumSize!
+            int nonJtextfieldComponentsWidth = 0;
+            final java.util.List<Integer> jtextfieldIndices = new ArrayList<Integer>(); // yes we use autoboxing
+            for (int x=0; x<getComponentCount(); x++) {
+                final Component c = getComponent(x);
+                if (c==null) {
+                    continue;
+                }
+                if (c instanceof ChangedJtextfield) {
+                    jtextfieldIndices.add(x);
+                } else if (c instanceof Filler) {
+                    // count width of all rigid areas, but not the width of the glue!
+                    if (((Filler)c).getMaximumSize().getWidth() != Short.MAX_VALUE) {
+                        nonJtextfieldComponentsWidth += c.getMaximumSize().getWidth();
+                    }
+                } else {
+                    // count width of all other components
+                    nonJtextfieldComponentsWidth += c.getMaximumSize().getWidth();
+                }
+            }
+
+            // don't ask me why, but l&fs other than windows need 20 pixel more space than the component indicate ...
+            nonJtextfieldComponentsWidth += 20;
+
+            // when 0 then we don't have any sizes yet.
+            if (nonJtextfieldComponentsWidth > 0 && jtextfieldIndices.size() > 0) {
+                final int remainingSpace = (int)getSize().getWidth() - nonJtextfieldComponentsWidth;
+                int spacePerJtextfield = remainingSpace / jtextfieldIndices.size();
+                spacePerJtextfield = Math.min(spacePerJtextfield, JTEXTFIELD_MAXIMUM_SIZE);
+                spacePerJtextfield = Math.max(spacePerJtextfield, JTEXTFIELD_MINIMUM_SIZE);
+
+                for (final int jtextfieldIndex : jtextfieldIndices) {
+                    final Component c = getComponent(jtextfieldIndex);
+                    if (c instanceof ChangedJtextfield) {
+                        c.setMaximumSize(new Dimension(spacePerJtextfield, (int)c.getMaximumSize().getHeight()));
+                        // again, don't ask why, but Nimbus look&feel uses the preferred size
+                        c.setPreferredSize(new Dimension(spacePerJtextfield, (int)c.getPreferredSize().getHeight()));
+                    }
+                }
+            }
+
+            super.doLayout();
         }
 
         private void initialize() {
