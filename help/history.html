@@ -9,9 +9,26 @@
   <BODY>
 <H2>Frost History</H2>
 <PRE>
-2009.03.xx:
+2009.03.14:
 ------------
 
+- added new preferences-option; board tree font can now be changed
+- number of messages in the [Outbox] is displayed
+- updated french translation (thanks to batosai)
+- correct count of todays messages is displayed in board info dialog
+- fixed bug within cleanup of file list, old owners were not deleted
+- repaired file sharing in general, it failed when the node created
+  new CHK keys for the same file
+- new option to enforce Frosts priority setting. When the priority is
+  externally changed then Frost resets it to its own value.
+  See Options->Preferences->Downloads and Uploads.
+  NOTE: The priority can only be enforced when Frost is running.
+- new feature to hide selected files in file search table. Hidden
+  files will never be shown again in a search, until you reset the
+  hidden state under Options->Preferences->Search.
+- board information window shows much more content and allows
+  delete of boards
+- fixed problems when using the Nimbus look&feel
 
 2008.03.04:
 ------------
