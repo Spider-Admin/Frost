@@ -201,22 +201,17 @@ public class UploadPanel extends JPanel {
         if( selectedFiles == null ) {
             return;
         }
-        String parentDir = null;
+
         final List<File> uploadFileItems = new LinkedList<File>();
         for( final File element : selectedFiles ) {
             // collect all choosed files + files in all choosed directories
-            final ArrayList<File> allFiles = FileAccess.getAllEntries(element, "");
-            for (final File newFile : allFiles) {
-                if (newFile.isFile() && newFile.length() > 0) {
-                    uploadFileItems.add(newFile);
-                    if( parentDir == null ) {
-                        parentDir = newFile.getParent(); // remember last upload dir
-                    }
-                }
-            }
+            uploadFileItems.addAll( FileAccess.getAllEntries(element) );
         }
-        if( parentDir != null ) {
-            Core.frostSettings.setValue(SettingsClass.DIR_LAST_USED, parentDir);
+
+        // remember last upload dir
+        if (uploadFileItems.size() > 0) {
+            final File file = uploadFileItems.get(0);
+            Core.frostSettings.setValue(SettingsClass.DIR_LAST_USED, file.getParent());
         }
 
         for(final File file : uploadFileItems ) {
