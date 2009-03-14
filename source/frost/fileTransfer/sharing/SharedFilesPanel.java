@@ -203,23 +203,16 @@ public class SharedFilesPanel extends JPanel {
         }
         @Override
         public void run() {
-            String parentDir = null;
             final List<File> uploadFileItems = new LinkedList<File>();
             for( final File element : selectedFiles ) {
                 // collect all choosed files + files in all choosed directories
-                final ArrayList<File> allFiles = FileAccess.getAllEntries(element, "");
-                for (int j = 0; j < allFiles.size(); j++) {
-                    final File newFile = allFiles.get(j);
-                    if (!newFile.isHidden() && newFile.isFile() && newFile.length() > 0) {
-                        uploadFileItems.add(newFile);
-                        if( parentDir == null ) {
-                            parentDir = newFile.getParent(); // remember last upload dir
-                        }
-                    }
-                }
+                uploadFileItems.addAll( FileAccess.getAllEntries(element) );
             }
-            if( parentDir != null ) {
-                Core.frostSettings.setValue(SettingsClass.DIR_LAST_USED, parentDir);
+
+            // remember last upload dir
+            if (uploadFileItems.size() > 0) {
+                final File file = uploadFileItems.get(0);
+                Core.frostSettings.setValue(SettingsClass.DIR_LAST_USED, file.getParent());
             }
 
             // create list of NewUploadFile objects

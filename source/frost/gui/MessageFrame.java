@@ -214,13 +214,11 @@ public class MessageFrame extends JFrame {
                 frostSettings.setValue(SettingsClass.DIR_LAST_USED, element.getPath());
 
                 // collect all choosed files + files in all choosed directories
-                final ArrayList<File> allFiles = FileAccess.getAllEntries(element, "");
+                final List<File> allFiles = FileAccess.getAllEntries(element);
                 for (int j = 0; j < allFiles.size(); j++) {
                     final File aFile = allFiles.get(j);
-                    if (aFile.isFile() && aFile.length() > 0) {
-                        final MFAttachedFile af = new MFAttachedFile( aFile );
-                        filesTableModel.addRow( af );
-                    }
+                    final MFAttachedFile af = new MFAttachedFile( aFile );
+                    filesTableModel.addRow( af );
                 }
             }
         }
