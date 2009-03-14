@@ -210,7 +210,7 @@ public class SharedFilesPanel extends JPanel {
                 final ArrayList<File> allFiles = FileAccess.getAllEntries(element, "");
                 for (int j = 0; j < allFiles.size(); j++) {
                     final File newFile = allFiles.get(j);
-                    if (newFile.isFile() && newFile.length() > 0) {
+                    if (!newFile.isHidden() && newFile.isFile() && newFile.length() > 0) {
                         uploadFileItems.add(newFile);
                         if( parentDir == null ) {
                             parentDir = newFile.getParent(); // remember last upload dir
@@ -304,7 +304,7 @@ public class SharedFilesPanel extends JPanel {
             fileCount = items.size();
         }
 
-        boolean okClicked = dlg.startDialog(singleFilename, fileCount, defaultItem);
+        final boolean okClicked = dlg.startDialog(singleFilename, fileCount, defaultItem);
         if( !okClicked ) {
             return;
         }
