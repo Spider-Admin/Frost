@@ -717,9 +717,26 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     }
 
     private void assignHotkeys() {
+
+        // TODO: also check TofTree.processKeyEvent() which forwards the hotkeys!
+
+    // assign F5 key - start board update
+        final Action boardUpdateAction = new AbstractAction() {
+            public void actionPerformed(final ActionEvent event) {
+                final TofTree tofTree = MainFrame.getInstance().getTofTree();
+                final Board selectedBoard = tofTree.getSelectedBoard();
+                if( selectedBoard == null ) {
+                    return;
+                }
+                tofTree.updateBoard(selectedBoard);
+            }
+        };
+        MainFrame.getInstance().setKeyActionForNewsTab(boardUpdateAction, "UPDATE_BOARD", KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0));
+
+
     // assign DELETE key - delete message
         final Action deleteMessageAction = new AbstractAction() {
-            public void actionPerformed(ActionEvent event) {
+            public void actionPerformed(final ActionEvent event) {
                 deleteSelectedMessage();
             }
         };
@@ -730,7 +747,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         messageTable.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).getParent().remove(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,0));
     // assign ENTER key - open message viewer
         final Action openMessageAction = new AbstractAction() {
-            public void actionPerformed(ActionEvent event) {
+            public void actionPerformed(final ActionEvent event) {
                 showCurrentMessagePopupWindow();
             }
         };
@@ -738,7 +755,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
     // assign N key - next unread (to whole news panel, including tree)
         final Action nextUnreadAction = new AbstractAction() {
-            public void actionPerformed(ActionEvent event) {
+            public void actionPerformed(final ActionEvent event) {
                 selectNextUnreadMessage();
             }
         };
@@ -1049,7 +1066,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     }
 
     private void toggleShowUnreadOnly_actionPerformed(final ActionEvent e) {
-        boolean oldValue = Core.frostSettings.getBoolValue(SettingsClass.SHOW_UNREAD_ONLY);
+        final boolean oldValue = Core.frostSettings.getBoolValue(SettingsClass.SHOW_UNREAD_ONLY);
         final boolean newValue = !oldValue;
         Core.frostSettings.setValue(SettingsClass.SHOW_UNREAD_ONLY, newValue);
         // reload messages
@@ -1057,7 +1074,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     }
 
     private void toggleShowThreads_actionPerformed(final ActionEvent e) {
-        boolean oldValue = Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS);
+        final boolean oldValue = Core.frostSettings.getBoolValue(SettingsClass.SHOW_THREADS);
         final boolean newValue = !oldValue;
         Core.frostSettings.setValue(SettingsClass.SHOW_THREADS, newValue);
         // reload messages
@@ -1065,14 +1082,14 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     }
 
     private void toggleShowSmileys_actionPerformed(final ActionEvent e) {
-        boolean oldValue = Core.frostSettings.getBoolValue(SettingsClass.SHOW_SMILEYS);
+        final boolean oldValue = Core.frostSettings.getBoolValue(SettingsClass.SHOW_SMILEYS);
         final boolean newValue = !oldValue;
         Core.frostSettings.setValue(SettingsClass.SHOW_SMILEYS, newValue);
         // redraw is done in textpane by propertychangelistener!
     }
 
     private void toggleShowHyperlinks_actionPerformed(final ActionEvent e) {
-        boolean oldValue = Core.frostSettings.getBoolValue(SettingsClass.SHOW_KEYS_AS_HYPERLINKS);
+        final boolean oldValue = Core.frostSettings.getBoolValue(SettingsClass.SHOW_KEYS_AS_HYPERLINKS);
         final boolean newValue = !oldValue;
         Core.frostSettings.setValue(SettingsClass.SHOW_KEYS_AS_HYPERLINKS, newValue);
         // redraw is done in textpane by propertychangelistener!
@@ -1358,7 +1375,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             public void run() {
                 // save message, we must save the changed deleted state into the database
                 for( final Object element : msgList ) {
-                    FrostMessageObject mo = (FrostMessageObject) element;
+                    final FrostMessageObject mo = (FrostMessageObject) element;
                     MessageStorage.inst().updateMessage(mo);
                 }
             }
@@ -1403,7 +1420,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             public void run() {
                 // save message, we must save the changed deleted state
                 for( final Object element : saveMessages ) {
-                    FrostMessageObject targetMessage = (FrostMessageObject)element;
+                    final FrostMessageObject targetMessage = (FrostMessageObject)element;
                     MessageStorage.inst().updateMessage(targetMessage);
                 }
             }
@@ -1437,7 +1454,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             public void run() {
                 // save message, we must save the changed deleted state
                 for( final Object element : saveMessages ) {
-                    FrostMessageObject targetMessage = (FrostMessageObject)element;
+                    final FrostMessageObject targetMessage = (FrostMessageObject)element;
                     MessageStorage.inst().updateMessage(targetMessage);
                 }
             }
