@@ -25,7 +25,6 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.event.*;
-import javax.swing.tree.*;
 
 import frost.*;
 import frost.threads.*;
@@ -363,7 +362,7 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
    private void maybeSyncBoards() {
        if( cbSyncWithBoardTree.isSelected() ) {
            // set current board to selected board in board tree
-           final Board selectedBoard = getSelectedBoardFromBoardTree();
+           final Board selectedBoard = tofTree.getSelectedBoard();
            if( selectedBoard == null ) {
                return;
            }
@@ -374,18 +373,5 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
            }
            cbBoards.setSelectedItem(selectedBoard);
        }
-   }
-
-   private Board getSelectedBoardFromBoardTree() {
-       final TreePath treePath = tofTree.getSelectionPath();
-       if( treePath == null ) {
-           return null;
-       }
-       final AbstractNode selectedNode = (AbstractNode)treePath.getLastPathComponent();
-       if( !selectedNode.isBoard() ) {
-           return null;
-       }
-       final Board selectedBoard = (Board)selectedNode;
-       return selectedBoard;
    }
 }

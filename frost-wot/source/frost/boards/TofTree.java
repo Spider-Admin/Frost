@@ -799,27 +799,33 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
 
     @Override
     protected void processKeyEvent(final KeyEvent e) {
-        // ugly hack to prevent the standard JTree idiom (selects nodes starting with pressed key)
+        // hack to prevent the standard JTree idiom (selects nodes starting with pressed key)
+        final MessagePanel msgPanel = MainFrame.getInstance().getMessagePanel();
+        Action action = null;
         if( e.getID()==KeyEvent.KEY_TYPED && (e.getKeyChar() == 'n' || e.getKeyChar() == 'N') ) {
-            MainFrame.getInstance().getMessagePanel().selectNextUnreadMessage();
+            action = msgPanel.getActionMap().get("NEXT_MSG");
         } else if( e.getID()==KeyEvent.KEY_TYPED && (e.getKeyChar() == 'b' || e.getKeyChar() == 'B') ) {
-            MainFrame.getInstance().getMessagePanel().setTrustState_actionPerformed(MessagePanel.IdentityState.BAD);
+            action = msgPanel.getActionMap().get("SET_BAD");
         } else if( e.getID()==KeyEvent.KEY_TYPED && (e.getKeyChar() == 'c' || e.getKeyChar() == 'C') ) {
-            MainFrame.getInstance().getMessagePanel().setTrustState_actionPerformed(MessagePanel.IdentityState.CHECK);
+            action = msgPanel.getActionMap().get("SET_CHECK");
         } else if( e.getID()==KeyEvent.KEY_TYPED && (e.getKeyChar() == 'o' || e.getKeyChar() == 'O') ) {
-            MainFrame.getInstance().getMessagePanel().setTrustState_actionPerformed(MessagePanel.IdentityState.OBSERVE);
+            action = msgPanel.getActionMap().get("SET_OBSERVE");
         } else if( e.getID()==KeyEvent.KEY_TYPED && (e.getKeyChar() == 'g' || e.getKeyChar() == 'G') ) {
-            MainFrame.getInstance().getMessagePanel().setTrustState_actionPerformed(MessagePanel.IdentityState.GOOD);
+            action = msgPanel.getActionMap().get("SET_GOOD");
         } else if( e.getID()==KeyEvent.KEY_TYPED && (e.getKeyChar() == 'f' || e.getKeyChar() == 'F') ) {
-            MainFrame.getInstance().getMessagePanel().updateBooleanState(MessagePanel.BooleanState.FLAGGED);
+            action = msgPanel.getActionMap().get("TOGGLE_FLAGGED");
         } else if( e.getID()==KeyEvent.KEY_TYPED && (e.getKeyChar() == 's' || e.getKeyChar() == 'S') ) {
-            MainFrame.getInstance().getMessagePanel().updateBooleanState(MessagePanel.BooleanState.STARRED);
+            action = msgPanel.getActionMap().get("TOGGLE_STARRED");
         } else if( e.getID()==KeyEvent.KEY_TYPED && (e.getKeyChar() == 'j' || e.getKeyChar() == 'J') ) {
-            MainFrame.getInstance().getMessagePanel().updateBooleanState(MessagePanel.BooleanState.JUNK);
+            action = msgPanel.getActionMap().get("TOGGLE_JUNK");
         } else if( Character.isLetter(e.getKeyChar()) || Character.isDigit(e.getKeyChar()) ) {
             // ignore
         } else {
             super.processKeyEvent(e);
+        }
+
+        if (action != null) {
+            action.actionPerformed(null);
         }
     }
 
@@ -1313,5 +1319,16 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
         return sentMessagesFolder;
     }
 
-
+    public Board getSelectedBoard() {
+        final TreePath treePath = getSelectionPath();
+        if( treePath == null ) {
+            return null;
+        }
+        final AbstractNode selectedNode = (AbstractNode)treePath.getLastPathComponent();
+        if( !selectedNode.isBoard() ) {
+            return null;
+        }
+        final Board selectedBoard = (Board)selectedNode;
+        return selectedBoard;
+    }
 }
