@@ -80,14 +80,8 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         }
     }
 
-    public boolean isDDA() {
-        if( Core.frostSettings.getBoolValue(SettingsClass.FCP2_USE_DDA)
-                && fcpConn.isDDA() )
-        {
-            return true;
-        } else {
-            return false;
-        }
+    public boolean isDDAPossible(final FcpSocket.DDAModes mode, final String dir) {
+        return fcpConn.isDDAPossible(mode, dir);
     }
 
     /**
@@ -538,7 +532,8 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         ulItem.setState(FrostUploadItem.STATE_PROGRESS);
 
         // start the upload
-        if( isDDA() ) {
+        final String uploadDir = ulItem.getFile().getParent();
+        if( isDDAPossible(FcpSocket.DDAModes.WANT_UPLOAD, uploadDir) ) {
             final boolean doMime;
             final boolean setTargetFileName;
             if( ulItem.isSharedFile() ) {
@@ -605,8 +600,9 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         dlItem.setState(FrostDownloadItem.STATE_PROGRESS);
 
         final String gqid = dlItem.getGqIdentifier();
-        final File targetFile = new File(Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD) + dlItem.getFilename());
-        dlItem.setDirect( !fcpTools.isDDA() ); // set before start!
+        final String downloadDir = Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD);
+        final File targetFile = new File(downloadDir + dlItem.getFilename());
+        dlItem.setDirect( !isDDAPossible(FcpSocket.DDAModes.WANT_DOWNLOAD, downloadDir) );
         fcpTools.startPersistentGet(
                 dlItem.getKey(),
                 gqid,

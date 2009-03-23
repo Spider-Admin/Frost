@@ -48,7 +48,7 @@ public class MessageTransferHandler implements NodeMessageListener {
     public void start() {
         fcpTools.getFcpPersistentConnection().addNodeMessageListener(this);
     }
-    // key umwandeln in | !!!
+
     public synchronized void enqueueTask(final MessageTransferTask task) {
 
         if( !isConnected ) {
@@ -171,7 +171,7 @@ public class MessageTransferHandler implements NodeMessageListener {
             final byte[] b = new byte[4096];
             long bytesLeft = dataLength;
             int count;
-            final BufferedInputStream fcpIn = fcpTools.getFcpPersistentConnection().getFcpSocket().getFcpIn();
+            final BufferedInputStream fcpIn = fcpTools.getFcpPersistentConnection().getFcpSocketIn();
             while( bytesLeft > 0 ) {
                 count = fcpIn.read(b, 0, ((bytesLeft > b.length)?b.length:(int)bytesLeft));
                 if( count < 0 ) {

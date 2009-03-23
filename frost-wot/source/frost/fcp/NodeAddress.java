@@ -27,10 +27,6 @@ public class NodeAddress {
     private String hostName = null; // avoid name lookup recursion in security manager
     private String hostIp = null; // avoid name lookup recursion in security manager
 
-    // for 0.7: during first connect test if DDA is possible
-    private boolean isDirectDiskAccessTested = false;
-    private boolean isDirectDiskAccessPossible = false;
-
     public NodeAddress(final InetAddress host, final int port, final String hostName, final String hostIp) {
         this.host = host;
         this.port = port;
@@ -49,18 +45,5 @@ public class NodeAddress {
     }
     public String getHostIp() {
         return hostIp;
-    }
-
-    public boolean isDirectDiskAccessTested() {
-        return isDirectDiskAccessTested;
-    }
-    public void setDirectDiskAccessTested(final boolean isDirectDiskAccessTested) {
-        this.isDirectDiskAccessTested = isDirectDiskAccessTested;
-    }
-    public boolean isDirectDiskAccessPossible() {
-        return isDirectDiskAccessPossible;
-    }
-    public void setDirectDiskAccessPossible(final boolean isDirectDiskAccessPossible) {
-        this.isDirectDiskAccessPossible = isDirectDiskAccessPossible;
     }
 }

@@ -28,20 +28,21 @@ import javax.swing.event.*;
 
 import frost.fcp.*;
 import frost.util.*;
+import frost.util.Logging;
 
 public class FcpMultiRequestConnection {
 
     private static final Logger logger = Logger.getLogger(FcpMultiRequestConnection.class.getName());
 
     private final NodeAddress nodeAddress;
-    
+
     private FcpSocket fcpSocket = null;
 
     private final ReentrantLock writeSocketLock;
-    
+
     private ReceiveThread receiveThread;
-    
-    private EventListenerList listenerList = new EventListenerList();
+
+    private final EventListenerList listenerList = new EventListenerList();
 
     /**
      * Create a connection to a host using FCP.
@@ -51,28 +52,32 @@ public class FcpMultiRequestConnection {
      * @exception UnknownHostException if the FCP host is unknown
      * @exception IOException if there is a problem with the connection to the FCP host.
      */
-    protected FcpMultiRequestConnection(NodeAddress na) throws UnknownHostException, IOException {
+    protected FcpMultiRequestConnection(final NodeAddress na) throws UnknownHostException, IOException {
 
         nodeAddress = na;
-        
-        fcpSocket = new FcpSocket(nodeAddress);
+
+        fcpSocket = new FcpSocket(nodeAddress, true);
 
         notifyConnected();
 
         writeSocketLock = new ReentrantLock(true);
-        
+
         receiveThread = new ReceiveThread(fcpSocket.getFcpIn());
         receiveThread.start();
     }
-    
-    public static FcpMultiRequestConnection createInstance(NodeAddress na) throws UnknownHostException, IOException {
+
+    public static FcpMultiRequestConnection createInstance(final NodeAddress na) throws UnknownHostException, IOException {
         return new FcpMultiRequestConnection(na);
     }
-    
-    public FcpSocket getFcpSocket() {
-        return fcpSocket;
+
+    public BufferedInputStream getFcpSocketIn() {
+        return fcpSocket.getFcpIn();
     }
-    
+
+    public boolean isDDAPossible(final FcpSocket.DDAModes mode, final String dir) {
+        return fcpSocket.isDDAPossible(mode, dir);
+    }
+
     protected void reconnect() {
         // we are disconnected
         notifyDisconnected();
@@ -81,9 +86,9 @@ public class FcpMultiRequestConnection {
         while(true) {
             logger.severe("reconnect try no. "+count);
             try {
-                fcpSocket = new FcpSocket(nodeAddress);
+                fcpSocket = new FcpSocket(nodeAddress, true);
                 break;
-            } catch(Throwable t) {
+            } catch(final Throwable t) {
                 logger.log(Level.SEVERE, "reconnect failed, exception catched: "+t.getMessage());
             }
             logger.severe("waiting 30 seconds before next reconnect try");
@@ -97,27 +102,23 @@ public class FcpMultiRequestConnection {
         receiveThread = new ReceiveThread(fcpSocket.getFcpIn());
         receiveThread.start();
     }
-    
-    public boolean isDDA() {
-        return fcpSocket.isDDA();
-    }
 
     public NodeAddress getNodeAddress() {
         return fcpSocket.getNodeAddress();
     }
-    
-    public void addNodeMessageListener(NodeMessageListener l) {
+
+    public void addNodeMessageListener(final NodeMessageListener l) {
         listenerList.add(NodeMessageListener.class, l);
     }
 
-    public void NodeMessageListener(NodeMessageListener  l) {
+    public void NodeMessageListener(final NodeMessageListener  l) {
         listenerList.remove(NodeMessageListener.class, l);
     }
-    
-    protected void handleNodeMessage(NodeMessage nodeMsg) {
-        String id = nodeMsg.getStringValue("Identifier");
+
+    protected void handleNodeMessage(final NodeMessage nodeMsg) {
+        final String id = nodeMsg.getStringValue("Identifier");
         // Guaranteed to return a non-null array
-        Object[] listeners = listenerList.getListenerList();
+        final Object[] listeners = listenerList.getListenerList();
         // Process the listeners last to first, notifying those that are interested in this event
         for (int i = listeners.length-2; i>=0; i-=2) {
             if (listeners[i] == NodeMessageListener.class) {
@@ -132,7 +133,7 @@ public class FcpMultiRequestConnection {
 
     protected void notifyConnected() {
         // Guaranteed to return a non-null array
-        Object[] listeners = listenerList.getListenerList();
+        final Object[] listeners = listenerList.getListenerList();
         // Process the listeners last to first, notifying those that are interested in this event
         for (int i = listeners.length-2; i>=0; i-=2) {
             if (listeners[i] == NodeMessageListener.class) {
@@ -143,7 +144,7 @@ public class FcpMultiRequestConnection {
 
     protected void notifyDisconnected() {
         // Guaranteed to return a non-null array
-        Object[] listeners = listenerList.getListenerList();
+        final Object[] listeners = listenerList.getListenerList();
         // Process the listeners last to first, notifying those that are interested in this event
         for (int i = listeners.length-2; i>=0; i-=2) {
             if (listeners[i] == NodeMessageListener.class) {
@@ -157,28 +158,27 @@ public class FcpMultiRequestConnection {
      * @param message     the message to send
      * @param sendEndMsg  if true EndMessage should be appended
      */
-    public boolean sendMessage(List<String> message, boolean sendEndMsg) {
+    public boolean sendMessage(final List<String> message, final boolean sendEndMsg) {
 
         writeSocketLock.lock();
         try {
-            if(Logging.inst().doLogFcp2Messages()) { 
+            if(Logging.inst().doLogFcp2Messages()) {
                 System.out.println("### SEND >>>>>>>");
             }
-            for(Iterator<String> i=message.iterator(); i.hasNext(); ) {
-                String msgLine = i.next();
+            for( final String msgLine : message ) {
                 fcpSocket.getFcpOut().println(msgLine);
-                if(Logging.inst().doLogFcp2Messages()) { 
+                if(Logging.inst().doLogFcp2Messages()) {
                     System.out.println(msgLine);
                 }
             }
             if( sendEndMsg ) {
                 fcpSocket.getFcpOut().println("EndMessage");
-                if(Logging.inst().doLogFcp2Messages()) { 
+                if(Logging.inst().doLogFcp2Messages()) {
                     System.out.println("*EndMessage*");
                 }
             }
-            boolean isError = fcpSocket.getFcpOut().checkError();
-            if(Logging.inst().doLogFcp2Messages()) { 
+            final boolean isError = fcpSocket.getFcpOut().checkError();
+            if(Logging.inst().doLogFcp2Messages()) {
                 System.out.println("### SEND <<<<<<< isError="+isError);
             }
             return isError;
@@ -187,25 +187,24 @@ public class FcpMultiRequestConnection {
         }
     }
 
-    public boolean sendMessageAndData(List<String> message, boolean sendEndMsg, File sourceFile) {
+    public boolean sendMessageAndData(final List<String> message, final boolean sendEndMsg, final File sourceFile) {
         writeSocketLock.lock();
         try {
-            if(Logging.inst().doLogFcp2Messages()) { 
+            if(Logging.inst().doLogFcp2Messages()) {
                 System.out.println("### SEND_DATA >>>>>>>");
             }
-            for(Iterator<String> i=message.iterator(); i.hasNext(); ) {
-                String msgLine = i.next();
+            for( final String msgLine : message ) {
                 fcpSocket.getFcpOut().println(msgLine);
-                if(Logging.inst().doLogFcp2Messages()) { 
+                if(Logging.inst().doLogFcp2Messages()) {
                     System.out.println(msgLine);
                 }
             }
             if( sendEndMsg ) {
                 fcpSocket.getFcpOut().println("Data");
             }
-            
+
             fcpSocket.getFcpOut().flush();
-            
+
             // send file
             final BufferedInputStream fileInput = new BufferedInputStream(new FileInputStream(sourceFile));
             while( true ) {
@@ -217,19 +216,19 @@ public class FcpMultiRequestConnection {
             }
             fileInput.close();
             fcpSocket.getFcpRawOut().flush();
-            
-            if(Logging.inst().doLogFcp2Messages()) { 
+
+            if(Logging.inst().doLogFcp2Messages()) {
                 System.out.println("### SEND_DATA <<<<<<<");
             }
             return false; // no error
-        } catch(Throwable t) {
+        } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Error sending file to socket", t);
             return true; // error
         } finally {
             writeSocketLock.unlock();
         }
     }
-        
+
     public void closeConnection() {
         fcpSocket.close();
     }
@@ -247,7 +246,7 @@ public class FcpMultiRequestConnection {
         // receive and process node messages
         boolean isSuccess = false;
         while(true) {
-            NodeMessage nodeMsg = NodeMessage.readMessage(fcpSocket.getFcpIn());
+            final NodeMessage nodeMsg = NodeMessage.readMessage(fcpSocket.getFcpIn());
             if( nodeMsg == null ) {
                 break;
             }
@@ -259,24 +258,25 @@ public class FcpMultiRequestConnection {
             // any other message means error here
             break;
         }
-        
+
         if( !isSuccess ) {
             throw new ConnectException();
         }
     }
-    
+
     private class ReceiveThread extends Thread {
-        
+
         private final BufferedInputStream fcpInp;
-        
-        public ReceiveThread(BufferedInputStream newFcpInp) {
+
+        public ReceiveThread(final BufferedInputStream newFcpInp) {
             super();
             this.fcpInp = newFcpInp;
         }
 
+        @Override
         public void run() {
             while(true) {
-                NodeMessage nodeMsg = NodeMessage.readMessage(fcpInp);
+                final NodeMessage nodeMsg = NodeMessage.readMessage(fcpInp);
                 if( nodeMsg == null ) {
                     break; // socket closed
                 } else {
@@ -287,7 +287,7 @@ public class FcpMultiRequestConnection {
 
             logger.severe("Socket closed, ReceiveThread ended, trying to reconnect");
             System.out.println("ReceiveThread ended, trying to reconnect");
-            
+
             reconnect();
         }
     }

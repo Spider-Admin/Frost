@@ -90,10 +90,6 @@ public class FcpMultiRequestConnectionTools {
         fcpPersistentConnection.sendMessage(msg, true);
     }
 
-    public boolean isDDA() {
-        return fcpPersistentConnection.isDDA();
-    }
-
     /**
      * Starts a new persistent get.
      * If DDA=false then the request is enqueued as DIRECT and must be retrieved manually
@@ -114,7 +110,8 @@ public class FcpMultiRequestConnectionTools {
         final int prio = Core.frostSettings.getIntValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_DOWNLOAD);
         msg.add("PriorityClass="+Integer.toString(prio));
 
-        if (isDDA()) {
+        final String downloadDir = targetFile.getParent();
+        if (getFcpPersistentConnection().isDDAPossible(FcpSocket.DDAModes.WANT_DOWNLOAD, downloadDir)) {
             msg.add("ReturnType=disk");
             msg.add("Filename=" + targetFile.getAbsolutePath());
             final File ddaTempFile = new File( targetFile.getAbsolutePath() + "-f");
