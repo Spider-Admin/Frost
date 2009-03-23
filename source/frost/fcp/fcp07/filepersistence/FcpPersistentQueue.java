@@ -34,24 +34,24 @@ public class FcpPersistentQueue implements NodeMessageListener {
     final private HashMap<String,FcpPersistentPut> uploadRequests = new HashMap<String,FcpPersistentPut>();
     final private HashMap<String,FcpPersistentGet> downloadRequests = new HashMap<String,FcpPersistentGet>();
 
-    public FcpPersistentQueue(FcpMultiRequestConnectionTools tools, IFcpPersistentRequestsHandler pman) {
+    public FcpPersistentQueue(final FcpMultiRequestConnectionTools tools, final IFcpPersistentRequestsHandler pman) {
         fcpTools = tools;
         persistenceHandler = pman;
     }
-    
+
     public void startThreads() {
         fcpTools.getFcpPersistentConnection().addNodeMessageListener(this);
         fcpTools.watchGlobal(true);
         fcpTools.listPersistentRequests();
     }
-    
+
     public Map<String,FcpPersistentPut> getUploadRequests() {
         return getUploadRequestsCopy();
     }
     public Map<String,FcpPersistentGet> getDownloadRequests() {
         return getDownloadRequestsCopy();
     }
-    
+
     public boolean isIdInGlobalQueue(final String id) {
         if( downloadRequests.containsKey(id) ) {
             return true;
@@ -71,7 +71,7 @@ public class FcpPersistentQueue implements NodeMessageListener {
     public synchronized Map<String,FcpPersistentGet> getDownloadRequestsCopy() {
         return (Map<String,FcpPersistentGet>)downloadRequests.clone();
     }
-    
+
     public void connected() {
         persistenceHandler.connected();
         // we are reconnected
@@ -86,18 +86,18 @@ public class FcpPersistentQueue implements NodeMessageListener {
         downloadRequests.clear();
     }
 
-    public void handleNodeMessage(NodeMessage nm) {
+    public void handleNodeMessage(final NodeMessage nm) {
         // handle a NodeMessage without identifier
     }
-    
+
     public void handleNodeMessage(final String id, final NodeMessage nm) {
 
-        if(Logging.inst().doLogFcp2Messages()) { 
+        if(Logging.inst().doLogFcp2Messages()) {
             System.out.println(">>>RCV>>>>");
             System.out.println("MSG="+nm);
             System.out.println("<<<<<<<<<<");
         }
-        
+
         if( nm.isMessageName("PersistentGet") ) {
             onPersistentGet(id, nm);
         } else if( nm.isMessageName("DataFound") ) {
@@ -125,7 +125,7 @@ public class FcpPersistentQueue implements NodeMessageListener {
             System.out.println("### INFO - Unhandled msg: "+nm);
         }
     }
-    
+
     protected void onPersistentGet(final String id, final NodeMessage nm) {
         if( downloadRequests.containsKey(id) ) {
             final FcpPersistentGet pg = downloadRequests.get(id);
@@ -142,7 +142,7 @@ public class FcpPersistentQueue implements NodeMessageListener {
         if( !downloadRequests.containsKey(id) ) {
             System.out.println("No item in download queue: "+nm);
         } else {
-            final FcpPersistentGet pg = downloadRequests.get(id); 
+            final FcpPersistentGet pg = downloadRequests.get(id);
             pg.setSuccess(nm);
             persistenceHandler.persistentRequestUpdated(pg);
         }
@@ -189,11 +189,11 @@ public class FcpPersistentQueue implements NodeMessageListener {
     }
     protected void onSimpleProgress(final String id, final NodeMessage nm) {
         if( downloadRequests.containsKey(id) ) {
-            FcpPersistentGet pg = downloadRequests.get(id); 
+            final FcpPersistentGet pg = downloadRequests.get(id);
             pg.setProgress(nm);
             persistenceHandler.persistentRequestUpdated(pg);
         } else if( uploadRequests.containsKey(id) ) {
-            FcpPersistentPut pg = uploadRequests.get(id); 
+            final FcpPersistentPut pg = uploadRequests.get(id);
             pg.setProgress(nm);
             persistenceHandler.persistentRequestUpdated(pg);
         } else {
@@ -203,7 +203,7 @@ public class FcpPersistentQueue implements NodeMessageListener {
     }
     protected void onPersistentRequestRemoved(final String id, final NodeMessage nm) {
         if( downloadRequests.containsKey(id) ) {
-            final FcpPersistentGet pg = downloadRequests.remove(id); 
+            final FcpPersistentGet pg = downloadRequests.remove(id);
             persistenceHandler.persistentRequestRemoved(pg);
         } else if( uploadRequests.containsKey(id) ) {
             final FcpPersistentPut pg = uploadRequests.remove(id);
@@ -222,7 +222,7 @@ public class FcpPersistentQueue implements NodeMessageListener {
                 pg.setPriority(newPriorityClass);
                 persistenceHandler.persistentRequestModified(pg);
             } else if( uploadRequests.containsKey(id) ) {
-                final FcpPersistentPut pg = uploadRequests.get(id); 
+                final FcpPersistentPut pg = uploadRequests.get(id);
                 pg.setPriority(newPriorityClass);
                 persistenceHandler.persistentRequestModified(pg);
             } else {
@@ -233,11 +233,11 @@ public class FcpPersistentQueue implements NodeMessageListener {
     }
     protected void onProtocolError(final String id, final NodeMessage nm) {
         if( downloadRequests.containsKey(id) ) {
-            final FcpPersistentGet pg = downloadRequests.get(id); 
+            final FcpPersistentGet pg = downloadRequests.get(id);
             pg.setFailed(nm);
             persistenceHandler.persistentRequestUpdated(pg);
         } else if( uploadRequests.containsKey(id) ) {
-            final FcpPersistentPut pg = uploadRequests.get(id); 
+            final FcpPersistentPut pg = uploadRequests.get(id);
             pg.setFailed(nm);
             persistenceHandler.persistentRequestUpdated(pg);
         } else {
@@ -245,7 +245,7 @@ public class FcpPersistentQueue implements NodeMessageListener {
             persistenceHandler.persistentRequestError(id, nm);
         }
     }
-    protected void onIdentifierCollision(String id, NodeMessage nm) {
+    protected void onIdentifierCollision(final String id, final NodeMessage nm) {
         // since we use the same unique gqid, most likly this request already runs!
         System.out.println("### ATTENTION ###: "+nm);
     }

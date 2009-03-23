@@ -22,19 +22,16 @@ import java.io.*;
 import java.net.*;
 import java.util.logging.*;
 
+import frost.*;
 import frost.fcp.*;
+import frost.util.Logging;
 
 public class FcpSocket {
 
     private static final Logger logger = Logger.getLogger(FcpSocket.class.getName());
 
     // This is the timeout set in Socket.setSoTimeout().
-    // The value was 900000 (15 minutes), but I often saw INSERT errors caused by a timeout in the read socket part;
-    //   this sometimes leaded to double inserted messages.
-    // Using infinite (0) is'nt a good idea, because due to freenet bugs it happened in the past that
-    //   the socket blocked forever.
-    // We now use with 60 minutes to be sure. mxbee (fuqid developer) told that he would maybe use 90 minutes!
-    private final static int TIMEOUT = 60 * 60 * 1000;
+    private final static int TIMEOUT = 90 * 60 * 1000;
 
     private final NodeAddress nodeAddress;
 
@@ -43,9 +40,16 @@ public class FcpSocket {
     private PrintStream fcpOut;
     private final BufferedOutputStream fcpRawOut;
 
-    private boolean useDDA;
+    private boolean assumeUploadDDAIsAllowed;
+    private boolean assumeDownloadDDAIsAllowed;
 
     private static long staticFcpConnectionId = 0;
+
+    public enum DDAModes {
+        WANT_DOWNLOAD,
+        WANT_UPLOAD,
+        WANT_DOWNLOAD_AND_UPLOAD
+    };
 
     public static synchronized String getNextFcpId() {
         final StringBuilder sb = new StringBuilder().append("fcps-").append(System.currentTimeMillis()).append(staticFcpConnectionId++);
@@ -55,28 +59,33 @@ public class FcpSocket {
     /**
      * Create a connection to a host using FCP
      *
-     * @param host the host to which we connect
-     * @param port the FCP port on the host
      * @exception UnknownHostException if the FCP host is unknown
      * @exception IOException if there is a problem with the connection to the FCP host.
      */
     public FcpSocket(final NodeAddress na) throws UnknownHostException, IOException {
+        this(na, false);
+    }
+
+    /**
+     * Create a connection to a host using FCP
+     *
+     * @exception UnknownHostException if the FCP host is unknown
+     * @exception IOException if there is a problem with the connection to the FCP host.
+     */
+    public FcpSocket(final NodeAddress na, final boolean infiniteTimeout) throws UnknownHostException, IOException {
         nodeAddress = na;
         fcpSock = new Socket(nodeAddress.getHost(), nodeAddress.getPort());
-        fcpSock.setSoTimeout(TIMEOUT);
+        if (!infiniteTimeout) {
+            fcpSock.setSoTimeout(TIMEOUT);
+        }
         fcpSock.setKeepAlive(true);
 
         fcpIn = new BufferedInputStream(fcpSock.getInputStream());
         fcpRawOut = new BufferedOutputStream(fcpSock.getOutputStream());
         fcpOut = new PrintStream(fcpSock.getOutputStream(), false, "UTF-8");
 
-        if( na.isDirectDiskAccessTested() ) {
-            useDDA = na.isDirectDiskAccessPossible();
-        } else {
-            useDDA = false;
-        }
-
         doHandshake();
+        readDDAConfig();
     }
 
     /**
@@ -94,10 +103,6 @@ public class FcpSocket {
 
     public NodeAddress getNodeAddress() {
         return nodeAddress;
-    }
-
-    public boolean isDDA() {
-        return useDDA;
     }
 
     public BufferedInputStream getFcpIn() {
@@ -169,5 +174,66 @@ public class FcpSocket {
         if( !isSuccess ) {
             throw new ConnectException();
         }
+    }
+
+    protected void readDDAConfig() {
+
+        // initialize
+        assumeUploadDDAIsAllowed = false;
+        assumeDownloadDDAIsAllowed = false;
+
+        if (!Core.frostSettings.getBoolValue(SettingsClass.FCP2_USE_DDA)) {
+            return;
+        }
+
+        /* Config keys:
+         * current.fcp.assumeUploadDDAIsAllowed=true
+         * current.fcp.assumeDownloadDDAIsAllowed=true
+         */
+        fcpOut.println("GetConfig");
+        fcpOut.println("WithCurrent=true");
+        fcpOut.println("EndMessage");
+        fcpOut.flush();
+
+        // receive and process node message
+        final NodeMessage nodeMsg = NodeMessage.readMessage(fcpIn);
+        if (nodeMsg != null && nodeMsg.isMessageName("ConfigData")) {
+            assumeUploadDDAIsAllowed = nodeMsg.getBoolValue("current.fcp.assumeUploadDDAIsAllowed");
+            assumeDownloadDDAIsAllowed = nodeMsg.getBoolValue("current.fcp.assumeDownloadDDAIsAllowed");
+        } else {
+            logger.severe("GetConfig FAILED! assumeDDA is false.");
+        }
+    }
+
+    // FIXME: use TestDDA, remember allowed dirs
+    public boolean isDDAPossible(final FcpSocket.DDAModes mode, final String dir) {
+
+        if( mode == null || dir == null) {
+            return false;
+        }
+
+        final boolean returnValue;
+        if (mode == DDAModes.WANT_DOWNLOAD || mode == DDAModes.WANT_DOWNLOAD_AND_UPLOAD) {
+            returnValue = isAssumeDownloadDDAIsAllowed();
+
+        } else if (mode == DDAModes.WANT_UPLOAD || mode == DDAModes.WANT_DOWNLOAD_AND_UPLOAD) {
+            returnValue = isAssumeUploadDDAIsAllowed();
+
+        } else {
+            logger.severe("Unknown DDA mode: "+mode+"; "+dir);
+            returnValue = false;
+        }
+        if(Logging.inst().doLogFcp2Messages()) {
+            System.out.println("isDDAPossible("+mode+", "+dir+"): "+returnValue);
+        }
+        return returnValue;
+    }
+
+    protected boolean isAssumeUploadDDAIsAllowed() {
+        return assumeUploadDDAIsAllowed;
+    }
+
+    protected boolean isAssumeDownloadDDAIsAllowed() {
+        return assumeDownloadDDAIsAllowed;
     }
 }

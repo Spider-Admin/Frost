@@ -23,7 +23,6 @@ import java.net.*;
 import java.util.*;
 import java.util.logging.*;
 
-import frost.*;
 import frost.fcp.*;
 import frost.util.*;
 
@@ -166,24 +165,6 @@ public class FcpFactory {
             // also, should we remove it from the settings (i.e. forever)?
 //            delegateRemove(selectedNode);
             throw e;
-        }
-// FIXME: dda!
-        // if node is connected the first time, test if dda is available!
-        if( Core.frostSettings.getBoolValue(SettingsClass.FCP2_USE_DDA) ) {
-            if( !selectedNode.isDirectDiskAccessTested() ) {
-                selectedNode.setDirectDiskAccessTested(true);
-                selectedNode.setDirectDiskAccessPossible(con.testNodeDDA());
-                // get a new connection
-                try {
-                    con = new FcpConnection(selectedNode);
-                } catch (final IOException e) {
-                    throw e;
-                }
-            }
-        } else {
-            // don't use DDA
-            selectedNode.setDirectDiskAccessTested(true);
-            selectedNode.setDirectDiskAccessPossible(false);
         }
         return con;
     }

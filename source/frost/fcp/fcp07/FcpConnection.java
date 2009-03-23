@@ -31,7 +31,6 @@ import frost.ext.*;
 import frost.fcp.*;
 import frost.fileTransfer.download.*;
 import frost.fileTransfer.upload.*;
-import frost.util.*;
 import frost.util.Logging;
 
 /**
@@ -119,7 +118,8 @@ public class FcpConnection {
         if( type == FcpHandler.TYPE_MESSAGE ) {
             useDDA = false;
         } else {
-            useDDA = fcpSocket.isDDA();
+            final String downloadDir = targetFile.getParent();
+            useDDA = fcpSocket.isDDAPossible(FcpSocket.DDAModes.WANT_DOWNLOAD, downloadDir);
         }
 
         if (useDDA) {
@@ -326,7 +326,8 @@ public class FcpConnection {
         if( type == FcpHandler.TYPE_MESSAGE ) {
             useDDA = false;
         } else {
-            useDDA = fcpSocket.isDDA();
+            final String uploadDir = sourceFile.getParent();
+            useDDA = fcpSocket.isDDAPossible(FcpSocket.DDAModes.WANT_UPLOAD, uploadDir);
         }
 
         BufferedOutputStream dataOutput = null;
@@ -581,94 +582,5 @@ public class FcpConnection {
     	} else {
     		return uri;
         }
-    }
-
-    public boolean testNodeDDA() {
-
-        final File testFile = createTestFile();
-        if( testFile == null ) {
-            return false;
-        }
-
-        fcpSocket.getFcpOut().println("ClientPut");
-        fcpSocket.getFcpOut().println("URI=CHK@");
-        fcpSocket.getFcpOut().println("Identifier=testdda-" + FcpSocket.getNextFcpId());
-        fcpSocket.getFcpOut().println("Verbosity=0");
-        fcpSocket.getFcpOut().println("MaxRetries=0");      // only one try, the node accepts the filename or net
-        fcpSocket.getFcpOut().println("PriorityClass=1");   // today, please ;)
-        fcpSocket.getFcpOut().println("GetCHKOnly=true");   // calculate the chk of 1k (the default testfile)
-        fcpSocket.getFcpOut().println("Global=false");
-        fcpSocket.getFcpOut().println("Persistence=connection");
-        fcpSocket.getFcpOut().println("DontCompress=true");
-        fcpSocket.getFcpOut().println("ClientToken=testdda");
-        fcpSocket.getFcpOut().println("UploadFrom=disk");
-        fcpSocket.getFcpOut().println("Filename=" + testFile.getAbsolutePath());
-        fcpSocket.getFcpOut().println("EndMessage");
-        fcpSocket.getFcpOut().flush();
-
-        boolean isSuccess = false;
-        while(true) {
-            final NodeMessage nodeMsg = NodeMessage.readMessage(fcpSocket.getFcpIn());
-            if( nodeMsg == null ) {
-                break;
-            }
-            if(Logging.inst().doLogFcp2Messages()) {
-                System.out.println("*TESTDDA** INFO - NodeMessage:");
-                System.out.println(nodeMsg.toString());
-            }
-
-            if( nodeMsg.isMessageName("PutSuccessful") ) {
-                System.out.println("DDA is possible!");
-                isSuccess = true;
-                break;
-            }
-
-            if( nodeMsg.isMessageName("PutFailed") ) {
-                System.out.println(nodeMsg.toString());
-                break;
-            }
-            if( nodeMsg.isMessageName("ProtocolError") ) {
-                System.out.println(nodeMsg.toString());
-                break;
-            }
-            if( nodeMsg.isMessageName("IdentifierCollision") ) {
-                System.out.println(nodeMsg.toString());
-                break;
-            }
-            if( nodeMsg.isMessageName("UnknownNodeIdentifier") ) {
-                System.out.println(nodeMsg.toString());
-                break;
-            }
-            if( nodeMsg.isMessageName("UnknownPeerNoteType") ) {
-                System.out.println(nodeMsg.toString());
-                break;
-            }
-        }
-
-        close();
-
-        testFile.delete();
-
-        return isSuccess;
-    }
-
-    /**
-     * Create an 1 kb file with random data to test if the node can access the file directly
-     * @return File  the file or null if somthing went wrong
-     */
-    private File createTestFile() {
-        final File file = FileAccess.createTempFile("dda_", ".tmp");
-        final byte[] b = new byte[1024];
-        Core.getCrypto().getSecureRandom().nextBytes(b);
-        try {
-            file.deleteOnExit();
-            final FileOutputStream os = new FileOutputStream(file);
-            os.write(b, 0, b.length);
-            os.close();
-        } catch (final IOException ex) {
-            logger.log(Level.SEVERE, "DDA testfile creation failed", ex);
-            return null;
-        }
-        return file;
     }
 }
