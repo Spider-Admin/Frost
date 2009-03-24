@@ -148,18 +148,12 @@ public class SettingsClass implements ExitSavable {
     public static final String UPLOAD_MAX_RETRIES = "uploadMaxRetries";
     public static final String UPLOAD_WAITTIME = "uploadRetriesWaitTime";
     public static final String UPLOAD_MAX_THREADS = "uploadThreads";
-    public static final String UPLOAD_FILE_HTL = "htlUpload";
-    public static final String UPLOAD_MAX_SPLITFILE_THREADS = "splitfileUploadThreads";
-    public static final String UPLOAD_REMOVE_CHUNKS = "removeOldUploadFileChunks";
 
     public static final String DOWNLOAD_MAX_THREADS = "downloadThreads";
     public static final String DOWNLOAD_MAX_RETRIES = "downloadMaxRetries";
     public static final String DOWNLOAD_WAITTIME = "downloadWaittime";
-    public static final String DOWNLOAD_TRY_ALL_SEGMENTS = "downloadTryAllSegments";
-    public static final String DOWNLOAD_DECODE_AFTER_EACH_SEGMENT = "downloadDecodeAfterEachSegment";
     public static final String DOWNLOAD_REMOVE_FINISHED = "removeFinishedDownloads";
     public static final String UPLOAD_REMOVE_FINISHED = "removeFinishedUploads";
-    public static final String DOWNLOAD_MAX_SPLITFILE_THREADS = "splitfileDownloadThreads";
 
     public static final String GQ_SHOW_EXTERNAL_ITEMS_DOWNLOAD = "showExternalGlobalQueueDownloads";
     public static final String GQ_SHOW_EXTERNAL_ITEMS_UPLOAD = "showExternalGlobalQueueUploads";
@@ -188,9 +182,6 @@ public class SettingsClass implements ExitSavable {
     public static final String SEARCH_HIDE_FILES_WITHOUT_CHK = "hideFilesWithoutChk";
 
     public static final String BOARDLIST_LAST_SELECTED_BOARD = "tofTreeSelectedRow";
-
-    public static final String MESSAGE_DOWNLOAD_HTL = "tofDownloadHtl";
-    public static final String MESSAGE_UPLOAD_HTL = "tofUploadHtl";
 
     public static final String MESSAGE_BLOCK_SUBJECT = "blockMessage";
     public static final String MESSAGE_BLOCK_SUBJECT_ENABLED = "blockMessageChecked";
@@ -919,10 +910,6 @@ public class SettingsClass implements ExitSavable {
         defaults.put(DOWNLOAD_MAX_RETRIES, "25");
         defaults.put(DOWNLOAD_WAITTIME, "5");
 
-        defaults.put(DOWNLOAD_DECODE_AFTER_EACH_SEGMENT, "true");
-        defaults.put(DOWNLOAD_TRY_ALL_SEGMENTS, "true");
-
-        defaults.put(UPLOAD_FILE_HTL, "21");
         defaults.put(MAX_MESSAGE_DISPLAY, "15");
         defaults.put(MAX_MESSAGE_DOWNLOAD, "5");
         defaults.put(ALWAYS_DOWNLOAD_MESSAGES_BACKLOAD, "false");
@@ -945,16 +932,10 @@ public class SettingsClass implements ExitSavable {
         defaults.put(SEARCH_HIDE_OBSERVE, "false");
         defaults.put(SEARCH_HIDE_FILES_WITHOUT_CHK, "false");
 
-        defaults.put(DOWNLOAD_MAX_SPLITFILE_THREADS, "30");
-        defaults.put(UPLOAD_MAX_SPLITFILE_THREADS, "15");
-        defaults.put(UPLOAD_REMOVE_CHUNKS, "true");
-
         defaults.put(GQ_SHOW_EXTERNAL_ITEMS_DOWNLOAD, "false");
         defaults.put(GQ_SHOW_EXTERNAL_ITEMS_UPLOAD, "false");
 
-        defaults.put(MESSAGE_DOWNLOAD_HTL, "23");
         defaults.put(BOARDLIST_LAST_SELECTED_BOARD, "0");
-        defaults.put(MESSAGE_UPLOAD_HTL, "21"); // HTL_MESSAGE_UPLOAD
         defaults.put(UPLOAD_MAX_THREADS, "3");
         defaults.put(ALTERNATE_EDITOR_ENABLED, "false");
         defaults.put(LAST_USED_FROMNAME, "Anonymous");

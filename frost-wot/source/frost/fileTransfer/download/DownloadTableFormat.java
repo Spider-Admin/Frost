@@ -25,7 +25,6 @@ import javax.swing.*;
 import javax.swing.table.*;
 
 import frost.*;
-import frost.fcp.*;
 import frost.fileTransfer.*;
 import frost.fileTransfer.common.*;
 import frost.util.*;
@@ -444,8 +443,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 
 			if (dli1.getFileSize() >= 0) {
                 size1 = dli1.getFileSize();
-            } else if( FcpHandler.isFreenet07()
-                           && dli1.getTotalBlocks() > 0
+            } else if( dli1.getTotalBlocks() > 0
                            && dli1.isFinalized() != null
                            && dli1.isFinalized().booleanValue() == true )
             {
@@ -458,8 +456,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 
             if (dli2.getFileSize() >= 0) {
                 size2 = dli2.getFileSize();
-            } else if( FcpHandler.isFreenet07()
-                           && dli2.getTotalBlocks() > 0
+            } else if( dli2.getTotalBlocks() > 0
                            && dli2.isFinalized() != null
                            && dli2.isFinalized().booleanValue() == true )
             {
@@ -630,8 +627,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
                     // size is set
                     return FormatterUtils.formatSize(downloadItem.getFileSize());
 
-                } else if( FcpHandler.isFreenet07()
-                           && downloadItem.getRequiredBlocks() > 0
+                } else if( downloadItem.getRequiredBlocks() > 0
                            && downloadItem.isFinalized() != null
                            && downloadItem.isFinalized().booleanValue() == true )
                 {

@@ -193,9 +193,6 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
                             .append(downKey)
                             .toString();
 
-                // for backload use fast download, deep for today
-                final boolean fastDownload = !downloadToday;
-
                 final boolean quicklyFailOnAdnf;
                 final int maxRetries;
                 if( Core.frostSettings.getBoolValue(SettingsClass.FCP2_QUICKLY_FAIL_ON_ADNF) ) {
@@ -212,7 +209,7 @@ public class MessageThread extends BoardUpdateThreadObject implements BoardUpdat
 
                 final long millisBefore = System.currentTimeMillis();
 
-                final MessageDownloaderResult mdResult = MessageDownloader.downloadMessage(downKey, index, maxRetries, fastDownload, logInfo);
+                final MessageDownloaderResult mdResult = MessageDownloader.downloadMessage(downKey, index, maxRetries, logInfo);
 
                 boardUpdateInformation.incCountTriedIndices();
                 boardUpdateInformation.addNodeTime(System.currentTimeMillis() - millisBefore);

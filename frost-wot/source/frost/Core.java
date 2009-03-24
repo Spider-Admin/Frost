@@ -92,11 +92,9 @@ public class Core implements FrostEventDispatcher  {
                 setFreenetOnline(true);
 
                 // on 0.7 check for "Testnet=true" and warn user
-                if( FcpHandler.isFreenet07() ) {
-                    for( final String val : nodeInfo ) {
-                        if( val.startsWith("Testnet") && val.indexOf("true") > 0 ) {
-                            runningOnTestnet = true;
-                        }
+                for( final String val : nodeInfo ) {
+                    if( val.startsWith("Testnet") && val.indexOf("true") > 0 ) {
+                        runningOnTestnet = true;
                     }
                 }
             }
@@ -116,7 +114,7 @@ public class Core implements FrostEventDispatcher  {
 
         // determine configured freenet version
         final int freenetVersion = frostSettings.getIntValue(SettingsClass.FREENET_VERSION); // only 7 is supported
-        if( freenetVersion != FcpHandler.FREENET_07 ) {
+        if( freenetVersion != 7 ) {
             MiscToolkit.showMessage(
                     language.getString("Core.init.UnsupportedFreenetVersionBody")+": "+freenetVersion,
                     JOptionPane.ERROR_MESSAGE,
@@ -149,22 +147,20 @@ public class Core implements FrostEventDispatcher  {
             return false;
         }
 
-        if( freenetVersion == FcpHandler.FREENET_07 ) {
-            if (nodes.size() > 1) {
-                if( frostSettings.getBoolValue(SettingsClass.FCP2_USE_PERSISTENCE) ) {
-                    // persistence is not possible with more than 1 node
-                    MiscToolkit.showMessage(
-                            "Persistence is not possible with more than 1 node. Persistence disabled.",
-                            JOptionPane.ERROR_MESSAGE,
-                            "Warning: Persistence is not possible");
-                    frostSettings.setValue(SettingsClass.FCP2_USE_PERSISTENCE, false);
-                }
+        if (nodes.size() > 1) {
+            if( frostSettings.getBoolValue(SettingsClass.FCP2_USE_PERSISTENCE) ) {
+                // persistence is not possible with more than 1 node
+                MiscToolkit.showMessage(
+                        "Persistence is not possible with more than 1 node. Persistence disabled.",
+                        JOptionPane.ERROR_MESSAGE,
+                        "Warning: Persistence is not possible");
+                frostSettings.setValue(SettingsClass.FCP2_USE_PERSISTENCE, false);
             }
         }
 
         // init the factory with configured nodes
         try {
-            FcpHandler.initializeFcp(nodes, freenetVersion);
+            FcpHandler.initializeFcp(nodes);
         } catch(final UnsupportedOperationException ex) {
             MiscToolkit.showMessage(
                     ex.getMessage(),

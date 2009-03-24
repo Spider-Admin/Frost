@@ -115,10 +115,7 @@ public class FileAttachmentUploadThread extends Thread {
                             FcpHandler.TYPE_FILE,
                             "CHK@",
                             fa.getInternalFile(),
-                            null,
-                            true, // doRedirect
-                            true, // removeLocalKey, insert with full HTL even if existing in local store
-                            true, // doMime
+                            true,
                             new FrostUploadItem());
 
                     if (result.isSuccess() || result.isKeyCollision()) {

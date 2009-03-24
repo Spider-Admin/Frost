@@ -34,7 +34,6 @@ import javax.swing.tree.*;
 import org.joda.time.*;
 
 import frost.*;
-import frost.fcp.*;
 import frost.gui.*;
 import frost.messages.*;
 import frost.storage.*;
@@ -46,8 +45,6 @@ import frost.util.gui.translation.*;
 public class TofTree extends JDragTree implements AutoSavable, ExitSavable, PropertyChangeListener {
 
     private static final String FROST_ANNOUNCE_NAME = "frost-announce";
-    private static final String FREENET_05_FROST_ANNOUNCE_PUBKEY = "SSK@7i~oLj~57mQVRrKfMxYgLULJ2r0PAgM";
-    // new 0.7 key
     private static final String FREENET_07_FROST_ANNOUNCE_PUBKEY = "SSK@l4YxTKAc-sCho~6w-unV6pl-uxIbfuGnGRzo3BJH0ck,4N48yl8E4rh9UPPV26Ev1ZGrRRgeGOTgw1Voka6lk4g,AQACAAE";
 
     private boolean showBoardDescriptionToolTips;
@@ -839,12 +836,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
         final File iniFile = new File(boardIniFilename);
         if( iniFile.exists() == false ) {
             logger.warning("boards.xml file not found, reading default file (will be saved to boards.xml on exit).");
-            String defaultBoardsFile;
-            if( FcpHandler.isFreenet05() ) {
-                defaultBoardsFile = "boards.xml.default";
-            } else {
-                defaultBoardsFile = "boards.xml.default07";
-            }
+            final String defaultBoardsFile = "boards.xml.default07";
             boardIniFilename = settings.getValue(SettingsClass.DIR_CONFIG) + defaultBoardsFile;
         }
 
@@ -859,12 +851,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
         }
 
         // check if the board 'frost-announce' is contained in the list, add it if not found
-        final String expectedPubkey;
-        if( FcpHandler.isFreenet05() ) {
-            expectedPubkey = FREENET_05_FROST_ANNOUNCE_PUBKEY;
-        } else {
-            expectedPubkey = FREENET_07_FROST_ANNOUNCE_PUBKEY;
-        }
+        final String expectedPubkey = FREENET_07_FROST_ANNOUNCE_PUBKEY;
 
         final List<Board> existingBoards = model.getAllBoards();
         boolean boardFound = false;
@@ -886,26 +873,24 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
         }
 
         // check all boards for obsolete 0.7 encryption key and warn user
-        if( FcpHandler.isFreenet07() ) {
-            final List<String> boardsWithObsoleteKeys = new ArrayList<String>();
-            for( final Board board : existingBoards ) {
-                if( board.getPublicKey() != null && board.getPublicKey().endsWith("AQABAAE") ) {
-                    boardsWithObsoleteKeys.add( board.getName() );
-                }
+        final List<String> boardsWithObsoleteKeys = new ArrayList<String>();
+        for( final Board board : existingBoards ) {
+            if( board.getPublicKey() != null && board.getPublicKey().endsWith("AQABAAE") ) {
+                boardsWithObsoleteKeys.add( board.getName() );
             }
-            if( boardsWithObsoleteKeys.size() > 0 ) {
-                final String title = language.getString("StartupMessage.uploadFile.boardsWithObsoleteKeysFound.title");
-                for( final String boardName : boardsWithObsoleteKeys ) {
-                    final String text = language.formatMessage("StartupMessage.uploadFile.boardsWithObsoleteKeysFound.text", boardName);
-                    final StartupMessage sm = new StartupMessage(
-                            StartupMessage.MessageType.BoardsWithObsoleteKeysFound,
-                            title,
-                            text,
-                            JOptionPane.ERROR_MESSAGE,
-                            true);
-                    MainFrame.enqueueStartupMessage(sm);
-                    logger.severe("Board with obsolete public key found: "+boardName);
-                }
+        }
+        if( boardsWithObsoleteKeys.size() > 0 ) {
+            final String title = language.getString("StartupMessage.uploadFile.boardsWithObsoleteKeysFound.title");
+            for( final String boardName : boardsWithObsoleteKeys ) {
+                final String text = language.formatMessage("StartupMessage.uploadFile.boardsWithObsoleteKeysFound.text", boardName);
+                final StartupMessage sm = new StartupMessage(
+                        StartupMessage.MessageType.BoardsWithObsoleteKeysFound,
+                        title,
+                        text,
+                        JOptionPane.ERROR_MESSAGE,
+                        true);
+                MainFrame.enqueueStartupMessage(sm);
+                logger.severe("Board with obsolete public key found: "+boardName);
             }
         }
 

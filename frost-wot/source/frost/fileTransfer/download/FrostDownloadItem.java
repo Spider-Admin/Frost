@@ -18,7 +18,6 @@
 package frost.fileTransfer.download;
 
 import frost.*;
-import frost.fcp.*;
 import frost.fileTransfer.*;
 import frost.storage.perst.filelist.*;
 import frost.util.*;
@@ -393,21 +392,16 @@ public class FrostDownloadItem extends ModelItem implements CopyToClipboardItem 
     }
 
     /**
-     * Builds a global queue identifier if running on 0.7.
-     * Returns null on 0.5.
+     * Builds a global queue identifier.
      */
     private String buildGqIdentifier(final String filename) {
-        if( FcpHandler.isFreenet07() ) {
-            return new StringBuilder()
-                .append("Frost-")
-                .append(filename.replace(' ', '_'))
-                .append("-")
-                .append(System.currentTimeMillis())
-                .append(Core.getCrypto().getSecureRandom().nextInt(10)) // 0-9
-                .toString();
-        } else {
-            return null;
-        }
+        return new StringBuilder()
+            .append("Frost-")
+            .append(filename.replace(' ', '_'))
+            .append("-")
+            .append(System.currentTimeMillis())
+            .append(Core.getCrypto().getSecureRandom().nextInt(10)) // 0-9
+            .toString();
     }
 
     public String getErrorCodeDescription() {

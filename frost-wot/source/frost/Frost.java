@@ -288,12 +288,6 @@ public class Frost {
             // extra check for OutputFormat (xercesImpl.jar)
             jarFileName = "xercesImpl.jar";
             Class.forName("org.apache.xml.serialize.OutputFormat");
-            // check for genChkImpl.jar
-            jarFileName = "genChkImpl.jar";
-            Class.forName("freenet.client.ClientKey");
-            // check for fecImpl.jar
-            jarFileName = "fecImpl.jar";
-            Class.forName("fecimpl.FECUtils");
             // check for datechooser.jar
             jarFileName = "datechooser.jar";
             Class.forName("mseries.ui.MDateEntryField");

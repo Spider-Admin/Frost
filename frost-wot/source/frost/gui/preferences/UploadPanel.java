@@ -23,7 +23,6 @@ import java.awt.*;
 import javax.swing.*;
 
 import frost.*;
-import frost.fcp.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
@@ -32,21 +31,10 @@ class UploadPanel extends JPanel {
     private SettingsClass settings = null;
     private Language language = null;
 
-    // 0.5 only
-    private final JLabel htlExplanationLabel = new JLabel();
-    private final JLabel htlLabel = new JLabel();
-    private final JTextField htlTextField = new JTextField(6);
-
-    private final JLabel splitfileThreadsExplanationLabel = new JLabel();
-    private final JLabel splitfileThreadsLabel = new JLabel();
-    private final JTextField splitfileThreadsTextField = new JTextField(6);
-
-    // 0.7 only
     private final JLabel priorityLabel = new JLabel();
     private final JTextField priorityTextField = new JTextField(6);
     private final JCheckBox enforceFrostPriorityFileUpload = new JCheckBox();
 
-    // common
     private final JLabel maxRetriesLabel = new JLabel();
     private final JTextField maxRetriesTextField = new JTextField(6);
     private final JLabel waitTimeLabel = new JLabel();
@@ -76,8 +64,6 @@ class UploadPanel extends JPanel {
         refreshLanguage();
 
         // We create the components
-        new TextComponentClipboardMenu(htlTextField, language);
-        new TextComponentClipboardMenu(splitfileThreadsTextField, language);
         new TextComponentClipboardMenu(threadsTextField, language);
         new TextComponentClipboardMenu(maxRetriesTextField, language);
         new TextComponentClipboardMenu(waitTimeTextField, language);
@@ -109,43 +95,21 @@ class UploadPanel extends JPanel {
         constraints.gridx = 1;
         add(threadsTextField, constraints);
 
-        if( FcpHandler.isFreenet07() ) {
-            constraints.gridy++;
-            constraints.gridx = 0;
-            add(priorityLabel, constraints);
-            constraints.gridx = 1;
-            add(priorityTextField, constraints);
-        } else {
-            constraints.gridy++;
-            constraints.gridx = 0;
-            add(htlLabel, constraints);
-            constraints.gridx = 1;
-            add(htlTextField, constraints);
-            constraints.gridx = 2;
-            add(htlExplanationLabel, constraints);
-
-            constraints.gridy++;
-            constraints.gridx = 0;
-            add(splitfileThreadsLabel, constraints);
-            constraints.gridx = 1;
-            add(splitfileThreadsTextField, constraints);
-            constraints.gridx = 2;
-            constraints.fill = GridBagConstraints.HORIZONTAL;
-            constraints.weightx = 1.0;
-            add(splitfileThreadsExplanationLabel, constraints);
-        }
+        constraints.gridy++;
+        constraints.gridx = 0;
+        add(priorityLabel, constraints);
+        constraints.gridx = 1;
+        add(priorityTextField, constraints);
 
         constraints.gridy++;
         constraints.gridx = 0;
         constraints.gridwidth = 3;
         add(logUploadsCheckBox, constraints);
 
-        if( FcpHandler.isFreenet07() ) {
-            constraints.gridy++;
-            constraints.gridx = 0;
-            constraints.gridwidth = 3;
-            add(enforceFrostPriorityFileUpload, constraints);
-        }
+        constraints.gridy++;
+        constraints.gridx = 0;
+        constraints.gridwidth = 3;
+        add(enforceFrostPriorityFileUpload, constraints);
 
         // glue
         constraints.gridy++;
@@ -159,13 +123,8 @@ class UploadPanel extends JPanel {
      * Load the settings of this panel
      */
     private void loadSettings() {
-        if( FcpHandler.isFreenet07() ) {
-            priorityTextField.setText(settings.getValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_UPLOAD));
-            enforceFrostPriorityFileUpload.setSelected(settings.getBoolValue(SettingsClass.FCP2_ENFORCE_FROST_PRIO_FILE_UPLOAD));
-        } else {
-            htlTextField.setText(settings.getValue(SettingsClass.UPLOAD_FILE_HTL));
-            splitfileThreadsTextField.setText(settings.getValue(SettingsClass.UPLOAD_MAX_SPLITFILE_THREADS));
-        }
+        priorityTextField.setText(settings.getValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_UPLOAD));
+        enforceFrostPriorityFileUpload.setSelected(settings.getBoolValue(SettingsClass.FCP2_ENFORCE_FROST_PRIO_FILE_UPLOAD));
         threadsTextField.setText(settings.getValue(SettingsClass.UPLOAD_MAX_THREADS));
         maxRetriesTextField.setText("" + settings.getIntValue(SettingsClass.UPLOAD_MAX_RETRIES));
         waitTimeTextField.setText("" + settings.getIntValue(SettingsClass.UPLOAD_WAITTIME));
@@ -183,28 +142,16 @@ class UploadPanel extends JPanel {
         maxRetriesLabel.setText(language.getString("Options.uploads.maximumNumberOfRetries"));
         threadsLabel.setText(language.getString("Options.uploads.numberOfSimultaneousUploads") + " (3)");
         logUploadsCheckBox.setText(language.getString("Options.uploads.logUploads"));
-        if( FcpHandler.isFreenet07() ) {
-            priorityLabel.setText(language.getString("Options.uploads.uploadPriority") + " (3)");
-            enforceFrostPriorityFileUpload.setText(language.getString("Options.uploads.enforceFrostPriorityFileUpload"));
-        } else {
-            htlLabel.setText(language.getString("Options.uploads.uploadHtl") + " (21)");
-            htlExplanationLabel.setText(language.getString("Options.uploads.uploadHtlExplanation"));
-            splitfileThreadsLabel.setText(language.getString("Options.uploads.numberOfSplitfileThreads") + " (15)");
-            splitfileThreadsExplanationLabel.setText(language.getString("Options.uploads.numberOfSplitfileThreadsExplanation"));
-        }
+        priorityLabel.setText(language.getString("Options.uploads.uploadPriority") + " (3)");
+        enforceFrostPriorityFileUpload.setText(language.getString("Options.uploads.enforceFrostPriorityFileUpload"));
     }
 
     /**
      * Save the settings of this panel
      */
     private void saveSettings() {
-        if( FcpHandler.isFreenet07() ) {
-            settings.setValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_UPLOAD, priorityTextField.getText());
-            settings.setValue(SettingsClass.FCP2_ENFORCE_FROST_PRIO_FILE_UPLOAD, enforceFrostPriorityFileUpload.isSelected());
-        } else {
-            settings.setValue(SettingsClass.UPLOAD_FILE_HTL, htlTextField.getText());
-            settings.setValue(SettingsClass.UPLOAD_MAX_SPLITFILE_THREADS, splitfileThreadsTextField.getText());
-        }
+        settings.setValue(SettingsClass.FCP2_DEFAULT_PRIO_FILE_UPLOAD, priorityTextField.getText());
+        settings.setValue(SettingsClass.FCP2_ENFORCE_FROST_PRIO_FILE_UPLOAD, enforceFrostPriorityFileUpload.isSelected());
         settings.setValue(SettingsClass.UPLOAD_MAX_THREADS, threadsTextField.getText());
         settings.setValue(SettingsClass.UPLOAD_MAX_RETRIES, maxRetriesTextField.getText());
         settings.setValue(SettingsClass.UPLOAD_WAITTIME, waitTimeTextField.getText());

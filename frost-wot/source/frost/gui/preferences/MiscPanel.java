@@ -24,7 +24,6 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import frost.*;
-import frost.fcp.*;
 import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
@@ -74,12 +73,6 @@ class MiscPanel extends JPanel {
 
         initialize();
         loadSettings();
-
-        if( FcpHandler.isFreenet05() ) {
-            // disable 0.7-only items
-            useDDACheckBox.setEnabled(false);
-            usePersistenceCheckBox.setEnabled(false);
-        }
     }
 
     private JPanel getLoggingPanel() {

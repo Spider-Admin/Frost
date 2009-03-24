@@ -19,15 +19,11 @@
 
 package frost.util;
 
-import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
 import frost.boards.*;
-import frost.fcp.*;
-import frost.fcp.fcp05.*;
-import frost.fileTransfer.upload.*;
 import frost.gui.*;
 import frost.messages.*;
 import frost.storage.*;
@@ -65,14 +61,6 @@ public class CleanUp {
 
         // each time run cleanup for perst storages
         cleanPerstStorages(boardList);
-
-        // on 0.5, delete old upload file chunks
-        if( Core.frostSettings.getBoolValue(SettingsClass.UPLOAD_REMOVE_CHUNKS)
-                && FcpHandler.isFreenet05() )
-        {
-            splashScreen.setText("Removing old upload chunks");
-            cleanup05UploadChunks();
-        }
 
         // cleanup and archive all X days
         final int cleanupDatabaseInterval = Core.frostSettings.getIntValue(SettingsClass.DB_CLEANUP_INTERVAL);
@@ -288,55 +276,5 @@ public class CleanUp {
         if( deletedCount > 0 ) {
             logger.warning("INFO: Finished to delete expired FileListFiles, deleted "+deletedCount+" rows.");
         }
-    }
-
-    /**
-     * Scans all 0.5 upload file chunks in LOCALDATA folder (.redirect, .checkblocks).
-     * Scans files currently in upload table.
-     * Deletes all chunks of files which are not in upload table.
-     */
-    private static void cleanup05UploadChunks() {
-
-        // upload items are already loaded into model
-        final List<FrostUploadItem> ulItems = Core.getInstance().getFileTransferManager().getUploadManager().getModel().getItems();
-
-        // prepare a Set of all known valid absolute filenames
-        final HashSet<String> ulItemFilePaths = new HashSet<String>();
-        for( final FrostUploadItem ulItem : ulItems ) {
-            final File uploadFile = ulItem.getFile();
-            final String ulFilename = FecSplitfile.convertUploadFilename(uploadFile);
-            final File checkBlocksFile = new File( ulFilename + FecSplitfile.FILE_CHECKBLOCKS_EXTENSION );
-            final File redirectFile = new File( ulFilename + FecSplitfile.FILE_REDIRECT_EXTENSION );
-
-            ulItemFilePaths.add(checkBlocksFile.getAbsolutePath());
-            ulItemFilePaths.add(redirectFile.getAbsolutePath());
-        }
-
-        // get a List of all files in LOCALDATA directory that have extension .redirect or .checkblocks
-        final File localdataDir = new File(Core.frostSettings.getValue(SettingsClass.DIR_LOCALDATA));
-
-        final FilenameFilter ffilter = new FilenameFilter() {
-            public boolean accept(final File dir, final String name) {
-                if( name.endsWith(FecSplitfile.FILE_CHECKBLOCKS_EXTENSION)
-                        || name.endsWith(FecSplitfile.FILE_REDIRECT_EXTENSION) )
-                {
-                    return true;
-                }
-                return false;
-            }
-        };
-
-        int deletedCount = 0;
-        long deletedSize = 0L;
-        final File[] allUploadChunks = localdataDir.listFiles(ffilter);
-        for( final File aFile : allUploadChunks ) {
-            if( aFile.isFile() && !ulItemFilePaths.contains(aFile.getAbsolutePath()) ) {
-                // file is not known, delete
-                deletedSize += aFile.length();
-                aFile.delete();
-                deletedCount++;
-            }
-        }
-        logger.warning("INFO: Finished to delete old upload file chunks, deleted "+deletedCount+" files, overall size "+deletedSize);
     }
 }

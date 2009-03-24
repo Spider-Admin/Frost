@@ -39,8 +39,6 @@
   <property name="res.dir" value="res"/>
   <property name="lib.dir" value="lib"/>
   <property name="specs.dir" value="specs"/>
-  <property name="src.dir.feclib" value="${lib.dir}/fecImpl"/>
-  <property name="src.dir.genchklib" value="${lib.dir}/genChkImpl"/>
   <property name="src.dir.datechooser" value="${lib.dir}/datechooser"/>
 
   <!--  Set the properties for the build area  -->
@@ -69,8 +67,6 @@
     <pathelement location="${lib.dir}/BCastle.jar"/>
     <pathelement location="${lib.dir}/perst15.jar"/>
     <pathelement location="${lib.dir}/joda-time.jar"/>
-    <pathelement location="${build.classes.feclib}"/>
-    <pathelement location="${build.classes.genchklib}"/>
     <pathelement location="${build.classes.datechooser}"/>
   </path>
 
@@ -105,8 +101,6 @@ Build log  : ${logfilename}</echo>
     <mkdir dir="${build.dir}"/>
 
     <delete quiet="true" dir="${build.classes}"/>
-   	<delete quiet="true" dir="${build.classes.feclib}"/>
-    <delete quiet="true" dir="${build.classes.genchklib}"/>
     <delete quiet="true" dir="${build.classes.datechooser}"/>
 
   </target>
@@ -119,33 +113,7 @@ Build log  : ${logfilename}</echo>
           description="--> compiles the source code">
     <mkdir dir="${build.dir}"/>
     <mkdir dir="${build.classes}"/>
-    <mkdir dir="${build.classes.feclib}"/>
-    <mkdir dir="${build.classes.genchklib}"/>
     <mkdir dir="${build.classes.datechooser}"/>
-
-    <javac srcdir="${src.dir.feclib}"
-           destdir="${build.classes.feclib}"
-    	   classpath="${src.dir.feclib}"
-	   	   debug="${debug}"		   debuglevel="${debuglevel}" 		deprecation="${deprecation}"
-    	   verbose="${verbose}"    optimize="${optimize}"
-    	   source="${source}"	   target="${target}">
-    </javac>
-    <copy todir="${build.classes.feclib}">
-        <fileset dir="${lib.dir}/fecImpl">
-            <include name="**/*.class"/>
-            <include name="**/*.properties"/>
-        </fileset>
-    </copy>
-
-    <javac srcdir="${src.dir.genchklib}"
-           destdir="${build.classes.genchklib}"
- 	   	   debug="${debug}"		   debuglevel="${debuglevel}" 		deprecation="${deprecation}"
- 	  	   verbose="${verbose}"    optimize="${optimize}"
- 	  	   source="${source}"	   target="${target}">
-        <classpath>
-            <pathelement location="${build.classes.feclib}"/>
-        </classpath>
-    </javac>
 
     <javac srcdir="${src.dir.datechooser}"
            destdir="${build.classes.datechooser}"
@@ -204,23 +172,6 @@ Build log  : ${logfilename}</echo>
     </jar>
 
     <delete quiet="true" file="${dist.dir}/frost.manifest"/>
-
-    <delete quiet="true" file="${dist.dir}/lib/fecImpl.jar"/>
-    <mkdir dir="${dist.dir}/lib"/>
-    <jar jarfile="${dist.dir}/lib/fecImpl.jar">
-      <fileset dir="${build.classes.feclib}">
-        <include name="**/*.class"/>
-        <include name="**/*.properties"/>
-      </fileset>
-    </jar>
-
-    <delete quiet="true" file="${dist.dir}/lib/genChkImpl.jar"/>
-    <mkdir dir="${dist.dir}/lib"/>
-    <jar jarfile="${dist.dir}/lib/genChkImpl.jar">
-      <fileset dir="${build.classes.genchklib}">
-        <include name="**/*.class"/>
-      </fileset>
-    </jar>
 
     <delete quiet="true" file="${dist.dir}/lib/datechooser.jar"/>
     <mkdir dir="${dist.dir}/lib"/>

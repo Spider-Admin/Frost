@@ -45,14 +45,6 @@ public class UploadManager implements ExitSavable {
     public void initialize(final List<FrostSharedFileItem> sharedFiles) throws StorageException {
         getPanel();
         getModel().initialize(sharedFiles);
-
-        // on 0.5, load progress of all files
-        if( FcpHandler.isFreenet05() ) {
-            for(int x=0; x < getModel().getItemCount(); x++) {
-                final FrostUploadItem item = (FrostUploadItem) getModel().getItemAt(x);
-                frost.fcp.fcp05.FcpInsert.updateProgress(item);
-            }
-        }
     }
 
     /**
@@ -203,7 +195,7 @@ public class UploadManager implements ExitSavable {
             final FrostUploadItem ulItem = (FrostUploadItem) model.getItemAt(i);
 
             // don't start disabled items
-            boolean itemIsEnabled = (ulItem.isEnabled()==null?true:ulItem.isEnabled().booleanValue());
+            final boolean itemIsEnabled = (ulItem.isEnabled()==null?true:ulItem.isEnabled().booleanValue());
             if( !itemIsEnabled ) {
                 continue;
             }
@@ -219,10 +211,6 @@ public class UploadManager implements ExitSavable {
             }
             // only start waiting items
             if (ulItem.getState() != FrostUploadItem.STATE_WAITING) {
-                continue;
-            }
-            // for 0.5 the encoding must be done before so we have a key
-            if( FcpHandler.isFreenet05() && ulItem.getKey() == null ) {
                 continue;
             }
             // check if items waittime between tries is expired so we could restart it
@@ -270,10 +258,10 @@ public class UploadManager implements ExitSavable {
     }
 
     private static final Comparator<FrostUploadItem> nextItemCmp = new Comparator<FrostUploadItem>() {
-        public int compare(FrostUploadItem value1, FrostUploadItem value2) {
+        public int compare(final FrostUploadItem value1, final FrostUploadItem value2) {
 
             // choose item that with lowest addedTime
-            int cmp1 = Mixed.compareLong(value1.getUploadAddedMillis(), value2.getUploadAddedMillis());
+            final int cmp1 = Mixed.compareLong(value1.getUploadAddedMillis(), value2.getUploadAddedMillis());
             if( cmp1 != 0 ) {
                 return cmp1;
             }
@@ -285,20 +273,16 @@ public class UploadManager implements ExitSavable {
             // compute remaining blocks
             if( value1.getTotalBlocks() > 0 && value1.getDoneBlocks() > 0 ) {
                 blocksTodo1 = value1.getTotalBlocks() - value1.getDoneBlocks();
-            } else if( FcpHandler.isFreenet05() && value1.getFileSize() <= frost.fcp.fcp05.FcpInsert.smallestChunk ) {
-                blocksTodo1 = 1; // 0.5, one block file
             } else {
                 blocksTodo1 = Integer.MAX_VALUE; // never started
             }
             if( value2.getTotalBlocks() > 0 && value2.getDoneBlocks() > 0 ) {
                 blocksTodo2 = value2.getTotalBlocks() - value2.getDoneBlocks();
-            } else if( FcpHandler.isFreenet05() && value2.getFileSize() <= frost.fcp.fcp05.FcpInsert.smallestChunk ) {
-                blocksTodo2 = 1; // 0.5, one block file
             } else {
                 blocksTodo2 = Integer.MAX_VALUE; // never started
             }
 
-            int cmp2 = Mixed.compareInt(blocksTodo1, blocksTodo2);
+            final int cmp2 = Mixed.compareInt(blocksTodo1, blocksTodo2);
             if( cmp2 != 0 ) {
                 return cmp2;
             }
