@@ -86,6 +86,7 @@ public class HelpHTMLEditorKit extends HTMLEditorKit {
      *
      * @return the model
      */
+    @Override
     public Document createDefaultDocument() {
     	StyleSheet styles = getStyleSheet();
     	StyleSheet ss = new StyleSheet();

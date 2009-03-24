@@ -96,6 +96,7 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
         refreshColumnNames();
     }
 
+    @Override
     public void setCellValue(Object value, ModelItem item, int columnIndex) { }
 
     public Object getCellValue(ModelItem item, int columnIndex) {
@@ -163,6 +164,7 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
         }
     }
 
+    @Override
     public void customizeTable(ModelTable lModelTable) {
         super.customizeTable(lModelTable);
         
@@ -288,6 +290,7 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
         public ShowContentTooltipRenderer() {
             super();
         }
+        @Override
         public Component getTableCellRendererComponent(
             JTable table,
             Object value,
@@ -314,6 +317,7 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
         public RightAlignRenderer() {
             super();
         }
+        @Override
         public Component getTableCellRendererComponent(
             JTable table,
             Object value,
@@ -466,6 +470,7 @@ class SharedFilesTableFormat extends SortedTableFormat implements LanguageListen
         public BaseRenderer() {
             super();
         }
+        @Override
         public Component getTableCellRendererComponent(
             JTable table,
             Object value,

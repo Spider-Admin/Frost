@@ -105,6 +105,7 @@ public class SentMessagesTableFormat extends SortedTableFormat implements Langua
         return new int[] {};
     }
 
+    @Override
     public void customizeTable(ModelTable lModelTable) {
         super.customizeTable(lModelTable);
         
@@ -252,6 +253,7 @@ public class SentMessagesTableFormat extends SortedTableFormat implements Langua
         public SubjectRenderer() {
             super();
         }
+        @Override
         public Component getTableCellRendererComponent(
             JTable table,
             Object value,
@@ -279,6 +281,7 @@ public class SentMessagesTableFormat extends SortedTableFormat implements Langua
         public ShowContentTooltipRenderer() {
             super();
         }
+        @Override
         public Component getTableCellRendererComponent(
             JTable table,
             Object value,
@@ -304,6 +307,7 @@ public class SentMessagesTableFormat extends SortedTableFormat implements Langua
         public ShowColoredLinesRenderer() {
             super();
         }
+        @Override
         public Component getTableCellRendererComponent(
             JTable table,
             Object value,

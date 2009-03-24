@@ -27,6 +27,7 @@ public class UnsentMessagesFolder extends AbstractNode  {
         super(newName);
     }
 
+    @Override
     public boolean isUnsentMessagesFolder() {
         return true;
     }

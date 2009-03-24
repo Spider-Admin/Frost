@@ -20,8 +20,6 @@ package frost.util;
 
 import java.util.logging.*;
 
-import javax.swing.*;
-
 import org.joda.time.*;
 
 import frost.*;

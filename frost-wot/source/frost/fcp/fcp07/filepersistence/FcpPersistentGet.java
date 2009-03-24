@@ -52,6 +52,7 @@ public class FcpPersistentGet extends FcpPersistentRequest {
         }
     }
     
+    @Override
     public boolean isPut() {
         return false;
     }
@@ -71,6 +72,7 @@ public class FcpPersistentGet extends FcpPersistentRequest {
         super.setSuccess();
     }
     
+    @Override
     public void setFailed(NodeMessage msg) {
         super.setFailed(msg);
         redirectURI = msg.getStringValue("RedirectURI");

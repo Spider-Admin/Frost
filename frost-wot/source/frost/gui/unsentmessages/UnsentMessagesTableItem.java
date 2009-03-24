@@ -68,6 +68,7 @@ public class UnsentMessagesTableItem extends ModelItem {
         }
     }
     
+    @Override
     public void fireChange() {
         super.fireChange();
     }

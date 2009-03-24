@@ -41,7 +41,8 @@ public class ModelTableHeader extends JTableHeader {
 		/* (non-Javadoc)
 		 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
 		 */
-		public void show(Component invoker, int x, int y) {
+		@Override
+        public void show(Component invoker, int x, int y) {
 			removeAll();
 			Iterator columns = modelTable.getColumns();
 			int i = 0;
@@ -88,14 +89,16 @@ public class ModelTableHeader extends JTableHeader {
 		/* (non-Javadoc)
 		 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
 		 */
-		public void mouseClicked(MouseEvent e) {
+		@Override
+        public void mouseClicked(MouseEvent e) {
 			headerClicked(e);
 		}
 
 		/* (non-Javadoc)
 		 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
 		 */
-		public void mouseReleased(MouseEvent e) {
+		@Override
+        public void mouseReleased(MouseEvent e) {
 			headerReleased(e);
 		}
 

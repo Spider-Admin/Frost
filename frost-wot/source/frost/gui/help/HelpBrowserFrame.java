@@ -25,7 +25,6 @@ import java.util.logging.*;
 import javax.swing.*;
 
 import frost.*;
-import frost.util.*;
 import frost.util.gui.*;
 
 public class HelpBrowserFrame extends JFrame {

@@ -213,7 +213,7 @@ class SearchThread extends Thread implements FileListCallback {
             String keyword = lowerCase(ob.getKeywords());
             
             for(int x=0; x < searchParams.getSimpleSearchNotStrings().size(); x++ ) {
-                String notString = (String) searchParams.getSimpleSearchNotStrings().get(x);
+                String notString = searchParams.getSimpleSearchNotStrings().get(x);
                 if( name.indexOf(notString) > -1 ) {
                     return false;
                 }
@@ -312,7 +312,7 @@ class SearchThread extends Thread implements FileListCallback {
         // mark all strings not found
         Map<String,Boolean> searchStrings = new HashMap<String,Boolean>();
         for(int x=0; x < searchParams.getSimpleSearchStrings().size(); x++) {
-            String string = (String) searchParams.getSimpleSearchStrings().get(x);
+            String string = searchParams.getSimpleSearchStrings().get(x);
             searchStrings.put(string, Boolean.FALSE);
         }
 
@@ -417,6 +417,7 @@ class SearchThread extends Thread implements FileListCallback {
         return isCancelRequested();
     }
 
+    @Override
     public void run() {
 
         allFileCount = 0;

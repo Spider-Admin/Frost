@@ -116,6 +116,7 @@ public class SentMessagesTable extends SortedModelTable {
             super();
         }
     
+        @Override
         public void mousePressed(MouseEvent e) {
 
             if (e.getClickCount() == 2) {
@@ -130,6 +131,7 @@ public class SentMessagesTable extends SortedModelTable {
             }
         }
     
+        @Override
         public void mouseReleased(MouseEvent e) {
             if ((e.getClickCount() == 1) && (e.isPopupTrigger())) {
     
@@ -213,6 +215,7 @@ public class SentMessagesTable extends SortedModelTable {
             refreshLanguage();
         }
     
+        @Override
         public void show(Component invoker, int x, int y) {
             removeAll();
     

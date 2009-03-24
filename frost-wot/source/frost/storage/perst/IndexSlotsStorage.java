@@ -116,7 +116,7 @@ public class IndexSlotsStorage extends AbstractFrostStorage implements ExitSavab
                                 dateObj,
                                 maxIntObj,
                                 true),
-                        Index.ASCENT_ORDER);
+                        GenericIndex.ASCENT_ORDER);
             while( i.hasNext() ) {
                 final IndexSlot gis = i.next();
                 storageRoot.slotsIndexIL.remove(gis); // also remove from IL index

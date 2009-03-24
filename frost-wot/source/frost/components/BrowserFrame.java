@@ -45,6 +45,7 @@ public class BrowserFrame extends JFrame {
     this.getContentPane().add(browser);
     }
 
+    @Override
     protected void processWindowEvent(WindowEvent e) {
     if (e.getID() == WindowEvent.WINDOW_CLOSING) {
         dispose();

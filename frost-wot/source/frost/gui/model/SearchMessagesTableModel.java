@@ -46,6 +46,7 @@ public class SearchMessagesTableModel extends SortedTableModel implements Langua
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#isCellEditable(int, int)
      */
+    @Override
     public boolean isCellEditable(int row, int col) {
         return false;
     }
@@ -53,6 +54,7 @@ public class SearchMessagesTableModel extends SortedTableModel implements Langua
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getColumnName(int)
      */
+    @Override
     public String getColumnName(int column) {
         if( column >= 0 && column < columnNames.length )
             return columnNames[column];
@@ -62,6 +64,7 @@ public class SearchMessagesTableModel extends SortedTableModel implements Langua
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getColumnCount()
      */
+    @Override
     public int getColumnCount() {
         return columnNames.length;
     }
@@ -69,6 +72,7 @@ public class SearchMessagesTableModel extends SortedTableModel implements Langua
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getColumnClass(int)
      */
+    @Override
     public Class getColumnClass(int column) {
         if( column >= 0 && column < columnClasses.length )
             return columnClasses[column];

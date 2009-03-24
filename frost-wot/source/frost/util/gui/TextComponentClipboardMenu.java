@@ -50,13 +50,15 @@ public class TextComponentClipboardMenu extends MouseAdapter implements Clipboar
 		textComponent.addMouseListener(this);
 	}
 	
-	public void mousePressed(MouseEvent e) {
+	@Override
+    public void mousePressed(MouseEvent e) {
 		if (e.isPopupTrigger() && textComponent.isEnabled()) {
 			showPopup(e.getX(), e.getY());
 		}
 	}
 	
-	public void mouseReleased(MouseEvent e) {
+	@Override
+    public void mouseReleased(MouseEvent e) {
 		if (e.isPopupTrigger() && textComponent.isEnabled()) {
 			showPopup(e.getX(), e.getY());
 		}

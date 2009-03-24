@@ -256,7 +256,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
     private class IsEnabledRenderer extends JCheckBox implements TableCellRenderer {
         public IsEnabledRenderer() {
             super();
-            setHorizontalAlignment(JLabel.CENTER);
+            setHorizontalAlignment(SwingConstants.CENTER);
         }
         public Component getTableCellRendererComponent(
             final JTable table,

@@ -24,6 +24,7 @@ import javax.swing.tree.*;
 
 //@author Santhosh Kumar T - santhosh@in.fiorano.com 
 public class TreeFindAction extends FindAction{ 
+    @Override
     protected boolean changed(JComponent comp2, String searchString, Position.Bias bias){ 
         JTree tree = (JTree)comp2; 
         boolean startingFromSelection = true; 

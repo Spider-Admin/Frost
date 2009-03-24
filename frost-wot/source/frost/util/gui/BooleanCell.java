@@ -33,7 +33,7 @@ public class BooleanCell {
 		public Editor() {
 			super(new JCheckBox());
 			JCheckBox checkBox = (JCheckBox) getComponent();
-			checkBox.setHorizontalAlignment(JCheckBox.CENTER);
+			checkBox.setHorizontalAlignment(SwingConstants.CENTER);
 		}
 	}
 	
@@ -44,7 +44,7 @@ public class BooleanCell {
 
 		public Renderer() {
 			super();
-			setHorizontalAlignment(JLabel.CENTER);	
+			setHorizontalAlignment(SwingConstants.CENTER);	
 		}
 
 		/* (non-Javadoc)

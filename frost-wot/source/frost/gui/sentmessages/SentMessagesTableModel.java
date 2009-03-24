@@ -32,7 +32,7 @@ public class SentMessagesTableModel extends SortedModel {
     public void loadTableModel() {
         List<FrostMessageObject> msgs = SentMessagesManager.retrieveSentMessages();
         for( Iterator<FrostMessageObject> i = msgs.iterator(); i.hasNext(); ) {
-            FrostMessageObject mo = (FrostMessageObject) i.next();
+            FrostMessageObject mo = i.next();
             SentMessagesTableItem item = new SentMessagesTableItem(mo);
             addSendMessageItem(item);
         }
@@ -47,6 +47,7 @@ public class SentMessagesTableModel extends SortedModel {
         addSendMessageItem(item);
     }
     
+    @Override
     public boolean removeItems(ModelItem[] selectedItems) {
         LinkedList<FrostMessageObject> itemsToDelete = new LinkedList<FrostMessageObject>();
         for( int x = selectedItems.length - 1; x >= 0; x-- ) {

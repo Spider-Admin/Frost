@@ -39,8 +39,19 @@ public class Startup {
         copyFiles();
         cleanTempDir(settings);
 
-        // remove mckoidb.jar
-        final File oldJarFile = new File("lib/mckoidb.jar");
+        File oldJarFile;
+        // remove fec-native.jar
+        oldJarFile = new File("lib/fec-native.jar");
+        if( oldJarFile.isFile() ) {
+            oldJarFile.delete();
+        }
+        // remove fecImpl.jar
+        oldJarFile = new File("lib/fecImpl.jar");
+        if( oldJarFile.isFile() ) {
+            oldJarFile.delete();
+        }
+        // remove genChkImpl.jar
+        oldJarFile = new File("lib/genChkImpl.jar");
         if( oldJarFile.isFile() ) {
             oldJarFile.delete();
         }

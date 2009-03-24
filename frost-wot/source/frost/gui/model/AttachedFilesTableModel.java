@@ -50,6 +50,7 @@ public class AttachedFilesTableModel extends DefaultTableModel implements Langua
         refreshLanguage();
     }
 
+    @Override
     public boolean isCellEditable(int row, int col) {
         return false;
     }
@@ -94,16 +95,19 @@ public class AttachedFilesTableModel extends DefaultTableModel implements Langua
         }
     }
 
+    @Override
     public String getColumnName(int column) {
         if( column >= 0 && column < columnNames.length )
             return columnNames[column];
         return null;
     }
 
+    @Override
     public int getColumnCount() {
         return columnNames.length;
     }
 
+    @Override
     public Class getColumnClass(int column) {
         if( column >= 0 && column < columnClasses.length )
             return columnClasses[column];
@@ -119,6 +123,7 @@ public class AttachedFilesTableModel extends DefaultTableModel implements Langua
         public NumberRightRenderer() {
             super();
         }
+        @Override
         public Component getTableCellRendererComponent(
             JTable table,
             Object value,

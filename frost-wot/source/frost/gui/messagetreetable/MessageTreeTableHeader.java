@@ -25,7 +25,6 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.table.*;
 
-import frost.util.*;
 import frost.util.gui.*;
 
 public class MessageTreeTableHeader extends JTableHeader {
@@ -132,7 +131,7 @@ public class MessageTreeTableHeader extends JTableHeader {
                     } else {
                         labelRenderer.setIcon(descendingIcon);
                     }
-                    labelRenderer.setHorizontalTextPosition(JLabel.LEADING);
+                    labelRenderer.setHorizontalTextPosition(SwingConstants.LEADING);
                 } else {
                     labelRenderer.setIcon(null);
                 }

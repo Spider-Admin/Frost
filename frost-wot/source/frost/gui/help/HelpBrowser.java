@@ -29,7 +29,6 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
 
-import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 

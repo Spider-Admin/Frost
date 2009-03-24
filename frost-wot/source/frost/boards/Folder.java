@@ -38,6 +38,7 @@ public class Folder extends AbstractNode {
         Collections.sort(children);
     }
 
+    @Override
     public boolean containsUnreadMessages() {
         for (int i = 0; i < getChildCount(); i++) {
             AbstractNode an = (AbstractNode) getChildAt(i);
@@ -48,10 +49,12 @@ public class Folder extends AbstractNode {
         return false;
     }
 
+    @Override
     public boolean isFolder() {
         return true;
     }
     
+    @Override
     public boolean isLeaf() {
         return false;
     }

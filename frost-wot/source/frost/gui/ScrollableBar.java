@@ -34,11 +34,13 @@ public class ScrollableBar extends JComponent implements SwingConstants {
     updateUI();
   }
 
-  public String getUIClassID() {
+  @Override
+public String getUIClassID() {
     return "ScrollableBarUI";
   }
 
-  public void updateUI() {
+  @Override
+public void updateUI() {
     setUI(UIManager.getUI(this));
     invalidate();
   }

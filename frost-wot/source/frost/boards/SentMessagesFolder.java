@@ -27,6 +27,7 @@ public class SentMessagesFolder extends AbstractNode {
         super(newName);
     }
 
+    @Override
     public boolean isSentMessagesFolder() {
         return true;
     }

@@ -35,6 +35,7 @@ public class GenerateChkThread extends Thread {
         uploadItem = ulItem;
     }
 
+    @Override
     public void run() {
         ticker.generatingThreadStarted();
         try {

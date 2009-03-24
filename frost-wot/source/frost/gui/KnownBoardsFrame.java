@@ -82,7 +82,7 @@ public class KnownBoardsFrame extends JDialog {
         catch( final Exception e ) {
             logger.log(Level.SEVERE, "Exception thrown in constructor", e);
         }
-        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setSize((int) (parent.getWidth() * 0.75),
                 (int) (parent.getHeight() * 0.75));
         setLocationRelativeTo( parent );
