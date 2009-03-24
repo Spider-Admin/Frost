@@ -50,7 +50,6 @@ public class MessageUploader {
         File uploadFile;
         File unsentMessageFile;
         MessageUploaderCallback callback;
-        byte[] signMetadata;
         Identity encryptForRecipient;
         LocalIdentity senderId;
         JFrame parentFrame;
