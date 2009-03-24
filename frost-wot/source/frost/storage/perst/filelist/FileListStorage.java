@@ -57,7 +57,7 @@ public class FileListStorage extends AbstractFrostStorage implements ExitSavable
         Core.frostSettings.addPropertyChangeListener(SettingsClass.REMEMBER_SHAREDFILE_DOWNLOADED, this);
 
         final String databaseFilePath = buildStoragePath(getStorageFilename()); // path to the database file
-        final int pagePoolSize = getPagePoolSize(SettingsClass.PERST_PAGEPOOLSIZE_FILELIST);
+        final long pagePoolSize = getPagePoolSize(SettingsClass.PERST_PAGEPOOLSIZE_FILELIST);
 
         open(databaseFilePath, pagePoolSize, true, true, false);
 

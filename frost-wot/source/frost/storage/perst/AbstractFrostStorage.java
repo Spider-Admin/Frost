@@ -40,7 +40,7 @@ public abstract class AbstractFrostStorage {
 
     protected void open(
             final String databaseFilePath,
-            final int pagePoolSize,
+            final long pagePoolSize,
             final boolean utf8Encoding,
             final boolean concurrentIterator,
             final boolean serializeTransientObjects)
@@ -211,12 +211,12 @@ public abstract class AbstractFrostStorage {
      * Retrieves the configured page pool size for the provided key (in KiB),
      * returns the value in bytes.
      */
-    protected int getPagePoolSize(final String configKey) {
-        int pagePoolSize = Core.frostSettings.getIntValue(configKey);
+    protected long getPagePoolSize(final String configKey) {
+        long pagePoolSize = Core.frostSettings.getLongValue(configKey);
         if( pagePoolSize <= 0 ) {
             pagePoolSize = 1024;
         }
-        pagePoolSize *= 1024; // provided pagePoolSize is in kb, we want bytes
+        pagePoolSize *= 1024L; // provided pagePoolSize is in kb, we want bytes
         return pagePoolSize;
     }
 

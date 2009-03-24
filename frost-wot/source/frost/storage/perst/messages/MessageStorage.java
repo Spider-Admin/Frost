@@ -63,7 +63,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
     @Override
     public boolean initStorage() {
         final String databaseFilePath = buildStoragePath(getStorageFilename()); // path to the database file
-        final int pagePoolSize = getPagePoolSize(SettingsClass.PERST_PAGEPOOLSIZE_MESSAGES);
+        final long pagePoolSize = getPagePoolSize(SettingsClass.PERST_PAGEPOOLSIZE_MESSAGES);
 
         open(databaseFilePath, pagePoolSize, true, true, false);
 
