@@ -44,24 +44,12 @@ public class FrostIdentities {
 
     Language language = Language.getInstance();
 
-    /**
-     * @param freenetIsOnline
-     */
-    public void initialize(final boolean freenetIsOnline) throws StorageException {
+    public void initialize() throws StorageException {
 
         localIdentities = IdentitiesStorage.inst().loadLocalIdentities();
 
         // check if there is at least one identity in database, otherwise create one
         if ( localIdentities.size() == 0 ) {
-            // first startup, no identity available
-            if (freenetIsOnline == false) {
-                MiscToolkit.showMessage(
-                        language.getString("Core.loadIdentities.ConnectionNotEstablishedBody"),
-                        JOptionPane.ERROR_MESSAGE,
-                        language.getString("Core.loadIdentities.ConnectionNotEstablishedTitle"));
-                System.exit(2);
-            }
-
             final LocalIdentity mySelf = createIdentity(true);
             if(mySelf == null) {
                 logger.severe("Frost can't run without an identity.");

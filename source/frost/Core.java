@@ -115,24 +115,8 @@ public class Core implements FrostEventDispatcher  {
     private boolean initializeConnectivity() {
 
         // determine configured freenet version
-        int freenetVersion = frostSettings.getIntValue(SettingsClass.FREENET_VERSION); // 5 or 7
-        if( freenetVersion <= 0 ) {
-            final FreenetVersionDialog dlg = new FreenetVersionDialog();
-            dlg.setVisible(true);
-            if( dlg.isChoosedExit() ) {
-                return false;
-            }
-            if( dlg.isChoosedFreenet05() ) {
-                frostSettings.setValue(SettingsClass.FREENET_VERSION, "5");
-            } else if( dlg.isChoosedFreenet07() ) {
-                frostSettings.setValue(SettingsClass.FREENET_VERSION, "7");
-            } else {
-                return false;
-            }
-            freenetVersion = frostSettings.getIntValue(SettingsClass.FREENET_VERSION); // 5 or 7
-        }
-
-        if( freenetVersion != FcpHandler.FREENET_05 && freenetVersion != FcpHandler.FREENET_07 ) {
+        final int freenetVersion = frostSettings.getIntValue(SettingsClass.FREENET_VERSION); // only 7 is supported
+        if( freenetVersion != FcpHandler.FREENET_07 ) {
             MiscToolkit.showMessage(
                     language.getString("Core.init.UnsupportedFreenetVersionBody")+": "+freenetVersion,
                     JOptionPane.ERROR_MESSAGE,
@@ -141,7 +125,11 @@ public class Core implements FrostEventDispatcher  {
         }
 
         // get the list of available nodes
-        final String nodesUnparsed = frostSettings.getValue(SettingsClass.AVAILABLE_NODES);
+        String nodesUnparsed = frostSettings.getValue(SettingsClass.AVAILABLE_NODES);
+        if (nodesUnparsed == null || nodesUnparsed.length() == 0) {
+            frostSettings.setValue(SettingsClass.AVAILABLE_NODES, "127.0.0.1:9481");
+            nodesUnparsed = frostSettings.getValue(SettingsClass.AVAILABLE_NODES);
+        }
 
         final List<String> nodes = new ArrayList<String>();
 
@@ -152,9 +140,10 @@ public class Core implements FrostEventDispatcher  {
             }
         }
 
+        // paranoia, should never happen
         if (nodes.size() == 0) {
             MiscToolkit.showMessage(
-                "Not a single Freenet node configured. You need at least one.",
+                "Not a single Freenet node configured. Will use the default.",
                 JOptionPane.ERROR_MESSAGE,
                 "ERROR: No Freenet nodes are configured.");
             return false;
@@ -196,6 +185,7 @@ public class Core implements FrostEventDispatcher  {
         }
 
         // We warn the user when he connects to a 0.7 testnet node
+        // this also tries to connect to a configured node and sets 'freenetOnline'
         if( checkIfRunningOn07Testnet() ) {
             MiscToolkit.showMessage(
                     language.getString("Core.init.TestnetWarningBody"),
@@ -258,15 +248,14 @@ public class Core implements FrostEventDispatcher  {
         frostSettings.setValue(SettingsClass.MIGRATE_VERSION, 3);
 
         // set used version
-        frostSettings.setValue(SettingsClass.FREENET_VERSION, startdlg.getFreenetVersion()); // 5 or 7
+        final int freenetVersion = 7;
+        frostSettings.setValue(SettingsClass.FREENET_VERSION, freenetVersion);
         // init availableNodes with correct port
         if( startdlg.getOwnHostAndPort() != null ) {
             // user set own host:port
             frostSettings.setValue(SettingsClass.AVAILABLE_NODES, startdlg.getOwnHostAndPort());
-        } else if( startdlg.getFreenetVersion() == FcpHandler.FREENET_05 ) {
-            frostSettings.setValue(SettingsClass.AVAILABLE_NODES, "127.0.0.1:8481");
         } else {
-            // 0.7
+            // 0.7 darknet
             frostSettings.setValue(SettingsClass.AVAILABLE_NODES, "127.0.0.1:9481");
         }
     }
@@ -417,21 +406,14 @@ public class Core implements FrostEventDispatcher  {
         splashscreen.setText(language.getString("Splashscreen.message.3"));
         splashscreen.setProgress(60);
 
-        // sets the freenet version
+        // sets the freenet version, initializes identities
         if (!initializeConnectivity()) {
             System.exit(1);
         }
 
-        getIdentities().initialize(isFreenetOnline());
+        getIdentities().initialize();
 
-        String title;
-    	if( FcpHandler.isFreenet05() ) {
-    		title = "Frost@Freenet 0.5";
-    	} else if( FcpHandler.isFreenet07() ) {
-    		title = "Frost@Freenet 0.7";
-    	} else {
-    		title = "Frost";
-    	}
+        String title = "Frost@Freenet 0.7";
 
         if( !isFreenetOnline() ) {
             title += " (offline mode)";

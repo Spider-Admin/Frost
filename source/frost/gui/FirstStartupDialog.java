@@ -23,7 +23,6 @@ import java.awt.*;
 
 import javax.swing.*;
 
-import frost.fcp.*;
 import frost.util.gui.translation.*;
 
 public class FirstStartupDialog extends JDialog {
@@ -32,15 +31,11 @@ public class FirstStartupDialog extends JDialog {
 
     private JPanel jContentPane = null;
     private JLabel jLabel = null;
-    private JRadioButton RBfreenet05 = null;
-    private JRadioButton RBfreenet07 = null;
     private JPanel Pbuttons = null;
     private JButton Bexit = null;
     private JButton Bok = null;
-    private ButtonGroup BGfreenetVersion = null;  //  @jve:decl-index=0:visual-constraint="529,50"
 
     private boolean exitChoosed;
-    private int freenetVersion = 0;
     private String ownHostAndPort = null;
 
     private JCheckBox CBoverrideHostAndPort = null;
@@ -76,10 +71,6 @@ public class FirstStartupDialog extends JDialog {
         this.setSize(424, 304);
         this.setTitle(language.getString("FirstStartupDialog.title"));
         this.setContentPane(getJContentPane());
-
-        getBGfreenetVersion();
-
-        getBok().setEnabled(false);
     }
 
     /**
@@ -133,54 +124,17 @@ public class FirstStartupDialog extends JDialog {
             gridBagConstraints.gridy = 0;
 
             jLabel = new JLabel();
-            jLabel.setText(language.getString("FirstStartupDialog.freenetVersion.label")+":");
+            jLabel.setText(language.getString("FirstStartupDialog.welcomeText.label")+":");
+            jLabel.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
             jContentPane = new JPanel();
             jContentPane.setLayout(new GridBagLayout());
             jContentPane.add(jLabel, gridBagConstraints);
-            jContentPane.add(getRBfreenet05(), gridBagConstraints1);
-            jContentPane.add(getRBfreenet07(), gridBagConstraints2);
 
             jContentPane.add(getPbuttons(), gridBagConstraints7);
             jContentPane.add(getCBoverrideHostAndPort(), gridBagConstraints22);
             jContentPane.add(getTFhostAndPort(), gridBagConstraints31);
         }
         return jContentPane;
-    }
-
-    /**
-     * This method initializes RBfreenet05
-     *
-     * @return javax.swing.JRadioButton
-     */
-    private JRadioButton getRBfreenet05() {
-        if( RBfreenet05 == null ) {
-            RBfreenet05 = new JRadioButton();
-            RBfreenet05.setText("Freenet 0.5");
-            RBfreenet05.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(final java.awt.event.ActionEvent e) {
-                    getBok().setEnabled(true);
-                }
-            });
-        }
-        return RBfreenet05;
-    }
-
-    /**
-     * This method initializes RBfreenet07
-     *
-     * @return javax.swing.JRadioButton
-     */
-    private JRadioButton getRBfreenet07() {
-        if( RBfreenet07 == null ) {
-            RBfreenet07 = new JRadioButton();
-            RBfreenet07.setText("Freenet 0.7 (darknet)");
-            RBfreenet07.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(final java.awt.event.ActionEvent e) {
-                    getBok().setEnabled(true);
-                }
-            });
-        }
-        return RBfreenet07;
     }
 
     /**
@@ -232,11 +186,6 @@ public class FirstStartupDialog extends JDialog {
             Bok.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(final java.awt.event.ActionEvent e) {
                     exitChoosed = false;
-                    if( getRBfreenet05().isSelected() ) {
-                        freenetVersion = FcpHandler.FREENET_05;
-                    } else if( getRBfreenet07().isSelected() ) {
-                        freenetVersion = FcpHandler.FREENET_07;
-                    }
                     if( getCBoverrideHostAndPort().isSelected() ) {
                         ownHostAndPort = getTFhostAndPort().getText();
                     } else {
@@ -250,27 +199,9 @@ public class FirstStartupDialog extends JDialog {
         return Bok;
     }
 
-    /**
-     * This method initializes BGfreenetVersion
-     *
-     * @return javax.swing.ButtonGroup
-     */
-    private ButtonGroup getBGfreenetVersion() {
-        if( BGfreenetVersion == null ) {
-            BGfreenetVersion = new ButtonGroup();
-            BGfreenetVersion.add(getRBfreenet05());
-            BGfreenetVersion.add(getRBfreenet07());
-        }
-        return BGfreenetVersion;
-    }
-
     public boolean isExitChoosed() {
         return exitChoosed;
     }
-    public int getFreenetVersion() {
-        return freenetVersion;
-    }
-
     public String getOwnHostAndPort() {
         return ownHostAndPort;
     }
