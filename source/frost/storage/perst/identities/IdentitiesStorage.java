@@ -54,7 +54,7 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
     @Override
     public boolean initStorage() {
         final String databaseFilePath = buildStoragePath(getStorageFilename()); // path to the database file
-        final int pagePoolSize = getPagePoolSize(SettingsClass.PERST_PAGEPOOLSIZE_IDENTITIES);
+        final long pagePoolSize = getPagePoolSize(SettingsClass.PERST_PAGEPOOLSIZE_IDENTITIES);
 
         open(databaseFilePath, pagePoolSize, true, true, false);
 
@@ -274,7 +274,7 @@ public class IdentitiesStorage extends AbstractFrostStorage implements ExitSavab
         System.out.println("Repairing identities.dbs (may take some time!)...");
 
         final String databaseFilePath = buildStoragePath("identities.dbs"); // path to the database file
-        final int pagePoolSize = 2*1024*1024;
+        final long pagePoolSize = 2L*1024L*1024L;
 
         open(databaseFilePath, pagePoolSize, true, true, false);
 

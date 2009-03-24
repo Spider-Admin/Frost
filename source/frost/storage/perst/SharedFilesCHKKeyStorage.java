@@ -72,7 +72,7 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
     @Override
     public boolean initStorage() {
         final String databaseFilePath = buildStoragePath(getStorageFilename()); // path to the database file
-        final int pagePoolSize = getPagePoolSize(SettingsClass.PERST_PAGEPOOLSIZE_SHAREDFILESCHKKEYS);
+        final long pagePoolSize = getPagePoolSize(SettingsClass.PERST_PAGEPOOLSIZE_SHAREDFILESCHKKEYS);
 
         open(databaseFilePath, pagePoolSize, true, true, false);
 

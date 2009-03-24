@@ -47,7 +47,7 @@ public class MessageContentStorage extends AbstractFrostStorage implements ExitS
     @Override
     public boolean initStorage() {
         final String databaseFilePath = buildStoragePath(getStorageFilename()); // path to the database file
-        final int pagePoolSize = getPagePoolSize(SettingsClass.PERST_PAGEPOOLSIZE_MESSAGECONTENTS);
+        final long pagePoolSize = getPagePoolSize(SettingsClass.PERST_PAGEPOOLSIZE_MESSAGECONTENTS);
 
         open(databaseFilePath, pagePoolSize, true, false, false);
 

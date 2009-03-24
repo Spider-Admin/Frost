@@ -63,7 +63,7 @@ public class FrostFilesStorage extends AbstractFrostStorage implements ExitSavab
     @Override
     public boolean initStorage() {
         final String databaseFilePath = buildStoragePath(getStorageFilename()); // path to the database file
-        final int pagePoolSize = getPagePoolSize(SettingsClass.PERST_PAGEPOOLSIZE_FILES);
+        final long pagePoolSize = getPagePoolSize(SettingsClass.PERST_PAGEPOOLSIZE_FILES);
 
         open(databaseFilePath, pagePoolSize, true, true, false);
 
