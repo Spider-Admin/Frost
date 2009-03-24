@@ -57,6 +57,7 @@ public class MessageUploadFailedDialog extends JDialog {
 
         public void start() {
             scheduleAtFixedRate(new TimerTask() {
+                @Override
                 public void run() {
                     timerTriggered();
                 }
@@ -128,7 +129,7 @@ public class MessageUploadFailedDialog extends JDialog {
         discardButton.addActionListener(bl);
 
         setResizable(false);
-        setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         pack();
         setLocationRelativeTo(owner);
     }
@@ -155,6 +156,7 @@ public class MessageUploadFailedDialog extends JDialog {
         return buttonsPanel;
     }
 
+    @Override
     public void dispose() {
         timer.cancel();
         super.dispose();

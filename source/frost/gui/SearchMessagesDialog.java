@@ -34,7 +34,6 @@ import frost.boards.*;
 import frost.gui.model.*;
 import frost.messages.*;
 import frost.threads.*;
-import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.gui.tristatecheckbox.*;

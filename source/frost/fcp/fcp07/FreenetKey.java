@@ -60,6 +60,7 @@ public class FreenetKey {
         return keyString;
     }
 
+    @Override
     public String toString() {
         return getKeyString();
     }

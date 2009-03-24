@@ -41,7 +41,7 @@ public abstract class AbstractWorkerThread  extends Thread {
      *         array if no listeners have been added
      */
     public WorkerFinishedListener[] getWorkerFinishedListeners() {
-        return (WorkerFinishedListener[]) (listenerList.getListeners(WorkerFinishedListener.class));
+        return (listenerList.getListeners(WorkerFinishedListener.class));
     }
 
     /**

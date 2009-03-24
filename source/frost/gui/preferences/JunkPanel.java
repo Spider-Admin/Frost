@@ -87,7 +87,7 @@ public class JunkPanel extends JPanel {
         constraints.gridy++;
         constraints.fill = GridBagConstraints.HORIZONTAL;
         {
-            final JSeparator separator = new JSeparator(JSeparator.HORIZONTAL);
+            final JSeparator separator = new JSeparator(SwingConstants.HORIZONTAL);
             add(separator, constraints);
         }
         constraints.fill = GridBagConstraints.NONE;

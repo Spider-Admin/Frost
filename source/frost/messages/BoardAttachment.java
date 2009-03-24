@@ -28,7 +28,8 @@ public class BoardAttachment extends Attachment {
 
 	private Board boardObj;
 
-	public int getType() {
+	@Override
+    public int getType() {
 		return Attachment.BOARD;
 	}
 
@@ -96,7 +97,8 @@ public class BoardAttachment extends Attachment {
 	/**
 	 * A toString to enable the SortedSet to sort by boardname
 	 */
-	public String toString() {
+	@Override
+    public String toString() {
 		if (getBoardObj() != null) {
 			return getBoardObj().getName();
 		}

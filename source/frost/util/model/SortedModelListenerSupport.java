@@ -37,7 +37,7 @@ public class SortedModelListenerSupport {
         }
         synchronized (listeners) {
     		for (int i = 0; i < listeners.size(); i++) {
-    			SortedModelListener target = (SortedModelListener) listeners.elementAt(i);
+    			SortedModelListener target = listeners.elementAt(i);
     			target.itemChanged(position, item);
     		}
         }
@@ -53,7 +53,7 @@ public class SortedModelListenerSupport {
 		
 		synchronized(listeners) {
 			for (int i = 0; i < listeners.size(); i++) {
-				SortedModelListener target = (SortedModelListener) listeners.elementAt(i);
+				SortedModelListener target = listeners.elementAt(i);
 				target.itemAdded(position, item);
 			}
 		}
@@ -68,7 +68,7 @@ public class SortedModelListenerSupport {
         }
         synchronized(listeners) {
 			for (int i = 0; i < listeners.size(); i++) {
-				SortedModelListener target = (SortedModelListener) listeners.elementAt(i);
+				SortedModelListener target = listeners.elementAt(i);
 				target.itemsRemoved(positions, items);
 			}
 		}
@@ -83,7 +83,7 @@ public class SortedModelListenerSupport {
         }
         synchronized(listeners) {
 			for (int i = 0; i < listeners.size(); i++) {
-				SortedModelListener target = (SortedModelListener) listeners.elementAt(i);
+				SortedModelListener target = listeners.elementAt(i);
 				target.modelCleared();
 			}
 		}

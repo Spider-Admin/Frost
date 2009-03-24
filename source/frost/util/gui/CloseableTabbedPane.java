@@ -25,8 +25,6 @@ import java.awt.event.*;
 
 import javax.swing.*;
 
-import frost.util.*;
-
 /**
  * Provides a <code>JTabbedPane</code> with close icons in the tab titles.
  * If an icon is clicked the tab is removed from the pane.
@@ -210,10 +208,10 @@ public class CloseableTabbedPane extends JTabbedPane
 			final Rectangle textRect = new Rectangle();
 			SwingUtilities.layoutCompoundLabel
 				(CloseableTabbedPane.this, g.getFontMetrics(),
-				 title, rightIcon, SwingUtilities.CENTER,
-				 SwingUtilities.CENTER,
-				 SwingUtilities.CENTER,
-				 SwingUtilities.TRAILING,
+				 title, rightIcon, SwingConstants.CENTER,
+				 SwingConstants.CENTER,
+				 SwingConstants.CENTER,
+				 SwingConstants.TRAILING,
 				 rect, iconRect, textRect,
 				 UIManager.getInt("TabbedPane.textIconGap"));
 

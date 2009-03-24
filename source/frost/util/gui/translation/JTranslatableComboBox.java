@@ -58,7 +58,8 @@ public class JTranslatableComboBox extends JComboBox implements LanguageListener
 		/* (non-Javadoc)
 		 * @see java.lang.Object#toString()
 		 */
-		public String toString() {
+		@Override
+        public String toString() {
 			return value;
 		}
 

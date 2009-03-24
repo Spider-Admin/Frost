@@ -184,7 +184,7 @@ public class ArchiveMessageStorage extends AbstractFrostStorage implements ExitS
             return;
         }
         // normal messages in date range
-        final Iterator<PerstFrostArchiveMessageObject> i = bo.getMessageIndex().iterator(startDate, endDate, Index.ASCENT_ORDER);
+        final Iterator<PerstFrostArchiveMessageObject> i = bo.getMessageIndex().iterator(startDate, endDate, GenericIndex.ASCENT_ORDER);
         while(i.hasNext()) {
             final PerstFrostArchiveMessageObject p = i.next();
             final FrostMessageObject mo = p.toFrostMessageObject(board);

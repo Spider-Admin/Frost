@@ -22,7 +22,6 @@ import java.awt.*;
 
 import javax.swing.*;
 
-import frost.util.*;
 import frost.util.gui.*;
 
 /**

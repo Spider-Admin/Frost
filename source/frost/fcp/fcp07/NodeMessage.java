@@ -127,6 +127,7 @@ public class NodeMessage {
     /** 
      * returns the message as string for debug/log output
      */
+    @Override
     public String toString() {
         return messageName + " " + items + " " + messageEndMarker;
     }

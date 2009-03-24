@@ -315,7 +315,7 @@ public class MiscToolkit {
         dlg.getContentPane().add(cb, BorderLayout.SOUTH);
         dlg.pack();
 
-        dlg.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dlg.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         dlg.setModal(true);
         dlg.setVisible(true);
 

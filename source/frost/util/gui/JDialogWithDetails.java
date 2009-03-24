@@ -53,7 +53,8 @@ public class JDialogWithDetails extends JDialog {
 				close();
 			}
 		}
-		public void windowClosing(WindowEvent e) {
+		@Override
+        public void windowClosing(WindowEvent e) {
 			close();
 			super.windowClosing(e);
 		}
@@ -201,7 +202,8 @@ public class JDialogWithDetails extends JDialog {
 	/* (non-Javadoc)
 	 * @see java.awt.Component#setVisible(boolean)
 	 */
-	public void setVisible(boolean b) {
+	@Override
+    public void setVisible(boolean b) {
 		if (b) {
 			pack();
 			setLocationRelativeTo(getParent());

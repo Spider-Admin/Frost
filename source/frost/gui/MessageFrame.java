@@ -137,7 +137,7 @@ public class MessageFrame extends JFrame {
                 windowWasClosed(e);
             }
         });
-        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
     }
 
     private void windowIsClosing(final WindowEvent e) {

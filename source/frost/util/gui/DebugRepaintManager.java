@@ -37,14 +37,16 @@ public class DebugRepaintManager extends RepaintManager {
 	/* (non-Javadoc)
 	 * @see javax.swing.RepaintManager#addDirtyRegion(javax.swing.JComponent, int, int, int, int)
 	 */
-	public void addDirtyRegion(JComponent c, int x, int y, int w, int h) {
+	@Override
+    public void addDirtyRegion(JComponent c, int x, int y, int w, int h) {
 		checkThread();
 		super.addDirtyRegion(c, x, y, w, h);
 	}
 	/* (non-Javadoc)
 	 * @see javax.swing.RepaintManager#addInvalidComponent(javax.swing.JComponent)
 	 */
-	public synchronized void addInvalidComponent(JComponent invalidComponent) {
+	@Override
+    public synchronized void addInvalidComponent(JComponent invalidComponent) {
 		checkThread();
 		super.addInvalidComponent(invalidComponent);
 	}

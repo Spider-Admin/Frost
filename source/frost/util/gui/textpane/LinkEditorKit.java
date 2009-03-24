@@ -52,7 +52,8 @@ public class LinkEditorKit extends StyledEditorKit {
 	/**
 	 * {@inheritDoc}
 	 */
-	public void install(JEditorPane p) {
+	@Override
+    public void install(JEditorPane p) {
 		super.install(p);
 		p.addMouseListener(linkHandler);
 		p.addMouseMotionListener(linkHandler);
@@ -61,7 +62,8 @@ public class LinkEditorKit extends StyledEditorKit {
 	/**
 	 * {@inheritDoc}
 	 */
-	public void deinstall(JEditorPane p) {
+	@Override
+    public void deinstall(JEditorPane p) {
 		p.removeMouseListener(linkHandler);
 		super.deinstall(p);
 	}
@@ -89,7 +91,8 @@ public class LinkEditorKit extends StyledEditorKit {
 		/**
 		 * Used for memory active element
 		 */
-		public void mousePressed(MouseEvent e) {
+		@Override
+        public void mousePressed(MouseEvent e) {
 //			if (!javax.swing.SwingUtilities.isLeftMouseButton(e))
 //				return;
 			JEditorPane p = (JEditorPane)e.getComponent();
@@ -103,7 +106,8 @@ public class LinkEditorKit extends StyledEditorKit {
 		/**
 		 * Used for send HyperLinkEvent.
 		 */
-		public void mouseReleased(MouseEvent e)	{
+		@Override
+        public void mouseReleased(MouseEvent e)	{
 //			if (!javax.swing.SwingUtilities.isLeftMouseButton(e) || activeElement == null) {
 //                return;
 //            }
@@ -130,7 +134,8 @@ public class LinkEditorKit extends StyledEditorKit {
 		/**
 		 * Used for display hand cursor
 		 */
-		public void mouseMoved(MouseEvent e) {
+		@Override
+        public void mouseMoved(MouseEvent e) {
 			JEditorPane p = (JEditorPane)e.getComponent();
 			if (p.isEditable())
 				return;

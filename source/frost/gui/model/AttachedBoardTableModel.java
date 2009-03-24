@@ -48,6 +48,7 @@ public class AttachedBoardTableModel extends DefaultTableModel implements Langua
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#isCellEditable(int, int)
      */
+    @Override
     public boolean isCellEditable(int row, int col)
     {
         return false;
@@ -103,6 +104,7 @@ public class AttachedBoardTableModel extends DefaultTableModel implements Langua
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getColumnName(int)
      */
+    @Override
     public String getColumnName(int column)
     {
         if( column >= 0 && column < columnNames.length )
@@ -113,6 +115,7 @@ public class AttachedBoardTableModel extends DefaultTableModel implements Langua
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getColumnCount()
      */
+    @Override
     public int getColumnCount()
     {
         return columnNames.length;
@@ -121,6 +124,7 @@ public class AttachedBoardTableModel extends DefaultTableModel implements Langua
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getColumnClass(int)
      */
+    @Override
     public Class getColumnClass(int column)
     {
         if( column >= 0 && column < columnClasses.length )

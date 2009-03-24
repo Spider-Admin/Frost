@@ -62,7 +62,7 @@ public class MemoryMonitor extends JPanel {
     private JFrame getDialog() {
         if( dialog == null ) {
             dialog = new JFrame();
-            dialog.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+            dialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 //            dialog.setAlwaysOnTop(true); // TODO: since 1.5 !!!
             dialog.getContentPane().add(this);
             dialog.setSize(225,130);

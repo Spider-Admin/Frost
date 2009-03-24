@@ -31,14 +31,14 @@ public class IconTableHeaderRenderer extends JLabel implements TableCellRenderer
     public IconTableHeaderRenderer(final ImageIcon i) {
         setIcon(i);
         setText("");
-        setHorizontalAlignment(JLabel.CENTER);
+        setHorizontalAlignment(SwingConstants.CENTER);
     }
 
     public IconTableHeaderRenderer(final ImageIcon i, final String tooltipText) {
         setIcon(i);
         setText("");
         setToolTipText(tooltipText);
-        setHorizontalAlignment(JLabel.CENTER);
+        setHorizontalAlignment(SwingConstants.CENTER);
     }
 
     public Component getTableCellRendererComponent(

@@ -67,11 +67,13 @@ public class SortedModelTable extends ModelTable {
     public void resortTable() {
         FrostSwingWorker worker = new FrostSwingWorker(table) {
 
+            @Override
             protected void doNonUILogic() throws RuntimeException {
                 int index = convertColumnIndexToFormat(currentSortedColumnNumber);
                 model.sort(index, ascending);
             }
 
+            @Override
             protected void doUIUpdateLogic() throws RuntimeException {
                 table.revalidate();
                 table.repaint();
@@ -116,7 +118,8 @@ public class SortedModelTable extends ModelTable {
 	/* (non-Javadoc)
 	 * @see frost.util.model.gui.ModelTable#setColumnVisible(int, boolean)
 	 */
-	public void setColumnVisible(int index, boolean visible) {
+	@Override
+    public void setColumnVisible(int index, boolean visible) {
 		super.setColumnVisible(index, visible);
 		if (!visible) {
 			if (index == currentSortedColumnNumber) {

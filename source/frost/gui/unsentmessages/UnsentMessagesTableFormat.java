@@ -121,6 +121,7 @@ public class UnsentMessagesTableFormat extends SortedTableFormat implements Lang
         return new int[] {};
     }
 
+    @Override
     public void customizeTable(ModelTable lModelTable) {
         super.customizeTable(lModelTable);
         
@@ -278,6 +279,7 @@ public class UnsentMessagesTableFormat extends SortedTableFormat implements Lang
         public SubjectRenderer() {
             super();
         }
+        @Override
         public Component getTableCellRendererComponent(
             JTable table,
             Object value,
@@ -306,6 +308,7 @@ public class UnsentMessagesTableFormat extends SortedTableFormat implements Lang
         public ShowContentTooltipRenderer() {
             super();
         }
+        @Override
         public Component getTableCellRendererComponent(
             JTable table,
             Object value,
@@ -331,6 +334,7 @@ public class UnsentMessagesTableFormat extends SortedTableFormat implements Lang
         public ShowColoredLinesRenderer() {
             super();
         }
+        @Override
         public Component getTableCellRendererComponent(
             JTable table,
             Object value,

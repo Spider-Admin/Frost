@@ -39,7 +39,8 @@ public class ScrollButton extends JButton {
     return small;
   }
 
-  public void paint(Graphics g ) {
+  @Override
+public void paint(Graphics g ) {
 	super.paint(g);
     boolean isEnabled = getParent().isEnabled();
 
@@ -121,7 +122,8 @@ public class ScrollButton extends JButton {
     }
   }
 
-  public Dimension getPreferredSize() {
+  @Override
+public Dimension getPreferredSize() {
     if (direction == NORTH || direction == SOUTH) {
       return new Dimension( buttonWidth, buttonWidth - 1 );
     }
@@ -133,11 +135,13 @@ public class ScrollButton extends JButton {
     }
   }
 
-  public Dimension getMinimumSize() {
+  @Override
+public Dimension getMinimumSize() {
     return getPreferredSize();
   }
 
-  public Dimension getMaximumSize() {
+  @Override
+public Dimension getMaximumSize() {
     return new Dimension( Integer.MAX_VALUE, Integer.MAX_VALUE );
   }
     
