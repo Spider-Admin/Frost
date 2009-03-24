@@ -17,12 +17,9 @@
 */
 package frost.fileTransfer.download;
 
-import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
-import frost.*;
-import frost.fcp.fcp05.*;
 import frost.fileTransfer.*;
 import frost.storage.*;
 import frost.storage.perst.*;
@@ -154,25 +151,6 @@ public class DownloadModel extends SortedModel implements ExitSavable {
     }
 
 	/**
-	 * Removes download items from the download model.
-	 */
-	@Override
-    public boolean removeItems(final ModelItem[] items) {
-		// First we remove the chunks from disk
-		final ArrayList<String> oldChunkFilesList = new ArrayList<String>(items.length);
-		final String dlDir = Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD);
-		for( final ModelItem element : items ) {
-			final FrostDownloadItem item = (FrostDownloadItem) element;
-			oldChunkFilesList.add(item.getFilename());
-		}
-		final RemoveChunksThread t = new RemoveChunksThread(oldChunkFilesList, dlDir);
-		t.start();
-
-		// And now we remove the items from the model
-		return super.removeItems(items);
-	}
-
-	/**
 	 * Called to restart the item.
 	 */
 	public void restartItems(final ModelItem[] items) {
@@ -223,24 +201,6 @@ public class DownloadModel extends SortedModel implements ExitSavable {
 			}
 		}
 	}
-
-//	/**
-//	 * Removes all items from the download model.
-//	 */
-//	public synchronized void removeAllItems() {
-//		//First we remove the chunks from disk
-//		ArrayList oldChunkFilesList = new ArrayList(getItemCount());
-//		String dlDir = Core.frostSettings.getValue(SettingsClass.DIR_DOWNLOAD);
-//		for (int i = 0; i < getItemCount(); i++) {
-//			FrostDownloadItem item = (FrostDownloadItem) getItemAt(i);
-//			oldChunkFilesList.add(item.getFileName());
-//		}
-//		RemoveChunksThread t = new RemoveChunksThread(oldChunkFilesList, dlDir);
-//		t.start();
-//
-//		//And now we remove the items from the model
-//		clear();
-//	}
 
 	/**
 	 * Saves the download model to database.
@@ -300,33 +260,5 @@ public class DownloadModel extends SortedModel implements ExitSavable {
             }
         }.start();
         return true;
-    }
-
-    private class RemoveChunksThread extends Thread {
-
-        private final ArrayList<String> oldChunkFilesList;
-        private final String dlDir;
-
-        public RemoveChunksThread(final ArrayList<String> al, final String dlDir) {
-            this.oldChunkFilesList = al;
-            this.dlDir = dlDir;
-        }
-
-        @Override
-        public void run() {
-            final File[] files = (new File(dlDir)).listFiles();
-            for (int i = 0; i < oldChunkFilesList.size(); i++) {
-                final String filename = oldChunkFilesList.get(i);
-                for( final File element : files ) {
-                    // remove filename.data , .redirect, .checkblocks
-                    if (element.getName().equals(filename + FecSplitfile.FILE_DATA_EXTENSION)
-                        || element.getName().equals(filename + FecSplitfile.FILE_REDIRECT_EXTENSION)
-                        || element.getName().equals(filename + FecSplitfile.FILE_CHECKBLOCKS_EXTENSION)) {
-                        logger.info("Removing " + element.getName());
-                        element.delete();
-                    }
-                }
-            }
-        }
     }
 }

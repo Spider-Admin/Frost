@@ -21,7 +21,6 @@ package frost.util;
 import java.awt.*;
 import java.awt.datatransfer.*;
 
-import frost.fcp.*;
 import frost.util.gui.translation.*;
 
 public class CopyToClipboard {
@@ -51,7 +50,7 @@ public class CopyToClipboard {
      * Each ModelItem must implement interface ICopyToClipboardItem.
      */
     public static void copyKeysAndFilenames(final Object[] items) {
-        if (items == null && items.length == 0) {
+        if (items == null || items.length == 0) {
             return;
         }
         final String keyNotAvailableMessage = Language.getInstance().getString("Common.copyToClipBoard.extendedInfo.keyNotAvailableYet");
@@ -78,7 +77,7 @@ public class CopyToClipboard {
      * Each ModelItem must implement interface ICopyToClipboardItem.
      */
     public static void copyExtendedInfo(final Object[] items) {
-        if (items == null && items.length == 0) {
+        if (items == null || items.length == 0) {
             return;
         }
         final String keyNotAvailableMessage = Language.getInstance().getString("Common.copyToClipBoard.extendedInfo.keyNotAvailableYet");
@@ -96,15 +95,10 @@ public class CopyToClipboard {
             if (key == null) {
                 key = keyNotAvailableMessage;
             } else {
-                // always use key+filename, also on 0.5. wait for user feedback :)
-                if( FcpHandler.isFreenet05() ) {
+                // 0.7: append filename if key doesn't contain a / ; otherwise keep key as is
+                if( key.indexOf("/") < 0 ) {
+                    // append filename
                     key = new StringBuffer().append(key).append("/").append(item.getFilename()).toString();
-                } else {
-                    // 0.7: append filename if key doesn't contain a / ; otherwise keep key as is
-                    if( key.indexOf("/") < 0 ) {
-                        // append filename
-                        key = new StringBuffer().append(key).append("/").append(item.getFilename()).toString();
-                    }
                 }
             }
             String fs;
@@ -123,35 +117,6 @@ public class CopyToClipboard {
         // We remove the additional \n at the end
         textToCopy.deleteCharAt(textToCopy.length() - 1);
 
-        copyText(textToCopy.toString());
-    }
-
-    /**
-     * This method copies the CHK keys of the selected items (if any) to the clipboard.
-     * Used only for 0.5 items.
-     * Each ModelItem must implement interface ICopyToClipboardItem.
-     */
-    public static void copyKeys(final Object[] items) {
-        if (items == null && items.length == 0) {
-            return;
-        }
-        final String keyNotAvailableMessage = Language.getInstance().getString("Common.copyToClipBoard.extendedInfo.keyNotAvailableYet");
-        final StringBuilder textToCopy = new StringBuilder();
-        CopyToClipboardItem item;
-        for (final Object ditem : items) {
-            if( !(ditem instanceof CopyToClipboardItem) ) {
-                continue;
-            }
-            item = (CopyToClipboardItem) ditem;
-            String key = item.getKey();
-            if (key == null) {
-                key = keyNotAvailableMessage;
-            }
-            textToCopy.append(key);
-            if( items.length > 1 ) {
-                textToCopy.append("\n");
-            }
-        }
         copyText(textToCopy.toString());
     }
 

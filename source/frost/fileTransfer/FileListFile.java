@@ -25,7 +25,6 @@ import java.util.logging.*;
 import org.w3c.dom.*;
 
 import frost.*;
-import frost.fcp.*;
 import frost.identities.*;
 import frost.util.*;
 
@@ -115,19 +114,6 @@ public class FileListFile {
             logger.log(Level.SEVERE, "Exception in writeFileListFile/writeXmlFile", t);
         }
 
-        // compress file if running on 0.5
-        if( writeOK && FcpHandler.isFreenet05() ) {
-            final File tmp = new File(targetFile.getPath() + ".flftmp");
-            if( !FileAccess.compressFileGZip(targetFile, tmp) ) {
-                return false; // error, already logged
-            }
-            targetFile.delete();
-            if( !tmp.renameTo(targetFile) ) {
-                logger.severe("Error: rename failed: "+tmp.getPath()+"','"+targetFile.getPath()+"'");
-                return false;
-            }
-        }
-
         return writeOK;
     }
 
@@ -137,18 +123,6 @@ public class FileListFile {
     public static FileListFileContent readFileListFile(final File sourceFile) {
         if( !sourceFile.isFile() || !(sourceFile.length() > 0) ) {
             return null;
-        }
-        // decompress file if running on 0.5
-        if( FcpHandler.isFreenet05() ) {
-            final File tmp = new File(sourceFile.getPath() + ".flftmp");
-            if( !FileAccess.decompressFileGZip(sourceFile, tmp) ) {
-                return null; // error, already logged
-            }
-            sourceFile.delete();
-            if( !tmp.renameTo(sourceFile) ) {
-                logger.severe("Error: rename failed: "+tmp.getPath()+"','"+sourceFile.getPath()+"'");
-                return null;
-            }
         }
         Document d = null;
         try {
@@ -227,7 +201,7 @@ public class FileListFile {
         }
 
         final String signContent = getSignableContent(files, owner.getUniqueName(), timestamp);
-        boolean sigIsValid = Core.getCrypto().detachedVerify(signContent, owner.getPublicKey(), signature);
+        final boolean sigIsValid = Core.getCrypto().detachedVerify(signContent, owner.getPublicKey(), signature);
         if( !sigIsValid ) {
             logger.severe("Error: invalid file signature from owner "+owner.getUniqueName());
             return null;

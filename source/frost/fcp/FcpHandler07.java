@@ -67,15 +67,12 @@ public class FcpHandler07 extends FcpHandler {
             String key,
             final Long size,
             final File targetFile,
-            final boolean doRedirect,
-            final boolean fastDownload,
             final int maxSize,
             final int maxRetries,
             final boolean createTempFile,
             final FrostDownloadItem dlItem)
     {
         // unused by 07: htl, doRedirect, fastDownload,
-//        return FcpRequest.getFile(type, key, size, target, createTempFile, dlItem);
         key = FcpConnection.stripSlashes(key);
         final int cnt = count++;
         final long l = System.currentTimeMillis();
@@ -119,13 +116,9 @@ public class FcpHandler07 extends FcpHandler {
             final int type,
             String key,
             final File sourceFile,
-            final byte[] metadata,
-            final boolean doRedirect,
-            final boolean removeLocalKey,
             final boolean doMime,
             final FrostUploadItem ulItem)
     {
-        // unused by 07:  metadata, htl, doRedirect, removeLocalKey,
         key = FcpConnection.stripSlashes(key);
         final int cnt = count++;
         final long l = System.currentTimeMillis();

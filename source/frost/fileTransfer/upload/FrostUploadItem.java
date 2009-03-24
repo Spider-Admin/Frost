@@ -21,7 +21,6 @@ package frost.fileTransfer.upload;
 import java.io.*;
 
 import frost.*;
-import frost.fcp.*;
 import frost.fileTransfer.sharing.*;
 import frost.util.*;
 import frost.util.model.*;
@@ -192,7 +191,7 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
     public void setEnabled(Boolean newEnabled) {
         if (newEnabled == null && enabled != null) {
             //Invert the enable status
-            boolean temp = enabled.booleanValue();
+            final boolean temp = enabled.booleanValue();
             newEnabled = Boolean.valueOf(!temp);
         }
         enabled = newEnabled;
@@ -271,21 +270,16 @@ public class FrostUploadItem extends ModelItem implements CopyToClipboardItem {
     }
 
     /**
-     * Builds a global queue identifier if running on 0.7.
-     * Returns null on 0.5.
+     * Builds a global queue identifier.
      */
     private String buildGqIdentifier(final String filename) {
-        if( FcpHandler.isFreenet07() ) {
-            return new StringBuilder()
-                .append("Frost-")
-                .append(filename.replace(' ', '_'))
-                .append("-")
-                .append(System.currentTimeMillis())
-                .append(Core.getCrypto().getSecureRandom().nextInt(10)) // 0-9
-                .toString();
-        } else {
-            return null;
-        }
+        return new StringBuilder()
+            .append("Frost-")
+            .append(filename.replace(' ', '_'))
+            .append("-")
+            .append(System.currentTimeMillis())
+            .append(Core.getCrypto().getSecureRandom().nextInt(10)) // 0-9
+            .toString();
     }
 
     public String getErrorCodeDescription() {

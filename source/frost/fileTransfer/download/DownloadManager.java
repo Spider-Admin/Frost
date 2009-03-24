@@ -44,14 +44,6 @@ public class DownloadManager implements ExitSavable {
 	public void initialize() throws StorageException {
         getPanel();
 		getModel().initialize();
-
-        // on 0.5, load progress of all files
-        if( FcpHandler.isFreenet05() ) {
-            for(int x=0; x < getModel().getItemCount(); x++) {
-                final FrostDownloadItem item = (FrostDownloadItem) getModel().getItemAt(x);
-                frost.fcp.fcp05.FcpRequest.updateProgress(item);
-            }
-        }
 	}
 
 	/**
@@ -191,7 +183,6 @@ public class DownloadManager implements ExitSavable {
             }
 
             if( result != null
-                    && FcpHandler.isFreenet07()
                     && result.getReturnCode() == 5
                     && key.startsWith("CHK@")
                     && key.indexOf("/") > 0 )
@@ -208,7 +199,6 @@ public class DownloadManager implements ExitSavable {
                 logger.warning("Removed all path levels from key: "+key+" ; "+newKey);
 
             } else if( result != null
-                    && FcpHandler.isFreenet07()
                     && result.getReturnCode() == 11
                     && key.startsWith("CHK@")
                     && key.indexOf("/") > 0 )
@@ -225,7 +215,6 @@ public class DownloadManager implements ExitSavable {
                 logger.warning("Removed one path level from key: "+key+" ; "+newKey);
 
             } else if( result != null
-                        && FcpHandler.isFreenet07()
                         && result.getReturnCode() == 27
                         && result.getRedirectURI() != null)
             {

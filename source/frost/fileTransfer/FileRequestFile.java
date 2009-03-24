@@ -24,14 +24,13 @@ import java.util.logging.*;
 
 import org.w3c.dom.*;
 
-import frost.fcp.*;
 import frost.util.*;
 
 /**
  * Reads and write request files containing SHA keys.
- * 
+ *
  * XML format:
- * 
+ *
  * <FrostFileRequestFile>
  *   <timestamp>...</timestamp>
  *   <shaList>
@@ -54,29 +53,29 @@ public class FileRequestFile {
      * @param targetFile  target file
      * @return  true if write was successful
      */
-    public static boolean writeRequestFile(FileRequestFileContent content, File targetFile) {
-        
-        Document doc = XMLTools.createDomDocument();
+    public static boolean writeRequestFile(final FileRequestFileContent content, final File targetFile) {
+
+        final Document doc = XMLTools.createDomDocument();
         if( doc == null ) {
             logger.severe("Error - writeRequestFile: factory could'nt create XML Document.");
             return false;
         }
 
-        Element rootElement = doc.createElement(TAG_FrostFileRequestFile);
+        final Element rootElement = doc.createElement(TAG_FrostFileRequestFile);
         doc.appendChild(rootElement);
 
-        Element timeStampElement = doc.createElement(TAG_timestamp);
-        Text timeStampText = doc.createTextNode( Long.toString(content.getTimestamp()) );
+        final Element timeStampElement = doc.createElement(TAG_timestamp);
+        final Text timeStampText = doc.createTextNode( Long.toString(content.getTimestamp()) );
         timeStampElement.appendChild(timeStampText);
         rootElement.appendChild( timeStampElement );
 
-        Element rootChkElement = doc.createElement(TAG_shaList);
+        final Element rootChkElement = doc.createElement(TAG_shaList);
         rootElement.appendChild( rootChkElement );
-        
-        for( String chkKey : content.getShaStrings() ) {
-            
-            Element nameElement = doc.createElement(TAG_sha);
-            Text text = doc.createTextNode( chkKey );
+
+        for( final String chkKey : content.getShaStrings() ) {
+
+            final Element nameElement = doc.createElement(TAG_sha);
+            final Text text = doc.createTextNode( chkKey );
             nameElement.appendChild( text );
 
             rootChkElement.appendChild( nameElement );
@@ -85,60 +84,35 @@ public class FileRequestFile {
         boolean writeOK = false;
         try {
             writeOK = XMLTools.writeXmlFile(doc, targetFile);
-        } catch(Throwable t) {
+        } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Exception in writeRequestFile/writeXmlFile", t);
         }
-        
-        // compress file if running on 0.5
-        if( writeOK && FcpHandler.isFreenet05() ) {
-            File tmp = new File(targetFile.getPath() + ".frftmp");
-            if( !FileAccess.compressFileGZip(targetFile, tmp) ) {
-                return false; // error, already logged
-            }
-            targetFile.delete();
-            if( !tmp.renameTo(targetFile) ) {
-                logger.severe("Error: rename failed: "+tmp.getPath()+"','"+targetFile.getPath()+"'");
-                return false;
-            }
-        }
-        
+
         return writeOK;
     }
-    
-    public static void main(String[] args) {
-        File targetFile = new File("D:\\abc.def");
-        File tmp = new File(targetFile.getPath() + ".frftmp");
+
+    public static void main(final String[] args) {
+        final File targetFile = new File("D:\\abc.def");
+        final File tmp = new File(targetFile.getPath() + ".frftmp");
         if( !FileAccess.compressFileGZip(targetFile, tmp) ) {
             return; // error
         }
         targetFile.delete();
         tmp.renameTo(targetFile);
     }
-    
+
     /**
      * @param sourceFile  File to read from
      * @return  List of String objects with the shas
      */
-    public static FileRequestFileContent readRequestFile(File sourceFile) {
+    public static FileRequestFileContent readRequestFile(final File sourceFile) {
         if( !sourceFile.isFile() || !(sourceFile.length() > 0) ) {
             return null;
-        }
-        // decompress file if running on 0.5
-        if( FcpHandler.isFreenet05() ) {
-            File tmp = new File(sourceFile.getPath() + ".frftmp");
-            if( !FileAccess.decompressFileGZip(sourceFile, tmp) ) {
-                return null; // error, already logged
-            }
-            sourceFile.delete();
-            if( !tmp.renameTo(sourceFile) ) {
-                logger.severe("Error: rename failed: "+tmp.getPath()+"','"+sourceFile.getPath()+"'");
-                return null;
-            }
         }
         Document d = null;
         try {
             d = XMLTools.parseXmlFile(sourceFile.getPath(), false);
-        } catch (Throwable t) {
+        } catch (final Throwable t) {
             logger.log(Level.SEVERE, "Exception in readRequestFile, during XML parsing", t);
             return null;
         }
@@ -147,43 +121,43 @@ public class FileRequestFile {
             logger.log(Level.SEVERE, "Could'nt parse the request file");
             return null;
         }
-        
-        Element rootNode = d.getDocumentElement();
+
+        final Element rootNode = d.getDocumentElement();
 
         if( rootNode.getTagName().equals(TAG_FrostFileRequestFile) == false ) {
             logger.severe("Error: xml request file does not contain the root tag '"+TAG_FrostFileRequestFile+"'");
             return null;
         }
-        
-        String timeStampStr = XMLTools.getChildElementsTextValue(rootNode, TAG_timestamp);
+
+        final String timeStampStr = XMLTools.getChildElementsTextValue(rootNode, TAG_timestamp);
         if( timeStampStr == null ) {
             logger.severe("Error: xml file does not contain the tag '"+TAG_timestamp+"'");
             return null;
         }
-        long timestamp = Long.parseLong(timeStampStr);
-        
-        List<Element> nodelist = XMLTools.getChildElementsByTagName(rootNode, TAG_shaList);
+        final long timestamp = Long.parseLong(timeStampStr);
+
+        final List<Element> nodelist = XMLTools.getChildElementsByTagName(rootNode, TAG_shaList);
         if( nodelist.size() != 1 ) {
             logger.severe("Error: xml request files must contain only one element '"+TAG_shaList+"'");
             return null;
         }
-        
-        Element rootShaNode = (Element)nodelist.get(0);
-        
-        List<String> shaList = new LinkedList<String>();
-        List<Element> xmlKeys = XMLTools.getChildElementsByTagName(rootShaNode, TAG_sha);
-        for( Element el : xmlKeys ) {
-            
-            Text txtname = (Text) el.getFirstChild();
+
+        final Element rootShaNode = nodelist.get(0);
+
+        final List<String> shaList = new LinkedList<String>();
+        final List<Element> xmlKeys = XMLTools.getChildElementsByTagName(rootShaNode, TAG_sha);
+        for( final Element el : xmlKeys ) {
+
+            final Text txtname = (Text) el.getFirstChild();
             if( txtname == null ) {
                 continue;
             }
-            
-            String sha = txtname.getData();
+
+            final String sha = txtname.getData();
             shaList.add(sha);
         }
-        
-        FileRequestFileContent content = new FileRequestFileContent(timestamp, shaList); 
+
+        final FileRequestFileContent content = new FileRequestFileContent(timestamp, shaList);
         return content;
     }
 }

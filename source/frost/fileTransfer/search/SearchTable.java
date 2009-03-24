@@ -25,7 +25,6 @@ import java.util.*;
 import javax.swing.*;
 
 import frost.*;
-import frost.fcp.*;
 import frost.fileTransfer.common.*;
 import frost.storage.perst.filelist.*;
 import frost.util.*;
@@ -197,7 +196,6 @@ public class SearchTable extends SortedModelTable {
 
         private final JMenu copyToClipboardMenu = new JMenu();
         private final JMenuItem copyKeysAndNamesItem = new JMenuItem();
-        private final JMenuItem copyKeysItem = new JMenuItem();
         private final JMenuItem copyExtendedInfoItem = new JMenuItem();
 
         private final JMenuItem hideSelectedKeysItem = new JMenuItem();
@@ -213,16 +211,12 @@ public class SearchTable extends SortedModelTable {
             refreshLanguage();
 
             copyToClipboardMenu.add(copyKeysAndNamesItem);
-            if( FcpHandler.isFreenet05() ) {
-                copyToClipboardMenu.add(copyKeysItem);
-            }
             copyToClipboardMenu.add(copyExtendedInfoItem);
 
             downloadSelectedKeysItem.addActionListener(this);
             downloadAllKeysItem.addActionListener(this);
 
             copyKeysAndNamesItem.addActionListener(this);
-            copyKeysItem.addActionListener(this);
             copyExtendedInfoItem.addActionListener(this);
 
             hideSelectedKeysItem.addActionListener(this);
@@ -234,7 +228,6 @@ public class SearchTable extends SortedModelTable {
             downloadAllKeysItem.setText(language.getString("SearchPane.resultTable.popupmenu.downloadAllKeys"));
             cancelItem.setText(language.getString("Common.cancel"));
 
-            copyKeysItem.setText(language.getString("Common.copyToClipBoard.copyKeysOnly"));
             copyKeysAndNamesItem.setText(language.getString("Common.copyToClipBoard.copyKeysWithFilenames"));
             copyExtendedInfoItem.setText(language.getString("Common.copyToClipBoard.copyExtendedInfo"));
             copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
@@ -249,9 +242,6 @@ public class SearchTable extends SortedModelTable {
             }
             if (e.getSource() == downloadAllKeysItem) {
                 downloadAllKeys();
-            }
-            if (e.getSource() == copyKeysItem) {
-                CopyToClipboard.copyKeys(getSelectedItems());
             }
             if (e.getSource() == copyKeysAndNamesItem) {
                 CopyToClipboard.copyKeysAndFilenames(getSelectedItems());

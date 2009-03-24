@@ -112,10 +112,7 @@ public class FileListUploadThread extends Thread {
                                     FcpHandler.TYPE_FILE,
                                     "CHK@",
                                     targetFile,
-                                    null,
-                                    false,  // doRedirect
-                                    true,   // removeLocalKey, insert with full HTL even if existing in local store
-                                    false); // doMime
+                                    false);
 
                             if (result.isSuccess() || result.isKeyCollision()) {
                                 chkKey = result.getChkKey();

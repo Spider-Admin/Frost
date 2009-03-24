@@ -33,7 +33,6 @@ import javax.swing.text.*;
 
 import frost.*;
 import frost.boards.*;
-import frost.fcp.*;
 import frost.fileTransfer.*;
 import frost.fileTransfer.download.*;
 import frost.gui.model.*;
@@ -666,7 +665,6 @@ public class MessageTextPane extends JPanel {
 
         private final JMenu copyToClipboardMenu = new JMenu();
         private final JMenuItem copyKeysAndNamesItem = new JMenuItem();
-        private final JMenuItem copyKeysItem = new JMenuItem();
         private final JMenuItem copyExtendedInfoItem = new JMenuItem();
 
         public PopupMenuAttachmentFile() throws HeadlessException {
@@ -677,8 +675,6 @@ public class MessageTextPane extends JPanel {
         public void actionPerformed(final ActionEvent e) {
             if (e.getSource() == saveAttachmentsItem || e.getSource() == saveAttachmentItem) {
                 downloadAttachments();
-            } else if (e.getSource() == copyKeysItem) {
-                CopyToClipboard.copyKeys( getItems().toArray() );
             } else if (e.getSource() == copyKeysAndNamesItem) {
                 CopyToClipboard.copyKeysAndFilenames( getItems().toArray() );
             } else if (e.getSource() == copyExtendedInfoItem) {
@@ -690,10 +686,6 @@ public class MessageTextPane extends JPanel {
             languageChanged(null);
 
             copyToClipboardMenu.add(copyKeysAndNamesItem);
-            if( FcpHandler.isFreenet05() ) {
-                copyToClipboardMenu.add(copyKeysItem);
-                copyKeysItem.addActionListener(this);
-            }
             copyToClipboardMenu.add(copyExtendedInfoItem);
 
             copyKeysAndNamesItem.addActionListener(this);
@@ -704,14 +696,12 @@ public class MessageTextPane extends JPanel {
         }
 
         public void languageChanged(final LanguageEvent event) {
-            copyKeysItem.setText(language.getString("Common.copyToClipBoard.copyKeysOnly"));
             copyKeysAndNamesItem.setText(language.getString("Common.copyToClipBoard.copyKeysWithFilenames"));
             copyExtendedInfoItem.setText(language.getString("Common.copyToClipBoard.copyExtendedInfo"));
             copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
 
             saveAttachmentsItem.setText(language.getString("MessagePane.fileAttachmentTable.popupmenu.downloadAttachments"));
             saveAttachmentItem.setText(language.getString("MessagePane.fileAttachmentTable.popupmenu.downloadSelectedAttachment"));
-//            cancelItem.setText(language.getString("Common.cancel"));
         }
 
         @Override
@@ -893,12 +883,8 @@ public class MessageTextPane extends JPanel {
 
             for( final String item : items ) {
                 String key;
-                // 0.5: remove filename from key; 0.7: use key/filename
-                if( FcpHandler.isFreenet05() ) {
-                    key = item.substring(0, item.indexOf("/") );
-                } else {
-                    key = item;
-                }
+                // 0.7: use key/filename
+                key = item;
                 String name = item.substring(item.lastIndexOf("/")+1);
                 // maybe convert html codes (e.g. %2c -> , )
                 if( name.indexOf("%") > 0 ) {

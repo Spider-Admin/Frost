@@ -29,7 +29,6 @@ import java.util.logging.*;
 import javax.swing.*;
 
 import frost.*;
-import frost.fcp.*;
 import frost.fileTransfer.*;
 import frost.fileTransfer.sharing.*;
 import frost.util.*;
@@ -280,7 +279,6 @@ public class UploadPanel extends JPanel {
     private class PopupMenuUpload extends JSkinnablePopupMenu implements ActionListener, LanguageListener {
 
         private final JMenuItem copyKeysAndNamesItem = new JMenuItem();
-        private final JMenuItem copyKeysItem = new JMenuItem();
         private final JMenuItem copyExtendedInfoItem = new JMenuItem();
         private final JMenuItem generateChkForSelectedFilesItem = new JMenuItem();
         private final JMenuItem uploadSelectedFilesItem = new JMenuItem();
@@ -346,13 +344,9 @@ public class UploadPanel extends JPanel {
             refreshLanguage();
 
             copyToClipboardMenu.add(copyKeysAndNamesItem);
-            if( FcpHandler.isFreenet05() ) {
-                copyToClipboardMenu.add(copyKeysItem);
-            }
             copyToClipboardMenu.add(copyExtendedInfoItem);
 
             copyKeysAndNamesItem.addActionListener(this);
-            copyKeysItem.addActionListener(this);
             copyExtendedInfoItem.addActionListener(this);
             removeSelectedFilesItem.addActionListener(this);
             uploadSelectedFilesItem.addActionListener(this);
@@ -369,7 +363,6 @@ public class UploadPanel extends JPanel {
         }
 
         private void refreshLanguage() {
-            copyKeysItem.setText(language.getString("Common.copyToClipBoard.copyKeysOnly"));
             copyKeysAndNamesItem.setText(language.getString("Common.copyToClipBoard.copyKeysWithFilenames"));
             copyExtendedInfoItem.setText(language.getString("Common.copyToClipBoard.copyExtendedInfo"));
             generateChkForSelectedFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.startEncodingOfSelectedFiles"));
@@ -401,9 +394,7 @@ public class UploadPanel extends JPanel {
         }
 
         public void actionPerformed(final ActionEvent e) {
-            if (e.getSource() == copyKeysItem) {
-                CopyToClipboard.copyKeys(modelTable.getSelectedItems());
-            } else if (e.getSource() == copyKeysAndNamesItem) {
+            if (e.getSource() == copyKeysAndNamesItem) {
                 CopyToClipboard.copyKeysAndFilenames(modelTable.getSelectedItems());
             } else if (e.getSource() == copyExtendedInfoItem) {
                 CopyToClipboard.copyExtendedInfo(modelTable.getSelectedItems());

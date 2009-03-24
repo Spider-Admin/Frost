@@ -21,10 +21,7 @@ package frost.transferlayer;
 import java.io.*;
 import java.util.logging.*;
 
-import org.w3c.dom.*;
-
 import frost.*;
-import frost.crypt.*;
 import frost.fcp.*;
 import frost.identities.*;
 import frost.messages.*;
@@ -43,14 +40,7 @@ public class MessageDownloader {
      */
     protected static MessageDownloaderResult processDownloadedFile(final File tmpFile, final FcpResultGet results, final String logInfo) {
         try {
-            if( FcpHandler.isFreenet05() ) {
-                return processDownloadedFile05(tmpFile, results, logInfo);
-            } else if( FcpHandler.isFreenet07() ) {
-                return processDownloadedFile07(tmpFile, results, logInfo);
-            } else {
-                logger.severe("Unsupported freenet version, not 0.5 or 0.7");
-                return null;
-            }
+            return processDownloadedFile07(tmpFile, results, logInfo);
         } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Error processing downloaded message", t);
             final MessageDownloaderResult mdResult = new MessageDownloaderResult(MessageDownloaderResult.BROKEN_MSG);
@@ -67,7 +57,6 @@ public class MessageDownloader {
             final String downKey,
             final int targetIndex,
             final int maxRetries,
-            final boolean fastDownload,
             final String logInfo) {
 
         FcpResultGet results;
@@ -79,8 +68,6 @@ public class MessageDownloader {
                     downKey,
                     null,
                     tmpFile,
-                    false,
-                    fastDownload,
                     FcpHandler.MAX_MESSAGE_SIZE_07,
                     maxRetries);
         } catch(final Throwable t) {
@@ -106,200 +93,6 @@ public class MessageDownloader {
         }
 
         return processDownloadedFile(tmpFile, results, logInfo);
-    }
-
-    /**
-     * Process the downloaded file, decrypt, check sign.
-     * @param tmpFile  downloaded file
-     * @param results  the FcpResults
-     * @param logInfo  info for log output
-     * @return  null if unexpected Exception occurred, or results indicating state or error
-     */
-    protected static MessageDownloaderResult processDownloadedFile05(final File tmpFile, final FcpResultGet results, final String logInfo) {
-
-        try {
-            // we downloaded something
-            logger.info("TOFDN: A message was downloaded."+logInfo);
-
-            // either null (unsigned) or signed and maybe encrypted message
-            final byte[] metadata = results.getRawMetadata();
-
-            if( tmpFile.length() == 0 ) {
-                // Frosts message files do always contain data, so the received content is wrong
-                if( metadata != null && metadata.length > 0 ) {
-                    logger.severe("TOFDN: Received metadata without data, maybe faked message."+logInfo);
-                } else if( metadata == null || metadata.length == 0 ) {
-                    // paranoia checking, should never happen if FcpResults != null
-                    logger.severe("TOFDN: Received neither metadata nor data, maybe a bug or a faked message."+logInfo);
-                } else {
-                    // something bad happened if we ever come here :)
-                    logger.severe("TOFDN: Received something, but bad things happened in code, maybe a bug or a faked message."+logInfo);
-                }
-                tmpFile.delete();
-                return new MessageDownloaderResult(MessageDownloaderResult.BROKEN_MSG);
-            }
-
-            // if no metadata, message wasn't signed
-            if (metadata == null) {
-                final byte[] unzippedXml = FileAccess.readZipFileBinary(tmpFile);
-                if( unzippedXml == null ) {
-                    logger.log(Level.SEVERE, "TOFDN: Unzip of unsigned xml failed."+logInfo);
-                    tmpFile.delete();
-                    return new MessageDownloaderResult(MessageDownloaderResult.BROKEN_MSG);
-                }
-                FileAccess.writeFile(unzippedXml, tmpFile);
-                try {
-                    final MessageXmlFile currentMsg = new MessageXmlFile(tmpFile);
-
-                    // fromName must not contain an '@'
-                    if( currentMsg.getFromName().indexOf('@') > -1) {
-                        // invalid, drop message
-                        logger.severe("TOFDN: unsigned message has an invalid fromName (contains an @: '"+
-                                currentMsg.getFromName()+"'), message dropped."+logInfo);
-                        tmpFile.delete();
-                        return new MessageDownloaderResult(MessageDownloaderResult.INVALID_MSG);
-                    }
-
-                    currentMsg.setSignatureStatusOLD();
-                    return new MessageDownloaderResult(currentMsg);
-                } catch (final Exception ex) {
-                    logger.log(Level.SEVERE, "TOFDN: Unsigned message is invalid."+logInfo, ex);
-                    // file could not be read, mark it invalid not to confuse gui
-                    tmpFile.delete();
-                    return new MessageDownloaderResult(MessageDownloaderResult.BROKEN_MSG);
-                }
-            }
-
-            // verify the zipped message
-            MetaData _metaData = null;
-            try {
-                final Document doc = XMLTools.parseXmlContent(metadata, false);
-                if( doc != null ) { // was metadata xml ok?
-                    _metaData = MetaData.getInstance( doc.getDocumentElement() );
-                }
-            } catch (final Throwable t) {
-                logger.log(Level.SEVERE, "TOFDN: Invalid metadata of signed message"+logInfo, t);
-                _metaData = null;
-            }
-            if( _metaData == null ) {
-                // metadata failed, do something
-                logger.log(Level.SEVERE, "TOFDN: Metadata couldn't be read. " +
-                                "Offending file saved as badmetadata.xml - send to a dev for analysis."+logInfo);
-                final File badmetadata = new File("badmetadata.xml");
-                FileAccess.writeFile(metadata, badmetadata);
-                // don't try this file again
-                tmpFile.delete();
-                return new MessageDownloaderResult(MessageDownloaderResult.BROKEN_METADATA);
-            }
-
-            if( _metaData.getType() != MetaData.SIGN && _metaData.getType() != MetaData.ENCRYPT ) {
-                logger.severe("TOFDN: Unknown type of metadata."+logInfo);
-                // don't try this file again
-                tmpFile.delete();
-                return new MessageDownloaderResult(MessageDownloaderResult.BROKEN_METADATA);
-            }
-
-            // now the msg could be signed OR signed and encrypted
-            // first check sign, later decrypt if msg was for me
-
-            final SignMetaData metaData = (SignMetaData)_metaData;
-
-            final Identity owner = metaData.getPerson();
-            if( !Core.getIdentities().isNewIdentityValid(owner) ) {
-                // hash of public key does not match the unique name
-                logger.severe("TOFDN: identity failed verification, message dropped." + logInfo);
-                tmpFile.delete();
-                return new MessageDownloaderResult(MessageDownloaderResult.INVALID_MSG);
-            }
-
-            // verify signature
-            final byte[] plaintext = FileAccess.readByteArray(tmpFile);
-            boolean sigIsValid = Core.getCrypto().detachedVerify(plaintext, owner.getPublicKey(), metaData.getSig());
-
-            // now check if msg is encrypted and for me, if yes decrypt the zipped data
-            if (_metaData.getType() == MetaData.ENCRYPT) {
-                final EncryptMetaData encMetaData = (EncryptMetaData)metaData;
-
-                // 1. check if the message is for me
-                if (!Core.getIdentities().isMySelf(encMetaData.getRecipient())) {
-                    logger.fine("TOFDN: Encrypted message was not for me.");
-                    tmpFile.delete();
-                    return new MessageDownloaderResult(MessageDownloaderResult.MSG_NOT_FOR_ME);
-                }
-
-                // 2. if yes, decrypt the content
-                final LocalIdentity receiverId = Core.getIdentities().getLocalIdentity(encMetaData.getRecipient());
-                final byte[] cipherText = FileAccess.readByteArray(tmpFile);
-                final byte[] zipData = Core.getCrypto().decrypt(cipherText,receiverId.getPrivateKey());
-
-                if( zipData == null ) {
-                    logger.severe( "TOFDN: Encrypted message from "+encMetaData.getPerson().getUniqueName()+
-                                   " could not be decrypted!"+logInfo);
-                    tmpFile.delete();
-                    return new MessageDownloaderResult(MessageDownloaderResult.DECRYPT_FAILED);
-                }
-
-                tmpFile.delete();
-                FileAccess.writeFile(zipData, tmpFile);
-
-                logger.fine("TOFDN: Decrypted an encrypted message for me, sender was "+encMetaData.getPerson().getUniqueName()+"."+logInfo);
-
-                // now continue as for signed files
-
-            } //endif encrypted message
-
-            // unzip
-            final byte[] unzippedXml = FileAccess.readZipFileBinary(tmpFile);
-            if( unzippedXml == null ) {
-                logger.severe("TOFDN: Unzip of signed xml failed."+logInfo);
-                tmpFile.delete();
-                return new MessageDownloaderResult(MessageDownloaderResult.BROKEN_MSG);
-            }
-            FileAccess.writeFile(unzippedXml, tmpFile);
-
-            MessageXmlFile currentMsg = null;
-
-            // create object
-            try {
-                currentMsg = new MessageXmlFile(tmpFile);
-            } catch (final Exception ex) {
-                logger.log(Level.SEVERE, "TOFDN: Exception when creating message object"+logInfo, ex);
-                // file could not be read, mark it invalid not to confuse gui
-                tmpFile.delete();
-                return new MessageDownloaderResult(MessageDownloaderResult.BROKEN_MSG);
-            }
-
-            // then check if the signature was ok
-            if (!sigIsValid) {
-                logger.severe("TOFDN: message failed verification, message dropped."+logInfo);
-                tmpFile.delete();
-                return new MessageDownloaderResult(MessageDownloaderResult.INVALID_MSG);
-            }
-
-            // make sure the pubkey and from fields in the xml file are the same as those in the metadata
-            final String metaDataHash = Mixed.makeFilename(Core.getCrypto().digest(metaData.getPerson().getPublicKey()));
-            final String messageHash = Mixed.makeFilename(
-                        currentMsg.getFromName().substring(
-                        currentMsg.getFromName().indexOf("@") + 1,
-                        currentMsg.getFromName().length()));
-
-            if (!metaDataHash.equals(messageHash)) {
-                logger.severe("TOFDN: Hash in metadata doesn't match hash in message!\n" +
-                               "metadata : "+metaDataHash+" , message: " + messageHash+
-                               ". Message failed verification and was dropped."+logInfo);
-                tmpFile.delete();
-                return new MessageDownloaderResult(MessageDownloaderResult.INVALID_MSG);
-            }
-
-            currentMsg.setSignatureStatusVERIFIED_V2();
-            return new MessageDownloaderResult(currentMsg, owner);
-
-        } catch (final Throwable t) {
-            logger.log(Level.SEVERE, "TOFDN: Exception thrown in downloadDate part 2."+logInfo, t);
-            // index is already increased for next try
-        }
-        tmpFile.delete();
-        return null;
     }
 
     /**

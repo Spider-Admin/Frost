@@ -265,9 +265,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                 // On 0.7 we remember the full provided download uri as key.
                 // If the node reports download failed, error code 11 later, then we strip the filename
                 // from the uri and keep trying with chk only
-                if( FcpHandler.isFreenet05() ) {
-                    key = checkKey; // on 0.5 use only key as uri
-                }
 
                 // finally check if the key is valid for this network
                 if( !FreenetKeys.isValidKey(checkKey) ) {
@@ -470,7 +467,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
         private final JMenuItem detailsItem = new JMenuItem();
         private final JMenuItem copyKeysAndNamesItem = new JMenuItem();
-        private final JMenuItem copyKeysItem = new JMenuItem();
         private final JMenuItem copyExtendedInfoItem = new JMenuItem();
         private final JMenuItem disableAllDownloadsItem = new JMenuItem();
         private final JMenuItem disableSelectedDownloadsItem = new JMenuItem();
@@ -538,16 +534,12 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
             refreshLanguage();
 
-            // TODO: implement cancel of downloading
+            // TODO: implement cancel of downloads
 
             copyToClipboardMenu.add(copyKeysAndNamesItem);
-            if( FcpHandler.isFreenet05() ) {
-                copyToClipboardMenu.add(copyKeysItem);
-            }
             copyToClipboardMenu.add(copyExtendedInfoItem);
 
             copyKeysAndNamesItem.addActionListener(this);
-            copyKeysItem.addActionListener(this);
             copyExtendedInfoItem.addActionListener(this);
             restartSelectedDownloadsItem.addActionListener(this);
             removeSelectedDownloadsItem.addActionListener(this);
@@ -563,7 +555,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
         private void refreshLanguage() {
             detailsItem.setText(language.getString("Common.details"));
-            copyKeysItem.setText(language.getString("Common.copyToClipBoard.copyKeysOnly"));
             copyKeysAndNamesItem.setText(language.getString("Common.copyToClipBoard.copyKeysWithFilenames"));
             copyExtendedInfoItem.setText(language.getString("Common.copyToClipBoard.copyExtendedInfo"));
             restartSelectedDownloadsItem.setText(language.getString("DownloadPane.fileTable.popupmenu.restartSelectedDownloads"));
@@ -594,9 +585,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
         }
 
         public void actionPerformed(final ActionEvent e) {
-            if (e.getSource() == copyKeysItem) {
-                CopyToClipboard.copyKeys(modelTable.getSelectedItems());
-            } else if (e.getSource() == copyKeysAndNamesItem) {
+            if (e.getSource() == copyKeysAndNamesItem) {
                 CopyToClipboard.copyKeysAndFilenames(modelTable.getSelectedItems());
             } else if (e.getSource() == copyExtendedInfoItem) {
                 CopyToClipboard.copyExtendedInfo(modelTable.getSelectedItems());

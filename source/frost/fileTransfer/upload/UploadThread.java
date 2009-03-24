@@ -27,21 +27,22 @@ class UploadThread extends Thread {
 
     private static final Logger logger = Logger.getLogger(UploadThread.class.getName());
 
-    private UploadTicker ticker;
-    private FrostUploadItem uploadItem;
-    private boolean doMime;
+    private final UploadTicker ticker;
+    private final FrostUploadItem uploadItem;
+    private final boolean doMime;
 
-    protected UploadThread(UploadTicker newTicker, FrostUploadItem ulItem, boolean doMim) {
+    protected UploadThread(final UploadTicker newTicker, final FrostUploadItem ulItem, final boolean doMim) {
         ticker = newTicker;
         uploadItem = ulItem;
         doMime = doMim;
     }
 
+    @Override
     public void run() {
         ticker.uploadingThreadStarted();
         try {
             upload();
-        } catch (Throwable e) {
+        } catch (final Throwable e) {
             logger.log(Level.SEVERE, "Exception thrown in run()", e);
         }
         ticker.uploadThreadFinished();
@@ -57,15 +58,12 @@ class UploadThread extends Thread {
                     FcpHandler.TYPE_FILE,
                     "CHK@",
                     uploadItem.getFile(),
-                    null, // metadata
-                    true, // doRedirect
-                    true, // removeLocalKey, insert with full HTL even if existing in local store
                     doMime,
                     uploadItem); // provide the uploadItem to indicate that this upload is contained in table
-        } catch(Throwable t) {
+        } catch(final Throwable t) {
             logger.log(Level.SEVERE, "Exception thrown in putFile()", t);
         }
-        
+
         FileTransferManager.inst().getUploadManager().notifyUploadFinished(uploadItem, result);
     }
 }

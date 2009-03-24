@@ -51,8 +51,6 @@ public class GlobalFileDownloader {
                     downKey,
                     null,
                     tmpFile,
-                    false,    // doRedirect, like in uploadIndexFile()
-                    false,    // fastDownload (0.5)
                     maxSize,
                     maxRetries);
 

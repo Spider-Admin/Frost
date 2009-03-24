@@ -24,14 +24,12 @@ import java.util.logging.*;
 import javax.swing.*;
 
 import frost.*;
-import frost.crypt.*;
 import frost.fcp.*;
 import frost.gui.*;
 import frost.identities.*;
 import frost.messages.*;
 import frost.storage.perst.*;
 import frost.util.*;
-import frost.util.gui.translation.*;
 
 /**
  * This class uploads a message file to freenet. The preparation of the
@@ -68,15 +66,7 @@ public class MessageUploader {
      * @return  true if successful, false otherwise
      */
     protected static boolean prepareMessage(final MessageUploaderWorkArea wa) {
-
-        if( FcpHandler.isFreenet05() ) {
-            return prepareMessage05(wa);
-        } else if( FcpHandler.isFreenet07() ) {
-            return prepareMessage07(wa);
-        } else {
-            logger.severe("Unsupported freenet version, not 0.5 or 0.7");
-            return false;
-        }
+        return prepareMessage07(wa);
     }
 
     /**
@@ -131,7 +121,7 @@ public class MessageUploader {
      */
     protected static MessageUploaderResult uploadMessage(final MessageUploaderWorkArea wa) throws IOException {
 
-        logger.info("TOFUP: Uploading message to board '" + wa.logBoardName + "' with HTL " + Core.frostSettings.getIntValue(SettingsClass.MESSAGE_UPLOAD_HTL));
+        logger.info("TOFUP: Uploading message to board '" + wa.logBoardName + "'");
 
         boolean tryAgain;
         do {
@@ -171,9 +161,6 @@ public class MessageUploader {
                             FcpHandler.TYPE_MESSAGE,
                             upKey,
                             wa.uploadFile,
-                            wa.signMetadata,
-                            false,  // doRedirect
-                            false,  // removeLocalKey, we want a KeyCollision if key does already exist in local store!
                             true);  // doMime
                 } catch (final Throwable t) {
                     logger.log(Level.SEVERE, "TOFUP: Error in FcpInsert.putFile."+logInfo, t);
@@ -251,7 +238,7 @@ public class MessageUploader {
             } else { // error == true
                 logger.warning("TOFUP: Error while uploading message.");
 
-                boolean retrySilently = Core.frostSettings.getBoolValue(SettingsClass.SILENTLY_RETRY_MESSAGES);
+                final boolean retrySilently = Core.frostSettings.getBoolValue(SettingsClass.SILENTLY_RETRY_MESSAGES);
                 if (!retrySilently) {
                     // Uploading of that message failed. Ask the user if Frost
                     // should try to upload the message another time.
@@ -296,8 +283,6 @@ public class MessageUploader {
                     downKey,
                     null,
                     targetFile,
-                    false,
-                    false,
                     FcpHandler.MAX_MESSAGE_SIZE_07,
                     -1);
             if( res != null && res.isSuccess() && targetFile.length() > 0 ) {
@@ -307,79 +292,6 @@ public class MessageUploader {
             logger.log(Level.WARNING, "Handled exception in downloadMessage", t);
         }
         return false;
-    }
-
-    /**
-     * Encrypt, sign and zip the message into a file that is uploaded afterwards.
-     */
-    protected static boolean prepareMessage05(final MessageUploaderWorkArea wa) {
-
-        if( wa.senderId != null ) {
-
-            // for sure, set fromname
-            wa.message.setFromName(wa.senderId.getUniqueName());
-
-            // we put the signature into the message too, but it is not used for verification currently
-            // to keep compatability to previous frosts for 0.5
-            wa.message.signMessageV1(wa.senderId.getPrivateKey());
-            wa.message.signMessageV2(wa.senderId.getPrivateKey());
-
-            if( !wa.message.save() ) {
-                logger.severe("Save of signed msg failed. This was a HARD error, please report to a dev!");
-                return false;
-            }
-        }
-
-        FileAccess.writeZipFile(FileAccess.readByteArray(wa.unsentMessageFile), "entry", wa.uploadFile);
-
-        if( !wa.uploadFile.isFile() || wa.uploadFile.length() == 0 ) {
-            logger.severe("Error: zip of message xml file failed, result file not existing or empty. Please report to a dev!");
-            return false;
-        }
-
-        // encrypt and sign or just sign the zipped file if necessary
-        if( wa.senderId != null ) {
-            final byte[] zipped = FileAccess.readByteArray(wa.uploadFile);
-
-            if( wa.encryptForRecipient != null ) {
-                // encrypt + sign
-                // first encrypt, then sign
-
-                final byte[] encData = Core.getCrypto().encrypt(zipped, wa.encryptForRecipient.getPublicKey());
-                if( encData == null ) {
-                    logger.severe("Error: could not encrypt the message, please report to a dev!");
-                    return false;
-                }
-                wa.uploadFile.delete();
-                FileAccess.writeFile(encData, wa.uploadFile); // write encrypted zip file
-
-                final EncryptMetaData ed = new EncryptMetaData(encData, wa.senderId, wa.encryptForRecipient.getUniqueName());
-                wa.signMetadata = XMLTools.getRawXMLDocument(ed);
-
-            } else {
-                // sign only
-                final SignMetaData md = new SignMetaData(zipped, wa.senderId);
-                wa.signMetadata = XMLTools.getRawXMLDocument(md);
-            }
-        } else if( wa.encryptForRecipient != null ) {
-            logger.log(Level.SEVERE, "TOFUP: ALERT - can't encrypt message if sender is Anonymous! Will not send message!");
-            return false; // unable to encrypt
-        }
-
-        long allLength = wa.uploadFile.length();
-        if( wa.signMetadata != null ) {
-            allLength += wa.signMetadata.length;
-        }
-        if( allLength > 32767 ) { // limit in FcpInsert.putFile()
-            final Language language = Language.getInstance();
-            final String title = language.getString("MessageUploader.messageToLargeError.title");
-            final String txt = language.formatMessage("MessageUploader.messageToLargeError.text",
-                    Long.toString(allLength),
-                    Integer.toString(32767));
-            JOptionPane.showMessageDialog(wa.parentFrame, txt, title, JOptionPane.ERROR_MESSAGE);
-            return false;
-        }
-        return true;
     }
 
     /**

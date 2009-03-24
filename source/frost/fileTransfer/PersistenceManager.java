@@ -71,9 +71,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
      * @return  true if Frost is configured to use persistent uploads and downloads, false if not
      */
     public static boolean isPersistenceEnabled() {
-        if( FcpHandler.isFreenet07()
-                && Core.frostSettings.getBoolValue(SettingsClass.FCP2_USE_PERSISTENCE) )
-        {
+        if( Core.frostSettings.getBoolValue(SettingsClass.FCP2_USE_PERSISTENCE) ) {
             return true;
         } else {
             return false;

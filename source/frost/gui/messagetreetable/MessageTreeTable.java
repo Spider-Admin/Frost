@@ -52,7 +52,6 @@ import javax.swing.table.*;
 import javax.swing.tree.*;
 
 import frost.*;
-import frost.fcp.*;
 import frost.fileTransfer.common.*;
 import frost.identities.*;
 import frost.messages.*;
@@ -168,7 +167,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
      * Overwritten to forward LEFT and RIGHT cursor to the tree to allow JTree-like expand/collapse of nodes.
      */
     @Override
-    protected boolean processKeyBinding(final KeyStroke ks, final KeyEvent e, final int condition, boolean pressed) {
+    protected boolean processKeyBinding(final KeyStroke ks, final KeyEvent e, final int condition, final boolean pressed) {
         if( !pressed ) {
             return super.processKeyBinding(ks, e, condition, pressed);
         }
@@ -498,7 +497,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
     	 */
     	public Component getTableCellRendererComponent(final JTable table,
     						       final Object value,
-    						       boolean isSelected,
+    						       final boolean isSelected,
     						       final boolean hasFocus,
     						       final int row, final int column)
     	{
@@ -552,8 +551,8 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                 dtcr.setBorder(null);
                 if( ((FrostMessageObject)msg.getParent()).isRoot() ) {
                     final boolean[] hasUnreadOrMarked = msg.hasUnreadOrMarkedChilds();
-                    boolean hasUnread = hasUnreadOrMarked[0];
-                    boolean hasMarked = hasUnreadOrMarked[1];
+                    final boolean hasUnread = hasUnreadOrMarked[0];
+                    final boolean hasMarked = hasUnreadOrMarked[1];
                     if( hasUnread && !hasMarked ) {
                         // unread and no marked
                         dtcr.setBorder(borderUnreadMsgsInThread);
@@ -731,7 +730,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
         public Component getTableCellRendererComponent(
                 final JTable table,
                 final Object value,
-                boolean isSelected,
+                final boolean isSelected,
                 final boolean hasFocus,
                 final int row,
                 int column)
@@ -918,9 +917,7 @@ public class MessageTreeTable extends JTable implements PropertyChangeListener {
                 // SIG
                 // state == good/bad/check/observe -> bold and coloured
                 final Font f;
-                if( FcpHandler.isFreenet05() ) {
-                    f = boldFont;
-                } else if( msg.isSignatureStatusVERIFIED_V2() ) {
+                if( msg.isSignatureStatusVERIFIED_V2() ) {
                     f = boldFont;
                 } else {
                     f = boldItalicFont;

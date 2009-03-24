@@ -32,11 +32,11 @@ public class GlobalFileUploader {
     private static final Logger logger = Logger.getLogger(GlobalFileUploader.class.getName());
 
     public static boolean uploadFile(
-            IndexSlot gis, 
-            File uploadFile,
-            String insertKey,
-            String insertKeyExtension,
-            boolean doMime) 
+            final IndexSlot gis,
+            final File uploadFile,
+            final String insertKey,
+            final String insertKeyExtension,
+            final boolean doMime)
     {
         boolean success = false;
         boolean error = false;
@@ -48,14 +48,11 @@ public class GlobalFileUploader {
             while( !success && !error) {
                 logger.info("Trying file upload to index "+index);
 
-                FcpResultPut result = FcpHandler.inst().putFile(
+                final FcpResultPut result = FcpHandler.inst().putFile(
                         FcpHandler.TYPE_MESSAGE,
                         insertKey + index + insertKeyExtension,
                         uploadFile,
-                        null,
-                        false, // doRedirect
-                        true,  // removeLocalKey, insert with full HTL even if existing in local store
-                        doMime); 
+                        doMime);
 
                 if( result.isSuccess() ) {
                     // my files are already added to totalIdx, we don't need to download this index
@@ -80,7 +77,7 @@ public class GlobalFileUploader {
                     }
                 }
             }
-        } catch (Throwable e) {
+        } catch (final Throwable e) {
             logger.log(Level.SEVERE, "Exception in uploadFile", e);
         }
         logger.info("FILEDN: File upload finished, file uploaded state is: "+success);
