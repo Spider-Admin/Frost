@@ -61,9 +61,6 @@
 
   <!--  The CLASSPATH to use for compilation. -->
   <path id="classpath">
-    <pathelement location="${lib.dir}/xercesImpl.jar"/>
-    <pathelement location="${lib.dir}/xml-apis.jar"/>
-    <pathelement location="${lib.dir}/xmlParserAPIs.jar"/>
     <pathelement location="${lib.dir}/BCastle.jar"/>
     <pathelement location="${lib.dir}/perst15.jar"/>
     <pathelement location="${lib.dir}/joda-time.jar"/>

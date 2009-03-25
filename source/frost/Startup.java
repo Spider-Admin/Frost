@@ -40,6 +40,7 @@ public class Startup {
         cleanTempDir(settings);
 
         File oldJarFile;
+
         // remove fec-native.jar
         oldJarFile = new File("lib/fec-native.jar");
         if( oldJarFile.isFile() ) {
@@ -57,6 +58,16 @@ public class Startup {
         }
         // remove gnu-regexp-1.1.4.jar
         oldJarFile = new File("lib/gnu-regexp-1.1.4.jar");
+        if( oldJarFile.isFile() ) {
+            oldJarFile.delete();
+        }
+        // remove xml-apis.jar
+        oldJarFile = new File("lib/xml-apis.jar");
+        if( oldJarFile.isFile() ) {
+            oldJarFile.delete();
+        }
+        // remove xercesImpl.jar
+        oldJarFile = new File("lib/xercesImpl.jar");
         if( oldJarFile.isFile() ) {
             oldJarFile.delete();
         }

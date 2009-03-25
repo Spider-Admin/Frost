@@ -24,9 +24,10 @@ import java.util.logging.*;
 
 import javax.xml.parsers.*;
 
-import org.apache.xml.serialize.*;
 import org.w3c.dom.*;
 import org.xml.sax.*;
+
+import com.sun.org.apache.xml.internal.serialize.*;
 
 /**
  * A place to hold utility methods for XML processing.
