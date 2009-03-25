@@ -111,7 +111,7 @@ public class FileRequestFile {
         }
         Document d = null;
         try {
-            d = XMLTools.parseXmlFile(sourceFile.getPath(), false);
+            d = XMLTools.parseXmlFile(sourceFile.getPath());
         } catch (final Throwable t) {
             logger.log(Level.SEVERE, "Exception in readRequestFile, during XML parsing", t);
             return null;
