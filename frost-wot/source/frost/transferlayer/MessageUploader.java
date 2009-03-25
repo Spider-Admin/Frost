@@ -32,10 +32,7 @@ import frost.storage.perst.*;
 import frost.util.*;
 
 /**
- * This class uploads a message file to freenet. The preparation of the
- * file that is uploaded is done differently for freenet 0.5 and freenet 0.7.
- * To accomplish this the abstract method prepareMessage() is called, which is
- * implemented by MessageUploader05 and MessageUploader07.
+ * This class uploads a message file to freenet.
  */
 public class MessageUploader {
 

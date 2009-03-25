@@ -21,83 +21,29 @@ package frost.fcp;
 /**
  * This class is a utility class to provide a datatype for results
  * returned from an FCP operation.
- * This class is used by freenet 05 and 07. 07 does not use the metadata. 
+ * This class is used by freenet 05 and 07. 07 does not use the metadata.
  */
 public class FcpResultGet {
-    
-    private byte [] rawMetadata = null; // only used by freenet 0.5
-    
-//    private String chkUri = null;
-    
-    private boolean isSuccess;
-    
+
+    private final boolean isSuccess;
+
     private int returnCode = -1;
     private String codeDescription = null;
     private String redirectURI = null;
     private boolean isFatal = false;
-    
+
     public static FcpResultGet RESULT_FAILED = new FcpResultGet(false);
 
-    public FcpResultGet(boolean isSuccess) {
+    public FcpResultGet(final boolean isSuccess) {
         this.isSuccess = isSuccess;
     }
-    
-    public FcpResultGet(boolean isSuccess, int rc, String cd, boolean fatal, String redirectUri) {
+
+    public FcpResultGet(final boolean isSuccess, final int rc, final String cd, final boolean fatal, final String redirectUri) {
         this.isSuccess = isSuccess;
         returnCode = rc;
         codeDescription = cd;
         isFatal = fatal;
         redirectURI = redirectUri;
-    }
-
-//    /**
-//     * Retrieves the CHK URI.
-//     * Valid for uploading.
-//     *
-//     * @return the CHK URI
-//     */
-//    public String getChkUri() {
-//       return chkUri;
-//    }
-//
-//    /**
-//     * Sets the CHK URI.
-//     * Valid for uploading.
-//     *
-//     * @param chkUri the CHK URI
-//     */
-//    void setChkUri(String chkUri) {
-//       this.chkUri = chkUri;
-//    }
-
-    /**
-     * Retrieves the metadata.
-     * Valid for downloading.
-     *
-     * @return the metadata
-     */
-    public String [] getMetadataAsLines() {
-        if( rawMetadata == null ) {
-            return null;
-        }
-        return new String(rawMetadata).split("\n");
-    }
-
-    /**
-     * @return raw metadata bytes
-     */
-    public byte[] getRawMetadata() {
-        return rawMetadata;
-    }
-
-    /**
-     * Sets the metadata.
-     * Valid for downloading.
-     *
-     * @param metadata the metadata
-     */
-    public void setRawMetadata(byte[] bs) {
-        rawMetadata = bs;
     }
 
     public boolean isFatal() {

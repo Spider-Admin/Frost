@@ -62,7 +62,7 @@ public class FileListDownloadThread extends Thread {
         initializeQueue();
 
         // monitor and process downloads
-        // we expect an appr. chk file size of 512kb, max. 768kb (because of 0.5, we want no splitfile there)
+        // we expect an appr. chk file size of 512kb, max. 768kb
 
         final int maxAllowedExceptions = 5;
         int occuredExceptions = 0;

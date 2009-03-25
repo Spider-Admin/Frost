@@ -43,7 +43,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
 
     private static final Logger logger = Logger.getLogger(PersistenceManager.class.getName());
 
-    // this would belong to the models, but not needed for 0.5 or without persistence, hence we maintain it here
+    // this would belong to the models, but its not needed there without persistence, hence we maintain it here
     private final Hashtable<String,FrostUploadItem> uploadModelItems = new Hashtable<String,FrostUploadItem>();
     private final Hashtable<String,FrostDownloadItem> downloadModelItems = new Hashtable<String,FrostDownloadItem>();
 
