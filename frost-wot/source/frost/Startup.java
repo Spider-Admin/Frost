@@ -55,6 +55,11 @@ public class Startup {
         if( oldJarFile.isFile() ) {
             oldJarFile.delete();
         }
+        // remove gnu-regexp-1.1.4.jar
+        oldJarFile = new File("lib/gnu-regexp-1.1.4.jar");
+        if( oldJarFile.isFile() ) {
+            oldJarFile.delete();
+        }
     }
 
     // Copy some files from the jar file, if they don't exist
