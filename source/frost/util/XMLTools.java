@@ -61,23 +61,6 @@ public class XMLTools {
     }
 
     /**
-     * Serializes the XML into a byte array.
-     */
-    public static byte [] getRawXMLDocument (final XMLizable element) {
-        final Document doc = getXMLDocument(element);
-        final File tmp = getXmlTempFile();
-        byte [] result=null;
-        try {
-            writeXmlFile(doc, tmp.getPath());
-            result = FileAccess.readByteArray(tmp);
-        } catch (final Throwable t) {
-            logger.log(Level.SEVERE, "Exception thrown in getRawXMLDocument(XMLizable element)", t);
-        }
-        tmp.delete();
-        return result;
-    }
-
-    /**
      * Parses an XML file and returns a DOM document.
      * If validating is true, the contents is validated against the DTD
      * specified in the file.
@@ -252,15 +235,6 @@ public class XMLTools {
             sb.append(txtname.getData());
         }
         return sb.toString();
-    }
-
-    /**
-     * create a proper temp file (deleted on VM emergency exit).
-     */
-    private static File getXmlTempFile() {
-        final File tmp = FileAccess.createTempFile("xmltools_", ".tmp");
-        tmp.deleteOnExit();
-        return tmp;
     }
 
 //    public static void main(String[] args) {
