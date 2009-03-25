@@ -51,7 +51,7 @@ public class TofTreeXmlIO {
     {
         Document doc = null;
         try {
-            doc = XMLTools.parseXmlFile(filename, false);
+            doc = XMLTools.parseXmlFile(filename);
         } catch(final Exception ex) { ; } // xml format error
 
         if( doc == null ) {

@@ -39,7 +39,7 @@ public class IdentitiesXmlDAO {
 
         final LinkedList<Identity> identities = new LinkedList<Identity>();
 
-        final Document d = XMLTools.parseXmlFile(file, false);
+        final Document d = XMLTools.parseXmlFile(file);
         final Element rootEl = d.getDocumentElement();
 
         final List<Element> lists = XMLTools.getChildElementsByTagName(rootEl, "BuddyList");

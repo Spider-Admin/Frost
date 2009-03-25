@@ -37,7 +37,7 @@ public class LocalIdentitiesXmlDAO {
         if( file.exists() ) {
             Document doc = null;
             try {
-                doc = XMLTools.parseXmlFile(file, false);
+                doc = XMLTools.parseXmlFile(file);
             } catch (final Exception ex) {
                 logger.log(Level.SEVERE, "Error reading localidentities xml", ex);
                 return localIdentities;

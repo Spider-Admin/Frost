@@ -409,7 +409,7 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
     protected void loadFile() throws Exception {
         Document doc = null;
         try {
-            doc = XMLTools.parseXmlFile(this.file, false);
+            doc = XMLTools.parseXmlFile(this.file);
         } catch(final Exception ex) {  // xml format error
             final File badMessage = new File("badmessage.xml");
             if (file.renameTo(badMessage)) {
@@ -458,7 +458,7 @@ public class MessageXmlFile extends AbstractMessageObject implements XMLizable {
             FileAccess.writeFile(decContent, this.file);
             // try to load again
             try {
-                doc = XMLTools.parseXmlFile(this.file, false);
+                doc = XMLTools.parseXmlFile(this.file);
             } catch(final Exception ex) {  // xml format error
                 final File badMessage = new File("badmessage.xml");
                 if (file.renameTo(badMessage)) {
