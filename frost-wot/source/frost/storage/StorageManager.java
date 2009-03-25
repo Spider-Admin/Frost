@@ -22,9 +22,7 @@ import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
-import frost.events.*;
 import frost.util.Logging;
-import frost.util.gui.translation.*;
 
 /**
  * @author $Author$
@@ -33,9 +31,6 @@ import frost.util.gui.translation.*;
 public class StorageManager extends Timer {
 
     private static final Logger logger = Logger.getLogger(StorageManager.class.getName());
-
-    private final Language language;
-    private final FrostEventDispatcher listener;
 
     private final ShutdownThread shutdownThread = new ShutdownThread();
     private final AutoTask autoTask = new AutoTask();
@@ -55,9 +50,9 @@ public class StorageManager extends Timer {
 						savable.autoSave();
 					} catch (final StorageException se) {
 						logger.log(Level.SEVERE, "Error while saving a resource inside the timer.", se);
-						final StorageErrorEvent errorEvent = new StorageErrorEvent(language.getString("Saver.AutoTask.message"));
-						errorEvent.setException(se);
-						listener.dispatchEvent(errorEvent);
+						if (Core.getInstance() != null) {
+						    Core.getInstance().showAutoSaveError(se);
+						}
 					}
 				}
                 // autosave consumes some memory, clean up now
@@ -95,13 +90,7 @@ public class StorageManager extends Timer {
 		}
 	}
 
-	/**
-	 * @param frostSettings
-	 * @param parentFrame
-	 */
-	public StorageManager(final SettingsClass frostSettings, final FrostEventDispatcher listener) {
-		this.language = Language.getInstance();
-		this.listener = listener;
+	public StorageManager(final SettingsClass frostSettings) {
 		Runtime.getRuntime().addShutdownHook(shutdownThread);
 		final int autoSaveIntervalMinutes = frostSettings.getIntValue(SettingsClass.AUTO_SAVE_INTERVAL);
 		schedule(

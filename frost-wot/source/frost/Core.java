@@ -28,7 +28,6 @@ import javax.swing.*;
 
 import frost.boards.*;
 import frost.crypt.*;
-import frost.events.*;
 import frost.ext.*;
 import frost.fcp.*;
 import frost.fileTransfer.*;
@@ -53,7 +52,7 @@ import frost.util.gui.translation.*;
  * @pattern Singleton
  * @version $Id$
  */
-public class Core implements FrostEventDispatcher  {
+public class Core {
 
     private static final Logger logger = Logger.getLogger(Core.class.getName());
 
@@ -66,7 +65,6 @@ public class Core implements FrostEventDispatcher  {
 
     private static boolean isHelpHtmlSecure = false;
 
-    private final EventDispatcher dispatcher = new EventDispatcher();
     private Language language = null;
 
     private static boolean freenetIsOnline = false;
@@ -141,7 +139,7 @@ public class Core implements FrostEventDispatcher  {
         // paranoia, should never happen
         if (nodes.size() == 0) {
             MiscToolkit.showMessage(
-                "Not a single Freenet node configured. Will use the default.",
+                "Not a single Freenet node configured. Frost cannot start.",
                 JOptionPane.ERROR_MESSAGE,
                 "ERROR: No Freenet nodes are configured.");
             return false;
@@ -504,7 +502,7 @@ public class Core implements FrostEventDispatcher  {
         cleaner = null;
 
         // initialize the task that saves data
-        final StorageManager saver = new StorageManager(frostSettings, this);
+        final StorageManager saver = new StorageManager(frostSettings);
 
         // auto savables
         saver.addAutoSavable(getBoardsManager().getTofTree());
@@ -592,38 +590,24 @@ public class Core implements FrostEventDispatcher  {
         language = Language.getInstance();
     }
 
-    /* (non-Javadoc)
-     * @see frost.events.FrostEventDispatcher#dispatchEvent(frost.events.FrostEvent)
-     */
-    public void dispatchEvent(final FrostEvent frostEvent) {
-        dispatcher.dispatchEvent(frostEvent);
+    public void showAutoSaveError(final Exception exception) {
+        final StringWriter stringWriter = new StringWriter();
+        exception.printStackTrace(new PrintWriter(stringWriter));
+
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                if (mainFrame != null) {
+                    JDialogWithDetails.showErrorDialog(mainFrame,
+                            language.getString("Saver.AutoTask.title"),
+                            language.getString("Saver.AutoTask.message"),
+                            stringWriter.toString());
+                    System.exit(3);
+                }
+            }
+        });
     }
 
     public static boolean isHelpHtmlSecure() {
         return isHelpHtmlSecure;
-    }
-
-    private class EventDispatcher {
-        public void dispatchEvent(final FrostEvent frostEvent) {
-            switch(frostEvent.getId()) {
-                case FrostEvent.STORAGE_ERROR_EVENT_ID:
-                    dispatchStorageErrorEvent((StorageErrorEvent) frostEvent);
-                    break;
-                default:
-                    logger.severe("Unknown FrostEvent received. Id: '" + frostEvent.getId() + "'");
-            }
-        }
-        public void dispatchStorageErrorEvent(final StorageErrorEvent errorEvent) {
-            final StringWriter stringWriter = new StringWriter();
-            errorEvent.getException().printStackTrace(new PrintWriter(stringWriter));
-
-            if (mainFrame != null) {
-                JDialogWithDetails.showErrorDialog(mainFrame,
-                                    language.getString("Saver.AutoTask.title"),
-                                    errorEvent.getMessage(),
-                                    stringWriter.toString());
-            }
-            System.exit(3);
-        }
     }
 }
