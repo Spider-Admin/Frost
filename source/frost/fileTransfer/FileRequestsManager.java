@@ -51,7 +51,7 @@ public class FileRequestsManager {
         // - must be not requested since 23h ( by us or others )
         // - we DON'T have the chk OR
         // - we HAVE the chk, but download FAILED
-        // - when progress did not change for X hours frost-measured trytime or FAILED. Works for 0.5 and 0.7.
+        // - when progress did not change for X hours frost-measured trytime or FAILED.
 
         // FIXME: maybe only request FAILED if failed reason was Data_Not_Found!
         //        But this requires that the dlitem remembers the failed reason!

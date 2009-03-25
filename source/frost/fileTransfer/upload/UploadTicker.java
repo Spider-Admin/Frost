@@ -176,8 +176,7 @@ public class UploadTicker extends Thread {
 
             for (int i = 0; i < model.getItemCount() && !threadLaunched; i++) {
                 final FrostUploadItem ulItem = (FrostUploadItem) model.getItemAt(i);
-                // encode if requested by user, OR
-                // if state is WAITING for upload and its 0.5 and there is no chkKey, we must encode the file
+                // encode if requested by user
                 if (ulItem.getState() == FrostUploadItem.STATE_ENCODING_REQUESTED) {
                     // next state will be IDLE (=default)
                     final GenerateChkThread newInsert = new GenerateChkThread(this, ulItem);

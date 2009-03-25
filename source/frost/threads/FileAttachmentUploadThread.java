@@ -59,7 +59,7 @@ public class FileAttachmentUploadThread extends Thread {
     public void run() {
 
         // monitor and process file attachment uploads
-        // we expect an appr. chk file size of 512kb, max. 768kb (because of 0.5, we want no splitfile there)
+        // we expect an appr. chk file size of 512kb, max. 768kb
 
         final int maxAllowedExceptions = 5;
         int occuredExceptions = 0;
