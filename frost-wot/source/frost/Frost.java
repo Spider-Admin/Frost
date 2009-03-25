@@ -50,9 +50,9 @@ public class Frost {
         System.out.println("Frost comes with ABSOLUTELY NO WARRANTY!");
         System.out.println("This is free software, and you are welcome to");
         System.out.println("redistribute it under the GPL conditions.");
-        System.out.println("Frost uses code from apache.org (Apache license),");
-        System.out.println("bouncycastle.org (BSD license), Martin Newstead (LGPL license),");
-        System.out.println("Volker H. Simonis (GPL v2 license) and McObject LLC (GPL v2 license).");
+        System.out.println("Frost uses code from bouncycastle.org (BSD license),");
+        System.out.println("Martin Newstead (LGPL license), Volker H. Simonis (GPL v2 license)");
+        System.out.println("and McObject LLC (GPL v2 license).");
         System.out.println();
 
         parseCommandLine(args);
@@ -278,15 +278,6 @@ public class Frost {
         // check for needed .jar files by loading a class and catching the error
         String jarFileName = "";
         try {
-            // check for xercesImpl.jar
-            jarFileName = "xercesImpl.jar";
-            Class.forName("org.apache.xerces.dom.DocumentImpl");
-            // check for xml-apis.jar
-            jarFileName = "xml-apis.jar";
-            Class.forName("org.w3c.dom.Document");
-            // extra check for OutputFormat (xercesImpl.jar)
-            jarFileName = "xercesImpl.jar";
-            Class.forName("org.apache.xml.serialize.OutputFormat");
             // check for datechooser.jar
             jarFileName = "datechooser.jar";
             Class.forName("mseries.ui.MDateEntryField");

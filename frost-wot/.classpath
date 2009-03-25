@@ -6,7 +6,5 @@
 	<classpathentry kind="lib" path="lib/BCastle.jar"/>
 	<classpathentry kind="lib" path="lib/joda-time.jar"/>
 	<classpathentry kind="lib" path="lib/perst15.jar" sourcepath="C:/Projects/perst15/source"/>
-	<classpathentry kind="lib" path="lib/xercesImpl.jar"/>
-	<classpathentry kind="lib" path="lib/xml-apis.jar"/>
 	<classpathentry kind="output" path="_out_"/>
 </classpath>
