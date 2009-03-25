@@ -597,7 +597,8 @@ public class Core {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 if (mainFrame != null) {
-                    JDialogWithDetails.showErrorDialog(mainFrame,
+                    JDialogWithDetails.showErrorDialog(
+                            mainFrame,
                             language.getString("Saver.AutoTask.title"),
                             language.getString("Saver.AutoTask.message"),
                             stringWriter.toString());
