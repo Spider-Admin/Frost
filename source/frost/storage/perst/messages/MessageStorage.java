@@ -920,7 +920,7 @@ public class MessageStorage extends AbstractFrostStorage implements ExitSavable 
         }
         try {
             for( final FrostMessageObject mo : msgObjects ) {
-                if( mo.getPerstFrostMessageObject() == null ) {
+                if (mo.getPerstFrostMessageObject() == null || mo.getBoard() == null) {
                     logger.severe("delete not possible");
                     continue;
                 }

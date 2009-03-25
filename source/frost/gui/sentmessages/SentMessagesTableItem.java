@@ -22,21 +22,21 @@ import frost.messages.*;
 import frost.util.model.*;
 
 public class SentMessagesTableItem extends ModelItem {
-    
-    private FrostMessageObject messageObject;
-    
-    public SentMessagesTableItem(FrostMessageObject mo) {
+
+    private final FrostMessageObject messageObject;
+
+    public SentMessagesTableItem(final FrostMessageObject mo) {
         messageObject = mo;
     }
-    
+
     public String getSubject() {
         return messageObject.getSubject();
     }
-    
+
     public String getFrom() {
         return messageObject.getFromName();
     }
-    
+
     public String getTo() {
         if( messageObject.getRecipientName() == null ) {
             return "";
@@ -44,15 +44,18 @@ public class SentMessagesTableItem extends ModelItem {
             return messageObject.getRecipientName();
         }
     }
-    
+
     public String getBoardName() {
+        if (messageObject.getBoard() == null) {
+            return "(*removed*)";
+        }
         return messageObject.getBoard().getName();
     }
-    
+
     public String getDateAndTimeString() {
         return messageObject.getDateAndTimeString();
     }
-    
+
     public FrostMessageObject getFrostMessageObject() {
         return messageObject;
     }

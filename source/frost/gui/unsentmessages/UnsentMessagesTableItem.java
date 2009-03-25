@@ -22,24 +22,24 @@ import frost.messages.*;
 import frost.util.model.*;
 
 public class UnsentMessagesTableItem extends ModelItem {
-    
+
     public static final int STATE_WAITING = 1;
     public static final int STATE_UPLOADING = 2;
 
-    private FrostUnsentMessageObject messageObject;
-    
-    public UnsentMessagesTableItem(FrostUnsentMessageObject mo) {
+    private final FrostUnsentMessageObject messageObject;
+
+    public UnsentMessagesTableItem(final FrostUnsentMessageObject mo) {
         messageObject = mo;
     }
-    
+
     public String getSubject() {
         return messageObject.getSubject();
     }
-    
+
     public String getFrom() {
         return messageObject.getFromName();
     }
-    
+
     public String getTo() {
         if( messageObject.getRecipientName() == null ) {
             return "";
@@ -47,19 +47,22 @@ public class UnsentMessagesTableItem extends ModelItem {
             return messageObject.getRecipientName();
         }
     }
-    
+
     public String getBoardName() {
+        if (messageObject.getBoard() == null) {
+            return "(*removed*)";
+        }
         return messageObject.getBoard().getName();
     }
 
     public String getTimeAddedString() {
         return messageObject.getTimeAddedString();
     }
-    
+
     public FrostUnsentMessageObject getFrostUnsentMessageObject() {
         return messageObject;
     }
-    
+
     public int getState() {
         if( getFrostUnsentMessageObject().getCurrentUploadThread() == null ) {
             return STATE_WAITING;
@@ -67,7 +70,7 @@ public class UnsentMessagesTableItem extends ModelItem {
             return STATE_UPLOADING;
         }
     }
-    
+
     @Override
     public void fireChange() {
         super.fireChange();

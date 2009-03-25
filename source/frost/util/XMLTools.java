@@ -23,11 +23,12 @@ import java.util.*;
 import java.util.logging.*;
 
 import javax.xml.parsers.*;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.*;
+import javax.xml.transform.stream.*;
 
 import org.w3c.dom.*;
 import org.xml.sax.*;
-
-import com.sun.org.apache.xml.internal.serialize.*;
 
 /**
  * A place to hold utility methods for XML processing.
@@ -122,16 +123,15 @@ public class XMLTools {
      */
     public static boolean writeXmlFile(final Document doc, final File file) {
         try {
-            final OutputFormat format = new OutputFormat(doc, "UTF-8", false);
-            format.setLineSeparator(LineSeparator.Windows);
-            //format.setIndenting(true);
-            format.setLineWidth(0);
-            format.setPreserveSpace(true);
-            final OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(file), "UTF-8");
-            final XMLSerializer serializer = new XMLSerializer(writer, format);
-            serializer.asDOMSerializer();
-            serializer.serialize(doc);
-            writer.close(); //this also flushes
+            final Transformer tr = TransformerFactory.newInstance().newTransformer();
+            tr.setOutputProperty(OutputKeys.INDENT, "no");
+            tr.setOutputProperty(OutputKeys.METHOD, "xml");
+            tr.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+            final Source input = new DOMSource(doc);
+            final FileOutputStream fileout = new FileOutputStream(file);
+            final StreamResult output = new StreamResult(fileout);
+            tr.transform(input, output);
+            fileout.close();
             return true;
         } catch (final Exception ex) {
             logger.log(Level.SEVERE, "Exception thrown in writeXmlFile(Document doc, String filename)", ex);
