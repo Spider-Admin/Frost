@@ -49,7 +49,7 @@ public class FrostSecurityManager extends SecurityManager {
             }
         }
         // host:port is not in our list
-        throw new SecurityException("Connect to non-FCP host/port forbidden: "+host+":"+port);
+        throw new SecurityException("Connection to unconfigured FCP host/port forbidden: "+host+":"+port);
     }
 
     @Override
