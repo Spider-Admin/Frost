@@ -285,7 +285,7 @@ public class MessageUploader {
                 return true;
             }
         } catch(final Throwable t) {
-            logger.log(Level.WARNING, "Handled exception in downloadMessage", t);
+            logger.log(Level.SEVERE, "Handled exception in downloadMessage", t);
         }
         return false;
     }
