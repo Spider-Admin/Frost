@@ -273,13 +273,18 @@ public class TOF implements PropertyChangeListener {
             messageInsertedRC = MessageStorage.inst().insertMessage(newMsg);
         } catch (final Throwable e) {
             // paranoia
-            logger.log(Level.SEVERE, "Error inserting new message into database", e);
+            logger.log(
+                    Level.SEVERE,
+                    "Error inserting new message into database. Msgid="+newMsg.getMessageId()+
+                    "; Board="+board.getName()+"; Date="+newMsg.getDateAndTimeString()+"; "+"Index="+index,
+                    e);
             return;
         }
 
         // don't add msg if it was a duplicate
         if( messageInsertedRC == MessageStorage.INSERT_DUPLICATE ) {
-            logger.severe("Duplicate message, not added to storage: "+newMsg.getMessageId());
+            logger.severe("Duplicate message, not added to storage. Msgid="+newMsg.getMessageId()+
+                    "; Board="+board.getName()+"; Date="+newMsg.getDateAndTimeString()+"; "+"Index="+index);
             return; // not inserted into database, do not add to gui
         }
 
