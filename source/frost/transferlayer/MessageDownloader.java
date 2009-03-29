@@ -81,7 +81,7 @@ public class MessageDownloader {
         	tmpFile.delete();
         	if(results != null && results.getReturnCode() == 28) {
      	    	logger.warning("TOFDN: All data not found."+logInfo);
-     	    	System.out.println("TOFDN: Contents of message key partially missing.");
+     	    	System.out.println("TOFDN: ADNF - Contents of message key partially missing.");
      	    	return new MessageDownloaderResult(MessageDownloaderResult.ALLDATANOTFOUND);
             } else if(results != null && results.getReturnCode() == 21) {
                     logger.severe("TOFDN: Message file too big."+logInfo);

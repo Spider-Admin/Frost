@@ -78,8 +78,7 @@ public class FilePointersThread extends Thread {
 
         // write a pointerfile to a tempfile
         List<String> tmpChkStringKeys = new ArrayList<String>(sharedFileCHKkeys.size());
-        for( final Object element : sharedFileCHKkeys ) {
-            final SharedFilesCHKKey ck = (SharedFilesCHKKey) element;
+        for( final SharedFilesCHKKey ck : sharedFileCHKkeys ) {
             tmpChkStringKeys.add( ck.getChkKey() );
         }
 
