@@ -107,7 +107,7 @@ public class SharedFilesCHKKeyStorage extends AbstractFrostStorage implements Ex
             // first search for CHK keys that were created by us, but were never send
             {
                 for( final SharedFilesCHKKey sfk : storageRoot.chkKeys ) {
-                    if( sfk.getSeenCount() == 0 ) {
+                    if (sfk.getSeenCount() == 0 && sfk.getChkKey() != null && sfk.getChkKey().length() > 0) {
                         keysToSend.add(sfk);
                         if( keysToSend.size() >= ownKeysToSend ) {
                             break;
