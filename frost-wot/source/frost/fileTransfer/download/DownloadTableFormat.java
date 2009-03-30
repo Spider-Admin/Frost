@@ -411,20 +411,49 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 
 	private class BlocksComparator implements Comparator<FrostDownloadItem> {
 		public int compare(final FrostDownloadItem item1, final FrostDownloadItem item2) {
-//			String blocks1 =
-//				getBlocksAsString(
-//					item1.getTotalBlocks(),
-//					item1.getDoneBlocks(),
-//					item1.getRequiredBlocks());
-//			String blocks2 =
-//				getBlocksAsString(
-//					item2.getTotalBlocks(),
-//					item2.getDoneBlocks(),
-//					item2.getRequiredBlocks());
-//			return blocks1.compareToIgnoreCase(blocks2);
-            return Mixed.compareInt(item1.getDoneBlocks(), item2.getDoneBlocks());
-//            return new Integer(item1.getDoneBlocks()).compareTo(new Integer(item2.getDoneBlocks()));
+
+		    // compare by percent completed. Finalized items are grouped.
+            final int percentDone1 = calculatePercentDone(
+                    item1.isFinalized(),
+                    item1.getTotalBlocks(),
+                    item1.getDoneBlocks(),
+                    item1.getRequiredBlocks());
+            final int percentDone2 = calculatePercentDone(
+	                item2.isFinalized(),
+	                item2.getTotalBlocks(),
+	                item2.getDoneBlocks(),
+	                item2.getRequiredBlocks());
+
+            return Mixed.compareInt(percentDone1, percentDone2);
 		}
+
+        private int calculatePercentDone(final Boolean isFinalized, final int totalBlocks, final int doneBlocks,
+                final int requiredBlocks)
+        {
+            int percentDone = 0;
+            if (isFinalized != null) {
+                // isFinalized is set because the node sent progress
+                if( totalBlocks > 0 ) {
+                    if (requiredBlocks > 0) {
+                        percentDone = ((doneBlocks * 100) / requiredBlocks);
+                    }
+                    if( percentDone > 100 ) {
+                        percentDone = 100;
+                    }
+                }
+            }
+            if (isFinalized != null && isFinalized.booleanValue()) {
+                // finalized get highest value
+                percentDone = (percentDone+2)*100;
+            } else if (isFinalized != null && !isFinalized.booleanValue()) {
+                // not finalized, but obviously started by node
+                percentDone = percentDone+1;
+            } else {
+                // not started by node
+                percentDone = 0;
+            }
+            return percentDone;
+        }
 	}
 
 	private class StateComparator implements Comparator<FrostDownloadItem> {
