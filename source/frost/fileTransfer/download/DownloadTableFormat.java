@@ -413,23 +413,19 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener,
 		public int compare(final FrostDownloadItem item1, final FrostDownloadItem item2) {
 
 		    // compare by percent completed. Finalized items are grouped.
-            final int percentDone1 = calculatePercentDone(
-                    item1.isFinalized(),
-                    item1.getTotalBlocks(),
-                    item1.getDoneBlocks(),
-                    item1.getRequiredBlocks());
-            final int percentDone2 = calculatePercentDone(
-	                item2.isFinalized(),
-	                item2.getTotalBlocks(),
-	                item2.getDoneBlocks(),
-	                item2.getRequiredBlocks());
+            final int percentDone1 = calculatePercentDone(item1);
+            final int percentDone2 = calculatePercentDone(item2);
 
             return Mixed.compareInt(percentDone1, percentDone2);
 		}
 
-        private int calculatePercentDone(final Boolean isFinalized, final int totalBlocks, final int doneBlocks,
-                final int requiredBlocks)
+        private int calculatePercentDone(final FrostDownloadItem item)
         {
+            final Boolean isFinalized = item.isFinalized();
+            final int totalBlocks     = item.getTotalBlocks();
+            final int doneBlocks      = item.getDoneBlocks();
+            final int requiredBlocks  = item.getRequiredBlocks();
+
             int percentDone = 0;
             if (isFinalized != null) {
                 // isFinalized is set because the node sent progress
