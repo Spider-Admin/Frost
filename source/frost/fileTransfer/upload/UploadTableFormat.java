@@ -339,26 +339,41 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener, P
     private class StateComparator implements Comparator<FrostUploadItem> {
         public int compare(final FrostUploadItem item1, final FrostUploadItem item2) {
             return Mixed.compareInt(item1.getState(), item2.getState());
-//            return getStateAsString(item1, item1.getState()).
-//                        compareToIgnoreCase(getStateAsString(item2, item2.getState()));
         }
     }
 
     private class BlocksComparator implements Comparator<FrostUploadItem> {
         public int compare(final FrostUploadItem item1, final FrostUploadItem item2) {
-//          String blocks1 =
-//              getBlocksAsString(
-//                  item1.getTotalBlocks(),
-//                  item1.getDoneBlocks(),
-//                  item1.getRequiredBlocks());
-//          String blocks2 =
-//              getBlocksAsString(
-//                  item2.getTotalBlocks(),
-//                  item2.getDoneBlocks(),
-//                  item2.getRequiredBlocks());
-//          return blocks1.compareToIgnoreCase(blocks2);
-//            return new Integer(item1.getDoneBlocks()).compareTo(new Integer(item2.getDoneBlocks()));
-            return Mixed.compareInt(item1.getDoneBlocks(), item2.getDoneBlocks());
+
+            // compare by percent completed. Finalized items are grouped.
+            final int percentDone1 = calculatePercentDone(item1.isFinalized(), item1.getTotalBlocks(), item1.getDoneBlocks());
+            final int percentDone2 = calculatePercentDone(item2.isFinalized(), item2.getTotalBlocks(), item2.getDoneBlocks());
+
+            return Mixed.compareInt(percentDone1, percentDone2);
+        }
+
+        private int calculatePercentDone(final Boolean isFinalized, final int totalBlocks, final int doneBlocks) {
+            int percentDone = 0;
+            if (isFinalized != null) {
+                // isFinalized is set because the node sent progress
+                if( totalBlocks > 0 ) {
+                    percentDone = ((doneBlocks * 100) / totalBlocks);
+                    if( percentDone > 100 ) {
+                        percentDone = 100;
+                    }
+                }
+            }
+            if (isFinalized != null && isFinalized.booleanValue()) {
+                // finalized get highest value
+                percentDone = (percentDone+2)*100;
+            } else if (isFinalized != null && !isFinalized.booleanValue()) {
+                // not finalized, but obviously started by node
+                percentDone = percentDone+1;
+            } else {
+                // not started by node
+                percentDone = 0;
+            }
+            return percentDone;
         }
     }
 
