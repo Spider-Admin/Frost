@@ -154,6 +154,8 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
             showExternalGlobalQueueItems.setSelected(Core.frostSettings.getBoolValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_DOWNLOAD));
 			setDownloadingActivated(Core.frostSettings.getBoolValue(SettingsClass.DOWNLOADING_ACTIVATED));
 
+			assignHotkeys();
+
 			initialized = true;
 		}
 	}
@@ -426,6 +428,25 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	public void updateSettings() {
         Core.frostSettings.setValue(SettingsClass.DOWNLOADING_ACTIVATED, isDownloadingActivated());
 	}
+
+    private void assignHotkeys() {
+
+    // assign keys 1-6 - set priority of selected items
+        final Action setPriorityAction = new AbstractAction() {
+            public void actionPerformed(final ActionEvent event) {
+                final int prio = new Integer(event.getActionCommand()).intValue();
+                final ModelItem[] selectedItems = modelTable.getSelectedItems();
+                FileTransferManager.inst().getPersistenceManager().changeItemPriorites(selectedItems, prio);
+            }
+        };
+        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_1, 0), "SETPRIO");
+        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_2, 0), "SETPRIO");
+        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_3, 0), "SETPRIO");
+        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_4, 0), "SETPRIO");
+        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_5, 0), "SETPRIO");
+        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_6, 0), "SETPRIO");
+        getActionMap().put("SETPRIO", setPriorityAction);
+    }
 
     /**
      * Renderer draws background of DONE items in green.
