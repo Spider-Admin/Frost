@@ -312,7 +312,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
     }
 
     public boolean isThreadOfTypeRunning(final Board board, final int type) {
-        final Vector threads = getDownloadThreadsForBoard(board);
+        final List threads = getDownloadThreadsForBoard(board);
         for( int x = 0; x < threads.size(); x++ ) {
             final BoardUpdateThread thread = (BoardUpdateThread) threads.get(x);
             if( thread.getThreadType() == type ) {
