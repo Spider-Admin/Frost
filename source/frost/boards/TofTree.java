@@ -35,7 +35,9 @@ import org.joda.time.*;
 
 import frost.*;
 import frost.gui.*;
-import frost.messages.*;
+import frost.messaging.frost.*;
+import frost.messaging.frost.gui.*;
+import frost.messaging.frost.threads.*;
 import frost.storage.*;
 import frost.threads.*;
 import frost.util.gui.*;

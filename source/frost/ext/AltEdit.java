@@ -28,6 +28,7 @@ import javax.swing.*;
 
 import frost.*;
 import frost.gui.*;
+import frost.messaging.frost.gui.*;
 import frost.util.*;
 import frost.util.gui.translation.*;
 

@@ -22,7 +22,7 @@ import org.garret.perst.*;
 import org.joda.time.*;
 
 import frost.boards.*;
-import frost.messages.*;
+import frost.messaging.frost.*;
 
 /**
  * Holds all nessecary data for a FrostMessageObject and allows

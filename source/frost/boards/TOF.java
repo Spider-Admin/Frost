@@ -30,9 +30,9 @@ import org.joda.time.*;
 
 import frost.*;
 import frost.gui.*;
-import frost.gui.messagetreetable.*;
 import frost.identities.*;
-import frost.messages.*;
+import frost.messaging.frost.*;
+import frost.messaging.frost.gui.messagetreetable.*;
 import frost.storage.*;
 import frost.storage.perst.messages.*;
 import frost.util.*;
