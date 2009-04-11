@@ -20,7 +20,7 @@ package frost.storage.perst.messagearchive;
 
 import org.garret.perst.*;
 
-import frost.messages.*;
+import frost.messaging.frost.*;
 
 public class PerstFrostArchiveBoardAttachment extends Persistent {
 

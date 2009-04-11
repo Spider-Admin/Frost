@@ -21,7 +21,7 @@ package frost.boards;
 import java.util.*;
 
 import frost.*;
-import frost.messages.*;
+import frost.messaging.frost.*;
 
 /**
  * Selects the next board eligible for updating.

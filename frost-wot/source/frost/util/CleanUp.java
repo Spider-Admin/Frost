@@ -25,7 +25,7 @@ import java.util.logging.*;
 import frost.*;
 import frost.boards.*;
 import frost.gui.*;
-import frost.messages.*;
+import frost.messaging.frost.*;
 import frost.storage.*;
 import frost.storage.perst.*;
 import frost.storage.perst.filelist.*;

@@ -26,7 +26,7 @@ import org.joda.time.*;
 
 import frost.*;
 import frost.boards.*;
-import frost.messages.*;
+import frost.messaging.frost.*;
 import frost.storage.*;
 import frost.storage.perst.*;
 
