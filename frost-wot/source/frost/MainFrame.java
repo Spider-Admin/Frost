@@ -51,7 +51,6 @@ import frost.storage.perst.filelist.*;
 import frost.storage.perst.identities.*;
 import frost.storage.perst.messagearchive.*;
 import frost.storage.perst.messages.*;
-import frost.threads.*;
 import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
@@ -599,12 +598,12 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         final ButtonGroup group = new ButtonGroup();
 
         final ActionListener al = new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String lfName = e.getActionCommand();
+            public void actionPerformed(final ActionEvent e) {
+                final String lfName = e.getActionCommand();
                 try {
                     UIManager.setLookAndFeel(lfName);
                     updateComponentTreesUI();
-                } catch(Throwable t) {
+                } catch(final Throwable t) {
                     logger.log(Level.SEVERE, "Exception changing l&f", t);
                 }
             }
@@ -650,10 +649,10 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         });
 
         // Vertical Board Tree / MessagePane Divider
-        final JPanel p = new JPanel(new BorderLayout());
-        treeAndTabbedPaneSplitpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tofTreeScrollPane, p);
+        final JPanel panel = new JPanel(new BorderLayout());
+        treeAndTabbedPaneSplitpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tofTreeScrollPane, panel);
 
-        p.add(getMessagePanel(), BorderLayout.CENTER);
+        panel.add(getMessagePanel(), BorderLayout.CENTER);
 
         int dividerLoc = frostSettings.getIntValue("MainFrame.treeAndTabbedPaneSplitpaneDividerLocation");
         if( dividerLoc < 10 ) {
@@ -661,7 +660,11 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         }
         treeAndTabbedPaneSplitpane.setDividerLocation(dividerLoc);
 
-        getTabbedPane().insertTab("MainFrame.tabbedPane.news", null, treeAndTabbedPaneSplitpane, null, 0);
+        final JPanel p = new JPanel(new BorderLayout());
+        p.add(getButtonToolBar(), BorderLayout.NORTH);
+        p.add(treeAndTabbedPaneSplitpane, BorderLayout.CENTER);
+
+        getTabbedPane().insertTab("MainFrame.tabbedPane.news", null, p, null, 0);
         getTabbedPane().setSelectedIndex(0);
 
         return getTabbedPane();
@@ -700,7 +703,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
             final Thread t = new Thread() {
                 @Override
                 public void run() {
-                    try { setPriority(getPriority() - 1); } catch(Throwable lt) {}
+                    try { setPriority(getPriority() - 1); } catch(final Throwable lt) {}
                     getSentMessagesPanel().prepareForShow(); // load from db
                     SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
@@ -728,7 +731,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
             final Thread t = new Thread() {
                 @Override
                 public void run() {
-                    try { setPriority(getPriority() - 1); } catch(Throwable lt) {}
+                    try { setPriority(getPriority() - 1); } catch(final Throwable lt) {}
                     getUnsentMessagesPanel().prepareForShow(); // load from db
                     SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
@@ -767,7 +770,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
      */
     public void saveLayout() {
         final Rectangle bounds = getBounds();
-        boolean isMaximized = ((getExtendedState() & Frame.MAXIMIZED_BOTH) != 0);
+        final boolean isMaximized = ((getExtendedState() & Frame.MAXIMIZED_BOTH) != 0);
 
         frostSettings.setValue(SettingsClass.MAINFRAME_LAST_MAXIMIZED, isMaximized);
 
@@ -898,8 +901,6 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         // Add components
         final JPanel contentPanel = (JPanel) getContentPane();
         contentPanel.setLayout(new BorderLayout());
-
-        contentPanel.add(getButtonToolBar(), BorderLayout.NORTH);
         contentPanel.add(buildMainPanel(), BorderLayout.CENTER);
         contentPanel.add(getStatusBar(), BorderLayout.SOUTH);
         setJMenuBar(getMainMenuBar());
@@ -1010,7 +1011,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
                     public void run() {
                         try {
                             FileListStorage.inst().resetLastDownloaded();
-                        } catch(Throwable tt) {
+                        } catch(final Throwable tt) {
                             logger.log(Level.SEVERE, "Exception during resetLastDownloaded", tt);
                         }
                     }
