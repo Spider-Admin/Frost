@@ -27,7 +27,6 @@ import javax.swing.border.*;
 import frost.*;
 import frost.fileTransfer.*;
 import frost.messaging.frost.threads.*;
-import frost.threads.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 

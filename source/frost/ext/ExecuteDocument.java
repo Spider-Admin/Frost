@@ -18,8 +18,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 package frost.ext;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 
 /**
  * @author saces

@@ -18,17 +18,12 @@
 */
 package frost.util.gui.textpane;
 
-import java.awt.Cursor;
-import java.awt.event.MouseEvent;
+import java.awt.*;
+import java.awt.event.*;
 
-import javax.swing.JEditorPane;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.MouseInputAdapter;
-import javax.swing.event.MouseInputListener;
-import javax.swing.text.Element;
-import javax.swing.text.Position;
-import javax.swing.text.StyledDocument;
-import javax.swing.text.StyledEditorKit;
+import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.text.*;
 
 /**
  * Use by JOptionPane for correct display Freenet's keys link.

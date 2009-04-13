@@ -59,7 +59,7 @@ public class SentMessagesManager {
             logger.log(Level.SEVERE, "Error inserting sent message", e);
         }
 
-        return MainFrame.getInstance().getSentMessagesPanel().addSentMessage(sentMo);
+        return MainFrame.getInstance().getFrostMessageTab().getSentMessagesPanel().addSentMessage(sentMo);
     }
 
     public static int deleteSentMessages(final List<FrostMessageObject> msgObjects) {

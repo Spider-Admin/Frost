@@ -21,10 +21,10 @@ package frost.gui;
 import java.awt.event.*;
 import java.util.*;
 
-import javax.swing.JTable;
+import javax.swing.*;
 import javax.swing.table.*;
 
-import frost.gui.model.SortedTableModel;
+import frost.gui.model.*;
 
 public class SortedTable extends JTable
 {

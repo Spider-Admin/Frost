@@ -18,7 +18,7 @@
 */
 package frost.util.gui.translation;
 
-import java.util.EventObject;
+import java.util.*;
 
 
 /**

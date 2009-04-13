@@ -18,16 +18,16 @@
 */
 package frost.util.gui;
 
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.event.*;
-import java.io.IOException;
+import java.io.*;
 import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.text.*;
 
-import frost.util.gui.translation.Language;
+import frost.util.gui.translation.*;
 
 public class TextComponentClipboardMenu extends MouseAdapter implements ClipboardOwner, ActionListener {
 

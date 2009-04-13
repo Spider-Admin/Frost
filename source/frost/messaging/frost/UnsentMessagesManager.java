@@ -24,7 +24,6 @@ import frost.*;
 import frost.boards.*;
 import frost.messaging.frost.threads.*;
 import frost.storage.perst.messages.*;
-import frost.threads.*;
 
 /**
  * Holds unsent messages, makes changes persistent.
@@ -53,7 +52,7 @@ public class UnsentMessagesManager {
             FileAttachmentUploadThread.getInstance().checkAndEnqueueNewMessage(msg);
         }
 
-        MainFrame.getInstance().updateTofTree( MainFrame.getInstance().getTofTree().getUnsentMessagesFolder() );
+        MainFrame.getInstance().updateTofTree( MainFrame.getInstance().getFrostMessageTab().getTofTree().getUnsentMessagesFolder() );
     }
 
     public static int getUnsentMessageCount() {
@@ -142,8 +141,8 @@ public class UnsentMessagesManager {
         // enqueue in file attachment upload thread if needed
         FileAttachmentUploadThread.getInstance().checkAndEnqueueNewMessage(mo);
 
-        MainFrame.getInstance().getUnsentMessagesPanel().addUnsentMessage(mo);
-        MainFrame.getInstance().updateTofTree( MainFrame.getInstance().getTofTree().getUnsentMessagesFolder() );
+        MainFrame.getInstance().getFrostMessageTab().getUnsentMessagesPanel().addUnsentMessage(mo);
+        MainFrame.getInstance().updateTofTree( MainFrame.getInstance().getFrostMessageTab().getTofTree().getUnsentMessagesFolder() );
     }
 
     /**
@@ -168,8 +167,8 @@ public class UnsentMessagesManager {
 
         FileAttachmentUploadThread.getInstance().messageWasDeleted(unsentMsg.getMessageId());
 
-        MainFrame.getInstance().getUnsentMessagesPanel().removeUnsentMessage(unsentMsg);
-        MainFrame.getInstance().updateTofTree( MainFrame.getInstance().getTofTree().getUnsentMessagesFolder() );
+        MainFrame.getInstance().getFrostMessageTab().getUnsentMessagesPanel().removeUnsentMessage(unsentMsg);
+        MainFrame.getInstance().updateTofTree( MainFrame.getInstance().getFrostMessageTab().getTofTree().getUnsentMessagesFolder() );
 
         return true;
     }
@@ -184,8 +183,8 @@ public class UnsentMessagesManager {
             }
         }
 
-        MainFrame.getInstance().getUnsentMessagesPanel().removeUnsentMessage(unsentMsg);
-        MainFrame.getInstance().updateTofTree( MainFrame.getInstance().getTofTree().getUnsentMessagesFolder() );
+        MainFrame.getInstance().getFrostMessageTab().getUnsentMessagesPanel().removeUnsentMessage(unsentMsg);
+        MainFrame.getInstance().updateTofTree( MainFrame.getInstance().getFrostMessageTab().getTofTree().getUnsentMessagesFolder() );
 
         return true;
     }

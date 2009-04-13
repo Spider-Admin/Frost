@@ -24,7 +24,6 @@ import java.awt.event.*;
 import javax.swing.*;
 
 import frost.*;
-import frost.gui.*;
 import frost.messaging.frost.*;
 import frost.messaging.frost.gui.*;
 import frost.util.gui.*;
@@ -33,47 +32,47 @@ import frost.util.model.*;
 
 public class SentMessagesTable extends SortedModelTable {
 
-    private SentMessagesTableModel tableModel;
-    private SentMessagesTableFormat tableFormat;
+    private final SentMessagesTableModel tableModel;
+    private final SentMessagesTableFormat tableFormat;
 
     private PopupMenuSearch popupMenuSearch = null;
-    private Language language = Language.getInstance();
-    
+    private final Language language = Language.getInstance();
+
     public SentMessagesTable() {
         this(new SentMessagesTableModel(new SentMessagesTableFormat()));
     }
-    
-    private SentMessagesTable(SentMessagesTableModel m) {
+
+    private SentMessagesTable(final SentMessagesTableModel m) {
         super(m);
         tableModel = m;
         tableFormat = (SentMessagesTableFormat)m.getTableFormat();
-        
+
         setupTableFont();
         getTable().setBorder(BorderFactory.createEmptyBorder(2,2,2,2));
-        
-        Listener l = new Listener();
+
+        final Listener l = new Listener();
         getTable().addMouseListener(l);
         getScrollPane().addMouseListener(l);
     }
-    
-    public void addSentMessage(FrostMessageObject i) {
+
+    public void addSentMessage(final FrostMessageObject i) {
         tableModel.addFrostMessageObject(i);
-        MainFrame.getInstance().getSentMessagesPanel().updateSentMessagesCount();
+        MainFrame.getInstance().getFrostMessageTab().getSentMessagesPanel().updateSentMessagesCount();
     }
-    
+
     public void saveTableFormat() {
         tableFormat.saveTableLayout();
     }
-    
+
     public void loadTableModel() {
         tableModel.loadTableModel();
-        MainFrame.getInstance().getSentMessagesPanel().updateSentMessagesCount();
+        MainFrame.getInstance().getFrostMessageTab().getSentMessagesPanel().updateSentMessagesCount();
     }
-    
+
     public void clearTableModel() {
         tableModel.clear();
     }
-    
+
     private PopupMenuSearch getPopupMenuSearch() {
         if (popupMenuSearch == null) {
             popupMenuSearch = new PopupMenuSearch();
@@ -83,9 +82,9 @@ public class SentMessagesTable extends SortedModelTable {
     }
 
     private void setupTableFont() {
-        String fontName = Core.frostSettings.getValue(SettingsClass.FILE_LIST_FONT_NAME);
-        int fontStyle = Core.frostSettings.getIntValue(SettingsClass.FILE_LIST_FONT_STYLE);
-        int fontSize = Core.frostSettings.getIntValue(SettingsClass.FILE_LIST_FONT_SIZE);
+        final String fontName = Core.frostSettings.getValue(SettingsClass.FILE_LIST_FONT_NAME);
+        final int fontStyle = Core.frostSettings.getIntValue(SettingsClass.FILE_LIST_FONT_STYLE);
+        final int fontSize = Core.frostSettings.getIntValue(SettingsClass.FILE_LIST_FONT_SIZE);
         Font font = new Font(fontName, fontStyle, fontSize);
         if (!font.getFamily().equals(fontName)) {
             Core.frostSettings.setValue(SettingsClass.FILE_LIST_FONT_NAME, "SansSerif");
@@ -94,31 +93,31 @@ public class SentMessagesTable extends SortedModelTable {
         getTable().setFont(font);
     }
 
-    private void tableDoubleClick(MouseEvent e) {
-        
-        int row = getTable().rowAtPoint(e.getPoint());
+    private void tableDoubleClick(final MouseEvent e) {
+
+        final int row = getTable().rowAtPoint(e.getPoint());
         if( row > -1 ) {
-            ModelItem item = getItemAt(row); //It may be null
+            final ModelItem item = getItemAt(row); //It may be null
             if (item != null) {
-                FrostMessageObject sm = ((SentMessagesTableItem) item).getFrostMessageObject();
-                MessageWindow messageWindow = new MessageWindow( 
-                        MainFrame.getInstance(), 
-                        sm, 
-                        MainFrame.getInstance().getSentMessagesPanel().getSize(),
+                final FrostMessageObject sm = ((SentMessagesTableItem) item).getFrostMessageObject();
+                final MessageWindow messageWindow = new MessageWindow(
+                        MainFrame.getInstance(),
+                        sm,
+                        MainFrame.getInstance().getFrostMessageTab().getSentMessagesPanel().getSize(),
                         false);
                 messageWindow.setVisible(true);
             }
         }
     }
-    
+
     private class Listener extends MouseAdapter implements MouseListener {
 
         public Listener() {
             super();
         }
-    
+
         @Override
-        public void mousePressed(MouseEvent e) {
+        public void mousePressed(final MouseEvent e) {
 
             if (e.getClickCount() == 2) {
                 if (e.getSource() == getTable()) {
@@ -131,22 +130,22 @@ public class SentMessagesTable extends SortedModelTable {
                 }
             }
         }
-    
+
         @Override
-        public void mouseReleased(MouseEvent e) {
+        public void mouseReleased(final MouseEvent e) {
             if ((e.getClickCount() == 1) && (e.isPopupTrigger())) {
-    
+
                 if ((e.getSource() == getTable())
                     || (e.getSource() == getScrollPane())) {
                     showSearchTablePopupMenu(e);
                 }
             }
         }
-    
-        private void showSearchTablePopupMenu(MouseEvent e) {
-            // select row where rightclick occurred if row under mouse is NOT selected 
-            Point p = e.getPoint();
-            int y = getTable().rowAtPoint(p);
+
+        private void showSearchTablePopupMenu(final MouseEvent e) {
+            // select row where rightclick occurred if row under mouse is NOT selected
+            final Point p = e.getPoint();
+            final int y = getTable().rowAtPoint(p);
             if( y < 0 ) {
                 return;
             }
@@ -160,74 +159,74 @@ public class SentMessagesTable extends SortedModelTable {
     private class PopupMenuSearch extends JSkinnablePopupMenu implements ActionListener, LanguageListener {
 
         JMenuItem deleteItem = new JMenuItem();
-    
+
         public PopupMenuSearch() {
             super();
             initialize();
         }
-    
+
         private void initialize() {
             refreshLanguage();
-    
+
             deleteItem.addActionListener(this);
         }
-    
+
         private void refreshLanguage() {
             deleteItem.setText(language.getString("SentMessages.table.popup.deleteMessage"));
         }
-    
-        public void actionPerformed(ActionEvent e) {
+
+        public void actionPerformed(final ActionEvent e) {
             if (e.getSource() == deleteItem) {
                 deleteSelectedMessages();
             }
         }
-        
+
         private void deleteSelectedMessages() {
-            ModelItem[] selectedItems = getSelectedItems();
+            final ModelItem[] selectedItems = getSelectedItems();
             if( selectedItems.length == 0 ) {
                 return;
             }
-            int answer; 
+            int answer;
             if( selectedItems.length == 1 ) {
-                answer = JOptionPane.showConfirmDialog( 
-                        MainFrame.getInstance(), 
-                        language.getString("SentMessages.confirmDeleteOneMessageDialog.text"), 
-                        language.getString("SentMessages.confirmDeleteOneMessageDialog.title"), 
-                        JOptionPane.YES_NO_OPTION, 
+                answer = JOptionPane.showConfirmDialog(
+                        MainFrame.getInstance(),
+                        language.getString("SentMessages.confirmDeleteOneMessageDialog.text"),
+                        language.getString("SentMessages.confirmDeleteOneMessageDialog.title"),
+                        JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE);
             } else {
-                answer = JOptionPane.showConfirmDialog( 
-                        MainFrame.getInstance(), 
-                        language.formatMessage("SentMessages.confirmDeleteMessagesDialog.text", Integer.toString(selectedItems.length)), 
-                        language.getString("SentMessages.confirmDeleteMessagesDialog.title"), 
-                        JOptionPane.YES_NO_OPTION, 
+                answer = JOptionPane.showConfirmDialog(
+                        MainFrame.getInstance(),
+                        language.formatMessage("SentMessages.confirmDeleteMessagesDialog.text", Integer.toString(selectedItems.length)),
+                        language.getString("SentMessages.confirmDeleteMessagesDialog.title"),
+                        JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE);
             }
-            
+
             if( answer != JOptionPane.YES_OPTION ) {
                 return;
             }
 
             tableModel.removeItems(selectedItems);
-            MainFrame.getInstance().getSentMessagesPanel().updateSentMessagesCount();
+            MainFrame.getInstance().getFrostMessageTab().getSentMessagesPanel().updateSentMessagesCount();
         }
-    
-        public void languageChanged(LanguageEvent event) {
+
+        public void languageChanged(final LanguageEvent event) {
             refreshLanguage();
         }
-    
+
         @Override
-        public void show(Component invoker, int x, int y) {
+        public void show(final Component invoker, final int x, final int y) {
             removeAll();
-    
-            ModelItem[] selectedItems = getSelectedItems();
-    
+
+            final ModelItem[] selectedItems = getSelectedItems();
+
             if (selectedItems.length == 0) {
                 return;
             }
-            
+
             add(deleteItem);
-    
+
             super.show(invoker, x, y);
         }
     }

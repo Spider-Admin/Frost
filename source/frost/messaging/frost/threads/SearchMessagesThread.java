@@ -55,7 +55,7 @@ public class SearchMessagesThread extends Thread implements MessageCallback {
             // select board dirs
             List<Board> boardsToSearch;
             if( searchConfig.searchBoards == SearchMessagesConfig.BOARDS_DISPLAYED ) {
-                boardsToSearch = MainFrame.getInstance().getTofTreeModel().getAllBoards();
+                boardsToSearch = MainFrame.getInstance().getFrostMessageTab().getTofTreeModel().getAllBoards();
             } else if( searchConfig.searchBoards == SearchMessagesConfig.BOARDS_CHOSED ) {
                 boardsToSearch = searchConfig.chosedBoards;
             } else {

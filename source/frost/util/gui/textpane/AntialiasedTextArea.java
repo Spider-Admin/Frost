@@ -19,10 +19,9 @@
 package frost.util.gui.textpane;
 
 import java.awt.*;
-import java.awt.Graphics;
 
-import javax.swing.JTextArea;
-import javax.swing.text.Document;
+import javax.swing.*;
+import javax.swing.text.*;
 
 /**
  * @author Administrator

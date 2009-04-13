@@ -54,7 +54,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     private int indicateLowReceivedMessagesCountRed;
     private int indicateLowReceivedMessagesCountLightRed;
 
-    MainFrame mainFrame;
+    private final MainFrame mainFrame;
+    private final FrostMessageTab frostMessageTab;
 
     public static enum IdentityState { GOOD, CHECK, OBSERVE, BAD };
     public static enum BooleanState { FLAGGED, STARRED, JUNK };
@@ -242,7 +243,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 //                markSelectedMessageUnread();
                 markSelectedMessagesReadOrUnread(false);
             } else if (e.getSource() == markAllMessagesReadItem) {
-                TOF.getInstance().markAllMessagesRead(mainFrame.getTofTreeModel().getSelectedNode());
+                TOF.getInstance().markAllMessagesRead(frostMessageTab.getTofTreeModel().getSelectedNode());
             } else if (e.getSource() == markSelectedMessagesReadItem) {
                 markSelectedMessagesReadOrUnread(true);
             } else if (e.getSource() == markSelectedMessagesUnreadItem) {
@@ -321,7 +322,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 return;
             }
 
-            if (mainFrame.getTofTreeModel().getSelectedNode().isBoard()) {
+            if (frostMessageTab.getTofTreeModel().getSelectedNode().isBoard()) {
 
                 removeAll();
 
@@ -472,10 +473,11 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     private String unreadMessagesCountPrefix = "";
     private final JLabel unreadMessagesCountLabel = new JLabel("");
 
-    public MessagePanel(final SettingsClass settings, final MainFrame mf) {
+    public MessagePanel(final SettingsClass settings, final MainFrame mf, final FrostMessageTab fmt) {
         super();
         this.settings = settings;
         mainFrame = mf;
+        frostMessageTab = fmt;
     }
 
     private JToolBar getButtonsToolbar() {
@@ -705,7 +707,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             // listeners
             messageTable.addMouseListener(listener);
 
-            mainFrame.getTofTree().addTreeSelectionListener(listener);
+            frostMessageTab.getTofTree().addTreeSelectionListener(listener);
 
             assignHotkeys();
 
@@ -723,7 +725,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     // assign F5 key - start board update
         final Action boardUpdateAction = new AbstractAction() {
             public void actionPerformed(final ActionEvent event) {
-                final TofTree tofTree = MainFrame.getInstance().getTofTree();
+                final TofTree tofTree = frostMessageTab.getTofTree();
                 final Board selectedBoard = tofTree.getSelectedBoard();
                 if( selectedBoard == null ) {
                     return;
@@ -731,7 +733,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 tofTree.updateBoard(selectedBoard);
             }
         };
-        MainFrame.getInstance().setKeyActionForNewsTab(boardUpdateAction, "UPDATE_BOARD", KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0));
+        frostMessageTab.setKeyActionForNewsTab(boardUpdateAction, "UPDATE_BOARD", KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0));
 
 
     // assign DELETE key - delete message
@@ -740,8 +742,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 deleteSelectedMessage();
             }
         };
-        MainFrame.getInstance().setKeyActionForNewsTab(deleteMessageAction, "DEL_MSG", KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
-        MainFrame.getInstance().setKeyActionForNewsTab(deleteMessageAction, "DEL_MSG", KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0));
+        frostMessageTab.setKeyActionForNewsTab(deleteMessageAction, "DEL_MSG", KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
+        frostMessageTab.setKeyActionForNewsTab(deleteMessageAction, "DEL_MSG", KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0));
 
     // remove ENTER assignment from table
         messageTable.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).getParent().remove(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER,0));
@@ -751,7 +753,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 showCurrentMessagePopupWindow();
             }
         };
-        MainFrame.getInstance().setKeyActionForNewsTab(openMessageAction, "OPEN_MSG", KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0));
+        frostMessageTab.setKeyActionForNewsTab(openMessageAction, "OPEN_MSG", KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0));
 
     // assign N key - next unread (to whole news panel, including tree)
         final Action nextUnreadAction = new AbstractAction() {
@@ -759,7 +761,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                 selectNextUnreadMessage();
             }
         };
-        MainFrame.getInstance().setKeyActionForNewsTab(nextUnreadAction, "NEXT_MSG", KeyStroke.getKeyStroke(KeyEvent.VK_N, 0));
+        frostMessageTab.setKeyActionForNewsTab(nextUnreadAction, "NEXT_MSG", KeyStroke.getKeyStroke(KeyEvent.VK_N, 0));
 
     // assign B key - set BAD
         this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(KeyStroke.getKeyStroke(KeyEvent.VK_B, 0), "SET_BAD");
@@ -903,7 +905,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
     private void messageTable_itemSelected(final ListSelectionEvent e) {
 
-        final AbstractNode selectedNode = mainFrame.getTofTreeModel().getSelectedNode();
+        final AbstractNode selectedNode = frostMessageTab.getTofTreeModel().getSelectedNode();
         if (selectedNode.isFolder()) {
             setGoodButton.setEnabled(false);
             setCheckButton.setEnabled(false);
@@ -1004,7 +1006,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     }
 
     private void newMessageButton_actionPerformed() {
-        final AbstractNode node = mainFrame.getTofTreeModel().getSelectedNode();
+        final AbstractNode node = frostMessageTab.getTofTreeModel().getSelectedNode();
         if( node == null || !node.isBoard() ) {
             return;
         }
@@ -1127,7 +1129,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
     public void composeReply(final FrostMessageObject origMessage, final Window parent) {
 
-        final Board targetBoard = mainFrame.getTofTreeModel().getBoardByName(origMessage.getBoard().getName());
+        final Board targetBoard = frostMessageTab.getTofTreeModel().getBoardByName(origMessage.getBoard().getName());
         if( targetBoard == null ) {
             final String title = language.getString("MessagePane.missingBoardError.title");
             final String txt = language.formatMessage("MessagePane.missingBoardError.text", origMessage.getBoard().getName());
@@ -1219,24 +1221,24 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
     private void updateButton_actionPerformed(final ActionEvent e) {
         // restarts all finished threads if there are some long running threads
-        final AbstractNode node = mainFrame.getTofTreeModel().getSelectedNode();
+        final AbstractNode node = frostMessageTab.getTofTreeModel().getSelectedNode();
         if (node != null && node.isBoard() ) {
             final Board b = (Board) node;
             if( b.isManualUpdateAllowed() ) {
-                mainFrame.getTofTree().updateBoard(b);
+                frostMessageTab.getTofTree().updateBoard(b);
             }
         }
     }
 
     private void boardsTree_actionPerformed(final TreeSelectionEvent e) {
 
-        if (((TreeNode) mainFrame.getTofTreeModel().getRoot()).getChildCount() == 0) {
+        if (((TreeNode) frostMessageTab.getTofTreeModel().getRoot()).getChildCount() == 0) {
             // There are no boards
             getMessageTextPane().update_noBoardsFound();
             clearSubjectTextLabel();
         } else {
             // There are boards
-            final AbstractNode node = (AbstractNode)mainFrame.getTofTree().getLastSelectedPathComponent();
+            final AbstractNode node = (AbstractNode)frostMessageTab .getTofTree().getLastSelectedPathComponent();
             if (node != null) {
                 if (node.isBoard()) {
                     // node is a board
@@ -1271,8 +1273,8 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         final int row = messageTable.getSelectedRow();
         if (row < 0
             || selectedMessage == null
-            || mainFrame.getTofTreeModel().getSelectedNode() == null
-            || !mainFrame.getTofTreeModel().getSelectedNode().isBoard()
+            || frostMessageTab.getTofTreeModel().getSelectedNode() == null
+            || !frostMessageTab.getTofTreeModel().getSelectedNode().isBoard()
             || selectedMessage.isDummy() )
         {
             return false;
@@ -1281,7 +1283,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     }
 
     private void markSelectedMessagesReadOrUnread(final boolean markRead) {
-        final AbstractNode node = mainFrame.getTofTreeModel().getSelectedNode();
+        final AbstractNode node = frostMessageTab.getTofTreeModel().getSelectedNode();
         if( node == null || !node.isBoard() ) {
             return;
         }
@@ -1347,7 +1349,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         final FrostMessageObject levelOneMsg = (FrostMessageObject)rootPath[1];
 
         final DefaultTreeModel model = MainFrame.getInstance().getMessagePanel().getMessageTreeModel();
-        final AbstractNode node = mainFrame.getTofTreeModel().getSelectedNode();
+        final AbstractNode node = frostMessageTab.getTofTreeModel().getSelectedNode();
         if( node == null || !node.isBoard() ) {
             return;
         }
@@ -1385,7 +1387,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
     public void deleteSelectedMessage() {
 
-        final AbstractNode node = mainFrame.getTofTreeModel().getSelectedNode();
+        final AbstractNode node = frostMessageTab.getTofTreeModel().getSelectedNode();
         if( node == null || !node.isBoard() ) {
             return;
         }
@@ -1554,7 +1556,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     public void updateTableAfterChangeOfIdentityState() {
         // walk through shown messages and remove unneeded (e.g. if hideBad)
         // remember selected msg and select next
-        final AbstractNode node = mainFrame.getTofTreeModel().getSelectedNode();
+        final AbstractNode node = frostMessageTab.getTofTreeModel().getSelectedNode();
         if( node == null || !node.isBoard() ) {
             return;
         }

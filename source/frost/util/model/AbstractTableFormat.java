@@ -19,9 +19,9 @@
 package frost.util.model;
 
 import java.util.*;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
-import javax.swing.JTable;
+import javax.swing.*;
 import javax.swing.table.*;
 
 

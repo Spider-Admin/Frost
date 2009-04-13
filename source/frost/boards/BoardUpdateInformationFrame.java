@@ -231,14 +231,14 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
 
     public void startDialog() {
         tofTree.getRunningBoardUpdateThreads().addBoardUpdateThreadListener(this);
-        MainFrame.getInstance().getTofTree().addTreeSelectionListener(this);
+        MainFrame.getInstance().getFrostMessageTab().getTofTree().addTreeSelectionListener(this);
         setDialogShowing(true);
         loadGuiData();
         setVisible(true);
     }
 
     private void closeDialog() {
-        MainFrame.getInstance().getTofTree().removeTreeSelectionListener(this);
+        MainFrame.getInstance().getFrostMessageTab().getTofTree().removeTreeSelectionListener(this);
         tofTree.getRunningBoardUpdateThreads().removeBoardUpdateThreadListener(this);
         setDialogShowing(false);
         dispose();

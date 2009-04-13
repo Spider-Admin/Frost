@@ -36,9 +36,7 @@ import frost.boards.*;
 import frost.fileTransfer.*;
 import frost.fileTransfer.download.*;
 import frost.gui.*;
-import frost.gui.model.*;
 import frost.messaging.frost.*;
-import frost.messaging.frost.gui.*;
 import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.search.*;
@@ -536,7 +534,7 @@ public class MessageTextPane extends JPanel {
             final String name = fbo.getName();
 
             // search board in exising boards list
-            final Board board = mainFrame.getTofTreeModel().getBoardByName(name);
+            final Board board = mainFrame.getFrostMessageTab().getTofTreeModel().getBoardByName(name);
 
             //ask if we already have the board
             if (board != null) {
@@ -557,9 +555,9 @@ public class MessageTextPane extends JPanel {
             } else {
                 // its a new board
                 if(targetFolder == null) {
-                    mainFrame.getTofTreeModel().addNodeToTree(fbo);
+                    mainFrame.getFrostMessageTab().getTofTreeModel().addNodeToTree(fbo);
                 } else {
-                    mainFrame.getTofTreeModel().addNodeToTree(fbo, targetFolder);
+                    mainFrame.getFrostMessageTab().getTofTreeModel().addNodeToTree(fbo, targetFolder);
                 }
             }
         }
@@ -618,7 +616,7 @@ public class MessageTextPane extends JPanel {
             if (e.getSource() == saveBoardsItem) {
                 downloadBoards(null);
             } else if (e.getSource() == saveBoardsToFolderItem) {
-                final TargetFolderChooser tfc = new TargetFolderChooser(mainFrame.getTofTreeModel());
+                final TargetFolderChooser tfc = new TargetFolderChooser(mainFrame.getFrostMessageTab().getTofTreeModel());
                 final Folder targetFolder = tfc.startDialog();
                 if( targetFolder != null ) {
                     downloadBoards(targetFolder);

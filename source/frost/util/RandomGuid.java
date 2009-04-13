@@ -19,8 +19,7 @@
 package frost.util;
 
 import java.security.*;
-import java.security.NoSuchAlgorithmException;
-import java.util.Random;
+import java.util.*;
 
 /**
  * This class is used to generate random GUIDs of the type

@@ -162,7 +162,7 @@ public class MessageFrame extends JFrame {
     private void attachBoards_actionPerformed(final ActionEvent e) {
 
         // get and sort all boards
-        final List<Board> allBoards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
+        final List<Board> allBoards = MainFrame.getInstance().getFrostMessageTab().getTofTreeModel().getAllBoards();
         if (allBoards.size() == 0) {
             return;
         }

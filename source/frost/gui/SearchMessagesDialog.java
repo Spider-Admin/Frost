@@ -35,7 +35,6 @@ import frost.gui.model.*;
 import frost.messaging.frost.*;
 import frost.messaging.frost.gui.*;
 import frost.messaging.frost.threads.*;
-import frost.threads.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.gui.tristatecheckbox.*;
@@ -242,7 +241,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             // enter key anywhere in dialog (except in table where it opens a msg) starts or stops searching
             Bsearch.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ENTER"), "startStopSearch");
             final Action action = new AbstractAction() {
-                public void actionPerformed(ActionEvent arg0) {
+                public void actionPerformed(final ActionEvent arg0) {
                     if( getBsearch().isEnabled() ) {
                         startOrStopSearching();
                     }
@@ -1174,7 +1173,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             // enter should not jump to next message, but open the selected msg (if any)
             searchResultTable.getInputMap(JComponent.WHEN_FOCUSED).put(KeyStroke.getKeyStroke("ENTER"), "openMessage");
             final Action action = new AbstractAction() {
-                public void actionPerformed(ActionEvent arg0) {
+                public void actionPerformed(final ActionEvent arg0) {
                     if( getBopenMsg().isEnabled() ) {
                         openSelectedMessage();
                     }
@@ -1261,7 +1260,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     private void chooseBoards() {
 
         // get and sort all boards
-        final List<Board> allBoards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
+        final List<Board> allBoards = MainFrame.getInstance().getFrostMessageTab().getTofTreeModel().getAllBoards();
         if (allBoards.size() == 0) {
             JOptionPane.showMessageDialog(this,
                     language.getString("SearchMessages.errorDialogs.noBoardsToChoose"),
@@ -1611,7 +1610,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
 
     private void saveWindowState() {
         final Rectangle bounds = getBounds();
-        boolean isMaximized = ((getExtendedState() & Frame.MAXIMIZED_BOTH) != 0);
+        final boolean isMaximized = ((getExtendedState() & Frame.MAXIMIZED_BOTH) != 0);
 
         Core.frostSettings.setValue("searchMessagesDialog.lastFrameMaximized", isMaximized);
 
