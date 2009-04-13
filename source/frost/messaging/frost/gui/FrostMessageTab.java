@@ -73,6 +73,12 @@ public class FrostMessageTab implements LanguageListener {
     private JLabel progressIconLabel = null;
     private JLabel disconnectedLabel = null;
 //------------------------------------------------------------------------------------
+    // menu items in main menu "News"
+    private final JMenuItem tofDisplayBoardInfoMenuItem = new JMenuItem();
+    private final JMenuItem tofDisplayBoardUpdateInformationMenuItem = new JMenuItem();
+    private final JMenuItem tofDisplayKnownBoards = new JMenuItem();
+    private final JMenuItem tofSearchMessages = new JMenuItem();
+//------------------------------------------------------------------------------------
 
     private SearchMessagesDialog searchMessagesDialog = null;
 
@@ -128,6 +134,39 @@ public class FrostMessageTab implements LanguageListener {
             p.add(treeAndTabbedPaneSplitpane, BorderLayout.CENTER);
 
             tabPanel = p;
+
+            // add menu items to News menu
+            tofDisplayBoardInfoMenuItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/information.png", 16, 16));
+            tofDisplayKnownBoards.setIcon(MiscToolkit.getScaledImage("/data/toolbar/internet-web-browser.png", 16, 16));
+            tofSearchMessages.setIcon(MiscToolkit.getScaledImage("/data/toolbar/edit-find.png", 16, 16));
+
+            tofDisplayBoardInfoMenuItem.addActionListener(new ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
+                    tofDisplayBoardInfoMenuItem_actionPerformed(e);
+                }
+            });
+            tofDisplayBoardUpdateInformationMenuItem.addActionListener(new ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
+                    tofDisplayBoardUpdateInformationMenuItem_actionPerformed(e);
+                }
+            });
+            tofDisplayKnownBoards.addActionListener(new ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
+                    tofDisplayKnownBoardsMenuItem_actionPerformed(e);
+                }
+            });
+            tofSearchMessages.addActionListener(new ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
+                    startSearchMessagesDialog();
+                }
+            });
+
+            mainFrame.addMenuItem(tofDisplayBoardInfoMenuItem, "MainFrame.menu.news", 2, 1, true);
+            mainFrame.addMenuItem(tofDisplayBoardUpdateInformationMenuItem, "MainFrame.menu.news", 2, 2, false);
+            mainFrame.addMenuItem(tofDisplayKnownBoards, "MainFrame.menu.news", 2, 3, false);
+            mainFrame.addMenuItem(tofSearchMessages, "MainFrame.menu.news", 2, 4, false);
+
+            languageChanged(null);
         }
     }
 
@@ -422,6 +461,7 @@ public class FrostMessageTab implements LanguageListener {
     }
 
     public void languageChanged(final LanguageEvent event) {
+        // tool bar
         newBoardButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.newBoard"));
         newFolderButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.newFolder"));
         systemTrayButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.minimizeToSystemTray"));
@@ -431,6 +471,11 @@ public class FrostMessageTab implements LanguageListener {
         removeBoardButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.removeBoard"));
         renameFolderButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.renameFolder"));
         configBoardButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.configureBoard"));
+        // menu items
+        tofDisplayBoardInfoMenuItem.setText(language.getString("MainFrame.menu.news.displayBoardInformationWindow"));
+        tofDisplayBoardUpdateInformationMenuItem.setText(language.getString("MainFrame.menu.news.displayBoardUpdateInformationMenuItem"));
+        tofDisplayKnownBoards.setText(language.getString("MainFrame.menu.news.displayKnownBoards"));
+        tofSearchMessages.setText(language.getString("MainFrame.menu.news.searchMessages"));
     }
 
     public void tofDisplayBoardInfoMenuItem_actionPerformed(final ActionEvent e) {

@@ -113,11 +113,6 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
 
     private final JCheckBoxMenuItem tofAutomaticUpdateMenuItem = new JCheckBoxMenuItem();
 
-    private final JMenuItem tofDisplayBoardInfoMenuItem = new JMenuItem();
-    private final JMenuItem tofDisplayBoardUpdateInformationMenuItem = new JMenuItem();
-    private final JMenuItem tofDisplayKnownBoards = new JMenuItem();
-    private final JMenuItem tofSearchMessages = new JMenuItem();
-
     private final JMenu tofMenu = new JMenu();
 
     private GlassPane glassPane = null;
@@ -262,10 +257,8 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
 
             final JMenu lookAndFeelMenu = getLookAndFeelMenu();
 
-            tofDisplayBoardInfoMenuItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/information.png", 16, 16));
             tofAutomaticUpdateMenuItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/mail-send-receive.png", 16, 16));
-            tofDisplayKnownBoards.setIcon(MiscToolkit.getScaledImage("/data/toolbar/internet-web-browser.png", 16, 16));
-            tofSearchMessages.setIcon(MiscToolkit.getScaledImage("/data/toolbar/edit-find.png", 16, 16));
+
             fileExitMenuItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/system-log-out.png", 16, 16));
             fileStatisticsMenuItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/x-office-spreadsheet.png", 16, 16));
             lookAndFeelMenu.setIcon(MiscToolkit.getScaledImage("/data/toolbar/preferences-desktop-theme.png", 16, 16));
@@ -299,26 +292,6 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
             optionsManageIdentitiesMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
                     optionsManageIdentitiesMenuItem_actionPerformed(e);
-                }
-            });
-            tofDisplayBoardInfoMenuItem.addActionListener(new ActionListener() {
-                public void actionPerformed(final ActionEvent e) {
-                    getFrostMessageTab().tofDisplayBoardInfoMenuItem_actionPerformed(e);
-                }
-            });
-            tofDisplayBoardUpdateInformationMenuItem.addActionListener(new ActionListener() {
-                public void actionPerformed(final ActionEvent e) {
-                    getFrostMessageTab().tofDisplayBoardUpdateInformationMenuItem_actionPerformed(e);
-                }
-            });
-            tofDisplayKnownBoards.addActionListener(new ActionListener() {
-                public void actionPerformed(final ActionEvent e) {
-                    getFrostMessageTab().tofDisplayKnownBoardsMenuItem_actionPerformed(e);
-                }
-            });
-            tofSearchMessages.addActionListener(new ActionListener() {
-                public void actionPerformed(final ActionEvent e) {
-                    startSearchMessagesDialog();
                 }
             });
             pluginTranslateMenuItem.addActionListener(new ActionListener() {
@@ -360,11 +333,6 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
             fileMenu.add(fileExitMenuItem);
             // News Menu
             tofMenu.add(tofAutomaticUpdateMenuItem);
-            tofMenu.addSeparator();
-            tofMenu.add(tofDisplayBoardInfoMenuItem);
-            tofMenu.add(tofDisplayBoardUpdateInformationMenuItem);
-            tofMenu.add(tofDisplayKnownBoards);
-            tofMenu.add(tofSearchMessages);
             // Options Menu
             optionsMenu.add(optionsManageLocalIdentitiesMenuItem);
             optionsMenu.add(optionsManageIdentitiesMenuItem);
@@ -373,7 +341,6 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
             optionsMenu.addSeparator();
             optionsMenu.add(optionsPreferencesMenuItem);
             // Plugin Menu
-//            pluginMenu.add(pluginBrowserMenuItem);
             pluginMenu.add(pluginTranslateMenuItem);
             // Language Menu
             LanguageGuiSupport.getInstance().buildInitialLanguageMenu(languageMenu);
@@ -816,11 +783,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         fileExitMenuItem.setText(language.getString("Common.exit"));
         fileStatisticsMenuItem.setText(language.getString("MainFrame.menu.file.statistics"));
         tofMenu.setText(language.getString("MainFrame.menu.news"));
-        tofDisplayBoardInfoMenuItem.setText(language.getString("MainFrame.menu.news.displayBoardInformationWindow"));
-        tofDisplayBoardUpdateInformationMenuItem.setText(language.getString("MainFrame.menu.news.displayBoardUpdateInformationMenuItem"));
         tofAutomaticUpdateMenuItem.setText(language.getString("MainFrame.menu.news.automaticBoardUpdate"));
-        tofDisplayKnownBoards.setText(language.getString("MainFrame.menu.news.displayKnownBoards"));
-        tofSearchMessages.setText(language.getString("MainFrame.menu.news.searchMessages"));
         optionsMenu.setText(language.getString("MainFrame.menu.options"));
         optionsPreferencesMenuItem.setText(language.getString("MainFrame.menu.options.preferences"));
         optionsManageLocalIdentitiesMenuItem.setText(language.getString("MainFrame.menu.options.manageLocalIdentities"));
@@ -921,14 +884,6 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         // show first time or bring to front
         helpBrowser.setVisible(true);
         helpBrowser.showHelpPage(item);
-    }
-
-    /**
-     * Start the search dialog, all boards in board tree are selected.
-     */
-    public void startSearchMessagesDialog() {
-        // show first time or bring to front
-        getFrostMessageTab().getSearchMessagesDialog().startDialog();
     }
 
     /**
