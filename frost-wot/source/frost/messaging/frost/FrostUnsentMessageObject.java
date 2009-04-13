@@ -23,7 +23,6 @@ import java.util.*;
 import frost.*;
 import frost.messaging.frost.threads.*;
 import frost.storage.perst.messages.*;
-import frost.threads.*;
 import frost.util.*;
 
 /**
@@ -79,7 +78,7 @@ public class FrostUnsentMessageObject extends FrostMessageObject {
     public void setCurrentUploadThread(final MessageThread currentUploadThread) {
         this.currentUploadThread = currentUploadThread;
         // update unsend message in unsend messages table
-        MainFrame.getInstance().getUnsentMessagesPanel().updateUnsentMessage(this);
+        MainFrame.getInstance().getFrostMessageTab().getUnsentMessagesPanel().updateUnsentMessage(this);
     }
 
     public long getSendAfterTime() {

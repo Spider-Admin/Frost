@@ -18,9 +18,9 @@
 */
 package frost.util.model;
 
-import java.awt.Component;
+import java.awt.*;
 import java.awt.event.*;
-import java.util.Iterator;
+import java.util.*;
 
 import javax.swing.*;
 import javax.swing.table.*;

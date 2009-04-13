@@ -18,7 +18,7 @@
 */
 package frost.util;
 
-import java.util.Comparator;
+import java.util.*;
 
 /**
  * This class implements a comparator that is the reverse of the one passed as the

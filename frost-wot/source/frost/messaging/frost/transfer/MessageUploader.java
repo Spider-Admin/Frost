@@ -25,7 +25,6 @@ import javax.swing.*;
 
 import frost.*;
 import frost.fcp.*;
-import frost.gui.*;
 import frost.identities.*;
 import frost.messaging.frost.*;
 import frost.messaging.frost.gui.*;

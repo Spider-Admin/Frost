@@ -799,7 +799,7 @@ public class BoardSettingsFrame extends JDialog {
             // update the new msg. count for board
             TOF.getInstance().searchUnreadMessages((Board)b);
 
-            if (b == MainFrame.getInstance().getTofTreeModel().getSelectedNode()) {
+            if (b == MainFrame.getInstance().getFrostMessageTab().getTofTreeModel().getSelectedNode()) {
                 // reload all messages if board is shown
                 MainFrame.getInstance().tofTree_actionPerformed(null);
             }

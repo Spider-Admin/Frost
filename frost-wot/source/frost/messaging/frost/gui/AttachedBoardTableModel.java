@@ -20,7 +20,7 @@ package frost.messaging.frost.gui;
 
 import java.util.*;
 
-import javax.swing.table.DefaultTableModel;
+import javax.swing.table.*;
 
 import frost.boards.*;
 import frost.messaging.frost.*;

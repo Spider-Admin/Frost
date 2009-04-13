@@ -368,7 +368,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
         }
 
         for( final Board board : boardsToDelete ) {
-            Core.getInstance().getMainFrame().getTofTree().removeNode(this, board);
+            Core.getInstance().getMainFrame().getFrostMessageTab().getTofTree().removeNode(this, board);
             updateButton_actionPerformed();
         }
     }

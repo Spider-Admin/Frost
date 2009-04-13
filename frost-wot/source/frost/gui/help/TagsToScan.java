@@ -20,7 +20,8 @@
 
 package frost.gui.help;
 
-import java.util.Vector;
+import java.util.*;
+
 import javax.swing.text.html.*;
 
   

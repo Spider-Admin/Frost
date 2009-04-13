@@ -333,7 +333,7 @@ public class TofTree extends JDragTree implements AutoSavable, ExitSavable, Prop
         }
 
         private void renameFolderSelected() {
-            MainFrame.getInstance().renameFolder( (Folder)selectedTreeNode );
+            MainFrame.getInstance().getFrostMessageTab().renameFolder( (Folder)selectedTreeNode );
         }
     }
 

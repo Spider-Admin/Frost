@@ -163,7 +163,7 @@ public class TOF implements PropertyChangeListener {
 
         SwingUtilities.invokeLater( new Runnable() {
             public void run() {
-                if( MainFrame.getInstance().getTofTreeModel().getSelectedNode() == board ) {
+                if( MainFrame.getInstance().getFrostMessageTab().getTofTreeModel().getSelectedNode() == board ) {
                     for(final Enumeration e = rootNode.depthFirstEnumeration(); e.hasMoreElements(); ) {
                         final Object o = e.nextElement();
                         if( o instanceof FrostMessageObject ) {

@@ -20,10 +20,10 @@
 package frost.components;
 
 import java.awt.*;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.util.logging.*;
 
-import javax.swing.JFrame;
+import javax.swing.*;
 
 public class BrowserFrame extends JFrame {
     private static final Logger logger = Logger.getLogger(BrowserFrame.class.getName());

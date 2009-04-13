@@ -20,7 +20,7 @@ package frost.util.gui;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
 import javax.swing.*;
 

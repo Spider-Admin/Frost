@@ -19,7 +19,6 @@
 package frost.util.gui;
 
 import javax.swing.*;
-import javax.swing.RepaintManager;
 
 /**
  * The purpose of this class is to check for calls to Swing outside of the Swing thread. To use,

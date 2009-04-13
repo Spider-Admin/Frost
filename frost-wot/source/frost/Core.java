@@ -42,7 +42,6 @@ import frost.storage.perst.filelist.*;
 import frost.storage.perst.identities.*;
 import frost.storage.perst.messagearchive.*;
 import frost.storage.perst.messages.*;
-import frost.threads.*;
 import frost.util.*;
 import frost.util.Logging;
 import frost.util.gui.*;
@@ -436,7 +435,7 @@ public class Core {
         mainFrame.initialize();
 
         // cleanup gets the expiration mode from settings
-        CleanUp.runExpirationTasks(splashscreen, MainFrame.getInstance().getTofTreeModel().getAllBoards());
+        CleanUp.runExpirationTasks(splashscreen, MainFrame.getInstance().getFrostMessageTab().getTofTreeModel().getAllBoards());
 
         // Show enqueued startup messages before showing the mainframe,
         // otherwise the glasspane used during load of board messages could corrupt the modal message dialog!

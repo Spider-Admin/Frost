@@ -18,9 +18,9 @@
 */
 package frost.util.model;
 
-import java.util.Comparator;
+import java.util.*;
 
-import frost.util.ReverseComparator;
+import frost.util.*;
 
 public abstract class SortedTableFormat extends AbstractTableFormat {
 

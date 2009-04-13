@@ -232,10 +232,10 @@ public class BoardUpdateInformation {
      * Check allowed state, but don't apply and promote it to gui.
      */
     public synchronized boolean checkBoardUpdateAllowedState() {
-        if( MainFrame.getInstance().getTofTree().isStopBoardUpdatesWhenDOSed() == false ) {
+        if( MainFrame.getInstance().getFrostMessageTab().getTofTree().isStopBoardUpdatesWhenDOSed() == false ) {
             return true;
         } else {
-            final int maxSubsequentFailuresAllowed = MainFrame.getInstance().getTofTree().getMaxInvalidMessagesPerDayThreshold();
+            final int maxSubsequentFailuresAllowed = MainFrame.getInstance().getFrostMessageTab().getTofTree().getMaxInvalidMessagesPerDayThreshold();
             if( getSubsequentInvalidMsgs() > maxSubsequentFailuresAllowed ) {
                 return false;
             } else {

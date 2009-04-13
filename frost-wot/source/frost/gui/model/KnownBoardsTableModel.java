@@ -18,7 +18,7 @@
 */
 package frost.gui.model;
 
-import frost.util.gui.translation.Language;
+import frost.util.gui.translation.*;
 
 public class KnownBoardsTableModel extends SortedTableModel
 {

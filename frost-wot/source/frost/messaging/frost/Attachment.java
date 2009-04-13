@@ -20,8 +20,8 @@ package frost.messaging.frost;
 
 import java.util.logging.*;
 
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
+import org.w3c.dom.*;
+import org.xml.sax.*;
 
 import frost.util.*;
 
