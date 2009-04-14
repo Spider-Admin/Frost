@@ -276,7 +276,7 @@ public class BoardUpdateInformationFrame extends javax.swing.JFrame implements B
    /**
     * Is called if a Thread is started.
     *
-    * @see frost.threads.BoardUpdateThreadListener#boardUpdateThreadStarted(frost.threads.BoardUpdateThread)
+    * @see frost.messaging.frost.boards.BoardUpdateThreadListener#boardUpdateThreadStarted(frost.messaging.frost.boards.BoardUpdateThread)
     */
    public void boardUpdateThreadStarted(final BoardUpdateThread thread) {
    }

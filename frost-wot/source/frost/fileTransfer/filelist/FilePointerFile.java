@@ -1,5 +1,5 @@
 /*
- FileRequestFile.java / Frost
+ FilePointerFile.java / Frost
  Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
 
  This program is free software; you can redistribute it and/or
@@ -16,7 +16,7 @@
  along with this program; if not, write to the Free Software
  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.fileTransfer;
+package frost.fileTransfer.filelist;
 
 import java.io.*;
 import java.util.*;
@@ -27,41 +27,41 @@ import org.w3c.dom.*;
 import frost.util.*;
 
 /**
- * Reads and write request files containing SHA keys.
+ * Reads and write pointer files containing CHK keys.
  *
  * XML format:
  *
- * <FrostFileRequestFile>
+ * <FrostFilePointerFile>
  *   <timestamp>...</timestamp>
- *   <shaList>
- *     <sha>...</sha>
- *     <sha>...</sha>
- *   </shaList>
- * </FrostRequestFile>
+ *   <CHKKeys>
+ *     <chk>...</chk>
+ *     <chk>...</chk>
+ *   </CHKKeys>
+ * </FrostFilePointerFile>
  */
-public class FileRequestFile {
+public class FilePointerFile {
 
-    private static final Logger logger = Logger.getLogger(FileRequestFile.class.getName());
+    private static final Logger logger = Logger.getLogger(FilePointerFile.class.getName());
 
-    private static final String TAG_FrostFileRequestFile = "FrostFileRequestFile";
+    private static final String TAG_FrostFilePointerFile = "FrostFilePointerFile";
     private static final String TAG_timestamp = "timestamp";
-    private static final String TAG_shaList = "shaList";
-    private static final String TAG_sha = "sha";
+    private static final String TAG_CHKKeys = "CHKKeys";
+    private static final String TAG_chk = "chk";
 
     /**
-     * @param chkKeys  List of String objects with the shas
+     * @param chkKeys  List of String objects with the CHK keys
      * @param targetFile  target file
      * @return  true if write was successful
      */
-    public static boolean writeRequestFile(final FileRequestFileContent content, final File targetFile) {
+    public static boolean writePointerFile(final FilePointerFileContent content, final File targetFile) {
 
         final Document doc = XMLTools.createDomDocument();
         if( doc == null ) {
-            logger.severe("Error - writeRequestFile: factory could'nt create XML Document.");
+            logger.severe("Error - writePointerFile: factory could'nt create XML Document.");
             return false;
         }
 
-        final Element rootElement = doc.createElement(TAG_FrostFileRequestFile);
+        final Element rootElement = doc.createElement(TAG_FrostFilePointerFile);
         doc.appendChild(rootElement);
 
         final Element timeStampElement = doc.createElement(TAG_timestamp);
@@ -69,12 +69,12 @@ public class FileRequestFile {
         timeStampElement.appendChild(timeStampText);
         rootElement.appendChild( timeStampElement );
 
-        final Element rootChkElement = doc.createElement(TAG_shaList);
+        final Element rootChkElement = doc.createElement(TAG_CHKKeys);
         rootElement.appendChild( rootChkElement );
 
-        for( final String chkKey : content.getShaStrings() ) {
+        for( final String chkKey : content.getChkKeyStrings() ) {
 
-            final Element nameElement = doc.createElement(TAG_sha);
+            final Element nameElement = doc.createElement(TAG_chk);
             final Text text = doc.createTextNode( chkKey );
             nameElement.appendChild( text );
 
@@ -85,27 +85,17 @@ public class FileRequestFile {
         try {
             writeOK = XMLTools.writeXmlFile(doc, targetFile);
         } catch(final Throwable t) {
-            logger.log(Level.SEVERE, "Exception in writeRequestFile/writeXmlFile", t);
+            logger.log(Level.SEVERE, "Exception in writePointerFile/writeXmlFile", t);
         }
 
         return writeOK;
     }
 
-    public static void main(final String[] args) {
-        final File targetFile = new File("D:\\abc.def");
-        final File tmp = new File(targetFile.getPath() + ".frftmp");
-        if( !FileAccess.compressFileGZip(targetFile, tmp) ) {
-            return; // error
-        }
-        targetFile.delete();
-        tmp.renameTo(targetFile);
-    }
-
     /**
      * @param sourceFile  File to read from
-     * @return  List of String objects with the shas
+     * @return  List of String objects with the CHK keys
      */
-    public static FileRequestFileContent readRequestFile(final File sourceFile) {
+    public static FilePointerFileContent readPointerFile(final File sourceFile) {
         if( !sourceFile.isFile() || !(sourceFile.length() > 0) ) {
             return null;
         }
@@ -113,19 +103,19 @@ public class FileRequestFile {
         try {
             d = XMLTools.parseXmlFile(sourceFile.getPath());
         } catch (final Throwable t) {
-            logger.log(Level.SEVERE, "Exception in readRequestFile, during XML parsing", t);
+            logger.log(Level.SEVERE, "Exception in readPointerFile, during XML parsing", t);
             return null;
         }
 
         if( d == null ) {
-            logger.log(Level.SEVERE, "Could'nt parse the request file");
+            logger.log(Level.SEVERE, "Could'nt parse the pointer file");
             return null;
         }
 
         final Element rootNode = d.getDocumentElement();
 
-        if( rootNode.getTagName().equals(TAG_FrostFileRequestFile) == false ) {
-            logger.severe("Error: xml request file does not contain the root tag '"+TAG_FrostFileRequestFile+"'");
+        if( rootNode.getTagName().equals(TAG_FrostFilePointerFile) == false ) {
+            logger.severe("Error: xml pointer file does not contain the root tag '"+TAG_FrostFilePointerFile+"'");
             return null;
         }
 
@@ -136,16 +126,16 @@ public class FileRequestFile {
         }
         final long timestamp = Long.parseLong(timeStampStr);
 
-        final List<Element> nodelist = XMLTools.getChildElementsByTagName(rootNode, TAG_shaList);
+        final List<Element> nodelist = XMLTools.getChildElementsByTagName(rootNode, TAG_CHKKeys);
         if( nodelist.size() != 1 ) {
-            logger.severe("Error: xml request files must contain only one element '"+TAG_shaList+"'");
+            logger.severe("Error: xml pointer files must contain only one element '"+TAG_CHKKeys+"'");
             return null;
         }
 
-        final Element rootShaNode = nodelist.get(0);
+        final Element rootChkNode = nodelist.get(0);
 
-        final List<String> shaList = new LinkedList<String>();
-        final List<Element> xmlKeys = XMLTools.getChildElementsByTagName(rootShaNode, TAG_sha);
+        final List<String> chkKeyList = new LinkedList<String>();
+        final List<Element> xmlKeys = XMLTools.getChildElementsByTagName(rootChkNode, TAG_chk);
         for( final Element el : xmlKeys ) {
 
             final Text txtname = (Text) el.getFirstChild();
@@ -153,11 +143,11 @@ public class FileRequestFile {
                 continue;
             }
 
-            final String sha = txtname.getData();
-            shaList.add(sha);
+            final String chkKey = txtname.getData();
+            chkKeyList.add(chkKey);
         }
 
-        final FileRequestFileContent content = new FileRequestFileContent(timestamp, shaList);
+        final FilePointerFileContent content = new FilePointerFileContent(timestamp, chkKeyList);
         return content;
     }
 }

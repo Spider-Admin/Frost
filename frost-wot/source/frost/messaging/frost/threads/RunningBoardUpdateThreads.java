@@ -170,7 +170,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
     /**
      * Implementing the listener for thread finished.
      * Notifies all interested listeners for change of the thread state.
-     * @see frost.threads.BoardUpdateThreadListener#boardUpdateThreadFinished(frost.threads.BoardUpdateThread)
+     * @see frost.messaging.frost.boards.BoardUpdateThreadListener#boardUpdateThreadFinished(frost.messaging.frost.boards.BoardUpdateThread)
      */
     public void boardUpdateThreadFinished(final BoardUpdateThread thread) {
         // remove from thread list
@@ -196,7 +196,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener {
 
     /**
      * Implementing the listener for thread started. Notifies all interested listeners for change of the thread state.
-     * @see frost.threads.BoardUpdateThreadListener#boardUpdateThreadStarted(frost.threads.BoardUpdateThread)
+     * @see frost.messaging.frost.boards.BoardUpdateThreadListener#boardUpdateThreadStarted(frost.messaging.frost.boards.BoardUpdateThread)
      */
     public void boardUpdateThreadStarted(final BoardUpdateThread thread) {
         synchronized( threadListenersForAllBoards ) {

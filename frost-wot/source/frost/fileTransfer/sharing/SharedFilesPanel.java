@@ -29,6 +29,7 @@ import java.util.logging.*;
 import javax.swing.*;
 
 import frost.*;
+import frost.fileTransfer.filelist.*;
 import frost.storage.perst.*;
 import frost.threads.*;
 import frost.util.*;

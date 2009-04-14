@@ -1,5 +1,5 @@
 /*
-  FileRequestFileContent.java / Frost
+  FileListFileContent.java / Frost
   Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
@@ -16,25 +16,43 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.fileTransfer;
+package frost.fileTransfer.filelist;
 
 import java.util.*;
 
-public class FileRequestFileContent {
+import frost.fileTransfer.*;
+import frost.identities.*;
+
+public class FileListFileContent {
 
     long timestamp;
-    List<String> shaStrings;
+    Identity receivedOwner = null;
+    LocalIdentity sendOwner = null;
+    LinkedList<SharedFileXmlFile> fileList;
     
-    public FileRequestFileContent(long timestamp, List<String> shaStrings) {
+    public FileListFileContent(long timestamp, Identity owner, LinkedList<SharedFileXmlFile> fileList) {
         this.timestamp = timestamp;
-        this.shaStrings = shaStrings;
+        this.receivedOwner = owner;
+        this.fileList = fileList;
     }
     
+    public FileListFileContent(long timestamp, LocalIdentity owner, LinkedList<SharedFileXmlFile> fileList) {
+        this.timestamp = timestamp;
+        this.sendOwner = owner;
+        this.fileList = fileList;
+    }
+
+    public LinkedList<SharedFileXmlFile> getFileList() {
+        return fileList;
+    }
+
     public long getTimestamp() {
         return timestamp;
     }
-    public List<String> getShaStrings() {
-        return shaStrings;
+    public Identity getReceivedOwner() {
+        return receivedOwner;
     }
-
+    public LocalIdentity getSendOwner() {
+        return sendOwner;
+    }
 }

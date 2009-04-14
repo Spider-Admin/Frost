@@ -1,5 +1,5 @@
 /*
-  FilePointerFileContent.java / Frost
+  FileRequestFileContent.java / Frost
   Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
@@ -16,29 +16,25 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.fileTransfer;
+package frost.fileTransfer.filerequest;
 
 import java.util.*;
 
-public class FilePointerFileContent {
+public class FileRequestFileContent {
 
     long timestamp;
-    List<String> chkKeyStrings;
+    List<String> shaStrings;
     
-    public FilePointerFileContent(long timestamp, List<String> chkKeyStrings) {
+    public FileRequestFileContent(long timestamp, List<String> shaStrings) {
         this.timestamp = timestamp;
-        this.chkKeyStrings = chkKeyStrings;
+        this.shaStrings = shaStrings;
     }
     
     public long getTimestamp() {
         return timestamp;
     }
-    public List<String> getChkKeyStrings() {
-        return chkKeyStrings;
+    public List<String> getShaStrings() {
+        return shaStrings;
     }
-    
-    @Override
-    public String toString() {
-        return "size="+chkKeyStrings.size();
-    }
+
 }

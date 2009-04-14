@@ -1,5 +1,5 @@
 /*
-  FileListFileContent.java / Frost
+  FilePointerFileContent.java / Frost
   Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
@@ -16,42 +16,29 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.fileTransfer;
+package frost.fileTransfer.filelist;
 
 import java.util.*;
 
-import frost.identities.*;
-
-public class FileListFileContent {
+public class FilePointerFileContent {
 
     long timestamp;
-    Identity receivedOwner = null;
-    LocalIdentity sendOwner = null;
-    LinkedList<SharedFileXmlFile> fileList;
+    List<String> chkKeyStrings;
     
-    public FileListFileContent(long timestamp, Identity owner, LinkedList<SharedFileXmlFile> fileList) {
+    public FilePointerFileContent(long timestamp, List<String> chkKeyStrings) {
         this.timestamp = timestamp;
-        this.receivedOwner = owner;
-        this.fileList = fileList;
+        this.chkKeyStrings = chkKeyStrings;
     }
     
-    public FileListFileContent(long timestamp, LocalIdentity owner, LinkedList<SharedFileXmlFile> fileList) {
-        this.timestamp = timestamp;
-        this.sendOwner = owner;
-        this.fileList = fileList;
-    }
-
-    public LinkedList<SharedFileXmlFile> getFileList() {
-        return fileList;
-    }
-
     public long getTimestamp() {
         return timestamp;
     }
-    public Identity getReceivedOwner() {
-        return receivedOwner;
+    public List<String> getChkKeyStrings() {
+        return chkKeyStrings;
     }
-    public LocalIdentity getSendOwner() {
-        return sendOwner;
+    
+    @Override
+    public String toString() {
+        return "size="+chkKeyStrings.size();
     }
 }
