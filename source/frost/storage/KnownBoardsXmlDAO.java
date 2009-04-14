@@ -24,9 +24,9 @@ import java.util.logging.*;
 
 import org.w3c.dom.*;
 
-import frost.boards.*;
 import frost.fcp.*;
 import frost.messaging.frost.*;
+import frost.messaging.frost.boards.*;
 import frost.util.*;
 
 public class KnownBoardsXmlDAO {

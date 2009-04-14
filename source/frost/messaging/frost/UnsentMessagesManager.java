@@ -21,7 +21,7 @@ package frost.messaging.frost;
 import java.util.*;
 
 import frost.*;
-import frost.boards.*;
+import frost.messaging.frost.boards.*;
 import frost.messaging.frost.threads.*;
 import frost.storage.perst.messages.*;
 

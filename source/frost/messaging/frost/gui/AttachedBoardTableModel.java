@@ -22,8 +22,8 @@ import java.util.*;
 
 import javax.swing.table.*;
 
-import frost.boards.*;
 import frost.messaging.frost.*;
+import frost.messaging.frost.boards.*;
 import frost.util.gui.translation.*;
 
 public class AttachedBoardTableModel extends DefaultTableModel implements LanguageListener

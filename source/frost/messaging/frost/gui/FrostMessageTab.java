@@ -29,10 +29,10 @@ import javax.swing.event.*;
 import javax.swing.tree.*;
 
 import frost.*;
-import frost.boards.*;
 import frost.ext.*;
 import frost.gui.*;
 import frost.messaging.frost.*;
+import frost.messaging.frost.boards.*;
 import frost.messaging.frost.gui.sentmessages.*;
 import frost.messaging.frost.gui.unsentmessages.*;
 import frost.messaging.frost.threads.*;

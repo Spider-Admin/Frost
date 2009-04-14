@@ -31,9 +31,9 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.table.*;
 
 import frost.*;
-import frost.boards.*;
 import frost.fileTransfer.common.*;
 import frost.gui.model.*;
+import frost.messaging.frost.boards.*;
 import frost.storage.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;

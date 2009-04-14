@@ -31,9 +31,9 @@ import javax.swing.event.*;
 import javax.swing.tree.*;
 
 import frost.*;
-import frost.boards.*;
 import frost.identities.*;
 import frost.messaging.frost.*;
+import frost.messaging.frost.boards.*;
 import frost.messaging.frost.gui.messagetreetable.*;
 import frost.storage.perst.messages.*;
 import frost.util.*;

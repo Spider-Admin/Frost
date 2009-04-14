@@ -25,8 +25,8 @@ import org.garret.perst.*;
 import org.joda.time.*;
 
 import frost.*;
-import frost.boards.*;
 import frost.messaging.frost.*;
+import frost.messaging.frost.boards.*;
 import frost.storage.*;
 import frost.storage.perst.*;
 

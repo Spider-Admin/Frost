@@ -31,7 +31,7 @@ import javax.swing.*;
 import javax.swing.tree.*;
 
 import frost.*;
-import frost.boards.*;
+import frost.messaging.frost.boards.*;
 
 public class JDragTree extends JTree implements DragGestureListener, DragSourceListener {
 

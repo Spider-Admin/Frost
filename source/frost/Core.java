@@ -26,7 +26,6 @@ import java.util.logging.*;
 
 import javax.swing.*;
 
-import frost.boards.*;
 import frost.crypt.*;
 import frost.ext.*;
 import frost.fcp.*;
@@ -35,6 +34,7 @@ import frost.gui.*;
 import frost.gui.help.*;
 import frost.identities.*;
 import frost.messaging.frost.*;
+import frost.messaging.frost.boards.*;
 import frost.messaging.frost.threads.*;
 import frost.storage.*;
 import frost.storage.perst.*;
