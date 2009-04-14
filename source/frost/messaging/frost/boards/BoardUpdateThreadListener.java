@@ -1,6 +1,6 @@
 /*
-  FileListManagerFileInfo.java / Frost
-  Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
+  BoardUpdateThreadListener.java / Frost
+  Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -16,23 +16,24 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.fileTransfer;
 
-import java.util.*;
+package frost.messaging.frost.boards;
 
-import frost.identities.*;
+import frost.messaging.frost.boards.*;
 
-public class FileListManagerFileInfo {
-    LinkedList<SharedFileXmlFile> files;
-    LocalIdentity owner;
-    public FileListManagerFileInfo(LinkedList<SharedFileXmlFile> l, LocalIdentity li) {
-        files = l;
-        owner = li;
-    }
-    public LinkedList<SharedFileXmlFile> getFiles() {
-        return files;
-    }
-    public LocalIdentity getOwner() {
-        return owner;
-    }
+public interface BoardUpdateThreadListener {
+    /**
+     * Is called if a Thread is finished.
+     */
+    public void boardUpdateThreadFinished(BoardUpdateThread thread);
+
+    /**
+     * Is called if a Thread is started.
+     */
+    public void boardUpdateThreadStarted(BoardUpdateThread thread);
+
+    /**
+     * Is called if the BoardUpdateInformation changed.
+     */
+    public void boardUpdateInformationChanged(BoardUpdateThread thread, BoardUpdateInformation bui);
 }

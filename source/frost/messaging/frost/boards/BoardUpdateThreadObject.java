@@ -17,7 +17,7 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-package frost.threads;
+package frost.messaging.frost.boards;
 
 import java.util.*;
 

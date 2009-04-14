@@ -16,7 +16,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.fileTransfer;
+package frost.fileTransfer.filelist;
 
 import java.io.*;
 import java.util.*;
@@ -25,6 +25,7 @@ import java.util.logging.*;
 import org.w3c.dom.*;
 
 import frost.*;
+import frost.fileTransfer.*;
 import frost.identities.*;
 import frost.util.*;
 

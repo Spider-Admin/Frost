@@ -1,4 +1,4 @@
-package frost.threads;
+package frost.util;
 
 import java.util.*;
 

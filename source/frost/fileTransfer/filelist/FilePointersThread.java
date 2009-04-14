@@ -16,7 +16,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.threads;
+package frost.fileTransfer.filelist;
 
 import java.io.*;
 import java.util.*;
@@ -27,6 +27,7 @@ import org.joda.time.*;
 import frost.*;
 import frost.fcp.*;
 import frost.fileTransfer.*;
+import frost.fileTransfer.filelist.*;
 import frost.storage.perst.*;
 import frost.transferlayer.*;
 import frost.util.*;
