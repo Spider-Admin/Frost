@@ -24,9 +24,9 @@ import java.util.logging.*;
 import org.joda.time.*;
 
 import frost.*;
-import frost.boards.*;
 import frost.gui.*;
 import frost.messaging.frost.*;
+import frost.messaging.frost.boards.*;
 import frost.storage.*;
 import frost.storage.perst.messagearchive.*;
 import frost.storage.perst.messages.*;

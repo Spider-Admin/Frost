@@ -33,12 +33,12 @@ import javax.swing.text.*;
 import org.joda.time.*;
 
 import frost.*;
-import frost.boards.*;
 import frost.ext.*;
 import frost.gui.*;
 import frost.gui.model.*;
 import frost.identities.*;
 import frost.messaging.frost.*;
+import frost.messaging.frost.boards.*;
 import frost.storage.perst.messages.*;
 import frost.util.*;
 import frost.util.gui.*;

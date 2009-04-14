@@ -21,8 +21,8 @@ package frost.messaging.frost.threads;
 import java.util.*;
 
 import frost.*;
-import frost.boards.*;
 import frost.messaging.frost.*;
+import frost.messaging.frost.boards.*;
 import frost.threads.*;
 
 /**

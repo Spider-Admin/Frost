@@ -19,7 +19,7 @@
 
 package frost.threads;
 
-import frost.boards.*;
+import frost.messaging.frost.boards.*;
 
 public interface BoardUpdateThreadListener {
     /**

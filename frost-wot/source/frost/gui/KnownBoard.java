@@ -18,7 +18,7 @@
 */
 package frost.gui;
 
-import frost.boards.*;
+import frost.messaging.frost.boards.*;
 
 public class KnownBoard extends Board {
     

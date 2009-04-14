@@ -20,7 +20,7 @@ package frost.storage.perst.messages;
 
 import org.garret.perst.*;
 
-import frost.boards.*;
+import frost.messaging.frost.boards.*;
 
 /**
  * Relation between a board name and a unique number for this board.

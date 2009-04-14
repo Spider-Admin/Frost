@@ -32,11 +32,11 @@ import javax.swing.table.*;
 import javax.swing.text.*;
 
 import frost.*;
-import frost.boards.*;
 import frost.fileTransfer.*;
 import frost.fileTransfer.download.*;
 import frost.gui.*;
 import frost.messaging.frost.*;
+import frost.messaging.frost.boards.*;
 import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.search.*;

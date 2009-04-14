@@ -33,7 +33,6 @@ import javax.swing.tree.*;
 
 import org.joda.time.*;
 
-import frost.boards.*;
 import frost.components.translate.*;
 import frost.ext.*;
 import frost.fileTransfer.*;
@@ -41,6 +40,7 @@ import frost.gui.*;
 import frost.gui.help.*;
 import frost.gui.preferences.*;
 import frost.messaging.frost.*;
+import frost.messaging.frost.boards.*;
 import frost.messaging.frost.gui.*;
 import frost.messaging.frost.gui.messagetreetable.*;
 import frost.messaging.frost.threads.*;

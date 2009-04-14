@@ -28,7 +28,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.table.*;
 
-import frost.boards.*;
+import frost.messaging.frost.boards.*;
 import frost.util.gui.translation.*;
 
 public class BoardsChooser extends JDialog {

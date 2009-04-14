@@ -21,7 +21,7 @@ package frost.messaging.frost;
 import org.w3c.dom.*;
 import org.xml.sax.*;
 
-import frost.boards.*;
+import frost.messaging.frost.boards.*;
 import frost.util.*;
 
 public class BoardAttachment extends Attachment {

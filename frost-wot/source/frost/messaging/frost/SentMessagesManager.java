@@ -22,7 +22,7 @@ import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
-import frost.boards.*;
+import frost.messaging.frost.boards.*;
 import frost.storage.perst.messages.*;
 
 public class SentMessagesManager {

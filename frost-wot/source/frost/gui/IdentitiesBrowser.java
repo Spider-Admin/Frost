@@ -32,10 +32,10 @@ import javax.swing.table.*;
 import org.joda.time.*;
 
 import frost.*;
-import frost.boards.*;
 import frost.fileTransfer.common.*;
 import frost.gui.model.*;
 import frost.identities.*;
+import frost.messaging.frost.boards.*;
 import frost.storage.*;
 import frost.storage.perst.identities.*;
 import frost.util.*;
