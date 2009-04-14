@@ -26,7 +26,6 @@ import java.util.logging.*;
 
 import javax.swing.*;
 
-import frost.crypt.*;
 import frost.ext.*;
 import frost.fcp.*;
 import frost.fileTransfer.*;
