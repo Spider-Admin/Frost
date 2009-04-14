@@ -27,7 +27,6 @@ import javax.swing.border.*;
 import javax.swing.event.*;
 
 import frost.*;
-import frost.threads.*;
 
 
 /**

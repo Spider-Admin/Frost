@@ -21,8 +21,6 @@ package frost.messaging.frost.boards;
 
 import java.util.*;
 
-import frost.messaging.frost.boards.*;
-
 /**
  * This class implements most methods needed by the BoardUpdateThread interface.
  * A thread have to extend this class and to implement BoardUpdateThread.

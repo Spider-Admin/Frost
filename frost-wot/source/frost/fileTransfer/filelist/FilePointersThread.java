@@ -27,7 +27,6 @@ import org.joda.time.*;
 import frost.*;
 import frost.fcp.*;
 import frost.fileTransfer.*;
-import frost.fileTransfer.filelist.*;
 import frost.storage.perst.*;
 import frost.transferlayer.*;
 import frost.util.*;

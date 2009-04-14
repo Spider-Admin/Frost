@@ -30,7 +30,6 @@ import frost.messaging.frost.*;
 import frost.messaging.frost.boards.*;
 import frost.messaging.frost.transfer.*;
 import frost.storage.perst.*;
-import frost.threads.*;
 import frost.util.*;
 
 /**

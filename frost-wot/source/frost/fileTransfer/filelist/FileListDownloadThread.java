@@ -24,7 +24,6 @@ import java.util.logging.*;
 
 import frost.fcp.*;
 import frost.fileTransfer.*;
-import frost.fileTransfer.filelist.*;
 import frost.transferlayer.*;
 import frost.util.*;
 import frost.util.Logging;

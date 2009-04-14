@@ -36,7 +36,6 @@ import frost.fileTransfer.common.*;
 import frost.gui.*;
 import frost.gui.model.*;
 import frost.storage.perst.messages.*;
-import frost.threads.*;
 import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;

@@ -23,7 +23,6 @@ import java.util.*;
 import frost.*;
 import frost.messaging.frost.*;
 import frost.messaging.frost.boards.*;
-import frost.threads.*;
 
 /**
  * This class maintains the message download and upload threads.
