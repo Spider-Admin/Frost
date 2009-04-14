@@ -39,7 +39,6 @@ import frost.messaging.frost.*;
 import frost.messaging.frost.gui.*;
 import frost.messaging.frost.threads.*;
 import frost.storage.*;
-import frost.threads.*;
 import frost.util.gui.*;
 import frost.util.gui.search.*;
 import frost.util.gui.translation.*;

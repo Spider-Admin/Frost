@@ -23,7 +23,6 @@ import java.util.logging.*;
 
 import frost.fileTransfer.filelist.*;
 import frost.storage.perst.*;
-import frost.threads.*;
 import frost.util.Logging;
 
 public class SharedFilesCHKKeyManager {

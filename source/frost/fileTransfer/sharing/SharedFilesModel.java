@@ -26,7 +26,6 @@ import frost.fileTransfer.*;
 import frost.fileTransfer.filelist.*;
 import frost.storage.*;
 import frost.storage.perst.*;
-import frost.threads.*;
 import frost.util.model.*;
 
 /**

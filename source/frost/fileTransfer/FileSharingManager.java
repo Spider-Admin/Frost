@@ -20,7 +20,6 @@ package frost.fileTransfer;
 
 import frost.fileTransfer.filelist.*;
 import frost.fileTransfer.filerequest.*;
-import frost.threads.*;
 
 /**
  * This class is the manager for the whole filesharing.
