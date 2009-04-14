@@ -17,7 +17,7 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-package frost.components;
+package frost.util.externalbrowser;
 
 import java.awt.*;
 import java.awt.event.*;
