@@ -33,7 +33,6 @@ import javax.swing.tree.*;
 
 import org.joda.time.*;
 
-import frost.components.translate.*;
 import frost.ext.*;
 import frost.fileTransfer.*;
 import frost.gui.*;
@@ -52,6 +51,7 @@ import frost.storage.perst.messages.*;
 import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
+import frost.util.translate.*;
 
 public class MainFrame extends JFrame implements SettingsUpdater, LanguageListener {
 
