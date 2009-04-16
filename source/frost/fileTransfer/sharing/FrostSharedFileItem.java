@@ -22,8 +22,8 @@ import java.io.*;
 import java.util.*;
 
 import frost.fileTransfer.*;
+import frost.fileTransfer.filelist.*;
 import frost.fileTransfer.upload.*;
-import frost.threads.*;
 import frost.util.*;
 import frost.util.model.*;
 

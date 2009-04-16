@@ -20,6 +20,7 @@ package frost.fcp.fcp07;
 
 import java.io.*;
 import java.net.*;
+import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
@@ -235,5 +236,33 @@ public class FcpSocket {
 
     protected boolean isAssumeDownloadDDAIsAllowed() {
         return assumeDownloadDDAIsAllowed;
+    }
+
+    public List<String> getNodeInfo() throws IOException {
+
+        fcpOut.println("ClientHello");
+        fcpOut.println("Name=hello-"+FcpSocket.getNextFcpId());
+        fcpOut.println("ExpectedVersion=2.0");
+        fcpOut.println("EndMessage");
+        fcpOut.flush();
+
+        final List<String> result = new ArrayList<String>();
+        final BufferedReader in = new BufferedReader(new InputStreamReader(getFcpSock().getInputStream()));
+        while(true) {
+            final String tmp = in.readLine();
+            if (tmp == null || tmp.trim().equals("EndMessage")) {
+                break;
+            }
+            result.add(tmp);
+        }
+        in.close();
+        close();
+
+        if( result.isEmpty() ) {
+            logger.warning("No ClientInfo response!");
+            return null;
+        }
+
+        return result;
     }
 }

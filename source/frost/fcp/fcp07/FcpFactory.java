@@ -20,7 +20,6 @@ package frost.fcp.fcp07;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
 import java.util.logging.*;
 
 import frost.fcp.*;
@@ -29,8 +28,7 @@ import frost.util.*;
 public class FcpFactory {
     private static final Logger logger = Logger.getLogger(FcpFactory.class.getName());
 
-    private static List<NodeAddress> nodes = new ArrayList<NodeAddress>(); //list of available nodes
-    private static Random random = new Random();
+    private static NodeAddress freenetNode = null;
 
     /**
      * This method creates an instance of FcpConnection and handles errors.
@@ -40,15 +38,7 @@ public class FcpFactory {
 
         FcpConnection connection = null;
 
-        int maxTries;
-        if( getNodes().size() == 1 ) {
-            // give our single FCP host 3 tries
-            maxTries = 3;
-        } else {
-            // if we have more than one node, try each one at least twice
-            maxTries = getNodes().size()*2;
-        }
-
+        final int maxTries = 3;
         int tries = 0;
         while (connection == null && tries < maxTries) {
             try {
@@ -82,88 +72,39 @@ public class FcpFactory {
     /**
      * @return  Returns a list of available NodeAddress objects.
      */
-    public static List<NodeAddress> getNodes() {
-        return nodes;
+    public static NodeAddress getFreenetNode() {
+        return freenetNode;
     }
 
-    /**
-     * Returns a randomly selected node from the list.
-     * @return NodeAddress of selected node.
-     */
-    protected static NodeAddress selectNode() {
-        final int size = nodes.size();
-        if(size == 0) {
-            throw new Error("All connections to nodes failed. Check your network settings and restart Frost.");
-        } else if( size == 1 ) {
-            return nodes.get(0);
-        } else {
-            return nodes.get(random.nextInt(nodes.size()));
-        }
-    }
-
-//    /**
-//     * @param s the node to be removed
-//     */
-//    protected static void delegateRemove(NodeAddress s) {
-//        nodes.remove(s);
-//    }
-//
     /**
      * Process provided List of string (host:port or host) and create InetAddress objects for each.
      */
-    public static void init(final List<String> nodeList) {
-        for( final Object element : nodeList ) {
-            final String nodeName = (String)element;
-            final NodeAddress na;
-            if( nodeName.indexOf(":") < 0 ) {
-                InetAddress ia = null;
-                try {
-                    ia = InetAddress.getByName(nodeName);
-                    na = new NodeAddress(ia, 9481, ia.getHostName(), ia.getHostAddress());
-                } catch(final Throwable t) {
-                    logger.log(Level.SEVERE, "Unknown FCP host: "+nodeName, t);
-                    continue;
-                }
-            } else {
-                final String[] splitNodeName = nodeName.split(":");
-                final InetAddress ia;
-                try {
-                    ia = InetAddress.getByName(splitNodeName[0]);
-                } catch(final Throwable t) {
-                    logger.log(Level.SEVERE, "Unknown FCP host: "+nodeName, t);
-                    continue;
-                }
-                final int port;
-                try {
-                    port = Integer.parseInt(splitNodeName[1]);
-                } catch(final Throwable t) {
-                    logger.log(Level.SEVERE, "Unknown FCP port: "+nodeName, t);
-                    continue;
-                }
-                na = new NodeAddress(ia, port, ia.getHostName(), ia.getHostAddress());
-            }
-            nodes.add(na);
+    public static void init(final String node) throws Exception {
+        final String nodeName = node;
+        final NodeAddress na;
+        if( nodeName.indexOf(":") < 0 ) {
+            InetAddress ia = null;
+            ia = InetAddress.getByName(nodeName);
+            na = new NodeAddress(ia, 9481, ia.getHostName(), ia.getHostAddress());
+        } else {
+            final String[] splitNodeName = nodeName.split(":");
+            final InetAddress ia = InetAddress.getByName(splitNodeName[0]);
+            final int port = Integer.parseInt(splitNodeName[1]);
+            na = new NodeAddress(ia, port, ia.getHostName(), ia.getHostAddress());
         }
-        logger.info("Frost will use " + nodes.size() + " Freenet nodes");
+        freenetNode = na;
     }
 
     protected static synchronized FcpConnection getConnection()  throws IOException, Error {
 
         FcpConnection con = null;
-        if (getNodes().size()==0) {
-            throw new Error("No Freenet nodes available.  You need at least one.");
-        }
 
-        final NodeAddress selectedNode = selectNode();
+        final NodeAddress selectedNode = freenetNode;
 
         logger.info("Using node "+selectedNode.getHost().getHostAddress()+" port "+selectedNode.getPort());
         try {
             con = new FcpConnection(selectedNode);
         } catch (final IOException e) {
-            // for now, remove on the first failure.
-            // TODO: maybe we should give the node few chances?
-            // also, should we remove it from the settings (i.e. forever)?
-//            delegateRemove(selectedNode);
             throw e;
         }
         return con;

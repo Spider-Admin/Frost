@@ -18,7 +18,7 @@
 */
 package frost.util.gui;
 
-import java.awt.Component;
+import java.awt.*;
 
 import javax.swing.*;
 import javax.swing.table.*;

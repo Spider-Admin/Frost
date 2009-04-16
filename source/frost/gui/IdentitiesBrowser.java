@@ -32,10 +32,10 @@ import javax.swing.table.*;
 import org.joda.time.*;
 
 import frost.*;
-import frost.boards.*;
 import frost.fileTransfer.common.*;
 import frost.gui.model.*;
 import frost.identities.*;
+import frost.messaging.frost.boards.*;
 import frost.storage.*;
 import frost.storage.perst.identities.*;
 import frost.util.*;
@@ -174,7 +174,7 @@ public class IdentitiesBrowser extends JDialog {
             minDaysOld = Core.frostSettings.getIntValue(SettingsClass.MAX_MESSAGE_DOWNLOAD) + 1;
         }
 
-        for( final Board board : MainFrame.getInstance().getTofTreeModel().getAllBoards() ) {
+        for( final Board board : MainFrame.getInstance().getFrostMessageTab().getTofTreeModel().getAllBoards() ) {
 
             if( board.isConfigured() ) {
                 minDaysOld = Math.max(board.getMaxMessageDisplay(), minDaysOld);
@@ -741,7 +741,7 @@ public class IdentitiesBrowser extends JDialog {
         public Component getTableCellRendererComponent(
             final JTable table,
             final Object value,
-            boolean isSelected,
+            final boolean isSelected,
             final boolean hasFocus,
             final int row,
             int column) {
@@ -845,11 +845,11 @@ public class IdentitiesBrowser extends JDialog {
                 }
 
                 allTableMembers = new LinkedList<InnerTableMember>(); // remember all table data for filter
-                List<Identity> allIdentities = Core.getIdentities().getIdentities();
+                final List<Identity> allIdentities = Core.getIdentities().getIdentities();
                 // show own identities also
                 allIdentities.addAll(Core.getIdentities().getLocalIdentities());
                 for( final Identity identity : allIdentities ) {
-                    InnerTableMember memb = new InnerTableMember(identity, idDatas);
+                    final InnerTableMember memb = new InnerTableMember(identity, idDatas);
                     tableModel.addRow(memb);
                     allTableMembers.add(memb);
                 }
@@ -1044,7 +1044,7 @@ public class IdentitiesBrowser extends JDialog {
 
         final FileFilter myFilter = new FileFilter() {
             @Override
-            public boolean accept(File file) {
+            public boolean accept(final File file) {
                 if( file.isDirectory() ) {
                     return true;
                 }
@@ -1072,7 +1072,7 @@ public class IdentitiesBrowser extends JDialog {
 
         final FileFilter myFilter = new FileFilter() {
             @Override
-            public boolean accept(File file) {
+            public boolean accept(final File file) {
                 if( file.isDirectory() ) {
                     return true;
                 }
@@ -1216,7 +1216,7 @@ public class IdentitiesBrowser extends JDialog {
         public Component getTableCellRendererComponent(
             final JTable table,
             final Object value,
-            boolean isSelected,
+            final boolean isSelected,
             final boolean hasFocus,
             final int row,
             final int column)

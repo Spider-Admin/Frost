@@ -30,7 +30,7 @@ public class MessageTransferHandler implements NodeMessageListener {
 
     private static final Logger logger = Logger.getLogger(MessageTransferHandler.class.getName());
 
-    private final FcpMultiRequestConnectionTools fcpTools;
+    private final FcpMultiRequestConnectionFileTransferTools fcpTools;
 
     private final HashMap<String,MessageTransferTask> taskMap = new HashMap<String,MessageTransferTask>();
 
@@ -38,11 +38,11 @@ public class MessageTransferHandler implements NodeMessageListener {
 
     public MessageTransferHandler() throws Throwable {
 
-        if( FcpHandler.inst().getNodes().isEmpty() ) {
-            throw new Exception("No freenet nodes defined");
+        if (FcpHandler.inst().getFreenetNode() == null) {
+            throw new Exception("No freenet node defined");
         }
-        final NodeAddress na = FcpHandler.inst().getNodes().get(0);
-        this.fcpTools = new FcpMultiRequestConnectionTools(FcpMultiRequestConnection.createInstance(na));
+        final NodeAddress na = FcpHandler.inst().getFreenetNode();
+        this.fcpTools = new FcpMultiRequestConnectionFileTransferTools(FcpMultiRequestConnection.createInstance(na));
     }
 
     public void start() {

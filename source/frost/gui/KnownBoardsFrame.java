@@ -31,9 +31,9 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.table.*;
 
 import frost.*;
-import frost.boards.*;
 import frost.fileTransfer.common.*;
 import frost.gui.model.*;
+import frost.messaging.frost.boards.*;
 import frost.storage.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
@@ -295,13 +295,13 @@ public class KnownBoardsFrame extends JDialog {
         setVisible(true); // blocking!
     }
 
-    private void loadKnownBoardsIntoTable(boolean showHidden) {
+    private void loadKnownBoardsIntoTable(final boolean showHidden) {
         allKnownBoardsList = new LinkedList<KnownBoardsTableMember>();
         this.tableModel.clearDataModel();
         TFfilterBoard.setText("");
         TFlookupBoard.setText("");
         // gets all known boards from Core, and shows all not-doubles in table
-        final List<Board> frostboards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
+        final List<Board> frostboards = MainFrame.getInstance().getFrostMessageTab().getTofTreeModel().getAllBoards();
         final Iterator<KnownBoard> i = KnownBoardsManager.getKnownBoardsList().iterator();
         // check each board in list if already in boards tree, if not add to table
         while( i.hasNext() ) {
@@ -371,7 +371,7 @@ public class KnownBoardsFrame extends JDialog {
 
     private void addBoardsToFolder_actionPerformed(final ActionEvent e) {
 
-        final TargetFolderChooser tfc = new TargetFolderChooser(MainFrame.getInstance().getTofTreeModel());
+        final TargetFolderChooser tfc = new TargetFolderChooser(MainFrame.getInstance().getFrostMessageTab().getTofTreeModel());
         final Folder targetFolder = tfc.startDialog();
         if( targetFolder == null ) {
             return;
@@ -388,7 +388,7 @@ public class KnownBoardsFrame extends JDialog {
 
                 // add the board(s) to board tree and remove it from table
                 final KnownBoardsTableMember row = (KnownBoardsTableMember) tableModel.getRow(rowIx);
-                MainFrame.getInstance().getTofTreeModel().addNodeToTree(row.getBoard(), targetFolder);
+                MainFrame.getInstance().getFrostMessageTab().getTofTreeModel().addNodeToTree(row.getBoard(), targetFolder);
                 tableModel.deleteRow(row);
                 allKnownBoardsList.remove(row);
             }
@@ -514,7 +514,7 @@ public class KnownBoardsFrame extends JDialog {
             return;
         }
         // don't export hidden boards
-        final List<Board> frostboards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
+        final List<Board> frostboards = MainFrame.getInstance().getFrostMessageTab().getTofTreeModel().getAllBoards();
         frostboards.addAll(KnownBoardsManager.getKnownBoardsList());
         for(final Iterator<Board> i=frostboards.iterator(); i.hasNext(); ) {
             final Board b = i.next();
@@ -539,7 +539,7 @@ public class KnownBoardsFrame extends JDialog {
     private File chooseExportFile() {
         final FileFilter myFilter = new FileFilter() {
             @Override
-            public boolean accept(File file) {
+            public boolean accept(final File file) {
                 if( file.isDirectory() ) {
                     return true;
                 }
@@ -571,7 +571,7 @@ public class KnownBoardsFrame extends JDialog {
     private File chooseImportFile() {
         final FileFilter myFilter = new FileFilter() {
             @Override
-            public boolean accept(File file) {
+            public boolean accept(final File file) {
                 if( file.isDirectory() ) {
                     return true;
                 }
@@ -755,7 +755,7 @@ public class KnownBoardsFrame extends JDialog {
         public Component getTableCellRendererComponent(
             final JTable table,
             final Object value,
-            boolean isSelected,
+            final boolean isSelected,
             final boolean hasFocus,
             final int row,
             final int column)

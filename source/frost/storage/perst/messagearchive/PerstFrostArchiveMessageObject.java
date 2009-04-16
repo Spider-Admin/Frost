@@ -23,8 +23,8 @@ import java.util.*;
 import org.garret.perst.*;
 import org.joda.time.*;
 
-import frost.boards.*;
-import frost.messages.*;
+import frost.messaging.frost.*;
+import frost.messaging.frost.boards.*;
 
 public class PerstFrostArchiveMessageObject extends Persistent {
 

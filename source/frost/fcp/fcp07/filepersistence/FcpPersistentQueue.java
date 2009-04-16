@@ -27,14 +27,14 @@ public class FcpPersistentQueue implements NodeMessageListener {
 
 //    private static final Logger logger = Logger.getLogger(FcpPersistentQueue.class.getName());
 
-    final private FcpMultiRequestConnectionTools fcpTools;
+    final private FcpMultiRequestConnectionFileTransferTools fcpTools;
     final private IFcpPersistentRequestsHandler persistenceHandler;
 
     // we hold all requests, gui shows only the wanted requests (all or own)
     final private HashMap<String,FcpPersistentPut> uploadRequests = new HashMap<String,FcpPersistentPut>();
     final private HashMap<String,FcpPersistentGet> downloadRequests = new HashMap<String,FcpPersistentGet>();
 
-    public FcpPersistentQueue(final FcpMultiRequestConnectionTools tools, final IFcpPersistentRequestsHandler pman) {
+    public FcpPersistentQueue(final FcpMultiRequestConnectionFileTransferTools tools, final IFcpPersistentRequestsHandler pman) {
         fcpTools = tools;
         persistenceHandler = pman;
     }

@@ -22,11 +22,11 @@ import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
+import javax.swing.border.*;
 import javax.swing.event.*;
 
-import frost.util.gui.TextComponentClipboardMenu;
-import frost.util.gui.translation.Language;
+import frost.util.gui.*;
+import frost.util.gui.translation.*;
 
 public class NewBoardDialog extends JDialog {
     

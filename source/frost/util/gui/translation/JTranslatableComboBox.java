@@ -18,7 +18,7 @@
 */
 package frost.util.gui.translation;
 
-import javax.swing.JComboBox;
+import javax.swing.*;
 
 /**
  * @author $Author$

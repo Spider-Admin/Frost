@@ -19,11 +19,11 @@
 package frost.gui.model;
 
 import java.util.*;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
-import javax.swing.table.DefaultTableModel;
+import javax.swing.table.*;
 
-import frost.gui.SortedTable;
+import frost.gui.*;
 
 public class SortedTableModel extends DefaultTableModel
 {

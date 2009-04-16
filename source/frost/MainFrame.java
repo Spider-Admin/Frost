@@ -33,26 +33,25 @@ import javax.swing.tree.*;
 
 import org.joda.time.*;
 
-import frost.boards.*;
-import frost.components.translate.*;
 import frost.ext.*;
 import frost.fileTransfer.*;
 import frost.gui.*;
 import frost.gui.help.*;
-import frost.gui.messagetreetable.*;
 import frost.gui.preferences.*;
-import frost.gui.sentmessages.*;
-import frost.gui.unsentmessages.*;
-import frost.messages.*;
+import frost.messaging.frost.*;
+import frost.messaging.frost.boards.*;
+import frost.messaging.frost.gui.*;
+import frost.messaging.frost.gui.messagetreetable.*;
+import frost.messaging.frost.threads.*;
 import frost.storage.*;
 import frost.storage.perst.filelist.*;
 import frost.storage.perst.identities.*;
 import frost.storage.perst.messagearchive.*;
 import frost.storage.perst.messages.*;
-import frost.threads.*;
 import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
+import frost.util.translate.*;
 
 public class MainFrame extends JFrame implements SettingsUpdater, LanguageListener {
 
@@ -61,36 +60,20 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     private final ImageIcon frameIconDefault = MiscToolkit.loadImageIcon("/data/jtc.jpg");
     private final ImageIcon frameIconNewMessage = MiscToolkit.loadImageIcon("/data/newmessage.gif");
 
+    private final FrostMessageTab frostMessageTab = new FrostMessageTab(this);
+
     private HelpBrowserFrame helpBrowser = null;
-    private SearchMessagesDialog searchMessagesDialog = null;
     private MemoryMonitor memoryMonitor = null;
 
     private long todaysDateMillis = 0;
-
-    private MessagePanel messagePanel = null;
-
-    private SentMessagesPanel sentMessagesPanel = null;
-    private UnsentMessagesPanel unsentMessagesPanel = null;
-
-    private ImageIcon progressIconRunning = null;
-    private ImageIcon progressIconIdle = null;
-    private JLabel progressIconLabel = null;
-
-    private JLabel disconnectedLabel = null;
 
     private static SettingsClass frostSettings = null;
 
     private static MainFrame instance = null; // set in constructor
 
-    private JButton boardInfoButton = null;
     private long counter = 55;
 
     private static java.util.List<StartupMessage> queuedStartupMessages = new LinkedList<StartupMessage>();
-
-    //Panels
-
-    private JButton knownBoardsButton = null;
-    private JButton searchMessagesButton = null;
 
     //File Menu
     private final JMenu fileMenu = new JMenu();
@@ -107,16 +90,10 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     //Language Menu
     private final JMenu languageMenu = new JMenu();
 
-    private Language language = null;
+    private final Language language;
 
     // The main menu
     private JMenuBar menuBar;
-
-    // buttons that are enabled/disabled later
-    private JButton newBoardButton = null;
-    private JButton newFolderButton = null;
-
-    private JToolBar buttonToolBar;
 
     private MainFrameStatusBar statusBar;
 
@@ -125,35 +102,18 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     private final JMenuItem optionsPreferencesMenuItem = new JMenuItem();
     private final JMenuItem optionsManageLocalIdentitiesMenuItem = new JMenuItem();
     private final JMenuItem optionsManageIdentitiesMenuItem = new JMenuItem();
-//    private JMenuItem pluginBrowserMenuItem = new JMenuItem();
 
     //Plugin Menu
     private final JMenu pluginMenu = new JMenu();
     private final JMenuItem pluginTranslateMenuItem = new JMenuItem();
 
-    //Popups
-    private JButton removeBoardButton = null;
-    private JButton renameFolderButton = null;
-    private JButton configBoardButton = null;
-
-    private JButton systemTrayButton = null;
 
     private JTranslatableTabbedPane tabbedPane;
     private final JLabel timeLabel = new JLabel("");
 
     private final JCheckBoxMenuItem tofAutomaticUpdateMenuItem = new JCheckBoxMenuItem();
 
-    private final JMenuItem tofDisplayBoardInfoMenuItem = new JMenuItem();
-    private final JMenuItem tofDisplayBoardUpdateInformationMenuItem = new JMenuItem();
-    private final JMenuItem tofDisplayKnownBoards = new JMenuItem();
-    private final JMenuItem tofSearchMessages = new JMenuItem();
-
     private final JMenu tofMenu = new JMenu();
-
-    private TofTree tofTree = null;
-    private TofTreeModel tofTreeModel = null;
-
-    private JSplitPane treeAndTabbedPaneSplitpane = null;
 
     private GlassPane glassPane = null;
 
@@ -186,14 +146,6 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
 
     public static MainFrame getInstance() {
         return instance;
-    }
-
-    public TofTree getTofTree() {
-        return tofTree;
-    }
-
-    public TofTreeModel getTofTreeModel() {
-        return tofTreeModel;
     }
 
     public void addPanel(final String title, final JPanel panel) {
@@ -289,148 +241,11 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         }
     }
 
-    private JToolBar getButtonToolBar() {
-        if (buttonToolBar == null) {
-            buttonToolBar = new JToolBar();
-
-            // configure buttons
-            newBoardButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/internet-group-chat.png"));
-            newFolderButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/folder-new.png"));
-            configBoardButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/document-properties.png"));
-            renameFolderButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/edit-select-all.png"));
-            removeBoardButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/user-trash.png"));
-            boardInfoButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/information.png"));
-            knownBoardsButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/internet-web-browser.png"));
-            searchMessagesButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/edit-find.png"));
-
-            systemTrayButton = new JButton(MiscToolkit.loadImageIcon("/data/tray.gif"));
-
-            progressIconRunning = MiscToolkit.loadImageIcon("/data/progress_running.gif");
-            progressIconIdle = MiscToolkit.loadImageIcon("/data/progress_idle.gif");
-            progressIconLabel = new JLabel(progressIconIdle);
-            disconnectedLabel = new JLabel("");
-
-            MiscToolkit.configureButton(newBoardButton, "MainFrame.toolbar.tooltip.newBoard", language);
-            MiscToolkit.configureButton(newFolderButton, "MainFrame.toolbar.tooltip.newFolder", language);
-            MiscToolkit.configureButton(removeBoardButton, "MainFrame.toolbar.tooltip.removeBoard", language);
-            MiscToolkit.configureButton(renameFolderButton, "MainFrame.toolbar.tooltip.renameFolder", language);
-            MiscToolkit.configureButton(boardInfoButton, "MainFrame.toolbar.tooltip.boardInformationWindow", language);
-            MiscToolkit.configureButton(systemTrayButton, "MainFrame.toolbar.tooltip.minimizeToSystemTray", language);
-            MiscToolkit.configureButton(knownBoardsButton, "MainFrame.toolbar.tooltip.displayListOfKnownBoards", language);
-            MiscToolkit.configureButton(searchMessagesButton, "MainFrame.toolbar.tooltip.searchMessages", language);
-            MiscToolkit.configureButton(configBoardButton, "MainFrame.toolbar.tooltip.configureBoard", language);
-
-            // add action listener
-            knownBoardsButton.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(final ActionEvent e) {
-                    tofDisplayKnownBoardsMenuItem_actionPerformed(e);
-                }
-            });
-            searchMessagesButton.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(final ActionEvent e) {
-                    startSearchMessagesDialog();
-                }
-            });
-            newBoardButton.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(final ActionEvent e) {
-                    tofTree.createNewBoard(MainFrame.this);
-                }
-            });
-            newFolderButton.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(final ActionEvent e) {
-                    tofTree.createNewFolder(MainFrame.this);
-                }
-            });
-            renameFolderButton.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(final ActionEvent e) {
-                    renameFolder((Folder)tofTreeModel.getSelectedNode());
-                }
-            });
-            removeBoardButton.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(final ActionEvent e) {
-                    tofTree.removeNode(tofTreeModel.getSelectedNode());
-                }
-            });
-
-            configBoardButton.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(final ActionEvent e) {
-                    tofTree.configureBoard(tofTreeModel.getSelectedNode());
-                }
-            });
-
-            systemTrayButton.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(final ActionEvent e) {
-                    try {
-                        // Hide the Frost window
-                        // JSysTray icon automatically detects if we were maximized or not
-                        if (JSysTrayIcon.getInstance() != null) {
-                            JSysTrayIcon.getInstance().showWindow(JSysTrayIcon.SHOW_CMD_HIDE);
-                        }
-                    } catch (final IOException _IoExc) {
-                    }
-                }
-            });
-            boardInfoButton.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(final ActionEvent e) {
-                    tofDisplayBoardInfoMenuItem_actionPerformed(e);
-                }
-            });
-
-            // build panel
-            buttonToolBar.setRollover(true);
-            buttonToolBar.setFloatable(false);
-            final Dimension blankSpace = new Dimension(3, 3);
-
-            buttonToolBar.add(Box.createRigidArea(blankSpace));
-            buttonToolBar.add(newBoardButton);
-            buttonToolBar.add(newFolderButton);
-            buttonToolBar.add(Box.createRigidArea(blankSpace));
-            buttonToolBar.addSeparator();
-            buttonToolBar.add(Box.createRigidArea(blankSpace));
-            buttonToolBar.add(configBoardButton);
-            buttonToolBar.add(renameFolderButton);
-            buttonToolBar.add(Box.createRigidArea(blankSpace));
-            buttonToolBar.addSeparator();
-            buttonToolBar.add(Box.createRigidArea(blankSpace));
-            buttonToolBar.add(removeBoardButton);
-            buttonToolBar.add(Box.createRigidArea(blankSpace));
-            buttonToolBar.addSeparator();
-            buttonToolBar.add(Box.createRigidArea(blankSpace));
-            buttonToolBar.add(boardInfoButton);
-            buttonToolBar.add(knownBoardsButton);
-            buttonToolBar.add(searchMessagesButton);
-            if (JSysTrayIcon.getInstance() != null) {
-                buttonToolBar.add(Box.createRigidArea(blankSpace));
-                buttonToolBar.addSeparator();
-                buttonToolBar.add(Box.createRigidArea(blankSpace));
-
-                buttonToolBar.add(systemTrayButton);
-            }
-            buttonToolBar.add(Box.createHorizontalGlue());
-            buttonToolBar.add(disconnectedLabel);
-            buttonToolBar.add(Box.createRigidArea(blankSpace));
-            buttonToolBar.add(progressIconLabel);
-            buttonToolBar.add(Box.createRigidArea(blankSpace));
-        }
-        return buttonToolBar;
-    }
-
-    public void showProgress() {
-        progressIconLabel.setIcon(progressIconRunning);
-    }
-    public void hideProgress() {
-        progressIconLabel.setIcon(progressIconIdle);
-    }
-
     public void setDisconnected() {
-        disconnectedLabel.setOpaque(true);
-        disconnectedLabel.setBackground(Color.yellow);
-        disconnectedLabel.setText(" DISCONNECTED ");
+        getFrostMessageTab().setDisconnected();
     }
     public void setConnected() {
-        disconnectedLabel.setOpaque(false);
-        disconnectedLabel.setBackground(progressIconLabel.getBackground());
-        disconnectedLabel.setText("");
+        getFrostMessageTab().setConnected();
     }
 
     /**
@@ -442,10 +257,8 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
 
             final JMenu lookAndFeelMenu = getLookAndFeelMenu();
 
-            tofDisplayBoardInfoMenuItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/information.png", 16, 16));
             tofAutomaticUpdateMenuItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/mail-send-receive.png", 16, 16));
-            tofDisplayKnownBoards.setIcon(MiscToolkit.getScaledImage("/data/toolbar/internet-web-browser.png", 16, 16));
-            tofSearchMessages.setIcon(MiscToolkit.getScaledImage("/data/toolbar/edit-find.png", 16, 16));
+
             fileExitMenuItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/system-log-out.png", 16, 16));
             fileStatisticsMenuItem.setIcon(MiscToolkit.getScaledImage("/data/toolbar/x-office-spreadsheet.png", 16, 16));
             lookAndFeelMenu.setIcon(MiscToolkit.getScaledImage("/data/toolbar/preferences-desktop-theme.png", 16, 16));
@@ -481,32 +294,6 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
                     optionsManageIdentitiesMenuItem_actionPerformed(e);
                 }
             });
-            tofDisplayBoardInfoMenuItem.addActionListener(new ActionListener() {
-                public void actionPerformed(final ActionEvent e) {
-                    tofDisplayBoardInfoMenuItem_actionPerformed(e);
-                }
-            });
-            tofDisplayBoardUpdateInformationMenuItem.addActionListener(new ActionListener() {
-                public void actionPerformed(final ActionEvent e) {
-                    tofDisplayBoardUpdateInformationMenuItem_actionPerformed(e);
-                }
-            });
-            tofDisplayKnownBoards.addActionListener(new ActionListener() {
-                public void actionPerformed(final ActionEvent e) {
-                    tofDisplayKnownBoardsMenuItem_actionPerformed(e);
-                }
-            });
-            tofSearchMessages.addActionListener(new ActionListener() {
-                public void actionPerformed(final ActionEvent e) {
-                    startSearchMessagesDialog();
-                }
-            });
-//            pluginBrowserMenuItem.addActionListener(new ActionListener() {
-//                public void actionPerformed(ActionEvent e) {
-//                    BrowserFrame browser = new BrowserFrame(true);
-//                    browser.setVisible(true);
-//                }
-//            });
             pluginTranslateMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
                 	getTranslationDialog().setVisible(true);
@@ -546,11 +333,6 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
             fileMenu.add(fileExitMenuItem);
             // News Menu
             tofMenu.add(tofAutomaticUpdateMenuItem);
-            tofMenu.addSeparator();
-            tofMenu.add(tofDisplayBoardInfoMenuItem);
-            tofMenu.add(tofDisplayBoardUpdateInformationMenuItem);
-            tofMenu.add(tofDisplayKnownBoards);
-            tofMenu.add(tofSearchMessages);
             // Options Menu
             optionsMenu.add(optionsManageLocalIdentitiesMenuItem);
             optionsMenu.add(optionsManageIdentitiesMenuItem);
@@ -559,7 +341,6 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
             optionsMenu.addSeparator();
             optionsMenu.add(optionsPreferencesMenuItem);
             // Plugin Menu
-//            pluginMenu.add(pluginBrowserMenuItem);
             pluginMenu.add(pluginTranslateMenuItem);
             // Language Menu
             LanguageGuiSupport.getInstance().buildInitialLanguageMenu(languageMenu);
@@ -597,12 +378,12 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         final ButtonGroup group = new ButtonGroup();
 
         final ActionListener al = new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String lfName = e.getActionCommand();
+            public void actionPerformed(final ActionEvent e) {
+                final String lfName = e.getActionCommand();
                 try {
                     UIManager.setLookAndFeel(lfName);
                     updateComponentTreesUI();
-                } catch(Throwable t) {
+                } catch(final Throwable t) {
                     logger.log(Level.SEVERE, "Exception changing l&f", t);
                 }
             }
@@ -638,125 +419,12 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
 
     private JTabbedPane buildMainPanel() {
 
-        final JScrollPane tofTreeScrollPane = new JScrollPane(tofTree);
-        tofTreeScrollPane.setWheelScrollingEnabled(true);
+        getFrostMessageTab().initialize();
 
-        tofTree.addTreeSelectionListener(new TreeSelectionListener() {
-            public void valueChanged(final TreeSelectionEvent e) {
-                tofTree_actionPerformed(e);
-            }
-        });
-
-        // Vertical Board Tree / MessagePane Divider
-        final JPanel p = new JPanel(new BorderLayout());
-        treeAndTabbedPaneSplitpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tofTreeScrollPane, p);
-
-        p.add(getMessagePanel(), BorderLayout.CENTER);
-
-        int dividerLoc = frostSettings.getIntValue("MainFrame.treeAndTabbedPaneSplitpaneDividerLocation");
-        if( dividerLoc < 10 ) {
-            dividerLoc = 160;
-        }
-        treeAndTabbedPaneSplitpane.setDividerLocation(dividerLoc);
-
-        getTabbedPane().insertTab("MainFrame.tabbedPane.news", null, treeAndTabbedPaneSplitpane, null, 0);
+        getTabbedPane().insertTab("MainFrame.tabbedPane.news", null, getFrostMessageTab().getTabPanel(), null, 0);
         getTabbedPane().setSelectedIndex(0);
 
         return getTabbedPane();
-    }
-
-    public void setKeyActionForNewsTab(final Action action, final String actionName, final KeyStroke keyStroke) {
-        treeAndTabbedPaneSplitpane.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).put(keyStroke, actionName);
-        treeAndTabbedPaneSplitpane.getActionMap().put(actionName, action);
-    }
-
-    public void showMessagePanelInSplitpane() {
-        if( treeAndTabbedPaneSplitpane != null ) {
-            final JPanel p = (JPanel)treeAndTabbedPaneSplitpane.getRightComponent();
-            if( p.getComponent(0) == getMessagePanel() ) {
-                return; // already shown
-            }
-            p.removeAll();
-            p.add(getMessagePanel(), BorderLayout.CENTER);
-            p.repaint();
-
-            if( getSentMessagesPanel().isShown() ) {
-                getSentMessagesPanel().cleanupAfterLeave();
-            }
-            if( getUnsentMessagesPanel().isShown() ) {
-                getUnsentMessagesPanel().cleanupAfterLeave();
-            }
-        }
-    }
-
-    public void showSentMessagePanelInSplitpane() {
-        if( treeAndTabbedPaneSplitpane != null ) {
-            final JPanel p = (JPanel)treeAndTabbedPaneSplitpane.getRightComponent();
-            if( p.getComponent(0) == getSentMessagesPanel() ) {
-                return; // already shown
-            }
-            final Thread t = new Thread() {
-                @Override
-                public void run() {
-                    try { setPriority(getPriority() - 1); } catch(Throwable lt) {}
-                    getSentMessagesPanel().prepareForShow(); // load from db
-                    SwingUtilities.invokeLater(new Runnable() {
-                        public void run() {
-                            p.removeAll();
-                            p.add(getSentMessagesPanel(), BorderLayout.CENTER);
-                            deactivateGlassPane(); // unblock gui
-                            if( getUnsentMessagesPanel().isShown() ) {
-                                getUnsentMessagesPanel().cleanupAfterLeave();
-                            }
-                        }
-                    });
-                }
-            };
-            activateGlassPane(); // block gui during load from database
-            t.start();
-        }
-    }
-
-    public void showUnsentMessagePanelInSplitpane() {
-        if( treeAndTabbedPaneSplitpane != null ) {
-            final JPanel p = (JPanel)treeAndTabbedPaneSplitpane.getRightComponent();
-            if( p.getComponent(0) == getUnsentMessagesPanel() ) {
-                return; // already shown
-            }
-            final Thread t = new Thread() {
-                @Override
-                public void run() {
-                    try { setPriority(getPriority() - 1); } catch(Throwable lt) {}
-                    getUnsentMessagesPanel().prepareForShow(); // load from db
-                    SwingUtilities.invokeLater(new Runnable() {
-                        public void run() {
-                            p.removeAll();
-                            p.add(getUnsentMessagesPanel(), BorderLayout.CENTER);
-                            deactivateGlassPane(); // unblock gui
-                            if( getSentMessagesPanel().isShown() ) {
-                                getSentMessagesPanel().cleanupAfterLeave();
-                            }
-                        }
-                    });
-                }
-            };
-            activateGlassPane(); // block gui during load from database
-            t.start();
-        }
-    }
-
-    public SentMessagesPanel getSentMessagesPanel() {
-        if( sentMessagesPanel == null ) {
-            sentMessagesPanel = new SentMessagesPanel();
-        }
-        return sentMessagesPanel;
-    }
-
-    public UnsentMessagesPanel getUnsentMessagesPanel() {
-        if( unsentMessagesPanel == null ) {
-            unsentMessagesPanel = new UnsentMessagesPanel();
-        }
-        return unsentMessagesPanel;
     }
 
     /**
@@ -765,7 +433,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
      */
     public void saveLayout() {
         final Rectangle bounds = getBounds();
-        boolean isMaximized = ((getExtendedState() & Frame.MAXIMIZED_BOTH) != 0);
+        final boolean isMaximized = ((getExtendedState() & Frame.MAXIMIZED_BOTH) != 0);
 
         frostSettings.setValue(SettingsClass.MAINFRAME_LAST_MAXIMIZED, isMaximized);
 
@@ -776,19 +444,13 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
             frostSettings.setValue(SettingsClass.MAINFRAME_LAST_Y, bounds.y);
         }
 
-        frostSettings.setValue("MainFrame.treeAndTabbedPaneSplitpaneDividerLocation",
-                treeAndTabbedPaneSplitpane.getDividerLocation());
-
         for( final JRadioButtonMenuItem rbmi : lookAndFeels ) {
             if( rbmi.isSelected() ) {
                 frostSettings.setValue(SettingsClass.LOOK_AND_FEEL, rbmi.getActionCommand());
             }
         }
 
-        // let save component layouts
-        getMessagePanel().saveLayout(frostSettings);
-        getSentMessagesPanel().saveTableFormat();
-        getUnsentMessagesPanel().saveTableFormat();
+        getFrostMessageTab().saveLayout();
     }
 
     /**
@@ -866,14 +528,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     }
 
     public MessagePanel getMessagePanel() {
-        if (messagePanel == null) {
-            messagePanel = new MessagePanel(frostSettings, this);
-            messagePanel.setParentFrame(this);
-            messagePanel.setIdentities(Core.getIdentities());
-//            messagePanel.addKeyListener(messagePanel.listener);
-            messagePanel.initialize();
-        }
-        return messagePanel;
+        return getFrostMessageTab().getMessagePanel();
     }
 
     /**
@@ -885,10 +540,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     }
 
     public void postInitialize() {
-        // select saved board (NOTE: this loads the message list!)
-        if (tofTree.getRowCount() > frostSettings.getIntValue(SettingsClass.BOARDLIST_LAST_SELECTED_BOARD)) {
-            tofTree.setSelectionRow(frostSettings.getIntValue(SettingsClass.BOARDLIST_LAST_SELECTED_BOARD));
-        }
+        getFrostMessageTab().postInitialize();
     }
 
     public void initialize() {
@@ -896,8 +548,6 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         // Add components
         final JPanel contentPanel = (JPanel) getContentPane();
         contentPanel.setLayout(new BorderLayout());
-
-        contentPanel.add(getButtonToolBar(), BorderLayout.NORTH);
         contentPanel.add(buildMainPanel(), BorderLayout.CENTER);
         contentPanel.add(getStatusBar(), BorderLayout.SOUTH);
         setJMenuBar(getMainMenuBar());
@@ -999,7 +649,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
             }
             if( optionsDlg.shouldResetLastBackloadUpdateFinishedMillis() ) {
                 // reset lastBackloadUpdatedMillis for all boards
-                getTofTreeModel().resetLastBackloadUpdateFinishedMillis();
+                getFrostMessageTab().getTofTreeModel().resetLastBackloadUpdateFinishedMillis();
             }
             if( optionsDlg.shouldResetSharedFilesLastDownloaded() ) {
                 // reset lastDownloaded of all shared files
@@ -1008,7 +658,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
                     public void run() {
                         try {
                             FileListStorage.inst().resetLastDownloaded();
-                        } catch(Throwable tt) {
+                        } catch(final Throwable tt) {
                             logger.log(Level.SEVERE, "Exception during resetLastDownloaded", tt);
                         }
                     }
@@ -1017,7 +667,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
             }
 
             // repaint whole tree, in case the update visualization was enabled or disabled (or others)
-            tofTree.updateTree();
+            getFrostMessageTab().getTofTree().updateTree();
         }
     }
 
@@ -1035,34 +685,11 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     }
 
     /**
-     * Opens dialog to rename a folder.
-     */
-    public void renameFolder(final Folder selected) {
-        if (selected == null) {
-            return;
-        }
-        String newname = null;
-        do {
-            newname = JOptionPane.showInputDialog(
-                    this,
-                    language.getString("MainFrame.dialog.renameFolder")+":\n",
-                    selected.getName());
-            if (newname == null) {
-                return; // cancel
-            }
-        } while (newname.length() == 0);
-
-        selected.setName(newname);
-        updateTofTree(selected);
-    }
-
-    /**
      * Refresh the texts in MainFrame with new language.
      */
     public void languageChanged(final LanguageEvent e) {
         translateMainMenu();
         LanguageGuiSupport.getInstance().translateLanguageMenu();
-        translateButtons();
     }
 
     public void setPanelEnabled(final String title, final boolean enabled) {
@@ -1073,11 +700,11 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     }
 
     public void setTofTree(final TofTree tofTree) {
-        this.tofTree = tofTree;
+        getFrostMessageTab().setTofTree(tofTree);
     }
 
     public void setTofTreeModel(final TofTreeModel tofTreeModel) {
-        this.tofTreeModel = tofTreeModel;
+        getFrostMessageTab().setTofTreeModel(tofTreeModel);
     }
 
     /**
@@ -1087,7 +714,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         // this method is called by a timer each second, so this counter counts seconds
         counter++;
 
-        final RunningMessageThreadsInformation msgInfo = tofTree.getRunningBoardUpdateThreads().getRunningMessageThreadsInformation();
+        final RunningMessageThreadsInformation msgInfo = getFrostMessageTab().getRunningMessageThreadsInformation();
         final FileTransferInformation fileInfo = Core.getInstance().getFileTransferManager().getFileTransferInformation();
 
         //////////////////////////////////////////////////
@@ -1098,13 +725,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
             isAutomaticBoardUpdateEnabled() &&
             msgInfo.getDownloadingBoardCount() < frostSettings.getIntValue(SettingsClass.BOARD_AUTOUPDATE_CONCURRENT_UPDATES))
         {
-            final Board nextBoard = BoardUpdateBoardSelector.selectNextBoard(tofTreeModel);
-            if (nextBoard != null) {
-                tofTree.updateBoard(nextBoard);
-                logger.info("*** Automatic board update started for: " + nextBoard.getName());
-            } else {
-                logger.info("*** Automatic board update - min update interval not reached.  waiting...");
-            }
+            getFrostMessageTab().startNextBoardUpdate();
         }
 
         //////////////////////////////////////////////////
@@ -1130,7 +751,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         /////////////////////////////////////////////////
         //   Update status bar and file count in panels
         /////////////////////////////////////////////////
-        getStatusBar().setStatusBarInformations(fileInfo, msgInfo, tofTreeModel.getSelectedNode().getName());
+        getStatusBar().setStatusBarInformations(fileInfo, msgInfo, getFrostMessageTab().getTofTreeModel().getSelectedNode().getName());
 
         Core.getInstance().getFileTransferManager().updateWaitingCountInPanels(fileInfo);
     }
@@ -1143,25 +764,6 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         todaysDateMillis = v;
     }
 
-    private void tofDisplayBoardInfoMenuItem_actionPerformed(final ActionEvent e) {
-        if (BoardInfoFrame.isDialogShowing() == false) {
-            final BoardInfoFrame boardInfo = new BoardInfoFrame(this, tofTree);
-            boardInfo.startDialog();
-        }
-    }
-
-    private void tofDisplayBoardUpdateInformationMenuItem_actionPerformed(final ActionEvent e) {
-        if (BoardUpdateInformationFrame.isDialogShowing() == false) {
-            final BoardUpdateInformationFrame boardInfo = new BoardUpdateInformationFrame(this, tofTree);
-            boardInfo.startDialog();
-        }
-    }
-
-    private void tofDisplayKnownBoardsMenuItem_actionPerformed(final ActionEvent e) {
-        final KnownBoardsFrame knownBoards = new KnownBoardsFrame(this, tofTree);
-        knownBoards.startDialog();
-    }
-
     /** TOF Board selected
      * Core.getOut()
      * if e == NULL, the method is called by truster or by the reloader after options were changed
@@ -1169,95 +771,11 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
      * @param e
      */
     public void tofTree_actionPerformed(final TreeSelectionEvent e) {
-        tofTree_actionPerformed(e, false);
+        getFrostMessageTab().boardTree_actionPerformed();
     }
 
     public void tofTree_actionPerformed(final TreeSelectionEvent e, final boolean reload) {
-        final int i[] = tofTree.getSelectionRows();
-        if (i != null && i.length > 0) {
-            frostSettings.setValue(SettingsClass.BOARDLIST_LAST_SELECTED_BOARD, i[0]);
-        }
-
-        final AbstractNode node = (AbstractNode) tofTree.getLastSelectedPathComponent();
-        if (node == null) {
-            return;
-        }
-
-        boolean showSentMessagesPanel = false;
-        boolean showUnsentMessagesPanel = false;
-
-        if (node.isBoard()) {
-            // node is a board
-            removeBoardButton.setEnabled(true);
-            renameFolderButton.setEnabled(false);
-            configBoardButton.setEnabled(true);
-
-            // save the selected message for later re-select if we changed between threaded/flat view
-            FrostMessageObject previousMessage = null;
-            if( reload ) {
-                final int[] rows = getMessageTreeTable().getSelectedRows();
-                if( rows != null && rows.length > 0 ) {
-                    previousMessage = (FrostMessageObject)getMessageTableModel().getRow(rows[0]);
-                }
-            }
-
-            // remove previous msgs
-            getMessagePanel().getMessageTable().setNewRootNode(new FrostMessageObject(true));
-            getMessagePanel().updateMessageCountLabels(node);
-
-            // read all messages for this board into message table (starts a thread)
-            TOF.getInstance().updateTofTable((Board)node, previousMessage);
-
-            getMessagePanel().getMessageTable().clearSelection();
-        } else if (node.isFolder()) {
-            // node is a folder
-            getMessagePanel().getMessageTable().setNewRootNode(new FrostMessageObject(true));
-            getMessagePanel().updateMessageCountLabels(node);
-
-            renameFolderButton.setEnabled(true);
-            if (node.isRoot()) {
-                removeBoardButton.setEnabled(false);
-            } else {
-                removeBoardButton.setEnabled(true);
-            }
-            configBoardButton.setEnabled(false);
-        } else if (node.isUnsentMessagesFolder()) {
-            // remove previous msgs to save memory
-            getMessagePanel().getMessageTable().setNewRootNode(new FrostMessageObject(true));
-
-            removeBoardButton.setEnabled(false);
-            configBoardButton.setEnabled(false);
-
-            showUnsentMessagesPanel = true;
-        } else if (node.isSentMessagesFolder()) {
-            // remove previous msgs to save memory
-            getMessagePanel().getMessageTable().setNewRootNode(new FrostMessageObject(true));
-
-            removeBoardButton.setEnabled(false);
-            configBoardButton.setEnabled(false);
-
-            showSentMessagesPanel = true;
-        }
-
-        if( showSentMessagesPanel ) {
-            showSentMessagePanelInSplitpane();
-        } else if( showUnsentMessagesPanel ) {
-            showUnsentMessagePanelInSplitpane();
-        } else {
-            showMessagePanelInSplitpane();
-        }
-    }
-
-    private void translateButtons() {
-        newBoardButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.newBoard"));
-        newFolderButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.newFolder"));
-        systemTrayButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.minimizeToSystemTray"));
-        knownBoardsButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.displayListOfKnownBoards"));
-        searchMessagesButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.searchMessages"));
-        boardInfoButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.boardInformationWindow"));
-        removeBoardButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.removeBoard"));
-        renameFolderButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.renameFolder"));
-        configBoardButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.configureBoard"));
+        getFrostMessageTab().boardTree_actionPerformed(reload);
     }
 
     private void translateMainMenu() {
@@ -1265,17 +783,12 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         fileExitMenuItem.setText(language.getString("Common.exit"));
         fileStatisticsMenuItem.setText(language.getString("MainFrame.menu.file.statistics"));
         tofMenu.setText(language.getString("MainFrame.menu.news"));
-        tofDisplayBoardInfoMenuItem.setText(language.getString("MainFrame.menu.news.displayBoardInformationWindow"));
-        tofDisplayBoardUpdateInformationMenuItem.setText(language.getString("MainFrame.menu.news.displayBoardUpdateInformationMenuItem"));
         tofAutomaticUpdateMenuItem.setText(language.getString("MainFrame.menu.news.automaticBoardUpdate"));
-        tofDisplayKnownBoards.setText(language.getString("MainFrame.menu.news.displayKnownBoards"));
-        tofSearchMessages.setText(language.getString("MainFrame.menu.news.searchMessages"));
         optionsMenu.setText(language.getString("MainFrame.menu.options"));
         optionsPreferencesMenuItem.setText(language.getString("MainFrame.menu.options.preferences"));
         optionsManageLocalIdentitiesMenuItem.setText(language.getString("MainFrame.menu.options.manageLocalIdentities"));
         optionsManageIdentitiesMenuItem.setText(language.getString("MainFrame.menu.options.manageIdentities"));
         pluginMenu.setText(language.getString("MainFrame.menu.plugins"));
-//        pluginBrowserMenuItem.setText(language.getString("Experimental Freenet Browser"));
         pluginTranslateMenuItem.setText(language.getString("MainFrame.menu.plugins.translateFrost"));
         languageMenu.setText(language.getString("MainFrame.menu.language"));
         helpMenu.setText(language.getString("MainFrame.menu.help"));
@@ -1339,17 +852,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
      * Fires a nodeChanged (redraw) for this board and updates buttons.
      */
     public void updateTofTree(final AbstractNode board) {
-        if( board == null ) {
-            return;
-        }
-        // fire update for node
-        tofTreeModel.nodeChanged(board);
-        // also update all parents
-        TreeNode parentFolder = board.getParent();
-        while (parentFolder != null) {
-            tofTreeModel.nodeChanged(parentFolder);
-            parentFolder = parentFolder.getParent();
-        }
+        getFrostMessageTab().updateTofTreeNode(board);
     }
 
     public void setAutomaticBoardUpdateEnabled(final boolean state) {
@@ -1384,44 +887,28 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     }
 
     /**
-     * Start the search dialog, all boards in board tree are selected.
-     */
-    public void startSearchMessagesDialog() {
-        // show first time or bring to front
-        getSearchMessagesDialog().startDialog();
-    }
-
-    /**
      * Start the search dialog with only the specified boards preselected as boards to search into.
      */
     public void startSearchMessagesDialog(final List<Board> l) {
         // show first time or bring to front
-        getSearchMessagesDialog().startDialog(l);
-    }
-
-    public SearchMessagesDialog getSearchMessagesDialog() {
-        if( searchMessagesDialog == null ) {
-            searchMessagesDialog = new SearchMessagesDialog();
-        }
-        return searchMessagesDialog;
+        getFrostMessageTab().getSearchMessagesDialog().startDialog(l);
     }
 
     public void updateMessageCountLabels(final Board board) {
         // forward to MessagePanel
-        getMessagePanel().updateMessageCountLabels(board);
+        getFrostMessageTab().getMessagePanel().updateMessageCountLabels(board);
     }
-
     public TreeTableModelAdapter getMessageTableModel() {
         // forward to MessagePanel
-        return getMessagePanel().getMessageTableModel();
+        return getFrostMessageTab().getMessagePanel().getMessageTableModel();
     }
     public DefaultTreeModel getMessageTreeModel() {
         // forward to MessagePanel
-        return getMessagePanel().getMessageTreeModel();
+        return getFrostMessageTab().getMessagePanel().getMessageTreeModel();
     }
     public MessageTreeTable getMessageTreeTable() {
         // forward to MessagePanel
-        return getMessagePanel().getMessageTable();
+        return getFrostMessageTab().getMessagePanel().getMessageTable();
     }
 
     private class WindowClosingListener extends WindowAdapter {
@@ -1457,7 +944,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     }
 
     public void activateGlassPane() {
-        showProgress();
+        getFrostMessageTab().showProgress();
 
         // Mount the glasspane on the component window
         final GlassPane aPane = GlassPane.mount(this, true);
@@ -1477,7 +964,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
             glassPane.setVisible(false);
             glassPane = null;
         }
-        hideProgress();
+        getFrostMessageTab().hideProgress();
     }
 
     /**
@@ -1500,8 +987,8 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         }
         // the panels are not all in the component tree, update them manually
         SwingUtilities.updateComponentTreeUI(getMessagePanel());
-        SwingUtilities.updateComponentTreeUI(getSentMessagesPanel());
-        SwingUtilities.updateComponentTreeUI(getUnsentMessagesPanel());
+        SwingUtilities.updateComponentTreeUI(getFrostMessageTab().getSentMessagesPanel());
+        SwingUtilities.updateComponentTreeUI(getFrostMessageTab().getUnsentMessagesPanel());
         repaint();
     }
 
@@ -1524,5 +1011,9 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         StartupMessage.cleanup();
         queuedStartupMessages.clear();
         queuedStartupMessages = null;
+    }
+
+    public FrostMessageTab getFrostMessageTab() {
+        return frostMessageTab;
     }
 }

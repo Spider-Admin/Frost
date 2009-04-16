@@ -25,7 +25,7 @@ import org.w3c.dom.*;
 import org.xml.sax.*;
 
 import frost.*;
-import frost.messages.*;
+import frost.messaging.frost.*;
 import frost.storage.perst.identities.*;
 import frost.util.*;
 
