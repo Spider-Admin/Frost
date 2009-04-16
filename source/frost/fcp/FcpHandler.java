@@ -20,7 +20,6 @@ package frost.fcp;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
 
 import frost.fileTransfer.download.*;
 import frost.fileTransfer.upload.*;
@@ -39,15 +38,15 @@ public abstract class FcpHandler {
         return instance;
     }
 
-    public static void initializeFcp(final List<String> nodes) throws UnsupportedOperationException {
+    public static void initializeFcp(final String node) throws UnsupportedOperationException, Exception {
         instance = new FcpHandler07();
-        instance.initialize(nodes);
+        instance.initialize(node);
         FreenetKeys.initializeFor07();
     }
 
-    public abstract void initialize(List<String> nodes);
+    public abstract void initialize(String node) throws Exception;
 
-    public abstract List<NodeAddress> getNodes();
+    public abstract NodeAddress getFreenetNode();
 
     /**
      * Invoked when the node is online.
@@ -155,8 +154,6 @@ public abstract class FcpHandler {
             FrostUploadItem ulItem);
 
     public abstract String generateCHK(File file) throws Throwable;
-
-    public abstract List<String> getNodeInfo() throws IOException, ConnectException;
 
     public abstract BoardKeyPair generateBoardKeyPair() throws IOException, ConnectException;
 }

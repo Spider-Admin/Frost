@@ -92,7 +92,7 @@ public class SettingsClass implements ExitSavable {
     public static final String PERST_PAGEPOOLSIZE_MESSAGES = "perst.pagepoolsizeKiB.messages";
     public static final String PERST_PAGEPOOLSIZE_MESSAGECONTENTS = "perst.pagepoolsizeKiB.messagecontents";
 
-    public static final String AVAILABLE_NODES = "availableNodes";
+    public static final String FREENET_FCP_ADDRESS = "availableNodes";
     public static final String FCP2_USE_DDA = "fcp2.useDDA";
     public static final String FCP2_USE_PERSISTENCE = "fcp2.usePersistence";
     public static final String FCP2_USE_ONE_CONNECTION_FOR_MESSAGES = "fcp2.useOneConnectionForMessages";

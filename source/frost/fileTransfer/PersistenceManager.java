@@ -60,7 +60,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
 
     private final FcpPersistentQueue persistentQueue;
     private final FcpMultiRequestConnection fcpConn;
-    private final FcpMultiRequestConnectionTools fcpTools;
+    private final FcpMultiRequestConnectionFileTransferTools fcpTools;
 
     private final Set<String> directGETsInProgress = new HashSet<String>();
     private final Set<String> directPUTsInProgress = new HashSet<String>();
@@ -90,12 +90,12 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
         showExternalItemsDownload = Core.frostSettings.getBoolValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_DOWNLOAD);
         showExternalItemsUpload = Core.frostSettings.getBoolValue(SettingsClass.GQ_SHOW_EXTERNAL_ITEMS_UPLOAD);
 
-        if( FcpHandler.inst().getNodes().isEmpty() ) {
+        if (FcpHandler.inst().getFreenetNode() == null) {
             throw new Exception("No freenet nodes defined");
         }
-        final NodeAddress na = FcpHandler.inst().getNodes().get(0);
+        final NodeAddress na = FcpHandler.inst().getFreenetNode();
         fcpConn = FcpMultiRequestConnection.createInstance(na);
-        fcpTools = new FcpMultiRequestConnectionTools(fcpConn);
+        fcpTools = new FcpMultiRequestConnectionFileTransferTools(fcpConn);
 
         Core.frostSettings.addPropertyChangeListener(new PropertyChangeListener() {
             public void propertyChange(final PropertyChangeEvent evt) {

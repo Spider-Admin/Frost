@@ -28,10 +28,12 @@ import javax.swing.*;
 
 import frost.ext.*;
 import frost.fcp.*;
+import frost.fcp.fcp07.*;
 import frost.fileTransfer.*;
 import frost.gui.*;
 import frost.gui.help.*;
 import frost.identities.*;
+import frost.messaging.freetalk.*;
 import frost.messaging.frost.*;
 import frost.messaging.frost.boards.*;
 import frost.messaging.frost.threads.*;
@@ -67,6 +69,7 @@ public class Core {
     private Language language = null;
 
     private static boolean freenetIsOnline = false;
+    private static boolean freetalkIsTalkable = false;
 
     private final Timer timer = new Timer(true);
 
@@ -78,27 +81,6 @@ public class Core {
 
     private Core() {
         initializeLanguage();
-    }
-
-    private boolean checkIfRunningOn07Testnet() {
-        boolean runningOnTestnet = false;
-        try {
-            final List<String> nodeInfo = FcpHandler.inst().getNodeInfo();
-            if( nodeInfo != null ) {
-                // freenet is online
-                setFreenetOnline(true);
-
-                // on 0.7 check for "Testnet=true" and warn user
-                for( final String val : nodeInfo ) {
-                    if( val.startsWith("Testnet") && val.indexOf("true") > 0 ) {
-                        runningOnTestnet = true;
-                    }
-                }
-            }
-        } catch (final Exception e) {
-            logger.log(Level.SEVERE, "Exception thrown in initializeConnectivity", e);
-        }
-        return runningOnTestnet;
     }
 
     /**
@@ -120,14 +102,15 @@ public class Core {
         }
 
         // get the list of available nodes
-        String nodesUnparsed = frostSettings.getValue(SettingsClass.AVAILABLE_NODES);
+        String nodesUnparsed = frostSettings.getValue(SettingsClass.FREENET_FCP_ADDRESS);
         if (nodesUnparsed == null || nodesUnparsed.length() == 0) {
-            frostSettings.setValue(SettingsClass.AVAILABLE_NODES, "127.0.0.1:9481");
-            nodesUnparsed = frostSettings.getValue(SettingsClass.AVAILABLE_NODES);
+            frostSettings.setValue(SettingsClass.FREENET_FCP_ADDRESS, "127.0.0.1:9481");
+            nodesUnparsed = frostSettings.getValue(SettingsClass.FREENET_FCP_ADDRESS);
         }
 
         final List<String> nodes = new ArrayList<String>();
 
+        // earlier we supported multiple nodes, so check if there is more than one node
         if( nodesUnparsed != null ) {
             final String[] _nodes = nodesUnparsed.split(",");
             for( final String element : _nodes ) {
@@ -145,20 +128,17 @@ public class Core {
         }
 
         if (nodes.size() > 1) {
-            if( frostSettings.getBoolValue(SettingsClass.FCP2_USE_PERSISTENCE) ) {
-                // persistence is not possible with more than 1 node
-                MiscToolkit.showMessage(
-                        "Persistence is not possible with more than 1 node. Persistence disabled.",
-                        JOptionPane.ERROR_MESSAGE,
-                        "Warning: Persistence is not possible");
-                frostSettings.setValue(SettingsClass.FCP2_USE_PERSISTENCE, false);
-            }
+            MiscToolkit.showMessage(
+                    "Frost doesn' support multiple Freenet nodes and will use the first configured node.",
+                    JOptionPane.ERROR_MESSAGE,
+                    "Warning: Using first configured node");
+            frostSettings.setValue(SettingsClass.FREENET_FCP_ADDRESS, nodes.get(0));
         }
 
-        // init the factory with configured nodes
+        // init the factory with configured node
         try {
-            FcpHandler.initializeFcp(nodes);
-        } catch(final UnsupportedOperationException ex) {
+            FcpHandler.initializeFcp(nodes.get(0));
+        } catch(final Exception ex) {
             MiscToolkit.showMessage(
                     ex.getMessage(),
                     JOptionPane.ERROR_MESSAGE,
@@ -179,7 +159,34 @@ public class Core {
 
         // We warn the user when he connects to a 0.7 testnet node
         // this also tries to connect to a configured node and sets 'freenetOnline'
-        if( checkIfRunningOn07Testnet() ) {
+        boolean runningOnTestnet = false;
+        try {
+            final FcpConnection fcpConn = new FcpConnection(FcpHandler.inst().getFreenetNode());
+            final NodeMessage nodeMessage = fcpConn.getNodeInfo();
+
+            // node answered, freenet is online
+            setFreenetOnline(true);
+
+            if (nodeMessage.getBoolValue("Testnet")) {
+                runningOnTestnet = true;
+            }
+
+            final boolean freetalkTalkable = fcpConn.checkFreetalkPlugin();
+            setFreetalkTalkable (freetalkTalkable);
+
+            if (freetalkTalkable) {
+                System.out.println("**** Freetalk is Talkable. ****");
+            } else {
+                System.out.println("**** Freetalk is NOT Talkable. ****");
+            }
+
+            fcpConn.close();
+
+        } catch (final Exception e) {
+            logger.log(Level.SEVERE, "Exception thrown in initializeConnectivity", e);
+        }
+
+        if (runningOnTestnet) {
             MiscToolkit.showMessage(
                     language.getString("Core.init.TestnetWarningBody"),
                     JOptionPane.WARNING_MESSAGE,
@@ -193,7 +200,7 @@ public class Core {
                 JOptionPane.WARNING_MESSAGE,
                 language.getString("Core.init.NodeNotRunningTitle"));
         } else {
-            // on 0.7 maybe start a single message connection
+            // maybe start a single message connection
             FcpHandler.inst().goneOnline();
         }
 
@@ -205,6 +212,13 @@ public class Core {
     }
     public static boolean isFreenetOnline() {
         return freenetIsOnline;
+    }
+
+    public static void setFreetalkTalkable(final boolean v) {
+        freetalkIsTalkable = v;
+    }
+    public static boolean isFreetalkTalkable() {
+        return freetalkIsTalkable;
     }
 
     public static FrostCrypt getCrypto() {
@@ -246,10 +260,10 @@ public class Core {
         // init availableNodes with correct port
         if( startdlg.getOwnHostAndPort() != null ) {
             // user set own host:port
-            frostSettings.setValue(SettingsClass.AVAILABLE_NODES, startdlg.getOwnHostAndPort());
+            frostSettings.setValue(SettingsClass.FREENET_FCP_ADDRESS, startdlg.getOwnHostAndPort());
         } else {
             // 0.7 darknet
-            frostSettings.setValue(SettingsClass.AVAILABLE_NODES, "127.0.0.1:9481");
+            frostSettings.setValue(SettingsClass.FREENET_FCP_ADDRESS, "127.0.0.1:9481");
         }
     }
 
@@ -418,6 +432,11 @@ public class Core {
 
         getFileTransferManager().initialize();
         UnsentMessagesManager.initialize();
+        try {
+            FreetalkManager.initialize();
+        } catch(final Exception ex) {
+            logger.log(Level.WARNING, "Freetalk plugin could not be initialized", ex);
+        }
 
         splashscreen.setText(language.getString("Splashscreen.message.4"));
         splashscreen.setProgress(70);
