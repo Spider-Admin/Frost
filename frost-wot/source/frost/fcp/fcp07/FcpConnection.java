@@ -73,35 +73,6 @@ public class FcpConnection {
         }
     }
 
-    public List<String> getNodeInfo() throws IOException {
-
-        final List<String> msg = new ArrayList<String>();
-        msg.add("ClientHello");
-        msg.add("Name=hello-"+FcpSocket.getNextFcpId());
-        msg.add("ExpectedVersion=2.0");
-        msg.add("EndMessage");
-        sendMessage(msg);
-
-        final List<String> result = new ArrayList<String>();
-        final BufferedReader in = new BufferedReader(new InputStreamReader(fcpSocket.getFcpSock().getInputStream()));
-        while(true) {
-            final String tmp = in.readLine();
-            if (tmp == null || tmp.trim().equals("EndMessage")) {
-                break;
-            }
-            result.add(tmp);
-        }
-        in.close();
-        close();
-
-        if( result.isEmpty() ) {
-            logger.warning("No ClientInfo response!");
-            return null;
-        }
-
-        return result;
-    }
-
     /**
      * Retrieves the specified key and saves it to the file specified.
      *
@@ -598,5 +569,61 @@ public class FcpConnection {
     	} else {
     		return uri;
         }
+    }
+
+    public NodeMessage getNodeInfo() throws IOException {
+
+        final List<String> msg = new ArrayList<String>();
+        msg.add("ClientHello");
+        msg.add("Name=hello-"+FcpSocket.getNextFcpId());
+        msg.add("ExpectedVersion=2.0");
+        msg.add("EndMessage");
+        sendMessage(msg);
+
+        final NodeMessage response = NodeMessage.readMessage(fcpSocket.getFcpIn());
+
+        if (response == null) {
+            throw new IOException("No ClientHello response!");
+        }
+        if ("NodeHello".equals(response.getMessageName())) {
+            throw new IOException("Wrong ClientHello response: "+response.getMessageName());
+        }
+
+        return response;
+    }
+
+    public boolean checkFreetalkPlugin() {
+
+        final List<String> msg = new ArrayList<String>();
+        msg.add("GetPluginInfo");
+        msg.add("Identifier=initial-"+FcpSocket.getNextFcpId());
+        msg.add("PluginName=plugins.Freetalk.Freetalk");
+        msg.add("EndMessage");
+        sendMessage(msg);
+
+        // wait for a message from node
+        // GOOD: Pong
+        // BAD: ProtocolError: 32 - No such plugin
+        final NodeMessage nodeMsg = NodeMessage.readMessage(fcpSocket.getFcpIn());
+
+        if (nodeMsg == null) {
+            logger.warning("No answer to GetPluginInfo command received");
+            return false;
+        }
+
+        if (nodeMsg.isMessageName("ProtocolError")) {
+            logger.warning("ProtocolError received: "+nodeMsg.toString());
+            return false;
+        }
+
+        if (nodeMsg.isMessageName("PluginInfo")) {
+            logger.warning("Freetalk plugin answered with PluginInfo: "+nodeMsg.toString());
+            if (nodeMsg.getBoolValue("IsTalkable")) {
+                return true;
+            }
+        } else {
+            logger.warning("Unknown answer to GetPluginInfo command: "+nodeMsg.toString());
+        }
+        return false;
     }
 }

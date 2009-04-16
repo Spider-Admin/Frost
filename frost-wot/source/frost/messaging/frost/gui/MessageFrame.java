@@ -131,17 +131,17 @@ public class MessageFrame extends JFrame {
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(final WindowEvent e) {
-                windowIsClosing(e);
+                windowIsClosing();
             }
             @Override
             public void windowClosed(final WindowEvent e) {
-                windowWasClosed(e);
+                windowWasClosed();
             }
         });
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
     }
 
-    private void windowIsClosing(final WindowEvent e) {
+    private void windowIsClosing() {
         final String title = language.getString("MessageFrame.discardMessage.title");
         final String text = language.getString("MessageFrame.discardMessage.text");
         final int answer = JOptionPane.showConfirmDialog(
@@ -155,7 +155,7 @@ public class MessageFrame extends JFrame {
         }
     }
 
-    private void windowWasClosed(final WindowEvent e) {
+    private void windowWasClosed() {
         decOpenInstanceCount();
     }
 
@@ -224,10 +224,6 @@ public class MessageFrame extends JFrame {
             }
         }
         positionDividers();
-    }
-
-    private void cancel_actionPerformed(final ActionEvent e) {
-        dispose();
     }
 
     /**
@@ -576,7 +572,7 @@ public class MessageFrame extends JFrame {
             });
             Bcancel.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
-                    cancel_actionPerformed(e);
+                    windowIsClosing();
                 }
             });
             BattachFile.addActionListener(new java.awt.event.ActionListener() {

@@ -210,7 +210,7 @@ class MiscPanel extends JPanel {
         showSystrayIconCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_SYSTRAY_ICON));
         minimizeToSystrayCheckBox.setSelected(settings.getBoolValue(SettingsClass.MINIMIZE_TO_SYSTRAY));
         compactDatabaseAtNextStartupCheckBox.setSelected(settings.getBoolValue(SettingsClass.PERST_COMPACT_STORAGES));
-        availableNodesTextField.setText(settings.getValue(SettingsClass.AVAILABLE_NODES));
+        availableNodesTextField.setText(settings.getValue(SettingsClass.FREENET_FCP_ADDRESS));
         autoSaveIntervalTextField.setText(Integer.toString(settings.getIntValue(SettingsClass.AUTO_SAVE_INTERVAL)));
         autoSaveLocalIdentitiesCheckBox.setSelected(settings.getBoolValue(SettingsClass.AUTO_SAVE_LOCAL_IDENTITIES));
         enableLoggingCheckBox.setSelected(settings.getBoolValue(SettingsClass.LOG_TO_FILE));
@@ -274,7 +274,7 @@ class MiscPanel extends JPanel {
      * Save the settings of this panel
      */
     private void saveSettings() {
-        settings.setValue(SettingsClass.AVAILABLE_NODES, availableNodesTextField.getText());
+        settings.setValue(SettingsClass.FREENET_FCP_ADDRESS, availableNodesTextField.getText());
         settings.setValue(SettingsClass.SHOW_SYSTRAY_ICON, showSystrayIconCheckBox.isSelected());
         settings.setValue(SettingsClass.MINIMIZE_TO_SYSTRAY, minimizeToSystrayCheckBox.isSelected());
         settings.setValue(SettingsClass.PERST_COMPACT_STORAGES, compactDatabaseAtNextStartupCheckBox.isSelected());

@@ -25,13 +25,13 @@ import java.util.logging.*;
 import frost.*;
 import frost.ext.*;
 
-public class FcpMultiRequestConnectionTools {
+public class FcpMultiRequestConnectionFileTransferTools {
 
-    private static final Logger logger = Logger.getLogger(FcpMultiRequestConnectionTools.class.getName());
+    private static final Logger logger = Logger.getLogger(FcpMultiRequestConnectionFileTransferTools.class.getName());
 
     private final FcpMultiRequestConnection fcpPersistentConnection;
 
-    public FcpMultiRequestConnectionTools(final FcpMultiRequestConnection fcpPersistentConnection) {
+    public FcpMultiRequestConnectionFileTransferTools(final FcpMultiRequestConnection fcpPersistentConnection) {
         this.fcpPersistentConnection = fcpPersistentConnection;
     }
 

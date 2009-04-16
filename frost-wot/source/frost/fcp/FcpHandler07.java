@@ -20,7 +20,6 @@ package frost.fcp;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
@@ -37,8 +36,8 @@ public class FcpHandler07 extends FcpHandler {
     private MessageTransferHandler msgTransferConnection = null;
 
     @Override
-    public void initialize(final List<String> nodes) {
-        FcpFactory.init(nodes); // init the factory with configured nodes
+    public void initialize(final String node) throws Exception {
+        FcpFactory.init(node); // init the factory with configured nodes
     }
 
     /**
@@ -57,8 +56,8 @@ public class FcpHandler07 extends FcpHandler {
     }
 
     @Override
-    public List<NodeAddress> getNodes() {
-        return FcpFactory.getNodes();
+    public NodeAddress getFreenetNode() {
+        return FcpFactory.getFreenetNode();
     }
 
     @Override
@@ -169,17 +168,8 @@ public class FcpHandler07 extends FcpHandler {
             return null;
         }
         final String chkkey = connection.generateCHK(file);
+        connection.close();
         return chkkey;
-    }
-
-    @Override
-    public List<String> getNodeInfo() throws IOException, ConnectException {
-
-        final FcpConnection connection = FcpFactory.getFcpConnectionInstance();
-        if (connection == null) {
-            return null;
-        }
-        return connection.getNodeInfo();
     }
 
     @Override
@@ -191,6 +181,7 @@ public class FcpHandler07 extends FcpHandler {
         }
 
         final String[] keyPair = connection.getKeyPair();
+        connection.close();
         if( keyPair == null ) {
             return null;
         }
