@@ -42,7 +42,7 @@ public class MessageTransferHandler implements NodeMessageListener {
             throw new Exception("No freenet node defined");
         }
         final NodeAddress na = FcpHandler.inst().getFreenetNode();
-        this.fcpTools = new FcpMultiRequestConnectionFileTransferTools(FcpMultiRequestConnection.createInstance(na));
+        this.fcpTools = new FcpMultiRequestConnectionFileTransferTools(FcpListenThreadConnection.createInstance(na));
     }
 
     public void start() {

@@ -59,7 +59,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
     private boolean isConnected = true; // we start in connected state
 
     private final FcpPersistentQueue persistentQueue;
-    private final FcpMultiRequestConnection fcpConn;
+    private final FcpListenThreadConnection fcpConn;
     private final FcpMultiRequestConnectionFileTransferTools fcpTools;
 
     private final Set<String> directGETsInProgress = new HashSet<String>();
@@ -94,7 +94,7 @@ public class PersistenceManager implements IFcpPersistentRequestsHandler {
             throw new Exception("No freenet nodes defined");
         }
         final NodeAddress na = FcpHandler.inst().getFreenetNode();
-        fcpConn = FcpMultiRequestConnection.createInstance(na);
+        fcpConn = FcpListenThreadConnection.createInstance(na);
         fcpTools = new FcpMultiRequestConnectionFileTransferTools(fcpConn);
 
         Core.frostSettings.addPropertyChangeListener(new PropertyChangeListener() {

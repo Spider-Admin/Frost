@@ -24,8 +24,7 @@ import frost.fcp.fcp07.*;
 
 public class FreetalkManager {
 
-    private final FcpMultiRequestConnection fcpConn;
-    private final FcpMultiRequestConnectionFreetalkTools fcpTools;
+    private final FcpFreetalkConnection fcpTools;
 
     private static FreetalkManager instance = null;
 
@@ -34,8 +33,7 @@ public class FreetalkManager {
             throw new Exception("No freenet nodes defined");
         }
         final NodeAddress na = FcpHandler.inst().getFreenetNode();
-        fcpConn = FcpMultiRequestConnection.createInstance(na);
-        fcpTools = new FcpMultiRequestConnectionFreetalkTools(fcpConn);
+        fcpTools = new FcpFreetalkConnection(na);
     }
 
     public static FreetalkManager getInstance() {

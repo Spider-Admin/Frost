@@ -29,13 +29,13 @@ public class FcpMultiRequestConnectionFileTransferTools {
 
     private static final Logger logger = Logger.getLogger(FcpMultiRequestConnectionFileTransferTools.class.getName());
 
-    private final FcpMultiRequestConnection fcpPersistentConnection;
+    private final FcpListenThreadConnection fcpPersistentConnection;
 
-    public FcpMultiRequestConnectionFileTransferTools(final FcpMultiRequestConnection fcpPersistentConnection) {
+    public FcpMultiRequestConnectionFileTransferTools(final FcpListenThreadConnection fcpPersistentConnection) {
         this.fcpPersistentConnection = fcpPersistentConnection;
     }
 
-    public FcpMultiRequestConnection getFcpPersistentConnection() {
+    public FcpListenThreadConnection getFcpPersistentConnection() {
         return fcpPersistentConnection;
     }
 

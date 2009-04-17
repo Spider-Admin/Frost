@@ -20,25 +20,16 @@ package frost.fcp.fcp07;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
-import java.util.concurrent.locks.*;
 import java.util.logging.*;
 
 import javax.swing.event.*;
 
 import frost.fcp.*;
 import frost.util.*;
-import frost.util.Logging;
 
-public class FcpMultiRequestConnection {
+public class FcpListenThreadConnection extends AbstractBasicConnection {
 
-    private static final Logger logger = Logger.getLogger(FcpMultiRequestConnection.class.getName());
-
-    private final NodeAddress nodeAddress;
-
-    private FcpSocket fcpSocket = null;
-
-    private final ReentrantLock writeSocketLock;
+    private static final Logger logger = Logger.getLogger(FcpListenThreadConnection.class.getName());
 
     private ReceiveThread receiveThread;
 
@@ -52,22 +43,17 @@ public class FcpMultiRequestConnection {
      * @exception UnknownHostException if the FCP host is unknown
      * @exception IOException if there is a problem with the connection to the FCP host.
      */
-    protected FcpMultiRequestConnection(final NodeAddress na) throws UnknownHostException, IOException {
-
-        nodeAddress = na;
-
-        fcpSocket = new FcpSocket(nodeAddress, true);
+    protected FcpListenThreadConnection(final NodeAddress na) throws UnknownHostException, IOException {
+        super(na);
 
         notifyConnected();
-
-        writeSocketLock = new ReentrantLock(true);
 
         receiveThread = new ReceiveThread(fcpSocket.getFcpIn());
         receiveThread.start();
     }
 
-    public static FcpMultiRequestConnection createInstance(final NodeAddress na) throws UnknownHostException, IOException {
-        return new FcpMultiRequestConnection(na);
+    public static FcpListenThreadConnection createInstance(final NodeAddress na) throws UnknownHostException, IOException {
+        return new FcpListenThreadConnection(na);
     }
 
     public BufferedInputStream getFcpSocketIn() {
@@ -111,7 +97,7 @@ public class FcpMultiRequestConnection {
         listenerList.add(NodeMessageListener.class, l);
     }
 
-    public void NodeMessageListener(final NodeMessageListener  l) {
+    public void removeNodeMessageListener(final NodeMessageListener  l) {
         listenerList.remove(NodeMessageListener.class, l);
     }
 
@@ -150,119 +136,6 @@ public class FcpMultiRequestConnection {
             if (listeners[i] == NodeMessageListener.class) {
                 ((NodeMessageListener)listeners[i+1]).disconnected();
             }
-        }
-    }
-
-    /**
-     * Writes a message to the socket. Ensures that only 1 thread writes at any time (writeSocketLock).
-     * @param message     the message to send
-     * @param sendEndMsg  if true EndMessage should be appended
-     */
-    public boolean sendMessage(final List<String> message, final boolean sendEndMsg) {
-
-        writeSocketLock.lock();
-        final boolean doLogging = Logging.inst().doLogFcp2Messages();
-        try {
-            if(doLogging) {
-                System.out.println("### SEND >>>>>>> (FcpMultiRequestConnection.sendMessage)");
-            }
-            for( final String msgLine : message ) {
-                fcpSocket.getFcpOut().println(msgLine);
-                if(doLogging) {
-                    System.out.println(msgLine);
-                }
-            }
-            if( sendEndMsg ) {
-                fcpSocket.getFcpOut().println("EndMessage");
-                if(doLogging) {
-                    System.out.println("*EndMessage*");
-                }
-            }
-            final boolean isError = fcpSocket.getFcpOut().checkError();
-            if(doLogging) {
-                System.out.println("### SEND <<<<<<< isError="+isError);
-            }
-            return isError;
-        } finally {
-            writeSocketLock.unlock();
-        }
-    }
-
-    public boolean sendMessageAndData(final List<String> message, final boolean sendEndMsg, final File sourceFile) {
-        writeSocketLock.lock();
-        final boolean doLogging = Logging.inst().doLogFcp2Messages();
-        try {
-            if(doLogging) {
-                System.out.println("### SEND_DATA >>>>>>>");
-            }
-            for( final String msgLine : message ) {
-                fcpSocket.getFcpOut().println(msgLine);
-                if(doLogging) {
-                    System.out.println(msgLine);
-                }
-            }
-            if( sendEndMsg ) {
-                fcpSocket.getFcpOut().println("Data");
-            }
-
-            fcpSocket.getFcpOut().flush();
-
-            // send file
-            final BufferedInputStream fileInput = new BufferedInputStream(new FileInputStream(sourceFile));
-            while( true ) {
-                final int d = fileInput.read();
-                if( d < 0 ) {
-                    break; // EOF
-                }
-                fcpSocket.getFcpRawOut().write(d);
-            }
-            fileInput.close();
-            fcpSocket.getFcpRawOut().flush();
-
-            if(doLogging) {
-                System.out.println("### SEND_DATA <<<<<<<");
-            }
-            return false; // no error
-        } catch(final Throwable t) {
-            logger.log(Level.SEVERE, "Error sending file to socket", t);
-            return true; // error
-        } finally {
-            writeSocketLock.unlock();
-        }
-    }
-
-    public void closeConnection() {
-        fcpSocket.close();
-    }
-
-    /**
-     * Performs a handshake using this FcpConnection
-     */
-    public void doHandshake() throws IOException, ConnectException {
-        fcpSocket.getFcpOut().println("ClientHello");
-        fcpSocket.getFcpOut().println("Name=hello-" + FcpSocket.getNextFcpId());
-        fcpSocket.getFcpOut().println("ExpectedVersion=2.0");
-        fcpSocket.getFcpOut().println("EndMessage");
-        fcpSocket.getFcpOut().flush();
-
-        // receive and process node messages
-        boolean isSuccess = false;
-        while(true) {
-            final NodeMessage nodeMsg = NodeMessage.readMessage(fcpSocket.getFcpIn());
-            if( nodeMsg == null ) {
-                break;
-            }
-
-            if( nodeMsg.isMessageName("NodeHello") ) {
-                isSuccess = true;
-                break;
-            }
-            // any other message means error here
-            break;
-        }
-
-        if( !isSuccess ) {
-            throw new ConnectException();
         }
     }
 
