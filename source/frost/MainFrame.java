@@ -425,7 +425,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         getTabbedPane().insertTab("MainFrame.tabbedPane.news", null, getFrostMessageTab().getTabPanel(), null, 0);
 
         getFreetalkMessageTab().initialize();
-        getTabbedPane().insertTab("Freetalk", null, getFreetalkMessageTab().getTabPanel(), null, 0);
+        getTabbedPane().insertTab("Freetalk", null, getFreetalkMessageTab().getTabPanel(), null, 1);
 
         getTabbedPane().setSelectedIndex(0);
 
