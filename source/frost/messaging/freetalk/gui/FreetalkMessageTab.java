@@ -96,6 +96,10 @@ public class FreetalkMessageTab {
             buttonToolBar.add(Box.createRigidArea(blankSpace));
 
             updateBoardButton.addActionListener(listener);
+
+            if (!Core.isFreetalkTalkable()) {
+                updateBoardButton.setEnabled(false);
+            }
         }
         return buttonToolBar;
     }
