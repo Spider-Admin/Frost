@@ -38,6 +38,7 @@ import frost.fileTransfer.*;
 import frost.gui.*;
 import frost.gui.help.*;
 import frost.gui.preferences.*;
+import frost.messaging.freetalk.gui.*;
 import frost.messaging.frost.*;
 import frost.messaging.frost.boards.*;
 import frost.messaging.frost.gui.*;
@@ -61,6 +62,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     private final ImageIcon frameIconNewMessage = MiscToolkit.loadImageIcon("/data/newmessage.gif");
 
     private final FrostMessageTab frostMessageTab = new FrostMessageTab(this);
+    private final FreetalkMessageTab freetalkMessageTab = new FreetalkMessageTab(this);
 
     private HelpBrowserFrame helpBrowser = null;
     private MemoryMonitor memoryMonitor = null;
@@ -420,8 +422,11 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
     private JTabbedPane buildMainPanel() {
 
         getFrostMessageTab().initialize();
-
         getTabbedPane().insertTab("MainFrame.tabbedPane.news", null, getFrostMessageTab().getTabPanel(), null, 0);
+
+        getFreetalkMessageTab().initialize();
+        getTabbedPane().insertTab("Freetalk", null, getFreetalkMessageTab().getTabPanel(), null, 0);
+
         getTabbedPane().setSelectedIndex(0);
 
         return getTabbedPane();
@@ -451,6 +456,7 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
         }
 
         getFrostMessageTab().saveLayout();
+        getFreetalkMessageTab().saveLayout();
     }
 
     /**
@@ -1015,5 +1021,9 @@ public class MainFrame extends JFrame implements SettingsUpdater, LanguageListen
 
     public FrostMessageTab getFrostMessageTab() {
         return frostMessageTab;
+    }
+
+    public FreetalkMessageTab getFreetalkMessageTab() {
+        return freetalkMessageTab;
     }
 }
