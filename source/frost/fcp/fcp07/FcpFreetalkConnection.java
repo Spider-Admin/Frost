@@ -30,53 +30,78 @@ public class FcpFreetalkConnection extends FcpListenThreadConnection {
 
     private static final Logger logger = Logger.getLogger(FcpFreetalkConnection.class.getName());
 
+    private final NodeMessageHandler nodeMessageHandler;
+
     public FcpFreetalkConnection(final NodeAddress na) throws UnknownHostException, IOException {
         super(na);
-
-//        FIXME  add nodemessagelistener!
+        nodeMessageHandler = new NodeMessageHandler();
+        addNodeMessageListener(nodeMessageHandler);
     }
 
-    public synchronized List<String> listBoards() throws Exception {
+    public interface FreetalkNodeMessageCallback {
+        public void handleNodeMessage(final String id, final NodeMessage nodeMessage);
+    }
+
+    public boolean registerCallback(final String id, final FreetalkNodeMessageCallback cb) {
+        return nodeMessageHandler.registerCallback(id, cb);
+    }
+
+    public void unregisterCallback(final String id) {
+        nodeMessageHandler.unregisterCallback(id);
+    }
+
+    public void sendCommandListBoards(final String id) throws Exception {
 
         final List<String> msg = new ArrayList<String>();
         msg.add("FCPPluginMessage");
-        msg.add("Identifier=moohmooh");
+        msg.add("Identifier="+id);
         msg.add("PluginName=plugins.Freetalk.Freetalk");
         msg.add("Param.Message=ListBoards");
-
         sendMessage(msg, true);
+    }
 
-        final List<String> boardNames = new ArrayList<String>();
+    /**
+     * Handle and dispatch NodeMessages.
+     */
+    private class NodeMessageHandler implements NodeMessageListener {
 
-        // receive and process node message
-        while(true) {
-            final NodeMessage nodeMsg = NodeMessage.readMessage(fcpSocket.getFcpIn());
-            if (nodeMsg == null) {
-                // FIXME: reconnect
-                throw new Exception("No NodeMessage received!");
-            }
+        private final HashMap<String, FreetalkNodeMessageCallback> callbackById = new HashMap<String, FreetalkNodeMessageCallback>();
 
-            if (!nodeMsg.isMessageName("FCPPluginReply")) {
-                throw new Exception("Unexpected NodeMessage received: "+nodeMsg.getMessageName());
-            }
-
-            if ("EndListBoards".equals(nodeMsg.getStringValue("Replies.Message"))) {
-                System.out.println("<<<<< End of boards list.");
-                break;
-            }
-
-            if (!"Board".equals(nodeMsg.getStringValue("Replies.Message"))) {
-                throw new Exception("Unexpected NodeMessage received: "+nodeMsg.getStringValue("Replies.Message"));
-            }
-
-            System.out.println(">>> Board");
-            System.out.println("  Name ............ = "+nodeMsg.getStringValue("Replies.Name"));
-            System.out.println("  MessageCount .... = "+nodeMsg.getStringValue("Replies.MessageCount"));
-            System.out.println("  FirstSeenDate ... = "+nodeMsg.getStringValue("Replies.FirstSeenDate"));
-            System.out.println("  LatestMessageDate = "+nodeMsg.getStringValue("Replies.LatestMessageDate"));
-
-            boardNames.add(nodeMsg.getStringValue("Replies.Name"));
+        public void connected() {
+            System.out.println("FcpFreetalkConnection: connected");
         }
-        return boardNames;
+
+        public void disconnected() {
+            System.out.println("FcpFreetalkConnection: disconnected");
+        }
+
+        public void handleNodeMessage(final NodeMessage nm) {
+            System.out.println("FcpFreetalkConnection: nodeMessage w/o ID");
+            System.out.println(nm.toString());
+        }
+
+        public void handleNodeMessage(final String id, final NodeMessage nm) {
+            System.out.println("FcpFreetalkConnection: nodeMessage w/ ID");
+            System.out.println(nm.toString());
+            final FreetalkNodeMessageCallback cb = callbackById.get(id);
+            if (cb == null) {
+                logger.severe("No callback for ID registered");
+            } else {
+                cb.handleNodeMessage(id, nm);
+            }
+        }
+
+        public synchronized boolean registerCallback(final String id, final FreetalkNodeMessageCallback cb) {
+            if (callbackById.containsKey(id)) {
+                return false;
+            } else {
+                callbackById.put(id, cb);
+                return true;
+            }
+        }
+
+        public synchronized void unregisterCallback(final String id) {
+            callbackById.remove(id);
+        }
     }
 }

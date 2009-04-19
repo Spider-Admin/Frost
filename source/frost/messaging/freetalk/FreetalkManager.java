@@ -24,16 +24,16 @@ import frost.fcp.fcp07.*;
 
 public class FreetalkManager {
 
-    private final FcpFreetalkConnection fcpTools;
+    private final FcpFreetalkConnection fcpFreetalkConnection;
 
     private static FreetalkManager instance = null;
 
-    public FreetalkManager() throws Exception {
+    private FreetalkManager() throws Exception {
         if (FcpHandler.inst().getFreenetNode() == null) {
             throw new Exception("No freenet nodes defined");
         }
         final NodeAddress na = FcpHandler.inst().getFreenetNode();
-        fcpTools = new FcpFreetalkConnection(na);
+        fcpFreetalkConnection = new FcpFreetalkConnection(na);
     }
 
     public static FreetalkManager getInstance() {
@@ -42,11 +42,15 @@ public class FreetalkManager {
 
     public synchronized static void initialize() throws Exception {
         if (instance == null) {
-            final FreetalkManager newInstance = new FreetalkManager();
             if (Core.isFreetalkTalkable() == false) {
                 throw new Exception("Freetalk plugin is not available");
             }
+            final FreetalkManager newInstance = new FreetalkManager();
             instance = newInstance;
         }
+    }
+
+    public FcpFreetalkConnection getConnection() {
+        return fcpFreetalkConnection;
     }
 }
