@@ -20,14 +20,19 @@ package frost.messaging.freetalk.gui;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.logging.*;
 
 import javax.swing.*;
 
 import frost.*;
+import frost.fcp.fcp07.freetalk.*;
+import frost.messaging.freetalk.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
 public class FreetalkMessageTab {
+
+    private static final Logger logger = Logger.getLogger(FreetalkMessageTab.class.getName());
 
     private JSplitPane treeAndTabbedPaneSplitpane = null;
     private JPanel tabPanel = null;
@@ -99,6 +104,22 @@ public class FreetalkMessageTab {
         return tabPanel;
     }
 
+    public void sendFreetalkCommandListBoards() {
+        final String id = FcpFreetalkConnection.getNextFcpidentifier();
+        // FIXME: add callback
+//        FreetalkManager.getInstance().getConnection().registerCallback(id, cb);
+
+        // FIXME: clear boards?
+        // FIXME: lock MainFrame?
+
+        try {
+            FreetalkManager.getInstance().getConnection().sendCommandListBoards(id);
+        } catch(final Exception ex) {
+            logger.log(Level.SEVERE, "Error sending command ListBoards", ex);
+            return;
+        }
+    }
+
     private class Listener
     implements
         ActionListener,
@@ -120,7 +141,7 @@ public class FreetalkMessageTab {
         }
 
         protected void updateButton_actionPerformed(final ActionEvent e) {
-
+            sendFreetalkCommandListBoards();
         }
     }
 }

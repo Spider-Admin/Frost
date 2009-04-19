@@ -21,6 +21,7 @@ package frost.messaging.freetalk;
 import frost.*;
 import frost.fcp.*;
 import frost.fcp.fcp07.*;
+import frost.fcp.fcp07.freetalk.*;
 
 public class FreetalkManager {
 

@@ -16,21 +16,35 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.fcp.fcp07;
+package frost.fcp.fcp07.freetalk;
 
 import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.util.logging.*;
 
+import frost.*;
 import frost.fcp.*;
+import frost.fcp.fcp07.*;
 
 
 public class FcpFreetalkConnection extends FcpListenThreadConnection {
 
+    private static long fcpidentifierPart1 = Core.getCrypto().getSecureRandom().nextLong();
+    private static long fcpidentifierPart2 = 0L;
+
     private static final Logger logger = Logger.getLogger(FcpFreetalkConnection.class.getName());
 
     private final NodeMessageHandler nodeMessageHandler;
+
+    public static synchronized String getNextFcpidentifier() {
+        return new StringBuilder()
+            .append("FreetalkConnection-")
+            .append(fcpidentifierPart1)
+            .append("-")
+            .append(fcpidentifierPart2++)
+            .toString();
+    }
 
     public FcpFreetalkConnection(final NodeAddress na) throws UnknownHostException, IOException {
         super(na);

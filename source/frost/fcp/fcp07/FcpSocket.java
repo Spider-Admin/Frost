@@ -44,7 +44,8 @@ public class FcpSocket {
     private boolean assumeUploadDDAIsAllowed;
     private boolean assumeDownloadDDAIsAllowed;
 
-    private static long staticFcpConnectionId = 0;
+    private static long fcpidentifierPart1 = Core.getCrypto().getSecureRandom().nextLong();
+    private static long fcpidentifierPart2 = 0L;
 
     public enum DDAModes {
         WANT_DOWNLOAD,
@@ -53,8 +54,12 @@ public class FcpSocket {
     };
 
     public static synchronized String getNextFcpId() {
-        final StringBuilder sb = new StringBuilder().append("fcps-").append(System.currentTimeMillis()).append(staticFcpConnectionId++);
-        return sb.toString();
+        return new StringBuilder()
+            .append("FcpSocket-")
+            .append(fcpidentifierPart1)
+            .append("-")
+            .append(fcpidentifierPart2++)
+            .toString();
     }
 
     /**
