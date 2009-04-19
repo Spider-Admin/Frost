@@ -111,7 +111,7 @@ public class MessageTransferHandler implements NodeMessageListener {
     public void handleNodeMessage(final NodeMessage nm) {
         // handle a NodeMessage without identifier
     }
-// FIXME: restart tasks in queue after reconnect! accept new tasks during disconnect (??????)
+
     public void handleNodeMessage(final String id, final NodeMessage nm) {
         if(Logging.inst().doLogFcp2Messages()) {
             System.out.println(">>>RCV>>>>");
@@ -200,6 +200,7 @@ public class MessageTransferHandler implements NodeMessageListener {
         task.setFcpResultGet(result);
         setTaskFinished(task);
     }
+
     protected void onGetFailed(final MessageTransferTask task, final NodeMessage nm) {
         final int returnCode = nm.getIntValue("Code");
         final String codeDescription = nm.getStringValue("CodeDescription");
@@ -221,6 +222,7 @@ public class MessageTransferHandler implements NodeMessageListener {
         task.setFcpResultPut(new FcpResultPut(FcpResultPut.Success, chkKey));
         setTaskFinished(task);
     }
+
     protected void onPutFailed(final MessageTransferTask task, final NodeMessage nm) {
         final int returnCode = nm.getIntValue("Code");
         final String codeDescription = nm.getStringValue("CodeDescription");
