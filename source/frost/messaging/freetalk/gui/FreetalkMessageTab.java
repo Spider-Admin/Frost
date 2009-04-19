@@ -25,8 +25,11 @@ import java.util.logging.*;
 import javax.swing.*;
 
 import frost.*;
+import frost.fcp.fcp07.*;
 import frost.fcp.fcp07.freetalk.*;
+import frost.fcp.fcp07.freetalk.FcpFreetalkConnection.*;
 import frost.messaging.freetalk.*;
+import frost.messaging.freetalk.boards.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
@@ -108,18 +111,52 @@ public class FreetalkMessageTab {
         return tabPanel;
     }
 
+    private class ListBoardsCallback implements FreetalkNodeMessageCallback {
+
+        public void handleNodeMessage(final String id, final NodeMessage nodeMsg) {
+
+            if (!nodeMsg.isMessageName("FCPPluginReply")) {
+                logger.severe("Unexpected NodeMessage received: "+nodeMsg.getMessageName());
+                FreetalkManager.getInstance().getConnection().unregisterCallback(id);
+                mainFrame.deactivateGlassPane();
+                return;
+            }
+
+            if ("EndListBoards".equals(nodeMsg.getStringValue("Replies.Message"))) {
+                FreetalkManager.getInstance().getConnection().unregisterCallback(id);
+                mainFrame.deactivateGlassPane();
+                return;
+            }
+
+            if (!"Board".equals(nodeMsg.getStringValue("Replies.Message"))) {
+                logger.severe("Unexpected NodeMessage received: "+nodeMsg.getStringValue("Replies.Message"));
+                FreetalkManager.getInstance().getConnection().unregisterCallback(id);
+                mainFrame.deactivateGlassPane();
+                return;
+            }
+
+            final String name = nodeMsg.getStringValue("Replies.Name");
+            final int messageCount = new Integer(nodeMsg.getStringValue("Replies.MessageCount"));
+            final long latestMessageDate = new Integer(nodeMsg.getStringValue("Replies.LatestMessageDate"));
+            final long firstSeenDate = new Integer(nodeMsg.getStringValue("Replies.FirstSeenDate"));
+
+            final FreetalkBoard board = new FreetalkBoard(name, messageCount, firstSeenDate, latestMessageDate);
+            // FIXME: add to board list
+        }
+    }
+
     public void sendFreetalkCommandListBoards() {
         final String id = FcpFreetalkConnection.getNextFcpidentifier();
-        // FIXME: add callback
-//        FreetalkManager.getInstance().getConnection().registerCallback(id, cb);
 
-        // FIXME: clear boards?
-        // FIXME: lock MainFrame?
+        FreetalkManager.getInstance().getConnection().registerCallback(id, new ListBoardsCallback());
+
+        mainFrame.activateGlassPane();
 
         try {
             FreetalkManager.getInstance().getConnection().sendCommandListBoards(id);
         } catch(final Exception ex) {
             logger.log(Level.SEVERE, "Error sending command ListBoards", ex);
+            mainFrame.deactivateGlassPane();
             return;
         }
     }
