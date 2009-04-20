@@ -74,6 +74,41 @@ public class FcpFreetalkConnection extends FcpListenThreadConnection {
         sendMessage(msg, true);
     }
 
+    public void sendCommandListMessages(
+            final String id,
+            final String boardname,
+            final boolean withMessageContent)
+    throws Exception {
+
+        final List<String> msg = new ArrayList<String>();
+        msg.add("FCPPluginMessage");
+        msg.add("Identifier="+id);
+        msg.add("PluginName=plugins.Freetalk.Freetalk");
+        msg.add("Param.Message=ListMessages");
+        msg.add("Param.BoardName="+boardname);
+        msg.add("Param.SortByMessageDateAscending=true");
+        msg.add("Param.IncludeMessageText="+withMessageContent);
+        sendMessage(msg, true);
+    }
+
+    public void sendCommandGetMessage(
+            final String id,
+            final String boardname,
+            final int msgIndex,
+            final boolean withMessageContent)
+    throws Exception {
+
+        final List<String> msg = new ArrayList<String>();
+        msg.add("FCPPluginMessage");
+        msg.add("Identifier="+id);
+        msg.add("PluginName=plugins.Freetalk.Freetalk");
+        msg.add("Param.Message=GetMessage");
+        msg.add("Param.BoardName="+boardname);
+        msg.add("Param.MessageIndex="+msgIndex);
+        msg.add("Param.IncludeMessageText="+withMessageContent);
+        sendMessage(msg, true);
+    }
+
     /**
      * Handle and dispatch NodeMessages.
      */
@@ -90,12 +125,12 @@ public class FcpFreetalkConnection extends FcpListenThreadConnection {
         }
 
         public void handleNodeMessage(final NodeMessage nm) {
-            System.out.println("FcpFreetalkConnection: nodeMessage w/o ID");
+            System.out.println("------------ FcpFreetalkConnection: nodeMessage w/o ID \"------------");
             System.out.println(nm.toString());
         }
 
         public void handleNodeMessage(final String id, final NodeMessage nm) {
-            System.out.println("FcpFreetalkConnection: nodeMessage w/ ID");
+            System.out.println("------------ FcpFreetalkConnection: nodeMessage w/ ID \"------------");
             System.out.println(nm.toString());
             final FreetalkNodeMessageCallback cb = callbackById.get(id);
             if (cb == null) {

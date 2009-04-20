@@ -27,7 +27,7 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.table.*;
 
-import frost.messaging.frost.*;
+import frost.messaging.freetalk.*;
 import frost.util.gui.translation.*;
 
 public class FreetalkAttachedFilesTableModel extends DefaultTableModel implements LanguageListener {
@@ -51,11 +51,11 @@ public class FreetalkAttachedFilesTableModel extends DefaultTableModel implement
     }
 
     @Override
-    public boolean isCellEditable(int row, int col) {
+    public boolean isCellEditable(final int row, final int col) {
         return false;
     }
 
-    public void languageChanged(LanguageEvent event) {
+    public void languageChanged(final LanguageEvent event) {
         refreshLanguage();
     }
 
@@ -72,11 +72,11 @@ public class FreetalkAttachedFilesTableModel extends DefaultTableModel implement
      * in the list passed as a parameter
      * @param fileAttachments list of FileAttachments fo fill the model with
      */
-    public void setData(List fileAttachments) {
+    public void setData(final List fileAttachments) {
         setRowCount(0);
-        Iterator files = fileAttachments.iterator();
+        final Iterator files = fileAttachments.iterator();
         while (files.hasNext()) {
-            FileAttachment attachment = (FileAttachment) files.next();
+            final FreetalkFileAttachment attachment = (FreetalkFileAttachment) files.next();
             // maybe we show a file that is not yet uploaded (unsend message file attachment)
             String key;
             if (attachment.getKey() != null && attachment.getKey().length() > 40 ) {
@@ -84,11 +84,11 @@ public class FreetalkAttachedFilesTableModel extends DefaultTableModel implement
             } else {
                 key = "?";
             }
-            
+
             if (attachment.getFilename() != null && attachment.getFilename().length() > 0 ) {
-                Object[] row = {
-                        attachment.getFilename(), 
-                        numberFormat.format( attachment.getFileSize() ), 
+                final Object[] row = {
+                        attachment.getFilename(),
+                        numberFormat.format( attachment.getFileSize() ),
                         key};
                 addRow(row);
             }
@@ -96,9 +96,10 @@ public class FreetalkAttachedFilesTableModel extends DefaultTableModel implement
     }
 
     @Override
-    public String getColumnName(int column) {
-        if( column >= 0 && column < columnNames.length )
+    public String getColumnName(final int column) {
+        if( column >= 0 && column < columnNames.length ) {
             return columnNames[column];
+        }
         return null;
     }
 
@@ -108,29 +109,30 @@ public class FreetalkAttachedFilesTableModel extends DefaultTableModel implement
     }
 
     @Override
-    public Class getColumnClass(int column) {
-        if( column >= 0 && column < columnClasses.length )
+    public Class getColumnClass(final int column) {
+        if( column >= 0 && column < columnClasses.length ) {
             return columnClasses[column];
+        }
         return null;
     }
-    
-    public void configureTable(JTable t) {
-        TableColumn c = t.getColumnModel().getColumn(1); // size column
+
+    public void configureTable(final JTable t) {
+        final TableColumn c = t.getColumnModel().getColumn(1); // size column
         c.setCellRenderer(new NumberRightRenderer());
     }
-    
+
     private class NumberRightRenderer extends DefaultTableCellRenderer {
         public NumberRightRenderer() {
             super();
         }
         @Override
         public Component getTableCellRendererComponent(
-            JTable table,
-            Object value,
-            boolean isSelected,
-            boolean hasFocus,
-            int row,
-            int column) {
+            final JTable table,
+            final Object value,
+            final boolean isSelected,
+            final boolean hasFocus,
+            final int row,
+            final int column) {
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             setHorizontalAlignment(SwingConstants.RIGHT);
             // col is right aligned, give some space to next column

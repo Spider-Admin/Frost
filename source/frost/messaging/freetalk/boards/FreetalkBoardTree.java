@@ -849,39 +849,15 @@ public class FreetalkBoardTree extends JDragTree implements AutoSavable, ExitSav
 
     /**
      * Checks if board is already existent, adds board to board tree.
-     * @param bname
-     * @param bpubkey
-     * @param bprivkey
-     * @param description
+     * @param fbobj
      */
-    private void addNewBoard(final String bname) {
-        final FreetalkBoard existingBoard = model.getBoardByName(bname);
-        if (existingBoard != null) {
-            final int answer =
-                JOptionPane.showConfirmDialog(
-                    getTopLevelAncestor(),
-                    language.formatMessage("BoardTree.overWriteBoardConfirmation.body", bname),
-                    language.getString("BoardTree.overWriteBoardConfirmation.title"),
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.WARNING_MESSAGE);
-            if (answer == JOptionPane.YES_OPTION) {
-                // overwrite keys and description of existing board
-                model.nodeChanged(existingBoard); // refresh board icon
-            }
-        } else {
-            final FreetalkBoard newBoard = new FreetalkBoard(bname, 0, 0L, 0L);
+    public void addNewBoard(final FreetalkBoard newBoard) {
+        final FreetalkBoard existingBoard = model.getBoardByName(newBoard.getName());
+        if (existingBoard == null) {
             model.addNodeToTree(newBoard);
             // maybe this boardfolder already exists, scan for new messages
 //            TOF.getInstance().searchUnreadMessages(newBoard);
         }
-    }
-
-    /**
-     * Checks if board is already existent, adds board to board tree.
-     * @param fbobj
-     */
-    public void addNewBoard(final FreetalkBoard fbobj) {
-        addNewBoard(fbobj.getName());
     }
 
     /**

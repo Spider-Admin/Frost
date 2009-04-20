@@ -27,11 +27,10 @@ import javax.swing.event.*;
 import javax.swing.tree.*;
 
 import frost.*;
-import frost.fcp.fcp07.*;
 import frost.fcp.fcp07.freetalk.*;
-import frost.fcp.fcp07.freetalk.FcpFreetalkConnection.*;
 import frost.messaging.freetalk.*;
 import frost.messaging.freetalk.boards.*;
+import frost.messaging.freetalk.transfer.*;
 import frost.messaging.frost.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
@@ -55,6 +54,9 @@ public class FreetalkMessageTab implements LanguageListener {
     private final Language language;
     private FreetalkManager ftManager = null;
 
+    private FreetalkBoardTree ftBoardTree;
+    private FreetalkBoardTreeModel ftBoardTreeModel;
+
     public FreetalkMessageTab(final MainFrame localMainFrame) {
 
         language = Language.getInstance();
@@ -68,10 +70,12 @@ public class FreetalkMessageTab implements LanguageListener {
 
             ftManager = FreetalkManager.getInstance();
 
-            final JScrollPane tofTreeScrollPane = new JScrollPane(ftManager.getBoardTree());
+            getBoardTree().initialize();
+
+            final JScrollPane tofTreeScrollPane = new JScrollPane(getBoardTree());
             tofTreeScrollPane.setWheelScrollingEnabled(true);
 
-            ftManager.getBoardTree().addTreeSelectionListener(new TreeSelectionListener() {
+            getBoardTree().addTreeSelectionListener(new TreeSelectionListener() {
                 public void valueChanged(final TreeSelectionEvent e) {
                     boardTree_actionPerformed();
                 }
@@ -102,6 +106,26 @@ public class FreetalkMessageTab implements LanguageListener {
         }
     }
 
+    public FreetalkBoardTree getBoardTree() {
+        if (ftBoardTree == null) {
+            ftBoardTree = new FreetalkBoardTree(getTreeModel());
+            ftBoardTree.setSettings(Core.frostSettings);
+            ftBoardTree.setMainFrame(MainFrame.getInstance());
+        }
+        return ftBoardTree;
+    }
+
+    public FreetalkBoardTreeModel getTreeModel() {
+        if (ftBoardTreeModel == null) {
+            // this rootnode is discarded later, but if we create the tree without parameters,
+            // a new Model is created wich contains some sample data by default (swing)
+            // this confuses our renderer wich only expects FrostBoardObjects in the tree
+            final FreetalkFolder dummyRootNode = new FreetalkFolder("Frost Message System");
+            ftBoardTreeModel = new FreetalkBoardTreeModel(dummyRootNode);
+        }
+        return ftBoardTreeModel;
+    }
+
     public void boardTree_actionPerformed() {
 
 //        final int i[] = ftManager.getBoardTree().getSelectionRows();
@@ -109,7 +133,7 @@ public class FreetalkMessageTab implements LanguageListener {
 //            Core.frostSettings.setValue(SettingsClass.BOARDLIST_LAST_SELECTED_BOARD, i[0]);
 //        }
 
-        final AbstractFreetalkNode node = (AbstractFreetalkNode) ftManager.getBoardTree().getLastSelectedPathComponent();
+        final AbstractFreetalkNode node = (AbstractFreetalkNode) getBoardTree().getLastSelectedPathComponent();
         if (node == null) {
             return;
         }
@@ -132,12 +156,11 @@ public class FreetalkMessageTab implements LanguageListener {
             getMessagePanel().getMessageTable().setNewRootNode(new FrostMessageObject(true));
             getMessagePanel().updateMessageCountLabels(node);
 
-            // FIXME: load msgs for selected board, build threads
-
-            // read all messages for this board into message table (starts a thread)
-//            TOF.getInstance().updateTofTable((Board)node, previousMessage);
-
             getMessagePanel().getMessageTable().clearSelection();
+
+            // FIXME: load msgs for selected board, build threads
+            sendFreetalkCommandListMessages((FreetalkBoard)node);
+
         } else if (node.isFolder()) {
             // node is a folder
             getMessagePanel().getMessageTable().setNewRootNode(new FrostMessageObject(true));
@@ -161,11 +184,11 @@ public class FreetalkMessageTab implements LanguageListener {
             return;
         }
         // fire update for node
-        ftManager.getTreeModel().nodeChanged(board);
+        getTreeModel().nodeChanged(board);
         // also update all parents
         TreeNode parentFolder = board.getParent();
         while (parentFolder != null) {
-            ftManager.getTreeModel().nodeChanged(parentFolder);
+            getTreeModel().nodeChanged(parentFolder);
             parentFolder = parentFolder.getParent();
         }
     }
@@ -216,17 +239,17 @@ public class FreetalkMessageTab implements LanguageListener {
             });
             newFolderButton.addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
-                    ftManager.getBoardTree().createNewFolder(mainFrame);
+                    getBoardTree().createNewFolder(mainFrame);
                 }
             });
             renameFolderButton.addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
-                    renameFolder((FreetalkFolder)ftManager.getTreeModel().getSelectedNode());
+                    renameFolder((FreetalkFolder)getTreeModel().getSelectedNode());
                 }
             });
             removeBoardButton.addActionListener(new ActionListener() {
                 public void actionPerformed(final ActionEvent e) {
-                    ftManager.getBoardTree().removeNode(ftManager.getTreeModel().getSelectedNode());
+                    getBoardTree().removeNode(getTreeModel().getSelectedNode());
                 }
             });
 
@@ -260,45 +283,11 @@ public class FreetalkMessageTab implements LanguageListener {
         return tabPanel;
     }
 
-    private class ListBoardsCallback implements FreetalkNodeMessageCallback {
-
-        public void handleNodeMessage(final String id, final NodeMessage nodeMsg) {
-
-            if (!nodeMsg.isMessageName("FCPPluginReply")) {
-                logger.severe("Unexpected NodeMessage received: "+nodeMsg.getMessageName());
-                FreetalkManager.getInstance().getConnection().unregisterCallback(id);
-                mainFrame.deactivateGlassPane();
-                return;
-            }
-
-            if ("EndListBoards".equals(nodeMsg.getStringValue("Replies.Message"))) {
-                FreetalkManager.getInstance().getConnection().unregisterCallback(id);
-                mainFrame.deactivateGlassPane();
-                return;
-            }
-
-            if (!"Board".equals(nodeMsg.getStringValue("Replies.Message"))) {
-                logger.severe("Unexpected NodeMessage received: "+nodeMsg.getStringValue("Replies.Message"));
-                FreetalkManager.getInstance().getConnection().unregisterCallback(id);
-                mainFrame.deactivateGlassPane();
-                return;
-            }
-
-            final String name = nodeMsg.getStringValue("Replies.Name");
-            final int messageCount = new Integer(nodeMsg.getStringValue("Replies.MessageCount"));
-            final long latestMessageDate = new Integer(nodeMsg.getStringValue("Replies.LatestMessageDate"));
-            final long firstSeenDate = new Integer(nodeMsg.getStringValue("Replies.FirstSeenDate"));
-
-            final FreetalkBoard board = new FreetalkBoard(name, messageCount, firstSeenDate, latestMessageDate);
-            // FIXME: add to board list
-            ftManager.getBoardTree().addNewBoard(board);
-        }
-    }
-
     public void sendFreetalkCommandListBoards() {
+
         final String id = FcpFreetalkConnection.getNextFcpidentifier();
 
-        FreetalkManager.getInstance().getConnection().registerCallback(id, new ListBoardsCallback());
+        FreetalkManager.getInstance().getConnection().registerCallback(id, new ListBoardsCallback(mainFrame));
 
         mainFrame.activateGlassPane();
 
@@ -306,6 +295,23 @@ public class FreetalkMessageTab implements LanguageListener {
             FreetalkManager.getInstance().getConnection().sendCommandListBoards(id);
         } catch(final Exception ex) {
             logger.log(Level.SEVERE, "Error sending command ListBoards", ex);
+            mainFrame.deactivateGlassPane();
+            return;
+        }
+    }
+
+    public void sendFreetalkCommandListMessages(final FreetalkBoard board) {
+
+        final String id = FcpFreetalkConnection.getNextFcpidentifier();
+
+        FreetalkManager.getInstance().getConnection().registerCallback(id, new ListMessagesCallback(ftManager, mainFrame, board));
+
+        mainFrame.activateGlassPane();
+
+        try {
+            FreetalkManager.getInstance().getConnection().sendCommandListMessages(id, board.getName(), false);
+        } catch(final Exception ex) {
+            logger.log(Level.SEVERE, "Error sending command ListMessages", ex);
             mainFrame.deactivateGlassPane();
             return;
         }

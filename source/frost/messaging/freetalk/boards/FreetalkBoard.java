@@ -50,4 +50,9 @@ public class FreetalkBoard extends AbstractFreetalkNode {
     public void setLastMessageDate(final long lastMessageDate) {
         this.latestMessageDate = lastMessageDate;
     }
+
+    @Override
+    public boolean isBoard() {
+        return true;
+    }
 }

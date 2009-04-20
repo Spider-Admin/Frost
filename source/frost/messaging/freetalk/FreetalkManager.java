@@ -18,19 +18,14 @@
 */
 package frost.messaging.freetalk;
 
-import frost.*;
 import frost.fcp.*;
 import frost.fcp.fcp07.freetalk.*;
-import frost.messaging.freetalk.boards.*;
 
 public class FreetalkManager {
 
     private FcpFreetalkConnection fcpFreetalkConnection = null;
 
     private static FreetalkManager instance = null;
-
-    private FreetalkBoardTree ftBoardTree;
-    private FreetalkBoardTreeModel ftBoardTreeModel;
 
     private FreetalkManager() {
         try {
@@ -51,7 +46,6 @@ public class FreetalkManager {
     public synchronized static void initialize() {
         if (instance == null) {
             instance = new FreetalkManager();
-            instance.getBoardTree().initialize();
         }
     }
 
@@ -60,25 +54,5 @@ public class FreetalkManager {
      */
     public FcpFreetalkConnection getConnection() {
         return fcpFreetalkConnection;
-    }
-
-    public FreetalkBoardTree getBoardTree() {
-        if (ftBoardTree == null) {
-            ftBoardTree = new FreetalkBoardTree(getTreeModel());
-            ftBoardTree.setSettings(Core.frostSettings);
-            ftBoardTree.setMainFrame(MainFrame.getInstance());
-        }
-        return ftBoardTree;
-    }
-
-    public FreetalkBoardTreeModel getTreeModel() {
-        if (ftBoardTreeModel == null) {
-            // this rootnode is discarded later, but if we create the tree without parameters,
-            // a new Model is created wich contains some sample data by default (swing)
-            // this confuses our renderer wich only expects FrostBoardObjects in the tree
-            final FreetalkFolder dummyRootNode = new FreetalkFolder("Frost Message System");
-            ftBoardTreeModel = new FreetalkBoardTreeModel(dummyRootNode);
-        }
-        return ftBoardTreeModel;
     }
 }

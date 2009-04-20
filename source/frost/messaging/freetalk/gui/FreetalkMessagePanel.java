@@ -327,7 +327,7 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
                 return;
             }
 
-            if (ftManager.getTreeModel().getSelectedNode().isBoard()) {
+            if (ftMessageTab.getTreeModel().getSelectedNode().isBoard()) {
 
                 removeAll();
 
@@ -713,7 +713,7 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
             // listeners
             messageTable.addMouseListener(listener);
 
-            ftManager.getBoardTree().addTreeSelectionListener(listener);
+            ftMessageTab.getBoardTree().addTreeSelectionListener(listener);
 
             assignHotkeys();
 
@@ -911,7 +911,7 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
 
     private void messageTable_itemSelected(final ListSelectionEvent e) {
 
-        final AbstractFreetalkNode selectedNode = ftManager.getTreeModel().getSelectedNode();
+        final AbstractFreetalkNode selectedNode = ftMessageTab.getTreeModel().getSelectedNode();
         if (selectedNode.isFolder()) {
             setGoodButton.setEnabled(false);
             setCheckButton.setEnabled(false);
@@ -1008,7 +1008,7 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
     }
 
     private void newMessageButton_actionPerformed() {
-        final AbstractFreetalkNode node = ftManager.getTreeModel().getSelectedNode();
+        final AbstractFreetalkNode node = ftMessageTab.getTreeModel().getSelectedNode();
         if( node == null || !node.isBoard() ) {
             return;
         }
@@ -1131,7 +1131,7 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
 
     public void composeReply(final FrostMessageObject origMessage, final Window parent) {
 
-        final FreetalkBoard targetBoard = ftManager.getTreeModel().getBoardByName(origMessage.getBoard().getName());
+        final FreetalkBoard targetBoard = ftMessageTab.getTreeModel().getBoardByName(origMessage.getBoard().getName());
         if( targetBoard == null ) {
             final String title = language.getString("MessagePane.missingBoardError.title");
             final String txt = language.formatMessage("MessagePane.missingBoardError.text", origMessage.getBoard().getName());
@@ -1223,24 +1223,24 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
 
     private void updateButton_actionPerformed(final ActionEvent e) {
         // restarts all finished threads if there are some long running threads
-        final AbstractFreetalkNode node = ftManager.getTreeModel().getSelectedNode();
+        final AbstractFreetalkNode node = ftMessageTab.getTreeModel().getSelectedNode();
         if (node != null && node.isBoard() ) {
             final FreetalkBoard b = (FreetalkBoard) node;
 //            if( b.isManualUpdateAllowed() ) {
-                ftManager.getBoardTree().updateBoard(b);
+            ftMessageTab.getBoardTree().updateBoard(b);
 //            }
         }
     }
 
     private void boardsTree_actionPerformed(final TreeSelectionEvent e) {
 
-        if (((TreeNode) ftManager.getTreeModel().getRoot()).getChildCount() == 0) {
+        if (((TreeNode) ftMessageTab.getTreeModel().getRoot()).getChildCount() == 0) {
             // There are no boards
             getMessageTextPane().update_noBoardsFound();
             clearSubjectTextLabel();
         } else {
             // There are boards
-            final AbstractFreetalkNode node = (AbstractFreetalkNode)ftManager.getBoardTree().getLastSelectedPathComponent();
+            final AbstractFreetalkNode node = (AbstractFreetalkNode)ftMessageTab.getBoardTree().getLastSelectedPathComponent();
             if (node != null) {
                 if (node.isBoard()) {
                     // node is a board
@@ -1271,8 +1271,8 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
         final int row = messageTable.getSelectedRow();
         if (row < 0
             || selectedMessage == null
-            || ftManager.getTreeModel().getSelectedNode() == null
-            || !ftManager.getTreeModel().getSelectedNode().isBoard()
+            || ftMessageTab.getTreeModel().getSelectedNode() == null
+            || !ftMessageTab.getTreeModel().getSelectedNode().isBoard()
             || selectedMessage.isDummy() )
         {
             return false;
@@ -1281,7 +1281,7 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
     }
 
     private void markSelectedMessagesReadOrUnread(final boolean markRead) {
-        final AbstractFreetalkNode node = ftManager.getTreeModel().getSelectedNode();
+        final AbstractFreetalkNode node = ftMessageTab.getTreeModel().getSelectedNode();
         if( node == null || !node.isBoard() ) {
             return;
         }
@@ -1347,7 +1347,7 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
         final FrostMessageObject levelOneMsg = (FrostMessageObject)rootPath[1];
 
         final DefaultTreeModel model = MainFrame.getInstance().getMessagePanel().getMessageTreeModel();
-        final AbstractFreetalkNode node = ftManager.getTreeModel().getSelectedNode();
+        final AbstractFreetalkNode node = ftMessageTab.getTreeModel().getSelectedNode();
         if( node == null || !node.isBoard() ) {
             return;
         }
@@ -1385,7 +1385,7 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
 
     public void deleteSelectedMessage() {
 
-        final AbstractFreetalkNode node = ftManager.getTreeModel().getSelectedNode();
+        final AbstractFreetalkNode node = ftMessageTab.getTreeModel().getSelectedNode();
         if( node == null || !node.isBoard() ) {
             return;
         }
@@ -1555,7 +1555,7 @@ public class FreetalkMessagePanel extends JPanel implements PropertyChangeListen
     public void updateTableAfterChangeOfIdentityState() {
         // walk through shown messages and remove unneeded (e.g. if hideBad)
         // remember selected msg and select next
-        final AbstractFreetalkNode node = ftManager.getTreeModel().getSelectedNode();
+        final AbstractFreetalkNode node = ftMessageTab.getTreeModel().getSelectedNode();
         if( node == null || !node.isBoard() ) {
             return;
         }
