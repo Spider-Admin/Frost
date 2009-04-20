@@ -18,24 +18,16 @@
 */
 package frost.messaging.freetalk.boards;
 
-public class FreetalkBoard {
-    private String name;
+public class FreetalkBoard extends AbstractFreetalkNode {
     private int messageCount;
     private long firstSeenDate;
     private long latestMessageDate;
 
     public FreetalkBoard(final String name, final int messageCount, final long firstSeenDate, final long lastMessageDate) {
-        this.name = name;
+        super(name);
         this.messageCount = messageCount;
         this.firstSeenDate = firstSeenDate;
         this.latestMessageDate = lastMessageDate;
-    }
-
-    public String getName() {
-        return name;
-    }
-    public void setName(final String name) {
-        this.name = name;
     }
 
     public int getMessageCount() {

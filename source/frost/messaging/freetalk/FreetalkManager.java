@@ -20,38 +20,67 @@ package frost.messaging.freetalk;
 
 import frost.*;
 import frost.fcp.*;
-import frost.fcp.fcp07.*;
 import frost.fcp.fcp07.freetalk.*;
+import frost.messaging.freetalk.boards.*;
 
 public class FreetalkManager {
 
-    private final FcpFreetalkConnection fcpFreetalkConnection;
+    private FcpFreetalkConnection fcpFreetalkConnection = null;
 
     private static FreetalkManager instance = null;
 
-    private FreetalkManager() throws Exception {
-        if (FcpHandler.inst().getFreenetNode() == null) {
-            throw new Exception("No freenet nodes defined");
+    private FreetalkBoardTree ftBoardTree;
+    private FreetalkBoardTreeModel ftBoardTreeModel;
+
+    private FreetalkManager() {
+        try {
+            if (FcpHandler.inst().getFreenetNode() == null) {
+                throw new Exception("No freenet nodes defined");
+            }
+            final NodeAddress na = FcpHandler.inst().getFreenetNode();
+            fcpFreetalkConnection = new FcpFreetalkConnection(na);
+        } catch(final Exception ex) {
+            fcpFreetalkConnection = null;
         }
-        final NodeAddress na = FcpHandler.inst().getFreenetNode();
-        fcpFreetalkConnection = new FcpFreetalkConnection(na);
     }
 
     public static FreetalkManager getInstance() {
+        System.out.println("getInstance="+instance);
         return instance;
     }
 
-    public synchronized static void initialize() throws Exception {
+    public synchronized static void initialize() {
         if (instance == null) {
-            if (Core.isFreetalkTalkable() == false) {
-                throw new Exception("Freetalk plugin is not available");
-            }
-            final FreetalkManager newInstance = new FreetalkManager();
-            instance = newInstance;
+            instance = new FreetalkManager();
+            instance.getBoardTree().initialize();
         }
+        System.out.println("initialize="+instance);
     }
 
+    /**
+     * Connection is null when Freetalk plugin is not Talkable.
+     */
     public FcpFreetalkConnection getConnection() {
         return fcpFreetalkConnection;
+    }
+
+    public FreetalkBoardTree getBoardTree() {
+        if (ftBoardTree == null) {
+            ftBoardTree = new FreetalkBoardTree(getTreeModel());
+            ftBoardTree.setSettings(Core.frostSettings);
+            ftBoardTree.setMainFrame(MainFrame.getInstance());
+        }
+        return ftBoardTree;
+    }
+
+    public FreetalkBoardTreeModel getTreeModel() {
+        if (ftBoardTreeModel == null) {
+            // this rootnode is discarded later, but if we create the tree without parameters,
+            // a new Model is created wich contains some sample data by default (swing)
+            // this confuses our renderer wich only expects FrostBoardObjects in the tree
+            final FreetalkFolder dummyRootNode = new FreetalkFolder("Frost Message System");
+            ftBoardTreeModel = new FreetalkBoardTreeModel(dummyRootNode);
+        }
+        return ftBoardTreeModel;
     }
 }

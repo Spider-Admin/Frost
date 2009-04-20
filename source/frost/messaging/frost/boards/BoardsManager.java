@@ -28,16 +28,16 @@ public class BoardsManager {
 
 	private TofTree tofTree;
 	private TofTreeModel tofTreeModel;
-	
+
 	private MainFrame mainFrame;
-	
-	private SettingsClass settings;
-	
-	public BoardsManager(SettingsClass settings) {
+
+	private final SettingsClass settings;
+
+	public BoardsManager(final SettingsClass settings) {
 		super();
 		this.settings = settings;
 	}
-	
+
 	public void initialize() {
 		TOF.initialize(getTofTreeModel());
 		getTofTree().initialize();
@@ -45,7 +45,7 @@ public class BoardsManager {
 		mainFrame.setTofTreeModel(getTofTreeModel());
 		mainFrame.addMenuItem(getTofTree().getConfigBoardMenuItem(), "MainFrame.menu.news", 1, 1, true);
 	}
-	
+
 	public TofTree getTofTree() {
 		if (tofTree == null) {
 			tofTree = new TofTree(getTofTreeModel());
@@ -54,25 +54,19 @@ public class BoardsManager {
 		}
 		return tofTree;
 	}
-	
-	/**
-	 * @return
-	 */
+
 	public TofTreeModel getTofTreeModel() {
 		if (tofTreeModel == null) {
 			// this rootnode is discarded later, but if we create the tree without parameters,
 			// a new Model is created wich contains some sample data by default (swing)
 			// this confuses our renderer wich only expects FrostBoardObjects in the tree
-			Folder dummyRootNode = new Folder("Frost Message System");
+			final Folder dummyRootNode = new Folder("Frost Message System");
 			tofTreeModel = new TofTreeModel(dummyRootNode);
 		}
 		return tofTreeModel;
 	}
 
-	/**
-	 * @param mainFrame
-	 */
-	public void setMainFrame(MainFrame mainFrame) {
+	public void setMainFrame(final MainFrame mainFrame) {
 		this.mainFrame = mainFrame;
 	}
 }

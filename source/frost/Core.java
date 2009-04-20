@@ -432,11 +432,8 @@ public class Core {
 
         getFileTransferManager().initialize();
         UnsentMessagesManager.initialize();
-        try {
-            FreetalkManager.initialize();
-        } catch(final Exception ex) {
-            logger.log(Level.WARNING, "Freetalk plugin could not be initialized", ex);
-        }
+
+        FreetalkManager.initialize();
 
         splashscreen.setText(language.getString("Splashscreen.message.4"));
         splashscreen.setProgress(70);

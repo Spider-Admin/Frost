@@ -23,6 +23,7 @@ import java.awt.event.*;
 import java.util.logging.*;
 
 import javax.swing.*;
+import javax.swing.event.*;
 
 import frost.*;
 import frost.fcp.fcp07.*;
@@ -45,6 +46,7 @@ public class FreetalkMessageTab {
 
     private final MainFrame mainFrame;
     private final Language language;
+    private FreetalkManager ftManager = null;
 
     private final Listener listener = new Listener();
 
@@ -59,10 +61,20 @@ public class FreetalkMessageTab {
     public void initialize() {
         if (tabPanel == null) {
 
+            ftManager = FreetalkManager.getInstance();
+
+            final JScrollPane tofTreeScrollPane = new JScrollPane(ftManager.getBoardTree());
+            tofTreeScrollPane.setWheelScrollingEnabled(true);
+
+            ftManager.getBoardTree().addTreeSelectionListener(new TreeSelectionListener() {
+                public void valueChanged(final TreeSelectionEvent e) {
+                    boardTree_actionPerformed();
+                }
+            });
+
             // Vertical Board Tree / MessagePane Divider
             final JPanel panel = new JPanel(new BorderLayout());
-//            treeAndTabbedPaneSplitpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tofTreeScrollPane, panel);
-            treeAndTabbedPaneSplitpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JPanel(), panel);
+            treeAndTabbedPaneSplitpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tofTreeScrollPane, panel);
 //            panel.add(getMessagePanel(), BorderLayout.CENTER);
 
             int dividerLoc = Core.frostSettings.getIntValue("FreetalkTab.treeAndTabbedPaneSplitpaneDividerLocation");
@@ -77,6 +89,10 @@ public class FreetalkMessageTab {
 
             tabPanel = p;
         }
+    }
+
+    public void boardTree_actionPerformed() {
+
     }
 
     public void saveLayout() {
@@ -142,6 +158,7 @@ public class FreetalkMessageTab {
 
             final FreetalkBoard board = new FreetalkBoard(name, messageCount, firstSeenDate, latestMessageDate);
             // FIXME: add to board list
+            ftManager.getBoardTree().addNewBoard(board);
         }
     }
 
