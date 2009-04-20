@@ -45,7 +45,6 @@ public class FreetalkManager {
     }
 
     public static FreetalkManager getInstance() {
-        System.out.println("getInstance="+instance);
         return instance;
     }
 
@@ -54,7 +53,6 @@ public class FreetalkManager {
             instance = new FreetalkManager();
             instance.getBoardTree().initialize();
         }
-        System.out.println("initialize="+instance);
     }
 
     /**

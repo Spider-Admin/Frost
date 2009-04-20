@@ -24,6 +24,7 @@ import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
+import javax.swing.tree.*;
 
 import frost.*;
 import frost.fcp.fcp07.*;
@@ -31,29 +32,33 @@ import frost.fcp.fcp07.freetalk.*;
 import frost.fcp.fcp07.freetalk.FcpFreetalkConnection.*;
 import frost.messaging.freetalk.*;
 import frost.messaging.freetalk.boards.*;
+import frost.messaging.frost.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
-public class FreetalkMessageTab {
+public class FreetalkMessageTab implements LanguageListener {
 
     private static final Logger logger = Logger.getLogger(FreetalkMessageTab.class.getName());
 
     private JSplitPane treeAndTabbedPaneSplitpane = null;
     private JPanel tabPanel = null;
 
+    private FreetalkMessagePanel messagePanel = null;
+
     private JToolBar buttonToolBar;
-    private final JButton updateBoardButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/view-refresh.png"));
+    private JButton updateBoardButton = null;
+    private JButton newFolderButton = null;
+    private JButton renameFolderButton = null;
+    private JButton removeBoardButton = null;
 
     private final MainFrame mainFrame;
     private final Language language;
     private FreetalkManager ftManager = null;
 
-    private final Listener listener = new Listener();
-
     public FreetalkMessageTab(final MainFrame localMainFrame) {
 
         language = Language.getInstance();
-        language.addLanguageListener(listener);
+        language.addLanguageListener(this);
 
         mainFrame = localMainFrame;
     }
@@ -75,7 +80,13 @@ public class FreetalkMessageTab {
             // Vertical Board Tree / MessagePane Divider
             final JPanel panel = new JPanel(new BorderLayout());
             treeAndTabbedPaneSplitpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tofTreeScrollPane, panel);
-//            panel.add(getMessagePanel(), BorderLayout.CENTER);
+
+            messagePanel = new FreetalkMessagePanel(Core.frostSettings, mainFrame, this);
+            messagePanel.setParentFrame(mainFrame);
+            messagePanel.setIdentities(Core.getIdentities());
+            messagePanel.initialize();
+
+            panel.add(getMessagePanel(), BorderLayout.CENTER);
 
             int dividerLoc = Core.frostSettings.getIntValue("FreetalkTab.treeAndTabbedPaneSplitpaneDividerLocation");
             if( dividerLoc < 10 ) {
@@ -93,6 +104,70 @@ public class FreetalkMessageTab {
 
     public void boardTree_actionPerformed() {
 
+//        final int i[] = ftManager.getBoardTree().getSelectionRows();
+//        if (i != null && i.length > 0) {
+//            Core.frostSettings.setValue(SettingsClass.BOARDLIST_LAST_SELECTED_BOARD, i[0]);
+//        }
+
+        final AbstractFreetalkNode node = (AbstractFreetalkNode) ftManager.getBoardTree().getLastSelectedPathComponent();
+        if (node == null) {
+            return;
+        }
+
+        if (node.isBoard()) {
+            // node is a board
+            removeBoardButton.setEnabled(true);
+            renameFolderButton.setEnabled(false);
+
+            // save the selected message for later re-select if we changed between threaded/flat view
+//            FrostMessageObject previousMessage = null;
+//            if( reload ) {
+//                final int[] rows = getMessagePanel().getMessageTable().getSelectedRows();
+//                if( rows != null && rows.length > 0 ) {
+//                    previousMessage = (FrostMessageObject) getMessagePanel().getMessageTableModel().getRow(rows[0]);
+//                }
+//            }
+
+            // remove previous msgs
+            getMessagePanel().getMessageTable().setNewRootNode(new FrostMessageObject(true));
+            getMessagePanel().updateMessageCountLabels(node);
+
+            // FIXME: load msgs for selected board, build threads
+
+            // read all messages for this board into message table (starts a thread)
+//            TOF.getInstance().updateTofTable((Board)node, previousMessage);
+
+            getMessagePanel().getMessageTable().clearSelection();
+        } else if (node.isFolder()) {
+            // node is a folder
+            getMessagePanel().getMessageTable().setNewRootNode(new FrostMessageObject(true));
+            getMessagePanel().updateMessageCountLabels(node);
+
+            renameFolderButton.setEnabled(true);
+            if (node.isRoot()) {
+                removeBoardButton.setEnabled(false);
+            } else {
+                removeBoardButton.setEnabled(true);
+            }
+//            configBoardButton.setEnabled(false);
+        }
+    }
+
+    /**
+     * Fires a nodeChanged (redraw) for this board and updates buttons.
+     */
+    public void updateTreeNode(final AbstractFreetalkNode board) {
+        if( board == null ) {
+            return;
+        }
+        // fire update for node
+        ftManager.getTreeModel().nodeChanged(board);
+        // also update all parents
+        TreeNode parentFolder = board.getParent();
+        while (parentFolder != null) {
+            ftManager.getTreeModel().nodeChanged(parentFolder);
+            parentFolder = parentFolder.getParent();
+        }
     }
 
     public void saveLayout() {
@@ -100,11 +175,23 @@ public class FreetalkMessageTab {
                 treeAndTabbedPaneSplitpane.getDividerLocation());
     }
 
+    public FreetalkMessagePanel getMessagePanel() {
+        return messagePanel;
+    }
+
     public JToolBar getButtonToolBar() {
         if (buttonToolBar == null) {
             buttonToolBar = new JToolBar();
 
+            updateBoardButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/view-refresh.png"));
+            newFolderButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/folder-new.png"));
+            renameFolderButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/edit-select-all.png"));
+            removeBoardButton = new JButton(MiscToolkit.loadImageIcon("/data/toolbar/user-trash.png"));
+
             MiscToolkit.configureButton(updateBoardButton, "MessagePane.toolbar.tooltip.update", language);
+            MiscToolkit.configureButton(newFolderButton, "MainFrame.toolbar.tooltip.newFolder", language);
+            MiscToolkit.configureButton(renameFolderButton, "MainFrame.toolbar.tooltip.renameFolder", language);
+            MiscToolkit.configureButton(removeBoardButton, "MainFrame.toolbar.tooltip.removeBoard", language);
 
             buttonToolBar.setRollover(true);
             buttonToolBar.setFloatable(false);
@@ -113,14 +200,60 @@ public class FreetalkMessageTab {
             buttonToolBar.add(Box.createRigidArea(blankSpace));
             buttonToolBar.add(updateBoardButton);
             buttonToolBar.add(Box.createRigidArea(blankSpace));
+            buttonToolBar.addSeparator();
+            buttonToolBar.add(Box.createRigidArea(blankSpace));
+            buttonToolBar.add(newFolderButton);
+            buttonToolBar.add(Box.createRigidArea(blankSpace));
+            buttonToolBar.add(renameFolderButton);
+            buttonToolBar.add(Box.createRigidArea(blankSpace));
+            buttonToolBar.add(removeBoardButton);
+            buttonToolBar.add(Box.createRigidArea(blankSpace));
 
-            updateBoardButton.addActionListener(listener);
+            updateBoardButton.addActionListener(new ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
+                    sendFreetalkCommandListBoards();
+                }
+            });
+            newFolderButton.addActionListener(new ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
+                    ftManager.getBoardTree().createNewFolder(mainFrame);
+                }
+            });
+            renameFolderButton.addActionListener(new ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
+                    renameFolder((FreetalkFolder)ftManager.getTreeModel().getSelectedNode());
+                }
+            });
+            removeBoardButton.addActionListener(new ActionListener() {
+                public void actionPerformed(final ActionEvent e) {
+                    ftManager.getBoardTree().removeNode(ftManager.getTreeModel().getSelectedNode());
+                }
+            });
 
             if (!Core.isFreetalkTalkable()) {
                 updateBoardButton.setEnabled(false);
             }
         }
         return buttonToolBar;
+    }
+
+    public void renameFolder(final FreetalkFolder selected) {
+        if (selected == null) {
+            return;
+        }
+        String newname = null;
+        do {
+            newname = JOptionPane.showInputDialog(
+                    mainFrame,
+                    language.getString("MainFrame.dialog.renameFolder")+":\n",
+                    selected.getName());
+            if (newname == null) {
+                return; // cancel
+            }
+        } while (newname.length() == 0);
+
+        selected.setName(newname);
+        updateTreeNode(selected);
     }
 
     public JPanel getTabPanel() {
@@ -178,28 +311,11 @@ public class FreetalkMessageTab {
         }
     }
 
-    private class Listener
-    implements
-        ActionListener,
-        LanguageListener
-    {
-
-        public Listener() {
-            super();
-        }
-
-        public void actionPerformed(final ActionEvent e) {
-            if (e.getSource() == updateBoardButton) {
-                updateButton_actionPerformed(e);
-            }
-        }
-
-        public void languageChanged(final LanguageEvent event) {
-            // TODO Auto-generated method stub
-        }
-
-        protected void updateButton_actionPerformed(final ActionEvent e) {
-            sendFreetalkCommandListBoards();
-        }
+    public void languageChanged(final LanguageEvent event) {
+        // tool bar
+//        newBoardButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.newBoard"));
+        newFolderButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.newFolder"));
+        removeBoardButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.removeBoard"));
+        renameFolderButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.renameFolder"));
     }
 }
